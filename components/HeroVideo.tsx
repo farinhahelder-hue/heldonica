@@ -7,16 +7,8 @@ export default function HeroVideo() {
   const [videoUrl, setVideoUrl] = useState<string>('')
 
   useEffect(() => {
-    // Uploader la vidéo Heldonica
-    const uploadVideo = async () => {
-      try {
-        // Pour l'instant, on utilise un placeholder
-        setVideoUrl('/heldonica-hero.mp4')
-      } catch (error) {
-        console.error('Erreur upload vidéo:', error)
-      }
-    }
-    uploadVideo()
+    // Pour l'instant, on utilise un placeholder
+    setVideoUrl('/heldonica-hero.mp4')
   }, [])
 
   return (
@@ -37,19 +29,19 @@ export default function HeroVideo() {
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60"></div>
 
       {/* Contenu */}
-      <div className="relative z-10 container text-center text-white">
-        <h1 className="text-6xl md:text-7xl font-serif font-bold mb-6 drop-shadow-lg">
-          L'Expert de l'Aventure
+      <div className="relative z-10 container text-center text-white max-w-4xl">
+        <h1 className="text-5xl md:text-7xl font-serif font-bold mb-6 drop-shadow-lg leading-tight">
+          Explorateurs émerveillés, dénicheurs de pépites.
         </h1>
-        <p className="text-xl md:text-2xl mb-8 drop-shadow-md max-w-2xl mx-auto">
-          Slow travel en couple écoresponsable & Consulting hôtelier indépendant
+        <p className="text-lg md:text-xl mb-8 drop-shadow-md max-w-3xl mx-auto leading-relaxed">
+          Nous sommes convaincus que l'aventure ne se trouve pas seulement au bout du monde. Elle se cache dans un marché de quartier, une ruelle oubliée, ou un café perdu en Provence.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="/travel-planning" className="px-8 py-3 bg-eucalyptus text-white rounded-lg hover:bg-teal transition font-semibold">
-            Travel Planning
+          <Link href="#community" className="px-8 py-3 bg-eucalyptus text-white rounded-lg hover:bg-teal transition font-semibold">
+            Rejoindre la communauté
           </Link>
-          <Link href="/hotel-consulting" className="px-8 py-3 border-2 border-white text-white rounded-lg hover:bg-white/10 transition font-semibold">
-            Consulting Hôtelier
+          <Link href="/travel-planning" className="px-8 py-3 border-2 border-white text-white rounded-lg hover:bg-white/10 transition font-semibold">
+            Planifier mon voyage
           </Link>
         </div>
       </div>

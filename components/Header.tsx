@@ -21,9 +21,9 @@ export default function Header() {
           <Link href="/travel-planning" className="text-charcoal hover:text-eucalyptus transition">Travel Planning</Link>
           <Link href="/hotel-consulting" className="text-charcoal hover:text-eucalyptus transition">Consulting</Link>
           <Link href="/blog" className="text-charcoal hover:text-eucalyptus transition">Blog</Link>
-          <button className="px-6 py-2 bg-eucalyptus text-white rounded-lg hover:bg-teal transition">
+          <Link href="/contact" className="px-6 py-2 bg-eucalyptus text-white rounded-lg hover:bg-teal transition">
             Contact
-          </button>
+          </Link>
         </nav>
 
         <button 
@@ -43,6 +43,7 @@ export default function Header() {
             <Link href="/travel-planning" className="block text-charcoal hover:text-eucalyptus transition">Travel Planning</Link>
             <Link href="/hotel-consulting" className="block text-charcoal hover:text-eucalyptus transition">Consulting</Link>
             <Link href="/blog" className="block text-charcoal hover:text-eucalyptus transition">Blog</Link>
+            <Link href="/contact" className="block text-charcoal hover:text-eucalyptus transition">Contact</Link>
           </div>
         </nav>
       )}
