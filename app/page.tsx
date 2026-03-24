@@ -1,5 +1,5 @@
 import Header from '@/components/Header'
-import Hero from '@/components/Hero'
+import HeroVideo from '@/components/HeroVideo'
 import Services from '@/components/Services'
 import Destinations from '@/components/Destinations'
 import Blog from '@/components/Blog'
@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <>
       <Header />
-      <Hero />
+      <HeroVideo />
       <Services />
       <Destinations />
       <Blog />
