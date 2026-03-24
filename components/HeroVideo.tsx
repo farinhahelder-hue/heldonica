@@ -7,8 +7,8 @@ export default function HeroVideo() {
   const [videoUrl, setVideoUrl] = useState<string>('')
 
   useEffect(() => {
-    // Pour l'instant, on utilise un placeholder
-    setVideoUrl('/heldonica-hero.mp4')
+    // URL CDN de la vidéo Heldonica
+    setVideoUrl('https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_8e64687b.mp4')
   }, [])
 
   return (
@@ -22,7 +22,6 @@ export default function HeroVideo() {
         className="absolute inset-0 w-full h-full object-cover"
       >
         <source src={videoUrl} type="video/mp4" />
-        <source src="/heldonica-hero.mp4" type="video/mp4" />
       </video>
 
       {/* Overlay gradient */}
