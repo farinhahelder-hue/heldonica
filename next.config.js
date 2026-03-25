@@ -12,7 +12,6 @@ const nextConfig = {
       },
     ],
   },
-  swcMinify: true,
   compress: true,
 }
 

@@ -2,7 +2,12 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
 
-export default function Destination({ params }: { params: { slug: string } }) {
+type Props = {
+  params: Promise<{ slug: string }>
+}
+
+export default async function Destination({ params }: Props) {
+  const { slug } = await params
   const destinations: Record<string, any> = {
     'suisse': {
       name: 'Suisse',
@@ -30,7 +35,7 @@ export default function Destination({ params }: { params: { slug: string } }) {
     },
   }
 
-  const destination = destinations[params.slug] || destinations['suisse']
+  const destination = destinations[slug] || destinations['suisse']
 
   return (
     <>
@@ -83,13 +88,13 @@ export default function Destination({ params }: { params: { slug: string } }) {
           <div className="container">
             <h2 className="text-4xl font-serif font-bold text-mahogany mb-12 text-center">Autres destinations</h2>
             <div className="grid md:grid-cols-3 gap-8">
-              {['suisse', 'roumanie', 'ile-de-france', 'madere'].filter(s => s !== params.slug).map((slug) => (
-                <Link key={slug} href={`/destinations/${slug}`} className="group">
+              {['suisse', 'roumanie', 'ile-de-france', 'madere'].filter(s => s !== slug).map((destSlug) => (
+                <Link key={destSlug} href={`/destinations/${destSlug}`} className="group">
                   <div className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition">
                     <h3 className="text-xl font-serif font-bold text-mahogany mb-2">
-                      {destinations[slug].name}
+                      {destinations[destSlug].name}
                     </h3>
-                    <p className="text-gray-700 text-sm mb-4">{destinations[slug].title}</p>
+                    <p className="text-gray-700 text-sm mb-4">{destinations[destSlug].title}</p>
                     <span className="text-eucalyptus font-semibold group-hover:text-teal transition">Découvrir →</span>
                   </div>
                 </Link>
