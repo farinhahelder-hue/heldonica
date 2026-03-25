@@ -4,7 +4,7 @@ import Pillars from '@/components/Pillars'
 import Services from '@/components/Services'
 import Destinations from '@/components/Destinations'
 import Blog from '@/components/Blog'
-import Newsletter from '@/components/Newsletter'
+import NewsletterBrevo from '@/components/NewsletterBrevo'
 import Footer from '@/components/Footer'
 
 export default function Home() {
@@ -16,7 +16,7 @@ export default function Home() {
       <Services />
       <Destinations />
       <Blog />
-      <Newsletter />
+      <NewsletterBrevo />
       <Footer />
     </>
   )
