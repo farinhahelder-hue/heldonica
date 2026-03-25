@@ -19,11 +19,12 @@ function verifyToken(request: NextRequest) {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     await connectDB();
-    const destination = await Destination.findById(params.id);
+    const destination = await Destination.findById(id);
 
     if (!destination) {
       return NextResponse.json(
@@ -43,8 +44,9 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const user = verifyToken(request);
     if (!user) {
@@ -58,7 +60,7 @@ export async function PUT(
     const body = await request.json();
 
     const destination = await Destination.findByIdAndUpdate(
-      params.id,
+      id,
       body,
       { new: true, runValidators: true }
     );
@@ -81,8 +83,9 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const user = verifyToken(request);
     if (!user) {
@@ -93,7 +96,7 @@ export async function DELETE(
     }
 
     await connectDB();
-    const destination = await Destination.findByIdAndDelete(params.id);
+    const destination = await Destination.findByIdAndDelete(id);
 
     if (!destination) {
       return NextResponse.json(

@@ -32,7 +32,7 @@ const AdminSchema = new mongoose.Schema(
 );
 
 // Hash password before saving
-AdminSchema.pre('save', async function (next) {
+AdminSchema.pre('save', async function (next: any) {
   if (!this.isModified('password')) {
     return next();
   }
@@ -47,7 +47,7 @@ AdminSchema.pre('save', async function (next) {
 });
 
 // Method to compare passwords
-AdminSchema.methods.comparePassword = async function (enteredPassword: string) {
+AdminSchema.methods.comparePassword = async function (this: any, enteredPassword: string) {
   return await bcryptjs.compare(enteredPassword, this.password);
 };
 

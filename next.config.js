@@ -13,6 +13,16 @@ const nextConfig = {
     ],
   },
   compress: true,
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+  onDemandEntries: {
+    maxInactiveAge: 60 * 1000,
+    pagesBufferLength: 5,
+  },
+  experimental: {
+    optimizePackageImports: ['lodash'],
+  },
 }
 
 module.exports = nextConfig
