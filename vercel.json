@@ -2,7 +2,22 @@
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "installCommand": "npm install",
-  "env": {
-    "NEXT_PUBLIC_APP_URL": "@app_url"
-  }
+  "rewrites": [
+    {
+      "source": "/home.html",
+      "destination": "/home.html"
+    },
+    {
+      "source": "/admin.html",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/cms.html",
+      "destination": "/cms.html"
+    },
+    {
+      "source": "/cms-complete.html",
+      "destination": "/cms-complete.html"
+    }
+  ]
 }
