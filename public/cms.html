@@ -313,6 +313,7 @@
             <button class="tab-btn active" onclick="switchTab('pages')">📄 Pages</button>
             <button class="tab-btn" onclick="switchTab('blog')">📝 Blog</button>
             <button class="tab-btn" onclick="switchTab('planner')">✈️ Travel Planner</button>
+            <button class="tab-btn" onclick="switchTab('destinations')">🗺️ Destinations</button>
             <button class="tab-btn" onclick="switchTab('media')">🖼️ Médias</button>
             <button class="tab-btn" onclick="switchTab('settings')">⚙️ Paramètres</button>
         </div>
@@ -443,6 +444,58 @@
             </div>
         </div>
 
+        <!-- Destinations Tab -->
+        <div id="destinations" class="tab-content">
+            <h2>🗺️ Gestion des Destinations</h2>
+            <div id="destinationsMessage"></div>
+            
+            <div class="two-col">
+                <div>
+                    <h3>Destinations</h3>
+                    <div id="destinationsList"></div>
+                    <button class="btn btn-secondary" onclick="addNewDestination()" style="width: 100%; margin-top: 10px;">+ Nouvelle Destination</button>
+                </div>
+                <div>
+                    <h3>Éditer Destination</h3>
+                    <form id="destinationForm" onsubmit="saveDestination(event)">
+                        <div class="form-group">
+                            <label>Nom</label>
+                            <input type="text" id="destName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Pays/Région</label>
+                            <input type="text" id="destCountry" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="destDescription"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Meilleure saison</label>
+                            <input type="text" id="destSeason" placeholder="Avril à Octobre">
+                        </div>
+                        <div class="form-group">
+                            <label>Durée recommandée (jours)</label>
+                            <input type="number" id="destDuration" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Budget estimé (€/jour)</label>
+                            <input type="number" id="destBudget" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Points forts (un par ligne)</label>
+                            <textarea id="destHighlights" placeholder="Attraction 1&#10;Attraction 2&#10;Attraction 3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Image (URL)</label>
+                            <input type="text" id="destImage">
+                        </div>
+                        <button type="submit" class="btn btn-primary">💾 Sauvegarder Destination</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <!-- Media Tab -->
         <div id="media" class="tab-content">
             <h2>🖼️ Gestion des Médias</h2>
@@ -506,12 +559,14 @@
             pages: [],
             blog: [],
             planner: [],
+            destinations: [],
             media: []
         };
 
         let currentPageId = null;
         let currentBlogId = null;
         let currentPlannerId = null;
+        let currentDestinationId = null;
 
         // Load data from localStorage
         function loadData() {
@@ -853,11 +908,90 @@
             input.click();
         }
 
+        // ===== DESTINATIONS FUNCTIONS =====
+        function renderDestinationsList() {
+            const list = document.getElementById('destinationsList');
+            list.innerHTML = cmsData.destinations.map(dest => `
+                <div class="list-item ${currentDestinationId === dest.id ? 'active' : ''}" onclick="selectDestination('${dest.id}')">
+                    <div>
+                        <strong>${dest.name}</strong>
+                        <br><small style="color: #666;">${dest.country}</small>
+                    </div>
+                    <button class="btn btn-danger btn-small" onclick="deleteDestination('${dest.id}'); event.stopPropagation();">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function selectDestination(id) {
+            currentDestinationId = id;
+            const dest = cmsData.destinations.find(d => d.id === id);
+            if (dest) {
+                document.getElementById('destName').value = dest.name;
+                document.getElementById('destCountry').value = dest.country;
+                document.getElementById('destDescription').value = dest.description;
+                document.getElementById('destSeason').value = dest.season;
+                document.getElementById('destDuration').value = dest.duration;
+                document.getElementById('destBudget').value = dest.budget;
+                document.getElementById('destHighlights').value = (dest.highlights || []).join('\n');
+                document.getElementById('destImage').value = dest.image || '';
+            }
+            renderDestinationsList();
+        }
+
+        function addNewDestination() {
+            const newDest = {
+                id: 'dest-' + Date.now(),
+                name: 'Nouvelle destination',
+                country: '',
+                description: '',
+                season: '',
+                duration: 7,
+                budget: 0,
+                highlights: [],
+                image: ''
+            };
+            cmsData.destinations.push(newDest);
+            selectDestination(newDest.id);
+            saveData();
+        }
+
+        function saveDestination(e) {
+            e.preventDefault();
+            if (!currentDestinationId) {
+                showMessage('error', 'Sélectionnez une destination');
+                return;
+            }
+            const dest = cmsData.destinations.find(d => d.id === currentDestinationId);
+            if (dest) {
+                dest.name = document.getElementById('destName').value;
+                dest.country = document.getElementById('destCountry').value;
+                dest.description = document.getElementById('destDescription').value;
+                dest.season = document.getElementById('destSeason').value;
+                dest.duration = parseInt(document.getElementById('destDuration').value);
+                dest.budget = parseInt(document.getElementById('destBudget').value);
+                dest.highlights = document.getElementById('destHighlights').value.split('\n').filter(h => h.trim());
+                dest.image = document.getElementById('destImage').value;
+                saveData();
+                renderDestinationsList();
+            }
+        }
+
+        function deleteDestination(id) {
+            if (confirm('Êtes-vous sûr ?')) {
+                cmsData.destinations = cmsData.destinations.filter(d => d.id !== id);
+                currentDestinationId = null;
+                document.getElementById('destinationForm').reset();
+                saveData();
+                renderDestinationsList();
+            }
+        }
+
         // Render all
         function renderAll() {
             renderPagesList();
             renderBlogList();
             renderPlannerList();
+            renderDestinationsList();
             renderMediaGrid();
         }
 
