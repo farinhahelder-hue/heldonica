@@ -45,6 +45,7 @@
             gap: 10px;
             margin-bottom: 20px;
             border-bottom: 2px solid #ddd;
+            overflow-x: auto;
         }
 
         .tab-btn {
@@ -56,6 +57,7 @@
             font-weight: 500;
             border-bottom: 3px solid transparent;
             transition: all 0.3s;
+            white-space: nowrap;
         }
 
         .tab-btn:hover {
@@ -92,6 +94,7 @@
 
         input[type="text"],
         input[type="email"],
+        input[type="number"],
         input[type="color"],
         input[type="file"],
         textarea,
@@ -191,10 +194,17 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .list-item:hover {
+            background: #f9f9f9;
         }
 
         .list-item.active {
             background: #f0f0f0;
+            border-left-color: #2D5016;
         }
 
         .media-grid {
@@ -264,47 +274,6 @@
             margin-bottom: 20px;
         }
 
-        .section-list {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-        }
-
-        .section-item {
-            background: white;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 6px;
-            border-left: 3px solid #2D5016;
-        }
-
-        .section-item .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .section-item .section-header h4 {
-            margin: 0;
-            color: #333;
-        }
-
-        .array-input {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .array-input input {
-            flex: 1;
-        }
-
-        .array-input .btn-small {
-            flex-shrink: 0;
-        }
-
         .color-picker-group {
             display: flex;
             gap: 15px;
@@ -319,18 +288,31 @@
         .color-picker-group input[type="text"] {
             flex: 1;
         }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="navbar">
         <h1>🎨 CMS Heldonica</h1>
-        <p>Gérez votre contenu, vos pages et vos expériences</p>
+        <p>Gérez votre blog, vos itinéraires et votre contenu</p>
     </div>
 
     <div class="container">
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('pages')">📄 Pages</button>
-            <button class="tab-btn" onclick="switchTab('experiences')">💼 Expériences</button>
+            <button class="tab-btn" onclick="switchTab('blog')">📝 Blog</button>
+            <button class="tab-btn" onclick="switchTab('planner')">✈️ Travel Planner</button>
             <button class="tab-btn" onclick="switchTab('media')">🖼️ Médias</button>
             <button class="tab-btn" onclick="switchTab('settings')">⚙️ Paramètres</button>
         </div>
@@ -340,7 +322,7 @@
             <h2>📄 Gestion des Pages</h2>
             <div id="pagesMessage"></div>
             
-            <div class="grid">
+            <div class="two-col">
                 <div>
                     <h3>Pages Existantes</h3>
                     <div id="pagesList"></div>
@@ -367,45 +349,95 @@
             </div>
         </div>
 
-        <!-- Experiences Tab -->
-        <div id="experiences" class="tab-content">
-            <h2>💼 Gestion des Expériences (MARA)</h2>
-            <div id="experiencesMessage"></div>
+        <!-- Blog Tab -->
+        <div id="blog" class="tab-content">
+            <h2>📝 Gestion du Blog</h2>
+            <div id="blogMessage"></div>
             
-            <div class="grid">
+            <div class="two-col">
                 <div>
-                    <h3>Expériences</h3>
-                    <div id="experiencesList"></div>
-                    <button class="btn btn-secondary" onclick="addNewExperience()" style="width: 100%; margin-top: 10px;">+ Nouvelle Expérience</button>
+                    <h3>Articles</h3>
+                    <div id="blogList"></div>
+                    <button class="btn btn-secondary" onclick="addNewBlogPost()" style="width: 100%; margin-top: 10px;">+ Nouvel Article</button>
                 </div>
                 <div>
-                    <h3>Éditer Expérience (MARA)</h3>
-                    <form id="experienceForm" onsubmit="saveExperience(event)">
+                    <h3>Éditer Article</h3>
+                    <form id="blogForm" onsubmit="saveBlogPost(event)">
                         <div class="form-group">
                             <label>Titre</label>
-                            <input type="text" id="expTitle" required>
+                            <input type="text" id="blogTitle" required>
                         </div>
                         <div class="form-group">
-                            <label>Période</label>
-                            <input type="text" id="expPeriod" placeholder="2023 - 2024">
+                            <label>Catégorie</label>
+                            <select id="blogCategory">
+                                <option value="Travel">Travel</option>
+                                <option value="Culture">Culture</option>
+                                <option value="Food">Food</option>
+                                <option value="Tips">Tips</option>
+                                <option value="News">News</option>
+                            </select>
                         </div>
                         <div class="form-group">
-                            <label>🎯 Mission</label>
-                            <textarea id="expMission"></textarea>
+                            <label>Tags (séparés par des virgules)</label>
+                            <input type="text" id="blogTags" placeholder="voyage, destination, tips">
                         </div>
                         <div class="form-group">
-                            <label>✅ Actions (une par ligne)</label>
-                            <textarea id="expActions" placeholder="Action 1&#10;Action 2&#10;Action 3"></textarea>
+                            <label>Contenu</label>
+                            <textarea id="blogContent" required></textarea>
                         </div>
                         <div class="form-group">
-                            <label>📊 Résultats (un par ligne)</label>
-                            <textarea id="expResults" placeholder="Résultat 1&#10;Résultat 2&#10;Résultat 3"></textarea>
+                            <label>Image (URL)</label>
+                            <input type="text" id="blogImage">
+                        </div>
+                        <button type="submit" class="btn btn-primary">💾 Sauvegarder Article</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Travel Planner Tab -->
+        <div id="planner" class="tab-content">
+            <h2>✈️ Travel Planner - Itinéraires</h2>
+            <div id="plannerMessage"></div>
+            
+            <div class="two-col">
+                <div>
+                    <h3>Itinéraires</h3>
+                    <div id="plannerList"></div>
+                    <button class="btn btn-secondary" onclick="addNewItinerary()" style="width: 100%; margin-top: 10px;">+ Nouvel Itinéraire</button>
+                </div>
+                <div>
+                    <h3>Éditer Itinéraire</h3>
+                    <form id="plannerForm" onsubmit="saveItinerary(event)">
+                        <div class="form-group">
+                            <label>Titre</label>
+                            <input type="text" id="planTitle" required>
                         </div>
                         <div class="form-group">
-                            <label>💡 Apports (un par ligne)</label>
-                            <textarea id="expContributions" placeholder="Apport 1&#10;Apport 2&#10;Apport 3"></textarea>
+                            <label>Destination</label>
+                            <input type="text" id="planDestination" required>
                         </div>
-                        <button type="submit" class="btn btn-primary">💾 Sauvegarder Expérience</button>
+                        <div class="form-group">
+                            <label>Durée (jours)</label>
+                            <input type="number" id="planDuration" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Budget (€)</label>
+                            <input type="number" id="planBudget" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Difficulté</label>
+                            <select id="planDifficulty">
+                                <option value="Easy">Facile</option>
+                                <option value="Moderate">Modéré</option>
+                                <option value="Challenging">Difficile</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="planDescription"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">💾 Sauvegarder Itinéraire</button>
                     </form>
                 </div>
             </div>
@@ -457,6 +489,8 @@
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary">💾 Sauvegarder Paramètres</button>
+                <button type="button" class="btn btn-secondary" onclick="exportData()" style="margin-left: 10px;">📥 Exporter Données</button>
+                <button type="button" class="btn btn-secondary" onclick="importData()" style="margin-left: 10px;">📤 Importer Données</button>
             </form>
         </div>
     </div>
@@ -470,12 +504,14 @@
                 secondaryColor: '#2D5016'
             },
             pages: [],
-            experiences: [],
+            blog: [],
+            planner: [],
             media: []
         };
 
         let currentPageId = null;
-        let currentExpId = null;
+        let currentBlogId = null;
+        let currentPlannerId = null;
 
         // Load data from localStorage
         function loadData() {
@@ -500,7 +536,7 @@
             event.target.classList.add('active');
         }
 
-        // Pages functions
+        // ===== PAGES FUNCTIONS =====
         function renderPagesList() {
             const list = document.getElementById('pagesList');
             list.innerHTML = cmsData.pages.map(page => `
@@ -560,76 +596,149 @@
             }
         }
 
-        // Experiences functions
-        function renderExperiencesList() {
-            const list = document.getElementById('experiencesList');
-            list.innerHTML = cmsData.experiences.map(exp => `
-                <div class="list-item ${currentExpId === exp.id ? 'active' : ''}" onclick="selectExperience('${exp.id}')">
-                    <span>${exp.title}</span>
-                    <button class="btn btn-danger btn-small" onclick="deleteExperience('${exp.id}'); event.stopPropagation();">✕</button>
+        // ===== BLOG FUNCTIONS =====
+        function renderBlogList() {
+            const list = document.getElementById('blogList');
+            list.innerHTML = cmsData.blog.map(post => `
+                <div class="list-item ${currentBlogId === post.id ? 'active' : ''}" onclick="selectBlogPost('${post.id}')">
+                    <div>
+                        <strong>${post.title}</strong>
+                        <br><small style="color: #666;">${post.category}</small>
+                    </div>
+                    <button class="btn btn-danger btn-small" onclick="deleteBlogPost('${post.id}'); event.stopPropagation();">✕</button>
                 </div>
             `).join('');
         }
 
-        function selectExperience(id) {
-            currentExpId = id;
-            const exp = cmsData.experiences.find(e => e.id === id);
-            if (exp) {
-                document.getElementById('expTitle').value = exp.title;
-                document.getElementById('expPeriod').value = exp.period || '';
-                document.getElementById('expMission').value = exp.mission || '';
-                document.getElementById('expActions').value = (exp.actions || []).join('\n');
-                document.getElementById('expResults').value = (exp.results || []).join('\n');
-                document.getElementById('expContributions').value = (exp.contributions || []).join('\n');
+        function selectBlogPost(id) {
+            currentBlogId = id;
+            const post = cmsData.blog.find(p => p.id === id);
+            if (post) {
+                document.getElementById('blogTitle').value = post.title;
+                document.getElementById('blogCategory').value = post.category;
+                document.getElementById('blogTags').value = (post.tags || []).join(', ');
+                document.getElementById('blogContent').value = post.content;
+                document.getElementById('blogImage').value = post.image || '';
             }
-            renderExperiencesList();
+            renderBlogList();
         }
 
-        function addNewExperience() {
-            const newExp = {
-                id: 'exp-' + Date.now(),
-                title: 'Nouvelle expérience',
-                period: '',
-                mission: '',
-                actions: [],
-                results: [],
-                contributions: []
+        function addNewBlogPost() {
+            const newPost = {
+                id: 'blog-' + Date.now(),
+                title: 'Nouvel article',
+                category: 'Travel',
+                tags: [],
+                content: '',
+                image: '',
+                createdAt: new Date().toISOString()
             };
-            cmsData.experiences.push(newExp);
-            selectExperience(newExp.id);
+            cmsData.blog.push(newPost);
+            selectBlogPost(newPost.id);
             saveData();
         }
 
-        function saveExperience(e) {
+        function saveBlogPost(e) {
             e.preventDefault();
-            if (!currentExpId) {
-                showMessage('error', 'Sélectionnez une expérience');
+            if (!currentBlogId) {
+                showMessage('error', 'Sélectionnez un article');
                 return;
             }
-            const exp = cmsData.experiences.find(e => e.id === currentExpId);
-            if (exp) {
-                exp.title = document.getElementById('expTitle').value;
-                exp.period = document.getElementById('expPeriod').value;
-                exp.mission = document.getElementById('expMission').value;
-                exp.actions = document.getElementById('expActions').value.split('\n').filter(a => a.trim());
-                exp.results = document.getElementById('expResults').value.split('\n').filter(r => r.trim());
-                exp.contributions = document.getElementById('expContributions').value.split('\n').filter(c => c.trim());
+            const post = cmsData.blog.find(p => p.id === currentBlogId);
+            if (post) {
+                post.title = document.getElementById('blogTitle').value;
+                post.category = document.getElementById('blogCategory').value;
+                post.tags = document.getElementById('blogTags').value.split(',').map(t => t.trim()).filter(t => t);
+                post.content = document.getElementById('blogContent').value;
+                post.image = document.getElementById('blogImage').value;
                 saveData();
-                renderExperiencesList();
+                renderBlogList();
             }
         }
 
-        function deleteExperience(id) {
+        function deleteBlogPost(id) {
             if (confirm('Êtes-vous sûr ?')) {
-                cmsData.experiences = cmsData.experiences.filter(e => e.id !== id);
-                currentExpId = null;
-                document.getElementById('experienceForm').reset();
+                cmsData.blog = cmsData.blog.filter(p => p.id !== id);
+                currentBlogId = null;
+                document.getElementById('blogForm').reset();
                 saveData();
-                renderExperiencesList();
+                renderBlogList();
             }
         }
 
-        // Media functions
+        // ===== TRAVEL PLANNER FUNCTIONS =====
+        function renderPlannerList() {
+            const list = document.getElementById('plannerList');
+            list.innerHTML = cmsData.planner.map(plan => `
+                <div class="list-item ${currentPlannerId === plan.id ? 'active' : ''}" onclick="selectItinerary('${plan.id}')">
+                    <div>
+                        <strong>${plan.title}</strong>
+                        <br><small style="color: #666;">${plan.destination} • ${plan.duration} jours</small>
+                    </div>
+                    <button class="btn btn-danger btn-small" onclick="deleteItinerary('${plan.id}'); event.stopPropagation();">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function selectItinerary(id) {
+            currentPlannerId = id;
+            const plan = cmsData.planner.find(p => p.id === id);
+            if (plan) {
+                document.getElementById('planTitle').value = plan.title;
+                document.getElementById('planDestination').value = plan.destination;
+                document.getElementById('planDuration').value = plan.duration;
+                document.getElementById('planBudget').value = plan.budget;
+                document.getElementById('planDifficulty').value = plan.difficulty;
+                document.getElementById('planDescription').value = plan.description;
+            }
+            renderPlannerList();
+        }
+
+        function addNewItinerary() {
+            const newPlan = {
+                id: 'plan-' + Date.now(),
+                title: 'Nouvel itinéraire',
+                destination: '',
+                duration: 7,
+                budget: 0,
+                difficulty: 'Moderate',
+                description: ''
+            };
+            cmsData.planner.push(newPlan);
+            selectItinerary(newPlan.id);
+            saveData();
+        }
+
+        function saveItinerary(e) {
+            e.preventDefault();
+            if (!currentPlannerId) {
+                showMessage('error', 'Sélectionnez un itinéraire');
+                return;
+            }
+            const plan = cmsData.planner.find(p => p.id === currentPlannerId);
+            if (plan) {
+                plan.title = document.getElementById('planTitle').value;
+                plan.destination = document.getElementById('planDestination').value;
+                plan.duration = parseInt(document.getElementById('planDuration').value);
+                plan.budget = parseInt(document.getElementById('planBudget').value);
+                plan.difficulty = document.getElementById('planDifficulty').value;
+                plan.description = document.getElementById('planDescription').value;
+                saveData();
+                renderPlannerList();
+            }
+        }
+
+        function deleteItinerary(id) {
+            if (confirm('Êtes-vous sûr ?')) {
+                cmsData.planner = cmsData.planner.filter(p => p.id !== id);
+                currentPlannerId = null;
+                document.getElementById('plannerForm').reset();
+                saveData();
+                renderPlannerList();
+            }
+        }
+
+        // ===== MEDIA FUNCTIONS =====
         function handleFileUpload(e) {
             const files = e.target.files;
             for (let file of files) {
@@ -665,7 +774,7 @@
             renderMediaGrid();
         }
 
-        // Settings functions
+        // ===== SETTINGS FUNCTIONS =====
         function loadSettings() {
             document.getElementById('siteTitle').value = cmsData.site.title;
             document.getElementById('siteDescription').value = cmsData.site.description;
@@ -685,7 +794,7 @@
         }
 
         // Color picker sync
-        document.addEventListener('DOMContentLoaded', () => {
+        function syncColorPickers() {
             const primaryColor = document.getElementById('primaryColor');
             const primaryText = document.getElementById('primaryColorText');
             const secondaryColor = document.getElementById('secondaryColor');
@@ -708,28 +817,9 @@
                     secondaryColor.value = e.target.value;
                 });
             }
-
-            loadData();
-            loadSettings();
-        });
-
-        // Render all
-        function renderAll() {
-            renderPagesList();
-            renderExperiencesList();
-            renderMediaGrid();
         }
 
-        // Messages
-        function showMessage(type, msg) {
-            const msgEl = document.getElementById(type === 'success' ? 'pagesMessage' : 'pagesMessage');
-            if (msgEl) {
-                msgEl.innerHTML = `<div class="${type}-msg">${msg}</div>`;
-                setTimeout(() => msgEl.innerHTML = '', 3000);
-            }
-        }
-
-        // Export data
+        // Export/Import
         function exportData() {
             const dataStr = JSON.stringify(cmsData, null, 2);
             const dataBlob = new Blob([dataStr], { type: 'application/json' });
@@ -740,7 +830,6 @@
             link.click();
         }
 
-        // Import data
         function importData() {
             const input = document.createElement('input');
             input.type = 'file';
@@ -763,6 +852,30 @@
             };
             input.click();
         }
+
+        // Render all
+        function renderAll() {
+            renderPagesList();
+            renderBlogList();
+            renderPlannerList();
+            renderMediaGrid();
+        }
+
+        // Messages
+        function showMessage(type, msg) {
+            const msgEl = document.getElementById(type === 'success' ? 'pagesMessage' : 'pagesMessage');
+            if (msgEl) {
+                msgEl.innerHTML = `<div class="${type}-msg">${msg}</div>`;
+                setTimeout(() => msgEl.innerHTML = '', 3000);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            loadSettings();
+            syncColorPickers();
+        });
     </script>
 </body>
 </html>
