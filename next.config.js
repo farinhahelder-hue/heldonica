@@ -27,7 +27,7 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['lodash'],
   },
-  staticPageGenerationTimeout: 1000,
+  staticPageGenerationTimeout: 300,
 }
 
 module.exports = nextConfig
