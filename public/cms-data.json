@@ -1,0 +1,62 @@
+{
+  "site": {
+    "title": "Heldonica - Guide de Style Interactif",
+    "description": "Slow travel en couple & Consulting hôtelier",
+    "logo": "/logo.png",
+    "primaryColor": "#8B4513",
+    "secondaryColor": "#2D5016"
+  },
+  "pages": [
+    {
+      "id": "home",
+      "title": "Accueil",
+      "slug": "/",
+      "sections": [
+        {
+          "id": "hero",
+          "type": "hero",
+          "title": "Bienvenue chez Heldonica",
+          "subtitle": "L'expert de l'aventure",
+          "image": "/images/hero-home.jpg",
+          "cta": "Découvrir"
+        }
+      ]
+    },
+    {
+      "id": "about",
+      "title": "À Propos",
+      "slug": "/about",
+      "sections": [
+        {
+          "id": "intro",
+          "type": "text",
+          "title": "Qui suis-je ?",
+          "content": "Hélder Farinha - Expert en slow travel et consulting hôtelier"
+        }
+      ]
+    }
+  ],
+  "experiences": [
+    {
+      "id": "hotels",
+      "title": "Hôtels Divers - Front Desk Manager",
+      "period": "2007 - 2022",
+      "mission": "Assurer la gestion opérationnelle de la réception et la satisfaction client dans plusieurs établissements hôteliers parisiens",
+      "actions": [
+        "Gestion des réservations B2B/B2C",
+        "Yield management",
+        "Management d'équipes"
+      ],
+      "results": [
+        "Taux d'occupation moyen de 85%",
+        "Note moyenne 4,75/5",
+        "Top 17 TripAdvisor Paris"
+      ],
+      "contributions": [
+        "Fondation de l'empathie et du sens du service",
+        "Capacité à gérer des interlocuteurs exigeants"
+      ]
+    }
+  ],
+  "media": []
+}
