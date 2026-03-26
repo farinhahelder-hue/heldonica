@@ -1,109 +1,197 @@
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
-import Link from 'next/link'
+import {
+  getDestinationBySlug,
+  getAllDestinationSlugs,
+  blogPosts,
+} from "@/lib/wordpress-data";
+import { notFound } from "next/navigation";
+import Link from "next/link";
 
-type Props = {
-  params: Promise<{ slug: string }>
+interface Props {
+  params: { slug: string };
 }
 
-export default async function Destination({ params }: Props) {
-  const { slug } = await params
-  const destinations: Record<string, any> = {
-    'suisse': {
-      name: 'Suisse',
-      title: 'Slow travel alpin authentique',
-      description: 'Découvrez les Alpes suisses à votre rythme, loin des sentiers touristiques battus.',
-      highlights: ['Randonnées alpines', 'Villages pittoresques', 'Gastronomie locale', 'Lacs cristallins'],
-    },
-    'roumanie': {
-      name: 'Roumanie',
-      title: 'Nature sauvage Delta du Danube',
-      description: 'Explorez la nature brute de la Roumanie et les mystères du Delta du Danube.',
-      highlights: ['Delta du Danube', 'Carpates', 'Villages traditionnels', 'Biodiversité unique'],
-    },
-    'ile-de-france': {
-      name: 'Île-de-France',
-      title: 'Paris alternatif & Petite Ceinture',
-      description: 'Redécouvrez la région parisienne loin des clichés touristiques.',
-      highlights: ['Petite Ceinture', 'Paris bohème', 'Châteaux', 'Forêts'],
-    },
-    'madere': {
-      name: 'Madère',
-      title: 'Randonnées volcaniques en couple',
-      description: 'Aventure volcanique et nature luxuriante sur l\'île de Madère.',
-      highlights: ['Levadas', 'Côtes volcaniques', 'Flore tropicale', 'Panoramas époustouflants'],
-    },
-  }
+// Destinations principales avec images Unsplash de secours
+const DEST_META: Record<string, { description: string; heroImage: string; region: string }> = {
+  "suisse-heldonica": {
+    description: "Randonnées alpines, lacs cristallins et villes cosmopolites. La Suisse en slow travel.",
+    heroImage: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600",
+    region: "Europe",
+  },
+  suisse: {
+    description: "Randonnées alpines, lacs cristallins et villes cosmopolites. La Suisse en slow travel.",
+    heroImage: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600",
+    region: "Europe",
+  },
+  "roumanie-heldonica-slow": {
+    description: "Timișoara, le Delta du Danube et les Carpates. La Roumanie authentique loin des sentiers battus.",
+    heroImage: "https://images.unsplash.com/photo-1555990793-da11153b6c8d?w=1600",
+    region: "Europe",
+  },
+  roumanie: {
+    description: "Timișoara, le Delta du Danube et les Carpates. La Roumanie authentique loin des sentiers battus.",
+    heroImage: "https://images.unsplash.com/photo-1555990793-da11153b6c8d?w=1600",
+    region: "Europe",
+  },
+  "madere-heldonica": {
+    description: "L'île de l'éternel printemps. Levadas, falaises spectaculaires et gastronomie portugaise.",
+    heroImage: "https://images.unsplash.com/photo-1568454537842-d933259bb258?w=1600",
+    region: "Portugal",
+  },
+  "ile-de-france-heldonica": {
+    description: "Paris et ses environs en slow travel : Canal de l'Ourcq, Petite Ceinture, Fontainebleau.",
+    heroImage: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1600",
+    region: "France",
+  },
+  "normandie-heldonica": {
+    description: "Étretat, Honfleur, Deauville... La Normandie côtière en slow travel.",
+    heroImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600",
+    region: "France",
+  },
+  "bretagne-heldonica-slow": {
+    description: "Randonnées côtières, crêperies et Saint-Malo. La Bretagne authentique.",
+    heroImage: "https://images.unsplash.com/photo-1564507592333-c60657eea523?w=1600",
+    region: "France",
+  },
+};
 
-  const destination = destinations[slug] || destinations['suisse']
+export async function generateStaticParams() {
+  return getAllDestinationSlugs().map((slug) => ({ slug }));
+}
+
+export async function generateMetadata({ params }: Props) {
+  const page = getDestinationBySlug(params.slug);
+  const meta = DEST_META[params.slug];
+  const title = page?.title || params.slug;
+  return {
+    title: `${title} | Destinations Heldonica`,
+    description: meta?.description || `Découvrez ${title} en slow travel avec Heldonica.`,
+  };
+}
+
+export default function DestinationPage({ params }: Props) {
+  const page = getDestinationBySlug(params.slug);
+  if (!page) notFound();
+
+  const meta = DEST_META[params.slug];
+  const heroImage = page.image || meta?.heroImage || "";
+  const description = meta?.description || "";
+
+  // Articles liés à cette destination
+  const titleWords = page.title.toLowerCase().split(/\s+/).filter((w) => w.length > 4);
+  const related = blogPosts
+    .filter((p) => {
+      const text = (p.title + " " + p.categories.join(" ") + " " + p.tags.join(" ")).toLowerCase();
+      return titleWords.some((w) => text.includes(w));
+    })
+    .slice(0, 6);
 
   return (
-    <>
-      <Header />
-      <main>
-        <section className="bg-gradient-to-br from-eucalyptus/10 to-teal/10 py-20 md:py-32">
-          <div className="container">
-            <Link href="/" className="text-eucalyptus hover:text-teal transition mb-4 inline-block">← Retour</Link>
-            <h1 className="text-5xl md:text-6xl font-serif font-bold text-mahogany mb-4">{destination.name}</h1>
-            <p className="text-2xl text-charcoal">{destination.title}</p>
+    <main className="min-h-screen bg-white">
+      {/* Hero */}
+      <div className="relative h-[55vh] md:h-[70vh] w-full overflow-hidden bg-stone-800">
+        {heroImage && (
+          <img
+            src={heroImage}
+            alt={page.title}
+            className="w-full h-full object-cover opacity-75"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12">
+          <div className="max-w-5xl mx-auto">
+            <Link
+              href="/destinations"
+              className="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-sm mb-4 transition-colors"
+            >
+              ← Destinations
+            </Link>
+            {meta?.region && (
+              <span className="block text-amber-300 text-xs font-semibold tracking-widest uppercase mb-2">
+                {meta.region}
+              </span>
+            )}
+            <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight">
+              {page.title}
+            </h1>
+            {description && (
+              <p className="text-lg text-white/75 mt-3 max-w-2xl leading-relaxed">
+                {description}
+              </p>
+            )}
           </div>
+        </div>
+      </div>
+
+      {/* Contenu */}
+      {page.content && (
+        <section className="max-w-4xl mx-auto px-4 py-14">
+          <div
+            className="prose prose-lg max-w-none
+              prose-headings:font-bold prose-headings:text-gray-900
+              prose-p:text-gray-700 prose-p:leading-relaxed
+              prose-a:text-amber-600 prose-a:no-underline hover:prose-a:underline
+              prose-img:rounded-xl prose-img:shadow-lg prose-img:mx-auto
+              prose-ul:text-gray-700 prose-ol:text-gray-700"
+            dangerouslySetInnerHTML={{ __html: page.content }}
+          />
         </section>
+      )}
 
-        <section className="bg-white section-spacing">
-          <div className="container">
-            <div className="grid md:grid-cols-3 gap-12">
-              <div className="md:col-span-2">
-                <div className="bg-gradient-to-br from-eucalyptus/10 to-teal/10 rounded-lg h-96 flex items-center justify-center mb-8">
-                  <div className="text-center">
-                    <p className="text-gray-500 text-sm">Image {destination.name}</p>
-                  </div>
-                </div>
-                <h2 className="text-3xl font-serif font-bold text-mahogany mb-4">À propos</h2>
-                <p className="text-lg text-charcoal leading-relaxed mb-8">
-                  {destination.description}
-                </p>
-              </div>
-
-              <div>
-                <div className="bg-cloud-dancer p-8 rounded-lg border border-gray-200 sticky top-24">
-                  <h3 className="text-2xl font-serif font-bold text-mahogany mb-6">Incontournables</h3>
-                  <ul className="space-y-3 mb-8">
-                    {destination.highlights.map((highlight: string, i: number) => (
-                      <li key={i} className="flex items-center gap-2 text-charcoal">
-                        <span className="text-eucalyptus">✓</span>
-                        {highlight}
-                      </li>
-                    ))}
-                  </ul>
-                  <button className="w-full px-6 py-3 bg-eucalyptus text-white rounded-lg hover:bg-teal transition">
-                    Planifier mon voyage
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="bg-cloud-dancer section-spacing">
-          <div className="container">
-            <h2 className="text-4xl font-serif font-bold text-mahogany mb-12 text-center">Autres destinations</h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              {['suisse', 'roumanie', 'ile-de-france', 'madere'].filter(s => s !== slug).map((destSlug) => (
-                <Link key={destSlug} href={`/destinations/${destSlug}`} className="group">
-                  <div className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition">
-                    <h3 className="text-xl font-serif font-bold text-mahogany mb-2">
-                      {destinations[destSlug].name}
-                    </h3>
-                    <p className="text-gray-700 text-sm mb-4">{destinations[destSlug].title}</p>
-                    <span className="text-eucalyptus font-semibold group-hover:text-teal transition">Découvrir →</span>
+      {/* Articles liés */}
+      {related.length > 0 && (
+        <section className="bg-amber-50 py-16">
+          <div className="max-w-6xl mx-auto px-4">
+            <h2 className="text-2xl font-bold text-gray-900 mb-8">
+              Nos articles sur {page.title}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {related.map((post) => (
+                <Link key={post.slug} href={`/blog/${post.slug}`} className="group">
+                  <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                    {post.image ? (
+                      <img
+                        src={post.image}
+                        alt={post.title}
+                        className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-full h-44 bg-amber-50 flex items-center justify-center text-4xl opacity-30">
+                        ✈️
+                      </div>
+                    )}
+                    <div className="p-4">
+                      <span className="text-xs text-amber-600 font-semibold">{post.category}</span>
+                      <h3 className="font-semibold text-gray-900 mt-1 line-clamp-2 group-hover:text-amber-600 transition-colors">
+                        {post.title}
+                      </h3>
+                      <p className="text-xs text-gray-400 mt-2">{post.date} · {post.readTime} min</p>
+                    </div>
                   </div>
                 </Link>
               ))}
             </div>
           </div>
         </section>
-      </main>
-      <Footer />
-    </>
-  )
+      )}
+
+      {/* CTA */}
+      <section className="py-16 px-4 text-center">
+        <div className="max-w-2xl mx-auto">
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">
+            Planifiez votre voyage slow travel
+          </h2>
+          <p className="text-gray-500 mb-6">
+            Heldonica vous accompagne pour créer une expérience de voyage unique, durable et mémorable.
+          </p>
+          <Link
+            href="/travel-planning"
+            className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 py-3 rounded-full transition-colors"
+          >
+            Planifier mon voyage →
+          </Link>
+        </div>
+      </section>
+    </main>
+  );
 }
