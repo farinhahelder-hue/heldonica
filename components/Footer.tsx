@@ -1,48 +1,41 @@
-import Link from 'next/link'
+'use client';
+
+import Link from 'next/link';
 
 export default function Footer() {
   return (
-    <footer className="bg-charcoal text-white py-12">
-      <div className="container">
-        <div className="grid md:grid-cols-4 gap-8 mb-8">
+    <footer className="bg-gray-900 text-gray-300 py-12">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           <div>
-            <h3 className="font-serif font-bold text-lg mb-4">Heldonica</h3>
-            <p className="text-white/70 text-sm">L'expert de l'aventure en couple</p>
+            <h3 className="text-white font-serif text-xl mb-4">Heldonica</h3>
+            <p className="text-sm">Expert en slow travel et consulting hôtelier</p>
           </div>
           <div>
-            <h4 className="font-semibold mb-4">Travel</h4>
-            <ul className="space-y-2 text-sm text-white/70">
-              <li><Link href="/travel-planning" className="hover:text-white transition">Travel Planning</Link></li>
-              <li><Link href="/destinations/suisse" className="hover:text-white transition">Destinations</Link></li>
+            <h4 className="text-white font-semibold mb-4">Navigation</h4>
+            <ul className="space-y-2 text-sm">
               <li><Link href="/blog" className="hover:text-white transition">Blog</Link></li>
+              <li><Link href="/destinations" className="hover:text-white transition">Destinations</Link></li>
+              <li><Link href="/travel-planning-form" className="hover:text-white transition">Travel Planning</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold mb-4">Consulting</h4>
-            <ul className="space-y-2 text-sm text-white/70">
-              <li><Link href="/hotel-consulting" className="hover:text-white transition">Nos Services</Link></li>
-              <li><a href="#" className="hover:text-white transition">Cas d'études</a></li>
-              <li><a href="#" className="hover:text-white transition">Tarifs</a></li>
+            <h4 className="text-white font-semibold mb-4">Services</h4>
+            <ul className="space-y-2 text-sm">
+              <li><Link href="/travel-planning" className="hover:text-white transition">Slow Travel</Link></li>
+              <li><Link href="/hotel-consulting" className="hover:text-white transition">Consulting</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold mb-4">Contact</h4>
-            <ul className="space-y-2 text-sm text-white/70">
-              <li><a href="mailto:hello@heldonica.fr" className="hover:text-white transition">hello@heldonica.fr</a></li>
-              <li><a href="#" className="hover:text-white transition">LinkedIn</a></li>
-              <li><a href="#" className="hover:text-white transition">Instagram</a></li>
-            </ul>
+            <h4 className="text-white font-semibold mb-4">Contact</h4>
+            <p className="text-sm mb-2">hello@heldonica.fr</p>
+            <p className="text-sm">+33 (0)6 XX XX XX XX</p>
           </div>
         </div>
-
-        <div className="border-t border-white/20 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-white/70">
-          <p>&copy; 2026 Heldonica. Tous droits réservés.</p>
-          <div className="flex gap-6 mt-4 md:mt-0">
-            <a href="#" className="hover:text-white transition">Mentions légales</a>
-            <a href="#" className="hover:text-white transition">Politique de confidentialité</a>
-          </div>
+        <div className="border-t border-gray-700 pt-8 text-center text-sm">
+          <p>&copy; 2024 Heldonica. Tous droits réservés.</p>
         </div>
       </div>
     </footer>
-  )
+  );
 }

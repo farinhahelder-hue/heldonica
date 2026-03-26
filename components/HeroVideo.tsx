@@ -1,56 +1,37 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import Link from 'next/link';
 
 export default function HeroVideo() {
-  const [videoUrl, setVideoUrl] = useState<string>('')
-
-  useEffect(() => {
-    // URL CDN de la vidéo Heldonica
-    setVideoUrl('https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_8e64687b.mp4')
-  }, [])
-
   return (
-    <section className="relative w-full h-screen flex items-center justify-center overflow-hidden">
-      {/* Vidéo Hero */}
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover"
-      >
-        <source src={videoUrl} type="video/mp4" />
-      </video>
-
-      {/* Overlay gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60"></div>
-
-      {/* Contenu */}
-      <div className="relative z-10 container text-center text-white max-w-4xl">
-        <h1 className="text-5xl md:text-7xl font-serif font-bold mb-6 drop-shadow-lg leading-tight">
-          Explorateurs émerveillés, dénicheurs de pépites.
-        </h1>
-        <p className="text-lg md:text-xl mb-8 drop-shadow-md max-w-3xl mx-auto leading-relaxed">
-          Nous sommes convaincus que l'aventure ne se trouve pas seulement au bout du monde. Elle se cache dans un marché de quartier, une ruelle oubliée, ou un café perdu en Provence.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="#community" className="px-8 py-3 bg-eucalyptus text-white rounded-lg hover:bg-teal transition font-semibold">
-            Rejoindre la communauté
-          </Link>
-          <Link href="/travel-planning" className="px-8 py-3 border-2 border-white text-white rounded-lg hover:bg-white/10 transition font-semibold">
-            Planifier mon voyage
-          </Link>
-        </div>
+    <section className="pt-32 pb-24 relative overflow-hidden min-h-screen flex items-center">
+      <div className="absolute inset-0 -z-10">
+        <video
+          autoPlay
+          muted
+          loop
+          className="w-full h-full object-cover"
+          style={{ opacity: 0.6 }}
+        >
+          <source src="https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/20"></div>
       </div>
 
-      {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10 animate-bounce">
-        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-        </svg>
+      <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+        <h1 className="text-6xl md:text-7xl font-serif font-bold text-white mb-6 leading-tight">
+          Découvrez le slow travel
+        </h1>
+        <p className="text-xl md:text-2xl text-gray-100 mb-8 font-light max-w-2xl mx-auto">
+          Des voyages authentiques, conçus pour vous
+        </p>
+        <Link
+          href="/travel-planning-form"
+          className="inline-block px-8 py-4 bg-white text-amber-900 font-semibold rounded-lg hover:bg-gray-100 transition text-lg"
+        >
+          Planifier mon voyage
+        </Link>
       </div>
     </section>
-  )
+  );
 }
