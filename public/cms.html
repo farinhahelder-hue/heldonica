@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 CMS Heldonica - Gestion de Contenu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .navbar {
+            background: #8B4513;
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .navbar p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            color: #8B4513;
+        }
+
+        .tab-btn.active {
+            color: #8B4513;
+            border-bottom-color: #8B4513;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="color"],
+        input[type="file"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        input[type="color"] {
+            width: 60px;
+            height: 40px;
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #8B4513;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #6B3410;
+        }
+
+        .btn-secondary {
+            background: #2D5016;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #1D3010;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+
+        .card h3 {
+            margin-bottom: 15px;
+            color: #8B4513;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .list-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border-left: 4px solid #8B4513;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .list-item.active {
+            background: #f0f0f0;
+        }
+
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .media-item {
+            position: relative;
+            background: #f0f0f0;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .media-item img,
+        .media-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .media-item .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .upload-area {
+            border: 2px dashed #8B4513;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            background: #f9f9f9;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            background: #f0f0f0;
+            border-color: #6B3410;
+        }
+
+        .success-msg {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .error-msg {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .section-list {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .section-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border-left: 3px solid #2D5016;
+        }
+
+        .section-item .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .section-item .section-header h4 {
+            margin: 0;
+            color: #333;
+        }
+
+        .array-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .array-input input {
+            flex: 1;
+        }
+
+        .array-input .btn-small {
+            flex-shrink: 0;
+        }
+
+        .color-picker-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .color-picker-group input[type="color"] {
+            width: 100px;
+            height: 50px;
+        }
+
+        .color-picker-group input[type="text"] {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>🎨 CMS Heldonica</h1>
+        <p>Gérez votre contenu, vos pages et vos expériences</p>
+    </div>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('pages')">📄 Pages</button>
+            <button class="tab-btn" onclick="switchTab('experiences')">💼 Expériences</button>
+            <button class="tab-btn" onclick="switchTab('media')">🖼️ Médias</button>
+            <button class="tab-btn" onclick="switchTab('settings')">⚙️ Paramètres</button>
+        </div>
+
+        <!-- Pages Tab -->
+        <div id="pages" class="tab-content active">
+            <h2>📄 Gestion des Pages</h2>
+            <div id="pagesMessage"></div>
+            
+            <div class="grid">
+                <div>
+                    <h3>Pages Existantes</h3>
+                    <div id="pagesList"></div>
+                    <button class="btn btn-secondary" onclick="addNewPage()" style="width: 100%; margin-top: 10px;">+ Nouvelle Page</button>
+                </div>
+                <div>
+                    <h3>Éditer Page</h3>
+                    <form id="pageForm" onsubmit="savePage(event)">
+                        <div class="form-group">
+                            <label>Titre</label>
+                            <input type="text" id="pageTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label>URL (slug)</label>
+                            <input type="text" id="pageSlug" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="pageDescription"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">💾 Sauvegarder Page</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Experiences Tab -->
+        <div id="experiences" class="tab-content">
+            <h2>💼 Gestion des Expériences (MARA)</h2>
+            <div id="experiencesMessage"></div>
+            
+            <div class="grid">
+                <div>
+                    <h3>Expériences</h3>
+                    <div id="experiencesList"></div>
+                    <button class="btn btn-secondary" onclick="addNewExperience()" style="width: 100%; margin-top: 10px;">+ Nouvelle Expérience</button>
+                </div>
+                <div>
+                    <h3>Éditer Expérience (MARA)</h3>
+                    <form id="experienceForm" onsubmit="saveExperience(event)">
+                        <div class="form-group">
+                            <label>Titre</label>
+                            <input type="text" id="expTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Période</label>
+                            <input type="text" id="expPeriod" placeholder="2023 - 2024">
+                        </div>
+                        <div class="form-group">
+                            <label>🎯 Mission</label>
+                            <textarea id="expMission"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>✅ Actions (une par ligne)</label>
+                            <textarea id="expActions" placeholder="Action 1&#10;Action 2&#10;Action 3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>📊 Résultats (un par ligne)</label>
+                            <textarea id="expResults" placeholder="Résultat 1&#10;Résultat 2&#10;Résultat 3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>💡 Apports (un par ligne)</label>
+                            <textarea id="expContributions" placeholder="Apport 1&#10;Apport 2&#10;Apport 3"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">💾 Sauvegarder Expérience</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Media Tab -->
+        <div id="media" class="tab-content">
+            <h2>🖼️ Gestion des Médias</h2>
+            <div id="mediaMessage"></div>
+            
+            <div class="form-group">
+                <label>Télécharger des médias</label>
+                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                    <p>📤 Cliquez ou glissez-déposez vos images/vidéos ici</p>
+                </div>
+                <input type="file" id="fileInput" multiple accept="image/*,video/*" style="display: none;" onchange="handleFileUpload(event)">
+            </div>
+
+            <h3>Médias Téléchargés</h3>
+            <div id="mediaGrid" class="media-grid"></div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings" class="tab-content">
+            <h2>⚙️ Paramètres du Site</h2>
+            <div id="settingsMessage"></div>
+            
+            <form id="settingsForm" onsubmit="saveSettings(event)">
+                <div class="form-group">
+                    <label>Titre du Site</label>
+                    <input type="text" id="siteTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="siteDescription"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Couleur Primaire</label>
+                    <div class="color-picker-group">
+                        <input type="color" id="primaryColor">
+                        <input type="text" id="primaryColorText" placeholder="#8B4513">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Couleur Secondaire</label>
+                    <div class="color-picker-group">
+                        <input type="color" id="secondaryColor">
+                        <input type="text" id="secondaryColorText" placeholder="#2D5016">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">💾 Sauvegarder Paramètres</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let cmsData = {
+            site: {
+                title: 'Heldonica',
+                description: 'Expert en slow travel et consulting hôtelier',
+                primaryColor: '#8B4513',
+                secondaryColor: '#2D5016'
+            },
+            pages: [],
+            experiences: [],
+            media: []
+        };
+
+        let currentPageId = null;
+        let currentExpId = null;
+
+        // Load data from localStorage
+        function loadData() {
+            const saved = localStorage.getItem('cmsData');
+            if (saved) {
+                cmsData = JSON.parse(saved);
+            }
+            renderAll();
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('cmsData', JSON.stringify(cmsData));
+            showMessage('success', 'Données sauvegardées avec succès !');
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Pages functions
+        function renderPagesList() {
+            const list = document.getElementById('pagesList');
+            list.innerHTML = cmsData.pages.map(page => `
+                <div class="list-item ${currentPageId === page.id ? 'active' : ''}" onclick="selectPage('${page.id}')">
+                    <span>${page.title}</span>
+                    <button class="btn btn-danger btn-small" onclick="deletePage('${page.id}'); event.stopPropagation();">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function selectPage(id) {
+            currentPageId = id;
+            const page = cmsData.pages.find(p => p.id === id);
+            if (page) {
+                document.getElementById('pageTitle').value = page.title;
+                document.getElementById('pageSlug').value = page.slug;
+                document.getElementById('pageDescription').value = page.description || '';
+            }
+            renderPagesList();
+        }
+
+        function addNewPage() {
+            const newPage = {
+                id: 'page-' + Date.now(),
+                title: 'Nouvelle page',
+                slug: '/new-page',
+                description: ''
+            };
+            cmsData.pages.push(newPage);
+            selectPage(newPage.id);
+            saveData();
+        }
+
+        function savePage(e) {
+            e.preventDefault();
+            if (!currentPageId) {
+                showMessage('error', 'Sélectionnez une page');
+                return;
+            }
+            const page = cmsData.pages.find(p => p.id === currentPageId);
+            if (page) {
+                page.title = document.getElementById('pageTitle').value;
+                page.slug = document.getElementById('pageSlug').value;
+                page.description = document.getElementById('pageDescription').value;
+                saveData();
+                renderPagesList();
+            }
+        }
+
+        function deletePage(id) {
+            if (confirm('Êtes-vous sûr ?')) {
+                cmsData.pages = cmsData.pages.filter(p => p.id !== id);
+                currentPageId = null;
+                document.getElementById('pageForm').reset();
+                saveData();
+                renderPagesList();
+            }
+        }
+
+        // Experiences functions
+        function renderExperiencesList() {
+            const list = document.getElementById('experiencesList');
+            list.innerHTML = cmsData.experiences.map(exp => `
+                <div class="list-item ${currentExpId === exp.id ? 'active' : ''}" onclick="selectExperience('${exp.id}')">
+                    <span>${exp.title}</span>
+                    <button class="btn btn-danger btn-small" onclick="deleteExperience('${exp.id}'); event.stopPropagation();">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function selectExperience(id) {
+            currentExpId = id;
+            const exp = cmsData.experiences.find(e => e.id === id);
+            if (exp) {
+                document.getElementById('expTitle').value = exp.title;
+                document.getElementById('expPeriod').value = exp.period || '';
+                document.getElementById('expMission').value = exp.mission || '';
+                document.getElementById('expActions').value = (exp.actions || []).join('\n');
+                document.getElementById('expResults').value = (exp.results || []).join('\n');
+                document.getElementById('expContributions').value = (exp.contributions || []).join('\n');
+            }
+            renderExperiencesList();
+        }
+
+        function addNewExperience() {
+            const newExp = {
+                id: 'exp-' + Date.now(),
+                title: 'Nouvelle expérience',
+                period: '',
+                mission: '',
+                actions: [],
+                results: [],
+                contributions: []
+            };
+            cmsData.experiences.push(newExp);
+            selectExperience(newExp.id);
+            saveData();
+        }
+
+        function saveExperience(e) {
+            e.preventDefault();
+            if (!currentExpId) {
+                showMessage('error', 'Sélectionnez une expérience');
+                return;
+            }
+            const exp = cmsData.experiences.find(e => e.id === currentExpId);
+            if (exp) {
+                exp.title = document.getElementById('expTitle').value;
+                exp.period = document.getElementById('expPeriod').value;
+                exp.mission = document.getElementById('expMission').value;
+                exp.actions = document.getElementById('expActions').value.split('\n').filter(a => a.trim());
+                exp.results = document.getElementById('expResults').value.split('\n').filter(r => r.trim());
+                exp.contributions = document.getElementById('expContributions').value.split('\n').filter(c => c.trim());
+                saveData();
+                renderExperiencesList();
+            }
+        }
+
+        function deleteExperience(id) {
+            if (confirm('Êtes-vous sûr ?')) {
+                cmsData.experiences = cmsData.experiences.filter(e => e.id !== id);
+                currentExpId = null;
+                document.getElementById('experienceForm').reset();
+                saveData();
+                renderExperiencesList();
+            }
+        }
+
+        // Media functions
+        function handleFileUpload(e) {
+            const files = e.target.files;
+            for (let file of files) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    cmsData.media.push({
+                        id: 'media-' + Date.now(),
+                        name: file.name,
+                        type: file.type.startsWith('image') ? 'image' : 'video',
+                        data: event.target.result,
+                        size: file.size
+                    });
+                    saveData();
+                    renderMediaGrid();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function renderMediaGrid() {
+            const grid = document.getElementById('mediaGrid');
+            grid.innerHTML = cmsData.media.map(item => `
+                <div class="media-item">
+                    ${item.type === 'image' ? `<img src="${item.data}" alt="${item.name}">` : `<video src="${item.data}"></video>`}
+                    <button class="delete-btn" onclick="deleteMedia('${item.id}')">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function deleteMedia(id) {
+            cmsData.media = cmsData.media.filter(m => m.id !== id);
+            saveData();
+            renderMediaGrid();
+        }
+
+        // Settings functions
+        function loadSettings() {
+            document.getElementById('siteTitle').value = cmsData.site.title;
+            document.getElementById('siteDescription').value = cmsData.site.description;
+            document.getElementById('primaryColor').value = cmsData.site.primaryColor;
+            document.getElementById('primaryColorText').value = cmsData.site.primaryColor;
+            document.getElementById('secondaryColor').value = cmsData.site.secondaryColor;
+            document.getElementById('secondaryColorText').value = cmsData.site.secondaryColor;
+        }
+
+        function saveSettings(e) {
+            e.preventDefault();
+            cmsData.site.title = document.getElementById('siteTitle').value;
+            cmsData.site.description = document.getElementById('siteDescription').value;
+            cmsData.site.primaryColor = document.getElementById('primaryColor').value;
+            cmsData.site.secondaryColor = document.getElementById('secondaryColor').value;
+            saveData();
+        }
+
+        // Color picker sync
+        document.addEventListener('DOMContentLoaded', () => {
+            const primaryColor = document.getElementById('primaryColor');
+            const primaryText = document.getElementById('primaryColorText');
+            const secondaryColor = document.getElementById('secondaryColor');
+            const secondaryText = document.getElementById('secondaryColorText');
+
+            if (primaryColor) {
+                primaryColor.addEventListener('change', (e) => {
+                    primaryText.value = e.target.value;
+                });
+                primaryText.addEventListener('change', (e) => {
+                    primaryColor.value = e.target.value;
+                });
+            }
+
+            if (secondaryColor) {
+                secondaryColor.addEventListener('change', (e) => {
+                    secondaryText.value = e.target.value;
+                });
+                secondaryText.addEventListener('change', (e) => {
+                    secondaryColor.value = e.target.value;
+                });
+            }
+
+            loadData();
+            loadSettings();
+        });
+
+        // Render all
+        function renderAll() {
+            renderPagesList();
+            renderExperiencesList();
+            renderMediaGrid();
+        }
+
+        // Messages
+        function showMessage(type, msg) {
+            const msgEl = document.getElementById(type === 'success' ? 'pagesMessage' : 'pagesMessage');
+            if (msgEl) {
+                msgEl.innerHTML = `<div class="${type}-msg">${msg}</div>`;
+                setTimeout(() => msgEl.innerHTML = '', 3000);
+            }
+        }
+
+        // Export data
+        function exportData() {
+            const dataStr = JSON.stringify(cmsData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'cms-data.json';
+            link.click();
+        }
+
+        // Import data
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        cmsData = JSON.parse(event.target.result);
+                        saveData();
+                        renderAll();
+                        loadSettings();
+                        alert('Données importées avec succès !');
+                    } catch (err) {
+                        alert('Erreur lors de l\'import');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+    </script>
+</body>
+</html>
