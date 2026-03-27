@@ -80,7 +80,8 @@ export default function Home() {
                 title: "Madère Slow Travel",
                 description: "Entre falaises vertigineuses et jardins suspendus, un voyage au rythme des sentiers côtiers.",
                 icon: "🌊",
-                duration: "7-10 jours"
+                duration: "7-10 jours",
+                link: "/destinations"
               },
               {
                 title: "Paris Insolite",
@@ -113,12 +114,12 @@ export default function Home() {
                 duration: "3-4 jours"
               }
             ].map((itinerary, i) => (
-              <div key={i} className="bg-white rounded-lg p-6 shadow hover:shadow-lg transition">
+              <a key={i} href={itinerary.link || "#"} className="bg-white rounded-lg p-6 shadow hover:shadow-lg transition block hover:translate-y-[-4px]">
                 <div className="text-4xl mb-3">{itinerary.icon}</div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">{itinerary.title}</h3>
                 <p className="text-gray-600 text-sm mb-4">{itinerary.description}</p>
                 <p className="text-amber-900 font-semibold text-sm">⏱️ {itinerary.duration}</p>
-              </div>
+              </a>
             ))}
           </div>
         </div>
@@ -208,13 +209,21 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="text-center">
-            <a 
-              href="/travel-planning-form" 
-              className="inline-block px-8 py-4 bg-white text-amber-900 rounded-lg font-semibold hover:bg-amber-50 transition shadow-lg"
-            >
-              Commencer mon voyage sur mesure →
-            </a>
+          <div className="text-center space-y-4">
+            <div>
+              <a 
+                href="/destinations" 
+                className="inline-block px-8 py-4 bg-white text-amber-900 rounded-lg font-semibold hover:bg-amber-50 transition shadow-lg mr-4"
+              >
+                Découvrir nos destinations →
+              </a>
+              <a 
+                href="/travel-planning-form" 
+                className="inline-block px-8 py-4 bg-white text-amber-900 rounded-lg font-semibold hover:bg-amber-50 transition shadow-lg"
+              >
+                Voyage sur mesure →
+              </a>
+            </div>
           </div>
         </div>
       </section>
