@@ -2,6 +2,9 @@
 
 import Link from "next/link"
 import { useState, useEffect } from "react"
+import Header from "@/components/Header"
+import Breadcrumb from "@/components/Breadcrumb"
+import Footer from "@/components/Footer"
 
 interface Destination {
   id: string;
@@ -101,14 +104,16 @@ export default function DestinationsPage() {
       ]);
     }
   }, []);
-
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-16">
-        <h1 className="text-4xl font-bold text-center mb-4">Nos Destinations</h1>
-        <p className="text-gray-600 text-center mb-12">Découvrez nos destinations de voyage</p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <>
+      <Header />
+      <Breadcrumb />
+      <div className="min-h-screen bg-white">
+        <div className="container mx-auto px-4 py-16">
+          <h1 className="text-4xl font-bold text-center mb-4">Nos Destinations</h1>
+          <p className="text-gray-600 text-center mb-12">Découvrez nos destinations de voyage</p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {destinations.map((dest) => (
             <Link 
               key={dest.id}
@@ -132,9 +137,10 @@ export default function DestinationsPage() {
                 </div>
               </div>
             </Link>
-          ))}
+          ))}        </div>
         </div>
       </div>
-    </main>
+      <Footer />
+    </>
   );
 }

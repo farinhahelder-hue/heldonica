@@ -1,10 +1,12 @@
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import Breadcrumb from '@/components/Breadcrumb'
 
 export default function HotelConsulting() {
   return (
     <>
       <Header />
+      <Breadcrumb />
       <main>
         <section className="bg-gradient-to-br from-cloud-dancer to-white py-20 md:py-32">
           <div className="container">
