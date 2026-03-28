@@ -7,6 +7,11 @@ export const metadata: Metadata = {
   description: 'Slow travel en couple écoresponsable & Consulting hôtelier. Voyages authentiques, itinéraires hors sentiers, expertise RevPAR +30%.',
   keywords: 'slow travel, travel planning, consulting hôtelier, revenue management, voyages en couple',
   authors: [{ name: 'Heldonica' }],
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
+  manifest: '/site.webmanifest',
   openGraph: {
     type: 'website',
     locale: 'fr_FR',

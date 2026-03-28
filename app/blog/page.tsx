@@ -1,5 +1,8 @@
 import { blogPosts } from "@/lib/wordpress-data";
 import Link from "next/link";
+import Header from "@/components/Header";
+import Breadcrumb from "@/components/Breadcrumb";
+import Footer from "@/components/Footer";
 
 export const metadata = {
   title: "Blog | Heldonica — Slow Travel & Lifestyle",
@@ -12,7 +15,10 @@ export default function BlogPage() {
   const expertise = blogPosts.filter((p) => p.category === "Expertise Hôtelière");
 
   return (
-    <main className="min-h-screen bg-white">
+    <>
+      <Header />
+      <Breadcrumb />
+      <main className="min-h-screen bg-white">
       {/* Hero */}
       <section className="relative bg-gradient-to-br from-stone-900 to-amber-900 py-24 px-4 overflow-hidden">
         <div className="absolute inset-0 opacity-20"
@@ -73,6 +79,8 @@ export default function BlogPage() {
         </section>
       )}
     </main>
+      <Footer />
+    </>
   );
 }
 
@@ -147,3 +155,7 @@ function ArticleCard({ post }: { post: (typeof blogPosts)[0] }) {
     </Link>
   );
 }
+
+// Ajouter le Footer à la fin de BlogPage
+// Modification du return pour fermer correctement
+// Note: Le Footer doit être ajouté dans le return de BlogPage

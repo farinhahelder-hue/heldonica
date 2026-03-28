@@ -1,11 +1,18 @@
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import Breadcrumb from '@/components/Breadcrumb'
 import ContactForm from '@/components/ContactForm'
+
+export const metadata = {
+  title: 'Nous Contacter | Heldonica',
+  description: 'Contactez Heldonica pour vos questions sur le slow travel et le consulting hôtelier.',
+};
 
 export default function Contact() {
   return (
     <>
       <Header />
+      <Breadcrumb />
       <main>
         <section className="bg-gradient-to-br from-cloud-dancer to-white py-20 md:py-32">
           <div className="container">
@@ -30,23 +37,28 @@ export default function Contact() {
               <div className="text-center">
                 <div className="text-4xl mb-4">📧</div>
                 <h3 className="text-xl font-serif font-bold text-mahogany mb-2">Email</h3>
-                <a href="mailto:hello@heldonica.fr" className="text-eucalyptus hover:text-teal transition">
-                  hello@heldonica.fr
+                <a href="mailto:info@heldonica.fr" className="text-eucalyptus hover:text-teal transition font-medium">
+                  info@heldonica.fr
                 </a>
               </div>
 
               <div className="text-center">
                 <div className="text-4xl mb-4">📱</div>
-                <h3 className="text-xl font-serif font-bold text-mahogany mb-2">Téléphone</h3>
-                <a href="tel:+33612345678" className="text-eucalyptus hover:text-teal transition">
-                  +33 6 12 34 56 78
+                <h3 className="text-xl font-serif font-bold text-mahogany mb-2">Réseaux Sociaux</h3>
+                <a 
+                  href="https://www.instagram.com/heldonica/" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-eucalyptus hover:text-teal transition font-medium"
+                >
+                  @heldonica
                 </a>
               </div>
 
               <div className="text-center">
                 <div className="text-4xl mb-4">📍</div>
                 <h3 className="text-xl font-serif font-bold text-mahogany mb-2">Localisation</h3>
-                <p className="text-charcoal">
+                <p className="text-charcoal font-medium">
                   France
                 </p>
               </div>

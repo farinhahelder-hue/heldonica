@@ -1,11 +1,13 @@
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import Breadcrumb from '@/components/Breadcrumb'
 import Link from 'next/link'
 
 export default function TravelPlanning() {
   return (
     <>
       <Header />
+      <Breadcrumb />
       <main>
         <section className="bg-gradient-to-br from-cloud-dancer to-white py-20 md:py-32">
           <div className="container">
