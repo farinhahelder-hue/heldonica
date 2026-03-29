@@ -31,16 +31,25 @@ export const blogPosts: BlogPost[] = [
     title: `Madère Slow Travel : Guide Complet Éco-Luxe 2026`,
     slug: "madere-slow-travel-guide",
     excerpt: `Madère Slow Travel : Guide Complet Éco-Luxe 2026 Découvrez aussi nos pépites mystiques.`,
-    content: `<main class="site-main post-1274 post type-post status-publish format-standard has-post-thumbnail hentry category-europe category-guides-pratiques category-madere-2 category-portugal tag-insolite tag-madere tag-slow-travel-2" id="content">
-<div>
-<h1>Madère Slow Travel : Guide Complet Éco-Luxe 2026</h1> </div>
-<div>
-<p>Madère Slow Travel : Guide Complet Éco-Luxe 2026</p><p>Découvrez aussi nos <a href="https://heldonica.fr/pepites-mystiques-de-madere/">pépites mystiques</a>.</p>… (rest of content)
+    content: `<div>
 		
 				<div>
 <span>Étiqueté <a href="https://heldonica.fr/etiquettes/insolite/">insolite</a>, <a href="https://heldonica.fr/etiquettes/madere/">madere</a>, <a href="https://heldonica.fr/etiquettes/slow-travel-2/">slow travel</a></span> </div>
-</div>
-</main>`,
+</div>`,
+    content: `<div>
+    content: \`<div>
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/insolite/">insolite</a>, <a href="https://heldonica.fr/etiquettes/madere/">madere</a>, <a href="https://heldonica.fr/etiquettes/slow-travel-2/">slow travel</a></span> </div>
+</div>`,
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/insolite/">insolite</a>, <a href="https://heldonica.fr/etiquettes/madere/">madere</a>, <a href="https://heldonica.fr/etiquettes/slow-travel-2/">slow travel</a></span> </div>
+</div>`,
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/insolite/">insolite</a>, <a href="https://heldonica.fr/etiquettes/madere/">madere</a>, <a href="https://heldonica.fr/etiquettes/slow-travel-2/">slow travel</a></span> </div>
+</div>`,
     category: "Travel",
     categories: ["Europe", "Guides pratiques", "Madère", "Portugal"],
     tags: ["insolite", "madere", "slow travel"],
@@ -53,16 +62,25 @@ export const blogPosts: BlogPost[] = [
     title: `Urbex Slow Paris : Pépites Légales & Éco Couples`,
     slug: "urbex-paris-safe",
     excerpt: `Urbex Paris 2026 : Exploration Légale Slow Éco Couples Découvrez aussi notre escapade à la Petite Ceinture.`,
-    content: `<main class="site-main post-1269 post type-post status-publish format-standard has-post-thumbnail hentry category-city-trips category-europe category-france category-paris tag-duo tag-paris tag-slow-travel-2" id="content">
-<div>
-<h1>Urbex Slow Paris : Pépites Légales &amp; Éco Couples</h1> </div>
-<div>
-<p>Urbex Paris 2026 : Exploration Légale Slow Éco Couples</p><p>Découvrez aussi notre <a href="https://heldonica.fr/quand-verdure-rime-avec-street-art-escapade-a-la-petite-ceinture-75014/">escapade à la Petite Ceinture</a>.</p>… (rest of content)
+    content: `<div>
 		
 				<div>
 <span>Étiqueté <a href="https://heldonica.fr/etiquettes/duo/">duo</a>, <a href="https://heldonica.fr/etiquettes/paris/">paris</a>, <a href="https://heldonica.fr/etiquettes/slow-travel-2/">slow travel</a></span> </div>
-</div>
-</main>`,
+</div>`,
+    content: `<div>
+    content: \`<div>
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/duo/">duo</a>, <a href="https://heldonica.fr/etiquettes/paris/">paris</a>, <a href="https://heldonica.fr/etiquettes/slow-travel-2/">slow travel</a></span> </div>
+</div>`,
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/duo/">duo</a>, <a href="https://heldonica.fr/etiquettes/paris/">paris</a>, <a href="https://heldonica.fr/etiquettes/slow-travel-2/">slow travel</a></span> </div>
+</div>`,
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/duo/">duo</a>, <a href="https://heldonica.fr/etiquettes/paris/">paris</a>, <a href="https://heldonica.fr/etiquettes/slow-travel-2/">slow travel</a></span> </div>
+</div>`,
     category: "Travel",
     categories: ["City Trips", "Europe", "France", "Paris"],
     tags: ["duo", "paris", "slow travel"],
@@ -75,16 +93,25 @@ export const blogPosts: BlogPost[] = [
     title: `Guide Pratique : Comment débuter le Slow Travel en Duo`,
     slug: "guide-pratique-comment-debuter-le-slow-travel-en-duo",
     excerpt: `Bienvenue dans notre guide pratique dédié au Slow Travel. Voyager lentement, c’est avant tout prendre le temps de découvrir l’âme d’une destination, loin de la frénésie touristique habituelle. Par exemple, explorez les cours cachées de Timișoara.`,
-    content: `<main class="site-main post-1164 post type-post status-publish format-standard hentry category-guides-pratiques category-roumanie tag-duo tag-slow-travel-2 tag-transylvanie" id="content">
-<div>
-<h1>Guide Pratique : Comment débuter le Slow Travel en Duo</h1> </div>
-<div>
-<p>Bienvenue dans notre guide pratique dédié au Slow Travel. Voyager lentement, c’est avant tout prendre le temps de découvrir l’âme d’une destination, loin de la frénésie touristique habituelle.</p><p>Par exemple, explorez les <a href="https://heldonica.fr/cuib-darte-a-timisoara-cour-interieure-et-poesie-roumaine/">cours cachées de Timișoara</a>.</p>… (rest of content)
+    content: `<div>
 		
 				<div>
 <span>Étiqueté <a href="https://heldonica.fr/etiquettes/duo/">duo</a>, <a href="https://heldonica.fr/etiquettes/slow-travel-2/">slow travel</a>, <a href="https://heldonica.fr/etiquettes/transylvanie/">transylvanie</a></span> </div>
-</div>
-</main>`,
+</div>`,
+    content: `<div>
+    content: \`<div>
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/duo/">duo</a>, <a href="https://heldonica.fr/etiquettes/slow-travel-2/">slow travel</a>, <a href="https://heldonica.fr/etiquettes/transylvanie/">transylvanie</a></span> </div>
+</div>`,
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/duo/">duo</a>, <a href="https://heldonica.fr/etiquettes/slow-travel-2/">slow travel</a>, <a href="https://heldonica.fr/etiquettes/transylvanie/">transylvanie</a></span> </div>
+</div>`,
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/duo/">duo</a>, <a href="https://heldonica.fr/etiquettes/slow-travel-2/">slow travel</a>, <a href="https://heldonica.fr/etiquettes/transylvanie/">transylvanie</a></span> </div>
+</div>`,
     category: "Travel",
     categories: ["Guides pratiques", "Roumanie"],
     tags: ["duo", "slow travel"],
@@ -97,16 +124,25 @@ export const blogPosts: BlogPost[] = [
     title: `Madère : Quand partir sur l’île de l’éternel printemps`,
     slug: "madere-quand-partir-sur-lile-de-leternel-printemps",
     excerpt: `Madère est surnommée l’île de l’éternel printemps. Consultez notre guide complet éco-luxe.`,
-    content: `<main class="site-main post-704 post type-post status-publish format-standard has-post-thumbnail hentry category-guides-pratiques category-europe category-madere-2 category-portugal tag-ete-2 tag-madere" id="content">
-<div>
-<h1>Madère : Quand partir sur l’île de l’éternel printemps</h1> </div>
-<div>
-<p>Madère est surnommée l’île de l’éternel printemps.</p><p>Consultez notre <a href="https://heldonica.fr/madere-slow-travel-guide/">guide complet éco-luxe</a>.</p>… (rest of content)
+    content: `<div>
 		
 				<div>
 <span>Étiqueté <a href="https://heldonica.fr/etiquettes/ete-2/">été</a>, <a href="https://heldonica.fr/etiquettes/madere/">madere</a></span> </div>
-</div>
-</main>`,
+</div>`,
+    content: `<div>
+    content: \`<div>
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/ete-2/">été</a>, <a href="https://heldonica.fr/etiquettes/madere/">madere</a></span> </div>
+</div>`,
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/ete-2/">été</a>, <a href="https://heldonica.fr/etiquettes/madere/">madere</a></span> </div>
+</div>`,
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/ete-2/">été</a>, <a href="https://heldonica.fr/etiquettes/madere/">madere</a></span> </div>
+</div>`,
     category: "Travel",
     categories: ["Guides pratiques", "Europe", "Madère", "Portugal"],
     tags: ["été", "madere"],
@@ -119,16 +155,25 @@ export const blogPosts: BlogPost[] = [
     title: `Pépites mystiques de Madère`,
     slug: "pepites-mystiques-de-madere",
     excerpt: `🌲 🌫️ La forêt mystique de Fanal : notre graal madeirien Préparez votre voyage avec notre guide saisonnier.`,
-    content: `<main class="site-main post-702 post type-post status-publish format-standard has-post-thumbnail hentry category-decouvertes-locales-blog category-europe category-madere-2 category-portugal tag-insolite tag-lieux-secrets tag-madere tag-mystique tag-portugal" id="content">
-<div>
-<h1>Pépites mystiques de Madère</h1> </div>
-<div>
-<p>🌲 🌫️ La forêt mystique de Fanal : notre graal madeirien</p><p>Préparez votre voyage avec notre <a href="https://heldonica.fr/madere-quand-partir-sur-lile-de-leternel-printemps/">guide saisonnier</a>.</p>… (rest of content)
+    content: `<div>
 		
 				<div>
 <span>Étiqueté <a href="https://heldonica.fr/etiquettes/insolite/">insolite</a>, <a href="https://heldonica.fr/etiquettes/lieux-secrets/">lieux-secrets</a>, <a href="https://heldonica.fr/etiquettes/madere/">madere</a>, <a href="https://heldonica.fr/etiquettes/mystique/">mystique</a>, <a href="https://heldonica.fr/etiquettes/portugal/">portugal</a></span> </div>
-</div>
-</main>`,
+</div>`,
+    content: `<div>
+    content: \`<div>
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/insolite/">insolite</a>, <a href="https://heldonica.fr/etiquettes/lieux-secrets/">lieux-secrets</a>, <a href="https://heldonica.fr/etiquettes/madere/">madere</a>, <a href="https://heldonica.fr/etiquettes/mystique/">mystique</a>, <a href="https://heldonica.fr/etiquettes/portugal/">portugal</a></span> </div>
+</div>`,
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/insolite/">insolite</a>, <a href="https://heldonica.fr/etiquettes/lieux-secrets/">lieux-secrets</a>, <a href="https://heldonica.fr/etiquettes/madere/">madere</a>, <a href="https://heldonica.fr/etiquettes/mystique/">mystique</a>, <a href="https://heldonica.fr/etiquettes/portugal/">portugal</a></span> </div>
+</div>`,
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/insolite/">insolite</a>, <a href="https://heldonica.fr/etiquettes/lieux-secrets/">lieux-secrets</a>, <a href="https://heldonica.fr/etiquettes/madere/">madere</a>, <a href="https://heldonica.fr/etiquettes/mystique/">mystique</a>, <a href="https://heldonica.fr/etiquettes/portugal/">portugal</a></span> </div>
+</div>`,
     category: "Travel",
     categories: ["Découvertes Locales", "Europe", "Madère", "Portugal"],
     tags: ["insolite", "lieux-secrets", "madere", "mystique", "portugal"],
@@ -141,16 +186,25 @@ export const blogPosts: BlogPost[] = [
     title: `Prego no bolo do caco`,
     slug: "prego-no-bolo-do-caco",
     excerpt: `Le Prego no bolo do caco est le sandwich emblématique de Madère. Apprenez à faire le Bolo do caco maison.`,
-    content: `<main class="site-main post-448 post type-post status-publish format-standard has-post-thumbnail hentry category-europe category-nourriture category-portugal-europe category-recettes-2 tag-bolo-do-caco tag-madere tag-prego tag-sandwich tag-street-food" id="content">
-<div>
-<h1>Prego no bolo do caco</h1> </div>
-<div>
-<p>Le Prego no bolo do caco est le sandwich emblématique de Madère.</p><p>Apprenez à faire le <a href="https://heldonica.fr/bolo-do-caco-recette-traditionnelle-de-madere-3/">Bolo do caco maison</a>.</p>… (rest of content)
+    content: `<div>
 		
 				<div>
 <span>Étiqueté <a href="https://heldonica.fr/etiquettes/bolo-do-caco/">bolo-do-caco</a>, <a href="https://heldonica.fr/etiquettes/madere/">madere</a>, <a href="https://heldonica.fr/etiquettes/prego/">prego</a>, <a href="https://heldonica.fr/etiquettes/sandwich/">sandwich</a>, <a href="https://heldonica.fr/etiquettes/street-food/">street-food</a></span> </div>
-</div>
-</main>`,
+</div>`,
+    content: `<div>
+    content: \`<div>
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/bolo-do-caco/">bolo-do-caco</a>, <a href="https://heldonica.fr/etiquettes/madere/">madere</a>, <a href="https://heldonica.fr/etiquettes/prego/">prego</a>, <a href="https://heldonica.fr/etiquettes/sandwich/">sandwich</a>, <a href="https://heldonica.fr/etiquettes/street-food/">street-food</a></span> </div>
+</div>`,
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/bolo-do-caco/">bolo-do-caco</a>, <a href="https://heldonica.fr/etiquettes/madere/">madere</a>, <a href="https://heldonica.fr/etiquettes/prego/">prego</a>, <a href="https://heldonica.fr/etiquettes/sandwich/">sandwich</a>, <a href="https://heldonica.fr/etiquettes/street-food/">street-food</a></span> </div>
+</div>`,
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/bolo-do-caco/">bolo-do-caco</a>, <a href="https://heldonica.fr/etiquettes/madere/">madere</a>, <a href="https://heldonica.fr/etiquettes/prego/">prego</a>, <a href="https://heldonica.fr/etiquettes/sandwich/">sandwich</a>, <a href="https://heldonica.fr/etiquettes/street-food/">street-food</a></span> </div>
+</div>`,
     category: "Food & Lifestyle",
     categories: ["Europe", "Nourriture", "Portugal", "Recettes"],
     tags: ["bolo-do-caco", "madere", "prego", "sandwich"],
@@ -163,16 +217,25 @@ export const blogPosts: BlogPost[] = [
     title: `Bacalhau à Lagareiro`,
     slug: "bacalhau-a-lagareiro",
     excerpt: `Le Bacalhau à Lagareiro est un classique de la cuisine portugaise. Découvrez aussi notre recette de Prego no bolo do caco.`,
-    content: `<main class="site-main post-446 post type-post status-publish format-standard has-post-thumbnail hentry category-europe category-nourriture category-portugal-europe category-recettes-2 tag-bacalhau tag-madere" id="content">
-<div>
-<h1>Bacalhau à Lagareiro</h1> </div>
-<div>
-<p>Le Bacalhau à Lagareiro est un classique de la cuisine portugaise.</p><p>Découvrez aussi notre recette de <a href="https://heldonica.fr/prego-no-bolo-do-caco/">Prego no bolo do caco</a>.</p>… (rest of content)
+    content: `<div>
 		
 				<div>
 <span>Étiqueté <a href="https://heldonica.fr/etiquettes/bacalhau/">bacalhau</a>, <a href="https://heldonica.fr/etiquettes/madere/">madere</a></span> </div>
-</div>
-</main>`,
+</div>`,
+    content: `<div>
+    content: \`<div>
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/bacalhau/">bacalhau</a>, <a href="https://heldonica.fr/etiquettes/madere/">madere</a></span> </div>
+</div>`,
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/bacalhau/">bacalhau</a>, <a href="https://heldonica.fr/etiquettes/madere/">madere</a></span> </div>
+</div>`,
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/bacalhau/">bacalhau</a>, <a href="https://heldonica.fr/etiquettes/madere/">madere</a></span> </div>
+</div>`,
     category: "Food & Lifestyle",
     categories: ["Europe", "Nourriture", "Portugal", "Recettes"],
     tags: ["bacalhau", "madere"],
@@ -185,16 +248,25 @@ export const blogPosts: BlogPost[] = [
     title: `Bolo do caco – Recette traditionnelle de Madère`,
     slug: "bolo-do-caco-recette-traditionnelle-de-madere-3",
     excerpt: `Le Bolo do caco est le pain traditionnel de Madère, cuit sur une pierre de basalte. Utilisez-le pour faire un Prego maison.`,
-    content: `<main class="site-main post-433 post type-post status-publish format-standard has-post-thumbnail hentry category-europe category-nourriture category-portugal-europe category-recettes-2 tag-bolo-do-caco tag-madere" id="content">
-<div>
-<h1>Bolo do caco – Recette traditionnelle de Madère</h1> </div>
-<div>
-<p>Le Bolo do caco est le pain traditionnel de Madère, cuit sur une pierre de basalte.</p><p>Utilisez-le pour faire un <a href="https://heldonica.fr/prego-no-bolo-do-caco/">Prego maison</a>.</p>… (rest of content)
+    content: `<div>
 		
 				<div>
 <span>Étiqueté <a href="https://heldonica.fr/etiquettes/bolo-do-caco/">bolo-do-caco</a>, <a href="https://heldonica.fr/etiquettes/madere/">madere</a></span> </div>
-</div>
-</main>`,
+</div>`,
+    content: `<div>
+    content: \`<div>
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/bolo-do-caco/">bolo-do-caco</a>, <a href="https://heldonica.fr/etiquettes/madere/">madere</a></span> </div>
+</div>`,
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/bolo-do-caco/">bolo-do-caco</a>, <a href="https://heldonica.fr/etiquettes/madere/">madere</a></span> </div>
+</div>`,
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/bolo-do-caco/">bolo-do-caco</a>, <a href="https://heldonica.fr/etiquettes/madere/">madere</a></span> </div>
+</div>`,
     category: "Food & Lifestyle",
     categories: ["Europe", "Nourriture", "Portugal", "Recettes"],
     tags: ["bolo-do-caco", "madere"],
@@ -207,16 +279,25 @@ export const blogPosts: BlogPost[] = [
     title: `Petit-déjeuner du dimanche : crêpes légères à la farine de riz (sans gluten, pleines de protéines et même végétariennes)`,
     slug: "petit-dejeuner-du-dimanche-crepes-legeres-a-la-farine-de-riz-sans-gluten-pleines-de-proteines-et-meme-vegetariennes",
     excerpt: `Recette de crêpes légères à la farine de riz, conseils de cuisson, variations fromage/jambon/herbes, astuce brunch sucré-salé avec fruits. Découvrez aussi nos petits pains fromagers express.`,
-    content: `<main class="site-main post-281 post type-post status-publish format-standard has-post-thumbnail hentry category-guides-pratiques category-nourriture category-nourriture-locale tag-duo tag-street-food" id="content">
-<div>
-<h1>Petit-déjeuner du dimanche : crêpes légères à la farine de riz (sans gluten, pleines de protéines et même végétariennes)</h1> </div>
-<div>
-<p>Recette de crêpes légères à la farine de riz, conseils de cuisson, variations fromage/jambon/herbes, astuce brunch sucré-salé avec fruits.</p><p>Découvrez aussi nos <a href="https://heldonica.fr/?p=306">petits pains fromagers express</a>.</p>… (rest of content)
+    content: `<div>
 		
 				<div>
 <span>Étiqueté <a href="https://heldonica.fr/etiquettes/duo/">duo</a>, <a href="https://heldonica.fr/etiquettes/street-food/">street-food</a></span> </div>
-</div>
-</main>`,
+</div>`,
+    content: `<div>
+    content: \`<div>
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/duo/">duo</a>, <a href="https://heldonica.fr/etiquettes/street-food/">street-food</a></span> </div>
+</div>`,
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/duo/">duo</a>, <a href="https://heldonica.fr/etiquettes/street-food/">street-food</a></span> </div>
+</div>`,
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/duo/">duo</a>, <a href="https://heldonica.fr/etiquettes/street-food/">street-food</a></span> </div>
+</div>`,
     category: "Food & Lifestyle",
     categories: ["Guides pratiques", "Nourriture", "Nourriture Locale"],
     tags: ["duo"],
@@ -229,16 +310,25 @@ export const blogPosts: BlogPost[] = [
     title: `CuiB d’Arte à Timișoara : Cour intérieure et Poésie roumaine`,
     slug: "cuib-darte-a-timisoara-cour-interieure-et-poesie-roumaine",
     excerpt: `Au cœur de Timișoara, nous avons découvert cette cour intérieure fascinante qui révèle toute la poésie de l’architecture roumaine ! 🏦✨ Cet espace caché, typique des immeubles anciens de la ville, est un véritable écrin de tranquillité où balcons en fer forgé et façades colorées créent une atmosph...`,
-    content: `<main class="site-main post-285 post type-post status-publish format-standard has-post-thumbnail hentry category-europe category-city-trips category-roumanie tag-architecture tag-art-contemporain tag-timisoara-2" id="content">
-<div>
-<h1>CuiB d’Arte à Timișoara : Cour intérieure et Poésie roumaine</h1> </div>
-<div>
-<p>Au cœur de Timișoara, nous avons découvert cette cour intérieure fascinante qui révèle toute la poésie de l’architecture roumaine ! 🏦✨ Cet espace caché, typique des immeubles anciens de la ville, est un véritable écrin de tranquillité où balcons en fer forgé et façades colorées créent une atmosphère unique.</p><p>Découvrez aussi nos conseils dans notre <a href="https://heldonica.fr/guide-pratique-comment-debuter-le-slow-travel-en-duo/">guide du Slow Travel en duo</a>.</p>… (rest of content)
+    content: `<div>
 		
 				<div>
 <span>Étiqueté <a href="https://heldonica.fr/etiquettes/architecture/">architecture</a>, <a href="https://heldonica.fr/etiquettes/art-contemporain/">art contemporain</a>, <a href="https://heldonica.fr/etiquettes/timisoara-2/">Timișoara</a></span> </div>
-</div>
-</main>`,
+</div>`,
+    content: `<div>
+    content: \`<div>
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/architecture/">architecture</a>, <a href="https://heldonica.fr/etiquettes/art-contemporain/">art contemporain</a>, <a href="https://heldonica.fr/etiquettes/timisoara-2/">Timișoara</a></span> </div>
+</div>`,
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/architecture/">architecture</a>, <a href="https://heldonica.fr/etiquettes/art-contemporain/">art contemporain</a>, <a href="https://heldonica.fr/etiquettes/timisoara-2/">Timișoara</a></span> </div>
+</div>`,
+		
+				<div>
+<span>Étiqueté <a href="https://heldonica.fr/etiquettes/architecture/">architecture</a>, <a href="https://heldonica.fr/etiquettes/art-contemporain/">art contemporain</a>, <a href="https://heldonica.fr/etiquettes/timisoara-2/">Timișoara</a></span> </div>
+</div>`,
     category: "Travel",
     categories: ["Europe", "City Trips", "Roumanie"],
     tags: ["architecture", "art contemporain"],
@@ -251,6 +341,26 @@ export const blogPosts: BlogPost[] = [
     title: `Flotter sur la Limmat à Zurich : Notre aventure d’été`,
     slug: "flotter-sur-la-limmat-a-zurich-notre-aventure-dete",
     excerpt: `Voir notre carnet Zurich global.`,
+    content: `<div>
+<p>Quand les températures estivales grimpent et que l’envie d’évasion se fait sentir, il n’y a rien de tel qu’une descente rafraîchissante de la Limmat à Zurich ! Cette aventure aquatique en famille nous a offert une perspective totalement inédite de la plus grande ville suisse, mêlant détente, frissons et découvertes urbaines. De la location du matériel jusqu’à l’arrivée au point final, en passant par les moments magiques au fil de l’eau, découvrez pourquoi cette expérience estivale mérite absolument sa place dans vos projets de voyage en Suisse !</p>
+<p>Préparatifs et départ : notre mise à l’eau</p>
+<p>Tout commence à la station de location, où l’excitation monte déjà d’un cran ! Après avoir choisi nos bonnées gonflables (certaines colorées, d’autres plus sobres selon les goûts de chacun), nous recevons nos consignes de sécurité. Le personnel, très pédagogue, nous explique le parcours, les points d’attention et nous remet un sac étanche pour nos affaires. Les enfants, déjà en maillot de bain, trépignent d’impatience !</p>
+<p>Notre aventure chronologique au fil de l’eau</p>
+<p>10h30 – Le grand plongeon<br/>Premier contact avec l’eau fraîche de la Limmat ! Après un moment d’adaptation (l’eau est vivifiante, soyons honnêtes), nous nous laissons porter par le courant. Les premiers mètres sont magiques : nous découvrons Zurich sous un angle totalement nouveau, loin de l’agitation urbaine.</p>
+<p>11h15 – Panoramas urbains uniques<br/>En passant sous les ponts historiques de Zurich, nous admirons l’architecture depuis cette perspective privilégiée. Les reflets des bâtiments dans l’eau, les cygnes qui nous accompagnent parfois, créent une atmosphère presque iréelle en plein cœur de ville.</p>
+<p>12h00 – Pause rafraîchissement et observation<br/>Nous nous arrêtons sur une petite berge aménagée pour une pause. C’est l’occasion de prendre quelques photos, de s’hydrater et de savourer ces moments de détente absolue. Les enfants s’amusent à observer les poissons dans l’eau cristalline.</p>
+<p>13h30 – Navigation entre nature et urbanité<br/>Le parcours nous mène à travers des zones plus verdoyantes où la nature reprend ses droits. Arbres centenaires, petites îles et oiseaux aquatiques créent un contraste saisissant avec le cœur urbain que nous venons de traverser.</p>
+<p>14h45 – Les petits rapides : frissons garantis !<br/>Quelques passages plus dynamiques pimentent notre descente. Rien de dangereux, mais suffisamment vivifiant pour réveiller nos sens et provoquer quelques éclats de rire ! C’est dans ces moments que l’aventure prend tout son sens.</p>
+<p>15h30 – Arrivée au point final<br/>Nous terminons notre parcours avec des étoiles plein les yeux et une sensation de plénitude totale. Le retour à la réalité se fait en douceur, avec cette impression d’avoir vécu quelque chose d’exceptionnel.</p>
+<p>Consignes de sécurité essentielles</p>
+<p><img alt="⚠️" src="https://s.w.org/images/core/emoji/17.0.2/svg/26a0.svg"/> Portez toujours votre gilet de sauvetage fourni<br/><img alt="⚠️" src="https://s.w.org/images/core/emoji/17.0.2/svg/26a0.svg"/> Vérifiez la météo avant de partir – évitez les jours d’orage<br/><img alt="⚠️" src="https://s.w.org/images/core/emoji/17.0.2/svg/26a0.svg"/> Protégez-vous du soleil : crème solaire résistante à l’eau et casquette<br/><img alt="⚠️" src="https://s.w.org/images/core/emoji/17.0.2/svg/26a0.svg"/> Gardez vos affaires dans le sac étanche fourni<br/><img alt="⚠️" src="https://s.w.org/images/core/emoji/17.0.2/svg/26a0.svg"/> Respectez les consignes du personnel et les panneaux de signalisation<br/><img alt="⚠️" src="https://s.w.org/images/core/emoji/17.0.2/svg/26a0.svg"/> Ne vous éloignez pas du groupe si vous êtes avec d’autres familles<br/><img alt="⚠️" src="https://s.w.org/images/core/emoji/17.0.2/svg/26a0.svg"/> En cas de difficulté, restez calme et signalez votre position</p>
+<p>Pourquoi cette expérience nous a marqué ?</p>
+<p><img alt="✨" src="https://s.w.org/images/core/emoji/17.0.2/svg/2728.svg"/> L’originalité : Voir Zurich depuis la rivière offre une perspective unique et inoubliable<br/><img alt="✨" src="https://s.w.org/images/core/emoji/17.0.2/svg/2728.svg"/> L’accessibilité : Parfait pour toute la famille, même avec des enfants à partir de 8 ans<br/><img alt="✨" src="https://s.w.org/images/core/emoji/17.0.2/svg/2728.svg"/> La détente : Un moment de déconnexion totale en pleine nature urbaine<br/><img alt="✨" src="https://s.w.org/images/core/emoji/17.0.2/svg/2728.svg"/> L’aventure mesurée : Des sensations sans danger excessif<br/><img alt="✨" src="https://s.w.org/images/core/emoji/17.0.2/svg/2728.svg"/> La fraîcheur : Un moyen idéal de lutter contre la chaleur estivale<br/><img alt="✨" src="https://s.w.org/images/core/emoji/17.0.2/svg/2728.svg"/> Les souvenirs : Des photos et des moments uniques gravés dans nos mémoires<br/><img alt="✨" src="https://s.w.org/images/core/emoji/17.0.2/svg/2728.svg"/> La simplicité : Aucune compétence particulière requise, juste l’envie de se laisser porter</p>
+<p>Et vous, prêts pour l’aventure ?</p>
+<p><img alt="📸" src="https://s.w.org/images/core/emoji/17.0.2/svg/1f4f8.svg"/> Retrouvez toute notre galerie photo de cette aventure aquatique sur notre compte Instagram @Heldonica ! Découvrez les paysages urbains vus depuis l’eau, nos moments de détente et les sourires complices partagés en famille au fil de la Limmat.</p>
+<p><img alt="💬" src="https://s.w.org/images/core/emoji/17.0.2/svg/1f4ac.svg"/> Racontez-nous en commentaires : avez-vous déjà tenté une descente de rivière en ville ? Quelle est votre activité estivale préférée pour vous rafraîchir en famille ? Nous adorons échanger sur nos découvertes et astuces pour des étés mémorables !</p>
+<p>FlotterLimmat #ZurichEte #AventureAquatique #DescenteRiviere #SuisseNaturelle #VoyageEnFamille #EteZurich #RafraichissementUrbain #AventureFamiliale #Heldonica #TourismeSuisse #ActiviteEstivale #ZurichInsolite #VacancesActives #DetenteAquatiqueFlotterLimmat #ZurichEte #AventureAquatique #DescenteRiviere #SuisseNaturelle #VoyageEnFamille #EteZurich #RafraichissementUrbain #AventureFamiliale #Heldonica #TourismeSuisse #ActiviteEstivale #ZurichInsolite #VacancesActives #DetenteAquatiqueFlotterLimmat #ZurichEte #AventureAquatique #DescenteRiviere #SuisseNaturelle #VoyageEnFamille #EteZurich #RafraichissementUrbain #AventureFamiliale #Heldonica #TourismeSuisse #ActiviteEstivale #ZurichInsolite #VacancesActives #DetenteAquatiqueFlotterLimmat #ZurichEte #AventureAquatique #DescenteRiviere #SuisseNaturelle #VoyageEnFamille #EteZurich #RafraichissementUrbain #AventureFamiliale #Heldonica #TourismeSuisse #ActiviteEstivale #ZurichInsolite #VacancesActives #DetenteAquatiqueQuand les températures estivales grimpent et que l’envie d’évasion se fait sentir, il n’y a rien de tel qu’une descente rafraîchissante de la Limmat à Zurich ! Cette aventure aquatique en famille nous a offert une perspective totalement inédite de la plus grande ville suisse, mêlant détente, frissons et découvertes urbaines. De la location du matériel jusqu’à l’arrivée au point final, en passant par les moments magiques au fil de l’eau, découvrez pourquoi cette expérience estivale mérite absolument sa place dans vos projets de voyage en Suisse !</p>
+</div>`,
     content: `<main class="site-main post-228 page type-page status-publish hentry" id="content">
 <div>
 <h1>Flotter sur la Limmat à Zurich : Notre aventure d’été</h1> </div>
@@ -287,6 +397,29 @@ export const blogPosts: BlogPost[] = [
     title: `Quand verdure rime avec street art – Escapade à la Petite Ceinture 75014`,
     slug: "quand-verdure-rime-avec-street-art-escapade-a-la-petite-ceinture-75014",
     excerpt: `Envie de verdure et d’art urbain sans quitter la ville ? Empruntez la Petite Ceinture, portion piétonne du 14ᵉ arrondissement. Pour plus d’idées, lisez notre guide sur l’Urbex Slow à Paris.`,
+    content: `<div>
+<p>Loin des circuits touristiques classiques, il existe à Paris des lieux secrets où la nature reprend ses droits et où l’art urbain s’épanouit librement. La Petite Ceinture du 14ème arrondissement est l’un de ces trésors cachés qui mérite absolument le détour. Cette ancienne voie ferrée, désormais transformée en corridor vert, offre une balade unique où street art et végétation sauvage cohabitent en parfaite harmonie.</p>
+<p>Découverte urbaine : Plongez dans un univers à part</p>
+<p>Dès les premiers pas sur ce tronçon de la Petite Ceinture, on comprend qu’on pénètre dans un monde à part. Les rails rouillés disparaissent sous une végétation luxuriante qui a repris possession des lieux. Buddléias, ronces et herbes folles dessinent un paysage sauvage au cœur de la capitale. Mais ce qui frappe le plus, c’est cette cohabitation magique entre la nature et l’art.</p>
+<p>Les murs de soutènement se transforment en véritables galeries à ciel ouvert. Chaque recoin révèle une nouvelle œuvre : fresques colorées, pochoirs délicats, tags expressifs… Les artistes ont fait de cet espace délaissé leur terrain de jeu, créant un musée éphémère en perpétuelle évolution.</p>
+<p>Récit détaillé de la balade</p>
+<p>Notre exploration commence à l’entrée située rue Didot. Dès l’accès, l’atmosphère change radicalement. Le bruit de la circulation s’estompe, remplacé par le chant des oiseaux et le bruissement des feuilles. Le sentier serpente entre les vestiges ferroviaires, offrant une perspective unique sur ce patrimoine industriel en mutation.</p>
+<p>À quelques mètres de l’entrée, une imposante fresque murale attire immédiatement l’attention. Cette œuvre monumentale, réalisée par un collectif d’artistes locaux, raconte l’histoire du quartier à travers un mélange de symboles urbains et naturels. Les couleurs vives contrastent avec le vert tendre de la végétation spontanée.</p>
+<p>En progressant le long de l’ancienne voie, on découvre des jardins sauvages spontanés. Ces espaces verts non entretenus abritent une biodiversité surprenante en milieu urbain. Papillons, insectes et petits oiseaux trouvent ici refuge, créant un écosystème unique.</p>
+<p>Le clou de la balade se situe vers le milieu du parcours : un tunnel ferroviaire désaffecté transformé en galerie d’art souterraine. L’éclairage tamisé qui filtre par les ouvertures crée une atmosphère mystérieuse, presque théâtrale. Chaque pilier, chaque recoin du tunnel porte la signature d’un artiste différent.</p>
+<p>Conseils pratiques pour profiter du spot</p>
+<ul>
+<li>Meilleur moment : Tôt le matin (8h-10h) ou en fin d’après-midi (17h-19h) pour éviter l’affluence et profiter de la lumière idéale</li>
+<li>Durée : Comptez 1h30 à 2h pour une visite complète en prenant le temps d’admirer les œuvres</li>
+<li>Accès : Entrée principale rue Didot (métro Pl Bienvenüe), accès secondaire rue des Suisses</li>
+<li>À emporter : Appareil photo, chaussures de marche confortables, petite bouteille d’eau</li>
+<li>À savoir : L’accès peut être fermé par mauvais temps ou lors de travaux d’entretien</li>
+</ul>
+<p>Pourquoi c’est un bon plan ?</p>
+<p>✓ Gratuit et accessible : Un bol d’air frais sans débourser un euro<br/>✓ Originalité garantie : Un spot encore méconnu du grand public<br/>✓ Double découverte : Nature et art urbain en un seul lieu<br/>✓ Parfait pour Instagram : Chaque angle offre un décor unique et photogénique<br/>✓ Détente assurée : Évasion totale à 10 minutes du centre de Paris<br/>✓ Évolution constante : Les œuvres changent régulièrement, chaque visite réserve de nouvelles surprises</p>
+<p>Vous avez exploré ce coin secret de Paris ? Partagez vos plus belles découvertes en story et taguez-nous @heldonica ! Nous adorons voir vos angles de vue et vos coups de cœur artistiques. N’hésitez pas à partager vos propres conseils en commentaires pour enrichir l’expérience des futurs explorateurs urbains.</p>
+<p>PetiteCeinture #Paris14 #StreetArt #NatureUrbaine #BaladeSecrète #ArtRue #ExplorationUrbaine #ParisCache #Heldonica #Photography #UrbanExploration #GreenSpaces #HiddenParis #WalkInParis #UrbanNaturePetiteCeinture #Paris14 #StreetArt #NatureUrbaine #BaladeSecrète #ArtRue #ExplorationUrbaine #ParisCache #Heldonica #Photography #UrbanExploration #GreenSpaces #HiddenParis #WalkInParis #UrbanNaturePetiteCeinture #Paris14 #StreetArt #NatureUrbaine #BaladeSecrète #ArtRue #ExplorationUrbaine #ParisCache #Heldonica #Photography #UrbanExploration #GreenSpaces #HiddenParis #WalkInParis #UrbanNaturePetiteCeinture #Paris14 #StreetArt #NatureUrbaine #BaladeSecrète #ArtRue #ExplorationUrbaine #ParisCache #Heldonica #Photography #UrbanExploration #GreenSpaces #HiddenParis #WalkInParis #UrbanNature</p>
+</div>`,
     content: `<main class="site-main post-235 page type-page status-publish hentry" id="content">
 <div>
 <h1>Quand verdure rime avec street art – Escapade à la Petite Ceinture 75014</h1> </div>
@@ -326,6 +459,22 @@ export const blogPosts: BlogPost[] = [
     title: `Ballade du Vendredi soir à la rue Mouffetard : Singh’Nature`,
     slug: "ballade-du-vendredi-soir-a-la-rue-mouffetard-singhnature",
     excerpt: `Ce vendredi soir, on a fermé les ordinateurs à 18h pile pour un rendez-vous médical important. Retrouvez nos autres pépites à Paris.`,
+    content: `<div>
+<p><strong>Une soirée urbaine placée sous le signe de la découverte, de la gourmandise et de la convivialité à Paris !</strong></p>
+<p>Ce vendredi soir, on a fermé l’ordi à 18h pile après une petite frayeur et une très bonne nouvelle… Rien de tel pour s’offrir une balade à travers Paris : du Jardin du Luxembourg et ses pelouses vivantes à la Sorbonne, en passant par le musée de Cluny. Rue Mouffetard, l’ambiance était joyeuse, animée entre étudiants, parisiens et touristes.</p>
+<p>Après bien des hésitations, notre choix s’est porté sur un restaurant atypique : <strong>Singh’Nature</strong>. Belle salle chaleureuse, plats indiens parfumés et un service attentionné. L’assiette, haute en couleur, nous a régalés !</p>
+<p>En sortant, le quartier prenait vie sous les lumières du soir : sourires, conversations sur les terrasses. Pour finir la balade, on a flâné dans les rues, échangé avec d’autres noctambules et savouré la convivialité parisienne.</p>
+<hr/>
+<p><strong>Pourquoi on a aimé cette soirée ?</strong></p>
+<ul>
+<li>Un trajet jaloné de surprises et de découvertes.</li>
+<li>Un resto coup de cœur, parfait pour une soirée originale.</li>
+<li>Beaucoup d’émotion, de gourmandise et de sourires !</li>
+</ul>
+<hr/>
+<p><img alt="👉" src="https://s.w.org/images/core/emoji/17.0.2/svg/1f449.svg"/> Retrouvez les photos et stories sur notre <a href="https://www.instagram.com/heldonica/">Instagram Heldonica</a><br/><img alt="📸" src="https://s.w.org/images/core/emoji/17.0.2/svg/1f4f8.svg"/> Partagez vos souvenirs et vos recommandations en commentaire !</p>
+<h1>heldonica #paris #citytrip #food #baladeurbaine</h1>
+</div>`,
     content: `<main class="site-main post-220 page type-page status-publish hentry" id="content">
 <div>
 <h1>Ballade du Vendredi soir à la rue Mouffetard : Singh’Nature</h1> </div>
@@ -358,16 +507,27 @@ export const blogPosts: BlogPost[] = [
     title: `Les meilleures brasseries de Zurich : Guide 2026`,
     slug: "les-meilleures-brasseries-authentiques-de-zurich-guide-2025",
     excerpt: `Dans notre carnet Zurich.`,
-    content: `<main class="site-main post-271 post type-post status-publish format-standard has-post-thumbnail hentry category-decouvertes-locales-blog category-destinations category-nourriture category-suisse-europe tag-biere-artisanale-2 tag-bonnes-adresses-zurich tag-brasserie tag-zurich" id="content">
-<div>
-<h1>Les meilleures brasseries de Zurich : Guide 2026</h1> </div>
-<div>
-<p>Dans notre <a href="https://heldonica.fr/zurich/">carnet Zurich</a>.</p>… (rest of content)
+    content: `<div>
 		
 				<div>
 <span>Étiqueté <a href="https://heldonica.fr/etiquettes/biere-artisanale-2/">bière artisanale</a>, <a href="https://heldonica.fr/etiquettes/bonnes-adresses-zurich/">bonnes adresses zurich</a>, <a href="https://heldonica.fr/etiquettes/brasserie/">brasserie</a>, <a href="https://heldonica.fr/etiquettes/zurich/">zurich</a></span> </div>
-</div>
-</main>`,
+</div>`,
+    content: `<div>
+<p><strong>Une soirée urbaine placée sous le signe de la découverte, de la gourmandise et de la convivialité à Paris !</strong></p>
+<p>Ce vendredi soir, on a fermé l’ordi à 18h pile après une petite frayeur et une très bonne nouvelle… Rien de tel pour s’offrir une balade à travers Paris : du Jardin du Luxembourg et ses pelouses vivantes à la Sorbonne, en passant par le musée de Cluny. Rue Mouffetard, l’ambiance était joyeuse, animée entre étudiants, parisiens et touristes.</p>
+<p>Après bien des hésitations, notre choix s’est porté sur un restaurant atypique : <strong>Singh’Nature</strong>. Belle salle chaleureuse, plats indiens parfumés et un service attentionné. L’assiette, haute en couleur, nous a régalés !</p>
+<p>En sortant, le quartier prenait vie sous les lumières du soir : sourires, conversations sur les terrasses. Pour finir la balade, on a flâné dans les rues, échangé avec d’autres noctambules et savouré la convivialité parisienne.</p>
+<hr/>
+<p><strong>Pourquoi on a aimé cette soirée ?</strong></p>
+<ul>
+<li>Un trajet jaloné de surprises et de découvertes.</li>
+<li>Un resto coup de cœur, parfait pour une soirée originale.</li>
+<li>Beaucoup d’émotion, de gourmandise et de sourires !</li>
+</ul>
+<hr/>
+<p><img alt="👉" src="https://s.w.org/images/core/emoji/17.0.2/svg/1f449.svg"/> Retrouvez les photos et stories sur notre <a href="https://www.instagram.com/heldonica/">Instagram Heldonica</a><br/><img alt="📸" src="https://s.w.org/images/core/emoji/17.0.2/svg/1f4f8.svg"/> Partagez vos souvenirs et vos recommandations en commentaire !</p>
+<h1>heldonica #paris #citytrip #food #baladeurbaine</h1>
+</div>`,
     category: "Food & Lifestyle",
     categories: ["Découvertes Locales", "Destinations", "Nourriture", "Suisse"],
     tags: ["bière artisanale", "bonnes adresses zurich", "brasserie"],
@@ -380,16 +540,34 @@ export const blogPosts: BlogPost[] = [
     title: `Zurich : notre carnet slow travel 2026`,
     slug: "zurich",
     excerpt: `Flottez sur la Limmat. Brasseries top Brasseries.`,
-    content: `<main class="site-main post-192 post type-post status-publish format-standard has-post-thumbnail hentry category-carnets-voyage-seo category-destinations category-suisse-europe tag-ete-2 tag-slow-travel-2 tag-suisse tag-zurich" id="content">
-<div>
-<h1>Zurich : notre carnet slow travel 2026</h1> </div>
-<div>
-<p>Flottez sur la <a href="https://heldonica.fr/flotter-sur-la-limmat-a-zurich-notre-aventure-dete/">Limmat</a>. Brasseries top <a href="https://heldonica.fr/les-meilleures-brasseries-authentiques-de-zurich-guide-2025/">Brasseries</a>.</p>… (rest of content)
+    content: `<div>
 		
 				<div>
 <span>Étiqueté <a href="https://heldonica.fr/etiquettes/ete-2/">été</a>, <a href="https://heldonica.fr/etiquettes/slow-travel-2/">slow travel</a>, <a href="https://heldonica.fr/etiquettes/suisse/">suisse</a>, <a href="https://heldonica.fr/etiquettes/zurich/">zurich</a></span> </div>
-</div>
-</main>`,
+</div>`,
+    content: `<div>
+<p>Loin des circuits touristiques classiques, il existe à Paris des lieux secrets où la nature reprend ses droits et où l’art urbain s’épanouit librement. La Petite Ceinture du 14ème arrondissement est l’un de ces trésors cachés qui mérite absolument le détour. Cette ancienne voie ferrée, désormais transformée en corridor vert, offre une balade unique où street art et végétation sauvage cohabitent en parfaite harmonie.</p>
+<p>Découverte urbaine : Plongez dans un univers à part</p>
+<p>Dès les premiers pas sur ce tronçon de la Petite Ceinture, on comprend qu’on pénètre dans un monde à part. Les rails rouillés disparaissent sous une végétation luxuriante qui a repris possession des lieux. Buddléias, ronces et herbes folles dessinent un paysage sauvage au cœur de la capitale. Mais ce qui frappe le plus, c’est cette cohabitation magique entre la nature et l’art.</p>
+<p>Les murs de soutènement se transforment en véritables galeries à ciel ouvert. Chaque recoin révèle une nouvelle œuvre : fresques colorées, pochoirs délicats, tags expressifs… Les artistes ont fait de cet espace délaissé leur terrain de jeu, créant un musée éphémère en perpétuelle évolution.</p>
+<p>Récit détaillé de la balade</p>
+<p>Notre exploration commence à l’entrée située rue Didot. Dès l’accès, l’atmosphère change radicalement. Le bruit de la circulation s’estompe, remplacé par le chant des oiseaux et le bruissement des feuilles. Le sentier serpente entre les vestiges ferroviaires, offrant une perspective unique sur ce patrimoine industriel en mutation.</p>
+<p>À quelques mètres de l’entrée, une imposante fresque murale attire immédiatement l’attention. Cette œuvre monumentale, réalisée par un collectif d’artistes locaux, raconte l’histoire du quartier à travers un mélange de symboles urbains et naturels. Les couleurs vives contrastent avec le vert tendre de la végétation spontanée.</p>
+<p>En progressant le long de l’ancienne voie, on découvre des jardins sauvages spontanés. Ces espaces verts non entretenus abritent une biodiversité surprenante en milieu urbain. Papillons, insectes et petits oiseaux trouvent ici refuge, créant un écosystème unique.</p>
+<p>Le clou de la balade se situe vers le milieu du parcours : un tunnel ferroviaire désaffecté transformé en galerie d’art souterraine. L’éclairage tamisé qui filtre par les ouvertures crée une atmosphère mystérieuse, presque théâtrale. Chaque pilier, chaque recoin du tunnel porte la signature d’un artiste différent.</p>
+<p>Conseils pratiques pour profiter du spot</p>
+<ul>
+<li>Meilleur moment : Tôt le matin (8h-10h) ou en fin d’après-midi (17h-19h) pour éviter l’affluence et profiter de la lumière idéale</li>
+<li>Durée : Comptez 1h30 à 2h pour une visite complète en prenant le temps d’admirer les œuvres</li>
+<li>Accès : Entrée principale rue Didot (métro Pl Bienvenüe), accès secondaire rue des Suisses</li>
+<li>À emporter : Appareil photo, chaussures de marche confortables, petite bouteille d’eau</li>
+<li>À savoir : L’accès peut être fermé par mauvais temps ou lors de travaux d’entretien</li>
+</ul>
+<p>Pourquoi c’est un bon plan ?</p>
+<p>✓ Gratuit et accessible : Un bol d’air frais sans débourser un euro<br/>✓ Originalité garantie : Un spot encore méconnu du grand public<br/>✓ Double découverte : Nature et art urbain en un seul lieu<br/>✓ Parfait pour Instagram : Chaque angle offre un décor unique et photogénique<br/>✓ Détente assurée : Évasion totale à 10 minutes du centre de Paris<br/>✓ Évolution constante : Les œuvres changent régulièrement, chaque visite réserve de nouvelles surprises</p>
+<p>Vous avez exploré ce coin secret de Paris ? Partagez vos plus belles découvertes en story et taguez-nous @heldonica ! Nous adorons voir vos angles de vue et vos coups de cœur artistiques. N’hésitez pas à partager vos propres conseils en commentaires pour enrichir l’expérience des futurs explorateurs urbains.</p>
+<p>PetiteCeinture #Paris14 #StreetArt #NatureUrbaine #BaladeSecrète #ArtRue #ExplorationUrbaine #ParisCache #Heldonica #Photography #UrbanExploration #GreenSpaces #HiddenParis #WalkInParis #UrbanNaturePetiteCeinture #Paris14 #StreetArt #NatureUrbaine #BaladeSecrète #ArtRue #ExplorationUrbaine #ParisCache #Heldonica #Photography #UrbanExploration #GreenSpaces #HiddenParis #WalkInParis #UrbanNaturePetiteCeinture #Paris14 #StreetArt #NatureUrbaine #BaladeSecrète #ArtRue #ExplorationUrbaine #ParisCache #Heldonica #Photography #UrbanExploration #GreenSpaces #HiddenParis #WalkInParis #UrbanNaturePetiteCeinture #Paris14 #StreetArt #NatureUrbaine #BaladeSecrète #ArtRue #ExplorationUrbaine #ParisCache #Heldonica #Photography #UrbanExploration #GreenSpaces #HiddenParis #WalkInParis #UrbanNature</p>
+</div>`,
     category: "Travel",
     categories: ["Carnets voyage", "Destinations", "Suisse"],
     tags: ["été", "slow travel"],
@@ -402,6 +580,27 @@ export const blogPosts: BlogPost[] = [
     title: `Stoos Ridge : Notre aventure sur la crête panoramique`,
     slug: "stoos-ridge-notre-aventure-sur-la-crete-panoramique",
     excerpt: `L’aventure commence à 15:20 à Zurich : une heure de route jusqu’à Schwyz permet à la famille de s’immerger dans l’ambiance du jour et de se préparer au défi. Le funiculaire Schwyz-Stoos, le plus raide du monde, nous hisse à Stoos à 16:20. Pas le temps de s’attarder, la lumière décline déjà, la tr...`,
+    content: `<div>
+<p>Une randonnée familiale accessible au cœur des Alpes suisses, avec un panorama époustouflant à 360° sur les sommets ! Cette crête unique offre l’une des vues les plus spectaculaires de Suisse centrale, parfaite pour une aventure mémorable en famille. Voici notre récit complet avec tous les conseils logistiques pour organiser votre escapade.</p>
+<p><strong>Notre aventure chronologique</strong></p>
+<p>Dès le matin, nous avons pris le funiculaire le plus raide au monde pour rejoindre le village de Stoos. L’ascension spectaculaire nous a immédiatement mis dans l’ambiance montagnarde ! Une fois arrivés, nous avons suivi le sentier panoramique qui serpente le long de la crête.</p>
+<p>Le parcours de 2 heures nous a menés à travers des paysages à couper le souffle : les lacs de la région scintillent en contrebas, tandis que les sommets des Alpes se déploient à perte de vue. Les enfants étaient fascinés par les vaches qui broutent paisiblement sur les alpages.</p>
+<p>Le point culminant de notre randonnée a été l’arrivée au sommet du Klingenstock, où nous avons savouré un pique-nique face à un panorama grandiose. Le temps était parfait, et nous avons pu admirer le lac des Quatre-Cantons dans toute sa splendeur.</p>
+<p><strong>Conseils logistiques essentiels</strong></p>
+<p>Comment s’y rendre : Le funiculaire de Stoos est accessible depuis Schwyz. Nous recommandons de réserver vos billets à l’avance, surtout en haute saison.</p>
+<p>Equipement nécessaire : Chaussures de randonnee, vêtements chauds, crème solaire et suffisamment d’eau. Le sentier est bien balisé mais prévoyez une carte au cas où.</p>
+<p>Meilleure période : De mai à octobre, avec une préférence pour les mois d’été pour une météo plus stable.</p>
+<p><strong>Pourquoi on a aimé cette rando ?</strong></p>
+<ul>
+<li>Un accès facile grâce au funiculaire, parfait pour toute la famille</li>
+<li>Des vues à 360° absolument extraordinaires sur les Alpes</li>
+<li>Un sentier bien aménagé et sécurisé, idéal avec les enfants</li>
+<li>L’expérience unique de marcher à 1900m d’altitude sans effort excessif</li>
+<li>La découverte de la culture alpine suisse authentique</li>
+</ul>
+<p><img alt="👉" src="https://s.w.org/images/core/emoji/17.0.2/svg/1f449.svg"/> Retrouvez toutes nos photos de cette aventure sur notre Instagram Heldonica ! <img alt="📸" src="https://s.w.org/images/core/emoji/17.0.2/svg/1f4f8.svg"/> N’hésitez pas à partager vos propres expériences de randonnée en Suisse dans les commentaires, on adore découvrir vos coups de cœur !</p>
+<p>heldonica #suisse #randonnee #stoos #alpes #nature #familleheldonica #suisse #randonnee #stoos #alpes #nature #familleheldonica #suisse #randonnee #stoos #alpes #nature #familleMeilleure période : De mai à octobre, avec une préférence pour les mois d’été pour une météo plus stable.Une randonnée familiale accessible au cœur des Alpes suisses, avec un panorama époustouflant à 360° sur les sommets ! Cette crête unique offre l’une des vues les plus spectaculaires de Suisse centrale, parfaite pour une aventure mémorable en famille. Voici notre récit complet avec tous les conseils logistiques pour organiser votre escapade.</p>
+</div>`,
     content: `<main class="site-main post-222 page type-page status-publish hentry" id="content">
 <div>
 <h1>Stoos Ridge : Notre aventure sur la crête panoramique</h1> </div>
@@ -439,16 +638,32 @@ export const blogPosts: BlogPost[] = [
     title: `Check-list pour Randonnée en Famille en Montagne`,
     slug: "check-list-pour-randonnee-en-famille-en-montagne",
     excerpt: `Testé sur Stoos Ridge.`,
-    content: `<main class="site-main post-93 post type-post status-publish format-standard has-post-thumbnail hentry category-guides-pratiques category-nature category-randonnees tag-alpes tag-stoos tag-suisse" id="content">
-<div>
-<h1>Check-list pour Randonnée en Famille en Montagne</h1> </div>
-<div>
-<p>Testé sur <a href="https://heldonica.fr/stoos-ridge-notre-aventure-sur-la-crete-panoramique/">Stoos Ridge</a>.</p>… (rest of content)
+    content: `<div>
 		
 				<div>
 <span>Étiqueté <a href="https://heldonica.fr/etiquettes/alpes/">alpes</a>, <a href="https://heldonica.fr/etiquettes/stoos/">stoos</a>, <a href="https://heldonica.fr/etiquettes/suisse/">suisse</a></span> </div>
-</div>
-</main>`,
+</div>`,
+    content: `<div>
+<p>Une randonnée familiale accessible au cœur des Alpes suisses, avec un panorama époustouflant à 360° sur les sommets ! Cette crête unique offre l’une des vues les plus spectaculaires de Suisse centrale, parfaite pour une aventure mémorable en famille. Voici notre récit complet avec tous les conseils logistiques pour organiser votre escapade.</p>
+<p><strong>Notre aventure chronologique</strong></p>
+<p>Dès le matin, nous avons pris le funiculaire le plus raide au monde pour rejoindre le village de Stoos. L’ascension spectaculaire nous a immédiatement mis dans l’ambiance montagnarde ! Une fois arrivés, nous avons suivi le sentier panoramique qui serpente le long de la crête.</p>
+<p>Le parcours de 2 heures nous a menés à travers des paysages à couper le souffle : les lacs de la région scintillent en contrebas, tandis que les sommets des Alpes se déploient à perte de vue. Les enfants étaient fascinés par les vaches qui broutent paisiblement sur les alpages.</p>
+<p>Le point culminant de notre randonnée a été l’arrivée au sommet du Klingenstock, où nous avons savouré un pique-nique face à un panorama grandiose. Le temps était parfait, et nous avons pu admirer le lac des Quatre-Cantons dans toute sa splendeur.</p>
+<p><strong>Conseils logistiques essentiels</strong></p>
+<p>Comment s’y rendre : Le funiculaire de Stoos est accessible depuis Schwyz. Nous recommandons de réserver vos billets à l’avance, surtout en haute saison.</p>
+<p>Equipement nécessaire : Chaussures de randonnee, vêtements chauds, crème solaire et suffisamment d’eau. Le sentier est bien balisé mais prévoyez une carte au cas où.</p>
+<p>Meilleure période : De mai à octobre, avec une préférence pour les mois d’été pour une météo plus stable.</p>
+<p><strong>Pourquoi on a aimé cette rando ?</strong></p>
+<ul>
+<li>Un accès facile grâce au funiculaire, parfait pour toute la famille</li>
+<li>Des vues à 360° absolument extraordinaires sur les Alpes</li>
+<li>Un sentier bien aménagé et sécurisé, idéal avec les enfants</li>
+<li>L’expérience unique de marcher à 1900m d’altitude sans effort excessif</li>
+<li>La découverte de la culture alpine suisse authentique</li>
+</ul>
+<p><img alt="👉" src="https://s.w.org/images/core/emoji/17.0.2/svg/1f449.svg"/> Retrouvez toutes nos photos de cette aventure sur notre Instagram Heldonica ! <img alt="📸" src="https://s.w.org/images/core/emoji/17.0.2/svg/1f4f8.svg"/> N’hésitez pas à partager vos propres expériences de randonnée en Suisse dans les commentaires, on adore découvrir vos coups de cœur !</p>
+<p>heldonica #suisse #randonnee #stoos #alpes #nature #familleheldonica #suisse #randonnee #stoos #alpes #nature #familleheldonica #suisse #randonnee #stoos #alpes #nature #familleMeilleure période : De mai à octobre, avec une préférence pour les mois d’été pour une météo plus stable.Une randonnée familiale accessible au cœur des Alpes suisses, avec un panorama époustouflant à 360° sur les sommets ! Cette crête unique offre l’une des vues les plus spectaculaires de Suisse centrale, parfaite pour une aventure mémorable en famille. Voici notre récit complet avec tous les conseils logistiques pour organiser votre escapade.</p>
+</div>`,
     category: "Travel",
     categories: ["Guides pratiques", "Nature", "Randonnées"],
     tags: ["alpes"],
@@ -537,14 +752,26 @@ export const destinationPages: DestinationPage[] = [
     id: 1315,
     title: `Portugal Slow : Douro & Authenticité`,
     slug: "portugal-slow-douro",
-    content: `<main class="site-main post-1315 page type-page status-publish hentry" id="content">
-<div>
-<h1>Portugal Slow : Douro &amp; Authenticité</h1> </div>
-<div>
-<p>Le Portugal est une terre de contrastes, parfaite pour le slow travel.</p><p>Après avoir exploré les <a href="https://heldonica.fr/pepites-mystiques-de-madere/">pépites de Madère</a>, laissez-vous porter par les eaux tranquilles du Douro.</p>… (rest of content)
-		
-			</div>
-</main>`,
+    content: `<div>
+<p>Quand les températures estivales grimpent et que l’envie d’évasion se fait sentir, il n’y a rien de tel qu’une descente rafraîchissante de la Limmat à Zurich ! Cette aventure aquatique en famille nous a offert une perspective totalement inédite de la plus grande ville suisse, mêlant détente, frissons et découvertes urbaines. De la location du matériel jusqu’à l’arrivée au point final, en passant par les moments magiques au fil de l’eau, découvrez pourquoi cette expérience estivale mérite absolument sa place dans vos projets de voyage en Suisse !</p>
+<p>Préparatifs et départ : notre mise à l’eau</p>
+<p>Tout commence à la station de location, où l’excitation monte déjà d’un cran ! Après avoir choisi nos bonnées gonflables (certaines colorées, d’autres plus sobres selon les goûts de chacun), nous recevons nos consignes de sécurité. Le personnel, très pédagogue, nous explique le parcours, les points d’attention et nous remet un sac étanche pour nos affaires. Les enfants, déjà en maillot de bain, trépignent d’impatience !</p>
+<p>Notre aventure chronologique au fil de l’eau</p>
+<p>10h30 – Le grand plongeon<br/>Premier contact avec l’eau fraîche de la Limmat ! Après un moment d’adaptation (l’eau est vivifiante, soyons honnêtes), nous nous laissons porter par le courant. Les premiers mètres sont magiques : nous découvrons Zurich sous un angle totalement nouveau, loin de l’agitation urbaine.</p>
+<p>11h15 – Panoramas urbains uniques<br/>En passant sous les ponts historiques de Zurich, nous admirons l’architecture depuis cette perspective privilégiée. Les reflets des bâtiments dans l’eau, les cygnes qui nous accompagnent parfois, créent une atmosphère presque iréelle en plein cœur de ville.</p>
+<p>12h00 – Pause rafraîchissement et observation<br/>Nous nous arrêtons sur une petite berge aménagée pour une pause. C’est l’occasion de prendre quelques photos, de s’hydrater et de savourer ces moments de détente absolue. Les enfants s’amusent à observer les poissons dans l’eau cristalline.</p>
+<p>13h30 – Navigation entre nature et urbanité<br/>Le parcours nous mène à travers des zones plus verdoyantes où la nature reprend ses droits. Arbres centenaires, petites îles et oiseaux aquatiques créent un contraste saisissant avec le cœur urbain que nous venons de traverser.</p>
+<p>14h45 – Les petits rapides : frissons garantis !<br/>Quelques passages plus dynamiques pimentent notre descente. Rien de dangereux, mais suffisamment vivifiant pour réveiller nos sens et provoquer quelques éclats de rire ! C’est dans ces moments que l’aventure prend tout son sens.</p>
+<p>15h30 – Arrivée au point final<br/>Nous terminons notre parcours avec des étoiles plein les yeux et une sensation de plénitude totale. Le retour à la réalité se fait en douceur, avec cette impression d’avoir vécu quelque chose d’exceptionnel.</p>
+<p>Consignes de sécurité essentielles</p>
+<p><img alt="⚠️" src="https://s.w.org/images/core/emoji/17.0.2/svg/26a0.svg"/> Portez toujours votre gilet de sauvetage fourni<br/><img alt="⚠️" src="https://s.w.org/images/core/emoji/17.0.2/svg/26a0.svg"/> Vérifiez la météo avant de partir – évitez les jours d’orage<br/><img alt="⚠️" src="https://s.w.org/images/core/emoji/17.0.2/svg/26a0.svg"/> Protégez-vous du soleil : crème solaire résistante à l’eau et casquette<br/><img alt="⚠️" src="https://s.w.org/images/core/emoji/17.0.2/svg/26a0.svg"/> Gardez vos affaires dans le sac étanche fourni<br/><img alt="⚠️" src="https://s.w.org/images/core/emoji/17.0.2/svg/26a0.svg"/> Respectez les consignes du personnel et les panneaux de signalisation<br/><img alt="⚠️" src="https://s.w.org/images/core/emoji/17.0.2/svg/26a0.svg"/> Ne vous éloignez pas du groupe si vous êtes avec d’autres familles<br/><img alt="⚠️" src="https://s.w.org/images/core/emoji/17.0.2/svg/26a0.svg"/> En cas de difficulté, restez calme et signalez votre position</p>
+<p>Pourquoi cette expérience nous a marqué ?</p>
+<p><img alt="✨" src="https://s.w.org/images/core/emoji/17.0.2/svg/2728.svg"/> L’originalité : Voir Zurich depuis la rivière offre une perspective unique et inoubliable<br/><img alt="✨" src="https://s.w.org/images/core/emoji/17.0.2/svg/2728.svg"/> L’accessibilité : Parfait pour toute la famille, même avec des enfants à partir de 8 ans<br/><img alt="✨" src="https://s.w.org/images/core/emoji/17.0.2/svg/2728.svg"/> La détente : Un moment de déconnexion totale en pleine nature urbaine<br/><img alt="✨" src="https://s.w.org/images/core/emoji/17.0.2/svg/2728.svg"/> L’aventure mesurée : Des sensations sans danger excessif<br/><img alt="✨" src="https://s.w.org/images/core/emoji/17.0.2/svg/2728.svg"/> La fraîcheur : Un moyen idéal de lutter contre la chaleur estivale<br/><img alt="✨" src="https://s.w.org/images/core/emoji/17.0.2/svg/2728.svg"/> Les souvenirs : Des photos et des moments uniques gravés dans nos mémoires<br/><img alt="✨" src="https://s.w.org/images/core/emoji/17.0.2/svg/2728.svg"/> La simplicité : Aucune compétence particulière requise, juste l’envie de se laisser porter</p>
+<p>Et vous, prêts pour l’aventure ?</p>
+<p><img alt="📸" src="https://s.w.org/images/core/emoji/17.0.2/svg/1f4f8.svg"/> Retrouvez toute notre galerie photo de cette aventure aquatique sur notre compte Instagram @Heldonica ! Découvrez les paysages urbains vus depuis l’eau, nos moments de détente et les sourires complices partagés en famille au fil de la Limmat.</p>
+<p><img alt="💬" src="https://s.w.org/images/core/emoji/17.0.2/svg/1f4ac.svg"/> Racontez-nous en commentaires : avez-vous déjà tenté une descente de rivière en ville ? Quelle est votre activité estivale préférée pour vous rafraîchir en famille ? Nous adorons échanger sur nos découvertes et astuces pour des étés mémorables !</p>
+<p>FlotterLimmat #ZurichEte #AventureAquatique #DescenteRiviere #SuisseNaturelle #VoyageEnFamille #EteZurich #RafraichissementUrbain #AventureFamiliale #Heldonica #TourismeSuisse #ActiviteEstivale #ZurichInsolite #VacancesActives #DetenteAquatiqueFlotterLimmat #ZurichEte #AventureAquatique #DescenteRiviere #SuisseNaturelle #VoyageEnFamille #EteZurich #RafraichissementUrbain #AventureFamiliale #Heldonica #TourismeSuisse #ActiviteEstivale #ZurichInsolite #VacancesActives #DetenteAquatiqueFlotterLimmat #ZurichEte #AventureAquatique #DescenteRiviere #SuisseNaturelle #VoyageEnFamille #EteZurich #RafraichissementUrbain #AventureFamiliale #Heldonica #TourismeSuisse #ActiviteEstivale #ZurichInsolite #VacancesActives #DetenteAquatiqueFlotterLimmat #ZurichEte #AventureAquatique #DescenteRiviere #SuisseNaturelle #VoyageEnFamille #EteZurich #RafraichissementUrbain #AventureFamiliale #Heldonica #TourismeSuisse #ActiviteEstivale #ZurichInsolite #VacancesActives #DetenteAquatiqueQuand les températures estivales grimpent et que l’envie d’évasion se fait sentir, il n’y a rien de tel qu’une descente rafraîchissante de la Limmat à Zurich ! Cette aventure aquatique en famille nous a offert une perspective totalement inédite de la plus grande ville suisse, mêlant détente, frissons et découvertes urbaines. De la location du matériel jusqu’à l’arrivée au point final, en passant par les moments magiques au fil de l’eau, découvrez pourquoi cette expérience estivale mérite absolument sa place dans vos projets de voyage en Suisse !</p>
+</div>`,
     image: "",
   },
   {
