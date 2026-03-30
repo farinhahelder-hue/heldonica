@@ -3,51 +3,153 @@ import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
 import Link from 'next/link'
 
+export const metadata = {
+  title: 'Travel Planning sur mesure | Heldonica',
+  description: 'On conçoit ton voyage en couple sur mesure : itinéraires slow travel, hébergements éco-responsables, pépites hors sentiers battus. Demande gratuite.',
+}
+
+const services = [
+  {
+    icon: '🗺️',
+    title: 'Itinéraire 100 % sur mesure',
+    desc: 'On part de tes envies, ton rythme, ta durée. Chaque journée est pensée pour que tu vives un vrai voyage — pas une liste de cases à cocher.',
+  },
+  {
+    icon: '🌿',
+    title: 'Hébergements éco & authentiques',
+    desc: 'Maisons d\'hôtes locales, écolodges, petits hôtels indépendants testés sur le terrain. Zéro chaîne, 100 % immersion.',
+  },
+  {
+    icon: '💑',
+    title: 'Pensé pour les couples',
+    desc: 'Ni tout-inclus, ni programme chargé. Des moments à deux, des pépites dénichées, une évasion qui vous ressemble.',
+  },
+  {
+    icon: '📍',
+    title: 'Logistique clé en main',
+    desc: 'Transports, réservations, carnet de route PDF, contacts locaux. Tu n\'as plus qu\'à partir.',
+  },
+  {
+    icon: '♻️',
+    title: 'Voyage éco-responsable',
+    desc: 'On intègre dès la conception des choix bas-carbone, des acteurs locaux et des pratiques respectueuses des territoires.',
+  },
+  {
+    icon: '💬',
+    title: 'Suivi personnalisé',
+    desc: 'Un échange humain à chaque étape. On répond à tes questions avant, pendant et après le voyage.',
+  },
+]
+
+const steps = [
+  { num: '01', title: 'Tu remplis le formulaire', desc: 'Destination rêvée, durée, budget, style de voyage — 5 minutes suffisent.' },
+  { num: '02', title: 'On échange ensemble', desc: 'Un appel ou échange écrit pour affiner ta vision et te proposer une approche personnalisée.' },
+  { num: '03', title: 'On crée ton itinéraire', desc: 'Recherches, tests, sélection rigoureuse. On te livre un carnet de route détaillé.' },
+  { num: '04', title: 'Tu pars l\'esprit libre', desc: 'Tout est prêt. Il ne reste plus qu\'à vivre l\'aventure.' },
+]
+
 export default function TravelPlanning() {
   return (
     <>
       <Header />
       <Breadcrumb />
       <main>
-        <section className="bg-gradient-to-br from-cloud-dancer to-white py-20 md:py-32">
-          <div className="container">
-            <h1 className="text-5xl md:text-6xl font-serif font-bold text-mahogany mb-6">Travel Planning</h1>
-            <p className="text-xl text-charcoal max-w-2xl">
-              Conception sur mesure de voyages lents et authentiques pour couples. Itinéraires hors sentiers, hébergements éco, budget optimisé.
+
+        {/* ── HERO ── */}
+        <section className="relative bg-gradient-to-br from-[#F8F4EF] via-[#e8f0ec] to-[#2A7A6F]/20 py-24 md:py-40 overflow-hidden">
+          <div className="absolute inset-0 opacity-10 bg-[url('/images/texture-organic.svg')] bg-cover pointer-events-none" />
+          <div className="container relative z-10 max-w-4xl mx-auto text-center px-6">
+            <span className="inline-block text-sm font-semibold tracking-widest text-[#2A7A6F] uppercase mb-4">
+              Slow Travel · Sur mesure · En couple
+            </span>
+            <h1 className="text-5xl md:text-7xl font-serif font-bold text-[#6B2737] leading-tight mb-6">
+              Ton prochain voyage,<br />
+              <span className="text-[#2A7A6F]">rien que pour vous deux.</span>
+            </h1>
+            <p className="text-xl md:text-2xl text-[#3D3D3D] max-w-2xl mx-auto mb-10 leading-relaxed">
+              On conçoit des escapades lentes et authentiques — des pépites hors sentiers battus, des hébergements qui ont une âme, des instants qu'on n'oublie pas.
             </p>
+            <a
+              href="https://tally.so/r/heldonica-travel"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block px-10 py-4 bg-[#6B2737] text-white text-lg font-semibold rounded-xl shadow-lg hover:bg-[#5a1f2d] transition-all duration-200 hover:-translate-y-0.5"
+            >
+              ✨ Faire ma demande gratuite
+            </a>
+            <p className="mt-4 text-sm text-[#3D3D3D]/60">Sans engagement · Réponse sous 48h</p>
           </div>
         </section>
 
-        <section className="bg-white section-spacing">
-          <div className="container">
-            <h2 className="text-4xl font-serif font-bold text-mahogany mb-12 text-center">Nos Services</h2>
-            
-            <div className="grid md:grid-cols-3 gap-8">
-              {[
-                { title: 'Itinéraires sur mesure', desc: 'Découvrez des destinations hors sentiers battus, adaptées à votre rythme.' },
-                { title: 'Hébergements éco', desc: 'Sélection d\'hébergements authentiques et responsables pour une immersion.' },
-                { title: 'Budget optimisé', desc: 'Maximisez votre expérience sans exploser votre budget.' },
-              ].map((service, i) => (
-                <div key={i} className="p-8 border border-gray-200 rounded-lg hover:shadow-lg transition">
-                  <h3 className="text-2xl font-serif font-bold text-mahogany mb-4">{service.title}</h3>
-                  <p className="text-gray-700">{service.desc}</p>
+        {/* ── ACCROCHE HUMAINE ── */}
+        <section className="bg-white py-20 px-6">
+          <div className="container max-w-3xl mx-auto text-center">
+            <p className="text-2xl md:text-3xl font-serif text-[#3D3D3D] leading-relaxed italic">
+              "On voyage depuis des années en cherchant le vrai goût des endroits — loin des circuits, proches des gens. Aujourd'hui, on met cette expertise à votre service."
+            </p>
+            <span className="block mt-6 text-sm font-semibold tracking-wide text-[#2A7A6F] uppercase">— Heldonica, L'Expert de l'Aventure</span>
+          </div>
+        </section>
+
+        {/* ── CE QU'ON FAIT ── */}
+        <section className="bg-[#F8F4EF] py-20 px-6">
+          <div className="container max-w-6xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-serif font-bold text-[#6B2737] text-center mb-4">Ce qu'on crée pour toi</h2>
+            <p className="text-center text-[#3D3D3D]/70 mb-14 text-lg">Un voyage pensé de A à Z, avec l'obsession du détail juste.</p>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {services.map((s, i) => (
+                <div
+                  key={i}
+                  className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow border border-[#2A7A6F]/10 group"
+                >
+                  <span className="text-4xl mb-4 block">{s.icon}</span>
+                  <h3 className="text-xl font-serif font-bold text-[#6B2737] mb-3 group-hover:text-[#2A7A6F] transition-colors">{s.title}</h3>
+                  <p className="text-[#3D3D3D]/75 leading-relaxed">{s.desc}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="bg-gradient-to-r from-eucalyptus to-teal section-spacing">
-          <div className="container text-center">
-            <h2 className="text-4xl font-serif font-bold text-white mb-6">Prêt pour l'aventure ?</h2>
-            <p className="text-white/90 mb-8 text-lg max-w-2xl mx-auto">
-              Contactez-nous pour planifier votre prochain voyage en couple.
-            </p>
-            <button className="px-8 py-3 bg-white text-eucalyptus font-semibold rounded-lg hover:bg-cloud-dancer transition">
-              Nous contacter
-            </button>
+        {/* ── COMMENT ÇA MARCHE ── */}
+        <section className="bg-white py-20 px-6">
+          <div className="container max-w-4xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-serif font-bold text-[#6B2737] text-center mb-14">Comment ça marche ?</h2>
+            <div className="space-y-10">
+              {steps.map((step, i) => (
+                <div key={i} className="flex gap-6 items-start">
+                  <span className="text-5xl font-serif font-bold text-[#2A7A6F]/25 leading-none w-16 shrink-0">{step.num}</span>
+                  <div>
+                    <h3 className="text-xl font-serif font-bold text-[#6B2737] mb-1">{step.title}</h3>
+                    <p className="text-[#3D3D3D]/70 leading-relaxed">{step.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
+
+        {/* ── CTA FINAL ── */}
+        <section className="bg-gradient-to-r from-[#2A7A6F] to-[#1a5c54] py-24 px-6">
+          <div className="container max-w-3xl mx-auto text-center">
+            <h2 className="text-4xl md:text-5xl font-serif font-bold text-white mb-6">
+              Prêts pour l'aventure ?
+            </h2>
+            <p className="text-white/85 text-xl mb-10 leading-relaxed">
+              Dis-nous où tu rêves d'aller. On s'occupe du reste.
+            </p>
+            <a
+              href="https://tally.so/r/heldonica-travel"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block px-12 py-5 bg-[#F8F4EF] text-[#6B2737] text-xl font-bold rounded-xl shadow-xl hover:bg-white transition-all duration-200 hover:-translate-y-0.5"
+            >
+              ✨ Faire ma demande gratuite
+            </a>
+            <p className="mt-5 text-white/60 text-sm">Sans engagement · Réponse sous 48h · 100 % humain</p>
+          </div>
+        </section>
+
       </main>
       <Footer />
     </>
