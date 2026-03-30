@@ -44,14 +44,17 @@ export default function Home() {
                 Un art du voyage autrement
               </h2>
               <p className="text-lg text-gray-700 leading-relaxed mb-4">
-                Nous sommes un duo de contrastes : elle, urbaine parisienne, sensible à l'architecture, à la philosophie et aux détails qui font vibrer une ville ; lui, passionné d'histoire, de photographie et de territoires oubliés.
+                On est deux, et on se complète à la perfection. Elle, Parisienne dans l'âme, lit une ville comme un poème : une façade haussmannienne, une terrasse suspendue, la lumière qui change à 17h sur les pavés. Lui, le regard tourné vers l'histoire et les territoires oubliés, traque les paysages que les guides ne montrent pas encore — et les immortalise avant qu'ils ne disparaissent.
               </p>
               <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                Ensemble, nous explorons la nature, les villes à contre-courant, les lieux singuliers, la gastronomie locale et toutes les façons de voyager autrement. À travers nos itinéraires vécus, nos adresses testées et nos inspirations gourmandes, nous partageons un art du voyage plus lent, plus sensoriel, plus vivant.
+                Ensemble, on explore autrement. Les villes à contre-courant, les chemins qui s'éloignent des flux, les tables où l'on mange vrai, les pépites dénichées loin des sentiers balisés. Nos itinéraires, on les a vécus, pas seulement planifiés. Nos adresses, on les a testées. Nos inspirations, elles viennent du terrain.
+              </p>
+              <p className="text-lg text-gray-700 leading-relaxed mb-6">
+                Ce qu'on partage ici, c'est un voyage plus lent, plus sensoriel, plus vivant — là où chaque détail devient une raison de rester un peu plus longtemps.
               </p>
               <div className="space-y-2 text-gray-600">
-                <p><strong>Terrains signatures :</strong></p>
-                <p className="text-sm">Paris • Île-de-France • Normandie • Le Havre • Madère • Timișoara</p>
+                <p><strong>Nos terrains de jeu :</strong></p>
+                <p className="text-sm">Paris · Île-de-France · Normandie · Le Havre · Madère · Timișoara</p>
               </div>
             </div>
             <div className="bg-gradient-to-br from-amber-50 to-green-50 rounded-lg p-8 h-96 flex items-center justify-center">
