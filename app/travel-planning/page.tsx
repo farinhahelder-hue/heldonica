@@ -1,6 +1,7 @@
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
+import Link from 'next/link'
 
 export const metadata = {
   title: 'Travel Planning sur mesure | Heldonica',
@@ -41,16 +42,14 @@ export default function TravelPlanning() {
               <span className="text-[#2A7A6F]">rien que pour vous deux.</span>
             </h1>
             <p className="text-xl md:text-2xl text-[#3D3D3D] max-w-2xl mx-auto mb-10 leading-relaxed">
-              On conçoit des escapades lentes et authentiques — des pépites hors sentiers battus, des hébergements qui ont une âme, des instants qu'on n'oublie pas.
+              On conçoit des escapades lentes et authentiques — des pépites hors sentiers battus, des hébergements qui ont une âme, des instants qu&apos;on n&apos;oublie pas.
             </p>
-            <a
-              href="https://tally.so/r/heldonica-travel"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/travel-planning-form"
               className="inline-block px-10 py-4 bg-[#6B2737] text-white text-lg font-semibold rounded-xl shadow-lg hover:bg-[#5a1f2d] transition-all duration-200"
             >
               ✨ Faire ma demande gratuite
-            </a>
+            </Link>
             <p className="mt-4 text-sm text-[#3D3D3D]/60">Sans engagement · Réponse sous 48h</p>
           </div>
         </section>
@@ -59,17 +58,17 @@ export default function TravelPlanning() {
         <section className="bg-white py-20 px-6">
           <div className="container max-w-3xl mx-auto text-center">
             <p className="text-2xl md:text-3xl font-serif text-[#3D3D3D] leading-relaxed italic">
-              &ldquo;On voyage depuis des ann&eacute;es en cherchant le vrai go&ucirc;t des endroits &mdash; loin des circuits, proches des gens. Aujourd&apos;hui, on met cette expertise &agrave; votre service.&rdquo;
+              &ldquo;On voyage depuis des années en cherchant le vrai goût des endroits — loin des circuits, proches des gens. Aujourd&apos;hui, on met cette expertise à votre service.&rdquo;
             </p>
-            <span className="block mt-6 text-sm font-semibold tracking-wide text-[#2A7A6F] uppercase">&mdash; Heldonica, L&apos;Expert de l&apos;Aventure</span>
+            <span className="block mt-6 text-sm font-semibold tracking-wide text-[#2A7A6F] uppercase">— Heldonica, L&apos;Expert de l&apos;Aventure</span>
           </div>
         </section>
 
         {/* SERVICES */}
         <section className="bg-[#F8F4EF] py-20 px-6">
           <div className="container max-w-6xl mx-auto">
-            <h2 className="text-4xl md:text-5xl font-serif font-bold text-[#6B2737] text-center mb-4">Ce qu&apos;on cr&eacute;e pour toi</h2>
-            <p className="text-center text-[#3D3D3D]/70 mb-14 text-lg">Un voyage pens&eacute; de A &agrave; Z, avec l&apos;obsession du d&eacute;tail juste.</p>
+            <h2 className="text-4xl md:text-5xl font-serif font-bold text-[#6B2737] text-center mb-4">Ce qu&apos;on crée pour toi</h2>
+            <p className="text-center text-[#3D3D3D]/70 mb-14 text-lg">Un voyage pensé de A à Z, avec l&apos;obsession du détail juste.</p>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {services.map((s, i) => (
                 <div key={i} className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow border border-[#2A7A6F]/10">
@@ -85,7 +84,7 @@ export default function TravelPlanning() {
         {/* STEPS */}
         <section className="bg-white py-20 px-6">
           <div className="container max-w-4xl mx-auto">
-            <h2 className="text-4xl md:text-5xl font-serif font-bold text-[#6B2737] text-center mb-14">Comment &ccedil;a marche&nbsp;?</h2>
+            <h2 className="text-4xl md:text-5xl font-serif font-bold text-[#6B2737] text-center mb-14">Comment ça marche&nbsp;?</h2>
             <div className="space-y-10">
               {steps.map((step, i) => (
                 <div key={i} className="flex gap-6 items-start">
@@ -103,17 +102,15 @@ export default function TravelPlanning() {
         {/* CTA FINAL */}
         <section className="bg-gradient-to-r from-[#2A7A6F] to-[#1a5c54] py-24 px-6">
           <div className="container max-w-3xl mx-auto text-center">
-            <h2 className="text-4xl md:text-5xl font-serif font-bold text-white mb-6">Pr&ecirc;ts pour l&apos;aventure&nbsp;?</h2>
-            <p className="text-white/85 text-xl mb-10 leading-relaxed">Dis-nous o&ugrave; tu r&ecirc;ves d&apos;aller. On s&apos;occupe du reste.</p>
-            <a
-              href="https://tally.so/r/heldonica-travel"
-              target="_blank"
-              rel="noopener noreferrer"
+            <h2 className="text-4xl md:text-5xl font-serif font-bold text-white mb-6">Prêts pour l&apos;aventure&nbsp;?</h2>
+            <p className="text-white/85 text-xl mb-10 leading-relaxed">Dis-nous où tu rêves d&apos;aller. On s&apos;occupe du reste.</p>
+            <Link
+              href="/travel-planning-form"
               className="inline-block px-12 py-5 bg-[#F8F4EF] text-[#6B2737] text-xl font-bold rounded-xl shadow-xl hover:bg-white transition-all duration-200"
             >
               ✨ Faire ma demande gratuite
-            </a>
-            <p className="mt-5 text-white/60 text-sm">Sans engagement &middot; R&eacute;ponse sous 48h &middot; 100&nbsp;% humain</p>
+            </Link>
+            <p className="mt-5 text-white/60 text-sm">Sans engagement · Réponse sous 48h · 100&nbsp;% humain</p>
           </div>
         </section>
 
