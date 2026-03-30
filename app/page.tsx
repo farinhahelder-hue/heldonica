@@ -22,7 +22,7 @@ export default function Home() {
             Explorateurs émerveillés, dénicheurs de pépites.
           </h1>
           <p className="text-xl md:text-2xl font-light text-gray-200 leading-relaxed mb-8">
-            Nous croyons que l'aventure ne se trouve pas seulement au bout du monde. Elle se cache dans une ruelle oubliée, un marché de quartier, un café discret en Provence, un sentier silencieux ou une adresse simple qui révèle toute l'âme d'un lieu.
+            Nous croyons que l&apos;aventure ne se trouve pas seulement au bout du monde. Elle se cache dans une ruelle oubliée, un marché de quartier, un café discret en Provence, un sentier silencieux ou une adresse simple qui révèle toute l&apos;âme d&apos;un lieu.
           </p>
           <div className="flex gap-4 justify-center">
             <a href="/blog" className="px-8 py-3 bg-amber-900 hover:bg-amber-800 text-white rounded-lg font-semibold transition">
@@ -44,17 +44,20 @@ export default function Home() {
                 Un art du voyage autrement
               </h2>
               <p className="text-lg text-gray-700 leading-relaxed mb-4">
-                On est deux, et on se complète à la perfection. Elle, Parisienne dans l'âme, lit une ville comme un poème : une façade haussmannienne, une terrasse suspendue, la lumière qui change à 17h sur les pavés. Lui, le regard tourné vers l'histoire et les territoires oubliés, traque les paysages que les guides ne montrent pas encore — et les immortalise avant qu'ils ne disparaissent.
+                On est deux, et on se complète à la perfection. Elle, Roumaine — une enfance entre les Carpates et l&apos;Europe entière, sept pays habités, sept façons d&apos;apprendre à lire le monde — lit une ville comme un poème : une façade haussmannienne, une terrasse suspendue, la lumière qui bascule à 17h sur les pavés d&apos;une ruelle qu&apos;elle seule remarque. Lui, insulaire de Madère dans l&apos;âme — né entre l&apos;Atlantique et les falaises vertigineuses — part à l&apos;aventure là où les cartes s&apos;arrêtent, traquant les paysages que les guides ne montrent pas encore et les immortalisant avant qu&apos;ils ne disparaissent.
+              </p>
+              <p className="text-lg text-gray-700 leading-relaxed mb-4">
+                Et c&apos;est à Paris qu&apos;on s&apos;est trouvés. Deux trajectoires opposées, une même envie : explorer autrement.
               </p>
               <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                Ensemble, on explore autrement. Les villes à contre-courant, les chemins qui s'éloignent des flux, les tables où l'on mange vrai, les pépites dénichées loin des sentiers balisés. Nos itinéraires, on les a vécus, pas seulement planifiés. Nos adresses, on les a testées. Nos inspirations, elles viennent du terrain.
+                Les villes à contre-courant, les chemins qui s&apos;éloignent des flux, les tables où l&apos;on mange vrai, les pépites dénichées loin des sentiers balisés. Nos itinéraires, on les a vécus, pas seulement planifiés. Nos adresses, on les a testées. Nos inspirations, elles viennent du terrain — toujours.
               </p>
               <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                Ce qu'on partage ici, c'est un voyage plus lent, plus sensoriel, plus vivant — là où chaque détail devient une raison de rester un peu plus longtemps.
+                Ce qu&apos;on partage ici, c&apos;est un voyage plus lent, plus sensoriel, plus vivant — là où chaque détail devient une raison de rester un peu plus longtemps.
               </p>
               <div className="space-y-2 text-gray-600">
                 <p><strong>Nos terrains de jeu :</strong></p>
-                <p className="text-sm">Paris · Île-de-France · Normandie · Le Havre · Madère · Timișoara</p>
+                <p className="text-sm">Paris · Île-de-France · Normandie · Le Havre · Madère · Timișoara · Malte · Sicile · Sardaigne · Tanzanie · Colombie · Afrique du Sud</p>
               </div>
             </div>
             <div className="bg-gradient-to-br from-amber-50 to-green-50 rounded-lg p-8 h-96 flex items-center justify-center">
@@ -135,7 +138,7 @@ export default function Home() {
             <div className="bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg p-8 h-96 flex items-center justify-center">
               <div className="text-center">
                 <div className="text-6xl mb-4">🍽️</div>
-                <p className="text-gray-700 italic font-semibold">La gastronomie, c'est l'âme d'un voyage.</p>
+                <p className="text-gray-700 italic font-semibold">La gastronomie, c&apos;est l&apos;âme d&apos;un voyage.</p>
               </div>
             </div>
             <div>
@@ -146,7 +149,7 @@ export default function Home() {
                 Nous ne voyageons pas seulement pour voir, mais aussi pour goûter. Chaque destination révèle ses saveurs authentiques : les recettes portugaises transmises de génération en génération, les brasseries parisiennes incontournables, les restaurants cachés qui font vibrer les cœurs.
               </p>
               <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                Nos sélections culinaires ne sont jamais des listes touristiques. Ce sont des adresses testées, des rencontres avec des chefs passionnés, des moments de partage autour d'une table où l'on raconte des histoires.
+                Nos sélections culinaires ne sont jamais des listes touristiques. Ce sont des adresses testées, des rencontres avec des chefs passionnés, des moments de partage autour d&apos;une table où l&apos;on raconte des histoires.
               </p>
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
