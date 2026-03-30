@@ -109,11 +109,11 @@ export default function DestinationsPage() {
       <Header />
       <Breadcrumb />
       <div className="min-h-screen bg-white">
-        <div className="container mx-auto px-4 py-16">
-          <h1 className="text-4xl font-bold text-center mb-4">Nos Destinations</h1>
-          <p className="text-gray-600 text-center mb-12">Découvrez nos destinations de voyage</p>
+        <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-16">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-2 sm:mb-4">Nos Destinations</h1>
+          <p className="text-sm sm:text-base text-gray-600 text-center mb-8 sm:mb-12">Découvrez nos destinations de voyage</p>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
           {destinations.map((dest) => (
             <Link 
               key={dest.id}
@@ -128,10 +128,10 @@ export default function DestinationsPage() {
                 />
               </div>
               <div className="p-4">
-                <h2 className="font-semibold text-lg group-hover:text-amber-900">{dest.name}</h2>
-                <p className="text-sm text-gray-500">{dest.region}</p>
-                <p className="text-sm text-gray-600 mt-2">{dest.description}</p>
-                <div className="mt-3 flex justify-between text-xs text-gray-500">
+                <h2 className="font-semibold text-base sm:text-lg group-hover:text-amber-900">{dest.name}</h2>
+                <p className="text-xs sm:text-sm text-gray-500">{dest.region}</p>
+                <p className="text-xs sm:text-sm text-gray-600 mt-1 sm:mt-2">{dest.description}</p>
+                <div className="mt-2 sm:mt-3 flex justify-between text-xs text-gray-500">
                   <span>⏱️ {dest.duration}</span>
                   <span>💰 {dest.budget}</span>
                 </div>
