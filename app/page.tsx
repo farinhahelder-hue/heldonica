@@ -17,18 +17,18 @@ export default function Home() {
           className="absolute inset-0 w-full h-full object-cover opacity-40"
           src="https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4"
         />
-        <div className="relative z-10 text-center text-white px-4 max-w-4xl">
-          <h1 className="text-6xl md:text-7xl font-serif font-light mb-6 tracking-tight">
+        <div className="relative z-10 text-center text-white px-4 sm:px-6 max-w-4xl">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-light mb-4 sm:mb-6 tracking-tight">
             Explorateurs émerveillés, dénicheurs de pépites.
           </h1>
-          <p className="text-xl md:text-2xl font-light text-gray-200 leading-relaxed mb-8">
+          <p className="text-sm sm:text-base md:text-xl lg:text-2xl font-light text-gray-200 leading-relaxed mb-6 sm:mb-8">
             Nous croyons que l'aventure ne se trouve pas seulement au bout du monde. Elle se cache dans une ruelle oubliée, un marché de quartier, un café discret en Provence, un sentier silencieux ou une adresse simple qui révèle toute l'âme d'un lieu.
           </p>
-          <div className="flex gap-4 justify-center">
-            <a href="/blog" className="px-8 py-3 bg-amber-900 hover:bg-amber-800 text-white rounded-lg font-semibold transition">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+            <a href="/blog" className="px-6 sm:px-8 py-2 sm:py-3 bg-amber-900 hover:bg-amber-800 text-white rounded-lg font-semibold transition text-sm sm:text-base">
               Découvrir nos carnets
             </a>
-            <a href="/travel-planning-form" className="px-8 py-3 border-2 border-white hover:bg-white hover:text-black text-white rounded-lg font-semibold transition">
+            <a href="/travel-planning-form" className="px-6 sm:px-8 py-2 sm:py-3 border-2 border-white hover:bg-white hover:text-black text-white rounded-lg font-semibold transition text-sm sm:text-base">
               Voyage sur mesure
             </a>
           </div>
@@ -36,11 +36,11 @@ export default function Home() {
       </section>
 
       {/* PRÉSENTATION DU CONCEPT */}
-      <section className="py-20 bg-white">
-        <div className="max-w-5xl mx-auto px-4 md:px-6">
+      <section className="py-12 sm:py-16 md:py-20 bg-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-4xl md:text-5xl font-serif font-light mb-6 text-gray-900">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-light mb-4 sm:mb-6 text-gray-900">
                 Un art du voyage autrement
               </h2>
               <p className="text-lg text-gray-700 leading-relaxed mb-4">
@@ -54,9 +54,9 @@ export default function Home() {
                 <p className="text-sm">Paris • Île-de-France • Normandie • Le Havre • Madère • Timișoara</p>
               </div>
             </div>
-            <div className="bg-gradient-to-br from-amber-50 to-green-50 rounded-lg p-8 h-96 flex items-center justify-center">
+            <div className="bg-gradient-to-br from-amber-50 to-green-50 rounded-lg p-4 sm:p-8 h-64 sm:h-96 flex items-center justify-center">
               <div className="text-center">
-                <div className="text-6xl mb-4">🗺️</div>
+                <div className="text-4xl sm:text-6xl mb-2 sm:mb-4">🗺️</div>
                 <p className="text-gray-600 italic">Chaque lieu raconte une histoire. Nous les racontons ensemble.</p>
               </div>
             </div>
@@ -65,16 +65,16 @@ export default function Home() {
       </section>
 
       {/* SÉLECTION D'ITINÉRAIRES */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-6xl mx-auto px-4 md:px-6">
-          <h2 className="text-4xl md:text-5xl font-serif font-light mb-4 text-gray-900 text-center">
-            Nos itinéraires vécus
+      <section className="py-12 sm:py-16 md:py-20 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-light mb-2 sm:mb-4 text-gray-900 text-center">
+            Nos itéraires vécus
           </h2>
           <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
             Des carnets de voyage authentiques, testés et documentés. Chaque itinéraire est une invitation à découvrir autrement.
           </p>
           
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {[
               {
                 title: "Madère Slow Travel",
@@ -126,17 +126,17 @@ export default function Home() {
       </section>
 
       {/* BLOC INSPIRATION CULINAIRE */}
-      <section className="py-20 bg-white">
-        <div className="max-w-6xl mx-auto px-4 md:px-6">
+      <section className="py-12 sm:py-16 md:py-20 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg p-8 h-96 flex items-center justify-center">
+            <div className="bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg p-4 sm:p-8 h-64 sm:h-96 flex items-center justify-center">
               <div className="text-center">
-                <div className="text-6xl mb-4">🍽️</div>
+                <div className="text-4xl sm:text-6xl mb-2 sm:mb-4">🙴️</div>
                 <p className="text-gray-700 italic font-semibold">La gastronomie, c'est l'âme d'un voyage.</p>
               </div>
             </div>
             <div>
-              <h2 className="text-4xl md:text-5xl font-serif font-light mb-6 text-gray-900">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-light mb-4 sm:mb-6 text-gray-900">
                 Inspirations gourmandes
               </h2>
               <p className="text-lg text-gray-700 leading-relaxed mb-4">
@@ -174,16 +174,16 @@ export default function Home() {
       </section>
 
       {/* SERVICES & VOYAGE SUR MESURE */}
-      <section className="py-20 bg-gradient-to-br from-amber-900 to-green-900 text-white">
-        <div className="max-w-6xl mx-auto px-4 md:px-6">
-          <h2 className="text-4xl md:text-5xl font-serif font-light mb-4 text-center">
+      <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-br from-amber-900 to-green-900 text-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-light mb-2 sm:mb-4 text-center">
             Voyage sur mesure
           </h2>
           <p className="text-center text-amber-100 mb-12 max-w-2xl mx-auto text-lg">
             Confiez-nous les clés de votre prochaine aventure. Nous créons des itinéraires qui vous ressemblent.
           </p>
 
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 mb-8 sm:mb-12">
             {[
               {
                 title: "Itinéraires personnalisés",
@@ -209,17 +209,17 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="text-center space-y-4">
-            <div>
+          <div className="text-center space-y-3 sm:space-y-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
               <a 
                 href="/destinations" 
-                className="inline-block px-8 py-4 bg-white text-amber-900 rounded-lg font-semibold hover:bg-amber-50 transition shadow-lg mr-4"
+                className="inline-block px-6 sm:px-8 py-2 sm:py-4 bg-white text-amber-900 rounded-lg font-semibold hover:bg-amber-50 transition shadow-lg text-sm sm:text-base"
               >
                 Découvrir nos destinations →
               </a>
               <a 
                 href="/travel-planning-form" 
-                className="inline-block px-8 py-4 bg-white text-amber-900 rounded-lg font-semibold hover:bg-amber-50 transition shadow-lg"
+                className="inline-block px-6 sm:px-8 py-2 sm:py-4 bg-white text-amber-900 rounded-lg font-semibold hover:bg-amber-50 transition shadow-lg text-sm sm:text-base"
               >
                 Voyage sur mesure →
               </a>
