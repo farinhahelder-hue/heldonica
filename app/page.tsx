@@ -1,34 +1,165 @@
+'use client'
+
+import { useEffect, useRef, useState } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
 
+// Hook: scroll reveal
+function useScrollReveal() {
+  useEffect(() => {
+    const els = document.querySelectorAll('[data-reveal]')
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add('revealed')
+            io.unobserve(e.target)
+          }
+        })
+      },
+      { threshold: 0.15 }
+    )
+    els.forEach((el) => io.observe(el))
+    return () => io.disconnect()
+  }, [])
+}
+
+// Hook: counter animation
+function useCounter(target: number, duration = 1200, start = false) {
+  const [count, setCount] = useState(0)
+  useEffect(() => {
+    if (!start) return
+    let startTime: number | null = null
+    const step = (ts: number) => {
+      if (!startTime) startTime = ts
+      const progress = Math.min((ts - startTime) / duration, 1)
+      setCount(Math.floor(progress * target))
+      if (progress < 1) requestAnimationFrame(step)
+    }
+    requestAnimationFrame(step)
+  }, [start, target, duration])
+  return count
+}
+
+function AnimatedStat({ nb, label, suffix = '' }: { nb: number | string; label: string; suffix?: string }) {
+  const [started, setStarted] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const isNumeric = typeof nb === 'number'
+  const count = useCounter(isNumeric ? nb : 0, 1400, started && isNumeric)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setStarted(true); io.disconnect() } }, { threshold: 0.5 })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  return (
+    <div ref={ref} className="border-t-2 border-amber-800 pt-4 stat-card">
+      <p className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-1">
+        {isNumeric ? (started ? count + suffix : '0' + suffix) : nb}
+      </p>
+      <p className="text-xs text-stone-500 leading-snug">{label}</p>
+    </div>
+  )
+}
+
 export default function Home() {
+  useScrollReveal()
+
   return (
     <>
+      <style>{`
+        /* ── Reveal animations ── */
+        [data-reveal] {
+          opacity: 0;
+          transform: translateY(28px);
+          transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+        }
+        [data-reveal='left'] { transform: translateX(-32px); }
+        [data-reveal='right'] { transform: translateX(32px); }
+        [data-reveal='scale'] { transform: scale(0.94); }
+        [data-reveal].revealed { opacity: 1; transform: none; }
+        [data-delay='100'] { transition-delay: 0.1s; }
+        [data-delay='200'] { transition-delay: 0.2s; }
+        [data-delay='300'] { transition-delay: 0.3s; }
+        [data-delay='400'] { transition-delay: 0.4s; }
+        [data-delay='500'] { transition-delay: 0.5s; }
+        [data-delay='600'] { transition-delay: 0.6s; }
+
+        /* ── Hero title reveal ── */
+        .hero-word {
+          display: inline-block;
+          opacity: 0;
+          transform: translateY(20px);
+          animation: wordIn 0.6s cubic-bezier(0.16,1,0.3,1) forwards;
+        }
+        @keyframes wordIn {
+          to { opacity: 1; transform: none; }
+        }
+
+        /* ── Stat counter card ── */
+        .stat-card {
+          transition: transform 0.3s ease;
+        }
+        .stat-card:hover {
+          transform: translateY(-3px);
+        }
+
+        /* ── Card hover lift ── */
+        .card-lift {
+          transition: transform 0.4s cubic-bezier(0.16,1,0.3,1), box-shadow 0.4s ease;
+        }
+        .card-lift:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 20px 48px rgba(0,0,0,0.18);
+        }
+
+        /* ── Parallax hero ── */
+        .hero-video {
+          will-change: transform;
+        }
+
+        /* ── Scroll CTA pulse ── */
+        @keyframes subtlePulse {
+          0%, 100% { opacity: 0.7; transform: translateY(0); }
+          50% { opacity: 1; transform: translateY(4px); }
+        }
+        .scroll-cue { animation: subtlePulse 2.2s ease-in-out infinite; }
+      `}</style>
+
       <Header />
 
-      {/* HERO — vidéo plein écran, texte gauche aligné */}
+      {/* HERO */}
       <section className="relative h-screen bg-black flex items-end overflow-hidden">
         <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover opacity-45"
+          autoPlay muted loop playsInline
+          className="hero-video absolute inset-0 w-full h-full object-cover opacity-45"
           src="https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4"
         />
-        {/* grain overlay subtil */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
         <div className="relative z-20 px-6 md:px-16 pb-16 md:pb-24 max-w-4xl">
-          <p className="text-amber-300 text-xs font-semibold tracking-[0.2em] uppercase mb-5">Slow Travel · Voyages en couple · Paris</p>
+          <p className="text-amber-300 text-xs font-semibold tracking-[0.2em] uppercase mb-5"
+             style={{ animation: 'wordIn 0.6s 0.2s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
+            Slow Travel · Voyages en couple · Paris
+          </p>
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-light text-white leading-[1.1] mb-6">
-            Explorateurs émerveillés,<br />
-            <em>dénicheurs de pépites.</em>
+            {'Explorateurs émerveillés,'.split(' ').map((w, i) => (
+              <span key={i} className="hero-word" style={{ animationDelay: `${0.3 + i * 0.1}s` }}>{w}{' '}</span>
+            ))}
+            <br />
+            <em>{'dénicheurs de pépites.'.split(' ').map((w, i) => (
+              <span key={i} className="hero-word" style={{ animationDelay: `${0.7 + i * 0.1}s` }}>{w}{' '}</span>
+            ))}</em>
           </h1>
-          <p className="text-base md:text-lg text-gray-300 leading-relaxed mb-8 max-w-xl">
+          <p className="text-base md:text-lg text-gray-300 leading-relaxed mb-8 max-w-xl"
+             style={{ animation: 'wordIn 0.7s 1.1s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
             L&apos;aventure ne se trouve pas seulement au bout du monde — elle se cache dans une ruelle oubliée, un café discret, un sentier silencieux qui révèle l&apos;âme d&apos;un lieu.
           </p>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3"
+               style={{ animation: 'wordIn 0.7s 1.3s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
             <Link href="/blog" className="px-6 py-3 bg-amber-800 hover:bg-amber-700 text-white rounded font-semibold text-sm tracking-wide transition">
               Nos carnets de voyage
             </Link>
@@ -37,14 +168,20 @@ export default function Home() {
             </Link>
           </div>
         </div>
+        {/* Scroll cue */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 scroll-cue"
+             style={{ animation: 'subtlePulse 2.2s 1.8s ease-in-out infinite, wordIn 0.6s 1.6s forwards', opacity: 0 }}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeOpacity="0.6">
+            <path d="M12 5v14M5 12l7 7 7-7" />
+          </svg>
+        </div>
       </section>
 
-      {/* IDENTITÉ — texte + stats sans placeholder */}
+      {/* IDENTITÉ */}
       <section className="py-20 md:py-28 bg-white">
         <div className="max-w-6xl mx-auto px-6 md:px-10">
           <div className="grid md:grid-cols-5 gap-12 md:gap-16 items-start">
-            {/* Texte — 3 colonnes */}
-            <div className="md:col-span-3">
+            <div className="md:col-span-3" data-reveal="left">
               <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4">Notre histoire</p>
               <h2 className="text-3xl md:text-5xl font-serif font-light text-stone-900 leading-tight mb-6">
                 Un art du voyage
@@ -63,19 +200,11 @@ export default function Home() {
                 Lire nos carnets de voyage →
               </Link>
             </div>
-            {/* Stats — 2 colonnes */}
-            <div className="md:col-span-2 grid grid-cols-2 gap-6">
-              {[
-                { nb: "12+", label: "Destinations documentées" },
-                { nb: "100%", label: "Adresses testées sur le terrain" },
-                { nb: "7", label: "Pays habités entre nous" },
-                { nb: "2015", label: "Première aventure commune" },
-              ].map((s) => (
-                <div key={s.label} className="border-t-2 border-amber-800 pt-4">
-                  <p className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-1">{s.nb}</p>
-                  <p className="text-xs text-stone-500 leading-snug">{s.label}</p>
-                </div>
-              ))}
+            <div className="md:col-span-2 grid grid-cols-2 gap-6" data-reveal="right">
+              <AnimatedStat nb={12} suffix="+" label="Destinations documentées" />
+              <AnimatedStat nb="100%" label="Adresses testées sur le terrain" />
+              <AnimatedStat nb={7} label="Pays habités entre nous" />
+              <AnimatedStat nb={2015} label="Première aventure commune" />
               <div className="col-span-2 mt-2">
                 <p className="text-xs text-stone-400 leading-relaxed">
                   <span className="font-semibold text-stone-600">Terrains de jeu :</span><br />
@@ -87,30 +216,22 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ITINÉRAIRES — grille éditoriale asymétrique */}
+      {/* ITINÉRAIRES */}
       <section className="py-20 md:py-28 bg-stone-50">
         <div className="max-w-6xl mx-auto px-6 md:px-10">
-          <div className="flex items-end justify-between mb-12 flex-wrap gap-4">
+          <div className="flex items-end justify-between mb-12 flex-wrap gap-4" data-reveal>
             <div>
               <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-3">Carnets de voyage</p>
-              <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900">
-                Nos itinéraires vécus
-              </h2>
+              <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900">Nos itinéraires vécus</h2>
             </div>
             <Link href="/blog" className="text-sm text-amber-800 font-semibold hover:underline">Voir tous les articles →</Link>
           </div>
 
-          {/* Featured card */}
           <div className="grid md:grid-cols-2 gap-6 mb-6">
-            <Link href="/destinations" className="group relative rounded-xl overflow-hidden bg-stone-800 aspect-[4/3] md:aspect-auto">
-              <img
-                src="https://images.unsplash.com/photo-1559827291-72ee739d0d9a?w=800&q=80"
-                alt="Madère — falaises et végétation luxuriante"
+            <Link href="/destinations" className="card-lift group relative rounded-xl overflow-hidden bg-stone-800 aspect-[4/3] md:aspect-auto" data-reveal="left">
+              <img src="https://images.unsplash.com/photo-1559827291-72ee739d0d9a?w=800&q=80" alt="Madère — falaises et végétation luxuriante"
                 className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700"
-                loading="lazy"
-                width="800"
-                height="600"
-              />
+                loading="lazy" width="800" height="600" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
               <div className="absolute bottom-0 left-0 p-6">
                 <span className="inline-block bg-amber-800 text-white text-xs font-bold px-3 py-1 rounded uppercase tracking-wider mb-3">Destination</span>
@@ -121,28 +242,15 @@ export default function Home() {
 
             <div className="grid grid-rows-2 gap-6">
               {[
-                {
-                  title: "Paris Insolite",
-                  sub: "3–5 jours · Passages secrets, ateliers, bistrots authentiques",
-                  img: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80",
-                  alt: "Paris — ruelle typique",
-                },
-                {
-                  title: "Normandie Poétique",
-                  sub: "4–6 jours · Falaises de craie, villages de charme",
-                  img: "https://images.unsplash.com/photo-1601645191163-3fc0d5d64e35?w=600&q=80",
-                  alt: "Normandie — falaises d'Étretat",
-                },
-              ].map((item) => (
-                <Link key={item.title} href="/blog" className="group relative rounded-xl overflow-hidden bg-stone-800">
-                  <img
-                    src={item.img}
-                    alt={item.alt}
+                { title: 'Paris Insolite', sub: '3–5 jours · Passages secrets, ateliers, bistrots authentiques', img: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80', alt: 'Paris — ruelle typique' },
+                { title: 'Normandie Poétique', sub: '4–6 jours · Falaises de craie, villages de charme', img: 'https://images.unsplash.com/photo-1601645191163-3fc0d5d64e35?w=600&q=80', alt: 'Normandie — falaises d\'Étretat' },
+              ].map((item, i) => (
+                <Link key={item.title} href="/blog"
+                  className="card-lift group relative rounded-xl overflow-hidden bg-stone-800"
+                  data-reveal data-delay={String((i + 1) * 100 + 100)}>
+                  <img src={item.img} alt={item.alt}
                     className="absolute inset-0 w-full h-full object-cover opacity-65 group-hover:opacity-75 group-hover:scale-105 transition-all duration-700"
-                    loading="lazy"
-                    width="600"
-                    height="400"
-                  />
+                    loading="lazy" width="600" height="400" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                   <div className="absolute bottom-0 left-0 p-5">
                     <h3 className="text-white text-xl font-serif font-light">{item.title}</h3>
@@ -153,22 +261,18 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Row secondaire */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
             {[
-              { title: "Timișoara Méconnue", sub: "Architecture austro-hongroise & gastronomie", img: "https://images.unsplash.com/photo-1563889362097-f3cdfb7e1e65?w=400&q=80", alt: "Timișoara" },
-              { title: "Le Havre Contemporain", sub: "Architecture moderniste & port mythique", img: "https://images.unsplash.com/photo-1611768998625-2a2e2f9e2c71?w=400&q=80", alt: "Le Havre" },
-              { title: "Île-de-France Cachée", sub: "Châteaux, forêts & villages pittoresques", img: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400&q=80", alt: "Île-de-France" },
-            ].map((item) => (
-              <Link key={item.title} href="/blog" className="group relative rounded-xl overflow-hidden bg-stone-800 aspect-[3/2]">
-                <img
-                  src={item.img}
-                  alt={item.alt}
+              { title: 'Timișoara Méconnue', sub: 'Architecture austro-hongroise & gastronomie', img: 'https://images.unsplash.com/photo-1563889362097-f3cdfb7e1e65?w=400&q=80', alt: 'Timișoara' },
+              { title: 'Le Havre Contemporain', sub: 'Architecture moderniste & port mythique', img: 'https://images.unsplash.com/photo-1611768998625-2a2e2f9e2c71?w=400&q=80', alt: 'Le Havre' },
+              { title: 'Île-de-France Cachée', sub: 'Châteaux, forêts & villages pittoresques', img: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400&q=80', alt: 'Île-de-France' },
+            ].map((item, i) => (
+              <Link key={item.title} href="/blog"
+                className="card-lift group relative rounded-xl overflow-hidden bg-stone-800 aspect-[3/2]"
+                data-reveal data-delay={String(i * 100 + 100)}>
+                <img src={item.img} alt={item.alt}
                   className="absolute inset-0 w-full h-full object-cover opacity-65 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700"
-                  loading="lazy"
-                  width="400"
-                  height="270"
-                />
+                  loading="lazy" width="400" height="270" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                 <div className="absolute bottom-0 left-0 p-4">
                   <h3 className="text-white text-base font-serif font-semibold">{item.title}</h3>
@@ -180,29 +284,22 @@ export default function Home() {
         </div>
       </section>
 
-      {/* GASTRONOMIE — split éditorial avec vrai contenu */}
+      {/* GASTRONOMIE */}
       <section className="py-20 md:py-28 bg-white">
         <div className="max-w-6xl mx-auto px-6 md:px-10">
           <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
-            <div className="relative">
-              <img
-                src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=700&q=85"
+            <div className="relative" data-reveal="left">
+              <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=700&q=85"
                 alt="Table gastronomique — ambiance restaurant"
-                className="rounded-xl w-full aspect-[4/3] object-cover"
-                loading="lazy"
-                width="700"
-                height="525"
-              />
+                className="rounded-xl w-full aspect-[4/3] object-cover" loading="lazy" width="700" height="525" />
               <div className="absolute -bottom-4 -right-4 bg-amber-800 text-white px-5 py-3 rounded-lg shadow-lg hidden md:block">
                 <p className="text-xs font-bold tracking-wider uppercase">Adresses testées</p>
                 <p className="text-2xl font-serif font-light mt-0.5">100%</p>
               </div>
             </div>
-            <div>
+            <div data-reveal="right">
               <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4">Food &amp; Lifestyle</p>
-              <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 leading-tight mb-6">
-                Inspirations gourmandes
-              </h2>
+              <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 leading-tight mb-6">Inspirations gourmandes</h2>
               <p className="text-base text-stone-600 leading-relaxed mb-4">
                 On ne voyage pas seulement pour voir — on voyage pour goûter. Chaque destination révèle ses saveurs authentiques : les recettes portugaises transmises de génération en génération, les brasseries parisiennes que personne ne connaît encore, les restaurants cachés qui font vibrer les cœurs.
               </p>
@@ -211,9 +308,9 @@ export default function Home() {
               </p>
               <div className="space-y-4 border-l-2 border-amber-200 pl-5">
                 {[
-                  { titre: "Recettes locales", desc: "Les secrets culinaires des régions que l'on explore" },
-                  { titre: "Accords mets & ambiances", desc: "Les adresses qui subliment chaque moment de voyage" },
-                  { titre: "Rencontres culinaires", desc: "Les chefs et restaurateurs qui font la différence" },
+                  { titre: 'Recettes locales', desc: "Les secrets culinaires des régions que l'on explore" },
+                  { titre: 'Accords mets & ambiances', desc: 'Les adresses qui subliment chaque moment de voyage' },
+                  { titre: 'Rencontres culinaires', desc: 'Les chefs et restaurateurs qui font la différence' },
                 ].map((item) => (
                   <div key={item.titre}>
                     <p className="font-semibold text-stone-800 text-sm">{item.titre}</p>
@@ -226,11 +323,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA VOYAGE SUR MESURE — fond sombre sobre */}
+      {/* CTA TRAVEL PLANNING */}
       <section className="py-20 md:py-28 bg-stone-900 text-white">
         <div className="max-w-5xl mx-auto px-6 md:px-10">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
+            <div data-reveal="left">
               <p className="text-amber-400 text-xs font-bold tracking-[0.2em] uppercase mb-4">Travel Planning</p>
               <h2 className="text-3xl md:text-5xl font-serif font-light leading-tight mb-6">
                 Votre aventure,<br />
@@ -248,11 +345,11 @@ export default function Home() {
                 </Link>
               </div>
             </div>
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 gap-4" data-reveal="right">
               {[
-                { titre: "Itinéraires personnalisés", desc: "Basés sur vos envies, votre rythme, vos contraintes. Aucun voyage ne se ressemble." },
-                { titre: "Adresses vécues, pas inventées", desc: "Hôtels de charme, restaurants cachés, expériences de terrain — chaque recommandation est vérifiée." },
-                { titre: "Carnet de voyage complet", desc: "Cartes, conseils pratiques, adresses et inspirations pour chaque étape de votre aventure." },
+                { titre: 'Itinéraires personnalisés', desc: 'Basés sur vos envies, votre rythme, vos contraintes. Aucun voyage ne se ressemble.' },
+                { titre: 'Adresses vécues, pas inventées', desc: 'Hôtels de charme, restaurants cachés, expériences de terrain — chaque recommandation est vérifiée.' },
+                { titre: 'Carnet de voyage complet', desc: 'Cartes, conseils pratiques, adresses et inspirations pour chaque étape de votre aventure.' },
               ].map((item) => (
                 <div key={item.titre} className="border border-white/10 rounded-lg p-5 hover:border-white/25 transition">
                   <h3 className="font-semibold text-white text-sm mb-1">{item.titre}</h3>
@@ -264,11 +361,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CONSULTING HÔTELIER — split inversé */}
+      {/* CONSULTING HÔTELIER */}
       <section className="py-20 md:py-24 bg-stone-100">
         <div className="max-w-6xl mx-auto px-6 md:px-10">
           <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
-            <div className="order-2 md:order-1">
+            <div className="order-2 md:order-1" data-reveal="left">
               <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4">Consulting B2B</p>
               <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 leading-tight mb-6">
                 Expertise hôtelière
@@ -278,7 +375,7 @@ export default function Home() {
                 Revenue Management, SEO local, expérience client — on accompagne les établissements indépendants qui veulent piloter leur activité avec rigueur et ambition.
               </p>
               <div className="flex flex-wrap gap-2 mb-8">
-                {["Revenue Management", "SEO Local", "Expérience client", "Mix canaux", "ROI"].map((tag) => (
+                {['Revenue Management', 'SEO Local', 'Expérience client', 'Mix canaux', 'ROI'].map((tag) => (
                   <span key={tag} className="bg-white border border-stone-300 text-stone-700 text-xs font-semibold px-3 py-1 rounded-full">{tag}</span>
                 ))}
               </div>
@@ -286,15 +383,10 @@ export default function Home() {
                 Découvrir l&apos;offre consulting →
               </Link>
             </div>
-            <div className="order-1 md:order-2">
-              <img
-                src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=700&q=85"
-                alt="Hôtel — lobby élégant"
-                className="rounded-xl w-full aspect-[4/3] object-cover"
-                loading="lazy"
-                width="700"
-                height="525"
-              />
+            <div className="order-1 md:order-2" data-reveal="right">
+              <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=700&q=85"
+                alt="Hôtel — lobby élégant" className="rounded-xl w-full aspect-[4/3] object-cover"
+                loading="lazy" width="700" height="525" />
             </div>
           </div>
         </div>
@@ -302,18 +394,15 @@ export default function Home() {
 
       {/* NEWSLETTER */}
       <section className="py-16 md:py-20 bg-amber-900">
-        <div className="max-w-2xl mx-auto px-6 text-center">
+        <div className="max-w-2xl mx-auto px-6 text-center" data-reveal="scale">
           <p className="text-amber-200 text-xs font-bold tracking-[0.2em] uppercase mb-4">Newsletter</p>
           <h2 className="text-2xl md:text-3xl font-serif font-light text-white mb-3">
             Les pépites dénichées,<br /> directement dans ta boîte mail
           </h2>
           <p className="text-amber-200 text-sm mb-8">Adresses secrètes, carnets de route, conseils de terrain — 2× par mois, sans spam.</p>
           <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" onSubmit={(e) => e.preventDefault()}>
-            <input
-              type="email"
-              placeholder="ton@email.com"
-              className="flex-1 px-4 py-3 rounded text-stone-900 text-sm placeholder:text-stone-400 outline-none focus:ring-2 focus:ring-amber-400"
-            />
+            <input type="email" placeholder="ton@email.com"
+              className="flex-1 px-4 py-3 rounded text-stone-900 text-sm placeholder:text-stone-400 outline-none focus:ring-2 focus:ring-amber-400" />
             <button type="submit" className="px-6 py-3 bg-stone-900 hover:bg-stone-800 text-white rounded font-semibold text-sm transition whitespace-nowrap">
               S&apos;abonner
             </button>
