@@ -1,0 +1,89 @@
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+export interface BlogPost {
+  id: number;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  content: string | null;
+  category: string | null;
+  image_url: string | null;
+  published_at: string | null;
+  read_time: number | null;
+  tags: string[] | null;
+  destination: string | null;
+}
+
+/** Tous les articles publiés, du plus récent au plus ancien */
+export async function getAllPosts(): Promise<BlogPost[]> {
+  const { data, error } = await supabase
+    .from('cms_blog_posts')
+    .select('*')
+    .order('published_at', { ascending: false });
+  if (error) {
+    console.error('Supabase getAllPosts error:', error.message);
+    return [];
+  }
+  return (data as BlogPost[]) ?? [];
+}
+
+/** Un article par slug */
+export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+  const { data, error } = await supabase
+    .from('cms_blog_posts')
+    .select('*')
+    .eq('slug', slug)
+    .single();
+  if (error) {
+    console.error('Supabase getPostBySlug error:', error.message);
+    return null;
+  }
+  return data as BlogPost;
+}
+
+/** Articles liés (même catégorie, sans l'article courant) */
+export async function getRelatedPosts(
+  currentSlug: string,
+  category: string | null,
+  limit = 3
+): Promise<BlogPost[]> {
+  const { data, error } = await supabase
+    .from('cms_blog_posts')
+    .select('*')
+    .eq('category', category ?? '')
+    .neq('slug', currentSlug)
+    .order('published_at', { ascending: false })
+    .limit(limit);
+  if (error) {
+    console.error('Supabase getRelatedPosts error:', error.message);
+    return [];
+  }
+  return (data as BlogPost[]) ?? [];
+}
+
+/** Tous les slugs pour generateStaticParams */
+export async function getAllSlugs(): Promise<{ slug: string }[]> {
+  const { data, error } = await supabase
+    .from('cms_blog_posts')
+    .select('slug');
+  if (error) {
+    console.error('Supabase getAllSlugs error:', error.message);
+    return [];
+  }
+  return (data as { slug: string }[]) ?? [];
+}
+
+/** Formate une date ISO en français */
+export function formatDate(iso: string | null): string {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
