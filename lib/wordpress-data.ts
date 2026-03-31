@@ -295,10 +295,21 @@ export function getPostBySlug(slug: string): BlogPost | undefined {
   return blogPosts.find((post) => post.slug === slug);
 }
 
-export function getRelatedPosts(currentSlug: string, limit = 3): BlogPost[] {
-  return blogPosts
-    .filter((post) => post.slug !== currentSlug)
-    .slice(0, limit);
+export function getRelatedPosts(
+  currentSlug: string,
+  category: string,
+  limit = 3
+): BlogPost[] {
+  // Priorité aux articles de la même catégorie
+  const sameCategory = blogPosts.filter(
+    (post) => post.slug !== currentSlug && post.category === category
+  );
+  if (sameCategory.length >= limit) return sameCategory.slice(0, limit);
+  // Compléter avec d'autres articles si pas assez dans la catégorie
+  const others = blogPosts.filter(
+    (post) => post.slug !== currentSlug && post.category !== category
+  );
+  return [...sameCategory, ...others].slice(0, limit);
 }
 
 // ── Fonctions utilitaires Destinations ───────────────────────
