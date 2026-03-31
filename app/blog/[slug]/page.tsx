@@ -1,6 +1,7 @@
 import { getPostBySlug, getAllBlogSlugs, getRelatedPosts } from "@/lib/wordpress-data";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import NewsletterForm from "@/components/NewsletterForm";
 
 interface Props {
   params: { slug: string };
@@ -92,6 +93,9 @@ export default function BlogPostPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
 
+        {/* Newsletter inline dans l'article */}
+        <NewsletterForm variant="article" />
+
         {/* Tags */}
         {post.tags.length > 0 && (
           <div className="mt-10 pt-8 border-t border-gray-100">
@@ -163,6 +167,9 @@ export default function BlogPostPage({ params }: Props) {
           </div>
         </section>
       )}
+
+      {/* Newsletter bas de page */}
+      <NewsletterForm variant="blog" />
     </main>
   );
 }
