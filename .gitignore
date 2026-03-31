@@ -12,3 +12,6 @@ build/
 *.swp
 *.swo
 *~
+twillo.txt
+OLLAMA_MEMORY.md
+app/test-supabase/
