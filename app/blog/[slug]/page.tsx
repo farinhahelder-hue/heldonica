@@ -8,7 +8,7 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  return getAllBlogSlugs().map((slug) => ({ slug }));
+  return getAllBlogSlugs();
 }
 
 export async function generateMetadata({ params }: Props) {
