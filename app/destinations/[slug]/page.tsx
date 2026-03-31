@@ -6,9 +6,11 @@ import {
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
+
 interface Props {
   params: { slug: string };
 }
+
 
 // Destinations principales avec images Unsplash de secours
 const DEST_META: Record<string, { description: string; heroImage: string; region: string }> = {
@@ -54,9 +56,12 @@ const DEST_META: Record<string, { description: string; heroImage: string; region
   },
 };
 
+
 export async function generateStaticParams() {
-  return getAllDestinationSlugs().map((slug) => ({ slug }));
+  // getAllDestinationSlugs() retourne déjà [{ slug: "..." }] — pas de re-mapping
+  return getAllDestinationSlugs();
 }
+
 
 export async function generateMetadata({ params }: Props) {
   const page = getDestinationBySlug(params.slug);
@@ -68,13 +73,16 @@ export async function generateMetadata({ params }: Props) {
   };
 }
 
+
 export default function DestinationPage({ params }: Props) {
   const page = getDestinationBySlug(params.slug);
   if (!page) notFound();
 
+
   const meta = DEST_META[params.slug];
   const heroImage = page.image || meta?.heroImage || "";
   const description = meta?.description || "";
+
 
   // Articles liés à cette destination
   const titleWords = page.title.toLowerCase().split(/\s+/).filter((w) => w.length > 4);
@@ -84,6 +92,7 @@ export default function DestinationPage({ params }: Props) {
       return titleWords.some((w) => text.includes(w));
     })
     .slice(0, 6);
+
 
   return (
     <main className="min-h-screen bg-white">
@@ -122,6 +131,7 @@ export default function DestinationPage({ params }: Props) {
         </div>
       </div>
 
+
       {/* Contenu */}
       {page.content && (
         <section className="max-w-4xl mx-auto px-4 py-14">
@@ -136,6 +146,7 @@ export default function DestinationPage({ params }: Props) {
           />
         </section>
       )}
+
 
       {/* Articles liés */}
       {related.length > 0 && (
@@ -174,6 +185,7 @@ export default function DestinationPage({ params }: Props) {
           </div>
         </section>
       )}
+
 
       {/* CTA */}
       <section className="py-16 px-4 text-center">
