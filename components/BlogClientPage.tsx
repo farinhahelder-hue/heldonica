@@ -17,6 +17,30 @@ const DESTINATIONS = [
   'Roumanie', 'Malte', 'Sicile',
 ];
 
+// Images de secours Unsplash par destination
+const DESTINATION_IMAGES: Record<string, string> = {
+  'Madère': 'https://images.unsplash.com/photo-1555117343-8b28e6f14895?w=800',
+  'Zurich': 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=800',
+  'Paris': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800',
+  'Timișoara': 'https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?w=800',
+  'Suisse': 'https://images.unsplash.com/photo-1502786129236-63f2598fd7b9?w=800',
+  'Normandie': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+};
+
+const CATEGORY_FALLBACK_BG: Record<string, string> = {
+  'Travel': 'bg-gradient-to-br from-teal-800 to-emerald-900',
+  'Food & Lifestyle': 'bg-gradient-to-br from-amber-800 to-orange-900',
+  'Expertise Hôtelière': 'bg-gradient-to-br from-slate-700 to-stone-800',
+};
+
+function getCardImage(post: BlogPost): string | null {
+  if (post.image_url) return post.image_url;
+  if (post.destination && DESTINATION_IMAGES[post.destination]) {
+    return DESTINATION_IMAGES[post.destination];
+  }
+  return null;
+}
+
 interface Props {
   posts: BlogPost[];
   formatDate: (iso: string | null) => string;
@@ -50,19 +74,22 @@ export default function BlogClientPage({ posts, formatDate }: Props) {
   const totalFood = posts.filter((p) => p.category === 'Food & Lifestyle').length;
   const totalExpertise = posts.filter((p) => p.category === 'Expertise Hôtelière').length;
 
+  const featuredImage = featuredPost ? getCardImage(featuredPost) : null;
+
   return (
     <main className="min-h-screen bg-[#f7f6f2]">
 
       {/* ── HERO ─────────────────────────────────────────── */}
       <section className="relative bg-gradient-to-br from-stone-900 via-stone-800 to-amber-900 py-24 px-4 overflow-hidden">
         <div
-          className="absolute inset-0 opacity-20"
+          className="absolute inset-0 opacity-25"
           style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1600')",
+            backgroundImage: "url('https://images.unsplash.com/photo-1501555088652-021faa106b9b?w=1600')",
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
         />
+        <div className="absolute inset-0 bg-gradient-to-br from-stone-900/60 to-amber-900/40" />
         <div className="relative max-w-4xl mx-auto text-center text-white">
           <p className="text-amber-300 text-xs font-semibold tracking-[0.25em] uppercase mb-4">Heldonica · Blog</p>
           <h1 className="text-5xl md:text-7xl font-serif font-light mb-6 leading-tight">Le Blog</h1>
@@ -109,10 +136,10 @@ export default function BlogClientPage({ posts, formatDate }: Props) {
         <section className="max-w-7xl mx-auto px-4 pt-14 pb-4">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-amber-700 mb-5">✦ À la une</p>
           <Link href={`/blog/${featuredPost.slug}`} className="group block">
-            <article className="relative rounded-3xl overflow-hidden bg-stone-900 shadow-xl h-[420px] md:h-[500px] flex items-end">
-              {featuredPost.image_url ? (
+            <article className="relative rounded-3xl overflow-hidden shadow-xl h-[420px] md:h-[500px] flex items-end bg-stone-900">
+              {featuredImage ? (
                 <img
-                  src={featuredPost.image_url}
+                  src={featuredImage}
                   alt={featuredPost.title}
                   width={1200}
                   height={500}
@@ -273,14 +300,16 @@ function ArticleCard({ post, formatDate }: { post: BlogPost; formatDate: (iso: s
   const categoryEmoji =
     post.category === 'Travel' ? '✈️' :
     post.category === 'Food & Lifestyle' ? '🍽️' : '🏨';
+  const cardImage = getCardImage(post);
+  const fallbackBg = CATEGORY_FALLBACK_BG[post.category ?? ''] ?? 'bg-stone-200';
 
   return (
     <Link href={`/blog/${post.slug}`} className="group block h-full">
       <article className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 h-full flex flex-col border border-stone-100 hover:-translate-y-1">
-        <div className="relative h-52 overflow-hidden bg-gradient-to-br from-amber-50 to-stone-100">
-          {post.image_url ? (
+        <div className="relative h-52 overflow-hidden">
+          {cardImage ? (
             <img
-              src={post.image_url}
+              src={cardImage}
               alt={post.title}
               width={400}
               height={208}
@@ -288,7 +317,10 @@ function ArticleCard({ post, formatDate }: { post: BlogPost; formatDate: (iso: s
               loading="lazy"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-5xl opacity-30">{categoryEmoji}</div>
+            <div className={`w-full h-full flex flex-col items-center justify-center gap-2 ${fallbackBg}`}>
+              <span className="text-white/30 text-5xl font-serif">H</span>
+              <span className="text-white/40 text-xs font-medium tracking-widest uppercase">Heldonica</span>
+            </div>
           )}
           <div className="absolute top-3 left-3">
             <span className="bg-amber-600/90 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-1 rounded-full">
@@ -312,6 +344,9 @@ function ArticleCard({ post, formatDate }: { post: BlogPost; formatDate: (iso: s
               {post.excerpt}
             </p>
           )}
+          {post.destination && (
+            <p className="text-xs text-stone-400 mb-2">📍 {post.destination}</p>
+          )}
           {post.tags && post.tags.length > 0 && (
             <div className="flex flex-wrap gap-1 mb-3">
               {post.tags.slice(0, 3).map((tag) => (
@@ -322,7 +357,7 @@ function ArticleCard({ post, formatDate }: { post: BlogPost; formatDate: (iso: s
           <div className="flex items-center justify-between pt-3 border-t border-stone-100 mt-auto">
             <span className="text-xs text-stone-400">{formatDate(post.published_at)}</span>
             <span className="text-xs text-amber-700 font-semibold group-hover:translate-x-1 transition-transform inline-block">
-              Lire l&apos;article →
+              Lire →
             </span>
           </div>
         </div>
