@@ -2,10 +2,30 @@ import Link from 'next/link'
 
 export default function Destinations() {
   const destinations = [
-    { name: 'Suisse', slug: 'suisse', description: 'Slow travel alpin authentique' },
-    { name: 'Roumanie', slug: 'roumanie', description: 'Nature sauvage Delta du Danube' },
-    { name: 'Île-de-France', slug: 'ile-de-france', description: 'Paris alternatif & Petite Ceinture' },
-    { name: 'Madère', slug: 'madere', description: 'Randonnées volcaniques en couple' },
+    { 
+      name: 'Suisse', 
+      slug: 'suisse', 
+      description: 'Slow travel alpin authentique',
+      image: 'https://images.unsplash.com/photo-1502786129236-63f2598fd7b9?w=600&q=80'
+    },
+    { 
+      name: 'Roumanie', 
+      slug: 'roumanie', 
+      description: 'Nature sauvage Delta du Danube',
+      image: 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=600&q=80'
+    },
+    { 
+      name: 'Île-de-France', 
+      slug: 'ile-de-france', 
+      description: 'Paris alternatif & Petite Ceinture',
+      image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80'
+    },
+    { 
+      name: 'Madère', 
+      slug: 'madere', 
+      description: 'Randonnées volcaniques en couple',
+      image: 'https://images.unsplash.com/photo-1555117343-8b28e6f14895?w=600&q=80'
+    },
   ]
 
   return (
@@ -22,9 +42,16 @@ export default function Destinations() {
           {destinations.map((dest) => (
             <Link key={dest.slug} href={`/destinations/${dest.slug}`}>
               <div className="group cursor-pointer">
-                <div className="bg-gradient-to-br from-eucalyptus/10 to-teal/10 rounded-lg h-48 flex items-center justify-center mb-4 group-hover:shadow-lg transition">
-                  <div className="text-center">
-                    <p className="text-gray-500 text-sm">{dest.name}</p>
+                <div className="relative h-48 rounded-lg overflow-hidden mb-4">
+                  <img 
+                    src={dest.image} 
+                    alt={dest.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                  <div className="absolute bottom-3 left-3">
+                    <span className="text-white/90 text-sm font-medium">{dest.name}</span>
                   </div>
                 </div>
                 <h3 className="text-xl font-serif font-bold text-mahogany mb-2">{dest.name}</h3>

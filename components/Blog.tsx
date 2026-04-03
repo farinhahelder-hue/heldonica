@@ -41,12 +41,36 @@ export default function Blog() {
                   />
                 ) : (
                   <div className={`w-full h-full flex flex-col items-center justify-center gap-2 ${PLACEHOLDER_BG[article.category] ?? 'bg-stone-100'}`}>
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" className="text-stone-400" aria-hidden="true">
-                      <rect x="3" y="3" width="18" height="18" rx="2"/>
-                      <circle cx="8.5" cy="8.5" r="1.5"/>
-                      <polyline points="21 15 16 10 5 21"/>
-                    </svg>
-                    <span className="text-xs text-stone-400 font-medium">Photo à venir</span>
+                    {/* Icône illustrant la catégorie */}
+                    <div className="w-12 h-12 rounded-full bg-white/60 flex items-center justify-center">
+                      {article.category === 'Travel' && (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-teal-600">
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                          <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                      )}
+                      {article.category === 'Food & Lifestyle' && (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-amber-600">
+                          <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+                          <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+                          <line x1="6" y1="1" x2="6" y2="4"/>
+                          <line x1="10" y1="1" x2="10" y2="4"/>
+                          <line x1="14" y1="1" x2="14" y2="4"/>
+                        </svg>
+                      )}
+                      {article.category === 'Expertise Hôtelière' && (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-sky-600">
+                          <path d="M3 21h18"/>
+                          <path d="M19 21v-4"/>
+                          <path d="M19 17a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2"/>
+                          <path d="M5 21v-4"/>
+                          <path d="M9 8h6"/>
+                          <path d="M9 12h6"/>
+                          <path d="M9 16h4"/>
+                        </svg>
+                      )}
+                    </div>
+                    <span className="text-xs text-stone-500 font-medium">Bientôt en photos</span>
                   </div>
                 )}
                 <div className="absolute top-3 left-3">

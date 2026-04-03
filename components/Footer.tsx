@@ -47,6 +47,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/a-propos" className="text-cloud-dancer hover:text-white transition">
+                  À propos
+                </Link>
+              </li>
+              <li>
                 <Link href="/blog" className="text-cloud-dancer hover:text-white transition">
                   Blog
                 </Link>

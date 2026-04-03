@@ -26,45 +26,36 @@ export default function Breadcrumb() {
     }),
   ];
 
-  // Cas spéciaux pour les pages de détail
-  const breadcrumbsWithNames = breadcrumbs.map((crumb, index) => {
-    if (index === breadcrumbs.length - 1 && segments.length > 1) {
-      // Dernière page (détail)
-      const lastSegment = segments[segments.length - 1];
-      
-      // Décoder l'URL et formater le titre
-      const decodedSegment = decodeURIComponent(lastSegment);
-      const formattedLabel = decodedSegment
-        .split('-')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-      
-      return { ...crumb, label: formattedLabel };
-    }
-    
-    // Noms personnalisés pour les pages principales
+  // Cas spéciaux pour les pages principales
+  const breadcrumbsWithNames = breadcrumbs.map((crumb) => {
     if (crumb.href === '/blog') return { ...crumb, label: 'Blog' };
     if (crumb.href === '/destinations') return { ...crumb, label: 'Destinations' };
-    if (crumb.href === '/travel-planning-form') return { ...crumb, label: 'Planifier un voyage' };
+    if (crumb.href === '/a-propos') return { ...crumb, label: 'À propos' };
+    if (crumb.href === '/travel-planning') return { ...crumb, label: 'Travel Planning' };
+    if (crumb.href === '/travel-planning-form') return { ...crumb, label: 'Planifier' };
+    if (crumb.href === '/hotel-consulting') return { ...crumb, label: 'Consulting' };
     if (crumb.href === '/contact') return { ...crumb, label: 'Contact' };
     if (crumb.href === '/mentions-legales') return { ...crumb, label: 'Mentions légales' };
-    
     return crumb;
   });
 
   return (
-    <nav className="bg-white border-b border-gray-200 py-3 px-6 mt-16">
+    <nav className="bg-stone-50/80 backdrop-blur-sm border-b border-stone-100 py-3 px-4 md:px-6 mt-16">
       <div className="max-w-7xl mx-auto">
-        <ol className="flex flex-wrap items-center gap-2 text-sm">
+        <ol className="flex items-center gap-1.5 text-xs md:text-sm overflow-x-auto no-scrollbar">
           {breadcrumbsWithNames.map((crumb, index) => (
-            <li key={crumb.href} className="flex items-center gap-2">
-              {index > 0 && <span className="text-gray-400">/</span>}
+            <li key={crumb.href} className="flex items-center gap-1.5 whitespace-nowrap">
+              {index > 0 && (
+                <svg className="w-3 h-3 text-stone-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              )}
               {index === breadcrumbsWithNames.length - 1 ? (
-                <span className="text-gray-600 font-medium">{crumb.label}</span>
+                <span className="text-stone-500 font-medium">{crumb.label}</span>
               ) : (
                 <Link
                   href={crumb.href}
-                  className="text-amber-900 hover:text-amber-700 transition font-medium"
+                  className="text-stone-400 hover:text-amber-700 transition-colors"
                 >
                   {crumb.label}
                 </Link>
