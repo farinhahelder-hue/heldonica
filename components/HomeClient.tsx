@@ -154,18 +154,18 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
       <Header />
 
       {/* ── HERO ──────────────────────────────────────────────────────────── */}
-      <section className="relative h-screen bg-black flex items-end overflow-hidden">
+      <section className="relative h-[85vh] md:h-screen bg-black flex items-end overflow-hidden">
         <video autoPlay muted loop playsInline
           className="absolute inset-0 w-full h-full object-cover opacity-45"
           src="https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
-        <div className="relative z-20 px-6 md:px-16 pb-16 md:pb-24 max-w-4xl">
+        <div className="relative z-20 px-5 md:px-16 pb-12 md:pb-24 max-w-4xl">
           <p className="text-amber-300 text-xs font-semibold tracking-[0.2em] uppercase mb-5"
              style={{ animation: 'wordIn 0.6s 0.2s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
             Slow Travel · Voyages en couple · Paris
           </p>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-light text-white leading-[1.1] mb-6">
+          <h1 className="text-3xl md:text-5xl lg:text-7xl font-serif font-light text-white leading-[1.15] mb-4 md:mb-6">
             {'Explorateurs émerveillés,'.split(' ').map((w, i) => (
               <span key={i} className="hero-word" style={{ animationDelay: `${0.3 + i * 0.1}s` }}>{w}{' '}</span>
             ))}
@@ -174,21 +174,21 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               <span key={i} className="hero-word" style={{ animationDelay: `${0.7 + i * 0.1}s` }}>{w}{' '}</span>
             ))}</em>
           </h1>
-          <p className="text-base md:text-lg text-gray-300 leading-relaxed mb-8 max-w-xl"
+          <p className="text-sm md:text-lg text-gray-300 leading-relaxed mb-6 md:mb-8 max-w-xl"
              style={{ animation: 'wordIn 0.7s 1.1s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
             L&apos;aventure ne se trouve pas seulement au bout du monde — elle se cache dans une ruelle oubliée, un café discret, un sentier silencieux qui révèle l&apos;âme d&apos;un lieu.
           </p>
           <div className="flex flex-wrap gap-3"
                style={{ animation: 'wordIn 0.7s 1.3s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
-            <Link href="/blog" className="px-6 py-3 bg-amber-800 hover:bg-amber-700 text-white rounded font-semibold text-sm tracking-wide transition">
+            <Link href="/blog" className="px-5 md:px-6 py-2.5 md:py-3 bg-amber-800 hover:bg-amber-700 text-white rounded-full font-semibold text-sm tracking-wide transition">
               Nos carnets de voyage
             </Link>
-            <Link href="/travel-planning" className="px-6 py-3 border border-white/50 hover:border-white text-white hover:bg-white/10 rounded font-semibold text-sm tracking-wide transition">
+            <Link href="/travel-planning" className="px-5 md:px-6 py-2.5 md:py-3 border border-white/50 hover:border-white text-white hover:bg-white/10 rounded-full font-semibold text-sm tracking-wide transition">
               Conception sur mesure
             </Link>
           </div>
         </div>
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 scroll-cue"
+        <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-20 scroll-cue"
              style={{ animation: 'subtlePulse 2.2s 1.8s ease-in-out infinite, wordIn 0.6s 1.6s forwards', opacity: 0 }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeOpacity="0.6">
             <path d="M12 5v14M5 12l7 7 7-7" />
