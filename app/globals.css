@@ -46,3 +46,43 @@ h1, h2, h3, h4, h5, h6 {
     padding: 60px 0;
   }
 }
+
+/* === SYSTÈME D'ESPACEMENT UNIFIÉ === */
+/* Utiliser ces classes pour une cohérence visuelle */
+
+/* Sections */
+.section-py {
+  padding-top: 5rem;    /* 80px */
+  padding-bottom: 5rem;
+}
+.section-py-sm {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+/* Blocs */
+.block-py {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+.block-py-lg {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+/* Gap standard */
+.gap-standard {
+  gap: 1.5rem; /* 24px */
+}
+.gap-lg {
+  gap: 2rem;   /* 32px */
+}
+
+/* Hide scrollbar but allow scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
