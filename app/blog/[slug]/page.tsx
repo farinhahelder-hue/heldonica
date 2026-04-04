@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Script from 'next/script';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import NewsletterForm from '@/components/NewsletterForm';
 
 export const revalidate = 60;
 
@@ -280,28 +281,7 @@ export default async function BlogPostPage({ params }: Props) {
         )}
 
         {/* ── NEWSLETTER */}
-        <section className="bg-gradient-to-br from-stone-900 to-amber-900 py-20 px-4">
-          <div className="max-w-2xl mx-auto text-center text-white">
-            <p className="text-amber-300 text-xs font-semibold tracking-[0.2em] uppercase mb-4">✦ Rejoins l&apos;aventure</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-light mb-4 leading-snug">
-              Les pépites dénichées,<br />directement dans ta boîte mail
-            </h2>
-            <p className="text-white/65 text-sm leading-relaxed mb-8 max-w-md mx-auto">
-              Nos meilleures adresses, carnets de voyage inédits et coulisses d&apos;Heldonica — une fois par mois, sans spam.
-            </p>
-            <form onSubmit={(e) => e.preventDefault()} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="ton@email.com"
-                className="flex-1 px-5 py-3 rounded-full bg-white/10 border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
-              />
-              <button type="submit" className="px-6 py-3 bg-amber-500 hover:bg-amber-400 text-white font-semibold rounded-full text-sm transition-colors shrink-0">
-                Je m&apos;inscris →
-              </button>
-            </form>
-            <p className="mt-4 text-white/30 text-xs">Désinscription en 1 clic · Zéro spam</p>
-          </div>
-        </section>
+        <NewsletterForm variant="blog" />
 
       </main>
       <Footer />
