@@ -42,11 +42,10 @@ function getCardImage(post: BlogPost): string | null {
 }
 
 interface Props {
-  posts: BlogPost[];
-  formatDate: (iso: string | null) => string;
+  posts: (BlogPost & { formattedDate: string })[];
 }
 
-export default function BlogClientPage({ posts, formatDate }: Props) {
+export default function BlogClientPage({ posts }: Props) {
   const [activeFilter, setActiveFilter] = useState('Tous');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -163,7 +162,7 @@ export default function BlogClientPage({ posts, formatDate }: Props) {
                   </p>
                 )}
                 <div className="flex items-center gap-4 text-xs text-white/50">
-                  <span>{formatDate(featuredPost.published_at)}</span>
+                  <span>{featuredPost.formattedDate}</span>
                   {featuredPost.read_time && (
                     <><span>·</span><span>{featuredPost.read_time} min de lecture</span></>
                   )}
@@ -234,7 +233,7 @@ export default function BlogClientPage({ posts, formatDate }: Props) {
             <section>
               <SectionHeader emoji="✈️" title="Carnets de Voyage" count={travel.length} />
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-                {travel.map((p) => <ArticleCard key={p.slug} post={p} formatDate={formatDate} />)}
+                {travel.map((p) => <ArticleCard key={p.slug} post={p} />)}
               </div>
             </section>
           )}
@@ -242,7 +241,7 @@ export default function BlogClientPage({ posts, formatDate }: Props) {
             <section className="-mx-4 px-4 py-12 bg-amber-50 rounded-3xl">
               <SectionHeader emoji="🍽️" title="Food & Lifestyle" count={food.length} />
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-                {food.map((p) => <ArticleCard key={p.slug} post={p} formatDate={formatDate} />)}
+                {food.map((p) => <ArticleCard key={p.slug} post={p} />)}
               </div>
             </section>
           )}
@@ -250,7 +249,7 @@ export default function BlogClientPage({ posts, formatDate }: Props) {
             <section>
               <SectionHeader emoji="🏨" title="Expertise Hôtelière" count={expertise.length} />
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-                {expertise.map((p) => <ArticleCard key={p.slug} post={p} formatDate={formatDate} />)}
+                {expertise.map((p) => <ArticleCard key={p.slug} post={p} />)}
               </div>
             </section>
           )}
@@ -296,7 +295,7 @@ function SectionHeader({ emoji, title, count }: { emoji: string; title: string; 
   );
 }
 
-function ArticleCard({ post, formatDate }: { post: BlogPost; formatDate: (iso: string | null) => string }) {
+function ArticleCard({ post }: { post: BlogPost & { formattedDate: string } }) {
   const categoryEmoji =
     post.category === 'Travel' ? '✈️' :
     post.category === 'Food & Lifestyle' ? '🍽️' : '🏨';
@@ -355,7 +354,7 @@ function ArticleCard({ post, formatDate }: { post: BlogPost; formatDate: (iso: s
             </div>
           )}
           <div className="flex items-center justify-between pt-3 border-t border-stone-100 mt-auto">
-            <span className="text-xs text-stone-400">{formatDate(post.published_at)}</span>
+            <span className="text-xs text-stone-400">{post.formattedDate}</span>
             <span className="text-xs text-amber-700 font-semibold group-hover:translate-x-1 transition-transform inline-block">
               Lire →
             </span>

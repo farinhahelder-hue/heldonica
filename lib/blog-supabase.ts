@@ -1,9 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = supabaseUrl && supabaseAnonKey 
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null;
 
 export interface BlogPost {
   id: number;
@@ -21,6 +23,10 @@ export interface BlogPost {
 
 /** Tous les articles publiés, du plus récent au plus ancien */
 export async function getAllPosts(): Promise<BlogPost[]> {
+  if (!supabase) {
+    console.warn('Supabase not configured, returning empty array');
+    return [];
+  }
   const { data, error } = await supabase
     .from('cms_blog_posts')
     .select('*')
@@ -34,6 +40,7 @@ export async function getAllPosts(): Promise<BlogPost[]> {
 
 /** Un article par slug */
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+  if (!supabase) return null;
   const { data, error } = await supabase
     .from('cms_blog_posts')
     .select('*')
@@ -52,6 +59,7 @@ export async function getRelatedPosts(
   category: string | null,
   limit = 3
 ): Promise<BlogPost[]> {
+  if (!supabase) return [];
   const { data, error } = await supabase
     .from('cms_blog_posts')
     .select('*')
@@ -68,6 +76,7 @@ export async function getRelatedPosts(
 
 /** Tous les slugs pour generateStaticParams */
 export async function getAllSlugs(): Promise<{ slug: string }[]> {
+  if (!supabase) return [];
   const { data, error } = await supabase
     .from('cms_blog_posts')
     .select('slug');
