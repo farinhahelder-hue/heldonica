@@ -1,11 +1,16 @@
 import { getPostBySlug, getAllSlugs, getRelatedPosts, formatDate } from '@/lib/blog-supabase';
 import type { BlogPost } from '@/lib/blog-supabase';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Script from 'next/script';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 export const revalidate = 60;
+
+const SITE_URL = 'https://heldonica.fr';
+const DEFAULT_OG = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200';
 
 interface Props {
   params: { slug: string };
@@ -16,18 +21,43 @@ export async function generateStaticParams() {
   return slugs.map(({ slug }) => ({ slug }));
 }
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = await getPostBySlug(params.slug);
   if (!post) return { title: 'Article introuvable | Heldonica' };
+
+  const ogImage = post.featured_image ?? DEFAULT_OG;
+  const canonical = `${SITE_URL}/blog/${post.slug}`;
+  const description = post.excerpt ?? `Découvrez cet article de slow travel signé Heldonica.`;
+
   return {
     title: `${post.title} | Heldonica`,
-    description: post.excerpt ?? '',
+    description,
+    alternates: { canonical },
+    authors: post.author ? [{ name: post.author }] : [{ name: 'Heldonica' }],
     openGraph: {
       title: post.title,
-      description: post.excerpt ?? '',
-      images: post.featured_image
-        ? [{ url: post.featured_image }]
-        : [{ url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200' }],
+      description,
+      url: canonical,
+      siteName: 'Heldonica',
+      type: 'article',
+      publishedTime: post.published_at ?? undefined,
+      modifiedTime: post.updated_at ?? undefined,
+      authors: post.author ? [post.author] : ['Heldonica'],
+      tags: post.tags ?? undefined,
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description,
+      images: [ogImage],
     },
   };
 }
@@ -37,6 +67,39 @@ function calcReadTime(content: string | null): number {
   if (!content) return 0;
   const words = content.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.ceil(words / 200));
+}
+
+// Génère le JSON-LD Article schema.org
+function articleJsonLd(post: BlogPost, readTime: number) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.excerpt ?? '',
+    image: post.featured_image ? [post.featured_image] : [DEFAULT_OG],
+    datePublished: post.published_at ?? '',
+    dateModified: post.updated_at ?? post.published_at ?? '',
+    author: {
+      '@type': 'Person',
+      name: post.author ?? 'Heldonica',
+      url: SITE_URL,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Heldonica',
+      url: SITE_URL,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${SITE_URL}/logo.png`,
+      },
+    },
+    url: `${SITE_URL}/blog/${post.slug}`,
+    mainEntityOfPage: `${SITE_URL}/blog/${post.slug}`,
+    keywords: post.tags?.join(', ') ?? '',
+    articleSection: post.category ?? '',
+    timeRequired: readTime > 0 ? `PT${readTime}M` : undefined,
+    inLanguage: 'fr-FR',
+  };
 }
 
 // Palette de fonds par catégorie quand pas d'image
@@ -54,9 +117,16 @@ export default async function BlogPostPage({ params }: Props) {
   const heroImage = post.featured_image ?? null;
   const fallbackBg = HERO_FALLBACK[post.category ?? ''] ?? 'bg-gradient-to-br from-stone-900 to-amber-900';
   const readTime = calcReadTime(post.content);
+  const jsonLd = articleJsonLd(post, readTime);
 
   return (
     <>
+      <Script
+        id="article-jsonld"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       <Header />
       <main className="min-h-screen bg-white">
 
@@ -101,11 +171,7 @@ export default async function BlogPostPage({ params }: Props) {
                 {post.title}
               </h1>
               <div className="flex flex-wrap items-center gap-4 text-white/65 text-sm">
-                {post.author ? (
-                  <span>✦ {post.author}</span>
-                ) : (
-                  <span>✦ Heldonica</span>
-                )}
+                <span>✦ {post.author ?? 'Heldonica'}</span>
                 <span>·</span>
                 <span>{formatDate(post.published_at)}</span>
                 {readTime > 0 && (
