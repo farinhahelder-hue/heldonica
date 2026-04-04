@@ -11,35 +11,11 @@ const CATEGORY_LABELS: Record<string, string> = {
   'Expertise Hôtelière': '🏨 Expertise',
 };
 
-const DESTINATIONS = [
-  'Paris', 'Normandie', 'Île-de-France',
-  'Madère', 'Timișoara', 'Zurich', 'Suisse',
-  'Roumanie', 'Malte', 'Sicile',
-];
-
-// Images de secours Unsplash par destination
-const DESTINATION_IMAGES: Record<string, string> = {
-  'Madère': 'https://images.unsplash.com/photo-1555117343-8b28e6f14895?w=800',
-  'Zurich': 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=800',
-  'Paris': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800',
-  'Timișoara': 'https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?w=800',
-  'Suisse': 'https://images.unsplash.com/photo-1502786129236-63f2598fd7b9?w=800',
-  'Normandie': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
-};
-
 const CATEGORY_FALLBACK_BG: Record<string, string> = {
   'Travel': 'bg-gradient-to-br from-teal-800 to-emerald-900',
   'Food & Lifestyle': 'bg-gradient-to-br from-amber-800 to-orange-900',
   'Expertise Hôtelière': 'bg-gradient-to-br from-slate-700 to-stone-800',
 };
-
-function getCardImage(post: BlogPost): string | null {
-  if (post.image_url) return post.image_url;
-  if (post.destination && DESTINATION_IMAGES[post.destination]) {
-    return DESTINATION_IMAGES[post.destination];
-  }
-  return null;
-}
 
 interface Props {
   posts: (BlogPost & { formattedDate: string })[];
@@ -59,7 +35,7 @@ export default function BlogClientPage({ posts }: Props) {
         q === '' ||
         p.title.toLowerCase().includes(q) ||
         (p.excerpt ?? '').toLowerCase().includes(q) ||
-        (p.destination ?? '').toLowerCase().includes(q);
+        (p.tags ?? []).some(t => t.toLowerCase().includes(q));
       return matchCat && matchSearch;
     });
   }, [posts, activeFilter, searchQuery]);
@@ -73,7 +49,14 @@ export default function BlogClientPage({ posts }: Props) {
   const totalFood = posts.filter((p) => p.category === 'Food & Lifestyle').length;
   const totalExpertise = posts.filter((p) => p.category === 'Expertise Hôtelière').length;
 
-  const featuredImage = featuredPost ? getCardImage(featuredPost) : null;
+  const featuredImage = featuredPost?.featured_image ?? null;
+
+  // Collect unique tag values for destination-like filtering
+  const allTags = useMemo(() => {
+    const set = new Set<string>();
+    posts.forEach(p => (p.tags ?? []).forEach(t => set.add(t)));
+    return Array.from(set).sort();
+  }, [posts]);
 
   return (
     <main className="min-h-screen bg-[#f7f6f2]">
@@ -115,20 +98,22 @@ export default function BlogClientPage({ posts }: Props) {
         </div>
       </section>
 
-      {/* ── BANDEAU DESTINATIONS ─────────────────────────── */}
-      <section className="bg-amber-900 overflow-hidden">
-        <div className="flex items-center gap-0 py-3 overflow-x-auto no-scrollbar px-4 md:justify-center md:flex-wrap">
-          {DESTINATIONS.map((dest) => (
-            <button
-              key={dest}
-              onClick={() => setSearchQuery(dest)}
-              className="shrink-0 text-xs font-medium text-amber-100/80 hover:text-white px-3 py-1 whitespace-nowrap transition-colors hover:bg-white/10 rounded-full"
-            >
-              {dest}
-            </button>
-          ))}
-        </div>
-      </section>
+      {/* ── BANDEAU TAGS ─────────────────────────────────── */}
+      {allTags.length > 0 && (
+        <section className="bg-amber-900 overflow-hidden">
+          <div className="flex items-center gap-0 py-3 overflow-x-auto no-scrollbar px-4 md:justify-center md:flex-wrap">
+            {allTags.map((tag) => (
+              <button
+                key={tag}
+                onClick={() => setSearchQuery(tag)}
+                className="shrink-0 text-xs font-medium text-amber-100/80 hover:text-white px-3 py-1 whitespace-nowrap transition-colors hover:bg-white/10 rounded-full"
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ── À LA UNE ─────────────────────────────────────── */}
       {featuredPost && activeFilter === 'Tous' && searchQuery === '' && (
@@ -163,9 +148,6 @@ export default function BlogClientPage({ posts }: Props) {
                 )}
                 <div className="flex items-center gap-4 text-xs text-white/50">
                   <span>{featuredPost.formattedDate}</span>
-                  {featuredPost.read_time && (
-                    <><span>·</span><span>{featuredPost.read_time} min de lecture</span></>
-                  )}
                   <span className="ml-2 text-amber-400 font-semibold group-hover:translate-x-1 transition-transform inline-block">Lire →</span>
                 </div>
               </div>
@@ -296,19 +278,15 @@ function SectionHeader({ emoji, title, count }: { emoji: string; title: string; 
 }
 
 function ArticleCard({ post }: { post: BlogPost & { formattedDate: string } }) {
-  const categoryEmoji =
-    post.category === 'Travel' ? '✈️' :
-    post.category === 'Food & Lifestyle' ? '🍽️' : '🏨';
-  const cardImage = getCardImage(post);
   const fallbackBg = CATEGORY_FALLBACK_BG[post.category ?? ''] ?? 'bg-stone-200';
 
   return (
     <Link href={`/blog/${post.slug}`} className="group block h-full">
       <article className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 h-full flex flex-col border border-stone-100 hover:-translate-y-1">
         <div className="relative h-52 overflow-hidden">
-          {cardImage ? (
+          {post.featured_image ? (
             <img
-              src={cardImage}
+              src={post.featured_image}
               alt={post.title}
               width={400}
               height={208}
@@ -326,13 +304,6 @@ function ArticleCard({ post }: { post: BlogPost & { formattedDate: string } }) {
               {post.category}
             </span>
           </div>
-          {post.read_time && (
-            <div className="absolute bottom-3 right-3">
-              <span className="bg-black/40 backdrop-blur-sm text-white/90 text-xs px-2.5 py-1 rounded-full">
-                {post.read_time} min
-              </span>
-            </div>
-          )}
         </div>
         <div className="p-5 flex flex-col flex-1">
           <h3 className="font-semibold text-stone-900 text-base leading-snug mb-2 group-hover:text-amber-700 transition-colors line-clamp-2">
@@ -342,9 +313,6 @@ function ArticleCard({ post }: { post: BlogPost & { formattedDate: string } }) {
             <p className="text-stone-500 text-sm leading-relaxed line-clamp-3 flex-1 mb-3">
               {post.excerpt}
             </p>
-          )}
-          {post.destination && (
-            <p className="text-xs text-stone-400 mb-2">📍 {post.destination}</p>
           )}
           {post.tags && post.tags.length > 0 && (
             <div className="flex flex-wrap gap-1 mb-3">
