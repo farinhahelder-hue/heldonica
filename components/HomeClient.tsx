@@ -78,7 +78,7 @@ function AnimatedStat({ nb, label, suffix = '' }: { nb: number | string; label: 
 }
 
 // ─── Card article ─────────────────────────────────────────────────────────────
-function ArticleCard({ post, fmt, size = 'md' }: { post: BlogPost; fmt: (s: string | null) => string; size?: 'sm' | 'md' | 'lg' }) {
+function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: string }; size?: 'sm' | 'md' | 'lg' }) {
   const img = postImage(post)
   const h = size === 'lg' ? 'h-80' : size === 'md' ? 'h-60' : 'h-44'
   return (
@@ -109,7 +109,7 @@ function ArticleCard({ post, fmt, size = 'md' }: { post: BlogPost; fmt: (s: stri
           )}
           <div className="flex items-center justify-between mt-auto pt-2 border-t border-stone-100">
             <span className="text-xs text-stone-400">
-              {post.destination ? `📍 ${post.destination}` : fmt(post.published_at)}
+              {post.destination ? `📍 ${post.destination}` : post.formattedDate}
             </span>
             <span className="text-xs text-amber-700 font-semibold group-hover:translate-x-1 transition-transform">Lire →</span>
           </div>
@@ -276,7 +276,6 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               </div>
               <Link href="/blog" className="text-sm text-amber-800 font-semibold hover:underline">Voir tous les articles →</Link>
             </div>
-            {/* Premier article en grand + 2 en colonnes */}
             {travelPosts.length >= 1 && (
               <div className="grid md:grid-cols-2 gap-6 mb-6">
                 <Link href={`/blog/${travelPosts[0].slug}`} className="card-lift group relative rounded-2xl overflow-hidden bg-stone-800 aspect-[4/3] md:row-span-2" data-reveal="left">
@@ -376,7 +375,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {latestPosts.map((p, i) => (
                 <div key={p.slug} data-reveal data-delay={String(i * 100)}>
-                  <ArticleCard post={p} fmt={formatDate} size="md" />
+                  <ArticleCard post={p} size="md" />
                 </div>
               ))}
             </div>
