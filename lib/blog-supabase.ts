@@ -14,11 +14,13 @@ export interface BlogPost {
   excerpt: string | null;
   content: string | null;
   category: string | null;
-  image_url: string | null;
-  published_at: string | null;
-  read_time: number | null;
   tags: string[] | null;
-  destination: string | null;
+  featured_image: string | null;
+  author: string | null;
+  published: boolean;
+  published_at: string | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 /** Tous les articles publiés, du plus récent au plus ancien */
@@ -30,6 +32,7 @@ export async function getAllPosts(): Promise<BlogPost[]> {
   const { data, error } = await supabase
     .from('cms_blog_posts')
     .select('*')
+    .eq('published', true)
     .order('published_at', { ascending: false });
   if (error) {
     console.error('Supabase getAllPosts error:', error.message);
@@ -64,6 +67,7 @@ export async function getRelatedPosts(
     .from('cms_blog_posts')
     .select('*')
     .eq('category', category ?? '')
+    .eq('published', true)
     .neq('slug', currentSlug)
     .order('published_at', { ascending: false })
     .limit(limit);
@@ -79,7 +83,8 @@ export async function getAllSlugs(): Promise<{ slug: string }[]> {
   if (!supabase) return [];
   const { data, error } = await supabase
     .from('cms_blog_posts')
-    .select('slug');
+    .select('slug')
+    .eq('published', true);
   if (error) {
     console.error('Supabase getAllSlugs error:', error.message);
     return [];
