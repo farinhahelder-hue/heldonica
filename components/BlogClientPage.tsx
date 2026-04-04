@@ -6,15 +6,15 @@ import type { BlogPost } from '@/lib/blog-supabase';
 
 const CATEGORY_LABELS: Record<string, string> = {
   'Tous': 'Tous',
-  'Travel': '✈️ Voyages',
-  'Food & Lifestyle': '🍽️ Food & Lifestyle',
-  'Expertise Hôtelière': '🏨 Expertise',
+  'Carnets Voyage': '✈️ Carnets Voyage',
+  'Découvertes Locales': '🗺️ Découvertes Locales',
+  'Guides Pratiques': '🏨 Guides Pratiques',
 };
 
 const CATEGORY_FALLBACK_BG: Record<string, string> = {
-  'Travel': 'bg-gradient-to-br from-teal-800 to-emerald-900',
-  'Food & Lifestyle': 'bg-gradient-to-br from-amber-800 to-orange-900',
-  'Expertise Hôtelière': 'bg-gradient-to-br from-slate-700 to-stone-800',
+  'Carnets Voyage': 'bg-gradient-to-br from-teal-800 to-emerald-900',
+  'Découvertes Locales': 'bg-gradient-to-br from-amber-800 to-orange-900',
+  'Guides Pratiques': 'bg-gradient-to-br from-slate-700 to-stone-800',
 };
 
 interface Props {
@@ -25,7 +25,7 @@ export default function BlogClientPage({ posts }: Props) {
   const [activeFilter, setActiveFilter] = useState('Tous');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const categories = ['Tous', 'Travel', 'Food & Lifestyle', 'Expertise Hôtelière'];
+  const categories = ['Tous', 'Carnets Voyage', 'Découvertes Locales', 'Guides Pratiques'];
 
   const filteredPosts = useMemo(() => {
     return posts.filter((p) => {
@@ -41,17 +41,16 @@ export default function BlogClientPage({ posts }: Props) {
   }, [posts, activeFilter, searchQuery]);
 
   const featuredPost = posts[0];
-  const travel = filteredPosts.filter((p) => p.category === 'Travel');
-  const food = filteredPosts.filter((p) => p.category === 'Food & Lifestyle');
-  const expertise = filteredPosts.filter((p) => p.category === 'Expertise Hôtelière');
+  const carnets = filteredPosts.filter((p) => p.category === 'Carnets Voyage');
+  const decouvertes = filteredPosts.filter((p) => p.category === 'Découvertes Locales');
+  const guides = filteredPosts.filter((p) => p.category === 'Guides Pratiques');
 
-  const totalTravel = posts.filter((p) => p.category === 'Travel').length;
-  const totalFood = posts.filter((p) => p.category === 'Food & Lifestyle').length;
-  const totalExpertise = posts.filter((p) => p.category === 'Expertise Hôtelière').length;
+  const totalCarnets = posts.filter((p) => p.category === 'Carnets Voyage').length;
+  const totalDecouvertes = posts.filter((p) => p.category === 'Découvertes Locales').length;
+  const totalGuides = posts.filter((p) => p.category === 'Guides Pratiques').length;
 
   const featuredImage = featuredPost?.featured_image ?? null;
 
-  // Collect unique tag values for destination-like filtering
   const allTags = useMemo(() => {
     const set = new Set<string>();
     posts.forEach(p => (p.tags ?? []).forEach(t => set.add(t)));
@@ -61,7 +60,7 @@ export default function BlogClientPage({ posts }: Props) {
   return (
     <main className="min-h-screen bg-[#f7f6f2]">
 
-      {/* ── HERO ─────────────────────────────────────────── */}
+      {/* ── HERO */}
       <section className="relative bg-gradient-to-br from-stone-900 via-stone-800 to-amber-900 py-24 px-4 overflow-hidden">
         <div
           className="absolute inset-0 opacity-25"
@@ -81,24 +80,24 @@ export default function BlogClientPage({ posts }: Props) {
           </p>
           <div className="flex justify-center gap-8 text-sm text-white/60">
             <div className="flex flex-col items-center gap-1">
-              <span className="text-2xl font-light text-white">{totalTravel}</span>
+              <span className="text-2xl font-light text-white">{totalCarnets}</span>
               <span>Carnets de voyage</span>
             </div>
             <div className="w-px bg-white/20" />
             <div className="flex flex-col items-center gap-1">
-              <span className="text-2xl font-light text-white">{totalFood}</span>
-              <span>Food & Lifestyle</span>
+              <span className="text-2xl font-light text-white">{totalDecouvertes}</span>
+              <span>Découvertes locales</span>
             </div>
             <div className="w-px bg-white/20" />
             <div className="flex flex-col items-center gap-1">
-              <span className="text-2xl font-light text-white">{totalExpertise}</span>
-              <span>Expertises</span>
+              <span className="text-2xl font-light text-white">{totalGuides}</span>
+              <span>Guides pratiques</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── BANDEAU TAGS ─────────────────────────────────── */}
+      {/* ── BANDEAU TAGS */}
       {allTags.length > 0 && (
         <section className="bg-amber-900 overflow-hidden">
           <div className="flex items-center gap-0 py-3 overflow-x-auto no-scrollbar px-4 md:justify-center md:flex-wrap">
@@ -115,7 +114,7 @@ export default function BlogClientPage({ posts }: Props) {
         </section>
       )}
 
-      {/* ── À LA UNE ─────────────────────────────────────── */}
+      {/* ── À LA UNE */}
       {featuredPost && activeFilter === 'Tous' && searchQuery === '' && (
         <section className="max-w-7xl mx-auto px-4 pt-14 pb-4">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-amber-700 mb-5">✦ À la une</p>
@@ -156,7 +155,7 @@ export default function BlogClientPage({ posts }: Props) {
         </section>
       )}
 
-      {/* ── FILTRES & RECHERCHE ───────────────────────────── */}
+      {/* ── FILTRES & RECHERCHE */}
       <section className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
           <div className="flex flex-wrap gap-2">
@@ -198,7 +197,7 @@ export default function BlogClientPage({ posts }: Props) {
         )}
       </section>
 
-      {/* ── GRILLE ARTICLES ──────────────────────────────── */}
+      {/* ── GRILLE ARTICLES */}
       {filteredPosts.length === 0 ? (
         <div className="max-w-7xl mx-auto px-4 pb-20 text-center">
           <div className="py-20">
@@ -211,34 +210,34 @@ export default function BlogClientPage({ posts }: Props) {
         </div>
       ) : (
         <div className="max-w-7xl mx-auto px-4 pb-20 space-y-16">
-          {(activeFilter === 'Tous' || activeFilter === 'Travel') && travel.length > 0 && (
+          {(activeFilter === 'Tous' || activeFilter === 'Carnets Voyage') && carnets.length > 0 && (
             <section>
-              <SectionHeader emoji="✈️" title="Carnets de Voyage" count={travel.length} />
+              <SectionHeader emoji="✈️" title="Carnets de Voyage" count={carnets.length} />
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-                {travel.map((p) => <ArticleCard key={p.slug} post={p} />)}
+                {carnets.map((p) => <ArticleCard key={p.slug} post={p} />)}
               </div>
             </section>
           )}
-          {(activeFilter === 'Tous' || activeFilter === 'Food & Lifestyle') && food.length > 0 && (
+          {(activeFilter === 'Tous' || activeFilter === 'Découvertes Locales') && decouvertes.length > 0 && (
             <section className="-mx-4 px-4 py-12 bg-amber-50 rounded-3xl">
-              <SectionHeader emoji="🍽️" title="Food & Lifestyle" count={food.length} />
+              <SectionHeader emoji="🗺️" title="Découvertes Locales" count={decouvertes.length} />
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-                {food.map((p) => <ArticleCard key={p.slug} post={p} />)}
+                {decouvertes.map((p) => <ArticleCard key={p.slug} post={p} />)}
               </div>
             </section>
           )}
-          {(activeFilter === 'Tous' || activeFilter === 'Expertise Hôtelière') && expertise.length > 0 && (
+          {(activeFilter === 'Tous' || activeFilter === 'Guides Pratiques') && guides.length > 0 && (
             <section>
-              <SectionHeader emoji="🏨" title="Expertise Hôtelière" count={expertise.length} />
+              <SectionHeader emoji="🏨" title="Guides Pratiques" count={guides.length} />
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-                {expertise.map((p) => <ArticleCard key={p.slug} post={p} />)}
+                {guides.map((p) => <ArticleCard key={p.slug} post={p} />)}
               </div>
             </section>
           )}
         </div>
       )}
 
-      {/* ── NEWSLETTER ───────────────────────────────────── */}
+      {/* ── NEWSLETTER */}
       <section className="bg-gradient-to-br from-stone-900 to-amber-900 py-20 px-4">
         <div className="max-w-2xl mx-auto text-center text-white">
           <p className="text-amber-300 text-xs font-semibold tracking-[0.2em] uppercase mb-4">✦ Rejoins l&apos;aventure</p>
