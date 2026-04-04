@@ -9,11 +9,16 @@ export const revalidate = 60; // ISR : re-génère toutes les 60s
 
 export default async function BlogPage() {
   const posts = await getAllPosts();
+  // Pre-format dates for client component (cannot pass functions)
+  const postsWithFormattedDate = posts.map(post => ({
+    ...post,
+    formattedDate: formatDate(post.published_at)
+  }));
   return (
     <>
       <Header />
       <Breadcrumb />
-      <BlogClientPage posts={posts} formatDate={formatDate} />
+      <BlogClientPage posts={postsWithFormattedDate} />
       <Footer />
     </>
   );

@@ -121,16 +121,15 @@ function ArticleCard({ post, fmt, size = 'md' }: { post: BlogPost; fmt: (s: stri
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 interface HomeProps {
-  featured: BlogPost | null
-  travelPosts: BlogPost[]
-  foodPosts: BlogPost[]
-  latestPosts: BlogPost[]
+  featured: (BlogPost & { formattedDate: string }) | null
+  travelPosts: (BlogPost & { formattedDate: string })[]
+  foodPosts: (BlogPost & { formattedDate: string })[]
+  latestPosts: (BlogPost & { formattedDate: string })[]
   totalPosts: number
-  formatDate: (s: string | null) => string
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, formatDate }: HomeProps) {
+export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts }: HomeProps) {
   useScrollReveal()
   const featImg = featured ? postImage(featured) : null
 
@@ -310,7 +309,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                         <h3 className="text-white text-lg font-serif font-light group-hover:text-amber-200 transition-colors line-clamp-2">
                           {p.title}
                         </h3>
-                        <p className="text-gray-300 text-xs mt-1">{p.destination ?? formatDate(p.published_at)}</p>
+                        <p className="text-gray-300 text-xs mt-1">{p.destination ?? p.formattedDate}</p>
                       </div>
                     </Link>
                   ))}
