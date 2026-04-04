@@ -1,4 +1,4 @@
-import { getAllPosts, formatDate } from '@/lib/blog-supabase'
+import { getAllPosts, formatDate, BlogPost } from '@/lib/blog-supabase'
 import HomeClient from '@/components/HomeClient'
 
 export const revalidate = 60
