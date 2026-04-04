@@ -1,62 +1,75 @@
-import type { Metadata } from 'next'
-import Script from 'next/script'
-import './globals.css'
+import type { Metadata } from 'next';
+import './globals.css';
+
+const SITE_URL = 'https://heldonica.fr';
 
 export const metadata: Metadata = {
-  title: 'Heldonica - L\'Expert de l\'Aventure | Slow Travel & Consulting',
-  description: 'Slow travel en couple écoresponsable & Consulting hôtelier. Voyages authentiques, itinéraires hors sentiers, expertise RevPAR +30%.',
-  keywords: 'slow travel, travel planning, consulting hôtelier, revenue management, voyages en couple',
-  authors: [{ name: 'Heldonica' }],
-  icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: 'Heldonica — Slow Travel en couple',
+    template: '%s | Heldonica',
   },
-  manifest: '/site.webmanifest',
+  description:
+    'Carnets de voyage slow travel en couple, pépites dénichées hors sentiers battus et conception de voyages sur mesure écoresponsables. Bienvenue dans notre histoire.',
+  keywords: [
+    'slow travel',
+    'voyage en couple',
+    'hors sentiers battus',
+    'écoresponsable',
+    'travel planning',
+    'carnet de voyage',
+    'heldonica',
+  ],
+  authors: [{ name: 'Heldonica', url: SITE_URL }],
+  creator: 'Heldonica',
+  publisher: 'Heldonica',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
+  alternates: {
+    canonical: SITE_URL,
+  },
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
-    url: 'https://heldonica.fr',
+    url: SITE_URL,
     siteName: 'Heldonica',
-    title: 'Heldonica - L\'Expert de l\'Aventure',
-    description: 'Slow travel en couple & Consulting hôtelier',
+    title: 'Heldonica — Slow Travel en couple',
+    description:
+      'Carnets de voyage slow travel, pépites dénichées et conception de voyages sur mesure écoresponsables.',
+    images: [
+      {
+        url: '/og-default.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Heldonica — Slow Travel en couple',
+      },
+    ],
   },
-}
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Heldonica — Slow Travel en couple',
+    description:
+      'Carnets de voyage slow travel, pépites dénichées et conception de voyages sur mesure écoresponsables.',
+    images: ['/og-default.jpg'],
+    creator: '@heldonica',
+  },
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const gaId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID
-
   return (
     <html lang="fr">
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        {gaId && (
-          <>
-            <Script
-              strategy="afterInteractive"
-              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
-            />
-            <Script
-              id="google-analytics"
-              strategy="afterInteractive"
-              dangerouslySetInnerHTML={{
-                __html: `
-                  window.dataLayer = window.dataLayer || [];
-                  function gtag(){dataLayer.push(arguments);}
-                  gtag('js', new Date());
-                  gtag('config', '${gaId}');
-                `,
-              }}
-            />
-          </>
-        )}
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
-      <body className="bg-cloud-dancer text-charcoal">
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
-  )
+  );
 }
