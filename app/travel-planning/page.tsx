@@ -185,16 +185,46 @@ export default function TravelPlanning() {
             <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12">Ce qu&apos;on crée pour toi</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
-                { icon: '🗺️', title: 'Itinéraire 100 % sur mesure', desc: 'On part de tes envies, ton rythme, ta durée. Chaque journée est pensée pour que tu vives un vrai voyage — pas une liste de cases à cocher.' },
-                { icon: '🌿', title: 'Hébergements éco & authentiques', desc: "Maisons d'hôtes locales, écolodges, petits hôtels indépendants testés sur le terrain. Zéro chaîne, 100 % immersion." },
-                { icon: '💑', title: 'Pensé pour les couples', desc: 'Ni tout-inclus, ni programme chargé. Des moments à deux, des pépites dénichées, une évasion qui vous ressemble.' },
-                { icon: '📍', title: 'Logistique clé en main', desc: "Transports, réservations, carnet de route PDF, contacts locaux. Tu n'as plus qu'à partir." },
-                { icon: '♻️', title: 'Voyage éco-responsable', desc: 'On intègre dès la conception des choix bas-carbone, des acteurs locaux et des pratiques respectueuses des territoires.' },
-                { icon: '💬', title: 'Suivi personnalisé', desc: 'Un échange humain à chaque étape. On répond à tes questions avant, pendant et après le voyage.' },
+                {
+                  num: '01',
+                  title: 'Itinéraire 100 % sur mesure',
+                  desc: 'On part de tes envies, ton rythme, ta durée. Chaque journée est pensée pour que tu vives un vrai voyage — pas une liste de cases à cocher.',
+                  accent: 'from-amber-50 to-stone-50',
+                },
+                {
+                  num: '02',
+                  title: 'Hébergements éco & authentiques',
+                  desc: "Maisons d'hôtes locales, écolodges, petits hôtels indépendants testés sur le terrain. Zéro chaîne, 100 % immersion.",
+                  accent: 'from-teal-50 to-stone-50',
+                },
+                {
+                  num: '03',
+                  title: 'Pensé pour les couples',
+                  desc: 'Ni tout-inclus, ni programme chargé. Des moments à deux, des pépites dénichées, une évasion qui vous ressemble.',
+                  accent: 'from-amber-50 to-stone-50',
+                },
+                {
+                  num: '04',
+                  title: 'Logistique clé en main',
+                  desc: "Transports, réservations, carnet de route PDF, contacts locaux. Tu n'as plus qu'à partir.",
+                  accent: 'from-teal-50 to-stone-50',
+                },
+                {
+                  num: '05',
+                  title: 'Voyage éco-responsable',
+                  desc: 'On intègre dès la conception des choix bas-carbone, des acteurs locaux et des pratiques respectueuses des territoires.',
+                  accent: 'from-amber-50 to-stone-50',
+                },
+                {
+                  num: '06',
+                  title: 'Suivi personnalisé',
+                  desc: 'Un échange humain à chaque étape. On répond à tes questions avant, pendant et après le voyage.',
+                  accent: 'from-teal-50 to-stone-50',
+                },
               ].map((s, i) => (
-                <div key={i} className="service-card bg-stone-50 rounded-xl p-6 border border-stone-100">
-                  <span className="text-3xl mb-4 block">{s.icon}</span>
-                  <h3 className="font-semibold text-stone-900 mb-2">{s.title}</h3>
+                <div key={i} className={`service-card bg-gradient-to-br ${s.accent} rounded-xl p-6 border border-stone-100`}>
+                  <span className="text-xs font-bold tracking-[0.2em] text-amber-700 uppercase mb-3 block">{s.num}</span>
+                  <h3 className="font-semibold text-stone-900 mb-2 text-base">{s.title}</h3>
                   <p className="text-stone-600 text-sm leading-relaxed">{s.desc}</p>
                 </div>
               ))}
