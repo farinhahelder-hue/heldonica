@@ -6,14 +6,23 @@ import Footer from '@/components/Footer'
 import Link from 'next/link'
 import type { BlogPost } from '@/lib/blog-supabase'
 
-// ─── Images de secours par destination ───────────────────────────────────────
-const DEST_IMAGES: Record<string, string> = {
-  'Madère': 'https://images.unsplash.com/photo-1555117343-8b28e6f14895?w=900',
-  'Zurich': 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=900',
-  'Paris': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=900',
-  'Timișoara': 'https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?w=900',
-  'Suisse': 'https://images.unsplash.com/photo-1502786129236-63f2598fd7b9?w=900',
-  'Normandie': 'https://images.unsplash.com/photo-1601645191163-3fc0d5d64e35?w=900',
+// ─── Images de secours par slug ──────────────────────────────────────────────
+const SLUG_IMAGES: Record<string, string> = {
+  'madere-slow-travel-guide':                     'https://images.unsplash.com/photo-1555117343-8b28e6f14895?w=900',
+  'urbex-paris-safe':                             'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=900',
+  'guide-pratique-comment-debuter-le-slow-travel-en-duo': 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=900',
+  'madere-quand-partir-sur-lile-de-leternel-printemps':   'https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=900',
+  'pepites-mystiques-de-madere':                  'https://images.unsplash.com/photo-1548690312-e3b507d8c110?w=900',
+  'prego-no-bolo-do-caco':                        'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=900',
+}
+// ─── Images de secours par catégorie ─────────────────────────────────────────
+const CAT_IMAGES: Record<string, string> = {
+  'Carnets Voyage':      'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=900',
+  'Découvertes Locales': 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=900',
+  'Guides Pratiques':    'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=900',
+  'Expert Hôtelier':     'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=900',
+  'Travel':              'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=900',
+  'Food & Lifestyle':    'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=900',
 }
 const CAT_BG: Record<string, string> = {
   'Travel': 'from-teal-900 via-stone-800 to-emerald-900',
@@ -21,9 +30,10 @@ const CAT_BG: Record<string, string> = {
   'Expertise Hôtelière': 'from-slate-900 via-stone-800 to-zinc-900',
 }
 function postImage(p: BlogPost): string {
-  if (p.image_url) return p.image_url
-  if (p.destination && DEST_IMAGES[p.destination]) return DEST_IMAGES[p.destination]
-  return 'https://images.unsplash.com/photo-1501555088652-021faa106b9b?w=900'
+  if (p.featured_image) return p.featured_image
+  if (p.slug && SLUG_IMAGES[p.slug]) return SLUG_IMAGES[p.slug]
+  if (p.category && CAT_IMAGES[p.category]) return CAT_IMAGES[p.category]
+  return 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=900'
 }
 
 // ─── Hooks ────────────────────────────────────────────────────────────────────
@@ -474,3 +484,4 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
     </>
   )
 }
+
