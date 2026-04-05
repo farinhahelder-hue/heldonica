@@ -36,7 +36,7 @@ export default function MentionsLegales() {
                 <p>Email : info@heldonica.fr</p>
                 <p>Pays : France</p>
                 <p>
-                  <strong>Responsable de publication :</strong> Helder Farinha
+                  <strong>Responsable de publication :</strong> Heldonica
                 </p>
               </div>
             </div>
