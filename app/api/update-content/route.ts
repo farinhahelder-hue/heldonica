@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server';
-import { sql } from '@vercel/postgres';
+import { supabase } from '@/lib/supabase';
 
-const CONTENT_UPDATES = [
-  {
-    slug: `madere-slow-travel-guide`,
-    content: `<article class="prose-heldonica">
+const CONTENT_UPDATES: { slug: string; content: string }[] = [
+  { slug: `madere-slow-travel-guide`, content: `<article class="prose-heldonica">
 <p class="lead">On a posé les valises à Madère pour la première fois en mars 2024. On pensait rester dix jours. On est restés seize. Ce n'est pas un accident — c'est Madère qui fait ça.</p>
 <p>L'île est petite (57 km sur 22), volcanique, vertigineuse. Elle tombe dans l'Atlantique par des falaises de 600 mètres. Elle monte jusqu'à 1862 mètres au Pico Ruivo. Entre les deux, un réseau de 2000 kilomètres de levadas — ces canaux d'irrigation du XVe siècle qu'on a transformés en sentiers de randonnée. C'est le terrain de jeu slow travel le plus dense d'Europe.</p>
 <h2>Pourquoi Madère est faite pour le slow travel</h2>
@@ -37,11 +35,8 @@ const CONTENT_UPDATES = [
 <p>Madère est l'île qui nous a appris à vraiment ralentir. Pas parce qu'il n'y a rien à faire — il y a trop à faire. Mais parce que chaque endroit mérite plus d'une heure. Chaque levada mérite l'aube. Chaque table mérite la conversation qui suit le repas. Seize jours ne suffisaient pas. On y retourne en octobre.</p>
 <p><em>— Heldonica, mars 2024 et octobre 2025, deux séjours complets</em></p>
 </blockquote>
-</article>`
-  },
-  {
-    slug: `guide-pratique-comment-debuter-le-slow-travel-en-duo`,
-    content: `<article class="prose-heldonica">
+</article>` },
+  { slug: `guide-pratique-comment-debuter-le-slow-travel-en-duo`, content: `<article class="prose-heldonica">
 <p class="lead">On était comme toi. Deux semaines de vacances par an, un vol low-cost, un hôtel TripAdvisor, un programme de 14 villes en 10 jours. On rentrait épuisés en disant qu'on avait "bien voyagé". On mentait — à nous-mêmes d'abord.</p>
 <p>Le virage slow travel s'est fait brutalement, un dimanche soir à Porto. On était assis sur les marches d'une église, à regarder les gens vivre leur dimanche. Et on a réalisé qu'on n'avait rien vu de Porto depuis trois jours qu'on y était — on avait coché Porto, pas vécu Porto.</p>
 <h2>Ce que le slow travel n'est pas</h2>
@@ -66,11 +61,8 @@ const CONTENT_UPDATES = [
 <p>Le slow travel en duo, c'est choisir la profondeur plutôt que la largeur. Une ville vraiment vécue vaut dix villes survolées. Et la meilleure souvenir de voyage ne vient jamais d'un monument — il vient d'un moment imprévu, dans une ruelle qu'on n'avait pas prévu de traverser, avec quelqu'un qu'on n'avait pas prévu de rencontrer.</p>
 <p><em>— Heldonica, appliqué depuis 2019, affiné à chaque voyage</em></p>
 </blockquote>
-</article>`
-  },
-  {
-    slug: `urbex-paris-safe`,
-    content: `<article class="prose-heldonica">
+</article>` },
+  { slug: `urbex-paris-safe`, content: `<article class="prose-heldonica">
 <p class="lead">L'urbex, c'est explorer des lieux abandonnés ou méconnus. À Paris, ça évoque les catacombes illégales, les toits interdits, les friches industrielles. C'est excitant — et souvent illégal. On te propose autre chose : l'urbex légal, accessible, et franchement plus intéressant pour les non-adrénalomanes.</p>
 <p>On a passé trois mois à explorer Paris autrement. Voici nos pépites dénichées — toutes accessibles, toutes légales, aucune sur les listes Airbnb Experience.</p>
 <h2>La Petite Ceinture : 35 km de friche végétale</h2>
@@ -91,11 +83,8 @@ const CONTENT_UPDATES = [
 <p>L'urbex légal à Paris, c'est comprendre que la ville cache ses meilleures pépites à ceux qui ne cherchent pas les monuments. La Petite Ceinture brumeuse d'octobre vaut n'importe quelle visite guidée. Et elle est gratuite, accessible en métro, et pratiquement vide à 8h du matin.</p>
 <p><em>— Heldonica, exploré sur trois mois d'arpentage parisien en 2025</em></p>
 </blockquote>
-</article>`
-  },
-  {
-    slug: `madere-quand-partir-sur-lile-de-leternel-printemps`,
-    content: `<article class="prose-heldonica">
+</article>` },
+  { slug: `madere-quand-partir-sur-lile-de-leternel-printemps`, content: `<article class="prose-heldonica">
 <p class="lead">Madère est surnommée l'île de l'éternel printemps. C'est vrai — et c'est trompeur. Le climat y est doux toute l'année, oui. Mais ce surnom cache une réalité plus nuancée : un nord sauvage et pluvieux, un sud ensoleillé, des sommets dans les nuages et des vallées inondées de lumière, parfois le même jour.</p>
 <p>On l'a visitée en mars, en octobre et en novembre. Voici ce qu'on a vécu — sans filtre.</p>
 <h2>Le paradoxe climatique de Madère</h2>
@@ -124,11 +113,8 @@ const CONTENT_UPDATES = [
 <p>Il n'y a pas de mauvaise saison à Madère. Mars-avril pour la douceur et les fleurs. Octobre pour la lumière et la tranquillité. Évite juillet-août si tu veux vivre l'île plutôt que la subir. Et quelle que soit la saison : lève-toi tôt.</p>
 <p><em>— Heldonica, trois saisons testées sur place</em></p>
 </blockquote>
-</article>`
-  },
-  {
-    slug: `pepites-mystiques-de-madere`,
-    content: `<article class="prose-heldonica">
+</article>` },
+  { slug: `pepites-mystiques-de-madere`, content: `<article class="prose-heldonica">
 <p class="lead">Il y a un endroit à Madère où on est restés silencieux pendant vingt minutes. Pas parce qu'on n'avait rien à dire. Parce que la forêt nous avait absorbés.</p>
 <p>C'était à Fanal, à 6h30 du matin, dans le brouillard. Les tilleuls centenaires émergent de la brume comme des fantômes bienveillants. Aucun son humain. Juste les gouttelettes sur les feuilles, et quelque chose qu'on ne sait pas nommer.</p>
 <h2>Fanal : la forêt hors du temps</h2>
@@ -148,11 +134,8 @@ const CONTENT_UPDATES = [
 <p>Madère cache ses meilleures pépites à ceux qui prennent le temps de chercher. Aucun de ces endroits n'est sur les listes des "top 10 things to do". Tous demandent un réveil plus tôt, ou simplement de s'éloigner du chemin balisé de 200 mètres. C'est là que l'île révèle son âme.</p>
 <p><em>— Heldonica, pépites dénichées lors de trois séjours à Madère</em></p>
 </blockquote>
-</article>`
-  },
-  {
-    slug: `prego-no-bolo-do-caco`,
-    content: `<article class="prose-heldonica">
+</article>` },
+  { slug: `prego-no-bolo-do-caco`, content: `<article class="prose-heldonica">
 <p class="lead">On a mangé beaucoup de choses à Madère. Des espadas à la sauce de fruit de la passion, du vin de Madère chaud sur les levadas, des ponchas artisanales dans des caves à Câmara de Lobos. Mais ce dont on parle encore à table, c'est d'un sandwich.</p>
 <p>Un steak de bœuf mariné à l'ail et aux herbes, grillé sur feu de bois, glissé dans un bolo do caco chaud tartiné de beurre d'ail. Ce n'est pas une recette de chef étoilé. C'est la nourriture des travailleurs, vendue dans des snacks de bord de route, consommée debout ou sur un tabouret plastique. Et c'est l'une des meilleures choses qu'on ait mangées en Europe.</p>
 <h2>C'est quoi le bolo do caco ?</h2>
@@ -186,19 +169,23 @@ const CONTENT_UPDATES = [
 <p>Le prego no bolo do caco, c'est la quintessence de ce qu'on aime dans le slow travel alimentaire : une recette simple, des ingrédients locaux, un savoir-faire transmis de snack en snack depuis des générations. Ce n'est pas dans les guides gastronomiques. C'est dans les mains d'une femme qui cuit son pain sur une pierre depuis quarante ans.</p>
 <p><em>— Heldonica, recette reçue de Maria, Câmara de Lobos, octobre 2025</em></p>
 </blockquote>
-</article>`
-  },
+</article>` },
 ];
 
 export async function GET() {
+  if (!supabase) {
+    return NextResponse.json({ error: 'Supabase not configured' }, { status: 500 });
+  }
+
   const results = [];
   for (const update of CONTENT_UPDATES) {
-    await sql`
-      UPDATE cms_blog_posts
-      SET content = ${update.content}, updated_at = now()
-      WHERE slug = ${update.slug}
-    `;
-    results.push({ slug: update.slug, status: 'updated' });
+    const { error } = await supabase
+      .from('cms_blog_posts')
+      .update({ content: update.content, updated_at: new Date().toISOString() })
+      .eq('slug', update.slug);
+
+    results.push({ slug: update.slug, error: error?.message || null });
   }
-  return NextResponse.json({ success: true, updated: results });
+
+  return NextResponse.json({ success: true, results });
 }
