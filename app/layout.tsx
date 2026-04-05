@@ -6,18 +6,20 @@ const SITE_URL = 'https://heldonica.fr';
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Heldonica — Slow Travel en couple',
+    default: 'Heldonica | Slow Travel, Pépites & Voyages Hors des Sentiers Battus',
     template: '%s | Heldonica',
   },
   description:
-    'Carnets de voyage slow travel en couple, pépites dénichées hors sentiers battus et conception de voyages sur mesure écoresponsables. Bienvenue dans notre histoire.',
+    'Slow travel, pépites dénichées et voyages sur mesure hors des sentiers battus. On partage nos carnets de route et conçoit des itinéraires authentiques pour tous les explorateurs.',
   keywords: [
     'slow travel',
-    'voyage en couple',
-    'hors sentiers battus',
+    'voyage hors sentiers battus',
+    'pépites voyage',
     'écoresponsable',
-    'travel planning',
+    'travel planning sur mesure',
     'carnet de voyage',
+    'slow travel Europe',
+    'itinéraire slow travel',
     'heldonica',
   ],
   authors: [{ name: 'Heldonica', url: SITE_URL }],
@@ -36,7 +38,7 @@ export const metadata: Metadata = {
     locale: 'fr_FR',
     url: SITE_URL,
     siteName: 'Heldonica',
-    title: 'Heldonica — Slow Travel en couple',
+    title: 'Heldonica | Slow Travel, Pépites & Voyages Hors des Sentiers Battus',
     description:
       'Carnets de voyage slow travel, pépites dénichées et conception de voyages sur mesure écoresponsables.',
     images: [
@@ -44,13 +46,13 @@ export const metadata: Metadata = {
         url: '/og-default.jpg',
         width: 1200,
         height: 630,
-        alt: 'Heldonica — Slow Travel en couple',
+        alt: 'Heldonica — Slow Travel, pépites & voyages hors des sentiers battus',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Heldonica — Slow Travel en couple',
+    title: 'Heldonica | Slow Travel, Pépites & Voyages Hors des Sentiers Battus',
     description:
       'Carnets de voyage slow travel, pépites dénichées et conception de voyages sur mesure écoresponsables.',
     images: ['/og-default.jpg'],
