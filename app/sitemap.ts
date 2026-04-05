@@ -1,10 +1,9 @@
 import { MetadataRoute } from 'next';
-import { getAllSlugs } from '@/lib/blog-supabase';
+import { getAllSlugs, getAllPosts } from '@/lib/blog-supabase';
 
 const BASE_URL = 'https://heldonica.fr';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // Pages statiques
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: BASE_URL,
@@ -20,49 +19,55 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${BASE_URL}/travel-planning`,
-      lastModified: new Date(),
+      lastModified: new Date('2026-04-06'),
       changeFrequency: 'monthly',
-      priority: 0.8,
+      priority: 0.85,
     },
     {
       url: `${BASE_URL}/hotel-consulting`,
-      lastModified: new Date(),
+      lastModified: new Date('2026-04-06'),
       changeFrequency: 'monthly',
-      priority: 0.8,
+      priority: 0.85,
     },
     {
       url: `${BASE_URL}/destinations`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
-      priority: 0.7,
+      priority: 0.75,
     },
     {
       url: `${BASE_URL}/a-propos`,
-      lastModified: new Date(),
+      lastModified: new Date('2026-04-01'),
       changeFrequency: 'monthly',
       priority: 0.6,
     },
     {
       url: `${BASE_URL}/contact`,
-      lastModified: new Date(),
+      lastModified: new Date('2026-04-01'),
       changeFrequency: 'monthly',
       priority: 0.5,
     },
     {
+      url: `${BASE_URL}/travel-planning-form`,
+      lastModified: new Date('2026-04-01'),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
       url: `${BASE_URL}/mentions-legales`,
-      lastModified: new Date(),
+      lastModified: new Date('2026-01-01'),
       changeFrequency: 'yearly',
       priority: 0.2,
     },
   ];
 
-  // Pages dynamiques — articles de blog publiés
-  const slugs = await getAllSlugs();
-  const blogPages: MetadataRoute.Sitemap = slugs.map(({ slug }) => ({
-    url: `${BASE_URL}/blog/${slug}`,
-    lastModified: new Date(),
+  // Pages dynamiques avec vraies dates de publication
+  const posts = await getAllPosts();
+  const blogPages: MetadataRoute.Sitemap = posts.map((post) => ({
+    url: `${BASE_URL}/blog/${post.slug}`,
+    lastModified: post.updated_at ? new Date(post.updated_at) : new Date(post.published_at),
     changeFrequency: 'monthly' as const,
-    priority: 0.7,
+    priority: 0.75,
   }));
 
   return [...staticPages, ...blogPages];
