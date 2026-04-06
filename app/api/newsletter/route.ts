@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
+
+// Newsletter Heldonica — Brevo (contacts) + Resend (email de bienvenue)
+// Variables requises : BREVO_API_KEY (obligatoire), RESEND_API_KEY (optionnel)
+// Liste Brevo cible : listIds [2] — "Newsletter Heldonica"
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,7 +34,7 @@ export async function POST(request: NextRequest) {
 
       if (!brevoRes.ok) {
         const err = await brevoRes.json()
-        // Contact déjà inscrit → pas une erreur
+        // Contact déjà inscrit → pas une erreur bloquante
         if (err.code !== 'duplicate_parameter') {
           console.error('Brevo error:', err)
           return NextResponse.json({ error: 'Erreur inscription newsletter' }, { status: 400 })
@@ -41,9 +44,10 @@ export async function POST(request: NextRequest) {
       console.warn('BREVO_API_KEY non configurée — inscription simulée')
     }
 
-    // 2. Email de bienvenue via Resend
+    // 2. Email de bienvenue via Resend (optionnel)
     const resendApiKey = process.env.RESEND_API_KEY
     if (resendApiKey) {
+      const { Resend } = await import('resend')
       const resend = new Resend(resendApiKey)
       await resend.emails.send({
         from: 'Heldonica <onboarding@resend.dev>',
@@ -67,8 +71,8 @@ export async function POST(request: NextRequest) {
             </div>
             <div style="padding:24px 40px;background:#f5f0eb;text-align:center">
               <p style="font-size:12px;color:#a8a29e;margin:0">
-                Tu re\u00e7ois cet email car tu t'es inscrit(e) sur heldonica.fr.<br/>
-                <a href="https://heldonica.fr" style="color:#78350f">heldonica.fr</a>
+                Tu re\u00e7ois cet email car tu t'es inscrit(e) sur heldonica.fr · Conformément au RGPD, tes données ne sont utilisées que pour l'envoi de cette newsletter.<br/>
+                <a href="https://heldonica.fr/mentions-legales" style="color:#78350f">Se désabonner</a> · <a href="https://heldonica.fr" style="color:#78350f">heldonica.fr</a>
               </p>
             </div>
           </div>
