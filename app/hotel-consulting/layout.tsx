@@ -2,14 +2,14 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Consulting Hôtelier Indépendant | Revenue Management & SEO Local | Heldonica',
-  description: 'Consulting hôtelier sur mesure : Revenue Management, optimisation du RevPAR, SEO local et expérience client. Expertise terrain pour hôtels indépendants et boutique-hôtels.',
+  description: "Consulting hôtelier sur mesure : Revenue Management, optimisation du RevPAR, SEO local et expérience client. Expertise terrain pour hôtels indépendants et boutique-hôtels.",
   keywords: ['consulting hôtelier', 'revenue management', 'revpar', 'seo local hôtel', 'expérience client hôtel', 'hôtel indépendant', 'heldonica'],
   alternates: {
     canonical: 'https://heldonica.fr/hotel-consulting',
   },
   openGraph: {
-    title: 'Consulting Hôtelier Indépendant — Revenue Management & SEO Local',
-    description: 'Optimisez le RevPAR, la visibilité en ligne et l'expérience client de votre établissement. Consultant hôtelier indépendant, expertise terrain.',
+    title: "Consulting Hôtelier Indépendant — Revenue Management & SEO Local",
+    description: "Optimisez le RevPAR, la visibilité en ligne et l'expérience client de votre établissement. Consultant hôtelier indépendant, expertise terrain.",
     url: 'https://heldonica.fr/hotel-consulting',
     siteName: 'Heldonica',
     images: [
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Consulting Hôtelier Indépendant | Heldonica',
-    description: 'Revenue Management, SEO local et expérience client pour hôtels indépendants.',
+    description: "Revenue Management, SEO local et expérience client pour hôtels indépendants.",
     images: ['https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=1200&q=85'],
   },
 };
