@@ -24,11 +24,6 @@ const CAT_IMAGES: Record<string, string> = {
   'Travel':              'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=900&q=80',
   'Food & Lifestyle':    'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80',
 }
-const CAT_BG: Record<string, string> = {
-  'Travel': 'from-teal-900 via-stone-800 to-emerald-900',
-  'Food & Lifestyle': 'from-amber-900 via-orange-900 to-stone-800',
-  'Expertise Hôtelière': 'from-slate-900 via-stone-800 to-zinc-900',
-}
 function postImage(p: BlogPost): string {
   if (p.featured_image) return p.featured_image
   if (p.slug && SLUG_IMAGES[p.slug]) return SLUG_IMAGES[p.slug]
@@ -232,7 +227,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               <AnimatedStat nb={totalPosts} suffix="" label="Articles publiés" />
               <AnimatedStat nb="100%" label="Adresses testées sur le terrain" />
               <AnimatedStat nb={7} label="Pays habités entre nous" />
-              <AnimatedStat nb={2015} label="Première aventure commune" />
+              <AnimatedStat nb="2015" label="Première aventure commune" />
               <div className="col-span-2 mt-2">
                 <p className="text-xs text-stone-400 leading-relaxed">
                   <span className="font-semibold text-stone-600">Terrains de jeu :</span><br />
@@ -484,4 +479,3 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
     </>
   )
 }
-
