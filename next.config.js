@@ -10,16 +10,15 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'd2xsxph8kpxj0f.cloudfront.net',
       },
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+      },
     ],
   },
   compress: true,
-  output: 'standalone',
   typescript: {
     ignoreBuildErrors: true,
-  },
-  onDemandEntries: {
-    maxInactiveAge: 60 * 1000,
-    pagesBufferLength: 5,
   },
   eslint: {
     ignoreDuringBuilds: true,
