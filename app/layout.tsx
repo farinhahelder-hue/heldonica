@@ -28,7 +28,13 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
-    googleBot: { index: true, follow: true },
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
   },
   alternates: {
     canonical: SITE_URL,
@@ -60,6 +66,41 @@ export const metadata: Metadata = {
   },
 };
 
+const schemaWebSite = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Heldonica',
+  alternateName: 'Heldonica — Slow Travel en Couple',
+  url: SITE_URL,
+  description: 'Blog slow travel en couple, pépites dénichées et service de travel planning sur mesure écoresponsable.',
+  inLanguage: 'fr-FR',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: `${SITE_URL}/blog?q={search_term_string}`,
+    },
+    'query-input': 'required name=search_term_string',
+  },
+};
+
+const schemaOrganization = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Heldonica',
+  url: SITE_URL,
+  logo: `${SITE_URL}/logo.png`,
+  sameAs: [
+    'https://www.instagram.com/heldonica',
+  ],
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'customer service',
+    email: 'contact@heldonica.fr',
+    availableLanguage: 'French',
+  },
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -70,6 +111,15 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="preconnect" href="https://images.unsplash.com" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaWebSite) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrganization) }}
+        />
       </head>
       <body>{children}</body>
     </html>
