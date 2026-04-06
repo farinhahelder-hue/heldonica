@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -9,21 +10,18 @@ export default function Header() {
   return (
     <>
       <nav className="fixed top-0 w-full bg-white/95 backdrop-blur-sm z-50 border-b border-stone-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex justify-between items-center">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 text-amber-900 hover:text-amber-700 transition-colors" aria-label="Heldonica accueil">
-            {/* Monogramme H avec horizon */}
-            <svg width="34" height="34" viewBox="0 0 34 34" fill="none" aria-hidden="true">
-              {/* Cercle extérieur fin */}
-              <circle cx="17" cy="17" r="16" stroke="currentColor" strokeWidth="1.2"/>
-              {/* Lettre H stylisée */}
-              <line x1="10" y1="9" x2="10" y2="22" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-              <line x1="24" y1="9" x2="24" y2="22" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-              <line x1="10" y1="15.5" x2="24" y2="15.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              {/* Ligne horizon ondulée sous le H */}
-              <path d="M8 26 Q11 24 14 26 Q17 28 20 26 Q23 24 26 26" stroke="currentColor" strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.6"/>
-            </svg>
-            <span className="text-xl font-serif font-bold tracking-tight">Heldonica</span>
+          <Link href="/" className="flex items-center gap-2.5 text-amber-900 hover:opacity-85 transition-opacity" aria-label="Heldonica accueil">
+            <Image
+              src="/logo-heldonica.png"
+              alt="Heldonica – Aventure Slow Duo"
+              width={44}
+              height={44}
+              className="rounded-full object-cover"
+              priority
+            />
+            <span className="text-xl font-serif font-bold tracking-tight text-amber-900">Heldonica</span>
           </Link>
 
           {/* Desktop nav */}
