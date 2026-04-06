@@ -1,91 +1,95 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { S3Client, ListObjectsV2Command, PutObjectCommand } from '@aws-sdk/client-s3';
+import { createClient } from '@supabase/supabase-js';
 
 const CMS_PASSWORD = process.env.CMS_PASSWORD || 'heldonica2024';
+const BUCKET = 'media';
 
 function checkAuth(req: NextRequest) {
-  const auth = req.headers.get('x-cms-auth');
-  return auth === CMS_PASSWORD;
+  return req.headers.get('x-cms-auth') === CMS_PASSWORD;
 }
 
-// ─── Client iDrive e2 S3-compatible ───────────────────────────
-function getS3Client() {
-  return new S3Client({
-    region: process.env.IDRIVE_REGION || 'us-east-1',
-    endpoint: process.env.IDRIVE_ENDPOINT,
-    credentials: {
-      accessKeyId: process.env.IDRIVE_ACCESS_KEY_ID || '',
-      secretAccessKey: process.env.IDRIVE_SECRET_ACCESS_KEY || '',
-    },
-    forcePathStyle: true,
-  });
+function supabaseAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
 }
 
-// ─── GET : lister les fichiers iDrive ─────────────────────────
+// GET : lister les fichiers du bucket Supabase Storage
 export async function GET(req: NextRequest) {
   if (!checkAuth(req)) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
-  const bucket = process.env.IDRIVE_BUCKET || 'heldonica-media';
-  const prefix = req.nextUrl.searchParams.get('prefix') || 'articles/';
+  const prefix = req.nextUrl.searchParams.get('prefix') || 'articles';
+  const folder = prefix.replace(/\/$/, '');
 
   try {
-    const s3 = getS3Client();
-    const cmd = new ListObjectsV2Command({
-      Bucket: bucket,
-      Prefix: prefix,
-      MaxKeys: 100,
+    const sb = supabaseAdmin();
+    const { data, error } = await sb.storage.from(BUCKET).list(folder, {
+      limit: 200,
+      sortBy: { column: 'created_at', order: 'desc' },
     });
-    const res = await s3.send(cmd);
+    if (error) throw new Error(error.message);
 
-    const files = (res.Contents || [])
-      .filter(obj => obj.Key && /\.(jpg|jpeg|png|webp|avif|gif)$/i.test(obj.Key))
-      .map(obj => ({
-        key: obj.Key,
-        size: obj.Size,
-        lastModified: obj.LastModified,
-        url: `${process.env.IDRIVE_PUBLIC_URL}/${obj.Key}`,
-        name: obj.Key!.split('/').pop(),
-      }));
+    const files = (data || [])
+      .filter(f => /\.(jpg|jpeg|png|webp|avif|gif)$/i.test(f.name))
+      .map(f => {
+        const path = `${folder}/${f.name}`;
+        const { data: urlData } = sb.storage.from(BUCKET).getPublicUrl(path);
+        return {
+          key: path,
+          name: f.name,
+          size: f.metadata?.size,
+          lastModified: f.created_at,
+          url: urlData.publicUrl,
+        };
+      });
 
-    return NextResponse.json({ files, source: 'idrive' });
+    return NextResponse.json({ files, source: 'supabase' });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
-// ─── POST : importer depuis URL (Google Photos) vers iDrive ──
+// POST : importer depuis une URL (Google Photos) vers Supabase Storage
 export async function POST(req: NextRequest) {
   if (!checkAuth(req)) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
-  const { imageUrl, filename } = await req.json();
+  const { imageUrl, filename, folder: folderParam } = await req.json();
   if (!imageUrl) return NextResponse.json({ error: 'imageUrl requis' }, { status: 400 });
 
-  const bucket = process.env.IDRIVE_BUCKET || 'heldonica-media';
+  const folder = (folderParam || 'articles').replace(/\/$/, '');
   const safeFilename = filename || `import-${Date.now()}.jpg`;
-  const key = `articles/${safeFilename}`;
+  const path = `${folder}/${safeFilename}`;
 
   try {
-    // 1. Télécharger l'image depuis l'URL source
     const imgRes = await fetch(imageUrl);
     if (!imgRes.ok) throw new Error(`Impossible de télécharger l'image : ${imgRes.status}`);
     const buffer = Buffer.from(await imgRes.arrayBuffer());
     const contentType = imgRes.headers.get('content-type') || 'image/jpeg';
 
-    // 2. Uploader vers iDrive e2
-    const s3 = getS3Client();
-    await s3.send(new PutObjectCommand({
-      Bucket: bucket,
-      Key: key,
-      Body: buffer,
-      ContentType: contentType,
-      ACL: 'public-read',
-    }));
+    const sb = supabaseAdmin();
+    const { error } = await sb.storage.from(BUCKET).upload(path, buffer, {
+      contentType,
+      upsert: true,
+    });
+    if (error) throw new Error(error.message);
 
-    const publicUrl = `${process.env.IDRIVE_PUBLIC_URL}/${key}`;
-    return NextResponse.json({ url: publicUrl, key });
+    const { data: urlData } = sb.storage.from(BUCKET).getPublicUrl(path);
+    return NextResponse.json({ url: urlData.publicUrl, key: path });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: message }, { status: 500 });
   }
+}
+
+// DELETE : supprimer un fichier du bucket
+export async function DELETE(req: NextRequest) {
+  if (!checkAuth(req)) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+  const { key } = await req.json();
+  if (!key) return NextResponse.json({ error: 'key requis' }, { status: 400 });
+  const sb = supabaseAdmin();
+  const { error } = await sb.storage.from(BUCKET).remove([key]);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ success: true });
 }
