@@ -1,7 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import MediaLibrary from '@/components/MediaLibrary';
+
+const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
 
 // ─── Types ───────────────────────────────────────────────────
 type Article = {
@@ -100,6 +103,7 @@ export default function CMSAdmin() {
     if (res.ok) {
       showToast(isNew ? '✅ Article créé !' : '✅ Article mis à jour !');
       setEditingArticle(null);
+      setTab('articles');
       loadArticles();
     } else {
       const d = await res.json();
@@ -127,23 +131,22 @@ export default function CMSAdmin() {
     if (res.ok) { showToast('🗑️ Article supprimé'); loadArticles(); }
   };
 
-  // Upload image (vers iDrive via nouvelle route)
-  const uploadImage = async (e: React.ChangeEvent<HTMLInputElement>, field: 'featured_image') => {
+  // Upload image à la une
+  const uploadFeaturedImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const fd = new FormData();
     fd.append('file', file);
     fd.append('folder', 'articles');
-    // Essayer d'abord iDrive, fallback sur l'ancienne route
     const res = await fetch('/api/cms/media-upload', {
       method: 'POST',
       headers: { 'x-cms-auth': pwd },
       body: fd,
-    }).catch(() => fetch('/api/cms/upload', { method: 'POST', body: fd }));
+    });
     const data = await res.json();
     if (data.url) {
-      setEditingArticle(prev => prev ? { ...prev, [field]: data.url } : prev);
-      showToast('✅ Image uploadée sur iDrive !');
+      setEditingArticle(prev => prev ? { ...prev, featured_image: data.url } : prev);
+      showToast('✅ Image uploadée sur Supabase !');
     } else {
       showToast(`❌ Upload échoué : ${data.error}`);
     }
@@ -200,6 +203,7 @@ export default function CMSAdmin() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
           <span style={{ fontSize: '1.5rem' }}>🌿</span>
           <span style={{ fontWeight: 700, fontSize: '1.1rem', letterSpacing: '.03em' }}>Heldonica CMS</span>
+          <span style={{ background: 'rgba(255,255,255,.18)', fontSize: '.72rem', padding: '.2rem .6rem', borderRadius: '9999px', fontWeight: 600 }}>Supabase</span>
         </div>
         <button onClick={() => setAuthed(false)} style={{ background: 'rgba(255,255,255,.15)', border: 'none', color: 'white', padding: '.4rem .9rem', borderRadius: '.4rem', cursor: 'pointer', fontSize: '.85rem' }}>Déconnexion</button>
       </div>
@@ -266,8 +270,8 @@ export default function CMSAdmin() {
                 <option value="published">Publiés</option>
                 <option value="draft">Brouillons</option>
               </select>
-              <button onClick={loadArticles} style={{ padding: '.6rem 1.2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>🔍 Chercher</button>
-              <button onClick={() => { setEditingArticle({}); setTab('new'); }} style={{ padding: '.6rem 1.2rem', background: '#2d6a4f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>+ Nouvel article</button>
+              <button onClick={loadArticles} style={{ padding: '.6rem 1.2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>🔍</button>
+              <button onClick={() => { setEditingArticle({}); setTab('new'); }} style={{ padding: '.6rem 1.2rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>+ Nouvel article</button>
             </div>
 
             {loadingArticles ? (
@@ -366,25 +370,22 @@ export default function CMSAdmin() {
                 </select>
               </div>
 
+              {/* Image à la une */}
               <div style={{ gridColumn: '1/-1' }}>
                 <label style={lbl}>Image à la une</label>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: '.75rem' }}>
-                  {/* Bouton médiathèque — nouvelle feature */}
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '.75rem' }}>
                   <button
                     onClick={() => setShowMediaLibrary(true)}
-                    style={{
-                      padding: '.6rem 1.1rem', background: '#6b2a1a', color: 'white',
-                      border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.85rem',
-                      fontWeight: 600, display: 'flex', alignItems: 'center', gap: '.4rem',
-                    }}
-                  >
-                    🖼️ Choisir depuis médiathèque
-                  </button>
-                  <span style={{ color: '#aaa', fontSize: '.82rem', alignSelf: 'center' }}>ou</span>
-                  <input type="file" accept="image/*" onChange={e => uploadImage(e, 'featured_image')} style={{ fontSize: '.85rem', alignSelf: 'center' }} />
+                    style={{ padding: '.6rem 1.1rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.85rem', fontWeight: 600 }}
+                  >🖼️ Médiathèque Supabase</button>
+                  <span style={{ color: '#aaa', fontSize: '.82rem' }}>ou</span>
+                  <label style={{ padding: '.6rem 1rem', background: '#01696f', color: 'white', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.85rem', fontWeight: 600 }}>
+                    ⬆️ Upload direct
+                    <input type="file" accept="image/*" onChange={uploadFeaturedImage} style={{ display: 'none' }} />
+                  </label>
                 </div>
-                {editingArticle?.featured_image && (
-                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                {editingArticle?.featured_image ? (
+                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
                     <div style={{ position: 'relative' }}>
                       <img src={editingArticle.featured_image} alt="" style={{ height: 80, borderRadius: '.5rem', objectFit: 'cover' }} />
                       <button
@@ -392,26 +393,24 @@ export default function CMSAdmin() {
                         style={{ position: 'absolute', top: -6, right: -6, background: '#c0392b', color: 'white', border: 'none', borderRadius: '50%', width: 20, height: 20, cursor: 'pointer', fontSize: '.7rem' }}
                       >✕</button>
                     </div>
-                    <div style={{ flex: 1, minWidth: 200 }}>
-                      <input
-                        value={editingArticle?.featured_image || ''}
-                        onChange={e => setEditingArticle(p => ({ ...p, featured_image: e.target.value }))}
-                        style={{ ...inp, fontSize: '.82rem' }}
-                        placeholder="Ou coller une URL d'image"
-                      />
-                    </div>
+                    <input
+                      value={editingArticle.featured_image}
+                      onChange={e => setEditingArticle(p => ({ ...p, featured_image: e.target.value }))}
+                      style={{ ...inp, flex: 1, fontSize: '.82rem' }}
+                      placeholder="URL de l'image"
+                    />
                   </div>
-                )}
-                {!editingArticle?.featured_image && (
+                ) : (
                   <input
-                    value={editingArticle?.featured_image || ''}
+                    value=""
                     onChange={e => setEditingArticle(p => ({ ...p, featured_image: e.target.value }))}
                     style={{ ...inp, fontSize: '.82rem' }}
-                    placeholder="Ou coller une URL d'image directement"
+                    placeholder="Ou coller une URL directement"
                   />
                 )}
               </div>
 
+              {/* Extrait */}
               <div style={{ gridColumn: '1/-1' }}>
                 <label style={lbl}>Extrait</label>
                 <textarea
@@ -422,13 +421,14 @@ export default function CMSAdmin() {
                 />
               </div>
 
+              {/* Éditeur riche */}
               <div style={{ gridColumn: '1/-1' }}>
-                <label style={lbl}>Contenu (HTML ou Markdown)</label>
-                <textarea
+                <label style={lbl}>Contenu</label>
+                <RichEditor
                   value={editingArticle?.content || ''}
-                  onChange={e => setEditingArticle(p => ({ ...p, content: e.target.value }))}
-                  style={{ ...inp, height: 320, resize: 'vertical', fontFamily: 'monospace', fontSize: '.85rem' }}
-                  placeholder="<p>Corps de l'article…</p>"
+                  onChange={html => setEditingArticle(p => ({ ...p, content: html }))}
+                  cmsPassword={pwd}
+                  placeholder="Commence à écrire ton article ici…"
                 />
               </div>
 
@@ -458,40 +458,23 @@ export default function CMSAdmin() {
           </div>
         )}
 
-        {/* ── ONGLET MÉDIATHÈQUE DIRECT ── */}
+        {/* ── ONGLET MÉDIATHÈQUE ── */}
         {tab === 'media' && (
           <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 2px 12px rgba(0,0,0,.07)', minHeight: 400 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>🖼️ Médiathèque</h2>
-              <p style={{ fontSize: '.85rem', color: '#888' }}>iDrive e2 · Google Photos</p>
+              <p style={{ fontSize: '.85rem', color: '#888' }}>Supabase Storage · Google Photos</p>
             </div>
             <div style={{ background: '#faf8f5', borderRadius: '.75rem', padding: '2rem', textAlign: 'center', border: '2px dashed #e8e3dc' }}>
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🖼️</div>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>☁️</div>
               <p style={{ color: '#555', marginBottom: '1.25rem', lineHeight: 1.6 }}>
-                Gère tes images stockées sur <strong>iDrive e2</strong> et importe depuis <strong>Google Photos</strong>.<br />
-                Ouvre la médiathèque depuis l&apos;éditeur d&apos;article pour choisir une image à la une.
+                Toutes tes images sont stockées sur <strong>Supabase Storage</strong>.<br />
+                Upload depuis ton ordi ou importe depuis <strong>Google Photos</strong>.
               </p>
               <button
-                onClick={() => { setEditingArticle({}); setShowMediaLibrary(true); }}
+                onClick={() => setShowMediaLibrary(true)}
                 style={{ padding: '.8rem 1.75rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '.95rem' }}
-              >
-                🖼️ Ouvrir la médiathèque
-              </button>
-            </div>
-
-            <div style={{ marginTop: '2rem', background: '#fff8e1', borderRadius: '.75rem', padding: '1.25rem', border: '1.5px solid #ffe082' }}>
-              <h3 style={{ fontSize: '.95rem', fontWeight: 700, color: '#7a5c00', marginBottom: '.75rem' }}>⚙️ Variables d&apos;environnement requises</h3>
-              <p style={{ fontSize: '.82rem', color: '#8a6a00', marginBottom: '.5rem' }}>
-                Ajoute ces variables dans <strong>Vercel → Settings → Environment Variables</strong> :
-              </p>
-              <div style={{ fontFamily: 'monospace', fontSize: '.8rem', background: '#fff', borderRadius: '.5rem', padding: '1rem', border: '1px solid #ffe082', lineHeight: 2 }}>
-                <div>IDRIVE_ENDPOINT=<em style={{ color: '#888' }}>https://&lt;ton-endpoint&gt;.idrivee2.com</em></div>
-                <div>IDRIVE_ACCESS_KEY_ID=<em style={{ color: '#888' }}>ta-clé-access</em></div>
-                <div>IDRIVE_SECRET_ACCESS_KEY=<em style={{ color: '#888' }}>ton-secret</em></div>
-                <div>IDRIVE_BUCKET=<em style={{ color: '#888' }}>heldonica-media</em></div>
-                <div>IDRIVE_PUBLIC_URL=<em style={{ color: '#888' }}>https://&lt;bucket&gt;.&lt;endpoint&gt;</em></div>
-                <div>IDRIVE_REGION=<em style={{ color: '#888' }}>us-east-1</em></div>
-              </div>
+              >🖼️ Ouvrir la médiathèque</button>
             </div>
           </div>
         )}
