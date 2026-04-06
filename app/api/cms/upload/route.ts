@@ -1,50 +1,34 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
+import { NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 
-export async function POST(request: NextRequest) {
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+export async function POST(req: Request) {
   try {
-    const formData = await request.formData();
-    const file = formData.get('file') as File;
-    
-    if (!file) {
-      return NextResponse.json(
-        { error: 'Aucun fichier fourni' },
-        { status: 400 }
-      );
+    const formData = await req.formData()
+    const file = formData.get('file') as File
+    const folder = (formData.get('folder') as string) || 'media'
+    if (!file) return NextResponse.json({ error: 'No file' }, { status: 400 })
+
+    const ext = file.name.split('.').pop()
+    const filename = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+    const buffer = Buffer.from(await file.arrayBuffer())
+
+    const { error } = await supabase.storage
+      .from('heldonica-media')
+      .upload(filename, buffer, { contentType: file.type, upsert: false })
+
+    if (error) {
+      // Bucket peut ne pas exister encore — retourner erreur claire
+      return NextResponse.json({ error: `Storage: ${error.message}` }, { status: 500 })
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    // Créer le répertoire uploads s'il n'existe pas
-    const uploadsDir = join(process.cwd(), 'public', 'uploads');
-    if (!existsSync(uploadsDir)) {
-      await mkdir(uploadsDir, { recursive: true });
-    }
-
-    // Générer un nom de fichier unique
-    const timestamp = Date.now();
-    const filename = `${timestamp}-${file.name}`;
-    const filepath = join(uploadsDir, filename);
-
-    // Sauvegarder le fichier
-    await writeFile(filepath, buffer);
-
-    // Retourner l'URL publique
-    const url = `/uploads/${filename}`;
-
-    return NextResponse.json({
-      success: true,
-      url: url,
-      filename: filename,
-    });
-  } catch (error: any) {
-    console.error('Erreur upload:', error);
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    const { data: urlData } = supabase.storage.from('heldonica-media').getPublicUrl(filename)
+    return NextResponse.json({ url: urlData.publicUrl, path: filename, success: true })
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message }, { status: 500 })
   }
 }
