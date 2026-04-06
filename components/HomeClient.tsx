@@ -436,21 +436,24 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         </div>
       </section>
 
-      {/* ── CONSULTING HÔTELIER ───────────────────────────────────────── */}
+      {/* ── CONSULTING HÔTELIER — IAification & Digitalisation ────────── */}
       <section className="py-20 md:py-24 bg-stone-100">
         <div className="max-w-6xl mx-auto px-6 md:px-10">
           <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
             <div className="order-2 md:order-1" data-reveal="left">
-              <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4">Consulting B2B</p>
+              <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4">Consulting B2B · Hôtellerie</p>
               <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 leading-tight mb-6">
-                Expertise hôtelière
-                <span className="block italic text-stone-600">au service de vos résultats</span>
+                IAification &amp; digitalisation
+                <span className="block italic text-stone-600">des établissements hôteliers</span>
               </h2>
               <p className="text-base text-stone-600 leading-relaxed mb-4">
-                Revenue Management, SEO local, expérience client — on accompagne les établissements indépendants qui veulent piloter leur activité avec rigueur et ambition.
+                On accompagne les hôtels indépendants dans leur transformation numérique : intégration de l&apos;IA dans les opérations, automatisation des process, refonte de la présence digitale — pour gagner en efficacité sans perdre l&apos;âme de l&apos;établissement.
+              </p>
+              <p className="text-sm text-stone-500 leading-relaxed mb-6">
+                Du diagnostic initial au déploiement concret, on co-construit une feuille de route réaliste, adaptée à votre structure et vos équipes.
               </p>
               <div className="flex flex-wrap gap-2 mb-8">
-                {['Revenue Management', 'SEO Local', 'Expérience client', 'Mix canaux', 'ROI'].map((tag) => (
+                {['IA générative', 'Automatisation', 'Digitalisation', 'Expérience client', 'Formation équipes', 'ROI mesurable'].map((tag) => (
                   <span key={tag} className="bg-white border border-stone-300 text-stone-700 text-xs font-semibold px-3 py-1 rounded-full">{tag}</span>
                 ))}
               </div>
@@ -458,10 +461,34 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 Découvrir l&apos;offre consulting →
               </Link>
             </div>
-            <div className="order-1 md:order-2" data-reveal="right">
-              <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=700&q=85"
-                alt="Hôtel — lobby élégant" className="rounded-2xl w-full aspect-[4/3] object-cover shadow-lg"
-                loading="lazy" width={700} height={525} />
+            <div className="order-1 md:order-2 grid grid-cols-1 gap-4" data-reveal="right">
+              {[
+                {
+                  icon: '⚡',
+                  t: 'Audit IA & digital',
+                  d: 'Cartographie des processus existants, identification des leviers d\'automatisation à fort ROI.'
+                },
+                {
+                  icon: '🤖',
+                  t: 'Déploiement d\'outils IA',
+                  d: 'Sélection et intégration d\'outils adaptés : chatbots, yield management intelligent, personnalisation guest journey.'
+                },
+                {
+                  icon: '📈',
+                  t: 'Formation & accompagnement',
+                  d: 'Montée en compétences des équipes pour adopter les nouveaux outils durablement, sans résistance au changement.'
+                },
+              ].map((item) => (
+                <div key={item.t} className="bg-white rounded-xl p-5 shadow-sm hover:shadow-md transition border border-stone-200 hover:border-amber-200">
+                  <div className="flex items-start gap-3">
+                    <span className="text-xl mt-0.5">{item.icon}</span>
+                    <div>
+                      <h3 className="font-semibold text-stone-900 text-sm mb-1">{item.t}</h3>
+                      <p className="text-stone-500 text-xs leading-relaxed">{item.d}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
