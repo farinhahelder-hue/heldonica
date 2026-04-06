@@ -1,13 +1,18 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+function supabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
+
+export const dynamic = 'force-dynamic'
 
 export async function GET() {
-  const { data, error } = await supabase
+  const sb = supabase()
+  const { data, error } = await sb
     .from('demandes_travel')
     .select('*')
     .order('created_at', { ascending: false })
@@ -16,8 +21,9 @@ export async function GET() {
 }
 
 export async function PUT(req: Request) {
+  const sb = supabase()
   const { id, statut } = await req.json()
-  const { error } = await supabase
+  const { error } = await sb
     .from('demandes_travel')
     .update({ statut })
     .eq('id', id)

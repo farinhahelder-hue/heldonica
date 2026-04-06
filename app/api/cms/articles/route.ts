@@ -1,17 +1,22 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+function supabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
+
+export const dynamic = 'force-dynamic'
 
 export async function GET(req: Request) {
+  const sb = supabase()
   const { searchParams } = new URL(req.url)
   const search = searchParams.get('search') || ''
   const status = searchParams.get('status') || 'all'
 
-  let query = supabase
+  let query = sb
     .from('cms_blog_posts')
     .select('id, title, slug, category, published, published_at, created_at, excerpt, featured_image')
     .order('created_at', { ascending: false })
@@ -26,8 +31,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const sb = supabase()
   const body = await req.json()
-  const { data, error } = await supabase
+  const { data, error } = await sb
     .from('cms_blog_posts')
     .insert([{ ...body, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }])
     .select()
