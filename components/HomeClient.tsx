@@ -138,6 +138,10 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
   useScrollReveal()
   const featImg = featured ? postImage(featured) : null
 
+  // Mots du titre hero avec espaces garantis
+  const heroLine1 = ['Explorateurs', 'émerveillés,']
+  const heroLine2 = ['dénicheurs', 'de', 'pépites.']
+
   return (
     <>
       <style>{`
@@ -170,13 +174,19 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             Slow Travel · Voyages en couple · Paris
           </p>
           <h1 className="text-3xl md:text-5xl lg:text-7xl font-serif font-light text-white leading-[1.15] mb-4 md:mb-6">
-            {'Explorateurs émerveillés,'.split(' ').map((w, i) => (
-              <span key={i} className="hero-word" style={{ animationDelay: `${0.3 + i * 0.1}s` }}>{w}{' '}</span>
+            {heroLine1.map((w, i) => (
+              <span key={i} className="hero-word" style={{ animationDelay: `${0.3 + i * 0.1}s` }}>
+                {w}{' '}
+              </span>
             ))}
             <br />
-            <em>{'dénicheurs de pépites.'.split(' ').map((w, i) => (
-              <span key={i} className="hero-word" style={{ animationDelay: `${0.7 + i * 0.1}s` }}>{w}{' '}</span>
-            ))}</em>
+            <em>
+              {heroLine2.map((w, i) => (
+                <span key={i} className="hero-word" style={{ animationDelay: `${0.7 + i * 0.1}s` }}>
+                  {w}{' '}
+                </span>
+              ))}
+            </em>
           </h1>
           <p className="text-sm md:text-lg text-gray-300 leading-relaxed mb-6 md:mb-8 max-w-xl"
              style={{ animation: 'wordIn 0.7s 1.1s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
