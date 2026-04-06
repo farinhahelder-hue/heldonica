@@ -1,65 +1,71 @@
 import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'À propos - Heldonica | Duo d\'explorateurs slow travel',
-  description: 'Découvrez notre histoire : duo d\'explorateurs passionnés par le slow travel en couple et le consulting hôtelier. Expertise terrain 100% vécue.',
+  title: 'Notre histoire — Heldonica | Slow travel en couple',
+  description: 'L’un vient de Madère, l’autre de Roumanie, et c’est à Paris qu’on s’est trouvés. Découvrez l’histoire atypique derrière Heldonica.',
 }
 
 export default function AProposPage() {
   return (
     <>
       <Header />
-      <main className="pt-24 pb-16">
-        {/* Hero Section */}
-        <section className="bg-gradient-to-br from-stone-50 to-amber-50 py-20">
-          <div className="max-w-4xl mx-auto px-6 text-center">
-            <h1 className="text-5xl md:text-6xl font-serif font-bold text-mahogany mb-6">
-              Deux explorateurs, une vision
+      <main>
+
+        {/* ── HERO ─────────────────────────────────────────────────── */}
+        <section className="relative h-[55vh] md:h-[65vh] bg-stone-900 flex items-end overflow-hidden">
+          <img
+            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1400&q=85"
+            alt="Heldonica — duo de voyageurs"
+            className="absolute inset-0 w-full h-full object-cover opacity-40"
+            width={1400} height={900} loading="eager"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+          <div className="relative z-10 px-6 md:px-16 pb-14 md:pb-24 max-w-3xl">
+            <p className="text-amber-300 text-xs font-bold tracking-[0.2em] uppercase mb-4">Notre histoire</p>
+            <h1 className="text-4xl md:text-6xl font-serif font-light text-white leading-[1.1] mb-5">
+              Une histoire<br />
+              <em className="text-amber-300">atypique</em>
             </h1>
-            <p className="text-xl md:text-2xl text-stone-600 leading-relaxed max-w-2xl mx-auto">
-              Nous croyons en los viajes qui changent la mirada. En conversaciones auténtiques, itinéraires hors des sentiers y momentos qui ne s'inventent pas.
+            <p className="text-gray-300 text-base md:text-lg leading-relaxed max-w-xl">
+              Bienvenue chez Heldonica — notre petit coin d&apos;internet à deux, né de notre envie de sortir des sentiers battus et de savourer chaque moment, tout simplement.
             </p>
           </div>
         </section>
 
-        {/* Notre Histoire */}
-        <section className="py-20 px-6">
-          <div className="max-w-5xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div>
-                <span className="text-eucalyptus font-medium tracking-wide uppercase text-sm">Notre histoire</span>
-                <h2 className="text-3xl md:text-4xl font-serif font-bold text-mahogany mt-4 mb-6">
-                  D&apos;une rencontre à une philosophie
+        {/* ── INTRO DUO ──────────────────────────────────────────── */}
+        <section className="py-20 md:py-28 bg-white">
+          <div className="max-w-5xl mx-auto px-6 md:px-10">
+            <div className="grid md:grid-cols-5 gap-12 md:gap-20 items-center">
+              <div className="md:col-span-3 space-y-5">
+                <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase">Pas vraiment classiques</p>
+                <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 leading-tight">
+                  On s&apos;est rencontrés sur une appli,<br />
+                  <span className="italic text-stone-500">sans être du même pays.</span>
                 </h2>
-                <div className="space-y-4 text-stone-600 leading-relaxed">
-                  <p>
-                    Tout a commencé par un coup de cœur pour une île portugaise : Madère. 
-                    Les premières levées de soleil sur les levadas, les odeurs de bolo do caco 
-                    dans les ruelles de Funchal, les rencontres inattendues dans les petits villages 
-                    de montagne.
-                  </p>
-                  <p>
-                    De voyage en voyage, une conviction s&apos;est ancrée : les meilleurs souvenirs 
-                    ne se trouvent pas dans les guides touristiques. Ils se vivent, se partagent, 
-                    se construisent lentement.
-                  </p>
-                  <p>
-                    Aujourd&apos;hui, Heldonica c&apos;est cette philosophie appliquée à deux axes : 
-                    le <strong>slow travel en couple</strong> pour les voyageurs qui veulent aller 
-                    au-delà du superficiel, et le <strong>consulting hôtelier</strong> pour les 
-                    établissements qui souhaitent offrir une vraie expérience client.
-                  </p>
-                </div>
+                <p className="text-base text-stone-600 leading-relaxed">
+                  Et si nos univers diffèrent, c&apos;est justement là que notre aventure a commencé. L&apos;un vient de Madère, l&apos;autre de Roumanie — et c&apos;est à Paris qu&apos;on s&apos;est trouvés.
+                </p>
+                <p className="text-base text-stone-600 leading-relaxed">
+                  Deux trajectoires opposées, une même envie d&apos;explorer autrement. Les villes à contre-courant, les chemins qui s&apos;éloignent des flux, les tables où l&apos;on mange vrai, les pépites dénichées loin des sentiers balisés.
+                </p>
+                <p className="text-base text-stone-600 leading-relaxed">
+                  Nos itinéraires, on les a vécus — pas seulement planifiés. Nos adresses, on les a testées. Ce qu&apos;on partage ici, c&apos;est un voyage plus lent, plus sensoriel, plus vivant, où chaque détail devient une raison de rester un peu plus longtemps.
+                </p>
               </div>
-              <div className="relative">
-                <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-gradient-to-br from-eucalyptus/20 to-teal/20">
-                  <div className="w-full h-full flex items-center justify-center">
-                    <div className="text-center p-8">
-                      <div className="text-6xl mb-4">🏝️</div>
-                      <p className="text-stone-500 font-medium">Madère, 2024</p>
-                    </div>
+              <div className="md:col-span-2">
+                <div className="relative">
+                  <img
+                    src="https://images.unsplash.com/photo-1501555088652-021faa106b9b?w=700&q=85"
+                    alt="Voyage en couple — silhouettes"
+                    className="rounded-2xl w-full aspect-[3/4] object-cover shadow-lg"
+                    width={500} height={667} loading="lazy"
+                  />
+                  <div className="absolute -bottom-5 -left-5 bg-amber-800 text-white px-5 py-4 rounded-xl shadow-lg hidden md:block">
+                    <p className="text-xs font-bold tracking-wider uppercase mb-1">Rencontrés</p>
+                    <p className="text-2xl font-serif font-light">Paris, 2015</p>
                   </div>
                 </div>
               </div>
@@ -67,138 +73,149 @@ export default function AProposPage() {
           </div>
         </section>
 
-        {/* Notre Approche */}
-        <section className="py-20 bg-cloud-dancer px-6">
-          <div className="max-w-5xl mx-auto">
+        {/* ── LUI / ELLE ───────────────────────────────────────────── */}
+        <section className="py-20 md:py-28 bg-stone-50">
+          <div className="max-w-5xl mx-auto px-6 md:px-10">
+            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-12 text-center">Le duo derrière Heldonica</p>
+            <div className="grid md:grid-cols-2 gap-10 md:gap-16">
+
+              {/* LUI */}
+              <div className="group">
+                <div className="relative mb-6 overflow-hidden rounded-2xl">
+                  <img
+                    src="https://images.unsplash.com/photo-1539635278303-d4002c07eae3?w=700&q=80"
+                    alt="Madère — falaises et océan"
+                    className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700"
+                    width={600} height={450} loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  <span className="absolute bottom-4 left-4 text-white text-xs font-bold tracking-[0.15em] uppercase">Lui — Madère</span>
+                </div>
+                <h3 className="text-2xl font-serif font-light text-stone-900 mb-3">
+                  L&apos;insulaire de l&apos;âme
+                </h3>
+                <p className="text-stone-600 text-sm leading-relaxed mb-3">
+                  Né à Madère, entre l&apos;Atlantique et les falaises vertigineuses. Il part à l&apos;aventure là où les cartes s&apos;arrêtent, traquant les paysages que les guides ne montrent pas encore.
+                </p>
+                <p className="text-stone-600 text-sm leading-relaxed">
+                  Spécialiste de la digitalisation et de l&apos;IAification dans l&apos;hôtellerie, il accompagne les établissements indépendants dans leur transformation numérique — avec la rigueur de l&apos;expert et l&apos;œil du voyageur.
+                </p>
+              </div>
+
+              {/* ELLE */}
+              <div className="group">
+                <div className="relative mb-6 overflow-hidden rounded-2xl">
+                  <img
+                    src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=700&q=80"
+                    alt="Roumanie — paysages des Carpates"
+                    className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700"
+                    width={600} height={450} loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  <span className="absolute bottom-4 left-4 text-white text-xs font-bold tracking-[0.15em] uppercase">Elle — Roumanie</span>
+                </div>
+                <h3 className="text-2xl font-serif font-light text-stone-900 mb-3">
+                  La lectrice de villes
+                </h3>
+                <p className="text-stone-600 text-sm leading-relaxed mb-3">
+                  Roumaine, une enfance entre les Carpates et l&apos;Europe entière — sept pays habités, sept façons d&apos;apprendre à lire le monde. Elle lit une ville comme un poème.
+                </p>
+                <p className="text-stone-600 text-sm leading-relaxed">
+                  Plume et regard derrière Heldonica, elle imagine les itinéraires, déniche les pépites et raconte chaque découverte avec l&apos;exactitude de celle qui y était vraiment.
+                </p>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* ── PHILOSOPHIE ─────────────────────────────────────────── */}
+        <section className="py-20 md:py-28 bg-white">
+          <div className="max-w-4xl mx-auto px-6 md:px-10">
             <div className="text-center mb-16">
-              <span className="text-eucalyptus font-medium tracking-wide uppercase text-sm">Notre approche</span>
-              <h2 className="text-3xl md:text-4xl font-serif font-bold text-mahogany mt-4">
-                Le slow travel, notre philosophie
+              <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4">Ce qu&apos;on défend</p>
+              <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 leading-tight">
+                Heldonica, c&apos;est notre manière de raconter<br />
+                <em className="text-amber-800">le monde avec sincérité</em>
               </h2>
             </div>
-
             <div className="grid md:grid-cols-3 gap-8">
               {[
                 {
-                  icon: '🎯',
-                  title: 'Vécu terrain',
-                  description: 'Chaque destination que nous recommandons, nous l\'avons explorée. Les photos sont les nôtres, les tips sont testés.',
+                  titre: 'Vécu, pas planifié',
+                  texte: 'Chaque adresse qu&apos;on recommande, on l&apos;a testée. Pas récupérée sur un listicle. Pas inspirée d&apos;un autre blog.',
                 },
                 {
-                  icon: '💑',
-                  title: 'Couple & proximité',
-                  description: 'Nous concevons des itinéraires pour les couples qui veulent partager plus que des vacances : une aventure.',
+                  titre: 'Lenteur &amp; profondeur',
+                  texte: 'On ne voyage pas pour cocher. On voyage pour ressentir, rencontrer, comprendre. Chaque destination mérite qu&apos;on s&apos;y attarde.',
                 },
                 {
-                  icon: '🔍',
-                  title: 'Hors des sentiers',
-                  description: 'Nous dénichons les pépites que vous ne trouverez pas dans les guides : restaurants locaux, spots incontournés.',
+                  titre: 'Curieux, toujours',
+                  texte: 'L&apos;inattendu est notre boussole. Les chemins de traverse, les tables sans enseigne, les paysages que les guides n&apos;ont pas encore trouvés.',
                 },
-              ].map((item, idx) => (
-                <div key={idx} className="bg-white rounded-2xl p-8 shadow-sm border border-stone-100 hover:shadow-md transition-shadow">
-                  <div className="text-4xl mb-4">{item.icon}</div>
-                  <h3 className="text-xl font-serif font-bold text-mahogany mb-3">{item.title}</h3>
-                  <p className="text-stone-600 leading-relaxed">{item.description}</p>
+              ].map((item) => (
+                <div key={item.titre} className="border-t-2 border-amber-800 pt-6">
+                  <h3
+                    className="font-semibold text-stone-900 text-base mb-3"
+                    dangerouslySetInnerHTML={{ __html: item.titre }}
+                  />
+                  <p
+                    className="text-stone-500 text-sm leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: item.texte }}
+                  />
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Expertise Hôtelière */}
-        <section className="py-20 px-6">
-          <div className="max-w-5xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div className="order-2 md:order-1">
-                <div className="aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-amber-50 to-orange-50">
-                  <div className="w-full h-full flex items-center justify-center">
-                    <div className="text-center p-8">
-                      <div className="text-6xl mb-4">🏨</div>
-                      <p className="text-stone-500 font-medium">Expertise hôtelière</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="order-1 md:order-2">
-                <span className="text-eucalyptus font-medium tracking-wide uppercase text-sm">Consulting hôtelier</span>
-                <h2 className="text-3xl md:text-4xl font-serif font-bold text-mahogany mt-4 mb-6">
-                  L&apos;expertise au service de l&apos;hébergement
-                </h2>
-                <div className="space-y-4 text-stone-600 leading-relaxed">
-                  <p>
-                    Avec plus de 15 ans d&apos;expérience dans l&apos;industrie hôtelière, nous aidons 
-                    les établissements à transformer l&apos;expérience client et optimiser leurs revenus.
-                  </p>
-                  <ul className="space-y-3 mt-6">
-                    {[
-                      'Revenue management & pricing stratégique',
-                      'Expérience client & journey mapping',
-                      'Formation équipes & mise en place process',
-                      'Conseil en positionnement & différenciation',
-                    ].map((item, idx) => (
-                      <li key={idx} className="flex items-start gap-3">
-                        <span className="text-eucalyptus">✓</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <a 
-                  href="/hotel-consulting" 
-                  className="inline-block mt-8 px-6 py-3 bg-amber-900 text-white rounded-full hover:bg-amber-800 transition-colors font-medium"
-                >
-                  Découvrir nos services →
-                </a>
-              </div>
+        {/* ── CITATION CENTRALE ───────────────────────────────────── */}
+        <section className="py-20 bg-stone-900">
+          <div className="max-w-3xl mx-auto px-6 text-center">
+            <p className="text-amber-300 text-xs font-bold tracking-[0.2em] uppercase mb-8">✦ Notre conviction</p>
+            <blockquote className="text-2xl md:text-4xl font-serif font-light text-white leading-relaxed">
+              &ldquo;Un voyage plus lent, plus sensoriel, plus vivant — où chaque détail devient
+              une raison de rester un peu plus longtemps.&rdquo;
+            </blockquote>
+            <p className="text-stone-500 text-sm mt-8">Heldonica — Paris</p>
+          </div>
+        </section>
+
+        {/* ── CTA FINAL ────────────────────────────────────────────── */}
+        <section className="py-20 md:py-28 bg-[#f7f6f2]">
+          <div className="max-w-5xl mx-auto px-6 md:px-10">
+            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-8 text-center">Et maintenant ?</p>
+            <div className="grid md:grid-cols-2 gap-6">
+              <Link href="/blog"
+                className="group block bg-white rounded-2xl p-8 shadow-sm hover:shadow-md border border-stone-100 hover:border-amber-200 transition-all">
+                <p className="text-xs text-amber-800 font-bold tracking-widest uppercase mb-3">Blog Slow Travel</p>
+                <h3 className="text-2xl font-serif font-light text-stone-900 mb-3 group-hover:text-amber-800 transition-colors">
+                  Nos carnets de voyage
+                </h3>
+                <p className="text-stone-500 text-sm leading-relaxed mb-5">
+                  Itinéraires vécus, adresses testées, destinations hors des sentiers balisés. Tout ce qu&apos;on aurait aimé trouver avant de partir.
+                </p>
+                <span className="text-amber-800 font-semibold text-sm group-hover:gap-3 transition-all inline-flex items-center gap-2">
+                  Explorer le blog →
+                </span>
+              </Link>
+              <Link href="/travel-planning"
+                className="group block bg-white rounded-2xl p-8 shadow-sm hover:shadow-md border border-stone-100 hover:border-amber-200 transition-all">
+                <p className="text-xs text-amber-800 font-bold tracking-widest uppercase mb-3">Travel Planning</p>
+                <h3 className="text-2xl font-serif font-light text-stone-900 mb-3 group-hover:text-amber-800 transition-colors">
+                  Ton voyage, conçu sur mesure
+                </h3>
+                <p className="text-stone-500 text-sm leading-relaxed mb-5">
+                  On imagine, on construit, on documente. Un itinéraire qui te ressemble, avec des adresses qu&apos;on a vécues — pas récupérées en ligne.
+                </p>
+                <span className="text-amber-800 font-semibold text-sm group-hover:gap-3 transition-all inline-flex items-center gap-2">
+                  Découvrir le service →
+                </span>
+              </Link>
             </div>
           </div>
         </section>
 
-        {/* Chiffres clés */}
-        <section className="py-20 bg-amber-900 text-white px-6">
-          <div className="max-w-5xl mx-auto">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-              {[
-                { number: '15+', label: "Années d'expérience" },
-                { number: '40+', label: 'Destinations explorées' },
-                { number: '100+', label: 'Itinéraires personnalisés' },
-                { number: '+30%', label: 'RevPAR moyen client' },
-              ].map((stat, idx) => (
-                <div key={idx}>
-                  <div className="text-4xl md:text-5xl font-serif font-bold mb-2">{stat.number}</div>
-                  <div className="text-amber-200 text-sm">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Final */}
-        <section className="py-20 px-6">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-mahogany mb-6">
-              Prêt à vivre l&apos;aventure ?
-            </h2>
-            <p className="text-stone-600 text-lg mb-8">
-              Que vous cherchiez un itinéraire slow travel ou des conseils pour votre établissement, 
-              nous sommes là pour vous guider.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a 
-                href="/travel-planning-form" 
-                className="px-8 py-3 bg-amber-900 text-white rounded-full hover:bg-amber-800 transition-colors font-medium"
-              >
-                Planifier mon voyage
-              </a>
-              <a 
-                href="/hotel-consulting" 
-                className="px-8 py-3 border-2 border-amber-900 text-amber-900 rounded-full hover:bg-amber-50 transition-colors font-medium"
-              >
-                Consulting hôtelier
-              </a>
-            </div>
-          </div>
-        </section>
       </main>
       <Footer />
     </>
