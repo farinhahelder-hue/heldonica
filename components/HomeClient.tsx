@@ -171,7 +171,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         <div className="relative z-20 px-5 md:px-16 pb-12 md:pb-24 max-w-4xl">
           <p className="text-amber-300 text-xs font-semibold tracking-[0.2em] uppercase mb-5"
              style={{ animation: 'wordIn 0.6s 0.2s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
-            Slow Travel · Voyages en couple · Paris
+            Slow Travel · Hors des sentiers battus · Paris
           </p>
           <h1 className="text-3xl md:text-5xl lg:text-7xl font-serif font-light text-white leading-[1.15] mb-4 md:mb-6">
             {heroLine1.map((w, i) => (
@@ -403,13 +403,16 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         <div className="max-w-5xl mx-auto px-6 md:px-10">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div data-reveal="left">
-              <p className="text-amber-400 text-xs font-bold tracking-[0.2em] uppercase mb-4">Travel Planning</p>
+              <p className="text-amber-400 text-xs font-bold tracking-[0.2em] uppercase mb-4">Travel Planning sur mesure</p>
               <h2 className="text-3xl md:text-5xl font-serif font-light leading-tight mb-6">
                 Votre aventure,<br />
                 <em className="text-amber-400">conçue sur mesure</em>
               </h2>
-              <p className="text-stone-400 leading-relaxed mb-8">
-                Confiez-nous les clés de votre prochaine escapade. On imagine, on construit, on documente — un itinéraire qui vous ressemble, avec des adresses qu&apos;on a testées, pas récupérées sur un listicle.
+              <p className="text-stone-400 leading-relaxed mb-4">
+                Seul·e, en duo, en famille ou entre amis — on imagine et construit l&apos;itinéraire qui vous ressemble vraiment. Pas un template, pas un copier-coller : un voyage pensé pour vous, avec des adresses qu&apos;on a testées, pas récupérées sur un listicle.
+              </p>
+              <p className="text-stone-500 text-sm leading-relaxed mb-8">
+                De l&apos;escapade parisienne d&apos;un week-end au grand tour de plusieurs semaines, chaque projet est unique.
               </p>
               <div className="flex flex-wrap gap-3">
                 <Link href="/travel-planning" className="px-6 py-3 bg-amber-700 hover:bg-amber-600 text-white rounded font-semibold text-sm transition">
@@ -422,8 +425,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             </div>
             <div className="grid grid-cols-1 gap-4" data-reveal="right">
               {[
-                { t: 'Itinéraires personnalisés', d: 'Basés sur vos envies, votre rythme, vos contraintes. Aucun voyage ne se ressemble.' },
-                { t: 'Adresses vécues, pas inventées', d: 'Hôtels de charme, restaurants cachés, expériences de terrain — chaque recommandation est vérifiée.' },
+                { t: 'Pour tous les voyageurs', d: 'Solo, duo amoureux, amis complices, famille curieuse — chaque itinéraire s\'adapte à votre groupe, votre rythme, vos envies.' },
+                { t: 'Adresses vécues, pas inventées', d: 'Hôtels de charme, restaurants cachés, expériences de terrain — chaque recommandation est vérifiée sur place.' },
                 { t: 'Carnet de voyage complet', d: 'Cartes, conseils pratiques, adresses et inspirations pour chaque étape de votre aventure.' },
               ].map((item) => (
                 <div key={item.t} className="border border-white/10 rounded-xl p-5 hover:border-amber-400/30 transition">
