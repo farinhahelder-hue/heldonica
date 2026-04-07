@@ -4,8 +4,8 @@ import Footer from '@/components/Footer'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Notre histoire — Heldonica | Slow travel en couple',
-  description: 'L’un vient de Madère, l’autre de Roumanie, et c’est à Paris qu’on s’est trouvés. Découvrez l’histoire atypique derrière Heldonica.',
+  title: 'Notre histoire — Heldonica | Slow travel en couple depuis 2015',
+  description: 'L\'un vient de Madère, l\'autre de Roumanie. On s\'est rencontrés à Paris et on voyage ensemble depuis 2015 — hors sentiers battus, avec le vrai goût des choses. Découvrez l\'histoire derrière Heldonica.',
 }
 
 export default function AProposPage() {
@@ -18,7 +18,7 @@ export default function AProposPage() {
         <section className="relative h-[55vh] md:h-[65vh] bg-stone-900 flex items-end overflow-hidden">
           <img
             src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1400&q=85"
-            alt="Heldonica — duo de voyageurs"
+            alt="Heldonica — duo de voyageurs slow travel"
             className="absolute inset-0 w-full h-full object-cover opacity-40"
             width={1400} height={900} loading="eager"
           />
@@ -30,7 +30,7 @@ export default function AProposPage() {
               <em className="text-amber-300">atypique</em>
             </h1>
             <p className="text-gray-300 text-base md:text-lg leading-relaxed max-w-xl">
-              Bienvenue chez Heldonica — notre petit coin d&apos;internet à deux, né de notre envie de sortir des sentiers battus et de savourer chaque moment, tout simplement.
+              Madère. Roumanie. Paris. Et une même envie de voyager autrement — plus lentement, plus sincèrement, plus loin des sentiers balisés.
             </p>
           </div>
         </section>
@@ -46,25 +46,25 @@ export default function AProposPage() {
                   <span className="italic text-stone-500">sans être du même pays.</span>
                 </h2>
                 <p className="text-base text-stone-600 leading-relaxed">
-                  Et si nos univers diffèrent, c&apos;est justement là que notre aventure a commencé. L&apos;un vient de Madère, l&apos;autre de Roumanie — et c&apos;est à Paris qu&apos;on s&apos;est trouvés.
+                  Et si nos univers diffèrent, c&apos;est précisément là que tout a commencé. L&apos;un vient de Madère, l&apos;autre de Roumanie — et c&apos;est à Paris qu&apos;on s&apos;est trouvés.
                 </p>
                 <p className="text-base text-stone-600 leading-relaxed">
-                  Deux trajectoires opposées, une même envie d&apos;explorer autrement. Les villes à contre-courant, les chemins qui s&apos;éloignent des flux, les tables où l&apos;on mange vrai, les pépites dénichées loin des sentiers balisés.
+                  Deux trajectoires opposées, une même envie d&apos;explorer autrement. Les villes à contre-courant, les chemins qui s&apos;éloignent des flux, les tables où l&apos;on mange vrai — les pépites dénichées loin des sentiers balisés.
                 </p>
                 <p className="text-base text-stone-600 leading-relaxed">
-                  Nos itinéraires, on les a vécus — pas seulement planifiés. Nos adresses, on les a testées. Ce qu&apos;on partage ici, c&apos;est un voyage plus lent, plus sensoriel, plus vivant, où chaque détail devient une raison de rester un peu plus longtemps.
+                  Ce qu&apos;on partage ici, c&apos;est un voyage plus lent, plus sensoriel, plus vivant — où chaque détail devient une raison de rester un peu plus longtemps. Nos itinéraires, on les a vécus. Nos adresses, on les a testées. Plusieurs fois, en conditions réelles.
                 </p>
               </div>
               <div className="md:col-span-2">
                 <div className="relative">
                   <img
                     src="https://images.unsplash.com/photo-1501555088652-021faa106b9b?w=700&q=85"
-                    alt="Voyage en couple — silhouettes"
+                    alt="Voyage en couple — silhouettes Heldonica"
                     className="rounded-2xl w-full aspect-[3/4] object-cover shadow-lg"
                     width={500} height={667} loading="lazy"
                   />
                   <div className="absolute -bottom-5 -left-5 bg-amber-800 text-white px-5 py-4 rounded-xl shadow-lg hidden md:block">
-                    <p className="text-xs font-bold tracking-wider uppercase mb-1">Rencontrés</p>
+                    <p className="text-xs font-bold tracking-wider uppercase mb-1">Ensemble depuis</p>
                     <p className="text-2xl font-serif font-light">Paris, 2015</p>
                   </div>
                 </div>
@@ -73,8 +73,27 @@ export default function AProposPage() {
           </div>
         </section>
 
+        {/* ── CHIFFRES TERRAIN (E-E-A-T) ───────────────────────────── */}
+        <section className="py-14 bg-stone-50">
+          <div className="max-w-5xl mx-auto px-6 md:px-10">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+              {[
+                { chiffre: '10+', label: 'ans de voyages en couple' },
+                { chiffre: '20+', label: 'destinations testées terrain' },
+                { chiffre: '7', label: 'pays habités par notre duo' },
+                { chiffre: '100%', label: 'adresses vécues, pas récupérées' },
+              ].map((item) => (
+                <div key={item.label} className="py-6">
+                  <p className="text-4xl md:text-5xl font-serif font-light text-amber-800 mb-2">{item.chiffre}</p>
+                  <p className="text-xs text-stone-500 leading-snug uppercase tracking-wider">{item.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* ── LUI / ELLE ───────────────────────────────────────────── */}
-        <section className="py-20 md:py-28 bg-stone-50">
+        <section className="py-20 md:py-28 bg-white">
           <div className="max-w-5xl mx-auto px-6 md:px-10">
             <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-12 text-center">Le duo derrière Heldonica</p>
             <div className="grid md:grid-cols-2 gap-10 md:gap-16">
@@ -84,7 +103,7 @@ export default function AProposPage() {
                 <div className="relative mb-6 overflow-hidden rounded-2xl">
                   <img
                     src="https://images.unsplash.com/photo-1539635278303-d4002c07eae3?w=700&q=80"
-                    alt="Madère — falaises et océan"
+                    alt="Madère — falaises et océan Atlantique"
                     className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700"
                     width={600} height={450} loading="lazy"
                   />
@@ -95,10 +114,10 @@ export default function AProposPage() {
                   L&apos;insulaire de l&apos;âme
                 </h3>
                 <p className="text-stone-600 text-sm leading-relaxed mb-3">
-                  Né à Madère, entre l&apos;Atlantique et les falaises vertigineuses. Il part à l&apos;aventure là où les cartes s&apos;arrêtent, traquant les paysages que les guides ne montrent pas encore.
+                  Né à Madère, entre l&apos;Atlantique et les falaises vertigineuses. Il part là où les cartes s&apos;arrêtent, traquant les paysages que les guides ne montrent pas encore.
                 </p>
                 <p className="text-stone-600 text-sm leading-relaxed">
-                  Spécialiste de la digitalisation et de l&apos;IAification dans l&apos;hôtellerie, il accompagne les établissements indépendants dans leur transformation numérique — avec la rigueur de l&apos;expert et l&apos;œil du voyageur.
+                  Expert en stratégie hôtelière indépendante — Revenue Management, SEO local, expérience client — il accompagne les établissements dans leur transformation avec la rigueur de l&apos;analyste et l&apos;œil du voyageur exigeant.
                 </p>
               </div>
 
@@ -121,7 +140,7 @@ export default function AProposPage() {
                   Roumaine, une enfance entre les Carpates et l&apos;Europe entière — sept pays habités, sept façons d&apos;apprendre à lire le monde. Elle lit une ville comme un poème.
                 </p>
                 <p className="text-stone-600 text-sm leading-relaxed">
-                  Plume et regard derrière Heldonica, elle imagine les itinéraires, déniche les pépites et raconte chaque découverte avec l&apos;exactitude de celle qui y était vraiment.
+                  Plume et regard derrière Heldonica, elle imagine les itinéraires, déniche les pépites et raconte chaque découverte avec l&apos;exactitude de celle qui y était vraiment — pas juste de passage.
                 </p>
               </div>
 
@@ -130,39 +149,39 @@ export default function AProposPage() {
         </section>
 
         {/* ── PHILOSOPHIE ─────────────────────────────────────────── */}
-        <section className="py-20 md:py-28 bg-white">
+        <section className="py-20 md:py-28 bg-stone-50">
           <div className="max-w-4xl mx-auto px-6 md:px-10">
-            <div className="text-center mb-16">
+            <div className="mb-14">
               <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4">Ce qu&apos;on défend</p>
               <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 leading-tight">
                 Heldonica, c&apos;est notre manière de raconter<br />
                 <em className="text-amber-800">le monde avec sincérité</em>
               </h2>
             </div>
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="space-y-10">
               {[
                 {
-                  titre: 'Vécu, pas planifié',
-                  texte: 'Chaque adresse qu&apos;on recommande, on l&apos;a testée. Pas récupérée sur un listicle. Pas inspirée d&apos;un autre blog.',
+                  num: '01',
+                  titre: 'Vécu, jamais récupéré',
+                  texte: 'Chaque adresse qu\'on recommande, on l\'a testée — souvent plusieurs fois. Pas récupérée sur un listicle. Pas inspirée d\'un autre blog. Le vrai goût des choses, ça ne s\'invente pas.',
                 },
                 {
-                  titre: 'Lenteur &amp; profondeur',
-                  texte: 'On ne voyage pas pour cocher. On voyage pour ressentir, rencontrer, comprendre. Chaque destination mérite qu&apos;on s&apos;y attarde.',
+                  num: '02',
+                  titre: 'Lenteur & profondeur',
+                  texte: 'On ne voyage pas pour cocher. On voyage pour ressentir, rencontrer, comprendre. Chaque destination mérite qu\'on s\'y attarde — et chaque article mérite d\'être écrit avec ce même soin.',
                 },
                 {
+                  num: '03',
                   titre: 'Curieux, toujours',
-                  texte: 'L&apos;inattendu est notre boussole. Les chemins de traverse, les tables sans enseigne, les paysages que les guides n&apos;ont pas encore trouvés.',
+                  texte: 'L\'inattendu est notre boussole. Les chemins de traverse, les tables sans enseigne, les paysages que les guides n\'ont pas encore trouvés. On préfère se perdre un peu pour trouver quelque chose de vrai.',
                 },
               ].map((item) => (
-                <div key={item.titre} className="border-t-2 border-amber-800 pt-6">
-                  <h3
-                    className="font-semibold text-stone-900 text-base mb-3"
-                    dangerouslySetInnerHTML={{ __html: item.titre }}
-                  />
-                  <p
-                    className="text-stone-500 text-sm leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: item.texte }}
-                  />
+                <div key={item.num} className="grid md:grid-cols-[80px_1fr] gap-6 items-start">
+                  <span className="text-5xl font-serif font-light text-stone-200 leading-none select-none">{item.num}</span>
+                  <div>
+                    <h3 className="font-semibold text-stone-900 text-base mb-2">{item.titre}</h3>
+                    <p className="text-stone-500 text-sm leading-relaxed">{item.texte}</p>
+                  </div>
                 </div>
               ))}
             </div>
