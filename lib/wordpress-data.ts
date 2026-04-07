@@ -249,6 +249,7 @@ export const blogPosts: BlogPost[] = [
 ];
 
 export const destinationPages: DestinationPage[] = [
+  // ── Pages utilitaires ──────────────────────────────────────
   {
     id: 1327,
     title: `Accueil Heldonica Vidéo`,
@@ -284,6 +285,128 @@ export const destinationPages: DestinationPage[] = [
     content: `<h1>Quel Slow Traveler Es-Tu ? Test 5 Questions</h1><p>Découvrez votre profil de voyageur slow.</p>`,
     image: "",
   },
+  // ── Pages destination Zurich ───────────────────────────────
+  {
+    id: 192,
+    title: `Zurich`,
+    slug: "zurich",
+    content: `
+      <h2>Pourquoi on aime Zurich en slow travel</h2>
+      <p>Zurich, c'est la ville suisse qu'on croyait réservée aux banquiers et aux montres de luxe. On y est arrivés un vendredi de juillet, sacs sur le dos, sans plan précis — et on est repartis conquis. La Limmat qui serpente entre les façades médiévales, les Badi (piscines flottantes) bondées de locaux, les brasseries artisanales cachées dans les ruelles du Langstrasse… Zurich se mérite, et elle le rend bien.</p>
+      <h2>Nos pépites dénichées sur place</h2>
+      <ul>
+        <li><strong>Flotter sur la Limmat</strong> — l'activité gratuite incontournable de l'été zurichois. Tu glisses depuis Oberer Letten jusqu'au centre-ville, emporté par le courant, en 20 minutes. Prévoir un sac étanche.</li>
+        <li><strong>Les brasseries du Langstrasse</n        </strong> — on a testé trois adresses artisanales dans ce quartier populaire et vivant. Ambiance locale garantie, zéro touriste.</li>
+        <li><strong>Le Lindenhügel au coucher du soleil</strong> — la colline du Lindenhügel offre une vue dégagée sur les toits de la vieille ville et les Alpes en arrière-plan par temps clair.</li>
+        <li><strong>Le marché de la Bürkliplatz</strong> — le samedi matin, légumes bio, fromages et fleurs coupées. Le vrai rythme zurichois.</li>
+      </ul>
+      <h2>Infos pratiques</h2>
+      <ul>
+        <li><strong>Meilleure période :</strong> juin à septembre pour profiter des Badi et de la Limmat</li>
+        <li><strong>Se déplacer :</strong> le ZürichCard (24h ou 72h) couvre trams, bus, bateaux et musées</li>
+        <li><strong>Budget :</strong> comptez 80-120€/jour/personne hors hébergement — Zurich est chère mais les activités gratuites sont nombreuses</li>
+        <li><strong>Où dormir :</strong> les quartiers Kreis 4 et Kreis 5 pour l'ambiance locale</li>
+      </ul>
+      <p><em>Verdict Heldonica — On a posé nos valises 4 jours. On en aurait pris 7. Zurich est la destination slow travel européenne sous-estimée par excellence.</em></p>
+    `,
+    image: "https://heldonica.fr/wp-content/uploads/2025/08/zurich-panorama-2-1024x679.jpg",
+  },
+  // ── Pages destination Suisse ───────────────────────────────
+  {
+    id: 200,
+    title: `Suisse`,
+    slug: "suisse",
+    content: `
+      <h2>La Suisse autrement : notre vision slow travel</h2>
+      <p>On ne compte plus les fois où des amis nous ont dit "la Suisse c'est joli mais trop cher". C'est vrai et faux à la fois. Oui, une nuit d'hôtel en ville peut piquer. Mais randonner sur la Stoos Ridge, flotter sur la Limmat à Zurich ou s'asseoir au bord du lac de Thoune avec un pique-nique du marché — ça, ça ne coûte presque rien.</p>
+      <h2>Nos destinations suisses coups de cœur</h2>
+      <ul>
+        <li><strong>Zurich</strong> — ville cosmopolite avec une âme de village. Badi, brasseries, vieille ville. Notre base de camp suisse.</li>
+        <li><strong>Stoos</strong> — le funiculaire le plus raide du monde mène à une crête panoramique accessible à toute la famille.</li>
+        <li><strong>Lucerne</strong> — le Kapellbrücke, le lac des Quatre-Cantons et les collines environnantes. Idéal en demi-journée depuis Zurich.</li>
+        <li><strong>Stein am Rhein</strong> — un village médiéval préservé à 1h de Zurich, quasi sans touristes hors saison.</li>
+      </ul>
+      <h2>Conseils pratiques</h2>
+      <ul>
+        <li><strong>Transport :</strong> le Swiss Travel Pass est rentable si vous bougez beaucoup (train, bus, bateau inclus)</li>
+        <li><strong>Budget malin :</strong> pique-niquez au marché, cuisinez à l'hébergement, privilegiez les auberges de jeunesse suisses (excellentes)</li>
+        <li><strong>Meilleure saison :</strong> juillet-août pour le plein air, décembre-mars pour la neige et l'ambiance de chalet</li>
+      </ul>
+      <p><em>Verdict Heldonica — La Suisse, c'est notre destination slow travel européenne de référence. Chaque séjour, on y découvre une nouvelle pépite.</em></p>
+    `,
+    image: "https://heldonica.fr/wp-content/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg",
+  },
+  // ── Pages destination Roumanie ─────────────────────────────
+  {
+    id: 210,
+    title: `Roumanie`,
+    slug: "roumanie",
+    content: `
+      <h2>La Roumanie, notre coup de foudre inattendu</h2>
+      <p>On a découvert la Roumanie par hasard, en cherchant une destination européenne hors des sentiers battus. Ce qu'on y a trouvé a dépassé toutes nos attentes : des paysages de Carpates à couper le souffle, une culture d'accueil sincère, une gastronomie méconnue et surtout — des prix qui permettent de voyager long sans se ruiner.</p>
+      <h2>Nos pépites dénichées sur place</h2>
+      <ul>
+        <li><strong>Timișoara</strong> — la capitale culturelle roumaine, ville de la Révolution de 1989 et de l'effervescence artistique. Le CuiB d'Arte, cour intérieure secrète, est notre coup de cœur absolu.</li>
+        <li><strong>Le Delta du Danube</strong> — un des derniers grands espaces sauvages d'Europe. Barque, oiseaux migrateurs, villages de pêcheurs. L'antithèse du tourisme de masse.</li>
+        <li><strong>La Transylvanie</strong> — Brasov, Sighișoara et les villages saxons. L'architecture médiévale la mieux conservée d'Europe centrale.</li>
+        <li><strong>Les Carpates</strong> — randonnées dans le Parc National de Retezat, à des niveaux de solitude qu'on ne trouve plus dans les Alpes.</li>
+      </ul>
+      <h2>Infos pratiques</h2>
+      <ul>
+        <li><strong>Monnaie :</strong> le leu roumain (RON) — les cartes acceptées partout en ville, prévoir du cash en zone rurale</li>
+        <li><strong>Budget :</strong> 40-60€/jour/couple tout compris — l'une des destinations les plus accessibles d'Europe</li>
+        <li><strong>Transport :</strong> train entre les grandes villes, location de voiture indispensable pour le Delta et les Carpates</li>
+        <li><strong>Meilleure période :</strong> mai-juin et septembre pour éviter la chaleur et la foule</li>
+      </ul>
+      <p><em>Verdict Heldonica — La Roumanie est notre destination slow travel coup de cœur. On y retourne chaque année et on y découvre toujours quelque chose de nouveau.</em></p>
+    `,
+    image: "https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg",
+  },
+  // ── Pages destination Madère ───────────────────────────────
+  {
+    id: 220,
+    title: `Madère`,
+    slug: "madere",
+    content: `
+      <h2>Madère, l'île de l'éternel printemps</h2>
+      <p>On a atterri à Madère en novembre, fuyant le gris parisien. Ce qu'on a trouvé : 22°C, des cascades dans la forêt, des falaises à pic sur l'Atlantique et un pain cuit sur pierre volcanique qui a changé notre rapport au sandwich. Madère, c'est l'île qui réconcilie le slow travel avec le confort — pas besoin de se priver pour voyager bien ici.</p>
+      <h2>Nos incontournables madeiriens</h2>
+      <ul>
+        <li><strong>La forêt de Fanal</strong> — notre graal. Des laurisylves millénaires dans le brouillard, à l'aube. Un lieu mystique qui ne ressemble à rien d'autre en Europe.</li>
+        <li><strong>Les levadas</strong> — les sentiers de randonnée qui suivent les canaux d'irrigation. La Levada do Caldeirão Verde est notre préférée : 4h aller-retour, cascades et tunnels taillés dans la roche.</li>
+        <li><strong>Le marché dos Lavradores à Funchal</strong> — le meilleur endroit pour goûter les fruits exotiques locaux et les fleurs de strelitzia. Y aller tôt le matin.</li>
+        <li><strong>Le Prego no Bolo do Caco</strong> — le sandwich local, steak mariné dans un pain de taro grillé. Incontournable.</li>
+      </ul>
+      <h2>Infos pratiques</h2>
+      <ul>
+        <li><strong>Accès :</strong> vols directs depuis Paris (3h30). EasyJet et TAP ont des liaisons régulières.</li>
+        <li><strong>Transport sur place :</strong> location de voiture recommandée — les routes de montagne sont spectaculaires mais exigent de la concentration</li>
+        <li><strong>Meilleure période :</strong> octobre à mai pour éviter la chaleur et profiter des prix hors saison</li>
+        <li><strong>Budget :</strong> 60-90€/jour/personne — plus accessible que la plupart des îles atlantiques</li>
+      </ul>
+      <p><em>Verdict Heldonica — Madère est dans notre top 3 absolu. Une île qu'on recommande les yeux fermés, en toute saison.</em></p>
+    `,
+    image: "https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg",
+  },
+  // ── Pages destination Paris / Île-de-France ────────────────
+  {
+    id: 230,
+    title: `Paris & Île-de-France`,
+    slug: "paris",
+    content: `
+      <h2>Paris en slow travel : voir la ville autrement</h2>
+      <p>On habite en Île-de-France, et pourtant Paris nous surprend encore. Pas le Paris des selfies devant la Tour Eiffel — l'autre Paris, celui de la Petite Ceinture au 14ème, du Canal de l'Ourcq un dimanche matin, des cours intérieures cachées dans le Marais. Le slow travel commence parfois à 30 minutes de chez soi.</p>
+      <h2>Nos pépites parisiennes</h2>
+      <ul>
+        <li><strong>La Petite Ceinture (14ème)</strong> — l'ancienne voie ferrée reconvertie en promenade sauvage. Street art, végétation folle, ambiance urbex légal.</li>
+        <li><strong>La rue Mouffetard</strong> — le marché du jeudi et vendredi matin, puis une soirée au Singh'Nature pour une cuisine végétarienne fusion mémorable.</li>
+        <li><strong>Le Canal de l'Ourcq</strong> — longer le canal à vélo depuis La Villette jusqu'à Meaux. Une journée entière de slow travel à portée de RER.</li>
+        <li><strong>Fontainebleau</strong> — le château, oui, mais surtout la forêt. Escalade sur les blocs, pique-nique, silence. À 40 minutes de Paris en train.</li>
+      </ul>
+      <p><em>Verdict Heldonica — Paris se mérite quand on la cherche vraiment. Pas la carte postale — l'âme cachée.</em></p>
+    `,
+    image: "https://heldonica.fr/wp-content/uploads/2025/09/paris-petite-ceinture-2-683x1024.jpg",
+  },
 ];
 
 // ── Fonctions utilitaires Blog ────────────────────────────────
@@ -300,12 +423,10 @@ export function getRelatedPosts(
   category: string,
   limit = 3
 ): BlogPost[] {
-  // Priorité aux articles de la même catégorie
   const sameCategory = blogPosts.filter(
     (post) => post.slug !== currentSlug && post.category === category
   );
   if (sameCategory.length >= limit) return sameCategory.slice(0, limit);
-  // Compléter avec d'autres articles si pas assez dans la catégorie
   const others = blogPosts.filter(
     (post) => post.slug !== currentSlug && post.category !== category
   );

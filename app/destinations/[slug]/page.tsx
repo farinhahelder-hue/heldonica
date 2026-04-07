@@ -6,93 +6,118 @@ import {
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
-
 interface Props {
   params: { slug: string };
 }
 
-
-// Destinations principales avec images Unsplash de secours
-const DEST_META: Record<string, { description: string; heroImage: string; region: string }> = {
+// Métadonnées enrichies par destination
+const DEST_META: Record<string, { description: string; heroImage: string; region: string; emoji: string }> = {
+  // ── Zurich ──────────────────────────────────────────────────
+  zurich: {
+    description: "Badi flottantes, brasseries artisanales et vieille ville médiévale. Zurich, la ville suisse que l'on croyait réservée aux banquiers — et qui nous a conquis.",
+    heroImage: "https://heldonica.fr/wp-content/uploads/2025/08/zurich-panorama-2-1024x679.jpg",
+    region: "Suisse",
+    emoji: "🇨🇭",
+  },
+  // ── Suisse ──────────────────────────────────────────────────
+  suisse: {
+    description: "Randonnées alpines, lacs cristallins, Badi zurichoises et villages médiévaux. La Suisse en slow travel — sans les clichés.",
+    heroImage: "https://heldonica.fr/wp-content/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg",
+    region: "Europe",
+    emoji: "🇨🇭",
+  },
   "suisse-heldonica": {
     description: "Randonnées alpines, lacs cristallins et villes cosmopolites. La Suisse en slow travel.",
     heroImage: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600",
     region: "Europe",
+    emoji: "🇨🇭",
   },
-  suisse: {
-    description: "Randonnées alpines, lacs cristallins et villes cosmopolites. La Suisse en slow travel.",
-    heroImage: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600",
+  // ── Roumanie ────────────────────────────────────────────────
+  roumanie: {
+    description: "Timișoara, le Delta du Danube et les Carpates. La Roumanie authentique, loin des sentiers battus — notre coup de foudre slow travel.",
+    heroImage: "https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg",
     region: "Europe",
+    emoji: "🇷🇴",
   },
   "roumanie-heldonica-slow": {
     description: "Timișoara, le Delta du Danube et les Carpates. La Roumanie authentique loin des sentiers battus.",
     heroImage: "https://images.unsplash.com/photo-1555990793-da11153b6c8d?w=1600",
     region: "Europe",
+    emoji: "🇷🇴",
   },
-  roumanie: {
-    description: "Timișoara, le Delta du Danube et les Carpates. La Roumanie authentique loin des sentiers battus.",
-    heroImage: "https://images.unsplash.com/photo-1555990793-da11153b6c8d?w=1600",
-    region: "Europe",
+  // ── Madère ──────────────────────────────────────────────────
+  madere: {
+    description: "La forêt de Fanal, les levadas et le Prego no bolo do caco. L'île de l'éternel printemps vue par Heldonica.",
+    heroImage: "https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg",
+    region: "Portugal",
+    emoji: "🇵🇹",
   },
   "madere-heldonica": {
     description: "L'île de l'éternel printemps. Levadas, falaises spectaculaires et gastronomie portugaise.",
     heroImage: "https://images.unsplash.com/photo-1568454537842-d933259bb258?w=1600",
     region: "Portugal",
+    emoji: "🇵🇹",
+  },
+  // ── Paris ───────────────────────────────────────────────────
+  paris: {
+    description: "La Petite Ceinture, la rue Mouffetard et le Canal de l'Ourcq. Paris en slow travel — loin des clichés, proche de l'âme.",
+    heroImage: "https://heldonica.fr/wp-content/uploads/2025/09/paris-petite-ceinture-2-683x1024.jpg",
+    region: "France",
+    emoji: "🇫🇷",
   },
   "ile-de-france-heldonica": {
     description: "Paris et ses environs en slow travel : Canal de l'Ourcq, Petite Ceinture, Fontainebleau.",
     heroImage: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1600",
     region: "France",
+    emoji: "🇫🇷",
   },
   "normandie-heldonica": {
     description: "Étretat, Honfleur, Deauville... La Normandie côtière en slow travel.",
     heroImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600",
     region: "France",
+    emoji: "🇫🇷",
   },
   "bretagne-heldonica-slow": {
     description: "Randonnées côtières, crêperies et Saint-Malo. La Bretagne authentique.",
     heroImage: "https://images.unsplash.com/photo-1564507592333-c60657eea523?w=1600",
     region: "France",
+    emoji: "🇫🇷",
   },
 };
 
-
 export async function generateStaticParams() {
-  // getAllDestinationSlugs() retourne déjà [{ slug: "..." }] — pas de re-mapping
   return getAllDestinationSlugs();
 }
-
 
 export async function generateMetadata({ params }: Props) {
   const page = getDestinationBySlug(params.slug);
   const meta = DEST_META[params.slug];
   const title = page?.title || params.slug;
   return {
-    title: `${title} | Destinations Heldonica`,
-    description: meta?.description || `Découvrez ${title} en slow travel avec Heldonica.`,
+    title: `${title} en Slow Travel | Heldonica`,
+    description: meta?.description || `Découvrez ${title} en slow travel avec Heldonica — carnets de voyage terrain, pépites dénichées et conseils pratiques.`,
+    openGraph: {
+      images: meta?.heroImage ? [{ url: meta.heroImage }] : [],
+    },
   };
 }
-
 
 export default function DestinationPage({ params }: Props) {
   const page = getDestinationBySlug(params.slug);
   if (!page) notFound();
 
-
   const meta = DEST_META[params.slug];
   const heroImage = page.image || meta?.heroImage || "";
   const description = meta?.description || "";
 
-
   // Articles liés à cette destination
-  const titleWords = page.title.toLowerCase().split(/\s+/).filter((w) => w.length > 4);
+  const titleWords = page.title.toLowerCase().split(/\s+/).filter((w) => w.length > 3);
   const related = blogPosts
     .filter((p) => {
       const text = (p.title + " " + p.categories.join(" ") + " " + p.tags.join(" ")).toLowerCase();
       return titleWords.some((w) => text.includes(w));
     })
     .slice(0, 6);
-
 
   return (
     <main className="min-h-screen bg-white">
@@ -103,6 +128,7 @@ export default function DestinationPage({ params }: Props) {
             src={heroImage}
             alt={page.title}
             className="w-full h-full object-cover opacity-75"
+            loading="eager"
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
@@ -116,7 +142,7 @@ export default function DestinationPage({ params }: Props) {
             </Link>
             {meta?.region && (
               <span className="block text-amber-300 text-xs font-semibold tracking-widest uppercase mb-2">
-                {meta.region}
+                {meta.emoji && <span className="mr-1">{meta.emoji}</span>}{meta.region}
               </span>
             )}
             <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight">
@@ -131,7 +157,6 @@ export default function DestinationPage({ params }: Props) {
         </div>
       </div>
 
-
       {/* Contenu */}
       {page.content && (
         <section className="max-w-4xl mx-auto px-4 py-14">
@@ -141,20 +166,21 @@ export default function DestinationPage({ params }: Props) {
               prose-p:text-gray-700 prose-p:leading-relaxed
               prose-a:text-amber-600 prose-a:no-underline hover:prose-a:underline
               prose-img:rounded-xl prose-img:shadow-lg prose-img:mx-auto
-              prose-ul:text-gray-700 prose-ol:text-gray-700"
+              prose-ul:text-gray-700 prose-ol:text-gray-700
+              prose-li:marker:text-amber-500"
             dangerouslySetInnerHTML={{ __html: page.content }}
           />
         </section>
       )}
 
-
       {/* Articles liés */}
       {related.length > 0 && (
         <section className="bg-amber-50 py-16">
           <div className="max-w-6xl mx-auto px-4">
-            <h2 className="text-2xl font-bold text-gray-900 mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
               Nos articles sur {page.title}
             </h2>
+            <p className="text-gray-500 mb-8 text-sm">Tous vécus sur le terrain — notre vécu, pas ChatGPT.</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {related.map((post) => (
                 <Link key={post.slug} href={`/blog/${post.slug}`} className="group">
@@ -165,6 +191,8 @@ export default function DestinationPage({ params }: Props) {
                         alt={post.title}
                         className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-300"
                         loading="lazy"
+                        width={400}
+                        height={176}
                       />
                     ) : (
                       <div className="w-full h-44 bg-amber-50 flex items-center justify-center text-4xl opacity-30">
@@ -186,21 +214,21 @@ export default function DestinationPage({ params }: Props) {
         </section>
       )}
 
-
-      {/* CTA */}
-      <section className="py-16 px-4 text-center">
-        <div className="max-w-2xl mx-auto">
+      {/* CTA Travel Planning */}
+      <section className="py-16 px-4">
+        <div className="max-w-2xl mx-auto text-center">
+          <p className="text-amber-600 text-sm font-semibold tracking-widest uppercase mb-3">On planifie ensemble ?</p>
           <h2 className="text-2xl font-bold text-gray-900 mb-3">
-            Planifiez votre voyage slow travel
+            Ton voyage slow travel sur mesure
           </h2>
           <p className="text-gray-500 mb-6">
-            Heldonica vous accompagne pour créer une expérience de voyage unique, durable et mémorable.
+            On conçoit ton itinéraire de A à Z — basé sur nos expériences terrain, tes envies et ton rythme. Pas de template, pas de copier-coller.
           </p>
           <Link
             href="/travel-planning"
             className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-semibold px-6 py-3 rounded-full transition-colors"
           >
-            Planifier mon voyage →
+            Découvrir le Travel Planning →
           </Link>
         </div>
       </section>
