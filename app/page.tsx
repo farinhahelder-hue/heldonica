@@ -58,11 +58,19 @@ export default async function Home() {
   const allPosts = await getAllPosts()
   // Top 6 pour les sections dynamiques
   const latestPosts = allPosts.slice(0, 6)
-  // Articles par catégorie pour la home
-  const travelPosts = formatPosts(allPosts.filter(p => p.category === 'Travel').slice(0, 3))
-  const foodPosts = formatPosts(allPosts.filter(p => p.category === 'Food & Lifestyle').slice(0, 3))
+  // Articles par catégorie pour la home — alignés sur les catégories Supabase
+  const travelPosts = formatPosts(
+    allPosts.filter(p => p.category === 'Carnets Voyage').slice(0, 3)
+  )
+  const foodPosts = formatPosts(
+    allPosts.filter(p =>
+      p.category === 'Découvertes Locales' || p.category === 'Guides Pratiques'
+    ).slice(0, 3)
+  )
   // Article mis en avant = le plus récent
-  const featured = allPosts[0] ? { ...allPosts[0], formattedDate: formatDate(allPosts[0].published_at) } : null
+  const featured = allPosts[0]
+    ? { ...allPosts[0], formattedDate: formatDate(allPosts[0].published_at) }
+    : null
 
   return (
     <HomeClient
