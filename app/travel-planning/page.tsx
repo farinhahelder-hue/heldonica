@@ -8,24 +8,24 @@ import Link from 'next/link'
 
 const faqs = [
   {
-    q: 'Combien coûte le Travel Planning ?',
-    a: 'Chaque projet est unique. On démarre par un échange gratuit pour comprendre vos envies. Le tarif est établi selon la complexité de l\'itinéraire, la durée et le niveau de personnalisation souhaité. Comptez en moyenne entre 150€ et 350€ pour un voyage de 7 à 14 jours.'
+    q: 'Combien coûte la conception sur mesure ?',
+    a: 'Chaque projet est unique. On commence par un échange gratuit pour comprendre tes envies. Le tarif est établi selon la complexité de l\'itinéraire, la durée et le niveau de personnalisation souhaité. Compte en moyenne entre 150€ et 350€ pour un voyage de 7 à 14 jours.'
   },
   {
-    q: 'Dans combien de temps recevons-nous notre carnet de route ?',
-    a: 'En général sous 7 à 10 jours après votre validation du brief. Pour les projets urgents (départ dans moins de 3 semaines), contactez-nous directement — on fait de notre mieux.'
+    q: 'Dans combien de temps reçois-je mon carnet de route ?',
+    a: 'En général sous 7 à 10 jours après ta validation du brief. Pour les projets urgents (départ dans moins de 3 semaines), contacte-nous directement — on fait de notre mieux.'
   },
   {
-    q: 'Peut-on voyager hors des destinations que vous avez visitées ?',
-    a: 'Oui. On travaille avec un réseau de contacts locaux et on fait des recherches approfondies pour chaque nouvelle destination. La différence : on ne vous envoie que ce qu\'on est prêts à recommander à nos proches.'
+    q: 'Peut-on voyager vers des destinations que vous n\'avez pas visitées ?',
+    a: 'Oui. On travaille avec un réseau de contacts locaux et on fait des recherches approfondies pour chaque nouvelle destination. La différence : on ne te conseille que ce qu\'on est prêts à recommander à nos proches.'
   },
   {
-    q: 'Est-ce qu\'on fait les réservations à votre place ?',
-    a: 'On peut vous fournir les liens, contacts et conseils pour chaque réservation. Pour un accompagnement complet (réservations incluses), c\'est possible sur devis — précisez-le lors de votre demande.'
+    q: 'Est-ce que vous faites les réservations à ma place ?',
+    a: 'On peut te fournir les liens, contacts et conseils pour chaque réservation. Pour un accompagnement complet (réservations incluses), c\'est possible sur devis — précise-le lors de ta demande.'
   },
   {
-    q: 'Vous proposez quoi exactement comme livrable ?',
-    a: 'Un carnet de voyage PDF complet : programme jour par jour, carte interactive, hébergements sélectionnés, restaurants, transports, conseils pratiques et contacts locaux. Tout est réuni en un seul document pensé pour vous.'
+    q: 'Qu\'est-ce que je reçois exactement comme livrable ?',
+    a: 'Un carnet de voyage PDF complet : programme jour par jour, carte interactive, hébergements sélectionnés, restaurants, transports, conseils pratiques et contacts locaux. Tout réuni en un seul document pensé pour toi.'
   },
 ]
 
@@ -76,33 +76,32 @@ export default function TravelPlanning() {
         <section className="relative overflow-hidden bg-stone-950">
           <img
             src="https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=1600&q=85"
-            alt="Couple voyageant, vue panoramique"
+            alt="Couple en slow travel, vue panoramique sur la nature"
             className="absolute inset-0 w-full h-full object-cover opacity-30"
             width="1600" height="900"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-stone-950/60 via-transparent to-stone-950" />
           <div className="relative max-w-4xl mx-auto px-6 md:px-10 py-28 md:py-40 text-center">
             <p className="fade-up-1 text-amber-400 text-xs font-bold tracking-[0.2em] uppercase mb-5">
-              Slow Travel · Sur mesure · En couple
+              Slow Travel · Conception sur mesure · En couple
             </p>
             <h1 className="fade-up-2 text-4xl md:text-6xl lg:text-7xl font-serif font-light text-white leading-[1.1] mb-6">
               On a voyagé dans des dizaines de pays.<br />
               <em className="text-amber-300">Maintenant on fait voyager les autres.</em>
             </h1>
             <p className="fade-up-3 text-base md:text-xl text-stone-300 max-w-2xl mx-auto leading-relaxed mb-10">
-              Pas des itinéraires copiés sur des blogs. Des voyages construits comme on aurait voulu qu&apos;on nous guide — lents, sensoriels, mémorables.
+              Pas des itinéraires copiés sur des blogs. Des voyages conçus sur mesure, comme on aurait voulu qu&apos;on nous guide — lents, sensoriels, mémorables.
             </p>
             <div className="fade-up-4 flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link href="/travel-planning-form"
                 className="px-8 py-4 bg-amber-800 hover:bg-amber-700 text-white rounded font-semibold text-sm tracking-wide transition shadow-lg">
-                Faire ma demande gratuite
+                Démarrer ma demande gratuite
               </Link>
               <p className="text-stone-400 text-xs">Sans engagement · Réponse sous 48h</p>
             </div>
-            {/* Urgency badge */}
             <div className="mt-8 inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-2">
               <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-              <span className="text-white/80 text-xs font-medium">3 créneaux disponibles en avril 2026</span>
+              <span className="text-white/80 text-xs font-medium">Places limitées — on travaille en petit nombre pour garder la qualité</span>
             </div>
           </div>
         </section>
@@ -111,7 +110,6 @@ export default function TravelPlanning() {
         <section className="py-20 md:py-28 bg-white">
           <div className="max-w-5xl mx-auto px-6 md:px-10">
             <div className="grid md:grid-cols-2 gap-8">
-              {/* Pain */}
               <div className="bg-stone-50 rounded-2xl p-8 border border-stone-200">
                 <p className="text-stone-500 text-xs font-bold tracking-[0.15em] uppercase mb-5">Sans Travel Planning</p>
                 <ul className="space-y-4">
@@ -119,7 +117,7 @@ export default function TravelPlanning() {
                     'Des heures à lire des avis contradictoires sur TripAdvisor',
                     'Un itinéraire trop chargé qui finit en marathon touristique',
                     'Des restaurants décevants choisis au hasard',
-                    'L\'angoisse de « passer à côté » des vrais spots',
+                    'L\'angoisse de « passer à côté » des vrais endroits',
                     'Un voyage qui ressemble à tous les autres',
                   ].map((txt) => (
                     <li key={txt} className="flex gap-3 items-start text-stone-600 text-sm">
@@ -128,16 +126,15 @@ export default function TravelPlanning() {
                   ))}
                 </ul>
               </div>
-              {/* Desire */}
               <div className="bg-amber-50 rounded-2xl p-8 border border-amber-200">
                 <p className="text-amber-800 text-xs font-bold tracking-[0.15em] uppercase mb-5">Avec Heldonica</p>
                 <ul className="space-y-4">
                   {[
-                    'Un itinéraire pensé pour votre rythme de couple',
-                    'Des pépites que personne d\'autre ne connaît encore',
+                    'Un itinéraire pensé pour ton rythme, ton style, vos envies',
+                    'Des pépites dénichées que personne d\'autre ne connaît encore',
                     'Chaque adresse testée et approuvée sur le terrain',
                     'La liberté de partir l\'esprit totalement libre',
-                    'Un voyage dont vous parlerez pendant des années',
+                    'Un voyage dont tu parleras pendant des années',
                   ].map((txt) => (
                     <li key={txt} className="flex gap-3 items-start text-stone-800 text-sm">
                       <span className="text-amber-600 mt-0.5 shrink-0 font-bold">✓</span> {txt}
@@ -153,12 +150,12 @@ export default function TravelPlanning() {
         <section className="py-20 md:py-28 bg-stone-50">
           <div className="max-w-4xl mx-auto px-6 md:px-10">
             <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-3">Comment ça marche</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-14">De votre rêve à votre départ</h2>
+            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-14">De ton rêve à ton départ</h2>
             <div className="space-y-10">
               {[
                 { num: '01', title: 'Tu remplis le formulaire', desc: 'Destination rêvée, durée, budget, style de voyage — 5 minutes suffisent. Pas besoin d\'avoir tout planifié.', badge: 'Gratuit' },
                 { num: '02', title: 'On échange ensemble', desc: 'Un appel ou échange écrit pour affiner ta vision. On pose les vraies questions pour comprendre ce qui te fait vibrer.', badge: 'Humain' },
-                { num: '03', title: 'On construit ton voyage', desc: 'Recherches, sélection rigoureuse, carnet de route PDF complet. Chaque adresse est vérifiée avant d\'y figurer.', badge: '7–10 jours' },
+                { num: '03', title: 'On conçoit ton voyage', desc: 'Recherches, sélection rigoureuse, carnet de route PDF complet. Chaque adresse est vérifiée avant d\'y figurer.', badge: '7–10 jours' },
                 { num: '04', title: 'Tu pars l\'esprit libre', desc: 'Tout est prêt. Carte, hôtels, restaurants, transports, conseils pratiques. Il ne reste plus qu\'à vivre l\'aventure.', badge: 'Clé en main' },
               ].map((step, i) => (
                 <div key={i} className="relative flex gap-6 items-start step-line last:before:hidden">
@@ -181,48 +178,42 @@ export default function TravelPlanning() {
         {/* ── CE QU'ON CRÉE ── */}
         <section className="py-20 md:py-28 bg-white">
           <div className="max-w-6xl mx-auto px-6 md:px-10">
-            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-3">Le service</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12">Ce qu&apos;on crée pour toi</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-3">Le livrable</p>
+            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12">Ce qu&apos;on conçoit pour toi</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
               {[
                 {
                   num: '01',
-                  title: 'Itinéraire 100 % sur mesure',
+                  title: 'Itinéraire 100 % sur mesure',
                   desc: 'On part de tes envies, ton rythme, ta durée. Chaque journée est pensée pour que tu vives un vrai voyage — pas une liste de cases à cocher.',
-                  accent: 'from-amber-50 to-stone-50',
                 },
                 {
                   num: '02',
                   title: 'Hébergements éco & authentiques',
-                  desc: "Maisons d'hôtes locales, écolodges, petits hôtels indépendants testés sur le terrain. Zéro chaîne, 100 % immersion.",
-                  accent: 'from-teal-50 to-stone-50',
+                  desc: 'Maisons d\'hôtes locales, écolodges, petits hôtels indépendants testés terrain. Zéro chaîne, 100 % immersion.',
                 },
                 {
                   num: '03',
                   title: 'Pensé pour les couples',
-                  desc: 'Ni tout-inclus, ni programme chargé. Des moments à deux, des pépites dénichées, une évasion qui vous ressemble.',
-                  accent: 'from-amber-50 to-stone-50',
+                  desc: 'Ni tout-inclus, ni programme chargé. Des moments à deux, des pépites dénichées, une évasion qui vous ressemble vraiment.',
                 },
                 {
                   num: '04',
                   title: 'Logistique clé en main',
-                  desc: "Transports, réservations, carnet de route PDF, contacts locaux. Tu n'as plus qu'à partir.",
-                  accent: 'from-teal-50 to-stone-50',
+                  desc: 'Transports, réservations, carnet de route PDF, contacts locaux. Tu n\'as plus qu\/à partir.',
                 },
                 {
                   num: '05',
                   title: 'Voyage éco-responsable',
                   desc: 'On intègre dès la conception des choix bas-carbone, des acteurs locaux et des pratiques respectueuses des territoires.',
-                  accent: 'from-amber-50 to-stone-50',
                 },
                 {
                   num: '06',
                   title: 'Suivi personnalisé',
                   desc: 'Un échange humain à chaque étape. On répond à tes questions avant, pendant et après le voyage.',
-                  accent: 'from-teal-50 to-stone-50',
                 },
               ].map((s, i) => (
-                <div key={i} className={`service-card bg-gradient-to-br ${s.accent} rounded-xl p-6 border border-stone-100`}>
+                <div key={i} className="service-card bg-stone-50 rounded-xl p-6 border border-stone-100">
                   <span className="text-xs font-bold tracking-[0.2em] text-amber-700 uppercase mb-3 block">{s.num}</span>
                   <h3 className="font-semibold text-stone-900 mb-2 text-base">{s.title}</h3>
                   <p className="text-stone-600 text-sm leading-relaxed">{s.desc}</p>
@@ -240,8 +231,8 @@ export default function TravelPlanning() {
             <div className="grid md:grid-cols-3 gap-6">
               {[
                 { quote: "On cherchait un voyage loin des circuits classiques. Heldonica nous a trouvé des pépites qu'on n'aurait jamais découvertes seuls. Chaque jour était une surprise.", name: 'Marie & Théo', dest: 'Madère · 10 jours' },
-                { quote: "L'itinéraire collait parfaitement à notre rythme — pas trop chargé, pas ennuyeux. Les adresses restau étaient toutes excellentes. On recommande les yeux fermés.", name: 'Sophie & Lucas', dest: 'Colombie · 14 jours' },
-                { quote: "Pour nos 10 ans d'anniversaire, on voulait quelque chose d'unique. Heldonica a imaginé un voyage qu'on n'aurait jamais pu organiser aussi bien tout seuls.", name: 'Claire & Antoine', dest: 'Tanzanie · 12 jours' },
+                { quote: "L'itinéraire collait parfaitement à notre rythme — pas trop chargé, pas ennuyeux. Les adresses restaurant étaient toutes excellentes. On recommande les yeux fermés.", name: 'Sophie & Lucas', dest: 'Colombie · 14 jours' },
+                { quote: "Pour nos 10 ans d'anniversaire, on voulait quelque chose d'unique. Heldonica a imaginé un voyage qu'on n'aurait jamais pu concevoir aussi bien tout seuls.", name: 'Claire & Antoine', dest: 'Tanzanie · 12 jours' },
               ].map((t, i) => (
                 <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-4">
                   <p className="text-stone-300 text-sm leading-relaxed italic">&ldquo;{t.quote}&rdquo;</p>
@@ -268,19 +259,19 @@ export default function TravelPlanning() {
         <section className="py-24 md:py-32 bg-amber-900 text-white relative overflow-hidden">
           <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1200&q=60)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
           <div className="relative max-w-2xl mx-auto px-6 text-center">
-            <p className="text-amber-200 text-xs font-bold tracking-[0.2em] uppercase mb-4">Prêts pour l&apos;aventure ?</p>
+            <p className="text-amber-200 text-xs font-bold tracking-[0.2em] uppercase mb-4">Prêts pour l&apos;aventure ?</p>
             <h2 className="text-4xl md:text-5xl font-serif font-light mb-6">
               Dis-nous où tu rêves d&apos;aller.<br />
               <em>On s&apos;occupe du reste.</em>
             </h2>
             <p className="text-amber-200 leading-relaxed mb-10">
-              Un échange gratuit, sans engagement. On prend le temps de comprendre votre projet avant de proposer quoi que ce soit.
+              Un échange gratuit, sans engagement. On prend le temps de comprendre ton projet avant de proposer quoi que ce soit.
             </p>
             <Link href="/travel-planning-form"
               className="inline-block px-10 py-4 bg-white text-amber-900 font-bold rounded shadow-xl hover:bg-amber-50 transition text-sm tracking-wide">
-              Faire ma demande gratuite →
+              Démarrer ma demande gratuite →
             </Link>
-            <p className="mt-4 text-amber-300/70 text-xs">Sans engagement · Réponse sous 48h · 100 % humain</p>
+            <p className="mt-4 text-amber-300/70 text-xs">Sans engagement · Réponse sous 48h · 100 % humain</p>
           </div>
         </section>
 
@@ -289,8 +280,8 @@ export default function TravelPlanning() {
       {/* ── CTA MOBILE STICKY ── */}
       <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-amber-900 border-t border-amber-800 px-4 py-3 flex items-center justify-between gap-3">
         <div>
-          <p className="text-white text-xs font-bold">Travel Planning sur mesure</p>
-          <p className="text-amber-300 text-xs">3 créneaux disponibles en avril</p>
+          <p className="text-white text-xs font-bold">Conception de voyage sur mesure</p>
+          <p className="text-amber-300 text-xs">Places limitées — 100 % humain</p>
         </div>
         <Link href="/travel-planning-form"
           className="px-4 py-2 bg-white text-amber-900 rounded font-bold text-xs whitespace-nowrap shadow">
