@@ -138,10 +138,6 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
   useScrollReveal()
   const featImg = featured ? postImage(featured) : null
 
-  // Mots du titre hero avec espaces garantis
-  const heroLine1 = ['Explorateurs', 'émerveillés,']
-  const heroLine2 = ['dénicheurs', 'de', 'pépites.']
-
   return (
     <>
       <style>{`
@@ -153,8 +149,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         [data-delay='100']{transition-delay:0.1s} [data-delay='200']{transition-delay:0.2s}
         [data-delay='300']{transition-delay:0.3s} [data-delay='400']{transition-delay:0.4s}
         [data-delay='500']{transition-delay:0.5s} [data-delay='600']{transition-delay:0.6s}
-        .hero-word{display:inline-block;opacity:0;transform:translateY(20px);animation:wordIn 0.6s cubic-bezier(0.16,1,0.3,1) forwards}
-        @keyframes wordIn{to{opacity:1;transform:none}}
+        .hero-word{display:inline;opacity:0;animation:wordIn 0.6s cubic-bezier(0.16,1,0.3,1) forwards}
+        @keyframes wordIn{to{opacity:1}}
         @keyframes subtlePulse{0%,100%{opacity:.7;transform:translateY(0)}50%{opacity:1;transform:translateY(4px)}}
         .scroll-cue{animation:subtlePulse 2.2s ease-in-out infinite}
       `}</style>
@@ -174,18 +170,13 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             Slow Travel · Hors des sentiers battus · Paris
           </p>
           <h1 className="text-3xl md:text-5xl lg:text-7xl font-serif font-light text-white leading-[1.15] mb-4 md:mb-6">
-            {heroLine1.map((w, i) => (
-              <span key={i} className="hero-word" style={{ animationDelay: `${0.3 + i * 0.1}s` }}>
-                {w}{' '}
-              </span>
-            ))}
+            <span className="hero-word" style={{ animationDelay: '0.3s' }}>Explorateurs </span>
+            <span className="hero-word" style={{ animationDelay: '0.4s' }}>émerveillés,</span>
             <br />
             <em>
-              {heroLine2.map((w, i) => (
-                <span key={i} className="hero-word" style={{ animationDelay: `${0.7 + i * 0.1}s` }}>
-                  {w}{' '}
-                </span>
-              ))}
+              <span className="hero-word" style={{ animationDelay: '0.7s' }}>dénicheurs </span>
+              <span className="hero-word" style={{ animationDelay: '0.8s' }}>de </span>
+              <span className="hero-word" style={{ animationDelay: '0.9s' }}>pépites.</span>
             </em>
           </h1>
           <p className="text-sm md:text-lg text-gray-300 leading-relaxed mb-6 md:mb-8 max-w-xl"
@@ -425,7 +416,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             </div>
             <div className="grid grid-cols-1 gap-4" data-reveal="right">
               {[
-                { t: 'Pour tous les voyageurs', d: 'Solo, duo amoureux, amis complices, famille curieuse — chaque itinéraire s\'adapte à votre groupe, votre rythme, vos envies.' },
+                { t: 'Pour tous les voyageurs', d: "Solo, duo amoureux, amis complices, famille curieuse — chaque itinéraire s'adapte à votre groupe, votre rythme, vos envies." },
                 { t: 'Adresses vécues, pas inventées', d: 'Hôtels de charme, restaurants cachés, expériences de terrain — chaque recommandation est vérifiée sur place.' },
                 { t: 'Carnet de voyage complet', d: 'Cartes, conseils pratiques, adresses et inspirations pour chaque étape de votre aventure.' },
               ].map((item) => (
@@ -469,12 +460,12 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 {
                   icon: '⚡',
                   t: 'Audit IA & digital',
-                  d: 'Cartographie des processus existants, identification des leviers d\'automatisation à fort ROI.'
+                  d: "Cartographie des processus existants, identification des leviers d'automatisation à fort ROI."
                 },
                 {
                   icon: '🤖',
-                  t: 'Déploiement d\'outils IA',
-                  d: 'Sélection et intégration d\'outils adaptés : chatbots, yield management intelligent, personnalisation guest journey.'
+                  t: "Déploiement d'outils IA",
+                  d: "Sélection et intégration d'outils adaptés : chatbots, yield management intelligent, personnalisation guest journey."
                 },
                 {
                   icon: '📈',
@@ -482,36 +473,14 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   d: 'Montée en compétences des équipes pour adopter les nouveaux outils durablement, sans résistance au changement.'
                 },
               ].map((item) => (
-                <div key={item.t} className="bg-white rounded-xl p-5 shadow-sm hover:shadow-md transition border border-stone-200 hover:border-amber-200">
-                  <div className="flex items-start gap-3">
-                    <span className="text-xl mt-0.5">{item.icon}</span>
-                    <div>
-                      <h3 className="font-semibold text-stone-900 text-sm mb-1">{item.t}</h3>
-                      <p className="text-stone-500 text-xs leading-relaxed">{item.d}</p>
-                    </div>
-                  </div>
+                <div key={item.t} className="bg-white rounded-xl p-5 shadow-sm border border-stone-200 hover:border-amber-300 transition">
+                  <div className="text-2xl mb-3">{item.icon}</div>
+                  <h3 className="font-semibold text-stone-900 text-sm mb-1">{item.t}</h3>
+                  <p className="text-stone-500 text-sm leading-relaxed">{item.d}</p>
                 </div>
               ))}
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* ── NEWSLETTER ────────────────────────────────────────────────── */}
-      <section className="py-16 md:py-20 bg-amber-900">
-        <div className="max-w-2xl mx-auto px-6 text-center" data-reveal="scale">
-          <p className="text-amber-200 text-xs font-bold tracking-[0.2em] uppercase mb-4">✦ Newsletter</p>
-          <h2 className="text-2xl md:text-3xl font-serif font-light text-white mb-3">
-            Les pépites dénichées,<br /> directement dans ta boîte mail
-          </h2>
-          <p className="text-amber-200 text-sm mb-8">Adresses secrètes, carnets de route, conseils de terrain — 2× par mois, sans spam.</p>
-          <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" onSubmit={(e) => e.preventDefault()}>
-            <input type="email" placeholder="ton@email.com"
-              className="flex-1 px-4 py-3 rounded-lg text-stone-900 text-sm placeholder:text-stone-400 outline-none focus:ring-2 focus:ring-amber-400" />
-            <button type="submit" className="px-6 py-3 bg-stone-900 hover:bg-stone-800 text-white rounded-lg font-semibold text-sm transition whitespace-nowrap">
-              S&apos;abonner
-            </button>
-          </form>
         </div>
       </section>
 
