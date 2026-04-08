@@ -46,6 +46,8 @@ const nextConfig = {
       // Paris
       { source: '/paris', destination: '/destinations/paris', permanent: true },
       { source: '/paris/', destination: '/destinations/paris', permanent: true },
+      // Stoos Ridge — ancien slug avec -2 indexé par Google
+      { source: '/stoos-ridge-notre-aventure-sur-la-crete-panoramique-2', destination: '/blog/stoos-ridge-notre-aventure-sur-la-crete-panoramique', permanent: true },
     ];
   },
 }
