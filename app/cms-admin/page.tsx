@@ -28,6 +28,87 @@ const fmt = (d: string) => d ? new Date(d).toLocaleDateString('fr-FR') : '—';
 const slug = (t: string) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
+// ─── Config pages CMS ─────────────────────────────────────────
+const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { key: string; label: string; type: 'text' | 'textarea' }[] }> = {
+  'home': {
+    label: 'Accueil',
+    emoji: '🏠',
+    sections: [
+      { key: 'hero_title',          label: 'Hero – Titre',                     type: 'text' },
+      { key: 'hero_subtitle',       label: 'Hero – Sous-titre',                type: 'textarea' },
+      { key: 'hero_cta',            label: 'Hero – Bouton CTA',                type: 'text' },
+      { key: 'section_about_title', label: 'Section À propos – Titre',         type: 'text' },
+      { key: 'section_about_text',  label: 'Section À propos – Texte',         type: 'textarea' },
+      { key: 'services_title',      label: 'Section Services – Titre',         type: 'text' },
+      { key: 'services_subtitle',   label: 'Section Services – Sous-titre',    type: 'textarea' },
+      { key: 'newsletter_title',    label: 'Newsletter – Titre',               type: 'text' },
+      { key: 'newsletter_subtitle', label: 'Newsletter – Sous-titre',          type: 'textarea' },
+    ],
+  },
+  'a-propos': {
+    label: 'À propos',
+    emoji: '👋',
+    sections: [
+      { key: 'page_title',  label: 'Titre de la page',      type: 'text' },
+      { key: 'intro_text',  label: 'Texte d\'introduction', type: 'textarea' },
+    ],
+  },
+  'nos-services': {
+    label: 'Nos services',
+    emoji: '✨',
+    sections: [
+      { key: 'hero_title',    label: 'Hero – Titre',              type: 'text' },
+      { key: 'hero_subtitle', label: 'Hero – Sous-titre',         type: 'textarea' },
+      { key: 'b2c_title',     label: 'B2C – Titre service',       type: 'text' },
+      { key: 'b2c_desc',      label: 'B2C – Description',         type: 'textarea' },
+      { key: 'b2c_cta',       label: 'B2C – Bouton CTA',          type: 'text' },
+      { key: 'b2b_title',     label: 'B2B – Titre service',       type: 'text' },
+      { key: 'b2b_desc',      label: 'B2B – Description',         type: 'textarea' },
+      { key: 'b2b_cta',       label: 'B2B – Bouton CTA',          type: 'text' },
+    ],
+  },
+  'travel-planning': {
+    label: 'Travel Planning',
+    emoji: '✈️',
+    sections: [
+      { key: 'hero_title',    label: 'Hero – Titre',       type: 'text' },
+      { key: 'hero_subtitle', label: 'Hero – Sous-titre',  type: 'textarea' },
+      { key: 'form_intro',    label: 'Intro formulaire',   type: 'textarea' },
+      { key: 'reassurance',   label: 'Texte réassurance',  type: 'text' },
+    ],
+  },
+  'contact': {
+    label: 'Contact',
+    emoji: '📧',
+    sections: [
+      { key: 'page_title',  label: 'Titre de la page',      type: 'text' },
+      { key: 'intro_text',  label: 'Texte d\'introduction', type: 'textarea' },
+    ],
+  },
+  'hotel-consulting': {
+    label: 'Hotel Consulting',
+    emoji: '🏨',
+    sections: [
+      { key: 'page_title',  label: 'Titre de la page',      type: 'text' },
+      { key: 'intro_text',  label: 'Texte d\'introduction', type: 'textarea' },
+    ],
+  },
+  'mentions-legales': {
+    label: 'Mentions légales',
+    emoji: '⚖️',
+    sections: [
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+    ],
+  },
+};
+
+const SETTINGS_GROUPS: Record<string, { label: string; emoji: string }> = {
+  general: { label: 'Général',         emoji: '🌍' },
+  social:  { label: 'Réseaux sociaux', emoji: '📱' },
+  seo:     { label: 'SEO',             emoji: '🔍' },
+  footer:  { label: 'Footer',          emoji: '📄' },
+};
+
 // ─── Composant principal ──────────────────────────────────────
 export default function CMSAdmin() {
   const [authed, setAuthed] = useState(false);
@@ -48,11 +129,12 @@ export default function CMSAdmin() {
   const [demandes, setDemandes] = useState<Demande[]>([]);
   const [loadingDemandes, setLoadingDemandes] = useState(false);
 
-  // Paramètres
+  // Paramètres + Contenu pages
   const [settings, setSettings] = useState<Setting[]>([]);
   const [siteContent, setSiteContent] = useState<SiteContent[]>([]);
   const [loadingSettings, setLoadingSettings] = useState(false);
-  const [settingsPage, setSettingsPage] = useState('general');
+  const [settingsGroup, setSettingsGroup] = useState('general');
+  const [activePage, setActivePage] = useState('home');
   const [editedSettings, setEditedSettings] = useState<Record<string, string>>({});
   const [editedContent, setEditedContent] = useState<Record<string, string>>({});
   const [savingSettings, setSavingSettings] = useState(false);
@@ -114,7 +196,7 @@ export default function CMSAdmin() {
 
   useEffect(() => { if (authed) loadArticles(); }, [authed, loadArticles]);
   useEffect(() => { if (authed && tab === 'demandes') loadDemandes(); }, [authed, tab, loadDemandes]);
-  useEffect(() => { if (authed && tab === 'settings') loadSettings(); }, [authed, tab, loadSettings]);
+  useEffect(() => { if (authed && (tab === 'settings' || tab === 'pages')) loadSettings(); }, [authed, tab, loadSettings]);
 
   // Save settings
   const saveSettings = async () => {
@@ -122,7 +204,7 @@ export default function CMSAdmin() {
     const promises: Promise<Response>[] = [];
     settings.forEach(s => {
       const newVal = editedSettings[s.key];
-      if (newVal !== s.value) {
+      if (newVal !== undefined && newVal !== s.value) {
         promises.push(fetch('/api/cms/settings', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', 'x-cms-auth': pwd },
@@ -136,25 +218,28 @@ export default function CMSAdmin() {
     loadSettings();
   };
 
-  // Save content
-  const saveContent = async (page: string) => {
+  // Save content pour une page donnée
+  const savePageContent = async (pageKey: string) => {
     setSavingSettings(true);
-    const pageItems = siteContent.filter(c => c.page === page);
+    const config = PAGES_CONFIG[pageKey];
+    if (!config) { setSavingSettings(false); return; }
+
     const promises: Promise<Response>[] = [];
-    pageItems.forEach(c => {
-      const key = `${c.page}__${c.block_key}`;
-      const newVal = editedContent[key];
-      if (newVal !== c.value) {
+    config.sections.forEach(section => {
+      const key = `${pageKey}__${section.key}`;
+      const newVal = editedContent[key] ?? '';
+      const existing = siteContent.find(c => c.page === pageKey && c.block_key === section.key);
+      if (!existing || newVal !== existing.value) {
         promises.push(fetch('/api/cms/content', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', 'x-cms-auth': pwd },
-          body: JSON.stringify({ page: c.page, block_key: c.block_key, value: newVal }),
+          body: JSON.stringify({ page: pageKey, block_key: section.key, value: newVal }),
         }));
       }
     });
     await Promise.all(promises);
     setSavingSettings(false);
-    showToast(`✅ Contenu de la page "${page}" sauvegardé !`);
+    showToast(`✅ Page "${config.label}" sauvegardée !`);
     loadSettings();
   };
 
@@ -258,21 +343,12 @@ export default function CMSAdmin() {
   // ─── CMS ──────────────────────────────────────────────────
   const TABS = [
     { id: 'articles', label: '📝 Articles', count: articles.length },
-    { id: 'new', label: '✏️ Nouvel article', count: null },
+    { id: 'new',      label: '✏️ Nouvel article', count: null },
+    { id: 'pages',    label: '🗂️ Pages', count: null },
     { id: 'demandes', label: '✈️ Travel Planning', count: demandes.length },
-    { id: 'media', label: '🖼️ Médiathèque', count: null },
+    { id: 'media',    label: '🖼️ Médiathèque', count: null },
     { id: 'settings', label: '⚙️ Paramètres', count: null },
   ];
-
-  const SETTINGS_PAGES = ['general', 'social', 'seo', 'footer'];
-  const CONTENT_PAGES = ['home', 'a-propos', 'contact', 'hotel-consulting', 'mentions-legales'];
-  const SETTINGS_GROUP_LABELS: Record<string, string> = {
-    general: '🌍 Général', social: '📱 Réseaux sociaux', seo: '🔍 SEO', footer: '📄 Footer',
-  };
-  const CONTENT_PAGE_LABELS: Record<string, string> = {
-    home: '🏠 Accueil', 'a-propos': '👋 À propos', contact: '📧 Contact',
-    'hotel-consulting': '🏨 Hotel Consulting', 'mentions-legales': '⚖️ Mentions légales',
-  };
 
   return (
     <div style={{ minHeight: '100vh', background: '#f5f3ef', fontFamily: 'system-ui, sans-serif' }}>
@@ -470,6 +546,88 @@ export default function CMSAdmin() {
           </div>
         )}
 
+        {/* ── PAGES ── */}
+        {tab === 'pages' && (
+          <div>
+            {loadingSettings ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p> : (
+              <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '1.5rem', alignItems: 'start' }}>
+
+                {/* Sidebar pages */}
+                <div style={{ background: 'white', borderRadius: '1rem', padding: '1rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+                  <p style={{ fontSize: '.75rem', fontWeight: 700, color: '#aaa', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: '.75rem', padding: '0 .5rem' }}>Pages du site</p>
+                  {Object.entries(PAGES_CONFIG).map(([key, cfg]) => (
+                    <button key={key} onClick={() => setActivePage(key)}
+                      style={{ display: 'flex', alignItems: 'center', gap: '.5rem', width: '100%', textAlign: 'left', padding: '.6rem .75rem', borderRadius: '.5rem', border: 'none', cursor: 'pointer', fontSize: '.88rem', fontWeight: activePage === key ? 700 : 400, background: activePage === key ? '#f0e8e4' : 'transparent', color: activePage === key ? '#6b2a1a' : '#555', marginBottom: '.2rem' }}
+                    >
+                      <span>{cfg.emoji}</span> {cfg.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Éditeur de page */}
+                <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+                  {(() => {
+                    const config = PAGES_CONFIG[activePage];
+                    if (!config) return null;
+                    return (
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                          <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#6b2a1a' }}>
+                            {config.emoji} {config.label}
+                          </h2>
+                          <a
+                            href={activePage === 'home' ? '/' : `/${activePage}`}
+                            target="_blank" rel="noopener noreferrer"
+                            style={{ fontSize: '.82rem', color: '#01696f', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '.3rem' }}
+                          >
+                            🔗 Voir la page
+                          </a>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                          {config.sections.map(section => {
+                            const key = `${activePage}__${section.key}`;
+                            return (
+                              <div key={key}>
+                                <label style={lbl}>{section.label}</label>
+                                {section.type === 'textarea' ? (
+                                  <textarea
+                                    value={editedContent[key] ?? ''}
+                                    onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))}
+                                    style={{ ...inp, height: 110, resize: 'vertical' }}
+                                    placeholder={section.label}
+                                  />
+                                ) : (
+                                  <input
+                                    value={editedContent[key] ?? ''}
+                                    onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))}
+                                    style={inp}
+                                    placeholder={section.label}
+                                  />
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end' }}>
+                          <button
+                            onClick={() => savePageContent(activePage)}
+                            disabled={savingSettings}
+                            style={{ padding: '.75rem 2.25rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '.95rem', opacity: savingSettings ? .7 : 1 }}
+                          >
+                            {savingSettings ? '⏳ Sauvegarde…' : '💾 Sauvegarder la page'}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* ── MÉDIATHÈQUE ── */}
         {tab === 'media' && (
           <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 2px 12px rgba(0,0,0,.07)', minHeight: 400 }}>
@@ -547,31 +705,28 @@ export default function CMSAdmin() {
             {loadingSettings ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p> : (
               <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '1.5rem', alignItems: 'start' }}>
 
-                {/* Sidebar navigation */}
+                {/* Sidebar settings */}
                 <div style={{ background: 'white', borderRadius: '1rem', padding: '1rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
                   <p style={{ fontSize: '.75rem', fontWeight: 700, color: '#aaa', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: '.75rem', padding: '0 .5rem' }}>Paramètres globaux</p>
-                  {SETTINGS_PAGES.map(g => (
-                    <button key={g} onClick={() => setSettingsPage(g)}
-                      style={{ display: 'block', width: '100%', textAlign: 'left', padding: '.6rem .75rem', borderRadius: '.5rem', border: 'none', cursor: 'pointer', fontSize: '.88rem', fontWeight: settingsPage === g ? 700 : 400, background: settingsPage === g ? '#f0e8e4' : 'transparent', color: settingsPage === g ? '#6b2a1a' : '#555', marginBottom: '.2rem' }}
-                    >{SETTINGS_GROUP_LABELS[g]}</button>
-                  ))}
-                  <p style={{ fontSize: '.75rem', fontWeight: 700, color: '#aaa', textTransform: 'uppercase', letterSpacing: '.08em', margin: '1rem 0 .75rem', padding: '0 .5rem' }}>Contenu des pages</p>
-                  {CONTENT_PAGES.map(p => (
-                    <button key={p} onClick={() => setSettingsPage(`page__${p}`)}
-                      style={{ display: 'block', width: '100%', textAlign: 'left', padding: '.6rem .75rem', borderRadius: '.5rem', border: 'none', cursor: 'pointer', fontSize: '.88rem', fontWeight: settingsPage === `page__${p}` ? 700 : 400, background: settingsPage === `page__${p}` ? '#f0e8e4' : 'transparent', color: settingsPage === `page__${p}` ? '#6b2a1a' : '#555', marginBottom: '.2rem' }}
-                    >{CONTENT_PAGE_LABELS[p]}</button>
+                  {Object.entries(SETTINGS_GROUPS).map(([key, cfg]) => (
+                    <button key={key} onClick={() => setSettingsGroup(key)}
+                      style={{ display: 'flex', alignItems: 'center', gap: '.5rem', width: '100%', textAlign: 'left', padding: '.6rem .75rem', borderRadius: '.5rem', border: 'none', cursor: 'pointer', fontSize: '.88rem', fontWeight: settingsGroup === key ? 700 : 400, background: settingsGroup === key ? '#f0e8e4' : 'transparent', color: settingsGroup === key ? '#6b2a1a' : '#555', marginBottom: '.2rem' }}
+                    >
+                      <span>{cfg.emoji}</span> {cfg.label}
+                    </button>
                   ))}
                 </div>
 
-                {/* Panel principal */}
+                {/* Panel settings */}
                 <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
-
-                  {/* Paramètres globaux */}
-                  {!settingsPage.startsWith('page__') && (() => {
-                    const groupItems = settings.filter(s => s.group_name === settingsPage);
+                  {(() => {
+                    const groupItems = settings.filter(s => s.group_name === settingsGroup);
+                    const groupCfg = SETTINGS_GROUPS[settingsGroup];
                     return (
                       <div>
-                        <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>{SETTINGS_GROUP_LABELS[settingsPage]}</h2>
+                        <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>
+                          {groupCfg?.emoji} {groupCfg?.label}
+                        </h2>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
                           {groupItems.map(s => (
                             <div key={s.key}>
@@ -581,6 +736,9 @@ export default function CMSAdmin() {
                                 style={inp} placeholder={s.label} />
                             </div>
                           ))}
+                          {groupItems.length === 0 && (
+                            <p style={{ color: '#aaa', fontSize: '.9rem', textAlign: 'center', padding: '2rem' }}>Aucun paramètre dans ce groupe.</p>
+                          )}
                         </div>
                         <button onClick={saveSettings} disabled={savingSettings}
                           style={{ marginTop: '1.75rem', padding: '.7rem 2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '.9rem', opacity: savingSettings ? .7 : 1 }}
@@ -588,40 +746,6 @@ export default function CMSAdmin() {
                       </div>
                     );
                   })()}
-
-                  {/* Contenu de page */}
-                  {settingsPage.startsWith('page__') && (() => {
-                    const pageName = settingsPage.replace('page__', '');
-                    const pageItems = siteContent.filter(c => c.page === pageName);
-                    return (
-                      <div>
-                        <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>{CONTENT_PAGE_LABELS[pageName]}</h2>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
-                          {pageItems.map(c => {
-                            const key = `${c.page}__${c.block_key}`;
-                            return (
-                              <div key={key}>
-                                <label style={lbl}>{c.label}</label>
-                                {c.type === 'textarea' ? (
-                                  <textarea value={editedContent[key] || ''}
-                                    onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))}
-                                    style={{ ...inp, height: 100, resize: 'vertical' }} />
-                                ) : (
-                                  <input value={editedContent[key] || ''}
-                                    onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))}
-                                    style={inp} />
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                        <button onClick={() => saveContent(pageName)} disabled={savingSettings}
-                          style={{ marginTop: '1.75rem', padding: '.7rem 2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '.9rem', opacity: savingSettings ? .7 : 1 }}
-                        >{savingSettings ? '⏳ Sauvegarde…' : '💾 Sauvegarder la page'}</button>
-                      </div>
-                    );
-                  })()}
-
                 </div>
               </div>
             )}
