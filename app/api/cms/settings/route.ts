@@ -13,32 +13,31 @@ function checkAuth(req: NextRequest) {
   return auth === CMS_PASSWORD;
 }
 
-// GET /api/cms/content?page=home
+// GET /api/cms/settings?group=general
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const page = searchParams.get('page');
+  const group = searchParams.get('group');
 
-  let query = supabase.from('site_content').select('*').order('page').order('id');
-  if (page) query = query.eq('page', page);
+  let query = supabase.from('site_settings').select('*').order('group_name').order('id');
+  if (group) query = query.eq('group_name', group);
 
   const { data, error } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ content: data });
+  return NextResponse.json({ settings: data });
 }
 
-// PUT /api/cms/content  body: { page, block_key, value }
+// PUT /api/cms/settings  body: { key, value }
 export async function PUT(req: NextRequest) {
   if (!checkAuth(req)) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
   const body = await req.json();
-  const { page, block_key, value } = body;
-  if (!page || !block_key) return NextResponse.json({ error: 'page et block_key requis' }, { status: 400 });
+  const { key, value } = body;
+  if (!key) return NextResponse.json({ error: 'key requis' }, { status: 400 });
 
   const { error } = await supabase
-    .from('site_content')
+    .from('site_settings')
     .update({ value, updated_at: new Date().toISOString() })
-    .eq('page', page)
-    .eq('block_key', block_key);
+    .eq('key', key);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ success: true });
