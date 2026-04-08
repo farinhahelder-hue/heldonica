@@ -28,7 +28,7 @@ const nextConfig = {
   },
   staticPageGenerationTimeout: 300,
 
-  // ── Redirections 301 depuis les anciennes URLs WordPress ──────
+  // ── Redirections permanentes (legacy WordPress + anciens slugs) ──
   async redirects() {
     return [
       // Zurich
@@ -46,8 +46,17 @@ const nextConfig = {
       // Paris
       { source: '/paris', destination: '/destinations/paris', permanent: true },
       { source: '/paris/', destination: '/destinations/paris', permanent: true },
-      // Stoos Ridge — ancien slug avec -2 indexé par Google
+      // Stoos Ridge — ancien slug -2 indexé par Google
       { source: '/stoos-ridge-notre-aventure-sur-la-crete-panoramique-2', destination: '/blog/stoos-ridge-notre-aventure-sur-la-crete-panoramique', permanent: true },
+      // Legacy WordPress — URLs encore indexées par Google
+      { source: '/travel-planner', destination: '/travel-planning', permanent: true },
+      { source: '/travel-planner/', destination: '/travel-planning', permanent: true },
+      { source: '/nos-services', destination: '/travel-planning', permanent: true },
+      { source: '/nos-services/', destination: '/travel-planning', permanent: true },
+      { source: '/sujets/bons-plans', destination: '/blog', permanent: true },
+      { source: '/sujets/bons-plans/', destination: '/blog', permanent: true },
+      { source: '/sujets/:slug', destination: '/blog', permanent: true },
+      { source: '/etiquettes/:slug', destination: '/blog', permanent: true },
     ];
   },
 }

@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { getAllSlugs, getAllPosts } from '@/lib/blog-supabase';
+import { getAllPosts } from '@/lib/blog-supabase';
 
 const BASE_URL = 'https://heldonica.fr';
 
@@ -19,13 +19,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${BASE_URL}/travel-planning`,
-      lastModified: new Date('2026-04-06'),
+      lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.85,
     },
     {
       url: `${BASE_URL}/hotel-consulting`,
-      lastModified: new Date('2026-04-06'),
+      lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.85,
     },
@@ -46,12 +46,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date('2026-04-01'),
       changeFrequency: 'monthly',
       priority: 0.5,
-    },
-    {
-      url: `${BASE_URL}/travel-planning-form`,
-      lastModified: new Date('2026-04-01'),
-      changeFrequency: 'monthly',
-      priority: 0.7,
     },
     {
       url: `${BASE_URL}/mentions-legales`,
