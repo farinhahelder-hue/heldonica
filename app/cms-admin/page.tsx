@@ -20,6 +20,9 @@ type Demande = {
   mois_depart: string; notes: string; statut: string; created_at: string;
 };
 
+type Setting = { id: number; key: string; value: string; label: string; group_name: string; };
+type SiteContent = { id: number; page: string; block_key: string; value: string; label: string; type: string; };
+
 // ─── Helpers ─────────────────────────────────────────────────
 const fmt = (d: string) => d ? new Date(d).toLocaleDateString('fr-FR') : '—';
 const slug = (t: string) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -44,6 +47,15 @@ export default function CMSAdmin() {
   // Demandes travel
   const [demandes, setDemandes] = useState<Demande[]>([]);
   const [loadingDemandes, setLoadingDemandes] = useState(false);
+
+  // Paramètres
+  const [settings, setSettings] = useState<Setting[]>([]);
+  const [siteContent, setSiteContent] = useState<SiteContent[]>([]);
+  const [loadingSettings, setLoadingSettings] = useState(false);
+  const [settingsPage, setSettingsPage] = useState('general');
+  const [editedSettings, setEditedSettings] = useState<Record<string, string>>({});
+  const [editedContent, setEditedContent] = useState<Record<string, string>>({});
+  const [savingSettings, setSavingSettings] = useState(false);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 3500); };
 
@@ -80,8 +92,71 @@ export default function CMSAdmin() {
     setLoadingDemandes(false);
   }, []);
 
+  // Load settings + content
+  const loadSettings = useCallback(async () => {
+    setLoadingSettings(true);
+    const [sRes, cRes] = await Promise.all([
+      fetch('/api/cms/settings'),
+      fetch('/api/cms/content'),
+    ]);
+    const sData = await sRes.json();
+    const cData = await cRes.json();
+    setSettings(sData.settings || []);
+    setSiteContent(cData.content || []);
+    const initS: Record<string, string> = {};
+    (sData.settings || []).forEach((s: Setting) => { initS[s.key] = s.value || ''; });
+    const initC: Record<string, string> = {};
+    (cData.content || []).forEach((c: SiteContent) => { initC[`${c.page}__${c.block_key}`] = c.value || ''; });
+    setEditedSettings(initS);
+    setEditedContent(initC);
+    setLoadingSettings(false);
+  }, []);
+
   useEffect(() => { if (authed) loadArticles(); }, [authed, loadArticles]);
   useEffect(() => { if (authed && tab === 'demandes') loadDemandes(); }, [authed, tab, loadDemandes]);
+  useEffect(() => { if (authed && tab === 'settings') loadSettings(); }, [authed, tab, loadSettings]);
+
+  // Save settings
+  const saveSettings = async () => {
+    setSavingSettings(true);
+    const promises: Promise<Response>[] = [];
+    settings.forEach(s => {
+      const newVal = editedSettings[s.key];
+      if (newVal !== s.value) {
+        promises.push(fetch('/api/cms/settings', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'x-cms-auth': pwd },
+          body: JSON.stringify({ key: s.key, value: newVal }),
+        }));
+      }
+    });
+    await Promise.all(promises);
+    setSavingSettings(false);
+    showToast('✅ Paramètres sauvegardés !');
+    loadSettings();
+  };
+
+  // Save content
+  const saveContent = async (page: string) => {
+    setSavingSettings(true);
+    const pageItems = siteContent.filter(c => c.page === page);
+    const promises: Promise<Response>[] = [];
+    pageItems.forEach(c => {
+      const key = `${c.page}__${c.block_key}`;
+      const newVal = editedContent[key];
+      if (newVal !== c.value) {
+        promises.push(fetch('/api/cms/content', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'x-cms-auth': pwd },
+          body: JSON.stringify({ page: c.page, block_key: c.block_key, value: newVal }),
+        }));
+      }
+    });
+    await Promise.all(promises);
+    setSavingSettings(false);
+    showToast(`✅ Contenu de la page "${page}" sauvegardé !`);
+    loadSettings();
+  };
 
   // Save article
   const saveArticle = async () => {
@@ -111,7 +186,6 @@ export default function CMSAdmin() {
     }
   };
 
-  // Toggle publish
   const togglePublish = async (a: Article) => {
     const res = await fetch(`/api/cms/articles/${a.id}`, {
       method: 'PUT',
@@ -124,14 +198,12 @@ export default function CMSAdmin() {
     if (res.ok) { showToast(!a.published ? '✅ Publié !' : '📦 Repassé en brouillon'); loadArticles(); }
   };
 
-  // Delete article
   const deleteArticle = async (id: number) => {
     if (!confirm('Supprimer cet article ?')) return;
     const res = await fetch(`/api/cms/articles/${id}`, { method: 'DELETE' });
     if (res.ok) { showToast('🗑️ Article supprimé'); loadArticles(); }
   };
 
-  // Upload image à la une
   const uploadFeaturedImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -152,7 +224,6 @@ export default function CMSAdmin() {
     }
   };
 
-  // Update statut demande
   const updateStatut = async (id: string, statut: string) => {
     const res = await fetch('/api/cms/demandes-travel', {
       method: 'PUT',
@@ -162,7 +233,7 @@ export default function CMSAdmin() {
     if (res.ok) { showToast('✅ Statut mis à jour'); loadDemandes(); }
   };
 
-  // ─── Écran login ──────────────────────────────────────────
+  // ─── Login ────────────────────────────────────────────────
   if (!authed) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f3ef' }}>
       <div style={{ background: 'white', padding: '2.5rem', borderRadius: '1rem', boxShadow: '0 8px 32px rgba(0,0,0,.1)', width: '100%', maxWidth: 380 }}>
@@ -171,30 +242,37 @@ export default function CMSAdmin() {
           <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#6b2a1a' }}>Heldonica CMS</h1>
           <p style={{ color: '#888', fontSize: '.9rem' }}>Accès réservé</p>
         </div>
-        <input
-          type="password"
-          placeholder="Mot de passe"
-          value={pwd}
+        <input type="password" placeholder="Mot de passe" value={pwd}
           onChange={e => setPwd(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && login()}
           style={{ width: '100%', padding: '.75rem 1rem', border: '1.5px solid #ddd', borderRadius: '.5rem', fontSize: '1rem', marginBottom: '.75rem', outline: 'none' }}
         />
         {authErr && <p style={{ color: '#c0392b', fontSize: '.85rem', marginBottom: '.75rem' }}>{authErr}</p>}
-        <button
-          onClick={login}
+        <button onClick={login}
           style={{ width: '100%', padding: '.8rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, fontSize: '1rem', cursor: 'pointer' }}
         >Entrer</button>
       </div>
     </div>
   );
 
-  // ─── CMS principal ────────────────────────────────────────
+  // ─── CMS ──────────────────────────────────────────────────
   const TABS = [
     { id: 'articles', label: '📝 Articles', count: articles.length },
     { id: 'new', label: '✏️ Nouvel article', count: null },
     { id: 'demandes', label: '✈️ Travel Planning', count: demandes.length },
     { id: 'media', label: '🖼️ Médiathèque', count: null },
+    { id: 'settings', label: '⚙️ Paramètres', count: null },
   ];
+
+  const SETTINGS_PAGES = ['general', 'social', 'seo', 'footer'];
+  const CONTENT_PAGES = ['home', 'a-propos', 'contact', 'hotel-consulting', 'mentions-legales'];
+  const SETTINGS_GROUP_LABELS: Record<string, string> = {
+    general: '🌍 Général', social: '📱 Réseaux sociaux', seo: '🔍 SEO', footer: '📄 Footer',
+  };
+  const CONTENT_PAGE_LABELS: Record<string, string> = {
+    home: '🏠 Accueil', 'a-propos': '👋 À propos', contact: '📧 Contact',
+    'hotel-consulting': '🏨 Hotel Consulting', 'mentions-legales': '⚖️ Mentions légales',
+  };
 
   return (
     <div style={{ minHeight: '100vh', background: '#f5f3ef', fontFamily: 'system-ui, sans-serif' }}>
@@ -208,16 +286,12 @@ export default function CMSAdmin() {
         <button onClick={() => setAuthed(false)} style={{ background: 'rgba(255,255,255,.15)', border: 'none', color: 'white', padding: '.4rem .9rem', borderRadius: '.4rem', cursor: 'pointer', fontSize: '.85rem' }}>Déconnexion</button>
       </div>
 
-      {/* Toast */}
       {toast && (
         <div style={{ position: 'fixed', top: '5rem', right: '1.5rem', background: '#1a1a1a', color: 'white', padding: '.8rem 1.4rem', borderRadius: '.6rem', zIndex: 100, fontSize: '.9rem', boxShadow: '0 4px 16px rgba(0,0,0,.2)' }}>{toast}</div>
       )}
 
-      {/* MediaLibrary modale */}
       {showMediaLibrary && (
-        <MediaLibrary
-          cmsPassword={pwd}
-          onClose={() => setShowMediaLibrary(false)}
+        <MediaLibrary cmsPassword={pwd} onClose={() => setShowMediaLibrary(false)}
           onSelect={(url) => {
             setEditingArticle(prev => prev ? { ...prev, featured_image: url } : prev);
             showToast('✅ Image sélectionnée depuis la médiathèque !');
@@ -225,19 +299,17 @@ export default function CMSAdmin() {
         />
       )}
 
-      {/* Tabs nav */}
+      {/* Tabs */}
       <div style={{ background: 'white', borderBottom: '1.5px solid #e8e3dc', padding: '0 2rem', display: 'flex', gap: '.25rem', overflowX: 'auto' }}>
         {TABS.map(t => (
-          <button
-            key={t.id}
+          <button key={t.id}
             onClick={() => { setTab(t.id); if (t.id === 'new') setEditingArticle({}); }}
             style={{
               padding: '.85rem 1.2rem', border: 'none', background: 'none', cursor: 'pointer',
               fontWeight: tab === t.id ? 700 : 400,
               color: tab === t.id ? '#6b2a1a' : '#666',
               borderBottom: tab === t.id ? '2.5px solid #6b2a1a' : '2.5px solid transparent',
-              fontSize: '.9rem', display: 'flex', alignItems: 'center', gap: '.4rem',
-              whiteSpace: 'nowrap',
+              fontSize: '.9rem', display: 'flex', alignItems: 'center', gap: '.4rem', whiteSpace: 'nowrap',
             }}
           >
             {t.label}
@@ -250,20 +322,16 @@ export default function CMSAdmin() {
 
       <div style={{ maxWidth: 1100, margin: '2rem auto', padding: '0 1.5rem' }}>
 
-        {/* ── LISTE ARTICLES ── */}
+        {/* ── ARTICLES ── */}
         {tab === 'articles' && (
           <div>
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-              <input
-                placeholder="Rechercher un article..."
-                value={search}
+              <input placeholder="Rechercher un article..." value={search}
                 onChange={e => setSearch(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && loadArticles()}
                 style={{ padding: '.6rem 1rem', border: '1.5px solid #ddd', borderRadius: '.5rem', flex: 1, minWidth: 200, fontSize: '.9rem' }}
               />
-              <select
-                value={statusFilter}
-                onChange={e => { setStatusFilter(e.target.value); }}
+              <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
                 style={{ padding: '.6rem .9rem', border: '1.5px solid #ddd', borderRadius: '.5rem', fontSize: '.9rem' }}
               >
                 <option value="all">Tous</option>
@@ -273,51 +341,36 @@ export default function CMSAdmin() {
               <button onClick={loadArticles} style={{ padding: '.6rem 1.2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>🔍</button>
               <button onClick={() => { setEditingArticle({}); setTab('new'); }} style={{ padding: '.6rem 1.2rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>+ Nouvel article</button>
             </div>
-
-            {loadingArticles ? (
-              <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p>
-            ) : articles.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '4rem', color: '#aaa' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📭</div>
-                <p>Aucun article trouvé</p>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '.75rem' }}>
-                {articles.map(a => (
-                  <div key={a.id} style={{ background: 'white', borderRadius: '.75rem', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', flexWrap: 'wrap' }}>
-                    {a.featured_image && (
-                      <img src={a.featured_image} alt="" style={{ width: 64, height: 48, objectFit: 'cover', borderRadius: '.4rem', flexShrink: 0 }} />
-                    )}
-                    <div style={{ flex: 1, minWidth: 200 }}>
-                      <div style={{ fontWeight: 600, fontSize: '1rem', color: '#1a1a1a', marginBottom: '.2rem' }}>{a.title}</div>
-                      <div style={{ fontSize: '.8rem', color: '#888', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                        <span>{a.category || '—'}</span>
-                        <span>{fmt(a.created_at)}</span>
+            {loadingArticles ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p>
+              : articles.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '4rem', color: '#aaa' }}>
+                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📭</div>
+                  <p>Aucun article trouvé</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '.75rem' }}>
+                  {articles.map(a => (
+                    <div key={a.id} style={{ background: 'white', borderRadius: '.75rem', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', flexWrap: 'wrap' }}>
+                      {a.featured_image && <img src={a.featured_image} alt="" style={{ width: 64, height: 48, objectFit: 'cover', borderRadius: '.4rem', flexShrink: 0 }} />}
+                      <div style={{ flex: 1, minWidth: 200 }}>
+                        <div style={{ fontWeight: 600, fontSize: '1rem', color: '#1a1a1a', marginBottom: '.2rem' }}>{a.title}</div>
+                        <div style={{ fontSize: '.8rem', color: '#888', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                          <span>{a.category || '—'}</span>
+                          <span>{fmt(a.created_at)}</span>
+                        </div>
+                      </div>
+                      <span style={{ padding: '.3rem .8rem', borderRadius: '9999px', fontSize: '.78rem', fontWeight: 600, background: a.published ? '#d4edda' : '#fff3cd', color: a.published ? '#155724' : '#856404' }}>
+                        {a.published ? '✅ Publié' : '📦 Brouillon'}
+                      </span>
+                      <div style={{ display: 'flex', gap: '.5rem' }}>
+                        <button onClick={() => { setEditingArticle(a); setTab('new'); }} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>✏️ Éditer</button>
+                        <button onClick={() => togglePublish(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>{a.published ? '📦 Dépublier' : '🚀 Publier'}</button>
+                        <button onClick={() => deleteArticle(a.id)} style={{ padding: '.35rem .8rem', border: '1px solid #fcc', borderRadius: '.4rem', background: '#fff5f5', color: '#c0392b', cursor: 'pointer', fontSize: '.82rem' }}>🗑️</button>
                       </div>
                     </div>
-                    <span style={{
-                      padding: '.3rem .8rem', borderRadius: '9999px', fontSize: '.78rem', fontWeight: 600,
-                      background: a.published ? '#d4edda' : '#fff3cd',
-                      color: a.published ? '#155724' : '#856404',
-                    }}>{a.published ? '✅ Publié' : '📦 Brouillon'}</span>
-                    <div style={{ display: 'flex', gap: '.5rem' }}>
-                      <button
-                        onClick={() => { setEditingArticle(a); setTab('new'); }}
-                        style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}
-                      >✏️ Éditer</button>
-                      <button
-                        onClick={() => togglePublish(a)}
-                        style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}
-                      >{a.published ? '📦 Dépublier' : '🚀 Publier'}</button>
-                      <button
-                        onClick={() => deleteArticle(a.id)}
-                        style={{ padding: '.35rem .8rem', border: '1px solid #fcc', borderRadius: '.4rem', background: '#fff5f5', color: '#c0392b', cursor: 'pointer', fontSize: '.82rem' }}
-                      >🗑️</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
           </div>
         )}
 
@@ -325,37 +378,25 @@ export default function CMSAdmin() {
         {tab === 'new' && (
           <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 2px 12px rgba(0,0,0,.07)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.75rem' }}>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>
-                {editingArticle?.id ? `✏️ Modifier : ${editingArticle.title}` : '✏️ Nouvel article'}
-              </h2>
+              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>{editingArticle?.id ? `✏️ Modifier : ${editingArticle.title}` : '✏️ Nouvel article'}</h2>
               <button onClick={() => setTab('articles')} style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: '1.3rem' }}>✕</button>
             </div>
-
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
               <div style={{ gridColumn: '1/-1' }}>
                 <label style={lbl}>Titre *</label>
-                <input
-                  value={editingArticle?.title || ''}
+                <input value={editingArticle?.title || ''}
                   onChange={e => setEditingArticle(p => ({ ...p, title: e.target.value, slug: slug(e.target.value) }))}
-                  style={inp}
-                  placeholder="Titre de l'article"
-                />
+                  style={inp} placeholder="Titre de l'article" />
               </div>
-
               <div>
                 <label style={lbl}>Slug (URL)</label>
-                <input
-                  value={editingArticle?.slug || ''}
+                <input value={editingArticle?.slug || ''}
                   onChange={e => setEditingArticle(p => ({ ...p, slug: e.target.value }))}
-                  style={inp}
-                  placeholder="slug-auto-genere"
-                />
+                  style={inp} placeholder="slug-auto-genere" />
               </div>
-
               <div>
                 <label style={lbl}>Catégorie</label>
-                <select
-                  value={editingArticle?.category || ''}
+                <select value={editingArticle?.category || ''}
                   onChange={e => setEditingArticle(p => ({ ...p, category: e.target.value }))}
                   style={inp}
                 >
@@ -369,13 +410,10 @@ export default function CMSAdmin() {
                   <option value="Destinations">Destinations</option>
                 </select>
               </div>
-
-              {/* Image à la une */}
               <div style={{ gridColumn: '1/-1' }}>
                 <label style={lbl}>Image à la une</label>
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '.75rem' }}>
-                  <button
-                    onClick={() => setShowMediaLibrary(true)}
+                  <button onClick={() => setShowMediaLibrary(true)}
                     style={{ padding: '.6rem 1.1rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.85rem', fontWeight: 600 }}
                   >🖼️ Médiathèque Supabase</button>
                   <span style={{ color: '#aaa', fontSize: '.82rem' }}>ou</span>
@@ -388,169 +426,218 @@ export default function CMSAdmin() {
                   <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
                     <div style={{ position: 'relative' }}>
                       <img src={editingArticle.featured_image} alt="" style={{ height: 80, borderRadius: '.5rem', objectFit: 'cover' }} />
-                      <button
-                        onClick={() => setEditingArticle(p => ({ ...p, featured_image: '' }))}
-                        style={{ position: 'absolute', top: -6, right: -6, background: '#c0392b', color: 'white', border: 'none', borderRadius: '50%', width: 20, height: 20, cursor: 'pointer', fontSize: '.7rem' }}
-                      >✕</button>
+                      <button onClick={() => setEditingArticle(p => ({ ...p, featured_image: '' }))}
+                        style={{ position: 'absolute', top: -6, right: -6, background: '#c0392b', color: 'white', border: 'none', borderRadius: '50%', width: 20, height: 20, cursor: 'pointer', fontSize: '.7rem' }}>✕</button>
                     </div>
-                    <input
-                      value={editingArticle.featured_image}
+                    <input value={editingArticle.featured_image}
                       onChange={e => setEditingArticle(p => ({ ...p, featured_image: e.target.value }))}
-                      style={{ ...inp, flex: 1, fontSize: '.82rem' }}
-                      placeholder="URL de l'image"
-                    />
+                      style={{ ...inp, flex: 1, fontSize: '.82rem' }} placeholder="URL de l'image" />
                   </div>
                 ) : (
-                  <input
-                    value=""
+                  <input value=""
                     onChange={e => setEditingArticle(p => ({ ...p, featured_image: e.target.value }))}
-                    style={{ ...inp, fontSize: '.82rem' }}
-                    placeholder="Ou coller une URL directement"
-                  />
+                    style={{ ...inp, fontSize: '.82rem' }} placeholder="Ou coller une URL directement" />
                 )}
               </div>
-
-              {/* Extrait */}
               <div style={{ gridColumn: '1/-1' }}>
                 <label style={lbl}>Extrait</label>
-                <textarea
-                  value={editingArticle?.excerpt || ''}
+                <textarea value={editingArticle?.excerpt || ''}
                   onChange={e => setEditingArticle(p => ({ ...p, excerpt: e.target.value }))}
                   style={{ ...inp, height: 80, resize: 'vertical' }}
-                  placeholder="Résumé accrocheur pour les cards du blog…"
-                />
+                  placeholder="Résumé accrocheur pour les cards du blog…" />
               </div>
-
-              {/* Éditeur riche */}
               <div style={{ gridColumn: '1/-1' }}>
                 <label style={lbl}>Contenu</label>
-                <RichEditor
-                  value={editingArticle?.content || ''}
+                <RichEditor value={editingArticle?.content || ''}
                   onChange={html => setEditingArticle(p => ({ ...p, content: html }))}
-                  cmsPassword={pwd}
-                  placeholder="Commence à écrire ton article ici…"
-                />
+                  cmsPassword={pwd} placeholder="Commence à écrire ton article ici…" />
               </div>
-
               <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '.5rem', cursor: 'pointer', fontWeight: 600, color: '#444', fontSize: '.9rem' }}>
-                  <input
-                    type="checkbox"
-                    checked={!!editingArticle?.published}
+                  <input type="checkbox" checked={!!editingArticle?.published}
                     onChange={e => setEditingArticle(p => ({ ...p, published: e.target.checked }))}
-                    style={{ width: 18, height: 18 }}
-                  />
+                    style={{ width: 18, height: 18 }} />
                   Publier immédiatement
                 </label>
               </div>
             </div>
-
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1.75rem', justifyContent: 'flex-end' }}>
-              <button
-                onClick={() => setTab('articles')}
-                style={{ padding: '.7rem 1.5rem', border: '1.5px solid #ddd', borderRadius: '.5rem', background: 'white', cursor: 'pointer', fontSize: '.9rem' }}
-              >Annuler</button>
-              <button
-                onClick={saveArticle}
-                style={{ padding: '.7rem 2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '.9rem' }}
-              >💾 Enregistrer</button>
+              <button onClick={() => setTab('articles')}
+                style={{ padding: '.7rem 1.5rem', border: '1.5px solid #ddd', borderRadius: '.5rem', background: 'white', cursor: 'pointer', fontSize: '.9rem' }}>Annuler</button>
+              <button onClick={saveArticle}
+                style={{ padding: '.7rem 2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '.9rem' }}>💾 Enregistrer</button>
             </div>
           </div>
         )}
 
-        {/* ── ONGLET MÉDIATHÈQUE ── */}
+        {/* ── MÉDIATHÈQUE ── */}
         {tab === 'media' && (
           <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 2px 12px rgba(0,0,0,.07)', minHeight: 400 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>🖼️ Médiathèque</h2>
-              <p style={{ fontSize: '.85rem', color: '#888' }}>Supabase Storage · Google Photos</p>
+              <p style={{ fontSize: '.85rem', color: '#888' }}>Supabase Storage</p>
             </div>
             <div style={{ background: '#faf8f5', borderRadius: '.75rem', padding: '2rem', textAlign: 'center', border: '2px dashed #e8e3dc' }}>
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>☁️</div>
-              <p style={{ color: '#555', marginBottom: '1.25rem', lineHeight: 1.6 }}>
-                Toutes tes images sont stockées sur <strong>Supabase Storage</strong>.<br />
-                Upload depuis ton ordi ou importe depuis <strong>Google Photos</strong>.
-              </p>
-              <button
-                onClick={() => setShowMediaLibrary(true)}
+              <p style={{ color: '#555', marginBottom: '1.25rem', lineHeight: 1.6 }}>Toutes tes images sont stockées sur <strong>Supabase Storage</strong>.</p>
+              <button onClick={() => setShowMediaLibrary(true)}
                 style={{ padding: '.8rem 1.75rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '.95rem' }}
               >🖼️ Ouvrir la médiathèque</button>
             </div>
           </div>
         )}
 
-        {/* ── DEMANDES TRAVEL PLANNING ── */}
+        {/* ── TRAVEL PLANNING ── */}
         {tab === 'demandes' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>✈️ Demandes Travel Planning</h2>
               <button onClick={loadDemandes} style={{ padding: '.5rem 1rem', background: 'white', border: '1.5px solid #ddd', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.85rem' }}>🔄 Actualiser</button>
             </div>
+            {loadingDemandes ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p>
+              : demandes.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '4rem', color: '#aaa' }}>
+                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✉️</div>
+                  <p>Aucune demande pour le moment</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {demandes.map(d => (
+                    <div key={d.id} style={{ background: 'white', borderRadius: '.75rem', padding: '1.25rem 1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '.75rem', flexWrap: 'wrap', gap: '.5rem' }}>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: '1rem', color: '#1a1a1a' }}>{d.prenom} {d.nom}</div>
+                          <div style={{ fontSize: '.85rem', color: '#888' }}>{d.email} {d.telephone && `· ${d.telephone}`}</div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
+                          <span style={{ fontSize: '.75rem', color: '#aaa' }}>{fmt(d.created_at)}</span>
+                          <select value={d.statut || 'nouvelle'} onChange={e => updateStatut(d.id, e.target.value)}
+                            style={{ padding: '.3rem .7rem', border: '1.5px solid #ddd', borderRadius: '.4rem', fontSize: '.82rem', cursor: 'pointer' }}
+                          >
+                            <option value="nouvelle">🆕 Nouvelle</option>
+                            <option value="en_cours">🔄 En cours</option>
+                            <option value="devis_envoye">📨 Devis envoyé</option>
+                            <option value="accepte">✅ Acceptée</option>
+                            <option value="terminee">🏁 Terminée</option>
+                            <option value="annulee">❌ Annulée</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '.5rem .75rem', fontSize: '.85rem', color: '#555' }}>
+                        {d.destination && <span>📍 <strong>Destination :</strong> {d.destination}</span>}
+                        {d.style_voyage && <span>🌿 <strong>Style :</strong> {d.style_voyage}</span>}
+                        {d.duree_jours && <span>📅 <strong>Durée :</strong> {d.duree_jours} jours</span>}
+                        {d.mois_depart && <span>🗓 <strong>Départ :</strong> {d.mois_depart}</span>}
+                        {d.budget_fourchette && <span>💶 <strong>Budget :</strong> {d.budget_fourchette}</span>}
+                        {d.nb_voyageurs && <span>👫 <strong>Voyageurs :</strong> {d.nb_voyageurs}</span>}
+                      </div>
+                      {d.notes && (
+                        <div style={{ marginTop: '.75rem', padding: '.75rem', background: '#faf8f5', borderRadius: '.5rem', fontSize: '.85rem', color: '#666', borderLeft: '3px solid #d4a88a' }}>💬 {d.notes}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+          </div>
+        )}
 
-            {loadingDemandes ? (
-              <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p>
-            ) : demandes.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '4rem', color: '#aaa' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✉️</div>
-                <p>Aucune demande pour le moment</p>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {demandes.map(d => (
-                  <div key={d.id} style={{ background: 'white', borderRadius: '.75rem', padding: '1.25rem 1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '.75rem', flexWrap: 'wrap', gap: '.5rem' }}>
+        {/* ── PARAMÈTRES ── */}
+        {tab === 'settings' && (
+          <div>
+            {loadingSettings ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p> : (
+              <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '1.5rem', alignItems: 'start' }}>
+
+                {/* Sidebar navigation */}
+                <div style={{ background: 'white', borderRadius: '1rem', padding: '1rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+                  <p style={{ fontSize: '.75rem', fontWeight: 700, color: '#aaa', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: '.75rem', padding: '0 .5rem' }}>Paramètres globaux</p>
+                  {SETTINGS_PAGES.map(g => (
+                    <button key={g} onClick={() => setSettingsPage(g)}
+                      style={{ display: 'block', width: '100%', textAlign: 'left', padding: '.6rem .75rem', borderRadius: '.5rem', border: 'none', cursor: 'pointer', fontSize: '.88rem', fontWeight: settingsPage === g ? 700 : 400, background: settingsPage === g ? '#f0e8e4' : 'transparent', color: settingsPage === g ? '#6b2a1a' : '#555', marginBottom: '.2rem' }}
+                    >{SETTINGS_GROUP_LABELS[g]}</button>
+                  ))}
+                  <p style={{ fontSize: '.75rem', fontWeight: 700, color: '#aaa', textTransform: 'uppercase', letterSpacing: '.08em', margin: '1rem 0 .75rem', padding: '0 .5rem' }}>Contenu des pages</p>
+                  {CONTENT_PAGES.map(p => (
+                    <button key={p} onClick={() => setSettingsPage(`page__${p}`)}
+                      style={{ display: 'block', width: '100%', textAlign: 'left', padding: '.6rem .75rem', borderRadius: '.5rem', border: 'none', cursor: 'pointer', fontSize: '.88rem', fontWeight: settingsPage === `page__${p}` ? 700 : 400, background: settingsPage === `page__${p}` ? '#f0e8e4' : 'transparent', color: settingsPage === `page__${p}` ? '#6b2a1a' : '#555', marginBottom: '.2rem' }}
+                    >{CONTENT_PAGE_LABELS[p]}</button>
+                  ))}
+                </div>
+
+                {/* Panel principal */}
+                <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+
+                  {/* Paramètres globaux */}
+                  {!settingsPage.startsWith('page__') && (() => {
+                    const groupItems = settings.filter(s => s.group_name === settingsPage);
+                    return (
                       <div>
-                        <div style={{ fontWeight: 700, fontSize: '1rem', color: '#1a1a1a' }}>{d.prenom} {d.nom}</div>
-                        <div style={{ fontSize: '.85rem', color: '#888' }}>{d.email} {d.telephone && `· ${d.telephone}`}</div>
+                        <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>{SETTINGS_GROUP_LABELS[settingsPage]}</h2>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+                          {groupItems.map(s => (
+                            <div key={s.key}>
+                              <label style={lbl}>{s.label}</label>
+                              <input value={editedSettings[s.key] || ''}
+                                onChange={e => setEditedSettings(prev => ({ ...prev, [s.key]: e.target.value }))}
+                                style={inp} placeholder={s.label} />
+                            </div>
+                          ))}
+                        </div>
+                        <button onClick={saveSettings} disabled={savingSettings}
+                          style={{ marginTop: '1.75rem', padding: '.7rem 2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '.9rem', opacity: savingSettings ? .7 : 1 }}
+                        >{savingSettings ? '⏳ Sauvegarde…' : '💾 Sauvegarder'}</button>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
-                        <span style={{ fontSize: '.75rem', color: '#aaa' }}>{fmt(d.created_at)}</span>
-                        <select
-                          value={d.statut || 'nouvelle'}
-                          onChange={e => updateStatut(d.id, e.target.value)}
-                          style={{ padding: '.3rem .7rem', border: '1.5px solid #ddd', borderRadius: '.4rem', fontSize: '.82rem', cursor: 'pointer' }}
-                        >
-                          <option value="nouvelle">🆕 Nouvelle</option>
-                          <option value="en_cours">🔄 En cours</option>
-                          <option value="devis_envoye">📨 Devis envoyé</option>
-                          <option value="accepte">✅ Acceptée</option>
-                          <option value="terminee">🏁 Terminée</option>
-                          <option value="annulee">❌ Annulée</option>
-                        </select>
+                    );
+                  })()}
+
+                  {/* Contenu de page */}
+                  {settingsPage.startsWith('page__') && (() => {
+                    const pageName = settingsPage.replace('page__', '');
+                    const pageItems = siteContent.filter(c => c.page === pageName);
+                    return (
+                      <div>
+                        <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>{CONTENT_PAGE_LABELS[pageName]}</h2>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+                          {pageItems.map(c => {
+                            const key = `${c.page}__${c.block_key}`;
+                            return (
+                              <div key={key}>
+                                <label style={lbl}>{c.label}</label>
+                                {c.type === 'textarea' ? (
+                                  <textarea value={editedContent[key] || ''}
+                                    onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))}
+                                    style={{ ...inp, height: 100, resize: 'vertical' }} />
+                                ) : (
+                                  <input value={editedContent[key] || ''}
+                                    onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))}
+                                    style={inp} />
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <button onClick={() => saveContent(pageName)} disabled={savingSettings}
+                          style={{ marginTop: '1.75rem', padding: '.7rem 2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '.9rem', opacity: savingSettings ? .7 : 1 }}
+                        >{savingSettings ? '⏳ Sauvegarde…' : '💾 Sauvegarder la page'}</button>
                       </div>
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '.5rem .75rem', fontSize: '.85rem', color: '#555' }}>
-                      {d.destination && <span>📍 <strong>Destination :</strong> {d.destination}</span>}
-                      {d.style_voyage && <span>🌿 <strong>Style :</strong> {d.style_voyage}</span>}
-                      {d.duree_jours && <span>📅 <strong>Durée :</strong> {d.duree_jours} jours</span>}
-                      {d.mois_depart && <span>🗓 <strong>Départ :</strong> {d.mois_depart}</span>}
-                      {d.budget_fourchette && <span>💶 <strong>Budget :</strong> {d.budget_fourchette}</span>}
-                      {d.nb_voyageurs && <span>👫 <strong>Voyageurs :</strong> {d.nb_voyageurs}</span>}
-                    </div>
-                    {d.notes && (
-                      <div style={{ marginTop: '.75rem', padding: '.75rem', background: '#faf8f5', borderRadius: '.5rem', fontSize: '.85rem', color: '#666', borderLeft: '3px solid #d4a88a' }}>
-                        💬 {d.notes}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                    );
+                  })()}
+
+                </div>
               </div>
             )}
           </div>
         )}
+
       </div>
     </div>
   );
 }
 
-// ─── Styles inline ────────────────────────────────────────────
 const lbl: React.CSSProperties = {
-  display: 'block', fontWeight: 600, fontSize: '.85rem',
-  color: '#555', marginBottom: '.35rem',
+  display: 'block', fontWeight: 600, fontSize: '.85rem', color: '#555', marginBottom: '.35rem',
 };
 const inp: React.CSSProperties = {
   width: '100%', padding: '.65rem .9rem',
   border: '1.5px solid #e0dbd5', borderRadius: '.5rem',
-  fontSize: '.9rem', outline: 'none', background: '#faf9f7',
-  color: '#1a1a1a',
+  fontSize: '.9rem', outline: 'none', background: '#faf9f7', color: '#1a1a1a',
 };
