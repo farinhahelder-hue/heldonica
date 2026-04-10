@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import MediaLibrary from '@/components/MediaLibrary';
+import { sanitizeHtml } from '@/lib/sanitize-html';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
 
@@ -27,6 +28,33 @@ type SiteContent = { id: number; page: string; block_key: string; value: string;
 const fmt = (d: string) => d ? new Date(d).toLocaleDateString('fr-FR') : '—';
 const slug = (t: string) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+function normalizeArticleDraft(article: Partial<Article> | null | undefined) {
+  return {
+    id: article?.id ?? null,
+    title: article?.title ?? '',
+    slug: article?.slug ?? '',
+    category: article?.category ?? '',
+    excerpt: article?.excerpt ?? '',
+    featured_image: article?.featured_image ?? '',
+    content: article?.content ?? '',
+    published: Boolean(article?.published),
+  };
+}
+
+function getArticleDraftSignature(article: Partial<Article> | null | undefined) {
+  return JSON.stringify(normalizeArticleDraft(article));
+}
+
+function getWordCount(content?: string) {
+  if (!content) return 0;
+  return content.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
+}
+
+function getReadTimeMinutes(content?: string) {
+  const words = getWordCount(content);
+  return words === 0 ? 0 : Math.max(1, Math.ceil(words / 200));
+}
 
 // ─── Config pages CMS ─────────────────────────────────────────
 const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { key: string; label: string; type: 'text' | 'textarea' }[] }> = {
@@ -111,6 +139,7 @@ const SETTINGS_GROUPS: Record<string, { label: string; emoji: string }> = {
 
 // ─── Composant principal ──────────────────────────────────────
 export default function CMSAdmin() {
+  const [checkingSession, setCheckingSession] = useState(true);
   const [authed, setAuthed] = useState(false);
   const [pwd, setPwd] = useState('');
   const [authErr, setAuthErr] = useState('');
@@ -124,10 +153,15 @@ export default function CMSAdmin() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [editingArticle, setEditingArticle] = useState<Partial<Article> | null>(null);
   const [loadingArticles, setLoadingArticles] = useState(false);
+  const [savingArticle, setSavingArticle] = useState(false);
+  const [uploadingFeaturedImage, setUploadingFeaturedImage] = useState(false);
+  const [articleBaseline, setArticleBaseline] = useState(() => getArticleDraftSignature(null));
+  const [showArticlePreview, setShowArticlePreview] = useState(false);
 
   // Demandes travel
   const [demandes, setDemandes] = useState<Demande[]>([]);
   const [loadingDemandes, setLoadingDemandes] = useState(false);
+  const [updatingDemandeId, setUpdatingDemandeId] = useState<string | null>(null);
 
   // Paramètres + Contenu pages
   const [settings, setSettings] = useState<Setting[]>([]);
@@ -138,61 +172,198 @@ export default function CMSAdmin() {
   const [editedSettings, setEditedSettings] = useState<Record<string, string>>({});
   const [editedContent, setEditedContent] = useState<Record<string, string>>({});
   const [savingSettings, setSavingSettings] = useState(false);
+  const [authLoading, setAuthLoading] = useState(false);
 
-  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 3500); };
+  const isArticleDirty = getArticleDraftSignature(editingArticle) !== articleBaseline;
+  const articleWordCount = getWordCount(editingArticle?.content);
+  const articleReadTime = getReadTimeMinutes(editingArticle?.content);
+  const articlePreviewHtml = sanitizeHtml(editingArticle?.content);
+
+  const showToast = useCallback((msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 3500);
+  }, []);
+  const handleUnauthorized = useCallback((res: Response, message = 'Session expirée. Merci de vous reconnecter.') => {
+    if (res.status !== 401) return false;
+    setAuthed(false);
+    setPwd('');
+    setAuthErr(message);
+    showToast(message);
+    return true;
+  }, [showToast]);
+
+  const resetArticleEditor = useCallback((nextTab = 'articles') => {
+    setEditingArticle(null);
+    setArticleBaseline(getArticleDraftSignature(null));
+    setShowArticlePreview(false);
+    setTab(nextTab);
+  }, []);
+
+  const confirmDiscardArticleChanges = useCallback(() => {
+    if (!isArticleDirty) return true;
+    return confirm('Tu as des modifications non sauvegardÃ©es. Les quitter ?');
+  }, [isArticleDirty]);
+
+  const openArticleEditor = useCallback((article?: Partial<Article>) => {
+    if ((editingArticle || tab === 'new') && !confirmDiscardArticleChanges()) return;
+    const draft = article ? { ...article } : {};
+    setEditingArticle(draft);
+    setArticleBaseline(getArticleDraftSignature(draft));
+    setShowArticlePreview(false);
+    setTab('new');
+  }, [confirmDiscardArticleChanges, editingArticle, tab]);
+
+  const closeArticleEditor = useCallback(() => {
+    if (!confirmDiscardArticleChanges()) return false;
+    resetArticleEditor();
+    return true;
+  }, [confirmDiscardArticleChanges, resetArticleEditor]);
+
+  const handleTabChange = useCallback((nextTab: string) => {
+    if (nextTab === 'new') {
+      openArticleEditor({});
+      return;
+    }
+
+    if (tab === 'new' && nextTab !== 'new' && !confirmDiscardArticleChanges()) {
+      return;
+    }
+
+    setTab(nextTab);
+  }, [confirmDiscardArticleChanges, openArticleEditor, tab]);
+
+  useEffect(() => {
+    let active = true;
+
+    const checkSession = async () => {
+      try {
+        const res = await fetch('/api/cms/auth');
+        if (!active) return;
+        setAuthed(res.ok);
+      } catch {
+        if (!active) return;
+        setAuthed(false);
+      } finally {
+        if (active) setCheckingSession(false);
+      }
+    };
+
+    checkSession();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   // Auth
   const login = async () => {
+    if (authLoading) return;
     setAuthErr('');
-    const res = await fetch('/api/cms/auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password: pwd }),
-    });
-    if (res.ok) { setAuthed(true); }
-    else { setAuthErr('Mot de passe incorrect'); }
+    setAuthLoading(true);
+    try {
+      const res = await fetch('/api/cms/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pwd }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setAuthed(true);
+        setPwd('');
+      } else {
+        setAuthErr(data.error || 'Mot de passe incorrect');
+      }
+    } catch {
+      setAuthErr('Impossible de contacter le CMS pour le moment.');
+    } finally {
+      setAuthLoading(false);
+    }
   };
+
+  const logout = async () => {
+    await fetch('/api/cms/auth', { method: 'DELETE' }).catch(() => {});
+    setAuthed(false);
+    setPwd('');
+    setAuthErr('');
+    setShowMediaLibrary(false);
+    resetArticleEditor();
+  };
+
+  useEffect(() => {
+    if (checkingSession || authed) return;
+    fetch('/api/cms/auth', { method: 'DELETE' }).catch(() => {});
+  }, [authed, checkingSession]);
+
+  useEffect(() => {
+    if (!isArticleDirty) return;
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isArticleDirty]);
 
   // Load articles
   const loadArticles = useCallback(async () => {
     setLoadingArticles(true);
-    const params = new URLSearchParams();
-    if (search) params.set('search', search);
-    if (statusFilter !== 'all') params.set('status', statusFilter);
-    const res = await fetch(`/api/cms/articles?${params}`);
-    const data = await res.json();
-    setArticles(data.articles || []);
-    setLoadingArticles(false);
-  }, [search, statusFilter]);
+    try {
+      const params = new URLSearchParams();
+      if (search) params.set('search', search);
+      if (statusFilter !== 'all') params.set('status', statusFilter);
+      const res = await fetch(`/api/cms/articles?${params}`);
+      if (handleUnauthorized(res)) return;
+      const data = await res.json();
+      setArticles(data.articles || []);
+    } catch {
+      showToast('Impossible de charger les articles.');
+    } finally {
+      setLoadingArticles(false);
+    }
+  }, [handleUnauthorized, search, showToast, statusFilter]);
 
   // Load demandes
   const loadDemandes = useCallback(async () => {
     setLoadingDemandes(true);
-    const res = await fetch('/api/cms/demandes-travel');
-    const data = await res.json();
-    setDemandes(data.demandes || []);
-    setLoadingDemandes(false);
-  }, []);
+    try {
+      const res = await fetch('/api/cms/demandes-travel');
+      if (handleUnauthorized(res)) return;
+      const data = await res.json();
+      setDemandes(data.demandes || []);
+    } catch {
+      showToast('Impossible de charger les demandes travel.');
+    } finally {
+      setLoadingDemandes(false);
+    }
+  }, [handleUnauthorized, showToast]);
 
   // Load settings + content
   const loadSettings = useCallback(async () => {
     setLoadingSettings(true);
-    const [sRes, cRes] = await Promise.all([
-      fetch('/api/cms/settings'),
-      fetch('/api/cms/content'),
-    ]);
-    const sData = await sRes.json();
-    const cData = await cRes.json();
-    setSettings(sData.settings || []);
-    setSiteContent(cData.content || []);
-    const initS: Record<string, string> = {};
-    (sData.settings || []).forEach((s: Setting) => { initS[s.key] = s.value || ''; });
-    const initC: Record<string, string> = {};
-    (cData.content || []).forEach((c: SiteContent) => { initC[`${c.page}__${c.block_key}`] = c.value || ''; });
-    setEditedSettings(initS);
-    setEditedContent(initC);
-    setLoadingSettings(false);
-  }, []);
+    try {
+      const [sRes, cRes] = await Promise.all([
+        fetch('/api/cms/settings'),
+        fetch('/api/cms/content'),
+      ]);
+      if (handleUnauthorized(sRes) || handleUnauthorized(cRes)) return;
+      const sData = await sRes.json();
+      const cData = await cRes.json();
+      setSettings(sData.settings || []);
+      setSiteContent(cData.content || []);
+      const initS: Record<string, string> = {};
+      (sData.settings || []).forEach((s: Setting) => { initS[s.key] = s.value || ''; });
+      const initC: Record<string, string> = {};
+      (cData.content || []).forEach((c: SiteContent) => { initC[`${c.page}__${c.block_key}`] = c.value || ''; });
+      setEditedSettings(initS);
+      setEditedContent(initC);
+    } catch {
+      showToast('Impossible de charger les contenus du CMS.');
+    } finally {
+      setLoadingSettings(false);
+    }
+  }, [handleUnauthorized, showToast]);
 
   useEffect(() => { if (authed) loadArticles(); }, [authed, loadArticles]);
   useEffect(() => { if (authed && tab === 'demandes') loadDemandes(); }, [authed, tab, loadDemandes]);
@@ -201,21 +372,33 @@ export default function CMSAdmin() {
   // Save settings
   const saveSettings = async () => {
     setSavingSettings(true);
-    const promises: Promise<Response>[] = [];
-    settings.forEach(s => {
-      const newVal = editedSettings[s.key];
-      if (newVal !== undefined && newVal !== s.value) {
-        promises.push(fetch('/api/cms/settings', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', 'x-cms-auth': pwd },
-          body: JSON.stringify({ key: s.key, value: newVal }),
-        }));
+    try {
+      const promises: Promise<Response>[] = [];
+      settings.forEach(s => {
+        const newVal = editedSettings[s.key];
+        if (newVal !== undefined && newVal !== s.value) {
+          promises.push(fetch('/api/cms/settings', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key: s.key, value: newVal }),
+          }));
+        }
+      });
+
+      if (promises.length === 0) {
+        showToast('Aucune modification à enregistrer.');
+        return;
       }
-    });
-    await Promise.all(promises);
-    setSavingSettings(false);
-    showToast('✅ Paramètres sauvegardés !');
-    loadSettings();
+
+      const responses = await Promise.all(promises);
+      if (responses.some(res => handleUnauthorized(res))) return;
+      showToast('✅ Paramètres sauvegardés !');
+      loadSettings();
+    } catch {
+      showToast('Impossible de sauvegarder les paramètres.');
+    } finally {
+      setSavingSettings(false);
+    }
   };
 
   // Save content pour une page donnée
@@ -224,28 +407,46 @@ export default function CMSAdmin() {
     const config = PAGES_CONFIG[pageKey];
     if (!config) { setSavingSettings(false); return; }
 
-    const promises: Promise<Response>[] = [];
-    config.sections.forEach(section => {
-      const key = `${pageKey}__${section.key}`;
-      const newVal = editedContent[key] ?? '';
-      const existing = siteContent.find(c => c.page === pageKey && c.block_key === section.key);
-      if (!existing || newVal !== existing.value) {
-        promises.push(fetch('/api/cms/content', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', 'x-cms-auth': pwd },
-          body: JSON.stringify({ page: pageKey, block_key: section.key, value: newVal }),
-        }));
+    try {
+      const promises: Promise<Response>[] = [];
+      config.sections.forEach(section => {
+        const key = `${pageKey}__${section.key}`;
+        const newVal = editedContent[key] ?? '';
+        const existing = siteContent.find(c => c.page === pageKey && c.block_key === section.key);
+        if (!existing || newVal !== existing.value) {
+          promises.push(fetch('/api/cms/content', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ page: pageKey, block_key: section.key, value: newVal }),
+          }));
+        }
+      });
+
+      if (promises.length === 0) {
+        showToast('Aucune modification à enregistrer sur cette page.');
+        return;
       }
-    });
-    await Promise.all(promises);
-    setSavingSettings(false);
-    showToast(`✅ Page "${config.label}" sauvegardée !`);
-    loadSettings();
+
+      const responses = await Promise.all(promises);
+      if (responses.some(res => handleUnauthorized(res))) return;
+      showToast(`✅ Page "${config.label}" sauvegardée !`);
+      loadSettings();
+    } catch {
+      showToast('Impossible de sauvegarder cette page.');
+    } finally {
+      setSavingSettings(false);
+    }
   };
 
   // Save article
-  const saveArticle = async () => {
+  const saveArticle = useCallback(async () => {
     if (!editingArticle) return;
+    if (savingArticle) return;
+    if (!editingArticle.title?.trim()) {
+      showToast('Le titre est obligatoire avant d’enregistrer.');
+      return;
+    }
+
     const isNew = !editingArticle.id;
     const payload = {
       ...editingArticle,
@@ -255,70 +456,127 @@ export default function CMSAdmin() {
     };
     const url = isNew ? '/api/cms/articles' : `/api/cms/articles/${editingArticle.id}`;
     const method = isNew ? 'POST' : 'PUT';
-    const res = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    if (res.ok) {
-      showToast(isNew ? '✅ Article créé !' : '✅ Article mis à jour !');
-      setEditingArticle(null);
-      setTab('articles');
-      loadArticles();
-    } else {
-      const d = await res.json();
-      showToast(`❌ Erreur : ${d.error}`);
+    setSavingArticle(true);
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (handleUnauthorized(res)) return;
+      if (res.ok) {
+        showToast(isNew ? '✅ Article créé !' : '✅ Article mis à jour !');
+        setArticleBaseline(getArticleDraftSignature(payload));
+        resetArticleEditor();
+        loadArticles();
+      } else {
+        const d = await res.json();
+        showToast(`❌ Erreur : ${d.error}`);
+      }
+    } catch {
+      showToast('Impossible de sauvegarder cet article.');
+    } finally {
+      setSavingArticle(false);
     }
-  };
+  }, [editingArticle, handleUnauthorized, loadArticles, resetArticleEditor, savingArticle, showToast]);
+
+  useEffect(() => {
+    if (tab !== 'new') return;
+
+    const handleSaveShortcut = (event: KeyboardEvent) => {
+      if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 's') return;
+      event.preventDefault();
+      void saveArticle();
+    };
+
+    window.addEventListener('keydown', handleSaveShortcut);
+    return () => window.removeEventListener('keydown', handleSaveShortcut);
+  }, [saveArticle, tab]);
 
   const togglePublish = async (a: Article) => {
-    const res = await fetch(`/api/cms/articles/${a.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        published: !a.published,
-        published_at: !a.published ? new Date().toISOString() : a.published_at,
-      }),
-    });
-    if (res.ok) { showToast(!a.published ? '✅ Publié !' : '📦 Repassé en brouillon'); loadArticles(); }
+    try {
+      const res = await fetch(`/api/cms/articles/${a.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          published: !a.published,
+          published_at: !a.published ? new Date().toISOString() : a.published_at,
+        }),
+      });
+      if (handleUnauthorized(res)) return;
+      if (res.ok) { showToast(!a.published ? '✅ Publié !' : '📦 Repassé en brouillon'); loadArticles(); }
+    } catch {
+      showToast('Impossible de mettre à jour le statut de publication.');
+    }
   };
 
   const deleteArticle = async (id: number) => {
     if (!confirm('Supprimer cet article ?')) return;
-    const res = await fetch(`/api/cms/articles/${id}`, { method: 'DELETE' });
-    if (res.ok) { showToast('🗑️ Article supprimé'); loadArticles(); }
+    try {
+      const res = await fetch(`/api/cms/articles/${id}`, { method: 'DELETE' });
+      if (handleUnauthorized(res)) return;
+      if (res.ok) { showToast('🗑️ Article supprimé'); loadArticles(); }
+    } catch {
+      showToast('Impossible de supprimer cet article.');
+    }
   };
 
   const uploadFeaturedImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setUploadingFeaturedImage(true);
     const fd = new FormData();
     fd.append('file', file);
     fd.append('folder', 'articles');
-    const res = await fetch('/api/cms/media-upload', {
-      method: 'POST',
-      headers: { 'x-cms-auth': pwd },
-      body: fd,
-    });
-    const data = await res.json();
-    if (data.url) {
-      setEditingArticle(prev => prev ? { ...prev, featured_image: data.url } : prev);
-      showToast('✅ Image uploadée sur Supabase !');
-    } else {
-      showToast(`❌ Upload échoué : ${data.error}`);
+    try {
+      const res = await fetch('/api/cms/media-upload', {
+        method: 'POST',
+        body: fd,
+      });
+      if (handleUnauthorized(res)) return;
+      const data = await res.json();
+      if (data.url) {
+        setEditingArticle(prev => prev ? { ...prev, featured_image: data.url } : prev);
+        showToast('✅ Image uploadée sur Supabase !');
+      } else {
+        showToast(`❌ Upload échoué : ${data.error}`);
+      }
+    } catch {
+      showToast('Impossible d’envoyer cette image.');
+    } finally {
+      setUploadingFeaturedImage(false);
+      e.target.value = '';
     }
   };
 
   const updateStatut = async (id: string, statut: string) => {
-    const res = await fetch('/api/cms/demandes-travel', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, statut }),
-    });
-    if (res.ok) { showToast('✅ Statut mis à jour'); loadDemandes(); }
+    setUpdatingDemandeId(id);
+    try {
+      const res = await fetch('/api/cms/demandes-travel', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, statut }),
+      });
+      if (handleUnauthorized(res)) return;
+      if (res.ok) { showToast('✅ Statut mis à jour'); loadDemandes(); }
+    } catch {
+      showToast('Impossible de mettre à jour cette demande.');
+    } finally {
+      setUpdatingDemandeId(null);
+    }
   };
 
   // ─── Login ────────────────────────────────────────────────
+  if (checkingSession) return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f3ef' }}>
+      <div style={{ background: 'white', padding: '2.5rem', borderRadius: '1rem', boxShadow: '0 8px 32px rgba(0,0,0,.1)', width: '100%', maxWidth: 380, textAlign: 'center' }}>
+        <div style={{ fontSize: '2.5rem', marginBottom: '.5rem' }}>...</div>
+        <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#6b2a1a' }}>Heldonica CMS</h1>
+        <p style={{ color: '#888', fontSize: '.9rem' }}>Verification de la session...</p>
+      </div>
+    </div>
+  );
+
   if (!authed) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f3ef' }}>
       <div style={{ background: 'white', padding: '2.5rem', borderRadius: '1rem', boxShadow: '0 8px 32px rgba(0,0,0,.1)', width: '100%', maxWidth: 380 }}>
@@ -333,9 +591,9 @@ export default function CMSAdmin() {
           style={{ width: '100%', padding: '.75rem 1rem', border: '1.5px solid #ddd', borderRadius: '.5rem', fontSize: '1rem', marginBottom: '.75rem', outline: 'none' }}
         />
         {authErr && <p style={{ color: '#c0392b', fontSize: '.85rem', marginBottom: '.75rem' }}>{authErr}</p>}
-        <button onClick={login}
-          style={{ width: '100%', padding: '.8rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, fontSize: '1rem', cursor: 'pointer' }}
-        >Entrer</button>
+        <button onClick={login} disabled={authLoading}
+          style={{ width: '100%', padding: '.8rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, fontSize: '1rem', cursor: authLoading ? 'wait' : 'pointer', opacity: authLoading ? .7 : 1 }}
+        >{authLoading ? 'Connexion…' : 'Entrer'}</button>
       </div>
     </div>
   );
@@ -359,7 +617,7 @@ export default function CMSAdmin() {
           <span style={{ fontWeight: 700, fontSize: '1.1rem', letterSpacing: '.03em' }}>Heldonica CMS</span>
           <span style={{ background: 'rgba(255,255,255,.18)', fontSize: '.72rem', padding: '.2rem .6rem', borderRadius: '9999px', fontWeight: 600 }}>Supabase</span>
         </div>
-        <button onClick={() => setAuthed(false)} style={{ background: 'rgba(255,255,255,.15)', border: 'none', color: 'white', padding: '.4rem .9rem', borderRadius: '.4rem', cursor: 'pointer', fontSize: '.85rem' }}>Déconnexion</button>
+        <button onClick={logout} style={{ background: 'rgba(255,255,255,.15)', border: 'none', color: 'white', padding: '.4rem .9rem', borderRadius: '.4rem', cursor: 'pointer', fontSize: '.85rem' }}>Déconnexion</button>
       </div>
 
       {toast && (
@@ -367,7 +625,7 @@ export default function CMSAdmin() {
       )}
 
       {showMediaLibrary && (
-        <MediaLibrary cmsPassword={pwd} onClose={() => setShowMediaLibrary(false)}
+        <MediaLibrary onClose={() => setShowMediaLibrary(false)}
           onSelect={(url) => {
             setEditingArticle(prev => prev ? { ...prev, featured_image: url } : prev);
             showToast('✅ Image sélectionnée depuis la médiathèque !');
@@ -379,7 +637,7 @@ export default function CMSAdmin() {
       <div style={{ background: 'white', borderBottom: '1.5px solid #e8e3dc', padding: '0 2rem', display: 'flex', gap: '.25rem', overflowX: 'auto' }}>
         {TABS.map(t => (
           <button key={t.id}
-            onClick={() => { setTab(t.id); if (t.id === 'new') setEditingArticle({}); }}
+            onClick={() => handleTabChange(t.id)}
             style={{
               padding: '.85rem 1.2rem', border: 'none', background: 'none', cursor: 'pointer',
               fontWeight: tab === t.id ? 700 : 400,
@@ -415,7 +673,7 @@ export default function CMSAdmin() {
                 <option value="draft">Brouillons</option>
               </select>
               <button onClick={loadArticles} style={{ padding: '.6rem 1.2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>🔍</button>
-              <button onClick={() => { setEditingArticle({}); setTab('new'); }} style={{ padding: '.6rem 1.2rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>+ Nouvel article</button>
+              <button onClick={() => openArticleEditor({})} style={{ padding: '.6rem 1.2rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>+ Nouvel article</button>
             </div>
             {loadingArticles ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p>
               : articles.length === 0 ? (
@@ -439,7 +697,7 @@ export default function CMSAdmin() {
                         {a.published ? '✅ Publié' : '📦 Brouillon'}
                       </span>
                       <div style={{ display: 'flex', gap: '.5rem' }}>
-                        <button onClick={() => { setEditingArticle(a); setTab('new'); }} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>✏️ Éditer</button>
+                        <button onClick={() => openArticleEditor(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>✏️ Éditer</button>
                         <button onClick={() => togglePublish(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>{a.published ? '📦 Dépublier' : '🚀 Publier'}</button>
                         <button onClick={() => deleteArticle(a.id)} style={{ padding: '.35rem .8rem', border: '1px solid #fcc', borderRadius: '.4rem', background: '#fff5f5', color: '#c0392b', cursor: 'pointer', fontSize: '.82rem' }}>🗑️</button>
                       </div>
@@ -455,9 +713,17 @@ export default function CMSAdmin() {
           <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 2px 12px rgba(0,0,0,.07)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.75rem' }}>
               <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>{editingArticle?.id ? `✏️ Modifier : ${editingArticle.title}` : '✏️ Nouvel article'}</h2>
-              <button onClick={() => setTab('articles')} style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: '1.3rem' }}>✕</button>
+              <button onClick={closeArticleEditor} style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: '1.3rem' }}>✕</button>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+              <button
+                onClick={() => setShowArticlePreview(prev => !prev)}
+                style={{ padding: '.5rem .95rem', border: '1px solid #ddd', borderRadius: '.5rem', background: 'white', color: '#6b2a1a', cursor: 'pointer', fontSize: '.82rem', fontWeight: 700 }}
+              >
+                {showArticlePreview ? "Masquer l'aperçu" : 'Aperçu live'}
+              </button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
               <div style={{ gridColumn: '1/-1' }}>
                 <label style={lbl}>Titre *</label>
                 <input value={editingArticle?.title || ''}
@@ -493,9 +759,9 @@ export default function CMSAdmin() {
                     style={{ padding: '.6rem 1.1rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.85rem', fontWeight: 600 }}
                   >🖼️ Médiathèque Supabase</button>
                   <span style={{ color: '#aaa', fontSize: '.82rem' }}>ou</span>
-                  <label style={{ padding: '.6rem 1rem', background: '#01696f', color: 'white', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.85rem', fontWeight: 600 }}>
-                    ⬆️ Upload direct
-                    <input type="file" accept="image/*" onChange={uploadFeaturedImage} style={{ display: 'none' }} />
+                  <label style={{ padding: '.6rem 1rem', background: uploadingFeaturedImage ? '#8aa8a9' : '#01696f', color: 'white', borderRadius: '.5rem', cursor: uploadingFeaturedImage ? 'wait' : 'pointer', fontSize: '.85rem', fontWeight: 600 }}>
+                    {uploadingFeaturedImage ? '⏳ Upload…' : '⬆️ Upload direct'}
+                    <input type="file" accept="image/*" onChange={uploadFeaturedImage} style={{ display: 'none' }} disabled={uploadingFeaturedImage} />
                   </label>
                 </div>
                 {editingArticle?.featured_image ? (
@@ -526,7 +792,7 @@ export default function CMSAdmin() {
                 <label style={lbl}>Contenu</label>
                 <RichEditor value={editingArticle?.content || ''}
                   onChange={html => setEditingArticle(p => ({ ...p, content: html }))}
-                  cmsPassword={pwd} placeholder="Commence à écrire ton article ici…" />
+                  placeholder="Commence à écrire ton article ici…" />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '.5rem', cursor: 'pointer', fontWeight: 600, color: '#444', fontSize: '.9rem' }}>
@@ -536,12 +802,55 @@ export default function CMSAdmin() {
                   Publier immédiatement
                 </label>
               </div>
+              <div style={{ gridColumn: '1/-1', display: 'flex', gap: '.6rem', flexWrap: 'wrap' }}>
+                <span style={metaChip}>URL: /blog/{editingArticle?.slug || slug(editingArticle?.title || '') || 'nouvel-article'}</span>
+                <span style={metaChip}>{articleWordCount} mots</span>
+                <span style={metaChip}>{articleReadTime} min de lecture</span>
+                <span style={metaChip}>Cmd/Ctrl+S pour enregistrer</span>
+                {isArticleDirty && <span style={{ ...metaChip, background: '#fff4db', color: '#8a5a00' }}>Brouillon non sauvegardé</span>}
+              </div>
             </div>
+            {showArticlePreview && (
+              <div style={previewPanel}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
+                  <div>
+                    <p style={{ margin: 0, fontSize: '.78rem', color: '#8a7a70', textTransform: 'uppercase', letterSpacing: '.08em', fontWeight: 700 }}>Preview</p>
+                    <h3 style={{ margin: '.2rem 0 0', fontSize: '1.1rem', color: '#6b2a1a' }}>Aperçu public de l&apos;article</h3>
+                  </div>
+                  <span style={{ ...metaChip, background: '#e8f5f2', color: '#01696f' }}>HTML sanitizé comme sur le site</span>
+                </div>
+                <div style={previewFrame}>
+                  {editingArticle?.featured_image ? (
+                    <img src={editingArticle.featured_image} alt="" style={{ width: '100%', maxHeight: 320, objectFit: 'cover', borderRadius: '.9rem', marginBottom: '1.5rem' }} />
+                  ) : (
+                    <div style={previewImageFallback}>Ajoute une image à la une pour prévisualiser le hero</div>
+                  )}
+                  <div style={{ display: 'flex', gap: '.6rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+                    {editingArticle?.category && <span style={metaChip}>{editingArticle.category}</span>}
+                    <span style={metaChip}>{editingArticle?.published ? 'Publication immédiate' : 'Brouillon'}</span>
+                    <span style={metaChip}>/blog/{editingArticle?.slug || slug(editingArticle?.title || '') || 'nouvel-article'}</span>
+                  </div>
+                  <h1 style={{ margin: 0, fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', lineHeight: 1.1, color: '#1f1a17' }}>
+                    {editingArticle?.title || 'Titre de l’article'}
+                  </h1>
+                  <p style={{ margin: '1rem 0 1.5rem', color: '#6d625a', fontSize: '1rem', lineHeight: 1.7 }}>
+                    {editingArticle?.excerpt || 'Ton extrait apparaîtra ici pour donner envie d’ouvrir l’article.'}
+                  </p>
+                  {articlePreviewHtml ? (
+                    <div style={previewBody} dangerouslySetInnerHTML={{ __html: articlePreviewHtml }} />
+                  ) : (
+                    <p style={{ margin: 0, color: '#8a7a70', lineHeight: 1.7 }}>
+                      Commence à écrire dans l’éditeur pour voir le rendu du contenu ici.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1.75rem', justifyContent: 'flex-end' }}>
-              <button onClick={() => setTab('articles')}
+              <button onClick={closeArticleEditor}
                 style={{ padding: '.7rem 1.5rem', border: '1.5px solid #ddd', borderRadius: '.5rem', background: 'white', cursor: 'pointer', fontSize: '.9rem' }}>Annuler</button>
-              <button onClick={saveArticle}
-                style={{ padding: '.7rem 2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '.9rem' }}>💾 Enregistrer</button>
+              <button onClick={saveArticle} disabled={savingArticle}
+                style={{ padding: '.7rem 2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: savingArticle ? 'wait' : 'pointer', fontSize: '.9rem', opacity: savingArticle ? .75 : 1 }}>{savingArticle ? '⏳ Enregistrement…' : '💾 Enregistrer'}</button>
             </div>
           </div>
         )}
@@ -650,7 +959,7 @@ export default function CMSAdmin() {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>✈️ Demandes Travel Planning</h2>
-              <button onClick={loadDemandes} style={{ padding: '.5rem 1rem', background: 'white', border: '1.5px solid #ddd', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.85rem' }}>🔄 Actualiser</button>
+              <button onClick={loadDemandes} disabled={loadingDemandes} style={{ padding: '.5rem 1rem', background: 'white', border: '1.5px solid #ddd', borderRadius: '.5rem', cursor: loadingDemandes ? 'wait' : 'pointer', fontSize: '.85rem', opacity: loadingDemandes ? .7 : 1 }}>{loadingDemandes ? '⏳ Actualisation…' : '🔄 Actualiser'}</button>
             </div>
             {loadingDemandes ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p>
               : demandes.length === 0 ? (
@@ -669,8 +978,8 @@ export default function CMSAdmin() {
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
                           <span style={{ fontSize: '.75rem', color: '#aaa' }}>{fmt(d.created_at)}</span>
-                          <select value={d.statut || 'nouvelle'} onChange={e => updateStatut(d.id, e.target.value)}
-                            style={{ padding: '.3rem .7rem', border: '1.5px solid #ddd', borderRadius: '.4rem', fontSize: '.82rem', cursor: 'pointer' }}
+                          <select value={d.statut || 'nouvelle'} onChange={e => updateStatut(d.id, e.target.value)} disabled={updatingDemandeId === d.id}
+                            style={{ padding: '.3rem .7rem', border: '1.5px solid #ddd', borderRadius: '.4rem', fontSize: '.82rem', cursor: updatingDemandeId === d.id ? 'wait' : 'pointer', opacity: updatingDemandeId === d.id ? .7 : 1 }}
                           >
                             <option value="nouvelle">🆕 Nouvelle</option>
                             <option value="en_cours">🔄 En cours</option>
@@ -764,4 +1073,43 @@ const inp: React.CSSProperties = {
   width: '100%', padding: '.65rem .9rem',
   border: '1.5px solid #e0dbd5', borderRadius: '.5rem',
   fontSize: '.9rem', outline: 'none', background: '#faf9f7', color: '#1a1a1a',
+};
+const metaChip: React.CSSProperties = {
+  padding: '.35rem .65rem',
+  borderRadius: '9999px',
+  background: '#f0e8e4',
+  color: '#6b2a1a',
+  fontSize: '.76rem',
+  fontWeight: 600,
+};
+const previewPanel: React.CSSProperties = {
+  marginTop: '1.75rem',
+  padding: '1.25rem',
+  borderRadius: '1rem',
+  background: '#f8f4ef',
+  border: '1px solid #ece3d8',
+};
+const previewFrame: React.CSSProperties = {
+  background: 'white',
+  borderRadius: '1rem',
+  padding: '1.5rem',
+  boxShadow: '0 1px 4px rgba(0,0,0,.05)',
+};
+const previewImageFallback: React.CSSProperties = {
+  minHeight: 220,
+  marginBottom: '1.5rem',
+  borderRadius: '.9rem',
+  background: 'linear-gradient(135deg, #f2e8dc 0%, #d9ebe6 100%)',
+  color: '#6d625a',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  textAlign: 'center',
+  padding: '1.5rem',
+  fontWeight: 600,
+};
+const previewBody: React.CSSProperties = {
+  color: '#302925',
+  lineHeight: 1.8,
+  fontSize: '1rem',
 };
