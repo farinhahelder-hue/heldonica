@@ -13,6 +13,7 @@
     "@supabase/supabase-js": "^2.39.0",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.0.0",
+    "isomorphic-dompurify": "^3.8.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.3.3",
     "next": "^14.2.35",
@@ -22,6 +23,7 @@
     "resend": "^6.10.0"
   },
   "devDependencies": {
+    "@types/dompurify": "^3.0.5",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20.10.0",
     "@types/react": "^18.2.0",

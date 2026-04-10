@@ -8,11 +8,12 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import NewsletterForm from '@/components/NewsletterForm';
 import ShareButtons from '@/components/ShareButtons';
+import { sanitizeHtml } from '@/lib/sanitize-html';
 
 export const revalidate = 60;
 
 const SITE_URL = 'https://heldonica.fr';
-const DEFAULT_OG = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200';
+const DEFAULT_OG = `${SITE_URL}/og-default.jpg`;
 
 interface Props {
   params: { slug: string };
@@ -162,6 +163,7 @@ export default async function BlogPostPage({ params }: Props) {
   const readTime = calcReadTime(post.content);
   const { articleLd, breadcrumbLd } = buildJsonLds(post, readTime);
   const canonicalUrl = `${SITE_URL}/blog/${post.slug}`;
+  const safeContent = sanitizeHtml(post.content);
 
   return (
     <>
@@ -241,7 +243,7 @@ export default async function BlogPostPage({ params }: Props) {
             </p>
           )}
 
-          {post.content ? (
+          {safeContent ? (
             <div
               className="prose prose-lg max-w-none
                 prose-headings:font-serif prose-headings:font-bold prose-headings:text-stone-900
@@ -254,7 +256,7 @@ export default async function BlogPostPage({ params }: Props) {
                 prose-blockquote:border-l-4 prose-blockquote:border-amber-400 prose-blockquote:bg-amber-50 prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:rounded-r-xl prose-blockquote:not-italic prose-blockquote:text-stone-700
                 prose-ul:space-y-2 prose-li:text-stone-700
                 prose-hr:border-stone-200"
-              dangerouslySetInnerHTML={{ __html: post.content }}
+              dangerouslySetInnerHTML={{ __html: safeContent }}
             />
           ) : (
             <div className="py-16 text-center">
