@@ -1,184 +1,233 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { searchUnsplash, type UnsplashPhoto } from '@/lib/unsplash';
-import { buildCarouselPrompt, type CarouselSlide } from '@/lib/perplexity-carousel';
+import { useState } from 'react';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
+import { searchUnsplash } from '@/lib/unsplash';
 
 interface CarouselEditorProps {
-  onComplete?: (slides: CarouselSlide[]) => void;
+  onComplete?: (carousel: any) => void;
 }
 
-// Instagram carousel dimensions (1080x1350 for 4:5 ratio)
-const SLIDE_WIDTH = 540;
-const SLIDE_HEIGHT = 675;
-
 export default function CarouselEditor({ onComplete }: CarouselEditorProps) {
-  const [topic, setTopic] = useState('');
+  const [rawText, setRawText] = useState('');
   const [title, setTitle] = useState('');
-  const [slides, setSlides] = useState<CarouselSlide[]>([]);
-  const [images, setImages] = useState<Record<number, string>>({});
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
-  const slideRefs = useRef<HTMLDivElement[]>([]);
+  const [slides, setSlides] = useState<{title: string, content: string}[]>([]);
+  const [images, setImages] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
 
-  // Generate content via Perplexity link
-  const handleGenerateContent = () => {
-    if (!topic.trim()) return;
-    const prompt = buildCarouselPrompt(topic, 5);
-    const encoded = encodeURIComponent(prompt);
-    window.open(`https://perplexity.ai/?q=${encoded}`, '_blank');
-  };
-
-  // Search images for each slide
-  const handleSearchImages = async () => {
-    if (slides.length === 0) return;
+  // Parse pasted text into slides
+  const handleParseText = () => {
+    if (!rawText.trim()) return;
     
-    setIsGenerating(true);
-    const newImages: Record<number, string> = {};
+    const lines = rawText.split('\n').filter(l => l.trim());
+    const newSlides: {title: string, content: string}[] = [];
+    let currentTitle = '';
+    let currentContent = '';
     
-    for (let i = 0; i < slides.length; i++) {
-      const slide = slides[i];
-      if (slide.content) {
-        // Extract keywords from content or use topic
-        const keyword = slide.content.split(' ').slice(0, 2).join(' ');
-        const results = await searchUnsplash(keyword || topic, 1);
-        if (results[0]) {
-          newImages[i] = results[0].urls.small;
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      // Check if line looks like a title (starts with number or short)
+      if (/^\d+[\.\)\-:]/.test(trimmed) || trimmed.length < 50) {
+        if (currentTitle && currentContent) {
+          newSlides.push({ title: currentTitle, content: currentContent });
+        }
+        currentTitle = trimmed.replace(/^\d+[\.\)\-:]\s*/, '');
+        currentContent = '';
+      } else {
+        currentContent += (currentContent ? '\n' : '') + trimmed;
+      }
+    }
+    if (currentTitle && currentContent) {
+      newSlides.push({ title: currentTitle, content: currentContent });
+    }
+    
+    // If no slides parsed, try different approach
+    if (newSlides.length === 0 && lines.length > 0) {
+      // Use first line as title, rest as slides
+      setTitle(lines[0]?.replace(/^[#*\d\-.]+\s*/, '').substring(0, 50) || 'Carrousel');
+      // Split remaining lines into 5 slides
+      const remaining = lines.slice(1).join(' ').split(/(?=\d+[\.\)\-:])/);
+      for (const part of remaining) {
+        if (part.trim()) {
+          const cleaned = part.replace(/^\d+[\.\)\-:]\s*/, '').trim();
+          if (cleaned) {
+            const words = cleaned.split(' ').slice(0, 15).join(' ');
+            newSlides.push({ title: words.substring(0, 30), content: cleaned });
+          }
         }
       }
     }
     
-    setImages({ ...images, ...newImages });
-    setIsGenerating(false);
+    // Ensure we have 5 slides
+    while (newSlides.length < 5) {
+      newSlides.push({ title: `Slide ${newSlides.length + 1}`, content: '' });
+    }
+    
+    setSlides(newSlides.slice(0, 5));
   };
 
-  // Update a specific slide
-  const updateSlide = (index: number, field: 'title' | 'content', value: string) => {
-    const newSlides = [...slides];
-    newSlides[index] = { ...newSlides[index], [field]: value };
-    setSlides(newSlides);
+  // Search Unsplash for images matching each slide
+  const handleSearchImages = async () => {
+    if (slides.length === 0) return;
+    
+    setIsSearching(true);
+    const newImages: string[] = [];
+    
+    for (const slide of slides) {
+      const keyword = slide.title || slide.content.split(' ').slice(0, 3).join(' ');
+      try {
+        const results = await searchUnsplash(keyword, 1);
+        if (results[0]) {
+          newImages.push(results[0].urls.regular);
+        } else {
+          newImages.push('');
+        }
+      } catch {
+        newImages.push('');
+      }
+    }
+    
+    setImages(newImages);
+    setIsSearching(false);
   };
 
-  // Manual add slide
-  const addSlide = () => {
-    setSlides([...slides, { title: '', content: '' }]);
-  };
+  // Download ZIP with images and text
+  const handleDownloadZip = async () => {
+    if (slides.length === 0) return;
+    
+    setIsLoading(true);
+    const zip = new JSZip();
+    
+    const contentText = `TITRE: ${title}
+DATE: ${new Date().toLocaleDateString()}
 
-  // Remove slide
-  const removeSlide = (index: number) => {
-    setSlides(slides.filter((_, i) => i !== index));
-  };
+SLIDES:
+${slides.map((s, i) => `
+--- Slide ${i+1} ---
+${s.title}
+${s.content}
+`).join('\n')}
 
-  // Export as PNG (simplified - would need html2canvas)
-  const handleExport = async () => {
-    setIsExporting(true);
-    alert('Export: Click each slide to save as image, then upload to Buffer');
-    setIsExporting(false);
-    onComplete?.(slides);
+---
+Généré avec Heldonica CMS
+`;
+    zip.file('contenu.txt', contentText);
+    
+    // Add images
+    for (let i = 0; i < images.length; i++) {
+      if (images[i]) {
+        try {
+          const res = await fetch(images[i]);
+          const blob = await res.blob();
+          zip.file(`slide-${i+1}.jpg`, blob);
+        } catch {}
+      }
+    }
+    
+    const blob = await zip.generateAsync({ type: 'blob' });
+    saveAs(blob, `${title.replace(/\s+/g, '-').toLowerCase() || 'carousel'}.zip`);
+    setIsLoading(false);
   };
 
   return (
     <div className="p-4 bg-white rounded-lg shadow">
-      <h2 className="text-xl font-bold mb-4">🎠 Créer un Carrousel</h2>
+      <h2 className="text-xl font-bold mb-4">📝 Créer depuis Perplexity</h2>
       
-      {/* Topic Input */}
+      {/* Paste text area */}
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">Sujet du carrousel</label>
-        <input
-          type="text"
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
-          placeholder="Ex: 5 tips voyage Portugal"
-          className="w-full px-3 py-2 border rounded-lg"
+        <label className="block text-sm font-medium mb-1">
+          Colle ici le texte de Perplexity:
+        </label>
+        <textarea
+          value={rawText}
+          onChange={(e) => setRawText(e.target.value)}
+          placeholder="Colle le contenu généré par Perplexity..."
+          className="w-full px-3 py-2 border rounded-lg h-32 text-sm"
         />
         <button
-          onClick={handleGenerateContent}
-          disabled={!topic.trim()}
-          className="mt-2 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2"
+          onClick={handleParseText}
+          disabled={!rawText.trim()}
+          className="mt-2 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
         >
-          <span>🤖</span>
-          <span>Générer avec Perplexity</span>
+          📋 Analyser le texte
         </button>
-        <p className="text-xs text-gray-500 mt-1">
-          Perplexity va générer le contenu. Copiez/collez les résultat ci-dessous.
-        </p>
       </div>
       
-      {/* Title */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">Titre principal</label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Titre du carrousel"
-          className="w-full px-3 py-2 border rounded-lg"
-        />
-      </div>
-      
-      {/* Slides Editor */}
-      <div className="mb-4">
-        <div className="flex justify-between items-center mb-2">
-          <label className="font-medium">Slides ({slides.length})</label>
-          <button
-            onClick={addSlide}
-            className="text-sm px-2 py-1 bg-gray-100 rounded hover:bg-gray-200"
-          >
-            + Ajouter slide
-          </button>
+      {/* Title input */}
+      {slides.length > 0 && (
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">Titre:</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Titre du carrousel"
+            className="w-full px-3 py-2 border rounded-lg"
+          />
         </div>
-        
-        {slides.map((slide, index) => (
-          <div key={index} className="p-3 mb-2 bg-gray-50 rounded-lg">
-            <div className="flex justify-between mb-2">
-              <span className="text-sm font-medium">Slide {index + 1}</span>
-              <button
-                onClick={() => removeSlide(index)}
-                className="text-red-500 text-sm"
-              >
-                Supprimer
-              </button>
-            </div>
-            <input
-              type="text"
-              value={slide.title}
-              onChange={(e) => updateSlide(index, 'title', e.target.value)}
-              placeholder="Titre"
-              className="w-full mb-2 px-2 py-1 border rounded text-sm"
-            />
-            <textarea
-              value={slide.content}
-              onChange={(e) => updateSlide(index, 'content', e.target.value)}
-              placeholder="Contenu (2-3 phrases)"
-              rows={2}
-              className="w-full px-2 py-1 border rounded text-sm"
-            />
-            {/* Image preview */}
-            {images[index] && (
-              <img src={images[index]} alt={`Slide ${index + 1}`} className="mt-2 w-full h-24 object-cover rounded" />
-            )}
-          </div>
-        ))}
-      </div>
+      )}
       
-      {/* Actions */}
-      <div className="space-y-2">
+      {/* Slides preview */}
+      {slides.length > 0 && (
+        <div className="mb-4">
+          <div className="flex justify-between items-center mb-2">
+            <label className="font-medium">Slides ({slides.length}):</label>
+            <button
+              onClick={handleSearchImages}
+              disabled={isSearching}
+              className="text-sm px-2 py-1 bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50"
+            >
+              {isSearching ? '⏳...' : '🔍 Rechercher images'}
+            </button>
+          </div>
+          <div className="space-y-2">
+            {slides.map((slide, i) => (
+              <div key={i} className="p-2 bg-gray-50 rounded flex gap-2">
+                {images[i] && (
+                  <img src={images[i]} alt="" className="w-16 h-16 object-cover rounded" />
+                )}
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    value={slide.title}
+                    onChange={(e) => {
+                      const newSlides = [...slides];
+                      newSlides[i].title = e.target.value;
+                      setSlides(newSlides);
+                    }}
+                    placeholder="Titre"
+                    className="w-full px-2 py-1 border rounded text-sm mb-1"
+                  />
+                  <textarea
+                    value={slide.content}
+                    onChange={(e) => {
+                      const newSlides = [...slides];
+                      newSlides[i].content = e.target.value;
+                      setSlides(newSlides);
+                    }}
+                    placeholder="Contenu"
+                    className="w-full px-2 py-1 border rounded text-xs h-12 resize-none"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      {/* Download button */}
+      {slides.length > 0 && (
         <button
-          onClick={handleSearchImages}
-          disabled={slides.length === 0 || isGenerating}
-          className="w-full px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 disabled:opacity-50"
+          onClick={handleDownloadZip}
+          disabled={isLoading}
+          className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
         >
-          {isGenerating ? 'Recherche images...' : '🔍 Rechercher images Unsplash'}
+          📦 Télécharger ZIP
         </button>
-        
-        <button
-          onClick={handleExport}
-          disabled={slides.length === 0 || isExporting}
-          className="w-full px-4 py-2 bg-amber-700 text-white rounded-lg hover:bg-amber-800 disabled:opacity-50"
-        >
-          {isExporting ? 'Export...' : '📥 Export PNG'}
-        </button>
-      </div>
+      )}
     </div>
   );
 }
