@@ -30,7 +30,9 @@ export async function POST(request: NextRequest) {
         model: 'llama-3.1-8b-instant',
         messages: [
           { role: 'system', content: 'Tu es un expert JSON. Réponds STRICTEMENT en JSON valide sans texte avant ou après. Utilise ce format: {"title":"string","slides":[{"title":"string","content":"string"}],"caption":"string","hashtags":["string"]}' },
-          { role: 'user', content: `Génère carrousel 5 slides sur: ${topic}. JSON ONLY.` }
+          { role: 'user', content: `Génère carrousel 5 slides sur: ${topic}. 
+JSON ONLY. 
+IMPORTANT: Utilise seulement des lieux réels et vérifiés (attractions, monuments, restaurants réels). Éviter hôtels, lieux inventés ou attractions fake.` }
         ]
       })
     });
@@ -56,13 +58,23 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Search Unsplash for 5 images
-    const unsplashResponse = await fetch(
-      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(topic)}&per_page=5&orientation=portrait`,
-      { headers: { 'Authorization': `Client-ID ${UNSPLASH_ACCESS_KEY}` } }
-    );
-    const unsplashData = await unsplashResponse.json();
-    const images = unsplashData.results?.map((r: any) => r.urls?.regular) || [];
+    let image = '';
+    let images: string[] = [];
+    
+    // Only search Unsplash if we have the key
+    if (UNSPLASH_ACCESS_KEY) {
+      try {
+        const unsplashResponse = await fetch(
+          `https://api.unsplash.com/search/photos?query=${encodeURIComponent(topic)}&per_page=5&orientation=portrait`,
+          { headers: { 'Authorization': `Client-ID ${UNSPLASH_ACCESS_KEY}` } }
+        );
+        const unsplashData = await unsplashResponse.json();
+        images = unsplashData.results?.map((r: any) => r.urls?.regular) || [];
+        image = images[0] || '';
+      } catch (e) {
+        console.error('Unsplash error:', e);
+      }
+    }
 
     return NextResponse.json({ 
       success: true, 
@@ -71,7 +83,8 @@ export async function POST(request: NextRequest) {
       slides: content.slides || [],
       caption: content.caption || '',
       hashtags: content.hashtags || [],
-      images
+      images,
+      image  // backward compat
     });
 
   } catch (error) {
