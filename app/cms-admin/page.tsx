@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import MediaLibrary from '@/components/MediaLibrary';
 import { sanitizeHtml } from '@/lib/sanitize-html';
+import CarouselEditor from '@/components/admin/CarouselEditor';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
 
@@ -605,6 +606,7 @@ export default function CMSAdmin() {
     { id: 'pages',    label: '🗂️ Pages', count: null },
     { id: 'demandes', label: '✈️ Travel Planning', count: demandes.length },
     { id: 'media',    label: '🖼️ Médiathèque', count: null },
+    { id: 'carousel', label: '🎠 Carrousel', count: null },
     { id: 'settings', label: '⚙️ Paramètres', count: null },
   ];
 
@@ -1005,6 +1007,13 @@ export default function CMSAdmin() {
                   ))}
                 </div>
               )}
+          </div>
+        )}
+
+        {/* ── CAROUSEL ── */}
+        {tab === 'carousel' && (
+          <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 2px 12px rgba(0,0,0,.07)', minHeight: 400 }}>
+            <CarouselEditor />
           </div>
         )}
 
