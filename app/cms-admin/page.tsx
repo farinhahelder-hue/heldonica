@@ -793,6 +793,36 @@ export default function CMSAdmin() {
               </div>
               <div style={{ gridColumn: '1/-1' }}>
                 <label style={lbl}>Contenu</label>
+                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (!editingArticle?.title && !editingArticle?.content) {
+                        alert('Veuillez entrer un titre ou un theme pour generer le contenu');
+                        return;
+                      }
+                      try {
+                        const topic = editingArticle?.title || editingArticle?.content?.slice(0, 50) || 'voyages';
+                        const res = await fetch('/api/ai/generate', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ topic, platform: 'instagram' })
+                        });
+                        const data = await res.json();
+                        if (data.success && data.content) {
+                          setEditingArticle(p => ({ ...p, content: (p?.content || '') + '<p>' + data.content + '</p>' }));
+                        } else {
+                          alert('Erreur: ' + (data.error || data.message || 'Impossible de generer le contenu'));
+                        }
+                      } catch (err) {
+                        alert('Erreur de connexion: Ollama nest peut-etre pas actif');
+                      }
+                    }}
+                    style={{ background: '#10b981', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}
+                  >
+                    ✨ Generer avec IA
+                  </button>
+                </div>
                 <RichEditor value={editingArticle?.content || ''}
                   onChange={html => setEditingArticle(p => ({ ...p, content: html }))}
                   placeholder="Commence à écrire ton article ici…" />
