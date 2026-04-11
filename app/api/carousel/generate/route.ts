@@ -4,18 +4,23 @@ import { NextRequest, NextResponse } from 'next/server';
 const VERIFIED_GUIDE: Record<string, any> = {
   'funchal': {
     places: ['Monte Palace Tropical Garden', 'Mercado dos Lavradores', 'Rua Santa Maria', 'Funchal Old Town', 'Cathedral of Funchal', 'Museu CR7', 'Praça do Município'],
-    food: ['Espada (black scabbard fish)', 'Espetada (beef skewers)', 'Lapas grelhadas', 'Bolo de Mel', 'Queijada da Madeira', 'Poncha'],
-    restaurants: []
+    food: ['Espada (poisson sabre)', 'Espetada (brochettes bœuf)', 'Lapas grillées', 'Bolo de Mel', 'Queijada da Madeira', 'Poncha', 'Vinho Madeira'],
+    avoid: ['Madeleine', 'Bolo de Alferes', 'Calulu', 'Casa de Pasto', 'Cevada', 'Gato']
   },
   'madeira': {
     places: ['Monte Palace Garden', 'Cabo Girão', 'Porto Moniz', 'Santana', 'Pico do Arieiro', 'Monte toboggan'],
-    food: ['Espada', 'Espetada', 'Lapas', 'Bolo de Mel', 'Queijada', 'Poncha', 'Vinho Madeira'],
-    restaurants: []
+    food: ['Espada com banana', 'Espetada madeirense', 'Lapas grelhées', 'Bolo de Mel', 'Queijadas da Madeira', 'Poncha', 'Vinho Madeira'],
+    avoid: ['Madeleine', 'Bolo de Alferes', 'Calulu', 'Casa de Pasto', 'Cevada', 'Gato', 'Vila Franca']
+  },
+  'lisbonne': {
+    places: ['Torre de Belém', 'Monastère des Hiéronymites', 'Alfama', 'Bairro Alto', 'Praça do Comércio', 'Castelo de São Jorge'],
+    food: ['Bacalhau', 'Pasteis de Nata', 'Ginjinha', 'Caldo Verde', 'Bifana'],
+    avoid: []
   },
   'paris': {
     places: ['Tour Eiffel', 'Louvre', 'Notre-Dame', 'Montmartre', 'Champs-Élysées'],
-    food: ['Croissant', 'Baguette', 'Crème brûlée', 'Coq au vin'],
-    restaurants: []
+    food: ['Croissant', 'Baguette', 'Crème brûlée', 'Coq au vin', 'Soufflé'],
+    avoid: []
   }
 };
 
@@ -23,10 +28,11 @@ function getGuideForTopic(topic: string): string {
   const t = topic.toLowerCase();
   for (const [key, val] of Object.entries(VERIFIED_GUIDE)) {
     if (t.includes(key)) {
-      return `Lieux vérifiés: ${val.places.join(', ')}. Vraies spécialités: ${val.food.join(', ')}.`;
+      const avoidStr = val.avoid?.length > 0 ? ` ${val.avoid.join(', ')} sont FAUX. NE PAS UTILISER.` : '';
+      return `Lieux vérifiés: ${val.places.join(', ')}. Vraies spécialités: ${val.food.join(', ')}.${avoidStr}`;
     }
   }
-  return 'Utilise uniquement des lieux et spécialités réels et vérifiés.';
+  return 'Utilise uniquement des lieux et spécialités réels et vérifiés. Ne pas inventer de plats ou restaurants.';
 }
 
 export async function POST(request: NextRequest) {
