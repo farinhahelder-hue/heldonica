@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
+  const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
+  const UNSPLASH_ACCESS_KEY = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY || '';
+  
+  if (!GROQ_API_KEY || !UNSPLASH_ACCESS_KEY) {
+    return NextResponse.json({ 
+      error: 'API keys not configured',
+      gpt: !!GROQ_API_KEY,
+      unsplash: !!UNSPLASH_ACCESS_KEY
+    }, { status: 500 });
+  }
+
   try {
     const { topic } = await request.json();
     
@@ -12,7 +23,7 @@ export async function POST(request: NextRequest) {
     const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -30,7 +41,7 @@ export async function POST(request: NextRequest) {
     // Search Unsplash
     const unsplashResponse = await fetch(
       `https://api.unsplash.com/search/photos?query=${encodeURIComponent(topic)}&per_page=1&orientation=portrait`,
-      { headers: { 'Authorization': `Client-ID ${process.env.UNSPLASH_ACCESS_KEY}` } }
+      { headers: { 'Authorization': `Client-ID ${UNSPLASH_ACCESS_KEY}` } }
     );
     const unsplashData = await unsplashResponse.json();
     const image = unsplashData.results?.[0]?.urls?.regular || '';
@@ -46,6 +57,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    return NextResponse.json({ error: 'Generation failed' }, { status: 500 });
+    console.error('Carousel API error:', error);
+    return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }
