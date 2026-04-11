@@ -1,10 +1,10 @@
 {
-  "name": "Instagram Content Generator - Manual",
+  "name": "Instagram Carousel Generator",
   "nodes": [
     {
       "parameters": {},
       "id": "manual-trigger",
-      "name": "Manual Trigger",
+      "name": "Lanceur",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [250, 300]
@@ -13,31 +13,15 @@
       "parameters": {
         "values": {
           "string": [
-            {
-              "name": "topic",
-              "value": "que faire a paris"
-            },
-            {
-              "name": "angle",
-              "value": "insolite et authentique"
-            },
-            {
-              "name": "format",
-              "value": "carousel"
-            },
-            {
-              "name": "cta",
-              "value": "Savez-vous lequel? Partagez en commentaire! 👇"
-            }
-          ],
-          "number": [],
-          "boolean": [],
-          "options": {}
-        },
-        "options": {}
+            { "name": "topic", "value": "" },
+            { "name": "angle", "value": "" },
+            { "name": "format", "value": "carousel" },
+            { "name": "cta", "value": "" }
+          ]
+        }
       },
-      "id": "set-content-brief",
-      "name": "Set Content Brief",
+      "id": "set-brief",
+      "name": "Brief",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [450, 300]
@@ -45,178 +29,108 @@
     {
       "parameters": {
         "url": "https://api.unsplash.com/search/photos",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
+        "method": "GET",
         "sendHeaders": true,
         "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "=Client-ID YOUR_UNSPLASH_ACCESS_KEY"
-            }
-          ]
+          "parameters": [{ "name": "Authorization", "value": "=Client-ID {{$VAR.UNSPLASH_KEY}}" }]
         },
         "queryParameters": {
           "parameters": [
-            {
-              "name": "query",
-              "value": "={{$json.topic}}"
-            },
-            {
-              "name": "per_page",
-              "value": 5
-            },
-            {
-              "name": "orientation",
-              "value": "portrait"
-            }
+            { "name": "query", "value": "={{$json.topic}}" },
+            { "name": "per_page", "value": 5 }
           ]
-        },
-        "options": {}
+        }
       },
-      "id": "unsplash-search",
-      "name": "Search Unsplash Photos",
+      "id": "unsplash",
+      "name": "Recherche Unsplash",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [650, 300]
     },
     {
       "parameters": {
-        "jsCode": "// Pick the best Unsplash photo\nconst results = $input.first().json.results;\nif (!results || results.length === 0) {\n  return [{ json: {} }];\n}\n\n// Pick highest rated photo\nconst best = results.reduce((prev, curr) => \n  (curr.likes || 0) > (prev.likes || 0) ? curr : prev\n, results[0]);\n\nreturn [{\n  json: {\n    unsplash_image_url: best.urls?.regular || best.urls?.small,\n    unsplash_author: best.user?.name,\n    unsplash_author_url: best.user?.links?.html,\n    unsplash_alt: best.alt_description,\n    image_prompt: $input.first().json.topic\n  }\n}];"
+        "jsCode": "const data = $input.first().json;\nconst results = data.results || [];\nif (results.length === 0) return [{ json: {} }];\n\n// Photo with most likes\nconst best = results.reduce((a, b) => (a.likes||0) > (b.likes||0) ? a : b, results[0]);\n\nreturn [{\n  json: {\n    image_url: best.urls?.regular,\n    image_small: best.urls?.small,\n    author: best.user?.name,\n    author_url: best.user?.links?.html,\n    alt: best.alt_description,\n    topic: data.topic\n  }\n}];"
       },
-      "id": "pick-photo",
-      "name": "Pick Best Photo",
+      "id": "best-photo",
+      "name": "Meilleure Photo",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2.4,
       "position": [850, 300]
     },
     {
       "parameters": {
+        "operationMode": "complete",
         "model": "llama3.1:8b",
-        "prompt": "You are an expert Instagram content creator.\n\nCreate a carousel with:\n- Topic: {{$json.topic}}\n- Angle: {{$json.angle}}\n- Format: {{$json.format}}\n\nGenerate:\n1. A hook (1-2 lines, attention-grabbing)\n2. 5 slides (title + content each)\n3. A caption ({{$json.cta}})\n4. 10 hashtags\n\nReturn ONLY valid JSON:\n{\"hook\":\"string\",\"slides\":[{\"title\":\"string\",\"content\":\"string\"}],\"caption\":\"string\",\"hashtags\":[\"string\"]}"
+        "messages": [
+          {
+            "role": "system",
+            "content": "Tu génères des carrousels Instagram. topic: {{$json.topic}}, angle: {{$json.angle}}"
+          },
+          {
+            "role": "user", 
+            "content": "Génère un carrousel 5 slides:\n- titre accrocheur\n- 5 slides avec titre + contenu\n- caption\n- 10 hashtags\n\nJSON: {\"title\":\"\",\"slides\":[{\"title\":\"\",\"content\":\"\"}],\"caption\":\"\",\"hashtags\":[]}"
+          }
+        ],
+        "options": {}
       },
-      "id": "ollama-generate",
-      "name": "Generate with Ollama",
-      "type": "ollama.ollamaLlm",
+      "id": "ollama",
+      "name": "Génère Contenu (Ollama)",
+      "type": "ollama.ollamaChat",
       "typeVersion": 1,
       "position": [1050, 300]
     },
     {
       "parameters": {
-        "url": "=https://YOUR_SUPABASE_PROJECT.supabase.co/rest/v1/instagram_drafts",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
+        "url": "={{$VAR.SUPABASE_URL}}/rest/v1/instagram_drafts",
+        "method": "POST",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            {
-              "name": "apikey",
-              "value": "=YOUR_SUPABASE_ANON_KEY"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            },
-            {
-              "name": "Prefer",
-              "value": "return=minimal"
-            }
+            { "name": "apikey", "value": "={{$VAR.SUPABASE_KEY}}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=minimal" }
           ]
         },
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
-            {
-              "name": "topic",
-              "value": "={{$json.topic}}"
-            },
-            {
-              "name": "angle",
-              "value": "={{$json.angle}}"
-            },
-            {
-              "name": "format",
-              "value": "={{$json.format}}"
-            },
-            {
-              "name": "cta",
-              "value": "={{$json.cta}}"
-            },
-            {
-              "name": "hook",
-              "value": "={{$json.hook}}"
-            },
-            {
-              "name": "caption",
-              "value": "={{$json.caption}}"
-            },
-            {
-              "name": "hashtags",
-              "value": "={{JSON.stringify($json.hashtags)}}"
-            },
-            {
-              "name": "slides",
-              "value": "={{JSON.stringify($json.slides)}}"
-            },
-            {
-              "name": "image_prompt",
-              "value": "={{$json.image_prompt}}"
-            },
-            {
-              "name": "unsplash_image_url",
-              "value": "={{$json.unsplash_image_url}}"
-            },
-            {
-              "name": "unsplash_author",
-              "value": "={{$json.unsplash_author}}"
-            },
-            {
-              "name": "unsplash_author_url",
-              "value": "={{$json.unsplash_author_url}}"
-            },
-            {
-              "name": "unsplash_alt",
-              "value": "={{$json.unsplash_alt}}"
-            },
-            {
-              "name": "status",
-              "value": "draft"
-            }
+            { "name": "topic", "value": "={{$json.topic}}" },
+            { "name": "angle", "value": "={{$json.angle}}" },
+            { "name": "format", "value": "={{$json.format}}" },
+            { "name": "cta", "value": "={{$json.cta}}" },
+            { "name": "slides", "value": "={{$json.slides}}" },
+            { "name": "image_prompt", "value": "={{$json.topic}}" },
+            { "name": "unsplash_image_url", "value": "={{$json.image_url}}" },
+            { "name": "unsplash_author", "value": "={{$json.author}}" },
+            { "name": "unsplash_author_url", "value": "={{$json.author_url}}" },
+            { "name": "unsplash_alt", "value": "={{$json.alt}}" },
+            { "name": "status", "value": "draft" }
           ]
-        },
-        "options": {}
+        }
       },
-      "id": "save-supabase",
-      "name": "Save Draft to Supabase",
+      "id": "supabase",
+      "name": "Sauvegarde Supabase",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [1250, 300]
     }
   ],
   "connections": {
-    "Manual Trigger": {
-      "main": [[{"node": "Set Content Brief", "type": "main", "index": 0}]]
-    },
-    "Set Content Brief": {
-      "main": [[{"node": "Search Unsplash Photos", "type": "main", "index": 0}]]
-    },
-    "Search Unsplash Photos": {
-      "main": [[{"node": "Pick Best Photo", "type": "main", "index": 0}]]
-    },
-    "Pick Best Photo": {
-      "main": [[{"node": "Generate with Ollama", "type": "main", "index": 0}]]
-    },
-    "Generate with Ollama": {
-      "main": [[{"node": "Save Draft to Supabase", "type": "main", "index": 0}]]
-    }
+    "Lanceur": { "main": [[{"node": "Brief", "type": "main", "index": 0}]] },
+    "Brief": { "main": [[{"node": "Recherche Unsplash", "type": "main", "index": 0}]] },
+    "Recherche Unsplash": { "main": [[{"node": "Meilleure Photo", "type": "main", "index": 0}]] },
+    "Meilleure Photo": { "main": [[{"node": "Génère Contenu (Ollama)", "type": "main", "index": 0}]] },
+    "Génère Contenu (Ollama)": { "main": [[{"node": "Sauvegarde Supabase", "type": "main", "index": 0}]] }
   },
-  "settings": {
-    "executionOrder": "v1"
-  },
+  "settings": {},
+  "variables": [
+    { "id": "UNSPLASH_KEY", "name": "Unsplash Access Key", "type": "string", "value": "" },
+    { "id": "SUPABASE_URL", "name": "Supabase Project URL", "type": "string", "value": "" },
+    { "id": "SUPABASE_KEY", "name": "Supabase Anon Key", "type": "string", "value": "" },
+    { "id": "OLLAMA_URL", "name": "Ollama URL", "type": "string", "value": "http://localhost:11434" }
+  ],
   "tags": [],
-  "trigger": {
-    "type": "manual"
-  },
-  "updatedAt": "2026-04-11T07:00:00.000Z",
+  "trigger": { "type": "manual" },
+  "updatedAt": "2026-04-11T12:00:00Z",
   "versionId": "1"
 }
