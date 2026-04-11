@@ -31,6 +31,9 @@ const nextConfig = {
   // ── Redirections permanentes (legacy WordPress + anciens slugs) ──
   async redirects() {
     return [
+      // Admin redirect
+      { source: '/admin', destination: '/cms-admin', permanent: true },
+      { source: '/admin/:path*', destination: '/cms-admin/:path*', permanent: true },
       // Zurich
       { source: '/zurich', destination: '/destinations/zurich', permanent: true },
       { source: '/zurich/', destination: '/destinations/zurich', permanent: true },
