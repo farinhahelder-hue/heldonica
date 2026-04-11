@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import MediaLibrary from '@/components/MediaLibrary';
 import { sanitizeHtml } from '@/lib/sanitize-html';
 import CarouselEditor from '@/components/admin/CarouselEditor';
+import CarouselGenerator from '@/components/admin/CarouselGenerator';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
 
@@ -1012,7 +1013,8 @@ export default function CMSAdmin() {
 
         {/* ── CAROUSEL ── */}
         {tab === 'carousel' && (
-          <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 2px 12px rgba(0,0,0,.07)', minHeight: 400 }}>
+          <div className="space-y-6">
+            <CarouselGenerator />
             <CarouselEditor />
           </div>
         )}
