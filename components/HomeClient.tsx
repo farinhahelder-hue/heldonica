@@ -5,6 +5,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
 import type { BlogPost } from '@/lib/blog-supabase'
+import InstagramEmbed from '@/components/InstagramEmbed'
 
 // ─── Images de secours par slug ──────────────────────────────────────────────
 const SLUG_IMAGES: Record<string, string> = {
@@ -481,6 +482,16 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               ))}
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Instagram Feed Section */}
+      <section className="py-16 bg-stone-50">
+        <div className="max-w-4xl mx-auto px-4">
+          <h2 className="text-2xl font-serif text-stone-900 text-center mb-8">
+            Suivez nos aventures
+          </h2>
+          <InstagramEmbed limit={6} />
         </div>
       </section>
 
