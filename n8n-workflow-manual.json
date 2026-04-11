@@ -124,9 +124,9 @@
   },
   "settings": {},
   "variables": [
-    { "id": "UNSPLASH_KEY", "name": "Unsplash Access Key", "type": "string", "value": "" },
-    { "id": "SUPABASE_URL", "name": "Supabase Project URL", "type": "string", "value": "" },
-    { "id": "SUPABASE_KEY", "name": "Supabase Anon Key", "type": "string", "value": "" },
+    { "id": "UNSPLASH_KEY", "name": "Unsplash Access Key", "type": "string", "value": "VKxcQvLNtFlLcgTxXW5YjnsQng4mu-WyIjyNHvLYsWA" },
+    { "id": "SUPABASE_URL", "name": "Supabase Project URL", "type": "string", "value": "https://smxnruefmrmfyfhuxygq.supabase.co" },
+    { "id": "SUPABASE_KEY", "name": "Supabase Anon Key", "type": "string", "value": "sb_publishable_J8lFZLMdOIVkMkuAGlDJsg_v0mfLlue" },
     { "id": "OLLAMA_URL", "name": "Ollama URL", "type": "string", "value": "http://localhost:11434" }
   ],
   "tags": [],
