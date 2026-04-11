@@ -1013,9 +1013,8 @@ export default function CMSAdmin() {
 
         {/* ── CAROUSEL ── */}
         {tab === 'carousel' && (
-          <div className="space-y-6">
+          <div>
             <CarouselGenerator />
-            <CarouselEditor />
           </div>
         )}
 
