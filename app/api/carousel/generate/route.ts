@@ -56,13 +56,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Search Unsplash
+    // Search Unsplash for 5 images
     const unsplashResponse = await fetch(
-      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(topic)}&per_page=1&orientation=portrait`,
+      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(topic)}&per_page=5&orientation=portrait`,
       { headers: { 'Authorization': `Client-ID ${UNSPLASH_ACCESS_KEY}` } }
     );
     const unsplashData = await unsplashResponse.json();
-    const image = unsplashData.results?.[0]?.urls?.regular || '';
+    const images = unsplashData.results?.map((r: any) => r.urls?.regular) || [];
 
     return NextResponse.json({ 
       success: true, 
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
       slides: content.slides || [],
       caption: content.caption || '',
       hashtags: content.hashtags || [],
-      image
+      images
     });
 
   } catch (error) {
