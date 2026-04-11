@@ -13,7 +13,15 @@ from groq import Groq
 # UNSPLASH_ACCESS_KEY=...
 
 # Initialize Groq client
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+# IMPORTANT: Set GROQ_API_KEY in environment or .env file
+# Get from environment or use directly (for testing)
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+if not GROQ_API_KEY:
+    print("⚠️  GROQ_API_KEY not set! Set it in .env or environment.")
+    print("   Get free key at: https://console.groq.com")
+    import sys
+    sys.exit(1)
+client = Groq(api_key=GROQ_API_KEY)
 UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY", "VKxcQvLNtFlLcgTxXW5YjnsQng4mu-WyIjyNHvLYsWA")
 
 
@@ -41,7 +49,7 @@ Le contenu doit être en français, authentique, et correspondre au style Heldon
 Chaque slide doit être actionable et donner une vraie valeur."""
 
     response = client.chat.completions.create(
-        model="llama-3.1-70b-versatile",
+        model="llama-3.1-8b-instant",
         messages=[
             {"role": "system", "content": "Tu es un expert en contenu travel Instagram. Génère des carrousels authentiques, engageants, et actionnables. Réponds en JSON valide uniquement."},
             {"role": "user", "content": prompt}
