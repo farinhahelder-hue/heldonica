@@ -115,9 +115,9 @@
     "Génère Contenu": { "main": [[{"node": "Sauvegarde", "type": "main", "index": 0}]] }
   },
   "variables": [
-    { "id": "UNSPLASH_KEY", "name": "Unsplash", "type": "string", "value": "" },
-    { "id": "SUPABASE_URL", "name": "Supabase URL", "type": "string", "value": "" },
-    { "id": "SUPABASE_KEY", "name": "Supabase Key", "type": "string", "value": "" },
+    { "id": "UNSPLASH_KEY", "name": "Unsplash", "type": "string", "value": "VKxcQvLNtFlLcgTxXW5YjnsQng4mu-WyIjyNHvLYsWA" },
+    { "id": "SUPABASE_URL", "name": "Supabase URL", "type": "string", "value": "https://smxnruefmrmfyfhuxygq.supabase.co" },
+    { "id": "SUPABASE_KEY", "name": "Supabase Key", "type": "string", "value": "sb_publishable_J8lFZLMdOIVkMkuAGlDJsg_v0mfLlue" },
     { "id": "OLLAMA_URL", "name": "Ollama", "type": "string", "value": "http://localhost:11434" }
   ],
   "trigger": { "type": "schedule" },
