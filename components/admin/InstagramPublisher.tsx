@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { openBufferComposer } from '@/lib/buffer';
+import { openPerplexityForCaption } from '@/lib/perplexity-caption';
 
 interface InstagramPostFormProps {
   onSuccess?: () => void;
@@ -18,6 +19,12 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
     // Opens Buffer Composer - user adds image there
     openBufferComposer();
     setSuccess('✅ Buffer opened! Add your image, write caption, and click Publish.');
+  };
+
+  const handleGenerateCaption = () => {
+    // Opens Perplexity to generate caption
+    openPerplexityForCaption({ topic: caption || undefined });
+    setSuccess('✅ Perplexity opened! Copy the generated caption and paste it above.');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -106,6 +113,15 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
           className="w-full px-4 py-2 bg-amber-700 text-white rounded-lg hover:bg-amber-800 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? 'Publishing...' : '📸 Publish to Instagram'}
+        </button>
+
+        <button
+          type="button"
+          onClick={handleGenerateCaption}
+          className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2"
+        >
+          <span>🤖</span>
+          <span>Generate caption with Perplexity</span>
         </button>
 
         <button
