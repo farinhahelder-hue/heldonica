@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { openBufferComposer } from '@/lib/buffer';
 
 interface InstagramPostFormProps {
   onSuccess?: () => void;
@@ -12,6 +13,12 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  const handleBufferShare = () => {
+    // Opens Buffer Composer - user adds image there
+    openBufferComposer();
+    setSuccess('✅ Buffer opened! Add your image, write caption, and click Publish.');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,7 +105,16 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
           disabled={isLoading || !imageUrl || !caption}
           className="w-full px-4 py-2 bg-amber-700 text-white rounded-lg hover:bg-amber-800 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isLoading ? 'Publishing...' : 'Publish to Instagram'}
+          {isLoading ? 'Publishing...' : '📸 Publish to Instagram'}
+        </button>
+
+        <button
+          type="button"
+          onClick={handleBufferShare}
+          className="w-full px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 flex items-center justify-center gap-2"
+        >
+          <span>📱</span>
+          <span>Prepare on Buffer (easier)</span>
         </button>
       </form>
     </div>
