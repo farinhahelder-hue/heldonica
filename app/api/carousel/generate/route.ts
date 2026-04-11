@@ -1,5 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Verified local attractions to prevent AI hallucinations
+const VERIFIED_GUIDE: Record<string, any> = {
+  'funchal': {
+    places: ['Monte Palace Tropical Garden', 'Mercado dos Lavradores', 'Rua Santa Maria', 'Funchal Old Town', 'Cathedral of Funchal', 'Museu CR7', 'Praça do Município'],
+    food: ['Espada (black scabbard fish)', 'Espetada (beef skewers)', 'Lapas grelhadas', 'Bolo de Mel', 'Queijada da Madeira', 'Poncha'],
+    restaurants: []
+  },
+  'madeira': {
+    places: ['Monte Palace Garden', 'Cabo Girão', 'Porto Moniz', 'Santana', 'Pico do Arieiro', 'Monte toboggan'],
+    food: ['Espada', 'Espetada', 'Lapas', 'Bolo de Mel', 'Queijada', 'Poncha', 'Vinho Madeira'],
+    restaurants: []
+  },
+  'paris': {
+    places: ['Tour Eiffel', 'Louvre', 'Notre-Dame', 'Montmartre', 'Champs-Élysées'],
+    food: ['Croissant', 'Baguette', 'Crème brûlée', 'Coq au vin'],
+    restaurants: []
+  }
+};
+
+function getGuideForTopic(topic: string): string {
+  const t = topic.toLowerCase();
+  for (const [key, val] of Object.entries(VERIFIED_GUIDE)) {
+    if (t.includes(key)) {
+      return `Lieux vérifiés: ${val.places.join(', ')}. Vraies spécialités: ${val.food.join(', ')}.`;
+    }
+  }
+  return 'Utilise uniquement des lieux et spécialités réels et vérifiés.';
+}
+
 export async function POST(request: NextRequest) {
   const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
   const UNSPLASH_ACCESS_KEY = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY || '';
@@ -31,8 +60,8 @@ export async function POST(request: NextRequest) {
         messages: [
           { role: 'system', content: 'Tu es un expert JSON. Réponds STRICTEMENT en JSON valide sans texte avant ou après. Utilise ce format: {"title":"string","slides":[{"title":"string","content":"string"}],"caption":"string","hashtags":["string"]}' },
           { role: 'user', content: `Génère carrousel 5 slides sur: ${topic}. 
-JSON ONLY. 
-IMPORTANT: Utilise seulement des lieux réels et vérifiés (attractions, monuments, restaurants réels). Éviter hôtels, lieux inventés ou attractions fake.` }
+JSON ONLY.
+${getGuideForTopic(topic)}` }
         ]
       })
     });
@@ -58,9 +87,6 @@ IMPORTANT: Utilise seulement des lieux réels et vérifiés (attractions, monume
       }
     }
 
-    let image = '';
-    let images: string[] = [];
-    
     // Only search Unsplash if we have the key
     if (UNSPLASH_ACCESS_KEY) {
       try {
