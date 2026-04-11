@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { openBufferComposer } from '@/lib/buffer';
 import { openPerplexityForCaption } from '@/lib/perplexity-caption';
+import { searchUnsplash, getCredit, type UnsplashPhoto } from '@/lib/unsplash';
 
 interface InstagramPostFormProps {
   onSuccess?: () => void;
@@ -14,11 +15,43 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<UnsplashPhoto[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   const handleBufferShare = () => {
     // Opens Buffer Composer - user adds image there
     openBufferComposer();
     setSuccess('✅ Buffer opened! Add your image, write caption, and click Publish.');
+  };
+
+  const handleSearchUnsplash = async () => {
+    if (!searchQuery.trim()) return;
+    
+    setIsSearching(true);
+    setError(null);
+    setSearchResults([]);
+    
+    try {
+      const results = await searchUnsplash(searchQuery, 6);
+      setSearchResults(results);
+      
+      if (results.length === 0) {
+        setError('No photos found. Try a different search.');
+      }
+    } catch (err) {
+      setError('Search failed. Try again.');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleSelectPhoto = (photo: UnsplashPhoto) => {
+    setImageUrl(photo.urls.regular);
+    // Add photographer credit to caption
+    const credit = `\n\n📸 ${getCredit(photo)}`;
+    setCaption(caption + credit);
+    setSuccess('✅ Photo selected! Add your caption and publish.');
   };
 
   const handleGenerateCaption = () => {
@@ -63,6 +96,52 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
   return (
     <div className="p-4 bg-white rounded-lg shadow">
       <h2 className="text-xl font-bold mb-4">📸 Publish to Instagram</h2>
+      
+      {/* Unsplash Search */}
+      <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+        <h3 className="font-medium mb-2">🔍 Search Free Photos on Unsplash</h3>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="e.g., paris, travel, photography..."
+            className="flex-1 px-3 py-2 border rounded-lg"
+            onKeyDown={(e) => e.key === 'Enter' && handleSearchUnsplash()}
+          />
+          <button
+            type="button"
+            onClick={handleSearchUnsplash}
+            disabled={isSearching}
+            className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 disabled:opacity-50"
+          >
+            {isSearching ? '...' : 'Search'}
+          </button>
+        </div>
+        
+        {/* Search Results Grid */}
+        {searchResults.length > 0 && (
+          <div className="grid grid-cols-3 gap-2 mt-3">
+            {searchResults.map((photo) => (
+              <button
+                key={photo.id}
+                type="button"
+                onClick={() => handleSelectPhoto(photo)}
+                className="relative aspect-square overflow-hidden rounded group"
+              >
+                <img
+                  src={photo.urls.small}
+                  alt={photo.alt_description || 'Unsplash photo'}
+                  className="w-full h-full object-cover group-hover:scale-110 transition"
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition flex items-center justify-center">
+                  <span className="text-white opacity-0 group-hover:opacity-100 text-xs">Select</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
       
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
