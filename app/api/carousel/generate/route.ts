@@ -29,14 +29,32 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         model: 'llama-3.1-8b-instant',
         messages: [
-          { role: 'system', content: 'Expert contenu Instagram. Réponds en JSON uniquement.' },
-          { role: 'user', content: `Génère carrousel 5 slides sur: ${topic}. Format: {"title":"...", "slides":[{"title":"Tip 1","content":"..."}], "caption":"...", "hashtags":["#..."]}` }
+          { role: 'system', content: 'Tu es un expert JSON. Réponds STRICTEMENT en JSON valide sans texte avant ou après. Utilise ce format: {"title":"string","slides":[{"title":"string","content":"string"}],"caption":"string","hashtags":["string"]}' },
+          { role: 'user', content: `Génère carrousel 5 slides sur: ${topic}. JSON ONLY.` }
         ]
       })
     });
 
     const groqData = await groqResponse.json();
-    const content = JSON.parse(groqData.choices?.[0]?.message?.content || '{}');
+    const rawContent = groqData.choices?.[0]?.message?.content || '';
+    
+    let content = {};
+    try {
+      // Try direct parse first
+      content = JSON.parse(rawContent);
+    } catch {
+      // Try to extract JSON from text
+      const match = rawContent.match(/\{[\s\S]*\}/);
+      if (match) {
+        try {
+          content = JSON.parse(match[0]);
+        } catch {
+          return NextResponse.json({ error: 'AI response not valid JSON', raw: rawContent.substring(0, 200) }, { status: 500 });
+        }
+      } else {
+        return NextResponse.json({ error: 'AI response not JSON', raw: rawContent.substring(0, 200) }, { status: 500 });
+      }
+    }
 
     // Search Unsplash
     const unsplashResponse = await fetch(
