@@ -116,17 +116,22 @@ export default function CarouselGenerator({ onComplete }: CarouselGeneratorProps
           </div>
           
           {result.image && (
-            <div>
+            <div className="mb-3">
               <span className="text-sm font-medium">Image:</span>
               <img src={result.image} alt="Preview" className="mt-1 w-full h-40 object-cover rounded" />
+              <a href={result.image} download="carousel-image.jpg" className="block mt-2 text-center text-sm text-blue-600 hover:underline">⬇️ Télécharger l'image</a>
             </div>
           )}
           
           <button
-            onClick={() => window.open('https://buffer.com/app', '_blank')}
-            className="mt-3 w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+            onClick={() => {
+              const text = `${result.caption}\n\n${result.hashtags?.join(' ')}\n\n${result.slides?.map((s: any, i: number) => `${i+1}. ${s.title}\n${s.content}`).join('\n\n')}`;
+              navigator.clipboard.writeText(text);
+              alert('📋 Contenu copié! Va sur buffer.com pour créer ton post');
+            }}
+            className="mt-3 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
-            📱 Ouvrir Buffer
+            📋 Copier le contenu
           </button>
         </div>
       )}
