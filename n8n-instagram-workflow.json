@@ -18,9 +18,8 @@
         "values": {
           "string": [
             { "name": "topic", "value": "que faire a paris" },
-            { "name": "angle", "value": "authentique et insolite" },
-            { "name": "format", "value": "carousel" },
-            { "name": "cta", "value": "Partagez en commentaire! 👇" }
+            { "name": "angle", "value": "authentique" },
+            { "name": "format", "value": "carousel" }
           ]
         }
       },
@@ -46,36 +45,55 @@
         }
       },
       "id": "unsplash",
-      "name": "Recherche Unsplash",
+      "name": "Unsplash",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [650, 300]
     },
     {
       "parameters": {
-        "jsCode": "const data = $input.first().json;\nconst results = data.results || [];\nif (results.length === 0) return [{ json: {} }];\n\nconst best = results.reduce((a, b) => (a.likes||0) > (b.likes||0) ? a : b, results[0]);\n\nreturn [{\n  json: {\n    image_url: best.urls?.regular,\n    image_small: best.urls?.small,\n    author: best.user?.name,\n    author_url: best.user?.links?.html,\n    alt: best.alt_description,\n    topic: data.topic\n  }\n}];"
+        "jsCode": "const results = $input.first().json.results || [];\nif (results.length === 0) return [{ json: {} }];\nconst best = results.reduce((a, b) => (a.likes||0) > (b.likes||0) ? a : b, results[0]);\nreturn [{ json: { image_url: best.urls?.regular, topic: $input.all()[1].json.topic } }];"
       },
       "id": "best-photo",
-      "name": "Meilleure Photo",
+      "name": "Photo",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2.4,
       "position": [850, 300]
     },
     {
       "parameters": {
-        "operationMode": "complete",
-        "model": "llama3.1:8b",
-        "messages": [
-          { "role": "system", "content": "Tu génères des carrousels Instagram." },
-          { "role": "user", "content": "Génère 5 slides: titre, contenu, caption, hashtags. JSON." }
-        ],
-        "options": {}
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{$VAR.GROQ_KEY}}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "model", "value": "llama-3.1-8b-instant" },
+            { "name": "messages", "value": "[{\"role\":\"system\",\"content\":\"Carrousel Instagram JSON\"},{\"role\":\"user\",\"content\":\"{{$json.topic}}\"}]" }
+          ]
+        }
       },
-      "id": "ollama",
-      "name": "Génère Contenu",
-      "type": "ollama.ollamaChat",
-      "typeVersion": 1,
+      "id": "groq",
+      "name": "Groq",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "let p = {};\ntry { p = JSON.parse($input.first().json.choices?.[0]?.message?.content || '{}'); } catch {}\nreturn [{ json: { ...p, topic: $input.all()[1].json.topic, image_url: $input.all()[2].json.image_url } }];"
+      },
+      "id": "parse",
+      "name": "Parse",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2.4,
+      "position": [1150, 300]
     },
     {
       "parameters": {
@@ -85,17 +103,14 @@
         "headerParameters": {
           "parameters": [
             { "name": "apikey", "value": "={{$VAR.SUPABASE_KEY}}" },
-            { "name": "Content-Type", "value": "application/json" },
-            { "name": "Prefer", "value": "return=minimal" }
+            { "name": "Content-Type", "value": "application/json" }
           ]
         },
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
             { "name": "topic", "value": "={{$json.topic}}" },
-            { "name": "format", "value": "={{$json.format}}" },
-            { "name": "slides", "value": "={{$json.slides}}" },
-            { "name": "unsplash_image_url", "value": "={{$json.image_url}}" },
+            { "name": "slides", "value": "={{JSON.stringify($json.slides)}}" },
             { "name": "status", "value": "draft" }
           ]
         }
@@ -104,24 +119,24 @@
       "name": "Sauvegarde",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1250, 300]
+      "position": [1350, 300]
     }
   ],
   "connections": {
     "Planificateur": { "main": [[{"node": "Brief", "type": "main", "index": 0}]] },
-    "Brief": { "main": [[{"node": "Recherche Unsplash", "type": "main", "index": 0}]] },
-    "Recherche Unsplash": { "main": [[{"node": "Meilleure Photo", "type": "main", "index": 0}]] },
-    "Meilleure Photo": { "main": [[{"node": "Génère Contenu", "type": "main", "index": 0}]] },
-    "Génère Contenu": { "main": [[{"node": "Sauvegarde", "type": "main", "index": 0}]] }
+    "Brief": { "main": [[{"node": "Unsplash", "type": "main", "index": 0}]] },
+    "Unsplash": { "main": [[{"node": "Photo", "type": "main", "index": 0}]] },
+    "Photo": { "main": [[{"node": "Groq", "type": "main", "index": 0}]] },
+    "Groq": { "main": [[{"node": "Parse", "type": "main", "index": 0}]] },
+    "Parse": { "main": [[{"node": "Sauvegarde", "type": "main", "index": 0}]] }
   },
   "variables": [
-    { "id": "UNSPLASH_KEY", "name": "Unsplash", "type": "string", "value": "VKxcQvLNtFlLcgTxXW5YjnsQng4mu-WyIjyNHvLYsWA" },
-    { "id": "SUPABASE_URL", "name": "Supabase URL", "type": "string", "value": "https://smxnruefmrmfyfhuxygq.supabase.co" },
-    { "id": "SUPABASE_KEY", "name": "Supabase Key", "type": "string", "value": "sb_publishable_J8lFZLMdOIVkMkuAGlDJsg_v0mfLlue" },
-    { "id": "OLLAMA_URL", "name": "Ollama", "type": "string", "value": "http://localhost:11434" }
+    { "id": "UNSPLASH_KEY", "name": "Unsplash", "type": "string", "value": "" },
+    { "id": "SUPABASE_URL", "name": "Supabase", "type": "string", "value": "" },
+    { "id": "SUPABASE_KEY", "name": "Key", "type": "string", "value": "" },
+    { "id": "GROQ_KEY", "name": "Groq", "type": "string", "value": "" }
   ],
   "trigger": { "type": "schedule" },
-  "updatedAt": "2026-04-11T12:00:00Z",
+  "updatedAt": "2026-04-11T13:00:00Z",
   "versionId": "1"
-}
 }
