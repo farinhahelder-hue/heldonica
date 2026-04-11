@@ -87,6 +87,9 @@ ${getGuideForTopic(topic)}` }
       }
     }
 
+    let images: string[] = [];
+    let image = '';
+    
     // Only search Unsplash if we have the key
     if (UNSPLASH_ACCESS_KEY) {
       try {
@@ -110,7 +113,7 @@ ${getGuideForTopic(topic)}` }
       caption: content.caption || '',
       hashtags: content.hashtags || [],
       images,
-      image  // backward compat
+      image
     });
 
   } catch (error) {
