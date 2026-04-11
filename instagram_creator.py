@@ -1,19 +1,19 @@
 """
 Instagram Carousel Generator - Heldonica
-Génère automatiquement du contenu pour carrousels Instagram via OpenAI
+Génère automatiquement du contenu pour carrousels Instagram via Groq (gratuit)
 """
 
 import os
 import json
 import requests
-from openai import OpenAI
+from groq import Groq
 
 # Configuration - mettre dans .env
-# OPENAI_API_KEY=sk-...
+# GROQ_API_KEY=gsk_...
 # UNSPLASH_ACCESS_KEY=...
 
-# Initialize OpenAI client
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Initialize Groq client
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY", "VKxcQvLNtFlLcgTxXW5YjnsQng4mu-WyIjyNHvLYsWA")
 
 
@@ -41,12 +41,11 @@ Le contenu doit être en français, authentique, et correspondre au style Heldon
 Chaque slide doit être actionable et donner une vraie valeur."""
 
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model="llama-3.1-70b-versatile",
         messages=[
-            {"role": "system", "content": "Tu es un expert en contenu travel Instagram. Génère des carrousels authentiques, engageants, et actionnables."},
+            {"role": "system", "content": "Tu es un expert en contenu travel Instagram. Génère des carrousels authentiques, engageants, et actionnables. Réponds en JSON valide uniquement."},
             {"role": "user", "content": prompt}
-        ],
-        response_format={"type": "json_object"}
+        ]
     )
     
     return json.loads(response.choices[0].message.content)
