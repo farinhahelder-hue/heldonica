@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 interface CarouselGeneratorProps {
   onComplete?: (carousel: any) => void;
@@ -17,6 +19,7 @@ export default function CarouselGenerator({ onComplete }: CarouselGeneratorProps
     
     setIsGenerating(true);
     setError('');
+    setResult(null);
     
     try {
       const response = await fetch('/api/carousel/generate', {
@@ -35,6 +38,49 @@ export default function CarouselGenerator({ onComplete }: CarouselGeneratorProps
       }
     } catch (err) {
       setError('Erreur de connexion');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleDownloadZip = async () => {
+    if (!result) return;
+    
+    try {
+      setIsGenerating(true);
+      const zip = new JSZip();
+      
+      const contentText = `TITRE: ${result.title}
+
+CAPTION:
+${result.caption}
+
+HASHTAGS:
+${result.hashtags?.join(' ')}
+
+SLIDES:
+${result.slides?.map((s: any, i: number) => `
+--- Slide ${i+1} ---
+Titre: ${s.title}
+Contenu: ${s.content}
+`).join('\n')}
+
+---
+Généré avec Heldonica CMS
+`;
+      
+      zip.file('contenu.txt', contentText);
+      
+      if (result.image) {
+        const imgRes = await fetch(result.image);
+        const imgBlob = await imgRes.blob();
+        zip.file('image.jpg', imgBlob);
+      }
+      
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      saveAs(zipBlob, `carousel-${result.title.replace(/\s+/g, '-').toLowerCase()}.zip`);
+    } catch (err) {
+      alert('Erreur lors de la création du ZIP');
     } finally {
       setIsGenerating(false);
     }
@@ -124,14 +170,22 @@ export default function CarouselGenerator({ onComplete }: CarouselGeneratorProps
           )}
           
           <button
-            onClick={() => {
-              const text = `${result.caption}\n\n${result.hashtags?.join(' ')}\n\n${result.slides?.map((s: any, i: number) => `${i+1}. ${s.title}\n${s.content}`).join('\n\n')}`;
-              navigator.clipboard.writeText(text);
-              alert('📋 Contenu copié! Va sur buffer.com pour créer ton post');
-            }}
-            className="mt-3 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            onClick={handleDownloadZip}
+            disabled={isGenerating}
+            className="mt-3 w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
           >
-            📋 Copier le contenu
+            📦 Télécharger ZIP (image + texte)
+          </button>
+          
+          <button
+            onClick={() => {
+              const text = `TITRE: ${result.title}\n\nCAPTION:\n${result.caption}\n\nHASHTAGS:\n${result.hashtags?.join(' ')}\n\nSLIDES:\n${result.slides?.map((s: any, i: number) => `--- Slide ${i+1} ---\nTitre: ${s.title}\n${s.content}`).join('\n\n')}`;
+              navigator.clipboard.writeText(text);
+              alert('📋 Copié dans le presse-papier!');
+            }}
+            className="mt-2 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            📋 Copier le texte
           </button>
         </div>
       )}
