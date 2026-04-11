@@ -14,9 +14,9 @@
         "values": {
           "string": [
             { "name": "topic", "value": "" },
-            { "name": "angle", "value": "" },
+            { "name": "angle", "value": "authentique et insolite" },
             { "name": "format", "value": "carousel" },
-            { "name": "cta", "value": "" }
+            { "name": "cta", "value": "Partagez en commentaire!" }
           ]
         }
       },
@@ -49,7 +49,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const data = $input.first().json;\nconst results = data.results || [];\nif (results.length === 0) return [{ json: {} }];\n\n// Photo with most likes\nconst best = results.reduce((a, b) => (a.likes||0) > (b.likes||0) ? a : b, results[0]);\n\nreturn [{\n  json: {\n    image_url: best.urls?.regular,\n    image_small: best.urls?.small,\n    author: best.user?.name,\n    author_url: best.user?.links?.html,\n    alt: best.alt_description,\n    topic: data.topic\n  }\n}];"
+        "jsCode": "const data = $input.first().json;\nconst results = data.results || [];\nif (results.length === 0) return [{ json: {} }];\n\nconst best = results.reduce((a, b) => (a.likes||0) > (b.likes||0) ? a : b, results[0]);\n\nreturn [{\n  json: {\n    image_url: best.urls?.regular,\n    author: best.user?.name,\n    topic: data.topic\n  }\n}];"
       },
       "id": "best-photo",
       "name": "Meilleure Photo",
@@ -59,25 +59,38 @@
     },
     {
       "parameters": {
-        "operationMode": "complete",
-        "model": "llama3.1:8b",
-        "messages": [
-          {
-            "role": "system",
-            "content": "Tu génères des carrousels Instagram. topic: {{$json.topic}}, angle: {{$json.angle}}"
-          },
-          {
-            "role": "user", 
-            "content": "Génère un carrousel 5 slides:\n- titre accrocheur\n- 5 slides avec titre + contenu\n- caption\n- 10 hashtags\n\nJSON: {\"title\":\"\",\"slides\":[{\"title\":\"\",\"content\":\"\"}],\"caption\":\"\",\"hashtags\":[]}"
-          }
-        ],
-        "options": {}
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{$VAR.GROQ_KEY}}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "model", "value": "llama-3.1-8b-instant" },
+            { "name": "messages", "value": "[{\"role\":\"system\",\"content\":\"Tu génères des carrousels Instagram. JSON ONLY.\"},{\"role\":\"user\",\"content\":\"Génère carrousel 5 slides sur: {{$json.topic}}. JSON.\"}]" }
+          ]
+        }
       },
-      "id": "ollama",
-      "name": "Génère Contenu (Ollama)",
-      "type": "ollama.ollamaChat",
-      "typeVersion": 1,
+      "id": "groq",
+      "name": "Génère Contenu (Groq)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const content = $input.first().json.choices?.[0]?.message?.content || '{}';\nlet parsed = {};\ntry { parsed = JSON.parse(content); } catch {}\n\nreturn [{\n  json: {\n    ...parsed,\n    topic: $input.all()[1].json.topic,\n    image_url: $input.all()[2].json.image_url\n  }\n}];"
+      },
+      "id": "parse-json",
+      "name": "Parse JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2.4,
+      "position": [1150, 300]
     },
     {
       "parameters": {
@@ -95,15 +108,9 @@
         "bodyParameters": {
           "parameters": [
             { "name": "topic", "value": "={{$json.topic}}" },
-            { "name": "angle", "value": "={{$json.angle}}" },
-            { "name": "format", "value": "={{$json.format}}" },
-            { "name": "cta", "value": "={{$json.cta}}" },
-            { "name": "slides", "value": "={{$json.slides}}" },
-            { "name": "image_prompt", "value": "={{$json.topic}}" },
+            { "name": "slides", "value": "={{JSON.stringify($json.slides)}}" },
+            { "name": "caption", "value": "={{$json.caption}}" },
             { "name": "unsplash_image_url", "value": "={{$json.image_url}}" },
-            { "name": "unsplash_author", "value": "={{$json.author}}" },
-            { "name": "unsplash_author_url", "value": "={{$json.author_url}}" },
-            { "name": "unsplash_alt", "value": "={{$json.alt}}" },
             { "name": "status", "value": "draft" }
           ]
         }
@@ -112,25 +119,26 @@
       "name": "Sauvegarde Supabase",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1250, 300]
+      "position": [1350, 300]
     }
   ],
   "connections": {
     "Lanceur": { "main": [[{"node": "Brief", "type": "main", "index": 0}]] },
     "Brief": { "main": [[{"node": "Recherche Unsplash", "type": "main", "index": 0}]] },
     "Recherche Unsplash": { "main": [[{"node": "Meilleure Photo", "type": "main", "index": 0}]] },
-    "Meilleure Photo": { "main": [[{"node": "Génère Contenu (Ollama)", "type": "main", "index": 0}]] },
-    "Génère Contenu (Ollama)": { "main": [[{"node": "Sauvegarde Supabase", "type": "main", "index": 0}]] }
+    "Meilleure Photo": { "main": [[{"node": "Génère Contenu (Groq)", "type": "main", "index": 0}]] },
+    "Génère Contenu (Groq)": { "main": [[{"node": "Parse JSON", "type": "main", "index": 0}]] },
+    "Parse JSON": { "main": [[{"node": "Sauvegarde Supabase", "type": "main", "index": 0}]] }
   },
   "settings": {},
   "variables": [
-    { "id": "UNSPLASH_KEY", "name": "Unsplash Access Key", "type": "string", "value": "VKxcQvLNtFlLcgTxXW5YjnsQng4mu-WyIjyNHvLYsWA" },
-    { "id": "SUPABASE_URL", "name": "Supabase Project URL", "type": "string", "value": "https://smxnruefmrmfyfhuxygq.supabase.co" },
-    { "id": "SUPABASE_KEY", "name": "Supabase Anon Key", "type": "string", "value": "sb_publishable_J8lFZLMdOIVkMkuAGlDJsg_v0mfLlue" },
-    { "id": "OLLAMA_URL", "name": "Ollama URL", "type": "string", "value": "http://localhost:11434" }
+    { "id": "UNSPLASH_KEY", "name": "Unsplash", "type": "string", "value": "" },
+    { "id": "SUPABASE_URL", "name": "Supabase", "type": "string", "value": "" },
+    { "id": "SUPABASE_KEY", "name": "Supabase Key", "type": "string", "value": "" },
+    { "id": "GROQ_KEY", "name": "Groq", "type": "string", "value": "" }
   ],
   "tags": [],
   "trigger": { "type": "manual" },
-  "updatedAt": "2026-04-11T12:00:00Z",
+  "updatedAt": "2026-04-11T13:00:00Z",
   "versionId": "1"
 }
