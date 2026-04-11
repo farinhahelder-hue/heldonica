@@ -71,10 +71,14 @@ Généré avec Heldonica CMS
       
       zip.file('contenu.txt', contentText);
       
-      if (result.image) {
-        const imgRes = await fetch(result.image);
-        const imgBlob = await imgRes.blob();
-        zip.file('image.jpg', imgBlob);
+      // Add all images
+      const allImages = result.images?.length > 0 ? result.images : (result.image ? [result.image] : []);
+      for (let i = 0; i < allImages.length; i++) {
+        try {
+          const imgRes = await fetch(allImages[i]);
+          const imgBlob = await imgRes.blob();
+          zip.file(`image-${i+1}.jpg`, imgBlob);
+        } catch {}
       }
       
       const zipBlob = await zip.generateAsync({ type: 'blob' });
@@ -161,11 +165,19 @@ Généré avec Heldonica CMS
             <p className="text-sm">{result.hashtags?.join(' ')}</p>
           </div>
           
-          {result.image && (
+          {result.images && result.images.length > 0 ? (
+            <div className="mb-3">
+              <span className="text-sm font-medium">Images ({result.images.length}):</span>
+              <div className="grid grid-cols-5 gap-2 mt-1">
+                {result.images.map((img: string, i: number) => (
+                  <img key={i} src={img} alt={`Slide ${i+1}`} className="w-full h-20 object-cover rounded" />
+                ))}
+              </div>
+            </div>
+          ) : result.image && (
             <div className="mb-3">
               <span className="text-sm font-medium">Image:</span>
               <img src={result.image} alt="Preview" className="mt-1 w-full h-40 object-cover rounded" />
-              <a href={result.image} download="carousel-image.jpg" className="block mt-2 text-center text-sm text-blue-600 hover:underline">⬇️ Télécharger l'image</a>
             </div>
           )}
           
