@@ -24,12 +24,11 @@ const FOLDERS = [
 ];
 
 export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) {
-  const [tab, setTab] = useState<'library' | 'google'>('library');
+  const [tab, setTab] = useState<'library' | 'url'>('library');
   const [files, setFiles] = useState<MediaFile[]>([]);
   const [loading, setLoading] = useState(false);
   const [importing, setImporting] = useState(false);
-  const [googleUrl, setGoogleUrl] = useState('');
-  const [googleFilename, setGoogleFilename] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const [toast, setToast] = useState('');
   const [uploading, setUploading] = useState(false);
   const [folder, setFolder] = useState('articles');
@@ -74,21 +73,20 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
     } finally { setUploading(false); e.target.value = ''; }
   };
 
-  const importFromGoogle = async () => {
-    if (!googleUrl.trim()) return;
-    const filename = googleFilename.trim() || `google-${Date.now()}.jpg`;
+  const importFromUrl = async () => {
+    if (!imageUrl.trim()) return;
+    const filename = `import-${Date.now()}.jpg`;
     setImporting(true);
     try {
       const res = await fetch('/api/cms/media', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-cms-auth': cmsPassword },
-        body: JSON.stringify({ imageUrl: googleUrl, filename, folder }),
+        body: JSON.stringify({ imageUrl: imageUrl, filename, folder }),
       });
       const data = await res.json();
       if (data.url) {
-        showToast('✅ Photo importée dans Supabase Storage !');
-        setGoogleUrl('');
-        setGoogleFilename('');
+        showToast('✅ Photo importée !');
+        setImageUrl('');
         setTab('library');
         loadFiles();
       } else {
@@ -148,7 +146,7 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
 
         {/* Tabs */}
         <div style={{ display: 'flex', borderBottom: '1.5px solid #e8e3dc', padding: '0 1.5rem' }}>
-          {([['library', '☁️ Bibliothèque Supabase'], ['google', '📸 Importer Google Photos']] as const).map(([id, label]) => (
+          {([['library', '☁️ Bibliothèque'], ['url', '🔗 Importer par URL']] as const).map(([id, label]) => (
             <button key={id} onClick={() => setTab(id)} style={{
               padding: '.75rem 1.1rem', border: 'none', background: 'none', cursor: 'pointer',
               fontWeight: tab === id ? 700 : 400,
@@ -183,9 +181,9 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
                   <input type="file" accept="image/*" onChange={handleUpload} style={{ display: 'none' }} disabled={uploading} />
                 </label>
                 <button
-                  onClick={() => setTab('google')}
+                  onClick={() => setTab('url')}
                   style={{ padding: '.5rem 1rem', background: '#4285F4', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.85rem', fontWeight: 600 }}
-                >📸 Depuis Google Photos</button>
+                >🔗 Importer par URL</button>
               </div>
 
               {loading ? (
@@ -246,33 +244,26 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
             </div>
           )}
 
-          {/* ── Import Google Photos ── */}
-          {tab === 'google' && (
+          {/* ── Import par URL ── */}
+          {tab === 'url' && (
             <div style={{ maxWidth: 560, margin: '0 auto' }}>
               <div style={{ background: '#faf8f5', borderRadius: '1rem', padding: '1.5rem', marginBottom: '1.5rem', border: '1.5px solid #e8e3dc' }}>
-                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#1a1a1a', marginBottom: '.75rem' }}>📸 Importer depuis Google Photos</h3>
+                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#1a1a1a', marginBottom: '.75rem' }}>🔗 Importer depuis une URL</h3>
 
                 <div style={{ background: '#e8f4f8', borderRadius: '.75rem', padding: '1rem', marginBottom: '1.25rem', fontSize: '.83rem', color: '#1a5276', lineHeight: 1.7 }}>
-                  <strong>📋 Comment obtenir l'URL :</strong><br />
-                  1. Ouvre la photo dans Google Photos<br />
-                  2. Clique sur les <strong>⋮ 3 points</strong> → <strong>"Partager"</strong><br />
-                  3. Ou : clic droit sur l'image → <strong>"Copier l'adresse de l'image"</strong><br />
-                  4. L'URL commence par <code>https://lh3.googleusercontent.com</code>
+                  <strong>Compatible avec :</strong><br />
+                  • Google Photos, iCloud, Dropbox<br />
+                  • Unsplash, Pexels, Pixabay<br />
+                  • N'importe quel hébergement d'images<br /><br />
+                  <strong>Comment obtenir l'URL :</strong><br />
+                  Clic droit → "Copier l'adresse de l'image"
                 </div>
 
-                <label style={{ display: 'block', fontWeight: 600, fontSize: '.85rem', color: '#555', marginBottom: '.35rem' }}>URL Google Photos *</label>
+                <label style={{ display: 'block', fontWeight: 600, fontSize: '.85rem', color: '#555', marginBottom: '.35rem' }}>URL de l'image *</label>
                 <input
-                  value={googleUrl}
-                  onChange={e => setGoogleUrl(e.target.value)}
-                  placeholder="https://lh3.googleusercontent.com/..."
-                  style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.88rem', marginBottom: '1rem', background: '#fff' }}
-                />
-
-                <label style={{ display: 'block', fontWeight: 600, fontSize: '.85rem', color: '#555', marginBottom: '.35rem' }}>Nom du fichier</label>
-                <input
-                  value={googleFilename}
-                  onChange={e => setGoogleFilename(e.target.value)}
-                  placeholder="ex : portugal-sintra-2025.jpg"
+                  value={imageUrl}
+                  onChange={e => setImageUrl(e.target.value)}
+                  placeholder="https://lh3.googleusercontent.com/... ou https://images.unsplash.com/..."
                   style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.88rem', marginBottom: '1rem', background: '#fff' }}
                 />
 
@@ -286,16 +277,26 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
                 </select>
 
                 <button
-                  onClick={importFromGoogle}
-                  disabled={!googleUrl.trim() || importing}
+                  onClick={importFromUrl}
+                  disabled={!imageUrl.trim() || importing}
                   style={{
                     width: '100%', padding: '.8rem',
-                    background: importing ? '#ccc' : '#4285F4',
+                    background: importing ? '#ccc' : '#01696f',
                     color: 'white', border: 'none', borderRadius: '.5rem',
-                    fontWeight: 700, cursor: importing ? 'wait' : 'pointer', fontSize: '.9rem',
+                    cursor: importing ? 'wait' : 'pointer',
+                    fontSize: '.9rem', fontWeight: 600,
                   }}
-                >{importing ? '⏳ Import en cours…' : '⬆️ Importer dans Supabase Storage'}</button>
+                >
+                  {importing ? '⏳ Import en cours...' : '📥 Importer cette image'}
+                </button>
               </div>
+
+              {imageUrl && (
+                <div style={{ background: 'white', borderRadius: '.75rem', padding: '1rem', border: '2px solid #e8e3dc' }}>
+                  <p style={{ fontSize: '.8rem', color: '#888', marginBottom: '.5rem' }}>Aperçu :</p>
+                  <img src={imageUrl} alt="Aperçu" style={{ width: '100%', maxHeight: 200, objectFit: 'contain', borderRadius: '.5rem' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                </div>
+              )}
             </div>
           )}
         </div>
