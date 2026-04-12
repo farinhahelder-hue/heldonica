@@ -24,7 +24,7 @@ export default function Destinations() {
       name: 'Madère', 
       slug: 'madere', 
       description: 'Randonnées volcaniques en couple',
-      image: 'https://images.unsplash.com/photo-1555117343-8b28e6f14895?w=600&q=80'
+      image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80'
     },
   ]
 
