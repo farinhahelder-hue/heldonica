@@ -41,9 +41,9 @@ export async function POST(request: NextRequest) {
   
   if (!GROQ_API_KEY || !UNSPLASH_ACCESS_KEY) {
     return NextResponse.json({ 
-      error: 'API keys not configured',
-      gpt: !!GROQ_API_KEY,
-      unsplash: !!UNSPLASH_ACCESS_KEY
+      error: !UNSPLASH_ACCESS_KEY ? 'Unsplash API key missing - configure NEXT_PUBLIC_UNSPLASH_ACCESS_KEY in Vercel' : 'Groq API key missing',
+      unsplash_configured: !!UNSPLASH_ACCESS_KEY,
+      gpt_configured: !!GROQ_API_KEY
     }, { status: 500 });
   }
 
