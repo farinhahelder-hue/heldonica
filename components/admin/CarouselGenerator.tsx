@@ -174,10 +174,9 @@ Généré avec Heldonica CMS
                 ))}
               </div>
             </div>
-          ) : result.image && (
-            <div className="mb-3">
-              <span className="text-sm font-medium">Image:</span>
-              <img src={result.image} alt="Preview" className="mt-1 w-full h-40 object-cover rounded" />
+          ) : (
+            <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded text-sm text-amber-700">
+              ⚠️ Pas d'images - vérifie la clé Unsplash dans Vercel (NEXT_PUBLIC_UNSPLASH_ACCESS_KEY)
             </div>
           )}
           
