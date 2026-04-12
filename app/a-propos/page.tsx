@@ -5,7 +5,27 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Notre histoire — Heldonica | Slow travel en couple depuis 2015',
-  description: 'L\'un vient de Madère, l\'autre de Roumanie. On s\'est rencontrés à Paris et on voyage ensemble depuis 2015 — hors sentiers battus, avec le vrai goût des choses. Découvrez l\'histoire derrière Heldonica.',
+  description:
+    "L'un vient de Madère, l'autre de Roumanie. On s'est rencontrés à Paris et on voyage ensemble depuis 2015 — hors sentiers battus, avec le vrai goût des choses. Découvrez l'histoire derrière Heldonica.",
+  alternates: {
+    canonical: 'https://heldonica.fr/a-propos',
+  },
+  openGraph: {
+    url: 'https://heldonica.fr/a-propos',
+    title: 'Notre histoire — Heldonica | Slow travel en couple depuis 2015',
+    description:
+      "L'un vient de Madère, l'autre de Roumanie. On s'est rencontrés à Paris et on voyage ensemble depuis 2015 — hors sentiers battus, avec le vrai goût des choses.",
+    images: [
+      {
+        url: 'https://heldonica.fr/og-default.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Heldonica — Slow Travel, pépites & voyages hors des sentiers battus',
+      },
+    ],
+    locale: 'fr_FR',
+    type: 'website',
+  },
 }
 
 export default function AProposPage() {
