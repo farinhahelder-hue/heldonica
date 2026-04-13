@@ -5,6 +5,8 @@ import {
 } from "@/lib/wordpress-data";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import EnhancedRichContent from "@/components/EnhancedRichContent";
+import { sanitizeHtml } from "@/lib/sanitize-html";
 
 interface Props {
   params: { slug: string };
@@ -109,6 +111,7 @@ export default function DestinationPage({ params }: Props) {
   const meta = DEST_META[params.slug];
   const heroImage = page.image || meta?.heroImage || "";
   const description = meta?.description || "";
+  const safeContent = sanitizeHtml(page.content);
 
   // Articles liés à cette destination
   const titleWords = page.title.toLowerCase().split(/\s+/).filter((w) => w.length > 3);
@@ -158,9 +161,10 @@ export default function DestinationPage({ params }: Props) {
       </div>
 
       {/* Contenu */}
-      {page.content && (
+      {safeContent && (
         <section className="max-w-4xl mx-auto px-4 py-14">
-          <div
+          <EnhancedRichContent
+            html={safeContent}
             className="prose prose-lg max-w-none
               prose-headings:font-bold prose-headings:text-gray-900
               prose-p:text-gray-700 prose-p:leading-relaxed
@@ -168,7 +172,6 @@ export default function DestinationPage({ params }: Props) {
               prose-img:rounded-xl prose-img:shadow-lg prose-img:mx-auto
               prose-ul:text-gray-700 prose-ol:text-gray-700
               prose-li:marker:text-amber-500"
-            dangerouslySetInnerHTML={{ __html: page.content }}
           />
         </section>
       )}
