@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
+import EnhancedRichContent from '@/components/EnhancedRichContent';
 import MediaLibrary from '@/components/MediaLibrary';
 import { sanitizeHtml } from '@/lib/sanitize-html';
 import CarouselEditor from '@/components/admin/CarouselEditor';
@@ -870,7 +871,7 @@ export default function CMSAdmin() {
                     {editingArticle?.excerpt || 'Ton extrait apparaîtra ici pour donner envie d’ouvrir l’article.'}
                   </p>
                   {articlePreviewHtml ? (
-                    <div style={previewBody} dangerouslySetInnerHTML={{ __html: articlePreviewHtml }} />
+                    <EnhancedRichContent html={articlePreviewHtml} style={previewBody} />
                   ) : (
                     <p style={{ margin: 0, color: '#8a7a70', lineHeight: 1.7 }}>
                       Commence à écrire dans l’éditeur pour voir le rendu du contenu ici.
