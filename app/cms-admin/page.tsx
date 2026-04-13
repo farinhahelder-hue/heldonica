@@ -631,7 +631,9 @@ export default function CMSAdmin() {
       )}
 
       {showMediaLibrary && (
-        <MediaLibrary onClose={() => setShowMediaLibrary(false)}
+        <MediaLibrary 
+          cmsPassword={pwd}
+          onClose={() => setShowMediaLibrary(false)}
           onSelect={(url) => {
             setEditingArticle(prev => prev ? { ...prev, featured_image: url } : prev);
             showToast('✅ Image sélectionnée depuis la médiathèque !');
