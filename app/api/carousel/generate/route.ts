@@ -75,10 +75,15 @@ ${getGuideForTopic(topic)}` }
     const groqData = await groqResponse.json();
     const rawContent = groqData.choices?.[0]?.message?.content || '';
     
-    let content = {};
+    let content: {
+      title?: string
+      slides?: unknown[]
+      caption?: string
+      hashtags?: string[]
+    } = {};
     try {
       // Try direct parse first
-      content = JSON.parse(rawContent);
+      content = JSON.parse(rawContent) as typeof content;
     } catch {
       // Try to extract JSON from text
       const match = rawContent.match(/\{[\s\S]*\}/);
