@@ -8,6 +8,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import NewsletterForm from '@/components/NewsletterForm';
 import ShareButtons from '@/components/ShareButtons';
+import EnhancedRichContent from '@/components/EnhancedRichContent';
 import { sanitizeHtml } from '@/lib/sanitize-html';
 
 export const revalidate = 60;
@@ -244,7 +245,8 @@ export default async function BlogPostPage({ params }: Props) {
           )}
 
           {safeContent ? (
-            <div
+            <EnhancedRichContent
+              html={safeContent}
               className="prose prose-lg max-w-none
                 prose-headings:font-serif prose-headings:font-bold prose-headings:text-stone-900
                 prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
@@ -256,7 +258,6 @@ export default async function BlogPostPage({ params }: Props) {
                 prose-blockquote:border-l-4 prose-blockquote:border-amber-400 prose-blockquote:bg-amber-50 prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:rounded-r-xl prose-blockquote:not-italic prose-blockquote:text-stone-700
                 prose-ul:space-y-2 prose-li:text-stone-700
                 prose-hr:border-stone-200"
-              dangerouslySetInnerHTML={{ __html: safeContent }}
             />
           ) : (
             <div className="py-16 text-center">
