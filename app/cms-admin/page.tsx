@@ -7,6 +7,7 @@ import MediaLibrary from '@/components/MediaLibrary';
 import { sanitizeHtml } from '@/lib/sanitize-html';
 import CarouselEditor from '@/components/admin/CarouselEditor';
 import CarouselGenerator from '@/components/admin/CarouselGenerator';
+import BlogGenerator from '@/components/admin/BlogGenerator';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
 
@@ -605,6 +606,7 @@ export default function CMSAdmin() {
   const TABS = [
     { id: 'articles', label: '📝 Articles', count: articles.length },
     { id: 'new',      label: '✏️ Nouvel article', count: null },
+    { id: 'blog',     label: '✨ Générateur Blog IA', count: null },
     { id: 'pages',    label: '🗂️ Pages', count: null },
     { id: 'demandes', label: '✈️ Travel Planning', count: demandes.length },
     { id: 'media',    label: '🖼️ Médiathèque', count: null },
@@ -1048,6 +1050,25 @@ export default function CMSAdmin() {
             <CarouselGenerator />
             <CarouselEditor />
           </div>
+        )}
+
+        {/* ── BLOG IA ── */}
+        {tab === 'blog' && (
+          <BlogGenerator
+            onGenerated={(data) => {
+              setEditingArticle({
+                title: data.title,
+                slug: data.suggestedSlug,
+                excerpt: data.excerpt,
+                content: data.content,
+                featured_image: '',
+                category: 'Voyage',
+                published: false,
+              });
+              showToast('✅ Article généré ! Edite-le puis enregistre.');
+              setTab('new');
+            }}
+          />
         )}
 
         {/* ── PARAMÈTRES ── */}
