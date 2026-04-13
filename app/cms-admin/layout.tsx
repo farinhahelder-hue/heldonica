@@ -1,3 +1,4 @@
+import React from 'react'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -7,4 +8,12 @@ export const metadata: Metadata = {
     noarchive: true,
     nosnippet: true,
   },
+}
+
+export default function CmsAdminLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return <>{children}</>
 }
