@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { requireCmsAuth } from '@/lib/cms-auth'
 
 function supabase() {
   return createClient(
@@ -10,7 +11,10 @@ function supabase() {
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(_: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: { id: string } }) {
+  const authError = requireCmsAuth(req)
+  if (authError) return authError
+
   const sb = supabase()
   const { data, error } = await sb
     .from('cms_blog_posts')
@@ -22,6 +26,9 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
 }
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
+  const authError = requireCmsAuth(req)
+  if (authError) return authError
+
   const sb = supabase()
   const body = await req.json()
   const { data, error } = await sb
@@ -34,7 +41,10 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   return NextResponse.json({ article: data })
 }
 
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+  const authError = requireCmsAuth(req)
+  if (authError) return authError
+
   const sb = supabase()
   const { error } = await sb.from('cms_blog_posts').delete().eq('id', params.id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

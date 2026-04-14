@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { requireCmsAuth } from '@/lib/cms-auth';
 
 const CONTENT_UPDATES: { slug: string; content: string }[] = [
   { slug: `madere-slow-travel-guide`, content: `<article class="prose-heldonica">
@@ -172,7 +173,10 @@ const CONTENT_UPDATES: { slug: string; content: string }[] = [
 </article>` },
 ];
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const authError = requireCmsAuth(request);
+  if (authError) return authError;
+
   if (!supabase) {
     return NextResponse.json({ error: 'Supabase not configured' }, { status: 500 });
   }

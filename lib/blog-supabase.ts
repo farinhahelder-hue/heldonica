@@ -14,12 +14,14 @@ export interface BlogPost {
   excerpt: string | null;
   content: string | null;
   category: string | null;
+  destination?: string | null;
   tags: string[] | null;
   featured_image: string | null;
   author: string | null;
   published: boolean;
   published_at: string | null;
   created_at: string | null;
+  read_time?: number | null;
   updated_at: string | null;
 }
 
@@ -93,7 +95,7 @@ export async function getAllSlugs(): Promise<{ slug: string }[]> {
 }
 
 /** Formate une date ISO en français */
-export function formatDate(iso: string | null): string {
+export function formatDate(iso: string | null | undefined): string {
   if (!iso) return '';
   return new Date(iso).toLocaleDateString('fr-FR', {
     day: 'numeric',

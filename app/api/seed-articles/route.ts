@@ -1,11 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { requireCmsAuth } from "@/lib/cms-auth";
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  if (searchParams.get("secret") !== "heldonica2026seed") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+export async function GET(request: NextRequest) {
+  const authError = requireCmsAuth(request);
+  if (authError) return authError;
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
   // Essaie service_role en priorité (bypass RLS), sinon anon

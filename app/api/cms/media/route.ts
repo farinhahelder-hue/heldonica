@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { requireCmsAuth } from '@/lib/cms-auth';
 
-const CMS_PASSWORD = process.env.CMS_PASSWORD || 'heldonica2024';
 const BUCKET = 'media';
-
-function checkAuth(req: NextRequest) {
-  return req.headers.get('x-cms-auth') === CMS_PASSWORD;
-}
 
 function supabaseAdmin() {
   return createClient(
@@ -17,7 +13,8 @@ function supabaseAdmin() {
 
 // GET : lister les fichiers du bucket Supabase Storage
 export async function GET(req: NextRequest) {
-  if (!checkAuth(req)) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+  const authError = requireCmsAuth(req);
+  if (authError) return authError;
 
   const prefix = req.nextUrl.searchParams.get('prefix') || 'articles';
   const folder = prefix.replace(/\/$/, '');
@@ -53,7 +50,8 @@ export async function GET(req: NextRequest) {
 
 // POST : importer depuis une URL (Google Photos) vers Supabase Storage
 export async function POST(req: NextRequest) {
-  if (!checkAuth(req)) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+  const authError = requireCmsAuth(req);
+  if (authError) return authError;
 
   const { imageUrl, filename, folder: folderParam } = await req.json();
   if (!imageUrl) return NextResponse.json({ error: 'imageUrl requis' }, { status: 400 });
@@ -85,9 +83,12 @@ export async function POST(req: NextRequest) {
 
 // DELETE : supprimer un fichier du bucket
 export async function DELETE(req: NextRequest) {
-  if (!checkAuth(req)) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+  const authError = requireCmsAuth(req);
+  if (authError) return authError;
+
   const { key } = await req.json();
   if (!key) return NextResponse.json({ error: 'key requis' }, { status: 400 });
+
   const sb = supabaseAdmin();
   const { error } = await sb.storage.from(BUCKET).remove([key]);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
