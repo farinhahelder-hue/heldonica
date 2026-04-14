@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { requireCmsAuth } from '@/lib/cms-auth';
 
-const CMS_PASSWORD = process.env.CMS_PASSWORD || 'heldonica2024';
 const BUCKET = 'media';
-
-function checkAuth(req: NextRequest) {
-  return req.headers.get('x-cms-auth') === CMS_PASSWORD;
-}
 
 function supabaseAdmin() {
   return createClient(
@@ -16,7 +12,8 @@ function supabaseAdmin() {
 }
 
 export async function POST(req: NextRequest) {
-  if (!checkAuth(req)) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+  const authError = requireCmsAuth(req);
+  if (authError) return authError;
 
   const formData = await req.formData();
   const file = formData.get('file') as File | null;

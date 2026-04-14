@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface DestinationFormProps {
   destinationId?: string | null;
@@ -31,13 +31,7 @@ export default function DestinationForm({ destinationId, onSave, onCancel }: Des
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (destinationId) {
-      fetchDestination();
-    }
-  }, [destinationId]);
-
-  const fetchDestination = async () => {
+  const fetchDestination = useCallback(async () => {
     try {
       const response = await fetch(`/api/destinations/${destinationId}`);
       const data = await response.json();
@@ -45,7 +39,13 @@ export default function DestinationForm({ destinationId, onSave, onCancel }: Des
     } catch (err) {
       console.error('Failed to fetch destination:', err);
     }
-  };
+  }, [destinationId]);
+
+  useEffect(() => {
+    if (destinationId) {
+      fetchDestination();
+    }
+  }, [destinationId, fetchDestination]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;

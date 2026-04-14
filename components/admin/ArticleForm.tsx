@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface ArticleFormProps {
   articleId?: string | null;
@@ -28,13 +28,7 @@ export default function ArticleForm({ articleId, onSave, onCancel }: ArticleForm
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (articleId) {
-      fetchArticle();
-    }
-  }, [articleId]);
-
-  const fetchArticle = async () => {
+  const fetchArticle = useCallback(async () => {
     try {
       const response = await fetch(`/api/articles/${articleId}`);
       const data = await response.json();
@@ -42,7 +36,13 @@ export default function ArticleForm({ articleId, onSave, onCancel }: ArticleForm
     } catch (err) {
       console.error('Failed to fetch article:', err);
     }
-  };
+  }, [articleId]);
+
+  useEffect(() => {
+    if (articleId) {
+      fetchArticle();
+    }
+  }, [articleId, fetchArticle]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;

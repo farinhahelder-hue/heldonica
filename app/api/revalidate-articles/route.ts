@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
+import { requireCmsAuth } from '@/lib/cms-auth';
 
 const SLUGS = [
   'madere-slow-travel-guide',
@@ -11,6 +12,9 @@ const SLUGS = [
 ];
 
 export async function GET(request: NextRequest) {
+  const authError = requireCmsAuth(request);
+  if (authError) return authError;
+
   const revalidated = [];
   for (const slug of SLUGS) {
     revalidatePath(`/blog/${slug}`);

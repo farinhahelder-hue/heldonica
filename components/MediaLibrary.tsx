@@ -13,7 +13,7 @@ type MediaFile = {
 type Props = {
   onSelect: (url: string) => void;
   onClose: () => void;
-  cmsPassword: string;
+  cmsPassword?: string;
 };
 
 const FOLDERS = [
@@ -39,9 +39,7 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
   const loadFiles = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/cms/media?prefix=${encodeURIComponent(folder)}`, {
-        headers: { 'x-cms-auth': cmsPassword },
-      });
+      const res = await fetch(`/api/cms/media?prefix=${encodeURIComponent(folder)}`);
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       setFiles(data.files || []);
@@ -50,7 +48,7 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
     } finally {
       setLoading(false);
     }
-  }, [cmsPassword, folder]);
+  }, [folder]);
 
   useEffect(() => { if (tab === 'library') loadFiles(); }, [tab, loadFiles]);
 
@@ -64,7 +62,6 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
     try {
       const res = await fetch('/api/cms/media-upload', {
         method: 'POST',
-        headers: { 'x-cms-auth': cmsPassword },
         body: fd,
       });
       const data = await res.json();
@@ -78,9 +75,13 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
     const filename = `import-${Date.now()}.jpg`;
     setImporting(true);
     try {
+      const headers: HeadersInit = { 'Content-Type': 'application/json' };
+      if (cmsPassword) {
+        headers['x-cms-auth'] = cmsPassword;
+      }
       const res = await fetch('/api/cms/media', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-cms-auth': cmsPassword },
+        headers,
         body: JSON.stringify({ imageUrl: imageUrl, filename, folder }),
       });
       const data = await res.json();
@@ -101,7 +102,7 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
     try {
       const res = await fetch('/api/cms/media', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json', 'x-cms-auth': cmsPassword },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key }),
       });
       const data = await res.json();

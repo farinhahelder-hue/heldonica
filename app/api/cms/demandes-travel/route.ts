@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { requireCmsAuth } from '@/lib/cms-auth'
 
 function supabase() {
   return createClient(
@@ -10,7 +11,10 @@ function supabase() {
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(req: Request) {
+  const authError = requireCmsAuth(req)
+  if (authError) return authError
+
   const sb = supabase()
   const { data, error } = await sb
     .from('demandes_travel')
@@ -21,6 +25,9 @@ export async function GET() {
 }
 
 export async function PUT(req: Request) {
+  const authError = requireCmsAuth(req)
+  if (authError) return authError
+
   const sb = supabase()
   const { id, statut } = await req.json()
   const { error } = await sb

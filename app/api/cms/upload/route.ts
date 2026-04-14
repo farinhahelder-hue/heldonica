@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { requireCmsAuth } from '@/lib/cms-auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,6 +12,9 @@ function supabase() {
 }
 
 export async function POST(req: Request) {
+  const authError = requireCmsAuth(req)
+  if (authError) return authError
+
   try {
     const sb = supabase()
     const formData = await req.formData()

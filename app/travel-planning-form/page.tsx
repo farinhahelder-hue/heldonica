@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
 
 type FormData = {
@@ -136,12 +137,12 @@ export default function TravelPlanningForm() {
             {form.duration && <p className="text-gray-700">⏳ {form.duration}</p>}
             {form.budget && <p className="text-gray-700">💶 {form.budget}</p>}
           </div>
-          <a
+          <Link
             href="/blog"
             className="inline-block bg-mahogany text-white px-8 py-3 rounded-xl font-medium hover:bg-red-900 transition"
           >
             Explorer le blog en attendant →
-          </a>
+          </Link>
         </div>
       </div>
     )

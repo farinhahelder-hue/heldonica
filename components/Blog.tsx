@@ -30,9 +30,9 @@ export default function Blog() {
             <article key={article.id} className="bg-cloud-dancer rounded-2xl border border-stone-200 hover:shadow-lg transition-all duration-300 group overflow-hidden hover:-translate-y-1">
               {/* Image de couverture */}
               <div className="relative h-48 w-full overflow-hidden">
-                {article.featuredImage ? (
+                {article.image ? (
                   <img
-                    src={article.featuredImage}
+                    src={article.image}
                     alt={article.title}
                     width={400}
                     height={192}
