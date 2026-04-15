@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { AuthProvider } from '@/components/AuthProvider';
+import CookieConsentBanner from '@/components/CookieConsentBanner';
 
 const SITE_URL = 'https://heldonica.fr';
 
@@ -123,7 +124,10 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          {children}
+          <CookieConsentBanner />
+        </AuthProvider>
       </body>
     </html>
   );

@@ -83,6 +83,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'yearly',
       priority: 0.2,
     },
+    {
+      url: `${BASE_URL}/politique-confidentialite`,
+      lastModified: new Date('2026-04-15'),
+      changeFrequency: 'yearly',
+      priority: 0.2,
+    },
   ];
 
   // Pages dynamiques avec vraies dates de publication
