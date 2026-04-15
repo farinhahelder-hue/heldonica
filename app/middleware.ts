@@ -1,58 +1,41 @@
-import { NextRequest, NextResponse } from 'next/server'
+const LEGACY_REDIRECTS: Record<string, string> = {
+  '/a-propos-2': '/a-propos',
+  '/presentation-3': '/a-propos',
+  '/travel-planner': '/travel-planning',
+  '/nos-services': '/travel-planning',
+  '/bons-plans': '/blog',
+  '/sujets/bons-plans': '/blog',
+  '/zurich': '/destinations/zurich',
+  '/suisse': '/destinations/suisse',
+  '/roumanie': '/destinations/roumanie',
+  '/madere': '/destinations/madere',
+  '/stoos-ridge-notre-aventure-sur-la-crete-panoramique-2':
+    '/blog/stoos-ridge-notre-aventure-sur-la-crete-panoramique',
+};
 
-// Rate limiting en mémoire Edge (reset à chaque cold start — suffisant pour un blog)
-const rateMap = new Map<string, number[]>()
-
-export function middleware(req: NextRequest) {
-  const pathname = req.nextUrl.pathname
-
-  // Rate limit sur les routes API sensibles
-  if (
-    pathname.startsWith('/api/instagram') ||
-    pathname.startsWith('/api/contact') ||
-    pathname.startsWith('/api/travel-planning')
-  ) {
-    const ip =
-      req.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
-      req.headers.get('x-real-ip') ??
-      'unknown'
-
-    const now = Date.now()
-    const windowMs = 60_000 // 1 minute
-    const maxRequests = 5
-
-    const timestamps = (rateMap.get(ip) ?? []).filter(
-      (t) => now - t < windowMs
-    )
-
-    if (timestamps.length >= maxRequests) {
-      return new NextResponse('Too Many Requests', {
-        status: 429,
-        headers: {
-          'Retry-After': '60',
-          'Content-Type': 'text/plain',
-        },
-      })
-    }
-
-    rateMap.set(ip, [...timestamps, now])
+function normalizePath(pathname: string) {
+  if (!pathname || pathname === '/') {
+    return '/';
   }
 
-  // Bloquer l'accès direct à /cms-admin depuis des user-agents bots connus
-  if (pathname.startsWith('/cms-admin')) {
-    const ua = req.headers.get('user-agent') ?? ''
-    const isBot = /bot|crawler|spider|crawling/i.test(ua)
-    if (isBot) {
-      return new NextResponse('Forbidden', { status: 403 })
-    }
-  }
-
-  return NextResponse.next()
+  return pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
 }
 
-export const config = {
-  matcher: [
-    '/api/:path*',
-    '/cms-admin/:path*',
-  ],
+export function resolveLegacyRedirect(pathname: string) {
+  const normalized = normalizePath(pathname);
+  const directRedirect = LEGACY_REDIRECTS[normalized];
+
+  if (directRedirect) {
+    return directRedirect;
+  }
+
+  if (normalized.startsWith('/etiquettes/')) {
+    return '/blog';
+  }
+
+  if (normalized.startsWith('/sujets/')) {
+    return '/blog';
+  }
+
+  return null;
 }
