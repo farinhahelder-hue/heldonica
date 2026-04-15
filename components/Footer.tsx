@@ -1,26 +1,23 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
     <footer className="bg-charcoal text-cloud-dancer">
-      {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-          {/* Brand Section */}
           <div>
             <div className="mb-4">
               <h3 className="text-white font-serif text-2xl font-bold mb-2">Heldonica</h3>
               <p className="text-sm text-cloud-dancer">Curated Escapes</p>
             </div>
             <p className="text-sm text-cloud-dancer leading-relaxed">
-              Expert en slow travel et consulting hôtelier. Découvrez des voyages authentiques et des itinéraires hors sentiers.
+              Expert en slow travel et consulting hotelier. Decouvrez des voyages authentiques et
+              des itineraires hors sentiers.
             </p>
-            {/* Instagram Link */}
             <div className="mt-6">
               <a
                 href="https://www.instagram.com/heldonica/"
@@ -37,7 +34,6 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Navigation Links */}
           <div>
             <h4 className="text-white font-serif font-bold mb-6 text-lg">Navigation</h4>
             <ul className="space-y-3 text-sm">
@@ -48,7 +44,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/a-propos" className="text-cloud-dancer hover:text-white transition">
-                  À propos
+                  A propos
                 </Link>
               </li>
               <li>
@@ -62,25 +58,33 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/travel-planning-form" className="text-cloud-dancer hover:text-white transition">
+                <Link
+                  href="/travel-planning-form"
+                  className="text-cloud-dancer hover:text-white transition"
+                >
                   Planifier un voyage
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Services */}
           <div>
             <h4 className="text-white font-serif font-bold mb-6 text-lg">Services</h4>
             <ul className="space-y-3 text-sm">
               <li>
-                <Link href="/travel-planning" className="text-cloud-dancer hover:text-white transition">
+                <Link
+                  href="/travel-planning"
+                  className="text-cloud-dancer hover:text-white transition"
+                >
                   Slow Travel
                 </Link>
               </li>
               <li>
-                <Link href="/hotel-consulting" className="text-cloud-dancer hover:text-white transition">
-                  Consulting Hôtelier
+                <Link
+                  href="/hotel-consulting"
+                  className="text-cloud-dancer hover:text-white transition"
+                >
+                  Consulting Hotelier
                 </Link>
               </li>
               <li>
@@ -91,13 +95,23 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Legal & Contact */}
           <div>
-            <h4 className="text-white font-serif font-bold mb-6 text-lg">Légal & Contact</h4>
+            <h4 className="text-white font-serif font-bold mb-6 text-lg">Legal & Contact</h4>
             <ul className="space-y-3 text-sm">
               <li>
-                <Link href="/mentions-legales" className="text-cloud-dancer hover:text-white transition">
-                  Mentions légales
+                <Link
+                  href="/mentions-legales"
+                  className="text-cloud-dancer hover:text-white transition"
+                >
+                  Mentions legales
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/politique-confidentialite"
+                  className="text-cloud-dancer hover:text-white transition"
+                >
+                  Politique de confidentialite
                 </Link>
               </li>
               <li>
@@ -108,21 +122,15 @@ export default function Footer() {
                   info@heldonica.fr
                 </a>
               </li>
-              <li className="text-cloud-dancer">
-                France
-              </li>
+              <li className="text-cloud-dancer">France</li>
             </ul>
           </div>
         </div>
 
-        {/* Divider */}
         <div className="border-t border-gray-700 pt-8">
-          {/* Copyright & Credits */}
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-cloud-dancer">
-            <p>© {currentYear} Heldonica - Curated Escapes. Tous droits réservés.</p>
-            <p className="text-xs">
-              Photos © Heldonica. Tous droits d'auteur réservés.
-            </p>
+            <p>© {currentYear} Heldonica - Curated Escapes. Tous droits reserves.</p>
+            <p className="text-xs">Photos © Heldonica. Tous droits d'auteur reserves.</p>
           </div>
         </div>
       </div>
