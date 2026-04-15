@@ -138,6 +138,8 @@ interface HomeProps {
 export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts }: HomeProps) {
   useScrollReveal()
   const featImg = featured ? postImage(featured) : null
+  const publishedArticles = totalPosts > 0 ? totalPosts : 17
+  const coveredCountries = 6
 
   return (
     <>
@@ -226,9 +228,9 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               </Link>
             </div>
             <div className="md:col-span-2 grid grid-cols-2 gap-6" data-reveal="right">
-              <AnimatedStat nb={totalPosts} suffix="" label="Articles publiés" />
+              <AnimatedStat nb={publishedArticles} suffix="" label="Articles publies" />
               <AnimatedStat nb="100%" label="Adresses testées sur le terrain" />
-              <AnimatedStat nb={7} label="Pays habités entre nous" />
+              <AnimatedStat nb={coveredCountries} label="Pays couverts" />
               <AnimatedStat nb="2015" label="Première aventure commune" />
               <div className="col-span-2 mt-2">
                 <p className="text-xs text-stone-400 leading-relaxed">

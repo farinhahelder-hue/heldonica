@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { resolveLegacyRedirect } from './app/middleware';
 
 const PROTECTED_PATHS = [
   '/api/seed-articles',
@@ -138,6 +139,15 @@ async function isAuthorized(req: NextRequest) {
 }
 
 export async function middleware(req: NextRequest) {
+  const redirectDestination = resolveLegacyRedirect(req.nextUrl.pathname);
+
+  if (redirectDestination) {
+    const redirectUrl = req.nextUrl.clone();
+    redirectUrl.pathname = redirectDestination;
+
+    return NextResponse.redirect(redirectUrl, 301);
+  }
+
   if (!isProtectedPath(req.nextUrl.pathname)) {
     return NextResponse.next();
   }
@@ -158,5 +168,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/api/:path*'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)'],
 };

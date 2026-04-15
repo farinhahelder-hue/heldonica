@@ -27,6 +27,7 @@ export default function Header() {
             <Link href="/a-propos" className="text-stone-600 hover:text-amber-900 transition-colors font-medium text-sm">À propos</Link>
             <Link href="/blog" className="text-stone-600 hover:text-amber-900 transition-colors font-medium text-sm">Blog</Link>
             <Link href="/destinations" className="text-stone-600 hover:text-amber-900 transition-colors font-medium text-sm">Destinations</Link>
+            <Link href="/contact" className="text-stone-600 hover:text-amber-900 transition-colors font-medium text-sm">Contact</Link>
             <Link href="/travel-planning-form" className="px-5 py-2 bg-amber-900 text-white rounded-full hover:bg-amber-800 transition-colors text-sm font-medium shadow-sm">
               Planifier
             </Link>
@@ -112,6 +113,16 @@ export default function Header() {
                 </svg>
               </span>
               Consulting hôtelier
+            </Link>
+
+            <Link href="/contact" onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 text-stone-700 hover:text-amber-900 hover:bg-amber-50 rounded-xl transition-colors font-medium">
+              <span className="w-8 h-8 rounded-full bg-amber-50 border border-amber-200 text-amber-800 flex items-center justify-center flex-shrink-0">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 4h16v16H4z"/>
+                  <path d="m22 6-10 7L2 6"/>
+                </svg>
+              </span>
+              Contact
             </Link>
 
             <div className="pt-4 border-t border-stone-100 mt-2">
