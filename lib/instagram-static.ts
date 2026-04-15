@@ -1,77 +1,58 @@
-/**
- * Static Instagram Feed Data for Heldonica
- * 
- * Hold feed from Behold.so API
- * Updated: 2026-04-11
- */
+export interface InstagramStory {
+  id: string
+  title: string
+  location: string
+  permalink: string
+  image: string
+}
 
-export const INSTAGRAM_FEED = {
+export const INSTAGRAM_PROFILE = {
   username: 'heldonica',
-  biography: 'Explorateurs émerveillés, dénicheurs de pépites, créateurs d\'aventure',
-  profilePictureUrl: 'https://cdn2.behold.pictures/krtq4aOLMchlDMKueVu5yuJE1i42/17841475314011094/profile.webp',
+  followersLabel: 'Stories terrain faceless',
   website: 'https://heldonica.fr',
-  followersCount: 94,
-  followsCount: 449,
-  posts: [
-    {
-      id: '18588338698048333',
-      timestamp: '2026-04-11T07:53:53+0000',
-      permalink: 'https://www.instagram.com/reel/DW-9NATjCm_/',
-      mediaType: 'VIDEO',
-      isReel: true,
-      mediaUrl: 'https://behold.pictures/krtq4aOLMchlDMKueVu5yuJE1i42/8kD1vdXnKhVHsobvOVfM/18588338698048333/large.jpg',
-      thumbnailUrl: 'https://behold.pictures/krtq4aOLMchlDMKueVu5yuJE1i42/8kD1vdXnKhVHsobvOVfM/18588338698048333/medium.jpg',
-      caption: '',
-      prunedCaption: '',
-    },
-    {
-      id: '17907226542380362',
-      timestamp: '2026-04-08T19:03:44+0000',
-      permalink: 'https://www.instagram.com/p/DW4bkbOjLWR/',
-      mediaType: 'IMAGE',
-      mediaUrl: 'https://behold.pictures/krtq4aOLMchlDMKueVu5yuJE1i42/8kD1vdXnKhVHsobvOVfM/17907226542380362/large.jpg',
-      caption: 'Quand Cupidon swipe right 💘 C\'est un match\n\n#StreetArt #UrbexParis #ArtDeRue #Cupidon',
-      prunedCaption: 'Quand Cupidon swipe right 💘 C\'est un match',
-    },
-    {
-      id: '18013474916683592',
-      timestamp: '2026-04-06T19:09:54+0000',
-      permalink: 'https://www.instagram.com/p/DWzSr1XDKOQ/',
-      mediaType: 'IMAGE',
-      mediaUrl: 'https://behold.pictures/krtq4aOLMchlDMKueVu5yuJE1i42/8kD1vdXnKhVHsobvOVfM/18013474916683592/large.jpg',
-      caption: '🌿 Quand la nature reprend ses droits sur la pierre…\n\nIl y a des rues à Paris où le temps semble suspendu.',
-      prunedCaption: '🌿 Quand la nature reprend ses droits sur la pierre…',
-    },
-    {
-      id: '18337165339219767',
-      timestamp: '2026-04-06T16:29:44+0000',
-      permalink: 'https://www.instagram.com/p/DWzAWrMDFIP/',
-      mediaType: 'IMAGE',
-      mediaUrl: 'https://behold.pictures/krtq4aOLMchlDMKueVu5yuJE1i42/8kD1vdXnKhVHsobvOVfM/18337165339219767/large.jpg',
-      caption: 'Paris est sous invasion, et c\'est la meilleure nouvelle de la journée.',
-      prunedCaption: 'Paris est sous invasion, et c\'est la meilleure nouvelle de la journée.',
-    },
-    {
-      id: '18155644081403583',
-      timestamp: '2026-04-06T15:04:37+0000',
-      permalink: 'https://www.instagram.com/reel/DWy2jXADEnS/',
-      mediaType: 'VIDEO',
-      isReel: true,
-      mediaUrl: 'https://behold.pictures/krtq4aOLMchlDMKueVu5yuJE1i42/8kD1vdXnKhVHsobvOVfM/18155644081403583/large.jpg',
-      thumbnailUrl: 'https://behold.pictures/krtq4aOLMchlDMKueVu5yuJE1i42/8kD1vdXnKhVHsobvOVfM/18155644081403583/medium.jpg',
-      caption: 'La vie est plus belle vue d\'un toit parisien. ☕🥐✨',
-      prunedCaption: 'La vie est plus belle vue d\'un toit parisien. ☕🥐✨',
-    },
-    {
-      id: '17855528805633945',
-      timestamp: '2026-04-06T15:00:52+0000',
-      permalink: 'https://www.instagram.com/p/DWy2L1kjCJi/',
-      mediaType: 'IMAGE',
-      mediaUrl: 'https://behold.pictures/krtq4aOLMchlDMKueVu5yuJE1i42/8kD1vdXnKhVHsobvOVfM/17855528805633945/large.jpg',
-      caption: 'Huit siècles d\'histoire et un miracle à ciel ouvert. ✨',
-      prunedCaption: 'Huit siècles d\'histoire et un miracle à ciel ouvert. ✨',
-    },
-  ],
-};
+}
 
-export type InstagramPost = typeof INSTAGRAM_FEED.posts[0];
+export const INSTAGRAM_STORIES: InstagramStory[] = [
+  {
+    id: 'story-madere-fanal',
+    title: 'Brume de Fanal',
+    location: 'Madere',
+    permalink: 'https://www.instagram.com/heldonica/',
+    image: 'https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg',
+  },
+  {
+    id: 'story-madere-cabo',
+    title: 'Lever 6h a Cabo Girao',
+    location: 'Madere',
+    permalink: 'https://www.instagram.com/heldonica/',
+    image: 'https://heldonica.fr/wp-content/uploads/2026/03/fetched-image-2-1024x768.jpg',
+  },
+  {
+    id: 'story-zurich-limmat',
+    title: 'Limmat au ralenti',
+    location: 'Zurich',
+    permalink: 'https://www.instagram.com/heldonica/',
+    image: 'https://heldonica.fr/wp-content/uploads/2025/09/zurich-limmat-ete-3-1024x681.jpg',
+  },
+  {
+    id: 'story-stoos-ridge',
+    title: 'Crete Stoos',
+    location: 'Suisse',
+    permalink: 'https://www.instagram.com/heldonica/',
+    image: 'https://heldonica.fr/wp-content/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg',
+  },
+  {
+    id: 'story-roumanie',
+    title: 'Cour cachee a Timisoara',
+    location: 'Roumanie',
+    permalink: 'https://www.instagram.com/heldonica/',
+    image: 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
+  },
+  {
+    id: 'story-paris',
+    title: 'Petite Ceinture',
+    location: 'Paris',
+    permalink: 'https://www.instagram.com/heldonica/',
+    image: 'https://heldonica.fr/wp-content/uploads/2025/09/paris-petite-ceinture-2-683x1024.jpg',
+  },
+]
