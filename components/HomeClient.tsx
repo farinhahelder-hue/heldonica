@@ -7,29 +7,53 @@ import Link from 'next/link'
 import type { BlogPost } from '@/lib/blog-supabase'
 import InstagramEmbed from '@/components/InstagramEmbed'
 
+const HELDONICA_BADGE_FALLBACK = '/images/badges-heldonica.svg'
+
 // ─── Images de secours par slug ──────────────────────────────────────────────
 const SLUG_IMAGES: Record<string, string> = {
-  'madere-slow-travel-guide':                     'https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=900&q=80',
-  'urbex-paris-safe':                             'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=900&q=80',
-  'guide-pratique-comment-debuter-le-slow-travel-en-duo': 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=900&q=80',
-  'madere-quand-partir-sur-lile-de-leternel-printemps':   'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=900&q=80',
-  'pepites-mystiques-de-madere':                  'https://images.unsplash.com/photo-1559628376-f3fe5f782a2e?w=900&q=80',
-  'prego-no-bolo-do-caco':                        'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80',
+  'madere-slow-travel-guide':                     'https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg',
+  'urbex-paris-safe':                             'https://heldonica.fr/wp-content/uploads/2025/09/paris-petite-ceinture-2-683x1024.jpg',
+  'guide-pratique-comment-debuter-le-slow-travel-en-duo': 'https://heldonica.fr/wp-content/uploads/2025/08/randonnee-montagne-1024x683.jpg',
+  'madere-quand-partir-sur-lile-de-leternel-printemps':   'https://heldonica.fr/wp-content/uploads/2026/03/madere-cascade-1024x683.jpg',
+  'pepites-mystiques-de-madere':                  'https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg',
+  'prego-no-bolo-do-caco':                        'https://heldonica.fr/wp-content/uploads/2025/10/prego-bolo-caco-683x1024.jpg',
+  'flotter-sur-la-limmat-a-zurich-notre-aventure-dete':   'https://heldonica.fr/wp-content/uploads/2025/09/zurich-limmat-ete-3-1024x681.jpg',
 }
 // ─── Images de secours par catégorie ─────────────────────────────────────────
-const CAT_IMAGES: Record<string, string> = {
-  'Carnets Voyage':      'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=900&q=80',
+/*
+const CAT_IMAGES_LEGACY: Record<string, string> = {
+  'Carnets Voyage':      'https://heldonica.fr/wp-content/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg',
+  'Découvertes Locales': 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
+  'Expert Hôtelier':     'https://heldonica.fr/wp-content/uploads/2025/09/zurich-brasserie-2-683x1024.jpg',
   'Découvertes Locales': 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=900&q=80',
-  'Guides Pratiques':    'https://images.unsplash.com/photo-1452421822248-d4c2b47f0c81?w=900&q=80',
+  'Guides Pratiques':    'https://heldonica.fr/wp-content/uploads/2025/08/randonnee-montagne-1024x683.jpg',
   'Expert Hôtelier':     'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=900&q=80',
-  'Travel':              'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=900&q=80',
-  'Food & Lifestyle':    'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80',
+  'Travel':              'https://heldonica.fr/wp-content/uploads/2025/08/zurich-panorama-2-1024x679.jpg',
+  'Food & Lifestyle':    'https://heldonica.fr/wp-content/uploads/2025/10/bacalhau-lagareiro-3-683x1024.jpg',
+  'Découvertes Locales': 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
+  'Expert Hôtelier': 'https://heldonica.fr/wp-content/uploads/2025/09/zurich-brasserie-2-683x1024.jpg',
+  'DÃ©couvertes Locales': 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
+  'Expert HÃ´telier': 'https://heldonica.fr/wp-content/uploads/2025/09/zurich-brasserie-2-683x1024.jpg',
+}
+*/
+
+const CAT_IMAGES: Record<string, string> = {
+  'Carnets Voyage': 'https://heldonica.fr/wp-content/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg',
+  'Découvertes Locales': 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
+  'Guides Pratiques': 'https://heldonica.fr/wp-content/uploads/2025/08/randonnee-montagne-1024x683.jpg',
+  'Expert Hôtelier': 'https://heldonica.fr/wp-content/uploads/2025/09/zurich-brasserie-2-683x1024.jpg',
+  Travel: 'https://heldonica.fr/wp-content/uploads/2025/08/zurich-panorama-2-1024x679.jpg',
+  'Food & Lifestyle': 'https://heldonica.fr/wp-content/uploads/2025/10/bacalhau-lagareiro-3-683x1024.jpg',
+  'DÃ©couvertes Locales': 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
+  'Expert HÃ´telier': 'https://heldonica.fr/wp-content/uploads/2025/09/zurich-brasserie-2-683x1024.jpg',
+  'DÃƒÂ©couvertes Locales': 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
+  'Expert HÃƒÂ´telier': 'https://heldonica.fr/wp-content/uploads/2025/09/zurich-brasserie-2-683x1024.jpg',
 }
 function postImage(p: BlogPost): string {
-  if (p.featured_image) return p.featured_image
+  if (p.featured_image && p.featured_image.trim().length > 0) return p.featured_image
   if (p.slug && SLUG_IMAGES[p.slug]) return SLUG_IMAGES[p.slug]
   if (p.category && CAT_IMAGES[p.category]) return CAT_IMAGES[p.category]
-  return 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=900&q=80'
+  return HELDONICA_BADGE_FALLBACK
 }
 
 // ─── Hooks ────────────────────────────────────────────────────────────────────
@@ -86,14 +110,22 @@ function AnimatedStat({ nb, label, suffix = '' }: { nb: number | string; label: 
 // ─── Card article ─────────────────────────────────────────────────────────────
 function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: string }; size?: 'sm' | 'md' | 'lg' }) {
   const img = postImage(post)
+  const [imgSrc, setImgSrc] = useState(img)
   const h = size === 'lg' ? 'h-80' : size === 'md' ? 'h-60' : 'h-44'
+
+  useEffect(() => {
+    setImgSrc(img)
+  }, [img])
+
   return (
     <Link href={`/blog/${post.slug}`} className="group block h-full">
       <article className="relative rounded-2xl overflow-hidden bg-stone-800 shadow-md hover:shadow-xl transition-all duration-400 h-full flex flex-col">
         <div className={`relative ${h} overflow-hidden`}>
-          <img src={img} alt={post.title} width={600} height={400}
+          <img src={imgSrc} alt={post.title} width={600} height={400}
             className="w-full h-full object-cover opacity-80 group-hover:opacity-90 group-hover:scale-105 transition-all duration-600"
-            loading="lazy" />
+            loading="lazy"
+            onError={() => setImgSrc(HELDONICA_BADGE_FALLBACK)}
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
           <div className="absolute top-3 left-3">
             <span className="bg-amber-600/90 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">

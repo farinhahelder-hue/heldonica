@@ -1,102 +1,88 @@
-'use client';
+'use client'
 
-import { INSTAGRAM_FEED } from '@/lib/instagram-static';
+import { INSTAGRAM_PROFILE, INSTAGRAM_STORIES } from '@/lib/instagram-static'
 
 interface InstagramEmbedProps {
-  limit?: number;
+  limit?: number
 }
 
-/**
- * Instagram Embed Component - Hold static feed data
- * 
- * Displays your Instagram posts directly on the site.
- * No API key needed - just works!
- * 
- * Usage:
- * <InstagramEmbed limit={9} />
- */
 export default function InstagramEmbed({ limit = 6 }: InstagramEmbedProps) {
-  const posts = INSTAGRAM_FEED.posts.slice(0, limit);
+  const stories = INSTAGRAM_STORIES.slice(0, limit)
 
   return (
     <div>
-      {/* Hold Profile Header */}
-      <div className="flex items-center justify-center gap-4 mb-6">
-        <img 
-          src={INSTAGRAM_FEED.profilePictureUrl} 
-          alt={INSTAGRAM_FEED.username}
-          className="w-16 h-16 rounded-full border-2 border-amber-600"
-        />
-        <div className="text-center">
-          <a 
-            href={`https://instagram.com/${INSTAGRAM_FEED.username}`}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-4 mb-8">
+        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-eucalyptus to-teal p-2 shadow-md mx-auto sm:mx-0">
+          <img
+            src="/images/badges-heldonica.svg"
+            alt="Badge Heldonica"
+            className="w-full h-full object-cover rounded-full bg-white"
+            loading="lazy"
+          />
+        </div>
+        <div className="text-center sm:text-left">
+          <a
+            href={`https://instagram.com/${INSTAGRAM_PROFILE.username}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-lg font-semibold hover:text-amber-700 transition"
+            className="text-lg font-semibold text-mahogany hover:text-eucalyptus transition"
           >
-            @{INSTAGRAM_FEED.username}
+            @{INSTAGRAM_PROFILE.username}
           </a>
-          <p className="text-sm text-gray-600">
-            {INSTAGRAM_FEED.followersCount} followers
-          </p>
+          <p className="text-sm text-stone-600">{INSTAGRAM_PROFILE.followersLabel}</p>
         </div>
-        <a 
-          href={`https://instagram.com/${INSTAGRAM_FEED.username}`}
+        <a
+          href={`https://instagram.com/${INSTAGRAM_PROFILE.username}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="ml-4 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm rounded-full hover:opacity-90 transition"
+          className="mx-auto sm:mx-0 px-4 py-2 bg-gradient-to-r from-eucalyptus to-teal text-white text-sm rounded-full hover:opacity-90 transition font-semibold"
         >
           Suivre
         </a>
       </div>
 
-      {/* Posts Grid */}
-      <div className="grid grid-cols-3 gap-1">
-        {posts.map((post) => (
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        {stories.map((story) => (
           <a
-            key={post.id}
-            href={post.permalink}
+            key={story.id}
+            href={story.permalink}
             target="_blank"
             rel="noopener noreferrer"
-            className="aspect-square relative overflow-hidden group block"
+            className="group aspect-[4/5] relative overflow-hidden rounded-xl border border-stone-200 bg-stone-900 block"
           >
-            {post.mediaType === 'IMAGE' ? (
-              <img 
-                src={post.mediaUrl}
-                alt={post.prunedCaption || 'Hold post'}
-                className="w-full h-full object-cover transition group-hover:scale-105"
-              />
-            ) : (
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <img 
-                  src={post.thumbnailUrl}
-                  alt="Hold video thumbnail"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="w-8 h-8 bg-black/50 rounded-full flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z"/>
-                    </svg>
-                  </span>
-                </div>
-              </div>
-            )}
+            <img
+              src={story.image}
+              alt={`${story.title} - ${story.location}`}
+              className="w-full h-full object-cover opacity-85 group-hover:opacity-95 group-hover:scale-105 transition duration-500"
+              loading="lazy"
+              onError={(event) => {
+                event.currentTarget.src = '/images/badges-heldonica.svg'
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+            <span className="absolute top-2 left-2 text-[10px] uppercase tracking-[0.14em] bg-white/20 text-white px-2 py-1 rounded-full backdrop-blur-sm">
+              Story
+            </span>
+            <div className="absolute bottom-2 left-2 right-2">
+              <p className="text-[11px] text-teal font-semibold uppercase tracking-[0.12em]">
+                {story.location}
+              </p>
+              <p className="text-sm text-white font-semibold leading-tight line-clamp-2">{story.title}</p>
+            </div>
           </a>
         ))}
       </div>
 
-      {/* View More Link */}
       <p className="text-center mt-6">
-        <a 
-          href={`https://instagram.com/${INSTAGRAM_FEED.username}`}
+        <a
+          href={`https://instagram.com/${INSTAGRAM_PROFILE.username}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-amber-700 hover:underline text-sm"
+          className="text-eucalyptus hover:text-teal transition text-sm font-semibold"
         >
-          Voir plus sur Hold →
+          Voir plus sur Instagram -&gt;
         </a>
       </p>
     </div>
-  );
+  )
 }
