@@ -60,13 +60,10 @@ export default function MentionsLegalesPage() {
                 <strong>Nom commercial :</strong> Heldonica
               </p>
               <p>
-                <strong>Forme juridique :</strong> SASU (Societe par Actions Simplifiee Unipersonnelle)
+                <strong>Statut :</strong> Auto-entrepreneur (EI)
               </p>
               <p>
                 <strong>Adresse :</strong> 42 Rue de la Pompe, 75016 Paris, France
-              </p>
-              <p>
-                <strong>SIREN :</strong> 932 184 209
               </p>
               <p>
                 <strong>Responsable de publication :</strong> Heldonica
@@ -146,6 +143,16 @@ export default function MentionsLegalesPage() {
                   contact@heldonica.fr
                 </a>
                 .
+              </p>
+            </LegalSection>
+
+            <LegalSection title="Copyright">
+              <p>
+                <strong>&copy; Heldonica 2026</strong> - Tous droits reserves.
+              </p>
+              <p>
+                Ce site est exploite a titre personnel. Heldonica decline toute responsabilite pour les
+                dommages lies a l'utilisation des informations fournies.
               </p>
             </LegalSection>
           </div>
