@@ -17,14 +17,14 @@ const DEST_META: Record<string, { description: string; heroImage: string; region
   // ── Zurich ──────────────────────────────────────────────────
   zurich: {
     description: "Badi flottantes, brasseries artisanales et vieille ville médiévale. Zurich, la ville suisse que l'on croyait réservée aux banquiers — et qui nous a conquis.",
-    heroImage: "https://heldonica.fr/wp-content/uploads/2025/08/zurich-panorama-2-1024x679.jpg",
+    heroImage: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1600&q=80",
     region: "Suisse",
     emoji: "🇨🇭",
   },
   // ── Suisse ──────────────────────────────────────────────────
   suisse: {
     description: "Randonnées alpines, lacs cristallins, Badi zurichoises et villages médiévaux. La Suisse en slow travel — sans les clichés.",
-    heroImage: "https://heldonica.fr/wp-content/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg",
+    heroImage: "https://images.unsplash.com/photo-1539067825854-0e2de6c5651e?w=1600&q=80",
     region: "Europe",
     emoji: "🇨🇭",
   },
@@ -37,39 +37,39 @@ const DEST_META: Record<string, { description: string; heroImage: string; region
   // ── Roumanie ────────────────────────────────────────────────
   roumanie: {
     description: "Timișoara, le Delta du Danube et les Carpates. La Roumanie authentique, loin des sentiers battus — notre coup de foudre slow travel.",
-    heroImage: "https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg",
+    heroImage: "https://images.unsplash.com/photo-1605486567306-2a5eb9a65494?w=1600&q=80",
     region: "Europe",
     emoji: "🇷🇴",
   },
   "roumanie-heldonica-slow": {
     description: "Timișoara, le Delta du Danube et les Carpates. La Roumanie authentique loin des sentiers battus.",
-    heroImage: "https://images.unsplash.com/photo-1555990793-da11153b6c8d?w=1600",
+    heroImage: "https://images.unsplash.com/photo-1605486567306-2a5eb9a65494?w=1600&q=80",
     region: "Europe",
     emoji: "🇷🇴",
   },
   // ── Madère ──────────────────────────────────────────────────
   madere: {
     description: "La forêt de Fanal, les levadas et le Prego no bolo do caco. L'île de l'éternel printemps vue par Heldonica.",
-    heroImage: "https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg",
+    heroImage: "https://images.unsplash.com/photo-1596727147705-54a9d7509283e?w=1600&q=80",
     region: "Portugal",
     emoji: "🇵🇹",
   },
   "madere-heldonica": {
     description: "L'île de l'éternel printemps. Levadas, falaises spectaculaires et gastronomie portugaise.",
-    heroImage: "https://images.unsplash.com/photo-1568454537842-d933259bb258?w=1600",
+    heroImage: "https://images.unsplash.com/photo-1596727147705-54a9d7509283e?w=1600&q=80",
     region: "Portugal",
     emoji: "🇵🇹",
   },
   // ── Paris ───────────────────────────────────────────────────
   paris: {
     description: "La Petite Ceinture, la rue Mouffetard et le Canal de l'Ourcq. Paris en slow travel — loin des clichés, proche de l'âme.",
-    heroImage: "https://heldonica.fr/wp-content/uploads/2025/09/paris-petite-ceinture-2-683x1024.jpg",
+    heroImage: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1600&q=80",
     region: "France",
     emoji: "🇫🇷",
   },
   "ile-de-france-heldonica": {
     description: "Paris et ses environs en slow travel : Canal de l'Ourcq, Petite Ceinture, Fontainebleau.",
-    heroImage: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1600",
+    heroImage: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1600&q=80",
     region: "France",
     emoji: "🇫🇷",
   },

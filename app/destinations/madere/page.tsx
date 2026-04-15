@@ -77,14 +77,14 @@ export default function MaderePage() {
       <main>
         <section className="relative min-h-[66vh] flex items-end overflow-hidden bg-stone-900">
           <img
-            src="https://images.unsplash.com/photo-1596727147705-54a9d7509283e?w=1600&q=80"
+            src="https://images.unsplash.com/photo-1539067825854-0e2de6c5651e?w=1600&q=80"
             alt="Foret de Fanal dans la brume a Madere"
             className="absolute inset-0 h-full w-full object-cover opacity-65"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
           <div className="absolute right-4 top-4 hidden md:block rounded-xl overflow-hidden border border-white/25 shadow-xl bg-black/30 backdrop-blur-sm">
             <img
-              src="https://images.unsplash.com/photo-1519810755548-3c3d9e4a3c64?w=800&q=80"
+              src="https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=800&q=80"
               alt="Cabo Girao a l'aube, spot eco-luxe"
               className="h-28 w-40 object-cover"
               loading="lazy"
