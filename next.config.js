@@ -27,7 +27,7 @@ const securityHeaders = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
       "style-src 'self' 'unsafe-inline' https://api.fontshare.com https://fonts.googleapis.com",
-      "img-src 'self' data: blob: https://images.unsplash.com https://*.supabase.co https://heldonica.fr",
+      "img-src 'self' data: blob: https://images.unsplash.com https://*.supabase.co https://heldonica.fr https://www.heldonica.fr https://behold.pictures https://cdn2.behold.pictures",
       "font-src 'self' https://api.fontshare.com https://fonts.gstatic.com",
       "connect-src 'self' https://*.supabase.co https://api.perplexity.ai https://api.unsplash.com https://api.bufferapp.com",
       "frame-ancestors 'none'",
@@ -39,6 +39,8 @@ const securityHeaders = [
 
 const nextConfig = {
   images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 2678400,
     remotePatterns: [
       {
         protocol: 'https',
@@ -51,6 +53,26 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '*.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'heldonica.fr',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.heldonica.fr',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'behold.pictures',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn2.behold.pictures',
       },
     ],
   },

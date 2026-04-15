@@ -18,10 +18,10 @@ export const metadata: Metadata = {
     url: 'https://www.heldonica.fr/destinations/madere',
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1573855619003-97b4799dcd8b?w=1200&q=80',
+        url: 'https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg',
         width: 1200,
         height: 630,
-        alt: 'Madere en slow travel',
+        alt: 'Madere en slow travel - Fanal et falaises atlantiques',
       },
     ],
     locale: 'fr_FR',
@@ -77,11 +77,22 @@ export default function MaderePage() {
       <main>
         <section className="relative min-h-[66vh] flex items-end overflow-hidden bg-stone-900">
           <img
-            src="https://images.unsplash.com/photo-1573855619003-97b4799dcd8b?w=1800&q=80"
-            alt="Falaises de Madere"
+            src="https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg"
+            alt="Foret de Fanal dans la brume a Madere"
             className="absolute inset-0 h-full w-full object-cover opacity-65"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
+          <div className="absolute right-4 top-4 hidden md:block rounded-xl overflow-hidden border border-white/25 shadow-xl bg-black/30 backdrop-blur-sm">
+            <img
+              src="https://heldonica.fr/wp-content/uploads/2026/03/fetched-image-2-1024x768.jpg"
+              alt="Cabo Girao a l'aube, spot eco-luxe"
+              className="h-28 w-40 object-cover"
+              loading="lazy"
+            />
+            <p className="px-3 py-1.5 text-[11px] uppercase tracking-[0.14em] text-white/90">
+              Cabo Girao - 6h
+            </p>
+          </div>
           <div className="relative container py-14 md:py-20">
             <p className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold">
               Destination pilier

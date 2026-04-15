@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { BlogPost } from '@/lib/blog-supabase';
 
@@ -12,10 +12,12 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 const CATEGORY_FALLBACK_BG: Record<string, string> = {
-  'Carnets Voyage': 'bg-gradient-to-br from-teal-800 to-emerald-900',
-  'Découvertes Locales': 'bg-gradient-to-br from-amber-800 to-orange-900',
-  'Guides Pratiques': 'bg-gradient-to-br from-slate-700 to-stone-800',
+  'Carnets Voyage': 'bg-gradient-to-br from-[#006D77] to-[#4ECDC4]',
+  'Découvertes Locales': 'bg-gradient-to-br from-[#4ECDC4] to-[#006D77]',
+  'Guides Pratiques': 'bg-gradient-to-br from-[#006D77] to-[#6B2D1F]',
 };
+
+const BADGE_FALLBACK_SRC = '/images/badges-heldonica.svg';
 
 interface Props {
   posts: (BlogPost & { formattedDate: string })[];
@@ -65,7 +67,8 @@ export default function BlogClientPage({ posts }: Props) {
         <div
           className="absolute inset-0 opacity-25"
           style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1501555088652-021faa106b9b?w=1600')",
+            backgroundImage:
+              "url('https://heldonica.fr/wp-content/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg')",
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
@@ -278,24 +281,41 @@ function SectionHeader({ emoji, title, count }: { emoji: string; title: string; 
 
 function ArticleCard({ post }: { post: BlogPost & { formattedDate: string } }) {
   const fallbackBg = CATEGORY_FALLBACK_BG[post.category ?? ''] ?? 'bg-stone-200';
+  const [imageSrc, setImageSrc] = useState(post.featured_image ?? BADGE_FALLBACK_SRC);
+
+  useEffect(() => {
+    setImageSrc(post.featured_image ?? BADGE_FALLBACK_SRC);
+  }, [post.featured_image]);
+
+  const isFallback = !post.featured_image || imageSrc === BADGE_FALLBACK_SRC;
 
   return (
     <Link href={`/blog/${post.slug}`} className="group block h-full">
       <article className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 h-full flex flex-col border border-stone-100 hover:-translate-y-1">
         <div className="relative h-52 overflow-hidden">
-          {post.featured_image ? (
+          {!isFallback ? (
             <img
-              src={post.featured_image}
+              src={imageSrc}
               alt={post.title}
               width={400}
               height={208}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               loading="lazy"
+              onError={() => setImageSrc(BADGE_FALLBACK_SRC)}
             />
           ) : (
             <div className={`w-full h-full flex flex-col items-center justify-center gap-2 ${fallbackBg}`}>
-              <span className="text-white/30 text-5xl font-serif">H</span>
-              <span className="text-white/40 text-xs font-medium tracking-widest uppercase">Heldonica</span>
+              <img
+                src={BADGE_FALLBACK_SRC}
+                alt="Badge visuel Heldonica"
+                width={220}
+                height={140}
+                className="w-36 h-auto opacity-95"
+                loading="lazy"
+              />
+              <span className="text-white/85 text-[11px] font-semibold tracking-[0.18em] uppercase">
+                Pepite verifiee
+              </span>
             </div>
           )}
           <div className="absolute top-3 left-3">
