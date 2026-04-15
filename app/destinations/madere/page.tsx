@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     url: 'https://www.heldonica.fr/destinations/madere',
     images: [
       {
-        url: 'https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg',
+        url: 'https://images.unsplash.com/photo-1596727147705-54a9d7509283e?w=1200&q=80',
         width: 1200,
         height: 630,
         alt: 'Madere en slow travel - Fanal et falaises atlantiques',
