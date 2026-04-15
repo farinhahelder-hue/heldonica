@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 type FormData = {
   // Étape 1
@@ -83,6 +83,28 @@ export default function TravelPlanningForm() {
 
   const set = (field: keyof FormData, value: string) =>
     setForm((f) => ({ ...f, [field]: value }))
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search)
+    const destinationFromQuery = searchParams.get('destination')
+    if (!destinationFromQuery) return
+
+    const normalized = destinationFromQuery.trim()
+    if (!normalized) return
+
+    setForm((prev) => {
+      if (prev.destinationDetail) {
+        return prev
+      }
+
+      const formatted = normalized.charAt(0).toUpperCase() + normalized.slice(1)
+      return {
+        ...prev,
+        destination: 'Destination précise',
+        destinationDetail: formatted,
+      }
+    })
+  }, [])
 
   const canGoNext = () => {
     if (step === 1) return form.tripType && form.vibe && form.destination
