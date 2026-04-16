@@ -49,14 +49,9 @@ export default function MentionsLegalesPage() {
 
         <section className="py-16 md:py-24">
           <div className="max-w-4xl mx-auto px-6 space-y-12">
-            <div className="rounded-2xl border border-mahogany/20 bg-cloud-dancer p-6 text-charcoal">
-              <p className="font-semibold text-mahogany mb-2">
-                Informations a completer avant exploitation commerciale finale
-              </p>
-              <p className="text-sm leading-relaxed">
-                Raison sociale, forme juridique, adresse postale complete, numero SIREN/SIRET,
-                numero de TVA intracommunautaire (si applicable) et nom complet du responsable de
-                publication.
+            <div className="rounded-2xl border border-mahogany/20 bg-cloud-dancer/50 p-6 text-charcoal">
+              <p className="text-sm text-charcoal/60">
+                Derniere mise a jour : 15 avril 2026
               </p>
             </div>
 
@@ -65,19 +60,21 @@ export default function MentionsLegalesPage() {
                 <strong>Nom commercial :</strong> Heldonica
               </p>
               <p>
-                <strong>Activite :</strong> Media editorial slow travel et services de travel
-                planning / consulting hotelier.
+                <strong>Statut :</strong> Auto-entrepreneur (EI)
               </p>
               <p>
-                <strong>Responsable de publication :</strong> A completer
+                <strong>Adresse :</strong> 42 Rue de la Pompe, 75016 Paris, France
+              </p>
+              <p>
+                <strong>Responsable de publication :</strong> Heldonica
               </p>
               <p>
                 <strong>Email de contact :</strong>{' '}
                 <a
-                  href="mailto:info@heldonica.fr"
+                  href="mailto:contact@heldonica.fr"
                   className="text-eucalyptus hover:text-teal transition"
                 >
-                  info@heldonica.fr
+                  contact@heldonica.fr
                 </a>
               </p>
               <p>
@@ -140,18 +137,24 @@ export default function MentionsLegalesPage() {
               <p>
                 Pour toute demande legale ou RGPD, vous pouvez nous ecrire a{' '}
                 <a
-                  href="mailto:info@heldonica.fr"
+                  href="mailto:contact@heldonica.fr"
                   className="text-eucalyptus hover:text-teal transition"
                 >
-                  info@heldonica.fr
+                  contact@heldonica.fr
                 </a>
                 .
               </p>
             </LegalSection>
 
-            <p className="text-sm text-charcoal/60 text-center">
-              Derniere mise a jour : 15 avril 2026
-            </p>
+            <LegalSection title="Copyright">
+              <p>
+                <strong>&copy; Heldonica 2026</strong> - Tous droits reserves.
+              </p>
+              <p>
+                Ce site est exploite a titre personnel. Heldonica decline toute responsabilite pour les
+                dommages lies a l'utilisation des informations fournies.
+              </p>
+            </LegalSection>
           </div>
         </section>
       </main>
