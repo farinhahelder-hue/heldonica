@@ -9,6 +9,11 @@ function supabase() {
   )
 }
 
+function withoutVoiceNotes(payload: Record<string, unknown>) {
+  const { voice_notes, ...rest } = payload
+  return rest
+}
+
 export const dynamic = 'force-dynamic'
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
@@ -31,12 +36,24 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
   const sb = supabase()
   const body = await req.json()
-  const { data, error } = await sb
+  const payload = { ...body, updated_at: new Date().toISOString() }
+
+  let { data, error } = await sb
     .from('cms_blog_posts')
-    .update({ ...body, updated_at: new Date().toISOString() })
+    .update(payload)
     .eq('id', params.id)
     .select()
     .single()
+
+  if (error?.message?.includes('voice_notes') && error.message.includes('does not exist')) {
+    ;({ data, error } = await sb
+      .from('cms_blog_posts')
+      .update(withoutVoiceNotes(payload))
+      .eq('id', params.id)
+      .select()
+      .single())
+  }
+
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ article: data })
 }
