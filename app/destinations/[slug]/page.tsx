@@ -21,67 +21,109 @@ type DestinationMeta = {
   intro: string
 }
 
+const zurichMeta: DestinationMeta = {
+  description:
+    'Badi flottantes, brasseries artisanales et vieille ville dense. Zurich se révèle quand on ralentit assez pour la laisser venir.',
+  heroImage: 'https://heldonica.fr/wp-content/uploads/2025/08/zurich-panorama-2-1024x679.jpg',
+  region: 'Suisse',
+  duration: '3 à 4 jours',
+  budget: 'Élevé mais rattrapable à pied',
+  bestSeason: 'Juin à septembre',
+  verdict: 'Une ville plus sensuelle que sa réputation.',
+  intro:
+    'On y est venus avec des idées toutes faites. Elles ont sauté dès la première baignade dans la Limmat.',
+}
+
+const suisseMeta: DestinationMeta = {
+  description:
+    'Montagnes, lacs, trains impeccables et détours qui demandent du temps. La Suisse devient juste quand on cesse de la résumer à son prix.',
+  heroImage: 'https://heldonica.fr/wp-content/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg',
+  region: 'Europe',
+  duration: '7 à 12 jours',
+  budget: 'Moyen à élevé',
+  bestSeason: 'Juillet à septembre',
+  verdict: 'Une destination lente, si on la laisse respirer.',
+  intro:
+    'On y revient pour les crêtes, puis on reste pour tout ce qu&apos;on n&apos;avait pas prévu entre deux trajets.',
+}
+
+const roumanieMeta: DestinationMeta = {
+  description:
+    'Timișoara, Delta du Danube, Carpates : la Roumanie donne beaucoup à celles et ceux qui acceptent de lui laisser de l&apos;espace.',
+  heroImage: 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
+  region: 'Europe',
+  duration: '8 à 14 jours',
+  budget: 'Accessible',
+  bestSeason: 'Mai, juin, septembre',
+  verdict: 'Le genre de pays qui déplace ton regard.',
+  intro:
+    'On pensait partir vers une destination discrète. On a trouvé un terrain immense, vivant, parfois brut, souvent bouleversant.',
+}
+
+const madereMeta: DestinationMeta = {
+  description:
+    'Forêts humides, levadas, falaises, pain chaud et retours successifs. Madère ne se livre pas en une seule fois.',
+  heroImage: 'https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg',
+  region: 'Portugal',
+  duration: '7 à 10 jours',
+  budget: 'Moyen',
+  bestSeason: 'Octobre à mai',
+  verdict: 'L&apos;île qu&apos;on a mis des années à comprendre.',
+  intro:
+    'Chaque retour nous fait corriger quelque chose : un itinéraire trop tendu, un village quitté trop vite, une lumière manquée la veille.',
+}
+
+const parisMeta: DestinationMeta = {
+  description:
+    'Paris et l&apos;Île-de-France se lisent mieux quand on sort des grandes phrases. Un canal, une friche, une rue, et le rythme change.',
+  heroImage: 'https://heldonica.fr/wp-content/uploads/2025/09/paris-petite-ceinture-2-683x1024.jpg',
+  region: 'France',
+  duration: '2 à 5 jours',
+  budget: 'Variable',
+  bestSeason: 'Toute l&apos;année',
+  verdict: 'La preuve qu&apos;on peut ralentir sans partir loin.',
+  intro:
+    'Le slow travel commence parfois à une station de métro de chez soi. C&apos;est peut-être pour ça qu&apos;on y tient autant.',
+}
+
+const normandieMeta: DestinationMeta = {
+  description:
+    'Étretat, Honfleur, Deauville : la Normandie côtière demande moins de cases à cocher et plus de temps entre deux marées.',
+  heroImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600',
+  region: 'France',
+  duration: '3 à 5 jours',
+  budget: 'Modulable',
+  bestSeason: 'Mai à septembre',
+  verdict: 'La côte marche mieux quand on accepte ses détours.',
+  intro:
+    'Ici, le bon rythme vient souvent du vent, de l&apos;heure de la marée et d&apos;une table trouvée plus tard que prévu.',
+}
+
+const bretagneMeta: DestinationMeta = {
+  description:
+    'Sentiers côtiers, crêperies, lumière changeante et Saint-Malo comme point d&apos;appui. La Bretagne gagne à être laissée tranquille.',
+  heroImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=1600',
+  region: 'France',
+  duration: '4 à 7 jours',
+  budget: 'Modulable',
+  bestSeason: 'Mai à septembre',
+  verdict: 'Une destination qui se donne mieux à pied qu&apos;en programme serré.',
+  intro:
+    'On y va pour la côte, puis on reste pour ce que la météo déplace dans une même journée.',
+}
+
 const DEST_META: Record<string, DestinationMeta> = {
-  zurich: {
-    description:
-      'Badi flottantes, brasseries artisanales et vieille ville dense. Zurich se révèle quand on ralentit assez pour la laisser venir.',
-    heroImage: 'https://heldonica.fr/wp-content/uploads/2025/08/zurich-panorama-2-1024x679.jpg',
-    region: 'Suisse',
-    duration: '3 à 4 jours',
-    budget: 'Élevé mais rattrapable à pied',
-    bestSeason: 'Juin à septembre',
-    verdict: 'Une ville plus sensuelle que sa réputation.',
-    intro:
-      'On y est venus avec des idées toutes faites. Elles ont sauté dès la première baignade dans la Limmat.',
-  },
-  suisse: {
-    description:
-      'Montagnes, lacs, trains impeccables et détours qui demandent du temps. La Suisse devient juste quand on cesse de la résumer à son prix.',
-    heroImage: 'https://heldonica.fr/wp-content/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg',
-    region: 'Europe',
-    duration: '7 à 12 jours',
-    budget: 'Moyen à élevé',
-    bestSeason: 'Juillet à septembre',
-    verdict: 'Une destination lente, si on la laisse respirer.',
-    intro:
-      'On y revient pour les crêtes, puis on reste pour tout ce qu&apos;on n&apos;avait pas prévu entre deux trajets.',
-  },
-  roumanie: {
-    description:
-      'Timișoara, Delta du Danube, Carpates : la Roumanie donne beaucoup à celles et ceux qui acceptent de lui laisser de l&apos;espace.',
-    heroImage: 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
-    region: 'Europe',
-    duration: '8 à 14 jours',
-    budget: 'Accessible',
-    bestSeason: 'Mai, juin, septembre',
-    verdict: 'Le genre de pays qui déplace ton regard.',
-    intro:
-      'On pensait partir vers une destination discrète. On a trouvé un terrain immense, vivant, parfois brut, souvent bouleversant.',
-  },
-  madere: {
-    description:
-      'Forêts humides, levadas, falaises, pain chaud et retours successifs. Madère ne se livre pas en une seule fois.',
-    heroImage: 'https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg',
-    region: 'Portugal',
-    duration: '7 à 10 jours',
-    budget: 'Moyen',
-    bestSeason: 'Octobre à mai',
-    verdict: 'L&apos;île qu&apos;on a mis des années à comprendre.',
-    intro:
-      'Chaque retour nous fait corriger quelque chose : un itinéraire trop tendu, un village quitté trop vite, une lumière manquée la veille.',
-  },
-  paris: {
-    description:
-      'Paris et l&apos;Île-de-France se lisent mieux quand on sort des grandes phrases. Un canal, une friche, une rue, et le rythme change.',
-    heroImage: 'https://heldonica.fr/wp-content/uploads/2025/09/paris-petite-ceinture-2-683x1024.jpg',
-    region: 'France',
-    duration: '2 à 5 jours',
-    budget: 'Variable',
-    bestSeason: 'Toute l&apos;année',
-    verdict: 'La preuve qu&apos;on peut ralentir sans partir loin.',
-    intro:
-      'Le slow travel commence parfois à une station de métro de chez soi. C&apos;est peut-être pour ça qu&apos;on y tient autant.',
-  },
+  zurich: zurichMeta,
+  suisse: suisseMeta,
+  'suisse-heldonica': suisseMeta,
+  roumanie: roumanieMeta,
+  'roumanie-heldonica-slow': roumanieMeta,
+  madere: madereMeta,
+  'madere-heldonica': madereMeta,
+  paris: parisMeta,
+  'ile-de-france-heldonica': parisMeta,
+  'normandie-heldonica': normandieMeta,
+  'bretagne-heldonica-slow': bretagneMeta,
 }
 
 export async function generateStaticParams() {
