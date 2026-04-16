@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useRef, useState } from 'react'
 import Header from '@/components/Header'
@@ -6,6 +6,7 @@ import Footer from '@/components/Footer'
 import Link from 'next/link'
 import type { BlogPost } from '@/lib/blog-supabase'
 import InstagramEmbed from '@/components/InstagramEmbed'
+import NewsletterForm from '@/components/NewsletterForm'
 
 const HELDONICA_BADGE_FALLBACK = '/images/badges-heldonica.svg'
 
@@ -149,7 +150,7 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
             <span className="text-xs text-stone-400">
               {post.destination ? `📍 ${post.destination}` : post.formattedDate}
             </span>
-            <span className="text-xs text-amber-700 font-semibold group-hover:translate-x-1 transition-transform">Lire →</span>
+            <span className="text-xs text-amber-700 font-semibold group-hover:translate-x-1 transition-transform">Lire le carnet →</span>
           </div>
         </div>
       </article>
@@ -171,7 +172,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
   useScrollReveal()
   const featImg = featured ? postImage(featured) : null
   const publishedArticles = totalPosts > 0 ? totalPosts : 17
-  const coveredCountries = 6
+  const coveredCountries = 7
 
   return (
     <>
@@ -202,29 +203,31 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         <div className="relative z-20 px-5 md:px-16 pb-12 md:pb-24 max-w-4xl">
           <p className="text-amber-300 text-xs font-semibold tracking-[0.2em] uppercase mb-5"
              style={{ animation: 'wordIn 0.6s 0.2s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
-            Slow Travel · Hors des sentiers battus · Paris
+            Slow travel vécu en duo · Hors sentiers · Paris
           </p>
           <h1 className="text-3xl md:text-5xl lg:text-7xl font-serif font-light text-white leading-[1.15] mb-4 md:mb-6">
-            <span className="hero-word" style={{ animationDelay: '0.3s' }}>Explorateurs </span>
-            <span className="hero-word" style={{ animationDelay: '0.4s' }}>émerveillés,</span>
+            <span className="hero-word" style={{ animationDelay: '0.3s' }}>On ferme </span>
+            <span className="hero-word" style={{ animationDelay: '0.4s' }}>les ordis.</span>
+            <br />
+            <span className="hero-word" style={{ animationDelay: '0.55s' }}>On part.</span>
             <br />
             <em>
-              <span className="hero-word" style={{ animationDelay: '0.7s' }}>dénicheurs </span>
-              <span className="hero-word" style={{ animationDelay: '0.8s' }}>de </span>
-              <span className="hero-word" style={{ animationDelay: '0.9s' }}>pépites.</span>
+              <span className="hero-word" style={{ animationDelay: '0.7s' }}>On revient </span>
+              <span className="hero-word" style={{ animationDelay: '0.8s' }}>avec des pépites </span>
+              <span className="hero-word" style={{ animationDelay: '0.9s' }}>qu&apos;on n&apos;avait pas cherchées.</span>
             </em>
           </h1>
           <p className="text-sm md:text-lg text-gray-300 leading-relaxed mb-6 md:mb-8 max-w-xl"
              style={{ animation: 'wordIn 0.7s 1.1s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
-            L&apos;aventure ne se trouve pas seulement au bout du monde — elle se cache dans une ruelle oubliée, un café discret, un sentier silencieux qui révèle l&apos;âme d&apos;un lieu.
+            Un duo Paris-Madère-Roumanie qui voyage lentement, documente vraiment et partage tout ce qu&apos;on a vécu — pas ce qu&apos;on a lu ailleurs. Dénicheurs de pépites, même en bas de chez toi.
           </p>
           <div className="flex flex-wrap gap-3"
                style={{ animation: 'wordIn 0.7s 1.3s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
             <Link href="/blog" className="px-5 md:px-6 py-2.5 md:py-3 bg-amber-800 hover:bg-amber-700 text-white rounded-full font-semibold text-sm tracking-wide transition">
-              Nos carnets de voyage
+              Lire le carnet →
             </Link>
-            <Link href="/travel-planning" className="px-5 md:px-6 py-2.5 md:py-3 border border-white/50 hover:border-white text-white hover:bg-white/10 rounded-full font-semibold text-sm tracking-wide transition">
-              Conception sur mesure
+            <Link href="/travel-planning-form" className="px-5 md:px-6 py-2.5 md:py-3 border border-white/50 hover:border-white text-white hover:bg-white/10 rounded-full font-semibold text-sm tracking-wide transition">
+              Nous écrire →
             </Link>
           </div>
         </div>
@@ -247,27 +250,27 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 <span className="block italic text-amber-800">autrement</span>
               </h2>
               <p className="text-base text-stone-600 leading-relaxed mb-4">
-                On est deux, et on se complète à la perfection. Elle, Roumaine — une enfance entre les Carpates et l&apos;Europe entière, sept pays habités, sept façons d&apos;apprendre à lire le monde — lit une ville comme un poème.
+                Elle a habité sept pays. Pas visité, habité. C&apos;est différent. Ça change la manière de lire une rue, de sentir si une table vaut vraiment le détour, de savoir quand un quartier commence à parler.
               </p>
               <p className="text-base text-stone-600 leading-relaxed mb-4">
-                Lui, insulaire de Madère dans l&apos;âme — né entre l&apos;Atlantique et les falaises vertigineuses — part à l&apos;aventure là où les cartes s&apos;arrêtent, traquant les paysages que les guides ne montrent pas encore.
+                Lui est né à Madère, entre l&apos;Atlantique et des falaises que les cartes n&apos;ont pas encore toutes nommées. Il part là où les guides s&apos;arrêtent, puis il revient avec un regard que les hôtels indépendants peuvent vraiment utiliser.
               </p>
               <p className="text-base text-stone-600 leading-relaxed mb-8">
-                C&apos;est à Paris qu&apos;on s&apos;est trouvés. Ce qu&apos;on partage : un voyage plus lent, plus sensoriel, plus vivant — là où chaque détail devient une raison de rester un peu plus longtemps.
+                Notre regard est né à deux, entre Paris, Madère et la Roumanie. On ferme les ordis, on part, on revient, on note ce qui tient vraiment sur le terrain. Ensuite seulement, on le partage.
               </p>
               <Link href="/blog" className="inline-flex items-center gap-2 text-amber-800 font-semibold text-sm hover:gap-3 transition-all">
-                Lire nos carnets de voyage →
+                Lire le carnet →
               </Link>
             </div>
             <div className="md:col-span-2 grid grid-cols-2 gap-6" data-reveal="right">
-              <AnimatedStat nb={publishedArticles} suffix="" label="Articles publies" />
-              <AnimatedStat nb="100%" label="Adresses testées sur le terrain" />
-              <AnimatedStat nb={coveredCountries} label="Pays couverts" />
-              <AnimatedStat nb="2015" label="Première aventure commune" />
+              <AnimatedStat nb="10+" label="Ans de terrain en duo" />
+              <AnimatedStat nb="100+" label="Adresses vécues" />
+              <AnimatedStat nb={coveredCountries} label="Pays habités" />
+              <AnimatedStat nb={publishedArticles} suffix="" label="Carnets publiés" />
               <div className="col-span-2 mt-2">
                 <p className="text-xs text-stone-400 leading-relaxed">
                   <span className="font-semibold text-stone-600">Terrains de jeu :</span><br />
-                  Paris · Madère · Normandie · Le Havre · Timișoara · Malte · Sicile · Sardaigne · Tanzanie · Colombie · Afrique du Sud
+                  Paris · Madère · Roumanie · Normandie · Sicile · Sardaigne · Tanzanie · Colombie · Afrique du Sud
                 </p>
               </div>
             </div>
@@ -298,7 +301,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   <p className="text-white/65 text-sm md:text-base leading-relaxed line-clamp-2 mb-4 max-w-xl">{featured.excerpt}</p>
                 )}
                 <span className="inline-flex items-center gap-2 text-amber-400 font-semibold text-sm group-hover:gap-3 transition-all">
-                  Lire l&apos;article →
+                  Lire le carnet →
                 </span>
               </div>
             </article>
@@ -314,8 +317,11 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               <div>
                 <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-2">✦ Carnets de voyage</p>
                 <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900">Nos itinéraires vécus</h2>
+                <p className="text-sm text-stone-600 leading-relaxed mt-3 max-w-xl">
+                  Chaque itinéraire qu&apos;on propose, on l&apos;a fait. Plusieurs fois. En conditions réelles, pas en press trip.
+                </p>
               </div>
-              <Link href="/blog" className="text-sm text-amber-800 font-semibold hover:underline">Voir tous les articles →</Link>
+              <Link href="/blog" className="text-sm text-amber-800 font-semibold hover:underline">Voir tous les carnets →</Link>
             </div>
             {travelPosts.length >= 1 && (
               <div className="grid md:grid-cols-2 gap-6 mb-6">
@@ -429,31 +435,31 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         <div className="max-w-5xl mx-auto px-6 md:px-10">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div data-reveal="left">
-              <p className="text-amber-400 text-xs font-bold tracking-[0.2em] uppercase mb-4">Travel Planning sur mesure</p>
+              <p className="text-amber-400 text-xs font-bold tracking-[0.2em] uppercase mb-4">Travel Planning · terrain vécu</p>
               <h2 className="text-3xl md:text-5xl font-serif font-light leading-tight mb-6">
-                Votre aventure,<br />
-                <em className="text-amber-400">conçue sur mesure</em>
+                On ne fait pas des itinéraires.<br />
+                <em className="text-amber-400">On fait le tien.</em>
               </h2>
               <p className="text-stone-400 leading-relaxed mb-4">
-                Seul·e, en duo, en famille ou entre amis — on imagine et construit l&apos;itinéraire qui vous ressemble vraiment. Pas un template, pas un copier-coller : un voyage pensé pour vous, avec des adresses qu&apos;on a testées, pas récupérées sur un listicle.
+                Tu nous envoies tes contraintes réelles — temps, budget, énergie, envie. On transforme ça en séquence concrète, avec les adresses qu&apos;on a testées et l&apos;ordre qui a du sens sur le terrain.
               </p>
               <p className="text-stone-500 text-sm leading-relaxed mb-8">
-                De l&apos;escapade parisienne d&apos;un week-end au grand tour de plusieurs semaines, chaque projet est unique.
+                Notre terrain naturel : les couples qui veulent ralentir sans s&apos;ennuyer, les solos qui cherchent du vrai, les familles qui en ont marre des parcs d&apos;attractions.
               </p>
               <div className="flex flex-wrap gap-3">
-                <Link href="/travel-planning" className="px-6 py-3 bg-amber-700 hover:bg-amber-600 text-white rounded font-semibold text-sm transition">
-                  Découvrir le service
+                <Link href="/travel-planning-form" className="px-6 py-3 bg-amber-700 hover:bg-amber-600 text-white rounded font-semibold text-sm transition">
+                  Nous écrire →
                 </Link>
-                <Link href="/travel-planning-form" className="px-6 py-3 border border-white/30 hover:border-white/60 text-white rounded font-semibold text-sm transition">
-                  Démarrer un projet
+                <Link href="/blog" className="px-6 py-3 border border-white/30 hover:border-white/60 text-white rounded font-semibold text-sm transition">
+                  Lire le carnet →
                 </Link>
               </div>
             </div>
             <div className="grid grid-cols-1 gap-4" data-reveal="right">
               {[
-                { t: 'Pour tous les voyageurs', d: "Solo, duo amoureux, amis complices, famille curieuse — chaque itinéraire s'adapte à votre groupe, votre rythme, vos envies." },
-                { t: 'Adresses vécues, pas inventées', d: 'Hôtels de charme, restaurants cachés, expériences de terrain — chaque recommandation est vérifiée sur place.' },
-                { t: 'Carnet de voyage complet', d: 'Cartes, conseils pratiques, adresses et inspirations pour chaque étape de votre aventure.' },
+                { t: 'Couples aventuriers', d: "Notre spécialité : ralentir sans ennuyer, laisser de la place au vrai, et garder le hors-sentiers sans perdre le fil." },
+                { t: 'Ouvert aussi à ton format', d: "Solo, famille curieuse ou groupe d'amis : on adapte cette même exigence terrain à votre énergie, vos contraintes et votre rythme." },
+                { t: 'Vécu sur le terrain', d: "Cartes, adresses, conseils pratiques et pépites dénichées : tout part d'expériences testées, pas inventées." },
               ].map((item) => (
                 <div key={item.t} className="border border-white/10 rounded-xl p-5 hover:border-amber-400/30 transition">
                   <h3 className="font-semibold text-white text-sm mb-1">{item.t}</h3>
@@ -472,44 +478,49 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             <div className="order-2 md:order-1" data-reveal="left">
               <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4">Consulting B2B · Hôtellerie</p>
               <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 leading-tight mb-6">
-                IAification &amp; digitalisation
-                <span className="block italic text-stone-600">des établissements hôteliers</span>
+                On connaît vos clients mieux
+                <span className="block italic text-stone-600">que la plupart de vos consultants.</span>
               </h2>
               <p className="text-base text-stone-600 leading-relaxed mb-4">
-                On accompagne les hôtels indépendants dans leur transformation numérique : intégration de l&apos;IA dans les opérations, automatisation des process, refonte de la présence digitale — pour gagner en efficacité sans perdre l&apos;âme de l&apos;établissement.
+                Parce qu&apos;on est vos clients. Pas de promesses chiffrées plaquées sur une slide. On arrive, on regarde ce qui se passe vraiment, on vous dit ce qu&apos;on voit, puis on travaille ensemble.
               </p>
               <p className="text-sm text-stone-500 leading-relaxed mb-6">
-                Du diagnostic initial au déploiement concret, on co-construit une feuille de route réaliste, adaptée à votre structure et vos équipes.
+                Distribution, discours, expérience, outils IA utiles : on ne vous vend pas une mode, on remet du vrai, du lisible et du concret dans le parcours client.
               </p>
               <div className="flex flex-wrap gap-2 mb-8">
-                {['IA générative', 'Automatisation', 'Digitalisation', 'Expérience client', 'Formation équipes', 'ROI mesurable'].map((tag) => (
+                {['Regard terrain', 'Hôtellerie indépendante', 'IA utile', 'Expérience client', 'Visibilité locale', 'Parcours de réservation'].map((tag) => (
                   <span key={tag} className="bg-white border border-stone-300 text-stone-700 text-xs font-semibold px-3 py-1 rounded-full">{tag}</span>
                 ))}
               </div>
-              <Link href="/hotel-consulting" className="inline-flex items-center gap-2 text-amber-800 font-semibold text-sm hover:gap-3 transition-all">
-                Découvrir l&apos;offre consulting →
-              </Link>
+              <div className="flex flex-wrap gap-3">
+                <Link href="/hotel-consulting" className="inline-flex items-center gap-2 text-amber-800 font-semibold text-sm hover:gap-3 transition-all">
+                  Prendre rendez-vous →
+                </Link>
+                <Link href="/ai-hotellerie" className="inline-flex items-center gap-2 text-stone-700 font-semibold text-sm hover:gap-3 transition-all">
+                  Voir les outils →
+                </Link>
+              </div>
             </div>
             <div className="order-1 md:order-2 grid grid-cols-1 gap-4" data-reveal="right">
               {[
                 {
-                  icon: '⚡',
-                  t: 'Audit IA & digital',
-                  d: "Cartographie des processus existants, identification des leviers d'automatisation à fort ROI."
+                  icon: '•',
+                  t: 'On regarde le parcours réel',
+                  d: "Ce qu'un client comprend, ce qu'il rate, et l'endroit précis où vous perdez de la confiance."
                 },
                 {
-                  icon: '🤖',
-                  t: "Déploiement d'outils IA",
-                  d: "Sélection et intégration d'outils adaptés : chatbots, yield management intelligent, personnalisation guest journey."
+                  icon: '•',
+                  t: "On garde les outils à leur place",
+                  d: "L'IA sert à clarifier, accélérer et mieux répondre. Elle ne remplace ni votre instinct ni votre identité."
                 },
                 {
-                  icon: '📈',
-                  t: 'Formation & accompagnement',
-                  d: 'Montée en compétences des équipes pour adopter les nouveaux outils durablement, sans résistance au changement.'
+                  icon: '•',
+                  t: 'On repart avec des actions tenables',
+                  d: 'Une feuille de route que vos équipes peuvent vraiment appliquer, sans usine à gaz ni dépendance inutile.'
                 },
               ].map((item) => (
                 <div key={item.t} className="bg-white rounded-xl p-5 shadow-sm border border-stone-200 hover:border-amber-300 transition">
-                  <div className="text-2xl mb-3">{item.icon}</div>
+                  <div className="text-2xl mb-3 text-amber-700">{item.icon}</div>
                   <h3 className="font-semibold text-stone-900 text-sm mb-1">{item.t}</h3>
                   <p className="text-stone-500 text-sm leading-relaxed">{item.d}</p>
                 </div>
@@ -519,11 +530,31 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         </div>
       </section>
 
+      <section className="py-20 bg-stone-900 text-white">
+        <div className="max-w-5xl mx-auto px-6 md:px-10">
+          <div className="grid md:grid-cols-[1.1fr_0.9fr] gap-10 items-center">
+            <div data-reveal="left">
+              <p className="text-amber-300 text-xs font-semibold tracking-[0.2em] uppercase mb-4">Newsletter terrain</p>
+              <h2 className="text-3xl md:text-4xl font-serif font-light leading-tight mb-4">
+                Une fois par mois, on t&apos;envoie
+                <span className="block italic text-amber-300">ce qu&apos;on a vraiment trouvé.</span>
+              </h2>
+              <p className="text-stone-300 text-sm md:text-base leading-relaxed max-w-xl">
+                Une adresse, un timing, une erreur à éviter. Rien de plus. Pas de remplissage, pas de bruit, juste ce qui mérite vraiment une place dans ton prochain départ.
+              </p>
+            </div>
+            <div data-reveal="right">
+              <NewsletterForm variant="inline" />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Instagram Feed Section */}
       <section className="py-16 bg-stone-50">
         <div className="max-w-4xl mx-auto px-4">
           <h2 className="text-2xl font-serif text-stone-900 text-center mb-8">
-            Suivez nos aventures
+            Sur le terrain, pas en studio
           </h2>
           <InstagramEmbed limit={6} />
         </div>
@@ -533,3 +564,5 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
     </>
   )
 }
+
+
