@@ -1,15 +1,25 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Travel Planning Sur Mesure | Conception de Voyage en Couple | Heldonica',
-  description: 'On conçoit votre voyage slow travel sur mesure : itinéraire personnalisé, pépites dénichées, hébergements éco-authentiques. Spécialistes voyages en couple hors des sentiers battus.',
-  keywords: ['travel planning sur mesure', 'voyage en couple', 'slow travel', 'itinéraire personnalisé', 'voyage écoresponsable', 'heldonica', 'conception voyage'],
+  title: 'Voyage sur mesure hors sentiers | Heldonica',
+  description:
+    'On ne fait pas des itinéraires. On fait le tien. Slow travel vécu, adresses testées et séquence pensée pour couples, solos, familles ou amis.',
+  keywords: [
+    'travel planning sur mesure',
+    'voyage en couple',
+    'slow travel',
+    'itinéraire personnalisé',
+    'voyage écoresponsable',
+    'heldonica',
+    'conception voyage',
+  ],
   alternates: {
     canonical: 'https://heldonica.fr/travel-planning',
   },
   openGraph: {
-    title: 'Travel Planning Sur Mesure — Conception de Voyage en Couple',
-    description: 'Des voyages slow travel conçus sur mesure pour les couples explorateurs. Pépites dénichées, hébergements testés sur le terrain, carnet de route PDF.',
+    title: 'Voyage sur mesure hors sentiers — Heldonica',
+    description:
+      'Adresses testées, rythme juste et vraie séquence de terrain pour couples, solos, familles ou amis.',
     url: 'https://heldonica.fr/travel-planning',
     siteName: 'Heldonica',
     images: [
@@ -17,7 +27,7 @@ export const metadata: Metadata = {
         url: 'https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=1200&q=85',
         width: 1200,
         height: 630,
-        alt: 'Travel Planning sur mesure Heldonica — voyages en couple slow travel',
+        alt: 'Heldonica — voyage sur mesure hors sentiers',
       },
     ],
     type: 'website',
@@ -25,8 +35,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Travel Planning Sur Mesure | Heldonica',
-    description: 'Voyages slow travel conçus sur mesure pour les couples explorateurs.',
+    title: 'Voyage sur mesure hors sentiers | Heldonica',
+    description:
+      'On part de tes contraintes réelles pour construire un voyage qui tient sur le terrain.',
     images: ['https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=1200&q=85'],
   },
 };

@@ -1,23 +1,25 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
 import ContactForm from '@/components/ContactForm'
 
 export const metadata: Metadata = {
-  title: 'Contact | Heldonica — Travel Planning & Consulting Hôtelier',
-  description: 'Écrivez-nous pour votre projet de voyage sur mesure ou pour un audit hôtelier. On répond sous 48h. Slow travel en couple ou consulting hôtelier indépendant — parlons-en.',
+  title: 'Contact | Heldonica',
+  description:
+    "Un projet de voyage, une question, un audit hôtelier ? On lit tous les messages. On répond sous 48h.",
   alternates: {
     canonical: 'https://heldonica.fr/contact',
   },
   openGraph: {
-    title: 'Contactez Heldonica',
-    description: 'Projet de voyage sur mesure ou consulting hôtelier ? Écrivez-nous — on répond sous 48h.',
+    title: 'Contact | Heldonica',
+    description:
+      "Un projet de voyage, une question, un audit hôtelier ? On lit tous les messages. On répond sous 48h.",
     url: 'https://heldonica.fr/contact',
     siteName: 'Heldonica',
     locale: 'fr_FR',
   },
-};
+}
 
 export default function Contact() {
   return (
@@ -25,67 +27,81 @@ export default function Contact() {
       <Header />
       <Breadcrumb />
       <main>
-        {/* Hero */}
-        <section className="bg-gradient-to-br from-stone-50 to-amber-50/30 py-20 md:py-28">
-          <div className="max-w-4xl mx-auto px-6 md:px-10">
-            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4">✦ On vous écoute</p>
-            <h1 className="text-4xl md:text-5xl font-serif font-light text-stone-900 mb-5 leading-tight">
-              Un projet, une question,<br />
-              <em className="text-amber-800">une envie d'ailleurs ?</em>
+        <section className="bg-gradient-to-br from-stone-50 via-amber-50/40 to-white py-20 md:py-28">
+          <div className="mx-auto max-w-4xl px-6 md:px-10">
+            <p className="mb-4 text-xs font-bold uppercase tracking-[0.24em] text-amber-800">
+              On lit tous les messages. On répond.
+            </p>
+            <h1 className="mb-6 text-4xl font-serif font-light leading-tight text-stone-900 md:text-5xl">
+              Parle-nous de ce qui est vrai.
             </h1>
-            <p className="text-stone-600 text-lg max-w-xl leading-relaxed">
-              On répond à chaque message personnellement, sous 48h. Pas de formulaire robot, pas de réponse automatique.
+            <p className="max-w-2xl text-lg leading-relaxed text-stone-700">
+              Un départ qui coince, un hôtel à réaligner, une idée encore floue, un simple besoin de
+              remettre de l&apos;ordre dans le voyage : c&apos;est très bien comme ça. On préfère partir de
+              la vraie vie que d&apos;un brief lissé.
             </p>
           </div>
         </section>
 
-        {/* Formulaire + infos contact */}
         <section className="bg-white py-16 md:py-20">
-          <div className="max-w-5xl mx-auto px-6 md:px-10 grid md:grid-cols-3 gap-12">
-
-            {/* Formulaire */}
+          <div className="mx-auto grid max-w-6xl gap-12 px-6 md:grid-cols-3 md:px-10">
             <div className="md:col-span-2">
+              <div className="mb-10 max-w-2xl">
+                <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-stone-400">
+                  Ce qui nous aide
+                </p>
+                <h2 className="mb-4 text-3xl font-serif font-light leading-tight text-stone-900">
+                  Quelques lignes suffisent pour commencer juste.
+                </h2>
+                <p className="text-base leading-relaxed text-stone-700">
+                  Où tu veux aller, ce que tu veux éviter, ce qui fatigue, ce qui compte vraiment,
+                  même en bas de chez toi. On reprend le fil à partir de là.
+                </p>
+              </div>
               <ContactForm />
             </div>
 
-            {/* Infos de contact */}
             <aside className="space-y-8 md:pt-2">
-              <div>
-                <p className="text-xs font-bold tracking-[0.15em] uppercase text-stone-400 mb-3">Email direct</p>
-                <a href="mailto:info@heldonica.fr" className="text-amber-800 hover:text-amber-700 font-semibold transition-colors text-sm">
+              <div className="rounded-3xl border border-stone-200 bg-stone-50 p-6">
+                <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-stone-400">
+                  Email direct
+                </p>
+                <a
+                  href="mailto:info@heldonica.fr"
+                  className="text-lg font-semibold text-amber-800 transition-colors duration-200 hover:text-amber-700"
+                >
                   info@heldonica.fr
                 </a>
-                <p className="text-stone-500 text-xs mt-1">Réponse sous 48h</p>
+                <p className="mt-2 text-sm leading-relaxed text-stone-600">
+                  Réponse humaine sous 48h, sans tunnel automatique.
+                </p>
               </div>
 
-              <div>
-                <p className="text-xs font-bold tracking-[0.15em] uppercase text-stone-400 mb-3">Instagram</p>
+              <div className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
+                <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-stone-400">
+                  Instagram
+                </p>
                 <a
                   href="https://www.instagram.com/heldonica/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-amber-800 hover:text-amber-700 font-semibold transition-colors text-sm"
+                  className="text-lg font-semibold text-amber-800 transition-colors duration-200 hover:text-amber-700"
                 >
                   @heldonica
                 </a>
-                <p className="text-stone-500 text-xs mt-1">DM bienvenus</p>
+                <p className="mt-2 text-sm leading-relaxed text-stone-600">
+                  Si c&apos;est plus simple pour toi, les DM restent ouverts.
+                </p>
               </div>
 
-              <div className="border-t border-stone-100 pt-8">
-                <p className="text-xs font-bold tracking-[0.15em] uppercase text-stone-400 mb-3">Ce qu'on fait</p>
-                <ul className="space-y-2 text-sm text-stone-600">
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-600 mt-0.5">→</span>
-                    Travel Planning sur mesure
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-600 mt-0.5">→</span>
-                    Consulting hôtelier indépendant
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-600 mt-0.5">→</span>
-                    Partenariats & collaborations
-                  </li>
+              <div className="rounded-3xl border border-amber-200 bg-amber-50 p-6">
+                <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-amber-800">
+                  Ce qu&apos;on fait
+                </p>
+                <ul className="space-y-3 text-sm leading-relaxed text-stone-700">
+                  <li>Voyages sur mesure construits à partir de contraintes réelles.</li>
+                  <li>Consulting hôtelier indépendant, vu depuis le terrain.</li>
+                  <li>Partenariats éditoriaux et collaborations alignées avec notre voix.</li>
                 </ul>
               </div>
             </aside>

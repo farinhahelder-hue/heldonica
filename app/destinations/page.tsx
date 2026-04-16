@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
@@ -15,20 +15,22 @@ type DestinationCard = {
   description: string;
   image: string;
   budget: string;
-  cta: string;
+  season: string;
+  verdict: string;
 };
 
 const destinations: DestinationCard[] = [
   {
-    name: 'Madere',
+    name: 'Madère',
     slug: '/destinations/madere',
     country: 'Portugal',
     style: 'nature',
     duration: '7-10',
-    description: 'Falaises, levadas, villages suspendus et ocean Atlantique.',
+    description: "L'île qu'on a mise trois ans à vraiment comprendre. Chaque retour révèle quelque chose que le précédent avait raté.",
     image: 'https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg',
-    budget: '1400-1800 EUR / duo / 7j',
-    cta: 'Voir le pilier',
+    budget: '1 400 à 1 800 € / duo / 7 jours',
+    season: 'mars à juin · septembre à novembre',
+    verdict: 'Le genre d’île qui te force à ralentir si tu veux qu’elle s’ouvre.',
   },
   {
     name: 'Sicile',
@@ -36,10 +38,11 @@ const destinations: DestinationCard[] = [
     country: 'Italie',
     style: 'food',
     duration: '5-7',
-    description: 'Baroque du sud-est, table locale et mer mediterraneenne.',
+    description: 'Le sud-est qu’on prend par la pierre, par le ventre et par les fins d’après-midi qui durent plus que prévu.',
     image: '/images/badges-heldonica.svg',
     budget: 'Sur mesure',
-    cta: 'Demander un carnet',
+    season: 'avril à juin · septembre à octobre',
+    verdict: 'À faire lentement, sinon la Sicile ne te donne que sa surface.',
   },
   {
     name: 'Suisse',
@@ -47,10 +50,11 @@ const destinations: DestinationCard[] = [
     country: 'Suisse',
     style: 'nature',
     duration: '10+',
-    description: 'Grand train tour, lacs alpins et adresses contemplatives.',
+    description: 'Le pays qu’on croit trop lisse jusqu’au moment où on lui laisse du train, du silence et un peu de pluie.',
     image: 'https://heldonica.fr/wp-content/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg',
     budget: 'Premium progressif',
-    cta: 'Explorer',
+    season: 'juin à septembre',
+    verdict: 'Si tu lui laisses du temps, la Suisse devient bien plus qu’une carte postale propre.',
   },
   {
     name: 'Roumanie',
@@ -58,10 +62,11 @@ const destinations: DestinationCard[] = [
     country: 'Roumanie',
     style: 'culture',
     duration: '7-10',
-    description: 'Transylvanie, villages vivants et patrimoine authentique.',
+    description: 'Le terrain de l’enfance, du retour et des villages qui n’ont pas encore laissé tomber leur rythme.',
     image: 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
-    budget: 'Accessible et riche',
-    cta: 'Explorer',
+    budget: 'Accessible et dense',
+    season: 'mai à octobre',
+    verdict: 'Une destination qui récompense ceux qui sortent des capitales trop vite résumées.',
   },
   {
     name: 'Zurich',
@@ -69,10 +74,11 @@ const destinations: DestinationCard[] = [
     country: 'Suisse',
     style: 'city',
     duration: '3-5',
-    description: 'Riviere, quartiers creatifs et slow city suisse.',
+    description: 'La ville où l’eau change le tempo avant même le premier café, si tu acceptes de te laisser faire.',
     image: 'https://heldonica.fr/wp-content/uploads/2025/09/zurich-limmat-ete-3-1024x681.jpg',
-    budget: 'Court sejour premium',
-    cta: 'Voir le carnet',
+    budget: 'Court séjour premium',
+    season: 'mai à septembre',
+    verdict: 'Zurich ne crie rien, mais elle tient très bien dans la durée.',
   },
   {
     name: 'Paris',
@@ -80,10 +86,11 @@ const destinations: DestinationCard[] = [
     country: 'France',
     style: 'city',
     duration: '3-5',
-    description: 'Paris hors sentiers battus, adresses de quartier et rythme doux.',
+    description: 'Même en bas de chez toi, il reste des rues qui n’ont pas fini de se révéler si tu ralentis juste assez.',
     image: 'https://heldonica.fr/wp-content/uploads/2025/09/paris-petite-ceinture-2-683x1024.jpg',
     budget: 'Modulable',
-    cta: 'Explorer',
+    season: 'toute l’année',
+    verdict: 'Paris est meilleur quand on arrête d’essayer d’en faire trop.',
   },
 ];
 
@@ -96,10 +103,10 @@ const styleOptions = [
 ] as const;
 
 const durationOptions = [
-  { value: 'all', label: 'Toutes durees' },
-  { value: '3-5', label: '3 a 5 jours' },
-  { value: '5-7', label: '5 a 7 jours' },
-  { value: '7-10', label: '7 a 10 jours' },
+  { value: 'all', label: 'Toutes durées' },
+  { value: '3-5', label: '3 à 5 jours' },
+  { value: '5-7', label: '5 à 7 jours' },
+  { value: '7-10', label: '7 à 10 jours' },
   { value: '10+', label: '10 jours et +' },
 ] as const;
 
@@ -135,12 +142,10 @@ export default function DestinationsPage() {
               Hub destinations
             </p>
             <h1 className="text-4xl md:text-6xl font-serif text-mahogany mb-6">
-              6 terrains slow travel pour voyager autrement
+              Six destinations qu&apos;on a arpentées dans tous les sens
             </h1>
             <p className="text-charcoal/80 text-lg max-w-3xl leading-relaxed">
-              Filtre selon ton style, ton temps et ton contexte. Ici, chaque destination
-              est pensee avec une approche terrain: pepites testees, rythme coherent,
-              et vraie valeur de voyage.
+              Pas en touristes pressés, en gens qui reviennent, qui testent, qui se trompent et qui recommencent. Ici, on te montre des terrains qu&apos;on connaît vraiment, avec leur bon rythme, leur budget indicatif et notre verdict signé court.
             </p>
           </div>
         </section>
@@ -168,9 +173,7 @@ export default function DestinationsPage() {
                 <select
                   value={styleFilter}
                   onChange={(event) =>
-                    setStyleFilter(
-                      event.target.value as (typeof styleOptions)[number]['value']
-                    )
+                    setStyleFilter(event.target.value as (typeof styleOptions)[number]['value'])
                   }
                   className="mt-2 w-full rounded-lg border border-stone-300 px-3 py-2 bg-white"
                 >
@@ -183,13 +186,11 @@ export default function DestinationsPage() {
               </label>
 
               <label className="text-sm font-medium text-charcoal">
-                Duree
+                Durée
                 <select
                   value={durationFilter}
                   onChange={(event) =>
-                    setDurationFilter(
-                      event.target.value as (typeof durationOptions)[number]['value']
-                    )
+                    setDurationFilter(event.target.value as (typeof durationOptions)[number]['value'])
                   }
                   className="mt-2 w-full rounded-lg border border-stone-300 px-3 py-2 bg-white"
                 >
@@ -208,50 +209,71 @@ export default function DestinationsPage() {
           <div className="container">
             {filteredDestinations.length === 0 ? (
               <div className="rounded-2xl border border-stone-200 p-10 text-center">
-                <p className="text-lg font-semibold text-mahogany mb-2">
-                  Aucun resultat avec ces filtres
-                </p>
+                <p className="text-lg font-semibold text-mahogany mb-2">Aucun résultat avec ces filtres</p>
                 <p className="text-charcoal/70 mb-5">
-                  Elargis les criteres ou passe en mode sur mesure.
+                  Élargis un peu le cadre, ou dis-nous ce que tu cherches vraiment.
                 </p>
                 <Link
                   href="/travel-planning-form"
                   className="inline-flex px-6 py-3 rounded-lg bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors"
                 >
-                  Construire mon itinerary
+                  Nous écrire →
                 </Link>
               </div>
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredDestinations.map((item) => (
-                  <article
-                    key={`${item.name}-${item.slug}`}
-                    className="rounded-2xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-                  >
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-56 object-cover"
-                      loading="lazy"
-                    />
-                    <div className="p-5">
-                      <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">
-                        {item.country} - {item.duration} jours
-                      </p>
-                      <h2 className="text-2xl font-serif text-mahogany mb-2">{item.name}</h2>
-                      <p className="text-sm text-charcoal/75 leading-relaxed mb-4">
-                        {item.description}
-                      </p>
-                      <p className="text-sm font-semibold text-charcoal mb-4">{item.budget}</p>
-                      <Link
-                        href={item.slug}
-                        className="inline-flex px-5 py-2.5 rounded-lg bg-mahogany text-white font-semibold hover:bg-mahogany/90 transition-colors"
-                      >
-                        {item.cta}
-                      </Link>
-                    </div>
-                  </article>
-                ))}
+                {filteredDestinations.map((item) => {
+                  const cta = item.slug.startsWith('/travel-planning-form')
+                    ? 'Nous écrire →'
+                    : 'Voir la destination →';
+
+                  return (
+                    <article
+                      key={`${item.name}-${item.slug}`}
+                      className="rounded-2xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
+                    >
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-full h-56 object-cover"
+                        loading="lazy"
+                      />
+                      <div className="p-5">
+                        <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">
+                          {item.country}
+                        </p>
+                        <h2 className="text-2xl font-serif text-mahogany mb-3">{item.name}</h2>
+                        <p className="text-sm text-charcoal/75 leading-relaxed mb-5">{item.description}</p>
+
+                        <div className="grid grid-cols-1 gap-3 mb-5 text-sm">
+                          <div className="rounded-xl bg-cloud-dancer/60 border border-stone-200 p-3">
+                            <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Durée</p>
+                            <p className="text-charcoal">{item.duration} jours</p>
+                          </div>
+                          <div className="rounded-xl bg-cloud-dancer/60 border border-stone-200 p-3">
+                            <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Budget indicatif</p>
+                            <p className="text-charcoal">{item.budget}</p>
+                          </div>
+                          <div className="rounded-xl bg-cloud-dancer/60 border border-stone-200 p-3">
+                            <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Meilleure saison</p>
+                            <p className="text-charcoal">{item.season}</p>
+                          </div>
+                          <div className="rounded-xl bg-white border border-stone-200 p-3">
+                            <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Notre verdict</p>
+                            <p className="text-charcoal/85">{item.verdict}</p>
+                          </div>
+                        </div>
+
+                        <Link
+                          href={item.slug}
+                          className="inline-flex px-5 py-2.5 rounded-lg bg-mahogany text-white font-semibold hover:bg-mahogany/90 transition-all duration-200"
+                        >
+                          {cta}
+                        </Link>
+                      </div>
+                    </article>
+                  );
+                })}
               </div>
             )}
           </div>

@@ -1,63 +1,81 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 const offers = [
   {
-    title: 'Diagnostic RevPAR',
+    title: 'Diagnostic terrain',
     description:
-      'Analyse rapide de votre mix canaux, politique tarifaire et saisonnalite pour identifier les gains prioritaires.',
+      'On lit votre établissement comme le ferait un client attentif : promesse, parcours, lisibilité, friction, décalage entre discours et réalité.',
     bullets: [
-      'Audit 360 Revenue Management',
-      '3 leviers actionnables sous 30 jours',
-      'Plan priorise et chiffrable',
+      'Regard client + regard hôtelier',
+      'Points de friction prioritaires',
+      'Actions tenables rapidement',
     ],
   },
   {
-    title: 'SEO Local Hotel',
+    title: 'Distribution & visibilité',
     description:
-      'Renforcement de votre visibilite locale pour capter une demande qualifiee et augmenter les reservations directes.',
+      'Canaux, direct, présence locale, pages qui convertissent : on remet de la cohérence là où tout part souvent dans des directions différentes.',
     bullets: [
-      'Optimisation Google Business Profile',
-      'Architecture contenu locale',
-      'Pilotage des intentions de recherche',
+      'Lecture du mix de distribution',
+      'SEO local et lisibilité des offres',
+      'Recommandations concrètes, sans jargon',
     ],
   },
   {
-    title: 'Conversion & Experience',
+    title: 'IA utile, pas gadget',
     description:
-      'Optimisation du parcours de reservation et de la proposition de valeur pour convertir davantage au meilleur tarif.',
+      'On vous aide à choisir les bons usages : ceux qui font gagner du temps, clarifient l’information et renforcent l’expérience sans la déshumaniser.',
     bullets: [
-      'Audit parcours utilisateur',
-      'Recommandations UX orientees revenu',
-      'Mise en place de KPIs decisionnels',
+      'Cas d’usage réalistes',
+      'Outils adaptés à votre équipe',
+      'Mise en place progressive',
     ],
+  },
+];
+
+const observations = [
+  {
+    title: 'Ce qu’on comprend en arrivant',
+    description:
+      'Votre site, votre promesse, votre parcours de réservation : est-ce que tout raconte la même chose, et est-ce que le client comprend vite ?',
+  },
+  {
+    title: 'Ce qui se casse entre l’envie et l’acte',
+    description:
+      'Là où vous perdez de la confiance, du temps ou du direct. Souvent, le problème est visible bien avant les chiffres.',
+  },
+  {
+    title: 'Ce qui peut vraiment tenir chez vous',
+    description:
+      'On repart avec une feuille de route réaliste pour votre taille, votre équipe et votre niveau d’énergie. Pas une usine à gaz.',
   },
 ];
 
 const faqs = [
   {
-    question: 'Quel type d hotel accompagnez-vous ?',
+    question: 'Quel type d’hôtel accompagnez-vous ?',
     answer:
-      'Nous travaillons avec des hotels independants, boutique hotels et maisons de charme qui veulent piloter leur performance avec plus de clarte.',
+      'Des hôtels indépendants, maisons de charme, petits groupes et lieux qui veulent garder une identité claire tout en améliorant leur lisibilité et leur efficacité.',
   },
   {
-    question: 'En combien de temps peut-on mesurer les premiers effets ?',
+    question: 'Travaillez-vous seulement sur le revenue management ?',
     answer:
-      'Les premiers signaux apparaissent souvent entre 4 et 8 semaines, selon votre saisonnalite et la maturite de vos canaux.',
+      'Non. On regarde aussi le discours, l’expérience client, la présence locale, le parcours de réservation et les bons usages de l’IA quand ils ont du sens.',
   },
   {
-    question: 'Intervenez-vous uniquement sur le revenue management ?',
+    question: 'Comment démarre une mission ?',
     answer:
-      'Non. Notre approche combine Revenue Management, SEO local et conversion pour viser un impact business coherent.',
+      'Par un rendez-vous de cadrage. On regarde votre contexte, ce qui vous agace vraiment, et on vous dit franchement si on pense pouvoir vous aider utilement.',
   },
 ];
 
 export const metadata: Metadata = {
-  title: 'Consulting hotelier | Heldonica',
+  title: 'Consulting hôtelier | Heldonica',
   description:
-    'Revenue Management, SEO local et experience client pour hotels independants avec objectifs RevPAR et ventes directes.',
+    'On connaît vos clients parce qu’on en fait partie. Regard terrain, parcours client, visibilité locale et outils IA utiles pour hôtels indépendants.',
   alternates: {
     canonical: 'https://www.heldonica.fr/hotel-consulting',
   },
@@ -73,26 +91,25 @@ export default function HotelConsultingPage() {
             <p className="text-xs uppercase tracking-[0.2em] text-eucalyptus font-semibold mb-4">
               Consulting B2B
             </p>
-            <h1 className="text-4xl md:text-6xl font-serif text-mahogany mb-6">
-              Hotel consulting axe performance
+            <h1 className="text-4xl md:text-6xl font-serif text-mahogany mb-6 max-w-4xl">
+              On connaît vos clients mieux que la plupart de vos consultants
+              <span className="block italic text-eucalyptus">parce qu’on est vos clients.</span>
             </h1>
             <p className="text-charcoal/80 text-lg max-w-3xl leading-relaxed mb-8">
-              Vous cherchez des resultats mesurables sur votre RevPAR, votre acquisition
-              directe et votre rentabilite. Nous cadrons les priorites, puis nous les
-              transformons en plan d action concret.
+              Pas de promesses chiffrées plaquées sur un deck. On arrive, on regarde ce qui se passe vraiment, on vous dit ce qu’on voit. Ensuite, on travaille ensemble.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
                 href="/contact"
                 className="px-7 py-3 rounded-lg bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors"
               >
-                Reserver un appel de cadrage
+                Prendre rendez-vous →
               </Link>
               <Link
-                href="/etudes-de-cas"
+                href="/ai-hotellerie"
                 className="px-7 py-3 rounded-lg border border-eucalyptus text-eucalyptus font-semibold hover:bg-eucalyptus/5 transition-colors"
               >
-                Voir les etudes de cas
+                Voir les outils →
               </Link>
             </div>
           </div>
@@ -100,21 +117,16 @@ export default function HotelConsultingPage() {
 
         <section className="bg-white section-spacing">
           <div className="container">
-            <h2 className="text-3xl md:text-4xl font-serif text-mahogany mb-10">
-              Offres prioritaires
-            </h2>
+            <h2 className="text-3xl md:text-4xl font-serif text-mahogany mb-10">Là où on intervient</h2>
             <div className="grid md:grid-cols-3 gap-6">
               {offers.map((offer) => (
-                <article
-                  key={offer.title}
-                  className="rounded-2xl border border-stone-200 p-6 shadow-sm"
-                >
+                <article key={offer.title} className="rounded-2xl border border-stone-200 p-6 shadow-sm">
                   <h3 className="text-2xl font-serif text-mahogany mb-3">{offer.title}</h3>
                   <p className="text-charcoal/80 leading-relaxed mb-5">{offer.description}</p>
                   <ul className="space-y-2 text-sm text-charcoal/85">
                     {offer.bullets.map((bullet) => (
                       <li key={bullet} className="flex items-start gap-2">
-                        <span className="text-teal mt-[2px]">●</span>
+                        <span className="text-teal mt-[2px]">•</span>
                         <span>{bullet}</span>
                       </li>
                     ))}
@@ -129,26 +141,25 @@ export default function HotelConsultingPage() {
           <div className="container">
             <div className="rounded-2xl bg-white border border-stone-200 p-8 md:p-10">
               <p className="text-xs uppercase tracking-[0.15em] text-eucalyptus font-semibold mb-3">
-                Pricing appel
+                Premier cadrage
               </p>
               <h2 className="text-3xl font-serif text-mahogany mb-4">
-                Session strategique 90 min - 290 EUR HT
+                Rendez-vous stratégique de 90 min — 290 € HT
               </h2>
               <p className="text-charcoal/80 max-w-3xl leading-relaxed mb-6">
-                Cette session pose votre diagnostic prioritaire et votre feuille de route.
-                Si nous enchainons sur une mission, ce montant est deduit de la phase 1.
+                On pose le diagnostic, on trie les urgences, on voit ce qui relève du discours, de l’opérationnel, du direct ou des outils. Si une mission suit, ce montant est déduit de la phase 1.
               </p>
               <div className="grid sm:grid-cols-3 gap-4 mb-8">
                 <div className="rounded-xl bg-cloud-dancer/70 p-4 border border-stone-200">
                   <p className="text-sm font-semibold text-mahogany mb-1">Format</p>
-                  <p className="text-sm text-charcoal/75">Visio ou presentiel (Paris)</p>
+                  <p className="text-sm text-charcoal/75">Visio ou présentiel (Paris)</p>
                 </div>
                 <div className="rounded-xl bg-cloud-dancer/70 p-4 border border-stone-200">
                   <p className="text-sm font-semibold text-mahogany mb-1">Livrable</p>
-                  <p className="text-sm text-charcoal/75">Plan d action priorise</p>
+                  <p className="text-sm text-charcoal/75">Feuille de route priorisée</p>
                 </div>
                 <div className="rounded-xl bg-cloud-dancer/70 p-4 border border-stone-200">
-                  <p className="text-sm font-semibold text-mahogany mb-1">Delai</p>
+                  <p className="text-sm font-semibold text-mahogany mb-1">Délai</p>
                   <p className="text-sm text-charcoal/75">Compte-rendu sous 48h</p>
                 </div>
               </div>
@@ -156,7 +167,7 @@ export default function HotelConsultingPage() {
                 href="/contact"
                 className="inline-flex px-7 py-3 rounded-lg bg-mahogany text-white font-semibold hover:bg-mahogany/90 transition-colors"
               >
-                Planifier un appel
+                Prendre rendez-vous →
               </Link>
             </div>
           </div>
@@ -164,33 +175,14 @@ export default function HotelConsultingPage() {
 
         <section className="bg-white section-spacing">
           <div className="container">
-            <h2 className="text-3xl md:text-4xl font-serif text-mahogany mb-8">
-              Preuves et indicateurs
-            </h2>
+            <h2 className="text-3xl md:text-4xl font-serif text-mahogany mb-8">Ce qu’on regarde d’abord</h2>
             <div className="grid md:grid-cols-3 gap-6">
-              <article className="rounded-2xl border border-stone-200 p-6">
-                <p className="text-4xl font-serif text-mahogany mb-2">+18%</p>
-                <p className="text-sm uppercase tracking-[0.12em] text-eucalyptus mb-2">RevPAR</p>
-                <p className="text-charcoal/75 text-sm">
-                  Gain mesure apres optimisation pricing et arbitrage canaux.
-                </p>
-              </article>
-              <article className="rounded-2xl border border-stone-200 p-6">
-                <p className="text-4xl font-serif text-mahogany mb-2">+24%</p>
-                <p className="text-sm uppercase tracking-[0.12em] text-eucalyptus mb-2">
-                  Direct bookings
-                </p>
-                <p className="text-charcoal/75 text-sm">
-                  Progression des reservations sans intermediaire sur periode comparable.
-                </p>
-              </article>
-              <article className="rounded-2xl border border-stone-200 p-6">
-                <p className="text-4xl font-serif text-mahogany mb-2">12 pts</p>
-                <p className="text-sm uppercase tracking-[0.12em] text-eucalyptus mb-2">Marge</p>
-                <p className="text-charcoal/75 text-sm">
-                  Amelioration operationnelle suite a la reallocation des efforts commerciaux.
-                </p>
-              </article>
+              {observations.map((item) => (
+                <article key={item.title} className="rounded-2xl border border-stone-200 p-6">
+                  <h3 className="text-xl font-serif text-mahogany mb-3">{item.title}</h3>
+                  <p className="text-charcoal/75 text-sm leading-relaxed">{item.description}</p>
+                </article>
+              ))}
             </div>
           </div>
         </section>

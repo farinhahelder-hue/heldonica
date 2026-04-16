@@ -13,6 +13,7 @@ export interface BlogPost {
   title: string;
   excerpt: string | null;
   content: string | null;
+  voice_notes?: string | null;
   category: string | null;
   destination?: string | null;
   tags: string[] | null;
