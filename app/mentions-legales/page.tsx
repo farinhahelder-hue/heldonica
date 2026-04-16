@@ -51,7 +51,7 @@ export default function MentionsLegalesPage() {
           <div className="max-w-4xl mx-auto px-6 space-y-12">
             <div className="rounded-2xl border border-mahogany/20 bg-cloud-dancer/50 p-6 text-charcoal">
               <p className="text-sm text-charcoal/60">
-                Derniere mise a jour : 15 avril 2026
+                Derniere mise a jour : 16 avril 2026
               </p>
             </div>
 
@@ -60,13 +60,7 @@ export default function MentionsLegalesPage() {
                 <strong>Nom commercial :</strong> Heldonica
               </p>
               <p>
-                <strong>Statut :</strong> Auto-entrepreneur (EI)
-              </p>
-              <p>
-                <strong>Adresse :</strong> 42 Rue de la Pompe, 75016 Paris, France
-              </p>
-              <p>
-                <strong>Responsable de publication :</strong> Heldonica
+                Informations legales complementaires en cours de mise a jour.
               </p>
               <p>
                 <strong>Email de contact :</strong>{' '}
@@ -76,9 +70,6 @@ export default function MentionsLegalesPage() {
                 >
                   contact@heldonica.fr
                 </a>
-              </p>
-              <p>
-                <strong>Pays :</strong> France
               </p>
             </LegalSection>
 
@@ -149,10 +140,6 @@ export default function MentionsLegalesPage() {
             <LegalSection title="Copyright">
               <p>
                 <strong>&copy; Heldonica 2026</strong> - Tous droits reserves.
-              </p>
-              <p>
-                Ce site est exploite a titre personnel. Heldonica decline toute responsabilite pour les
-                dommages lies a l'utilisation des informations fournies.
               </p>
             </LegalSection>
           </div>
