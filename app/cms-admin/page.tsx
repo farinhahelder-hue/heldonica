@@ -814,6 +814,10 @@ export default function CMSAdmin() {
                   onChange={e => setEditingArticle(p => ({ ...p, voice_notes: e.target.value }))}
                   style={{ ...inp, height: 96, resize: 'vertical' }}
                   placeholder="Détail terrain, texture, hésitation, micro-verdict, ou rappel d'angle vécu..." />
+                <p style={{ margin: '.4rem 0 0', color: '#6d625a', fontSize: '.8rem', lineHeight: 1.6 }}>
+                  Si la migration Supabase `voice_notes` n'est pas encore appliquée, ce champ peut être ignoré
+                  temporairement à l'enregistrement.
+                </p>
               </div>
               <div style={{ gridColumn: '1/-1' }}>
                 <label style={lbl}>Contenu</label>
