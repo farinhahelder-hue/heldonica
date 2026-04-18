@@ -12,43 +12,43 @@ const HELDONICA_BADGE_FALLBACK = '/images/badges-heldonica.svg'
 
 // ─── Images de secours par slug ──────────────────────────────────────────────
 const SLUG_IMAGES: Record<string, string> = {
-  'madere-slow-travel-guide':                     'https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg',
-  'urbex-paris-safe':                             'https://heldonica.fr/wp-content/uploads/2025/09/paris-petite-ceinture-2-683x1024.jpg',
-  'guide-pratique-comment-debuter-le-slow-travel-en-duo': 'https://heldonica.fr/wp-content/uploads/2025/08/randonnee-montagne-1024x683.jpg',
-  'madere-quand-partir-sur-lile-de-leternel-printemps':   'https://heldonica.fr/wp-content/uploads/2026/03/madere-cascade-1024x683.jpg',
-  'pepites-mystiques-de-madere':                  'https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg',
-  'prego-no-bolo-do-caco':                        'https://heldonica.fr/wp-content/uploads/2025/10/prego-bolo-caco-683x1024.jpg',
-  'flotter-sur-la-limmat-a-zurich-notre-aventure-dete':   'https://heldonica.fr/wp-content/uploads/2025/09/zurich-limmat-ete-3-1024x681.jpg',
+  'madere-slow-travel-guide':                     'https://images.unsplash.com/photo-1560719887-fe3105fa1e55?w=1200&q=80',
+  'urbex-paris-safe':                             'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=1200&q=80',
+  'guide-pratique-comment-debuter-le-slow-travel-en-duo': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
+  'madere-quand-partir-sur-lile-de-leternel-printemps':   'https://images.unsplash.com/photo-1569959220744-ff553533f492?w=1200&q=80',
+  'pepites-mystiques-de-madere':                  'https://images.unsplash.com/photo-1560719887-fe3105fa1e55?w=1200&q=80',
+  'prego-no-bolo-do-caco':                        'https://images.unsplash.com/photo-1574484284002-952d92a03a52?w=1200&q=80',
+  'flotter-sur-la-limmat-a-zurich-notre-aventure-dete':   'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
 }
 // ─── Images de secours par catégorie ─────────────────────────────────────────
 /*
 const CAT_IMAGES_LEGACY: Record<string, string> = {
-  'Carnets Voyage':      'https://heldonica.fr/wp-content/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg',
-  'Découvertes Locales': 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
-  'Expert Hôtelier':     'https://heldonica.fr/wp-content/uploads/2025/09/zurich-brasserie-2-683x1024.jpg',
+  'Carnets Voyage':      'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/stoos-01.jpg',
+  'Découvertes Locales': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
+  'Expert Hôtelier':     'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
   'Découvertes Locales': 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=900&q=80',
-  'Guides Pratiques':    'https://heldonica.fr/wp-content/uploads/2025/08/randonnee-montagne-1024x683.jpg',
+  'Guides Pratiques':    'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
   'Expert Hôtelier':     'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=900&q=80',
-  'Travel':              'https://heldonica.fr/wp-content/uploads/2025/08/zurich-panorama-2-1024x679.jpg',
-  'Food & Lifestyle':    'https://heldonica.fr/wp-content/uploads/2025/10/bacalhau-lagareiro-3-683x1024.jpg',
-  'Découvertes Locales': 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
-  'Expert Hôtelier': 'https://heldonica.fr/wp-content/uploads/2025/09/zurich-brasserie-2-683x1024.jpg',
-  'DÃ©couvertes Locales': 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
-  'Expert HÃ´telier': 'https://heldonica.fr/wp-content/uploads/2025/09/zurich-brasserie-2-683x1024.jpg',
+  'Travel':              'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
+  'Food & Lifestyle':    'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=1200&q=80',
+  'Découvertes Locales': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
+  'Expert Hôtelier': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
+  'DÃ©couvertes Locales': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
+  'Expert HÃ´telier': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
 }
 */
 
 const CAT_IMAGES: Record<string, string> = {
-  'Carnets Voyage': 'https://heldonica.fr/wp-content/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg',
-  'Découvertes Locales': 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
-  'Guides Pratiques': 'https://heldonica.fr/wp-content/uploads/2025/08/randonnee-montagne-1024x683.jpg',
-  'Expert Hôtelier': 'https://heldonica.fr/wp-content/uploads/2025/09/zurich-brasserie-2-683x1024.jpg',
-  Travel: 'https://heldonica.fr/wp-content/uploads/2025/08/zurich-panorama-2-1024x679.jpg',
-  'Food & Lifestyle': 'https://heldonica.fr/wp-content/uploads/2025/10/bacalhau-lagareiro-3-683x1024.jpg',
-  'DÃ©couvertes Locales': 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
-  'Expert HÃ´telier': 'https://heldonica.fr/wp-content/uploads/2025/09/zurich-brasserie-2-683x1024.jpg',
-  'DÃƒÂ©couvertes Locales': 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
-  'Expert HÃƒÂ´telier': 'https://heldonica.fr/wp-content/uploads/2025/09/zurich-brasserie-2-683x1024.jpg',
+  'Carnets Voyage': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/stoos-01.jpg',
+  'Découvertes Locales': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
+  'Guides Pratiques': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
+  'Expert Hôtelier': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
+  Travel: 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
+  'Food & Lifestyle': 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=1200&q=80',
+  'DÃ©couvertes Locales': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
+  'Expert HÃ´telier': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
+  'DÃƒÂ©couvertes Locales': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
+  'Expert HÃƒÂ´telier': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
 }
 function postImage(p: BlogPost): string {
   if (p.featured_image && p.featured_image.trim().length > 0) return p.featured_image
