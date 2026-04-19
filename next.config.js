@@ -2,6 +2,10 @@
 
 const securityHeaders = [
   {
+    key: 'Content-Type',
+    value: 'text/html; charset=utf-8',
+  },
+  {
     key: 'X-DNS-Prefetch-Control',
     value: 'on',
   },
