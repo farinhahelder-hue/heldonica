@@ -11,7 +11,7 @@ from datetime import datetime
 from browser_use_sdk.v3 import AsyncBrowserUse
 
 # Your API Key
-BROWSER_USE_API_KEY = "bu_QMuXOMk_89x0ArZT_jGSon1Cr9hyzeNklG5wpEgHBJU"
+BROWSER_USE_API_KEY = "bu_eAUU2qZPFWtB6NBIcymo18uWV0iCY9l3PMgt2SYQFH8"
 
 # Set the API key
 os.environ["BROWSER_USE_API_KEY"] = BROWSER_USE_API_KEY

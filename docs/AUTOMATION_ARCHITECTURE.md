@@ -35,7 +35,7 @@ Cloud Source -> Browser Use -> Photos Data -> AI Generator -> Blog + Instagram
 
 | Service | Key | Status |
 |---------|-----|--------|
-| Browser Use Cloud | bu_QMuXOMk_89x0ArZT_jGSon1Cr9hyzeNklG5wpEgHBJU | WORKING |
+| Browser Use Cloud | bu_eAUU2qZPFWtB6NBIcymo18uWV0iCY9l3PMgt2SYQFH8 | WORKING |
 | Instagram | INSTAGRAM_ACCESS_TOKEN | NEEDED |
 | Instagram | INSTAGRAM_BUSINESS_ACCOUNT_ID | NEEDED |
 | AI | GROQ_KEY | NEEDED |

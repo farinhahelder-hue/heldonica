@@ -8,7 +8,7 @@
 #   python scripts/automation_fetch_photos.py
 # 
 # Environment variables required:
-#   - BROWSER_USE_API_KEY (already set: bu_QMuXOMk_89x0ArZT_jGSon1Cr9hyzeNklG5wpEgHBJU)
+#   - BROWSER_USE_API_KEY (already set: bu_eAUU2qZPFWtB6NBIcymo18uWV0iCY9l3PMgt2SYQFH8)
 #   - GOOGLE_EMAIL, GOOGLE_PASSWORD (for Google Photos)
 #   - IDRIVE_EMAIL, IDRIVE_PASSWORD (for IDrive)
 #   - GROQ_KEY (for AI content generation)
@@ -25,7 +25,7 @@ from typing import Optional
 from browser_use_sdk.v3 import AsyncBrowserUse
 
 # API Key is already configured
-BROWSER_USE_API_KEY = os.environ.get("BROWSER_USE_API_KEY", "bu_QMuXOMk_89x0ArZT_jGSon1Cr9hyzeNklG5wpEgHBJU")
+BROWSER_USE_API_KEY = os.environ.get("BROWSER_USE_API_KEY", "bu_eAUU2qZPFWtB6NBIcymo18uWV0iCY9l3PMgt2SYQFH8")
 os.environ["BROWSER_USE_API_KEY"] = BROWSER_USE_API_KEY
 
 

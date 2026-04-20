@@ -20,7 +20,7 @@ import httpx
 
 # Configuration
 OPENHANDS_API_KEY = os.environ.get("OPENHANDS_API_KEY", os.environ.get("GITHUB_TOKEN", ""))
-BROWSER_USE_API_KEY = "bu_QMuXOMk_89x0ArZT_jGSon1Cr9hyzeNklG5wpEgHBJU"
+BROWSER_USE_API_KEY = "bu_eAUU2qZPFWtB6NBIcymo18uWV0iCY9l3PMgt2SYQFH8"
 
 # Get the OpenHands host
 OPENHANDS_HOST = os.environ.get("OH_ALLOW_CORS_ORIGINS_0", "https://app.all-hands.dev").split(",")[0]
