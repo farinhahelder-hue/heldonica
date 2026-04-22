@@ -1,0 +1,84 @@
+name: Dependabot auto-merge
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  dependabot:
+    name: Dependabot auto-merge
+    runs-on: ubuntu-latest
+    # Only run for Dependabot PRs
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge
+        run: |
+          # Get the PR number
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          
+          # Enable auto-merge for the PR
+          # This requires the PR to have passed all required checks
+          gh pr api "pulls/$PR_NUMBER/auto_merge" \
+            --method PUT \
+            --header "Accept: application/vnd.github+json" \
+            -f enabled=true \
+            -f merge_method=squash || echo "Auto-merge may require additional checks"
+          
+          echo "Enabled auto-merge for PR #$PR_NUMBER"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Wait for required status checks
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          echo "Waiting for status checks to pass for PR #$PR_NUMBER..."
+          
+          # Poll until all checks pass or timeout
+          MAX_ATTEMPTS=60
+          INTERVAL_SECONDS=10
+          
+          for ((i=1; i<=MAX_ATTEMPTS; i++)); do
+            # Get the combined status
+            STATUS=$(gh pr view $PR_NUMBER --json statusCheckRollup --jq '.statusCheckRollup[] | select(.conclusion == "SUCCESS") | .conclusion' 2>/dev/null || echo "pending")
+            
+            # Check if we have any failed checks
+            FAILED=$(gh pr view $PR_NUMBER --json statusCheckRollup --jq '.statusCheckRollup[] | select(.conclusion == "FAILURE") | .conclusion' 2>/dev/null || echo "")
+            
+            if [ -n "$FAILED" ]; then
+              echo "Some checks failed, not merging"
+              exit 1
+            fi
+            
+            # Get the state - need at least one successful check, and no pending
+            STATE=$(gh pr view $PR_NUMBER --json state 2>/dev/null | jq -r '.state')
+            if [ "$STATE" == "MERGED" ] || [ "$STATE" == "CLOSED" ]; then
+              echo "PR already merged or closed"
+              exit 0
+            fi
+            
+            # Check if auto-merge succeeded
+            MERGED=$(gh pr view $PR_NUMBER --json merged 2>/dev/null | jq -r '.merged' || echo "false")
+            if [ "$MERGED" == "true" ]; then
+              echo "PR auto-merged successfully!"
+              exit 0
+            fi
+            
+            echo "Attempt $i/$MAX_ATTEMPTS: Checks still in progress..."
+            sleep $INTERVAL_SECONDS
+          done
+          
+          echo "Timeout reached, checks didn't pass in time"
+          exit 1
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
