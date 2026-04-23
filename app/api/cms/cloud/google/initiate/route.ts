@@ -15,7 +15,8 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const redirectUri = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.heldonica.fr'}/api/cms/cloud/google/callback`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.heldonica.fr';
+  const redirectUri = `${siteUrl}/cms/cloud/google-callback`;
   const scope = 'https://www.googleapis.com/auth/photoslibrary.readonly';
   
   const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
@@ -24,7 +25,8 @@ export async function POST(req: NextRequest) {
     `&response_type=code` +
     `&scope=${encodeURIComponent(scope)}` +
     `&access_type=offline` +
-    `&prompt=consent`;
+    `&prompt=consent` +
+    `&state=${encodeURIComponent(siteUrl)}`;
 
-  return NextResponse.json({ authUrl });
+  return NextResponse.json({ authUrl, redirectUri });
 }
