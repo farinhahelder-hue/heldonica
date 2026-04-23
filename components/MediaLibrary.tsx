@@ -24,11 +24,16 @@ const FOLDERS = [
 ];
 
 export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) {
-  const [tab, setTab] = useState<'library' | 'url'>('library');
+  const [tab, setTab] = useState<'library' | 'url' | 'google-drive' | 'batch'>('library');
   const [files, setFiles] = useState<MediaFile[]>([]);
   const [loading, setLoading] = useState(false);
   const [importing, setImporting] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
+  const [batchUrls, setBatchUrls] = useState('');
+  const [batchProgress, setBatchProgress] = useState<{ current: number; total: number; status: string } | null>(null);
+  const [googleDriveConnected, setGoogleDriveConnected] = useState(false);
+  const [idriveConnected, setIdriveConnected] = useState(false);
+  const [selectedCloudFolder, setSelectedCloudFolder] = useState('');
   const [toast, setToast] = useState('');
   const [uploading, setUploading] = useState(false);
   const [folder, setFolder] = useState('articles');
@@ -111,6 +116,64 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
     } finally { setDeleting(null); }
   };
 
+  // ── Batch Import from URLs ──────────────────────────────────────────────────
+  const handleBatchImport = async () => {
+    const urls = batchUrls.split('\n').map(u => u.trim()).filter(u => u.startsWith('http'));
+    if (urls.length === 0) { showToast('❌Aucune URL valide'); return; }
+    
+    setBatchProgress({ current: 0, total: urls.length, status: 'Démarrage...' });
+    setImporting(true);
+    
+    let imported = 0;
+    for (let i = 0; i < urls.length; i++) {
+      setBatchProgress({ current: i + 1, total: urls.length, status: `Import ${i + 1}/${urls.length}` });
+      try {
+        const filename = `batch-${Date.now()}-${i}.jpg`;
+        const res = await fetch('/api/cms/media', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ imageUrl: urls[i], filename, folder }),
+        });
+        const data = await res.json();
+        if (data.url) imported++;
+      } catch (e) { console.error('Batch import error:', e); }
+    }
+    
+    setBatchProgress(null);
+    setBatchUrls('');
+    setImporting(false);
+    showToast(`✅ ${imported}/${urls.length} images importées !`);
+    loadFiles();
+  };
+
+  // ── Cloud Connect ───────────────────────────────────────────────────────────
+  const connectGoogleDrive = () => {
+    // In production, this would trigger OAuth flow
+    // For demo, we simulate connection
+    setGoogleDriveConnected(true);
+    showToast('🔗 Connecté à Google Drive (démo)');
+  };
+
+  const connectIDrive = () => {
+    // In production, this would trigger OAuth flow
+    setIdriveConnected(true);
+    showToast('🔗 Connecté à iDrive (démo)');
+  };
+
+  const importFromCloud = async () => {
+    if (!selectedCloudFolder) { showToast('❌ Sélectionnez un dossier'); return; }
+    setBatchProgress({ current: 0, total: 10, status: 'Connexion au cloud...' });
+    setImporting(true);
+    
+    // Simulate import - in production this would call real API
+    await new Promise(r => setTimeout(r, 2000));
+    setBatchProgress({ current: 10, total: 10, status: 'Terminé !' });
+    setImporting(false);
+    setBatchProgress(null);
+    showToast('✅ Import depuis le cloud terminé !');
+    loadFiles();
+  };
+
   const fmtSize = (bytes?: number) => {
     if (!bytes) return '';
     if (bytes < 1024) return `${bytes} o`;
@@ -146,8 +209,12 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
         )}
 
         {/* Tabs */}
-        <div style={{ display: 'flex', borderBottom: '1.5px solid #e8e3dc', padding: '0 1.5rem' }}>
-          {([['library', '☁️ Bibliothèque'], ['url', '🔗 Importer par URL']] as const).map(([id, label]) => (
+        <div style={{ display: 'flex', borderBottom: '1.5px solid #e8e3dc', padding: '0 1.5rem', flexWrap: 'wrap' }}>
+          {([
+            ['library', '☁️ Bibliothèque'], 
+            ['url', '🔗 URL'],
+            ['batch', '📋 Lot d\'URLs'],
+          ] as const).map(([id, label]) => (
             <button key={id} onClick={() => setTab(id)} style={{
               padding: '.75rem 1.1rem', border: 'none', background: 'none', cursor: 'pointer',
               fontWeight: tab === id ? 700 : 400,
@@ -298,6 +365,71 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
                   <img src={imageUrl} alt="Aperçu" style={{ width: '100%', maxHeight: 200, objectFit: 'contain', borderRadius: '.5rem' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                 </div>
               )}
+            </div>
+          )}
+
+          {/* ── Batch Import ── */}
+          {tab === 'batch' && (
+            <div style={{ maxWidth: 640, margin: '0 auto' }}>
+              <div style={{ background: '#faf8f5', borderRadius: '1rem', padding: '1.5rem', marginBottom: '1.5rem', border: '1.5px solid #e8e3dc' }}>
+                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#1a1a1a', marginBottom: '.75rem' }}>📋 Import par lots d'URLs</h3>
+
+                <div style={{ background: '#fef3cd', borderRadius: '.75rem', padding: '1rem', marginBottom: '1.25rem', fontSize: '.83rem', color: '#856404', lineHeight: 1.7 }}>
+                  <strong>💡 Astuce :</strong> Copiez-collez plusieurs URLs d'images (une par ligne) pour les importer en masse vers Supabase.<br/><br/>
+                  <strong>Sources compatibles :</strong> Google Photos, iCloud, Dropbox, Google Drive, iDrive, etc.
+                </div>
+
+                <label style={{ display: 'block', fontWeight: 600, fontSize: '.85rem', color: '#555', marginBottom: '.35rem' }}> URLs (une par ligne) *</label>
+                <textarea
+                  value={batchUrls}
+                  onChange={e => setBatchUrls(e.target.value)}
+                  placeholder="https://lh3.googleusercontent.com/photo1.jpg&#10;https://lh3.googleusercontent.com/photo2.jpg&#10;https://dropbox.com/photo3.jpg"
+                  rows={8}
+                  style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.88rem', marginBottom: '1rem', background: '#fff', fontFamily: 'monospace' }}
+                />
+
+                <label style={{ display: 'block', fontWeight: 600, fontSize: '.85rem', color: '#555', marginBottom: '.35rem' }}>Dossier de destination</label>
+                <select
+                  value={folder}
+                  onChange={e => setFolder(e.target.value)}
+                  style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.88rem', marginBottom: '1.5rem', background: '#fff' }}
+                >
+                  {FOLDERS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
+                </select>
+
+                {batchProgress && (
+                  <div style={{ background: '#e8f4f8', borderRadius: '.75rem', padding: '1rem', marginBottom: '1.25rem', textAlign: 'center' }}>
+                    <div style={{ fontSize: '.9rem', fontWeight: 600, color: '#1a5276', marginBottom: '.5rem' }}>
+                      {batchProgress.status}
+                    </div>
+                    <div style={{ background: '#ddd', borderRadius: '1rem', height: 8, overflow: 'hidden' }}>
+                      <div style={{ 
+                        background: '#01696f', 
+                        height: '100%', 
+                        width: `${(batchProgress.current / batchProgress.total) * 100}%`,
+                        transition: 'width 0.3s ease'
+                      }} />
+                    </div>
+                    <p style={{ fontSize: '.8rem', color: '#666', margin: '.5rem 0 0' }}>
+                      {batchProgress.current} / {batchProgress.total}
+                    </p>
+                  </div>
+                )}
+
+                <button
+                  onClick={handleBatchImport}
+                  disabled={!batchUrls.trim() || importing}
+                  style={{
+                    width: '100%', padding: '.8rem',
+                    background: importing ? '#ccc' : '#01696f',
+                    color: 'white', border: 'none', borderRadius: '.5rem',
+                    cursor: importing ? 'wait' : 'pointer',
+                    fontSize: '.9rem', fontWeight: 600,
+                  }}
+                >
+                  {importing ? '⏳ Import en cours...' : '📥 Importer toutes les images'}
+                </button>
+              </div>
             </div>
           )}
         </div>
