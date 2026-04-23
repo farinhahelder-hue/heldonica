@@ -160,8 +160,10 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
       });
       const data = await res.json();
       if (data.authUrl) {
+        // Full OAuth flow - redirect to Google
         window.location.href = data.authUrl;
       } else if (data.demo) {
+        // Demo mode - load sample images
         setGoogleDriveConnected(true);
         setCloudFiles([
           { id: '1', name: 'Vacances 2024.jpg', thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200', url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200' },
@@ -176,6 +178,51 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
     } finally {
       setImporting(false);
     }
+  };
+
+  // Fetch real photos from Google
+  const loadGooglePhotos = async () => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('google_photos_token') : null;
+    if (!token) {
+      showToast('❌ Non connecté - recliquez pour autoriser');
+      return;
+    }
+    
+    setImporting(true);
+    try {
+      const res = await fetch('/api/cms/cloud/google/photos', { 
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(cmsPassword ? { 'x-cms-auth': cmsPassword } : {})
+        },
+        body: JSON.stringify({ accessToken: token })
+      });
+      const data = await res.json();
+      if (data.photos) {
+        setCloudFiles(data.photos);
+        showToast(`📸 ${data.photos.length} photos chargées`);
+      } else if (data.error === 'expired') {
+        localStorage.removeItem('google_photos_token');
+        localStorage.removeItem('google_photos_refresh');
+        showToast('❌ Session expirée - recliquez pour reconnecter');
+      }
+    } catch (e) {
+      showToast('❌ Erreur de chargement');
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  // Disconnect Google
+  const disconnectGoogle = async () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('google_photos_token');
+      localStorage.removeItem('google_photos_refresh');
+    }
+    setGoogleDriveConnected(false);
+    setCloudFiles([]);
+    setActiveCloud(null);
   };
 
   const connectIDrive = async () => {
