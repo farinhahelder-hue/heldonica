@@ -180,7 +180,7 @@ interface HomeProps {
 export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts }: HomeProps) {
   useScrollReveal()
   const featImg = featured ? postImage(featured) : null
-  const publishedArticles = totalPosts > 0 ? totalPosts : 17
+  const publishedArticles = totalPosts || 23
   const coveredCountries = 7
 
   return (
