@@ -5,10 +5,16 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
 import type { BlogPost } from '@/lib/blog-supabase'
+import { getExcerpt } from '@/lib/blog-supabase'
 import InstagramEmbed from '@/components/InstagramEmbed'
 import NewsletterForm from '@/components/NewsletterForm'
 
 const HELDONICA_BADGE_FALLBACK = '/images/badges-heldonica.svg'
+
+// Get display excerpt: use stored excerpt or generate from content
+function displayExcerpt(post: BlogPost): string {
+  return getExcerpt(post, 140);
+}
 
 // ─── Images de secours par slug ──────────────────────────────────────────────
 const SLUG_IMAGES: Record<string, string> = {
@@ -145,6 +151,9 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
           </h3>
           {post.excerpt && (
             <p className="text-stone-500 text-xs leading-relaxed line-clamp-2 flex-1 mb-2">{post.excerpt}</p>
+          )}
+          {!post.excerpt && displayExcerpt(post) && (
+            <p className="text-stone-500 text-xs leading-relaxed line-clamp-2 flex-1 mb-2">{displayExcerpt(post)}</p>
           )}
           <div className="flex items-center justify-between mt-auto pt-2 border-t border-stone-100">
             <span className="text-xs text-stone-400">
@@ -300,6 +309,9 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 {featured.excerpt && (
                   <p className="text-white/65 text-sm md:text-base leading-relaxed line-clamp-2 mb-4 max-w-xl">{featured.excerpt}</p>
                 )}
+                {!featured.excerpt && displayExcerpt(featured) && (
+                  <p className="text-white/65 text-sm md:text-base leading-relaxed line-clamp-2 mb-4 max-w-xl">{displayExcerpt(featured)}</p>
+                )}
                 <span className="inline-flex items-center gap-2 text-amber-400 font-semibold text-sm group-hover:gap-3 transition-all">
                   Lire le carnet →
                 </span>
@@ -339,6 +351,9 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                     </h3>
                     {travelPosts[0].excerpt && (
                       <p className="text-gray-300 text-sm mt-2 line-clamp-2">{travelPosts[0].excerpt}</p>
+                    )}
+                    {!travelPosts[0].excerpt && displayExcerpt(travelPosts[0]) && (
+                      <p className="text-gray-300 text-sm mt-2 line-clamp-2">{displayExcerpt(travelPosts[0])}</p>
                     )}
                   </div>
                 </Link>
@@ -395,6 +410,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                       <div>
                         <p className="font-semibold text-stone-800 text-sm group-hover:text-amber-700 transition-colors line-clamp-1">{p.title}</p>
                         {p.excerpt && <p className="text-stone-500 text-xs line-clamp-2 mt-0.5">{p.excerpt}</p>}
+                        {!p.excerpt && displayExcerpt(p) && <p className="text-stone-500 text-xs line-clamp-2 mt-0.5">{displayExcerpt(p)}</p>}
                       </div>
                     </Link>
                   ))}
