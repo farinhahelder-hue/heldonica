@@ -8,8 +8,8 @@ const SITE_URL = 'https://heldonica.fr';
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Heldonica | Slow Travel, Pépites & Voyages Hors des Sentiers Battus',
-    template: '%s | Heldonica',
+    default: 'Heldonica',
+    template: '%s — Heldonica',
   },
   description:
     'Slow travel, pépites dénichées et voyages sur mesure hors des sentiers battus. On partage nos carnets de route et conçoit des itinéraires authentiques pour tous les explorateurs.',
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     locale: 'fr_FR',
     url: SITE_URL,
     siteName: 'Heldonica',
-    title: 'Heldonica | Slow Travel, Pépites & Voyages Hors des Sentiers Battus',
+    title: 'Heldonica — Slow Travel, Pépites & Voyages Hors des Sentiers Battus',
     description:
       'Carnets de voyage slow travel, pépites dénichées et conception de voyages sur mesure écoresponsables.',
     images: [
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Heldonica | Slow Travel, Pépites & Voyages Hors des Sentiers Battus',
+    title: 'Heldonica — Slow Travel, Pépites & Voyages Hors des Sentiers Battus',
     description:
       'Carnets de voyage slow travel, pépites dénichées et conception de voyages sur mesure écoresponsables.',
     images: ['/og-default.jpg'],
