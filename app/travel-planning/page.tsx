@@ -9,7 +9,7 @@ import Link from 'next/link'
 const faqs = [
   {
     q: 'Combien coûte la conception sur mesure ?',
-    a: "Chaque projet est différent. On commence par un échange gratuit pour comprendre ce que tu veux vraiment faire, puis on chiffre selon la durée, la complexité et le niveau d'accompagnement.",
+    a: "Chaque projet est différent. On commence par un échange gratuit pour comprendre ce que tu veux vraiment faire, puis on chiffre selon la durée, la complexité et le niveau d’accompagnement.",
   },
   {
     q: 'Dans combien de temps reçoit-on le carnet ?',
@@ -17,15 +17,15 @@ const faqs = [
   },
   {
     q: 'Travaillez-vous seulement sur des destinations déjà vécues ?',
-    a: 'Notre préférence va au terrain qu'on connaît déjà, parce que c'est là qu'on est les plus justes. Quand on ouvre un nouveau terrain, on le dit clairement et on garde le même niveau d'exigence.',
+    a: 'Notre préférence va au terrain qu’on connaît déjà, parce que c’est là qu’on est les plus justes. Quand on ouvre un nouveau terrain, on le dit clairement et on garde le même niveau d’exigence.',
   },
   {
     q: 'Faites-vous les réservations à notre place ?',
     a: 'On peut fournir les liens, les contacts et le bon ordre. Si tu veux un accompagnement plus complet, on le cadre ensemble au moment du brief.',
   },
   {
-    q: 'Qu'est-ce qu'on reçoit exactement ?',
-    a: 'Un carnet clair et concret : rythme jour par jour, adresses choisies, hébergements, transports, conseils pratiques et ce qu'il faut éviter pour ne pas casser le voyage.',
+    q: 'Qu’est-ce qu’on reçoit exactement ?',
+    a: 'Un carnet clair et concret : rythme jour par jour, adresses choisies, hébergements, transports, conseils pratiques et ce qu’il faut éviter pour ne pas casser le voyage.',
   },
 ]
 
@@ -164,7 +164,7 @@ export default function TravelPlanning() {
                     'Un rythme pensé à J0 qui casse à J2',
                     'Des adresses "bien notées" mais pas faites pour toi',
                     'La peur de passer à côté de ce qui aurait vraiment compté',
-                    'Un voyage qui se remplit plus qu'il ne se vit',
+                    'Un voyage qui se remplit plus qu’il ne se vit',
                   ].map((txt) => (
                     <li key={txt} className="flex gap-3 items-start text-stone-600 text-sm">
                       <span className="text-stone-300 mt-0.5 shrink-0">✕</span>
@@ -219,13 +219,13 @@ export default function TravelPlanning() {
                 {
                   num: '03',
                   title: 'On assemble ton rythme',
-                  desc: 'Adresses, ordre, temps de trajet, respirations, jours forts : rien n'est posé au hasard. On compose une séquence qui tient debout sur place.',
+                  desc: 'Adresses, ordre, temps de trajet, respirations, jours forts : rien n’est posé au hasard. On compose une séquence qui tient debout sur place.',
                   badge: '7–10 jours',
                 },
                 {
                   num: '04',
                   title: 'Tu pars avec du concret',
-                  desc: 'Carnet clair, hébergements, restaurants, transports, conseils et erreurs à éviter. Tu n'as plus besoin d'improviser ce qui devait être anticipé.',
+                  desc: 'Carnet clair, hébergements, restaurants, transports, conseils et erreurs à éviter. Tu n’as plus besoin d’improviser ce qui devait être anticipé.',
                   badge: 'Clé en main',
                 },
               ].map((step, i) => (
@@ -255,12 +255,12 @@ export default function TravelPlanning() {
                 {
                   num: '01',
                   title: 'Rythme sur mesure',
-                  desc: 'Pas une suite d'adresses. Une cadence juste, pensée pour ce que tu peux vraiment vivre sans t'épuiser.',
+                  desc: 'Pas une suite d’adresses. Une cadence juste, pensée pour ce que tu peux vraiment vivre sans t’épuiser.',
                 },
                 {
                   num: '02',
                   title: 'Adresses testées',
-                  desc: 'Hébergements, restaurants, détours et moments forts qu'on a vécus ou vérifiés avec la même exigence.',
+                  desc: 'Hébergements, restaurants, détours et moments forts qu’on a vécus ou vérifiés avec la même exigence.',
                 },
                 {
                   num: '03',
@@ -270,12 +270,12 @@ export default function TravelPlanning() {
                 {
                   num: '04',
                   title: 'Ouvert à ton format',
-                  desc: 'Solo, famille curieuse ou groupe d'amis : la logique reste la même, seul le réglage change.',
+                  desc: 'Solo, famille curieuse ou groupe d’amis : la logique reste la même, seul le réglage change.',
                 },
                 {
                   num: '05',
                   title: 'Logistique lisible',
-                  desc: 'Le bon ordre, les bons trajets, les bons points d'attention. Ce qui paraît léger à vivre est souvent lourd à préparer.',
+                  desc: 'Le bon ordre, les bons trajets, les bons points d’attention. Ce qui paraît léger à vivre est souvent lourd à préparer.',
                 },
                 {
                   num: '06',
@@ -300,17 +300,17 @@ export default function TravelPlanning() {
             <div className="grid md:grid-cols-3 gap-6">
               {[
                 {
-                  quote: 'On n'a jamais eu la sensation d'exécuter un plan. On avançait, et tout semblait tomber au bon moment.',
+                  quote: 'On n’a jamais eu la sensation d’exécuter un plan. On avançait, et tout semblait tomber au bon moment.',
                   name: 'Marie & Théo',
                   dest: 'Madère · 10 jours',
                 },
                 {
-                  quote: 'Le carnet était précis sans être rigide. On sentait qu'il avait été pensé par des gens qui avaient vraiment marché là-bas.',
+                  quote: 'Le carnet était précis sans être rigide. On sentait qu’il avait été pensé par des gens qui avaient vraiment marché là-bas.',
                   name: 'Sophie & Lucas',
                   dest: 'Colombie · 14 jours',
                 },
                 {
-                  quote: 'Même avec nos contraintes enfants + budget + fatigue, on a eu un voyage qui nous ressemblait. Et ça, c'est rare.',
+                  quote: 'Même avec nos contraintes enfants + budget + fatigue, on a eu un voyage qui nous ressemblait. Et ça, c’est rare.',
                   name: 'Camille & Romain',
                   dest: 'Sicile · 8 jours',
                 },
@@ -352,7 +352,7 @@ export default function TravelPlanning() {
               <em>On s&apos;occupe du reste.</em>
             </h2>
             <p className="text-amber-200 leading-relaxed mb-10">
-              Pas besoin d'avoir le voyage déjà écrit dans ta tête. On préfère même quand le vrai arrive brut : c'est là qu'on travaille le mieux.
+              Pas besoin d’avoir le voyage déjà écrit dans ta tête. On préfère même quand le vrai arrive brut : c’est là qu’on travaille le mieux.
             </p>
             <Link
               href="/travel-planning-form"
