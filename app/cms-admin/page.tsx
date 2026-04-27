@@ -509,7 +509,7 @@ export default function CMSAdmin() {
         }),
       });
       if (handleUnauthorized(res)) return;
-      if (res.ok) { showToast(!a.published ? 'âœ… Publié !' : 'ðŸ“¦ Repassé en brouillon'); loadArticles(); }
+      if (res.ok) { showToast(!a.published ? '✓ Publié !' : 'ðŸ“¦ Repassé en brouillon'); loadArticles(); }
     } catch {
       showToast('Impossible de mettre É  jour le statut de publication.');
     }
@@ -703,7 +703,7 @@ export default function CMSAdmin() {
                         </div>
                       </div>
                       <span style={{ padding: '.3rem .8rem', borderRadius: '9999px', fontSize: '.78rem', fontWeight: 600, background: a.published ? '#d4edda' : '#fff3cd', color: a.published ? '#155724' : '#856404' }}>
-                        {a.published ? 'âœ… Publié' : 'ðŸ“¦ Brouillon'}
+                        {a.published ? '✓ Publié' : 'ðŸ“¦ Brouillon'}
                       </span>
                       <div style={{ display: 'flex', gap: '.5rem' }}>
                         <button onClick={() => openArticleEditor(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>âœï¸ É‰diter</button>
