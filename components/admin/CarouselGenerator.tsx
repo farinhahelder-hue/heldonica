@@ -111,7 +111,7 @@ Généré avec Heldonica CMS
       <button
         onClick={handleGenerate}
         disabled={!topic.trim() || isGenerating}
-        className="w-full px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600 disabled:opacity-50 flex items-center justify-center gap-2"
+        className="w-full px-4 py-2 bg-gradient-to-r from-eucalyptus-00 to-orange-500 text-white rounded-lg hover:from-eucalyptus-00 hover:to-orange-600 disabled:opacity-50 flex items-center justify-center gap-2"
       >
         {isGenerating ? (
           <>
@@ -175,7 +175,7 @@ Généré avec Heldonica CMS
               </div>
             </div>
           ) : (
-            <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded text-sm text-amber-700">
+            <div className="mb-3 p-3 bg-eucalyptus-0 border border-eucalyptus-00 rounded text-sm text-eucalyptus-00">
               ⚠️ Pas d'images - vérifie la clé Unsplash dans Vercel (NEXT_PUBLIC_UNSPLASH_ACCESS_KEY)
             </div>
           )}

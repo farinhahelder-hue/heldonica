@@ -6,15 +6,15 @@ export default function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="bg-stone-950 text-stone-200">
+    <footer className="bg-mahogany text-cloud-dancer/80">
       <div className="mx-auto max-w-7xl px-6 py-16">
         <div className="mb-12 grid grid-cols-1 gap-12 md:grid-cols-4">
           <div>
             <div className="mb-4">
-              <h3 className="mb-2 text-2xl font-serif font-bold text-white">Heldonica</h3>
-              <p className="text-sm text-amber-200">Slow travel vécu, conçu juste.</p>
+              <h3 className="mb-2 text-2xl font-serif font-bold text-cloud-dancer">Heldonica</h3>
+              <p className="text-sm text-teal">Slow travel vécu, conçu juste.</p>
             </div>
-            <p className="text-sm leading-relaxed text-stone-300">
+            <p className="text-sm leading-relaxed text-cloud-dancer/70">
               On voyage lentement, on teste vraiment, on partage ce qui tient sur le terrain.
               Dénicheurs de pépites, même en bas de chez toi.
             </p>
@@ -23,7 +23,7 @@ export default function Footer() {
                 href="https://www.instagram.com/heldonica/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-stone-300 transition-colors duration-200 hover:text-white"
+                className="inline-flex items-center gap-2 text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer"
                 title="Suivez-nous sur Instagram"
               >
                 <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
@@ -35,30 +35,30 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="mb-6 text-lg font-serif font-bold text-white">Navigation</h4>
+            <h4 className="mb-6 text-lg font-serif font-bold text-cloud-dancer">Navigation</h4>
             <ul className="space-y-3 text-sm">
               <li>
-                <Link href="/" className="text-stone-300 transition-colors duration-200 hover:text-white">
+                <Link href="/" className="text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer">
                   Accueil
                 </Link>
               </li>
               <li>
-                <Link href="/a-propos" className="text-stone-300 transition-colors duration-200 hover:text-white">
+                <Link href="/a-propos" className="text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer">
                   À propos
                 </Link>
               </li>
               <li>
-                <Link href="/blog" className="text-stone-300 transition-colors duration-200 hover:text-white">
+                <Link href="/blog" className="text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer">
                   Blog
                 </Link>
               </li>
               <li>
-                <Link href="/destinations" className="text-stone-300 transition-colors duration-200 hover:text-white">
+                <Link href="/destinations" className="text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer">
                   Destinations
                 </Link>
               </li>
               <li>
-                <Link href="/planifier" className="text-stone-300 transition-colors duration-200 hover:text-white">
+                <Link href="/planifier" className="text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer">
                   Planifier
                 </Link>
               </li>
@@ -66,25 +66,25 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="mb-6 text-lg font-serif font-bold text-white">Services</h4>
+            <h4 className="mb-6 text-lg font-serif font-bold text-cloud-dancer">Services</h4>
             <ul className="space-y-3 text-sm">
               <li>
-                <Link href="/travel-planning" className="text-stone-300 transition-colors duration-200 hover:text-white">
+                <Link href="/travel-planning" className="text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer">
                   Travel planning
                 </Link>
               </li>
               <li>
-                <Link href="/slow-travel" className="text-stone-300 transition-colors duration-200 hover:text-white">
+                <Link href="/slow-travel" className="text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer">
                   Slow travel
                 </Link>
               </li>
               <li>
-                <Link href="/hotel-consulting" className="text-stone-300 transition-colors duration-200 hover:text-white">
+                <Link href="/hotel-consulting" className="text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer">
                   Consulting hôtelier
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-stone-300 transition-colors duration-200 hover:text-white">
+                <Link href="/contact" className="text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer">
                   Nous écrire
                 </Link>
               </li>
@@ -92,30 +92,30 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="mb-6 text-lg font-serif font-bold text-white">Légal & contact</h4>
+            <h4 className="mb-6 text-lg font-serif font-bold text-cloud-dancer">Légal & contact</h4>
             <ul className="space-y-3 text-sm">
               <li>
-                <Link href="/mentions-legales" className="text-stone-300 transition-colors duration-200 hover:text-white">
+                <Link href="/mentions-legales" className="text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer">
                   Mentions légales
                 </Link>
               </li>
               <li>
-                <Link href="/politique-confidentialite" className="text-stone-300 transition-colors duration-200 hover:text-white">
+                <Link href="/politique-confidentialite" className="text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer">
                   Politique de confidentialité
                 </Link>
               </li>
               <li>
-                <a href="mailto:info@heldonica.fr" className="text-stone-300 transition-colors duration-200 hover:text-white">
+                <a href="mailto:info@heldonica.fr" className="text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer">
                   info@heldonica.fr
                 </a>
               </li>
-              <li className="text-stone-400">France</li>
+              <li className="text-cloud-dancer/50">France</li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-stone-800 pt-8">
-          <div className="flex flex-col items-center justify-between gap-4 text-sm text-stone-400 md:flex-row">
+        <div className="border-t border-mahogany/30 pt-8">
+          <div className="flex flex-col items-center justify-between gap-4 text-sm text-cloud-dancer/50 md:flex-row">
             <p>© {currentYear} Heldonica. Tous droits réservés.</p>
             <p className="text-xs">Photos © Heldonica. Tous droits d&apos;auteur réservés.</p>
           </div>

@@ -45,14 +45,14 @@ export default function TravelPlanningForm() {
     return (
       <div className="text-center py-16 px-8 max-w-lg mx-auto">
         <div className="text-6xl mb-6">✨</div>
-        <h2 className="font-serif text-2xl md:text-3xl text-stone-800 mb-4">
+        <h2 className="font-serif text-2xl md:text-3xl text-charcoal/90 mb-4">
           Ta demande est bien reçue !
         </h2>
-        <p className="text-stone-600 leading-relaxed mb-4">
+        <p className="text-charcoal/70 leading-relaxed mb-4">
           On commence déjà à imaginer ton aventure. On te répond dans les{' '}
           <strong>48h</strong> avec une première proposition sur mesure.
         </p>
-        <p className="text-sm text-stone-400">
+        <p className="text-sm text-charcoal/40">
           Un email de confirmation vient de t'être envoyé.
         </p>
       </div>
@@ -65,76 +65,76 @@ export default function TravelPlanningForm() {
       {/* Identité */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1.5">
+          <label className="block text-sm font-medium text-charcoal/80 mb-1.5">
             Prénom <span className="text-teal-600">*</span>
           </label>
           <input
             name="prenom" type="text" required
             value={formData.prenom} onChange={handleChange}
             placeholder="Emma"
-            className="w-full px-4 py-3 border border-stone-200 rounded-lg text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition bg-white"
+            className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition bg-white"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1.5">
+          <label className="block text-sm font-medium text-charcoal/80 mb-1.5">
             Nom <span className="text-teal-600">*</span>
           </label>
           <input
             name="nom" type="text" required
             value={formData.nom} onChange={handleChange}
             placeholder="Dupont"
-            className="w-full px-4 py-3 border border-stone-200 rounded-lg text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition bg-white"
+            className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition bg-white"
           />
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1.5">
+          <label className="block text-sm font-medium text-charcoal/80 mb-1.5">
             Email <span className="text-teal-600">*</span>
           </label>
           <input
             name="email" type="email" required
             value={formData.email} onChange={handleChange}
             placeholder="emma@exemple.fr"
-            className="w-full px-4 py-3 border border-stone-200 rounded-lg text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition bg-white"
+            className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition bg-white"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1.5">
-            Téléphone <span className="text-stone-400 text-xs">(optionnel)</span>
+          <label className="block text-sm font-medium text-charcoal/80 mb-1.5">
+            Téléphone <span className="text-charcoal/40 text-xs">(optionnel)</span>
           </label>
           <input
             name="telephone" type="tel"
             value={formData.telephone} onChange={handleChange}
             placeholder="+33 6 12 34 56 78"
-            className="w-full px-4 py-3 border border-stone-200 rounded-lg text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition bg-white"
+            className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition bg-white"
           />
         </div>
       </div>
 
       {/* Voyage */}
       <div>
-        <label className="block text-sm font-medium text-stone-700 mb-1.5">
+        <label className="block text-sm font-medium text-charcoal/80 mb-1.5">
           Destination rêvée
         </label>
         <input
           name="destination" type="text"
           value={formData.destination} onChange={handleChange}
           placeholder="Madère, Islande, Japon… ou encore ouverte !"
-          className="w-full px-4 py-3 border border-stone-200 rounded-lg text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition bg-white"
+          className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition bg-white"
         />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1.5">
+          <label className="block text-sm font-medium text-charcoal/80 mb-1.5">
             Style de voyage
           </label>
           <select
             name="style_voyage"
             value={formData.style_voyage} onChange={handleChange}
-            className="w-full px-4 py-3 border border-stone-200 rounded-lg text-stone-800 focus:outline-none focus:ring-2 focus:ring-teal-600 transition bg-white"
+            className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 focus:outline-none focus:ring-2 focus:ring-teal-600 transition bg-white"
           >
             <option value="">Choisir…</option>
             <option value="slow-travel">Slow Travel</option>
@@ -146,24 +146,24 @@ export default function TravelPlanningForm() {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1.5">
+          <label className="block text-sm font-medium text-charcoal/80 mb-1.5">
             Durée (jours)
           </label>
           <input
             name="duree_jours" type="number" min="1" max="90"
             value={formData.duree_jours} onChange={handleChange}
             placeholder="7"
-            className="w-full px-4 py-3 border border-stone-200 rounded-lg text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-teal-600 transition bg-white"
+            className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-teal-600 transition bg-white"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1.5">
+          <label className="block text-sm font-medium text-charcoal/80 mb-1.5">
             Voyageurs
           </label>
           <select
             name="nb_voyageurs"
             value={formData.nb_voyageurs} onChange={handleChange}
-            className="w-full px-4 py-3 border border-stone-200 rounded-lg text-stone-800 focus:outline-none focus:ring-2 focus:ring-teal-600 transition bg-white"
+            className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 focus:outline-none focus:ring-2 focus:ring-teal-600 transition bg-white"
           >
             {[1, 2, 3, 4, 5, 6].map(n => (
               <option key={n} value={n}>
@@ -176,13 +176,13 @@ export default function TravelPlanningForm() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1.5">
+          <label className="block text-sm font-medium text-charcoal/80 mb-1.5">
             Budget par personne
           </label>
           <select
             name="budget_fourchette"
             value={formData.budget_fourchette} onChange={handleChange}
-            className="w-full px-4 py-3 border border-stone-200 rounded-lg text-stone-800 focus:outline-none focus:ring-2 focus:ring-teal-600 transition bg-white"
+            className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 focus:outline-none focus:ring-2 focus:ring-teal-600 transition bg-white"
           >
             <option value="">Choisir…</option>
             <option value="moins-1000">Moins de 1 000 €</option>
@@ -193,13 +193,13 @@ export default function TravelPlanningForm() {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1.5">
+          <label className="block text-sm font-medium text-charcoal/80 mb-1.5">
             Mois de départ envisagé
           </label>
           <select
             name="mois_depart"
             value={formData.mois_depart} onChange={handleChange}
-            className="w-full px-4 py-3 border border-stone-200 rounded-lg text-stone-800 focus:outline-none focus:ring-2 focus:ring-teal-600 transition bg-white"
+            className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 focus:outline-none focus:ring-2 focus:ring-teal-600 transition bg-white"
           >
             <option value="">Flexible</option>
             {[
@@ -213,7 +213,7 @@ export default function TravelPlanningForm() {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-stone-700 mb-1.5">
+        <label className="block text-sm font-medium text-charcoal/80 mb-1.5">
           Dis-nous en plus sur votre voyage rêvé
         </label>
         <textarea
@@ -221,7 +221,7 @@ export default function TravelPlanningForm() {
           value={formData.notes} onChange={handleChange}
           rows={4}
           placeholder="Vos envies, contraintes, ce qui vous a inspiré… Plus vous nous en dites, plus on peut créer quelque chose de vraiment sur mesure."
-          className="w-full px-4 py-3 border border-stone-200 rounded-lg text-stone-800 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-teal-600 transition resize-none bg-white"
+          className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-teal-600 transition resize-none bg-white"
         />
       </div>
 
@@ -244,7 +244,7 @@ export default function TravelPlanningForm() {
           : 'Envoyer ma demande de conception sur mesure ✈️'}
       </button>
 
-      <p className="text-xs text-stone-400 text-center">
+      <p className="text-xs text-charcoal/40 text-center">
         Réponse garantie sous 48h · Aucun engagement · Données protégées
       </p>
     </form>

@@ -2,10 +2,10 @@ import Link from 'next/link'
 import { blogPosts } from '@/lib/wordpress-data'
 
 const CATEGORY_COLOR: Record<string, string> = {
-  Travel: 'bg-emerald-100 text-emerald-800',
-  'Food & Lifestyle': 'bg-amber-100 text-amber-800',
-  'Expertise Hoteliere': 'bg-sky-100 text-sky-800',
-  'Expertise Hôtelière': 'bg-sky-100 text-sky-800',
+  Travel: 'bg-eucalyptus/10 text-eucalyptus',
+  'Food & Lifestyle': 'bg-eucalyptus/10 text-eucalyptus',
+  'Expertise Hoteliere': 'bg-mahogany/10 text-mahogany',
+  'Expertise Hôtelière': 'bg-mahogany/10 text-mahogany',
 }
 
 const PLACEHOLDER_BG: Record<string, string> = {
@@ -31,7 +31,7 @@ export default function Blog() {
           {articles.map((article) => (
             <article
               key={article.id}
-              className="bg-cloud-dancer rounded-2xl border border-stone-200 hover:shadow-lg transition-all duration-300 group overflow-hidden hover:-translate-y-1"
+              className="bg-cloud-dancer rounded-2xl border border-cloud-dancer hover:shadow-lg transition-all duration-300 group overflow-hidden hover:-translate-y-1"
             >
               <div className="relative h-48 w-full overflow-hidden">
                 {article.image ? (
@@ -65,7 +65,7 @@ export default function Blog() {
                 <div className="absolute top-3 left-3">
                   <span
                     className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${
-                      CATEGORY_COLOR[article.category] ?? 'bg-stone-100 text-stone-600'
+                      CATEGORY_COLOR[article.category] ?? 'bg-cloud-dancer text-charcoal/70'
                     }`}
                   >
                     {article.category}
@@ -76,11 +76,11 @@ export default function Blog() {
                 <h3 className="text-lg font-serif font-bold text-mahogany mb-2 group-hover:text-eucalyptus transition-colors leading-snug line-clamp-2">
                   {article.title}
                 </h3>
-                <p className="text-stone-500 mb-4 text-sm leading-relaxed line-clamp-3">
+                <p className="text-charcoal/60 mb-4 text-sm leading-relaxed line-clamp-3">
                   {article.excerpt}
                 </p>
-                <div className="flex items-center justify-between pt-3 border-t border-stone-100">
-                  <span className="text-xs text-stone-400">{article.date}</span>
+                <div className="flex items-center justify-between pt-3 border-t border-cloud-dancer">
+                  <span className="text-xs text-charcoal/40">{article.date}</span>
                   <Link
                     href={`/blog/${article.slug}`}
                     className="text-eucalyptus font-semibold hover:text-teal transition text-sm group-hover:translate-x-1 inline-block"
