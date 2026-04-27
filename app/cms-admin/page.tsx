@@ -25,7 +25,7 @@ type Demande = {
   mois_depart: string; notes: string; statut: string; created_at: string;
 };
 
-type Setting = { id: number; key: string; value: string; label: string; group_name: string; };
+type Setting = { id: number; key: string; value: string; label: string; type?: string; };
 type SiteContent = { id: number; page: string; block_key: string; value: string; label: string; type: string; };
 
 // â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -374,7 +374,7 @@ export default function CMSAdmin() {
   useEffect(() => { if (authed && tab === 'demandes') loadDemandes(); }, [authed, tab, loadDemandes]);
   useEffect(() => { if (authed && (tab === 'settings' || tab === 'pages')) loadSettings(); }, [authed, tab, loadSettings]);
 
-  // Save settings
+  // 💾 Sauvegarder settings
   const saveSettings = async () => {
     setSavingSettings(true);
     try {
@@ -406,7 +406,7 @@ export default function CMSAdmin() {
     }
   };
 
-  // Save content pour une page donnée
+  // 💾 Sauvegarder content pour une page donnée
   const savePageContent = async (pageKey: string) => {
     setSavingSettings(true);
     const config = PAGES_CONFIG[pageKey];
@@ -443,7 +443,7 @@ export default function CMSAdmin() {
     }
   };
 
-  // Save article
+  // 💾 Sauvegarder article
   const saveArticle = useCallback(async () => {
     if (!editingArticle) return;
     if (savingArticle) return;
@@ -1128,7 +1128,15 @@ export default function CMSAdmin() {
                 {/* Panel settings */}
                 <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
                   {(() => {
-                    const groupItems = settings.filter(s => s.group_name === settingsGroup);
+                    const groupItems = settings.filter(s => {
+                      if (settingsGroup === 'branding') return ['primary_color', 'secondary_color', 'accent_color', 'bg_color'].includes(s.key);
+                      if (settingsGroup === 'hero') return s.key.startsWith('hero_');
+                      if (settingsGroup === 'general') return ['site_title'].includes(s.key);
+                      if (settingsGroup === 'social') return s.key.startsWith('social_');
+                      if (settingsGroup === 'seo') return s.key.startsWith('seo_');
+                      if (settingsGroup === 'footer') return s.key.startsWith('footer_');
+                      return true;
+                    });
                     const groupCfg = SETTINGS_GROUPS[settingsGroup];
                     return (
                       <div>
@@ -1139,9 +1147,20 @@ export default function CMSAdmin() {
                           {groupItems.map(s => (
                             <div key={s.key}>
                               <label style={lbl}>{s.label}</label>
-                              <input value={editedSettings[s.key] || ''}
-                                onChange={e => setEditedSettings(prev => ({ ...prev, [s.key]: e.target.value }))}
-                                style={inp} placeholder={s.label} />
+                              {s.type === 'color' ? (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
+                                  <input type='color' value={editedSettings[s.key] || '#000000'}
+                                    onChange={e => setEditedSettings(prev => ({ ...prev, [s.key]: e.target.value }))}
+                                    style={{ width: '50px', height: '38px', padding: '2px', border: '1px solid #ddd', borderRadius: '6px', cursor: 'pointer' }} />
+                                  <input value={editedSettings[s.key] || ''}
+                                    onChange={e => setEditedSettings(prev => ({ ...prev, [s.key]: e.target.value }))}
+                                    style={{ ...inp, flex: 1 }} placeholder={s.label} />
+                                </div>
+                              ) : (
+                                <input value={editedSettings[s.key] || ''}
+                                  onChange={e => setEditedSettings(prev => ({ ...prev, [s.key]: e.target.value }))}
+                                  style={inp} placeholder={s.label} />
+                              )}
                             </div>
                           ))}
                           {groupItems.length === 0 && (
