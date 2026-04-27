@@ -275,7 +275,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               <AnimatedStat nb="10+" label="Ans de terrain en duo" />
               <AnimatedStat nb="100+" label="Adresses vécues" />
               <AnimatedStat nb={7} label="Pays habités" />
-              <AnimatedStat nb={23} suffix="" label="Carnets publiés" />
+              <AnimatedStat nb={publishedArticles} suffix="" label="Carnets publiés" />
               <div className="col-span-2 mt-2">
                 <p className="text-xs text-charcoal/40 leading-relaxed">
                   <span className="font-semibold text-charcoal/70">Terrains de jeu :</span><br />
