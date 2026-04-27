@@ -154,7 +154,7 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
             onChange={(e) => setImageUrl(e.target.value)}
             placeholder="https://example.com/image.jpg"
             required
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-600 focus:border-transparent"
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-eucalyptus-00 focus:border-transparent"
           />
         </div>
 
@@ -169,7 +169,7 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
             required
             rows={4}
             maxLength={2200}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-600 focus:border-transparent"
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-eucalyptus-00 focus:border-transparent"
           />
           <p className="text-xs text-gray-500 mt-1">{caption.length}/2200</p>
         </div>
@@ -189,7 +189,7 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
         <button
           type="submit"
           disabled={isLoading || !imageUrl || !caption}
-          className="w-full px-4 py-2 bg-amber-700 text-white rounded-lg hover:bg-amber-800 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-4 py-2 bg-eucalyptus-00 text-white rounded-lg hover:bg-eucalyptus-00 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? 'Publishing...' : '📸 Publish to Instagram'}
         </button>

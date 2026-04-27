@@ -105,11 +105,11 @@ function AnimatedStat({ nb, label, suffix = '' }: { nb: number | string; label: 
     io.observe(el); return () => io.disconnect()
   }, [])
   return (
-    <div ref={ref} className="border-t-2 border-amber-800 pt-4 group hover:-translate-y-1 transition-transform duration-300">
-      <p className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-1">
+    <div ref={ref} className="border-t-2 border-mahogany pt-4 group hover:-translate-y-1 transition-transform duration-300">
+      <p className="text-3xl md:text-4xl font-serif font-light text-mahogany mb-1">
         {isNum ? (started ? count + suffix : '0' + suffix) : nb}
       </p>
-      <p className="text-xs text-stone-500 leading-snug">{label}</p>
+      <p className="text-xs text-charcoal/60 leading-snug">{label}</p>
     </div>
   )
 }
@@ -126,7 +126,7 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
 
   return (
     <Link href={`/blog/${post.slug}`} className="group block h-full">
-      <article className="relative rounded-2xl overflow-hidden bg-stone-800 shadow-md hover:shadow-xl transition-all duration-400 h-full flex flex-col">
+      <article className="relative rounded-2xl overflow-hidden bg-mahogany/80 shadow-md hover:shadow-xl transition-all duration-400 h-full flex flex-col">
         <div className={`relative ${h} overflow-hidden`}>
           <img src={imgSrc} alt={post.title} width={600} height={400}
             className="w-full h-full object-cover opacity-80 group-hover:opacity-90 group-hover:scale-105 transition-all duration-600"
@@ -135,7 +135,7 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
           <div className="absolute top-3 left-3">
-            <span className="bg-amber-600/90 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">
+            <span className="bg-eucalyptus/90 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">
               {post.category}
             </span>
           </div>
@@ -146,20 +146,20 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
           )}
         </div>
         <div className="p-4 flex flex-col flex-1 bg-white">
-          <h3 className="font-semibold text-stone-900 text-sm leading-snug mb-1.5 group-hover:text-amber-700 transition-colors line-clamp-2">
+          <h3 className="font-semibold text-mahogany text-sm leading-snug mb-1.5 group-hover:text-eucalyptus transition-colors line-clamp-2">
             {post.title}
           </h3>
           {post.excerpt && (
-            <p className="text-stone-500 text-xs leading-relaxed line-clamp-2 flex-1 mb-2">{post.excerpt}</p>
+            <p className="text-charcoal/60 text-xs leading-relaxed line-clamp-2 flex-1 mb-2">{post.excerpt}</p>
           )}
           {!post.excerpt && displayExcerpt(post) && (
-            <p className="text-stone-500 text-xs leading-relaxed line-clamp-2 flex-1 mb-2">{displayExcerpt(post)}</p>
+            <p className="text-charcoal/60 text-xs leading-relaxed line-clamp-2 flex-1 mb-2">{displayExcerpt(post)}</p>
           )}
-          <div className="flex items-center justify-between mt-auto pt-2 border-t border-stone-100">
-            <span className="text-xs text-stone-400">
+          <div className="flex items-center justify-between mt-auto pt-2 border-t border-cloud-dancer">
+            <span className="text-xs text-charcoal/40">
               {post.destination ? `📍 ${post.destination}` : post.formattedDate}
             </span>
-            <span className="text-xs text-amber-700 font-semibold group-hover:translate-x-1 transition-transform">Lire le carnet →</span>
+            <span className="text-xs text-eucalyptus font-semibold group-hover:translate-x-1 transition-transform">Lire le carnet →</span>
           </div>
         </div>
       </article>
@@ -210,7 +210,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
         <div className="relative z-20 px-5 md:px-16 pb-12 md:pb-24 max-w-4xl">
-          <p className="text-amber-300 text-xs font-semibold tracking-[0.2em] uppercase mb-5"
+          <p className="text-teal text-xs font-semibold tracking-[0.2em] uppercase mb-5"
              style={{ animation: 'wordIn 0.6s 0.2s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
             Slow travel vécu en duo · Hors sentiers · Paris
           </p>
@@ -232,7 +232,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           </p>
           <div className="flex flex-wrap gap-3"
                style={{ animation: 'wordIn 0.7s 1.3s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
-            <Link href="/blog" className="px-5 md:px-6 py-2.5 md:py-3 bg-amber-800 hover:bg-amber-700 text-white rounded-full font-semibold text-sm tracking-wide transition">
+            <Link href="/blog" className="px-5 md:px-6 py-2.5 md:py-3 bg-mahogany hover:bg-eucalyptus text-white rounded-full font-semibold text-sm tracking-wide transition">
               Lire le carnet →
             </Link>
             <Link href="/travel-planning-form" className="px-5 md:px-6 py-2.5 md:py-3 border border-white/50 hover:border-white text-white hover:bg-white/10 rounded-full font-semibold text-sm tracking-wide transition">
@@ -253,21 +253,21 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         <div className="max-w-6xl mx-auto px-6 md:px-10">
           <div className="grid md:grid-cols-5 gap-12 md:gap-16 items-start">
             <div className="md:col-span-3" data-reveal="left">
-              <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4">Notre histoire</p>
-              <h2 className="text-3xl md:text-5xl font-serif font-light text-stone-900 leading-tight mb-6">
+              <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4">Notre histoire</p>
+              <h2 className="text-3xl md:text-5xl font-serif font-light text-mahogany leading-tight mb-6">
                 Un art du voyage
-                <span className="block italic text-amber-800">autrement</span>
+                <span className="block italic text-eucalyptus">autrement</span>
               </h2>
-              <p className="text-base text-stone-600 leading-relaxed mb-4">
+              <p className="text-base text-charcoal/70 leading-relaxed mb-4">
                 Elle a habité sept pays. Pas visité, habité. C&apos;est différent. Ça change la manière de lire une rue, de sentir si une table vaut vraiment le détour, de savoir quand un quartier commence à parler.
               </p>
-              <p className="text-base text-stone-600 leading-relaxed mb-4">
+              <p className="text-base text-charcoal/70 leading-relaxed mb-4">
                 Lui est né à Madère, entre l&apos;Atlantique et des falaises que les cartes n&apos;ont pas encore toutes nommées. Il part là où les guides s&apos;arrêtent, puis il revient avec un regard que les hôtels indépendants peuvent vraiment utiliser.
               </p>
-              <p className="text-base text-stone-600 leading-relaxed mb-8">
+              <p className="text-base text-charcoal/70 leading-relaxed mb-8">
                 Notre regard est né à deux, entre Paris, Madère et la Roumanie. On ferme les ordis, on part, on revient, on note ce qui tient vraiment sur le terrain. Ensuite seulement, on le partage.
               </p>
-              <Link href="/blog" className="inline-flex items-center gap-2 text-amber-800 font-semibold text-sm hover:gap-3 transition-all">
+              <Link href="/blog" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
                 Lire le carnet →
               </Link>
             </div>
@@ -277,8 +277,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               <AnimatedStat nb={7} label="Pays habités" />
               <AnimatedStat nb={23} suffix="" label="Carnets publiés" />
               <div className="col-span-2 mt-2">
-                <p className="text-xs text-stone-400 leading-relaxed">
-                  <span className="font-semibold text-stone-600">Terrains de jeu :</span><br />
+                <p className="text-xs text-charcoal/40 leading-relaxed">
+                  <span className="font-semibold text-charcoal/70">Terrains de jeu :</span><br />
                   Paris · Madère · Roumanie · Normandie · Sicile · Sardaigne · Tanzanie · Colombie · Afrique du Sud
                 </p>
               </div>
@@ -289,7 +289,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
 
       {/* ── À LA UNE : dernier article ──────────────────────────────────── */}
       {featured && (
-        <section className="py-0 bg-stone-900">
+        <section className="py-0 bg-mahogany">
           <Link href={`/blog/${featured.slug}`} className="group block">
             <article className="relative h-[50vh] md:h-[60vh] w-full overflow-hidden flex items-end">
               {featImg && (
@@ -299,11 +299,11 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
               <div className="relative z-10 p-8 md:p-16 max-w-3xl">
-                <p className="text-amber-300 text-xs font-bold tracking-[0.2em] uppercase mb-3">✦ À la une</p>
-                <span className="inline-block bg-amber-600 text-white text-xs font-semibold px-3 py-1 rounded-full mb-4">
+                <p className="text-teal text-xs font-bold tracking-[0.2em] uppercase mb-3">✦ À la une</p>
+                <span className="inline-block bg-eucalyptus text-white text-xs font-semibold px-3 py-1 rounded-full mb-4">
                   {featured.category}
                 </span>
-                <h2 className="text-2xl md:text-4xl font-serif font-light text-white leading-snug mb-3 group-hover:text-amber-200 transition-colors">
+                <h2 className="text-2xl md:text-4xl font-serif font-light text-white leading-snug mb-3 group-hover:text-teal/80 transition-colors">
                   {featured.title}
                 </h2>
                 {featured.excerpt && (
@@ -312,7 +312,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 {!featured.excerpt && displayExcerpt(featured) && (
                   <p className="text-white/65 text-sm md:text-base leading-relaxed line-clamp-2 mb-4 max-w-xl">{displayExcerpt(featured)}</p>
                 )}
-                <span className="inline-flex items-center gap-2 text-amber-400 font-semibold text-sm group-hover:gap-3 transition-all">
+                <span className="inline-flex items-center gap-2 text-teal font-semibold text-sm group-hover:gap-3 transition-all">
                   Lire le carnet →
                 </span>
               </div>
@@ -323,30 +323,30 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
 
       {/* ── CARNETS DE VOYAGE ──────────────────────────────────────────── */}
       {travelPosts.length > 0 && (
-        <section className="py-20 md:py-28 bg-stone-50">
+        <section className="py-20 md:py-28 bg-cloud-dancer">
           <div className="max-w-6xl mx-auto px-6 md:px-10">
             <div className="flex items-end justify-between mb-10 flex-wrap gap-4" data-reveal>
               <div>
-                <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-2">✦ Carnets de voyage</p>
-                <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900">Nos itinéraires vécus</h2>
-                <p className="text-sm text-stone-600 leading-relaxed mt-3 max-w-xl">
+                <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-2">✦ Carnets de voyage</p>
+                <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany">Nos itinéraires vécus</h2>
+                <p className="text-sm text-charcoal/70 leading-relaxed mt-3 max-w-xl">
                   Chaque itinéraire qu&apos;on propose, on l&apos;a fait. Plusieurs fois. En conditions réelles, pas en press trip.
                 </p>
               </div>
-              <Link href="/blog" className="text-sm text-amber-800 font-semibold hover:underline">Voir tous les carnets →</Link>
+              <Link href="/blog" className="text-sm text-eucalyptus font-semibold hover:underline">Voir tous les carnets →</Link>
             </div>
             {travelPosts.length >= 1 && (
               <div className="grid md:grid-cols-2 gap-6 mb-6">
-                <Link href={`/blog/${travelPosts[0].slug}`} className="card-lift group relative rounded-2xl overflow-hidden bg-stone-800 aspect-[4/3] md:row-span-2" data-reveal="left">
+                <Link href={`/blog/${travelPosts[0].slug}`} className="card-lift group relative rounded-2xl overflow-hidden bg-mahogany/80 aspect-[4/3] md:row-span-2" data-reveal="left">
                   <img src={postImage(travelPosts[0])} alt={travelPosts[0].title}
                     className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700"
                     loading="lazy" width={800} height={600} />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
                   <div className="absolute bottom-0 left-0 p-6">
-                    <span className="inline-block bg-amber-700 text-white text-xs font-bold px-2.5 py-1 rounded-full mb-3">
+                    <span className="inline-block bg-eucalyptus text-white text-xs font-bold px-2.5 py-1 rounded-full mb-3">
                       {travelPosts[0].destination ?? travelPosts[0].category}
                     </span>
-                    <h3 className="text-white text-2xl md:text-3xl font-serif font-light leading-tight group-hover:text-amber-200 transition-colors">
+                    <h3 className="text-white text-2xl md:text-3xl font-serif font-light leading-tight group-hover:text-teal/80 transition-colors">
                       {travelPosts[0].title}
                     </h3>
                     {travelPosts[0].excerpt && (
@@ -360,14 +360,14 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 <div className="grid grid-rows-2 gap-6">
                   {travelPosts.slice(1, 3).map((p, i) => (
                     <Link key={p.slug} href={`/blog/${p.slug}`}
-                      className="group relative rounded-2xl overflow-hidden bg-stone-800"
+                      className="group relative rounded-2xl overflow-hidden bg-mahogany/80"
                       data-reveal data-delay={String((i + 1) * 150)}>
                       <img src={postImage(p)} alt={p.title}
                         className="absolute inset-0 w-full h-full object-cover opacity-65 group-hover:opacity-75 group-hover:scale-105 transition-all duration-700"
                         loading="lazy" width={600} height={300} />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                       <div className="relative p-5 h-44 flex flex-col justify-end">
-                        <h3 className="text-white text-lg font-serif font-light group-hover:text-amber-200 transition-colors line-clamp-2">
+                        <h3 className="text-white text-lg font-serif font-light group-hover:text-teal/80 transition-colors line-clamp-2">
                           {p.title}
                         </h3>
                         <p className="text-gray-300 text-xs mt-1">{p.destination ?? p.formattedDate}</p>
@@ -390,32 +390,32 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 <img src={postImage(foodPosts[0])}
                   alt={foodPosts[0].title}
                   className="rounded-2xl w-full aspect-[4/3] object-cover shadow-lg" loading="lazy" width={700} height={525} />
-                <div className="absolute -bottom-4 -right-4 bg-amber-800 text-white px-5 py-3 rounded-xl shadow-lg hidden md:block">
+                <div className="absolute -bottom-4 -right-4 bg-mahogany text-white px-5 py-3 rounded-xl shadow-lg hidden md:block">
                   <p className="text-xs font-bold tracking-wider uppercase">Adresses testées</p>
                   <p className="text-2xl font-serif font-light mt-0.5">100%</p>
                 </div>
               </div>
               <div data-reveal="right">
-                <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4">Food &amp; Lifestyle</p>
-                <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 leading-tight mb-4">Inspirations gourmandes</h2>
-                <p className="text-base text-stone-600 leading-relaxed mb-6">
+                <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4">Food &amp; Lifestyle</p>
+                <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany leading-tight mb-4">Inspirations gourmandes</h2>
+                <p className="text-base text-charcoal/70 leading-relaxed mb-6">
                   On ne voyage pas seulement pour voir — on voyage pour goûter. Chaque destination révèle ses saveurs authentiques : les recettes portugaises transmises de génération en génération, les brasseries parisiennes que personne ne connaît encore.
                 </p>
                 <div className="space-y-4 mb-8">
                   {foodPosts.slice(0, 3).map((p) => (
                     <Link key={p.slug} href={`/blog/${p.slug}`}
-                      className="flex items-start gap-3 group hover:bg-amber-50 rounded-xl p-2 -mx-2 transition-colors">
+                      className="flex items-start gap-3 group hover:bg-eucalyptus/5 rounded-xl p-2 -mx-2 transition-colors">
                       <img src={postImage(p)} alt={p.title} width={60} height={60}
                         className="w-14 h-14 rounded-lg object-cover flex-shrink-0" loading="lazy" />
                       <div>
-                        <p className="font-semibold text-stone-800 text-sm group-hover:text-amber-700 transition-colors line-clamp-1">{p.title}</p>
-                        {p.excerpt && <p className="text-stone-500 text-xs line-clamp-2 mt-0.5">{p.excerpt}</p>}
-                        {!p.excerpt && displayExcerpt(p) && <p className="text-stone-500 text-xs line-clamp-2 mt-0.5">{displayExcerpt(p)}</p>}
+                        <p className="font-semibold text-charcoal/90 text-sm group-hover:text-eucalyptus transition-colors line-clamp-1">{p.title}</p>
+                        {p.excerpt && <p className="text-charcoal/60 text-xs line-clamp-2 mt-0.5">{p.excerpt}</p>}
+                        {!p.excerpt && displayExcerpt(p) && <p className="text-charcoal/60 text-xs line-clamp-2 mt-0.5">{displayExcerpt(p)}</p>}
                       </div>
                     </Link>
                   ))}
                 </div>
-                <Link href="/blog" className="inline-flex items-center gap-2 text-amber-800 font-semibold text-sm hover:gap-3 transition-all">
+                <Link href="/blog" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
                   Découvrir toutes les recettes →
                 </Link>
               </div>
@@ -430,10 +430,10 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <div className="max-w-6xl mx-auto px-6 md:px-10">
             <div className="flex items-end justify-between mb-10 flex-wrap gap-4" data-reveal>
               <div>
-                <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-2">✦ Fraîchement publié</p>
-                <h2 className="text-2xl md:text-3xl font-serif font-light text-stone-900">Les dernières pépites</h2>
+                <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-2">✦ Fraîchement publié</p>
+                <h2 className="text-2xl md:text-3xl font-serif font-light text-mahogany">Les dernières pépites</h2>
               </div>
-              <Link href="/blog" className="text-sm text-amber-800 font-semibold hover:underline">Tout voir →</Link>
+              <Link href="/blog" className="text-sm text-eucalyptus font-semibold hover:underline">Tout voir →</Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {latestPosts.map((p, i) => (
@@ -447,23 +447,23 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
       )}
 
       {/* ── CTA TRAVEL PLANNING ───────────────────────────────────────── */}
-      <section className="py-20 md:py-28 bg-stone-900 text-white">
+      <section className="py-20 md:py-28 bg-mahogany text-white">
         <div className="max-w-5xl mx-auto px-6 md:px-10">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div data-reveal="left">
-              <p className="text-amber-400 text-xs font-bold tracking-[0.2em] uppercase mb-4">Travel Planning · terrain vécu</p>
+              <p className="text-teal text-xs font-bold tracking-[0.2em] uppercase mb-4">Travel Planning · terrain vécu</p>
               <h2 className="text-3xl md:text-5xl font-serif font-light leading-tight mb-6">
                 On ne fait pas des itinéraires.<br />
-                <em className="text-amber-400">On fait le tien.</em>
+                <em className="text-teal">On fait le tien.</em>
               </h2>
-              <p className="text-stone-400 leading-relaxed mb-4">
+              <p className="text-charcoal/40 leading-relaxed mb-4">
                 Tu nous envoies tes contraintes réelles — temps, budget, énergie, envie. On transforme ça en séquence concrète, avec les adresses qu&apos;on a testées et l&apos;ordre qui a du sens sur le terrain.
               </p>
-              <p className="text-stone-500 text-sm leading-relaxed mb-8">
+              <p className="text-charcoal/60 text-sm leading-relaxed mb-8">
                 Notre terrain naturel : les couples qui veulent ralentir sans s&apos;ennuyer, les solos qui cherchent du vrai, les familles qui en ont marre des parcs d&apos;attractions.
               </p>
               <div className="flex flex-wrap gap-3">
-                <Link href="/travel-planning-form" className="px-6 py-3 bg-amber-700 hover:bg-amber-600 text-white rounded font-semibold text-sm transition">
+                <Link href="/travel-planning-form" className="px-6 py-3 bg-eucalyptus hover:bg-eucalyptus text-white rounded font-semibold text-sm transition">
                   Nous écrire →
                 </Link>
                 <Link href="/blog" className="px-6 py-3 border border-white/30 hover:border-white/60 text-white rounded font-semibold text-sm transition">
@@ -477,9 +477,9 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 { t: 'Ouvert aussi à ton format', d: "Solo, famille curieuse ou groupe d'amis : on adapte cette même exigence terrain à votre énergie, vos contraintes et votre rythme." },
                 { t: 'Vécu sur le terrain', d: "Cartes, adresses, conseils pratiques et pépites dénichées : tout part d'expériences testées, pas inventées." },
               ].map((item) => (
-                <div key={item.t} className="border border-white/10 rounded-xl p-5 hover:border-amber-400/30 transition">
+                <div key={item.t} className="border border-white/10 rounded-xl p-5 hover:border-teal/30 transition">
                   <h3 className="font-semibold text-white text-sm mb-1">{item.t}</h3>
-                  <p className="text-stone-400 text-sm leading-relaxed">{item.d}</p>
+                  <p className="text-charcoal/40 text-sm leading-relaxed">{item.d}</p>
                 </div>
               ))}
             </div>
@@ -488,31 +488,31 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
       </section>
 
       {/* ── CONSULTING HÔTELIER — IAification & Digitalisation ────────── */}
-      <section className="py-20 md:py-24 bg-stone-100">
+      <section className="py-20 md:py-24 bg-cloud-dancer">
         <div className="max-w-6xl mx-auto px-6 md:px-10">
           <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
             <div className="order-2 md:order-1" data-reveal="left">
-              <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4">Consulting B2B · Hôtellerie</p>
-              <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 leading-tight mb-6">
+              <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4">Consulting B2B · Hôtellerie</p>
+              <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany leading-tight mb-6">
                 On connaît vos clients mieux
-                <span className="block italic text-stone-600">que la plupart de vos consultants.</span>
+                <span className="block italic text-charcoal/70">que la plupart de vos consultants.</span>
               </h2>
-              <p className="text-base text-stone-600 leading-relaxed mb-4">
+              <p className="text-base text-charcoal/70 leading-relaxed mb-4">
                 Parce qu&apos;on est vos clients. Pas de promesses chiffrées plaquées sur une slide. On arrive, on regarde ce qui se passe vraiment, on vous dit ce qu&apos;on voit, puis on travaille ensemble.
               </p>
-              <p className="text-sm text-stone-500 leading-relaxed mb-6">
+              <p className="text-sm text-charcoal/60 leading-relaxed mb-6">
                 Distribution, discours, expérience, outils IA utiles : on ne vous vend pas une mode, on remet du vrai, du lisible et du concret dans le parcours client.
               </p>
               <div className="flex flex-wrap gap-2 mb-8">
                 {['Regard terrain', 'Hôtellerie indépendante', 'IA utile', 'Expérience client', 'Visibilité locale', 'Parcours de réservation'].map((tag) => (
-                  <span key={tag} className="bg-white border border-stone-300 text-stone-700 text-xs font-semibold px-3 py-1 rounded-full">{tag}</span>
+                  <span key={tag} className="bg-white border border-cloud-dancer/60 text-charcoal/80 text-xs font-semibold px-3 py-1 rounded-full">{tag}</span>
                 ))}
               </div>
               <div className="flex flex-wrap gap-3">
-                <Link href="/hotel-consulting" className="inline-flex items-center gap-2 text-amber-800 font-semibold text-sm hover:gap-3 transition-all">
+                <Link href="/hotel-consulting" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
                   Prendre rendez-vous →
                 </Link>
-                <Link href="/ai-hotellerie" className="inline-flex items-center gap-2 text-stone-700 font-semibold text-sm hover:gap-3 transition-all">
+                <Link href="/ai-hotellerie" className="inline-flex items-center gap-2 text-charcoal/80 font-semibold text-sm hover:gap-3 transition-all">
                   Voir les outils →
                 </Link>
               </div>
@@ -535,10 +535,10 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   d: 'Une feuille de route que vos équipes peuvent vraiment appliquer, sans usine à gaz ni dépendance inutile.'
                 },
               ].map((item) => (
-                <div key={item.t} className="bg-white rounded-xl p-5 shadow-sm border border-stone-200 hover:border-amber-300 transition">
-                  <div className="text-2xl mb-3 text-amber-700">{item.icon}</div>
-                  <h3 className="font-semibold text-stone-900 text-sm mb-1">{item.t}</h3>
-                  <p className="text-stone-500 text-sm leading-relaxed">{item.d}</p>
+                <div key={item.t} className="bg-white rounded-xl p-5 shadow-sm border border-cloud-dancer hover:border-teal transition">
+                  <div className="text-2xl mb-3 text-eucalyptus">{item.icon}</div>
+                  <h3 className="font-semibold text-mahogany text-sm mb-1">{item.t}</h3>
+                  <p className="text-charcoal/60 text-sm leading-relaxed">{item.d}</p>
                 </div>
               ))}
             </div>
@@ -546,16 +546,16 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         </div>
       </section>
 
-      <section className="py-20 bg-stone-900 text-white">
+      <section className="py-20 bg-mahogany text-white">
         <div className="max-w-5xl mx-auto px-6 md:px-10">
           <div className="grid md:grid-cols-[1.1fr_0.9fr] gap-10 items-center">
             <div data-reveal="left">
-              <p className="text-amber-300 text-xs font-semibold tracking-[0.2em] uppercase mb-4">Newsletter terrain</p>
+              <p className="text-teal text-xs font-semibold tracking-[0.2em] uppercase mb-4">Newsletter terrain</p>
               <h2 className="text-3xl md:text-4xl font-serif font-light leading-tight mb-4">
                 Une fois par mois, on t&apos;envoie
-                <span className="block italic text-amber-300">ce qu&apos;on a vraiment trouvé.</span>
+                <span className="block italic text-teal">ce qu&apos;on a vraiment trouvé.</span>
               </h2>
-              <p className="text-stone-300 text-sm md:text-base leading-relaxed max-w-xl">
+              <p className="text-charcoal/30 text-sm md:text-base leading-relaxed max-w-xl">
                 Une adresse, un timing, une erreur à éviter. Rien de plus. Pas de remplissage, pas de bruit, juste ce qui mérite vraiment une place dans ton prochain départ.
               </p>
             </div>
@@ -567,9 +567,9 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
       </section>
 
       {/* Instagram Feed Section */}
-      <section className="py-16 bg-stone-50">
+      <section className="py-16 bg-cloud-dancer">
         <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-2xl font-serif text-stone-900 text-center mb-8">
+          <h2 className="text-2xl font-serif text-mahogany text-center mb-8">
             Sur le terrain, pas en studio
           </h2>
           <InstagramEmbed limit={6} />
