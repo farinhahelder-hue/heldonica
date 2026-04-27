@@ -136,9 +136,9 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
 };
 
 const SETTINGS_GROUPS: Record<string, { label: string; emoji: string }> = {
-  general: { label: 'Général',         emoji: 'ðŸŒ' },
-  social:  { label: 'Réseaux sociaux', emoji: 'ðŸ“±' },
-  seo:     { label: 'SEO',             emoji: 'ðŸ”' },
+  general: { label: 'Général',         emoji: '🌐' },
+  social:  { label: 'Réseaux sociaux', emoji: '📱' },
+  seo:     { label: 'SEO',             emoji: '🔍' },
   footer:  { label: 'Footer',          emoji: 'ðŸ“„' },
 };
 
@@ -586,7 +586,7 @@ export default function CMSAdmin() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f3ef' }}>
       <div style={{ background: 'white', padding: '2.5rem', borderRadius: '1rem', boxShadow: '0 8px 32px rgba(0,0,0,.1)', width: '100%', maxWidth: 380 }}>
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '.5rem' }}>ðŸŒ¿</div>
+          <div style={{ fontSize: '2.5rem', marginBottom: '.5rem' }}>🌐¿</div>
           <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#6b2a1a' }}>Heldonica CMS</h1>
           <p style={{ color: '#888', fontSize: '.9rem' }}>Accès réservé</p>
         </div>
@@ -620,7 +620,7 @@ export default function CMSAdmin() {
       {/* Header */}
       <div style={{ background: '#6b2a1a', color: 'white', padding: '1rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 12px rgba(0,0,0,.15)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
-          <span style={{ fontSize: '1.5rem' }}>ðŸŒ¿</span>
+          <span style={{ fontSize: '1.5rem' }}>🌐¿</span>
           <span style={{ fontWeight: 700, fontSize: '1.1rem', letterSpacing: '.03em' }}>Heldonica CMS</span>
           <span style={{ background: 'rgba(255,255,255,.18)', fontSize: '.72rem', padding: '.2rem .6rem', borderRadius: '9999px', fontWeight: 600 }}>Supabase</span>
         </div>
@@ -681,7 +681,7 @@ export default function CMSAdmin() {
                 <option value="published">Publiés</option>
                 <option value="draft">Brouillons</option>
               </select>
-              <button onClick={loadArticles} style={{ padding: '.6rem 1.2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>ðŸ”</button>
+              <button onClick={loadArticles} style={{ padding: '.6rem 1.2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>🔍</button>
               <button onClick={() => openArticleEditor({})} style={{ padding: '.6rem 1.2rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>+ Nouvel article</button>
             </div>
             {loadingArticles ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargementâ€¦</p>
@@ -960,7 +960,7 @@ export default function CMSAdmin() {
                             target="_blank" rel="noopener noreferrer"
                             style={{ fontSize: '.82rem', color: '#01696f', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '.3rem' }}
                           >
-                            ðŸ”— Voir la page
+                            🔍— Voir la page
                           </a>
                         </div>
 
@@ -1030,7 +1030,7 @@ export default function CMSAdmin() {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>âœˆï¸ Demandes Travel Planning</h2>
-              <button onClick={loadDemandes} disabled={loadingDemandes} style={{ padding: '.5rem 1rem', background: 'white', border: '1.5px solid #ddd', borderRadius: '.5rem', cursor: loadingDemandes ? 'wait' : 'pointer', fontSize: '.85rem', opacity: loadingDemandes ? .7 : 1 }}>{loadingDemandes ? 'â³ Actualisationâ€¦' : 'ðŸ”„ Actualiser'}</button>
+              <button onClick={loadDemandes} disabled={loadingDemandes} style={{ padding: '.5rem 1rem', background: 'white', border: '1.5px solid #ddd', borderRadius: '.5rem', cursor: loadingDemandes ? 'wait' : 'pointer', fontSize: '.85rem', opacity: loadingDemandes ? .7 : 1 }}>{loadingDemandes ? 'â³ Actualisationâ€¦' : '🔍„ Actualiser'}</button>
             </div>
             {loadingDemandes ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargementâ€¦</p>
               : demandes.length === 0 ? (
@@ -1053,7 +1053,7 @@ export default function CMSAdmin() {
                             style={{ padding: '.3rem .7rem', border: '1.5px solid #ddd', borderRadius: '.4rem', fontSize: '.82rem', cursor: updatingDemandeId === d.id ? 'wait' : 'pointer', opacity: updatingDemandeId === d.id ? .7 : 1 }}
                           >
                             <option value="nouvelle">ðŸ†• Nouvelle</option>
-                            <option value="en_cours">ðŸ”„ En cours</option>
+                            <option value="en_cours">🔍„ En cours</option>
                             <option value="devis_envoye">ðŸ“¨ Devis envoyé</option>
                             <option value="accepte">âœ… Acceptée</option>
                             <option value="terminee">ðŸ Terminée</option>
@@ -1063,7 +1063,7 @@ export default function CMSAdmin() {
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '.5rem .75rem', fontSize: '.85rem', color: '#555' }}>
                         {d.destination && <span>ðŸ“ <strong>Destination :</strong> {d.destination}</span>}
-                        {d.style_voyage && <span>ðŸŒ¿ <strong>Style :</strong> {d.style_voyage}</span>}
+                        {d.style_voyage && <span>🌐¿ <strong>Style :</strong> {d.style_voyage}</span>}
                         {d.duree_jours && <span>ðŸ“… <strong>Durée :</strong> {d.duree_jours} jours</span>}
                         {d.mois_depart && <span>ðŸ—“ <strong>Départ :</strong> {d.mois_depart}</span>}
                         {d.budget_fourchette && <span>ðŸ’¶ <strong>Budget :</strong> {d.budget_fourchette}</span>}
