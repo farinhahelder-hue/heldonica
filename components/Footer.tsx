@@ -5,16 +5,39 @@ import Link from 'next/link'
 export default function Footer() {
   const currentYear = new Date().getFullYear()
 
+  const navLinks = [
+    { href: '/', label: 'Accueil' },
+    { href: '/destinations', label: 'Destinations' },
+    { href: '/blog', label: 'Inspirations' },
+    { href: '/travel-planning', label: 'Services' },
+    { href: '/a-propos', label: 'À propos' },
+  ]
+
+  const serviceLinks = [
+    { href: '/travel-planning', label: 'Travel planning' },
+    { href: '/slow-travel', label: 'Slow travel' },
+    { href: '/hotel-consulting', label: 'Consulting hôtelier' },
+    { href: '/planifier', label: 'Planifier' },
+  ]
+
+  const legalLinks = [
+    { href: '/contact', label: 'Contact' },
+    { href: '/mentions-legales', label: 'Mentions légales' },
+    { href: '/politique-confidentialite', label: 'Politique de confidentialité' },
+  ]
+
   return (
-    <footer className="bg-mahogany text-cloud-dancer/80">
+    <footer className="bg-stone-950 text-stone-200">
       <div className="mx-auto max-w-7xl px-6 py-16">
-        <div className="mb-12 grid grid-cols-1 gap-12 md:grid-cols-4">
+        {/* Grille principale */}
+        <div className="mb-12 grid grid-cols-1 gap-10 md:grid-cols-4">
+          {/* Colonne Marque */}
           <div>
             <div className="mb-4">
-              <h3 className="mb-2 text-2xl font-serif font-bold text-cloud-dancer">Heldonica</h3>
-              <p className="text-sm text-teal">Slow travel vécu, conçu juste.</p>
+              <h3 className="mb-2 text-2xl font-serif font-bold text-white">Heldonica</h3>
+              <p className="text-sm text-amber-200">Slow travel vécu, conçu juste.</p>
             </div>
-            <p className="text-sm leading-relaxed text-cloud-dancer/70">
+            <p className="text-sm leading-relaxed text-stone-300">
               On voyage lentement, on teste vraiment, on partage ce qui tient sur le terrain.
               Dénicheurs de pépites, même en bas de chez toi.
             </p>
@@ -23,10 +46,10 @@ export default function Footer() {
                 href="https://www.instagram.com/heldonica/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer"
+                className="inline-flex items-center gap-2 text-stone-300 transition-colors duration-200 hover:text-white"
                 title="Suivez-nous sur Instagram"
               >
-                <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.322a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z" />
                 </svg>
                 <span className="text-sm font-medium">@heldonica</span>
@@ -34,88 +57,58 @@ export default function Footer() {
             </div>
           </div>
 
-          <div>
-            <h4 className="mb-6 text-lg font-serif font-bold text-cloud-dancer">Navigation</h4>
-            <ul className="space-y-3 text-sm">
-              <li>
-                <Link href="/" className="text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer">
-                  Accueil
-                </Link>
-              </li>
-              <li>
-                <Link href="/a-propos" className="text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer">
-                  À propos
-                </Link>
-              </li>
-              <li>
-                <Link href="/blog" className="text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer">
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link href="/destinations" className="text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer">
-                  Destinations
-                </Link>
-              </li>
-              <li>
-                <Link href="/planifier" className="text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer">
-                  Planifier
-                </Link>
-              </li>
+          {/* Colonne Navigation */}
+          <nav aria-label="Navigation footer">
+            <h4 className="mb-6 text-base font-serif font-bold text-white">Navigation</h4>
+            <ul className="space-y-3 text-sm" role="list">
+              {navLinks.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-stone-300 transition-colors duration-200 hover:text-white">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
-          </div>
+          </nav>
 
-          <div>
-            <h4 className="mb-6 text-lg font-serif font-bold text-cloud-dancer">Services</h4>
-            <ul className="space-y-3 text-sm">
-              <li>
-                <Link href="/travel-planning" className="text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer">
-                  Travel planning
-                </Link>
-              </li>
-              <li>
-                <Link href="/slow-travel" className="text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer">
-                  Slow travel
-                </Link>
-              </li>
-              <li>
-                <Link href="/hotel-consulting" className="text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer">
-                  Consulting hôtelier
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer">
-                  Nous écrire
-                </Link>
-              </li>
+          {/* Colonne Services */}
+          <nav aria-label="Services footer">
+            <h4 className="mb-6 text-base font-serif font-bold text-white">Services</h4>
+            <ul className="space-y-3 text-sm" role="list">
+              {serviceLinks.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-stone-300 transition-colors duration-200 hover:text-white">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
-          </div>
+          </nav>
 
+          {/* Colonne Légal & Contact */}
           <div>
-            <h4 className="mb-6 text-lg font-serif font-bold text-cloud-dancer">Légal & contact</h4>
-            <ul className="space-y-3 text-sm">
+            <h4 className="mb-6 text-base font-serif font-bold text-white">Légal &amp; contact</h4>
+            <ul className="space-y-3 text-sm" role="list">
+              {legalLinks.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-stone-300 transition-colors duration-200 hover:text-white">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
               <li>
-                <Link href="/mentions-legales" className="text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer">
-                  Mentions légales
-                </Link>
-              </li>
-              <li>
-                <Link href="/politique-confidentialite" className="text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer">
-                  Politique de confidentialité
-                </Link>
-              </li>
-              <li>
-                <a href="mailto:info@heldonica.fr" className="text-cloud-dancer/70 transition-colors duration-200 hover:text-cloud-dancer">
+                <a href="mailto:info@heldonica.fr" className="text-stone-300 transition-colors duration-200 hover:text-white">
                   info@heldonica.fr
                 </a>
               </li>
-              <li className="text-cloud-dancer/50">France</li>
+              <li className="text-stone-400">France</li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-mahogany/30 pt-8">
-          <div className="flex flex-col items-center justify-between gap-4 text-sm text-cloud-dancer/50 md:flex-row">
+        {/* Ligne de copyright */}
+        <div className="border-t border-stone-800 pt-8">
+          <div className="flex flex-col items-center justify-between gap-4 text-sm text-stone-400 md:flex-row">
             <p>© {currentYear} Heldonica. Tous droits réservés.</p>
             <p className="text-xs">Photos © Heldonica. Tous droits d&apos;auteur réservés.</p>
           </div>
