@@ -27,7 +27,7 @@ export default function HeroVideo() {
         </p>
         <Link
           href="/travel-planning-form"
-          className="inline-block px-8 py-4 bg-white text-amber-900 font-semibold rounded-lg hover:bg-gray-100 transition text-lg"
+          className="inline-block px-8 py-4 bg-white text-mahogany font-semibold rounded-lg hover:bg-gray-100 transition text-lg"
         >
           Planifier mon voyage
         </Link>

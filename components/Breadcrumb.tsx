@@ -40,22 +40,22 @@ export default function Breadcrumb() {
   });
 
   return (
-    <nav className="bg-stone-50/80 backdrop-blur-sm border-b border-stone-100 py-3 px-4 md:px-6 mt-16">
+    <nav className="bg-cloud-dancer/80 backdrop-blur-sm border-b border-cloud-dancer py-3 px-4 md:px-6 mt-16">
       <div className="max-w-7xl mx-auto">
         <ol className="flex items-center gap-1.5 text-xs md:text-sm overflow-x-auto no-scrollbar">
           {breadcrumbsWithNames.map((crumb, index) => (
             <li key={crumb.href} className="flex items-center gap-1.5 whitespace-nowrap">
               {index > 0 && (
-                <svg className="w-3 h-3 text-stone-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-3 h-3 text-charcoal/40 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               )}
               {index === breadcrumbsWithNames.length - 1 ? (
-                <span className="text-stone-500 font-medium">{crumb.label}</span>
+                <span className="text-charcoal/60 font-medium">{crumb.label}</span>
               ) : (
                 <Link
                   href={crumb.href}
-                  className="text-stone-400 hover:text-amber-700 transition-colors"
+                  className="text-charcoal/40 hover:text-eucalyptus transition-colors"
                 >
                   {crumb.label}
                 </Link>

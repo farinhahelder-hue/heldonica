@@ -54,8 +54,8 @@ export default function BlogClientPage({ posts }: Props) {
   const totalGuides = posts.filter((post) => post.category === 'Guides Pratiques').length
 
   return (
-    <main className="min-h-screen bg-[#f7f5f1]">
-      <section className="relative overflow-hidden bg-stone-950 px-4 py-24 text-white md:py-28">
+    <main className="min-h-screen bg-cloud-dancer">
+      <section className="relative overflow-hidden bg-mahogany px-4 py-24 text-white md:py-28">
         <div
           className="absolute inset-0 opacity-25"
           style={{
@@ -65,9 +65,9 @@ export default function BlogClientPage({ posts }: Props) {
             backgroundPosition: 'center',
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-stone-950/80 via-stone-900/75 to-amber-950/65" />
+        <div className="absolute inset-0 bg-gradient-to-br from-mahogany/80 via-mahogany/75 to-mahogany/65" />
         <div className="relative mx-auto max-w-4xl text-center">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-amber-300">Blog Heldonica</p>
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-teal/80">Blog Heldonica</p>
           <h1 className="mb-6 text-5xl font-serif font-light leading-tight md:text-7xl">
             Des moments, des détours,
             <br />
@@ -89,14 +89,14 @@ export default function BlogClientPage({ posts }: Props) {
         <section className="mx-auto max-w-7xl px-4 pb-4 pt-14">
           <div className="mb-5 flex items-end justify-between gap-4">
             <div>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">À lire d&apos;abord</p>
-              <h2 className="text-2xl font-serif font-light text-stone-900 md:text-3xl">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-eucalyptus">À lire d&apos;abord</p>
+              <h2 className="text-2xl font-serif font-light text-mahogany md:text-3xl">
                 Un carnet qui donne le ton.
               </h2>
             </div>
           </div>
           <Link href={`/blog/${featuredPost.slug}`} className="group block transition-all duration-200">
-            <article className="relative flex h-[420px] items-end overflow-hidden rounded-[2rem] bg-stone-900 shadow-xl md:h-[500px]">
+            <article className="relative flex h-[420px] items-end overflow-hidden rounded-[2rem] bg-mahogany shadow-xl md:h-[500px]">
               {featuredPost.featured_image ? (
                 <img
                   src={featuredPost.featured_image}
@@ -107,16 +107,16 @@ export default function BlogClientPage({ posts }: Props) {
                   loading="lazy"
                 />
               ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-amber-900 to-stone-900" />
+                <div className="absolute inset-0 bg-gradient-to-br from-mahogany to-mahogany/90" />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
               <div className="relative z-10 max-w-2xl p-8 md:p-12">
                 {featuredPost.category && (
-                  <span className="mb-4 inline-flex rounded-full bg-amber-500 px-3 py-1 text-xs font-semibold text-white">
+                  <span className="mb-4 inline-flex rounded-full bg-eucalyptus px-3 py-1 text-xs font-semibold text-white">
                     {featuredPost.category}
                   </span>
                 )}
-                <h3 className="mb-3 text-2xl font-serif font-light leading-snug text-white transition-colors duration-200 group-hover:text-amber-200 md:text-4xl">
+                <h3 className="mb-3 text-2xl font-serif font-light leading-snug text-white transition-colors duration-200 group-hover:text-teal md:text-4xl">
                   {featuredPost.title}
                 </h3>
                 {featuredPost.excerpt && (
@@ -126,7 +126,7 @@ export default function BlogClientPage({ posts }: Props) {
                 )}
                 <div className="flex flex-wrap items-center gap-4 text-xs text-white/55">
                   <span>{featuredPost.formattedDate}</span>
-                  <span className="font-semibold text-amber-300 transition-transform duration-200 group-hover:translate-x-1">
+                  <span className="font-semibold text-teal transition-transform duration-200 group-hover:translate-x-1">
                     Lire le carnet →
                   </span>
                 </div>
@@ -145,8 +145,8 @@ export default function BlogClientPage({ posts }: Props) {
                 onClick={() => setActiveFilter(category)}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${
                   activeFilter === category
-                    ? 'bg-amber-900 text-white shadow-sm'
-                    : 'border border-stone-200 bg-white text-stone-600 hover:border-amber-200 hover:bg-amber-50 hover:text-amber-900'
+                    ? 'bg-eucalyptus text-white shadow-sm'
+                    : 'border border-cloud-dancer bg-white text-charcoal/70 hover:border-eucalyptus hover:bg-eucalyptus/5 hover:text-eucalyptus'
                 }`}
               >
                 {CATEGORY_LABELS[category]}
@@ -160,10 +160,10 @@ export default function BlogClientPage({ posts }: Props) {
               placeholder="Rechercher un carnet, un lieu, un détail"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              className="w-full rounded-full border border-stone-200 bg-white py-3 pl-11 pr-4 text-sm text-stone-700 shadow-sm outline-none transition-all duration-200 placeholder:text-stone-400 focus:border-amber-300 focus:ring-2 focus:ring-amber-100"
+              className="w-full rounded-full border border-cloud-dancer bg-white py-3 pl-11 pr-4 text-sm text-charcoal shadow-sm outline-none transition-all duration-200 placeholder:text-charcoal/40 focus:border-eucalyptus focus:ring-2 focus:ring-eucalyptus/20"
             />
             <svg
-              className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400"
+              className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-charcoal/40"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -178,7 +178,7 @@ export default function BlogClientPage({ posts }: Props) {
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-stone-400 transition-colors duration-200 hover:text-stone-600"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-charcoal/40 transition-colors duration-200 hover:text-charcoal/60"
               >
                 Effacer
               </button>
@@ -187,7 +187,7 @@ export default function BlogClientPage({ posts }: Props) {
         </div>
 
         {searchQuery && (
-          <p className="mt-4 text-sm text-stone-500">
+          <p className="mt-4 text-sm text-charcoal/60">
             {filteredPosts.length} article{filteredPosts.length > 1 ? 's' : ''} pour “{searchQuery}”.
           </p>
         )}
@@ -195,9 +195,9 @@ export default function BlogClientPage({ posts }: Props) {
 
       {filteredPosts.length === 0 ? (
         <div className="mx-auto max-w-7xl px-4 pb-20 text-center">
-          <div className="rounded-[2rem] border border-stone-200 bg-white px-6 py-16 shadow-sm">
-            <h2 className="mb-3 text-2xl font-serif font-light text-stone-900">Rien de juste pour cette recherche, pour l&apos;instant.</h2>
-            <p className="mx-auto max-w-md text-sm leading-relaxed text-stone-600">
+          <div className="rounded-[2rem] border border-cloud-dancer bg-white px-6 py-16 shadow-sm">
+            <h2 className="mb-3 text-2xl font-serif font-light text-mahogany">Rien de juste pour cette recherche, pour l&apos;instant.</h2>
+            <p className="mx-auto max-w-md text-sm leading-relaxed text-charcoal/70">
               Essaie un lieu, un mot plus simple, ou repars de tout le blog pour reprendre le fil.
             </p>
             <button
@@ -205,7 +205,7 @@ export default function BlogClientPage({ posts }: Props) {
                 setSearchQuery('')
                 setActiveFilter('Tous')
               }}
-              className="mt-6 text-sm font-semibold text-amber-800 transition-colors duration-200 hover:text-amber-700"
+              className="mt-6 text-sm font-semibold text-eucalyptus transition-colors duration-200 hover:text-eucalyptus"
             >
               Voir tous les articles →
             </button>
@@ -230,7 +230,7 @@ export default function BlogClientPage({ posts }: Props) {
           )}
 
           {(activeFilter === 'Tous' || activeFilter === 'Découvertes Locales') && decouvertes.length > 0 && (
-            <section className="rounded-[2rem] bg-amber-50 px-4 py-12 md:px-8">
+            <section className="rounded-[2rem] bg-eucalyptus/5 px-4 py-12 md:px-8">
               <SectionHeader
                 eyebrow="Pépites"
                 title="Découvertes locales"
@@ -289,14 +289,14 @@ function SectionHeader({
   count: number
 }) {
   return (
-    <div className="border-b border-stone-200 pb-5">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-amber-700">{eyebrow}</p>
+    <div className="border-b border-cloud-dancer pb-5">
+      <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-eucalyptus">{eyebrow}</p>
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
-          <h2 className="text-2xl font-serif font-light text-stone-900">{title}</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-stone-600">{description}</p>
+          <h2 className="text-2xl font-serif font-light text-mahogany">{title}</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-charcoal/70">{description}</p>
         </div>
-        <span className="inline-flex rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-600">
+        <span className="inline-flex rounded-full bg-cloud-dancer px-3 py-1 text-xs font-semibold text-charcoal/70">
           {count} article{count > 1 ? 's' : ''}
         </span>
       </div>
@@ -305,7 +305,7 @@ function SectionHeader({
 }
 
 function ArticleCard({ post }: { post: BlogPost & { formattedDate: string } }) {
-  const fallbackBg = CATEGORY_FALLBACK_BG[post.category ?? ''] ?? 'bg-stone-200'
+  const fallbackBg = CATEGORY_FALLBACK_BG[post.category ?? ''] ?? 'bg-cloud-dancer'
   const [imageSrc, setImageSrc] = useState(post.featured_image ?? BADGE_FALLBACK_SRC)
 
   useEffect(() => {
@@ -316,7 +316,7 @@ function ArticleCard({ post }: { post: BlogPost & { formattedDate: string } }) {
 
   return (
     <Link href={`/blog/${post.slug}`} className="group block h-full transition-all duration-200">
-      <article className="flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-stone-100 bg-white shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-lg">
+      <article className="flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-cloud-dancer bg-white shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-lg">
         <div className="relative h-56 overflow-hidden">
           {!isFallback ? (
             <img
@@ -345,7 +345,7 @@ function ArticleCard({ post }: { post: BlogPost & { formattedDate: string } }) {
           )}
           {post.category && (
             <div className="absolute left-4 top-4">
-              <span className="rounded-full bg-amber-700/90 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">
+              <span className="rounded-full bg-eucalyptus/90 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">
                 {post.category}
               </span>
             </div>
@@ -353,26 +353,26 @@ function ArticleCard({ post }: { post: BlogPost & { formattedDate: string } }) {
         </div>
 
         <div className="flex flex-1 flex-col p-5">
-          <h3 className="mb-2 text-lg font-semibold leading-snug text-stone-900 transition-colors duration-200 group-hover:text-amber-700">
+          <h3 className="mb-2 text-lg font-semibold leading-snug text-mahogany transition-colors duration-200 group-hover:text-eucalyptus">
             {post.title}
           </h3>
           {post.excerpt && (
-            <p className="mb-4 flex-1 text-sm leading-relaxed text-stone-600">
+            <p className="mb-4 flex-1 text-sm leading-relaxed text-charcoal/70">
               {post.excerpt}
             </p>
           )}
           {post.tags && post.tags.length > 0 && (
             <div className="mb-4 flex flex-wrap gap-2">
               {post.tags.slice(0, 3).map((tag) => (
-                <span key={tag} className="rounded-full bg-stone-100 px-2.5 py-1 text-xs text-stone-500">
+                <span key={tag} className="rounded-full bg-cloud-dancer px-2.5 py-1 text-xs text-charcoal/60">
                   {tag}
                 </span>
               ))}
             </div>
           )}
-          <div className="mt-auto flex items-center justify-between border-t border-stone-100 pt-4 text-xs text-stone-400">
+          <div className="mt-auto flex items-center justify-between border-t border-cloud-dancer pt-4 text-xs text-charcoal/40">
             <span>{post.formattedDate}</span>
-            <span className="font-semibold text-amber-700 transition-transform duration-200 group-hover:translate-x-1">
+            <span className="font-semibold text-eucalyptus transition-transform duration-200 group-hover:translate-x-1">
               Lire le carnet →
             </span>
           </div>

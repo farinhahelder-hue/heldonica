@@ -26,6 +26,26 @@ export interface BlogPost {
   updated_at: string | null;
 }
 
+/** Strip HTML tags and get plain text */
+function stripHtml(html: string | null): string {
+  if (!html) return '';
+  return html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/** Generate excerpt from content if excerpt field is empty */
+export function getExcerpt(post: BlogPost, maxLength = 160): string {
+  if (post.excerpt && post.excerpt.trim().length > 0) {
+    return post.excerpt.trim();
+  }
+  // Fallback: generate from content
+  const plain = stripHtml(post.content);
+  if (plain.length <= maxLength) return plain;
+  return plain.slice(0, maxLength).replace(/\s+\S*$/, '') + '…';
+}
+
 /** Tous les articles publiés, du plus récent au plus ancien */
 export async function getAllPosts(): Promise<BlogPost[]> {
   if (!supabase) {

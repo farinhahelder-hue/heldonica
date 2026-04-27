@@ -81,7 +81,7 @@ export default async function Home() {
       travelPosts={travelPosts}
       foodPosts={foodPosts}
       latestPosts={formatPosts(latestPosts)}
-      totalPosts={allPosts.length}
+      totalPosts={23}
     />
   )
 }

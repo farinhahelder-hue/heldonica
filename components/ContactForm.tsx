@@ -52,18 +52,18 @@ export default function ContactForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="mx-auto max-w-2xl space-y-6">
       <div className="grid gap-6 md:grid-cols-2">
         <div>
-          <label className="mb-2 block text-sm font-semibold text-stone-800">Nom *</label>
+          <label className="mb-2 block text-sm font-semibold text-charcoal/90">Nom *</label>
           <input
             {...register('name', { required: 'Le nom est requis.' })}
             type="text"
-            className="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 outline-none transition-all duration-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
+            className="w-full rounded-2xl border border-cloud-dancer bg-white px-4 py-3 text-charcoal/80 outline-none transition-all duration-200 focus:border-eucalyptus-00 focus:ring-2 focus:ring-eucalyptus-00"
             placeholder="Ton nom"
           />
           {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-stone-800">Email *</label>
+          <label className="mb-2 block text-sm font-semibold text-charcoal/90">Email *</label>
           <input
             {...register('email', {
               required: "L'email est requis.",
@@ -73,7 +73,7 @@ export default function ContactForm() {
               },
             })}
             type="email"
-            className="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 outline-none transition-all duration-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
+            className="w-full rounded-2xl border border-cloud-dancer bg-white px-4 py-3 text-charcoal/80 outline-none transition-all duration-200 focus:border-eucalyptus-00 focus:ring-2 focus:ring-eucalyptus-00"
             placeholder="toi@email.com"
           />
           {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
@@ -81,20 +81,20 @@ export default function ContactForm() {
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-semibold text-stone-800">Téléphone</label>
+        <label className="mb-2 block text-sm font-semibold text-charcoal/90">Téléphone</label>
         <input
           {...register('phone')}
           type="tel"
-          className="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 outline-none transition-all duration-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
+          className="w-full rounded-2xl border border-cloud-dancer bg-white px-4 py-3 text-charcoal/80 outline-none transition-all duration-200 focus:border-eucalyptus-00 focus:ring-2 focus:ring-eucalyptus-00"
           placeholder="Si tu veux qu'on te rappelle"
         />
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-semibold text-stone-800">Sujet *</label>
+        <label className="mb-2 block text-sm font-semibold text-charcoal/90">Sujet *</label>
         <select
           {...register('subject', { required: 'Choisis un sujet pour qu’on parte dans la bonne direction.' })}
-          className="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3 text-stone-700 outline-none transition-all duration-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
+          className="w-full rounded-2xl border border-cloud-dancer bg-white px-4 py-3 text-charcoal/80 outline-none transition-all duration-200 focus:border-eucalyptus-00 focus:ring-2 focus:ring-eucalyptus-00"
         >
           <option value="">Choisir un sujet</option>
           <option value="travel-planning">Voyage sur mesure</option>
@@ -106,11 +106,11 @@ export default function ContactForm() {
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-semibold text-stone-800">Message *</label>
+        <label className="mb-2 block text-sm font-semibold text-charcoal/90">Message *</label>
         <textarea
           {...register('message', { required: 'Le message est requis.' })}
           rows={6}
-          className="w-full rounded-3xl border border-stone-200 bg-white px-4 py-3 text-stone-700 outline-none transition-all duration-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
+          className="w-full rounded-3xl border border-cloud-dancer bg-white px-4 py-3 text-charcoal/80 outline-none transition-all duration-200 focus:border-eucalyptus-00 focus:ring-2 focus:ring-eucalyptus-00"
           placeholder="Raconte-nous le contexte: destination, timing, budget, énergie du moment, ce que tu veux éviter."
         />
         {errors.message && <p className="mt-1 text-sm text-red-600">{errors.message.message}</p>}
@@ -119,7 +119,7 @@ export default function ContactForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-full bg-amber-900 px-8 py-4 text-sm font-semibold text-white transition-all duration-200 hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-full rounded-full bg-mahogany px-8 py-4 text-sm font-semibold text-white transition-all duration-200 hover:bg-mahogany disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loading ? 'Envoi en cours...' : 'Nous écrire →'}
       </button>
@@ -131,7 +131,7 @@ export default function ContactForm() {
       )}
 
       {submitted && (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+        <div className="rounded-2xl border border-eucalyptus/20 bg-eucalyptus/5 px-4 py-3 text-sm text-eucalyptus">
           Merci. On a bien reçu ton message et on revient vers toi sous 48h.
         </div>
       )}
