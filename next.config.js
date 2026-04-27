@@ -2,10 +2,6 @@
 
 const securityHeaders = [
   {
-    key: 'Content-Type',
-    value: 'text/html; charset=utf-8',
-  },
-  {
     key: 'X-DNS-Prefetch-Control',
     value: 'on',
   },
@@ -94,6 +90,25 @@ const nextConfig = {
       {
         source: '/(.*)',
         headers: securityHeaders,
+      },
+      {
+        // Apply Content-Type only to HTML pages
+        source: '/:path*.html',
+        headers: [
+          { key: 'Content-Type', value: 'text/html; charset=utf-8' },
+        ],
+      },
+      {
+        source: '/:path*/',
+        headers: [
+          { key: 'Content-Type', value: 'text/html; charset=utf-8' },
+        ],
+      },
+      {
+        source: '/',
+        headers: [
+          { key: 'Content-Type', value: 'text/html; charset=utf-8' },
+        ],
       },
     ]
   },

@@ -29,7 +29,7 @@ export default function InstagramEmbed({ limit = 6 }: InstagramEmbedProps) {
           >
             @{INSTAGRAM_PROFILE.username}
           </a>
-          <p className="text-sm text-stone-600">{INSTAGRAM_PROFILE.followersLabel}</p>
+          <p className="text-sm text-charcoal/70">{INSTAGRAM_PROFILE.followersLabel}</p>
         </div>
         <a
           href={`https://instagram.com/${INSTAGRAM_PROFILE.username}`}
@@ -48,7 +48,7 @@ export default function InstagramEmbed({ limit = 6 }: InstagramEmbedProps) {
             href={story.permalink}
             target="_blank"
             rel="noopener noreferrer"
-            className="group aspect-[4/5] relative overflow-hidden rounded-xl border border-stone-200 bg-stone-900 block"
+            className="group aspect-[4/5] relative overflow-hidden rounded-xl border border-cloud-dancer bg-mahogany block"
           >
             <img
               src={story.image}

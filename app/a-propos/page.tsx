@@ -4,7 +4,7 @@ import Footer from '@/components/Footer'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Notre histoire — Heldonica | Duo slow travel, service ouvert à tous',
+  title: 'Notre histoire',
   description:
     "Un duo né entre Madère, la Roumanie et Paris. Notre point de vue vient du terrain vécu à deux, et notre exigence sert aujourd'hui les solos, couples, familles et groupes d'amis.",
   alternates: {
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     url: 'https://heldonica.fr/a-propos',
-    title: 'Notre histoire — Heldonica | Duo slow travel, service ouvert à tous',
+    title: 'Notre histoire',
     description:
       "Un duo né entre Madère, la Roumanie et Paris. Notre point de vue vient du terrain vécu à deux, et notre exigence sert aujourd'hui les solos, couples, familles et groupes d'amis.",
     images: [

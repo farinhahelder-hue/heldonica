@@ -2,13 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireCmsAuth } from '@/lib/cms-auth';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+const supabase = (supabaseUrl && supabaseKey)
+  ? createClient(supabaseUrl, supabaseKey)
+  : null;
 
 // GET /api/cms/settings?group=general
 export async function GET(req: NextRequest) {
+  if (!supabase) {
+    return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
+  }
+  
   const authError = requireCmsAuth(req);
   if (authError) return authError;
 
@@ -25,6 +31,10 @@ export async function GET(req: NextRequest) {
 
 // PUT /api/cms/settings  body: { key, value }
 export async function PUT(req: NextRequest) {
+  if (!supabase) {
+    return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
+  }
+  
   const authError = requireCmsAuth(req);
   if (authError) return authError;
 

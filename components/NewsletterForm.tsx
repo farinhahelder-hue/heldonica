@@ -43,8 +43,8 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
 
   if (variant === "article") {
     return (
-      <section className="my-14 rounded-2xl bg-gradient-to-br from-stone-900 to-amber-900 px-8 py-10 text-white">
-        <p className="text-amber-300 text-xs font-semibold tracking-[0.2em] uppercase mb-3">
+      <section className="my-14 rounded-2xl bg-gradient-to-br from-mahogany to-mahogany/80 px-8 py-10 text-white">
+        <p className="text-teal text-xs font-semibold tracking-[0.2em] uppercase mb-3">
           Une fois par mois
         </p>
         <h3 className="text-xl md:text-2xl font-serif font-light mb-2 leading-snug">
@@ -54,7 +54,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
           Une adresse, un timing, une erreur à éviter. Rien de plus.
         </p>
         {status === "success" ? (
-          <p className="text-amber-300 font-medium text-sm">{message}</p>
+          <p className="text-teal font-medium text-sm">{message}</p>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md">
             <input
@@ -63,12 +63,12 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
               onChange={(e) => setEmail(e.target.value)}
               placeholder="ton@email.fr"
               required
-              className="flex-1 px-4 py-3 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+              className="flex-1 px-4 py-3 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
             />
             <button
               type="submit"
               disabled={status === "loading"}
-              className="px-6 py-3 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold rounded-full transition-colors whitespace-nowrap disabled:opacity-60"
+              className="px-6 py-3 bg-eucalyptus/50 hover:bg-teal text-white text-sm font-semibold rounded-full transition-colors whitespace-nowrap disabled:opacity-60"
             >
               {status === "loading" ? "…" : "Je m'abonne"}
             </button>
@@ -83,7 +83,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
     return (
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
         {status === "success" ? (
-          <p className="text-amber-300 font-medium text-sm">{message}</p>
+          <p className="text-teal font-medium text-sm">{message}</p>
         ) : (
           <>
             <input
@@ -92,12 +92,12 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
               onChange={(e) => setEmail(e.target.value)}
               placeholder="ton@email.fr"
               required
-              className="flex-1 min-w-0 px-5 py-3 rounded-full bg-white/15 border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+              className="flex-1 min-w-0 px-5 py-3 rounded-full bg-white/15 border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-teal"
             />
             <button
               onClick={handleSubmit}
               disabled={status === "loading"}
-              className="shrink-0 px-6 py-3 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold rounded-full transition-colors disabled:opacity-60"
+              className="shrink-0 px-6 py-3 bg-eucalyptus/50 hover:bg-teal text-white text-sm font-semibold rounded-full transition-colors disabled:opacity-60"
             >
               {status === "loading" ? "…" : "Je m'abonne"}
             </button>
@@ -109,9 +109,9 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
   }
 
   return (
-    <section className="bg-gradient-to-br from-stone-900 to-amber-900 py-20 px-4">
+    <section className="bg-gradient-to-br from-mahogany to-mahogany/80 py-20 px-4">
       <div className="max-w-2xl mx-auto text-center text-white">
-        <p className="text-amber-300 text-xs font-semibold tracking-[0.2em] uppercase mb-4">
+        <p className="text-teal text-xs font-semibold tracking-[0.2em] uppercase mb-4">
           Une fois par mois
         </p>
         <h2 className="text-3xl md:text-4xl font-serif font-light mb-4 leading-snug">
@@ -125,7 +125,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
 
         {status === "success" ? (
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-8 py-6">
-            <p className="text-amber-200 font-medium">{message}</p>
+            <p className="text-teal/80 font-medium">{message}</p>
             <p className="text-white/60 text-sm mt-2">Vérifie ta boîte mail, on arrive doucement.</p>
           </div>
         ) : (
@@ -136,12 +136,12 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
               onChange={(e) => setEmail(e.target.value)}
               placeholder="ton@email.fr"
               required
-              className="flex-1 px-5 py-3.5 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+              className="flex-1 px-5 py-3.5 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
             />
             <button
               type="submit"
               disabled={status === "loading"}
-              className="px-7 py-3.5 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold rounded-full transition-colors whitespace-nowrap disabled:opacity-60"
+              className="px-7 py-3.5 bg-eucalyptus/50 hover:bg-teal text-white text-sm font-semibold rounded-full transition-colors whitespace-nowrap disabled:opacity-60"
             >
               {status === "loading" ? "Inscription…" : "Je m'abonne"}
             </button>

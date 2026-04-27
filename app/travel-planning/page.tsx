@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import Header from '@/components/Header'
@@ -17,15 +17,15 @@ const faqs = [
   },
   {
     q: 'Travaillez-vous seulement sur des destinations déjà vécues ?',
-    a: 'Notre préférence va au terrain qu’on connaît déjà, parce que c’est là qu’on est les plus justes. Quand on ouvre un nouveau terrain, on le dit clairement et on garde le même niveau d’exigence.',
+    a: 'Notre préférence va au terrain qu'on connaît déjà, parce que c'est là qu'on est les plus justes. Quand on ouvre un nouveau terrain, on le dit clairement et on garde le même niveau d'exigence.',
   },
   {
     q: 'Faites-vous les réservations à notre place ?',
     a: 'On peut fournir les liens, les contacts et le bon ordre. Si tu veux un accompagnement plus complet, on le cadre ensemble au moment du brief.',
   },
   {
-    q: 'Qu’est-ce qu’on reçoit exactement ?',
-    a: 'Un carnet clair et concret : rythme jour par jour, adresses choisies, hébergements, transports, conseils pratiques et ce qu’il faut éviter pour ne pas casser le voyage.',
+    q: 'Qu'est-ce qu'on reçoit exactement ?',
+    a: 'Un carnet clair et concret : rythme jour par jour, adresses choisies, hébergements, transports, conseils pratiques et ce qu'il faut éviter pour ne pas casser le voyage.',
   },
 ]
 
@@ -72,6 +72,7 @@ export default function TravelPlanning() {
         .fade-up-2 { opacity:0; animation: fadeUp 0.7s 0.25s cubic-bezier(0.16,1,0.3,1) forwards; }
         .fade-up-3 { opacity:0; animation: fadeUp 0.7s 0.4s cubic-bezier(0.16,1,0.3,1) forwards; }
         .fade-up-4 { opacity:0; animation: fadeUp 0.7s 0.55s cubic-bezier(0.16,1,0.3,1) forwards; }
+        .fade-up-5 { opacity:0; animation: fadeUp 0.7s 0.7s cubic-bezier(0.16,1,0.3,1) forwards; }
         .service-card { transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), box-shadow 0.35s ease; }
         .service-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.09); }
         .step-line::before { content:''; position:absolute; left:19px; top:44px; bottom:-20px; width:1px; background: linear-gradient(to bottom, #92400e40, transparent); }
@@ -80,6 +81,7 @@ export default function TravelPlanning() {
       <Header />
       <Breadcrumb />
       <main>
+        {/* ── HERO ── */}
         <section className="relative overflow-hidden bg-stone-950">
           <img
             src="https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=1600&q=85"
@@ -90,32 +92,64 @@ export default function TravelPlanning() {
           />
           <div className="absolute inset-0 bg-gradient-to-b from-stone-950/60 via-transparent to-stone-950" />
           <div className="relative max-w-4xl mx-auto px-6 md:px-10 py-28 md:py-40 text-center">
+
+            {/* Tagline */}
             <p className="fade-up-1 text-amber-400 text-xs font-bold tracking-[0.2em] uppercase mb-5">
-              Slow travel vécu · Contraintes réelles · Hors sentiers
+              Travel Planning · Terrain vécu
             </p>
+
+            {/* Accroche principale */}
             <h1 className="fade-up-2 text-4xl md:text-6xl lg:text-7xl font-serif font-light text-white leading-[1.1] mb-6">
               On ne fait pas des itinéraires.
               <br />
               <em className="text-amber-300">On fait le tien.</em>
             </h1>
+
+            {/* Sous-titre */}
             <p className="fade-up-3 text-base md:text-xl text-stone-300 max-w-2xl mx-auto leading-relaxed mb-10">
-              Tu nous envoies tes contraintes réelles — temps, budget, énergie, envie. On transforme ça en séquence concrète, avec les adresses qu&apos;on a testées et l&apos;ordre qui a du sens sur le terrain.
+              Tu nous envoies tes contraintes réelles — temps, budget, énergie, envie.
+              On transforme ça en séquence concrète, avec les adresses qu&apos;on a testées
+              et l&apos;ordre qui a du sens sur le terrain.
             </p>
-            <div className="fade-up-4 flex flex-col sm:flex-row gap-4 justify-center items-center">
+
+            {/* CTAs */}
+            <div className="fade-up-4 flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
               <Link
                 href="/travel-planning-form"
                 className="px-8 py-4 bg-amber-800 hover:bg-amber-700 text-white rounded font-semibold text-sm tracking-wide transition shadow-lg"
               >
                 Nous écrire →
               </Link>
-              <p className="text-stone-400 text-xs">Sans engagement · Réponse sous 48h</p>
+              <Link
+                href="/blog"
+                className="px-8 py-4 border border-white/30 hover:border-white/60 text-white/80 hover:text-white rounded font-semibold text-sm tracking-wide transition"
+              >
+                Lire le carnet →
+              </Link>
             </div>
-            <div className="mt-8 inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-2">
-              <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-              <span className="text-white/80 text-xs font-medium">
-                Notre terrain naturel : les couples qui veulent ralentir sans s&apos;ennuyer, les solos qui cherchent du vrai, les familles qui en ont marre des parcs d&apos;attractions.
-              </span>
+
+            {/* Audience — 3 micro-cards */}
+            <div className="fade-up-5 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto">
+              <div className="bg-white/8 border border-white/15 rounded-xl px-4 py-4 text-left">
+                <p className="text-amber-300 text-xs font-bold uppercase tracking-widest mb-1">Couples aventuriers</p>
+                <p className="text-stone-300 text-xs leading-relaxed">
+                  Ralentir sans s&apos;ennuyer, garder le hors-sentiers sans perdre le fil. Notre terrain naturel.
+                </p>
+              </div>
+              <div className="bg-white/8 border border-white/15 rounded-xl px-4 py-4 text-left">
+                <p className="text-amber-300 text-xs font-bold uppercase tracking-widest mb-1">Solos &amp; familles</p>
+                <p className="text-stone-300 text-xs leading-relaxed">
+                  Solo qui cherche du vrai, famille en quête d&apos;autre chose — même exigence, rythme adapté.
+                </p>
+              </div>
+              <div className="bg-white/8 border border-white/15 rounded-xl px-4 py-4 text-left">
+                <p className="text-amber-300 text-xs font-bold uppercase tracking-widest mb-1">Vécu sur le terrain</p>
+                <p className="text-stone-300 text-xs leading-relaxed">
+                  Cartes, adresses, pépites dénichées. Tout part d&apos;expériences testées, pas inventées.
+                </p>
+              </div>
             </div>
+
           </div>
         </section>
 
@@ -128,9 +162,9 @@ export default function TravelPlanning() {
                   {[
                     'Des onglets ouverts partout et aucun fil clair',
                     'Un rythme pensé à J0 qui casse à J2',
-                    'Des adresses “bien notées” mais pas faites pour toi',
+                    'Des adresses "bien notées" mais pas faites pour toi',
                     'La peur de passer à côté de ce qui aurait vraiment compté',
-                    'Un voyage qui se remplit plus qu’il ne se vit',
+                    'Un voyage qui se remplit plus qu'il ne se vit',
                   ].map((txt) => (
                     <li key={txt} className="flex gap-3 items-start text-stone-600 text-sm">
                       <span className="text-stone-300 mt-0.5 shrink-0">✕</span>
@@ -185,13 +219,13 @@ export default function TravelPlanning() {
                 {
                   num: '03',
                   title: 'On assemble ton rythme',
-                  desc: 'Adresses, ordre, temps de trajet, respirations, jours forts : rien n’est posé au hasard. On compose une séquence qui tient debout sur place.',
+                  desc: 'Adresses, ordre, temps de trajet, respirations, jours forts : rien n'est posé au hasard. On compose une séquence qui tient debout sur place.',
                   badge: '7–10 jours',
                 },
                 {
                   num: '04',
                   title: 'Tu pars avec du concret',
-                  desc: 'Carnet clair, hébergements, restaurants, transports, conseils et erreurs à éviter. Tu n’as plus besoin d’improviser ce qui devait être anticipé.',
+                  desc: 'Carnet clair, hébergements, restaurants, transports, conseils et erreurs à éviter. Tu n'as plus besoin d'improviser ce qui devait être anticipé.',
                   badge: 'Clé en main',
                 },
               ].map((step, i) => (
@@ -221,12 +255,12 @@ export default function TravelPlanning() {
                 {
                   num: '01',
                   title: 'Rythme sur mesure',
-                  desc: 'Pas une suite d’adresses. Une cadence juste, pensée pour ce que tu peux vraiment vivre sans t’épuiser.',
+                  desc: 'Pas une suite d'adresses. Une cadence juste, pensée pour ce que tu peux vraiment vivre sans t'épuiser.',
                 },
                 {
                   num: '02',
                   title: 'Adresses testées',
-                  desc: 'Hébergements, restaurants, détours et moments forts qu’on a vécus ou vérifiés avec la même exigence.',
+                  desc: 'Hébergements, restaurants, détours et moments forts qu'on a vécus ou vérifiés avec la même exigence.',
                 },
                 {
                   num: '03',
@@ -236,12 +270,12 @@ export default function TravelPlanning() {
                 {
                   num: '04',
                   title: 'Ouvert à ton format',
-                  desc: 'Solo, famille curieuse ou groupe d’amis : la logique reste la même, seul le réglage change.',
+                  desc: 'Solo, famille curieuse ou groupe d'amis : la logique reste la même, seul le réglage change.',
                 },
                 {
                   num: '05',
                   title: 'Logistique lisible',
-                  desc: 'Le bon ordre, les bons trajets, les bons points d’attention. Ce qui paraît léger à vivre est souvent lourd à préparer.',
+                  desc: 'Le bon ordre, les bons trajets, les bons points d'attention. Ce qui paraît léger à vivre est souvent lourd à préparer.',
                 },
                 {
                   num: '06',
@@ -266,17 +300,17 @@ export default function TravelPlanning() {
             <div className="grid md:grid-cols-3 gap-6">
               {[
                 {
-                  quote: 'On n’a jamais eu la sensation d’exécuter un plan. On avançait, et tout semblait tomber au bon moment.',
+                  quote: 'On n'a jamais eu la sensation d'exécuter un plan. On avançait, et tout semblait tomber au bon moment.',
                   name: 'Marie & Théo',
                   dest: 'Madère · 10 jours',
                 },
                 {
-                  quote: 'Le carnet était précis sans être rigide. On sentait qu’il avait été pensé par des gens qui avaient vraiment marché là-bas.',
+                  quote: 'Le carnet était précis sans être rigide. On sentait qu'il avait été pensé par des gens qui avaient vraiment marché là-bas.',
                   name: 'Sophie & Lucas',
                   dest: 'Colombie · 14 jours',
                 },
                 {
-                  quote: 'Même avec nos contraintes enfants + budget + fatigue, on a eu un voyage qui nous ressemblait. Et ça, c’est rare.',
+                  quote: 'Même avec nos contraintes enfants + budget + fatigue, on a eu un voyage qui nous ressemblait. Et ça, c'est rare.',
                   name: 'Camille & Romain',
                   dest: 'Sicile · 8 jours',
                 },
@@ -318,7 +352,7 @@ export default function TravelPlanning() {
               <em>On s&apos;occupe du reste.</em>
             </h2>
             <p className="text-amber-200 leading-relaxed mb-10">
-              Pas besoin d’avoir le voyage déjà écrit dans ta tête. On préfère même quand le vrai arrive brut : c’est là qu’on travaille le mieux.
+              Pas besoin d'avoir le voyage déjà écrit dans ta tête. On préfère même quand le vrai arrive brut : c'est là qu'on travaille le mieux.
             </p>
             <Link
               href="/travel-planning-form"
