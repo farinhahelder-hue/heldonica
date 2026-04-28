@@ -124,3 +124,46 @@ export function formatDate(iso: string | null | undefined): string {
     year: 'numeric',
   });
 }
+
+/**
+ * Récupère une valeur de paramètre depuis la table cms_settings
+ * @param key - La clé du paramètre (ex: 'covered_countries')
+ * @returns La valeur du paramètre ou null si non trouvé
+ */
+export async function getSetting(key: string): Promise<string | null> {
+  if (!supabase) return null;
+  
+  const { data, error } = await supabase
+    .from('cms_settings')
+    .select('value')
+    .eq('key', key)
+    .single();
+
+  if (error) {
+    console.error(`Supabase getSetting error for '${key}':`, error.message);
+    return null;
+  }
+
+  return data?.value || null;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
