@@ -11,7 +11,7 @@ import BlogGenerator from '@/components/admin/BlogGenerator';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
 
-// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// —€—€—€ Types —€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€
 type Article = {
   id: number; title: string; slug: string; category: string;
   published: boolean; published_at: string; created_at: string;
@@ -28,7 +28,7 @@ type Demande = {
 type Setting = { id: number; key: string; value: string; label: string; type?: string; };
 type SiteContent = { id: number; page: string; block_key: string; value: string; label: string; type: string; };
 
-// â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// —€—€—€ Helpers —€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€
 const fmt = (d: string) => d ? new Date(d).toLocaleDateString('fr-FR') : 'â€”';
 const slug = (t: string) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -61,7 +61,7 @@ function getReadTimeMinutes(content?: string) {
   return words === 0 ? 0 : Math.max(1, Math.ceil(words / 200));
 }
 
-// â”€â”€â”€ Config pages CMS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// —€—€—€ Config pages CMS —€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€
 const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { key: string; label: string; type: 'text' | 'textarea' }[] }> = {
   'home': {
     label: 'Accueil',
@@ -142,7 +142,7 @@ const SETTINGS_GROUPS: Record<string, { label: string; emoji: string }> = {
   footer:  { label: 'Footer',          emoji: '📄' },
 };
 
-// â”€â”€â”€ Composant principal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// —€—€—€ Composant principal —€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€
 export default function CMSAdmin() {
   const [checkingSession, setCheckingSession] = useState(true);
   const [authed, setAuthed] = useState(false);
@@ -571,7 +571,7 @@ export default function CMSAdmin() {
     }
   };
 
-  // â”€â”€â”€ Login â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // —€—€—€ Login —€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€
   if (checkingSession) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f3ef' }}>
       <div style={{ background: 'white', padding: '2.5rem', borderRadius: '1rem', boxShadow: '0 8px 32px rgba(0,0,0,.1)', width: '100%', maxWidth: 380, textAlign: 'center' }}>
@@ -603,7 +603,7 @@ export default function CMSAdmin() {
     </div>
   );
 
-  // â”€â”€â”€ CMS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // —€—€—€ CMS —€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€
   const TABS = [
     { id: 'articles', label: 'ðŸ“ Articles', count: articles.length },
     { id: 'new',      label: '✏️ Nouvel article', count: null },
@@ -665,7 +665,7 @@ export default function CMSAdmin() {
 
       <div style={{ maxWidth: 1100, margin: '2rem auto', padding: '0 1.5rem' }}>
 
-        {/* â”€â”€ ARTICLES â”€â”€ */}
+        {/* —€—€ ARTICLES —€—€ */}
         {tab === 'articles' && (
           <div>
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -717,7 +717,7 @@ export default function CMSAdmin() {
           </div>
         )}
 
-        {/* â”€â”€ ÉDITEUR ARTICLE â”€â”€ */}
+        {/* —€—€ ÉDITEUR ARTICLE —€—€ */}
         {tab === 'new' && (
           <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 2px 12px rgba(0,0,0,.07)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.75rem' }}>
@@ -926,7 +926,7 @@ export default function CMSAdmin() {
           </div>
         )}
 
-        {/* â”€â”€ PAGES â”€â”€ */}
+        {/* —€—€ PAGES —€—€ */}
         {tab === 'pages' && (
           <div>
             {loadingSettings ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargementâ€¦</p> : (
@@ -1008,7 +1008,7 @@ export default function CMSAdmin() {
           </div>
         )}
 
-        {/* â”€â”€ MÉDIATHÉˆQUE â”€â”€ */}
+        {/* —€—€ MÉDIATHÉˆQUE —€—€ */}
         {tab === 'media' && (
           <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 2px 12px rgba(0,0,0,.07)', minHeight: 400 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
@@ -1025,7 +1025,7 @@ export default function CMSAdmin() {
           </div>
         )}
 
-        {/* â”€â”€ TRAVEL PLANNING â”€â”€ */}
+        {/* —€—€ TRAVEL PLANNING —€—€ */}
         {tab === 'demandes' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
@@ -1079,7 +1079,7 @@ export default function CMSAdmin() {
           </div>
         )}
 
-        {/* â”€â”€ CAROUSEL â”€â”€ */}
+        {/* —€—€ CAROUSEL —€—€ */}
         {tab === 'carousel' && (
           <div className="space-y-6">
             <CarouselGenerator />
@@ -1087,7 +1087,7 @@ export default function CMSAdmin() {
           </div>
         )}
 
-        {/* â”€â”€ BLOG IA â”€â”€ */}
+        {/* —€—€ BLOG IA —€—€ */}
         {tab === 'blog' && (
           <BlogGenerator
             onGenerated={(data) => {
@@ -1107,7 +1107,7 @@ export default function CMSAdmin() {
           />
         )}
 
-        {/* â”€â”€ PARAMÉˆTRES â”€â”€ */}
+        {/* —€—€ PARAMÉˆTRES —€—€ */}
         {tab === 'settings' && (
           <div>
             {loadingSettings ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargementâ€¦</p> : (
