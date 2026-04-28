@@ -88,7 +88,7 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
   },
   'nos-services': {
     label: 'Nos services',
-    emoji: 'âœ¨',
+    emoji: '✨',
     sections: [
       { key: 'hero_title',    label: 'Hero â€“ Titre',              type: 'text' },
       { key: 'hero_subtitle', label: 'Hero â€“ Sous-titre',         type: 'textarea' },
@@ -102,7 +102,7 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
   },
   'travel-planning': {
     label: 'Travel Planning',
-    emoji: 'âœˆï¸',
+    emoji: '✈️',
     sections: [
       { key: 'hero_title',    label: 'Hero â€“ Titre',       type: 'text' },
       { key: 'hero_subtitle', label: 'Hero â€“ Sous-titre',  type: 'textarea' },
@@ -397,7 +397,7 @@ export default function CMSAdmin() {
 
       const responses = await Promise.all(promises);
       if (responses.some(res => handleUnauthorized(res))) return;
-      showToast('âœ… Paramètres sauvegardés !');
+      showToast('✅ Paramètres sauvegardés !');
       loadSettings();
     } catch {
       showToast('Impossible de sauvegarder les paramètres.');
@@ -434,7 +434,7 @@ export default function CMSAdmin() {
 
       const responses = await Promise.all(promises);
       if (responses.some(res => handleUnauthorized(res))) return;
-      showToast(`âœ… Page "${config.label}" sauvegardée !`);
+      showToast(`✅ Page "${config.label}" sauvegardée !`);
       loadSettings();
     } catch {
       showToast('Impossible de sauvegarder cette page.');
@@ -470,7 +470,7 @@ export default function CMSAdmin() {
       });
       if (handleUnauthorized(res)) return;
       if (res.ok) {
-        showToast(isNew ? 'âœ… Article créé !' : 'âœ… Article mis É  jour !');
+        showToast(isNew ? '✅ Article créé !' : '✅ Article mis É  jour !');
         setArticleBaseline(getArticleDraftSignature(payload));
         resetArticleEditor();
         loadArticles();
@@ -542,7 +542,7 @@ export default function CMSAdmin() {
       const data = await res.json();
       if (data.url) {
         setEditingArticle(prev => prev ? { ...prev, featured_image: data.url } : prev);
-        showToast('âœ… Image uploadée sur Supabase !');
+        showToast('✅ Image uploadée sur Supabase !');
       } else {
         showToast(`âŒ Upload échoué : ${data.error}`);
       }
@@ -563,7 +563,7 @@ export default function CMSAdmin() {
         body: JSON.stringify({ id, statut }),
       });
       if (handleUnauthorized(res)) return;
-      if (res.ok) { showToast('âœ… Statut mis É  jour'); loadDemandes(); }
+      if (res.ok) { showToast('✅ Statut mis É  jour'); loadDemandes(); }
     } catch {
       showToast('Impossible de mettre É  jour cette demande.');
     } finally {
@@ -606,13 +606,13 @@ export default function CMSAdmin() {
   // â”€â”€â”€ CMS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const TABS = [
     { id: 'articles', label: 'ðŸ“ Articles', count: articles.length },
-    { id: 'new',      label: 'âœï¸ Nouvel article', count: null },
-    { id: 'blog',     label: 'âœ¨ Générateur Blog IA', count: null },
-    { id: 'pages',    label: 'ðŸ—‚ï¸ Pages', count: null },
-    { id: 'demandes', label: 'âœˆï¸ Travel Planning', count: demandes.length },
-    { id: 'media',    label: 'ðŸ–¼ï¸ Médiathèque', count: null },
+    { id: 'new',      label: '✏️ Nouvel article', count: null },
+    { id: 'blog',     label: '✨ Générateur Blog IA', count: null },
+    { id: 'pages',    label: '📂 Pages', count: null },
+    { id: 'demandes', label: '✈️ Travel Planning', count: demandes.length },
+    { id: 'media',    label: '🖼️ Médiathèque', count: null },
     { id: 'carousel', label: 'ðŸŽ  Carrousel', count: null },
-    { id: 'settings', label: 'âš™ï¸ Paramètres', count: null },
+    { id: 'settings', label: '⚙️ Paramètres', count: null },
   ];
 
   return (
@@ -637,7 +637,7 @@ export default function CMSAdmin() {
           onClose={() => setShowMediaLibrary(false)}
           onSelect={(url) => {
             setEditingArticle(prev => prev ? { ...prev, featured_image: url } : prev);
-            showToast('âœ… Image sélectionnée depuis la médiathèque !');
+            showToast('✅ Image sélectionnée depuis la médiathèque !');
           }}
         />
       )}
@@ -706,7 +706,7 @@ export default function CMSAdmin() {
                         {a.published ? '✓ Publié' : 'ðŸ“¦ Brouillon'}
                       </span>
                       <div style={{ display: 'flex', gap: '.5rem' }}>
-                        <button onClick={() => openArticleEditor(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>âœï¸ É‰diter</button>
+                        <button onClick={() => openArticleEditor(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>✏️ Éditer</button>
                         <button onClick={() => togglePublish(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>{a.published ? 'ðŸ“¦ Dépublier' : 'Publier'}</button>
                         <button onClick={() => deleteArticle(a.id)} style={{ padding: '.35rem .8rem', border: '1px solid #fcc', borderRadius: '.4rem', background: '#fff5f5', color: '#c0392b', cursor: 'pointer', fontSize: '.82rem' }}>ðŸ—‘ï¸</button>
                       </div>
@@ -717,12 +717,12 @@ export default function CMSAdmin() {
           </div>
         )}
 
-        {/* â”€â”€ É‰DITEUR ARTICLE â”€â”€ */}
+        {/* â”€â”€ ÉDITEUR ARTICLE â”€â”€ */}
         {tab === 'new' && (
           <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 2px 12px rgba(0,0,0,.07)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.75rem' }}>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>{editingArticle?.id ? `âœï¸ Modifier : ${editingArticle.title}` : 'âœï¸ Nouvel article'}</h2>
-              <button onClick={closeArticleEditor} style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: '1.3rem' }}>âœ•</button>
+              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>{editingArticle?.id ? `✏️ Modifier : ${editingArticle.title}` : '✏️ Nouvel article'}</h2>
+              <button onClick={closeArticleEditor} style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: '1.3rem' }}>✖️</button>
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
               <button
@@ -766,7 +766,7 @@ export default function CMSAdmin() {
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '.75rem' }}>
                   <button onClick={() => setShowMediaLibrary(true)}
                     style={{ padding: '.6rem 1.1rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.85rem', fontWeight: 600 }}
-                  >ðŸ–¼ï¸ Médiathèque Supabase</button>
+                  >🖼️ Médiathèque Supabase</button>
                   <span style={{ color: '#aaa', fontSize: '.82rem' }}>ou</span>
                   <label style={{ padding: '.6rem 1rem', background: uploadingFeaturedImage ? '#8aa8a9' : '#01696f', color: 'white', borderRadius: '.5rem', cursor: uploadingFeaturedImage ? 'wait' : 'pointer', fontSize: '.85rem', fontWeight: 600 }}>
                     {uploadingFeaturedImage ? 'â³ Uploadâ€¦' : 'â¬†ï¸ Upload direct'}
@@ -778,7 +778,7 @@ export default function CMSAdmin() {
                     <div style={{ position: 'relative' }}>
                       <img src={editingArticle.featured_image} alt="" style={{ height: 80, borderRadius: '.5rem', objectFit: 'cover' }} />
                       <button onClick={() => setEditingArticle(p => ({ ...p, featured_image: '' }))}
-                        style={{ position: 'absolute', top: -6, right: -6, background: '#c0392b', color: 'white', border: 'none', borderRadius: '50%', width: 20, height: 20, cursor: 'pointer', fontSize: '.7rem' }}>âœ•</button>
+                        style={{ position: 'absolute', top: -6, right: -6, background: '#c0392b', color: 'white', border: 'none', borderRadius: '50%', width: 20, height: 20, cursor: 'pointer', fontSize: '.7rem' }}>✖️</button>
                     </div>
                     <input value={editingArticle.featured_image}
                       onChange={e => setEditingArticle(p => ({ ...p, featured_image: e.target.value }))}
@@ -848,7 +848,7 @@ export default function CMSAdmin() {
                     }}
                     style={{ background: '#10b981', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}
                   >
-                    âœ¨ Generer avec IA
+                    ✨ Generer avec IA
                   </button>
                 </div>
                 <RichEditor value={editingArticle?.content || ''}
@@ -944,7 +944,7 @@ export default function CMSAdmin() {
                   ))}
                 </div>
 
-                {/* É‰diteur de page */}
+                {/* Éditeur de page */}
                 <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
                   {(() => {
                     const config = PAGES_CONFIG[activePage];
@@ -1008,11 +1008,11 @@ export default function CMSAdmin() {
           </div>
         )}
 
-        {/* â”€â”€ MÉ‰DIATHÉˆQUE â”€â”€ */}
+        {/* â”€â”€ MÉDIATHÉˆQUE â”€â”€ */}
         {tab === 'media' && (
           <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 2px 12px rgba(0,0,0,.07)', minHeight: 400 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>ðŸ–¼ï¸ Médiathèque</h2>
+              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>🖼️ Médiathèque</h2>
               <p style={{ fontSize: '.85rem', color: '#888' }}>Supabase Storage</p>
             </div>
             <div style={{ background: '#faf8f5', borderRadius: '.75rem', padding: '2rem', textAlign: 'center', border: '2px dashed #e8e3dc' }}>
@@ -1020,7 +1020,7 @@ export default function CMSAdmin() {
               <p style={{ color: '#555', marginBottom: '1.25rem', lineHeight: 1.6 }}>Toutes tes images sont stockées sur <strong>Supabase Storage</strong>.</p>
               <button onClick={() => setShowMediaLibrary(true)}
                 style={{ padding: '.8rem 1.75rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '.95rem' }}
-              >ðŸ–¼ï¸ Ouvrir la médiathèque</button>
+              >🖼️ Ouvrir la médiathèque</button>
             </div>
           </div>
         )}
@@ -1029,7 +1029,7 @@ export default function CMSAdmin() {
         {tab === 'demandes' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>âœˆï¸ Demandes Travel Planning</h2>
+              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>✈️ Demandes Travel Planning</h2>
               <button onClick={loadDemandes} disabled={loadingDemandes} style={{ padding: '.5rem 1rem', background: 'white', border: '1.5px solid #ddd', borderRadius: '.5rem', cursor: loadingDemandes ? 'wait' : 'pointer', fontSize: '.85rem', opacity: loadingDemandes ? .7 : 1 }}>{loadingDemandes ? 'â³ Actualisationâ€¦' : '🔍„ Actualiser'}</button>
             </div>
             {loadingDemandes ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargementâ€¦</p>
@@ -1055,7 +1055,7 @@ export default function CMSAdmin() {
                             <option value="nouvelle">ðŸ†• Nouvelle</option>
                             <option value="en_cours">🔍„ En cours</option>
                             <option value="devis_envoye">ðŸ“¨ Devis envoyé</option>
-                            <option value="accepte">âœ… Acceptée</option>
+                            <option value="accepte">✅ Acceptée</option>
                             <option value="terminee">ðŸ Terminée</option>
                             <option value="annulee">âŒ Annulée</option>
                           </select>
@@ -1101,7 +1101,7 @@ export default function CMSAdmin() {
                 category: 'Voyage',
                 published: false,
               });
-              showToast('âœ… Article généré ! Edite-le puis enregistre.');
+              showToast('✅ Article généré ! Edite-le puis enregistre.');
               setTab('new');
             }}
           />
