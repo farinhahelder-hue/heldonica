@@ -56,6 +56,10 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'smxnruefmrmfyfhuxygq.supabase.co',
+      },
+      {
+        protocol: 'https',
         hostname: 'heldonica.fr',
       },
       {
