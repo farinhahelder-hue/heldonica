@@ -65,7 +65,7 @@ function getReadTimeMinutes(content?: string) {
 const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { key: string; label: string; type: 'text' | 'textarea' }[] }> = {
   'home': {
     label: 'Accueil',
-    emoji: 'ðŸ ',
+    emoji: '🏠',
     sections: [
       { key: 'hero_title',          label: 'Hero â€“ Titre',                     type: 'text' },
       { key: 'hero_subtitle',       label: 'Hero â€“ Sous-titre',                type: 'textarea' },
@@ -80,7 +80,7 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
   },
   'a-propos': {
     label: 'É€ propos',
-    emoji: 'ðŸ‘‹',
+    emoji: '👋',
     sections: [
       { key: 'page_title',  label: 'Titre de la page',      type: 'text' },
       { key: 'intro_text',  label: 'Texte d\'introduction', type: 'textarea' },
@@ -102,7 +102,7 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
   },
   'travel-planning': {
     label: 'Travel Planning',
-    emoji: '✈️',
+    emoji: '✈',
     sections: [
       { key: 'hero_title',    label: 'Hero â€“ Titre',       type: 'text' },
       { key: 'hero_subtitle', label: 'Hero â€“ Sous-titre',  type: 'textarea' },
@@ -112,7 +112,7 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
   },
   'contact': {
     label: 'Contact',
-    emoji: 'ðŸ“§',
+    emoji: '📧',
     sections: [
       { key: 'page_title',  label: 'Titre de la page',      type: 'text' },
       { key: 'intro_text',  label: 'Texte d\'introduction', type: 'textarea' },
@@ -120,7 +120,7 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
   },
   'hotel-consulting': {
     label: 'Hotel Consulting',
-    emoji: 'ðŸ¨',
+    emoji: '🏨',
     sections: [
       { key: 'page_title',  label: 'Titre de la page',      type: 'text' },
       { key: 'intro_text',  label: 'Texte d\'introduction', type: 'textarea' },
@@ -128,7 +128,7 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
   },
   'mentions-legales': {
     label: 'Mentions légales',
-    emoji: 'âš–ï¸',
+    emoji: '⚖️',
     sections: [
       { key: 'page_title', label: 'Titre de la page', type: 'text' },
     ],
@@ -139,7 +139,7 @@ const SETTINGS_GROUPS: Record<string, { label: string; emoji: string }> = {
   general: { label: 'Général',         emoji: '🌐' },
   social:  { label: 'Réseaux sociaux', emoji: '📱' },
   seo:     { label: 'SEO',             emoji: '🔍' },
-  footer:  { label: 'Footer',          emoji: 'ðŸ“„' },
+  footer:  { label: 'Footer',          emoji: '📄' },
 };
 
 // â”€â”€â”€ Composant principal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
