@@ -1,4 +1,4 @@
-﻿import { getAllPosts, formatDate, BlogPost } from '@/lib/blog-supabase'
+﻿import {getSetting,  getAllPosts, formatDate, BlogPost } from '@/lib/blog-supabase'
 import HomeClient from '@/components/HomeClient'
 import type { Metadata } from 'next'
 
@@ -64,7 +64,10 @@ function formatPosts(posts: BlogPost[]) {
 
 export default async function Home() {
   const allPosts = await getAllPosts()
-  const latestPosts = allPosts.slice(0, 6)
+  c
+  const coveredCountries = await getSetting('covered_countries');
+  
+onst latestPosts = allPosts.slice(0, 6)
   const travelPosts = formatPosts(allPosts.filter((p) => p.category === 'Carnets Voyage').slice(0, 3))
   const foodPosts = formatPosts(
     allPosts
@@ -79,9 +82,12 @@ export default async function Home() {
     <HomeClient
       featured={featured}
       travelPosts={travelPosts}
-      foodPosts={foodPosts}
-      latestPosts={formatPosts(latestPosts)}
+      
       totalPosts={23}
+          coveredCountries={coveredCountries}
+          latestPosts={formatPosts(latestPosts)}
+
+
     />
   )
 }
