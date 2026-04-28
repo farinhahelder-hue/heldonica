@@ -115,10 +115,11 @@ function AnimatedStat({ nb, label, suffix = '' }: { nb: number | string; label: 
 }
 
 // ─── Card article ─────────────────────────────────────────────────────────────
-function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: string }; size?: 'sm' | 'md' | 'lg' }) {
+function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: string; readTime?: number }; size?: 'sm' | 'md' | 'lg' }) {
   const img = postImage(post)
   const [imgSrc, setImgSrc] = useState(img)
   const h = size === 'lg' ? 'h-80' : size === 'md' ? 'h-60' : 'h-44'
+  const readTime = post.readTime ?? post.read_time
 
   useEffect(() => {
     setImgSrc(img)
@@ -139,9 +140,9 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
               {post.category}
             </span>
           </div>
-          {post.read_time && (
+          {readTime && readTime > 0 && (
             <span className="absolute bottom-3 right-3 bg-black/40 backdrop-blur-sm text-white/80 text-xs px-2 py-0.5 rounded-full">
-              {post.read_time} min
+              {readTime} min
             </span>
           )}
         </div>
@@ -157,7 +158,7 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
           )}
           <div className="flex items-center justify-between mt-auto pt-2 border-t border-cloud-dancer">
             <span className="text-xs text-charcoal/40">
-              {post.destination ? `📍 ${post.destination}` : post.formattedDate}
+              {post.author ?? 'Heldonica'} {post.destination ? `• 📍 ${post.destination}` : ` • ${post.formattedDate}`}
             </span>
             <span className="text-xs text-eucalyptus font-semibold group-hover:translate-x-1 transition-transform">Lire le carnet →</span>
           </div>
@@ -169,11 +170,12 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 interface HomeProps {
-  featured: (BlogPost & { formattedDate: string }) | null
-  travelPosts: (BlogPost & { formattedDate: string })[]
-  foodPosts: (BlogPost & { formattedDate: string })[]
-  latestPosts: (BlogPost & { formattedDate: string })[]
+  featured: (BlogPost & { formattedDate: string; readTime?: number }) | null
+  travelPosts: (BlogPost & { formattedDate: string; readTime?: number })[]
+  foodPosts: (BlogPost & { formattedDate: string; readTime?: number })[]
+  latestPosts: (BlogPost & { formattedDate: string; readTime?: number })[]
   totalPosts: number
+  coveredCountries?: string | null
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────

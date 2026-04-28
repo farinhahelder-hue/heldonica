@@ -5,6 +5,12 @@ import Footer from '@/components/Footer'
 import BlogClientPage from '@/components/BlogClientPage'
 import Breadcrumb from '@/components/Breadcrumb'
 
+function calcReadTime(content: string | null): number {
+  if (!content) return 0
+  const words = content.replace(/<[^>]*>/g, '').split(/\s+/).length
+  return Math.max(1, Math.ceil(words / 200))
+}
+
 export const revalidate = 60
 
 export const metadata: Metadata = {
@@ -31,6 +37,7 @@ export default async function BlogPage() {
   const postsWithFormattedDate = posts.map((post) => ({
     ...post,
     formattedDate: formatDate(post.published_at),
+    readTime: post.read_time ?? calcReadTime(post.content),
   }))
 
   return (

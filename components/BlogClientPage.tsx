@@ -21,7 +21,7 @@ const CATEGORY_FALLBACK_BG: Record<string, string> = {
 const BADGE_FALLBACK_SRC = '/images/badges-heldonica.svg'
 
 interface Props {
-  posts: (BlogPost & { formattedDate: string })[]
+  posts: (BlogPost & { formattedDate: string; readTime?: number })[]
 }
 
 export default function BlogClientPage({ posts }: Props) {
@@ -371,7 +371,15 @@ function ArticleCard({ post }: { post: BlogPost & { formattedDate: string } }) {
             </div>
           )}
           <div className="mt-auto flex items-center justify-between border-t border-cloud-dancer pt-4 text-xs text-charcoal/40">
-            <span>{post.formattedDate}</span>
+            <div className="flex items-center gap-2">
+              <span>{post.author ?? 'Heldonica'}</span>
+              {post.readTime && post.readTime > 0 && (
+                <>
+                  <span>•</span>
+                  <span>{post.readTime} min</span>
+                </>
+              )}
+            </div>
             <span className="font-semibold text-eucalyptus transition-transform duration-200 group-hover:translate-x-1">
               Lire le carnet →
             </span>
