@@ -16,7 +16,7 @@ interface GooglePhoto {
   thumbnail: string
 }
 
-const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '1029603241729-ho9.apps.googleusercontent.com'
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||'1029603241729-ho9iipa3fql2ekgigpempkokbfb4q0ec.apps.googleusercontent.com'
 
 export default function MediaPage({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
   const pwd = typeof searchParams === 'object' ? String(searchParams?.pwd || '') : ''
