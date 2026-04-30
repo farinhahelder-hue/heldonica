@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import EnhancedRichContent from '@/components/EnhancedRichContent';
 import MediaLibrary from '@/components/MediaLibrary';
@@ -144,6 +145,8 @@ const SETTINGS_GROUPS: Record<string, { label: string; emoji: string }> = {
 
 // —€—€—€ Composant principal —€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€
 export default function CMSAdmin() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [checkingSession, setCheckingSession] = useState(true);
   const [authed, setAuthed] = useState(false);
   const [pwd, setPwd] = useState('');
@@ -258,6 +261,15 @@ export default function CMSAdmin() {
     setTab(nextTab);
   }, [confirmDiscardArticleChanges, openArticleEditor, tab]);
 
+  // Clean URL params on mount
+  useEffect(() => {
+    const error = searchParams.get('error');
+    const connected = searchParams.get('connected');
+    if (error || connected) {
+      router.replace('/cms-admin');
+    }
+  }, []);
+
   useEffect(() => {
     let active = true;
 
@@ -315,10 +327,28 @@ export default function CMSAdmin() {
     resetArticleEditor();
   };
 
+  // Clean URL params on mount
+  useEffect(() => {
+    const error = searchParams.get('error');
+    const connected = searchParams.get('connected');
+    if (error || connected) {
+      router.replace('/cms-admin');
+    }
+  }, []);
+
   useEffect(() => {
     if (checkingSession || authed) return;
     fetch('/api/cms/auth', { method: 'DELETE' }).catch(() => {});
   }, [authed, checkingSession]);
+
+  // Clean URL params on mount
+  useEffect(() => {
+    const error = searchParams.get('error');
+    const connected = searchParams.get('connected');
+    if (error || connected) {
+      router.replace('/cms-admin');
+    }
+  }, []);
 
   useEffect(() => {
     if (!isArticleDirty) return;
@@ -391,8 +421,35 @@ export default function CMSAdmin() {
     }
   }, [handleUnauthorized, showToast]);
 
+  // Clean URL params on mount
+  useEffect(() => {
+    const error = searchParams.get('error');
+    const connected = searchParams.get('connected');
+    if (error || connected) {
+      router.replace('/cms-admin');
+    }
+  }, []);
+
   useEffect(() => { if (authed) loadArticles(); }, [authed, loadArticles]);
+  // Clean URL params on mount
+  useEffect(() => {
+    const error = searchParams.get('error');
+    const connected = searchParams.get('connected');
+    if (error || connected) {
+      router.replace('/cms-admin');
+    }
+  }, []);
+
   useEffect(() => { if (authed && tab === 'demandes') loadDemandes(); }, [authed, tab, loadDemandes]);
+  // Clean URL params on mount
+  useEffect(() => {
+    const error = searchParams.get('error');
+    const connected = searchParams.get('connected');
+    if (error || connected) {
+      router.replace('/cms-admin');
+    }
+  }, []);
+
   useEffect(() => { if (authed && (tab === 'settings' || tab === 'pages')) loadSettings(); }, [authed, tab, loadSettings]);
 
   // 💾 Sauvegarder settings
@@ -505,6 +562,15 @@ export default function CMSAdmin() {
       setSavingArticle(false);
     }
   }, [editingArticle, handleUnauthorized, loadArticles, resetArticleEditor, savingArticle, showToast]);
+
+  // Clean URL params on mount
+  useEffect(() => {
+    const error = searchParams.get('error');
+    const connected = searchParams.get('connected');
+    if (error || connected) {
+      router.replace('/cms-admin');
+    }
+  }, []);
 
   useEffect(() => {
     if (tab !== 'new') return;
@@ -752,7 +818,7 @@ export default function CMSAdmin() {
                 onClick={() => setShowArticlePreview(prev => !prev)}
                 style={{ padding: '.5rem .95rem', border: '1px solid #ddd', borderRadius: '.5rem', background: 'white', color: '#6b2a1a', cursor: 'pointer', fontSize: '.82rem', fontWeight: 700 }}
               >
-                {showArticlePreview ? "Masquer l'aperÉ§u" : 'AperÉ§u live'}
+                {showArticlePreview ? "Masquer l'aperçu" : 'Aperçu live'}
               </button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
@@ -876,7 +942,7 @@ export default function CMSAdmin() {
                 </div>
                 <RichEditor value={editingArticle?.content || ''}
                   onChange={html => setEditingArticle(p => ({ ...p, content: html }))}
-                  placeholder="Commence É écrire ton article ici—" />
+                  placeholder="Commence à écrire ton article ici…" />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '.5rem', cursor: 'pointer', fontWeight: 600, color: '#444', fontSize: '.9rem' }}>
@@ -899,7 +965,7 @@ export default function CMSAdmin() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
                   <div>
                     <p style={{ margin: 0, fontSize: '.78rem', color: '#8a7a70', textTransform: 'uppercase', letterSpacing: '.08em', fontWeight: 700 }}>Preview</p>
-                    <h3 style={{ margin: '.2rem 0 0', fontSize: '1.1rem', color: '#6b2a1a' }}>AperÉ§u public de l&apos;article</h3>
+                    <h3 style={{ margin: '.2rem 0 0', fontSize: '1.1rem', color: '#6b2a1a' }}>Aperçu public de l&apos;article</h3>
                   </div>
                   <span style={{ ...metaChip, background: '#e8f5f2', color: '#01696f' }}>HTML sanitizé comme sur le site</span>
                 </div>
@@ -934,7 +1000,7 @@ export default function CMSAdmin() {
                     <EnhancedRichContent html={articlePreviewHtml} style={previewBody} />
                   ) : (
                     <p style={{ margin: 0, color: '#8a7a70', lineHeight: 1.7 }}>
-                      Commence É écrire dans l—™éditeur pour voir le rendu du contenu ici.
+                      Commence à écrire dans l'éditeur pour voir le rendu du contenu ici.
                     </p>
                   )}
                 </div>
