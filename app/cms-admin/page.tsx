@@ -520,7 +520,7 @@ export default function CMSAdmin() {
     try {
       const res = await fetch(`/api/cms/articles/${id}`, { method: 'DELETE' });
       if (handleUnauthorized(res)) return;
-      if (res.ok) { showToast('📝‘ï¸ Article supprimé'); loadArticles(); }
+      if (res.ok) { showToast('🗑 Article supprimé'); loadArticles(); }
     } catch {
       showToast('Impossible de supprimer cet article.');
     }
@@ -684,7 +684,7 @@ export default function CMSAdmin() {
               <button onClick={loadArticles} style={{ padding: '.6rem 1.2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>🔍</button>
               <button onClick={() => openArticleEditor({})} style={{ padding: '.6rem 1.2rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>+ Nouvel article</button>
             </div>
-            {loadingArticles ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement—</p>
+            {loadingArticles ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p>
               : articles.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '4rem', color: '#aaa' }}>
                   <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📜­</div>
@@ -708,7 +708,7 @@ export default function CMSAdmin() {
                       <div style={{ display: 'flex', gap: '.5rem' }}>
                         <button onClick={() => openArticleEditor(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>✏️ Éditer</button>
                         <button onClick={() => togglePublish(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>{a.published ? '📦 Dépublier' : 'Publier'}</button>
-                        <button onClick={() => deleteArticle(a.id)} style={{ padding: '.35rem .8rem', border: '1px solid #fcc', borderRadius: '.4rem', background: '#fff5f5', color: '#c0392b', cursor: 'pointer', fontSize: '.82rem' }}>📝‘ï¸</button>
+                        <button onClick={() => deleteArticle(a.id)} style={{ padding: '.35rem .8rem', border: '1px solid #fcc', borderRadius: '.4rem', background: '#fff5f5', color: '#c0392b', cursor: 'pointer', fontSize: '.82rem' }}>🗑</button>
                       </div>
                     </div>
                   ))}
@@ -769,7 +769,7 @@ export default function CMSAdmin() {
                   >🖼️ Médiathèque Supabase</button>
                   <span style={{ color: '#aaa', fontSize: '.82rem' }}>ou</span>
                   <label style={{ padding: '.6rem 1rem', background: uploadingFeaturedImage ? '#8aa8a9' : '#01696f', color: 'white', borderRadius: '.5rem', cursor: uploadingFeaturedImage ? 'wait' : 'pointer', fontSize: '.85rem', fontWeight: 600 }}>
-                    {uploadingFeaturedImage ? '⏳ Upload—' : '✓ï¸ Upload direct'}
+                    {uploadingFeaturedImage ? '⏳ Upload—' : '✓ Upload direct'}
                     <input type="file" accept="image/*" onChange={uploadFeaturedImage} style={{ display: 'none' }} disabled={uploadingFeaturedImage} />
                   </label>
                 </div>
@@ -929,7 +929,7 @@ export default function CMSAdmin() {
         {/* —€—€ PAGES —€—€ */}
         {tab === 'pages' && (
           <div>
-            {loadingSettings ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement—</p> : (
+            {loadingSettings ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p> : (
               <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '1.5rem', alignItems: 'start' }}>
 
                 {/* Sidebar pages */}
@@ -1032,10 +1032,10 @@ export default function CMSAdmin() {
               <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>✈️ Demandes Travel Planning</h2>
               <button onClick={loadDemandes} disabled={loadingDemandes} style={{ padding: '.5rem 1rem', background: 'white', border: '1.5px solid #ddd', borderRadius: '.5rem', cursor: loadingDemandes ? 'wait' : 'pointer', fontSize: '.85rem', opacity: loadingDemandes ? .7 : 1 }}>{loadingDemandes ? '⏳ Actualisation—' : '🔍„ Actualiser'}</button>
             </div>
-            {loadingDemandes ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement—</p>
+            {loadingDemandes ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p>
               : demandes.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '4rem', color: '#aaa' }}>
-                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✉ï¸</div>
+                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✉</div>
                   <p>Aucune demande pour le moment</p>
                 </div>
               ) : (
@@ -1110,7 +1110,7 @@ export default function CMSAdmin() {
         {/* —€—€ PARAMÉˆTRES —€—€ */}
         {tab === 'settings' && (
           <div>
-            {loadingSettings ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement—</p> : (
+            {loadingSettings ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p> : (
               <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '1.5rem', alignItems: 'start' }}>
 
                 {/* Sidebar settings */}
