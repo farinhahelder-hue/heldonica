@@ -8,6 +8,11 @@ interface BlogGeneratorProps {
 
 export default function BlogGenerator({ onGenerated }: BlogGeneratorProps) {
   const [topic, setTopic] = useState('');
+  const [destination, setDestination] = useState('');
+  const [notes, setNotes] = useState('');
+  const [seoKeywords, setSeoKeywords] = useState('');
+  const [tone, setTone] = useState<'informatif' | 'intimiste' | 'humoristique' | 'expert'>('informatif');
+  const [language, setLanguage] = useState<'FR' | 'EN'>('FR');
   const [style, setStyle] = useState<'story' | 'guide' | 'list' | 'review'>('story');
   const [length, setLength] = useState<'short' | 'medium' | 'long'>('medium');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -25,7 +30,7 @@ export default function BlogGenerator({ onGenerated }: BlogGeneratorProps) {
       const response = await fetch('/api/blog/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic, style, length }),
+        body: JSON.stringify({ topic, destination, notes, seoKeywords, tone, language, style, length }),
       });
       
       const data = await response.json();
@@ -71,6 +76,33 @@ export default function BlogGenerator({ onGenerated }: BlogGeneratorProps) {
         <div>
           <label style={{ display: 'block', fontWeight: 600, fontSize: '.85rem', color: '#555', marginBottom: '.35rem' }}>Style</label>
           <select
+            value={tone}
+            onChange={e => setTone(e.target.value as any)}
+            style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.88rem', background: '#fff' }}
+          >
+            <option value="informatif">📚 Informatif</option>
+            <option value="intimiste">💜 Intimiste</option>
+            <option value="humoristique">😄 Humoristique</option>
+            <option value="expert">🎯 Expert</option>
+          </select>
+        </div>
+        <div>
+          <label style={{ display: 'block', fontWeight: 600, fontSize: '.85rem', color: '#555', marginBottom: '.35rem' }}>Langue</label>
+          <select
+            value={language}
+            onChange={e => setLanguage(e.target.value as any)}
+            style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.88rem', background: '#fff' }}
+          >
+            <option value="FR">🇫🇷 Français</option>
+            <option value="EN">🇬🇧 English</option>
+          </select>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
+        <div>
+          <label style={{ display: 'block', fontWeight: 600, fontSize: '.85rem', color: '#555', marginBottom: '.35rem' }}>Style</label>
+          <select
             value={style}
             onChange={e => setStyle(e.target.value as any)}
             style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.88rem', background: '#fff' }}
@@ -93,6 +125,18 @@ export default function BlogGenerator({ onGenerated }: BlogGeneratorProps) {
             <option value="long"> long (800-1000 mots)</option>
           </select>
         </div>
+      </div>
+
+      <div style={{ marginBottom: '1.25rem' }}>
+        <label style={{ display: 'block', fontWeight: 600, fontSize: '.85rem', color: '#555', marginBottom: '.35rem' }}>
+          Mots-clés SEO
+        </label>
+        <input
+          value={seoKeywords}
+          onChange={e => setSeoKeywords(e.target.value)}
+          placeholder="Ex: hotel boutique paris, voyageitalie, randonnneeeurope..."
+          style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.88rem', background: '#fff' }}
+        />
       </div>
 
       <button

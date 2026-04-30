@@ -4,6 +4,11 @@ export const maxDuration = 60
 
 interface BlogGenerationRequest {
   topic: string
+  destination?: string
+  notes?: string
+  seoKeywords?: string
+  tone?: 'informatif' | 'intimiste' | 'humoristique' | 'expert'
+  language?: 'FR' | 'EN'
   style?: 'story' | 'guide' | 'list' | 'review'
   length?: 'short' | 'medium' | 'long'
 }
@@ -57,7 +62,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body: BlogGenerationRequest = await req.json()
-    const { topic, style = 'story', length = 'medium' } = body
+    const { topic, destination = '', notes = '', seoKeywords = '', tone = 'informatif', language = 'FR', style = 'story', length = 'medium' } = body
 
     if (!topic?.trim()) {
       return NextResponse.json(
@@ -67,7 +72,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Build prompt
-    const prompt = buildBlogPrompt(topic, style, length)
+    const prompt = buildBlogPrompt(topic, destination, notes, seoKeywords, style, length)
     const verifiedInfo = getVerifiedInfo(topic)
 
     // Call Groq API
@@ -82,7 +87,7 @@ export async function POST(req: NextRequest) {
         messages: [
           {
             role: 'system',
-            content: `Tu es un rédacteur de voyage expert francophone. Tu génères du contenu blog de haute qualité, authentique et personnel. ${verifiedInfo}`
+            content: `Tu es un rédacteur de voyage expert. ${language === 'EN' ? 'Tu écris en anglais.' : 'Tu génères en français.'} ${tone === 'intimiste' ? 'Style personnel et intimiste.' : tone === 'humoristique' ? 'Style léger et humoristique.' : tone === 'expert' ? 'Style expert et détaillé.' : 'Style informatif.'} ${verifiedInfo}`
           },
           {
             role: 'user',
@@ -123,42 +128,26 @@ export async function POST(req: NextRequest) {
   }
 }
 
-function buildBlogPrompt(topic: string, style: string, length: string): string {
+function buildBlogPrompt(topic: string, destination: string, notes: string, seoKeywords: string, style: string, length: string): string {
   const lengthMap = {
     short: '200-300 mots',
     medium: '400-600 mots',
     long: '800-1000 mots'
   }
 
-  const styleInstructions = {
+  const styleInstructions: Record<string, string> = {
     story: 'Raconte une histoire personnelle de voyage. Utilise la première personne. Sois narratif et évocateur.',
     guide: 'Crée un guide pratique avec sections claires. Sois informatif et actionnable.',
     list: 'Crée une liste de conseils. Numérote chaque point. Sois concis.',
-    review: 'Rédige un retour d\'expérience authentique. Sois honnête et equilibre.'
+    review: "Rédige un retour d'expérience authentique. Sois honnête et équilibré."
   }
 
-  return `
-Génère un article de blog de voyage en français.
+  let prompt = `Génère un article de voyage${destination ? ` sur ${destination}` : ''} sur le sujet: ${topic}. `
+  if (notes) prompt += `Notes à intégrer: ${notes}. `
+  if (seoKeywords) prompt += `Inclure naturellement ces mots-clés SEO: ${seoKeywords}. `
+  prompt += `Style: ${styleInstructions[style] || styleInstructions.story}. Longueur: ${lengthMap[length as keyof typeof lengthMap] || lengthMap.medium}.`
 
-**Sujet:** ${topic}
-**Style:** ${styleInstructions[style as keyof typeof styleInstructions] || styleInstructions.story}
-**Longueur:** ${lengthMap[length as keyof typeof lengthMap] || lengthMap.medium}
-
-**Format obligatoire:**
-# Titre accrocheur (H1)
-
-Excerpt court (1-2 phrases, max 200 cararctères)
-
-## Introduction engageante
-
-[Corps de l'article avec ### Sous-titres si pertinent]
-
-## Conclusion
-
-#hashtags
-
-Réponds uniquement avec le contenu formaté, sans préambule.
-`
+  return prompt
 }
 
 function getMaxTokens(length: string): number {
