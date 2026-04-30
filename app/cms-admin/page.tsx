@@ -173,6 +173,12 @@ export default function CMSAdmin() {
   const [siteContent, setSiteContent] = useState<SiteContent[]>([]);
   const [loadingSettings, setLoadingSettings] = useState(false);
   const [settingsGroup, setSettingsGroup] = useState('general');
+  const [analyticsData, setAnalyticsData] = useState<any>(null);
+  const [loadingAnalytics, setLoadingAnalytics] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [searchType, setSearchType] = useState<'all' | 'articles' | 'demandes'>('all');
   const [activePage, setActivePage] = useState('home');
   const [editedSettings, setEditedSettings] = useState<Record<string, string>>({});
   const [editedContent, setEditedContent] = useState<Record<string, string>>({});
@@ -183,6 +189,21 @@ export default function CMSAdmin() {
   const articleWordCount = getWordCount(editingArticle?.content);
   const articleReadTime = getReadTimeMinutes(editingArticle?.content);
   const articlePreviewHtml = sanitizeHtml(editingArticle?.content);
+
+  const handleSearch = useCallback(async () => {
+    if (!searchQuery || searchQuery.length < 2) return;
+    setLoadingSearch(true);
+    try {
+      const res = await fetch('/api/cms/llm-search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: searchQuery, type: searchType, limit: 10 })
+      });
+      const data = await res.json();
+      setSearchResults(data.results || []);
+    } catch (e) { console.error(e); }
+    setLoadingSearch(false);
+  }, [searchQuery, searchType]);
 
   const showToast = useCallback((msg: string) => {
     setToast(msg);
@@ -613,6 +634,8 @@ export default function CMSAdmin() {
     { id: 'media',    label: '🖼️ Médiathèque', count: null },
     { id: 'carousel', label: '🎠 Carrousel', count: null },
     { id: 'settings', label: '⚙️ Paramètres', count: null },
+    { id: 'analytics', label: '📊 Analytics', count: null },
+    { id: 'search',   label: '🔍 Search', count: null },
   ];
 
   return (
@@ -1105,6 +1128,127 @@ export default function CMSAdmin() {
               setTab('new');
             }}
           />
+        )}
+
+        {/* —€—€ ANALYTICS —€—€ */}
+        {tab === 'analytics' && (
+          <div>
+            {loadingAnalytics ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p> : (
+              <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: '900px' }}>
+                <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>📊 Analytics</h2>
+                <p style={{ color: '#888', marginBottom: '1.5rem' }}>Données Google Analytics 4</p>
+                
+                {/* Quick stats */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
+                  {analyticsData?.totals ? (
+                    <>
+                      <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
+                        <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{analyticsData.totals.sessions?.value?.toLocaleString() || '—'}</p>
+                        <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Sessions</p>
+                      </div>
+                      <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
+                        <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{analyticsData.totals.users?.value?.toLocaleString() || '—'}</p>
+                        <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Utilisateurs</p>
+                      </div>
+                      <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
+                        <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{analyticsData.totals.screenPageViews?.value?.toLocaleString() || '—'}</p>
+                        <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Pages vues</p>
+                      </div>
+                      <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
+                        <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{(analyticsData.totals.bounceRate?.value * 100)?.toFixed(1) || '—'}%</p>
+                        <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Taux rebond</p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
+                        <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>—</p>
+                        <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Sessions</p>
+                      </div>
+                      <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
+                        <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>—</p>
+                        <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Utilisateurs</p>
+                      </div>
+                      <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
+                        <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>—</p>
+                        <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Pages vues</p>
+                      </div>
+                      <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
+                        <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>—</p>
+                        <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Taux rebond</p>
+                      </div>
+                    </>
+                  )}
+                </div>
+                
+                <button onClick={async () => {
+                  setLoadingAnalytics(true);
+                  try {
+                    const res = await fetch('/api/cms/analytics', { 
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ startDate: '30daysAgo', endDate: 'today' })
+                    });
+                    const data = await res.json();
+                    setAnalyticsData(data);
+                  } catch (e) { console.error(e); }
+                  setLoadingAnalytics(false);
+                }} disabled={loadingAnalytics}
+                  style={{ padding: '.7rem 1.5rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 600, cursor: 'pointer' }}>
+                  {loadingAnalytics ? '⏳ Chargement—' : '🔄 Actualiser'}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* —€—€ SEARCH —€—€ */}
+        {tab === 'search' && (
+          <div>
+            <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: '900px' }}>
+              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>🔍 Recherche intelligente</h2>
+              <p style={{ color: '#888', marginBottom: '1.5rem' }}>Recherche sémantique avec IA</p>
+              
+              {/* Search input */}
+              <div style={{ display: 'flex', gap: '.75rem', marginBottom: '1.5rem' }}>
+                <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                  style={{ flex: 1, padding: '.75rem 1rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '1rem' }}
+                  placeholder="Rechercher dans articles, demandes..." />
+                <select value={searchType} onChange={e => setSearchType(e.target.value as any)}
+                  style={{ padding: '.75rem 1rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.9rem', background: 'white' }}>
+                  <option value='all'>Tout</option>
+                  <option value='articles'>Articles</option>
+                  <option value='demandes'>Demandes travel</option>
+                </select>
+                <button onClick={handleSearch} disabled={loadingSearch || !searchQuery}
+                  style={{ padding: '.75rem 1.5rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 600, cursor: 'pointer', opacity: loadingSearch || !searchQuery ? .7 : 1 }}>
+                  {loadingSearch ? '⏳' : '🔍'}
+                </button>
+              </div>
+              
+              {/* Results */}
+              {searchResults.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <p style={{ fontSize: '.85rem', color: '#888' }}>{searchResults.length} résultat(s)</p>
+                  {searchResults.map((r: any, i: number) => (
+                    <div key={i} style={{ padding: '1rem', background: '#f8f6f4', borderRadius: '.5rem', cursor: 'pointer' }}
+                      onClick={() => r.type === 'article' ? setTab('articles') : setTab('demandes')}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem', marginBottom: '.35rem' }}>
+                        <span style={{ fontSize: '.7rem', background: '#6b2a1a', color: 'white', padding: '.15rem .5rem', borderRadius: '999px' }}>{r.type}</span>
+                        <span style={{ fontWeight: 600, color: '#333' }}>{r.title}</span>
+                      </div>
+                      {r.excerpt && <p style={{ fontSize: '.85rem', color: '#666' }}>{r.excerpt}</p>}
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {searchQuery && searchResults.length === 0 && !loadingSearch && (
+                <p style={{ color: '#888', textAlign: 'center', padding: '2rem' }}>Aucun résultat pour "{searchQuery}"</p>
+              )}
+            </div>
+          </div>
         )}
 
         {/* —€—€ PARAMÉˆTRES —€—€ */}
