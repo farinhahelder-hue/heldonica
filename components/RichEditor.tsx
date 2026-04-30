@@ -15,28 +15,28 @@ type Props = {
 const TOOLS = [
   { cmd: 'bold',                icon: 'B',   title: 'Gras',             style: { fontWeight: 700 } },
   { cmd: 'italic',              icon: 'I',   title: 'Italique',         style: { fontStyle: 'italic' } },
-  { cmd: 'underline',           icon: 'U',   title: 'Soulign\u00e9',   style: { textDecoration: 'underline' } },
+  { cmd: 'underline',           icon: 'U',   title: 'Souligné',   style: { textDecoration: 'underline' } },
   { cmd: 'separator' },
   { cmd: 'h2',                  icon: 'H2',  title: 'Titre 2' },
   { cmd: 'h3',                  icon: 'H3',  title: 'Titre 3' },
   { cmd: 'separator' },
-  { cmd: 'insertUnorderedList', icon: '\u2261', title: 'Liste \u00e0 puces' },
-  { cmd: 'insertOrderedList',   icon: '1.', title: 'Liste num\u00e9rot\u00e9e' },
+  { cmd: 'insertUnorderedList', icon: '☰', title: 'Liste à puces' },
+  { cmd: 'insertOrderedList',   icon: '1.', title: 'Liste numérotée' },
   { cmd: 'separator' },
-  { cmd: 'createLink',          icon: '\uD83D\uDD17', title: 'Lien' },
-  { cmd: 'unlink',              icon: '\uD83D\uDEAB', title: 'Supprimer lien' },
+  { cmd: 'createLink',          icon: '🔗', title: 'Lien' },
+  { cmd: 'unlink',              icon: '❌', title: 'Supprimer lien' },
   { cmd: 'separator' },
-  { cmd: 'blockquote',          icon: '\u275D', title: 'Citation' },
+  { cmd: 'blockquote',          icon: '❝', title: 'Citation' },
   { cmd: 'separator' },
-  { cmd: 'carousel',            icon: '\u25A6', title: 'Carrousel photo' },
+  { cmd: 'carousel',            icon: '▦', title: 'Carrousel photo' },
   { cmd: 'separator' },
-  { cmd: 'removeFormat',        icon: '\u2715', title: 'Effacer format' },
+  { cmd: 'removeFormat',        icon: '✕', title: 'Effacer format' },
 ] as const;
 
 export default function RichEditor({
   value,
   onChange,
-  placeholder = "Commence \u00e0 \u00e9crire ton article ici\u2026",
+  placeholder = "Commence à écrire ton article ici…",
   onImageUpload,
   cmsPassword,
 }: Props) {
@@ -185,7 +185,7 @@ export default function RichEditor({
           onMouseEnter={e => (e.currentTarget.style.background = '#f0ece6')}
           onMouseLeave={e => (e.currentTarget.style.background = 'none')}
         >
-          \uD83D\uDDBC\uFE0F
+          🖼️
           <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
         </label>
       </div>
