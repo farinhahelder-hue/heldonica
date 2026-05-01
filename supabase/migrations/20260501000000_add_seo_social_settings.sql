@@ -11,3 +11,8 @@ INSERT INTO public.cms_settings (key, label, value, type) VALUES
   ('social_linkedin', 'LinkedIn', '', 'text'),
   ('social_twitter', 'Twitter / X', '', 'text')
 ON CONFLICT (key) DO NOTHING;
+-- Add general settings
+INSERT INTO public.cms_settings (key, label, value, type) VALUES
+  ('site_logo', 'Logo du site (URL)', '', 'text'),
+  ('site_favicon', 'Favicon (URL)', '', 'text')
+ON CONFLICT (key) DO NOTHING;
