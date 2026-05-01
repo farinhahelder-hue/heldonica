@@ -1,8 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+
+interface CarouselHistory {
+  id: string;
+  topic: string;
+  title: string;
+  caption: string;
+  hashtags: string[];
+  images: string[];
+  created_at: string;
+}
 
 interface CarouselGeneratorProps {
   onComplete?: (carousel: any) => void;
@@ -13,6 +23,43 @@ export default function CarouselGenerator({ onComplete }: CarouselGeneratorProps
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState('');
+  const [history, setHistory] = useState<CarouselHistory[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  // Load history from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('carousel_history');
+    if (saved) {
+      try {
+        setHistory(JSON.parse(saved));
+      } catch { /* ignore */ }
+    }
+  }, []);
+
+  // Save to history when result is generated
+  useEffect(() => {
+    if (result) {
+      const newHistory = [
+        { id: Date.now().toString(), topic, title: result.title, caption: result.caption || '', hashtags: result.hashtags || [], images: result.images || [], created_at: new Date().toISOString() },
+        ...history.slice(0, 19)
+      ];
+      setHistory(newHistory);
+      localStorage.setItem('carousel_history', JSON.stringify(newHistory));
+    }
+  }, [result]);
+
+  const handleLoadFromHistory = (item: CarouselHistory) => {
+    setTopic(item.topic);
+    setResult({ title: item.title, caption: item.caption, hashtags: item.hashtags, images: item.images });
+    setSelectedId(item.id);
+  };
+
+  const handleDeleteHistory = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newHistory = history.filter(h => h.id !== id);
+    setHistory(newHistory);
+    localStorage.setItem('carousel_history', JSON.stringify(newHistory));
+  };
 
   const handleGenerate = async () => {
     if (!topic.trim()) return;
