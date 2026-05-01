@@ -14,7 +14,7 @@ const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false
 
 // —€—€—€ Types —€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€
 type Article = {
-  id: number; title: string; slug: string; category: string;
+  id: number; title: string; slug: string; category: string; scheduled_published_at?: string;
   published: boolean; published_at: string; created_at: string;
   excerpt: string; featured_image: string; content?: string; voice_notes?: string;
 };
@@ -163,6 +163,30 @@ export default function CMSAdmin() {
   const [loadingArticles, setLoadingArticles] = useState(false);
   const [savingArticle, setSavingArticle] = useState(false);
   const [unsavedChanges, setUnsavedChanges] = useState(false);
+  const [scheduleMode, setScheduleMode] = useState(false);
+
+  // SEO analysis
+  const analyzeSEO = (content: string, title: string) => {
+    if (!content || !title) return { score: 0, readability: '-', wordCount: 0, density: 0, issues: [] };
+    const text = content.replace(/<[^>]+>/g, ' ');
+    const words = text.split(/\s+/).filter(Boolean);
+    const wordCount = words.length;
+    const sentences = text.split(/[.!?]+/).filter(Boolean);
+    const avgWordsPerSentence = wordCount / Math.max(sentences.length, 1);
+    const readability = avgWordsPerSentence < 15 ? '✅ Bonne' : avgWordsPerSentence < 20 ? '⚠️ Moyenne' : '❌ Difficile';
+    const titleLower = title.toLowerCase();
+    const contentLower = text.toLowerCase();
+    const titleInContent = contentLower.includes(titleLower) ? 1 : 0;
+    const density = titleInContent ? Math.round((contentLower.split(titleLower).length - 1) * 100 / wordCount) : 0;
+    const issues: string[] = [];
+    if (wordCount < 300) issues.push('Contenu court (< 300 mots)');
+    if (avgWordsPerSentence > 20) issues.push('Phrases trop longues');
+    if (!titleInContent) issues.push('Titre absent du contenu');
+    if (density > 5) issues.push('Répétition excessive du titre');
+    const score = Math.max(0, 100 - issues.length * 20 - (wordCount < 300 ? 20 : 0));
+    return { score, readability, wordCount, density, issues };
+  };
+  const seo = analyzeSEO(editingArticle?.content || '', editingArticle?.title || '');
   const [uploadingFeaturedImage, setUploadingFeaturedImage] = useState(false);
   const [articleBaseline, setArticleBaseline] = useState(() => getArticleDraftSignature(null));
   const [showArticlePreview, setShowArticlePreview] = useState(false);
@@ -183,8 +207,11 @@ export default function CMSAdmin() {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [searchType, setSearchType] = useState<'all' | 'articles' | 'demandes'>('all');
+  const [showPalette, setShowPalette] = useState(false);
+  const [paletteQuery, setPaletteQuery] = useState('');
   const [demandesStatusFilter, setDemandesStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const [archivedFilter, setArchivedFilter] = useState(false);
   const [activePage, setActivePage] = useState('home');
   const [editedSettings, setEditedSettings] = useState<Record<string, string>>({});
@@ -266,6 +293,20 @@ export default function CMSAdmin() {
   }, [confirmDiscardArticleChanges, openArticleEditor, tab]);
 
   // Autosave every 30s when editing
+  // Ctrl+K palette
+  useEffect(() => {
+    const handlePaletteKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setShowPalette(true);
+      }
+      if (e.key === 'Escape') setShowPalette(false);
+    };
+    window.addEventListener('keydown', handlePaletteKey);
+    return () => window.removeEventListener('keydown', handlePaletteKey);
+  }, []);
+
+  // Autosave
   useEffect(() => {
     if (tab !== 'new' || !unsavedChanges || savingArticle) return;
     const timer = setTimeout(async () => {
@@ -350,6 +391,20 @@ export default function CMSAdmin() {
   };
 
   // Autosave every 30s when editing
+  // Ctrl+K palette
+  useEffect(() => {
+    const handlePaletteKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setShowPalette(true);
+      }
+      if (e.key === 'Escape') setShowPalette(false);
+    };
+    window.addEventListener('keydown', handlePaletteKey);
+    return () => window.removeEventListener('keydown', handlePaletteKey);
+  }, []);
+
+  // Autosave
   useEffect(() => {
     if (tab !== 'new' || !unsavedChanges || savingArticle) return;
     const timer = setTimeout(async () => {
@@ -382,6 +437,20 @@ export default function CMSAdmin() {
   }, [authed, checkingSession]);
 
   // Autosave every 30s when editing
+  // Ctrl+K palette
+  useEffect(() => {
+    const handlePaletteKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setShowPalette(true);
+      }
+      if (e.key === 'Escape') setShowPalette(false);
+    };
+    window.addEventListener('keydown', handlePaletteKey);
+    return () => window.removeEventListener('keydown', handlePaletteKey);
+  }, []);
+
+  // Autosave
   useEffect(() => {
     if (tab !== 'new' || !unsavedChanges || savingArticle) return;
     const timer = setTimeout(async () => {
@@ -421,6 +490,17 @@ export default function CMSAdmin() {
   }, [isArticleDirty]);
 
   // Load articles
+  const loadCategories = useCallback(async () => {
+    try {
+      const res = await fetch('/api/cms/articles?aggregate=category');
+      const data = await res.json();
+      if (data.articles) {
+        const cats = [...new Set(data.articles.map((a: any) => a.category).filter(Boolean))];
+        setAvailableCategories(cats as string[]);
+      }
+    } catch { /* ignore */ }
+  }, []);
+
   const loadArticles = useCallback(async () => {
     setLoadingArticles(true);
     try {
@@ -480,6 +560,20 @@ export default function CMSAdmin() {
   }, [handleUnauthorized, showToast]);
 
   // Autosave every 30s when editing
+  // Ctrl+K palette
+  useEffect(() => {
+    const handlePaletteKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setShowPalette(true);
+      }
+      if (e.key === 'Escape') setShowPalette(false);
+    };
+    window.addEventListener('keydown', handlePaletteKey);
+    return () => window.removeEventListener('keydown', handlePaletteKey);
+  }, []);
+
+  // Autosave
   useEffect(() => {
     if (tab !== 'new' || !unsavedChanges || savingArticle) return;
     const timer = setTimeout(async () => {
@@ -508,6 +602,20 @@ export default function CMSAdmin() {
 
   useEffect(() => { if (authed) loadArticles(); }, [authed, loadArticles]);
   // Autosave every 30s when editing
+  // Ctrl+K palette
+  useEffect(() => {
+    const handlePaletteKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setShowPalette(true);
+      }
+      if (e.key === 'Escape') setShowPalette(false);
+    };
+    window.addEventListener('keydown', handlePaletteKey);
+    return () => window.removeEventListener('keydown', handlePaletteKey);
+  }, []);
+
+  // Autosave
   useEffect(() => {
     if (tab !== 'new' || !unsavedChanges || savingArticle) return;
     const timer = setTimeout(async () => {
@@ -536,6 +644,20 @@ export default function CMSAdmin() {
 
   useEffect(() => { if (authed && tab === 'demandes') loadDemandes(); }, [authed, tab, loadDemandes]);
   // Autosave every 30s when editing
+  // Ctrl+K palette
+  useEffect(() => {
+    const handlePaletteKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setShowPalette(true);
+      }
+      if (e.key === 'Escape') setShowPalette(false);
+    };
+    window.addEventListener('keydown', handlePaletteKey);
+    return () => window.removeEventListener('keydown', handlePaletteKey);
+  }, []);
+
+  // Autosave
   useEffect(() => {
     if (tab !== 'new' || !unsavedChanges || savingArticle) return;
     const timer = setTimeout(async () => {
@@ -648,6 +770,8 @@ export default function CMSAdmin() {
       slug: editingArticle.slug || slug(editingArticle.title || ''),
       published_at: editingArticle.published && !editingArticle.published_at
         ? new Date().toISOString() : editingArticle.published_at,
+      ...(scheduleMode && editingArticle?.scheduled_published_at ? 
+        { scheduled_published_at: new Date(editingArticle.scheduled_published_at).toISOString() } : {}),
     };
     const url = isNew ? '/api/cms/articles' : `/api/cms/articles/${editingArticle.id}`;
     const method = isNew ? 'POST' : 'PUT';
@@ -676,6 +800,20 @@ export default function CMSAdmin() {
   }, [editingArticle, handleUnauthorized, loadArticles, resetArticleEditor, savingArticle, showToast]);
 
   // Autosave every 30s when editing
+  // Ctrl+K palette
+  useEffect(() => {
+    const handlePaletteKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setShowPalette(true);
+      }
+      if (e.key === 'Escape') setShowPalette(false);
+    };
+    window.addEventListener('keydown', handlePaletteKey);
+    return () => window.removeEventListener('keydown', handlePaletteKey);
+  }, []);
+
+  // Autosave
   useEffect(() => {
     if (tab !== 'new' || !unsavedChanges || savingArticle) return;
     const timer = setTimeout(async () => {
@@ -951,11 +1089,9 @@ export default function CMSAdmin() {
                 style={{ padding: '.6rem .9rem', border: '1.5px solid #ddd', borderRadius: '.5rem', fontSize: '.9rem' }}
               >
                 <option value="all">Toutes catégories</option>
-                <option value="Destinations">Destinations</option>
-                <option value="Guides">Guides</option>
-                <option value="Conseils">Conseils</option>
-                <option value="Récits">Récits</option>
-                <option value="chronique">Chronique</option>
+                {availableCategories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
               </select>
               <button onClick={loadArticles} style={{ padding: '.6rem 1.2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>🔍</button>
               <button onClick={() => openArticleEditor({})} style={{ padding: '.6rem 1.2rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>+ Nouvel article</button>
@@ -1136,18 +1272,58 @@ export default function CMSAdmin() {
                   placeholder="Commence à écrire ton article ici…" />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '.5rem', cursor: 'pointer', fontWeight: 600, color: '#444', fontSize: '.9rem' }}>
+                {!scheduleMode ? (
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '.5rem', cursor: 'pointer', fontWeight: 600, color: '#444', fontSize: '.9rem' }}>
                   <input type="checkbox" checked={!!editingArticle?.published}
                     onChange={e => setEditingArticle(p => ({ ...p, published: e.target.checked }))}
                     style={{ width: 18, height: 18 }} />
                   Publier immédiatement
                 </label>
+                ) : (
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '.5rem', cursor: 'pointer', fontWeight: 600, color: '#444', fontSize: '.9rem' }}>
+                  <input type="checkbox" checked={scheduleMode}
+                    onChange={e => setScheduleMode(e.target.checked)}
+                    style={{ width: 18, height: 18 }} />
+                  Programmer la publication
+                </label>
+                )}
+                <button onClick={() => { setScheduleMode(!scheduleMode); if (!scheduleMode) setEditingArticle(p => ({ ...p, published: false })); }}
+                  style={{ padding: '.25rem .6rem', border: '1px solid #ddd', borderRadius: '.3rem', background: '#faf8f5', cursor: 'pointer', fontSize: '.75rem' }}>
+                  {scheduleMode ? '📅 Programmer' : '⏰ Planifier'}
+                </button>
+              </div>
+              {scheduleMode && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem', marginTop: '.5rem' }}>
+                  <label style={{ fontWeight: 600, color: '#444', fontSize: '.85rem' }}>Publication prévue:</label>
+                  <input type="datetime-local"
+                    value={editingArticle?.scheduled_published_at?.slice(0, 16) || ''}
+                    onChange={e => setEditingArticle(p => ({ ...p, scheduled_published_at: e.target.value, published: false }))}
+                    style={{ padding: '.4rem .6rem', border: '1.5px solid #ddd', borderRadius: '.4rem', fontSize: '.85rem' }}
+                  />
+                </div>
+              )}
+              <div style={{ gridColumn: '1 / -1', padding: '1rem', background: '#f8f9fa', borderRadius: '.5rem', marginTop: '1rem' }}>
+                <div style={{ fontWeight: 600, marginBottom: '.5rem', fontSize: '.85rem' }}>📊 Analyse SEO</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '.5rem', fontSize: '.8rem' }}>
+                  <div>📝 Lisibilité: <strong>{seo.readability}</strong></div>
+                  <div>📄 Mots: <strong>{seo.wordCount}</strong></div>
+                  <div>🔑 Densité titre: <strong>{seo.density}%</strong></div>
+                </div>
+                {seo.issues.length > 0 && (
+                  <div style={{ marginTop: '.5rem', color: '#c0392b', fontSize: '.75rem' }}>
+                    {seo.issues.map((issue, i) => <div key={i}>⚠️ {issue}</div>)}
+                  </div>
+                )}
               </div>
               <div style={{ gridColumn: '1/-1', display: 'flex', gap: '.6rem', flexWrap: 'wrap' }}>
                 <span style={metaChip}>URL: /blog/{editingArticle?.slug || slug(editingArticle?.title || '') || 'nouvel-article'}</span>
                 <span style={metaChip}>{articleWordCount} mots</span>
                 <span style={metaChip}>{articleReadTime} min de lecture</span>
+                <span style={{ ...metaChip, background: seo.score >= 70 ? '#d4edda' : seo.score >= 40 ? '#fff3cd' : '#f8d7da', color: seo.score >= 70 ? '#155724' : seo.score >= 40 ? '#856404' : '#721c24' }}>
+                  SEO: {seo.score}/100
+                </span>
                 <span style={metaChip}>Cmd/Ctrl+S pour enregistrer</span>
+                {editingArticle?.scheduled_published_at && <span style={{ ...metaChip, background: '#e8f0fe', color: '#1a73e8' }}>📅 {(new Date(editingArticle.scheduled_published_at)).toLocaleString('fr-FR')}</span>}
                 {isArticleDirty && <span style={{ ...metaChip, background: '#fff4db', color: '#8a5a00' }}>Brouillon non sauvegardé</span>}
               </div>
             </div>
