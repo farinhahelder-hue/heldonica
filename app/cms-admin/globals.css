@@ -1,0 +1,365 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Heldonica Color Palette */
+  --color-cloud-dancer: #F8F5F0;
+  --color-eucalyptus: #4A7C59;
+  --color-teal: #2E8B8B;
+  --color-mahogany: #6B3A2A;
+  --color-sage: #9CAF88;
+  
+  /* Extended palette */
+  --color-cream: #FAF8F5;
+  --color-sand: #E8E4DC;
+  --color-forest: #2D5A3D;
+  --color-rust: #A0522D;
+  
+  /* Typography */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-accent: 'Caveat', cursive;
+  
+  /* Spacing */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(107, 58, 42, 0.08);
+  --shadow-md: 0 4px 12px rgba(107, 58, 42, 0.1);
+  --shadow-lg: 0 8px 24px rgba(107, 58, 42, 0.12);
+}
+
+/* Base styles */
+body {
+  font-family: var(--font-body);
+  background: var(--color-cloud-dancer);
+  color: var(--color-mahogany);
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--color-mahogany);
+}
+
+/* Accent labels */
+.label-accent {
+  font-family: var(--font-accent);
+  font-size: 1.1em;
+  color: var(--color-eucalyptus);
+}
+
+/* Buttons */
+.btn-primary {
+  background: var(--color-mahogany);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.625rem 1.25rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: var(--color-rust);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--color-eucalyptus);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.625rem 1.25rem;
+  font-weight: 600;
+}
+
+.btn-secondary:hover {
+  background: var(--color-teal);
+}
+
+/* Cards */
+.card {
+  background: white;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-sand);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Inputs */
+input, textarea, select {
+  border: 1.5px solid var(--color-sand);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  transition: border-color 0.2s;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--color-eucalyptus);
+  outline: none;
+}
+
+/* Stat cards */
+.stat-card {
+  background: linear-gradient(135deg, var(--color-eucalyptus), var(--color-forest));
+  color: white;
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+}
+
+.stat-card .stat-number {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+/* Sidebar */
+.sidebar {
+  background: var(--color-eucalyptus);
+}
+
+.sidebar .nav-item {
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: var(--radius-md);
+  transition: all 0.2s;
+}
+
+.sidebar .nav-item:hover,
+.sidebar .nav-item.active {
+  background: var(--color-teal);
+  color: white;
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-draft {
+  background: #FFF3CD;
+  color: #856404;
+}
+
+.badge-published {
+  background: #D4EDDA;
+  color: #155724;
+}
+
+.badge-scheduled {
+  background: #CCE5FF;
+  color: #004085;
+}
+
+/* Progress bar */
+.progress-bar {
+  height: 8px;
+  background: var(--color-sand);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  background: linear-gradient(90deg, var(--color-eucalyptus), var(--color-teal));
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* SEO Score */
+.seo-good {
+  color: #27ae60;
+  background: #D4EDDA;
+}
+
+.seo-medium {
+  color: #f39c12;
+  background: #FFF3CD;
+}
+
+.seo-poor {
+  color: #e74c3c;
+  background: #F8D7DA;
+}
+
+/* Pills */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.875rem;
+  background: var(--color-cream);
+  border: 1px solid var(--color-sand);
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.pill.active {
+  background: var(--color-eucalyptus);
+  color: white;
+  border-color: var(--color-eucalyptus);
+}
+
+/* Tooltip */
+.tooltip {
+  position: relative;
+}
+
+.tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.5rem 0.75rem;
+  background: var(--color-mahogany);
+  color: white;
+  font-size: 0.75rem;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.tooltip:hover::after {
+  opacity: 1;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-sand);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-sage);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-eucalyptus);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 1024px) {
+  .grid-cols-4 { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+@media (max-width: 768px) {
+  .grid-cols-4 { grid-template-columns: 1fr !important; }
+  .sidebar { display: none; }
+  .sidebar.mobile-open { display: block; position: fixed; inset: 0; z-index: 1000; }
+  
+  /* Bottom action bar for mobile */
+  .mobile-actions {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    padding: 0.75rem 1rem;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    gap: 0.5rem;
+    justify-content: space-between;
+    z-index: 100;
+  }
+  
+  .mobile-actions button {
+    flex: 1;
+    padding: 0.75rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* === FAB (Floating Action Button) === */
+.fab {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4A7C59, #2E8B8B);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 15px rgba(74, 124, 89, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  transition: transform 0.2s;
+  z-index: 99;
+}
+
+.fab:hover {
+  transform: scale(1.1);
+}
+
+/* === Kanban for Travel Planning === */
+.kanban-board {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+.kanban-column {
+  min-width: 280px;
+  background: var(--color-cream);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  border: 2px solid var(--color-eucalyptus);
+}
+
+.kanban-column h4 {
+  padding: 0.5rem 1rem;
+  background: var(--color-eucalyptus);
+  color: white;
+  border-radius: var(--radius-md);
+  margin: -1rem -1rem 1rem -1rem;
+}
+
+.kanban-card {
+  background: white;
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  box-shadow: var(--shadow-sm);
+  border-left: 4px solid var(--color-teal);
+}
+
+.kanban-card.new { border-left-color: #3498db; }
+.kanban-card.progress { border-left-color: #f39c12; }
+.kanban-card.sent { border-left-color: #9b59b6; }
+.kanban-card.confirmed { border-left-color: #27ae60; }
