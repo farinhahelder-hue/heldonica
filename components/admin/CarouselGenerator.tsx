@@ -10,6 +10,7 @@ interface CarouselHistory {
   title: string;
   caption: string;
   hashtags: string[];
+  slides: any[];
   images: string[];
   created_at: string;
 }
@@ -26,39 +27,42 @@ export default function CarouselGenerator({ onComplete }: CarouselGeneratorProps
   const [history, setHistory] = useState<CarouselHistory[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  // Load history from localStorage
+  // Load history from API
   useEffect(() => {
-    const saved = localStorage.getItem('carousel_history');
-    if (saved) {
-      try {
-        setHistory(JSON.parse(saved));
-      } catch { /* ignore */ }
-    }
+    fetch('/api/cms/carousel-history')
+      .then(res => res.json())
+      .then(data => {
+        if (data.history) setHistory(data.history);
+      })
+      .catch(() => { /* ignore */ });
   }, []);
 
   // Save to history when result is generated
   useEffect(() => {
     if (result) {
-      const newHistory = [
-        { id: Date.now().toString(), topic, title: result.title, caption: result.caption || '', hashtags: result.hashtags || [], images: result.images || [], created_at: new Date().toISOString() },
-        ...history.slice(0, 19)
-      ];
-      setHistory(newHistory);
-      localStorage.setItem('carousel_history', JSON.stringify(newHistory));
+      fetch('/api/cms/carousel-history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic, title: result.title, caption: result.caption, hashtags: result.hashtags, slides: result.slides, images: result.images })
+      }).then(() => {
+        // Reload history
+        fetch('/api/cms/carousel-history').then(res => res.json()).then(data => {
+          if (data.history) setHistory(data.history);
+        });
+      });
     }
   }, [result]);
 
   const handleLoadFromHistory = (item: CarouselHistory) => {
     setTopic(item.topic);
-    setResult({ title: item.title, caption: item.caption, hashtags: item.hashtags, images: item.images });
+    setResult({ title: item.title, caption: item.caption, hashtags: item.hashtags || [], slides: item.slides || [], images: item.images || [] });
     setSelectedId(item.id);
   };
 
-  const handleDeleteHistory = (id: string, e: React.MouseEvent) => {
+  const handleDeleteHistory = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    const newHistory = history.filter(h => h.id !== id);
-    setHistory(newHistory);
-    localStorage.setItem('carousel_history', JSON.stringify(newHistory));
+    await fetch(`/api/cms/carousel-history/${id}`, { method: 'DELETE' });
+    setHistory(history.filter(h => h.id !== id));
   };
 
   const handleGenerate = async () => {

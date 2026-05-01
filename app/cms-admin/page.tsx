@@ -1231,7 +1231,7 @@ export default function CMSAdmin() {
                   style={{ ...inp, height: 96, resize: 'vertical' }}
                   placeholder="Détail terrain, texture, hésitation, micro-verdict, ou rappel d'angle vécu..." />
                 <p style={{ margin: '.4rem 0 0', color: '#6d625a', fontSize: '.8rem', lineHeight: 1.6 }}>
-                  Si la migration Supabase `voice_notes` n'est pas encore appliquée, ce champ peut être ignoré
+                  Notes vocales pour l'article
                   temporairement à l'enregistrement.
                 </p>
               </div>
