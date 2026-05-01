@@ -75,6 +75,22 @@ export default function TravelOrganizer() {
     { id: '1', city: '', country: '', startDate: '', nights: 3, accommodation: 150, transport: 100, food: 80, activities: 50 },
   ]);
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
+  
+  // Budget template states
+  const [budgetVision, setBudgetVision] = useState({ destination: '', dates: '', style: 'Slow', priority: '' });
+  const [budgetEnvelope, setBudgetEnvelope] = useState({
+    transport: { pct: 30, estimated: 0, real: 0 },
+    accommodation: { pct: 28, estimated: 0, real: 0 },
+    food: { pct: 18, estimated: 0, real: 0 },
+    activities: { pct: 12, estimated: 0, real: 0 },
+    insurance: { pct: 4, estimated: 0, real: 0 },
+    shopping: { pct: 3, estimated: 0, real: 0 },
+    buffer: { pct: 5, estimated: 0, real: 0 },
+  });
+  const [budgetMode, setBudgetMode] = useState('pot commun');
+  const [splitA, setSplitA] = useState(0);
+  const [splitB, setSplitB] = useState(0);
+  const [journal, setJournal] = useState<{jour: string, depense: string, category: string, montant: number, who: string}[]>([]);
 
   const totalNights = stages.reduce((sum, s) => sum + s.nights, 0);
   const totalBudget = stages.reduce((sum, s) => sum + s.accommodation + s.transport + s.food + s.activities, 0);
