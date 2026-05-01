@@ -19,5 +19,11 @@
       "source": "/cms-complete.html",
       "destination": "/cms-complete.html"
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/cms/publish-scheduled",
+      "schedule": "0 * * * *"
+    }
   ]
 }

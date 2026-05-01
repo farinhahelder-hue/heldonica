@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
     const tokens = await tokenResponse.json();
     
     if (tokens.access_token) {
+      console.log('Google OAuth: Token exchange successful');
       return NextResponse.json({ 
         success: true,
         accessToken: tokens.access_token,
@@ -41,8 +42,13 @@ export async function POST(req: NextRequest) {
         expiresIn: tokens.expires_in,
       });
     } else {
-      console.error('Token exchange failed:', tokens);
-      return NextResponse.json({ error: tokens.error || 'token_failed' });
+      console.error('Token exchange failed:', JSON.stringify(tokens));
+      // Include more detail for debugging
+      return NextResponse.json({ 
+        error: tokens.error || 'token_failed',
+        error_description: tokens.error_description || null,
+        details: tokens
+      });
     }
   } catch (e) {
     console.error('OAuth callback error:', e);
