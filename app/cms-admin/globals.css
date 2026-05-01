@@ -363,3 +363,8 @@ input:focus, textarea:focus, select:focus {
 .kanban-card.progress { border-left-color: #f39c12; }
 .kanban-card.sent { border-left-color: #9b59b6; }
 .kanban-card.confirmed { border-left-color: #27ae60; }
+/* Show hamburger on mobile */
+@media (max-width: 768px) {
+  .md\:hidden { display: block !important; }
+  .md\:hidden[onclick] { display: flex !important; }
+}

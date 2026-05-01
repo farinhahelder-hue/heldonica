@@ -211,6 +211,9 @@ export default function CMSAdmin() {
   const [paletteQuery, setPaletteQuery] = useState('');
   const [demandesStatusFilter, setDemandesStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [pilier, setPilier] = useState('');
+  const [eeat, setEeat] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const [archivedFilter, setArchivedFilter] = useState(false);
   const [activePage, setActivePage] = useState('home');
@@ -974,9 +977,24 @@ export default function CMSAdmin() {
   ];
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f3ef', fontFamily: 'system-ui, sans-serif' }}>
-      {/* Header */}
+    <div style={{ minHeight: '100vh', background: '#f5f3ef', fontFamily: 'DM Sans, system-ui, sans-serif' }}>
+      {/* Mobile sidebar overlay */}
+      {sidebarOpen && (
+        <div 
+          onClick={() => setSidebarOpen(false)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 40 }}
+          className="md:hidden"
+        />
+      )}
+      {/* Header + Hamburger */}
       <div style={{ background: '#6b2a1a', color: 'white', padding: '1rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 12px rgba(0,0,0,.15)' }}>
+        {/* Hamburger - Mobile */}
+        <button onClick={() => setSidebarOpen(!sidebarOpen)}
+          style={{ display: 'none', background: 'none', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer', marginRight: '0.5rem' }}
+          className="md:hidden"
+        >
+          ☰
+        </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
           <span style={{ fontSize: '1.5rem' }}>🌐¿</span>
           <span style={{ fontWeight: 700, fontSize: '1.1rem', letterSpacing: '.03em' }}>Heldonica CMS</span>
@@ -988,6 +1006,21 @@ export default function CMSAdmin() {
       {toast && (
         <div style={{ position: 'fixed', top: '5rem', right: '1.5rem', background: '#1a1a1a', color: 'white', padding: '.8rem 1.4rem', borderRadius: '.6rem', zIndex: 100, fontSize: '.9rem', boxShadow: '0 4px 16px rgba(0,0,0,.2)' }}>{toast}</div>
       )}
+      
+      {/* Mobile Action Bar - visible on mobile only */}
+      <div style={{ 
+        display: 'none',
+        position: 'fixed', bottom: 0, left: 0, right: 0,
+        background: 'white', padding: '0.75rem 1rem',
+        boxShadow: '0 -2px 10px rgba(0,0,0,0.1)',
+        justifyContent: 'space-between', gap: '0.5rem', zIndex: 50
+      }}
+      className="md:hidden"
+      >
+        <button style={{ flex: 1, padding: '0.75rem', background: '#4A7C59', color: 'white', border: 'none', borderRadius: '0.5rem', fontWeight: 600 }}>💾 Sauvegarder</button>
+        <button style={{ flex: 1, padding: '0.75rem', background: '#E8E4DC', color: '#6B3A2A', border: 'none', borderRadius: '0.5rem', fontWeight: 600 }}>👁 Aperçu</button>
+        <button style={{ flex: 1, padding: '0.75rem', background: '#2E8B8B', color: 'white', border: 'none', borderRadius: '0.5rem', fontWeight: 600 }}>🚀 Publier</button>
+      </div>
 
       {showMediaLibrary && (
         <MediaLibrary 
@@ -1161,21 +1194,29 @@ export default function CMSAdmin() {
                   onChange={e => setEditingArticle(p => ({ ...p, slug: e.target.value }))}
                   style={inp} placeholder="slug-auto-genere" />
               </div>
-              <div>
-                <label style={lbl}>Catégorie</label>
-                <select value={editingArticle?.category || ''}
-                  onChange={e => setEditingArticle(p => ({ ...p, category: e.target.value }))}
-                  style={inp}
-                >
-                  <option value="">— Choisir —</option>
-                  <option value="Slow Travel">Slow Travel</option>
-                  <option value="Europe">Europe</option>
-                  <option value="Escapades">Escapades</option>
-                  <option value="Carnets de voyage">Carnets de voyage</option>
-                  <option value="Coulisses">Coulisses</option>
-                  <option value="Conseils">Conseils</option>
-                  <option value="Destinations">Destinations</option>
-                </select>
+              {/* PILIERS ÉDITORIAUX */}
+              <div style={{ gridColumn: '1/-1', marginBottom: '1rem' }}>
+                <label style={{ ...lbl, fontWeight: 600, marginBottom: '0.5rem', display: 'block' }}>Pilier éditorial</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  {['Découvertes locales', 'Carnets de voyage', 'Coulisses', 'Expert hôtelier'].map(p => (
+                    <button key={p}
+                      onClick={() => { setPilier(p); setEditingArticle(art => ({ ...art, category: p })); }}
+                      style={{
+                        padding: '0.5rem 1rem',
+                        borderRadius: '9999px',
+                        border: pilier === p ? '2px solid #4A7C59' : '1px solid #4A7C59',
+                        background: pilier === p ? '#4A7C59' : 'transparent',
+                        color: pilier === p ? 'white' : '#4A7C59',
+                        cursor: 'pointer',
+                        fontSize: '0.85rem',
+                        fontFamily: 'DM Sans, sans-serif',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div style={{ gridColumn: '1/-1' }}>
                 <label style={lbl}>Image É la une</label>
@@ -1521,7 +1562,7 @@ export default function CMSAdmin() {
                   <p>Aucune demande pour le moment</p>
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', paddingBottom: '1rem' }}>
                   {demandes.filter(d => demandesStatusFilter === 'all' || d.statut === demandesStatusFilter).map(d => (
                     <div key={d.id} style={{ background: 'white', borderRadius: '.75rem', padding: '1.25rem 1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '.75rem', flexWrap: 'wrap', gap: '.5rem' }}>
