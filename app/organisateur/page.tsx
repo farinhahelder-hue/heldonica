@@ -83,14 +83,39 @@ export default function TravelOrganizer() {
   const checkedItems = checklist.filter(i => i.checked).length;
   const progress = checklist.length > 0 ? Math.round((checkedItems / checklist.length) * 100) : 0;
 
+  // Load from localStorage on mount
   useEffect(() => {
-    const template = CHECKLIST_TEMPLATES[tripType] || CHECKLIST_TEMPLATES.default;
-    setChecklist(template.map((item, i) => ({
-      id: String(i),
-      text: item.text,
-      checked: false,
-      category: item.category,
-    })));
+    const saved = localStorage.getItem('organizer_trip');
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        setDestination(data.destination || '');
+        setStartDate(data.startDate || '');
+        setEndDate(data.endDate || '');
+        setTravelers(data.travelers || 2);
+        setTripType(data.tripType || 'citybreak');
+        setStages(data.stages || [{ id: '1', city: '', country: '', startDate: '', nights: 3, accommodation: 150, transport: 100, food: 80, activities: 50 }]);
+        if (data.checklist) setChecklist(data.checklist);
+      } catch { /* ignore */ }
+    }
+  }, []);
+
+  // Autosave to localStorage on changes
+  useEffect(() => {
+    const data = { destination, startDate, endDate, travelers, tripType, stages, checklist };
+    localStorage.setItem('organizer_trip', JSON.stringify(data));
+  }, [destination, startDate, endDate, travelers, tripType, stages, checklist]);
+
+  const template = CHECKLIST_TEMPLATES[tripType] || CHECKLIST_TEMPLATES.default;
+  useEffect(() => {
+    if (!localStorage.getItem('organizer_trip')) {
+      setChecklist(template.map((item, i) => ({
+        id: String(i),
+        text: item.text,
+        checked: false,
+        category: item.category,
+      })));
+    }
   }, [tripType]);
 
   const addStage = () => {
@@ -143,10 +168,16 @@ Généré avec Heldonica`;
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#faf8f5', padding: '2rem 1rem' }}>
+    <div style={{ minHeight: '100vh', background: '#faf8f5', padding: '2rem 1rem' }} id="organizer-content">
+      <style>{`@media print { body { background: white; } #organizer-content { background: white !important; padding: 1rem !important; } button { display: none !important; } }`}</style>
       <div style={{ maxWidth: 1000, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <h1 style={{ fontSize: '2rem', fontWeight: 700, color: '#6b2a1a' }}>✈️ Organisateur de voyage</h1>
+          {typeof window !== 'undefined' && localStorage.getItem('organizer_trip') && (
+        <div style={{ background: '#e8f5e9', padding: '.5rem 1rem', borderRadius: '.5rem', marginBottom: '1rem', fontSize: '.85rem', color: '#2e7d32' }}>
+          💾 Voyage localement sauvegardé • <button onClick={() => localStorage.removeItem('organizer_trip')} style={{ background: 'none', border: 'none', color: '#2e7d32', textDecoration: 'underline', cursor: 'pointer' }}>Effacer</button>
+        </div>
+      )}
+      <h1 style={{ fontSize: '2rem', fontWeight: 700, color: '#6b2a1a' }}>✈️ Organisateur de voyage</h1>
           <p style={{ color: '#888' }}>Planifiez votre trip, gérez votre budget</p>
         </div>
 
@@ -249,6 +280,12 @@ Généré avec Heldonica`;
 
         {/* CTA */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <button onClick={() => { localStorage.removeItem('organizer_trip'); window.location.reload(); }} style={{ padding: '.75rem 1rem', background: '#f0ece6', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.85rem', marginRight: '.5rem' }}>
+            🗑️ Effacer
+          </button>
+          <button onClick={() => window.print()} style={{ padding: '.75rem 1rem', background: '#f0ece6', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.85rem', marginRight: '.5rem' }}>
+            🖨️ PDF
+          </button>
           <button onClick={exportPlan} style={{ padding: '.75rem 1.5rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600, marginRight: '1rem' }}>
             📥 Exporter
           </button>
