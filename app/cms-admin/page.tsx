@@ -1734,7 +1734,7 @@ export default function CMSAdmin() {
                     const groupItems = settings.filter(s => {
                       if (settingsGroup === 'branding') return ['primary_color', 'secondary_color', 'accent_color', 'bg_color'].includes(s.key);
                       if (settingsGroup === 'hero') return s.key.startsWith('hero_');
-                      if (settingsGroup === 'general') return ['site_title'].includes(s.key);
+                      if (settingsGroup === 'general') return ['site_title', 'site_logo', 'site_favicon'].includes(s.key);
                       if (settingsGroup === 'social') return s.key.startsWith('social_');
                       if (settingsGroup === 'seo') return s.key.startsWith('seo_');
                       if (settingsGroup === 'footer') return s.key.startsWith('footer_');
@@ -1758,6 +1758,32 @@ export default function CMSAdmin() {
                                   <input value={editedSettings[s.key] || ''}
                                     onChange={e => setEditedSettings(prev => ({ ...prev, [s.key]: e.target.value }))}
                                     style={{ ...inp, flex: 1 }} placeholder={s.label} />
+                                </div>
+                              ) : s.key.includes('logo') || s.key.includes('favicon') ? (
+                                <div>
+                                  <input value={editedSettings[s.key] || ''}
+                                    onChange={e => setEditedSettings(prev => ({ ...prev, [s.key]: e.target.value }))}
+                                    style={inp} placeholder="URL de l'image" />
+                                  {editedSettings[s.key] && (
+                                    <img src={editedSettings[s.key]} alt="" style={{ height: 40, marginTop: '.5rem', borderRadius: '.25rem' }} />
+                                  )}
+                                  <label style={{ display: 'inline-block', marginTop: '.5rem', padding: '.4rem .8rem', background: '#f0ece6', borderRadius: '.4rem', cursor: 'pointer', fontSize: '.85rem' }}>
+                                    📁 Uploader
+                                    <input type="file" accept="image/*" onChange={async e => {
+                                      const file = e.target.files?.[0];
+                                      if (!file) return;
+                                      const formData = new FormData();
+                                      formData.append('file', file);
+                                      formData.append('folder', 'logos');
+                                      try {
+                                        const res = await fetch('/api/cms/media-upload', { method: 'POST', body: formData });
+                                        const data = await res.json();
+                                        if (data.url) {
+                                          setEditedSettings(prev => ({ ...prev, [s.key]: data.url }));
+                                        }
+                                      } catch {}
+                                    }} style={{ display: 'none' }} />
+                                  </label>
                                 </div>
                               ) : (
                                 <input value={editedSettings[s.key] || ''}
