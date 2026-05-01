@@ -162,6 +162,7 @@ export default function CMSAdmin() {
   const [editingArticle, setEditingArticle] = useState<Partial<Article> | null>(null);
   const [loadingArticles, setLoadingArticles] = useState(false);
   const [savingArticle, setSavingArticle] = useState(false);
+  const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [uploadingFeaturedImage, setUploadingFeaturedImage] = useState(false);
   const [articleBaseline, setArticleBaseline] = useState(() => getArticleDraftSignature(null));
   const [showArticlePreview, setShowArticlePreview] = useState(false);
@@ -182,6 +183,9 @@ export default function CMSAdmin() {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [searchType, setSearchType] = useState<'all' | 'articles' | 'demandes'>('all');
+  const [demandesStatusFilter, setDemandesStatusFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [archivedFilter, setArchivedFilter] = useState(false);
   const [activePage, setActivePage] = useState('home');
   const [editedSettings, setEditedSettings] = useState<Record<string, string>>({});
   const [editedContent, setEditedContent] = useState<Record<string, string>>({});
@@ -261,6 +265,24 @@ export default function CMSAdmin() {
     setTab(nextTab);
   }, [confirmDiscardArticleChanges, openArticleEditor, tab]);
 
+  // Autosave every 30s when editing
+  useEffect(() => {
+    if (tab !== 'new' || !unsavedChanges || savingArticle) return;
+    const timer = setTimeout(async () => {
+      if (!editingArticle || savingArticle || !editingArticle.title?.trim()) return;
+      const payload = { ...editingArticle };
+      const isNew = !editingArticle.id;
+      const url = isNew ? '/api/cms/articles' : `/api/cms/articles/${editingArticle.id}`;
+      const method = isNew ? 'POST' : 'PUT';
+      try {
+        await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        showToast('💾 Brouillon auto-sauvegardé');
+        setUnsavedChanges(false);
+      } catch { /* silent */ }
+    }, 30000);
+    return () => clearTimeout(timer);
+  }, [tab, unsavedChanges, savingArticle, editingArticle]);
+
   // Clean URL params on mount
   useEffect(() => {
     const error = searchParams.get('error');
@@ -327,6 +349,24 @@ export default function CMSAdmin() {
     resetArticleEditor();
   };
 
+  // Autosave every 30s when editing
+  useEffect(() => {
+    if (tab !== 'new' || !unsavedChanges || savingArticle) return;
+    const timer = setTimeout(async () => {
+      if (!editingArticle || savingArticle || !editingArticle.title?.trim()) return;
+      const payload = { ...editingArticle };
+      const isNew = !editingArticle.id;
+      const url = isNew ? '/api/cms/articles' : `/api/cms/articles/${editingArticle.id}`;
+      const method = isNew ? 'POST' : 'PUT';
+      try {
+        await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        showToast('💾 Brouillon auto-sauvegardé');
+        setUnsavedChanges(false);
+      } catch { /* silent */ }
+    }, 30000);
+    return () => clearTimeout(timer);
+  }, [tab, unsavedChanges, savingArticle, editingArticle]);
+
   // Clean URL params on mount
   useEffect(() => {
     const error = searchParams.get('error');
@@ -340,6 +380,24 @@ export default function CMSAdmin() {
     if (checkingSession || authed) return;
     fetch('/api/cms/auth', { method: 'DELETE' }).catch(() => {});
   }, [authed, checkingSession]);
+
+  // Autosave every 30s when editing
+  useEffect(() => {
+    if (tab !== 'new' || !unsavedChanges || savingArticle) return;
+    const timer = setTimeout(async () => {
+      if (!editingArticle || savingArticle || !editingArticle.title?.trim()) return;
+      const payload = { ...editingArticle };
+      const isNew = !editingArticle.id;
+      const url = isNew ? '/api/cms/articles' : `/api/cms/articles/${editingArticle.id}`;
+      const method = isNew ? 'POST' : 'PUT';
+      try {
+        await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        showToast('💾 Brouillon auto-sauvegardé');
+        setUnsavedChanges(false);
+      } catch { /* silent */ }
+    }, 30000);
+    return () => clearTimeout(timer);
+  }, [tab, unsavedChanges, savingArticle, editingArticle]);
 
   // Clean URL params on mount
   useEffect(() => {
@@ -421,6 +479,24 @@ export default function CMSAdmin() {
     }
   }, [handleUnauthorized, showToast]);
 
+  // Autosave every 30s when editing
+  useEffect(() => {
+    if (tab !== 'new' || !unsavedChanges || savingArticle) return;
+    const timer = setTimeout(async () => {
+      if (!editingArticle || savingArticle || !editingArticle.title?.trim()) return;
+      const payload = { ...editingArticle };
+      const isNew = !editingArticle.id;
+      const url = isNew ? '/api/cms/articles' : `/api/cms/articles/${editingArticle.id}`;
+      const method = isNew ? 'POST' : 'PUT';
+      try {
+        await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        showToast('💾 Brouillon auto-sauvegardé');
+        setUnsavedChanges(false);
+      } catch { /* silent */ }
+    }, 30000);
+    return () => clearTimeout(timer);
+  }, [tab, unsavedChanges, savingArticle, editingArticle]);
+
   // Clean URL params on mount
   useEffect(() => {
     const error = searchParams.get('error');
@@ -431,6 +507,24 @@ export default function CMSAdmin() {
   }, []);
 
   useEffect(() => { if (authed) loadArticles(); }, [authed, loadArticles]);
+  // Autosave every 30s when editing
+  useEffect(() => {
+    if (tab !== 'new' || !unsavedChanges || savingArticle) return;
+    const timer = setTimeout(async () => {
+      if (!editingArticle || savingArticle || !editingArticle.title?.trim()) return;
+      const payload = { ...editingArticle };
+      const isNew = !editingArticle.id;
+      const url = isNew ? '/api/cms/articles' : `/api/cms/articles/${editingArticle.id}`;
+      const method = isNew ? 'POST' : 'PUT';
+      try {
+        await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        showToast('💾 Brouillon auto-sauvegardé');
+        setUnsavedChanges(false);
+      } catch { /* silent */ }
+    }, 30000);
+    return () => clearTimeout(timer);
+  }, [tab, unsavedChanges, savingArticle, editingArticle]);
+
   // Clean URL params on mount
   useEffect(() => {
     const error = searchParams.get('error');
@@ -441,6 +535,24 @@ export default function CMSAdmin() {
   }, []);
 
   useEffect(() => { if (authed && tab === 'demandes') loadDemandes(); }, [authed, tab, loadDemandes]);
+  // Autosave every 30s when editing
+  useEffect(() => {
+    if (tab !== 'new' || !unsavedChanges || savingArticle) return;
+    const timer = setTimeout(async () => {
+      if (!editingArticle || savingArticle || !editingArticle.title?.trim()) return;
+      const payload = { ...editingArticle };
+      const isNew = !editingArticle.id;
+      const url = isNew ? '/api/cms/articles' : `/api/cms/articles/${editingArticle.id}`;
+      const method = isNew ? 'POST' : 'PUT';
+      try {
+        await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        showToast('💾 Brouillon auto-sauvegardé');
+        setUnsavedChanges(false);
+      } catch { /* silent */ }
+    }, 30000);
+    return () => clearTimeout(timer);
+  }, [tab, unsavedChanges, savingArticle, editingArticle]);
+
   // Clean URL params on mount
   useEffect(() => {
     const error = searchParams.get('error');
@@ -562,6 +674,24 @@ export default function CMSAdmin() {
       setSavingArticle(false);
     }
   }, [editingArticle, handleUnauthorized, loadArticles, resetArticleEditor, savingArticle, showToast]);
+
+  // Autosave every 30s when editing
+  useEffect(() => {
+    if (tab !== 'new' || !unsavedChanges || savingArticle) return;
+    const timer = setTimeout(async () => {
+      if (!editingArticle || savingArticle || !editingArticle.title?.trim()) return;
+      const payload = { ...editingArticle };
+      const isNew = !editingArticle.id;
+      const url = isNew ? '/api/cms/articles' : `/api/cms/articles/${editingArticle.id}`;
+      const method = isNew ? 'POST' : 'PUT';
+      try {
+        await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        showToast('💾 Brouillon auto-sauvegardé');
+        setUnsavedChanges(false);
+      } catch { /* silent */ }
+    }, 30000);
+    return () => clearTimeout(timer);
+  }, [tab, unsavedChanges, savingArticle, editingArticle]);
 
   // Clean URL params on mount
   useEffect(() => {
@@ -815,6 +945,17 @@ export default function CMSAdmin() {
                 <option value="all">Tous</option>
                 <option value="published">Publiés</option>
                 <option value="draft">Brouillons</option>
+                <option value="archived">Archivés</option>
+              </select>
+              <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}
+                style={{ padding: '.6rem .9rem', border: '1.5px solid #ddd', borderRadius: '.5rem', fontSize: '.9rem' }}
+              >
+                <option value="all">Toutes catégories</option>
+                <option value="Destinations">Destinations</option>
+                <option value="Guides">Guides</option>
+                <option value="Conseils">Conseils</option>
+                <option value="Récits">Récits</option>
+                <option value="chronique">Chronique</option>
               </select>
               <button onClick={loadArticles} style={{ padding: '.6rem 1.2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>🔍</button>
               <button onClick={() => openArticleEditor({})} style={{ padding: '.6rem 1.2rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>+ Nouvel article</button>
@@ -827,7 +968,11 @@ export default function CMSAdmin() {
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '.75rem' }}>
-                  {articles.map(a => (
+                  {articles.filter(a => {
+    if (categoryFilter !== 'all' && a.category !== categoryFilter) return false;
+    if (statusFilter === 'archived' && a.published !== null) return false;
+    return true;
+  }).map(a => (
                     <div key={a.id} style={{ background: 'white', borderRadius: '.75rem', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', flexWrap: 'wrap' }}>
                       {a.featured_image && <img src={a.featured_image} alt="" style={{ width: 64, height: 48, objectFit: 'cover', borderRadius: '.4rem', flexShrink: 0 }} />}
                       <div style={{ flex: 1, minWidth: 200 }}>
@@ -1055,6 +1200,9 @@ export default function CMSAdmin() {
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1.75rem', justifyContent: 'flex-end' }}>
               <button onClick={closeArticleEditor}
                 style={{ padding: '.7rem 1.5rem', border: '1.5px solid #ddd', borderRadius: '.5rem', background: 'white', cursor: 'pointer', fontSize: '.9rem' }}>Annuler</button>
+              <span style={{ fontSize: '.75rem', color: savingArticle ? '#888' : unsavedChanges ? '#e67e22' : '#27ae60', marginRight: '.5rem' }}>
+                {savingArticle ? '⏳ Sauvegarde...' : unsavedChanges ? '⚠ Non sauvegardé' : '✓ Sauvegardé'}
+              </span>
               <button onClick={saveArticle} disabled={savingArticle}
                 style={{ padding: '.7rem 2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: savingArticle ? 'wait' : 'pointer', fontSize: '.9rem', opacity: savingArticle ? .75 : 1 }}>{savingArticle ? '⏳ Enregistrement—' : '📾 Enregistrer'}</button>
             </div>
@@ -1163,9 +1311,32 @@ export default function CMSAdmin() {
         {/* —€—€ TRAVEL PLANNING —€—€ */}
         {tab === 'demandes' && (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
               <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>✈️ Demandes Travel Planning</h2>
-              <button onClick={loadDemandes} disabled={loadingDemandes} style={{ padding: '.5rem 1rem', background: 'white', border: '1.5px solid #ddd', borderRadius: '.5rem', cursor: loadingDemandes ? 'wait' : 'pointer', fontSize: '.85rem', opacity: loadingDemandes ? .7 : 1 }}>{loadingDemandes ? '⏳ Actualisation—' : '🔍„ Actualiser'}</button>
+              <div style={{ display: 'flex', gap: '.5rem', alignItems: 'center' }}>
+                <select value={demandesStatusFilter} onChange={e => setDemandesStatusFilter(e.target.value)}
+                  style={{ padding: '.5rem .8rem', border: '1.5px solid #ddd', borderRadius: '.5rem', fontSize: '.85rem' }}>
+                  <option value="all">Tous statuts</option>
+                  <option value="nouvelle">☁ Nouvelle</option>
+                  <option value="en_cours">🔍 En cours</option>
+                  <option value="devis_envoye">📜 Devis envoyé</option>
+                  <option value="accepte">✅ Acceptée</option>
+                  <option value="terminee">⚠ Terminée</option>
+                  <option value="annulee">❌ Annulée</option>
+                </select>
+                <button onClick={() => {
+                  const csv = ['Prénom,Nom,Email,Téléphone,Destination,Style,Durée,Jours,Départ,Budget,Voyageurs,Statut,Date'];
+                  demandes.filter(d => demandesStatusFilter === 'all' || d.statut === demandesStatusFilter).forEach(d => {
+                    csv.push(`"${d.prenom}","${d.nom}","${d.email}","${d.telephone || ''}","${d.destination || ''}","${d.style_voyage || ''}","${d.duree_jours || ''}","${d.nb_voyageurs || ''}","${d.mois_depart || ''}","${d.budget_fourchette || ''}","${d.statut || 'nouvelle'}","${d.created_at || ''}"`);
+                  });
+                  const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a'); a.href = url; a.download = `demandes_${new Date().toISOString().split('T')[0]}.csv`; a.click();
+                }} style={{ padding: '.5rem 1rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.85rem' }}>
+                  📥 CSV
+                </button>
+                <button onClick={loadDemandes} disabled={loadingDemandes} style={{ padding: '.5rem 1rem', background: 'white', border: '1.5px solid #ddd', borderRadius: '.5rem', cursor: loadingDemandes ? 'wait' : 'pointer', fontSize: '.85rem', opacity: loadingDemandes ? .7 : 1 }}>{loadingDemandes ? '⏳' : '🔄'}</button>
+              </div>
             </div>
             {loadingDemandes ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p>
               : demandes.length === 0 ? (
@@ -1175,7 +1346,7 @@ export default function CMSAdmin() {
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {demandes.map(d => (
+                  {demandes.filter(d => demandesStatusFilter === 'all' || d.statut === demandesStatusFilter).map(d => (
                     <div key={d.id} style={{ background: 'white', borderRadius: '.75rem', padding: '1.25rem 1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '.75rem', flexWrap: 'wrap', gap: '.5rem' }}>
                         <div>
