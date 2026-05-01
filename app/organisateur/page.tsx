@@ -2,6 +2,13 @@
 
 import { useState, useEffect } from 'react';
 
+// GA4 tracking
+function trackEvent(action: string, params: object = {}) {
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', action, params);
+  }
+}
+
 type TripStep = {
   id: string;
   city: string;
@@ -91,6 +98,9 @@ export default function TravelOrganizer() {
   const [splitA, setSplitA] = useState(0);
   const [splitB, setSplitB] = useState(0);
   const [journal, setJournal] = useState<{jour: string, depense: string, category: string, montant: number, who: string}[]>([]);
+  const [email, setEmail] = useState('');
+  const [subscribed, setSubscribed] = useState(false);
+  const [loadingEmail, setLoadingEmail] = useState(false);
 
   const totalNights = stages.reduce((sum, s) => sum + s.nights, 0);
   const totalBudget = stages.reduce((sum, s) => sum + s.accommodation + s.transport + s.food + s.activities, 0);
