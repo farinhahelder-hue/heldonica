@@ -1,4 +1,4 @@
--- Create newsletter subscriptions table
+-- Create newsletter subscriptions table (simplified)
 CREATE TABLE IF NOT EXISTS public.cms_newsletter (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email TEXT UNIQUE NOT NULL,
@@ -7,13 +7,15 @@ CREATE TABLE IF NOT EXISTS public.cms_newsletter (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Add RLS
+-- Enable RLS
 ALTER TABLE public.cms_newsletter ENABLE ROW LEVEL SECURITY;
 
--- Policy for public insert
-CREATE POLICY "Anyone can subscribe" ON public.cms_newsletter
+-- Allow anyone to insert (PUBLIC write)
+CREATE POLICY "Public insert newsletter" ON public.cms_newsletter
   FOR INSERT WITH CHECK (true);
 
--- Policy for authenticated read (admin)
-CREATE POLICY "Admin can read newsletter" ON public.cms_newsletter
+-- Allow public to select (read)
+CREATE POLICY "Public select newsletter" ON public.cms_newsletter
   FOR SELECT USING (true);
+
+COMMENT ON TABLE public.cms_newsletter IS 'Newsletter subscribers for Heldonica email list';
