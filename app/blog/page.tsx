@@ -1,4 +1,4 @@
-﻿import type { Metadata } from 'next'
+import type { Metadata } from 'next'
 import { getAllPosts, formatDate } from '@/lib/blog-supabase'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
@@ -14,21 +14,37 @@ function calcReadTime(content: string | null): number {
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: 'Blog | Heldonica',
+  title: 'Blog Slow Travel | Carnets, Pépites & Guides — Heldonica',
   description:
     'Carnets, pépites et guides écrits depuis le terrain. Des récits slow travel ancrés dans le réel, pas dans la brochure.',
-  keywords: ['blog slow travel', 'carnet de voyage', 'pépites voyage', 'voyage terrain', 'heldonica'],
+  keywords: ['blog slow travel', 'carnet de voyage', 'pépites voyage', 'voyage terrain', 'heldonica', 'slow travel couple', 'découvertes locales'],
   alternates: {
     canonical: 'https://heldonica.fr/blog',
   },
   openGraph: {
-    title: 'Blog | Heldonica',
+    title: 'Blog Slow Travel | Carnets, Pépites & Guides — Heldonica',
     description:
       'Carnets, pépites et guides écrits depuis le terrain. Des récits slow travel ancrés dans le réel, pas dans la brochure.',
     url: 'https://heldonica.fr/blog',
     siteName: 'Heldonica',
     type: 'website',
     locale: 'fr_FR',
+    images: [
+      {
+        url: '/og-blog.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Blog Heldonica — Carnets de voyage slow travel, pépites et guides terrain',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Blog Slow Travel | Carnets, Pépites & Guides — Heldonica',
+    description:
+      'Carnets, pépites et guides écrits depuis le terrain. Des récits slow travel ancrés dans le réel, pas dans la brochure.',
+    images: ['/og-blog.jpg'],
+    creator: '@heldonica',
   },
 }
 
