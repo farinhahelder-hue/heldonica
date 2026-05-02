@@ -44,10 +44,6 @@ export const metadata: Metadata = {
       'fr': SITE_URL,
     },
   },
-  other: {
-    'og:image:width': '1200',
-    'og:image:height': '630',
-  },
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
@@ -129,14 +125,8 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrganization) }}
         />
-        {/* Google Analytics 4 */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX" />
-        <script dangerouslySetInnerHTML={{ __html: `
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-XXXXXXXXXX');
-        ` }} />
+        {/* TODO: Remplacer G-XXXXXXXXXX par votre vrai ID Google Analytics 4 */}
+        {/* <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX" /> */}
       </head>
       <body>
         <AuthProvider>
