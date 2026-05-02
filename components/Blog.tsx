@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { blogPosts } from '@/lib/wordpress-data'
 
@@ -35,12 +36,12 @@ export default function Blog() {
             >
               <div className="relative h-48 w-full overflow-hidden">
                 {article.image ? (
-                  <img
+                  <Image
                     src={article.image}
                     alt={article.title}
-                    width={400}
-                    height={192}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
                   />
                 ) : (
@@ -49,16 +50,16 @@ export default function Blog() {
                       PLACEHOLDER_BG[article.category] ?? 'bg-gradient-to-br from-[#006D77] to-[#4ECDC4]'
                     }`}
                   >
-                    <img
+                    <Image
                       src="/images/badges-heldonica.svg"
                       alt="Fallback visuel Heldonica"
-                      width={220}
-                      height={140}
-                      className="w-32 h-auto"
+                      width={80}
+                      height={50}
+                      className="w-20 h-auto opacity-90"
                       loading="lazy"
                     />
                     <span className="text-xs text-white/90 font-semibold tracking-[0.14em] uppercase">
-                      Pepite verifiee
+                      Heldonica
                     </span>
                   </div>
                 )}
@@ -85,7 +86,7 @@ export default function Blog() {
                     href={`/blog/${article.slug}`}
                     className="text-eucalyptus font-semibold hover:text-teal transition text-sm group-hover:translate-x-1 inline-block"
                   >
-                    Lire l&apos;article -&gt;
+                    Lire l&apos;article →
                   </Link>
                 </div>
               </div>
@@ -97,7 +98,7 @@ export default function Blog() {
             href="/blog"
             className="inline-block px-8 py-3 border-2 border-eucalyptus text-eucalyptus rounded-full hover:bg-eucalyptus/5 transition font-medium"
           >
-            Voir tous les carnets -&gt;
+            Voir tous les carnets →
           </Link>
         </div>
       </div>

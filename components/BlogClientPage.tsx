@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
@@ -22,6 +22,32 @@ const BADGE_FALLBACK_SRC = '/images/badges-heldonica.svg'
 
 interface Props {
   posts: (BlogPost & { formattedDate: string; readTime?: number })[]
+}
+
+function ReadProgressBar() {
+  const [progress, setProgress] = useState(0)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight
+      const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0
+      setProgress(pct)
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  return (
+    <div
+      className="fixed top-0 left-0 z-[60] h-[3px] bg-eucalyptus transition-all duration-100"
+      style={{ width: `${progress}%` }}
+      role="progressbar"
+      aria-valuenow={Math.round(progress)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+    />
+  )
 }
 
 export default function BlogClientPage({ posts }: Props) {
@@ -55,6 +81,8 @@ export default function BlogClientPage({ posts }: Props) {
 
   return (
     <main className="min-h-screen bg-cloud-dancer">
+      <ReadProgressBar />
+
       <section className="relative overflow-hidden bg-mahogany px-4 py-24 text-white md:py-28">
         <div
           className="absolute inset-0 opacity-25"
@@ -96,7 +124,7 @@ export default function BlogClientPage({ posts }: Props) {
             </div>
           </div>
           <Link href={`/blog/${featuredPost.slug}`} className="group block transition-all duration-200">
-            <article className="relative flex h-[420px] items-end overflow-hidden rounded-[2rem] bg-mahogany shadow-xl md:h-[500px]">
+            <article className="relative flex h-[380px] items-end overflow-hidden rounded-[2rem] bg-mahogany shadow-xl md:h-[500px]">
               {featuredPost.featured_image ? (
                 <img
                   src={featuredPost.featured_image}
@@ -110,17 +138,17 @@ export default function BlogClientPage({ posts }: Props) {
                 <div className="absolute inset-0 bg-gradient-to-br from-mahogany to-mahogany/90" />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-              <div className="relative z-10 max-w-2xl p-8 md:p-12">
+              <div className="relative z-10 max-w-2xl p-6 md:p-12">
                 {featuredPost.category && (
                   <span className="mb-4 inline-flex rounded-full bg-eucalyptus px-3 py-1 text-xs font-semibold text-white">
                     {featuredPost.category}
                   </span>
                 )}
-                <h3 className="mb-3 text-2xl font-serif font-light leading-snug text-white transition-colors duration-200 group-hover:text-teal md:text-4xl">
+                <h3 className="mb-3 text-xl font-serif font-light leading-snug text-white transition-colors duration-200 group-hover:text-teal md:text-4xl">
                   {featuredPost.title}
                 </h3>
                 {featuredPost.excerpt && (
-                  <p className="mb-4 text-sm leading-relaxed text-white/75 md:text-base">
+                  <p className="mb-4 hidden text-sm leading-relaxed text-white/75 md:block md:text-base">
                     {featuredPost.excerpt}
                   </p>
                 )}
@@ -188,7 +216,7 @@ export default function BlogClientPage({ posts }: Props) {
 
         {searchQuery && (
           <p className="mt-4 text-sm text-charcoal/60">
-            {filteredPosts.length} article{filteredPosts.length > 1 ? 's' : ''} pour “{searchQuery}”.
+            {filteredPosts.length} article{filteredPosts.length > 1 ? 's' : ''} pour "{searchQuery}".
           </p>
         )}
       </section>
@@ -218,10 +246,10 @@ export default function BlogClientPage({ posts }: Props) {
               <SectionHeader
                 eyebrow="Carnets"
                 title="Carnets de voyage"
-                description="Les récits qui gardent l&apos;heure, le rythme et ce qu&apos;on a retenu sur place."
+                description="Les récits qui gardent l'heure, le rythme et ce qu'on a retenu sur place."
                 count={carnets.length}
               />
-              <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {carnets.map((post) => (
                   <ArticleCard key={post.slug} post={post} />
                 ))}
@@ -234,10 +262,10 @@ export default function BlogClientPage({ posts }: Props) {
               <SectionHeader
                 eyebrow="Pépites"
                 title="Découvertes locales"
-                description="Des lieux qu&apos;on n&apos;était pas venus chercher, et qu&apos;on aurait regretté de rater."
+                description="Des lieux qu'on n'était pas venus chercher, et qu'on aurait regretté de rater."
                 count={decouvertes.length}
               />
-              <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {decouvertes.map((post) => (
                   <ArticleCard key={post.slug} post={post} />
                 ))}
@@ -253,7 +281,7 @@ export default function BlogClientPage({ posts }: Props) {
                 description="Des repères concrets quand le terrain devient plus utile que la théorie."
                 count={guides.length}
               />
-              <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {guides.map((post) => (
                   <ArticleCard key={post.slug} post={post} />
                 ))}
@@ -306,58 +334,66 @@ function SectionHeader({
 
 function ArticleCard({ post }: { post: BlogPost & { formattedDate: string } }) {
   const fallbackBg = CATEGORY_FALLBACK_BG[post.category ?? ''] ?? 'bg-cloud-dancer'
-  const [imageSrc, setImageSrc] = useState(post.featured_image ?? BADGE_FALLBACK_SRC)
+  const [imageSrc, setImageSrc] = useState(post.featured_image ?? null)
 
   useEffect(() => {
-    setImageSrc(post.featured_image ?? BADGE_FALLBACK_SRC)
+    setImageSrc(post.featured_image ?? null)
   }, [post.featured_image])
 
-  const isFallback = !post.featured_image || imageSrc === BADGE_FALLBACK_SRC
+  const isFallback = !imageSrc
 
   return (
     <Link href={`/blog/${post.slug}`} className="group block h-full transition-all duration-200">
       <article className="flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-cloud-dancer bg-white shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-lg">
-        <div className="relative h-56 overflow-hidden">
-          {!isFallback ? (
+        {isFallback ? (
+          <div className={`flex h-40 w-full flex-col items-center justify-center gap-2 ${fallbackBg}`}>
             <img
-              src={imageSrc}
+              src={BADGE_FALLBACK_SRC}
+              alt="Heldonica"
+              width={60}
+              height={38}
+              className="h-auto w-14 opacity-90"
+              loading="lazy"
+            />
+            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/80">
+              Heldonica
+            </span>
+          </div>
+        ) : (
+          <div className="relative h-52 w-full overflow-hidden">
+            <img
+              src={imageSrc!}
               alt={post.title}
               width={400}
-              height={224}
+              height={208}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               loading="lazy"
-              onError={() => setImageSrc(BADGE_FALLBACK_SRC)}
+              onError={() => setImageSrc(null)}
             />
-          ) : (
-            <div className={`flex h-full w-full flex-col items-center justify-center gap-3 ${fallbackBg}`}>
-              <img
-                src={BADGE_FALLBACK_SRC}
-                alt="Heldonica"
-                width={220}
-                height={140}
-                className="h-auto w-36 opacity-95"
-                loading="lazy"
-              />
-              <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
-                Heldonica
-              </span>
-            </div>
-          )}
-          {post.category && (
-            <div className="absolute left-4 top-4">
-              <span className="rounded-full bg-eucalyptus/90 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">
-                {post.category}
-              </span>
-            </div>
-          )}
-        </div>
+            {post.category && (
+              <div className="absolute left-4 top-4">
+                <span className="rounded-full bg-eucalyptus/90 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">
+                  {post.category}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {isFallback && post.category && (
+          <div className="px-5 pt-4">
+            <span className="rounded-full bg-eucalyptus/10 px-2.5 py-1 text-xs font-semibold text-eucalyptus">
+              {post.category}
+            </span>
+          </div>
+        )}
 
         <div className="flex flex-1 flex-col p-5">
           <h3 className="mb-2 text-lg font-semibold leading-snug text-mahogany transition-colors duration-200 group-hover:text-eucalyptus">
             {post.title}
           </h3>
           {post.excerpt && (
-            <p className="mb-4 flex-1 text-sm leading-relaxed text-charcoal/70">
+            <p className="mb-4 flex-1 text-sm leading-relaxed text-charcoal/70 line-clamp-3">
               {post.excerpt}
             </p>
           )}
@@ -381,7 +417,7 @@ function ArticleCard({ post }: { post: BlogPost & { formattedDate: string } }) {
               )}
             </div>
             <span className="font-semibold text-eucalyptus transition-transform duration-200 group-hover:translate-x-1">
-              Lire le carnet →
+              Lire →
             </span>
           </div>
         </div>
