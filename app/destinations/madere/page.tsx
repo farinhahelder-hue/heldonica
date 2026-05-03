@@ -114,7 +114,7 @@ export default function MaderePage() {
                 Quand partir
               </p>
               <p className="text-charcoal/85">
-                Fenetre ideale: avril a octobre, avec un excellent compromis en mai-juin
+                Fenetre idéale: avril a octobre, avec un excellent compromis en mai-juin
                 et septembre.
               </p>
             </article>
@@ -128,7 +128,7 @@ export default function MaderePage() {
             </article>
             <article className="rounded-2xl border border-stone-200 p-6">
               <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">
-                Profil ideal
+                Profil idéal
               </p>
               <p className="text-charcoal/85">
                 Couple curieux qui veut combiner nature, table locale et rythme
@@ -223,7 +223,7 @@ export default function MaderePage() {
               <article className="rounded-2xl border border-stone-200 p-6">
                 <h3 className="text-xl font-serif text-mahogany mb-2">Ponta do Sol</h3>
                 <p className="text-sm text-charcoal/75 mb-4">
-                  Plus intime, plus doux, ideal pour un voyage en duo oriente slow et
+                  Plus intime, plus doux, idéal pour un voyage en duo oriente slow et
                   coucher de soleil.
                 </p>
                 <a
