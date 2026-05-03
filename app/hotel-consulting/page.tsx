@@ -77,7 +77,7 @@ export const metadata: Metadata = {
   description:
     'On connaît vos clients parce qu’on en fait partie. Regard terrain, parcours client, visibilité locale et outils IA utiles pour hôtels indépendants.',
   alternates: {
-    canonical: 'https://www.heldonica.fr/hotel-consulting',
+    canonical: 'https://heldonica.fr/hotel-consulting',
   },
 };
 

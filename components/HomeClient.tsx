@@ -179,11 +179,11 @@ interface HomeProps {
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts }: HomeProps) {
+export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries }: HomeProps) {
   useScrollReveal()
   const featImg = featured ? postImage(featured) : null
   const publishedArticles = totalPosts || 23
-  const coveredCountries = 7
+  const countryCount = typeof coveredCountries === 'number' ? coveredCountries : (coveredCountries ? parseInt(coveredCountries) : 7)
 
   return (
     <>
@@ -276,7 +276,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             <div className="md:col-span-2 grid grid-cols-2 gap-6" data-reveal="right">
               <AnimatedStat nb="10+" label="Ans de terrain en duo" />
               <AnimatedStat nb="100+" label="Adresses vécues" />
-              <AnimatedStat nb={7} label="Pays habités" />
+              <AnimatedStat nb={countryCount} label="Pays habités" />
               <AnimatedStat nb={publishedArticles} suffix="" label="Carnets publiés" />
               <div className="col-span-2 mt-2">
                 <p className="text-xs text-charcoal/40 leading-relaxed">
