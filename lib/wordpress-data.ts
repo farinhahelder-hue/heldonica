@@ -127,7 +127,7 @@ export const blogPosts: BlogPost[] = [
     tags: ["bolo-do-caco", "madere"],
     date: "29 Oct 2025",
     readTime: 2,
-    image: "https://heldonica.fr/wp-content/uploads/2025/10/zurich-riviere-1024x683.jpg",
+    image: "https://heldonica.fr/wp-content/uploads/2025/10/prego-bolo-caco-683x1024.jpg",
   },
   {
     id: 281,
