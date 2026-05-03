@@ -16,7 +16,7 @@ export default function Hero() {
               <Link href="/travel-planning" className="px-8 py-3 bg-eucalyptus text-white rounded-lg hover:bg-teal transition text-center">
                 Travel Planning
               </Link>
-              <Link href="/hotel-consulting" className="px-8 py-3 border-2 border-eucalyptus text-eucalyptus rounded-lg hover:bg-eucalyptus/5 transition text-center">
+              <Link href="/travel-planning" className="px-8 py-3 border-2 border-eucalyptus text-eucalyptus rounded-lg hover:bg-eucalyptus/5 transition text-center">
                 Consulting Hôtelier
               </Link>
             </div>

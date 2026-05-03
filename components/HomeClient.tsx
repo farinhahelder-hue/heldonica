@@ -511,7 +511,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 ))}
               </div>
               <div className="flex flex-wrap gap-3">
-                <Link href="/hotel-consulting" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
+                <Link href="/travel-planning" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
                   Prendre rendez-vous →
                 </Link>
                 <Link href="/ai-hotellerie" className="inline-flex items-center gap-2 text-charcoal/80 font-semibold text-sm hover:gap-3 transition-all">

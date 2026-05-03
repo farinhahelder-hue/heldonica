@@ -115,10 +115,10 @@ export default function EtudesDeCasPage() {
               pour viser des gains mesurables a court terme.
             </p>
             <Link
-              href="/hotel-consulting"
+              href="/travel-planning"
               className="inline-flex px-7 py-3 rounded-lg bg-white text-eucalyptus font-semibold hover:bg-cloud-dancer transition-colors"
             >
-              Decouvrir le consulting hotelier
+              Decouvrir le travel planning
             </Link>
           </div>
         </section>

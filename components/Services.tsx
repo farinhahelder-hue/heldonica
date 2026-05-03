@@ -79,7 +79,7 @@ export default function Services() {
                 </li>
               ))}
             </ul>
-            <Link href="/hotel-consulting" className="inline-flex items-center gap-2 text-mahogany font-semibold hover:gap-3 transition-all">
+            <Link href="/travel-planning" className="inline-flex items-center gap-2 text-mahogany font-semibold hover:gap-3 transition-all">
               Découvrir le service →
             </Link>
           </div>

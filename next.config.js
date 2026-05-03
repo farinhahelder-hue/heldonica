@@ -145,6 +145,9 @@ const nextConfig = {
       { source: '/travel-planner/', destination: '/travel-planning', permanent: true },
       { source: '/nos-services', destination: '/travel-planning', permanent: true },
       { source: '/nos-services/', destination: '/travel-planning', permanent: true },
+      // Focus on travel planning - hotel consulting redirect to core offer
+      { source: '/hotel-consulting', destination: '/travel-planning', permanent: true },
+      { source: '/hotel-consulting/:path*', destination: '/travel-planning', permanent: true },
       { source: '/sujets/bons-plans', destination: '/blog', permanent: true },
       { source: '/sujets/bons-plans/', destination: '/blog', permanent: true },
       { source: '/sujets/:slug', destination: '/blog', permanent: true },
