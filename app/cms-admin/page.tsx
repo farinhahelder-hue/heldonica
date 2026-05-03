@@ -9,10 +9,11 @@ import { sanitizeHtml } from '@/lib/sanitize-html';
 import CarouselEditor from '@/components/admin/CarouselEditor';
 import CarouselGenerator from '@/components/admin/CarouselGenerator';
 import BlogGenerator from '@/components/admin/BlogGenerator';
+import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw } from 'lucide-react';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
 
-// —€—€—€ Types —€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€
+// ===== —€ Types ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== —€
 type Article = {
   id: number; title: string; slug: string; category: string; scheduled_published_at?: string;
   published: boolean; published_at: string; created_at: string;
@@ -29,7 +30,7 @@ type Demande = {
 type Setting = { id: number; key: string; value: string; label: string; type?: string; };
 type SiteContent = { id: number; page: string; block_key: string; value: string; label: string; type: string; };
 
-// —€—€—€ Helpers —€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€
+// ===== —€ Helpers ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== —€
 const fmt = (d: string) => d ? new Date(d).toLocaleDateString('fr-FR') : '—';
 const slug = (t: string) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -62,11 +63,11 @@ function getReadTimeMinutes(content?: string) {
   return words === 0 ? 0 : Math.max(1, Math.ceil(words / 200));
 }
 
-// —€—€—€ Config pages CMS —€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€
+// ===== —€ Config pages CMS ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== —€
 const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { key: string; label: string; type: 'text' | 'textarea' }[] }> = {
   'home': {
     label: 'Accueil',
-    emoji: '🏠',
+    emoji: '<Home className="w-4 h-4" />',
     sections: [
       { key: 'hero_title',          label: 'Hero — Titre',                     type: 'text' },
       { key: 'hero_subtitle',       label: 'Hero — Sous-titre',                type: 'textarea' },
@@ -89,7 +90,7 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
   },
   'nos-services': {
     label: 'Nos services',
-    emoji: '✨',
+    emoji: '<Sparkles className="w-4 h-4" />',
     sections: [
       { key: 'hero_title',    label: 'Hero — Titre',              type: 'text' },
       { key: 'hero_subtitle', label: 'Hero — Sous-titre',         type: 'textarea' },
@@ -139,11 +140,11 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
 const SETTINGS_GROUPS: Record<string, { label: string; emoji: string }> = {
   general: { label: 'Général',         emoji: '🌐' },
   social:  { label: 'Réseaux sociaux', emoji: '📱' },
-  seo:     { label: 'SEO',             emoji: '🔍' },
+  seo:     { label: 'SEO',             emoji: '<Search className="w-4 h-4" />' },
   footer:  { label: 'Footer',          emoji: '📄' },
 };
 
-// —€—€—€ Composant principal —€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€
+// ===== —€ Composant principal ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
 export default function CMSAdmin() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -320,7 +321,7 @@ export default function CMSAdmin() {
       const method = isNew ? 'POST' : 'PUT';
       try {
         await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        showToast('💾 Brouillon auto-sauvegardé');
+        showToast('<Save className="w-4 h-4" /> Brouillon auto-sauvegardé');
         setUnsavedChanges(false);
       } catch { /* silent */ }
     }, 30000);
@@ -418,7 +419,7 @@ export default function CMSAdmin() {
       const method = isNew ? 'POST' : 'PUT';
       try {
         await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        showToast('💾 Brouillon auto-sauvegardé');
+        showToast('<Save className="w-4 h-4" /> Brouillon auto-sauvegardé');
         setUnsavedChanges(false);
       } catch { /* silent */ }
     }, 30000);
@@ -464,7 +465,7 @@ export default function CMSAdmin() {
       const method = isNew ? 'POST' : 'PUT';
       try {
         await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        showToast('💾 Brouillon auto-sauvegardé');
+        showToast('<Save className="w-4 h-4" /> Brouillon auto-sauvegardé');
         setUnsavedChanges(false);
       } catch { /* silent */ }
     }, 30000);
@@ -587,7 +588,7 @@ export default function CMSAdmin() {
       const method = isNew ? 'POST' : 'PUT';
       try {
         await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        showToast('💾 Brouillon auto-sauvegardé');
+        showToast('<Save className="w-4 h-4" /> Brouillon auto-sauvegardé');
         setUnsavedChanges(false);
       } catch { /* silent */ }
     }, 30000);
@@ -629,7 +630,7 @@ export default function CMSAdmin() {
       const method = isNew ? 'POST' : 'PUT';
       try {
         await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        showToast('💾 Brouillon auto-sauvegardé');
+        showToast('<Save className="w-4 h-4" /> Brouillon auto-sauvegardé');
         setUnsavedChanges(false);
       } catch { /* silent */ }
     }, 30000);
@@ -671,7 +672,7 @@ export default function CMSAdmin() {
       const method = isNew ? 'POST' : 'PUT';
       try {
         await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        showToast('💾 Brouillon auto-sauvegardé');
+        showToast('<Save className="w-4 h-4" /> Brouillon auto-sauvegardé');
         setUnsavedChanges(false);
       } catch { /* silent */ }
     }, 30000);
@@ -689,7 +690,7 @@ export default function CMSAdmin() {
 
   useEffect(() => { if (authed && (tab === 'settings' || tab === 'pages')) loadSettings(); }, [authed, tab, loadSettings]);
 
-  // 💾 Sauvegarder settings
+  // <Save className="w-4 h-4" /> Sauvegarder settings
   const saveSettings = async () => {
     setSavingSettings(true);
     try {
@@ -721,7 +722,7 @@ export default function CMSAdmin() {
     }
   };
 
-  // 💾 Sauvegarder content pour une page donnée
+  // <Save className="w-4 h-4" /> Sauvegarder content pour une page donnée
   const savePageContent = async (pageKey: string) => {
     setSavingSettings(true);
     const config = PAGES_CONFIG[pageKey];
@@ -758,7 +759,7 @@ export default function CMSAdmin() {
     }
   };
 
-  // 💾 Sauvegarder article
+  // <Save className="w-4 h-4" /> Sauvegarder article
   const saveArticle = useCallback(async () => {
     if (!editingArticle) return;
     if (savingArticle) return;
@@ -827,7 +828,7 @@ export default function CMSAdmin() {
       const method = isNew ? 'POST' : 'PUT';
       try {
         await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        showToast('💾 Brouillon auto-sauvegardé');
+        showToast('<Save className="w-4 h-4" /> Brouillon auto-sauvegardé');
         setUnsavedChanges(false);
       } catch { /* silent */ }
     }, 30000);
@@ -929,7 +930,7 @@ export default function CMSAdmin() {
     }
   };
 
-  // —€—€—€ Login —€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€
+  // ===== —€ Login ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
   if (checkingSession) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f3ef' }}>
       <div style={{ background: 'white', padding: '2.5rem', borderRadius: '1rem', boxShadow: '0 8px 32px rgba(0,0,0,.1)', width: '100%', maxWidth: 380, textAlign: 'center' }}>
@@ -961,19 +962,19 @@ export default function CMSAdmin() {
     </div>
   );
 
-  // —€—€—€ CMS —€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€
+  // ===== —€ CMS ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
   const TABS = [
-    { id: 'dashboard', label: '🏠 Accueil', count: null },
-    { id: 'articles', label: '📝 Articles', count: articles.length },
-    { id: 'new',      label: '✏️ Nouvel article', count: null },
-    { id: 'blog',     label: '✨ Générateur Blog IA', count: null },
-    { id: 'pages',    label: '📂 Pages', count: null },
-    { id: 'demandes', label: '✈️ Travel Planning', count: demandes.length },
-    { id: 'media',    label: '🖼️ Médiathèque', count: null },
-    { id: 'carousel', label: '🎠 Carrousel', count: null },
-    { id: 'settings', label: '⚙️ Paramètres', count: null },
-    { id: 'analytics', label: '📊 Analytics', count: null },
-    { id: 'search',   label: '🔍 Search', count: null },
+    { id: 'dashboard', icon: <Home className="w-4 h-4" />, label: 'Accueil', count: null },
+    { id: 'articles', icon: <FileText className="w-4 h-4" />, label: 'Articles', count: articles.length },
+    { id: 'new',      icon: <Plus className="w-4 h-4" />,  label: 'Nouvel article', count: null },
+    { id: 'blog',    icon: <Sparkles className="w-4 h-4" />, label: 'Générateur Blog IA', count: null },
+    { id: 'pages',    icon: <Folder className="w-4 h-4" />, label: 'Pages', count: null },
+    { id: 'demandes',icon: <Plane className="w-4 h-4" />, label: 'Travel Planning', count: demandes.length },
+    { id: 'media',   icon: <Image className="w-4 h-4" />, label: 'Médiathèque', count: null },
+    { id: 'carousel',icon: <Car className="w-4 h-4" />,  label: 'Carrousel', count: null },
+    { id: 'settings',icon: <Settings className="w-4 h-4" />,label: 'Paramètres', count: null },
+    { id: 'analytics',icon: <BarChart3 className="w-4 h-4" />,label: 'Analytics', count: null },
+    { id: 'search',  icon: <Search className="w-4 h-4" />, label: 'Search', count: null },
   ];
 
   return (
@@ -1017,7 +1018,7 @@ export default function CMSAdmin() {
       }}
       className="md:hidden"
       >
-        <button style={{ flex: 1, padding: '0.75rem', background: '#4A7C59', color: 'white', border: 'none', borderRadius: '0.5rem', fontWeight: 600 }}>💾 Sauvegarder</button>
+        <button style={{ flex: 1, padding: '0.75rem', background: '#4A7C59', color: 'white', border: 'none', borderRadius: '0.5rem', fontWeight: 600 }}><Save className="w-4 h-4" /> Sauvegarder</button>
         <button style={{ flex: 1, padding: '0.75rem', background: '#E8E4DC', color: '#6B3A2A', border: 'none', borderRadius: '0.5rem', fontWeight: 600 }}>👁 Aperçu</button>
         <button style={{ flex: 1, padding: '0.75rem', background: '#2E8B8B', color: 'white', border: 'none', borderRadius: '0.5rem', fontWeight: 600 }}>🚀 Publier</button>
       </div>
@@ -1046,7 +1047,7 @@ export default function CMSAdmin() {
               fontSize: '.9rem', display: 'flex', alignItems: 'center', gap: '.4rem', whiteSpace: 'nowrap',
             }}
           >
-            {t.label}
+            {t.icon} {t.label}
             {t.count !== null && t.count > 0 && (
               <span style={{ background: '#f0e8e4', color: '#6b2a1a', borderRadius: '9999px', padding: '.1rem .55rem', fontSize: '.75rem', fontWeight: 700 }}>{t.count}</span>
             )}
@@ -1056,11 +1057,11 @@ export default function CMSAdmin() {
 
       <div style={{ maxWidth: 1100, margin: '2rem auto', padding: '0 1.5rem' }}>
 
-        {/* —€—€ DASHBOARD —€—€ */}
+        {/* =====  DASHBOARD =====  */}
         {tab === 'dashboard' && (
           <div>
             <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', marginBottom: '1.5rem' }}>
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>🏠 Tableau de bord</h2>
+              <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}><Home className="w-4 h-4" /> Tableau de bord</h2>
               
               {/* Stats cards */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
@@ -1085,13 +1086,13 @@ export default function CMSAdmin() {
               {/* Quick actions */}
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                 <button onClick={() => openArticleEditor({})} style={{ padding: '.7rem 1.5rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>
-                  ✏️ Nouvel article
+                  <Plus className="w-4 h-4" /> Nouvel article
                 </button>
                 <button onClick={() => setTab('blog')} style={{ padding: '.7rem 1.5rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>
-                  ✨ Générateur IA
+                  <Sparkles className="w-4 h-4" /> Générateur IA
                 </button>
                 <button onClick={() => setTab('demandes')} style={{ padding: '.7rem 1.5rem', background: '#444', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>
-                  ✈️ Travel Planning
+                  <Plane className="w-4 h-4" /> Travel Planning
                 </button>
                 <button onClick={() => window.open('/', '_blank')} style={{ padding: '.7rem 1.5rem', background: '#e0dbd5', color: '#333', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>
                   🌐 Voir le site
@@ -1101,7 +1102,7 @@ export default function CMSAdmin() {
           </div>
         )}
 
-        {/* —€—€ ARTICLES —€—€ */}
+        {/* =====  ARTICLES =====  */}
         {tab === 'articles' && (
           <div>
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -1126,7 +1127,7 @@ export default function CMSAdmin() {
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
               </select>
-              <button onClick={loadArticles} style={{ padding: '.6rem 1.2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>🔍</button>
+              <button onClick={loadArticles} style={{ padding: '.6rem 1.2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}><Search className="w-4 h-4" /></button>
               <button onClick={() => openArticleEditor({})} style={{ padding: '.6rem 1.2rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>+ Nouvel article</button>
             </div>
             {loadingArticles ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p>
@@ -1155,8 +1156,8 @@ export default function CMSAdmin() {
                         {a.published ? '✓ Publié' : '📜 Brouillon'}
                       </span>
                       <div style={{ display: 'flex', gap: '.5rem' }}>
-                        <button onClick={() => openArticleEditor(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>✏️ Éditer</button>
-                        <button onClick={() => togglePublish(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>{a.published ? '📦 Dépublier' : 'Publier'}</button>
+                        <button onClick={() => openArticleEditor(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}><Plus className="w-4 h-4" /> Éditer</button>
+                        <button onClick={() => togglePublish(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>{a.published ? '<Package className="w-4 h-4" /> Dépublier' : 'Publier'}</button>
                         <button onClick={() => deleteArticle(a.id)} style={{ padding: '.35rem .8rem', border: '1px solid #fcc', borderRadius: '.4rem', background: '#fff5f5', color: '#c0392b', cursor: 'pointer', fontSize: '.82rem' }}>🗑</button>
                       </div>
                     </div>
@@ -1166,11 +1167,11 @@ export default function CMSAdmin() {
           </div>
         )}
 
-        {/* —€—€ ÉDITEUR ARTICLE —€—€ */}
+        {/* =====  ÉDITEUR ARTICLE =====  */}
         {tab === 'new' && (
           <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 2px 12px rgba(0,0,0,.07)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.75rem' }}>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>{editingArticle?.id ? `✏️ Modifier : ${editingArticle.title}` : '✏️ Nouvel article'}</h2>
+              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>{editingArticle?.id ? `<Plus className="w-4 h-4" /> Modifier : ${editingArticle.title}` : '<Plus className="w-4 h-4" /> Nouvel article'}</h2>
               <button onClick={closeArticleEditor} style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: '1.3rem' }}>✖️</button>
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
@@ -1223,7 +1224,7 @@ export default function CMSAdmin() {
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '.75rem' }}>
                   <button onClick={() => setShowMediaLibrary(true)}
                     style={{ padding: '.6rem 1.1rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.85rem', fontWeight: 600 }}
-                  >🖼️ Médiathèque Supabase</button>
+                  ><Image className="w-4 h-4" /> Médiathèque Supabase</button>
                   <span style={{ color: '#aaa', fontSize: '.82rem' }}>ou</span>
                   <label style={{ padding: '.6rem 1rem', background: uploadingFeaturedImage ? '#8aa8a9' : '#01696f', color: 'white', borderRadius: '.5rem', cursor: uploadingFeaturedImage ? 'wait' : 'pointer', fontSize: '.85rem', fontWeight: 600 }}>
                     {uploadingFeaturedImage ? '⏳ Upload—' : '✓ Upload direct'}
@@ -1305,7 +1306,7 @@ export default function CMSAdmin() {
                     }}
                     style={{ background: '#10b981', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}
                   >
-                    ✨ Generer avec IA
+                    <Sparkles className="w-4 h-4" /> Generer avec IA
                   </button>
                 </div>
                 <RichEditor value={editingArticle?.content || ''}
@@ -1344,9 +1345,9 @@ export default function CMSAdmin() {
                 </div>
               )}
               <div style={{ gridColumn: '1 / -1', padding: '1rem', background: '#f8f9fa', borderRadius: '.5rem', marginTop: '1rem' }}>
-                <div style={{ fontWeight: 600, marginBottom: '.5rem', fontSize: '.85rem' }}>📊 Analyse SEO</div>
+                <div style={{ fontWeight: 600, marginBottom: '.5rem', fontSize: '.85rem' }}><BarChart3 className="w-4 h-4" /> Analyse SEO</div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '.5rem', fontSize: '.8rem' }}>
-                  <div>📝 Lisibilité: <strong>{seo.readability}</strong></div>
+                  <div><FileText className="w-4 h-4" /> Lisibilité: <strong>{seo.readability}</strong></div>
                   <div>📄 Mots: <strong>{seo.wordCount}</strong></div>
                   <div>🔑 Densité titre: <strong>{seo.density}%</strong></div>
                 </div>
@@ -1389,10 +1390,10 @@ export default function CMSAdmin() {
                     <span style={metaChip}>/blog/{editingArticle?.slug || slug(editingArticle?.title || '') || 'nouvel-article'}</span>
                   </div>
                   <h1 style={{ margin: 0, fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', lineHeight: 1.1, color: '#1f1a17' }}>
-                    {editingArticle?.title || 'Titre de l—™article'}
+                    {editingArticle?.title || 'Titre de l'article'}
                   </h1>
                   <p style={{ margin: '1rem 0 1.5rem', color: '#6d625a', fontSize: '1rem', lineHeight: 1.7 }}>
-                    {editingArticle?.excerpt || 'Ton extrait apparaîtra ici pour donner envie d—™ouvrir l—™article.'}
+                    {editingArticle?.excerpt || 'Ton extrait apparaîtra ici pour donner envie d'ouvrir l'article.'}
                   </p>
                   {editingArticle?.voice_notes && (
                     <div style={{ margin: '0 0 1.5rem', padding: '1rem 1.1rem', background: '#f6f1eb', border: '1px solid #ece3d8', borderRadius: '1rem' }}>
@@ -1426,7 +1427,7 @@ export default function CMSAdmin() {
           </div>
         )}
 
-        {/* —€—€ PAGES —€—€ */}
+        {/* =====  PAGES =====  */}
         {tab === 'pages' && (
           <div>
             {loadingSettings ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p> : (
@@ -1460,7 +1461,7 @@ export default function CMSAdmin() {
                             target="_blank" rel="noopener noreferrer"
                             style={{ fontSize: '.82rem', color: '#01696f', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '.3rem' }}
                           >
-                            🔍— Voir la page
+                            <Search className="w-4 h-4" />— Voir la page
                           </a>
                         </div>
 
@@ -1508,11 +1509,11 @@ export default function CMSAdmin() {
           </div>
         )}
 
-        {/* —€—€ MÉDIATHÉˆQUE —€—€ */}
+        {/* =====  MÉDIATHÉˆQUE =====  */}
         {tab === 'media' && (
           <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 2px 12px rgba(0,0,0,.07)', minHeight: 400 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>🖼️ Médiathèque</h2>
+              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}><Image className="w-4 h-4" /> Médiathèque</h2>
               <p style={{ fontSize: '.85rem', color: '#888' }}>Supabase Storage</p>
             </div>
             <div style={{ background: '#faf8f5', borderRadius: '.75rem', padding: '2rem', textAlign: 'center', border: '2px dashed #e8e3dc' }}>
@@ -1520,22 +1521,22 @@ export default function CMSAdmin() {
               <p style={{ color: '#555', marginBottom: '1.25rem', lineHeight: 1.6 }}>Toutes tes images sont stockées sur <strong>Supabase Storage</strong>.</p>
               <button onClick={() => setShowMediaLibrary(true)}
                 style={{ padding: '.8rem 1.75rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '.95rem' }}
-              >🖼️ Ouvrir la médiathèque</button>
+              ><Image className="w-4 h-4" /> Ouvrir la médiathèque</button>
             </div>
           </div>
         )}
 
-        {/* —€—€ TRAVEL PLANNING —€—€ */}
+        {/* =====  TRAVEL PLANNING =====  */}
         {tab === 'demandes' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>✈️ Demandes Travel Planning</h2>
+              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}><Plane className="w-4 h-4" /> Demandes Travel Planning</h2>
               <div style={{ display: 'flex', gap: '.5rem', alignItems: 'center' }}>
                 <select value={demandesStatusFilter} onChange={e => setDemandesStatusFilter(e.target.value)}
                   style={{ padding: '.5rem .8rem', border: '1.5px solid #ddd', borderRadius: '.5rem', fontSize: '.85rem' }}>
                   <option value="all">Tous statuts</option>
                   <option value="nouvelle">☁ Nouvelle</option>
-                  <option value="en_cours">🔍 En cours</option>
+                  <option value="en_cours"><Search className="w-4 h-4" /> En cours</option>
                   <option value="devis_envoye">📜 Devis envoyé</option>
                   <option value="accepte">✅ Acceptée</option>
                   <option value="terminee">⚠ Terminée</option>
@@ -1576,7 +1577,7 @@ export default function CMSAdmin() {
                             style={{ padding: '.3rem .7rem', border: '1.5px solid #ddd', borderRadius: '.4rem', fontSize: '.82rem', cursor: updatingDemandeId === d.id ? 'wait' : 'pointer', opacity: updatingDemandeId === d.id ? .7 : 1 }}
                           >
                             <option value="nouvelle">☁ Nouvelle</option>
-                            <option value="en_cours">🔍„ En cours</option>
+                            <option value="en_cours"><Search className="w-4 h-4" />„ En cours</option>
                             <option value="devis_envoye">📜¨ Devis envoyé</option>
                             <option value="accepte">✅ Acceptée</option>
                             <option value="terminee">⚖ Terminée</option>
@@ -1588,7 +1589,7 @@ export default function CMSAdmin() {
                         {d.destination && <span>📜 <strong>Destination :</strong> {d.destination}</span>}
                         {d.style_voyage && <span>🌐¿ <strong>Style :</strong> {d.style_voyage}</span>}
                         {d.duree_jours && <span>📜… <strong>Durée :</strong> {d.duree_jours} jours</span>}
-                        {d.mois_depart && <span>📝“ <strong>Départ :</strong> {d.mois_depart}</span>}
+                        {d.mois_depart && <span><FileText className="w-4 h-4" />“ <strong>Départ :</strong> {d.mois_depart}</span>}
                         {d.budget_fourchette && <span>💶 <strong>Budget :</strong> {d.budget_fourchette}</span>}
                         {d.nb_voyageurs && <span>👥 <strong>Voyageurs :</strong> {d.nb_voyageurs}</span>}
                       </div>
@@ -1602,7 +1603,7 @@ export default function CMSAdmin() {
           </div>
         )}
 
-        {/* —€—€ CAROUSEL —€—€ */}
+        {/* =====  CAROUSEL =====  */}
         {tab === 'carousel' && (
           <div className="space-y-6">
             <CarouselGenerator />
@@ -1610,7 +1611,7 @@ export default function CMSAdmin() {
           </div>
         )}
 
-        {/* —€—€ BLOG IA —€—€ */}
+        {/* =====  BLOG IA =====  */}
         {tab === 'blog' && (
           <BlogGenerator
             onGenerated={(data) => {
@@ -1630,12 +1631,12 @@ export default function CMSAdmin() {
           />
         )}
 
-        {/* —€—€ ANALYTICS —€—€ */}
+        {/* =====  ANALYTICS =====  */}
         {tab === 'analytics' && (
           <div>
             {loadingAnalytics ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p> : (
               <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: '900px' }}>
-                <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>📊 Analytics</h2>
+                <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}><BarChart3 className="w-4 h-4" /> Analytics</h2>
                 <p style={{ color: '#888', marginBottom: '1.5rem' }}>Données Google Analytics 4</p>
                 
                 {/* Quick stats */}
@@ -1702,11 +1703,11 @@ export default function CMSAdmin() {
           </div>
         )}
 
-        {/* —€—€ SEARCH —€—€ */}
+        {/* =====  SEARCH =====  */}
         {tab === 'search' && (
           <div>
             <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: '900px' }}>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>🔍 Recherche intelligente</h2>
+              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}><Search className="w-4 h-4" /> Recherche intelligente</h2>
               <p style={{ color: '#888', marginBottom: '1.5rem' }}>Recherche sémantique avec IA</p>
               
               {/* Search input */}
@@ -1723,7 +1724,7 @@ export default function CMSAdmin() {
                 </select>
                 <button onClick={handleSearch} disabled={loadingSearch || !searchQuery}
                   style={{ padding: '.75rem 1.5rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 600, cursor: 'pointer', opacity: loadingSearch || !searchQuery ? .7 : 1 }}>
-                  {loadingSearch ? '⏳' : '🔍'}
+                  {loadingSearch ? '⏳' : '<Search className="w-4 h-4" />'}
                 </button>
               </div>
               
@@ -1751,7 +1752,7 @@ export default function CMSAdmin() {
           </div>
         )}
 
-        {/* —€—€ PARAMÉˆTRES —€—€ */}
+        {/* =====  PARAMÉˆTRES =====  */}
         {tab === 'settings' && (
           <div>
             {loadingSettings ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p> : (

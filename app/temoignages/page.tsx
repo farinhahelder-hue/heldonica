@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   description:
     'Retours de couples accompagnes par Heldonica pour leur voyage slow travel sur mesure.',
   alternates: {
-    canonical: 'https://www.heldonica.fr/temoignages',
+    canonical: 'https://heldonica.fr/temoignages',
   },
 };
 
