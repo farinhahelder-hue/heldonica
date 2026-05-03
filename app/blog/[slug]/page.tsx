@@ -13,7 +13,7 @@ import { sanitizeHtml } from '@/lib/sanitize-html'
 
 export const revalidate = 60
 
-const SITE_URL = 'https://heldonica.fr'
+const SITE_URL = 'https://www.heldonica.fr'
 const DEFAULT_OG = `${SITE_URL}/og-default.jpg`
 
 interface Props {
