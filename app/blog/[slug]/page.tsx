@@ -189,6 +189,8 @@ export default async function BlogPostPage({ params }: Props) {
               width={1920}
               height={1080}
               className="absolute inset-0 h-full w-full object-cover opacity-75"
+              loading="eager"
+              decoding="async"
             />
           )}
           {!heroImage && (
@@ -355,6 +357,25 @@ export default async function BlogPostPage({ params }: Props) {
         )}
 
         <NewsletterForm variant="blog" />
+
+        {/* ── TRAVEL PLANNING CTA ──────────────────────────────────────────── */}
+        <section className="py-16 md:py-20 bg-eucalyptus/5">
+          <div className="max-w-3xl mx-auto px-6 text-center">
+            <p className="text-xs font-bold tracking-[0.2em] uppercase text-eucalyptus mb-4">Vous avez aime ce récit ?</p>
+            <h2 className="text-2xl md:text-3xl font-serif font-light text-mahogany mb-4">
+              On peut vous aider a organiser<br className="hidden md:block" /> votre propre voyage sur mesure
+            </h2>
+            <p className="text-sm text-charcoal/70 mb-8 leading-relaxed max-w-xl mx-auto">
+              Comme ce Carnet, votre voyage mérite qu&apos;on prend le temps. On vous propose un accompagnement personnalise pour créer l&apos;itinéraire qui vous ressemble — sans press, sans case a cocher.
+            </p>
+            <Link
+              href="/travel-planning"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-eucalyptus text-white font-semibold rounded-lg hover:bg-eucalyptus/90 transition-colors"
+            >
+              Découvrir le Travel Planning →
+            </Link>
+          </div>
+        </section>
       </main>
       <Footer />
     </>
