@@ -206,7 +206,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
 
       {/* ── HERO ──────────────────────────────────────────────────────────── */}
       <section className="relative h-[85vh] md:h-screen bg-black flex items-end overflow-hidden">
-        <video autoPlay muted loop playsInline
+        <video autoPlay muted loop playsInline preload="auto"
           className="absolute inset-0 w-full h-full object-cover opacity-45"
           src="https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4"
         />
@@ -490,6 +490,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
       </section>
 
       {/* ── CONSULTING HÔTELIER — IAification & Digitalisation ────────── */}
+      {/*}
       <section className="py-20 md:py-24 bg-cloud-dancer">
         <div className="max-w-6xl mx-auto px-6 md:px-10">
           <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
@@ -547,6 +548,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           </div>
         </div>
       </section>
+      </*>}
 
       <section className="py-20 bg-mahogany text-white">
         <div className="max-w-5xl mx-auto px-6 md:px-10">
