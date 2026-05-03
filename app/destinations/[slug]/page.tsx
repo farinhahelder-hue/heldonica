@@ -24,7 +24,7 @@ type DestinationMeta = {
 const zurichMeta: DestinationMeta = {
   description:
     'Badi flottantes, brasseries artisanales et vieille ville dense. Zurich se révèle quand on ralentit assez pour la laisser venir.',
-  heroImage: 'https://heldonica.fr/wp-content/uploads/2025/08/zurich-panorama-2-1024x679.jpg',
+  heroImage: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2025/08/zurich-panorama-2-1024x679.jpg',
   region: 'Suisse',
   duration: '3 à 4 jours',
   budget: 'Élevé mais rattrapable à pied',
@@ -37,7 +37,7 @@ const zurichMeta: DestinationMeta = {
 const suisseMeta: DestinationMeta = {
   description:
     'Montagnes, lacs, trains impeccables et détours qui demandent du temps. La Suisse devient juste quand on cesse de la résumer à son prix.',
-  heroImage: 'https://heldonica.fr/wp-content/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg',
+  heroImage: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg',
   region: 'Europe',
   duration: '7 à 12 jours',
   budget: 'Moyen à élevé',
@@ -50,7 +50,7 @@ const suisseMeta: DestinationMeta = {
 const roumanieMeta: DestinationMeta = {
   description:
     'Timișoara, Delta du Danube, Carpates : la Roumanie donne beaucoup à celles et ceux qui acceptent de lui laisser de l&apos;espace.',
-  heroImage: 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
+  heroImage: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
   region: 'Europe',
   duration: '8 à 14 jours',
   budget: 'Accessible',
@@ -63,7 +63,7 @@ const roumanieMeta: DestinationMeta = {
 const madereMeta: DestinationMeta = {
   description:
     'Forêts humides, levadas, falaises, pain chaud et retours successifs. Madère ne se livre pas en une seule fois.',
-  heroImage: 'https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg',
+  heroImage: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2026/03/madere-foret-1024x683.jpg',
   region: 'Portugal',
   duration: '7 à 10 jours',
   budget: 'Moyen',
@@ -76,7 +76,7 @@ const madereMeta: DestinationMeta = {
 const parisMeta: DestinationMeta = {
   description:
     'Paris et l&apos;Île-de-France se lisent mieux quand on sort des grandes phrases. Un canal, une friche, une rue, et le rythme change.',
-  heroImage: 'https://heldonica.fr/wp-content/uploads/2025/09/paris-petite-ceinture-2-683x1024.jpg',
+  heroImage: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2025/09/paris-petite-ceinture-2-683x1024.jpg',
   region: 'France',
   duration: '2 à 5 jours',
   budget: 'Variable',

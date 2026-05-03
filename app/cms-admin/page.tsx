@@ -144,7 +144,9 @@ const SETTINGS_GROUPS: Record<string, { label: string; emoji: string }> = {
 };
 
 // —€—€—€ Composant principal —€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€—€
-export default function CMSAdmin() {
+import { Suspense } from "react";
+
+function CMSAdminContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [checkingSession, setCheckingSession] = useState(true);
@@ -1903,3 +1905,11 @@ const previewBody: React.CSSProperties = {
 };
 
 
+
+export default function CMSAdmin() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CMSAdminContent />
+    </Suspense>
+  );
+}

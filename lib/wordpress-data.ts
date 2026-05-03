@@ -36,7 +36,7 @@ export const blogPosts: BlogPost[] = [
     tags: ["insolite", "madere", "slow travel"],
     date: "21 Mar 2026",
     readTime: 2,
-    image: "https://heldonica.fr/wp-content/uploads/2026/03/fetched-image-2-1024x768.jpg",
+    image: "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2026/03/fetched-image-2-1024x768.jpg",
   },
   {
     id: 1269,
@@ -49,7 +49,7 @@ export const blogPosts: BlogPost[] = [
     tags: ["duo", "paris", "slow travel"],
     date: "21 Mar 2026",
     readTime: 2,
-    image: "https://heldonica.fr/wp-content/uploads/2026/03/fetched-image-1-1024x683.jpg",
+    image: "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2026/03/fetched-image-1-1024x683.jpg",
   },
   {
     id: 1164,
@@ -75,7 +75,7 @@ export const blogPosts: BlogPost[] = [
     tags: ["été", "madere"],
     date: "17 Mar 2026",
     readTime: 2,
-    image: "https://heldonica.fr/wp-content/uploads/2026/03/madere-cascade-1024x683.jpg",
+    image: "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2026/03/madere-cascade-1024x683.jpg",
   },
   {
     id: 702,
@@ -88,7 +88,7 @@ export const blogPosts: BlogPost[] = [
     tags: ["insolite", "lieux-secrets", "madere", "mystique", "portugal"],
     date: "17 Mar 2026",
     readTime: 2,
-    image: "https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg",
+    image: "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2026/03/madere-foret-1024x683.jpg",
   },
   {
     id: 448,
@@ -101,7 +101,7 @@ export const blogPosts: BlogPost[] = [
     tags: ["bolo-do-caco", "madere", "prego", "sandwich"],
     date: "29 Oct 2025",
     readTime: 2,
-    image: "https://heldonica.fr/wp-content/uploads/2025/10/prego-bolo-caco-683x1024.jpg",
+    image: "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2025/10/prego-bolo-caco-683x1024.jpg",
   },
   {
     id: 446,
@@ -114,7 +114,7 @@ export const blogPosts: BlogPost[] = [
     tags: ["bacalhau", "madere"],
     date: "29 Oct 2025",
     readTime: 2,
-    image: "https://heldonica.fr/wp-content/uploads/2025/10/bacalhau-lagareiro-3-683x1024.jpg",
+    image: "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2025/10/bacalhau-lagareiro-3-683x1024.jpg",
   },
   {
     id: 433,
@@ -127,7 +127,7 @@ export const blogPosts: BlogPost[] = [
     tags: ["bolo-do-caco", "madere"],
     date: "29 Oct 2025",
     readTime: 2,
-    image: "https://heldonica.fr/wp-content/uploads/2025/10/zurich-riviere-1024x683.jpg",
+    image: "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2025/10/zurich-riviere-1024x683.jpg",
   },
   {
     id: 281,
@@ -140,7 +140,7 @@ export const blogPosts: BlogPost[] = [
     tags: ["duo"],
     date: "01 Oct 2025",
     readTime: 2,
-    image: "https://heldonica.fr/wp-content/uploads/2025/10/crepes-riz-3-1024x683.jpg",
+    image: "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2025/10/crepes-riz-3-1024x683.jpg",
   },
   {
     id: 285,
@@ -153,7 +153,7 @@ export const blogPosts: BlogPost[] = [
     tags: ["architecture", "art contemporain"],
     date: "27 Sep 2025",
     readTime: 2,
-    image: "https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg",
+    image: "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2025/09/timisoara-ville-3-1024x683.jpg",
   },
   {
     id: 279,
@@ -166,7 +166,7 @@ export const blogPosts: BlogPost[] = [
     tags: ["zurich", "été"],
     date: "27 Sep 2025",
     readTime: 4,
-    image: "https://heldonica.fr/wp-content/uploads/2025/09/zurich-limmat-ete-3-1024x681.jpg",
+    image: "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2025/09/zurich-limmat-ete-3-1024x681.jpg",
   },
   {
     id: 277,
@@ -179,7 +179,7 @@ export const blogPosts: BlogPost[] = [
     tags: ["architecture", "insolite", "paris"],
     date: "27 Sep 2025",
     readTime: 3,
-    image: "https://heldonica.fr/wp-content/uploads/2025/09/paris-petite-ceinture-2-683x1024.jpg",
+    image: "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2025/09/paris-petite-ceinture-2-683x1024.jpg",
   },
   {
     id: 273,
@@ -192,7 +192,7 @@ export const blogPosts: BlogPost[] = [
     tags: ["paris", "restaurant-vegetarien", "rue-mouffetard"],
     date: "27 Sep 2025",
     readTime: 2,
-    image: "https://heldonica.fr/wp-content/uploads/2025/09/paris-mouffetard-2-1024x681.jpg",
+    image: "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2025/09/paris-mouffetard-2-1024x681.jpg",
   },
   {
     id: 271,
@@ -205,7 +205,7 @@ export const blogPosts: BlogPost[] = [
     tags: ["bière artisanale", "brasserie", "zurich"],
     date: "26 Sep 2025",
     readTime: 2,
-    image: "https://heldonica.fr/wp-content/uploads/2025/09/zurich-brasserie-2-683x1024.jpg",
+    image: "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2025/09/zurich-brasserie-2-683x1024.jpg",
   },
   {
     id: 192,
@@ -218,7 +218,7 @@ export const blogPosts: BlogPost[] = [
     tags: ["été", "slow travel", "zurich"],
     date: "12 Aug 2025",
     readTime: 2,
-    image: "https://heldonica.fr/wp-content/uploads/2025/08/zurich-panorama-2-1024x679.jpg",
+    image: "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2025/08/zurich-panorama-2-1024x679.jpg",
   },
   {
     id: 69,
@@ -231,7 +231,7 @@ export const blogPosts: BlogPost[] = [
     tags: ["alpes suisses", "montagne suisse", "randonnée alpine"],
     date: "01 Aug 2025",
     readTime: 2,
-    image: "https://heldonica.fr/wp-content/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg",
+    image: "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg",
   },
   {
     id: 93,
@@ -244,7 +244,7 @@ export const blogPosts: BlogPost[] = [
     tags: ["alpes", "stoos", "suisse"],
     date: "01 Aug 2025",
     readTime: 2,
-    image: "https://heldonica.fr/wp-content/uploads/2025/08/randonnee-montagne-1024x683.jpg",
+    image: "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2025/08/randonnee-montagne-1024x683.jpg",
   },
 ];
 
@@ -255,21 +255,21 @@ export const destinationPages: DestinationPage[] = [
     title: `Accueil Heldonica Vidéo`,
     slug: "accueil-heldonica-video",
     content: `<div><p>Explorateurs émerveillés, dénicheurs de pépites.</p></div>`,
-    image: "https://heldonica.fr/wp-content/uploads/2026/03/Heldonica.mp4",
+    image: "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2026/03/Heldonica.mp4",
   },
   {
     id: 1326,
     title: `Accueil Heldonica 2026`,
     slug: "accueil-heldonica-2026",
     content: `<section><h1>Heldonica : L'Expert de l'Aventure Slow</h1><p>Duo explorateurs-sages : itinéraires terrain 100% vécus.</p></section>`,
-    image: "https://heldonica.fr/wp-content/uploads/2026/03/Heldonica.mp4",
+    image: "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2026/03/Heldonica.mp4",
   },
   {
     id: 1321,
     title: `Accueil`,
     slug: "accueil-heldonica-3",
     content: `<section><h1>Vivre découvrir partager</h1></section>`,
-    image: "https://heldonica.fr/wp-content/uploads/2026/03/Heldonica.mp4",
+    image: "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2026/03/Heldonica.mp4",
   },
   {
     id: 1315,
@@ -309,7 +309,7 @@ export const destinationPages: DestinationPage[] = [
       </ul>
       <p><em>Verdict Heldonica — On a posé nos valises 4 jours. On en aurait pris 7. Zurich est la destination slow travel européenne sous-estimée par excellence.</em></p>
     `,
-    image: "https://heldonica.fr/wp-content/uploads/2025/08/zurich-panorama-2-1024x679.jpg",
+    image: "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2025/08/zurich-panorama-2-1024x679.jpg",
   },
   // ── Pages destination Suisse ───────────────────────────────
   {
@@ -334,7 +334,7 @@ export const destinationPages: DestinationPage[] = [
       </ul>
       <p><em>Verdict Heldonica — La Suisse, c'est notre destination slow travel européenne de référence. Chaque séjour, on y découvre une nouvelle pépite.</em></p>
     `,
-    image: "https://heldonica.fr/wp-content/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg",
+    image: "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg",
   },
   // ── Pages destination Roumanie ─────────────────────────────
   {
@@ -360,7 +360,7 @@ export const destinationPages: DestinationPage[] = [
       </ul>
       <p><em>Verdict Heldonica — La Roumanie est notre destination slow travel coup de cœur. On y retourne chaque année et on y découvre toujours quelque chose de nouveau.</em></p>
     `,
-    image: "https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg",
+    image: "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2025/09/timisoara-ville-3-1024x683.jpg",
   },
   // ── Pages destination Madère ───────────────────────────────
   {
@@ -386,7 +386,7 @@ export const destinationPages: DestinationPage[] = [
       </ul>
       <p><em>Verdict Heldonica — Madère est dans notre top 3 absolu. Une île qu'on recommande les yeux fermés, en toute saison.</em></p>
     `,
-    image: "https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg",
+    image: "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2026/03/madere-foret-1024x683.jpg",
   },
   // ── Pages destination Paris / Île-de-France ────────────────
   {
@@ -405,7 +405,7 @@ export const destinationPages: DestinationPage[] = [
       </ul>
       <p><em>Verdict Heldonica — Paris se mérite quand on la cherche vraiment. Pas la carte postale — l'âme cachée.</em></p>
     `,
-    image: "https://heldonica.fr/wp-content/uploads/2025/09/paris-petite-ceinture-2-683x1024.jpg",
+    image: "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2025/09/paris-petite-ceinture-2-683x1024.jpg",
   },
 ];
 

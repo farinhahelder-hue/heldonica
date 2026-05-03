@@ -88,7 +88,7 @@ export default function BlogClientPage({ posts }: Props) {
           className="absolute inset-0 opacity-25"
           style={{
             backgroundImage:
-              "url('https://heldonica.fr/wp-content/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg')",
+              "url('https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg')",
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
