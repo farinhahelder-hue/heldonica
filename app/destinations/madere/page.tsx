@@ -4,6 +4,28 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SlowTravelQuiz from '@/components/SlowTravelQuiz';
 
+const SITE_URL = 'https://heldonica.fr';
+
+const schemaTouristDestination = {
+  '@context': 'https://schema.org',
+  '@type': 'TouristDestination',
+  name: 'Madère',
+  description: 'Île portugaise de l\'Atlantique, reconnue pour ses levadas, falaises et paysages volcaniques. Destination slow travel idéale pour randonneurs et amateurs de nature.',
+  url: `${SITE_URL}/destinations/madere`,
+  address: {
+    '@type': 'PostalAddress',
+    addressCountry: 'PT',
+    addressRegion: 'Région autonome de Madère',
+  },
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: 32.6669,
+    longitude: -16.9241,
+  },
+  touristType: ['Hiker', 'Nature lover', 'Slow traveler'],
+  bestSeasonToVisit: ['April', 'May', 'June', 'July', 'August', 'September', 'October'],
+};
+
 export const metadata: Metadata = {
   title: 'Madere slow travel | Guide Heldonica',
   description:
@@ -73,6 +95,14 @@ const faqItems = [
 export default function MaderePage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaTouristDestination) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(madereLd) }}
+      />
       <Header />
       <main>
         <section className="relative min-h-[66vh] flex items-end overflow-hidden bg-stone-900">
@@ -325,3 +355,43 @@ export default function MaderePage() {
     </>
   );
 }
+
+// Add JSON-LD schema for Madère destination
+const madereLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Quand partir à Madère pour le slow travel ?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Les meilleures périodes sont avril à juin (fleurs, températures agréables) et septembre à octobre (fin d\'été indien). Évitez décembre-février (pluies, chemins boueux).',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Combien de jours pour découvrir Madère en slow travel ?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Comptez minimum 7 jours pour explorer les levadas principales et les regions. 10 jours permettent un rythme détendu avec Madère nord et Funchal.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Comment se déplacer à Madère en slow travel ?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: ' Louez une voiture pour la liberté, ou utilisez les buses régionaux + taxi pour une approche plus locale. Les routes sont étroites mais praticables.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Quel budget pour un slow travel à Madère ?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Comptez 80-120€/jour en milieu modéré (hébergement + repas + transport).Hors saison: 60-80€/jour suffisent.',
+      },
+    },
+  ],
+};
