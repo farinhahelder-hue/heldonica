@@ -43,6 +43,11 @@ export const metadata: Metadata = {
     canonical: SITE_URL,
     languages: {
       'fr': SITE_URL,
+      'fr-FR': SITE_URL,
+      'fr-CH': SITE_URL,
+      'fr-BE': SITE_URL,
+      'fr-CA': SITE_URL,
+      'x-default': SITE_URL,
     },
   },
   openGraph: {
@@ -94,7 +99,7 @@ const schemaVideo = {
   '@context': 'https://schema.org',
   '@type': 'VideoObject',
   name: 'Heldonica — Slow Travel en Duo',
-  description: 'Blog slow travel vec en couple entre Paris, Madere et la Roumanie. On ferme les ordis, on part, on revient.',
+  description: 'Blog slow travel avec en couple entre Paris, Madere et la Roumanie. On ferme les ordis, on part, on revient.',
   thumbnailUrl: `${SITE_URL}/og-default.jpg`,
   contentUrl: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4',
   uploadDate: '2025-05-01T08:00:00+02:00',
@@ -104,10 +109,16 @@ const schemaVideo = {
 
 const schemaOrganization = {
   '@context': 'https://schema.org',
-  '@type': 'Organization',
+  '@type': ['Organization', 'TravelAgency'],
   name: 'Heldonica',
   url: SITE_URL,
   logo: `${SITE_URL}/logo.png`,
+  areaServed: [
+    { '@type': 'Country', name: 'France' },
+    { '@type': 'Country', name: 'Suisse' },
+    { '@type': 'Country', name: 'Belgique' },
+    { '@type': 'Country', name: 'Canada' },
+  ],
   sameAs: [
     'https://www.instagram.com/heldonica',
     'https://www.youtube.com/@heldonica',
