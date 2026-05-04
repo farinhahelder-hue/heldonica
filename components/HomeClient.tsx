@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useEffect, useRef, useState } from 'react'
 import Header from '@/components/Header'
@@ -301,7 +301,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               {featImg && (
                 <img src={featImg} alt={featured.title} width={1400} height={700}
                   className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-70 group-hover:scale-105 transition-all duration-700"
-                  loading="lazy" />
+                  loading="eager" fetchPriority="high" />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
               <div className="relative z-10 p-8 md:p-16 max-w-3xl">
@@ -498,7 +498,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
       </section>
 
       {/* ── CONSULTING HÔTELIER — IAification & Digitalisation ────────── */}
-      {/*}
+      {/*
       <section className="py-20 md:py-24 bg-cloud-dancer">
         <div className="max-w-6xl mx-auto px-6 md:px-10">
           <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
@@ -556,7 +556,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           </div>
         </div>
       </section>
-      </*>}
+      */}
 
       <section className="py-20 bg-mahogany text-white">
         <div className="max-w-5xl mx-auto px-6 md:px-10">
