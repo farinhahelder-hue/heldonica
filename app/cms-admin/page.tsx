@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -265,7 +265,7 @@ export default function CMSAdmin() {
 
   const confirmDiscardArticleChanges = useCallback(() => {
     if (!isArticleDirty) return true;
-    return confirm('Tu as des modifications non sauvegardÉƒÂ©es. Les quitter ?');
+    return confirm('Tu as des modifications non sauvegardées. Les quitter ?');
   }, [isArticleDirty]);
 
   const openArticleEditor = useCallback((article?: Partial<Article>) => {
