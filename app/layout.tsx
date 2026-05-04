@@ -9,21 +9,36 @@ const SITE_URL = 'https://www.heldonica.fr';
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Heldonica',
+    default: 'Heldonica — Slow Travel & Voyages Authentiques',
     template: '%s — Heldonica',
   },
   description:
-    'Slow travel, pépites dénichées et voyages sur mesure hors des sentiers battus. On partage nos carnets de route et conçoit des itinéraires authentiques pour tous les explorateurs.',
+    'Blog slow travel et pépites dénichées hors des sentiers battus. Carnets de route, destinations authentiques et travel planning sur mesure écoresponsable en Europe et ailleurs.',
   keywords: [
+    // Slow travel — axe principal (volume en hausse +156% en 2025)
     'slow travel',
-    'voyage hors sentiers battus',
-    'pépites voyage',
-    'écoresponsable',
-    'travel planning sur mesure',
-    'carnet de voyage',
     'slow travel Europe',
+    'slow travel France',
     'itinéraire slow travel',
+    'voyage lent',
+    // Destinations & découvertes
+    'voyage hors sentiers battus',
+    'destination authentique',
+    'pépites voyage',
+    'voyage insolite Europe',
+    'que faire Madère',
+    'itinéraire Roumanie',
+    // Travel planning — axe commercial (intention d\'achat)
+    'travel planning sur mesure',
+    'voyage sur mesure écoresponsable',
+    'itinéraire personnalisé',
+    'travel planner francophone',
+    // Éco & responsable
+    'voyage écoresponsable',
+    'tourisme responsable',
+    // Brand
     'heldonica',
+    'carnet de voyage',
   ],
   authors: [{ name: 'Heldonica', url: SITE_URL }],
   creator: 'Heldonica',
@@ -55,23 +70,23 @@ export const metadata: Metadata = {
     locale: 'fr_FR',
     url: SITE_URL,
     siteName: 'Heldonica',
-    title: 'Heldonica — Slow Travel, Pépites & Voyages Hors des Sentiers Battus',
+    title: 'Heldonica — Slow Travel, Pépites & Destinations Authentiques',
     description:
-      'Carnets de voyage slow travel, pépites dénichées et conception de voyages sur mesure écoresponsables.',
+      'Blog slow travel, pépites dénichées hors des sentiers battus et travel planning sur mesure écoresponsable. Carnets de route, itinéraires et découvertes authentiques.',
     images: [
       {
         url: '/og-default.jpg',
         width: 1200,
         height: 630,
-        alt: 'Heldonica — Slow Travel, pépites & voyages hors des sentiers battus',
+        alt: 'Heldonica — Slow Travel, pépites & destinations authentiques hors des sentiers battus',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Heldonica — Slow Travel, Pépites & Voyages Hors des Sentiers Battus',
+    title: 'Heldonica — Slow Travel, Pépites & Destinations Authentiques',
     description:
-      'Carnets de voyage slow travel, pépites dénichées et conception de voyages sur mesure écoresponsables.',
+      'Blog slow travel, pépites dénichées et travel planning sur mesure écoresponsable. Destinations hors des sentiers battus.',
     images: ['/og-default.jpg'],
     creator: '@heldonica',
   },
@@ -81,9 +96,9 @@ const schemaWebSite = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: 'Heldonica',
-  alternateName: 'Heldonica — Slow Travel en Couple',
+  alternateName: 'Heldonica — Slow Travel & Voyages Authentiques',
   url: SITE_URL,
-  description: 'Blog slow travel en couple, pépites dénichées et service de travel planning sur mesure écoresponsable.',
+  description: 'Blog slow travel, pépites dénichées hors des sentiers battus et service de travel planning sur mesure écoresponsable. Destinations authentiques en Europe et ailleurs.',
   inLanguage: 'fr-FR',
   potentialAction: {
     '@type': 'SearchAction',
@@ -98,8 +113,8 @@ const schemaWebSite = {
 const schemaVideo = {
   '@context': 'https://schema.org',
   '@type': 'VideoObject',
-  name: 'Heldonica — Slow Travel en Duo',
-  description: 'Blog slow travel avec en couple entre Paris, Madere et la Roumanie. On ferme les ordis, on part, on revient.',
+  name: 'Heldonica — Slow Travel & Pépites Hors des Sentiers Battus',
+  description: 'Blog slow travel entre Paris, Madère et la Roumanie. On ferme les ordis, on part, on revient avec des pépites dénichées hors des sentiers battus.',
   thumbnailUrl: `${SITE_URL}/og-default.jpg`,
   contentUrl: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4',
   uploadDate: '2025-05-01T08:00:00+02:00',
@@ -113,6 +128,7 @@ const schemaOrganization = {
   name: 'Heldonica',
   url: SITE_URL,
   logo: `${SITE_URL}/logo.png`,
+  description: 'Travel planning sur mesure écoresponsable et blog slow travel. Pépites dénichées, destinations authentiques, itinéraires hors des sentiers battus.',
   areaServed: [
     { '@type': 'Country', name: 'France' },
     { '@type': 'Country', name: 'Suisse' },
