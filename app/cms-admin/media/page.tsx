@@ -31,6 +31,7 @@ export default function MediaPage({ searchParams }: { searchParams: Record<strin
   const [googlePhotos, setGooglePhotos] = useState<GooglePhoto[]>([])
   const [loadingGoogle, setLoadingGoogle] = useState(false)
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (pwd && tab === 'local') loadFiles()
   }, [pwd, tab])
@@ -81,6 +82,7 @@ export default function MediaPage({ searchParams }: { searchParams: Record<strin
   }
 
   // Check for OAuth token in URL hash
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const hash = window.location.hash
     if (hash && hash.includes('access_token')) {

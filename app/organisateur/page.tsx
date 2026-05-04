@@ -142,7 +142,7 @@ export default function TravelOrganizer() {
         category: item.category,
       })));
     }
-  }, [tripType]);
+  }, [tripType, template]);
 
   const addStage = () => {
     setStages([...stages, {

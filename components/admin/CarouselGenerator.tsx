@@ -38,6 +38,8 @@ export default function CarouselGenerator({ onComplete }: CarouselGeneratorProps
   }, []);
 
   // Save to history when result is generated
+  // Save to history when result changes (only needed on result change, not topic)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (result) {
       fetch('/api/cms/carousel-history', {
