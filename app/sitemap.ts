@@ -23,12 +23,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly',
       priority: 0.85,
     },
-    {
+    /* {
       url: `${BASE_URL}/hotel-consulting`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.85,
-    },
+    }, */
     {
       url: `${BASE_URL}/destinations`,
       lastModified: new Date(),

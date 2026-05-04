@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import Link from 'next/link'
 
@@ -16,7 +16,7 @@ export default function Footer() {
   const serviceLinks = [
     { href: '/travel-planning', label: 'Travel planning' },
     { href: '/slow-travel', label: 'Slow travel' },
-    { href: '/hotel-consulting', label: 'Consulting hôtelier' },
+    /* { href: '/hotel-consulting', label: 'Consulting hôtelier' }, */
     { href: '/planifier', label: 'Planifier' },
   ]
 
