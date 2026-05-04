@@ -13,8 +13,11 @@ export const metadata: Metadata = {
     template: '%s — Heldonica',
   },
   description:
-    'Slow travel, pépites dénichées et voyages sur mesure hors des sentiers battus. On partage nos carnets de route et conçoit des itinéraires authentiques pour tous les explorateurs.',
+    'Découvrez nos pépites cachées et nos itinéraires hors des sentiers battus. Heldonica conçoit des voyages sur mesure et des expériences authentiques et locales pour tous les explorateurs.',
   keywords: [
+    'pépites cachées',
+    'expériences authentiques',
+    'voyage local',
     'slow travel',
     'voyage hors sentiers battus',
     'pépites voyage',
@@ -43,6 +46,10 @@ export const metadata: Metadata = {
     canonical: SITE_URL,
     languages: {
       'fr': SITE_URL,
+      'fr-FR': SITE_URL,
+      'fr-CH': SITE_URL,
+      'fr-BE': SITE_URL,
+      'fr-CA': SITE_URL,
     },
   },
   openGraph: {
@@ -52,7 +59,7 @@ export const metadata: Metadata = {
     siteName: 'Heldonica',
     title: 'Heldonica — Slow Travel, Pépites & Voyages Hors des Sentiers Battus',
     description:
-      'Carnets de voyage slow travel, pépites dénichées et conception de voyages sur mesure écoresponsables.',
+      'Carnets de voyage slow travel, pépites cachées et conception de voyages sur mesure écoresponsables pour des expériences authentiques.',
     images: [
       {
         url: '/og-default.jpg',
@@ -66,7 +73,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Heldonica — Slow Travel, Pépites & Voyages Hors des Sentiers Battus',
     description:
-      'Carnets de voyage slow travel, pépites dénichées et conception de voyages sur mesure écoresponsables.',
+      'Carnets de voyage slow travel, pépites cachées et conception de voyages sur mesure écoresponsables pour des expériences authentiques.',
     images: ['/og-default.jpg'],
     creator: '@heldonica',
   },
@@ -78,7 +85,7 @@ const schemaWebSite = {
   name: 'Heldonica',
   alternateName: 'Heldonica — Slow Travel en Couple',
   url: SITE_URL,
-  description: 'Blog slow travel en couple, pépites dénichées et service de travel planning sur mesure écoresponsable.',
+  description: 'Blog slow travel en couple, pépites cachées, expériences authentiques hors des sentiers battus et service de travel planning sur mesure.',
   inLanguage: 'fr-FR',
   potentialAction: {
     '@type': 'SearchAction',
@@ -104,15 +111,34 @@ const schemaVideo = {
 
 const schemaOrganization = {
   '@context': 'https://schema.org',
-  '@type': 'Organization',
+  '@type': ['TravelAgency', 'Organization'],
   name: 'Heldonica',
   url: SITE_URL,
   logo: `${SITE_URL}/logo.png`,
+  description: 'Heldonica conçoit des voyages sur mesure et des expériences authentiques et locales pour tous les explorateurs.',
   sameAs: [
     'https://www.instagram.com/heldonica',
     'https://www.youtube.com/@heldonica',
     'https://www.facebook.com/heldonica',
     'https://fr.pinterest.com/heldonica',
+  ],
+  areaServed: [
+    {
+      '@type': 'Country',
+      name: 'France'
+    },
+    {
+      '@type': 'Country',
+      name: 'Switzerland'
+    },
+    {
+      '@type': 'Country',
+      name: 'Belgium'
+    },
+    {
+      '@type': 'Country',
+      name: 'Canada'
+    }
   ],
   contactPoint: {
     '@type': 'ContactPoint',
