@@ -2,9 +2,27 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SlowTravelQuiz from '@/components/SlowTravelQuiz';
+
+export const metadata: Metadata = {
+  title: 'Destinations Hors des Sentiers Battus — Pépites Dénichées | Heldonica',
+  description:
+    'Madère, Roumanie, Sicile et bien d\'autres : on te partage nos destinations authentiques testées sur le terrain, loin des foules. Itinéraires et pépites dénichées.',
+  keywords: [
+    'destination hors sentiers battus',
+    'destination authentique',
+    'que faire Madère',
+    'itinéraire Roumanie',
+    'voyage insolite Europe',
+    'pépites voyage',
+  ],
+  alternates: {
+    canonical: 'https://www.heldonica.fr/destinations',
+  },
+};
 
 type DestinationCard = {
   name: string;
@@ -286,6 +304,34 @@ export default function DestinationsPage() {
         </section>
       </main>
       <Footer />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: [
+              {
+                '@type': 'Question',
+                name: 'Quelles destinations propose Heldonica ?',
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: 'Heldonica partage des destinations authentiques hors des sentiers battus testées sur le terrain : Madère, Roumanie, Sicile, et d\'autres pépites européennes. Toutes nos destinations sont choisies pour leur caractère écoresponsable et leur richesse locale.',
+                },
+              },
+              {
+                '@type': 'Question',
+                name: "Qu'est-ce qu'une destination hors des sentiers battus ?",
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: 'Une destination hors des sentiers battus, c\'est un lieu authentique, peu touristique, où l\'expérience locale prime sur les circuits standardisés. Chez Heldonica, on ne recommande que des endroits qu\'on a visités et vérifiés nous-mêmes.',
+                },
+              },
+            ],
+          }),
+        }}
+      />
     </>
   );
 }

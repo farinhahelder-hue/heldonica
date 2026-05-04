@@ -1,10 +1,28 @@
 'use client'
 
 import { useState } from 'react'
+import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: 'Travel Planning Sur Mesure Écoresponsable — Conception de Voyage | Heldonica',
+  description:
+    'On conçoit ton voyage sur mesure : itinéraire personnalisé, adresses authentiques, rythme slow travel. 100% écoresponsable, pensé pour toi.',
+  keywords: [
+    'travel planning sur mesure',
+    'travel planner francophone',
+    'voyage sur mesure écoresponsable',
+    'itinéraire personnalisé',
+    'conception voyage',
+    'voyage hors sentiers battus',
+  ],
+  alternates: {
+    canonical: 'https://www.heldonica.fr/travel-planning',
+  },
+}
 
 const faqs = [
   {
@@ -379,6 +397,42 @@ export default function TravelPlanning() {
       </div>
 
       <Footer />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: [
+              {
+                '@type': 'Question',
+                name: "Qu'est-ce qu'un travel planning sur mesure ?",
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: "Un travel planning sur mesure, c'est la conception complète de ton itinéraire de voyage selon tes envies, ton rythme et tes valeurs. Heldonica crée des voyages écoresponsables hors des sentiers battus, avec des adresses authentiques testées sur le terrain.",
+                },
+              },
+              {
+                '@type': 'Question',
+                name: 'Combien coûte un travel planning sur mesure ?',
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: 'Le tarif varie selon la durée et la complexité du voyage. Contacte-nous via le formulaire pour recevoir un devis personnalisé.',
+                },
+              },
+              {
+                '@type': 'Question',
+                name: 'Pour quels types de voyages proposez-vous du travel planning ?',
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: "On conçoit des voyages slow travel écoresponsables en Europe et à l'international : road trips, city breaks lents, immersions locales, destinations hors des sentiers battus comme Madère, la Roumanie ou la Sicile.",
+                },
+              },
+            ],
+          }),
+        }}
+      />
     </>
   )
 }

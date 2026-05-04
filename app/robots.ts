@@ -8,12 +8,16 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
         disallow: [
           '/cms-admin',
+          '/cms',
+          '/dashboard',
+          '/auth',
           '/api/',
+          '/organisateur',
           '/travel-planning-form',
         ],
       },
     ],
-    sitemap: 'https://heldonica.fr/sitemap.xml',
-    host: 'https://heldonica.fr',
+    sitemap: 'https://www.heldonica.fr/sitemap.xml',
+    host: 'https://www.heldonica.fr',
   };
 }

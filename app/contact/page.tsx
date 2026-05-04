@@ -5,17 +5,22 @@ import Breadcrumb from '@/components/Breadcrumb'
 import ContactForm from '@/components/ContactForm'
 
 export const metadata: Metadata = {
-  title: 'Contact | Heldonica',
+  title: 'Contact — Parlons de Ton Voyage Sur Mesure | Heldonica',
   description:
-    "Un projet de voyage, une question, un audit hôtelier ? On lit tous les messages. On répond sous 48h.",
+    "Une question, un projet de voyage ? On est là. Écris-nous pour ton travel planning sur mesure ou toute autre demande.",
+  keywords: [
+    'contact heldonica',
+    'travel planning contact',
+    'voyage sur mesure demande',
+  ],
   alternates: {
-    canonical: 'https://heldonica.fr/contact',
+    canonical: 'https://www.heldonica.fr/contact',
   },
   openGraph: {
-    title: 'Contact | Heldonica',
+    title: 'Contact — Parlons de Ton Voyage Sur Mesure | Heldonica',
     description:
-      "Un projet de voyage, une question, un audit hôtelier ? On lit tous les messages. On répond sous 48h.",
-    url: 'https://heldonica.fr/contact',
+      "Une question, un projet de voyage ? On est là. Écris-nous pour ton travel planning sur mesure.",
+    url: 'https://www.heldonica.fr/contact',
     siteName: 'Heldonica',
     locale: 'fr_FR',
   },

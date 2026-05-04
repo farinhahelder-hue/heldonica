@@ -5,11 +5,20 @@ import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
 
 export const metadata: Metadata = {
-  title: 'Slow Travel | Heldonica',
+  title: 'Slow Travel — Voyager Autrement, Lentement, Authentiquement | Heldonica',
   description:
-    'Le slow travel selon Heldonica : regarder mieux, laisser de la place, revenir, et apprendre à dénicher des pépites même en bas de chez soi.',
+    "Qu'est-ce que le slow travel ? On te partage notre approche du voyage lent, écoresponsable et hors des sentiers battus. Destinations, conseils et carnets de route.",
+  keywords: [
+    'slow travel',
+    'slow travel France',
+    'slow travel Europe',
+    'voyage lent',
+    'voyager autrement',
+    'tourisme responsable',
+    'voyage écoresponsable',
+  ],
   alternates: {
-    canonical: 'https://heldonica.fr/slow-travel',
+    canonical: 'https://www.heldonica.fr/slow-travel',
   },
 }
 
