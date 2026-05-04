@@ -371,6 +371,7 @@ export default async function BlogPostPage({ params }: Props) {
             <Link
               href="/travel-planning"
               className="inline-flex items-center gap-2 px-8 py-4 bg-eucalyptus text-white font-semibold rounded-lg hover:bg-eucalyptus/90 transition-colors"
+              onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'blog_travel_planning_cta' })}
             >
               Découvrir le Travel Planning →
             </Link>

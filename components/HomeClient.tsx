@@ -234,10 +234,14 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           </p>
           <div className="flex flex-wrap gap-3"
                style={{ animation: 'wordIn 0.7s 1.3s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
-            <Link href="/blog" className="px-5 md:px-6 py-2.5 md:py-3 bg-mahogany hover:bg-eucalyptus text-white rounded-full font-semibold text-sm tracking-wide transition">
+            <Link href="/blog" 
+              className="px-5 md:px-6 py-2.5 md:py-3 bg-mahogany hover:bg-eucalyptus text-white rounded-full font-semibold text-sm tracking-wide transition"
+              onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'hero_read_carnet' })}>
               Lire le carnet →
             </Link>
-            <Link href="/travel-planning-form" className="px-5 md:px-6 py-2.5 md:py-3 border border-white/50 hover:border-white text-white hover:bg-white/10 rounded-full font-semibold text-sm tracking-wide transition">
+            <Link href="/travel-planning-form" 
+              className="px-5 md:px-6 py-2.5 md:py-3 border border-white/50 hover:border-white text-white hover:bg-white/10 rounded-full font-semibold text-sm tracking-wide transition"
+              onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'hero_contact' })}>
               Nous écrire →
             </Link>
           </div>
@@ -465,12 +469,16 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 Notre terrain naturel : les couples qui veulent ralentir sans s&apos;ennuyer, les solos qui cherchent du vrai, les familles qui en ont marre des parcs d&apos;attractions.
               </p>
               <div className="flex flex-wrap gap-3">
-                <Link href="/travel-planning-form" className="px-6 py-3 bg-eucalyptus hover:bg-eucalyptus text-white rounded font-semibold text-sm transition">
-                  Nous écrire →
-                </Link>
-                <Link href="/blog" className="px-6 py-3 border border-white/30 hover:border-white/60 text-white rounded font-semibold text-sm transition">
-                  Lire le carnet →
-                </Link>
+                <Link href="/travel-planning-form" 
+                className="px-6 py-3 bg-eucalyptus hover:bg-eucalyptus text-white rounded font-semibold text-sm transition"
+                onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'services_contact' })}>
+                Nous écrire →
+              </Link>
+              <Link href="/blog" 
+                className="px-6 py-3 border border-white/30 hover:border-white/60 text-white rounded font-semibold text-sm transition"
+                onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'services_read_carnet' })}>
+                Lire le carnet →
+              </Link>
               </div>
             </div>
             <div className="grid grid-cols-1 gap-4" data-reveal="right">
