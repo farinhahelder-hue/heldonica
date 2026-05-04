@@ -72,7 +72,7 @@ const questions: Question[] = [
         scores: { explorateur_sensoriel: 1, contemplatif_alpin: 1, mediterraneen_gourmand: 2, curieux_patrimoine: 2 },
       },
       {
-        label: 'Changer souvent d'ambiance',
+        label: "Changer souvent d'ambiance",
         scores: { explorateur_sensoriel: 0, contemplatif_alpin: 0, mediterraneen_gourmand: 2, curieux_patrimoine: 3 },
       },
     ],
@@ -106,7 +106,7 @@ const questions: Question[] = [
         scores: { explorateur_sensoriel: 1, contemplatif_alpin: 1, mediterraneen_gourmand: 2, curieux_patrimoine: 2 },
       },
       {
-        label: 'Visite d un lieu patrimonial',
+        label: "Visite d'un lieu patrimonial",
         scores: { explorateur_sensoriel: 0, contemplatif_alpin: 1, mediterraneen_gourmand: 1, curieux_patrimoine: 3 },
       },
     ],
