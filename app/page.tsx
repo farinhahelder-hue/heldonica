@@ -68,6 +68,16 @@ function formatPosts(posts: BlogPost[]) {
     readTime: post.read_time ?? calcReadTime(post.content),
   }))
 }
+const schemaSpeakable = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: 'Heldonica — Slow Travel & Voyages Authentiques',
+  speakable: {
+    '@type': 'SpeakableSpecification',
+    cssSelector: ['h1', '[class*="hero"]', '[class*="intro"]'],
+  },
+  url: 'https://www.heldonica.fr',
+};
 
 export default async function Home() {
   const allPosts = await getAllPosts()
@@ -85,13 +95,19 @@ export default async function Home() {
     : null
 
   return (
-    <HomeClient
-      featured={featured}
-      travelPosts={travelPosts}
-      foodPosts={foodPosts}
-      totalPosts={allPosts.length}
-      coveredCountries={coveredCountries}
-      latestPosts={formatPosts(latestPosts)}
-    />
+    <>
+      <HomeClient
+        featured={featured}
+        travelPosts={travelPosts}
+        foodPosts={foodPosts}
+        totalPosts={allPosts.length}
+        coveredCountries={coveredCountries}
+        latestPosts={formatPosts(latestPosts)}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaSpeakable) }}
+      />
+    </>
   )
 }

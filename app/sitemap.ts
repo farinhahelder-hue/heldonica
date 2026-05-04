@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 import { getAllPosts } from '@/lib/blog-supabase';
 
-const BASE_URL = 'https://heldonica.fr';
+const BASE_URL = 'https://www.heldonica.fr';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
@@ -12,33 +12,33 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1.0,
     },
     {
+      url: `${BASE_URL}/slow-travel`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
       url: `${BASE_URL}/blog`,
       lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.9,
+      changeFrequency: 'weekly',
+      priority: 0.8,
     },
     {
       url: `${BASE_URL}/travel-planning`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
-      priority: 0.85,
+      priority: 0.9,
     },
-    /* {
-      url: `${BASE_URL}/hotel-consulting`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.85,
-    }, */
     {
       url: `${BASE_URL}/destinations`,
       lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.75,
+      changeFrequency: 'monthly',
+      priority: 0.8,
     },
     {
       url: `${BASE_URL}/destinations/madere`,
       lastModified: new Date(),
-      changeFrequency: 'weekly',
+      changeFrequency: 'monthly',
       priority: 0.8,
     },
     {
@@ -56,20 +56,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     {
       url: `${BASE_URL}/a-propos`,
       lastModified: new Date('2026-04-01'),
-      changeFrequency: 'monthly',
-      priority: 0.6,
+      changeFrequency: 'yearly',
+      priority: 0.5,
     },
     {
       url: `${BASE_URL}/contact`,
       lastModified: new Date('2026-04-01'),
-      changeFrequency: 'monthly',
+      changeFrequency: 'yearly',
       priority: 0.5,
     },
     {
       url: `${BASE_URL}/temoignages`,
       lastModified: new Date('2026-04-15'),
-      changeFrequency: 'monthly',
-      priority: 0.7,
+      changeFrequency: 'yearly',
+      priority: 0.5,
     },
     {
       url: `${BASE_URL}/etudes-de-cas`,
@@ -101,8 +101,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       post.created_at ??
       new Date().toISOString()
     ),
-    changeFrequency: 'monthly' as const,
-    priority: 0.75,
+    changeFrequency: 'weekly' as const,
+    priority: 0.8,
   }));
 
   return [...staticPages, ...blogPages];

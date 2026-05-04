@@ -4,20 +4,27 @@ import Footer from '@/components/Footer'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Notre histoire',
+  title: 'À Propos — Qui Sommes-Nous | Heldonica',
   description:
-    "Un duo né entre Madère, la Roumanie et Paris. Notre point de vue vient du terrain vécu à deux, et notre exigence sert aujourd'hui les solos, couples, familles et groupes d'amis.",
+    "On est Heldonica, un duo d'explorateurs passionnés par le slow travel et les pépites cachées. On voyage, on teste, on partage — et on conçoit tes voyages sur mesure.",
+  keywords: [
+    'heldonica',
+    'blog slow travel',
+    'qui sommes-nous',
+    'travel planner',
+    'voyage authentique',
+  ],
   alternates: {
-    canonical: 'https://heldonica.fr/a-propos',
+    canonical: 'https://www.heldonica.fr/a-propos',
   },
   openGraph: {
-    url: 'https://heldonica.fr/a-propos',
-    title: 'Notre histoire',
+    url: 'https://www.heldonica.fr/a-propos',
+    title: 'À Propos — Qui Sommes-Nous | Heldonica',
     description:
-      "Un duo né entre Madère, la Roumanie et Paris. Notre point de vue vient du terrain vécu à deux, et notre exigence sert aujourd'hui les solos, couples, familles et groupes d'amis.",
+      "On est Heldonica, un duo d'explorateurs passionnés par le slow travel et les pépites cachées.",
     images: [
       {
-        url: 'https://heldonica.fr/og-default.jpg',
+        url: 'https://www.heldonica.fr/og-default.jpg',
         width: 1200,
         height: 630,
         alt: 'Heldonica — Slow travel, pépites et voyages hors des sentiers battus',
