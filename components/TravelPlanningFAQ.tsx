@@ -13,7 +13,7 @@ const faqs = [
   },
   {
     q: 'Travaillez-vous seulement sur des destinations déjà vécues ?',
-    a: 'Notre préférence va au terrain qu\'on connaît déjà, parce que c\'est là qu\'on est les plus justes. Quand on ouvre un nouveau terrain, on le dit clairement et on garde le même niveau d\'exigence.',
+    a: "Notre préférence va au terrain qu'on connaît déjà, parce que c'est là qu'on est les plus justes. Quand on ouvre un nouveau terrain, on le dit clairement et on garde le même niveau d'exigence.",
   },
   {
     q: 'Faites-vous les réservations à notre place ?',
