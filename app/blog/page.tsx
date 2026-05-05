@@ -3,6 +3,7 @@ import { getAllPosts, formatDate } from '@/lib/blog-supabase'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import BlogClientPage from '@/components/BlogClientPage'
+import NewsletterForm from '@/components/NewsletterForm'
 import Breadcrumb from '@/components/Breadcrumb'
 
 function calcReadTime(content: string | null): number {
@@ -67,6 +68,7 @@ export default async function BlogPage() {
       <Header />
       <Breadcrumb />
       <BlogClientPage posts={postsWithFormattedDate} />
+      <NewsletterForm variant="blog" />
       <Footer />
     </>
   )
