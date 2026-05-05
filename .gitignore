@@ -23,3 +23,4 @@ app/test-supabase/
 supabase/.temp/
 
 tsconfig.tsbuildinfo
+skills/
