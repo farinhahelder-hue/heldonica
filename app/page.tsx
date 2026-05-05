@@ -71,7 +71,7 @@ function formatPosts(posts: BlogPost[]) {
 
 const schemaOrganization = {
   '@context': 'https://schema.org',
-  '@type': 'TravelAgency',
+  '@type': 'Organization',
   '@id': 'https://www.heldonica.fr/#organization',
   name: 'Heldonica',
   url: 'https://www.heldonica.fr',
@@ -82,18 +82,18 @@ const schemaOrganization = {
     height: 60,
   },
   description:
-    'Agence de travel planning slow travel écoresponsable pour couples, solos et familles. Carnets de voyage terrain, pépites dénichées et itinéraires sur mesure hors des sentiers battus.',
+    'Blog slow travel vécu en duo et service de travel planning sur mesure écoresponsable. On voyage lentement, on teste vraiment, on partage ce qui tient sur le terrain.',
   foundingLocation: {
     '@type': 'Place',
     addressCountry: 'FR',
     addressLocality: 'Paris',
   },
-  areaServed: ['FR', 'PT', 'RO', 'CH', 'EU'],
   knowsAbout: [
     'slow travel',
     'voyage écoresponsable',
     'travel planning sur mesure',
     'voyage en couple',
+    'blog voyage',
     'Madère',
     'Roumanie',
     'Suisse',
