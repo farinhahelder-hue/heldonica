@@ -1,4 +1,4 @@
-﻿import { getPostBySlug, getAllSlugs, getRelatedPosts, formatDate } from '@/lib/blog-supabase'
+import { getPostBySlug, getAllSlugs, getRelatedPosts, formatDate } from '@/lib/blog-supabase'
 import type { BlogPost } from '@/lib/blog-supabase'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
@@ -10,6 +10,7 @@ import NewsletterForm from '@/components/NewsletterForm'
 import ShareButtons from '@/components/ShareButtons'
 import EnhancedRichContent from '@/components/EnhancedRichContent'
 import { sanitizeHtml } from '@/lib/sanitize-html'
+import BlogCtaLink from '@/components/BlogCtaLink'
 
 export const revalidate = 60
 
@@ -368,13 +369,12 @@ export default async function BlogPostPage({ params }: Props) {
             <p className="text-sm text-charcoal/70 mb-8 leading-relaxed max-w-xl mx-auto">
               Comme ce Carnet, votre voyage mérite qu&apos;on prend le temps. On vous propose un accompagnement personnalise pour créer l&apos;itinéraire qui vous ressemble — sans press, sans case a cocher.
             </p>
-            <Link
+            <BlogCtaLink
               href="/travel-planning"
+              label="Découvrir le Travel Planning →"
+              gtag_label="blog_travel_planning_cta"
               className="inline-flex items-center gap-2 px-8 py-4 bg-eucalyptus text-white font-semibold rounded-lg hover:bg-eucalyptus/90 transition-colors"
-              onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'blog_travel_planning_cta' })}
-            >
-              Découvrir le Travel Planning →
-            </Link>
+            />
           </div>
         </section>
       </main>
