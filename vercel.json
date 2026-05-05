@@ -23,7 +23,7 @@
   "crons": [
     {
       "path": "/api/cms/publish-scheduled",
-      "schedule": "0 * * * *"
+      "schedule": "0 0 * * *"
     }
   ]
 }
