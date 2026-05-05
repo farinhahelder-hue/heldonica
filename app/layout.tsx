@@ -184,6 +184,20 @@ export default function RootLayout({
             gtag('config', 'G-JDJNTZLBJS');
           `
         }} />
+        <Script id="ga-router" strategy="afterInteractive" dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              var originalPushState = window.history.pushState;
+              window.history.pushState = function() {
+                originalPushState.apply(this, arguments);
+                window.gtag('event', 'page_view');
+              };
+              window.addEventListener('popstate', function() {
+                window.gtag('event', 'page_view');
+              });
+            })();
+          `
+        }} />
       </head>
       <body>
         <AuthProvider>
