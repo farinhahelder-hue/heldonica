@@ -182,8 +182,10 @@ interface HomeProps {
 export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries }: HomeProps) {
   useScrollReveal()
   const featImg = featured ? postImage(featured) : null
-  const publishedArticles = totalPosts || 23
-  const countryCount = typeof coveredCountries === 'number' ? coveredCountries : (coveredCountries ? parseInt(coveredCountries) : 7)
+  // Use real published count, fallback to reasonable number
+  const publishedArticles = typeof totalPosts === 'number' && totalPosts > 0 ? totalPosts : 10
+  // Use real covered_countries from settings, fallback to 3 (France, Madère, Roumanie where duo lived)
+  const countryCount = typeof coveredCountries === 'number' && coveredCountries > 0 ? coveredCountries : (coveredCountries ? parseInt(coveredCountries) : 3)
 
   return (
     <>
@@ -405,7 +407,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4">Food &amp; Lifestyle</p>
                 <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany leading-tight mb-4">Inspirations gourmandes</h2>
                 <p className="text-base text-charcoal/70 leading-relaxed mb-6">
-                  On ne voyage pas seulement pour voir — on voyage pour goûter. Chaque destination révèle ses saveurs authentiques : les recettes portugaises transmises de génération en génération, les brasseries parisiennes que personne ne connaît encore.
+                  On mange avant de visiter. Le bolo do caco chaud acheté au marché de Câmara de Lobos, le bacalhau de la dame du coin à Funchal, la Schwarzwälder Kirschtorte à Zurich un mardi pluvieux — c&apos;est ça qu&apos;on ramène dans nos carnets. Pas des restaurants étoilés. Des adresses qui n&apos;ont pas de site web.
                 </p>
                 <div className="space-y-4 mb-8">
                   {foodPosts.slice(0, 3).map((p) => (
