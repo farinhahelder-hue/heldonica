@@ -124,11 +124,12 @@ const schemaVideo = {
 
 const schemaOrganization = {
   '@context': 'https://schema.org',
-  '@type': ['Organization', 'TravelAgency'],
+  '@type': 'Organization',
+  '@id': `${SITE_URL}/#organization`,
   name: 'Heldonica',
   url: SITE_URL,
   logo: `${SITE_URL}/logo.png`,
-  description: 'Travel planning sur mesure écoresponsable et blog slow travel. Pépites dénichées, destinations authentiques, itinéraires hors des sentiers battus.',
+  description: 'Blog slow travel et service de travel planning sur mesure écoresponsable. Pépites dénichées, destinations authentiques, itinéraires hors des sentiers battus.',
   areaServed: [
     { '@type': 'Country', name: 'France' },
     { '@type': 'Country', name: 'Suisse' },
