@@ -1,10 +1,8 @@
-'use client'
-
-import { useState } from 'react'
 import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
+import TravelPlanningFAQ from '@/components/TravelPlanningFAQ'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
@@ -22,62 +20,6 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://www.heldonica.fr/travel-planning',
   },
-}
-
-const faqs = [
-  {
-    q: 'Combien coûte la conception sur mesure ?',
-    a: "Chaque projet est différent. On commence par un échange gratuit pour comprendre ce que tu veux vraiment faire, puis on chiffre selon la durée, la complexité et le niveau d’accompagnement.",
-  },
-  {
-    q: 'Dans combien de temps reçoit-on le carnet ?',
-    a: 'En général sous 7 à 10 jours après validation du brief. Si le départ est proche, dis-le-nous tout de suite et on te dira franchement ce qui est tenable.',
-  },
-  {
-    q: 'Travaillez-vous seulement sur des destinations déjà vécues ?',
-    a: 'Notre préférence va au terrain qu’on connaît déjà, parce que c’est là qu’on est les plus justes. Quand on ouvre un nouveau terrain, on le dit clairement et on garde le même niveau d’exigence.',
-  },
-  {
-    q: 'Faites-vous les réservations à notre place ?',
-    a: 'On peut fournir les liens, les contacts et le bon ordre. Si tu veux un accompagnement plus complet, on le cadre ensemble au moment du brief.',
-  },
-  {
-    q: 'Qu’est-ce qu’on reçoit exactement ?',
-    a: 'Un carnet clair et concret : rythme jour par jour, adresses choisies, hébergements, transports, conseils pratiques et ce qu’il faut éviter pour ne pas casser le voyage.',
-  },
-]
-
-function FAQ() {
-  const [open, setOpen] = useState<number | null>(null)
-
-  return (
-    <div className="space-y-3">
-      {faqs.map((item, i) => (
-        <div key={i} className="border border-stone-200 rounded-xl overflow-hidden">
-          <button
-            onClick={() => setOpen(open === i ? null : i)}
-            className="w-full flex items-center justify-between px-6 py-4 text-left font-semibold text-stone-900 text-sm hover:bg-stone-50 transition"
-          >
-            <span>{item.q}</span>
-            <svg
-              className={`w-4 h-4 shrink-0 ml-4 transition-transform ${open === i ? 'rotate-180' : ''}`}
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M6 9l6 6 6-6" />
-            </svg>
-          </button>
-          {open === i && (
-            <div className="px-6 pb-5 text-stone-600 text-sm leading-relaxed border-t border-stone-100">
-              <p className="pt-4">{item.a}</p>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  )
 }
 
 export default function TravelPlanning() {
@@ -111,26 +53,22 @@ export default function TravelPlanning() {
           <div className="absolute inset-0 bg-gradient-to-b from-stone-950/60 via-transparent to-stone-950" />
           <div className="relative max-w-4xl mx-auto px-6 md:px-10 py-28 md:py-40 text-center">
 
-            {/* Tagline */}
             <p className="fade-up-1 text-amber-400 text-xs font-bold tracking-[0.2em] uppercase mb-5">
               Travel Planning · Terrain vécu
             </p>
 
-            {/* Accroche principale */}
             <h1 className="fade-up-2 text-4xl md:text-6xl lg:text-7xl font-serif font-light text-white leading-[1.1] mb-6">
               On ne fait pas des itinéraires.
               <br />
               <em className="text-amber-300">On fait le tien.</em>
             </h1>
 
-            {/* Sous-titre */}
             <p className="fade-up-3 text-base md:text-xl text-stone-300 max-w-2xl mx-auto leading-relaxed mb-10">
               Tu nous envoies tes contraintes réelles — temps, budget, énergie, envie.
               On transforme ça en séquence concrète, avec les adresses qu&apos;on a testées
               et l&apos;ordre qui a du sens sur le terrain.
             </p>
 
-            {/* CTAs */}
             <div className="fade-up-4 flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
               <Link
                 href="/travel-planning-form"
@@ -146,7 +84,6 @@ export default function TravelPlanning() {
               </Link>
             </div>
 
-            {/* Audience — 3 micro-cards */}
             <div className="fade-up-5 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto">
               <div className="bg-white/8 border border-white/15 rounded-xl px-4 py-4 text-left">
                 <p className="text-amber-300 text-xs font-bold uppercase tracking-widest mb-1">Couples aventuriers</p>
@@ -182,7 +119,7 @@ export default function TravelPlanning() {
                     'Un rythme pensé à J0 qui casse à J2',
                     'Des adresses "bien notées" mais pas faites pour toi',
                     'La peur de passer à côté de ce qui aurait vraiment compté',
-                    'Un voyage qui se remplit plus qu’il ne se vit',
+                    'Un voyage qui se remplit plus qu\'il ne se vit',
                   ].map((txt) => (
                     <li key={txt} className="flex gap-3 items-start text-stone-600 text-sm">
                       <span className="text-stone-300 mt-0.5 shrink-0">✕</span>
@@ -237,13 +174,13 @@ export default function TravelPlanning() {
                 {
                   num: '03',
                   title: 'On assemble ton rythme',
-                  desc: 'Adresses, ordre, temps de trajet, respirations, jours forts : rien n’est posé au hasard. On compose une séquence qui tient debout sur place.',
+                  desc: 'Adresses, ordre, temps de trajet, respirations, jours forts : rien n\'est posé au hasard. On compose une séquence qui tient debout sur place.',
                   badge: '7–10 jours',
                 },
                 {
                   num: '04',
                   title: 'Tu pars avec du concret',
-                  desc: 'Carnet clair, hébergements, restaurants, transports, conseils et erreurs à éviter. Tu n’as plus besoin d’improviser ce qui devait être anticipé.',
+                  desc: 'Carnet clair, hébergements, restaurants, transports, conseils et erreurs à éviter. Tu n\'as plus besoin d\'improviser ce qui devait être anticipé.',
                   badge: 'Clé en main',
                 },
               ].map((step, i) => (
@@ -273,12 +210,12 @@ export default function TravelPlanning() {
                 {
                   num: '01',
                   title: 'Rythme sur mesure',
-                  desc: 'Pas une suite d’adresses. Une cadence juste, pensée pour ce que tu peux vraiment vivre sans t’épuiser.',
+                  desc: 'Pas une suite d\'adresses. Une cadence juste, pensée pour ce que tu peux vraiment vivre sans t\'épuiser.',
                 },
                 {
                   num: '02',
                   title: 'Adresses testées',
-                  desc: 'Hébergements, restaurants, détours et moments forts qu’on a vécus ou vérifiés avec la même exigence.',
+                  desc: 'Hébergements, restaurants, détours et moments forts qu\'on a vécus ou vérifiés avec la même exigence.',
                 },
                 {
                   num: '03',
@@ -288,12 +225,12 @@ export default function TravelPlanning() {
                 {
                   num: '04',
                   title: 'Ouvert à ton format',
-                  desc: 'Solo, famille curieuse ou groupe d’amis : la logique reste la même, seul le réglage change.',
+                  desc: 'Solo, famille curieuse ou groupe d\'amis : la logique reste la même, seul le réglage change.',
                 },
                 {
                   num: '05',
                   title: 'Logistique lisible',
-                  desc: 'Le bon ordre, les bons trajets, les bons points d’attention. Ce qui paraît léger à vivre est souvent lourd à préparer.',
+                  desc: 'Le bon ordre, les bons trajets, les bons points d\'attention. Ce qui paraît léger à vivre est souvent lourd à préparer.',
                 },
                 {
                   num: '06',
@@ -318,17 +255,17 @@ export default function TravelPlanning() {
             <div className="grid md:grid-cols-3 gap-6">
               {[
                 {
-                  quote: 'On n’a jamais eu la sensation d’exécuter un plan. On avançait, et tout semblait tomber au bon moment.',
+                  quote: 'On n\'a jamais eu la sensation d\'exécuter un plan. On avançait, et tout semblait tomber au bon moment.',
                   name: 'Marie & Théo',
                   dest: 'Madère · 10 jours',
                 },
                 {
-                  quote: 'Le carnet était précis sans être rigide. On sentait qu’il avait été pensé par des gens qui avaient vraiment marché là-bas.',
+                  quote: 'Le carnet était précis sans être rigide. On sentait qu\'il avait été pensé par des gens qui avaient vraiment marché là-bas.',
                   name: 'Sophie & Lucas',
                   dest: 'Colombie · 14 jours',
                 },
                 {
-                  quote: 'Même avec nos contraintes enfants + budget + fatigue, on a eu un voyage qui nous ressemblait. Et ça, c’est rare.',
+                  quote: 'Même avec nos contraintes enfants + budget + fatigue, on a eu un voyage qui nous ressemblait. Et ça, c\'est rare.',
                   name: 'Camille & Romain',
                   dest: 'Sicile · 8 jours',
                 },
@@ -349,7 +286,7 @@ export default function TravelPlanning() {
           <div className="max-w-3xl mx-auto px-6 md:px-10">
             <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-3">Questions fréquentes</p>
             <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-10">On répond à tes doutes</h2>
-            <FAQ />
+            <TravelPlanningFAQ />
           </div>
         </section>
 
@@ -370,7 +307,7 @@ export default function TravelPlanning() {
               <em>On s&apos;occupe du reste.</em>
             </h2>
             <p className="text-amber-200 leading-relaxed mb-10">
-              Pas besoin d’avoir le voyage déjà écrit dans ta tête. On préfère même quand le vrai arrive brut : c’est là qu’on travaille le mieux.
+              Pas besoin d\'avoir le voyage déjà écrit dans ta tête. On préfère même quand le vrai arrive brut : c\'est là qu\'on travaille le mieux.
             </p>
             <Link
               href="/travel-planning-form"
@@ -403,33 +340,47 @@ export default function TravelPlanning() {
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             '@context': 'https://schema.org',
-            '@type': 'FAQPage',
-            mainEntity: [
-              {
-                '@type': 'Question',
-                name: "Qu'est-ce qu'un travel planning sur mesure ?",
-                acceptedAnswer: {
-                  '@type': 'Answer',
-                  text: "Un travel planning sur mesure, c'est la conception complète de ton itinéraire de voyage selon tes envies, ton rythme et tes valeurs. Heldonica crée des voyages écoresponsables hors des sentiers battus, avec des adresses authentiques testées sur le terrain.",
+            '@type': 'Service',
+            name: 'Travel Planning Sur Mesure',
+            provider: {
+              '@type': 'TravelAgency',
+              name: 'Heldonica',
+              url: 'https://www.heldonica.fr',
+              description: 'Agence de travel planning slow travel écoresponsable pour couples, solos et familles. Itinéraires sur mesure hors des sentiers battus.',
+              areaServed: 'FR',
+              knowsAbout: ['slow travel', 'voyage écoresponsable', 'voyage sur mesure', 'travel planning'],
+            },
+            description: 'Conception sur mesure d\'itinéraires slow travel écoresponsables. Adresses testées, rythme personnalisé, carnets de voyage concrets.',
+            url: 'https://www.heldonica.fr/travel-planning',
+            mainEntityOfPage: {
+              '@type': 'FAQPage',
+              mainEntity: [
+                {
+                  '@type': 'Question',
+                  name: "Qu'est-ce qu'un travel planning sur mesure ?",
+                  acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: "Un travel planning sur mesure, c'est la conception complète de ton itinéraire de voyage selon tes envies, ton rythme et tes valeurs. Heldonica crée des voyages écoresponsables hors des sentiers battus, avec des adresses authentiques testées sur le terrain.",
+                  },
                 },
-              },
-              {
-                '@type': 'Question',
-                name: 'Combien coûte un travel planning sur mesure ?',
-                acceptedAnswer: {
-                  '@type': 'Answer',
-                  text: 'Le tarif varie selon la durée et la complexité du voyage. Contacte-nous via le formulaire pour recevoir un devis personnalisé.',
+                {
+                  '@type': 'Question',
+                  name: 'Combien coûte un travel planning sur mesure ?',
+                  acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: 'Le tarif varie selon la durée et la complexité du voyage. Contacte-nous via le formulaire pour recevoir un devis personnalisé.',
+                  },
                 },
-              },
-              {
-                '@type': 'Question',
-                name: 'Pour quels types de voyages proposez-vous du travel planning ?',
-                acceptedAnswer: {
-                  '@type': 'Answer',
-                  text: "On conçoit des voyages slow travel écoresponsables en Europe et à l'international : road trips, city breaks lents, immersions locales, destinations hors des sentiers battus comme Madère, la Roumanie ou la Sicile.",
+                {
+                  '@type': 'Question',
+                  name: 'Pour quels types de voyages proposez-vous du travel planning ?',
+                  acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: "On conçoit des voyages slow travel écoresponsables en Europe et à l'international : road trips, city breaks lents, immersions locales, destinations hors des sentiers battus comme Madère, la Roumanie ou la Sicile.",
+                  },
                 },
-              },
-            ],
+              ],
+            },
           }),
         }}
       />

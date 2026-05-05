@@ -1,4 +1,4 @@
-﻿import type { Metadata } from 'next';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -27,9 +27,9 @@ const offers = [
   {
     title: 'IA utile, pas gadget',
     description:
-      'On vous aide à choisir les bons usages : ceux qui font gagner du temps, clarifient l’information et renforcent l’expérience sans la déshumaniser.',
+      'On vous aide à choisir les bons usages : ceux qui font gagner du temps, clarifient l\'information et renforcent l\'expérience sans la déshumaniser.',
     bullets: [
-      'Cas d’usage réalistes',
+      'Cas d\'usage réalistes',
       'Outils adaptés à votre équipe',
       'Mise en place progressive',
     ],
@@ -38,32 +38,32 @@ const offers = [
 
 const observations = [
   {
-    title: 'Ce qu’on comprend en arrivant',
+    title: 'Ce qu\'on comprend en arrivant',
     description:
       'Votre site, votre promesse, votre parcours de réservation : est-ce que tout raconte la même chose, et est-ce que le client comprend vite ?',
   },
   {
-    title: 'Ce qui se casse entre l’envie et l’acte',
+    title: 'Ce qui se casse entre l\'envie et l\'acte',
     description:
       'Là où vous perdez de la confiance, du temps ou du direct. Souvent, le problème est visible bien avant les chiffres.',
   },
   {
     title: 'Ce qui peut vraiment tenir chez vous',
     description:
-      'On repart avec une feuille de route réaliste pour votre taille, votre équipe et votre niveau d’énergie. Pas une usine à gaz.',
+      'On repart avec une feuille de route réaliste pour votre taille, votre équipe et votre niveau d\'énergie. Pas une usine à gaz.',
   },
 ];
 
 const faqs = [
   {
-    question: 'Quel type d’hôtel accompagnez-vous ?',
+    question: 'Quel type d\'hôtel accompagnez-vous ?',
     answer:
       'Des hôtels indépendants, maisons de charme, petits groupes et lieux qui veulent garder une identité claire tout en améliorant leur lisibilité et leur efficacité.',
   },
   {
     question: 'Travaillez-vous seulement sur le revenue management ?',
     answer:
-      'Non. On regarde aussi le discours, l’expérience client, la présence locale, le parcours de réservation et les bons usages de l’IA quand ils ont du sens.',
+      'Non. On regarde aussi le discours, l\'expérience client, la présence locale, le parcours de réservation et les bons usages de l\'IA quand ils ont du sens.',
   },
   {
     question: 'Comment démarre une mission ?',
@@ -73,11 +73,11 @@ const faqs = [
 ];
 
 export const metadata: Metadata = {
-  title: 'Consulting hôtelier | Heldonica',
+  title: 'Consulting Hôtelier Indépendant — Diagnostic, Distribution & IA | Heldonica',
   description:
-    'On connaît vos clients parce qu’on en fait partie. Regard terrain, parcours client, visibilité locale et outils IA utiles pour hôtels indépendants.',
+    'On connaît vos clients parce qu\'on en fait partie. Regard terrain, parcours client, visibilité locale et outils IA utiles pour hôtels indépendants.',
   alternates: {
-    canonical: 'https://heldonica.fr/hotel-consulting',
+    canonical: 'https://www.heldonica.fr/hotel-consulting',
   },
 };
 
@@ -93,10 +93,10 @@ export default function HotelConsultingPage() {
             </p>
             <h1 className="text-4xl md:text-6xl font-serif text-mahogany mb-6 max-w-4xl">
               On connaît vos clients mieux que la plupart de vos consultants
-              <span className="block italic text-eucalyptus">parce qu’on est vos clients.</span>
+              <span className="block italic text-eucalyptus">parce qu\'on est vos clients.</span>
             </h1>
             <p className="text-charcoal/80 text-lg max-w-3xl leading-relaxed mb-8">
-              Pas de promesses chiffrées plaquées sur un deck. On arrive, on regarde ce qui se passe vraiment, on vous dit ce qu’on voit. Ensuite, on travaille ensemble.
+              Pas de promesses chiffrées plaquées sur un deck. On arrive, on regarde ce qui se passe vraiment, on vous dit ce qu\'on voit. Ensuite, on travaille ensemble.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
@@ -147,7 +147,7 @@ export default function HotelConsultingPage() {
                 Rendez-vous stratégique de 90 min — 290 € HT
               </h2>
               <p className="text-charcoal/80 max-w-3xl leading-relaxed mb-6">
-                On pose le diagnostic, on trie les urgences, on voit ce qui relève du discours, de l’opérationnel, du direct ou des outils. Si une mission suit, ce montant est déduit de la phase 1.
+                On pose le diagnostic, on trie les urgences, on voit ce qui relève du discours, de l\'opérationnel, du direct ou des outils. Si une mission suit, ce montant est déduit de la phase 1.
               </p>
               <div className="grid sm:grid-cols-3 gap-4 mb-8">
                 <div className="rounded-xl bg-cloud-dancer/70 p-4 border border-stone-200">
@@ -175,7 +175,7 @@ export default function HotelConsultingPage() {
 
         <section className="bg-white section-spacing">
           <div className="container">
-            <h2 className="text-3xl md:text-4xl font-serif text-mahogany mb-8">Ce qu’on regarde d’abord</h2>
+            <h2 className="text-3xl md:text-4xl font-serif text-mahogany mb-8">Ce qu\'on regarde d\'abord</h2>
             <div className="grid md:grid-cols-3 gap-6">
               {observations.map((item) => (
                 <article key={item.title} className="rounded-2xl border border-stone-200 p-6">
@@ -201,7 +201,65 @@ export default function HotelConsultingPage() {
           </div>
         </section>
       </main>
+
       <Footer />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Service',
+            name: 'Consulting Hôtelier Indépendant',
+            provider: {
+              '@type': 'LocalBusiness',
+              '@id': 'https://www.heldonica.fr/#organization',
+              name: 'Heldonica',
+              url: 'https://www.heldonica.fr',
+              description: 'Conseil hôtelier indépendant : diagnostic terrain, distribution, SEO local et IA pour hôtels indépendants et maisons de charme.',
+              areaServed: 'FR',
+            },
+            description: 'Accompagnement stratégique pour hôtels indépendants : diagnostic expérience client, optimisation de la distribution, SEO local et intégration IA utile.',
+            url: 'https://www.heldonica.fr/hotel-consulting',
+            offers: {
+              '@type': 'Offer',
+              name: 'Rendez-vous stratégique 90 min',
+              price: '290',
+              priceCurrency: 'EUR',
+              description: 'Diagnostic terrain, feuille de route priorisée, compte-rendu sous 48h.',
+            },
+            mainEntityOfPage: {
+              '@type': 'FAQPage',
+              mainEntity: [
+                {
+                  '@type': 'Question',
+                  name: 'Quel type d\'hôtel accompagnez-vous ?',
+                  acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: 'Des hôtels indépendants, maisons de charme, petits groupes et lieux qui veulent garder une identité claire tout en améliorant leur lisibilité et leur efficacité.',
+                  },
+                },
+                {
+                  '@type': 'Question',
+                  name: 'Travaillez-vous seulement sur le revenue management ?',
+                  acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: 'Non. On regarde aussi le discours, l\'expérience client, la présence locale, le parcours de réservation et les bons usages de l\'IA quand ils ont du sens.',
+                  },
+                },
+                {
+                  '@type': 'Question',
+                  name: 'Comment démarre une mission ?',
+                  acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: 'Par un rendez-vous de cadrage. On regarde votre contexte, ce qui vous agace vraiment, et on vous dit franchement si on pense pouvoir vous aider utilement.',
+                  },
+                },
+              ],
+            },
+          }),
+        }}
+      />
     </>
   );
 }
