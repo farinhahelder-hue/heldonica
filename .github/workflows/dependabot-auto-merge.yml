@@ -1,0 +1,86 @@
+name: Dependabot Auto-Merge
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  dependabot:
+    runs-on: ubuntu-latest
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          alert-lookup: true
+          vuln-lookup: true
+
+      - name: Wait for required checks
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const prNumber = context.payload.pull_request.number;
+            
+            // Wait up to 30 minutes for checks to pass
+            const maxAttempts = 60;
+            const intervalMs = 30000;
+            
+            async function waitForChecks() {
+              for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                // Get the latest commit SHA on this PR
+                const { data: pr } = await github.rest.pulls.get({
+                  owner,
+                  repo,
+                  pull_number: prNumber
+                });
+                
+                const commitSha = pr.head.sha;
+                
+                // Get the combined status for this commit
+                const { data: combinedStatus } = await github.rest.repos.getCombinedStatusForRef({
+                  owner,
+                  repo,
+                  ref: commitSha
+                });
+                
+                // Check if all statuses are success
+                const allPassed = combinedStatus.state === 'success';
+                const hasFailure = combinedStatus.statuses.some(s => s.state === 'failure' || s.state === 'error');
+                
+                if (allPassed) {
+                  console.log('All checks passed!');
+                  return true;
+                }
+                
+                if (hasFailure) {
+                  console.log('Some checks failed!');
+                  return false;
+                }
+                
+                console.log(`Waiting for checks... (attempt ${attempt + 1}/${maxAttempts})`);
+                await new Promise(resolve => setTimeout(resolve, intervalMs));
+              }
+              
+              console.log('Timeout waiting for checks');
+              return false;
+            }
+            
+            const success = await waitForChecks();
+            if (!success) {
+              core.setFailed('Checks did not pass');
+            }
+
+      - name: Enable auto-merge
+        run: gh pr merge --auto --merge "$NUMBER"
+        env:
+          NUMBER: ${{ github.event.pull_request.number }}
