@@ -38,6 +38,16 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
+  // Résoudre le conflit ESM avec html-encoding-sniffer en production
+  // Ignore certain ESM modules during server build
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals = [...(config.externals || []), 'jsdom'];
+    }
+    // Use older version of html-encoding-sniffer compatible with CommonJS
+    return config;
+  },
+
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 2678400,
