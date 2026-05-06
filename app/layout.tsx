@@ -15,31 +15,29 @@ export const metadata: Metadata = {
   description:
     'Blog slow travel et pépites dénichées hors des sentiers battus. Carnets de route, destinations authentiques et travel planning sur mesure écoresponsable en Europe et ailleurs.',
   keywords: [
-    // Slow travel — axe principal (volume en hausse +156% en 2025)
     'slow travel',
     'slow travel Europe',
     'slow travel France',
     'itinéraire slow travel',
     'voyage lent',
-    // Destinations & découvertes
     'voyage hors sentiers battus',
     'destination authentique',
     'pépites voyage',
     'voyage insolite Europe',
     'que faire Madère',
     'itinéraire Roumanie',
-    // Travel planning — axe commercial (intention d\'achat)
     'travel planning sur mesure',
     'voyage sur mesure écoresponsable',
     'itinéraire personnalisé',
     'travel planner francophone',
-    // Éco & responsable
     'voyage écoresponsable',
     'tourisme responsable',
-    // Brand
     'heldonica',
     'carnet de voyage',
   ],
+  verification: {
+    google: '74b3587a197fe151',
+  },
   authors: [{ name: 'Heldonica', url: SITE_URL }],
   creator: 'Heldonica',
   publisher: 'Heldonica',
