@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 
 interface MediaFile {
   name: string
@@ -31,17 +31,12 @@ export default function MediaPage({ searchParams }: { searchParams: Record<strin
   const [googlePhotos, setGooglePhotos] = useState<GooglePhoto[]>([])
   const [loadingGoogle, setLoadingGoogle] = useState(false)
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    if (pwd && tab === 'local') loadFiles()
-  }, [pwd, tab])
-
-  function showToast(msg: string) {
+  const showToast = useCallback((msg: string) => {
     setToast(msg)
     setTimeout(() => setToast(''), 3000)
-  }
+  }, [])
 
-  async function loadFiles() {
+  const loadFiles = useCallback(async () => {
     setLoading(true)
     try {
       const res = await fetch('/api/cms/media-storage', { headers: { 'x-cms-password': pwd } })
@@ -50,7 +45,11 @@ export default function MediaPage({ searchParams }: { searchParams: Record<strin
       else showToast(data.error || 'Erreur')
     } catch (e) { showToast('Erreur') }
     setLoading(false)
-  }
+  }, [pwd, showToast])
+
+  useEffect(() => {
+    if (pwd && tab === 'local') loadFiles()
+  }, [pwd, tab, loadFiles])
 
   async function handleDelete(name: string) {
     if (!confirm('Supprimer ' + name + '?')) return
@@ -95,9 +94,9 @@ export default function MediaPage({ searchParams }: { searchParams: Record<strin
         window.history.replaceState({}, '', window.location.pathname + '?pwd=' + pwd)
       }
     }
-  }, [pwd])
+  }, [pwd, loadGooglePhotos])
 
-  async function loadGooglePhotos(token: string) {
+  const loadGooglePhotos = useCallback(async (token: string) => {
     setLoadingGoogle(true)
     try {
       const res = await fetch('/api/cms/google-photos', {
@@ -108,7 +107,7 @@ export default function MediaPage({ searchParams }: { searchParams: Record<strin
       else showToast(data.error || 'Erreur Google')
     } catch (e) { showToast('Erreur') }
     setLoadingGoogle(false)
-  }
+  }, [showToast])
 
   async function importFromGoogle(photo: GooglePhoto) {
     setImporting(photo.id)
