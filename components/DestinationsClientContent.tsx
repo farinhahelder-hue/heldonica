@@ -2,27 +2,9 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import type { Metadata } from 'next';
+import SlowTravelQuiz from '@/components/SlowTravelQuiz';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import SlowTravelQuiz from '@/components/SlowTravelQuiz';
-
-export const metadata: Metadata = {
-  title: 'Destinations Hors des Sentiers Battus — Pépites Dénichées | Heldonica',
-  description:
-    'Madère, Roumanie, Sicile et bien d\'autres : on te partage nos destinations authentiques testées sur le terrain, loin des foules. Itinéraires et pépites dénichées.',
-  keywords: [
-    'destination hors sentiers battus',
-    'destination authentique',
-    'que faire Madère',
-    'itinéraire Roumanie',
-    'voyage insolite Europe',
-    'pépites voyage',
-  ],
-  alternates: {
-    canonical: 'https://www.heldonica.fr/destinations',
-  },
-};
 
 type DestinationCard = {
   name: string;
@@ -44,9 +26,9 @@ const destinations: DestinationCard[] = [
     country: 'Portugal',
     style: 'nature',
     duration: '7-10',
-    description: "L'île qu'on a mise trois ans à vraiment comprendre. Chaque retour révèle quelque chose que le précédent avait raté.",
+    description: "L’île qu’on a mise trois ans à vraiment comprendre. Chaque retour révèle quelque chose que le précédent avait raté.",
     image: 'https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg',
-    budget: '1 400 à 1 800 € / duo / 7 jours',
+    budget: '1 400 à 1 800 € / duo / 7 jours',
     season: 'mars à juin · septembre à novembre',
     verdict: 'Le genre d’île qui te force à ralentir si tu veux qu’elle s’ouvre.',
   },
@@ -57,7 +39,7 @@ const destinations: DestinationCard[] = [
     style: 'food',
     duration: '5-7',
     description: 'Le sud-est qu’on prend par la pierre, par le ventre et par les fins d’après-midi qui durent plus que prévu.',
-    image: '/images/badges-heldonica.svg',
+    image: 'https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?w=800&q=80',
     budget: 'Sur mesure',
     season: 'avril à juin · septembre à octobre',
     verdict: 'À faire lentement, sinon la Sicile ne te donne que sa surface.',
@@ -233,7 +215,7 @@ export default function DestinationsPage() {
                 </p>
                 <Link
                   href="/travel-planning-form"
-                  className="inline-flex px-6 py-3 rounded-lg bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors"
+                  className="inline-flex px-6 py-3 rounded-full bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors"
                 >
                   Nous écrire →
                 </Link>
@@ -284,7 +266,7 @@ export default function DestinationsPage() {
 
                         <Link
                           href={item.slug}
-                          className="inline-flex px-5 py-2.5 rounded-lg bg-mahogany text-white font-semibold hover:bg-mahogany/90 transition-all duration-200"
+                          className="inline-flex px-5 py-2.5 rounded-full bg-mahogany text-white font-semibold hover:bg-mahogany/90 transition-all duration-200"
                         >
                           {cta}
                         </Link>
@@ -314,15 +296,15 @@ export default function DestinationsPage() {
             mainEntity: [
               {
                 '@type': 'Question',
-                name: 'Quelles destinations propose Heldonica ?',
+                name: 'Quelles destinations propose Heldonica ?',
                 acceptedAnswer: {
                   '@type': 'Answer',
-                  text: 'Heldonica partage des destinations authentiques hors des sentiers battus testées sur le terrain : Madère, Roumanie, Sicile, et d\'autres pépites européennes. Toutes nos destinations sont choisies pour leur caractère écoresponsable et leur richesse locale.',
+                  text: 'Heldonica partage des destinations authentiques hors des sentiers battus testées sur le terrain : Madère, Roumanie, Sicile, et d\'autres pépites européennes. Toutes nos destinations sont choisies pour leur caractère écoresponsable et leur richesse locale.',
                 },
               },
               {
                 '@type': 'Question',
-                name: "Qu'est-ce qu'une destination hors des sentiers battus ?",
+                name: "Qu'est-ce qu'une destination hors des sentiers battus ?",
                 acceptedAnswer: {
                   '@type': 'Answer',
                   text: 'Une destination hors des sentiers battus, c\'est un lieu authentique, peu touristique, où l\'expérience locale prime sur les circuits standardisés. Chez Heldonica, on ne recommande que des endroits qu\'on a visités et vérifiés nous-mêmes.',
