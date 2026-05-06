@@ -11,38 +11,20 @@ import NewsletterForm from '@/components/NewsletterForm'
 
 const HELDONICA_BADGE_FALLBACK = '/images/badges-heldonica.svg'
 
-// Get display excerpt: use stored excerpt or generate from content
 function displayExcerpt(post: BlogPost): string {
-  return getExcerpt(post, 140);
+  return getExcerpt(post, 140)
 }
 
 // ─── Images de secours par slug ──────────────────────────────────────────────
 const SLUG_IMAGES: Record<string, string> = {
-  'madere-slow-travel-guide':                     'https://images.unsplash.com/photo-1560719887-fe3105fa1e55?w=1200&q=80',
-  'urbex-paris-safe':                             'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=1200&q=80',
+  'madere-slow-travel-guide': 'https://images.unsplash.com/photo-1560719887-fe3105fa1e55?w=1200&q=80',
+  'urbex-paris-safe': 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=1200&q=80',
   'guide-pratique-comment-debuter-le-slow-travel-en-duo': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
-  'madere-quand-partir-sur-lile-de-leternel-printemps':   'https://images.unsplash.com/photo-1569959220744-ff553533f492?w=1200&q=80',
-  'pepites-mystiques-de-madere':                  'https://images.unsplash.com/photo-1560719887-fe3105fa1e55?w=1200&q=80',
-  'prego-no-bolo-do-caco':                        'https://images.unsplash.com/photo-1574484284002-952d92a03a52?w=1200&q=80',
-  'flotter-sur-la-limmat-a-zurich-notre-aventure-dete':   'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
+  'madere-quand-partir-sur-lile-de-leternel-printemps': 'https://images.unsplash.com/photo-1569959220744-ff553533f492?w=1200&q=80',
+  'pepites-mystiques-de-madere': 'https://images.unsplash.com/photo-1560719887-fe3105fa1e55?w=1200&q=80',
+  'prego-no-bolo-do-caco': 'https://images.unsplash.com/photo-1574484284002-952d92a03a52?w=1200&q=80',
+  'flotter-sur-la-limmat-a-zurich-notre-aventure-dete': 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
 }
-// ─── Images de secours par catégorie ─────────────────────────────────────────
-/*
-const CAT_IMAGES_LEGACY: Record<string, string> = {
-  'Carnets Voyage':      'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/stoos-01.jpg',
-  'Découvertes Locales': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
-  'Expert Hôtelier':     'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
-  'Découvertes Locales': 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=900&q=80',
-  'Guides Pratiques':    'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
-  'Expert Hôtelier':     'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=900&q=80',
-  'Travel':              'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
-  'Food & Lifestyle':    'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=1200&q=80',
-  'Découvertes Locales': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
-  'Expert Hôtelier': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
-  'DÃ©couvertes Locales': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
-  'Expert HÃ´telier': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
-}
-*/
 
 const CAT_IMAGES: Record<string, string> = {
   'Carnets Voyage': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/stoos-01.jpg',
@@ -51,11 +33,8 @@ const CAT_IMAGES: Record<string, string> = {
   'Expert Hôtelier': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
   Travel: 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
   'Food & Lifestyle': 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=1200&q=80',
-  'DÃ©couvertes Locales': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
-  'Expert HÃ´telier': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
-  'DÃƒÂ©couvertes Locales': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
-  'Expert HÃƒÂ´telier': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
 }
+
 function postImage(p: BlogPost): string {
   if (p.featured_image && p.featured_image.trim().length > 0) return p.featured_image
   if (p.slug && SLUG_IMAGES[p.slug]) return SLUG_IMAGES[p.slug]
@@ -121,9 +100,7 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
   const h = size === 'lg' ? 'h-80' : size === 'md' ? 'h-60' : 'h-44'
   const readTime = post.readTime ?? post.read_time
 
-  useEffect(() => {
-    setImgSrc(img)
-  }, [img])
+  useEffect(() => { setImgSrc(img) }, [img])
 
   return (
     <Link href={`/blog/${post.slug}`} className="group block h-full">
@@ -178,13 +155,71 @@ interface HomeProps {
   coveredCountries?: string | null
 }
 
+// ─── Inspirations thématiques ─────────────────────────────────────────────────
+const INSPIRATIONS = [
+  {
+    emoji: '🚂',
+    title: 'À moins de 3h de train',
+    desc: 'Les pépites accessibles sans avion, sans compromis sur le dépaysement.',
+    href: '/blog',
+    color: 'bg-eucalyptus/10 border-eucalyptus/20 hover:border-eucalyptus/50',
+    accent: 'text-eucalyptus',
+  },
+  {
+    emoji: '🌿',
+    title: 'Ressourçants en pleine nature',
+    desc: 'Slow down complet. Air, silence, et adresses où on recharge vraiment.',
+    href: '/blog',
+    color: 'bg-teal/10 border-teal/20 hover:border-teal/50',
+    accent: 'text-teal',
+  },
+  {
+    emoji: '💑',
+    title: 'Slow travel en couple',
+    desc: 'Notre spécialité. Des itinéraires pensés pour deux, sans compromis.',
+    href: '/blog',
+    color: 'bg-mahogany/8 border-mahogany/15 hover:border-mahogany/40',
+    accent: 'text-mahogany',
+  },
+  {
+    emoji: '🗺️',
+    title: 'Hors des sentiers battus',
+    desc: 'Pas de listes copiées-collées. Des endroits qu\'on a vraiment trouvés.',
+    href: '/blog',
+    color: 'bg-amber-50 border-amber-200/50 hover:border-amber-300',
+    accent: 'text-amber-800',
+  },
+]
+
+// ─── Engagements RSE ──────────────────────────────────────────────────────────
+const ENGAGEMENTS = [
+  {
+    icon: '🚆',
+    title: 'Le train d\'abord',
+    desc: 'On part en train depuis Paris quand c\'est possible. Toujours.',
+  },
+  {
+    icon: '🏡',
+    title: 'Hôtes locaux',
+    desc: 'On privilégie les hébergements indépendants et les adresses ancrées dans leur territoire.',
+  },
+  {
+    icon: '🐌',
+    title: 'Rythme lent',
+    desc: 'Moins de destinations, plus de profondeur. On reste, on s\'attarde, on revient.',
+  },
+  {
+    icon: '🌱',
+    title: 'Empreinte réduite',
+    desc: 'Pas de greenwashing — juste des choix concrets, documentés et reproductibles.',
+  },
+]
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries }: HomeProps) {
   useScrollReveal()
   const featImg = featured ? postImage(featured) : null
-  // Use real published count, fallback to reasonable number
   const publishedArticles = typeof totalPosts === 'number' && totalPosts > 0 ? totalPosts : 10
-  // Use real covered_countries from settings, fallback to 3 (France, Madère, Roumanie where duo lived)
   const countryCount = typeof coveredCountries === 'number' && coveredCountries > 0 ? coveredCountries : (coveredCountries ? parseInt(coveredCountries) : 3)
 
   return (
@@ -234,17 +269,31 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
              style={{ animation: 'wordIn 0.7s 1.1s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
             Un duo Paris-Madère-Roumanie qui voyage lentement, documente vraiment et partage tout ce qu&apos;on a vécu — pas ce qu&apos;on a lu ailleurs. Dénicheurs de pépites, même en bas de chez toi.
           </p>
+
+          {/* ── PREUVE SOCIALE ── */}
+          <div className="mb-6 md:mb-8 flex flex-wrap items-center gap-3"
+               style={{ animation: 'wordIn 0.7s 1.2s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
+            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2">
+              <span className="text-yellow-400 text-sm">★★★★★</span>
+              <span className="text-white/90 text-xs font-medium">Voyages conçus sur mesure</span>
+            </div>
+            <div className="text-white/60 text-xs italic border-l border-white/20 pl-3 max-w-xs">
+              &ldquo;Exactement ce qu&apos;on cherchait — sans agence classique.&rdquo;
+              <span className="text-white/40 ml-1 not-italic">— Sophie &amp; Marc, Islande</span>
+            </div>
+          </div>
+
           <div className="flex flex-wrap gap-3"
                style={{ animation: 'wordIn 0.7s 1.3s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
-            <Link href="/blog" 
+            <Link href="/blog"
               className="px-5 md:px-6 py-2.5 md:py-3 bg-mahogany hover:bg-eucalyptus text-white rounded-full font-semibold text-sm tracking-wide transition"
               onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'hero_read_carnet' })}>
               Lire le carnet →
             </Link>
-            <Link href="/travel-planning-form" 
-              className="px-5 md:px-6 py-2.5 md:py-3 border border-white/50 hover:border-white text-white hover:bg-white/10 rounded-full font-semibold text-sm tracking-wide transition"
-              onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'hero_contact' })}>
-              Nous écrire →
+            <Link href="/travel-planning-form"
+              className="px-5 md:px-6 py-2.5 md:py-3 bg-eucalyptus hover:bg-eucalyptus/90 text-white rounded-full font-semibold text-sm tracking-wide transition"
+              onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'hero_planning' })}>
+              Co-créer mon voyage →
             </Link>
           </div>
         </div>
@@ -290,6 +339,71 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   Paris · Madère · Roumanie · Normandie · Sicile · Sardaigne · Tanzanie · Colombie · Afrique du Sud
                 </p>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── QUI ON EST — DUO ──────────────────────────────────────────────── */}
+      <section className="py-20 md:py-24 bg-[#f7f6f2]">
+        <div className="max-w-5xl mx-auto px-6 md:px-10">
+          <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
+            {/* Photo silhouette faceless */}
+            <div className="relative flex items-center justify-center" data-reveal="left">
+              <div className="relative w-full max-w-sm mx-auto aspect-[3/4] rounded-2xl overflow-hidden bg-gradient-to-br from-eucalyptus/20 via-teal/10 to-mahogany/20 shadow-xl">
+                {/* Silhouette duo SVG — style faceless Heldonica */}
+                <svg viewBox="0 0 300 400" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute inset-0 w-full h-full">
+                  <defs>
+                    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="#6B9E8A" stopOpacity="0.15" />
+                      <stop offset="100%" stopColor="#7A3B2E" stopOpacity="0.10" />
+                    </linearGradient>
+                  </defs>
+                  <rect width="300" height="400" fill="url(#bgGrad)" />
+                  {/* Fond paysage stylisé */}
+                  <path d="M0 280 Q75 240 150 260 Q225 280 300 250 L300 400 L0 400 Z" fill="#6B9E8A" fillOpacity="0.2" />
+                  <path d="M0 310 Q100 290 200 300 Q250 305 300 295 L300 400 L0 400 Z" fill="#6B9E8A" fillOpacity="0.15" />
+                  {/* Silhouette femme */}
+                  <ellipse cx="115" cy="130" rx="28" ry="32" fill="#7A3B2E" fillOpacity="0.7" />
+                  <path d="M87 175 Q90 155 115 152 Q140 155 143 175 L148 280 L82 280 Z" fill="#7A3B2E" fillOpacity="0.65" />
+                  {/* Silhouette homme */}
+                  <ellipse cx="185" cy="125" rx="30" ry="34" fill="#4A7A6A" fillOpacity="0.7" />
+                  <path d="M155 172 Q158 150 185 147 Q212 150 215 172 L222 280 L148 280 Z" fill="#4A7A6A" fillOpacity="0.65" />
+                  {/* Détail mains jointes */}
+                  <ellipse cx="150" cy="242" rx="12" ry="8" fill="#5C3B2A" fillOpacity="0.5" />
+                  {/* Texture montagne au fond */}
+                  <path d="M20 260 L80 190 L140 240 L180 185 L260 255" stroke="#6B9E8A" strokeWidth="1.5" strokeOpacity="0.25" fill="none" />
+                </svg>
+                {/* Badge terrain */}
+                <div className="absolute bottom-5 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-md border border-eucalyptus/20">
+                  <p className="text-xs font-semibold text-eucalyptus whitespace-nowrap">✦ Terrain vécu · Heldonica</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Texte */}
+            <div data-reveal="right">
+              <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4">Rencontrez vos Travel Planners</p>
+              <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany leading-tight mb-6">
+                On est deux.
+                <span className="block italic text-eucalyptus">On conçoit chaque voyage nous-mêmes.</span>
+              </h2>
+              <p className="text-base text-charcoal/70 leading-relaxed mb-4">
+                Pas une agence. Pas une plateforme. Un duo qui a habité 7 pays, testé 100+ adresses et décidé de mettre ce regard au service de ceux qui veulent voyager autrement.
+              </p>
+              <p className="text-base text-charcoal/70 leading-relaxed mb-6">
+                Quand tu nous confies ton voyage, c&apos;est nous qui le concevons — du premier échange à la dernière adresse. Avec le même soin qu&apos;on met dans nos propres départs.
+              </p>
+              {/* Micro-témoignage */}
+              <blockquote className="border-l-4 border-eucalyptus pl-4 mb-8 italic text-charcoal/60 text-sm leading-relaxed">
+                &ldquo;On a eu l&apos;impression d&apos;être guidés par des amis qui connaissent vraiment l&apos;endroit. Pas un catalogue, une vraie conversation.&rdquo;
+                <footer className="mt-2 not-italic text-xs text-charcoal/40 font-semibold">— Camille &amp; Thomas, Slow travel 10j en Madère</footer>
+              </blockquote>
+              <Link href="/travel-planning-form"
+                className="inline-flex items-center gap-2 bg-eucalyptus hover:bg-eucalyptus/90 text-white px-6 py-3 rounded-full font-semibold text-sm transition"
+                onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'duo_section_planning' })}>
+                Co-créer mon voyage →
+              </Link>
             </div>
           </div>
         </div>
@@ -389,9 +503,36 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         </section>
       )}
 
+      {/* ── INSPIRATIONS THÉMATIQUES ───────────────────────────────────── */}
+      <section className="py-20 md:py-24 bg-white">
+        <div className="max-w-6xl mx-auto px-6 md:px-10">
+          <div className="text-center mb-12" data-reveal>
+            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-3">✦ Par inspiration</p>
+            <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany">Tu ne sais pas encore où tu veux aller ?</h2>
+            <p className="text-charcoal/60 text-sm mt-3 max-w-lg mx-auto">Commence par l&apos;envie. On a classé nos pépites pour toi.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {INSPIRATIONS.map((item, i) => (
+              <Link
+                key={item.title}
+                href={item.href}
+                data-reveal
+                data-delay={String(i * 100)}
+                className={`group rounded-2xl border p-6 flex flex-col gap-3 transition-all duration-300 ${item.color}`}
+              >
+                <span className="text-3xl">{item.emoji}</span>
+                <h3 className={`font-semibold text-sm leading-snug ${item.accent}`}>{item.title}</h3>
+                <p className="text-charcoal/60 text-xs leading-relaxed flex-1">{item.desc}</p>
+                <span className={`text-xs font-semibold ${item.accent} group-hover:translate-x-1 transition-transform inline-block`}>Explorer →</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── FOOD & LIFESTYLE ───────────────────────────────────────────── */}
       {foodPosts.length > 0 && (
-        <section className="py-20 md:py-28 bg-white">
+        <section className="py-20 md:py-28 bg-[#f7f6f2]">
           <div className="max-w-6xl mx-auto px-6 md:px-10">
             <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
               <div className="relative" data-reveal="left">
@@ -434,7 +575,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
 
       {/* ── DERNIERS ARTICLES ─────────────────────────────────────────── */}
       {latestPosts.length > 0 && (
-        <section className="py-20 bg-[#f7f6f2]">
+        <section className="py-20 bg-white">
           <div className="max-w-6xl mx-auto px-6 md:px-10">
             <div className="flex items-end justify-between mb-10 flex-wrap gap-4" data-reveal>
               <div>
@@ -471,16 +612,16 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 Notre terrain naturel : les couples qui veulent ralentir sans s&apos;ennuyer, les solos qui cherchent du vrai, les familles qui en ont marre des parcs d&apos;attractions.
               </p>
               <div className="flex flex-wrap gap-3">
-                <Link href="/travel-planning-form" 
-                className="px-6 py-3 bg-eucalyptus hover:bg-eucalyptus/90 text-white rounded-full font-semibold text-sm transition"
-                onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'services_contact' })}>
-                Nous écrire →
-              </Link>
-              <Link href="/blog" 
-                className="px-6 py-3 border border-white/30 hover:border-white/60 text-white rounded-full font-semibold text-sm transition"
-                onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'services_read_carnet' })}>
-                Lire le carnet →
-              </Link>
+                <Link href="/travel-planning-form"
+                  className="px-6 py-3 bg-eucalyptus hover:bg-eucalyptus/90 text-white rounded-full font-semibold text-sm transition"
+                  onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'services_contact' })}>
+                  Co-créer mon voyage →
+                </Link>
+                <Link href="/blog"
+                  className="px-6 py-3 border border-white/30 hover:border-white/60 text-white rounded-full font-semibold text-sm transition"
+                  onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'services_read_carnet' })}>
+                  Lire le carnet →
+                </Link>
               </div>
             </div>
             <div className="grid grid-cols-1 gap-4" data-reveal="right">
@@ -499,67 +640,34 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         </div>
       </section>
 
-      {/* ── CONSULTING HÔTELIER — IAification & Digitalisation ────────── */}
-      {/*
-      <section className="py-20 md:py-24 bg-cloud-dancer">
+      {/* ── ENGAGEMENTS RSE ───────────────────────────────────────────── */}
+      <section className="py-20 md:py-24 bg-eucalyptus/8">
         <div className="max-w-6xl mx-auto px-6 md:px-10">
-          <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
-            <div className="order-2 md:order-1" data-reveal="left">
-              <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4">Consulting B2B · Hôtellerie</p>
-              <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany leading-tight mb-6">
-                On connaît vos clients mieux
-                <span className="block italic text-charcoal/70">que la plupart de vos consultants.</span>
-              </h2>
-              <p className="text-base text-charcoal/70 leading-relaxed mb-4">
-                Parce qu&apos;on est vos clients. Pas de promesses chiffrées plaquées sur une slide. On arrive, on regarde ce qui se passe vraiment, on vous dit ce qu&apos;on voit, puis on travaille ensemble.
-              </p>
-              <p className="text-sm text-charcoal/60 leading-relaxed mb-6">
-                Distribution, discours, expérience, outils IA utiles : on ne vous vend pas une mode, on remet du vrai, du lisible et du concret dans le parcours client.
-              </p>
-              <div className="flex flex-wrap gap-2 mb-8">
-                {['Regard terrain', 'Hôtellerie indépendante', 'IA utile', 'Expérience client', 'Visibilité locale', 'Parcours de réservation'].map((tag) => (
-                  <span key={tag} className="bg-white border border-cloud-dancer/60 text-charcoal/80 text-xs font-semibold px-3 py-1 rounded-full">{tag}</span>
-                ))}
+          <div className="text-center mb-12" data-reveal>
+            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-3">✦ Nos engagements</p>
+            <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany">Slow travel, c&apos;est aussi ça</h2>
+            <p className="text-charcoal/60 text-sm mt-3 max-w-lg mx-auto">
+              Pas un label. Des choix concrets qu&apos;on fait à chaque départ, et qu&apos;on documente pour que tu puisses les reproduire.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {ENGAGEMENTS.map((item, i) => (
+              <div
+                key={item.title}
+                data-reveal
+                data-delay={String(i * 100)}
+                className="bg-white rounded-2xl p-6 shadow-sm border border-eucalyptus/10 hover:border-eucalyptus/30 hover:-translate-y-1 transition-all duration-300 text-center"
+              >
+                <span className="text-4xl block mb-4">{item.icon}</span>
+                <h3 className="font-semibold text-mahogany text-sm mb-2">{item.title}</h3>
+                <p className="text-charcoal/60 text-xs leading-relaxed">{item.desc}</p>
               </div>
-              <div className="flex flex-wrap gap-3">
-                <Link href="/travel-planning" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
-                  Prendre rendez-vous →
-                </Link>
-                <Link href="/ai-hotellerie" className="inline-flex items-center gap-2 text-charcoal/80 font-semibold text-sm hover:gap-3 transition-all">
-                  Voir les outils →
-                </Link>
-              </div>
-            </div>
-            <div className="order-1 md:order-2 grid grid-cols-1 gap-4" data-reveal="right">
-              {[
-                {
-                  icon: '•',
-                  t: 'On regarde le parcours réel',
-                  d: "Ce qu'un client comprend, ce qu'il rate, et l'endroit précis où vous perdez de la confiance."
-                },
-                {
-                  icon: '•',
-                  t: "On garde les outils à leur place",
-                  d: "L'IA sert à clarifier, accélérer et mieux répondre. Elle ne remplace ni votre instinct ni votre identité."
-                },
-                {
-                  icon: '•',
-                  t: 'On repart avec des actions tenables',
-                  d: 'Une feuille de route que vos équipes peuvent vraiment appliquer, sans usine à gaz ni dépendance inutile.'
-                },
-              ].map((item) => (
-                <div key={item.t} className="bg-white rounded-xl p-5 shadow-sm border border-cloud-dancer hover:border-teal transition">
-                  <div className="text-2xl mb-3 text-eucalyptus">{item.icon}</div>
-                  <h3 className="font-semibold text-mahogany text-sm mb-1">{item.t}</h3>
-                  <p className="text-charcoal/60 text-sm leading-relaxed">{item.d}</p>
-                </div>
-              ))}
-            </div>
+            ))}
           </div>
         </div>
       </section>
-      */}
 
+      {/* ── NEWSLETTER ────────────────────────────────────────────────── */}
       <section className="py-20 bg-mahogany text-white">
         <div className="max-w-5xl mx-auto px-6 md:px-10">
           <div className="grid md:grid-cols-[1.1fr_0.9fr] gap-10 items-center">
@@ -594,5 +702,3 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
     </>
   )
 }
-
-

@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
@@ -7,16 +7,22 @@ import { useAuth } from '@/components/AuthProvider'
 
 export default function Header() {
   const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname()
   const { user, loading } = useAuth()
 
   const accountHref = !loading && user ? '/dashboard' : '/auth/login'
   const accountLabel = !loading && user ? 'Mon espace' : 'Connexion'
 
-  // Fermer le menu mobile au changement de route
   useEffect(() => {
     setOpen(false)
   }, [pathname])
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 60)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   const navItems = [
     { href: '/', label: 'Accueil' },
@@ -28,7 +34,15 @@ export default function Header() {
 
   return (
     <>
-      <nav className="fixed top-0 z-50 w-full border-b border-stone-100 bg-white/95 backdrop-blur-sm" role="navigation" aria-label="Navigation principale">
+      <nav
+        className={`fixed top-0 z-50 w-full border-b transition-all duration-300 ${
+          scrolled
+            ? 'border-stone-200 bg-white shadow-md'
+            : 'border-stone-100 bg-white/95 backdrop-blur-sm'
+        }`}
+        role="navigation"
+        aria-label="Navigation principale"
+      >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           <Link
             href="/"
@@ -39,23 +53,8 @@ export default function Header() {
               <circle cx="17" cy="17" r="16" stroke="currentColor" strokeWidth="1.2" />
               <line x1="10" y1="9" x2="10" y2="22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               <line x1="24" y1="9" x2="24" y2="22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              <line
-                x1="10"
-                y1="15.5"
-                x2="24"
-                y2="15.5"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-              <path
-                d="M8 26 Q11 24 14 26 Q17 28 20 26 Q23 24 26 26"
-                stroke="currentColor"
-                strokeWidth="1"
-                strokeLinecap="round"
-                fill="none"
-                opacity="0.6"
-              />
+              <line x1="10" y1="15.5" x2="24" y2="15.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              <path d="M8 26 Q11 24 14 26 Q17 28 20 26 Q23 24 26 26" stroke="currentColor" strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.6" />
             </svg>
             <span className="text-xl font-serif font-bold tracking-tight">Heldonica</span>
           </Link>
@@ -77,16 +76,25 @@ export default function Header() {
               </Link>
             ))}
             <Link
-              href="/planifier"
-              className="ml-3 rounded-full bg-amber-900 px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-colors duration-200 hover:bg-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-offset-2"
+              href="/travel-planning-form"
+              className={`ml-3 rounded-full px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-offset-2 ${
+                scrolled
+                  ? 'bg-eucalyptus scale-105 shadow-eucalyptus/30 shadow-md hover:bg-eucalyptus/90'
+                  : 'bg-amber-900 hover:bg-amber-800'
+              }`}
             >
-              Planifier mon voyage
+              {scrolled ? 'Co-créer mon voyage →' : 'Planifier mon voyage'}
             </Link>
           </div>
 
           {/* Mobile Navigation */}
           <div className="flex items-center gap-3 lg:hidden">
-            <Link href="/planifier" className="rounded-full bg-amber-900 px-4 py-2 text-xs font-semibold text-white shadow-sm">
+            <Link
+              href="/travel-planning-form"
+              className={`rounded-full px-4 py-2 text-xs font-semibold text-white shadow-sm transition-all duration-300 ${
+                scrolled ? 'bg-eucalyptus' : 'bg-amber-900'
+              }`}
+            >
               Planifier
             </Link>
             <button
@@ -123,7 +131,6 @@ export default function Header() {
             <div className="mb-3 px-2">
               <p className="text-xs font-medium uppercase tracking-wide text-stone-400">Navigation</p>
             </div>
-
             {navItems.map((item, index) => (
               <Link
                 key={item.href}
@@ -148,22 +155,19 @@ export default function Header() {
                 {item.label}
               </Link>
             ))}
-
             <div className="mt-2 border-t border-stone-100 pt-4">
               <Link
-                href="/planifier"
+                href="/travel-planning-form"
                 onClick={() => setOpen(false)}
-                className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-amber-900 px-4 py-4 text-base font-semibold text-white transition-colors duration-200 hover:bg-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-offset-2"
+                className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-eucalyptus px-4 py-4 text-base font-semibold text-white transition-colors duration-200 hover:bg-eucalyptus/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-offset-2"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <circle cx="12" cy="12" r="10" />
                   <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
                 </svg>
-                Planifier mon voyage
+                Co-créer mon voyage
               </Link>
             </div>
-
-            {/* Lien compte */}
             <Link
               href={accountHref}
               onClick={() => setOpen(false)}
@@ -181,7 +185,6 @@ export default function Header() {
         </div>
       </nav>
 
-      {/* Overlay pour fermer le menu */}
       {open && (
         <div
           className="fixed inset-0 z-40 bg-black/10 lg:hidden"
