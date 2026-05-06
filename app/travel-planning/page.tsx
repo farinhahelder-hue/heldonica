@@ -248,37 +248,21 @@ export default function TravelPlanning() {
           </div>
         </section>
 
-        <section className="py-20 md:py-24 bg-stone-950 text-white">
-          <div className="max-w-5xl mx-auto px-6 md:px-10">
-            <p className="text-amber-400 text-xs font-bold tracking-[0.2em] uppercase mb-3">Retours</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-light mb-12">Ce qui revient souvent</h2>
-            <div className="grid md:grid-cols-3 gap-6">
-              {[
-                {
-                  quote: 'On n\'a jamais eu la sensation d\'exécuter un plan. On avançait, et tout semblait tomber au bon moment.',
-                  name: 'Marie & Théo',
-                  dest: 'Madère · 10 jours',
-                },
-                {
-                  quote: 'Le carnet était précis sans être rigide. On sentait qu\'il avait été pensé par des gens qui avaient vraiment marché là-bas.',
-                  name: 'Sophie & Lucas',
-                  dest: 'Colombie · 14 jours',
-                },
-                {
-                  quote: 'Même avec nos contraintes enfants + budget + fatigue, on a eu un voyage qui nous ressemblait. Et ça, c\'est rare.',
-                  name: 'Camille & Romain',
-                  dest: 'Sicile · 8 jours',
-                },
-              ].map((t, i) => (
-                <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-4">
-                  <p className="text-stone-300 text-sm leading-relaxed italic">&ldquo;{t.quote}&rdquo;</p>
-                  <div className="mt-auto">
-                    <p className="text-white font-semibold text-sm">{t.name}</p>
-                    <p className="text-amber-400 text-xs">{t.dest}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+        {/* ── RETOURS — placeholder honnête jusqu'aux vrais témoignages ── */}
+        <section className="py-20 md:py-24 bg-stone-50">
+          <div className="max-w-3xl mx-auto px-6 md:px-10 text-center">
+            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-3">Retours</p>
+            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-6">
+              Ce que les gens retiennent
+            </h2>
+            <p className="text-stone-600 leading-relaxed max-w-xl mx-auto mb-4">
+              On reçoit régulièrement des retours qui convergent sur deux points : le rythme était juste,
+              et les adresses tenaient vraiment sur place. Ce sont ces deux promesses qu&apos;on met au centre
+              de chaque conception — pas une carte postale, mais un voyage qui tient debout.
+            </p>
+            <p className="text-stone-400 text-sm italic">
+              ✦ Les premiers carnets clients arrivent bientôt ici.
+            </p>
           </div>
         </section>
 
@@ -307,7 +291,7 @@ export default function TravelPlanning() {
               <em>On s&apos;occupe du reste.</em>
             </h2>
             <p className="text-amber-200 leading-relaxed mb-10">
-              Pas besoin d\'avoir le voyage déjà écrit dans ta tête. On préfère même quand le vrai arrive brut : c\'est là qu\'on travaille le mieux.
+              Pas besoin d&apos;avoir le voyage déjà écrit dans ta tête. On préfère même quand le vrai arrive brut : c&apos;est là qu&apos;on travaille le mieux.
             </p>
             <Link
               href="/travel-planning-form"
@@ -343,10 +327,10 @@ export default function TravelPlanning() {
             '@type': 'Service',
             name: 'Travel Planning Sur Mesure',
             provider: {
-              '@type': 'TravelAgency',
+              '@type': 'Organization',
               name: 'Heldonica',
               url: 'https://www.heldonica.fr',
-              description: 'Agence de travel planning slow travel écoresponsable pour couples, solos et familles. Itinéraires sur mesure hors des sentiers battus.',
+              description: 'Travel planning slow travel écoresponsable pour couples, solos et familles. Itinéraires sur mesure hors des sentiers battus.',
               areaServed: 'FR',
               knowsAbout: ['slow travel', 'voyage écoresponsable', 'voyage sur mesure', 'travel planning'],
             },
