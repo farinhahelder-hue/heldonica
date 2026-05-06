@@ -6,6 +6,7 @@ import { sanitizeHtml } from '@/lib/sanitize-html'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import SlowTravelQuiz from '@/components/SlowTravelQuiz'
+import Breadcrumb from '@/components/Breadcrumb'
 
 interface Props {
   params: { slug: string }
@@ -36,6 +37,7 @@ type DestinationMeta = {
   geo?: { latitude: number; longitude: number }
   touristType?: string[]
   planningLabel?: string
+  datePublished?: string
 }
 
 const DEST_META: Record<string, DestinationMeta> = {
@@ -48,6 +50,7 @@ const DEST_META: Record<string, DestinationMeta> = {
     bestSeason: 'Juin à septembre',
     verdict: 'Une ville plus sensuelle que sa réputation.',
     intro: 'On y est venus avec des idées toutes faites. Elles ont sauté dès la première baignade dans la Limmat.',
+    datePublished: '2025-08-01',
     budgetIntro: 'Zurich est chère, mais mieux cadrer ses dépenses change tout : on mange bien pour moins cher qu’on ne croit si on sort des zones touristiques.',
     budgetLines: [
       { label: 'Hébergement', value: '120–220 € / nuit' },
@@ -58,10 +61,10 @@ const DEST_META: Record<string, DestinationMeta> = {
     seasons: [
       { period: 'Juin — Septembre', weather: '22 à 28 °C, ensoleillé', vibe: 'Idéal : badi, terrasses, lac' },
       { period: 'Octobre — Novembre', weather: '10 à 16°C, doux', vibe: 'Parfait pour les musées et la vieille ville' },
-      { period: 'Décembre — Mars', weather: 'Fróid, marchés de Noël', vibe: 'Ambiance unique, mais moins slow' },
+      { period: 'Décembre — Mars', weather: 'Froid, marchés de Noël', vibe: 'Ambiance unique, mais moins slow' },
     ],
     bases: [
-      { name: 'Zurich Centre (Altstadt)', description: 'Vieille ville piétonne, cafés de quartier, acces à pied partout. Base idéale pour un premier séjour.', bookingUrl: 'https://www.booking.com/city/ch/zurich.fr.html?aid=2420035' },
+      { name: 'Zurich Centre (Altstadt)', description: 'Vieille ville piétonne, cafés de quartier, accès à pied partout. Base idéale pour un premier séjour.', bookingUrl: 'https://www.booking.com/city/ch/zurich.fr.html?aid=2420035' },
       { name: 'Quartier Langstrasse', description: 'Plus alternatif, plus vivant le soir. Idéal pour un duo qui veut le vrai rythme de la ville.', bookingUrl: 'https://www.booking.com/city/ch/zurich.fr.html?aid=2420035' },
       { name: 'Zürichberg (collines)', description: 'Plus calme, vue sur la ville. Parfait si tu veux sortir du centre sans perdre l’accès.', bookingUrl: 'https://www.booking.com/city/ch/zurich.fr.html?aid=2420035' },
     ],
@@ -92,6 +95,7 @@ const DEST_META: Record<string, DestinationMeta> = {
     bestSeason: 'Juillet à septembre',
     verdict: 'Une destination lente, si on la laisse respirer.',
     intro: 'On y revient pour les crêtes, puis on reste pour tout ce qu’on n’avait pas prévu entre deux trajets.',
+    datePublished: '2025-08-01',
     budgetIntro: 'La Suisse se maîtrise avec un Swiss Travel Pass : trains, bateaux et musées inclus, qui rentabilise vite le prix de départ.',
     budgetLines: [
       { label: 'Swiss Travel Pass 7j', value: '~310 € / personne' },
@@ -106,7 +110,7 @@ const DEST_META: Record<string, DestinationMeta> = {
     ],
     bases: [
       { name: 'Interlaken', description: 'Porte des Alpes, entre deux lacs. Base parfaite pour la Jungfrau et les vallées.', bookingUrl: 'https://www.booking.com/city/ch/interlaken.fr.html?aid=2420035' },
-      { name: 'Lucerne', description: 'Lac, pont historique, montagne proche. La ville la plus qualitiative pour un duo slow.', bookingUrl: 'https://www.booking.com/city/ch/lucerne.fr.html?aid=2420035' },
+      { name: 'Lucerne', description: 'Lac, pont historique, montagne proche. La ville la plus qualitative pour un duo slow.', bookingUrl: 'https://www.booking.com/city/ch/lucerne.fr.html?aid=2420035' },
       { name: 'Locarno (Tessin)', description: 'Suisse italienne, palmiers, lac Majeur. Doux, méditerranéen, inattendu.', bookingUrl: 'https://www.booking.com/city/ch/locarno.fr.html?aid=2420035' },
     ],
     itinerary: [
@@ -129,7 +133,7 @@ const DEST_META: Record<string, DestinationMeta> = {
   },
 
   roumanie: {
-    description: 'Timişoara, Delta du Danube, Carpates : la Roumanie donne beaucoup à celles et ceux qui acceptent de lui laisser de l’espace.',
+    description: 'Timișoara, Delta du Danube, Carpates : la Roumanie donne beaucoup à celles et ceux qui acceptent de lui laisser de l’espace.',
     heroImage: 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
     region: 'Europe de l’Est',
     duration: '8 à 14 jours',
@@ -137,34 +141,35 @@ const DEST_META: Record<string, DestinationMeta> = {
     bestSeason: 'Mai, juin, septembre',
     verdict: 'Le genre de pays qui déplace ton regard.',
     intro: 'On pensait partir vers une destination discrète. On a trouvé un terrain immense, vivant, parfois brut, souvent bouleversant.',
+    datePublished: '2025-09-01',
     budgetIntro: 'La Roumanie est une des destinations européennes les plus accessibles. Un budget modéré permet de vivre très bien et de dormir dans des maisons d’hôtes authentiques.',
     budgetLines: [
       { label: 'Hébergement', value: '35–80 € / nuit' },
       { label: 'Repas locaux', value: '20–40 € / jour / duo' },
-      { label: 'Transport interieur', value: '15–30 € / jour' },
+      { label: 'Transport intérieur', value: '15–30 € / jour' },
       { label: 'Activités', value: '10–25 € / personne' },
     ],
     seasons: [
       { period: 'Mai — Juin', weather: '18 à 26 °C, campagne verte', vibe: 'Idéal : fleurs, villages vivants, foules nulles' },
       { period: 'Septembre — Octobre', weather: '14 à 22°C, automne doux', vibe: 'Parfait : couleurs, vendanges, calme' },
-      { period: 'Juillet — Août', weather: '25 à 35°C', vibe: 'Chaud, but vivant : festivals, Delta du Danube' },
+      { period: 'Juillet — Août', weather: '25 à 35°C', vibe: 'Chaud mais vivant : festivals, Delta du Danube' },
     ],
     bases: [
-      { name: 'Timişoara', description: 'Capitale culturelle européenne, architecture austro-hongroise, cafés vivants. Porte d’entrée parfaite.', bookingUrl: 'https://www.booking.com/city/ro/timisoara.fr.html?aid=2420035' },
-      { name: 'Braşov', description: 'Au pied des Carpates, vieille ville médiévale, accès aux sentiers. La base la plus polyvalente.', bookingUrl: 'https://www.booking.com/city/ro/brasov.fr.html?aid=2420035' },
+      { name: 'Timișoara', description: 'Capitale culturelle européenne, architecture austro-hongroise, cafés vivants. Porte d’entrée parfaite.', bookingUrl: 'https://www.booking.com/city/ro/timisoara.fr.html?aid=2420035' },
+      { name: 'Brașov', description: 'Au pied des Carpates, vieille ville médiévale, accès aux sentiers. La base la plus polyvalente.', bookingUrl: 'https://www.booking.com/city/ro/brasov.fr.html?aid=2420035' },
       { name: 'Sibiu', description: 'Plus intime, plus préservée. Idéale pour ralentir et sentir le rythme transylvanien.', bookingUrl: 'https://www.booking.com/city/ro/sibiu.fr.html?aid=2420035' },
     ],
     itinerary: [
-      { day: 'J1–2', label: 'Timişoara : arrivée, place de l’Union, cafés et architecture.' },
-      { day: 'J3–4', label: 'Route vers la Transylvanie, Sibiu ou Braşov.' },
-      { day: 'J5–6', label: 'Carpates : villages de montagne, sentiers, paîns locaux.' },
+      { day: 'J1–2', label: 'Timișoara : arrivée, place de l’Union, cafés et architecture.' },
+      { day: 'J3–4', label: 'Route vers la Transylvanie, Sibiu ou Brașov.' },
+      { day: 'J5–6', label: 'Carpates : villages de montagne, sentiers, pain local.' },
       { day: 'J7–8', label: 'Delta du Danube ou retour via Bucarest selon tempo.' },
       { day: 'J9+', label: 'Slow morning, dernière adresse, retour.' },
     ],
     faq: [
       { question: 'Faut-il une voiture en Roumanie ?', answer: 'Pour les zones rurales et les Carpates, oui. Les villes se font à pied ou en uber local très accessible.' },
-      { question: 'La Roumanie est-elle sûre ?', answer: 'Oui. C’est un pays de l’UE, généralement accueillant et calme. Les précauíons habituelles s’appliquent comme partout.' },
-      { question: 'Quelle ville commencer pour une première fois ?', answer: 'Timişoara ou Braşov. L’une pour l’ambiance urbaine et culturelle, l’autre pour la nature et le charme médiéval.' },
+      { question: 'La Roumanie est-elle sûre ?', answer: 'Oui. C’est un pays de l’UE, généralement accueillant et calme. Les précautions habituelles s’appliquent comme partout.' },
+      { question: 'Quelle ville commencer pour une première fois ?', answer: 'Timișoara ou Brașov. L’une pour l’ambiance urbaine et culturelle, l’autre pour la nature et le charme médiéval.' },
       { question: 'La Roumanie convient-elle au slow travel ?', answer: 'C’est l’une des destinations européennes les plus adaptées : espaces préservés, rythme lent, prix accessibles, habitants chaleureux.' },
     ],
     mapQuery: 'Romania',
@@ -182,6 +187,7 @@ const DEST_META: Record<string, DestinationMeta> = {
     bestSeason: 'Toute l’année',
     verdict: 'La preuve qu’on peut ralentir sans partir loin.',
     intro: 'Le slow travel commence parfois à une station de métro de chez soi. C’est peut-être pour ça qu’on y tient autant.',
+    datePublished: '2025-09-01',
     budgetIntro: 'Paris peut être aussi cheap ou aussi premium que tu le décides. Le vrai slow travel parisien se fait à pied et dans les marchés de quartier.',
     budgetLines: [
       { label: 'Hébergement', value: '80–200 € / nuit' },
@@ -192,10 +198,10 @@ const DEST_META: Record<string, DestinationMeta> = {
     seasons: [
       { period: 'Avril — Juin', weather: '14 à 22°C, floraison', vibe: 'Idéal : parcs, terrasses, lumière douce' },
       { period: 'Septembre — Novembre', weather: '12 à 20°C', vibe: 'Parfait : rentrée culturelle, expos, moins de touristes' },
-      { period: 'Décembre — Février', weather: '3 à 10°C', vibe: 'Luà Paris hivernal : musées, marchés couverts, Noël' },
+      { period: 'Décembre — Février', weather: '3 à 10°C', vibe: 'Paris hivernal : musées, marchés couverts, Noël' },
     ],
     bases: [
-      { name: 'Canal Saint-Martin (10e–1 1e)', description: 'Le quartier qui concentre le mieux l’énergie slow : cafés indépendants, marchés, bords de canal.', bookingUrl: 'https://www.booking.com/city/fr/paris.fr.html?aid=2420035' },
+      { name: 'Canal Saint-Martin (10e–11e)', description: 'Le quartier qui concentre le mieux l’énergie slow : cafés indépendants, marchés, bords de canal.', bookingUrl: 'https://www.booking.com/city/fr/paris.fr.html?aid=2420035' },
       { name: 'Marais (3e–4e)', description: 'Architecturalement riche, galeries, marchés couverts. Idéal pour un séjour court et dense.', bookingUrl: 'https://www.booking.com/city/fr/paris.fr.html?aid=2420035' },
       { name: 'Buttes-Chaumont (19e)', description: 'Plus local, moins touristique. Le vrai rythme parisien du quotidien.', bookingUrl: 'https://www.booking.com/city/fr/paris.fr.html?aid=2420035' },
     ],
@@ -226,6 +232,7 @@ const DEST_META: Record<string, DestinationMeta> = {
     bestSeason: 'Mai à septembre',
     verdict: 'La côte marche mieux quand on accepte ses détours.',
     intro: 'Ici, le bon rythme vient souvent du vent, de l’heure de la marée et d’une table trouvée plus tard que prévu.',
+    datePublished: '2026-05-06',
     budgetIntro: 'La Normandie est accessible avec une voiture louée depuis Paris ou Caen. Le homard local coûte moins cher que dans les restaurants parisiens.',
     budgetLines: [
       { label: 'Location voiture', value: '40–60 € / jour' },
@@ -234,12 +241,12 @@ const DEST_META: Record<string, DestinationMeta> = {
       { label: 'Activités côtières', value: '0–20 €' },
     ],
     seasons: [
-      { period: 'Mai — Juin', weather: '14 à 20°C, lumière atlantique', vibe: 'Idéal : falaises désertes, marchés vivants' },
+      { period: 'Mai — Juin', weather: '14 à 20 °C, lumière atlantique', vibe: 'Idéal : falaises désertes, marchés vivants' },
       { period: 'Juillet — Août', weather: '18 à 24°C', vibe: 'Plus de monde, mais plages vivantes' },
       { period: 'Septembre', weather: '14 à 20°C, doux', vibe: 'Parfait : foules parties, mer encore douce' },
     ],
     bases: [
-      { name: 'Honfleur', description: 'Vieux-bassin pitoresque, galeries, cafés. Point d’entrée idéal pour la côte fleurie.', bookingUrl: 'https://www.booking.com/city/fr/honfleur.fr.html?aid=2420035' },
+      { name: 'Honfleur', description: 'Vieux-bassin pittoresque, galeries, cafés. Point d’entrée idéal pour la côte fleurie.', bookingUrl: 'https://www.booking.com/city/fr/honfleur.fr.html?aid=2420035' },
       { name: 'Étretat', description: 'Pour les falaises et les couchers de soleil sur la Manche. Logez au village, pas au camping.', bookingUrl: 'https://www.booking.com/city/fr/etretat.fr.html?aid=2420035' },
       { name: 'Bayeux', description: 'Ville médiévale, tapisserie célèbre, proche des plages du Débarquement. Base intérieure.', bookingUrl: 'https://www.booking.com/city/fr/bayeux.fr.html?aid=2420035' },
     ],
@@ -253,7 +260,7 @@ const DEST_META: Record<string, DestinationMeta> = {
       { question: 'Faut-il une voiture en Normandie ?', answer: 'Oui, pour la liberté entre les falaises, villages et plages. Les transports en commun existent mais sont lents et limités hors saison.' },
       { question: 'Quand aller à Étretat pour éviter la foule ?', answer: 'Tôt le matin (avant 9h) ou en septembre. Les falaises se vivent mieux dans le silence que dans la masse.' },
       { question: 'La Normandie convient-elle au slow travel ?', answer: 'Parfaitement : les horaires de marée imposent un rythme naturel, les marchés dictent les repas, et les petites routes côtières invitent aux détours.' },
-      { question: 'Que manger absolument en Normandie ?', answer: 'Camembert chaud, cidre brut, sole meunierè, huîtres de Saint-Vaast, crème et beurre en toutes circonstances.' },
+      { question: 'Que manger absolument en Normandie ?', answer: 'Camembert chaud, cidre brut, sole meunière, huîtres de Saint-Vaast, crème et beurre en toutes circonstances.' },
     ],
     mapQuery: 'Normandy,France',
     geo: { latitude: 49.1829, longitude: 0.3707 },
@@ -270,6 +277,7 @@ const DEST_META: Record<string, DestinationMeta> = {
     bestSeason: 'Mai à septembre',
     verdict: 'Une destination qui se donne mieux à pied qu’en programme serré.',
     intro: 'On y va pour la côte, puis on reste pour ce que la météo déplace dans une même journée.',
+    datePublished: '2026-05-06',
     budgetIntro: 'La Bretagne est une des destinations françaises les plus accessibles en voiture depuis Paris. Les crêperies locales sont généreuses pour pas grand chose.',
     budgetLines: [
       { label: 'Location voiture', value: '35–55 € / jour' },
@@ -278,18 +286,18 @@ const DEST_META: Record<string, DestinationMeta> = {
       { label: 'GR34 + activités', value: '0–15 €' },
     ],
     seasons: [
-      { period: 'Mai — Juin', weather: '14 à 20°C, vert intense', vibe: 'Idéal : côte déserte, ajoncs en fleurs' },
+      { period: 'Mai — Juin', weather: '14 à 20 °C, vert intense', vibe: 'Idéal : côte déserte, ajoncs en fleurs' },
       { period: 'Juillet — Août', weather: '18 à 24°C', vibe: 'Vivant mais chargé : choisir l’intérieur des terres' },
       { period: 'Septembre', weather: '14 à 20°C, mer douce', vibe: 'Parfait : calme revenu, lumière rasante magnifique' },
     ],
     bases: [
       { name: 'Saint-Malo', description: 'Cité corsée, remparts, grandes marées. Point d’entrée idéal pour la côte d’Émeraude.', bookingUrl: 'https://www.booking.com/city/fr/saint-malo.fr.html?aid=2420035' },
-      { name: 'Vannes', description: 'Porte du Morbihan. Vieille ville médiévale + golfe du Morbihan à portail de main.', bookingUrl: 'https://www.booking.com/city/fr/vannes.fr.html?aid=2420035' },
-      { name: 'Quimper', description: 'Bretañe profonde, cathédrale gothique, faïence locale. La ville la plus authentique de l’intérieur.', bookingUrl: 'https://www.booking.com/city/fr/quimper.fr.html?aid=2420035' },
+      { name: 'Vannes', description: 'Porte du Morbihan. Vieille ville médiévale + golfe du Morbihan à portée de main.', bookingUrl: 'https://www.booking.com/city/fr/vannes.fr.html?aid=2420035' },
+      { name: 'Quimper', description: 'Bretagne profonde, cathédrale gothique, faïence locale. La ville la plus authentique de l’intérieur.', bookingUrl: 'https://www.booking.com/city/fr/quimper.fr.html?aid=2420035' },
     ],
     itinerary: [
       { day: 'J1', label: 'Arrivée Saint-Malo : remparts au coucher du soleil, huîtres.' },
-      { day: 'J2', label: 'Cap Frehel + Fort la Latte : falaises et vue 360°.' },
+      { day: 'J2', label: 'Cap Fréhel + Fort la Latte : falaises et vue 360°.' },
       { day: 'J3', label: 'GR34 Crozon ou presqu’île de Rhuys selon position.' },
       { day: 'J4', label: 'Golfe du Morbihan en bateau : îles, oiseaux, silence.' },
       { day: 'J5+', label: 'Intérieur des terres (Monts d’Arrée) ou retour progressif.' },
@@ -297,7 +305,7 @@ const DEST_META: Record<string, DestinationMeta> = {
     faq: [
       { question: 'Peut-on faire la Bretagne sans voiture ?', answer: 'Partiellement : Saint-Malo et Rennes sont accessibles en TGV. Mais pour le GR34 et les presqu’îles, une voiture ou un vélo reste nécessaire.' },
       { question: 'Quelle partie de la Bretagne pour un premier voyage ?', answer: 'Côte Nord (Saint-Malo, Cap Fréhel) pour les falaises et les grandes marées. Côte Sud (Morbihan) pour le calme et les îles.' },
-      { question: 'La météo bretonn gache-t-elle le voyage ?', answer: 'Non si on l’intègre au rythme. La pluie du matin qui laisse place au soleil de l’après-midi est souvent le meilleur moment pour la lumière.' },
+      { question: 'La météo bretonne gâche-t-elle le voyage ?', answer: 'Non si on l’intègre au rythme. La pluie du matin qui laisse place au soleil de l’après-midi est souvent le meilleur moment pour la lumière.' },
       { question: 'Où manger les meilleures crêpes ?', answer: 'Dans les crêperies de village, pas dans les ports touristiques. Demandez aux habitants — ils ont toujours une adresse que les guides ne mentionnent pas.' },
     ],
     mapQuery: 'Brittany,France',
@@ -307,7 +315,6 @@ const DEST_META: Record<string, DestinationMeta> = {
   },
 }
 
-// Aliases
 const SLUG_ALIASES: Record<string, string> = {
   'suisse-heldonica': 'suisse',
   'roumanie-heldonica-slow': 'roumanie',
@@ -317,23 +324,31 @@ const SLUG_ALIASES: Record<string, string> = {
   'bretagne-heldonica-slow': 'bretagne',
 }
 
+const TODAY = new Date().toISOString().split('T')[0]
+
 export async function generateStaticParams() {
   return getAllDestinationSlugs()
 }
 
 export async function generateMetadata({ params }: Props) {
   const resolvedSlug = SLUG_ALIASES[params.slug] ?? params.slug
+  const isAlias = Boolean(SLUG_ALIASES[params.slug])
   const page = getDestinationBySlug(params.slug)
   const meta = DEST_META[resolvedSlug]
   const title = page?.title || resolvedSlug
   const description = meta?.description || `Découvre ${title} avec Heldonica, depuis le terrain et sans vernis inutile.`
+  const canonicalUrl = `https://heldonica.fr/destinations/${isAlias ? resolvedSlug : params.slug}`
 
   return {
     title: `${title} | Heldonica`,
     description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: `${title} | Heldonica`,
       description,
+      url: canonicalUrl,
       siteName: 'Heldonica',
       locale: 'fr_FR',
       type: 'article',
@@ -381,10 +396,12 @@ export default function DestinationPage({ params }: Props) {
         '@type': 'TouristDestination',
         name: page.title,
         description: meta.description,
-        url: `https://heldonica.fr/destinations/${params.slug}`,
+        url: `https://heldonica.fr/destinations/${resolvedSlug}`,
         geo: { '@type': 'GeoCoordinates', latitude: meta.geo.latitude, longitude: meta.geo.longitude },
         touristType: meta.touristType ?? ['Slow traveler'],
         bestSeasonToVisit: meta.bestSeason,
+        datePublished: meta.datePublished ?? '2026-01-01',
+        dateModified: TODAY,
       }
     : null
 
@@ -409,18 +426,32 @@ export default function DestinationPage({ params }: Props) {
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaFaq) }} />
       )}
       <Header />
+
+      <Breadcrumb
+        items={[
+          { label: 'Accueil', href: '/' },
+          { label: 'Destinations', href: '/destinations' },
+          { label: page.title },
+        ]}
+      />
+
       <main className="min-h-screen bg-cloud-dancer">
 
         {/* Hero */}
         <div className="relative min-h-[60vh] flex items-end overflow-hidden bg-stone-900 md:min-h-[70vh]">
           {heroImage && (
-            <img src={heroImage} alt={page.title} className="absolute inset-0 h-full w-full object-cover opacity-65" loading="eager" />
+            <img
+              src={heroImage}
+              alt={page.title}
+              width={1600}
+              height={900}
+              fetchPriority="high"
+              className="absolute inset-0 h-full w-full object-cover opacity-65"
+              loading="eager"
+            />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
           <div className="relative container py-14 md:py-20">
-            <Link href="/destinations" className="mb-5 inline-flex items-center gap-2 text-sm text-white/65 hover:text-white transition-colors">
-              ← Retour aux destinations
-            </Link>
             {meta?.region && (
               <p className="text-xs uppercase tracking-[0.2em] text-teal font-semibold mb-4">{meta.region}</p>
             )}
@@ -445,7 +476,7 @@ export default function DestinationPage({ params }: Props) {
           </section>
         )}
 
-        {/* Saisons */}
+        {/* Saisons + Budget */}
         {meta?.seasons && (
           <section className="bg-cloud-dancer section-spacing">
             <div className="container">
@@ -463,7 +494,6 @@ export default function DestinationPage({ params }: Props) {
                     ))}
                   </div>
                 </article>
-
                 {meta.budgetLines && (
                   <article className="rounded-2xl bg-white border border-stone-200 p-6 md:p-8">
                     <h2 className="text-3xl font-serif text-mahogany mb-4">Budget et cadrage</h2>
@@ -473,10 +503,7 @@ export default function DestinationPage({ params }: Props) {
                         <li key={line.label}>— <span className="font-medium">{line.label}</span> : {line.value}</li>
                       ))}
                     </ul>
-                    <Link
-                      href={`/travel-planning-form?destination=${params.slug}`}
-                      className="inline-flex px-5 py-2.5 rounded-full bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors"
-                    >
+                    <Link href={`/travel-planning-form?destination=${params.slug}`} className="inline-flex px-5 py-2.5 rounded-full bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors">
                       Obtenir un cadrage sur mesure
                     </Link>
                   </article>
@@ -519,10 +546,7 @@ export default function DestinationPage({ params }: Props) {
                       <li key={day.day}><span className="font-semibold text-mahogany">{day.day} :</span> {day.label}</li>
                     ))}
                   </ul>
-                  <Link
-                    href={`/travel-planning-form?destination=${params.slug}`}
-                    className="inline-flex px-5 py-2.5 rounded-full bg-mahogany text-white font-semibold hover:bg-mahogany/90 transition-colors"
-                  >
+                  <Link href={`/travel-planning-form?destination=${params.slug}`} className="inline-flex px-5 py-2.5 rounded-full bg-mahogany text-white font-semibold hover:bg-mahogany/90 transition-colors">
                     Adapter cet itinéraire à mes dates
                   </Link>
                 </article>
@@ -596,11 +620,10 @@ export default function DestinationPage({ params }: Props) {
                 {related.map((post) => (
                   <Link key={post.slug} href={`/blog/${post.slug}`} className="group block">
                     <article className="rounded-2xl border border-stone-200 overflow-hidden bg-cloud-dancer/40 shadow-sm hover:shadow-md transition-all duration-200 group-hover:-translate-y-1">
-                      {post.image ? (
-                        <img src={post.image} alt={post.title} className="h-44 w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" width={400} height={176} />
-                      ) : (
-                        <div className="flex h-44 items-center justify-center bg-stone-100 text-sm text-charcoal/50">Carnet Heldonica</div>
-                      )}
+                      {post.image
+                        ? <img src={post.image} alt={post.title} className="h-44 w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" width={400} height={176} />
+                        : <div className="flex h-44 items-center justify-center bg-stone-100 text-sm text-charcoal/50">Carnet Heldonica</div>
+                      }
                       <div className="p-5">
                         <span className="text-xs font-semibold text-eucalyptus uppercase tracking-[0.12em]">{post.category}</span>
                         <h3 className="mt-2 text-base font-semibold text-charcoal leading-snug group-hover:text-mahogany transition-colors">{post.title}</h3>
