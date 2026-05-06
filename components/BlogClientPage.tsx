@@ -5,6 +5,8 @@ import Link from 'next/link'
 import NewsletterForm from '@/components/NewsletterForm'
 import type { BlogPost } from '@/lib/blog-supabase'
 
+const POSTS_PER_SECTION = 6
+
 const CATEGORY_LABELS: Record<string, string> = {
   Tous: 'Tout lire',
   'Carnets Voyage': 'Carnets',
@@ -53,6 +55,17 @@ function ReadProgressBar() {
 export default function BlogClientPage({ posts }: Props) {
   const [activeFilter, setActiveFilter] = useState('Tous')
   const [searchQuery, setSearchQuery] = useState('')
+  // Pagination : nombre visible par section
+  const [visibleCarnets, setVisibleCarnets] = useState(POSTS_PER_SECTION)
+  const [visibleDecouvertes, setVisibleDecouvertes] = useState(POSTS_PER_SECTION)
+  const [visibleGuides, setVisibleGuides] = useState(POSTS_PER_SECTION)
+
+  // Reset pagination on filter/search change
+  useEffect(() => {
+    setVisibleCarnets(POSTS_PER_SECTION)
+    setVisibleDecouvertes(POSTS_PER_SECTION)
+    setVisibleGuides(POSTS_PER_SECTION)
+  }, [activeFilter, searchQuery])
 
   const categories = ['Tous', 'Carnets Voyage', 'Découvertes Locales', 'Guides Pratiques']
 
@@ -65,7 +78,6 @@ export default function BlogClientPage({ posts }: Props) {
         post.title.toLowerCase().includes(query) ||
         (post.excerpt ?? '').toLowerCase().includes(query) ||
         (post.tags ?? []).some((tag) => tag.toLowerCase().includes(query))
-
       return matchCategory && matchSearch
     })
   }, [posts, activeFilter, searchQuery])
@@ -102,7 +114,7 @@ export default function BlogClientPage({ posts }: Props) {
             des repères qu&apos;on aurait aimé avoir avant.
           </h1>
           <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-white/75">
-            On écrit depuis le terrain : une arrivée trop tardive, une adresse trouvée au bon
+            On écrit depuis le terrain : une arrivée trop tardive, une adresse trouvée au bon
             moment, une erreur qu&apos;on ne refera pas. Le reste, on le laisse aux brochures.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-white/65">
@@ -152,7 +164,7 @@ export default function BlogClientPage({ posts }: Props) {
                     {featuredPost.excerpt}
                   </p>
                 )}
-                <div className="flex flex-wrap items-center gap-4 text-xs text-white/55">
+                <div className="flex flex-wrap items-center gap-4 text-xs text-white/60">
                   <span>{featuredPost.formattedDate}</span>
                   <span className="font-semibold text-teal transition-transform duration-200 group-hover:translate-x-1">
                     Lire le carnet →
@@ -216,7 +228,7 @@ export default function BlogClientPage({ posts }: Props) {
 
         {searchQuery && (
           <p className="mt-4 text-sm text-charcoal/60">
-            {filteredPosts.length} article{filteredPosts.length > 1 ? 's' : ''} pour "{searchQuery}".
+            {filteredPosts.length} article{filteredPosts.length > 1 ? 's' : ''} pour « {searchQuery} ».
           </p>
         )}
       </section>
@@ -229,10 +241,7 @@ export default function BlogClientPage({ posts }: Props) {
               Essaie un lieu, un mot plus simple, ou repars de tout le blog pour reprendre le fil.
             </p>
             <button
-              onClick={() => {
-                setSearchQuery('')
-                setActiveFilter('Tous')
-              }}
+              onClick={() => { setSearchQuery(''); setActiveFilter('Tous'); }}
               className="mt-6 text-sm font-semibold text-eucalyptus transition-colors duration-200 hover:text-eucalyptus"
             >
               Voir tous les articles →
@@ -241,19 +250,30 @@ export default function BlogClientPage({ posts }: Props) {
         </div>
       ) : (
         <div className="mx-auto max-w-7xl space-y-16 px-4 pb-20">
+
           {(activeFilter === 'Tous' || activeFilter === 'Carnets Voyage') && carnets.length > 0 && (
             <section>
               <SectionHeader
                 eyebrow="Carnets"
                 title="Carnets de voyage"
-                description="Les récits qui gardent l'heure, le rythme et ce qu'on a retenu sur place."
+                description="Les récits qui gardent l’heure, le rythme et ce qu’on a retenu sur place."
                 count={carnets.length}
               />
               <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {carnets.map((post) => (
+                {carnets.slice(0, visibleCarnets).map((post) => (
                   <ArticleCard key={post.slug} post={post} />
                 ))}
               </div>
+              {visibleCarnets < carnets.length && (
+                <div className="mt-8 text-center">
+                  <button
+                    onClick={() => setVisibleCarnets((v) => v + POSTS_PER_SECTION)}
+                    className="inline-flex items-center gap-2 rounded-full border border-eucalyptus px-6 py-3 text-sm font-semibold text-eucalyptus hover:bg-eucalyptus hover:text-white transition-colors"
+                  >
+                    Voir {Math.min(POSTS_PER_SECTION, carnets.length - visibleCarnets)} carnets de plus →
+                  </button>
+                </div>
+              )}
             </section>
           )}
 
@@ -262,14 +282,24 @@ export default function BlogClientPage({ posts }: Props) {
               <SectionHeader
                 eyebrow="Pépites"
                 title="Découvertes locales"
-                description="Des lieux qu'on n'était pas venus chercher, et qu'on aurait regretté de rater."
+                description="Des lieux qu’on n’était pas venus chercher, et qu’on aurait regretté de rater."
                 count={decouvertes.length}
               />
               <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {decouvertes.map((post) => (
+                {decouvertes.slice(0, visibleDecouvertes).map((post) => (
                   <ArticleCard key={post.slug} post={post} />
                 ))}
               </div>
+              {visibleDecouvertes < decouvertes.length && (
+                <div className="mt-8 text-center">
+                  <button
+                    onClick={() => setVisibleDecouvertes((v) => v + POSTS_PER_SECTION)}
+                    className="inline-flex items-center gap-2 rounded-full border border-eucalyptus px-6 py-3 text-sm font-semibold text-eucalyptus hover:bg-eucalyptus hover:text-white transition-colors"
+                  >
+                    Voir {Math.min(POSTS_PER_SECTION, decouvertes.length - visibleDecouvertes)} pépites de plus →
+                  </button>
+                </div>
+              )}
             </section>
           )}
 
@@ -282,12 +312,23 @@ export default function BlogClientPage({ posts }: Props) {
                 count={guides.length}
               />
               <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {guides.map((post) => (
+                {guides.slice(0, visibleGuides).map((post) => (
                   <ArticleCard key={post.slug} post={post} />
                 ))}
               </div>
+              {visibleGuides < guides.length && (
+                <div className="mt-8 text-center">
+                  <button
+                    onClick={() => setVisibleGuides((v) => v + POSTS_PER_SECTION)}
+                    className="inline-flex items-center gap-2 rounded-full border border-eucalyptus px-6 py-3 text-sm font-semibold text-eucalyptus hover:bg-eucalyptus hover:text-white transition-colors"
+                  >
+                    Voir {Math.min(POSTS_PER_SECTION, guides.length - visibleGuides)} guides de plus →
+                  </button>
+                </div>
+              )}
             </section>
           )}
+
         </div>
       )}
 
@@ -306,15 +347,9 @@ function StatChip({ value, label }: { value: number; label: string }) {
 }
 
 function SectionHeader({
-  eyebrow,
-  title,
-  description,
-  count,
+  eyebrow, title, description, count,
 }: {
-  eyebrow: string
-  title: string
-  description: string
-  count: number
+  eyebrow: string; title: string; description: string; count: number;
 }) {
   return (
     <div className="border-b border-cloud-dancer pb-5">
@@ -332,7 +367,7 @@ function SectionHeader({
   )
 }
 
-function ArticleCard({ post }: { post: BlogPost & { formattedDate: string } }) {
+function ArticleCard({ post }: { post: BlogPost & { formattedDate: string; readTime?: number } }) {
   const fallbackBg = CATEGORY_FALLBACK_BG[post.category ?? ''] ?? 'bg-cloud-dancer'
   const [imageSrc, setImageSrc] = useState(post.featured_image ?? null)
 
@@ -406,7 +441,8 @@ function ArticleCard({ post }: { post: BlogPost & { formattedDate: string } }) {
               ))}
             </div>
           )}
-          <div className="mt-auto flex items-center justify-between border-t border-cloud-dancer pt-4 text-xs text-charcoal/40">
+          {/* FIX WCAG: text-charcoal/40 → text-charcoal/60 sur métadonnées */}
+          <div className="mt-auto flex items-center justify-between border-t border-cloud-dancer pt-4 text-xs text-charcoal/60">
             <div className="flex items-center gap-2">
               <span>{post.author ?? 'Heldonica'}</span>
               {post.readTime && post.readTime > 0 && (
