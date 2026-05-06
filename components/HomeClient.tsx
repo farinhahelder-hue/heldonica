@@ -8,14 +8,15 @@ import type { BlogPost } from '@/lib/blog-supabase'
 import { getExcerpt } from '@/lib/blog-supabase'
 import InstagramEmbed from '@/components/InstagramEmbed'
 import NewsletterForm from '@/components/NewsletterForm'
-import BlogCtaLink from '@/components/BlogCtaLink'
 
 const HELDONICA_BADGE_FALLBACK = '/images/badges-heldonica.svg'
 
+// Get display excerpt: use stored excerpt or generate from content
 function displayExcerpt(post: BlogPost): string {
   return getExcerpt(post, 140);
 }
 
+// ─── Images de secours par slug ──────────────────────────────────────────────
 const SLUG_IMAGES: Record<string, string> = {
   'madere-slow-travel-guide':                     'https://images.unsplash.com/photo-1560719887-fe3105fa1e55?w=1200&q=80',
   'urbex-paris-safe':                             'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=1200&q=80',
@@ -25,6 +26,23 @@ const SLUG_IMAGES: Record<string, string> = {
   'prego-no-bolo-do-caco':                        'https://images.unsplash.com/photo-1574484284002-952d92a03a52?w=1200&q=80',
   'flotter-sur-la-limmat-a-zurich-notre-aventure-dete':   'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
 }
+// ─── Images de secours par catégorie ─────────────────────────────────────────
+/*
+const CAT_IMAGES_LEGACY: Record<string, string> = {
+  'Carnets Voyage':      'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/stoos-01.jpg',
+  'Découvertes Locales': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
+  'Expert Hôtelier':     'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
+  'Découvertes Locales': 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=900&q=80',
+  'Guides Pratiques':    'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
+  'Expert Hôtelier':     'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=900&q=80',
+  'Travel':              'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
+  'Food & Lifestyle':    'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=1200&q=80',
+  'Découvertes Locales': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
+  'Expert Hôtelier': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
+  'DÃ©couvertes Locales': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
+  'Expert HÃ´telier': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
+}
+*/
 
 const CAT_IMAGES: Record<string, string> = {
   'Carnets Voyage': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/stoos-01.jpg',
@@ -33,8 +51,11 @@ const CAT_IMAGES: Record<string, string> = {
   'Expert Hôtelier': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
   Travel: 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
   'Food & Lifestyle': 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=1200&q=80',
+  'DÃ©couvertes Locales': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
+  'Expert HÃ´telier': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
+  'DÃƒÂ©couvertes Locales': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
+  'Expert HÃƒÂ´telier': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
 }
-
 function postImage(p: BlogPost): string {
   if (p.featured_image && p.featured_image.trim().length > 0) return p.featured_image
   if (p.slug && SLUG_IMAGES[p.slug]) return SLUG_IMAGES[p.slug]
@@ -42,6 +63,7 @@ function postImage(p: BlogPost): string {
   return HELDONICA_BADGE_FALLBACK
 }
 
+// ─── Hooks ────────────────────────────────────────────────────────────────────
 function useScrollReveal() {
   useEffect(() => {
     const els = document.querySelectorAll('[data-reveal]')
@@ -92,6 +114,7 @@ function AnimatedStat({ nb, label, suffix = '' }: { nb: number | string; label: 
   )
 }
 
+// ─── Card article ─────────────────────────────────────────────────────────────
 function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: string; readTime?: number }; size?: 'sm' | 'md' | 'lg' }) {
   const img = postImage(post)
   const [imgSrc, setImgSrc] = useState(img)
@@ -128,16 +151,16 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
             {post.title}
           </h3>
           {post.excerpt && (
-            <p className="text-charcoal/70 text-xs leading-relaxed line-clamp-2 flex-1 mb-2">{post.excerpt}</p>
+            <p className="text-charcoal/60 text-xs leading-relaxed line-clamp-2 flex-1 mb-2">{post.excerpt}</p>
           )}
           {!post.excerpt && displayExcerpt(post) && (
-            <p className="text-charcoal/70 text-xs leading-relaxed line-clamp-2 flex-1 mb-2">{displayExcerpt(post)}</p>
+            <p className="text-charcoal/60 text-xs leading-relaxed line-clamp-2 flex-1 mb-2">{displayExcerpt(post)}</p>
           )}
           <div className="flex items-center justify-between mt-auto pt-2 border-t border-cloud-dancer">
             <span className="text-xs text-charcoal/60">
               {post.author ?? 'Heldonica'} {post.destination ? `• 📍 ${post.destination}` : ` • ${post.formattedDate}`}
             </span>
-            <span className="text-xs text-eucalyptus font-semibold group-hover:translate-x-1 transition-transform">Lire →</span>
+            <span className="text-xs text-eucalyptus font-semibold group-hover:translate-x-1 transition-transform">Lire le carnet →</span>
           </div>
         </div>
       </article>
@@ -145,6 +168,7 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
   )
 }
 
+// ─── Props ────────────────────────────────────────────────────────────────────
 interface HomeProps {
   featured: (BlogPost & { formattedDate: string; readTime?: number }) | null
   travelPosts: (BlogPost & { formattedDate: string; readTime?: number })[]
@@ -154,12 +178,14 @@ interface HomeProps {
   coveredCountries?: string | null
 }
 
+// ─── Page ─────────────────────────────────────────────────────────────────────
 export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries }: HomeProps) {
   useScrollReveal()
   const featImg = featured ? postImage(featured) : null
+  // Use real published count, fallback to reasonable number
   const publishedArticles = typeof totalPosts === 'number' && totalPosts > 0 ? totalPosts : 10
-  // FIX DATA: fallback corrigé à 7 pays (cohérent avec page À propos)
-  const countryCount = typeof coveredCountries === 'number' && coveredCountries > 0 ? coveredCountries : (coveredCountries ? parseInt(coveredCountries) : 7)
+  // Use real covered_countries from settings, fallback to 3 (France, Madère, Roumanie where duo lived)
+  const countryCount = typeof coveredCountries === 'number' && coveredCountries > 0 ? coveredCountries : (coveredCountries ? parseInt(coveredCountries) : 3)
 
   return (
     <>
@@ -210,18 +236,16 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           </p>
           <div className="flex flex-wrap gap-3"
                style={{ animation: 'wordIn 0.7s 1.3s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
-            <BlogCtaLink
-              href="/blog"
-              label="Lire le carnet →"
-              gtag_label="hero_read_carnet"
+            <Link href="/blog" 
               className="px-5 md:px-6 py-2.5 md:py-3 bg-mahogany hover:bg-eucalyptus text-white rounded-full font-semibold text-sm tracking-wide transition"
-            />
-            <BlogCtaLink
-              href="/travel-planning-form"
-              label="Nous écrire →"
-              gtag_label="hero_contact"
+              onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'hero_read_carnet' })}>
+              Lire le carnet →
+            </Link>
+            <Link href="/travel-planning-form" 
               className="px-5 md:px-6 py-2.5 md:py-3 border border-white/50 hover:border-white text-white hover:bg-white/10 rounded-full font-semibold text-sm tracking-wide transition"
-            />
+              onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'hero_contact' })}>
+              Nous écrire →
+            </Link>
           </div>
         </div>
         <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-20 scroll-cue"
@@ -262,7 +286,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               <AnimatedStat nb={publishedArticles} suffix="" label="Carnets publiés" />
               <div className="col-span-2 mt-2">
                 <p className="text-xs text-charcoal/60 leading-relaxed">
-                  <span className="font-semibold text-charcoal/80">Terrains de jeu :</span><br />
+                  <span className="font-semibold text-charcoal/70">Terrains de jeu :</span><br />
                   Paris · Madère · Roumanie · Normandie · Sicile · Sardaigne · Tanzanie · Colombie · Afrique du Sud
                 </p>
               </div>
@@ -271,7 +295,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         </div>
       </section>
 
-      {/* ── À LA UNE ──────────────────────────────────────────────────────── */}
+      {/* ── À LA UNE : dernier article ──────────────────────────────────── */}
       {featured && (
         <section className="py-0 bg-mahogany">
           <Link href={`/blog/${featured.slug}`} className="group block">
@@ -291,10 +315,10 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   {featured.title}
                 </h2>
                 {featured.excerpt && (
-                  <p className="text-white/75 text-sm md:text-base leading-relaxed line-clamp-2 mb-4 max-w-xl">{featured.excerpt}</p>
+                  <p className="text-white/65 text-sm md:text-base leading-relaxed line-clamp-2 mb-4 max-w-xl">{featured.excerpt}</p>
                 )}
                 {!featured.excerpt && displayExcerpt(featured) && (
-                  <p className="text-white/75 text-sm md:text-base leading-relaxed line-clamp-2 mb-4 max-w-xl">{displayExcerpt(featured)}</p>
+                  <p className="text-white/65 text-sm md:text-base leading-relaxed line-clamp-2 mb-4 max-w-xl">{displayExcerpt(featured)}</p>
                 )}
                 <span className="inline-flex items-center gap-2 text-teal font-semibold text-sm group-hover:gap-3 transition-all">
                   Lire le carnet →
@@ -305,7 +329,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         </section>
       )}
 
-      {/* ── CARNETS DE VOYAGE ─────────────────────────────────────────────── */}
+      {/* ── CARNETS DE VOYAGE ──────────────────────────────────────────── */}
       {travelPosts.length > 0 && (
         <section className="py-20 md:py-28 bg-cloud-dancer">
           <div className="max-w-6xl mx-auto px-6 md:px-10">
@@ -334,10 +358,10 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                       {travelPosts[0].title}
                     </h3>
                     {travelPosts[0].excerpt && (
-                      <p className="text-white/80 text-sm mt-2 line-clamp-2">{travelPosts[0].excerpt}</p>
+                      <p className="text-gray-300 text-sm mt-2 line-clamp-2">{travelPosts[0].excerpt}</p>
                     )}
                     {!travelPosts[0].excerpt && displayExcerpt(travelPosts[0]) && (
-                      <p className="text-white/80 text-sm mt-2 line-clamp-2">{displayExcerpt(travelPosts[0])}</p>
+                      <p className="text-gray-300 text-sm mt-2 line-clamp-2">{displayExcerpt(travelPosts[0])}</p>
                     )}
                   </div>
                 </Link>
@@ -354,7 +378,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                         <h3 className="text-white text-lg font-serif font-light group-hover:text-teal/80 transition-colors line-clamp-2">
                           {p.title}
                         </h3>
-                        <p className="text-white/75 text-xs mt-1">{p.destination ?? p.formattedDate}</p>
+                        <p className="text-gray-300 text-xs mt-1">{p.destination ?? p.formattedDate}</p>
                       </div>
                     </Link>
                   ))}
@@ -365,7 +389,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         </section>
       )}
 
-      {/* ── FOOD & LIFESTYLE ──────────────────────────────────────────────── */}
+      {/* ── FOOD & LIFESTYLE ───────────────────────────────────────────── */}
       {foodPosts.length > 0 && (
         <section className="py-20 md:py-28 bg-white">
           <div className="max-w-6xl mx-auto px-6 md:px-10">
@@ -408,7 +432,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         </section>
       )}
 
-      {/* ── DERNIERS ARTICLES ─────────────────────────────────────────────── */}
+      {/* ── DERNIERS ARTICLES ─────────────────────────────────────────── */}
       {latestPosts.length > 0 && (
         <section className="py-20 bg-[#f7f6f2]">
           <div className="max-w-6xl mx-auto px-6 md:px-10">
@@ -430,7 +454,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         </section>
       )}
 
-      {/* ── CTA TRAVEL PLANNING (fond mahogany) ───────────────────────────── */}
+      {/* ── CTA TRAVEL PLANNING ───────────────────────────────────────── */}
       <section className="py-20 md:py-28 bg-mahogany text-white">
         <div className="max-w-5xl mx-auto px-6 md:px-10">
           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -440,27 +464,23 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 On ne fait pas des itinéraires.<br />
                 <em className="text-teal">On fait le tien.</em>
               </h2>
-              {/* FIX P1: text-charcoal/40 → text-white/80 sur fond mahogany */}
               <p className="text-white/80 leading-relaxed mb-4">
                 Tu nous envoies tes contraintes réelles — temps, budget, énergie, envie. On transforme ça en séquence concrète, avec les adresses qu&apos;on a testées et l&apos;ordre qui a du sens sur le terrain.
               </p>
-              <p className="text-white/65 text-sm leading-relaxed mb-8">
+              <p className="text-white/70 text-sm leading-relaxed mb-8">
                 Notre terrain naturel : les couples qui veulent ralentir sans s&apos;ennuyer, les solos qui cherchent du vrai, les familles qui en ont marre des parcs d&apos;attractions.
               </p>
-              {/* FIX P2: rounded → rounded-full + hover states */}
               <div className="flex flex-wrap gap-3">
-                <BlogCtaLink
-                  href="/travel-planning-form"
-                  label="Nous écrire →"
-                  gtag_label="services_contact"
-                  className="px-6 py-3 bg-eucalyptus hover:bg-eucalyptus/80 text-white rounded-full font-semibold text-sm transition"
-                />
-                <BlogCtaLink
-                  href="/blog"
-                  label="Lire le carnet →"
-                  gtag_label="services_read_carnet"
-                  className="px-6 py-3 border border-white/30 hover:border-white/70 hover:bg-white/10 text-white rounded-full font-semibold text-sm transition"
-                />
+                <Link href="/travel-planning-form" 
+                className="px-6 py-3 bg-eucalyptus hover:bg-eucalyptus/90 text-white rounded-full font-semibold text-sm transition"
+                onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'services_contact' })}>
+                Nous écrire →
+              </Link>
+              <Link href="/blog" 
+                className="px-6 py-3 border border-white/30 hover:border-white/60 text-white rounded-full font-semibold text-sm transition"
+                onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'services_read_carnet' })}>
+                Lire le carnet →
+              </Link>
               </div>
             </div>
             <div className="grid grid-cols-1 gap-4" data-reveal="right">
@@ -469,9 +489,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 { t: 'Ouvert aussi à ton format', d: "Solo, famille curieuse ou groupe d'amis : on adapte cette même exigence terrain à votre énergie, vos contraintes et votre rythme." },
                 { t: 'Vécu sur le terrain', d: "Cartes, adresses, conseils pratiques et pépites dénichées : tout part d'expériences testées, pas inventées." },
               ].map((item) => (
-                <div key={item.t} className="border border-white/15 rounded-xl p-5 hover:border-teal/40 hover:bg-white/5 transition">
+                <div key={item.t} className="border border-white/10 rounded-xl p-5 hover:border-teal/30 transition">
                   <h3 className="font-semibold text-white text-sm mb-1">{item.t}</h3>
-                  {/* FIX P1: text-charcoal/40 → text-white/70 sur fond mahogany */}
                   <p className="text-white/70 text-sm leading-relaxed">{item.d}</p>
                 </div>
               ))}
@@ -480,7 +499,67 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         </div>
       </section>
 
-      {/* ── NEWSLETTER (fond mahogany) ────────────────────────────────────── */}
+      {/* ── CONSULTING HÔTELIER — IAification & Digitalisation ────────── */}
+      {/*
+      <section className="py-20 md:py-24 bg-cloud-dancer">
+        <div className="max-w-6xl mx-auto px-6 md:px-10">
+          <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
+            <div className="order-2 md:order-1" data-reveal="left">
+              <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4">Consulting B2B · Hôtellerie</p>
+              <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany leading-tight mb-6">
+                On connaît vos clients mieux
+                <span className="block italic text-charcoal/70">que la plupart de vos consultants.</span>
+              </h2>
+              <p className="text-base text-charcoal/70 leading-relaxed mb-4">
+                Parce qu&apos;on est vos clients. Pas de promesses chiffrées plaquées sur une slide. On arrive, on regarde ce qui se passe vraiment, on vous dit ce qu&apos;on voit, puis on travaille ensemble.
+              </p>
+              <p className="text-sm text-charcoal/60 leading-relaxed mb-6">
+                Distribution, discours, expérience, outils IA utiles : on ne vous vend pas une mode, on remet du vrai, du lisible et du concret dans le parcours client.
+              </p>
+              <div className="flex flex-wrap gap-2 mb-8">
+                {['Regard terrain', 'Hôtellerie indépendante', 'IA utile', 'Expérience client', 'Visibilité locale', 'Parcours de réservation'].map((tag) => (
+                  <span key={tag} className="bg-white border border-cloud-dancer/60 text-charcoal/80 text-xs font-semibold px-3 py-1 rounded-full">{tag}</span>
+                ))}
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <Link href="/travel-planning" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
+                  Prendre rendez-vous →
+                </Link>
+                <Link href="/ai-hotellerie" className="inline-flex items-center gap-2 text-charcoal/80 font-semibold text-sm hover:gap-3 transition-all">
+                  Voir les outils →
+                </Link>
+              </div>
+            </div>
+            <div className="order-1 md:order-2 grid grid-cols-1 gap-4" data-reveal="right">
+              {[
+                {
+                  icon: '•',
+                  t: 'On regarde le parcours réel',
+                  d: "Ce qu'un client comprend, ce qu'il rate, et l'endroit précis où vous perdez de la confiance."
+                },
+                {
+                  icon: '•',
+                  t: "On garde les outils à leur place",
+                  d: "L'IA sert à clarifier, accélérer et mieux répondre. Elle ne remplace ni votre instinct ni votre identité."
+                },
+                {
+                  icon: '•',
+                  t: 'On repart avec des actions tenables',
+                  d: 'Une feuille de route que vos équipes peuvent vraiment appliquer, sans usine à gaz ni dépendance inutile.'
+                },
+              ].map((item) => (
+                <div key={item.t} className="bg-white rounded-xl p-5 shadow-sm border border-cloud-dancer hover:border-teal transition">
+                  <div className="text-2xl mb-3 text-eucalyptus">{item.icon}</div>
+                  <h3 className="font-semibold text-mahogany text-sm mb-1">{item.t}</h3>
+                  <p className="text-charcoal/60 text-sm leading-relaxed">{item.d}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+      */}
+
       <section className="py-20 bg-mahogany text-white">
         <div className="max-w-5xl mx-auto px-6 md:px-10">
           <div className="grid md:grid-cols-[1.1fr_0.9fr] gap-10 items-center">
@@ -490,8 +569,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 Une fois par mois, on t&apos;envoie
                 <span className="block italic text-teal">ce qu&apos;on a vraiment trouvé.</span>
               </h2>
-              {/* FIX P1: text-charcoal/30 → text-white/75 sur fond mahogany */}
-              <p className="text-white/75 text-sm md:text-base leading-relaxed max-w-xl">
+              <p className="text-white/80 text-sm md:text-base leading-relaxed max-w-xl">
                 Une adresse, un timing, une erreur à éviter. Rien de plus. Pas de remplissage, pas de bruit, juste ce qui mérite vraiment une place dans ton prochain départ.
               </p>
             </div>
@@ -502,7 +580,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         </div>
       </section>
 
-      {/* ── INSTAGRAM ────────────────────────────────────────────────────── */}
+      {/* Instagram Feed Section */}
       <section className="py-16 bg-cloud-dancer">
         <div className="max-w-4xl mx-auto px-4">
           <h2 className="text-2xl font-serif text-mahogany text-center mb-8">
@@ -516,3 +594,5 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
     </>
   )
 }
+
+
