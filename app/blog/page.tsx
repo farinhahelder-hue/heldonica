@@ -56,7 +56,7 @@ export const metadata: Metadata = {
 }
 
 export default async function BlogPage() {
-  const posts = await getAllPosts()
+  const posts = (await getAllPosts()) ?? []
   const postsWithFormattedDate = posts.map((post) => ({
     ...post,
     formattedDate: formatDate(post.published_at),
