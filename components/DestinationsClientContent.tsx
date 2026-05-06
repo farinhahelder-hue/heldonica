@@ -10,7 +10,7 @@ type DestinationCard = {
   name: string;
   slug: string;
   country: string;
-  style: 'nature' | 'culture' | 'city' | 'food';
+  style: 'nature' | 'culture' | 'city' | 'food' | 'coast';
   duration: '3-5' | '5-7' | '7-10' | '10+';
   description: string;
   image: string;
@@ -34,7 +34,7 @@ const destinations: DestinationCard[] = [
   },
   {
     name: 'Sicile',
-    slug: '/travel-planning-form?destination=sicile',
+    slug: '/destinations/sicile',
     country: 'Italie',
     style: 'food',
     duration: '5-7',
@@ -92,6 +92,30 @@ const destinations: DestinationCard[] = [
     season: 'toute l’année',
     verdict: 'Paris est meilleur quand on arrête d’essayer d’en faire trop.',
   },
+  {
+    name: 'Normandie',
+    slug: '/destinations/normandie',
+    country: 'France',
+    style: 'coast',
+    duration: '3-5',
+    description: 'Étretat, Honfleur, Deauville : la côte normande demande moins de cases à cocher et plus de temps entre deux marées.',
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80',
+    budget: 'Modulable',
+    season: 'mai à septembre',
+    verdict: 'La côte marche mieux quand on accepte ses détours.',
+  },
+  {
+    name: 'Bretagne',
+    slug: '/destinations/bretagne',
+    country: 'France',
+    style: 'coast',
+    duration: '5-7',
+    description: 'Sentiers côtiers, crêperies et lumière changeante. La Bretagne gagne à être laissée tranquille.',
+    image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800&q=80',
+    budget: 'Modulable',
+    season: 'mai à septembre',
+    verdict: 'Une destination qui se donne mieux à pied qu’en programme serré.',
+  },
 ];
 
 const styleOptions = [
@@ -100,6 +124,7 @@ const styleOptions = [
   { value: 'culture', label: 'Culture' },
   { value: 'city', label: 'City break' },
   { value: 'food', label: 'Food' },
+  { value: 'coast', label: 'Côte' },
 ] as const;
 
 const durationOptions = [
@@ -142,7 +167,7 @@ export default function DestinationsPage() {
               Hub destinations
             </p>
             <h1 className="text-4xl md:text-6xl font-serif text-mahogany mb-6">
-              Six destinations qu&apos;on a arpentées dans tous les sens
+              Huit destinations qu&apos;on a arpentées dans tous les sens
             </h1>
             <p className="text-charcoal/80 text-lg max-w-3xl leading-relaxed">
               Pas en touristes pressés, en gens qui reviennent, qui testent, qui se trompent et qui recommencent. Ici, on te montre des terrains qu&apos;on connaît vraiment, avec leur bon rythme, leur budget indicatif et notre verdict signé court.
@@ -222,58 +247,52 @@ export default function DestinationsPage() {
               </div>
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredDestinations.map((item) => {
-                  const cta = item.slug.startsWith('/travel-planning-form')
-                    ? 'Nous écrire →'
-                    : 'Voir la destination →';
+                {filteredDestinations.map((item) => (
+                  <article
+                    key={`${item.name}-${item.slug}`}
+                    className="rounded-2xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
+                  >
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-full h-56 object-cover"
+                      loading="lazy"
+                    />
+                    <div className="p-5">
+                      <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">
+                        {item.country}
+                      </p>
+                      <h2 className="text-2xl font-serif text-mahogany mb-3">{item.name}</h2>
+                      <p className="text-sm text-charcoal/75 leading-relaxed mb-5">{item.description}</p>
 
-                  return (
-                    <article
-                      key={`${item.name}-${item.slug}`}
-                      className="rounded-2xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
-                    >
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-full h-56 object-cover"
-                        loading="lazy"
-                      />
-                      <div className="p-5">
-                        <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">
-                          {item.country}
-                        </p>
-                        <h2 className="text-2xl font-serif text-mahogany mb-3">{item.name}</h2>
-                        <p className="text-sm text-charcoal/75 leading-relaxed mb-5">{item.description}</p>
-
-                        <div className="grid grid-cols-1 gap-3 mb-5 text-sm">
-                          <div className="rounded-xl bg-cloud-dancer/60 border border-stone-200 p-3">
-                            <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Durée</p>
-                            <p className="text-charcoal">{item.duration} jours</p>
-                          </div>
-                          <div className="rounded-xl bg-cloud-dancer/60 border border-stone-200 p-3">
-                            <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Budget indicatif</p>
-                            <p className="text-charcoal">{item.budget}</p>
-                          </div>
-                          <div className="rounded-xl bg-cloud-dancer/60 border border-stone-200 p-3">
-                            <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Meilleure saison</p>
-                            <p className="text-charcoal">{item.season}</p>
-                          </div>
-                          <div className="rounded-xl bg-white border border-stone-200 p-3">
-                            <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Notre verdict</p>
-                            <p className="text-charcoal/85">{item.verdict}</p>
-                          </div>
+                      <div className="grid grid-cols-1 gap-3 mb-5 text-sm">
+                        <div className="rounded-xl bg-cloud-dancer/60 border border-stone-200 p-3">
+                          <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Durée</p>
+                          <p className="text-charcoal">{item.duration} jours</p>
                         </div>
-
-                        <Link
-                          href={item.slug}
-                          className="inline-flex px-5 py-2.5 rounded-full bg-mahogany text-white font-semibold hover:bg-mahogany/90 transition-all duration-200"
-                        >
-                          {cta}
-                        </Link>
+                        <div className="rounded-xl bg-cloud-dancer/60 border border-stone-200 p-3">
+                          <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Budget indicatif</p>
+                          <p className="text-charcoal">{item.budget}</p>
+                        </div>
+                        <div className="rounded-xl bg-cloud-dancer/60 border border-stone-200 p-3">
+                          <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Meilleure saison</p>
+                          <p className="text-charcoal">{item.season}</p>
+                        </div>
+                        <div className="rounded-xl bg-white border border-stone-200 p-3">
+                          <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Notre verdict</p>
+                          <p className="text-charcoal/85">{item.verdict}</p>
+                        </div>
                       </div>
-                    </article>
-                  );
-                })}
+
+                      <Link
+                        href={item.slug}
+                        className="inline-flex px-5 py-2.5 rounded-full bg-mahogany text-white font-semibold hover:bg-mahogany/90 transition-all duration-200"
+                      >
+                        Voir la destination →
+                      </Link>
+                    </div>
+                  </article>
+                ))}
               </div>
             )}
           </div>
@@ -299,7 +318,7 @@ export default function DestinationsPage() {
                 name: 'Quelles destinations propose Heldonica ?',
                 acceptedAnswer: {
                   '@type': 'Answer',
-                  text: 'Heldonica partage des destinations authentiques hors des sentiers battus testées sur le terrain : Madère, Roumanie, Sicile, et d\'autres pépites européennes. Toutes nos destinations sont choisies pour leur caractère écoresponsable et leur richesse locale.',
+                  text: 'Heldonica partage des destinations authentiques hors des sentiers battus testées sur le terrain : Madère, Roumanie, Sicile, Normandie, Bretagne et d’autres pépites européennes. Toutes nos destinations sont choisies pour leur caractère écoresponsable et leur richesse locale.',
                 },
               },
               {
