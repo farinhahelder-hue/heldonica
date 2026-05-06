@@ -15,7 +15,6 @@ function displayExcerpt(post: BlogPost): string {
   return getExcerpt(post, 140)
 }
 
-// ─── Images de secours par slug ──────────────────────────────────────────────
 const SLUG_IMAGES: Record<string, string> = {
   'madere-slow-travel-guide': 'https://images.unsplash.com/photo-1560719887-fe3105fa1e55?w=1200&q=80',
   'urbex-paris-safe': 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=1200&q=80',
@@ -42,7 +41,6 @@ function postImage(p: BlogPost): string {
   return HELDONICA_BADGE_FALLBACK
 }
 
-// ─── Hooks ────────────────────────────────────────────────────────────────────
 function useScrollReveal() {
   useEffect(() => {
     const els = document.querySelectorAll('[data-reveal]')
@@ -93,7 +91,6 @@ function AnimatedStat({ nb, label, suffix = '' }: { nb: number | string; label: 
   )
 }
 
-// ─── Card article ─────────────────────────────────────────────────────────────
 function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: string; readTime?: number }; size?: 'sm' | 'md' | 'lg' }) {
   const img = postImage(post)
   const [imgSrc, setImgSrc] = useState(img)
@@ -145,7 +142,6 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
   )
 }
 
-// ─── Props ────────────────────────────────────────────────────────────────────
 interface HomeProps {
   featured: (BlogPost & { formattedDate: string; readTime?: number }) | null
   travelPosts: (BlogPost & { formattedDate: string; readTime?: number })[]
@@ -155,7 +151,6 @@ interface HomeProps {
   coveredCountries?: string | null
 }
 
-// ─── Inspirations thématiques ─────────────────────────────────────────────────
 const INSPIRATIONS = [
   {
     emoji: '🚂',
@@ -184,29 +179,28 @@ const INSPIRATIONS = [
   {
     emoji: '🗺️',
     title: 'Hors des sentiers battus',
-    desc: 'Pas de listes copiées-collées. Des endroits qu\'on a vraiment trouvés.',
+    desc: "Pas de listes copiées-collées. Des endroits qu'on a vraiment trouvés.",
     href: '/blog',
     color: 'bg-amber-50 border-amber-200/50 hover:border-amber-300',
     accent: 'text-amber-800',
   },
 ]
 
-// ─── Engagements RSE ──────────────────────────────────────────────────────────
 const ENGAGEMENTS = [
   {
     icon: '🚆',
-    title: 'Le train d\'abord',
-    desc: 'On part en train depuis Paris quand c\'est possible. Toujours.',
+    title: "Le train d'abord",
+    desc: "On part en train depuis Paris quand c'est possible. Toujours.",
   },
   {
     icon: '🏡',
     title: 'Hôtes locaux',
-    desc: 'On privilégie les hébergements indépendants et les adresses ancrées dans leur territoire.',
+    desc: "On privilégie les hébergements indépendants et les adresses ancrées dans leur territoire.",
   },
   {
     icon: '🐌',
     title: 'Rythme lent',
-    desc: 'Moins de destinations, plus de profondeur. On reste, on s\'attarde, on revient.',
+    desc: "Moins de destinations, plus de profondeur. On reste, on s'attarde, on revient.",
   },
   {
     icon: '🌱',
@@ -215,7 +209,6 @@ const ENGAGEMENTS = [
   },
 ]
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
 export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries }: HomeProps) {
   useScrollReveal()
   const featImg = featured ? postImage(featured) : null
@@ -270,16 +263,12 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             Un duo Paris-Madère-Roumanie qui voyage lentement, documente vraiment et partage tout ce qu&apos;on a vécu — pas ce qu&apos;on a lu ailleurs. Dénicheurs de pépites, même en bas de chez toi.
           </p>
 
-          {/* ── PREUVE SOCIALE ── */}
+          {/* ── PREUVE DE CRÉDIBILITÉ TERRAIN — 100% vraie ── */}
           <div className="mb-6 md:mb-8 flex flex-wrap items-center gap-3"
                style={{ animation: 'wordIn 0.7s 1.2s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
-            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2">
-              <span className="text-yellow-400 text-sm">★★★★★</span>
-              <span className="text-white/90 text-xs font-medium">Voyages conçus sur mesure</span>
-            </div>
-            <div className="text-white/60 text-xs italic border-l border-white/20 pl-3 max-w-xs">
-              &ldquo;Exactement ce qu&apos;on cherchait — sans agence classique.&rdquo;
-              <span className="text-white/40 ml-1 not-italic">— Sophie &amp; Marc, Islande</span>
+            <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2">
+              <span className="text-teal text-sm">✦</span>
+              <span className="text-white/90 text-xs font-medium">10 ans de terrain · 100+ adresses testées · {publishedArticles} carnets publiés</span>
             </div>
           </div>
 
@@ -348,10 +337,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
       <section className="py-20 md:py-24 bg-[#f7f6f2]">
         <div className="max-w-5xl mx-auto px-6 md:px-10">
           <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
-            {/* Photo silhouette faceless */}
             <div className="relative flex items-center justify-center" data-reveal="left">
               <div className="relative w-full max-w-sm mx-auto aspect-[3/4] rounded-2xl overflow-hidden bg-gradient-to-br from-eucalyptus/20 via-teal/10 to-mahogany/20 shadow-xl">
-                {/* Silhouette duo SVG — style faceless Heldonica */}
                 <svg viewBox="0 0 300 400" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute inset-0 w-full h-full">
                   <defs>
                     <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
@@ -360,28 +347,21 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                     </linearGradient>
                   </defs>
                   <rect width="300" height="400" fill="url(#bgGrad)" />
-                  {/* Fond paysage stylisé */}
                   <path d="M0 280 Q75 240 150 260 Q225 280 300 250 L300 400 L0 400 Z" fill="#6B9E8A" fillOpacity="0.2" />
                   <path d="M0 310 Q100 290 200 300 Q250 305 300 295 L300 400 L0 400 Z" fill="#6B9E8A" fillOpacity="0.15" />
-                  {/* Silhouette femme */}
                   <ellipse cx="115" cy="130" rx="28" ry="32" fill="#7A3B2E" fillOpacity="0.7" />
                   <path d="M87 175 Q90 155 115 152 Q140 155 143 175 L148 280 L82 280 Z" fill="#7A3B2E" fillOpacity="0.65" />
-                  {/* Silhouette homme */}
                   <ellipse cx="185" cy="125" rx="30" ry="34" fill="#4A7A6A" fillOpacity="0.7" />
                   <path d="M155 172 Q158 150 185 147 Q212 150 215 172 L222 280 L148 280 Z" fill="#4A7A6A" fillOpacity="0.65" />
-                  {/* Détail mains jointes */}
                   <ellipse cx="150" cy="242" rx="12" ry="8" fill="#5C3B2A" fillOpacity="0.5" />
-                  {/* Texture montagne au fond */}
                   <path d="M20 260 L80 190 L140 240 L180 185 L260 255" stroke="#6B9E8A" strokeWidth="1.5" strokeOpacity="0.25" fill="none" />
                 </svg>
-                {/* Badge terrain */}
                 <div className="absolute bottom-5 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-md border border-eucalyptus/20">
                   <p className="text-xs font-semibold text-eucalyptus whitespace-nowrap">✦ Terrain vécu · Heldonica</p>
                 </div>
               </div>
             </div>
 
-            {/* Texte */}
             <div data-reveal="right">
               <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4">Rencontrez vos Travel Planners</p>
               <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany leading-tight mb-6">
@@ -394,11 +374,13 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               <p className="text-base text-charcoal/70 leading-relaxed mb-6">
                 Quand tu nous confies ton voyage, c&apos;est nous qui le concevons — du premier échange à la dernière adresse. Avec le même soin qu&apos;on met dans nos propres départs.
               </p>
-              {/* Micro-témoignage */}
-              <blockquote className="border-l-4 border-eucalyptus pl-4 mb-8 italic text-charcoal/60 text-sm leading-relaxed">
-                &ldquo;On a eu l&apos;impression d&apos;être guidés par des amis qui connaissent vraiment l&apos;endroit. Pas un catalogue, une vraie conversation.&rdquo;
-                <footer className="mt-2 not-italic text-xs text-charcoal/40 font-semibold">— Camille &amp; Thomas, Slow travel 10j en Madère</footer>
-              </blockquote>
+              {/* ── PROMESSE TERRAIN — sans témoignage fictif ── */}
+              <div className="border-l-4 border-eucalyptus pl-4 mb-8 bg-eucalyptus/5 rounded-r-xl py-3 pr-3">
+                <p className="text-charcoal/70 text-sm leading-relaxed font-medium">
+                  Chaque voyage qu&apos;on conçoit, on l&apos;a fait nous-mêmes.
+                  <span className="block mt-1 text-charcoal/50 font-normal text-xs">Plusieurs fois. En conditions réelles. Pas en press trip, pas sur Google Maps.</span>
+                </p>
+              </div>
               <Link href="/travel-planning-form"
                 className="inline-flex items-center gap-2 bg-eucalyptus hover:bg-eucalyptus/90 text-white px-6 py-3 rounded-full font-semibold text-sm transition"
                 onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'duo_section_planning' })}>
@@ -409,7 +391,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         </div>
       </section>
 
-      {/* ── À LA UNE : dernier article ──────────────────────────────────── */}
+      {/* ── À LA UNE ──────────────────────────────────────────────────────── */}
       {featured && (
         <section className="py-0 bg-mahogany">
           <Link href={`/blog/${featured.slug}`} className="group block">
@@ -688,7 +670,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         </div>
       </section>
 
-      {/* Instagram Feed Section */}
+      {/* ── INSTAGRAM ─────────────────────────────────────────────────── */}
       <section className="py-16 bg-cloud-dancer">
         <div className="max-w-4xl mx-auto px-4">
           <h2 className="text-2xl font-serif text-mahogany text-center mb-8">
