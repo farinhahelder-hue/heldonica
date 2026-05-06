@@ -2,14 +2,23 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { readCookieConsent, writeCookieConsent } from '@/lib/consent';
 
 export default function CookieConsentBanner() {
   const [visible, setVisible] = useState(false);
+  const pathname = usePathname();
+
+  // Masquer sur les routes admin
+  const isAdminRoute = pathname?.startsWith('/cms');
 
   useEffect(() => {
+    if (isAdminRoute) {
+      setVisible(false);
+      return;
+    }
     setVisible(readCookieConsent() === null);
-  }, []);
+  }, [pathname]);
 
   const setConsent = (value: 'accepted' | 'rejected') => {
     writeCookieConsent(value);
