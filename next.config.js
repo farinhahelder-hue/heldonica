@@ -38,6 +38,7 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
+  transpilePackages: ['sanitize-html'],
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 2678400,
@@ -81,7 +82,6 @@ const nextConfig = {
     ],
   },
   compress: true,
-  // Lint + typecheck déjà réactivés (sprint 10 avril)
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
   experimental: {
@@ -96,7 +96,6 @@ const nextConfig = {
         headers: securityHeaders,
       },
       {
-        // Apply Content-Type only to HTML pages
         source: '/:path*.html',
         headers: [
           { key: 'Content-Type', value: 'text/html; charset=utf-8' },
@@ -117,35 +116,25 @@ const nextConfig = {
     ]
   },
 
-  // ── Redirections permanentes (legacy WordPress + anciens slugs) ──
   async redirects() {
     return [
-      // Admin redirect
       { source: '/admin', destination: '/cms-admin', permanent: true },
       { source: '/admin/:path*', destination: '/cms-admin/:path*', permanent: true },
-      // Zurich
       { source: '/zurich', destination: '/destinations/zurich', permanent: true },
       { source: '/zurich/', destination: '/destinations/zurich', permanent: true },
-      // Suisse
       { source: '/suisse', destination: '/destinations/suisse', permanent: true },
       { source: '/suisse/', destination: '/destinations/suisse', permanent: true },
-      // Roumanie
       { source: '/roumanie', destination: '/destinations/roumanie', permanent: true },
       { source: '/roumanie/', destination: '/destinations/roumanie', permanent: true },
-      // Madère
       { source: '/madere', destination: '/destinations/madere', permanent: true },
       { source: '/madere/', destination: '/destinations/madere', permanent: true },
-      // Paris
       { source: '/paris', destination: '/destinations/paris', permanent: true },
       { source: '/paris/', destination: '/destinations/paris', permanent: true },
-      // Stoos Ridge — ancien slug -2 indexé par Google
       { source: '/stoos-ridge-notre-aventure-sur-la-crete-panoramique-2', destination: '/blog/stoos-ridge-notre-aventure-sur-la-crete-panoramique', permanent: true },
-      // Legacy WordPress — URLs encore indexées par Google
       { source: '/travel-planner', destination: '/travel-planning', permanent: true },
       { source: '/travel-planner/', destination: '/travel-planning', permanent: true },
       { source: '/nos-services', destination: '/travel-planning', permanent: true },
       { source: '/nos-services/', destination: '/travel-planning', permanent: true },
-      // Focus on travel planning - hotel consulting redirect to core offer
       { source: '/hotel-consulting', destination: '/travel-planning', permanent: true },
       { source: '/hotel-consulting/:path*', destination: '/travel-planning', permanent: true },
       { source: '/sujets/bons-plans', destination: '/blog', permanent: true },
@@ -159,7 +148,6 @@ const nextConfig = {
 module.exports = {
   ...nextConfig,
   webpack: (config, { isServer }) => {
-    // Exclude binary files from jobhunt_project
     config.module = config.module || {};
     config.module.rules = config.module.rules || [];
     config.module.rules.push({
