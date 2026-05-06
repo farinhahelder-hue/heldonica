@@ -326,7 +326,7 @@ export default function CMSAdmin() {
       } catch { /* silent */ }
     }, 30000);
     return () => clearTimeout(timer);
-  }, [tab, unsavedChanges, savingArticle, editingArticle]);
+  }, [tab, unsavedChanges, savingArticle, editingArticle, showToast]);
 
   // Clean URL params on mount
   useEffect(() => {
@@ -335,7 +335,7 @@ export default function CMSAdmin() {
     if (error || connected) {
       router.replace('/cms-admin');
     }
-  }, []);
+  }, [router, searchParams]);
 
   useEffect(() => {
     let active = true;

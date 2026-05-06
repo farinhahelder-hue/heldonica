@@ -36,6 +36,7 @@ export default async function OGImage({
         {post?.cover_image && (
           <img
             src={post.cover_image}
+            alt="Cover Image"
             style={{
               position: 'absolute',
               top: 0,
