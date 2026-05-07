@@ -6,12 +6,12 @@ import dynamic from 'next/dynamic';
 import EnhancedRichContent from '@/components/EnhancedRichContent';
 import MediaLibrary from '@/components/MediaLibrary';
 import { sanitizeHtml } from '@/lib/sanitize-html';
-import CarouselEditor from '@/components/admin/CarouselEditor';
-import CarouselGenerator from '@/components/admin/CarouselGenerator';
-import BlogGenerator from '@/components/admin/BlogGenerator';
 import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw } from 'lucide-react';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
+const CarouselEditor = dynamic(() => import('@/components/admin/CarouselEditor'), { ssr: false });
+const CarouselGenerator = dynamic(() => import('@/components/admin/CarouselGenerator'), { ssr: false });
+const BlogGenerator = dynamic(() => import('@/components/admin/BlogGenerator'), { ssr: false });
 
 // ===== Types =====
 type Article = {
