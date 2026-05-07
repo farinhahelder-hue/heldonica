@@ -19,7 +19,9 @@ function getConfiguredPassword() {
 
 function getSessionSecret() {
   const secret = process.env.CMS_SESSION_SECRET?.trim();
-  return secret ? secret : getConfiguredPassword();
+  const pw = process.env.CMS_PASSWORD?.trim();
+  console.log('[CMS-AUTH] getSessionSecret - CMS_SESSION_SECRET exists:', !!secret, 'CMS_PASSWORD exists:', !!pw);
+  return secret ? secret : (pw ? pw : null);
 }
 
 function safeEqual(a: string, b: string) {
@@ -188,11 +190,14 @@ export function requireCmsAuth(req: Request) {
 }
 
 export function createCmsSessionResponse() {
+  console.log('[CMS-AUTH] createCmsSessionResponse called');
   const sessionToken = getCmsSessionToken();
+  console.log('[CMS-AUTH] sessionToken created:', !!sessionToken);
 
   if (!sessionToken) {
+    console.log('[CMS-AUTH] sessionToken is null - getSessionSecret returned null');
     return NextResponse.json(
-      { error: 'CMS non configuré : variable CMS_PASSWORD manquante.' },
+      { error: 'CMS non configuré : session secret manquant.' },
       { status: 503 }
     );
   }
