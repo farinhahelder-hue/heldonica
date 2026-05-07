@@ -388,23 +388,28 @@ function CMSAdminInner() {
 
   // Auth
   const login = async () => {
+    console.log('[CMS] login called, pwd length:', pwd?.length);
     if (authLoading) return;
     setAuthErr('');
     setAuthLoading(true);
     try {
+      console.log('[CMS] making POST to /api/cms/auth');
       const res = await fetch('/api/cms/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: pwd }),
       });
+      console.log('[CMS] got response:', res.status);
       const data = await res.json().catch(() => ({}));
+      console.log('[CMS] response data:', data);
       if (res.ok) {
         setAuthed(true);
         setPwd('');
       } else {
         setAuthErr(data.error || 'Mot de passe incorrect');
       }
-    } catch {
+    } catch (e) {
+      console.log('[CMS] login error:', e);
       setAuthErr('Impossible de contacter le CMS pour le moment.');
     } finally {
       setAuthLoading(false);
