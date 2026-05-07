@@ -21,7 +21,7 @@ const CATEGORY_FALLBACK_BG: Record<string, string> = {
 const BADGE_FALLBACK_SRC = '/images/badges-heldonica.svg'
 
 interface Props {
-  posts: (BlogPost & { formattedDate: string; readTime?: number })[]
+  posts?: (BlogPost & { formattedDate: string; readTime?: number })[]
 }
 
 function ReadProgressBar() {
@@ -50,7 +50,8 @@ function ReadProgressBar() {
   )
 }
 
-export default function BlogClientPage({ posts }: Props) {
+export default function BlogClientPage({ posts: rawPosts }: Props) {
+  const posts = rawPosts ?? []
   const [activeFilter, setActiveFilter] = useState('Tous')
   const [searchQuery, setSearchQuery] = useState('')
 
