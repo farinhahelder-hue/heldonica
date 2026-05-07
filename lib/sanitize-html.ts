@@ -1,4 +1,4 @@
-// Sanitisation HTML : DOMPurify côté client, échappement sécurisé côté serveur (SSR-safe, no jsdom)
+// Sanitisation HTML : DOMPurify côté client uniquement (SSR-safe, no jsdom)
 
 const SANITIZE_OPTIONS = {
   USE_PROFILES: { html: true },
@@ -29,8 +29,8 @@ export function sanitizeHtml(html: string | null | undefined): string {
     return html;
   }
 
-  // Côté client : utiliser DOMPurify (disponible dans le bundle navigateur via isomorphic-dompurify)
-  // eslint-disable-next-line
-  const DOMPurify = require('isomorphic-dompurify');
+  // Côté client : dompurify pur (pas de dépendance jsdom)
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const DOMPurify = require('dompurify');
   return DOMPurify.sanitize(html, SANITIZE_OPTIONS);
 }
