@@ -1390,10 +1390,10 @@ export default function CMSAdmin() {
                     <span style={metaChip}>/blog/{editingArticle?.slug || slug(editingArticle?.title || '') || 'nouvel-article'}</span>
                   </div>
                   <h1 style={{ margin: 0, fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', lineHeight: 1.1, color: '#1f1a17' }}>
-                    {editingArticle?.title || 'Titre de l'article'}
+                    {editingArticle?.title || `Titre de l'article`}
                   </h1>
                   <p style={{ margin: '1rem 0 1.5rem', color: '#6d625a', fontSize: '1rem', lineHeight: 1.7 }}>
-                    {editingArticle?.excerpt || 'Ton extrait apparaîtra ici pour donner envie d'ouvrir l'article.'}
+                    {editingArticle?.excerpt || `Ton extrait apparaîtra ici pour donner envie d'ouvrir l'article.`}
                   </p>
                   {editingArticle?.voice_notes && (
                     <div style={{ margin: '0 0 1.5rem', padding: '1rem 1.1rem', background: '#f6f1eb', border: '1px solid #ece3d8', borderRadius: '1rem' }}>

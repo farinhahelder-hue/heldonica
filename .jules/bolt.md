@@ -1,0 +1,3 @@
+## 2024-05-07 - [React Server Components Payload Bloat]
+**Learning:** Returning large strings like unstripped HTML content from database queries in React Server Components and passing them as props to Client Components serializes that data into the client payload. This drastically increases page size and hydration time, even if the data is never rendered by the client component.
+**Action:** Always pre-compute derived data (like excerpts and read times) on the server side and explicitly strip heavy/unused fields (like full HTML `content`) from objects before passing them to Client Components. Use `// @ts-ignore` to handle strict type differences when stripping fields for performance optimization if necessary.
