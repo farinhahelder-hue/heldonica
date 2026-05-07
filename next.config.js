@@ -45,7 +45,7 @@ const nextConfig = {
   typescript: { ignoreBuildErrors: false },
 
   experimental: {
-    optimizePackageImports: ['lodash'],
+    optimizePackageImports: ['@supabase/supabase-js'],
   },
 
   staticPageGenerationTimeout: 300,
