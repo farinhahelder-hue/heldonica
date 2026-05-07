@@ -80,7 +80,8 @@ const schemaSpeakable = {
 };
 
 export default async function Home() {
-  const allPosts = (await getAllPosts()) ?? []
+  const allPostsResult = await getAllPosts()
+  const allPosts = allPostsResult ?? []
   const coveredCountries = await getSetting('covered_countries')
 
   const latestPosts = allPosts.slice(0, 6)
