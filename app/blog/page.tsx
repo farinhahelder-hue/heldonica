@@ -5,13 +5,13 @@ import Footer from '@/components/Footer'
 import BlogClientPage from '@/components/BlogClientPage'
 import Breadcrumb from '@/components/Breadcrumb'
 
+export const dynamic = 'force-dynamic'
+
 function calcReadTime(content: string | null): number {
   if (!content) return 0
   const words = content.replace(/<[^>]*>/g, '').split(/\s+/).length
   return Math.max(1, Math.ceil(words / 200))
 }
-
-export const revalidate = 60
 
 export const metadata: Metadata = {
   title: 'Blog Slow Travel — Carnets de Route & Pépites Dénichées | Heldonica',
@@ -55,8 +55,15 @@ export const metadata: Metadata = {
 }
 
 export default async function BlogPage() {
-  const posts = await getAllPosts()
-  const postsWithFormattedDate = (posts ?? []).map((post) => ({
+  let posts: Awaited<ReturnType<typeof getAllPosts>> = []
+  try {
+    posts = (await getAllPosts()) ?? []
+  } catch (e) {
+    console.error('Supabase getAllPosts error:', e)
+    posts = []
+  }
+
+  const postsWithFormattedDate = posts.map((post) => ({
     ...post,
     formattedDate: formatDate(post.published_at),
     readTime: post.read_time ?? calcReadTime(post.content),
