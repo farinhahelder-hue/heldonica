@@ -30,7 +30,13 @@ export function sanitizeHtml(html: string | null | undefined): string {
   }
 
   // Côté client : dompurify pur (pas de dépendance jsdom)
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const DOMPurify = require('dompurify');
-  return DOMPurify.sanitize(html, SANITIZE_OPTIONS);
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const DOMPurify = require('dompurify');
+    if (typeof DOMPurify?.sanitize !== 'function') return html;
+    return DOMPurify.sanitize(html, SANITIZE_OPTIONS);
+  } catch {
+    // Fallback silencieux si DOMPurify indisponible (SSR edge case)
+    return html;
+  }
 }
