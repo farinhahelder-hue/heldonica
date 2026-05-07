@@ -50,6 +50,17 @@ const nextConfig = {
 
   staticPageGenerationTimeout: 300,
 
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      // Exclure dompurify du bundle serveur — ESM-only, client uniquement
+      config.externals = [
+        ...(Array.isArray(config.externals) ? config.externals : [config.externals].filter(Boolean)),
+        'dompurify',
+      ];
+    }
+    return config;
+  },
+
   async headers() {
     return [
       { source: '/(.*)', headers: securityHeaders },
