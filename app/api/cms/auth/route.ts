@@ -24,9 +24,10 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
+  console.log('[CMS-AUTH] GET called, full env keys:', Object.keys(process.env).filter(k => k.includes('CMS')).join(', '));
   console.log('[CMS-AUTH] GET called');
   const password = process.env.CMS_PASSWORD?.trim();
-  console.log('[CMS-AUTH] CMS_PASSWORD set:', !!password, password ? 'yes' : 'NO');
+  console.log('[CMS-AUTH] CMS_PASSWORD set:', !!password, password ? 'yes' : 'NO', 'length:', password?.length);
   
   const status = getCmsAuthStatus(req)
 
