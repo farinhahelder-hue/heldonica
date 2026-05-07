@@ -48,10 +48,10 @@ export function getExcerpt(post: BlogPost, maxLength = 160): string {
 }
 
 /** Tous les articles publiés, du plus récent au plus ancien */
-export async function getAllPosts(): Promise<BlogPost[]> {
+export async function getAllPosts(): Promise<BlogPost[] | null> {
   if (!supabase) {
-    console.warn('Supabase not configured, returning empty array');
-    return [];
+    console.warn('Supabase not configured, returning null');
+    return null;
   }
   try {
     const { data, error } = await supabase
@@ -61,12 +61,12 @@ export async function getAllPosts(): Promise<BlogPost[]> {
       .order('published_at', { ascending: false });
     if (error) {
       console.error('Supabase getAllPosts error:', error.message);
-      return [];
+      return null;
     }
-    return (data as BlogPost[]) ?? [];
+    return (data as BlogPost[]) || null;
   } catch (err) {
     console.error('getAllPosts exception:', err);
-    return [];
+    return null;
   }
 }
 
@@ -95,8 +95,8 @@ export async function getRelatedPosts(
   currentSlug: string,
   category: string | null,
   limit = 3
-): Promise<BlogPost[]> {
-  if (!supabase) return [];
+): Promise<BlogPost[] | null> {
+  if (!supabase) return null;
   try {
     const { data, error } = await supabase
       .from('cms_blog_posts')
@@ -108,12 +108,12 @@ export async function getRelatedPosts(
       .limit(limit);
     if (error) {
       console.error('Supabase getRelatedPosts error:', error.message);
-      return [];
+      return null;
     }
-    return (data as BlogPost[]) ?? [];
+    return (data as BlogPost[]) || null;
   } catch (err) {
     console.error('getRelatedPosts exception:', err);
-    return [];
+    return null;
   }
 }
 
@@ -129,7 +129,7 @@ export async function getAllSlugs(): Promise<{ slug: string }[]> {
       console.error('Supabase getAllSlugs error:', error.message);
       return [];
     }
-    return (data as { slug: string }[]) ?? [];
+    return (data as { slug: string }[]) || [];
   } catch (err) {
     console.error('getAllSlugs exception:', err);
     return [];
@@ -172,24 +172,3 @@ export async function getSetting(key: string): Promise<string | null> {
     return null;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

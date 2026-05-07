@@ -1,4 +1,4 @@
-﻿import { getPostBySlug, getAllSlugs, getRelatedPosts, formatDate } from '@/lib/blog-supabase'
+import { getPostBySlug, getAllSlugs, getRelatedPosts, formatDate } from '@/lib/blog-supabase'
 import type { BlogPost } from '@/lib/blog-supabase'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
@@ -158,7 +158,8 @@ export default async function BlogPostPage({ params }: Props) {
   const post = await getPostBySlug(params.slug)
   if (!post) notFound()
 
-  const related = (await getRelatedPosts(post.slug, post.category, 3)) ?? []
+  const relatedResult = await getRelatedPosts(post.slug, post.category, 3)
+  const related = relatedResult ?? []
   const heroImage = post.featured_image ?? null
   const fallbackBg = HERO_FALLBACK[post.category ?? ''] ?? 'bg-gradient-to-br from-stone-900 to-amber-900'
   const readTime = calcReadTime(post.content)
@@ -264,7 +265,7 @@ export default async function BlogPostPage({ params }: Props) {
                 prose-a:text-amber-700 prose-a:no-underline hover:prose-a:underline
                 prose-img:mx-auto prose-img:my-10 prose-img:rounded-[1.75rem] prose-img:shadow-lg
                 prose-strong:text-stone-900 prose-strong:font-semibold
-                prose-blockquote:rounded-r-2xl prose-blockquote:border-l-4 prose-blockquote:border-amber-400 prose-blockquote:bg-amber-50 prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:not-italic prose-blockquote:text-stone-700
+                prose-blockquote:rounded-r-2xl prose-blockquote:border-l-4 prose-blockquote:border-amber-400 prose-blockquote:bg-amber-50 prose-blockquote:px-6 prose-blockquote:py-4 prose-blockqu[...]
                 prose-ul:space-y-3 prose-li:text-stone-700
                 prose-hr:border-stone-200"
             />
@@ -366,7 +367,7 @@ export default async function BlogPostPage({ params }: Props) {
               On peut vous aider a organiser<br className="hidden md:block" /> votre propre voyage sur mesure
             </h2>
             <p className="text-sm text-charcoal/70 mb-8 leading-relaxed max-w-xl mx-auto">
-              Comme ce Carnet, votre voyage mérite qu&apos;on prend le temps. On vous propose un accompagnement personnalise pour créer l&apos;itinéraire qui vous ressemble — sans press, sans case a cocher.
+              Comme ce Carnet, votre voyage mérite qu&apos;on prend le temps. On vous propose un accompagnement personnalise pour créer l&apos;itinéraire qui vous ressemble — sans press, san[...]
             </p>
             <Link
               href="/travel-planning"
