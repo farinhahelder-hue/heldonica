@@ -158,7 +158,7 @@ export default async function BlogPostPage({ params }: Props) {
   const post = await getPostBySlug(params.slug)
   if (!post) notFound()
 
-  const related = await getRelatedPosts(post.slug, post.category, 3)
+  const related = (await getRelatedPosts(post.slug, post.category, 3)) ?? []
   const heroImage = post.featured_image ?? null
   const fallbackBg = HERO_FALLBACK[post.category ?? ''] ?? 'bg-gradient-to-br from-stone-900 to-amber-900'
   const readTime = calcReadTime(post.content)
