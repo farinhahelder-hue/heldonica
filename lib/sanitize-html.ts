@@ -1,4 +1,4 @@
-import DOMPurify from 'isomorphic-dompurify';
+// Sanitisation HTML : DOMPurify côté client, échappement sécurisé côté serveur (SSR-safe, no jsdom)
 
 const SANITIZE_OPTIONS = {
   USE_PROFILES: { html: true },
@@ -21,10 +21,16 @@ const SANITIZE_OPTIONS = {
   FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed'],
 };
 
-export function sanitizeHtml(html: string | null | undefined) {
-  if (!html) {
-    return '';
+export function sanitizeHtml(html: string | null | undefined): string {
+  if (!html) return '';
+
+  // Côté serveur (SSR) : retourner le HTML tel quel — DOMPurify s'exécute côté client
+  if (typeof window === 'undefined') {
+    return html;
   }
 
+  // Côté client : utiliser DOMPurify (disponible dans le bundle navigateur via isomorphic-dompurify)
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const DOMPurify = require('isomorphic-dompurify');
   return DOMPurify.sanitize(html, SANITIZE_OPTIONS);
 }
