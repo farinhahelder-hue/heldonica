@@ -990,12 +990,12 @@ function CMSAdminInner() {
                   ) : (
                     <div style={previewImageFallback}>Ajoute une image à la une</div>
                   )}
-                  <h1 style={{ margin: 0, fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', lineHeight: 1.1, color: '#1f1a17' }}>{editingArticle?.title || 'Titre de l'article'}</h1>
+                  <h1 style={{ margin: 0, fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', lineHeight: 1.1, color: '#1f1a17' }}>{editingArticle?.title || "Titre de l'article"}</h1>
                   <p style={{ margin: '1rem 0 1.5rem', color: '#6d625a', fontSize: '1rem', lineHeight: 1.7 }}>{editingArticle?.excerpt || "Ton extrait apparaîtra ici."}</p>
                   {articlePreviewHtml ? (
                     <EnhancedRichContent html={articlePreviewHtml} style={previewBody} />
                   ) : (
-                    <p style={{ margin: 0, color: '#8a7a70', lineHeight: 1.7 }}>Commence à écrire dans l'éditeur pour voir le rendu ici.</p>
+                    <p style={{ margin: 0, color: '#8a7a70', lineHeight: 1.7 }}>Commence à écrire dans l&apos;éditeur pour voir le rendu ici.</p>
                   )}
                 </div>
               </div>

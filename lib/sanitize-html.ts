@@ -30,7 +30,7 @@ export function sanitizeHtml(html: string | null | undefined): string {
   }
 
   // Côté client : utiliser DOMPurify (disponible dans le bundle navigateur via isomorphic-dompurify)
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  // eslint-disable-next-line
   const DOMPurify = require('isomorphic-dompurify');
   return DOMPurify.sanitize(html, SANITIZE_OPTIONS);
 }
