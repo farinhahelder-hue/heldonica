@@ -156,7 +156,7 @@ export default function DestinationPage({ params }: Props) {
   const safeContent = sanitizeHtml(page.content)
 
   const titleWords = page.title.toLowerCase().split(/\s+/).filter((word) => word.length > 3)
-  const related = blogPosts
+  const related = (blogPosts ?? [])
     .filter((post) => {
       const haystack = `${post.title} ${post.categories.join(' ')} ${post.tags.join(' ')}`.toLowerCase()
       return titleWords.some((word) => haystack.includes(word))
