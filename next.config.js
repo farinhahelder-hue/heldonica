@@ -23,16 +23,6 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      config.externals = [
-        ...(Array.isArray(config.externals) ? config.externals : []),
-        'jsdom',
-      ];
-    }
-    return config;
-  },
-
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 2678400,
@@ -51,8 +41,8 @@ const nextConfig = {
 
   compress: true,
 
-  eslint: { ignoreDuringBuilds: true },
-  typescript: { ignoreBuildErrors: true },
+  eslint: { ignoreDuringBuilds: false },
+  typescript: { ignoreBuildErrors: false },
 
   experimental: {
     optimizePackageImports: ['lodash'],
