@@ -24,6 +24,10 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
+  console.log('[CMS-AUTH] GET called');
+  const password = process.env.CMS_PASSWORD?.trim();
+  console.log('[CMS-AUTH] CMS_PASSWORD set:', !!password, password ? 'yes' : 'NO');
+  
   const status = getCmsAuthStatus(req)
 
   if (status === 'misconfigured') {
