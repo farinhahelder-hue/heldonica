@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
+import { SpeedInsights } from '@vercel/speed-insights';
 import './globals.css';
 import { AuthProvider } from '@/components/AuthProvider';
 import CookieConsentBanner from '@/components/CookieConsentBanner';
@@ -186,6 +187,7 @@ export default function RootLayout({
         }} />
       </head>
       <body>
+        <SpeedInsights />
         <AuthProvider>
           {children}
           <CookieConsentBanner />
