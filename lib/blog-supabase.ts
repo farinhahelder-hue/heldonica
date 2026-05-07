@@ -53,31 +53,41 @@ export async function getAllPosts(): Promise<BlogPost[]> {
     console.warn('Supabase not configured, returning empty array');
     return [];
   }
-  const { data, error } = await supabase
-    .from('cms_blog_posts')
-    .select('*')
-    .eq('published', true)
-    .order('published_at', { ascending: false });
-  if (error) {
-    console.error('Supabase getAllPosts error:', error.message);
+  try {
+    const { data, error } = await supabase
+      .from('cms_blog_posts')
+      .select('*')
+      .eq('published', true)
+      .order('published_at', { ascending: false });
+    if (error) {
+      console.error('Supabase getAllPosts error:', error.message);
+      return [];
+    }
+    return (data as BlogPost[]) ?? [];
+  } catch (err) {
+    console.error('getAllPosts exception:', err);
     return [];
   }
-  return (data as BlogPost[]) ?? [];
 }
 
 /** Un article par slug */
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   if (!supabase) return null;
-  const { data, error } = await supabase
-    .from('cms_blog_posts')
-    .select('*')
-    .eq('slug', slug)
-    .single();
-  if (error) {
-    console.error('Supabase getPostBySlug error:', error.message);
+  try {
+    const { data, error } = await supabase
+      .from('cms_blog_posts')
+      .select('*')
+      .eq('slug', slug)
+      .single();
+    if (error) {
+      console.error('Supabase getPostBySlug error:', error.message);
+      return null;
+    }
+    return data as BlogPost;
+  } catch (err) {
+    console.error('getPostBySlug exception:', err);
     return null;
   }
-  return data as BlogPost;
 }
 
 /** Articles liés (même catégorie, sans l'article courant) */
@@ -87,33 +97,43 @@ export async function getRelatedPosts(
   limit = 3
 ): Promise<BlogPost[]> {
   if (!supabase) return [];
-  const { data, error } = await supabase
-    .from('cms_blog_posts')
-    .select('*')
-    .eq('category', category ?? '')
-    .eq('published', true)
-    .neq('slug', currentSlug)
-    .order('published_at', { ascending: false })
-    .limit(limit);
-  if (error) {
-    console.error('Supabase getRelatedPosts error:', error.message);
+  try {
+    const { data, error } = await supabase
+      .from('cms_blog_posts')
+      .select('*')
+      .eq('category', category ?? '')
+      .eq('published', true)
+      .neq('slug', currentSlug)
+      .order('published_at', { ascending: false })
+      .limit(limit);
+    if (error) {
+      console.error('Supabase getRelatedPosts error:', error.message);
+      return [];
+    }
+    return (data as BlogPost[]) ?? [];
+  } catch (err) {
+    console.error('getRelatedPosts exception:', err);
     return [];
   }
-  return (data as BlogPost[]) ?? [];
 }
 
 /** Tous les slugs pour generateStaticParams */
 export async function getAllSlugs(): Promise<{ slug: string }[]> {
   if (!supabase) return [];
-  const { data, error } = await supabase
-    .from('cms_blog_posts')
-    .select('slug')
-    .eq('published', true);
-  if (error) {
-    console.error('Supabase getAllSlugs error:', error.message);
+  try {
+    const { data, error } = await supabase
+      .from('cms_blog_posts')
+      .select('slug')
+      .eq('published', true);
+    if (error) {
+      console.error('Supabase getAllSlugs error:', error.message);
+      return [];
+    }
+    return (data as { slug: string }[]) ?? [];
+  } catch (err) {
+    console.error('getAllSlugs exception:', err);
     return [];
   }
-  return (data as { slug: string }[]) ?? [];
 }
 
 /** Formate une date ISO en français */
@@ -134,18 +154,23 @@ export function formatDate(iso: string | null | undefined): string {
 export async function getSetting(key: string): Promise<string | null> {
   if (!supabase) return null;
   
-  const { data, error } = await supabase
-    .from('cms_settings')
-    .select('value')
-    .eq('key', key)
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from('cms_settings')
+      .select('value')
+      .eq('key', key)
+      .single();
 
-  if (error) {
-    console.error(`Supabase getSetting error for '${key}':`, error.message);
+    if (error) {
+      console.error(`Supabase getSetting error for '${key}':`, error.message);
+      return null;
+    }
+
+    return data?.value || null;
+  } catch (err) {
+    console.error(`getSetting exception for '${key}':`, err);
     return null;
   }
-
-  return data?.value || null;
 }
 
 
