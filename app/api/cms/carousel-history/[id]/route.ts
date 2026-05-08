@@ -8,8 +8,8 @@ const supabase = createClient(
 );
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
-  const authError = requireCmsAuth(req);
-  if (authError) return authError;
+  const authResponse = await requireCmsAuth(req);
+  if (authResponse) return authResponse;
 
   try {
     const { error } = await supabase

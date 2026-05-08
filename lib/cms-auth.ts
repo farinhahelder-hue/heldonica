@@ -87,7 +87,12 @@ async function verifyPayload(payload: string, signature: string, secret: string)
     false,
     ['verify']
   );
-  return crypto.subtle.verify('HMAC', key, sigBytes, new TextEncoder().encode(payload));
+  return crypto.subtle.verify(
+    'HMAC',
+    key,
+    sigBytes as unknown as BufferSource,
+    new TextEncoder().encode(payload)
+  );
 }
 
 function generateRandomHex(bytes = 16): string {
@@ -173,7 +178,7 @@ export async function getCmsAuthStatus(req: Request): Promise<CmsAuthStatus> {
   return 'unauthorized';
 }
 
-export async function requireCmsAuth(req: Request) {
+export async function requireCmsAuth(req: Request): Promise<NextResponse | null> {
   const status = await getCmsAuthStatus(req);
   if (status === 'ok') return null;
   if (status === 'misconfigured') {

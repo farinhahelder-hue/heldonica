@@ -12,8 +12,8 @@ function supabaseAdmin() {
 }
 
 export async function POST(req: NextRequest) {
-  const authError = requireCmsAuth(req);
-  if (authError) return authError;
+  const authResponse = await requireCmsAuth(req);
+  if (authResponse) return authResponse;
 
   const formData = await req.formData();
   const file = formData.get('file') as File | null;

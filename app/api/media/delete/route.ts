@@ -3,8 +3,8 @@ import { requireCmsAuth } from '@/lib/cms-auth'
 import { deleteMedia } from '@/lib/s3-media'
 
 export async function POST(req: NextRequest) {
-  const authError = requireCmsAuth(req)
-  if (authError) return authError
+  const authResponse = await requireCmsAuth(req)
+  if (authResponse) return authResponse
 
   try {
     const { key } = await req.json()

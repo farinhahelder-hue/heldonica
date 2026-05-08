@@ -12,8 +12,8 @@ const SLUGS = [
 ];
 
 export async function GET(request: NextRequest) {
-  const authError = requireCmsAuth(request);
-  if (authError) return authError;
+  const authResponse = await requireCmsAuth(request);
+  if (authResponse) return authResponse;
 
   const revalidated = [];
   for (const slug of SLUGS) {

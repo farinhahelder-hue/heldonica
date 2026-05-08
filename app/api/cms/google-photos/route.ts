@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireCmsAuth } from '@/lib/cms-auth'
 
 export async function GET(req: NextRequest) {
-  const authError = requireCmsAuth(req)
-  if (authError) return authError
+  const authResponse = await requireCmsAuth(req)
+  if (authResponse) return authResponse
 
   const { searchParams } = new URL(req.url)
   const accessToken = req.headers.get('x-google-access-token')

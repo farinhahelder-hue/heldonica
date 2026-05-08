@@ -12,8 +12,8 @@ function supabase() {
 }
 
 export async function POST(req: Request) {
-  const authError = requireCmsAuth(req)
-  if (authError) return authError
+  const authResponse = await requireCmsAuth(req)
+  if (authResponse) return authResponse
 
   try {
     const sb = supabase()
