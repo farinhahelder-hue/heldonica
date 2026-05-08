@@ -26,6 +26,9 @@ export default function Header() {
     { href: '/a-propos', label: 'À propos' },
   ]
 
+  // Ensure arrays are always arrays
+  const safeNavItems = Array.isArray(navItems) ? navItems : []
+
   return (
     <>
       <nav className="fixed top-0 z-50 w-full border-b border-stone-100 bg-white/95 backdrop-blur-sm" role="navigation" aria-label="Navigation principale">
@@ -62,7 +65,7 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <div className="hidden items-center gap-1 lg:flex">
-            {navItems.map((item) => (
+            {safeNavItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -124,7 +127,7 @@ export default function Header() {
               <p className="text-xs font-medium uppercase tracking-wide text-stone-400">Navigation</p>
             </div>
 
-            {navItems.map((item, index) => (
+            {safeNavItems.map((item, index) => (
               <Link
                 key={item.href}
                 href={item.href}

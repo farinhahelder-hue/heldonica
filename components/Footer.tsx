@@ -13,18 +13,22 @@ export default function Footer() {
     { href: '/a-propos', label: 'À propos' },
   ]
 
-  const serviceLinks = [
+  const serviceLinks: { href: string; label: string }[] = [
     { href: '/travel-planning', label: 'Travel planning' },
     { href: '/slow-travel', label: 'Slow travel' },
-    /* { href: '/hotel-consulting', label: 'Consulting hôtelier' }, */
     { href: '/planifier', label: 'Planifier' },
   ]
 
-  const legalLinks = [
+  const legalLinks: { href: string; label: string }[] = [
     { href: '/contact', label: 'Contact' },
     { href: '/mentions-legales', label: 'Mentions légales' },
     { href: '/politique-confidentialite', label: 'Politique de confidentialité' },
   ]
+
+  // Ensure arrays are always arrays
+  const safeNavLinks = Array.isArray(navLinks) ? navLinks : []
+  const safeServiceLinks = Array.isArray(serviceLinks) ? serviceLinks : []
+  const safeLegalLinks = Array.isArray(legalLinks) ? legalLinks : []
 
   return (
     <footer className="bg-stone-950 text-stone-200">
@@ -61,7 +65,7 @@ export default function Footer() {
           <nav aria-label="Navigation footer">
             <h4 className="mb-6 text-base font-serif font-bold text-white">Navigation</h4>
             <ul className="space-y-3 text-sm" role="list">
-              {navLinks.map((link) => (
+              {safeNavLinks.map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="text-stone-300 transition-colors duration-200 hover:text-white">
                     {link.label}
@@ -75,7 +79,7 @@ export default function Footer() {
           <nav aria-label="Services footer">
             <h4 className="mb-6 text-base font-serif font-bold text-white">Services</h4>
             <ul className="space-y-3 text-sm" role="list">
-              {serviceLinks.map((link) => (
+              {safeServiceLinks.map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="text-stone-300 transition-colors duration-200 hover:text-white">
                     {link.label}
@@ -89,7 +93,7 @@ export default function Footer() {
           <div>
             <h4 className="mb-6 text-base font-serif font-bold text-white">Légal &amp; contact</h4>
             <ul className="space-y-3 text-sm" role="list">
-              {legalLinks.map((link) => (
+              {safeLegalLinks.map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="text-stone-300 transition-colors duration-200 hover:text-white">
                     {link.label}
