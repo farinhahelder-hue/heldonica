@@ -93,7 +93,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Pages dynamiques avec vraies dates de publication
   const posts = await getAllPosts();
-  const blogPages: MetadataRoute.Sitemap = posts.map((post) => ({
+  const blogPages: MetadataRoute.Sitemap = (posts ?? []).map((post) => ({
     url: `${BASE_URL}/blog/${post.slug}`,
     lastModified: new Date(
       post.updated_at ??
