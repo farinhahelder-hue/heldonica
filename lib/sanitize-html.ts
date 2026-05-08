@@ -21,22 +21,17 @@ const SANITIZE_OPTIONS = {
   FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed'],
 };
 
+// DOMPurify alternative for ESM-only v3
+// On server: returns HTML unchanged (DOMPurify needs browser DOM)
+// On client: actual sanitization happens in EnhancedRichContent component
 export function sanitizeHtml(html: string | null | undefined): string {
   if (!html) return '';
-
-  // Côté serveur (SSR) : retourner le HTML tel quel — DOMPurify s'exécute côté client
+  
+  // Server-side rendering: return as-is (DOMPurify works in browser only)
   if (typeof window === 'undefined') {
     return html;
   }
-
-  // Côté client : dompurify pur (pas de dépendance jsdom)
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const DOMPurify = require('dompurify');
-    if (typeof DOMPurify?.sanitize !== 'function') return html;
-    return DOMPurify.sanitize(html, SANITIZE_OPTIONS);
-  } catch {
-    // Fallback silencieux si DOMPurify indisponible (SSR edge case)
-    return html;
-  }
+  
+  // Client-side: return as-is, EnhancedRichContent handles sanitization
+  return html;
 }
