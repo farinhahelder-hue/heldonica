@@ -28,11 +28,20 @@ function ReadProgressBar() {
   const [progress, setProgress] = useState(0)
 
   useEffect(() => {
+    let ticking = false
+
     const handleScroll = () => {
-      const scrollTop = window.scrollY
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight
-      const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0
-      setProgress(pct)
+      if (!ticking) {
+        // Throttle scroll events using requestAnimationFrame to avoid excessive re-renders and main-thread blocking
+        window.requestAnimationFrame(() => {
+          const scrollTop = window.scrollY
+          const docHeight = document.documentElement.scrollHeight - window.innerHeight
+          const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0
+          setProgress(pct)
+          ticking = false
+        })
+        ticking = true
+      }
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
