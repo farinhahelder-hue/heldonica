@@ -17,8 +17,8 @@ function withoutVoiceNotes(payload: Record<string, unknown>) {
 export const dynamic = 'force-dynamic'
 
 export async function GET(req: Request) {
-  const authError = requireCmsAuth(req)
-  if (authError) return authError
+  const authResponse = await requireCmsAuth(req)
+  if (authResponse) return authResponse
 
   const sb = supabase()
   const { searchParams } = new URL(req.url)
@@ -40,8 +40,8 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const authError = requireCmsAuth(req)
-  if (authError) return authError
+  const authResponse = await requireCmsAuth(req)
+  if (authResponse) return authResponse
 
   const sb = supabase()
   const body = await req.json()

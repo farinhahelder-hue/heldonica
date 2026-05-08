@@ -13,8 +13,8 @@ function supabaseAdmin() {
 
 // GET : lister les fichiers du bucket Supabase Storage
 export async function GET(req: NextRequest) {
-  const authError = requireCmsAuth(req);
-  if (authError) return authError;
+  const authResponse = await requireCmsAuth(req);
+  if (authResponse) return authResponse;
 
   const prefix = req.nextUrl.searchParams.get('prefix') || 'articles';
   const folder = prefix.replace(/\/$/, '');
@@ -50,8 +50,8 @@ export async function GET(req: NextRequest) {
 
 // POST : importer depuis une URL (Google Photos) vers Supabase Storage
 export async function POST(req: NextRequest) {
-  const authError = requireCmsAuth(req);
-  if (authError) return authError;
+  const authResponse = await requireCmsAuth(req);
+  if (authResponse) return authResponse;
 
   const { imageUrl, filename, folder: folderParam } = await req.json();
   if (!imageUrl) return NextResponse.json({ error: 'imageUrl requis' }, { status: 400 });
@@ -83,8 +83,8 @@ export async function POST(req: NextRequest) {
 
 // DELETE : supprimer un fichier du bucket
 export async function DELETE(req: NextRequest) {
-  const authError = requireCmsAuth(req);
-  if (authError) return authError;
+  const authResponse = await requireCmsAuth(req);
+  if (authResponse) return authResponse;
 
   const { key } = await req.json();
   if (!key) return NextResponse.json({ error: 'key requis' }, { status: 400 });

@@ -3,8 +3,8 @@ import { createClient } from "@supabase/supabase-js";
 import { requireCmsAuth } from "@/lib/cms-auth";
 
 export async function GET(request: NextRequest) {
-  const authError = requireCmsAuth(request);
-  if (authError) return authError;
+  const authResponse = await requireCmsAuth(request);
+  if (authResponse) return authResponse;
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
   // Essaie service_role en priorité (bypass RLS), sinon anon

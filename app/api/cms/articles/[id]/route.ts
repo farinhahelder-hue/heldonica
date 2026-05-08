@@ -17,8 +17,8 @@ function withoutVoiceNotes(payload: Record<string, unknown>) {
 export const dynamic = 'force-dynamic'
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
-  const authError = requireCmsAuth(req)
-  if (authError) return authError
+  const authResponse = await requireCmsAuth(req)
+  if (authResponse) return authResponse
 
   const sb = supabase()
   const { data, error } = await sb
@@ -26,13 +26,16 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     .select('*')
     .eq('id', params.id)
     .single()
-  if (error) return NextResponse.json({ error: error.message }, { status: 404 })
+  
+  if (error || !data) {
+    return NextResponse.json({ error: error?.message || 'Not found' }, { status: 404 })
+  }
   return NextResponse.json({ article: data })
 }
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
-  const authError = requireCmsAuth(req)
-  if (authError) return authError
+  const authResponse = await requireCmsAuth(req)
+  if (authResponse) return authResponse
 
   const sb = supabase()
   const body = await req.json()
@@ -59,8 +62,8 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 }
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
-  const authError = requireCmsAuth(req)
-  if (authError) return authError
+  const authResponse = await requireCmsAuth(req)
+  if (authResponse) return authResponse
 
   const sb = supabase()
   const { error } = await sb.from('cms_blog_posts').delete().eq('id', params.id)

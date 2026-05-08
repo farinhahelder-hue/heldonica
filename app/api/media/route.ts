@@ -3,8 +3,8 @@ import { requireCmsAuth } from '@/lib/cms-auth'
 import { listMedia } from '@/lib/s3-media'
 
 export async function GET(req: NextRequest) {
-  const authError = requireCmsAuth(req)
-  if (authError) return authError
+  const authResponse = await requireCmsAuth(req)
+  if (authResponse) return authResponse
 
   try {
     const media = await listMedia()

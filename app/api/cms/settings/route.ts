@@ -17,8 +17,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
   }
 
-  const authError = requireCmsAuth(req);
-  if (authError) return authError;
+  const authResponse = await requireCmsAuth(req);
+  if (authResponse) return authResponse;
 
   const { data, error } = await supabase
     .from('cms_settings')
@@ -35,8 +35,8 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
   }
 
-  const authError = requireCmsAuth(req);
-  if (authError) return authError;
+  const authResponse = await requireCmsAuth(req);
+  if (authResponse) return authResponse;
 
   const body = await req.json();
 
