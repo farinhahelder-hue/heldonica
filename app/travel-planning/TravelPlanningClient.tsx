@@ -17,15 +17,15 @@ const faqs = [
   },
   {
     q: 'Travaillez-vous seulement sur des destinations déjà vécues ?',
-    a: 'Notre préférence va au terrain qu'on connaît déjà, parce que c'est là qu'on est les plus justes. Quand on ouvre un nouveau terrain, on le dit clairement et on garde le même niveau d'exigence.',
+    a: "Notre préférence va au terrain qu'on connaît déjà, parce que c'est là qu'on est les plus justes. Quand on ouvre un nouveau terrain, on le dit clairement et on garde le même niveau d'exigence.",
   },
   {
     q: 'Faites-vous les réservations à notre place ?',
     a: 'On peut fournir les liens, les contacts et le bon ordre. Si tu veux un accompagnement plus complet, on le cadre ensemble au moment du brief.',
   },
   {
-    q: 'Qu'est-ce qu'on reçoit exactement ?',
-    a: 'Un carnet clair et concret : rythme jour par jour, adresses choisies, hébergements, transports, conseils pratiques et ce qu'il faut éviter pour ne pas casser le voyage.',
+    q: "Qu'est-ce qu'on reçoit exactement ?",
+    a: "Un carnet clair et concret : rythme jour par jour, adresses choisies, hébergements, transports, conseils pratiques et ce qu'il faut éviter pour ne pas casser le voyage.",
   },
 ]
 
@@ -152,7 +152,7 @@ export default function TravelPlanningClient() {
                     'Un rythme pensé à J0 qui casse à J2',
                     'Des adresses "bien notées" mais pas faites pour toi',
                     'La peur de passer à côté de ce qui aurait vraiment compté',
-                    'Un voyage qui se remplit plus qu'il ne se vit',
+                    'Un voyage qui se remplit plus qu\'il ne se vit',
                   ].map((txt) => (
                     <li key={txt} className="flex gap-3 items-start text-stone-600 text-sm">
                       <span className="text-stone-300 mt-0.5 shrink-0">✕</span>
@@ -194,8 +194,8 @@ export default function TravelPlanningClient() {
               {[
                 { num: '01', title: 'Tu poses le cadre', desc: 'Temps, budget, énergie, style de voyage, degré de fatigue, envies contradictoires : on préfère le vrai à la carte postale.', badge: 'Gratuit' },
                 { num: '02', title: 'On clarifie ensemble', desc: 'On échange pour comprendre ce que tu veux vivre, ce que tu veux éviter et ce qui ferait vraiment basculer le voyage du bon côté.', badge: 'Humain' },
-                { num: '03', title: 'On assemble ton rythme', desc: 'Adresses, ordre, temps de trajet, respirations, jours forts : rien n'est posé au hasard. On compose une séquence qui tient debout sur place.', badge: '7–10 jours' },
-                { num: '04', title: 'Tu pars avec du concret', desc: 'Carnet clair, hébergements, restaurants, transports, conseils et erreurs à éviter. Tu n'as plus besoin d'improviser ce qui devait être anticipé.', badge: 'Clé en main' },
+                { num: '03', title: 'On assemble ton rythme', desc: "Adresses, ordre, temps de trajet, respirations, jours forts : rien n'est posé au hasard. On compose une séquence qui tient debout sur place.", badge: '7–10 jours' },
+                { num: '04', title: 'Tu pars avec du concret', desc: "Carnet clair, hébergements, restaurants, transports, conseils et erreurs à éviter. Tu n'as plus besoin d'improviser ce qui devait être anticipé.", badge: 'Clé en main' },
               ].map((step, i) => (
                 <div key={i} className="relative flex gap-6 items-start step-line last:before:hidden">
                   <div className="w-10 h-10 rounded-full bg-amber-800 text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-sm">
@@ -220,10 +220,10 @@ export default function TravelPlanningClient() {
             <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12">Ce qu&apos;on met dans ton départ</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
               {[
-                { num: '01', title: 'Rythme sur mesure', desc: 'Pas une suite d'adresses. Une cadence juste, pensée pour ce que tu peux vraiment vivre sans t'épuiser.' },
-                { num: '02', title: 'Adresses testées', desc: 'Hébergements, restaurants, détours et moments forts qu'on a vécus ou vérifiés avec la même exigence.' },
+                { num: '01', title: 'Rythme sur mesure', desc: "Pas une suite d'adresses. Une cadence juste, pensée pour ce que tu peux vraiment vivre sans t'épuiser." },
+                { num: '02', title: 'Adresses testées', desc: "Hébergements, restaurants, détours et moments forts qu'on a vécus ou vérifiés avec la même exigence." },
                 { num: '03', title: 'Spécialité duo aventurier', desc: 'On sait composer des voyages à deux qui ralentissent sans devenir mous, et qui gardent du relief sans saturation.' },
-                { num: '04', title: 'Ouvert à ton format', desc: 'Solo, famille curieuse ou groupe d'amis : la logique reste la même, seul le réglage change.' },
+                { num: '04', title: 'Ouvert à ton format', desc: "Solo, famille curieuse ou groupe d'amis : la logique reste la même, seul le réglage change." },
                 { num: '05', title: 'Logistique lisible', desc: 'Le bon ordre, les bons trajets, les bons points d'attention. Ce qui paraît léger à vivre est souvent lourd à préparer.' },
                 { num: '06', title: 'Erreurs évitées', desc: 'On te signale aussi ce qui casse un séjour : horaires trompeurs, zones mal calibrées, enchaînements trop ambitieux.' },
               ].map((s, i) => (
