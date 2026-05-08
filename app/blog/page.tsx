@@ -6,6 +6,7 @@ import BlogClientPage from '@/components/BlogClientPage'
 import Breadcrumb from '@/components/Breadcrumb'
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 function calcReadTime(content: string | null): number {
   if (!content) return 0
@@ -58,18 +59,19 @@ export default async function BlogPage() {
   let posts: BlogPost[] = []
   try {
     const result = await getAllPosts()
-    // Defensive: ensure posts is always an array
     posts = Array.isArray(result) ? result : []
   } catch (e) {
     console.error('Supabase getAllPosts error:', e)
     posts = []
   }
 
-  const postsWithFormattedDate = posts.map((post) => ({
-    ...post,
-    formattedDate: formatDate(post.published_at),
-    readTime: post.read_time ?? calcReadTime(post.content),
-  }))
+  const postsWithFormattedDate = Array.isArray(posts)
+    ? posts.map((post) => ({
+        ...post,
+        formattedDate: formatDate(post.published_at),
+        readTime: post.read_time ?? calcReadTime(post.content),
+      }))
+    : []
 
   return (
     <>
