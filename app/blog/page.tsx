@@ -57,13 +57,15 @@ export const metadata: Metadata = {
 export default async function BlogPage() {
   let posts: Awaited<ReturnType<typeof getAllPosts>> = []
   try {
-    posts = (await getAllPosts()) ?? []
+    const result = await getAllPosts()
+    posts = result ?? []
   } catch (e) {
     console.error('Supabase getAllPosts error:', e)
     posts = []
   }
 
-  const postsWithFormattedDate = posts.map((post) => ({
+  const safePosts = Array.isArray(posts) ? posts : []
+  const postsWithFormattedDate = safePosts.map((post) => ({
     ...post,
     formattedDate: formatDate(post.published_at),
     readTime: post.read_time ?? calcReadTime(post.content),
