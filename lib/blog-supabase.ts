@@ -62,7 +62,8 @@ export async function getAllPosts(): Promise<BlogPost[]> {
       console.error('Supabase getAllPosts error:', error.message);
       return [];
     }
-    return (data as BlogPost[]) ?? [];
+    // Defensive: ensure we always return an array
+    return Array.isArray(data) ? (data as BlogPost[]) : [];
   } catch (err) {
     console.error('getAllPosts exception:', err);
     return [];

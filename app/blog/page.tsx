@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { getAllPosts, formatDate } from '@/lib/blog-supabase'
+import { getAllPosts, formatDate, BlogPost } from '@/lib/blog-supabase'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import BlogClientPage from '@/components/BlogClientPage'
@@ -55,17 +55,17 @@ export const metadata: Metadata = {
 }
 
 export default async function BlogPage() {
-  let posts: Awaited<ReturnType<typeof getAllPosts>> = []
+  let posts: BlogPost[] = []
   try {
     const result = await getAllPosts()
-    posts = result ?? []
+    // Defensive: ensure posts is always an array
+    posts = Array.isArray(result) ? result : []
   } catch (e) {
     console.error('Supabase getAllPosts error:', e)
     posts = []
   }
 
-  const safePosts = Array.isArray(posts) ? posts : []
-  const postsWithFormattedDate = safePosts.map((post) => ({
+  const postsWithFormattedDate = posts.map((post) => ({
     ...post,
     formattedDate: formatDate(post.published_at),
     readTime: post.read_time ?? calcReadTime(post.content),
