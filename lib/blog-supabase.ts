@@ -41,17 +41,16 @@ export function getExcerpt(post: BlogPost, maxLength = 160): string {
   if (post.excerpt && post.excerpt.trim().length > 0) {
     return post.excerpt.trim();
   }
-  // Fallback: generate from content
   const plain = stripHtml(post.content);
   if (plain.length <= maxLength) return plain;
-  return plain.slice(0, maxLength).replace(/\s+\S*$/, '') + '…';
+  return plain.slice(0, maxLength).replace(/\s+\S*$/, '') + '\u2026';
 }
 
 /** Tous les articles publiés, du plus récent au plus ancien */
-export async function getAllPosts(): Promise<BlogPost[] | null> {
+export async function getAllPosts(): Promise<BlogPost[]> {
   if (!supabase) {
-    console.warn('Supabase not configured, returning null');
-    return null;
+    console.warn('Supabase not configured, returning []');
+    return [];
   }
   try {
     const { data, error } = await supabase
@@ -61,12 +60,12 @@ export async function getAllPosts(): Promise<BlogPost[] | null> {
       .order('published_at', { ascending: false });
     if (error) {
       console.error('Supabase getAllPosts error:', error.message);
-      return null;
+      return [];
     }
-    return (data as BlogPost[]) || null;
+    return (data as BlogPost[]) ?? [];
   } catch (err) {
     console.error('getAllPosts exception:', err);
-    return null;
+    return [];
   }
 }
 
@@ -95,8 +94,8 @@ export async function getRelatedPosts(
   currentSlug: string,
   category: string | null,
   limit = 3
-): Promise<BlogPost[] | null> {
-  if (!supabase) return null;
+): Promise<BlogPost[]> {
+  if (!supabase) return [];
   try {
     const { data, error } = await supabase
       .from('cms_blog_posts')
@@ -108,12 +107,12 @@ export async function getRelatedPosts(
       .limit(limit);
     if (error) {
       console.error('Supabase getRelatedPosts error:', error.message);
-      return null;
+      return [];
     }
-    return (data as BlogPost[]) || null;
+    return (data as BlogPost[]) ?? [];
   } catch (err) {
     console.error('getRelatedPosts exception:', err);
-    return null;
+    return [];
   }
 }
 
@@ -129,7 +128,7 @@ export async function getAllSlugs(): Promise<{ slug: string }[]> {
       console.error('Supabase getAllSlugs error:', error.message);
       return [];
     }
-    return (data as { slug: string }[]) || [];
+    return (data as { slug: string }[]) ?? [];
   } catch (err) {
     console.error('getAllSlugs exception:', err);
     return [];
@@ -148,8 +147,6 @@ export function formatDate(iso: string | null | undefined): string {
 
 /**
  * Récupère une valeur de paramètre depuis la table cms_settings
- * @param key - La clé du paramètre (ex: 'covered_countries')
- * @returns La valeur du paramètre ou null si non trouvé
  */
 export async function getSetting(key: string): Promise<string | null> {
   if (!supabase) return null;
