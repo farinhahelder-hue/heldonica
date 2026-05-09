@@ -1,14 +1,19 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireCmsAuth } from '@/lib/cms-auth';
 
 const BUCKET = 'media';
 
+let _cached: ReturnType<typeof createClient> | null = null;
 function supabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  if (!_cached) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    _cached = (url && key) ? createClient(url, key) : null;
+  }
+  return _cached;
 }
 
 // GET : lister les fichiers du bucket Supabase Storage
