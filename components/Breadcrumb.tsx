@@ -6,8 +6,8 @@ import { usePathname } from 'next/navigation';
 export default function Breadcrumb() {
   const pathname = usePathname();
 
-  // Ne pas afficher sur la page d'accueil
-  if (pathname === '/') {
+  // Guard against null during SSR/prerendering
+  if (!pathname || pathname === '/') {
     return null;
   }
 
