@@ -1,5 +1,6 @@
 // Sanitisation HTML : DOMPurify côté client uniquement (SSR-safe)
-import DOMPurify from 'dompurify';
+// Note: DOMPurify is required lazily (not top-level) to avoid a TDZ in the
+// production bundle where the minifier renames its internal consts.
 
 const SANITIZE_OPTIONS = {
   USE_PROFILES: { html: true },
@@ -30,10 +31,13 @@ export function sanitizeHtml(html: string | null | undefined): string {
     return html;
   }
 
-  // Côté client : dompurify pur (Next.js gère l'import ESM)
+  // Côté client : import dynamique pour éviter la TDZ dans le bundle minifié
   try {
-    if (typeof DOMPurify?.sanitize !== 'function') return html;
-    return DOMPurify.sanitize(html, SANITIZE_OPTIONS);
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const DOMPurify = require('dompurify');
+    const purify = DOMPurify.default ?? DOMPurify;
+    if (typeof purify?.sanitize !== 'function') return html;
+    return purify.sanitize(html, SANITIZE_OPTIONS);
   } catch {
     // Fallback silencieux si DOMPurify indisponible (SSR edge case)
     return html;
