@@ -9,9 +9,13 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 function calcReadTime(content: string | null): number {
-  if (!content) return 0
-  const words = content.replace(/<[^>]*>/g, '').split(/\s+/).length
-  return Math.max(1, Math.ceil(words / 200))
+  if (!content || typeof content !== 'string') return 0
+  try {
+    const words = content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length
+    return Math.max(1, Math.ceil(words / 200))
+  } catch (e) {
+    return 1
+  }
 }
 
 export const metadata: Metadata = {
@@ -65,13 +69,16 @@ export default async function BlogPage() {
     posts = []
   }
 
-  const postsWithFormattedDate = Array.isArray(posts)
-    ? posts.map((post) => ({
-        ...post,
-        formattedDate: formatDate(post.published_at),
-        readTime: post.read_time ?? calcReadTime(post.content),
-      }))
-    : []
+  // Ensure posts is an array and each post is an object
+  const safePosts = Array.isArray(posts) ? posts.filter(p => p && typeof p === 'object') : []
+
+  const postsWithFormattedDate = safePosts.map((post) => ({
+    ...post,
+    // Defensive: force tags to be an array for the client
+    tags: Array.isArray(post.tags) ? post.tags : [],
+    formattedDate: formatDate(post.published_at),
+    readTime: post.read_time ?? calcReadTime(post.content),
+  }))
 
   return (
     <>

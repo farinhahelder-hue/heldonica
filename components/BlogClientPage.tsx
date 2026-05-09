@@ -66,7 +66,7 @@ export default function BlogClientPage({ posts: rawPosts }: Props) {
         query === '' ||
         post.title.toLowerCase().includes(query) ||
         (post.excerpt ?? '').toLowerCase().includes(query) ||
-        (post.tags ?? []).some((tag) => tag.toLowerCase().includes(query))
+        (Array.isArray(post.tags) ? post.tags : []).some((tag) => tag.toLowerCase().includes(query))
 
       return matchCategory && matchSearch
     })
@@ -345,6 +345,9 @@ function ArticleCard({ post }: { post: BlogPost & { formattedDate: string } }) {
 
   const isFallback = !imageSrc
 
+  // Ensure tags is always an array
+  const safeTags = Array.isArray(post.tags) ? post.tags : []
+
   return (
     <Link href={`/blog/${post.slug}`} className="group block h-full transition-all duration-200">
       <article className="flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-cloud-dancer bg-white shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-lg">
@@ -400,9 +403,9 @@ function ArticleCard({ post }: { post: BlogPost & { formattedDate: string } }) {
               {post.excerpt}
             </p>
           )}
-          {post.tags && post.tags.length > 0 && (
+          {safeTags.length > 0 && (
             <div className="mb-4 flex flex-wrap gap-2">
-              {post.tags.slice(0, 3).map((tag) => (
+              {safeTags.slice(0, 3).map((tag) => (
                 <span key={tag} className="rounded-full bg-cloud-dancer px-2.5 py-1 text-xs text-charcoal/60">
                   {tag}
                 </span>
