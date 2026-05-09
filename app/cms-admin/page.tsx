@@ -1,9 +1,7 @@
 'use client';
 
-import dynamic from 'next/dynamic';
-
-const CmsAdminContent = dynamic(
-  () => Promise.resolve(() => (
+export default function CMSAdmin() {
+  return (
     <div style={{ 
       minHeight: '100vh', 
       display: 'flex', 
@@ -16,10 +14,5 @@ const CmsAdminContent = dynamic(
         <p style={{ color: '#666' }}>Simple test page</p>
       </div>
     </div>
-  )),
-  { ssr: false }
-);
-
-export default function CMSAdmin() {
-  return <CmsAdminContent />;
+  );
 }
