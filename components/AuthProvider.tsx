@@ -15,29 +15,14 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // If Supabase isn't configured, render children without auth context
-  if (!supabase) {
-    return (
-      <AuthContext.Provider
-        value={{
-          user: null,
-          session: null,
-          loading: false,
-          isConfigured: false,
-          signOut: async () => {},
-        }}
-      >
-        {children}
-      </AuthContext.Provider>
-    );
-  }
-
+  // Always call ALL hooks at the top - BEFORE any conditionals (React rules)
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Defensive: check if Supabase is properly configured before using
-  const isConfigured = Boolean(supabase?.auth);
+  // Check if Supabase is configured
+  const supabaseConfigured = supabase?.auth != null;
+  const isConfigured = Boolean(supabaseConfigured);
 
   useEffect(() => {
     // If Supabase isn't configured, just render without auth - don't fail
@@ -79,6 +64,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await supabase.auth.signOut();
     } catch { /* ignore */ }
   };
+
+  // If Supabase isn't configured, use default values
+  if (!supabaseConfigured) {
+    return (
+      <AuthContext.Provider
+        value={{
+          user: null,
+          session: null,
+          loading: false,
+          isConfigured: false,
+          signOut: async () => {},
+        }}
+      >
+        {children}
+      </AuthContext.Provider>
+    );
+  }
 
   return (
     <AuthContext.Provider
