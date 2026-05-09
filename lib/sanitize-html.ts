@@ -31,7 +31,6 @@ export function sanitizeHtml(html: string | null | undefined): string {
 
   // Côté client : dompurify pur (pas de dépendance jsdom)
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const DOMPurify = require('dompurify');
     if (typeof DOMPurify?.sanitize !== 'function') return html;
     return DOMPurify.sanitize(html, SANITIZE_OPTIONS);

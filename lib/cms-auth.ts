@@ -87,7 +87,8 @@ async function verifyPayload(payload: string, signature: string, secret: string)
     false,
     ['verify']
   );
-  return crypto.subtle.verify('HMAC', key, sigBytes, new TextEncoder().encode(payload));
+  const encoder = new TextEncoder();
+  return crypto.subtle.verify('HMAC', key, sigBytes as unknown as Parameters<typeof crypto.subtle.verify>[2], encoder.encode(payload));
 }
 
 function generateRandomHex(bytes = 16): string {
