@@ -1,18 +1,5 @@
-export const dynamic = 'force-dynamic';
+import { redirect } from 'next/navigation';
 
-export default function CMSAdmin() {
-  return (
-    <div style={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center', 
-      background: '#f5f3ef' 
-    }}>
-      <div style={{ textAlign: 'center' }}>
-        <h1 style={{ color: '#6b2a1a', fontSize: '2rem' }}>Heldonica CMS</h1>
-        <p style={{ color: '#666' }}>Simple test page</p>
-      </div>
-    </div>
-  );
+export default function CmsAdminRedirect() {
+  redirect('/admin-panel');
 }
