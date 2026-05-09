@@ -16,5 +16,5 @@ export default function CmsAdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  return <>{children}</>
+  return <>{children}</>;
 }
