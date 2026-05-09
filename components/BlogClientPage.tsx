@@ -51,13 +51,14 @@ function ReadProgressBar() {
 }
 
 export default function BlogClientPage({ posts: rawPosts }: Props) {
-  const posts = rawPosts ?? []
+  const posts = Array.isArray(rawPosts) ? rawPosts : []
   const [activeFilter, setActiveFilter] = useState('Tous')
   const [searchQuery, setSearchQuery] = useState('')
 
   const categories = ['Tous', 'Carnets Voyage', 'Découvertes Locales', 'Guides Pratiques']
 
   const filteredPosts = useMemo(() => {
+    if (!Array.isArray(posts)) return []
     return posts.filter((post) => {
       const matchCategory = activeFilter === 'Tous' || post.category === activeFilter
       const query = searchQuery.trim().toLowerCase()
@@ -76,9 +77,10 @@ export default function BlogClientPage({ posts: rawPosts }: Props) {
   const decouvertes = filteredPosts.filter((post) => post.category === 'Découvertes Locales')
   const guides = filteredPosts.filter((post) => post.category === 'Guides Pratiques')
 
-  const totalCarnets = posts.filter((post) => post.category === 'Carnets Voyage').length
-  const totalDecouvertes = posts.filter((post) => post.category === 'Découvertes Locales').length
-  const totalGuides = posts.filter((post) => post.category === 'Guides Pratiques').length
+  const safePosts = Array.isArray(posts) ? posts : []
+  const totalCarnets = safePosts.filter((post) => post.category === 'Carnets Voyage').length
+  const totalDecouvertes = safePosts.filter((post) => post.category === 'Découvertes Locales').length
+  const totalGuides = safePosts.filter((post) => post.category === 'Guides Pratiques').length
 
   return (
     <main className="min-h-screen bg-cloud-dancer">
