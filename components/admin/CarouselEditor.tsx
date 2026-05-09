@@ -133,63 +133,63 @@ Généré avec Heldonica CMS
   };
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow">
-      <h2 className="text-xl font-bold mb-4">📝 Créer depuis Perplexity</h2>
-      
+    <div style={{ padding: '1rem', background: 'white', borderRadius: '.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.1)' }}>
+      <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '1rem' }}>📝 Créer depuis Perplexity</h2>
+
       {/* Paste text area */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">
+      <div style={{ marginBottom: '1rem' }}>
+        <label style={{ display: 'block', fontSize: '.875rem', fontWeight: 500, marginBottom: '.25rem' }}>
           Colle ici le texte de Perplexity:
         </label>
         <textarea
           value={rawText}
           onChange={(e) => setRawText(e.target.value)}
           placeholder="Colle le contenu généré par Perplexity..."
-          className="w-full px-3 py-2 border rounded-lg h-32 text-sm"
+          style={{ width: '100%', padding: '.5rem .75rem', border: '1px solid #ddd', borderRadius: '.5rem', height: '8rem', fontSize: '.875rem', resize: 'vertical' }}
         />
         <button
           onClick={handleParseText}
           disabled={!rawText.trim()}
-          className="mt-2 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+          style={{ marginTop: '.5rem', width: '100%', padding: '.5rem 1rem', background: !rawText.trim() ? '#ccc' : '#2563eb', color: 'white', border: 'none', borderRadius: '.5rem', cursor: !rawText.trim() ? 'not-allowed' : 'pointer', fontSize: '.875rem', fontWeight: 600 }}
         >
           📋 Analyser le texte
         </button>
       </div>
-      
+
       {/* Title input */}
       {slides.length > 0 && (
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Titre:</label>
+        <div style={{ marginBottom: '1rem' }}>
+          <label style={{ display: 'block', fontSize: '.875rem', fontWeight: 500, marginBottom: '.25rem' }}>Titre:</label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Titre du carrousel"
-            className="w-full px-3 py-2 border rounded-lg"
+            style={{ width: '100%', padding: '.5rem .75rem', border: '1px solid #ddd', borderRadius: '.5rem', fontSize: '.875rem' }}
           />
         </div>
       )}
-      
+
       {/* Slides preview */}
       {slides.length > 0 && (
-        <div className="mb-4">
-          <div className="flex justify-between items-center mb-2">
-            <label className="font-medium">Slides ({slides.length}):</label>
+        <div style={{ marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '.5rem' }}>
+            <label style={{ fontWeight: 500 }}>Slides ({slides.length}):</label>
             <button
               onClick={handleSearchImages}
               disabled={isSearching}
-              className="text-sm px-2 py-1 bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50"
+              style={{ fontSize: '.875rem', padding: '.25rem .5rem', background: '#f3f4f6', border: '1px solid #ddd', borderRadius: '.375rem', cursor: isSearching ? 'wait' : 'pointer', opacity: isSearching ? .6 : 1 }}
             >
               {isSearching ? '⏳...' : '🔍 Rechercher images'}
             </button>
           </div>
-          <div className="space-y-2">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
             {slides.map((slide, i) => (
-              <div key={i} className="p-2 bg-gray-50 rounded flex gap-2">
+              <div key={i} style={{ padding: '.5rem', background: '#f9fafb', borderRadius: '.375rem', display: 'flex', gap: '.5rem' }}>
                 {images[i] && (
-                  <img src={images[i]} alt="" className="w-16 h-16 object-cover rounded" />
+                  <img src={images[i]} alt="" style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: '.375rem', flexShrink: 0 }} />
                 )}
-                <div className="flex-1">
+                <div style={{ flex: 1, minWidth: 0 }}>
                   <input
                     type="text"
                     value={slide.title}
@@ -199,7 +199,7 @@ Généré avec Heldonica CMS
                       setSlides(newSlides);
                     }}
                     placeholder="Titre"
-                    className="w-full px-2 py-1 border rounded text-sm mb-1"
+                    style={{ width: '100%', padding: '.25rem .5rem', border: '1px solid #ddd', borderRadius: '.25rem', fontSize: '.875rem', marginBottom: '.25rem' }}
                   />
                   <textarea
                     value={slide.content}
@@ -209,7 +209,7 @@ Généré avec Heldonica CMS
                       setSlides(newSlides);
                     }}
                     placeholder="Contenu"
-                    className="w-full px-2 py-1 border rounded text-xs h-12 resize-none"
+                    style={{ width: '100%', padding: '.25rem .5rem', border: '1px solid #ddd', borderRadius: '.25rem', fontSize: '.75rem', height: '3rem', resize: 'none' }}
                   />
                 </div>
               </div>
@@ -217,13 +217,13 @@ Généré avec Heldonica CMS
           </div>
         </div>
       )}
-      
+
       {/* Download button */}
       {slides.length > 0 && (
         <button
           onClick={handleDownloadZip}
           disabled={isLoading}
-          className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+          style={{ width: '100%', padding: '.5rem 1rem', background: isLoading ? '#ccc' : '#7c3aed', color: 'white', border: 'none', borderRadius: '.5rem', cursor: isLoading ? 'wait' : 'pointer', fontSize: '.875rem', fontWeight: 600 }}
         >
           📦 Télécharger ZIP
         </button>
