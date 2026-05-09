@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase-client';
 
@@ -14,15 +14,17 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const isConfigured = Boolean(supabase);
+  // Defensive: check if Supabase is properly configured before using
+  const isConfigured = Boolean(supabase?.auth);
 
   useEffect(() => {
-    if (!supabase) {
+    // If Supabase isn't configured, just render without auth - don't fail
+    if (!supabase?.auth) {
       setLoading(false);
       return;
     }
@@ -33,6 +35,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!active) return;
       setSession(data.session);
       setUser(data.session?.user ?? null);
+      setLoading(false);
+    }).catch(() => {
+      if (!active) return;
       setLoading(false);
     });
 
@@ -47,13 +52,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       active = false;
-      subscription.unsubscribe();
+      if (subscription) subscription.unsubscribe();
     };
   }, []);
 
   const signOut = async () => {
-    if (!supabase) return;
-    await supabase.auth.signOut();
+    if (!supabase?.auth) return;
+    try {
+      await supabase.auth.signOut();
+    } catch { /* ignore */ }
   };
 
   return (
