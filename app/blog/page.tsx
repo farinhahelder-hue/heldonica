@@ -69,8 +69,20 @@ export default async function BlogPage() {
     posts = []
   }
 
+  // If we have no posts at build time, avoid crashing the build and just render an empty list.
+  if (!Array.isArray(posts) || posts.length === 0) {
+    return (
+      <>
+        <Header />
+        <Breadcrumb />
+        <BlogClientPage posts={[]} />
+        <Footer />
+      </>
+    )
+  }
+
   // Ensure posts is an array and each post is an object
-  const safePosts = Array.isArray(posts) ? posts.filter(p => p && typeof p === 'object') : []
+  const safePosts = posts.filter((p) => p && typeof p === 'object')
 
   const postsWithFormattedDate = safePosts.map((post) => ({
     ...post,
