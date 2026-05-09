@@ -1,4 +1,5 @@
-// Sanitisation HTML : DOMPurify côté client uniquement (SSR-safe, no jsdom)
+// Sanitisation HTML : DOMPurify côté client uniquement (SSR-safe)
+import DOMPurify from 'dompurify';
 
 const SANITIZE_OPTIONS = {
   USE_PROFILES: { html: true },
@@ -29,9 +30,8 @@ export function sanitizeHtml(html: string | null | undefined): string {
     return html;
   }
 
-  // Côté client : dompurify pur (pas de dépendance jsdom)
+  // Côté client : dompurify pur (Next.js gère l'import ESM)
   try {
-    const DOMPurify = require('dompurify');
     if (typeof DOMPurify?.sanitize !== 'function') return html;
     return DOMPurify.sanitize(html, SANITIZE_OPTIONS);
   } catch {
