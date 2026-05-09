@@ -15,6 +15,23 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  // If Supabase isn't configured, render children without auth context
+  if (!supabase) {
+    return (
+      <AuthContext.Provider
+        value={{
+          user: null,
+          session: null,
+          loading: false,
+          isConfigured: false,
+          signOut: async () => {},
+        }}
+      >
+        {children}
+      </AuthContext.Provider>
+    );
+  }
+
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
