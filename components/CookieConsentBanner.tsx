@@ -18,7 +18,7 @@ export default function CookieConsentBanner() {
       return;
     }
     setVisible(readCookieConsent() === null);
-  }, [pathname]);
+  }, [pathname, isAdminRoute]);
 
   const setConsent = (value: 'accepted' | 'rejected') => {
     writeCookieConsent(value);

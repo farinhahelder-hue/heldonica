@@ -384,7 +384,7 @@ function CMSAdminInner() {
     };
     window.addEventListener('keydown', handleSaveShortcut);
     return () => window.removeEventListener('keydown', handleSaveShortcut);
-  }, [tab]);
+  }, [tab, saveArticle]);
 
   // Auth
   const login = async () => {
@@ -704,7 +704,8 @@ function CMSAdminInner() {
     { id: 'blog',    icon: <Sparkles className="w-4 h-4" />, label: 'Générateur Blog IA', count: null },
     { id: 'pages',    icon: <Folder className="w-4 h-4" />, label: 'Pages', count: null },
     { id: 'demandes',icon: <Plane className="w-4 h-4" />, label: 'Travel Planning', count: demandes.length },
-    { id: 'media',   icon: <Image className="w-4 h-4" />, label: 'Médiathèque', count: null },
+    // eslint-disable-next-line jsx-a11y/alt-text -- Image is a lucide-react icon, not an <img> element
+    { id: 'media',   icon: <Image className="w-4 h-4" aria-hidden="true" />, label: 'Médiatèque', count: null },
     { id: 'carousel',icon: <Car className="w-4 h-4" />,  label: 'Carrousel', count: null },
     { id: 'settings',icon: <Settings className="w-4 h-4" />,label: 'Paramètres', count: null },
     { id: 'analytics',icon: <BarChart3 className="w-4 h-4" />,label: 'Analytics', count: null },

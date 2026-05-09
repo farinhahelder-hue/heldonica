@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 interface MediaFile {
   name: string
@@ -31,17 +31,16 @@ export default function MediaPage({ searchParams }: { searchParams: Record<strin
   const [googlePhotos, setGooglePhotos] = useState<GooglePhoto[]>([])
   const [loadingGoogle, setLoadingGoogle] = useState(false)
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (pwd && tab === 'local') loadFiles()
-  }, [pwd, tab])
+  }, [pwd, tab, loadFiles])
 
   function showToast(msg: string) {
     setToast(msg)
     setTimeout(() => setToast(''), 3000)
   }
 
-  async function loadFiles() {
+  const loadFiles = useCallback(async () => {
     setLoading(true)
     try {
       const res = await fetch('/api/cms/media-storage', { headers: { 'x-cms-password': pwd } })
@@ -50,7 +49,7 @@ export default function MediaPage({ searchParams }: { searchParams: Record<strin
       else showToast(data.error || 'Erreur')
     } catch (e) { showToast('Erreur') }
     setLoading(false)
-  }
+  }, [pwd])
 
   async function handleDelete(name: string) {
     if (!confirm('Supprimer ' + name + '?')) return
@@ -81,8 +80,6 @@ export default function MediaPage({ searchParams }: { searchParams: Record<strin
     window.location.href = authUrl
   }
 
-  // Check for OAuth token in URL hash
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const hash = window.location.hash
     if (hash && hash.includes('access_token')) {
@@ -95,9 +92,9 @@ export default function MediaPage({ searchParams }: { searchParams: Record<strin
         window.history.replaceState({}, '', window.location.pathname + '?pwd=' + pwd)
       }
     }
-  }, [pwd])
+  }, [pwd, loadGooglePhotos])
 
-  async function loadGooglePhotos(token: string) {
+  const loadGooglePhotos = useCallback(async (token: string) => {
     setLoadingGoogle(true)
     try {
       const res = await fetch('/api/cms/google-photos', {
@@ -108,7 +105,7 @@ export default function MediaPage({ searchParams }: { searchParams: Record<strin
       else showToast(data.error || 'Erreur Google')
     } catch (e) { showToast('Erreur') }
     setLoadingGoogle(false)
-  }
+  }, [])
 
   async function importFromGoogle(photo: GooglePhoto) {
     setImporting(photo.id)

@@ -51,14 +51,16 @@ function ReadProgressBar() {
 }
 
 export default function BlogClientPage({ posts: rawPosts }: Props) {
-  const posts = Array.isArray(rawPosts) ? rawPosts : []
+  const posts = useMemo(
+    () => (Array.isArray(rawPosts) ? rawPosts : []),
+    [rawPosts]
+  )
   const [activeFilter, setActiveFilter] = useState('Tous')
   const [searchQuery, setSearchQuery] = useState('')
 
   const categories = ['Tous', 'Carnets Voyage', 'Découvertes Locales', 'Guides Pratiques']
 
   const filteredPosts = useMemo(() => {
-    if (!Array.isArray(posts)) return []
     return posts.filter((post) => {
       const matchCategory = activeFilter === 'Tous' || post.category === activeFilter
       const query = searchQuery.trim().toLowerCase()
