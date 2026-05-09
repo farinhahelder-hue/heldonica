@@ -27,6 +27,19 @@ export interface BlogPost {
   updated_at: string | null;
 }
 
+/** Normalise un post pour garantir qu'aucun champ tableau n'est null */
+function normalizePost(post: BlogPost): BlogPost {
+  return {
+    ...post,
+    tags: Array.isArray(post.tags) ? post.tags : [],
+    category: post.category ?? null,
+    excerpt: post.excerpt ?? null,
+    content: post.content ?? null,
+    featured_image: post.featured_image ?? null,
+    author: post.author ?? null,
+  };
+}
+
 /** Strip HTML tags and get plain text */
 function stripHtml(html: string | null): string {
   if (!html) return '';
@@ -62,8 +75,8 @@ export async function getAllPosts(): Promise<BlogPost[]> {
       console.error('Supabase getAllPosts error:', error.message);
       return [];
     }
-    // Defensive: ensure we always return an array
-    return Array.isArray(data) ? (data as BlogPost[]) : [];
+    const posts = Array.isArray(data) ? (data as BlogPost[]) : [];
+    return posts.map(normalizePost);
   } catch (err) {
     console.error('getAllPosts exception:', err);
     return [];
@@ -83,7 +96,7 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
       console.error('Supabase getPostBySlug error:', error.message);
       return null;
     }
-    return data as BlogPost;
+    return data ? normalizePost(data as BlogPost) : null;
   } catch (err) {
     console.error('getPostBySlug exception:', err);
     return null;
@@ -110,7 +123,8 @@ export async function getRelatedPosts(
       console.error('Supabase getRelatedPosts error:', error.message);
       return [];
     }
-    return (data as BlogPost[]) ?? [];
+    const posts = Array.isArray(data) ? (data as BlogPost[]) : [];
+    return posts.map(normalizePost);
   } catch (err) {
     console.error('getRelatedPosts exception:', err);
     return [];
