@@ -14,10 +14,13 @@ export default function Breadcrumb() {
   // Générer les segments du breadcrumb
   const segments = pathname.split('/').filter(Boolean);
   
+  // S'assurer que segments est toujours un tableau avant le spread
+  const safeSegments = Array.isArray(segments) ? segments : [];
+
   const breadcrumbs = [
     { label: 'Accueil', href: '/' },
-    ...segments.map((segment, index) => {
-      const href = '/' + segments.slice(0, index + 1).join('/');
+    ...safeSegments.map((segment, index) => {
+      const href = '/' + safeSegments.slice(0, index + 1).join('/');
       const label = segment
         .split('-')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -26,8 +29,11 @@ export default function Breadcrumb() {
     }),
   ];
 
+  // S'assurer que breadcrumbs est toujours un tableau
+  const safeBreadcrumbs = Array.isArray(breadcrumbs) ? breadcrumbs : [];
+
   // Cas spéciaux pour les pages principales
-  const breadcrumbsWithNames = breadcrumbs.map((crumb) => {
+  const breadcrumbsWithNames = safeBreadcrumbs.map((crumb) => {
     if (crumb.href === '/blog') return { ...crumb, label: 'Blog' };
     if (crumb.href === '/destinations') return { ...crumb, label: 'Destinations' };
     if (crumb.href === '/a-propos') return { ...crumb, label: 'À propos' };
@@ -39,11 +45,14 @@ export default function Breadcrumb() {
     return crumb;
   });
 
+  // S'assurer que le résultat final est un tableau
+  const safeBreadcrumbsWithNames = Array.isArray(breadcrumbsWithNames) ? breadcrumbsWithNames : [];
+
   return (
     <nav className="bg-cloud-dancer/80 backdrop-blur-sm border-b border-cloud-dancer py-3 px-4 md:px-6 mt-16">
       <div className="max-w-7xl mx-auto">
         <ol className="flex items-center gap-1.5 text-xs md:text-sm overflow-x-auto no-scrollbar">
-          {breadcrumbsWithNames.map((crumb, index) => (
+          {safeBreadcrumbsWithNames.map((crumb, index) => (
             <li key={crumb.href} className="flex items-center gap-1.5 whitespace-nowrap">
               {index > 0 && (
                 <svg className="w-3 h-3 text-charcoal/40 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
