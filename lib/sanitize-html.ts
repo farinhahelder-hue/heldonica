@@ -33,7 +33,7 @@ export function sanitizeHtml(html: string | null | undefined): string {
 
   // Côté client : import dynamique pour éviter la TDZ dans le bundle minifié
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    // eslint-disable-next-line
     const DOMPurify = require('dompurify');
     const purify = DOMPurify.default ?? DOMPurify;
     if (typeof purify?.sanitize !== 'function') return html;
