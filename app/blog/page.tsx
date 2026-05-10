@@ -5,8 +5,12 @@ import Footer from '@/components/Footer'
 import BlogClientPage from '@/components/BlogClientPage'
 import Breadcrumb from '@/components/Breadcrumb'
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+// ⚡ Bolt Performance Optimization:
+// Switched from 'force-dynamic' to ISR (revalidate = 60).
+// The blog index page does not require real-time updates on every single request.
+// Caching this page dramatically improves TTFB and reduces unnecessary queries to Supabase,
+// matching the performance strategy of the homepage and individual blog post pages.
+export const revalidate = 60
 
 function calcReadTime(content: string | null): number {
   if (!content || typeof content !== 'string') return 0
