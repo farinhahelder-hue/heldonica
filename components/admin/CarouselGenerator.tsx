@@ -142,18 +142,18 @@ Généré avec Heldonica CMS
   };
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow">
-      <h2 className="text-xl font-bold mb-4">🎠 Générateur de Carrousel</h2>
+    <div style={{ padding: '1rem', background: 'white', borderRadius: '.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.1)' }}>
+      <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1rem' }}>🎠 Générateur de Carrousel</h2>
       
       {/* Topic Input */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">Sujet du carrousel</label>
+      <div style={{ marginBottom: '1rem' }}>
+        <label style={{ display: 'block', fontSize: '.875rem', fontWeight: 500, marginBottom: '.25rem' }}>Sujet du carrousel</label>
         <input
           type="text"
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
           placeholder="Ex: 5 tips voyage Portugal"
-          className="w-full px-3 py-2 border rounded-lg"
+          style={{ width: '100%', padding: '.5rem .75rem', border: '1px solid #e5e7eb', borderRadius: '.5rem' }}
           disabled={isGenerating}
         />
       </div>
@@ -162,11 +162,11 @@ Généré avec Heldonica CMS
       <button
         onClick={handleGenerate}
         disabled={!topic.trim() || isGenerating}
-        className="w-full px-4 py-2 bg-gradient-to-r from-eucalyptus-00 to-orange-500 text-white rounded-lg hover:from-eucalyptus-00 hover:to-orange-600 disabled:opacity-50 flex items-center justify-center gap-2"
+        style={{ width: '100%', padding: '.5rem 1rem', background: '#01696f', color: 'white', borderRadius: '.5rem', opacity: (!topic.trim() || isGenerating) ? 0.5 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '.5rem', border: 'none', cursor: (!topic.trim() || isGenerating) ? 'not-allowed' : 'pointer' }}
       >
         {isGenerating ? (
           <>
-            <span className="animate-spin">⏳</span>
+            <span>⏳</span>
             <span>Génération en cours...</span>
           </>
         ) : (
@@ -179,54 +179,54 @@ Généré avec Heldonica CMS
       
       {/* Error */}
       {error && (
-        <div className="mt-3 p-2 bg-red-50 text-red-600 rounded text-sm">
+        <div style={{ marginTop: '.75rem', padding: '.5rem', background: '#fef2f2', color: '#dc2626', borderRadius: '.25rem', fontSize: '.875rem' }}>
           {error}
         </div>
       )}
       
       {/* Result */}
       {result && (
-        <div className="mt-4 p-4 bg-green-50 rounded-lg">
-          <h3 className="font-bold text-green-800 mb-2">✅ Carrousel généré!</h3>
+        <div style={{ marginTop: '1rem', padding: '1rem', background: '#f0fdf4', borderRadius: '.5rem' }}>
+          <h3 style={{ fontWeight: 700, color: '#166534', marginBottom: '.5rem' }}>✅ Carrousel généré!</h3>
           
-          <div className="mb-3">
-            <span className="text-sm font-medium">Titre:</span>
-            <p className="text-lg font-bold">{result.title}</p>
+          <div style={{ marginBottom: '.75rem' }}>
+            <span style={{ fontSize: '.875rem', fontWeight: 500 }}>Titre:</span>
+            <p style={{ fontSize: '1.125rem', fontWeight: 700 }}>{result.title}</p>
           </div>
           
-          <div className="mb-3">
-            <span className="text-sm font-medium">Slides:</span>
-            <ul className="mt-1 space-y-1">
+          <div style={{ marginBottom: '.75rem' }}>
+            <span style={{ fontSize: '.875rem', fontWeight: 500 }}>Slides:</span>
+            <ul style={{ marginTop: '.25rem', display: 'flex', flexDirection: 'column', gap: '.25rem', padding: 0, listStyle: 'none' }}>
               {result.slides?.map((slide: any, i: number) => (
-                <li key={i} className="text-sm p-2 bg-white rounded">
+                <li key={i} style={{ fontSize: '.875rem', padding: '.5rem', background: 'white', borderRadius: '.25rem' }}>
                   <strong>{i + 1}. {slide.title}</strong>
-                  <p className="text-gray-600">{slide.content}</p>
+                  <p style={{ color: '#4b5563', margin: '0' }}>{slide.content}</p>
                 </li>
               ))}
             </ul>
           </div>
           
-          <div className="mb-3">
-            <span className="text-sm font-medium">Caption:</span>
-            <p className="text-sm">{result.caption}</p>
+          <div style={{ marginBottom: '.75rem' }}>
+            <span style={{ fontSize: '.875rem', fontWeight: 500 }}>Caption:</span>
+            <p style={{ fontSize: '.875rem', margin: 0 }}>{result.caption}</p>
           </div>
           
-          <div className="mb-3">
-            <span className="text-sm font-medium">Hashtags:</span>
-            <p className="text-sm">{result.hashtags?.join(' ')}</p>
+          <div style={{ marginBottom: '.75rem' }}>
+            <span style={{ fontSize: '.875rem', fontWeight: 500 }}>Hashtags:</span>
+            <p style={{ fontSize: '.875rem', margin: 0 }}>{result.hashtags?.join(' ')}</p>
           </div>
           
           {result.images && result.images.length > 0 ? (
-            <div className="mb-3">
-              <span className="text-sm font-medium">Images ({result.images.length}):</span>
-              <div className="grid grid-cols-5 gap-2 mt-1">
+            <div style={{ marginBottom: '.75rem' }}>
+              <span style={{ fontSize: '.875rem', fontWeight: 500 }}>Images ({result.images.length}):</span>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: '.5rem', marginTop: '.25rem' }}>
                 {result.images.map((img: string, i: number) => (
-                  <img key={i} src={img} alt={`Slide ${i+1}`} className="w-full h-20 object-cover rounded" />
+                  <img key={i} src={img} alt={`Slide ${i+1}`} style={{ width: '100%', height: '5rem', objectFit: 'cover', borderRadius: '.25rem' }} />
                 ))}
               </div>
             </div>
           ) : (
-            <div className="mb-3 p-3 bg-eucalyptus-0 border border-eucalyptus-00 rounded text-sm text-eucalyptus-00">
+            <div style={{ marginBottom: '.75rem', padding: '.75rem', background: '#f5f3ef', border: '1px solid #01696f', borderRadius: '.25rem', fontSize: '.875rem', color: '#01696f' }}>
               ⚠️ Pas d'images - vérifie la clé Unsplash dans Vercel (NEXT_PUBLIC_UNSPLASH_ACCESS_KEY)
             </div>
           )}
@@ -234,7 +234,7 @@ Généré avec Heldonica CMS
           <button
             onClick={handleDownloadZip}
             disabled={isGenerating}
-            className="mt-3 w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+            style={{ marginTop: '.75rem', width: '100%', padding: '.5rem 1rem', background: '#9333ea', color: 'white', borderRadius: '.5rem', opacity: isGenerating ? 0.5 : 1, border: 'none', cursor: isGenerating ? 'not-allowed' : 'pointer' }}
           >
             📦 Télécharger ZIP (image + texte)
           </button>
@@ -245,7 +245,7 @@ Généré avec Heldonica CMS
               navigator.clipboard.writeText(text);
               alert('📋 Copié dans le presse-papier!');
             }}
-            className="mt-2 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            style={{ marginTop: '.5rem', width: '100%', padding: '.5rem 1rem', background: '#2563eb', color: 'white', borderRadius: '.5rem', border: 'none', cursor: 'pointer' }}
           >
             📋 Copier le texte
           </button>

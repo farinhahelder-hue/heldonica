@@ -699,33 +699,38 @@ function CMSAdminInner() {
 
   // ===== CMS UI =====
   const TABS = [
-    { id: 'dashboard', icon: <Home className="w-4 h-4" />, label: 'Accueil', count: null },
-    { id: 'articles', icon: <FileText className="w-4 h-4" />, label: 'Articles', count: articles.length },
-    { id: 'new',      icon: <Plus className="w-4 h-4" />,  label: 'Nouvel article', count: null },
-    { id: 'blog',    icon: <Sparkles className="w-4 h-4" />, label: 'Générateur Blog IA', count: null },
-    { id: 'pages',    icon: <Folder className="w-4 h-4" />, label: 'Pages', count: null },
-    { id: 'demandes',icon: <Plane className="w-4 h-4" />, label: 'Travel Planning', count: demandes.length },
+    { id: 'dashboard', icon: <Home size={16} />, label: 'Accueil', count: null },
+    { id: 'articles', icon: <FileText size={16} />, label: 'Articles', count: articles.length },
+    { id: 'new',      icon: <Plus size={16} />,  label: 'Nouvel article', count: null },
+    { id: 'blog',    icon: <Sparkles size={16} />, label: 'Générateur Blog IA', count: null },
+    { id: 'pages',    icon: <Folder size={16} />, label: 'Pages', count: null },
+    { id: 'demandes',icon: <Plane size={16} />, label: 'Travel Planning', count: demandes.length },
     // eslint-disable-next-line jsx-a11y/alt-text -- Image is a lucide-react icon, not an <img> element
-    { id: 'media',   icon: <Image className="w-4 h-4" aria-hidden="true" />, label: 'Médiathèque', count: null },
-    { id: 'carousel',icon: <Car className="w-4 h-4" />,  label: 'Carrousel', count: null },
-    { id: 'settings',icon: <Settings className="w-4 h-4" />,label: 'Paramètres', count: null },
-    { id: 'analytics',icon: <BarChart3 className="w-4 h-4" />,label: 'Analytics', count: null },
-    { id: 'search',  icon: <Search className="w-4 h-4" />, label: 'Search', count: null },
+    { id: 'media',   icon: <Image size={16} aria-hidden="true" />, label: 'Médiathèque', count: null },
+    { id: 'carousel',icon: <Car size={16} />,  label: 'Carrousel', count: null },
+    { id: 'settings',icon: <Settings size={16} />,label: 'Paramètres', count: null },
+    { id: 'analytics',icon: <BarChart3 size={16} />,label: 'Analytics', count: null },
+    { id: 'search',  icon: <Search size={16} />, label: 'Search', count: null },
   ];
 
   return (
     <div style={{ minHeight: '100vh', background: '#f5f3ef', fontFamily: 'DM Sans, system-ui, sans-serif' }}>
+      <style>{`
+        @media (min-width: 768px) {
+          [data-mobile-only="true"] { display: none !important; }
+        }
+      `}</style>
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
           style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 40 }}
-          className="md:hidden"
+          data-mobile-only="true"
         />
       )}
       <div style={{ background: '#6b2a1a', color: 'white', padding: '1rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 12px rgba(0,0,0,.15)' }}>
         <button onClick={() => setSidebarOpen(!sidebarOpen)}
           style={{ display: 'none', background: 'none', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer', marginRight: '0.5rem' }}
-          className="md:hidden"
+          data-mobile-only="true"
         >☰</button>
         <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
           <span style={{ fontSize: '1.5rem' }}>🌍</span>
@@ -1134,7 +1139,7 @@ function CMSAdminInner() {
         )}
 
         {tab === 'carousel' && (
-          <div className="space-y-6">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <CarouselGenerator />
             <CarouselEditor />
           </div>
