@@ -448,9 +448,10 @@ function CMSAdminInner() {
       const res = await fetch('/api/cms/demandes-travel');
       if (handleUnauthorized(res)) return;
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || res.statusText);
       setDemandes(data.demandes || []);
-    } catch {
-      showToast('Impossible de charger les demandes travel.');
+    } catch (e: any) {
+      showToast('Impossible de charger les demandes travel : ' + (e.message || 'Erreur inconnue'));
     } finally {
       setLoadingDemandes(false);
     }
