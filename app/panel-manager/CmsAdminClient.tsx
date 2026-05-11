@@ -374,59 +374,6 @@ function CMSAdminInner() {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [isArticleDirty]);
 
-  const saveArticle = useCallback(async () => {
-    if (!editingArticle || savingArticle) return;
-    if (!editingArticle.title?.trim()) {
-      showToast("Le titre est obligatoire avant d'enregistrer.");
-      return;
-    }
-    const isNew = !editingArticle.id;
-    const payload = {
-      ...editingArticle,
-      slug: editingArticle.slug || slug(editingArticle.title || ''),
-      published_at: editingArticle.published && !editingArticle.published_at
-        ? new Date().toISOString() : editingArticle.published_at,
-      ...(scheduleMode && editingArticle?.scheduled_published_at ?
-        { scheduled_published_at: new Date(editingArticle.scheduled_published_at).toISOString() } : {}),
-    };
-    const url = isNew ? '/api/cms/articles' : `/api/cms/articles/${editingArticle.id}`;
-    const method = isNew ? 'POST' : 'PUT';
-    setSavingArticle(true);
-    try {
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (handleUnauthorized(res)) return;
-      if (res.ok) {
-        showToast(isNew ? '✅ Article créé !' : '✅ Article mis à jour !');
-        setArticleBaseline(getArticleDraftSignature(payload));
-        resetArticleEditor();
-        loadArticles();
-      } else {
-        const d = await res.json();
-        showToast(`❌ Erreur : ${d.error}`);
-      }
-    } catch {
-      showToast('Impossible de sauvegarder cet article.');
-    } finally {
-      setSavingArticle(false);
-    }
-  }, [editingArticle, handleUnauthorized, loadArticles, resetArticleEditor, savingArticle, scheduleMode, showToast]);
-
-  // Ctrl+S shortcut
-  useEffect(() => {
-    if (tab !== 'new') return;
-    const handleSaveShortcut = (event: KeyboardEvent) => {
-      if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 's') return;
-      event.preventDefault();
-      void saveArticle();
-    };
-    window.addEventListener('keydown', handleSaveShortcut);
-    return () => window.removeEventListener('keydown', handleSaveShortcut);
-  }, [tab, saveArticle]);
-
   // Auth
   const login = async () => {
     console.log('[CMS] login called, pwd length:', pwd?.length);
@@ -537,6 +484,59 @@ function CMSAdminInner() {
   useEffect(() => { if (authed) loadArticles(); }, [authed, loadArticles]);
   useEffect(() => { if (authed && tab === 'demandes') loadDemandes(); }, [authed, tab, loadDemandes]);
   useEffect(() => { if (authed && (tab === 'settings' || tab === 'pages')) loadSettings(); }, [authed, tab, loadSettings]);
+
+  const saveArticle = useCallback(async () => {
+    if (!editingArticle || savingArticle) return;
+    if (!editingArticle.title?.trim()) {
+      showToast("Le titre est obligatoire avant d'enregistrer.");
+      return;
+    }
+    const isNew = !editingArticle.id;
+    const payload = {
+      ...editingArticle,
+      slug: editingArticle.slug || slug(editingArticle.title || ''),
+      published_at: editingArticle.published && !editingArticle.published_at
+        ? new Date().toISOString() : editingArticle.published_at,
+      ...(scheduleMode && editingArticle?.scheduled_published_at ?
+        { scheduled_published_at: new Date(editingArticle.scheduled_published_at).toISOString() } : {}),
+    };
+    const url = isNew ? '/api/cms/articles' : `/api/cms/articles/${editingArticle.id}`;
+    const method = isNew ? 'POST' : 'PUT';
+    setSavingArticle(true);
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (handleUnauthorized(res)) return;
+      if (res.ok) {
+        showToast(isNew ? '✅ Article créé !' : '✅ Article mis à jour !');
+        setArticleBaseline(getArticleDraftSignature(payload));
+        resetArticleEditor();
+        loadArticles();
+      } else {
+        const d = await res.json();
+        showToast(`❌ Erreur : ${d.error}`);
+      }
+    } catch {
+      showToast('Impossible de sauvegarder cet article.');
+    } finally {
+      setSavingArticle(false);
+    }
+  }, [editingArticle, handleUnauthorized, loadArticles, resetArticleEditor, savingArticle, scheduleMode, showToast]);
+
+  // Ctrl+S shortcut
+  useEffect(() => {
+    if (tab !== 'new') return;
+    const handleSaveShortcut = (event: KeyboardEvent) => {
+      if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 's') return;
+      event.preventDefault();
+      void saveArticle();
+    };
+    window.addEventListener('keydown', handleSaveShortcut);
+    return () => window.removeEventListener('keydown', handleSaveShortcut);
+  }, [tab, saveArticle]);
 
   const saveSettings = async () => {
     setSavingSettings(true);
