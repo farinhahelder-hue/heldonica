@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 function supabase() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
   )
 }
 
@@ -17,6 +17,7 @@ export async function POST(req: Request) {
 
   try {
     const sb = supabase()
+  if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
     const formData = await req.formData()
     const file = formData.get('file') as File
     const folder = (formData.get('folder') as string) || 'media'

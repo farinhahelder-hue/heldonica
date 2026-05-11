@@ -6,7 +6,7 @@ let _cached: ReturnType<typeof createClient> | null = null;
 function supabase() {
   if (!_cached) {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
     _cached = (url && key) ? createClient(url, key) : null;
   }
   return _cached;
@@ -24,6 +24,7 @@ export async function GET(req: Request) {
   if (authResponse) return authResponse
 
   const sb = supabase()
+  if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
   const { searchParams } = new URL(req.url)
   const search = searchParams.get('search') || ''
   const status = searchParams.get('status') || 'all'
@@ -47,6 +48,7 @@ export async function POST(req: Request) {
   if (authResponse) return authResponse
 
   const sb = supabase()
+  if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
   const body = await req.json()
   const payload = { ...body, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
 

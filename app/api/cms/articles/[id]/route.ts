@@ -6,7 +6,7 @@ let _cached: ReturnType<typeof createClient> | null = null;
 function supabase() {
   if (!_cached) {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
     _cached = (url && key) ? createClient(url, key) : null;
   }
   return _cached;
@@ -24,6 +24,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   if (authResponse) return authResponse
 
   const sb = supabase()
+  if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
   const { data, error } = await sb
     .from('cms_blog_posts')
     .select('*')
@@ -41,6 +42,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   if (authResponse) return authResponse
 
   const sb = supabase()
+  if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
   const body = await req.json()
   const payload = { ...body, updated_at: new Date().toISOString() }
 
@@ -69,6 +71,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
   if (authResponse) return authResponse
 
   const sb = supabase()
+  if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
   const { error } = await sb.from('cms_blog_posts').delete().eq('id', params.id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
