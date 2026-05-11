@@ -1,0 +1,4 @@
+
+## 2024-05-11 - Next.js App Router Static vs Dynamic caching for Listing Pages
+**Learning:** In Next.js App Router, using `export const dynamic = 'force-dynamic'` alongside `export const revalidate = 0` on index pages (like the `/blog` page) completely disables caching, forcing the server to regenerate the page on every request. This is a common anti-pattern that leads to high Time To First Byte (TTFB) and unnecessary database load, especially when the underlying content (like blog posts) updates relatively infrequently.
+**Action:** Always prefer Incremental Static Regeneration (ISR) using `export const revalidate = 60` (or similar duration) over `force-dynamic` for public-facing list/index pages. This preserves fast delivery from the CDN while keeping content fresh within an acceptable window, avoiding both stale content and poor TTFB.
