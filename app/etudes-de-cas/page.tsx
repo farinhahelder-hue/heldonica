@@ -5,41 +5,41 @@ import Footer from '@/components/Footer';
 
 const cases = [
   {
-    hotel: 'Hotel urbain 4* - Paris',
-    context: 'Dependance OTA elevee, prix peu differencies selon la demande.',
+    hotel: 'Hôtel urbain 4* — Paris',
+    context: 'Dépendance OTA élevée, prix peu différenciés selon la demande.',
     actions: [
       'Recalibrage des segments tarifaires',
       'Pilotage RevPAR journalier',
       'Optimisation fiche Google Business Profile',
     ],
-    result: '+18% RevPAR en 90 jours',
+    result: '+18 % RevPAR en 90 jours',
   },
   {
-    hotel: 'Boutique hotel - Cote Atlantique',
+    hotel: 'Boutique hôtel — Côte Atlantique',
     context: 'Basse saison faible, communication locale peu visible.',
     actions: [
       'Refonte pages locales SEO',
-      'Strategie offres basse saison',
-      'Parcours de conversion simplifie',
+      'Stratégie offres basse saison',
+      'Parcours de conversion simplifié',
     ],
-    result: '+24% reservations directes',
+    result: '+24 % réservations directes',
   },
   {
-    hotel: 'Maison de charme - Suisse romande',
-    context: 'Bonne occupation, marge sous pression sur certaines periodes.',
+    hotel: 'Maison de charme — Suisse romande',
+    context: 'Bonne occupation, marge sous pression sur certaines périodes.',
     actions: [
-      'Analyse mix canaux et cout d acquisition',
+      "Analyse mix canaux et coût d'acquisition",
       'Nouveau cadre de pricing week-end',
       'Dashboard suivi performances hebdomadaire',
     ],
-    result: '+12 points de marge operationnelle',
+    result: '+12 points de marge opérationnelle',
   },
 ];
 
 export const metadata: Metadata = {
-  title: 'Etudes de cas hotellerie | Heldonica',
+  title: 'Études de cas hôtellerie | Heldonica',
   description:
-    'Cas clients B2B Heldonica: Revenue Management, SEO local et experience client avec resultats mesures.',
+    "Cas clients B2B Heldonica : Revenue Management, SEO local et expérience client avec résultats mesurés.",
   alternates: {
     canonical: 'https://heldonica.fr/etudes-de-cas',
   },
@@ -53,14 +53,14 @@ export default function EtudesDeCasPage() {
         <section className="bg-gradient-to-br from-cloud-dancer to-white py-20 md:py-28">
           <div className="container">
             <p className="text-xs uppercase tracking-[0.2em] text-eucalyptus font-semibold mb-4">
-              B2B hotellerie
+              B2B hôtellerie
             </p>
             <h1 className="text-4xl md:text-6xl font-serif text-mahogany mb-6">
-              Etudes de cas orientees resultats
+              Études de cas orientées résultats
             </h1>
             <p className="text-charcoal/80 text-lg max-w-3xl leading-relaxed">
               Vous cherchez des leviers concrets sur votre RevPAR, vos ventes directes
-              et votre visibilite locale. Voici trois interventions type avec indicateurs
+              et votre visibilité locale. Voici trois interventions type avec indicateurs
               mesurables.
             </p>
           </div>
@@ -78,7 +78,7 @@ export default function EtudesDeCasPage() {
                     <h2 className="text-2xl font-serif text-mahogany mb-3">{item.hotel}</h2>
                     <p className="text-charcoal/80 mb-5">{item.context}</p>
                     <p className="text-sm uppercase tracking-[0.12em] text-eucalyptus font-semibold mb-3">
-                      Actions deployees
+                      Actions déployées
                     </p>
                     <ul className="space-y-2 text-charcoal/85">
                       {item.actions.map((action) => (
@@ -96,7 +96,7 @@ export default function EtudesDeCasPage() {
                     </p>
                     <p className="text-3xl font-serif text-mahogany mb-2">{item.result}</p>
                     <p className="text-sm text-charcoal/70">
-                      Resultat constate apres mise en place des optimisations prioritaires.
+                      Résultat constaté après mise en place des optimisations prioritaires.
                     </p>
                   </div>
                 </div>
@@ -108,17 +108,17 @@ export default function EtudesDeCasPage() {
         <section className="bg-eucalyptus text-white section-spacing">
           <div className="container text-center">
             <h2 className="text-3xl md:text-4xl font-serif mb-4">
-              Vous voulez un plan d action adapte a votre hotel ?
+              Vous voulez un plan d&apos;action adapté à votre hôtel ?
             </h2>
             <p className="text-white/85 max-w-2xl mx-auto mb-8">
-              Nous cadrons vos priorites en Revenue Management, SEO local et conversion
-              pour viser des gains mesurables a court terme.
+              On cadre vos priorités en Revenue Management, SEO local et conversion
+              pour viser des gains mesurables à court terme.
             </p>
             <Link
-              href="/travel-planning"
+              href="/contact"
               className="inline-flex px-7 py-3 rounded-lg bg-white text-eucalyptus font-semibold hover:bg-cloud-dancer transition-colors"
             >
-              Decouvrir le travel planning
+              Prendre rendez-vous →
             </Link>
           </div>
         </section>

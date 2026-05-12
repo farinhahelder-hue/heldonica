@@ -39,7 +39,7 @@ const destinations: DestinationCard[] = [
     style: 'food',
     duration: '5-7',
     description: "Le sud-est qu'on prend par la pierre, par le ventre et par les fins d'après-midi qui durent plus que prévu.",
-    image: '/images/badges-heldonica.svg',
+    image: 'https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?w=1200&q=80',
     budget: 'Sur mesure',
     season: 'avril à juin · septembre à octobre',
     verdict: "À faire lentement, sinon la Sicile ne te donne que sa surface.",
