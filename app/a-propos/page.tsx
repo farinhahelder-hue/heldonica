@@ -1,4 +1,4 @@
-﻿import type { Metadata } from 'next'
+import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
@@ -200,7 +200,7 @@ export default function AProposPage() {
                 {
                   num: '03',
                   titre: 'Notre POV = duo, notre service = tous',
-                  texte: 'Dénicheurs de pépites, même en bas de chez toi, on teste, on affine et on raconte d\'abord à deux. Ensuite, on met cette même obsession du rythme juste au service d\'un solo, d\'une famille ou d\'un groupe d\'amis.',
+                  texte: 'On teste, on affine, on raconte d\'abord à deux — même en bas de chez toi. Ensuite, on met cette même obsession du rythme juste au service d\'un solo, d\'une famille ou d\'un groupe d\'amis.',
                 },
               ].map((item) => (
                 <div key={item.num} className="grid md:grid-cols-[80px_1fr] gap-6 items-start">

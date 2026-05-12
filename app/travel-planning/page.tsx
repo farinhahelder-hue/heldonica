@@ -12,19 +12,19 @@ const faqs = [
     a: 'Chaque projet est unique. On commence par un échange gratuit pour comprendre tes envies. Le tarif est établi selon la complexité de l\'itinéraire, la durée et le niveau de personnalisation souhaité. Compte en moyenne entre 150€ et 350€ pour un voyage de 7 à 14 jours.'
   },
   {
-    q: 'Dans combien de temps reçois-je mon carnet de route ?',
+    q: 'Dans combien de temps reçois-tu ton carnet de route ?',
     a: 'En général sous 7 à 10 jours après ta validation du brief. Pour les projets urgents (départ dans moins de 3 semaines), contacte-nous directement — on fait de notre mieux.'
   },
   {
-    q: 'Peut-on voyager vers des destinations que vous n\'avez pas visitées ?',
-    a: 'Oui. On travaille avec un réseau de contacts locaux et on fait des recherches approfondies pour chaque nouvelle destination. La différence : on ne te conseille que ce qu\'on est prêts à recommander à nos proches.'
+    q: 'Et si la destination, tu ne l\'as jamais faite ?',
+    a: 'Oui. On travaille avec un réseau de contacts locaux et on fait des recherches approfondies pour chaque nouvelle destination. La différence : on ne te conseille que ce qu\'on est prêts à recommander à nos proches.'
   },
   {
-    q: 'Est-ce que vous faites les réservations à ma place ?',
+    q: 'Tu veux qu\'on fasse les réservations à ta place ?',
     a: 'On peut te fournir les liens, contacts et conseils pour chaque réservation. Pour un accompagnement complet (réservations incluses), c\'est possible sur devis — précise-le lors de ta demande.'
   },
   {
-    q: 'Qu\'est-ce que je reçois exactement comme livrable ?',
+    q: 'Qu\'est-ce que tu reçois exactement comme livrable ?',
     a: 'Un carnet de voyage PDF complet : programme jour par jour, carte interactive, hébergements sélectionnés, restaurants, transports, conseils pratiques et contacts locaux. Tout réuni en un seul document pensé pour toi.'
   },
 ]
@@ -86,8 +86,8 @@ export default function TravelPlanning() {
               Slow Travel · Conception sur mesure · En couple
             </p>
             <h1 className="fade-up-2 text-4xl md:text-6xl lg:text-7xl font-serif font-light text-white leading-[1.1] mb-6">
-              On a voyagé dans des dizaines de pays.<br />
-              <em className="text-amber-300">Maintenant on fait voyager les autres.</em>
+              On a appris à voyager vrai.<br />
+              <em className="text-amber-300">Maintenant on met ça au service du tien.</em>
             </h1>
             <p className="fade-up-3 text-base md:text-xl text-stone-300 max-w-2xl mx-auto leading-relaxed mb-10">
               Pas des itinéraires copiés sur des blogs. Des voyages conçus sur mesure, comme on aurait voulu qu&apos;on nous guide — lents, sensoriels, mémorables.
@@ -95,7 +95,7 @@ export default function TravelPlanning() {
             <div className="fade-up-4 flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link href="/travel-planning-form"
                 className="px-8 py-4 bg-amber-800 hover:bg-amber-700 text-white rounded font-semibold text-sm tracking-wide transition shadow-lg">
-                Démarrer ma demande gratuite
+                Nous écrire
               </Link>
               <p className="text-stone-400 text-xs">Sans engagement · Réponse sous 48h</p>
             </div>
@@ -269,7 +269,7 @@ export default function TravelPlanning() {
             </p>
             <Link href="/travel-planning-form"
               className="inline-block px-10 py-4 bg-white text-amber-900 font-bold rounded shadow-xl hover:bg-amber-50 transition text-sm tracking-wide">
-              Démarrer ma demande gratuite →
+              Nous écrire →
             </Link>
             <p className="mt-4 text-amber-300/70 text-xs">Sans engagement · Réponse sous 48h · 100 % humain</p>
           </div>
@@ -285,7 +285,7 @@ export default function TravelPlanning() {
         </div>
         <Link href="/travel-planning-form"
           className="px-4 py-2 bg-white text-amber-900 rounded font-bold text-xs whitespace-nowrap shadow">
-          Demande gratuite
+          Nous écrire
         </Link>
       </div>
 

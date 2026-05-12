@@ -1,4 +1,4 @@
-﻿import type { Metadata } from 'next'
+import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
@@ -41,8 +41,7 @@ export default function Contact() {
               Parle-nous de ce qui est vrai.
             </h1>
             <p className="max-w-2xl text-lg leading-relaxed text-stone-700">
-              Un départ qui coince, un hôtel à réaligner, une idée encore floue, un simple besoin de
-              remettre de l&apos;ordre dans le voyage : c&apos;est très bien comme ça. On préfère partir de
+              Un projet encore flou, une contrainte qu&apos;on n&apos;ose pas mettre dans un brief, une envie qu&apos;on n&apos;a pas encore mise en mots : c&apos;est très bien comme ça. On préfère partir de
               la vraie vie que d&apos;un brief lissé.
             </p>
           </div>
