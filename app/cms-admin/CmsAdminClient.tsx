@@ -1165,12 +1165,17 @@ function CMSAdminInner() {
           <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: '900px' }}>
             <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>📊 Analytics</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
-              {(['Sessions', 'Utilisateurs', 'Pages vues', 'Taux rebond'] as const).map(label => (
+              {(['Sessions', 'Utilisateurs', 'Pages vues', 'Taux rebond'] as const).map((label, i) => {
+              const keys = ['sessions', 'users', 'screenPageViews', 'bounceRate'] as const;
+              const raw = analyticsData?.[keys[i]]?.value;
+              const display = raw != null ? (i === 3 ? `${(parseFloat(String(raw)) * 100).toFixed(1)}%` : String(raw)) : '--';
+              return (
                 <div key={label} style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
-                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>—</p>
+                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{display}</p>
                   <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>{label}</p>
                 </div>
-              ))}
+              );
+            })}
             </div>
             <button onClick={async () => {
               setLoadingAnalytics(true);
