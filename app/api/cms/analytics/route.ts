@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     const analyticsDataClient = new BetaAnalyticsDataClient({
       credentials: {
         client_email: credentials.client_email,
-        private_key: credentials.private_key,
+        private_key: credentials.private_key.replace(/\\n/g, '\n'),
       },
     });
 
