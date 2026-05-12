@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 type FormData = {
@@ -75,10 +75,10 @@ function RadioCard({ name, value, current, onChange, emoji, label }: RadioCardPr
 }
 
 export default function TravelPlanningForm() {
+  const router = useRouter()
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<FormData>(INITIAL_FORM)
   const [loading, setLoading] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
 
   const set = (field: keyof FormData, value: string) =>
@@ -127,9 +127,9 @@ export default function TravelPlanningForm() {
         body: JSON.stringify(form),
       })
       if (!res.ok) throw new Error('Erreur serveur')
-      setSubmitted(true)
+      router.push('/merci')
     } catch {
-      setError('Une erreur est survenue. Réessaie ou écris-nous directement à contact@heldonica.fr')
+      setError('Une erreur est survenue. Réessaie ou écris-nous directement à info@heldonica.fr')
     } finally {
       setLoading(false)
     }
@@ -137,52 +137,21 @@ export default function TravelPlanningForm() {
 
   const progress = (step / 3) * 100
 
-  // ── Page de confirmation ─────────────────────────────────────────────
-  if (submitted) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white flex items-center justify-center px-4">
-        <div className="max-w-lg mx-auto text-center py-16">
-          <div className="text-6xl mb-6">✈️</div>
-          <h1 className="text-3xl font-serif font-bold text-mahogany mb-4">
-            C&apos;est parti, {form.firstName} !
-          </h1>
-          <p className="text-lg text-gray-600 mb-3">
-            On a bien reçu ta demande et on la lit avec soin.
-          </p>
-          <p className="text-gray-500 mb-8">
-            On te revient dans les <strong>48h</strong> avec une première proposition sur mesure adaptée à ta vibe <em>{form.vibe}</em>.
-          </p>
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-left mb-8">
-            <p className="text-xs uppercase tracking-widest text-gray-400 mb-3">Récapitulatif</p>
-            <p className="text-gray-700">🌍 <strong>{form.tripType}</strong> · {form.vibe}</p>
-            <p className="text-gray-700">📍 {form.destination}{form.destinationDetail ? ` — ${form.destinationDetail}` : ''}</p>
-            {form.duration && <p className="text-gray-700">⏳ {form.duration}</p>}
-            {form.budget && <p className="text-gray-700">💶 {form.budget}</p>}
-          </div>
-          <Link
-            href="/blog"
-            className="inline-block bg-mahogany text-white px-8 py-3 rounded-xl font-medium hover:bg-red-900 transition"
-          >
-            Explorer le blog en attendant →
-          </Link>
-        </div>
-      </div>
-    )
-  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-b from-stone-50 to-white py-12 px-4">
       <div className="max-w-2xl mx-auto">
 
         {/* Header */}
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-serif font-bold text-mahogany mb-4">
-            Confie-nous les clés de ta prochaine aventure.
+          <h1 className="text-4xl font-serif font-light text-mahogany mb-4">
+            Dis-nous où tu veux aller.<br />
+            <em className="text-amber-800">On s&apos;occupe du reste.</em>
           </h1>
-          <p className="text-xl text-gray-600 mb-2">
-            Un itinéraire sur-mesure, des pépites dénichées par des experts du terrain, zéro stress.
+          <p className="text-base text-gray-600 mb-2">
+            Pas d&apos;itinéraire copié-collé. Un voyage conçu sur mesure, à partir de ce que tu vis vraiment.
           </p>
-          <p className="text-gray-500">2 min pour nous parler de toi · Réponse sous 48h</p>
+          <p className="text-gray-400 text-sm">2 min · Sans engagement · Réponse sous 48h</p>
         </div>
 
         {/* Barre de progression */}
@@ -344,7 +313,7 @@ export default function TravelPlanningForm() {
 
               <div>
                 <p className="text-sm font-semibold text-gray-700 mb-3">
-                  Quel est votre budget global (par personne) ?
+                  Quel est votre budget global pour le voyage ?
                 </p>
                 <div className="space-y-2">
                   {[
