@@ -6,38 +6,38 @@ import Footer from '@/components/Footer';
 const testimonials = [
   {
     couple: 'Lucie et Maxime',
-    destination: 'Madere',
+    destination: 'Madère',
     quote:
-      "On voulait un voyage lent, sensoriel et sans stress. On a recu un carnet ultra clair, avec des pepites qu'on n'aurait jamais trouvees seuls.",
-    result: '7 jours fluides, zero improvisation subie',
+      "On voulait un voyage lent, sensoriel et sans stress. On a reçu un carnet ultra clair, avec des pépites qu'on n'aurait jamais trouvées seuls.",
+    result: '7 jours fluides, zéro improvisation subie',
   },
   {
-    couple: 'Ines et Adrien',
+    couple: 'Inès et Adrien',
     destination: 'Sicile',
     quote:
-      "Le rythme etait parfait pour nous. Chaque jour avait une vraie ambiance, sans courir. Le plus: les adresses locales testees sur le terrain.",
+      "Le rythme était parfait pour nous. Chaque jour avait une vraie ambiance, sans courir. Le plus : les adresses locales testées sur le terrain.",
     result: '5 jours construits autour de nos envies',
   },
   {
-    couple: 'Camille et Theo',
+    couple: 'Camille et Théo',
     destination: 'Suisse',
     quote:
-      "On a senti qu'il y avait du vecu dans chaque recommandation. Rien de generique. On s'est sentis accompagnes du debut a la fin.",
+      "On a senti qu'il y avait du vécu dans chaque recommandation. Rien de générique. On s'est sentis accompagnés du début à la fin.",
     result: '10 jours de voyage contemplatif en duo',
   },
   {
-    couple: 'Lea et Nicolas',
+    couple: 'Léa et Nicolas',
     destination: 'Roumanie',
     quote:
-      "On voulait sortir des circuits classiques, sans prendre de risques inutiles. Le carnet Heldonica nous a donne exactement cet equilibre.",
-    result: 'Transylvanie authentique, budget maitrise',
+      "On voulait sortir des circuits classiques, sans prendre de risques inutiles. Le carnet Heldonica nous a donné exactement cet équilibre.",
+    result: 'Transylvanie authentique, budget maîtrisé',
   },
 ];
 
 export const metadata: Metadata = {
-  title: 'Temoignages clients | Heldonica',
+  title: 'Témoignages clients | Heldonica',
   description:
-    'Retours de couples accompagnes par Heldonica pour leur voyage slow travel sur mesure.',
+    'Retours de couples accompagnés par Heldonica pour leur voyage slow travel sur mesure.',
   alternates: {
     canonical: 'https://heldonica.fr/temoignages',
   },
@@ -54,11 +54,11 @@ export default function TemoignagesPage() {
               Retours couples
             </p>
             <h1 className="text-4xl md:text-6xl font-serif text-mahogany mb-6">
-              Ils ont voyage avec nous
+              Ils ont voyagé avec nous
             </h1>
             <p className="text-charcoal/80 text-lg max-w-3xl leading-relaxed">
-              Chaque temoignage vient d&apos;un projet reel: un duo, une envie, un rythme.
-              Pas de promesse generique, uniquement du vecu et des resultats concrets.
+              Chaque témoignage vient d&apos;un projet réel : un duo, une envie, un rythme.
+              Pas de promesse générique, uniquement du vécu et des résultats concrets.
             </p>
           </div>
         </section>
@@ -93,18 +93,18 @@ export default function TemoignagesPage() {
               Ton projet slow travel
             </p>
             <h2 className="text-3xl md:text-4xl font-serif mb-5">
-              On construit ton itineraire sur mesure ?
+              On construit ton itinéraire sur mesure ?
             </h2>
             <p className="text-white/80 max-w-2xl mx-auto mb-8">
-              Tu partages ton contexte, on te propose un cadre clair, des pepites testees,
-              et un plan vraiment adapte a ton rythme.
+              Tu partages ton contexte, on te propose un cadre clair, des pépites testées,
+              et un plan vraiment adapté à ton rythme.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <Link
-                href="/travel-planning"
+                href="/travel-planning-form"
                 className="px-7 py-3 rounded-lg bg-teal text-charcoal font-semibold hover:bg-teal/90 transition-colors"
               >
-                Demarrer mon projet
+                Nous écrire
               </Link>
               <Link
                 href="/contact"
