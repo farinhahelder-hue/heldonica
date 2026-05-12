@@ -11,10 +11,8 @@ function b64url(input: Buffer | string): string {
 }
 
 function parseCredentials(raw: string): any {
-  // Supporte Base64 ET JSON brut
   let json = raw.trim();
   if (!json.startsWith('{')) {
-    // C'est du Base64 — on décode
     json = Buffer.from(json, 'base64').toString('utf-8');
   }
   return JSON.parse(json);
@@ -22,7 +20,7 @@ function parseCredentials(raw: string): any {
 
 async function getAccessToken(credentials: any): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
-  const header  = b64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
+  const header = b64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
   const payload = b64url(JSON.stringify({
     iss:   credentials.client_email,
     scope: 'https://www.googleapis.com/auth/analytics.readonly',
@@ -31,19 +29,13 @@ async function getAccessToken(credentials: any): Promise<string> {
     exp:   now + 3600,
   }));
   const signingInput = `${header}.${payload}`;
-
-  // Normalisation clé privée
   let pem: string = credentials.private_key;
   pem = pem.replace(/\\n/g, '\n').trim();
-
-  // Signature RSA-SHA256
   const sig = crypto.sign('SHA256', Buffer.from(signingInput), {
     key: pem,
     padding: crypto.constants.RSA_PKCS1_PADDING,
   });
-
   const jwt = `${signingInput}.${b64url(sig)}`;
-
   const res = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -52,96 +44,149 @@ async function getAccessToken(credentials: any): Promise<string> {
       assertion: jwt,
     }),
   });
-
   if (!res.ok) {
     const err = await res.text();
     throw new Error(`OAuth2 token error ${res.status}: ${err}`);
   }
-  return (await res.json()).access_token as string;
+  const { access_token } = await res.json();
+  return access_token;
+}
+
+async function runReport(token: string, propertyId: string, body: object) {
+  const res = await fetch(
+    `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`,
+    {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }
+  );
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`GA4 runReport error ${res.status}: ${err}`);
+  }
+  return res.json();
+}
+
+function metricVal(row: any, index: number): number {
+  return parseFloat(row?.metricValues?.[index]?.value ?? '0') || 0;
+}
+
+export async function GET() {
+  return NextResponse.json({ error: 'Method not allowed' }, { status: 405 });
 }
 
 export async function POST(request: NextRequest) {
+  const authError = await requireCmsAuth(request);
+  if (authError) return authError;
+
   try {
-    const authError = await requireCmsAuth(request);
-    if (authError) return authError;
-
-    const propertyId = process.env.GA4_PROPERTY_ID;
-    const keyRaw     = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
-
-    if (!propertyId || !keyRaw) {
-      return NextResponse.json({
-        demo: true, configured: false,
-        rows: [],
-        totals: { sessions: { value: 0 }, users: { value: 0 }, screenPageViews: { value: 0 }, bounceRate: { value: 0 } },
-        message: 'Configurer GA4_PROPERTY_ID et GOOGLE_SERVICE_ACCOUNT_KEY dans Vercel',
-      });
-    }
-
-    let credentials: any;
-    try {
-      credentials = parseCredentials(keyRaw);
-    } catch (e: any) {
-      console.error('Credentials parse error:', e.message);
-      return NextResponse.json({ success: false, error: `Credentials invalides: ${e.message}` }, { status: 500 });
-    }
+    const raw = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+    if (!raw) throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY manquante');
+    const credentials = parseCredentials(raw);
+    const propertyId = process.env.GA4_PROPERTY_ID || '508571761';
+    const { startDate = '30daysAgo', endDate = 'today' } = await request.json().catch(() => ({}));
+    const dateRanges = [{ startDate, endDate }];
 
     const token = await getAccessToken(credentials);
 
-    const body = await request.json().catch(() => ({}));
-    const startDate: string = body.startDate || '30daysAgo';
-    const endDate:   string = body.endDate   || 'today';
-
-    const gaRes = await fetch(
-      `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`,
-      {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          dateRanges: [{ startDate, endDate }],
-          dimensions: [{ name: 'pagePath' }],
-          metrics: [
-            { name: 'sessions' },
-            { name: 'activeUsers' },
-            { name: 'screenPageViews' },
-            { name: 'bounceRate' },
-          ],
-          orderBys: [{ desc: true, metric: { metricName: 'screenPageViews' } }],
-          limit: 10,
-        }),
-      }
-    );
-
-    if (!gaRes.ok) {
-      const errText = await gaRes.text();
-      console.error('GA4 API error:', gaRes.status, errText);
-      return NextResponse.json({ success: false, error: `GA4 API ${gaRes.status}: ${errText}` }, { status: 500 });
-    }
-
-    const data = await gaRes.json();
-    const rows: any[] = data.rows || [];
-    let s = 0, u = 0, pv = 0, br = 0;
-    rows.forEach((r: any) => {
-      s  += parseFloat(r.metricValues?.[0]?.value || '0');
-      u  += parseFloat(r.metricValues?.[1]?.value || '0');
-      pv += parseFloat(r.metricValues?.[2]?.value || '0');
-      br += parseFloat(r.metricValues?.[3]?.value || '0');
+    // ── Rapport 1 : métriques globales ──────────────────────────────
+    const overview = await runReport(token, propertyId, {
+      dateRanges,
+      metrics: [
+        { name: 'sessions' },
+        { name: 'activeUsers' },
+        { name: 'newUsers' },
+        { name: 'screenPageViews' },
+        { name: 'bounceRate' },
+        { name: 'averageSessionDuration' },
+        { name: 'screenPageViewsPerSession' },
+        { name: 'engagementRate' },
+      ],
     });
+
+    const ov = overview.totals?.[0]?.metricValues ?? overview.rows?.[0]?.metricValues ?? [];
+    const getOv = (i: number) => parseFloat(ov[i]?.value ?? '0') || 0;
+
+    // ── Rapport 2 : top pages ────────────────────────────────────────
+    const pagesData = await runReport(token, propertyId, {
+      dateRanges,
+      dimensions: [{ name: 'pagePath' }, { name: 'pageTitle' }],
+      metrics: [{ name: 'screenPageViews' }, { name: 'activeUsers' }],
+      orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }],
+      limit: 10,
+    });
+
+    const topPages = (pagesData.rows ?? []).map((row: any) => ({
+      path:  row.dimensionValues?.[0]?.value ?? '/',
+      title: row.dimensionValues?.[1]?.value ?? '',
+      views: metricVal(row, 0),
+      users: metricVal(row, 1),
+    }));
+
+    // ── Rapport 3 : sources de trafic ───────────────────────────────
+    const sourcesData = await runReport(token, propertyId, {
+      dateRanges,
+      dimensions: [{ name: 'sessionDefaultChannelGroup' }],
+      metrics: [{ name: 'sessions' }, { name: 'activeUsers' }],
+      orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
+      limit: 8,
+    });
+
+    const trafficSources = (sourcesData.rows ?? []).map((row: any) => ({
+      channel: row.dimensionValues?.[0]?.value ?? 'Direct',
+      sessions: metricVal(row, 0),
+      users:    metricVal(row, 1),
+    }));
+
+    // ── Rapport 4 : évolution quotidienne (30j) ──────────────────────
+    const dailyData = await runReport(token, propertyId, {
+      dateRanges,
+      dimensions: [{ name: 'date' }],
+      metrics: [{ name: 'sessions' }, { name: 'activeUsers' }, { name: 'screenPageViews' }],
+      orderBys: [{ dimension: { dimensionName: 'date' }, desc: false }],
+    });
+
+    const dailyChart = (dailyData.rows ?? []).map((row: any) => ({
+      date:     row.dimensionValues?.[0]?.value ?? '',
+      sessions: metricVal(row, 0),
+      users:    metricVal(row, 1),
+      views:    metricVal(row, 2),
+    }));
+
+    // ── Rapport 5 : appareils ────────────────────────────────────────
+    const devicesData = await runReport(token, propertyId, {
+      dateRanges,
+      dimensions: [{ name: 'deviceCategory' }],
+      metrics: [{ name: 'sessions' }],
+    });
+
+    const devices = (devicesData.rows ?? []).map((row: any) => ({
+      device:   row.dimensionValues?.[0]?.value ?? 'desktop',
+      sessions: metricVal(row, 0),
+    }));
 
     return NextResponse.json({
-      demo: false, configured: true, success: true,
-      rows: rows.map((r: any) => ({
-        dimensionValues: r.dimensionValues?.map((d: any) => ({ value: d.value })) || [],
-        metricValues:    r.metricValues?.map((m: any)  => ({ value: m.value }))  || [],
-      })),
+      success: true,
+      period: { startDate, endDate },
       totals: {
-        sessions:        { value: s },
-        users:           { value: u },
-        screenPageViews: { value: pv },
-        bounceRate:      { value: rows.length > 0 ? br / rows.length : 0 },
+        sessions:             { value: getOv(0) },
+        users:                { value: getOv(1) },
+        newUsers:             { value: getOv(2) },
+        screenPageViews:      { value: getOv(3) },
+        bounceRate:           { value: getOv(4) },
+        avgSessionDuration:   { value: getOv(5) },
+        pagesPerSession:      { value: getOv(6) },
+        engagementRate:       { value: getOv(7) },
       },
+      topPages,
+      trafficSources,
+      dailyChart,
+      devices,
     });
-  } catch (error: any) {
-    console.error('Analytics API Error:', error.message);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+
+  } catch (err: any) {
+    console.error('Analytics error:', err.message);
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
