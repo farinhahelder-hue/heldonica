@@ -31,16 +31,11 @@ async function getGoogleAccessToken(credentials: any): Promise<string> {
     privateKey = privateKey.replace(/\\n/g, '\n');
   }
 
-  // Create KeyObject to avoid OpenSSL 3 compatibility issues
-  const keyObject = crypto.createPrivateKey({
-    key: privateKey,
-    format: 'pem',
-  });
-
+    // Sign using private key directly (avoids OpenSSL 3 KeyObject parsing issues)
+  console.log('[GA4] key prefix:', privateKey.substring(0, 60).replace(/\n/g, '|'));
   const sign = crypto.createSign('SHA256');
   sign.update(signingInput);
-  sign.end();
-  const signature = sign.sign(keyObject);
+  const signature = sign.sign(privateKey);
 
   const jwt = `${signingInput}.${base64urlEncode(signature)}`;
 
