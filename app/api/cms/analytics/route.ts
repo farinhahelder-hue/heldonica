@@ -1,9 +1,67 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireCmsAuth } from '@/lib/cms-auth';
-import { GoogleAuth } from 'google-auth-library';
+import crypto from 'crypto';
 
-// Analytics API - uses GA4 Data API via REST (compatible with Vercel serverless)
+// Analytics API - uses GA4 Data API via REST with manual JWT signing
 // Environment: GA4_PROPERTY_ID, GOOGLE_SERVICE_ACCOUNT_KEY
+
+function base64urlEncode(input: Buffer | string): string {
+  const buf = typeof input === 'string' ? Buffer.from(input) : input;
+  return buf.toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+}
+
+async function getGoogleAccessToken(credentials: any): Promise<string> {
+  const now = Math.floor(Date.now() / 1000);
+  const header = { alg: 'RS256', typ: 'JWT' };
+  const payload = {
+    iss: credentials.client_email,
+    scope: 'https://www.googleapis.com/auth/analytics.readonly',
+    aud: 'https://oauth2.googleapis.com/token',
+    iat: now,
+    exp: now + 3600,
+  };
+
+  const headerB64 = base64urlEncode(JSON.stringify(header));
+  const payloadB64 = base64urlEncode(JSON.stringify(payload));
+  const signingInput = `${headerB64}.${payloadB64}`;
+
+  // Normalize private key: replace literal \n with actual newlines
+  let privateKey = credentials.private_key;
+  if (privateKey.includes('\\n')) {
+    privateKey = privateKey.replace(/\\n/g, '\n');
+  }
+
+  // Create KeyObject to avoid OpenSSL 3 compatibility issues
+  const keyObject = crypto.createPrivateKey({
+    key: privateKey,
+    format: 'pem',
+  });
+
+  const sign = crypto.createSign('SHA256');
+  sign.update(signingInput);
+  sign.end();
+  const signature = sign.sign(keyObject);
+
+  const jwt = `${signingInput}.${base64urlEncode(signature)}`;
+
+  // Exchange JWT for access token
+  const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+      assertion: jwt,
+    }),
+  });
+
+  if (!tokenRes.ok) {
+    const err = await tokenRes.text();
+    throw new Error(`Token exchange failed: ${err}`);
+  }
+
+  const tokenData = await tokenRes.json();
+  return tokenData.access_token;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,24 +72,15 @@ export async function POST(request: NextRequest) {
     const serviceAccountKeyRaw = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
 
     if (!propertyId || !serviceAccountKeyRaw) {
-      // Demo data (fallback if not configured)
       return NextResponse.json({
         demo: true,
         rows: [
-          { dimensionValues: [{ value: '/' }, { value: '1250' }] },
-          { dimensionValues: [{ value: '/a-propos' }, { value: '420' }] },
-          { dimensionValues: [{ value: '/services' }, { value: '380' }] },
-          { dimensionValues: [{ value: '/travel-planning' }, { value: '520' }] },
-          { dimensionValues: [{ value: '/blog' }, { value: '890' }] }
+          { dimensionValues: [{ value: '/' }], metricValues: [{ value: '1250' }, { value: '980' }, { value: '1250' }, { value: '0.42' }] },
+          { dimensionValues: [{ value: '/blog' }], metricValues: [{ value: '890' }, { value: '720' }, { value: '890' }, { value: '0.38' }] },
         ],
-        totals: {
-          sessions: { value: 4520 },
-          users: { value: 3240 },
-          screenPageViews: { value: 12450 },
-          bounceRate: { value: 0.42 }
-        },
+        totals: { sessions: { value: 4520 }, users: { value: 3240 }, screenPageViews: { value: 12450 }, bounceRate: { value: 0.42 } },
         configured: false,
-        message: 'Configurer GA4_PROPERTY_ID et GOOGLE_SERVICE_ACCOUNT_KEY dans Vercel pour des donnees reelles'
+        message: 'Configurer GA4_PROPERTY_ID et GOOGLE_SERVICE_ACCOUNT_KEY dans Vercel'
       });
     }
 
@@ -39,60 +88,39 @@ export async function POST(request: NextRequest) {
     try {
       credentials = JSON.parse(serviceAccountKeyRaw);
     } catch (e) {
-      console.error('Invalid GOOGLE_SERVICE_ACCOUNT_KEY format', e);
-      return NextResponse.json({ success: false, error: 'Configuration GA4 invalide (JSON)' }, { status: 500 });
+      return NextResponse.json({ success: false, error: 'GOOGLE_SERVICE_ACCOUNT_KEY JSON invalide' }, { status: 500 });
     }
 
-    // Normalize private key newlines
-    credentials.private_key = credentials.private_key.replace(/\\n/g, '\n');
-
-    // Use GoogleAuth with REST transport (no gRPC)
-    const auth = new GoogleAuth({
-      credentials,
-      scopes: ['https://www.googleapis.com/auth/analytics.readonly'],
-    });
-
-    const client = await auth.getClient();
-    const accessToken = await client.getAccessToken();
+    const accessToken = await getGoogleAccessToken(credentials);
 
     const body = await request.json().catch(() => ({}));
     const startDate = body.startDate || '30daysAgo';
     const endDate = body.endDate || 'today';
 
-    const apiUrl = `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`;
-
-    const gaResponse = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${accessToken.token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        dateRanges: [{ startDate, endDate }],
-        dimensions: [{ name: 'pagePath' }],
-        metrics: [
-          { name: 'sessions' },
-          { name: 'activeUsers' },
-          { name: 'screenPageViews' },
-          { name: 'bounceRate' },
-        ],
-        orderBys: [{ desc: true, metric: { metricName: 'screenPageViews' } }],
-        limit: 10,
-        returnPropertyQuota: false,
-        keepEmptyRows: false,
-      }),
-    });
+    const gaResponse = await fetch(
+      `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`,
+      {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dateRanges: [{ startDate, endDate }],
+          dimensions: [{ name: 'pagePath' }],
+          metrics: [{ name: 'sessions' }, { name: 'activeUsers' }, { name: 'screenPageViews' }, { name: 'bounceRate' }],
+          orderBys: [{ desc: true, metric: { metricName: 'screenPageViews' } }],
+          limit: 10,
+        }),
+      }
+    );
 
     if (!gaResponse.ok) {
       const errorText = await gaResponse.text();
       console.error('GA4 API error:', gaResponse.status, errorText);
-      return NextResponse.json({ success: false, error: `GA4 API error: ${gaResponse.status}` }, { status: 500 });
+      return NextResponse.json({ success: false, error: `GA4 API: ${gaResponse.status} - ${errorText}` }, { status: 500 });
     }
 
     const data = await gaResponse.json();
     const rows = data.rows || [];
 
-    // Compute totals by summing all rows
     let totalSessions = 0, totalUsers = 0, totalPageViews = 0, totalBounce = 0;
     rows.forEach((row: any) => {
       totalSessions += parseFloat(row.metricValues?.[0]?.value || '0');
