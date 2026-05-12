@@ -1162,35 +1162,130 @@ function CMSAdminInner() {
         )}
 
         {tab === 'analytics' && (
-          <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: '900px' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>📊 Analytics</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
-              {(['Sessions', 'Utilisateurs', 'Pages vues', 'Taux rebond'] as const).map((label, i) => {
-              const keys = ['sessions', 'users', 'screenPageViews', 'bounceRate'] as const;
-              const raw = analyticsData?.totals?.[keys[i]]?.value;
-              const display = raw != null ? (i === 3 ? `${(parseFloat(String(raw)) * 100).toFixed(1)}%` : String(raw)) : '--';
-              return (
-                <div key={label} style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
-                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{display}</p>
-                  <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>{label}</p>
+              <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: '960px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                  <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a', margin: 0 }}>📊 Analytics GA4</h2>
+                  <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
+                    {analyticsData?.period && <span style={{ fontSize: '.75rem', color: '#888', background: '#f5f5f5', padding: '.25rem .75rem', borderRadius: '1rem' }}>{analyticsData.period.startDate} → {analyticsData.period.endDate}</span>}
+                    <button onClick={async () => {
+                      setLoadingAnalytics(true);
+                      try {
+                        const res = await fetch('/api/cms/analytics', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ startDate: '30daysAgo', endDate: 'today' }) });
+                        const data = await res.json();
+                        setAnalyticsData(data);
+                      } catch (e) { console.error(e); }
+                      setLoadingAnalytics(false);
+                    }} disabled={loadingAnalytics}
+                    style={{ padding: '.5rem 1.25rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 600, cursor: 'pointer', fontSize: '.85rem' }}>
+                      {loadingAnalytics ? '⏳ Chargement…' : '🔄 Actualiser'}
+                    </button>
+                  </div>
                 </div>
-              );
-            })}
-            </div>
-            <button onClick={async () => {
-              setLoadingAnalytics(true);
-              try {
-                const res = await fetch('/api/cms/analytics', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ startDate: '30daysAgo', endDate: 'today' }) });
-                const data = await res.json();
-                setAnalyticsData(data);
-              } catch (e) { console.error(e); }
-              setLoadingAnalytics(false);
-            }} disabled={loadingAnalytics}
-              style={{ padding: '.7rem 1.5rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 600, cursor: 'pointer' }}>
-              {loadingAnalytics ? '⏳ Chargement…' : '🔄 Actualiser'}
-            </button>
-          </div>
-        )}
+
+                {/* KPIs principaux - ligne 1 */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+                  {([
+                    { key: 'sessions', label: 'Sessions', icon: '📈', fmt: (v: number) => v.toLocaleString('fr') },
+                    { key: 'users', label: 'Utilisateurs', icon: '👥', fmt: (v: number) => v.toLocaleString('fr') },
+                    { key: 'newUsers', label: 'Nv. utilisateurs', icon: '✨', fmt: (v: number) => v.toLocaleString('fr') },
+                    { key: 'screenPageViews', label: 'Pages vues', icon: '📄', fmt: (v: number) => v.toLocaleString('fr') },
+                  ] as const).map(({ key, label, icon, fmt }) => {
+                    const val = analyticsData?.totals?.[key]?.value ?? null;
+                    return (
+                      <div key={key} style={{ background: '#fdf8f6', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center', border: '1px solid #f0e8e4' }}>
+                        <div style={{ fontSize: '1.5rem', marginBottom: '.25rem' }}>{icon}</div>
+                        <p style={{ fontSize: '1.6rem', fontWeight: 700, color: '#6b2a1a', margin: '.25rem 0' }}>{val != null ? fmt(val) : '--'}</p>
+                        <p style={{ fontSize: '.7rem', color: '#999', textTransform: 'uppercase', letterSpacing: '.05em', margin: 0 }}>{label}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* KPIs secondaires - ligne 2 */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+                  {([
+                    { key: 'bounceRate', label: 'Taux rebond', icon: '↩️', fmt: (v: number) => `${(v*100).toFixed(1)}%` },
+                    { key: 'engagementRate', label: 'Taux engagement', icon: '💡', fmt: (v: number) => `${(v*100).toFixed(1)}%` },
+                    { key: 'avgSessionDuration', label: 'Durée moy. session', icon: '⏱️', fmt: (v: number) => { const m = Math.floor(v/60); const s = Math.round(v%60); return `${m}m${s < 10 ? '0' : ''}${s}s`; } },
+                    { key: 'pagesPerSession', label: 'Pages / session', icon: '📑', fmt: (v: number) => v.toFixed(2) },
+                  ] as const).map(({ key, label, icon, fmt }) => {
+                    const val = analyticsData?.totals?.[key]?.value ?? null;
+                    return (
+                      <div key={key} style={{ background: '#f6f9fd', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center', border: '1px solid #e4ecf5' }}>
+                        <div style={{ fontSize: '1.5rem', marginBottom: '.25rem' }}>{icon}</div>
+                        <p style={{ fontSize: '1.6rem', fontWeight: 700, color: '#1a4a6b', margin: '.25rem 0' }}>{val != null ? fmt(val) : '--'}</p>
+                        <p style={{ fontSize: '.7rem', color: '#999', textTransform: 'uppercase', letterSpacing: '.05em', margin: 0 }}>{label}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Top pages + Sources de trafic */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                  {/* Top pages */}
+                  <div style={{ background: '#fafafa', borderRadius: '.75rem', padding: '1.25rem', border: '1px solid #eee' }}>
+                    <h3 style={{ fontSize: '.9rem', fontWeight: 700, color: '#333', margin: '0 0 1rem' }}>🏆 Top pages</h3>
+                    {analyticsData?.topPages?.length > 0 ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
+                        {analyticsData.topPages.slice(0, 7).map((p: any, i: number) => (
+                          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '.8rem' }}>
+                            <span style={{ color: '#555', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '75%' }}>
+                              <span style={{ color: '#aaa', marginRight: '.4rem' }}>#{i+1}</span>{p.path}
+                            </span>
+                            <span style={{ fontWeight: 700, color: '#6b2a1a', marginLeft: '.5rem' }}>{p.views}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : <p style={{ fontSize: '.8rem', color: '#bbb', textAlign: 'center', margin: '1rem 0' }}>Cliquez Actualiser</p>}
+                  </div>
+
+                  {/* Sources de trafic */}
+                  <div style={{ background: '#fafafa', borderRadius: '.75rem', padding: '1.25rem', border: '1px solid #eee' }}>
+                    <h3 style={{ fontSize: '.9rem', fontWeight: 700, color: '#333', margin: '0 0 1rem' }}>🌐 Sources de trafic</h3>
+                    {analyticsData?.trafficSources?.length > 0 ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
+                        {analyticsData.trafficSources.map((s: any, i: number) => {
+                          const total = analyticsData.trafficSources.reduce((acc: number, x: any) => acc + x.sessions, 0);
+                          const pct = total > 0 ? Math.round((s.sessions / total) * 100) : 0;
+                          return (
+                            <div key={i} style={{ fontSize: '.8rem' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '.2rem' }}>
+                                <span style={{ color: '#555' }}>{s.channel}</span>
+                                <span style={{ fontWeight: 700, color: '#333' }}>{s.sessions} <span style={{ color: '#aaa', fontWeight: 400 }}>({pct}%)</span></span>
+                              </div>
+                              <div style={{ background: '#e8e8e8', borderRadius: '4px', height: '4px' }}>
+                                <div style={{ width: `${pct}%`, background: '#6b2a1a', borderRadius: '4px', height: '4px' }} />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : <p style={{ fontSize: '.8rem', color: '#bbb', textAlign: 'center', margin: '1rem 0' }}>Cliquez Actualiser</p>}
+                  </div>
+                </div>
+
+                {/* Appareils */}
+                {analyticsData?.devices?.length > 0 && (
+                  <div style={{ background: '#fafafa', borderRadius: '.75rem', padding: '1.25rem', border: '1px solid #eee' }}>
+                    <h3 style={{ fontSize: '.9rem', fontWeight: 700, color: '#333', margin: '0 0 1rem' }}>📱 Appareils</h3>
+                    <div style={{ display: 'flex', gap: '1.5rem' }}>
+                      {analyticsData.devices.map((d: any, i: number) => {
+                        const total = analyticsData.devices.reduce((acc: number, x: any) => acc + x.sessions, 0);
+                        const pct = total > 0 ? Math.round((d.sessions / total) * 100) : 0;
+                        const icons: Record<string,string> = { desktop: '🖥️', mobile: '📱', tablet: '📲' };
+                        return (
+                          <div key={i} style={{ textAlign: 'center' }}>
+                            <div style={{ fontSize: '1.5rem' }}>{icons[d.device] ?? '💻'}</div>
+                            <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#333' }}>{pct}%</div>
+                            <div style={{ fontSize: '.7rem', color: '#999', textTransform: 'capitalize' }}>{d.device}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
         {tab === 'search' && (
           <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: '900px' }}>
