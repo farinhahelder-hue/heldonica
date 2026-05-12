@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireCmsAuth } from '@/lib/cms-auth';
-import { BetaAnalyticsDataClient } from '@google-analytics/data';
+import { GoogleAuth } from 'google-auth-library';
 
-// Analytics API - returns real data if GA4 is configured, otherwise demo data.
+// Analytics API - uses GA4 Data API via REST (compatible with Vercel serverless)
 // Environment: GA4_PROPERTY_ID, GOOGLE_SERVICE_ACCOUNT_KEY
 
 export async function POST(request: NextRequest) {
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
           bounceRate: { value: 0.42 }
         },
         configured: false,
-        message: 'Configurer GA4_PROPERTY_ID et GOOGLE_SERVICE_ACCOUNT_KEY dans Vercel pour des données réelles'
+        message: 'Configurer GA4_PROPERTY_ID et GOOGLE_SERVICE_ACCOUNT_KEY dans Vercel pour des donnees reelles'
       });
     }
 
@@ -43,69 +43,75 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Configuration GA4 invalide (JSON)' }, { status: 500 });
     }
 
-    const analyticsDataClient = new BetaAnalyticsDataClient({
-      credentials: {
-        client_email: credentials.client_email,
-        private_key: credentials.private_key.replace(/\\n/g, '\n'),
-      },
+    // Normalize private key newlines
+    credentials.private_key = credentials.private_key.replace(/\\n/g, '\n');
+
+    // Use GoogleAuth with REST transport (no gRPC)
+    const auth = new GoogleAuth({
+      credentials,
+      scopes: ['https://www.googleapis.com/auth/analytics.readonly'],
     });
+
+    const client = await auth.getClient();
+    const accessToken = await client.getAccessToken();
 
     const body = await request.json().catch(() => ({}));
     const startDate = body.startDate || '30daysAgo';
     const endDate = body.endDate || 'today';
 
-    const [response] = await analyticsDataClient.runReport({
-      property: `properties/${propertyId}`,
-      dateRanges: [
-        {
-          startDate,
-          endDate,
-        },
-      ],
-      dimensions: [
-        {
-          name: 'pagePath',
-        },
-      ],
-      metrics: [
-        {
-          name: 'sessions',
-        },
-        {
-          name: 'activeUsers',
-        },
-        {
-          name: 'screenPageViews',
-        },
-        {
-          name: 'bounceRate',
-        },
-      ],
-      orderBys: [
-        {
-          desc: true,
-          metric: {
-            metricName: 'screenPageViews',
-          },
-        },
-      ],
-      limit: 10,
+    const apiUrl = `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`;
+
+    const gaResponse = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken.token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        dateRanges: [{ startDate, endDate }],
+        dimensions: [{ name: 'pagePath' }],
+        metrics: [
+          { name: 'sessions' },
+          { name: 'activeUsers' },
+          { name: 'screenPageViews' },
+          { name: 'bounceRate' },
+        ],
+        orderBys: [{ desc: true, metric: { metricName: 'screenPageViews' } }],
+        limit: 10,
+        returnPropertyQuota: false,
+        keepEmptyRows: false,
+      }),
     });
 
-    const rows = response.rows || [];
-    const totals = response.totals?.[0]?.metricValues || [];
+    if (!gaResponse.ok) {
+      const errorText = await gaResponse.text();
+      console.error('GA4 API error:', gaResponse.status, errorText);
+      return NextResponse.json({ success: false, error: `GA4 API error: ${gaResponse.status}` }, { status: 500 });
+    }
+
+    const data = await gaResponse.json();
+    const rows = data.rows || [];
+
+    // Compute totals by summing all rows
+    let totalSessions = 0, totalUsers = 0, totalPageViews = 0, totalBounce = 0;
+    rows.forEach((row: any) => {
+      totalSessions += parseFloat(row.metricValues?.[0]?.value || '0');
+      totalUsers += parseFloat(row.metricValues?.[1]?.value || '0');
+      totalPageViews += parseFloat(row.metricValues?.[2]?.value || '0');
+      totalBounce += parseFloat(row.metricValues?.[3]?.value || '0');
+    });
 
     return NextResponse.json({
       demo: false,
-      rows: rows.map(row => ({
-        dimensionValues: row.dimensionValues?.map(d => ({ value: d.value })) || [],
-        metricValues: row.metricValues?.map(m => ({ value: m.value })) || [],
+      rows: rows.map((row: any) => ({
+        dimensionValues: row.dimensionValues?.map((d: any) => ({ value: d.value })) || [],
+        metricValues: row.metricValues?.map((m: any) => ({ value: m.value })) || [],
       })),
       totals: {
-        sessions: { value: parseFloat(totals[0]?.value || '0') },
-        users: { value: parseFloat(totals[1]?.value || '0') },
-        screenPageViews: { value: parseFloat(totals[2]?.value || '0') },
-        bounceRate: { value: parseFloat(totals[3]?.value || '0') }
+        sessions: { value: totalSessions },
+        users: { value: totalUsers },
+        screenPageViews: { value: totalPageViews },
+        bounceRate: { value: rows.length > 0 ? totalBounce / rows.length : 0 },
       },
       configured: true,
       success: true,
