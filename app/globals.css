@@ -10,6 +10,11 @@
   box-sizing: border-box;
 }
 
+/* Supprime le ring bleu Tailwind par défaut */
+*, *:focus, *:focus-visible {
+  outline-color: transparent;
+}
+
 html {
   scroll-behavior: smooth;
 }
