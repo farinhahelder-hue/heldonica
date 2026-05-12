@@ -11,7 +11,7 @@ export default function MerciPage() {
           </svg>
         </div>
         <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-3">Demande bien reçue 🌿</p>
-        <h1 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-4">On est sur le coup !</h1>
+        <h1 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-4">C&apos;est bien reçu.</h1>
         <p className="text-stone-600 leading-relaxed mb-6">
           Ta demande est entre nos mains. On te répond <strong>sous 48h</strong> avec une proposition sur mesure.
         </p>
