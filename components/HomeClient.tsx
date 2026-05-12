@@ -403,9 +403,9 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               </div>
               <div data-reveal="right">
                 <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4">Food &amp; Lifestyle</p>
-                <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany leading-tight mb-4">Inspirations gourmandes</h2>
+                <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany leading-tight mb-4">Découvertes locales</h2>
                 <p className="text-base text-charcoal/70 leading-relaxed mb-6">
-                  On ne voyage pas seulement pour voir — on voyage pour goûter. Chaque destination révèle ses saveurs authentiques : les recettes portugaises transmises de génération en génération, les brasseries parisiennes que personne ne connaît encore.
+                  On ne voyage pas juste pour voir. On commande à côté des habitués, on rate parfois, et on revient jusqu&apos;à comprendre ce qui tient vraiment — une table, un marché, une adresse qu&apos;on aurait gardée pour soi.
                 </p>
                 <div className="space-y-4 mb-8">
                   {foodPosts.slice(0, 3).map((p) => (
@@ -422,7 +422,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   ))}
                 </div>
                 <Link href="/blog" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
-                  Découvrir toutes les recettes →
+                  Voir les découvertes locales →
                 </Link>
               </div>
             </div>
@@ -466,7 +466,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 Tu nous envoies tes contraintes réelles — temps, budget, énergie, envie. On transforme ça en séquence concrète, avec les adresses qu&apos;on a testées et l&apos;ordre qui a du sens sur le terrain.
               </p>
               <p className="text-charcoal/60 text-sm leading-relaxed mb-8">
-                Notre terrain naturel : les couples qui veulent ralentir sans s&apos;ennuyer, les solos qui cherchent du vrai, les familles qui en ont marre des parcs d&apos;attractions.
+                Notre terrain naturel : les couples qui veulent ralentir sans s&apos;ennuyer, les solos qui cherchent du vrai, les familles qui cherchent autre chose que les parcs d&apos;attractions.
               </p>
               <div className="flex flex-wrap gap-3">
                 <Link href="/travel-planning-form" 

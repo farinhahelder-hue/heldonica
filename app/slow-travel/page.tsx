@@ -1,4 +1,4 @@
-﻿import type { Metadata } from 'next'
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
@@ -53,7 +53,7 @@ export default function SlowTravelPage() {
             </h1>
             <p className="mx-auto max-w-2xl text-lg leading-relaxed text-stone-700">
               On ralentit pour mieux lire un lieu, mieux choisir un rythme, mieux sentir ce qui tient
-              vraiment. Ce n’est pas plus noble. C’est simplement plus juste.
+              vraiment. Ce n&apos;est pas une vertu — c&apos;est simplement plus juste.
             </p>
           </div>
         </section>
