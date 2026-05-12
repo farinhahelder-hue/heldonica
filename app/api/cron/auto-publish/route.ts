@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { postToInstagram } from '@/lib/instagram'
 
 let _cached: ReturnType<typeof createClient> | null = null;
 function supabaseAdmin() {
@@ -38,18 +37,18 @@ async function generateContentWithGroq(imageContext: string): Promise<any> {
   if (!apiKey) throw new Error("Missing GROQ_API_KEY");
 
   const prompt = `Tu es un expert en voyages "slow travel", hors des sentiers battus. Ton ton est chaleureux, expert, curieux, non-commercial, tu utilises le "on" (couple de voyageurs).
-Génère un article de blog et un post Instagram.
-${imageContext ? `IMPORTANT : Le sujet DOIT correspondre à l'image fournie, décrite par les mots clés suivants : "${imageContext}".` : `Choisis un sujet au hasard parmi des pépites cachées en Europe (ex: Madère, Roumanie, Zurich, Paris secret).`}
+G\u00e9n\u00e8re un article de blog et un post Instagram.
+${imageContext ? `IMPORTANT : Le sujet DOIT correspondre \u00e0 l'image fournie, d\u00e9crite par les mots cl\u00e9s suivants : "${imageContext}".` : `Choisis un sujet au hasard parmi des p\u00e9pites cach\u00e9es en Europe (ex: Mad\u00e8re, Roumanie, Zurich, Paris secret).`}
 
 Tu dois retourner UNIQUEMENT un objet JSON valide avec cette structure stricte :
 {
   "title": "Titre accrocheur",
   "slug": "slug-url-optimise",
-  "excerpt": "Un résumé accrocheur d'environ 2 phrases",
+  "excerpt": "Un r\u00e9sum\u00e9 accrocheur d'environ 2 phrases",
   "content": "<p>Contenu de l'article en HTML</p>...",
   "category": "Carnets Voyage",
-  "unsplashKeyword": "Mots clés en anglais pour chercher une photo (si pas de photo fournie)",
-  "instagramCaption": "Légende Instagram complète avec hashtags"
+  "unsplashKeyword": "Mots cl\u00e9s en anglais pour chercher une photo (si pas de photo fournie)",
+  "instagramCaption": "L\u00e9gende Instagram compl\u00e8te avec hashtags"
 }`;
 
   const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -78,7 +77,7 @@ export async function GET(req: Request) {
   }
 
   const sb = supabaseAdmin();
-  if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
+  if (!sb) return NextResponse.json({ error: 'Supabase non configur\u00e9' }, { status: 503 })
 
   let imageUrl: string | null = null;
   let fileToMove: string | null = null;
@@ -94,7 +93,6 @@ export async function GET(req: Request) {
         fileToMove = `${AUTO_PUBLISH_FOLDER}/${file.name}`;
         newFilePath = `articles/${file.name}`;
 
-        // Advance generation of new URL for DB insertion
         const { data: newUrlData } = sb.storage.from(BUCKET).getPublicUrl(newFilePath);
         imageUrl = newUrlData.publicUrl;
         imageContextForAi = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
@@ -122,6 +120,9 @@ export async function GET(req: Request) {
 
   let savedArticle = null;
   try {
+    // published = false : l'article arrive en brouillon dans le CMS.
+    // Relire, enrichir du v\u00e9cu terrain, puis publier manuellement.
+    // instagram_caption est sauvegard\u00e9 pour \u00e9dition avant envoi manuel.
     const payload: any = {
       title: generatedData.title,
       slug: generatedData.slug,
@@ -129,7 +130,8 @@ export async function GET(req: Request) {
       content: generatedData.content,
       category: generatedData.category || 'Carnets Voyage',
       featured_image: imageUrl,
-      published: true,
+      published: false,
+      instagram_caption: generatedData.instagramCaption || null,
       author: 'Heldonica',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
@@ -150,39 +152,25 @@ export async function GET(req: Request) {
     console.error("Error inserting article into database", err);
   }
 
-  // Defer physical file move until after the article was saved successfully.
   if (savedArticle && fileToMove && newFilePath) {
-     try {
-         const { error: moveError } = await sb.storage.from(BUCKET).move(fileToMove, newFilePath);
-         if (moveError) {
-           console.error(`Failed to move file from ${fileToMove} to ${newFilePath}`, moveError);
-         }
-     } catch (err) {
-         console.error("Error during file move", err);
-     }
+    try {
+      const { error: moveError } = await sb.storage.from(BUCKET).move(fileToMove, newFilePath);
+      if (moveError) {
+        console.error(`Failed to move file from ${fileToMove} to ${newFilePath}`, moveError);
+      }
+    } catch (err) {
+      console.error("Error during file move", err);
+    }
   }
 
-  let instagramPost = null;
-  try {
-    // If the file was not moved successfully because there was an error in saving the article,
-    // the image URL we use for Instagram might not exist yet if it was a Supabase image predicting the future path.
-    // However, Instagram needs a valid public URL. If the move failed, the image is still at `fileToMove`.
-    // For safety, let's just use whatever `imageUrl` is. If the move failed, Instagram might fail too,
-    // but the next cron run will retry the same image.
-    if (imageUrl && generatedData.instagramCaption) {
-      instagramPost = await postToInstagram(imageUrl, generatedData.instagramCaption);
-      if (!instagramPost) {
-         console.warn("Instagram posting returned null. Check INSTAGRAM_ACCESS_TOKEN and INSTAGRAM_BUSINESS_ACCOUNT_ID env variables.");
-      }
-    }
-  } catch (err) {
-     console.error("Error posting to Instagram", err);
-  }
+  // Instagram : d\u00e9sactiv\u00e9 ici.
+  // La l\u00e9gende est sauvegard\u00e9e dans instagram_caption du brouillon.
+  // Poster manuellement depuis le CMS apr\u00e8s relecture et \u00e9dition.
 
   return NextResponse.json({
     success: true,
     savedArticle,
-    instagramPost,
+    instagramPost: null,
     imageUrl,
     fileToMove,
     newFilePath
