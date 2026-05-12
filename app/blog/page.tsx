@@ -5,8 +5,7 @@ import Footer from '@/components/Footer'
 import BlogClientPage from '@/components/BlogClientPage'
 import Breadcrumb from '@/components/Breadcrumb'
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+export const revalidate = 60 // ⚡ Bolt: Use ISR to cache the blog list, improving TTFB significantly while keeping it fresh
 
 function calcReadTime(content: string | null): number {
   if (!content || typeof content !== 'string') return 0
