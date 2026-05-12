@@ -1167,7 +1167,7 @@ function CMSAdminInner() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
               {(['Sessions', 'Utilisateurs', 'Pages vues', 'Taux rebond'] as const).map((label, i) => {
               const keys = ['sessions', 'users', 'screenPageViews', 'bounceRate'] as const;
-              const raw = analyticsData?.[keys[i]]?.value;
+              const raw = analyticsData?.totals?.[keys[i]]?.value;
               const display = raw != null ? (i === 3 ? `${(parseFloat(String(raw)) * 100).toFixed(1)}%` : String(raw)) : '--';
               return (
                 <div key={label} style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
