@@ -10,6 +10,7 @@ const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 // GET /api/cms/carousel-history - List history
 // POST /api/cms/carousel-history - Save to history
 export async function GET(req: NextRequest) {
+  if (!supabase) return NextResponse.json({ error: 'DB unavailable' }, { status: 503 })
   try {
     const { data, error } = await supabase
       .from('cms_carousel_history')
@@ -26,6 +27,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  if (!supabase) return NextResponse.json({ error: 'DB unavailable' }, { status: 503 })
   try {
     const body = await req.json();
     const { data, error } = await supabase

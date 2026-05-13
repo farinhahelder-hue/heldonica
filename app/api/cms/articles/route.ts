@@ -54,14 +54,14 @@ export async function POST(req: Request) {
 
   let { data, error } = await sb
     .from('cms_blog_posts')
-    .insert([payload])
+    .insert([payload] as any)
     .select()
     .single()
 
   if (error?.message?.includes('voice_notes') && error.message.includes('does not exist')) {
     ;({ data, error } = await sb
       .from('cms_blog_posts')
-      .insert([withoutVoiceNotes(payload)])
+      .insert([withoutVoiceNotes(payload)] as any)
       .select()
       .single())
   }

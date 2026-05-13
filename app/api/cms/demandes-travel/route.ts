@@ -37,7 +37,7 @@ export async function PUT(req: Request) {
   const { id, statut } = await req.json()
   const { error } = await sb
     .from('demandes_travel')
-    .update({ statut })
+    .update({ statut } as any)
     .eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
