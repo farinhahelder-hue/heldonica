@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
     const sb = supabaseAdmin();
+    if (!sb) return NextResponse.json({ error: 'DB unavailable' }, { status: 503 })
 
     const { error } = await sb.storage.from(BUCKET).upload(path, buffer, {
       contentType: file.type || `image/${ext}`,

@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Sauvegarde Supabase
+    if (!supabase) return NextResponse.json({ error: 'DB unavailable' }, { status: 503 })
     const { error: dbError } = await supabase
       .from('travel_requests')
       .insert({

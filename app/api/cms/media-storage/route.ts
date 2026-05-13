@@ -3,14 +3,14 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-let _supabase: ReturnType<typeof createClient> | null = null;
+let supabase: ReturnType<typeof createClient> | null = null;
 function getSupabase() {
-  if (!_supabase) {
+  if (!supabase) {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (url && key) _supabase = createClient(url, key);
+    if (url && key) supabase = createClient(url, key);
   }
-  return _supabase;
+  return supabase;
 }
 
 const BUCKET = 'blog-images'
@@ -30,17 +30,19 @@ export async function GET(req: NextRequest) {
   if (authErr) return authErr
 
   try {
-    const { data, error } = await supabase.storage
+    const sb = getSupabase();
+    if (!sb) return NextResponse.json({ error: "DB unavailable" }, { status: 503 });
+    const { data, error } = await sb.storage
       .from(BUCKET)
       .list('', { limit: 100 })
 
     if (error) throw error
 
-    const files = (data || []).map(file => ({
+    const files = (data || []).map((file: any) => ({
       name: file.name,
       createdAt: file.created_at,
       size: file.metadata?.size || 0,
-      url: supabase.storage.from(BUCKET).getPublicUrl(file.name).data.publicUrl
+      url: sb.storage.from(BUCKET).getPublicUrl(file.name).data.publicUrl
     }))
 
     return NextResponse.json(files)
@@ -62,7 +64,9 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'Filename requis' }, { status: 400 })
     }
 
-    const { error } = await supabase.storage
+    const sb = getSupabase();
+    if (!sb) return NextResponse.json({ error: "DB unavailable" }, { status: 503 });
+    const { error } = await sb.storage
       .from(BUCKET)
       .remove([filename])
 

@@ -35,9 +35,10 @@ export async function PUT(req: Request) {
   const sb = supabase()
   if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
   const { id, statut } = await req.json()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await sb
     .from('demandes_travel')
-    .update({ statut })
+    .update({ statut } as any as never)
     .eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })

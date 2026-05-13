@@ -27,6 +27,7 @@ interface SearchableItem {
 
 async function semanticSearch(query: string, type: string = 'all', limit: number = 10): Promise<SearchableItem[]> {
   const results: SearchableItem[] = [];
+  if (!supabase) return results;
 
   // Search articles
   if (type === 'articles' || type === 'all') {
