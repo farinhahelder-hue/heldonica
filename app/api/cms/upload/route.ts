@@ -5,10 +5,10 @@ import { requireCmsAuth } from '@/lib/cms-auth'
 export const dynamic = 'force-dynamic'
 
 function supabase() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
-  )
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key);
 }
 
 export async function POST(req: Request) {
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
 
   try {
     const sb = supabase()
-  if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
+    if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
     const formData = await req.formData()
     const file = formData.get('file') as File
     const folder = (formData.get('folder') as string) || 'media'

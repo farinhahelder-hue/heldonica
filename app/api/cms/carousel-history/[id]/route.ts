@@ -12,6 +12,8 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   const authResponse = await requireCmsAuth(req);
   if (authResponse) return authResponse;
 
+  if (!supabase) return NextResponse.json({ error: 'DB unavailable' }, { status: 503 })
+
   try {
     const { error } = await supabase
       .from('cms_carousel_history')

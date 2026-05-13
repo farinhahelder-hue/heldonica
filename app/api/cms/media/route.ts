@@ -26,6 +26,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const sb = supabaseAdmin();
+    if (!sb) return NextResponse.json({ error: 'DB unavailable' }, { status: 503 })
     const { data, error } = await sb.storage.from(BUCKET).list(folder, {
       limit: 200,
       sortBy: { column: 'created_at', order: 'desc' },
@@ -72,6 +73,7 @@ export async function POST(req: NextRequest) {
     const contentType = imgRes.headers.get('content-type') || 'image/jpeg';
 
     const sb = supabaseAdmin();
+    if (!sb) return NextResponse.json({ error: 'DB unavailable' }, { status: 503 })
     const { error } = await sb.storage.from(BUCKET).upload(path, buffer, {
       contentType,
       upsert: true,
@@ -95,6 +97,7 @@ export async function DELETE(req: NextRequest) {
   if (!key) return NextResponse.json({ error: 'key requis' }, { status: 400 });
 
   const sb = supabaseAdmin();
+  if (!sb) return NextResponse.json({ error: 'DB unavailable' }, { status: 503 })
   const { error } = await sb.storage.from(BUCKET).remove([key]);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ success: true });

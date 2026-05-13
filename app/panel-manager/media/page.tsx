@@ -31,10 +31,6 @@ export default function MediaPage({ searchParams }: { searchParams: Record<strin
   const [googlePhotos, setGooglePhotos] = useState<GooglePhoto[]>([])
   const [loadingGoogle, setLoadingGoogle] = useState(false)
 
-  useEffect(() => {
-    if (pwd && tab === 'local') loadFiles()
-  }, [pwd, tab, loadFiles])
-
   function showToast(msg: string) {
     setToast(msg)
     setTimeout(() => setToast(''), 3000)
@@ -50,6 +46,10 @@ export default function MediaPage({ searchParams }: { searchParams: Record<strin
     } catch (e) { showToast('Erreur') }
     setLoading(false)
   }, [pwd])
+
+  useEffect(() => {
+    if (pwd && tab === 'local') loadFiles()
+  }, [pwd, tab, loadFiles])
 
   async function handleDelete(name: string) {
     if (!confirm('Supprimer ' + name + '?')) return
@@ -80,6 +80,19 @@ export default function MediaPage({ searchParams }: { searchParams: Record<strin
     window.location.href = authUrl
   }
 
+  const loadGooglePhotos = useCallback(async (token: string) => {
+    setLoadingGoogle(true)
+    try {
+      const res = await fetch('/api/cms/google-photos', {
+        headers: { 'x-google-access-token': token }
+      })
+      const data = await res.json()
+      if (res.ok) setGooglePhotos(data.photos || [])
+      else showToast(data.error || 'Erreur Google')
+    } catch (e) { showToast('Erreur') }
+    setLoadingGoogle(false)
+  }, [])
+
   useEffect(() => {
     const hash = window.location.hash
     if (hash && hash.includes('access_token')) {
@@ -93,19 +106,6 @@ export default function MediaPage({ searchParams }: { searchParams: Record<strin
       }
     }
   }, [pwd, loadGooglePhotos])
-
-  const loadGooglePhotos = useCallback(async (token: string) => {
-    setLoadingGoogle(true)
-    try {
-      const res = await fetch('/api/cms/google-photos', {
-        headers: { 'x-google-access-token': token }
-      })
-      const data = await res.json()
-      if (res.ok) setGooglePhotos(data.photos || [])
-      else showToast(data.error || 'Erreur Google')
-    } catch (e) { showToast('Erreur') }
-    setLoadingGoogle(false)
-  }, [])
 
   async function importFromGoogle(photo: GooglePhoto) {
     setImporting(photo.id)

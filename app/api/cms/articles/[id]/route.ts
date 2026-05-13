@@ -48,7 +48,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
   let { data, error } = await sb
     .from('cms_blog_posts')
-    .update(payload)
+    .update(payload as any)
     .eq('id', params.id)
     .select()
     .single()
@@ -56,7 +56,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   if (error?.message?.includes('voice_notes') && error.message.includes('does not exist')) {
     ;({ data, error } = await sb
       .from('cms_blog_posts')
-      .update(withoutVoiceNotes(payload))
+      .update(withoutVoiceNotes(payload) as any)
       .eq('id', params.id)
       .select()
       .single())
