@@ -200,7 +200,7 @@ export default function TravelPlanning() {
                 {
                   num: '04',
                   title: 'Logistique clé en main',
-                  desc: 'Transports, réservations, carnet de route PDF, contacts locaux. Tu n\'as plus qu\/à partir.',
+                  desc: 'Transports, réservations, carnet de route PDF, contacts locaux. Tu n\'as plus qu\'à partir.',
                 },
                 {
                   num: '05',
