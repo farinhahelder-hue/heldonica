@@ -38,7 +38,7 @@ export async function PUT(req: Request) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await sb
     .from('demandes_travel')
-    .update({ statut } as any as never)
+    .update({ statut } as any)
     .eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })

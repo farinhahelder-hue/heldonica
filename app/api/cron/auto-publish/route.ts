@@ -140,7 +140,7 @@ export async function GET(req: Request) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await sb
       .from('cms_blog_posts')
-      .insert([payload as any] as any)
+      .insert([payload] as any)
       .select()
       .single();
 

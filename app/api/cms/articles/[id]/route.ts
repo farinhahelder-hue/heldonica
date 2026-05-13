@@ -49,7 +49,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let { data, error } = await sb
     .from('cms_blog_posts')
-    .update(payload as any as never)
+    .update(payload as any)
     .eq('id', params.id)
     .select()
     .single()
@@ -58,7 +58,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;({ data, error } = await sb
       .from('cms_blog_posts')
-      .update(withoutVoiceNotes(payload) as any as never)
+      .update(withoutVoiceNotes(payload) as any)
       .eq('id', params.id)
       .select()
       .single())
