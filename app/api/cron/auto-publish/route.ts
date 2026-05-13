@@ -137,7 +137,6 @@ export async function GET(req: Request) {
       updated_at: new Date().toISOString()
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await sb
       .from('cms_blog_posts')
       .insert([payload] as any)
