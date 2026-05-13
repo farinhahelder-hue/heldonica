@@ -18,7 +18,7 @@ export const INSTAGRAM_STORIES: InstagramStory[] = [
     title: 'Brume de Fanal',
     location: 'Madere',
     permalink: 'https://www.instagram.com/heldonica/',
-    image: 'https://images.unsplash.com/photo-1560719887-fe3105fa1e55?w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
   },
   {
     id: 'story-madere-cabo',
