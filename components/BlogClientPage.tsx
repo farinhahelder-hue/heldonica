@@ -337,7 +337,7 @@ function SectionHeader({
   )
 }
 
-function ArticleCard({ post }: { post: BlogPost & { formattedDate: string } }) {
+function ArticleCard({ post }: { post: BlogPost & { formattedDate: string; readTime?: number } }) {
   const fallbackBg = CATEGORY_FALLBACK_BG[post.category ?? ''] ?? 'bg-cloud-dancer'
   const [imageSrc, setImageSrc] = useState(post.featured_image ?? null)
 
@@ -417,12 +417,12 @@ function ArticleCard({ post }: { post: BlogPost & { formattedDate: string } }) {
           <div className="mt-auto flex items-center justify-between border-t border-cloud-dancer pt-4 text-xs text-charcoal/40">
             <div className="flex items-center gap-2">
               <span>{post.author ?? 'Heldonica'}</span>
-              {post.readTime && post.readTime > 0 && (
+              {post.readTime && post.readTime > 0 ? (
                 <>
                   <span>•</span>
                   <span>{post.readTime} min</span>
                 </>
-              )}
+              ) : null}
             </div>
             <span className="font-semibold text-eucalyptus transition-transform duration-200 group-hover:translate-x-1">
               Lire →

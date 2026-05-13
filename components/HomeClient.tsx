@@ -93,8 +93,9 @@ function useCounter(target: number, duration = 1400, start = false) {
 function AnimatedStat({ nb, label, suffix = '' }: { nb: number | string; label: string; suffix?: string }) {
   const [started, setStarted] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
-  const isNum = typeof nb === 'number'
-  const count = useCounter(isNum ? nb : 0, 1400, started && isNum)
+  const isNum = typeof nb === 'number' || !isNaN(Number(nb))
+  const numericTarget = isNum ? Number(nb) : 0
+  const count = useCounter(numericTarget, 1400, started && isNum)
   useEffect(() => {
     const el = ref.current; if (!el) return
     const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setStarted(true); io.disconnect() } }, { threshold: 0.5 })
@@ -274,10 +275,10 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               </Link>
             </div>
             <div className="md:col-span-2 grid grid-cols-2 gap-6" data-reveal="right">
-              <AnimatedStat nb="10+" label="Ans de terrain en duo" />
-              <AnimatedStat nb="100+" label="Adresses vécues" />
+              <AnimatedStat nb={10} suffix="+" label="Ans de terrain en duo" />
+              <AnimatedStat nb={100} suffix="+" label="Adresses vécues" />
               <AnimatedStat nb={countryCount} label="Pays habités" />
-              <AnimatedStat nb={publishedArticles} suffix="" label="Carnets publiés" />
+              <AnimatedStat nb={publishedArticles} suffix="+" label="Carnets publiés" />
               <div className="col-span-2 mt-2">
                 <p className="text-xs text-charcoal/40 leading-relaxed">
                   <span className="font-semibold text-charcoal/70">Terrains de jeu :</span><br />

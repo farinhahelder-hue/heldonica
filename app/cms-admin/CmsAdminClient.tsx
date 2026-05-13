@@ -717,8 +717,21 @@ function CMSAdminInner() {
   return (
     <div style={{ minHeight: '100vh', background: '#f5f3ef', fontFamily: 'DM Sans, system-ui, sans-serif' }}>
       <style>{`
+        .cms-grid-kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .cms-layout-sidebar { display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem; align-items: start; }
+        .cms-mobile-tabs { display: flex; }
+        .cms-mobile-sidebar-panel { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: white; z-index: 50; padding: 2rem 1rem; box-shadow: 2px 0 12px rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: 0.5rem; transform: translateX(-100%); transition: transform 0.3s ease; overflow-y: auto; }
+        .cms-mobile-sidebar-panel.open { transform: translateX(0); }
+        .cms-top-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+        @media (max-width: 767px) {
+          .cms-layout-sidebar { grid-template-columns: 1fr; }
+          .cms-mobile-tabs { display: none !important; }
+        }
+
         @media (min-width: 768px) {
           [data-mobile-only="true"] { display: none !important; }
+          .cms-mobile-sidebar-panel { display: none !important; }
         }
       `}</style>
       {sidebarOpen && (
@@ -728,7 +741,33 @@ function CMSAdminInner() {
           data-mobile-only="true"
         />
       )}
-      <div style={{ background: '#6b2a1a', color: 'white', padding: '1rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 12px rgba(0,0,0,.15)' }}>
+      <div className={`cms-mobile-sidebar-panel ${sidebarOpen ? 'open' : ''}`}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', padding: '0 0.5rem' }}>
+          <span style={{ fontWeight: 700, fontSize: '1.2rem', color: '#6b2a1a' }}>🌍 Menu CMS</span>
+          <button onClick={() => setSidebarOpen(false)} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#6b2a1a' }}>✕</button>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {TABS.map(t => (
+            <button key={t.id}
+              onClick={() => { handleTabChange(t.id); setSidebarOpen(false); }}
+              style={{
+                padding: '1rem', border: 'none', background: tab === t.id ? '#f0e8e4' : 'transparent', cursor: 'pointer',
+                fontWeight: tab === t.id ? 700 : 500,
+                color: tab === t.id ? '#6b2a1a' : '#444',
+                borderRadius: '0.5rem',
+                fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', textAlign: 'left'
+              }}
+            >
+              {t.icon} {t.label}
+              {t.count !== null && t.count > 0 && (
+                <span style={{ background: '#6b2a1a', color: 'white', borderRadius: '9999px', padding: '.1rem .55rem', fontSize: '.75rem', fontWeight: 700, marginLeft: 'auto' }}>{t.count}</span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ background: '#6b2a1a', color: 'white', padding: '1rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 45, boxShadow: '0 2px 12px rgba(0,0,0,.15)' }}>
         <button onClick={() => setSidebarOpen(!sidebarOpen)}
           style={{ display: 'none', background: 'none', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer', marginRight: '0.5rem' }}
           data-mobile-only="true"
@@ -756,7 +795,7 @@ function CMSAdminInner() {
         />
       )}
 
-      <div style={{ background: 'white', borderBottom: '1.5px solid #e8e3dc', padding: '0 2rem', display: 'flex', gap: '.25rem', overflowX: 'auto' }}>
+      <div className="cms-mobile-tabs" style={{ background: 'white', borderBottom: '1.5px solid #e8e3dc', padding: '0 2rem', display: 'flex', gap: '.25rem', overflowX: 'auto' }}>
         {TABS.map(t => (
           <button key={t.id}
             onClick={() => handleTabChange(t.id)}
@@ -782,7 +821,7 @@ function CMSAdminInner() {
           <div>
             <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>🏠 Tableau de bord</h2>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+              <div className="cms-grid-kpi">
                 <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
                   <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{articles.filter(a => a.published).length}</p>
                   <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Articles publiés</p>
@@ -800,7 +839,7 @@ function CMSAdminInner() {
                   <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Paramètres</p>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+              <div className="cms-top-actions">
                 <button onClick={() => openArticleEditor({})} style={{ padding: '.7rem 1.5rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>+ Nouvel article</button>
                 <button onClick={() => setTab('blog')} style={{ padding: '.7rem 1.5rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>✨ Générateur IA</button>
                 <button onClick={() => setTab('demandes')} style={{ padding: '.7rem 1.5rem', background: '#444', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>✈️ Travel Planning</button>
@@ -1027,7 +1066,7 @@ function CMSAdminInner() {
         {tab === 'pages' && (
           <div>
             {loadingSettings ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p> : (
-              <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '1.5rem', alignItems: 'start' }}>
+              <div className="cms-layout-sidebar">
                 <div style={{ background: 'white', borderRadius: '1rem', padding: '1rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
                   {Object.entries(PAGES_CONFIG).map(([key, cfg]) => (
                     <button key={key} onClick={() => setActivePage(key)}
@@ -1183,7 +1222,7 @@ function CMSAdminInner() {
                 </div>
 
                 {/* KPIs principaux - ligne 1 */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+                <div className="cms-grid-kpi">
                   {([
                     { key: 'sessions', label: 'Sessions', icon: '📈', fmt: (v: number) => v.toLocaleString('fr') },
                     { key: 'users', label: 'Utilisateurs', icon: '👥', fmt: (v: number) => v.toLocaleString('fr') },
@@ -1202,7 +1241,7 @@ function CMSAdminInner() {
                 </div>
 
                 {/* KPIs secondaires - ligne 2 */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+                <div className="cms-grid-kpi">
                   {([
                     { key: 'bounceRate', label: 'Taux rebond', icon: '↩️', fmt: (v: number) => `${(v*100).toFixed(1)}%` },
                     { key: 'engagementRate', label: 'Taux engagement', icon: '💡', fmt: (v: number) => `${(v*100).toFixed(1)}%` },
@@ -1221,7 +1260,7 @@ function CMSAdminInner() {
                 </div>
 
                 {/* Top pages + Sources de trafic */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                <div className="cms-grid-kpi">
                   {/* Top pages */}
                   <div style={{ background: '#fafafa', borderRadius: '.75rem', padding: '1.25rem', border: '1px solid #eee' }}>
                     <h3 style={{ fontSize: '.9rem', fontWeight: 700, color: '#333', margin: '0 0 1rem' }}>🏆 Top pages</h3>
@@ -1317,7 +1356,7 @@ function CMSAdminInner() {
         {tab === 'settings' && (
           <div>
             {loadingSettings ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p> : (
-              <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '1.5rem', alignItems: 'start' }}>
+              <div className="cms-layout-sidebar">
                 <div style={{ background: 'white', borderRadius: '1rem', padding: '1rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
                   {Object.entries(SETTINGS_GROUPS).map(([key, cfg]) => (
                     <button key={key} onClick={() => setSettingsGroup(key)}
