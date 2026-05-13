@@ -46,7 +46,6 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   const body = await req.json()
   const payload = { ...body, updated_at: new Date().toISOString() }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let { data, error } = await sb
     .from('cms_blog_posts')
     .update(payload as any)
@@ -55,7 +54,6 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     .single()
 
   if (error?.message?.includes('voice_notes') && error.message.includes('does not exist')) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;({ data, error } = await sb
       .from('cms_blog_posts')
       .update(withoutVoiceNotes(payload) as any)
