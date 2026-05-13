@@ -47,9 +47,9 @@ const pepites = [
 ]
 
 const navLinks = [
+  { label: 'Destinations', href: '/destinations' },
+  { label: 'Portugal', href: '/destinations/portugal' },
   { label: 'Madere', href: '/destinations/madere' },
-  { label: 'Budget', href: '/destinations/madere/budget' },
-  { label: 'Itineraire', href: '/destinations/madere/itineraire-7-jours' },
 ]
 
 export default function FunchalPage() {
@@ -136,24 +136,24 @@ export default function FunchalPage() {
           <section className="mb-12">
             <h2 className="text-2xl font-serif text-stone-900 mb-6">Aproximité</h2>
             <div className="grid gap-4 md:grid-cols-3">
-              <Link href="/destinations/madere" className="p-4 bg-stone-100 rounded-lg text-center hover:bg-amber-100">
-                <span className="text-stone-700">Cabo Girao</span>
-                <span className="block text-xs text-stone-500 mt-1">~20 min</span>
+              <Link href="/destinations/madere" className="p-4 bg-stone-100 rounded-lg text-center hover:bg-amber-100 transition-colors">
+                <span className="text-stone-700">Madère</span>
+                <span className="block text-xs text-stone-500 mt-1">Île</span>
               </Link>
-              <Link href="/destinations/madere" className="p-4 bg-stone-100 rounded-lg text-center hover:bg-amber-100">
-                <span className="text-stone-700">Porto Moniz</span>
-                <span className="block text-xs text-stone-500 mt-1">~40 min</span>
+              <Link href="/destinations/portugal" className="p-4 bg-stone-100 rounded-lg text-center hover:bg-amber-100 transition-colors">
+                <span className="text-stone-700">Portugal</span>
+                <span className="block text-xs text-stone-500 mt-1">~2h vol</span>
               </Link>
-              <Link href="/destinations/madere" className="p-4 bg-stone-100 rounded-lg text-center hover:bg-amber-100">
-                <span className="text-stone-700">Ribeiro Frio</span>
-                <span className="block text-xs text-stone-500 mt-1">~25 min</span>
-              </Link>
+              <div className="p-4 bg-stone-100 rounded-lg text-center">
+                <span className="text-stone-700">Porto</span>
+                <span className="block text-xs text-stone-500 mt-1">~1h45 vol</span>
+              </div>
             </div>
           </section>
 
           <section>
-            <Link href="/destinations/madere" className="text-amber-700 hover:underline">
-              ← Retour Madere
+            <Link href="/destinations/portugal" className="text-amber-700 hover:underline">
+              ← Retour Portugal
             </Link>
           </section>
         </div>
