@@ -52,16 +52,18 @@ export async function POST(req: Request) {
   const body = await req.json()
   const payload = { ...body, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let { data, error } = await sb
     .from('cms_blog_posts')
-    .insert([payload])
+    .insert([payload as any] as any)
     .select()
     .single()
 
   if (error?.message?.includes('voice_notes') && error.message.includes('does not exist')) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;({ data, error } = await sb
       .from('cms_blog_posts')
-      .insert([withoutVoiceNotes(payload)])
+      .insert([withoutVoiceNotes(payload) as any] as any)
       .select()
       .single())
   }

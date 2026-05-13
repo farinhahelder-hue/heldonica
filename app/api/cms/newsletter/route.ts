@@ -9,6 +9,7 @@ const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
 // POST /api/cms/newsletter - Subscribe email
 export async function POST(req: NextRequest) {
+  if (!supabase) return NextResponse.json({ error: 'DB unavailable' }, { status: 503 })
   try {
     const { email, source } = await req.json();
     
@@ -54,6 +55,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
   
+  if (!supabase) return NextResponse.json({ error: 'DB unavailable' }, { status: 503 })
+
   try {
     const { data, error } = await supabase
       .from('cms_newsletter')
