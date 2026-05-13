@@ -55,7 +55,7 @@ export async function POST(req: Request) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let { data, error } = await sb
     .from('cms_blog_posts')
-    .insert([payload as any] as any)
+    .insert([payload] as any)
     .select()
     .single()
 
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;({ data, error } = await sb
       .from('cms_blog_posts')
-      .insert([withoutVoiceNotes(payload) as any] as any)
+      .insert([withoutVoiceNotes(payload)] as any)
       .select()
       .single())
   }
