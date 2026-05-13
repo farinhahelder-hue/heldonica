@@ -56,6 +56,7 @@ const pepites = [
 
 const navLinks = [
   { label: 'Destinations', href: '/destinations' },
+  { label: 'Roumanie', href: '/destinations/roumanie' },
 ]
 
 export default function TimisoaraPage() {
@@ -144,24 +145,24 @@ export default function TimisoaraPage() {
           <section className="mb-12">
             <h2 className="text-2xl font-serif text-stone-900 mb-6">Aproximité</h2>
             <div className="grid gap-4 md:grid-cols-3">
+              <Link href="/destinations/roumanie" className="p-4 bg-stone-100 rounded-lg text-center hover:bg-amber-100 transition-colors">
+                <span className="text-stone-700">Roumanie</span>
+                <span className="block text-xs text-stone-500 mt-1">~2h vol</span>
+              </Link>
               <div className="p-4 bg-stone-100 rounded-lg text-center">
-                <span className="text-stone-700">Bucarest</span>
-                <span className="block text-xs text-stone-500 mt-1">~6h train</span>
+                <span className="text-stone-700">Hongrie</span>
+                <span className="block text-xs text-stone-500 mt-1">~5h bus</span>
               </div>
               <div className="p-4 bg-stone-100 rounded-lg text-center">
-                <span className="text-stone-700">Sibiu</span>
-                <span className="block text-xs text-stone-500 mt-1">~3h train</span>
-              </div>
-              <div className="p-4 bg-stone-100 rounded-lg text-center">
-                <span className="text-stone-700">Cluj</span>
-                <span className="block text-xs text-stone-500 mt-1">~3h bus</span>
+                <span className="text-stone-700">Serbie</span>
+                <span className="block text-xs text-stone-500 mt-1">~4h bus</span>
               </div>
             </div>
           </section>
 
           <section>
-            <Link href="/destinations" className="text-amber-700 hover:underline">
-              ← Retour Destinations
+            <Link href="/destinations/roumanie" className="text-amber-700 hover:underline">
+              ← Retour Roumanie
             </Link>
           </section>
         </div>
