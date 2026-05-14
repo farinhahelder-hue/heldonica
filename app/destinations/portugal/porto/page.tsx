@@ -41,7 +41,7 @@ export default function PortoPage() {
             <p className="text-lg text-stone-700">Porto, c est le nord. Le vin, le fleuve, les couleurs.</p>
           </section>
           <section className="mb-8 grid md:grid-cols-3 gap-4">
-            {peptides.map((p, i) => (
+            {pepites.map((p, i) => (
               <div key={i} className="p-4 bg-white rounded-lg border">
                 <div className="text-xl mb-2">{p.icon}</div>
                 <h3 className="font-serif">{p.title}</h3>
