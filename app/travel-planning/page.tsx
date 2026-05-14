@@ -89,7 +89,7 @@ export default function TravelPlanning() {
               On a appris à voyager vrai.<br />
               <em className="text-amber-300">Maintenant on met ça au service du tien.</em>
             </h1>
-            <p className="fade-up-3 text-base md:text-xl text-stone-300 max-w-2xl mx-auto leading-relaxed mb-10">
+            <p className="fade-up-3 text-base md:text-xl text-white max-w-2xl mx-auto leading-relaxed mb-10">
               Pas des itinéraires copiés sur des blogs. Des voyages conçus sur mesure, comme on aurait voulu qu&apos;on nous guide — lents, sensoriels, mémorables.
             </p>
             <div className="fade-up-4 flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -97,11 +97,32 @@ export default function TravelPlanning() {
                 className="px-8 py-4 bg-amber-800 hover:bg-amber-700 text-white rounded font-semibold text-sm tracking-wide transition shadow-lg">
                 Nous écrire
               </Link>
-              <p className="text-stone-400 text-xs">Sans engagement · Réponse sous 48h</p>
+              <p className="text-white/70 text-xs">Sans engagement · Réponse sous 48h</p>
             </div>
             <div className="mt-8 inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-2">
               <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
               <span className="text-white/80 text-xs font-medium">Places limitées — on travaille en petit nombre pour garder la qualité</span>
+            </div>
+            {/* Persona Cards */}
+            <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto">
+              <div className="bg-white/15 border border-white/20 rounded-xl px-4 py-4 text-left">
+                <p className="text-amber-300 text-xs font-bold uppercase tracking-widest mb-1">Couples aventuriers</p>
+                <p className="text-white/80 text-xs leading-relaxed">
+                  Ralentir sans s'ennuyer, garder le hors-sentiers sans perdre le fil. Notre terrain naturel.
+                </p>
+              </div>
+              <div className="bg-white/15 border border-white/20 rounded-xl px-4 py-4 text-left">
+                <p className="text-amber-300 text-xs font-bold uppercase tracking-widest mb-1">Solos &amp; familles</p>
+                <p className="text-white/80 text-xs leading-relaxed">
+                  Solo qui cherche du vrai, famille en quête d'autre chose — même exigence, rythme adapté.
+                </p>
+              </div>
+              <div className="bg-white/15 border border-white/20 rounded-xl px-4 py-4 text-left">
+                <p className="text-amber-300 text-xs font-bold uppercase tracking-widest mb-1">Groupes d'amis</p>
+                <p className="text-white/80 text-xs leading-relaxed">
+                  Évasion entre amis hors des circuits classiques — on garde l'essence, on perd le touristique.
+                </p>
+              </div>
             </div>
           </div>
         </section>

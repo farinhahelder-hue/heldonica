@@ -41,8 +41,8 @@ const pepites = [
     address: 'Camembert',
   },
   {
-    title: 'Villages du</title>
-    description: 'Beuzeval, Blangy, Pont-l Eveque. Rues pietonnes, maisons a colombages.',
+    title: 'Villages du pays d\'Auge',
+    description: 'Beuzeval, Blangy, Pont-l\'Evêque. Rues pietonnes, maisons a colombages.',
     icon: '🏘️',
     address: 'Multiple',
   },

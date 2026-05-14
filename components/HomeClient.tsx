@@ -203,10 +203,23 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
 
       {/* ── HERO ──────────────────────────────────────────────────────────── */}
       <section className="relative h-[85vh] md:h-screen bg-black flex items-end overflow-hidden">
-        <video autoPlay muted loop playsInline preload="auto"
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
           className="absolute inset-0 w-full h-full object-cover opacity-45"
-          src="https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4"
-        />
+          poster="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1600&q=80"
+        >
+          <source src="https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4" type="video/mp4" />
+          {/* Fallback if video fails to load */}
+          <img 
+            src="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1600&q=80"
+            alt="Heldonica hero"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        </video>
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
         <div className="relative z-20 px-5 md:px-16 pb-12 md:pb-24 max-w-4xl">
           <p className="text-teal text-xs font-semibold tracking-[0.2em] uppercase mb-5"
