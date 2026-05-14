@@ -41,8 +41,8 @@ const pepites = [
     address: 'Camembert',
   },
   {
-    title: 'Villages du</title>
-    description: 'Beuzeval, Blangy, Pont-l Eveque. Rues pietonnes, maisons a colombages.',
+    title: 'Villages du Pays d\'Auge',
+    description: 'Beuzeval, Blangy, Pont-l\'Évêque. Rues piétonnes, maisons à colombages.',
     icon: '🏘️',
     address: 'Multiple',
   },
@@ -102,7 +102,7 @@ export default function PaysDaugePage() {
               Ce qu on a deniché
             </h2>
             <div className="grid gap-6 md:grid-cols-2">
-              {peptides.map((pepite, idx) => (
+              {pepites.map((pepite, idx) => (
                 <div key={idx} className="p-6 bg-white rounded-lg border border-stone-200">
                   <div className="text-2xl mb-2">{pepite.icon}</div>
                   <h3 className="font-serif text-lg text-stone-900 mb-2">

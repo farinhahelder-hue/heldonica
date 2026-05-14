@@ -41,7 +41,7 @@ export default function TransylvaniePage() {
             <p className="text-lg text-stone-700">La Transylvanie, c est la legende. Mais en vrai, ce sont des villages magnifiques.</p>
           </section>
           <section className="mb-8 grid md:grid-cols-3 gap-4">
-            {peptides.map((p, i) => (
+            {pepites.map((p, i) => (
               <div key={i} className="p-4 bg-white rounded-lg border">
                 <div className="text-xl mb-2">{p.icon}</div>
                 <h3 className="font-serif">{p.title}</h3>

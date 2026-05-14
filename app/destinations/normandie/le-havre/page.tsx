@@ -118,7 +118,7 @@ export default function LeHavrePage() {
               Ce qu on a déniché
             </h2>
             <div className="grid gap-6 md:grid-cols-2">
-              {peptides.map((pepite, idx) => (
+              {pepites.map((pepite, idx) => (
                 <div
                   key={idx}
                   className="p-6 bg-white rounded-lg border border-stone-200"
