@@ -29,6 +29,9 @@ async function semanticSearch(query: string, type: string = 'all', limit: number
   const results: SearchableItem[] = [];
   if (!supabase) throw new Error('Supabase unavailable');
 
+  const queryLower = query.toLowerCase();
+  const queryWords = queryLower.split(/\s+/);
+
   // Search articles
   if (type === 'articles' || type === 'all') {
     const { data: articles, error } = await supabase
@@ -39,16 +42,16 @@ async function semanticSearch(query: string, type: string = 'all', limit: number
 
     if (!error && articles) {
       for (const article of articles) {
-        const text = `${article.title} ${article.excerpt} ${article.content || ''}`.toLowerCase();
-        const queryLower = query.toLowerCase();
+        const titleLower = article.title?.toLowerCase() || '';
+        const excerptLower = article.excerpt?.toLowerCase() || '';
+        const contentLower = article.content?.toLowerCase() || '';
         
         // Simple keyword scoring
-        const queryWords = queryLower.split(/\s+/);
         let score = 0;
         for (const word of queryWords) {
-          if (article.title?.toLowerCase().includes(word)) score += 10;
-          if (article.excerpt?.toLowerCase().includes(word)) score += 5;
-          if (article.content?.toLowerCase().includes(word)) score += 1;
+          if (titleLower.includes(word)) score += 10;
+          if (excerptLower.includes(word)) score += 5;
+          if (contentLower.includes(word)) score += 1;
         }
         
         if (score > 0) {
@@ -75,15 +78,15 @@ async function semanticSearch(query: string, type: string = 'all', limit: number
 
     if (!error && demandes) {
       for (const d of demandes) {
-        const text = `${d.nom} ${d.email} ${d.pays_destination} ${d.type_sejour}`.toLowerCase();
-        const queryLower = query.toLowerCase();
+        const nomLower = d.nom?.toLowerCase() || '';
+        const paysDestinationLower = d.pays_destination?.toLowerCase() || '';
+        const typeSejourLower = d.type_sejour?.toLowerCase() || '';
         
-        const queryWords = queryLower.split(/\s+/);
         let score = 0;
         for (const word of queryWords) {
-          if (d.nom?.toLowerCase().includes(word)) score += 5;
-          if (d.pays_destination?.toLowerCase().includes(word)) score += 10;
-          if (d.type_sejour?.toLowerCase().includes(word)) score += 8;
+          if (nomLower.includes(word)) score += 5;
+          if (paysDestinationLower.includes(word)) score += 10;
+          if (typeSejourLower.includes(word)) score += 8;
         }
 
         if (score > 0) {
