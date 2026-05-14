@@ -5,20 +5,33 @@ import crypto from 'crypto';
 // Analytics API - GA4 REST + JWT
 // GOOGLE_SERVICE_ACCOUNT_KEY = contenu JSON brut OU encodé en Base64
 
+interface GoogleServiceAccountCredentials {
+  type?: string;
+  project_id?: string;
+  private_key_id?: string;
+  private_key: string;
+  client_email: string;
+  client_id?: string;
+  auth_uri?: string;
+  token_uri?: string;
+  auth_provider_x509_cert_url?: string;
+  client_x509_cert_url?: string;
+}
+
 function b64url(input: Buffer | string): string {
   const buf = typeof input === 'string' ? Buffer.from(input) : input;
   return buf.toString('base64url');
 }
 
-function parseCredentials(raw: string): any {
+function parseCredentials(raw: string): GoogleServiceAccountCredentials {
   let json = raw.trim();
   if (!json.startsWith('{')) {
     json = Buffer.from(json, 'base64').toString('utf-8');
   }
-  return JSON.parse(json);
+  return JSON.parse(json) as GoogleServiceAccountCredentials;
 }
 
-async function getAccessToken(credentials: any): Promise<string> {
+async function getAccessToken(credentials: GoogleServiceAccountCredentials): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
   const header = b64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
   const payload = b64url(JSON.stringify({
