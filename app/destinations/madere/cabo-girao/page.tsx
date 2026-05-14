@@ -41,7 +41,7 @@ export default function CaboGiraoPage() {
             </p>
           </section>
           <section className="mb-8 grid md:grid-cols-2 gap-4">
-            {pepites.map((p, i) => (
+            {peptides.map((p, i) => (
               <div key={i} className="p-4 bg-white rounded-lg border">
                 <div className="text-xl mb-2">{p.icon}</div>
                 <h3 className="font-serif">{p.title}</h3>
