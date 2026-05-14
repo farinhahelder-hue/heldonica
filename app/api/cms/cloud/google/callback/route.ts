@@ -34,7 +34,6 @@ export async function POST(req: NextRequest) {
     const tokens = await tokenResponse.json();
     
     if (tokens.access_token) {
-      console.log('Google OAuth: Token exchange successful');
       return NextResponse.json({ 
         success: true,
         accessToken: tokens.access_token,
