@@ -192,7 +192,10 @@ export default function SlowTravelQuiz() {
     setCurrentQuestion(0);
   };
 
-  const progress = Math.round((answers.length / questions.length) * 100);
+  // FIX: progress basé sur currentQuestion (0→N-1) pour être synchronisé avec l'affichage
+  const progress = Math.round((currentQuestion / questions.length) * 100);
+  // Question courante sécurisée pour ne jamais dépasser le tableau
+  const safeQuestion = questions[Math.min(currentQuestion, questions.length - 1)];
 
   return (
     <section className="rounded-2xl border border-stone-200 bg-white p-6 md:p-8 shadow-sm">
@@ -224,10 +227,10 @@ export default function SlowTravelQuiz() {
           </div>
 
           <p className="font-semibold text-charcoal mb-4">
-            {questions[currentQuestion].title}
+            {safeQuestion.title}
           </p>
           <div className="space-y-3">
-            {questions[currentQuestion].options.map((option) => (
+            {safeQuestion.options.map((option) => (
               <button
                 type="button"
                 key={option.label}
