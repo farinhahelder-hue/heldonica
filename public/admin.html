@@ -565,6 +565,17 @@
         let currentBlogId = null;
         let currentDestinationId = null;
 
+        // ===== UTILITIES =====
+        function escapeHTML(str) {
+            if (typeof str !== 'string') return str;
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
         // ===== LOAD/SAVE DATA =====
         function loadData() {
             const saved = localStorage.getItem('heldonicaCMS');
@@ -645,12 +656,12 @@
         function renderPagesList() {
             const list = document.getElementById('pagesList');
             list.innerHTML = cmsData.pages.map(page => `
-                <div class="list-item ${currentPageId === page.id ? 'active' : ''}" onclick="selectPage('${page.id}')">
+                <div class="list-item ${currentPageId === page.id ? 'active' : ''}" data-id="${escapeHTML(page.id)}" onclick="selectPage(this.dataset.id)">
                     <div>
-                        <strong>${page.title}</strong>
-                        <br><small style="color: #666;">/${page.slug}</small>
+                        <strong>${escapeHTML(page.title)}</strong>
+                        <br><small style="color: #666;">/${escapeHTML(page.slug)}</small>
                     </div>
-                    <button class="btn btn-danger btn-small" onclick="deletePage('${page.id}'); event.stopPropagation();">✕</button>
+                    <button class="btn btn-danger btn-small" onclick="deletePage(this.closest('.list-item').dataset.id); event.stopPropagation();">✕</button>
                 </div>
             `).join('');
         }
@@ -706,12 +717,12 @@
         function renderSectionsList() {
             const list = document.getElementById('sectionsList');
             list.innerHTML = cmsData.sections.map(section => `
-                <div class="list-item ${currentSectionId === section.id ? 'active' : ''}" onclick="selectSection('${section.id}')">
+                <div class="list-item ${currentSectionId === section.id ? 'active' : ''}" data-id="${escapeHTML(section.id)}" onclick="selectSection(this.dataset.id)">
                     <div>
-                        <strong>${section.title}</strong>
-                        <br><small style="color: #666;">${section.type}</small>
+                        <strong>${escapeHTML(section.title)}</strong>
+                        <br><small style="color: #666;">${escapeHTML(section.type)}</small>
                     </div>
-                    <button class="btn btn-danger btn-small" onclick="deleteSection('${section.id}'); event.stopPropagation();">✕</button>
+                    <button class="btn btn-danger btn-small" onclick="deleteSection(this.closest('.list-item').dataset.id); event.stopPropagation();">✕</button>
                 </div>
             `).join('');
         }
@@ -770,12 +781,12 @@
         function renderBlogList() {
             const list = document.getElementById('blogList');
             list.innerHTML = cmsData.blog.map(post => `
-                <div class="list-item ${currentBlogId === post.id ? 'active' : ''}" onclick="selectBlogPost('${post.id}')">
+                <div class="list-item ${currentBlogId === post.id ? 'active' : ''}" data-id="${escapeHTML(post.id)}" onclick="selectBlogPost(this.dataset.id)">
                     <div>
-                        <strong>${post.title}</strong>
-                        <br><small style="color: #666;">${post.category}</small>
+                        <strong>${escapeHTML(post.title)}</strong>
+                        <br><small style="color: #666;">${escapeHTML(post.category)}</small>
                     </div>
-                    <button class="btn btn-danger btn-small" onclick="deleteBlogPost('${post.id}'); event.stopPropagation();">✕</button>
+                    <button class="btn btn-danger btn-small" onclick="deleteBlogPost(this.closest('.list-item').dataset.id); event.stopPropagation();">✕</button>
                 </div>
             `).join('');
         }
@@ -834,12 +845,12 @@
         function renderDestinationsList() {
             const list = document.getElementById('destinationsList');
             list.innerHTML = cmsData.destinations.map(dest => `
-                <div class="list-item ${currentDestinationId === dest.id ? 'active' : ''}" onclick="selectDestination('${dest.id}')">
+                <div class="list-item ${currentDestinationId === dest.id ? 'active' : ''}" data-id="${escapeHTML(dest.id)}" onclick="selectDestination(this.dataset.id)">
                     <div>
-                        <strong>${dest.name}</strong>
-                        <br><small style="color: #666;">${dest.country}</small>
+                        <strong>${escapeHTML(dest.name)}</strong>
+                        <br><small style="color: #666;">${escapeHTML(dest.country)}</small>
                     </div>
-                    <button class="btn btn-danger btn-small" onclick="deleteDestination('${dest.id}'); event.stopPropagation();">✕</button>
+                    <button class="btn btn-danger btn-small" onclick="deleteDestination(this.closest('.list-item').dataset.id); event.stopPropagation();">✕</button>
                 </div>
             `).join('');
         }
