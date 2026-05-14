@@ -17,7 +17,7 @@ export async function POST(req: Request) {
 
   try {
     const sb = supabase()
-    if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
+  if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
     const formData = await req.formData()
     const file = formData.get('file') as File
     const folder = (formData.get('folder') as string) || 'media'

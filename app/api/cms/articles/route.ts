@@ -52,16 +52,18 @@ export async function POST(req: Request) {
   const body = await req.json()
   const payload = { ...body, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
 
+
   let { data, error } = await sb
     .from('cms_blog_posts')
-    .insert([payload] as any)
+    .insert([payload as any] as any)
     .select()
     .single()
 
   if (error?.message?.includes('voice_notes') && error.message.includes('does not exist')) {
+
     ;({ data, error } = await sb
       .from('cms_blog_posts')
-      .insert([withoutVoiceNotes(payload)] as any)
+      .insert([withoutVoiceNotes(payload) as any] as any)
       .select()
       .single())
   }

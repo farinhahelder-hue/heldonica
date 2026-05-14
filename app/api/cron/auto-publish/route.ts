@@ -137,9 +137,10 @@ export async function GET(req: Request) {
       updated_at: new Date().toISOString()
     };
 
+
     const { data, error } = await sb
       .from('cms_blog_posts')
-      .insert([payload] as any)
+      .insert([payload as any] as any)
       .select()
       .single();
 

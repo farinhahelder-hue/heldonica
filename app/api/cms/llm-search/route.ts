@@ -27,7 +27,7 @@ interface SearchableItem {
 
 async function semanticSearch(query: string, type: string = 'all', limit: number = 10): Promise<SearchableItem[]> {
   const results: SearchableItem[] = [];
-  if (!supabase) throw new Error('Supabase unavailable');
+  if (!supabase) return results;
 
   // Search articles
   if (type === 'articles' || type === 'all') {
@@ -169,10 +169,9 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('LLM Search error:', error);
-    const status = error.message?.includes('unavailable') ? 503 : 500;
     return NextResponse.json(
       { error: error.message || 'Search failed' },
-      { status }
+      { status: 500 }
     );
   }
 }
