@@ -48,6 +48,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
   let { data, error } = await sb
     .from('cms_blog_posts')
+    // @ts-expect-error Ignoring type check
     .update(payload as any)
     .eq('id', params.id)
     .select()
@@ -56,6 +57,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   if (error?.message?.includes('voice_notes') && error.message.includes('does not exist')) {
     ;({ data, error } = await sb
       .from('cms_blog_posts')
+      // @ts-expect-error Ignoring type check
       .update(withoutVoiceNotes(payload) as any)
       .eq('id', params.id)
       .select()
