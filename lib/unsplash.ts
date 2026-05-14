@@ -1,15 +1,11 @@
 /**
  * Unsplash API Integration for Free Stock Photos
- * 
- * Use your Unsplash credentials:
- * - Application ID: 921608
- * - Access Key: VKxcQvLNtFlLcgTxXW5YjnsQng4mu-WyIjyNHvLYsWA
  */
 
 export const UNSPLASH_CONFIG = {
-  applicationId: '921608',
-  accessKey: 'VKxcQvLNtFlLcgTxXW5YjnsQng4mu-WyIjyNHvLYsWA',
-  secretKey: 'b8b0mVr_GrMJXdB8ddQTSma5Cf2zo-EHXBFAosljpVQ',
+  applicationId: process.env.UNSPLASH_APP_ID || '',
+  accessKey: process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY || '',
+  secretKey: process.env.UNSPLASH_SECRET_KEY || '',
 };
 
 export interface UnsplashPhoto {
