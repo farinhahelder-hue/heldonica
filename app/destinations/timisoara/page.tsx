@@ -1,4 +1,4 @@
-'use client'
+
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Header from '@/components/Header'
@@ -108,7 +108,7 @@ export default function TimisoaraPage() {
               Ce qu on a deniché
             </h2>
             <div className="grid gap-6 md:grid-cols-2">
-              {peptides.map((pepite, idx) => (
+              {pepites.map((pepite, idx) => (
                 <div key={idx} className="p-6 bg-white rounded-lg border border-stone-200">
                   <div className="text-2xl mb-2">{pepite.icon}</div>
                   <h3 className="font-serif text-lg text-stone-900 mb-2">

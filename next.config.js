@@ -42,7 +42,6 @@ const nextConfig = {
   compress: true,
 
   eslint: { ignoreDuringBuilds: false },
-  typescript: { ignoreBuildErrors: true },
 
   experimental: {
     optimizePackageImports: ['@supabase/supabase-js'],
