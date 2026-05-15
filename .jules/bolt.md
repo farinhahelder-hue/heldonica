@@ -1,0 +1,3 @@
+## 2024-05-24 - Enabled ISR on dynamic Blog Index
+**Learning:** Found `export const dynamic = 'force-dynamic'` and `export const revalidate = 0` hardcoded in `app/blog/page.tsx`. This causes full SSR blocking on every page request, killing TTFB, especially given multiple Supabase calls inside the React Server Component, with zero caching benefit for an index page that rarely updates.
+**Action:** Replaced dynamic directives with `export const revalidate = 60` (ISR) to cache the rendered static page at the Edge and serve it instantaneously, hitting the database only once every minute at most in the background. Look out for static-leaning pages unnecessarily opting into full dynamic rendering.

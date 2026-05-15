@@ -5,8 +5,7 @@ import Footer from '@/components/Footer'
 import BlogClientPage from '@/components/BlogClientPage'
 import Breadcrumb from '@/components/Breadcrumb'
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+export const revalidate = 60 // ⚡ Bolt: Enabled ISR (Incremental Static Regeneration) caching to dramatically reduce TTFB and Supabase DB calls for the blog index page, which leans heavily static.
 
 function calcReadTime(content: string | null): number {
   if (!content || typeof content !== 'string') return 0
