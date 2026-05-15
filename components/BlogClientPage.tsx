@@ -183,6 +183,14 @@ export default function BlogClientPage({ posts: rawPosts }: Props) {
                 }`}
               >
                 {CATEGORY_LABELS[category]}
+                <span className={`ml-1.5 rounded-full px-1.5 text-xs ${
+                  activeFilter === category ? 'bg-white/20' : 'bg-cloud-dancer'
+                }`}>
+                  {category === 'Tous' ? posts.length : 
+                   category === 'Carnets Voyage' ? totalCarnets :
+                   category === 'Découvertes Locales' ? totalDecouvertes :
+                   category === 'Guides Pratiques' ? totalGuides : 0}
+                </span>
               </button>
             ))}
           </div>
