@@ -4,10 +4,19 @@ import { INSTAGRAM_PROFILE, INSTAGRAM_STORIES } from '@/lib/instagram-static'
 
 interface InstagramEmbedProps {
   limit?: number
+  cmsPhotos?: any[]
 }
 
-export default function InstagramEmbed({ limit = 6 }: InstagramEmbedProps) {
-  const stories = INSTAGRAM_STORIES.slice(0, limit)
+export default function InstagramEmbed({ limit = 6, cmsPhotos }: InstagramEmbedProps) {
+  const stories = Array.isArray(cmsPhotos) && cmsPhotos.length > 0
+    ? cmsPhotos.slice(0, limit).map((p, i) => ({
+        id: String(i),
+        title: p.caption || '',
+        location: p.location || 'Heldonica',
+        image: p.url,
+        permalink: p.href || `https://instagram.com/${INSTAGRAM_PROFILE.username}`,
+      }))
+    : INSTAGRAM_STORIES.slice(0, limit)
 
   return (
     <div>

@@ -66,42 +66,44 @@ function getReadTimeMinutes(content?: string) {
 }
 
 // ===== Config pages CMS =====
-const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { key: string; label: string; type: 'text' | 'textarea' }[] }> = {
-  'home': {
+const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { key: string; label: string; type: 'text' | 'textarea' | 'image' | 'video' }[] }> = {
+  'homepage': {
     label: 'Accueil',
     emoji: '🏠',
     sections: [
       { key: 'hero_title',          label: 'Hero — Titre',                     type: 'text' },
       { key: 'hero_subtitle',       label: 'Hero — Sous-titre',                type: 'textarea' },
-      { key: 'hero_cta',            label: 'Hero — Bouton CTA',                type: 'text' },
-      { key: 'section_about_title', label: 'Section À propos — Titre',         type: 'text' },
-      { key: 'section_about_text',  label: 'Section À propos — Texte',         type: 'textarea' },
-      { key: 'services_title',      label: 'Section Services — Titre',         type: 'text' },
-      { key: 'services_subtitle',   label: 'Section Services — Sous-titre',    type: 'textarea' },
-      { key: 'newsletter_title',    label: 'Newsletter — Titre',               type: 'text' },
-      { key: 'newsletter_subtitle', label: 'Newsletter — Sous-titre',          type: 'textarea' },
+      { key: 'hero_cta_label',      label: 'Hero — Bouton CTA Label',          type: 'text' },
+      { key: 'hero_cta_url',        label: 'Hero — Bouton CTA URL',            type: 'text' },
+      { key: 'hero_image',          label: 'Hero — Image',                     type: 'image' },
+      { key: 'hero_video',          label: 'Hero — Vidéo URL',                 type: 'video' },
+      { key: 'instagram_photos',    label: 'Instagram Photos JSON (Array)',    type: 'textarea' },
     ],
   },
-  'a-propos': {
+  'about': {
     label: 'À propos',
     emoji: '👋',
     sections: [
-      { key: 'page_title',  label: 'Titre de la page',      type: 'text' },
-      { key: 'intro_text',  label: "Texte d'introduction",  type: 'textarea' },
+      { key: 'hero_title',  label: 'Hero — Titre',          type: 'text' },
+      { key: 'hero_subtitle', label: 'Hero — Sous-titre',   type: 'textarea' },
+      { key: 'hero_image',  label: 'Hero — Image',          type: 'image' },
+      { key: 'photo_lui',   label: 'Photo — Lui',           type: 'image' },
+      { key: 'photo_elle',  label: 'Photo — Elle',          type: 'image' },
     ],
   },
-  'nos-services': {
-    label: 'Nos services',
-    emoji: '✨',
+  'destinations': {
+    label: 'Destinations',
+    emoji: '🌍',
     sections: [
       { key: 'hero_title',    label: 'Hero — Titre',              type: 'text' },
       { key: 'hero_subtitle', label: 'Hero — Sous-titre',         type: 'textarea' },
-      { key: 'b2c_title',     label: 'B2C — Titre service',       type: 'text' },
-      { key: 'b2c_desc',      label: 'B2C — Description',         type: 'textarea' },
-      { key: 'b2c_cta',       label: 'B2C — Bouton CTA',          type: 'text' },
-      { key: 'b2b_title',     label: 'B2B — Titre service',       type: 'text' },
-      { key: 'b2b_desc',      label: 'B2B — Description',         type: 'textarea' },
-      { key: 'b2b_cta',       label: 'B2B — Bouton CTA',          type: 'text' },
+      { key: 'madère',        label: 'Image — Madère',            type: 'image' },
+      { key: 'sicile',        label: 'Image — Sicile',            type: 'image' },
+      { key: 'suisse',        label: 'Image — Suisse',            type: 'image' },
+      { key: 'roumanie',      label: 'Image — Roumanie',          type: 'image' },
+      { key: 'zurich',        label: 'Image — Zurich',            type: 'image' },
+      { key: 'paris',         label: 'Image — Paris',             type: 'image' },
+      { key: 'barcelone',     label: 'Image — Barcelone',         type: 'image' },
     ],
   },
   'travel-planning': {
@@ -460,20 +462,28 @@ function CMSAdminInner() {
   const loadSettings = useCallback(async () => {
     setLoadingSettings(true);
     try {
-      const [sRes, cRes] = await Promise.all([
-        fetch('/api/cms/settings'),
-        fetch('/api/cms/content'),
-      ]);
-      if (handleUnauthorized(sRes) || handleUnauthorized(cRes)) return;
+      const sRes = await fetch('/api/cms/settings');
+      if (handleUnauthorized(sRes)) return;
       const sData = await sRes.json();
-      const cData = await cRes.json();
       setSettings(sData.settings || []);
-      setSiteContent(cData.content || []);
       const initS: Record<string, string> = {};
       (sData.settings || []).forEach((s: Setting) => { initS[s.key] = s.value || ''; });
-      const initC: Record<string, string> = {};
-      (cData.content || []).forEach((c: SiteContent) => { initC[`${c.page}__${c.block_key}`] = c.value || ''; });
       setEditedSettings(initS);
+
+      const initC: Record<string, string> = {};
+      for (const pageSlug of Object.keys(PAGES_CONFIG)) {
+        const pageRes = await fetch(`/api/cms/pages?slug=${pageSlug}`);
+        const pageData = await pageRes.json();
+        const sectionData = pageData.section_data || {};
+
+        PAGES_CONFIG[pageSlug].sections.forEach(sec => {
+          let val = sectionData[sec.key] ?? '';
+          if (sec.type === 'textarea' && sec.key === 'instagram_photos' && typeof val !== 'string') {
+            val = JSON.stringify(val, null, 2);
+          }
+          initC[`${pageSlug}__${sec.key}`] = val;
+        });
+      }
       setEditedContent(initC);
     } catch {
       showToast('Impossible de charger les contenus du CMS.');
@@ -570,22 +580,24 @@ function CMSAdminInner() {
     const config = PAGES_CONFIG[pageKey];
     if (!config) { setSavingSettings(false); return; }
     try {
-      const promises: Promise<Response>[] = [];
+      const sectionDataToSave: Record<string, any> = {};
       config.sections.forEach(section => {
         const key = `${pageKey}__${section.key}`;
-        const newVal = editedContent[key] ?? '';
-        const existing = siteContent.find(c => c.page === pageKey && c.block_key === section.key);
-        if (!existing || newVal !== existing.value) {
-          promises.push(fetch('/api/cms/content', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ page: pageKey, block_key: section.key, value: newVal }),
-          }));
+        let newVal = editedContent[key] ?? '';
+        if (section.type === 'textarea' && section.key === 'instagram_photos') {
+          try { newVal = newVal ? JSON.parse(newVal) : []; } catch { /* ignore parse error, store as string */ }
         }
+        sectionDataToSave[section.key] = newVal;
       });
-      if (promises.length === 0) { showToast('Aucune modification à enregistrer sur cette page.'); return; }
-      const responses = await Promise.all(promises);
-      if (responses.some(res => handleUnauthorized(res))) return;
+
+      const res = await fetch('/api/cms/pages', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ page_key: pageKey, section_data: sectionDataToSave }),
+      });
+      if (handleUnauthorized(res)) return;
+      if (!res.ok) throw new Error();
+
       showToast(`✅ Page "${config.label}" sauvegardée !`);
       loadSettings();
     } catch {
@@ -1089,8 +1101,43 @@ function CMSAdminInner() {
                                 <label style={lbl}>{section.label}</label>
                                 {section.type === 'textarea' ? (
                                   <textarea value={editedContent[key] ?? ''} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={{ ...inp, height: 110, resize: 'vertical' }} placeholder={section.label} />
+                                ) : section.type === 'image' || section.type === 'video' ? (
+                                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <input value={editedContent[key] ?? ''} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={{ ...inp, flex: 1 }} placeholder={`URL ${section.type === 'image' ? 'de l\'image' : 'de la vidéo'}`} />
+                                    <button onClick={() => {
+                                      const input = document.createElement('input');
+                                      input.type = 'file';
+                                      input.accept = section.type === 'image' ? 'image/*' : 'video/*';
+                                      input.onchange = async (e: any) => {
+                                        const file = e.target.files?.[0];
+                                        if (!file) return;
+                                        const formData = new FormData();
+                                        formData.append('file', file);
+                                        formData.append('folder', 'pages');
+                                        showToast('Téléchargement en cours...');
+                                        try {
+                                          const res = await fetch('/api/cms/media-upload', { method: 'POST', body: formData });
+                                          const data = await res.json();
+                                          if (res.ok && data.url) {
+                                            setEditedContent(prev => ({ ...prev, [key]: data.url }));
+                                            showToast('✅ Fichier téléchargé');
+                                          } else {
+                                            showToast(`❌ Erreur: ${data.error}`);
+                                          }
+                                        } catch {
+                                          showToast('❌ Erreur de téléchargement');
+                                        }
+                                      };
+                                      input.click();
+                                    }} style={{ padding: '0.6rem 1rem', background: '#f0e8e4', border: 'none', borderRadius: '0.5rem', cursor: 'pointer', color: '#6b2a1a', fontWeight: 'bold' }}>
+                                      {section.type === 'image' ? '🖼️ Uploader' : '🎥 Uploader'}
+                                    </button>
+                                  </div>
                                 ) : (
                                   <input value={editedContent[key] ?? ''} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={inp} placeholder={section.label} />
+                                )}
+                                {section.type === 'image' && editedContent[key] && (
+                                  <img src={editedContent[key]} alt="Aperçu" style={{ marginTop: '0.5rem', maxHeight: '150px', borderRadius: '0.5rem', objectFit: 'cover' }} />
                                 )}
                               </div>
                             );

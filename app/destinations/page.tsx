@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
 import DestinationsClient from './DestinationsClient';
+import { getPageContent } from '@/lib/cms-pages';
+
+export const revalidate = 60
 
 export const metadata: Metadata = {
   title: 'Destinations Hors des Sentiers Battus — Pépites Dénichées | Heldonica',
@@ -18,6 +21,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function DestinationsPage() {
-  return <DestinationsClient />;
+export default async function DestinationsPage() {
+  const pageContent = await getPageContent('destinations');
+  return <DestinationsClient pageContent={pageContent} />;
 }

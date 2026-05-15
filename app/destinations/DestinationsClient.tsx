@@ -39,7 +39,7 @@ const destinations: DestinationCard[] = [
     style: 'food',
     duration: '5-7',
     description: "Le sud-est qu'on prend par la pierre, par le ventre et par les fins d'après-midi qui durent plus que prévu.",
-    image: 'https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1200',
     budget: 'Sur mesure',
     season: 'avril à juin · septembre à octobre',
     verdict: "À faire lentement, sinon la Sicile ne te donne que sa surface.",
@@ -63,7 +63,7 @@ const destinations: DestinationCard[] = [
     style: 'culture',
     duration: '7-10',
     description: "Le terrain de l'enfance, du retour et des villages qui n'ont pas encore laissé tomber leur rythme.",
-    image: 'https://images.unsplash.com/photo-1555990538-1e0700b21df9?w=1200&q=80',
+    image: '',
     budget: 'Accessible et dense',
     season: 'mai à octobre',
     verdict: "Une destination qui récompense ceux qui sortent des capitales trop vite résumées.",
@@ -110,7 +110,7 @@ const durationOptions = [
   { value: '10+', label: '10 jours et +' },
 ] as const;
 
-export default function DestinationsClient() {
+export default function DestinationsClient({ pageContent }: { pageContent?: any }) {
   const [countryFilter, setCountryFilter] = useState('all');
   const [styleFilter, setStyleFilter] = useState<(typeof styleOptions)[number]['value']>('all');
   const [durationFilter, setDurationFilter] =
@@ -142,10 +142,10 @@ export default function DestinationsClient() {
               Hub destinations
             </p>
             <h1 className="text-4xl md:text-6xl font-serif text-mahogany mb-6">
-              Six destinations qu&apos;on a arpentées dans tous les sens
+              {pageContent?.hero_title || "Six destinations qu'on a arpentées dans tous les sens"}
             </h1>
             <p className="text-charcoal/80 text-lg max-w-3xl leading-relaxed">
-              Pas en touristes pressés, en gens qui reviennent, qui testent, qui se trompent et qui recommencent. Ici, on te montre des terrains qu&apos;on connaît vraiment, avec leur bon rythme, leur budget indicatif et notre verdict signé court.
+              {pageContent?.hero_subtitle || "Pas en touristes pressés, en gens qui reviennent, qui testent, qui se trompent et qui recommencent. Ici, on te montre des terrains qu'on connaît vraiment, avec leur bon rythme, leur budget indicatif et notre verdict signé court."}
             </p>
           </div>
         </section>
@@ -233,7 +233,7 @@ export default function DestinationsClient() {
                       className="rounded-2xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
                     >
                       <img
-                        src={item.image}
+                        src={pageContent?.section_data?.[item.name.toLowerCase()] || item.image || '/images/badges-heldonica.svg'}
                         alt={item.name}
                         className="w-full h-56 object-cover"
                         loading="lazy"

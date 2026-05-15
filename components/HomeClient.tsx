@@ -173,10 +173,11 @@ interface HomeProps {
   latestPosts: (BlogPost & { formattedDate: string; readTime?: number })[]
   totalPosts: number
   coveredCountries?: string | null
+  pageContent?: any
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries }: HomeProps) {
+export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries, pageContent }: HomeProps) {
   useScrollReveal()
   const featImg = featured ? postImage(featured) : null
   const publishedArticles = totalPosts || 23
@@ -203,10 +204,19 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
 
       {/* ── HERO ──────────────────────────────────────────────────────────── */}
       <section className="relative h-[85vh] md:h-screen bg-black flex items-end overflow-hidden">
-        <video autoPlay muted loop playsInline preload="auto"
-          className="absolute inset-0 w-full h-full object-cover opacity-45"
-          src="https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4"
-        />
+        {pageContent?.hero_video ? (
+          <video autoPlay muted loop playsInline preload="auto"
+            className="absolute inset-0 w-full h-full object-cover opacity-45"
+            src={pageContent.hero_video}
+          />
+        ) : pageContent?.hero_image ? (
+          <img src={pageContent.hero_image} alt="Hero" className="absolute inset-0 w-full h-full object-cover opacity-45" />
+        ) : (
+          <video autoPlay muted loop playsInline preload="auto"
+            className="absolute inset-0 w-full h-full object-cover opacity-45"
+            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4"
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
         <div className="relative z-20 px-5 md:px-16 pb-12 md:pb-24 max-w-4xl">
           <p className="text-teal text-xs font-semibold tracking-[0.2em] uppercase mb-5"
@@ -214,20 +224,26 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             Slow travel vécu en duo · Hors sentiers · Paris
           </p>
           <h1 className="text-3xl md:text-5xl lg:text-7xl font-serif font-light text-white leading-[1.15] mb-4 md:mb-6">
-            <span className="hero-word" style={{ animationDelay: '0.3s' }}>On ferme </span>
-            <span className="hero-word" style={{ animationDelay: '0.4s' }}>les ordis.</span>
-            <br />
-            <span className="hero-word" style={{ animationDelay: '0.55s' }}>On part.</span>
-            <br />
-            <em>
-              <span className="hero-word" style={{ animationDelay: '0.7s' }}>On revient </span>
-              <span className="hero-word" style={{ animationDelay: '0.8s' }}>avec des pépites </span>
-              <span className="hero-word" style={{ animationDelay: '0.9s' }}>qu&apos;on n&apos;avait pas cherchées.</span>
-            </em>
+            {pageContent?.hero_title ? (
+              <span className="hero-word" style={{ animationDelay: '0.3s' }}>{pageContent.hero_title}</span>
+            ) : (
+              <>
+                <span className="hero-word" style={{ animationDelay: '0.3s' }}>On ferme </span>
+                <span className="hero-word" style={{ animationDelay: '0.4s' }}>les ordis.</span>
+                <br />
+                <span className="hero-word" style={{ animationDelay: '0.55s' }}>On part.</span>
+                <br />
+                <em>
+                  <span className="hero-word" style={{ animationDelay: '0.7s' }}>On revient </span>
+                  <span className="hero-word" style={{ animationDelay: '0.8s' }}>avec des pépites </span>
+                  <span className="hero-word" style={{ animationDelay: '0.9s' }}>qu&apos;on n&apos;avait pas cherchées.</span>
+                </em>
+              </>
+            )}
           </h1>
           <p className="text-sm md:text-lg text-gray-300 leading-relaxed mb-6 md:mb-8 max-w-xl"
              style={{ animation: 'wordIn 0.7s 1.1s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
-            Un duo Paris-Madère-Roumanie qui voyage lentement, documente vraiment et partage tout ce qu&apos;on a vécu — pas ce qu&apos;on a lu ailleurs. Dénicheurs de pépites, même en bas de chez toi.
+            {pageContent?.hero_subtitle || 'Un duo Paris-Madère-Roumanie qui voyage lentement, documente vraiment et partage tout ce qu\'on a vécu — pas ce qu\'on a lu ailleurs. Dénicheurs de pépites, même en bas de chez toi.'}
           </p>
           <div className="flex flex-wrap gap-3"
                style={{ animation: 'wordIn 0.7s 1.3s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
@@ -236,10 +252,10 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'hero_read_carnet' })}>
               Lire le carnet →
             </Link>
-            <Link href="/travel-planning-form" 
+            <Link href={pageContent?.hero_cta_url || "/travel-planning-form"}
               className="px-5 md:px-6 py-2.5 md:py-3 border border-white/50 hover:border-white text-white hover:bg-white/10 rounded-full font-semibold text-sm tracking-wide transition"
               onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'hero_contact' })}>
-              Nous écrire →
+              {pageContent?.hero_cta_label || 'Nous écrire →'}
             </Link>
           </div>
         </div>
@@ -581,7 +597,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <h2 className="text-2xl font-serif text-mahogany text-center mb-8">
             Sur le terrain, pas en studio
           </h2>
-          <InstagramEmbed limit={6} />
+          <InstagramEmbed limit={6} cmsPhotos={pageContent?.section_data?.instagram_photos} />
         </div>
       </section>
 

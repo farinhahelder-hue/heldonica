@@ -2,6 +2,9 @@ import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
+import { getPageContent } from '@/lib/cms-pages'
+
+export const revalidate = 60
 
 export const metadata: Metadata = {
   title: 'À Propos — Qui Sommes-Nous | Heldonica',
@@ -35,14 +38,16 @@ export const metadata: Metadata = {
   },
 }
 
-export default function AProposPage() {
+export default async function AProposPage() {
+  const pageContent = await getPageContent('about')
+
   return (
     <>
       <Header />
       <main>
         <section className="relative h-[55vh] md:h-[65vh] bg-stone-900 flex items-end overflow-hidden">
           <img
-            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1400&q=85"
+            src={pageContent?.hero_image || "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1400&q=85"}
             alt="Heldonica — duo de voyageurs slow travel"
             className="absolute inset-0 w-full h-full object-cover opacity-40"
             width={1400}
@@ -53,12 +58,18 @@ export default function AProposPage() {
           <div className="relative z-10 px-6 md:px-16 pb-14 md:pb-24 max-w-3xl">
             <p className="text-amber-300 text-xs font-bold tracking-[0.2em] uppercase mb-4">Notre histoire</p>
             <h1 className="text-4xl md:text-6xl font-serif font-light text-white leading-[1.1] mb-5">
-              Une histoire
-              <br />
-              <em className="text-amber-300">qui s&apos;écrit sur le terrain</em>
+              {pageContent?.hero_title ? (
+                <span>{pageContent.hero_title}</span>
+              ) : (
+                <>
+                  Une histoire
+                  <br />
+                  <em className="text-amber-300">qui s&apos;écrit sur le terrain</em>
+                </>
+              )}
             </h1>
             <p className="text-gray-300 text-base md:text-lg leading-relaxed max-w-xl">
-              Madère. Roumanie. Paris. Notre point de vue est né en duo ; notre service s&apos;ouvre à tous ceux qui veulent voyager plus lentement, plus sincèrement et plus loin des sentiers balisés.
+              {pageContent?.hero_subtitle || "Madère. Roumanie. Paris. Notre point de vue est né en duo ; notre service s'ouvre à tous ceux qui veulent voyager plus lentement, plus sincèrement et plus loin des sentiers balisés."}
             </p>
           </div>
         </section>
@@ -131,7 +142,7 @@ export default function AProposPage() {
               <div className="group">
                 <div className="relative mb-6 overflow-hidden rounded-2xl">
                   <img
-                    src="https://images.unsplash.com/photo-1539635278303-d4002c07eae3?w=700&q=80"
+                    src={pageContent?.section_data?.photo_lui || "https://images.unsplash.com/photo-1539635278303-d4002c07eae3?w=700&q=80"}
                     alt="Madère — falaises et océan Atlantique"
                     className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700"
                     width={600}
@@ -153,7 +164,7 @@ export default function AProposPage() {
               <div className="group">
                 <div className="relative mb-6 overflow-hidden rounded-2xl">
                   <img
-                    src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=700&q=80"
+                    src={pageContent?.section_data?.photo_elle || "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=700&q=80"}
                     alt="Roumanie — paysages des Carpates"
                     className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700"
                     width={600}

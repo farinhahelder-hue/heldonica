@@ -1,6 +1,8 @@
-'use client'
+import FAQ from './FaqClient'
+import { getPageContent } from '@/lib/cms-pages'
 
-import { useState } from 'react'
+
+
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
@@ -29,31 +31,15 @@ const faqs = [
   },
 ]
 
-function FAQ() {
-  const [open, setOpen] = useState<number | null>(null)
-  return (
-    <div className="space-y-3">
-      {faqs.map((item, i) => (
-        <div key={i} className="border border-stone-200 rounded-xl overflow-hidden">
-          <button
-            onClick={() => setOpen(open === i ? null : i)}
-            className="w-full flex items-center justify-between px-6 py-4 text-left font-semibold text-stone-900 text-sm hover:bg-stone-50 transition"
-          >
-            <span>{item.q}</span>
-            <svg className={`w-4 h-4 shrink-0 ml-4 transition-transform ${open === i ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6" /></svg>
-          </button>
-          {open === i && (
-            <div className="px-6 pb-5 text-stone-600 text-sm leading-relaxed border-t border-stone-100">
-              <p className="pt-4">{item.a}</p>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  )
-}
 
-export default function TravelPlanning() {
+
+
+
+export const revalidate = 60
+
+export default async function TravelPlanning() {
+  const pageContent = await getPageContent('travel-planning')
+
   return (
     <>
       <style>{`
@@ -75,7 +61,7 @@ export default function TravelPlanning() {
         {/* ── HERO ── */}
         <section className="relative overflow-hidden bg-stone-950">
           <img
-            src="https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=1600&q=85"
+            src={pageContent?.hero_image || "https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=1600&q=85"}
             alt="Couple en slow travel, vue panoramique sur la nature"
             className="absolute inset-0 w-full h-full object-cover opacity-30"
             width="1600" height="900"
@@ -86,16 +72,22 @@ export default function TravelPlanning() {
               Slow Travel · Conception sur mesure · En couple
             </p>
             <h1 className="fade-up-2 text-4xl md:text-6xl lg:text-7xl font-serif font-light text-white leading-[1.1] mb-6">
-              On a appris à voyager vrai.<br />
-              <em className="text-amber-300">Maintenant on met ça au service du tien.</em>
+              {pageContent?.hero_title ? (
+                <span>{pageContent.hero_title}</span>
+              ) : (
+                <>
+                  On a appris à voyager vrai.<br />
+                  <em className="text-amber-300">Maintenant on met ça au service du tien.</em>
+                </>
+              )}
             </h1>
             <p className="fade-up-3 text-base md:text-xl text-stone-300 max-w-2xl mx-auto leading-relaxed mb-10">
-              Pas des itinéraires copiés sur des blogs. Des voyages conçus sur mesure, comme on aurait voulu qu&apos;on nous guide — lents, sensoriels, mémorables.
+              {pageContent?.hero_subtitle || "Pas des itinéraires copiés sur des blogs. Des voyages conçus sur mesure, comme on aurait voulu qu'on nous guide — lents, sensoriels, mémorables."}
             </p>
             <div className="fade-up-4 flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link href="/travel-planning-form"
+              <Link href={pageContent?.hero_cta_url || "/travel-planning-form"}
                 className="px-8 py-4 bg-amber-800 hover:bg-amber-700 text-white rounded font-semibold text-sm tracking-wide transition shadow-lg">
-                Nous écrire
+                {pageContent?.hero_cta_label || "Nous écrire"}
               </Link>
               <p className="text-stone-400 text-xs">Sans engagement · Réponse sous 48h</p>
             </div>

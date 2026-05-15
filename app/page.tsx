@@ -1,4 +1,5 @@
 import { getSetting, getAllPosts, formatDate, BlogPost } from '@/lib/blog-supabase'
+import { getPageContent } from '@/lib/cms-pages'
 import HomeClient from '@/components/HomeClient'
 import type { Metadata } from 'next'
 
@@ -84,6 +85,7 @@ export default async function Home() {
   // Defensive: ensure we always have an array
   const allPosts = Array.isArray(allPostsResult) ? allPostsResult : []
   const coveredCountries = await getSetting('covered_countries')
+  const pageContent = await getPageContent('homepage')
 
   const latestPosts = allPosts.slice(0, 6)
   const travelPosts = formatPosts(allPosts.filter((p) => p.category === 'Carnets Voyage').slice(0, 3))
@@ -105,6 +107,7 @@ export default async function Home() {
         totalPosts={allPosts.length}
         coveredCountries={coveredCountries}
         latestPosts={formatPosts(latestPosts)}
+        pageContent={pageContent}
       />
       <script
         type="application/ld+json"
