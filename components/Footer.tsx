@@ -38,7 +38,7 @@ export default function Footer() {
           {/* Colonne Marque */}
           <div>
             <div className="mb-4">
-              <h3 className="mb-2 text-2xl font-serif font-bold text-white">Heldonica</h3>
+              <h3 className="mb-2 text-2xl font-serif font-light text-white">Heldonica</h3>
               <p className="text-sm text-amber-200">Slow travel vécu, conçu juste.</p>
             </div>
             <p className="text-sm leading-relaxed text-stone-300">
@@ -63,7 +63,7 @@ export default function Footer() {
 
           {/* Colonne Navigation */}
           <nav aria-label="Navigation footer">
-            <h4 className="mb-6 text-base font-serif font-bold text-white">Navigation</h4>
+            <h4 className="mb-6 text-base font-serif font-light text-white">Navigation</h4>
             <ul className="space-y-3 text-sm" role="list">
               {safeNavLinks.map((link) => (
                 <li key={link.href}>
@@ -77,7 +77,7 @@ export default function Footer() {
 
           {/* Colonne Services */}
           <nav aria-label="Services footer">
-            <h4 className="mb-6 text-base font-serif font-bold text-white">Services</h4>
+            <h4 className="mb-6 text-base font-serif font-light text-white">Services</h4>
             <ul className="space-y-3 text-sm" role="list">
               {safeServiceLinks.map((link) => (
                 <li key={link.href}>
@@ -91,7 +91,7 @@ export default function Footer() {
 
           {/* Colonne Légal & Contact */}
           <div>
-            <h4 className="mb-6 text-base font-serif font-bold text-white">Légal &amp; contact</h4>
+            <h4 className="mb-6 text-base font-serif font-light text-white">Légal &amp; contact</h4>
             <ul className="space-y-3 text-sm" role="list">
               {safeLegalLinks.map((link) => (
                 <li key={link.href}>

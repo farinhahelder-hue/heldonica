@@ -90,7 +90,7 @@ export default function Header() {
           {/* Mobile Navigation */}
           <div className="flex items-center gap-3 lg:hidden">
             <Link href="/planifier" className="rounded-full bg-amber-900 px-4 py-2 text-xs font-semibold text-white shadow-sm">
-              Planifier
+              Planifier mon voyage
             </Link>
             <button
               onClick={() => setOpen((value) => !value)}

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Header from '@/components/Header'
+import ArticleCard from '@/components/ArticleCard'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
 import type { BlogPost } from '@/lib/blog-supabase'
@@ -112,58 +113,6 @@ function AnimatedStat({ nb, label, suffix = '' }: { nb: number | string; label: 
 }
 
 // ─── Card article ─────────────────────────────────────────────────────────────
-function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: string; readTime?: number }; size?: 'sm' | 'md' | 'lg' }) {
-  const img = postImage(post)
-  const [imgSrc, setImgSrc] = useState(img)
-  const h = size === 'lg' ? 'h-80' : size === 'md' ? 'h-60' : 'h-44'
-  const readTime = post.readTime ?? post.read_time
-
-  useEffect(() => {
-    setImgSrc(img)
-  }, [img])
-
-  return (
-    <Link href={`/blog/${post.slug}`} className="group block h-full">
-      <article className="relative rounded-2xl overflow-hidden bg-mahogany/80 shadow-md hover:shadow-xl transition-all duration-400 h-full flex flex-col">
-        <div className={`relative ${h} overflow-hidden`}>
-          <img src={imgSrc} alt={post.title} width={600} height={400}
-            className="w-full h-full object-cover opacity-80 group-hover:opacity-90 group-hover:scale-105 transition-all duration-600"
-            loading="lazy"
-            onError={() => setImgSrc(HELDONICA_BADGE_FALLBACK)}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
-          <div className="absolute top-3 left-3">
-            <span className="bg-eucalyptus/90 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">
-              {post.category}
-            </span>
-          </div>
-          {readTime && readTime > 0 && (
-            <span className="absolute bottom-3 right-3 bg-black/40 backdrop-blur-sm text-white/80 text-xs px-2 py-0.5 rounded-full">
-              {readTime} min
-            </span>
-          )}
-        </div>
-        <div className="p-4 flex flex-col flex-1 bg-white">
-          <h3 className="font-semibold text-mahogany text-sm leading-snug mb-1.5 group-hover:text-eucalyptus transition-colors line-clamp-2">
-            {post.title}
-          </h3>
-          {post.excerpt && (
-            <p className="text-charcoal/60 text-xs leading-relaxed line-clamp-2 flex-1 mb-2">{post.excerpt}</p>
-          )}
-          {!post.excerpt && displayExcerpt(post) && (
-            <p className="text-charcoal/60 text-xs leading-relaxed line-clamp-2 flex-1 mb-2">{displayExcerpt(post)}</p>
-          )}
-          <div className="flex items-center justify-between mt-auto pt-2 border-t border-cloud-dancer">
-            <span className="text-xs text-charcoal/40">
-              {post.author ?? 'Heldonica'} {post.destination ? `• 📍 ${post.destination}` : ` • ${post.formattedDate}`}
-            </span>
-            <span className="text-xs text-eucalyptus font-semibold group-hover:translate-x-1 transition-transform">Lire le carnet →</span>
-          </div>
-        </div>
-      </article>
-    </Link>
-  )
-}
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 interface HomeProps {

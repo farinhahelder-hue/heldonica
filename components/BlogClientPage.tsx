@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import NewsletterForm from '@/components/NewsletterForm'
+import ArticleCard from '@/components/ArticleCard'
 import type { BlogPost } from '@/lib/blog-supabase'
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -337,99 +338,3 @@ function SectionHeader({
   )
 }
 
-function ArticleCard({ post }: { post: BlogPost & { formattedDate: string; readTime?: number } }) {
-  const fallbackBg = CATEGORY_FALLBACK_BG[post.category ?? ''] ?? 'bg-cloud-dancer'
-  const [imageSrc, setImageSrc] = useState(post.featured_image ?? null)
-
-  useEffect(() => {
-    setImageSrc(post.featured_image ?? null)
-  }, [post.featured_image])
-
-  const isFallback = !imageSrc
-
-  // Ensure tags is always an array
-  const safeTags = Array.isArray(post.tags) ? post.tags : []
-
-  return (
-    <Link href={`/blog/${post.slug}`} className="group block h-full transition-all duration-200">
-      <article className="flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-cloud-dancer bg-white shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-lg">
-        {isFallback ? (
-          <div className={`flex h-40 w-full flex-col items-center justify-center gap-2 ${fallbackBg}`}>
-            <img
-              src={BADGE_FALLBACK_SRC}
-              alt="Heldonica"
-              width={60}
-              height={38}
-              className="h-auto w-14 opacity-90"
-              loading="lazy"
-            />
-            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/80">
-              Heldonica
-            </span>
-          </div>
-        ) : (
-          <div className="relative h-52 w-full overflow-hidden">
-            <img
-              src={imageSrc!}
-              alt={post.title}
-              width={400}
-              height={208}
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-              loading="lazy"
-              onError={() => setImageSrc(null)}
-            />
-            {post.category && (
-              <div className="absolute left-4 top-4">
-                <span className="rounded-full bg-eucalyptus/90 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">
-                  {post.category}
-                </span>
-              </div>
-            )}
-          </div>
-        )}
-
-        {isFallback && post.category && (
-          <div className="px-5 pt-4">
-            <span className="rounded-full bg-eucalyptus/10 px-2.5 py-1 text-xs font-semibold text-eucalyptus">
-              {post.category}
-            </span>
-          </div>
-        )}
-
-        <div className="flex flex-1 flex-col p-5">
-          <h3 className="mb-2 text-lg font-semibold leading-snug text-mahogany transition-colors duration-200 group-hover:text-eucalyptus">
-            {post.title}
-          </h3>
-          {post.excerpt && (
-            <p className="mb-4 flex-1 text-sm leading-relaxed text-charcoal/70 line-clamp-3">
-              {post.excerpt}
-            </p>
-          )}
-          {safeTags.length > 0 && (
-            <div className="mb-4 flex flex-wrap gap-2">
-              {safeTags.slice(0, 3).map((tag) => (
-                <span key={tag} className="rounded-full bg-cloud-dancer px-2.5 py-1 text-xs text-charcoal/60">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-          <div className="mt-auto flex items-center justify-between border-t border-cloud-dancer pt-4 text-xs text-charcoal/40">
-            <div className="flex items-center gap-2">
-              <span>{post.author ?? 'Heldonica'}</span>
-              {post.readTime && post.readTime > 0 ? (
-                <>
-                  <span>•</span>
-                  <span>{post.readTime} min</span>
-                </>
-              ) : null}
-            </div>
-            <span className="font-semibold text-eucalyptus transition-transform duration-200 group-hover:translate-x-1">
-              Lire →
-            </span>
-          </div>
-        </div>
-      </article>
-    </Link>
-  )
-}
