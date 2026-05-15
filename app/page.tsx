@@ -1,4 +1,4 @@
-import { getSetting, getAllPosts, formatDate, BlogPost } from '@/lib/blog-supabase'
+import { getSetting, getAllPosts, formatDate, BlogPost, getPageContent } from '@/lib/blog-supabase'
 import HomeClient from '@/components/HomeClient'
 import type { Metadata } from 'next'
 
@@ -85,6 +85,11 @@ export default async function Home() {
   const allPosts = Array.isArray(allPostsResult) ? allPostsResult : []
   const coveredCountries = await getSetting('covered_countries')
 
+  // Fetch hero media from CMS
+  const homeContent = await getPageContent('home')
+  const heroVideoUrl = homeContent['hero_video_url'] || null
+  const heroPosterImage = homeContent['hero_poster_image'] || null
+
   const latestPosts = allPosts.slice(0, 6)
   const travelPosts = formatPosts(allPosts.filter((p) => p.category === 'Carnets Voyage').slice(0, 3))
   const foodPosts = formatPosts(
@@ -105,6 +110,8 @@ export default async function Home() {
         totalPosts={allPosts.length}
         coveredCountries={coveredCountries}
         latestPosts={formatPosts(latestPosts)}
+        heroVideoUrl={heroVideoUrl}
+        heroPosterImage={heroPosterImage}
       />
       <script
         type="application/ld+json"
