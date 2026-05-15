@@ -52,11 +52,8 @@ async function handler(req: NextRequest) {
 
     console.log(`[CRON] Found ${articles.length} articles to publish:`, articles.map(a => a.slug).join(', '));
 
-    // Publish each article
-    let published = 0;
-    const errors = [];
-
-    for (const article of articles) {
+    // Publish each article concurrently
+    const updatePromises = articles.map(async (article: any) => {
       try {
         const updateRes = await fetch(
           `${SUPABASE_URL}/rest/v1/cms_blog_posts?id=eq.${article.id}`,
@@ -77,16 +74,29 @@ async function handler(req: NextRequest) {
         );
 
         if (updateRes.ok) {
-          published++;
           console.log(`[CRON] Successfully published: ${article.slug}`);
+          return { success: true, articleId: article.id };
         } else {
           const err = await updateRes.text();
           console.error(`[CRON] Failed to publish ${article.slug}:`, err);
-          errors.push({ id: article.id, error: err });
+          return { success: false, id: article.id, error: err };
         }
       } catch (e: any) {
         console.error(`[CRON] Exception publishing ${article.slug}:`, e.message);
-        errors.push({ id: article.id, error: e.message });
+        return { success: false, id: article.id, error: e.message };
+      }
+    });
+
+    const results = await Promise.all(updatePromises);
+
+    let published = 0;
+    const errors: any[] = [];
+
+    for (const result of results) {
+      if (result.success) {
+        published++;
+      } else {
+        errors.push({ id: result.id, error: result.error });
       }
     }
 
