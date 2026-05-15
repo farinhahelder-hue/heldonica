@@ -221,13 +221,14 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             className="absolute inset-0 w-full h-full object-cover"
           />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
+        <div className="absolute inset-0 bg-black/40 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent z-10" />
         <div className="relative z-20 px-5 md:px-16 pb-12 md:pb-24 max-w-4xl">
-          <p className="text-teal text-xs font-semibold tracking-[0.2em] uppercase mb-5"
+          <p className="text-teal text-xs font-semibold tracking-[0.2em] uppercase mb-5 drop-shadow-md"
              style={{ animation: 'wordIn 0.6s 0.2s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
             Slow travel vécu en duo · Hors sentiers · Paris
           </p>
-          <h1 className="text-3xl md:text-5xl lg:text-7xl font-serif font-light text-white leading-[1.15] mb-4 md:mb-6">
+          <h1 className="text-3xl md:text-5xl lg:text-7xl font-serif font-light text-white leading-[1.15] mb-4 md:mb-6 drop-shadow-lg">
             <span className="hero-word" style={{ animationDelay: '0.3s' }}>On ferme </span>
             <span className="hero-word" style={{ animationDelay: '0.4s' }}>les ordis.</span>
             <br />
@@ -473,10 +474,10 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 On ne fait pas des itinéraires.<br />
                 <em className="text-teal">On fait le tien.</em>
               </h2>
-              <p className="text-charcoal/40 leading-relaxed mb-4">
+              <p className="text-white/80 leading-relaxed mb-4">
                 Tu nous envoies tes contraintes réelles — temps, budget, énergie, envie. On transforme ça en séquence concrète, avec les adresses qu&apos;on a testées et l&apos;ordre qui a du sens sur le terrain.
               </p>
-              <p className="text-charcoal/60 text-sm leading-relaxed mb-8">
+              <p className="text-white/70 text-sm leading-relaxed mb-8">
                 Notre terrain naturel : les couples qui veulent ralentir sans s&apos;ennuyer, les solos qui cherchent du vrai, les familles qui cherchent autre chose que les parcs d&apos;attractions.
               </p>
               <div className="flex flex-wrap gap-3">
