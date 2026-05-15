@@ -225,6 +225,8 @@ function CMSAdminInner() {
   const [editedSettings, setEditedSettings] = useState<Record<string, string>>({});
   const [editedContent, setEditedContent] = useState<Record<string, string>>({});
   const [savingSettings, setSavingSettings] = useState(false);
+  const [savingPageKey, setSavingPageKey] = useState('');
+  const [uploadingMediaKey, setUploadingMediaKey] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
 
   const isArticleDirty = getArticleDraftSignature(editingArticle) !== articleBaseline;
@@ -647,6 +649,33 @@ function CMSAdminInner() {
       showToast("Impossible d'envoyer cette image.");
     } finally {
       setUploadingFeaturedImage(false);
+      e.target.value = '';
+    }
+  };
+
+  // Upload media (image or video) for page content
+  const uploadMediaForPage = async (e: React.ChangeEvent<HTMLInputElement>, sectionKey: string, pageKey: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const key = `${pageKey}__${sectionKey}`;
+    setUploadingMediaKey(key);
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('folder', 'hero-media');
+    try {
+      const res = await fetch('/api/cms/media-upload', { method: 'POST', body: fd });
+      if (handleUnauthorized(res)) return;
+      const data = await res.json();
+      if (data.url) {
+        setEditedContent(prev => ({ ...prev, [key]: data.url }));
+        showToast('✅ Média uploadé sur Supabase !');
+      } else {
+        showToast(`❌ Upload échoué : ${data.error}`);
+      }
+    } catch {
+      showToast("Impossible d'envoyer ce média.");
+    } finally {
+      setUploadingMediaKey('');
       e.target.value = '';
     }
   };
@@ -1092,8 +1121,12 @@ function CMSAdminInner() {
                                 {section.type === 'textarea' ? (
                                   <textarea value={editedContent[key] ?? ''} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={{ ...inp, height: 110, resize: 'vertical' }} placeholder={section.label} />
                                 ) : section.type === 'media' ? (
-                                  <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
-                                    <input value={editedContent[key] ?? ''} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={{ ...inp, flex: 1 }} placeholder="URL du média (video ou image)" />
+                                  <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                                    <input value={editedContent[key] ?? ''} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={{ ...inp, flex: 1, minWidth: 200 }} placeholder="URL ou upload..." />
+                                    <label style={{ padding: '.5rem .85rem', background: uploadingMediaKey === key ? '#8aa8a9' : '#01696f', color: 'white', borderRadius: '.4rem', cursor: uploadingMediaKey === key ? 'wait' : 'pointer', fontSize: '.8rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                                      {uploadingMediaKey === key ? '⏳...' : '⬆️ Upload'}
+                                      <input type="file" accept="video/*,image/*" onChange={(e) => uploadMediaForPage(e, section.key, activePage)} style={{ display: 'none' }} disabled={!!uploadingMediaKey} />
+                                    </label>
                                     {editedContent[key] && (
                                       <button onClick={() => setEditedContent(prev => ({ ...prev, [key]: '' }))} style={{ padding: '.5rem .75rem', background: '#f0e8e4', color: '#6b2a1a', border: 'none', borderRadius: '.4rem', cursor: 'pointer', fontSize: '.8rem' }}>✕</button>
                                     )}
