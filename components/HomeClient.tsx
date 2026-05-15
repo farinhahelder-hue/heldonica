@@ -212,7 +212,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           className="absolute inset-0 w-full h-full object-cover opacity-45"
           poster="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1600&q=80"
         >
-          <source src="https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4" type="video/mp4" />
+          <source src={process.env.NEXT_PUBLIC_HERO_VIDEO_URL ?? "https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/videos/hero.mp4"} type="video/mp4" />
           {/* Fallback if video fails to load */}
           <img 
             src="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1600&q=80"
