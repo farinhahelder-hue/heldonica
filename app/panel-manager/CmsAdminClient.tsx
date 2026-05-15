@@ -73,6 +73,7 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
     sections: [
       { key: 'hero_title',          label: 'Hero — Titre',                     type: 'text' },
       { key: 'hero_subtitle',       label: 'Hero — Sous-titre',                type: 'textarea' },
+      { key: 'hero_video_url',      label: 'Hero — URL Vidéo',                 type: 'text' },
       { key: 'hero_cta',            label: 'Hero — Bouton CTA',                type: 'text' },
       { key: 'section_about_title', label: 'Section À propos — Titre',         type: 'text' },
       { key: 'section_about_text',  label: 'Section À propos — Texte',         type: 'textarea' },

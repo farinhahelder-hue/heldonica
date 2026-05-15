@@ -163,6 +163,33 @@ export function formatDate(iso: string | null | undefined): string {
 /**
  * Récupère une valeur de paramètre depuis la table cms_settings
  */
+export async function getPageContent(page: string): Promise<Record<string, string>> {
+  if (!supabase) return {};
+
+  try {
+    const { data, error } = await supabase
+      .from('site_content')
+      .select('block_key, value')
+      .eq('page', page);
+
+    if (error) {
+      console.error(`Supabase getPageContent error for '${page}':`, error.message);
+      return {};
+    }
+
+    const contentMap: Record<string, string> = {};
+    if (data) {
+      data.forEach((row) => {
+        contentMap[row.block_key] = row.value;
+      });
+    }
+    return contentMap;
+  } catch (err) {
+    console.error(`getPageContent exception for '${page}':`, err);
+    return {};
+  }
+}
+
 export async function getSetting(key: string): Promise<string | null> {
   if (!supabase) return null;
   
