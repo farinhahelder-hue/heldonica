@@ -24,7 +24,6 @@ async function handler(req: NextRequest) {
 
   try {
     const now = new Date().toISOString();
-    console.log(`[CRON] Checking scheduled articles to publish at ${now}`);
 
     // Find articles that should be published (scheduled_published_at <= now but not yet published)
     const res = await fetch(
@@ -46,11 +45,9 @@ async function handler(req: NextRequest) {
     const articles = await res.json();
 
     if (!Array.isArray(articles) || articles.length === 0) {
-      console.log('[CRON] No scheduled articles found');
       return NextResponse.json({ message: 'No scheduled articles to publish', published: 0 });
     }
 
-    console.log(`[CRON] Found ${articles.length} articles to publish:`, articles.map(a => a.slug).join(', '));
 
     // Publish each article
     let published = 0;
@@ -78,7 +75,6 @@ async function handler(req: NextRequest) {
 
         if (updateRes.ok) {
           published++;
-          console.log(`[CRON] Successfully published: ${article.slug}`);
         } else {
           const err = await updateRes.text();
           console.error(`[CRON] Failed to publish ${article.slug}:`, err);
