@@ -1,4 +1,3 @@
-'use client'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
@@ -41,7 +40,7 @@ export default function SibiuPage() {
             <p className="text-lg text-stone-700">Sibiu, c est la petite Europe. Propre, rangee, avec les montagnes a cote.</p>
           </section>
           <section className="mb-8 grid md:grid-cols-3 gap-4">
-            {peptides.map((p, i) => (
+            {pepites.map((p, i) => (
               <div key={i} className="p-4 bg-white rounded-lg border">
                 <div className="text-xl mb-2">{p.icon}</div>
                 <h3 className="font-serif">{p.title}</h3>
