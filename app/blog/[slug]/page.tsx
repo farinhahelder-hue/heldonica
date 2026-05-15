@@ -149,10 +149,14 @@ function buildJsonLds(post: BlogPost, readTime: number) {
 }
 
 const HERO_FALLBACK: Record<string, string> = {
-  'Carnets Voyage': 'bg-gradient-to-br from-teal-900 via-stone-800 to-emerald-900',
-  'Découvertes Locales': 'bg-gradient-to-br from-amber-900 via-orange-900 to-stone-800',
-  'Guides Pratiques': 'bg-gradient-to-br from-slate-900 via-stone-800 to-zinc-900',
+  'Carnets Voyage': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80',
+  'Découvertes Locales': 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=1600&q=80',
+  'Guides Pratiques': 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1600&q=80',
+  'Travel': 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1600&q=80',
+  'Food & Lifestyle': 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=1600&q=80',
 }
+
+const DEFAULT_HERO = 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80'
 
 export default async function BlogPostPage({ params }: Props) {
   const post = await getPostBySlug(params.slug)
@@ -160,7 +164,7 @@ export default async function BlogPostPage({ params }: Props) {
 
   const relatedResult = await getRelatedPosts(post.slug, post.category, 3)
   const related = relatedResult ?? []
-  const heroImage = post.featured_image ?? null
+  const heroImage = post.featured_image ?? HERO_FALLBACK[post.category ?? ''] ?? DEFAULT_HERO
   const fallbackBg = HERO_FALLBACK[post.category ?? ''] ?? 'bg-gradient-to-br from-stone-900 to-amber-900'
   const readTime = calcReadTime(post.content)
   const { articleLd, breadcrumbLd } = buildJsonLds(post, readTime)
@@ -182,28 +186,16 @@ export default async function BlogPostPage({ params }: Props) {
 
       <Header />
       <main className="min-h-screen bg-white">
-        <div className={`relative h-[56vh] w-full overflow-hidden md:h-[68vh] ${!heroImage ? fallbackBg : 'bg-stone-900'}`}>
-          {heroImage && (
-            <img
-              src={heroImage}
-              alt={post.title}
-              width={1920}
-              height={1080}
-              className="absolute inset-0 h-full w-full object-cover opacity-75"
-              loading="eager"
-              decoding="async"
-            />
-          )}
-          {!heroImage && (
-            <div
-              className="absolute inset-0 opacity-10"
-              style={{
-                backgroundImage:
-                  'radial-gradient(circle at 25% 35%, white 1px, transparent 1px), radial-gradient(circle at 75% 65%, white 1px, transparent 1px)',
-                backgroundSize: '40px 40px',
-              }}
-            />
-          )}
+        <div className={`relative h-[56vh] w-full overflow-hidden md:h-[68vh] bg-stone-900`}>
+          <img
+            src={heroImage}
+            alt={post.title}
+            width={1920}
+            height={1080}
+            className="absolute inset-0 h-full w-full object-cover opacity-75"
+            loading="eager"
+            decoding="async"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12">
             <div className="mx-auto max-w-4xl">
@@ -323,23 +315,21 @@ export default async function BlogPostPage({ params }: Props) {
                 D&apos;autres récits qui avancent au même rythme : un moment précis, un lieu, un détail qui reste.
               </p>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                {related.map((relatedPost: BlogPost) => (
+                {related.map((relatedPost: BlogPost) => {
+                      const relatedImage = relatedPost.featured_image ?? HERO_FALLBACK[relatedPost.category ?? ''] ?? DEFAULT_HERO
+                      return (
                   <Link key={relatedPost.slug} href={`/blog/${relatedPost.slug}`} className="group block transition-all duration-200">
                     <article className="overflow-hidden rounded-[1.5rem] bg-white shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-md">
-                      {relatedPost.featured_image ? (
+                      <div className="relative h-44 overflow-hidden">
                         <img
-                          src={relatedPost.featured_image}
+                          src={relatedImage}
                           alt={relatedPost.title}
                           width={400}
                           height={176}
-                          className="h-44 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                           loading="lazy"
                         />
-                      ) : (
-                        <div className={`flex h-44 items-center justify-center ${HERO_FALLBACK[relatedPost.category ?? ''] ?? 'bg-stone-200'}`}>
-                          <span className="font-serif text-4xl text-white/40">H</span>
-                        </div>
-                      )}
+                      </div>
                       <div className="p-5">
                         {relatedPost.category && (
                           <span className="text-xs font-semibold text-amber-700">{relatedPost.category}</span>
@@ -351,7 +341,7 @@ export default async function BlogPostPage({ params }: Props) {
                       </div>
                     </article>
                   </Link>
-                ))}
+                )})}
               </div>
             </div>
           </section>
