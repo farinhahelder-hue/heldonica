@@ -66,11 +66,13 @@ function getReadTimeMinutes(content?: string) {
 }
 
 // ===== Config pages CMS =====
-const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { key: string; label: string; type: 'text' | 'textarea' }[] }> = {
+const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { key: string; label: string; type: 'text' | 'textarea' | 'media' }[] }> = {
   'home': {
     label: 'Accueil',
     emoji: '🏠',
     sections: [
+      { key: 'hero_video_url',    label: 'Hero — Vidéo (URL)',              type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)',        type: 'media' },
       { key: 'hero_title',          label: 'Hero — Titre',                     type: 'text' },
       { key: 'hero_subtitle',       label: 'Hero — Sous-titre',                type: 'textarea' },
       { key: 'hero_cta',            label: 'Hero — Bouton CTA',                type: 'text' },
@@ -1050,8 +1052,24 @@ function CMSAdminInner() {
                                 <label style={lbl}>{section.label}</label>
                                 {section.type === 'textarea' ? (
                                   <textarea value={editedContent[key] ?? ''} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={{ ...inp, height: 110, resize: 'vertical' }} placeholder={section.label} />
+                                ) : section.type === 'media' ? (
+                                  <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
+                                    <input value={editedContent[key] ?? ''} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={{ ...inp, flex: 1 }} placeholder="URL du média (video ou image)" />
+                                    {editedContent[key] && (
+                                      <button onClick={() => setEditedContent(prev => ({ ...prev, [key]: '' }))} style={{ padding: '.5rem .75rem', background: '#f0e8e4', color: '#6b2a1a', border: 'none', borderRadius: '.4rem', cursor: 'pointer', fontSize: '.8rem' }}>✕</button>
+                                    )}
+                                  </div>
                                 ) : (
                                   <input value={editedContent[key] ?? ''} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={inp} placeholder={section.label} />
+                                )}
+                                {section.type === 'media' && editedContent[key] && (
+                                  <div style={{ marginTop: '.5rem', borderRadius: '.5rem', overflow: 'hidden', maxWidth: 320 }}>
+                                    {section.key.includes('video') || editedContent[key]?.endsWith('.mp4') || editedContent[key]?.endsWith('.webm') ? (
+                                      <video src={editedContent[key]} controls style={{ width: '100%', borderRadius: '.5rem' }} />
+                                    ) : (
+                                      <img src={editedContent[key]} alt="Preview" style={{ width: '100%', borderRadius: '.5rem', objectFit: 'cover' }} />
+                                    )}
+                                  </div>
                                 )}
                               </div>
                             );

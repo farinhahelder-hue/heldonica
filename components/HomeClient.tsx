@@ -173,10 +173,12 @@ interface HomeProps {
   latestPosts: (BlogPost & { formattedDate: string; readTime?: number })[]
   totalPosts: number
   coveredCountries?: string | null
+  heroVideoUrl?: string | null
+  heroPosterImage?: string | null
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries }: HomeProps) {
+export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries, heroVideoUrl, heroPosterImage }: HomeProps) {
   useScrollReveal()
   const featImg = featured ? postImage(featured) : null
   const publishedArticles = totalPosts || 23
@@ -210,12 +212,12 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           playsInline
           preload="auto"
           className="absolute inset-0 w-full h-full object-cover opacity-45"
-          poster="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1600&q=80"
+          poster={heroPosterImage || "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1600&q=80"}
         >
-          <source src="https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4" type="video/mp4" />
+          <source src={heroVideoUrl || "https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4"} type="video/mp4" />
           {/* Fallback if video fails to load */}
           <img 
-            src="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1600&q=80"
+            src={heroPosterImage || "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1600&q=80"}
             alt="Heldonica hero"
             className="absolute inset-0 w-full h-full object-cover"
           />
