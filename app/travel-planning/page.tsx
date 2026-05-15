@@ -200,7 +200,45 @@ export default function TravelPlanning() {
         <section className="py-20 md:py-28 bg-white">
           <div className="max-w-6xl mx-auto px-6 md:px-10">
             <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-3">Le livrable</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12">Ce qu&apos;on conçoit pour toi</h2>
+            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-6">Ce qu&apos;on conçoit pour toi</h2>
+            
+            {/* PDF Mockup Preview */}
+            <div className="mb-10 bg-stone-900 rounded-2xl p-4 md:p-6 shadow-2xl max-w-xl mx-auto">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-3 h-3 rounded-full bg-red-500" />
+                <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                <div className="w-3 h-3 rounded-full bg-green-500" />
+                <span className="ml-2 text-stone-500 text-xs">carnet-de-voyage-heldonica.pdf</span>
+              </div>
+              <div className="bg-white rounded-lg overflow-hidden">
+                <div className="bg-gradient-to-r from-amber-100 to-amber-50 p-4 border-b border-amber-200">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-amber-800 flex items-center justify-center text-white font-serif font-bold text-lg">H</div>
+                    <div>
+                      <p className="text-stone-900 font-semibold text-sm">Carnet de voyage — Madère</p>
+                      <p className="text-stone-500 text-xs">7 jours · 2 personnes</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4 space-y-3">
+                  <div className="flex gap-3">
+                    <div className="w-12 h-10 rounded bg-stone-100 flex items-center justify-center text-stone-400 text-xs">Itin.</div>
+                    <div className="flex-1">
+                      <p className="text-stone-900 font-medium text-sm">Jour 1 — Funchal</p>
+                      <p className="text-stone-500 text-xs">Restaurant local</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="w-12 h-10 rounded bg-stone-100 flex items-center justify-center text-stone-400 text-xs">Héb.</div>
+                    <div className="flex-1">
+                      <p className="text-stone-900 font-medium text-sm">Quinta do Arco</p>
+                      <p className="text-stone-500 text-xs">Vue montagne</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
               {[
                 {
