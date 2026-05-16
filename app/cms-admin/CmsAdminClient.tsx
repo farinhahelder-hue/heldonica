@@ -120,8 +120,14 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
     label: 'Contact',
     emoji: '📧',
     sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
       { key: 'page_title',  label: 'Titre de la page',      type: 'text' },
       { key: 'intro_text',  label: "Texte d'introduction",  type: 'textarea' },
+      { key: 'contact_email', label: 'Email de contact', type: 'text' },
+      { key: 'contact_phone', label: 'Téléphone', type: 'text' },
     ],
   },
   'hotel-consulting': {
