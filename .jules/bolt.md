@@ -1,0 +1,3 @@
+## 2024-05-16 - Prevent unnecessary Next.js Server Rendering (Bailouts)
+**Learning:** The blog index page (`app/blog/page.tsx`) was incorrectly configured with `export const dynamic = 'force-dynamic'` and `revalidate = 0`. In Next.js App Router, this forces server-side rendering for every request, completely bypassing static caching and dramatically increasing TTFB and server load, especially on pages that only list content (like a blog index) which should lean towards being statically generated.
+**Action:** Replaced the `force-dynamic` setting with `export const revalidate = 60` (ISR) to allow Next.js to cache the page for 60 seconds. This significantly improves load times for visitors while still ensuring new blog posts appear within a minute of being published.
