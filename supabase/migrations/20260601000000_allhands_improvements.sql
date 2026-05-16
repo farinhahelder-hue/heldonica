@@ -1,13 +1,13 @@
 -- Migration Action 2: Kanban Travel Planning
-ALTER TABLE cms_demandes_travel
+ALTER TABLE demandes_travel
 ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'nouveau'
 CHECK (status IN ('nouveau', 'en_discussion', 'conception_sur_mesure', 'livre'));
 
-ALTER TABLE cms_demandes_travel
+ALTER TABLE demandes_travel
 ADD COLUMN IF NOT EXISTS notes TEXT,
 ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 
-CREATE INDEX IF NOT EXISTS idx_cms_demandes_status ON cms_demandes_travel(status);
+CREATE INDEX IF NOT EXISTS idx_cms_demandes_status ON demandes_travel(status);
 
 -- Migration Action 3: Calendrier Editorial
 CREATE TABLE IF NOT EXISTS cms_social_schedule (
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS cms_itineraires (
   duration_days INTEGER,
   blocks JSONB NOT NULL DEFAULT '[]',
   status TEXT DEFAULT 'brouillon' CHECK (status IN ('brouillon', 'envoyé', 'archivé')),
-  related_request_id BIGINT REFERENCES cms_demandes_travel(id) ON DELETE SET NULL,
+  related_request_id BIGINT REFERENCES demandes_travel(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
