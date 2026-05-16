@@ -66,7 +66,7 @@ function getReadTimeMinutes(content?: string) {
 }
 
 // ===== Config pages CMS =====
-const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { key: string; label: string; type: 'text' | 'textarea' | 'media' }[] }> = {
+const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { key: string; label: string; type: 'text' | 'textarea' | 'media' | 'color' }[] }> = {
   'home': {
     label: 'Accueil',
     emoji: '🏠',
