@@ -157,7 +157,7 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
             <span className="text-xs text-charcoal/40">
               {post.author ?? 'Heldonica'} {post.destination ? `• 📍 ${post.destination}` : ` • ${post.formattedDate}`}
             </span>
-            <span className="text-xs text-eucalyptus font-semibold group-hover:translate-x-1 transition-transform">Lire le carnet →</span>
+            <span className="text-xs text-eucalyptus font-semibold group-hover:translate-x-1 transition-transform">Lire la suite →</span>
           </div>
         </div>
       </article>
@@ -249,7 +249,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             <Link href="/blog" 
               className="px-5 md:px-6 py-2.5 md:py-3 bg-mahogany hover:bg-eucalyptus text-white rounded-full font-semibold text-sm tracking-wide transition"
               onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'hero_read_carnet' })}>
-              Lire le carnet →
+              Lire la suite →
             </Link>
             <Link href="/travel-planning-form" 
               className="px-5 md:px-6 py-2.5 md:py-3 border border-white/50 hover:border-white text-white hover:bg-white/10 rounded-full font-semibold text-sm tracking-wide transition"
@@ -286,7 +286,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 Notre regard est né à deux, entre Paris, Madère et la Roumanie. On ferme les ordis, on part, on revient, on note ce qui tient vraiment sur le terrain. Ensuite seulement, on le partage.
               </p>
               <Link href="/blog" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
-                Lire le carnet →
+                Lire la suite →
               </Link>
             </div>
             <div className="md:col-span-2 grid grid-cols-2 gap-6" data-reveal="right">
@@ -331,7 +331,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   <p className="text-white/65 text-sm md:text-base leading-relaxed line-clamp-2 mb-4 max-w-xl">{displayExcerpt(featured)}</p>
                 )}
                 <span className="inline-flex items-center gap-2 text-teal font-semibold text-sm group-hover:gap-3 transition-all">
-                  Lire le carnet →
+                  Lire la suite →
                 </span>
               </div>
             </article>
@@ -351,7 +351,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   Chaque itinéraire qu&apos;on propose, on l&apos;a fait. Plusieurs fois. En conditions réelles, pas en press trip.
                 </p>
               </div>
-              <Link href="/blog" className="text-sm text-eucalyptus font-semibold hover:underline">Voir tous les carnets →</Link>
+              <Link href="/blog" className="text-sm text-eucalyptus font-semibold hover:underline">Tout voir →</Link>
             </div>
             {travelPosts.length >= 1 && (
               <div className="grid md:grid-cols-2 gap-6 mb-6">
@@ -434,7 +434,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   ))}
                 </div>
                 <Link href="/blog" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
-                  Voir les découvertes locales →
+                  Tout voir →
                 </Link>
               </div>
             </div>
@@ -489,7 +489,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               <Link href="/blog" 
                 className="px-6 py-3 border border-white/30 hover:border-white/60 text-white rounded font-semibold text-sm transition"
                 onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'services_read_carnet' })}>
-                Lire le carnet →
+                Lire la suite →
               </Link>
               </div>
             </div>
