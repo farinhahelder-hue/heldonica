@@ -863,33 +863,96 @@ function CMSAdminInner() {
       <div style={{ maxWidth: 1100, margin: '2rem auto', padding: '0 1.5rem' }}>
 
         {tab === 'dashboard' && (
-          <div>
-            <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', marginBottom: '1.5rem' }}>
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>🏠 Tableau de bord</h2>
-              <div className="cms-grid-kpi">
-                <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
-                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{articles.filter(a => a.published).length}</p>
-                  <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Articles publiés</p>
-                </div>
-                <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
-                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{articles.filter(a => !a.published).length}</p>
-                  <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Brouillons</p>
-                </div>
-                <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
-                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{demandes.length}</p>
-                  <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Demandes travel</p>
-                </div>
-                <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
-                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{settings.length}</p>
-                  <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Paramètres</p>
-                </div>
+          <div className="flex flex-col gap-6">
+            <div className="flex justify-between items-center flex-wrap gap-4">
+                <h2 className="text-2xl font-bold text-charcoal font-serif">Tableau de bord</h2>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-white p-5 rounded-xl text-center border-l-4 border-eucalyptus shadow-sm">
+                <p className="text-3xl font-bold text-charcoal">{articles.filter(a => a.published).length}</p>
+                <p className="text-xs text-gray-500 uppercase font-semibold mt-1">Articles publiés</p>
               </div>
-              <div className="cms-top-actions">
-                <button onClick={() => openArticleEditor({})} style={{ padding: '.7rem 1.5rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>+ Nouvel article</button>
-                <button onClick={() => setTab('blog')} style={{ padding: '.7rem 1.5rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>✨ Générateur IA</button>
-                <button onClick={() => setTab('demandes')} style={{ padding: '.7rem 1.5rem', background: '#444', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>✈️ Travel Planning</button>
-                <button onClick={() => window.open('/', '_blank')} style={{ padding: '.7rem 1.5rem', background: '#e0dbd5', color: '#333', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>🌐 Voir le site</button>
+              <div className="bg-white p-5 rounded-xl text-center border-l-4 border-mahogany shadow-sm">
+                <p className="text-3xl font-bold text-charcoal">{articles.filter(a => !a.published).length}</p>
+                <p className="text-xs text-gray-500 uppercase font-semibold mt-1">Brouillons</p>
               </div>
+              <div className="bg-white p-5 rounded-xl text-center border-l-4 border-teal shadow-sm">
+                <p className="text-3xl font-bold text-charcoal">{demandes.filter(d => (d as any).status === 'nouveau' || d.statut === 'nouveau').length}</p>
+                <p className="text-xs text-gray-500 uppercase font-semibold mt-1">Demandes à traiter</p>
+              </div>
+              <div className="bg-white p-5 rounded-xl text-center border-l-4 border-charcoal shadow-sm">
+                <p className="text-3xl font-bold text-charcoal">{settings.length}</p>
+                <p className="text-xs text-gray-500 uppercase font-semibold mt-1">Paramètres</p>
+              </div>
+            </div>
+
+            {/* Alerte programmation */}
+            {articles.filter(a => !a.published && a.published_at && new Date(a.published_at) < new Date()).length > 0 && (
+                <div className="bg-yellow-50 border border-yellow-200 p-6 rounded-xl">
+                    <h3 className="text-yellow-800 text-lg font-bold mb-4 flex items-center gap-2">
+                        ⚠️ Alertes articles programmés bloqués
+                    </h3>
+                    <div className="flex flex-col gap-3">
+                        {articles.filter(a => !a.published && a.published_at && new Date(a.published_at) < new Date()).map(a => (
+                            <div key={a.id} className="flex justify-between items-center bg-white px-4 py-3 rounded-lg shadow-sm">
+                                <span className="font-medium text-charcoal">{a.title} <span className="text-gray-500 text-sm font-normal">(prévu le {fmt(a.published_at)})</span></span>
+                                <button onClick={() => togglePublish(a)} className="px-3 py-1.5 bg-eucalyptus text-white border-none rounded-md cursor-pointer text-sm font-semibold hover:opacity-90 transition-opacity">Publier maintenant</button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="bg-white rounded-xl p-6 shadow-sm">
+                <h3 className="text-lg font-bold text-charcoal mb-4 border-b border-gray-200 pb-2">Brouillons en attente</h3>
+                {articles.filter(a => !a.published).sort((a,b) => new Date(b.updated_at || b.created_at).getTime() - new Date(a.updated_at || a.created_at).getTime()).slice(0, 5).length === 0 ? (
+                    <p className="text-gray-500 italic">Aucun brouillon en attente, bonne nouvelle ! Créez un nouvel article pour commencer.</p>
+                ) : (
+                    <div className="flex flex-col gap-3">
+                        {articles.filter(a => !a.published).sort((a,b) => new Date(b.updated_at || b.created_at).getTime() - new Date(a.updated_at || a.created_at).getTime()).slice(0, 5).map(a => (
+                            <div key={a.id} className="flex justify-between items-center p-3 border border-gray-100 rounded-lg bg-gray-50">
+                                <div>
+                                    <div className="font-semibold text-gray-900 text-sm">{a.title}</div>
+                                    <div className="text-xs text-gray-500 mt-1">{a.category} • Modifié le {fmt(a.updated_at || a.created_at)}</div>
+                                </div>
+                                <button onClick={() => { openArticleEditor(a); setTab('articles'); }} className="px-3 py-1.5 border border-gray-200 bg-white rounded-md text-xs cursor-pointer text-gray-700 hover:bg-gray-50">✏️ Éditer</button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+              </div>
+
+              <div className="bg-white rounded-xl p-6 shadow-sm">
+                <h3 className="text-lg font-bold text-charcoal mb-4 border-b border-gray-200 pb-2">Nouvelles demandes Travel Planning</h3>
+                {demandes.filter(d => (d as any).status === 'nouveau' || d.statut === 'nouveau').sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 5).length === 0 ? (
+                    <p className="text-gray-500 italic">Aucune nouvelle demande à traiter pour le moment.</p>
+                ) : (
+                    <div className="flex flex-col gap-3">
+                        {demandes.filter(d => (d as any).status === 'nouveau' || d.statut === 'nouveau').sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 5).map(d => (
+                            <div key={d.id} className="flex justify-between items-center p-3 border border-gray-100 rounded-lg bg-gray-50">
+                                <div>
+                                    <div className="font-semibold text-gray-900 text-sm">{d.prenom} {d.nom}</div>
+                                    <div className="text-xs text-gray-500 mt-1">{d.destination} • {d.budget_fourchette} • Reçu le {fmt(d.created_at)}</div>
+                                </div>
+                                <div className="flex gap-2 items-center">
+                                    <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full font-semibold">Nouveau</span>
+                                    <button onClick={() => setTab('demandes')} className="px-3 py-1.5 border border-gray-200 bg-white rounded-md text-xs cursor-pointer text-gray-700 hover:bg-gray-50">👀 Voir</button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex gap-4 mt-2 bg-white p-6 rounded-xl shadow-sm flex-wrap items-center">
+                <h3 className="text-base font-semibold w-full mb-2 text-gray-600">Actions rapides</h3>
+                <button onClick={() => openArticleEditor({})} className="px-6 py-2.5 bg-mahogany text-white border-none rounded-lg cursor-pointer font-semibold hover:opacity-90">+ Nouvel article</button>
+                <button onClick={() => setTab('blog')} className="px-6 py-2.5 bg-eucalyptus text-white border-none rounded-lg cursor-pointer font-semibold hover:opacity-90">✨ Générateur IA</button>
+                <button onClick={() => setTab('demandes')} className="px-6 py-2.5 bg-charcoal text-white border-none rounded-lg cursor-pointer font-semibold hover:opacity-90">✈️ Travel Planning</button>
+                <button onClick={() => window.open('/', '_blank')} className="px-6 py-2.5 bg-gray-200 text-gray-800 border-none rounded-lg cursor-pointer font-semibold hover:opacity-90">🌐 Voir le site</button>
             </div>
           </div>
         )}
