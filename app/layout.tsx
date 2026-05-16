@@ -4,6 +4,7 @@ import './globals.css';
 import { AuthProvider } from '@/components/AuthProvider';
 import CookieConsentBanner from '@/components/CookieConsentBanner';
 import ThemeProvider from '@/components/ThemeProvider';
+import SiteTheme from '@/components/SiteTheme';
 import { getSiteSettings } from '@/lib/settings';
 
 const SITE_URL = 'https://www.heldonica.fr';
@@ -195,6 +196,7 @@ export default async function RootLayout({
       <body>
         <ThemeProvider>
           <AuthProvider>
+            <SiteTheme />
             {children}
             <CookieConsentBanner />
           </AuthProvider>

@@ -138,8 +138,18 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
     label: 'Hotel Consulting',
     emoji: '🏨',
     sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
       { key: 'page_title',  label: 'Titre de la page',      type: 'text' },
       { key: 'intro_text',  label: "Texte d'introduction",  type: 'textarea' },
+      { key: 'hero_cta', label: 'Hero — Bouton CTA', type: 'text' },
+      { key: 'hero_cta_link', label: 'Hero — Lien du bouton', type: 'text' },
+      { key: 'section_approach_title', label: 'Section Approche — Titre', type: 'text' },
+      { key: 'section_approach_text', label: 'Section Approche — Texte', type: 'textarea' },
+      { key: 'section_services_title', label: 'Section Services — Titre', type: 'text' },
+      { key: 'section_services_list', label: 'Services (liste séparée par |)', type: 'textarea' },
     ],
   },
   'mentions-legales': {
@@ -147,6 +157,79 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
     emoji: '⚖️',
     sections: [
       { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'content', label: 'Contenu (HTML)', type: 'textarea' },
+    ],
+  },
+  'politique-confidentialite': {
+    label: 'Politique de confidentialité',
+    emoji: '🔒',
+    sections: [
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'content', label: 'Contenu (HTML)', type: 'textarea' },
+    ],
+  },
+  'slow-travel': {
+    label: 'Slow Travel',
+    emoji: '🐌',
+    sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
+      { key: 'definition_title', label: 'Titre Définition', type: 'text' },
+      { key: 'definition_text', label: 'Texte Définition', type: 'textarea' },
+      { key: 'principles_title', label: 'Titre Principes', type: 'text' },
+      { key: 'principles_list', label: 'Principes (séparés par |)', type: 'textarea' },
+    ],
+  },
+  'destinations': {
+    label: 'Destinations',
+    emoji: '🗺️',
+    sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
+    ],
+  },
+  'temoignages': {
+    label: 'Témoignages',
+    emoji: '💬',
+    sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
+    ],
+  },
+  'etudes-de-cas': {
+    label: 'Études de cas',
+    emoji: '📁',
+    sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
+    ],
+  },
+  'ai-hotellerie': {
+    label: 'IA & Hôtellerie',
+    emoji: '🤖',
+    sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
     ],
   },
 };
@@ -163,13 +246,27 @@ const SETTINGS_GROUPS: Record<string, { label: string; emoji: string }> = {
 const APPEARANCE_SETTINGS = [
   { key: 'site_logo',        label: 'Logo du site (PNG/SVG)',      type: 'media' },
   { key: 'site_favicon',    label: 'Favicon (32x32, PNG/ICO)',   type: 'media' },
+  // Couleurs du site
   { key: 'color_primary',   label: 'Couleur primaire',         type: 'color' },
   { key: 'color_secondary', label: 'Couleur secondaire',       type: 'color' },
   { key: 'color_accent',    label: 'Couleur d\'accent',         type: 'color' },
   { key: 'color_background',label: 'Couleur de fond',          type: 'color' },
   { key: 'color_text',      label: 'Couleur du texte',           type: 'color' },
-  { key: 'font_heading',    label: 'Police des titres',           type: 'text' },
-  { key: 'font_body',      label: 'Police du texte',             type: 'text' },
+  // Couleurs des héros
+  { key: 'hero_overlay_color', label: 'Hero — Couleur de overlay', type: 'color' },
+  { key: 'hero_overlay_opacity', label: 'Hero — Opacité overlay (0-100)', type: 'text' },
+  // Couleurs des boutons
+  { key: 'button_primary_bg', label: 'Bouton principal — Fond', type: 'color' },
+  { key: 'button_primary_text', label: 'Bouton principal — Texte', type: 'color' },
+  { key: 'button_secondary_bg', label: 'Bouton secondaire — Fond', type: 'color' },
+  { key: 'button_secondary_text', label: 'Bouton secondaire — Texte', type: 'color' },
+  // Typographie
+  { key: 'font_heading',    label: 'Police des titres (Google Fonts)',           type: 'text' },
+  { key: 'font_body',      label: 'Police du texte (Google Fonts)',             type: 'text' },
+  { key: 'font_size_base', label: 'Taille de base (ex: 16px)', type: 'text' },
+  // Layout
+  { key: 'container_max_width', label: 'Largeur max container (ex: 1280px)', type: 'text' },
+  { key: 'header_sticky', label: 'Header fixe (true/false)', type: 'text' },
 ];
 
 // ===== Composant interne (utilise useSearchParams) =====
@@ -1448,7 +1545,7 @@ function CMSAdminInner() {
                   {(() => {
                     const groupItems = settings.filter(s => {
                       if (settingsGroup === 'general') return ['site_title', 'site_logo', 'site_favicon'].includes(s.key);
-                      if (settingsGroup === 'appearance') return ['site_logo', 'site_favicon', 'color_primary', 'color_secondary', 'color_accent', 'color_background', 'color_text', 'font_heading', 'font_body'].includes(s.key);
+                      if (settingsGroup === 'appearance') return true; // Show all appearance settings
                       if (settingsGroup === 'social') return s.key.startsWith('social_');
                       if (settingsGroup === 'seo') return s.key.startsWith('seo_');
                       if (settingsGroup === 'footer') return s.key.startsWith('footer_');
