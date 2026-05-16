@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 
+// Couleur CTA principale : Eucalyptus (#006D77)
 export default function Header() {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
@@ -81,7 +82,7 @@ export default function Header() {
             ))}
             <Link
               href="/planifier"
-              className="ml-3 rounded-full bg-amber-900 px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-colors duration-200 hover:bg-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-offset-2"
+              className="ml-3 rounded-full bg-eucalyptus px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-colors duration-200 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:ring-offset-2"
             >
               Planifier mon voyage
             </Link>
@@ -89,7 +90,7 @@ export default function Header() {
 
           {/* Mobile Navigation */}
           <div className="flex items-center gap-3 lg:hidden">
-            <Link href="/planifier" className="rounded-full bg-amber-900 px-4 py-2 text-xs font-semibold text-white shadow-sm">
+            <Link href="/planifier" className="rounded-full bg-eucalyptus px-4 py-2 text-xs font-semibold text-white shadow-sm">
               Planifier mon voyage
             </Link>
             <button
@@ -156,7 +157,7 @@ export default function Header() {
               <Link
                 href="/planifier"
                 onClick={() => setOpen(false)}
-                className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-amber-900 px-4 py-4 text-base font-semibold text-white transition-colors duration-200 hover:bg-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-offset-2"
+                className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-eucalyptus px-4 py-4 text-base font-semibold text-white transition-colors duration-200 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:ring-offset-2"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <circle cx="12" cy="12" r="10" />
