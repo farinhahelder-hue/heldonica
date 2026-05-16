@@ -49,8 +49,8 @@ Une page d'accueil dashboard qui s'affiche en premier lors de la connexion à /c
 - Affichage : liste avec titre, catégorie, date de dernière modification, bouton "Éditer" qui navigue vers l'onglet Blog du CMS en présélectionnant l'article
 
 **Widget 2 — Nouvelles demandes Travel Planning**
-- Requête : `SELECT id, name, email, destination, budget, vibe, status, created_at FROM cms_demandes_travel WHERE status = 'nouveau' ORDER BY created_at DESC LIMIT 5`
-- Affichage : liste avec nom, destination, budget, date de réception, badge statut coloré, bouton "Voir" qui ouvre un modal de détail
+- Requête : `SELECT id, prenom, nom, email, destination, budget_fourchette, style_voyage, statut, created_at FROM cms_demandes_travel WHERE statut = 'nouveau' ORDER BY created_at DESC LIMIT 5`
+- Affichage : liste avec prénom+nom, destination, budget, date de réception, badge statut coloré, bouton "Voir" qui ouvre un modal de détail
 
 **Widget 3 — Alertes articles programmés bloqués**
 - Requête : `SELECT id, title, slug, published_at FROM cms_blog_posts WHERE published = FALSE AND published_at < NOW() AND published_at IS NOT NULL`
@@ -59,7 +59,7 @@ Une page d'accueil dashboard qui s'affiche en premier lors de la connexion à /c
 **Widget 4 — Statistiques rapides**
 - Total articles publiés : `SELECT COUNT(*) FROM cms_blog_posts WHERE published = TRUE`
 - Total brouillons : `SELECT COUNT(*) FROM cms_blog_posts WHERE published = FALSE`
-- Demandes Travel Planning non traitées : `SELECT COUNT(*) FROM cms_demandes_travel WHERE status = 'nouveau'`
+- Demandes Travel Planning non traitées : `SELECT COUNT(*) FROM cms_demandes_travel WHERE statut = 'nouveau'`
 - Affichage : 3 KPI cards côte à côte (chiffre + label)
 
 #### Contraintes de design
@@ -79,14 +79,14 @@ Une page d'accueil dashboard qui s'affiche en premier lors de la connexion à /c
 Exécuter ce SQL dans Supabase avant tout :
 ```sql
 ALTER TABLE cms_demandes_travel
-ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'nouveau'
-CHECK (status IN ('nouveau', 'en_discussion', 'conception_sur_mesure', 'livre'));
+ADD COLUMN IF NOT EXISTS statut TEXT DEFAULT 'nouveau'
+CHECK (statut IN ('nouveau', 'en_discussion', 'conception_sur_mesure', 'livré'));
 
 ALTER TABLE cms_demandes_travel
 ADD COLUMN IF NOT EXISTS notes TEXT,
 ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 
-CREATE INDEX IF NOT EXISTS idx_cms_demandes_status ON cms_demandes_travel(status);
+CREATE INDEX IF NOT EXISTS idx_cms_demandes_statut ON cms_demandes_travel(statut);
 ```
 
 #### Ce qu'il faut construire
@@ -109,14 +109,14 @@ Un board Kanban drag-and-drop avec 4 colonnes :
 - Bouton "Notes internes" (textarea sauvegardée dans la colonne `notes`)
 
 **Interactions** :
-- Drag d'une carte entre colonnes → `UPDATE cms_demandes_travel SET status = $1, updated_at = NOW() WHERE id = $2` via `PATCH /api/cms/travel-requests`
+- Drag d'une carte entre colonnes → `UPDATE cms_demandes_travel SET statut = $1, updated_at = NOW() WHERE id = $2` via `PATCH /api/cms/travel-requests`
 - Clic sur une carte → modal de détail complet avec toutes les infos du formulaire
 - Bouton "Envoyer email" → `mailto:` pré-rempli avec le nom du client et la destination
 
 **Route API à créer** : `app/api/cms/travel-requests/route.ts`
 ```typescript
 // GET : récupère toutes les demandes groupées par status
-// PATCH : met à jour le status et/ou les notes d'une demande
+// PATCH : met à jour le statut et/ou les notes d'une demande
 // DELETE : archive une demande (soft delete avec deleted_at)
 ```
 
@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS cms_social_schedule (
   type TEXT NOT NULL CHECK (type IN ('instagram_carousel', 'newsletter', 'reels', 'story')),
   scheduled_at TIMESTAMPTZ NOT NULL,
   status TEXT DEFAULT 'planifié' CHECK (status IN ('planifié', 'publié', 'annulé')),
-  related_post_id BIGINT REFERENCES cms_blog_posts(id) ON DELETE SET NULL,
+  related_post_id UUID REFERENCES cms_blog_posts(id) ON DELETE SET NULL,
   notes TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -258,7 +258,7 @@ Upload vers Supabase Storage dans le bucket correspondant.
 #### Ce qu'il faut construire
 Au moment de l'upload d'une image, appeler automatiquement un modèle de vision IA pour générer l'alt text et les tags suggérés.
 
-**Modèle recommandé** : `meta-llama/llama-4-scout-17b-16e-instruct` via Groq (vision multimodal)
+**Modèle recommandé** : `llama-3.2-90b-vision-preview` via Groq (vision multimodal)
 
 **Flux** :
 1. Image uploadée → stockée dans Supabase Storage
@@ -311,7 +311,7 @@ CREATE TABLE IF NOT EXISTS cms_itineraires (
   duration_days INTEGER,
   blocks JSONB NOT NULL DEFAULT '[]',
   status TEXT DEFAULT 'brouillon' CHECK (status IN ('brouillon', 'envoyé', 'archivé')),
-  related_request_id BIGINT REFERENCES cms_demandes_travel(id) ON DELETE SET NULL,
+  related_request_id UUID REFERENCES cms_demandes_travel(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -362,7 +362,7 @@ ALTER TABLE cms_itineraires ENABLE ROW LEVEL SECURITY;
 ```sql
 CREATE TABLE IF NOT EXISTS cms_blog_posts_revisions (
   id BIGSERIAL PRIMARY KEY,
-  post_id BIGINT NOT NULL REFERENCES cms_blog_posts(id) ON DELETE CASCADE,
+  post_id UUID NOT NULL REFERENCES cms_blog_posts(id) ON DELETE CASCADE,
   title TEXT,
   content TEXT,
   excerpt TEXT,
