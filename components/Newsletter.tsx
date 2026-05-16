@@ -24,20 +24,20 @@ export default function Newsletter() {
           Pépites exclusives + 1 guide PDF/mois
         </p>
 
-        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-full max-w-md mx-auto">
           <input
             type="email"
-            placeholder="Votre email"
+            placeholder="votre@email.fr"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="flex-1 px-4 py-3 rounded-lg text-charcoal focus:outline-none focus:ring-2 focus:ring-white"
+            className="w-full px-4 py-3 rounded-lg text-charcoal focus:outline-none focus:ring-2 focus:ring-white"
           />
           <button
             type="submit"
-            className="px-8 py-3 bg-white text-eucalyptus font-semibold rounded-lg hover:bg-cloud-dancer transition"
+            className="w-full px-4 py-3 bg-white text-eucalyptus font-semibold rounded-lg hover:bg-cloud-dancer transition"
           >
-            S'abonner
+            Je m&apos;abonne
           </button>
         </form>
 
