@@ -142,11 +142,25 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
 };
 
 const SETTINGS_GROUPS: Record<string, { label: string; emoji: string }> = {
-  general: { label: 'Général',         emoji: '🌐' },
-  social:  { label: 'Réseaux sociaux', emoji: '📱' },
-  seo:     { label: 'SEO',             emoji: '🔍' },
-  footer:  { label: 'Footer',          emoji: '📄' },
+  general:    { label: 'Général',         emoji: '🌐' },
+  appearance:{ label: 'Apparence',      emoji: '🎨' },
+  social:    { label: 'Réseaux sociaux', emoji: '📱' },
+  seo:       { label: 'SEO',            emoji: '🔍' },
+  footer:   { label: 'Footer',          emoji: '📄' },
 };
+
+// Paramètres d'apparence
+const APPEARANCE_SETTINGS = [
+  { key: 'site_logo',        label: 'Logo du site',       type: 'media' },
+  { key: 'site_favicon',    label: 'Favicon',          type: 'media' },
+  { key: 'color_primary',   label: 'Couleur primaire',type: 'color' },
+  { key: 'color_secondary', label: 'Couleur secondaire',type: 'color' },
+  { key: 'color_accent',    label: 'Couleur accent',    type: 'color' },
+  { key: 'color_background',label: 'Couleur fond',      type: 'color' },
+  { key: 'color_text',      label: 'Couleur texte',     type: 'color' },
+  { key: 'font_heading',    label: 'Police titres',     type: 'text' },
+  { key: 'font_body',       label: 'Police texte',      type: 'text' },
+];
 
 // ===== Composant interne (utilise useSearchParams) =====
 function CMSAdminInner() {
@@ -1091,6 +1105,11 @@ function CMSAdminInner() {
                                       <button onClick={() => setEditedContent(prev => ({ ...prev, [key]: '' }))} style={{ padding: '.5rem .75rem', background: '#f0e8e4', color: '#6b2a1a', border: 'none', borderRadius: '.4rem', cursor: 'pointer', fontSize: '.8rem' }}>✕</button>
                                     )}
                                   </div>
+                                ) : section.type === 'color' ? (
+                                  <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
+                                    <input type="color" value={editedContent[key] || '#6b2a1a'} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={{ width: 50, height: 40, padding: 0, border: 'none', cursor: 'pointer' }} />
+                                    <input value={editedContent[key] ?? ''} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={{ ...inp, flex: 1 }} placeholder="#RRGGBB" />
+                                  </div>
                                 ) : (
                                   <input value={editedContent[key] ?? ''} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={inp} placeholder={section.label} />
                                 )}
@@ -1279,6 +1298,7 @@ function CMSAdminInner() {
                   {(() => {
                     const groupItems = settings.filter(s => {
                       if (settingsGroup === 'general') return ['site_title', 'site_logo', 'site_favicon'].includes(s.key);
+                      if (settingsGroup === 'appearance') return ['site_logo', 'site_favicon', 'color_primary', 'color_secondary', 'color_accent', 'color_background', 'color_text', 'font_heading', 'font_body'].includes(s.key);
                       if (settingsGroup === 'social') return s.key.startsWith('social_');
                       if (settingsGroup === 'seo') return s.key.startsWith('seo_');
                       if (settingsGroup === 'footer') return s.key.startsWith('footer_');
