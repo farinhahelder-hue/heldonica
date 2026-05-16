@@ -32,7 +32,7 @@ export default function Header() {
 
   return (
     <>
-      <nav className="fixed top-0 z-50 w-full border-b border-stone-100 bg-white/95 backdrop-blur-sm" role="navigation" aria-label="Navigation principale">
+      <nav className="fixed top-0 z-50 w-full overflow-hidden border-b border-stone-100 bg-white/95 backdrop-blur-sm" role="navigation" aria-label="Navigation principale">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           <Link
             href="/"
@@ -145,7 +145,7 @@ export default function Header() {
                     {index === 0 && <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />}
                     {index === 1 && <><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></>}
                     {index === 2 && <><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></>}
-                    {index === 3 && <><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></>}
+                    {index === 3 && <><circle cx="12" cy="12" r="10" /><polygon points="12 2 12 12 18 12" fill="currentColor" /></>}
                     {index === 4 && <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>}
                   </svg>
                 </span>
