@@ -42,7 +42,7 @@ export default function AProposPage() {
       <main>
         <section className="relative h-[55vh] md:h-[65vh] bg-stone-900 flex items-end overflow-hidden">
           <img
-            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1400&q=85"
+            src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1400&q=85"
             alt="Heldonica — duo de voyageurs slow travel"
             className="absolute inset-0 w-full h-full object-cover opacity-40"
             width={1400}

@@ -114,7 +114,6 @@ export default function Footer() {
         <div className="border-t border-stone-800 pt-8">
           <div className="flex flex-col items-center justify-between gap-4 text-sm text-stone-400 md:flex-row">
             <p>© {currentYear} Heldonica. Tous droits réservés.</p>
-            <p className="text-xs">Photos © Heldonica. Tous droits d&apos;auteur réservés.</p>
           </div>
         </div>
       </div>
