@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
+import { getSettings } from '@/lib/settings'
 
 export const metadata: Metadata = {
   title: 'À Propos — Qui Sommes-Nous | Heldonica',
@@ -35,20 +36,52 @@ export const metadata: Metadata = {
   },
 }
 
-export default function AProposPage() {
+export const dynamic = 'force-dynamic'
+
+export default async function AProposPage() {
+  const heroSettings = await getSettings(
+    'hero_type',
+    'hero_video_url',
+    'hero_poster_image', 
+    'hero_background_image',
+    'page_title',
+    'intro_text'
+  )
+  
+  const heroType = heroSettings.hero_type || 'image'
+  const heroVideo = heroSettings.hero_video_url
+  const heroPoster = heroSettings.hero_poster_image || heroSettings.hero_background_image
+  const backgroundImage = heroSettings.hero_background_image || 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1400&q=85'
+  
   return (
     <>
       <Header />
       <main>
         <section className="relative h-[55vh] md:h-[65vh] bg-stone-900 flex items-end overflow-hidden">
-          <img
-            src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1400&q=85"
-            alt="Paysage naturel paisible — l'esprit slow travel de Heldonica"
-            className="absolute inset-0 w-full h-full object-cover opacity-40"
-            width={1400}
-            height={900}
-            loading="eager"
-          />
+          {/* Hero Video */}
+          {heroType === 'video' && heroVideo && (
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              poster={heroPoster}
+              className="absolute inset-0 w-full h-full object-cover opacity-40"
+            >
+              <source src={heroVideo} type="video/mp4" />
+            </video>
+          )}
+          {/* Hero Image (default or fallback) */}
+          {(heroType === 'image' || !heroVideo) && (
+            <img
+              src={backgroundImage}
+              alt="Paysage naturel paisible — l'esprit slow travel de Heldonica"
+              className="absolute inset-0 w-full h-full object-cover opacity-40"
+              width={1400}
+              height={900}
+              loading="eager"
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
           <div className="relative z-10 px-6 md:px-16 pb-14 md:pb-24 max-w-3xl">
             <p className="text-amber-300 text-xs font-bold tracking-[0.2em] uppercase mb-4">Notre histoire</p>
