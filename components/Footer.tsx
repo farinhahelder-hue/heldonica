@@ -104,8 +104,8 @@ export default function Footer() {
                 <a href="mailto:info@heldonica.fr" className="text-stone-300 transition-colors duration-200 hover:text-white">
                   info@heldonica.fr
                 </a>
+                <span className="block text-xs text-stone-500 mt-1">France</span>
               </li>
-              <li className="text-stone-400">France</li>
             </ul>
           </div>
         </div>
