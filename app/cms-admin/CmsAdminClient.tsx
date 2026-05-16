@@ -154,7 +154,7 @@ function CMSAdminInner() {
   const [authed, setAuthed] = useState(false);
   const [pwd, setPwd] = useState('');
   const [authErr, setAuthErr] = useState('');
-  const [tab, setTab] = useState('articles');
+  const [tab, setTab] = useState('dashboard');
   const [toast, setToast] = useState('');
   const [showMediaLibrary, setShowMediaLibrary] = useState(false);
 
@@ -815,30 +815,119 @@ function CMSAdminInner() {
         {tab === 'dashboard' && (
           <div>
             <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', marginBottom: '1.5rem' }}>
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>🏠 Tableau de bord</h2>
-              <div className="cms-grid-kpi">
-                <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
-                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{articles.filter(a => a.published).length}</p>
-                  <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Articles publiés</p>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#6b2a1a', margin: 0 }}>🏠 Tableau de bord</h2>
+                <button onClick={() => window.open('/', '_blank')} style={{ padding: '.5rem 1rem', background: '#f0e8e4', color: '#6b2a1a', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600, fontSize: '.85rem' }}>↗ Voir le site</button>
+              </div>
+
+              {/* Statistiques Rapides */}
+              <div className="cms-grid-kpi" style={{ marginBottom: '2rem' }}>
+                <div style={{ background: '#f8f6f4', padding: '1.5rem', borderRadius: '1rem', border: '1px solid #e5e0d8', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <p style={{ fontSize: '2rem', fontWeight: 700, color: '#6b2a1a', lineHeight: 1 }}>{articles.filter(a => a.published).length}</p>
+                  <p style={{ fontSize: '.8rem', color: '#666', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Articles publiés</p>
                 </div>
-                <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
-                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{articles.filter(a => !a.published).length}</p>
-                  <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Brouillons</p>
+                <div style={{ background: '#f8f6f4', padding: '1.5rem', borderRadius: '1rem', border: '1px solid #e5e0d8', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <p style={{ fontSize: '2rem', fontWeight: 700, color: '#6b2a1a', lineHeight: 1 }}>{articles.filter(a => !a.published).length}</p>
+                  <p style={{ fontSize: '.8rem', color: '#666', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Brouillons en attente</p>
                 </div>
-                <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
-                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{demandes.length}</p>
-                  <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Demandes travel</p>
-                </div>
-                <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
-                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{settings.length}</p>
-                  <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Paramètres</p>
+                <div style={{ background: '#f0fbfa', padding: '1.5rem', borderRadius: '1rem', border: '1px solid #c2ece8', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <p style={{ fontSize: '2rem', fontWeight: 700, color: '#01696f', lineHeight: 1 }}>
+                    {demandes.filter(d => !d.statut || d.statut.toLowerCase() === 'nouveau').length}
+                  </p>
+                  <p style={{ fontSize: '.8rem', color: '#01696f', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Demandes non traitées</p>
                 </div>
               </div>
-              <div className="cms-top-actions">
-                <button onClick={() => openArticleEditor({})} style={{ padding: '.7rem 1.5rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>+ Nouvel article</button>
-                <button onClick={() => setTab('blog')} style={{ padding: '.7rem 1.5rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>✨ Générateur IA</button>
-                <button onClick={() => setTab('demandes')} style={{ padding: '.7rem 1.5rem', background: '#444', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>✈️ Travel Planning</button>
-                <button onClick={() => window.open('/', '_blank')} style={{ padding: '.7rem 1.5rem', background: '#e0dbd5', color: '#333', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>🌐 Voir le site</button>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+
+                {/* Brouillons en attente */}
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #f0e8e4', paddingBottom: '0.75rem', marginBottom: '1rem' }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: '#333', margin: 0 }}>📝 Brouillons en attente</h3>
+                    <span style={{ fontSize: '0.8rem', color: '#888' }}>Les plus récents</span>
+                  </div>
+                  {articles.filter(a => !a.published).sort((a, b) => new Date(b.updated_at || b.created_at).getTime() - new Date(a.updated_at || a.created_at).getTime()).slice(0, 5).length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                      {articles.filter(a => !a.published).sort((a, b) => new Date(b.updated_at || b.created_at).getTime() - new Date(a.updated_at || a.created_at).getTime()).slice(0, 5).map(draft => (
+                        <div key={draft.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: '#f8f6f4', borderRadius: '0.75rem', border: '1px solid transparent', transition: 'border-color 0.2s' }}>
+                          <div style={{ overflow: 'hidden' }}>
+                            <p style={{ fontWeight: 600, fontSize: '0.95rem', color: '#6b2a1a', margin: '0 0 0.25rem 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{draft.title || 'Sans titre'}</p>
+                            <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.8rem', color: '#888' }}>
+                              <span>{draft.category || 'Non classé'}</span>
+                              <span>•</span>
+                              <span>Modifié le {fmt(draft.updated_at || draft.created_at)}</span>
+                            </div>
+                          </div>
+                          <button onClick={() => openArticleEditor(draft)} style={{ marginLeft: '1rem', padding: '0.4rem 0.8rem', background: 'white', color: '#6b2a1a', border: '1px solid #e5e0d8', borderRadius: '0.5rem', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, flexShrink: 0 }}>Éditer</button>
+                        </div>
+                      ))}
+                      <button onClick={() => setTab('articles')} style={{ marginTop: '0.5rem', background: 'none', border: 'none', color: '#6b2a1a', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer', textAlign: 'left', padding: 0 }}>Voir tous les brouillons →</button>
+                    </div>
+                  ) : (
+                    <div style={{ padding: '2rem', textAlign: 'center', background: '#f8f6f4', borderRadius: '0.75rem' }}>
+                      <p style={{ color: '#888', margin: '0 0 1rem 0', fontSize: '0.9rem' }}>Aucun brouillon en attente.</p>
+                      <button onClick={() => openArticleEditor({})} style={{ padding: '0.6rem 1.2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '0.5rem', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem' }}>+ Créer un article</button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Nouvelles demandes Travel Planning */}
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #f0e8e4', paddingBottom: '0.75rem', marginBottom: '1rem' }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: '#333', margin: 0 }}>✈️ Nouvelles demandes</h3>
+                    <span style={{ fontSize: '0.8rem', color: '#888' }}>À traiter</span>
+                  </div>
+                  {demandes.filter(d => !d.statut || d.statut.toLowerCase() === 'nouveau').slice(0, 5).length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                      {demandes.filter(d => !d.statut || d.statut.toLowerCase() === 'nouveau').slice(0, 5).map(demande => (
+                        <div key={demande.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: '#f8f6f4', borderRadius: '0.75rem', borderLeft: '4px solid #01696f' }}>
+                          <div style={{ overflow: 'hidden' }}>
+                            <p style={{ fontWeight: 600, fontSize: '0.95rem', color: '#333', margin: '0 0 0.25rem 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{demande.prenom} {demande.nom}</p>
+                            <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.8rem', color: '#666' }}>
+                              <span>{demande.destination}</span>
+                              <span>•</span>
+                              <span style={{ color: '#01696f', fontWeight: 600 }}>{demande.budget_fourchette}</span>
+                            </div>
+                            <p style={{ fontSize: '0.75rem', color: '#aaa', margin: '0.25rem 0 0 0' }}>Reçu le {fmt(demande.created_at)}</p>
+                          </div>
+                          <button onClick={() => setTab('demandes')} style={{ marginLeft: '1rem', padding: '0.4rem 0.8rem', background: 'white', color: '#01696f', border: '1px solid #c2ece8', borderRadius: '0.5rem', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, flexShrink: 0 }}>Voir</button>
+                        </div>
+                      ))}
+                      <button onClick={() => setTab('demandes')} style={{ marginTop: '0.5rem', background: 'none', border: 'none', color: '#01696f', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer', textAlign: 'left', padding: 0 }}>Gérer les demandes →</button>
+                    </div>
+                  ) : (
+                    <div style={{ padding: '2rem', textAlign: 'center', background: '#f8f6f4', borderRadius: '0.75rem' }}>
+                      <p style={{ color: '#888', margin: 0, fontSize: '0.9rem' }}>Aucune nouvelle demande pour le moment.</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Alertes articles programmés bloqués */}
+                <div style={{ gridColumn: '1 / -1' }}>
+                  {articles.filter(a => !a.published && a.scheduled_published_at && new Date(a.scheduled_published_at) < new Date()).length > 0 && (
+                    <div style={{ padding: '1.5rem', background: '#fff9e6', borderRadius: '1rem', border: '1px solid #ffeeba', display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+                      <div style={{ fontSize: '1.5rem' }}>⚠️</div>
+                      <div style={{ flex: 1 }}>
+                        <h4 style={{ margin: '0 0 0.5rem 0', color: '#856404', fontSize: '1.05rem' }}>Articles programmés en retard</h4>
+                        <p style={{ margin: '0 0 1rem 0', color: '#856404', fontSize: '0.9rem' }}>
+                          Certains articles ont une date de programmation dépassée mais sont toujours en brouillon.
+                        </p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                          {articles.filter(a => !a.published && a.scheduled_published_at && new Date(a.scheduled_published_at) < new Date()).map(alertArt => (
+                            <div key={alertArt.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', padding: '0.75rem 1rem', borderRadius: '0.5rem' }}>
+                              <div>
+                                <p style={{ margin: '0 0 0.2rem 0', fontWeight: 600, color: '#333', fontSize: '0.9rem' }}>{alertArt.title || 'Sans titre'}</p>
+                                <p style={{ margin: 0, color: '#856404', fontSize: '0.75rem' }}>Prévu pour le {fmt(alertArt.scheduled_published_at || '')}</p>
+                              </div>
+                              <button onClick={() => openArticleEditor(alertArt)} style={{ padding: '0.4rem 0.8rem', background: '#856404', color: 'white', border: 'none', borderRadius: '0.4rem', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer' }}>Ouvrir</button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
               </div>
             </div>
           </div>
