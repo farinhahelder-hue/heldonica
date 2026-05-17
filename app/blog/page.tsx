@@ -5,8 +5,10 @@ import Footer from '@/components/Footer'
 import BlogClientPage from '@/components/BlogClientPage'
 import Breadcrumb from '@/components/Breadcrumb'
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+// ⚡ Bolt Optimization: Switched from force-dynamic to ISR (revalidate: 60)
+// This caches the blog index, drastically reducing Supabase requests and TTFB
+// while still ensuring new posts appear within a minute.
+export const revalidate = 60
 
 function calcReadTime(content: string | null): number {
   if (!content || typeof content !== 'string') return 0
