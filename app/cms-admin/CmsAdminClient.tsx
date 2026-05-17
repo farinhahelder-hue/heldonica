@@ -1569,6 +1569,21 @@ function CMSAdminInner() {
                         <button onClick={saveSettings} disabled={savingSettings}
                           style={{ marginTop: '1.75rem', padding: '.7rem 2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '.9rem', opacity: savingSettings ? .7 : 1 }}
                         >{savingSettings ? '⏳ Sauvegarde…' : '💾 Sauvegarder'}</button>
+                        <button onClick={async () => {
+                            setSavingSettings(true);
+                            try {
+                                const res = await fetch('/api/cms/fix-empty-images', { method: 'POST', headers: { 'x-cms-auth': localStorage.getItem('cms_password') || '' } });
+                                const data = await res.json();
+                                alert(data.message || data.error);
+                            } catch(e) {
+                                alert("Erreur lors de la réparation des images vides");
+                            } finally {
+                                setSavingSettings(false);
+                            }
+                        }} disabled={savingSettings}
+                          style={{ marginTop: '1.75rem', marginLeft: '1rem', padding: '.7rem 2rem', background: '#eab308', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '.9rem', opacity: savingSettings ? .7 : 1 }}
+                        >{savingSettings ? '⏳ Réparation…' : '🛠 Réparer images vides'}</button>
+
                       </div>
                     );
                   })()}
