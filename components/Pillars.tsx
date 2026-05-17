@@ -1,13 +1,13 @@
 export default function Pillars() {
   const pillars = [
     {
-      title: "L'émerveillement",
+      title: "L’émerveillement",
       description: "Il se cache dans un marché de quartier, une ruelle oubliée, ou un café perdu en Provence. Partout où vous posez les yeux, il y a quelque chose à découvrir.",
       icon: "✨"
     },
     {
       title: "Notre philosophie",
-      description: "Nous ne voyageons pas pour cocher des cases. Nous voyageons pour ralentir et nous reconnecter. Bien vivre son temps, c'est voir chaque moment comme une micro-aventure.",
+      description: "Nous ne voyageons pas pour cocher des cases. Nous voyageons pour ralentir et nous reconnecter. Bien vivre son temps, c’est voir chaque moment comme une micro-aventure.",
       icon: "🧭"
     },
     {

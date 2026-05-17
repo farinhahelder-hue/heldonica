@@ -7,7 +7,7 @@ import { getSettings } from '@/lib/settings'
 export const metadata: Metadata = {
   title: 'À Propos — Qui Sommes-Nous | Heldonica',
   description:
-    "On est Heldonica, un duo d'explorateurs passionnés par le slow travel et les pépites cachées. On voyage, on teste, on partage — et on conçoit tes voyages sur mesure.",
+    "On est Heldonica, un duo d’explorateurs passionnés par le slow travel et les pépites cachées. On voyage, on teste, on partage — et on conçoit tes voyages sur mesure.",
   keywords: [
     'heldonica',
     'blog slow travel',
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     url: 'https://www.heldonica.fr/a-propos',
     title: 'À Propos — Qui Sommes-Nous | Heldonica',
     description:
-      "On est Heldonica, un duo d'explorateurs passionnés par le slow travel et les pépites cachées.",
+      "On est Heldonica, un duo d’explorateurs passionnés par le slow travel et les pépites cachées.",
     images: [
       {
         url: 'https://www.heldonica.fr/og-default.jpg',
@@ -75,7 +75,7 @@ export default async function AProposPage() {
           {(heroType === 'image' || !heroVideo) && (
             <img
               src={backgroundImage}
-              alt="Paysage naturel paisible — l'esprit slow travel de Heldonica"
+              alt="Paysage naturel paisible — l’esprit slow travel de Heldonica"
               className="absolute inset-0 w-full h-full object-cover opacity-40"
               width={1400}
               height={900}

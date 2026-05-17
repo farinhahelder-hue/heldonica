@@ -29,7 +29,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
       const data = await res.json();
       if (res.ok && data.success) {
         setStatus("success");
-        setMessage("C'est noté. On t'écrira quand on aura vraiment quelque chose à dire.");
+        setMessage("C’est noté. On t’écrira quand on aura vraiment quelque chose à dire.");
         setEmail("");
       } else {
         setStatus("error");
@@ -70,7 +70,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
               disabled={status === "loading"}
               className="px-6 py-3 bg-eucalyptus/50 hover:bg-teal text-white text-sm font-semibold rounded-full transition-colors whitespace-nowrap disabled:opacity-60"
             >
-              {status === "loading" ? "…" : "Je m'abonne"}
+              {status === "loading" ? "…" : "Je m’abonne"}
             </button>
           </form>
         )}
@@ -99,7 +99,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
               disabled={status === "loading"}
               className="shrink-0 px-6 py-3 bg-eucalyptus/50 hover:bg-teal text-white text-sm font-semibold rounded-full transition-colors disabled:opacity-60"
             >
-              {status === "loading" ? "…" : "Je m'abonne"}
+              {status === "loading" ? "…" : "Je m’abonne"}
             </button>
           </>
         )}
@@ -143,7 +143,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
               disabled={status === "loading"}
               className="px-7 py-3.5 bg-eucalyptus/50 hover:bg-teal text-white text-sm font-semibold rounded-full transition-colors whitespace-nowrap disabled:opacity-60"
             >
-              {status === "loading" ? "Inscription…" : "Je m'abonne"}
+              {status === "loading" ? "Inscription…" : "Je m’abonne"}
             </button>
           </form>
         )}

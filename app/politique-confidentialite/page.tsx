@@ -42,7 +42,7 @@ export default function PolitiqueConfidentialitePage() {
               Politique de confidentialite
             </h1>
             <p className="text-lg text-charcoal/80">
-              Cette page detaille la collecte, l'usage et la conservation de vos donnees sur
+              Cette page detaille la collecte, l’usage et la conservation de vos donnees sur
               heldonica.fr.
             </p>
           </div>
@@ -56,9 +56,9 @@ export default function PolitiqueConfidentialitePage() {
                 suivantes :
               </p>
               <ul className="list-disc list-inside space-y-2">
-                <li>Donnees d'identification : nom, prenom, email, telephone.</li>
+                <li>Donnees d’identification : nom, prenom, email, telephone.</li>
                 <li>Donnees de projet : informations fournies via les formulaires de voyage.</li>
-                <li>Donnees techniques : adresse IP, type d'appareil, navigateur, logs.</li>
+                <li>Donnees techniques : adresse IP, type d’appareil, navigateur, logs.</li>
                 <li>
                   Donnees marketing : interactions newsletter, consentement cookies, campagnes.
                 </li>
@@ -71,7 +71,7 @@ export default function PolitiqueConfidentialitePage() {
                 <li>Repondre a vos demandes de contact et de travel planning.</li>
                 <li>Executer une prestation (accompagnement voyage, suivi client).</li>
                 <li>Envoyer des contenus newsletter si vous y avez consenti.</li>
-                <li>Mesurer l'audience et ameliorer le site apres consentement cookies.</li>
+                <li>Mesurer l’audience et ameliorer le site apres consentement cookies.</li>
                 <li>Respecter les obligations legales et comptables applicables.</li>
               </ul>
             </PrivacySection>
@@ -97,21 +97,21 @@ export default function PolitiqueConfidentialitePage() {
             <PrivacySection title="Destinataires et sous-traitants">
               <p>
                 Les donnees peuvent etre traitees par des prestataires techniques selectionnes pour
-                l'hebergement, la base de donnees, l'emailing, l'analytics et le paiement.
+                l’hebergement, la base de donnees, l’emailing, l’analytics et le paiement.
               </p>
               <p>
-                Exemples d'outils utilises : Vercel, Supabase, Brevo, Google Analytics (si consenti)
-                et Stripe (lors de l'activation paiement).
+                Exemples d’outils utilises : Vercel, Supabase, Brevo, Google Analytics (si consenti)
+                et Stripe (lors de l’activation paiement).
               </p>
             </PrivacySection>
 
             <PrivacySection title="Vos droits RGPD">
               <p>Conformement au RGPD, vous pouvez demander :</p>
               <ul className="list-disc list-inside space-y-2">
-                <li>L'acces a vos donnees personnelles.</li>
+                <li>L’acces a vos donnees personnelles.</li>
                 <li>La rectification de donnees inexactes.</li>
-                <li>L'effacement de vos donnees, sous reserve des obligations legales.</li>
-                <li>La limitation ou l'opposition a certains traitements.</li>
+                <li>L’effacement de vos donnees, sous reserve des obligations legales.</li>
+                <li>La limitation ou l’opposition a certains traitements.</li>
                 <li>La portabilite des donnees lorsque applicable.</li>
                 <li>Le retrait de votre consentement a tout moment.</li>
               </ul>
@@ -120,7 +120,7 @@ export default function PolitiqueConfidentialitePage() {
             <PrivacySection title="Cookies et consentement">
               <p>
                 Les cookies strictement necessaires au fonctionnement du site sont actives par
-                defaut. Les cookies de mesure d'audience ou marketing sont conditionnes a votre
+                defaut. Les cookies de mesure d’audience ou marketing sont conditionnes a votre
                 consentement explicite en France.
               </p>
               <p>

@@ -108,19 +108,19 @@ export default function TravelPlanning() {
               <div className="bg-white/15 border border-white/20 rounded-xl px-4 py-4 text-left">
                 <p className="text-amber-300 text-xs font-bold uppercase tracking-widest mb-1">Couples aventuriers</p>
                 <p className="text-white/80 text-xs leading-relaxed">
-                  Ralentir sans s'ennuyer, garder le hors-sentiers sans perdre le fil. Notre terrain naturel.
+                  Ralentir sans s’ennuyer, garder le hors-sentiers sans perdre le fil. Notre terrain naturel.
                 </p>
               </div>
               <div className="bg-white/15 border border-white/20 rounded-xl px-4 py-4 text-left">
                 <p className="text-amber-300 text-xs font-bold uppercase tracking-widest mb-1">Solos &amp; familles</p>
                 <p className="text-white/80 text-xs leading-relaxed">
-                  Solo qui cherche du vrai, famille en quête d'autre chose — même exigence, rythme adapté.
+                  Solo qui cherche du vrai, famille en quête d’autre chose — même exigence, rythme adapté.
                 </p>
               </div>
               <div className="bg-white/15 border border-white/20 rounded-xl px-4 py-4 text-left">
-                <p className="text-amber-300 text-xs font-bold uppercase tracking-widest mb-1">Groupes d'amis</p>
+                <p className="text-amber-300 text-xs font-bold uppercase tracking-widest mb-1">Groupes d’amis</p>
                 <p className="text-white/80 text-xs leading-relaxed">
-                  Évasion entre amis hors des circuits classiques — on garde l'essence, on perd le touristique.
+                  Évasion entre amis hors des circuits classiques — on garde l’essence, on perd le touristique.
                 </p>
               </div>
             </div>
@@ -196,7 +196,7 @@ export default function TravelPlanning() {
           </div>
         </section>
 
-        {/* ── CE QU'ON CRÉE ── */}
+        {/* ── CE QU’ON CRÉE ── */}
         <section className="py-20 md:py-28 bg-white">
           <div className="max-w-6xl mx-auto px-6 md:px-10">
             <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-3">Le livrable</p>
@@ -289,9 +289,9 @@ export default function TravelPlanning() {
             <h2 className="text-3xl md:text-4xl font-serif font-light mb-12">Ce qu&apos;ils en disent</h2>
             <div className="grid md:grid-cols-3 gap-6">
               {[
-                { quote: "On cherchait un voyage loin des circuits classiques. Heldonica nous a trouvé des pépites qu'on n'aurait jamais découvertes seuls. Chaque jour était une surprise.", name: 'Marie & Théo', dest: 'Madère · 10 jours' },
-                { quote: "L'itinéraire collait parfaitement à notre rythme — pas trop chargé, pas ennuyeux. Les adresses restaurant étaient toutes excellentes. On recommande les yeux fermés.", name: 'Sophie & Lucas', dest: 'Colombie · 14 jours' },
-                { quote: "Pour nos 10 ans d'anniversaire, on voulait quelque chose d'unique. Heldonica a imaginé un voyage qu'on n'aurait jamais pu concevoir aussi bien tout seuls.", name: 'Claire & Antoine', dest: 'Tanzanie · 12 jours' },
+                { quote: "On cherchait un voyage loin des circuits classiques. Heldonica nous a trouvé des pépites qu’on n’aurait jamais découvertes seuls. Chaque jour était une surprise.", name: 'Marie & Théo', dest: 'Madère · 10 jours' },
+                { quote: "L’itinéraire collait parfaitement à notre rythme — pas trop chargé, pas ennuyeux. Les adresses restaurant étaient toutes excellentes. On recommande les yeux fermés.", name: 'Sophie & Lucas', dest: 'Colombie · 14 jours' },
+                { quote: "Pour nos 10 ans d’anniversaire, on voulait quelque chose d’unique. Heldonica a imaginé un voyage qu’on n’aurait jamais pu concevoir aussi bien tout seuls.", name: 'Claire & Antoine', dest: 'Tanzanie · 12 jours' },
               ].map((t, i) => (
                 <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-4">
                   <p className="text-stone-300 text-sm leading-relaxed italic">&ldquo;{t.quote}&rdquo;</p>

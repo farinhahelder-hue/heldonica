@@ -126,7 +126,7 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
     <Link href={`/blog/${post.slug}`} className="group block h-full">
       <article className="relative rounded-2xl overflow-hidden bg-mahogany/80 shadow-md hover:shadow-xl transition-all duration-400 h-full flex flex-col">
         <div className={`relative ${h} overflow-hidden`}>
-          <img src={imgSrc} alt={post.title} width={600} height={400}
+          <img src={imgSrc} alt={post.title || "Image de l’article"} width={600} height={400}
             className="w-full h-full object-cover opacity-80 group-hover:opacity-90 group-hover:scale-105 transition-all duration-600"
             loading="lazy"
             onError={() => setImgSrc(HELDONICA_BADGE_FALLBACK)}
@@ -155,7 +155,7 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
           )}
           <div className="flex items-center justify-between mt-auto pt-2 border-t border-cloud-dancer">
             <span className="text-xs text-charcoal/40">
-              {post.author ?? 'Heldonica'} {post.destination ? `• 📍 ${post.destination}` : ` • ${post.formattedDate}`}
+              {post.author || 'Heldonica'} {post.destination ? `• 📍 ${post.destination}` : ` • ${post.formattedDate}`}
             </span>
             <span className="text-xs text-eucalyptus font-semibold group-hover:translate-x-1 transition-transform">Lire la suite →</span>
           </div>
@@ -195,7 +195,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         [data-delay='100']{transition-delay:0.1s} [data-delay='200']{transition-delay:0.2s}
         [data-delay='300']{transition-delay:0.3s} [data-delay='400']{transition-delay:0.4s}
         [data-delay='500']{transition-delay:0.5s} [data-delay='600']{transition-delay:0.6s}
-        .hero-word{display:inline;opacity:0;animation:wordIn 0.6s cubic-bezier(0.16,1,0.3,1) forwards}
+        .hero-word{display:inline-block;position:relative;z-index:10;opacity:0;animation:wordIn 0.6s cubic-bezier(0.16,1,0.3,1) forwards}
         @keyframes wordIn{to{opacity:1}}
         @keyframes subtlePulse{0%,100%{opacity:.7;transform:translateY(0)}50%{opacity:1;transform:translateY(4px)}}
         .scroll-cue{animation:subtlePulse 2.2s ease-in-out infinite}
@@ -247,12 +247,12 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <div className="flex flex-wrap gap-3"
                style={{ animation: 'wordIn 0.7s 1.3s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
             <Link href="/blog" 
-              className="px-5 md:px-6 py-2.5 md:py-3 bg-mahogany hover:bg-eucalyptus text-white rounded-full font-semibold text-sm tracking-wide transition"
+              className="px-5 md:px-6 py-2.5 md:py-3 bg-eucalyptus hover:bg-teal text-white rounded-full font-semibold text-sm tracking-wide transition focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:outline-none"
               onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'hero_read_carnet' })}>
               Lire la suite →
             </Link>
             <Link href="/travel-planning-form" 
-              className="px-5 md:px-6 py-2.5 md:py-3 border border-white/50 hover:border-white text-white hover:bg-white/10 rounded-full font-semibold text-sm tracking-wide transition"
+              className="px-5 md:px-6 py-2.5 md:py-3 border border-white/50 hover:border-white text-white hover:bg-white/10 rounded-full font-semibold text-sm tracking-wide transition focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
               onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'hero_contact' })}>
               Nous écrire →
             </Link>
@@ -311,7 +311,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <Link href={`/blog/${featured.slug}`} className="group block">
             <article className="relative h-[50vh] md:h-[60vh] w-full overflow-hidden flex items-end">
               {featImg && (
-                <img src={featImg} alt={featured.title} width={1400} height={700}
+                <img src={featImg} alt={featured?.title || "Image en vedette"} width={1400} height={700}
                   className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-70 group-hover:scale-105 transition-all duration-700"
                   loading="eager" fetchPriority="high" />
               )}
@@ -496,8 +496,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             <div className="grid grid-cols-1 gap-4" data-reveal="right">
               {[
                 { t: 'Couples aventuriers', d: "Notre spécialité : ralentir sans ennuyer, laisser de la place au vrai, et garder le hors-sentiers sans perdre le fil." },
-                { t: 'Ouvert aussi à ton format', d: "Solo, famille curieuse ou groupe d'amis : on adapte cette même exigence terrain à votre énergie, vos contraintes et votre rythme." },
-                { t: 'Vécu sur le terrain', d: "Cartes, adresses, conseils pratiques et pépites dénichées : tout part d'expériences testées, pas inventées." },
+                { t: 'Ouvert aussi à ton format', d: "Solo, famille curieuse ou groupe d’amis : on adapte cette même exigence terrain à votre énergie, vos contraintes et votre rythme." },
+                { t: 'Vécu sur le terrain', d: "Cartes, adresses, conseils pratiques et pépites dénichées : tout part d’expériences testées, pas inventées." },
               ].map((item) => (
                 <div key={item.t} className="border border-white/10 rounded-xl p-5 hover:border-teal/30 transition">
                   <h3 className="font-semibold text-white text-sm mb-1">{item.t}</h3>
@@ -545,12 +545,12 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 {
                   icon: '•',
                   t: 'On regarde le parcours réel',
-                  d: "Ce qu'un client comprend, ce qu'il rate, et l'endroit précis où vous perdez de la confiance."
+                  d: "Ce qu’un client comprend, ce qu’il rate, et l’endroit précis où vous perdez de la confiance."
                 },
                 {
                   icon: '•',
                   t: "On garde les outils à leur place",
-                  d: "L'IA sert à clarifier, accélérer et mieux répondre. Elle ne remplace ni votre instinct ni votre identité."
+                  d: "L’IA sert à clarifier, accélérer et mieux répondre. Elle ne remplace ni votre instinct ni votre identité."
                 },
                 {
                   icon: '•',

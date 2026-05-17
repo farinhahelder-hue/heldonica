@@ -75,7 +75,7 @@ export default function TravelPlanningForm() {
           <strong>48h</strong> avec une première proposition sur mesure.
         </p>
         <p className="text-sm text-charcoal/40">
-          Un email de confirmation vient de t'être envoyé.
+          Un email de confirmation vient de t’être envoyé.
         </p>
       </div>
     );

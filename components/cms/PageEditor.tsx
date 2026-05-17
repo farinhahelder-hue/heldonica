@@ -222,7 +222,7 @@ export default function PageEditor({ data, onSave }: any) {
                 </Button>
               </div>
 
-              {/* Boutons d'action */}
+              {/* Boutons d’action */}
               <div className="flex gap-4">
                 <Button onClick={handleSave} className="bg-mahogany hover:bg-red-900">
                   💾 Sauvegarder

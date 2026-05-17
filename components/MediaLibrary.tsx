@@ -423,12 +423,12 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
                   <strong>Compatible avec :</strong><br />
                   • Google Photos, iCloud, Dropbox<br />
                   • Unsplash, Pexels, Pixabay<br />
-                  • N'importe quel hébergement d'images<br /><br />
-                  <strong>Comment obtenir l'URL :</strong><br />
-                  Clic droit → "Copier l'adresse de l'image"
+                  • N’importe quel hébergement d’images<br /><br />
+                  <strong>Comment obtenir l’URL :</strong><br />
+                  Clic droit → "Copier l’adresse de l’image"
                 </div>
 
-                <label style={{ display: 'block', fontWeight: 600, fontSize: '.85rem', color: '#555', marginBottom: '.35rem' }}>URL de l'image *</label>
+                <label style={{ display: 'block', fontWeight: 600, fontSize: '.85rem', color: '#555', marginBottom: '.35rem' }}>URL de l’image *</label>
                 <input
                   value={imageUrl}
                   onChange={e => setImageUrl(e.target.value)}
@@ -473,10 +473,10 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
           {tab === 'batch' && (
             <div style={{ maxWidth: 640, margin: '0 auto' }}>
               <div style={{ background: '#faf8f5', borderRadius: '1rem', padding: '1.5rem', marginBottom: '1.5rem', border: '1.5px solid #e8e3dc' }}>
-                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#1a1a1a', marginBottom: '.75rem' }}>📋 Import par lots d'URLs</h3>
+                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#1a1a1a', marginBottom: '.75rem' }}>📋 Import par lots d’URLs</h3>
 
                 <div style={{ background: '#fef3cd', borderRadius: '.75rem', padding: '1rem', marginBottom: '1.25rem', fontSize: '.83rem', color: '#856404', lineHeight: 1.7 }}>
-                  <strong>💡 Astuce :</strong> Copiez-collez plusieurs URLs d'images (une par ligne) pour les importer en masse vers Supabase.<br/><br/>
+                  <strong>💡 Astuce :</strong> Copiez-collez plusieurs URLs d’images (une par ligne) pour les importer en masse vers Supabase.<br/><br/>
                   <strong>Sources compatibles :</strong> Google Photos, iCloud, Dropbox, Google Drive, iDrive, etc.
                 </div>
 

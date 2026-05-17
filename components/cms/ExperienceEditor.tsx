@@ -99,7 +99,7 @@ export default function ExperienceEditor({ data, onSave }: any) {
           </Button>
         </div>
 
-        {/* Main - Éditeur d'expérience */}
+        {/* Main - Éditeur d’expérience */}
         <div className="col-span-2">
           {editingExp && (
             <div className="space-y-6">
@@ -233,7 +233,7 @@ export default function ExperienceEditor({ data, onSave }: any) {
                 </div>
               </div>
 
-              {/* Boutons d'action */}
+              {/* Boutons d’action */}
               <div className="flex gap-4">
                 <Button onClick={handleSave} className="bg-mahogany hover:bg-red-900">
                   💾 Sauvegarder

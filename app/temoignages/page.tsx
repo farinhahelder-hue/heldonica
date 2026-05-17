@@ -8,7 +8,7 @@ const testimonials = [
     couple: 'Lucie et Maxime',
     destination: 'Madère',
     quote:
-      "On voulait un voyage lent, sensoriel et sans stress. On a reçu un carnet ultra clair, avec des pépites qu'on n'aurait jamais trouvées seuls.",
+      "On voulait un voyage lent, sensoriel et sans stress. On a reçu un carnet ultra clair, avec des pépites qu’on n’aurait jamais trouvées seuls.",
     result: '7 jours fluides, zéro improvisation subie',
   },
   {
@@ -22,7 +22,7 @@ const testimonials = [
     couple: 'Camille et Théo',
     destination: 'Suisse',
     quote:
-      "On a senti qu'il y avait du vécu dans chaque recommandation. Rien de générique. On s'est sentis accompagnés du début à la fin.",
+      "On a senti qu’il y avait du vécu dans chaque recommandation. Rien de générique. On s’est sentis accompagnés du début à la fin.",
     result: '10 jours de voyage contemplatif en duo',
   },
   {

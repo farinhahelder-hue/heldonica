@@ -35,7 +35,7 @@ export default function Destinations() {
           Nos Pépites
         </h2>
         <p className="text-center text-gray-600 mb-16 text-lg">
-          4 destinations phares pour l'aventure en couple
+          4 destinations phares pour l’aventure en couple
         </p>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">

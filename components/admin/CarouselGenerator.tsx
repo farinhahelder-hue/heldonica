@@ -227,7 +227,7 @@ Généré avec Heldonica CMS
             </div>
           ) : (
             <div style={{ marginBottom: '.75rem', padding: '.75rem', background: '#f5f3ef', border: '1px solid #01696f', borderRadius: '.25rem', fontSize: '.875rem', color: '#01696f' }}>
-              ⚠️ Pas d'images - vérifie la clé Unsplash dans Vercel (NEXT_PUBLIC_UNSPLASH_ACCESS_KEY)
+              ⚠️ Pas d’images - vérifie la clé Unsplash dans Vercel (NEXT_PUBLIC_UNSPLASH_ACCESS_KEY)
             </div>
           )}
           

@@ -83,7 +83,7 @@ function buildJsonLds(post: BlogPost, readTime: number) {
     dateModified: post.updated_at ?? post.published_at ?? '',
     author: {
       '@type': 'Person',
-      name: post.author ?? 'Heldonica',
+      name: post.author || 'Heldonica',
       url: SITE_URL,
     },
     publisher: {
@@ -224,7 +224,7 @@ export default async function BlogPostPage({ params }: Props) {
                 {post.title}
               </h1>
               <div className="flex flex-wrap items-center gap-4 text-sm text-white/65">
-                <span>{post.author ?? 'Heldonica'}</span>
+                <span>{post.author || 'Heldonica'}</span>
                 <span>•</span>
                 <span>{formatDate(post.published_at)}</span>
                 {readTime > 0 && (

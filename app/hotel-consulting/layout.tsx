@@ -3,7 +3,7 @@
 export const metadata: Metadata = {
   title: 'Consulting hôtelier indépendant | Regard terrain & leviers concrets | Heldonica',
   description:
-    "On connaît vos clients parce qu'on en fait partie. Regard terrain, visibilité locale, parcours client et IA utile pour hôtels indépendants.",
+    "On connaît vos clients parce qu’on en fait partie. Regard terrain, visibilité locale, parcours client et IA utile pour hôtels indépendants.",
   keywords: [
     'consulting hôtelier',
     'hôtel indépendant',
