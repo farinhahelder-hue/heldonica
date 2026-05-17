@@ -6,6 +6,7 @@ import Footer from '@/components/Footer'
 import Link from 'next/link'
 import type { BlogPost } from '@/lib/blog-supabase'
 import { getExcerpt } from '@/lib/blog-supabase'
+import { SITE_STATS } from '@/lib/constants'
 import InstagramEmbed from '@/components/InstagramEmbed'
 import NewsletterForm from '@/components/NewsletterForm'
 
@@ -181,8 +182,8 @@ interface HomeProps {
 export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries, heroVideoUrl, heroPosterImage }: HomeProps) {
   useScrollReveal()
   const featImg = featured ? postImage(featured) : null
-  const publishedArticles = totalPosts || 23
-  const countryCount = typeof coveredCountries === 'number' ? coveredCountries : (coveredCountries ? parseInt(coveredCountries) : 7)
+  const publishedArticles = totalPosts ?? SITE_STATS.publishedCarnets
+  const countryCount = typeof coveredCountries === 'number' ? coveredCountries : (coveredCountries ? parseInt(coveredCountries) : SITE_STATS.countriesLived)
 
   return (
     <>
@@ -195,7 +196,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         [data-delay='100']{transition-delay:0.1s} [data-delay='200']{transition-delay:0.2s}
         [data-delay='300']{transition-delay:0.3s} [data-delay='400']{transition-delay:0.4s}
         [data-delay='500']{transition-delay:0.5s} [data-delay='600']{transition-delay:0.6s}
-        .hero-word{display:inline-block;position:relative;z-index:10;opacity:0;animation:wordIn 0.6s cubic-bezier(0.16,1,0.3,1) forwards}
+        .hero-word{display:inline-block;position:relative;z-index:10;opacity:0;animation:wordIn 0.6s cubic-bezier(0.16,1,0.3,1) forwards;white-space:pre}
         @keyframes wordIn{to{opacity:1}}
         @keyframes subtlePulse{0%,100%{opacity:.7;transform:translateY(0)}50%{opacity:1;transform:translateY(4px)}}
         .scroll-cue{animation:subtlePulse 2.2s ease-in-out infinite}
@@ -249,12 +250,12 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             <Link href="/blog" 
               className="px-5 md:px-6 py-2.5 md:py-3 bg-eucalyptus hover:bg-teal text-white rounded-full font-semibold text-sm tracking-wide transition focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:outline-none"
               onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'hero_read_carnet' })}>
-              Lire la suite →
+              Voir nos carnets →
             </Link>
             <Link href="/travel-planning-form" 
               className="px-5 md:px-6 py-2.5 md:py-3 border border-white/50 hover:border-white text-white hover:bg-white/10 rounded-full font-semibold text-sm tracking-wide transition focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
               onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'hero_contact' })}>
-              Nous écrire →
+              Planifier mon voyage →
             </Link>
           </div>
         </div>
@@ -290,8 +291,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               </Link>
             </div>
             <div className="md:col-span-2 grid grid-cols-2 gap-6" data-reveal="right">
-              <AnimatedStat nb={10} suffix="+" label="Ans de terrain en duo" />
-              <AnimatedStat nb={100} suffix="+" label="Adresses vécues" />
+              <AnimatedStat nb={SITE_STATS.yearsOfExperience} suffix="+" label="Ans de terrain en duo" />
+              <AnimatedStat nb={SITE_STATS.addressesTested} suffix="+" label="Adresses vécues" />
               <AnimatedStat nb={countryCount} label="Pays habités" />
               <AnimatedStat nb={publishedArticles} suffix="+" label="Carnets publiés" />
               <div className="col-span-2 mt-2">
