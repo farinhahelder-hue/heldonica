@@ -7,7 +7,7 @@ import Breadcrumb from '@/components/Breadcrumb'
 export const metadata: Metadata = {
   title: 'Slow Travel — Voyager Autrement, Lentement, Authentiquement | Heldonica',
   description:
-    "Qu'est-ce que le slow travel ? On te partage notre approche du voyage lent, écoresponsable et hors des sentiers battus. Destinations, conseils et carnets de route.",
+    "Qu’est-ce que le slow travel ? On te partage notre approche du voyage lent, écoresponsable et hors des sentiers battus. Destinations, conseils et carnets de route.",
   keywords: [
     'slow travel',
     'slow travel France',

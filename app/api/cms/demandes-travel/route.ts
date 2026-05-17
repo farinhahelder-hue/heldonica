@@ -37,7 +37,8 @@ export async function PUT(req: Request) {
   const { id, statut } = await req.json()
   const { error } = await sb
     .from('demandes_travel')
-    .update({ statut } as any)
+    // @ts-expect-error Supabase types are not fully inferred
+    .update({ statut })
     .eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })

@@ -122,7 +122,7 @@ export default function MediaManager({ data, onSave }: any) {
         )}
       </div>
 
-      {/* Boutons d'action */}
+      {/* Boutons d’action */}
       <div className="flex gap-4 mt-8">
         <Button onClick={handleSave} className="bg-mahogany hover:bg-red-900">
           💾 Sauvegarder

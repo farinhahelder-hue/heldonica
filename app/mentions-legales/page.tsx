@@ -6,7 +6,7 @@ import Breadcrumb from '@/components/Breadcrumb';
 export const metadata: Metadata = {
   title: 'Mentions legales',
   description:
-    "Informations legales de l'editeur, de l'hebergeur et conditions d'utilisation du site Heldonica.",
+    "Informations legales de l’editeur, de l’hebergeur et conditions d’utilisation du site Heldonica.",
   alternates: {
     canonical: 'https://heldonica.fr/mentions-legales',
   },
@@ -55,7 +55,7 @@ export default function MentionsLegalesPage() {
               </p>
             </div>
 
-            <LegalSection title="Identite de l'editeur">
+            <LegalSection title="Identite de l’editeur">
               <p>
                 <strong>Nom commercial :</strong> Heldonica
               </p>
@@ -95,7 +95,7 @@ export default function MentionsLegalesPage() {
 
             <LegalSection title="Propriete intellectuelle">
               <p>
-                L'ensemble des contenus presents sur heldonica.fr (textes, visuels, videos,
+                L’ensemble des contenus presents sur heldonica.fr (textes, visuels, videos,
                 elements graphiques, structure et code) est protege par le droit de la propriete
                 intellectuelle.
               </p>
@@ -104,22 +104,22 @@ export default function MentionsLegalesPage() {
                 sans autorisation prealable ecrite de Heldonica est interdite.
               </p>
               <p>
-                <strong>Credits photo :</strong> Heldonica et banques d'images sous licence.
+                <strong>Credits photo :</strong> Heldonica et banques d’images sous licence.
               </p>
             </LegalSection>
 
             <LegalSection title="Limitation de responsabilite">
               <p>
-                Heldonica s'efforce de fournir des informations fiables et a jour, sans garantie
-                d'exhaustivite ou d'absence d'erreur.
+                Heldonica s’efforce de fournir des informations fiables et a jour, sans garantie
+                d’exhaustivite ou d’absence d’erreur.
               </p>
               <p>
                 Heldonica ne pourra etre tenue responsable des dommages directs ou indirects lies a
-                l'utilisation du site, a l'indisponibilite temporaire du service ou a l'usage
-                d'informations externes referencees.
+                l’utilisation du site, a l’indisponibilite temporaire du service ou a l’usage
+                d’informations externes referencees.
               </p>
               <p>
-                Les liens sortants sont fournis a titre informatif et n'emportent pas validation de
+                Les liens sortants sont fournis a titre informatif et n’emportent pas validation de
                 leur contenu.
               </p>
             </LegalSection>

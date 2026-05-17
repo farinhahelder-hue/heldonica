@@ -57,7 +57,7 @@ export default function BlogGenerator({ onGenerated }: BlogGeneratorProps) {
   return (
     <div style={{ background: '#faf8f5', borderRadius: '1rem', padding: '1.5rem', border: '1.5px solid #e8e3dc' }}>
       <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#1a1a1a', marginBottom: '1rem', margin: '0 0 1rem' }}>
-        ✨ Générateur d'articles Blog
+        ✨ Générateur d’articles Blog
       </h3>
       
       <div style={{ marginBottom: '1.25rem' }}>

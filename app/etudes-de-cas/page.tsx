@@ -28,7 +28,7 @@ const cases = [
     hotel: 'Maison de charme — Suisse romande',
     context: 'Bonne occupation, marge sous pression sur certaines périodes.',
     actions: [
-      "Analyse mix canaux et coût d'acquisition",
+      "Analyse mix canaux et coût d’acquisition",
       'Nouveau cadre de pricing week-end',
       'Dashboard suivi performances hebdomadaire',
     ],

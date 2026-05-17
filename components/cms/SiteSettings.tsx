@@ -136,7 +136,7 @@ export default function SiteSettings({ data, onSave }: any) {
           </div>
         </div>
 
-        {/* Boutons d'action */}
+        {/* Boutons d’action */}
         <div className="flex gap-4 pt-4">
           <Button onClick={handleSave} className="bg-mahogany hover:bg-red-900">
             💾 Sauvegarder
