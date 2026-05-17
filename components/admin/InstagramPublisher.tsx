@@ -20,26 +20,20 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
   const [isSearching, setIsSearching] = useState(false);
 
   const handleBufferShare = () => {
-    // Opens Buffer Composer - user adds image there
     openBufferComposer();
     setSuccess('✅ Buffer opened! Add your image, write caption, and click Publish.');
   };
 
   const handleSearchUnsplash = async () => {
     if (!searchQuery.trim()) return;
-    
     setIsSearching(true);
     setError(null);
     setSearchResults([]);
-    
     try {
       const results = await searchUnsplash(searchQuery, 6);
       setSearchResults(results);
-      
-      if (results.length === 0) {
-        setError('No photos found. Try a different search.');
-      }
-    } catch (err) {
+      if (results.length === 0) setError('No photos found. Try a different search.');
+    } catch {
       setError('Search failed. Try again.');
     } finally {
       setIsSearching(false);
@@ -48,14 +42,12 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
 
   const handleSelectPhoto = (photo: UnsplashPhoto) => {
     setImageUrl(photo.urls.regular);
-    // Add photographer credit to caption
     const credit = `\n\n📸 ${getCredit(photo)}`;
     setCaption(caption + credit);
     setSuccess('✅ Photo selected! Add your caption and publish.');
   };
 
   const handleGenerateCaption = () => {
-    // Opens Perplexity to generate caption
     openPerplexityForCaption({ topic: caption || undefined });
     setSuccess('✅ Perplexity opened! Copy the generated caption and paste it above.');
   };
@@ -65,28 +57,22 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
     setIsLoading(true);
     setError(null);
     setSuccess(null);
-
     try {
       const response = await fetch('/api/instagram/post', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imageUrl, caption }),
       });
-
       const data = await response.json();
-
       if (!response.ok) {
         setError(data.error || 'Failed to post to Instagram');
         return;
       }
-
       setSuccess(`Posted successfully! View at: ${data.post?.permalink || 'N/A'}`);
       setImageUrl('');
       setCaption('');
       onSuccess?.();
-    } catch (err) {
+    } catch {
       setError('Network error occurred');
     } finally {
       setIsLoading(false);
@@ -96,7 +82,7 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
   return (
     <div className="p-4 bg-white rounded-lg shadow">
       <h2 className="text-xl font-bold mb-4">📸 Publish to Instagram</h2>
-      
+
       {/* Unsplash Search */}
       <div className="mb-4 p-3 bg-gray-50 rounded-lg">
         <h3 className="font-medium mb-2">🔍 Search Free Photos on Unsplash</h3>
@@ -106,20 +92,19 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="e.g., paris, travel, photography..."
-            className="flex-1 px-3 py-2 border rounded-lg"
+            className="flex-1 px-3 py-2 border rounded-xl focus:ring-2 focus:ring-eucalyptus/20 focus:border-eucalyptus focus:outline-none"
             onKeyDown={(e) => e.key === 'Enter' && handleSearchUnsplash()}
           />
           <button
             type="button"
             onClick={handleSearchUnsplash}
             disabled={isSearching}
-            className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 disabled:opacity-50"
+            className="px-4 py-2 bg-charcoal text-white rounded-xl hover:bg-charcoal/80 disabled:opacity-50 transition"
           >
             {isSearching ? '...' : 'Search'}
           </button>
         </div>
-        
-        {/* Search Results Grid */}
+
         {searchResults.length > 0 && (
           <div className="grid grid-cols-3 gap-2 mt-3">
             {searchResults.map((photo) => (
@@ -127,7 +112,7 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
                 key={photo.id}
                 type="button"
                 onClick={() => handleSelectPhoto(photo)}
-                className="relative aspect-square overflow-hidden rounded group"
+                className="relative aspect-square overflow-hidden rounded-lg group"
               >
                 <img
                   src={photo.urls.small}
@@ -142,7 +127,7 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
           </div>
         )}
       </div>
-      
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium mb-1">
@@ -154,7 +139,7 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
             onChange={(e) => setImageUrl(e.target.value)}
             placeholder="https://example.com/image.jpg"
             required
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-eucalyptus-00 focus:border-transparent"
+            className="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-eucalyptus/20 focus:border-eucalyptus focus:outline-none transition"
           />
         </div>
 
@@ -169,27 +154,22 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
             required
             rows={4}
             maxLength={2200}
-            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-eucalyptus-00 focus:border-transparent"
+            className="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-eucalyptus/20 focus:border-eucalyptus focus:outline-none transition"
           />
-          <p className="text-xs text-gray-500 mt-1">{caption.length}/2200</p>
+          <p className="text-xs text-charcoal/40 mt-1">{caption.length}/2200</p>
         </div>
 
         {error && (
-          <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">
-            {error}
-          </div>
+          <div className="p-3 bg-red-50 text-red-700 rounded-xl text-sm">{error}</div>
         )}
-
         {success && (
-          <div className="p-3 bg-green-50 text-green-700 rounded-lg text-sm">
-            {success}
-          </div>
+          <div className="p-3 bg-eucalyptus/5 text-eucalyptus rounded-xl text-sm border border-eucalyptus/20">{success}</div>
         )}
 
         <button
           type="submit"
           disabled={isLoading || !imageUrl || !caption}
-          className="w-full px-4 py-2 bg-eucalyptus-00 text-white rounded-lg hover:bg-eucalyptus-00 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-4 py-2 bg-eucalyptus text-white rounded-full hover:bg-eucalyptus/90 disabled:opacity-50 disabled:cursor-not-allowed transition font-semibold"
         >
           {isLoading ? 'Publishing...' : '📸 Publish to Instagram'}
         </button>
@@ -197,7 +177,7 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
         <button
           type="button"
           onClick={handleGenerateCaption}
-          className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2"
+          className="w-full px-4 py-2 bg-teal text-white rounded-full hover:bg-teal/90 flex items-center justify-center gap-2 font-semibold transition"
         >
           <span>🤖</span>
           <span>Generate caption with Perplexity</span>
@@ -206,7 +186,7 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
         <button
           type="button"
           onClick={handleBufferShare}
-          className="w-full px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 flex items-center justify-center gap-2"
+          className="w-full px-4 py-2 bg-charcoal text-white rounded-full hover:bg-charcoal/80 flex items-center justify-center gap-2 font-semibold transition"
         >
           <span>📱</span>
           <span>Prepare on Buffer (easier)</span>
