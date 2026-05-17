@@ -75,6 +75,8 @@ const nextConfig = {
 
   async redirects() {
     return [
+      { source: '/about', destination: '/a-propos', permanent: true },
+      { source: '/about-us', destination: '/a-propos', permanent: true },
       { source: '/admin', destination: '/cms-admin', permanent: true },
       { source: '/admin/:path*', destination: '/cms-admin/:path*', permanent: true },
       { source: '/zurich', destination: '/destinations/zurich', permanent: true },
