@@ -268,7 +268,7 @@ export default function BlogClientPage({ posts: rawPosts }: Props) {
               <SectionHeader
                 eyebrow="Carnets"
                 title="Carnets de voyage"
-                description="Les récits qui gardent l'heure, le rythme et ce qu'on a retenu sur place."
+                description="Les récits qui gardent l’heure, le rythme et ce qu’on a retenu sur place."
                 count={carnets.length}
               />
               <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -284,7 +284,7 @@ export default function BlogClientPage({ posts: rawPosts }: Props) {
               <SectionHeader
                 eyebrow="Pépites"
                 title="Découvertes locales"
-                description="Des lieux qu'on n'était pas venus chercher, et qu'on aurait regretté de rater."
+                description="Des lieux qu’on n’était pas venus chercher, et qu’on aurait regretté de rater."
                 count={decouvertes.length}
               />
               <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -437,7 +437,7 @@ function ArticleCard({ post }: { post: BlogPost & { formattedDate: string; readT
           )}
           <div className="mt-auto flex items-center justify-between border-t border-cloud-dancer pt-4 text-xs text-charcoal/40">
             <div className="flex items-center gap-2">
-              <span>{post.author ?? 'Heldonica'}</span>
+              <span>{post.author || 'Heldonica'}</span>
               {post.readTime && post.readTime > 0 ? (
                 <>
                   <span>•</span>

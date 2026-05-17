@@ -93,7 +93,7 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
       { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
       { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
       { key: 'page_title',  label: 'Titre de la page',      type: 'text' },
-      { key: 'intro_text',  label: "Texte d'introduction",  type: 'textarea' },
+      { key: 'intro_text',  label: "Texte d’introduction",  type: 'textarea' },
     ],
   },
   'nos-services': {
@@ -129,7 +129,7 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
       { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
       { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
       { key: 'page_title',  label: 'Titre de la page',      type: 'text' },
-      { key: 'intro_text',  label: "Texte d'introduction",  type: 'textarea' },
+      { key: 'intro_text',  label: "Texte d’introduction",  type: 'textarea' },
       { key: 'contact_email', label: 'Email de contact', type: 'text' },
       { key: 'contact_phone', label: 'Téléphone', type: 'text' },
     ],
@@ -143,7 +143,7 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
       { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
       { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
       { key: 'page_title',  label: 'Titre de la page',      type: 'text' },
-      { key: 'intro_text',  label: "Texte d'introduction",  type: 'textarea' },
+      { key: 'intro_text',  label: "Texte d’introduction",  type: 'textarea' },
       { key: 'hero_cta', label: 'Hero — Bouton CTA', type: 'text' },
       { key: 'hero_cta_link', label: 'Hero — Lien du bouton', type: 'text' },
       { key: 'section_approach_title', label: 'Section Approche — Titre', type: 'text' },
@@ -242,7 +242,7 @@ const SETTINGS_GROUPS: Record<string, { label: string; emoji: string }> = {
   footer:   { label: 'Footer',          emoji: '📄' },
 };
 
-// Paramètres d'apparence (couleurs, logo, favicon)
+// Paramètres d’apparence (couleurs, logo, favicon)
 const APPEARANCE_SETTINGS = [
   { key: 'site_logo',        label: 'Logo du site (PNG/SVG)',      type: 'media' },
   { key: 'site_favicon',    label: 'Favicon (32x32, PNG/ICO)',   type: 'media' },
@@ -614,7 +614,7 @@ function CMSAdminInner() {
   const saveArticle = useCallback(async () => {
     if (!editingArticle || savingArticle) return;
     if (!editingArticle.title?.trim()) {
-      showToast("Le titre est obligatoire avant d'enregistrer.");
+      showToast("Le titre est obligatoire avant d’enregistrer.");
       return;
     }
     const isNew = !editingArticle.id;
@@ -767,7 +767,7 @@ function CMSAdminInner() {
         showToast(`❌ Upload échoué : ${data.error}`);
       }
     } catch {
-      showToast("Impossible d'envoyer cette image.");
+      showToast("Impossible d’envoyer cette image.");
     } finally {
       setUploadingFeaturedImage(false);
       e.target.value = '';
@@ -794,7 +794,7 @@ function CMSAdminInner() {
         showToast(`❌ Upload échoué : ${data.error}`);
       }
     } catch {
-      showToast("Impossible d'envoyer ce média.");
+      showToast("Impossible d’envoyer ce média.");
     } finally {
       setUploadingMediaKey('');
       e.target.value = '';
@@ -1069,14 +1069,14 @@ function CMSAdminInner() {
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
               <button onClick={() => setShowArticlePreview(prev => !prev)}
                 style={{ padding: '.5rem .95rem', border: '1px solid #ddd', borderRadius: '.5rem', background: 'white', color: '#6b2a1a', cursor: 'pointer', fontSize: '.82rem', fontWeight: 700 }}
-              >{showArticlePreview ? "Masquer l'aperçu" : 'Aperçu live'}</button>
+              >{showArticlePreview ? "Masquer l’aperçu" : 'Aperçu live'}</button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
               <div style={{ gridColumn: '1/-1' }}>
                 <label style={lbl}>Titre *</label>
                 <input value={editingArticle?.title || ''}
                   onChange={e => setEditingArticle(p => ({ ...p, title: e.target.value, slug: slug(e.target.value) }))}
-                  style={inp} placeholder="Titre de l'article" />
+                  style={inp} placeholder="Titre de l’article" />
               </div>
               <div>
                 <label style={lbl}>Slug (URL)</label>
@@ -1122,7 +1122,7 @@ function CMSAdminInner() {
                     </div>
                     <input value={editingArticle.featured_image}
                       onChange={e => setEditingArticle(p => ({ ...p, featured_image: e.target.value }))}
-                      style={{ ...inp, flex: 1, fontSize: '.82rem' }} placeholder="URL de l'image" />
+                      style={{ ...inp, flex: 1, fontSize: '.82rem' }} placeholder="URL de l’image" />
                   </div>
                 ) : (
                   <input value=""
@@ -1196,7 +1196,7 @@ function CMSAdminInner() {
                   ) : (
                     <div style={previewImageFallback}>Ajoute une image à la une</div>
                   )}
-                  <h1 style={{ margin: 0, fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', lineHeight: 1.1, color: '#1f1a17' }}>{editingArticle?.title || "Titre de l'article"}</h1>
+                  <h1 style={{ margin: 0, fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', lineHeight: 1.1, color: '#1f1a17' }}>{editingArticle?.title || "Titre de l’article"}</h1>
                   <p style={{ margin: '1rem 0 1.5rem', color: '#6d625a', fontSize: '1rem', lineHeight: 1.7 }}>{editingArticle?.excerpt || "Ton extrait apparaîtra ici."}</p>
                   {articlePreviewHtml ? (
                     <EnhancedRichContent html={articlePreviewHtml} style={previewBody} />

@@ -115,7 +115,7 @@ export default function MaderePage() {
           <div className="absolute right-4 top-4 hidden md:block rounded-xl overflow-hidden border border-white/25 shadow-xl bg-black/30 backdrop-blur-sm">
             <img
               src="https://heldonica.fr/wp-content/uploads/2026/03/fetched-image-2-1024x768.jpg"
-              alt="Cabo Girao a l'aube, spot eco-luxe"
+              alt="Cabo Girao a l’aube, spot eco-luxe"
               className="h-28 w-40 object-cover"
               loading="lazy"
             />
