@@ -128,11 +128,11 @@ export default function MaderePage() {
               Destination pilier
             </p>
             <h1 className="text-4xl md:text-6xl font-serif text-white max-w-4xl mb-5">
-              Madere, l ile de l eternel printemps en mode slow travel
+              Madère, l'île de l'éternel printemps en mode slow travel
             </h1>
             <p className="text-white/85 max-w-2xl text-lg leading-relaxed">
               Un mix unique de relief volcanique, villages atlantiques et adresses
-              locales. Ici, on voyage lentement sans jamais s ennuyer.
+              locales. Ici, on voyage lentement sans jamais s'ennuyer.
             </p>
           </div>
         </section>
