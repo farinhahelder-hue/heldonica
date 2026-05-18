@@ -64,7 +64,7 @@ const questions: Question[] = [
     title: 'Ton rythme ideal sur place ?',
     options: [
       {
-        label: 'Une base lente, peu de deplacements',
+        label: 'Une base lente, peu de déplacements',
         scores: { explorateur_sensoriel: 2, contemplatif_alpin: 2, mediterraneen_gourmand: 1, curieux_patrimoine: 1 },
       },
       {

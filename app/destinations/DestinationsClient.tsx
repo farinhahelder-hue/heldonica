@@ -27,7 +27,7 @@ const destinations: DestinationCard[] = [
     style: 'nature',
     duration: '7-10',
     description: "L’île qu’on a mise trois ans à vraiment comprendre. Chaque retour révèle quelque chose que le précédent avait raté.",
-    image: 'https://images.unsplash.com/photo-1560719887-fe3105fa1e55?w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1560719887-fe3105fa1e55?w=800&q=80',
     budget: '1 400 à 1 800 € / duo / 7 jours',
     season: 'mars à juin · septembre à novembre',
     verdict: "Le genre d’île qui te force à ralentir si tu veux qu’elle s’ouvre.",
@@ -39,7 +39,7 @@ const destinations: DestinationCard[] = [
     style: 'food',
     duration: '5-7',
     description: "Le sud-est qu’on prend par la pierre, par le ventre et par les fins d’après-midi qui durent plus que prévu.",
-    image: 'https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&q=80',
     budget: 'Sur mesure',
     season: 'avril à juin · septembre à octobre',
     verdict: "À faire lentement, sinon la Sicile ne te donne que sa surface.",
@@ -63,7 +63,7 @@ const destinations: DestinationCard[] = [
     style: 'culture',
     duration: '7-10',
     description: "Le terrain de l’enfance, du retour et des villages qui n’ont pas encore laissé tomber leur rythme.",
-    image: 'https://images.unsplash.com/photo-1555990538-1e0700b21df9?w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=800&q=80',
     budget: 'Accessible et dense',
     season: 'mai à octobre',
     verdict: "Une destination qui récompense ceux qui sortent des capitales trop vite résumées.",
@@ -223,9 +223,7 @@ export default function DestinationsClient() {
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredDestinations.map((item) => {
-                  const cta = item.slug.startsWith('/travel-planning-form')
-                    ? 'Nous écrire →'
-                    : 'Voir la destination →';
+                  const cta = 'Voir la destination →';
 
                   return (
                     <article

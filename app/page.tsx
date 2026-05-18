@@ -1,4 +1,5 @@
 import { getSetting, getAllPosts, formatDate, BlogPost, getPageContent } from '@/lib/blog-supabase'
+import { getSiteSettings } from '@/lib/settings'
 import HomeClient from '@/components/HomeClient'
 import type { Metadata } from 'next'
 
@@ -81,6 +82,7 @@ const schemaSpeakable = {
 
 export default async function Home() {
   const allPostsResult = await getAllPosts()
+  const siteSettings = await getSiteSettings()
   // Defensive: ensure we always have an array
   const allPosts = Array.isArray(allPostsResult) ? allPostsResult : []
   const coveredCountries = await getSetting('covered_countries')
