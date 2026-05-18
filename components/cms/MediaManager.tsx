@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/input';
 
 export default function MediaManager({ data, onSave }: any) {
@@ -65,14 +65,14 @@ export default function MediaManager({ data, onSave }: any) {
             className="hidden"
             id="file-upload"
           />
-          <label htmlFor="file-upload">
-            <Button
-              as="label"
-              className="bg-eucalyptus hover:bg-teal cursor-pointer"
+          <label htmlFor="file-upload" className="inline-block">
+            <button
+              type="button"
               disabled={uploading}
+              className="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-200 px-8 py-3.5 text-sm rounded-full bg-eucalyptus text-white hover:bg-eucalyptus/90 focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
             >
               {uploading ? '⏳ Téléchargement...' : '📤 Sélectionner des fichiers'}
-            </Button>
+            </button>
           </label>
           <p className="text-sm text-gray-600 mt-2">
             Glissez-déposez vos images ou vidéos ici

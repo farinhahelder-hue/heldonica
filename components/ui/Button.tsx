@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react'
 import Link from 'next/link'
 
-type Variant = 'primary' | 'secondary' | 'outline'
+type Variant = 'primary' | 'secondary' | 'outline' | 'destructive'
 type Size = 'sm' | 'md' | 'lg'
 
 const variants: Record<Variant, string> = {
@@ -9,6 +9,8 @@ const variants: Record<Variant, string> = {
     'rounded-full bg-eucalyptus text-white hover:bg-eucalyptus/90 focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:outline-none',
   secondary:
     'rounded-full bg-teal text-white hover:bg-teal/90 focus-visible:ring-2 focus-visible:ring-teal focus-visible:outline-none',
+  destructive:
+    'rounded-full bg-mahogany text-white hover:bg-mahogany/90 focus-visible:ring-2 focus-visible:ring-mahogany focus-visible:outline-none',
   outline:
     'rounded-full border border-charcoal/20 text-charcoal hover:border-charcoal focus-visible:ring-2 focus-visible:ring-charcoal focus-visible:outline-none',
 }
