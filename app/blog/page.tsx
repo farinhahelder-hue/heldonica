@@ -5,8 +5,8 @@ import Footer from '@/components/Footer'
 import BlogClientPage from '@/components/BlogClientPage'
 import Breadcrumb from '@/components/Breadcrumb'
 
-// Bolt optimization: Enable ISR with 60 second revalidation period to improve TTFB and reduce server load for the blog index page
-export const revalidate = 60
+// Enable ISR with 3600 second (1 hour) revalidation period to improve TTFB and reduce server load for the blog index page
+export const revalidate = 3600
 
 function calcReadTime(content: string | null): number {
   if (!content || typeof content !== 'string') return 0
