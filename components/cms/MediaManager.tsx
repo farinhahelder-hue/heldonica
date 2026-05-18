@@ -65,14 +65,18 @@ export default function MediaManager({ data, onSave }: any) {
             className="hidden"
             id="file-upload"
           />
-          <label htmlFor="file-upload" className="inline-block">
-            <button
-              type="button"
-              disabled={uploading}
-              className="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-200 px-8 py-3.5 text-sm rounded-full bg-eucalyptus text-white hover:bg-eucalyptus/90 focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {uploading ? '⏳ Téléchargement...' : '📤 Sélectionner des fichiers'}
-            </button>
+          <label
+            htmlFor="file-upload"
+            className={`cursor-pointer inline-flex items-center justify-center gap-2 font-semibold transition-all duration-200 px-8 py-3.5 text-sm rounded-full bg-eucalyptus text-white hover:bg-eucalyptus/90 focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:outline-none ${uploading ? 'opacity-60 cursor-not-allowed pointer-events-none' : ''}`}
+            tabIndex={uploading ? -1 : 0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                document.getElementById('file-upload')?.click();
+              }
+            }}
+          >
+            {uploading ? '⏳ Téléchargement...' : '📤 Sélectionner des fichiers'}
           </label>
           <p className="text-sm text-gray-600 mt-2">
             Glissez-déposez vos images ou vidéos ici
