@@ -176,10 +176,15 @@ interface HomeProps {
   coveredCountries?: string | null
   heroVideoUrl?: string | null
   heroPosterImage?: string | null
+  siteSettings?: {
+    instagramUsername?: string
+    instagramPostCount?: number
+    instagramPosts?: string
+  }
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries, heroVideoUrl, heroPosterImage }: HomeProps) {
+export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries, heroVideoUrl, heroPosterImage, siteSettings }: HomeProps) {
   useScrollReveal()
   const featImg = featured ? postImage(featured) : null
   const publishedArticles = totalPosts ?? SITE_STATS.publishedCarnets
@@ -597,7 +602,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <h2 className="text-2xl font-serif text-mahogany text-center mb-8">
             Sur le terrain, pas en studio
           </h2>
-          <InstagramEmbed limit={6} />
+          <InstagramEmbed limit={6} siteSettings={siteSettings} />
         </div>
       </section>
 

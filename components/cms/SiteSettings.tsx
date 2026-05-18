@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 
 export default function SiteSettings({ data, onSave }: any) {
   const [settings, setSettings] = useState(data?.site || {});
+  const [newCategory, setNewCategory] = useState('');
 
   const handleChange = (field: string, value: string) => {
     setSettings({
@@ -88,6 +89,88 @@ export default function SiteSettings({ data, onSave }: any) {
           </div>
         </div>
 
+        {/* Presets de couleurs */}
+        <div>
+          <label className="block text-sm font-medium text-charcoal mb-2">
+            Presets de Couleurs
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { name: 'Terre', primary: '#8B4513', secondary: '#2D5016' },
+              { name: 'Océan', primary: '#0E4D64', secondary: '#1A6B7C' },
+              { name: 'Forêt', primary: '#1B4D3E', secondary: '#3D7A5C' },
+              { name: 'Coucher', primary: '#9C4B2A', secondary: '#C97B4B' },
+              { name: 'Minéral', primary: '#5C5C5C', secondary: '#8B7355' },
+              { name: 'Lavande', primary: '#6B4E71', secondary: '#9B7B95' },
+            ].map((preset) => (
+              <button
+                key={preset.name}
+                onClick={() => {
+                  handleChange('primaryColor', preset.primary);
+                  handleChange('secondaryColor', preset.secondary);
+                }}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg border hover:shadow-md transition-all"
+                style={{ borderColor: preset.primary }}
+              >
+                <div
+                  className="w-4 h-4 rounded-full"
+                  style={{ background: preset.primary }}
+                />
+                <div
+                  className="w-4 h-4 rounded-full"
+                  style={{ background: preset.secondary }}
+                />
+                <span className="text-xs">{preset.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Catégories personnalisées */}
+        <div>
+          <label className="block text-sm font-medium text-charcoal mb-2">
+            Catégories du Blog
+          </label>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {(settings.customCategories || ['Découvertes locales', 'Carnets de voyage', 'Coulisses', 'Expert hôtelier']).map((cat: string, idx: number) => (
+              <span
+                key={idx}
+                className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-teal-100 text-teal-800 text-sm"
+              >
+                {cat}
+                <button
+                  onClick={() => {
+                    const cats = (settings.customCategories || ['Découvertes locales', 'Carnets de voyage', 'Coulisses', 'Expert hôtelier']).filter((_: string, i: number) => i !== idx);
+                    handleChange('customCategories', cats);
+                  }}
+                  className="ml-1 text-teal-600 hover:text-red-500"
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <Input
+              value={newCategory || ''}
+              onChange={(e) => setNewCategory(e.target.value)}
+              placeholder="Nouvelle catégorie"
+              className="flex-1"
+            />
+            <Button
+              onClick={() => {
+                if (newCategory?.trim()) {
+                  const cats = [...(settings.customCategories || ['Découvertes locales', 'Carnets de voyage', 'Coulisses', 'Expert hôtelier']), newCategory.trim()];
+                  handleChange('customCategories', cats);
+                  setNewCategory('');
+                }
+              }}
+            >
+              +
+            </Button>
+          </div>
+        </div>
+
         {/* Logo */}
         <div>
           <label className="block text-sm font-medium text-charcoal mb-2">Logo</label>
@@ -114,6 +197,44 @@ export default function SiteSettings({ data, onSave }: any) {
               />
             </div>
           )}
+        </div>
+
+        {/* Instagram */}
+        <div className="border-t pt-6">
+          <h3 className="font-bold text-mahogany mb-4 flex items-center gap-2">
+            📸 Paramètres Instagram
+          </h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-charcoal mb-2">Nom d'utilisateur</label>
+              <Input
+                value={settings.instagramUsername || ''}
+                onChange={(e) => handleChange('instagramUsername', e.target.value)}
+                placeholder="heldonica"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-charcoal mb-2">Nombre de posts a afficher</label>
+              <Input
+                type="number"
+                min={1}
+                max={12}
+                value={settings.instagramPostCount || 6}
+                onChange={(e) => handleChange('instagramPostCount', parseInt(e.target.value) || 6)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-charcoal mb-2">Posts (un par ligne, format: image|url|legende)</label>
+              <Textarea
+                value={settings.instagramPosts || ''}
+                onChange={(e) => handleChange('instagramPosts', e.target.value)}
+                rows={5}
+                placeholder="https://images.unsplash.com/...|https://instagram.com/...|Legende du post"
+                className="font-mono text-xs"
+              />
+              <p className="text-xs text-gray-500 mt-1">Ajoutez vos posts Instagram (image, URL, legende). Un post par ligne.</p>
+            </div>
+          </div>
         </div>
 
         {/* Informations supplémentaires */}

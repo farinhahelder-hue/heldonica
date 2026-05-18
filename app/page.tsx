@@ -112,6 +112,7 @@ export default async function Home() {
         latestPosts={formatPosts(latestPosts)}
         heroVideoUrl={heroVideoUrl}
         heroPosterImage={heroPosterImage}
+        siteSettings={siteSettings}
       />
       <script
         type="application/ld+json"
