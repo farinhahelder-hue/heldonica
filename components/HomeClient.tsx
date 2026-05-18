@@ -51,7 +51,7 @@ const CAT_IMAGES: Record<string, string> = {
   'Guides Pratiques': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
   'Expert Hôtelier': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
   Travel: 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
-  'Food & Lifestyle': 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=1200&q=80',
+  'Food & Lifestyle': 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&q=80',
 }
 function postImage(p: BlogPost): string {
   if (p.featured_image && p.featured_image.trim().length > 0) return p.featured_image
@@ -257,7 +257,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'hero_read_carnet' })}>
               Voir nos carnets →
             </Link>
-            <Link href="/travel-planning-form" 
+            <Link href="/planifier"
               className="px-5 md:px-6 py-2.5 md:py-3 border border-white/50 hover:border-white text-white hover:bg-white/10 rounded-full font-semibold text-sm tracking-wide transition focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
               onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'hero_contact' })}>
               Planifier mon voyage →
@@ -291,7 +291,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               <p className="text-base text-charcoal/70 leading-relaxed mb-8">
                 Notre regard est né à deux, entre Paris, Madère et la Roumanie. On ferme les ordis, on part, on revient, on note ce qui tient vraiment sur le terrain. Ensuite seulement, on le partage.
               </p>
-              <Link href="/blog" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
+              <Link href="/a-propos" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
                 Lire la suite →
               </Link>
             </div>
@@ -480,19 +480,19 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 On ne fait pas des itinéraires.<br />
                 <em className="text-teal">On fait le tien.</em>
               </h2>
-              <p className="text-charcoal/40 leading-relaxed mb-4">
+              <p className="text-white/90 leading-relaxed mb-4">
                 Tu nous envoies tes contraintes réelles — temps, budget, énergie, envie. On transforme ça en séquence concrète, avec les adresses qu&apos;on a testées et l&apos;ordre qui a du sens sur le terrain.
               </p>
-              <p className="text-charcoal/60 text-sm leading-relaxed mb-8">
+              <p className="text-white/80 text-sm leading-relaxed mb-8">
                 Notre terrain naturel : les couples qui veulent ralentir sans s&apos;ennuyer, les solos qui cherchent du vrai, les familles qui cherchent autre chose que les parcs d&apos;attractions.
               </p>
               <div className="flex flex-wrap gap-3">
-                <Link href="/travel-planning-form" 
+              <Link href="/planifier"
                 className="px-6 py-3 bg-eucalyptus hover:bg-eucalyptus text-white rounded font-semibold text-sm transition"
                 onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'services_contact' })}>
                 Nous écrire →
               </Link>
-              <Link href="/blog" 
+              <Link href="/travel-planning"
                 className="px-6 py-3 border border-white/30 hover:border-white/60 text-white rounded font-semibold text-sm transition"
                 onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'services_read_carnet' })}>
                 Lire la suite →
@@ -507,7 +507,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               ].map((item) => (
                 <div key={item.t} className="border border-white/10 rounded-xl p-5 hover:border-teal/30 transition">
                   <h3 className="font-semibold text-white text-sm mb-1">{item.t}</h3>
-                  <p className="text-charcoal/40 text-sm leading-relaxed">{item.d}</p>
+                  <p className="text-white/80 text-sm leading-relaxed">{item.d}</p>
                 </div>
               ))}
             </div>
