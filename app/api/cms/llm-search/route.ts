@@ -38,17 +38,20 @@ async function semanticSearch(query: string, type: string = 'all', limit: number
       .limit(20);
 
     if (!error && articles) {
+      const queryLower = query.toLowerCase();
+      const queryWords = queryLower.split(/\s+/);
+
       for (const article of articles) {
-        const text = `${article.title} ${article.excerpt} ${article.content || ''}`.toLowerCase();
-        const queryLower = query.toLowerCase();
+        const titleLower = article.title?.toLowerCase() || '';
+        const excerptLower = article.excerpt?.toLowerCase() || '';
+        const contentLower = article.content?.toLowerCase() || '';
         
         // Simple keyword scoring
-        const queryWords = queryLower.split(/\s+/);
         let score = 0;
         for (const word of queryWords) {
-          if (article.title?.toLowerCase().includes(word)) score += 10;
-          if (article.excerpt?.toLowerCase().includes(word)) score += 5;
-          if (article.content?.toLowerCase().includes(word)) score += 1;
+          if (titleLower.includes(word)) score += 10;
+          if (excerptLower.includes(word)) score += 5;
+          if (contentLower.includes(word)) score += 1;
         }
         
         if (score > 0) {
@@ -74,16 +77,19 @@ async function semanticSearch(query: string, type: string = 'all', limit: number
       .limit(20);
 
     if (!error && demandes) {
+      const queryLower = query.toLowerCase();
+      const queryWords = queryLower.split(/\s+/);
+
       for (const d of demandes) {
-        const text = `${d.nom} ${d.email} ${d.pays_destination} ${d.type_sejour}`.toLowerCase();
-        const queryLower = query.toLowerCase();
-        
-        const queryWords = queryLower.split(/\s+/);
+        const nomLower = d.nom?.toLowerCase() || '';
+        const paysLower = d.pays_destination?.toLowerCase() || '';
+        const typeLower = d.type_sejour?.toLowerCase() || '';
+
         let score = 0;
         for (const word of queryWords) {
-          if (d.nom?.toLowerCase().includes(word)) score += 5;
-          if (d.pays_destination?.toLowerCase().includes(word)) score += 10;
-          if (d.type_sejour?.toLowerCase().includes(word)) score += 8;
+          if (nomLower.includes(word)) score += 5;
+          if (paysLower.includes(word)) score += 10;
+          if (typeLower.includes(word)) score += 8;
         }
 
         if (score > 0) {
