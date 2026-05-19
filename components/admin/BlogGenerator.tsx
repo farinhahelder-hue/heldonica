@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { FORBIDDEN_WORDS, HELDONICA_ACCROCHES } from '@/lib/brand-voice';
+
 
 interface BlogGeneratorProps {
   onGenerated?: (data: { title: string; excerpt: string; content: string; hashtags: string[]; suggestedSlug: string }) => void;
@@ -18,6 +20,7 @@ export default function BlogGenerator({ onGenerated }: BlogGeneratorProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState('');
+  const [voiceCheck, setVoiceCheck] = useState<{ forbidden: string[]; score: number } | null>(null);
 
   const handleGenerate = async () => {
     if (!topic.trim()) return;
@@ -37,6 +40,7 @@ export default function BlogGenerator({ onGenerated }: BlogGeneratorProps) {
       
       if (data.success) {
         setResult(data);
+        setVoiceCheck(data.voiceCheck || null);
         onGenerated?.(data);
       } else {
         setError(data.error || 'Erreur de génération');
@@ -67,7 +71,27 @@ export default function BlogGenerator({ onGenerated }: BlogGeneratorProps) {
         <input
           value={topic}
           onChange={e => setTopic(e.target.value)}
-          placeholder="Ex: Weekend à Lisbonne, Road trip en Toscane, Randonnée au Portugal..."
+          placeholder="Ex: Pépite dénichée à Funchal, Levada hors des sentiers battus..."
+          style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.88rem', background: '#fff' }}
+        />
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.3rem', marginTop: '.4rem' }}>
+          {HELDONICA_ACCROCHES.slice(0, 3).map((a, i) => (
+            <button key={i} onClick={() => setNotes(prev => prev ? prev : a)}
+              style={{ fontSize: '.72rem', padding: '.2rem .5rem', borderRadius: '9999px', background: '#f0e8e4', color: '#6b2a1a', border: 'none', cursor: 'pointer' }}>
+              ✨ {a.slice(0, 30)}…
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ marginBottom: '1.25rem' }}>
+        <label style={{ display: 'block', fontWeight: 600, fontSize: '.85rem', color: '#555', marginBottom: '.35rem' }}>
+          Anecdote personnelle à intégrer <span style={{ color: '#01696f', fontSize: '.78rem' }}>(✨ améliore la voix)</span>
+        </label>
+        <input
+          value={notes}
+          onChange={e => setNotes(e.target.value)}
+          placeholder="Ex: On était seuls ce matin-là, la brume descendait sur les nuages…"
           style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.88rem', background: '#fff' }}
         />
       </div>
@@ -172,6 +196,30 @@ export default function BlogGenerator({ onGenerated }: BlogGeneratorProps) {
               {result.hashtags.slice(0, 8).join(' ')}
             </div>
           )}
+
+          {/* Voice check badge */}
+          {voiceCheck && (
+            <div style={{ marginTop: '.75rem', padding: '.6rem .9rem', borderRadius: '.5rem', background: voiceCheck.forbidden.length === 0 ? '#d1fae5' : '#fef3c7', border: `1px solid ${voiceCheck.forbidden.length === 0 ? '#6ee7b7' : '#fbbf24'}` }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: voiceCheck.forbidden.length > 0 ? '.4rem' : 0 }}>
+                <span style={{ fontSize: '.78rem', fontWeight: 700, color: voiceCheck.forbidden.length === 0 ? '#065f46' : '#92400e' }}>
+                  {voiceCheck.forbidden.length === 0 ? '✨ Voix Heldonica ✓' : `⚠️ ${voiceCheck.forbidden.length} mot(s) à corriger`}
+                </span>
+                <span style={{ fontSize: '.72rem', fontWeight: 600, color: voiceCheck.score >= 80 ? '#065f46' : voiceCheck.score >= 60 ? '#92400e' : '#991b1b' }}>
+                  Score : {voiceCheck.score}/100
+                </span>
+              </div>
+              {voiceCheck.forbidden.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.3rem' }}>
+                  {voiceCheck.forbidden.map(w => (
+                    <span key={w} style={{ fontSize: '.72rem', padding: '.15rem .45rem', borderRadius: '9999px', background: '#fee2e2', color: '#991b1b', fontWeight: 600 }}>
+                      ❌ {w}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           <button
             onClick={handleUseContent}
             style={{

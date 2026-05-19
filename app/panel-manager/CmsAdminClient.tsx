@@ -24,9 +24,10 @@ type Article = {
 
 type Demande = {
   id: string; prenom: string; nom: string; email: string;
-  telephone: string; destination: string; style_voyage: string;
-  duree_jours: number; budget_fourchette: string; nb_voyageurs: number;
-  mois_depart: string; notes: string; statut: string; created_at: string;
+  telephone: string; destination: string; destination_detail?: string;
+  style_voyage: string; duree_jours: number; budget_fourchette: string;
+  nb_voyageurs: number; mois_depart: string; notes: string;
+  statut: string; created_at: string;
 };
 
 type Setting = { id: number; key: string; value: string; label: string; type?: string; };
@@ -147,6 +148,7 @@ const SETTINGS_GROUPS: Record<string, { label: string; emoji: string }> = {
   social:    { label: 'Réseaux sociaux', emoji: '📱' },
   seo:       { label: 'SEO',            emoji: '🔍' },
   footer:   { label: 'Footer',          emoji: '📄' },
+  email:    { label: 'Email / Notifs',  emoji: '📧' },
 };
 
 // Paramètres d’apparence
@@ -214,6 +216,11 @@ function CMSAdminInner() {
   const [demandes, setDemandes] = useState<Demande[]>([]);
   const [loadingDemandes, setLoadingDemandes] = useState(false);
   const [updatingDemandeId, setUpdatingDemandeId] = useState<string | null>(null);
+  const [expandedDemandeId, setExpandedDemandeId] = useState<string | null>(null);
+  const [aiReplyDraft, setAiReplyDraft] = useState<Record<string, string>>({});
+  const [generatingReplyId, setGeneratingReplyId] = useState<string | null>(null);
+  const [internalNotes, setInternalNotes] = useState<Record<string, string>>({});
+  const [savingNoteId, setSavingNoteId] = useState<string | null>(null);
 
   // Paramètres + Contenu pages
   const [settings, setSettings] = useState<Setting[]>([]);
@@ -710,6 +717,50 @@ function CMSAdminInner() {
     }
   };
 
+  const generateAiReply = async (d: Demande) => {
+    setGeneratingReplyId(d.id);
+    try {
+      const res = await fetch('/api/cms/ai-reply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ demande: d }),
+      });
+      const data = await res.json();
+      if (data.reply) {
+        setAiReplyDraft(prev => ({ ...prev, [d.id]: data.reply }));
+        showToast('✅ Email généré !');
+      } else {
+        showToast('❌ Erreur génération email');
+      }
+    } catch {
+      showToast('Impossible de générer la réponse.');
+    } finally {
+      setGeneratingReplyId(null);
+    }
+  };
+
+  const exportDemandesCSV = () => {
+    if (demandes.length === 0) return;
+    const headers = ['Prénom','Nom','Email','Téléphone','Destination','Style','Durée','Budget','Mois départ','Statut','Date','Notes'];
+    const rows = demandes.map(d => [
+      d.prenom, d.nom, d.email, d.telephone,
+      d.destination, d.style_voyage,
+      d.duree_jours ? `${d.duree_jours}j` : '',
+      d.budget_fourchette, d.mois_depart,
+      d.statut, new Date(d.created_at).toLocaleDateString('fr-FR'),
+      (d.notes || '').replace(/,/g, ';'),
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(v => `"${v || ''}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `demandes-heldonica-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('✅ CSV téléchargé !');
+  };
+
   // ===== Login screen =====
   if (checkingSession) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f3ef' }}>
@@ -748,6 +799,7 @@ function CMSAdminInner() {
     { id: 'articles', icon: <FileText size={16} />, label: 'Articles', count: articles.length },
     { id: 'new',      icon: <Plus size={16} />,  label: 'Nouvel article', count: null },
     { id: 'blog',    icon: <Sparkles size={16} />, label: 'Générateur Blog IA', count: null },
+    { id: 'calendar', icon: <span style={{fontSize:14}}>📅</span>, label: 'Calendrier', count: null },
     { id: 'pages',    icon: <Folder size={16} />, label: 'Pages', count: null },
     { id: 'demandes',icon: <Plane size={16} />, label: 'Travel Planning', count: demandes.length },
     // eslint-disable-next-line jsx-a11y/alt-text -- Image is a lucide-react icon, not an <img> element
@@ -1154,9 +1206,10 @@ function CMSAdminInner() {
 
         {tab === 'demandes' && (
           <div>
+            {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
               <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>✈️ Demandes Travel Planning</h2>
-              <div style={{ display: 'flex', gap: '.5rem', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
                 <select value={demandesStatusFilter} onChange={e => setDemandesStatusFilter(e.target.value)}
                   style={{ padding: '.5rem .8rem', border: '1.5px solid #ddd', borderRadius: '.5rem', fontSize: '.85rem' }}>
                   <option value="all">Tous statuts</option>
@@ -1167,9 +1220,32 @@ function CMSAdminInner() {
                   <option value="terminee">🏁 Terminée</option>
                   <option value="annulee">❌ Annulée</option>
                 </select>
-                <button onClick={loadDemandes} disabled={loadingDemandes} style={{ padding: '.5rem 1rem', background: 'white', border: '1.5px solid #ddd', borderRadius: '.5rem', cursor: loadingDemandes ? 'wait' : 'pointer', fontSize: '.85rem', opacity: loadingDemandes ? .7 : 1 }}>{loadingDemandes ? '⏳' : '🔄'}</button>
+                <button onClick={exportDemandesCSV}
+                  style={{ padding: '.5rem 1rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.85rem', fontWeight: 600 }}>
+                  ⬇️ CSV
+                </button>
+                <button onClick={loadDemandes} disabled={loadingDemandes}
+                  style={{ padding: '.5rem 1rem', background: 'white', border: '1.5px solid #ddd', borderRadius: '.5rem', cursor: loadingDemandes ? 'wait' : 'pointer', fontSize: '.85rem', opacity: loadingDemandes ? .7 : 1 }}>
+                  {loadingDemandes ? '⏳' : '🔄'}
+                </button>
               </div>
             </div>
+
+            {/* Stats row */}
+            {demandes.length > 0 && (
+              <div style={{ display: 'flex', gap: '.75rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+                {[['🆕','nouvelle','Nouvelles'],['🔍','en_cours','En cours'],['📨','devis_envoye','Devis'],['✅','accepte','Acceptées']].map(([emoji, key, label]) => {
+                  const count = demandes.filter(d => d.statut === key).length;
+                  return (
+                    <button key={key} onClick={() => setDemandesStatusFilter(demandesStatusFilter === key ? 'all' : key)}
+                      style={{ padding: '.5rem 1rem', borderRadius: '.5rem', border: '1.5px solid', borderColor: demandesStatusFilter === key ? '#6b2a1a' : '#e0dbd5', background: demandesStatusFilter === key ? '#f0e8e4' : 'white', cursor: 'pointer', fontSize: '.82rem', fontWeight: 600 }}>
+                      {emoji} {label} <span style={{ background: '#e0dbd5', borderRadius: '9999px', padding: '0 .4rem', marginLeft: '.3rem' }}>{count}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
             {loadingDemandes ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p>
               : demandes.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '4rem', color: '#aaa' }}>
@@ -1178,35 +1254,202 @@ function CMSAdminInner() {
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {demandes.filter(d => demandesStatusFilter === 'all' || d.statut === demandesStatusFilter).map(d => (
-                    <div key={d.id} style={{ background: 'white', borderRadius: '.75rem', padding: '1.25rem 1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '.75rem', flexWrap: 'wrap', gap: '.5rem' }}>
-                        <div>
-                          <div style={{ fontWeight: 700, fontSize: '1rem', color: '#1a1a1a' }}>{d.prenom} {d.nom}</div>
-                          <div style={{ fontSize: '.85rem', color: '#888' }}>{d.email} {d.telephone && `· ${d.telephone}`}</div>
+                  {demandes.filter(d => demandesStatusFilter === 'all' || d.statut === demandesStatusFilter).map(d => {
+                    const isExpanded = expandedDemandeId === d.id;
+                    const statusColors: Record<string, { bg: string; color: string }> = {
+                      nouvelle: { bg: '#dbeafe', color: '#1d4ed8' },
+                      en_cours: { bg: '#fef3c7', color: '#92400e' },
+                      devis_envoye: { bg: '#ede9fe', color: '#5b21b6' },
+                      accepte: { bg: '#d1fae5', color: '#065f46' },
+                      terminee: { bg: '#e5e7eb', color: '#374151' },
+                      annulee: { bg: '#fee2e2', color: '#991b1b' },
+                    };
+                    const sc = statusColors[d.statut] || { bg: '#f3f4f6', color: '#111' };
+                    return (
+                      <div key={d.id} style={{ background: 'white', borderRadius: '.75rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', overflow: 'hidden', border: isExpanded ? '1.5px solid #6b2a1a' : '1.5px solid transparent' }}>
+                        {/* Card header — always visible */}
+                        <div style={{ padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '.75rem', cursor: 'pointer' }}
+                          onClick={() => setExpandedDemandeId(isExpanded ? null : d.id)}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#f0e8e4', color: '#6b2a1a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '1rem', flexShrink: 0 }}>
+                              {(d.prenom || '?')[0].toUpperCase()}
+                            </div>
+                            <div>
+                              <div style={{ fontWeight: 700, color: '#1a1a1a' }}>{d.prenom} {d.nom}</div>
+                              <div style={{ fontSize: '.82rem', color: '#888' }}>{d.email}{d.telephone ? ` · ${d.telephone}` : ''}</div>
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem', flexWrap: 'wrap' }}>
+                            <span style={{ padding: '.25rem .7rem', borderRadius: '9999px', fontSize: '.75rem', fontWeight: 700, background: sc.bg, color: sc.color }}>
+                              {d.destination || '—'}
+                            </span>
+                            <select value={d.statut || 'nouvelle'} onClick={e => e.stopPropagation()}
+                              onChange={e => updateStatut(d.id, e.target.value)} disabled={updatingDemandeId === d.id}
+                              style={{ padding: '.3rem .7rem', border: '1.5px solid #ddd', borderRadius: '.4rem', fontSize: '.82rem', cursor: 'pointer' }}>
+                              <option value="nouvelle">🆕 Nouvelle</option>
+                              <option value="en_cours">🔍 En cours</option>
+                              <option value="devis_envoye">📨 Devis envoyé</option>
+                              <option value="accepte">✅ Acceptée</option>
+                              <option value="terminee">🏁 Terminée</option>
+                              <option value="annulee">❌ Annulée</option>
+                            </select>
+                            <span style={{ fontSize: '.72rem', color: '#aaa' }}>{fmt(d.created_at)}</span>
+                            <span style={{ fontSize: '.9rem', color: '#999', transition: 'transform .2s', display: 'inline-block', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
+                          </div>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
-                          <span style={{ fontSize: '.75rem', color: '#aaa' }}>{fmt(d.created_at)}</span>
-                          <select value={d.statut || 'nouvelle'} onChange={e => updateStatut(d.id, e.target.value)} disabled={updatingDemandeId === d.id}
-                            style={{ padding: '.3rem .7rem', border: '1.5px solid #ddd', borderRadius: '.4rem', fontSize: '.82rem' }}>
-                            <option value="nouvelle">🆕 Nouvelle</option>
-                            <option value="en_cours">🔍 En cours</option>
-                            <option value="devis_envoye">📨 Devis envoyé</option>
-                            <option value="accepte">✅ Acceptée</option>
-                            <option value="terminee">🏁 Terminée</option>
-                            <option value="annulee">❌ Annulée</option>
-                          </select>
-                        </div>
+
+                        {/* Expanded details */}
+                        {isExpanded && (
+                          <div style={{ borderTop: '1px solid #f0ebe5', padding: '1.25rem 1.5rem', background: '#faf8f5' }}>
+                            {/* Trip details grid */}
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '.75rem', marginBottom: '1.25rem' }}>
+                              {[
+                                ['🗺️ Destination', `${d.destination || ''}${d.destination_detail ? ` — ${d.destination_detail}` : ''}`],
+                                ['🧳 Style', d.style_voyage || '—'],
+                                ['📅 Durée', d.duree_jours ? `${d.duree_jours} jours` : '—'],
+                                ['💶 Budget', d.budget_fourchette || '—'],
+                                ['🗓️ Départ', d.mois_depart || '—'],
+                                ['👥 Voyageurs', d.nb_voyageurs ? String(d.nb_voyageurs) : '—'],
+                              ].map(([label, val]) => (
+                                <div key={label} style={{ background: 'white', borderRadius: '.5rem', padding: '.75rem 1rem' }}>
+                                  <div style={{ fontSize: '.72rem', color: '#999', marginBottom: '.2rem' }}>{label}</div>
+                                  <div style={{ fontSize: '.88rem', fontWeight: 600, color: '#1a1a1a' }}>{val || '—'}</div>
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* Client message */}
+                            {d.notes && (
+                              <div style={{ background: 'white', borderRadius: '.5rem', padding: '.75rem 1rem', marginBottom: '1.25rem', borderLeft: '3px solid #6b2a1a' }}>
+                                <div style={{ fontSize: '.72rem', color: '#999', marginBottom: '.3rem' }}>💬 Message client</div>
+                                <p style={{ fontSize: '.88rem', color: '#333', lineHeight: 1.6, margin: 0 }}>{d.notes}</p>
+                              </div>
+                            )}
+
+                            {/* Action buttons */}
+                            <div style={{ display: 'flex', gap: '.75rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
+                              <a href={`mailto:${d.email}?subject=Votre demande Travel Planning — ${d.destination}&body=Bonjour ${d.prenom},%0A%0A`}
+                                style={{ padding: '.5rem 1rem', background: '#6b2a1a', color: 'white', borderRadius: '.5rem', fontSize: '.85rem', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '.4rem' }}>
+                                📧 Écrire
+                              </a>
+                              <button
+                                onClick={() => generateAiReply(d)}
+                                disabled={generatingReplyId === d.id}
+                                style={{ padding: '.5rem 1rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', fontSize: '.85rem', fontWeight: 600, cursor: generatingReplyId === d.id ? 'wait' : 'pointer', opacity: generatingReplyId === d.id ? .7 : 1 }}>
+                                {generatingReplyId === d.id ? '⏳ Génération…' : '✨ Réponse IA'}
+                              </button>
+                            </div>
+
+                            {/* AI reply draft */}
+                            {aiReplyDraft[d.id] && (
+                              <div style={{ background: 'white', borderRadius: '.75rem', padding: '1rem', marginBottom: '1.25rem', border: '1.5px solid #01696f' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '.5rem' }}>
+                                  <span style={{ fontSize: '.78rem', fontWeight: 700, color: '#01696f' }}>✨ Brouillon généré</span>
+                                  <div style={{ display: 'flex', gap: '.5rem' }}>
+                                    <button
+                                      onClick={() => {
+                                        const mailto = `mailto:${d.email}?subject=${encodeURIComponent(`Votre demande Travel Planning — ${d.destination}`)}&body=${encodeURIComponent(aiReplyDraft[d.id])}`;
+                                        window.open(mailto);
+                                      }}
+                                      style={{ padding: '.3rem .75rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.4rem', fontSize: '.78rem', cursor: 'pointer', fontWeight: 600 }}>
+                                      📧 Ouvrir dans mail
+                                    </button>
+                                    <button
+                                      onClick={() => { navigator.clipboard.writeText(aiReplyDraft[d.id]); showToast('📋 Copié !'); }}
+                                      style={{ padding: '.3rem .75rem', background: '#f0e8e4', color: '#6b2a1a', border: 'none', borderRadius: '.4rem', fontSize: '.78rem', cursor: 'pointer', fontWeight: 600 }}>
+                                      📋 Copier
+                                    </button>
+                                  </div>
+                                </div>
+                                <textarea
+                                  value={aiReplyDraft[d.id]}
+                                  onChange={e => setAiReplyDraft(prev => ({ ...prev, [d.id]: e.target.value }))}
+                                  rows={10}
+                                  style={{ width: '100%', border: 'none', background: 'transparent', fontSize: '.85rem', lineHeight: 1.7, resize: 'vertical', outline: 'none', color: '#333', fontFamily: 'Georgia, serif' }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
-                      {d.notes && (
-                        <div style={{ marginTop: '.75rem', padding: '.75rem', background: '#faf8f5', borderRadius: '.5rem', fontSize: '.85rem', color: '#666' }}>💬 {d.notes}</div>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
           </div>
         )}
+
+        {tab === 'calendar' && (() => {
+          const now = new Date();
+          const year = now.getFullYear();
+          const month = now.getMonth();
+          const monthName = now.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+          const daysInMonth = new Date(year, month + 1, 0).getDate();
+          const firstDay = (new Date(year, month, 1).getDay() + 6) % 7; // Mon=0
+          const cells = Array.from({ length: firstDay + daysInMonth }, (_, i) =>
+            i < firstDay ? null : i - firstDay + 1
+          );
+          const getArticlesForDay = (day: number) => {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            return articles.filter(a => {
+              const pub = a.published_at || a.scheduled_published_at || '';
+              return pub.startsWith(dateStr);
+            });
+          };
+          return (
+            <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>📅 Calendrier — {monthName}</h2>
+                <button onClick={() => openArticleEditor({})} style={{ padding: '.5rem 1.25rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600, fontSize: '.85rem' }}>+ Planifier un article</button>
+              </div>
+              {/* Day headers */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '.35rem', marginBottom: '.35rem' }}>
+                {['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].map(d => (
+                  <div key={d} style={{ textAlign: 'center', fontSize: '.72rem', fontWeight: 700, color: '#aaa', padding: '.4rem 0', textTransform: 'uppercase' }}>{d}</div>
+                ))}
+              </div>
+              {/* Day cells */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '.35rem' }}>
+                {cells.map((day, i) => {
+                  if (!day) return <div key={`empty-${i}`} />;
+                  const dayArticles = getArticlesForDay(day);
+                  const isToday = day === now.getDate();
+                  return (
+                    <div key={day} style={{ minHeight: 80, background: isToday ? '#f0e8e4' : '#faf8f5', borderRadius: '.5rem', padding: '.5rem', border: isToday ? '2px solid #6b2a1a' : '1px solid #eee' }}>
+                      <div style={{ fontSize: '.78rem', fontWeight: isToday ? 700 : 400, color: isToday ? '#6b2a1a' : '#888', marginBottom: '.3rem' }}>{day}</div>
+                      {dayArticles.map(a => (
+                        <div key={a.id} onClick={() => openArticleEditor(a)} title={a.title}
+                          style={{ fontSize: '.68rem', padding: '.2rem .4rem', borderRadius: '.25rem', background: a.published ? '#d1fae5' : '#fef3c7', color: a.published ? '#065f46' : '#92400e', marginBottom: '.2rem', cursor: 'pointer', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: 600 }}>
+                          {a.published ? '●' : '○'} {a.title}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
+              {/* Legend */}
+              <div style={{ display: 'flex', gap: '1.5rem', marginTop: '1.25rem', fontSize: '.78rem', color: '#888' }}>
+                <span><span style={{ background: '#d1fae5', color: '#065f46', padding: '.1rem .4rem', borderRadius: '.25rem', fontWeight: 600 }}>● Publié</span></span>
+                <span><span style={{ background: '#fef3c7', color: '#92400e', padding: '.1rem .4rem', borderRadius: '.25rem', fontWeight: 600 }}>○ Brouillon/Planifié</span></span>
+              </div>
+              {/* Upcoming scheduled */}
+              {articles.filter(a => a.scheduled_published_at && !a.published).length > 0 && (
+                <div style={{ marginTop: '2rem' }}>
+                  <h3 style={{ fontSize: '.95rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1rem' }}>🕐 Articles planifiés</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
+                    {articles.filter(a => a.scheduled_published_at && !a.published).map(a => (
+                      <div key={a.id} onClick={() => openArticleEditor(a)}
+                        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '.75rem 1rem', background: '#fef3c7', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.88rem' }}>
+                        <span style={{ fontWeight: 600, color: '#92400e' }}>{a.title}</span>
+                        <span style={{ color: '#b45309', fontWeight: 600 }}>{a.scheduled_published_at ? new Date(a.scheduled_published_at).toLocaleDateString('fr-FR') : ''}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {tab === 'carousel' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -1298,10 +1541,11 @@ function CMSAdminInner() {
                   {(() => {
                     const groupItems = settings.filter(s => {
                       if (settingsGroup === 'general') return ['site_title', 'site_logo', 'site_favicon'].includes(s.key);
-                      if (settingsGroup === 'appearance') return ['site_logo', 'site_favicon', 'color_primary', 'color_secondary', 'color_accent', 'color_background', 'color_text', 'font_heading', 'font_body'].includes(s.key);
+                      if (settingsGroup === 'appearance') return APPEARANCE_SETTINGS.map(a => a.key).includes(s.key);
                       if (settingsGroup === 'social') return s.key.startsWith('social_');
                       if (settingsGroup === 'seo') return s.key.startsWith('seo_');
                       if (settingsGroup === 'footer') return s.key.startsWith('footer_');
+                      if (settingsGroup === 'email') return s.key.startsWith('email_') || s.key.startsWith('notif_');
                       return true;
                     });
                     const groupCfg = SETTINGS_GROUPS[settingsGroup];
