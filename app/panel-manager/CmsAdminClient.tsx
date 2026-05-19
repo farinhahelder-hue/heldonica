@@ -517,6 +517,21 @@ function CMSAdminInner() {
       return;
     }
     const isNew = !editingArticle.id;
+    // Pre-publishing validation: validate BEFORE publishing
+    if (editingArticle.published && !isNew) {
+      try {
+        const res = await fetch('/api/cms/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ post_id: editingArticle.id }),
+        });
+        const validation = await res.json();
+        if (!validation.valid) {
+          showToast(`⚠️ Validation failed (score: ${validation.score}). Fix errors before publishing.`);
+          return;
+        }
+      } catch { /* validation optional */ }
+    }
     const payload = {
       ...editingArticle,
       slug: editingArticle.slug || slug(editingArticle.title || ''),
