@@ -103,6 +103,20 @@ export default async function Home() {
     ? { ...allPosts[0], formattedDate: formatDate(allPosts[0].published_at), readTime: allPosts[0].read_time ?? calcReadTime(allPosts[0].content) }
     : null
 
+  // Fetch Instagram / site settings for HomeClient
+  const [instagramUsername, instagramPostCount, instagramPosts, siteEmail] = await Promise.all([
+    getSetting('social_instagram'),
+    getSetting('instagram_post_count'),
+    getSetting('instagram_posts'),
+    getSetting('contact_email'),
+  ])
+  const siteSettings = {
+    instagramUsername: instagramUsername || undefined,
+    instagramPostCount: instagramPostCount ? Number(instagramPostCount) : undefined,
+    instagramPosts: instagramPosts || undefined,
+    site_email: siteEmail || undefined,
+  }
+
   return (
     <>
       <HomeClient
