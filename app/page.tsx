@@ -82,7 +82,6 @@ const schemaSpeakable = {
 
 export default async function Home() {
   const allPostsResult = await getAllPosts()
-  const siteSettings = await getSiteSettings()
   // Defensive: ensure we always have an array
   const allPosts = Array.isArray(allPostsResult) ? allPostsResult : []
   const coveredCountries = await getSetting('covered_countries')
@@ -114,7 +113,7 @@ export default async function Home() {
     instagramUsername: instagramUsername || undefined,
     instagramPostCount: instagramPostCount ? Number(instagramPostCount) : undefined,
     instagramPosts: instagramPosts || undefined,
-    site_email: siteEmail || undefined,
+    site_email: siteEmail || 'contact@heldonica.fr',
   }
 
   return (
