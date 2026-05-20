@@ -264,3 +264,85 @@ N8N_WEBHOOK_URL=https://your-n8n.com/webhook/heldonica-published
 1. **Slack bot** — Commandes `/heldonica publish 42`
 2. **Notion sync** — Créer articles depuis Notion
 3. **Auto-reddit** — Poster automatiquement sur Reddit
+
+---
+
+## 🆕 Webhook System (v2)
+
+Le CMS peut maintenant envoyer des webhooks automatiquement !
+
+### Architecture
+
+```
+Heldonica CMS ──🔴 event ──▶ Webhook Dispatcher ──▶ n8n / Slack / Discord
+                  (lib/webhook-dispatcher.ts)
+```
+
+### Events dispatchés
+
+| Event | Quand | Payload |
+|-------|-------|----------|
+| `article.created` | Nouvel article créé | article data |
+| `article.updated` | Article modifié | article data |
+| `article.published` | Publication | article data |
+| `validation.failed` | Échec validation | article + issues |
+
+### Configuration Vercel
+
+```
+# Webhooks
+N8N_WEBHOOK_URL=https://your-n8n.com/webhook/heldonica
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/xxx
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/xxx
+```
+
+### API Manuelle
+
+```bash
+# Trigger un événement
+curl -X POST "https://www.heldonica.fr/api/webhook/trigger" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "event": "article.published",
+    "article_id": 42
+  }'
+```
+
+### API n8n
+
+```bash
+#Liste les articles pour n8n
+curl "https://www.heldonica.fr/api/n8n/articles?status=draft&days=7"
+
+# Met à jour un article
+curl -X PATCH "https://www.heldonica.fr/api/n8n/articles" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": 42,
+    "published": true,
+    "travel_style": "slow-travel"
+  }'
+```
+
+### Exemple n8n Workflow
+
+```json
+{
+  "name": "Article Published Handler",
+  "nodes": [
+    {
+      "name": "Webhook",
+      "type": "webhook",
+      "parameters": { "path": "heldonica-published" }
+    },
+    {
+      "name": "Slack",
+      "type": "slack",
+      "parameters": {
+        "channel": "#heldonica",
+        "text": "={{$json.article.title}} publié !"
+      }
+    }
+  ]
+}
+```
