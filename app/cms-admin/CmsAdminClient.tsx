@@ -2,7 +2,7 @@
 
 console.log('[CMS] Rendering CMS admin page');
 
-import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import EnhancedRichContent from '@/components/EnhancedRichContent';
@@ -835,6 +835,28 @@ function CMSAdminInner() {
     window.addEventListener('keydown', handleSaveShortcut);
     return () => window.removeEventListener('keydown', handleSaveShortcut);
   }, [tab, saveArticle]);
+
+  // Auto-save draft every 30 seconds
+  const autoSaveTimer = useRef<NodeJS.Timeout | null>(null);
+  useEffect(() => {
+    if (tab !== 'new' || !editingArticle?.title?.trim() || savingArticle) {
+      if (autoSaveTimer.current) {
+        clearTimeout(autoSaveTimer.current);
+        autoSaveTimer.current = null;
+      }
+      return;
+    }
+    autoSaveTimer.current = setTimeout(async () => {
+      if (editingArticle?.title?.trim() && !savingArticle) {
+        console.log('[CMS] Auto-saving draft...');
+        showToast('💾 Brouillon auto-sauvegardé');
+        await saveArticle();
+      }
+    }, 30000);
+    return () => {
+      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    };
+  }, [tab, editingArticle?.title, savingArticle, saveArticle]);
 
   const saveSettings = async () => {
     setSavingSettings(true);
