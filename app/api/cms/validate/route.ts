@@ -207,6 +207,28 @@ export async function POST(req: Request) {
       })
     }
 
+    // 5b. Check geo fields for destination articles
+    if (post.category === 'destinations') {
+      if (!post.country) {
+        issues.push({
+          type: 'warning',
+          field: 'country',
+          message: 'Pays manquant pour une destination'
+        })
+        score -= 5
+      }
+    }
+
+    // 5c. Check personalization fields
+    if (!post.travel_style) {
+      issues.push({
+        type: 'warning',
+        field: 'travel_style',
+        message: 'Style de voyage non défini'
+      })
+      score -= 3
+    }
+
     // 6. Check slug format
     const slug = post.slug
     if (slug) {
