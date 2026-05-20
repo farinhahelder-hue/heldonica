@@ -7,10 +7,19 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+// Optional API key for external agents
+const API_KEY = process.env.AI_AGENT_API_KEY
+
 // POST /api/ai/enhance - Enhance article content (improve text, SEO, media suggestions)
 // Body: { article_id, enhancements: ['text', 'seo', 'media', 'forbidden'] }
 
 export async function POST(request: NextRequest) {
+  // API key check for external agents
+  const auth = request.headers.get('x-api-key')
+  if (API_KEY && auth !== API_KEY) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
     const body = await request.json()
     const { article_id, enhancements = ['text'] } = body

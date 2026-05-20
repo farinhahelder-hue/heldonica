@@ -6,9 +6,18 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+// Optional API key for external agents
+const API_KEY = process.env.AI_AGENT_API_KEY
+
 // GET /api/ai/content - List articles for AI agent consumption
 // Query params: category, country, travel_style, season, published, limit
 export async function GET(request: NextRequest) {
+  // API key check for external agents
+  const auth = request.headers.get('x-api-key')
+  if (API_KEY && auth !== API_KEY) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const { searchParams } = new URL(request.url)
   const category = searchParams.get('category')
   const country = searchParams.get('country')
@@ -31,10 +40,6 @@ export async function GET(request: NextRequest) {
 
   const { data, error } = await query
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
-
   // Enrich with taxonomy data
   const enriched = data?.map(article => ({
     ...article,
@@ -51,6 +56,12 @@ export async function GET(request: NextRequest) {
 
 // POST /api/ai/content - Create/update article via AI agent
 export async function POST(request: NextRequest) {
+  // API key check for external agents
+  const auth = request.headers.get('x-api-key')
+  if (API_KEY && auth !== API_KEY) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
     const body = await request.json()
     const { action, article } = body
