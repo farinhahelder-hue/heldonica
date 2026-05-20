@@ -17,6 +17,7 @@ interface ValidationIssue {
   type: 'error' | 'warning'
   field: string
   message: string
+  suggestion?: string  // For auto-fix suggestions
 }
 
 interface ValidationResult {
@@ -129,9 +130,19 @@ export async function POST(req: Request) {
     ].join(' ').toLowerCase()
 
     const foundForbidden: string[] = []
+    const forbiddenSuggestions: string[] = []
     for (const word of FORBIDDEN_WORDS) {
       if (allText.includes(word.toLowerCase())) {
         foundForbidden.push(word)
+        // Auto-fix suggestions
+        const replacement = word === 'bons plans' ? 'pépites' 
+          : word === 'bon plan' ? 'adresse secrète'
+          : word === 'tips' ? "conseil d'initié"
+          : word === 'circuit' ? 'itinéraire'
+          : word === 'package' ? 'voyage sur mesure'
+          : word === 'lieu incontournable' ? 'adresse favorite'
+          : 'éviter ce mot'
+        forbiddenSuggestions.push(`"${word}" → "${replacement}"`)
       }
     }
 
@@ -139,7 +150,8 @@ export async function POST(req: Request) {
       issues.push({
         type: 'error',
         field: 'content',
-        message: `Mots interdits trouvés: ${foundForbidden.join(', ')}`
+        message: `Mots interdits trouvés: ${foundForbidden.join(', ')}`,
+        suggestion: forbiddenSuggestions.join(', ')
       })
       score -= 15 * foundForbidden.length
     }
