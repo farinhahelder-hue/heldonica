@@ -943,6 +943,89 @@ function CMSAdminInner() {
     }
   };
 
+  // Duplicate article
+  const duplicateArticle = async (article: Article) => {
+    try {
+      const res = await fetch('/api/cms/articles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...article,
+          id: undefined,
+          title: `${article.title} (copie)`,
+          slug: `${article.slug}-copy-${Date.now()}`,
+          published: false,
+          published_at: null,
+          created_at: undefined,
+          updated_at: undefined,
+        }),
+      });
+      if (handleUnauthorized(res)) return;
+      if (res.ok) { showToast('📋 Article dupliqué'); loadArticles(); }
+    } catch {
+      showToast('Impossible de dupliquer cet article.');
+    }
+  };
+
+  // Export articles to CSV
+  const exportToCsv = () => {
+    const headers = ['id', 'title', 'slug', 'category', 'excerpt', 'content', 'published', 'published_at', 'created_at'];
+    const rows = articles.map(a => [
+      a.id,
+      a.title,
+      a.slug,
+      a.category || '',
+      a.excerpt || '',
+      a.content?.replace(/<[^>]*>/g, '') || '',
+      a.published ? 'yes' : 'no',
+      a.published_at || '',
+      a.created_at || '',
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `articles-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    showToast('📥 Export CSV réussi');
+  };
+
+  // Import articles from CSV
+  const importFromCsv = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const text = await file.text();
+    const lines = text.split('\n').filter(l => l.trim());
+    if (lines.length < 2) { showToast('Fichier CSV invalide'); return; }
+    const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+    let imported = 0;
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
+      const articleData: Record<string, string> = {};
+      headers.forEach((h, idx) => { articleData[h] = values[idx] || ''; });
+      try {
+        await fetch('/api/cms/articles', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: articleData.title || 'sans-titre',
+            slug: articleData.slug || slug(articleData.title || 'sans-titre'),
+            category: articleData.category || '',
+            excerpt: articleData.excerpt || '',
+            content: articleData.content || '',
+            published: articleData.published === 'yes',
+          }),
+        });
+        imported++;
+      } catch { /* skip bad rows */ }
+    }
+    showToast(`📤 ${imported} article(s) importé(s)`);
+    loadArticles();
+    e.target.value = '';
+  };
+
   const uploadFeaturedImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -1218,6 +1301,11 @@ function CMSAdminInner() {
               </select>
               <button onClick={loadArticles} style={{ padding: '.6rem 1rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>🔍</button>
               <button onClick={() => openArticleEditor({})} style={{ padding: '.6rem 1rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>+ Nouvel</button>
+              <button onClick={exportToCsv} title="Exporter CSV" style={{ padding: '.5rem .75rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.8rem' }}>📥</button>
+              <label title="Importer CSV" style={{ padding: '.5rem .75rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.8rem' }}>
+                <input type="file" accept=".csv" onChange={importFromCsv} style={{ display: 'none' }} />
+                📤
+              </label>
             </div>
             
             {/* Bulk Actions Bar */}
@@ -1284,6 +1372,7 @@ function CMSAdminInner() {
                       <div style={{ display: 'flex', gap: '.35rem' }}>
                         <button onClick={() => openArticleEditor(a)} title="Éditer" style={{ padding: '.3rem .6rem', border: '1px solid #ddd', borderRadius: '.35rem', background: 'white', cursor: 'pointer', fontSize: '.78rem' }}>✏️</button>
                         <button onClick={() => togglePublish(a)} title={a.published ? 'Dépublier' : 'Publier'} style={{ padding: '.3rem .6rem', border: '1px solid #ddd', borderRadius: '.35rem', background: 'white', cursor: 'pointer', fontSize: '.78rem' }}>{a.published ? '📦' : '📤'}</button>
+                        <button onClick={() => duplicateArticle(a)} title="Dupliquer" style={{ padding: '.3rem .6rem', border: '1px solid #ddd', borderRadius: '.35rem', background: 'white', cursor: 'pointer', fontSize: '.78rem' }}>📋</button>
                         <button onClick={() => deleteArticle(a.id)} title="Supprimer" style={{ padding: '.3rem .6rem', border: '1px solid #fcc', borderRadius: '.35rem', background: '#fff5f5', color: '#c0392b', cursor: 'pointer', fontSize: '.78rem' }}>🗑</button>
                       </div>
                     </div>
