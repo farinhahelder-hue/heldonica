@@ -8,7 +8,7 @@ import dynamic from 'next/dynamic';
 import EnhancedRichContent from '@/components/EnhancedRichContent';
 import MediaLibrary from '@/components/MediaLibrary';
 import { sanitizeHtml } from '@/lib/sanitize-html';
-import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw } from 'lucide-react';
+import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot } from 'lucide-react';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
 const CarouselEditor = dynamic(() => import('@/components/admin/CarouselEditor'), { ssr: false });
@@ -20,23 +20,13 @@ type Article = {
   id: number; title: string; slug: string; category: string; scheduled_published_at?: string;
   published: boolean; published_at: string; created_at: string;
   excerpt: string; featured_image: string; content?: string; voice_notes?: string;
-  // SEO
-  meta_title?: string; meta_description?: string; og_image?: string; canonical_url?: string;
-  // Geo
-  city?: string; country?: string; country_code?: string; lat?: number; lng?: number;
-  // Personalization
-  travel_style?: string; season?: string; budget_level?: string; audience?: string;
-  // Media
-  video_url?: string; video_platform?: string; gallery_images?: string;
-  read_time?: number;
 };
 
 type Demande = {
   id: string; prenom: string; nom: string; email: string;
-  telephone: string; destination: string; destination_detail?: string;
-  style_voyage: string; duree_jours: number; budget_fourchette: string;
-  nb_voyageurs: number; mois_depart: string; notes: string;
-  statut: string; created_at: string;
+  telephone: string; destination: string; style_voyage: string;
+  duree_jours: number; budget_fourchette: string; nb_voyageurs: number;
+  mois_depart: string; notes: string; statut: string; created_at: string;
 };
 
 type Setting = { id: number; key: string; value: string; label: string; type?: string; };
@@ -58,26 +48,6 @@ function normalizeArticleDraft(article: Partial<Article> | null | undefined) {
     content: article?.content ?? '',
     voice_notes: article?.voice_notes ?? '',
     published: Boolean(article?.published),
-    // SEO
-    meta_title: article?.meta_title ?? '',
-    meta_description: article?.meta_description ?? '',
-    og_image: article?.og_image ?? '',
-    canonical_url: article?.canonical_url ?? '',
-    // Geo
-    city: article?.city ?? '',
-    country: article?.country ?? '',
-    country_code: article?.country_code ?? '',
-    lat: article?.lat,
-    lng: article?.lng,
-    // Personalization
-    travel_style: article?.travel_style ?? '',
-    season: article?.season ?? '',
-    budget_level: article?.budget_level ?? '',
-    audience: article?.audience ?? '',
-    // Media
-    video_url: article?.video_url ?? '',
-    video_platform: article?.video_platform ?? '',
-    gallery_images: article?.gallery_images ?? '',
   };
 }
 
@@ -118,6 +88,10 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
     label: 'À propos',
     emoji: '👋',
     sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
       { key: 'page_title',  label: 'Titre de la page',      type: 'text' },
       { key: 'intro_text',  label: "Texte d’introduction",  type: 'textarea' },
     ],
@@ -150,16 +124,32 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
     label: 'Contact',
     emoji: '📧',
     sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
       { key: 'page_title',  label: 'Titre de la page',      type: 'text' },
       { key: 'intro_text',  label: "Texte d’introduction",  type: 'textarea' },
+      { key: 'contact_email', label: 'Email de contact', type: 'text' },
+      { key: 'contact_phone', label: 'Téléphone', type: 'text' },
     ],
   },
   'hotel-consulting': {
     label: 'Hotel Consulting',
     emoji: '🏨',
     sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
       { key: 'page_title',  label: 'Titre de la page',      type: 'text' },
       { key: 'intro_text',  label: "Texte d’introduction",  type: 'textarea' },
+      { key: 'hero_cta', label: 'Hero — Bouton CTA', type: 'text' },
+      { key: 'hero_cta_link', label: 'Hero — Lien du bouton', type: 'text' },
+      { key: 'section_approach_title', label: 'Section Approche — Titre', type: 'text' },
+      { key: 'section_approach_text', label: 'Section Approche — Texte', type: 'textarea' },
+      { key: 'section_services_title', label: 'Section Services — Titre', type: 'text' },
+      { key: 'section_services_list', label: 'Services (liste séparée par |)', type: 'textarea' },
     ],
   },
   'mentions-legales': {
@@ -167,6 +157,79 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
     emoji: '⚖️',
     sections: [
       { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'content', label: 'Contenu (HTML)', type: 'textarea' },
+    ],
+  },
+  'politique-confidentialite': {
+    label: 'Politique de confidentialité',
+    emoji: '🔒',
+    sections: [
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'content', label: 'Contenu (HTML)', type: 'textarea' },
+    ],
+  },
+  'slow-travel': {
+    label: 'Slow Travel',
+    emoji: '🐌',
+    sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
+      { key: 'definition_title', label: 'Titre Définition', type: 'text' },
+      { key: 'definition_text', label: 'Texte Définition', type: 'textarea' },
+      { key: 'principles_title', label: 'Titre Principes', type: 'text' },
+      { key: 'principles_list', label: 'Principes (séparés par |)', type: 'textarea' },
+    ],
+  },
+  'destinations': {
+    label: 'Destinations',
+    emoji: '🗺️',
+    sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
+    ],
+  },
+  'temoignages': {
+    label: 'Témoignages',
+    emoji: '💬',
+    sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
+    ],
+  },
+  'etudes-de-cas': {
+    label: 'Études de cas',
+    emoji: '📁',
+    sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
+    ],
+  },
+  'ai-hotellerie': {
+    label: 'IA & Hôtellerie',
+    emoji: '🤖',
+    sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
     ],
   },
 };
@@ -177,20 +240,33 @@ const SETTINGS_GROUPS: Record<string, { label: string; emoji: string }> = {
   social:    { label: 'Réseaux sociaux', emoji: '📱' },
   seo:       { label: 'SEO',            emoji: '🔍' },
   footer:   { label: 'Footer',          emoji: '📄' },
-  email:    { label: 'Email / Notifs',  emoji: '📧' },
 };
 
-// Paramètres d’apparence
+// Paramètres d’apparence (couleurs, logo, favicon)
 const APPEARANCE_SETTINGS = [
-  { key: 'site_logo',        label: 'Logo du site',       type: 'media' },
-  { key: 'site_favicon',    label: 'Favicon',          type: 'media' },
-  { key: 'color_primary',   label: 'Couleur primaire',type: 'color' },
-  { key: 'color_secondary', label: 'Couleur secondaire',type: 'color' },
-  { key: 'color_accent',    label: 'Couleur accent',    type: 'color' },
-  { key: 'color_background',label: 'Couleur fond',      type: 'color' },
-  { key: 'color_text',      label: 'Couleur texte',     type: 'color' },
-  { key: 'font_heading',    label: 'Police titres',     type: 'text' },
-  { key: 'font_body',       label: 'Police texte',      type: 'text' },
+  { key: 'site_logo',        label: 'Logo du site (PNG/SVG)',      type: 'media' },
+  { key: 'site_favicon',    label: 'Favicon (32x32, PNG/ICO)',   type: 'media' },
+  // Couleurs du site
+  { key: 'color_primary',   label: 'Couleur primaire',         type: 'color' },
+  { key: 'color_secondary', label: 'Couleur secondaire',       type: 'color' },
+  { key: 'color_accent',    label: 'Couleur d\'accent',         type: 'color' },
+  { key: 'color_background',label: 'Couleur de fond',          type: 'color' },
+  { key: 'color_text',      label: 'Couleur du texte',           type: 'color' },
+  // Couleurs des héros
+  { key: 'hero_overlay_color', label: 'Hero — Couleur de overlay', type: 'color' },
+  { key: 'hero_overlay_opacity', label: 'Hero — Opacité overlay (0-100)', type: 'text' },
+  // Couleurs des boutons
+  { key: 'button_primary_bg', label: 'Bouton principal — Fond', type: 'color' },
+  { key: 'button_primary_text', label: 'Bouton principal — Texte', type: 'color' },
+  { key: 'button_secondary_bg', label: 'Bouton secondaire — Fond', type: 'color' },
+  { key: 'button_secondary_text', label: 'Bouton secondaire — Texte', type: 'color' },
+  // Typographie
+  { key: 'font_heading',    label: 'Police des titres (Google Fonts)',           type: 'text' },
+  { key: 'font_body',      label: 'Police du texte (Google Fonts)',             type: 'text' },
+  { key: 'font_size_base', label: 'Taille de base (ex: 16px)', type: 'text' },
+  // Layout
+  { key: 'container_max_width', label: 'Largeur max container (ex: 1280px)', type: 'text' },
+  { key: 'header_sticky', label: 'Header fixe (true/false)', type: 'text' },
 ];
 
 // ===== Composant interne (utilise useSearchParams) =====
@@ -214,6 +290,92 @@ function CMSAdminInner() {
   const [savingArticle, setSavingArticle] = useState(false);
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [scheduleMode, setScheduleMode] = useState(false);
+
+  // Agents panel
+  const [agentTask, setAgentTask] = useState('');
+  const [agentRepo, setAgentRepo] = useState('farinhahelder-hue/heldonica');
+  const [agentBranch, setAgentBranch] = useState('main');
+  const [selectedAgent, setSelectedAgent] = useState('allhands');
+  const [sendingTask, setSendingTask] = useState(false);
+  const [agentMessage, setAgentMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+  const [taskHistory, setTaskHistory] = useState<{date: string; agent: string; task: string; repo: string; branch: string}[]>([]);
+
+  // Load task history from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('agent-task-history');
+      if (saved) {
+        try {
+          setTaskHistory(JSON.parse(saved));
+        } catch (e) {
+          console.error('Failed to parse task history:', e);
+        }
+      }
+    }
+  }, []);
+
+  // Send task to agent via n8n webhook
+  const sendAgentTask = async () => {
+    if (!agentTask.trim()) {
+      setAgentMessage({ type: 'error', text: 'Veuillez描述ez une tâche à effectuer.' });
+      return;
+    }
+
+    const webhookUrl = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL;
+    if (!webhookUrl) {
+      setAgentMessage({ type: 'error', text: 'URL du webhook n8n non configurée. Ajoutez NEXT_PUBLIC_N8N_WEBHOOK_URL dans .env.local' });
+      return;
+    }
+
+    setSendingTask(true);
+    setAgentMessage(null);
+
+    try {
+      const res = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agent: selectedAgent,
+          task: agentTask,
+          repo: agentRepo,
+          branch: agentBranch,
+        }),
+      });
+
+      if (res.ok) {
+        const agentLabels: Record<string, string> = {
+          allhands: 'OpenHands (AllHands)',
+          jules: 'Jules (Google)',
+          gemini: 'Gemini (Google)',
+          perplexity: 'Perplexity',
+        };
+        const label = agentLabels[selectedAgent] || selectedAgent;
+        setAgentMessage({ type: 'success', text: `Tâche envoyée à ${label} avec succès!` });
+
+        // Add to history
+        const newEntry = {
+          date: new Date().toLocaleString('fr-FR'),
+          agent: selectedAgent,
+          task: agentTask,
+          repo: agentRepo,
+          branch: agentBranch,
+        };
+        const updatedHistory = [newEntry, ...taskHistory].slice(0, 10);
+        setTaskHistory(updatedHistory);
+        localStorage.setItem('agent-task-history', JSON.stringify(updatedHistory));
+
+        // Clear task field
+        setAgentTask('');
+      } else {
+        setAgentMessage({ type: 'error', text: `Erreur lors de l'envoi de la tâche (${res.status})` });
+      }
+    } catch (err) {
+      console.error('Failed to send task:', err);
+      setAgentMessage({ type: 'error', text: 'Erreur réseau. Le webhook est-il accessible?' });
+    } finally {
+      setSendingTask(false);
+    }
+  };
 
   // SEO analysis
   const analyzeSEO = (content: string, title: string) => {
@@ -245,11 +407,6 @@ function CMSAdminInner() {
   const [demandes, setDemandes] = useState<Demande[]>([]);
   const [loadingDemandes, setLoadingDemandes] = useState(false);
   const [updatingDemandeId, setUpdatingDemandeId] = useState<string | null>(null);
-  const [expandedDemandeId, setExpandedDemandeId] = useState<string | null>(null);
-  const [aiReplyDraft, setAiReplyDraft] = useState<Record<string, string>>({});
-  const [generatingReplyId, setGeneratingReplyId] = useState<string | null>(null);
-  const [internalNotes, setInternalNotes] = useState<Record<string, string>>({});
-  const [savingNoteId, setSavingNoteId] = useState<string | null>(null);
 
   // Paramètres + Contenu pages
   const [settings, setSettings] = useState<Setting[]>([]);
@@ -271,14 +428,11 @@ function CMSAdminInner() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const [archivedFilter, setArchivedFilter] = useState(false);
-  // New filters
-  const [countryFilter, setCountryFilter] = useState('all');
-  const [travelStyleFilter, setTravelStyleFilter] = useState('all');
-  const [seasonFilter, setSeasonFilter] = useState('all');
   const [activePage, setActivePage] = useState('home');
   const [editedSettings, setEditedSettings] = useState<Record<string, string>>({});
   const [editedContent, setEditedContent] = useState<Record<string, string>>({});
   const [savingSettings, setSavingSettings] = useState(false);
+  const [savingPageKey, setSavingPageKey] = useState('');
   const [uploadingMediaKey, setUploadingMediaKey] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
 
@@ -550,38 +704,9 @@ function CMSAdminInner() {
       return;
     }
     const isNew = !editingArticle.id;
-    // Pre-publishing validation: validate BEFORE publishing
-    if (editingArticle.published && !isNew) {
-      try {
-        const res = await fetch('/api/cms/validate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ post_id: editingArticle.id }),
-        });
-        const validation = await res.json();
-        if (!validation.valid) {
-          showToast(`⚠️ Validation failed (score: ${validation.score}). Fix errors before publishing.`);
-          return;
-        }
-      } catch { /* validation optional */ }
-    }
-
-    // Auto-calculate read_time if not set
-    const contentText = (editingArticle.content || '').replace(/<[^>]*>/g, '').trim();
-    const calculatedReadTime = Math.ceil(contentText.length / 1000);
-    
-    // Check for duplicate slug
-    if (editingArticle.slug) {
-      const existing = articles.find(a => a.slug === editingArticle.slug && a.id !== editingArticle.id);
-      if (existing) {
-        showToast(`⚠️ Warning: slug "${editingArticle.slug}" used by another article`);
-      }
-    }
-
     const payload = {
       ...editingArticle,
       slug: editingArticle.slug || slug(editingArticle.title || ''),
-      read_time: editingArticle.read_time || calculatedReadTime || 1,
       published_at: editingArticle.published && !editingArticle.published_at
         ? new Date().toISOString() : editingArticle.published_at,
       ...(scheduleMode && editingArticle?.scheduled_published_at ?
@@ -710,62 +835,6 @@ function CMSAdminInner() {
     }
   };
 
-  // Duplicate article
-  const duplicateArticle = async (a: Article) => {
-    if (!confirm(`Dupliquer "${a.title}" ?`)) return;
-    try {
-      const res = await fetch('/api/cms/articles', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...a,
-          id: undefined,
-          title: a.title + ' (copie)',
-          slug: a.slug + '-copy',
-          published: false,
-          published_at: null,
-          created_at: new Date().toISOString(),
-        }),
-      });
-      if (handleUnauthorized(res)) return;
-      if (res.ok) { showToast('✓ Article dupliqué !'); loadArticles(); }
-    } catch {
-      showToast('Impossible de dupliquer cet article.');
-    }
-  };
-
-  // Bulk publish
-  const bulkPublish = async (ids: number[]) => {
-    if (!confirm(`Publier ${ids.length} article(s) ?`)) return;
-    try {
-      for (const id of ids) {
-        await fetch(`/api/cms/articles/${id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ published: true, published_at: new Date().toISOString() }),
-        });
-      }
-      showToast(`✓ ${ids.length} article(s) publié(s) !`);
-      loadArticles();
-    } catch {
-      showToast('Erreur lors de la publication.');
-    }
-  };
-
-  // Bulk delete
-  const bulkDelete = async (ids: number[]) => {
-    if (!confirm(`Supprimer ${ids.length} article(s) ?`)) return;
-    try {
-      for (const id of ids) {
-        await fetch(`/api/cms/articles/${id}`, { method: 'DELETE' });
-      }
-      showToast(`🗑 ${ids.length} article(s) supprimé(s)`);
-      loadArticles();
-    } catch {
-      showToast('Erreur lors de la suppression.');
-    }
-  };
-
   const uploadFeaturedImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -835,50 +904,6 @@ function CMSAdminInner() {
     }
   };
 
-  const generateAiReply = async (d: Demande) => {
-    setGeneratingReplyId(d.id);
-    try {
-      const res = await fetch('/api/cms/ai-reply', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ demande: d }),
-      });
-      const data = await res.json();
-      if (data.reply) {
-        setAiReplyDraft(prev => ({ ...prev, [d.id]: data.reply }));
-        showToast('✅ Email généré !');
-      } else {
-        showToast('❌ Erreur génération email');
-      }
-    } catch {
-      showToast('Impossible de générer la réponse.');
-    } finally {
-      setGeneratingReplyId(null);
-    }
-  };
-
-  const exportDemandesCSV = () => {
-    if (demandes.length === 0) return;
-    const headers = ['Prénom','Nom','Email','Téléphone','Destination','Style','Durée','Budget','Mois départ','Statut','Date','Notes'];
-    const rows = demandes.map(d => [
-      d.prenom, d.nom, d.email, d.telephone,
-      d.destination, d.style_voyage,
-      d.duree_jours ? `${d.duree_jours}j` : '',
-      d.budget_fourchette, d.mois_depart,
-      d.statut, new Date(d.created_at).toLocaleDateString('fr-FR'),
-      (d.notes || '').replace(/,/g, ';'),
-    ]);
-    const csv = [headers, ...rows].map(r => r.map(v => `"${v || ''}"`).join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `demandes-heldonica-${new Date().toISOString().slice(0,10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast('✅ CSV téléchargé !');
-  };
-
   // ===== Login screen =====
   if (checkingSession) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f3ef' }}>
@@ -917,22 +942,35 @@ function CMSAdminInner() {
     { id: 'articles', icon: <FileText size={16} />, label: 'Articles', count: articles.length },
     { id: 'new',      icon: <Plus size={16} />,  label: 'Nouvel article', count: null },
     { id: 'blog',    icon: <Sparkles size={16} />, label: 'Générateur Blog IA', count: null },
-    { id: 'calendar', icon: <span style={{fontSize:14}}>📅</span>, label: 'Calendrier', count: null },
     { id: 'pages',    icon: <Folder size={16} />, label: 'Pages', count: null },
     { id: 'demandes',icon: <Plane size={16} />, label: 'Travel Planning', count: demandes.length },
     // eslint-disable-next-line jsx-a11y/alt-text -- Image is a lucide-react icon, not an <img> element
-    { id: 'media',   icon: <Image size={16} aria-hidden="true" />, label: 'Médiathèque', count: null },
+    { id: 'media',   icon: <Image size={16} aria-hidden="true" />, label: 'Médiatèque', count: null },
     { id: 'carousel',icon: <Car size={16} />,  label: 'Carrousel', count: null },
     { id: 'settings',icon: <Settings size={16} />,label: 'Paramètres', count: null },
     { id: 'analytics',icon: <BarChart3 size={16} />,label: 'Analytics', count: null },
     { id: 'search',  icon: <Search size={16} />, label: 'Search', count: null },
+    { id: 'agents',  icon: <Bot size={16} />,   label: 'Agents', count: null },
   ];
 
   return (
     <div style={{ minHeight: '100vh', background: '#f5f3ef', fontFamily: 'DM Sans, system-ui, sans-serif' }}>
       <style>{`
+        .cms-grid-kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .cms-layout-sidebar { display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem; align-items: start; }
+        .cms-mobile-tabs { display: flex; }
+        .cms-mobile-sidebar-panel { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: white; z-index: 50; padding: 2rem 1rem; box-shadow: 2px 0 12px rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: 0.5rem; transform: translateX(-100%); transition: transform 0.3s ease; overflow-y: auto; }
+        .cms-mobile-sidebar-panel.open { transform: translateX(0); }
+        .cms-top-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+        @media (max-width: 767px) {
+          .cms-layout-sidebar { grid-template-columns: 1fr; }
+          .cms-mobile-tabs { display: none !important; }
+        }
+
         @media (min-width: 768px) {
           [data-mobile-only="true"] { display: none !important; }
+          .cms-mobile-sidebar-panel { display: none !important; }
         }
       `}</style>
       {sidebarOpen && (
@@ -942,7 +980,33 @@ function CMSAdminInner() {
           data-mobile-only="true"
         />
       )}
-      <div style={{ background: '#6b2a1a', color: 'white', padding: '1rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 12px rgba(0,0,0,.15)' }}>
+      <div className={`cms-mobile-sidebar-panel ${sidebarOpen ? 'open' : ''}`}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', padding: '0 0.5rem' }}>
+          <span style={{ fontWeight: 700, fontSize: '1.2rem', color: '#6b2a1a' }}>🌍 Menu CMS</span>
+          <button onClick={() => setSidebarOpen(false)} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#6b2a1a' }}>✕</button>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {TABS.map(t => (
+            <button key={t.id}
+              onClick={() => { handleTabChange(t.id); setSidebarOpen(false); }}
+              style={{
+                padding: '1rem', border: 'none', background: tab === t.id ? '#f0e8e4' : 'transparent', cursor: 'pointer',
+                fontWeight: tab === t.id ? 700 : 500,
+                color: tab === t.id ? '#6b2a1a' : '#444',
+                borderRadius: '0.5rem',
+                fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', textAlign: 'left'
+              }}
+            >
+              {t.icon} {t.label}
+              {t.count !== null && t.count > 0 && (
+                <span style={{ background: '#6b2a1a', color: 'white', borderRadius: '9999px', padding: '.1rem .55rem', fontSize: '.75rem', fontWeight: 700, marginLeft: 'auto' }}>{t.count}</span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ background: '#6b2a1a', color: 'white', padding: '1rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 45, boxShadow: '0 2px 12px rgba(0,0,0,.15)' }}>
         <button onClick={() => setSidebarOpen(!sidebarOpen)}
           style={{ display: 'none', background: 'none', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer', marginRight: '0.5rem' }}
           data-mobile-only="true"
@@ -970,7 +1034,7 @@ function CMSAdminInner() {
         />
       )}
 
-      <div style={{ background: 'white', borderBottom: '1.5px solid #e8e3dc', padding: '0 2rem', display: 'flex', gap: '.25rem', overflowX: 'auto' }}>
+      <div className="cms-mobile-tabs" style={{ background: 'white', borderBottom: '1.5px solid #e8e3dc', padding: '0 2rem', display: 'flex', gap: '.25rem', overflowX: 'auto' }}>
         {TABS.map(t => (
           <button key={t.id}
             onClick={() => handleTabChange(t.id)}
@@ -996,7 +1060,7 @@ function CMSAdminInner() {
           <div>
             <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>🏠 Tableau de bord</h2>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+              <div className="cms-grid-kpi">
                 <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
                   <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{articles.filter(a => a.published).length}</p>
                   <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Articles publiés</p>
@@ -1014,25 +1078,7 @@ function CMSAdminInner() {
                   <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Paramètres</p>
                 </div>
               </div>
-              {/* Quality overview */}
-              <div style={{ marginTop: '1rem' }}>
-                <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase', marginBottom: '.5rem' }}>Qualité du contenu</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '.5rem' }}>
-                  <div style={{ background: '#d1fae5', padding: '.75rem', borderRadius: '.5rem', textAlign: 'center' }}>
-                    <p style={{ fontSize: '1.1rem', fontWeight: 700, color: '#065f46' }}>{articles.filter(a => a.published).length}</p>
-                    <p style={{ fontSize: '.65rem', color: '#065f46' }}>Publiés</p>
-                  </div>
-                  <div style={{ background: '#fef3c7', padding: '.75rem', borderRadius: '.5rem', textAlign: 'center' }}>
-                    <p style={{ fontSize: '1.1rem', fontWeight: 700, color: '#92400e' }}>{articles.filter(a => !a.published).length}</p>
-                    <p style={{ fontSize: '.65rem', color: '#92400e' }}>Brouillons</p>
-                  </div>
-                  <div style={{ background: '#eff6ff', padding: '.75rem', borderRadius: '.5rem', textAlign: 'center' }}>
-                    <p style={{ fontSize: '1.1rem', fontWeight: 700, color: '#1e40af' }}>{demandes.length}</p>
-                    <p style={{ fontSize: '.65rem', color: '#1e40af' }}>Demandes</p>
-                  </div>
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+              <div className="cms-top-actions">
                 <button onClick={() => openArticleEditor({})} style={{ padding: '.7rem 1.5rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>+ Nouvel article</button>
                 <button onClick={() => setTab('blog')} style={{ padding: '.7rem 1.5rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>✨ Générateur IA</button>
                 <button onClick={() => setTab('demandes')} style={{ padding: '.7rem 1.5rem', background: '#444', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>✈️ Travel Planning</button>
@@ -1072,39 +1118,11 @@ function CMSAdminInner() {
                   <p>Aucun article trouvé</p>
                 </div>
               ) : (
-                <div>
-                  {/* Advanced Filters */}
-                  <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap', marginBottom: '1rem', padding: '.75rem', background: '#faf8f5', borderRadius: '.5rem' }}>
-                    <select value={countryFilter} onChange={e => setCountryFilter(e.target.value)}
-                      style={{ padding: '.4rem .6rem', border: '1.5px solid #ddd', borderRadius: '.4rem', fontSize: '.8rem' }}>
-                      <option value="all">Tous pays</option>
-                      {['France', 'Portugal', 'Espagne', 'Italie', 'Suisse', 'Allemagne', 'Belgique', 'Pays-Bas', 'Royaume-Uni'].map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                    <select value={travelStyleFilter} onChange={e => setTravelStyleFilter(e.target.value)}
-                      style={{ padding: '.4rem .6rem', border: '1.5px solid #ddd', borderRadius: '.4rem', fontSize: '.8rem' }}>
-                      <option value="all">Tous styles</option>
-                      {['slow-travel', 'adventure', 'romantique', 'famille', 'solo', 'gastronomie'].map(s => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                    <select value={seasonFilter} onChange={e => setSeasonFilter(e.target.value)}
-                      style={{ padding: '.4rem .6rem', border: '1.5px solid #ddd', borderRadius: '.4rem', fontSize: '.8rem' }}>
-                      <option value="all">Toutes saisons</option>
-                      {['printemps', 'ete', 'automne', 'hiver', 'annee'].map(s => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '.75rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '.75rem' }}>
                   {articles.filter(a => {
                     if (categoryFilter !== 'all' && a.category !== categoryFilter) return false;
-                    if (countryFilter !== 'all' && a.country !== countryFilter) return false;
-                    if (travelStyleFilter !== 'all' && a.travel_style !== travelStyleFilter) return false;
-                    if (seasonFilter !== 'all' && a.season !== seasonFilter) return false;
                     return true;
-                  }).map(a => {
-                    // Quick local quality check
-                    const hasImage = !!a.featured_image;
-                    const hasExcerpt = a.excerpt && a.excerpt.length >= 50;
-                    const hasContent = a.content && a.content.length > 300;
-                    const quality = hasImage && hasExcerpt && hasContent ? 'good' : hasImage ? 'medium' : 'low';
-                    return (
+                  }).map(a => (
                     <div key={a.id} style={{ background: 'white', borderRadius: '.75rem', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', flexWrap: 'wrap' }}>
                       {a.featured_image && <img src={a.featured_image} alt="" style={{ width: 64, height: 48, objectFit: 'cover', borderRadius: '.4rem', flexShrink: 0 }} />}
                       <div style={{ flex: 1, minWidth: 200 }}>
@@ -1112,30 +1130,18 @@ function CMSAdminInner() {
                         <div style={{ fontSize: '.8rem', color: '#888', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                           <span>{a.category || '—'}</span>
                           <span>{fmt(a.created_at)}</span>
-                          {a.read_time && <span>⏱ {a.read_time} min</span>}
-                        </div>
-                        {/* Tags */}
-                        <div style={{ display: 'flex', gap: '.3rem', marginTop: '.4rem', flexWrap: 'wrap' }}>
-                          {a.country && <span style={{ padding: '.15rem .4rem', background: '#e3f2fd', borderRadius: '.3rem', fontSize: '.7rem', color: '#1565c0' }}>📍 {a.country}</span>}
-                          {a.travel_style && <span style={{ padding: '.15rem .4rem', background: '#e8f5e9', borderRadius: '.3rem', fontSize: '.7rem', color: '#2e7d32' }}>🚶 {a.travel_style}</span>}
-                          {a.season && <span style={{ padding: '.15rem .4rem', background: '#fff3e0', borderRadius: '.3rem', fontSize: '.7rem', color: '#ef6c00' }}>☀️ {a.season}</span>}
-                          {a.budget_level && <span style={{ padding: '.15rem .4rem', background: '#f3e5f5', borderRadius: '.3rem', fontSize: '.7rem', color: '#7b1fa2' }}>💰 {a.budget_level}</span>}
                         </div>
                       </div>
                       <span style={{ padding: '.3rem .8rem', borderRadius: '9999px', fontSize: '.78rem', fontWeight: 600, background: a.published ? '#d4edda' : '#fff3cd', color: a.published ? '#155724' : '#856404' }}>
                         {a.published ? '✓ Publié' : '📝 Brouillon'}
                       </span>
-                      <span title="Qualité: image + excerpt + contenu" style={{ padding: '.3rem .6rem', borderRadius: '.4rem', fontSize: '.7rem', fontWeight: 600, background: quality === 'good' ? '#d1fae5' : quality === 'medium' ? '#fef3c7' : '#fee2e2', color: quality === 'good' ? '#065f46' : quality === 'medium' ? '#92400e' : '#991b1b' }}>
-                        {quality === 'good' ? '✓✓' : quality === 'medium' ? '✓' : '⚠️'}
-                      </span>
                       <div style={{ display: 'flex', gap: '.5rem' }}>
                         <button onClick={() => openArticleEditor(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>✏️ Éditer</button>
-                        <button onClick={() => duplicateArticle(a)} title="Dupliquer" style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>📋</button>
                         <button onClick={() => togglePublish(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>{a.published ? '📦 Dépublier' : 'Publier'}</button>
                         <button onClick={() => deleteArticle(a.id)} style={{ padding: '.35rem .8rem', border: '1px solid #fcc', borderRadius: '.4rem', background: '#fff5f5', color: '#c0392b', cursor: 'pointer', fontSize: '.82rem' }}>🗑</button>
                       </div>
                     </div>
-                  )})}
+                  ))}
                 </div>
               )}
           </div>
@@ -1213,22 +1219,10 @@ function CMSAdminInner() {
               </div>
               <div style={{ gridColumn: '1/-1' }}>
                 <label style={lbl}>Extrait</label>
-                <div style={{ position: 'relative' }}>
                 <textarea value={editingArticle?.excerpt || ''}
                   onChange={e => setEditingArticle(p => ({ ...p, excerpt: e.target.value }))}
                   style={{ ...inp, height: 80, resize: 'vertical' }}
                   placeholder="Résumé accrocheur pour les cards du blog…" />
-                {editingArticle?.content && !(editingArticle?.excerpt) && (
-                  <button type="button" onClick={() => {
-                    const text = (editingArticle.content || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-                    const autoExcerpt = text.slice(0, 150) + (text.length > 150 ? '...' : '');
-                    setEditingArticle(p => ({ ...p, excerpt: autoExcerpt }));
-                  }} style={{ position: 'absolute', bottom: 8, right: 8, fontSize: '.7rem', padding: '.2rem .5rem', background: '#e0e0e0', border: 'none', borderRadius: '.3rem', cursor: 'pointer' }}>
-                    ✨ Auto
-                  </button>
-                )}
-                </div>
-                <p style={{ fontSize: '.7rem', color: '#888', marginTop: '.2rem' }}>{(editingArticle?.excerpt || '').length}/160 caractères</p>
               </div>
               <div style={{ gridColumn: '1/-1' }}>
                 <label style={lbl}>Contenu</label>
@@ -1236,187 +1230,6 @@ function CMSAdminInner() {
                   onChange={html => setEditingArticle(p => ({ ...p, content: html }))}
                   placeholder="Commence à écrire ton article ici…" />
               </div>
-              {/* SEO Section */}
-              <div style={{ gridColumn: '1/-1', padding: '1rem', background: '#fff5f5', borderRadius: '.5rem', border: '1px solid #fadbd8' }}>
-                <div style={{ fontWeight: 600, marginBottom: '.75rem', fontSize: '.9rem', color: '#922b21' }}>🔍 SEO</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.75rem' }}>
-                  <div>
-                    <label style={lbl}>Méta titre</label>
-                    <input value={editingArticle?.meta_title || ''}
-                      onChange={e => setEditingArticle(p => ({ ...p, meta_title: e.target.value }))}
-                      style={inp}
-                      placeholder={editingArticle?.title ? editingArticle.title.slice(0, 55) : 'Titre pour Google (55 car. max)'}
-                    />
-                  </div>
-                  <div>
-                    <label style={lbl}>URL canonique</label>
-                    <input value={editingArticle?.canonical_url || ''}
-                      onChange={e => setEditingArticle(p => ({ ...p, canonical_url: e.target.value }))}
-                      style={inp}
-                      placeholder="https://..."
-                    />
-                  </div>
-                  <div style={{ gridColumn: '1/-1' }}>
-                    <label style={lbl}>Méta description</label>
-                    <textarea value={editingArticle?.meta_description || ''}
-                      onChange={e => setEditingArticle(p => ({ ...p, meta_description: e.target.value }))}
-                      style={{ ...inp, height: 60 }}
-                      placeholder="Description pour Google (155 car. max)"
-                    />
-                    <p style={{ fontSize: '.7rem', color: '#888', marginTop: '.2rem' }}>{(editingArticle?.meta_description || '').length}/155</p>
-                  </div>
-                  <div style={{ gridColumn: '1/-1' }}>
-                    <label style={lbl}>Image OG (Open Graph)</label>
-                    <input value={editingArticle?.og_image || ''}
-                      onChange={e => setEditingArticle(p => ({ ...p, og_image: e.target.value }))}
-                      style={inp}
-                      placeholder="https://... pour les partages sociaux"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Geo Section */}
-              <div style={{ gridColumn: '1/-1', padding: '1rem', background: '#f0f8ff', borderRadius: '.5rem', border: '1px solid '#dae0e6' }}>
-                <div style={{ fontWeight: 600, marginBottom: '.75rem', fontSize: '.9rem', color: '#1e40af' }}>📍 Localisation</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '.75rem' }}>
-                  <div>
-                    <label style={lbl}>Ville</label>
-                    <input value={editingArticle?.city || ''}
-                      onChange={e => setEditingArticle(p => ({ ...p, city: e.target.value }))}
-                      style={inp}
-                      placeholder="Lisbonne, Funchal..."
-                    />
-                  </div>
-                  <div>
-                    <label style={lbl}>Pays</label>
-                    <input value={editingArticle?.country || ''}
-                      onChange={e => setEditingArticle(p => ({ ...p, country: e.target.value }))}
-                      style={inp}
-                      placeholder="Portugal, France..."
-                    />
-                  </div>
-                  <div>
-                    <label style={lbl}>Code pays (ISO)</label>
-                    <input value={editingArticle?.country_code || ''}
-                      onChange={e => setEditingArticle(p => ({ ...p, country_code: e.target.value.toUpperCase().slice(0, 2) }))}
-                      style={inp}
-                      placeholder="PT, FR..."
-                    />
-                  </div>
-                  <div>
-                    <label style={lbl}>Latitude</label>
-                    <input type="number" step="any" value={editingArticle?.lat || ''}
-                      onChange={e => setEditingArticle(p => ({ ...p, lat: parseFloat(e.target.value) || undefined }))}
-                      style={inp}
-                      placeholder="38.7223"
-                    />
-                  </div>
-                  <div>
-                    <label style={lbl}>Longitude</label>
-                    <input type="number" step="any" value={editingArticle?.lng || ''}
-                      onChange={e => setEditingArticle(p => ({ ...p, lng: parseFloat(e.target.value) || undefined }))}
-                      style={inp}
-                      placeholder="-9.1393"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Personalization Section */}
-              <div style={{ gridColumn: '1/-1', padding: '1rem', background: '#f0fff4', borderRadius: '.5rem', border: '1px solid '#c3e6cb' }}>
-                <div style={{ fontWeight: 600, marginBottom: '.75rem', fontSize: '.9rem', color: '#155724' }}>🎯 Ciblage & Personnalisation</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '.75rem' }}>
-                  <div>
-                    <label style={lbl}>Style de voyage</label>
-                    <select value={editingArticle?.travel_style || ''}
-                      onChange={e => setEditingArticle(p => ({ ...p, travel_style: e.target.value }))}
-                      style={inp}>
-                      <option value="">— Tous —</option>
-                      <option value="slow-travel">Slow Travel</option>
-                      <option value="adventure">Aventure</option>
-                      <option value="romantique">Romantique</option>
-                      <option value="famille">Famille</option>
-                      <option value="solo">Solo</option>
-                      <option value="gastronomie">Gastronomie</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label style={lbl}>Saison</label>
-                    <select value={editingArticle?.season || ''}
-                      onChange={e => setEditingArticle(p => ({ ...p, season: e.target.value }))}
-                      style={inp}>
-                      <option value="">— Toutes —</option>
-                      <option value="printemps">Printemps</option>
-                      <option value="ete">Été</option>
-                      <option value="automne">Automne</option>
-                      <option value="hiver">Hiver</option>
-                      <option value="annee">Toute l'année</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label style={lbl}>Budget</label>
-                    <select value={editingArticle?.budget_level || ''}
-                      onChange={e => setEditingArticle(p => ({ ...p, budget_level: e.target.value }))}
-                      style={inp}>
-                      <option value="">— Tous —</option>
-                      <option value="economique">Économique</option>
-                      <option value="moyen">Moyen</option>
-                      <option value="haut-de-gamme">Haut de gamme</option>
-                      <option value="luxe">Luxe</option>
-                    </select>
-                  </div>
-                  <div style={{ gridColumn: '1/-1' }}>
-                    <label style={lbl}>Audience cible</label>
-                    <input value={editingArticle?.audience || ''}
-                      onChange={e => setEditingArticle(p => ({ ...p, audience: e.target.value }))}
-                      style={inp}
-                      placeholder="Couples, familles, solo travelers..."
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Media Section - Video & Gallery */}
-              <div style={{ gridColumn: '1/-1', padding: '1rem', background: '#1a1a2e', borderRadius: '.5rem', border: '1px solid #333' }}>
-                <div style={{ fontWeight: 600, marginBottom: '.75rem', fontSize: '.9rem', color: '#e0e0e0' }}>🎬 Médias</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.75rem' }}>
-                  <div>
-                    <label style={lbl}>Vidéo (YouTube/Vimeo)</label>
-                    <input value={editingArticle?.video_url || ''}
-                      onChange={e => {
-                        const url = e.target.value
-                        const platform = url.includes('youtube') || url.includes('youtu.be') ? 'youtube' 
-                          : url.includes('vimeo') ? 'vimeo' 
-                          : ''
-                        setEditingArticle(p => ({ ...p, video_url: url, video_platform: platform }))
-                      }}
-                      style={inp}
-                      placeholder="https://youtube.com/watch?v=..."
-                    />
-                  </div>
-                  <div>
-                    <label style={lbl}>Gallery (JSON URLs)</label>
-                    <input value={editingArticle?.gallery_images || ''}
-                      onChange={e => setEditingArticle(p => ({ ...p, gallery_images: e.target.value }))}
-                      style={inp}
-                      placeholder='["url1","url2"]'
-                    />
-                    <p style={{ fontSize: '.7rem', color: '#888', marginTop: '.2rem' }}>Format: JSON array d'URLs</p>
-                  </div>
-                </div>
-                {/* Video preview */}
-                {editingArticle?.video_url && (
-                  <div style={{ marginTop: '.75rem' }}>
-                    <iframe
-                      src={editingArticle.video_url.replace('watch?v=', 'embed/')}
-                      style={{ width: '100%', height: 200, border: 'none', borderRadius: '.5rem' }}
-                      allowFullScreen
-                    />
-                  </div>
-                )}
-              </div>
-
               <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '.5rem', cursor: 'pointer', fontWeight: 600, color: '#444', fontSize: '.9rem' }}>
                   <input type="checkbox" checked={!!editingArticle?.published}
@@ -1492,7 +1305,7 @@ function CMSAdminInner() {
         {tab === 'pages' && (
           <div>
             {loadingSettings ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p> : (
-              <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '1.5rem', alignItems: 'start' }}>
+              <div className="cms-layout-sidebar">
                 <div style={{ background: 'white', borderRadius: '1rem', padding: '1rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
                   {Object.entries(PAGES_CONFIG).map(([key, cfg]) => (
                     <button key={key} onClick={() => setActivePage(key)}
@@ -1575,10 +1388,9 @@ function CMSAdminInner() {
 
         {tab === 'demandes' && (
           <div>
-            {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
               <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>✈️ Demandes Travel Planning</h2>
-              <div style={{ display: 'flex', gap: '.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '.5rem', alignItems: 'center' }}>
                 <select value={demandesStatusFilter} onChange={e => setDemandesStatusFilter(e.target.value)}
                   style={{ padding: '.5rem .8rem', border: '1.5px solid #ddd', borderRadius: '.5rem', fontSize: '.85rem' }}>
                   <option value="all">Tous statuts</option>
@@ -1589,32 +1401,9 @@ function CMSAdminInner() {
                   <option value="terminee">🏁 Terminée</option>
                   <option value="annulee">❌ Annulée</option>
                 </select>
-                <button onClick={exportDemandesCSV}
-                  style={{ padding: '.5rem 1rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.85rem', fontWeight: 600 }}>
-                  ⬇️ CSV
-                </button>
-                <button onClick={loadDemandes} disabled={loadingDemandes}
-                  style={{ padding: '.5rem 1rem', background: 'white', border: '1.5px solid #ddd', borderRadius: '.5rem', cursor: loadingDemandes ? 'wait' : 'pointer', fontSize: '.85rem', opacity: loadingDemandes ? .7 : 1 }}>
-                  {loadingDemandes ? '⏳' : '🔄'}
-                </button>
+                <button onClick={loadDemandes} disabled={loadingDemandes} style={{ padding: '.5rem 1rem', background: 'white', border: '1.5px solid #ddd', borderRadius: '.5rem', cursor: loadingDemandes ? 'wait' : 'pointer', fontSize: '.85rem', opacity: loadingDemandes ? .7 : 1 }}>{loadingDemandes ? '⏳' : '🔄'}</button>
               </div>
             </div>
-
-            {/* Stats row */}
-            {demandes.length > 0 && (
-              <div style={{ display: 'flex', gap: '.75rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-                {[['🆕','nouvelle','Nouvelles'],['🔍','en_cours','En cours'],['📨','devis_envoye','Devis'],['✅','accepte','Acceptées']].map(([emoji, key, label]) => {
-                  const count = demandes.filter(d => d.statut === key).length;
-                  return (
-                    <button key={key} onClick={() => setDemandesStatusFilter(demandesStatusFilter === key ? 'all' : key)}
-                      style={{ padding: '.5rem 1rem', borderRadius: '.5rem', border: '1.5px solid', borderColor: demandesStatusFilter === key ? '#6b2a1a' : '#e0dbd5', background: demandesStatusFilter === key ? '#f0e8e4' : 'white', cursor: 'pointer', fontSize: '.82rem', fontWeight: 600 }}>
-                      {emoji} {label} <span style={{ background: '#e0dbd5', borderRadius: '9999px', padding: '0 .4rem', marginLeft: '.3rem' }}>{count}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
             {loadingDemandes ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p>
               : demandes.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '4rem', color: '#aaa' }}>
@@ -1623,202 +1412,35 @@ function CMSAdminInner() {
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {demandes.filter(d => demandesStatusFilter === 'all' || d.statut === demandesStatusFilter).map(d => {
-                    const isExpanded = expandedDemandeId === d.id;
-                    const statusColors: Record<string, { bg: string; color: string }> = {
-                      nouvelle: { bg: '#dbeafe', color: '#1d4ed8' },
-                      en_cours: { bg: '#fef3c7', color: '#92400e' },
-                      devis_envoye: { bg: '#ede9fe', color: '#5b21b6' },
-                      accepte: { bg: '#d1fae5', color: '#065f46' },
-                      terminee: { bg: '#e5e7eb', color: '#374151' },
-                      annulee: { bg: '#fee2e2', color: '#991b1b' },
-                    };
-                    const sc = statusColors[d.statut] || { bg: '#f3f4f6', color: '#111' };
-                    return (
-                      <div key={d.id} style={{ background: 'white', borderRadius: '.75rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', overflow: 'hidden', border: isExpanded ? '1.5px solid #6b2a1a' : '1.5px solid transparent' }}>
-                        {/* Card header — always visible */}
-                        <div style={{ padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '.75rem', cursor: 'pointer' }}
-                          onClick={() => setExpandedDemandeId(isExpanded ? null : d.id)}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                            <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#f0e8e4', color: '#6b2a1a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '1rem', flexShrink: 0 }}>
-                              {(d.prenom || '?')[0].toUpperCase()}
-                            </div>
-                            <div>
-                              <div style={{ fontWeight: 700, color: '#1a1a1a' }}>{d.prenom} {d.nom}</div>
-                              <div style={{ fontSize: '.82rem', color: '#888' }}>{d.email}{d.telephone ? ` · ${d.telephone}` : ''}</div>
-                            </div>
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem', flexWrap: 'wrap' }}>
-                            <span style={{ padding: '.25rem .7rem', borderRadius: '9999px', fontSize: '.75rem', fontWeight: 700, background: sc.bg, color: sc.color }}>
-                              {d.destination || '—'}
-                            </span>
-                            <select value={d.statut || 'nouvelle'} onClick={e => e.stopPropagation()}
-                              onChange={e => updateStatut(d.id, e.target.value)} disabled={updatingDemandeId === d.id}
-                              style={{ padding: '.3rem .7rem', border: '1.5px solid #ddd', borderRadius: '.4rem', fontSize: '.82rem', cursor: 'pointer' }}>
-                              <option value="nouvelle">🆕 Nouvelle</option>
-                              <option value="en_cours">🔍 En cours</option>
-                              <option value="devis_envoye">📨 Devis envoyé</option>
-                              <option value="accepte">✅ Acceptée</option>
-                              <option value="terminee">🏁 Terminée</option>
-                              <option value="annulee">❌ Annulée</option>
-                            </select>
-                            <span style={{ fontSize: '.72rem', color: '#aaa' }}>{fmt(d.created_at)}</span>
-                            <span style={{ fontSize: '.9rem', color: '#999', transition: 'transform .2s', display: 'inline-block', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
-                          </div>
+                  {demandes.filter(d => demandesStatusFilter === 'all' || d.statut === demandesStatusFilter).map(d => (
+                    <div key={d.id} style={{ background: 'white', borderRadius: '.75rem', padding: '1.25rem 1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '.75rem', flexWrap: 'wrap', gap: '.5rem' }}>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: '1rem', color: '#1a1a1a' }}>{d.prenom} {d.nom}</div>
+                          <div style={{ fontSize: '.85rem', color: '#888' }}>{d.email} {d.telephone && `· ${d.telephone}`}</div>
                         </div>
-
-                        {/* Expanded details */}
-                        {isExpanded && (
-                          <div style={{ borderTop: '1px solid #f0ebe5', padding: '1.25rem 1.5rem', background: '#faf8f5' }}>
-                            {/* Trip details grid */}
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '.75rem', marginBottom: '1.25rem' }}>
-                              {[
-                                ['🗺️ Destination', `${d.destination || ''}${d.destination_detail ? ` — ${d.destination_detail}` : ''}`],
-                                ['🧳 Style', d.style_voyage || '—'],
-                                ['📅 Durée', d.duree_jours ? `${d.duree_jours} jours` : '—'],
-                                ['💶 Budget', d.budget_fourchette || '—'],
-                                ['🗓️ Départ', d.mois_depart || '—'],
-                                ['👥 Voyageurs', d.nb_voyageurs ? String(d.nb_voyageurs) : '—'],
-                              ].map(([label, val]) => (
-                                <div key={label} style={{ background: 'white', borderRadius: '.5rem', padding: '.75rem 1rem' }}>
-                                  <div style={{ fontSize: '.72rem', color: '#999', marginBottom: '.2rem' }}>{label}</div>
-                                  <div style={{ fontSize: '.88rem', fontWeight: 600, color: '#1a1a1a' }}>{val || '—'}</div>
-                                </div>
-                              ))}
-                            </div>
-
-                            {/* Client message */}
-                            {d.notes && (
-                              <div style={{ background: 'white', borderRadius: '.5rem', padding: '.75rem 1rem', marginBottom: '1.25rem', borderLeft: '3px solid #6b2a1a' }}>
-                                <div style={{ fontSize: '.72rem', color: '#999', marginBottom: '.3rem' }}>💬 Message client</div>
-                                <p style={{ fontSize: '.88rem', color: '#333', lineHeight: 1.6, margin: 0 }}>{d.notes}</p>
-                              </div>
-                            )}
-
-                            {/* Action buttons */}
-                            <div style={{ display: 'flex', gap: '.75rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
-                              <a href={`mailto:${d.email}?subject=Votre demande Travel Planning — ${d.destination}&body=Bonjour ${d.prenom},%0A%0A`}
-                                style={{ padding: '.5rem 1rem', background: '#6b2a1a', color: 'white', borderRadius: '.5rem', fontSize: '.85rem', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '.4rem' }}>
-                                📧 Écrire
-                              </a>
-                              <button
-                                onClick={() => generateAiReply(d)}
-                                disabled={generatingReplyId === d.id}
-                                style={{ padding: '.5rem 1rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', fontSize: '.85rem', fontWeight: 600, cursor: generatingReplyId === d.id ? 'wait' : 'pointer', opacity: generatingReplyId === d.id ? .7 : 1 }}>
-                                {generatingReplyId === d.id ? '⏳ Génération…' : '✨ Réponse IA'}
-                              </button>
-                            </div>
-
-                            {/* AI reply draft */}
-                            {aiReplyDraft[d.id] && (
-                              <div style={{ background: 'white', borderRadius: '.75rem', padding: '1rem', marginBottom: '1.25rem', border: '1.5px solid #01696f' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '.5rem' }}>
-                                  <span style={{ fontSize: '.78rem', fontWeight: 700, color: '#01696f' }}>✨ Brouillon généré</span>
-                                  <div style={{ display: 'flex', gap: '.5rem' }}>
-                                    <button
-                                      onClick={() => {
-                                        const mailto = `mailto:${d.email}?subject=${encodeURIComponent(`Votre demande Travel Planning — ${d.destination}`)}&body=${encodeURIComponent(aiReplyDraft[d.id])}`;
-                                        window.open(mailto);
-                                      }}
-                                      style={{ padding: '.3rem .75rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.4rem', fontSize: '.78rem', cursor: 'pointer', fontWeight: 600 }}>
-                                      📧 Ouvrir dans mail
-                                    </button>
-                                    <button
-                                      onClick={() => { navigator.clipboard.writeText(aiReplyDraft[d.id]); showToast('📋 Copié !'); }}
-                                      style={{ padding: '.3rem .75rem', background: '#f0e8e4', color: '#6b2a1a', border: 'none', borderRadius: '.4rem', fontSize: '.78rem', cursor: 'pointer', fontWeight: 600 }}>
-                                      📋 Copier
-                                    </button>
-                                  </div>
-                                </div>
-                                <textarea
-                                  value={aiReplyDraft[d.id]}
-                                  onChange={e => setAiReplyDraft(prev => ({ ...prev, [d.id]: e.target.value }))}
-                                  rows={10}
-                                  style={{ width: '100%', border: 'none', background: 'transparent', fontSize: '.85rem', lineHeight: 1.7, resize: 'vertical', outline: 'none', color: '#333', fontFamily: 'Georgia, serif' }}
-                                />
-                              </div>
-                            )}
-                          </div>
-                        )}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
+                          <span style={{ fontSize: '.75rem', color: '#aaa' }}>{fmt(d.created_at)}</span>
+                          <select value={d.statut || 'nouvelle'} onChange={e => updateStatut(d.id, e.target.value)} disabled={updatingDemandeId === d.id}
+                            style={{ padding: '.3rem .7rem', border: '1.5px solid #ddd', borderRadius: '.4rem', fontSize: '.82rem' }}>
+                            <option value="nouvelle">🆕 Nouvelle</option>
+                            <option value="en_cours">🔍 En cours</option>
+                            <option value="devis_envoye">📨 Devis envoyé</option>
+                            <option value="accepte">✅ Acceptée</option>
+                            <option value="terminee">🏁 Terminée</option>
+                            <option value="annulee">❌ Annulée</option>
+                          </select>
+                        </div>
                       </div>
-                    );
-                  })}
+                      {d.notes && (
+                        <div style={{ marginTop: '.75rem', padding: '.75rem', background: '#faf8f5', borderRadius: '.5rem', fontSize: '.85rem', color: '#666' }}>💬 {d.notes}</div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
           </div>
         )}
-
-        {tab === 'calendar' && (() => {
-          const now = new Date();
-          const year = now.getFullYear();
-          const month = now.getMonth();
-          const monthName = now.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-          const daysInMonth = new Date(year, month + 1, 0).getDate();
-          const firstDay = (new Date(year, month, 1).getDay() + 6) % 7; // Mon=0
-          const cells = Array.from({ length: firstDay + daysInMonth }, (_, i) =>
-            i < firstDay ? null : i - firstDay + 1
-          );
-          const getArticlesForDay = (day: number) => {
-            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            return articles.filter(a => {
-              const pub = a.published_at || a.scheduled_published_at || '';
-              return pub.startsWith(dateStr);
-            });
-          };
-          return (
-            <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>📅 Calendrier — {monthName}</h2>
-                <button onClick={() => openArticleEditor({})} style={{ padding: '.5rem 1.25rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600, fontSize: '.85rem' }}>+ Planifier un article</button>
-              </div>
-              {/* Day headers */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '.35rem', marginBottom: '.35rem' }}>
-                {['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].map(d => (
-                  <div key={d} style={{ textAlign: 'center', fontSize: '.72rem', fontWeight: 700, color: '#aaa', padding: '.4rem 0', textTransform: 'uppercase' }}>{d}</div>
-                ))}
-              </div>
-              {/* Day cells */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '.35rem' }}>
-                {cells.map((day, i) => {
-                  if (!day) return <div key={`empty-${i}`} />;
-                  const dayArticles = getArticlesForDay(day);
-                  const isToday = day === now.getDate();
-                  return (
-                    <div key={day} style={{ minHeight: 80, background: isToday ? '#f0e8e4' : '#faf8f5', borderRadius: '.5rem', padding: '.5rem', border: isToday ? '2px solid #6b2a1a' : '1px solid #eee' }}>
-                      <div style={{ fontSize: '.78rem', fontWeight: isToday ? 700 : 400, color: isToday ? '#6b2a1a' : '#888', marginBottom: '.3rem' }}>{day}</div>
-                      {dayArticles.map(a => (
-                        <div key={a.id} onClick={() => openArticleEditor(a)} title={a.title}
-                          style={{ fontSize: '.68rem', padding: '.2rem .4rem', borderRadius: '.25rem', background: a.published ? '#d1fae5' : '#fef3c7', color: a.published ? '#065f46' : '#92400e', marginBottom: '.2rem', cursor: 'pointer', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: 600 }}>
-                          {a.published ? '●' : '○'} {a.title}
-                        </div>
-                      ))}
-                    </div>
-                  );
-                })}
-              </div>
-              {/* Legend */}
-              <div style={{ display: 'flex', gap: '1.5rem', marginTop: '1.25rem', fontSize: '.78rem', color: '#888' }}>
-                <span><span style={{ background: '#d1fae5', color: '#065f46', padding: '.1rem .4rem', borderRadius: '.25rem', fontWeight: 600 }}>● Publié</span></span>
-                <span><span style={{ background: '#fef3c7', color: '#92400e', padding: '.1rem .4rem', borderRadius: '.25rem', fontWeight: 600 }}>○ Brouillon/Planifié</span></span>
-              </div>
-              {/* Upcoming scheduled */}
-              {articles.filter(a => a.scheduled_published_at && !a.published).length > 0 && (
-                <div style={{ marginTop: '2rem' }}>
-                  <h3 style={{ fontSize: '.95rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1rem' }}>🕐 Articles planifiés</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
-                    {articles.filter(a => a.scheduled_published_at && !a.published).map(a => (
-                      <div key={a.id} onClick={() => openArticleEditor(a)}
-                        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '.75rem 1rem', background: '#fef3c7', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.88rem' }}>
-                        <span style={{ fontWeight: 600, color: '#92400e' }}>{a.title}</span>
-                        <span style={{ color: '#b45309', fontWeight: 600 }}>{a.scheduled_published_at ? new Date(a.scheduled_published_at).toLocaleDateString('fr-FR') : ''}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })()}
 
         {tab === 'carousel' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -1843,30 +1465,130 @@ function CMSAdminInner() {
         )}
 
         {tab === 'analytics' && (
-          <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: '900px' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>📊 Analytics</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
-              {(['Sessions', 'Utilisateurs', 'Pages vues', 'Taux rebond'] as const).map(label => (
-                <div key={label} style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
-                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>—</p>
-                  <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>{label}</p>
+              <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: '960px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                  <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a', margin: 0 }}>📊 Analytics GA4</h2>
+                  <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
+                    {analyticsData?.period && <span style={{ fontSize: '.75rem', color: '#888', background: '#f5f5f5', padding: '.25rem .75rem', borderRadius: '1rem' }}>{analyticsData.period.startDate} → {analyticsData.period.endDate}</span>}
+                    <button onClick={async () => {
+                      setLoadingAnalytics(true);
+                      try {
+                        const res = await fetch('/api/cms/analytics', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ startDate: '30daysAgo', endDate: 'today' }) });
+                        const data = await res.json();
+                        setAnalyticsData(data);
+                      } catch (e) { console.error(e); }
+                      setLoadingAnalytics(false);
+                    }} disabled={loadingAnalytics}
+                    style={{ padding: '.5rem 1.25rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 600, cursor: 'pointer', fontSize: '.85rem' }}>
+                      {loadingAnalytics ? '⏳ Chargement…' : '🔄 Actualiser'}
+                    </button>
+                  </div>
                 </div>
-              ))}
-            </div>
-            <button onClick={async () => {
-              setLoadingAnalytics(true);
-              try {
-                const res = await fetch('/api/cms/analytics', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ startDate: '30daysAgo', endDate: 'today' }) });
-                const data = await res.json();
-                setAnalyticsData(data);
-              } catch (e) { console.error(e); }
-              setLoadingAnalytics(false);
-            }} disabled={loadingAnalytics}
-              style={{ padding: '.7rem 1.5rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 600, cursor: 'pointer' }}>
-              {loadingAnalytics ? '⏳ Chargement…' : '🔄 Actualiser'}
-            </button>
-          </div>
-        )}
+
+                {/* KPIs principaux - ligne 1 */}
+                <div className="cms-grid-kpi">
+                  {([
+                    { key: 'sessions', label: 'Sessions', icon: '📈', fmt: (v: number) => v.toLocaleString('fr') },
+                    { key: 'users', label: 'Utilisateurs', icon: '👥', fmt: (v: number) => v.toLocaleString('fr') },
+                    { key: 'newUsers', label: 'Nv. utilisateurs', icon: '✨', fmt: (v: number) => v.toLocaleString('fr') },
+                    { key: 'screenPageViews', label: 'Pages vues', icon: '📄', fmt: (v: number) => v.toLocaleString('fr') },
+                  ] as const).map(({ key, label, icon, fmt }) => {
+                    const val = analyticsData?.totals?.[key]?.value ?? null;
+                    return (
+                      <div key={key} style={{ background: '#fdf8f6', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center', border: '1px solid #f0e8e4' }}>
+                        <div style={{ fontSize: '1.5rem', marginBottom: '.25rem' }}>{icon}</div>
+                        <p style={{ fontSize: '1.6rem', fontWeight: 700, color: '#6b2a1a', margin: '.25rem 0' }}>{val != null ? fmt(val) : '--'}</p>
+                        <p style={{ fontSize: '.7rem', color: '#999', textTransform: 'uppercase', letterSpacing: '.05em', margin: 0 }}>{label}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* KPIs secondaires - ligne 2 */}
+                <div className="cms-grid-kpi">
+                  {([
+                    { key: 'bounceRate', label: 'Taux rebond', icon: '↩️', fmt: (v: number) => `${(v*100).toFixed(1)}%` },
+                    { key: 'engagementRate', label: 'Taux engagement', icon: '💡', fmt: (v: number) => `${(v*100).toFixed(1)}%` },
+                    { key: 'avgSessionDuration', label: 'Durée moy. session', icon: '⏱️', fmt: (v: number) => { const m = Math.floor(v/60); const s = Math.round(v%60); return `${m}m${s < 10 ? '0' : ''}${s}s`; } },
+                    { key: 'pagesPerSession', label: 'Pages / session', icon: '📑', fmt: (v: number) => v.toFixed(2) },
+                  ] as const).map(({ key, label, icon, fmt }) => {
+                    const val = analyticsData?.totals?.[key]?.value ?? null;
+                    return (
+                      <div key={key} style={{ background: '#f6f9fd', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center', border: '1px solid #e4ecf5' }}>
+                        <div style={{ fontSize: '1.5rem', marginBottom: '.25rem' }}>{icon}</div>
+                        <p style={{ fontSize: '1.6rem', fontWeight: 700, color: '#1a4a6b', margin: '.25rem 0' }}>{val != null ? fmt(val) : '--'}</p>
+                        <p style={{ fontSize: '.7rem', color: '#999', textTransform: 'uppercase', letterSpacing: '.05em', margin: 0 }}>{label}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Top pages + Sources de trafic */}
+                <div className="cms-grid-kpi">
+                  {/* Top pages */}
+                  <div style={{ background: '#fafafa', borderRadius: '.75rem', padding: '1.25rem', border: '1px solid #eee' }}>
+                    <h3 style={{ fontSize: '.9rem', fontWeight: 700, color: '#333', margin: '0 0 1rem' }}>🏆 Top pages</h3>
+                    {analyticsData?.topPages?.length > 0 ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
+                        {analyticsData.topPages.slice(0, 7).map((p: any, i: number) => (
+                          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '.8rem' }}>
+                            <span style={{ color: '#555', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '75%' }}>
+                              <span style={{ color: '#aaa', marginRight: '.4rem' }}>#{i+1}</span>{p.path}
+                            </span>
+                            <span style={{ fontWeight: 700, color: '#6b2a1a', marginLeft: '.5rem' }}>{p.views}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : <p style={{ fontSize: '.8rem', color: '#bbb', textAlign: 'center', margin: '1rem 0' }}>Cliquez Actualiser</p>}
+                  </div>
+
+                  {/* Sources de trafic */}
+                  <div style={{ background: '#fafafa', borderRadius: '.75rem', padding: '1.25rem', border: '1px solid #eee' }}>
+                    <h3 style={{ fontSize: '.9rem', fontWeight: 700, color: '#333', margin: '0 0 1rem' }}>🌐 Sources de trafic</h3>
+                    {analyticsData?.trafficSources?.length > 0 ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
+                        {analyticsData.trafficSources.map((s: any, i: number) => {
+                          const total = analyticsData.trafficSources.reduce((acc: number, x: any) => acc + x.sessions, 0);
+                          const pct = total > 0 ? Math.round((s.sessions / total) * 100) : 0;
+                          return (
+                            <div key={i} style={{ fontSize: '.8rem' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '.2rem' }}>
+                                <span style={{ color: '#555' }}>{s.channel}</span>
+                                <span style={{ fontWeight: 700, color: '#333' }}>{s.sessions} <span style={{ color: '#aaa', fontWeight: 400 }}>({pct}%)</span></span>
+                              </div>
+                              <div style={{ background: '#e8e8e8', borderRadius: '4px', height: '4px' }}>
+                                <div style={{ width: `${pct}%`, background: '#6b2a1a', borderRadius: '4px', height: '4px' }} />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : <p style={{ fontSize: '.8rem', color: '#bbb', textAlign: 'center', margin: '1rem 0' }}>Cliquez Actualiser</p>}
+                  </div>
+                </div>
+
+                {/* Appareils */}
+                {analyticsData?.devices?.length > 0 && (
+                  <div style={{ background: '#fafafa', borderRadius: '.75rem', padding: '1.25rem', border: '1px solid #eee' }}>
+                    <h3 style={{ fontSize: '.9rem', fontWeight: 700, color: '#333', margin: '0 0 1rem' }}>📱 Appareils</h3>
+                    <div style={{ display: 'flex', gap: '1.5rem' }}>
+                      {analyticsData.devices.map((d: any, i: number) => {
+                        const total = analyticsData.devices.reduce((acc: number, x: any) => acc + x.sessions, 0);
+                        const pct = total > 0 ? Math.round((d.sessions / total) * 100) : 0;
+                        const icons: Record<string,string> = { desktop: '🖥️', mobile: '📱', tablet: '📲' };
+                        return (
+                          <div key={i} style={{ textAlign: 'center' }}>
+                            <div style={{ fontSize: '1.5rem' }}>{icons[d.device] ?? '💻'}</div>
+                            <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#333' }}>{pct}%</div>
+                            <div style={{ fontSize: '.7rem', color: '#999', textTransform: 'capitalize' }}>{d.device}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
         {tab === 'search' && (
           <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: '900px' }}>
@@ -1898,7 +1620,7 @@ function CMSAdminInner() {
         {tab === 'settings' && (
           <div>
             {loadingSettings ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p> : (
-              <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '1.5rem', alignItems: 'start' }}>
+              <div className="cms-layout-sidebar">
                 <div style={{ background: 'white', borderRadius: '1rem', padding: '1rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
                   {Object.entries(SETTINGS_GROUPS).map(([key, cfg]) => (
                     <button key={key} onClick={() => setSettingsGroup(key)}
@@ -1910,11 +1632,10 @@ function CMSAdminInner() {
                   {(() => {
                     const groupItems = settings.filter(s => {
                       if (settingsGroup === 'general') return ['site_title', 'site_logo', 'site_favicon'].includes(s.key);
-                      if (settingsGroup === 'appearance') return APPEARANCE_SETTINGS.map(a => a.key).includes(s.key);
+                      if (settingsGroup === 'appearance') return true; // Show all appearance settings
                       if (settingsGroup === 'social') return s.key.startsWith('social_');
                       if (settingsGroup === 'seo') return s.key.startsWith('seo_');
                       if (settingsGroup === 'footer') return s.key.startsWith('footer_');
-                      if (settingsGroup === 'email') return s.key.startsWith('email_') || s.key.startsWith('notif_');
                       return true;
                     });
                     const groupCfg = SETTINGS_GROUPS[settingsGroup];
@@ -1941,6 +1662,108 @@ function CMSAdminInner() {
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {tab === 'agents' && (
+          <div>
+            <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: 800, marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '.5rem' }}>
+                <Bot size={24} /> Envoyer une tâche à un agent IA
+              </h2>
+              
+              {/* Agent select */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={lbl}>Agent</label>
+                <select value={selectedAgent} onChange={e => setSelectedAgent(e.target.value)}
+                  style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.9rem', outline: 'none', background: '#faf9f7', color: '#1a1a1a', cursor: 'pointer' }}>
+                  <option value="allhands">OpenHands (AllHands)</option>
+                  <option value="jules">Jules (Google)</option>
+                  <option value="gemini">Gemini (Google)</option>
+                  <option value="perplexity">Perplexity</option>
+                </select>
+              </div>
+
+              {/* Task textarea */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={lbl}>Tâche</label>
+                <textarea value={agentTask} onChange={e => setAgentTask(e.target.value)}
+                  placeholder="Décrivez la tâche à effectuer..."
+                  rows={4}
+                  style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.9rem', outline: 'none', background: '#faf9f7', color: '#1a1a1a', resize: 'vertical', fontFamily: 'inherit' }} />
+              </div>
+
+              {/* Repo input */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={lbl}>Repo</label>
+                <input value={agentRepo} onChange={e => setAgentRepo(e.target.value)}
+                  placeholder="farinhahelder-hue/heldonica"
+                  style={inp} />
+              </div>
+
+              {/* Branch input */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={lbl}>Branche</label>
+                <input value={agentBranch} onChange={e => setAgentBranch(e.target.value)}
+                  placeholder="main"
+                  style={inp} />
+              </div>
+
+              {/* Send button */}
+              <button onClick={sendAgentTask} disabled={sendingTask}
+                style={{ padding: '.75rem 2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '1rem', opacity: sendingTask ? .7 : 1 }}>
+                {sendingTask ? '⏳ Envoi...' : '📤 Envoyer la tâche'}
+              </button>
+
+              {/* Success/error message */}
+              {agentMessage && (
+                <div style={{ 
+                  marginTop: '1rem', 
+                  padding: '.75rem 1rem', 
+                  borderRadius: '.5rem', 
+                  background: agentMessage.type === 'success' ? '#d4edda' : '#f8d7da',
+                  color: agentMessage.type === 'success' ? '#155724' : '#721c24',
+                  fontSize: '.9rem'
+                }}>
+                  {agentMessage.type === 'success' ? '✓' : '✕'} {agentMessage.text}
+                </div>
+              )}
+            </div>
+
+            {/* Task History */}
+            <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: 800 }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1rem' }}>Historique des 10 dernières tâches</h3>
+              {taskHistory.length === 0 ? (
+                <p style={{ color: '#888', fontSize: '.9rem', textAlign: 'center', padding: '1.5rem' }}>Aucune tâche envoyée récemment.</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '.75rem' }}>
+                  {taskHistory.map((entry, i) => {
+                    const agentLabels: Record<string, string> = {
+                      allhands: 'OpenHands',
+                      jules: 'Jules',
+                      gemini: 'Gemini',
+                      perplexity: 'Perplexity',
+                    };
+                    return (
+                      <div key={i} style={{ padding: '.75rem', background: '#f8f6f4', borderRadius: '.5rem', borderLeft: '3px solid #6b2a1a' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '.35rem', flexWrap: 'wrap', gap: '.5rem' }}>
+                          <span style={{ fontWeight: 600, color: '#333', fontSize: '.9rem' }}>{agentLabels[entry.agent] || entry.agent}</span>
+                          <span style={{ fontSize: '.75rem', color: '#888' }}>{entry.date}</span>
+                        </div>
+                        <div style={{ fontSize: '.85rem', color: '#555', marginBottom: '.35rem' }}>
+                          {entry.task.length > 100 ? entry.task.substring(0, 100) + '...' : entry.task}
+                        </div>
+                        <div style={{ display: 'flex', gap: '1rem', fontSize: '.75rem', color: '#888' }}>
+                          <span>📁 {entry.repo}</span>
+                          <span>🌿 {entry.branch}</span>
+                          <span style={{ color: '#28a745', fontWeight: 600 }}>✓ Envoyé</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
