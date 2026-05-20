@@ -911,6 +911,24 @@ function CMSAdminInner() {
                   <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Paramètres</p>
                 </div>
               </div>
+              {/* Quality overview */}
+              <div style={{ marginTop: '1rem' }}>
+                <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase', marginBottom: '.5rem' }}>Qualité du contenu</p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '.5rem' }}>
+                  <div style={{ background: '#d1fae5', padding: '.75rem', borderRadius: '.5rem', textAlign: 'center' }}>
+                    <p style={{ fontSize: '1.1rem', fontWeight: 700, color: '#065f46' }}>{articles.filter(a => a.published).length}</p>
+                    <p style={{ fontSize: '.65rem', color: '#065f46' }}>Publiés</p>
+                  </div>
+                  <div style={{ background: '#fef3c7', padding: '.75rem', borderRadius: '.5rem', textAlign: 'center' }}>
+                    <p style={{ fontSize: '1.1rem', fontWeight: 700, color: '#92400e' }}>{articles.filter(a => !a.published).length}</p>
+                    <p style={{ fontSize: '.65rem', color: '#92400e' }}>Brouillons</p>
+                  </div>
+                  <div style={{ background: '#eff6ff', padding: '.75rem', borderRadius: '.5rem', textAlign: 'center' }}>
+                    <p style={{ fontSize: '1.1rem', fontWeight: 700, color: '#1e40af' }}>{demandes.length}</p>
+                    <p style={{ fontSize: '.65rem', color: '#1e40af' }}>Demandes</p>
+                  </div>
+                </div>
+              </div>
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                 <button onClick={() => openArticleEditor({})} style={{ padding: '.7rem 1.5rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>+ Nouvel article</button>
                 <button onClick={() => setTab('blog')} style={{ padding: '.7rem 1.5rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>✨ Générateur IA</button>
