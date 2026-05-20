@@ -26,6 +26,9 @@ type Article = {
   city?: string; country?: string; country_code?: string; lat?: number; lng?: number;
   // Personalization
   travel_style?: string; season?: string; budget_level?: string; audience?: string;
+  // Media
+  video_url?: string; video_platform?: string; gallery_images?: string;
+  read_time?: number;
 };
 
 type Demande = {
@@ -71,6 +74,10 @@ function normalizeArticleDraft(article: Partial<Article> | null | undefined) {
     season: article?.season ?? '',
     budget_level: article?.budget_level ?? '',
     audience: article?.audience ?? '',
+    // Media
+    video_url: article?.video_url ?? '',
+    video_platform: article?.video_platform ?? '',
+    gallery_images: article?.gallery_images ?? '',
   };
 }
 
@@ -1311,6 +1318,46 @@ function CMSAdminInner() {
                     />
                   </div>
                 </div>
+              </div>
+
+              {/* Media Section - Video & Gallery */}
+              <div style={{ gridColumn: '1/-1', padding: '1rem', background: '#1a1a2e', borderRadius: '.5rem', border: '1px solid #333' }}>
+                <div style={{ fontWeight: 600, marginBottom: '.75rem', fontSize: '.9rem', color: '#e0e0e0' }}>🎬 Médias</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.75rem' }}>
+                  <div>
+                    <label style={lbl}>Vidéo (YouTube/Vimeo)</label>
+                    <input value={editingArticle?.video_url || ''}
+                      onChange={e => {
+                        const url = e.target.value
+                        const platform = url.includes('youtube') || url.includes('youtu.be') ? 'youtube' 
+                          : url.includes('vimeo') ? 'vimeo' 
+                          : ''
+                        setEditingArticle(p => ({ ...p, video_url: url, video_platform: platform }))
+                      }}
+                      style={inp}
+                      placeholder="https://youtube.com/watch?v=..."
+                    />
+                  </div>
+                  <div>
+                    <label style={lbl}>Gallery (JSON URLs)</label>
+                    <input value={editingArticle?.gallery_images || ''}
+                      onChange={e => setEditingArticle(p => ({ ...p, gallery_images: e.target.value }))}
+                      style={inp}
+                      placeholder='["url1","url2"]'
+                    />
+                    <p style={{ fontSize: '.7rem', color: '#888', marginTop: '.2rem' }}>Format: JSON array d'URLs</p>
+                  </div>
+                </div>
+                {/* Video preview */}
+                {editingArticle?.video_url && (
+                  <div style={{ marginTop: '.75rem' }}>
+                    <iframe
+                      src={editingArticle.video_url.replace('watch?v=', 'embed/')}
+                      style={{ width: '100%', height: 200, border: 'none', borderRadius: '.5rem' }}
+                      allowFullScreen
+                    />
+                  </div>
+                )}
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
