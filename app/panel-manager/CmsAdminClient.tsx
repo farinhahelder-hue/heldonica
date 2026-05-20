@@ -532,9 +532,23 @@ function CMSAdminInner() {
         }
       } catch { /* validation optional */ }
     }
+
+    // Auto-calculate read_time if not set
+    const contentText = (editingArticle.content || '').replace(/<[^>]*>/g, '').trim();
+    const calculatedReadTime = Math.ceil(contentText.length / 1000);
+    
+    // Check for duplicate slug
+    if (editingArticle.slug) {
+      const existing = articles.find(a => a.slug === editingArticle.slug && a.id !== editingArticle.id);
+      if (existing) {
+        showToast(`⚠️ Warning: slug "${editingArticle.slug}" used by another article`);
+      }
+    }
+
     const payload = {
       ...editingArticle,
       slug: editingArticle.slug || slug(editingArticle.title || ''),
+      read_time: editingArticle.read_time || calculatedReadTime || 1,
       published_at: editingArticle.published && !editingArticle.published_at
         ? new Date().toISOString() : editingArticle.published_at,
       ...(scheduleMode && editingArticle?.scheduled_published_at ?
@@ -973,7 +987,13 @@ function CMSAdminInner() {
                   {articles.filter(a => {
                     if (categoryFilter !== 'all' && a.category !== categoryFilter) return false;
                     return true;
-                  }).map(a => (
+                  }).map(a => {
+                    // Quick local quality check
+                    const hasImage = !!a.featured_image;
+                    const hasExcerpt = a.excerpt && a.excerpt.length >= 50;
+                    const hasContent = a.content && a.content.length > 300;
+                    const quality = hasImage && hasExcerpt && hasContent ? 'good' : hasImage ? 'medium' : 'low';
+                    return (
                     <div key={a.id} style={{ background: 'white', borderRadius: '.75rem', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', flexWrap: 'wrap' }}>
                       {a.featured_image && <img src={a.featured_image} alt="" style={{ width: 64, height: 48, objectFit: 'cover', borderRadius: '.4rem', flexShrink: 0 }} />}
                       <div style={{ flex: 1, minWidth: 200 }}>
@@ -981,10 +1001,14 @@ function CMSAdminInner() {
                         <div style={{ fontSize: '.8rem', color: '#888', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                           <span>{a.category || '—'}</span>
                           <span>{fmt(a.created_at)}</span>
+                          {a.read_time && <span>⏱ {a.read_time} min</span>}
                         </div>
                       </div>
                       <span style={{ padding: '.3rem .8rem', borderRadius: '9999px', fontSize: '.78rem', fontWeight: 600, background: a.published ? '#d4edda' : '#fff3cd', color: a.published ? '#155724' : '#856404' }}>
                         {a.published ? '✓ Publié' : '📝 Brouillon'}
+                      </span>
+                      <span title="Qualité: image + excerpt + contenu" style={{ padding: '.3rem .6rem', borderRadius: '.4rem', fontSize: '.7rem', fontWeight: 600, background: quality === 'good' ? '#d1fae5' : quality === 'medium' ? '#fef3c7' : '#fee2e2', color: quality === 'good' ? '#065f46' : quality === 'medium' ? '#92400e' : '#991b1b' }}>
+                        {quality === 'good' ? '✓✓' : quality === 'medium' ? '✓' : '⚠️'}
                       </span>
                       <div style={{ display: 'flex', gap: '.5rem' }}>
                         <button onClick={() => openArticleEditor(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>✏️ Éditer</button>
@@ -992,7 +1016,7 @@ function CMSAdminInner() {
                         <button onClick={() => deleteArticle(a.id)} style={{ padding: '.35rem .8rem', border: '1px solid #fcc', borderRadius: '.4rem', background: '#fff5f5', color: '#c0392b', cursor: 'pointer', fontSize: '.82rem' }}>🗑</button>
                       </div>
                     </div>
-                  ))}
+                  )})}
                 </div>
               )}
           </div>
@@ -1070,10 +1094,22 @@ function CMSAdminInner() {
               </div>
               <div style={{ gridColumn: '1/-1' }}>
                 <label style={lbl}>Extrait</label>
+                <div style={{ position: 'relative' }}>
                 <textarea value={editingArticle?.excerpt || ''}
                   onChange={e => setEditingArticle(p => ({ ...p, excerpt: e.target.value }))}
                   style={{ ...inp, height: 80, resize: 'vertical' }}
                   placeholder="Résumé accrocheur pour les cards du blog…" />
+                {editingArticle?.content && !(editingArticle?.excerpt) && (
+                  <button type="button" onClick={() => {
+                    const text = (editingArticle.content || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+                    const autoExcerpt = text.slice(0, 150) + (text.length > 150 ? '...' : '');
+                    setEditingArticle(p => ({ ...p, excerpt: autoExcerpt }));
+                  }} style={{ position: 'absolute', bottom: 8, right: 8, fontSize: '.7rem', padding: '.2rem .5rem', background: '#e0e0e0', border: 'none', borderRadius: '.3rem', cursor: 'pointer' }}>
+                    ✨ Auto
+                  </button>
+                )}
+                </div>
+                <p style={{ fontSize: '.7rem', color: '#888', marginTop: '.2rem' }}>{(editingArticle?.excerpt || '').length}/160 caractères</p>
               </div>
               <div style={{ gridColumn: '1/-1' }}>
                 <label style={lbl}>Contenu</label>
