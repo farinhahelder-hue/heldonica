@@ -8,7 +8,7 @@ import dynamic from 'next/dynamic';
 import EnhancedRichContent from '@/components/EnhancedRichContent';
 import MediaLibrary from '@/components/MediaLibrary';
 import { sanitizeHtml } from '@/lib/sanitize-html';
-import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw } from 'lucide-react';
+import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot } from 'lucide-react';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
 const CarouselEditor = dynamic(() => import('@/components/admin/CarouselEditor'), { ssr: false });
@@ -290,6 +290,92 @@ function CMSAdminInner() {
   const [savingArticle, setSavingArticle] = useState(false);
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [scheduleMode, setScheduleMode] = useState(false);
+
+  // Agents panel
+  const [agentTask, setAgentTask] = useState('');
+  const [agentRepo, setAgentRepo] = useState('farinhahelder-hue/heldonica');
+  const [agentBranch, setAgentBranch] = useState('main');
+  const [selectedAgent, setSelectedAgent] = useState('allhands');
+  const [sendingTask, setSendingTask] = useState(false);
+  const [agentMessage, setAgentMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+  const [taskHistory, setTaskHistory] = useState<{date: string; agent: string; task: string; repo: string; branch: string}[]>([]);
+
+  // Load task history from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('agent-task-history');
+      if (saved) {
+        try {
+          setTaskHistory(JSON.parse(saved));
+        } catch (e) {
+          console.error('Failed to parse task history:', e);
+        }
+      }
+    }
+  }, []);
+
+  // Send task to agent via n8n webhook
+  const sendAgentTask = async () => {
+    if (!agentTask.trim()) {
+      setAgentMessage({ type: 'error', text: 'Veuillez描述ez une tâche à effectuer.' });
+      return;
+    }
+
+    const webhookUrl = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL;
+    if (!webhookUrl) {
+      setAgentMessage({ type: 'error', text: 'URL du webhook n8n non configurée. Ajoutez NEXT_PUBLIC_N8N_WEBHOOK_URL dans .env.local' });
+      return;
+    }
+
+    setSendingTask(true);
+    setAgentMessage(null);
+
+    try {
+      const res = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agent: selectedAgent,
+          task: agentTask,
+          repo: agentRepo,
+          branch: agentBranch,
+        }),
+      });
+
+      if (res.ok) {
+        const agentLabels: Record<string, string> = {
+          allhands: 'OpenHands (AllHands)',
+          jules: 'Jules (Google)',
+          gemini: 'Gemini (Google)',
+          perplexity: 'Perplexity',
+        };
+        const label = agentLabels[selectedAgent] || selectedAgent;
+        setAgentMessage({ type: 'success', text: `Tâche envoyée à ${label} avec succès!` });
+
+        // Add to history
+        const newEntry = {
+          date: new Date().toLocaleString('fr-FR'),
+          agent: selectedAgent,
+          task: agentTask,
+          repo: agentRepo,
+          branch: agentBranch,
+        };
+        const updatedHistory = [newEntry, ...taskHistory].slice(0, 10);
+        setTaskHistory(updatedHistory);
+        localStorage.setItem('agent-task-history', JSON.stringify(updatedHistory));
+
+        // Clear task field
+        setAgentTask('');
+      } else {
+        setAgentMessage({ type: 'error', text: `Erreur lors de l'envoi de la tâche (${res.status})` });
+      }
+    } catch (err) {
+      console.error('Failed to send task:', err);
+      setAgentMessage({ type: 'error', text: 'Erreur réseau. Le webhook est-il accessible?' });
+    } finally {
+      setSendingTask(false);
+    }
+  };
 
   // SEO analysis
   const analyzeSEO = (content: string, title: string) => {
@@ -864,6 +950,7 @@ function CMSAdminInner() {
     { id: 'settings',icon: <Settings size={16} />,label: 'Paramètres', count: null },
     { id: 'analytics',icon: <BarChart3 size={16} />,label: 'Analytics', count: null },
     { id: 'search',  icon: <Search size={16} />, label: 'Search', count: null },
+    { id: 'agents',  icon: <Bot size={16} />,   label: 'Agents', count: null },
   ];
 
   return (
@@ -1575,6 +1662,108 @@ function CMSAdminInner() {
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {tab === 'agents' && (
+          <div>
+            <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: 800, marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '.5rem' }}>
+                <Bot size={24} /> Envoyer une tâche à un agent IA
+              </h2>
+              
+              {/* Agent select */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={lbl}>Agent</label>
+                <select value={selectedAgent} onChange={e => setSelectedAgent(e.target.value)}
+                  style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.9rem', outline: 'none', background: '#faf9f7', color: '#1a1a1a', cursor: 'pointer' }}>
+                  <option value="allhands">OpenHands (AllHands)</option>
+                  <option value="jules">Jules (Google)</option>
+                  <option value="gemini">Gemini (Google)</option>
+                  <option value="perplexity">Perplexity</option>
+                </select>
+              </div>
+
+              {/* Task textarea */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={lbl}>Tâche</label>
+                <textarea value={agentTask} onChange={e => setAgentTask(e.target.value)}
+                  placeholder="Décrivez la tâche à effectuer..."
+                  rows={4}
+                  style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.9rem', outline: 'none', background: '#faf9f7', color: '#1a1a1a', resize: 'vertical', fontFamily: 'inherit' }} />
+              </div>
+
+              {/* Repo input */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={lbl}>Repo</label>
+                <input value={agentRepo} onChange={e => setAgentRepo(e.target.value)}
+                  placeholder="farinhahelder-hue/heldonica"
+                  style={inp} />
+              </div>
+
+              {/* Branch input */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={lbl}>Branche</label>
+                <input value={agentBranch} onChange={e => setAgentBranch(e.target.value)}
+                  placeholder="main"
+                  style={inp} />
+              </div>
+
+              {/* Send button */}
+              <button onClick={sendAgentTask} disabled={sendingTask}
+                style={{ padding: '.75rem 2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '1rem', opacity: sendingTask ? .7 : 1 }}>
+                {sendingTask ? '⏳ Envoi...' : '📤 Envoyer la tâche'}
+              </button>
+
+              {/* Success/error message */}
+              {agentMessage && (
+                <div style={{ 
+                  marginTop: '1rem', 
+                  padding: '.75rem 1rem', 
+                  borderRadius: '.5rem', 
+                  background: agentMessage.type === 'success' ? '#d4edda' : '#f8d7da',
+                  color: agentMessage.type === 'success' ? '#155724' : '#721c24',
+                  fontSize: '.9rem'
+                }}>
+                  {agentMessage.type === 'success' ? '✓' : '✕'} {agentMessage.text}
+                </div>
+              )}
+            </div>
+
+            {/* Task History */}
+            <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: 800 }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1rem' }}>Historique des 10 dernières tâches</h3>
+              {taskHistory.length === 0 ? (
+                <p style={{ color: '#888', fontSize: '.9rem', textAlign: 'center', padding: '1.5rem' }}>Aucune tâche envoyée récemment.</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '.75rem' }}>
+                  {taskHistory.map((entry, i) => {
+                    const agentLabels: Record<string, string> = {
+                      allhands: 'OpenHands',
+                      jules: 'Jules',
+                      gemini: 'Gemini',
+                      perplexity: 'Perplexity',
+                    };
+                    return (
+                      <div key={i} style={{ padding: '.75rem', background: '#f8f6f4', borderRadius: '.5rem', borderLeft: '3px solid #6b2a1a' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '.35rem', flexWrap: 'wrap', gap: '.5rem' }}>
+                          <span style={{ fontWeight: 600, color: '#333', fontSize: '.9rem' }}>{agentLabels[entry.agent] || entry.agent}</span>
+                          <span style={{ fontSize: '.75rem', color: '#888' }}>{entry.date}</span>
+                        </div>
+                        <div style={{ fontSize: '.85rem', color: '#555', marginBottom: '.35rem' }}>
+                          {entry.task.length > 100 ? entry.task.substring(0, 100) + '...' : entry.task}
+                        </div>
+                        <div style={{ display: 'flex', gap: '1rem', fontSize: '.75rem', color: '#888' }}>
+                          <span>📁 {entry.repo}</span>
+                          <span>🌿 {entry.branch}</span>
+                          <span style={{ color: '#28a745', fontWeight: 600 }}>✓ Envoyé</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
