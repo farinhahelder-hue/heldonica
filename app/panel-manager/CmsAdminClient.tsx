@@ -710,6 +710,62 @@ function CMSAdminInner() {
     }
   };
 
+  // Duplicate article
+  const duplicateArticle = async (a: Article) => {
+    if (!confirm(`Dupliquer "${a.title}" ?`)) return;
+    try {
+      const res = await fetch('/api/cms/articles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...a,
+          id: undefined,
+          title: a.title + ' (copie)',
+          slug: a.slug + '-copy',
+          published: false,
+          published_at: null,
+          created_at: new Date().toISOString(),
+        }),
+      });
+      if (handleUnauthorized(res)) return;
+      if (res.ok) { showToast('✓ Article dupliqué !'); loadArticles(); }
+    } catch {
+      showToast('Impossible de dupliquer cet article.');
+    }
+  };
+
+  // Bulk publish
+  const bulkPublish = async (ids: number[]) => {
+    if (!confirm(`Publier ${ids.length} article(s) ?`)) return;
+    try {
+      for (const id of ids) {
+        await fetch(`/api/cms/articles/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ published: true, published_at: new Date().toISOString() }),
+        });
+      }
+      showToast(`✓ ${ids.length} article(s) publié(s) !`);
+      loadArticles();
+    } catch {
+      showToast('Erreur lors de la publication.');
+    }
+  };
+
+  // Bulk delete
+  const bulkDelete = async (ids: number[]) => {
+    if (!confirm(`Supprimer ${ids.length} article(s) ?`)) return;
+    try {
+      for (const id of ids) {
+        await fetch(`/api/cms/articles/${id}`, { method: 'DELETE' });
+      }
+      showToast(`🗑 ${ids.length} article(s) supprimé(s)`);
+      loadArticles();
+    } catch {
+      showToast('Erreur lors de la suppression.');
+    }
+  };
+
   const uploadFeaturedImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -1074,6 +1130,7 @@ function CMSAdminInner() {
                       </span>
                       <div style={{ display: 'flex', gap: '.5rem' }}>
                         <button onClick={() => openArticleEditor(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>✏️ Éditer</button>
+                        <button onClick={() => duplicateArticle(a)} title="Dupliquer" style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>📋</button>
                         <button onClick={() => togglePublish(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>{a.published ? '📦 Dépublier' : 'Publier'}</button>
                         <button onClick={() => deleteArticle(a.id)} style={{ padding: '.35rem .8rem', border: '1px solid #fcc', borderRadius: '.4rem', background: '#fff5f5', color: '#c0392b', cursor: 'pointer', fontSize: '.82rem' }}>🗑</button>
                       </div>
