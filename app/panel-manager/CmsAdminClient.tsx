@@ -20,6 +20,12 @@ type Article = {
   id: number; title: string; slug: string; category: string; scheduled_published_at?: string;
   published: boolean; published_at: string; created_at: string;
   excerpt: string; featured_image: string; content?: string; voice_notes?: string;
+  // SEO
+  meta_title?: string; meta_description?: string; og_image?: string; canonical_url?: string;
+  // Geo
+  city?: string; country?: string; country_code?: string; lat?: number; lng?: number;
+  // Personalization
+  travel_style?: string; season?: string; budget_level?: string; audience?: string;
 };
 
 type Demande = {
@@ -49,6 +55,22 @@ function normalizeArticleDraft(article: Partial<Article> | null | undefined) {
     content: article?.content ?? '',
     voice_notes: article?.voice_notes ?? '',
     published: Boolean(article?.published),
+    // SEO
+    meta_title: article?.meta_title ?? '',
+    meta_description: article?.meta_description ?? '',
+    og_image: article?.og_image ?? '',
+    canonical_url: article?.canonical_url ?? '',
+    // Geo
+    city: article?.city ?? '',
+    country: article?.country ?? '',
+    country_code: article?.country_code ?? '',
+    lat: article?.lat,
+    lng: article?.lng,
+    // Personalization
+    travel_style: article?.travel_style ?? '',
+    season: article?.season ?? '',
+    budget_level: article?.budget_level ?? '',
+    audience: article?.audience ?? '',
   };
 }
 
@@ -242,6 +264,10 @@ function CMSAdminInner() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const [archivedFilter, setArchivedFilter] = useState(false);
+  // New filters
+  const [countryFilter, setCountryFilter] = useState('all');
+  const [travelStyleFilter, setTravelStyleFilter] = useState('all');
+  const [seasonFilter, setSeasonFilter] = useState('all');
   const [activePage, setActivePage] = useState('home');
   const [editedSettings, setEditedSettings] = useState<Record<string, string>>({});
   const [editedContent, setEditedContent] = useState<Record<string, string>>({});
@@ -983,9 +1009,31 @@ function CMSAdminInner() {
                   <p>Aucun article trouvé</p>
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '.75rem' }}>
+                <div>
+                  {/* Advanced Filters */}
+                  <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap', marginBottom: '1rem', padding: '.75rem', background: '#faf8f5', borderRadius: '.5rem' }}>
+                    <select value={countryFilter} onChange={e => setCountryFilter(e.target.value)}
+                      style={{ padding: '.4rem .6rem', border: '1.5px solid #ddd', borderRadius: '.4rem', fontSize: '.8rem' }}>
+                      <option value="all">Tous pays</option>
+                      {['France', 'Portugal', 'Espagne', 'Italie', 'Suisse', 'Allemagne', 'Belgique', 'Pays-Bas', 'Royaume-Uni'].map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                    <select value={travelStyleFilter} onChange={e => setTravelStyleFilter(e.target.value)}
+                      style={{ padding: '.4rem .6rem', border: '1.5px solid #ddd', borderRadius: '.4rem', fontSize: '.8rem' }}>
+                      <option value="all">Tous styles</option>
+                      {['slow-travel', 'adventure', 'romantique', 'famille', 'solo', 'gastronomie'].map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                    <select value={seasonFilter} onChange={e => setSeasonFilter(e.target.value)}
+                      style={{ padding: '.4rem .6rem', border: '1.5px solid #ddd', borderRadius: '.4rem', fontSize: '.8rem' }}>
+                      <option value="all">Toutes saisons</option>
+                      {['printemps', 'ete', 'automne', 'hiver', 'annee'].map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '.75rem' }}>
                   {articles.filter(a => {
                     if (categoryFilter !== 'all' && a.category !== categoryFilter) return false;
+                    if (countryFilter !== 'all' && a.country !== countryFilter) return false;
+                    if (travelStyleFilter !== 'all' && a.travel_style !== travelStyleFilter) return false;
+                    if (seasonFilter !== 'all' && a.season !== seasonFilter) return false;
                     return true;
                   }).map(a => {
                     // Quick local quality check
@@ -1002,6 +1050,13 @@ function CMSAdminInner() {
                           <span>{a.category || '—'}</span>
                           <span>{fmt(a.created_at)}</span>
                           {a.read_time && <span>⏱ {a.read_time} min</span>}
+                        </div>
+                        {/* Tags */}
+                        <div style={{ display: 'flex', gap: '.3rem', marginTop: '.4rem', flexWrap: 'wrap' }}>
+                          {a.country && <span style={{ padding: '.15rem .4rem', background: '#e3f2fd', borderRadius: '.3rem', fontSize: '.7rem', color: '#1565c0' }}>📍 {a.country}</span>}
+                          {a.travel_style && <span style={{ padding: '.15rem .4rem', background: '#e8f5e9', borderRadius: '.3rem', fontSize: '.7rem', color: '#2e7d32' }}>🚶 {a.travel_style}</span>}
+                          {a.season && <span style={{ padding: '.15rem .4rem', background: '#fff3e0', borderRadius: '.3rem', fontSize: '.7rem', color: '#ef6c00' }}>☀️ {a.season}</span>}
+                          {a.budget_level && <span style={{ padding: '.15rem .4rem', background: '#f3e5f5', borderRadius: '.3rem', fontSize: '.7rem', color: '#7b1fa2' }}>💰 {a.budget_level}</span>}
                         </div>
                       </div>
                       <span style={{ padding: '.3rem .8rem', borderRadius: '9999px', fontSize: '.78rem', fontWeight: 600, background: a.published ? '#d4edda' : '#fff3cd', color: a.published ? '#155724' : '#856404' }}>
@@ -1117,6 +1172,147 @@ function CMSAdminInner() {
                   onChange={html => setEditingArticle(p => ({ ...p, content: html }))}
                   placeholder="Commence à écrire ton article ici…" />
               </div>
+              {/* SEO Section */}
+              <div style={{ gridColumn: '1/-1', padding: '1rem', background: '#fff5f5', borderRadius: '.5rem', border: '1px solid #fadbd8' }}>
+                <div style={{ fontWeight: 600, marginBottom: '.75rem', fontSize: '.9rem', color: '#922b21' }}>🔍 SEO</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.75rem' }}>
+                  <div>
+                    <label style={lbl}>Méta titre</label>
+                    <input value={editingArticle?.meta_title || ''}
+                      onChange={e => setEditingArticle(p => ({ ...p, meta_title: e.target.value }))}
+                      style={inp}
+                      placeholder={editingArticle?.title ? editingArticle.title.slice(0, 55) : 'Titre pour Google (55 car. max)'}
+                    />
+                  </div>
+                  <div>
+                    <label style={lbl}>URL canonique</label>
+                    <input value={editingArticle?.canonical_url || ''}
+                      onChange={e => setEditingArticle(p => ({ ...p, canonical_url: e.target.value }))}
+                      style={inp}
+                      placeholder="https://..."
+                    />
+                  </div>
+                  <div style={{ gridColumn: '1/-1' }}>
+                    <label style={lbl}>Méta description</label>
+                    <textarea value={editingArticle?.meta_description || ''}
+                      onChange={e => setEditingArticle(p => ({ ...p, meta_description: e.target.value }))}
+                      style={{ ...inp, height: 60 }}
+                      placeholder="Description pour Google (155 car. max)"
+                    />
+                    <p style={{ fontSize: '.7rem', color: '#888', marginTop: '.2rem' }}>{(editingArticle?.meta_description || '').length}/155</p>
+                  </div>
+                  <div style={{ gridColumn: '1/-1' }}>
+                    <label style={lbl}>Image OG (Open Graph)</label>
+                    <input value={editingArticle?.og_image || ''}
+                      onChange={e => setEditingArticle(p => ({ ...p, og_image: e.target.value }))}
+                      style={inp}
+                      placeholder="https://... pour les partages sociaux"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Geo Section */}
+              <div style={{ gridColumn: '1/-1', padding: '1rem', background: '#f0f8ff', borderRadius: '.5rem', border: '1px solid '#dae0e6' }}>
+                <div style={{ fontWeight: 600, marginBottom: '.75rem', fontSize: '.9rem', color: '#1e40af' }}>📍 Localisation</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '.75rem' }}>
+                  <div>
+                    <label style={lbl}>Ville</label>
+                    <input value={editingArticle?.city || ''}
+                      onChange={e => setEditingArticle(p => ({ ...p, city: e.target.value }))}
+                      style={inp}
+                      placeholder="Lisbonne, Funchal..."
+                    />
+                  </div>
+                  <div>
+                    <label style={lbl}>Pays</label>
+                    <input value={editingArticle?.country || ''}
+                      onChange={e => setEditingArticle(p => ({ ...p, country: e.target.value }))}
+                      style={inp}
+                      placeholder="Portugal, France..."
+                    />
+                  </div>
+                  <div>
+                    <label style={lbl}>Code pays (ISO)</label>
+                    <input value={editingArticle?.country_code || ''}
+                      onChange={e => setEditingArticle(p => ({ ...p, country_code: e.target.value.toUpperCase().slice(0, 2) }))}
+                      style={inp}
+                      placeholder="PT, FR..."
+                    />
+                  </div>
+                  <div>
+                    <label style={lbl}>Latitude</label>
+                    <input type="number" step="any" value={editingArticle?.lat || ''}
+                      onChange={e => setEditingArticle(p => ({ ...p, lat: parseFloat(e.target.value) || undefined }))}
+                      style={inp}
+                      placeholder="38.7223"
+                    />
+                  </div>
+                  <div>
+                    <label style={lbl}>Longitude</label>
+                    <input type="number" step="any" value={editingArticle?.lng || ''}
+                      onChange={e => setEditingArticle(p => ({ ...p, lng: parseFloat(e.target.value) || undefined }))}
+                      style={inp}
+                      placeholder="-9.1393"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Personalization Section */}
+              <div style={{ gridColumn: '1/-1', padding: '1rem', background: '#f0fff4', borderRadius: '.5rem', border: '1px solid '#c3e6cb' }}>
+                <div style={{ fontWeight: 600, marginBottom: '.75rem', fontSize: '.9rem', color: '#155724' }}>🎯 Ciblage & Personnalisation</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '.75rem' }}>
+                  <div>
+                    <label style={lbl}>Style de voyage</label>
+                    <select value={editingArticle?.travel_style || ''}
+                      onChange={e => setEditingArticle(p => ({ ...p, travel_style: e.target.value }))}
+                      style={inp}>
+                      <option value="">— Tous —</option>
+                      <option value="slow-travel">Slow Travel</option>
+                      <option value="adventure">Aventure</option>
+                      <option value="romantique">Romantique</option>
+                      <option value="famille">Famille</option>
+                      <option value="solo">Solo</option>
+                      <option value="gastronomie">Gastronomie</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={lbl}>Saison</label>
+                    <select value={editingArticle?.season || ''}
+                      onChange={e => setEditingArticle(p => ({ ...p, season: e.target.value }))}
+                      style={inp}>
+                      <option value="">— Toutes —</option>
+                      <option value="printemps">Printemps</option>
+                      <option value="ete">Été</option>
+                      <option value="automne">Automne</option>
+                      <option value="hiver">Hiver</option>
+                      <option value="annee">Toute l'année</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={lbl}>Budget</label>
+                    <select value={editingArticle?.budget_level || ''}
+                      onChange={e => setEditingArticle(p => ({ ...p, budget_level: e.target.value }))}
+                      style={inp}>
+                      <option value="">— Tous —</option>
+                      <option value="economique">Économique</option>
+                      <option value="moyen">Moyen</option>
+                      <option value="haut-de-gamme">Haut de gamme</option>
+                      <option value="luxe">Luxe</option>
+                    </select>
+                  </div>
+                  <div style={{ gridColumn: '1/-1' }}>
+                    <label style={lbl}>Audience cible</label>
+                    <input value={editingArticle?.audience || ''}
+                      onChange={e => setEditingArticle(p => ({ ...p, audience: e.target.value }))}
+                      style={inp}
+                      placeholder="Couples, familles, solo travelers..."
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '.5rem', cursor: 'pointer', fontWeight: 600, color: '#444', fontSize: '.9rem' }}>
                   <input type="checkbox" checked={!!editingArticle?.published}
