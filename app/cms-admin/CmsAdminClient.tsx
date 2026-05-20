@@ -8,7 +8,7 @@ import dynamic from 'next/dynamic';
 import EnhancedRichContent from '@/components/EnhancedRichContent';
 import MediaLibrary from '@/components/MediaLibrary';
 import { sanitizeHtml } from '@/lib/sanitize-html';
-import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot } from 'lucide-react';
+import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot, CheckSquare, Square } from 'lucide-react';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
 const CarouselEditor = dynamic(() => import('@/components/admin/CarouselEditor'), { ssr: false });
@@ -285,11 +285,97 @@ function CMSAdminInner() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  // Note: categoryFilter is already defined at line ~511
+  const [selectedArticles, setSelectedArticles] = useState<Set<number>>(new Set());
   const [editingArticle, setEditingArticle] = useState<Partial<Article> | null>(null);
   const [loadingArticles, setLoadingArticles] = useState(false);
   const [savingArticle, setSavingArticle] = useState(false);
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [scheduleMode, setScheduleMode] = useState(false);
+
+  // Toggle article selection for bulk actions
+  const toggleArticleSelection = (id: number) => {
+    setSelectedArticles(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  // Select/deselect all articles
+  const toggleSelectAll = () => {
+    if (selectedArticles.size === articles.length) {
+      setSelectedArticles(new Set());
+    } else {
+      setSelectedArticles(new Set(articles.map(a => a.id)));
+    }
+  };
+
+  // Bulk publish selected articles
+  const bulkPublish = async () => {
+    if (selectedArticles.size === 0) return;
+    if (!confirm(`Publier ${selectedArticles.size} article(s)?`)) return;
+    setLoadingArticles(true);
+    try {
+      await Promise.all([...selectedArticles].map(id =>
+        fetch(`/api/cms/articles/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ published: true, published_at: new Date().toISOString() }),
+        })
+      ));
+      showToast(`✓ ${selectedArticles.size} article(s) publié(s)`);
+      setSelectedArticles(new Set());
+      loadArticles();
+    } catch {
+      showToast('Erreur lors de la publication');
+    } finally {
+      setLoadingArticles(false);
+    }
+  };
+
+  // Bulk unpublish selected articles
+  const bulkUnpublish = async () => {
+    if (selectedArticles.size === 0) return;
+    if (!confirm(`Dépublier ${selectedArticles.size} article(s)?`)) return;
+    setLoadingArticles(true);
+    try {
+      await Promise.all([...selectedArticles].map(id =>
+        fetch(`/api/cms/articles/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ published: false }),
+        })
+      ));
+      showToast(`${selectedArticles.size} article(s) dépublié(s)`);
+      setSelectedArticles(new Set());
+      loadArticles();
+    } catch {
+      showToast('Erreur lors de la dépublication');
+    } finally {
+      setLoadingArticles(false);
+    }
+  };
+
+  // Bulk delete selected articles
+  const bulkDelete = async () => {
+    if (selectedArticles.size === 0) return;
+    if (!confirm(`Supprimer ${selectedArticles.size} article(s)? Cette action est irréversible!`)) return;
+    setLoadingArticles(true);
+    try {
+      await Promise.all([...selectedArticles].map(id =>
+        fetch(`/api/cms/articles/${id}`, { method: 'DELETE' })
+      ));
+      showToast(`🗑 ${selectedArticles.size} article(s) supprimé(s)`);
+      setSelectedArticles(new Set());
+      loadArticles();
+    } catch {
+      showToast('Erreur lors de la suppression');
+    } finally {
+      setLoadingArticles(false);
+    }
+  };
 
   // Agents panel
   const [agentTask, setAgentTask] = useState('');
@@ -1090,11 +1176,11 @@ function CMSAdminInner() {
 
         {tab === 'articles' && (
           <div>
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-              <input placeholder="Rechercher un article..." value={search}
+            <div style={{ display: 'flex', gap: '.5rem', marginBottom: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              <input placeholder="Rechercher... (titre, contenu)" value={search}
                 onChange={e => setSearch(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && loadArticles()}
-                style={{ padding: '.6rem 1rem', border: '1.5px solid #ddd', borderRadius: '.5rem', flex: 1, minWidth: 200, fontSize: '.9rem' }}
+                style={{ padding: '.6rem 1rem', border: '1.5px solid #ddd', borderRadius: '.5rem', flex: 1, minWidth: 180, fontSize: '.9rem' }}
               />
               <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
                 style={{ padding: '.6rem .9rem', border: '1.5px solid #ddd', borderRadius: '.5rem', fontSize: '.9rem' }}>
@@ -1108,9 +1194,30 @@ function CMSAdminInner() {
                 <option value="all">Toutes catégories</option>
                 {availableCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
               </select>
-              <button onClick={loadArticles} style={{ padding: '.6rem 1.2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>🔍</button>
-              <button onClick={() => openArticleEditor({})} style={{ padding: '.6rem 1.2rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>+ Nouvel article</button>
+              <button onClick={loadArticles} style={{ padding: '.6rem 1rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>🔍</button>
+              <button onClick={() => openArticleEditor({})} style={{ padding: '.6rem 1rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>+ Nouvel</button>
             </div>
+            
+            {/* Bulk Actions Bar */}
+            {articles.length > 0 && (
+              <div style={{ display: 'flex', gap: '.5rem', marginBottom: '1rem', padding: '.75rem', background: '#f8f6f4', borderRadius: '.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                <button onClick={toggleSelectAll} style={{ padding: '.5rem .75rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.85rem', display: 'flex', alignItems: 'center', gap: '.35rem' }}>
+                  {selectedArticles.size === articles.length ? <CheckSquare size={16} /> : <Square size={16} />} 
+                  Tout ({articles.length})
+                </button>
+                <span style={{ color: '#888', fontSize: '.85rem' }}>|</span>
+                <button onClick={bulkPublish} disabled={selectedArticles.size === 0 || loadingArticles} style={{ padding: '.5rem .75rem', border: '1px solid #28a745', borderRadius: '.4rem', background: selectedArticles.size > 0 ? '#28a745' : 'white', color: selectedArticles.size > 0 ? 'white' : '#28a745', cursor: selectedArticles.size > 0 ? 'pointer' : 'not-allowed', fontSize: '.85rem', opacity: loadingArticles ? .6 : 1 }}>
+                  📤 Publier ({selectedArticles.size})
+                </button>
+                <button onClick={bulkUnpublish} disabled={selectedArticles.size === 0 || loadingArticles} style={{ padding: '.5rem .75rem', border: '1px solid #ffc107', borderRadius: '.4rem', background: selectedArticles.size > 0 ? '#ffc107' : 'white', color: selectedArticles.size > 0 ? 'white' : '#856404', cursor: selectedArticles.size > 0 ? 'pointer' : 'not-allowed', fontSize: '.85rem', opacity: loadingArticles ? .6 : 1 }}>
+                  📥 Dépublier ({selectedArticles.size})
+                </button>
+                <button onClick={bulkDelete} disabled={selectedArticles.size === 0 || loadingArticles} style={{ padding: '.5rem .75rem', border: '1px solid #dc3545', borderRadius: '.4rem', background: selectedArticles.size > 0 ? '#dc3545' : 'white', color: selectedArticles.size > 0 ? 'white' : '#dc3545', cursor: selectedArticles.size > 0 ? 'pointer' : 'not-allowed', fontSize: '.85rem', opacity: loadingArticles ? .6 : 1 }}>
+                  🗑 Supprimer ({selectedArticles.size})
+                </button>
+              </div>
+            )}
+
             {loadingArticles ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p>
               : articles.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '4rem', color: '#aaa' }}>
@@ -1118,30 +1225,61 @@ function CMSAdminInner() {
                   <p>Aucun article trouvé</p>
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '.75rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
                   {articles.filter(a => {
+                    // Status filter
+                    if (statusFilter === 'published' && !a.published) return false;
+                    if (statusFilter === 'draft' && a.published) return false;
+                    if (statusFilter === 'archived' && a.archived !== true) return false;
+                    // Category filter
                     if (categoryFilter !== 'all' && a.category !== categoryFilter) return false;
+                    // Search filter (fuzzy)
+                    if (search) {
+                      const q = search.toLowerCase();
+                      const matchTitle = a.title?.toLowerCase().includes(q);
+                      const matchContent = a.content?.toLowerCase().includes(q);
+                      const matchCategory = a.category?.toLowerCase().includes(q);
+                      if (!matchTitle && !matchContent && !matchCategory) return false;
+                    }
                     return true;
                   }).map(a => (
-                    <div key={a.id} style={{ background: 'white', borderRadius: '.75rem', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', flexWrap: 'wrap' }}>
-                      {a.featured_image && <img src={a.featured_image} alt="" style={{ width: 64, height: 48, objectFit: 'cover', borderRadius: '.4rem', flexShrink: 0 }} />}
-                      <div style={{ flex: 1, minWidth: 200 }}>
-                        <div style={{ fontWeight: 600, fontSize: '1rem', color: '#1a1a1a', marginBottom: '.2rem' }}>{a.title}</div>
-                        <div style={{ fontSize: '.8rem', color: '#888', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                    <div key={a.id} style={{ background: 'white', borderRadius: '.75rem', padding: '.85rem 1rem', display: 'flex', alignItems: 'center', gap: '.75rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', flexWrap: 'wrap', borderLeft: selectedArticles.has(a.id) ? '3px solid #6b2a1a' : '3px solid transparent' }}>
+                      <button onClick={() => toggleArticleSelection(a.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '.25rem', color: selectedArticles.has(a.id) ? '#6b2a1a' : '#ccc' }}>
+                        {selectedArticles.has(a.id) ? <CheckSquare size={20} /> : <Square size={20} />}
+                      </button>
+                      {a.featured_image && <img src={a.featured_image} alt="" style={{ width: 56, height: 42, objectFit: 'cover', borderRadius: '.35rem', flexShrink: 0 }} />}
+                      <div style={{ flex: 1, minWidth: 180 }}>
+                        <div style={{ fontWeight: 600, fontSize: '.95rem', color: '#1a1a1a', marginBottom: '.15rem' }}>{a.title}</div>
+                        <div style={{ fontSize: '.75rem', color: '#888', display: 'flex', gap: '.75rem', flexWrap: 'wrap' }}>
                           <span>{a.category || '—'}</span>
                           <span>{fmt(a.created_at)}</span>
+                          {a.views != null && <span>👁 {a.views}</span>}
                         </div>
                       </div>
-                      <span style={{ padding: '.3rem .8rem', borderRadius: '9999px', fontSize: '.78rem', fontWeight: 600, background: a.published ? '#d4edda' : '#fff3cd', color: a.published ? '#155724' : '#856404' }}>
+                      <span style={{ padding: '.25rem .65rem', borderRadius: '9999px', fontSize: '.72rem', fontWeight: 600, background: a.published ? '#d4edda' : '#fff3cd', color: a.published ? '#155724' : '#856404' }}>
                         {a.published ? '✓ Publié' : '📝 Brouillon'}
                       </span>
-                      <div style={{ display: 'flex', gap: '.5rem' }}>
-                        <button onClick={() => openArticleEditor(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>✏️ Éditer</button>
-                        <button onClick={() => togglePublish(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>{a.published ? '📦 Dépublier' : 'Publier'}</button>
-                        <button onClick={() => deleteArticle(a.id)} style={{ padding: '.35rem .8rem', border: '1px solid #fcc', borderRadius: '.4rem', background: '#fff5f5', color: '#c0392b', cursor: 'pointer', fontSize: '.82rem' }}>🗑</button>
+                      <div style={{ display: 'flex', gap: '.35rem' }}>
+                        <button onClick={() => openArticleEditor(a)} title="Éditer" style={{ padding: '.3rem .6rem', border: '1px solid #ddd', borderRadius: '.35rem', background: 'white', cursor: 'pointer', fontSize: '.78rem' }}>✏️</button>
+                        <button onClick={() => togglePublish(a)} title={a.published ? 'Dépublier' : 'Publier'} style={{ padding: '.3rem .6rem', border: '1px solid #ddd', borderRadius: '.35rem', background: 'white', cursor: 'pointer', fontSize: '.78rem' }}>{a.published ? '📦' : '📤'}</button>
+                        <button onClick={() => deleteArticle(a.id)} title="Supprimer" style={{ padding: '.3rem .6rem', border: '1px solid #fcc', borderRadius: '.35rem', background: '#fff5f5', color: '#c0392b', cursor: 'pointer', fontSize: '.78rem' }}>🗑</button>
                       </div>
                     </div>
                   ))}
+                  {(search || categoryFilter !== 'all' || statusFilter !== 'all') && (
+                    <p style={{ textAlign: 'center', color: '#888', fontSize: '.85rem', padding: '.5rem' }}>
+                      {articles.filter(a => {
+                        if (statusFilter === 'published' && !a.published) return false;
+                        if (statusFilter === 'draft' && a.published) return false;
+                        if (categoryFilter !== 'all' && a.category !== categoryFilter) return false;
+                        if (search) {
+                          const q = search.toLowerCase();
+                          if (!a.title?.toLowerCase().includes(q) && !a.content?.toLowerCase().includes(q)) return false;
+                        }
+                        return true;
+                      }).length} résultat(s)
+                    </p>
+                  )}
                 </div>
               )}
           </div>
