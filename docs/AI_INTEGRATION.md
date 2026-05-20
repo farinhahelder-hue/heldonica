@@ -346,3 +346,37 @@ curl -X PATCH "https://www.heldonica.fr/api/n8n/articles" \
   ]
 }
 ```
+
+------
+
+### 🚀 Workflows n8n prêts à utiliser
+
+#### 1. Notification Discord automatique
+
+```
+[Webhook: article.published]
+    ↓
+[Discord: Embed] 
+    → Titre + Category + URL
+```
+
+#### 2. Weekly summary pour Slack
+
+```
+[Schedule: chaque lundi 9h]
+    ↓
+[Heldonica API: /n8n/articles?status=published&days=7]
+    ↓
+[Slack: "7 nouveaux articles cette semaine"]
+```
+
+#### 3. SEO check automatique
+
+```
+[Webhook: article.updated]
+    ↓
+[HTTP: /api/ai/enhance]
+    → Si score SEO < 50
+    ↓
+[Slack: "Améliorer SEO"]
+```
