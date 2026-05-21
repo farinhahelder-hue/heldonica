@@ -199,6 +199,134 @@ export default function SiteSettings({ data, onSave }: any) {
           )}
         </div>
 
+{/* SEO & Geo Localization */}
+        <div className="border-t pt-6">
+          <h3 className="font-bold text-mahogany mb-4 flex items-center gap-2">
+            🌍 SEO & Géolocalisation
+          </h3>
+          <div className="space-y-4">
+            {/* Default language */}
+            <div>
+              <label className="block text-sm font-medium text-charcoal mb-2">Langue par défaut</label>
+              <select
+                value={settings.defaultLocale || 'fr-FR'}
+                onChange={(e) => handleChange('defaultLocale', e.target.value)}
+                className="w-full px-3 py-2 border rounded-lg"
+              >
+                <option value="fr-FR">🇫🇷 Français (France)</option>
+                <option value="fr-CH">🇨🇭 Français (Suisse)</option>
+                <option value="fr-BE">🇧🇪 Français (Belgique)</option>
+                <option value="fr-CA">🇨🇦 Français (Canada)</option>
+                <option value="de-DE">🇩🇪 Allemand</option>
+                <option value="en-GB">🇬🇧 Anglais</option>
+              </select>
+            </div>
+
+            {/* Hreflang URLs */}
+            <div>
+              <label className="block text-sm font-medium text-charcoal mb-2">
+                URLs hreflang (une par ligne)
+              </label>
+              <Textarea
+                value={settings.hreflangUrls || ''}
+                onChange={(e) => handleChange('hreflangUrls', e.target.value)}
+                rows={4}
+                placeholder="https://www.heldonica.fr/chemin|fr-FR
+https://www.heldonica.ch/chemin|fr-CH
+https://heldonica.be/chemin|fr-BE
+https://heldonica.ca/chemin|fr-CA
+https://heldonica.com/path|en-US"
+                className="font-mono text-xs"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Format: URL|lang-code (ex: fr-FR, fr-CH, en-US)
+              </p>
+            </div>
+
+            {/* Meta keywords */}
+            <div>
+              <label className="block text-sm font-medium text-charcoal mb-2">
+                Mots-clés SEO
+              </label>
+              <Input
+                value={settings.metaKeywords || ''}
+                onChange={(e) => handleChange('metaKeywords', e.target.value)}
+                placeholder="hôtel luxe, voyage Portugal, consultant hôtelier..."
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Séparés par virgules, max 10 mots-clés
+              </p>
+            </div>
+
+            {/* Robots directives */}
+            <div>
+              <label className="block text-sm font-medium text-charcoal mb-2">Robot directives</label>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={settings.indexSite ?? true}
+                    onChange={(e) => handleChange('indexSite', e.target.checked)}
+                  />
+                  <span className="text-sm">Indexable</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={settings.followLinks ?? true}
+                    onChange={(e) => handleChange('followLinks', e.target.checked)}
+                  />
+                  <span className="text-sm">Follow links</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Geo targeting */}
+            <div>
+              <label className="block text-sm font-medium text-charcoal mb-2">
+                Régions cibles
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { code: 'FR', name: '🇫🇷 France' },
+                  { code: 'CH', name: '🇨🇭 Suisse' },
+                  { code: 'BE', name: '🇧🇪 Belgique' },
+                  { code: 'CA', name: '🇨🇦 Canada' },
+                  { code: 'LU', name: '🇱🇺 Luxembourg' },
+                  { code: 'GB', name: '🇬🇧 UK' },
+                ].map(({ code, name }) => (
+                  <label key={code} className="flex items-center gap-1 px-2 py-1 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="checkbox"
+                      checked={settings.targetCountries?.includes(code)}
+                      onChange={(e) => {
+                        const current = settings.targetCountries || ['FR']
+                        const updated = e.target.checked
+                          ? [...current, code]
+                          : current.filter((c: string) => c !== code)
+                        handleChange('targetCountries', updated)
+                      }}
+                    />
+                    <span className="text-sm">{name}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* OG Image fallback */}
+            <div>
+              <label className="block text-sm font-medium text-charcoal mb-2">
+                Image OG par défaut
+              </label>
+              <Input
+                value={settings.ogImage || ''}
+                onChange={(e) => handleChange('ogImage', e.target.value)}
+                placeholder="https://..."
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Instagram */}
         <div className="border-t pt-6">
           <h3 className="font-bold text-mahogany mb-4 flex items-center gap-2">
