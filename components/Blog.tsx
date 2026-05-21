@@ -1,0 +1,107 @@
+import Image from 'next/image'
+import Link from 'next/link'
+import { blogPosts } from '@/lib/wordpress-data'
+
+const CATEGORY_COLOR: Record<string, string> = {
+  Travel: 'bg-eucalyptus/10 text-eucalyptus',
+  'Food & Lifestyle': 'bg-eucalyptus/10 text-eucalyptus',
+  'Expertise Hoteliere': 'bg-mahogany/10 text-mahogany',
+  'Expertise Hôtelière': 'bg-mahogany/10 text-mahogany',
+}
+
+const PLACEHOLDER_BG: Record<string, string> = {
+  Travel: 'bg-gradient-to-br from-[#006D77] to-[#4ECDC4]',
+  'Food & Lifestyle': 'bg-gradient-to-br from-[#4ECDC4] to-[#006D77]',
+  'Expertise Hoteliere': 'bg-gradient-to-br from-[#006D77] to-[#6B2D1F]',
+  'Expertise Hôtelière': 'bg-gradient-to-br from-[#006D77] to-[#6B2D1F]',
+}
+
+export default function Blog() {
+  const articles = blogPosts.slice(0, 3)
+
+  return (
+    <section className="bg-white section-spacing">
+      <div className="container">
+        <h2 className="text-4xl md:text-5xl font-serif font-bold text-mahogany mb-4 text-center">
+          Nos Carnets de Route
+        </h2>
+        <p className="text-center text-gray-600 mb-16 text-lg">
+          Histoires authentiques et conseils d&apos;experts
+        </p>
+        <div className="grid md:grid-cols-3 gap-8 mb-12">
+          {articles.map((article) => (
+            <article
+              key={article.id}
+              className="bg-cloud-dancer rounded-2xl border border-cloud-dancer hover:shadow-lg transition-all duration-300 group overflow-hidden hover:-translate-y-1"
+            >
+              <div className="relative h-48 w-full overflow-hidden">
+                {article.image ? (
+                  <Image
+                    src={article.image}
+                    alt={article.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div
+                    className={`w-full h-full flex flex-col items-center justify-center gap-2 ${
+                      PLACEHOLDER_BG[article.category] ?? 'bg-gradient-to-br from-[#006D77] to-[#4ECDC4]'
+                    }`}
+                  >
+                    <Image
+                      src="/images/badges-heldonica.svg"
+                      alt="Fallback visuel Heldonica"
+                      width={80}
+                      height={50}
+                      className="w-20 h-auto opacity-90"
+                      loading="lazy"
+                    />
+                    <span className="text-xs text-white/90 font-semibold tracking-[0.14em] uppercase">
+                      Heldonica
+                    </span>
+                  </div>
+                )}
+                <div className="absolute top-3 left-3">
+                  <span
+                    className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${
+                      CATEGORY_COLOR[article.category] ?? 'bg-cloud-dancer text-charcoal/70'
+                    }`}
+                  >
+                    {article.category}
+                  </span>
+                </div>
+              </div>
+              <div className="p-5">
+                <h3 className="text-lg font-serif font-bold text-mahogany mb-2 group-hover:text-eucalyptus transition-colors leading-snug line-clamp-2">
+                  {article.title}
+                </h3>
+                <p className="text-charcoal/60 mb-4 text-sm leading-relaxed line-clamp-3">
+                  {article.excerpt}
+                </p>
+                <div className="flex items-center justify-between pt-3 border-t border-cloud-dancer">
+                  <span className="text-xs text-charcoal/40">{article.date}</span>
+                  <Link
+                    href={`/blog/${article.slug}`}
+                    className="text-eucalyptus font-semibold hover:text-teal transition text-sm group-hover:translate-x-1 inline-block"
+                  >
+                    Lire l&apos;article →
+                  </Link>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+        <div className="text-center">
+          <Link
+            href="/blog"
+            className="inline-block px-8 py-3 border-2 border-eucalyptus text-eucalyptus rounded-full hover:bg-eucalyptus/5 transition font-medium"
+          >
+            Voir tous les carnets →
+          </Link>
+        </div>
+      </div>
+    </section>
+  )
+}

@@ -1,0 +1,33 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
+  "rewrites": [
+    {
+      "source": "/home.html",
+      "destination": "/home.html"
+    },
+    {
+      "source": "/admin.html",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/cms.html",
+      "destination": "/cms.html"
+    },
+    {
+      "source": "/cms-complete.html",
+      "destination": "/cms-complete.html"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cms/publish-scheduled",
+      "schedule": "0 5 * * *"
+    },
+    {
+      "path": "/api/cron/auto-publish",
+      "schedule": "0 10 * * *"
+    }
+  ]
+}

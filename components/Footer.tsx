@@ -1,0 +1,123 @@
+'use client'
+
+import Link from 'next/link'
+
+export default function Footer() {
+  const currentYear = new Date().getFullYear()
+
+  const navLinks = [
+    { href: '/', label: 'Accueil' },
+    { href: '/destinations', label: 'Destinations' },
+    { href: '/blog', label: 'Inspirations' },
+    { href: '/travel-planning', label: 'Services' },
+    { href: '/a-propos', label: 'À propos' },
+  ]
+
+  const serviceLinks: { href: string; label: string }[] = [
+    { href: '/travel-planning', label: 'Travel planning' },
+    { href: '/slow-travel', label: 'Slow travel' },
+    { href: '/planifier', label: 'Planifier' },
+  ]
+
+  const legalLinks: { href: string; label: string }[] = [
+    { href: '/contact', label: 'Contact' },
+    { href: '/mentions-legales', label: 'Mentions légales' },
+    { href: '/politique-confidentialite', label: 'Politique de confidentialité' },
+  ]
+
+  // Ensure arrays are always arrays
+  const safeNavLinks = Array.isArray(navLinks) ? navLinks : []
+  const safeServiceLinks = Array.isArray(serviceLinks) ? serviceLinks : []
+  const safeLegalLinks = Array.isArray(legalLinks) ? legalLinks : []
+
+  return (
+    <footer className="bg-stone-950 text-stone-200">
+      <div className="mx-auto max-w-7xl px-6 py-16">
+        {/* Grille principale */}
+        <div className="mb-12 grid grid-cols-1 gap-10 md:grid-cols-4">
+          {/* Colonne Marque */}
+          <div>
+            <div className="mb-4">
+              <h3 className="mb-2 text-2xl font-serif font-bold text-white">Heldonica</h3>
+              <p className="text-sm text-amber-200">Slow travel vécu, conçu juste.</p>
+            </div>
+            <p className="text-sm leading-relaxed text-stone-300">
+              On voyage lentement, on teste vraiment, on partage ce qui tient sur le terrain.
+              Dénicheurs de pépites, même en bas de chez toi.
+            </p>
+            <div className="mt-6">
+              <a
+                href="https://www.instagram.com/heldonica/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-stone-300 transition-colors duration-200 hover:text-white"
+                title="Suivez-nous sur Instagram"
+              >
+                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.322a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z" />
+                </svg>
+                <span className="text-sm font-medium">@heldonica</span>
+              </a>
+            </div>
+          </div>
+
+          {/* Colonne Navigation */}
+          <nav aria-label="Navigation footer">
+            <h4 className="mb-6 text-base font-serif font-bold text-white">Navigation</h4>
+            <ul className="space-y-3 text-sm" role="list">
+              {safeNavLinks.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-stone-300 transition-colors duration-200 hover:text-white">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          {/* Colonne Services */}
+          <nav aria-label="Services footer">
+            <h4 className="mb-6 text-base font-serif font-bold text-white">Services</h4>
+            <ul className="space-y-3 text-sm" role="list">
+              {safeServiceLinks.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-stone-300 transition-colors duration-200 hover:text-white">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          {/* Colonne Légal & Contact */}
+          <div>
+            <h4 className="mb-6 text-base font-serif font-bold text-white">Légal &amp; contact</h4>
+            <ul className="space-y-3 text-sm" role="list">
+              {safeLegalLinks.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-stone-300 transition-colors duration-200 hover:text-white">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <a href="mailto:info@heldonica.fr" className="text-stone-300 transition-colors duration-200 hover:text-white">
+                  info@heldonica.fr
+                </a>
+                <span className="block text-xs text-stone-500 mt-1">France</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Ligne de copyright */}
+        <div className="border-t border-stone-800 pt-8">
+          <div className="flex flex-col items-center justify-between gap-4 text-sm text-stone-400 md:flex-row">
+            <p>© {currentYear} Heldonica. Tous droits réservés.</p>
+            <p className="text-xs">Photos : Heldonica & Unsplash</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+  )
+}

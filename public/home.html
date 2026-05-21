@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heldonica - Expert en Slow Travel & Consulting Hôtelier</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1f2937; }
+        nav { position: fixed; top: 0; width: 100%; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); z-index: 50; border-bottom: 1px solid #f3f4f6; }
+        .nav-container { max-width: 80rem; margin: 0 auto; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: bold; color: #92400e; font-family: Georgia, serif; }
+        .nav-links { display: flex; gap: 2rem; align-items: center; }
+        .nav-links a { text-decoration: none; color: #374151; font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover { color: #92400e; }
+        .cta-button { background: #92400e; color: white; padding: 0.5rem 1.5rem; border-radius: 0.5rem; text-decoration: none; transition: background 0.3s; }
+        .cta-button:hover { background: #78340f; }
+        .hero { margin-top: 4rem; position: relative; overflow: hidden; min-height: 100vh; display: flex; align-items: center; padding: 2rem; }
+        .hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 100%); z-index: 1; }
+        .hero video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.6; z-index: 0; }
+        .hero-content { max-width: 56rem; margin: 0 auto; text-align: center; color: white; position: relative; z-index: 2; }
+        .hero h1 { font-size: 3.75rem; font-weight: bold; margin-bottom: 1.5rem; font-family: Georgia, serif; line-height: 1.2; }
+        .hero p { font-size: 1.25rem; margin-bottom: 2rem; font-weight: 300; max-width: 42rem; margin-left: auto; margin-right: auto; }
+        .hero .cta-button { display: inline-block; background: white; color: #92400e; padding: 1rem 2rem; font-weight: 600; font-size: 1.125rem; }
+        .hero .cta-button:hover { background: #f3f4f6; }
+        .services { padding: 6rem 1.5rem; background: white; }
+        .services-container { max-width: 80rem; margin: 0 auto; }
+        .services h2 { font-size: 2.25rem; font-weight: bold; text-align: center; margin-bottom: 4rem; font-family: Georgia, serif; color: #111827; }
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 3rem; }
+        .service-card { text-align: left; }
+        .service-icon { font-size: 3rem; margin-bottom: 1rem; }
+        .service-card h3 { font-size: 1.5rem; font-weight: bold; margin-bottom: 0.75rem; font-family: Georgia, serif; color: #111827; }
+        .service-card p { color: #6b7280; line-height: 1.6; }
+        .cta-section { padding: 6rem 1.5rem; background: linear-gradient(135deg, #92400e 0%, #15803d 100%); color: white; text-align: center; }
+        .cta-section-content { max-width: 56rem; margin: 0 auto; }
+        .cta-section h2 { font-size: 2.25rem; font-weight: bold; margin-bottom: 1.5rem; font-family: Georgia, serif; }
+        .cta-section p { font-size: 1.25rem; margin-bottom: 2rem; opacity: 0.9; }
+        .cta-section .cta-button { background: white; color: #92400e; }
+        footer { background: #111827; color: #d1d5db; padding: 3rem 1.5rem; }
+        .footer-container { max-width: 80rem; margin: 0 auto; }
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 3rem; margin-bottom: 3rem; }
+        .footer-section h4 { color: white; font-weight: 600; margin-bottom: 1rem; }
+        .footer-section ul { list-style: none; }
+        .footer-section ul li { margin-bottom: 0.5rem; }
+        .footer-section a { color: #d1d5db; text-decoration: none; transition: color 0.3s; }
+        .footer-section a:hover { color: white; }
+        .footer-bottom { border-top: 1px solid #374151; padding-top: 2rem; text-align: center; font-size: 0.875rem; }
+        @media (max-width: 768px) { .nav-links { gap: 1rem; font-size: 0.875rem; } .hero h1 { font-size: 2.25rem; } .hero p { font-size: 1rem; } .services h2, .cta-section h2 { font-size: 1.875rem; } }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">Heldonica</div>
+            <div class="nav-links">
+                <a href="#blog">Blog</a>
+                <a href="#destinations">Destinations</a>
+                <a href="/travel-planning-form" class="cta-button">Planifier</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <video autoplay muted loop>
+            <source src="https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4" type="video/mp4">
+        </video>
+        <div class="hero-content">
+            <h1>Découvrez le slow travel</h1>
+            <p>Des voyages authentiques, conçus pour vous</p>
+            <a href="/travel-planning-form" class="cta-button">Planifier mon voyage</a>
+        </div>
+    </section>
+
+    <section class="services">
+        <div class="services-container">
+            <h2>Nos Services</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">🌍</div>
+                    <h3>Slow Travel</h3>
+                    <p>Voyages authentiques et responsables, loin des sentiers touristiques.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">✈️</div>
+                    <h3>Travel Planning</h3>
+                    <p>Itinéraires personnalisés adaptés à vos envies et votre budget.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🏨</div>
+                    <h3>Consulting Hôtelier</h3>
+                    <p>Expertise en revenue management et optimisation hôtelière.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="cta-section-content">
+            <h2>Prêt à planifier votre prochaine aventure ?</h2>
+            <p>Répondez à quelques questions et recevez un itinéraire personnalisé.</p>
+            <a href="/travel-planning-form" class="cta-button">Commencer maintenant</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h4>Heldonica</h4>
+                    <p>Expert en slow travel et consulting hôtelier</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Navigation</h4>
+                    <ul>
+                        <li><a href="#blog">Blog</a></li>
+                        <li><a href="#destinations">Destinations</a></li>
+                        <li><a href="/travel-planning-form">Travel Planning</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="#slow-travel">Slow Travel</a></li>
+                        <li><a href="#consulting">Consulting</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p>hello@heldonica.fr</p>
+                    <p>+33 (0)6 XX XX XX XX</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Heldonica. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

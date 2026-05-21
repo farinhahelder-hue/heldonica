@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Supprime le ring bleu Tailwind par défaut */
+*, *:focus, *:focus-visible {
+  outline-color: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #F8F6F2;
+  color: #2C2C2C;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
+}
+
+.section-spacing {
+  padding: 80px 0;
+}
+
+@media (max-width: 768px) {
+  .section-spacing {
+    padding: 60px 0;
+  }
+}
+
+/* === SYSTÈME D'ESPACEMENT UNIFIÉ === */
+/* Utiliser ces classes pour une cohérence visuelle */
+
+/* Sections */
+.section-py {
+  padding-top: 5rem;    /* 80px */
+  padding-bottom: 5rem;
+}
+.section-py-sm {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+/* Blocs */
+.block-py {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+.block-py-lg {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+/* Gap standard */
+.gap-standard {
+  gap: 1.5rem; /* 24px */
+}
+.gap-lg {
+  gap: 2rem;   /* 32px */
+}
+
+/* Hide scrollbar but allow scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
