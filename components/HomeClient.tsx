@@ -7,7 +7,7 @@ import Link from 'next/link'
 import type { BlogPost } from '@/lib/blog-supabase'
 import { getExcerpt } from '@/lib/blog-supabase'
 import { SITE_STATS } from '@/lib/constants'
-import InstagramEmbed from '@/components/InstagramEmbed'
+import InstagramFeed from '@/components/InstagramFeed'
 import NewsletterForm from '@/components/NewsletterForm'
 
 const HELDONICA_BADGE_FALLBACK = '/images/badges-heldonica.svg'
@@ -599,7 +599,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <h2 className="text-2xl font-serif text-mahogany text-center mb-8">
             Sur le terrain, pas en studio
           </h2>
-          <InstagramEmbed limit={6} siteSettings={siteSettings} />
+          <InstagramFeed />
         </div>
       </section>
 
