@@ -400,16 +400,10 @@ function CMSAdminInner() {
     }
   }, []);
 
-  // Send task to agent via n8n webhook
+  // Send task to agent (n8n or Jules API)
   const sendAgentTask = async () => {
     if (!agentTask.trim()) {
-      setAgentMessage({ type: 'error', text: 'Veuillez描述ez une tâche à effectuer.' });
-      return;
-    }
-
-    const webhookUrl = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL;
-    if (!webhookUrl) {
-      setAgentMessage({ type: 'error', text: 'URL du webhook n8n non configurée. Ajoutez NEXT_PUBLIC_N8N_WEBHOOK_URL dans .env.local' });
+      setAgentMessage({ type: 'error', text: 'Veuillez décrivez une tâche à effectuer.' });
       return;
     }
 
@@ -417,16 +411,39 @@ function CMSAdminInner() {
     setAgentMessage(null);
 
     try {
-      const res = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          agent: selectedAgent,
-          task: agentTask,
-          repo: agentRepo,
-          branch: agentBranch,
-        }),
-      });
+      let res: Response;
+      
+      if (selectedAgent === 'jules') {
+        // Use Jules API directly
+        res = await fetch('/api/jules', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: agentTask,
+            title: agentTask.slice(0, 50),
+            source: `sources/github/${agentRepo}`,
+          }),
+        });
+      } else {
+        // Use n8n webhook for other agents
+        const webhookUrl = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL;
+        if (!webhookUrl) {
+          setAgentMessage({ type: 'error', text: 'URL du webhook n8n non configurée.' });
+          setSendingTask(false);
+          return;
+        }
+        
+        res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            agent: selectedAgent,
+            task: agentTask,
+            repo: agentRepo,
+            branch: agentBranch,
+          }),
+        });
+      }
 
       if (res.ok) {
         const agentLabels: Record<string, string> = {
@@ -436,7 +453,16 @@ function CMSAdminInner() {
           perplexity: 'Perplexity',
         };
         const label = agentLabels[selectedAgent] || selectedAgent;
-        setAgentMessage({ type: 'success', text: `Tâche envoyée à ${label} avec succès!` });
+        
+        // Get Jules URL if available
+        let responseData: any = {};
+        try { responseData = await res.json(); } catch {}
+        
+        const successMsg = selectedAgent === 'jules' && responseData.url 
+          ? `Tâche envoyée à ${label}! Voir: ${responseData.url}`
+          : `Tâche envoyée à ${label} avec succès!`;
+          
+        setAgentMessage({ type: 'success', text: successMsg });
 
         // Add to history
         const newEntry = {
