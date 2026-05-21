@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -13,7 +15,18 @@ interface InstagramPost {
   prunedCaption: string
 }
 
-const INSTAGRAM_DATA = {
+interface InstagramData {
+  biography: string
+  profilePictureUrl: string
+  followersCount: number
+  posts: InstagramPost[]
+}
+
+interface InstagramFeedProps {
+  data?: InstagramData
+}
+
+const DEFAULT_DATA: InstagramData = {
   biography: 'Explorateurs émerveillés, dénicheurs de pépites, créateurs d\'aventure',
   profilePictureUrl: 'https://cdn2.behold.pictures/krtq4aOLMchlDMKueVu5yuJE1i42/17841475314011094/profile.webp',
   followersCount: 94,
@@ -76,11 +89,12 @@ const INSTAGRAM_DATA = {
       thumbnailUrl: 'https://scontent-sof1-2.cdninstagram.com/v/t51.71878-15/700134682_2429197154209719_1511111923027686534_n.jpg?stp=dst-jpg_e35_tt6',
       prunedCaption: 'Bogotá, on ne t\'avait pas prévu.'
     }
-  ] as InstagramPost[]
+  ]
 }
 
-export default function InstagramFeed() {
-  const { posts, profilePictureUrl, followersCount, biography } = INSTAGRAM_DATA
+export default function InstagramFeed({ data }: InstagramFeedProps) {
+  const instagramData = data || DEFAULT_DATA
+  const { posts, profilePictureUrl, followersCount, biography } = instagramData
 
   return (
     <section className="py-16 bg-stone-50">
