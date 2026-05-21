@@ -17,7 +17,9 @@ export default function InstagramEmbed({ limit = 6, siteSettings }: InstagramEmb
   
   if (siteSettings?.instagramPosts) {
     const customPosts = siteSettings.instagramPosts.split('\n').filter(Boolean).slice(0, limit).map((line, idx) => {
-      const [image, permalink, title] = line.split('|')
+      const [image, permalink, title, status] = line.split('|')
+      // Skip invalid posts
+      if (status?.includes('⚠️')) return null
       return {
         id: `custom-${idx}`,
         title: title?.trim() || '',
@@ -25,7 +27,7 @@ export default function InstagramEmbed({ limit = 6, siteSettings }: InstagramEmb
         permalink: permalink?.trim() || `https://instagram.com/${siteSettings.instagramUsername || INSTAGRAM_PROFILE.username}`,
         image: image?.trim() || ''
       }
-    }).filter(p => p.image)
+    }).filter(Boolean)
     if (customPosts.length > 0) {
       stories = customPosts as typeof INSTAGRAM_STORIES
     }
