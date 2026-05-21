@@ -541,9 +541,11 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 <Link href="/travel-planning" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
                   Prendre rendez-vous →
                 </Link>
+                {/* Hide B2B links temporarily - cf roadmap 2026
                 <Link href="/ai-hotellerie" className="inline-flex items-center gap-2 text-charcoal/80 font-semibold text-sm hover:gap-3 transition-all">
                   Voir les outils →
                 </Link>
+                */}
               </div>
             </div>
             <div className="order-1 md:order-2 grid grid-cols-1 gap-4" data-reveal="right">

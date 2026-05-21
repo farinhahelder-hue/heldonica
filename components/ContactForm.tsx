@@ -105,7 +105,9 @@ export default function ContactForm() {
         >
           <option value="">Choisir un sujet</option>
           <option value="travel-planning">Voyage sur mesure</option>
+          {/* Hide B2B temporarily - cf roadmap 2026 
           <option value="hotel-consulting">Consulting hôtelier</option>
+          */}
           <option value="partnership">Partenariat / média</option>
           <option value="other">Autre</option>
         </select>

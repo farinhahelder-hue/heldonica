@@ -282,25 +282,35 @@ export default function TravelPlanning() {
           </div>
         </section>
 
-        {/* ── TÉMOIGNAGES ── */}
+
+        {/* ── PREUVES DE MÉTHODE ── */}
         <section className="py-20 md:py-24 bg-stone-950 text-white">
           <div className="max-w-5xl mx-auto px-6 md:px-10">
-            <p className="text-amber-400 text-xs font-bold tracking-[0.2em] uppercase mb-3">Témoignages</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-light mb-12">Ce qu&apos;ils en disent</h2>
-            <div className="grid md:grid-cols-3 gap-6">
-              {[
-                { quote: "On cherchait un voyage loin des circuits classiques. Heldonica nous a trouvé des pépites qu’on n’aurait jamais découvertes seuls. Chaque jour était une surprise.", name: 'Marie & Théo', dest: 'Madère · 10 jours' },
-                { quote: "L’itinéraire collait parfaitement à notre rythme — pas trop chargé, pas ennuyeux. Les adresses restaurant étaient toutes excellentes. On recommande les yeux fermés.", name: 'Sophie & Lucas', dest: 'Colombie · 14 jours' },
-                { quote: "Pour nos 10 ans d’anniversaire, on voulait quelque chose d’unique. Heldonica a imaginé un voyage qu’on n’aurait jamais pu concevoir aussi bien tout seuls.", name: 'Claire & Antoine', dest: 'Tanzanie · 12 jours' },
-              ].map((t, i) => (
-                <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-4">
-                  <p className="text-stone-300 text-sm leading-relaxed italic">&ldquo;{t.quote}&rdquo;</p>
-                  <div className="mt-auto">
-                    <p className="text-white font-semibold text-sm">{t.name}</p>
-                    <p className="text-amber-400 text-xs">{t.dest}</p>
-                  </div>
-                </div>
-              ))}
+            <p className="text-amber-400 text-xs font-bold tracking-[0.2em] uppercase mb-3">Nos preuves</p>
+            <h2 className="text-3xl md:text-4xl font-serif font-light mb-8">Ce qu'on a sur le terrain</h2>
+            
+            <div className="grid md:grid-cols-3 gap-6 mb-10">
+              <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+                <p className="text-4xl font-serif text-amber-400 mb-2">10+</p>
+                <p className="text-white font-semibold text-sm">Années de route</p>
+                <p className="text-stone-400 text-xs mt-2">Des voyages en couple, solo, en famille</p>
+              </div>
+              <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+                <p className="text-4xl font-serif text-amber-400 mb-2">200+</p>
+                <p className="text-white font-semibold text-sm">Adresses testées</p>
+                <p className="text-stone-400 text-xs mt-2">Hébergements, restaurants, spots</p>
+              </div>
+              <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+                <p className="text-4xl font-serif text-amber-400 mb-2">8</p>
+                <p className="text-white font-semibold text-sm">Pays vécus</p>
+                <p className="text-stone-400 text-xs mt-2">Madère, Roumanie, France...</p>
+              </div>
+            </div>
+            
+            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+              <p className="text-stone-300 text-sm leading-relaxed">
+                <strong className="text-amber-400">On n'a pas de témoignages.</strong> Pas encore de clientes. Ce qu'on a : des années de route, des centaines d'adresses testées, une méthode qui fonctionne.
+              </p>
             </div>
           </div>
         </section>
