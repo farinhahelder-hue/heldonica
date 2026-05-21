@@ -352,15 +352,46 @@ https://heldonica.com/path|en-US"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-charcoal mb-2">Posts (un par ligne, format: image|url|legende)</label>
+              <label className="block text-sm font-medium text-charcoal mb-2">
+                Posts (un par ligne, format: image|url|legende)
+              </label>
               <Textarea
                 value={settings.instagramPosts || ''}
                 onChange={(e) => handleChange('instagramPosts', e.target.value)}
                 rows={5}
-                placeholder="https://images.unsplash.com/...|https://instagram.com/...|Legende du post"
+                placeholder="https://images.unsplash.com/...|https://instagram.com/p/ABC123|Legende"
                 className="font-mono text-xs"
               />
-              <p className="text-xs text-gray-500 mt-1">Ajoutez vos posts Instagram (image, URL, legende). Un post par ligne.</p>
+              <div className="flex items-center justify-between mt-2">
+                <p className="text-xs text-gray-500">
+                  Ajoutez vos posts Instagram (image URL, permalien, légende)
+                </p>
+                {typeof window !== 'undefined' && (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const lines = (settings.instagramPosts || '').split('\n').filter(Boolean)
+                      const validated = await Promise.all(
+                        lines.map(async (line) => {
+                          const [, url] = line.split('|')
+                          if (!url?.includes('instagram.com')) return line + '|⚠️URL invalide'
+                          try {
+                            const res = await fetch(`https://api.instagram.com/oembed/?url=${url.trim()}`)
+                            if (res.ok) return line + '|✅OK'
+                            return line + '|⚠️Post introuvable'
+                          } catch {
+                            return line + '|⚠️Erreur'
+                          }
+                        })
+                      )
+                      handleChange('instagramPosts', validated.join('\n'))
+                    }}
+                    className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                  >
+                    ✅ Valider URLs
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
