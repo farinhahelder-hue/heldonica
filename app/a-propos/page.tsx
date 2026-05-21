@@ -36,7 +36,8 @@ export const metadata: Metadata = {
   },
 }
 
-export const dynamic = 'force-dynamic'
+// ⚡ Bolt: Enable ISR: Cache the a-propos page to optimize TTFB and reduce database load while keeping settings fresh
+export const revalidate = 60
 
 export default async function AProposPage() {
   const heroSettings = await getSettings(
