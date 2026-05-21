@@ -52,27 +52,45 @@ async function handler(req: NextRequest) {
 
     console.log(`[CRON] Found ${articles.length} articles to publish:`, articles.map(a => a.slug).join(', '));
 
+    // Publish each article (only those that passed validation)
+    let published = 0;
+    const publishErrors: { id: string, error: string }[] = [];
+
     // Validate BEFORE publishing - skip if validation fails
-    const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-    const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-    
+    const validArticles = [];
+
     if (!SUPABASE_URL || !SUPABASE_KEY) {
       console.error('[CRON] Missing Supabase config - skipping validation');
+      validArticles.push(...articles);
     } else {
-      for (const article of articles) {
-        try {
-          // Fetch full article for validation
-          const fetchRes = await fetch(
-            `${SUPABASE_URL}/rest/v1/cms_blog_posts?id=eq.${article.id}`,
-            {
-              headers: {
-                'apikey': SUPABASE_KEY,
-                'Authorization': `Bearer ${SUPABASE_KEY}`,
-              },
-            }
-          );
-          const [post] = await fetchRes.json();
+      try {
+        const ids = articles.map((a: any) => a.id).join(',');
+        const fetchRes = await fetch(
+          `${SUPABASE_URL}/rest/v1/cms_blog_posts?id=in.(${ids})`,
+          {
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`,
+            },
+          }
+        );
+        const posts = await fetchRes.json();
+
+        // Map posts by id for quick lookup
+        const postMap = new Map();
+        for (const post of posts) {
+          postMap.set(post.id, post);
+        }
+
+        for (const article of articles) {
+          const post = postMap.get(article.id);
           
+          if (!post) {
+             console.error(`[CRON] Validation failed for ${article.slug}: article not found in DB`);
+             publishErrors.push({ id: article.id, error: 'Validation failed: article not found in DB' });
+             continue;
+          }
+
           // Basic validation checks
           const issues: string[] = [];
           if (!post.featured_image) issues.push('no image');
@@ -85,61 +103,64 @@ async function handler(req: NextRequest) {
             publishErrors.push({ id: article.id, error: 'Validation failed: ' + issues.join(', ') });
             continue; // Skip publishing this article
           }
-        } catch (e: any) {
-          console.error(`[CRON] Validation error for ${article.slug}:`, e.message);
-        }
-      }
-    }
 
-    // Publish each article (only those that passed validation)
-    let published = 0;
-    const publishErrors = [];
-
-    for (const article of articles) {
-      try {
-        const updateRes = await fetch(
-          `${SUPABASE_URL}/rest/v1/cms_blog_posts?id=eq.${article.id}`,
-          {
-            method: 'PATCH',
-            headers: {
-              'apikey': SUPABASE_KEY,
-              'Authorization': `Bearer ${SUPABASE_KEY}`,
-              'Content-Type': 'application/json',
-              'Prefer': 'return=minimal',
-            },
-            body: JSON.stringify({
-              published: true,
-              published_at: now,
-              scheduled_published_at: null,
-            }),
-          }
-        );
-
-        if (updateRes.ok) {
-          published++;
-          console.log(`[CRON] Successfully published: ${article.slug}`);
-          
-          // Notify via webhook (optional: n8n, Slack, etc.)
-          if (process.env.CMS_WEBHOOK_URL) {
-            fetch(process.env.CMS_WEBHOOK_URL, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                event: 'article.published',
-                article: { id: article.id, title: article.title, slug: article.slug }
-              })
-            }).catch(() => {/* ignore webhook errors */});
-          }
-        } else {
-          const err = await updateRes.text();
-          console.error(`[CRON] Failed to publish ${article.slug}:`, err);
-          publishErrors.push({ id: article.id, error: err });
+          validArticles.push(article);
         }
       } catch (e: any) {
-        console.error(`[CRON] Exception publishing ${article.slug}:`, e.message);
-        publishErrors.push({ id: article.id, error: e.message });
+        console.error(`[CRON] Validation batch fetch error:`, e.message);
+        // Fallback to trying to publish all if validation fetch fails, preserving original broken behavior
+        // to not block publish when validation is down, but realistically this shouldn't happen.
+        validArticles.push(...articles);
       }
     }
+
+    await Promise.all(
+      validArticles.map(async (article) => {
+        try {
+          const updateRes = await fetch(
+            `${SUPABASE_URL}/rest/v1/cms_blog_posts?id=eq.${article.id}`,
+            {
+              method: 'PATCH',
+              headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=minimal',
+              },
+              body: JSON.stringify({
+                published: true,
+                published_at: now,
+                scheduled_published_at: null,
+              }),
+            }
+          );
+
+          if (updateRes.ok) {
+            published++;
+            console.log(`[CRON] Successfully published: ${article.slug}`);
+
+            // Notify via webhook (optional: n8n, Slack, etc.)
+            if (process.env.CMS_WEBHOOK_URL) {
+              fetch(process.env.CMS_WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  event: 'article.published',
+                  article: { id: article.id, title: article.title, slug: article.slug }
+                })
+              }).catch(() => {/* ignore webhook errors */});
+            }
+          } else {
+            const err = await updateRes.text();
+            console.error(`[CRON] Failed to publish ${article.slug}:`, err);
+            publishErrors.push({ id: article.id, error: err });
+          }
+        } catch (e: any) {
+          console.error(`[CRON] Exception publishing ${article.slug}:`, e.message);
+          publishErrors.push({ id: article.id, error: e.message });
+        }
+      })
+    );
 
     return NextResponse.json({ 
       message: `Published ${published}/${articles.length} article(s)`, 
