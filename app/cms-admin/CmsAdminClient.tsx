@@ -1000,9 +1000,8 @@ function CMSAdminInner() {
     const lines = text.split('\n').filter(l => l.trim());
     if (lines.length < 2) { showToast('Fichier CSV invalide'); return; }
     const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-    let imported = 0;
-    for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
+    const promises = lines.slice(1).map(async (line) => {
+      const values = line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
       const articleData: Record<string, string> = {};
       headers.forEach((h, idx) => { articleData[h] = values[idx] || ''; });
       try {
@@ -1018,9 +1017,14 @@ function CMSAdminInner() {
             published: articleData.published === 'yes',
           }),
         });
-        imported++;
-      } catch { /* skip bad rows */ }
-    }
+        return 1;
+      } catch {
+        return 0; // skip bad rows
+      }
+    });
+
+    const results = await Promise.all(promises);
+    const imported = results.reduce((acc, val) => acc + val, 0);
     showToast(`📤 ${imported} article(s) importé(s)`);
     loadArticles();
     e.target.value = '';
