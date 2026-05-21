@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 CMS Heldonica - Gestion Complète du Site</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #8B4513 0%, #6B3410 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .navbar p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+            overflow-x: auto;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: #8B4513;
+        }
+
+        .tab-btn.active {
+            color: #8B4513;
+            border-bottom-color: #8B4513;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        input[type="color"],
+        input[type="file"],
+        input[type="url"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        input[type="color"] {
+            width: 60px;
+            height: 40px;
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #8B4513;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #6B3410;
+        }
+
+        .btn-secondary {
+            background: #2D5016;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #1D3010;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .list-item {
+            padding: 15px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .list-item:hover {
+            background: #f0f0f0;
+            border-color: #8B4513;
+        }
+
+        .list-item.active {
+            background: #f0e6dc;
+            border-color: #8B4513;
+        }
+
+        .preview {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+
+        .preview img,
+        .preview video {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+        }
+
+        .color-preview {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            border: 2px solid #ddd;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        @media (max-width: 768px) {
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>🎨 CMS Heldonica</h1>
+        <p>Gestion complète de votre site - Modifiez tout en temps réel</p>
+    </div>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('site-settings')">⚙️ Paramètres Site</button>
+            <button class="tab-btn" onclick="switchTab('hero')">🎬 Hero Section</button>
+            <button class="tab-btn" onclick="switchTab('pages')">📄 Pages</button>
+            <button class="tab-btn" onclick="switchTab('sections')">📦 Sections</button>
+            <button class="tab-btn" onclick="switchTab('blog')">📝 Blog</button>
+            <button class="tab-btn" onclick="switchTab('destinations')">🗺️ Destinations</button>
+            <button class="tab-btn" onclick="switchTab('media')">🖼️ Médias</button>
+            <button class="tab-btn" onclick="switchTab('export')">💾 Export/Import</button>
+        </div>
+
+        <!-- Site Settings Tab -->
+        <div id="site-settings" class="tab-content active">
+            <h2>⚙️ Paramètres du Site</h2>
+            <form onsubmit="saveSiteSettings(event)">
+                <div class="two-col">
+                    <div>
+                        <h3>Branding</h3>
+                        <div class="form-group">
+                            <label>Logo (URL)</label>
+                            <input type="url" id="siteLogo" placeholder="https://...">
+                        </div>
+                        <div class="form-group">
+                            <label>Titre du Site</label>
+                            <input type="text" id="siteTitle" value="Heldonica">
+                        </div>
+                        <div class="form-group">
+                            <label>Tagline</label>
+                            <input type="text" id="siteTagline" placeholder="Expert en slow travel et consulting hôtelier">
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="siteDescription"></textarea>
+                        </div>
+                    </div>
+                    <div>
+                        <h3>Couleurs</h3>
+                        <div class="form-group">
+                            <label>Couleur Primaire (Marron)</label>
+                            <input type="color" id="primaryColor" value="#8B4513">
+                            <span class="color-preview" id="primaryPreview" style="background: #8B4513;"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Couleur Secondaire (Vert)</label>
+                            <input type="color" id="secondaryColor" value="#2D5016">
+                            <span class="color-preview" id="secondaryPreview" style="background: #2D5016;"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Couleur d'Accent</label>
+                            <input type="color" id="accentColor" value="#D4A574">
+                            <span class="color-preview" id="accentPreview" style="background: #D4A574;"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Email de Contact</label>
+                            <input type="email" id="contactEmail">
+                        </div>
+                        <div class="form-group">
+                            <label>Téléphone</label>
+                            <input type="text" id="contactPhone">
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">💾 Sauvegarder Paramètres</button>
+            </form>
+        </div>
+
+        <!-- Hero Section Tab -->
+        <div id="hero" class="tab-content">
+            <h2>🎬 Hero Section</h2>
+            <form onsubmit="saveHeroSection(event)">
+                <div class="two-col">
+                    <div>
+                        <h3>Contenu Hero</h3>
+                        <div class="form-group">
+                            <label>Titre Principal</label>
+                            <input type="text" id="heroTitle" placeholder="Découvrez le slow travel">
+                        </div>
+                        <div class="form-group">
+                            <label>Sous-titre</label>
+                            <textarea id="heroSubtitle" placeholder="Des voyages authentiques, conçus pour vous"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Texte Bouton CTA</label>
+                            <input type="text" id="heroCtaText" placeholder="Planifier mon voyage">
+                        </div>
+                        <div class="form-group">
+                            <label>Lien Bouton CTA</label>
+                            <input type="url" id="heroCtaLink" placeholder="/travel-planning-form">
+                        </div>
+                    </div>
+                    <div>
+                        <h3>Média Hero</h3>
+                        <div class="form-group">
+                            <label>Type de Média</label>
+                            <select id="heroMediaType" onchange="toggleHeroMediaType()">
+                                <option value="video">Vidéo</option>
+                                <option value="image">Image</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="videoUrlGroup">
+                            <label>URL Vidéo</label>
+                            <input type="url" id="heroVideoUrl" placeholder="https://d2xsxph8kpxj0f.cloudfront.net/...">
+                            <small>Vidéo actuelle: https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4</small>
+                        </div>
+                        <div class="form-group" id="imageUrlGroup" style="display: none;">
+                            <label>URL Image</label>
+                            <input type="url" id="heroImageUrl" placeholder="https://...">
+                        </div>
+                        <div class="form-group">
+                            <label>Overlay Opacity (0-1)</label>
+                            <input type="number" id="heroOverlay" min="0" max="1" step="0.1" value="0.4">
+                        </div>
+                    </div>
+                </div>
+                <div class="preview" id="heroPreview">
+                    <h4>Aperçu Hero</h4>
+                    <video id="heroVideoPreview" style="width: 100%; height: 400px; object-fit: cover; border-radius: 6px; display: none;"></video>
+                    <img id="heroImagePreview" style="width: 100%; height: 400px; object-fit: cover; border-radius: 6px; display: none;">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">💾 Sauvegarder Hero</button>
+            </form>
+        </div>
+
+        <!-- Pages Tab -->
+        <div id="pages" class="tab-content">
+            <h2>📄 Gestion des Pages</h2>
+            <div class="two-col">
+                <div>
+                    <h3>Pages</h3>
+                    <div id="pagesList"></div>
+                    <button class="btn btn-secondary" onclick="addNewPage()" style="width: 100%; margin-top: 10px;">+ Nouvelle Page</button>
+                </div>
+                <div>
+                    <h3>Éditer Page</h3>
+                    <form id="pageForm" onsubmit="savePage(event)">
+                        <div class="form-group">
+                            <label>Titre</label>
+                            <input type="text" id="pageTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label>URL Slug</label>
+                            <input type="text" id="pageSlug" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Contenu</label>
+                            <textarea id="pageContent"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">💾 Sauvegarder Page</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sections Tab -->
+        <div id="sections" class="tab-content">
+            <h2>📦 Sections du Site</h2>
+            <div class="two-col">
+                <div>
+                    <h3>Sections</h3>
+                    <div id="sectionsList"></div>
+                    <button class="btn btn-secondary" onclick="addNewSection()" style="width: 100%; margin-top: 10px;">+ Nouvelle Section</button>
+                </div>
+                <div>
+                    <h3>Éditer Section</h3>
+                    <form id="sectionForm" onsubmit="saveSection(event)">
+                        <div class="form-group">
+                            <label>Titre Section</label>
+                            <input type="text" id="sectionTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select id="sectionType">
+                                <option value="text">Texte</option>
+                                <option value="image">Image</option>
+                                <option value="video">Vidéo</option>
+                                <option value="gallery">Galerie</option>
+                                <option value="testimonial">Témoignage</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Contenu</label>
+                            <textarea id="sectionContent"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Image/Vidéo URL</label>
+                            <input type="url" id="sectionMedia">
+                        </div>
+                        <button type="submit" class="btn btn-primary">💾 Sauvegarder Section</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Blog Tab -->
+        <div id="blog" class="tab-content">
+            <h2>📝 Blog</h2>
+            <div class="two-col">
+                <div>
+                    <h3>Articles</h3>
+                    <div id="blogList"></div>
+                    <button class="btn btn-secondary" onclick="addNewBlogPost()" style="width: 100%; margin-top: 10px;">+ Nouvel Article</button>
+                </div>
+                <div>
+                    <h3>Éditer Article</h3>
+                    <form id="blogForm" onsubmit="saveBlogPost(event)">
+                        <div class="form-group">
+                            <label>Titre</label>
+                            <input type="text" id="blogTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Catégorie</label>
+                            <select id="blogCategory">
+                                <option value="Travel">Travel</option>
+                                <option value="Culture">Culture</option>
+                                <option value="Destination">Destination</option>
+                                <option value="Tips">Tips</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Contenu</label>
+                            <textarea id="blogContent"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Image</label>
+                            <input type="url" id="blogImage">
+                        </div>
+                        <button type="submit" class="btn btn-primary">💾 Sauvegarder Article</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Destinations Tab -->
+        <div id="destinations" class="tab-content">
+            <h2>🗺️ Destinations</h2>
+            <div class="two-col">
+                <div>
+                    <h3>Destinations</h3>
+                    <div id="destinationsList"></div>
+                    <button class="btn btn-secondary" onclick="addNewDestination()" style="width: 100%; margin-top: 10px;">+ Nouvelle Destination</button>
+                </div>
+                <div>
+                    <h3>Éditer Destination</h3>
+                    <form id="destinationForm" onsubmit="saveDestination(event)">
+                        <div class="form-group">
+                            <label>Nom</label>
+                            <input type="text" id="destName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Pays/Région</label>
+                            <input type="text" id="destCountry" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="destDescription"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Image</label>
+                            <input type="url" id="destImage">
+                        </div>
+                        <button type="submit" class="btn btn-primary">💾 Sauvegarder Destination</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Media Tab -->
+        <div id="media" class="tab-content">
+            <h2>🖼️ Galerie Médias</h2>
+            <div class="form-group">
+                <label>Ajouter une Image/Vidéo</label>
+                <input type="file" id="mediaFile" accept="image/*,video/*">
+                <small>Les fichiers seront uploadés sur le CDN</small>
+            </div>
+            <div id="mediaGallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;"></div>
+        </div>
+
+        <!-- Export/Import Tab -->
+        <div id="export" class="tab-content">
+            <h2>💾 Export / Import</h2>
+            <div class="two-col">
+                <div>
+                    <h3>Exporter les Données</h3>
+                    <p>Téléchargez toutes vos données en JSON</p>
+                    <button class="btn btn-primary" onclick="exportData()" style="width: 100%; margin-top: 10px;">📥 Télécharger JSON</button>
+                </div>
+                <div>
+                    <h3>Importer les Données</h3>
+                    <p>Restaurez vos données depuis un fichier JSON</p>
+                    <input type="file" id="importFile" accept=".json">
+                    <button class="btn btn-secondary" onclick="importData()" style="width: 100%; margin-top: 10px;">📤 Importer JSON</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== DATA STRUCTURE =====
+        let cmsData = {
+            site: {
+                logo: '',
+                title: 'Heldonica',
+                tagline: 'Expert en slow travel et consulting hôtelier',
+                description: '',
+                primaryColor: '#8B4513',
+                secondaryColor: '#2D5016',
+                accentColor: '#D4A574',
+                contactEmail: '',
+                contactPhone: ''
+            },
+            hero: {
+                title: 'Découvrez le slow travel',
+                subtitle: 'Des voyages authentiques, conçus pour vous',
+                ctaText: 'Planifier mon voyage',
+                ctaLink: '/travel-planning-form',
+                mediaType: 'video',
+                videoUrl: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4',
+                imageUrl: '',
+                overlay: 0.4
+            },
+            pages: [],
+            sections: [],
+            blog: [],
+            destinations: [],
+            media: []
+        };
+
+        let currentPageId = null;
+        let currentSectionId = null;
+        let currentBlogId = null;
+        let currentDestinationId = null;
+
+        // ===== LOAD/SAVE DATA =====
+        function loadData() {
+            const saved = localStorage.getItem('heldonicaCMS');
+            if (saved) {
+                cmsData = JSON.parse(saved);
+            }
+            renderAll();
+        }
+
+        function saveData() {
+            localStorage.setItem('heldonicaCMS', JSON.stringify(cmsData));
+        }
+
+        // ===== TAB SWITCHING =====
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // ===== SITE SETTINGS =====
+        function saveSiteSettings(e) {
+            e.preventDefault();
+            cmsData.site.logo = document.getElementById('siteLogo').value;
+            cmsData.site.title = document.getElementById('siteTitle').value;
+            cmsData.site.tagline = document.getElementById('siteTagline').value;
+            cmsData.site.description = document.getElementById('siteDescription').value;
+            cmsData.site.primaryColor = document.getElementById('primaryColor').value;
+            cmsData.site.secondaryColor = document.getElementById('secondaryColor').value;
+            cmsData.site.accentColor = document.getElementById('accentColor').value;
+            cmsData.site.contactEmail = document.getElementById('contactEmail').value;
+            cmsData.site.contactPhone = document.getElementById('contactPhone').value;
+
+            // Update color previews
+            document.getElementById('primaryPreview').style.background = cmsData.site.primaryColor;
+            document.getElementById('secondaryPreview').style.background = cmsData.site.secondaryColor;
+            document.getElementById('accentPreview').style.background = cmsData.site.accentColor;
+
+            saveData();
+            alert('✅ Paramètres sauvegardés !');
+        }
+
+        // ===== HERO SECTION =====
+        function toggleHeroMediaType() {
+            const type = document.getElementById('heroMediaType').value;
+            document.getElementById('videoUrlGroup').style.display = type === 'video' ? 'block' : 'none';
+            document.getElementById('imageUrlGroup').style.display = type === 'image' ? 'block' : 'none';
+        }
+
+        function saveHeroSection(e) {
+            e.preventDefault();
+            cmsData.hero.title = document.getElementById('heroTitle').value;
+            cmsData.hero.subtitle = document.getElementById('heroSubtitle').value;
+            cmsData.hero.ctaText = document.getElementById('heroCtaText').value;
+            cmsData.hero.ctaLink = document.getElementById('heroCtaLink').value;
+            cmsData.hero.mediaType = document.getElementById('heroMediaType').value;
+            cmsData.hero.videoUrl = document.getElementById('heroVideoUrl').value;
+            cmsData.hero.imageUrl = document.getElementById('heroImageUrl').value;
+            cmsData.hero.overlay = parseFloat(document.getElementById('heroOverlay').value);
+
+            // Update preview
+            if (cmsData.hero.mediaType === 'video') {
+                document.getElementById('heroVideoPreview').src = cmsData.hero.videoUrl;
+                document.getElementById('heroVideoPreview').style.display = 'block';
+                document.getElementById('heroImagePreview').style.display = 'none';
+            } else {
+                document.getElementById('heroImagePreview').src = cmsData.hero.imageUrl;
+                document.getElementById('heroImagePreview').style.display = 'block';
+                document.getElementById('heroVideoPreview').style.display = 'none';
+            }
+
+            saveData();
+            alert('✅ Hero section sauvegardée !');
+        }
+
+        // ===== PAGES =====
+        function renderPagesList() {
+            const list = document.getElementById('pagesList');
+            list.innerHTML = cmsData.pages.map(page => `
+                <div class="list-item ${currentPageId === page.id ? 'active' : ''}" onclick="selectPage('${page.id}')">
+                    <div>
+                        <strong>${page.title}</strong>
+                        <br><small style="color: #666;">/${page.slug}</small>
+                    </div>
+                    <button class="btn btn-danger btn-small" onclick="deletePage('${page.id}'); event.stopPropagation();">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function selectPage(id) {
+            currentPageId = id;
+            const page = cmsData.pages.find(p => p.id === id);
+            if (page) {
+                document.getElementById('pageTitle').value = page.title;
+                document.getElementById('pageSlug').value = page.slug;
+                document.getElementById('pageContent').value = page.content;
+            }
+            renderPagesList();
+        }
+
+        function addNewPage() {
+            const newPage = {
+                id: 'page-' + Date.now(),
+                title: 'Nouvelle page',
+                slug: 'nouvelle-page',
+                content: ''
+            };
+            cmsData.pages.push(newPage);
+            selectPage(newPage.id);
+            saveData();
+        }
+
+        function savePage(e) {
+            e.preventDefault();
+            if (!currentPageId) return;
+            const page = cmsData.pages.find(p => p.id === currentPageId);
+            if (page) {
+                page.title = document.getElementById('pageTitle').value;
+                page.slug = document.getElementById('pageSlug').value;
+                page.content = document.getElementById('pageContent').value;
+                saveData();
+                renderPagesList();
+                alert('✅ Page sauvegardée !');
+            }
+        }
+
+        function deletePage(id) {
+            if (confirm('Êtes-vous sûr ?')) {
+                cmsData.pages = cmsData.pages.filter(p => p.id !== id);
+                currentPageId = null;
+                document.getElementById('pageForm').reset();
+                saveData();
+                renderPagesList();
+            }
+        }
+
+        // ===== SECTIONS =====
+        function renderSectionsList() {
+            const list = document.getElementById('sectionsList');
+            list.innerHTML = cmsData.sections.map(section => `
+                <div class="list-item ${currentSectionId === section.id ? 'active' : ''}" onclick="selectSection('${section.id}')">
+                    <div>
+                        <strong>${section.title}</strong>
+                        <br><small style="color: #666;">${section.type}</small>
+                    </div>
+                    <button class="btn btn-danger btn-small" onclick="deleteSection('${section.id}'); event.stopPropagation();">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function selectSection(id) {
+            currentSectionId = id;
+            const section = cmsData.sections.find(s => s.id === id);
+            if (section) {
+                document.getElementById('sectionTitle').value = section.title;
+                document.getElementById('sectionType').value = section.type;
+                document.getElementById('sectionContent').value = section.content;
+                document.getElementById('sectionMedia').value = section.media;
+            }
+            renderSectionsList();
+        }
+
+        function addNewSection() {
+            const newSection = {
+                id: 'section-' + Date.now(),
+                title: 'Nouvelle section',
+                type: 'text',
+                content: '',
+                media: ''
+            };
+            cmsData.sections.push(newSection);
+            selectSection(newSection.id);
+            saveData();
+        }
+
+        function saveSection(e) {
+            e.preventDefault();
+            if (!currentSectionId) return;
+            const section = cmsData.sections.find(s => s.id === currentSectionId);
+            if (section) {
+                section.title = document.getElementById('sectionTitle').value;
+                section.type = document.getElementById('sectionType').value;
+                section.content = document.getElementById('sectionContent').value;
+                section.media = document.getElementById('sectionMedia').value;
+                saveData();
+                renderSectionsList();
+                alert('✅ Section sauvegardée !');
+            }
+        }
+
+        function deleteSection(id) {
+            if (confirm('Êtes-vous sûr ?')) {
+                cmsData.sections = cmsData.sections.filter(s => s.id !== id);
+                currentSectionId = null;
+                document.getElementById('sectionForm').reset();
+                saveData();
+                renderSectionsList();
+            }
+        }
+
+        // ===== BLOG =====
+        function renderBlogList() {
+            const list = document.getElementById('blogList');
+            list.innerHTML = cmsData.blog.map(post => `
+                <div class="list-item ${currentBlogId === post.id ? 'active' : ''}" onclick="selectBlogPost('${post.id}')">
+                    <div>
+                        <strong>${post.title}</strong>
+                        <br><small style="color: #666;">${post.category}</small>
+                    </div>
+                    <button class="btn btn-danger btn-small" onclick="deleteBlogPost('${post.id}'); event.stopPropagation();">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function selectBlogPost(id) {
+            currentBlogId = id;
+            const post = cmsData.blog.find(p => p.id === id);
+            if (post) {
+                document.getElementById('blogTitle').value = post.title;
+                document.getElementById('blogCategory').value = post.category;
+                document.getElementById('blogContent').value = post.content;
+                document.getElementById('blogImage').value = post.image;
+            }
+            renderBlogList();
+        }
+
+        function addNewBlogPost() {
+            const newPost = {
+                id: 'blog-' + Date.now(),
+                title: 'Nouvel article',
+                category: 'Travel',
+                content: '',
+                image: ''
+            };
+            cmsData.blog.push(newPost);
+            selectBlogPost(newPost.id);
+            saveData();
+        }
+
+        function saveBlogPost(e) {
+            e.preventDefault();
+            if (!currentBlogId) return;
+            const post = cmsData.blog.find(p => p.id === currentBlogId);
+            if (post) {
+                post.title = document.getElementById('blogTitle').value;
+                post.category = document.getElementById('blogCategory').value;
+                post.content = document.getElementById('blogContent').value;
+                post.image = document.getElementById('blogImage').value;
+                saveData();
+                renderBlogList();
+                alert('✅ Article sauvegardé !');
+            }
+        }
+
+        function deleteBlogPost(id) {
+            if (confirm('Êtes-vous sûr ?')) {
+                cmsData.blog = cmsData.blog.filter(p => p.id !== id);
+                currentBlogId = null;
+                document.getElementById('blogForm').reset();
+                saveData();
+                renderBlogList();
+            }
+        }
+
+        // ===== DESTINATIONS =====
+        function renderDestinationsList() {
+            const list = document.getElementById('destinationsList');
+            list.innerHTML = cmsData.destinations.map(dest => `
+                <div class="list-item ${currentDestinationId === dest.id ? 'active' : ''}" onclick="selectDestination('${dest.id}')">
+                    <div>
+                        <strong>${dest.name}</strong>
+                        <br><small style="color: #666;">${dest.country}</small>
+                    </div>
+                    <button class="btn btn-danger btn-small" onclick="deleteDestination('${dest.id}'); event.stopPropagation();">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function selectDestination(id) {
+            currentDestinationId = id;
+            const dest = cmsData.destinations.find(d => d.id === id);
+            if (dest) {
+                document.getElementById('destName').value = dest.name;
+                document.getElementById('destCountry').value = dest.country;
+                document.getElementById('destDescription').value = dest.description;
+                document.getElementById('destImage').value = dest.image;
+            }
+            renderDestinationsList();
+        }
+
+        function addNewDestination() {
+            const newDest = {
+                id: 'dest-' + Date.now(),
+                name: 'Nouvelle destination',
+                country: '',
+                description: '',
+                image: ''
+            };
+            cmsData.destinations.push(newDest);
+            selectDestination(newDest.id);
+            saveData();
+        }
+
+        function saveDestination(e) {
+            e.preventDefault();
+            if (!currentDestinationId) return;
+            const dest = cmsData.destinations.find(d => d.id === currentDestinationId);
+            if (dest) {
+                dest.name = document.getElementById('destName').value;
+                dest.country = document.getElementById('destCountry').value;
+                dest.description = document.getElementById('destDescription').value;
+                dest.image = document.getElementById('destImage').value;
+                saveData();
+                renderDestinationsList();
+                alert('✅ Destination sauvegardée !');
+            }
+        }
+
+        function deleteDestination(id) {
+            if (confirm('Êtes-vous sûr ?')) {
+                cmsData.destinations = cmsData.destinations.filter(d => d.id !== id);
+                currentDestinationId = null;
+                document.getElementById('destinationForm').reset();
+                saveData();
+                renderDestinationsList();
+            }
+        }
+
+        // ===== EXPORT/IMPORT =====
+        function exportData() {
+            const dataStr = JSON.stringify(cmsData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `heldonica-cms-backup-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+        }
+
+        function importData() {
+            const file = document.getElementById('importFile').files[0];
+            if (!file) {
+                alert('Sélectionnez un fichier JSON');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    cmsData = imported;
+                    saveData();
+                    renderAll();
+                    alert('✅ Données importées avec succès !');
+                } catch (err) {
+                    alert('❌ Erreur lors de l\'import du fichier');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // ===== RENDER ALL =====
+        function renderAll() {
+            renderPagesList();
+            renderSectionsList();
+            renderBlogList();
+            renderDestinationsList();
+
+            // Load site settings
+            document.getElementById('siteLogo').value = cmsData.site.logo;
+            document.getElementById('siteTitle').value = cmsData.site.title;
+            document.getElementById('siteTagline').value = cmsData.site.tagline;
+            document.getElementById('siteDescription').value = cmsData.site.description;
+            document.getElementById('primaryColor').value = cmsData.site.primaryColor;
+            document.getElementById('secondaryColor').value = cmsData.site.secondaryColor;
+            document.getElementById('accentColor').value = cmsData.site.accentColor;
+            document.getElementById('contactEmail').value = cmsData.site.contactEmail;
+            document.getElementById('contactPhone').value = cmsData.site.contactPhone;
+
+            // Load hero settings
+            document.getElementById('heroTitle').value = cmsData.hero.title;
+            document.getElementById('heroSubtitle').value = cmsData.hero.subtitle;
+            document.getElementById('heroCtaText').value = cmsData.hero.ctaText;
+            document.getElementById('heroCtaLink').value = cmsData.hero.ctaLink;
+            document.getElementById('heroMediaType').value = cmsData.hero.mediaType;
+            document.getElementById('heroVideoUrl').value = cmsData.hero.videoUrl;
+            document.getElementById('heroImageUrl').value = cmsData.hero.imageUrl;
+            document.getElementById('heroOverlay').value = cmsData.hero.overlay;
+
+            // Update color previews
+            document.getElementById('primaryPreview').style.background = cmsData.site.primaryColor;
+            document.getElementById('secondaryPreview').style.background = cmsData.site.secondaryColor;
+            document.getElementById('accentPreview').style.background = cmsData.site.accentColor;
+
+            // Update hero preview
+            if (cmsData.hero.mediaType === 'video') {
+                document.getElementById('heroVideoPreview').src = cmsData.hero.videoUrl;
+                document.getElementById('heroVideoPreview').style.display = 'block';
+                document.getElementById('heroImagePreview').style.display = 'none';
+            } else {
+                document.getElementById('heroImagePreview').src = cmsData.hero.imageUrl;
+                document.getElementById('heroImagePreview').style.display = 'block';
+                document.getElementById('heroVideoPreview').style.display = 'none';
+            }
+        }
+
+        // ===== INIT =====
+        window.addEventListener('DOMContentLoaded', () => {
+            loadData();
+        });
+    </script>
+</body>
+</html>

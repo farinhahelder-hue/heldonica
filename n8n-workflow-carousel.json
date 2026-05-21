@@ -1,0 +1,119 @@
+{
+  "name": "Instagram Carousel Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": "every monday at 9am"
+      },
+      "id": "schedule",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.unsplash.com/search/photos",
+        "authentication": "genericCredentialType",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Client-ID VKxcQvLNtFlLcgTxXW5YjnsQng4mu-WyIjyNHvLYsWA"
+            }
+          ]
+        },
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ $json.topic }}"
+            },
+            {
+              "name": "per_page",
+              "value": 5
+            }
+          ]
+        }
+      },
+      "id": "unsplash",
+      "name": "Search Unsplash",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [300, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "gpt-4"
+            },
+            {
+              "name": "messages",
+              "value": [
+                {
+                  "role": "system",
+                  "content": "Tu génères des carrousels Instagram 5 slides. Format JSON."
+                },
+                {
+                  "role": "user",
+                  "content": "Génère un carrousel 5 slides sur: {{ $json.topic }}"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "id": "groq",
+      "name": "Generate Content (Groq)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [300, 450]
+    },
+    {
+      "parameters": {
+        "url": "https://api.buffer.com/1/updates/create.json",
+        "authentication": "genericCredentialType",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $json.caption }}"
+            },
+            {
+              "name": "profile_ids",
+              "value": ["{{ $json.profile_id }}"]
+            },
+            {
+              "name": "media",
+              "value": "={{ $json.images }}"
+            }
+          ]
+        }
+      },
+      "id": "buffer",
+      "name": "Post to Buffer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [500, 300]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [[{"node": "Search Unsplash", "type": "main"}]]
+    },
+    "Search Unsplash": {
+      "main": [[{"node": "Generate Content (Groq)", "type": "main"}]]
+    },
+    "Generate Content (Groq)": {
+      "main": [[{"node": "Post to Buffer", "type": "main"}]]
+    }
+  }
+}
