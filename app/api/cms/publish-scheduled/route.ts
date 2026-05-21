@@ -24,7 +24,7 @@ async function handler(req: NextRequest) {
 
   try {
     const now = new Date().toISOString();
-    console.log(`[CRON] Checking scheduled articles to publish at ${now}`);
+    console.info(JSON.stringify({ level: 'info', context: 'CRON', message: `Checking scheduled articles to publish at ${now}` }));
 
     // Find articles that should be published (scheduled_published_at <= now but not yet published)
     const res = await fetch(
@@ -46,11 +46,11 @@ async function handler(req: NextRequest) {
     const articles = await res.json();
 
     if (!Array.isArray(articles) || articles.length === 0) {
-      console.log('[CRON] No scheduled articles found');
+      console.info(JSON.stringify({ level: 'info', context: 'CRON', message: 'No scheduled articles found' }));
       return NextResponse.json({ message: 'No scheduled articles to publish', published: 0 });
     }
 
-    console.log(`[CRON] Found ${articles.length} articles to publish:`, articles.map(a => a.slug).join(', '));
+    console.info(JSON.stringify({ level: 'info', context: 'CRON', message: `Found ${articles.length} articles to publish`, slugs: articles.map((a: any) => a.slug).join(', ') }));
 
     // Validate BEFORE publishing - skip if validation fails
     const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -117,7 +117,7 @@ async function handler(req: NextRequest) {
 
         if (updateRes.ok) {
           published++;
-          console.log(`[CRON] Successfully published: ${article.slug}`);
+          console.info(JSON.stringify({ level: 'info', context: 'CRON', message: `Successfully published: ${article.slug}` }));
           
           // Notify via webhook (optional: n8n, Slack, etc.)
           if (process.env.CMS_WEBHOOK_URL) {
