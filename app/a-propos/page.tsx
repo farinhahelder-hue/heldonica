@@ -100,24 +100,44 @@ export default async function AProposPage() {
           <div className="max-w-5xl mx-auto px-6 md:px-10">
             <div className="grid md:grid-cols-5 gap-12 md:gap-20 items-center">
               <div className="md:col-span-3 space-y-5">
-                <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase">Pas vraiment classiques</p>
+                <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase">Ce qu&apos;on croit</p>
                 <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 leading-tight">
-                  On s&apos;est rencontrés sur une appli,
+                  Le slow travel n&apos;est pas une stratégie,
                   <br />
-                  <span className="italic text-stone-500">sans être du même pays.</span>
+                  <span className="italic text-stone-500">c&apos;est une évidence.</span>
                 </h2>
                 <p className="text-base text-stone-600 leading-relaxed">
-                  Et si nos univers diffèrent, c&apos;est précisément là que tout a commencé. L&apos;un vient de Madère, l&apos;autre de Roumanie, et c&apos;est à Paris qu&apos;on s&apos;est trouvés.
+                  <strong>Le voyage le plus précieux n&apos;est pas celui qu&apos;on voit sur Instagram.</strong> C&apos;est celui où tu te perds un peu. Où tu reviens avec une adresse de restaurant que personne dans ton entourage ne connaît. Où tu sais exactement combien de temps il faut marcher pour trouver le meilleur point de vue de la ville.
                 </p>
                 <p className="text-base text-stone-600 leading-relaxed">
-                  Deux trajectoires opposées, une même manie : ralentir, regarder, revenir. On aime les villes à contre-courant, les chemins qui s&apos;écartent, les tables qui sentent vraiment quelque chose.
+                  Quand tu voyages autrement, tu vis autrement. Tu choisis la qualité sur la quantité. Tu reviens moins fatigué qu&apos;avant de partir.
                 </p>
-                <p className="text-base text-stone-600 leading-relaxed">
-                  Ce qu&apos;on partage ici, ce n&apos;est pas une envie de voyage. C&apos;est ce qu&apos;on a vécu. Nos itinéraires, on les a faits. Nos adresses, on les a testées. Et quand on se trompe, on revient jusqu&apos;à comprendre.
+                <p className="text-base text-stone-600 leading-relaxed font-semibold">
+                  On ne vend pas des destinations. On conçoit des expériences.
                 </p>
-                <p className="text-base text-stone-600 leading-relaxed">
-                  Heldonica parle depuis le duo, parce que c&apos;est notre laboratoire et notre filtre. Mais quand on conçoit un voyage, cette même exigence terrain sert aussi les solos, les familles curieuses et les groupes d&apos;amis.
-                </p>
+                <div className="mt-8">
+                  <h3 className="text-xl font-serif font-light text-stone-900 mb-4">Notre méthode en 3 étapes :</h3>
+                  <ul className="space-y-4">
+                    <li className="flex items-start gap-3">
+                      <span className="text-amber-800 font-bold mt-1">1.</span>
+                      <div>
+                        <strong>Discussion — On vous écoute :</strong> On parle de vos désirs, de vos contraintes, de votre rythme. Pas de questionnaire automatique. Un vrai échange.
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-amber-800 font-bold mt-1">2.</span>
+                      <div>
+                        <strong>Conception — On bosse pour vous :</strong> On regarde, on analyse, on déniche. On vous propose un itinéraire qui vous ressemble, pas un copier-coller standard.
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-amber-800 font-bold mt-1">3.</span>
+                      <div>
+                        <strong>Accompagnement — On reste là :</strong> Avant, pendant, après. On ajuste si besoin. On vous donne les infos qui font la différence sur place.
+                      </div>
+                    </li>
+                  </ul>
+                </div>
               </div>
               <div className="md:col-span-2">
                 <div className="relative">
