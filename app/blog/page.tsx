@@ -5,8 +5,9 @@ import Footer from '@/components/Footer'
 import BlogClientPage from '@/components/BlogClientPage'
 import Breadcrumb from '@/components/Breadcrumb'
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+
+// ⚡ Bolt Optimization: Use Incremental Static Regeneration (ISR) to cache the blog index page for 60 seconds. This significantly improves Time To First Byte (TTFB) compared to force-dynamic.
+export const revalidate = 60
 
 function calcReadTime(content: string | null): number {
   if (!content || typeof content !== 'string') return 0
