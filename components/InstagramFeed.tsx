@@ -93,7 +93,8 @@ const DEFAULT_DATA: InstagramData = {
 }
 
 export default function InstagramFeed({ data }: InstagramFeedProps) {
-  const instagramData = data || DEFAULT_DATA
+  // Use provided data only if it has actual posts, otherwise fallback to DEFAULT_DATA
+  const instagramData = (data && data.posts && data.posts.length > 0) ? data : DEFAULT_DATA
   const { posts, profilePictureUrl, followersCount, biography } = instagramData
 
   return (
