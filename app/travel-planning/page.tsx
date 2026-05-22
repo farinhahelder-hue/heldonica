@@ -6,6 +6,16 @@ import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
 import Link from 'next/link'
 
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Combien coûte la conception sur mesure ?", "acceptedAnswer": { "@type": "Answer", "text": "Chaque projet est unique. Le tarif est établi selon la complexité de l'itinéraire. Compte en moyenne entre 150€ et 350€ pour un voyage de 7 à 14 jours." }},
+    { "@type": "Question", "name": "Dans combien de temps reçois-tu ton carnet de route ?", "acceptedAnswer": { "@type": "Answer", "text": "En général sous 7 à 10 jours après ta validation du brief." }},
+    { "@type": "Question", "name": "Qu'est-ce que tu reçois exactement ?", "acceptedAnswer": { "@type": "Answer", "text": "Un carnet de voyage PDF complet: programme jour par jour, carte interactive, hébergements sélectionnés, restaurants, transports, conseils pratiques et contacts locaux." }}
+  ]
+}
+
 const faqs = [
   {
     q: 'Combien coûte la conception sur mesure ?',
@@ -344,6 +354,7 @@ export default function TravelPlanning() {
           </div>
         </section>
 
+      
       </main>
 
       {/* ── CTA MOBILE STICKY ── */}
@@ -359,6 +370,7 @@ export default function TravelPlanning() {
       </div>
 
       <Footer />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
     </>
   )
 }
