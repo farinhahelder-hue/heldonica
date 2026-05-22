@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from 'react';
 import { useEffect, useRef } from 'react';
+import DOMPurify from 'isomorphic-dompurify';
 
 type Props = {
   html: string;
@@ -122,7 +123,12 @@ export default function EnhancedRichContent({ html, className, style }: Props) {
 
   return (
     <>
-      <div ref={rootRef} className={className} style={style} dangerouslySetInnerHTML={{ __html: html }} />
+      <div
+        ref={rootRef}
+        className={className}
+        style={style}
+        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html) }}
+      />
       <style>{`
         .heldonica-carousel {
           margin: 2rem 0;

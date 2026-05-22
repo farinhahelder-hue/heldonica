@@ -21,6 +21,7 @@
     "file-saver": "^2.0.5",
     "gcp-metadata": "^7.0.1",
     "google-auth-library": "^10.6.2",
+    "isomorphic-dompurify": "^3.14.0",
     "jsonwebtoken": "^9.0.3",
     "jszip": "^3.10.1",
     "lucide-react": "^1.14.0",
