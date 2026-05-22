@@ -77,6 +77,8 @@ const schemaSpeakable = {
     '@type': 'SpeakableSpecification',
     cssSelector: ['h1', '[class*="hero"]', '[class*="intro"]'],
   },
+  url: 'https://www.heldonica.fr',
+};
 
 const schemaOrganization = {
   "@context": "https://schema.org",
@@ -94,8 +96,6 @@ const schemaOrganization = {
     "contactType": "customer service",
     "availableLanguage": ["French", "English", "Portuguese"]
   }
-};
-  url: 'https://www.heldonica.fr',
 };
 
 export default async function Home() {

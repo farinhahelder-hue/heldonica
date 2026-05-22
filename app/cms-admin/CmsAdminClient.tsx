@@ -882,6 +882,7 @@ function CMSAdminInner() {
     return () => {
       if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, editingArticle?.title, savingArticle, saveArticle]);
 
   const saveSettings = async () => {
