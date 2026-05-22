@@ -38,12 +38,6 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
-export default async function AProposPage() {
-  const heroSettings = await getSettings(
-    'hero_type',
-    'hero_video_url',
-    'hero_poster_image', 
-
 const schemaPerson = {
   "@context": "https://schema.org",
   "@type": "Person",
@@ -56,7 +50,14 @@ const schemaPerson = {
     "https://www.linkedin.com/company/heldonicatravel"
   ]
 };
-    'hero_background_image',
+
+export default async function AProposPage() {
+  const heroSettings = await getSettings(
+    'hero_type',
+    'hero_video_url',
+    'hero_poster_image',
+
+'hero_background_image',
     'page_title',
     'intro_text'
   )
