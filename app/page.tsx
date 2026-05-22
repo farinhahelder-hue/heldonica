@@ -80,6 +80,24 @@ const schemaSpeakable = {
   url: 'https://www.heldonica.fr',
 };
 
+const schemaOrganization = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Heldonica",
+  "url": "https://www.heldonica.fr",
+  "logo": "https://www.heldonica.fr/logo.png",
+  "sameAs": [
+    "https://www.instagram.com/heldonica",
+    "https://www.linkedin.com/company/heldonicatravel"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+33-6-XX-XX-XX",
+    "contactType": "customer service",
+    "availableLanguage": ["French", "English", "Portuguese"]
+  }
+};
+
 export default async function Home() {
   const allPostsResult = await getAllPosts()
   // Defensive: ensure we always have an array
@@ -133,6 +151,7 @@ export default async function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaSpeakable) }}
       />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrganization) }} />
     </>
   )
 }

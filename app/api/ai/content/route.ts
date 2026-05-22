@@ -14,7 +14,7 @@ const API_KEY = process.env.AI_AGENT_API_KEY
 export async function GET(request: NextRequest) {
   // API key check for external agents
   const auth = request.headers.get('x-api-key')
-  if (API_KEY && auth !== API_KEY) {
+  if (!API_KEY || auth !== API_KEY) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   // API key check for external agents
   const auth = request.headers.get('x-api-key')
-  if (API_KEY && auth !== API_KEY) {
+  if (!API_KEY || auth !== API_KEY) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

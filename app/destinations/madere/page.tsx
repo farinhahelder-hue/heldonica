@@ -26,6 +26,16 @@ const schemaTouristDestination = {
   bestSeasonToVisit: ['April', 'May', 'June', 'July', 'August', 'September', 'October'],
 };
 
+const faqMadereSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Quand partir à Madère ?", "acceptedAnswer": { "@type": "Answer", "text": "Entre avril et octobre : climat doux, paysages verts et températures agréables pour randonner." }},
+    { "@type": "Question", "name": "Comment se déplacer à Madère ?", "acceptedAnswer": { "@type": "Answer", "text": ".Location de voiture recommandée pour explorer les levadas. Bus possibles mais limités." }},
+    { "@type": "Question", "name": "Quel budget pour Madère ?", "acceptedAnswer": { "@type": "Answer", "text": "Environ 100-150€/jour en hébergement milieu + restauration locale." }}
+  ]
+};
+
 export const metadata: Metadata = {
   title: 'Madere slow travel | Guide Heldonica',
   description:
@@ -98,6 +108,10 @@ export default function MaderePage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaTouristDestination) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqMadereSchema) }}
       />
       <script
         type="application/ld+json"
@@ -217,10 +231,10 @@ export default function MaderePage() {
         <section className="bg-white section-spacing">
           <div className="container">
             <h2 className="text-3xl md:text-4xl font-serif text-mahogany mb-8">
-              Ou dormir: 3 bases pertinentes
-            </h2>
+              Ou dormir: 3 bases testees par Heldonica</h2>
             <div className="grid md:grid-cols-3 gap-6">
               <article className="rounded-2xl border border-stone-200 p-6">
+                <span className="inline-block text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded-full mb-3">Teste par Heldonica</span>
                 <h3 className="text-xl font-serif text-mahogany mb-2">Funchal</h3>
                 <p className="text-sm text-charcoal/75 mb-4">
                   Base confortable pour une premiere fois: ville vivante, restaurants et
@@ -236,6 +250,7 @@ export default function MaderePage() {
                 </a>
               </article>
               <article className="rounded-2xl border border-stone-200 p-6">
+                <span className="inline-block text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded-full mb-3">Teste par Heldonica</span>
                 <h3 className="text-xl font-serif text-mahogany mb-2">Sao Vicente</h3>
                 <p className="text-sm text-charcoal/75 mb-4">
                   Plus brut, plus vegetal. Excellent point d entree pour les levadas et les
@@ -251,6 +266,7 @@ export default function MaderePage() {
                 </a>
               </article>
               <article className="rounded-2xl border border-stone-200 p-6">
+                <span className="inline-block text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full mb-3">Coup de coeur</span>
                 <h3 className="text-xl font-serif text-mahogany mb-2">Ponta do Sol</h3>
                 <p className="text-sm text-charcoal/75 mb-4">
                   Plus intime, plus doux, idéal pour un voyage en duo oriente slow et

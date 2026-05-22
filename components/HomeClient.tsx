@@ -7,7 +7,7 @@ import Link from 'next/link'
 import type { BlogPost } from '@/lib/blog-supabase'
 import { getExcerpt } from '@/lib/blog-supabase'
 import { SITE_STATS } from '@/lib/constants'
-import InstagramEmbed from '@/components/InstagramEmbed'
+import InstagramFeed from '@/components/InstagramFeed'
 import NewsletterForm from '@/components/NewsletterForm'
 
 const HELDONICA_BADGE_FALLBACK = '/images/badges-heldonica.svg'
@@ -188,7 +188,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
   useScrollReveal()
   const featImg = featured ? postImage(featured) : null
   const publishedArticles = totalPosts ?? SITE_STATS.publishedCarnets
-  const countryCount = typeof coveredCountries === 'number' ? coveredCountries : (coveredCountries ? parseInt(coveredCountries) : SITE_STATS.countriesLived)
+  const countryCount = typeof coveredCountries === 'number' ? coveredCountries : (coveredCountries ? parseInt(coveredCountries) : SITE_STATS.countriesLived);
 
   return (
     <>
@@ -222,7 +222,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         >
           <source src={heroVideoUrl || "https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4"} type="video/mp4" />
           {/* Fallback if video fails to load */}
-          <img 
+          <img loading="lazy" 
             src={heroPosterImage || "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1600&q=80"}
             alt="Heldonica hero"
             className="absolute inset-0 w-full h-full object-cover"
@@ -539,10 +539,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               </div>
               <div className="flex flex-wrap gap-3">
                 <Link href="/travel-planning" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
-                  Prendre rendez-vous →
-                </Link>
-                <Link href="/ai-hotellerie" className="inline-flex items-center gap-2 text-charcoal/80 font-semibold text-sm hover:gap-3 transition-all">
-                  Voir les outils →
+                  Prendre rendez-vous {'→'}
                 </Link>
               </div>
             </div>
@@ -602,7 +599,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <h2 className="text-2xl font-serif text-mahogany text-center mb-8">
             Sur le terrain, pas en studio
           </h2>
-          <InstagramEmbed limit={6} siteSettings={siteSettings} />
+          <InstagramFeed />
         </div>
       </section>
 

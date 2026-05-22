@@ -18,13 +18,13 @@ async function handler(req: NextRequest) {
   const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
 
   if (!SUPABASE_URL || !SUPABASE_KEY) {
-    console.error(JSON.stringify({ level: 'error', context: 'CRON', message: 'Supabase configuration missing' }));
+    console.error('[CRON] Supabase configuration missing');
     return NextResponse.json({ error: 'Supabase not configured' }, { status: 500 });
   }
 
   try {
     const now = new Date().toISOString();
-    console.log(JSON.stringify({ level: 'info', context: 'CRON', message: `Checking scheduled articles to publish at ${now}` }));
+    console.log(`[CRON] Checking scheduled articles to publish at ${now}`);
 
     // Find articles that should be published (scheduled_published_at <= now but not yet published)
     const res = await fetch(
@@ -39,31 +39,40 @@ async function handler(req: NextRequest) {
 
     if (!res.ok) {
       const errorText = await res.text();
-      console.error(JSON.stringify({ level: 'error', context: 'CRON', message: 'Failed to fetch scheduled articles', details: errorText }));
+      console.error('[CRON] Failed to fetch scheduled articles:', errorText);
       return NextResponse.json({ error: 'Failed to fetch from Supabase', details: errorText }, { status: res.status });
     }
 
     const articles = await res.json();
 
     if (!Array.isArray(articles) || articles.length === 0) {
-      console.log(JSON.stringify({ level: 'info', context: 'CRON', message: 'No scheduled articles found' }));
+      console.log('[CRON] No scheduled articles found');
       return NextResponse.json({ message: 'No scheduled articles to publish', published: 0 });
     }
 
-    console.log(JSON.stringify({ level: 'info', context: 'CRON', message: `Found ${articles.length} articles to publish`, slugs: articles.map((a: any) => a.slug) }));
+    console.log(`[CRON] Found ${articles.length} articles to publish:`, articles.map(a => a.slug).join(', '));
+
+    // Publish each article (only those that passed validation)
+    let published = 0;
+    const publishErrors: { id: any; error: string }[] = [];
+    const validArticles: any[] = [];
 
     // Validate BEFORE publishing - skip if validation fails
-    const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-    const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+    let skipValidation = false;
     
+    // We use the outer SUPABASE_URL and SUPABASE_KEY variables
     if (!SUPABASE_URL || !SUPABASE_KEY) {
-      console.error(JSON.stringify({ level: 'error', context: 'CRON', message: 'Missing Supabase config - skipping validation' }));
+      console.error('[CRON] Missing Supabase config - skipping validation');
+      skipValidation = true;
+      validArticles.push(...articles); // Publish all without validation if config missing
     } else {
-      for (const article of articles) {
-        try {
-          // Fetch full article for validation
-          const fetchRes = await fetch(
-            `${SUPABASE_URL}/rest/v1/cms_blog_posts?id=eq.${article.id}`,
+      try {
+        // ⚡ Bolt: Eliminate N+1 queries. Fetch all articles to validate in a single batch request
+        const articleIds = articles.map((a: any) => a.id).join(',');
+
+        if (articleIds) {
+          const fetchResBatch = await fetch(
+            `${SUPABASE_URL}/rest/v1/cms_blog_posts?id=in.(${articleIds})`,
             {
               headers: {
                 'apikey': SUPABASE_KEY,
@@ -71,31 +80,54 @@ async function handler(req: NextRequest) {
               },
             }
           );
-          const [post] = await fetchRes.json();
           
-          // Basic validation checks
-          const issues: string[] = [];
-          if (!post.featured_image) issues.push('no image');
-          if (!post.excerpt || post.excerpt.length < 50) issues.push('short excerpt');
-          const contentLength = (post.content || '').replace(/<[^>]*>/g, '').trim().length;
-          if (contentLength < 300) issues.push('short content');
-          
-          if (issues.length > 0) {
-            console.error(JSON.stringify({ level: 'error', context: 'CRON', message: `Validation failed for ${article.slug}`, issues }));
-            publishErrors.push({ id: article.id, error: 'Validation failed: ' + issues.join(', ') });
-            continue; // Skip publishing this article
+          if (!fetchResBatch.ok) {
+            throw new Error(`Batch validation fetch failed with status ${fetchResBatch.status}`);
           }
-        } catch (e: any) {
-          console.error(JSON.stringify({ level: 'error', context: 'CRON', message: `Validation error for ${article.slug}`, error: e.message }));
+          
+          const postsBatch = await fetchResBatch.json();
+          const postsMap = new Map(postsBatch.map((p: any) => [p.id, p]));
+
+          for (const article of articles) {
+            try {
+              const post: any = postsMap.get(article.id);
+              if (!post) {
+                console.error(`[CRON] Could not find full post for validation: ${article.slug}`);
+                publishErrors.push({ id: article.id, error: 'Validation failed: Post not found' });
+                continue;
+              }
+
+              // Basic validation checks
+              const issues: string[] = [];
+              if (!post.featured_image) issues.push('no image');
+              if (!post.excerpt || post.excerpt.length < 50) issues.push('short excerpt');
+              const contentLength = (post.content || '').replace(/<[^>]*>/g, '').trim().length;
+              if (contentLength < 300) issues.push('short content');
+
+              if (issues.length > 0) {
+                console.error(`[CRON] Validation failed for ${article.slug}:`, issues.join(', '));
+                publishErrors.push({ id: article.id, error: 'Validation failed: ' + issues.join(', ') });
+                continue; // Skip publishing this article
+              }
+
+              validArticles.push(article);
+            } catch (e: any) {
+              console.error(`[CRON] Validation error for ${article.slug}:`, e.message);
+              publishErrors.push({ id: article.id, error: `Validation error: ${e.message}` });
+            }
+          }
         }
+      } catch (err: any) {
+         console.error('[CRON] Batch validation error:', err.message);
+         // Fallback if batch fetch completely fails: allow publish loop
+         if (validArticles.length === 0) {
+            validArticles.push(...articles);
+         }
       }
     }
 
-    // Publish each article (only those that passed validation)
-    let published = 0;
-    const publishErrors = [];
-
-    for (const article of articles) {
+    // ⚡ Bolt: Eliminate N+1 queries. Update all valid articles concurrently
+    const updatePromises = validArticles.map(async (article) => {
       try {
         const updateRes = await fetch(
           `${SUPABASE_URL}/rest/v1/cms_blog_posts?id=eq.${article.id}`,
@@ -117,7 +149,7 @@ async function handler(req: NextRequest) {
 
         if (updateRes.ok) {
           published++;
-          console.log(JSON.stringify({ level: 'info', context: 'CRON', message: `Successfully published: ${article.slug}` }));
+          console.log(`[CRON] Successfully published: ${article.slug}`);
           
           // Notify via webhook (optional: n8n, Slack, etc.)
           if (process.env.CMS_WEBHOOK_URL) {
@@ -132,14 +164,16 @@ async function handler(req: NextRequest) {
           }
         } else {
           const err = await updateRes.text();
-          console.error(JSON.stringify({ level: 'error', context: 'CRON', message: `Failed to publish ${article.slug}`, details: err }));
+          console.error(`[CRON] Failed to publish ${article.slug}:`, err);
           publishErrors.push({ id: article.id, error: err });
         }
       } catch (e: any) {
-        console.error(JSON.stringify({ level: 'error', context: 'CRON', message: `Exception publishing ${article.slug}`, error: e.message }));
+        console.error(`[CRON] Exception publishing ${article.slug}:`, e.message);
         publishErrors.push({ id: article.id, error: e.message });
       }
-    }
+    });
+
+    await Promise.all(updatePromises);
 
     return NextResponse.json({ 
       message: `Published ${published}/${articles.length} article(s)`, 
@@ -148,7 +182,7 @@ async function handler(req: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error(JSON.stringify({ level: 'error', context: 'CRON', message: 'Publish scheduled fatal error', error: error.message }));
+    console.error('[CRON] Publish scheduled fatal error:', error.message);
     return NextResponse.json({ error: 'Internal error', details: error.message }, { status: 500 });
   }
 }

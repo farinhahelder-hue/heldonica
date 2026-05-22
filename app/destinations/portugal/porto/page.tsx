@@ -18,10 +18,10 @@ const pepites = [
   { title: 'Mercado do Bolhao', description: 'Marche couverts.', icon: '🍊' },
 ]
 
-export default function PortoPage() {
+const faqPortoSchema = {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Que faire a Porto?","acceptedAnswer":{"@type":"Answer","text":"Ribeira, pont Luis I, cave a vin."}},{"@type":"Question","name":"Ou loger Porto?","acceptedAnswer":{"@type":"Answer","text":"Centre historique, Ribeira."}},{"@type":"Question","name":"Transport Porto?","acceptedAnswer":{"@type":"Answer","text":"Metro depuis aeroport. Bus STCP."}}]}; export default function PortoPage() {
   return (
     <>
-      <Header />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPortoSchema) }} /> <Header />
       <main className="min-h-screen bg-stone-50">
         <section className="bg-gradient-to-b from-stone-900 to-stone-800 py-20">
           <div className="max-w-4xl mx-auto px-4">

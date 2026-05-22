@@ -43,7 +43,7 @@ export default function Destinations() {
             <Link key={dest.slug} href={`/destinations/${dest.slug}`}>
               <div className="group cursor-pointer">
                 <div className="relative h-48 rounded-lg overflow-hidden mb-4">
-                  <img 
+                  <img
                     src={dest.image} 
                     alt={dest.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"

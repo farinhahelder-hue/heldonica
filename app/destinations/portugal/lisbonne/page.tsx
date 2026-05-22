@@ -18,10 +18,10 @@ const pepites = [
   { title: 'Belem', description: 'Tour, patisserie.', icon: '🗼' },
 ]
 
-export default function LisbonnePage() {
+const faqLisbonneSchema = {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Que faire a Lisbonne?","acceptedAnswer":{"@type":"Answer","text":"Tram 28, Alfama, Belem."}},{"@type":"Question","name":"Transport Lisbonne?","acceptedAnswer":{"@type":"Answer","text":"Metro, tram 28."}},{"@type":"Question","name":"Budget Lisbonne?","acceptedAnswer":{"@type":"Answer","text":"70-10020ac/jour"}}]}; export default function LisbonnePage() {
   return (
     <>
-      <Header />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLisbonneSchema) }} /> <Header />
       <main className="min-h-screen bg-stone-50">
         <section className="bg-gradient-to-b from-stone-900 to-stone-800 py-20">
           <div className="max-w-4xl mx-auto px-4">
