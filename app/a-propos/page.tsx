@@ -1,34 +1,27 @@
-import type { Metadata } from 'next'
-import Header from '@/components/Header'
+import Link from "next/link"
+import Header from "@/components/Header"
+import { Playfair_Display } from "next/font/google"
+import { Metadata } from 'next'
+import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import Link from 'next/link'
-import { getSettings } from '@/lib/settings'
+import { getSettings } from '@/lib/supabase'
+
+const playfair = Playfair_Display({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: 'À Propos — Qui Sommes-Nous | Heldonica',
-  description:
-    "On est Heldonica, un duo d’explorateurs passionnés par le slow travel et les pépites cachées. On voyage, on teste, on partage — et on conçoit tes voyages sur mesure.",
-  keywords: [
-    'heldonica',
-    'blog slow travel',
-    'qui sommes-nous',
-    'travel planner',
-    'voyage authentique',
-  ],
-  alternates: {
-    canonical: 'https://www.heldonica.fr/a-propos',
-  },
+  title: 'Notre Histoire | Heldonica',
+  description: 'Découvrez qui se cache derrière Heldonica. Un duo de passionnés pour vous concevoir des voyages sur mesure.',
   openGraph: {
+    title: 'Notre Histoire | Heldonica',
+    description: 'Découvrez qui se cache derrière Heldonica.',
     url: 'https://www.heldonica.fr/a-propos',
-    title: 'À Propos — Qui Sommes-Nous | Heldonica',
-    description:
-      "On est Heldonica, un duo d’explorateurs passionnés par le slow travel et les pépites cachées.",
+    siteName: 'Heldonica',
     images: [
       {
-        url: 'https://www.heldonica.fr/og-default.jpg',
+        url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Heldonica — Slow travel, pépites et voyages hors des sentiers battus',
+        alt: 'Notre Histoire Heldonica',
       },
     ],
     locale: 'fr_FR',
@@ -37,12 +30,6 @@ export const metadata: Metadata = {
 }
 
 export const dynamic = 'force-dynamic'
-
-export default async function AProposPage() {
-  const heroSettings = await getSettings(
-    'hero_type',
-    'hero_video_url',
-    'hero_poster_image', 
 
 const schemaPerson = {
   "@context": "https://schema.org",
@@ -56,6 +43,12 @@ const schemaPerson = {
     "https://www.linkedin.com/company/heldonicatravel"
   ]
 };
+
+export default async function AProposPage() {
+  const heroSettings = await getSettings(
+    'hero_type',
+    'hero_video_url',
+    'hero_poster_image',
     'hero_background_image',
     'page_title',
     'intro_text'

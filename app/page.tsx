@@ -77,6 +77,7 @@ const schemaSpeakable = {
     '@type': 'SpeakableSpecification',
     cssSelector: ['h1', '[class*="hero"]', '[class*="intro"]'],
   },
+};
 
 const schemaOrganization = {
   "@context": "https://schema.org",
@@ -95,9 +96,6 @@ const schemaOrganization = {
     "availableLanguage": ["French", "English", "Portuguese"]
   }
 };
-  url: 'https://www.heldonica.fr',
-};
-
 export default async function Home() {
   const allPostsResult = await getAllPosts()
   // Defensive: ensure we always have an array
