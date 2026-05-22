@@ -52,18 +52,27 @@ async function handler(req: NextRequest) {
 
     console.log(`[CRON] Found ${articles.length} articles to publish:`, articles.map(a => a.slug).join(', '));
 
+    // Publish each article (only those that passed validation)
+    let published = 0;
+    const publishErrors: { id: any; error: string }[] = [];
+    const validArticles: any[] = [];
+
     // Validate BEFORE publishing - skip if validation fails
-    const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-    const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+    let skipValidation = false;
     
+    // We use the outer SUPABASE_URL and SUPABASE_KEY variables
     if (!SUPABASE_URL || !SUPABASE_KEY) {
       console.error('[CRON] Missing Supabase config - skipping validation');
+      skipValidation = true;
+      validArticles.push(...articles); // Publish all without validation if config missing
     } else {
-      for (const article of articles) {
-        try {
-          // Fetch full article for validation
-          const fetchRes = await fetch(
-            `${SUPABASE_URL}/rest/v1/cms_blog_posts?id=eq.${article.id}`,
+      try {
+        // ⚡ Bolt: Eliminate N+1 queries. Fetch all articles to validate in a single batch request
+        const articleIds = articles.map((a: any) => a.id).join(',');
+
+        if (articleIds) {
+          const fetchResBatch = await fetch(
+            `${SUPABASE_URL}/rest/v1/cms_blog_posts?id=in.(${articleIds})`,
             {
               headers: {
                 'apikey': SUPABASE_KEY,
@@ -71,31 +80,54 @@ async function handler(req: NextRequest) {
               },
             }
           );
-          const [post] = await fetchRes.json();
           
-          // Basic validation checks
-          const issues: string[] = [];
-          if (!post.featured_image) issues.push('no image');
-          if (!post.excerpt || post.excerpt.length < 50) issues.push('short excerpt');
-          const contentLength = (post.content || '').replace(/<[^>]*>/g, '').trim().length;
-          if (contentLength < 300) issues.push('short content');
-          
-          if (issues.length > 0) {
-            console.error(`[CRON] Validation failed for ${article.slug}:`, issues.join(', '));
-            publishErrors.push({ id: article.id, error: 'Validation failed: ' + issues.join(', ') });
-            continue; // Skip publishing this article
+          if (!fetchResBatch.ok) {
+            throw new Error(`Batch validation fetch failed with status ${fetchResBatch.status}`);
           }
-        } catch (e: any) {
-          console.error(`[CRON] Validation error for ${article.slug}:`, e.message);
+          
+          const postsBatch = await fetchResBatch.json();
+          const postsMap = new Map(postsBatch.map((p: any) => [p.id, p]));
+
+          for (const article of articles) {
+            try {
+              const post: any = postsMap.get(article.id);
+              if (!post) {
+                console.error(`[CRON] Could not find full post for validation: ${article.slug}`);
+                publishErrors.push({ id: article.id, error: 'Validation failed: Post not found' });
+                continue;
+              }
+
+              // Basic validation checks
+              const issues: string[] = [];
+              if (!post.featured_image) issues.push('no image');
+              if (!post.excerpt || post.excerpt.length < 50) issues.push('short excerpt');
+              const contentLength = (post.content || '').replace(/<[^>]*>/g, '').trim().length;
+              if (contentLength < 300) issues.push('short content');
+
+              if (issues.length > 0) {
+                console.error(`[CRON] Validation failed for ${article.slug}:`, issues.join(', '));
+                publishErrors.push({ id: article.id, error: 'Validation failed: ' + issues.join(', ') });
+                continue; // Skip publishing this article
+              }
+
+              validArticles.push(article);
+            } catch (e: any) {
+              console.error(`[CRON] Validation error for ${article.slug}:`, e.message);
+              publishErrors.push({ id: article.id, error: `Validation error: ${e.message}` });
+            }
+          }
         }
+      } catch (err: any) {
+         console.error('[CRON] Batch validation error:', err.message);
+         // Fallback if batch fetch completely fails: allow publish loop
+         if (validArticles.length === 0) {
+            validArticles.push(...articles);
+         }
       }
     }
 
-    // Publish each article (only those that passed validation)
-    let published = 0;
-    const publishErrors = [];
-
-    for (const article of articles) {
+    // ⚡ Bolt: Eliminate N+1 queries. Update all valid articles concurrently
+    const updatePromises = validArticles.map(async (article) => {
       try {
         const updateRes = await fetch(
           `${SUPABASE_URL}/rest/v1/cms_blog_posts?id=eq.${article.id}`,
@@ -139,7 +171,9 @@ async function handler(req: NextRequest) {
         console.error(`[CRON] Exception publishing ${article.slug}:`, e.message);
         publishErrors.push({ id: article.id, error: e.message });
       }
-    }
+    });
+
+    await Promise.all(updatePromises);
 
     return NextResponse.json({ 
       message: `Published ${published}/${articles.length} article(s)`, 
