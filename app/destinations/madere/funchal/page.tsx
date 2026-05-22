@@ -3,6 +3,16 @@ import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
+const faqFunchalSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Que faire a Funchal ?", "acceptedAnswer": { "@type": "Answer", "text": "Marche des travailleurs, vieille ville coloree, Teleferia du Palais, jardins botaniques." }},
+    { "@type": "Question", "name": "Ou manger Funchal ?", "acceptedAnswer": { "@type": "Answer", "text": "Mercado dos Ladarios pour poisson grillade, rue de Santa Maria pour atmosfera." }},
+    { "@type": "Question", "name": "Transport Funchal ?", "acceptedAnswer": { "@type": "Answer", "text": "Bus ASTA depasse marche central. Teleferique pour Monte depuis centre." }}
+  ]
+};
+
 export const metadata: Metadata = {
   title: 'Funchal slow travel | Guide Heldonica',
   description:
@@ -54,6 +64,7 @@ const navLinks = [
 export default function FunchalPage() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqFunchalSchema) }} />
       <Header />
       <main className="min-h-screen bg-stone-50">
         <section className="relative bg-gradient-to-b from-stone-900 to-stone-800 py-20">
