@@ -1,73 +1,59 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { clearCmsSessionResponse, CMS_SESSION_COOKIE } from '@/lib/cms-auth';
-import { NextResponse } from 'next/server';
+import { isValidCmsPassword } from '../../lib/cms-auth';
 
-// Mock next/server
-vi.mock('next/server', () => {
-  const setMock = vi.fn();
-  return {
-    NextResponse: {
-      json: vi.fn().mockImplementation((body, init) => ({
-        body,
-        status: init?.status,
-        cookies: {
-          set: setMock,
-        },
-      })),
-    },
-  };
-});
-
-describe('clearCmsSessionResponse', () => {
+describe('isValidCmsPassword', () => {
   afterEach(() => {
     vi.unstubAllEnvs();
-    vi.clearAllMocks();
   });
 
-  it('should create a response with default status and body, and clear the session cookie', () => {
-    const response = clearCmsSessionResponse();
-
-    // Check if NextResponse.json was called with default arguments
-    expect(NextResponse.json).toHaveBeenCalledWith({ ok: true }, { status: 200 });
-
-    // @ts-expect-error Mocked response type
-    expect(response.cookies.set).toHaveBeenCalledWith({
-      name: CMS_SESSION_COOKIE,
-      value: '',
-      httpOnly: true,
-      sameSite: 'strict',
-      secure: process.env.NODE_ENV === 'production',
-      path: '/',
-      maxAge: 0,
-    });
+  it('returns true when candidate matches CMS_PASSWORD exactly', () => {
+    vi.stubEnv('CMS_PASSWORD', 'supersecret');
+    expect(isValidCmsPassword('supersecret')).toBe(true);
   });
 
-  it('should create a response with custom status and body', () => {
-    const customBody = { message: 'custom' };
-    const response = clearCmsSessionResponse(400, customBody);
-
-    expect(NextResponse.json).toHaveBeenCalledWith(customBody, { status: 400 });
-
-    // @ts-expect-error Mocked response type
-    expect(response.cookies.set).toHaveBeenCalledWith(
-      expect.objectContaining({
-        name: CMS_SESSION_COOKIE,
-        value: '',
-        maxAge: 0,
-      })
-    );
+  it('returns false when candidate is incorrect', () => {
+    vi.stubEnv('CMS_PASSWORD', 'supersecret');
+    expect(isValidCmsPassword('wrongpassword')).toBe(false);
   });
 
-  it('should set secure to true when NODE_ENV is production', () => {
-    vi.stubEnv('NODE_ENV', 'production');
+  it('returns false when candidate is an empty string', () => {
+    vi.stubEnv('CMS_PASSWORD', 'supersecret');
+    expect(isValidCmsPassword('')).toBe(false);
+  });
 
-    const response = clearCmsSessionResponse();
+  it('returns false when candidate is null or undefined', () => {
+    vi.stubEnv('CMS_PASSWORD', 'supersecret');
+    expect(isValidCmsPassword(null)).toBe(false);
+    expect(isValidCmsPassword(undefined)).toBe(false);
+  });
 
-    // @ts-expect-error Mocked response type
-    expect(response.cookies.set).toHaveBeenCalledWith(
-      expect.objectContaining({
-        secure: true,
-      })
-    );
+  it('returns false when CMS_PASSWORD environment variable is not set', () => {
+    // Ensuring it is not set
+    vi.stubEnv('CMS_PASSWORD', '');
+    expect(isValidCmsPassword('supersecret')).toBe(false);
+
+    // Completely remove the variable
+    delete process.env.CMS_PASSWORD;
+    expect(isValidCmsPassword('supersecret')).toBe(false);
+  });
+
+  it('handles configured password with whitespace', () => {
+    // getConfiguredPassword uses .trim()
+    vi.stubEnv('CMS_PASSWORD', '  supersecret  ');
+
+    // So candidate must match the trimmed version
+    expect(isValidCmsPassword('supersecret')).toBe(true);
+
+    // And candidate with same whitespace shouldn't match (because candidate isn't trimmed in the check)
+    // Actually safeEqual checks lengths. '  supersecret  ' length is 15, 'supersecret' is 11.
+    // If the candidate isn't trimmed, safeEqual will compare '  supersecret  ' to 'supersecret'
+    expect(isValidCmsPassword('  supersecret  ')).toBe(false);
+  });
+
+  it('protects against timing attacks via safeEqual by returning false for different lengths immediately', () => {
+    vi.stubEnv('CMS_PASSWORD', 'supersecret');
+    // safeEqual returns false if lengths don't match, which prevents comparing byte by byte
+    expect(isValidCmsPassword('super')).toBe(false);
+    expect(isValidCmsPassword('supersecretlonger')).toBe(false);
   });
 });

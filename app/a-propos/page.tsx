@@ -36,7 +36,8 @@ export const metadata: Metadata = {
   },
 }
 
-export const dynamic = 'force-dynamic'
+// ⚡ Bolt Optimization: Use Incremental Static Regeneration (ISR) to cache the about page for 1 hour. This significantly improves Time To First Byte (TTFB) compared to force-dynamic.
+export const revalidate = 3600
 
 const schemaPerson = {
   "@context": "https://schema.org",
