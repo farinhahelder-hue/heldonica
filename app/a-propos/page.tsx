@@ -43,6 +43,19 @@ export default async function AProposPage() {
     'hero_type',
     'hero_video_url',
     'hero_poster_image', 
+
+const schemaPerson = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Heldonica",
+  "url": "https://www.heldonica.fr/a-propos",
+  "jobTitle": "Travel Planner",
+  "description": "Duo d'explorateurs passionnés par le slow travel et les pépites cachées",
+  "sameAs": [
+    "https://www.instagram.com/heldonica",
+    "https://www.linkedin.com/company/heldonicatravel"
+  ]
+};
     'hero_background_image',
     'page_title',
     'intro_text'
@@ -317,6 +330,7 @@ export default async function AProposPage() {
         </section>
       </main>
       <Footer />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaPerson) }} />
     </>
   )
 }
