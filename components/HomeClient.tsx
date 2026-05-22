@@ -127,7 +127,7 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
     <Link href={`/blog/${post.slug}`} className="group block h-full">
       <article className="relative rounded-2xl overflow-hidden bg-mahogany/80 shadow-md hover:shadow-xl transition-all duration-400 h-full flex flex-col">
         <div className={`relative ${h} overflow-hidden`}>
-          <img loading="lazy" src={imgSrc} alt={post.title || "Image de l’article"} width={600} height={400}
+          <img decoding="async" loading="lazy" src={imgSrc} alt={post.title || "Image de l’article"} width={600} height={400}
             className="w-full h-full object-cover opacity-80 group-hover:opacity-90 group-hover:scale-105 transition-all duration-600"
             loading="lazy"
             onError={() => setImgSrc(HELDONICA_BADGE_FALLBACK)}
@@ -222,7 +222,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         >
           <source src={heroVideoUrl || "https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4"} type="video/mp4" />
           {/* Fallback if video fails to load */}
-          <img loading="lazy" 
+          <img decoding="async" loading="lazy" 
             src={heroPosterImage || "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1600&q=80"}
             alt="Heldonica hero"
             className="absolute inset-0 w-full h-full object-cover"
@@ -317,7 +317,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <Link href={`/blog/${featured.slug}`} className="group block">
             <article className="relative h-[50vh] md:h-[60vh] w-full overflow-hidden flex items-end">
               {featImg && (
-                <img loading="lazy" src={featImg} alt={featured?.title || "Image en vedette"} width={1400} height={700}
+                <img decoding="async" loading="lazy" src={featImg} alt={featured?.title || "Image en vedette"} width={1400} height={700}
                   className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-70 group-hover:scale-105 transition-all duration-700"
                   loading="eager" fetchPriority="high" />
               )}
@@ -362,7 +362,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             {travelPosts.length >= 1 && (
               <div className="grid md:grid-cols-2 gap-6 mb-6">
                 <Link href={`/blog/${travelPosts[0].slug}`} className="card-lift group relative rounded-2xl overflow-hidden bg-mahogany/80 aspect-[4/3] md:row-span-2" data-reveal="left">
-                  <img loading="lazy" src={postImage(travelPosts[0])} alt={travelPosts[0].title}
+                  <img decoding="async" loading="lazy" src={postImage(travelPosts[0])} alt={travelPosts[0].title}
                     className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700"
                     loading="lazy" width={800} height={600} />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
@@ -386,7 +386,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                     <Link key={p.slug} href={`/blog/${p.slug}`}
                       className="group relative rounded-2xl overflow-hidden bg-mahogany/80"
                       data-reveal data-delay={String((i + 1) * 150)}>
-                      <img loading="lazy" src={postImage(p)} alt={p.title}
+                      <img decoding="async" loading="lazy" src={postImage(p)} alt={p.title}
                         className="absolute inset-0 w-full h-full object-cover opacity-65 group-hover:opacity-75 group-hover:scale-105 transition-all duration-700"
                         loading="lazy" width={600} height={300} />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
@@ -411,7 +411,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <div className="max-w-6xl mx-auto px-6 md:px-10">
             <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
               <div className="relative" data-reveal="left">
-                <img loading="lazy" src={postImage(foodPosts[0])}
+                <img decoding="async" loading="lazy" src={postImage(foodPosts[0])}
                   alt={foodPosts[0].title}
                   className="rounded-2xl w-full aspect-[4/3] object-cover shadow-lg" loading="lazy" width={700} height={525} />
                 <div className="absolute -bottom-4 -right-4 bg-mahogany text-white px-5 py-3 rounded-xl shadow-lg hidden md:block">
@@ -429,7 +429,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   {foodPosts.slice(0, 3).map((p) => (
                     <Link key={p.slug} href={`/blog/${p.slug}`}
                       className="flex items-start gap-3 group hover:bg-eucalyptus/5 rounded-xl p-2 -mx-2 transition-colors">
-                      <img loading="lazy" src={postImage(p)} alt={p.title} width={60} height={60}
+                      <img decoding="async" loading="lazy" src={postImage(p)} alt={p.title} width={60} height={60}
                         className="w-14 h-14 rounded-lg object-cover flex-shrink-0" loading="lazy" />
                       <div>
                         <p className="font-semibold text-charcoal/90 text-sm group-hover:text-eucalyptus transition-colors line-clamp-1">{p.title}</p>
