@@ -5,6 +5,16 @@ import Footer from '@/components/Footer'
 
 const SITE_URL = 'https://heldonica.fr'
 
+const faqRoumanieSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Quand aller en Roumanie ?", "acceptedAnswer": { "@type": "Answer", "text": "Mai-septembre pour climat agreable. Hiver charme ski et Noel." }},
+    { "@type": "Question", "name": "Comment aller en Roumanie ?", "acceptedAnswer": { "@type": "Answer", "text": "Vol directo Bucarest ou Timisoara (2h30). Train possibles depuis Budapest." }},
+    { "@type": "Question", "name": "Budget Roumanie ?", "acceptedAnswer": { "@type": "Answer", "text": "Tres bon marche: 50-80€/jour en hotel et restaurant local." }}
+  ]
+};
+
 export const metadata: Metadata = {
   title: 'Roumanie slow travel | Guide Heldonica',
   description:
@@ -28,6 +38,7 @@ const subNav = [
 export default function RoumaniePage() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqRoumanieSchema) }} />
       <Header />
       <main className="min-h-screen bg-stone-50">
         <section className="relative bg-gradient-to-b from-stone-900 to-stone-800 py-20">
