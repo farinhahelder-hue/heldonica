@@ -26,6 +26,16 @@ const schemaTouristDestination = {
   bestSeasonToVisit: ['April', 'May', 'June', 'July', 'August', 'September', 'October'],
 };
 
+const faqMadereSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Quand partir à Madère ?", "acceptedAnswer": { "@type": "Answer", "text": "Entre avril et octobre : climat doux, paysages verts et températures agréables pour randonner." }},
+    { "@type": "Question", "name": "Comment se déplacer à Madère ?", "acceptedAnswer": { "@type": "Answer", "text": ".Location de voiture recommandée pour explorer les levadas. Bus possibles mais limités." }},
+    { "@type": "Question", "name": "Quel budget pour Madère ?", "acceptedAnswer": { "@type": "Answer", "text": "Environ 100-150€/jour en hébergement milieu + restauration locale." }}
+  ]
+};
+
 export const metadata: Metadata = {
   title: 'Madere slow travel | Guide Heldonica',
   description:
@@ -98,6 +108,10 @@ export default function MaderePage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaTouristDestination) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqMadereSchema) }}
       />
       <script
         type="application/ld+json"
