@@ -1,17 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createServiceClient } from '@/lib/supabase'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+// Lazy initialization to avoid build-time crash
+const getSupabase = () => {
+  try {
+    return createServiceClient()
+  } catch {
+    return null
+  }
+}
 
 // GET /api/n8n/articles - Get articles for n8n workflows
 // Query: ?category=&country=&status=&days=&limit=
 
 export async function GET(request: NextRequest) {
+  const supabase = getSupabase()
+  if (!supabase) {
+    return NextResponse.json({ error: 'Service unavailable - Supabase not configured' }, { status: 503 })
+  }
+
   const { searchParams } = new URL(request.url)
-  
+
   const category = searchParams.get('category')
   const country = searchParams.get('country')
   const status = searchParams.get('status') // published | draft | all
@@ -63,6 +72,11 @@ export async function GET(request: NextRequest) {
 // Body: { id, published?, category?, travel_style?, season? }
 
 export async function PATCH(request: NextRequest) {
+  const supabase = getSupabase()
+  if (!supabase) {
+    return NextResponse.json({ error: 'Service unavailable - Supabase not configured' }, { status: 503 })
+  }
+
   try {
     const body = await request.json()
     const { id, published, category, travel_style, season } = body

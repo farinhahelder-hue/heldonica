@@ -1,15 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createServiceClient } from '@/lib/supabase'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+// Lazy initialization to avoid build-time crash
+const getSupabase = () => {
+  try {
+    return createServiceClient()
+  } catch {
+    return null
+  }
+}
 
 // GET /api/ai/media - Get optimized media URLs (images, videos)
 // Query params: type, article_id, limit
 
 export async function GET(request: NextRequest) {
+  const supabase = getSupabase()
+  if (!supabase) {
+    return NextResponse.json({ error: 'Service unavailable - Supabase not configured' }, { status: 503 })
+  }
   const { searchParams } = new URL(request.url)
   const articleId = searchParams.get('article_id')
   const type = searchParams.get('type') || 'image' // image | video
@@ -80,6 +88,10 @@ export async function GET(request: NextRequest) {
 
 // POST /api/ai/media - Upload media (image/video)
 export async function POST(request: NextRequest) {
+  const supabase = getSupabase()
+  if (!supabase) {
+    return NextResponse.json({ error: 'Service unavailable - Supabase not configured' }, { status: 503 })
+  }
   try {
     const body = await request.json()
     const { action, url, article_id, role } = body
