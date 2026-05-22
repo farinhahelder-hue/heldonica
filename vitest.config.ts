@@ -16,4 +16,9 @@ export default defineConfig({
     alias: { "@": __dirname },
     setupFiles: ['./vitest.setup.ts'],
   },
+  resolve: {
+    alias: {
+      '@': __dirname,
+    },
+  },
 });
