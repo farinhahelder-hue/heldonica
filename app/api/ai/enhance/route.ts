@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createServiceClient } from '@/lib/supabase'
 import { checkBrandVoice, FORBIDDEN_WORDS } from '@/lib/brand-voice'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+// Lazy initialization to avoid build-time crash
+const getSupabase = () => {
+  try {
+    return createServiceClient()
+  } catch {
+    return null
+  }
+}
 
 // Optional API key for external agents
 const API_KEY = process.env.AI_AGENT_API_KEY
@@ -18,6 +22,11 @@ export async function POST(request: NextRequest) {
   const auth = request.headers.get('x-api-key')
   if (!API_KEY || auth !== API_KEY) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const supabase = getSupabase()
+  if (!supabase) {
+    return NextResponse.json({ error: 'Service unavailable - Supabase not configured' }, { status: 503 })
   }
 
   try {
