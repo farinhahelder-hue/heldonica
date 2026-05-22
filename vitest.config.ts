@@ -13,6 +13,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
+    alias: { "@": __dirname },
     setupFiles: ['./vitest.setup.ts'],
   },
 });
