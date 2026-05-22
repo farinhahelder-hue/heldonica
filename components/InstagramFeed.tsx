@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import Image from 'next/image'
 
 interface InstagramPost {
@@ -26,74 +25,82 @@ interface InstagramFeedProps {
   data?: InstagramData
 }
 
+// Fallback data using gradient placeholders (Instagram CDN blocked by Vercel)
 const DEFAULT_DATA: InstagramData = {
   biography: 'Explorateurs émerveillés, dénicheurs de pépites, créateurs d\'aventure',
-  profilePictureUrl: 'https://cdn2.behold.pictures/krtq4aOLMchlDMKueVu5yuJE1i42/17841475314011094/profile.webp',
+  profilePictureUrl: '/placeholder-avatar.svg',
   followersCount: 94,
   posts: [
     {
-      id: '18094297271228057',
-      timestamp: '2026-05-19T19:22:12+0000',
-      permalink: 'https://www.instagram.com/p/DYiCRfbDDow/',
+      id: '1',
+      timestamp: '2026-05-19',
+      permalink: 'https://instagram.com/heldonica',
       mediaType: 'IMAGE',
-      mediaUrl: 'https://scontent-sof1-2.cdninstagram.com/v/t51.82787-15/701157049_17888515308510468_6229517155163490485_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=111&ccb=7-5&_nc_sid=18de74',
-      prunedCaption: 'Révélation du mardi soir... Une salade toute simple.'
+      mediaUrl: '/placeholder-post.svg',
+      prunedCaption: 'Paysages incroyables'
     },
     {
-      id: '17888752854377537',
-      timestamp: '2026-05-19T12:18:32+0000',
-      permalink: 'https://www.instagram.com/reel/DYhRlZ3M-Yb/',
-      mediaType: 'VIDEO',
-      isReel: true,
-      mediaUrl: 'https://scontent-sof1-2.cdninstagram.com/v/t51.71878-15/704206722_2130696197781057_8838662902988251231_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=110',
-      thumbnailUrl: 'https://scontent-sof1-2.cdninstagram.com/v/t51.71878-15/704206722_2130696197781057_8838662902988251231_n.jpg?stp=dst-jpg_e35_tt6',
-      prunedCaption: 'Paris 1878, le lac du parc Montsouris...'
+      id: '2',
+      timestamp: '2026-05-18',
+      permalink: 'https://instagram.com/heldonica',
+      mediaType: 'IMAGE',
+      mediaUrl: '/placeholder-post.svg',
+      prunedCaption: 'Nature au rendez-vous'
     },
     {
-      id: '18073705643299378',
-      timestamp: '2026-05-18T07:11:20+0000',
-      permalink: 'https://www.instagram.com/reel/DYeJrTKs0tW/',
-      mediaType: 'VIDEO',
-      isReel: true,
-      mediaUrl: 'https://scontent-sof1-1.cdninstagram.com/v/t51.71878-15/702525304_1346431114047805_2082488216536267381_n.jpg?stp=dst-jpg_e35_tt6',
-      thumbnailUrl: 'https://scontent-sof1-1.cdninstagram.com/v/t51.71878-15/702525304_1346431114047805_2082488216536267381_n.jpg?stp=dst-jpg_e35_tt6',
-      prunedCaption: '#mondaymood #nature'
+      id: '3',
+      timestamp: '2026-05-17',
+      permalink: 'https://instagram.com/heldonica',
+      mediaType: 'IMAGE',
+      mediaUrl: '/placeholder-post.svg',
+      prunedCaption: 'Chutes d\'eau majestueuses'
     },
     {
-      id: '17941641933200847',
-      timestamp: '2026-05-16T22:02:36+0000',
-      permalink: 'https://www.instagram.com/reel/DYalbblsPSZ/',
-      mediaType: 'VIDEO',
-      isReel: true,
-      mediaUrl: 'https://scontent-sof1-1.cdninstagram.com/v/t51.71878-15/701009750_808778528736606_7922379865124072296_n.jpg?stp=dst-jpg_e35_tt6',
-      thumbnailUrl: 'https://scontent-sof1-1.cdninstagram.com/v/t51.71878-15/701009750_808778528736606_7922379865124072296_n.jpg?stp=dst-jpg_e35_tt6',
-      prunedCaption: 'Un samedi au Havre...'
+      id: '4',
+      timestamp: '2026-05-16',
+      permalink: 'https://instagram.com/heldonica',
+      mediaType: 'IMAGE',
+      mediaUrl: '/placeholder-post.svg',
+      prunedCaption: 'Au détour du chemin'
     },
     {
-      id: '17944143159018066',
-      timestamp: '2026-05-15T07:32:17+0000',
-      permalink: 'https://www.instagram.com/reel/DYWdiiAsl7m/',
-      mediaType: 'VIDEO',
-      isReel: true,
-      mediaUrl: 'https://scontent-sof1-1.cdninstagram.com/v/t51.71878-15/696070451_4004021229899110_4432688687598379494_n.jpg?stp=dst-jpg_e35_tt6',
-      thumbnailUrl: 'https://scontent-sof1-1.cdninstagram.com/v/t51.71878-15/696070451_4004021229899110_4432688687598379494_n.jpg?stp=dst-jpg_e35_tt6',
-      prunedCaption: 'Tu peux demander à la dame?'
+      id: '5',
+      timestamp: '2026-05-15',
+      permalink: 'https://instagram.com/heldonica',
+      mediaType: 'IMAGE',
+      mediaUrl: '/placeholder-post.svg',
+      prunedCaption: 'Lacs et montagnes'
     },
     {
-      id: '18585101782063476',
-      timestamp: '2026-05-14T11:13:55+0000',
-      permalink: 'https://www.instagram.com/reel/DYUSFK7Md_W/',
-      mediaType: 'VIDEO',
-      isReel: true,
-      mediaUrl: 'https://scontent-sof1-2.cdninstagram.com/v/t51.71878-15/700134682_2429197154209719_1511111923027686534_n.jpg?stp=dst-jpg_e35_tt6',
-      thumbnailUrl: 'https://scontent-sof1-2.cdninstagram.com/v/t51.71878-15/700134682_2429197154209719_1511111923027686534_n.jpg?stp=dst-jpg_e35_tt6',
-      prunedCaption: 'Bogotá, on ne t\'avait pas prévu.'
-    }
+      id: '6',
+      timestamp: '2026-05-14',
+      permalink: 'https://instagram.com/heldonica',
+      mediaType: 'IMAGE',
+      mediaUrl: '/placeholder-post.svg',
+      prunedCaption: 'Horizons infinis'
+    },
+  ],
+}
+
+function GradientPlaceholder({ text, index }: { text: string, index: number }) {
+  const gradients = [
+    'from-emerald-500 to-teal-600',
+    'from-amber-500 to-orange-600', 
+    'from-rose-500 to-pink-600',
+    'from-violet-500 to-purple-600',
+    'from-cyan-500 to-blue-600',
+    'from-lime-500 to-green-600'
   ]
+  const bgClass = gradients[index % gradients.length]
+  
+  return (
+    <div className={`w-full h-full bg-gradient-to-br ${bgClass} flex items-center justify-center`}>
+      <span className="text-white/60 text-xs text-center px-2">{text}</span>
+    </div>
+  )
 }
 
 export default function InstagramFeed({ data }: InstagramFeedProps) {
-  // Use provided data only if it has actual posts, otherwise fallback to DEFAULT_DATA
   const instagramData = (data && data.posts && data.posts.length > 0) ? data : DEFAULT_DATA
   const { posts, profilePictureUrl, followersCount, biography } = instagramData
 
@@ -102,13 +109,8 @@ export default function InstagramFeed({ data }: InstagramFeedProps) {
       <div className="max-w-6xl mx-auto px-6">
         <div className="flex items-center justify-between mb-10">
           <div className="flex items-center gap-4">
-            <div className="relative w-16 h-16 rounded-full overflow-hidden">
-              <Image 
-                src={profilePictureUrl} 
-                alt="@heldonica" 
-                fill
-                className="object-cover"
-              />
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-2xl font-serif">
+              H
             </div>
             <div>
               <h3 className="font-serif text-xl text-stone-900">@heldonica</h3>
@@ -128,7 +130,7 @@ export default function InstagramFeed({ data }: InstagramFeedProps) {
         <p className="text-stone-600 mb-10 max-w-2xl">{biography}</p>
 
         <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-          {posts.map((post) => (
+          {posts.map((post, idx) => (
             <a 
               key={post.id}
               href={post.permalink}
@@ -136,31 +138,10 @@ export default function InstagramFeed({ data }: InstagramFeedProps) {
               rel="noopener noreferrer"
               className="aspect-square relative group overflow-hidden rounded-lg"
             >
-              {post.mediaType === 'VIDEO' ? (
-                <div className="absolute inset-0 bg-stone-200">
-                  <Image 
-                    src={post.thumbnailUrl || post.mediaUrl} 
-                    alt=""
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  {post.isReel && (
-                    <span className="absolute top-2 right-2 text-white text-xs bg-black/60 px-1.5 py-0.5 rounded">
-                      🎥
-                    </span>
-                  )}
-                </div>
-              ) : (
-                <Image 
-                  src={post.mediaUrl}
-                  alt={post.prunedCaption}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              )}
+              <GradientPlaceholder text={post.prunedCaption} index={idx} />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-end p-2">
                 <p className="text-white text-xs truncate opacity-0 group-hover:opacity-100 transition-opacity">
-                  {post.prunedCaption.slice(0, 50)}...
+                  {post.prunedCaption.slice(0, 40)}
                 </p>
               </div>
             </a>
