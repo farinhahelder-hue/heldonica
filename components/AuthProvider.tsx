@@ -18,15 +18,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-
-  // Check if Supabase was actually configured (not just stubbed)
+  
+  // Always render with default context values first
+  // Then attempt to initialize auth in useEffect
   const isConfigured = Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL && 
+    typeof process !== 'undefined' &&
+    process.env &&
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
 
   useEffect(() => {
-    // If Supabase isn't configured, just render without auth
     if (!isConfigured) {
       setLoading(false);
       return;
@@ -34,29 +36,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     let active = true;
 
-    supabase.auth.getSession().then(({ data }) => {
-      if (!active) return;
-      setSession(data.session);
-      setUser(data.session?.user ?? null);
-      setLoading(false);
-    }).catch(() => {
-      if (!active) return;
-      setLoading(false);
-    });
+    try {
+      supabase.auth.getSession().then(({ data }) => {
+        if (!active) return;
+        setSession(data.session);
+        setUser(data.session?.user ?? null);
+        setLoading(false);
+      }).catch(() => {
+        if (!active) return;
+        setLoading(false);
+      });
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      if (!active) return;
-      setSession(nextSession);
-      setUser(nextSession?.user ?? null);
-      setLoading(false);
-    });
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+        if (!active) return;
+        setSession(nextSession);
+        setUser(nextSession?.user ?? null);
+        setLoading(false);
+      });
 
-    return () => {
-      active = false;
-      if (subscription) subscription.unsubscribe();
-    };
+      return () => {
+        active = false;
+        if (subscription) subscription.unsubscribe();
+      };
+    } catch (err) {
+      setLoading(false);
+    }
   }, [isConfigured]);
 
   const signOut = async () => {
@@ -66,29 +72,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch { /* ignore */ }
   };
 
-  if (!isConfigured) {
-    return (
-      <AuthContext.Provider
-        value={{
-          user: null,
-          session: null,
-          loading: false,
-          isConfigured: false,
-          signOut: async () => {},
-        }}
-      >
-        {children}
-      </AuthContext.Provider>
-    );
-  }
-
   return (
     <AuthContext.Provider
       value={{
         user,
         session,
         loading,
-        isConfigured: true,
+        isConfigured,
         signOut,
       }}
     >
