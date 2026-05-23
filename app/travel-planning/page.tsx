@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
@@ -83,12 +84,13 @@ export default function TravelPlanning() {
       <main>
 
         {/* ── HERO ── */}
-        <section className="relative overflow-hidden bg-stone-950">
-          <img
+        <section className="relative overflow-hidden bg-stone-950 h-[60vh] md:h-[80vh]">
+          <Image
             src="https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=1600&q=85"
             alt="Couple en slow travel, vue panoramique sur la nature"
-            className="absolute inset-0 w-full h-full object-cover opacity-30"
-            width="1600" height="900"
+            fill
+            className="object-cover opacity-30"
+            priority
           />
           <div className="absolute inset-0 bg-gradient-to-b from-stone-950/60 via-transparent to-stone-950" />
           <div className="relative max-w-4xl mx-auto px-6 md:px-10 py-28 md:py-40 text-center">
