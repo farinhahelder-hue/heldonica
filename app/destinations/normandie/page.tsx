@@ -36,16 +36,16 @@ const faqNormandieSchema = {
 };
 
 export const metadata: Metadata = {
-  title: 'Normandie slow travel | Guide Heldonica',
+  title: 'Normandie slow travel : Le Havre, Etretat, falaises | Heldonica',
   description:
-    'Guide pilier Normandie: Le Havre, Honfleur, Bayeux et les environs. Quand partir, budget réel, où dormir, et choses à faire.',
+    'Normandie en slow travel : falaises de craie, ports de peche, bocage du Pays d Auge. Budget 120-180€/nuit. Quand partir, ou dormir.',
   alternates: {
     canonical: 'https://www.heldonica.fr/destinations/normandie',
   },
   openGraph: {
-    title: 'Normandie slow travel | Guide Heldonica',
+    title: 'Normandie slow travel : falaises, ports et bocage | Heldonica',
     description:
-      'Le Havre, Honfleur, plages et histoire. Notre guide pour un roadtrip slow travel en Normandie.',
+      'Normandie en slow travel : notre carnet de route. Le Havre UNESCO, Etretat, Honfleur et le bocage du Pays d Auge.',
     url: 'https://www.heldonica.fr/destinations/normandie',
     images: [
       {
@@ -56,7 +56,12 @@ export const metadata: Metadata = {
       },
     ],
     locale: 'fr_FR',
-    type: 'article',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Normandie slow travel : falaises, ports et bocage | Heldonica',
+    description: 'Normandie en slow travel : falaises, ports de peche, bocage. Carnet de route.',
   },
 }
 

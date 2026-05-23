@@ -16,11 +16,32 @@ const faqSicileSchema = {
 };
 
 export const metadata: Metadata = {
-  title: 'Sicile slow travel | Guide Heldonica',
+  title: 'Sicile slow travel : Etna, temples, plages | Heldonica 2026',
   description:
-    'Guide Sicile: ile mediterraneenne. Etna, temples, mer. Le meilleur de l italie.',
+    'Sicile en slow travel : notre carnet de route. Etna, temples grecs, villages. Budget 90-130€/jour. Mai-juin ou septembre-octobre.',
   alternates: {
     canonical: 'https://www.heldonica.fr/destinations/sicile',
+  },
+  openGraph: {
+    title: 'Sicile slow travel : Etna, temples et villages | Heldonica',
+    description:
+      'Sicile en slow travel : notre carnet de route. De Catane a Syracuse, en passant par Palerme et Taormine.',
+    url: 'https://www.heldonica.fr/destinations/sicile',
+    images: [
+      {
+        url: 'https://heldonica.fr/og-destinations.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Sicile slow travel - Etna et temples grecs',
+      },
+    ],
+    locale: 'fr_FR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Sicile slow travel : Etna, temples et villages | Heldonica',
+    description: 'Sicile en slow travel : budget 90-130€/jour. Carnet de route complet.',
   },
 }
 

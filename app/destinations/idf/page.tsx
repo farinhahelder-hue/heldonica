@@ -14,9 +14,33 @@ const faqIdfSchema = {
 };
 
 export const metadata: Metadata = {
-  title: 'IdF slow travel | Guide Heldonica',
+  title: 'Ile-de-France slow travel : Paris, Versailles, Giverny | Heldonica',
   description:
-    'Guide Ile-de-France: Paris, Versailles, Giverny, Fontainebleau.',
+    'Ile-de-France en slow travel : Paris hors des sentiers battus, Versailles, Giverny, Fontainebleau. Weekends et journees hors des foules.',
+  alternates: {
+    canonical: 'https://www.heldonica.fr/destinations/idf',
+  },
+  openGraph: {
+    title: 'Ile-de-France slow travel : Paris et ses environs | Heldonica',
+    description:
+      'Ile-de-France en slow travel : Paris, Versailles, Giverny, Fontainebleau. Nos pepites pour un weekend ou une journee hors des sentiers battus.',
+    url: 'https://www.heldonica.fr/destinations/idf',
+    images: [
+      {
+        url: 'https://heldonica.fr/og-destinations.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Ile-de-France slow travel - Paris et chateaux',
+      },
+    ],
+    locale: 'fr_FR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Ile-de-France slow travel : Paris et ses environs | Heldonica',
+    description: 'Ile-de-France en slow travel : Paris, Versailles, Giverny. Weekend et journees.',
+  },
 }
 
 const subNav = [

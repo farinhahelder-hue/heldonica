@@ -16,11 +16,32 @@ const faqSardaigneSchema = {
 };
 
 export const metadata: Metadata = {
-  title: 'Sardaigne slow travel | Guide Heldonica',
+  title: 'Sardaigne slow travel : plages, montagnes, villages | Heldonica',
   description:
-    'Guide Sardaigne: ile mediterraneenne. Plages, montagnes, villages.',
+    'Sardaigne en slow travel : notre carnet de route. Cagliari, Costa Smeralda, villages de l interieur. Budget 100-180€/nuit. Juin ou septembre.',
   alternates: {
     canonical: 'https://www.heldonica.fr/destinations/sardaigne',
+  },
+  openGraph: {
+    title: 'Sardaigne slow travel : plages et villages | Heldonica',
+    description:
+      'Sardaigne en slow travel : notre carnet de route. De Cagliari a la Costa Smeralda, en passant par Alghero et les montagnes du centre.',
+    url: 'https://www.heldonica.fr/destinations/sardaigne',
+    images: [
+      {
+        url: 'https://heldonica.fr/og-destinations.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Sardaigne slow travel - Plages et villages',
+      },
+    ],
+    locale: 'fr_FR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Sardaigne slow travel : plages et villages | Heldonica',
+    description: 'Sardaigne en slow travel : budget 100-180€/nuit. Carnet de route.',
   },
 }
 

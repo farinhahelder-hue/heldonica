@@ -35,15 +35,32 @@ const faqRoumanieSchema = {
 };
 
 export const metadata: Metadata = {
-  title: 'Roumanie slow travel | Guide Heldonica',
+  title: 'Roumanie slow travel : Timisoara, Transylvanie, budget | Heldonica',
   description:
-    'Guide Roumanie: Timisoara, Bucarest, Sibiu, Transylvanie. Destinations slow travel.',
+    'Roumanie en slow travel : notre carnet de route de Timisoara a la Transylvanie. Budget 50-80€/jour, saison recommandee, villages et chateaux.',
   alternates: {
     canonical: 'https://www.heldonica.fr/destinations/roumanie',
   },
   openGraph: {
-    title: 'Roumanie slow travel | Guide Heldonica',
+    title: 'Roumanie slow travel : de Timisoara a la Transylvanie | Heldonica',
+    description:
+      'Timisoara, Bucarest, Sibiu. Notre carnet de route en Roumanie — villages, transhumances, prix bas, gens chaleureux.',
     url: 'https://www.heldonica.fr/destinations/roumanie',
+    images: [
+      {
+        url: 'https://heldonica.fr/og-destinations.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Roumanie slow travel - Timisoara et Transylvanie',
+      },
+    ],
+    locale: 'fr_FR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Roumanie slow travel : de Timisoara a la Transylvanie | Heldonica',
+    description: 'Roumanie en slow travel : budget 50-80€/jour, villages et chateaux.',
   },
 }
 

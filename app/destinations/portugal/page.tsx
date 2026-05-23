@@ -35,15 +35,32 @@ const faqPortugalSchema = {
 };
 
 export const metadata: Metadata = {
-  title: 'Portugal slow travel | Guide Heldonica',
+  title: 'Portugal slow travel : Madere, Porto, Lisbonne | Heldonica 2026',
   description:
-    'Guide Portugal: Madere, Porto, Lisbonne, Algarve. Destinations slow travel.',
+    'Portugal en slow travel : notre carnet de route de Madere a Lisbonne. Budget 80-120€/jour, saison optimale, douceurs locales.',
   alternates: {
     canonical: 'https://www.heldonica.fr/destinations/portugal',
   },
   openGraph: {
-    title: 'Portugal slow travel | Guide Heldonica',
+    title: 'Portugal slow travel : de Madere a Lisbonne | Heldonica',
+    description:
+      'Portugal en slow travel : notre carnet de route. Madere, Porto, Lisbonne, Algarve. Le pays qui a fait le slow travel avant l heure.',
     url: 'https://www.heldonica.fr/destinations/portugal',
+    images: [
+      {
+        url: 'https://heldonica.fr/og-destinations.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Portugal slow travel - Madere et Lisbonne',
+      },
+    ],
+    locale: 'fr_FR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Portugal slow travel : de Madere a Lisbonne | Heldonica',
+    description: 'Portugal en slow travel : budget 80-120€/jour. Carnet de route.',
   },
 }
 
