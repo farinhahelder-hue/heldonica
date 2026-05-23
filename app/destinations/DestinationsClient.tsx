@@ -45,6 +45,8 @@ const destinations: DestinationCard[] = [
     season: 'avril à juin · septembre à octobre',
     verdict: "À faire lentement, sinon la Sicile ne te donne que sa surface.",
   },
+  {
+    name: 'Roumanie',
     country: 'Roumanie',
     style: 'culture',
     duration: '7-10',
@@ -52,8 +54,10 @@ const destinations: DestinationCard[] = [
     image: 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=800&q=80',
     budget: 'Accessible et dense',
     season: 'mai à octobre',
-    verdict: "Une destination qui récompense ceux qui sortent des capitales trop vite résumées.",
+    verdict: "Une destination qui récompense ceux qui.sortent des capitales trop vite résumées.",
   },
+  {
+    name: 'Paris',
     slug: '/destinations/paris',
     country: 'France',
     style: 'city',
