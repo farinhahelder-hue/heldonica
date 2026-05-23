@@ -48,7 +48,7 @@ export default function ShareButtons({ title, url }: { title: string; url: strin
           });
         }}
         id="copy-link-btn"
-        aria-label="Copier le lien de l'article"
+        aria-label="Copier le lien de l’article"
         className="inline-flex items-center gap-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold px-3 py-1.5 rounded-full transition-colors"
       >
         🔗 Copier le lien

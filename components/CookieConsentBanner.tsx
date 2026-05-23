@@ -36,7 +36,7 @@ export default function CookieConsentBanner() {
           </p>
           <p className="text-sm md:text-base text-charcoal/85 leading-relaxed">
             Nous utilisons des cookies strictement necessaires au fonctionnement du site. Les
-            cookies de mesure d'audience et marketing ne sont actives qu'avec ton consentement.
+            cookies de mesure d’audience et marketing ne sont actives qu’avec ton consentement.
           </p>
           <p className="text-sm mt-3 text-charcoal/75">
             Details :{' '}

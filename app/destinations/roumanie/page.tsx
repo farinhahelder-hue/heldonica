@@ -1,10 +1,38 @@
-'use client'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
 const SITE_URL = 'https://heldonica.fr'
+
+
+const schemaTouristDestination = {
+  '@context': 'https://schema.org',
+  '@type': 'TouristDestination',
+  name: 'Roumanie',
+  description: 'Découvrez la Roumanie en slow travel : Bucarest, Timisoara, Sibiu et les paysages authentiques des Carpates et de la Transylvanie.',
+  url: `${SITE_URL}/destinations/roumanie`,
+  address: {
+    '@type': 'PostalAddress',
+    addressCountry: 'RO',
+  },
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: 45.9432,
+    longitude: 24.9668,
+  },
+  touristType: ['Culture lover', 'Nature lover', 'Slow traveler'],
+};
+
+const faqRoumanieSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Quand aller en Roumanie ?", "acceptedAnswer": { "@type": "Answer", "text": "Mai-septembre pour climat agreable. Hiver charme ski et Noel." }},
+    { "@type": "Question", "name": "Comment aller en Roumanie ?", "acceptedAnswer": { "@type": "Answer", "text": "Vol directo Bucarest ou Timisoara (2h30). Train possibles depuis Budapest." }},
+    { "@type": "Question", "name": "Budget Roumanie ?", "acceptedAnswer": { "@type": "Answer", "text": "Tres bon marche: 50-80€/jour en hotel et restaurant local." }}
+  ]
+};
 
 export const metadata: Metadata = {
   title: 'Roumanie slow travel | Guide Heldonica',
@@ -29,6 +57,8 @@ const subNav = [
 export default function RoumaniePage() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaTouristDestination) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqRoumanieSchema) }} />
       <Header />
       <main className="min-h-screen bg-stone-50">
         <section className="relative bg-gradient-to-b from-stone-900 to-stone-800 py-20">

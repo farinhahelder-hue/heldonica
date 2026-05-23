@@ -1,4 +1,3 @@
-'use client'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
@@ -19,10 +18,10 @@ const pepites = [
   { title: 'Belem', description: 'Tour, patisserie.', icon: '🗼' },
 ]
 
-export default function LisbonnePage() {
+const faqLisbonneSchema = {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Que faire a Lisbonne?","acceptedAnswer":{"@type":"Answer","text":"Tram 28, Alfama, Belem."}},{"@type":"Question","name":"Transport Lisbonne?","acceptedAnswer":{"@type":"Answer","text":"Metro, tram 28."}},{"@type":"Question","name":"Budget Lisbonne?","acceptedAnswer":{"@type":"Answer","text":"70-10020ac/jour"}}]}; export default function LisbonnePage() {
   return (
     <>
-      <Header />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLisbonneSchema) }} /> <Header />
       <main className="min-h-screen bg-stone-50">
         <section className="bg-gradient-to-b from-stone-900 to-stone-800 py-20">
           <div className="max-w-4xl mx-auto px-4">
@@ -41,7 +40,7 @@ export default function LisbonnePage() {
             <p className="text-lg text-stone-700">Lisbonne, c est les sept collines. On monte, on descend, on trouve.</p>
           </section>
           <section className="mb-8 grid md:grid-cols-3 gap-4">
-            {peptides.map((p, i) => (
+            {pepites.map((p, i) => (
               <div key={i} className="p-4 bg-white rounded-lg border">
                 <div className="text-xl mb-2">{p.icon}</div>
                 <h3 className="font-serif">{p.title}</h3>

@@ -3,6 +3,9 @@ import Script from 'next/script';
 import './globals.css';
 import { AuthProvider } from '@/components/AuthProvider';
 import CookieConsentBanner from '@/components/CookieConsentBanner';
+import ThemeProvider from '@/components/ThemeProvider';
+import SiteTheme from '@/components/SiteTheme';
+import { getSiteSettings } from '@/lib/settings';
 
 const SITE_URL = 'https://www.heldonica.fr';
 
@@ -64,6 +67,12 @@ export const metadata: Metadata = {
       'fr-CA': SITE_URL,
       'x-default': SITE_URL,
     },
+  },
+  other: {
+    'geo.region': 'FR-75',
+    'geo.placename': 'Paris',
+    'geo.position': '48.8566;2.3522',
+    'ICBM': '48.8566, 2.3522',
   },
   openGraph: {
     type: 'website',
@@ -147,18 +156,28 @@ const schemaOrganization = {
     email: 'contact@heldonica.fr',
     availableLanguage: 'French',
   },
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Paris',
+    addressCountry: 'FR',
+  },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Fetch site assets from CMS
+  const siteSettings = await getSiteSettings();
+  const faviconUrl = siteSettings.site_favicon;
+  const logoUrl = siteSettings.site_logo;
+
   return (
     <html lang="fr">
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="icon" href={faviconUrl || '/favicon.ico'} sizes="any" />
+        <link rel="apple-touch-icon" href={logoUrl || '/apple-touch-icon.png'} />
         <link rel="preconnect" href="https://images.unsplash.com" />
         <script
           type="application/ld+json"
@@ -186,10 +205,13 @@ export default function RootLayout({
         }} />
       </head>
       <body>
-        <AuthProvider>
-          {children}
-          <CookieConsentBanner />
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <SiteTheme />
+            {children}
+            <CookieConsentBanner />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

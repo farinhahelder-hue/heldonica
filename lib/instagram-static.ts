@@ -39,14 +39,14 @@ export const INSTAGRAM_STORIES: InstagramStory[] = [
     title: 'Crete Stoos',
     location: 'Suisse',
     permalink: 'https://www.instagram.com/heldonica/',
-    image: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/stoos-01.jpg',
+    image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
   },
   {
     id: 'story-roumanie',
-    title: 'Cour cachee a Timisoara',
+    title: 'Cour cachée à Timișoara',
     location: 'Roumanie',
     permalink: 'https://www.instagram.com/heldonica/',
-    image: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
+    image: 'https://images.unsplash.com/photo-1555990538-1e0700b21df9?w=1200&q=80',
   },
   {
     id: 'story-paris',

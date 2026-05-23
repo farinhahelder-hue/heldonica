@@ -8,7 +8,7 @@ import dynamic from 'next/dynamic';
 import EnhancedRichContent from '@/components/EnhancedRichContent';
 import MediaLibrary from '@/components/MediaLibrary';
 import { sanitizeHtml } from '@/lib/sanitize-html';
-import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw } from 'lucide-react';
+import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot } from 'lucide-react';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
 const CarouselEditor = dynamic(() => import('@/components/admin/CarouselEditor'), { ssr: false });
@@ -66,11 +66,13 @@ function getReadTimeMinutes(content?: string) {
 }
 
 // ===== Config pages CMS =====
-const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { key: string; label: string; type: 'text' | 'textarea' }[] }> = {
+const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { key: string; label: string; type: 'text' | 'textarea' | 'media' | 'color' }[] }> = {
   'home': {
     label: 'Accueil',
     emoji: '🏠',
     sections: [
+      { key: 'hero_video_url',    label: 'Hero — Vidéo (URL)',              type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)',        type: 'media' },
       { key: 'hero_title',          label: 'Hero — Titre',                     type: 'text' },
       { key: 'hero_subtitle',       label: 'Hero — Sous-titre',                type: 'textarea' },
       { key: 'hero_cta',            label: 'Hero — Bouton CTA',                type: 'text' },
@@ -86,8 +88,12 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
     label: 'À propos',
     emoji: '👋',
     sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
       { key: 'page_title',  label: 'Titre de la page',      type: 'text' },
-      { key: 'intro_text',  label: "Texte d'introduction",  type: 'textarea' },
+      { key: 'intro_text',  label: "Texte d’introduction",  type: 'textarea' },
     ],
   },
   'nos-services': {
@@ -118,16 +124,32 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
     label: 'Contact',
     emoji: '📧',
     sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
       { key: 'page_title',  label: 'Titre de la page',      type: 'text' },
-      { key: 'intro_text',  label: "Texte d'introduction",  type: 'textarea' },
+      { key: 'intro_text',  label: "Texte d’introduction",  type: 'textarea' },
+      { key: 'contact_email', label: 'Email de contact', type: 'text' },
+      { key: 'contact_phone', label: 'Téléphone', type: 'text' },
     ],
   },
   'hotel-consulting': {
     label: 'Hotel Consulting',
     emoji: '🏨',
     sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
       { key: 'page_title',  label: 'Titre de la page',      type: 'text' },
-      { key: 'intro_text',  label: "Texte d'introduction",  type: 'textarea' },
+      { key: 'intro_text',  label: "Texte d’introduction",  type: 'textarea' },
+      { key: 'hero_cta', label: 'Hero — Bouton CTA', type: 'text' },
+      { key: 'hero_cta_link', label: 'Hero — Lien du bouton', type: 'text' },
+      { key: 'section_approach_title', label: 'Section Approche — Titre', type: 'text' },
+      { key: 'section_approach_text', label: 'Section Approche — Texte', type: 'textarea' },
+      { key: 'section_services_title', label: 'Section Services — Titre', type: 'text' },
+      { key: 'section_services_list', label: 'Services (liste séparée par |)', type: 'textarea' },
     ],
   },
   'mentions-legales': {
@@ -135,16 +157,117 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
     emoji: '⚖️',
     sections: [
       { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'content', label: 'Contenu (HTML)', type: 'textarea' },
+    ],
+  },
+  'politique-confidentialite': {
+    label: 'Politique de confidentialité',
+    emoji: '🔒',
+    sections: [
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'content', label: 'Contenu (HTML)', type: 'textarea' },
+    ],
+  },
+  'slow-travel': {
+    label: 'Slow Travel',
+    emoji: '🐌',
+    sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
+      { key: 'definition_title', label: 'Titre Définition', type: 'text' },
+      { key: 'definition_text', label: 'Texte Définition', type: 'textarea' },
+      { key: 'principles_title', label: 'Titre Principes', type: 'text' },
+      { key: 'principles_list', label: 'Principes (séparés par |)', type: 'textarea' },
+    ],
+  },
+  'destinations': {
+    label: 'Destinations',
+    emoji: '🗺️',
+    sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
+    ],
+  },
+  'temoignages': {
+    label: 'Témoignages',
+    emoji: '💬',
+    sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
+    ],
+  },
+  'etudes-de-cas': {
+    label: 'Études de cas',
+    emoji: '📁',
+    sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
+    ],
+  },
+  'ai-hotellerie': {
+    label: 'IA & Hôtellerie',
+    emoji: '🤖',
+    sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
     ],
   },
 };
 
 const SETTINGS_GROUPS: Record<string, { label: string; emoji: string }> = {
-  general: { label: 'Général',         emoji: '🌐' },
-  social:  { label: 'Réseaux sociaux', emoji: '📱' },
-  seo:     { label: 'SEO',             emoji: '🔍' },
-  footer:  { label: 'Footer',          emoji: '📄' },
+  general:    { label: 'Général',         emoji: '🌐' },
+  appearance:{ label: 'Apparence',      emoji: '🎨' },
+  social:    { label: 'Réseaux sociaux', emoji: '📱' },
+  seo:       { label: 'SEO',            emoji: '🔍' },
+  footer:   { label: 'Footer',          emoji: '📄' },
 };
+
+// Paramètres d’apparence (couleurs, logo, favicon)
+const APPEARANCE_SETTINGS = [
+  { key: 'site_logo',        label: 'Logo du site (PNG/SVG)',      type: 'media' },
+  { key: 'site_favicon',    label: 'Favicon (32x32, PNG/ICO)',   type: 'media' },
+  // Couleurs du site
+  { key: 'color_primary',   label: 'Couleur primaire',         type: 'color' },
+  { key: 'color_secondary', label: 'Couleur secondaire',       type: 'color' },
+  { key: 'color_accent',    label: 'Couleur d\'accent',         type: 'color' },
+  { key: 'color_background',label: 'Couleur de fond',          type: 'color' },
+  { key: 'color_text',      label: 'Couleur du texte',           type: 'color' },
+  // Couleurs des héros
+  { key: 'hero_overlay_color', label: 'Hero — Couleur de overlay', type: 'color' },
+  { key: 'hero_overlay_opacity', label: 'Hero — Opacité overlay (0-100)', type: 'text' },
+  // Couleurs des boutons
+  { key: 'button_primary_bg', label: 'Bouton principal — Fond', type: 'color' },
+  { key: 'button_primary_text', label: 'Bouton principal — Texte', type: 'color' },
+  { key: 'button_secondary_bg', label: 'Bouton secondaire — Fond', type: 'color' },
+  { key: 'button_secondary_text', label: 'Bouton secondaire — Texte', type: 'color' },
+  // Typographie
+  { key: 'font_heading',    label: 'Police des titres (Google Fonts)',           type: 'text' },
+  { key: 'font_body',      label: 'Police du texte (Google Fonts)',             type: 'text' },
+  { key: 'font_size_base', label: 'Taille de base (ex: 16px)', type: 'text' },
+  // Layout
+  { key: 'container_max_width', label: 'Largeur max container (ex: 1280px)', type: 'text' },
+  { key: 'header_sticky', label: 'Header fixe (true/false)', type: 'text' },
+];
 
 // ===== Composant interne (utilise useSearchParams) =====
 function CMSAdminInner() {
@@ -167,6 +290,92 @@ function CMSAdminInner() {
   const [savingArticle, setSavingArticle] = useState(false);
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [scheduleMode, setScheduleMode] = useState(false);
+
+  // Agents panel
+  const [agentTask, setAgentTask] = useState('');
+  const [agentRepo, setAgentRepo] = useState('farinhahelder-hue/heldonica');
+  const [agentBranch, setAgentBranch] = useState('main');
+  const [selectedAgent, setSelectedAgent] = useState('allhands');
+  const [sendingTask, setSendingTask] = useState(false);
+  const [agentMessage, setAgentMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+  const [taskHistory, setTaskHistory] = useState<{date: string; agent: string; task: string; repo: string; branch: string}[]>([]);
+
+  // Load task history from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('agent-task-history');
+      if (saved) {
+        try {
+          setTaskHistory(JSON.parse(saved));
+        } catch (e) {
+          console.error('Failed to parse task history:', e);
+        }
+      }
+    }
+  }, []);
+
+  // Send task to agent via n8n webhook
+  const sendAgentTask = async () => {
+    if (!agentTask.trim()) {
+      setAgentMessage({ type: 'error', text: 'Veuillez描述ez une tâche à effectuer.' });
+      return;
+    }
+
+    const webhookUrl = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL;
+    if (!webhookUrl) {
+      setAgentMessage({ type: 'error', text: 'URL du webhook n8n non configurée. Ajoutez NEXT_PUBLIC_N8N_WEBHOOK_URL dans .env.local' });
+      return;
+    }
+
+    setSendingTask(true);
+    setAgentMessage(null);
+
+    try {
+      const res = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agent: selectedAgent,
+          task: agentTask,
+          repo: agentRepo,
+          branch: agentBranch,
+        }),
+      });
+
+      if (res.ok) {
+        const agentLabels: Record<string, string> = {
+          allhands: 'OpenHands (AllHands)',
+          jules: 'Jules (Google)',
+          gemini: 'Gemini (Google)',
+          perplexity: 'Perplexity',
+        };
+        const label = agentLabels[selectedAgent] || selectedAgent;
+        setAgentMessage({ type: 'success', text: `Tâche envoyée à ${label} avec succès!` });
+
+        // Add to history
+        const newEntry = {
+          date: new Date().toLocaleString('fr-FR'),
+          agent: selectedAgent,
+          task: agentTask,
+          repo: agentRepo,
+          branch: agentBranch,
+        };
+        const updatedHistory = [newEntry, ...taskHistory].slice(0, 10);
+        setTaskHistory(updatedHistory);
+        localStorage.setItem('agent-task-history', JSON.stringify(updatedHistory));
+
+        // Clear task field
+        setAgentTask('');
+      } else {
+        setAgentMessage({ type: 'error', text: `Erreur lors de l'envoi de la tâche (${res.status})` });
+      }
+    } catch (err) {
+      console.error('Failed to send task:', err);
+      setAgentMessage({ type: 'error', text: 'Erreur réseau. Le webhook est-il accessible?' });
+    } finally {
+      setSendingTask(false);
+    }
+  };
 
   // SEO analysis
   const analyzeSEO = (content: string, title: string) => {
@@ -223,6 +432,8 @@ function CMSAdminInner() {
   const [editedSettings, setEditedSettings] = useState<Record<string, string>>({});
   const [editedContent, setEditedContent] = useState<Record<string, string>>({});
   const [savingSettings, setSavingSettings] = useState(false);
+  const [savingPageKey, setSavingPageKey] = useState('');
+  const [uploadingMediaKey, setUploadingMediaKey] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
 
   const isArticleDirty = getArticleDraftSignature(editingArticle) !== articleBaseline;
@@ -489,7 +700,7 @@ function CMSAdminInner() {
   const saveArticle = useCallback(async () => {
     if (!editingArticle || savingArticle) return;
     if (!editingArticle.title?.trim()) {
-      showToast("Le titre est obligatoire avant d'enregistrer.");
+      showToast("Le titre est obligatoire avant d’enregistrer.");
       return;
     }
     const isNew = !editingArticle.id;
@@ -642,9 +853,36 @@ function CMSAdminInner() {
         showToast(`❌ Upload échoué : ${data.error}`);
       }
     } catch {
-      showToast("Impossible d'envoyer cette image.");
+      showToast("Impossible d’envoyer cette image.");
     } finally {
       setUploadingFeaturedImage(false);
+      e.target.value = '';
+    }
+  };
+
+  // Upload media (image or video) for page content
+  const uploadMediaForPage = async (e: React.ChangeEvent<HTMLInputElement>, sectionKey: string, pageKey: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const key = `${pageKey}__${sectionKey}`;
+    setUploadingMediaKey(key);
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('folder', 'hero-media');
+    try {
+      const res = await fetch('/api/cms/media-upload', { method: 'POST', body: fd });
+      if (handleUnauthorized(res)) return;
+      const data = await res.json();
+      if (data.url) {
+        setEditedContent(prev => ({ ...prev, [key]: data.url }));
+        showToast('✅ Média uploadé sur Supabase !');
+      } else {
+        showToast(`❌ Upload échoué : ${data.error}`);
+      }
+    } catch {
+      showToast("Impossible d’envoyer ce média.");
+    } finally {
+      setUploadingMediaKey('');
       e.target.value = '';
     }
   };
@@ -707,18 +945,32 @@ function CMSAdminInner() {
     { id: 'pages',    icon: <Folder size={16} />, label: 'Pages', count: null },
     { id: 'demandes',icon: <Plane size={16} />, label: 'Travel Planning', count: demandes.length },
     // eslint-disable-next-line jsx-a11y/alt-text -- Image is a lucide-react icon, not an <img> element
-    { id: 'media',   icon: <Image size={16} aria-hidden="true" />, label: 'Médiathèque', count: null },
+    { id: 'media',   icon: <Image size={16} aria-hidden="true" />, label: 'Médiatèque', count: null },
     { id: 'carousel',icon: <Car size={16} />,  label: 'Carrousel', count: null },
     { id: 'settings',icon: <Settings size={16} />,label: 'Paramètres', count: null },
     { id: 'analytics',icon: <BarChart3 size={16} />,label: 'Analytics', count: null },
     { id: 'search',  icon: <Search size={16} />, label: 'Search', count: null },
+    { id: 'agents',  icon: <Bot size={16} />,   label: 'Agents', count: null },
   ];
 
   return (
     <div style={{ minHeight: '100vh', background: '#f5f3ef', fontFamily: 'DM Sans, system-ui, sans-serif' }}>
       <style>{`
+        .cms-grid-kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .cms-layout-sidebar { display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem; align-items: start; }
+        .cms-mobile-tabs { display: flex; }
+        .cms-mobile-sidebar-panel { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: white; z-index: 50; padding: 2rem 1rem; box-shadow: 2px 0 12px rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: 0.5rem; transform: translateX(-100%); transition: transform 0.3s ease; overflow-y: auto; }
+        .cms-mobile-sidebar-panel.open { transform: translateX(0); }
+        .cms-top-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+        @media (max-width: 767px) {
+          .cms-layout-sidebar { grid-template-columns: 1fr; }
+          .cms-mobile-tabs { display: none !important; }
+        }
+
         @media (min-width: 768px) {
           [data-mobile-only="true"] { display: none !important; }
+          .cms-mobile-sidebar-panel { display: none !important; }
         }
       `}</style>
       {sidebarOpen && (
@@ -728,7 +980,33 @@ function CMSAdminInner() {
           data-mobile-only="true"
         />
       )}
-      <div style={{ background: '#6b2a1a', color: 'white', padding: '1rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 2px 12px rgba(0,0,0,.15)' }}>
+      <div className={`cms-mobile-sidebar-panel ${sidebarOpen ? 'open' : ''}`}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', padding: '0 0.5rem' }}>
+          <span style={{ fontWeight: 700, fontSize: '1.2rem', color: '#6b2a1a' }}>🌍 Menu CMS</span>
+          <button onClick={() => setSidebarOpen(false)} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#6b2a1a' }}>✕</button>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {TABS.map(t => (
+            <button key={t.id}
+              onClick={() => { handleTabChange(t.id); setSidebarOpen(false); }}
+              style={{
+                padding: '1rem', border: 'none', background: tab === t.id ? '#f0e8e4' : 'transparent', cursor: 'pointer',
+                fontWeight: tab === t.id ? 700 : 500,
+                color: tab === t.id ? '#6b2a1a' : '#444',
+                borderRadius: '0.5rem',
+                fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', textAlign: 'left'
+              }}
+            >
+              {t.icon} {t.label}
+              {t.count !== null && t.count > 0 && (
+                <span style={{ background: '#6b2a1a', color: 'white', borderRadius: '9999px', padding: '.1rem .55rem', fontSize: '.75rem', fontWeight: 700, marginLeft: 'auto' }}>{t.count}</span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ background: '#6b2a1a', color: 'white', padding: '1rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 45, boxShadow: '0 2px 12px rgba(0,0,0,.15)' }}>
         <button onClick={() => setSidebarOpen(!sidebarOpen)}
           style={{ display: 'none', background: 'none', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer', marginRight: '0.5rem' }}
           data-mobile-only="true"
@@ -756,7 +1034,7 @@ function CMSAdminInner() {
         />
       )}
 
-      <div style={{ background: 'white', borderBottom: '1.5px solid #e8e3dc', padding: '0 2rem', display: 'flex', gap: '.25rem', overflowX: 'auto' }}>
+      <div className="cms-mobile-tabs" style={{ background: 'white', borderBottom: '1.5px solid #e8e3dc', padding: '0 2rem', display: 'flex', gap: '.25rem', overflowX: 'auto' }}>
         {TABS.map(t => (
           <button key={t.id}
             onClick={() => handleTabChange(t.id)}
@@ -782,7 +1060,7 @@ function CMSAdminInner() {
           <div>
             <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>🏠 Tableau de bord</h2>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+              <div className="cms-grid-kpi">
                 <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
                   <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{articles.filter(a => a.published).length}</p>
                   <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Articles publiés</p>
@@ -800,7 +1078,7 @@ function CMSAdminInner() {
                   <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Paramètres</p>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+              <div className="cms-top-actions">
                 <button onClick={() => openArticleEditor({})} style={{ padding: '.7rem 1.5rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>+ Nouvel article</button>
                 <button onClick={() => setTab('blog')} style={{ padding: '.7rem 1.5rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>✨ Générateur IA</button>
                 <button onClick={() => setTab('demandes')} style={{ padding: '.7rem 1.5rem', background: '#444', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>✈️ Travel Planning</button>
@@ -878,14 +1156,14 @@ function CMSAdminInner() {
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
               <button onClick={() => setShowArticlePreview(prev => !prev)}
                 style={{ padding: '.5rem .95rem', border: '1px solid #ddd', borderRadius: '.5rem', background: 'white', color: '#6b2a1a', cursor: 'pointer', fontSize: '.82rem', fontWeight: 700 }}
-              >{showArticlePreview ? "Masquer l'aperçu" : 'Aperçu live'}</button>
+              >{showArticlePreview ? "Masquer l’aperçu" : 'Aperçu live'}</button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
               <div style={{ gridColumn: '1/-1' }}>
                 <label style={lbl}>Titre *</label>
                 <input value={editingArticle?.title || ''}
                   onChange={e => setEditingArticle(p => ({ ...p, title: e.target.value, slug: slug(e.target.value) }))}
-                  style={inp} placeholder="Titre de l'article" />
+                  style={inp} placeholder="Titre de l’article" />
               </div>
               <div>
                 <label style={lbl}>Slug (URL)</label>
@@ -931,7 +1209,7 @@ function CMSAdminInner() {
                     </div>
                     <input value={editingArticle.featured_image}
                       onChange={e => setEditingArticle(p => ({ ...p, featured_image: e.target.value }))}
-                      style={{ ...inp, flex: 1, fontSize: '.82rem' }} placeholder="URL de l'image" />
+                      style={{ ...inp, flex: 1, fontSize: '.82rem' }} placeholder="URL de l’image" />
                   </div>
                 ) : (
                   <input value=""
@@ -1005,7 +1283,7 @@ function CMSAdminInner() {
                   ) : (
                     <div style={previewImageFallback}>Ajoute une image à la une</div>
                   )}
-                  <h1 style={{ margin: 0, fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', lineHeight: 1.1, color: '#1f1a17' }}>{editingArticle?.title || "Titre de l'article"}</h1>
+                  <h1 style={{ margin: 0, fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', lineHeight: 1.1, color: '#1f1a17' }}>{editingArticle?.title || "Titre de l’article"}</h1>
                   <p style={{ margin: '1rem 0 1.5rem', color: '#6d625a', fontSize: '1rem', lineHeight: 1.7 }}>{editingArticle?.excerpt || "Ton extrait apparaîtra ici."}</p>
                   {articlePreviewHtml ? (
                     <EnhancedRichContent html={articlePreviewHtml} style={previewBody} />
@@ -1027,7 +1305,7 @@ function CMSAdminInner() {
         {tab === 'pages' && (
           <div>
             {loadingSettings ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p> : (
-              <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '1.5rem', alignItems: 'start' }}>
+              <div className="cms-layout-sidebar">
                 <div style={{ background: 'white', borderRadius: '1rem', padding: '1rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
                   {Object.entries(PAGES_CONFIG).map(([key, cfg]) => (
                     <button key={key} onClick={() => setActivePage(key)}
@@ -1050,8 +1328,33 @@ function CMSAdminInner() {
                                 <label style={lbl}>{section.label}</label>
                                 {section.type === 'textarea' ? (
                                   <textarea value={editedContent[key] ?? ''} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={{ ...inp, height: 110, resize: 'vertical' }} placeholder={section.label} />
+                                ) : section.type === 'media' ? (
+                                  <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                                    <input value={editedContent[key] ?? ''} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={{ ...inp, flex: 1, minWidth: 200 }} placeholder="URL ou upload..." />
+                                    <label style={{ padding: '.5rem .85rem', background: uploadingMediaKey === key ? '#8aa8a9' : '#01696f', color: 'white', borderRadius: '.4rem', cursor: uploadingMediaKey === key ? 'wait' : 'pointer', fontSize: '.8rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                                      {uploadingMediaKey === key ? '⏳...' : '⬆️ Upload'}
+                                      <input type="file" accept="video/*,image/*" onChange={(e) => uploadMediaForPage(e, section.key, activePage)} style={{ display: 'none' }} disabled={!!uploadingMediaKey} />
+                                    </label>
+                                    {editedContent[key] && (
+                                      <button onClick={() => setEditedContent(prev => ({ ...prev, [key]: '' }))} style={{ padding: '.5rem .75rem', background: '#f0e8e4', color: '#6b2a1a', border: 'none', borderRadius: '.4rem', cursor: 'pointer', fontSize: '.8rem' }}>✕</button>
+                                    )}
+                                  </div>
+                                ) : section.type === 'color' ? (
+                                  <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
+                                    <input type="color" value={editedContent[key] || '#6b2a1a'} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={{ width: 50, height: 40, padding: 0, border: 'none', cursor: 'pointer' }} />
+                                    <input value={editedContent[key] ?? ''} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={{ ...inp, flex: 1 }} placeholder="#RRGGBB" />
+                                  </div>
                                 ) : (
                                   <input value={editedContent[key] ?? ''} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={inp} placeholder={section.label} />
+                                )}
+                                {section.type === 'media' && editedContent[key] && (
+                                  <div style={{ marginTop: '.5rem', borderRadius: '.5rem', overflow: 'hidden', maxWidth: 320 }}>
+                                    {section.key.includes('video') || editedContent[key]?.endsWith('.mp4') || editedContent[key]?.endsWith('.webm') ? (
+                                      <video src={editedContent[key]} controls style={{ width: '100%', borderRadius: '.5rem' }} />
+                                    ) : (
+                                      <img src={editedContent[key]} alt="Preview" style={{ width: '100%', borderRadius: '.5rem', objectFit: 'cover' }} />
+                                    )}
+                                  </div>
                                 )}
                               </div>
                             );
@@ -1162,30 +1465,130 @@ function CMSAdminInner() {
         )}
 
         {tab === 'analytics' && (
-          <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: '900px' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>📊 Analytics</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
-              {(['Sessions', 'Utilisateurs', 'Pages vues', 'Taux rebond'] as const).map(label => (
-                <div key={label} style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
-                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>—</p>
-                  <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>{label}</p>
+              <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: '960px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                  <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a', margin: 0 }}>📊 Analytics GA4</h2>
+                  <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
+                    {analyticsData?.period && <span style={{ fontSize: '.75rem', color: '#888', background: '#f5f5f5', padding: '.25rem .75rem', borderRadius: '1rem' }}>{analyticsData.period.startDate} → {analyticsData.period.endDate}</span>}
+                    <button onClick={async () => {
+                      setLoadingAnalytics(true);
+                      try {
+                        const res = await fetch('/api/cms/analytics', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ startDate: '30daysAgo', endDate: 'today' }) });
+                        const data = await res.json();
+                        setAnalyticsData(data);
+                      } catch (e) { console.error(e); }
+                      setLoadingAnalytics(false);
+                    }} disabled={loadingAnalytics}
+                    style={{ padding: '.5rem 1.25rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 600, cursor: 'pointer', fontSize: '.85rem' }}>
+                      {loadingAnalytics ? '⏳ Chargement…' : '🔄 Actualiser'}
+                    </button>
+                  </div>
                 </div>
-              ))}
-            </div>
-            <button onClick={async () => {
-              setLoadingAnalytics(true);
-              try {
-                const res = await fetch('/api/cms/analytics', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ startDate: '30daysAgo', endDate: 'today' }) });
-                const data = await res.json();
-                setAnalyticsData(data);
-              } catch (e) { console.error(e); }
-              setLoadingAnalytics(false);
-            }} disabled={loadingAnalytics}
-              style={{ padding: '.7rem 1.5rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 600, cursor: 'pointer' }}>
-              {loadingAnalytics ? '⏳ Chargement…' : '🔄 Actualiser'}
-            </button>
-          </div>
-        )}
+
+                {/* KPIs principaux - ligne 1 */}
+                <div className="cms-grid-kpi">
+                  {([
+                    { key: 'sessions', label: 'Sessions', icon: '📈', fmt: (v: number) => v.toLocaleString('fr') },
+                    { key: 'users', label: 'Utilisateurs', icon: '👥', fmt: (v: number) => v.toLocaleString('fr') },
+                    { key: 'newUsers', label: 'Nv. utilisateurs', icon: '✨', fmt: (v: number) => v.toLocaleString('fr') },
+                    { key: 'screenPageViews', label: 'Pages vues', icon: '📄', fmt: (v: number) => v.toLocaleString('fr') },
+                  ] as const).map(({ key, label, icon, fmt }) => {
+                    const val = analyticsData?.totals?.[key]?.value ?? null;
+                    return (
+                      <div key={key} style={{ background: '#fdf8f6', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center', border: '1px solid #f0e8e4' }}>
+                        <div style={{ fontSize: '1.5rem', marginBottom: '.25rem' }}>{icon}</div>
+                        <p style={{ fontSize: '1.6rem', fontWeight: 700, color: '#6b2a1a', margin: '.25rem 0' }}>{val != null ? fmt(val) : '--'}</p>
+                        <p style={{ fontSize: '.7rem', color: '#999', textTransform: 'uppercase', letterSpacing: '.05em', margin: 0 }}>{label}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* KPIs secondaires - ligne 2 */}
+                <div className="cms-grid-kpi">
+                  {([
+                    { key: 'bounceRate', label: 'Taux rebond', icon: '↩️', fmt: (v: number) => `${(v*100).toFixed(1)}%` },
+                    { key: 'engagementRate', label: 'Taux engagement', icon: '💡', fmt: (v: number) => `${(v*100).toFixed(1)}%` },
+                    { key: 'avgSessionDuration', label: 'Durée moy. session', icon: '⏱️', fmt: (v: number) => { const m = Math.floor(v/60); const s = Math.round(v%60); return `${m}m${s < 10 ? '0' : ''}${s}s`; } },
+                    { key: 'pagesPerSession', label: 'Pages / session', icon: '📑', fmt: (v: number) => v.toFixed(2) },
+                  ] as const).map(({ key, label, icon, fmt }) => {
+                    const val = analyticsData?.totals?.[key]?.value ?? null;
+                    return (
+                      <div key={key} style={{ background: '#f6f9fd', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center', border: '1px solid #e4ecf5' }}>
+                        <div style={{ fontSize: '1.5rem', marginBottom: '.25rem' }}>{icon}</div>
+                        <p style={{ fontSize: '1.6rem', fontWeight: 700, color: '#1a4a6b', margin: '.25rem 0' }}>{val != null ? fmt(val) : '--'}</p>
+                        <p style={{ fontSize: '.7rem', color: '#999', textTransform: 'uppercase', letterSpacing: '.05em', margin: 0 }}>{label}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Top pages + Sources de trafic */}
+                <div className="cms-grid-kpi">
+                  {/* Top pages */}
+                  <div style={{ background: '#fafafa', borderRadius: '.75rem', padding: '1.25rem', border: '1px solid #eee' }}>
+                    <h3 style={{ fontSize: '.9rem', fontWeight: 700, color: '#333', margin: '0 0 1rem' }}>🏆 Top pages</h3>
+                    {analyticsData?.topPages?.length > 0 ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
+                        {analyticsData.topPages.slice(0, 7).map((p: any, i: number) => (
+                          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '.8rem' }}>
+                            <span style={{ color: '#555', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '75%' }}>
+                              <span style={{ color: '#aaa', marginRight: '.4rem' }}>#{i+1}</span>{p.path}
+                            </span>
+                            <span style={{ fontWeight: 700, color: '#6b2a1a', marginLeft: '.5rem' }}>{p.views}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : <p style={{ fontSize: '.8rem', color: '#bbb', textAlign: 'center', margin: '1rem 0' }}>Cliquez Actualiser</p>}
+                  </div>
+
+                  {/* Sources de trafic */}
+                  <div style={{ background: '#fafafa', borderRadius: '.75rem', padding: '1.25rem', border: '1px solid #eee' }}>
+                    <h3 style={{ fontSize: '.9rem', fontWeight: 700, color: '#333', margin: '0 0 1rem' }}>🌐 Sources de trafic</h3>
+                    {analyticsData?.trafficSources?.length > 0 ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
+                        {analyticsData.trafficSources.map((s: any, i: number) => {
+                          const total = analyticsData.trafficSources.reduce((acc: number, x: any) => acc + x.sessions, 0);
+                          const pct = total > 0 ? Math.round((s.sessions / total) * 100) : 0;
+                          return (
+                            <div key={i} style={{ fontSize: '.8rem' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '.2rem' }}>
+                                <span style={{ color: '#555' }}>{s.channel}</span>
+                                <span style={{ fontWeight: 700, color: '#333' }}>{s.sessions} <span style={{ color: '#aaa', fontWeight: 400 }}>({pct}%)</span></span>
+                              </div>
+                              <div style={{ background: '#e8e8e8', borderRadius: '4px', height: '4px' }}>
+                                <div style={{ width: `${pct}%`, background: '#6b2a1a', borderRadius: '4px', height: '4px' }} />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : <p style={{ fontSize: '.8rem', color: '#bbb', textAlign: 'center', margin: '1rem 0' }}>Cliquez Actualiser</p>}
+                  </div>
+                </div>
+
+                {/* Appareils */}
+                {analyticsData?.devices?.length > 0 && (
+                  <div style={{ background: '#fafafa', borderRadius: '.75rem', padding: '1.25rem', border: '1px solid #eee' }}>
+                    <h3 style={{ fontSize: '.9rem', fontWeight: 700, color: '#333', margin: '0 0 1rem' }}>📱 Appareils</h3>
+                    <div style={{ display: 'flex', gap: '1.5rem' }}>
+                      {analyticsData.devices.map((d: any, i: number) => {
+                        const total = analyticsData.devices.reduce((acc: number, x: any) => acc + x.sessions, 0);
+                        const pct = total > 0 ? Math.round((d.sessions / total) * 100) : 0;
+                        const icons: Record<string,string> = { desktop: '🖥️', mobile: '📱', tablet: '📲' };
+                        return (
+                          <div key={i} style={{ textAlign: 'center' }}>
+                            <div style={{ fontSize: '1.5rem' }}>{icons[d.device] ?? '💻'}</div>
+                            <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#333' }}>{pct}%</div>
+                            <div style={{ fontSize: '.7rem', color: '#999', textTransform: 'capitalize' }}>{d.device}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
         {tab === 'search' && (
           <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: '900px' }}>
@@ -1217,7 +1620,7 @@ function CMSAdminInner() {
         {tab === 'settings' && (
           <div>
             {loadingSettings ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p> : (
-              <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '1.5rem', alignItems: 'start' }}>
+              <div className="cms-layout-sidebar">
                 <div style={{ background: 'white', borderRadius: '1rem', padding: '1rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
                   {Object.entries(SETTINGS_GROUPS).map(([key, cfg]) => (
                     <button key={key} onClick={() => setSettingsGroup(key)}
@@ -1229,6 +1632,7 @@ function CMSAdminInner() {
                   {(() => {
                     const groupItems = settings.filter(s => {
                       if (settingsGroup === 'general') return ['site_title', 'site_logo', 'site_favicon'].includes(s.key);
+                      if (settingsGroup === 'appearance') return true; // Show all appearance settings
                       if (settingsGroup === 'social') return s.key.startsWith('social_');
                       if (settingsGroup === 'seo') return s.key.startsWith('seo_');
                       if (settingsGroup === 'footer') return s.key.startsWith('footer_');
@@ -1258,6 +1662,108 @@ function CMSAdminInner() {
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {tab === 'agents' && (
+          <div>
+            <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: 800, marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '.5rem' }}>
+                <Bot size={24} /> Envoyer une tâche à un agent IA
+              </h2>
+              
+              {/* Agent select */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={lbl}>Agent</label>
+                <select value={selectedAgent} onChange={e => setSelectedAgent(e.target.value)}
+                  style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.9rem', outline: 'none', background: '#faf9f7', color: '#1a1a1a', cursor: 'pointer' }}>
+                  <option value="allhands">OpenHands (AllHands)</option>
+                  <option value="jules">Jules (Google)</option>
+                  <option value="gemini">Gemini (Google)</option>
+                  <option value="perplexity">Perplexity</option>
+                </select>
+              </div>
+
+              {/* Task textarea */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={lbl}>Tâche</label>
+                <textarea value={agentTask} onChange={e => setAgentTask(e.target.value)}
+                  placeholder="Décrivez la tâche à effectuer..."
+                  rows={4}
+                  style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.9rem', outline: 'none', background: '#faf9f7', color: '#1a1a1a', resize: 'vertical', fontFamily: 'inherit' }} />
+              </div>
+
+              {/* Repo input */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={lbl}>Repo</label>
+                <input value={agentRepo} onChange={e => setAgentRepo(e.target.value)}
+                  placeholder="farinhahelder-hue/heldonica"
+                  style={inp} />
+              </div>
+
+              {/* Branch input */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={lbl}>Branche</label>
+                <input value={agentBranch} onChange={e => setAgentBranch(e.target.value)}
+                  placeholder="main"
+                  style={inp} />
+              </div>
+
+              {/* Send button */}
+              <button onClick={sendAgentTask} disabled={sendingTask}
+                style={{ padding: '.75rem 2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '1rem', opacity: sendingTask ? .7 : 1 }}>
+                {sendingTask ? '⏳ Envoi...' : '📤 Envoyer la tâche'}
+              </button>
+
+              {/* Success/error message */}
+              {agentMessage && (
+                <div style={{ 
+                  marginTop: '1rem', 
+                  padding: '.75rem 1rem', 
+                  borderRadius: '.5rem', 
+                  background: agentMessage.type === 'success' ? '#d4edda' : '#f8d7da',
+                  color: agentMessage.type === 'success' ? '#155724' : '#721c24',
+                  fontSize: '.9rem'
+                }}>
+                  {agentMessage.type === 'success' ? '✓' : '✕'} {agentMessage.text}
+                </div>
+              )}
+            </div>
+
+            {/* Task History */}
+            <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: 800 }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1rem' }}>Historique des 10 dernières tâches</h3>
+              {taskHistory.length === 0 ? (
+                <p style={{ color: '#888', fontSize: '.9rem', textAlign: 'center', padding: '1.5rem' }}>Aucune tâche envoyée récemment.</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '.75rem' }}>
+                  {taskHistory.map((entry, i) => {
+                    const agentLabels: Record<string, string> = {
+                      allhands: 'OpenHands',
+                      jules: 'Jules',
+                      gemini: 'Gemini',
+                      perplexity: 'Perplexity',
+                    };
+                    return (
+                      <div key={i} style={{ padding: '.75rem', background: '#f8f6f4', borderRadius: '.5rem', borderLeft: '3px solid #6b2a1a' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '.35rem', flexWrap: 'wrap', gap: '.5rem' }}>
+                          <span style={{ fontWeight: 600, color: '#333', fontSize: '.9rem' }}>{agentLabels[entry.agent] || entry.agent}</span>
+                          <span style={{ fontSize: '.75rem', color: '#888' }}>{entry.date}</span>
+                        </div>
+                        <div style={{ fontSize: '.85rem', color: '#555', marginBottom: '.35rem' }}>
+                          {entry.task.length > 100 ? entry.task.substring(0, 100) + '...' : entry.task}
+                        </div>
+                        <div style={{ display: 'flex', gap: '1rem', fontSize: '.75rem', color: '#888' }}>
+                          <span>📁 {entry.repo}</span>
+                          <span>🌿 {entry.branch}</span>
+                          <span style={{ color: '#28a745', fontWeight: 600 }}>✓ Envoyé</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         )}
 

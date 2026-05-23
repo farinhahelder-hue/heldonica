@@ -1,4 +1,3 @@
-'use client'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Header from '@/components/Header'
@@ -25,6 +24,16 @@ const schemaTouristDestination = {
   touristType: ['History buff', 'Beach lover', 'Slow traveler'],
   bestSeasonToVisit: ['May', 'June', 'July', 'August', 'September'],
 }
+
+const faqNormandieSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Quand aller en Normandie ?", "acceptedAnswer": { "@type": "Answer", "text": "Mai-septembre pour meteo agreable. Juin pour cimetiere americain moins foule." }},
+    { "@type": "Question", "name": "Comment aller en Normandie ?", "acceptedAnswer": { "@type": "Answer", "text": "Train depuis Paris (2h). Voiture pour flexibilite. Baleines à Etretat." }},
+    { "@type": "Question", "name": "Que voir en Normandie ?", "acceptedAnswer": { "@type": "Answer", "text": "Le Havre (UNESCO), Honfleur, plages du debarquement, Mont Saint-Michel." }}
+  ]
+};
 
 export const metadata: Metadata = {
   title: 'Normandie slow travel | Guide Heldonica',
@@ -198,6 +207,10 @@ export default function NormandiePage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaTouristDestination) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqNormandieSchema) }}
       />
     </>
   )

@@ -26,8 +26,8 @@ export async function GET(req: Request) {
   if (!existing) {
     const { error } = await supabase.storage.createBucket('media', {
       public: true,
-      allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'],
-      fileSizeLimit: 10485760, // 10 MB
+      allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif', 'video/mp4', 'video/webm', 'video/quicktime'],
+      fileSizeLimit: 52428800, // 50 MB (videos can be larger)
     });
 
     if (error) {

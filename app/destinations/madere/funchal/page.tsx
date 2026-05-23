@@ -1,8 +1,17 @@
-'use client'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+
+const faqFunchalSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Que faire a Funchal ?", "acceptedAnswer": { "@type": "Answer", "text": "Marche des travailleurs, vieille ville coloree, Teleferia du Palais, jardins botaniques." }},
+    { "@type": "Question", "name": "Ou manger Funchal ?", "acceptedAnswer": { "@type": "Answer", "text": "Mercado dos Ladarios pour poisson grillade, rue de Santa Maria pour atmosfera." }},
+    { "@type": "Question", "name": "Transport Funchal ?", "acceptedAnswer": { "@type": "Answer", "text": "Bus ASTA depasse marche central. Teleferique pour Monte depuis centre." }}
+  ]
+};
 
 export const metadata: Metadata = {
   title: 'Funchal slow travel | Guide Heldonica',
@@ -55,6 +64,7 @@ const navLinks = [
 export default function FunchalPage() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqFunchalSchema) }} />
       <Header />
       <main className="min-h-screen bg-stone-50">
         <section className="relative bg-gradient-to-b from-stone-900 to-stone-800 py-20">
@@ -99,7 +109,7 @@ export default function FunchalPage() {
               Ce qu on a deniché
             </h2>
             <div className="grid gap-6 md:grid-cols-2">
-              {peptides.map((pepite, idx) => (
+              {pepites.map((pepite, idx) => (
                 <div key={idx} className="p-6 bg-white rounded-lg border border-stone-200">
                   <div className="text-2xl mb-2">{pepite.icon}</div>
                   <h3 className="font-serif text-lg text-stone-900 mb-2">

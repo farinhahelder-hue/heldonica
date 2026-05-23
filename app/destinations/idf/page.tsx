@@ -1,8 +1,17 @@
-'use client'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+
+const faqIdfSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Jour ideale Paris ?", "acceptedAnswer": { "@type": "Answer", "text": "Mardi-vendredipour evit weekends chargés." }},
+    { "@type": "Question", "name": "Transport Paris ?", "acceptedAnswer": { "@type": "Answer", "text": "Metro + Vélib. Navigo pour deca." }},
+    { "@type": "Question", "name": "Que faire pres Paris ?", "acceptedAnswer": { "@type": "Answer", "text": "Versailles, Giverny, Fontainebleau en journee." }}
+  ]
+};
 
 export const metadata: Metadata = {
   title: 'IdF slow travel | Guide Heldonica',
@@ -20,6 +29,7 @@ const subNav = [
 export default function IdfPage() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqIdfSchema) }} />
       <Header />
       <main className="min-h-screen bg-stone-50">
         <section className="relative bg-gradient-to-b from-stone-900 to-stone-800 py-20">

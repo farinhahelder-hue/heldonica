@@ -184,3 +184,35 @@ export async function getSetting(key: string): Promise<string | null> {
     return null;
   }
 }
+
+/**
+ * Récupère le contenu d'une page (depuis site_content table)
+ * Retourne un dictionnaire block_key -> value
+ */
+export async function getPageContent(page: string): Promise<Record<string, string>> {
+  if (!supabase) return {};
+  
+  try {
+    const { data, error } = await supabase
+      .from('site_content')
+      .select('block_key, value')
+      .eq('page', page);
+
+    if (error) {
+      console.error(`Supabase getPageContent error for '${page}':`, error.message);
+      return {};
+    }
+
+    if (!data || data.length === 0) return {};
+    
+    return data.reduce((acc, item) => {
+      if (item.block_key && item.value) {
+        acc[item.block_key] = item.value;
+      }
+      return acc;
+    }, {} as Record<string, string>);
+  } catch (err) {
+    console.error(`getPageContent exception for '${page}':`, err);
+    return {};
+  }
+}

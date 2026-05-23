@@ -4,11 +4,11 @@ import Footer from '@/components/Footer';
 import Breadcrumb from '@/components/Breadcrumb';
 
 export const metadata: Metadata = {
-  title: 'Mentions legales',
+  title: 'Mentions légales',
   description:
-    "Informations legales de l'editeur, de l'hebergeur et conditions d'utilisation du site Heldonica.",
+    "informations légales de l’éditeur, de l’hébergeur et conditions d’utilisation du site Heldonica.",
   alternates: {
-    canonical: 'https://heldonica.fr/mentions-legales',
+    canonical: 'https://heldonica.fr/mentions-légales',
   },
 };
 
@@ -27,7 +27,7 @@ function LegalSection({
   );
 }
 
-export default function MentionsLegalesPage() {
+export default function MentionslégalesPage() {
   return (
     <>
       <Header />
@@ -39,10 +39,10 @@ export default function MentionsLegalesPage() {
               Cadre legal
             </p>
             <h1 className="text-4xl md:text-6xl font-serif font-bold text-mahogany mb-5">
-              Mentions legales
+              Mentions légales
             </h1>
             <p className="text-lg text-charcoal/80">
-              Informations legales du site heldonica.fr, de son editeur et de son hebergeur.
+              informations légales du site heldonica.fr, de son éditeur et de son hébergeur.
             </p>
           </div>
         </section>
@@ -55,12 +55,12 @@ export default function MentionsLegalesPage() {
               </p>
             </div>
 
-            <LegalSection title="Identite de l'editeur">
+            <LegalSection title="Identité de l’éditeur">
               <p>
                 <strong>Nom commercial :</strong> Heldonica
               </p>
               <p>
-                Informations legales complementaires en cours de mise a jour.
+                informations légales complementaires en cours de mise a jour.
               </p>
               <p>
                 <strong>Email de contact :</strong>{' '}
@@ -73,7 +73,7 @@ export default function MentionsLegalesPage() {
               </p>
             </LegalSection>
 
-            <LegalSection title="Hebergeur">
+            <LegalSection title="hébergeur">
               <p>
                 <strong>Societe :</strong> Vercel Inc.
               </p>
@@ -95,7 +95,7 @@ export default function MentionsLegalesPage() {
 
             <LegalSection title="Propriete intellectuelle">
               <p>
-                L'ensemble des contenus presents sur heldonica.fr (textes, visuels, videos,
+                L’ensemble des contenus presents sur heldonica.fr (textes, visuels, videos,
                 elements graphiques, structure et code) est protege par le droit de la propriete
                 intellectuelle.
               </p>
@@ -104,22 +104,22 @@ export default function MentionsLegalesPage() {
                 sans autorisation prealable ecrite de Heldonica est interdite.
               </p>
               <p>
-                <strong>Credits photo :</strong> Heldonica et banques d'images sous licence.
+                <strong>Credits photo :</strong> Heldonica et banques d’images sous licence.
               </p>
             </LegalSection>
 
             <LegalSection title="Limitation de responsabilite">
               <p>
-                Heldonica s'efforce de fournir des informations fiables et a jour, sans garantie
-                d'exhaustivite ou d'absence d'erreur.
+                Heldonica s’efforce de fournir des informations fiables et a jour, sans garantie
+                d’exhaustivite ou d’absence d’erreur.
               </p>
               <p>
                 Heldonica ne pourra etre tenue responsable des dommages directs ou indirects lies a
-                l'utilisation du site, a l'indisponibilite temporaire du service ou a l'usage
-                d'informations externes referencees.
+                l’utilisation du site, a l’indisponibilite temporaire du service ou a l’usage
+                d’informations externes referencees.
               </p>
               <p>
-                Les liens sortants sont fournis a titre informatif et n'emportent pas validation de
+                Les liens sortants sont fournis a titre informatif et n’emportent pas validation de
                 leur contenu.
               </p>
             </LegalSection>
