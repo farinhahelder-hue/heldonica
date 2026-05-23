@@ -94,41 +94,41 @@ export const metadata: Metadata = {
 const seasonRows = [
   {
     period: 'Mars - Mai',
-    weather: '16 a 22 C, vegetation tres vive',
+    weather: '16 à 22°C, végétation très vive',
     vibe: 'Excellent pour rando + villages',
   },
   {
     period: 'Juin - Septembre',
-    weather: '22 a 28 C, mer plus agreable',
+    weather: '22 à 28°C, mer plus agréable',
     vibe: 'Ideal pour un mix ocean + relief',
   },
   {
-    period: 'Octobre - Fevrier',
-    weather: '14 a 20 C, plus humide',
+    period: 'Octobre - Février',
+    weather: '14 à 20°C, plus humide',
     vibe: 'Parfait en mode slow contemplatif',
   },
 ];
 
 const faqItems = [
   {
-    question: 'Combien de jours pour une premiere fois a Madere ?',
+    question: 'Combien de jours pour une première fois à Madère ?',
     answer:
-      '7 jours est un bon equilibre pour alterner falaises, levadas, villages et temps de pause en duo.',
+      '7 jours est un bon équilibre pour alterner falaises, levadas, villages et temps de pause en duo.',
   },
   {
-    question: 'Le budget 1400-1800 EUR est-il realiste ?',
+    question: 'Le budget 1400-1800 EUR est-il réaliste ?',
     answer:
-      'Oui, pour 7 jours en duo avec une approche equilibree et hors pics tres hauts de saison.',
+      'Oui, pour 7 jours en duo avec une approche équilibrée et hors pics très hauts de saison.',
   },
   {
     question: 'Faut-il louer une voiture ?',
     answer:
-      'Pour explorer librement les points de vue et randonnees, oui. Sinon, il faut cadrer un itinerary plus compact.',
+      'Pour explorer librement les points de vue et randos, oui. Sinon, il faut cadrer un itinéraire plus compact.',
   },
   {
-    question: 'Madere convient-elle a un voyage lent ?',
+    question: 'Madère convient-elle à un voyage lent ?',
     answer:
-      'Tres bien. La force de l ile est de pouvoir doser: plages, relief, gastronomie et micro-aventures au meme endroit.',
+      'Très bien. La force de l île est de pouvoir doser: plages, relief, gastronomie et micro-aventures au même endroit.',
   },
 ];
 
@@ -148,14 +148,14 @@ export default function MaderePage() {
         <section className="relative min-h-[66vh] flex items-end overflow-hidden bg-stone-900">
           <img
             src="https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg"
-            alt="Foret de Fanal dans la brume a Madere"
+            alt="Forêt de Fanal dans la brume à Madère"
             className="absolute inset-0 h-full w-full object-cover opacity-65"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
           <div className="absolute right-4 top-4 hidden md:block rounded-xl overflow-hidden border border-white/25 shadow-xl bg-black/30 backdrop-blur-sm">
             <img
               src="https://heldonica.fr/wp-content/uploads/2026/03/fetched-image-2-1024x768.jpg"
-              alt="Cabo Girao a l'aube, spot eco-luxe"
+              alt="Cabo Girao à l'aube, spot éco-luxe"
               className="h-28 w-40 object-cover"
               loading="lazy"
             />
@@ -212,10 +212,10 @@ export default function MaderePage() {
           <div className="container">
             <div className="grid lg:grid-cols-[1.1fr_1fr] gap-8">
               <article className="rounded-2xl bg-white border border-stone-200 p-6 md:p-8">
-                <h2 className="text-3xl font-serif text-mahogany mb-4">Quand partir a Madere</h2>
+                <h2 className="text-3xl font-serif text-mahogany mb-4">Quand partir à Madère</h2>
                 <p className="text-charcoal/80 leading-relaxed mb-6">
-                  Madere se voyage toute l annee, mais chaque saison change la lecture de
-                  l ile. L objectif n est pas de cocher, mais de choisir le bon tempo.
+                  Madère se voyage toute l'année, mais chaque saison change la lecture de
+                  l'île. L'objectif n'est pas de cocher, mais de choisir le bon tempo.
                 </p>
                 <div className="space-y-4">
                   {seasonRows.map((row) => (
@@ -234,13 +234,13 @@ export default function MaderePage() {
               <article className="rounded-2xl bg-white border border-stone-200 p-6 md:p-8">
                 <h2 className="text-3xl font-serif text-mahogany mb-4">Budget et cadrage</h2>
                 <p className="text-charcoal/80 leading-relaxed mb-4">
-                  Sur 7 jours en duo, l enveloppe la plus frequente se situe entre 1400 et
-                  1800 EUR selon la saison, l hebergement et la location voiture.
+                  Sur 7 jours en duo, l'enveloppe la plus fréquente se situe entre 1400 et
+                  1800 EUR selon la saison, l'hébergement et la location voiture.
                 </p>
                 <ul className="space-y-2 text-charcoal/80 mb-6">
                   <li>- Vols: 500-760 EUR duo</li>
-                  <li>- Hebergement: 90-160 EUR / nuit</li>
-                  <li>- Repas + activites: 60-110 EUR / jour / duo</li>
+                  <li>- Hébergement: 90-160 EUR / nuit</li>
+                  <li>- Repas + activités: 60-110 EUR / jour / duo</li>
                   <li>- Voiture: 45-70 EUR / jour</li>
                 </ul>
                 <Link
@@ -263,8 +263,8 @@ export default function MaderePage() {
                 <span className="inline-block text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded-full mb-3">Teste par Heldonica</span>
                 <h3 className="text-xl font-serif text-mahogany mb-2">Funchal</h3>
                 <p className="text-sm text-charcoal/75 mb-4">
-                  Base confortable pour une premiere fois: ville vivante, restaurants et
-                  acces simple a l ensemble de l ile.
+                  Base confortable pour une première fois: ville vivante, restaurants et
+                  accès simple à l'ensemble de l'île.
                 </p>
                 <a
                   href="https://www.booking.com/city/pt/funchal.fr.html?aid=2420035"
@@ -316,22 +316,22 @@ export default function MaderePage() {
             <div className="grid lg:grid-cols-[1.1fr_1fr] gap-8 items-start">
               <article className="rounded-2xl bg-white border border-stone-200 p-6 md:p-8">
                 <h2 className="text-3xl font-serif text-mahogany mb-4">
-                  Itineraire 7 jours: version Heldonica
+                  Itinéraire 7 jours: version Heldonica
                 </h2>
                 <ul className="space-y-3 text-charcoal/80 mb-6">
-                  <li>Jour 1: Funchal, marche, vieille ville, coucher de soleil.</li>
-                  <li>Jour 2: Est de l ile, Ponta de Sao Lourenco.</li>
-                  <li>Jour 3: Levadas et forets de laurisylve.</li>
+                  <li>Jour 1: Funchal, marché, vieille ville, coucher de soleil.</li>
+                  <li>Jour 2: Est de l'île, Ponta de Sao Lourenco.</li>
+                  <li>Jour 3: Levadas et forêts de laurisylve.</li>
                   <li>Jour 4: Nord volcanique, piscines naturelles.</li>
                   <li>Jour 5: Villages suspendus et routes panoramiques.</li>
-                  <li>Jour 6: Journee libre selon energie et meteo.</li>
+                  <li>Jour 6: Journée libre selon énergie et météo.</li>
                   <li>Jour 7: Slow morning et dernier panorama.</li>
                 </ul>
                 <Link
                   href="/destinations/madere/itineraire-7-jours"
                   className="inline-flex px-5 py-2.5 rounded-lg bg-mahogany text-white font-semibold hover:bg-mahogany/90 transition-colors"
                 >
-                  Lire l itinerary detaille
+                  Lire l'itinéraire détaillé
                 </Link>
               </article>
 
@@ -378,17 +378,17 @@ export default function MaderePage() {
               Voyage sur mesure
             </p>
             <h2 className="text-3xl md:text-4xl font-serif mb-4">
-              Tu veux un carnet Madere adapte a ton rythme ?
+              Tu veux un carnet Madère adapté à ton rythme ?
             </h2>
             <p className="text-white/80 mb-8">
-              On transforme tes contraintes reelles (temps, budget, energie) en itinerary
-              concret, avec adresses testees et sequence logique.
+              On transforme tes contraintes réelles (temps, budget, énergie) en itinéraire
+              concret, avec adresses testées et séquence logique.
             </p>
             <Link
               href="/travel-planning-form?destination=madere"
               className="inline-flex px-7 py-3 rounded-lg bg-teal text-charcoal font-semibold hover:bg-teal/90 transition-colors"
               >
-                Demarrer ma demande Madere
+                Démarrer ma demande Madère
               </Link>
           </div>
         </section>
