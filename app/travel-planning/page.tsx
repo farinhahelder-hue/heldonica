@@ -6,38 +6,45 @@ import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
 import Link from 'next/link'
 
+const faqs = [
+  {
+    q: 'Comment fonctionne votre service de conception sur mesure ?',
+    a: 'On commence par un échange gratuit pour comprendre ton projet. On conçoit ensuite un itinéraire 100 % personnalisé (logements, transports, activités) livré sous forme de carnet de voyage PDF détaillé.'
+  },
+  {
+    q: 'Quels types de voyages proposez-vous ?',
+    a: 'Nous privilégions le slow travel et les voyages éco-responsables, parfaits pour les couples, solos ou petits groupes. Nous sélectionnons des adresses authentiques et testées sur le terrain, loin du tourisme de masse.'
+  },
+  {
+    q: 'Combien coûte une conception de voyage sur mesure ?',
+    a: 'Chaque projet est unique. Le tarif dépend de la complexité de l\'itinéraire, de la durée et du niveau de personnalisation. Compte en moyenne entre 150€ et 350€ pour un voyage de 7 à 14 jours.'
+  },
+  {
+    q: 'Dans quels pays intervenez-vous ?',
+    a: 'Nous proposons nos propres coups de cœur (Madère, Roumanie, France, Italie...) où nous avons passé beaucoup de temps. Pour les autres destinations, nous nous appuyons sur notre méthode de recherche et notre réseau local. On ne te conseille que ce qu\'on est prêts à recommander à nos proches.'
+  },
+  {
+    q: 'Quel est le délai pour recevoir mon itinéraire ?',
+    a: 'En général, ton carnet de route complet est livré sous 7 à 10 jours après validation du brief. Pour les projets plus urgents, n\'hésite pas à nous contacter.'
+  },
+  {
+    q: 'Faites-vous les réservations à notre place ?',
+    a: 'Notre service standard te fournit tous les liens et contacts pour réserver facilement. Si tu souhaites un accompagnement intégral où nous gérons les réservations, c\'est possible sur devis.'
+  }
+]
+
 const faqSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
-  "mainEntity": [
-    { "@type": "Question", "name": "Combien coûte la conception sur mesure ?", "acceptedAnswer": { "@type": "Answer", "text": "Chaque projet est unique. Le tarif est établi selon la complexité de l'itinéraire. Compte en moyenne entre 150€ et 350€ pour un voyage de 7 à 14 jours." }},
-    { "@type": "Question", "name": "Dans combien de temps reçois-tu ton carnet de route ?", "acceptedAnswer": { "@type": "Answer", "text": "En général sous 7 à 10 jours après ta validation du brief." }},
-    { "@type": "Question", "name": "Qu'est-ce que tu reçois exactement ?", "acceptedAnswer": { "@type": "Answer", "text": "Un carnet de voyage PDF complet: programme jour par jour, carte interactive, hébergements sélectionnés, restaurants, transports, conseils pratiques et contacts locaux." }}
-  ]
+  "mainEntity": faqs.map(faq => ({
+    "@type": "Question",
+    "name": faq.q,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": faq.a
+    }
+  }))
 }
-
-const faqs = [
-  {
-    q: 'Combien coûte la conception sur mesure ?',
-    a: 'Chaque projet est unique. On commence par un échange gratuit pour comprendre tes envies. Le tarif est établi selon la complexité de l\'itinéraire, la durée et le niveau de personnalisation souhaité. Compte en moyenne entre 150€ et 350€ pour un voyage de 7 à 14 jours.'
-  },
-  {
-    q: 'Dans combien de temps reçois-tu ton carnet de route ?',
-    a: 'En général sous 7 à 10 jours après ta validation du brief. Pour les projets urgents (départ dans moins de 3 semaines), contacte-nous directement — on fait de notre mieux.'
-  },
-  {
-    q: 'Et si la destination, tu ne l\'as jamais faite ?',
-    a: 'Oui. On travaille avec un réseau de contacts locaux et on fait des recherches approfondies pour chaque nouvelle destination. La différence : on ne te conseille que ce qu\'on est prêts à recommander à nos proches.'
-  },
-  {
-    q: 'Tu veux qu\'on fasse les réservations à ta place ?',
-    a: 'On peut te fournir les liens, contacts et conseils pour chaque réservation. Pour un accompagnement complet (réservations incluses), c\'est possible sur devis — précise-le lors de ta demande.'
-  },
-  {
-    q: 'Qu\'est-ce que tu reçois exactement comme livrable ?',
-    a: 'Un carnet de voyage PDF complet : programme jour par jour, carte interactive, hébergements sélectionnés, restaurants, transports, conseils pratiques et contacts locaux. Tout réuni en un seul document pensé pour toi.'
-  },
-]
 
 function FAQ() {
   const [open, setOpen] = useState<number | null>(null)
