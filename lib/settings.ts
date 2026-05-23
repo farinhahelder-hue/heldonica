@@ -1,11 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-
-const supabase = supabaseUrl && supabaseAnonKey
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null
+import { supabase } from './supabase-client'
 
 export interface SiteSettings {
   [key: string]: string
@@ -34,19 +27,23 @@ export async function getSiteAssets(): Promise<{ logo?: string; favicon?: string
 /** Get all site settings as a key-value object */
 export async function getSiteSettings(): Promise<SiteSettings> {
   if (!supabase) return {}
-  
-  const { data, error } = await supabase
-    .from('cms_settings')
-    .select('key, value')
-  
-  if (error || !data) return {}
-  
-  const settings: SiteSettings = {}
-  data.forEach(s => {
-    settings[s.key] = s.value || ''
-  })
-  
-  return settings
+
+  try {
+    const { data, error } = await supabase
+      .from('cms_settings')
+      .select('key, value')
+
+    if (error || !data) return {}
+
+    const settings: SiteSettings = {}
+    data.forEach(s => {
+      settings[s.key] = s.value || ''
+    })
+
+    return settings
+  } catch (err) {
+    return {}
+  }
 }
 
 /** Get specific settings by keys */
