@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Header from '@/components/Header';
@@ -146,18 +147,21 @@ export default function MaderePage() {
       <Header />
       <main>
         <section className="relative min-h-[66vh] flex items-end overflow-hidden bg-stone-900">
-          <img
+          <Image
             src="https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg"
             alt="Forêt de Fanal dans la brume à Madère"
-            className="absolute inset-0 h-full w-full object-cover opacity-65"
+            fill
+            className="object-cover opacity-65"
+            priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent" />
           <div className="absolute right-4 top-4 hidden md:block rounded-xl overflow-hidden border border-white/25 shadow-xl bg-black/30 backdrop-blur-sm">
-            <img
+            <Image
               src="https://heldonica.fr/wp-content/uploads/2026/03/fetched-image-2-1024x768.jpg"
               alt="Cabo Girao à l'aube, spot éco-luxe"
-              className="h-28 w-40 object-cover"
-              loading="lazy"
+              width={160}
+              height={112}
+              className="object-cover"
             />
             <p className="px-3 py-1.5 text-[11px] uppercase tracking-[0.14em] text-white/90">
               Cabo Girao - 6h
