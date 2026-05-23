@@ -4,6 +4,7 @@ import './globals.css';
 import { AuthProvider } from '@/components/AuthProvider';
 import CookieConsentBanner from '@/components/CookieConsentBanner';
 import ThemeProvider from '@/components/ThemeProvider';
+import { WebVitalsReporter } from "@/components/web-vitals/WebVitalsReporter";
 import SiteTheme from '@/components/SiteTheme';
 import { getSiteSettings } from '@/lib/settings';
 
@@ -207,6 +208,7 @@ export default async function RootLayout({
       <body>
         <ThemeProvider>
           <AuthProvider>
+            <WebVitalsReporter />
             <SiteTheme />
             {children}
             <CookieConsentBanner />
