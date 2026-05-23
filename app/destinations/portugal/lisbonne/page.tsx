@@ -21,7 +21,10 @@ const pepites = [
 const faqLisbonneSchema = {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Que faire a Lisbonne?","acceptedAnswer":{"@type":"Answer","text":"Tram 28, Alfama, Belem."}},{"@type":"Question","name":"Transport Lisbonne?","acceptedAnswer":{"@type":"Answer","text":"Metro, tram 28."}},{"@type":"Question","name":"Budget Lisbonne?","acceptedAnswer":{"@type":"Answer","text":"70-10020ac/jour"}}]}; export default function LisbonnePage() {
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLisbonneSchema) }} /> <Header />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLisbonneSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"TouristDestination","name":"Lisbonne","description":"Guide Lisbonne: Tram 28, fado, Alfama.","url":"https://heldonica.fr/destinations/portugal/lisbonne","touristType":{"@type":"Audience","audienceType":"couple"},"geo":{"@type":"GeoCoordinates","latitude":38.7077507,"longitude":-9.1365919}}) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://heldonica.fr"},{"@type":"ListItem","position":2,"name":"Destinations","item":"https://heldonica.fr/destinations"},{"@type":"ListItem","position":3,"name":"Portugal","item":"https://heldonica.fr/destinations/portugal"},{"@type":"ListItem","position":4,"name":"Lisbonne","item":"https://heldonica.fr/destinations/portugal/lisbonne"}]}) }} />
+      <Header />
       <main className="min-h-screen bg-stone-50">
         <section className="bg-gradient-to-b from-stone-900 to-stone-800 py-20">
           <div className="max-w-4xl mx-auto px-4">

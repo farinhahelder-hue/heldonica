@@ -6,6 +6,9 @@ import Link from 'next/link'
 export default function VersaillesPage() {
   return (
     <>
+
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"TouristDestination","name":"Versailles","description":"Découvrez cette destination avec Heldonica.","url":"https://heldonica.fr/destinations/idf/versailles","touristType":{"@type":"Audience","audienceType":"couple"},"geo":{"@type":"GeoCoordinates","latitude":48.8035403,"longitude":2.1266886}}) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://heldonica.fr"},{"@type":"ListItem","position":2,"name":"Destinations","item":"https://heldonica.fr/destinations"},{"@type":"ListItem","position":3,"name":"Idf","item":"https://heldonica.fr/destinations/idf"},{"@type":"ListItem","position":4,"name":"Versailles","item":"https://heldonica.fr/destinations/idf/versailles"}]}) }} />
       <Header />
       <main className="min-h-screen bg-stone-50">
         <section className="relative bg-gradient-to-b from-stone-900 to-stone-800 py-20">

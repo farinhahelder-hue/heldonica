@@ -66,6 +66,9 @@ const navLinks = [
 export default function LeHavrePage() {
   return (
     <>
+
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"TouristDestination","name":"Le Havre","description":"Guide Le Havre et environs: architecture Art Deco d Auguste Perret, plages de la Manche, roadtrip.","url":"https://heldonica.fr/destinations/normandie/le-havre","touristType":{"@type":"Audience","audienceType":"couple"},"geo":{"@type":"GeoCoordinates","latitude":49.4938975,"longitude":0.1079732}}) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://heldonica.fr"},{"@type":"ListItem","position":2,"name":"Destinations","item":"https://heldonica.fr/destinations"},{"@type":"ListItem","position":3,"name":"Normandie","item":"https://heldonica.fr/destinations/normandie"},{"@type":"ListItem","position":4,"name":"Le Havre","item":"https://heldonica.fr/destinations/normandie/le-havre"}]}) }} />
       <Header />
       <main className="min-h-screen bg-stone-50">
         {/* Hero */}

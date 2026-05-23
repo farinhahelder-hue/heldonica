@@ -50,6 +50,9 @@ const navLinks = [
 export default function CoteAlbatrePage() {
   return (
     <>
+
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"TouristDestination","name":"Cote Albatre","description":"Guide Côte d Albâtre: falaises d Etretat, Caps, Deauville via la coastale.","url":"https://heldonica.fr/destinations/normandie/cote-albatre","touristType":{"@type":"Audience","audienceType":"couple"},"geo":{"@type":"GeoCoordinates","latitude":49.78714,"longitude":0.7196415}}) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://heldonica.fr"},{"@type":"ListItem","position":2,"name":"Destinations","item":"https://heldonica.fr/destinations"},{"@type":"ListItem","position":3,"name":"Normandie","item":"https://heldonica.fr/destinations/normandie"},{"@type":"ListItem","position":4,"name":"Cote Albatre","item":"https://heldonica.fr/destinations/normandie/cote-albatre"}]}) }} />
       <Header />
       <main className="min-h-screen bg-stone-50">
         <section className="relative bg-gradient-to-b from-stone-900 to-stone-800 py-20">

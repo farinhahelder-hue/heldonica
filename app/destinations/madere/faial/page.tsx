@@ -18,6 +18,9 @@ const pepites = [
 export default function FaialPage() {
   return (
     <>
+
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"TouristDestination","name":"Faial","description":"Dans les nuages. Literally.","url":"https://heldonica.fr/destinations/madere/faial","touristType":{"@type":"Audience","audienceType":"couple"},"geo":{"@type":"GeoCoordinates","latitude":32.7908091,"longitude":-16.8516492}}) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://heldonica.fr"},{"@type":"ListItem","position":2,"name":"Destinations","item":"https://heldonica.fr/destinations"},{"@type":"ListItem","position":3,"name":"Madere","item":"https://heldonica.fr/destinations/madere"},{"@type":"ListItem","position":4,"name":"Faial","item":"https://heldonica.fr/destinations/madere/faial"}]}) }} />
       <Header />
       <main className="min-h-screen bg-stone-50">
         <section className="bg-gradient-to-b from-stone-900 to-stone-800 py-20">

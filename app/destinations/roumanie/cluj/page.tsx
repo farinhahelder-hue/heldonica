@@ -6,6 +6,9 @@ import Link from 'next/link'
 export default function ClujPage() {
   return (
     <>
+
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"TouristDestination","name":"Cluj","description":"Découvrez cette destination avec Heldonica.","url":"https://heldonica.fr/destinations/roumanie/cluj","touristType":{"@type":"Audience","audienceType":"couple"},"geo":{"@type":"GeoCoordinates","latitude":46.769379,"longitude":23.5899542}}) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://heldonica.fr"},{"@type":"ListItem","position":2,"name":"Destinations","item":"https://heldonica.fr/destinations"},{"@type":"ListItem","position":3,"name":"Roumanie","item":"https://heldonica.fr/destinations/roumanie"},{"@type":"ListItem","position":4,"name":"Cluj","item":"https://heldonica.fr/destinations/roumanie/cluj"}]}) }} />
       <Header />
       <main className="min-h-screen bg-stone-50">
         <section className="relative bg-gradient-to-b from-stone-900 to-stone-800 py-20">

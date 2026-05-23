@@ -18,6 +18,9 @@ const pepites = [
 export default function RibeiroFrioPage() {
   return (
     <>
+
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"TouristDestination","name":"Ribeiro Frio","description":"La rando star. 2h30 de tunnel vegetal.","url":"https://heldonica.fr/destinations/madere/ribeiro-frio","touristType":{"@type":"Audience","audienceType":"couple"},"geo":{"@type":"GeoCoordinates","latitude":32.7396155,"longitude":-16.8869417}}) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://heldonica.fr"},{"@type":"ListItem","position":2,"name":"Destinations","item":"https://heldonica.fr/destinations"},{"@type":"ListItem","position":3,"name":"Madere","item":"https://heldonica.fr/destinations/madere"},{"@type":"ListItem","position":4,"name":"Ribeiro Frio","item":"https://heldonica.fr/destinations/madere/ribeiro-frio"}]}) }} />
       <Header />
       <main className="min-h-screen bg-stone-50">
         <section className="bg-gradient-to-b from-stone-900 to-stone-800 py-20">

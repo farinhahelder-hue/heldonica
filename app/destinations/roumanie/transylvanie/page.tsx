@@ -21,6 +21,9 @@ const pepites = [
 export default function TransylvaniePage() {
   return (
     <>
+
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"TouristDestination","name":"Transylvanie","description":"Guide Transylvanie: chateaux, legends, villages.","url":"https://heldonica.fr/destinations/roumanie/transylvanie","touristType":{"@type":"Audience","audienceType":"couple"},"geo":{"@type":"GeoCoordinates","latitude":46.5971623,"longitude":24.3740295}}) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://heldonica.fr"},{"@type":"ListItem","position":2,"name":"Destinations","item":"https://heldonica.fr/destinations"},{"@type":"ListItem","position":3,"name":"Roumanie","item":"https://heldonica.fr/destinations/roumanie"},{"@type":"ListItem","position":4,"name":"Transylvanie","item":"https://heldonica.fr/destinations/roumanie/transylvanie"}]}) }} />
       <Header />
       <main className="min-h-screen bg-stone-50">
         <section className="bg-gradient-to-b from-stone-900 to-stone-800 py-20">

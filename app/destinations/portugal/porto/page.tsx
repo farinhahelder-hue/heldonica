@@ -21,7 +21,10 @@ const pepites = [
 const faqPortoSchema = {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Que faire a Porto?","acceptedAnswer":{"@type":"Answer","text":"Ribeira, pont Luis I, cave a vin."}},{"@type":"Question","name":"Ou loger Porto?","acceptedAnswer":{"@type":"Answer","text":"Centre historique, Ribeira."}},{"@type":"Question","name":"Transport Porto?","acceptedAnswer":{"@type":"Answer","text":"Metro depuis aeroport. Bus STCP."}}]}; export default function PortoPage() {
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPortoSchema) }} /> <Header />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPortoSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"TouristDestination","name":"Porto","description":"Guide Porto: vin de Porto, Ribeira, Douro.","url":"https://heldonica.fr/destinations/portugal/porto","touristType":{"@type":"Audience","audienceType":"couple"},"geo":{"@type":"GeoCoordinates","latitude":41.1502195,"longitude":-8.6103497}}) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://heldonica.fr"},{"@type":"ListItem","position":2,"name":"Destinations","item":"https://heldonica.fr/destinations"},{"@type":"ListItem","position":3,"name":"Portugal","item":"https://heldonica.fr/destinations/portugal"},{"@type":"ListItem","position":4,"name":"Porto","item":"https://heldonica.fr/destinations/portugal/porto"}]}) }} />
+      <Header />
       <main className="min-h-screen bg-stone-50">
         <section className="bg-gradient-to-b from-stone-900 to-stone-800 py-20">
           <div className="max-w-4xl mx-auto px-4">
