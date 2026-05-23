@@ -107,7 +107,8 @@ export async function GET() {
         const julesData = await julesResponse.json();
         
         // Update local cache
-        for (const session of julesData.sessions || []) {
+        // ⚡ Bolt: Parallelized Supabase upserts to speed up local cache sync (estimated ~3x speedup).
+        await Promise.all((julesData.sessions || []).map(async (session: any) => {
           const sessionId = String(session.name).split('/').pop();
           await supabase.from('jules_sessions').upsert({
             id: sessionId,
@@ -118,7 +119,7 @@ export async function GET() {
             pr_title: session.outputs?.[0]?.pullRequest?.title,
             pr_description: session.outputs?.[0]?.pullRequest?.description
           }, { onConflict: 'id' });
-        }
+        }));
       }
     } catch (e) {
       console.warn('Could not sync with Jules API:', e);

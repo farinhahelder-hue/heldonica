@@ -183,15 +183,15 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Supabase not configured' }, { status: 500 });
   }
 
-  const results = [];
-  for (const update of CONTENT_UPDATES) {
-    const { error } = await supabase
+  // ⚡ Bolt: Converted sequential Supabase updates to concurrent Promise.all for faster execution (estimated ~3-4x speedup).
+  const results = await Promise.all(CONTENT_UPDATES.map(async (update) => {
+    const { error } = await supabase!
       .from('cms_blog_posts')
       .update({ content: update.content, updated_at: new Date().toISOString() })
       .eq('slug', update.slug);
 
-    results.push({ slug: update.slug, error: error?.message || null });
-  }
+    return { slug: update.slug, error: error?.message || null };
+  }));
 
   return NextResponse.json({ success: true, results });
 }
