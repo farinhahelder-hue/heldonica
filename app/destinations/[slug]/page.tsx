@@ -5,6 +5,8 @@ import EnhancedRichContent from '@/components/EnhancedRichContent'
 import { sanitizeHtml } from '@/lib/sanitize-html'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import type { Metadata } from 'next'
+import { SITE_URL, DEFAULT_OG_IMAGE, DEFAULT_TITLE, DEFAULT_DESCRIPTION } from '@/lib/seo'
 
 interface Props {
   params: { slug: string }
@@ -130,19 +132,58 @@ export async function generateStaticParams() {
   return getAllDestinationSlugs()
 }
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const page = getDestinationBySlug(params.slug)
   const meta = DEST_META[params.slug]
-  const title = page?.title || params.slug
-  const description = meta?.description || `Découvre ${title} avec Heldonica, depuis le terrain et sans vernis inutile.`
+
+  if (!page) return {
+    title: 'Destination introuvable | Heldonica',
+    description: DEFAULT_DESCRIPTION,
+    openGraph: {
+      title: 'Destination introuvable | Heldonica',
+      description: DEFAULT_DESCRIPTION,
+      images: [{ url: DEFAULT_OG_IMAGE }],
+      url: `${SITE_URL}/destinations`,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'Destination introuvable | Heldonica',
+      description: DEFAULT_DESCRIPTION,
+      images: [DEFAULT_OG_IMAGE],
+    }
+  }
+
+  const titleText = page.title || params.slug || 'Destination'
+  const title = `${titleText} | Heldonica`
+  const description = meta?.description || `Découvre ${titleText} avec Heldonica, depuis le terrain et sans vernis inutile.` || DEFAULT_DESCRIPTION
+  const ogImage = meta?.heroImage || page.image || DEFAULT_OG_IMAGE
+  const canonical = `${SITE_URL}/destinations/${params.slug}`
 
   return {
-    title: `${title} | Heldonica`,
+    title,
     description,
+    alternates: { canonical },
     openGraph: {
-      title: `${title} | Heldonica`,
+      title,
       description,
-      images: meta?.heroImage ? [{ url: meta.heroImage }] : [],
+      url: canonical,
+      siteName: 'Heldonica',
+      type: 'website',
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: titleText,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImage],
     },
   }
 }
