@@ -8,7 +8,6 @@ import type { BlogPost } from '@/lib/blog-supabase'
 import { getExcerpt } from '@/lib/blog-supabase'
 import { SITE_STATS } from '@/lib/constants'
 import InstagramFeed from '@/components/InstagramFeed'
-import { InstagramFeedPost } from '@/lib/instagram-feed'
 import NewsletterForm from '@/components/NewsletterForm'
 
 const HELDONICA_BADGE_FALLBACK = '/images/badges-heldonica.svg'
@@ -28,23 +27,6 @@ const SLUG_IMAGES: Record<string, string> = {
   'prego-no-bolo-do-caco':                        'https://images.unsplash.com/photo-1574484284002-952d92a03a52?w=1200&q=80',
   'flotter-sur-la-limmat-a-zurich-notre-aventure-dete':   'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
 }
-// ─── Images de secours par catégorie ─────────────────────────────────────────
-/*
-const CAT_IMAGES_LEGACY: Record<string, string> = {
-  'Carnets Voyage':      'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/stoos-01.jpg',
-  'Découvertes Locales': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
-  'Expert Hôtelier':     'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
-  'Découvertes Locales': 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=900&q=80',
-  'Guides Pratiques':    'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
-  'Expert Hôtelier':     'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=900&q=80',
-  'Travel':              'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
-  'Food & Lifestyle':    'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=1200&q=80',
-  'Découvertes Locales': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
-  'Expert Hôtelier': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
-  'DÃ©couvertes Locales': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
-  'Expert HÃ´telier': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
-}
-*/
 
 const CAT_IMAGES: Record<string, string> = {
   'Carnets Voyage': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
@@ -128,7 +110,7 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
     <Link href={`/blog/${post.slug}`} className="group block h-full">
       <article className="relative rounded-2xl overflow-hidden bg-mahogany/80 shadow-md hover:shadow-xl transition-all duration-400 h-full flex flex-col">
         <div className={`relative ${h} overflow-hidden`}>
-          <img src={imgSrc} alt={post.title || "Image de l’article"} width={600} height={400}
+          <img src={imgSrc} alt={post.title || "Image de l'article"} width={600} height={400}
             className="w-full h-full object-cover opacity-80 group-hover:opacity-90 group-hover:scale-105 transition-all duration-600"
             loading="lazy"
             onError={() => setImgSrc(HELDONICA_BADGE_FALLBACK)}
@@ -177,7 +159,6 @@ interface HomeProps {
   coveredCountries?: string | null
   heroVideoUrl?: string | null
   heroPosterImage?: string | null
-  instagramFeedPosts?: InstagramFeedPost[]
   siteSettings?: {
     instagramUsername?: string
     instagramPostCount?: number
@@ -186,7 +167,7 @@ interface HomeProps {
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries, heroVideoUrl, heroPosterImage, siteSettings, instagramFeedPosts }: HomeProps) {
+export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries, heroVideoUrl, heroPosterImage, siteSettings }: HomeProps) {
   useScrollReveal()
   const featImg = featured ? postImage(featured) : null
   const publishedArticles = totalPosts ?? SITE_STATS.publishedCarnets
@@ -223,7 +204,6 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           poster={heroPosterImage || "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1600&q=80"}
         >
           <source src={heroVideoUrl || "https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4"} type="video/mp4" />
-          {/* Fallback if video fails to load */}
           <img loading="lazy" 
             src={heroPosterImage || "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1600&q=80"}
             alt="Heldonica hero"
@@ -313,7 +293,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         </div>
       </section>
 
-      {/* ── À LA UNE : dernier article ──────────────────────────────────── */}
+      {/* ── À LA UNE ──────────────────────────────────────────────────────── */}
       {featured && (
         <section className="py-0 bg-mahogany">
           <Link href={`/blog/${featured.slug}`} className="group block">
@@ -504,8 +484,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             <div className="grid grid-cols-1 gap-4" data-reveal="right">
               {[
                 { t: 'Couples aventuriers', d: "Notre spécialité : ralentir sans ennuyer, laisser de la place au vrai, et garder le hors-sentiers sans perdre le fil." },
-                { t: 'Ouvert aussi à ton format', d: "Solo, famille curieuse ou groupe d’amis : on adapte cette même exigence terrain à votre énergie, vos contraintes et votre rythme." },
-                { t: 'Vécu sur le terrain', d: "Cartes, adresses, conseils pratiques et pépites dénichées : tout part d’expériences testées, pas inventées." },
+                { t: 'Ouvert aussi à ton format', d: "Solo, famille curieuse ou groupe d'amis : on adapte cette même exigence terrain à votre énergie, vos contraintes et votre rythme." },
+                { t: 'Vécu sur le terrain', d: "Cartes, adresses, conseils pratiques et pépites dénichées : tout part d'expériences testées, pas inventées." },
               ].map((item) => (
                 <div key={item.t} className="border border-white/10 rounded-xl p-5 hover:border-teal/30 transition">
                   <h3 className="font-semibold text-white text-sm mb-1">{item.t}</h3>
@@ -517,64 +497,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         </div>
       </section>
 
-      {/* ── CONSULTING HÔTELIER — IAification & Digitalisation ────────── */}
-      {/*
-      <section className="py-20 md:py-24 bg-cloud-dancer">
-        <div className="max-w-6xl mx-auto px-6 md:px-10">
-          <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
-            <div className="order-2 md:order-1" data-reveal="left">
-              <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4">Consulting B2B · Hôtellerie</p>
-              <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany leading-tight mb-6">
-                On connaît vos clients mieux
-                <span className="block italic text-charcoal/70">que la plupart de vos consultants.</span>
-              </h2>
-              <p className="text-base text-charcoal/70 leading-relaxed mb-4">
-                Parce qu&apos;on est vos clients. Pas de promesses chiffrées plaquées sur une slide. On arrive, on regarde ce qui se passe vraiment, on vous dit ce qu&apos;on voit, puis on travaille ensemble.
-              </p>
-              <p className="text-sm text-charcoal/60 leading-relaxed mb-6">
-                Distribution, discours, expérience, outils IA utiles : on ne vous vend pas une mode, on remet du vrai, du lisible et du concret dans le parcours client.
-              </p>
-              <div className="flex flex-wrap gap-2 mb-8">
-                {['Regard terrain', 'Hôtellerie indépendante', 'IA utile', 'Expérience client', 'Visibilité locale', 'Parcours de réservation'].map((tag) => (
-                  <span key={tag} className="bg-white border border-cloud-dancer/60 text-charcoal/80 text-xs font-semibold px-3 py-1 rounded-full">{tag}</span>
-                ))}
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <Link href="/travel-planning" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
-                  Prendre rendez-vous {'→'}
-                </Link>
-              </div>
-            </div>
-            <div className="order-1 md:order-2 grid grid-cols-1 gap-4" data-reveal="right">
-              {[
-                {
-                  icon: '•',
-                  t: 'On regarde le parcours réel',
-                  d: "Ce qu’un client comprend, ce qu’il rate, et l’endroit précis où vous perdez de la confiance."
-                },
-                {
-                  icon: '•',
-                  t: "On garde les outils à leur place",
-                  d: "L’IA sert à clarifier, accélérer et mieux répondre. Elle ne remplace ni votre instinct ni votre identité."
-                },
-                {
-                  icon: '•',
-                  t: 'On repart avec des actions tenables',
-                  d: 'Une feuille de route que vos équipes peuvent vraiment appliquer, sans usine à gaz ni dépendance inutile.'
-                },
-              ].map((item) => (
-                <div key={item.t} className="bg-white rounded-xl p-5 shadow-sm border border-cloud-dancer hover:border-teal transition">
-                  <div className="text-2xl mb-3 text-eucalyptus">{item.icon}</div>
-                  <h3 className="font-semibold text-mahogany text-sm mb-1">{item.t}</h3>
-                  <p className="text-charcoal/60 text-sm leading-relaxed">{item.d}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-      */}
-
+      {/* ── NEWSLETTER ────────────────────────────────────────────────── */}
       <section className="py-20 bg-mahogany text-white">
         <div className="max-w-5xl mx-auto px-6 md:px-10">
           <div className="grid md:grid-cols-[1.1fr_0.9fr] gap-10 items-center">
@@ -595,19 +518,10 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         </div>
       </section>
 
-      {/* Instagram Feed Section */}
-      <section className="py-16 bg-cloud-dancer">
-        <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-2xl font-serif text-mahogany text-center mb-8">
-            Sur le terrain, pas en studio
-          </h2>
-          <InstagramFeed posts={instagramFeedPosts || []} username={siteSettings?.instagramUsername || 'heldonica'} />
-        </div>
-      </section>
+      {/* ── INSTAGRAM FEED ────────────────────────────────────────────── */}
+      <InstagramFeed />
 
       <Footer />
     </>
   )
 }
-
-
