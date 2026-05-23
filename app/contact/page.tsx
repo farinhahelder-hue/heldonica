@@ -4,6 +4,10 @@ import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
 import ContactForm from '@/components/ContactForm'
 
+// ⚡ Bolt Optimization: Use Incremental Static Regeneration (ISR) to cache the page for 1 hour. This significantly improves Time To First Byte (TTFB) compared to force-dynamic.
+export const revalidate = 3600
+
+
 export const metadata: Metadata = {
   title: 'Contact — Parlons de Ton Voyage Sur Mesure | Heldonica',
   description:

@@ -3,6 +3,10 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
+// ⚡ Bolt Optimization: Use Incremental Static Regeneration (ISR) to cache the page for 1 hour. This significantly improves Time To First Byte (TTFB) compared to force-dynamic.
+export const revalidate = 3600
+
+
 const testimonials = [
   {
     couple: 'Lucie et Maxime',
