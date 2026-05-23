@@ -1,6 +1,7 @@
 ﻿import { getDestinationBySlug, getAllDestinationSlugs, blogPosts } from '@/lib/wordpress-data'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import Script from 'next/script'
 import EnhancedRichContent from '@/components/EnhancedRichContent'
 import { sanitizeHtml } from '@/lib/sanitize-html'
 import Header from '@/components/Header'
@@ -126,6 +127,8 @@ const DEST_META: Record<string, DestinationMeta> = {
   'bretagne-heldonica-slow': bretagneMeta,
 }
 
+const SITE_URL = 'https://www.heldonica.fr'
+
 export async function generateStaticParams() {
   return getAllDestinationSlugs()
 }
@@ -172,8 +175,53 @@ export default function DestinationPage({ params }: Props) {
       ]
     : []
 
+
+  const destinationLd = {
+    '@context': 'https://schema.org',
+    '@type': 'TouristDestination',
+    name: page.title,
+    description: meta?.description || `Découvre ${page.title} avec Heldonica`,
+    image: heroImage ? [heroImage] : [],
+    url: `${SITE_URL}/destinations/${page.slug}`,
+  }
+
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Accueil',
+        item: SITE_URL,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Destinations',
+        item: `${SITE_URL}/destinations`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: page.title,
+        item: `${SITE_URL}/destinations/${page.slug}`,
+      },
+    ],
+  }
+
   return (
     <>
+      <Script
+        id="destination-jsonld"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(destinationLd) }}
+      />
+      <Script
+        id="breadcrumb-jsonld"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
       <Header />
       <main className="min-h-screen bg-[#f7f5f1]">
         <div className="relative h-[56vh] w-full overflow-hidden bg-stone-900 md:h-[70vh]">

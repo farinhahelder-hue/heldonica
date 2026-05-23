@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import DestinationsClient from './DestinationsClient';
+import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: 'Destinations Hors des Sentiers Battus — Pépites Dénichées | Heldonica',
@@ -19,5 +20,35 @@ export const metadata: Metadata = {
 };
 
 export default function DestinationsPage() {
-  return <DestinationsClient />;
+
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Accueil',
+        item: 'https://www.heldonica.fr',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Destinations',
+        item: 'https://www.heldonica.fr/destinations',
+      },
+    ],
+  };
+
+  return (
+    <>
+      <Script
+        id="destinations-breadcrumb-jsonld"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
+      <DestinationsClient />
+    </>
+  );
+
 }
