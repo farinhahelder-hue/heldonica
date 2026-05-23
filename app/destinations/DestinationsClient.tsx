@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SlowTravelQuiz from '@/components/SlowTravelQuiz';
+import { DestinationMarker } from '@/lib/destinations-supabase';
 
 type DestinationCard = {
   name: string;
@@ -19,18 +20,39 @@ type DestinationCard = {
   verdict: string;
 };
 
-const destinations: DestinationCard[] = [
+// Map category to style for filtering
+function categoryToStyle(category: string): DestinationCard['style'] {
+  switch (category) {
+    case 'nature': return 'nature';
+    case 'culture': return 'culture';
+    case 'ville': return 'city';
+    case 'ile': return 'city';
+    case 'cote': return 'city';
+    case 'montagne': return 'nature';
+    default: return 'city';
+  }
+}
+
+// Map region to duration estimate
+function regionToDuration(region: string): DestinationCard['duration'] {
+  if (region === 'Amérique latine') return '7-10';
+  if (region === 'Europe') return '5-7';
+  return '5-7';
+}
+
+// Static fallback data
+const defaultDestinations: DestinationCard[] = [
   {
     name: 'Madère',
     slug: '/destinations/madere',
     country: 'Portugal',
     style: 'nature',
     duration: '7-10',
-    description: "L’île qu’on a mise trois ans à vraiment comprendre. Chaque retour révèle quelque chose que le précédent avait raté.",
+    description: "L'île qu'on a mise trois ans à vraiment comprendre.",
     image: 'https://images.unsplash.com/photo-1560719887-fe3105fa1e55?w=800&q=80',
     budget: '1 400 à 1 800 € / duo / 7 jours',
     season: 'mars à juin · septembre à novembre',
-    verdict: "Le genre d’île qui te force à ralentir si tu veux qu’elle s’ouvre.",
+    verdict: "Le genre d'île qui te force à ralentir si tu veux qu'elle s'ouvre.",
   },
   {
     name: 'Sicile',
@@ -38,7 +60,7 @@ const destinations: DestinationCard[] = [
     country: 'Italie',
     style: 'food',
     duration: '5-7',
-    description: "Le sud-est qu’on prend par la pierre, par le ventre et par les fins d’après-midi qui durent plus que prévu.",
+    description: "Le sud-est qu'on prend par la pierre, par le ventre et par les fins d'après-midi.",
     image: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&q=80',
     budget: 'Sur mesure',
     season: 'avril à juin · septembre à octobre',
@@ -50,11 +72,11 @@ const destinations: DestinationCard[] = [
     country: 'Suisse',
     style: 'nature',
     duration: '10+',
-    description: "Le pays qu’on croit trop lisse jusqu'au moment où on lui laisse du train, du silence et un peu de pluie.",
+    description: "Le pays qu'on croit trop lisse jusqu'au moment où on lui laisse du train.",
     image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
     budget: 'Premium progressif',
     season: 'juin à septembre',
-    verdict: "Si tu lui laisses du temps, la Suisse devient bien plus qu’une carte postale propre.",
+    verdict: "Si tu lui laisses du temps, la Suisse devient bien plus qu'une carte postale.",
   },
   {
     name: 'Roumanie',
@@ -62,7 +84,7 @@ const destinations: DestinationCard[] = [
     country: 'Roumanie',
     style: 'culture',
     duration: '7-10',
-    description: "Le terrain de l’enfance, du retour et des villages qui n’ont pas encore laissé tomber leur rythme.",
+    description: "Le terrain de l'enfance, du retour et des villages qui n'ont pas encore laissé tomber leur rythme.",
     image: 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=800&q=80',
     budget: 'Accessible et dense',
     season: 'mai à octobre',
@@ -74,7 +96,7 @@ const destinations: DestinationCard[] = [
     country: 'Suisse',
     style: 'city',
     duration: '3-5',
-    description: "La ville où l’eau change le tempo avant même le premier café, si tu acceptes de te laisser faire.",
+    description: "La ville où l'eau change le tempo avant même le premier café.",
     image: 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
     budget: 'Court séjour premium',
     season: 'mai à septembre',
@@ -86,13 +108,33 @@ const destinations: DestinationCard[] = [
     country: 'France',
     style: 'city',
     duration: '3-5',
-    description: "Même en bas de chez toi, il reste des rues qui n’ont pas fini de se révéler si tu ralentis juste assez.",
+    description: "Même en bas de chez toi, il reste des rues qui n'ont pas fini de se révéler.",
     image: 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=1200&q=80',
     budget: 'Modulable',
-    season: "toute l’année",
-    verdict: "Paris est meilleur quand on arrête d’essayer d’en faire trop.",
+    season: "toute l'année",
+    verdict: "Paris est meilleur quand on arrête d'essayer d'en faire trop.",
   },
 ];
+
+// Transform Supabase data to DestinationCard
+function transformDestination(marker: DestinationMarker): DestinationCard {
+  return {
+    name: marker.title,
+    slug: marker.link,
+    country: marker.country,
+    style: categoryToStyle(marker.category),
+    duration: regionToDuration(marker.region),
+    description: marker.excerpt,
+    image: marker.image || 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80',
+    budget: 'Voir la destination',
+    season: 'Consulter le guide',
+    verdict: marker.excerpt,
+  };
+}
+
+type Props = {
+  destinations?: DestinationMarker[];
+};
 
 const styleOptions = [
   { value: 'all', label: 'Tous les styles' },
@@ -110,26 +152,34 @@ const durationOptions = [
   { value: '10+', label: '10 jours et +' },
 ] as const;
 
-export default function DestinationsClient() {
+export default function DestinationsClient({ destinations }: Props) {
   const [countryFilter, setCountryFilter] = useState('all');
   const [styleFilter, setStyleFilter] = useState<(typeof styleOptions)[number]['value']>('all');
   const [durationFilter, setDurationFilter] =
     useState<(typeof durationOptions)[number]['value']>('all');
 
+  // Use Supabase data if available, otherwise fallback to default static data
+  const cardDestinations = useMemo(() => {
+    if (destinations && destinations.length > 0) {
+      return destinations.map(transformDestination);
+    }
+    return defaultDestinations;
+  }, [destinations]);
+
   const countries = useMemo(
-    () => ['all', ...Array.from(new Set(destinations.map((item) => item.country)))],
-    []
+    () => ['all', ...Array.from(new Set(cardDestinations.map((item) => item.country)))],
+    [cardDestinations]
   );
 
   const filteredDestinations = useMemo(
     () =>
-      destinations.filter((item) => {
+      cardDestinations.filter((item) => {
         const countryOk = countryFilter === 'all' || item.country === countryFilter;
         const styleOk = styleFilter === 'all' || item.style === styleFilter;
         const durationOk = durationFilter === 'all' || item.duration === durationFilter;
         return countryOk && styleOk && durationOk;
       }),
-    [countryFilter, styleFilter, durationFilter]
+    [cardDestinations, countryFilter, styleFilter, durationFilter]
   );
 
   return (
@@ -145,7 +195,7 @@ export default function DestinationsClient() {
               Six destinations qu&apos;on a arpentées dans tous les sens
             </h1>
             <p className="text-charcoal/80 text-lg max-w-3xl leading-relaxed">
-              Pas en touristes pressés, en gens qui reviennent, qui testent, qui se trompent et qui recommencent. Ici, on te montre des terrains qu&apos;on connaît vraiment, avec leur bon rythme, leur budget indicatif et notre verdict signé court.
+              Pas en touristes pressés, en gens qui reviennent, qui testent, qui se trompent et qui recommandenous. Ici, on te montre des terrains qu&apos;on connaît vraiment, avec leur bon rythme, leur budget indicatif et notre verdict signé court.
             </p>
           </div>
         </section>
@@ -302,7 +352,7 @@ export default function DestinationsClient() {
               },
               {
                 '@type': 'Question',
-                name: "Qu’est-ce qu’une destination hors des sentiers battus ?",
+                name: "Qu'est-ce qu'une destination hors des sentiers battus ?",
                 acceptedAnswer: {
                   '@type': 'Answer',
                   text: 'Une destination hors des sentiers battus, c\'est un lieu authentique, peu touristique, où l\'expérience locale prime sur les circuits standardisés. Chez Heldonica, on ne recommande que des endroits qu\'on a visités et vérifiés nous-mêmes.',

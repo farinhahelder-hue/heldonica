@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import DestinationsClient from './DestinationsClient';
 import Script from 'next/script';
+import { getDestinations } from '@/lib/destinations-supabase';
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: 'Destinations Hors des Sentiers Battus — Pépites Dénichées | Heldonica',
@@ -19,7 +22,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function DestinationsPage() {
+export default async function DestinationsPage() {
+  const destinations = await getDestinations();
 
   const breadcrumbLd = {
     '@context': 'https://schema.org',
@@ -47,7 +51,7 @@ export default function DestinationsPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
-      <DestinationsClient />
+      <DestinationsClient destinations={destinations} />
     </>
   );
 
