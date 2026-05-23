@@ -1,4 +1,6 @@
+
 'use client';
+import Image from "next/image"
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
@@ -228,14 +230,17 @@ export default function DestinationsClient() {
                   return (
                     <article
                       key={`${item.name}-${item.slug}`}
-                      className="rounded-2xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
+                      className="rounded-2xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 relative"
                     >
-                      <img
+                      <div className="relative w-full h-56">
+                        <Image
                         src={item.image}
                         alt={item.name}
-                        className="w-full h-56 object-cover"
-                        loading="lazy"
-                      />
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          className="object-cover"
+                        />
+                      </div>
                       <div className="p-5">
                         <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">
                           {item.country}
