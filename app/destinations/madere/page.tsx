@@ -26,25 +26,55 @@ const schemaTouristDestination = {
   bestSeasonToVisit: ['April', 'May', 'June', 'July', 'August', 'September', 'October'],
 };
 
-const faqMadereSchema = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    { "@type": "Question", "name": "Quand partir à Madère ?", "acceptedAnswer": { "@type": "Answer", "text": "Entre avril et octobre : climat doux, paysages verts et températures agréables pour randonner." }},
-    { "@type": "Question", "name": "Comment se déplacer à Madère ?", "acceptedAnswer": { "@type": "Answer", "text": ".Location de voiture recommandée pour explorer les levadas. Bus possibles mais limités." }},
-    { "@type": "Question", "name": "Quel budget pour Madère ?", "acceptedAnswer": { "@type": "Answer", "text": "Environ 100-150€/jour en hébergement milieu + restauration locale." }}
-  ]
+// C5 — madereLd déclaré avant le composant
+const madereLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Quand partir à Madère pour le slow travel ?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Les meilleures périodes sont avril à juin (fleurs, températures agréables) et septembre à octobre (fin d\'été indien). Évitez décembre-février (pluies, chemins boueux).',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Combien de jours pour découvrir Madère en slow travel ?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Comptez minimum 7 jours pour explorer les levadas principales et les regions. 10 jours permettent un rythme détendu avec Madère nord et Funchal.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Comment se déplacer à Madère en slow travel ?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: ' Louez une voiture pour la liberté, ou utilisez les buses régionaux + taxi pour une approche plus locale. Les routes sont étroites mais praticables.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Quel budget pour un slow travel à Madère ?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Comptez 80-120€/jour en milieu modéré (hébergement + repas + transport).Hors saison: 60-80€/jour suffisent.',
+      },
+    },
+  ],
 };
 
 export const metadata: Metadata = {
-  title: 'Madere slow travel | Guide Heldonica',
+  title: 'Madère slow travel | Guide Heldonica',
   description:
-    'Guide pilier Madere: quand partir, budget reel, ou dormir, itinerary 7 jours et FAQ pratique.',
+    'Guide pilier Madère: quand partir, budget réel, où dormir, itinéraire 7 jours et FAQ pratique.',
   alternates: {
     canonical: 'https://www.heldonica.fr/destinations/madere',
   },
   openGraph: {
-    title: 'Madere slow travel | Guide Heldonica',
+    title: 'Madère slow travel | Guide Heldonica',
     description:
       'Falaises, levadas, adresses locales et plan de voyage concret pour un duo slow travel.',
     url: 'https://www.heldonica.fr/destinations/madere',
@@ -57,7 +87,7 @@ export const metadata: Metadata = {
       },
     ],
     locale: 'fr_FR',
-    type: 'article',
+    type: 'website',
   },
 };
 
@@ -111,10 +141,6 @@ export default function MaderePage() {
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqMadereSchema) }}
-      />
-      <script
-        type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(madereLd) }}
       />
       <Header />
@@ -129,7 +155,7 @@ export default function MaderePage() {
           <div className="absolute right-4 top-4 hidden md:block rounded-xl overflow-hidden border border-white/25 shadow-xl bg-black/30 backdrop-blur-sm">
             <img
               src="https://heldonica.fr/wp-content/uploads/2026/03/fetched-image-2-1024x768.jpg"
-              alt="Cabo Girao a l’aube, spot eco-luxe"
+              alt="Cabo Girao a l'aube, spot eco-luxe"
               className="h-28 w-40 object-cover"
               loading="lazy"
             />
@@ -142,7 +168,7 @@ export default function MaderePage() {
               Destination pilier
             </p>
             <h1 className="text-4xl md:text-6xl font-serif text-white max-w-4xl mb-5">
-              Madère, l'île de l'éternel printemps en mode slow travel
+              Madère, l’île de l’éternel printemps en mode slow travel
             </h1>
             <p className="text-white/85 max-w-2xl text-lg leading-relaxed">
               Un mix unique de relief volcanique, villages atlantiques et adresses
@@ -371,43 +397,3 @@ export default function MaderePage() {
     </>
   );
 }
-
-// Add JSON-LD schema for Madère destination
-const madereLd = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: [
-    {
-      '@type': 'Question',
-      name: 'Quand partir à Madère pour le slow travel ?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Les meilleures périodes sont avril à juin (fleurs, températures agréables) et septembre à octobre (fin d\'été indien). Évitez décembre-février (pluies, chemins boueux).',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'Combien de jours pour découvrir Madère en slow travel ?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Comptez minimum 7 jours pour explorer les levadas principales et les regions. 10 jours permettent un rythme détendu avec Madère nord et Funchal.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'Comment se déplacer à Madère en slow travel ?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: ' Louez une voiture pour la liberté, ou utilisez les buses régionaux + taxi pour une approche plus locale. Les routes sont étroites mais praticables.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'Quel budget pour un slow travel à Madère ?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Comptez 80-120€/jour en milieu modéré (hébergement + repas + transport).Hors saison: 60-80€/jour suffisent.',
-      },
-    },
-  ],
-};
