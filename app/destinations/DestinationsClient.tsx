@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SlowTravelQuiz from '@/components/SlowTravelQuiz';
@@ -228,13 +229,14 @@ export default function DestinationsClient() {
                   return (
                     <article
                       key={`${item.name}-${item.slug}`}
-                      className="rounded-2xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
+                      className="rounded-2xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 relative"
                     >
-                      <img
+                      <Image
                         src={item.image}
                         alt={item.name}
-                        className="w-full h-56 object-cover"
-                        loading="lazy"
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       />
                       <div className="p-5">
                         <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">

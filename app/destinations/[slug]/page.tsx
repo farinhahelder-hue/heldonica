@@ -1,4 +1,5 @@
-﻿import { getDestinationBySlug, blogPosts } from '@/lib/wordpress-data'
+﻿import Image from 'next/image'
+import { getDestinationBySlug, blogPosts } from '@/lib/wordpress-data'
 import { getAllDestinationSlugs } from '@/lib/blog-supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -227,11 +228,12 @@ export default function DestinationPage({ params }: Props) {
       <main className="min-h-screen bg-[#f7f5f1]">
         <div className="relative h-[56vh] w-full overflow-hidden bg-stone-900 md:h-[70vh]">
           {heroImage && (
-            <img
+            <Image
               src={heroImage}
               alt={page.title}
-              className="h-full w-full object-cover opacity-75"
-              loading="eager"
+              fill
+              className="object-cover opacity-75"
+              priority
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
@@ -318,15 +320,14 @@ export default function DestinationPage({ params }: Props) {
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {related.map((post) => (
                   <Link key={post.slug} href={`/blog/${post.slug}`} className="group block transition-all duration-200">
-                    <article className="overflow-hidden rounded-[1.5rem] border border-stone-100 bg-stone-50 shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-md">
+                    <article className="overflow-hidden rounded-[1.5rem] border border-stone-100 bg-stone-50 shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-md relative h-44">
                       {post.image ? (
-                        <img
+                        <Image
                           src={post.image}
                           alt={post.title}
-                          className="h-44 w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          loading="lazy"
-                          width={400}
-                          height={176}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         />
                       ) : (
                         <div className="flex h-44 items-center justify-center bg-stone-200 text-sm text-stone-500">
