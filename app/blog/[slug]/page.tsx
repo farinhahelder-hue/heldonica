@@ -92,7 +92,7 @@ function calcReadTime(content: string | null): number {
 function buildJsonLds(post: BlogPost, readTime: number) {
   const articleLd = {
     '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
+    '@type': 'Article',
     headline: post.title,
     description: post.excerpt ?? '',
     image: post.featured_image ? [post.featured_image] : [DEFAULT_OG_IMAGE],
