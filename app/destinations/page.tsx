@@ -20,7 +20,6 @@ export const metadata: Metadata = {
 };
 
 export default function DestinationsPage() {
-
   const breadcrumbLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -29,15 +28,59 @@ export default function DestinationsPage() {
         '@type': 'ListItem',
         position: 1,
         name: 'Accueil',
-        item: 'https://www.heldonica.fr',
+        item: {
+          '@id': 'https://www.heldonica.fr'
+        }
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'Destinations',
-        item: 'https://www.heldonica.fr/destinations',
+        item: {
+          '@id': 'https://www.heldonica.fr/destinations'
+        }
       },
     ],
+  };
+
+  const collectionLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Destinations Hors des Sentiers Battus — Pépites Dénichées | Heldonica',
+    description: "Madère, Roumanie, Sicile et bien d'autres : on te partage nos destinations authentiques testées sur le terrain, loin des foules. Itinéraires et pépites dénichées.",
+    url: 'https://www.heldonica.fr/destinations',
+    hasPart: [
+      {
+        '@type': 'WebPage',
+        name: 'Madère',
+        url: 'https://www.heldonica.fr/destinations/madere'
+      },
+      {
+        '@type': 'WebPage',
+        name: 'Sicile',
+        url: 'https://www.heldonica.fr/travel-planning-form?destination=sicile'
+      },
+      {
+        '@type': 'WebPage',
+        name: 'Suisse',
+        url: 'https://www.heldonica.fr/destinations/suisse'
+      },
+      {
+        '@type': 'WebPage',
+        name: 'Roumanie',
+        url: 'https://www.heldonica.fr/destinations/roumanie'
+      },
+      {
+        '@type': 'WebPage',
+        name: 'Zurich',
+        url: 'https://www.heldonica.fr/destinations/zurich'
+      },
+      {
+        '@type': 'WebPage',
+        name: 'Paris',
+        url: 'https://www.heldonica.fr/destinations/paris'
+      }
+    ]
   };
 
   return (
@@ -47,8 +90,12 @@ export default function DestinationsPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
+      <Script
+        id="destinations-collection-jsonld"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionLd) }}
+      />
       <DestinationsClient />
     </>
   );
-
 }
