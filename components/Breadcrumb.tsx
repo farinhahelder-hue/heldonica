@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Script from 'next/script';
 
 export default function Breadcrumb() {
   const pathname = usePathname();
@@ -48,7 +49,26 @@ export default function Breadcrumb() {
   // S’assurer que le résultat final est un tableau
   const safeBreadcrumbsWithNames = Array.isArray(breadcrumbsWithNames) ? breadcrumbsWithNames : [];
 
+
+  // JSON-LD Schema
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: safeBreadcrumbsWithNames.map((crumb, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: crumb.label,
+      item: `https://www.heldonica.fr${crumb.href}`,
+    })),
+  };
+
   return (
+    <>
+      <Script
+        id="global-breadcrumb-jsonld"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
     <nav className="bg-cloud-dancer/80 backdrop-blur-sm border-b border-cloud-dancer py-3 px-4 md:px-6 mt-16">
       <div className="max-w-7xl mx-auto">
         <ol className="flex items-center gap-1.5 text-xs md:text-sm overflow-x-auto no-scrollbar">
@@ -74,5 +94,6 @@ export default function Breadcrumb() {
         </ol>
       </div>
     </nav>
+    </>
   );
 }
