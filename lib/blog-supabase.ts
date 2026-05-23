@@ -216,3 +216,22 @@ export async function getPageContent(page: string): Promise<Record<string, strin
     return {};
   }
 }
+
+/** Tous les slugs de destinations pour generateStaticParams */
+export async function getAllDestinationSlugs(): Promise<{ slug: string }[]> {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase
+      .from('cms_destinations')
+      .select('slug')
+      .eq('published', true);
+    if (error) {
+      console.error('Supabase getAllDestinationSlugs error:', error.message);
+      return [];
+    }
+    return (data as { slug: string }[]) ?? [];
+  } catch (err) {
+    console.error('getAllDestinationSlugs exception:', err);
+    return [];
+  }
+}

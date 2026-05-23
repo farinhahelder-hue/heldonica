@@ -1,4 +1,5 @@
-﻿import { getDestinationBySlug, getAllDestinationSlugs, blogPosts } from '@/lib/wordpress-data'
+﻿import { getDestinationBySlug, blogPosts } from '@/lib/wordpress-data'
+import { getAllDestinationSlugs } from '@/lib/blog-supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getRelatedArticles } from '@/lib/related-articles'
@@ -128,6 +129,8 @@ const DEST_META: Record<string, DestinationMeta> = {
   'normandie-heldonica': normandieMeta,
   'bretagne-heldonica-slow': bretagneMeta,
 }
+
+export const revalidate = 3600
 
 export async function generateStaticParams() {
   return getAllDestinationSlugs()
