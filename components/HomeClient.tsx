@@ -6,7 +6,6 @@ import Footer from '@/components/Footer'
 import Link from 'next/link'
 import type { BlogPost } from '@/lib/blog-supabase'
 import { getExcerpt } from '@/lib/blog-supabase'
-import { SITE_STATS } from '@/lib/constants'
 import InstagramFeed from '@/components/InstagramFeed'
 import NewsletterForm from '@/components/NewsletterForm'
 
@@ -27,32 +26,16 @@ const SLUG_IMAGES: Record<string, string> = {
   'prego-no-bolo-do-caco':                        'https://images.unsplash.com/photo-1574484284002-952d92a03a52?w=1200&q=80',
   'flotter-sur-la-limmat-a-zurich-notre-aventure-dete':   'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
 }
-// ─── Images de secours par catégorie ─────────────────────────────────────────
-/*
-const CAT_IMAGES_LEGACY: Record<string, string> = {
-  'Carnets Voyage':      'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/stoos-01.jpg',
-  'Découvertes Locales': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
-  'Expert Hôtelier':     'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
-  'Découvertes Locales': 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=900&q=80',
-  'Guides Pratiques':    'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
-  'Expert Hôtelier':     'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=900&q=80',
-  'Travel':              'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
-  'Food & Lifestyle':    'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=1200&q=80',
-  'Découvertes Locales': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
-  'Expert Hôtelier': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
-  'DÃ©couvertes Locales': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
-  'Expert HÃ´telier': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
-}
-*/
 
 const CAT_IMAGES: Record<string, string> = {
-  'Carnets Voyage': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
-  'Découvertes Locales': 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=1200&q=80',
+  'Carnets Voyage': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/stoos-01.jpg',
+  'Découvertes Locales': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
   'Guides Pratiques': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
   'Expert Hôtelier': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
   Travel: 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
-  'Food & Lifestyle': 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&q=80',
+  'Food & Lifestyle': 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=1200&q=80',
 }
+
 function postImage(p: BlogPost): string {
   if (p.featured_image && p.featured_image.trim().length > 0) return p.featured_image
   if (p.slug && SLUG_IMAGES[p.slug]) return SLUG_IMAGES[p.slug]
@@ -94,9 +77,8 @@ function useCounter(target: number, duration = 1400, start = false) {
 function AnimatedStat({ nb, label, suffix = '' }: { nb: number | string; label: string; suffix?: string }) {
   const [started, setStarted] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
-  const isNum = typeof nb === 'number' || !isNaN(Number(nb))
-  const numericTarget = isNum ? Number(nb) : 0
-  const count = useCounter(numericTarget, 1400, started && isNum)
+  const isNum = typeof nb === 'number'
+  const count = useCounter(isNum ? nb : 0, 1400, started && isNum)
   useEffect(() => {
     const el = ref.current; if (!el) return
     const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setStarted(true); io.disconnect() } }, { threshold: 0.5 })
@@ -127,7 +109,7 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
     <Link href={`/blog/${post.slug}`} className="group block h-full">
       <article className="relative rounded-2xl overflow-hidden bg-mahogany/80 shadow-md hover:shadow-xl transition-all duration-400 h-full flex flex-col">
         <div className={`relative ${h} overflow-hidden`}>
-          <img src={imgSrc} alt={post.title || "Image de l’article"} width={600} height={400}
+          <img src={imgSrc} alt={post.title} width={600} height={400}
             className="w-full h-full object-cover opacity-80 group-hover:opacity-90 group-hover:scale-105 transition-all duration-600"
             loading="lazy"
             onError={() => setImgSrc(HELDONICA_BADGE_FALLBACK)}
@@ -156,9 +138,9 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
           )}
           <div className="flex items-center justify-between mt-auto pt-2 border-t border-cloud-dancer">
             <span className="text-xs text-charcoal/40">
-              {post.author || 'Heldonica'} {post.destination ? `• 📍 ${post.destination}` : ` • ${post.formattedDate}`}
+              {post.author ?? 'Heldonica'} {post.destination ? `• 📍 ${post.destination}` : ` • ${post.formattedDate}`}
             </span>
-            <span className="text-xs text-eucalyptus font-semibold group-hover:translate-x-1 transition-transform">Lire la suite →</span>
+            <span className="text-xs text-eucalyptus font-semibold group-hover:translate-x-1 transition-transform">Lire le carnet →</span>
           </div>
         </div>
       </article>
@@ -180,15 +162,19 @@ interface HomeProps {
     instagramUsername?: string
     instagramPostCount?: number
     instagramPosts?: string
+    site_email?: string
   }
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries, heroVideoUrl, heroPosterImage, siteSettings }: HomeProps) {
+export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries, heroVideoUrl, heroPosterImage }: HomeProps) {
   useScrollReveal()
   const featImg = featured ? postImage(featured) : null
-  const publishedArticles = totalPosts ?? SITE_STATS.publishedCarnets
-  const countryCount = typeof coveredCountries === 'number' ? coveredCountries : (coveredCountries ? parseInt(coveredCountries) : SITE_STATS.countriesLived);
+  const publishedArticles = totalPosts || 23
+  const countryCount = typeof coveredCountries === 'number' ? coveredCountries : (coveredCountries ? parseInt(coveredCountries) : 7)
+
+  const videoSrc = heroVideoUrl || 'https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4'
+  const posterSrc = heroPosterImage || undefined
 
   return (
     <>
@@ -201,7 +187,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         [data-delay='100']{transition-delay:0.1s} [data-delay='200']{transition-delay:0.2s}
         [data-delay='300']{transition-delay:0.3s} [data-delay='400']{transition-delay:0.4s}
         [data-delay='500']{transition-delay:0.5s} [data-delay='600']{transition-delay:0.6s}
-        .hero-word{display:inline-block;position:relative;z-index:10;opacity:0;animation:wordIn 0.6s cubic-bezier(0.16,1,0.3,1) forwards;white-space:pre}
+        .hero-word{display:inline;opacity:0;animation:wordIn 0.6s cubic-bezier(0.16,1,0.3,1) forwards}
         @keyframes wordIn{to{opacity:1}}
         @keyframes subtlePulse{0%,100%{opacity:.7;transform:translateY(0)}50%{opacity:1;transform:translateY(4px)}}
         .scroll-cue{animation:subtlePulse 2.2s ease-in-out infinite}
@@ -211,23 +197,11 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
 
       {/* ── HERO ──────────────────────────────────────────────────────────── */}
       <section className="relative h-[85vh] md:h-screen bg-black flex items-end overflow-hidden">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
+        <video autoPlay muted loop playsInline preload="auto"
           className="absolute inset-0 w-full h-full object-cover opacity-45"
-          poster={heroPosterImage || "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1600&q=80"}
-        >
-          <source src={heroVideoUrl || "https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4"} type="video/mp4" />
-          {/* Fallback if video fails to load */}
-          <img loading="lazy" 
-            src={heroPosterImage || "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1600&q=80"}
-            alt="Heldonica hero"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        </video>
+          src={videoSrc}
+          poster={posterSrc}
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
         <div className="relative z-20 px-5 md:px-16 pb-12 md:pb-24 max-w-4xl">
           <p className="text-teal text-xs font-semibold tracking-[0.2em] uppercase mb-5"
@@ -252,15 +226,13 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           </p>
           <div className="flex flex-wrap gap-3"
                style={{ animation: 'wordIn 0.7s 1.3s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
-            <Link href="/blog" 
-              className="px-5 md:px-6 py-2.5 md:py-3 bg-eucalyptus hover:bg-teal text-white rounded-full font-semibold text-sm tracking-wide transition focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:outline-none"
-              onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'hero_read_carnet' })}>
-              Voir nos carnets →
+            <Link href="/blog"
+              className="px-5 md:px-6 py-2.5 md:py-3 bg-mahogany hover:bg-eucalyptus text-white rounded-full font-semibold text-sm tracking-wide transition">
+              Lire le carnet →
             </Link>
-            <Link href="/planifier"
-              className="px-5 md:px-6 py-2.5 md:py-3 border border-white/50 hover:border-white text-white hover:bg-white/10 rounded-full font-semibold text-sm tracking-wide transition focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
-              onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'hero_contact' })}>
-              Planifier mon voyage →
+            <Link href="/travel-planning-form"
+              className="px-5 md:px-6 py-2.5 md:py-3 border border-white/50 hover:border-white text-white hover:bg-white/10 rounded-full font-semibold text-sm tracking-wide transition">
+              Nous écrire →
             </Link>
           </div>
         </div>
@@ -291,15 +263,15 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               <p className="text-base text-charcoal/70 leading-relaxed mb-8">
                 Notre regard est né à deux, entre Paris, Madère et la Roumanie. On ferme les ordis, on part, on revient, on note ce qui tient vraiment sur le terrain. Ensuite seulement, on le partage.
               </p>
-              <Link href="/a-propos" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
-                Lire la suite →
+              <Link href="/blog" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
+                Lire le carnet →
               </Link>
             </div>
             <div className="md:col-span-2 grid grid-cols-2 gap-6" data-reveal="right">
-              <AnimatedStat nb={SITE_STATS.yearsOfExperience} suffix="+" label="Ans de terrain en duo" />
-              <AnimatedStat nb={SITE_STATS.addressesTested} suffix="+" label="Adresses vécues" />
+              <AnimatedStat nb="10+" label="Ans de terrain en duo" />
+              <AnimatedStat nb="100+" label="Adresses vécues" />
               <AnimatedStat nb={countryCount} label="Pays habités" />
-              <AnimatedStat nb={publishedArticles} suffix="+" label="Carnets publiés" />
+              <AnimatedStat nb={publishedArticles} suffix="" label="Carnets publiés" />
               <div className="col-span-2 mt-2">
                 <p className="text-xs text-charcoal/40 leading-relaxed">
                   <span className="font-semibold text-charcoal/70">Terrains de jeu :</span><br />
@@ -317,7 +289,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <Link href={`/blog/${featured.slug}`} className="group block">
             <article className="relative h-[50vh] md:h-[60vh] w-full overflow-hidden flex items-end">
               {featImg && (
-                <img src={featImg} alt={featured?.title || "Image en vedette"} width={1400} height={700}
+                <img src={featImg} alt={featured.title} width={1400} height={700}
                   className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-70 group-hover:scale-105 transition-all duration-700"
                   loading="eager" fetchPriority="high" />
               )}
@@ -337,7 +309,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   <p className="text-white/65 text-sm md:text-base leading-relaxed line-clamp-2 mb-4 max-w-xl">{displayExcerpt(featured)}</p>
                 )}
                 <span className="inline-flex items-center gap-2 text-teal font-semibold text-sm group-hover:gap-3 transition-all">
-                  Lire la suite →
+                  Lire le carnet →
                 </span>
               </div>
             </article>
@@ -357,7 +329,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   Chaque itinéraire qu&apos;on propose, on l&apos;a fait. Plusieurs fois. En conditions réelles, pas en press trip.
                 </p>
               </div>
-              <Link href="/blog" className="text-sm text-eucalyptus font-semibold hover:underline">Tout voir →</Link>
+              <Link href="/blog" className="text-sm text-eucalyptus font-semibold hover:underline">Voir tous les carnets →</Link>
             </div>
             {travelPosts.length >= 1 && (
               <div className="grid md:grid-cols-2 gap-6 mb-6">
@@ -421,9 +393,9 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               </div>
               <div data-reveal="right">
                 <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4">Food &amp; Lifestyle</p>
-                <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany leading-tight mb-4">Découvertes locales</h2>
+                <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany leading-tight mb-4">Inspirations gourmandes</h2>
                 <p className="text-base text-charcoal/70 leading-relaxed mb-6">
-                  On ne voyage pas juste pour voir. On commande à côté des habitués, on rate parfois, et on revient jusqu&apos;à comprendre ce qui tient vraiment — une table, un marché, une adresse qu&apos;on aurait gardée pour soi.
+                  On ne voyage pas seulement pour voir — on voyage pour goûter. Chaque destination révèle ses saveurs authentiques : les recettes portugaises transmises de génération en génération, les brasseries parisiennes que personne ne connaît encore.
                 </p>
                 <div className="space-y-4 mb-8">
                   {foodPosts.slice(0, 3).map((p) => (
@@ -440,7 +412,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   ))}
                 </div>
                 <Link href="/blog" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
-                  Tout voir →
+                  Découvrir toutes les recettes →
                 </Link>
               </div>
             </div>
@@ -480,34 +452,32 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 On ne fait pas des itinéraires.<br />
                 <em className="text-teal">On fait le tien.</em>
               </h2>
-              <p className="text-white/90 leading-relaxed mb-4">
+              <p className="text-charcoal/40 leading-relaxed mb-4">
                 Tu nous envoies tes contraintes réelles — temps, budget, énergie, envie. On transforme ça en séquence concrète, avec les adresses qu&apos;on a testées et l&apos;ordre qui a du sens sur le terrain.
               </p>
-              <p className="text-white/80 text-sm leading-relaxed mb-8">
-                Notre terrain naturel : les couples qui veulent ralentir sans s&apos;ennuyer, les solos qui cherchent du vrai, les familles qui cherchent autre chose que les parcs d&apos;attractions.
+              <p className="text-charcoal/60 text-sm leading-relaxed mb-8">
+                Notre terrain naturel : les couples qui veulent ralentir sans s&apos;ennuyer, les solos qui cherchent du vrai, les familles qui en ont marre des parcs d&apos;attractions.
               </p>
               <div className="flex flex-wrap gap-3">
-              <Link href="/planifier"
-                className="px-6 py-3 bg-eucalyptus hover:bg-eucalyptus text-white rounded font-semibold text-sm transition"
-                onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'services_contact' })}>
-                Nous écrire →
-              </Link>
-              <Link href="/travel-planning"
-                className="px-6 py-3 border border-white/30 hover:border-white/60 text-white rounded font-semibold text-sm transition"
-                onClick={() => window.gtag?.('event', 'click', { event_category: 'CTA', event_label: 'services_read_carnet' })}>
-                Lire la suite →
-              </Link>
+                <Link href="/travel-planning-form"
+                  className="px-6 py-3 bg-eucalyptus hover:bg-eucalyptus text-white rounded font-semibold text-sm transition">
+                  Nous écrire →
+                </Link>
+                <Link href="/blog"
+                  className="px-6 py-3 border border-white/30 hover:border-white/60 text-white rounded font-semibold text-sm transition">
+                  Lire le carnet →
+                </Link>
               </div>
             </div>
             <div className="grid grid-cols-1 gap-4" data-reveal="right">
               {[
                 { t: 'Couples aventuriers', d: "Notre spécialité : ralentir sans ennuyer, laisser de la place au vrai, et garder le hors-sentiers sans perdre le fil." },
-                { t: 'Ouvert aussi à ton format', d: "Solo, famille curieuse ou groupe d’amis : on adapte cette même exigence terrain à votre énergie, vos contraintes et votre rythme." },
-                { t: 'Vécu sur le terrain', d: "Cartes, adresses, conseils pratiques et pépites dénichées : tout part d’expériences testées, pas inventées." },
+                { t: 'Ouvert aussi à ton format', d: "Solo, famille curieuse ou groupe d'amis : on adapte cette même exigence terrain à votre énergie, vos contraintes et votre rythme." },
+                { t: 'Vécu sur le terrain', d: "Cartes, adresses, conseils pratiques et pépites dénichées : tout part d'expériences testées, pas inventées." },
               ].map((item) => (
                 <div key={item.t} className="border border-white/10 rounded-xl p-5 hover:border-teal/30 transition">
                   <h3 className="font-semibold text-white text-sm mb-1">{item.t}</h3>
-                  <p className="text-white/80 text-sm leading-relaxed">{item.d}</p>
+                  <p className="text-charcoal/40 text-sm leading-relaxed">{item.d}</p>
                 </div>
               ))}
             </div>
@@ -515,64 +485,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         </div>
       </section>
 
-      {/* ── CONSULTING HÔTELIER — IAification & Digitalisation ────────── */}
-      {/*
-      <section className="py-20 md:py-24 bg-cloud-dancer">
-        <div className="max-w-6xl mx-auto px-6 md:px-10">
-          <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
-            <div className="order-2 md:order-1" data-reveal="left">
-              <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4">Consulting B2B · Hôtellerie</p>
-              <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany leading-tight mb-6">
-                On connaît vos clients mieux
-                <span className="block italic text-charcoal/70">que la plupart de vos consultants.</span>
-              </h2>
-              <p className="text-base text-charcoal/70 leading-relaxed mb-4">
-                Parce qu&apos;on est vos clients. Pas de promesses chiffrées plaquées sur une slide. On arrive, on regarde ce qui se passe vraiment, on vous dit ce qu&apos;on voit, puis on travaille ensemble.
-              </p>
-              <p className="text-sm text-charcoal/60 leading-relaxed mb-6">
-                Distribution, discours, expérience, outils IA utiles : on ne vous vend pas une mode, on remet du vrai, du lisible et du concret dans le parcours client.
-              </p>
-              <div className="flex flex-wrap gap-2 mb-8">
-                {['Regard terrain', 'Hôtellerie indépendante', 'IA utile', 'Expérience client', 'Visibilité locale', 'Parcours de réservation'].map((tag) => (
-                  <span key={tag} className="bg-white border border-cloud-dancer/60 text-charcoal/80 text-xs font-semibold px-3 py-1 rounded-full">{tag}</span>
-                ))}
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <Link href="/travel-planning" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
-                  Prendre rendez-vous {'→'}
-                </Link>
-              </div>
-            </div>
-            <div className="order-1 md:order-2 grid grid-cols-1 gap-4" data-reveal="right">
-              {[
-                {
-                  icon: '•',
-                  t: 'On regarde le parcours réel',
-                  d: "Ce qu’un client comprend, ce qu’il rate, et l’endroit précis où vous perdez de la confiance."
-                },
-                {
-                  icon: '•',
-                  t: "On garde les outils à leur place",
-                  d: "L’IA sert à clarifier, accélérer et mieux répondre. Elle ne remplace ni votre instinct ni votre identité."
-                },
-                {
-                  icon: '•',
-                  t: 'On repart avec des actions tenables',
-                  d: 'Une feuille de route que vos équipes peuvent vraiment appliquer, sans usine à gaz ni dépendance inutile.'
-                },
-              ].map((item) => (
-                <div key={item.t} className="bg-white rounded-xl p-5 shadow-sm border border-cloud-dancer hover:border-teal transition">
-                  <div className="text-2xl mb-3 text-eucalyptus">{item.icon}</div>
-                  <h3 className="font-semibold text-mahogany text-sm mb-1">{item.t}</h3>
-                  <p className="text-charcoal/60 text-sm leading-relaxed">{item.d}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-      */}
-
+      {/* ── NEWSLETTER ────────────────────────────────────────────────── */}
       <section className="py-20 bg-mahogany text-white">
         <div className="max-w-5xl mx-auto px-6 md:px-10">
           <div className="grid md:grid-cols-[1.1fr_0.9fr] gap-10 items-center">
@@ -593,19 +506,10 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         </div>
       </section>
 
-      {/* Instagram Feed Section */}
-      <section className="py-16 bg-cloud-dancer">
-        <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-2xl font-serif text-mahogany text-center mb-8">
-            Sur le terrain, pas en studio
-          </h2>
-          <InstagramFeed />
-        </div>
-      </section>
+      {/* ── INSTAGRAM FEED ────────────────────────────────────────────── */}
+      <InstagramFeed />
 
       <Footer />
     </>
   )
 }
-
-
