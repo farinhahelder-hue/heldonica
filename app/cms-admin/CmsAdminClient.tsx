@@ -8,12 +8,13 @@ import dynamic from 'next/dynamic';
 import EnhancedRichContent from '@/components/EnhancedRichContent';
 import MediaLibrary from '@/components/MediaLibrary';
 import { sanitizeHtml } from '@/lib/sanitize-html';
-import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot, CheckSquare, Square } from 'lucide-react';
+import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot, CheckSquare, Square, Instagram } from 'lucide-react';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
 const CarouselEditor = dynamic(() => import('@/components/admin/CarouselEditor'), { ssr: false });
 const CarouselGenerator = dynamic(() => import('@/components/admin/CarouselGenerator'), { ssr: false });
 const BlogGenerator = dynamic(() => import('@/components/admin/BlogGenerator'), { ssr: false });
+const InstagramCaptionGenerator = dynamic(() => import('@/components/admin/InstagramCaptionGenerator'), { ssr: false });
 
 // ===== Types =====
 type Article = {
@@ -1160,6 +1161,7 @@ function CMSAdminInner() {
     { id: 'articles', icon: <FileText size={16} />, label: 'Articles', count: articles.length },
     { id: 'new',      icon: <Plus size={16} />,  label: 'Nouvel article', count: null },
     { id: 'blog',    icon: <Sparkles size={16} />, label: 'Générateur Blog IA', count: null },
+    { id: 'instagram', icon: <Instagram size={16} />, label: 'Légendes IG', count: null },
     { id: 'pages',    icon: <Folder size={16} />, label: 'Pages', count: null },
     { id: 'demandes',icon: <Plane size={16} />, label: 'Travel Planning', count: demandes.length },
     // eslint-disable-next-line jsx-a11y/alt-text -- Image is a lucide-react icon, not an <img> element
@@ -1738,6 +1740,10 @@ function CMSAdminInner() {
               setTab('new');
             }}
           />
+        )}
+
+        {tab === 'instagram' && (
+          <InstagramCaptionGenerator articles={articles} />
         )}
 
         {tab === 'analytics' && (
