@@ -28,6 +28,45 @@ export default function ArticleForm({ articleId, onSave, onCancel }: ArticleForm
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const [igCaption, setIgCaption] = useState('');
+  const [generatingIg, setGeneratingIg] = useState(false);
+
+  const generateIgCaption = async () => {
+    if (!formData.title || !formData.excerpt) {
+      alert('Please fill in the title and excerpt first');
+      return;
+    }
+    setGeneratingIg(true);
+    try {
+      const response = await fetch('/api/cms/generate-ig-caption', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: formData.title,
+          excerpt: formData.excerpt,
+          category: formData.category,
+          tags: formData.seo.keywords,
+        }),
+      });
+      const data = await response.json();
+      if (data.caption) {
+        setIgCaption(data.caption);
+      } else {
+        throw new Error(data.error || 'Failed to generate caption');
+      }
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setGeneratingIg(false);
+    }
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(igCaption);
+    alert('Copied to clipboard!');
+  };
+
+
   const fetchArticle = useCallback(async () => {
     try {
       const response = await fetch(`/api/articles/${articleId}`);
@@ -222,6 +261,41 @@ export default function ArticleForm({ articleId, onSave, onCancel }: ArticleForm
               />
             </div>
           </div>
+        </div>
+
+
+        <div className="border-t pt-6">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="font-bold">Instagram Caption Generator</h4>
+            <button
+              type="button"
+              onClick={generateIgCaption}
+              disabled={generatingIg}
+              className="bg-[#2E4F4F] text-white px-4 py-2 rounded-lg hover:bg-[#1a2f2f] transition disabled:opacity-50 text-sm"
+            >
+              {generatingIg ? 'Generating...' : 'Generate Caption'}
+            </button>
+          </div>
+          {igCaption && (
+            <div className="space-y-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+              <textarea
+                value={igCaption}
+                onChange={(e) => setIgCaption(e.target.value)}
+                rows={5}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2E4F4F]"
+              />
+              <button
+                type="button"
+                onClick={copyToClipboard}
+                className="text-[#2E4F4F] font-medium hover:underline text-sm flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                </svg>
+                Copy to clipboard
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="flex gap-4 pt-6 border-t">
