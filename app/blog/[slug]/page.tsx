@@ -1,6 +1,7 @@
 import { getPostBySlug, getAllSlugs, getAllPosts, formatDate } from '@/lib/blog-supabase'
 import type { BlogPost } from '@/lib/blog-supabase'
 import type { Metadata } from 'next'
+import { createServiceClient } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getRelatedArticles } from '@/lib/related-articles'
@@ -27,40 +28,51 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const post = await getPostBySlug(params.slug)
+  const supabase = createServiceClient()
+  const { data: post } = await supabase
+    .from('cms_blog_posts')
+    .select('title, excerpt, content, og_image, featured_image, published_at, author')
+    .eq('slug', params.slug)
+    .single()
+
   if (!post) return { title: 'Article introuvable | Heldonica' }
 
-  const ogImage = post.featured_image ?? DEFAULT_OG
-  const canonical = `${SITE_URL}/blog/${post.slug}`
-  const description = post.excerpt ?? 'Un carnet Heldonica écrit depuis le terrain.'
+  let description = post.excerpt || ''
+  if (!description && post.content) {
+      const plainText = post.content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+      description = plainText.substring(0, 160)
+  }
+
+  const title = `${post.title} | Heldonica`
+  const ogImage = post.og_image || post.featured_image || DEFAULT_OG
+  const canonical = `https://heldonica.fr/blog/${params.slug}`
+  const publishedTime = post.published_at || undefined
+  const authorName = post.author || 'Heldonica'
 
   return {
-    title: `${post.title} | Heldonica`,
+    title,
     description,
     alternates: { canonical },
-    authors: post.author ? [{ name: post.author }] : [{ name: 'Heldonica' }],
     openGraph: {
-      title: post.title,
+      title,
       description,
       url: canonical,
       siteName: 'Heldonica',
       type: 'article',
-      publishedTime: post.published_at ?? undefined,
-      modifiedTime: post.updated_at ?? undefined,
-      authors: post.author ? [post.author] : ['Heldonica'],
-      tags: post.tags ?? undefined,
+      publishedTime,
+      authors: [authorName],
       images: [
         {
           url: ogImage,
           width: 1200,
           height: 630,
-          alt: post.title,
+          alt: title,
         },
       ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: post.title,
+      title,
       description,
       images: [ogImage],
     },
