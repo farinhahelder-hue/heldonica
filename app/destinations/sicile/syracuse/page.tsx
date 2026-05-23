@@ -1,7 +1,26 @@
-'use client'
+import type { Metadata } from 'next';
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
+
+export function generateMetadata(): Metadata {
+  return {
+    title: "Syracuse en couple : slow travel & pépites cachées | Heldonica",
+    description: "Sud-est. Antique, Ortigia.",
+    openGraph: {
+      type: "website",
+      images: ["https://heldonica.fr/images/default-hero.jpg"],
+      locale: "fr_FR",
+      siteName: "Heldonica"
+    },
+    twitter: {
+      card: "summary_large_image"
+    },
+    alternates: {
+      canonical: "https://heldonica.fr/destinations/sicile/syracuse"
+    }
+  };
+}
 
 export default function SyracusePage() {
   return (
