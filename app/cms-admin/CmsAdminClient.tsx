@@ -1846,6 +1846,31 @@ function CMSAdminInner() {
                 {/* Appareils */}
                 {analyticsData?.devices?.length > 0 && (
                   <div style={{ background: '#fafafa', borderRadius: '.75rem', padding: '1.25rem', border: '1px solid #eee' }}>
+                  {/* Web Vitals (Mocked) */}
+                  <div style={{ background: '#fafafa', borderRadius: '.75rem', padding: '1.25rem', border: '1px solid #eee', gridColumn: 'span 2' }}>
+                    <h3 style={{ fontSize: '.9rem', fontWeight: 700, color: '#333', margin: '0 0 1rem' }}>⚡ Core Web Vitals (7 derniers jours moy.)</h3>
+                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'space-around', flexWrap: 'wrap' }}>
+                      {[
+                        { key: 'lcp', label: 'LCP', icon: '🖼️', fmt: (v: number) => `${v}s`, threshold: 2.5 },
+                        { key: 'inp', label: 'INP', icon: '🖱️', fmt: (v: number) => `${v}ms`, threshold: 200 },
+                        { key: 'cls', label: 'CLS', icon: '✨', fmt: (v: number) => v.toFixed(3), threshold: 0.1 },
+                        { key: 'fcp', label: 'FCP', icon: '⏱️', fmt: (v: number) => `${v}s`, threshold: 1.8 },
+                        { key: 'ttfb', label: 'TTFB', icon: '🌐', fmt: (v: number) => `${v}s`, threshold: 0.8 },
+                      ].map(({ key, label, icon, fmt, threshold }) => {
+                        const val = analyticsData?.webVitals?.[key];
+                        const isGood = val !== undefined && val !== null ? val <= threshold : true;
+                        return (
+                          <div key={key} style={{ textAlign: 'center', minWidth: '80px' }}>
+                            <div style={{ fontSize: '1.5rem', marginBottom: '.25rem' }}>{icon}</div>
+                            <div style={{ fontSize: '1.2rem', fontWeight: 700, color: val != null ? (isGood ? '#2e7d32' : '#c62828') : '#aaa' }}>
+                              {val != null ? fmt(val) : '--'}
+                            </div>
+                            <div style={{ fontSize: '.75rem', color: '#666', fontWeight: 600 }}>{label}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                     <h3 style={{ fontSize: '.9rem', fontWeight: 700, color: '#333', margin: '0 0 1rem' }}>📱 Appareils</h3>
                     <div style={{ display: 'flex', gap: '1.5rem' }}>
                       {analyticsData.devices.map((d: any, i: number) => {
