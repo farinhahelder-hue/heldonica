@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -213,6 +213,47 @@ export default function PageEditor({ data, onSave }: any) {
                             />
                           </div>
                         )}
+                        {section.type === 'video' && (
+                          <div>
+                            <label className="block text-sm font-medium text-charcoal mb-1">
+                              Vidéo (URL mp4 ou fichier)
+                            </label>
+                            <Input
+                              type="file"
+                              accept="video/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onload = (event) => {
+                                    handleSectionChange(
+                                      index,
+                                      'videoUrl',
+                                      event.target?.result
+                                    );
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                              className="mb-2"
+                            />
+                            <p className="text-xs text-gray-500 mb-1">ou coller une URL:</p>
+                            <Input
+                              value={section.videoUrl || ''}
+                              onChange={(e) =>
+                                handleSectionChange(index, 'videoUrl', e.target.value)
+                              }
+                              placeholder="https://cdn.example.com/video.mp4"
+                            />
+                            {section.videoUrl && (
+                              <video
+                                src={section.videoUrl}
+                                className="mt-2 w-full max-h-40 rounded"
+                                controls
+                              />
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -222,7 +263,7 @@ export default function PageEditor({ data, onSave }: any) {
                 </Button>
               </div>
 
-              {/* Boutons d'action */}
+              {/* Boutons d’action */}
               <div className="flex gap-4">
                 <Button onClick={handleSave} className="bg-mahogany hover:bg-red-900">
                   💾 Sauvegarder

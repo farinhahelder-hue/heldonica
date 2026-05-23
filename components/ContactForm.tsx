@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -10,6 +10,9 @@ type FormData = {
   subject: string
   message: string
 }
+
+const inputClass =
+  'w-full rounded-xl border border-cloud-dancer bg-white px-4 py-3 text-charcoal/80 outline-none transition-all duration-200 focus:border-eucalyptus focus:ring-2 focus:ring-eucalyptus/20'
 
 export default function ContactForm() {
   const {
@@ -42,7 +45,9 @@ export default function ContactForm() {
       setTimeout(() => setSubmitted(false), 5000)
     } catch (error) {
       console.error('Erreur envoi formulaire:', error)
-      setSubmitError("Le message n'a pas pu partir. Réessaie ici ou écris-nous directement à info@heldonica.fr.")
+      setSubmitError(
+        "Le message n'a pas pu partir. Réessaie ici ou écris-nous directement à info@heldonica.fr.",
+      )
     } finally {
       setLoading(false)
     }
@@ -56,7 +61,7 @@ export default function ContactForm() {
           <input
             {...register('name', { required: 'Le nom est requis.' })}
             type="text"
-            className="w-full rounded-2xl border border-cloud-dancer bg-white px-4 py-3 text-charcoal/80 outline-none transition-all duration-200 focus:border-eucalyptus-00 focus:ring-2 focus:ring-eucalyptus-00"
+            className={inputClass}
             placeholder="Ton nom"
           />
           {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
@@ -73,7 +78,7 @@ export default function ContactForm() {
               },
             })}
             type="email"
-            className="w-full rounded-2xl border border-cloud-dancer bg-white px-4 py-3 text-charcoal/80 outline-none transition-all duration-200 focus:border-eucalyptus-00 focus:ring-2 focus:ring-eucalyptus-00"
+            className={inputClass}
             placeholder="toi@email.com"
           />
           {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
@@ -85,7 +90,7 @@ export default function ContactForm() {
         <input
           {...register('phone')}
           type="tel"
-          className="w-full rounded-2xl border border-cloud-dancer bg-white px-4 py-3 text-charcoal/80 outline-none transition-all duration-200 focus:border-eucalyptus-00 focus:ring-2 focus:ring-eucalyptus-00"
+          className={inputClass}
           placeholder="Si tu veux qu'on te rappelle"
         />
       </div>
@@ -93,12 +98,16 @@ export default function ContactForm() {
       <div>
         <label className="mb-2 block text-sm font-semibold text-charcoal/90">Sujet *</label>
         <select
-          {...register('subject', { required: 'Choisis un sujet pour qu’on parte dans la bonne direction.' })}
-          className="w-full rounded-2xl border border-cloud-dancer bg-white px-4 py-3 text-charcoal/80 outline-none transition-all duration-200 focus:border-eucalyptus-00 focus:ring-2 focus:ring-eucalyptus-00"
+          {...register('subject', {
+            required: "Choisis un sujet pour qu'on parte dans la bonne direction.",
+          })}
+          className={inputClass}
         >
           <option value="">Choisir un sujet</option>
           <option value="travel-planning">Voyage sur mesure</option>
+          {/* Hide B2B temporarily - cf roadmap 2026 
           <option value="hotel-consulting">Consulting hôtelier</option>
+          */}
           <option value="partnership">Partenariat / média</option>
           <option value="other">Autre</option>
         </select>
@@ -110,7 +119,7 @@ export default function ContactForm() {
         <textarea
           {...register('message', { required: 'Le message est requis.' })}
           rows={6}
-          className="w-full rounded-3xl border border-cloud-dancer bg-white px-4 py-3 text-charcoal/80 outline-none transition-all duration-200 focus:border-eucalyptus-00 focus:ring-2 focus:ring-eucalyptus-00"
+          className={inputClass}
           placeholder="Raconte-nous le contexte: destination, timing, budget, énergie du moment, ce que tu veux éviter."
         />
         {errors.message && <p className="mt-1 text-sm text-red-600">{errors.message.message}</p>}
@@ -119,19 +128,19 @@ export default function ContactForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-full bg-mahogany px-8 py-4 text-sm font-semibold text-white transition-all duration-200 hover:bg-mahogany disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-full rounded-full bg-mahogany px-8 py-4 text-sm font-semibold text-white transition-all duration-200 hover:bg-mahogany/90 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loading ? 'Envoi en cours...' : 'Nous écrire →'}
       </button>
 
       {submitError && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {submitError}
         </div>
       )}
 
       {submitted && (
-        <div className="rounded-2xl border border-eucalyptus/20 bg-eucalyptus/5 px-4 py-3 text-sm text-eucalyptus">
+        <div className="rounded-xl border border-eucalyptus/20 bg-eucalyptus/5 px-4 py-3 text-sm text-eucalyptus">
           Merci. On a bien reçu ton message et on revient vers toi sous 48h.
         </div>
       )}

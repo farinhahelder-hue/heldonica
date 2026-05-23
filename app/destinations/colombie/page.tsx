@@ -1,8 +1,19 @@
-'use client'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+
+const SITE_URL = 'https://heldonica.fr'
+
+const faqColombieSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Quand aller en Colombie ?", "acceptedAnswer": { "@type": "Answer", "text": "Decembre-avril saison seche. avoids mousson." }},
+    { "@type": "Question", "name": "Securite Colombie ?", "acceptedAnswer": { "@type": "Answer", "text": "Zones touristiques securisees. Precautions urbains habituelles." }},
+    { "@type": "Question", "name": "Budget Colombie ?", "acceptedAnswer": { "@type": "Answer", "text": "Bon marche: 40-70$/jour. Cafe et salsa abordables." }}
+  ]
+};
 
 export const metadata: Metadata = {
   title: 'Colombie slow travel | Guide Heldonica',
@@ -23,6 +34,7 @@ const subNav = [
 export default function ColombiePage() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqColombieSchema) }} />
       <Header />
       <main className="min-h-screen bg-stone-50">
         <section className="bg-gradient-to-b from-stone-900 to-stone-800 py-20">

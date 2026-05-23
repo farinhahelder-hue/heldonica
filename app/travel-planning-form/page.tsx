@@ -183,7 +183,7 @@ export default function TravelPlanningForm() {
             autoComplete="off"
           />
 
-          {/* ── ÉTAPE 1 — L'Inspiration ─────────────────────────── */}
+          {/* ── ÉTAPE 1 — L’Inspiration ─────────────────────────── */}
           {step === 1 && (
             <div className="space-y-6">
               <h2 className="text-2xl font-serif font-bold text-mahogany mb-6">

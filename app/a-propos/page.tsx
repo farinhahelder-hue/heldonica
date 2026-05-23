@@ -2,11 +2,12 @@ import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
+import { getSettings } from '@/lib/settings'
 
 export const metadata: Metadata = {
   title: 'À Propos — Qui Sommes-Nous | Heldonica',
   description:
-    "On est Heldonica, un duo d'explorateurs passionnés par le slow travel et les pépites cachées. On voyage, on teste, on partage — et on conçoit tes voyages sur mesure.",
+    "On est Heldonica, un duo d’explorateurs passionnés par le slow travel et les pépites cachées. On voyage, on teste, on partage — et on conçoit tes voyages sur mesure.",
   keywords: [
     'heldonica',
     'blog slow travel',
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
     url: 'https://www.heldonica.fr/a-propos',
     title: 'À Propos — Qui Sommes-Nous | Heldonica',
     description:
-      "On est Heldonica, un duo d'explorateurs passionnés par le slow travel et les pépites cachées.",
+      "On est Heldonica, un duo d’explorateurs passionnés par le slow travel et les pépites cachées.",
     images: [
       {
         url: 'https://www.heldonica.fr/og-default.jpg',
@@ -35,20 +36,67 @@ export const metadata: Metadata = {
   },
 }
 
-export default function AProposPage() {
+// ⚡ Bolt Optimization: Use Incremental Static Regeneration (ISR) to cache the about page for 1 hour. This significantly improves Time To First Byte (TTFB) compared to force-dynamic.
+export const revalidate = 3600
+
+const schemaPerson = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Heldonica",
+  "url": "https://www.heldonica.fr/a-propos",
+  "jobTitle": "Travel Planner",
+  "description": "Duo d'explorateurs passionnés par le slow travel et les pépites cachées",
+  "sameAs": [
+    "https://www.instagram.com/heldonica",
+    "https://www.linkedin.com/company/heldonicatravel"
+  ]
+};
+
+export default async function AProposPage() {
+  const heroSettings = await getSettings(
+    'hero_type',
+    'hero_video_url',
+    'hero_poster_image',
+
+'hero_background_image',
+    'page_title',
+    'intro_text'
+  )
+  
+  const heroType = heroSettings.hero_type || 'image'
+  const heroVideo = heroSettings.hero_video_url
+  const heroPoster = heroSettings.hero_poster_image || heroSettings.hero_background_image
+  const backgroundImage = heroSettings.hero_background_image || 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1400&q=85'
+  
   return (
     <>
       <Header />
       <main>
         <section className="relative h-[55vh] md:h-[65vh] bg-stone-900 flex items-end overflow-hidden">
-          <img
-            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1400&q=85"
-            alt="Heldonica — duo de voyageurs slow travel"
-            className="absolute inset-0 w-full h-full object-cover opacity-40"
-            width={1400}
-            height={900}
-            loading="eager"
-          />
+          {/* Hero Video */}
+          {heroType === 'video' && heroVideo && (
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              poster={heroPoster}
+              className="absolute inset-0 w-full h-full object-cover opacity-40"
+            >
+              <source src={heroVideo} type="video/mp4" />
+            </video>
+          )}
+          {/* Hero Image (default or fallback) */}
+          {(heroType === 'image' || !heroVideo) && (
+            <img
+              src={backgroundImage}
+              alt="Paysage naturel paisible — l’esprit slow travel de Heldonica"
+              className="absolute inset-0 w-full h-full object-cover opacity-40"
+              width={1400}
+              height={900}
+              loading="eager"
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
           <div className="relative z-10 px-6 md:px-16 pb-14 md:pb-24 max-w-3xl">
             <p className="text-amber-300 text-xs font-bold tracking-[0.2em] uppercase mb-4">Notre histoire</p>
@@ -67,24 +115,44 @@ export default function AProposPage() {
           <div className="max-w-5xl mx-auto px-6 md:px-10">
             <div className="grid md:grid-cols-5 gap-12 md:gap-20 items-center">
               <div className="md:col-span-3 space-y-5">
-                <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase">Pas vraiment classiques</p>
+                <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase">Ce qu&apos;on croit</p>
                 <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 leading-tight">
-                  On s&apos;est rencontrés sur une appli,
+                  Le slow travel n&apos;est pas une stratégie,
                   <br />
-                  <span className="italic text-stone-500">sans être du même pays.</span>
+                  <span className="italic text-stone-500">c&apos;est une évidence.</span>
                 </h2>
                 <p className="text-base text-stone-600 leading-relaxed">
-                  Et si nos univers diffèrent, c&apos;est précisément là que tout a commencé. L&apos;un vient de Madère, l&apos;autre de Roumanie, et c&apos;est à Paris qu&apos;on s&apos;est trouvés.
+                  <strong>Le voyage le plus précieux n&apos;est pas celui qu&apos;on voit sur Instagram.</strong> C&apos;est celui où tu te perds un peu. Où tu reviens avec une adresse de restaurant que personne dans ton entourage ne connaît. Où tu sais exactement combien de temps il faut marcher pour trouver le meilleur point de vue de la ville.
                 </p>
                 <p className="text-base text-stone-600 leading-relaxed">
-                  Deux trajectoires opposées, une même manie : ralentir, regarder, revenir. On aime les villes à contre-courant, les chemins qui s&apos;écartent, les tables qui sentent vraiment quelque chose.
+                  Quand tu voyages autrement, tu vis autrement. Tu choisis la qualité sur la quantité. Tu reviens moins fatigué qu&apos;avant de partir.
                 </p>
-                <p className="text-base text-stone-600 leading-relaxed">
-                  Ce qu&apos;on partage ici, ce n&apos;est pas une envie de voyage. C&apos;est ce qu&apos;on a vécu. Nos itinéraires, on les a faits. Nos adresses, on les a testées. Et quand on se trompe, on revient jusqu&apos;à comprendre.
+                <p className="text-base text-stone-600 leading-relaxed font-semibold">
+                  On ne vend pas des destinations. On conçoit des expériences.
                 </p>
-                <p className="text-base text-stone-600 leading-relaxed">
-                  Heldonica parle depuis le duo, parce que c&apos;est notre laboratoire et notre filtre. Mais quand on conçoit un voyage, cette même exigence terrain sert aussi les solos, les familles curieuses et les groupes d&apos;amis.
-                </p>
+                <div className="mt-8">
+                  <h3 className="text-xl font-serif font-light text-stone-900 mb-4">Notre méthode en 3 étapes :</h3>
+                  <ul className="space-y-4">
+                    <li className="flex items-start gap-3">
+                      <span className="text-amber-800 font-bold mt-1">1.</span>
+                      <div>
+                        <strong>Discussion — On vous écoute :</strong> On parle de vos désirs, de vos contraintes, de votre rythme. Pas de questionnaire automatique. Un vrai échange.
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-amber-800 font-bold mt-1">2.</span>
+                      <div>
+                        <strong>Conception — On bosse pour vous :</strong> On regarde, on analyse, on déniche. On vous propose un itinéraire qui vous ressemble, pas un copier-coller standard.
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-amber-800 font-bold mt-1">3.</span>
+                      <div>
+                        <strong>Accompagnement — On reste là :</strong> Avant, pendant, après. On ajuste si besoin. On vous donne les infos qui font la différence sur place.
+                      </div>
+                    </li>
+                  </ul>
+                </div>
               </div>
               <div className="md:col-span-2">
                 <div className="relative">
@@ -264,6 +332,7 @@ export default function AProposPage() {
         </section>
       </main>
       <Footer />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaPerson) }} />
     </>
   )
 }

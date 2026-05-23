@@ -35,7 +35,7 @@ export default function Destinations() {
           Nos Pépites
         </h2>
         <p className="text-center text-gray-600 mb-16 text-lg">
-          4 destinations phares pour l'aventure en couple
+          4 destinations phares pour l’aventure en couple
         </p>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -43,7 +43,7 @@ export default function Destinations() {
             <Link key={dest.slug} href={`/destinations/${dest.slug}`}>
               <div className="group cursor-pointer">
                 <div className="relative h-48 rounded-lg overflow-hidden mb-4">
-                  <img 
+                  <img
                     src={dest.image} 
                     alt={dest.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"

@@ -1,4 +1,5 @@
-import { getSetting, getAllPosts, formatDate, BlogPost } from '@/lib/blog-supabase'
+import { getSetting, getAllPosts, formatDate, BlogPost, getPageContent } from '@/lib/blog-supabase'
+import { getSiteSettings } from '@/lib/settings'
 import HomeClient from '@/components/HomeClient'
 import type { Metadata } from 'next'
 
@@ -79,11 +80,34 @@ const schemaSpeakable = {
   url: 'https://www.heldonica.fr',
 };
 
+const schemaOrganization = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Heldonica",
+  "url": "https://www.heldonica.fr",
+  "logo": "https://www.heldonica.fr/logo.png",
+  "sameAs": [
+    "https://www.instagram.com/heldonica",
+    "https://www.linkedin.com/company/heldonicatravel"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+33-6-XX-XX-XX",
+    "contactType": "customer service",
+    "availableLanguage": ["French", "English", "Portuguese"]
+  }
+};
+
 export default async function Home() {
   const allPostsResult = await getAllPosts()
   // Defensive: ensure we always have an array
   const allPosts = Array.isArray(allPostsResult) ? allPostsResult : []
   const coveredCountries = await getSetting('covered_countries')
+
+  // Fetch hero media from CMS
+  const homeContent = await getPageContent('home')
+  const heroVideoUrl = homeContent['hero_video_url'] || null
+  const heroPosterImage = homeContent['hero_poster_image'] || null
 
   const latestPosts = allPosts.slice(0, 6)
   const travelPosts = formatPosts(allPosts.filter((p) => p.category === 'Carnets Voyage').slice(0, 3))
@@ -96,6 +120,20 @@ export default async function Home() {
     ? { ...allPosts[0], formattedDate: formatDate(allPosts[0].published_at), readTime: allPosts[0].read_time ?? calcReadTime(allPosts[0].content) }
     : null
 
+  // Fetch Instagram / site settings for HomeClient
+  const [instagramUsername, instagramPostCount, instagramPosts, siteEmail] = await Promise.all([
+    getSetting('social_instagram'),
+    getSetting('instagram_post_count'),
+    getSetting('instagram_posts'),
+    getSetting('contact_email'),
+  ])
+  const siteSettings = {
+    instagramUsername: instagramUsername || undefined,
+    instagramPostCount: instagramPostCount ? Number(instagramPostCount) : undefined,
+    instagramPosts: instagramPosts || undefined,
+    site_email: siteEmail || 'contact@heldonica.fr',
+  }
+
   return (
     <>
       <HomeClient
@@ -105,11 +143,15 @@ export default async function Home() {
         totalPosts={allPosts.length}
         coveredCountries={coveredCountries}
         latestPosts={formatPosts(latestPosts)}
+        heroVideoUrl={heroVideoUrl}
+        heroPosterImage={heroPosterImage}
+        siteSettings={siteSettings}
       />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaSpeakable) }}
       />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrganization) }} />
     </>
   )
 }

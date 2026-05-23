@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { HELDONICA_SYSTEM_PROMPT, checkBrandVoice } from '@/lib/brand-voice'
 
 export const maxDuration = 60
 
@@ -87,7 +88,7 @@ export async function POST(req: NextRequest) {
         messages: [
           {
             role: 'system',
-            content: `Tu es un rédacteur de voyage expert. ${language === 'EN' ? 'Tu écris en anglais.' : 'Tu génères en français.'} ${tone === 'intimiste' ? 'Style personnel et intimiste.' : tone === 'humoristique' ? 'Style léger et humoristique.' : tone === 'expert' ? 'Style expert et détaillé.' : 'Style informatif.'} ${verifiedInfo}`
+            content: `${HELDONICA_SYSTEM_PROMPT}\n\n${language === 'EN' ? 'EXCEPTION: Write in English for this article only, but keep the Heldonica voice.' : 'Écris en français.'}`
           },
           {
             role: 'user',
@@ -95,7 +96,7 @@ export async function POST(req: NextRequest) {
           }
         ],
         max_tokens: getMaxTokens(length),
-        temperature: 0.7,
+        temperature: 0.75,
       }),
     })
 
@@ -113,10 +114,12 @@ export async function POST(req: NextRequest) {
 
     // Parse the response
     const parsed = parseBlogResponse(content, length)
+    const voiceCheck = checkBrandVoice(content)
 
     return NextResponse.json({
       success: true,
       ...parsed,
+      voiceCheck,
     })
 
   } catch (error) {
@@ -136,16 +139,39 @@ function buildBlogPrompt(topic: string, destination: string, notes: string, seoK
   }
 
   const styleInstructions: Record<string, string> = {
-    story: 'Raconte une histoire personnelle de voyage. Utilise la première personne. Sois narratif et évocateur.',
-    guide: 'Crée un guide pratique avec sections claires. Sois informatif et actionnable.',
-    list: 'Crée une liste de conseils. Numérote chaque point. Sois concis.',
-    review: "Rédige un retour d'expérience authentique. Sois honnête et équilibré."
+    story: 'Récit narratif à la première personne du pluriel ("on"). Commence par une anecdote vécue — une scène concrète, un moment précis. Pas de généralités en ouverture.',
+    guide: 'Guide structuré en sections H2/H3. Commence par "on y est allés et voilà ce qu\'on a retenu". Inclure infos pratiques à la fin seulement.',
+    list: 'Liste de pépites dénichées (pas de "bons plans" !). Chaque point commence par une micro-anecdote puis l\'info concrète.',
+    review: "Retour d'expérience authentique à la première personne du pluriel. Honnête, avec les points moins bons aussi."
   }
 
-  let prompt = `Génère un article de voyage${destination ? ` sur ${destination}` : ''} sur le sujet: ${topic}. `
-  if (notes) prompt += `Notes à intégrer: ${notes}. `
-  if (seoKeywords) prompt += `Inclure naturellement ces mots-clés SEO: ${seoKeywords}. `
-  prompt += `Style: ${styleInstructions[style] || styleInstructions.story}. Longueur: ${lengthMap[length as keyof typeof lengthMap] || lengthMap.medium}.`
+  const toneAdjust: Record<string, string> = {
+    informatif: '',
+    intimiste: 'Ton très personnel, comme si on écrivait dans notre carnet de voyage. Phrases courtes. Beaucoup de "on".',
+    humoristique: 'Autoderision légère. On peut se moquer de nos propres erreurs de voyageurs.',
+    expert: 'Expertise slow travel visible, mais jamais condescendant. On partage ce qu\'on sait vraiment.'
+  }
+
+  let prompt = `Écris un article de blog Heldonica ${destination ? `sur ${destination}` : ''} avec ce sujet : "${topic}".
+
+STRUCTURE OBLIGATOIRE :
+1. Ouvre avec une anecdote réelle ou un moment précis vécu sur place (2-3 phrases max)
+2. "Le vécu d'abord" : ce qu'on a ressenti, découvert, compris
+3. "L'info pratique ensuite" : détails concrets (horaires, prix, comment y aller)
+4. Chaque paragraphe : une image sensorielle (ce qu'on a entendu / goûté / senti / vu)
+
+`
+  if (notes) prompt += `Intègre obligatoirement cette anecdote/note personnelle : ${notes}\n\n`
+  if (seoKeywords) prompt += `Inclure naturellement ces mots-clés (sans les forcer) : ${seoKeywords}\n\n`
+  prompt += `Style éditorial : ${styleInstructions[style] || styleInstructions.story}\n`
+  if (toneAdjust[style]) prompt += `${toneAdjust[style]}\n`
+  prompt += `Longueur cible : ${lengthMap[length as keyof typeof lengthMap] || lengthMap.medium}.\n`
+  prompt += `\nRappel : JAMAIS "bons plans", "incontournable", "tips", "astuces", "inoubliable". Toujours "on", "nous deux", jamais "je".`
+
+  if (destination) {
+    const verifiedInfo = getVerifiedInfo(topic + ' ' + destination)
+    if (verifiedInfo) prompt += `\n\nDonnées factuelles vérifiées à utiliser : ${verifiedInfo}`
+  }
 
   return prompt
 }

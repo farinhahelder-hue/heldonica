@@ -1,4 +1,3 @@
-'use client'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Header from '@/components/Header'
@@ -41,8 +40,13 @@ const pepites = [
     address: 'Camembert',
   },
   {
+<<<<<<< HEAD
     title: 'Villages du Pays d\'Auge',
     description: 'Beuzeval, Blangy, Pont-l\'Eveque. Rues pietonnes, maisons a colombages.',
+=======
+    title: 'Villages du pays d\'Auge',
+    description: 'Beuzeval, Blangy, Pont-l\'Evêque. Rues pietonnes, maisons a colombages.',
+>>>>>>> origin/main
     icon: '🏘️',
     address: 'Multiple',
   },
@@ -102,7 +106,7 @@ export default function PaysDaugePage() {
               Ce qu on a deniché
             </h2>
             <div className="grid gap-6 md:grid-cols-2">
-              {peptides.map((pepite, idx) => (
+              {pepites.map((pepite, idx) => (
                 <div key={idx} className="p-6 bg-white rounded-lg border border-stone-200">
                   <div className="text-2xl mb-2">{pepite.icon}</div>
                   <h3 className="font-serif text-lg text-stone-900 mb-2">

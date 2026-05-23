@@ -6,6 +6,16 @@ import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
 import Link from 'next/link'
 
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Combien coûte la conception sur mesure ?", "acceptedAnswer": { "@type": "Answer", "text": "Chaque projet est unique. Le tarif est établi selon la complexité de l'itinéraire. Compte en moyenne entre 150€ et 350€ pour un voyage de 7 à 14 jours." }},
+    { "@type": "Question", "name": "Dans combien de temps reçois-tu ton carnet de route ?", "acceptedAnswer": { "@type": "Answer", "text": "En général sous 7 à 10 jours après ta validation du brief." }},
+    { "@type": "Question", "name": "Qu'est-ce que tu reçois exactement ?", "acceptedAnswer": { "@type": "Answer", "text": "Un carnet de voyage PDF complet: programme jour par jour, carte interactive, hébergements sélectionnés, restaurants, transports, conseils pratiques et contacts locaux." }}
+  ]
+}
+
 const faqs = [
   {
     q: 'Combien coûte la conception sur mesure ?',
@@ -89,7 +99,7 @@ export default function TravelPlanning() {
               On a appris à voyager vrai.<br />
               <em className="text-amber-300">Maintenant on met ça au service du tien.</em>
             </h1>
-            <p className="fade-up-3 text-base md:text-xl text-stone-300 max-w-2xl mx-auto leading-relaxed mb-10">
+            <p className="fade-up-3 text-base md:text-xl text-white max-w-2xl mx-auto leading-relaxed mb-10">
               Pas des itinéraires copiés sur des blogs. Des voyages conçus sur mesure, comme on aurait voulu qu&apos;on nous guide — lents, sensoriels, mémorables.
             </p>
             <div className="fade-up-4 flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -97,11 +107,32 @@ export default function TravelPlanning() {
                 className="px-8 py-4 bg-amber-800 hover:bg-amber-700 text-white rounded font-semibold text-sm tracking-wide transition shadow-lg">
                 Nous écrire
               </Link>
-              <p className="text-stone-400 text-xs">Sans engagement · Réponse sous 48h</p>
+              <p className="text-white/70 text-xs">Sans engagement · Réponse sous 48h</p>
             </div>
             <div className="mt-8 inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-2">
               <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
               <span className="text-white/80 text-xs font-medium">Places limitées — on travaille en petit nombre pour garder la qualité</span>
+            </div>
+            {/* Persona Cards */}
+            <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto">
+              <div className="bg-white/15 border border-white/20 rounded-xl px-4 py-4 text-left">
+                <p className="text-amber-300 text-xs font-bold uppercase tracking-widest mb-1">Couples aventuriers</p>
+                <p className="text-white/80 text-xs leading-relaxed">
+                  Ralentir sans s’ennuyer, garder le hors-sentiers sans perdre le fil. Notre terrain naturel.
+                </p>
+              </div>
+              <div className="bg-white/15 border border-white/20 rounded-xl px-4 py-4 text-left">
+                <p className="text-amber-300 text-xs font-bold uppercase tracking-widest mb-1">Solos &amp; familles</p>
+                <p className="text-white/80 text-xs leading-relaxed">
+                  Solo qui cherche du vrai, famille en quête d’autre chose — même exigence, rythme adapté.
+                </p>
+              </div>
+              <div className="bg-white/15 border border-white/20 rounded-xl px-4 py-4 text-left">
+                <p className="text-amber-300 text-xs font-bold uppercase tracking-widest mb-1">Groupes d’amis</p>
+                <p className="text-white/80 text-xs leading-relaxed">
+                  Évasion entre amis hors des circuits classiques — on garde l’essence, on perd le touristique.
+                </p>
+              </div>
             </div>
           </div>
         </section>
@@ -175,11 +206,49 @@ export default function TravelPlanning() {
           </div>
         </section>
 
-        {/* ── CE QU'ON CRÉE ── */}
+        {/* ── CE QU’ON CRÉE ── */}
         <section className="py-20 md:py-28 bg-white">
           <div className="max-w-6xl mx-auto px-6 md:px-10">
             <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-3">Le livrable</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12">Ce qu&apos;on conçoit pour toi</h2>
+            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-6">Ce qu&apos;on conçoit pour toi</h2>
+            
+            {/* PDF Mockup Preview */}
+            <div className="mb-10 bg-stone-900 rounded-2xl p-4 md:p-6 shadow-2xl max-w-xl mx-auto">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-3 h-3 rounded-full bg-red-500" />
+                <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                <div className="w-3 h-3 rounded-full bg-green-500" />
+                <span className="ml-2 text-stone-500 text-xs">carnet-de-voyage-heldonica.pdf</span>
+              </div>
+              <div className="bg-white rounded-lg overflow-hidden">
+                <div className="bg-gradient-to-r from-amber-100 to-amber-50 p-4 border-b border-amber-200">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-amber-800 flex items-center justify-center text-white font-serif font-bold text-lg">H</div>
+                    <div>
+                      <p className="text-stone-900 font-semibold text-sm">Carnet de voyage — Madère</p>
+                      <p className="text-stone-500 text-xs">7 jours · 2 personnes</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4 space-y-3">
+                  <div className="flex gap-3">
+                    <div className="w-12 h-10 rounded bg-stone-100 flex items-center justify-center text-stone-400 text-xs">Itin.</div>
+                    <div className="flex-1">
+                      <p className="text-stone-900 font-medium text-sm">Jour 1 — Funchal</p>
+                      <p className="text-stone-500 text-xs">Restaurant local</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="w-12 h-10 rounded bg-stone-100 flex items-center justify-center text-stone-400 text-xs">Héb.</div>
+                    <div className="flex-1">
+                      <p className="text-stone-900 font-medium text-sm">Quinta do Arco</p>
+                      <p className="text-stone-500 text-xs">Vue montagne</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
               {[
                 {
@@ -223,25 +292,35 @@ export default function TravelPlanning() {
           </div>
         </section>
 
-        {/* ── TÉMOIGNAGES ── */}
+
+        {/* ── PREUVES DE MÉTHODE ── */}
         <section className="py-20 md:py-24 bg-stone-950 text-white">
           <div className="max-w-5xl mx-auto px-6 md:px-10">
-            <p className="text-amber-400 text-xs font-bold tracking-[0.2em] uppercase mb-3">Témoignages</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-light mb-12">Ce qu&apos;ils en disent</h2>
-            <div className="grid md:grid-cols-3 gap-6">
-              {[
-                { quote: "On cherchait un voyage loin des circuits classiques. Heldonica nous a trouvé des pépites qu'on n'aurait jamais découvertes seuls. Chaque jour était une surprise.", name: 'Marie & Théo', dest: 'Madère · 10 jours' },
-                { quote: "L'itinéraire collait parfaitement à notre rythme — pas trop chargé, pas ennuyeux. Les adresses restaurant étaient toutes excellentes. On recommande les yeux fermés.", name: 'Sophie & Lucas', dest: 'Colombie · 14 jours' },
-                { quote: "Pour nos 10 ans d'anniversaire, on voulait quelque chose d'unique. Heldonica a imaginé un voyage qu'on n'aurait jamais pu concevoir aussi bien tout seuls.", name: 'Claire & Antoine', dest: 'Tanzanie · 12 jours' },
-              ].map((t, i) => (
-                <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col gap-4">
-                  <p className="text-stone-300 text-sm leading-relaxed italic">&ldquo;{t.quote}&rdquo;</p>
-                  <div className="mt-auto">
-                    <p className="text-white font-semibold text-sm">{t.name}</p>
-                    <p className="text-amber-400 text-xs">{t.dest}</p>
-                  </div>
-                </div>
-              ))}
+            <p className="text-amber-400 text-xs font-bold tracking-[0.2em] uppercase mb-3">Nos preuves</p>
+            <h2 className="text-3xl md:text-4xl font-serif font-light mb-8">Ce qu'on a sur le terrain</h2>
+            
+            <div className="grid md:grid-cols-3 gap-6 mb-10">
+              <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+                <p className="text-4xl font-serif text-amber-400 mb-2">10+</p>
+                <p className="text-white font-semibold text-sm">Années de route</p>
+                <p className="text-stone-400 text-xs mt-2">Des voyages en couple, solo, en famille</p>
+              </div>
+              <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+                <p className="text-4xl font-serif text-amber-400 mb-2">200+</p>
+                <p className="text-white font-semibold text-sm">Adresses testées</p>
+                <p className="text-stone-400 text-xs mt-2">Hébergements, restaurants, spots</p>
+              </div>
+              <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+                <p className="text-4xl font-serif text-amber-400 mb-2">8</p>
+                <p className="text-white font-semibold text-sm">Pays vécus</p>
+                <p className="text-stone-400 text-xs mt-2">Madère, Roumanie, France...</p>
+              </div>
+            </div>
+            
+            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+              <p className="text-stone-300 text-sm leading-relaxed">
+                <strong className="text-amber-400">On n'a pas de témoignages.</strong> Pas encore de clientes. Ce qu'on a : des années de route, des centaines d'adresses testées, une méthode qui fonctionne.
+              </p>
             </div>
           </div>
         </section>
@@ -275,6 +354,7 @@ export default function TravelPlanning() {
           </div>
         </section>
 
+      
       </main>
 
       {/* ── CTA MOBILE STICKY ── */}
@@ -290,6 +370,7 @@ export default function TravelPlanning() {
       </div>
 
       <Footer />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
     </>
   )
 }

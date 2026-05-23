@@ -1,4 +1,3 @@
-'use client'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
@@ -19,10 +18,10 @@ const pepites = [
   { title: 'Mercado do Bolhao', description: 'Marche couverts.', icon: '🍊' },
 ]
 
-export default function PortoPage() {
+const faqPortoSchema = {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Que faire a Porto?","acceptedAnswer":{"@type":"Answer","text":"Ribeira, pont Luis I, cave a vin."}},{"@type":"Question","name":"Ou loger Porto?","acceptedAnswer":{"@type":"Answer","text":"Centre historique, Ribeira."}},{"@type":"Question","name":"Transport Porto?","acceptedAnswer":{"@type":"Answer","text":"Metro depuis aeroport. Bus STCP."}}]}; export default function PortoPage() {
   return (
     <>
-      <Header />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPortoSchema) }} /> <Header />
       <main className="min-h-screen bg-stone-50">
         <section className="bg-gradient-to-b from-stone-900 to-stone-800 py-20">
           <div className="max-w-4xl mx-auto px-4">
@@ -41,7 +40,7 @@ export default function PortoPage() {
             <p className="text-lg text-stone-700">Porto, c est le nord. Le vin, le fleuve, les couleurs.</p>
           </section>
           <section className="mb-8 grid md:grid-cols-3 gap-4">
-            {peptides.map((p, i) => (
+            {pepites.map((p, i) => (
               <div key={i} className="p-4 bg-white rounded-lg border">
                 <div className="text-xl mb-2">{p.icon}</div>
                 <h3 className="font-serif">{p.title}</h3>

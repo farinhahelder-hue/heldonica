@@ -4,10 +4,37 @@ import { INSTAGRAM_PROFILE, INSTAGRAM_STORIES } from '@/lib/instagram-static'
 
 interface InstagramEmbedProps {
   limit?: number
+  siteSettings?: {
+    instagramUsername?: string
+    instagramPostCount?: number
+    instagramPosts?: string
+  }
 }
 
-export default function InstagramEmbed({ limit = 6 }: InstagramEmbedProps) {
-  const stories = INSTAGRAM_STORIES.slice(0, limit)
+export default function InstagramEmbed({ limit = 6, siteSettings }: InstagramEmbedProps) {
+  // Parse site settings for custom posts
+  let stories = INSTAGRAM_STORIES.slice(0, limit)
+  
+  if (siteSettings?.instagramPosts) {
+    const customPosts = siteSettings.instagramPosts.split('\n').filter(Boolean).slice(0, limit).map((line, idx) => {
+      const [image, permalink, title, status] = line.split('|')
+      // Skip invalid posts
+      if (status?.includes('⚠️')) return null
+      return {
+        id: `custom-${idx}`,
+        title: title?.trim() || '',
+        location: '',
+        permalink: permalink?.trim() || `https://instagram.com/${siteSettings.instagramUsername || INSTAGRAM_PROFILE.username}`,
+        image: image?.trim() || ''
+      }
+    }).filter(Boolean)
+    if (customPosts.length > 0) {
+      stories = customPosts as typeof INSTAGRAM_STORIES
+    }
+  }
+
+  const username = siteSettings?.instagramUsername || INSTAGRAM_PROFILE.username
+  const postCount = siteSettings?.instagramPostCount || limit
 
   return (
     <div>
@@ -22,17 +49,17 @@ export default function InstagramEmbed({ limit = 6 }: InstagramEmbedProps) {
         </div>
         <div className="text-center sm:text-left">
           <a
-            href={`https://instagram.com/${INSTAGRAM_PROFILE.username}`}
+            href={`https://instagram.com/${username}`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-lg font-semibold text-mahogany hover:text-eucalyptus transition"
           >
-            @{INSTAGRAM_PROFILE.username}
+            @{username}
           </a>
           <p className="text-sm text-charcoal/70">{INSTAGRAM_PROFILE.followersLabel}</p>
         </div>
         <a
-          href={`https://instagram.com/${INSTAGRAM_PROFILE.username}`}
+          href={`https://instagram.com/${username}`}
           target="_blank"
           rel="noopener noreferrer"
           className="mx-auto sm:mx-0 px-4 py-2 bg-gradient-to-r from-eucalyptus to-teal text-white text-sm rounded-full hover:opacity-90 transition font-semibold"
@@ -42,7 +69,7 @@ export default function InstagramEmbed({ limit = 6 }: InstagramEmbedProps) {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        {stories.map((story) => (
+        {stories.slice(0, postCount).map((story) => (
           <a
             key={story.id}
             href={story.permalink}
@@ -75,7 +102,7 @@ export default function InstagramEmbed({ limit = 6 }: InstagramEmbedProps) {
 
       <p className="text-center mt-6">
         <a
-          href={`https://instagram.com/${INSTAGRAM_PROFILE.username}`}
+          href={`https://instagram.com/${username}`}
           target="_blank"
           rel="noopener noreferrer"
           className="text-eucalyptus hover:text-teal transition text-sm font-semibold"

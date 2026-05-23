@@ -1,8 +1,19 @@
-'use client'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+
+const SITE_URL = 'https://heldonica.fr'
+
+const faqSardaigneSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Quand aller en Sardaigne ?", "acceptedAnswer": { "@type": "Answer", "text": "Juin ou septembre pour plages parfaites sans foules." }},
+    { "@type": "Question", "name": "Ou loger en Sardaigne ?", "acceptedAnswer": { "@type": "Answer", "text": "Cagliari pour culture, Costa Smeralda pour plages luxe, Alghero pour vie locale." }},
+    { "@type": "Question", "name": "Transport Sardaigne ?", "acceptedAnswer": { "@type": "Answer", "text": "Voiture indispensable. Vols Cagliari ou Olbia depuis Paris." }}
+  ]
+};
 
 export const metadata: Metadata = {
   title: 'Sardaigne slow travel | Guide Heldonica',
@@ -23,6 +34,7 @@ const subNav = [
 export default function SardaignePage() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSardaigneSchema) }} />
       <Header />
       <main className="min-h-screen bg-stone-50">
         <section className="bg-gradient-to-b from-stone-900 to-stone-800 py-20">

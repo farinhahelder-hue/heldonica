@@ -22,8 +22,11 @@ export async function POST(req: NextRequest) {
     const publicUrl = getPublicUrl(key)
 
     return NextResponse.json({ uploadUrl, publicUrl, key })
-  } catch (err) {
+  } catch (err: any) {
     console.error('Media upload error:', err)
+    if (err.message === 'S3 not configured') {
+      return NextResponse.json({ error: 'S3 non configuré' }, { status: 503 })
+    }
     return NextResponse.json({ error: 'Erreur upload' }, { status: 500 })
   }
 }

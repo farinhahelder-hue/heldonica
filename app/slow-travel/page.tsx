@@ -7,7 +7,7 @@ import Breadcrumb from '@/components/Breadcrumb'
 export const metadata: Metadata = {
   title: 'Slow Travel — Voyager Autrement, Lentement, Authentiquement | Heldonica',
   description:
-    "Qu'est-ce que le slow travel ? On te partage notre approche du voyage lent, écoresponsable et hors des sentiers battus. Destinations, conseils et carnets de route.",
+    "Qu’est-ce que le slow travel ? On te partage notre approche du voyage lent, écoresponsable et hors des sentiers battus. Destinations, conseils et carnets de route.",
   keywords: [
     'slow travel',
     'slow travel France',
@@ -109,3 +109,6 @@ export default function SlowTravelPage() {
     </>
   )
 }
+
+// ⚡ Bolt Optimization: Use Incremental Static Regeneration (ISR) to cache the page for 60 seconds. This significantly improves Time To First Byte (TTFB).
+export const revalidate = 60;

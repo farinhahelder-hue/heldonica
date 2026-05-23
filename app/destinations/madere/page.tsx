@@ -26,6 +26,16 @@ const schemaTouristDestination = {
   bestSeasonToVisit: ['April', 'May', 'June', 'July', 'August', 'September', 'October'],
 };
 
+const faqMadereSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Quand partir à Madère ?", "acceptedAnswer": { "@type": "Answer", "text": "Entre avril et octobre : climat doux, paysages verts et températures agréables pour randonner." }},
+    { "@type": "Question", "name": "Comment se déplacer à Madère ?", "acceptedAnswer": { "@type": "Answer", "text": ".Location de voiture recommandée pour explorer les levadas. Bus possibles mais limités." }},
+    { "@type": "Question", "name": "Quel budget pour Madère ?", "acceptedAnswer": { "@type": "Answer", "text": "Environ 100-150€/jour en hébergement milieu + restauration locale." }}
+  ]
+};
+
 export const metadata: Metadata = {
   title: 'Madere slow travel | Guide Heldonica',
   description:
@@ -101,6 +111,10 @@ export default function MaderePage() {
       />
       <script
         type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqMadereSchema) }}
+      />
+      <script
+        type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(madereLd) }}
       />
       <Header />
@@ -115,7 +129,7 @@ export default function MaderePage() {
           <div className="absolute right-4 top-4 hidden md:block rounded-xl overflow-hidden border border-white/25 shadow-xl bg-black/30 backdrop-blur-sm">
             <img
               src="https://heldonica.fr/wp-content/uploads/2026/03/fetched-image-2-1024x768.jpg"
-              alt="Cabo Girao a l'aube, spot eco-luxe"
+              alt="Cabo Girao a l’aube, spot eco-luxe"
               className="h-28 w-40 object-cover"
               loading="lazy"
             />
@@ -128,11 +142,11 @@ export default function MaderePage() {
               Destination pilier
             </p>
             <h1 className="text-4xl md:text-6xl font-serif text-white max-w-4xl mb-5">
-              Madere, l ile de l eternel printemps en mode slow travel
+              Madère, l'île de l'éternel printemps en mode slow travel
             </h1>
             <p className="text-white/85 max-w-2xl text-lg leading-relaxed">
               Un mix unique de relief volcanique, villages atlantiques et adresses
-              locales. Ici, on voyage lentement sans jamais s ennuyer.
+              locales. Ici, on voyage lentement sans jamais s'ennuyer.
             </p>
           </div>
         </section>
@@ -217,10 +231,10 @@ export default function MaderePage() {
         <section className="bg-white section-spacing">
           <div className="container">
             <h2 className="text-3xl md:text-4xl font-serif text-mahogany mb-8">
-              Ou dormir: 3 bases pertinentes
-            </h2>
+              Ou dormir: 3 bases testees par Heldonica</h2>
             <div className="grid md:grid-cols-3 gap-6">
               <article className="rounded-2xl border border-stone-200 p-6">
+                <span className="inline-block text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded-full mb-3">Teste par Heldonica</span>
                 <h3 className="text-xl font-serif text-mahogany mb-2">Funchal</h3>
                 <p className="text-sm text-charcoal/75 mb-4">
                   Base confortable pour une premiere fois: ville vivante, restaurants et
@@ -236,6 +250,7 @@ export default function MaderePage() {
                 </a>
               </article>
               <article className="rounded-2xl border border-stone-200 p-6">
+                <span className="inline-block text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded-full mb-3">Teste par Heldonica</span>
                 <h3 className="text-xl font-serif text-mahogany mb-2">Sao Vicente</h3>
                 <p className="text-sm text-charcoal/75 mb-4">
                   Plus brut, plus vegetal. Excellent point d entree pour les levadas et les
@@ -251,6 +266,7 @@ export default function MaderePage() {
                 </a>
               </article>
               <article className="rounded-2xl border border-stone-200 p-6">
+                <span className="inline-block text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full mb-3">Coup de coeur</span>
                 <h3 className="text-xl font-serif text-mahogany mb-2">Ponta do Sol</h3>
                 <p className="text-sm text-charcoal/75 mb-4">
                   Plus intime, plus doux, idéal pour un voyage en duo oriente slow et

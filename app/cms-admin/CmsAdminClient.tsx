@@ -2,13 +2,15 @@
 
 console.log('[CMS] Rendering CMS admin page');
 
-import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import EnhancedRichContent from '@/components/EnhancedRichContent';
 import MediaLibrary from '@/components/MediaLibrary';
 import { sanitizeHtml } from '@/lib/sanitize-html';
-import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw } from 'lucide-react';
+import { getFallbackImageUrl } from '@/lib/unsplash';
+import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot, CheckSquare, Square } from 'lucide-react';
+import KanbanBoardClient from './travel-planning/KanbanBoardClient';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
 const CarouselEditor = dynamic(() => import('@/components/admin/CarouselEditor'), { ssr: false });
@@ -66,11 +68,13 @@ function getReadTimeMinutes(content?: string) {
 }
 
 // ===== Config pages CMS =====
-const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { key: string; label: string; type: 'text' | 'textarea' }[] }> = {
+const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { key: string; label: string; type: 'text' | 'textarea' | 'media' | 'color' }[] }> = {
   'home': {
     label: 'Accueil',
     emoji: '🏠',
     sections: [
+      { key: 'hero_video_url',    label: 'Hero — Vidéo (URL)',              type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)',        type: 'media' },
       { key: 'hero_title',          label: 'Hero — Titre',                     type: 'text' },
       { key: 'hero_subtitle',       label: 'Hero — Sous-titre',                type: 'textarea' },
       { key: 'hero_cta',            label: 'Hero — Bouton CTA',                type: 'text' },
@@ -86,8 +90,12 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
     label: 'À propos',
     emoji: '👋',
     sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
       { key: 'page_title',  label: 'Titre de la page',      type: 'text' },
-      { key: 'intro_text',  label: "Texte d'introduction",  type: 'textarea' },
+      { key: 'intro_text',  label: "Texte d’introduction",  type: 'textarea' },
     ],
   },
   'nos-services': {
@@ -118,16 +126,32 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
     label: 'Contact',
     emoji: '📧',
     sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
       { key: 'page_title',  label: 'Titre de la page',      type: 'text' },
-      { key: 'intro_text',  label: "Texte d'introduction",  type: 'textarea' },
+      { key: 'intro_text',  label: "Texte d’introduction",  type: 'textarea' },
+      { key: 'contact_email', label: 'Email de contact', type: 'text' },
+      { key: 'contact_phone', label: 'Téléphone', type: 'text' },
     ],
   },
   'hotel-consulting': {
     label: 'Hotel Consulting',
     emoji: '🏨',
     sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
       { key: 'page_title',  label: 'Titre de la page',      type: 'text' },
-      { key: 'intro_text',  label: "Texte d'introduction",  type: 'textarea' },
+      { key: 'intro_text',  label: "Texte d’introduction",  type: 'textarea' },
+      { key: 'hero_cta', label: 'Hero — Bouton CTA', type: 'text' },
+      { key: 'hero_cta_link', label: 'Hero — Lien du bouton', type: 'text' },
+      { key: 'section_approach_title', label: 'Section Approche — Titre', type: 'text' },
+      { key: 'section_approach_text', label: 'Section Approche — Texte', type: 'textarea' },
+      { key: 'section_services_title', label: 'Section Services — Titre', type: 'text' },
+      { key: 'section_services_list', label: 'Services (liste séparée par |)', type: 'textarea' },
     ],
   },
   'mentions-legales': {
@@ -135,16 +159,117 @@ const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { k
     emoji: '⚖️',
     sections: [
       { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'content', label: 'Contenu (HTML)', type: 'textarea' },
+    ],
+  },
+  'politique-confidentialite': {
+    label: 'Politique de confidentialité',
+    emoji: '🔒',
+    sections: [
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'content', label: 'Contenu (HTML)', type: 'textarea' },
+    ],
+  },
+  'slow-travel': {
+    label: 'Slow Travel',
+    emoji: '🐌',
+    sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
+      { key: 'definition_title', label: 'Titre Définition', type: 'text' },
+      { key: 'definition_text', label: 'Texte Définition', type: 'textarea' },
+      { key: 'principles_title', label: 'Titre Principes', type: 'text' },
+      { key: 'principles_list', label: 'Principes (séparés par |)', type: 'textarea' },
+    ],
+  },
+  'destinations': {
+    label: 'Destinations',
+    emoji: '🗺️',
+    sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
+    ],
+  },
+  'temoignages': {
+    label: 'Témoignages',
+    emoji: '💬',
+    sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
+    ],
+  },
+  'etudes-de-cas': {
+    label: 'Études de cas',
+    emoji: '📁',
+    sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
+    ],
+  },
+  'ai-hotellerie': {
+    label: 'IA & Hôtellerie',
+    emoji: '🤖',
+    sections: [
+      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
+      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
+      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
+      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
+      { key: 'page_title', label: 'Titre de la page', type: 'text' },
+      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
     ],
   },
 };
 
 const SETTINGS_GROUPS: Record<string, { label: string; emoji: string }> = {
-  general: { label: 'Général',         emoji: '🌐' },
-  social:  { label: 'Réseaux sociaux', emoji: '📱' },
-  seo:     { label: 'SEO',             emoji: '🔍' },
-  footer:  { label: 'Footer',          emoji: '📄' },
+  general:    { label: 'Général',         emoji: '🌐' },
+  appearance:{ label: 'Apparence',      emoji: '🎨' },
+  social:    { label: 'Réseaux sociaux', emoji: '📱' },
+  seo:       { label: 'SEO',            emoji: '🔍' },
+  footer:   { label: 'Footer',          emoji: '📄' },
 };
+
+// Paramètres d’apparence (couleurs, logo, favicon)
+const APPEARANCE_SETTINGS = [
+  { key: 'site_logo',        label: 'Logo du site (PNG/SVG)',      type: 'media' },
+  { key: 'site_favicon',    label: 'Favicon (32x32, PNG/ICO)',   type: 'media' },
+  // Couleurs du site
+  { key: 'color_primary',   label: 'Couleur primaire',         type: 'color' },
+  { key: 'color_secondary', label: 'Couleur secondaire',       type: 'color' },
+  { key: 'color_accent',    label: 'Couleur d\'accent',         type: 'color' },
+  { key: 'color_background',label: 'Couleur de fond',          type: 'color' },
+  { key: 'color_text',      label: 'Couleur du texte',           type: 'color' },
+  // Couleurs des héros
+  { key: 'hero_overlay_color', label: 'Hero — Couleur de overlay', type: 'color' },
+  { key: 'hero_overlay_opacity', label: 'Hero — Opacité overlay (0-100)', type: 'text' },
+  // Couleurs des boutons
+  { key: 'button_primary_bg', label: 'Bouton principal — Fond', type: 'color' },
+  { key: 'button_primary_text', label: 'Bouton principal — Texte', type: 'color' },
+  { key: 'button_secondary_bg', label: 'Bouton secondaire — Fond', type: 'color' },
+  { key: 'button_secondary_text', label: 'Bouton secondaire — Texte', type: 'color' },
+  // Typographie
+  { key: 'font_heading',    label: 'Police des titres (Google Fonts)',           type: 'text' },
+  { key: 'font_body',      label: 'Police du texte (Google Fonts)',             type: 'text' },
+  { key: 'font_size_base', label: 'Taille de base (ex: 16px)', type: 'text' },
+  // Layout
+  { key: 'container_max_width', label: 'Largeur max container (ex: 1280px)', type: 'text' },
+  { key: 'header_sticky', label: 'Header fixe (true/false)', type: 'text' },
+];
 
 // ===== Composant interne (utilise useSearchParams) =====
 function CMSAdminInner() {
@@ -162,11 +287,209 @@ function CMSAdminInner() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  // Note: categoryFilter is already defined at line ~511
+  const [selectedArticles, setSelectedArticles] = useState<Set<number>>(new Set());
   const [editingArticle, setEditingArticle] = useState<Partial<Article> | null>(null);
   const [loadingArticles, setLoadingArticles] = useState(false);
   const [savingArticle, setSavingArticle] = useState(false);
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [scheduleMode, setScheduleMode] = useState(false);
+
+  // Toggle article selection for bulk actions
+  const toggleArticleSelection = (id: number) => {
+    setSelectedArticles(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  // Select/deselect all articles
+  const toggleSelectAll = () => {
+    if (selectedArticles.size === articles.length) {
+      setSelectedArticles(new Set());
+    } else {
+      setSelectedArticles(new Set(articles.map(a => a.id)));
+    }
+  };
+
+  // Bulk publish selected articles
+  const bulkPublish = async () => {
+    if (selectedArticles.size === 0) return;
+    if (!confirm(`Publier ${selectedArticles.size} article(s)?`)) return;
+    setLoadingArticles(true);
+    try {
+      await Promise.all([...selectedArticles].map(id =>
+        fetch(`/api/cms/articles/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ published: true, published_at: new Date().toISOString() }),
+        })
+      ));
+      showToast(`✓ ${selectedArticles.size} article(s) publié(s)`);
+      setSelectedArticles(new Set());
+      loadArticles();
+    } catch {
+      showToast('Erreur lors de la publication');
+    } finally {
+      setLoadingArticles(false);
+    }
+  };
+
+  // Bulk unpublish selected articles
+  const bulkUnpublish = async () => {
+    if (selectedArticles.size === 0) return;
+    if (!confirm(`Dépublier ${selectedArticles.size} article(s)?`)) return;
+    setLoadingArticles(true);
+    try {
+      await Promise.all([...selectedArticles].map(id =>
+        fetch(`/api/cms/articles/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ published: false }),
+        })
+      ));
+      showToast(`${selectedArticles.size} article(s) dépublié(s)`);
+      setSelectedArticles(new Set());
+      loadArticles();
+    } catch {
+      showToast('Erreur lors de la dépublication');
+    } finally {
+      setLoadingArticles(false);
+    }
+  };
+
+  // Bulk delete selected articles
+  const bulkDelete = async () => {
+    if (selectedArticles.size === 0) return;
+    if (!confirm(`Supprimer ${selectedArticles.size} article(s)? Cette action est irréversible!`)) return;
+    setLoadingArticles(true);
+    try {
+      await Promise.all([...selectedArticles].map(id =>
+        fetch(`/api/cms/articles/${id}`, { method: 'DELETE' })
+      ));
+      showToast(`🗑 ${selectedArticles.size} article(s) supprimé(s)`);
+      setSelectedArticles(new Set());
+      loadArticles();
+    } catch {
+      showToast('Erreur lors de la suppression');
+    } finally {
+      setLoadingArticles(false);
+    }
+  };
+
+  // Agents panel
+  const [agentTask, setAgentTask] = useState('');
+  const [agentRepo, setAgentRepo] = useState('farinhahelder-hue/heldonica');
+  const [agentBranch, setAgentBranch] = useState('main');
+  const [selectedAgent, setSelectedAgent] = useState('allhands');
+  const [sendingTask, setSendingTask] = useState(false);
+  const [agentMessage, setAgentMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+  const [taskHistory, setTaskHistory] = useState<{date: string; agent: string; task: string; repo: string; branch: string}[]>([]);
+
+  // Load task history from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('agent-task-history');
+      if (saved) {
+        try {
+          setTaskHistory(JSON.parse(saved));
+        } catch (e) {
+          console.error('Failed to parse task history:', e);
+        }
+      }
+    }
+  }, []);
+
+  // Send task to agent (n8n or Jules API)
+  const sendAgentTask = async () => {
+    if (!agentTask.trim()) {
+      setAgentMessage({ type: 'error', text: 'Veuillez décrivez une tâche à effectuer.' });
+      return;
+    }
+
+    setSendingTask(true);
+    setAgentMessage(null);
+
+    try {
+      let res: Response;
+      
+      if (selectedAgent === 'jules') {
+        // Use Jules API directly
+        res = await fetch('/api/jules', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: agentTask,
+            title: agentTask.slice(0, 50),
+            source: `sources/github/${agentRepo}`,
+          }),
+        });
+      } else {
+        // Use n8n webhook for other agents
+        const webhookUrl = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL;
+        if (!webhookUrl) {
+          setAgentMessage({ type: 'error', text: 'URL du webhook n8n non configurée.' });
+          setSendingTask(false);
+          return;
+        }
+        
+        res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            agent: selectedAgent,
+            task: agentTask,
+            repo: agentRepo,
+            branch: agentBranch,
+          }),
+        });
+      }
+
+      if (res.ok) {
+        const agentLabels: Record<string, string> = {
+          allhands: 'OpenHands (AllHands)',
+          jules: 'Jules (Google)',
+          gemini: 'Gemini (Google)',
+          perplexity: 'Perplexity',
+        };
+        const label = agentLabels[selectedAgent] || selectedAgent;
+        
+        // Get Jules URL if available
+        let responseData: any = {};
+        try { responseData = await res.json(); } catch {}
+        
+        const successMsg = selectedAgent === 'jules' && responseData.url 
+          ? `Tâche envoyée à ${label}! Voir: ${responseData.url}`
+          : `Tâche envoyée à ${label} avec succès!`;
+          
+        setAgentMessage({ type: 'success', text: successMsg });
+
+        // Add to history
+        const newEntry = {
+          date: new Date().toLocaleString('fr-FR'),
+          agent: selectedAgent,
+          task: agentTask,
+          repo: agentRepo,
+          branch: agentBranch,
+        };
+        const updatedHistory = [newEntry, ...taskHistory].slice(0, 10);
+        setTaskHistory(updatedHistory);
+        localStorage.setItem('agent-task-history', JSON.stringify(updatedHistory));
+
+        // Clear task field
+        setAgentTask('');
+      } else {
+        setAgentMessage({ type: 'error', text: `Erreur lors de l'envoi de la tâche (${res.status})` });
+      }
+    } catch (err) {
+      console.error('Failed to send task:', err);
+      setAgentMessage({ type: 'error', text: 'Erreur réseau. Le webhook est-il accessible?' });
+    } finally {
+      setSendingTask(false);
+    }
+  };
 
   // SEO analysis
   const analyzeSEO = (content: string, title: string) => {
@@ -223,6 +546,8 @@ function CMSAdminInner() {
   const [editedSettings, setEditedSettings] = useState<Record<string, string>>({});
   const [editedContent, setEditedContent] = useState<Record<string, string>>({});
   const [savingSettings, setSavingSettings] = useState(false);
+  const [savingPageKey, setSavingPageKey] = useState('');
+  const [uploadingMediaKey, setUploadingMediaKey] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
 
   const isArticleDirty = getArticleDraftSignature(editingArticle) !== articleBaseline;
@@ -489,11 +814,11 @@ function CMSAdminInner() {
   const saveArticle = useCallback(async () => {
     if (!editingArticle || savingArticle) return;
     if (!editingArticle.title?.trim()) {
-      showToast("Le titre est obligatoire avant d'enregistrer.");
+      showToast("Le titre est obligatoire avant d’enregistrer.");
       return;
     }
     const isNew = !editingArticle.id;
-    const payload = {
+    let payload = {
       ...editingArticle,
       slug: editingArticle.slug || slug(editingArticle.title || ''),
       published_at: editingArticle.published && !editingArticle.published_at
@@ -501,6 +826,10 @@ function CMSAdminInner() {
       ...(scheduleMode && editingArticle?.scheduled_published_at ?
         { scheduled_published_at: new Date(editingArticle.scheduled_published_at).toISOString() } : {}),
     };
+    // Auto-fix empty featured image with category-based fallback
+    if (!payload.featured_image) {
+      payload.featured_image = getFallbackImageUrl(payload.category, payload.title);
+    }
     const url = isNew ? '/api/cms/articles' : `/api/cms/articles/${editingArticle.id}`;
     const method = isNew ? 'POST' : 'PUT';
     setSavingArticle(true);
@@ -538,6 +867,29 @@ function CMSAdminInner() {
     window.addEventListener('keydown', handleSaveShortcut);
     return () => window.removeEventListener('keydown', handleSaveShortcut);
   }, [tab, saveArticle]);
+
+  // Auto-save draft every 30 seconds
+  const autoSaveTimer = useRef<NodeJS.Timeout | null>(null);
+  useEffect(() => {
+    if (tab !== 'new' || !editingArticle?.title?.trim() || savingArticle) {
+      if (autoSaveTimer.current) {
+        clearTimeout(autoSaveTimer.current);
+        autoSaveTimer.current = null;
+      }
+      return;
+    }
+    autoSaveTimer.current = setTimeout(async () => {
+      if (editingArticle?.title?.trim() && !savingArticle) {
+        console.log('[CMS] Auto-saving draft...');
+        showToast('💾 Brouillon auto-sauvegardé');
+        await saveArticle();
+      }
+    }, 30000);
+    return () => {
+      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, editingArticle?.title, savingArticle, saveArticle]);
 
   const saveSettings = async () => {
     setSavingSettings(true);
@@ -624,6 +976,102 @@ function CMSAdminInner() {
     }
   };
 
+  // Duplicate article
+  const duplicateArticle = async (article: Article) => {
+    try {
+      const res = await fetch('/api/cms/articles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...article,
+          id: undefined,
+          title: `${article.title} (copie)`,
+          slug: `${article.slug}-copy-${Date.now()}`,
+          published: false,
+          published_at: null,
+          created_at: undefined,
+          updated_at: undefined,
+        }),
+      });
+      if (handleUnauthorized(res)) return;
+      if (res.ok) { showToast('📋 Article dupliqué'); loadArticles(); }
+    } catch {
+      showToast('Impossible de dupliquer cet article.');
+    }
+  };
+
+  // Export articles to CSV
+  const exportToCsv = () => {
+    const headers = ['id', 'title', 'slug', 'category', 'excerpt', 'content', 'published', 'published_at', 'created_at'];
+    const rows = articles.map(a => [
+      a.id,
+      a.title,
+      a.slug,
+      a.category || '',
+      a.excerpt || '',
+      a.content?.replace(/<[^>]*>/g, '') || '',
+      a.published ? 'yes' : 'no',
+      a.published_at || '',
+      a.created_at || '',
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `articles-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    showToast('📥 Export CSV réussi');
+  };
+
+  // Import articles from CSV (concurrent ~20x perf improvement)
+  const importFromCsv = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const text = await file.text();
+    const lines = text.split('\n').filter(l => l.trim());
+    if (lines.length < 2) { showToast('Fichier CSV invalide'); return; }
+    const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+    
+    // Parse all rows first
+    const rows = [];
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
+      const articleData: Record<string, string> = {};
+      headers.forEach((h, idx) => { articleData[h] = values[idx] || ''; });
+      rows.push(articleData);
+    }
+    
+    // Concurrent import with batching to avoid overwhelming the server
+    const BATCH_SIZE = 10;
+    let imported = 0;
+    for (let batchStart = 0; batchStart < rows.length; batchStart += BATCH_SIZE) {
+      const batch = rows.slice(batchStart, batchStart + BATCH_SIZE);
+      const results = await Promise.allSettled(
+        batch.map(articleData =>
+          fetch('/api/cms/articles', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: articleData.title || 'sans-titre',
+              slug: articleData.slug || slug(articleData.title || 'sans-titre'),
+              category: articleData.category || '',
+              excerpt: articleData.excerpt || '',
+              content: articleData.content || '',
+              published: articleData.published === 'yes',
+            }),
+          })
+        )
+      );
+      imported += results.filter(r => r.status === 'fulfilled').length;
+    }
+    
+    showToast(`📤 ${imported} article(s) importé(s)`);
+    loadArticles();
+    e.target.value = '';
+  };
+
   const uploadFeaturedImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -642,9 +1090,36 @@ function CMSAdminInner() {
         showToast(`❌ Upload échoué : ${data.error}`);
       }
     } catch {
-      showToast("Impossible d'envoyer cette image.");
+      showToast("Impossible d’envoyer cette image.");
     } finally {
       setUploadingFeaturedImage(false);
+      e.target.value = '';
+    }
+  };
+
+  // Upload media (image or video) for page content
+  const uploadMediaForPage = async (e: React.ChangeEvent<HTMLInputElement>, sectionKey: string, pageKey: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const key = `${pageKey}__${sectionKey}`;
+    setUploadingMediaKey(key);
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('folder', 'hero-media');
+    try {
+      const res = await fetch('/api/cms/media-upload', { method: 'POST', body: fd });
+      if (handleUnauthorized(res)) return;
+      const data = await res.json();
+      if (data.url) {
+        setEditedContent(prev => ({ ...prev, [key]: data.url }));
+        showToast('✅ Média uploadé sur Supabase !');
+      } else {
+        showToast(`❌ Upload échoué : ${data.error}`);
+      }
+    } catch {
+      showToast("Impossible d’envoyer ce média.");
+    } finally {
+      setUploadingMediaKey('');
       e.target.value = '';
     }
   };
@@ -712,6 +1187,7 @@ function CMSAdminInner() {
     { id: 'settings',icon: <Settings size={16} />,label: 'Paramètres', count: null },
     { id: 'analytics',icon: <BarChart3 size={16} />,label: 'Analytics', count: null },
     { id: 'search',  icon: <Search size={16} />, label: 'Search', count: null },
+    { id: 'agents',  icon: <Bot size={16} />,   label: 'Agents', count: null },
   ];
 
   return (
@@ -819,27 +1295,79 @@ function CMSAdminInner() {
 
         {tab === 'dashboard' && (
           <div>
-            <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', marginBottom: '1.5rem' }}>
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>🏠 Tableau de bord</h2>
-              <div className="cms-grid-kpi">
-                <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
-                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{articles.filter(a => a.published).length}</p>
-                  <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Articles publiés</p>
+            {/* 4 Widget Dashboard */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+              {/* Widget 1: Brouillons */}
+              <div 
+                onClick={() => { setStatusFilter('draft'); setTab('articles'); }}
+                style={{ background: 'white', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', cursor: 'pointer', transition: 'transform .15s' }}
+                onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                  <span style={{ fontSize: '2rem' }}>📝</span>
+                  <span style={{ background: '#ffc107', color: '#333', padding: '.25rem .5rem', borderRadius: '.25rem', fontSize: '.75rem', fontWeight: 600 }}>
+                    {articles.filter(a => !a.published).length}
+                  </span>
                 </div>
-                <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
-                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{articles.filter(a => !a.published).length}</p>
-                  <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Brouillons</p>
+                <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#333', marginBottom: '.25rem' }}>Brouillons</h3>
+                <p style={{ fontSize: '.8rem', color: '#888' }}>Articles non publiés</p>
+              </div>
+              
+              {/* Widget 2: Demandes Travel */}
+              <div 
+                onClick={() => setTab('demandes')}
+                style={{ background: 'white', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', cursor: 'pointer', transition: 'transform .15s' }}
+                onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                  <span style={{ fontSize: '2rem' }}>✈️</span>
+                  <span style={{ background: '#01696f', color: 'white', padding: '.25rem .5rem', borderRadius: '.25rem', fontSize: '.75rem', fontWeight: 600 }}>
+                    {demandes.length}
+                  </span>
                 </div>
-                <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
-                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{demandes.length}</p>
-                  <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Demandes travel</p>
+                <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#333', marginBottom: '.25rem' }}>Demandes Travel</h3>
+                <p style={{ fontSize: '.8rem', color: '#888' }}>Demandes en attente</p>
+              </div>
+              
+              {/* Widget 3: Planifiés */}
+              <div 
+                onClick={() => { setCategoryFilter('all'); setTab('articles'); }}
+                style={{ background: 'white', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', cursor: 'pointer', transition: 'transform .15s' }}
+                onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                  <span style={{ fontSize: '2rem' }}>📅</span>
+                  <span style={{ background: '#9333ea', color: 'white', padding: '.25rem .5rem', borderRadius: '.25rem', fontSize: '.75rem', fontWeight: 600 }}>
+                    {articles.filter(a => a.scheduled_published_at && !a.published).length}
+                  </span>
                 </div>
-                <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
-                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{settings.length}</p>
-                  <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Paramètres</p>
+                <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#333', marginBottom: '.25rem' }}>Planifiés</h3>
+                <p style={{ fontSize: '.8rem', color: '#888' }}>Articles programmés</p>
+              </div>
+              
+              {/* Widget 4: KPIs */}
+              <div style={{ background: 'white', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+                <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#333', marginBottom: '1rem' }}>📊 KPIs</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.75rem' }}>
+                  <div style={{ textAlign: 'center', padding: '.5rem', background: '#f8f6f4', borderRadius: '.5rem' }}>
+                    <p style={{ fontSize: '1.25rem', fontWeight: 700, color: '#28a745' }}>{articles.filter(a => a.published).length}</p>
+                    <p style={{ fontSize: '.65rem', color: '#888' }}>Publiés</p>
+                  </div>
+                  <div style={{ textAlign: 'center', padding: '.5rem', background: '#f8f6f4', borderRadius: '.5rem' }}>
+                    <p style={{ fontSize: '1.25rem', fontWeight: 700, color: '#ffc107' }}>{articles.filter(a => !a.published).length}</p>
+                    <p style={{ fontSize: '.65rem', color: '#888' }}>Brouillons</p>
+                  </div>
                 </div>
               </div>
-              <div className="cms-top-actions">
+            </div>
+            
+            {/* Quick Actions */}
+            <div style={{ background: 'white', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+              <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1rem' }}>⚡ Actions rapides</h2>
+              <div style={{ display: 'flex', gap: '.75rem', flexWrap: 'wrap' }}>
                 <button onClick={() => openArticleEditor({})} style={{ padding: '.7rem 1.5rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>+ Nouvel article</button>
                 <button onClick={() => setTab('blog')} style={{ padding: '.7rem 1.5rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>✨ Générateur IA</button>
                 <button onClick={() => setTab('demandes')} style={{ padding: '.7rem 1.5rem', background: '#444', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>✈️ Travel Planning</button>
@@ -851,11 +1379,11 @@ function CMSAdminInner() {
 
         {tab === 'articles' && (
           <div>
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-              <input placeholder="Rechercher un article..." value={search}
+            <div style={{ display: 'flex', gap: '.5rem', marginBottom: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              <input placeholder="Rechercher... (titre, contenu)" value={search}
                 onChange={e => setSearch(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && loadArticles()}
-                style={{ padding: '.6rem 1rem', border: '1.5px solid #ddd', borderRadius: '.5rem', flex: 1, minWidth: 200, fontSize: '.9rem' }}
+                style={{ padding: '.6rem 1rem', border: '1.5px solid #ddd', borderRadius: '.5rem', flex: 1, minWidth: 180, fontSize: '.9rem' }}
               />
               <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
                 style={{ padding: '.6rem .9rem', border: '1.5px solid #ddd', borderRadius: '.5rem', fontSize: '.9rem' }}>
@@ -869,9 +1397,35 @@ function CMSAdminInner() {
                 <option value="all">Toutes catégories</option>
                 {availableCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
               </select>
-              <button onClick={loadArticles} style={{ padding: '.6rem 1.2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>🔍</button>
-              <button onClick={() => openArticleEditor({})} style={{ padding: '.6rem 1.2rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>+ Nouvel article</button>
+              <button onClick={loadArticles} style={{ padding: '.6rem 1rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>🔍</button>
+              <button onClick={() => openArticleEditor({})} style={{ padding: '.6rem 1rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>+ Nouvel</button>
+              <button onClick={exportToCsv} title="Exporter CSV" style={{ padding: '.5rem .75rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.8rem' }}>📥</button>
+              <label title="Importer CSV" style={{ padding: '.5rem .75rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.8rem' }}>
+                <input type="file" accept=".csv" onChange={importFromCsv} style={{ display: 'none' }} />
+                📤
+              </label>
             </div>
+            
+            {/* Bulk Actions Bar */}
+            {articles.length > 0 && (
+              <div style={{ display: 'flex', gap: '.5rem', marginBottom: '1rem', padding: '.75rem', background: '#f8f6f4', borderRadius: '.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                <button onClick={toggleSelectAll} style={{ padding: '.5rem .75rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.85rem', display: 'flex', alignItems: 'center', gap: '.35rem' }}>
+                  {selectedArticles.size === articles.length ? <CheckSquare size={16} /> : <Square size={16} />} 
+                  Tout ({articles.length})
+                </button>
+                <span style={{ color: '#888', fontSize: '.85rem' }}>|</span>
+                <button onClick={bulkPublish} disabled={selectedArticles.size === 0 || loadingArticles} style={{ padding: '.5rem .75rem', border: '1px solid #28a745', borderRadius: '.4rem', background: selectedArticles.size > 0 ? '#28a745' : 'white', color: selectedArticles.size > 0 ? 'white' : '#28a745', cursor: selectedArticles.size > 0 ? 'pointer' : 'not-allowed', fontSize: '.85rem', opacity: loadingArticles ? .6 : 1 }}>
+                  📤 Publier ({selectedArticles.size})
+                </button>
+                <button onClick={bulkUnpublish} disabled={selectedArticles.size === 0 || loadingArticles} style={{ padding: '.5rem .75rem', border: '1px solid #ffc107', borderRadius: '.4rem', background: selectedArticles.size > 0 ? '#ffc107' : 'white', color: selectedArticles.size > 0 ? 'white' : '#856404', cursor: selectedArticles.size > 0 ? 'pointer' : 'not-allowed', fontSize: '.85rem', opacity: loadingArticles ? .6 : 1 }}>
+                  📥 Dépublier ({selectedArticles.size})
+                </button>
+                <button onClick={bulkDelete} disabled={selectedArticles.size === 0 || loadingArticles} style={{ padding: '.5rem .75rem', border: '1px solid #dc3545', borderRadius: '.4rem', background: selectedArticles.size > 0 ? '#dc3545' : 'white', color: selectedArticles.size > 0 ? 'white' : '#dc3545', cursor: selectedArticles.size > 0 ? 'pointer' : 'not-allowed', fontSize: '.85rem', opacity: loadingArticles ? .6 : 1 }}>
+                  🗑 Supprimer ({selectedArticles.size})
+                </button>
+              </div>
+            )}
+
             {loadingArticles ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p>
               : articles.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '4rem', color: '#aaa' }}>
@@ -879,30 +1433,62 @@ function CMSAdminInner() {
                   <p>Aucun article trouvé</p>
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '.75rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
                   {articles.filter(a => {
+                    // Status filter
+                    if (statusFilter === 'published' && !a.published) return false;
+                    if (statusFilter === 'draft' && a.published) return false;
+                    if (statusFilter === 'archived' && a.archived !== true) return false;
+                    // Category filter
                     if (categoryFilter !== 'all' && a.category !== categoryFilter) return false;
+                    // Search filter (fuzzy)
+                    if (search) {
+                      const q = search.toLowerCase();
+                      const matchTitle = a.title?.toLowerCase().includes(q);
+                      const matchContent = a.content?.toLowerCase().includes(q);
+                      const matchCategory = a.category?.toLowerCase().includes(q);
+                      if (!matchTitle && !matchContent && !matchCategory) return false;
+                    }
                     return true;
                   }).map(a => (
-                    <div key={a.id} style={{ background: 'white', borderRadius: '.75rem', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', flexWrap: 'wrap' }}>
-                      {a.featured_image && <img src={a.featured_image} alt="" style={{ width: 64, height: 48, objectFit: 'cover', borderRadius: '.4rem', flexShrink: 0 }} />}
-                      <div style={{ flex: 1, minWidth: 200 }}>
-                        <div style={{ fontWeight: 600, fontSize: '1rem', color: '#1a1a1a', marginBottom: '.2rem' }}>{a.title}</div>
-                        <div style={{ fontSize: '.8rem', color: '#888', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                    <div key={a.id} style={{ background: 'white', borderRadius: '.75rem', padding: '.85rem 1rem', display: 'flex', alignItems: 'center', gap: '.75rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', flexWrap: 'wrap', borderLeft: selectedArticles.has(a.id) ? '3px solid #6b2a1a' : '3px solid transparent' }}>
+                      <button onClick={() => toggleArticleSelection(a.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '.25rem', color: selectedArticles.has(a.id) ? '#6b2a1a' : '#ccc' }}>
+                        {selectedArticles.has(a.id) ? <CheckSquare size={20} /> : <Square size={20} />}
+                      </button>
+                      {a.featured_image && <img src={a.featured_image} alt="" style={{ width: 56, height: 42, objectFit: 'cover', borderRadius: '.35rem', flexShrink: 0 }} />}
+                      <div style={{ flex: 1, minWidth: 180 }}>
+                        <div style={{ fontWeight: 600, fontSize: '.95rem', color: '#1a1a1a', marginBottom: '.15rem' }}>{a.title}</div>
+                        <div style={{ fontSize: '.75rem', color: '#888', display: 'flex', gap: '.75rem', flexWrap: 'wrap' }}>
                           <span>{a.category || '—'}</span>
                           <span>{fmt(a.created_at)}</span>
+                          {a.views != null && <span>👁 {a.views}</span>}
                         </div>
                       </div>
-                      <span style={{ padding: '.3rem .8rem', borderRadius: '9999px', fontSize: '.78rem', fontWeight: 600, background: a.published ? '#d4edda' : '#fff3cd', color: a.published ? '#155724' : '#856404' }}>
+                      <span style={{ padding: '.25rem .65rem', borderRadius: '9999px', fontSize: '.72rem', fontWeight: 600, background: a.published ? '#d4edda' : '#fff3cd', color: a.published ? '#155724' : '#856404' }}>
                         {a.published ? '✓ Publié' : '📝 Brouillon'}
                       </span>
-                      <div style={{ display: 'flex', gap: '.5rem' }}>
-                        <button onClick={() => openArticleEditor(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>✏️ Éditer</button>
-                        <button onClick={() => togglePublish(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>{a.published ? '📦 Dépublier' : 'Publier'}</button>
-                        <button onClick={() => deleteArticle(a.id)} style={{ padding: '.35rem .8rem', border: '1px solid #fcc', borderRadius: '.4rem', background: '#fff5f5', color: '#c0392b', cursor: 'pointer', fontSize: '.82rem' }}>🗑</button>
+                      <div style={{ display: 'flex', gap: '.35rem' }}>
+                        <button onClick={() => openArticleEditor(a)} title="Éditer" style={{ padding: '.3rem .6rem', border: '1px solid #ddd', borderRadius: '.35rem', background: 'white', cursor: 'pointer', fontSize: '.78rem' }}>✏️</button>
+                        <button onClick={() => togglePublish(a)} title={a.published ? 'Dépublier' : 'Publier'} style={{ padding: '.3rem .6rem', border: '1px solid #ddd', borderRadius: '.35rem', background: 'white', cursor: 'pointer', fontSize: '.78rem' }}>{a.published ? '📦' : '📤'}</button>
+                        <button onClick={() => duplicateArticle(a)} title="Dupliquer" style={{ padding: '.3rem .6rem', border: '1px solid #ddd', borderRadius: '.35rem', background: 'white', cursor: 'pointer', fontSize: '.78rem' }}>📋</button>
+                        <button onClick={() => deleteArticle(a.id)} title="Supprimer" style={{ padding: '.3rem .6rem', border: '1px solid #fcc', borderRadius: '.35rem', background: '#fff5f5', color: '#c0392b', cursor: 'pointer', fontSize: '.78rem' }}>🗑</button>
                       </div>
                     </div>
                   ))}
+                  {(search || categoryFilter !== 'all' || statusFilter !== 'all') && (
+                    <p style={{ textAlign: 'center', color: '#888', fontSize: '.85rem', padding: '.5rem' }}>
+                      {articles.filter(a => {
+                        if (statusFilter === 'published' && !a.published) return false;
+                        if (statusFilter === 'draft' && a.published) return false;
+                        if (categoryFilter !== 'all' && a.category !== categoryFilter) return false;
+                        if (search) {
+                          const q = search.toLowerCase();
+                          if (!a.title?.toLowerCase().includes(q) && !a.content?.toLowerCase().includes(q)) return false;
+                        }
+                        return true;
+                      }).length} résultat(s)
+                    </p>
+                  )}
                 </div>
               )}
           </div>
@@ -917,14 +1503,14 @@ function CMSAdminInner() {
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
               <button onClick={() => setShowArticlePreview(prev => !prev)}
                 style={{ padding: '.5rem .95rem', border: '1px solid #ddd', borderRadius: '.5rem', background: 'white', color: '#6b2a1a', cursor: 'pointer', fontSize: '.82rem', fontWeight: 700 }}
-              >{showArticlePreview ? "Masquer l'aperçu" : 'Aperçu live'}</button>
+              >{showArticlePreview ? "Masquer l’aperçu" : 'Aperçu live'}</button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
               <div style={{ gridColumn: '1/-1' }}>
                 <label style={lbl}>Titre *</label>
                 <input value={editingArticle?.title || ''}
                   onChange={e => setEditingArticle(p => ({ ...p, title: e.target.value, slug: slug(e.target.value) }))}
-                  style={inp} placeholder="Titre de l'article" />
+                  style={inp} placeholder="Titre de l’article" />
               </div>
               <div>
                 <label style={lbl}>Slug (URL)</label>
@@ -970,7 +1556,7 @@ function CMSAdminInner() {
                     </div>
                     <input value={editingArticle.featured_image}
                       onChange={e => setEditingArticle(p => ({ ...p, featured_image: e.target.value }))}
-                      style={{ ...inp, flex: 1, fontSize: '.82rem' }} placeholder="URL de l'image" />
+                      style={{ ...inp, flex: 1, fontSize: '.82rem' }} placeholder="URL de l’image" />
                   </div>
                 ) : (
                   <input value=""
@@ -1044,7 +1630,7 @@ function CMSAdminInner() {
                   ) : (
                     <div style={previewImageFallback}>Ajoute une image à la une</div>
                   )}
-                  <h1 style={{ margin: 0, fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', lineHeight: 1.1, color: '#1f1a17' }}>{editingArticle?.title || "Titre de l'article"}</h1>
+                  <h1 style={{ margin: 0, fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', lineHeight: 1.1, color: '#1f1a17' }}>{editingArticle?.title || "Titre de l’article"}</h1>
                   <p style={{ margin: '1rem 0 1.5rem', color: '#6d625a', fontSize: '1rem', lineHeight: 1.7 }}>{editingArticle?.excerpt || "Ton extrait apparaîtra ici."}</p>
                   {articlePreviewHtml ? (
                     <EnhancedRichContent html={articlePreviewHtml} style={previewBody} />
@@ -1089,8 +1675,33 @@ function CMSAdminInner() {
                                 <label style={lbl}>{section.label}</label>
                                 {section.type === 'textarea' ? (
                                   <textarea value={editedContent[key] ?? ''} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={{ ...inp, height: 110, resize: 'vertical' }} placeholder={section.label} />
+                                ) : section.type === 'media' ? (
+                                  <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                                    <input value={editedContent[key] ?? ''} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={{ ...inp, flex: 1, minWidth: 200 }} placeholder="URL ou upload..." />
+                                    <label style={{ padding: '.5rem .85rem', background: uploadingMediaKey === key ? '#8aa8a9' : '#01696f', color: 'white', borderRadius: '.4rem', cursor: uploadingMediaKey === key ? 'wait' : 'pointer', fontSize: '.8rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                                      {uploadingMediaKey === key ? '⏳...' : '⬆️ Upload'}
+                                      <input type="file" accept="video/*,image/*" onChange={(e) => uploadMediaForPage(e, section.key, activePage)} style={{ display: 'none' }} disabled={!!uploadingMediaKey} />
+                                    </label>
+                                    {editedContent[key] && (
+                                      <button onClick={() => setEditedContent(prev => ({ ...prev, [key]: '' }))} style={{ padding: '.5rem .75rem', background: '#f0e8e4', color: '#6b2a1a', border: 'none', borderRadius: '.4rem', cursor: 'pointer', fontSize: '.8rem' }}>✕</button>
+                                    )}
+                                  </div>
+                                ) : section.type === 'color' ? (
+                                  <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
+                                    <input type="color" value={editedContent[key] || '#6b2a1a'} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={{ width: 50, height: 40, padding: 0, border: 'none', cursor: 'pointer' }} />
+                                    <input value={editedContent[key] ?? ''} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={{ ...inp, flex: 1 }} placeholder="#RRGGBB" />
+                                  </div>
                                 ) : (
                                   <input value={editedContent[key] ?? ''} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={inp} placeholder={section.label} />
+                                )}
+                                {section.type === 'media' && editedContent[key] && (
+                                  <div style={{ marginTop: '.5rem', borderRadius: '.5rem', overflow: 'hidden', maxWidth: 320 }}>
+                                    {section.key.includes('video') || editedContent[key]?.endsWith('.mp4') || editedContent[key]?.endsWith('.webm') ? (
+                                      <video src={editedContent[key]} controls style={{ width: '100%', borderRadius: '.5rem' }} />
+                                    ) : (
+                                      <img src={editedContent[key]} alt="Preview" style={{ width: '100%', borderRadius: '.5rem', objectFit: 'cover' }} />
+                                    )}
+                                  </div>
                                 )}
                               </div>
                             );
@@ -1123,59 +1734,7 @@ function CMSAdminInner() {
         )}
 
         {tab === 'demandes' && (
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>✈️ Demandes Travel Planning</h2>
-              <div style={{ display: 'flex', gap: '.5rem', alignItems: 'center' }}>
-                <select value={demandesStatusFilter} onChange={e => setDemandesStatusFilter(e.target.value)}
-                  style={{ padding: '.5rem .8rem', border: '1.5px solid #ddd', borderRadius: '.5rem', fontSize: '.85rem' }}>
-                  <option value="all">Tous statuts</option>
-                  <option value="nouvelle">🆕 Nouvelle</option>
-                  <option value="en_cours">🔍 En cours</option>
-                  <option value="devis_envoye">📨 Devis envoyé</option>
-                  <option value="accepte">✅ Acceptée</option>
-                  <option value="terminee">🏁 Terminée</option>
-                  <option value="annulee">❌ Annulée</option>
-                </select>
-                <button onClick={loadDemandes} disabled={loadingDemandes} style={{ padding: '.5rem 1rem', background: 'white', border: '1.5px solid #ddd', borderRadius: '.5rem', cursor: loadingDemandes ? 'wait' : 'pointer', fontSize: '.85rem', opacity: loadingDemandes ? .7 : 1 }}>{loadingDemandes ? '⏳' : '🔄'}</button>
-              </div>
-            </div>
-            {loadingDemandes ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p>
-              : demandes.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '4rem', color: '#aaa' }}>
-                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✉️</div>
-                  <p>Aucune demande pour le moment</p>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {demandes.filter(d => demandesStatusFilter === 'all' || d.statut === demandesStatusFilter).map(d => (
-                    <div key={d.id} style={{ background: 'white', borderRadius: '.75rem', padding: '1.25rem 1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '.75rem', flexWrap: 'wrap', gap: '.5rem' }}>
-                        <div>
-                          <div style={{ fontWeight: 700, fontSize: '1rem', color: '#1a1a1a' }}>{d.prenom} {d.nom}</div>
-                          <div style={{ fontSize: '.85rem', color: '#888' }}>{d.email} {d.telephone && `· ${d.telephone}`}</div>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
-                          <span style={{ fontSize: '.75rem', color: '#aaa' }}>{fmt(d.created_at)}</span>
-                          <select value={d.statut || 'nouvelle'} onChange={e => updateStatut(d.id, e.target.value)} disabled={updatingDemandeId === d.id}
-                            style={{ padding: '.3rem .7rem', border: '1.5px solid #ddd', borderRadius: '.4rem', fontSize: '.82rem' }}>
-                            <option value="nouvelle">🆕 Nouvelle</option>
-                            <option value="en_cours">🔍 En cours</option>
-                            <option value="devis_envoye">📨 Devis envoyé</option>
-                            <option value="accepte">✅ Acceptée</option>
-                            <option value="terminee">🏁 Terminée</option>
-                            <option value="annulee">❌ Annulée</option>
-                          </select>
-                        </div>
-                      </div>
-                      {d.notes && (
-                        <div style={{ marginTop: '.75rem', padding: '.75rem', background: '#faf8f5', borderRadius: '.5rem', fontSize: '.85rem', color: '#666' }}>💬 {d.notes}</div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-          </div>
+          <KanbanBoardClient initialDemandes={demandes} />
         )}
 
         {tab === 'carousel' && (
@@ -1368,6 +1927,7 @@ function CMSAdminInner() {
                   {(() => {
                     const groupItems = settings.filter(s => {
                       if (settingsGroup === 'general') return ['site_title', 'site_logo', 'site_favicon'].includes(s.key);
+                      if (settingsGroup === 'appearance') return true; // Show all appearance settings
                       if (settingsGroup === 'social') return s.key.startsWith('social_');
                       if (settingsGroup === 'seo') return s.key.startsWith('seo_');
                       if (settingsGroup === 'footer') return s.key.startsWith('footer_');
@@ -1391,12 +1951,129 @@ function CMSAdminInner() {
                         <button onClick={saveSettings} disabled={savingSettings}
                           style={{ marginTop: '1.75rem', padding: '.7rem 2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '.9rem', opacity: savingSettings ? .7 : 1 }}
                         >{savingSettings ? '⏳ Sauvegarde…' : '💾 Sauvegarder'}</button>
+                        <button onClick={async () => {
+                            setSavingSettings(true);
+                            try {
+                                const res = await fetch('/api/cms/fix-empty-images', { method: 'POST', headers: { 'x-cms-auth': localStorage.getItem('cms_password') || '' } });
+                                const data = await res.json();
+                                alert(data.message || data.error);
+                            } catch(e) {
+                                alert("Erreur lors de la réparation des images vides");
+                            } finally {
+                                setSavingSettings(false);
+                            }
+                        }} disabled={savingSettings}
+                          style={{ marginTop: '1.75rem', marginLeft: '1rem', padding: '.7rem 2rem', background: '#eab308', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '.9rem', opacity: savingSettings ? .7 : 1 }}
+                        >{savingSettings ? '⏳ Réparation…' : '🛠 Réparer images vides'}</button>
+
                       </div>
                     );
                   })()}
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {tab === 'agents' && (
+          <div>
+            <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: 800, marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '.5rem' }}>
+                <Bot size={24} /> Envoyer une tâche à un agent IA
+              </h2>
+              
+              {/* Agent select */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={lbl}>Agent</label>
+                <select value={selectedAgent} onChange={e => setSelectedAgent(e.target.value)}
+                  style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.9rem', outline: 'none', background: '#faf9f7', color: '#1a1a1a', cursor: 'pointer' }}>
+                  <option value="allhands">OpenHands (AllHands)</option>
+                  <option value="jules">Jules (Google)</option>
+                  <option value="gemini">Gemini (Google)</option>
+                  <option value="perplexity">Perplexity</option>
+                </select>
+              </div>
+
+              {/* Task textarea */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={lbl}>Tâche</label>
+                <textarea value={agentTask} onChange={e => setAgentTask(e.target.value)}
+                  placeholder="Décrivez la tâche à effectuer..."
+                  rows={4}
+                  style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.9rem', outline: 'none', background: '#faf9f7', color: '#1a1a1a', resize: 'vertical', fontFamily: 'inherit' }} />
+              </div>
+
+              {/* Repo input */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={lbl}>Repo</label>
+                <input value={agentRepo} onChange={e => setAgentRepo(e.target.value)}
+                  placeholder="farinhahelder-hue/heldonica"
+                  style={inp} />
+              </div>
+
+              {/* Branch input */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={lbl}>Branche</label>
+                <input value={agentBranch} onChange={e => setAgentBranch(e.target.value)}
+                  placeholder="main"
+                  style={inp} />
+              </div>
+
+              {/* Send button */}
+              <button onClick={sendAgentTask} disabled={sendingTask}
+                style={{ padding: '.75rem 2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '1rem', opacity: sendingTask ? .7 : 1 }}>
+                {sendingTask ? '⏳ Envoi...' : '📤 Envoyer la tâche'}
+              </button>
+
+              {/* Success/error message */}
+              {agentMessage && (
+                <div style={{ 
+                  marginTop: '1rem', 
+                  padding: '.75rem 1rem', 
+                  borderRadius: '.5rem', 
+                  background: agentMessage.type === 'success' ? '#d4edda' : '#f8d7da',
+                  color: agentMessage.type === 'success' ? '#155724' : '#721c24',
+                  fontSize: '.9rem'
+                }}>
+                  {agentMessage.type === 'success' ? '✓' : '✕'} {agentMessage.text}
+                </div>
+              )}
+            </div>
+
+            {/* Task History */}
+            <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: 800 }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1rem' }}>Historique des 10 dernières tâches</h3>
+              {taskHistory.length === 0 ? (
+                <p style={{ color: '#888', fontSize: '.9rem', textAlign: 'center', padding: '1.5rem' }}>Aucune tâche envoyée récemment.</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '.75rem' }}>
+                  {taskHistory.map((entry, i) => {
+                    const agentLabels: Record<string, string> = {
+                      allhands: 'OpenHands',
+                      jules: 'Jules',
+                      gemini: 'Gemini',
+                      perplexity: 'Perplexity',
+                    };
+                    return (
+                      <div key={i} style={{ padding: '.75rem', background: '#f8f6f4', borderRadius: '.5rem', borderLeft: '3px solid #6b2a1a' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '.35rem', flexWrap: 'wrap', gap: '.5rem' }}>
+                          <span style={{ fontWeight: 600, color: '#333', fontSize: '.9rem' }}>{agentLabels[entry.agent] || entry.agent}</span>
+                          <span style={{ fontSize: '.75rem', color: '#888' }}>{entry.date}</span>
+                        </div>
+                        <div style={{ fontSize: '.85rem', color: '#555', marginBottom: '.35rem' }}>
+                          {entry.task.length > 100 ? entry.task.substring(0, 100) + '...' : entry.task}
+                        </div>
+                        <div style={{ display: 'flex', gap: '1rem', fontSize: '.75rem', color: '#888' }}>
+                          <span>📁 {entry.repo}</span>
+                          <span>🌿 {entry.branch}</span>
+                          <span style={{ color: '#28a745', fontWeight: 600 }}>✓ Envoyé</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         )}
 

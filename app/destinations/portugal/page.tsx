@@ -1,10 +1,38 @@
-'use client'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
 const SITE_URL = 'https://heldonica.fr'
+
+
+const schemaTouristDestination = {
+  '@context': 'https://schema.org',
+  '@type': 'TouristDestination',
+  name: 'Portugal',
+  description: 'Destination slow travel avec ses villes côtières et régions variées comme Lisbonne, Porto et Madère.',
+  url: `${SITE_URL}/destinations/portugal`,
+  address: {
+    '@type': 'PostalAddress',
+    addressCountry: 'PT',
+  },
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: 39.3999,
+    longitude: -8.2245,
+  },
+  touristType: ['Culture lover', 'Nature lover', 'Slow traveler'],
+};
+
+const faqPortugalSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Quand aller au Portugal ?", "acceptedAnswer": { "@type": "Answer", "text": "Printemps (avril-mai) et autumn (septembre-octobre) pour eviter les foules." }},
+    { "@type": "Question", "name": "Comment aller au Portugal ?", "acceptedAnswer": { "@type": "Answer", "text": "Vol direct depuis Paris (2h30). Aeroports: Lisbonne, Porto, Faro." }},
+    { "@type": "Question", "name": "Budget Portugal ?", "acceptedAnswer": { "@type": "Answer", "text": "Environ 80-120€/jour en hotel milieu et restaurant local." }}
+  ]
+};
 
 export const metadata: Metadata = {
   title: 'Portugal slow travel | Guide Heldonica',
@@ -28,6 +56,8 @@ const subNav = [
 export default function PortugalPage() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaTouristDestination) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPortugalSchema) }} />
       <Header />
       <main className="min-h-screen bg-stone-50">
         <section className="relative bg-gradient-to-b from-stone-900 to-stone-800 py-20">

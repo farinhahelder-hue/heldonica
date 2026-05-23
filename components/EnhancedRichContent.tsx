@@ -1,7 +1,7 @@
 'use client';
 
 import type { CSSProperties } from 'react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type Props = {
   html: string;
@@ -11,7 +11,16 @@ type Props = {
 
 export default function EnhancedRichContent({ html, className, style }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const [sanitizedHtml, setSanitizedHtml] = useState(html);
 
+  // Sanitize HTML on mount and when html changes
+  useEffect(() => {
+    import('dompurify').then(({ default: DOMPurify }) => {
+      setSanitizedHtml(DOMPurify.sanitize(html));
+    });
+  }, [html]);
+
+  // Setup carousel interactions after sanitized HTML is rendered
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
@@ -122,7 +131,12 @@ export default function EnhancedRichContent({ html, className, style }: Props) {
 
   return (
     <>
-      <div ref={rootRef} className={className} style={style} dangerouslySetInnerHTML={{ __html: html }} />
+      <div
+        ref={rootRef}
+        className={className}
+        style={style}
+        dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+      />
       <style>{`
         .heldonica-carousel {
           margin: 2rem 0;

@@ -13,10 +13,12 @@ const CATEGORY_LABELS: Record<string, string> = {
 }
 
 const CATEGORY_FALLBACK_BG: Record<string, string> = {
-  'Carnets Voyage': 'bg-gradient-to-br from-[#355C7D] to-[#6C5B7B]',
-  'Découvertes Locales': 'bg-gradient-to-br from-[#0F766E] to-[#155E75]',
-  'Guides Pratiques': 'bg-gradient-to-br from-[#7C2D12] to-[#9A3412]',
+  'Carnets Voyage': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80',
+  'Découvertes Locales': 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=600&q=80',
+  'Guides Pratiques': 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=600&q=80',
 }
+
+const DEFAULT_CARD_FALLBACK = 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80'
 
 const BADGE_FALLBACK_SRC = '/images/badges-heldonica.svg'
 
@@ -140,7 +142,14 @@ export default function BlogClientPage({ posts: rawPosts }: Props) {
                   loading="lazy"
                 />
               ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-mahogany to-mahogany/90" />
+                <img
+                  src={CATEGORY_FALLBACK_BG[featuredPost.category ?? ''] ?? DEFAULT_CARD_FALLBACK}
+                  alt={featuredPost.title}
+                  width={1200}
+                  height={500}
+                  className="absolute inset-0 h-full w-full object-cover opacity-60"
+                  loading="lazy"
+                />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
               <div className="relative z-10 max-w-2xl p-6 md:p-12">
@@ -183,6 +192,14 @@ export default function BlogClientPage({ posts: rawPosts }: Props) {
                 }`}
               >
                 {CATEGORY_LABELS[category]}
+                <span className={`ml-1.5 rounded-full px-1.5 text-xs ${
+                  activeFilter === category ? 'bg-white/20' : 'bg-cloud-dancer'
+                }`}>
+                  {category === 'Tous' ? posts.length : 
+                   category === 'Carnets Voyage' ? totalCarnets :
+                   category === 'Découvertes Locales' ? totalDecouvertes :
+                   category === 'Guides Pratiques' ? totalGuides : 0}
+                </span>
               </button>
             ))}
           </div>
@@ -251,7 +268,7 @@ export default function BlogClientPage({ posts: rawPosts }: Props) {
               <SectionHeader
                 eyebrow="Carnets"
                 title="Carnets de voyage"
-                description="Les récits qui gardent l'heure, le rythme et ce qu'on a retenu sur place."
+                description="Les récits qui gardent l’heure, le rythme et ce qu’on a retenu sur place."
                 count={carnets.length}
               />
               <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -267,7 +284,7 @@ export default function BlogClientPage({ posts: rawPosts }: Props) {
               <SectionHeader
                 eyebrow="Pépites"
                 title="Découvertes locales"
-                description="Des lieux qu'on n'était pas venus chercher, et qu'on aurait regretté de rater."
+                description="Des lieux qu’on n’était pas venus chercher, et qu’on aurait regretté de rater."
                 count={decouvertes.length}
               />
               <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -338,7 +355,7 @@ function SectionHeader({
 }
 
 function ArticleCard({ post }: { post: BlogPost & { formattedDate: string; readTime?: number } }) {
-  const fallbackBg = CATEGORY_FALLBACK_BG[post.category ?? ''] ?? 'bg-cloud-dancer'
+  const fallbackImg = CATEGORY_FALLBACK_BG[post.category ?? ''] ?? DEFAULT_CARD_FALLBACK
   const [imageSrc, setImageSrc] = useState(post.featured_image ?? null)
 
   useEffect(() => {
@@ -354,18 +371,22 @@ function ArticleCard({ post }: { post: BlogPost & { formattedDate: string; readT
     <Link href={`/blog/${post.slug}`} className="group block h-full transition-all duration-200">
       <article className="flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-cloud-dancer bg-white shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-lg">
         {isFallback ? (
-          <div className={`flex h-40 w-full flex-col items-center justify-center gap-2 ${fallbackBg}`}>
+          <div className="relative h-52 w-full overflow-hidden">
             <img
-              src={BADGE_FALLBACK_SRC}
+              src={fallbackImg}
               alt="Heldonica"
-              width={60}
-              height={38}
-              className="h-auto w-14 opacity-90"
+              width={400}
+              height={208}
+              className="h-full w-full object-cover"
               loading="lazy"
             />
-            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/80">
-              Heldonica
-            </span>
+            {post.category && (
+              <div className="absolute left-4 top-4">
+                <span className="rounded-full bg-eucalyptus/90 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">
+                  {post.category}
+                </span>
+              </div>
+            )}
           </div>
         ) : (
           <div className="relative h-52 w-full overflow-hidden">
@@ -416,7 +437,7 @@ function ArticleCard({ post }: { post: BlogPost & { formattedDate: string; readT
           )}
           <div className="mt-auto flex items-center justify-between border-t border-cloud-dancer pt-4 text-xs text-charcoal/40">
             <div className="flex items-center gap-2">
-              <span>{post.author ?? 'Heldonica'}</span>
+              <span>{post.author || 'Heldonica'}</span>
               {post.readTime && post.readTime > 0 ? (
                 <>
                   <span>•</span>

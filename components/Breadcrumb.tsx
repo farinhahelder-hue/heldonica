@@ -14,7 +14,7 @@ export default function Breadcrumb() {
   // Générer les segments du breadcrumb
   const segments = pathname.split('/').filter(Boolean);
   
-  // S'assurer que segments est toujours un tableau avant le spread
+  // S’assurer que segments est toujours un tableau avant le spread
   const safeSegments = Array.isArray(segments) ? segments : [];
 
   const breadcrumbs = [
@@ -29,7 +29,7 @@ export default function Breadcrumb() {
     }),
   ];
 
-  // S'assurer que breadcrumbs est toujours un tableau
+  // S’assurer que breadcrumbs est toujours un tableau
   const safeBreadcrumbs = Array.isArray(breadcrumbs) ? breadcrumbs : [];
 
   // Cas spéciaux pour les pages principales
@@ -45,7 +45,7 @@ export default function Breadcrumb() {
     return crumb;
   });
 
-  // S'assurer que le résultat final est un tableau
+  // S’assurer que le résultat final est un tableau
   const safeBreadcrumbsWithNames = Array.isArray(breadcrumbsWithNames) ? breadcrumbsWithNames : [];
 
   return (

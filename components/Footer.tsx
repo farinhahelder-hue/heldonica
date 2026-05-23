@@ -104,8 +104,8 @@ export default function Footer() {
                 <a href="mailto:info@heldonica.fr" className="text-stone-300 transition-colors duration-200 hover:text-white">
                   info@heldonica.fr
                 </a>
+                <span className="block text-xs text-stone-500 mt-1">France</span>
               </li>
-              <li className="text-stone-400">France</li>
             </ul>
           </div>
         </div>
@@ -114,7 +114,7 @@ export default function Footer() {
         <div className="border-t border-stone-800 pt-8">
           <div className="flex flex-col items-center justify-between gap-4 text-sm text-stone-400 md:flex-row">
             <p>© {currentYear} Heldonica. Tous droits réservés.</p>
-            <p className="text-xs">Photos © Heldonica. Tous droits d&apos;auteur réservés.</p>
+            <p className="text-xs">Photos : Heldonica & Unsplash</p>
           </div>
         </div>
       </div>
