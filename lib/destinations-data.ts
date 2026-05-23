@@ -192,7 +192,7 @@ export const destinationMarkers: DestinationMarker[] = [
   // Île-de-France, France
   {
     slug: 'paris',
-    title: 'Paris, slows modes',
+    title: 'Paris, le slow mode',
     excerpt: 'Rues qui ne demandent qu\'à être arpentées plus lentement.',
     latitude: 48.8566,
     longitude: 2.3522,
@@ -285,7 +285,7 @@ export const destinationMarkers: DestinationMarker[] = [
   {
     slug: 'medellin',
     title: 'Medellín, vallée de l\'éternel printemps',
-    excerpt: 'Transformation urbaine,花卉 gardens et innovation sociale.',
+    excerpt: 'Transformation urbaine, jardins botaniques et innovation sociale.',
     latitude: 6.2442,
     longitude: -75.5812,
     category: 'city',
