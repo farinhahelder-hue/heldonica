@@ -126,3 +126,47 @@ h1, h2, h3, h4, h5, h6 {
 .leaflet-control-zoom a:hover {
   background-color: #F8F6F2 !important;
 }
+
+/* Marker cluster styles */
+.marker-cluster {
+  background: transparent;
+}
+
+.marker-cluster div {
+  width: 36px;
+  height: 36px;
+  margin-left: 2px;
+  margin-top: 2px;
+  background-color: #83C5BE;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.marker-cluster div span {
+  font-size: 14px;
+  color: #fff;
+}
+
+.marker-cluster.cluster-small div {
+  background-color: #83C5BE;
+}
+
+.marker-cluster.cluster-medium div {
+  background-color: #006D77;
+}
+
+.marker-cluster.cluster-large div {
+  background-color: #6B2D1F;
+}
+
+/* Cluster hover effect */
+.marker-cluster div:hover {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
+}
