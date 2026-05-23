@@ -13,7 +13,7 @@ import EnhancedRichContent from '@/components/EnhancedRichContent'
 import { sanitizeHtml } from '@/lib/sanitize-html'
 import { SITE_URL, DEFAULT_OG_IMAGE, DEFAULT_TITLE, DEFAULT_DESCRIPTION } from '@/lib/seo'
 
-export const revalidate = 60
+export const revalidate = 3600
 
 
 interface Props {
@@ -21,6 +21,7 @@ interface Props {
 }
 
 export async function generateStaticParams() {
+  // Fetch all blog post slugs from Supabase at build time
   const slugs = await getAllSlugs()
   return (slugs ?? []).map(({ slug }) => ({ slug }))
 }
