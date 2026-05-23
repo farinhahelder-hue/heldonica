@@ -8,6 +8,7 @@ import type { BlogPost } from '@/lib/blog-supabase'
 import { getExcerpt } from '@/lib/blog-supabase'
 import { SITE_STATS } from '@/lib/constants'
 import InstagramFeed from '@/components/InstagramFeed'
+import { InstagramFeedPost } from '@/lib/instagram-feed'
 import NewsletterForm from '@/components/NewsletterForm'
 
 const HELDONICA_BADGE_FALLBACK = '/images/badges-heldonica.svg'
@@ -176,6 +177,7 @@ interface HomeProps {
   coveredCountries?: string | null
   heroVideoUrl?: string | null
   heroPosterImage?: string | null
+  instagramFeedPosts?: InstagramFeedPost[]
   siteSettings?: {
     instagramUsername?: string
     instagramPostCount?: number
@@ -184,7 +186,7 @@ interface HomeProps {
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries, heroVideoUrl, heroPosterImage, siteSettings }: HomeProps) {
+export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries, heroVideoUrl, heroPosterImage, siteSettings, instagramFeedPosts }: HomeProps) {
   useScrollReveal()
   const featImg = featured ? postImage(featured) : null
   const publishedArticles = totalPosts ?? SITE_STATS.publishedCarnets
@@ -599,7 +601,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <h2 className="text-2xl font-serif text-mahogany text-center mb-8">
             Sur le terrain, pas en studio
           </h2>
-          <InstagramFeed />
+          <InstagramFeed posts={instagramFeedPosts || []} username={siteSettings?.instagramUsername || 'heldonica'} />
         </div>
       </section>
 

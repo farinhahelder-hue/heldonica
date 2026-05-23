@@ -1,5 +1,6 @@
 import { getSetting, getAllPosts, formatDate, BlogPost, getPageContent } from '@/lib/blog-supabase'
 import { getSiteSettings } from '@/lib/settings'
+import { getInstagramFeed } from '@/lib/instagram-feed'
 import HomeClient from '@/components/HomeClient'
 import type { Metadata } from 'next'
 
@@ -121,6 +122,8 @@ export default async function Home() {
     : null
 
   // Fetch Instagram / site settings for HomeClient
+  const instagramFeedPosts = await getInstagramFeed(6);
+
   const [instagramUsername, instagramPostCount, instagramPosts, siteEmail] = await Promise.all([
     getSetting('social_instagram'),
     getSetting('instagram_post_count'),
@@ -146,6 +149,7 @@ export default async function Home() {
         heroVideoUrl={heroVideoUrl}
         heroPosterImage={heroPosterImage}
         siteSettings={siteSettings}
+        instagramFeedPosts={instagramFeedPosts}
       />
       <script
         type="application/ld+json"
