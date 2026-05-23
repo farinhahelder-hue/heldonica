@@ -120,3 +120,6 @@ export default function TemoignagesPage() {
     </>
   );
 }
+
+// ⚡ Bolt Optimization: Use Incremental Static Regeneration (ISR) to cache the page for 60 seconds. This significantly improves Time To First Byte (TTFB).
+export const revalidate = 60;
