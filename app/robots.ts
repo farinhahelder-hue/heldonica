@@ -12,14 +12,14 @@ export default function robots(): MetadataRoute.Robots {
           '/cms',
           '/dashboard',
           '/auth',
-          '/api/',
+          '/api',
           '/organisateur',
           '/travel-planning-form',
           '/merci',
         ],
       },
     ],
-    sitemap: 'https://www.heldonica.fr/sitemap.xml',
-    host: 'https://www.heldonica.fr',
+    sitemap: 'https://heldonica.fr/sitemap.xml',
+    host: 'https://heldonica.fr',
   };
 }
