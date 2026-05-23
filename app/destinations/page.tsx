@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import DestinationsClient from './DestinationsClient';
 import Script from 'next/script';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Destinations Hors des Sentiers Battus — Pépites Dénichées | Heldonica',
   description:
