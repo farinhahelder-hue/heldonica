@@ -11,7 +11,7 @@ import ShareButtons from '@/components/ShareButtons'
 import EnhancedRichContent from '@/components/EnhancedRichContent'
 import { sanitizeHtml } from '@/lib/sanitize-html'
 
-export const revalidate = 60
+export const revalidate = 3600
 
 const SITE_URL = 'https://www.heldonica.fr'
 const DEFAULT_OG = `${SITE_URL}/og-default.jpg`
@@ -21,6 +21,7 @@ interface Props {
 }
 
 export async function generateStaticParams() {
+  // Fetch all blog post slugs from Supabase at build time
   const slugs = await getAllSlugs()
   return (slugs ?? []).map(({ slug }) => ({ slug }))
 }
