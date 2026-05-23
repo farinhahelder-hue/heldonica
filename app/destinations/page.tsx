@@ -2,12 +2,14 @@ import type { Metadata } from 'next';
 import DestinationsClient from './DestinationsClient';
 import Script from 'next/script';
 
+// These must be server-rendered, not statically pre-rendered
 export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
 
 export const metadata: Metadata = {
   title: 'Destinations Hors des Sentiers Battus — Pépites Dénichées | Heldonica',
   description:
-    'Madère, Roumanie, Sicile et bien d\'autres : on te partage nos destinations authentiques testées sur le terrain, loin des foules. Itinéraires et pépites dénichées.',
+    "Madère, Roumanie, Sicile et bien d'autres : on te partage nos destinations authentiques testées sur le terrain, loin des foules. Itinéraires et pépites dénichées.",
   keywords: [
     'destination hors sentiers battus',
     'destination authentique',
