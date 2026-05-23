@@ -128,3 +128,7 @@ export function buildPageMetadata(input: PageSeoInput) {
     },
   }
 }
+export const SITE_URL = 'https://www.heldonica.fr'
+export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-default.jpg`
+export const DEFAULT_TITLE = 'Heldonica — Slow Travel & Voyages Authentiques'
+export const DEFAULT_DESCRIPTION = 'Blog slow travel et pépites dénichées hors des sentiers battus. Carnets de route, destinations authentiques et travel planning sur mesure écoresponsable en Europe et ailleurs.'

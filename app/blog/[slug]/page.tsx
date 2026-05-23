@@ -1,8 +1,9 @@
-import { getPostBySlug, getAllSlugs, getRelatedPosts, formatDate } from '@/lib/blog-supabase'
+import { getPostBySlug, getAllSlugs, getAllPosts, formatDate } from '@/lib/blog-supabase'
 import type { BlogPost } from '@/lib/blog-supabase'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { getRelatedArticles } from '@/lib/related-articles'
 import Script from 'next/script'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
@@ -10,11 +11,10 @@ import NewsletterForm from '@/components/NewsletterForm'
 import ShareButtons from '@/components/ShareButtons'
 import EnhancedRichContent from '@/components/EnhancedRichContent'
 import { sanitizeHtml } from '@/lib/sanitize-html'
+import { SITE_URL, DEFAULT_OG_IMAGE, DEFAULT_TITLE, DEFAULT_DESCRIPTION } from '@/lib/seo'
 
 export const revalidate = 60
 
-const SITE_URL = 'https://www.heldonica.fr'
-const DEFAULT_OG = `${SITE_URL}/og-default.jpg`
 
 interface Props {
   params: { slug: string }
@@ -27,19 +27,36 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = await getPostBySlug(params.slug)
-  if (!post) return { title: 'Article introuvable | Heldonica' }
+  if (!post) return {
+    title: 'Article introuvable | Heldonica',
+    description: DEFAULT_DESCRIPTION,
+    openGraph: {
+      title: 'Article introuvable | Heldonica',
+      description: DEFAULT_DESCRIPTION,
+      images: [{ url: DEFAULT_OG_IMAGE }],
+      url: `${SITE_URL}/blog`,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'Article introuvable | Heldonica',
+      description: DEFAULT_DESCRIPTION,
+      images: [DEFAULT_OG_IMAGE],
+    }
+  }
 
-  const ogImage = post.featured_image ?? DEFAULT_OG
+  const title = post.title ? `${post.title} | Heldonica` : DEFAULT_TITLE
+  const ogImage = post.featured_image || DEFAULT_OG_IMAGE
   const canonical = `${SITE_URL}/blog/${post.slug}`
-  const description = post.excerpt ?? 'Un carnet Heldonica écrit depuis le terrain.'
+  const description = post.excerpt || DEFAULT_DESCRIPTION
 
   return {
-    title: `${post.title} | Heldonica`,
+    title,
     description,
     alternates: { canonical },
     authors: post.author ? [{ name: post.author }] : [{ name: 'Heldonica' }],
     openGraph: {
-      title: post.title,
+      title,
       description,
       url: canonical,
       siteName: 'Heldonica',
@@ -53,13 +70,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           url: ogImage,
           width: 1200,
           height: 630,
-          alt: post.title,
+          alt: title,
         },
       ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: post.title,
+      title,
       description,
       images: [ogImage],
     },
@@ -78,7 +95,7 @@ function buildJsonLds(post: BlogPost, readTime: number) {
     '@type': 'Article',
     headline: post.title,
     description: post.excerpt ?? '',
-    image: post.featured_image ? [post.featured_image] : [DEFAULT_OG],
+    image: post.featured_image ? [post.featured_image] : [DEFAULT_OG_IMAGE],
     datePublished: post.published_at ?? '',
     dateModified: post.updated_at ?? post.published_at ?? '',
     author: {
@@ -162,7 +179,8 @@ export default async function BlogPostPage({ params }: Props) {
   const post = await getPostBySlug(params.slug)
   if (!post) notFound()
 
-  const relatedResult = await getRelatedPosts(post.slug, post.category, 3)
+  const allPosts = await getAllPosts()
+  const relatedResult = getRelatedArticles(post, allPosts, 3)
   const related = relatedResult ?? []
   const heroImage = post.featured_image ?? HERO_FALLBACK[post.category ?? ''] ?? DEFAULT_HERO
   const fallbackBg = HERO_FALLBACK[post.category ?? ''] ?? 'bg-gradient-to-br from-stone-900 to-amber-900'

@@ -1,11 +1,13 @@
 ﻿import { getDestinationBySlug, getAllDestinationSlugs, blogPosts } from '@/lib/wordpress-data'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import Script from 'next/script'
+import { getRelatedArticles } from '@/lib/related-articles'
 import EnhancedRichContent from '@/components/EnhancedRichContent'
 import { sanitizeHtml } from '@/lib/sanitize-html'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import type { Metadata } from 'next'
+import { SITE_URL, DEFAULT_OG_IMAGE, DEFAULT_TITLE, DEFAULT_DESCRIPTION } from '@/lib/seo'
 
 interface Props {
   params: { slug: string }
@@ -127,25 +129,62 @@ const DEST_META: Record<string, DestinationMeta> = {
   'bretagne-heldonica-slow': bretagneMeta,
 }
 
-const SITE_URL = 'https://www.heldonica.fr'
-
 export async function generateStaticParams() {
   return getAllDestinationSlugs()
 }
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const page = getDestinationBySlug(params.slug)
   const meta = DEST_META[params.slug]
-  const title = page?.title || params.slug
-  const description = meta?.description || `Découvre ${title} avec Heldonica, depuis le terrain et sans vernis inutile.`
+
+  if (!page) return {
+    title: 'Destination introuvable | Heldonica',
+    description: DEFAULT_DESCRIPTION,
+    openGraph: {
+      title: 'Destination introuvable | Heldonica',
+      description: DEFAULT_DESCRIPTION,
+      images: [{ url: DEFAULT_OG_IMAGE }],
+      url: `${SITE_URL}/destinations`,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'Destination introuvable | Heldonica',
+      description: DEFAULT_DESCRIPTION,
+      images: [DEFAULT_OG_IMAGE],
+    }
+  }
+
+  const titleText = page.title || params.slug || 'Destination'
+  const title = `${titleText} | Heldonica`
+  const description = meta?.description || `Découvre ${titleText} avec Heldonica, depuis le terrain et sans vernis inutile.` || DEFAULT_DESCRIPTION
+  const ogImage = meta?.heroImage || page.image || DEFAULT_OG_IMAGE
+  const canonical = `${SITE_URL}/destinations/${params.slug}`
 
   return {
-    title: `${title} | Heldonica`,
+    title,
     description,
+    alternates: { canonical },
     openGraph: {
-      title: `${title} | Heldonica`,
+      title,
       description,
-      images: meta?.heroImage ? [{ url: meta.heroImage }] : [],
+      url: canonical,
+      siteName: 'Heldonica',
+      type: 'website',
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: titleText,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImage],
     },
   }
 }
@@ -159,12 +198,16 @@ export default function DestinationPage({ params }: Props) {
   const safeContent = sanitizeHtml(page.content)
 
   const titleWords = page.title.toLowerCase().split(/\s+/).filter((word) => word.length > 3)
-  const related = (blogPosts ?? [])
-    .filter((post) => {
-      const haystack = `${post.title} ${post.categories.join(' ')} ${post.tags.join(' ')}`.toLowerCase()
-      return titleWords.some((word) => haystack.includes(word))
-    })
-    .slice(0, 6)
+  // Convert DestinationPage to a format that getRelatedArticles can use to match tags/category
+  const destinationAsArticle: any = {
+    slug: page.slug,
+    title: page.title,
+    category: meta?.region,
+    tags: titleWords, // Treat title words as tags for matching
+    destination: page.slug
+  }
+
+  const related = getRelatedArticles(destinationAsArticle, blogPosts ?? [], 3)
 
   const facts = meta
     ? [
@@ -175,53 +218,8 @@ export default function DestinationPage({ params }: Props) {
       ]
     : []
 
-
-  const destinationLd = {
-    '@context': 'https://schema.org',
-    '@type': 'TouristDestination',
-    name: page.title,
-    description: meta?.description || `Découvre ${page.title} avec Heldonica`,
-    image: heroImage ? [heroImage] : [],
-    url: `${SITE_URL}/destinations/${page.slug}`,
-  }
-
-  const breadcrumbLd = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Accueil',
-        item: SITE_URL,
-      },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: 'Destinations',
-        item: `${SITE_URL}/destinations`,
-      },
-      {
-        '@type': 'ListItem',
-        position: 3,
-        name: page.title,
-        item: `${SITE_URL}/destinations/${page.slug}`,
-      },
-    ],
-  }
-
   return (
     <>
-      <Script
-        id="destination-jsonld"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(destinationLd) }}
-      />
-      <Script
-        id="breadcrumb-jsonld"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
-      />
       <Header />
       <main className="min-h-screen bg-[#f7f5f1]">
         <div className="relative h-[56vh] w-full overflow-hidden bg-stone-900 md:h-[70vh]">
