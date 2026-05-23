@@ -43,3 +43,19 @@ export async function PUT(req: Request) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
 }
+
+export async function PATCH(req: Request) {
+  const authResponse = await requireCmsAuth(req)
+  if (authResponse) return authResponse
+
+  const sb = supabase()
+  if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
+  const { id, statut } = await req.json()
+  const { error } = await sb
+    .from('demandes_travel')
+    // @ts-expect-error Supabase types are not fully inferred
+    .update({ statut })
+    .eq('id', id)
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ ok: true })
+}

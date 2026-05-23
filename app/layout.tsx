@@ -68,6 +68,12 @@ export const metadata: Metadata = {
       'x-default': SITE_URL,
     },
   },
+  other: {
+    'geo.region': 'FR-75',
+    'geo.placename': 'Paris',
+    'geo.position': '48.8566;2.3522',
+    'ICBM': '48.8566, 2.3522',
+  },
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
@@ -149,6 +155,11 @@ const schemaOrganization = {
     contactType: 'customer service',
     email: 'contact@heldonica.fr',
     availableLanguage: 'French',
+  },
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Paris',
+    addressCountry: 'FR',
   },
 };
 
