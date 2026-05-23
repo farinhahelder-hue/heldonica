@@ -1,6 +1,7 @@
 import { getPostBySlug, getAllSlugs, getAllPosts, formatDate } from '@/lib/blog-supabase'
 import type { BlogPost } from '@/lib/blog-supabase'
 import type { Metadata } from 'next'
+import { createServiceClient } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getRelatedArticles } from '@/lib/related-articles'
@@ -11,61 +12,55 @@ import NewsletterForm from '@/components/NewsletterForm'
 import ShareButtons from '@/components/ShareButtons'
 import EnhancedRichContent from '@/components/EnhancedRichContent'
 import { sanitizeHtml } from '@/lib/sanitize-html'
-import { SITE_URL, DEFAULT_OG_IMAGE, DEFAULT_TITLE, DEFAULT_DESCRIPTION } from '@/lib/seo'
 
-export const revalidate = 3600
+export const revalidate = 60
 
+const SITE_URL = 'https://www.heldonica.fr'
+const DEFAULT_OG = `${SITE_URL}/og-default.jpg`
 
 interface Props {
   params: { slug: string }
 }
 
 export async function generateStaticParams() {
-  // Fetch all blog post slugs from Supabase at build time
   const slugs = await getAllSlugs()
   return (slugs ?? []).map(({ slug }) => ({ slug }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const post = await getPostBySlug(params.slug)
-  if (!post) return {
-    title: 'Article introuvable | Heldonica',
-    description: DEFAULT_DESCRIPTION,
-    openGraph: {
-      title: 'Article introuvable | Heldonica',
-      description: DEFAULT_DESCRIPTION,
-      images: [{ url: DEFAULT_OG_IMAGE }],
-      url: `${SITE_URL}/blog`,
-      type: 'website',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: 'Article introuvable | Heldonica',
-      description: DEFAULT_DESCRIPTION,
-      images: [DEFAULT_OG_IMAGE],
-    }
+  const supabase = createServiceClient()
+  const { data: post } = await supabase
+    .from('cms_blog_posts')
+    .select('title, excerpt, content, og_image, featured_image, published_at, author')
+    .eq('slug', params.slug)
+    .single()
+
+  if (!post) return { title: 'Article introuvable | Heldonica' }
+
+  let description = post.excerpt || ''
+  if (!description && post.content) {
+      const plainText = post.content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+      description = plainText.substring(0, 160)
   }
 
-  const title = post.title ? `${post.title} | Heldonica` : DEFAULT_TITLE
-  const ogImage = post.featured_image || DEFAULT_OG_IMAGE
-  const canonical = `${SITE_URL}/blog/${post.slug}`
-  const description = post.excerpt || DEFAULT_DESCRIPTION
+  const title = `${post.title} | Heldonica`
+  const ogImage = post.og_image || post.featured_image || DEFAULT_OG
+  const canonical = `https://heldonica.fr/blog/${params.slug}`
+  const publishedTime = post.published_at || undefined
+  const authorName = post.author || 'Heldonica'
 
   return {
     title,
     description,
     alternates: { canonical },
-    authors: post.author ? [{ name: post.author }] : [{ name: 'Heldonica' }],
     openGraph: {
       title,
       description,
       url: canonical,
       siteName: 'Heldonica',
       type: 'article',
-      publishedTime: post.published_at ?? undefined,
-      modifiedTime: post.updated_at ?? undefined,
-      authors: post.author ? [post.author] : ['Heldonica'],
-      tags: post.tags ?? undefined,
+      publishedTime,
+      authors: [authorName],
       images: [
         {
           url: ogImage,
@@ -93,10 +88,10 @@ function calcReadTime(content: string | null): number {
 function buildJsonLds(post: BlogPost, readTime: number) {
   const articleLd = {
     '@context': 'https://schema.org',
-    '@type': 'Article',
+    '@type': 'BlogPosting',
     headline: post.title,
     description: post.excerpt ?? '',
-    image: post.featured_image ? [post.featured_image] : [DEFAULT_OG_IMAGE],
+    image: post.featured_image ? [post.featured_image] : [DEFAULT_OG],
     datePublished: post.published_at ?? '',
     dateModified: post.updated_at ?? post.published_at ?? '',
     author: {
