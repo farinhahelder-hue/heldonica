@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase-client';
+import { supabase, getSupabaseAuth } from '@/lib/supabase-client';
 
 type AuthContextValue = {
   user: User | null;
@@ -21,19 +21,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   // Check if Supabase is configured
-  const supabaseConfigured = supabase?.auth != null;
-  const isConfigured = Boolean(supabaseConfigured);
+  const supabaseAuth = getSupabaseAuth();
+  const supabaseConfigured = supabaseAuth != null;
 
   useEffect(() => {
     // If Supabase isn't configured, just render without auth - don't fail
-    if (!supabase?.auth) {
+    if (!supabaseAuth) {
       setLoading(false);
       return;
     }
 
     let active = true;
 
-    supabase.auth.getSession().then(({ data }) => {
+    supabaseAuth.getSession().then(({ data }) => {
       if (!active) return;
       setSession(data.session);
       setUser(data.session?.user ?? null);
@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    } = supabaseAuth.onAuthStateChange((_event, nextSession) => {
       if (!active) return;
       setSession(nextSession);
       setUser(nextSession?.user ?? null);
@@ -56,12 +56,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       active = false;
       if (subscription) subscription.unsubscribe();
     };
-  }, []);
+  }, [supabaseAuth]);
 
   const signOut = async () => {
-    if (!supabase?.auth) return;
+    if (!supabaseAuth) return;
     try {
-      await supabase.auth.signOut();
+      await supabaseAuth.signOut();
     } catch { /* ignore */ }
   };
 
@@ -88,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         session,
         loading,
-        isConfigured,
+        isConfigured: true,
         signOut,
       }}
     >
