@@ -5,6 +5,25 @@ import Footer from '@/components/Footer'
 
 const SITE_URL = 'https://heldonica.fr'
 
+
+const schemaTouristDestination = {
+  '@context': 'https://schema.org',
+  '@type': 'TouristDestination',
+  name: 'Roumanie',
+  description: 'Découvrez la Roumanie en slow travel : Bucarest, Timisoara, Sibiu et les paysages authentiques des Carpates et de la Transylvanie.',
+  url: `${SITE_URL}/destinations/roumanie`,
+  address: {
+    '@type': 'PostalAddress',
+    addressCountry: 'RO',
+  },
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: 45.9432,
+    longitude: 24.9668,
+  },
+  touristType: ['Culture lover', 'Nature lover', 'Slow traveler'],
+};
+
 const faqRoumanieSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
@@ -38,6 +57,7 @@ const subNav = [
 export default function RoumaniePage() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaTouristDestination) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqRoumanieSchema) }} />
       <Header />
       <main className="min-h-screen bg-stone-50">
