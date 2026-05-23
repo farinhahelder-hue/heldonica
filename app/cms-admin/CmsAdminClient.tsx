@@ -10,6 +10,7 @@ import MediaLibrary from '@/components/MediaLibrary';
 import { sanitizeHtml } from '@/lib/sanitize-html';
 import { getFallbackImageUrl } from '@/lib/unsplash';
 import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot, CheckSquare, Square } from 'lucide-react';
+import KanbanBoardClient from './travel-planning/KanbanBoardClient';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
 const CarouselEditor = dynamic(() => import('@/components/admin/CarouselEditor'), { ssr: false });
@@ -1733,59 +1734,7 @@ function CMSAdminInner() {
         )}
 
         {tab === 'demandes' && (
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>✈️ Demandes Travel Planning</h2>
-              <div style={{ display: 'flex', gap: '.5rem', alignItems: 'center' }}>
-                <select value={demandesStatusFilter} onChange={e => setDemandesStatusFilter(e.target.value)}
-                  style={{ padding: '.5rem .8rem', border: '1.5px solid #ddd', borderRadius: '.5rem', fontSize: '.85rem' }}>
-                  <option value="all">Tous statuts</option>
-                  <option value="nouvelle">🆕 Nouvelle</option>
-                  <option value="en_cours">🔍 En cours</option>
-                  <option value="devis_envoye">📨 Devis envoyé</option>
-                  <option value="accepte">✅ Acceptée</option>
-                  <option value="terminee">🏁 Terminée</option>
-                  <option value="annulee">❌ Annulée</option>
-                </select>
-                <button onClick={loadDemandes} disabled={loadingDemandes} style={{ padding: '.5rem 1rem', background: 'white', border: '1.5px solid #ddd', borderRadius: '.5rem', cursor: loadingDemandes ? 'wait' : 'pointer', fontSize: '.85rem', opacity: loadingDemandes ? .7 : 1 }}>{loadingDemandes ? '⏳' : '🔄'}</button>
-              </div>
-            </div>
-            {loadingDemandes ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p>
-              : demandes.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '4rem', color: '#aaa' }}>
-                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✉️</div>
-                  <p>Aucune demande pour le moment</p>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {demandes.filter(d => demandesStatusFilter === 'all' || d.statut === demandesStatusFilter).map(d => (
-                    <div key={d.id} style={{ background: 'white', borderRadius: '.75rem', padding: '1.25rem 1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '.75rem', flexWrap: 'wrap', gap: '.5rem' }}>
-                        <div>
-                          <div style={{ fontWeight: 700, fontSize: '1rem', color: '#1a1a1a' }}>{d.prenom} {d.nom}</div>
-                          <div style={{ fontSize: '.85rem', color: '#888' }}>{d.email} {d.telephone && `· ${d.telephone}`}</div>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
-                          <span style={{ fontSize: '.75rem', color: '#aaa' }}>{fmt(d.created_at)}</span>
-                          <select value={d.statut || 'nouvelle'} onChange={e => updateStatut(d.id, e.target.value)} disabled={updatingDemandeId === d.id}
-                            style={{ padding: '.3rem .7rem', border: '1.5px solid #ddd', borderRadius: '.4rem', fontSize: '.82rem' }}>
-                            <option value="nouvelle">🆕 Nouvelle</option>
-                            <option value="en_cours">🔍 En cours</option>
-                            <option value="devis_envoye">📨 Devis envoyé</option>
-                            <option value="accepte">✅ Acceptée</option>
-                            <option value="terminee">🏁 Terminée</option>
-                            <option value="annulee">❌ Annulée</option>
-                          </select>
-                        </div>
-                      </div>
-                      {d.notes && (
-                        <div style={{ marginTop: '.75rem', padding: '.75rem', background: '#faf8f5', borderRadius: '.5rem', fontSize: '.85rem', color: '#666' }}>💬 {d.notes}</div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-          </div>
+          <KanbanBoardClient initialDemandes={demandes} />
         )}
 
         {tab === 'carousel' && (
