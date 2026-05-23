@@ -1,8 +1,9 @@
-import { getPostBySlug, getAllSlugs, getRelatedPosts, formatDate } from '@/lib/blog-supabase'
+import { getPostBySlug, getAllSlugs, getAllPosts, formatDate } from '@/lib/blog-supabase'
 import type { BlogPost } from '@/lib/blog-supabase'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { getRelatedArticles } from '@/lib/related-articles'
 import Script from 'next/script'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
@@ -162,7 +163,8 @@ export default async function BlogPostPage({ params }: Props) {
   const post = await getPostBySlug(params.slug)
   if (!post) notFound()
 
-  const relatedResult = await getRelatedPosts(post.slug, post.category, 3)
+  const allPosts = await getAllPosts()
+  const relatedResult = getRelatedArticles(post, allPosts, 3)
   const related = relatedResult ?? []
   const heroImage = post.featured_image ?? HERO_FALLBACK[post.category ?? ''] ?? DEFAULT_HERO
   const fallbackBg = HERO_FALLBACK[post.category ?? ''] ?? 'bg-gradient-to-br from-stone-900 to-amber-900'
