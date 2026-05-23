@@ -1,6 +1,7 @@
 ﻿import { getDestinationBySlug, getAllDestinationSlugs, blogPosts } from '@/lib/wordpress-data'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { getRelatedArticles } from '@/lib/related-articles'
 import EnhancedRichContent from '@/components/EnhancedRichContent'
 import { sanitizeHtml } from '@/lib/sanitize-html'
 import Header from '@/components/Header'
@@ -156,12 +157,16 @@ export default function DestinationPage({ params }: Props) {
   const safeContent = sanitizeHtml(page.content)
 
   const titleWords = page.title.toLowerCase().split(/\s+/).filter((word) => word.length > 3)
-  const related = (blogPosts ?? [])
-    .filter((post) => {
-      const haystack = `${post.title} ${post.categories.join(' ')} ${post.tags.join(' ')}`.toLowerCase()
-      return titleWords.some((word) => haystack.includes(word))
-    })
-    .slice(0, 6)
+  // Convert DestinationPage to a format that getRelatedArticles can use to match tags/category
+  const destinationAsArticle: any = {
+    slug: page.slug,
+    title: page.title,
+    category: meta?.region,
+    tags: titleWords, // Treat title words as tags for matching
+    destination: page.slug
+  }
+
+  const related = getRelatedArticles(destinationAsArticle, blogPosts ?? [], 3)
 
   const facts = meta
     ? [
