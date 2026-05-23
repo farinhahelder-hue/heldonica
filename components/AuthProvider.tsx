@@ -19,12 +19,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Check if Supabase is configured
-  const isConfigured = supabase !== null;
+  // Check if Supabase was actually configured (not just stubbed)
+  const isConfigured = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL && 
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
 
   useEffect(() => {
     // If Supabase isn't configured, just render without auth
-    if (!supabase) {
+    if (!isConfigured) {
       setLoading(false);
       return;
     }
@@ -54,10 +57,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       active = false;
       if (subscription) subscription.unsubscribe();
     };
-  }, []);
+  }, [isConfigured]);
 
   const signOut = async () => {
-    if (!supabase) return;
+    if (!isConfigured) return;
     try {
       await supabase.auth.signOut();
     } catch { /* ignore */ }
