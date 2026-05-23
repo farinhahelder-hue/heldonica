@@ -19,13 +19,11 @@ CREATE TABLE IF NOT EXISTS destinations (
   updated_at   TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Indexes for filter queries
-CREATE INDEX IF NOT EXISTS idx_destinations_country  ON destinations(country);
-CREATE INDEX IF NOT EXISTS idx_destinations_region   ON destinations(region);
-CREATE INDEX IF NOT EXISTS idx_destinations_category ON destinations(category);
-CREATE INDEX IF NOT EXISTS idx_destinations_published ON destinations(published) WHERE published = true;
+CREATE INDEX idx_destinations_country ON destinations(country);
+CREATE INDEX idx_destinations_region ON destinations(region);
+CREATE INDEX idx_destinations_category ON destinations(category);
+CREATE INDEX idx_destinations_published ON destinations(published) WHERE published = true;
 
--- Trigger to auto-update updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -40,13 +38,10 @@ CREATE TRIGGER update_destinations_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
--- Enable RLS for security
 ALTER TABLE destinations ENABLE ROW LEVEL SECURITY;
 
--- Policy: allow read for everyone (public map)
 CREATE POLICY "Public read access" ON destinations
   FOR SELECT USING (published = true);
 
--- Policy: allow insert/update for authenticated users (CMS)
 CREATE POLICY "Authenticated can manage" ON destinations
   FOR ALL USING (auth.role() = 'authenticated');
