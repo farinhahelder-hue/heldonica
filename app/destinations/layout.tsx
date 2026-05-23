@@ -1,3 +1,13 @@
+/*
+ * NOTE ARCHITECTURE JSON-LD :
+ * Ce layout injecte le BreadcrumbList via DestinationsClient (ligne 20 de page.tsx).
+ * Les pages destinations "[slug]" font leur propre injection inline de TouristDestination
+ * + BreadcrumbList dans leur composant. Ne PAS utiliser le Breadcrumb component ici.
+ *
+ * Règle : pages destinations = JSON-LD inline uniquement dans chaque page,
+ * pas de Breadcrumb component pour éviter les doublons.
+ */
+
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {

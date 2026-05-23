@@ -4,6 +4,18 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Script from 'next/script';
 
+/*
+ * NOTE ARCHITECTURE JSON-LD :
+ * Ce composant gère le BreadcrumbList pour les pages "support" (contact, mentions légales,
+ * politique, slow-travel, travel-planning, planifier, blog).
+ *
+ * Les pages "contenu" (destinations/[slug], blog/[slug]) injectent leur propre JSON-LD
+ * BreadcrumbList inline. Ne PAS utiliser ce composant sur ces pages pour éviter les doublons.
+ *
+ * Règle : si une page fait déjà un <Script type="application/ld+json" BreadcrumbList>,
+ * utiliser le Breadcrumb component OU l'injection inline, mais jamais les deux.
+ */
+
 export default function Breadcrumb() {
   const pathname = usePathname();
 
