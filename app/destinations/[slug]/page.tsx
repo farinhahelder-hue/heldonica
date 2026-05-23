@@ -1,3 +1,4 @@
+import Image from "next/image"
 ﻿import { getDestinationBySlug, getAllDestinationSlugs, blogPosts } from '@/lib/wordpress-data'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -224,11 +225,11 @@ export default function DestinationPage({ params }: Props) {
       <main className="min-h-screen bg-[#f7f5f1]">
         <div className="relative h-[56vh] w-full overflow-hidden bg-stone-900 md:h-[70vh]">
           {heroImage && (
-            <img
+            <Image fill priority={true} sizes="100vw"
               src={heroImage}
               alt={page.title}
               className="h-full w-full object-cover opacity-75"
-              loading="eager"
+
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
@@ -317,11 +318,11 @@ export default function DestinationPage({ params }: Props) {
                   <Link key={post.slug} href={`/blog/${post.slug}`} className="group block transition-all duration-200">
                     <article className="overflow-hidden rounded-[1.5rem] border border-stone-100 bg-stone-50 shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-md">
                       {post.image ? (
-                        <img
+                        <Image
                           src={post.image}
                           alt={post.title}
                           className="h-44 w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          loading="lazy"
+
                           width={400}
                           height={176}
                         />

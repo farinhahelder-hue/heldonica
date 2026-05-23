@@ -1,4 +1,6 @@
+
 'use client'
+import Image from "next/image"
 
 import { useState } from 'react'
 import Header from '@/components/Header'
@@ -84,11 +86,11 @@ export default function TravelPlanning() {
 
         {/* ── HERO ── */}
         <section className="relative overflow-hidden bg-stone-950">
-          <img
+          <Image fill priority={true} sizes="100vw"
             src="https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=1600&q=85"
             alt="Couple en slow travel, vue panoramique sur la nature"
             className="absolute inset-0 w-full h-full object-cover opacity-30"
-            width="1600" height="900"
+
           />
           <div className="absolute inset-0 bg-gradient-to-b from-stone-950/60 via-transparent to-stone-950" />
           <div className="relative max-w-4xl mx-auto px-6 md:px-10 py-28 md:py-40 text-center">
