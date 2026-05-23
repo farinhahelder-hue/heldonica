@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import type { DestinationMarker } from '@/lib/destinations-data';
+import 'leaflet.markercluster';
 
 interface DestinationMapProps {
   markers: DestinationMarker[];
@@ -77,8 +78,25 @@ export default function DestinationMap({
         popupAnchor: [0, -32],
       });
 
-      // Add markers
-      const markerGroup = L.featureGroup();
+      // Add markers with clustering
+      const markerClusterGroup = (L as any).markerClusterGroup({
+        showCoverageOnHover: false,
+        maxClusterRadius: 50,
+        spiderfyOnMaxZoom: true,
+        disableClusteringAtZoom: 15,
+        iconCreateFunction: function(cluster: any) {
+          const count = cluster.getChildCount();
+          let size = 'small';
+          if (count > 5) size = 'medium';
+          if (count > 15) size = 'large';
+          return (L as any).divIcon({
+            html: '<div class="cluster-icon cluster-' + size + '"><span>' + count + '</span></div>',
+            className: 'marker-cluster marker-cluster-' + size,
+            iconSize: (L as any).point(40, 40),
+          });
+        },
+      });
+
       markers.forEach((marker) => {
         const mapMarker = L.marker([marker.latitude, marker.longitude], { icon: heldonicaIcon });
 
@@ -127,14 +145,14 @@ export default function DestinationMap({
           maxWidth: 300,
           className: 'heldonica-popup',
         });
-        markerGroup.addLayer(mapMarker);
+        markerClusterGroup.addLayer(mapMarker);
       });
 
-      markerGroup.addTo(map);
+      map.addLayer(markerClusterGroup);
 
       // Fit bounds if multiple markers
       if (markers.length > 1) {
-        map.fitBounds(markerGroup.getBounds(), { padding: [50, 50] });
+        map.fitBounds(markerClusterGroup.getBounds(), { padding: [50, 50] });
       }
     });
 
