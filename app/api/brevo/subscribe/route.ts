@@ -11,49 +11,63 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Intégration Brevo
+    // Intégration Brevo avec tag prospect_b2c
     const brevoApiKey = process.env.BREVO_API_KEY
     
     if (!brevoApiKey) {
       console.warn('BREVO_API_KEY non configurée')
-      // Pour l'instant, on accepte quand même
       return NextResponse.json(
         { success: true, message: 'Email reçu (Brevo non configuré)' },
         { status: 200 }
       )
     }
 
-    // Appel API Brevo pour ajouter le contact
-    const brevoResponse = await fetch('https://api.brevo.com/v3/contacts', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'api-key': brevoApiKey,
-      },
-      body: JSON.stringify({
-        email: email,
-        listIds: [2], // ID de la liste Brevo (à adapter)
-        updateEnabled: true,
-      }),
-    })
+    try {
+      // Création/mise à jour du contact avec attributs
+      const brevoResponse = await fetch('https://api.brevo.com/v3/contacts', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'api-key': brevoApiKey,
+        },
+        body: JSON.stringify({
+          email: email,
+          attributes: {
+            SOURCE: 'Newsletter_Site',
+          },
+          listIds: [2], // ID de la liste Brevo — à adapter
+          updateEnabled: true,
+        }),
+      })
 
-    if (!brevoResponse.ok) {
-      const error = await brevoResponse.json()
-      console.error('Erreur Brevo:', error)
-      
-      // Si le contact existe déjà, c'est ok
-      if (error.code === 'duplicate_parameter') {
-        return NextResponse.json(
-          { success: true, message: 'Email déjà inscrit' },
-          { status: 200 }
-        )
+      if (!brevoResponse.ok) {
+        const error = await brevoResponse.json()
+        console.error('Erreur Brevo:', error)
+        
+        // Si le contact existe déjà, c'est ok
+        if (error.code === 'duplicate_parameter') {
+          return NextResponse.json(
+            { success: true, message: 'Email déjà inscrit' },
+            { status: 200 }
+          )
+        }
       }
 
-      return NextResponse.json(
-        { error: 'Erreur Brevo' },
-        { status: 400 }
-      )
+      // Ajout du tag prospect_b2c
+      await fetch(`https://api.brevo.com/v3/contacts/${encodeURIComponent(email)}/tag`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'api-key': brevoApiKey,
+        },
+        body: JSON.stringify({
+          tags: ['prospect_b2c'],
+        }),
+      })
+    } catch (brevoErr) {
+      console.error('Brevo sync error:', brevoErr)
     }
 
     return NextResponse.json(

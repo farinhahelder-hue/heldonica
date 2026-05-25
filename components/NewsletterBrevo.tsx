@@ -14,7 +14,6 @@ export default function NewsletterBrevo() {
     setError('')
 
     try {
-      // Envoyer à Brevo via API
       const response = await fetch('/api/brevo/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -24,6 +23,16 @@ export default function NewsletterBrevo() {
       if (response.ok) {
         setSubmitted(true)
         setEmail('')
+        
+        // GA4 — Événement newsletter_inscription
+        if (typeof window !== 'undefined' && (window as any).gtag) {
+          ;(window as any).gtag('event', 'newsletter_inscription', {
+            event_category: 'Newsletter',
+            event_label: 'Brevo',
+            value: 1,
+          })
+        }
+        
         setTimeout(() => setSubmitted(false), 5000)
       } else {
         setError('Erreur lors de l\'inscription')
@@ -43,7 +52,7 @@ export default function NewsletterBrevo() {
           Restez informé
         </h2>
         <p className="text-white/90 mb-8 text-lg">
-          Pépites exclusives + 1 guide PDF/mois
+          Une fois par mois — une adresse, un timing, une erreur à éviter.
         </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
