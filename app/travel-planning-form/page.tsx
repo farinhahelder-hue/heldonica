@@ -127,6 +127,16 @@ export default function TravelPlanningForm() {
         body: JSON.stringify(form),
       })
       if (!res.ok) throw new Error('Erreur serveur')
+      
+      // GA4 — Événement formulaire_travel_soumis
+      if (typeof window !== 'undefined' && (window as any).gtag) {
+        ;(window as any).gtag('event', 'formulaire_travel_soumis', {
+          event_category: 'Travel Planning',
+          event_label: form.destination || 'Non précisé',
+          value: 1,
+        })
+      }
+      
       router.push('/merci')
     } catch {
       setError('Une erreur est survenue. Réessaie ou écris-nous directement à info@heldonica.fr')

@@ -62,7 +62,52 @@ export async function POST(req: NextRequest) {
       console.error('Supabase error:', dbError)
     }
 
-    // 2. Email interne à Heldonica
+    // 2. Intégration Brevo — ajout du contact avec tag prospect_b2c
+    const brevoApiKey = process.env.BREVO_API_KEY
+    if (brevoApiKey) {
+      try {
+        await fetch('https://api.brevo.com/v3/contacts', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'api-key': brevoApiKey,
+          },
+          body: JSON.stringify({
+            email: email,
+            attributes: {
+              PRENOM: firstName,
+              TELEPHONE: phone || '',
+              TYPE_VOYAGE: tripType || '',
+              VIBE: vibe || '',
+              DESTINATION: destination + (destinationDetail ? ` — ${destinationDetail}` : ''),
+              DUREE: duration || '',
+              BUDGET: budget || '',
+              DATE_DEPART: departureDate || '',
+            },
+            listIds: [2], // ID liste Brevo — à adapter
+            updateEnabled: true,
+          }),
+        })
+
+        // Ajout du tag prospect_b2c
+        await fetch(`https://api.brevo.com/v3/contacts/${encodeURIComponent(email)}/tag`, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'api-key': brevoApiKey,
+          },
+          body: JSON.stringify({
+            tags: ['prospect_b2c'],
+          }),
+        })
+      } catch (brevoErr) {
+        console.error('Brevo sync error:', brevoErr)
+      }
+    }
+
+    // 3. Email interne à Heldonica
     await resend.emails.send({
       from: 'Heldonica <contact@heldonica.fr>',
       to: 'contact@heldonica.fr',
@@ -95,7 +140,7 @@ export async function POST(req: NextRequest) {
       `,
     })
 
-    // 3. Email de confirmation au prospect
+    // 4. Email de confirmation au prospect
     await resend.emails.send({
       from: 'Heldonica <contact@heldonica.fr>',
       to: email,
