@@ -94,26 +94,67 @@ function AnimatedStat({ nb, label, suffix = '' }: { nb: number | string; label: 
   )
 }
 
+// ─── Gradients et icônes SVG par catégorie ─────────────────────────────────────
+const CATEGORY_GRADIENTS: Record<string, string> = {
+  'Carnets Voyage': 'from-[#006D77] to-[#4ECDC4]',
+  'Découvertes Locales': 'from-[#6B2D1F] to-[#006D77]',
+  'Guides Pratiques': 'from-[#006D77] to-[#4ECDC4]',
+  Travel: 'from-[#006D77] to-[#4ECDC4]',
+  'Food & Lifestyle': 'from-[#4ECDC4] to-[#006D77]',
+  default: 'from-[#006D77] to-[#6B2D1F]',
+}
+
+const CATEGORY_ICONS: Record<string, string> = {
+  'Carnets Voyage': `<path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`,
+  'Découvertes Locales': `<path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 11.25a1 1 0 110-2 1 1 0 010 2z" fill="currentColor"/> `,
+  'Guides Pratiques': `<path d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.882 6 2.346m6-12.33c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.346m0-12.33c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.346" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`,
+  Travel: `<path d="M3.75 6A.75.75 0 014.5 5.25h13.5A.75.75 0 0119 6v12a.75.75 0 01-.75.75h-13.5A.75.75 0 014 18V6zm-1.5 7.5V6a.75.75 0 01.75-.75h13.5a.75.75 0 01.75.75v12a2.25 2.25 0 01-2.25 2.25H4.5a2.25 2.25 0 01-2.25-2.25V12.75z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`,
+  'Food & Lifestyle': `<path d="M12 3v7.5a3 3 0 01-.984 2.137L8.016 16.5a4.5 4.5 0 01-4.004.984A3 3 0 013 13.5V3h9z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 3v2m12-2v2m0 0l-3.5 3.5M18 5l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`,
+  default: `<path d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`,
+}
+
+function getCategoryGradient(category: string | null | undefined): string {
+  if (!category) return CATEGORY_GRADIENTS.default
+  return CATEGORY_GRADIENTS[category] ?? CATEGORY_GRADIENTS.default
+}
+
+function getCategoryIcon(category: string | null | undefined): string {
+  if (!category) return CATEGORY_ICONS.default
+  return CATEGORY_ICONS[category] ?? CATEGORY_ICONS.default
+}
+
 // ─── Card article ─────────────────────────────────────────────────────────────
 function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: string; readTime?: number }; size?: 'sm' | 'md' | 'lg' }) {
   const img = postImage(post)
   const [imgSrc, setImgSrc] = useState(img)
+  const [imgFailed, setImgFailed] = useState(false)
   const h = size === 'lg' ? 'h-80' : size === 'md' ? 'h-60' : 'h-44'
   const readTime = post.readTime ?? post.read_time
+  const gradient = getCategoryGradient(post.category)
+  const iconSvg = getCategoryIcon(post.category)
 
   useEffect(() => {
     setImgSrc(img)
+    setImgFailed(false)
   }, [img])
 
   return (
     <Link href={`/blog/${post.slug}`} className="group block h-full">
       <article className="relative rounded-2xl overflow-hidden bg-mahogany/80 shadow-md hover:shadow-xl transition-all duration-400 h-full flex flex-col">
         <div className={`relative ${h} overflow-hidden`}>
-          <img src={imgSrc} alt={post.title} width={600} height={400}
-            className="w-full h-full object-cover opacity-80 group-hover:opacity-90 group-hover:scale-105 transition-all duration-600"
-            loading="lazy"
-            onError={() => setImgSrc(HELDONICA_BADGE_FALLBACK)}
-          />
+          {imgFailed ? (
+            /* Gradient fallback élégant avec icône SVG */
+            <div className={`w-full h-full flex flex-col items-center justify-center bg-gradient-to-br ${gradient} gap-3`}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-white/80" dangerouslySetInnerHTML={{ __html: iconSvg }} />
+              <span className="text-white/90 text-xs font-semibold tracking-[0.12em] uppercase">{post.category || 'Travel'}</span>
+            </div>
+          ) : (
+            <img src={imgSrc} alt={post.title} width={600} height={400}
+              className="w-full h-full object-cover opacity-80 group-hover:opacity-90 group-hover:scale-105 transition-all duration-600"
+              loading="lazy"
+              onError={() => { setImgFailed(true) }}
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
           <div className="absolute top-3 left-3">
             <span className="bg-eucalyptus/90 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">
@@ -170,8 +211,12 @@ interface HomeProps {
 export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries, heroVideoUrl, heroPosterImage }: HomeProps) {
   useScrollReveal()
   const featImg = featured ? postImage(featured) : null
-  const publishedArticles = totalPosts || 23
-  const countryCount = typeof coveredCountries === 'number' ? coveredCountries : (coveredCountries ? parseInt(coveredCountries) : 7)
+  // Fallback: si totalPosts est undefined/null/0, on utilise 23 (valeur par défaut représentative)
+  const publishedArticles = totalPosts && totalPosts > 0 ? totalPosts : 23
+  // Fallback: si coveredCountries est invalide, on utilise 7
+  const countryCount = typeof coveredCountries === 'number' && coveredCountries > 0 
+    ? coveredCountries 
+    : parseInt(String(coveredCountries)) || 7
 
   const videoSrc = heroVideoUrl || 'https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4'
   const posterSrc = heroPosterImage || undefined
