@@ -33,13 +33,13 @@ export default function Header() {
   return (
     <>
       <nav className="fixed top-0 z-50 w-full overflow-hidden border-b border-stone-100 bg-white/95 backdrop-blur-sm" role="navigation" aria-label="Navigation principale">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 sm:px-6 lg:py-3">
           <Link
             href="/"
-            className="flex items-center gap-2.5 text-amber-900 transition-colors duration-200 hover:text-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-offset-2"
+            className="flex items-center gap-2 text-amber-900 transition-colors duration-200 hover:text-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-offset-2"
             aria-label="Heldonica accueil"
           >
-            <svg width="34" height="34" viewBox="0 0 34 34" fill="none" aria-hidden="true">
+            <svg width="30" height="30" viewBox="0 0 34 34" fill="none" aria-hidden="true">
               <circle cx="17" cy="17" r="16" stroke="currentColor" strokeWidth="1.2" />
               <line x1="10" y1="9" x2="10" y2="22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               <line x1="24" y1="9" x2="24" y2="22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -61,7 +61,7 @@ export default function Header() {
                 opacity="0.6"
               />
             </svg>
-            <span className="text-xl font-serif font-bold tracking-tight">Heldonica</span>
+            <span className="text-lg font-serif font-bold tracking-tight lg:text-xl">Heldonica</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -82,15 +82,15 @@ export default function Header() {
             ))}
             <Link
               href="/planifier"
-              className="ml-3 rounded-full bg-eucalyptus px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-colors duration-200 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:ring-offset-2"
+              className="ml-3 rounded-full bg-eucalyptus px-5 py-2 text-sm font-medium text-white shadow-sm transition-colors duration-200 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:ring-offset-2"
             >
               Planifier mon voyage
             </Link>
           </div>
 
           {/* Mobile Navigation */}
-          <div className="flex items-center gap-3 lg:hidden">
-            <Link href="/planifier" className="rounded-full bg-eucalyptus px-4 py-2 text-xs font-semibold text-white shadow-sm">
+          <div className="flex items-center gap-2 lg:hidden">
+            <Link href="/planifier" className="rounded-full bg-eucalyptus px-4 py-2 text-xs font-semibold text-white shadow-sm flex-shrink-0">
               Planifier mon voyage
             </Link>
             <button
@@ -98,15 +98,15 @@ export default function Header() {
               aria-label={open ? 'Fermer le menu' : 'Ouvrir le menu'}
               aria-expanded={open}
               aria-controls="mobile-menu"
-              className="flex h-11 w-11 items-center justify-center rounded-lg transition-colors duration-200 hover:bg-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-offset-2"
+              className="flex h-10 w-10 items-center justify-center rounded-lg transition-colors duration-200 hover:bg-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-offset-2"
             >
               {open ? (
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-stone-700" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-stone-700" aria-hidden="true">
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
               ) : (
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-stone-700" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-stone-700" aria-hidden="true">
                   <line x1="3" y1="6" x2="21" y2="6" />
                   <line x1="3" y1="12" x2="21" y2="12" />
                   <line x1="3" y1="18" x2="21" y2="18" />
@@ -123,8 +123,8 @@ export default function Header() {
             open ? 'max-h-[50rem] opacity-100' : 'max-h-0 opacity-0'
           }`}
         >
-          <div className="flex flex-col gap-1 px-4 py-6">
-            <div className="mb-3 px-2">
+          <div className="flex flex-col gap-1 px-4 py-5">
+            <div className="mb-2 px-2">
               <p className="text-xs font-medium uppercase tracking-wide text-stone-400">Navigation</p>
             </div>
 
@@ -134,14 +134,14 @@ export default function Header() {
                 href={item.href}
                 onClick={() => setOpen(false)}
                 aria-current={pathname === item.href ? 'page' : undefined}
-                className={`flex items-center gap-3 rounded-xl px-4 py-4 font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-inset ${
+                className={`flex items-center gap-3 rounded-xl px-4 py-3.5 font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-inset ${
                   pathname === item.href
                     ? 'bg-amber-50 text-amber-900'
                     : 'text-stone-700 hover:bg-amber-50 hover:text-amber-900'
                 }`}
               >
-                <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-500" aria-hidden="true">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-500" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     {index === 0 && <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />}
                     {index === 1 && <><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></>}
                     {index === 2 && <><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></>}
@@ -157,9 +157,9 @@ export default function Header() {
               <Link
                 href="/planifier"
                 onClick={() => setOpen(false)}
-                className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-eucalyptus px-4 py-4 text-base font-semibold text-white transition-colors duration-200 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:ring-offset-2"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-eucalyptus px-4 py-3.5 text-sm font-semibold text-white transition-colors duration-200 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:ring-offset-2"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <circle cx="12" cy="12" r="10" />
                   <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
                 </svg>
@@ -171,10 +171,10 @@ export default function Header() {
             <Link
               href={accountHref}
               onClick={() => setOpen(false)}
-              className="flex items-center gap-3 rounded-xl px-4 py-4 font-medium text-stone-700 transition-colors duration-200 hover:bg-amber-50 hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-inset"
+              className="flex items-center gap-3 rounded-xl px-4 py-3.5 font-medium text-stone-700 transition-colors duration-200 hover:bg-amber-50 hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-inset"
             >
-              <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-eucalyptus/30 bg-eucalyptus/10 text-eucalyptus" aria-hidden="true">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-eucalyptus/30 bg-eucalyptus/10 text-eucalyptus" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="8" r="4" />
                   <path d="M4 20c1.5-3.5 4-5 8-5s6.5 1.5 8 5" />
                 </svg>
