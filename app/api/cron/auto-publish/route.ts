@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { requireCmsAuth } from '@/lib/cms-auth'
 
 let _cached: ReturnType<typeof createClient> | null = null;
 function supabaseAdmin() {
@@ -70,11 +71,8 @@ Tu dois retourner UNIQUEMENT un objet JSON valide avec cette structure stricte :
 }
 
 export async function GET(req: Request) {
-  const authHeader = req.headers.get('authorization')
-  const cronSecret = process.env.CRON_SECRET
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const authResponse = await requireCmsAuth(req as any);
+  if (authResponse) return authResponse;
 
   const sb = supabaseAdmin();
   if (!sb) return NextResponse.json({ error: 'Supabase non configur\u00e9' }, { status: 503 })
