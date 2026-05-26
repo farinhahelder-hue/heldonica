@@ -1,15 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server'
+import { requireCmsAuth } from '@/lib/cms-auth'
+
+export const dynamic = 'force-dynamic'
 
 // Search Console API - returns demo data if not configured
-
 export async function POST(request: NextRequest) {
-  try {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  const authResponse = await requireCmsAuth(request);
+  if (authResponse) return authResponse;
 
-    // Demo data
+  try {
     return NextResponse.json({
       demo: true,
       rows: [
