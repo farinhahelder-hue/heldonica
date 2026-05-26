@@ -139,7 +139,24 @@ async function isAuthorized(req: NextRequest) {
 }
 
 export async function middleware(req: NextRequest) {
-  const redirectDestination = resolveLegacyRedirect(req.nextUrl.pathname);
+  const pathname = req.nextUrl.pathname;
+
+  // Maintenance mode check - redirect to /maintenance if active
+  // Exclude: /maintenance, /cms-admin, /api, /_next, /robots.txt, /sitemap.xml, /favicon.ico
+  const maintenanceExcludes = ['/maintenance', '/cms-admin', '/api', '/_next', '/robots.txt', '/sitemap.xml', '/favicon.ico'];
+  const isMaintenanceExcluded = maintenanceExcludes.some(path => pathname.startsWith(path));
+
+  if (!isMaintenanceExcluded) {
+    const maintenanceCookie = req.cookies.get('heldonica_maintenance')?.value;
+    if (maintenanceCookie === '1') {
+      const maintenanceUrl = req.nextUrl.clone();
+      maintenanceUrl.pathname = '/maintenance';
+      return NextResponse.redirect(maintenanceUrl);
+    }
+  }
+
+  // Legacy redirect
+  const redirectDestination = resolveLegacyRedirect(pathname);
 
   if (redirectDestination) {
     const redirectUrl = req.nextUrl.clone();
@@ -148,7 +165,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(redirectUrl, 301);
   }
 
-  if (!isProtectedPath(req.nextUrl.pathname)) {
+  if (!isProtectedPath(pathname)) {
     return NextResponse.next();
   }
 
