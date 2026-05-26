@@ -12,6 +12,7 @@ import NewsletterForm from '@/components/NewsletterForm'
 import ShareButtons from '@/components/ShareButtons'
 import EnhancedRichContent from '@/components/EnhancedRichContent'
 import { sanitizeHtml } from '@/lib/sanitize-html'
+import Image from 'next/image'
 
 export const revalidate = 60
 
@@ -201,14 +202,13 @@ export default async function BlogPostPage({ params }: Props) {
       <Header />
       <main className="min-h-screen bg-white">
         <div className={`relative h-[56vh] w-full overflow-hidden md:h-[68vh] bg-stone-900`}>
-          <img
+          <Image
             src={heroImage}
             alt={post.title}
-            width={1920}
-            height={1080}
-            className="absolute inset-0 h-full w-full object-cover opacity-75"
+            fill
+            className="object-cover opacity-75"
             loading="eager"
-            decoding="async"
+            sizes="100vw"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12">
@@ -335,13 +335,13 @@ export default async function BlogPostPage({ params }: Props) {
                   <Link key={relatedPost.slug} href={`/blog/${relatedPost.slug}`} className="group block transition-all duration-200">
                     <article className="overflow-hidden rounded-[1.5rem] bg-white shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-md">
                       <div className="relative h-44 overflow-hidden">
-                        <img
+                        <Image
                           src={relatedImage}
                           alt={relatedPost.title}
-                          width={400}
-                          height={176}
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
                           loading="lazy"
+                          sizes="(max-width: 768px) 100vw, 33vw"
                         />
                       </div>
                       <div className="p-5">
