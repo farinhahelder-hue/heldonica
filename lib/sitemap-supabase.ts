@@ -10,7 +10,7 @@ export async function getAllDestinationsForSitemap(): Promise<Destination[]> {
   if (!supabase) return [];
   try {
     const { data, error } = await supabase
-      .from('cms_destinations')
+      .from('destinations')
       .select('slug, updated_at, created_at')
       .eq('published', true);
     if (error) {
