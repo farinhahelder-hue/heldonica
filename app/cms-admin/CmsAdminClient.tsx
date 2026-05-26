@@ -13,6 +13,7 @@ import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChar
 import KanbanBoardClient from './travel-planning/KanbanBoardClient';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
+const BlockEditor = dynamic(() => import('@/components/admin/BlockEditor'), { ssr: false });
 const CarouselEditor = dynamic(() => import('@/components/admin/CarouselEditor'), { ssr: false });
 const CarouselGenerator = dynamic(() => import('@/components/admin/CarouselGenerator'), { ssr: false });
 const BlogGenerator = dynamic(() => import('@/components/admin/BlogGenerator'), { ssr: false });
@@ -296,6 +297,7 @@ function CMSAdminInner() {
   const [savingArticle, setSavingArticle] = useState(false);
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [scheduleMode, setScheduleMode] = useState(false);
+  const [useBlockEditor, setUseBlockEditor] = useState(true); // Phase 2: default to block editor
 
   // Toggle article selection for bulk actions
   const toggleArticleSelection = (id: number) => {
@@ -1735,10 +1737,25 @@ function CMSAdminInner() {
                   placeholder="Résumé accrocheur pour les cards du blog…" />
               </div>
               <div style={{ gridColumn: '1/-1' }}>
-                <label style={lbl}>Contenu</label>
-                <RichEditor value={editingArticle?.content || ''}
-                  onChange={html => setEditingArticle(p => ({ ...p, content: html }))}
-                  placeholder="Commence à écrire ton article ici…" />
+                <label style={lbl}>Contenu 
+                  <button 
+                    onClick={() => setUseBlockEditor(!useBlockEditor)} 
+                    style={{ marginLeft: '1rem', padding: '.2rem .5rem', border: '1px solid #e8e0d8', borderRadius: '.3rem', background: '#f8f6f4', cursor: 'pointer', fontSize: '.75rem', color: '#6b2a1a' }}
+                  >
+                    {useBlockEditor ? '↔️ Mode texte' : '↔️ Mode blocs'}
+                  </button>
+                </label>
+                {useBlockEditor ? (
+                  <BlockEditor 
+                    value={editingArticle?.content || ''}
+                    onChange={html => setEditingArticle(p => ({ ...p, content: html }))}
+                    placeholder="Commence à écrire ou tape '/' pour les commandes…"
+                  />
+                ) : (
+                  <RichEditor value={editingArticle?.content || ''}
+                    onChange={html => setEditingArticle(p => ({ ...p, content: html }))}
+                    placeholder="Commence à écrire ton article ici…" />
+                )}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '.5rem', cursor: 'pointer', fontWeight: 600, color: '#444', fontSize: '.9rem' }}>
