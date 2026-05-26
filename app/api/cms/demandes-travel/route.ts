@@ -50,11 +50,22 @@ export async function PATCH(req: Request) {
 
   const sb = supabase()
   if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
-  const { id, statut } = await req.json()
+  
+  const body = await req.json()
+  const { id, statut, notes_internes } = body
+  
+  const updates: Record<string, unknown> = {}
+  if (statut !== undefined) updates.statut = statut
+  if (notes_internes !== undefined) updates.notes_internes = notes_internes
+  updates.updated_at = new Date().toISOString()
+  
+  if (Object.keys(updates).length === 1 && updates.updated_at) {
+    return NextResponse.json({ ok: true }) // nothing to update
+  }
+  
   const { error } = await sb
     .from('demandes_travel')
-    // @ts-expect-error Supabase types are not fully inferred
-    .update({ statut })
+    .update(updates)
     .eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
