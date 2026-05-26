@@ -30,7 +30,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const supabase = createServiceClient()
   const { data: post } = await supabase
-    .from('cms_blog_posts')
+    .from('articles')
     .select('title, excerpt, content, og_image, featured_image, published_at, author')
     .eq('slug', params.slug)
     .single()

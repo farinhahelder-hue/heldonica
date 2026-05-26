@@ -187,7 +187,7 @@ export async function GET(request: NextRequest) {
   const results = await Promise.all(
     CONTENT_UPDATES.map(async (update) => {
       const { error } = await supabase
-        .from('cms_blog_posts')
+        .from('articles')
         .update({ content: update.content, updated_at: new Date().toISOString() })
         .eq('slug', update.slug);
       return { slug: update.slug, error: error?.message || null };
