@@ -58,7 +58,7 @@ export async function POST(req: Request) {
 
     // Fetch the post
     const { data: post, error: fetchError } = await sb
-      .from('cms_blog_posts')
+      .from('articles')
       .select('*')
       .eq('id', post_id)
       .single()
@@ -277,7 +277,7 @@ export async function GET(req: Request) {
     const status = searchParams.get('status') || 'all'
     const limit = parseInt(searchParams.get('limit') || '10')
 
-    let query = sb.from('cms_blog_posts').select('id, title, slug, published, featured')
+    let query = sb.from('articles').select('id, title, slug, published, featured')
 
     if (status === 'draft') {
       query = query.eq('published', false)

@@ -67,7 +67,7 @@ export async function getAllPosts(): Promise<BlogPost[]> {
   }
   try {
     const { data, error } = await supabase
-      .from('cms_blog_posts')
+      .from('articles')
       .select('*')
       .eq('published', true)
       .order('published_at', { ascending: false });
@@ -88,7 +88,7 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   if (!supabase) return null;
   try {
     const { data, error } = await supabase
-      .from('cms_blog_posts')
+      .from('articles')
       .select('*')
       .eq('slug', slug)
       .single();
@@ -112,7 +112,7 @@ export async function getRelatedPosts(
   if (!supabase) return [];
   try {
     const { data, error } = await supabase
-      .from('cms_blog_posts')
+      .from('articles')
       .select('*')
       .eq('category', category ?? '')
       .eq('published', true)
@@ -136,7 +136,7 @@ export async function getAllSlugs(): Promise<{ slug: string }[]> {
   if (!supabase) return [];
   try {
     const { data, error } = await supabase
-      .from('cms_blog_posts')
+      .from('articles')
       .select('slug')
       .eq('published', true);
     if (error) {
@@ -161,14 +161,14 @@ export function formatDate(iso: string | null | undefined): string {
 }
 
 /**
- * Récupère une valeur de paramètre depuis la table cms_settings
+ * Récupère une valeur de paramètre depuis la table site_settings
  */
 export async function getSetting(key: string): Promise<string | null> {
   if (!supabase) return null;
   
   try {
     const { data, error } = await supabase
-      .from('cms_settings')
+      .from('site_settings')
       .select('value')
       .eq('key', key)
       .single();
@@ -222,7 +222,7 @@ export async function getAllDestinationSlugs(): Promise<{ slug: string }[]> {
   if (!supabase) return [];
   try {
     const { data, error } = await supabase
-      .from('cms_destinations')
+      .from('destinations')
       .select('slug')
       .eq('published', true);
     if (error) {

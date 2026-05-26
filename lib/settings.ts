@@ -30,7 +30,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
 
   try {
     const { data, error } = await supabase
-      .from('cms_settings')
+      .from('site_settings')
       .select('key, value')
 
     if (error || !data) return {}

@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 
   try {
     // 1. Fetch Blog Posts
-    const { data: posts, error: postsError } = await supabase.from('cms_blog_posts')
+    const { data: posts, error: postsError } = await supabase.from('articles')
       .select('id, category, featured_image');
 
     if (postsError) throw postsError;
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     const postsToUpdate = (posts || []).filter(post => needsUpdate(post.featured_image));
 
     // 2. Fetch Destinations
-    const { data: destinations, error: destError } = await supabase.from('cms_destinations')
+    const { data: destinations, error: destError } = await supabase.from('destinations')
       .select('id, name, country, featured_image');
 
     if (destError) throw destError;
@@ -54,7 +54,7 @@ export async function POST(req: Request) {
       if (photos && photos.length > 0 && photos[0]?.urls?.regular) {
          updatePromises.push(
            // @ts-expect-error Supabase types are not fully inferred
-           supabase.from('cms_blog_posts').update({ featured_image: photos[0].urls.regular }).eq('id', post.id)
+           supabase.from('articles').update({ featured_image: photos[0].urls.regular }).eq('id', post.id)
          );
          updatedCount++;
       }
@@ -68,7 +68,7 @@ export async function POST(req: Request) {
         if (photos && photos.length > 0 && photos[0]?.urls?.regular) {
             updatePromises.push(
                 // @ts-expect-error Supabase types are not fully inferred
-                supabase.from('cms_destinations').update({ featured_image: photos[0].urls.regular }).eq('id', dest.id)
+                supabase.from('destinations').update({ featured_image: photos[0].urls.regular }).eq('id', dest.id)
             )
             updatedCount++;
         }
