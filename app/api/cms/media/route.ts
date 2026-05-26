@@ -23,12 +23,15 @@ export async function GET(req: NextRequest) {
 
   const prefix = req.nextUrl.searchParams.get('prefix') || 'articles';
   const folder = prefix.replace(/\/$/, '');
+  const limit = parseInt(req.nextUrl.searchParams.get('limit') || '20');
+  const offset = parseInt(req.nextUrl.searchParams.get('offset') || '0');
 
   try {
     const sb = supabaseAdmin();
     if (!sb) return NextResponse.json({ error: 'DB unavailable' }, { status: 503 })
     const { data, error } = await sb.storage.from(BUCKET).list(folder, {
-      limit: 200,
+      limit,
+      offset,
       sortBy: { column: 'created_at', order: 'desc' },
     });
     if (error) throw new Error(error.message);
@@ -47,7 +50,7 @@ export async function GET(req: NextRequest) {
         };
       });
 
-    return NextResponse.json({ files, source: 'supabase' });
+    return NextResponse.json({ files, source: 'supabase', offset, limit, hasMore: files.length === limit });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: message }, { status: 500 });
