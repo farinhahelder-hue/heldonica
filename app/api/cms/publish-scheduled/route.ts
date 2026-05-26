@@ -28,7 +28,7 @@ async function handler(req: NextRequest) {
 
     // Find articles that should be published (scheduled_published_at <= now but not yet published)
     const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/cms_blog_posts?scheduled_published_at=lte.${now}&published=eq.false&select=id,title,slug,scheduled_published_at`,
+      `${SUPABASE_URL}/rest/v1/articles?scheduled_published_at=lte.${now}&published=eq.false&select=id,title,slug,scheduled_published_at`,
       {
         headers: {
           'apikey': SUPABASE_KEY,
@@ -72,7 +72,7 @@ async function handler(req: NextRequest) {
 
         if (articleIds) {
           const fetchResBatch = await fetch(
-            `${SUPABASE_URL}/rest/v1/cms_blog_posts?id=in.(${articleIds})`,
+            `${SUPABASE_URL}/rest/v1/articles?id=in.(${articleIds})`,
             {
               headers: {
                 'apikey': SUPABASE_KEY,
@@ -130,7 +130,7 @@ async function handler(req: NextRequest) {
     const updatePromises = validArticles.map(async (article) => {
       try {
         const updateRes = await fetch(
-          `${SUPABASE_URL}/rest/v1/cms_blog_posts?id=eq.${article.id}`,
+          `${SUPABASE_URL}/rest/v1/articles?id=eq.${article.id}`,
           {
             method: 'PATCH',
             headers: {
