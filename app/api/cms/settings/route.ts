@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
   if (authResponse) return authResponse;
 
   const { data, error } = await supabase
-    .from('cms_settings')
+    .from('site_settings')
     .select('*')
     .order('key');
 
@@ -49,7 +49,7 @@ export async function PUT(req: NextRequest) {
     }));
 
     const { error } = await supabase
-      .from('cms_settings')
+      .from('site_settings')
       .upsert(updates, { onConflict: 'key' });
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -61,7 +61,7 @@ export async function PUT(req: NextRequest) {
   if (!key) return NextResponse.json({ error: 'key requis' }, { status: 400 });
 
   const { error } = await supabase
-    .from('cms_settings')
+    .from('site_settings')
     .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
