@@ -353,6 +353,11 @@ function CMSAdminInner() {
   const [uploadingMediaKey, setUploadingMediaKey] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
 
+  // Maintenance mode
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [maintenanceMessage, setMaintenanceMessage] = useState('On revient très vite avec de nouvelles pépites ! 🌿');
+  const [loadingMaintenance, setLoadingMaintenance] = useState(false);
+
   const isArticleDirty = getArticleDraftSignature(editingArticle) !== articleBaseline;
   const articleWordCount = getWordCount(editingArticle?.content);
   const articleReadTime = getReadTimeMinutes(editingArticle?.content);
@@ -613,6 +618,57 @@ function CMSAdminInner() {
   useEffect(() => { if (authed) loadArticles(); }, [authed, loadArticles]);
   useEffect(() => { if (authed && tab === 'demandes') loadDemandes(); }, [authed, tab, loadDemandes]);
   useEffect(() => { if (authed && (tab === 'settings' || tab === 'pages')) loadSettings(); }, [authed, tab, loadSettings]);
+
+  // Load maintenance mode status
+  const loadMaintenance = useCallback(async () => {
+    setLoadingMaintenance(true);
+    try {
+      const res = await fetch('/api/cms/maintenance');
+      if (handleUnauthorized(res)) return;
+      const data = await res.json();
+      setMaintenanceMode(data.maintenance_mode);
+      setMaintenanceMessage(data.maintenance_message);
+    } catch {
+      showToast('Impossible de charger le statut maintenance.');
+    } finally {
+      setLoadingMaintenance(false);
+    }
+  }, [handleUnauthorized, showToast]);
+
+  useEffect(() => { if (authed) loadMaintenance(); }, [authed, loadMaintenance]);
+
+  // Toggle maintenance mode
+  const toggleMaintenance = useCallback(async (enabled: boolean) => {
+    const confirmMsg = enabled
+      ? 'Activer le mode maintenance ? Le site sera inaccessible aux visiteurs.'
+      : 'Désactiver le mode maintenance ? Le site sera de nouveau accessible.';
+
+    if (!window.confirm(confirmMsg)) return;
+
+    setLoadingMaintenance(true);
+    try {
+      const res = await fetch('/api/cms/maintenance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          maintenance_mode: enabled,
+          maintenance_message: maintenanceMessage,
+        }),
+      });
+      if (handleUnauthorized(res)) return;
+      if (res.ok) {
+        setMaintenanceMode(enabled);
+        showToast(enabled ? '🔧 Mode maintenance activé ✅' : '✅ Site en ligne !');
+      } else {
+        const data = await res.json();
+        showToast('Erreur: ' + (data.error || 'inconnue'));
+      }
+    } catch {
+      showToast('Erreur de connexion.');
+    } finally {
+      setLoadingMaintenance(false);
+    }
+  }, [handleUnauthorized, showToast, maintenanceMessage]);
 
   const saveArticle = useCallback(async () => {
     if (!editingArticle || savingArticle) return;
@@ -1000,6 +1056,78 @@ function CMSAdminInner() {
                 <button onClick={() => setTab('demandes')} style={{ padding: '.7rem 1.5rem', background: '#444', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>✈️ Travel Planning</button>
                 <button onClick={() => window.open('/', '_blank')} style={{ padding: '.7rem 1.5rem', background: '#e0dbd5', color: '#333', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>🌐 Voir le site</button>
               </div>
+            </div>
+
+            {/* Maintenance Mode Widget */}
+            <div style={{ background: maintenanceMode ? '#fff5f5' : 'white', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', marginBottom: '1.5rem', border: maintenanceMode ? '2px solid #ef4444' : '1px solid #e5e5e5' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: maintenanceMode ? '#ef4444' : '#6b2a1a', marginBottom: '0.25rem' }}>🔧 Mode Maintenance</h3>
+                  <p style={{ fontSize: '.85rem', color: '#888' }}>
+                    {maintenanceMode ? 'Le site est actuellement en maintenance' : 'Le site est en ligne'}
+                  </p>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{ fontSize: '.8rem', fontWeight: 600, color: maintenanceMode ? '#ef4444' : '#888', transition: 'all 0.2s' }}>
+                    {maintenanceMode ? 'ON' : 'OFF'}
+                  </span>
+                  <button
+                    onClick={() => toggleMaintenance(!maintenanceMode)}
+                    disabled={loadingMaintenance}
+                    style={{
+                      width: '52px',
+                      height: '28px',
+                      borderRadius: '14px',
+                      background: maintenanceMode ? '#ef4444' : '#ccc',
+                      border: 'none',
+                      cursor: loadingMaintenance ? 'not-allowed' : 'pointer',
+                      position: 'relative',
+                      transition: 'background 0.2s',
+                      opacity: loadingMaintenance ? 0.6 : 1,
+                    }}
+                  >
+                    <span style={{
+                      position: 'absolute',
+                      top: '3px',
+                      left: maintenanceMode ? '27px' : '3px',
+                      width: '22px',
+                      height: '22px',
+                      borderRadius: '50%',
+                      background: 'white',
+                      transition: 'left 0.2s',
+                      boxShadow: '0 1px 3px rgba(0,0,0,.2)',
+                    }} />
+                  </button>
+                </div>
+              </div>
+              
+              <div style={{ marginTop: '1rem' }}>
+                <label style={{ display: 'block', fontSize: '.85rem', fontWeight: 600, color: '#555', marginBottom: '0.5rem' }}>
+                  Message personnalisé :
+                </label>
+                <textarea
+                  value={maintenanceMessage}
+                  onChange={(e) => setMaintenanceMessage(e.target.value)}
+                  placeholder="On revient très vite avec de nouvelles pépites ! 🌿"
+                  rows={2}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '1.5px solid #ddd',
+                    borderRadius: '.5rem',
+                    fontSize: '.9rem',
+                    fontFamily: 'inherit',
+                    resize: 'vertical',
+                    minHeight: '60px',
+                  }}
+                />
+              </div>
+
+              {maintenanceMode && (
+                <div style={{ marginTop: '1rem', padding: '0.75rem', background: '#fef2f2', borderRadius: '.5rem', border: '1px solid #fecaca' }}>
+                  <p style={{ fontSize: '.8rem', color: '#dc2626', fontWeight: 500 }}>⚠️ Le site sera inaccessible aux visiteurs</p>
+                </div>
+              )}
             </div>
           </div>
         )}
