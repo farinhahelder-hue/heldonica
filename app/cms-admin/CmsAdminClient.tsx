@@ -2,18 +2,15 @@
 
 console.log('[CMS] Rendering CMS admin page');
 
-import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import EnhancedRichContent from '@/components/EnhancedRichContent';
 import MediaLibrary from '@/components/MediaLibrary';
 import { sanitizeHtml } from '@/lib/sanitize-html';
-import { getFallbackImageUrl } from '@/lib/unsplash';
-import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot, CheckSquare, Square } from 'lucide-react';
-import KanbanBoardClient from './travel-planning/KanbanBoardClient';
+import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw } from 'lucide-react';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
-const BlockEditor = dynamic(() => import('@/components/admin/BlockEditor'), { ssr: false });
 const CarouselEditor = dynamic(() => import('@/components/admin/CarouselEditor'), { ssr: false });
 const CarouselGenerator = dynamic(() => import('@/components/admin/CarouselGenerator'), { ssr: false });
 const BlogGenerator = dynamic(() => import('@/components/admin/BlogGenerator'), { ssr: false });
@@ -282,270 +279,43 @@ function CMSAdminInner() {
   const [authErr, setAuthErr] = useState('');
   const [tab, setTab] = useState('articles');
   const [toast, setToast] = useState('');
-  const [toasts, setToasts] = useState<Array<{id: number; message: string; type: 'success' | 'error' | 'warning' | 'info'}>>([]);
   const [showMediaLibrary, setShowMediaLibrary] = useState(false);
-  const toastIdRef = useRef(0);
 
   // Articles
   const [articles, setArticles] = useState<Article[]>([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  // Note: categoryFilter is already defined at line ~511
-  const [selectedArticles, setSelectedArticles] = useState<Set<number>>(new Set());
   const [editingArticle, setEditingArticle] = useState<Partial<Article> | null>(null);
   const [loadingArticles, setLoadingArticles] = useState(false);
   const [savingArticle, setSavingArticle] = useState(false);
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [scheduleMode, setScheduleMode] = useState(false);
-  const [useBlockEditor, setUseBlockEditor] = useState(true); // Phase 2: default to block editor
 
-  // Toggle article selection for bulk actions
-  const toggleArticleSelection = (id: number) => {
-    setSelectedArticles(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  // SEO analysis
+  const analyzeSEO = (content: string, title: string) => {
+    if (!content || !title) return { score: 0, readability: '-', wordCount: 0, density: 0, issues: [] };
+    const text = content.replace(/<[^>]+>/g, ' ');
+    const words = text.split(/\s+/).filter(Boolean);
+    const wordCount = words.length;
+    const sentences = text.split(/[.!?]+/).filter(Boolean);
+    const avgWordsPerSentence = wordCount / Math.max(sentences.length, 1);
+    const readability = avgWordsPerSentence < 15 ? '✅ Bonne' : avgWordsPerSentence < 20 ? '⚠️ Moyenne' : '❌ Difficile';
+    const titleLower = title.toLowerCase();
+    const contentLower = text.toLowerCase();
+    const titleInContent = contentLower.includes(titleLower) ? 1 : 0;
+    const density = titleInContent ? Math.round((contentLower.split(titleLower).length - 1) * 100 / wordCount) : 0;
+    const issues: string[] = [];
+    if (wordCount < 300) issues.push('Contenu court (< 300 mots)');
+    if (avgWordsPerSentence > 20) issues.push('Phrases trop longues');
+    if (!titleInContent) issues.push('Titre absent du contenu');
+    if (density > 5) issues.push('Répétition excessive du titre');
+    const score = Math.max(0, 100 - issues.length * 20 - (wordCount < 300 ? 20 : 0));
+    return { score, readability, wordCount, density, issues };
   };
-
-  // Select/deselect all articles
-  const toggleSelectAll = () => {
-    if (selectedArticles.size === articles.length) {
-      setSelectedArticles(new Set());
-    } else {
-      setSelectedArticles(new Set(articles.map(a => a.id)));
-    }
-  };
-
-  // Bulk publish selected articles
-  const bulkPublish = async () => {
-    if (selectedArticles.size === 0) return;
-    if (!confirm(`Publier ${selectedArticles.size} article(s)?`)) return;
-    setLoadingArticles(true);
-    try {
-      await Promise.all([...selectedArticles].map(id =>
-        fetch(`/api/cms/articles/${id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ published: true, published_at: new Date().toISOString() }),
-        })
-      ));
-      showToast(`✓ ${selectedArticles.size} article(s) publié(s)`);
-      setSelectedArticles(new Set());
-      loadArticles();
-    } catch {
-      showToast('Erreur lors de la publication');
-    } finally {
-      setLoadingArticles(false);
-    }
-  };
-
-  // Bulk unpublish selected articles
-  const bulkUnpublish = async () => {
-    if (selectedArticles.size === 0) return;
-    if (!confirm(`Dépublier ${selectedArticles.size} article(s)?`)) return;
-    setLoadingArticles(true);
-    try {
-      await Promise.all([...selectedArticles].map(id =>
-        fetch(`/api/cms/articles/${id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ published: false }),
-        })
-      ));
-      showToast(`${selectedArticles.size} article(s) dépublié(s)`);
-      setSelectedArticles(new Set());
-      loadArticles();
-    } catch {
-      showToast('Erreur lors de la dépublication');
-    } finally {
-      setLoadingArticles(false);
-    }
-  };
-
-  // Bulk delete selected articles
-  const bulkDelete = async () => {
-    if (selectedArticles.size === 0) return;
-    if (!confirm(`Supprimer ${selectedArticles.size} article(s)? Cette action est irréversible!`)) return;
-    setLoadingArticles(true);
-    try {
-      await Promise.all([...selectedArticles].map(id =>
-        fetch(`/api/cms/articles/${id}`, { method: 'DELETE' })
-      ));
-      showToast(`🗑 ${selectedArticles.size} article(s) supprimé(s)`);
-      setSelectedArticles(new Set());
-      loadArticles();
-    } catch {
-      showToast('Erreur lors de la suppression');
-    } finally {
-      setLoadingArticles(false);
-    }
-  };
-
-  // Agents panel
-  const [agentTask, setAgentTask] = useState('');
-  const [agentRepo, setAgentRepo] = useState('farinhahelder-hue/heldonica');
-  const [agentBranch, setAgentBranch] = useState('main');
-  const [selectedAgent, setSelectedAgent] = useState('allhands');
-  const [sendingTask, setSendingTask] = useState(false);
-  const [agentMessage, setAgentMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
-  const [taskHistory, setTaskHistory] = useState<{date: string; agent: string; task: string; repo: string; branch: string}[]>([]);
-
-  // Load task history from localStorage on mount
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('agent-task-history');
-      if (saved) {
-        try {
-          setTaskHistory(JSON.parse(saved));
-        } catch (e) {
-          console.error('Failed to parse task history:', e);
-        }
-      }
-    }
-  }, []);
-
-  // Send task to agent (n8n or Jules API)
-  const sendAgentTask = async () => {
-    if (!agentTask.trim()) {
-      setAgentMessage({ type: 'error', text: 'Veuillez décrivez une tâche à effectuer.' });
-      return;
-    }
-
-    setSendingTask(true);
-    setAgentMessage(null);
-
-    try {
-      let res: Response;
-      
-      if (selectedAgent === 'jules') {
-        // Use Jules API directly
-        res = await fetch('/api/jules', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            prompt: agentTask,
-            title: agentTask.slice(0, 50),
-            source: `sources/github/${agentRepo}`,
-          }),
-        });
-      } else {
-        // Use n8n webhook for other agents
-        const webhookUrl = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL;
-        if (!webhookUrl) {
-          setAgentMessage({ type: 'error', text: 'URL du webhook n8n non configurée.' });
-          setSendingTask(false);
-          return;
-        }
-        
-        res = await fetch(webhookUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            agent: selectedAgent,
-            task: agentTask,
-            repo: agentRepo,
-            branch: agentBranch,
-          }),
-        });
-      }
-
-      if (res.ok) {
-        const agentLabels: Record<string, string> = {
-          allhands: 'OpenHands (AllHands)',
-          jules: 'Jules (Google)',
-          gemini: 'Gemini (Google)',
-          perplexity: 'Perplexity',
-        };
-        const label = agentLabels[selectedAgent] || selectedAgent;
-        
-        // Get Jules URL if available
-        let responseData: any = {};
-        try { responseData = await res.json(); } catch {}
-        
-        const successMsg = selectedAgent === 'jules' && responseData.url 
-          ? `Tâche envoyée à ${label}! Voir: ${responseData.url}`
-          : `Tâche envoyée à ${label} avec succès!`;
-          
-        setAgentMessage({ type: 'success', text: successMsg });
-
-        // Add to history
-        const newEntry = {
-          date: new Date().toLocaleString('fr-FR'),
-          agent: selectedAgent,
-          task: agentTask,
-          repo: agentRepo,
-          branch: agentBranch,
-        };
-        const updatedHistory = [newEntry, ...taskHistory].slice(0, 10);
-        setTaskHistory(updatedHistory);
-        localStorage.setItem('agent-task-history', JSON.stringify(updatedHistory));
-
-        // Clear task field
-        setAgentTask('');
-      } else {
-        setAgentMessage({ type: 'error', text: `Erreur lors de l'envoi de la tâche (${res.status})` });
-      }
-    } catch (err) {
-      console.error('Failed to send task:', err);
-      setAgentMessage({ type: 'error', text: 'Erreur réseau. Le webhook est-il accessible?' });
-    } finally {
-      setSendingTask(false);
-    }
-  };
-
-  // SEO analysis (Phase 3 - improved with debounce via useEffect)
-  const [seoKeyword, setSeoKeyword] = useState('');
-  const [seoState, setSeoState] = useState({ score: 0, readability: '-', wordCount: 0, density: 0, titleLen: 0, excerptLen: 0, h2Count: 0, imagesWithoutAlt: 0, issues: [] as string[] });
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const content = editingArticle?.content || '';
-      const title = editingArticle?.title || '';
-      const excerpt = editingArticle?.excerpt || '';
-      const keyword = seoKeyword;
-
-      if (!content && !title) {
-        setSeoState({ score: 0, readability: '-', wordCount: 0, density: 0, titleLen: 0, excerptLen: 0, h2Count: 0, imagesWithoutAlt: 0, issues: [] });
-        return;
-      }
-      const text = content.replace(/<[^>]+>/g, ' ');
-      const words = text.split(/\s+/).filter(Boolean);
-      const wordCount = words.length;
-      const sentences = text.split(/[.!?]+/).filter(Boolean);
-      const avgWordsPerSentence = wordCount / Math.max(sentences.length, 1);
-      const readability = avgWordsPerSentence < 15 ? '✅ Bonne' : avgWordsPerSentence < 20 ? '⚠️ Moyenne' : '❌ Difficile';
-      const titleLen = title?.length || 0;
-      const excerptLen = excerpt?.length || 0;
-      const h2Count = (content.match(/<h2[^>]*>/gi) || []).length;
-      const imagesWithoutAlt = (content.match(/<img(?![^>]*alt=)[^>]*>/gi) || []).length;
-      const density = keyword && wordCount > 0
-        ? Math.round(((text.toLowerCase().match(new RegExp(keyword.toLowerCase(), 'g')) || []).length / wordCount) * 100 * 10) / 10
-        : 0;
-
-      const issues: string[] = [];
-      if (titleLen > 0 && titleLen < 30) issues.push('Titre trop court (< 30 car.)');
-      if (titleLen > 60) issues.push('Titre trop long (> 60 car.)');
-      if (excerptLen > 0 && excerptLen < 80) issues.push('Extrait trop court (< 80 car.)');
-      if (excerptLen > 160) issues.push('Extrait trop long (> 160 car.)');
-      if (wordCount < 300) issues.push('Contenu court (< 300 mots)');
-      if (avgWordsPerSentence > 20) issues.push('Phrases trop longues');
-      if (h2Count < 2 && wordCount > 300) issues.push('Ajoutez au moins 2 sous-titres H2');
-      if (keyword && (density < 0.5 || density > 2.5)) issues.push(`Densité mot-clé: ${density}% (cible: 0.5-2.5%)`);
-      if (imagesWithoutAlt > 0) issues.push(`${imagesWithoutAlt} image(s) sans texte alternatif`);
-
-      const score = Math.max(0, 100 - issues.length * 10 - (wordCount < 300 ? 10 : 0) - (titleLen > 60 ? 5 : 0));
-      setSeoState({ score, readability, wordCount, density, titleLen, excerptLen, h2Count, imagesWithoutAlt, issues });
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [editingArticle?.content, editingArticle?.title, editingArticle?.excerpt, seoKeyword]);
-  const seo = seoState;
+  const seo = analyzeSEO(editingArticle?.content || '', editingArticle?.title || '');
   const [uploadingFeaturedImage, setUploadingFeaturedImage] = useState(false);
   const [articleBaseline, setArticleBaseline] = useState(() => getArticleDraftSignature(null));
   const [showArticlePreview, setShowArticlePreview] = useState(false);
-  const [articleRevisions, setArticleRevisions] = useState<any[]>([]);
-  const [loadingArticleRevisions, setLoadingArticleRevisions] = useState(false);
 
   // Demandes travel
   const [demandes, setDemandes] = useState<Demande[]>([]);
@@ -600,16 +370,9 @@ function CMSAdminInner() {
     setLoadingSearch(false);
   }, [searchQuery, searchType]);
 
-  const showToast = useCallback((msg: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') => {
-    const id = ++toastIdRef.current;
-    setToasts(prev => {
-      const next = [...prev, { id, message: msg, type }];
-      return next.slice(-3); // max 3 toasts
-    });
-    const durations: Record<string, number> = { success: 3000, info: 4000, warning: 5000, error: 5000 };
-    setTimeout(() => {
-      setToasts(prev => prev.filter(t => t.id !== id));
-    }, durations[type] || 4000);
+  const showToast = useCallback((msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 3500);
   }, []);
 
   const handleUnauthorized = useCallback((res: Response, message = 'Session expirée. Merci de vous reconnecter.') => {
@@ -633,25 +396,13 @@ function CMSAdminInner() {
     return confirm('Tu as des modifications non sauvegardées. Les quitter ?');
   }, [isArticleDirty]);
 
-  const openArticleEditor = useCallback(async (article?: Partial<Article>) => {
+  const openArticleEditor = useCallback((article?: Partial<Article>) => {
     if ((editingArticle || tab === 'new') && !confirmDiscardArticleChanges()) return;
     const draft = article ? { ...article } : {};
     setEditingArticle(draft);
     setArticleBaseline(getArticleDraftSignature(draft));
     setShowArticlePreview(false);
     setTab('new');
-    setArticleRevisions([]);
-    if (draft.id) {
-      setLoadingArticleRevisions(true);
-      try {
-        const res = await fetch(`/api/cms/article-revisions?article_id=${draft.id}`);
-        if (res.ok) {
-          const data = await res.json();
-          setArticleRevisions(data.revisions || []);
-        }
-      } catch {}
-      setLoadingArticleRevisions(false);
-    }
   }, [confirmDiscardArticleChanges, editingArticle, tab]);
 
   const closeArticleEditor = useCallback(() => {
@@ -867,7 +618,7 @@ function CMSAdminInner() {
       return;
     }
     const isNew = !editingArticle.id;
-    let payload = {
+    const payload = {
       ...editingArticle,
       slug: editingArticle.slug || slug(editingArticle.title || ''),
       published_at: editingArticle.published && !editingArticle.published_at
@@ -875,10 +626,6 @@ function CMSAdminInner() {
       ...(scheduleMode && editingArticle?.scheduled_published_at ?
         { scheduled_published_at: new Date(editingArticle.scheduled_published_at).toISOString() } : {}),
     };
-    // Auto-fix empty featured image with category-based fallback
-    if (!payload.featured_image) {
-      payload.featured_image = getFallbackImageUrl(payload.category, payload.title);
-    }
     const url = isNew ? '/api/cms/articles' : `/api/cms/articles/${editingArticle.id}`;
     const method = isNew ? 'POST' : 'PUT';
     setSavingArticle(true);
@@ -916,29 +663,6 @@ function CMSAdminInner() {
     window.addEventListener('keydown', handleSaveShortcut);
     return () => window.removeEventListener('keydown', handleSaveShortcut);
   }, [tab, saveArticle]);
-
-  // Auto-save draft every 30 seconds
-  const autoSaveTimer = useRef<NodeJS.Timeout | null>(null);
-  useEffect(() => {
-    if (tab !== 'new' || !editingArticle?.title?.trim() || savingArticle) {
-      if (autoSaveTimer.current) {
-        clearTimeout(autoSaveTimer.current);
-        autoSaveTimer.current = null;
-      }
-      return;
-    }
-    autoSaveTimer.current = setTimeout(async () => {
-      if (editingArticle?.title?.trim() && !savingArticle) {
-        console.log('[CMS] Auto-saving draft...');
-        showToast('💾 Brouillon auto-sauvegardé');
-        await saveArticle();
-      }
-    }, 30000);
-    return () => {
-      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tab, editingArticle?.title, savingArticle, saveArticle]);
 
   const saveSettings = async () => {
     setSavingSettings(true);
@@ -1023,102 +747,6 @@ function CMSAdminInner() {
     } catch {
       showToast('Impossible de supprimer cet article.');
     }
-  };
-
-  // Duplicate article
-  const duplicateArticle = async (article: Article) => {
-    try {
-      const res = await fetch('/api/cms/articles', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...article,
-          id: undefined,
-          title: `${article.title} (copie)`,
-          slug: `${article.slug}-copy-${Date.now()}`,
-          published: false,
-          published_at: null,
-          created_at: undefined,
-          updated_at: undefined,
-        }),
-      });
-      if (handleUnauthorized(res)) return;
-      if (res.ok) { showToast('📋 Article dupliqué'); loadArticles(); }
-    } catch {
-      showToast('Impossible de dupliquer cet article.');
-    }
-  };
-
-  // Export articles to CSV
-  const exportToCsv = () => {
-    const headers = ['id', 'title', 'slug', 'category', 'excerpt', 'content', 'published', 'published_at', 'created_at'];
-    const rows = articles.map(a => [
-      a.id,
-      a.title,
-      a.slug,
-      a.category || '',
-      a.excerpt || '',
-      a.content?.replace(/<[^>]*>/g, '') || '',
-      a.published ? 'yes' : 'no',
-      a.published_at || '',
-      a.created_at || '',
-    ]);
-    const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
-    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `articles-${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
-    showToast('📥 Export CSV réussi');
-  };
-
-  // Import articles from CSV (concurrent ~20x perf improvement)
-  const importFromCsv = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const text = await file.text();
-    const lines = text.split('\n').filter(l => l.trim());
-    if (lines.length < 2) { showToast('Fichier CSV invalide'); return; }
-    const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-    
-    // Parse all rows first
-    const rows = [];
-    for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
-      const articleData: Record<string, string> = {};
-      headers.forEach((h, idx) => { articleData[h] = values[idx] || ''; });
-      rows.push(articleData);
-    }
-    
-    // Concurrent import with batching to avoid overwhelming the server
-    const BATCH_SIZE = 10;
-    let imported = 0;
-    for (let batchStart = 0; batchStart < rows.length; batchStart += BATCH_SIZE) {
-      const batch = rows.slice(batchStart, batchStart + BATCH_SIZE);
-      const results = await Promise.allSettled(
-        batch.map(articleData =>
-          fetch('/api/cms/articles', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              title: articleData.title || 'sans-titre',
-              slug: articleData.slug || slug(articleData.title || 'sans-titre'),
-              category: articleData.category || '',
-              excerpt: articleData.excerpt || '',
-              content: articleData.content || '',
-              published: articleData.published === 'yes',
-            }),
-          })
-        )
-      );
-      imported += results.filter(r => r.status === 'fulfilled').length;
-    }
-    
-    showToast(`📤 ${imported} article(s) importé(s)`);
-    loadArticles();
-    e.target.value = '';
   };
 
   const uploadFeaturedImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1236,34 +864,23 @@ function CMSAdminInner() {
     { id: 'settings',icon: <Settings size={16} />,label: 'Paramètres', count: null },
     { id: 'analytics',icon: <BarChart3 size={16} />,label: 'Analytics', count: null },
     { id: 'search',  icon: <Search size={16} />, label: 'Search', count: null },
-    { id: 'agents',  icon: <Bot size={16} />,   label: 'Agents', count: null },
   ];
 
   return (
     <div style={{ minHeight: '100vh', background: '#f5f3ef', fontFamily: 'DM Sans, system-ui, sans-serif' }}>
       <style>{`
         .cms-grid-kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-        .cms-layout-sidebar { display: grid; grid-template-columns: 280px 1fr; gap: 0; align-items: start; min-height: calc(100vh - 60px); }
+        .cms-layout-sidebar { display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem; align-items: start; }
         .cms-mobile-tabs { display: flex; }
         .cms-mobile-sidebar-panel { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: white; z-index: 50; padding: 2rem 1rem; box-shadow: 2px 0 12px rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: 0.5rem; transform: translateX(-100%); transition: transform 0.3s ease; overflow-y: auto; }
         .cms-mobile-sidebar-panel.open { transform: translateX(0); }
         .cms-top-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
-        /* Phase 1: Fixed sidebar */
-        .cms-sidebar-fixed { width: 280px; flex-shrink: 0; background: white; border-right: 1px solid #e8e0d8; min-height: calc(100vh - 60px); padding: 1.5rem 0; position: sticky; top: 60px; }
-        .cms-sidebar-section { margin-bottom: 1.5rem; }
-        .cms-sidebar-section-title { font-size: .7rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .08em; padding: 0 1.5rem; margin-bottom: .5rem; }
-        .cms-sidebar-link { display: flex; align-items: center; gap: .75rem; padding: .75rem 1.5rem; color: #555; font-size: .9rem; cursor: pointer; border: none; background: none; width: 100%; text-align: left; transition: all .15s; border-left: 3px solid transparent; }
-        .cms-sidebar-link:hover { background: #f8f6f4; color: #333; }
-        .cms-sidebar-link.active { background: #f0e8e4; color: #6b2a1a; border-left-color: #6b2a1a; font-weight: 600; }
-        .cms-sidebar-link .badge { background: #dc3545; color: white; border-radius: 9999px; padding: .1rem .5rem; font-size: .7rem; font-weight: 700; margin-left: auto; }
-        .cms-sidebar-status { margin-top: auto; padding: 1rem 1.5rem; border-top: 1px solid #e8e0d8; display: flex; align-items: center; gap: .5rem; font-size: .8rem; color: #888; }
-        .cms-status-dot { width: 8px; height: 8px; border-radius: 50%; background: #28a745; }
-        @keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
         @media (max-width: 767px) {
           .cms-layout-sidebar { grid-template-columns: 1fr; }
           .cms-mobile-tabs { display: none !important; }
-          .cms-sidebar-fixed { display: none; }
         }
+
         @media (min-width: 768px) {
           [data-mobile-only="true"] { display: none !important; }
           .cms-mobile-sidebar-panel { display: none !important; }
@@ -1315,18 +932,9 @@ function CMSAdminInner() {
         <button onClick={logout} style={{ background: 'rgba(255,255,255,.15)', border: 'none', color: 'white', padding: '.4rem .9rem', borderRadius: '.4rem', cursor: 'pointer', fontSize: '.85rem' }}>Déconnexion</button>
       </div>
 
-      {/* Toast notifications stack (bottom-right) */}
-      {toasts.map(t => (
-        <div key={t.id} style={{
-          position: 'fixed', bottom: '1.5rem', right: '1.5rem',
-          background: t.type === 'success' ? '#28a745' : t.type === 'error' ? '#dc3545' : t.type === 'warning' ? '#fd7e14' : '#333',
-          color: 'white', padding: '.8rem 1.4rem', borderRadius: '.6rem',
-          zIndex: 100, fontSize: '.9rem', boxShadow: '0 4px 16px rgba(0,0,0,.25)',
-          maxWidth: 320, animation: 'toastIn 0.2s ease-out'
-        }}>
-          {t.message}
-        </div>
-      ))}
+      {toast && (
+        <div style={{ position: 'fixed', top: '5rem', right: '1.5rem', background: '#1a1a1a', color: 'white', padding: '.8rem 1.4rem', borderRadius: '.6rem', zIndex: 100, fontSize: '.9rem', boxShadow: '0 4px 16px rgba(0,0,0,.2)' }}>{toast}</div>
+      )}
 
       {showMediaLibrary && (
         <MediaLibrary
@@ -1359,218 +967,31 @@ function CMSAdminInner() {
         ))}
       </div>
 
-      {/* Phase 1: Two-column layout with fixed sidebar */}
-      <div className="cms-layout-sidebar" style={{ display: 'flex', alignItems: 'stretch' }}>
-        {/* Fixed Sidebar (desktop only) */}
-        <aside className="cms-sidebar-fixed">
-          <div style={{ padding: '0 1.5rem', marginBottom: '1.5rem' }}>
-            <span style={{ fontSize: '1.2rem' }}>🌍</span>
-            <span style={{ fontWeight: 700, fontSize: '1rem', color: '#6b2a1a', marginLeft: '.5rem' }}>Heldonica CMS</span>
-          </div>
-          
-          <div className="cms-sidebar-section">
-            <div className="cms-sidebar-section-title">Navigation</div>
-            <button className={`cms-sidebar-link ${tab === 'dashboard' ? 'active' : ''}`} onClick={() => handleTabChange('dashboard')}>
-              <Home size={16} /> Tableau de bord
-            </button>
-            <button className={`cms-sidebar-link ${tab === 'articles' ? 'active' : ''}`} onClick={() => handleTabChange('articles')}>
-              <FileText size={16} /> Articles
-              {articles.filter(a => !a.published).length > 0 && (
-                <span className="badge">{articles.filter(a => !a.published).length}</span>
-              )}
-            </button>
-            <button className={`cms-sidebar-link ${tab === 'new' ? 'active' : ''}`} onClick={() => handleTabChange('new')}>
-              <Plus size={16} /> Nouvel article
-            </button>
-          </div>
-
-          <div className="cms-sidebar-section">
-            <div className="cms-sidebar-section-title">Outils</div>
-            <button className={`cms-sidebar-link ${tab === 'blog' ? 'active' : ''}`} onClick={() => handleTabChange('blog')}>
-              <Sparkles size={16} /> Générateur IA
-            </button>
-            <button className={`cms-sidebar-link ${tab === 'demandes' ? 'active' : ''}`} onClick={() => handleTabChange('demandes')}>
-              <Plane size={16} /> Travel Planning
-              {demandes.filter(d => d.statut === 'nouveau').length > 0 && (
-                <span className="badge">{demandes.filter(d => d.statut === 'nouveau').length}</span>
-              )}
-            </button>
-            <button className={`cms-sidebar-link ${tab === 'carousel' ? 'active' : ''}`} onClick={() => handleTabChange('carousel')}>
-              <Car size={16} /> Carrousel
-            </button>
-            <button className={`cms-sidebar-link ${tab === 'media' ? 'active' : ''}`} onClick={() => handleTabChange('media')}>
-              <Image size={16} /> Médiathèque
-            </button>
-          </div>
-
-          <div className="cms-sidebar-section">
-            <div className="cms-sidebar-section-title">Configuration</div>
-            <button className={`cms-sidebar-link ${tab === 'pages' ? 'active' : ''}`} onClick={() => handleTabChange('pages')}>
-              <Folder size={16} /> Pages
-            </button>
-            <button className={`cms-sidebar-link ${tab === 'settings' ? 'active' : ''}`} onClick={() => handleTabChange('settings')}>
-              <Settings size={16} /> Paramètres
-            </button>
-            <button className={`cms-sidebar-link ${tab === 'analytics' ? 'active' : ''}`} onClick={() => handleTabChange('analytics')}>
-              <BarChart3 size={16} /> Analytics
-            </button>
-          </div>
-
-          <div className="cms-sidebar-section">
-            <div className="cms-sidebar-section-title">Recherche</div>
-            <button className={`cms-sidebar-link ${tab === 'search' ? 'active' : ''}`} onClick={() => handleTabChange('search')}>
-              <Search size={16} /> Search
-            </button>
-            <button className={`cms-sidebar-link ${tab === 'agents' ? 'active' : ''}`} onClick={() => handleTabChange('agents')}>
-              <Bot size={16} /> Agents IA
-            </button>
-          </div>
-
-          <div className="cms-sidebar-status">
-            <span className="cms-status-dot"></span>
-            <span>En ligne — heldonica.fr</span>
-          </div>
-        </aside>
-
-        {/* Main content area */}
-        <main style={{ flex: 1, padding: '2rem', minWidth: 0 }}>
-
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+      <div style={{ maxWidth: 1100, margin: '2rem auto', padding: '0 1.5rem' }}>
 
         {tab === 'dashboard' && (
           <div>
-            {/* Phase 1: Dashboard Widgets */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-              
-              {/* Widget 1: Brouillons en attente */}
-              <div style={{ background: 'white', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#333' }}>📝 Brouillons en attente</h3>
-                  <span style={{ background: '#ffc107', color: '#333', padding: '.25rem .5rem', borderRadius: '.25rem', fontSize: '.75rem', fontWeight: 600 }}>
-                    {articles.filter(a => !a.published && !a.archived).length}
-                  </span>
+            <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>🏠 Tableau de bord</h2>
+              <div className="cms-grid-kpi">
+                <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
+                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{articles.filter(a => a.published).length}</p>
+                  <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Articles publiés</p>
                 </div>
-                {loadingArticles ? (
-                  <div style={{ padding: '1rem', textAlign: 'center', color: '#888' }}>Chargement…</div>
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
-                    {articles.filter(a => !a.published && !a.archived).slice(0, 5).map(a => (
-                      <div key={a.id} 
-                        onClick={() => { setEditingArticle(a); setTab('articles'); }}
-                        style={{ padding: '.75rem', background: '#f8f6f4', borderRadius: '.5rem', cursor: 'pointer', transition: 'background .15s' }}
-                        onMouseOver={e => e.currentTarget.style.background = '#f0e8e4'}
-                        onMouseOut={e => e.currentTarget.style.background = '#f8f6f4'}
-                      >
-                        <div style={{ fontWeight: 600, color: '#333', fontSize: '.9rem', marginBottom: '.25rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.title || '(Sans titre)'}</div>
-                        <div style={{ fontSize: '.75rem', color: '#888' }}>{a.category || 'Non catégorisé'} · {a.updated_at ? fmt(a.updated_at) : '—'}</div>
-                      </div>
-                    ))}
-                    {articles.filter(a => !a.published && !a.archived).length === 0 && (
-                      <p style={{ color: '#888', fontSize: '.85rem', textAlign: 'center', padding: '1rem' }}>Aucun brouillon</p>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Widget 2: Nouvelles demandes Travel Planning */}
-              <div style={{ background: 'white', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#333' }}>✈️ Demandes Travel Planning</h3>
-                  <span style={{ background: '#01696f', color: 'white', padding: '.25rem .5rem', borderRadius: '.25rem', fontSize: '.75rem', fontWeight: 600 }}>
-                    {demandes.filter(d => d.statut === 'nouveau').length}
-                  </span>
+                <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
+                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{articles.filter(a => !a.published).length}</p>
+                  <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Brouillons</p>
                 </div>
-                {loadingDemandes ? (
-                  <div style={{ padding: '1rem', textAlign: 'center', color: '#888' }}>Chargement…</div>
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
-                    {demandes.filter(d => d.statut === 'nouveau').slice(0, 5).map(d => {
-                      const age48h = d.created_at && new Date(d.created_at) < new Date(Date.now() - 48 * 60 * 60 * 1000);
-                      return (
-                        <div key={d.id} 
-                          onClick={() => setTab('demandes')}
-                          style={{ padding: '.75rem', background: '#f8f6f4', borderRadius: '.5rem', cursor: 'pointer', borderLeft: age48h ? '3px solid #dc3545' : '3px solid #01696f' }}
-                        >
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontWeight: 600, color: '#333', fontSize: '.9rem' }}>{d.prenom} {d.nom}</span>
-                            {age48h && <span style={{ background: '#dc3545', color: 'white', padding: '.1rem .4rem', borderRadius: '9999px', fontSize: '.65rem', fontWeight: 600 }}>Urgent</span>}
-                          </div>
-                          <div style={{ fontSize: '.75rem', color: '#888', marginTop: '.25rem' }}>{d.destination || 'Destination non précisée'} · {d.budget_fourchette || '—'}</div>
-                        </div>
-                      );
-                    })}
-                    {demandes.filter(d => d.statut === 'nouveau').length === 0 && (
-                      <p style={{ color: '#888', fontSize: '.85rem', textAlign: 'center', padding: '1rem' }}>Aucune demande en attente</p>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Widget 3: Articles programmés bloqués */}
-              <div style={{ background: 'white', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', border: '1px solid #fd7e14' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#333' }}>📅 Articles programmés bloqués</h3>
-                  <span style={{ background: '#fd7e14', color: 'white', padding: '.25rem .5rem', borderRadius: '.25rem', fontSize: '.75rem', fontWeight: 600 }}>
-                    {articles.filter(a => a.scheduled_published_at && !a.published && a.scheduled_published_at && new Date(a.scheduled_published_at) < new Date()).length}
-                  </span>
+                <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
+                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{demandes.length}</p>
+                  <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Demandes travel</p>
                 </div>
-                {articles.filter(a => a.scheduled_published_at && !a.published && new Date(a.scheduled_published_at) < new Date()).length === 0 ? (
-                  <p style={{ color: '#888', fontSize: '.85rem', textAlign: 'center', padding: '1rem' }}>Aucun article bloqué</p>
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
-                    {articles.filter(a => a.scheduled_published_at && !a.published && new Date(a.scheduled_published_at) < new Date()).map(a => (
-                      <div key={a.id} style={{ padding: '.75rem', background: '#fff3cd', borderRadius: '.5rem' }}>
-                        <div style={{ fontWeight: 600, color: '#333', fontSize: '.9rem', marginBottom: '.5rem' }}>{a.title || '(Sans titre)'}</div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: '.75rem', color: '#856404' }}>Programmé: {a.scheduled_published_at ? new Date(a.scheduled_published_at).toLocaleString('fr-FR') : '—'}</span>
-                          <button 
-                            onClick={async (e) => {
-                              e.stopPropagation();
-                              try {
-                                const res = await fetch(`/api/cms/articles/${a.id}`, {
-                                  method: 'PUT',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ published: true })
-                                });
-                                if (res.ok) {
-                                  showToast('✅ Article publié !', 'success');
-                                  loadArticles();
-                                }
-                              } catch { showToast('❌ Erreur de publication', 'error'); }
-                            }}
-                            style={{ background: '#fd7e14', color: 'white', border: 'none', padding: '.3rem .6rem', borderRadius: '.3rem', cursor: 'pointer', fontSize: '.75rem', fontWeight: 600 }}
-                          >Publier maintenant</button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Widget 4: KPIs */}
-              <div style={{ background: 'white', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
-                <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#333', marginBottom: '1rem' }}>📊 KPIs</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '.5rem' }}>
-                  <div style={{ textAlign: 'center', padding: '.75rem .5rem', background: '#f8f6f4', borderRadius: '.5rem' }}>
-                    <p style={{ fontSize: '1.25rem', fontWeight: 700, color: '#28a745' }}>{articles.filter(a => a.published).length}</p>
-                    <p style={{ fontSize: '.65rem', color: '#888', marginTop: '.25rem' }}>Publiés</p>
-                  </div>
-                  <div style={{ textAlign: 'center', padding: '.75rem .5rem', background: '#f8f6f4', borderRadius: '.5rem' }}>
-                    <p style={{ fontSize: '1.25rem', fontWeight: 700, color: '#ffc107' }}>{articles.filter(a => !a.published).length}</p>
-                    <p style={{ fontSize: '.65rem', color: '#888', marginTop: '.25rem' }}>Brouillons</p>
-                  </div>
-                  <div style={{ textAlign: 'center', padding: '.75rem .5rem', background: '#f8f6f4', borderRadius: '.5rem' }}>
-                    <p style={{ fontSize: '1.25rem', fontWeight: 700, color: '#dc3545' }}>{demandes.filter(d => d.statut === 'nouveau').length}</p>
-                    <p style={{ fontSize: '.65rem', color: '#888', marginTop: '.25rem' }}>Demandes TP</p>
-                  </div>
+                <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
+                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{settings.length}</p>
+                  <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Paramètres</p>
                 </div>
               </div>
-            </div>
-            
-            {/* Quick Actions */}
-            <div style={{ background: 'white', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
-              <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1rem' }}>⚡ Actions rapides</h2>
-              <div style={{ display: 'flex', gap: '.75rem', flexWrap: 'wrap' }}>
+              <div className="cms-top-actions">
                 <button onClick={() => openArticleEditor({})} style={{ padding: '.7rem 1.5rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>+ Nouvel article</button>
                 <button onClick={() => setTab('blog')} style={{ padding: '.7rem 1.5rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>✨ Générateur IA</button>
                 <button onClick={() => setTab('demandes')} style={{ padding: '.7rem 1.5rem', background: '#444', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>✈️ Travel Planning</button>
@@ -1582,11 +1003,11 @@ function CMSAdminInner() {
 
         {tab === 'articles' && (
           <div>
-            <div style={{ display: 'flex', gap: '.5rem', marginBottom: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-              <input placeholder="Rechercher... (titre, contenu)" value={search}
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              <input placeholder="Rechercher un article..." value={search}
                 onChange={e => setSearch(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && loadArticles()}
-                style={{ padding: '.6rem 1rem', border: '1.5px solid #ddd', borderRadius: '.5rem', flex: 1, minWidth: 180, fontSize: '.9rem' }}
+                style={{ padding: '.6rem 1rem', border: '1.5px solid #ddd', borderRadius: '.5rem', flex: 1, minWidth: 200, fontSize: '.9rem' }}
               />
               <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
                 style={{ padding: '.6rem .9rem', border: '1.5px solid #ddd', borderRadius: '.5rem', fontSize: '.9rem' }}>
@@ -1600,35 +1021,9 @@ function CMSAdminInner() {
                 <option value="all">Toutes catégories</option>
                 {availableCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
               </select>
-              <button onClick={loadArticles} style={{ padding: '.6rem 1rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>🔍</button>
-              <button onClick={() => openArticleEditor({})} style={{ padding: '.6rem 1rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>+ Nouvel</button>
-              <button onClick={exportToCsv} title="Exporter CSV" style={{ padding: '.5rem .75rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.8rem' }}>📥</button>
-              <label title="Importer CSV" style={{ padding: '.5rem .75rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.8rem' }}>
-                <input type="file" accept=".csv" onChange={importFromCsv} style={{ display: 'none' }} />
-                📤
-              </label>
+              <button onClick={loadArticles} style={{ padding: '.6rem 1.2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>🔍</button>
+              <button onClick={() => openArticleEditor({})} style={{ padding: '.6rem 1.2rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>+ Nouvel article</button>
             </div>
-            
-            {/* Bulk Actions Bar */}
-            {articles.length > 0 && (
-              <div style={{ display: 'flex', gap: '.5rem', marginBottom: '1rem', padding: '.75rem', background: '#f8f6f4', borderRadius: '.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                <button onClick={toggleSelectAll} style={{ padding: '.5rem .75rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.85rem', display: 'flex', alignItems: 'center', gap: '.35rem' }}>
-                  {selectedArticles.size === articles.length ? <CheckSquare size={16} /> : <Square size={16} />} 
-                  Tout ({articles.length})
-                </button>
-                <span style={{ color: '#888', fontSize: '.85rem' }}>|</span>
-                <button onClick={bulkPublish} disabled={selectedArticles.size === 0 || loadingArticles} style={{ padding: '.5rem .75rem', border: '1px solid #28a745', borderRadius: '.4rem', background: selectedArticles.size > 0 ? '#28a745' : 'white', color: selectedArticles.size > 0 ? 'white' : '#28a745', cursor: selectedArticles.size > 0 ? 'pointer' : 'not-allowed', fontSize: '.85rem', opacity: loadingArticles ? .6 : 1 }}>
-                  📤 Publier ({selectedArticles.size})
-                </button>
-                <button onClick={bulkUnpublish} disabled={selectedArticles.size === 0 || loadingArticles} style={{ padding: '.5rem .75rem', border: '1px solid #ffc107', borderRadius: '.4rem', background: selectedArticles.size > 0 ? '#ffc107' : 'white', color: selectedArticles.size > 0 ? 'white' : '#856404', cursor: selectedArticles.size > 0 ? 'pointer' : 'not-allowed', fontSize: '.85rem', opacity: loadingArticles ? .6 : 1 }}>
-                  📥 Dépublier ({selectedArticles.size})
-                </button>
-                <button onClick={bulkDelete} disabled={selectedArticles.size === 0 || loadingArticles} style={{ padding: '.5rem .75rem', border: '1px solid #dc3545', borderRadius: '.4rem', background: selectedArticles.size > 0 ? '#dc3545' : 'white', color: selectedArticles.size > 0 ? 'white' : '#dc3545', cursor: selectedArticles.size > 0 ? 'pointer' : 'not-allowed', fontSize: '.85rem', opacity: loadingArticles ? .6 : 1 }}>
-                  🗑 Supprimer ({selectedArticles.size})
-                </button>
-              </div>
-            )}
-
             {loadingArticles ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p>
               : articles.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '4rem', color: '#aaa' }}>
@@ -1636,62 +1031,30 @@ function CMSAdminInner() {
                   <p>Aucun article trouvé</p>
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '.75rem' }}>
                   {articles.filter(a => {
-                    // Status filter
-                    if (statusFilter === 'published' && !a.published) return false;
-                    if (statusFilter === 'draft' && a.published) return false;
-                    if (statusFilter === 'archived' && a.archived !== true) return false;
-                    // Category filter
                     if (categoryFilter !== 'all' && a.category !== categoryFilter) return false;
-                    // Search filter (fuzzy)
-                    if (search) {
-                      const q = search.toLowerCase();
-                      const matchTitle = a.title?.toLowerCase().includes(q);
-                      const matchContent = a.content?.toLowerCase().includes(q);
-                      const matchCategory = a.category?.toLowerCase().includes(q);
-                      if (!matchTitle && !matchContent && !matchCategory) return false;
-                    }
                     return true;
                   }).map(a => (
-                    <div key={a.id} style={{ background: 'white', borderRadius: '.75rem', padding: '.85rem 1rem', display: 'flex', alignItems: 'center', gap: '.75rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', flexWrap: 'wrap', borderLeft: selectedArticles.has(a.id) ? '3px solid #6b2a1a' : '3px solid transparent' }}>
-                      <button onClick={() => toggleArticleSelection(a.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '.25rem', color: selectedArticles.has(a.id) ? '#6b2a1a' : '#ccc' }}>
-                        {selectedArticles.has(a.id) ? <CheckSquare size={20} /> : <Square size={20} />}
-                      </button>
-                      {a.featured_image && <img src={a.featured_image} alt="" style={{ width: 56, height: 42, objectFit: 'cover', borderRadius: '.35rem', flexShrink: 0 }} />}
-                      <div style={{ flex: 1, minWidth: 180 }}>
-                        <div style={{ fontWeight: 600, fontSize: '.95rem', color: '#1a1a1a', marginBottom: '.15rem' }}>{a.title}</div>
-                        <div style={{ fontSize: '.75rem', color: '#888', display: 'flex', gap: '.75rem', flexWrap: 'wrap' }}>
+                    <div key={a.id} style={{ background: 'white', borderRadius: '.75rem', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', flexWrap: 'wrap' }}>
+                      {a.featured_image && <img src={a.featured_image} alt="" style={{ width: 64, height: 48, objectFit: 'cover', borderRadius: '.4rem', flexShrink: 0 }} />}
+                      <div style={{ flex: 1, minWidth: 200 }}>
+                        <div style={{ fontWeight: 600, fontSize: '1rem', color: '#1a1a1a', marginBottom: '.2rem' }}>{a.title}</div>
+                        <div style={{ fontSize: '.8rem', color: '#888', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                           <span>{a.category || '—'}</span>
                           <span>{fmt(a.created_at)}</span>
-                          {a.views != null && <span>👁 {a.views}</span>}
                         </div>
                       </div>
-                      <span style={{ padding: '.25rem .65rem', borderRadius: '9999px', fontSize: '.72rem', fontWeight: 600, background: a.published ? '#d4edda' : '#fff3cd', color: a.published ? '#155724' : '#856404' }}>
+                      <span style={{ padding: '.3rem .8rem', borderRadius: '9999px', fontSize: '.78rem', fontWeight: 600, background: a.published ? '#d4edda' : '#fff3cd', color: a.published ? '#155724' : '#856404' }}>
                         {a.published ? '✓ Publié' : '📝 Brouillon'}
                       </span>
-                      <div style={{ display: 'flex', gap: '.35rem' }}>
-                        <button onClick={() => openArticleEditor(a)} title="Éditer" style={{ padding: '.3rem .6rem', border: '1px solid #ddd', borderRadius: '.35rem', background: 'white', cursor: 'pointer', fontSize: '.78rem' }}>✏️</button>
-                        <button onClick={() => togglePublish(a)} title={a.published ? 'Dépublier' : 'Publier'} style={{ padding: '.3rem .6rem', border: '1px solid #ddd', borderRadius: '.35rem', background: 'white', cursor: 'pointer', fontSize: '.78rem' }}>{a.published ? '📦' : '📤'}</button>
-                        <button onClick={() => duplicateArticle(a)} title="Dupliquer" style={{ padding: '.3rem .6rem', border: '1px solid #ddd', borderRadius: '.35rem', background: 'white', cursor: 'pointer', fontSize: '.78rem' }}>📋</button>
-                        <button onClick={() => deleteArticle(a.id)} title="Supprimer" style={{ padding: '.3rem .6rem', border: '1px solid #fcc', borderRadius: '.35rem', background: '#fff5f5', color: '#c0392b', cursor: 'pointer', fontSize: '.78rem' }}>🗑</button>
+                      <div style={{ display: 'flex', gap: '.5rem' }}>
+                        <button onClick={() => openArticleEditor(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>✏️ Éditer</button>
+                        <button onClick={() => togglePublish(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>{a.published ? '📦 Dépublier' : 'Publier'}</button>
+                        <button onClick={() => deleteArticle(a.id)} style={{ padding: '.35rem .8rem', border: '1px solid #fcc', borderRadius: '.4rem', background: '#fff5f5', color: '#c0392b', cursor: 'pointer', fontSize: '.82rem' }}>🗑</button>
                       </div>
                     </div>
                   ))}
-                  {(search || categoryFilter !== 'all' || statusFilter !== 'all') && (
-                    <p style={{ textAlign: 'center', color: '#888', fontSize: '.85rem', padding: '.5rem' }}>
-                      {articles.filter(a => {
-                        if (statusFilter === 'published' && !a.published) return false;
-                        if (statusFilter === 'draft' && a.published) return false;
-                        if (categoryFilter !== 'all' && a.category !== categoryFilter) return false;
-                        if (search) {
-                          const q = search.toLowerCase();
-                          if (!a.title?.toLowerCase().includes(q) && !a.content?.toLowerCase().includes(q)) return false;
-                        }
-                        return true;
-                      }).length} résultat(s)
-                    </p>
-                  )}
                 </div>
               )}
           </div>
@@ -1775,25 +1138,10 @@ function CMSAdminInner() {
                   placeholder="Résumé accrocheur pour les cards du blog…" />
               </div>
               <div style={{ gridColumn: '1/-1' }}>
-                <label style={lbl}>Contenu 
-                  <button 
-                    onClick={() => setUseBlockEditor(!useBlockEditor)} 
-                    style={{ marginLeft: '1rem', padding: '.2rem .5rem', border: '1px solid #e8e0d8', borderRadius: '.3rem', background: '#f8f6f4', cursor: 'pointer', fontSize: '.75rem', color: '#6b2a1a' }}
-                  >
-                    {useBlockEditor ? '↔️ Mode texte' : '↔️ Mode blocs'}
-                  </button>
-                </label>
-                {useBlockEditor ? (
-                  <BlockEditor 
-                    value={editingArticle?.content || ''}
-                    onChange={html => setEditingArticle(p => ({ ...p, content: html }))}
-                    placeholder="Commence à écrire ou tape '/' pour les commandes…"
-                  />
-                ) : (
-                  <RichEditor value={editingArticle?.content || ''}
-                    onChange={html => setEditingArticle(p => ({ ...p, content: html }))}
-                    placeholder="Commence à écrire ton article ici…" />
-                )}
+                <label style={lbl}>Contenu</label>
+                <RichEditor value={editingArticle?.content || ''}
+                  onChange={html => setEditingArticle(p => ({ ...p, content: html }))}
+                  placeholder="Commence à écrire ton article ici…" />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '.5rem', cursor: 'pointer', fontWeight: 600, color: '#444', fontSize: '.9rem' }}>
@@ -1818,70 +1166,15 @@ function CMSAdminInner() {
                 </div>
               )}
               <div style={{ gridColumn: '1 / -1', padding: '1rem', background: '#f8f9fa', borderRadius: '.5rem', marginTop: '1rem' }}>
-                {/* Phase 3: Enhanced SEO Panel */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '.75rem' }}>
-                  <span style={{ fontWeight: 600, fontSize: '.85rem' }}>📊 Analyse SEO</span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}>
-                    <input
-                      type="text"
-                      value={seoKeyword}
-                      onChange={e => setSeoKeyword(e.target.value)}
-                      placeholder="Mot-clé SEO…"
-                      style={{ padding: '.3rem .6rem', border: '1px solid #ddd', borderRadius: '.3rem', fontSize: '.8rem', width: 140 }}
-                    />
-                    {/* Score circle */}
-                    <div style={{ width: 40, height: 40, borderRadius: '50%', background: seo.score >= 70 ? '#28a745' : seo.score >= 40 ? '#ffc107' : '#dc3545', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: '.9rem' }}>
-                      {seo.score}
-                    </div>
-                  </div>
+                <div style={{ fontWeight: 600, marginBottom: '.5rem', fontSize: '.85rem' }}>📊 Analyse SEO</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '.5rem', fontSize: '.8rem' }}>
+                  <div>📖 Lisibilité: <strong>{seo.readability}</strong></div>
+                  <div>📄 Mots: <strong>{seo.wordCount}</strong></div>
+                  <div>🔑 Densité titre: <strong>{seo.density}%</strong></div>
                 </div>
-
-                {/* SERP Preview */}
-                <div style={{ background: 'white', border: '1px solid #e8e0d8', borderRadius: '.5rem', padding: '.75rem', marginBottom: '.75rem' }}>
-                  <div style={{ fontSize: '.75rem', color: '#6b2a1a', marginBottom: '.25rem' }}>Aperçu Google</div>
-                  <div style={{ color: '#1a0fbd', fontSize: '1rem', fontWeight: 400, marginBottom: '.15rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{editingArticle?.title || 'Titre de l\'article'}</div>
-                  <div style={{ color: '#006621', fontSize: '.8rem', marginBottom: '.15rem' }}>heldonica.fr/blog/{editingArticle?.slug || slug(editingArticle?.title || '') || 'article'}</div>
-                  <div style={{ color: '#545454', fontSize: '.8rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{editingArticle?.excerpt || excerpt || 'Extrait de l\'article…'}</div>
-                </div>
-
-                {/* Metrics grid */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '.5rem', fontSize: '.8rem' }}>
-                  <div style={{ padding: '.5rem', background: 'white', borderRadius: '.3rem', textAlign: 'center' }}>
-                    <div style={{ fontSize: '1rem', fontWeight: 700, color: seo.titleLen >= 30 && seo.titleLen <= 60 ? '#28a745' : '#dc3545' }}>{seo.titleLen}</div>
-                    <div style={{ color: '#888', fontSize: '.65rem' }}>Car. titre (cible 30-60)</div>
-                  </div>
-                  <div style={{ padding: '.5rem', background: 'white', borderRadius: '.3rem', textAlign: 'center' }}>
-                    <div style={{ fontSize: '1rem', fontWeight: 700, color: seo.excerptLen >= 80 && seo.excerptLen <= 160 ? '#28a745' : '#dc3545' }}>{seo.excerptLen}</div>
-                    <div style={{ color: '#888', fontSize: '.65rem' }}>Car. extrait (cible 80-160)</div>
-                  </div>
-                  <div style={{ padding: '.5rem', background: 'white', borderRadius: '.3rem', textAlign: 'center' }}>
-                    <div style={{ fontSize: '1rem', fontWeight: 700, color: '#28a745' }}>{seo.wordCount}</div>
-                    <div style={{ color: '#888', fontSize: '.65rem' }}>Mots (cible &gt;800)</div>
-                  </div>
-                  <div style={{ padding: '.5rem', background: 'white', borderRadius: '.3rem', textAlign: 'center' }}>
-                    <div style={{ fontSize: '1rem', fontWeight: 700, color: seo.h2Count >= 2 ? '#28a745' : '#ffc107' }}>{seo.h2Count}</div>
-                    <div style={{ color: '#888', fontSize: '.65rem' }}>H2 (min 2)</div>
-                  </div>
-                </div>
-
-                {/* Density & images */}
-                {seoKeyword && (
-                  <div style={{ marginTop: '.5rem', padding: '.4rem', background: 'white', borderRadius: '.3rem', fontSize: '.8rem', display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Densité mot-clé:</span>
-                    <span style={{ fontWeight: 600, color: seo.density >= 0.5 && seo.density <= 2.5 ? '#28a745' : '#dc3545' }}>{seo.density}% (cible: 0.5-2.5%)</span>
-                  </div>
-                )}
-                {seo.imagesWithoutAlt > 0 && (
-                  <div style={{ marginTop: '.5rem', padding: '.4rem', background: '#fff3cd', borderRadius: '.3rem', fontSize: '.8rem', color: '#856404' }}>
-                    ⚠️ {seo.imagesWithoutAlt} image(s) sans texte alternatif
-                  </div>
-                )}
-
-                {/* Issues list */}
                 {seo.issues.length > 0 && (
-                  <div style={{ marginTop: '.75rem', padding: '.75rem', background: '#fdf2f2', borderRadius: '.5rem', border: '1px solid #f5c6c6' }}>
-                    <div style={{ fontWeight: 600, color: '#c0392b', fontSize: '.8rem', marginBottom: '.5rem' }}>⚠️ Points à corriger</div>
-                    {seo.issues.map((issue, i) => <div key={i} style={{ color: '#c0392b', fontSize: '.75rem', marginBottom: '.25rem' }}>• {issue}</div>)}
+                  <div style={{ marginTop: '.5rem', color: '#c0392b', fontSize: '.75rem' }}>
+                    {seo.issues.map((issue, i) => <div key={i}>⚠️ {issue}</div>)}
                   </div>
                 )}
               </div>
@@ -1894,66 +1187,23 @@ function CMSAdminInner() {
                 {isArticleDirty && <span style={{ ...metaChip, background: '#fff4db', color: '#8a5a00' }}>Brouillon non sauvegardé</span>}
               </div>
             </div>
-            {/* Phase 3: Live Preview Panel */}
             {showArticlePreview && (
-              <div style={{ marginTop: '1rem', padding: '1rem', background: 'white', borderRadius: '1rem', border: '1px solid #e8e0d8' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: '#6b2a1a' }}>🔍 Aperçu live</h3>
-                  <button onClick={() => setShowArticlePreview(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', fontSize: '1.1rem', padding: 0 }}>✕</button>
-                </div>
-                <div style={{ border: '1px solid #e8e0d8', borderRadius: '.75rem', overflow: 'hidden', maxHeight: 500, overflowY: 'auto' }}>
+              <div style={previewPanel}>
+                <h3 style={{ margin: '0 0 1rem', fontSize: '1rem', color: '#6b2a1a' }}>Aperçu public</h3>
+                <div style={previewFrame}>
                   {editingArticle?.featured_image ? (
-                    <img src={editingArticle.featured_image} alt="" style={{ width: '100%', maxHeight: 240, objectFit: 'cover' }} />
+                    <img src={editingArticle.featured_image} alt="" style={{ width: '100%', maxHeight: 320, objectFit: 'cover', borderRadius: '.9rem', marginBottom: '1.5rem' }} />
                   ) : (
-                    <div style={{ minHeight: 160, background: 'linear-gradient(135deg, #f2e8dc 0%, #d9ebe6 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6d625a' }}>Image à la une</div>
+                    <div style={previewImageFallback}>Ajoute une image à la une</div>
                   )}
-                  <div style={{ padding: '1.25rem' }}>
-                    <h1 style={{ margin: '0 0 .75rem', fontSize: 'clamp(1.3rem, 2.5vw, 1.9rem)', lineHeight: 1.2, color: '#1f1a17' }}>{editingArticle?.title || "Titre de l'article"}</h1>
-                    <p style={{ margin: '0 0 1rem', color: '#6d625a', fontSize: '.9rem', lineHeight: 1.6 }}>{editingArticle?.excerpt || "Extrait..."}</p>
-                    {articlePreviewHtml ? (
-                      <EnhancedRichContent html={articlePreviewHtml} />
-                    ) : (
-                      <p style={{ color: '#8a7a70', lineHeight: 1.7 }}>Contenu...</p>
-                    )}
-                  </div>
+                  <h1 style={{ margin: 0, fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', lineHeight: 1.1, color: '#1f1a17' }}>{editingArticle?.title || "Titre de l’article"}</h1>
+                  <p style={{ margin: '1rem 0 1.5rem', color: '#6d625a', fontSize: '1rem', lineHeight: 1.7 }}>{editingArticle?.excerpt || "Ton extrait apparaîtra ici."}</p>
+                  {articlePreviewHtml ? (
+                    <EnhancedRichContent html={articlePreviewHtml} style={previewBody} />
+                  ) : (
+                    <p style={{ margin: 0, color: '#8a7a70', lineHeight: 1.7 }}>Commence à écrire dans l&apos;éditeur pour voir le rendu ici.</p>
+                  )}
                 </div>
-              </div>
-            )}
-
-            {/* Phase 3: Version History */}
-            {editingArticle?.id && (
-              <div style={{ marginTop: '1rem', padding: '1rem', background: 'white', borderRadius: '1rem', border: '1px solid #e8e0d8' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '.75rem' }}>
-                  <span style={{ fontWeight: 600, fontSize: '.9rem', color: '#333' }}>📜 Historique</span>
-                  <span style={{ fontSize: '.75rem', color: '#888' }}>{articleRevisions.length} versions</span>
-                </div>
-                {loadingArticleRevisions ? (
-                  <p style={{ color: '#888', fontSize: '.85rem', textAlign: 'center', padding: '1rem' }}>Chargement…</p>
-                ) : articleRevisions.length === 0 ? (
-                  <p style={{ color: '#888', fontSize: '.85rem', textAlign: 'center', padding: '1rem' }}>Aucune version sauvegardée. Sauvegardez l'article pour enregistrer une première version.</p>
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem', maxHeight: 220, overflowY: 'auto' }}>
-                    {articleRevisions.map(rev => (
-                      <div key={rev.id} style={{ padding: '.65rem .75rem', background: '#f8f6f4', borderRadius: '.4rem', borderLeft: '3px solid #6b2a1a' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '.2rem' }}>
-                          <span style={{ fontSize: '.8rem', fontWeight: 600, color: '#333', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '60%' }}>{rev.title || '(Sans titre)'}</span>
-                          <span style={{ fontSize: '.7rem', color: '#888' }}>{rev.saved_at ? new Date(rev.saved_at).toLocaleString('fr-FR') : '—'}</span>
-                        </div>
-                        <div style={{ fontSize: '.7rem', color: '#888', marginBottom: '.35rem' }}>{rev.word_count || 0} mots</div>
-                        <button
-                          onClick={() => {
-                            setEditingArticle(prev => prev ? { ...prev, content: rev.content, title: rev.title, excerpt: rev.excerpt } : prev);
-                            showToast('✅ Version restaurée (non sauvegardée)', 'info');
-                          }}
-                          style={{ padding: '.2rem .5rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.3rem', cursor: 'pointer', fontSize: '.75rem' }}
-                        >Restaurer</button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
               </div>
             )}
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1.75rem', justifyContent: 'flex-end' }}>
@@ -2050,7 +1300,59 @@ function CMSAdminInner() {
         )}
 
         {tab === 'demandes' && (
-          <KanbanBoardClient initialDemandes={demandes} />
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>✈️ Demandes Travel Planning</h2>
+              <div style={{ display: 'flex', gap: '.5rem', alignItems: 'center' }}>
+                <select value={demandesStatusFilter} onChange={e => setDemandesStatusFilter(e.target.value)}
+                  style={{ padding: '.5rem .8rem', border: '1.5px solid #ddd', borderRadius: '.5rem', fontSize: '.85rem' }}>
+                  <option value="all">Tous statuts</option>
+                  <option value="nouvelle">🆕 Nouvelle</option>
+                  <option value="en_cours">🔍 En cours</option>
+                  <option value="devis_envoye">📨 Devis envoyé</option>
+                  <option value="accepte">✅ Acceptée</option>
+                  <option value="terminee">🏁 Terminée</option>
+                  <option value="annulee">❌ Annulée</option>
+                </select>
+                <button onClick={loadDemandes} disabled={loadingDemandes} style={{ padding: '.5rem 1rem', background: 'white', border: '1.5px solid #ddd', borderRadius: '.5rem', cursor: loadingDemandes ? 'wait' : 'pointer', fontSize: '.85rem', opacity: loadingDemandes ? .7 : 1 }}>{loadingDemandes ? '⏳' : '🔄'}</button>
+              </div>
+            </div>
+            {loadingDemandes ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p>
+              : demandes.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '4rem', color: '#aaa' }}>
+                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✉️</div>
+                  <p>Aucune demande pour le moment</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {demandes.filter(d => demandesStatusFilter === 'all' || d.statut === demandesStatusFilter).map(d => (
+                    <div key={d.id} style={{ background: 'white', borderRadius: '.75rem', padding: '1.25rem 1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '.75rem', flexWrap: 'wrap', gap: '.5rem' }}>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: '1rem', color: '#1a1a1a' }}>{d.prenom} {d.nom}</div>
+                          <div style={{ fontSize: '.85rem', color: '#888' }}>{d.email} {d.telephone && `· ${d.telephone}`}</div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
+                          <span style={{ fontSize: '.75rem', color: '#aaa' }}>{fmt(d.created_at)}</span>
+                          <select value={d.statut || 'nouvelle'} onChange={e => updateStatut(d.id, e.target.value)} disabled={updatingDemandeId === d.id}
+                            style={{ padding: '.3rem .7rem', border: '1.5px solid #ddd', borderRadius: '.4rem', fontSize: '.82rem' }}>
+                            <option value="nouvelle">🆕 Nouvelle</option>
+                            <option value="en_cours">🔍 En cours</option>
+                            <option value="devis_envoye">📨 Devis envoyé</option>
+                            <option value="accepte">✅ Acceptée</option>
+                            <option value="terminee">🏁 Terminée</option>
+                            <option value="annulee">❌ Annulée</option>
+                          </select>
+                        </div>
+                      </div>
+                      {d.notes && (
+                        <div style={{ marginTop: '.75rem', padding: '.75rem', background: '#faf8f5', borderRadius: '.5rem', fontSize: '.85rem', color: '#666' }}>💬 {d.notes}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+          </div>
         )}
 
         {tab === 'carousel' && (
@@ -2181,31 +1483,6 @@ function CMSAdminInner() {
                 {/* Appareils */}
                 {analyticsData?.devices?.length > 0 && (
                   <div style={{ background: '#fafafa', borderRadius: '.75rem', padding: '1.25rem', border: '1px solid #eee' }}>
-                  {/* Web Vitals (Mocked) */}
-                  <div style={{ background: '#fafafa', borderRadius: '.75rem', padding: '1.25rem', border: '1px solid #eee', gridColumn: 'span 2' }}>
-                    <h3 style={{ fontSize: '.9rem', fontWeight: 700, color: '#333', margin: '0 0 1rem' }}>⚡ Core Web Vitals (7 derniers jours moy.)</h3>
-                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'space-around', flexWrap: 'wrap' }}>
-                      {[
-                        { key: 'lcp', label: 'LCP', icon: '🖼️', fmt: (v: number) => `${v}s`, threshold: 2.5 },
-                        { key: 'inp', label: 'INP', icon: '🖱️', fmt: (v: number) => `${v}ms`, threshold: 200 },
-                        { key: 'cls', label: 'CLS', icon: '✨', fmt: (v: number) => v.toFixed(3), threshold: 0.1 },
-                        { key: 'fcp', label: 'FCP', icon: '⏱️', fmt: (v: number) => `${v}s`, threshold: 1.8 },
-                        { key: 'ttfb', label: 'TTFB', icon: '🌐', fmt: (v: number) => `${v}s`, threshold: 0.8 },
-                      ].map(({ key, label, icon, fmt, threshold }) => {
-                        const val = analyticsData?.webVitals?.[key];
-                        const isGood = val !== undefined && val !== null ? val <= threshold : true;
-                        return (
-                          <div key={key} style={{ textAlign: 'center', minWidth: '80px' }}>
-                            <div style={{ fontSize: '1.5rem', marginBottom: '.25rem' }}>{icon}</div>
-                            <div style={{ fontSize: '1.2rem', fontWeight: 700, color: val != null ? (isGood ? '#2e7d32' : '#c62828') : '#aaa' }}>
-                              {val != null ? fmt(val) : '--'}
-                            </div>
-                            <div style={{ fontSize: '.75rem', color: '#666', fontWeight: 600 }}>{label}</div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
                     <h3 style={{ fontSize: '.9rem', fontWeight: 700, color: '#333', margin: '0 0 1rem' }}>📱 Appareils</h3>
                     <div style={{ display: 'flex', gap: '1.5rem' }}>
                       {analyticsData.devices.map((d: any, i: number) => {
@@ -2278,160 +1555,20 @@ function CMSAdminInner() {
                     return (
                       <div>
                         <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>{groupCfg?.emoji} {groupCfg?.label}</h2>
-                        {settingsGroup === 'appearance' && (
-                          <div style={{ background: '#fdf0eb', borderRadius: '.75rem', padding: '1rem', marginBottom: '1.5rem', border: '1px solid #e8d8ce' }}>
-                            <div style={{ fontSize: '.8rem', color: '#6b2a1a', marginBottom: '.5rem', fontWeight: 600 }}>🎨 Aperçu en temps réel</div>
-                            <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap' }}>
-                              {['button_primary_bg', 'color_primary', 'color_accent', 'color_background', 'color_text'].map(key => (
-                                editedSettings[key] && (
-                                  <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '.35rem', padding: '.2rem .5rem', background: 'white', borderRadius: '.4rem', fontSize: '.72rem', color: '#555', border: '1px solid #e8e3dc' }}>
-                                    <div style={{ width: 12, height: 12, borderRadius: '50%', background: editedSettings[key], border: '1px solid #ddd' }} />
-                                    <span>{key.split('_').pop()}</span>
-                                  </div>
-                                )
-                              ))}
-                            </div>
-                          </div>
-                        )}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
-                          {groupItems.map(s => {
-                            const isColorType = s.key.includes('color');
-                            const isFontType = s.key.includes('font');
-                            return (
-                              <div key={s.key}>
-                                <label style={lbl}>{s.label}</label>
-                                {isColorType ? (
-                                  <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                                    <input type="color"
-                                      value={editedSettings[s.key] || '#6b2a1a'}
-                                      onChange={e => setEditedSettings(prev => ({ ...prev, [s.key]: e.target.value }))}
-                                      style={{ width: 50, height: 40, padding: 0, border: '1px solid #e0dbd5', borderRadius: '.4rem', cursor: 'pointer' }}
-                                    />
-                                    <input value={editedSettings[s.key] || ''}
-                                      onChange={e => setEditedSettings(prev => ({ ...prev, [s.key]: e.target.value }))}
-                                      style={{ ...inp, flex: 1, minWidth: 140 }}
-                                      placeholder="#RRGGBB"
-                                    />
-                                    <div style={{ width: 28, height: 28, borderRadius: '.4rem', background: editedSettings[s.key] || '#6b2a1a', border: '1px solid #e0dbd5', flexShrink: 0 }} title="Aperçu couleur" />
-                                  </div>
-                                ) : isFontType ? (
-                                  <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                                    <select value={editedSettings[s.key] || ''}
-                                      onChange={e => setEditedSettings(prev => ({ ...prev, [s.key]: e.target.value }))}
-                                      style={{ ...inp, flex: 1, minWidth: 180, padding: '.55rem .75rem' }}
-                                    >
-                                      <option value="">— Choisir une police —</option>
-                                      <option value="DM Sans">DM Sans</option>
-                                      <option value="Lora">Lora</option>
-                                      <option value="Playfair Display">Playfair Display</option>
-                                      <option value="Inter">Inter</option>
-                                      <option value="Montserrat">Montserrat</option>
-                                      <option value="Source Serif 4">Source Serif 4</option>
-                                      <option value="Poppins">Poppins</option>
-                                      <option value="Raleway">Raleway</option>
-                                    </select>
-                                    <div style={{ fontFamily: editedSettings[s.key] || 'inherit', fontSize: '.9rem', padding: '.25rem .5rem', background: 'white', borderRadius: '.4rem', border: '1px solid #e0dbd5', maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#333' }}>
-                                      {editedSettings[s.key] || 'Aa'}
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <input value={editedSettings[s.key] || ''}
-                                    onChange={e => setEditedSettings(prev => ({ ...prev, [s.key]: e.target.value }))}
-                                    style={inp} placeholder={s.label} />
-                                )}
-                              </div>
-                            );
-                          })}
+                          {groupItems.map(s => (
+                            <div key={s.key}>
+                              <label style={lbl}>{s.label}</label>
+                              <input value={editedSettings[s.key] || ''}
+                                onChange={e => setEditedSettings(prev => ({ ...prev, [s.key]: e.target.value }))}
+                                style={inp} placeholder={s.label} />
+                            </div>
+                          ))}
                           {groupItems.length === 0 && <p style={{ color: '#aaa', fontSize: '.9rem', textAlign: 'center', padding: '2rem' }}>Aucun paramètre dans ce groupe.</p>}
                         </div>
-                        {/* Phase 5: Live Preview Panel for Appearance Settings */}
-                        {settingsGroup === 'appearance' && (
-                          <div style={{ marginTop: '2rem', padding: '1.5rem', background: '#f5f3ef', borderRadius: '1rem', border: '1px solid #e8e3dc' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                              <h3 style={{ margin: 0, fontSize: '.95rem', fontWeight: 700, color: '#6b2a1a' }}>🔍 Aperçu live du thème</h3>
-                              <button onClick={() => {
-                                const defaults: Record<string, string> = {
-                                  color_primary: '#6b2a1a', color_secondary: '#01696f', color_accent: '#d4a574',
-                                  color_background: '#f5f3ef', color_text: '#1a1a1a',
-                                  button_primary_bg: '#6b2a1a', button_primary_text: '#ffffff',
-                                  button_secondary_bg: '#f5f3ef', button_secondary_text: '#6b2a1a',
-                                  font_heading: 'Lora', font_body: 'DM Sans',
-                                };
-                                setEditedSettings(prev => ({ ...prev, ...defaults }));
-                                showToast('↩️ Valeurs par défaut Heldonica restaurées', 'info');
-                              }}
-                                style={{ padding: '.3rem .65rem', background: '#e8e3dc', color: '#555', border: 'none', borderRadius: '.4rem', cursor: 'pointer', fontSize: '.75rem' }}
-                              >↩️ Reset</button>
-                            </div>
-                            <div style={{ background: 'white', borderRadius: '.75rem', padding: '1.25rem', boxShadow: '0 2px 8px rgba(0,0,0,.08)' }}>
-                              {/* Fake header */}
-                              <div style={{
-                                padding: '.5rem 1rem', borderRadius: '.5rem .5rem 0 0',
-                                background: editedSettings.color_primary || '#6b2a1a',
-                                color: '#fff', fontWeight: 700, fontSize: '.8rem',
-                                fontFamily: editedSettings.font_heading || 'Lora',
-                              }}>HELDONICA — {editedSettings.site_title || 'Site de voyage'}</div>
-                              {/* Fake hero section */}
-                              <div style={{ padding: '1rem', textAlign: 'center', background: editedSettings.color_background || '#f5f3ef' }}>
-                                <h2 style={{ margin: '0 0 .5rem', fontSize: '1rem', fontWeight: 700, color: editedSettings.color_primary || '#6b2a1a', fontFamily: editedSettings.font_heading || 'Lora' }}>
-                                  Destination • Île Maurice
-                                </h2>
-                                <p style={{ margin: '0 0 .75rem', fontSize: '.72rem', color: editedSettings.color_text || '#1a1a1a', fontFamily: editedSettings.font_body || 'DM Sans' }}>
-                                  Un séjour inoubliable à Maurice
-                                </p>
-                                <button style={{
-                                  display: 'inline-block', padding: '.45rem 1rem', borderRadius: '.4rem', fontSize: '.75rem', fontWeight: 600,
-                                  background: editedSettings.button_primary_bg || '#6b2a1a',
-                                  color: editedSettings.button_primary_text || '#fff',
-                                  fontFamily: editedSettings.font_body || 'DM Sans',
-                                  border: 'none', cursor: 'pointer',
-                                }}>Découvrir</button>
-                                <button style={{
-                                  display: 'inline-block', marginLeft: '.5rem', padding: '.45rem 1rem', borderRadius: '.4rem', fontSize: '.75rem', fontWeight: 600,
-                                  background: editedSettings.button_secondary_bg || '#f5f3ef',
-                                  color: editedSettings.button_secondary_text || '#6b2a1a',
-                                  fontFamily: editedSettings.font_body || 'DM Sans',
-                                  border: `1.5px solid ${editedSettings.button_secondary_text || '#6b2a1a'}`,
-                                  cursor: 'pointer',
-                                }}>Infos</button>
-                              </div>
-                              {/* Fake card */}
-                              <div style={{ padding: '1rem' }}>
-                                <div style={{ display: 'flex', gap: '.75rem' }}>
-                                  <div style={{ width: 60, height: 60, background: editedSettings.color_accent || '#d4a574', borderRadius: '.4rem', flexShrink: 0 }} />
-                                  <div>
-                                    <p style={{ margin: '0 0 .25rem', fontFamily: editedSettings.font_heading || 'Lora', fontSize: '.8rem', fontWeight: 600, color: editedSettings.color_text || '#1a1a1a' }}>Voyage culturelles</p>
-                                    <p style={{ margin: 0, fontSize: '.7rem', color: '#888', fontFamily: editedSettings.font_body || 'DM Sans' }}>
-                                      Prix indicatifs — 1 200 € à 3 500 €
-                                    </p>
-                                    <p style={{ margin: '.25rem 0 0', fontSize: '.72rem', color: '#888', fontFamily: editedSettings.font_body || 'DM Sans' }}>
-                                      5 jours / 4 nuits avec hébergement inclus
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <p style={{ fontSize: '.7rem', color: '#aaa', textAlign: 'center', marginTop: '.5rem' }}>Aperçu indicatif — le rendu final dépend du contexte de la page</p>
-                          </div>
-                        )}
                         <button onClick={saveSettings} disabled={savingSettings}
                           style={{ marginTop: '1.75rem', padding: '.7rem 2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '.9rem', opacity: savingSettings ? .7 : 1 }}
                         >{savingSettings ? '⏳ Sauvegarde…' : '💾 Sauvegarder'}</button>
-                        <button onClick={async () => {
-                            setSavingSettings(true);
-                            try {
-                                const res = await fetch('/api/cms/fix-empty-images', { method: 'POST', headers: { 'x-cms-auth': localStorage.getItem('cms_password') || '' } });
-                                const data = await res.json();
-                                alert(data.message || data.error);
-                            } catch(e) {
-                                alert("Erreur lors de la réparation des images vides");
-                            } finally {
-                                setSavingSettings(false);
-                            }
-                        }} disabled={savingSettings}
-                          style={{ marginTop: '1.75rem', marginLeft: '1rem', padding: '.7rem 2rem', background: '#eab308', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '.9rem', opacity: savingSettings ? .7 : 1 }}
-                        >{savingSettings ? '⏳ Réparation…' : '🛠 Réparer images vides'}</button>
-
                       </div>
                     );
                   })()}
@@ -2441,111 +1578,7 @@ function CMSAdminInner() {
           </div>
         )}
 
-        {tab === 'agents' && (
-          <div>
-            <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: 800, marginBottom: '1.5rem' }}>
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '.5rem' }}>
-                <Bot size={24} /> Envoyer une tâche à un agent IA
-              </h2>
-              
-              {/* Agent select */}
-              <div style={{ marginBottom: '1.25rem' }}>
-                <label style={lbl}>Agent</label>
-                <select value={selectedAgent} onChange={e => setSelectedAgent(e.target.value)}
-                  style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.9rem', outline: 'none', background: '#faf9f7', color: '#1a1a1a', cursor: 'pointer' }}>
-                  <option value="allhands">OpenHands (AllHands)</option>
-                  <option value="jules">Jules (Google)</option>
-                  <option value="gemini">Gemini (Google)</option>
-                  <option value="perplexity">Perplexity</option>
-                </select>
-              </div>
-
-              {/* Task textarea */}
-              <div style={{ marginBottom: '1.25rem' }}>
-                <label style={lbl}>Tâche</label>
-                <textarea value={agentTask} onChange={e => setAgentTask(e.target.value)}
-                  placeholder="Décrivez la tâche à effectuer..."
-                  rows={4}
-                  style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.9rem', outline: 'none', background: '#faf9f7', color: '#1a1a1a', resize: 'vertical', fontFamily: 'inherit' }} />
-              </div>
-
-              {/* Repo input */}
-              <div style={{ marginBottom: '1.25rem' }}>
-                <label style={lbl}>Repo</label>
-                <input value={agentRepo} onChange={e => setAgentRepo(e.target.value)}
-                  placeholder="farinhahelder-hue/heldonica"
-                  style={inp} />
-              </div>
-
-              {/* Branch input */}
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={lbl}>Branche</label>
-                <input value={agentBranch} onChange={e => setAgentBranch(e.target.value)}
-                  placeholder="main"
-                  style={inp} />
-              </div>
-
-              {/* Send button */}
-              <button onClick={sendAgentTask} disabled={sendingTask}
-                style={{ padding: '.75rem 2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '1rem', opacity: sendingTask ? .7 : 1 }}>
-                {sendingTask ? '⏳ Envoi...' : '📤 Envoyer la tâche'}
-              </button>
-
-              {/* Success/error message */}
-              {agentMessage && (
-                <div style={{ 
-                  marginTop: '1rem', 
-                  padding: '.75rem 1rem', 
-                  borderRadius: '.5rem', 
-                  background: agentMessage.type === 'success' ? '#d4edda' : '#f8d7da',
-                  color: agentMessage.type === 'success' ? '#155724' : '#721c24',
-                  fontSize: '.9rem'
-                }}>
-                  {agentMessage.type === 'success' ? '✓' : '✕'} {agentMessage.text}
-                </div>
-              )}
-            </div>
-
-            {/* Task History */}
-            <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: 800 }}>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1rem' }}>Historique des 10 dernières tâches</h3>
-              {taskHistory.length === 0 ? (
-                <p style={{ color: '#888', fontSize: '.9rem', textAlign: 'center', padding: '1.5rem' }}>Aucune tâche envoyée récemment.</p>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '.75rem' }}>
-                  {taskHistory.map((entry, i) => {
-                    const agentLabels: Record<string, string> = {
-                      allhands: 'OpenHands',
-                      jules: 'Jules',
-                      gemini: 'Gemini',
-                      perplexity: 'Perplexity',
-                    };
-                    return (
-                      <div key={i} style={{ padding: '.75rem', background: '#f8f6f4', borderRadius: '.5rem', borderLeft: '3px solid #6b2a1a' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '.35rem', flexWrap: 'wrap', gap: '.5rem' }}>
-                          <span style={{ fontWeight: 600, color: '#333', fontSize: '.9rem' }}>{agentLabels[entry.agent] || entry.agent}</span>
-                          <span style={{ fontSize: '.75rem', color: '#888' }}>{entry.date}</span>
-                        </div>
-                        <div style={{ fontSize: '.85rem', color: '#555', marginBottom: '.35rem' }}>
-                          {entry.task.length > 100 ? entry.task.substring(0, 100) + '...' : entry.task}
-                        </div>
-                        <div style={{ display: 'flex', gap: '1rem', fontSize: '.75rem', color: '#888' }}>
-                          <span>📁 {entry.repo}</span>
-                          <span>🌿 {entry.branch}</span>
-                          <span style={{ color: '#28a745', fontWeight: 600 }}>✓ Envoyé</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
       </div>
-      </main>
-    </div>
     </div>
   );
 }
