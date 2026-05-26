@@ -183,10 +183,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Supabase not configured' }, { status: 500 });
   }
 
+  // Capture supabase in local variable after null check
+  const db = supabase;
+
   // Use Promise.all for parallel updates (~10x perf improvement)
   const results = await Promise.all(
     CONTENT_UPDATES.map(async (update) => {
-      const { error } = await supabase
+      const { error } = await db
         .from('articles')
         .update({ content: update.content, updated_at: new Date().toISOString() })
         .eq('slug', update.slug);
