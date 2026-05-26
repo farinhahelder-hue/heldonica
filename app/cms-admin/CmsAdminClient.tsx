@@ -21,7 +21,7 @@ const BlogGenerator = dynamic(() => import('@/components/admin/BlogGenerator'), 
 type Article = {
   id: number; title: string; slug: string; category: string; scheduled_published_at?: string;
   published: boolean; published_at: string; created_at: string;
-  excerpt: string; featured_image: string; content?: string; voice_notes?: string;
+  excerpt: string; featured_image: string; content?: string; voice_notes?: string; archived?: boolean; views?: number; read_time?: number; country?: string; travel_style?: string;
 };
 
 type Demande = {

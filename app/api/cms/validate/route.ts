@@ -57,7 +57,8 @@ export async function POST(req: Request) {
     }
 
     // Fetch the post
-    const { data: post, error: fetchError } = await sb
+    // eslint-disable-next-line
+    const { data: post, error: fetchError } = await (sb as any)
       .from('articles')
       .select('*')
       .eq('id', post_id)
