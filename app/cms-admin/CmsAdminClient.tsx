@@ -2278,17 +2278,142 @@ function CMSAdminInner() {
                     return (
                       <div>
                         <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>{groupCfg?.emoji} {groupCfg?.label}</h2>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
-                          {groupItems.map(s => (
-                            <div key={s.key}>
-                              <label style={lbl}>{s.label}</label>
-                              <input value={editedSettings[s.key] || ''}
-                                onChange={e => setEditedSettings(prev => ({ ...prev, [s.key]: e.target.value }))}
-                                style={inp} placeholder={s.label} />
+                        {settingsGroup === 'appearance' && (
+                          <div style={{ background: '#fdf0eb', borderRadius: '.75rem', padding: '1rem', marginBottom: '1.5rem', border: '1px solid #e8d8ce' }}>
+                            <div style={{ fontSize: '.8rem', color: '#6b2a1a', marginBottom: '.5rem', fontWeight: 600 }}>🎨 Aperçu en temps réel</div>
+                            <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap' }}>
+                              {['button_primary_bg', 'color_primary', 'color_accent', 'color_background', 'color_text'].map(key => (
+                                editedSettings[key] && (
+                                  <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '.35rem', padding: '.2rem .5rem', background: 'white', borderRadius: '.4rem', fontSize: '.72rem', color: '#555', border: '1px solid #e8e3dc' }}>
+                                    <div style={{ width: 12, height: 12, borderRadius: '50%', background: editedSettings[key], border: '1px solid #ddd' }} />
+                                    <span>{key.split('_').pop()}</span>
+                                  </div>
+                                )
+                              ))}
                             </div>
-                          ))}
+                          </div>
+                        )}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+                          {groupItems.map(s => {
+                            const isColorType = s.key.includes('color');
+                            const isFontType = s.key.includes('font');
+                            return (
+                              <div key={s.key}>
+                                <label style={lbl}>{s.label}</label>
+                                {isColorType ? (
+                                  <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                                    <input type="color"
+                                      value={editedSettings[s.key] || '#6b2a1a'}
+                                      onChange={e => setEditedSettings(prev => ({ ...prev, [s.key]: e.target.value }))}
+                                      style={{ width: 50, height: 40, padding: 0, border: '1px solid #e0dbd5', borderRadius: '.4rem', cursor: 'pointer' }}
+                                    />
+                                    <input value={editedSettings[s.key] || ''}
+                                      onChange={e => setEditedSettings(prev => ({ ...prev, [s.key]: e.target.value }))}
+                                      style={{ ...inp, flex: 1, minWidth: 140 }}
+                                      placeholder="#RRGGBB"
+                                    />
+                                    <div style={{ width: 28, height: 28, borderRadius: '.4rem', background: editedSettings[s.key] || '#6b2a1a', border: '1px solid #e0dbd5', flexShrink: 0 }} title="Aperçu couleur" />
+                                  </div>
+                                ) : isFontType ? (
+                                  <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                                    <select value={editedSettings[s.key] || ''}
+                                      onChange={e => setEditedSettings(prev => ({ ...prev, [s.key]: e.target.value }))}
+                                      style={{ ...inp, flex: 1, minWidth: 180, padding: '.55rem .75rem' }}
+                                    >
+                                      <option value="">— Choisir une police —</option>
+                                      <option value="DM Sans">DM Sans</option>
+                                      <option value="Lora">Lora</option>
+                                      <option value="Playfair Display">Playfair Display</option>
+                                      <option value="Inter">Inter</option>
+                                      <option value="Montserrat">Montserrat</option>
+                                      <option value="Source Serif 4">Source Serif 4</option>
+                                      <option value="Poppins">Poppins</option>
+                                      <option value="Raleway">Raleway</option>
+                                    </select>
+                                    <div style={{ fontFamily: editedSettings[s.key] || 'inherit', fontSize: '.9rem', padding: '.25rem .5rem', background: 'white', borderRadius: '.4rem', border: '1px solid #e0dbd5', maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#333' }}>
+                                      {editedSettings[s.key] || 'Aa'}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <input value={editedSettings[s.key] || ''}
+                                    onChange={e => setEditedSettings(prev => ({ ...prev, [s.key]: e.target.value }))}
+                                    style={inp} placeholder={s.label} />
+                                )}
+                              </div>
+                            );
+                          })}
                           {groupItems.length === 0 && <p style={{ color: '#aaa', fontSize: '.9rem', textAlign: 'center', padding: '2rem' }}>Aucun paramètre dans ce groupe.</p>}
                         </div>
+                        {/* Phase 5: Live Preview Panel for Appearance Settings */}
+                        {settingsGroup === 'appearance' && (
+                          <div style={{ marginTop: '2rem', padding: '1.5rem', background: '#f5f3ef', borderRadius: '1rem', border: '1px solid #e8e3dc' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                              <h3 style={{ margin: 0, fontSize: '.95rem', fontWeight: 700, color: '#6b2a1a' }}>🔍 Aperçu live du thème</h3>
+                              <button onClick={() => {
+                                const defaults: Record<string, string> = {
+                                  color_primary: '#6b2a1a', color_secondary: '#01696f', color_accent: '#d4a574',
+                                  color_background: '#f5f3ef', color_text: '#1a1a1a',
+                                  button_primary_bg: '#6b2a1a', button_primary_text: '#ffffff',
+                                  button_secondary_bg: '#f5f3ef', button_secondary_text: '#6b2a1a',
+                                  font_heading: 'Lora', font_body: 'DM Sans',
+                                };
+                                setEditedSettings(prev => ({ ...prev, ...defaults }));
+                                showToast('↩️ Valeurs par défaut Heldonica restaurées', 'info');
+                              }}
+                                style={{ padding: '.3rem .65rem', background: '#e8e3dc', color: '#555', border: 'none', borderRadius: '.4rem', cursor: 'pointer', fontSize: '.75rem' }}
+                              >↩️ Reset</button>
+                            </div>
+                            <div style={{ background: 'white', borderRadius: '.75rem', padding: '1.25rem', boxShadow: '0 2px 8px rgba(0,0,0,.08)' }}>
+                              {/* Fake header */}
+                              <div style={{
+                                padding: '.5rem 1rem', borderRadius: '.5rem .5rem 0 0',
+                                background: editedSettings.color_primary || '#6b2a1a',
+                                color: '#fff', fontWeight: 700, fontSize: '.8rem',
+                                fontFamily: editedSettings.font_heading || 'Lora',
+                              }}>HELDONICA — {editedSettings.site_title || 'Site de voyage'}</div>
+                              {/* Fake hero section */}
+                              <div style={{ padding: '1rem', textAlign: 'center', background: editedSettings.color_background || '#f5f3ef' }}>
+                                <h2 style={{ margin: '0 0 .5rem', fontSize: '1rem', fontWeight: 700, color: editedSettings.color_primary || '#6b2a1a', fontFamily: editedSettings.font_heading || 'Lora' }}>
+                                  Destination • Île Maurice
+                                </h2>
+                                <p style={{ margin: '0 0 .75rem', fontSize: '.72rem', color: editedSettings.color_text || '#1a1a1a', fontFamily: editedSettings.font_body || 'DM Sans' }}>
+                                  Un séjour inoubliable à Maurice
+                                </p>
+                                <button style={{
+                                  display: 'inline-block', padding: '.45rem 1rem', borderRadius: '.4rem', fontSize: '.75rem', fontWeight: 600,
+                                  background: editedSettings.button_primary_bg || '#6b2a1a',
+                                  color: editedSettings.button_primary_text || '#fff',
+                                  fontFamily: editedSettings.font_body || 'DM Sans',
+                                  border: 'none', cursor: 'pointer',
+                                }}>Découvrir</button>
+                                <button style={{
+                                  display: 'inline-block', marginLeft: '.5rem', padding: '.45rem 1rem', borderRadius: '.4rem', fontSize: '.75rem', fontWeight: 600,
+                                  background: editedSettings.button_secondary_bg || '#f5f3ef',
+                                  color: editedSettings.button_secondary_text || '#6b2a1a',
+                                  fontFamily: editedSettings.font_body || 'DM Sans',
+                                  border: `1.5px solid ${editedSettings.button_secondary_text || '#6b2a1a'}`,
+                                  cursor: 'pointer',
+                                }}>Infos</button>
+                              </div>
+                              {/* Fake card */}
+                              <div style={{ padding: '1rem' }}>
+                                <div style={{ display: 'flex', gap: '.75rem' }}>
+                                  <div style={{ width: 60, height: 60, background: editedSettings.color_accent || '#d4a574', borderRadius: '.4rem', flexShrink: 0 }} />
+                                  <div>
+                                    <p style={{ margin: '0 0 .25rem', fontFamily: editedSettings.font_heading || 'Lora', fontSize: '.8rem', fontWeight: 600, color: editedSettings.color_text || '#1a1a1a' }}>Voyage culturelles</p>
+                                    <p style={{ margin: 0, fontSize: '.7rem', color: '#888', fontFamily: editedSettings.font_body || 'DM Sans' }}>
+                                      Prix indicatifs — 1 200 € à 3 500 €
+                                    </p>
+                                    <p style={{ margin: '.25rem 0 0', fontSize: '.72rem', color: '#888', fontFamily: editedSettings.font_body || 'DM Sans' }}>
+                                      5 jours / 4 nuits avec hébergement inclus
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <p style={{ fontSize: '.7rem', color: '#aaa', textAlign: 'center', marginTop: '.5rem' }}>Aperçu indicatif — le rendu final dépend du contexte de la page</p>
+                          </div>
+                        )}
                         <button onClick={saveSettings} disabled={savingSettings}
                           style={{ marginTop: '1.75rem', padding: '.7rem 2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '.9rem', opacity: savingSettings ? .7 : 1 }}
                         >{savingSettings ? '⏳ Sauvegarde…' : '💾 Sauvegarder'}</button>
