@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 
   // Test connexion
   const { data: test, error: testError } = await supabase
-    .from("cms_blog_posts")
+    .from('articles')
     .select("count", { count: "exact", head: true });
 
   if (testError) {
@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
   }));
 
   const { error } = await supabase
-    .from("cms_blog_posts")
+    .from('articles')
     .upsert(formattedArticles, { onConflict: "slug" })
     .select("slug");
 
