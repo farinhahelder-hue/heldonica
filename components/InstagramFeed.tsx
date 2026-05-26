@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
+import { Instagram } from 'lucide-react'
 
 interface BeholdPost {
   id: string
@@ -15,33 +17,51 @@ interface BeholdPost {
   dominantColor?: number[]
 }
 
-export default function InstagramFeed() {
+interface InstagramFeedProps {
+  feedId?: string
+}
+
+export default function InstagramFeed({ feedId }: InstagramFeedProps) {
   const [posts, setPosts] = useState<BeholdPost[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [bgColor, setBgColor] = useState<string>('transparent')
 
+  const username = 'heldonica'
+  const apiUrl = feedId
+    ? `https://feeds.behold.so/${feedId}`
+    : `https://feeds.behold.so/${process.env.NEXT_PUBLIC_BEHOLD_FEED_ID || 'demo'}`
+
   useEffect(() => {
-    fetch('https://feeds.behold.so/h8gmFRoQO2TtCYj4Guz3')
-      .then((r) => r.json())
+    const controller = new AbortController()
+
+    fetch(apiUrl, { signal: controller.signal })
+      .then((r) => {
+        if (!r.ok) throw new Error('API error')
+        return r.json()
+      })
       .then((data: BeholdPost[]) => {
-        setPosts(data.slice(0, 6))
-        if (data[0]?.dominantColor) {
-          const [r, g, b] = data[0].dominantColor
-          setBgColor(`rgba(${r},${g},${b},0.08)`)
+        if (!Array.isArray(data) || data.length === 0) {
+          setError(true)
+        } else {
+          setPosts(data.slice(0, 6))
+          if (data[0]?.dominantColor) {
+            const [r, g, b] = data[0].dominantColor
+            setBgColor(`rgba(${r},${g},${b},0.08)`)
+          }
         }
       })
-      .catch(() => {})
+      .catch(() => setError(true))
       .finally(() => setLoading(false))
-  }, [])
+
+    return () => controller.abort()
+  }, [apiUrl])
 
   function getMediaUrl(post: BeholdPost): string {
-    if (post.mediaType === 'VIDEO' || post.mediaType === 'REEL') {
-      return post.sizes?.medium?.mediaUrl || post.thumbnailUrl || ''
-    }
     return post.sizes?.medium?.mediaUrl || post.thumbnailUrl || ''
   }
 
-  const username = 'heldonica'
+  const showEmptyState = !loading && (error || posts.length === 0)
 
   return (
     <section style={{ backgroundColor: bgColor }} className="py-16 transition-colors duration-700">
@@ -50,54 +70,68 @@ export default function InstagramFeed() {
           Sur le terrain, pas en studio
         </h2>
 
-        {/* Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {loading
-            ? Array.from({ length: 6 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="aspect-square rounded-lg bg-stone-200 animate-pulse"
-                />
-              ))
-            : posts.map((post) => {
-                const isReel = post.mediaType === 'VIDEO' || post.mediaType === 'REEL'
-                const src = getMediaUrl(post)
-                const caption = post.prunedCaption?.slice(0, 80) ?? ''
+        {/* Loading skeleton */}
+        {loading && (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="aspect-square rounded-lg bg-stone-200 animate-pulse"
+              />
+            ))}
+          </div>
+        )}
 
-                return (
-                  <a
-                    key={post.id}
-                    href={post.permalink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="aspect-square relative group overflow-hidden rounded-lg bg-stone-200 block"
-                  >
-                    {src && (
-                      <img
-                        src={src}
-                        alt={caption || `Post Instagram @${username}`}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        loading="lazy"
-                        width={400}
-                        height={400}
-                      />
-                    )}
+        {/* Posts grid */}
+        {!loading && posts.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {posts.map((post) => {
+              const isReel = post.mediaType === 'VIDEO' || post.mediaType === 'REEL'
+              const src = getMediaUrl(post)
+              const caption = post.prunedCaption?.slice(0, 80) ?? ''
 
-                    {/* Reel badge */}
-                    {isReel && (
-                      <span className="absolute top-2 right-2 bg-black/50 text-white text-xs px-1.5 py-0.5 rounded">
-                        ▶
-                      </span>
-                    )}
+              return (
+                <a
+                  key={post.id}
+                  href={post.permalink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="aspect-square relative group overflow-hidden rounded-lg bg-stone-200 block"
+                >
+                  {src && (
+                    <Image
+                      src={src}
+                      alt={caption || `Post Instagram @${username}`}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      sizes="(max-width: 768px) 50vw, 33vw"
+                    />
+                  )}
 
-                    {/* Hover overlay */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex items-end p-3">
-                      <p className="text-white text-xs leading-snug line-clamp-3">{caption}</p>
-                    </div>
-                  </a>
-                )
-              })}
-        </div>
+                  {/* Reel badge */}
+                  {isReel && (
+                    <span className="absolute top-2 right-2 bg-black/50 text-white text-xs px-1.5 py-0.5 rounded">
+                      ▶
+                    </span>
+                  )}
+
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex items-end p-3">
+                    <p className="text-white text-xs leading-snug line-clamp-3">{caption}</p>
+                  </div>
+                </a>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Empty/error state */}
+        {showEmptyState && (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <Instagram className="w-12 h-12 text-stone-400 mb-4" />
+            <p className="text-stone-500 mb-2">@{username}</p>
+          </div>
+        )}
 
         {/* CTA */}
         <div className="mt-8 text-center">
