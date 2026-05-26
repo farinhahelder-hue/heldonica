@@ -2,130 +2,136 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
+import { Instagram } from 'lucide-react'
 
-const BEHOLD_URL = 'https://feeds.behold.so/h8gmFRoQO2TtCYj4Guz3'
-
-interface PostSize {
-  height: number
-  width: number
-  mediaUrl: string
-}
-
-interface InstagramPost {
+interface BeholdPost {
   id: string
   permalink: string
-  mediaType: string
-  isReel?: boolean
-  mediaUrl: string
-  thumbnailUrl?: string
-  prunedCaption: string
+  prunedCaption?: string
+  mediaType?: string
   sizes?: {
-    small?: PostSize
-    medium?: PostSize
-    large?: PostSize
+    medium?: { mediaUrl?: string }
+    thumbnail?: { mediaUrl?: string }
   }
-  colorPalette?: {
-    dominant?: { r: number; g: number; b: number }
-  }
+  thumbnailUrl?: string
+  dominantColor?: number[]
 }
 
-interface BeholdFeed {
-  username?: string
-  posts: InstagramPost[]
+interface InstagramFeedProps {
+  feedId?: string
 }
 
-function getPostImageUrl(post: InstagramPost): string {
-  if (post.sizes?.medium?.mediaUrl) return post.sizes.medium.mediaUrl
-  if (post.sizes?.small?.mediaUrl) return post.sizes.small.mediaUrl
-  if ((post.mediaType === 'VIDEO' || post.isReel) && post.thumbnailUrl) return post.thumbnailUrl
-  return post.mediaUrl
-}
-
-function SkeletonCard() {
-  return (
-    <div className="aspect-square rounded-lg bg-stone-200 animate-pulse" />
-  )
-}
-
-export default function InstagramFeed() {
-  const [posts, setPosts] = useState<InstagramPost[]>([])
-  const [username, setUsername] = useState('heldonica')
-  const [bgTint, setBgTint] = useState<string | null>(null)
+export default function InstagramFeed({ feedId }: InstagramFeedProps) {
+  const [posts, setPosts] = useState<BeholdPost[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+  const [bgColor, setBgColor] = useState<string>('transparent')
+
+  const username = 'heldonica'
+  const apiUrl = feedId
+    ? `https://feeds.behold.so/${feedId}`
+    : `https://feeds.behold.so/${process.env.NEXT_PUBLIC_BEHOLD_FEED_ID || 'demo'}`
 
   useEffect(() => {
-    fetch(BEHOLD_URL)
-      .then((r) => r.json())
-      .then((data: BeholdFeed) => {
-        const fetched = data.posts?.slice(0, 6) ?? []
-        setPosts(fetched)
-        if (data.username) setUsername(data.username)
-        // Dominant color tint from first post
-        const dom = fetched[0]?.colorPalette?.dominant
-        if (dom) setBgTint(`rgba(${dom.r},${dom.g},${dom.b},0.07)`)
+    const controller = new AbortController()
+
+    fetch(apiUrl, { signal: controller.signal })
+      .then((r) => {
+        if (!r.ok) throw new Error('API error')
+        return r.json()
       })
-      .catch(() => {})
+      .then((data: BeholdPost[]) => {
+        if (!Array.isArray(data) || data.length === 0) {
+          setError(true)
+        } else {
+          setPosts(data.slice(0, 6))
+          if (data[0]?.dominantColor) {
+            const [r, g, b] = data[0].dominantColor
+            setBgColor(`rgba(${r},${g},${b},0.08)`)
+          }
+        }
+      })
+      .catch(() => setError(true))
       .finally(() => setLoading(false))
-  }, [])
+
+    return () => controller.abort()
+  }, [apiUrl])
+
+  function getMediaUrl(post: BeholdPost): string {
+    return post.sizes?.medium?.mediaUrl || post.thumbnailUrl || ''
+  }
+
+  const showEmptyState = !loading && (error || posts.length === 0)
 
   return (
-    <section
-      className="py-16"
-      style={{ backgroundColor: bgTint ?? undefined }}
-    >
-      <div className="max-w-5xl mx-auto px-4">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="font-serif text-2xl text-stone-900">
-            Notre quotidien en images
-          </h2>
-          <a
-            href={`https://instagram.com/${username}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-[#1A7A7A] hover:underline"
-          >
-            @{username} →
-          </a>
-        </div>
+    <section style={{ backgroundColor: bgColor }} className="py-16 transition-colors duration-700">
+      <div className="max-w-4xl mx-auto px-4">
+        <h2 className="text-2xl font-serif text-mahogany text-center mb-8">
+          Sur le terrain, pas en studio
+        </h2>
 
-        {/* Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {loading
-            ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
-            : posts.map((post) => (
+        {/* Loading skeleton */}
+        {loading && (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="aspect-square rounded-lg bg-stone-200 animate-pulse"
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Posts grid */}
+        {!loading && posts.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {posts.map((post) => {
+              const isReel = post.mediaType === 'VIDEO' || post.mediaType === 'REEL'
+              const src = getMediaUrl(post)
+              const caption = post.prunedCaption?.slice(0, 80) ?? ''
+
+              return (
                 <a
                   key={post.id}
                   href={post.permalink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="aspect-square relative group overflow-hidden rounded-lg bg-stone-200"
+                  className="aspect-square relative group overflow-hidden rounded-lg bg-stone-200 block"
                 >
-                  <Image
-                    src={getPostImageUrl(post)}
-                    alt={post.prunedCaption?.slice(0, 100) || `Post @${username}`}
-                    fill
-                    sizes="(max-width: 640px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    unoptimized
-                  />
-                  {/* Hover overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
-                    <p className="text-white text-xs line-clamp-2">
-                      {post.prunedCaption?.slice(0, 80)}
-                    </p>
-                  </div>
-                  {/* Reels badge */}
-                  {(post.isReel || post.mediaType === 'VIDEO') && (
-                    <div className="absolute top-2 right-2 bg-black/60 rounded px-1.5 py-0.5">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
-                    </div>
+                  {src && (
+                    <Image
+                      src={src}
+                      alt={caption || `Post Instagram @${username}`}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      sizes="(max-width: 768px) 50vw, 33vw"
+                    />
                   )}
+
+                  {/* Reel badge */}
+                  {isReel && (
+                    <span className="absolute top-2 right-2 bg-black/50 text-white text-xs px-1.5 py-0.5 rounded">
+                      ▶
+                    </span>
+                  )}
+
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex items-end p-3">
+                    <p className="text-white text-xs leading-snug line-clamp-3">{caption}</p>
+                  </div>
                 </a>
-              ))}
-        </div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Empty/error state */}
+        {showEmptyState && (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <Instagram className="w-12 h-12 text-stone-400 mb-4" />
+            <p className="text-stone-500 mb-2">@{username}</p>
+          </div>
+        )}
 
         {/* CTA */}
         <div className="mt-8 text-center">
@@ -133,9 +139,9 @@ export default function InstagramFeed() {
             href={`https://instagram.com/${username}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block px-6 py-3 rounded-full border border-[#2D6A4F] text-[#2D6A4F] text-sm font-medium hover:bg-[#2D6A4F] hover:text-white transition-colors duration-200"
+            className="inline-flex items-center gap-2 px-6 py-3 border-2 border-eucalyptus text-eucalyptus font-medium hover:bg-eucalyptus hover:text-white transition-all rounded-full"
           >
-            Nous suivre sur Instagram @heldonica
+            Nous suivre sur Instagram @{username} →
           </a>
         </div>
       </div>
