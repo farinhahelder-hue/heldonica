@@ -495,31 +495,57 @@ function CMSAdminInner() {
     }
   };
 
-  // SEO analysis
-  const analyzeSEO = (content: string, title: string) => {
-    if (!content || !title) return { score: 0, readability: '-', wordCount: 0, density: 0, issues: [] };
-    const text = content.replace(/<[^>]+>/g, ' ');
-    const words = text.split(/\s+/).filter(Boolean);
-    const wordCount = words.length;
-    const sentences = text.split(/[.!?]+/).filter(Boolean);
-    const avgWordsPerSentence = wordCount / Math.max(sentences.length, 1);
-    const readability = avgWordsPerSentence < 15 ? '✅ Bonne' : avgWordsPerSentence < 20 ? '⚠️ Moyenne' : '❌ Difficile';
-    const titleLower = title.toLowerCase();
-    const contentLower = text.toLowerCase();
-    const titleInContent = contentLower.includes(titleLower) ? 1 : 0;
-    const density = titleInContent ? Math.round((contentLower.split(titleLower).length - 1) * 100 / wordCount) : 0;
-    const issues: string[] = [];
-    if (wordCount < 300) issues.push('Contenu court (< 300 mots)');
-    if (avgWordsPerSentence > 20) issues.push('Phrases trop longues');
-    if (!titleInContent) issues.push('Titre absent du contenu');
-    if (density > 5) issues.push('Répétition excessive du titre');
-    const score = Math.max(0, 100 - issues.length * 20 - (wordCount < 300 ? 20 : 0));
-    return { score, readability, wordCount, density, issues };
-  };
-  const seo = analyzeSEO(editingArticle?.content || '', editingArticle?.title || '');
+  // SEO analysis (Phase 3 - improved with debounce via useEffect)
+  const [seoKeyword, setSeoKeyword] = useState('');
+  const [seoState, setSeoState] = useState({ score: 0, readability: '-', wordCount: 0, density: 0, titleLen: 0, excerptLen: 0, h2Count: 0, imagesWithoutAlt: 0, issues: [] as string[] });
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const content = editingArticle?.content || '';
+      const title = editingArticle?.title || '';
+      const excerpt = editingArticle?.excerpt || '';
+      const keyword = seoKeyword;
+
+      if (!content && !title) {
+        setSeoState({ score: 0, readability: '-', wordCount: 0, density: 0, titleLen: 0, excerptLen: 0, h2Count: 0, imagesWithoutAlt: 0, issues: [] });
+        return;
+      }
+      const text = content.replace(/<[^>]+>/g, ' ');
+      const words = text.split(/\s+/).filter(Boolean);
+      const wordCount = words.length;
+      const sentences = text.split(/[.!?]+/).filter(Boolean);
+      const avgWordsPerSentence = wordCount / Math.max(sentences.length, 1);
+      const readability = avgWordsPerSentence < 15 ? '✅ Bonne' : avgWordsPerSentence < 20 ? '⚠️ Moyenne' : '❌ Difficile';
+      const titleLen = title?.length || 0;
+      const excerptLen = excerpt?.length || 0;
+      const h2Count = (content.match(/<h2[^>]*>/gi) || []).length;
+      const imagesWithoutAlt = (content.match(/<img(?![^>]*alt=)[^>]*>/gi) || []).length;
+      const density = keyword && wordCount > 0
+        ? Math.round(((text.toLowerCase().match(new RegExp(keyword.toLowerCase(), 'g')) || []).length / wordCount) * 100 * 10) / 10
+        : 0;
+
+      const issues: string[] = [];
+      if (titleLen > 0 && titleLen < 30) issues.push('Titre trop court (< 30 car.)');
+      if (titleLen > 60) issues.push('Titre trop long (> 60 car.)');
+      if (excerptLen > 0 && excerptLen < 80) issues.push('Extrait trop court (< 80 car.)');
+      if (excerptLen > 160) issues.push('Extrait trop long (> 160 car.)');
+      if (wordCount < 300) issues.push('Contenu court (< 300 mots)');
+      if (avgWordsPerSentence > 20) issues.push('Phrases trop longues');
+      if (h2Count < 2 && wordCount > 300) issues.push('Ajoutez au moins 2 sous-titres H2');
+      if (keyword && (density < 0.5 || density > 2.5)) issues.push(`Densité mot-clé: ${density}% (cible: 0.5-2.5%)`);
+      if (imagesWithoutAlt > 0) issues.push(`${imagesWithoutAlt} image(s) sans texte alternatif`);
+
+      const score = Math.max(0, 100 - issues.length * 10 - (wordCount < 300 ? 10 : 0) - (titleLen > 60 ? 5 : 0));
+      setSeoState({ score, readability, wordCount, density, titleLen, excerptLen, h2Count, imagesWithoutAlt, issues });
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [editingArticle?.content, editingArticle?.title, editingArticle?.excerpt, seoKeyword]);
+  const seo = seoState;
   const [uploadingFeaturedImage, setUploadingFeaturedImage] = useState(false);
   const [articleBaseline, setArticleBaseline] = useState(() => getArticleDraftSignature(null));
   const [showArticlePreview, setShowArticlePreview] = useState(false);
+  const [articleRevisions, setArticleRevisions] = useState<any[]>([]);
+  const [loadingArticleRevisions, setLoadingArticleRevisions] = useState(false);
 
   // Demandes travel
   const [demandes, setDemandes] = useState<Demande[]>([]);
@@ -607,13 +633,25 @@ function CMSAdminInner() {
     return confirm('Tu as des modifications non sauvegardées. Les quitter ?');
   }, [isArticleDirty]);
 
-  const openArticleEditor = useCallback((article?: Partial<Article>) => {
+  const openArticleEditor = useCallback(async (article?: Partial<Article>) => {
     if ((editingArticle || tab === 'new') && !confirmDiscardArticleChanges()) return;
     const draft = article ? { ...article } : {};
     setEditingArticle(draft);
     setArticleBaseline(getArticleDraftSignature(draft));
     setShowArticlePreview(false);
     setTab('new');
+    setArticleRevisions([]);
+    if (draft.id) {
+      setLoadingArticleRevisions(true);
+      try {
+        const res = await fetch(`/api/cms/article-revisions?article_id=${draft.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          setArticleRevisions(data.revisions || []);
+        }
+      } catch {}
+      setLoadingArticleRevisions(false);
+    }
   }, [confirmDiscardArticleChanges, editingArticle, tab]);
 
   const closeArticleEditor = useCallback(() => {
@@ -1780,15 +1818,70 @@ function CMSAdminInner() {
                 </div>
               )}
               <div style={{ gridColumn: '1 / -1', padding: '1rem', background: '#f8f9fa', borderRadius: '.5rem', marginTop: '1rem' }}>
-                <div style={{ fontWeight: 600, marginBottom: '.5rem', fontSize: '.85rem' }}>📊 Analyse SEO</div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '.5rem', fontSize: '.8rem' }}>
-                  <div>📖 Lisibilité: <strong>{seo.readability}</strong></div>
-                  <div>📄 Mots: <strong>{seo.wordCount}</strong></div>
-                  <div>🔑 Densité titre: <strong>{seo.density}%</strong></div>
+                {/* Phase 3: Enhanced SEO Panel */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '.75rem' }}>
+                  <span style={{ fontWeight: 600, fontSize: '.85rem' }}>📊 Analyse SEO</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}>
+                    <input
+                      type="text"
+                      value={seoKeyword}
+                      onChange={e => setSeoKeyword(e.target.value)}
+                      placeholder="Mot-clé SEO…"
+                      style={{ padding: '.3rem .6rem', border: '1px solid #ddd', borderRadius: '.3rem', fontSize: '.8rem', width: 140 }}
+                    />
+                    {/* Score circle */}
+                    <div style={{ width: 40, height: 40, borderRadius: '50%', background: seo.score >= 70 ? '#28a745' : seo.score >= 40 ? '#ffc107' : '#dc3545', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: '.9rem' }}>
+                      {seo.score}
+                    </div>
+                  </div>
                 </div>
+
+                {/* SERP Preview */}
+                <div style={{ background: 'white', border: '1px solid #e8e0d8', borderRadius: '.5rem', padding: '.75rem', marginBottom: '.75rem' }}>
+                  <div style={{ fontSize: '.75rem', color: '#6b2a1a', marginBottom: '.25rem' }}>Aperçu Google</div>
+                  <div style={{ color: '#1a0fbd', fontSize: '1rem', fontWeight: 400, marginBottom: '.15rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{editingArticle?.title || 'Titre de l\'article'}</div>
+                  <div style={{ color: '#006621', fontSize: '.8rem', marginBottom: '.15rem' }}>heldonica.fr/blog/{editingArticle?.slug || slug(editingArticle?.title || '') || 'article'}</div>
+                  <div style={{ color: '#545454', fontSize: '.8rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{editingArticle?.excerpt || excerpt || 'Extrait de l\'article…'}</div>
+                </div>
+
+                {/* Metrics grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '.5rem', fontSize: '.8rem' }}>
+                  <div style={{ padding: '.5rem', background: 'white', borderRadius: '.3rem', textAlign: 'center' }}>
+                    <div style={{ fontSize: '1rem', fontWeight: 700, color: seo.titleLen >= 30 && seo.titleLen <= 60 ? '#28a745' : '#dc3545' }}>{seo.titleLen}</div>
+                    <div style={{ color: '#888', fontSize: '.65rem' }}>Car. titre (cible 30-60)</div>
+                  </div>
+                  <div style={{ padding: '.5rem', background: 'white', borderRadius: '.3rem', textAlign: 'center' }}>
+                    <div style={{ fontSize: '1rem', fontWeight: 700, color: seo.excerptLen >= 80 && seo.excerptLen <= 160 ? '#28a745' : '#dc3545' }}>{seo.excerptLen}</div>
+                    <div style={{ color: '#888', fontSize: '.65rem' }}>Car. extrait (cible 80-160)</div>
+                  </div>
+                  <div style={{ padding: '.5rem', background: 'white', borderRadius: '.3rem', textAlign: 'center' }}>
+                    <div style={{ fontSize: '1rem', fontWeight: 700, color: '#28a745' }}>{seo.wordCount}</div>
+                    <div style={{ color: '#888', fontSize: '.65rem' }}>Mots (cible &gt;800)</div>
+                  </div>
+                  <div style={{ padding: '.5rem', background: 'white', borderRadius: '.3rem', textAlign: 'center' }}>
+                    <div style={{ fontSize: '1rem', fontWeight: 700, color: seo.h2Count >= 2 ? '#28a745' : '#ffc107' }}>{seo.h2Count}</div>
+                    <div style={{ color: '#888', fontSize: '.65rem' }}>H2 (min 2)</div>
+                  </div>
+                </div>
+
+                {/* Density & images */}
+                {seoKeyword && (
+                  <div style={{ marginTop: '.5rem', padding: '.4rem', background: 'white', borderRadius: '.3rem', fontSize: '.8rem', display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Densité mot-clé:</span>
+                    <span style={{ fontWeight: 600, color: seo.density >= 0.5 && seo.density <= 2.5 ? '#28a745' : '#dc3545' }}>{seo.density}% (cible: 0.5-2.5%)</span>
+                  </div>
+                )}
+                {seo.imagesWithoutAlt > 0 && (
+                  <div style={{ marginTop: '.5rem', padding: '.4rem', background: '#fff3cd', borderRadius: '.3rem', fontSize: '.8rem', color: '#856404' }}>
+                    ⚠️ {seo.imagesWithoutAlt} image(s) sans texte alternatif
+                  </div>
+                )}
+
+                {/* Issues list */}
                 {seo.issues.length > 0 && (
-                  <div style={{ marginTop: '.5rem', color: '#c0392b', fontSize: '.75rem' }}>
-                    {seo.issues.map((issue, i) => <div key={i}>⚠️ {issue}</div>)}
+                  <div style={{ marginTop: '.75rem', padding: '.75rem', background: '#fdf2f2', borderRadius: '.5rem', border: '1px solid #f5c6c6' }}>
+                    <div style={{ fontWeight: 600, color: '#c0392b', fontSize: '.8rem', marginBottom: '.5rem' }}>⚠️ Points à corriger</div>
+                    {seo.issues.map((issue, i) => <div key={i} style={{ color: '#c0392b', fontSize: '.75rem', marginBottom: '.25rem' }}>• {issue}</div>)}
                   </div>
                 )}
               </div>
@@ -1801,23 +1894,66 @@ function CMSAdminInner() {
                 {isArticleDirty && <span style={{ ...metaChip, background: '#fff4db', color: '#8a5a00' }}>Brouillon non sauvegardé</span>}
               </div>
             </div>
+            {/* Phase 3: Live Preview Panel */}
             {showArticlePreview && (
-              <div style={previewPanel}>
-                <h3 style={{ margin: '0 0 1rem', fontSize: '1rem', color: '#6b2a1a' }}>Aperçu public</h3>
-                <div style={previewFrame}>
-                  {editingArticle?.featured_image ? (
-                    <img src={editingArticle.featured_image} alt="" style={{ width: '100%', maxHeight: 320, objectFit: 'cover', borderRadius: '.9rem', marginBottom: '1.5rem' }} />
-                  ) : (
-                    <div style={previewImageFallback}>Ajoute une image à la une</div>
-                  )}
-                  <h1 style={{ margin: 0, fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', lineHeight: 1.1, color: '#1f1a17' }}>{editingArticle?.title || "Titre de l’article"}</h1>
-                  <p style={{ margin: '1rem 0 1.5rem', color: '#6d625a', fontSize: '1rem', lineHeight: 1.7 }}>{editingArticle?.excerpt || "Ton extrait apparaîtra ici."}</p>
-                  {articlePreviewHtml ? (
-                    <EnhancedRichContent html={articlePreviewHtml} style={previewBody} />
-                  ) : (
-                    <p style={{ margin: 0, color: '#8a7a70', lineHeight: 1.7 }}>Commence à écrire dans l&apos;éditeur pour voir le rendu ici.</p>
-                  )}
+              <div style={{ marginTop: '1rem', padding: '1rem', background: 'white', borderRadius: '1rem', border: '1px solid #e8e0d8' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: '#6b2a1a' }}>🔍 Aperçu live</h3>
+                  <button onClick={() => setShowArticlePreview(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', fontSize: '1.1rem', padding: 0 }}>✕</button>
                 </div>
+                <div style={{ border: '1px solid #e8e0d8', borderRadius: '.75rem', overflow: 'hidden', maxHeight: 500, overflowY: 'auto' }}>
+                  {editingArticle?.featured_image ? (
+                    <img src={editingArticle.featured_image} alt="" style={{ width: '100%', maxHeight: 240, objectFit: 'cover' }} />
+                  ) : (
+                    <div style={{ minHeight: 160, background: 'linear-gradient(135deg, #f2e8dc 0%, #d9ebe6 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6d625a' }}>Image à la une</div>
+                  )}
+                  <div style={{ padding: '1.25rem' }}>
+                    <h1 style={{ margin: '0 0 .75rem', fontSize: 'clamp(1.3rem, 2.5vw, 1.9rem)', lineHeight: 1.2, color: '#1f1a17' }}>{editingArticle?.title || "Titre de l'article"}</h1>
+                    <p style={{ margin: '0 0 1rem', color: '#6d625a', fontSize: '.9rem', lineHeight: 1.6 }}>{editingArticle?.excerpt || "Extrait..."}</p>
+                    {articlePreviewHtml ? (
+                      <EnhancedRichContent html={articlePreviewHtml} />
+                    ) : (
+                      <p style={{ color: '#8a7a70', lineHeight: 1.7 }}>Contenu...</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Phase 3: Version History */}
+            {editingArticle?.id && (
+              <div style={{ marginTop: '1rem', padding: '1rem', background: 'white', borderRadius: '1rem', border: '1px solid #e8e0d8' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '.75rem' }}>
+                  <span style={{ fontWeight: 600, fontSize: '.9rem', color: '#333' }}>📜 Historique</span>
+                  <span style={{ fontSize: '.75rem', color: '#888' }}>{articleRevisions.length} versions</span>
+                </div>
+                {loadingArticleRevisions ? (
+                  <p style={{ color: '#888', fontSize: '.85rem', textAlign: 'center', padding: '1rem' }}>Chargement…</p>
+                ) : articleRevisions.length === 0 ? (
+                  <p style={{ color: '#888', fontSize: '.85rem', textAlign: 'center', padding: '1rem' }}>Aucune version sauvegardée. Sauvegardez l'article pour enregistrer une première version.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem', maxHeight: 220, overflowY: 'auto' }}>
+                    {articleRevisions.map(rev => (
+                      <div key={rev.id} style={{ padding: '.65rem .75rem', background: '#f8f6f4', borderRadius: '.4rem', borderLeft: '3px solid #6b2a1a' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '.2rem' }}>
+                          <span style={{ fontSize: '.8rem', fontWeight: 600, color: '#333', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '60%' }}>{rev.title || '(Sans titre)'}</span>
+                          <span style={{ fontSize: '.7rem', color: '#888' }}>{rev.saved_at ? new Date(rev.saved_at).toLocaleString('fr-FR') : '—'}</span>
+                        </div>
+                        <div style={{ fontSize: '.7rem', color: '#888', marginBottom: '.35rem' }}>{rev.word_count || 0} mots</div>
+                        <button
+                          onClick={() => {
+                            setEditingArticle(prev => prev ? { ...prev, content: rev.content, title: rev.title, excerpt: rev.excerpt } : prev);
+                            showToast('✅ Version restaurée (non sauvegardée)', 'info');
+                          }}
+                          style={{ padding: '.2rem .5rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.3rem', cursor: 'pointer', fontSize: '.75rem' }}
+                        >Restaurer</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
               </div>
             )}
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1.75rem', justifyContent: 'flex-end' }}>
