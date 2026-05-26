@@ -281,7 +281,9 @@ function CMSAdminInner() {
   const [authErr, setAuthErr] = useState('');
   const [tab, setTab] = useState('articles');
   const [toast, setToast] = useState('');
+  const [toasts, setToasts] = useState<Array<{id: number; message: string; type: 'success' | 'error' | 'warning' | 'info'}>>([]);
   const [showMediaLibrary, setShowMediaLibrary] = useState(false);
+  const toastIdRef = useRef(0);
 
   // Articles
   const [articles, setArticles] = useState<Article[]>([]);
@@ -570,9 +572,16 @@ function CMSAdminInner() {
     setLoadingSearch(false);
   }, [searchQuery, searchType]);
 
-  const showToast = useCallback((msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(''), 3500);
+  const showToast = useCallback((msg: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') => {
+    const id = ++toastIdRef.current;
+    setToasts(prev => {
+      const next = [...prev, { id, message: msg, type }];
+      return next.slice(-3); // max 3 toasts
+    });
+    const durations: Record<string, number> = { success: 3000, info: 4000, warning: 5000, error: 5000 };
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, durations[type] || 4000);
   }, []);
 
   const handleUnauthorized = useCallback((res: Response, message = 'Session expirée. Merci de vous reconnecter.') => {
@@ -1194,17 +1203,27 @@ function CMSAdminInner() {
     <div style={{ minHeight: '100vh', background: '#f5f3ef', fontFamily: 'DM Sans, system-ui, sans-serif' }}>
       <style>{`
         .cms-grid-kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-        .cms-layout-sidebar { display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem; align-items: start; }
+        .cms-layout-sidebar { display: grid; grid-template-columns: 280px 1fr; gap: 0; align-items: start; min-height: calc(100vh - 60px); }
         .cms-mobile-tabs { display: flex; }
         .cms-mobile-sidebar-panel { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: white; z-index: 50; padding: 2rem 1rem; box-shadow: 2px 0 12px rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: 0.5rem; transform: translateX(-100%); transition: transform 0.3s ease; overflow-y: auto; }
         .cms-mobile-sidebar-panel.open { transform: translateX(0); }
         .cms-top-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
-
+        /* Phase 1: Fixed sidebar */
+        .cms-sidebar-fixed { width: 280px; flex-shrink: 0; background: white; border-right: 1px solid #e8e0d8; min-height: calc(100vh - 60px); padding: 1.5rem 0; position: sticky; top: 60px; }
+        .cms-sidebar-section { margin-bottom: 1.5rem; }
+        .cms-sidebar-section-title { font-size: .7rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .08em; padding: 0 1.5rem; margin-bottom: .5rem; }
+        .cms-sidebar-link { display: flex; align-items: center; gap: .75rem; padding: .75rem 1.5rem; color: #555; font-size: .9rem; cursor: pointer; border: none; background: none; width: 100%; text-align: left; transition: all .15s; border-left: 3px solid transparent; }
+        .cms-sidebar-link:hover { background: #f8f6f4; color: #333; }
+        .cms-sidebar-link.active { background: #f0e8e4; color: #6b2a1a; border-left-color: #6b2a1a; font-weight: 600; }
+        .cms-sidebar-link .badge { background: #dc3545; color: white; border-radius: 9999px; padding: .1rem .5rem; font-size: .7rem; font-weight: 700; margin-left: auto; }
+        .cms-sidebar-status { margin-top: auto; padding: 1rem 1.5rem; border-top: 1px solid #e8e0d8; display: flex; align-items: center; gap: .5rem; font-size: .8rem; color: #888; }
+        .cms-status-dot { width: 8px; height: 8px; border-radius: 50%; background: #28a745; }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @media (max-width: 767px) {
           .cms-layout-sidebar { grid-template-columns: 1fr; }
           .cms-mobile-tabs { display: none !important; }
+          .cms-sidebar-fixed { display: none; }
         }
-
         @media (min-width: 768px) {
           [data-mobile-only="true"] { display: none !important; }
           .cms-mobile-sidebar-panel { display: none !important; }
@@ -1256,9 +1275,18 @@ function CMSAdminInner() {
         <button onClick={logout} style={{ background: 'rgba(255,255,255,.15)', border: 'none', color: 'white', padding: '.4rem .9rem', borderRadius: '.4rem', cursor: 'pointer', fontSize: '.85rem' }}>Déconnexion</button>
       </div>
 
-      {toast && (
-        <div style={{ position: 'fixed', top: '5rem', right: '1.5rem', background: '#1a1a1a', color: 'white', padding: '.8rem 1.4rem', borderRadius: '.6rem', zIndex: 100, fontSize: '.9rem', boxShadow: '0 4px 16px rgba(0,0,0,.2)' }}>{toast}</div>
-      )}
+      {/* Toast notifications stack (bottom-right) */}
+      {toasts.map(t => (
+        <div key={t.id} style={{
+          position: 'fixed', bottom: '1.5rem', right: '1.5rem',
+          background: t.type === 'success' ? '#28a745' : t.type === 'error' ? '#dc3545' : t.type === 'warning' ? '#fd7e14' : '#333',
+          color: 'white', padding: '.8rem 1.4rem', borderRadius: '.6rem',
+          zIndex: 100, fontSize: '.9rem', boxShadow: '0 4px 16px rgba(0,0,0,.25)',
+          maxWidth: 320, animation: 'toastIn 0.2s ease-out'
+        }}>
+          {t.message}
+        </div>
+      ))}
 
       {showMediaLibrary && (
         <MediaLibrary
@@ -1291,74 +1319,209 @@ function CMSAdminInner() {
         ))}
       </div>
 
-      <div style={{ maxWidth: 1100, margin: '2rem auto', padding: '0 1.5rem' }}>
+      {/* Phase 1: Two-column layout with fixed sidebar */}
+      <div className="cms-layout-sidebar" style={{ display: 'flex', alignItems: 'stretch' }}>
+        {/* Fixed Sidebar (desktop only) */}
+        <aside className="cms-sidebar-fixed">
+          <div style={{ padding: '0 1.5rem', marginBottom: '1.5rem' }}>
+            <span style={{ fontSize: '1.2rem' }}>🌍</span>
+            <span style={{ fontWeight: 700, fontSize: '1rem', color: '#6b2a1a', marginLeft: '.5rem' }}>Heldonica CMS</span>
+          </div>
+          
+          <div className="cms-sidebar-section">
+            <div className="cms-sidebar-section-title">Navigation</div>
+            <button className={`cms-sidebar-link ${tab === 'dashboard' ? 'active' : ''}`} onClick={() => handleTabChange('dashboard')}>
+              <Home size={16} /> Tableau de bord
+            </button>
+            <button className={`cms-sidebar-link ${tab === 'articles' ? 'active' : ''}`} onClick={() => handleTabChange('articles')}>
+              <FileText size={16} /> Articles
+              {articles.filter(a => !a.published).length > 0 && (
+                <span className="badge">{articles.filter(a => !a.published).length}</span>
+              )}
+            </button>
+            <button className={`cms-sidebar-link ${tab === 'new' ? 'active' : ''}`} onClick={() => handleTabChange('new')}>
+              <Plus size={16} /> Nouvel article
+            </button>
+          </div>
+
+          <div className="cms-sidebar-section">
+            <div className="cms-sidebar-section-title">Outils</div>
+            <button className={`cms-sidebar-link ${tab === 'blog' ? 'active' : ''}`} onClick={() => handleTabChange('blog')}>
+              <Sparkles size={16} /> Générateur IA
+            </button>
+            <button className={`cms-sidebar-link ${tab === 'demandes' ? 'active' : ''}`} onClick={() => handleTabChange('demandes')}>
+              <Plane size={16} /> Travel Planning
+              {demandes.filter(d => d.statut === 'nouveau').length > 0 && (
+                <span className="badge">{demandes.filter(d => d.statut === 'nouveau').length}</span>
+              )}
+            </button>
+            <button className={`cms-sidebar-link ${tab === 'carousel' ? 'active' : ''}`} onClick={() => handleTabChange('carousel')}>
+              <Car size={16} /> Carrousel
+            </button>
+            <button className={`cms-sidebar-link ${tab === 'media' ? 'active' : ''}`} onClick={() => handleTabChange('media')}>
+              <Image size={16} /> Médiathèque
+            </button>
+          </div>
+
+          <div className="cms-sidebar-section">
+            <div className="cms-sidebar-section-title">Configuration</div>
+            <button className={`cms-sidebar-link ${tab === 'pages' ? 'active' : ''}`} onClick={() => handleTabChange('pages')}>
+              <Folder size={16} /> Pages
+            </button>
+            <button className={`cms-sidebar-link ${tab === 'settings' ? 'active' : ''}`} onClick={() => handleTabChange('settings')}>
+              <Settings size={16} /> Paramètres
+            </button>
+            <button className={`cms-sidebar-link ${tab === 'analytics' ? 'active' : ''}`} onClick={() => handleTabChange('analytics')}>
+              <BarChart3 size={16} /> Analytics
+            </button>
+          </div>
+
+          <div className="cms-sidebar-section">
+            <div className="cms-sidebar-section-title">Recherche</div>
+            <button className={`cms-sidebar-link ${tab === 'search' ? 'active' : ''}`} onClick={() => handleTabChange('search')}>
+              <Search size={16} /> Search
+            </button>
+            <button className={`cms-sidebar-link ${tab === 'agents' ? 'active' : ''}`} onClick={() => handleTabChange('agents')}>
+              <Bot size={16} /> Agents IA
+            </button>
+          </div>
+
+          <div className="cms-sidebar-status">
+            <span className="cms-status-dot"></span>
+            <span>En ligne — heldonica.fr</span>
+          </div>
+        </aside>
+
+        {/* Main content area */}
+        <main style={{ flex: 1, padding: '2rem', minWidth: 0 }}>
+
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
 
         {tab === 'dashboard' && (
           <div>
-            {/* 4 Widget Dashboard */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-              {/* Widget 1: Brouillons */}
-              <div 
-                onClick={() => { setStatusFilter('draft'); setTab('articles'); }}
-                style={{ background: 'white', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', cursor: 'pointer', transition: 'transform .15s' }}
-                onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                  <span style={{ fontSize: '2rem' }}>📝</span>
+            {/* Phase 1: Dashboard Widgets */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+              
+              {/* Widget 1: Brouillons en attente */}
+              <div style={{ background: 'white', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#333' }}>📝 Brouillons en attente</h3>
                   <span style={{ background: '#ffc107', color: '#333', padding: '.25rem .5rem', borderRadius: '.25rem', fontSize: '.75rem', fontWeight: 600 }}>
-                    {articles.filter(a => !a.published).length}
+                    {articles.filter(a => !a.published && !a.archived).length}
                   </span>
                 </div>
-                <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#333', marginBottom: '.25rem' }}>Brouillons</h3>
-                <p style={{ fontSize: '.8rem', color: '#888' }}>Articles non publiés</p>
+                {loadingArticles ? (
+                  <div style={{ padding: '1rem', textAlign: 'center', color: '#888' }}>Chargement…</div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
+                    {articles.filter(a => !a.published && !a.archived).slice(0, 5).map(a => (
+                      <div key={a.id} 
+                        onClick={() => { setEditingArticle(a); setTab('articles'); }}
+                        style={{ padding: '.75rem', background: '#f8f6f4', borderRadius: '.5rem', cursor: 'pointer', transition: 'background .15s' }}
+                        onMouseOver={e => e.currentTarget.style.background = '#f0e8e4'}
+                        onMouseOut={e => e.currentTarget.style.background = '#f8f6f4'}
+                      >
+                        <div style={{ fontWeight: 600, color: '#333', fontSize: '.9rem', marginBottom: '.25rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.title || '(Sans titre)'}</div>
+                        <div style={{ fontSize: '.75rem', color: '#888' }}>{a.category || 'Non catégorisé'} · {a.updated_at ? fmt(a.updated_at) : '—'}</div>
+                      </div>
+                    ))}
+                    {articles.filter(a => !a.published && !a.archived).length === 0 && (
+                      <p style={{ color: '#888', fontSize: '.85rem', textAlign: 'center', padding: '1rem' }}>Aucun brouillon</p>
+                    )}
+                  </div>
+                )}
               </div>
-              
-              {/* Widget 2: Demandes Travel */}
-              <div 
-                onClick={() => setTab('demandes')}
-                style={{ background: 'white', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', cursor: 'pointer', transition: 'transform .15s' }}
-                onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                  <span style={{ fontSize: '2rem' }}>✈️</span>
+
+              {/* Widget 2: Nouvelles demandes Travel Planning */}
+              <div style={{ background: 'white', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#333' }}>✈️ Demandes Travel Planning</h3>
                   <span style={{ background: '#01696f', color: 'white', padding: '.25rem .5rem', borderRadius: '.25rem', fontSize: '.75rem', fontWeight: 600 }}>
-                    {demandes.length}
+                    {demandes.filter(d => d.statut === 'nouveau').length}
                   </span>
                 </div>
-                <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#333', marginBottom: '.25rem' }}>Demandes Travel</h3>
-                <p style={{ fontSize: '.8rem', color: '#888' }}>Demandes en attente</p>
+                {loadingDemandes ? (
+                  <div style={{ padding: '1rem', textAlign: 'center', color: '#888' }}>Chargement…</div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
+                    {demandes.filter(d => d.statut === 'nouveau').slice(0, 5).map(d => {
+                      const age48h = d.created_at && new Date(d.created_at) < new Date(Date.now() - 48 * 60 * 60 * 1000);
+                      return (
+                        <div key={d.id} 
+                          onClick={() => setTab('demandes')}
+                          style={{ padding: '.75rem', background: '#f8f6f4', borderRadius: '.5rem', cursor: 'pointer', borderLeft: age48h ? '3px solid #dc3545' : '3px solid #01696f' }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontWeight: 600, color: '#333', fontSize: '.9rem' }}>{d.prenom} {d.nom}</span>
+                            {age48h && <span style={{ background: '#dc3545', color: 'white', padding: '.1rem .4rem', borderRadius: '9999px', fontSize: '.65rem', fontWeight: 600 }}>Urgent</span>}
+                          </div>
+                          <div style={{ fontSize: '.75rem', color: '#888', marginTop: '.25rem' }}>{d.destination || 'Destination non précisée'} · {d.budget_fourchette || '—'}</div>
+                        </div>
+                      );
+                    })}
+                    {demandes.filter(d => d.statut === 'nouveau').length === 0 && (
+                      <p style={{ color: '#888', fontSize: '.85rem', textAlign: 'center', padding: '1rem' }}>Aucune demande en attente</p>
+                    )}
+                  </div>
+                )}
               </div>
-              
-              {/* Widget 3: Planifiés */}
-              <div 
-                onClick={() => { setCategoryFilter('all'); setTab('articles'); }}
-                style={{ background: 'white', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', cursor: 'pointer', transition: 'transform .15s' }}
-                onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                  <span style={{ fontSize: '2rem' }}>📅</span>
-                  <span style={{ background: '#9333ea', color: 'white', padding: '.25rem .5rem', borderRadius: '.25rem', fontSize: '.75rem', fontWeight: 600 }}>
-                    {articles.filter(a => a.scheduled_published_at && !a.published).length}
+
+              {/* Widget 3: Articles programmés bloqués */}
+              <div style={{ background: 'white', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', border: '1px solid #fd7e14' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#333' }}>📅 Articles programmés bloqués</h3>
+                  <span style={{ background: '#fd7e14', color: 'white', padding: '.25rem .5rem', borderRadius: '.25rem', fontSize: '.75rem', fontWeight: 600 }}>
+                    {articles.filter(a => a.scheduled_published_at && !a.published && a.scheduled_published_at && new Date(a.scheduled_published_at) < new Date()).length}
                   </span>
                 </div>
-                <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#333', marginBottom: '.25rem' }}>Planifiés</h3>
-                <p style={{ fontSize: '.8rem', color: '#888' }}>Articles programmés</p>
+                {articles.filter(a => a.scheduled_published_at && !a.published && new Date(a.scheduled_published_at) < new Date()).length === 0 ? (
+                  <p style={{ color: '#888', fontSize: '.85rem', textAlign: 'center', padding: '1rem' }}>Aucun article bloqué</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
+                    {articles.filter(a => a.scheduled_published_at && !a.published && new Date(a.scheduled_published_at) < new Date()).map(a => (
+                      <div key={a.id} style={{ padding: '.75rem', background: '#fff3cd', borderRadius: '.5rem' }}>
+                        <div style={{ fontWeight: 600, color: '#333', fontSize: '.9rem', marginBottom: '.5rem' }}>{a.title || '(Sans titre)'}</div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '.75rem', color: '#856404' }}>Programmé: {a.scheduled_published_at ? new Date(a.scheduled_published_at).toLocaleString('fr-FR') : '—'}</span>
+                          <button 
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              try {
+                                const res = await fetch(`/api/cms/articles/${a.id}`, {
+                                  method: 'PUT',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ published: true })
+                                });
+                                if (res.ok) {
+                                  showToast('✅ Article publié !', 'success');
+                                  loadArticles();
+                                }
+                              } catch { showToast('❌ Erreur de publication', 'error'); }
+                            }}
+                            style={{ background: '#fd7e14', color: 'white', border: 'none', padding: '.3rem .6rem', borderRadius: '.3rem', cursor: 'pointer', fontSize: '.75rem', fontWeight: 600 }}
+                          >Publier maintenant</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-              
+
               {/* Widget 4: KPIs */}
               <div style={{ background: 'white', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
                 <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#333', marginBottom: '1rem' }}>📊 KPIs</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.75rem' }}>
-                  <div style={{ textAlign: 'center', padding: '.5rem', background: '#f8f6f4', borderRadius: '.5rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '.5rem' }}>
+                  <div style={{ textAlign: 'center', padding: '.75rem .5rem', background: '#f8f6f4', borderRadius: '.5rem' }}>
                     <p style={{ fontSize: '1.25rem', fontWeight: 700, color: '#28a745' }}>{articles.filter(a => a.published).length}</p>
-                    <p style={{ fontSize: '.65rem', color: '#888' }}>Publiés</p>
+                    <p style={{ fontSize: '.65rem', color: '#888', marginTop: '.25rem' }}>Publiés</p>
                   </div>
-                  <div style={{ textAlign: 'center', padding: '.5rem', background: '#f8f6f4', borderRadius: '.5rem' }}>
+                  <div style={{ textAlign: 'center', padding: '.75rem .5rem', background: '#f8f6f4', borderRadius: '.5rem' }}>
                     <p style={{ fontSize: '1.25rem', fontWeight: 700, color: '#ffc107' }}>{articles.filter(a => !a.published).length}</p>
-                    <p style={{ fontSize: '.65rem', color: '#888' }}>Brouillons</p>
+                    <p style={{ fontSize: '.65rem', color: '#888', marginTop: '.25rem' }}>Brouillons</p>
+                  </div>
+                  <div style={{ textAlign: 'center', padding: '.75rem .5rem', background: '#f8f6f4', borderRadius: '.5rem' }}>
+                    <p style={{ fontSize: '1.25rem', fontWeight: 700, color: '#dc3545' }}>{demandes.filter(d => d.statut === 'nouveau').length}</p>
+                    <p style={{ fontSize: '.65rem', color: '#888', marginTop: '.25rem' }}>Demandes TP</p>
                   </div>
                 </div>
               </div>
@@ -2103,6 +2266,8 @@ function CMSAdminInner() {
         )}
 
       </div>
+      </main>
+    </div>
     </div>
   );
 }
