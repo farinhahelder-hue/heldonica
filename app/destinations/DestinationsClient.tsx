@@ -47,6 +47,7 @@ const destinations: DestinationCard[] = [
   },
   {
     name: 'Roumanie',
+    slug: '/destinations/roumanie',
     country: 'Roumanie',
     style: 'culture',
     duration: '7-10',

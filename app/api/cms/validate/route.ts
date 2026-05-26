@@ -63,7 +63,11 @@ export async function POST(req: Request) {
       .eq('id', post_id)
       .single()
 
-    if (fetchError || !post) {
+    // Cast to avoid Supabase type inference issues with 'never' type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const postData = post as any;
+
+    if (fetchError || !postData) {
       return NextResponse.json({ error: 'Post introuvable' }, { status: 404 })
     }
 
@@ -73,7 +77,7 @@ export async function POST(req: Request) {
 
     // 1. Check required fields
     for (const [field, rules] of Object.entries(REQUIRED_FIELDS)) {
-      const value = post[field]
+      const value = postData[field]
       
       if ('required' in rules && rules.required && !value) {
         issues.push({
@@ -104,7 +108,7 @@ export async function POST(req: Request) {
     }
 
     // 2. Check content length
-    const content = post.content || ''
+    const content = postData.content || ''
     const cleanContent = content.replace(/<[^>]*>/g, '').trim()
     
     if (cleanContent.length < MIN_CONTENT_LENGTH) {
@@ -124,9 +128,9 @@ export async function POST(req: Request) {
 
     // 3. Check forbidden words
     const allText = [
-      post.title,
-      post.excerpt,
-      post.content,
+      postData.title,
+      postData.excerpt,
+      postData.content,
     ].join(' ').toLowerCase()
 
     const foundForbidden: string[] = []
@@ -157,7 +161,7 @@ export async function POST(req: Request) {
     }
 
     // 4. Check image URL validity (async, best effort)
-    const imageUrl = post.featured_image
+    const imageUrl = postData.featured_image
     if (imageUrl && typeof imageUrl === 'string' && imageUrl.startsWith('http')) {
       try {
         const controller = new AbortController()
@@ -191,7 +195,8 @@ export async function POST(req: Request) {
 
     // 5. Check read_time calculation
     const calculatedReadTime = Math.ceil(cleanContent.length / 1000)
-    const declaredReadTime = post.read_time
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const declaredReadTime = (postData as any).read_time
     
     if (!declaredReadTime) {
       issues.push({
@@ -208,8 +213,10 @@ export async function POST(req: Request) {
     }
 
     // 5b. Check geo fields for destination articles
-    if (post.category === 'destinations') {
-      if (!post.country) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((postData as any).category === 'destinations') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (!(postData as any).country) {
         issues.push({
           type: 'warning',
           field: 'country',
@@ -220,7 +227,8 @@ export async function POST(req: Request) {
     }
 
     // 5c. Check personalization fields
-    if (!post.travel_style) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (!(postData as any).travel_style) {
       issues.push({
         type: 'warning',
         field: 'travel_style',
@@ -230,7 +238,8 @@ export async function POST(req: Request) {
     }
 
     // 6. Check slug format
-    const slug = post.slug
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const slug = (postData as any).slug
     if (slug) {
       const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
       if (!slugRegex.test(slug)) {

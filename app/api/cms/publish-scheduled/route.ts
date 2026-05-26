@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireCmsAuth } from '@/lib/cms-auth';
 
 export const maxDuration = 30;
 export const dynamic = 'force-dynamic';
 
 async function handler(req: NextRequest) {
-  // 1. Security Check (Vercel Cron)
-  const authHeader = req.headers.get('Authorization');
-  const isCron = authHeader === `Bearer ${process.env.CRON_SECRET}`;
+  // 1. Security Check - Vercel Cron or CMS auth
+  const cronHeader = req.headers.get('Authorization');
+  const isCron = cronHeader === `Bearer ${process.env.CRON_SECRET}`;
   
-  // Allow manual trigger for testing (to be removed in production if needed)
-  if (!isCron && process.env.NODE_ENV === 'production') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  // If not from cron, check CMS auth
+  if (!isCron) {
+    const authResponse = await requireCmsAuth(req as unknown as Request);
+    if (authResponse) return authResponse;
   }
 
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;

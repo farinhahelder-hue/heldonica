@@ -54,7 +54,11 @@ export async function PATCH(req: Request) {
   const body = await req.json()
   const { id, statut, notes_internes } = body
   
-  const updates: Record<string, unknown> = {}
+  const updates: Partial<{
+    statut: string;
+    notes_internes: string;
+    updated_at: string;
+  }> = {}
   if (statut !== undefined) updates.statut = statut
   if (notes_internes !== undefined) updates.notes_internes = notes_internes
   updates.updated_at = new Date().toISOString()
@@ -65,6 +69,7 @@ export async function PATCH(req: Request) {
   
   const { error } = await sb
     .from('demandes_travel')
+    // @ts-expect-error Supabase partial update typing
     .update(updates)
     .eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

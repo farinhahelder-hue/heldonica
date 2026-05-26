@@ -186,7 +186,9 @@ export async function GET(request: NextRequest) {
   // Use Promise.all for parallel updates (~10x perf improvement)
   const results = await Promise.all(
     CONTENT_UPDATES.map(async (update) => {
-      const { error } = await supabase
+      const db = supabase;
+      if (!db) return { slug: update.slug, error: 'Supabase not configured' };
+      const { error } = await db
         .from('cms_blog_posts')
         .update({ content: update.content, updated_at: new Date().toISOString() })
         .eq('slug', update.slug);

@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     // To enable real GA4: set GOOGLE_SERVICE_ACCOUNT_JSON in env
     const ga4Enabled = !!process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
     
-    const mockData = {
+    const mockData: Record<string, unknown> = {
       ga4Connected: ga4Enabled,
       period: { startDate: '30daysAgo', endDate: 'today' },
       totals: {
