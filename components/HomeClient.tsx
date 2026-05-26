@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
+import Image from 'next/image'
 import type { BlogPost } from '@/lib/blog-supabase'
 import { getExcerpt } from '@/lib/blog-supabase'
 import InstagramFeed from '@/components/InstagramFeed'
@@ -149,9 +150,13 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
               <span className="text-white/90 text-xs font-semibold tracking-[0.12em] uppercase">{post.category || 'Travel'}</span>
             </div>
           ) : (
-            <img src={imgSrc} alt={post.title} width={600} height={400}
-              className="w-full h-full object-cover opacity-80 group-hover:opacity-90 group-hover:scale-105 transition-all duration-600"
+            <Image
+              src={imgSrc}
+              alt={post.title}
+              fill
+              className="object-cover opacity-80 group-hover:opacity-90 group-hover:scale-105 transition-all duration-600"
               loading="lazy"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               onError={() => { setImgFailed(true) }}
             />
           )}
