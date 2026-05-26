@@ -267,7 +267,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           </h1>
           <p className="text-sm md:text-lg text-gray-300 leading-relaxed mb-6 md:mb-8 max-w-xl"
              style={{ animation: 'wordIn 0.7s 1.1s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
-            Un duo Paris-Madère-Roumanie qui voyage lentement, documente vraiment et partage tout ce qu&apos;on a vécu — pas ce qu&apos;on a lu ailleurs. Dénicheurs de pépites, même en bas de chez toi.
+            Un duo qui fabrique des voyages authentiques sur mesure — là où les autres passent sans regarder.
           </p>
           <div className="flex flex-wrap gap-3"
                style={{ animation: 'wordIn 0.7s 1.3s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
@@ -300,7 +300,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 <span className="block italic text-eucalyptus">autrement</span>
               </h2>
               <p className="text-base text-charcoal/70 leading-relaxed mb-4">
-                Elle a habité sept pays. Pas visité, habité. C&apos;est différent. Ça change la manière de lire une rue, de sentir si une table vaut vraiment le détour, de savoir quand un quartier commence à parler.
+                On est un duo. On fabrique des voyages vrais, hors des sentiers, dans les endroits que les autres ne voient pas. Elle a habité sept pays. Pas visité, habité. C&apos;est différent. Ça change la manière de lire une rue, de sentir si une table vaut vraiment le détour, de savoir quand un quartier commence à parler.
               </p>
               <p className="text-base text-charcoal/70 leading-relaxed mb-4">
                 Lui est né à Madère, entre l&apos;Atlantique et des falaises que les cartes n&apos;ont pas encore toutes nommées. Il part là où les guides s&apos;arrêtent, puis il revient avec un regard que les hôtels indépendants peuvent vraiment utiliser.
