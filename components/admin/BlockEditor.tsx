@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect, KeyboardEvent, ChangeEvent } from 'react';
-import { GripVertical, Plus, Trash2, Bold, Italic, Link, Type, ImageIcon, Quote, List, ListOrdered, Minus, Info, Lightbulb, Youtube } from 'lucide-react';
+import { GripVertical, Plus, Trash2, Bold, Italic, Link, Type, ImageIcon, Quote, List, ListOrdered, Minus, Info, Lightbulb, Video } from 'lucide-react';
 
 // ===== Types =====
 export type BlockType = 'paragraph' | 'h2' | 'h3' | 'quote' | 'bullet' | 'numbered' | 'image' | 'hr' | 'info' | 'astuce' | 'embed' | 'html-legacy';
@@ -125,7 +125,7 @@ const BLOCK_COMMANDS = [
   { type: 'hr' as BlockType, label: 'Séparateur', description: 'Ligne horizontale', icon: Minus },
   { type: 'info' as BlockType, label: 'Info box', description: 'Encadré teal #01696f', icon: Info },
   { type: 'astuce' as BlockType, label: 'Astuce terrain', description: 'Encadré bordeaux #6b2a1a', icon: Lightbulb },
-  { type: 'embed' as BlockType, label: 'Embed', description: 'Vidéo YouTube/Vimeo', icon: Youtube },
+  { type: 'embed' as BlockType, label: 'Embed', description: 'Vidéo YouTube/Vimeo', icon: Video },
 ];
 
 // ===== Main Component =====
