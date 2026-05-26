@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 type MediaFile = {
   key: string;
@@ -8,7 +8,6 @@ type MediaFile = {
   name: string;
   size?: number;
   lastModified?: string;
-  focalPoint?: { x: number; y: number };
 };
 
 type Props = {
@@ -24,16 +23,11 @@ const FOLDERS = [
   { value: 'coulisses', label: '📁 coulisses/' },
 ];
 
-const MEDIA_LIMIT = 20;
-
 export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) {
   const [tab, setTab] = useState<'library' | 'url' | 'batch' | 'cloud'>('library');
   const [files, setFiles] = useState<MediaFile[]>([]);
   const [cloudFiles, setCloudFiles] = useState<{ id: string; name: string; thumbnail: string; url: string }[]>([]);
   const [loading, setLoading] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [offset, setOffset] = useState(0);
   const [importing, setImporting] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
   const [batchUrls, setBatchUrls] = useState('');
@@ -47,167 +41,41 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
   const [uploading, setUploading] = useState(false);
   const [folder, setFolder] = useState('articles');
   const [deleting, setDeleting] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [filterType, setFilterType] = useState<'images' | 'videos' | 'all'>('all');
-  const [isDragging, setIsDragging] = useState(false);
-  const [focalPointFile, setFocalPointFile] = useState<MediaFile | null>(null);
-  const [focalPointTemp, setFocalPointTemp] = useState<{ x: number; y: number }>({ x: 0.5, y: 0.5 });
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const dropZoneRef = useRef<HTMLDivElement>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 3500); };
 
-  const fmtSize = (bytes?: number) => {
-    if (!bytes) return '';
-    if (bytes < 1024) return `${bytes} o`;
-    if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} Ko`;
-    return `${(bytes / 1048576).toFixed(1)} Mo`;
-  };
-
-  const filteredFiles = files.filter(f => {
-    const matchesSearch = !searchQuery || f.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const isImage = /\.(jpg|jpeg|png|webp|avif|gif)$/i.test(f.name);
-    const isVideo = /\.(mp4|webm|mov|avi)$/i.test(f.name);
-    const matchesType = filterType === 'all' || (filterType === 'images' && isImage) || (filterType === 'videos' && isVideo);
-    return matchesSearch && matchesType;
-  });
-
-  const loadFiles = useCallback(async (reset = false) => {
-    const currentOffset = reset ? 0 : offset;
-    if (!reset) setLoadingMore(true);
-    else setLoading(true);
+  const loadFiles = useCallback(async () => {
+    setLoading(true);
     try {
-      const res = await fetch(`/api/cms/media?prefix=${encodeURIComponent(folder)}&limit=${MEDIA_LIMIT}&offset=${currentOffset}`);
+      const res = await fetch(`/api/cms/media?prefix=${encodeURIComponent(folder)}`);
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      const newFiles = data.files || [];
-      if (reset) {
-        setFiles(newFiles);
-        setOffset(MEDIA_LIMIT);
-      } else {
-        setFiles(prev => [...prev, ...newFiles]);
-        setOffset(prev => prev + MEDIA_LIMIT);
-      }
-      setHasMore(data.hasMore !== false && newFiles.length === MEDIA_LIMIT);
+      setFiles(data.files || []);
     } catch (e: unknown) {
       showToast(`❌ ${e instanceof Error ? e.message : 'Erreur'}`);
     } finally {
       setLoading(false);
-      setLoadingMore(false);
     }
-  }, [folder, offset]);
+  }, [folder]);
 
-  useEffect(() => { if (tab === 'library') loadFiles(true); }, [tab, folder]);
-
-  // Infinite scroll observer
-  useEffect(() => {
-    if (!loadMoreRef.current || !hasMore || loadingMore) return;
-    observerRef.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && hasMore && !loadingMore) {
-        loadFiles(false);
-      }
-    }, { threshold: 0.1 });
-    observerRef.current.observe(loadMoreRef.current);
-    return () => observerRef.current?.disconnect();
-  }, [hasMore, loadingMore, loadFiles]);
+  useEffect(() => { if (tab === 'library') loadFiles(); }, [tab, loadFiles]);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const fileList = e.target.files;
-    if (!fileList || fileList.length === 0) return;
-
-    const uploadFile = async (file: File) => {
-      const fd = new FormData();
-      fd.append('file', file);
-      fd.append('folder', folder);
-      const res = await fetch('/api/cms/media-upload', { method: 'POST', body: fd });
-      const data = await res.json();
-      if (!data.url) throw new Error(data.error || 'Upload failed');
-      return data;
-    };
-
+    const file = e.target.files?.[0];
+    if (!file) return;
     setUploading(true);
-    try {
-      if (fileList.length === 1) {
-        await uploadFile(fileList[0]);
-        showToast('✅ Image uploadée sur Supabase !');
-      } else {
-        let uploaded = 0;
-        for (let i = 0; i < fileList.length; i++) {
-          try {
-            await uploadFile(fileList[i]);
-            uploaded++;
-          } catch {}
-        }
-        showToast(`✅ ${uploaded}/${fileList.length} images uploadées`);
-      }
-      loadFiles(true);
-    } catch (e: unknown) {
-      showToast(`❌ ${e instanceof Error ? e.message : 'Erreur'}`);
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
-
-  // Drag & drop handlers
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    if (!dropZoneRef.current?.contains(e.relatedTarget as Node)) {
-      setIsDragging(false);
-    }
-  };
-  const handleDrop = async (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const droppedFiles = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
-    if (droppedFiles.length === 0) {
-      showToast('❌ Seules les images sont acceptées');
-      return;
-    }
-
     const fd = new FormData();
-    droppedFiles.forEach(f => fd.append('files', f));
+    fd.append('file', file);
     fd.append('folder', folder);
-    setUploading(true);
     try {
-      const res = await fetch('/api/cms/media-upload', { method: 'POST', body: fd });
+      const res = await fetch('/api/cms/media-upload', {
+        method: 'POST',
+        body: fd,
+      });
       const data = await res.json();
-      if (data.urls && data.urls.length > 0) {
-        showToast(`✅ ${data.urls.length} images uploadées`);
-      } else if (data.url) {
-        showToast('✅ Image uploadée');
-      } else {
-        showToast(`❌ ${data.error || 'Erreur d\\'upload'}`);
-      }
-      loadFiles(true);
-    } catch {
-      showToast('❌ Erreur d\\'upload');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const copyUrl = (url: string) => {
-    navigator.clipboard.writeText(url).then(() => showToast('🔗 URL copiée !')).catch(() => showToast('❌ Copie impossible'));
-  };
-
-  const openFocalPoint = (file: MediaFile) => {
-    setFocalPointFile(file);
-    setFocalPointTemp(file.focalPoint || { x: 0.5, y: 0.5 });
-  };
-
-  const saveFocalPoint = () => {
-    if (!focalPointFile) return;
-    setFiles(prev => prev.map(f => f.key === focalPointFile.key ? { ...f, focalPoint: focalPointTemp } : f));
-    showToast('✅ Point focal sauvegardé');
-    setFocalPointFile(null);
+      if (data.url) { showToast('✅ Image uploadée sur Supabase !'); loadFiles(); }
+      else showToast(`❌ ${data.error}`);
+    } finally { setUploading(false); e.target.value = ''; }
   };
 
   const importFromUrl = async () => {
@@ -229,7 +97,7 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
         showToast('✅ Photo importée !');
         setImageUrl('');
         setTab('library');
-        loadFiles(true);
+        loadFiles();
       } else {
         showToast(`❌ ${data.error}`);
       }
@@ -246,7 +114,7 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
         body: JSON.stringify({ key }),
       });
       const data = await res.json();
-      if (data.success) { showToast('🗑️ Image supprimée'); loadFiles(true); }
+      if (data.success) { showToast('🗑️ Image supprimée'); loadFiles(); }
       else showToast(`❌ ${data.error}`);
     } finally { setDeleting(null); }
   };
@@ -278,7 +146,7 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
     setBatchUrls('');
     setImporting(false);
     showToast(`✅ ${imported}/${urls.length} images importées !`);
-    loadFiles(true);
+    loadFiles();
   };
 
   // ── Cloud OAuth Connectors ─────────────────────────────────────────────────
@@ -403,7 +271,7 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
     setBatchProgress(null);
     setImporting(false);
     showToast(`✅ ${imported}/${photos.length} photos importées !`);
-    loadFiles(true);
+    loadFiles();
   };
 
   const fmtSize = (bytes?: number) => {
@@ -463,89 +331,40 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
           {/* ── Bibliothèque ── */}
           {tab === 'library' && (
             <div>
-              {/* Drag & drop zone */}
-              <div
-                ref={dropZoneRef}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                style={{
-                  border: isDragging ? '3px dashed #6b2a1a' : '3px dashed transparent',
-                  borderRadius: '.75rem',
-                  transition: 'border-color 0.2s',
-                  marginBottom: '1rem',
-                  padding: '1rem',
-                  background: isDragging ? '#fdf0eb' : 'transparent',
-                }}
-              >
-                {isDragging ? (
-                  <div style={{ textAlign: 'center', padding: '2rem', color: '#6b2a1a', fontWeight: 600 }}>
-                    🎯 Déposez les images ici
-                  </div>
-                ) : (
-                  <div style={{ display: 'flex', gap: '.75rem', marginBottom: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                    <select
-                      value={folder}
-                      onChange={e => setFolder(e.target.value)}
-                      style={{ padding: '.5rem .75rem', border: '1.5px solid #ddd', borderRadius: '.5rem', fontSize: '.85rem' }}
-                    >
-                      {FOLDERS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
-                    </select>
-                    {filterType !== 'all' && (
-                      <button
-                        onClick={() => setFilterType('all')}
-                        style={{ padding: '.3rem .6rem', background: '#e8e3dc', borderRadius: '.4rem', border: 'none', fontSize: '.75rem', cursor: 'pointer' }}
-                      >✕ Filtre</button>
-                    )}
-                    <div style={{ display: 'flex', gap: '.25rem' }}>
-                      <button
-                        onClick={() => setViewMode('grid')}
-                        style={{ padding: '.4rem', border: viewMode === 'grid' ? '2px solid #6b2a1a' : '1.5px solid #ddd', borderRadius: '.4rem', background: viewMode === 'grid' ? '#fdf0eb' : 'white', cursor: 'pointer' }}
-                      >▦</button>
-                      <button
-                        onClick={() => setViewMode('list')}
-                        style={{ padding: '.4rem', border: viewMode === 'list' ? '2px solid #6b2a1a' : '1.5px solid #ddd', borderRadius: '.4rem', background: viewMode === 'list' ? '#fdf0eb' : 'white', cursor: 'pointer' }}
-                      >☰</button>
-                    </div>
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={e => setSearchQuery(e.target.value)}
-                      placeholder="🔍 Rechercher..."
-                      style={{ padding: '.45rem .8rem', border: '1.5px solid #ddd', borderRadius: '.5rem', fontSize: '.85rem', flex: 1, minWidth: 120 }}
-                    />
-                    <label style={{
-                      padding: '.5rem 1rem',
-                      background: uploading ? '#ccc' : '#01696f',
-                      color: 'white', borderRadius: '.5rem', cursor: uploading ? 'wait' : 'pointer',
-                      fontSize: '.85rem', fontWeight: 600,
-                    }}>
-                      {uploading ? '⏳ Upload…' : '⬆️ Uploader'}
-                      <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleUpload} style={{ display: 'none' }} disabled={uploading} />
-                    </label>
-                    <button
-                      onClick={() => setTab('url')}
-                      style={{ padding: '.5rem 1rem', background: '#4285F4', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.85rem', fontWeight: 600 }}
-                    >🔗 URL</button>
-                  </div>
-                )}
+              <div style={{ display: 'flex', gap: '.75rem', marginBottom: '1.25rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                <select
+                  value={folder}
+                  onChange={e => setFolder(e.target.value)}
+                  style={{ padding: '.5rem .75rem', border: '1.5px solid #ddd', borderRadius: '.5rem', fontSize: '.85rem' }}
+                >
+                  {FOLDERS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
+                </select>
+                <button onClick={loadFiles} style={{ padding: '.5rem .9rem', background: 'white', border: '1.5px solid #ddd', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.85rem' }}>🔄</button>
+                <label style={{
+                  padding: '.5rem 1rem',
+                  background: uploading ? '#ccc' : '#01696f',
+                  color: 'white', borderRadius: '.5rem', cursor: uploading ? 'wait' : 'pointer',
+                  fontSize: '.85rem', fontWeight: 600,
+                }}>
+                  {uploading ? '⏳ Upload…' : '⬆️ Uploader'}
+                  <input type="file" accept="image/*" onChange={handleUpload} style={{ display: 'none' }} disabled={uploading} />
+                </label>
+                <button
+                  onClick={() => setTab('url')}
+                  style={{ padding: '.5rem 1rem', background: '#4285F4', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.85rem', fontWeight: 600 }}
+                >🔗 Importer par URL</button>
               </div>
 
               {loading ? (
-                <div style={{ display: 'grid', gridTemplateColumns: viewMode === 'grid' ? 'repeat(auto-fill, minmax(160px, 1fr))' : '1fr', gap: '1rem' }}>
-                  {[...Array(6)].map((_, i) => (
-                    <div key={i} style={{ background: '#e8e3dc', borderRadius: '.75rem', height: viewMode === 'grid' ? 160 : 60, animation: 'pulse 1.5s infinite' }} />
-                  ))}
-                </div>
-              ) : filteredFiles.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '3rem', color: '#888' }}>Chargement…</div>
+              ) : files.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '3rem', color: '#aaa' }}>
                   <div style={{ fontSize: '2.5rem', marginBottom: '.75rem' }}>📂</div>
-                  <p>{searchQuery ? `Aucun résultat pour "${searchQuery}"` : 'Aucune image dans ce dossier'}</p>
-                  <p style={{ fontSize: '.8rem', marginTop: '.5rem', color: '#888' }}>Glissez-déposez des images dans la zone ci-dessus</p>
+                  <p>Aucune image dans ce dossier</p>
                 </div>
-              ) : viewMode === 'grid' ? (
+              ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '1rem' }}>
-                  {filteredFiles.map(f => (
+                  {files.map(f => (
                     <div
                       key={f.key}
                       style={{
@@ -554,28 +373,30 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
                         position: 'relative',
                       }}
                     >
-                      <div style={{ position: 'relative' }}>
-                        <img
-                          src={f.url}
-                          alt={f.name}
-                          style={{ width: '100%', height: 120, objectFit: f.focalPoint ? `var(--fp-${f.key}, ${(1-f.focalPoint.y)*100}% ${(1-f.focalPoint.x)*100}%)` : 'cover', display: 'block', cursor: 'pointer' }}
-                          loading="lazy"
-                          onClick={() => { onSelect(f.url); onClose(); }}
-                          onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                        />
-                        {f.focalPoint && (
-                          <div style={{ position: 'absolute', top: 4, right: 4, background: '#6b2a1a', color: 'white', borderRadius: '50%', width: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.6rem' }}>🎯</div>
-                        )}
-                      </div>
+                      <img
+                        src={f.url}
+                        alt={f.name}
+                        style={{ width: '100%', height: 120, objectFit: 'cover', display: 'block', cursor: 'pointer' }}
+                        loading="lazy"
+                        onClick={() => { onSelect(f.url); onClose(); }}
+                        onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                      />
                       <div style={{ padding: '.5rem .6rem' }}>
                         <p style={{ fontSize: '.72rem', color: '#666', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>{f.name}</p>
-                        <p style={{ fontSize: '.68rem', color: '#aaa', margin: '2px 0 0' }}>{f.size ? fmtSize(f.size) : ''}</p>
+                        <p style={{ fontSize: '.68rem', color: '#aaa', margin: '2px 0 0' }}>{fmtSize(f.size)}</p>
                       </div>
-                      <div style={{ display: 'flex', gap: 2, position: 'absolute', top: 6, right: 6 }}>
-                        <button onClick={() => copyUrl(f.url)} style={{ background: 'rgba(0,0,0,.6)', color: 'white', border: 'none', borderRadius: '50%', width: 22, height: 22, cursor: 'pointer', fontSize: '.7rem' }} title="Copier URL">🔗</button>
-                        <button onClick={() => openFocalPoint(f)} style={{ background: 'rgba(107,42,26,.85)', color: 'white', border: 'none', borderRadius: '50%', width: 22, height: 22, cursor: 'pointer', fontSize: '.7rem' }} title="Point focal">🎯</button>
-                        <button onClick={() => deleteFile(f.key)} disabled={deleting === f.key} style={{ background: 'rgba(192,57,43,.85)', color: 'white', border: 'none', borderRadius: '50%', width: 22, height: 22, cursor: 'pointer', fontSize: '.7rem' }} title="Supprimer">✕</button>
-                      </div>
+                      <button
+                        onClick={() => deleteFile(f.key)}
+                        disabled={deleting === f.key}
+                        style={{
+                          position: 'absolute', top: 6, right: 6,
+                          background: 'rgba(192,57,43,.85)', color: 'white',
+                          border: 'none', borderRadius: '50%', width: 22, height: 22,
+                          cursor: 'pointer', fontSize: '.7rem', lineHeight: 1,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}
+                        title="Supprimer"
+                      >✕</button>
                       <button
                         onClick={() => { onSelect(f.url); onClose(); }}
                         style={{
@@ -584,38 +405,13 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
                           border: 'none', borderRadius: '.4rem', padding: '.25rem .6rem',
                           cursor: 'pointer', fontSize: '.72rem', fontWeight: 600, whiteSpace: 'nowrap',
                         }}
-                      >✅</button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
-                  {filteredFiles.map(f => (
-                    <div
-                      key={f.key}
-                      onClick={() => { onSelect(f.url); onClose(); }}
-                      style={{ display: 'flex', alignItems: 'center', gap: '.75rem', padding: '.6rem .75rem', background: '#faf8f5', borderRadius: '.5rem', border: '1.5px solid #e8e3dc', cursor: 'pointer' }}
-                    >
-                      <img src={f.url} alt={f.name} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: '.4rem' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-                      <div style={{ flex: 1, overflow: 'hidden' }}>
-                        <p style={{ fontSize: '.85rem', fontWeight: 600, color: '#333', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name}</p>
-                        <p style={{ fontSize: '.75rem', color: '#888', margin: 0 }}>{f.url.substring(0, 60)}...</p>
-                      </div>
-                      <button onClick={(e) => { e.stopPropagation(); copyUrl(f.url); }} style={{ padding: '.3rem .6rem', background: '#ddd', border: 'none', borderRadius: '.4rem', cursor: 'pointer', fontSize: '.75rem' }}>📋 Copier</button>
-                      <button onClick={(e) => { e.stopPropagation(); openFocalPoint(f); }} style={{ padding: '.3rem .6rem', background: '#e8e3dc', border: 'none', borderRadius: '.4rem', cursor: 'pointer', fontSize: '.75rem' }}>🎯 Focal</button>
-                      <button onClick={(e) => { e.stopPropagation(); deleteFile(f.key); }} disabled={deleting === f.key} style={{ padding: '.3rem .6rem', background: '#f8d7da', border: 'none', borderRadius: '.4rem', cursor: 'pointer', fontSize: '.75rem' }}>🗑️</button>
+                      >✅ Sélectionner</button>
                     </div>
                   ))}
                 </div>
               )}
-
-              {/* Load more trigger */}
-              <div ref={loadMoreRef} style={{ textAlign: 'center', padding: '1rem', color: '#888', fontSize: '.85rem' }}>
-                {loadingMore ? '⏳ Chargement...' : hasMore ? '↓ Défiler pour charger plus' : `Fin de la liste (${files.length} fichiers)`}
-              </div>
             </div>
           )}
-
 
           {/* ── Import par URL ── */}
           {tab === 'url' && (
@@ -909,50 +705,6 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
           )}
         </div>
 
-
-        {/* Phase 4: Focal Point Editor */}
-        {focalPointFile && (
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-            <div style={{ background: 'white', borderRadius: '1rem', padding: '1.5rem', maxWidth: 480, width: '100%' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <h3 style={{ margin: 0, fontSize: '1rem', color: '#6b2a1a' }}>🎯 Point focal - {focalPointFile.name}</h3>
-                <button onClick={() => setFocalPointFile(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#888' }}>✕</button>
-              </div>
-              <p style={{ fontSize: '.8rem', color: '#666', marginBottom: '1rem' }}>Cliquez pour définir le point focal de l'image. Utilisé pour le crop responsive.</p>
-              <div style={{ position: 'relative', display: 'inline-block', maxWidth: '100%' }}>
-                <img
-                  src={focalPointFile.url}
-                  alt="Focal point editor"
-                  style={{ maxWidth: '100%', maxHeight: 300, display: 'block', cursor: 'crosshair' }}
-                  onClick={(e) => {
-                    const rect = (e.target as HTMLImageElement).getBoundingClientRect();
-                    const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-                    const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
-                    setFocalPointTemp({ x, y });
-                  }}
-                />
-                <div style={{
-                  position: 'absolute',
-                  left: `${focalPointTemp.x * 100}%`,
-                  top: `${focalPointTemp.y * 100}%`,
-                  transform: 'translate(-50%, -50%)',
-                  width: 20, height: 20,
-                  background: '#6b2a1a', borderRadius: '50%',
-                  border: '3px solid white',
-                  pointerEvents: 'none',
-                  boxShadow: '0 2px 4px rgba(0,0,0,.3)',
-                }} />
-              </div>
-              <div style={{ marginTop: '.75rem', fontSize: '.8rem', color: '#888', textAlign: 'center' }}>
-                X: {(focalPointTemp.x * 100).toFixed(0)}% · Y: {(focalPointTemp.y * 100).toFixed(0)}%
-              </div>
-              <div style={{ display: 'flex', gap: '.5rem', marginTop: '1rem', justifyContent: 'flex-end' }}>
-                <button onClick={() => setFocalPointFile(null)} style={{ padding: '.5rem 1rem', border: '1px solid #ddd', borderRadius: '.5rem', background: 'white', cursor: 'pointer' }}>Annuler</button>
-                <button onClick={saveFocalPoint} style={{ padding: '.5rem 1rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>Sauvegarder</button>
-              </div>
-            </div>
-          </div>
-        )}
         <div style={{ padding: '1rem 1.5rem', borderTop: '1.5px solid #e8e3dc', background: '#faf8f5', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: '.8rem', color: '#aaa' }}>
             {tab === 'library' ? `${files.length} image${files.length !== 1 ? 's' : ''} · Supabase Storage` : 'Import vers Supabase Storage'}
