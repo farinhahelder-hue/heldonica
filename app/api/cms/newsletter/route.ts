@@ -1,13 +1,14 @@
-export const dynamic = 'force-dynamic';
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+import { requireCmsAuth } from '@/lib/cms-auth'
 
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+export const dynamic = 'force-dynamic'
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
-  const supabase = (url && key) ? createClient(url, key) : null;
+const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
+const supabase = (url && key) ? createClient(url, key) : null
 
-// POST /api/cms/newsletter - Subscribe email
+// POST /api/cms/newsletter - Subscribe email (public endpoint, no auth needed)
 export async function POST(req: NextRequest) {
   if (!supabase) return NextResponse.json({ error: 'DB unavailable' }, { status: 503 })
   try {
@@ -17,7 +18,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'email_required' });
     }
     
-    // Check if already subscribed
     const { data: existing } = await supabase
       .from('cms_newsletter')
       .select('id')
@@ -28,7 +28,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'already_subscribed' });
     }
     
-    // Insert new subscriber
     const { error } = await supabase
       .from('cms_newsletter')
       .insert({
@@ -46,14 +45,10 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// GET /api/cms/newsletter - List subscribers (admin)
+// GET /api/cms/newsletter - List subscribers (admin only)
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const adminKey = searchParams.get('key');
-  
-  if (adminKey !== process.env.CMS_ADMIN_KEY) {
-    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
-  }
+  const authResponse = await requireCmsAuth(req);
+  if (authResponse) return authResponse;
   
   if (!supabase) return NextResponse.json({ error: 'DB unavailable' }, { status: 503 })
 

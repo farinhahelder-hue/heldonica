@@ -1,13 +1,14 @@
-export const dynamic = 'force-dynamic';
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+import { requireCmsAuth } from '@/lib/cms-auth'
 
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+export const dynamic = 'force-dynamic'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY
 
 interface SearchRequest {
   query: string;
@@ -141,12 +142,10 @@ Résume en 1-2 phrases ce qui correspond le mieux à la recherche.`
 }
 
 export async function POST(request: NextRequest) {
-  try {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  const authResponse = await requireCmsAuth(request);
+  if (authResponse) return authResponse;
 
+  try {
     const body = await request.json() as SearchRequest;
     const { query, type = 'all', limit = 10 } = body;
 
