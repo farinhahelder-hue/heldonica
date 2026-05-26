@@ -47,34 +47,40 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   const payload = { ...body, updated_at: new Date().toISOString() }
 
   // Phase 3: Save revision before updating
-  const { data: current } = await sb.from('articles').select('title, content, excerpt').eq('id', params.id).single()
-  if (current) {
-    const wordCount = (current.content || '').replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length
-    await sb.from('article_revisions').insert({
-      article_id: parseInt(params.id),
-      title: current.title,
-      content: current.content,
-      excerpt: current.excerpt,
-      word_count: wordCount,
-    }).catch(() => {/* ignore revision errors */})
-  }
+  const { data: raw } = await sb.from('articles').select('title, content, excerpt').eq('id', params.id).single();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (async () => {
+    if (raw && typeof raw === 'object' && 'title' in raw) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const current = raw as any;
+      // @ts-expect-error article_revisions table exists but types not generated
+      await sb.from('article_revisions').insert({
+        article_id: parseInt(params.id),
+        title: current.title,
+        content: current.content,
+        excerpt: current.excerpt,
+        word_count: (current.content || '').replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length,
+      });
+    }
+  })().catch(() => {/* ignore revision errors */});
 
-  let { data, error } = await sb
-    .from('articles')
-    // @ts-expect-error Supabase types are not fully inferred
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let result: any = await (sb.from('articles') as any)
     .update(payload)
     .eq('id', params.id)
     .select()
     .single()
+  let { data, error } = result;
 
   if (error?.message?.includes('voice_notes') && error.message.includes('does not exist')) {
-    ;({ data, error } = await sb
-      .from('articles')
-      // @ts-expect-error Supabase types are not fully inferred
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let fallback: any = await (sb.from('articles') as any)
       .update(withoutVoiceNotes(payload))
       .eq('id', params.id)
       .select()
-      .single())
+      .single()
+    data = fallback.data;
+    error = fallback.error;
   }
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

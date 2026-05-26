@@ -32,7 +32,8 @@ const STATUTS = {
   archive: { label: 'Archivé', badgeColor: '#6B7280', textColor: '#fff' },
 };
 
-const STATUT_LIST = ['nouvelle_demande', 'en_cours', 'devis_envoye', 'confirme', 'archive'];
+type StatutKey = keyof typeof STATUTS;
+const STATUT_LIST: StatutKey[] = ['nouvelle_demande', 'en_cours', 'devis_envoye', 'confirme', 'archive'];
 
 function getDaysSince(dateStr: string): number {
   const date = new Date(dateStr);
