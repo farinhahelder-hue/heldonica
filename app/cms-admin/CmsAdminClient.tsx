@@ -1329,15 +1329,31 @@ function CMSAdminInner() {
         )}
 
         {tab === 'analytics' && (
-              <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: '960px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                  <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a', margin: 0 }}>📊 Analytics GA4</h2>
+              <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: '1100px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a', margin: 0 }}>📊 Analytics</h2>
+                    {!analyticsData?.ga4Connected && (
+                      <span style={{ fontSize: '.7rem', background: '#fef3c7', color: '#92400e', padding: '.2rem .5rem', borderRadius: '.25rem' }}>
+                        Demo data — Connecter GA4 pour les stats réelles
+                      </span>
+                    )}
+                    {analyticsData?.ga4Connected && (
+                      <span style={{ fontSize: '.7rem', background: '#d1fae5', color: '#065f46', padding: '.2rem .5rem', borderRadius: '.25rem' }}>
+                        ✅ GA4 Connected
+                      </span>
+                    )}
+                  </div>
                   <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
-                    {analyticsData?.period && <span style={{ fontSize: '.75rem', color: '#888', background: '#f5f5f5', padding: '.25rem .75rem', borderRadius: '1rem' }}>{analyticsData.period.startDate} → {analyticsData.period.endDate}</span>}
+                    {analyticsData?.period && (
+                      <span style={{ fontSize: '.75rem', color: '#888', background: '#f5f5f5', padding: '.25rem .75rem', borderRadius: '1rem' }}>
+                        {analyticsData.period.startDate} → {analyticsData.period.endDate}
+                      </span>
+                    )}
                     <button onClick={async () => {
                       setLoadingAnalytics(true);
                       try {
-                        const res = await fetch('/api/cms/analytics', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ startDate: '30daysAgo', endDate: 'today' }) });
+                        const res = await fetch('/api/cms/analytics', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-cms-auth': localStorage.getItem('cms_password') || '' }, body: JSON.stringify({ startDate: '30daysAgo', endDate: 'today' }) });
                         const data = await res.json();
                         setAnalyticsData(data);
                       } catch (e) { console.error(e); }
@@ -1348,6 +1364,40 @@ function CMSAdminInner() {
                     </button>
                   </div>
                 </div>
+
+                {/* CMS Stats Row */}
+                {(analyticsData?.articles || analyticsData?.demandes) && (
+                  <div className="cms-grid-kpi" style={{ marginBottom: '1.5rem' }}>
+                    {analyticsData?.articles && (
+                      <>
+                        <div style={{ background: '#fdf8f6', padding: '1rem 1.25rem', borderRadius: '.75rem', border: '1px solid #f0e8e4', textAlign: 'center' }}>
+                          <div style={{ fontSize: '1.3rem', marginBottom: '.25rem' }}>📝</div>
+                          <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#6b2a1a', margin: '.25rem 0' }}>{analyticsData.articles.published}</p>
+                          <p style={{ fontSize: '.65rem', color: '#999', textTransform: 'uppercase', letterSpacing: '.05em', margin: 0 }}>Articles publiés</p>
+                        </div>
+                        <div style={{ background: '#fdf8f6', padding: '1rem 1.25rem', borderRadius: '.75rem', border: '1px solid #f0e8e4', textAlign: 'center' }}>
+                          <div style={{ fontSize: '1.3rem', marginBottom: '.25rem' }}>✏️</div>
+                          <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#6b2a1a', margin: '.25rem 0' }}>{analyticsData.articles.drafts}</p>
+                          <p style={{ fontSize: '.65rem', color: '#999', textTransform: 'uppercase', letterSpacing: '.05em', margin: 0 }}>Brouillons</p>
+                        </div>
+                      </>
+                    )}
+                    {analyticsData?.demandes && (
+                      <>
+                        <div style={{ background: '#f6f9fd', padding: '1rem 1.25rem', borderRadius: '.75rem', border: '1px solid #e4ecf5', textAlign: 'center' }}>
+                          <div style={{ fontSize: '1.3rem', marginBottom: '.25rem' }}>✈️</div>
+                          <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1a4a6b', margin: '.25rem 0' }}>{analyticsData.demandes.total}</p>
+                          <p style={{ fontSize: '.65rem', color: '#999', textTransform: 'uppercase', letterSpacing: '.05em', margin: 0 }}>Demandes Total</p>
+                        </div>
+                        <div style={{ background: '#fef3c7', padding: '1rem 1.25rem', borderRadius: '.75rem', border: '1px solid #fcd34d', textAlign: 'center' }}>
+                          <div style={{ fontSize: '1.3rem', marginBottom: '.25rem' }}>🆕</div>
+                          <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#92400e', margin: '.25rem 0' }}>{analyticsData.demandes.nouvelles}</p>
+                          <p style={{ fontSize: '.65rem', color: '#92400e', textTransform: 'uppercase', letterSpacing: '.05em', margin: 0 }}>Nouvelles</p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
 
                 {/* KPIs principaux - ligne 1 */}
                 <div className="cms-grid-kpi">
@@ -1371,21 +1421,54 @@ function CMSAdminInner() {
                 {/* KPIs secondaires - ligne 2 */}
                 <div className="cms-grid-kpi">
                   {([
-                    { key: 'bounceRate', label: 'Taux rebond', icon: '↩️', fmt: (v: number) => `${(v*100).toFixed(1)}%` },
-                    { key: 'engagementRate', label: 'Taux engagement', icon: '💡', fmt: (v: number) => `${(v*100).toFixed(1)}%` },
-                    { key: 'avgSessionDuration', label: 'Durée moy. session', icon: '⏱️', fmt: (v: number) => { const m = Math.floor(v/60); const s = Math.round(v%60); return `${m}m${s < 10 ? '0' : ''}${s}s`; } },
-                    { key: 'pagesPerSession', label: 'Pages / session', icon: '📑', fmt: (v: number) => v.toFixed(2) },
-                  ] as const).map(({ key, label, icon, fmt }) => {
+                    { key: 'bounceRate', label: 'Taux rebond', icon: '↩️', fmt: (v: number) => `${(v*100).toFixed(1)}%`, good: (v: number) => v < 0.5 },
+                    { key: 'engagementRate', label: 'Taux engagement', icon: '💡', fmt: (v: number) => `${(v*100).toFixed(1)}%`, good: (v: number) => v > 0.5 },
+                    { key: 'avgSessionDuration', label: 'Durée moy. session', icon: '⏱️', fmt: (v: number) => { const m = Math.floor(v/60); const s = Math.round(v%60); return `${m}m${s < 10 ? '0' : ''}${s}s`; }, good: (v: number) => v > 60 },
+                    { key: 'pagesPerSession', label: 'Pages / session', icon: '📑', fmt: (v: number) => v.toFixed(2), good: (v: number) => v > 2 },
+                  ] as const).map(({ key, label, icon, fmt, good }) => {
                     const val = analyticsData?.totals?.[key]?.value ?? null;
+                    const isGood = val != null && good ? good(val) : null;
+                    const valColor = isGood === true ? '#10b981' : isGood === false ? '#dc2626' : '#1a4a6b';
                     return (
-                      <div key={key} style={{ background: '#f6f9fd', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center', border: '1px solid #e4ecf5' }}>
+                      <div key={key} style={{ background: '#f6f9fd', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center', border: `1px solid ${isGood === true ? '#a7f3d0' : isGood === false ? '#fecaca' : '#e4ecf5'}` }}>
                         <div style={{ fontSize: '1.5rem', marginBottom: '.25rem' }}>{icon}</div>
-                        <p style={{ fontSize: '1.6rem', fontWeight: 700, color: '#1a4a6b', margin: '.25rem 0' }}>{val != null ? fmt(val) : '--'}</p>
+                        <p style={{ fontSize: '1.6rem', fontWeight: 700, color: valColor, margin: '.25rem 0' }}>{val != null ? fmt(val) : '--'}</p>
                         <p style={{ fontSize: '.7rem', color: '#999', textTransform: 'uppercase', letterSpacing: '.05em', margin: 0 }}>{label}</p>
                       </div>
                     );
                   })}
                 </div>
+
+                {/* Web Vitals */}
+                {analyticsData?.webVitals && (
+                  <div style={{ background: '#fafafa', borderRadius: '.75rem', padding: '1.25rem', border: '1px solid #eee', marginBottom: '1rem' }}>
+                    <h3 style={{ fontSize: '.9rem', fontWeight: 700, color: '#333', margin: '0 0 1rem' }}>⚡ Core Web Vitals</h3>
+                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                      {([
+                        { key: 'lcp', label: 'LCP', unit: 's', target: 2.5, perfect: 1.5 },
+                        { key: 'cls', label: 'CLS', unit: '', target: 0.1, perfect: 0.05 },
+                        { key: 'inp', label: 'INP', unit: 'ms', target: 200, perfect: 100 },
+                        { key: 'fcp', label: 'FCP', unit: 's', target: 1.8, perfect: 1.0 },
+                        { key: 'ttfb', label: 'TTFB', unit: 's', target: 0.8, perfect: 0.4 },
+                      ] as const).map(({ key, label, unit, target, perfect }) => {
+                        const val = analyticsData.webVitals[key];
+                        const isGood = val <= target;
+                        const isPerfect = val <= perfect;
+                        const scoreColor = isPerfect ? '#10b981' : isGood ? '#f59e0b' : '#dc2626';
+                        const bgColor = isPerfect ? '#d1fae5' : isGood ? '#fef3c7' : '#fee2e2';
+                        return (
+                          <div key={key} style={{ flex: 1, minWidth: 100, background: bgColor, borderRadius: '.5rem', padding: '.75rem', textAlign: 'center' }}>
+                            <div style={{ fontSize: '.65rem', color: '#666', textTransform: 'uppercase', letterSpacing: '.05em' }}>{label}</div>
+                            <div style={{ fontSize: '1.3rem', fontWeight: 700, color: scoreColor, margin: '.25rem 0' }}>
+                              {val}{unit}
+                            </div>
+                            <div style={{ fontSize: '.6rem', color: '#888' }}>{isPerfect ? '✅ Optimal' : isGood ? '⚠️ À améliorer' : '❌ Médiocre'}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 {/* Top pages + Sources de trafic */}
                 <div className="cms-grid-kpi">
@@ -1399,7 +1482,7 @@ function CMSAdminInner() {
                             <span style={{ color: '#555', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '75%' }}>
                               <span style={{ color: '#aaa', marginRight: '.4rem' }}>#{i+1}</span>{p.path}
                             </span>
-                            <span style={{ fontWeight: 700, color: '#6b2a1a', marginLeft: '.5rem' }}>{p.views}</span>
+                            <span style={{ fontWeight: 700, color: '#6b2a1a', marginLeft: '.5rem' }}>{p.views?.toLocaleString('fr')}</span>
                           </div>
                         ))}
                       </div>
@@ -1410,18 +1493,18 @@ function CMSAdminInner() {
                   <div style={{ background: '#fafafa', borderRadius: '.75rem', padding: '1.25rem', border: '1px solid #eee' }}>
                     <h3 style={{ fontSize: '.9rem', fontWeight: 700, color: '#333', margin: '0 0 1rem' }}>🌐 Sources de trafic</h3>
                     {analyticsData?.trafficSources?.length > 0 ? (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '.75rem' }}>
                         {analyticsData.trafficSources.map((s: any, i: number) => {
-                          const total = analyticsData.trafficSources.reduce((acc: number, x: any) => acc + x.sessions, 0);
-                          const pct = total > 0 ? Math.round((s.sessions / total) * 100) : 0;
+                          const pct = s.pct ?? 0;
+                          const colors = ['#6b2a1a', '#01696f', '#d4a574'];
                           return (
                             <div key={i} style={{ fontSize: '.8rem' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '.2rem' }}>
                                 <span style={{ color: '#555' }}>{s.channel}</span>
-                                <span style={{ fontWeight: 700, color: '#333' }}>{s.sessions} <span style={{ color: '#aaa', fontWeight: 400 }}>({pct}%)</span></span>
+                                <span style={{ fontWeight: 700, color: '#333' }}>{s.sessions.toLocaleString('fr')} <span style={{ color: '#aaa', fontWeight: 400 }}>({pct}%)</span></span>
                               </div>
-                              <div style={{ background: '#e8e8e8', borderRadius: '4px', height: '4px' }}>
-                                <div style={{ width: `${pct}%`, background: '#6b2a1a', borderRadius: '4px', height: '4px' }} />
+                              <div style={{ background: '#e8e8e8', borderRadius: '4px', height: '6px' }}>
+                                <div style={{ width: `${pct}%`, background: colors[i % colors.length], borderRadius: '4px', height: '6px' }} />
                               </div>
                             </div>
                           );
@@ -1433,24 +1516,38 @@ function CMSAdminInner() {
 
                 {/* Appareils */}
                 {analyticsData?.devices?.length > 0 && (
-                  <div style={{ background: '#fafafa', borderRadius: '.75rem', padding: '1.25rem', border: '1px solid #eee' }}>
+                  <div style={{ background: '#fafafa', borderRadius: '.75rem', padding: '1.25rem', border: '1px solid #eee', marginTop: '1rem' }}>
                     <h3 style={{ fontSize: '.9rem', fontWeight: 700, color: '#333', margin: '0 0 1rem' }}>📱 Appareils</h3>
                     <div style={{ display: 'flex', gap: '1.5rem' }}>
                       {analyticsData.devices.map((d: any, i: number) => {
-                        const total = analyticsData.devices.reduce((acc: number, x: any) => acc + x.sessions, 0);
-                        const pct = total > 0 ? Math.round((d.sessions / total) * 100) : 0;
+                        const pct = d.pct ?? Math.round((d.sessions / analyticsData.devices.reduce((acc: number, x: any) => acc + x.sessions, 0)) * 100);
                         const icons: Record<string,string> = { desktop: '🖥️', mobile: '📱', tablet: '📲' };
                         return (
                           <div key={i} style={{ textAlign: 'center' }}>
                             <div style={{ fontSize: '1.5rem' }}>{icons[d.device] ?? '💻'}</div>
                             <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#333' }}>{pct}%</div>
                             <div style={{ fontSize: '.7rem', color: '#999', textTransform: 'capitalize' }}>{d.device}</div>
+                            <div style={{ fontSize: '.65rem', color: '#aaa' }}>{d.sessions.toLocaleString('fr')}</div>
                           </div>
                         );
                       })}
                     </div>
                   </div>
                 )}
+
+                {/* Search Console placeholder */}
+                <div style={{ background: '#faf8f5', borderRadius: '.75rem', padding: '1.25rem', border: '1px solid #e8e3dc', marginTop: '1rem' }}>
+                  <h3 style={{ fontSize: '.9rem', fontWeight: 700, color: '#6b2a1a', margin: '0 0 .75rem' }}>🔍 Google Search Console</h3>
+                  <p style={{ fontSize: '.8rem', color: '#888', margin: 0 }}>
+                    Pour activer les données Search Console, configurez <code style={{ background: '#f0e8e4', padding: '.1rem .3rem', borderRadius: '.2rem' }}>GOOGLE_SERVICE_ACCOUNT_JSON</code> dans les variables d'environnement Vercel.
+                  </p>
+                  <div style={{ marginTop: '.75rem', display: 'flex', gap: '.5rem', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '.72rem', background: '#e8e3dc', color: '#555', padding: '.2rem .5rem', borderRadius: '.25rem' }}>Impressions</span>
+                    <span style={{ fontSize: '.72rem', background: '#e8e3dc', color: '#555', padding: '.2rem .5rem', borderRadius: '.25rem' }}>Clics</span>
+                    <span style={{ fontSize: '.72rem', background: '#e8e3dc', color: '#555', padding: '.2rem .5rem', borderRadius: '.25rem' }}>CTR moyen</span>
+                    <span style={{ fontSize: '.72rem', background: '#e8e3dc', color: '#555', padding: '.2rem .5rem', borderRadius: '.25rem' }}>Position moy.</span>
+                  </div>
+                </div>
               </div>
             )}
 

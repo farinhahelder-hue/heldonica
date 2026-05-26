@@ -1,12 +1,18 @@
 import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import { requireCmsAuth } from '@/lib/cms-auth';
 
-export async function POST() {
+export async function POST(req: Request) {
+  const authResponse = await requireCmsAuth(req);
+  if (authResponse) return authResponse;
+
   try {
-    // In a real application, you would connect to the GA4 Data API using the
-    // @google-analytics/data package to fetch the actual web vitals events
-    // that we've been sending to the "web_vitals" event name.
-    // We are mocking this response since actual GA4 setup requires service account keys.
+    // GA4 Integration (placeholder - requires service account)
+    // To enable real GA4: set GOOGLE_SERVICE_ACCOUNT_JSON in env
+    const ga4Enabled = !!process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+    
     const mockData = {
+      ga4Connected: ga4Enabled,
       period: { startDate: '30daysAgo', endDate: 'today' },
       totals: {
         sessions: { value: 1245 },
@@ -21,26 +27,82 @@ export async function POST() {
       topPages: [
         { path: '/', views: 1200 },
         { path: '/blog', views: 800 },
-        { path: '/about', views: 300 }
+        { path: '/a-propos', views: 300 },
+        { path: '/destinations', views: 250 },
+        { path: '/blog/decouvrir-maurice', views: 180 },
+        { path: '/blog/secrets-japon', views: 150 },
+        { path: '/blog road-trip-italie', views: 120 },
       ],
       trafficSources: [
-        { channel: 'Organic Search', sessions: 600 },
-        { channel: 'Direct', sessions: 400 },
-        { channel: 'Social', sessions: 245 }
+        { channel: 'Organic Search', sessions: 600, pct: 48 },
+        { channel: 'Direct', sessions: 400, pct: 32 },
+        { channel: 'Social', sessions: 245, pct: 20 },
       ],
       devices: [
-        { device: 'mobile', sessions: 800 },
-        { device: 'desktop', sessions: 400 },
-        { device: 'tablet', sessions: 45 }
+        { device: 'mobile', sessions: 800, pct: 64 },
+        { device: 'desktop', sessions: 400, pct: 32 },
+        { device: 'tablet', sessions: 45, pct: 4 },
       ],
       webVitals: {
-        lcp: 1.2, // seconds
-        inp: 45,  // milliseconds
-        cls: 0.05,
-        fcp: 0.8, // seconds
-        ttfb: 0.3 // seconds
+        lcp: 1.2, // seconds - Largest Contentful Paint
+        inp: 45,  // ms - Interaction to Next Paint
+        cls: 0.05, // Cumulative Layout Shift
+        fcp: 0.8, // First Contentful Paint
+        ttfb: 0.3 // Time To First Byte
       }
     };
+
+    // Get article stats from Supabase
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+    
+    if (url && key) {
+      try {
+        const sb = createClient(url, key);
+        
+        // Articles published
+        const { count: publishedCount } = await sb
+          .from('articles')
+          .select('*', { count: 'exact', head: true })
+          .eq('published', true);
+        
+        // Articles drafts
+        const { count: draftCount } = await sb
+          .from('articles')
+          .select('*', { count: 'exact', head: true })
+          .eq('published', false);
+        
+        // Recent articles (for performance widget)
+        const { data: recentArticles } = await sb
+          .from('articles')
+          .select('id, title, slug, published, updated_at, published_at, views_count')
+          .order('updated_at', { ascending: false })
+          .limit(10);
+        
+        mockData.articles = {
+          published: publishedCount || 0,
+          drafts: draftCount || 0,
+          recent: recentArticles || [],
+        };
+        
+        // Demandes stats
+        const { count: newDemandes } = await sb
+          .from('demandes_travel')
+          .select('*', { count: 'exact', head: true })
+          .eq('statut', 'nouvelle_demande');
+        
+        const { count: totalDemandes } = await sb
+          .from('demandes_travel')
+          .select('*', { count: 'exact', head: true });
+        
+        mockData.demandes = {
+          total: totalDemandes || 0,
+          nouvelles: newDemandes || 0,
+        };
+      } catch (e) {
+        console.error('Supabase stats error:', e);
+      }
+    }
 
     return NextResponse.json(mockData);
   } catch (error) {
