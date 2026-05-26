@@ -3,6 +3,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
 import { getSettings } from '@/lib/settings'
+import Image from 'next/image'
 
 export const metadata: Metadata = {
   title: 'À Propos — Qui Sommes-Nous | Heldonica',
@@ -88,7 +89,7 @@ export default async function AProposPage() {
           )}
           {/* Hero Image (default or fallback) */}
           {(heroType === 'image' || !heroVideo) && (
-            <img
+            <Image
               src={backgroundImage}
               alt="Paysage naturel paisible — l’esprit slow travel de Heldonica"
               className="absolute inset-0 w-full h-full object-cover opacity-40"
@@ -155,14 +156,14 @@ export default async function AProposPage() {
                 </div>
               </div>
               <div className="md:col-span-2">
-                <div className="relative">
-                  <img
+                <div className="relative rounded-2xl overflow-hidden shadow-lg aspect-[3/4]">
+                  <Image
                     src="https://images.unsplash.com/photo-1501555088652-021faa106b9b?w=700&q=85"
                     alt="Voyage en couple — silhouettes Heldonica"
-                    className="rounded-2xl w-full aspect-[3/4] object-cover shadow-lg"
-                    width={500}
-                    height={667}
+                    fill
+                    className="object-cover"
                     loading="lazy"
+                    sizes="(max-width: 768px) 100vw, 50vw"
                   />
                   <div className="absolute -bottom-5 -left-5 bg-amber-800 text-white px-5 py-4 rounded-xl shadow-lg hidden md:block">
                     <p className="text-xs font-bold tracking-wider uppercase mb-1">Ensemble depuis</p>
@@ -197,14 +198,14 @@ export default async function AProposPage() {
             <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-12 text-center">Le duo derrière Heldonica</p>
             <div className="grid md:grid-cols-2 gap-10 md:gap-16">
               <div className="group">
-                <div className="relative mb-6 overflow-hidden rounded-2xl">
-                  <img
+                <div className="relative mb-6 overflow-hidden rounded-2xl aspect-[4/3]">
+                  <Image
                     src="https://images.unsplash.com/photo-1539635278303-d4002c07eae3?w=700&q=80"
                     alt="Madère — falaises et océan Atlantique"
-                    className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700"
-                    width={600}
-                    height={450}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-700"
                     loading="lazy"
+                    sizes="(max-width: 768px) 100vw, 50vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                   <span className="absolute bottom-4 left-4 text-white text-xs font-bold tracking-[0.15em] uppercase">Lui — Madère</span>
@@ -219,14 +220,14 @@ export default async function AProposPage() {
               </div>
 
               <div className="group">
-                <div className="relative mb-6 overflow-hidden rounded-2xl">
-                  <img
+                <div className="relative mb-6 overflow-hidden rounded-2xl aspect-[4/3]">
+                  <Image
                     src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=700&q=80"
                     alt="Roumanie — paysages des Carpates"
-                    className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700"
-                    width={600}
-                    height={450}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-700"
                     loading="lazy"
+                    sizes="(max-width: 768px) 100vw, 50vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                   <span className="absolute bottom-4 left-4 text-white text-xs font-bold tracking-[0.15em] uppercase">Elle — Roumanie</span>

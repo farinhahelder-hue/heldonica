@@ -1,0 +1,68 @@
+import Header from '@/components/Header'
+import Footer from '@/components/Footer'
+import Link from 'next/link'
+
+export default function NotFound() {
+  return (
+    <>
+      <Header />
+      <main className="min-h-screen flex items-center justify-center bg-[#f5f3ef] px-6">
+        <div className="text-center max-w-lg">
+          {/* Decorative element */}
+          <div className="mb-8">
+            <svg 
+              width="80" 
+              height="80" 
+              viewBox="0 0 80 80" 
+              fill="none" 
+              xmlns="http://www.w3.org/2000/svg"
+              className="mx-auto"
+            >
+              <circle cx="40" cy="40" r="38" stroke="#01696f" strokeWidth="2" strokeDasharray="8 4"/>
+              <path 
+                d="M28 40h24M40 28v24" 
+                stroke="#6b2a1a" 
+                strokeWidth="3" 
+                strokeLinecap="round"
+              />
+            </svg>
+          </div>
+
+          {/* 404 Badge */}
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[#6b2a1a]/10 mb-6">
+            <span className="text-3xl font-bold text-[#6b2a1a]">404</span>
+          </div>
+
+          {/* Message */}
+          <h1 className="text-3xl md:text-4xl font-serif text-[#6b2a1a] mb-4 leading-tight">
+            Cette page s&apos;est perdue en chemin...
+          </h1>
+          <p className="text-[#01696f]/80 text-base md:text-lg mb-8 leading-relaxed">
+            On a cherch\u00e9 partout, mais elle semble avoir pris des chemins de traverse.
+            Pas de panique, tu peux revenir \u00e0 un endroit s\u00fbr.
+          </p>
+
+          {/* CTAs */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link 
+              href="/"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#6b2a1a] text-white font-semibold rounded-full hover:bg-[#6b2a1a]/90 transition-colors"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Retour \u00e0 l&apos;accueil
+            </Link>
+            <Link 
+              href="/destinations"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#01696f] text-white font-semibold rounded-full hover:bg-[#01696f]/90 transition-colors"
+            >
+              D\u00e9couvrir nos destinations
+            </Link>
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </>
+  )
+}
