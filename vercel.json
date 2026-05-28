@@ -22,6 +22,21 @@
     {
       "source": "/maintenance.html",
       "destination": "/maintenance.html"
+    },
+    {
+      "source": "/maintenance",
+      "destination": "/maintenance.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/maintenance.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "maintenance",
+          "value": "1"
+        }
+      ]
     }
   ],
   "crons": [
