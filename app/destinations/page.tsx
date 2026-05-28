@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import DestinationsClient from './DestinationsClient';
 import Script from 'next/script';
 
-// These must be server-rendered, not statically pre-rendered
-export const dynamic = 'force-dynamic';
+// ⚡ Bolt Optimization: Use Incremental Static Regeneration (ISR) instead of force-dynamic to cache the static hub page for 1 hour. This significantly improves Time To First Byte (TTFB).
+export const revalidate = 3600;
 export const dynamicParams = true;
 
 export const metadata: Metadata = {
