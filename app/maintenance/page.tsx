@@ -19,12 +19,6 @@ export default async function MaintenancePage() {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="robots" content="noindex, nofollow" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link 
-          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" 
-          rel="stylesheet" 
-        />
         <style>{`
           * {
             margin: 0;
@@ -37,7 +31,7 @@ export default async function MaintenancePage() {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'DM Sans', system-ui, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             color: #1a1a1a;
             padding: 1.5rem;
           }
@@ -47,12 +41,12 @@ export default async function MaintenancePage() {
             text-align: center;
           }
           .logo {
-            font-family: 'Playfair Display', serif;
             font-size: 2rem;
             font-weight: 600;
             color: #6b2a1a;
             margin-bottom: 2.5rem;
             letter-spacing: 0.02em;
+            font-family: Georgia, 'Times New Roman', serif;
           }
           .icon-container {
             margin-bottom: 2rem;
@@ -66,12 +60,12 @@ export default async function MaintenancePage() {
             50% { transform: translateY(-10px); }
           }
           h1 {
-            font-family: 'Playfair Display', serif;
             font-size: 2rem;
             font-weight: 500;
             color: #1a1a1a;
             margin-bottom: 1.5rem;
             line-height: 1.3;
+            font-family: Georgia, 'Times New Roman', serif;
           }
           .message {
             font-size: 1.125rem;
@@ -95,11 +89,10 @@ export default async function MaintenancePage() {
             border-radius: 0.5rem;
             font-weight: 500;
             font-size: 0.9375rem;
-            transition: background 0.2s ease, transform 0.2s ease;
+            transition: background 0.2s ease;
           }
           .cta:hover {
             background: #7a3220;
-            transform: translateY(-2px);
           }
           .divider {
             width: 40px;

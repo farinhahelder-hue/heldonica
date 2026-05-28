@@ -1,5 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { resolveLegacyRedirect } from './app/middleware';
+
+// Inline legacy redirect logic (duplicated from app/middleware.ts to avoid edge runtime issues)
+const LEGACY_REDIRECTS: Record<string, string> = {
+  '/a-propos-2': '/a-propos',
+  '/presentation-3': '/a-propos',
+  '/hello-biz-360': '/travel-planning',
+  '/accueil-heldonica-video': '/',
+  '/b2b': '/travel-planning',
+  '/offre-b2b': '/travel-planning',
+  '/services-b2b': '/travel-planning',
+  '/travel-planner': '/travel-planning',
+  '/nos-services': '/travel-planning',
+  '/bons-plans': '/blog',
+  '/sujets/bons-plans': '/blog',
+  '/zurich': '/destinations/zurich',
+  '/suisse': '/destinations/suisse',
+  '/roumanie': '/destinations/roumanie',
+  '/madere': '/destinations/madere',
+  '/stoos-ridge-notre-aventure-sur-la-crete-panoramique-2':
+    '/blog/stoos-ridge-notre-aventure-sur-la-crete-panoramique',
+};
+
+function normalizePath(pathname: string) {
+  if (!pathname || pathname === '/') return '/';
+  return pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+}
+
+function resolveLegacyRedirect(pathname: string): string | null {
+  const normalized = normalizePath(pathname);
+  const directRedirect = LEGACY_REDIRECTS[normalized];
+  if (directRedirect) return directRedirect;
+  if (normalized.startsWith('/etiquettes/')) return '/blog';
+  if (normalized.startsWith('/sujets/')) return '/blog';
+  return null;
+}
 
 const PROTECTED_PATHS = [
   '/api/seed-articles',
@@ -142,11 +176,21 @@ export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
   // Maintenance mode check - redirect to /maintenance if active
+  // Priority: 1. Environment variable (most reliable), 2. Cookie (set by CMS admin)
   // Exclude: /maintenance, /cms-admin, /api, /_next, /robots.txt, /sitemap.xml, /favicon.ico
   const maintenanceExcludes = ['/maintenance', '/cms-admin', '/api', '/_next', '/robots.txt', '/sitemap.xml', '/favicon.ico'];
   const isMaintenanceExcluded = maintenanceExcludes.some(path => pathname.startsWith(path));
 
   if (!isMaintenanceExcluded) {
+    // First check environment variable (for quick enable/disable via deploy)
+    const maintenanceEnvVar = process.env.MAINTENANCE_MODE;
+    if (maintenanceEnvVar === '1' || maintenanceEnvVar === 'true') {
+      const maintenanceUrl = req.nextUrl.clone();
+      maintenanceUrl.pathname = '/maintenance';
+      return NextResponse.redirect(maintenanceUrl);
+    }
+    
+    // Fall back to cookie (set by CMS admin panel)
     const maintenanceCookie = req.cookies.get('heldonica_maintenance')?.value;
     if (maintenanceCookie === '1') {
       const maintenanceUrl = req.nextUrl.clone();
