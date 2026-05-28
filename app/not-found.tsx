@@ -38,8 +38,8 @@ export default function NotFound() {
             Cette page s&apos;est perdue en chemin...
           </h1>
           <p className="text-[#01696f]/80 text-base md:text-lg mb-8 leading-relaxed">
-            On a cherch\u00e9 partout, mais elle semble avoir pris des chemins de traverse.
-            Pas de panique, tu peux revenir \u00e0 un endroit s\u00fbr.
+            On a cherché partout, mais elle semble avoir pris des chemins de traverse.
+            Pas de panique, tu peux revenir à un endroit sûr.
           </p>
 
           {/* CTAs */}
@@ -51,13 +51,13 @@ export default function NotFound() {
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              Retour \u00e0 l&apos;accueil
+              Retour à l&apos;accueil
             </Link>
             <Link 
               href="/destinations"
               className="inline-flex items-center gap-2 px-6 py-3 bg-[#01696f] text-white font-semibold rounded-full hover:bg-[#01696f]/90 transition-colors"
             >
-              D\u00e9couvrir nos destinations
+              Découvrir nos destinations
             </Link>
           </div>
         </div>
