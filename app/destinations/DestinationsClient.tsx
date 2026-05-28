@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, memo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Header from '@/components/Header';
@@ -86,6 +86,59 @@ const durationOptions = [
   { value: '7-10', label: '7 à 10 jours' },
   { value: '10+', label: '10 jours et +' },
 ] as const;
+
+// ⚡ Bolt Optimization: Memoize the destination card to prevent unnecessary re-renders when filtering changes
+const MemoizedDestinationCard = memo(function MemoizedDestinationCard({ item }: { item: DestinationCard }) {
+  const cta = 'Voir la destination →';
+
+  return (
+    <article
+      key={`${item.name}-${item.slug}`}
+      className="rounded-2xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 relative"
+    >
+      <Image
+        src={item.image}
+        alt={item.name}
+        fill
+        className="object-cover"
+        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+      />
+      <div className="p-5">
+        <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">
+          {item.country}
+        </p>
+        <h2 className="text-2xl font-serif text-mahogany mb-3">{item.name}</h2>
+        <p className="text-sm text-charcoal/75 leading-relaxed mb-5">{item.description}</p>
+
+        <div className="grid grid-cols-1 gap-3 mb-5 text-sm">
+          <div className="rounded-xl bg-cloud-dancer/60 border border-stone-200 p-3">
+            <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Durée</p>
+            <p className="text-charcoal">{item.duration} jours</p>
+          </div>
+          <div className="rounded-xl bg-cloud-dancer/60 border border-stone-200 p-3">
+            <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Budget indicatif</p>
+            <p className="text-charcoal">{item.budget}</p>
+          </div>
+          <div className="rounded-xl bg-cloud-dancer/60 border border-stone-200 p-3">
+            <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Meilleure saison</p>
+            <p className="text-charcoal">{item.season}</p>
+          </div>
+          <div className="rounded-xl bg-white border border-stone-200 p-3">
+            <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Notre verdict</p>
+            <p className="text-charcoal/85">{item.verdict}</p>
+          </div>
+        </div>
+
+        <Link
+          href={item.slug}
+          className="inline-flex px-5 py-2.5 rounded-lg bg-mahogany text-white font-semibold hover:bg-mahogany/90 transition-all duration-200"
+        >
+          {cta}
+        </Link>
+      </div>
+    </article>
+  );
+});
 
 export default function DestinationsClient() {
   const [countryFilter, setCountryFilter] = useState('all');
@@ -200,57 +253,9 @@ export default function DestinationsClient() {
             ) : (
               <>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredDestinations.map((item) => {
-                  const cta = 'Voir la destination →';
-
-                  return (
-                    <article
-                      key={`${item.name}-${item.slug}`}
-                      className="rounded-2xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 relative"
-                    >
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      />
-                      <div className="p-5">
-                        <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">
-                          {item.country}
-                        </p>
-                        <h2 className="text-2xl font-serif text-mahogany mb-3">{item.name}</h2>
-                        <p className="text-sm text-charcoal/75 leading-relaxed mb-5">{item.description}</p>
-
-                        <div className="grid grid-cols-1 gap-3 mb-5 text-sm">
-                          <div className="rounded-xl bg-cloud-dancer/60 border border-stone-200 p-3">
-                            <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Durée</p>
-                            <p className="text-charcoal">{item.duration} jours</p>
-                          </div>
-                          <div className="rounded-xl bg-cloud-dancer/60 border border-stone-200 p-3">
-                            <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Budget indicatif</p>
-                            <p className="text-charcoal">{item.budget}</p>
-                          </div>
-                          <div className="rounded-xl bg-cloud-dancer/60 border border-stone-200 p-3">
-                            <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Meilleure saison</p>
-                            <p className="text-charcoal">{item.season}</p>
-                          </div>
-                          <div className="rounded-xl bg-white border border-stone-200 p-3">
-                            <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Notre verdict</p>
-                            <p className="text-charcoal/85">{item.verdict}</p>
-                          </div>
-                        </div>
-
-                        <Link
-                          href={item.slug}
-                          className="inline-flex px-5 py-2.5 rounded-lg bg-mahogany text-white font-semibold hover:bg-mahogany/90 transition-all duration-200"
-                        >
-                          {cta}
-                        </Link>
-                      </div>
-                    </article>
-                  );
-                })}
+                {filteredDestinations.map((item) => (
+                  <MemoizedDestinationCard key={`${item.name}-${item.slug}`} item={item} />
+                ))}
               </div>
 
               <div className="mt-8 text-center">
