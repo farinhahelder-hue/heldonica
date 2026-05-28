@@ -18,6 +18,10 @@
     {
       "source": "/cms-complete.html",
       "destination": "/cms-complete.html"
+    },
+    {
+      "source": "/maintenance.html",
+      "destination": "/maintenance.html"
     }
   ],
   "crons": [
