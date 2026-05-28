@@ -5,9 +5,6 @@ Corrupted pattern: f0 9f xx yy -> c3 b0 c5 b8 xx yy
 These appear as ð followed by special chars in the file
 """
 
-import re
-import sys
-
 def fix_file(filename):
     with open(filename, 'rb') as f:
         data = f.read()
