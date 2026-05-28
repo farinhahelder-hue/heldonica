@@ -116,3 +116,6 @@ export default function Contact() {
     </>
   )
 }
+
+// ⚡ Bolt Optimization: Use Incremental Static Regeneration (ISR) to cache the page for 1 hour. This significantly improves Time To First Byte (TTFB).
+export const revalidate = 3600;
