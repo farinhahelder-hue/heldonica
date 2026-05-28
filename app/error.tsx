@@ -48,8 +48,8 @@ export default function Error({
             Une erreur inattendue s&apos;est produite
           </h1>
           <p className="text-[#01696f]/80 text-base md:text-lg mb-8 leading-relaxed">
-            Quelque chose n&apos;a pas fonctionn\u00e9 comme prévu. On s&apos;en occupe.
-            Tu peux r\u00e9essayer ou revenir \u00e0 l&apos;accueil.
+            Quelque chose n&apos;a pas fonctionné comme prévu. On s&apos;en occupe.
+            Tu peux réessayer ou revenir à l&apos;accueil.
           </p>
 
           {/* Buttons */}
@@ -61,7 +61,7 @@ export default function Error({
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M2 8a6 6 0 1 1 1.5 4M2 8V4m0 4H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              R\u00e9essayer
+              Réessayer
             </button>
             <Link 
               href="/"

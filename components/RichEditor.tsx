@@ -179,7 +179,7 @@ export default function RichEditor({
         })}
         <span style={{ width: 1, height: 22, background: '#e0dbd5', margin: '0 .15rem' }} />
         <label
-          title="Ins\u00e9rer une image"
+          title="Insérer une image"
           onMouseDown={saveSelection}
           style={{ padding: '.3rem .55rem', border: '1px solid transparent', borderRadius: '.35rem', background: 'none', cursor: 'pointer', fontSize: '.88rem', color: '#444', lineHeight: 1 }}
           onMouseEnter={e => (e.currentTarget.style.background = '#f0ece6')}
