@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useDeferredValue } from 'react'
 import Link from 'next/link'
 import NewsletterForm from '@/components/NewsletterForm'
 import type { BlogPost } from '@/lib/blog-supabase'
@@ -60,12 +60,16 @@ export default function BlogClientPage({ posts: rawPosts }: Props) {
   const [activeFilter, setActiveFilter] = useState('Tous')
   const [searchQuery, setSearchQuery] = useState('')
 
+  // ⚡ Bolt: Debounce query state using useDeferredValue (React 18).
+  // Impact: Prevents heavy list filtering operations from blocking the main UI thread during typing, ensuring immediate input feedback.
+  const deferredSearchQuery = useDeferredValue(searchQuery)
+
   const categories = ['Tous', 'Carnets Voyage', 'Découvertes Locales', 'Guides Pratiques']
 
   const filteredPosts = useMemo(() => {
     return posts.filter((post) => {
       const matchCategory = activeFilter === 'Tous' || post.category === activeFilter
-      const query = searchQuery.trim().toLowerCase()
+      const query = deferredSearchQuery.trim().toLowerCase()
       const matchSearch =
         query === '' ||
         post.title.toLowerCase().includes(query) ||
@@ -74,9 +78,9 @@ export default function BlogClientPage({ posts: rawPosts }: Props) {
 
       return matchCategory && matchSearch
     })
-  }, [posts, activeFilter, searchQuery])
+  }, [posts, activeFilter, deferredSearchQuery])
 
-  const featuredPost = activeFilter === 'Tous' && searchQuery === '' ? posts[0] : null
+  const featuredPost = activeFilter === 'Tous' && deferredSearchQuery === '' ? posts[0] : null
   const carnets = filteredPosts.filter((post) => post.category === 'Carnets Voyage')
   const decouvertes = filteredPosts.filter((post) => post.category === 'Découvertes Locales')
   const guides = filteredPosts.filter((post) => post.category === 'Guides Pratiques')
