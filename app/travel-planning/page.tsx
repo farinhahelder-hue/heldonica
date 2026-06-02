@@ -7,38 +7,45 @@ import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
 import Link from 'next/link'
 
+const faqs = [
+  {
+    q: 'Comment fonctionne votre service de conception sur mesure ?',
+    a: 'On commence par un échange gratuit pour comprendre ton projet. On conçoit ensuite un itinéraire 100 % personnalisé (logements, transports, activités) livré sous forme de carnet de voyage PDF détaillé.'
+  },
+  {
+    q: 'Quels types de voyages proposez-vous ?',
+    a: 'Nous privilégions le slow travel et les voyages éco-responsables, parfaits pour les couples, solos ou petits groupes. Nous sélectionnons des adresses authentiques et testées sur le terrain, loin du tourisme de masse.'
+  },
+  {
+    q: 'Combien coûte une conception de voyage sur mesure ?',
+    a: 'Chaque projet est unique. Le tarif dépend de la complexité de l\'itinéraire, de la durée et du niveau de personnalisation. Compte en moyenne entre 250€ et 480€ selon la durée et la complexité du projet. Le détail est présenté lors de l\'échange découverte gratuit.'
+  },
+  {
+    q: 'Dans quels pays intervenez-vous ?',
+    a: 'Nous proposons nos propres coups de cœur (Madère, Roumanie, France, Italie...) où nous avons passé beaucoup de temps. Pour les autres destinations, nous nous appuyons sur notre méthode de recherche et notre réseau local. On ne te conseille que ce qu\'on est prêts à recommander à nos proches.'
+  },
+  {
+    q: 'Quel est le délai pour recevoir mon itinéraire ?',
+    a: 'En général, ton carnet de route complet est livré sous 7 à 10 jours après validation du brief. Pour les projets plus urgents, n\'hésite pas à nous contacter.'
+  },
+  {
+    q: 'Faites-vous les réservations à notre place ?',
+    a: 'Notre service standard te fournit tous les liens et contacts pour réserver facilement. Si tu souhaites un accompagnement intégral où nous gérons les réservations, c\'est possible sur devis.'
+  }
+]
+
 const faqSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
-  "mainEntity": [
-    { "@type": "Question", "name": "Combien coûte la conception sur mesure ?", "acceptedAnswer": { "@type": "Answer", "text": "Chaque projet est unique. Le tarif est établi selon la complexité de l'itinéraire. Compte en moyenne entre 150€ et 350€ pour un voyage de 7 à 14 jours." }},
-    { "@type": "Question", "name": "Dans combien de temps reçois-tu ton carnet de route ?", "acceptedAnswer": { "@type": "Answer", "text": "En général sous 7 à 10 jours après ta validation du brief." }},
-    { "@type": "Question", "name": "Qu'est-ce que tu reçois exactement ?", "acceptedAnswer": { "@type": "Answer", "text": "Un carnet de voyage PDF complet: programme jour par jour, carte interactive, hébergements sélectionnés, restaurants, transports, conseils pratiques et contacts locaux." }}
-  ]
+  "mainEntity": faqs.map(faq => ({
+    "@type": "Question",
+    "name": faq.q,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": faq.a
+    }
+  }))
 }
-
-const faqs = [
-  {
-    q: 'Combien coûte la conception sur mesure ?',
-    a: 'Chaque projet est unique. On commence par un échange gratuit pour comprendre tes envies. Le tarif est établi selon la complexité de l\'itinéraire, la durée et le niveau de personnalisation souhaité. Compte en moyenne entre 150€ et 350€ pour un voyage de 7 à 14 jours.'
-  },
-  {
-    q: 'Dans combien de temps reçois-tu ton carnet de route ?',
-    a: 'En général sous 7 à 10 jours après ta validation du brief. Pour les projets urgents (départ dans moins de 3 semaines), contacte-nous directement — on fait de notre mieux.'
-  },
-  {
-    q: 'Et si la destination, tu ne l\'as jamais faite ?',
-    a: 'Oui. On travaille avec un réseau de contacts locaux et on fait des recherches approfondies pour chaque nouvelle destination. La différence : on ne te conseille que ce qu\'on est prêts à recommander à nos proches.'
-  },
-  {
-    q: 'Tu veux qu\'on fasse les réservations à ta place ?',
-    a: 'On peut te fournir les liens, contacts et conseils pour chaque réservation. Pour un accompagnement complet (réservations incluses), c\'est possible sur devis — précise-le lors de ta demande.'
-  },
-  {
-    q: 'Qu\'est-ce que tu reçois exactement comme livrable ?',
-    a: 'Un carnet de voyage PDF complet : programme jour par jour, carte interactive, hébergements sélectionnés, restaurants, transports, conseils pratiques et contacts locaux. Tout réuni en un seul document pensé pour toi.'
-  },
-]
 
 function FAQ() {
   const [open, setOpen] = useState<number | null>(null)
@@ -120,19 +127,19 @@ export default function TravelPlanning() {
               <div className="bg-white/15 border border-white/20 rounded-xl px-4 py-4 text-left">
                 <p className="text-amber-300 text-xs font-bold uppercase tracking-widest mb-1">Couples aventuriers</p>
                 <p className="text-white/80 text-xs leading-relaxed">
-                  Ralentir sans s’ennuyer, garder le hors-sentiers sans perdre le fil. Notre terrain naturel.
+                  Ralentir sans s'ennuyer, garder le hors-sentiers sans perdre le fil. Notre terrain naturel.
                 </p>
               </div>
               <div className="bg-white/15 border border-white/20 rounded-xl px-4 py-4 text-left">
                 <p className="text-amber-300 text-xs font-bold uppercase tracking-widest mb-1">Solos &amp; familles</p>
                 <p className="text-white/80 text-xs leading-relaxed">
-                  Solo qui cherche du vrai, famille en quête d’autre chose — même exigence, rythme adapté.
+                  Solo qui cherche du vrai, famille en quête d'autre chose — même exigence, rythme adapté.
                 </p>
               </div>
               <div className="bg-white/15 border border-white/20 rounded-xl px-4 py-4 text-left">
-                <p className="text-amber-300 text-xs font-bold uppercase tracking-widest mb-1">Groupes d’amis</p>
+                <p className="text-amber-300 text-xs font-bold uppercase tracking-widest mb-1">Groupes d'amis</p>
                 <p className="text-white/80 text-xs leading-relaxed">
-                  Évasion entre amis hors des circuits classiques — on garde l’essence, on perd le touristique.
+                  Évasion entre amis hors des circuits classiques — on garde l'essence, on perd le touristique.
                 </p>
               </div>
             </div>
@@ -208,7 +215,7 @@ export default function TravelPlanning() {
           </div>
         </section>
 
-        {/* ── CE QU’ON CRÉE ── */}
+        {/* ── CE QU'ON CRÉE ── */}
         <section className="py-20 md:py-28 bg-white">
           <div className="max-w-6xl mx-auto px-6 md:px-10">
             <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-3">Le livrable</p>
@@ -255,13 +262,13 @@ export default function TravelPlanning() {
               {[
                 {
                   num: '01',
-                  title: 'Itinéraire 100 % sur mesure',
+                  title: 'Itinéraire 100 % sur mesure',
                   desc: 'On part de tes envies, ton rythme, ta durée. Chaque journée est pensée pour que tu vives un vrai voyage — pas une liste de cases à cocher.',
                 },
                 {
                   num: '02',
                   title: 'Hébergements éco & authentiques',
-                  desc: 'Maisons d\'hôtes locales, écolodges, petits hôtels indépendants testés terrain. Zéro chaîne, 100 % immersion.',
+                  desc: 'Maisons d\'hôtes locales, écolodges, petits hôtels indépendants testés terrain. Zéro chaîne, 100 % immersion.',
                 },
                 {
                   num: '03',
@@ -340,7 +347,7 @@ export default function TravelPlanning() {
         <section className="py-24 md:py-32 bg-amber-900 text-white relative overflow-hidden">
           <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1200&q=60)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
           <div className="relative max-w-2xl mx-auto px-6 text-center">
-            <p className="text-amber-200 text-xs font-bold tracking-[0.2em] uppercase mb-4">Prêts pour l&apos;aventure ?</p>
+            <p className="text-amber-200 text-xs font-bold tracking-[0.2em] uppercase mb-4">Prêts pour l&apos;aventure ?</p>
             <h2 className="text-4xl md:text-5xl font-serif font-light mb-6">
               Dis-nous où tu rêves d&apos;aller.<br />
               <em>On s&apos;occupe du reste.</em>
@@ -352,7 +359,7 @@ export default function TravelPlanning() {
               className="inline-block px-10 py-4 bg-white text-amber-900 font-bold rounded shadow-xl hover:bg-amber-50 transition text-sm tracking-wide">
               Nous écrire →
             </Link>
-            <p className="mt-4 text-amber-300/70 text-xs">Sans engagement · Réponse sous 48h · 100 % humain</p>
+            <p className="mt-4 text-amber-300/70 text-xs">Sans engagement · Réponse sous 48h · 100 % humain</p>
           </div>
         </section>
 
@@ -363,7 +370,7 @@ export default function TravelPlanning() {
       <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-amber-900 border-t border-amber-800 px-4 py-3 flex items-center justify-between gap-3">
         <div>
           <p className="text-white text-xs font-bold">Conception de voyage sur mesure</p>
-          <p className="text-amber-300 text-xs">Places limitées — 100 % humain</p>
+          <p className="text-amber-300 text-xs">Places limitées — 100 % humain</p>
         </div>
         <Link href="/travel-planning-form"
           className="px-4 py-2 bg-white text-amber-900 rounded font-bold text-xs whitespace-nowrap shadow">
