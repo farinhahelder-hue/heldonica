@@ -290,8 +290,76 @@ export default async function AProposPage() {
           </div>
         </section>
 
-        {/* ─── CITATION ─── */}
-        <section className="py-20 bg-stone-900">
+        {/* ─── NOTRE PHILOSOPHIE ─── */}
+        <section className="py-20 md:py-28 bg-amber-50">
+          <div className="max-w-5xl mx-auto px-6 md:px-10">
+            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Notre philosophie</p>
+            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 leading-tight text-center mb-12">
+              Trois convictions qu'on ne négocie pas
+            </h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="bg-white rounded-2xl p-8 border border-amber-100">
+                <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center mb-5">
+                  <span className="text-2xl">🐢</span>
+                </div>
+                <h3 className="text-lg font-serif text-stone-900 mb-3">Slow &gt; Fast</h3>
+                <p className="text-stone-600 text-sm leading-relaxed">
+                  On préfère une terrasse de 3h à 10 musées en 1 jour. Le vrai voyage, c'est pas une checklist.
+                </p>
+              </div>
+              <div className="bg-white rounded-2xl p-8 border border-amber-100">
+                <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center mb-5">
+                  <span className="text-2xl">🎯</span>
+                </div>
+                <h3 className="text-lg font-serif text-stone-900 mb-3">Vécu &gt; Googled</h3>
+                <p className="text-stone-600 text-sm leading-relaxed">
+                  On ne recommande que ce qu'on a testé nous-mêmes. Pas de listicle, pas de plagiat.
+                </p>
+              </div>
+              <div className="bg-white rounded-2xl p-8 border border-amber-100">
+                <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center mb-5">
+                  <span className="text-2xl">💎</span>
+                </div>
+                <h3 className="text-lg font-serif text-stone-900 mb-3">Rare &gt; Connu</h3>
+                <p className="text-stone-600 text-sm leading-relaxed">
+                  Les pépites dénichées, pas les spots Instagram saturés. On cherche ce qui mérite d'être trouvé.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ─── ON A VOYAGÉ ICI ─── */}
+        <section className="py-20 md:py-28 bg-white">
+          <div className="max-w-5xl mx-auto px-6 md:px-10">
+            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Destinations testées</p>
+            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 leading-tight text-center mb-10">
+              On a voyagé ici
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {[
+                { emoji: '🇷🇴', name: 'Roumanie', href: '/destinations/roumanie' },
+                { emoji: '🇵🇹', name: 'Madère', href: '/destinations/madere' },
+                { emoji: '🇫🇷', name: 'Paris', href: '/destinations/paris' },
+                { emoji: '🇨🇭', name: 'Suisse', href: '/destinations/suisse' },
+                { emoji: '🇮🇹', name: 'Sicile', href: '/destinations/sicile' },
+                { emoji: '🇲🇪', name: 'Monténégro', href: '/destinations/montenegro' },
+              ].map((dest) => (
+                <Link
+                  key={dest.name}
+                  href={dest.href}
+                  className="group flex flex-col items-center gap-3 p-5 rounded-xl border border-stone-200 hover:border-amber-300 hover:bg-amber-50 transition-all"
+                >
+                  <span className="text-4xl">{dest.emoji}</span>
+                  <span className="text-sm font-medium text-stone-700 group-hover:text-amber-800 transition-colors">{dest.name}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ─── CTA ─── */}
+        <section className="py-20 md:py-28 bg-[#f7f6f2]">
           <div className="max-w-3xl mx-auto px-6 text-center">
             <p className="text-amber-300 text-xs font-bold tracking-[0.2em] uppercase mb-8">Notre conviction</p>
             <blockquote className="text-2xl md:text-4xl font-serif font-light text-white leading-relaxed">
@@ -322,18 +390,18 @@ export default async function AProposPage() {
                 </span>
               </Link>
               <Link
-                href="/travel-planning-form"
+                href="/planifier"
                 className="group block bg-stone-900 rounded-2xl p-8 shadow-sm hover:shadow-md border border-stone-800 hover:border-amber-700 transition-all"
               >
                 <p className="text-xs text-amber-300 font-bold tracking-widest uppercase mb-3">Travel Planning</p>
                 <h3 className="text-2xl font-serif font-light text-white mb-3 group-hover:text-amber-300 transition-colors">
-                  Ton voyage, pensé juste
+                  Tu veux qu'on conçoive ton voyage sur mesure ?
                 </h3>
                 <p className="text-stone-400 text-sm leading-relaxed mb-5">
-                  Tu pars de zéro ou tu raffines un projet ? Raconte-nous. En 48h, tu as un premier piste concrètes, pas un catalogue.
+                  Raconte-nous. En 48h, tu as un premier piste concrètes, pas un catalogue.
                 </p>
                 <span className="text-amber-300 font-semibold text-sm group-hover:gap-3 transition-all inline-flex items-center gap-2">
-                  Dis-nous où tu veux aller →
+                  Découvrir le Travel Planning →
                 </span>
               </Link>
             </div>
