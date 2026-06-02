@@ -13,6 +13,7 @@ const DESTINATION_IMAGES: Record<string, string> = {
   'montenegro': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1400&q=85',
   'suisse': 'https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=1400&q=85',
   'zurich': 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1400&q=85',
+  'paris': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1400&q=85',
 }
 
 const DESTINATION_CONTENT: Record<string, any> = {
@@ -94,6 +95,22 @@ const DESTINATION_CONTENT: Record<string, any> = {
       'Manger au Volkshaus — design Bauhaus, cuisine locale',
       'Prendre le train pour Stein am Rhein — le plus beau village de Suisse',
       'Longer la Limmat au coucher du soleil depuis le Niederdorf',
+    ],
+  },
+  'paris': {
+    title: 'Paris',
+    subtitle: 'la ville qu\'on croit connaître',
+    description: 'Paris a deux visages. Celui des cartes postales, qu\'on connaît tous. Et celui que la ville garde pour ses initiés — ses friches industrielles reconverties en jardins secrets, ses passages couverts endormis, ses villages dans la ville. Même en bas de chez toi, il reste des rues qui n\'ont pas fini de se révéler.',
+    verdict: 'Paris est meilleur quand on arrête d\'essayer d\'en faire trop.',
+    duration: '3-5 jours',
+    season: 'Toute l\'année',
+    budget: 'Modulable',
+    profile: 'Amateur de culture, de flânerie et de bonne chère',
+    tips: [
+      'Explorer la Petite Ceinture — l\'ancienne ligne de chemin de fer transformée en coulée verte',
+      'Monter au Miradouro (équivalent) du Sacré-Cœur à l\'aube',
+      'Manger au mercado local du quartier, pas dans les restaurants touristiques',
+      'Prendre le temps de s\'asseoir dans un café sans commander autre chose qu\'un café',
     ],
   },
 }
