@@ -198,7 +198,7 @@ export default function TravelPlanning() {
             </div>
             <div className="mt-8 inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-2">
               <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-              <span className="text-white/80 text-xs font-medium">On travaille en petit nombre — qualité > quantité</span>
+              <span className="text-white/80 text-xs font-medium">{"On travaille en petit nombre — qualité délibérément limitée"}</span>
             </div>
           </div>
         </section>
