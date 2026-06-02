@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
+import PlanifierForm from './PlanifierForm'
 
 export const metadata: Metadata = {
   title: 'Planifier | Heldonica',
@@ -57,7 +58,6 @@ export default function PlanifierPage() {
               >
                 Nous écrire →
               </Link>
-
             </div>
           </div>
         </section>
@@ -70,6 +70,15 @@ export default function PlanifierPage() {
                 <p className="text-base leading-relaxed text-stone-700">{item.text}</p>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* Inline Contact Form */}
+        <section className="bg-amber-50 py-16 md:py-24">
+          <div className="mx-auto max-w-2xl px-6">
+            <div className="bg-white rounded-[2rem] shadow-xl p-8 md:p-12">
+              <PlanifierForm />
+            </div>
           </div>
         </section>
 
