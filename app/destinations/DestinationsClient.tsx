@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Header from '@/components/Header';
@@ -8,9 +8,11 @@ import Footer from '@/components/Footer';
 import SlowTravelQuiz from '@/components/SlowTravelQuiz';
 
 type DestinationCard = {
+  id?: string;
   name: string;
   slug: string;
   country: string;
+  region?: string;
   style: 'nature' | 'culture' | 'city' | 'food';
   duration: '3-5' | '5-7' | '7-10' | '10+';
   description: string;
@@ -20,56 +22,41 @@ type DestinationCard = {
   verdict: string;
 };
 
-const destinations: DestinationCard[] = [
-  {
-    name: 'Madère',
-    slug: '/destinations/madere',
-    country: 'Portugal',
-    style: 'nature',
-    duration: '7-10',
-    description: "L’île qu’on a mise trois ans à vraiment comprendre. Chaque retour révèle quelque chose que le précédent avait raté.",
-    image: 'https://images.unsplash.com/photo-1560719887-fe3105fa1e55?w=800&q=80',
-    budget: '1 400 à 1 800 € / duo / 7 jours',
-    season: 'mars à juin · septembre à novembre',
-    verdict: "Le genre d’île qui te force à ralentir si tu veux qu’elle s’ouvre.",
-  },
-  {
-    name: 'Sicile',
-    slug: '/travel-planning-form?destination=sicile',
-    country: 'Italie',
-    style: 'food',
-    duration: '5-7',
-    description: "Le sud-est qu’on prend par la pierre, par le ventre et par les fins d’après-midi qui durent plus que prévu.",
-    image: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&q=80',
-    budget: 'Sur mesure',
-    season: 'avril à juin · septembre à octobre',
-    verdict: "À faire lentement, sinon la Sicile ne te donne que sa surface.",
-  },
-  {
-    name: 'Roumanie',
-    slug: '/destinations/roumanie',
-    country: 'Roumanie',
-    style: 'culture',
-    duration: '7-10',
-    description: "Le terrain de l’enfance, du retour et des villages qui n’ont pas encore laissé tomber leur rythme.",
-    image: 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=800&q=80',
-    budget: 'Accessible et dense',
-    season: 'mai à octobre',
-    verdict: "Une destination qui récompense ceux qui.sortent des capitales trop vite résumées.",
-  },
-  {
-    name: 'Paris',
-    slug: '/destinations/paris',
-    country: 'France',
-    style: 'city',
-    duration: '3-5',
-    description: "Même en bas de chez toi, il reste des rues qui n’ont pas fini de se révéler si tu ralentis juste assez.",
-    image: 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=1200&q=80',
-    budget: 'Modulable',
-    season: "toute l’année",
-    verdict: "Paris est meilleur quand on arrête d’essayer d’en faire trop.",
-  },
-];
+// Images for each destination category
+const DESTINATION_IMAGES: Record<string, string> = {
+  'Madère': 'https://images.unsplash.com/photo-1560719887-fe3105fa1e55?w=800&q=80',
+  'Portugal': 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800&q=80',
+  'Roumanie': 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=800&q=80',
+  'Sicile': 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&q=80',
+  'France': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80',
+  'Suisse': 'https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=800&q=80',
+  'Italie': 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&q=80',
+  'Monténégro': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
+  default: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80',
+};
+
+// Fallback descriptions
+const DESTINATION_DESCRIPTIONS: Record<string, string> = {
+  'Madère': "L'île qu'on a mise trois ans à vraiment comprendre. Chaque retour révèle quelque chose que le précédent avait raté.",
+  'Roumanie': "Le terrain de l'enfance, du retour et des villages qui n'ont pas encore laissé tomber leur rythme.",
+  'Sicile': "Le sud-est qu'on prend par la pierre, par le ventre et par les fins d'après-midi qui durent plus que prévu.",
+  'Portugal': "Lisbonne vue par ceux qui y vivent, pas par ceux qui la traversent.",
+  'France': "Même en bas de chez toi, il reste des rues qui n'ont pas fini de se révéler si tu ralentis juste assez.",
+  'Suisse': "Les Alpes qu'on prend par les crêtes, par les bains et par les matins dans le brouillard de haute altitude.",
+  'Italie': "La botte qu'on prend par ses secrets — villages de pierre, tables de campagne, couchers de soleil sur la Méditerranée.",
+  'Monténégro': "Les Balkans par leur côté le plus lumineux — fjords, villages de pêcheurs et routes qui longent la mer.",
+};
+
+const DESTINATION_VERDICTS: Record<string, string> = {
+  'Madère': "Le genre d'île qui te force à ralentir si tu veux qu'elle s'ouvre.",
+  'Roumanie': "Une destination qui récompense ceux qui sortent des capitales trop vite résumées.",
+  'Sicile': "À faire lentement, sinon la Sicile ne te donne que sa surface.",
+  'Portugal': "Lisbonne est meilleure quand on prend le temps de s'asseoir.",
+  'France': "Paris est meilleur quand on arrête d'essayer d'en faire trop.",
+  'Suisse': "La Suisse révèle ses meilleurs côtés à ceux qui descendent des sentiers balisés.",
+  'Italie': "L'Italie qu'on cherche n'est jamais dans les guides.",
+  'Monténégro': "Un pays qui n'a pas encore appris à vendre ce qu'il est.",
+};
 
 const styleOptions = [
   { value: 'all', label: 'Tous les styles' },
@@ -87,15 +74,83 @@ const durationOptions = [
   { value: '10+', label: '10 jours et +' },
 ] as const;
 
+function mapCategoryToStyle(category: string): DestinationCard['style'] {
+  const map: Record<string, DestinationCard['style']> = {
+    'nature': 'nature',
+    'culture': 'culture',
+    'city': 'city',
+    'ville': 'city',
+    'food': 'food',
+    'montagne': 'nature',
+  };
+  return map[category?.toLowerCase()] || 'nature';
+}
+
+function mapRegionToDuration(region: string): DestinationCard['duration'] {
+  // Rough mapping based on region
+  const durations: Record<string, DestinationCard['duration']> = {
+    'Europe de l\'Ouest': '3-5',
+    'Europe du Sud': '5-7',
+    'Méditerranée': '5-7',
+    'Europe de l\'Est': '7-10',
+    'Balkans': '7-10',
+    'Alpes': '7-10',
+  };
+  return durations[region] || '7-10';
+}
+
 export default function DestinationsClient() {
   const [countryFilter, setCountryFilter] = useState('all');
   const [styleFilter, setStyleFilter] = useState<(typeof styleOptions)[number]['value']>('all');
-  const [durationFilter, setDurationFilter] =
-    useState<(typeof durationOptions)[number]['value']>('all');
+  const [durationFilter, setDurationFilter] = useState<(typeof durationOptions)[number]['value']>('all');
+  const [destinations, setDestinations] = useState<DestinationCard[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchDestinations() {
+      try {
+        const res = await fetch('/api/destinations');
+        if (!res.ok) throw new Error('Failed to fetch');
+        const data = await res.json();
+        
+        if (Array.isArray(data.destinations)) {
+          const mapped: DestinationCard[] = data.destinations.map((d: any) => {
+            const name = d.title?.split('|')[0]?.trim() || d.slug?.split('-').map(w => 
+              w.charAt(0).toUpperCase() + w.slice(1)
+            ).join(' ') || 'Destination';
+            
+            return {
+              id: d.id,
+              name,
+              slug: d.link || `/destinations/${d.slug}`,
+              country: d.country || '',
+              region: d.region,
+              style: mapCategoryToStyle(d.category || ''),
+              duration: mapRegionToDuration(d.region || ''),
+              description: d.excerpt || DESTINATION_DESCRIPTIONS[name] || `Destination testée et recommandée par Heldonica.`,
+              image: d.featured_image || DESTINATION_IMAGES[name] || DESTINATION_IMAGES[d.country] || DESTINATION_IMAGES.default,
+              budget: 'Sur mesure',
+              season: 'Nous consulter',
+              verdict: DESTINATION_VERDICTS[name] || 'Une destination qui mérite qu\'on prenne le temps.',
+            };
+          });
+          setDestinations(mapped);
+        }
+      } catch (err) {
+        console.error('Error fetching destinations:', err);
+        setError('Impossible de charger les destinations');
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchDestinations();
+  }, []);
 
   const countries = useMemo(
     () => ['all', ...Array.from(new Set(destinations.map((item) => item.country)))],
-    []
+    [destinations]
   );
 
   const filteredDestinations = useMemo(
@@ -106,7 +161,7 @@ export default function DestinationsClient() {
         const durationOk = durationFilter === 'all' || item.duration === durationFilter;
         return countryOk && styleOk && durationOk;
       }),
-    [countryFilter, styleFilter, durationFilter]
+    [countryFilter, styleFilter, durationFilter, destinations]
   );
 
   return (
@@ -119,10 +174,10 @@ export default function DestinationsClient() {
               Hub destinations
             </p>
             <h1 className="text-4xl md:text-6xl font-serif text-mahogany mb-6">
-              Six destinations qu&apos;on a arpentées dans tous les sens
+              {loading ? 'Destinations en cours de chargement...' : `${destinations.length} destinations qu'on a arpentées dans tous les sens`}
             </h1>
             <p className="text-charcoal/80 text-lg max-w-3xl leading-relaxed">
-              Pas en touristes pressés, en gens qui reviennent, qui testent, qui se trompent et qui recommencent. Ici, on te montre des terrains qu&apos;on connaît vraiment, avec leur bon rythme, leur budget indicatif et notre verdict signé court.
+              Pas en touristes pressés, en gens qui reviennent, qui testent, qui se trompent et qui recommandencent. Ici, on te montre des terrains qu'on connaît vraiment, avec leur bon rythme, leur budget indicatif et notre verdict signé court.
             </p>
           </div>
         </section>
@@ -184,7 +239,14 @@ export default function DestinationsClient() {
 
         <section className="bg-white section-spacing">
           <div className="container">
-            {filteredDestinations.length === 0 ? (
+            {loading ? (
+              <div className="rounded-2xl border border-stone-200 p-10 text-center">
+                <div className="animate-pulse">
+                  <div className="h-4 bg-stone-200 rounded w-48 mx-auto mb-4"></div>
+                  <div className="h-2 bg-stone-100 rounded w-32 mx-auto"></div>
+                </div>
+              </div>
+            ) : filteredDestinations.length === 0 ? (
               <div className="rounded-2xl border border-stone-200 p-10 text-center">
                 <p className="text-lg font-semibold text-mahogany mb-2">Aucun résultat avec ces filtres</p>
                 <p className="text-charcoal/70 mb-5">
@@ -200,14 +262,12 @@ export default function DestinationsClient() {
             ) : (
               <>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredDestinations.map((item) => {
-                  const cta = 'Voir la destination →';
-
-                  return (
-                    <article
-                      key={`${item.name}-${item.slug}`}
-                      className="rounded-2xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 relative"
-                    >
+                {filteredDestinations.map((item) => (
+                  <article
+                    key={item.id || `${item.name}-${item.slug}`}
+                    className="rounded-2xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 relative"
+                  >
+                    <div className="relative h-48 bg-stone-100">
                       <Image
                         src={item.image}
                         alt={item.name}
@@ -215,42 +275,34 @@ export default function DestinationsClient() {
                         className="object-cover"
                         sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       />
-                      <div className="p-5">
-                        <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">
-                          {item.country}
-                        </p>
-                        <h2 className="text-2xl font-serif text-mahogany mb-3">{item.name}</h2>
-                        <p className="text-sm text-charcoal/75 leading-relaxed mb-5">{item.description}</p>
+                    </div>
+                    <div className="p-5">
+                      <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">
+                        {item.country}
+                      </p>
+                      <h2 className="text-2xl font-serif text-mahogany mb-3">{item.name}</h2>
+                      <p className="text-sm text-charcoal/75 leading-relaxed mb-5 line-clamp-2">{item.description}</p>
 
-                        <div className="grid grid-cols-1 gap-3 mb-5 text-sm">
-                          <div className="rounded-xl bg-cloud-dancer/60 border border-stone-200 p-3">
-                            <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Durée</p>
-                            <p className="text-charcoal">{item.duration} jours</p>
-                          </div>
-                          <div className="rounded-xl bg-cloud-dancer/60 border border-stone-200 p-3">
-                            <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Budget indicatif</p>
-                            <p className="text-charcoal">{item.budget}</p>
-                          </div>
-                          <div className="rounded-xl bg-cloud-dancer/60 border border-stone-200 p-3">
-                            <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Meilleure saison</p>
-                            <p className="text-charcoal">{item.season}</p>
-                          </div>
-                          <div className="rounded-xl bg-white border border-stone-200 p-3">
-                            <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Notre verdict</p>
-                            <p className="text-charcoal/85">{item.verdict}</p>
-                          </div>
+                      <div className="grid grid-cols-1 gap-3 mb-5 text-sm">
+                        <div className="rounded-xl bg-cloud-dancer/60 border border-stone-200 p-3">
+                          <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Durée</p>
+                          <p className="text-charcoal">{item.duration} jours</p>
                         </div>
-
-                        <Link
-                          href={item.slug}
-                          className="inline-flex px-5 py-2.5 rounded-lg bg-mahogany text-white font-semibold hover:bg-mahogany/90 transition-all duration-200"
-                        >
-                          {cta}
-                        </Link>
+                        <div className="rounded-xl bg-white border border-stone-200 p-3">
+                          <p className="text-[11px] uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-1">Notre verdict</p>
+                          <p className="text-charcoal/85 text-xs">{item.verdict}</p>
+                        </div>
                       </div>
-                    </article>
-                  );
-                })}
+
+                      <Link
+                        href={item.slug}
+                        className="inline-flex px-5 py-2.5 rounded-lg bg-mahogany text-white font-semibold hover:bg-mahogany/90 transition-all duration-200"
+                      >
+                        Voir la destination →
+                      </Link>
+                    </div>
+                  </article>
+                ))}
               </div>
 
               <div className="mt-8 text-center">
@@ -296,7 +348,7 @@ export default function DestinationsClient() {
               },
               {
                 '@type': 'Question',
-                name: "Qu’est-ce qu’une destination hors des sentiers battus ?",
+                name: "Qu'est-ce qu'une destination hors des sentiers battus ?",
                 acceptedAnswer: {
                   '@type': 'Answer',
                   text: 'Une destination hors des sentiers battus, c\'est un lieu authentique, peu touristique, où l\'expérience locale prime sur les circuits standardisés. Chez Heldonica, on ne recommande que des endroits qu\'on a visités et vérifiés nous-mêmes.',
