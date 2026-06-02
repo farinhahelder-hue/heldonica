@@ -6,26 +6,24 @@ import { getSettings } from '@/lib/settings'
 import Image from 'next/image'
 
 export const metadata: Metadata = {
-  title: 'Notre histoire — Heldonica | Slow Travel vécu en duo',
+  title: 'À Propos — Qui Sommes-Nous | Heldonica',
   description:
-    "On est Heldonica, un duo d'explorateurs passionnés par le slow travel. Madère, Roumanie, Paris : on part, on teste, on revient avec des pépites qu'on te partage. Et quand t'es prêt, on conçoit ton voyage sur mesure.",
+    "On est Heldonica, un duo d’explorateurs passionnés par le slow travel et les pépites cachées. On voyage, on teste, on partage — et on conçoit tes voyages sur mesure.",
   keywords: [
     'heldonica',
-    'slow travel',
-    'notre histoire',
+    'blog slow travel',
+    'qui sommes-nous',
     'travel planner',
     'voyage authentique',
-    'duo voyage',
-    'carnets de route',
   ],
   alternates: {
     canonical: 'https://www.heldonica.fr/a-propos',
   },
   openGraph: {
     url: 'https://www.heldonica.fr/a-propos',
-    title: 'Notre histoire — Heldonica | Slow Travel vécu en duo',
+    title: 'À Propos — Qui Sommes-Nous | Heldonica',
     description:
-      "On est Heldonica, un duo d'explorateurs passionnés par le slow travel. On part, on teste, on revient avec des pépites.",
+      "On est Heldonica, un duo d’explorateurs passionnés par le slow travel et les pépites cachées.",
     images: [
       {
         url: 'https://www.heldonica.fr/og-default.jpg',
@@ -39,6 +37,7 @@ export const metadata: Metadata = {
   },
 }
 
+// ⚡ Bolt Optimization: Use Incremental Static Regeneration (ISR) to cache the about page for 1 hour. This significantly improves Time To First Byte (TTFB) compared to force-dynamic.
 export const revalidate = 3600
 
 const schemaPerson = {
@@ -59,7 +58,8 @@ export default async function AProposPage() {
     'hero_type',
     'hero_video_url',
     'hero_poster_image',
-    'hero_background_image',
+
+'hero_background_image',
     'page_title',
     'intro_text'
   )
@@ -73,8 +73,8 @@ export default async function AProposPage() {
     <>
       <Header />
       <main>
-        {/* ─── HERO ─── */}
         <section className="relative h-[55vh] md:h-[65vh] bg-stone-900 flex items-end overflow-hidden">
+          {/* Hero Video */}
           {heroType === 'video' && heroVideo && (
             <video
               autoPlay
@@ -87,10 +87,11 @@ export default async function AProposPage() {
               <source src={heroVideo} type="video/mp4" />
             </video>
           )}
+          {/* Hero Image (default or fallback) */}
           {(heroType === 'image' || !heroVideo) && (
             <Image
               src={backgroundImage}
-              alt="Paysage naturel paisible — l'esprit slow travel de Heldonica"
+              alt="Paysage naturel paisible — l’esprit slow travel de Heldonica"
               className="absolute inset-0 w-full h-full object-cover opacity-40"
               width={1400}
               height={900}
@@ -103,37 +104,56 @@ export default async function AProposPage() {
             <h1 className="text-4xl md:text-6xl font-serif font-light text-white leading-[1.1] mb-5">
               Une histoire
               <br />
-              <em className="text-amber-300">qui s'écrit sur le terrain</em>
+              <em className="text-amber-300">qui s&apos;écrit sur le terrain</em>
             </h1>
             <p className="text-gray-300 text-base md:text-lg leading-relaxed max-w-xl">
-              Madère. Roumanie. Paris. On a grandi entre l'Atlantique et les Carpates, on s'est trouvé à Paris — et ensemble, on adecided que le voyage le plus intéressant, c'est celui qui te change un peu quand tu reviens.
+              Madère. Roumanie. Paris. Notre point de vue est né en duo ; notre service s&apos;ouvre à tous ceux qui veulent voyager plus lentement, plus sincèrement et plus loin des sentiers balisés.
             </p>
           </div>
         </section>
 
-        {/* ─── SLOW TRAVEL — POURQUOI ─── */}
         <section className="py-20 md:py-28 bg-white">
           <div className="max-w-5xl mx-auto px-6 md:px-10">
             <div className="grid md:grid-cols-5 gap-12 md:gap-20 items-center">
               <div className="md:col-span-3 space-y-5">
-                <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase">Ce qu'on croit</p>
+                <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase">Ce qu&apos;on croit</p>
                 <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 leading-tight">
-                  Le slow travel n'est pas une stratégie,
+                  Le slow travel n&apos;est pas une stratégie,
                   <br />
-                  <span className="italic text-stone-500">c'est une évidence.</span>
+                  <span className="italic text-stone-500">c&apos;est une évidence.</span>
                 </h2>
                 <p className="text-base text-stone-600 leading-relaxed">
-                  <strong>Le voyage le plus précieux n'est pas celui qu'on voit sur Instagram.</strong> C'est celui où tu te perds un peu dans les venelles de Lisbonne sans Google Maps. Où tu reviens avec l'adresse d'un café à Funchal que même le réceptionniste de ton hôtel ne connaissait pas — tu sais, celui avec le carrelage azul qui sent le café torréfié depuis 1972.
+                  <strong>Le voyage le plus précieux n&apos;est pas celui qu&apos;on voit sur Instagram.</strong> C&apos;est celui où tu te perds un peu. Où tu reviens avec une adresse de restaurant que personne dans ton entourage ne connaît. Où tu sais exactement combien de temps il faut marcher pour trouver le meilleur point de vue de la ville.
                 </p>
                 <p className="text-base text-stone-600 leading-relaxed">
-                  C'est celui où tu sais exactement combien de temps il faut marcher pour trouver le meilleur point de vue de la ville — parce que tu y es allé trois fois, à trois heures différentes. Où tu as ta table favorite dans ce restaurant de Sibiu, et où le propriétaire sait déjà ce que tu vas commander.
-                </p>
-                <p className="text-base text-stone-600 leading-relaxed">
-                  Quand tu voyages autrement, tu vis autrement. Tu choisis la qualité sur la quantité. Tu reviens moins fatigué qu'avant de partir — et avec des histoires que personne autour de toi n'a encore.
+                  Quand tu voyages autrement, tu vis autrement. Tu choisis la qualité sur la quantité. Tu reviens moins fatigué qu&apos;avant de partir.
                 </p>
                 <p className="text-base text-stone-600 leading-relaxed font-semibold">
                   On ne vend pas des destinations. On conçoit des expériences.
                 </p>
+                <div className="mt-8">
+                  <h3 className="text-xl font-serif font-light text-stone-900 mb-4">Notre méthode en 3 étapes :</h3>
+                  <ul className="space-y-4">
+                    <li className="flex items-start gap-3">
+                      <span className="text-amber-800 font-bold mt-1">1.</span>
+                      <div>
+                        <strong>Discussion — On vous écoute :</strong> On parle de vos désirs, de vos contraintes, de votre rythme. Pas de questionnaire automatique. Un vrai échange.
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-amber-800 font-bold mt-1">2.</span>
+                      <div>
+                        <strong>Conception — On bosse pour vous :</strong> On regarde, on analyse, on déniche. On vous propose un itinéraire qui vous ressemble, pas un copier-coller standard.
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-amber-800 font-bold mt-1">3.</span>
+                      <div>
+                        <strong>Accompagnement — On reste là :</strong> Avant, pendant, après. On ajuste si besoin. On vous donne les infos qui font la différence sur place.
+                      </div>
+                    </li>
+                  </ul>
+                </div>
               </div>
               <div className="md:col-span-2">
                 <div className="relative rounded-2xl overflow-hidden shadow-lg aspect-[3/4]">
@@ -145,9 +165,9 @@ export default async function AProposPage() {
                     loading="lazy"
                     sizes="(max-width: 768px) 100vw, 50vw"
                   />
-                  <div className="absolute -bottom-5 -left-5 bg-amber-800 text-white rounded-xl px-5 py-4 shadow-lg">
-                    <p className="text-xs font-bold tracking-widest uppercase mb-1">Depuis</p>
-                    <p className="text-2xl font-serif">2019</p>
+                  <div className="absolute -bottom-5 -left-5 bg-amber-800 text-white px-5 py-4 rounded-xl shadow-lg hidden md:block">
+                    <p className="text-xs font-bold tracking-wider uppercase mb-1">Ensemble depuis</p>
+                    <p className="text-2xl font-serif font-light">Paris, 2015</p>
                   </div>
                 </div>
               </div>
@@ -155,17 +175,32 @@ export default async function AProposPage() {
           </div>
         </section>
 
-        {/* ─── LE DUO ─── */}
-        <section className="py-20 md:py-28 bg-stone-50">
+        <section className="py-14 bg-stone-50">
           <div className="max-w-5xl mx-auto px-6 md:px-10">
-            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-12 text-center">Le duo</p>
-            <div className="grid md:grid-cols-2 gap-12 md:gap-20">
-              
-              {/* Lui */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+              {[
+                { chiffre: '10+', label: 'ans de terrain en duo' },
+                { chiffre: '17+', label: 'carnets publiés' },
+                { chiffre: '7', label: 'pays habités' },
+                { chiffre: '100+', label: 'adresses vécues' },
+              ].map((item) => (
+                <div key={item.label} className="py-6">
+                  <p className="text-4xl md:text-5xl font-serif font-light text-amber-800 mb-2">{item.chiffre}</p>
+                  <p className="text-xs text-stone-500 leading-snug uppercase tracking-wider">{item.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="py-20 md:py-28 bg-white">
+          <div className="max-w-5xl mx-auto px-6 md:px-10">
+            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-12 text-center">Le duo derrière Heldonica</p>
+            <div className="grid md:grid-cols-2 gap-10 md:gap-16">
               <div className="group">
                 <div className="relative mb-6 overflow-hidden rounded-2xl aspect-[4/3]">
                   <Image
-                    src="https://images.unsplash.com/photo-1551632811-561732d1e306?w=700&q=80"
+                    src="https://images.unsplash.com/photo-1539635278303-d4002c07eae3?w=700&q=80"
                     alt="Madère — falaises et océan Atlantique"
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-700"
@@ -175,19 +210,15 @@ export default async function AProposPage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                   <span className="absolute bottom-4 left-4 text-white text-xs font-bold tracking-[0.15em] uppercase">Lui — Madère</span>
                 </div>
-                <h3 className="text-2xl font-serif font-light text-stone-900 mb-3">L'insulaire de l'âme</h3>
+                <h3 className="text-2xl font-serif font-light text-stone-900 mb-3">L&apos;insulaire de l&apos;âme</h3>
                 <p className="text-stone-600 text-sm leading-relaxed mb-3">
-                  Il est né à Madère, entre l'Atlantique et des falaises que les cartes n'ont pas encore toutes nommées. Il part là où les guides s'arrêtent.
+                  Il est né à Madère, entre l&apos;Atlantique et des falaises que les cartes n&apos;ont pas encore toutes nommées. Il part là où les guides s&apos;arrêtent.
                 </p>
                 <p className="text-stone-600 text-sm leading-relaxed">
-                  Et quand il rentre, il aide les hôtels à mieux raconter ce qu'ils sont. Pas ce qu'ils aimeraient paraître — ce qu'ils sont vraiment, avec leurs petites imperfections attachantes.
-                </p>
-                <p className="text-stone-500 text-sm leading-relaxed italic mt-3">
-                  "Ma Madère préférée, c'est celle que tu trouves quand tu rates ton bus."
+                  Et quand il rentre, il aide les hôtels à mieux raconter ce qu&apos;ils sont. Pas ce qu&apos;ils aimeraient paraître, ce qu&apos;ils sont vraiment.
                 </p>
               </div>
 
-              {/* Elle */}
               <div className="group">
                 <div className="relative mb-6 overflow-hidden rounded-2xl aspect-[4/3]">
                   <Image
@@ -203,26 +234,22 @@ export default async function AProposPage() {
                 </div>
                 <h3 className="text-2xl font-serif font-light text-stone-900 mb-3">La lectrice de villes</h3>
                 <p className="text-stone-600 text-sm leading-relaxed mb-3">
-                  Elle lit une ville comme un poème. Sept pays habités. Pas visités — habités. C'est différent.
+                  Elle lit une ville comme un poème. Sept pays habités. Pas visités — habités. C&apos;est différent.
                 </p>
                 <p className="text-stone-600 text-sm leading-relaxed">
-                  Elle tient la plume, affine les itinéraires et garde le niveau d'exigence là où beaucoup s'arrêtent à une jolie image. Elle sait que le meilleur moment d'une ville, c'est celui où les touristes dorment.
-                </p>
-                <p className="text-stone-500 text-sm leading-relaxed italic mt-3">
-                  "Un bon voyage, c'est un bon livre : tu ne le finishes pas, tu le refermes en pensant déjà à la prochaine page."
+                  Elle tient la plume, affine les itinéraires et garde le niveau d&apos;exigence là où beaucoup s&apos;arrêtent à une jolie image.
                 </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ─── NOTRE APPROCHE ─── */}
-        <section className="py-20 md:py-28 bg-white">
+        <section className="py-20 md:py-28 bg-stone-50">
           <div className="max-w-4xl mx-auto px-6 md:px-10">
             <div className="mb-14">
-              <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4">Ce qu'on défend</p>
+              <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4">Ce qu&apos;on défend</p>
               <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 leading-tight">
-                Heldonica, c'est notre manière de raconter
+                Heldonica, c&apos;est notre manière de raconter
                 <br />
                 <em className="text-amber-800">le monde sans le lisser</em>
               </h2>
@@ -232,17 +259,17 @@ export default async function AProposPage() {
                 {
                   num: '01',
                   titre: 'Vécu, jamais récupéré',
-                  texte: 'Chaque adresse qu\'on te recommande, on l\'a testée. Pas récupérée sur un listicle. Pas recopiée d\'un autre blog. Le vrai goût des choses, ça se vérifie en y revenant deux fois.',
+                  texte: 'Chaque adresse qu\'on recommande, on l\'a testée. Pas récupérée sur un listicle. Pas recopiée ailleurs. Le vrai goût des choses, ça se vérifie.',
                 },
                 {
                   num: '02',
                   titre: 'Lenteur & profondeur',
-                  texte: 'On ne voyage pas pour cocher des cases. On voyage pour ressentir, rencontrer, comprendre. Et pour savoir quand il vaut mieux rester une heure de plus sur cette terrasse plutôt que courir au prochain point GPS.',
+                  texte: 'On ne voyage pas pour cocher. On voyage pour ressentir, rencontrer, comprendre et savoir quand il vaut mieux rester une heure de plus.',
                 },
                 {
                   num: '03',
                   titre: 'Notre POV = duo, notre service = tous',
-                  texte: 'On teste, on affine, on raconte d\'abord à deux — même en bas de chez toi. Ensuite, on met cette même obsession du rythme juste au service d\'un solo, d\'une famille, d\'un groupe d\'amis. Le voyage sur mesure, c\'est pas un luxe, c\'est un bon用药.',
+                  texte: 'On teste, on affine, on raconte d\'abord à deux — même en bas de chez toi. Ensuite, on met cette même obsession du rythme juste au service d\'un solo, d\'une famille ou d\'un groupe d\'amis.',
                 },
               ].map((item) => (
                 <div key={item.num} className="grid md:grid-cols-[80px_1fr] gap-6 items-start">
@@ -257,51 +284,16 @@ export default async function AProposPage() {
           </div>
         </section>
 
-        {/* ─── MÉTHODE ─── */}
-        <section className="py-20 md:py-28 bg-stone-50">
-          <div className="max-w-4xl mx-auto px-6 md:px-10">
-            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-8 text-center">Comment on bosse</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 leading-tight text-center mb-12">
-              Un vrai échange, pas un formulaire
-            </h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="bg-white rounded-2xl p-8 shadow-sm border border-stone-100">
-                <span className="text-4xl font-serif text-amber-300 mb-4 block">1</span>
-                <h3 className="text-xl font-serif font-light text-stone-900 mb-3">On t'écoute</h3>
-                <p className="text-stone-500 text-sm leading-relaxed">
-                  Tu nous racontes tes envies, tes contraintes, ton rythme. Tu peux nous dire que tu détestes les queues, que tu veux voir le lever du soleil depuis un rooftop, ou que tu as besoin d'une pause entre deux villes. On note tout.
-                </p>
-              </div>
-              <div className="bg-white rounded-2xl p-8 shadow-sm border border-stone-100">
-                <span className="text-4xl font-serif text-amber-300 mb-4 block">2</span>
-                <h3 className="text-xl font-serif font-light text-stone-900 mb-3">On conçoit pour toi</h3>
-                <p className="text-stone-500 text-sm leading-relaxed">
-                  On vérifie que le restaurant est ouvert le mardi (parce que oui, ça compte). On vérifie que le WiFi marche là où t'en as besoin. On te propose un itinéraire qui te ressemble, pas un copier-coller.
-                </p>
-              </div>
-              <div className="bg-white rounded-2xl p-8 shadow-sm border border-stone-100">
-                <span className="text-4xl font-serif text-amber-300 mb-4 block">3</span>
-                <h3 className="text-xl font-serif font-light text-stone-900 mb-3">On t'accompagne</h3>
-                <p className="text-stone-500 text-sm leading-relaxed">
-                  Avant, pendant, après. On te donne les infos qui font la différence : le mec à côté du marché qui fait le meilleur espresso, le sentier alternatif qui évite la foule du midi.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ─── CITATION ─── */}
         <section className="py-20 bg-stone-900">
           <div className="max-w-3xl mx-auto px-6 text-center">
             <p className="text-amber-300 text-xs font-bold tracking-[0.2em] uppercase mb-8">Notre conviction</p>
             <blockquote className="text-2xl md:text-4xl font-serif font-light text-white leading-relaxed">
-              &ldquo;On ne raconte bien que ce qu'on a vraiment vécu.&rdquo;
+              &ldquo;On ne raconte bien que ce qu&apos;on a vraiment vécu.&rdquo;
             </blockquote>
             <p className="text-stone-500 text-sm mt-8">Heldonica — Paris</p>
           </div>
         </section>
 
-        {/* ─── CTA ─── */}
         <section className="py-20 md:py-28 bg-[#f7f6f2]">
           <div className="max-w-5xl mx-auto px-6 md:px-10">
             <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-8 text-center">Et maintenant ?</p>
@@ -315,7 +307,7 @@ export default async function AProposPage() {
                   Nos carnets de voyage
                 </h3>
                 <p className="text-stone-500 text-sm leading-relaxed mb-5">
-                  Itinéraires vécus, retours de terrain, adresses qu'on aurait aimé trouver avant de partir. Chaque mot est né d'un pas posé.
+                  Itinéraires vécus, retours de terrain, adresses qu&apos;on aurait aimé trouver avant de partir.
                 </p>
                 <span className="text-amber-800 font-semibold text-sm group-hover:gap-3 transition-all inline-flex items-center gap-2">
                   Lire le carnet →
@@ -323,17 +315,17 @@ export default async function AProposPage() {
               </Link>
               <Link
                 href="/travel-planning-form"
-                className="group block bg-stone-900 rounded-2xl p-8 shadow-sm hover:shadow-md border border-stone-800 hover:border-amber-700 transition-all"
+                className="group block bg-white rounded-2xl p-8 shadow-sm hover:shadow-md border border-stone-100 hover:border-amber-200 transition-all"
               >
-                <p className="text-xs text-amber-300 font-bold tracking-widest uppercase mb-3">Travel Planning</p>
-                <h3 className="text-2xl font-serif font-light text-white mb-3 group-hover:text-amber-300 transition-colors">
+                <p className="text-xs text-amber-800 font-bold tracking-widest uppercase mb-3">Travel Planning</p>
+                <h3 className="text-2xl font-serif font-light text-stone-900 mb-3 group-hover:text-amber-800 transition-colors">
                   Ton voyage, pensé juste
                 </h3>
-                <p className="text-stone-400 text-sm leading-relaxed mb-5">
-                  Tu pars de zéro ou tu raffines un projet ? Raconte-nous. En 48h, tu as un premier piste concrètes, pas un catalogue.
+                <p className="text-stone-500 text-sm leading-relaxed mb-5">
+                  On part de tes vraies contraintes, pas d&apos;un modèle générique. Et on construit à partir du terrain, pas d&apos;un tableau Pinterest.
                 </p>
-                <span className="text-amber-300 font-semibold text-sm group-hover:gap-3 transition-all inline-flex items-center gap-2">
-                  Dis-nous où tu veux aller →
+                <span className="text-amber-800 font-semibold text-sm group-hover:gap-3 transition-all inline-flex items-center gap-2">
+                  Nous écrire →
                 </span>
               </Link>
             </div>
