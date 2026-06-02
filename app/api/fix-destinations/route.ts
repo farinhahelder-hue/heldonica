@@ -35,7 +35,6 @@ export async function POST() {
           published_at: '2026-05-15',
           featured_image: 'https://images.unsplash.com/photo-1560719887-fe3105fa1e55?w=800&q=80',
           author: 'Heldonica',
-          read_time: 8,
         },
         {
           title: "Pourquoi le slow travel change la façon dont on revient",
@@ -46,7 +45,6 @@ export async function POST() {
           published_at: '2026-04-28',
           featured_image: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80',
           author: 'Heldonica',
-          read_time: 6,
         },
         {
           title: "Roumanie : les villages que les guides ne mentionnent pas",
@@ -57,7 +55,6 @@ export async function POST() {
           published_at: '2026-04-10',
           featured_image: 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=800&q=80',
           author: 'Heldonica',
-          read_time: 7,
         },
       ]
 
