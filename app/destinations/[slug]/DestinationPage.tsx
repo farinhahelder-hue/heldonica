@@ -14,6 +14,7 @@ const DESTINATION_IMAGES: Record<string, string> = {
   'suisse': 'https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=1400&q=85',
   'zurich': 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1400&q=85',
   'paris': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1400&q=85',
+  'roumanie': 'https://images.unsplash.com/photo-1601597111158-2fceff292cdc?w=1400&q=85',
 }
 
 const DESTINATION_CONTENT: Record<string, any> = {
@@ -113,6 +114,22 @@ const DESTINATION_CONTENT: Record<string, any> = {
       'Prendre le temps de s\'asseoir dans un café sans commander autre chose qu\'un café',
     ],
   },
+  'roumanie': {
+    title: 'Roumanie',
+    subtitle: 'la Transylvanie qu\'on ne trouve pas dans les guides',
+    description: 'Entre Brasov et Sibiu, entre les Carpates et les collines de Maramureș, il y a une Roumanie que les circuits ne visitent pas. Celle des villages où le temps s\'arrête, des châteaux qui n\'ont pas encore été pris par le tourisme, des forêts où les ours sont encore plus nombreux que les touristes.',
+    verdict: 'La Roumanie ne se visite pas — elle se découvre.',
+    duration: '7-14 jours',
+    season: 'Mai à septembre · Avril pour Maramureș',
+    budget: '600-1200€ / duo / 10 jours',
+    profile: 'Couple en quête d\'authenticité, amateur d\'histoire et de nature',
+    tips: [
+      'Visiter le village de Saschiz — classé UNESCO et presque désert',
+      'Prendre le train à vapeur Mocănița dans la vallée de la Vaser',
+      'Dormir dans un manor transylvanien restauré — expérience unique',
+      'Rester 3 jours à Sighișoara pour voir la ville sans les cars de touristes',
+    ],
+  },
 }
 
 type Props = {
@@ -121,11 +138,12 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const content = DESTINATION_CONTENT[params.slug]
+  const image = DESTINATION_IMAGES[params.slug]
   if (!content) return { title: 'Destination non trouvée' }
 
   return {
     title: `${content.title} slow travel | Guide Heldonica`,
-    description: `Guide ${content.title.toLowerCase()} par Heldonica : ${content.subtitle}. ${content.verdict}`,
+    description: `${content.subtitle}. ${content.verdict}`.slice(0, 155),
     alternates: {
       canonical: `https://www.heldonica.fr/destinations/${params.slug}`,
     },
@@ -135,14 +153,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: `https://www.heldonica.fr/destinations/${params.slug}`,
       images: [
         {
-          url: DESTINATION_IMAGES[params.slug] || '',
+          url: image || '',
           width: 1200,
           height: 630,
           alt: `${content.title} - Slow travel Heldonica`,
         },
       ],
       locale: 'fr_FR',
-      type: 'website',
+      type: 'article',
     },
   }
 }
@@ -158,6 +176,31 @@ export default function DestinationPage({ params }: Props) {
 
   return (
     <>
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "TravelAction",
+            "name": `${content.title} slow travel`,
+            "description": content.description,
+            "location": {
+              "@type": "Place",
+              "name": content.title,
+              "address": {
+                "@type": "PostalAddress",
+                "addressCountry": content.title
+              }
+            },
+            "provider": {
+              "@type": "Organization",
+              "name": "Heldonica",
+              "url": "https://www.heldonica.fr"
+            }
+          })
+        }}
+      />
       <Header />
       <main>
         {/* Hero */}
