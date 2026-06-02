@@ -356,66 +356,82 @@ function SectionHeader({
 
 function ArticleCard({ post }: { post: BlogPost & { formattedDate: string; readTime?: number } }) {
   const fallbackImg = CATEGORY_FALLBACK_BG[post.category ?? ''] ?? DEFAULT_CARD_FALLBACK
-  const [imageSrc, setImageSrc] = useState(post.featured_image ?? null)
+  
+  // Better image handling: check for valid URL
+  const hasValidImage = post.featured_image && 
+    typeof post.featured_image === 'string' && 
+    post.featured_image.trim().length > 0 &&
+    (post.featured_image.startsWith('http') || post.featured_image.startsWith('/'))
+  
+  const [imageSrc, setImageSrc] = useState(hasValidImage ? post.featured_image : null)
+  const [imageError, setImageError] = useState(false)
 
   useEffect(() => {
-    setImageSrc(post.featured_image ?? null)
-  }, [post.featured_image])
-
-  const isFallback = !imageSrc
+    setImageSrc(hasValidImage ? post.featured_image : null)
+    setImageError(false)
+  }, [post.featured_image, hasValidImage])
 
   // Ensure tags is always an array
   const safeTags = Array.isArray(post.tags) ? post.tags : []
 
+  // Category icon SVG
+  const categoryIcons: Record<string, string> = {
+    'Carnets Voyage': 'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5',
+    'Découvertes Locales': 'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z M12 12m-3 0a3 3 0 106 0 3 3 0 10-6 0',
+    'Guides Pratiques': 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+  }
+  const categoryIcon = categoryIcons[post.category ?? ''] || 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
+  const categoryColors: Record<string, string> = {
+    'Carnets Voyage': '#2D8B7A',
+    'Découvertes Locales': '#C4714A', 
+    'Guides Pratiques': '#6B5B4F',
+  }
+  const accentColor = categoryColors[post.category ?? ''] || '#2D8B7A'
+
   return (
     <Link href={`/blog/${post.slug}`} className="group block h-full transition-all duration-200">
       <article className="flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-cloud-dancer bg-white shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-lg">
-        {isFallback ? (
-          <div className="relative h-52 w-full overflow-hidden">
+        {/* Image section - always show something, never empty blocks */}
+        <div className="relative h-52 w-full overflow-hidden bg-gradient-to-br from-stone-100 to-stone-200">
+          {imageSrc && !imageError ? (
             <img
-              src={fallbackImg}
-              alt="Heldonica"
-              width={400}
-              height={208}
-              className="h-full w-full object-cover"
-              loading="lazy"
-            />
-            {post.category && (
-              <div className="absolute left-4 top-4">
-                <span className="rounded-full bg-eucalyptus/90 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">
-                  {post.category}
-                </span>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="relative h-52 w-full overflow-hidden">
-            <img
-              src={imageSrc!}
+              src={imageSrc}
               alt={post.title}
               width={400}
               height={208}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               loading="lazy"
-              onError={() => setImageSrc(null)}
+              onError={() => setImageError(true)}
             />
-            {post.category && (
-              <div className="absolute left-4 top-4">
-                <span className="rounded-full bg-eucalyptus/90 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">
-                  {post.category}
-                </span>
-              </div>
-            )}
-          </div>
-        )}
-
-        {isFallback && post.category && (
-          <div className="px-5 pt-4">
-            <span className="rounded-full bg-eucalyptus/10 px-2.5 py-1 text-xs font-semibold text-eucalyptus">
-              {post.category}
-            </span>
-          </div>
-        )}
+          ) : (
+            /* Elegant gradient fallback with SVG icon */
+            <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-stone-100 via-stone-50 to-stone-200 p-6">
+              <svg 
+                className="h-12 w-12 opacity-30" 
+                style={{ color: accentColor }}
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={categoryIcon} />
+              </svg>
+              <span className="mt-2 text-xs font-medium uppercase tracking-wider text-stone-400">
+                {post.category || 'Slow Travel'}
+              </span>
+            </div>
+          )}
+          {/* Category badge */}
+          {post.category && (
+            <div className="absolute left-4 top-4">
+              <span 
+                className="rounded-full px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm"
+                style={{ backgroundColor: `${accentColor}dd` }}
+              >
+                {post.category}
+              </span>
+            </div>
+          )}
+        </div>
 
         <div className="flex flex-1 flex-col p-5">
           <h3 className="mb-2 text-lg font-semibold leading-snug text-mahogany transition-colors duration-200 group-hover:text-eucalyptus">

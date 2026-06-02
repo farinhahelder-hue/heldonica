@@ -102,7 +102,10 @@ export default async function Home() {
   const allPostsResult = await getAllPosts()
   // Defensive: ensure we always have an array
   const allPosts = Array.isArray(allPostsResult) ? allPostsResult : []
-  const coveredCountries = await getSetting('covered_countries')
+  
+  // Get covered_countries as number with fallback
+  const rawCountries = await getSetting('covered_countries')
+  const coveredCountries = rawCountries ? parseInt(rawCountries, 10) : 3
 
   // Fetch hero media from CMS
   const homeContent = await getPageContent('home')
