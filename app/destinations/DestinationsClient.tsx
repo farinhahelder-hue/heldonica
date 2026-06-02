@@ -124,6 +124,8 @@ export default function DestinationsClient() {
               id: d.id,
               name,
               slug: d.link || `/destinations/${d.slug}`,
+              // Sicile from Supabase has wrong link, fix it
+              ...(d.slug === 'sicile-interieure' ? { slug: '/destinations/sicile' } : {}),
               country: d.country || '',
               region: d.region,
               style: mapCategoryToStyle(d.category || ''),
