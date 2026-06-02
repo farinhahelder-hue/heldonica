@@ -67,7 +67,7 @@ export async function getAllPosts(): Promise<BlogPost[]> {
   }
   try {
     const { data, error } = await supabase
-      .from('articles')
+      .from('cms_blog_posts')
       .select('*')
       .eq('published', true)
       .order('published_at', { ascending: false });
@@ -88,7 +88,7 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   if (!supabase) return null;
   try {
     const { data, error } = await supabase
-      .from('articles')
+      .from('cms_blog_posts')
       .select('*')
       .eq('slug', slug)
       .single();
@@ -112,7 +112,7 @@ export async function getRelatedPosts(
   if (!supabase) return [];
   try {
     const { data, error } = await supabase
-      .from('articles')
+      .from('cms_blog_posts')
       .select('*')
       .eq('category', category ?? '')
       .eq('published', true)
@@ -136,7 +136,7 @@ export async function getAllSlugs(): Promise<{ slug: string }[]> {
   if (!supabase) return [];
   try {
     const { data, error } = await supabase
-      .from('articles')
+      .from('cms_blog_posts')
       .select('slug')
       .eq('published', true);
     if (error) {
