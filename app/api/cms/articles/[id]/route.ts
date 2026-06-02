@@ -26,7 +26,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   const sb = supabase()
   if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
   const { data, error } = await sb
-    .from('articles')
+    .from('cms_blog_posts')
     .select('*')
     .eq('id', params.id)
     .single()
@@ -47,7 +47,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   const payload = { ...body, updated_at: new Date().toISOString() }
 
   // Phase 3: Save revision before updating
-  const { data: raw } = await sb.from('articles').select('title, content, excerpt').eq('id', params.id).single();
+  const { data: raw } = await sb.from('cms_blog_posts').select('title, content, excerpt').eq('id', params.id).single();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (async () => {
     if (raw && typeof raw === 'object' && 'title' in raw) {
@@ -65,7 +65,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   })().catch(() => {/* ignore revision errors */});
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let result: any = await (sb.from('articles') as any)
+  let result: any = await (sb.from('cms_blog_posts') as any)
     .update(payload)
     .eq('id', params.id)
     .select()
@@ -74,7 +74,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
   if (error?.message?.includes('voice_notes') && error.message.includes('does not exist')) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let fallback: any = await (sb.from('articles') as any)
+    let fallback: any = await (sb.from('cms_blog_posts') as any)
       .update(withoutVoiceNotes(payload))
       .eq('id', params.id)
       .select()
@@ -93,7 +93,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 
   const sb = supabase()
   if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
-  const { error } = await sb.from('articles').delete().eq('id', params.id)
+  const { error } = await sb.from('cms_blog_posts').delete().eq('id', params.id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
 }

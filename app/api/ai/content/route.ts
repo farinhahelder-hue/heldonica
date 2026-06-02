@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
   const limit = parseInt(searchParams.get('limit') || '50')
 
   let query = supabase
-    .from('articles')
+    .from('cms_blog_posts')
     .select('id,title,slug,category,excerpt,featured_image,content,published,created_at,country,city,travel_style,season,budget_level,audience')
     .order('created_at', { ascending: false })
     .limit(limit)
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
 
     if (action === 'create') {
       const { data, error } = await supabase
-        .from('articles')
+        .from('cms_blog_posts')
         .insert([{
           title: article.title,
           slug: article.slug || generateSlug(article.title),
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
 
     if (action === 'update' && article.id) {
       const { data, error } = await supabase
-        .from('articles')
+        .from('cms_blog_posts')
         .update({
           ...article,
           updated_at: new Date().toISOString(),

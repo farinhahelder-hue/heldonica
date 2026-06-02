@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 
   try {
     // 1. Fetch Blog Posts
-    const { data: posts, error: postsError } = await supabase.from('articles')
+    const { data: posts, error: postsError } = await supabase.from('cms_blog_posts')
       .select('id, category, featured_image');
 
     if (postsError) throw postsError;
@@ -54,7 +54,7 @@ export async function POST(req: Request) {
       if (photos && photos.length > 0 && photos[0]?.urls?.regular) {
          updatePromises.push(
            // @ts-expect-error Supabase types are not fully inferred
-           supabase.from('articles').update({ featured_image: photos[0].urls.regular }).eq('id', post.id)
+           supabase.from('cms_blog_posts').update({ featured_image: photos[0].urls.regular }).eq('id', post.id)
          );
          updatedCount++;
       }

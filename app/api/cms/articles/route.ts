@@ -30,7 +30,7 @@ export async function GET(req: Request) {
   const status = searchParams.get('status') || 'all'
 
   let query = sb
-    .from('articles')
+    .from('cms_blog_posts')
     .select('id, title, slug, category, published, published_at, created_at, excerpt, featured_image')
     .order('created_at', { ascending: false })
 
@@ -53,14 +53,14 @@ export async function POST(req: Request) {
   const payload = { ...body, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
 
   let { data, error } = await sb
-    .from('articles')
+    .from('cms_blog_posts')
     .insert([payload] as any)
     .select()
     .single()
 
   if (error?.message?.includes('voice_notes') && error.message.includes('does not exist')) {
     ;({ data, error } = await sb
-      .from('articles')
+      .from('cms_blog_posts')
       .insert([withoutVoiceNotes(payload)] as any)
       .select()
       .single())
