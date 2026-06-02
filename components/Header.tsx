@@ -32,34 +32,20 @@ export default function Header() {
 
   return (
     <>
-      <nav className="fixed top-0 z-50 w-full overflow-hidden border-b border-stone-100 bg-white/95 backdrop-blur-sm" role="navigation" aria-label="Navigation principale">
+      <nav className="fixed top-0 z-50 w-full border-b border-stone-100 bg-white/95 backdrop-blur-sm" role="navigation" aria-label="Navigation principale">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 sm:px-6 lg:py-3">
+          {/* Logo */}
           <Link
             href="/"
             className="flex items-center gap-2 text-amber-900 transition-colors duration-200 hover:text-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-offset-2"
             aria-label="Heldonica accueil"
           >
-            <svg width="30" height="30" viewBox="0 0 34 34" fill="none" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 34 34" fill="none" aria-hidden="true">
               <circle cx="17" cy="17" r="16" stroke="currentColor" strokeWidth="1.2" />
               <line x1="10" y1="9" x2="10" y2="22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               <line x1="24" y1="9" x2="24" y2="22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              <line
-                x1="10"
-                y1="15.5"
-                x2="24"
-                y2="15.5"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-              <path
-                d="M8 26 Q11 24 14 26 Q17 28 20 26 Q23 24 26 26"
-                stroke="currentColor"
-                strokeWidth="1"
-                strokeLinecap="round"
-                fill="none"
-                opacity="0.6"
-              />
+              <line x1="10" y1="15.5" x2="24" y2="15.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              <path d="M8 26 Q11 24 14 26 Q17 28 20 26 Q23 24 26 26" stroke="currentColor" strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.6" />
             </svg>
             <span className="text-lg font-serif font-bold tracking-tight lg:text-xl">Heldonica</span>
           </Link>
@@ -88,59 +74,61 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* Mobile Navigation */}
-          <div className="flex items-center gap-2 lg:hidden">
-            <Link href="/planifier" className="rounded-full bg-eucalyptus px-4 py-2 text-xs font-semibold text-white shadow-sm flex-shrink-0">
-              Planifier mon voyage
+          {/* Mobile Navigation - Compact & Clear */}
+          <div className="flex items-center gap-3 lg:hidden">
+            {/* CTA visible sur mobile */}
+            <Link 
+              href="/planifier" 
+              className="rounded-full bg-eucalyptus px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:brightness-110"
+            >
+              Planifier
             </Link>
+            {/* Menu hamburger */}
             <button
               onClick={() => setOpen((value) => !value)}
               aria-label={open ? 'Fermer le menu' : 'Ouvrir le menu'}
               aria-expanded={open}
               aria-controls="mobile-menu"
-              className="flex h-10 w-10 items-center justify-center rounded-lg transition-colors duration-200 hover:bg-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-offset-2"
+              className="flex h-9 w-9 items-center justify-center rounded-lg bg-stone-50 transition-colors hover:bg-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900"
             >
               {open ? (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-stone-700" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-stone-700" aria-hidden="true">
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
               ) : (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-stone-700" aria-hidden="true">
-                  <line x1="3" y1="6" x2="21" y2="6" />
-                  <line x1="3" y1="12" x2="21" y2="12" />
-                  <line x1="3" y1="18" x2="21" y2="18" />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-stone-700" aria-hidden="true">
+                  <line x1="4" y1="7" x2="20" y2="7" />
+                  <line x1="4" y1="12" x2="20" y2="12" />
+                  <line x1="4" y1="17" x2="20" y2="17" />
                 </svg>
               )}
             </button>
           </div>
         </div>
 
-        {/* Mobile Menu Dropdown */}
+        {/* Mobile Menu Dropdown - Clean & Smooth */}
         <div
           id="mobile-menu"
-          className={`overflow-hidden border-t border-stone-100 bg-white shadow-xl transition-all duration-300 ease-in-out lg:hidden ${
-            open ? 'max-h-[50rem] opacity-100' : 'max-h-0 opacity-0'
+          className={`overflow-hidden border-t border-stone-100 bg-white transition-all duration-300 ease-in-out lg:hidden ${
+            open ? 'max-h-[60vh] opacity-100' : 'max-h-0 opacity-0'
           }`}
         >
-          <div className="flex flex-col gap-1 px-4 py-5">
-            <div className="mb-2 px-2">
-              <p className="text-xs font-medium uppercase tracking-wide text-stone-400">Navigation</p>
-            </div>
-
+          <div className="flex flex-col gap-1 px-4 py-4">
+            {/* Navigation items - clear list */}
             {safeNavItems.map((item, index) => (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
                 aria-current={pathname === item.href ? 'page' : undefined}
-                className={`flex items-center gap-3 rounded-xl px-4 py-3.5 font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-inset ${
+                className={`flex items-center gap-3 rounded-xl px-4 py-3 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 ${
                   pathname === item.href
                     ? 'bg-amber-50 text-amber-900'
                     : 'text-stone-700 hover:bg-amber-50 hover:text-amber-900'
                 }`}
               >
-                <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-500" aria-hidden="true">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-500" aria-hidden="true">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     {index === 0 && <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />}
                     {index === 1 && <><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></>}
@@ -153,27 +141,26 @@ export default function Header() {
               </Link>
             ))}
 
-            <div className="mt-2 border-t border-stone-100 pt-4">
-              <Link
-                href="/planifier"
-                onClick={() => setOpen(false)}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-eucalyptus px-4 py-3.5 text-sm font-semibold text-white transition-colors duration-200 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:ring-offset-2"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <circle cx="12" cy="12" r="10" />
-                  <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
-                </svg>
-                Planifier mon voyage
-              </Link>
-            </div>
+            {/* CTA - prominent */}
+            <Link
+              href="/planifier"
+              onClick={() => setOpen(false)}
+              className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-eucalyptus px-4 py-3.5 text-sm font-semibold text-white transition-colors hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:ring-offset-2"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" />
+                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+              </svg>
+              Planifier mon voyage
+            </Link>
 
-            {/* Lien compte */}
+            {/* Account link */}
             <Link
               href={accountHref}
               onClick={() => setOpen(false)}
-              className="flex items-center gap-3 rounded-xl px-4 py-3.5 font-medium text-stone-700 transition-colors duration-200 hover:bg-amber-50 hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-inset"
+              className="flex items-center gap-3 rounded-xl px-4 py-3 font-medium text-stone-700 transition-colors hover:bg-amber-50 hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900"
             >
-              <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-eucalyptus/30 bg-eucalyptus/10 text-eucalyptus" aria-hidden="true">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full border border-eucalyptus/30 bg-eucalyptus/10 text-eucalyptus" aria-hidden="true">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="8" r="4" />
                   <path d="M4 20c1.5-3.5 4-5 8-5s6.5 1.5 8 5" />
@@ -185,7 +172,7 @@ export default function Header() {
         </div>
       </nav>
 
-      {/* Overlay pour fermer le menu */}
+      {/* Overlay */}
       {open && (
         <div
           className="fixed inset-0 z-40 bg-black/10 lg:hidden"
