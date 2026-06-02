@@ -249,6 +249,14 @@ const SETTINGS_GROUPS: Record<string, { label: string; emoji: string }> = {
 const APPEARANCE_SETTINGS = [
   { key: 'site_logo',        label: 'Logo du site (PNG/SVG)',      type: 'media' },
   { key: 'site_favicon',    label: 'Favicon (32x32, PNG/ICO)',   type: 'media' },
+  // Identité visuelle
+  { key: 'logo_url',        label: 'Logo (URL)',      type: 'text' },
+  { key: 'favicon_url',     label: 'Favicon (URL)',    type: 'text' },
+  { key: 'hero_banner_url', label: 'Bannière hero (URL)', type: 'text' },
+  { key: 'site_tagline',   label: 'Tagline du site', type: 'textarea' },
+  { key: 'footer_text',    label: 'Texte footer', type: 'textarea' },
+  { key: 'primary_color',   label: 'Couleur primaire',         type: 'color' },
+  { key: 'secondary_color', label: 'Couleur secondaire',       type: 'color' },
   // Couleurs du site
   { key: 'color_primary',   label: 'Couleur primaire',         type: 'color' },
   { key: 'color_secondary', label: 'Couleur secondaire',       type: 'color' },

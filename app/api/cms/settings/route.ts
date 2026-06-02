@@ -11,26 +11,29 @@ const supabase = (supabaseUrl && supabaseKey)
 
 export const dynamic = 'force-dynamic';
 
-// GET /api/cms/settings - list all settings
+// GET /api/cms/settings - list all settings (public for layout)
 export async function GET(req: NextRequest) {
   if (!supabase) {
     return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
   }
 
-  const authResponse = await requireCmsAuth(req);
-  if (authResponse) return authResponse;
-
   const { data, error } = await supabase
     .from('site_settings')
-    .select('*')
+    .select('key, value')
     .order('key');
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ settings: data });
+  
+  // Transform to key-value object for easier consumption
+  const settings = Object.fromEntries(
+    (data || []).map(r => [r.key, r.value])
+  );
+  
+  return NextResponse.json(settings);
 }
 
-// PUT /api/cms/settings - update single or bulk
-export async function PUT(req: NextRequest) {
+// PATCH /api/cms/settings - update settings (auth required)
+export async function PATCH(req: NextRequest) {
   if (!supabase) {
     return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
   }
@@ -38,32 +41,51 @@ export async function PUT(req: NextRequest) {
   const authResponse = await requireCmsAuth(req);
   if (authResponse) return authResponse;
 
-  const body = await req.json();
+  try {
+    const body = await req.json();
+    
+    // Support both { key: value } and { settings: [{ key, value }] }
+    if (Array.isArray(body)) {
+      // Bulk update with array format
+      const updates = body.map((s: { key: string; value: string }) => ({
+        key: s.key,
+        value: s.value,
+        updated_at: new Date().toISOString()
+      }));
 
-  // Bulk update
-  if (Array.isArray(body)) {
-    const updates = body.map((s: { key: string; value: string }) => ({
-      key: s.key,
-      value: s.value,
-      updated_at: new Date().toISOString()
-    }));
+      for (const update of updates) {
+        const { error } = await supabase
+          .from('site_settings')
+          .upsert(update, { onConflict: 'key' });
+        
+        if (error) console.error(`Error updating ${update.key}:`, error.message);
+      }
+    } else {
+      // Simple key-value format
+      const entries = Object.entries(body);
+      for (const [key, value] of entries) {
+        if (key === 'error' || key === 'settings') continue; // Skip internal keys
+        
+        const { error } = await supabase
+          .from('site_settings')
+          .upsert({ 
+            key, 
+            value: String(value), 
+            updated_at: new Date().toISOString() 
+          }, { onConflict: 'key' });
+        
+        if (error) console.error(`Error updating ${key}:`, error.message);
+      }
+    }
 
-    const { error } = await supabase
-      .from('site_settings')
-      .upsert(updates, { onConflict: 'key' });
-
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error('Settings update error:', err);
+    return NextResponse.json({ error: 'Update failed' }, { status: 500 });
   }
+}
 
-  // Single update
-  const { key, value } = body;
-  if (!key) return NextResponse.json({ error: 'key requis' }, { status: 400 });
-
-  const { error } = await supabase
-    .from('site_settings')
-    .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ success: true });
+// Legacy PUT for backward compatibility
+export async function PUT(req: NextRequest) {
+  return PATCH(req);
 }
