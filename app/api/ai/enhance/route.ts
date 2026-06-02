@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
 
     // Get article
     const { data: article, error } = await supabase
-      .from('articles')
+      .from('cms_blog_posts')
       .select('*')
       .eq('id', article_id)
       .single()

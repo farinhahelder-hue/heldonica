@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
   fromDate.setDate(fromDate.getDate() - days)
 
   let query = supabase
-    .from('articles')
+    .from('cms_blog_posts')
     .select('id,title,slug,category,excerpt,featured_image,published,created_at,published_at,country,city,travel_style,season')
     .gte('created_at', fromDate.toISOString())
     .order('created_at', { ascending: false })
@@ -92,7 +92,7 @@ export async function PATCH(request: NextRequest) {
     if (season) updates.season = season
 
     const { data, error } = await supabase
-      .from('articles')
+      .from('cms_blog_posts')
       .update(updates)
       .eq('id', id)
       .select('id,title,slug,published')

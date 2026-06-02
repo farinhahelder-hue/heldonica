@@ -62,19 +62,19 @@ export async function POST(req: Request) {
         
         // Articles published
         const { count: publishedCount } = await sb
-          .from('articles')
+          .from('cms_blog_posts')
           .select('*', { count: 'exact', head: true })
           .eq('published', true);
         
         // Articles drafts
         const { count: draftCount } = await sb
-          .from('articles')
+          .from('cms_blog_posts')
           .select('*', { count: 'exact', head: true })
           .eq('published', false);
         
         // Recent articles (for performance widget)
         const { data: recentArticles } = await sb
-          .from('articles')
+          .from('cms_blog_posts')
           .select('id, title, slug, published, updated_at, published_at, views_count')
           .order('updated_at', { ascending: false })
           .limit(10);

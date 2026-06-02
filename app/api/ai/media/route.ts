@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
 
   // Get article to find media
   const { data: article, error } = await supabase
-    .from('articles')
+    .from('cms_blog_posts')
     .select('id,title,featured_image,content')
     .eq('id', articleId)
     .single()

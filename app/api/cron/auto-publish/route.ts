@@ -136,7 +136,7 @@ export async function GET(req: Request) {
     };
 
     const { data, error } = await sb
-      .from('articles')
+      .from('cms_blog_posts')
       .insert([payload] as any)
       .select()
       .single();

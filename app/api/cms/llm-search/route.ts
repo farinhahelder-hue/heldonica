@@ -33,7 +33,7 @@ async function semanticSearch(query: string, type: string = 'all', limit: number
   // Search articles
   if (type === 'articles' || type === 'all') {
     const { data: articles, error } = await supabase
-      .from('articles')
+      .from('cms_blog_posts')
       .select('id, title, excerpt, content, slug')
       .eq('published', true)
       .limit(20);
