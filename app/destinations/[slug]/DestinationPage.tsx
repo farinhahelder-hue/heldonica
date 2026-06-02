@@ -4,8 +4,10 @@ import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import SlowTravelQuiz from '@/components/SlowTravelQuiz'
+import RelatedArticles from '@/components/RelatedArticles'
 import { supabase } from '@/lib/supabase-client'
 import { notFound } from 'next/navigation'
+import { BlogPost } from '@/lib/blog-supabase'
 
 const DESTINATION_IMAGES: Record<string, string> = {
   'sicile': 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1400&q=85',
@@ -136,6 +138,44 @@ type Props = {
   params: { slug: string }
 }
 
+// Fetch related articles for a destination
+async function getRelatedArticlesForDestination(slug: string): Promise<BlogPost[]> {
+  if (!supabase) return []
+  
+  try {
+    const { data, error } = await supabase
+      .from('cms_blog_posts')
+      .select('*')
+      .eq('published', true)
+      .order('published_at', { ascending: false })
+      .limit(50)
+    
+    if (error || !data) return []
+    
+    // Match articles by destination keyword
+    const patterns: Record<string, string[]> = {
+      'roumanie': ['Roumanie', 'Maramure', 'Timisoara', 'Transylvanie', 'Sibiu', 'Brasov'],
+      'madere': ['Madère', 'Madeira', 'Funchal'],
+      'paris': ['Paris'],
+      'zurich': ['Zurich'],
+      'sicile': ['Sicile', 'Sicilia', 'Agrigente'],
+      'lisbonne': ['Lisbonne', 'Lisboa'],
+      'montenegro': ['Monténégro', 'Podgorica', 'Kotor'],
+      'suisse': ['Suisse', 'Stoos', 'Alpes'],
+    }
+    
+    const keywords = patterns[slug] || []
+    if (keywords.length === 0) return []
+    
+    return data.filter(post => {
+      const searchText = `${post.title} ${post.excerpt || ''} ${post.destination || ''}`.toLowerCase()
+      return keywords.some(kw => searchText.includes(kw.toLowerCase()))
+    }).slice(0, 3)
+  } catch {
+    return []
+  }
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const content = DESTINATION_CONTENT[params.slug]
   const image = DESTINATION_IMAGES[params.slug]
@@ -165,7 +205,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default function DestinationPage({ params }: Props) {
+export default async function DestinationPage({ params }: Props) {
   const slug = params.slug
   const content = DESTINATION_CONTENT[slug]
   const image = DESTINATION_IMAGES[slug]
@@ -173,6 +213,9 @@ export default function DestinationPage({ params }: Props) {
   if (!content) {
     notFound()
   }
+
+  // Fetch related articles
+  const relatedArticles = await getRelatedArticlesForDestination(slug)
 
   return (
     <>
@@ -312,6 +355,9 @@ export default function DestinationPage({ params }: Props) {
             <SlowTravelQuiz />
           </div>
         </section>
+
+        {/* Related Articles */}
+        <RelatedArticles articles={relatedArticles} destinationTitle={content.title} />
       </main>
       <Footer />
     </>
