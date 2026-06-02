@@ -66,14 +66,27 @@ export async function getAllPosts(): Promise<BlogPost[]> {
     return [];
   }
   try {
+    // Try both column names: 'published' boolean and 'status' text
     const { data, error } = await supabase
       .from('cms_blog_posts')
       .select('*')
-      .eq('published', true)
-      .order('published_at', { ascending: false });
+      .or('published.eq.true,status.eq.published')
+      .order('published_at', { ascending: false })
+      .limit(100);
     if (error) {
       console.error('Supabase getAllPosts error:', error.message);
-      return [];
+      // Fallback to just published=true
+      const fallback = await supabase
+        .from('cms_blog_posts')
+        .select('*')
+        .eq('published', true)
+        .order('published_at', { ascending: false })
+        .limit(100);
+      if (fallback.error) {
+        console.error('Fallback also failed:', fallback.error.message);
+        return [];
+      }
+      return (fallback.data as BlogPost[] || []).map(normalizePost);
     }
     const posts = Array.isArray(data) ? (data as BlogPost[]) : [];
     return posts.map(normalizePost);
