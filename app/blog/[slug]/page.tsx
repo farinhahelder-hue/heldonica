@@ -14,14 +14,14 @@ import EnhancedRichContent from '@/components/EnhancedRichContent'
 import { sanitizeHtml } from '@/lib/sanitize-html'
 import Image from 'next/image'
 
-export const revalidate = 60
-
 const SITE_URL = 'https://www.heldonica.fr'
-const DEFAULT_OG = `${SITE_URL}/og-default.jpg`
+const DEFAULT_OG = `${SITE_URL}/og-default-heldonica.jpg`
 
 interface Props {
   params: { slug: string }
 }
+
+export const revalidate = 3600
 
 export async function generateStaticParams() {
   const slugs = await getAllSlugs()
@@ -32,23 +32,31 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const supabase = createServiceClient()
   const { data: post } = await supabase
     .from('cms_blog_posts')
-    .select('title, excerpt, content, og_image, featured_image, published_at, author')
+    .select('title, excerpt, featuredimage, publishedat, tags, author, updatedat')
     .eq('slug', params.slug)
+    .eq('published', true)
     .single()
 
   if (!post) return { title: 'Article introuvable | Heldonica' }
 
-  let description = post.excerpt || ''
-  if (!description && post.content) {
-      const plainText = post.content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
-      description = plainText.substring(0, 160)
+  // Tronquer la description à 150 caractères max
+  let description = ''
+  if (post.excerpt) {
+    description = post.excerpt.length > 150 
+      ? post.excerpt.substring(0, 147) + '...' 
+      : post.excerpt
   }
 
   const title = `${post.title} | Heldonica`
-  const ogImage = post.og_image || post.featured_image || DEFAULT_OG
-  const canonical = `https://heldonica.fr/blog/${params.slug}`
-  const publishedTime = post.published_at || undefined
+  const ogImage = post.featuredimage || DEFAULT_OG
+  const canonical = `${SITE_URL}/blog/${params.slug}`
+  const publishedTime = post.publishedat || undefined
   const authorName = post.author || 'Heldonica'
+  
+  // Parser les tags (stockés comme texte séparé par virgules)
+  const tagsArray = post.tags 
+    ? post.tags.split(',').map((t: string) => t.trim()).filter(Boolean)
+    : []
 
   return {
     title,
@@ -62,12 +70,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: 'article',
       publishedTime,
       authors: [authorName],
+      tags: tagsArray,
       images: [
         {
           url: ogImage,
           width: 1200,
           height: 630,
-          alt: title,
+          alt: post.title,
         },
       ],
     },
