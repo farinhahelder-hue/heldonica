@@ -4,20 +4,10 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import BlogClientPage from '@/components/BlogClientPage'
 import Breadcrumb from '@/components/Breadcrumb'
+import { getReadingTime } from '@/lib/readingTime'
 
-
-// ⚡ Bolt Optimization: Use Incremental Static Regeneration (ISR) to cache the blog index page for 60 seconds. This significantly improves Time To First Byte (TTFB) compared to force-dynamic.
-export const revalidate = 60
-
-function calcReadTime(content: string | null): number {
-  if (!content || typeof content !== 'string') return 0
-  try {
-    const words = content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length
-    return Math.max(1, Math.ceil(words / 200))
-  } catch (e) {
-    return 1
-  }
-}
+// ISR: cache for 1 hour
+export const revalidate = 3600
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -89,7 +79,7 @@ export default async function BlogPage() {
     // Defensive: force tags to be an array for the client
     tags: Array.isArray(post.tags) ? post.tags : [],
     formattedDate: formatDate(post.published_at),
-    readTime: post.read_time ?? calcReadTime(post.content),
+    readTime: post.read_time ?? getReadingTime(post.content),
   }))
 
   return (
