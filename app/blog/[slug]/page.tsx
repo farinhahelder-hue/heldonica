@@ -86,35 +86,26 @@ function calcReadTime(content: string | null): number {
   return Math.max(1, Math.ceil(words / 200))
 }
 
-function buildJsonLds(post: BlogPost, readTime: number) {
+function buildJsonLds(post: BlogPost) {
   const articleLd = {
     '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
+    '@type': 'Article',
     headline: post.title,
-    description: post.excerpt ?? '',
-    image: post.featured_image ? [post.featured_image] : [DEFAULT_OG],
-    datePublished: post.published_at ?? '',
-    dateModified: post.updated_at ?? post.published_at ?? '',
     author: {
       '@type': 'Person',
-      name: post.author || 'Heldonica',
-      url: SITE_URL,
+      name: 'Heldonica',
     },
+    datePublished: post.published_at ?? '',
+    dateModified: post.updated_at ?? post.published_at ?? '',
+    image: post.featured_image ?? DEFAULT_OG,
     publisher: {
       '@type': 'Organization',
       name: 'Heldonica',
-      url: SITE_URL,
       logo: {
         '@type': 'ImageObject',
-        url: `${SITE_URL}/logo.png`,
+        url: 'https://heldonica.fr/logo.png',
       },
     },
-    url: `${SITE_URL}/blog/${post.slug}`,
-    mainEntityOfPage: `${SITE_URL}/blog/${post.slug}`,
-    keywords: post.tags?.join(', ') ?? '',
-    articleSection: post.category ?? '',
-    timeRequired: readTime > 0 ? `PT${readTime}M` : undefined,
-    inLanguage: 'fr-FR',
   }
 
   const breadcrumbLd = {
@@ -125,37 +116,26 @@ function buildJsonLds(post: BlogPost, readTime: number) {
         '@type': 'ListItem',
         position: 1,
         name: 'Accueil',
-        item: SITE_URL,
+        item: {
+          '@id': 'https://heldonica.fr',
+        },
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'Blog',
-        item: `${SITE_URL}/blog`,
+        item: {
+          '@id': 'https://heldonica.fr/blog',
+        },
       },
-      ...(post.category
-        ? [
-            {
-              '@type': 'ListItem',
-              position: 3,
-              name: post.category,
-              item: `${SITE_URL}/blog?categorie=${encodeURIComponent(post.category)}`,
-            },
-            {
-              '@type': 'ListItem',
-              position: 4,
-              name: post.title,
-              item: `${SITE_URL}/blog/${post.slug}`,
-            },
-          ]
-        : [
-            {
-              '@type': 'ListItem',
-              position: 3,
-              name: post.title,
-              item: `${SITE_URL}/blog/${post.slug}`,
-            },
-          ]),
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: post.title,
+        item: {
+          '@id': `https://heldonica.fr/blog/${post.slug}`,
+        },
+      },
     ],
   }
 
@@ -182,7 +162,7 @@ export default async function BlogPostPage({ params }: Props) {
   const heroImage = post.featured_image ?? HERO_FALLBACK[post.category ?? ''] ?? DEFAULT_HERO
   const fallbackBg = HERO_FALLBACK[post.category ?? ''] ?? 'bg-gradient-to-br from-stone-900 to-amber-900'
   const readTime = calcReadTime(post.content)
-  const { articleLd, breadcrumbLd } = buildJsonLds(post, readTime)
+  const { articleLd, breadcrumbLd } = buildJsonLds(post)
   const canonicalUrl = `${SITE_URL}/blog/${post.slug}`
   const safeContent = sanitizeHtml(post.content)
 
