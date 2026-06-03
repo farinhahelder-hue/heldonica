@@ -1,9 +1,10 @@
-import { MetadataRoute } from 'next';
-import { getAllPosts } from '@/lib/blog-supabase';
+import { MetadataRoute } from 'next'
+import { getAllPosts } from '@/lib/blog-supabase'
 
-const BASE_URL = 'https://www.heldonica.fr';
+const BASE_URL = 'https://www.heldonica.fr'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Pages statiques principales (priorités selon les 要求)
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: BASE_URL,
@@ -15,19 +16,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${BASE_URL}/slow-travel`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
-      priority: 0.8,
+      priority: 0.7,
     },
     {
       url: `${BASE_URL}/blog`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
-      priority: 0.8,
+      priority: 0.7,
     },
     {
       url: `${BASE_URL}/travel-planning`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
-      priority: 0.9,
+      priority: 0.7,
+    },
+    {
+      url: `${BASE_URL}/a-propos`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
     },
     {
       url: `${BASE_URL}/destinations`,
@@ -386,6 +393,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   // Pages dynamiques avec vraies dates de publication
+  // Articles publiés: priorité 0.9 selon les 要求
   const posts = await getAllPosts();
   const blogPages: MetadataRoute.Sitemap = (posts ?? []).map((post) => ({
     url: `${BASE_URL}/blog/${post.slug}`,
@@ -396,7 +404,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       new Date().toISOString()
     ),
     changeFrequency: 'weekly' as const,
-    priority: 0.8,
+    priority: 0.9,
   }));
 
   return [...staticPages, ...blogPages];
