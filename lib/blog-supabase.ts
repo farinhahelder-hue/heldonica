@@ -25,6 +25,7 @@ export interface BlogPost {
   read_time?: number | null;
   readTime?: number;
   updated_at: string | null;
+  faq_content?: Array<{ question: string; answer: string }> | null;
 }
 
 /** Normalise un post pour garantir qu'aucun champ tableau n'est null */

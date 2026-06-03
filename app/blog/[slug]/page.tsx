@@ -13,6 +13,11 @@ import ShareButtons from '@/components/ShareButtons'
 import EnhancedRichContent from '@/components/EnhancedRichContent'
 import { sanitizeHtml } from '@/lib/sanitize-html'
 import Image from 'next/image'
+import ReadingProgress from '@/components/ReadingProgress'
+import CtaTravelPlanning from '@/components/CtaTravelPlanning'
+import HeldonicaFAQ from '@/components/HeldonicaFAQ'
+import HeldonicaVerdict from '@/components/HeldonicaVerdict'
+import { getReadingTime, formatReadingTime } from '@/lib/readingTime'
 
 const SITE_URL = 'https://www.heldonica.fr'
 const DEFAULT_OG = `${SITE_URL}/og-default-heldonica.jpg`
@@ -87,12 +92,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       images: [ogImage],
     },
   }
-}
-
-function calcReadTime(content: string | null): number {
-  if (!content) return 0
-  const words = content.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length
-  return Math.max(1, Math.ceil(words / 200))
 }
 
 function buildJsonLds(post: BlogPost, readTime: number) {
@@ -190,7 +189,7 @@ export default async function BlogPostPage({ params }: Props) {
   const related = relatedResult ?? []
   const heroImage = post.featured_image ?? HERO_FALLBACK[post.category ?? ''] ?? DEFAULT_HERO
   const fallbackBg = HERO_FALLBACK[post.category ?? ''] ?? 'bg-gradient-to-br from-stone-900 to-amber-900'
-  const readTime = calcReadTime(post.content)
+  const readTime = getReadingTime(post.content)
   const { articleLd, breadcrumbLd } = buildJsonLds(post, readTime)
   const canonicalUrl = `${SITE_URL}/blog/${post.slug}`
   const safeContent = sanitizeHtml(post.content)
@@ -209,6 +208,7 @@ export default async function BlogPostPage({ params }: Props) {
       />
 
       <Header />
+      <ReadingProgress />
       <main className="min-h-screen bg-white">
         <div className={`relative h-[56vh] w-full overflow-hidden md:h-[68vh] bg-stone-900`}>
           <Image
@@ -372,24 +372,17 @@ export default async function BlogPostPage({ params }: Props) {
 
         <NewsletterForm variant="blog" />
 
+        {/* ── FAQ pour Guides Pratiques ─────────────────────────────────── */}
+        {post.category === 'Guides Pratiques' && post.faq_content && (
+          <HeldonicaFAQ 
+            items={post.faq_content as Array<{question: string, answer: string>} || []} 
+          />
+        )}
+
+        {/* ── Verdict Heldonica (à intégrer selon le contenu de l'article) ─── */}
+
         {/* ── TRAVEL PLANNING CTA ──────────────────────────────────────────── */}
-        <section className="py-16 md:py-20 bg-eucalyptus/5">
-          <div className="max-w-3xl mx-auto px-6 text-center">
-            <p className="text-xs font-bold tracking-[0.2em] uppercase text-eucalyptus mb-4">Vous avez aime ce récit ?</p>
-            <h2 className="text-2xl md:text-3xl font-serif font-light text-mahogany mb-4">
-              On peut vous aider a organiser<br className="hidden md:block" /> votre propre voyage sur mesure
-            </h2>
-            <p className="text-sm text-charcoal/70 mb-8 leading-relaxed max-w-xl mx-auto">
-              Comme ce Carnet, votre voyage mérite qu&apos;on prend le temps. On vous propose un accompagnement personnalise pour créer l&apos;itinéraire qui vous ressemble — sans press, san[...]
-            </p>
-            <Link
-              href="/travel-planning"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-eucalyptus text-white font-semibold rounded-lg hover:bg-eucalyptus/90 transition-colors"
-            >
-              Découvrir le Travel Planning →
-            </Link>
-          </div>
-        </section>
+        <CtaTravelPlanning />
       </main>
       <Footer />
     </>
