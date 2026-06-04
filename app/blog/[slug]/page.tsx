@@ -193,6 +193,9 @@ export default async function BlogPostPage({ params }: Props) {
   const { articleLd, breadcrumbLd } = buildJsonLds(post, readTime)
   const canonicalUrl = `${SITE_URL}/blog/${post.slug}`
   const safeContent = sanitizeHtml(post.content)
+  
+  // Type-safe FAQ items
+  const faqItems = post.faq_content ?? []
 
   return (
     <>
@@ -372,10 +375,10 @@ export default async function BlogPostPage({ params }: Props) {
 
         <NewsletterForm variant="blog" />
 
-        {/* ── FAQ pour Guides Pratiques ─────────────────────────────────── */}
-        {post.category === 'Guides Pratiques' && post.faq_content && (
+        {/* FAQ pour Guides Pratiques */}
+        {post.category === 'Guides Pratiques' && faqItems.length > 0 && (
           <HeldonicaFAQ 
-            items={post.faq_content as Array<{question: string, answer: string>} || []} 
+            items={faqItems} 
           />
         )}
 
