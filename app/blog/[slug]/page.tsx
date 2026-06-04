@@ -375,7 +375,7 @@ export default async function BlogPostPage({ params }: Props) {
         {/* ── FAQ pour Guides Pratiques ─────────────────────────────────── */}
         {post.category === 'Guides Pratiques' && post.faq_content && (
           <HeldonicaFAQ 
-            items={post.faq_content as Array<{question: string, answer: string>} || []} 
+            items={(post.faq_content as Array<{question: string, answer: string}>) || []}
           />
         )}
 
