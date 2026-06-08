@@ -42,20 +42,21 @@ export async function POST(req: NextRequest) {
     // 1. Sauvegarde Supabase
     if (!supabase) return NextResponse.json({ error: 'DB unavailable' }, { status: 503 })
     const { error: dbError } = await supabase
-      .from('travel_requests')
+      .from('demandes_travel')
       .insert({
         trip_type: tripType,
         vibe,
         destination,
         destination_detail: destinationDetail,
-        duration,
-        budget,
-        departure_date: departureDate || null,
-        first_name: firstName,
+        duree_jours: duration,
+        budget_fourchette: budget,
+        mois_depart: departureDate || null,
+        prenom: firstName,
+        nom: '', // Pas de champ nom dans le formulaire, à améliorer
         email,
-        phone: phone || null,
-        message: message || null,
-        status: 'new',
+        telephone: phone || null,
+        notes: message || null,
+        statut: 'new',
       })
 
     if (dbError) {
