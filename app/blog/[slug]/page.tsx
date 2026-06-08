@@ -384,8 +384,10 @@ export default async function BlogPostPage({ params }: Props) {
 
         {/* ── Verdict Heldonica (à intégrer selon le contenu de l'article) ─── */}
 
-        {/* ── TRAVEL PLANNING CTA ──────────────────────────────────────────── */}
-        <CtaTravelPlanning />
+        {/* ── TRAVEL PLANNING CTA (uniquement pour Carnets et Découvertes) ── */}
+        {(post.category === 'Carnets Voyage' || post.category === 'Découvertes Locales') && (
+          <CtaTravelPlanning />
+        )}
       </main>
       <Footer />
     </>
