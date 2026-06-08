@@ -145,33 +145,44 @@ export async function POST(req: NextRequest) {
     await resend.emails.send({
       from: 'Heldonica <contact@heldonica.fr>',
       to: email,
-      subject: `Merci ${firstName} — On a bien reçu ta demande ✈️`,
+      subject: `On a reçu ton projet de voyage ✈️ — Heldonica`,
       html: `
-        <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #f7f6f2;">
-          <h1 style="color: #01696f; font-size: 28px; margin-bottom: 16px;">Merci ${firstName} !</h1>
-          <p style="color: #28251d; font-size: 16px; line-height: 1.7; margin-bottom: 16px;">
-            On a bien reçu ta demande pour <strong>${destination}</strong> — et on est déjà enthousiastes à l'idée de la faire naître.
+        <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #ffffff;">
+          <div style="border-bottom: 3px solid #6b2a1a; padding-bottom: 24px; margin-bottom: 32px;">
+            <h1 style="color: #6b2a1a; font-size: 28px; margin: 0 0 8px 0;">Merci ${firstName} !</h1>
+            <p style="color: #1a1a1a; font-size: 16px; margin: 0; line-height: 1.6;">
+              On a bien reçu ton projet pour <strong>${destination}</strong>.
+            </p>
+          </div>
+          
+          <p style="color: #1a1a1a; font-size: 16px; line-height: 1.7; margin-bottom: 16px;">
+            On prend le temps de lire ton brief avant de répondre.<br />
+            <em style="color: #555;">Pas de réponse automatique ici.</em>
           </p>
-          <p style="color: #28251d; font-size: 16px; line-height: 1.7; margin-bottom: 24px;">
-            On revient vers toi sous <strong>48h ouvrées</strong> pour un premier échange et te poser quelques questions pour affiner ton voyage sur mesure.
+          
+          <p style="color: #1a1a1a; font-size: 16px; line-height: 1.7; margin-bottom: 32px;">
+            On revient vers toi <strong>sous 48h</strong> avec un vrai retour — nos premières idées, et peut-être quelques questions pour affiner ce voyage sur mesure.
           </p>
 
-          <div style="background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
-            <h2 style="color: #28251d; font-size: 16px; margin-bottom: 16px; font-family: sans-serif; text-transform: uppercase; letter-spacing: 1px; color: #7a7974;">Récap de ta demande</h2>
-            <p style="margin: 4px 0; color: #28251d;">🗺️ <strong>Destination :</strong> ${destination}${destinationDetail ? ` — ${destinationDetail}` : ''}</p>
-            ${tripType ? `<p style="margin: 4px 0; color: #28251d;">🧳 <strong>Type :</strong> ${tripType}</p>` : ''}
-            ${duration ? `<p style="margin: 4px 0; color: #28251d;">📅 <strong>Durée :</strong> ${duration}</p>` : ''}
-            ${budget ? `<p style="margin: 4px 0; color: #28251d;">💶 <strong>Budget :</strong> ${budget}</p>` : ''}
+          <div style="background: #f7f6f2; border-radius: 12px; padding: 24px; margin-bottom: 32px; border-left: 4px solid #6b2a1a;">
+            <h2 style="color: #6b2a1a; font-size: 14px; font-family: sans-serif; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 16px 0;">Récap de ta demande</h2>
+            <p style="margin: 8px 0; color: #1a1a1a; font-size: 15px;">🗺️ <strong>Destination :</strong> ${destination}${destinationDetail ? ` — ${destinationDetail}` : ''}</p>
+            ${tripType ? `<p style="margin: 8px 0; color: #1a1a1a; font-size: 15px;">🧳 <strong>Type :</strong> ${tripType}</p>` : ''}
+            ${vibe ? `<p style="margin: 8px 0; color: #1a1a1a; font-size: 15px;">✨ <strong>Vibe :</strong> ${vibe}</p>` : ''}
+            ${duration ? `<p style="margin: 8px 0; color: #1a1a1a; font-size: 15px;">📅 <strong>Durée :</strong> ${duration}</p>` : ''}
+            ${budget ? `<p style="margin: 8px 0; color: #1a1a1a; font-size: 15px;">💶 <strong>Budget :</strong> ${budget}</p>` : ''}
+            ${departureDate ? `<p style="margin: 8px 0; color: #1a1a1a; font-size: 15px;">🛫 <strong>Départ :</strong> ${departureDate}</p>` : ''}
           </div>
 
-          <p style="color: #28251d; font-size: 16px; line-height: 1.7; margin-bottom: 8px;">
+          <p style="color: #1a1a1a; font-size: 16px; line-height: 1.7; margin-bottom: 8px;">
             À très vite,
           </p>
-          <p style="color: #01696f; font-size: 16px; font-style: italic;">Hélder & Elena — Heldonica</p>
+          <p style="color: #6b2a1a; font-size: 18px; font-style: italic; margin: 0;">Hélder & le duo Heldonica</p>
+          <p style="color: #888; font-size: 13px; margin: 8px 0 0 0;">heldonica.fr</p>
 
-          <hr style="border: none; border-top: 1px solid #dcd9d5; margin: 32px 0;" />
-          <p style="font-size: 12px; color: #7a7974; text-align: center;">
-            <a href="https://www.heldonica.fr" style="color: #01696f;">heldonica.fr</a> • Slow Travel & Travel Planning sur mesure
+          <hr style="border: none; border-top: 1px solid #e8e0d8; margin: 32px 0;" />
+          <p style="font-size: 12px; color: #888; text-align: center;">
+            Tu peux aussi nous écrire directement à <a href="mailto:info@heldonica.fr" style="color: #6b2a1a;">info@heldonica.fr</a>
           </p>
         </div>
       `,
