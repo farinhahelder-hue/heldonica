@@ -212,6 +212,15 @@ export default async function BlogPostPage({ params }: Props) {
 
       <Header />
       <ReadingProgress />
+      <Script id="ga4-article-view" strategy="lazyOnload">{`
+        if (typeof window !== 'undefined' && window.gtag) {
+          window.gtag('event', 'article_view', {
+            category: '${post.category || 'unknown'}',
+            slug: '${post.slug}',
+            reading_time: ${readTime}
+          });
+        }
+      `}</Script>
       <main className="min-h-screen bg-white">
         <div className={`relative h-[56vh] w-full overflow-hidden md:h-[68vh] bg-stone-900`}>
           <Image

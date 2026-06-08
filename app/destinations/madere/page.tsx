@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Script from 'next/script';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SlowTravelQuiz from '@/components/SlowTravelQuiz';
@@ -145,6 +146,11 @@ export default function MaderePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(madereLd) }}
       />
       <Header />
+      <Script id="ga4-destination-view" strategy="lazyOnload">{`
+        if (typeof window !== 'undefined' && window.gtag) {
+          window.gtag('event', 'destination_view', { destination: 'madere' });
+        }
+      `}</Script>
       <main>
         <section className="relative min-h-[66vh] flex items-end overflow-hidden bg-stone-900">
           <Image

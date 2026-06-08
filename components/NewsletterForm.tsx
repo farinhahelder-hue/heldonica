@@ -19,6 +19,11 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
       return;
     }
 
+    // GA4 tracking
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'newsletter_signup', { variant });
+    }
+
     setStatus("loading");
     try {
       const res = await fetch("/api/newsletter", {
