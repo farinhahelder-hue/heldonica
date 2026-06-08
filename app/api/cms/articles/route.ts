@@ -52,6 +52,7 @@ export async function POST(req: Request) {
   const body = await req.json()
   const payload = { ...body, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
 
+  // Insert into cms_blog_posts (legacy table for CMS)
   let { data, error } = await sb
     .from('cms_blog_posts')
     .insert([payload] as any)
@@ -67,5 +68,28 @@ export async function POST(req: Request) {
   }
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  // Also sync to articles table for public pages
+  if (data) {
+    const articlesPayload = {
+      id: data.id,
+      title: data.title,
+      slug: data.slug,
+      category: data.category,
+      excerpt: data.excerpt,
+      content: data.content,
+      featured_image: data.featured_image,
+      author: data.author,
+      published: data.published,
+      published_at: data.published_at,
+      created_at: data.created_at,
+      updated_at: data.updated_at,
+      tags: data.tags || [],
+      archived: false,
+    }
+    // Sync to articles table - ignore errors as articles might not exist yet
+    sb.from('articles').upsert(articlesPayload).then(() => {}).catch(() => {})
+  }
+
   return NextResponse.json({ article: data }, { status: 201 })
 }

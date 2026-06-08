@@ -84,6 +84,28 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   }
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  // Also sync to articles table for public pages
+  if (data) {
+    const articlesPayload = {
+      id: data.id,
+      title: data.title,
+      slug: data.slug,
+      category: data.category,
+      excerpt: data.excerpt,
+      content: data.content,
+      featured_image: data.featured_image,
+      author: data.author,
+      published: data.published,
+      published_at: data.published_at,
+      updated_at: data.updated_at,
+      tags: data.tags || [],
+      archived: data.archived || false,
+    }
+    // Sync to articles table - ignore errors
+    sb.from('articles').upsert(articlesPayload).then(() => {}).catch(() => {})
+  }
+
   return NextResponse.json({ article: data })
 }
 
@@ -93,7 +115,17 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 
   const sb = supabase()
   if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
+
+  // Get article slug before deletion for articles table sync
+  const { data: article } = await sb.from('cms_blog_posts').select('slug').eq('id', params.id).single()
+
   const { error } = await sb.from('cms_blog_posts').delete().eq('id', params.id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  // Also archive in articles table for public pages
+  if (article?.slug) {
+    sb.from('articles').update({ archived: true }).eq('slug', article.slug).then(() => {}).catch(() => {})
+  }
+
   return NextResponse.json({ ok: true })
 }

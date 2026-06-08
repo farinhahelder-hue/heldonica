@@ -67,27 +67,16 @@ export async function getAllPosts(): Promise<BlogPost[]> {
     return [];
   }
   try {
-    // Try both column names: 'published' boolean and 'status' text
     const { data, error } = await supabase
-      .from('cms_blog_posts')
+      .from('articles')
       .select('*')
-      .or('published.eq.true,status.eq.published')
+      .eq('published', true)
+      .eq('archived', false)
       .order('published_at', { ascending: false })
       .limit(100);
     if (error) {
       console.error('Supabase getAllPosts error:', error.message);
-      // Fallback to just published=true
-      const fallback = await supabase
-        .from('cms_blog_posts')
-        .select('*')
-        .eq('published', true)
-        .order('published_at', { ascending: false })
-        .limit(100);
-      if (fallback.error) {
-        console.error('Fallback also failed:', fallback.error.message);
-        return [];
-      }
-      return (fallback.data as BlogPost[] || []).map(normalizePost);
+      return [];
     }
     const posts = Array.isArray(data) ? (data as BlogPost[]) : [];
     return posts.map(normalizePost);
@@ -102,9 +91,10 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   if (!supabase) return null;
   try {
     const { data, error } = await supabase
-      .from('cms_blog_posts')
+      .from('articles')
       .select('*')
       .eq('slug', slug)
+      .eq('published', true)
       .single();
     if (error) {
       console.error('Supabase getPostBySlug error:', error.message);
@@ -126,10 +116,11 @@ export async function getRelatedPosts(
   if (!supabase) return [];
   try {
     const { data, error } = await supabase
-      .from('cms_blog_posts')
+      .from('articles')
       .select('*')
       .eq('category', category ?? '')
       .eq('published', true)
+      .eq('archived', false)
       .neq('slug', currentSlug)
       .order('published_at', { ascending: false })
       .limit(limit);
@@ -150,9 +141,10 @@ export async function getAllSlugs(): Promise<{ slug: string }[]> {
   if (!supabase) return [];
   try {
     const { data, error } = await supabase
-      .from('cms_blog_posts')
+      .from('articles')
       .select('slug')
-      .eq('published', true);
+      .eq('published', true)
+      .eq('archived', false);
     if (error) {
       console.error('Supabase getAllSlugs error:', error.message);
       return [];
