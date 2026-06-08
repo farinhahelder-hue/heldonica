@@ -216,12 +216,12 @@ interface HomeProps {
 export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries, heroVideoUrl, heroPosterImage }: HomeProps) {
   useScrollReveal()
   const featImg = featured ? postImage(featured) : null
-  // Fallback: si totalPosts est undefined/null/0, on utilise 23 (valeur par défaut représentative)
-  const publishedArticles = totalPosts && totalPosts > 0 ? totalPosts : 23
-  // Fallback: si coveredCountries est invalide, on utilise 7
+  // Fallback: si totalPosts est undefined/null/0, on utilise 25+ (valeur de référence)
+  const publishedArticles = totalPosts && totalPosts > 0 ? totalPosts : 25
+  // Fallback: si coveredCountries est invalide, on utilise 12 (valeur de référence actuelle)
   const countryCount = typeof coveredCountries === 'number' && coveredCountries > 0 
     ? coveredCountries 
-    : parseInt(String(coveredCountries)) || 7
+    : (parseInt(String(coveredCountries), 10) > 0 ? parseInt(String(coveredCountries), 10) : 12)
 
   const videoSrc = heroVideoUrl || 'https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4'
   const posterSrc = heroPosterImage || undefined
@@ -442,10 +442,10 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 </div>
               </div>
               <div data-reveal="right">
-                <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4">Food &amp; Lifestyle</p>
-                <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany leading-tight mb-4">Inspirations gourmandes</h2>
+                <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4">Pépites terrain</p>
+                <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany leading-tight mb-4">Pépites dénichées</h2>
                 <p className="text-base text-charcoal/70 leading-relaxed mb-6">
-                  On ne voyage pas seulement pour voir — on voyage pour goûter. Chaque destination révèle ses saveurs authentiques : les recettes portugaises transmises de génération en génération, les brasseries parisiennes que personne ne connaît encore.
+                  Ce qu&apos;on a trouvé en chemin — pas ce qu&apos;on a lu ailleurs. Des boulangeries de quartier aux itinéraires derando, des marchés de terroir aux coins de baignade que même Google Maps ne liste pas encore.
                 </p>
                 <div className="space-y-4 mb-8">
                   {foodPosts.slice(0, 3).map((p) => (
@@ -462,7 +462,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   ))}
                 </div>
                 <Link href="/blog" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
-                  Découvrir toutes les recettes →
+                  Voir toutes les pépites →
                 </Link>
               </div>
             </div>
