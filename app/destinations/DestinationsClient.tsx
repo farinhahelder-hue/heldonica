@@ -26,6 +26,7 @@ type DestinationCard = {
 const DESTINATION_IMAGES: Record<string, string> = {
   'Madère': 'https://images.unsplash.com/photo-1560719887-fe3105fa1e55?w=800&q=80',
   'Portugal': 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800&q=80',
+  'Alentejo': 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800&q=80',
   'Roumanie': 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=800&q=80',
   'Sicile': 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&q=80',
   'France': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80',
@@ -38,6 +39,7 @@ const DESTINATION_IMAGES: Record<string, string> = {
 // Fallback descriptions
 const DESTINATION_DESCRIPTIONS: Record<string, string> = {
   'Madère': "L'île qu'on a mise trois ans à vraiment comprendre. Chaque retour révèle quelque chose que le précédent avait raté.",
+  'Alentejo': "Le Portugal qu'on cherche quand on veut échapper aux foules. Plains, vignobles et villages de pierre.",
   'Roumanie': "Le terrain de l'enfance, du retour et des villages qui n'ont pas encore laissé tomber leur rythme.",
   'Sicile': "Le sud-est qu'on prend par la pierre, par le ventre et par les fins d'après-midi qui durent plus que prévu.",
   'Portugal': "Lisbonne vue par ceux qui y vivent, pas par ceux qui la traversent.",
@@ -49,6 +51,7 @@ const DESTINATION_DESCRIPTIONS: Record<string, string> = {
 
 const DESTINATION_VERDICTS: Record<string, string> = {
   'Madère': "Le genre d'île qui te force à ralentir si tu veux qu'elle s'ouvre.",
+  'Alentejo': "Le Portugal profond qu'on cherche tous sans oser le dire.",
   'Roumanie': "Une destination qui récompense ceux qui sortent des capitales trop vite résumées.",
   'Sicile': "À faire lentement, sinon la Sicile ne te donne que sa surface.",
   'Portugal': "Lisbonne est meilleure quand on prend le temps de s'asseoir.",
