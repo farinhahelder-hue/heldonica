@@ -80,7 +80,7 @@ const steps = [
   {
     num: '02',
     title: 'Conception — On bosse pour toi',
-    desc: 'On vérifie tout. Les horaires de bus qui ne marchent pas le dimanche. Le restaurant fermé en basse saison. L\'hébergementsans WiFi là où t\'en as besoin. On te propose un premier jet sous 7-10 jours.',
+    desc: 'On vérifie tout. Les horaires de bus qui ne marchent pas le dimanche. Le restaurant fermé en basse saison. L\'hébergement sans WiFi là où tu en as besoin. On te propose un premier jet sous 7-10 jours.',
     detail: 'Durée : 7-10 jours. Résultat : ton carnet de route en PDF.',
   },
   {
@@ -109,7 +109,7 @@ const deliverables = [
   },
   {
     title: 'Restaurants testés ou validés',
-    desc: 'Le meilleur de la місцевоï cuisine locale, pas des chains internationales. Avec horaires, fourchette de prix, réservation conseillée ou pas.',
+    desc: 'Le meilleur de la cuisine locale, pas des chains internationales. Avec horaires, fourchette de prix, réservation conseillée ou pas.',
     icon: '🍽️',
   },
   {
@@ -119,7 +119,7 @@ const deliverables = [
   },
   {
     title: 'Contacts locaux',
-    desc: 'Les gens sur place qui peuvent vraiment t\'aider. Le réceptionniste qui parle français, le guide de montagne recommandé, le restaus où le propriétaire te reconnaît.',
+    desc: 'Les gens sur place qui peuvent vraiment t\'aider. Le réceptionniste qui parle français, le guide de montagne recommandé, le resto où le propriétaire te reconnaît.',
     icon: '🤝',
   },
 ]
@@ -275,7 +275,7 @@ export default function TravelPlanning() {
         <section className="py-16 bg-amber-900 text-white">
           <div className="max-w-3xl mx-auto px-6 text-center">
             <h2 className="text-2xl md:text-3xl font-serif font-light mb-4">
-              Prêt à construirerson voyage ?
+              Prêt à construire ton voyage ?
             </h2>
             <p className="text-amber-200 text-sm mb-6">
               Dis-nous où tu veux aller. En 48h, tu as un premier retour, pas un devis froid.
