@@ -1,6 +1,6 @@
 # PROMPT MASTER — AGENT ALLHANDS / OPENHANDS
 # Repo : farinhahelder-hue/heldonica
-# Mis à jour : mai 2026
+# Mis à jour : 08 juin 2026
 # Usage : copier ce fichier dans le champ "Tâche" du panneau Agents du CMS,
 #         puis remplacer uniquement le bloc ## MISSION en bas.
 
@@ -28,7 +28,7 @@
 - Base de données : Supabase PostgreSQL via @supabase/supabase-js 2.39
 - Stockage médias : Supabase Storage (bucket "media")
 - Auth CMS : cookie session + bcryptjs — PAS next-auth, PAS Supabase auth
-- Email : Resend
+- Email : Resend + Brevo (BREVO_API_KEY avec fallback Resend)
 - Analytics : Google Analytics 4 via @google-analytics/data
 - Drag & Drop : @dnd-kit/core + @dnd-kit/sortable
 - Icons : lucide-react 1.14
@@ -54,30 +54,39 @@ app/
     llm-search/         → POST recherche sémantique
     agent-tasks/        → GET historique tâches agents, POST sauvegarder
     jules/              → POST envoi tâche Jules directement
+    publish-podgorica/  → POST publier article Podgorica, PUT fix SEO
   cms-admin/            → Interface CMS admin
     CmsAdminClient.tsx  → Composant principal ~2500 lignes (7 onglets)
     travel-planning/    → KanbanBoardClient.tsx (demandes travel)
   blog/                 → Pages publiques articles ([slug]/page.tsx)
   a-propos/
-  nos-services/
-  travel-planning/
+  travel-planning/      → Page service Travel Planning
+  travel-planning-form/ → Formulaire demande Travel Planning
   contact/
-  hotel-consulting/
   slow-travel/
   destinations/
   temoignages/
-  etudes-de-cas/
-  ai-hotellerie/
-  itineraire/[uuid]/    → Page itinéraire partageable (future)
+  merci/
+  mentions-legales/
+  politique-confidentialite/
+  organisateur/
+  planifier/
+  maintenance/
 components/
   admin/                → CarouselEditor, CarouselGenerator, BlogGenerator
   RichEditor.tsx        → Éditeur riche (dynamic import, ssr: false)
   EnhancedRichContent   → Rendu HTML sécurisé (dompurify)
   MediaLibrary.tsx      → Médiathèque Supabase
+  BlogFilters.tsx       → Filtres catégories avec URL params
+  CtaTravelPlanning.tsx → CTA en fin d'article
+  ReadingProgress.tsx   → Barre de progression lecture
+  HeldonicaVerdict.tsx  → Bloc verdict terrain
+  HeldonicaFAQ.tsx      → FAQ avec JSON-LD FAQPage schema
 lib/
   supabase.ts           → Client Supabase
   sanitize-html.ts      → Sanitization HTML
   unsplash.ts           → Fallback images (getFallbackImageUrl)
+  readingTime.ts        → getReadingTime() + formatReadingTime()
 supabase/migrations/    → Fichiers SQL de migration
 skills/                 → Skills OpenHands
 .jules/                 → Config Jules (Google)
@@ -85,7 +94,7 @@ skills/                 → Skills OpenHands
 
 ## TABLES SUPABASE (schéma actuel)
 ```sql
--- Articles blog
+-- Articles blog (TABLE PRINCIPALE — utiliser EXCLUSIVEMENT cette table)
 articles (
   id SERIAL PRIMARY KEY,
   title TEXT,
@@ -101,8 +110,14 @@ articles (
   updated_at TIMESTAMPTZ,
   voice_notes TEXT,
   views INTEGER DEFAULT 0,
-  archived BOOLEAN DEFAULT FALSE
+  archived BOOLEAN DEFAULT FALSE,
+  faq_content JSONB       -- FAQ structurée pour HeldonicaFAQ + JSON-LD
 )
+
+⚠️ NOTE CRITIQUE : Il existe aussi une table legacy "cms_blog_posts" dans Supabase.
+NE PAS utiliser cms_blog_posts pour les pages publiques.
+Toutes les pages publiques (blog, destinations, home) lisent UNIQUEMENT depuis "articles".
+La confusion entre ces deux tables est la CAUSE du bug 0 articles affiché sur /blog.
 
 -- Demandes Travel Planning
 demandes_travel (
@@ -120,7 +135,7 @@ site_settings (id SERIAL, key TEXT UNIQUE, value TEXT, label TEXT, type TEXT)
 -- Contenu des pages
 site_content (id SERIAL, page TEXT, block_key TEXT, value TEXT, label TEXT, type TEXT)
 
--- Tâches agents (à créer si pas encore présente)
+-- Tâches agents
 agent_tasks (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   agent TEXT, task TEXT, repo TEXT, branch TEXT,
@@ -195,6 +210,7 @@ SUPABASE_SERVICE_ROLE_KEY       ← côté serveur uniquement, JAMAIS client
 CMS_PASSWORD
 JWT_SECRET
 RESEND_API_KEY
+BREVO_API_KEY
 GOOGLE_ANALYTICS_PROPERTY_ID
 NEXT_PUBLIC_N8N_WEBHOOK_URL
 ```
@@ -210,6 +226,33 @@ NEXT_PUBLIC_N8N_WEBHOOK_URL
 - Commande build : `next build` (standard, pas d'étape spéciale)
 - Tests : `npm run test` (vitest) — faire passer avant commit si possible
 - TypeCheck : `npm run typecheck`
+
+═══════════════════════════════════════════════════════
+  MASTER PLAN — AUDIT 08 JUIN 2026
+  (Bugs constatés en prod + améliorations prioritaires)
+═══════════════════════════════════════════════════════
+
+## ÉTAT DU SITE AU 08/06/2026
+
+### ✅ Ce qui fonctionne
+- Homepage : identité de marque, sections Travel Planning, newsletter, articles récents visibles
+- Article Podgorica publié et visible en home
+- Routes publiques toutes accessibles : /blog, /travel-planning, /a-propos, /contact, /destinations
+- SEO technique : JSON-LD, sitemap, robots.txt en place
+- Composants UX livrés : BlogFilters, ReadingProgress, CtaTravelPlanning, HeldonicaVerdict, HeldonicaFAQ
+
+### 🔴 Bugs critiques confirmés en prod
+1. **Blog /blog : 0 articles affichés** — BlogFilters affiche "0 Carnets, 0 Pépites locales, 0 Guides"
+   → Cause probable : blog/page.tsx ou lib/blog-supabase.ts lit depuis `cms_blog_posts` au lieu de `articles`
+   → À corriger EN PRIORITÉ ABSOLUE
+
+2. **Homepage : compteurs stats à 0** — "0 Pays habités", "0 Carnets publiés" dans section Notre histoire
+   → Vérifier app/page.tsx : les valeurs dynamiques ne sont pas hydratées
+   → Soit hardcoder les valeurs réelles (ex: 12 pays, 25+ carnets), soit corriger la requête Supabase
+
+3. **Incohérence éditoriale home** — Section nommée "Inspirations gourmandes" affiche un article
+   de randonnée (Stoos Ridge, Suisse) — aucun rapport avec la food
+   → Corriger le filtre de catégorie de cette section OU renommer la section
 
 ═══════════════════════════════════════════════════════
   MISSION (REMPLACER CE BLOC PAR TA TÂCHE SPÉCIFIQUE)
@@ -241,6 +284,72 @@ Crée un ou plusieurs commits sur `main` :
 ═══════════════════════════════════════════════════════
   TEMPLATES MISSIONS PRÊTS À L'EMPLOI
 ═══════════════════════════════════════════════════════
+
+### TEMPLATE PRIORITÉ 1 — Fix blog 0 articles
+```
+## MISSION
+Correction critique : la page /blog affiche 0 articles alors que des articles publiés existent en Supabase.
+
+1. Inspecter app/blog/page.tsx et tous les fichiers lib/ utilisés (blog-supabase.ts, supabase.ts)
+2. Identifier si la requête cible `cms_blog_posts` ou `articles`
+3. Corriger pour utiliser UNIQUEMENT la table `articles` (published = true, archived = false)
+4. Vérifier que BlogFilters.tsx reçoit les bonnes données et que les compteurs par catégorie sont corrects
+5. Vérifier que app/blog/[slug]/page.tsx lit aussi depuis `articles` (cohérence)
+
+Comportement attendu :
+- /blog affiche tous les articles publiés avec filtres fonctionnels
+- Compteurs par catégorie reflètent les vraies données
+- Les slugs des articles fonctionnent
+
+## PÉRIMÈTRE
+- app/blog/page.tsx
+- app/blog/[slug]/page.tsx
+- lib/blog-supabase.ts (ou tout fichier lib lié au blog)
+- components/BlogFilters.tsx
+
+## CRITÈRES DE SUCCÈS
+- [ ] /blog affiche au moins 10 articles en prod
+- [ ] Filtres par catégorie fonctionnels
+- [ ] build TypeScript sans erreur
+```
+
+### TEMPLATE PRIORITÉ 2 — Fix compteurs homepage
+```
+## MISSION
+Correction : les stats de la section "Notre histoire" en homepage affichent 0.
+
+1. Inspecter app/page.tsx — trouver les blocs de stats dynamiques
+2. Si les valeurs viennent de Supabase : corriger la requête COUNT
+3. Si les valeurs sont hardcodées à 0 : remplacer par les vraies valeurs (à confirmer avec le propriétaire)
+   Valeurs de référence : ~12 pays visités, ~25 carnets publiés, ~4 ans de slow travel
+4. S'assurer que les valeurs s'affichent correctement en SSR (pas d'hydration mismatch)
+
+## PÉRIMÈTRE
+- app/page.tsx uniquement
+
+## CRITÈRES DE SUCCÈS
+- [ ] Stats non nulles et cohérentes affiché en prod
+- [ ] Pas d'hydration warning dans la console
+```
+
+### TEMPLATE PRIORITÉ 3 — Fix section "Inspirations gourmandes"
+```
+## MISSION
+Correction éditoriale : la section "Inspirations gourmandes" de la homepage affiche
+un article de randonnée (Stoos Ridge, Suisse) — incohérence de contenu.
+
+1. Dans app/page.tsx, trouver la section "Inspirations gourmandes"
+2. Option A : corriger le filtre de catégorie pour n'afficher que les articles catégorie "Découvertes locales" ou "food"
+3. Option B : renommer la section en "Pépites dénichées" pour couvrir toutes les découvertes
+   (recommandé car plus cohérent avec l'identité Heldonica)
+
+## PÉRIMÈTRE
+- app/page.tsx uniquement
+
+## CRITÈRES DE SUCCÈS
+- [ ] Section affiche du contenu cohérent avec son titre
+- [ ] Aucune rupture de style ou de layout
+```
 
 ### TEMPLATE A — Templates de prompt intégrés dans le panneau Agents
 ```
@@ -307,4 +416,5 @@ Dans app/cms-admin/CmsAdminClient.tsx, fonction analyzeSEO() :
 ---
 
 _Ce fichier est la référence unique pour tous les agents IA travaillant sur le repo Heldonica._
-_Mettre à jour ce fichier si la stack ou l'architecture change._
+_Mettre à jour ce fichier après chaque audit ou changement majeur d'architecture._
+_Dernière mise à jour : 08 juin 2026 — Audit prod Perplexity_
