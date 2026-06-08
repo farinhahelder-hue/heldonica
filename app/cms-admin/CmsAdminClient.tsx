@@ -358,8 +358,10 @@ function CMSAdminInner() {
   const [editedContent, setEditedContent] = useState<Record<string, string>>({});
   const [savingSettings, setSavingSettings] = useState(false);
   const [savingPageKey, setSavingPageKey] = useState('');
-  const [uploadingMediaKey, setUploadingMediaKey] = useState('');
-  const [authLoading, setAuthLoading] = useState(false);
+  // Agents IA panel
+  const [agentTask, setAgentTask] = useState('');
+  const [sendingAgent, setSendingAgent] = useState(false);
+  const [agentHistory, setAgentHistory] = useState<{task: string; date: string; status: string}[]>([]);
 
   // Maintenance mode
   const [maintenanceMode, setMaintenanceMode] = useState(false);
@@ -928,9 +930,129 @@ function CMSAdminInner() {
     // eslint-disable-next-line jsx-a11y/alt-text -- Image is a lucide-react icon, not an <img> element
     { id: 'media',   icon: <Image size={16} aria-hidden="true" />, label: 'Médiatèque', count: null },
     { id: 'carousel',icon: <Car size={16} />,  label: 'Carrousel', count: null },
+    { id: 'agents',  icon: <Sparkles size={16} />, label: 'Agents IA', count: null },
     { id: 'settings',icon: <Settings size={16} />,label: 'Paramètres', count: null },
     { id: 'analytics',icon: <BarChart3 size={16} />,label: 'Analytics', count: null },
     { id: 'search',  icon: <Search size={16} />, label: 'Search', count: null },
+  ];
+
+  // ===== AGENT TEMPLATES =====
+  const AGENT_TEMPLATES = [
+    {
+      id: 'fix-bug',
+      label: '🔧 Fix bug',
+      template: `# HELDONICA — Fix Bug
+## MISSION
+[Décris le bug précisément : quel fichier, quel comportement, quel attendu]
+
+## PÉRIMÈTRE
+- Fichiers autorisés : [LISTE]
+- Fichiers à NE PAS toucher : [LISTE]
+
+## CRITÈRES DE SUCCÈS
+- [ ] npm run build passe sans erreur
+- [ ] Le bug est corrigé
+- [ ] Aucun any implicite introduit
+
+## OUTPUT ATTENDU
+Commit : fix: [description courte]`
+    },
+    {
+      id: 'improvement-ui',
+      label: '🎨 Amélioration UI',
+      template: `# HELDONICA — Amélioration UI
+## MISSION
+[Décris l'amélioration visuelle : quel fichier, quel élément, quel rendu attendu]
+
+## STACK
+- CSS inline UNIQUEMENT dans /cms-admin (pas de Tailwind)
+- Palette : Bordeaux #6b2a1a, Teal #01696f, Fond #f5f3ef
+
+## PÉRIMÈTRE
+- Fichiers autorisés : [LISTE]
+- Fichiers à NE PAS toucher : [LISTE]
+
+## CRITÈRES DE SUCCÈS
+- [ ] npm run build passe sans erreur
+- [ ] Style cohérent avec le CMS existant
+- [ ] Responsive mobile
+
+## OUTPUT ATTENDU
+Commit : feat: [description courte]`
+    },
+    {
+      id: 'new-feature',
+      label: '✨ Nouvelle feature',
+      template: `# HELDONICA — Nouvelle Feature
+## MISSION
+[Décris la fonctionnalité : quel besoin, quel comportement, quelle UX]
+
+## STACK
+- Next.js 14.2 App Router
+- TypeScript strict
+- Tailwind CSS pour pages publiques, CSS inline pour CMS
+
+## PÉRIMÈTRE
+- Fichiers autorisés : [LISTE]
+- Fichiers à NE PAS toucher : [LISTE]
+
+## CRITÈRES DE SUCCÈS
+- [ ] npm run build passe sans erreur
+- [ ] Fonctionnalité opérationnelle
+- [ ] Tests unitaires si applicable
+
+## OUTPUT ATTENDU
+Commit : feat: [description courte]`
+    },
+    {
+      id: 'seo-blog',
+      label: '📝 SEO / Blog',
+      template: `# HELDONICA — SEO / Blog
+## MISSION
+[Décris la modification : quel article, quel changement SEO]
+
+## BONNES PRATIQUES SEO
+- Titre : max 60 caractères, inclut mot-clé principal
+- Meta description : 150-160 caractères, call-to-action
+- Images : alt text descriptif, lazy loading
+- Liens internes : ancres descriptives
+
+## PÉRIMÈTRE
+- Fichiers autorisés : [LISTE]
+- Fichiers à NE PAS toucher : [LISTE]
+
+## CRITÈRES DE SUCCÈS
+- [ ] npm run build passe sans erreur
+- [ ] Validation SEOastec passed
+- [ ] Aucun any implicite
+
+## OUTPUT ATTENDU
+Commit : feat: [description courte]`
+    },
+    {
+      id: 'cleanup',
+      label: '🧹 Nettoyage',
+      template: `# HELDONICA — Nettoyage
+## MISSION
+[Décris le nettoyage : suppression fichiers obsolètes, refactoring, etc.]
+
+## RÈGLES
+- Ne jamais créer plusieurs versions du même fichier (file_test.py, etc.)
+- Supprimer les fichiers temporaires après usage
+- Conserver les fichiers de migration SQL
+
+## PÉRIMÈTRE
+- Fichiers autorisés : [LISTE]
+- Fichiers à NE PAS toucher : [LISTE]
+
+## CRITÈRES DE SUCCÈS
+- [ ] npm run build passe sans erreur
+- [ ] Repo nettoyé et cohérent
+- [ ] Aucun fichier obsolète restant
+
+## OUTPUT ATTENDU
+Commit : chore: [description courte]`
+    },
   ];
 
   return (
@@ -1711,6 +1833,81 @@ function CMSAdminInner() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {tab === 'agents' && (
+          <div style={{ padding: '2rem' }}>
+            <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '0.5rem' }}>🤖 Agents IA</h2>
+              <p style={{ color: '#666', marginBottom: '1.5rem', fontSize: '.9rem' }}>Lance des tâches pour OpenHands, Jules ou Gemini sur le repo Heldonica.</p>
+              
+              {/* Template selector */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', fontWeight: 600, color: '#444', marginBottom: '.5rem', fontSize: '.85rem' }}>Template rapide</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem' }}>
+                  {AGENT_TEMPLATES.map(t => (
+                    <button key={t.id} onClick={() => { setAgentTask(t.template); }}
+                      style={{ padding: '.4rem .8rem', borderRadius: '9999px', border: '1.5px solid #6b2a1a', background: 'transparent', color: '#6b2a1a', cursor: 'pointer', fontSize: '.8rem', fontWeight: 500, transition: 'all 0.2s' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = '#6b2a1a'; e.currentTarget.style.color = 'white'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#6b2a1a'; }}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Task textarea */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', fontWeight: 600, color: '#444', marginBottom: '.5rem', fontSize: '.85rem' }}>Mission pour l'agent</label>
+                <textarea
+                  value={agentTask}
+                  onChange={e => setAgentTask(e.target.value)}
+                  placeholder={"Décris ta tâche ici...\n\nExemple : Corrige le bug sur la page /blog qui affiche 0 articles."}
+                  style={{ width: '100%', minHeight: '300px', padding: '1rem', borderRadius: '.75rem', border: '1.5px solid #e8e0d8', fontSize: '.9rem', fontFamily: 'monospace', resize: 'vertical', background: '#fff' }}
+                />
+              </div>
+
+              {/* Send buttons */}
+              <div style={{ display: 'flex', gap: '.75rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
+                <button
+                  onClick={async () => {
+                    if (!agentTask.trim()) return;
+                    setSendingAgent(true);
+                    // Store in history
+                    setAgentHistory(prev => [{ task: agentTask.slice(0, 100), date: new Date().toLocaleString('fr-FR'), status: 'Envoyée' }, ...prev].slice(0, 10));
+                    // Copy to clipboard (for manual paste to agent)
+                    await navigator.clipboard.writeText(agentTask);
+                    setAgentTask('');
+                    setSendingAgent(false);
+                    showToast('Mission copiée ! Colle-la dans ton agent IA.');
+                  }}
+                  disabled={sendingAgent || !agentTask.trim()}
+                  style={{ padding: '.75rem 1.5rem', borderRadius: '.5rem', border: 'none', background: '#6b2a1a', color: 'white', fontWeight: 600, cursor: sendingAgent ? 'not-allowed' : 'pointer', opacity: sendingAgent ? 0.7 : 1 }}
+                >
+                  📋 Copier pour agent
+                </button>
+              </div>
+
+              {/* History */}
+              {agentHistory.length > 0 && (
+                <div>
+                  <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#444', marginBottom: '1rem' }}>Historique récent</h3>
+                  <div style={{ background: 'white', borderRadius: '.75rem', overflow: 'hidden' }}>
+                    {agentHistory.map((h, i) => (
+                      <div key={i} style={{ padding: '1rem', borderBottom: i < agentHistory.length - 1 ? '1px solid #e8e0d8' : 'none' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '.25rem' }}>
+                          <span style={{ fontWeight: 600, color: '#333', fontSize: '.85rem' }}>{h.task}...</span>
+                          <span style={{ fontSize: '.75rem', color: '#888' }}>{h.date}</span>
+                        </div>
+                        <span style={{ fontSize: '.75rem', color: h.status === 'Envoyée' ? '#4CAF50' : '#888' }}>{h.status}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
