@@ -44,12 +44,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!post) return { title: 'Article introuvable | Heldonica' }
 
-  // Tronquer la description à 150 caractères max
+  // Tronquer la description entre 140-160 caractères
   let description = ''
   if (post.excerpt) {
-    description = post.excerpt.length > 150 
-      ? post.excerpt.substring(0, 147) + '...' 
-      : post.excerpt
+    const cleanExcerpt = post.excerpt.replace(/<[^>]*>/g, '').trim()
+    description = cleanExcerpt.length > 160
+      ? cleanExcerpt.substring(0, 157) + '...'
+      : cleanExcerpt
   }
 
   const title = `${post.title} | Heldonica`
@@ -274,6 +275,7 @@ export default async function BlogPostPage({ params }: Props) {
         </div>
 
         <div className="mx-auto max-w-3xl px-4 py-12 md:py-16">
+          <article aria-label={post.title}>
           {post.excerpt && (
             <div className="mb-10 rounded-[2rem] border border-amber-200 bg-amber-50 px-6 py-6 md:px-8">
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-amber-800">Ouverture</p>
@@ -339,6 +341,7 @@ export default async function BlogPostPage({ params }: Props) {
               ← Retour aux carnets
             </Link>
           </div>
+          </article>
         </div>
 
         {related.length > 0 && (
