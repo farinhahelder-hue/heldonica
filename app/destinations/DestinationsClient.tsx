@@ -119,7 +119,7 @@ export default function DestinationsClient() {
         
         if (Array.isArray(data.destinations)) {
           const mapped: DestinationCard[] = data.destinations.map((d: any) => {
-            const name = d.title?.split('|')[0]?.trim() || d.slug?.split('-').map(w => 
+            const name = d.title?.split('|')[0]?.trim() || d.slug?.split('-').map((w: string) =>
               w.charAt(0).toUpperCase() + w.slice(1)
             ).join(' ') || 'Destination';
             

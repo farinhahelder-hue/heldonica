@@ -92,7 +92,7 @@ export async function POST() {
       .eq('published', false)
 
     return NextResponse.json({
-      fixed: error ? 0 : (data?.length || 0),
+      fixed: error ? 0 : ((data as unknown as any[])?.length || 0),
       error: error?.message
     })
   } catch (err) {
