@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { Instagram } from 'lucide-react'
+
 
 interface BeholdPost {
   id: string
@@ -128,7 +128,7 @@ export default function InstagramFeed({ feedId }: InstagramFeedProps) {
         {/* Empty/error state */}
         {showEmptyState && (
           <div className="flex flex-col items-center justify-center py-12 text-center">
-            <Instagram className="w-12 h-12 text-stone-400 mb-4" />
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-stone-400 mb-4"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
             <p className="text-stone-500 mb-2">@{username}</p>
           </div>
         )}
