@@ -1,420 +1,249 @@
-# PROMPT MASTER — AGENT ALLHANDS / OPENHANDS
-# Repo : farinhahelder-hue/heldonica
-# Mis à jour : 08 juin 2026
-# Usage : copier ce fichier dans le champ "Tâche" du panneau Agents du CMS,
-#         puis remplacer uniquement le bloc ## MISSION en bas.
+# PROMPT ALLHANDS — HELDONICA
+## Sprint Prioritaire · Juin 2026
 
 ---
 
-═══════════════════════════════════════════════════════
-  HELDONICA — CONTEXTE PROJET COMPLET POUR AGENT IA
-═══════════════════════════════════════════════════════
+## 🎯 CONTEXTE & MISSION
 
-## IDENTITÉ DU PROJET
-- Nom : Heldonica (heldonica.fr)
-- Repo GitHub : farinhahelder-hue/heldonica
-- Branche principale : main
-- Déploiement : Vercel (auto-deploy sur push main)
-- Backend : Supabase (PostgreSQL + Storage)
-- CMS custom : /app/cms-admin/ (auth par mot de passe, session cookie)
-- URL production : heldonica.fr
+Tu travailles sur le site **heldonica.fr** — blog Slow Travel & service de Travel Planning sur mesure, construit en **Next.js 14 App Router + Supabase + Vercel**.
 
-## STACK TECHNIQUE EXACTE
-- Framework : Next.js 14.2.x (App Router — PAS Pages Router)
-- Language : TypeScript 5.3 strict (tsconfig: strict: true)
-- React : 18.3.x
-- Styling : Tailwind CSS 3.4 pour les pages publiques
-             CSS inline (style={{...}}) UNIQUEMENT dans le CMS admin — pas de classes Tailwind dans /cms-admin
-- Base de données : Supabase PostgreSQL via @supabase/supabase-js 2.39
-- Stockage médias : Supabase Storage (bucket "media")
-- Auth CMS : cookie session + bcryptjs — PAS next-auth, PAS Supabase auth
-- Email : Resend + Brevo (BREVO_API_KEY avec fallback Resend)
-- Analytics : Google Analytics 4 via @google-analytics/data
-- Drag & Drop : @dnd-kit/core + @dnd-kit/sortable
-- Icons : lucide-react 1.14
-- Forms : react-hook-form 7.48
-- Tests : Vitest 4.x + @testing-library/jest-dom
-- HTTP client : fetch natif (PAS axios)
-- Maps : Leaflet + leaflet.markercluster
-- Sanitize HTML : dompurify
-- Automatisations : n8n (webhook NEXT_PUBLIC_N8N_WEBHOOK_URL)
-- Agents IA : OpenHands (AllHands), Jules (Google), Gemini, Perplexity
+Le site est en production. Le build passe. Il existe un backlog massif de **PRs draft non mergées** (PRs #166 à #221, majoritairement créées automatiquement par des agents IA) qui doivent être **triées, dédupliquées et traitées** avant toute nouvelle feature.
 
-## ARCHITECTURE DES DOSSIERS
-```
-app/
-  api/cms/              → API Routes CMS
-    articles/           → GET/POST liste + GET/PUT/DELETE par id
-    auth/               → POST login, DELETE logout, GET check session
-    settings/           → GET/PUT paramètres site
-    content/            → GET/PUT contenu pages
-    media-upload/       → POST upload vers Supabase Storage (FormData: file, folder)
-    demandes-travel/    → GET/PUT demandes travel planning
-    analytics/          → POST métriques GA4
-    llm-search/         → POST recherche sémantique
-    agent-tasks/        → GET historique tâches agents, POST sauvegarder
-    jules/              → POST envoi tâche Jules directement
-    publish-podgorica/  → POST publier article Podgorica, PUT fix SEO
-  cms-admin/            → Interface CMS admin
-    CmsAdminClient.tsx  → Composant principal ~2500 lignes (7 onglets)
-    travel-planning/    → KanbanBoardClient.tsx (demandes travel)
-  blog/                 → Pages publiques articles ([slug]/page.tsx)
-  a-propos/
-  travel-planning/      → Page service Travel Planning
-  travel-planning-form/ → Formulaire demande Travel Planning
-  contact/
-  slow-travel/
-  destinations/
-  temoignages/
-  merci/
-  mentions-legales/
-  politique-confidentialite/
-  organisateur/
-  planifier/
-  maintenance/
-components/
-  admin/                → CarouselEditor, CarouselGenerator, BlogGenerator
-  RichEditor.tsx        → Éditeur riche (dynamic import, ssr: false)
-  EnhancedRichContent   → Rendu HTML sécurisé (dompurify)
-  MediaLibrary.tsx      → Médiathèque Supabase
-  BlogFilters.tsx       → Filtres catégories avec URL params
-  CtaTravelPlanning.tsx → CTA en fin d'article
-  ReadingProgress.tsx   → Barre de progression lecture
-  HeldonicaVerdict.tsx  → Bloc verdict terrain
-  HeldonicaFAQ.tsx      → FAQ avec JSON-LD FAQPage schema
-lib/
-  supabase.ts           → Client Supabase
-  sanitize-html.ts      → Sanitization HTML
-  unsplash.ts           → Fallback images (getFallbackImageUrl)
-  readingTime.ts        → getReadingTime() + formatReadingTime()
-supabase/migrations/    → Fichiers SQL de migration
-skills/                 → Skills OpenHands
-.jules/                 → Config Jules (Google)
-```
-
-## TABLES SUPABASE (schéma actuel)
-```sql
--- Articles blog (TABLE PRINCIPALE — utiliser EXCLUSIVEMENT cette table)
-articles (
-  id SERIAL PRIMARY KEY,
-  title TEXT,
-  slug TEXT UNIQUE,
-  category TEXT,
-  excerpt TEXT,
-  content TEXT,           -- HTML
-  featured_image TEXT,
-  published BOOLEAN DEFAULT FALSE,
-  published_at TIMESTAMPTZ,
-  scheduled_published_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ,
-  voice_notes TEXT,
-  views INTEGER DEFAULT 0,
-  archived BOOLEAN DEFAULT FALSE,
-  faq_content JSONB       -- FAQ structurée pour HeldonicaFAQ + JSON-LD
-)
-
-⚠️ NOTE CRITIQUE : Il existe aussi une table legacy "cms_blog_posts" dans Supabase.
-NE PAS utiliser cms_blog_posts pour les pages publiques.
-Toutes les pages publiques (blog, destinations, home) lisent UNIQUEMENT depuis "articles".
-La confusion entre ces deux tables est la CAUSE du bug 0 articles affiché sur /blog.
-
--- Demandes Travel Planning
-demandes_travel (
-  id UUID PRIMARY KEY,
-  prenom TEXT, nom TEXT, email TEXT, telephone TEXT,
-  destination TEXT, style_voyage TEXT,
-  duree_jours INTEGER, budget_fourchette TEXT,
-  nb_voyageurs INTEGER, mois_depart TEXT,
-  notes TEXT, statut TEXT, created_at TIMESTAMPTZ
-)
-
--- Paramètres du site
-site_settings (id SERIAL, key TEXT UNIQUE, value TEXT, label TEXT, type TEXT)
-
--- Contenu des pages
-site_content (id SERIAL, page TEXT, block_key TEXT, value TEXT, label TEXT, type TEXT)
-
--- Tâches agents
-agent_tasks (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  agent TEXT, task TEXT, repo TEXT, branch TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-)
-```
-
-## ROUTES API CMS (toutes sous /api/cms/)
-- GET/POST   /api/cms/articles             → liste paginée / création article
-- GET        /api/cms/articles/[id]         → lecture article
-- PUT        /api/cms/articles/[id]         → mise à jour (titre, contenu, published, scheduled...)
-- DELETE     /api/cms/articles/[id]         → suppression définitive
-- POST       /api/cms/auth                  → login (body: {password})
-- DELETE     /api/cms/auth                  → logout
-- GET        /api/cms/auth                  → vérification session
-- GET/PUT    /api/cms/settings              → paramètres site (logo, couleurs, SEO, réseaux)
-- GET/PUT    /api/cms/content               → contenu par page (hero, titres, textes)
-- POST       /api/cms/media-upload          → upload fichier (FormData: file, folder)
-- GET/PUT    /api/cms/demandes-travel       → demandes travel planning
-- POST       /api/cms/analytics             → métriques GA4 (body: {startDate, endDate})
-- POST       /api/cms/llm-search            → recherche sémantique IA
-- GET/POST   /api/cms/agent-tasks           → historique tâches agents
-
-## IDENTITÉ VISUELLE HELDONICA (respecter IMPÉRATIVEMENT)
-```
-Palette principale :
-  Bordeaux     : #6b2a1a  → headers CMS, boutons primaires, accents
-  Teal         : #01696f  → boutons secondaires, highlights
-  Fond app     : #f5f3ef  → background général
-  Fond clair   : #faf9f7  → inputs, cards, formulaires
-  Vert édito   : #4A7C59  → piliers éditoriaux, tags catégories
-  Texte fort   : #1a1a1a
-  Texte moyen  : #555
-  Texte léger  : #888
-  Bordure      : #e8e0d8
-
-Conventions UI dans le CMS admin :
-  TOUS les styles en CSS inline : style={{...}}
-  PAS de classes Tailwind dans app/cms-admin/
-  Border-radius : 0.5rem (cards), 1rem (panels), 9999px (pills/badges)
-  Box-shadow cards : 0 1px 4px rgba(0,0,0,.06)
-  Box-shadow modals : 0 2px 12px rgba(0,0,0,.07)
-  Font : DM Sans (avec system-ui comme fallback)
-```
-
-## CONVENTIONS DE CODE
-- TypeScript strict : typer toutes les fonctions, pas de `any` implicite
-- Composants "use client" avec hooks React (useState, useEffect, useCallback, useRef)
-- Dynamic imports avec `{ ssr: false }` pour composants lourds (éditeur, carousels)
-- Feedback utilisateur : toujours via showToast() — jamais d'alert() natif
-- Fetch : vérifier handleUnauthorized(res) après chaque appel API CMS
-- Pas de librairies npm supplémentaires sans justification explicite
-- Commits conventionnels : `feat:`, `fix:`, `refactor:`, `chore:`, `docs:`
-- PAS de console.log ajoutés (sauf préfixés [CMS] pour debug)
-- Langue de l'interface CMS : français
-
-## RÈGLES MÉTIER
-- Le CMS est accessible à /cms-admin, protégé par mot de passe (env CMS_PASSWORD)
-- Auth via cookie httpOnly — jamais stocker mdp en localStorage
-- Articles : brouillon / publiés / planifiés (scheduled_published_at) / archivés
-- Images sans URL → fallback via getFallbackImageUrl(category, title)
-- Slug auto-généré depuis le titre (normalisation NFD, kebab-case)
-- Autosave toutes les 30s si article en cours d'édition avec un titre
-- 4 piliers éditoriaux : "Découvertes locales", "Carnets de voyage", "Coulisses", "Expert hôtelier"
-- INTERDITS dans l'interface : "bons plans" → "pépites dénichées" / "organisation de séjour" → "conception sur mesure"
-
-## VARIABLES D'ENVIRONNEMENT REQUISES
-```
-NEXT_PUBLIC_SUPABASE_URL
-NEXT_PUBLIC_SUPABASE_ANON_KEY
-SUPABASE_SERVICE_ROLE_KEY       ← côté serveur uniquement, JAMAIS client
-CMS_PASSWORD
-JWT_SECRET
-RESEND_API_KEY
-BREVO_API_KEY
-GOOGLE_ANALYTICS_PROPERTY_ID
-NEXT_PUBLIC_N8N_WEBHOOK_URL
-```
-
-## SÉCURITÉ
-- Utiliser SUPABASE_SERVICE_ROLE_KEY pour toutes les écritures (API Routes uniquement)
-- Vérifier l'authentification sur TOUTES les routes /api/cms/* avant exécution
-- Ne JAMAIS exposer SERVICE_ROLE_KEY côté client
-- Routes publiques utilisent anon key avec RLS strict
-
-## DÉPLOIEMENT
-- Push sur main → Vercel déploie automatiquement
-- Commande build : `next build` (standard, pas d'étape spéciale)
-- Tests : `npm run test` (vitest) — faire passer avant commit si possible
-- TypeCheck : `npm run typecheck`
-
-═══════════════════════════════════════════════════════
-  MASTER PLAN — AUDIT 08 JUIN 2026
-  (Bugs constatés en prod + améliorations prioritaires)
-═══════════════════════════════════════════════════════
-
-## ÉTAT DU SITE AU 08/06/2026
-
-### ✅ Ce qui fonctionne
-- Homepage : identité de marque, sections Travel Planning, newsletter, articles récents visibles
-- Article Podgorica publié et visible en home
-- Routes publiques toutes accessibles : /blog, /travel-planning, /a-propos, /contact, /destinations
-- SEO technique : JSON-LD, sitemap, robots.txt en place
-- Composants UX livrés : BlogFilters, ReadingProgress, CtaTravelPlanning, HeldonicaVerdict, HeldonicaFAQ
-
-### 🔴 Bugs critiques confirmés en prod
-1. **Blog /blog : 0 articles affichés** — BlogFilters affiche "0 Carnets, 0 Pépites locales, 0 Guides"
-   → Cause probable : blog/page.tsx ou lib/blog-supabase.ts lit depuis `cms_blog_posts` au lieu de `articles`
-   → À corriger EN PRIORITÉ ABSOLUE
-
-2. **Homepage : compteurs stats à 0** — "0 Pays habités", "0 Carnets publiés" dans section Notre histoire
-   → Vérifier app/page.tsx : les valeurs dynamiques ne sont pas hydratées
-   → Soit hardcoder les valeurs réelles (ex: 12 pays, 25+ carnets), soit corriger la requête Supabase
-
-3. **Incohérence éditoriale home** — Section nommée "Inspirations gourmandes" affiche un article
-   de randonnée (Stoos Ridge, Suisse) — aucun rapport avec la food
-   → Corriger le filtre de catégorie de cette section OU renommer la section
-
-═══════════════════════════════════════════════════════
-  MISSION (REMPLACER CE BLOC PAR TA TÂCHE SPÉCIFIQUE)
-═══════════════════════════════════════════════════════
-
-## MISSION
-[DÉCRIS ICI TA TÂCHE PRÉCISE — sois le plus explicite possible :
- - Quel fichier modifier / créer
- - Quel comportement exact attendu
- - Ce qui doit changer vs l'état actuel]
-
-## PÉRIMÈTRE
-- Fichiers autorisés : [LISTE]
-- Fichiers à NE PAS toucher : [LISTE]
-
-## CRITÈRES DE SUCCÈS
-- [ ] `npm run build` passe sans erreur TypeScript
-- [ ] Aucun `any` implicite introduit
-- [ ] Style respecte la palette Heldonica (CSS inline dans CMS, Tailwind dans pages publiques)
-- [ ] Responsive mobile vérifié (min 375px)
-- [ ] [AJOUTE TES CRITÈRES SPÉCIFIQUES]
-
-## OUTPUT ATTENDU
-Crée un ou plusieurs commits sur `main` :
-- Format message : `feat: [description courte]` ou `fix: [description courte]`
-- Body du commit : liste des fichiers modifiés + résumé des changements
-- Si migration SQL nécessaire : créer le fichier dans supabase/migrations/
-
-═══════════════════════════════════════════════════════
-  TEMPLATES MISSIONS PRÊTS À L'EMPLOI
-═══════════════════════════════════════════════════════
-
-### TEMPLATE PRIORITÉ 1 — Fix blog 0 articles
-```
-## MISSION
-Correction critique : la page /blog affiche 0 articles alors que des articles publiés existent en Supabase.
-
-1. Inspecter app/blog/page.tsx et tous les fichiers lib/ utilisés (blog-supabase.ts, supabase.ts)
-2. Identifier si la requête cible `cms_blog_posts` ou `articles`
-3. Corriger pour utiliser UNIQUEMENT la table `articles` (published = true, archived = false)
-4. Vérifier que BlogFilters.tsx reçoit les bonnes données et que les compteurs par catégorie sont corrects
-5. Vérifier que app/blog/[slug]/page.tsx lit aussi depuis `articles` (cohérence)
-
-Comportement attendu :
-- /blog affiche tous les articles publiés avec filtres fonctionnels
-- Compteurs par catégorie reflètent les vraies données
-- Les slugs des articles fonctionnent
-
-## PÉRIMÈTRE
-- app/blog/page.tsx
-- app/blog/[slug]/page.tsx
-- lib/blog-supabase.ts (ou tout fichier lib lié au blog)
-- components/BlogFilters.tsx
-
-## CRITÈRES DE SUCCÈS
-- [ ] /blog affiche au moins 10 articles en prod
-- [ ] Filtres par catégorie fonctionnels
-- [ ] build TypeScript sans erreur
-```
-
-### TEMPLATE PRIORITÉ 2 — Fix compteurs homepage
-```
-## MISSION
-Correction : les stats de la section "Notre histoire" en homepage affichent 0.
-
-1. Inspecter app/page.tsx — trouver les blocs de stats dynamiques
-2. Si les valeurs viennent de Supabase : corriger la requête COUNT
-3. Si les valeurs sont hardcodées à 0 : remplacer par les vraies valeurs (à confirmer avec le propriétaire)
-   Valeurs de référence : ~12 pays visités, ~25 carnets publiés, ~4 ans de slow travel
-4. S'assurer que les valeurs s'affichent correctement en SSR (pas d'hydration mismatch)
-
-## PÉRIMÈTRE
-- app/page.tsx uniquement
-
-## CRITÈRES DE SUCCÈS
-- [ ] Stats non nulles et cohérentes affiché en prod
-- [ ] Pas d'hydration warning dans la console
-```
-
-### TEMPLATE PRIORITÉ 3 — Fix section "Inspirations gourmandes"
-```
-## MISSION
-Correction éditoriale : la section "Inspirations gourmandes" de la homepage affiche
-un article de randonnée (Stoos Ridge, Suisse) — incohérence de contenu.
-
-1. Dans app/page.tsx, trouver la section "Inspirations gourmandes"
-2. Option A : corriger le filtre de catégorie pour n'afficher que les articles catégorie "Découvertes locales" ou "food"
-3. Option B : renommer la section en "Pépites dénichées" pour couvrir toutes les découvertes
-   (recommandé car plus cohérent avec l'identité Heldonica)
-
-## PÉRIMÈTRE
-- app/page.tsx uniquement
-
-## CRITÈRES DE SUCCÈS
-- [ ] Section affiche du contenu cohérent avec son titre
-- [ ] Aucune rupture de style ou de layout
-```
-
-### TEMPLATE A — Templates de prompt intégrés dans le panneau Agents
-```
-## MISSION
-Dans app/cms-admin/CmsAdminClient.tsx, onglet 'agents' :
-Ajouter un sélecteur "Template rapide" au-dessus du textarea agentTask.
-Définir une constante AGENT_TEMPLATES en haut du fichier avec 5 templates :
-  1. "Amélioration UI" — retouches visuelles CSS inline
-  2. "Nouvelle feature" — ajout fonctionnalité
-  3. "Fix bug" — correction d'un problème
-  4. "Refactoring" — nettoyage de code TypeScript
-  5. "SEO / Blog" — modifications liées aux articles
-Chaque template pré-remplit agentTask avec le contexte projet minimal + un bloc MISSION vide.
-Le sélecteur se réinitialise à "" après sélection.
-Style : pills bordeaux #6b2a1a cohérent avec le reste de l'onglet.
-
-## PÉRIMÈTRE
-- app/cms-admin/CmsAdminClient.tsx uniquement
-
-## CRITÈRES DE SUCCÈS
-- Build TypeScript sans erreur
-- Style cohérent avec le panneau Agents existant
-- Chaque template contient le contexte Heldonica minimal (stack, palette, conventions)
-```
-
-### TEMPLATE B — Synchroniser l'historique agents avec Supabase
-```
-## MISSION
-Migrer l'historique des tâches agents de localStorage vers Supabase.
-1. Créer supabase/migrations/XXXX_agent_tasks.sql :
-   CREATE TABLE IF NOT EXISTS agent_tasks (
-     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-     agent TEXT NOT NULL, task TEXT NOT NULL,
-     repo TEXT, branch TEXT,
-     created_at TIMESTAMPTZ DEFAULT NOW()
-   );
-2. Créer app/api/cms/agent-tasks/route.ts :
-   GET → SELECT * FROM agent_tasks ORDER BY created_at DESC LIMIT 20
-   POST → INSERT INTO agent_tasks (agent, task, repo, branch)
-3. Modifier CmsAdminClient.tsx : charger l'historique depuis l'API au mount,
-   sauvegarder via POST après chaque tâche envoyée.
-   Conserver le fallback localStorage si la requête Supabase échoue.
-
-## PÉRIMÈTRE
-- app/cms-admin/CmsAdminClient.tsx
-- app/api/cms/agent-tasks/route.ts (NOUVEAU)
-- supabase/migrations/XXXX_agent_tasks.sql (NOUVEAU)
-```
-
-### TEMPLATE C — Améliorer l'analyse SEO dans l'éditeur d'article
-```
-## MISSION
-Dans app/cms-admin/CmsAdminClient.tsx, fonction analyzeSEO() :
-1. Ajouter détection balises H2/H3 (< 2 H2 → warning)
-2. Vérifier longueur excerpt (idéal 120-160 caractères)
-3. Ajouter score lisibilité Flesch simplifié (longueur moyenne des phrases)
-4. Refactoriser le rendu SEO en 3 niveaux : ✅ Bien / ⚠️ À améliorer / ❌ Problème
-5. Chaque item = tooltip expliquant comment corriger
-
-## PÉRIMÈTRE
-- app/cms-admin/CmsAdminClient.tsx uniquement (fonction analyzeSEO + JSX)
-```
+**Ta mission est en 5 volets, à traiter dans l'ordre de priorité ci-dessous.**
 
 ---
 
-_Ce fichier est la référence unique pour tous les agents IA travaillant sur le repo Heldonica._
-_Mettre à jour ce fichier après chaque audit ou changement majeur d'architecture._
-_Dernière mise à jour : 08 juin 2026 — Audit prod Perplexity_
+## ⚡ VOLET 0 — NETTOYAGE DES PRs (PRIORITÉ ABSOLUE)
+
+**Avant toute chose :**
+
+1. **Fermer sans merger** toutes les PRs draft en doublon sur `useDeferredValue` blog search : PRs #206, #207, #208, #209, #210, #211, #213, #215, #217, #218, #219, #220 — elles sont toutes identiques
+2. **Merger dans `main`** les PRs suivantes (déjà validées) :
+   - **#221** : `useDeferredValue` blog search (garder celle-ci, la plus récente)
+   - **#214** : `fix(typescript): resolve strict typecheck errors` — bloquant build TS
+   - **#179** : `fix: update supabase table name in sitemap generation` — bug fonctionnel
+   - **#174** : `copy: hero subtitle + identity intro` — contenu éditorial prêt
+3. **Vérifier** que `npm run build` et `npm run typecheck` passent à 100% après ces merges
+4. **Ne pas toucher** aux PRs #166–#177 (features, migrations DB) tant que les fix ci-dessus ne sont pas en prod
+
+---
+
+## 🔍 VOLET 1 — SEO TECHNIQUE + GEO OPTIMIZATION
+
+### Contexte
+Le site cible les requêtes slow travel en couple, destinations hors sentiers battus, et travel planning sur mesure. Il doit être **extractible par ChatGPT, Perplexity, Google SGE** (GEO = Generative Engine Optimization).
+
+### Tâches à réaliser
+
+#### 1.1 — Métadonnées & JSON-LD
+- Vérifier que **chaque page** (`/`, `/blog`, `/blog/[slug]`, `/destinations`, `/travel-planning`, `/a-propos`, `/contact`) possède un `generateMetadata()` complet avec :
+  - `title` unique (format : `[Titre page] | Heldonica`)
+  - `description` entre 140 et 160 caractères, rédigée en voix Heldonica (tutoiement, sensoriel)
+  - `openGraph` avec `type`, `title`, `description`, `url`, `images` (og:image 1200×630)
+  - `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image`
+- Ajouter sur chaque article de blog (`/blog/[slug]`) un **JSON-LD `Article`** structuré :
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "[titre article]",
+  "description": "[excerpt]",
+  "author": { "@type": "Person", "name": "Heldonica" },
+  "publisher": { "@type": "Organization", "name": "Heldonica", "url": "https://heldonica.fr" },
+  "datePublished": "[published_at]",
+  "dateModified": "[updated_at]",
+  "image": "[cover_image_url]",
+  "url": "https://heldonica.fr/blog/[slug]"
+}
+```
+- Ajouter un **JSON-LD `Organization`** sur la homepage :
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Heldonica",
+  "url": "https://heldonica.fr",
+  "description": "Blog Slow Travel & Travel Planning sur mesure pour voyager en couple, hors des sentiers battus",
+  "sameAs": ["https://instagram.com/heldonica"]
+}
+```
+- Ajouter un **JSON-LD `Service`** sur `/travel-planning` :
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Travel Planning sur mesure — Heldonica",
+  "provider": { "@type": "Organization", "name": "Heldonica" },
+  "description": "Conception sur mesure d'itinéraires de voyage en couple, slow travel, hors des sentiers battus",
+  "areaServed": "FR",
+  "url": "https://heldonica.fr/travel-planning"
+}
+```
+
+#### 1.2 — Sitemap & robots.txt
+- Vérifier que `lib/sitemap-supabase.ts` utilise bien la table `destinations` (pas `cms_destinations`) — déjà corrigé en PR #179, à confirmer mergé
+- S'assurer que `app/sitemap.ts` inclut **toutes les routes statiques** + les slugs dynamiques blog + destinations
+- Vérifier que `robots.txt` est bien servi à `https://heldonica.fr/robots.txt` (pas de redirect 307)
+- Ajouter `sitemap: https://heldonica.fr/sitemap.xml` dans robots.txt si absent
+
+#### 1.3 — GEO : Structure extractible par les IA
+Pour que ChatGPT/Perplexity puissent citer Heldonica comme source :
+- **Titres H1/H2** : utiliser des formulations questions/réponses (ex: "Que faire à Madère en couple ?", "Combien coûte un travel planning sur mesure ?")
+- **Listes et tableaux** : privilégier les bullet lists factuelles avec données chiffrées dans les articles
+- **Chaque article de blog** doit commencer par un paragraphe "chapeau" de 2-3 phrases qui résume la valeur principale de l'article — extractible comme snippet
+- **Balise `<article>`** : vérifier que le contenu des articles est bien enveloppé dans une balise sémantique `<article>` dans `app/blog/[slug]/page.tsx`
+
+---
+
+## ✍️ VOLET 2 — COHÉRENCE VOIX HELDONICA
+
+### Règles de voix (à appliquer sur tout texte UI présent dans le code)
+
+**B2C (blog, homepage, travel-planning, a-propos) :**
+- Tutoiement systématique
+- "On" pour parler du duo (jamais "nous")
+- Lexique interdit → à remplacer : "bons plans" → "pépites dénichées" | "organisation de séjour" → "conception sur mesure" | "nous" → "on" | "clients" → "voyageurs"
+- Lexique cible : "pépites dénichées", "testé terrain", "joyaux cachés", "hors des sentiers battus", "slow travel", "déconnexion vraie"
+
+**B2B (pages non publiques, CMS admin) :**
+- Vouvoiement
+- Ton analytique, orienté résultats
+
+### Pages à auditer et corriger
+1. `app/page.tsx` (homepage) — hero, section Notre histoire, CTA
+2. `app/travel-planning/page.tsx` — sections "Pour qui", "Comment ça marche", "Ce que tu reçois", FAQ
+3. `app/a-propos/page.tsx` — bio duo, valeurs
+4. `app/contact/page.tsx` — texte intro formulaire
+5. Composants header/footer : libellés navigation, tagline
+
+### Règle anti-générique (E-E-A-T)
+Sur la homepage et la page travel-planning, vérifier qu'il y a au moins **une mention d'expérience terrain vécue** :
+- Ex : "On a testé ça en mars 2024 sous la pluie de Madère"
+- Ex : "Après 7 pays habités et non juste visités…"
+Si absent, ajouter une micro-phrase de crédibilité E-E-A-T dans la section hero ou la section "Notre histoire".
+
+---
+
+## 🗄️ VOLET 3 — CMS SUPABASE : STABILISATION
+
+### Contexte
+Le CMS custom est dans `app/api/cms/` et `components/cms/`. La table principale est `cms_blog_posts` dans Supabase. Des migrations sont en attente dans le dossier `supabase/`.
+
+### Tâches
+
+#### 3.1 — Audit des routes API CMS
+- Lire `SECURITY_AUDIT.md` (déjà présent dans le repo)
+- Vérifier que **toutes les routes** `app/api/cms/**` utilisent la vérification auth Supabase (`getSession()` ou `getUser()`)
+- Routes qui doivent être protégées : POST, PUT, PATCH, DELETE sur tous les endpoints
+- Routes qui peuvent être publiques : GET sur `/api/cms/posts` et `/api/cms/destinations` (lecture seule)
+
+#### 3.2 — Champs manquants dans `cms_blog_posts`
+Vérifier et ajouter si absent :
+- `seo_title` (text, nullable) — titre SEO override
+- `seo_description` (text, nullable) — meta description override
+- `reading_time` (integer, nullable) — calculé côté serveur au save
+- `status` (enum: 'draft' | 'published' | 'archived') — vérifier que c'est bien géré dans le CMS UI
+
+#### 3.3 — Calcul automatique du `reading_time`
+Dans la route `app/api/cms/posts/[id]/route.ts` (ou équivalent), au moment du save/update d'un article :
+```typescript
+const wordCount = content.trim().split(/\s+/).length
+const readingTime = Math.ceil(wordCount / 200) // ~200 mots/min
+```
+Sauvegarder cette valeur dans `reading_time`.
+
+#### 3.4 — Afficher le `reading_time` dans les cards blog
+Dans `components/BlogCard.tsx` (ou équivalent), afficher :
+```tsx
+{post.reading_time && (
+  <span className="text-sm text-eucalyptus">{post.reading_time} min de lecture</span>
+)}
+```
+
+#### 3.5 — Éditeur CMS : champ SEO override
+Dans le formulaire d'édition d'article (CMS admin), ajouter un accordion "SEO" avec :
+- Input `seo_title` (placeholder: "Titre SEO personnalisé — laisse vide pour utiliser le titre de l'article")
+- Textarea `seo_description` (placeholder: "Description meta — 140-160 caractères recommandés")
+- Compteur de caractères en live sur `seo_description`
+
+---
+
+## 🤖 VOLET 4 — AUTOMATISATION
+
+### Contexte existant
+Le repo contient déjà :
+- `n8n-instagram-workflow.json` — workflow Instagram
+- `n8n-workflow-carousel.json` — carousel
+- `n8n-workflow-manual.json` — workflow manuel
+- `instagram_creator.py` — script Python création posts
+
+### Tâches
+
+#### 4.1 — Webhook de publication automatique
+Créer `app/api/webhooks/publish-post/route.ts` :
+- Route POST protégée par header `x-webhook-secret` (variable env `WEBHOOK_SECRET`)
+- Payload attendu : `{ slug: string, action: 'publish' | 'unpublish' }`
+- Action : met à jour le champ `status` dans `cms_blog_posts` + déclenche une revalidation ISR via `revalidatePath('/blog')` et `revalidatePath('/blog/' + slug)`
+- Retourne `{ success: true, revalidated: ['/blog', '/blog/slug'] }`
+
+#### 4.2 — API Route pour le reading_time en masse
+Créer `app/api/cms/recalculate-reading-times/route.ts` :
+- Route POST protégée (admin seulement)
+- Récupère tous les articles, recalcule le `reading_time` pour chacun, update en batch dans Supabase
+- Utile pour initialiser le champ sur les articles existants
+
+#### 4.3 — Vérification workflow n8n Instagram
+Relire `n8n-instagram-workflow.json` et documenter dans un fichier `docs/N8N_WORKFLOWS.md` :
+- Ce que fait chaque workflow
+- Quels champs Supabase il lit/écrit
+- Les variables d'environnement requises (Brevo, Instagram token, etc.)
+- Comment le déclencher manuellement vs automatiquement
+
+#### 4.4 — Cron Vercel pour revalidation ISR
+Dans `vercel.json`, vérifier/ajouter un cron qui revalide le sitemap quotidiennement :
+```json
+{
+  "crons": [{
+    "path": "/api/cron/revalidate-sitemap",
+    "schedule": "0 3 * * *"
+  }]
+}
+```
+Créer `app/api/cron/revalidate-sitemap/route.ts` qui revalide `/sitemap.xml`.
+
+---
+
+## 📐 CONTRAINTES TECHNIQUES GLOBALES
+
+- **Stack** : Next.js 14 App Router, TypeScript strict, Tailwind CSS, Supabase (PostgreSQL), Vercel
+- **Palette couleurs** (Tailwind) : Cloud Dancer (blanc cassé `#F8F4F0`), Eucalyptus Green (`#4A7C59`), Transformative Teal (`#2D6A7A`), Warm Mahogany (`#8B4513`)
+- **Pas de `any` TypeScript** — utiliser des types stricts partout
+- **ISR par défaut** : préférer `export const revalidate = 3600` à `force-dynamic` sauf nécessité absolue
+- **Pas de breaking change** sur le schéma Supabase sans migration versionnée dans `supabase/migrations/`
+- **Tests** : tout nouveau composant ou API route doit avoir au minimum un test dans `__tests__/`
+- **Commits conventionnels** : `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`
+
+---
+
+## ✅ DÉFINITION DE DONE
+
+Un volet est considéré terminé quand :
+1. Le code est mergé dans `main`
+2. `npm run build` et `npm run typecheck` passent sans erreur
+3. Le déploiement Vercel est vert
+4. Les changements sont visibles sur `https://heldonica.fr`
+
+---
+
+## 📋 ORDRE D'EXÉCUTION RECOMMANDÉ
+
+```
+Volet 0 (nettoyage PRs)  →  Volet 1 (SEO/GEO)  →  Volet 2 (voix)  →  Volet 3 (CMS)  →  Volet 4 (auto)
+```
+
+Chaque volet peut être traité en PR séparée pour faciliter les reviews.
+
+---
+
+*Prompt généré le 09/06/2026 — version 3.0*
+*Repo : farinhahelder-hue/heldonica | Branch cible : main*
