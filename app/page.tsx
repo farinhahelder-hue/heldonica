@@ -144,7 +144,7 @@ export default async function Home() {
         travelPosts={travelPosts}
         foodPosts={foodPosts}
         totalPosts={allPosts.length}
-        coveredCountries={coveredCountries}
+        coveredCountries={String(coveredCountries)}
         latestPosts={formatPosts(latestPosts)}
         heroVideoUrl={heroVideoUrl}
         heroPosterImage={heroPosterImage}

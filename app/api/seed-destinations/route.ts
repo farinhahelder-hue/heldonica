@@ -85,7 +85,7 @@ export async function GET() {
       if (error) {
         results.push({ slug: dest.slug, status: 'error', error: error.message })
       } else {
-        results.push({ slug: dest.slug, status: 'inserted', id: data.id })
+        results.push({ slug: dest.slug, status: 'inserted', id: (data as any).id })
       }
     }
     
