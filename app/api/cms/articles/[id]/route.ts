@@ -44,7 +44,16 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   const sb = supabase()
   if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
   const body = await req.json()
-  const payload = { ...body, updated_at: new Date().toISOString() }
+
+  // Auto-calculate reading_time from content (200 words per minute)
+  const wordCount = (body.content || '').replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length
+  const readingTime = Math.ceil(wordCount / 200)
+
+  const payload = {
+    ...body,
+    updated_at: new Date().toISOString(),
+    read_time: readingTime,
+  }
 
   // Phase 3: Save revision before updating
   const { data: raw } = await sb.from('cms_blog_posts').select('title, content, excerpt').eq('id', params.id).single();
@@ -101,6 +110,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       updated_at: data.updated_at,
       tags: data.tags || [],
       archived: data.archived || false,
+      read_time: data.read_time,
     }
     // Sync to articles table - ignore errors
     sb.from('articles').upsert(articlesPayload).then(() => {}).catch(() => {})
