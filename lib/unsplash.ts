@@ -76,7 +76,7 @@ export function getInstagramUrl(photo: UnsplashPhoto): string {
  * Get photographer credit for caption
  */
 export function getCredit(photo: UnsplashPhoto): string {
-  return `Photo by ${photo.user.name} @${photo.user.username}`;
+  return `Photo de ${photo.user.name} sur Unsplash`;
 }
 
 // Default fallback images by category
