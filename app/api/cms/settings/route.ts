@@ -11,6 +11,13 @@ const supabase = (supabaseUrl && supabaseKey)
 
 export const dynamic = 'force-dynamic';
 
+// Keys that must always appear in the CMS even if absent from the DB
+const DEFAULT_SETTINGS: { key: string; value: string; label: string; type: string }[] = [
+  { key: 'maintenance_mode',     value: 'false',       label: 'Mode maintenance (true/false)', type: 'text' },
+  { key: 'maintenance_message',  value: 'Site en maintenance. Revenez bientôt !', label: 'Message affiché', type: 'text' },
+  { key: 'maintenance_end_date', value: '',            label: 'Fin de maintenance (date/heure)', type: 'text' },
+];
+
 // GET /api/cms/settings - list all settings
 export async function GET(req: NextRequest) {
   if (!supabase) {
@@ -30,6 +37,14 @@ export async function GET(req: NextRequest) {
     label: r.label || r.key,
     type: r.type || 'text',
   }));
+
+  // Inject defaults for keys not yet in the DB
+  const existingKeys = new Set(settings.map(s => s.key));
+  for (const def of DEFAULT_SETTINGS) {
+    if (!existingKeys.has(def.key)) {
+      settings.push(def);
+    }
+  }
 
   return NextResponse.json({ settings });
 }
