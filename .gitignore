@@ -26,3 +26,4 @@ tsconfig.tsbuildinfo
 .deploy-trigger
 .deploy-v2
 .vercel-cache-bust
+.env.production.local
