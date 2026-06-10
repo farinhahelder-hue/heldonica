@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/admin/', '/api/', '/_next/', '/cms/'],
+      disallow: ['/admin/', '/api/', '/_next/', '/cms/', '/panel-manager/'],
     },
     sitemap: 'https://heldonica.fr/sitemap.xml',
   }

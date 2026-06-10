@@ -23,3 +23,6 @@ app/test-supabase/
 supabase/.temp/
 
 tsconfig.tsbuildinfo
+.deploy-trigger
+.deploy-v2
+.vercel-cache-bust
