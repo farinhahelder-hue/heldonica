@@ -60,7 +60,12 @@ export const CAROUSEL_TEMPLATES = {
  * Build Perplexity prompt for carousel content
  */
 export function buildCarouselPrompt(topic: string, slideCount = 5): string {
-  return `Génère un carrousel Instagram de ${slideCount} slides sur le thème: "${topic}"
+  return `Je veux créer un carrousel Instagram sur le sujet: "${topic}".
+
+Le carrousel doit faire exactement ${slideCount} slides.
+
+Format requis:
+Slide 1 (Accroche): Titre + Texte court captivant
 
 Pour chaque slide, fournis:
 - Un titre court et accrocheur
