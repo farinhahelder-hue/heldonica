@@ -300,6 +300,7 @@ function CMSAdminInner() {
   const [sendingTask, setSendingTask] = useState(false);
   const [agentMessage, setAgentMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
   const [taskHistory, setTaskHistory] = useState<{date: string; agent: string; task: string; repo: string; branch: string}[]>([]);
+  const [agentStatus, setAgentStatus] = useState<any>(null);
 
   // Load task history from localStorage on mount
   useEffect(() => {
@@ -315,16 +316,10 @@ function CMSAdminInner() {
     }
   }, []);
 
-  // Send task to agent via n8n webhook
+  // Send task to agent via /api/agents/dispatch
   const sendAgentTask = async () => {
     if (!agentTask.trim()) {
-      setAgentMessage({ type: 'error', text: 'Veuillez描述ez une tâche à effectuer.' });
-      return;
-    }
-
-    const webhookUrl = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL;
-    if (!webhookUrl) {
-      setAgentMessage({ type: 'error', text: 'URL du webhook n8n non configurée. Ajoutez NEXT_PUBLIC_N8N_WEBHOOK_URL dans .env.local' });
+      setAgentMessage({ type: 'error', text: 'Veuillez décrire une tâche à effectuer.' });
       return;
     }
 
@@ -332,16 +327,18 @@ function CMSAdminInner() {
     setAgentMessage(null);
 
     try {
-      const res = await fetch(webhookUrl, {
+      const res = await fetch('/api/agents/dispatch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           agent: selectedAgent,
           task: agentTask,
-          repo: agentRepo,
-          branch: agentBranch,
+          context: `repo: ${agentRepo}, branch: ${agentBranch}`,
+          priority: 'normal',
         }),
       });
+
+      const data = await res.json();
 
       if (res.ok) {
         const agentLabels: Record<string, string> = {
@@ -351,7 +348,11 @@ function CMSAdminInner() {
           perplexity: 'Perplexity',
         };
         const label = agentLabels[selectedAgent] || selectedAgent;
-        setAgentMessage({ type: 'success', text: `Tâche envoyée à ${label} avec succès!` });
+        let messageText = `Tâche envoyée à ${label} avec succès!`;
+        if (data.issue_url) {
+          messageText += ` Issue: ${data.issue_url}`;
+        }
+        setAgentMessage({ type: 'success', text: messageText });
 
         // Add to history
         const newEntry = {
@@ -368,15 +369,35 @@ function CMSAdminInner() {
         // Clear task field
         setAgentTask('');
       } else {
-        setAgentMessage({ type: 'error', text: `Erreur lors de l'envoi de la tâche (${res.status})` });
+        setAgentMessage({ type: 'error', text: data.error || `Erreur lors de l'envoi de la tâche (${res.status})` });
       }
     } catch (err) {
       console.error('Failed to send task:', err);
-      setAgentMessage({ type: 'error', text: 'Erreur réseau. Le webhook est-il accessible?' });
+      setAgentMessage({ type: 'error', text: 'Erreur réseau. Veuillez réessayer.' });
     } finally {
       setSendingTask(false);
     }
   };
+
+  // Load agent status on agents tab mount
+  const loadAgentStatus = async () => {
+    try {
+      const res = await fetch('/api/agents/status?agent=all&limit=10&prs=true');
+      if (res.ok) {
+        const data = await res.json();
+        setAgentStatus(data);
+      }
+    } catch (err) {
+      console.error('Failed to load agent status:', err);
+    }
+  };
+
+  // Load agent status when switching to agents tab
+  useEffect(() => {
+    if (tab === 'agents' && !agentStatus) {
+      loadAgentStatus();
+    }
+  }, [tab, agentStatus]);
 
   // SEO analysis
   const analyzeSEO = (content: string, title: string) => {
@@ -1764,6 +1785,84 @@ function CMSAdminInner() {
                     );
                   })}
                 </div>
+              )}
+            </div>
+
+            {/* Agent Live Status */}
+            <div style={{ background: '#f8f6f4', borderRadius: '.75rem', padding: '1.5rem', marginTop: '1.5rem', border: '1px solid #e0dbd5' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', margin: 0 }}>🤖 Statut live des agents</h3>
+                <button onClick={loadAgentStatus} style={{ padding: '.4rem .8rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.4rem', fontSize: '.8rem', cursor: 'pointer' }}>
+                  🔄 Rafraîchir
+                </button>
+              </div>
+
+              {/* Agent stats summary */}
+              {agentStatus && (
+                <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                  {['allhands', 'jules', 'gemini'].map(agent => {
+                    const agentData = agentStatus[agent] || {};
+                    const agentLabels: Record<string, string> = {
+                      allhands: '🤖 OpenHands',
+                      jules: '🎯 Jules',
+                      gemini: '✨ Gemini',
+                    };
+                    const colors: Record<string, string> = {
+                      allhands: '#01696f',
+                      jules: '#9333ea',
+                      gemini: '#2563eb',
+                    };
+                    return (
+                      <div key={agent} style={{ padding: '.75rem', background: 'white', borderRadius: '.5rem', border: `2px solid ${colors[agent]}`, minWidth: 120 }}>
+                        <div style={{ fontWeight: 700, fontSize: '.85rem', color: colors[agent] }}>{agentLabels[agent]}</div>
+                        <div style={{ fontSize: '.75rem', color: '#555', marginTop: '.25rem' }}>
+                          <span style={{ fontWeight: 600 }}>{agentData.open_issues || 0}</span> issues ouvertes<br />
+                          <span style={{ fontWeight: 600 }}>{agentData.open_prs || 0}</span> PRs ouvertes<br />
+                          <span style={{ fontWeight: 600 }}>{agentData.merged_prs || 0}</span> PRs mergées
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Latest cms-dispatch issues */}
+              {agentStatus && agentStatus.issues && agentStatus.issues.length > 0 && (
+                <div>
+                  <h4 style={{ fontSize: '.95rem', fontWeight: 600, color: '#555', marginBottom: '.75rem' }}>📋 5 dernières issues cms-dispatch</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
+                    {agentStatus.issues.slice(0, 5).map((issue: any, idx: number) => {
+                      const agentColors: Record<string, string> = {
+                        allhands: '#01696f',
+                        jules: '#9333ea',
+                        gemini: '#2563eb',
+                        perplexity: '#10b981',
+                      };
+                      const agentLabels: Record<string, string> = {
+                        allhands: '🤖 OH',
+                        jules: '🎯 Jules',
+                        gemini: '✨ Gemini',
+                        perplexity: '🔍 Perp',
+                      };
+                      const agentColor = agentColors[issue.labels?.find((l: string) => ['allhands', 'jules', 'gemini', 'perplexity'].includes(l))] || '#888';
+                      const agentLabel = agentLabels[issue.labels?.find((l: string) => ['allhands', 'jules', 'gemini', 'perplexity'].includes(l))] || '❓';
+                      const statusColor = issue.state === 'open' ? '#22c55e' : '#888';
+                      return (
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '.75rem', padding: '.5rem', background: 'white', borderRadius: '.5rem' }}>
+                          <span style={{ background: agentColor, color: 'white', padding: '.2rem .5rem', borderRadius: '.3rem', fontSize: '.7rem', fontWeight: 600 }}>{agentLabel}</span>
+                          <a href={issue.url} target="_blank" rel="noopener noreferrer" style={{ color: '#01696f', textDecoration: 'none', fontSize: '.85rem', flex: 1 }}>
+                            #{issue.number} {issue.title}
+                          </a>
+                          <span style={{ color: statusColor, fontSize: '.75rem', fontWeight: 600 }}>{issue.state}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {!agentStatus && (
+                <p style={{ color: '#888', fontSize: '.9rem', textAlign: 'center', padding: '1rem' }}>Chargement du statut...</p>
               )}
             </div>
           </div>
