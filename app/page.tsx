@@ -3,7 +3,8 @@ import { getSiteSettings } from '@/lib/settings'
 import HomeClient from '@/components/HomeClient'
 import type { Metadata } from 'next'
 
-export const revalidate = 60
+// ⚡ Bolt Optimization: Use Incremental Static Regeneration (ISR) to cache the page for 1 hour. This significantly improves Time To First Byte (TTFB) compared to force-dynamic.
+export const revalidate = 3600
 
 export const metadata: Metadata = {
   title: 'Heldonica — Slow travel vécu en duo, conçu pour toi',
