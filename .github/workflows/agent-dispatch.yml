@@ -1,0 +1,89 @@
+name: Agent Dispatch
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  # ───────────────────────────────────────────
+  # AllHands (OpenHands)
+  # ───────────────────────────────────────────
+  dispatch-allhands:
+    if: contains(github.event.issue.labels.*.name, 'allhands')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send task to AllHands
+        run: |
+          RESPONSE=$(curl -s -o /tmp/ah_response.json -w "%{http_code}" \
+            -X POST https://app.all-hands.dev/api/v1/conversations \
+            -H "X-API-Key: ${{ secrets.ALLHANDS_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg task "${{ github.event.issue.title }}\n\n${{ github.event.issue.body }}" \
+              --arg repo "${{ github.repository }}" \
+              --arg branch "main" \
+              '{task: $task, repo: $repo, branch: $branch}')")
+          echo "HTTP Status: $RESPONSE"
+          cat /tmp/ah_response.json
+
+      - name: Comment issue with AllHands link
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: '🤖 **AllHands** a reçu la tâche et travaille dessus.\n\n[Suivre la progression sur AllHands](https://app.all-hands.dev)'
+            })
+
+  # ───────────────────────────────────────────
+  # Gemini (Google AI)
+  # ───────────────────────────────────────────
+  dispatch-gemini:
+    if: contains(github.event.issue.labels.*.name, 'gemini')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Gemini API
+        id: gemini
+        run: |
+          TASK="${{ github.event.issue.title }}: ${{ github.event.issue.body }}"
+          RESPONSE=$(curl -s \
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${{ secrets.GEMINI_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n --arg text "$TASK" '{contents: [{parts: [{text: $text}]}]}')"
+          )
+          ANSWER=$(echo $RESPONSE | jq -r '.candidates[0].content.parts[0].text // "Pas de réponse"')
+          echo "answer<<EOF" >> $GITHUB_OUTPUT
+          echo "$ANSWER" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Post Gemini answer as comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const answer = `${{ steps.gemini.outputs.answer }}`;
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `🧠 **Réponse Gemini :**\n\n${answer}`
+            })
+
+  # ───────────────────────────────────────────
+  # Jules (Google) — en attente API publique
+  # ───────────────────────────────────────────
+  dispatch-jules:
+    if: contains(github.event.issue.labels.*.name, 'jules')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Jules not yet available
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: '⏳ **Jules** (Google) n\'a pas encore d\'API publique. La tâche est en attente — ce workflow se mettra à jour automatiquement dès que l\'accès sera disponible.'
+            })
