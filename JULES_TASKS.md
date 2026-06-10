@@ -68,3 +68,55 @@
 - Images CDN: WordPress (wp-content/uploads)
 - Contact: https://www.heldonica.fr/contact
 
+
+
+---
+
+## Sprint W23 - 2026-06-10 | Automatisation IA
+
+> Taches liees a la mise en place du pipeline Jules + AllHands + Gemini
+
+### 9. [JULES] Lazy Loading images - SPRINT ACTUEL
+**Pages affectees:** Normandie, Sicile, Sardaigne, Colombie, Roumanie, IDF, Portugal
+**Action:** Ajouter `loading="lazy"` sur toutes les balises `<img>` + migrer vers `next/image`
+**Label:** `jules`
+**Estimation:** 1h30
+
+### 10. [JULES] BreadcrumbList JSON-LD - SPRINT ACTUEL
+**Pages:** /destinations/*, /blog/*
+**Action:** Ajouter schema BreadcrumbList sur toutes les pages destinations et blog
+**Label:** `jules`
+**Estimation:** 45 min
+
+### 11. [JULES] Article Schema - Blog posts
+**Action:** Ajouter schema JSON-LD Article sur chaque post blog (author, datePublished, image)
+**Label:** `jules`
+**Estimation:** 1h
+
+### 12. [ALLHANDS] Core Web Vitals - Audit complet
+**Action:** Auditer LCP, CLS, FID sur toutes les pages principales via PageSpeed API
+**Livrable:** Rapport dans docs/PERFORMANCE_REPORT.md
+**Label:** `allhands`
+**Estimation:** 2h
+
+### 13. [ALLHANDS] Internal Linking automatise
+**Action:** Creer un composant RelatedArticles qui detecte et lie les articles similaires
+**Label:** `allhands`
+**Estimation:** 3h
+
+### 14. [GEMINI] Generation contenu destinations manquantes
+**Action:** Generer via n8n + Gemini des brouillons pour 5 nouvelles destinations
+**Label:** `gemini-content`
+**Estimation:** Automatique via n8n
+
+---
+
+## Workflow Agent IA - Comment utiliser
+
+1. **Jules**: Creer une issue GitHub + ajouter label `jules` → Jules code et ouvre une PR
+2. **AllHands**: Ajouter label `allhands` sur une issue OU lancer manuellement via Actions
+3. **Gemini**: Ajouter label `gemini-content` OU configurer webhook n8n
+4. **Rapport**: Chaque lundi une issue `[Sprint W#]` est creee automatiquement
+
+> Voir `.github/workflows/ai-automation.yml` pour le pipeline complet
+> Voir `.jules/CONTEXT.md` pour le contexte stack complet
