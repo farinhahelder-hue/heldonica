@@ -2,6 +2,25 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireCmsAuth } from '@/lib/cms-auth'
 
+interface CmsBlogPost {
+  id: number;
+  title: string;
+  slug: string;
+  category: string | null;
+  excerpt: string | null;
+  content: string | null;
+  featured_image: string | null;
+  author: string | null;
+  published: boolean;
+  published_at: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  tags: string[] | null;
+  voice_notes?: string | null;
+  archived: boolean;
+  read_time?: number;
+}
+
 let _cached: ReturnType<typeof createClient> | null = null;
 function supabase() {
   if (!_cached) {
@@ -96,24 +115,26 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
   // Also sync to articles table for public pages
   if (data) {
+    const post = data as CmsBlogPost;
     const articlesPayload = {
-      id: data.id,
-      title: data.title,
-      slug: data.slug,
-      category: data.category,
-      excerpt: data.excerpt,
-      content: data.content,
-      featured_image: data.featured_image,
-      author: data.author,
-      published: data.published,
-      published_at: data.published_at,
-      updated_at: data.updated_at,
-      tags: data.tags || [],
-      archived: data.archived || false,
-      read_time: data.read_time,
+      id: post.id,
+      title: post.title,
+      slug: post.slug,
+      category: post.category,
+      excerpt: post.excerpt,
+      content: post.content,
+      featured_image: post.featured_image,
+      author: post.author,
+      published: post.published,
+      published_at: post.published_at,
+      updated_at: post.updated_at,
+      tags: post.tags || [],
+      archived: post.archived || false,
+      read_time: post.read_time,
     }
     // Sync to articles table - ignore errors
-    sb.from('articles').upsert(articlesPayload).then(() => {}).catch(() => {})
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(sb.from('articles') as any).upsert(articlesPayload).then(() => {}).catch(() => {})
   }
 
   return NextResponse.json({ article: data })
@@ -127,14 +148,17 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
   if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
 
   // Get article slug before deletion for articles table sync
-  const { data: article } = await sb.from('cms_blog_posts').select('slug').eq('id', params.id).single()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: article } = await (sb.from('cms_blog_posts') as any).select('slug').eq('id', params.id).single()
 
-  const { error } = await sb.from('cms_blog_posts').delete().eq('id', params.id)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (sb.from('cms_blog_posts') as any).delete().eq('id', params.id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   // Also archive in articles table for public pages
   if (article?.slug) {
-    sb.from('articles').update({ archived: true }).eq('slug', article.slug).then(() => {}).catch(() => {})
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(sb.from('articles') as any).update({ archived: true }).eq('slug', article.slug).then(() => {}).catch(() => {})
   }
 
   return NextResponse.json({ ok: true })
