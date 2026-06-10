@@ -40,6 +40,11 @@ const PROTECTED_PATHS = [
   '/api/revalidate-articles',
   '/api/update-content',
 ];
+const PROTECTED_PREFIXES = [
+  '/api/cms',
+  '/api/agents',
+  '/panel-manager',
+];
 const CMS_SESSION_COOKIE = 'heldonica_cms_session';
 
 type CmsSessionPayload = {
@@ -49,12 +54,16 @@ type CmsSessionPayload = {
 };
 
 function isProtectedPath(pathname: string) {
-  if (pathname === '/api/cms/auth') {
+  // Allow auth endpoints without authentication
+  if (pathname === '/api/cms/auth' || pathname === '/api/cms/login') {
     return false;
   }
 
-  if (pathname.startsWith('/api/cms')) {
-    return true;
+  // Check prefix patterns
+  for (const prefix of PROTECTED_PREFIXES) {
+    if (pathname.startsWith(prefix)) {
+      return true;
+    }
   }
 
   return PROTECTED_PATHS.includes(pathname);
