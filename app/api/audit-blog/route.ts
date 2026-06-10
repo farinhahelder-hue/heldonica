@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/blog-supabase'
+import { createServiceClient } from '@/lib/supabase'
 
 export async function GET() {
   if (!supabase) {
@@ -79,17 +80,21 @@ export async function GET() {
 
 // Fix: Sync status='published' with published=true
 export async function POST() {
-  if (!supabase) {
-    return NextResponse.json({ error: 'Supabase not configured' }, { status: 500 })
+  let adminClient;
+  try {
+    adminClient = createServiceClient();
+  } catch (e) {
+    return NextResponse.json({ error: 'Supabase service client not configured' }, { status: 500 })
   }
 
   try {
     // Fix articles that have status='published' but published=false
-    const { data, error } = await supabase
+    const { data, error } = await adminClient
       .from('cms_blog_posts')
       .update({ published: true })
       .eq('status', 'published')
       .eq('published', false)
+      .select()
 
     return NextResponse.json({
       fixed: error ? 0 : ((data as unknown as any[])?.length || 0),
