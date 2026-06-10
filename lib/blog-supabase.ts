@@ -158,12 +158,15 @@ export async function getAllSlugs(): Promise<{ slug: string }[]> {
 
 /** Formate une date ISO en français */
 export function formatDate(iso: string | null | undefined): string {
-  if (!iso) return '';
-  return new Date(iso).toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+  if (!iso) return "";
+  try {
+    const d = new Date(iso);
+    return new Intl.DateTimeFormat("fr-FR", {
+      day: "numeric", month: "long", year: "numeric"
+    }).format(d);
+  } catch (e) {
+    return "";
+  }
 }
 
 /**
