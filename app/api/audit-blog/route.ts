@@ -90,6 +90,7 @@ export async function POST() {
       .update({ published: true })
       .eq('status', 'published')
       .eq('published', false)
+      .select()
 
     return NextResponse.json({
       fixed: error ? 0 : ((data as unknown as any[])?.length || 0),
