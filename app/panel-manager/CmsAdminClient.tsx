@@ -1706,6 +1706,7 @@ function CMSAdminInner() {
                                       onClick={() => {
                                         const newValue = isActive ? 'false' : 'true';
                                         setEditedSettings(prev => ({ ...prev, [s.key]: newValue }));
+                                        handleToggleMaintenance(!isActive);
                                       }}
                                       style={{
                                         width: '56px',
