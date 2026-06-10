@@ -19,17 +19,25 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await supabase
     .from('site_settings')
-    .select('key, value')
+    .select('key, value, label, type')
     .order('key');
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  
-  // Transform to key-value object for easier consumption
+
+  // Return both flat object (backward compat) AND full array for CMS rendering
   const settings = Object.fromEntries(
     (data || []).map(r => [r.key, r.value])
   );
-  
-  return NextResponse.json(settings);
+
+  return NextResponse.json({
+    ...settings,
+    __settings_meta: (data || []).map(r => ({
+      key: r.key,
+      value: r.value,
+      label: r.label || r.key,
+      type: r.type || 'text',
+    }))
+  });
 }
 
 // PATCH /api/cms/settings - update settings (auth required)
@@ -43,42 +51,32 @@ export async function PATCH(req: NextRequest) {
 
   try {
     const body = await req.json();
-    
-    // Support both { key: value } and { settings: [{ key, value }] }
+
     if (Array.isArray(body)) {
-      // Bulk update with array format
       const updates = body.map((s: { key: string; value: string }) => ({
         key: s.key,
         value: s.value,
         updated_at: new Date().toISOString()
       }));
-
-      // Bolt performance optimization: Fixed N+1 Supabase upsert issue in Settings route.
-      // Accumulating array elements to use a single upsert reduces DB roundtrips and significantly improves performance (~10x faster).
       const { error } = await supabase
         .from('site_settings')
         .upsert(updates, { onConflict: 'key' });
-        
-      if (error) console.error(`Error in bulk update:`, error.message);
+      if (error) console.error('Error in bulk update:', error.message);
     } else {
-      // Simple key-value format
       const entries = Object.entries(body);
       const updates = [];
       for (const [key, value] of entries) {
-        if (key === 'error' || key === 'settings') continue; // Skip internal keys
+        if (key === 'error' || key === 'settings' || key === '__settings_meta') continue;
         updates.push({
           key,
           value: String(value),
           updated_at: new Date().toISOString()
         });
       }
-
-      // Bolt performance optimization: Fixed N+1 Supabase upsert issue in Settings route.
       const { error } = await supabase
         .from('site_settings')
         .upsert(updates, { onConflict: 'key' });
-
-      if (error) console.error(`Error in bulk update:`, error.message);
+      if (error) console.error('Error in bulk update:', error.message);
     }
 
     return NextResponse.json({ success: true });
