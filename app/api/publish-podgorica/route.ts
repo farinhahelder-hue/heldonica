@@ -99,16 +99,18 @@ export async function PUT() {
     let updated = 0
 
     if (noImageArticles) {
-      for (const article of noImageArticles) {
-        const image = defaultImages[article.category || ''] || Object.values(defaultImages)[0]
-        
-        const { error } = await supabase
-          .from('cms_blog_posts')
-          .update({ featured_image: image })
-          .eq('id', article.id)
-        
-        if (!error) updated++
-      }
+      await Promise.all(
+        noImageArticles.map(async (article) => {
+          const image = defaultImages[article.category || ''] || Object.values(defaultImages)[0]
+
+          const { error } = await supabase!
+            .from('cms_blog_posts')
+            .update({ featured_image: image })
+            .eq('id', article.id)
+
+          if (!error) updated++
+        })
+      )
     }
 
     // Get articles without excerpt and generate from content
@@ -118,20 +120,22 @@ export async function PUT() {
       .or('excerpt.is.null,excerpt.eq.')
 
     if (noExcerptArticles) {
-      for (const article of noExcerptArticles) {
-        if (article.content) {
-          // Extract first 155 chars of content, strip HTML
-          const plainText = article.content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
-          const excerpt = plainText.slice(0, 155)
-          
-          const { error } = await supabase
-            .from('cms_blog_posts')
-            .update({ excerpt })
-            .eq('id', article.id)
-          
-          if (!error) updated++
-        }
-      }
+      await Promise.all(
+        noExcerptArticles.map(async (article) => {
+          if (article.content) {
+            // Extract first 155 chars of content, strip HTML
+            const plainText = article.content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+            const excerpt = plainText.slice(0, 155)
+
+            const { error } = await supabase!
+              .from('cms_blog_posts')
+              .update({ excerpt })
+              .eq('id', article.id)
+
+            if (!error) updated++
+          }
+        })
+      )
     }
 
     return NextResponse.json({
