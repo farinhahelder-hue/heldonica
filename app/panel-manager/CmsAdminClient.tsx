@@ -1693,7 +1693,7 @@ function CMSAdminInner() {
                             if (s.key === 'maintenance_mode') {
                               const isActive = editedSettings[s.key] === 'true' || editedSettings[s.key] === '1';
                               return (
-                                <div key={s.key} style={{ padding: '1.25rem', background: isActive ? '#fef2f2' : '#f0fdf4', borderRadius: '.75rem', border: `1px solid ${isActive ? '#fecaca' : '#bbf7d0'}` }}>
+                                <div key={s.key} style={{ padding: '1.25rem', background: isActive ? '#eff6ff' : '#f9fafb', borderRadius: '.75rem', border: `1px solid ${isActive ? '#bfdbfe' : '#e5e7eb'}` }}>
                                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <div>
                                       <label style={{ fontWeight: 600, color: '#1a1a1a', display: 'block', marginBottom: '.25rem' }}>Mode Maintenance</label>
@@ -1702,33 +1702,34 @@ function CMSAdminInner() {
                                       </p>
                                     </div>
                                     <button
+                                      type="button"
                                       onClick={() => {
                                         const newValue = isActive ? 'false' : 'true';
                                         setEditedSettings(prev => ({ ...prev, [s.key]: newValue }));
-                                        // Auto-save on toggle
-                                        handleToggleMaintenance(newValue === 'true');
                                       }}
                                       style={{
-                                        width: '52px',
-                                        height: '28px',
-                                        borderRadius: '14px',
+                                        width: '56px',
+                                        height: '30px',
+                                        borderRadius: '15px',
                                         border: 'none',
                                         cursor: 'pointer',
                                         position: 'relative',
                                         transition: 'background 0.2s',
-                                        background: isActive ? '#dc2626' : '#d1d5db',
+                                        background: isActive ? '#059669' : '#d1d5db',
+                                        padding: 0,
                                       }}
+                                      aria-label={isActive ? 'Désactiver le mode maintenance' : 'Activer le mode maintenance'}
                                     >
                                       <span style={{
                                         position: 'absolute',
-                                        top: '3px',
-                                        left: isActive ? '27px' : '3px',
+                                        top: '4px',
+                                        left: isActive ? '30px' : '4px',
                                         width: '22px',
                                         height: '22px',
                                         borderRadius: '50%',
                                         background: 'white',
                                         transition: 'left 0.2s',
-                                        boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                                        boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
                                       }} />
                                     </button>
                                   </div>
