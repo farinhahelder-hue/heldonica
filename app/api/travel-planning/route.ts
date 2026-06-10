@@ -182,7 +182,7 @@ export async function POST(req: NextRequest) {
 
           <hr style="border: none; border-top: 1px solid #e8e0d8; margin: 32px 0;" />
           <p style="font-size: 12px; color: #888; text-align: center;">
-            Tu peux aussi nous écrire directement à <a href="mailto:info@heldonica.fr" style="color: #6b2a1a;">info@heldonica.fr</a>
+            Tu peux aussi nous écrire directement à <a href="mailto:contact@heldonica.fr" style="color: #6b2a1a;">contact@heldonica.fr</a>
           </p>
         </div>
       `,

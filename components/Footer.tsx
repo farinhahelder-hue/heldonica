@@ -16,7 +16,6 @@ export default function Footer() {
   const serviceLinks: { href: string; label: string }[] = [
     { href: '/travel-planning', label: 'Travel planning' },
     { href: '/slow-travel', label: 'Slow travel' },
-    { href: '/planifier', label: 'Planifier' },
   ]
 
   const legalLinks: { href: string; label: string }[] = [
@@ -101,8 +100,8 @@ export default function Footer() {
                 </li>
               ))}
               <li>
-                <a href="mailto:info@heldonica.fr" className="text-stone-300 transition-colors duration-200 hover:text-white">
-                  info@heldonica.fr
+                <a href="mailto:contact@heldonica.fr" className="text-stone-300 transition-colors duration-200 hover:text-white">
+                  contact@heldonica.fr
                 </a>
                 <span className="block text-xs text-stone-500 mt-1">France</span>
               </li>

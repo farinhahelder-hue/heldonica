@@ -71,10 +71,10 @@ export default function Contact() {
                   Email direct
                 </p>
                 <a
-                  href="mailto:info@heldonica.fr"
+                  href="mailto:contact@heldonica.fr"
                   className="text-lg font-semibold text-amber-800 transition-colors duration-200 hover:text-amber-700"
                 >
-                  info@heldonica.fr
+                  contact@heldonica.fr
                 </a>
                 <p className="mt-2 text-sm leading-relaxed text-stone-600">
                   Réponse humaine sous 48h, sans tunnel automatique.

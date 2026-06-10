@@ -67,7 +67,7 @@ export default function Header() {
               </Link>
             ))}
             <Link
-              href="/planifier"
+              href="/travel-planning"
               className="ml-3 rounded-full bg-eucalyptus px-5 py-2 text-sm font-medium text-white shadow-sm transition-colors duration-200 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:ring-offset-2"
             >
               Planifier mon voyage
@@ -78,7 +78,7 @@ export default function Header() {
           <div className="flex items-center gap-3 lg:hidden">
             {/* CTA visible sur mobile */}
             <Link 
-              href="/planifier" 
+              href="/travel-planning" 
               className="rounded-full bg-eucalyptus px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:brightness-110"
             >
               Planifier
@@ -143,7 +143,7 @@ export default function Header() {
 
             {/* CTA - prominent */}
             <Link
-              href="/planifier"
+              href="/travel-planning"
               onClick={() => setOpen(false)}
               className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-eucalyptus px-4 py-3.5 text-sm font-semibold text-white transition-colors hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:ring-offset-2"
             >
