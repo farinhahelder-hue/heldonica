@@ -798,6 +798,28 @@ function CMSAdminInner() {
     }
   };
 
+  // Handle maintenance mode toggle (auto-save without full settings save)
+  const handleToggleMaintenance = async (active: boolean) => {
+    try {
+      // Update in site_settings first
+      await fetch('/api/cms/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: 'maintenance_mode', value: active ? 'true' : 'false' }),
+      });
+      // Also call maintenance endpoint to set cookie for edge middleware
+      await fetch('/api/cms/maintenance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ active }),
+      });
+      showToast(active ? '🔴 Mode maintenance ACTIVÉ' : '🟢 Mode maintenance DÉSACTIVÉ');
+      loadSettings();
+    } catch {
+      showToast('Erreur lors du changement de mode maintenance.');
+    }
+  };
+
   const savePageContent = async (pageKey: string) => {
     setSavingSettings(true);
     const config = PAGES_CONFIG[pageKey];
@@ -1666,14 +1688,62 @@ function CMSAdminInner() {
                       <div>
                         <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>{groupCfg?.emoji} {groupCfg?.label}</h2>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
-                          {groupItems.map(s => (
-                            <div key={s.key}>
-                              <label style={lbl}>{s.label}</label>
-                              <input value={editedSettings[s.key] || ''}
-                                onChange={e => setEditedSettings(prev => ({ ...prev, [s.key]: e.target.value }))}
-                                style={inp} placeholder={s.label} />
-                            </div>
-                          ))}
+                          {groupItems.map(s => {
+                            // Special toggle for maintenance_mode
+                            if (s.key === 'maintenance_mode') {
+                              const isActive = editedSettings[s.key] === 'true' || editedSettings[s.key] === '1';
+                              return (
+                                <div key={s.key} style={{ padding: '1.25rem', background: isActive ? '#fef2f2' : '#f0fdf4', borderRadius: '.75rem', border: `1px solid ${isActive ? '#fecaca' : '#bbf7d0'}` }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div>
+                                      <label style={{ fontWeight: 600, color: '#1a1a1a', display: 'block', marginBottom: '.25rem' }}>Mode Maintenance</label>
+                                      <p style={{ fontSize: '.8rem', color: '#666', margin: 0 }}>
+                                        {isActive ? '🔴 Le site affiche la page de maintenance' : '🟢 Site accessible aux visiteurs'}
+                                      </p>
+                                    </div>
+                                    <button
+                                      onClick={() => {
+                                        const newValue = isActive ? 'false' : 'true';
+                                        setEditedSettings(prev => ({ ...prev, [s.key]: newValue }));
+                                        // Auto-save on toggle
+                                        handleToggleMaintenance(newValue === 'true');
+                                      }}
+                                      style={{
+                                        width: '52px',
+                                        height: '28px',
+                                        borderRadius: '14px',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        position: 'relative',
+                                        transition: 'background 0.2s',
+                                        background: isActive ? '#dc2626' : '#d1d5db',
+                                      }}
+                                    >
+                                      <span style={{
+                                        position: 'absolute',
+                                        top: '3px',
+                                        left: isActive ? '27px' : '3px',
+                                        width: '22px',
+                                        height: '22px',
+                                        borderRadius: '50%',
+                                        background: 'white',
+                                        transition: 'left 0.2s',
+                                        boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                                      }} />
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            }
+                            return (
+                              <div key={s.key}>
+                                <label style={lbl}>{s.label}</label>
+                                <input value={editedSettings[s.key] || ''}
+                                  onChange={e => setEditedSettings(prev => ({ ...prev, [s.key]: e.target.value }))}
+                                  style={inp} placeholder={s.label} />
+                              </div>
+                            );
+                          })}
                           {groupItems.length === 0 && <p style={{ color: '#aaa', fontSize: '.9rem', textAlign: 'center', padding: '2rem' }}>Aucun paramètre dans ce groupe.</p>}
                         </div>
                         <button onClick={saveSettings} disabled={savingSettings}
