@@ -43,8 +43,7 @@ function getInstagramConfig() {
  * Check if Instagram integration is configured
  */
 export function isInstagramConfigured(): boolean {
-  const config = getInstagramConfig();
-  return !!(config.accessToken && config.businessAccountId);
+  return !!process.env.IG_ACCESS_TOKEN && !!process.env.IG_ACCOUNT_ID;
 }
 
 /**
