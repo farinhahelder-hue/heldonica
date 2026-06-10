@@ -5,7 +5,7 @@ import { Suspense } from 'react';
 
 // Historical full CMS client - loaded client-side via dynamic import
 // This ensures the complete CMS with all features is served at /cms-admin
-const CmsAdminClient = dynamic(() => import('./CmsAdminClient'), {
+const CmsAdminClient = dynamic(() => import('../panel-manager/CmsAdminClient'), {
   ssr: false,
   loading: () => (
     <div style={{
