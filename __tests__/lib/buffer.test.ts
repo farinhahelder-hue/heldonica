@@ -94,7 +94,29 @@ describe('buffer', () => {
   })
 
   describe('isBufferConfigured', () => {
-    it('should return true (always available - uses web interface)', () => {
+    const originalEnv = process.env
+
+    beforeEach(() => {
+      vi.resetModules()
+      process.env = { ...originalEnv }
+    })
+
+    afterEach(() => {
+      process.env = originalEnv
+    })
+
+    it('should return false when BUFFER_ACCESS_TOKEN is not set', () => {
+      delete process.env.BUFFER_ACCESS_TOKEN
+      expect(isBufferConfigured()).toBe(false)
+    })
+
+    it('should return false when BUFFER_ACCESS_TOKEN is an empty string', () => {
+      process.env.BUFFER_ACCESS_TOKEN = ''
+      expect(isBufferConfigured()).toBe(false)
+    })
+
+    it('should return true when BUFFER_ACCESS_TOKEN is set', () => {
+      process.env.BUFFER_ACCESS_TOKEN = 'some-token'
       expect(isBufferConfigured()).toBe(true)
     })
   })
