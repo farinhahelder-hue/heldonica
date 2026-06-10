@@ -106,18 +106,19 @@ export async function GET() {
       if (julesResponse.ok) {
         const julesData = await julesResponse.json();
         
-        // Update local cache
-        for (const session of julesData.sessions || []) {
-          const sessionId = String(session.name).split('/').pop();
-          await supabase.from('jules_sessions').upsert({
-            id: sessionId,
-            title: session.title,
-            state: session.state.toLowerCase(),
-            update_time: session.updateTime,
-            pr_url: session.outputs?.[0]?.pullRequest?.url,
-            pr_title: session.outputs?.[0]?.pullRequest?.title,
-            pr_description: session.outputs?.[0]?.pullRequest?.description
-          }, { onConflict: 'id' });
+        // Update local cache - ⚡ Bolt: Optimizing N+1 upsert loop into a single batched upsert query
+        const sessionsToUpsert = (julesData.sessions || []).map((session: any) => ({
+          id: String(session.name).split('/').pop(),
+          title: session.title,
+          state: session.state.toLowerCase(),
+          update_time: session.updateTime,
+          pr_url: session.outputs?.[0]?.pullRequest?.url,
+          pr_title: session.outputs?.[0]?.pullRequest?.title,
+          pr_description: session.outputs?.[0]?.pullRequest?.description
+        }));
+
+        if (sessionsToUpsert.length > 0) {
+          await supabase.from('jules_sessions').upsert(sessionsToUpsert, { onConflict: 'id' });
         }
       }
     } catch (e) {
