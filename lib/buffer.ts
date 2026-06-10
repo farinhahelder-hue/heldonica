@@ -56,5 +56,7 @@ export function openBufferComposer(profileId?: string): void {
  * Check if Buffer is configured
  */
 export function isBufferConfigured(): boolean {
-  return true; // Always available - uses web interface
+  // Always true for composer link approach, but checking if token exists
+  // for future API expansion
+  return !!process.env.BUFFER_ACCESS_TOKEN;
 }
