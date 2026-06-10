@@ -168,6 +168,8 @@ export function formatDate(iso: string | null | undefined): string {
 
 /**
  * Récupère une valeur de paramètre depuis la table site_settings
+ * Utilise .limit(1).maybeSingle() pour gérer les doublons de clés
+ * sans générer d'erreur lors du build statique
  */
 export async function getSetting(key: string): Promise<string | null> {
   if (!supabase) return null;
@@ -177,7 +179,8 @@ export async function getSetting(key: string): Promise<string | null> {
       .from('site_settings')
       .select('value')
       .eq('key', key)
-      .single();
+      .limit(1)
+      .maybeSingle();
 
     if (error) {
       console.error(`Supabase getSetting error for '${key}':`, error.message);
