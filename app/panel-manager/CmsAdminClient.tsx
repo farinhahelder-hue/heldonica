@@ -240,6 +240,7 @@ const SETTINGS_GROUPS: Record<string, { label: string; emoji: string }> = {
   social:    { label: 'Réseaux sociaux', emoji: '📱' },
   seo:       { label: 'SEO',            emoji: '🔍' },
   footer:   { label: 'Footer',          emoji: '📄' },
+  maintenance:{ label: 'Maintenance',   emoji: '🚧' },
 };
 
 // Paramètres d’apparence (couleurs, logo, favicon)
@@ -1631,11 +1632,12 @@ function CMSAdminInner() {
                 <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
                   {(() => {
                     const groupItems = settings.filter(s => {
-                      if (settingsGroup === 'general') return ['site_title', 'site_logo', 'site_favicon'].includes(s.key);
-                      if (settingsGroup === 'appearance') return true; // Show all appearance settings
+                      if (settingsGroup === 'general') return ['site_name', 'site_title', 'site_logo', 'site_favicon', 'site_description', 'contact_email'].includes(s.key);
+                      if (settingsGroup === 'appearance') return APPEARANCE_SETTINGS.map(a => a.key).includes(s.key);
                       if (settingsGroup === 'social') return s.key.startsWith('social_');
                       if (settingsGroup === 'seo') return s.key.startsWith('seo_');
                       if (settingsGroup === 'footer') return s.key.startsWith('footer_');
+                      if (settingsGroup === 'maintenance') return ['maintenance_mode', 'maintenance_message', 'maintenance_end_date'].includes(s.key);
                       return true;
                     });
                     const groupCfg = SETTINGS_GROUPS[settingsGroup];
