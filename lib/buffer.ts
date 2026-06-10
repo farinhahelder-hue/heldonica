@@ -16,14 +16,8 @@ export interface BufferPost {
  * Opens Buffer with pre-filled image and caption
  */
 export function getBufferComposerUrl(profileId?: string): string {
-  const baseUrl = 'https://buffer.com/app/compose';
-  
-  // Can add profile ID if available
-  if (profileId) {
-    return `${baseUrl}?profile=${profileId}`;
-  }
-  
-  return baseUrl;
+  const baseUrl = 'https://publish.buffer.com/composer';
+  return profileId ? `${baseUrl}?profile=${profileId}` : baseUrl;
 }
 
 /**
@@ -31,7 +25,7 @@ export function getBufferComposerUrl(profileId?: string): string {
  * Opens Buffer and pre-fills the caption
  */
 export function getBufferPostUrl(text: string, profileId?: string): string {
-  const baseUrl = 'https://buffer.com/app/compose';
+  const baseUrl = 'https://publish.buffer.com/composer';
   
   // Encode text for URL
   const encodedText = encodeURIComponent(text);
