@@ -186,8 +186,8 @@ export async function middleware(req: NextRequest) {
 
   // Maintenance mode check - redirect to /maintenance if active
   // Priority: 1. Environment variable (most reliable), 2. Cookie (set by CMS admin)
-  // Exclude: /maintenance, /cms-admin, /api, /_next, /robots.txt, /sitemap.xml, /favicon.ico
-  const maintenanceExcludes = ['/maintenance', '/cms-admin', '/api', '/_next', '/robots.txt', '/sitemap.xml', '/favicon.ico'];
+  // Exclude: /maintenance, /panel-manager, /cms-admin, /api, /_next, /robots.txt, /sitemap.xml, /favicon.ico
+  const maintenanceExcludes = ['/maintenance', '/panel-manager', '/cms-admin', '/api', '/_next', '/robots.txt', '/sitemap.xml', '/favicon.ico'];
   const isMaintenanceExcluded = maintenanceExcludes.some(path => pathname.startsWith(path));
 
   if (!isMaintenanceExcluded) {
