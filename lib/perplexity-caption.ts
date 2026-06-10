@@ -58,7 +58,11 @@ export function openPerplexityForCaption(request?: CaptionRequest): void {
  * Alternative: Use Perplexity Sonar for better results
  */
 export function getSonarUrl(request: CaptionRequest): string {
+  const baseUrl = 'https://sonar.perplexity.ai';
+
+  // Build a detailed prompt
   const prompt = buildCaptionPrompt(request);
-  const encoded = encodeURIComponent(prompt);
-  return `https://perplexity.ai/sonar?=${encoded}`;
+  const encodedPrompt = encodeURIComponent(prompt);
+
+  return `${baseUrl}?q=${encodedPrompt}`;
 }
