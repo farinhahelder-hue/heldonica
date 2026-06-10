@@ -11,7 +11,7 @@ const supabase = (supabaseUrl && supabaseKey)
 
 export const dynamic = 'force-dynamic';
 
-// GET /api/cms/settings - list all settings (public for layout)
+// GET /api/cms/settings - list all settings
 export async function GET(req: NextRequest) {
   if (!supabase) {
     return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
@@ -24,20 +24,14 @@ export async function GET(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Return both flat object (backward compat) AND full array for CMS rendering
-  const settings = Object.fromEntries(
-    (data || []).map(r => [r.key, r.value])
-  );
+  const settings = (data || []).map(r => ({
+    key: r.key,
+    value: r.value ?? '',
+    label: r.label || r.key,
+    type: r.type || 'text',
+  }));
 
-  return NextResponse.json({
-    ...settings,
-    __settings_meta: (data || []).map(r => ({
-      key: r.key,
-      value: r.value,
-      label: r.label || r.key,
-      type: r.type || 'text',
-    }))
-  });
+  return NextResponse.json({ settings });
 }
 
 // PATCH /api/cms/settings - update settings (auth required)
@@ -63,20 +57,14 @@ export async function PATCH(req: NextRequest) {
         .upsert(updates, { onConflict: 'key' });
       if (error) console.error('Error in bulk update:', error.message);
     } else {
-      const entries = Object.entries(body);
-      const updates = [];
-      for (const [key, value] of entries) {
-        if (key === 'error' || key === 'settings' || key === '__settings_meta') continue;
-        updates.push({
-          key,
-          value: String(value),
-          updated_at: new Date().toISOString()
-        });
+      // Single key/value update { key, value }
+      const { key, value } = body as { key: string; value: string };
+      if (key) {
+        const { error } = await supabase
+          .from('site_settings')
+          .upsert({ key, value: String(value ?? ''), updated_at: new Date().toISOString() }, { onConflict: 'key' });
+        if (error) console.error('Error in single update:', error.message);
       }
-      const { error } = await supabase
-        .from('site_settings')
-        .upsert(updates, { onConflict: 'key' });
-      if (error) console.error('Error in bulk update:', error.message);
     }
 
     return NextResponse.json({ success: true });
