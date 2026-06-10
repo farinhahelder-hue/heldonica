@@ -22,6 +22,9 @@ export interface UnsplashPhoto {
   user: {
     name: string;
     username: string;
+    social?: {
+      instagram_username?: string;
+    };
   };
   likes: number;
 }
@@ -68,8 +71,9 @@ export async function getRandomPhoto(topic: string): Promise<UnsplashPhoto | nul
  * Format photo URL for Instagram (needs high quality)
  */
 export function getInstagramUrl(photo: UnsplashPhoto): string {
-  // regular size is good for Instagram
-  return photo.urls.regular;
+  return photo.user.social?.instagram_username
+    ? `https://instagram.com/${photo.user.social.instagram_username}`
+    : '';
 }
 
 /**
