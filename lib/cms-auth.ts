@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import { NextResponse } from 'next/server';
 
 const SESSION_DURATION_SECONDS = 60 * 60 * 8;
@@ -23,14 +24,18 @@ function getSessionSecret() {
 }
 
 function safeEqual(a: string, b: string) {
-  if (a.length !== b.length) return false;
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+
   const aBytes = new TextEncoder().encode(a);
   const bBytes = new TextEncoder().encode(b);
-  let diff = 0;
-  for (let i = 0; i < aBytes.length; i++) {
-    diff |= aBytes[i] ^ bBytes[i];
+
+  if (aBytes.byteLength !== bBytes.byteLength) {
+    // If lengths differ, compare 'a' with itself so timing safe equal still runs
+    crypto.timingSafeEqual(aBytes, aBytes);
+    return false;
   }
-  return diff === 0;
+
+  return crypto.timingSafeEqual(aBytes, bBytes);
 }
 
 function base64UrlEncode(value: string) {
