@@ -7,6 +7,7 @@ import ThemeProvider from '@/components/ThemeProvider';
 import { WebVitalsReporter } from "@/components/web-vitals/WebVitalsReporter";
 import SiteTheme from '@/components/SiteTheme';
 import { getSiteSettings } from '@/lib/settings';
+import NewsletterPopup from '@/components/NewsletterPopup';
 
 const SITE_URL = 'https://www.heldonica.fr';
 
@@ -212,6 +213,7 @@ export default async function RootLayout({
             <SiteTheme />
             {children}
             <CookieConsentBanner />
+            <NewsletterPopup />
           </AuthProvider>
         </ThemeProvider>
       </body>
