@@ -69,6 +69,25 @@ export async function POST(req: NextRequest) {
   const safeFilename = filename || `import-${Date.now()}.jpg`;
   const path = `${folder}/${safeFilename}`;
 
+
+  try {
+    const parsedUrl = new URL(imageUrl);
+    if (parsedUrl.protocol !== 'https:') {
+      return NextResponse.json({ error: 'Seules les URLs HTTPS sont autorisées' }, { status: 400 });
+    }
+
+    const allowedDomains = ['images.unsplash.com', 'dropbox.com', 'storage.googleapis.com'];
+    const allowedSuffixes = ['.googleusercontent.com', '.supabase.co', '.behold.pictures'];
+
+    const isAllowed = allowedDomains.includes(parsedUrl.hostname) || allowedSuffixes.some(suffix => parsedUrl.hostname.endsWith(suffix));
+
+    if (!isAllowed) {
+      return NextResponse.json({ error: 'Domaine non autorisé pour l\'importation d\'images' }, { status: 403 });
+    }
+  } catch (err) {
+    return NextResponse.json({ error: 'URL invalide' }, { status: 400 });
+  }
+
   try {
     const imgRes = await fetch(imageUrl);
     if (!imgRes.ok) throw new Error(`Impossible de télécharger l'image : ${imgRes.status}`);
