@@ -134,10 +134,10 @@ export default function politiqueconfidentialitePage() {
                 Pour exercer vos droits ou poser une question relative a vos données, contactez-nous
                 a{' '}
                 <a
-                  href="mailto:info@heldonica.fr"
+                  href="mailto:contact@heldonica.fr"
                   className="text-eucalyptus hover:text-teal transition"
                 >
-                  info@heldonica.fr
+                  contact@heldonica.fr
                 </a>
                 .
               </p>

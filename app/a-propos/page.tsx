@@ -204,8 +204,8 @@ export default function AProposPage() {
             </blockquote>
             <p className="text-stone-500 text-sm">
               Des questions ? Écris-nous à{' '}
-              <a href="mailto:info@heldonica.fr" className="text-amber-800 hover:underline font-medium">
-                info@heldonica.fr
+              <a href="mailto:contact@heldonica.fr" className="text-amber-800 hover:underline font-medium">
+                contact@heldonica.fr
               </a>
             </p>
           </div>

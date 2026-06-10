@@ -360,7 +360,7 @@ export default function DestinationPage({ params }: Props) {
             </p>
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link
-                href="/planifier"
+                href="/travel-planning-form"
                 className="rounded-full bg-amber-500 px-7 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-amber-400"
               >
                 Nous écrire →

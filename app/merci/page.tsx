@@ -124,8 +124,8 @@ export default function MerciPage() {
           <div className="max-w-3xl mx-auto px-6 text-center">
             <p className="text-stone-500 text-sm">
               Des questions ? Écris-nous à{' '}
-              <a href="mailto:info@heldonica.fr" className="text-teal hover:underline font-medium">
-                info@heldonica.fr
+              <a href="mailto:contact@heldonica.fr" className="text-teal hover:underline font-medium">
+                contact@heldonica.fr
               </a>
             </p>
           </div>
