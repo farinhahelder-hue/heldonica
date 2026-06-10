@@ -3,6 +3,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
 import NewsletterPopup from '@/components/NewsletterPopup'
+import GuideDownloadForm from '@/components/GuideDownloadForm'
 
 export const metadata: Metadata = {
   title: 'Guide Top 10 Pépites Madère — Heldonica | Télécharge gratuitement',
@@ -132,23 +133,7 @@ export default function Top10PepitesMaderePage() {
             {/* CTA principal */}
             <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-white/10 max-w-md mx-auto">
               <p className="text-amber-400 font-semibold mb-3">📥 Télécharge gratuitement</p>
-              <form className="space-y-4">
-                <input
-                  type="email"
-                  placeholder="ton@email.com"
-                  required
-                  className="w-full px-5 py-3.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-stone-400 focus:outline-none focus:border-amber-400 transition-colors"
-                />
-                <button
-                  type="submit"
-                  className="w-full px-6 py-4 bg-amber-500 text-stone-900 font-bold rounded-xl hover:bg-amber-400 transition-all text-lg"
-                >
-                  Je veux le guide →
-                </button>
-              </form>
-              <p className="text-stone-500 text-xs mt-4">
-                On t&apos;envoie le guide et tu restes inscrit·e à la newsletter. Tu peux te désinscrire à tout moment.
-              </p>
+              <GuideDownloadForm variant="hero" />
             </div>
           </div>
         </section>
@@ -214,20 +199,7 @@ export default function Top10PepitesMaderePage() {
             <p className="text-stone-400 leading-relaxed mb-8">
               Le guide complet avec toutes les adresses, les maps, et les tips pour éviter les pièges à touristes. Gratuit.
             </p>
-            <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="ton@email.com"
-                required
-                className="flex-1 px-5 py-3.5 bg-stone-800 border border-stone-700 rounded-xl text-white placeholder-stone-500 focus:outline-none focus:border-amber-400 transition-colors"
-              />
-              <button
-                type="submit"
-                className="px-6 py-3.5 bg-amber-500 text-stone-900 font-semibold rounded-xl hover:bg-amber-400 transition-all whitespace-nowrap"
-              >
-                Envoyer le guide
-              </button>
-            </form>
+            <GuideDownloadForm variant="inline" />
             <p className="text-stone-500 text-sm mt-4">
               10 pages, PDF, sans engagement.
             </p>
