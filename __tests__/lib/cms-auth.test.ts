@@ -50,9 +50,9 @@ describe('isValidCmsPassword', () => {
     expect(isValidCmsPassword('  supersecret  ')).toBe(false);
   });
 
-  it('protects against timing attacks via safeEqual by returning false for different lengths immediately', () => {
+  it('handles passwords of different lengths correctly without leaking length via early return', () => {
     vi.stubEnv('CMS_PASSWORD', 'supersecret');
-    // safeEqual returns false if lengths don't match, which prevents comparing byte by byte
+    // safeEqual securely compares lengths without returning early to prevent timing attacks
     expect(isValidCmsPassword('super')).toBe(false);
     expect(isValidCmsPassword('supersecretlonger')).toBe(false);
   });
