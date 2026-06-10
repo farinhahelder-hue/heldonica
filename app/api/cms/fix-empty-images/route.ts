@@ -43,39 +43,40 @@ export async function POST(req: Request) {
 
     const destsToUpdate = (destinations || []).filter(dest => needsUpdate(dest.featured_image));
 
-    const updatePromises: Promise<any>[] = [];
-    let updatedCount = 0;
+        let updatedCount = 0;
 
-    // 3. Process Blog Posts sequentially for Unsplash API
-    for (const post of postsToUpdate) {
-      const query = post.category || 'travel';
-      const photos = await searchUnsplash(query, 1);
+    // ⚡ Bolt: Use Promise.all() for concurrent Unsplash requests and batch Supabase upserts to minimize database calls.
+    // 3. Process Blog Posts concurrently
+    const postUpdates = await Promise.all(postsToUpdate.map(async (post) => {
+        const query = post.category || 'travel';
+        const photos = await searchUnsplash(query, 1);
+        if (photos && photos.length > 0 && photos[0]?.urls?.regular) {
+            return { id: post.id, featured_image: photos[0].urls.regular };
+        }
+        return null;
+    }));
+    const validPostUpdates = postUpdates.filter((update): update is { id: number; featured_image: string } => update !== null);
 
-      if (photos && photos.length > 0 && photos[0]?.urls?.regular) {
-         updatePromises.push(
-           // @ts-expect-error Supabase types are not fully inferred
-           supabase.from('cms_blog_posts').update({ featured_image: photos[0].urls.regular }).eq('id', post.id)
-         );
-         updatedCount++;
-      }
+    if (validPostUpdates.length > 0) {
+        await supabase.from('cms_blog_posts').upsert(validPostUpdates);
+        updatedCount += validPostUpdates.length;
     }
 
-    // 4. Process Destinations sequentially for Unsplash API
-    for (const dest of destsToUpdate) {
+    // 4. Process Destinations concurrently
+    const destUpdates = await Promise.all(destsToUpdate.map(async (dest) => {
         const query = dest.name || dest.country || 'landscape';
         const photos = await searchUnsplash(query, 1);
-
         if (photos && photos.length > 0 && photos[0]?.urls?.regular) {
-            updatePromises.push(
-                // @ts-expect-error Supabase types are not fully inferred
-                supabase.from('destinations').update({ featured_image: photos[0].urls.regular }).eq('id', dest.id)
-            )
-            updatedCount++;
+            return { id: dest.id, featured_image: photos[0].urls.regular };
         }
-    }
+        return null;
+    }));
+    const validDestUpdates = destUpdates.filter((update): update is { id: number; featured_image: string } => update !== null);
 
-    // 5. Execute all database updates concurrently
-    await Promise.all(updatePromises);
+    if (validDestUpdates.length > 0) {
+        await supabase.from('destinations').upsert(validDestUpdates);
+        updatedCount += validDestUpdates.length;
+    }
 
     return NextResponse.json({
         success: true,
