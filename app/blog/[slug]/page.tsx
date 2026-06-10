@@ -1,7 +1,6 @@
 import { getPostBySlug, getAllSlugs, getAllPosts, formatDate } from '@/lib/blog-supabase'
 import type { BlogPost } from '@/lib/blog-supabase'
 import type { Metadata } from 'next'
-import { createServiceClient } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getRelatedArticles } from '@/lib/related-articles'
@@ -34,13 +33,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const supabase = createServiceClient()
-  const { data: post } = await supabase
-    .from('cms_blog_posts')
-    .select('title, excerpt, featuredimage, publishedat, tags, author, updatedat')
-    .eq('slug', params.slug)
-    .eq('published', true)
-    .single()
+  const post = await getPostBySlug(params.slug)
 
   if (!post) return { title: 'Article introuvable | Heldonica' }
 
@@ -51,18 +44,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description = cleanExcerpt.length > 160
       ? cleanExcerpt.substring(0, 157) + '...'
       : cleanExcerpt
+  } else if (post.content) {
+    // Generate from content if no excerpt
+    const plainContent = post.content.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
+    description = plainContent.length > 160
+      ? plainContent.substring(0, 157) + '...'
+      : plainContent
   }
 
   const title = `${post.title} | Heldonica`
-  const ogImage = post.featuredimage || DEFAULT_OG
+  const ogImage = post.featured_image || DEFAULT_OG
   const canonical = `${SITE_URL}/blog/${params.slug}`
-  const publishedTime = post.publishedat || undefined
+  const publishedTime = post.published_at || undefined
   const authorName = post.author || 'Heldonica'
   
-  // Parser les tags (stockés comme texte séparé par virgules)
-  const tagsArray = post.tags 
-    ? post.tags.split(',').map((t: string) => t.trim()).filter(Boolean)
-    : []
+  // Tags are already an array from getPostBySlug (normalizePost)
+  const tagsArray = Array.isArray(post.tags) ? post.tags : []
 
   return {
     title,
