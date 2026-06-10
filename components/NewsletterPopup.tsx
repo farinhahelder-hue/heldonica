@@ -9,46 +9,51 @@ export default function NewsletterPopup() {
   const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
+    if (typeof window === 'undefined') return
+    
     // Check if popup was already shown this session
-    if (typeof window !== 'undefined') {
-      const wasShown = sessionStorage.getItem('newsletter-popup-shown')
-      if (wasShown) return
-    }
+    const wasShown = sessionStorage.getItem('newsletter-popup-shown')
+    if (wasShown) return
 
-    // Show after 30 seconds OR scroll to 60%
     let timeout: NodeJS.Timeout
     let scrollHandler: () => void
+    let exitIntentTriggered = false
 
     const showPopup = () => {
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('newsletter-popup-shown', 'true')
-      }
+      sessionStorage.setItem('newsletter-popup-shown', 'true')
       setIsVisible(true)
       cleanup()
     }
 
     const cleanup = () => {
       if (timeout) clearTimeout(timeout)
-      if (typeof window !== 'undefined') {
-        window.removeEventListener('scroll', scrollHandler)
-      }
+      window.removeEventListener('scroll', scrollHandler)
+      document.removeEventListener('mouseleave', exitIntentHandler)
     }
 
-    // Timer: 30 seconds
-    timeout = setTimeout(showPopup, 30000)
+    // Timer: 45 seconds (augmenté pour moins d'agacement)
+    timeout = setTimeout(showPopup, 45000)
 
-    // Scroll: 60%
-    if (typeof window !== 'undefined') {
-      scrollHandler = () => {
-        const scrollTop = window.scrollY
-        const docHeight = document.documentElement.scrollHeight - window.innerHeight
-        const scrollPercent = (scrollTop / docHeight) * 100
-        if (scrollPercent >= 60) {
-          showPopup()
-        }
+    // Scroll: 70%
+    scrollHandler = () => {
+      const scrollTop = window.scrollY
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight
+      const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0
+      if (scrollPercent >= 70) {
+        showPopup()
       }
-      window.addEventListener('scroll', scrollHandler)
     }
+    window.addEventListener('scroll', scrollHandler, { passive: true })
+
+    // Exit intent: quand la souris quitte le document par le haut
+    const exitIntentHandler = (e: MouseEvent) => {
+      if (exitIntentTriggered) return
+      if (e.clientY <= 0) {
+        exitIntentTriggered = true
+        showPopup()
+      }
+    }
+    document.addEventListener('mouseleave', exitIntentHandler)
 
     return cleanup
   }, [])
@@ -72,7 +77,6 @@ export default function NewsletterPopup() {
 
       if (res.ok) {
         setStatus('success')
-        // Close after 3 seconds on success
         setTimeout(() => setIsVisible(false), 3000)
       } else {
         const data = await res.json()
@@ -96,18 +100,8 @@ export default function NewsletterPopup() {
 
   return (
     <div
+      className="fixed bottom-6 right-6 z-50 bg-stone-950 rounded-2xl p-6 md:p-8 max-w-sm w-full shadow-2xl text-white"
       style={{
-        position: 'fixed',
-        bottom: '2rem',
-        right: '2rem',
-        zIndex: 9999,
-        background: '#6b2a1a',
-        borderRadius: '1rem',
-        padding: '2rem',
-        maxWidth: '380px',
-        width: '100%',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-        color: 'white',
         animation: 'slideUp 0.3s ease-out',
       }}
     >
@@ -127,86 +121,66 @@ export default function NewsletterPopup() {
       {/* Close button */}
       <button
         onClick={handleClose}
-        style={{
-          position: 'absolute',
-          top: '1rem',
-          right: '1rem',
-          background: 'none',
-          border: 'none',
-          color: 'white',
-          cursor: 'pointer',
-          fontSize: '1.25rem',
-          opacity: 0.7,
-          padding: '0.25rem',
-        }}
+        className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white/70 hover:bg-white/20 hover:text-white transition-colors"
         aria-label="Fermer"
       >
-        ✕
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
       </button>
 
       {status === 'success' ? (
-        <div style={{ textAlign: 'center', padding: '1rem 0' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
-          <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.25rem', fontWeight: 700 }}>
+        <div className="text-center py-4">
+          <div className="text-4xl mb-4">🎉</div>
+          <h3 className="text-xl font-bold mb-2">
             Bienvenue dans l&apos;aventure !
           </h3>
-          <p style={{ opacity: 0.9, fontSize: '0.9rem', margin: 0 }}>
+          <p className="text-stone-400 text-sm">
             Tu vas recevoir nos carnets de voyage et nos meilleures pépites.
           </p>
         </div>
       ) : (
         <>
-          <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.25rem', fontWeight: 700 }}>
-            Rejoins la tribu Heldonica 🌿
-          </h3>
-          <p style={{ opacity: 0.9, fontSize: '0.85rem', margin: '0 0 1.25rem', lineHeight: 1.5 }}>
-            Carnets de voyage, destinations hors sentiers battus, et tips slow travel — une fois par semaine max.
-          </p>
+          <div className="mb-4">
+            <span className="inline-block px-3 py-1 bg-amber-500/20 text-amber-400 text-xs font-semibold rounded-full uppercase tracking-wider mb-3">
+              Guide gratuit
+            </span>
+            <h3 className="text-xl font-bold mb-2">
+              Reçois les 10 meilleures adresses Madère
+            </h3>
+            <p className="text-stone-400 text-sm leading-relaxed">
+              On t&apos;envoie notre guide testé sur le terrain + les pépites chaque semaine.
+              Pas de spam, jamais.
+            </p>
+          </div>
 
-          <form onSubmit={handleSubmit}>
-            <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column' }}>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="ton@email.fr"
-                required
-                style={{
-                  padding: '0.875rem 1rem',
-                  borderRadius: '0.5rem',
-                  border: 'none',
-                  fontSize: '0.9rem',
-                  color: '#1a1a1a',
-                }}
-              />
-              <button
-                type="submit"
-                disabled={status === 'loading'}
-                style={{
-                  padding: '0.875rem 1rem',
-                  borderRadius: '0.5rem',
-                  border: 'none',
-                  background: 'white',
-                  color: '#6b2a1a',
-                  fontWeight: 700,
-                  fontSize: '0.9rem',
-                  cursor: status === 'loading' ? 'not-allowed' : 'pointer',
-                  opacity: status === 'loading' ? 0.7 : 1,
-                }}
-              >
-                {status === 'loading' ? 'Inscription...' : 'Rejoindre la tribu Heldonica'}
-              </button>
-            </div>
-
-            {errorMessage && (
-              <p style={{ color: '#fca5a5', fontSize: '0.8rem', marginTop: '0.75rem' }}>
-                {errorMessage}
-              </p>
-            )}
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="ton@email.com"
+              required
+              className="w-full px-4 py-3 rounded-xl bg-stone-800 border border-stone-700 text-white placeholder-stone-500 focus:outline-none focus:border-amber-400 transition-colors text-sm"
+            />
+            <button
+              type="submit"
+              disabled={status === 'loading'}
+              className="w-full px-6 py-3.5 bg-amber-500 text-stone-900 font-bold rounded-xl hover:bg-amber-400 transition-all text-sm disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {status === 'loading' ? 'Inscription...' : 'Je veux le guide →'}
+            </button>
           </form>
 
-          <p style={{ fontSize: '0.7rem', opacity: 0.6, marginTop: '1rem', textAlign: 'center' }}>
-            En t&apos;inscrivant, tu acceptes de recevoir nos carnets de voyage. Désinscription possible à tout moment.
+          {errorMessage && (
+            <p className="text-red-400 text-xs mt-3 text-center">
+              {errorMessage}
+            </p>
+          )}
+
+          <p className="text-stone-600 text-xs mt-4 text-center">
+            Désinscription possible à tout moment.
           </p>
         </>
       )}
