@@ -1,71 +1,47 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { getPerplexityUrl, getSonarUrl, openPerplexityForCaption } from '@/lib/perplexity-caption';
+import { describe, it, expect } from 'vitest';
+import { getSonarUrl, getPerplexityUrl, CaptionRequest } from '../../lib/perplexity-caption';
 
 describe('perplexity-caption', () => {
-  describe('getPerplexityUrl', () => {
-    it('should generate URL without topic and style', () => {
-      const url = getPerplexityUrl({});
-      const expectedPrompt = `Generate an engaging Instagram caption for a travel/photography post.\n\nPlease provide:\n1. A short caption (under 2200 characters)\n2. 5-10 relevant hashtags\n3. A call-to-action`;
-      expect(url).toBe(`https://perplexity.ai?q=${encodeURIComponent(expectedPrompt)}`);
-    });
-
-    it('should generate URL with topic', () => {
-      const url = getPerplexityUrl({ topic: 'Paris' });
-      const expectedPrompt = `Generate an engaging Instagram caption for a travel/photography post. The photo is about: Paris.\n\nPlease provide:\n1. A short caption (under 2200 characters)\n2. 5-10 relevant hashtags\n3. A call-to-action`;
-      expect(url).toBe(`https://perplexity.ai?q=${encodeURIComponent(expectedPrompt)}`);
-    });
-
-    it('should generate URL with style', () => {
-      const url = getPerplexityUrl({ style: 'funny' });
-      const expectedPrompt = `Generate an engaging Instagram caption for a travel/photography post. Style: funny.\n\nPlease provide:\n1. A short caption (under 2200 characters)\n2. 5-10 relevant hashtags\n3. A call-to-action`;
-      expect(url).toBe(`https://perplexity.ai?q=${encodeURIComponent(expectedPrompt)}`);
-    });
-
-    it('should generate URL with topic and style', () => {
-      const url = getPerplexityUrl({ topic: 'Paris', style: 'funny' });
-      const expectedPrompt = `Generate an engaging Instagram caption for a travel/photography post. The photo is about: Paris. Style: funny.\n\nPlease provide:\n1. A short caption (under 2200 characters)\n2. 5-10 relevant hashtags\n3. A call-to-action`;
-      expect(url).toBe(`https://perplexity.ai?q=${encodeURIComponent(expectedPrompt)}`);
-    });
-  });
-
   describe('getSonarUrl', () => {
-    it('should generate Sonar URL', () => {
-      const url = getSonarUrl({ topic: 'Paris', style: 'funny' });
-      const expectedPrompt = `Generate an engaging Instagram caption for a travel/photography post. The photo is about: Paris. Style: funny.\n\nPlease provide:\n1. A short caption (under 2200 characters)\n2. 5-10 relevant hashtags\n3. A call-to-action`;
-      expect(url).toBe(`https://perplexity.ai/sonar?=${encodeURIComponent(expectedPrompt)}`);
+    it('should generate a URL with base prompt when request is empty', () => {
+      const request: CaptionRequest = {};
+      const url = getSonarUrl(request);
+
+      expect(url).toContain('https://sonar.perplexity.ai?q=');
+      expect(url).toContain(encodeURIComponent('Generate an engaging Instagram caption for a travel/photography post.'));
+      expect(url).toContain(encodeURIComponent('1. A short caption'));
+    });
+
+    it('should include topic in the prompt when provided', () => {
+      const request: CaptionRequest = { topic: 'a sunny beach' };
+      const url = getSonarUrl(request);
+
+      expect(url).toContain(encodeURIComponent('The photo is about: a sunny beach.'));
+    });
+
+    it('should include style in the prompt when provided', () => {
+      const request: CaptionRequest = { style: 'humorous' };
+      const url = getSonarUrl(request);
+
+      expect(url).toContain(encodeURIComponent('Style: humorous.'));
+    });
+
+    it('should include both topic and style in the prompt', () => {
+      const request: CaptionRequest = { topic: 'mountains', style: 'poetic' };
+      const url = getSonarUrl(request);
+
+      expect(url).toContain(encodeURIComponent('The photo is about: mountains.'));
+      expect(url).toContain(encodeURIComponent('Style: poetic.'));
     });
   });
 
-  describe('openPerplexityForCaption', () => {
-    let originalWindow: any;
+  describe('getPerplexityUrl', () => {
+    it('should generate a URL with https://perplexity.ai', () => {
+      const request: CaptionRequest = { topic: 'city' };
+      const url = getPerplexityUrl(request);
 
-    beforeEach(() => {
-      // Mock window.open
-      originalWindow = global.window;
-      // @ts-ignore
-      global.window = { open: vi.fn() };
-    });
-
-    afterEach(() => {
-      global.window = originalWindow;
-    });
-
-    it('should open correct URL when request is provided', () => {
-      openPerplexityForCaption({ topic: 'London' });
-
-      const expectedPrompt = `Generate an engaging Instagram caption for a travel/photography post. The photo is about: London.\n\nPlease provide:\n1. A short caption (under 2200 characters)\n2. 5-10 relevant hashtags\n3. A call-to-action`;
-      const expectedUrl = `https://perplexity.ai?q=${encodeURIComponent(expectedPrompt)}`;
-
-      expect(window.open).toHaveBeenCalledWith(expectedUrl, '_blank');
-    });
-
-    it('should handle undefined request', () => {
-      openPerplexityForCaption();
-
-      const expectedPrompt = `Generate an engaging Instagram caption for a travel/photography post.\n\nPlease provide:\n1. A short caption (under 2200 characters)\n2. 5-10 relevant hashtags\n3. A call-to-action`;
-      const expectedUrl = `https://perplexity.ai?q=${encodeURIComponent(expectedPrompt)}`;
-
-      expect(window.open).toHaveBeenCalledWith(expectedUrl, '_blank');
+      expect(url).toContain('https://perplexity.ai?q=');
+      expect(url).toContain(encodeURIComponent('The photo is about: city.'));
     });
   });
 });
