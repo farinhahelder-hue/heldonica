@@ -8,7 +8,7 @@ import dynamic from 'next/dynamic';
 import EnhancedRichContent from '@/components/EnhancedRichContent';
 import MediaLibrary from '@/components/MediaLibrary';
 import { sanitizeHtml } from '@/lib/sanitize-html';
-import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot } from 'lucide-react';
+import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot, Mail } from 'lucide-react';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
 const CarouselEditor = dynamic(() => import('@/components/admin/CarouselEditor'), { ssr: false });
@@ -1631,6 +1631,70 @@ function CMSAdminInner() {
                     </div>
                   </div>
                 )}
+
+                {/* Stats CRM: Demandes Travel Planning + Newsletter */}
+                <div style={{ marginTop: '1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  {/* Demandes Travel Planning */}
+                  <div style={{ background: '#f8f6f4', borderRadius: '.75rem', padding: '1.25rem', border: '1px solid #e8e0d8' }}>
+                    <h3 style={{ fontSize: '.9rem', fontWeight: 700, color: '#6b2a1a', margin: '0 0 1rem', display: 'flex', alignItems: 'center', gap: '.5rem' }}>
+                      <FileText size={16} /> Demandes Travel Planning
+                    </h3>
+                    <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+                      <div style={{ flex: 1, textAlign: 'center', padding: '.75rem', background: 'white', borderRadius: '.5rem' }}>
+                        <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#6b2a1a', margin: 0 }}>{analyticsData?.travelRequests?.total ?? '--'}</p>
+                        <p style={{ fontSize: '.65rem', color: '#888', textTransform: 'uppercase', margin: 0 }}>Total</p>
+                      </div>
+                      <div style={{ flex: 1, textAlign: 'center', padding: '.75rem', background: 'white', borderRadius: '.5rem' }}>
+                        <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669', margin: 0 }}>{analyticsData?.travelRequests?.byStatus?.new ?? 0}</p>
+                        <p style={{ fontSize: '.65rem', color: '#888', textTransform: 'uppercase', margin: 0 }}>Nouvelles</p>
+                      </div>
+                      <div style={{ flex: 1, textAlign: 'center', padding: '.75rem', background: 'white', borderRadius: '.5rem' }}>
+                        <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#d97706', margin: 0 }}>{analyticsData?.travelRequests?.byStatus?.contacted ?? 0}</p>
+                        <p style={{ fontSize: '.65rem', color: '#888', textTransform: 'uppercase', margin: 0 }}>Contactées</p>
+                      </div>
+                    </div>
+                    {analyticsData?.travelRequests?.recent?.length > 0 && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '.4rem', maxHeight: '200px', overflowY: 'auto' }}>
+                        {analyticsData.travelRequests.recent.slice(0, 5).map((r: any, i: number) => (
+                          <div key={i} style={{ fontSize: '.75rem', padding: '.5rem', background: 'white', borderRadius: '.35rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                              <span style={{ fontWeight: 600, color: '#333' }}>{r.prenom}</span>
+                              <span style={{ color: '#888', marginLeft: '.25rem' }}>→ {r.destination}</span>
+                            </div>
+                            <span style={{ fontSize: '.65rem', padding: '.15rem .4rem', background: r.statut === 'new' ? '#dcfce7' : '#fef3c7', color: r.statut === 'new' ? '#059669' : '#d97706', borderRadius: '1rem' }}>{r.statut}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Newsletter Subscribers */}
+                  <div style={{ background: '#f8f6f4', borderRadius: '.75rem', padding: '1.25rem', border: '1px solid #e8e0d8' }}>
+                    <h3 style={{ fontSize: '.9rem', fontWeight: 700, color: '#6b2a1a', margin: '0 0 1rem', display: 'flex', alignItems: 'center', gap: '.5rem' }}>
+                      <Mail size={16} /> Newsletter
+                    </h3>
+                    <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+                      <div style={{ flex: 1, textAlign: 'center', padding: '.75rem', background: 'white', borderRadius: '.5rem' }}>
+                        <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#6b2a1a', margin: 0 }}>{analyticsData?.newsletter?.total ?? '--'}</p>
+                        <p style={{ fontSize: '.65rem', color: '#888', textTransform: 'uppercase', margin: 0 }}>Inscrits</p>
+                      </div>
+                      <div style={{ flex: 1, textAlign: 'center', padding: '.75rem', background: 'white', borderRadius: '.5rem' }}>
+                        <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669', margin: 0 }}>{analyticsData?.newsletter?.thisMonth ?? 0}</p>
+                        <p style={{ fontSize: '.65rem', color: '#888', textTransform: 'uppercase', margin: 0 }}>Ce mois</p>
+                      </div>
+                    </div>
+                    {analyticsData?.newsletter?.recent?.length > 0 && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '.4rem', maxHeight: '200px', overflowY: 'auto' }}>
+                        {analyticsData.newsletter.recent.slice(0, 5).map((s: any, i: number) => (
+                          <div key={i} style={{ fontSize: '.75rem', padding: '.5rem', background: 'white', borderRadius: '.35rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ color: '#333', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '70%' }}>{s.email}</span>
+                            <span style={{ fontSize: '.65rem', color: '#888' }}>{new Date(s.created_at).toLocaleDateString('fr')}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
 
