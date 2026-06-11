@@ -3,13 +3,16 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { BlogPost } from '@/lib/blog-supabase'
+import { getReadingTime } from '@/lib/readingTime'
 
 interface RelatedArticlesProps {
   articles: BlogPost[]
   destinationTitle: string
+  currentSlug?: string
 }
 
-const DESTINATION_PATTERNS: Record<string, string[]> = {
+// Destination patterns for matching related articles
+export const DESTINATION_PATTERNS: Record<string, string[]> = {
   'roumanie': ['Roumanie', 'Maramures', 'Maramureș', 'Timisoara', 'Timișoara', 'Transylvanie', 'Sibiu', 'Brasov'],
   'madere': ['Madère', 'Madeira', 'Funchal'],
   'paris': ['Paris', 'Canal Saint-Martin', 'Le Marais'],
@@ -18,10 +21,17 @@ const DESTINATION_PATTERNS: Record<string, string[]> = {
   'lisbonne': ['Lisbonne', 'Lisboa', 'Alfama', 'LX Factory'],
   'montenegro': ['Monténégro', 'Montenegro', 'Podgorica', 'Kotor', 'Boka'],
   'suisse': ['Suisse', 'Stoos', 'Alpes', 'Zurich'],
+  'colombie': ['Colombie', 'Bogota', 'Medellín', 'Cartagena', 'Cali'],
+  'normandie': ['Normandie', 'Rouen', 'Caen', 'Le Havre', 'Etretat'],
+  'sardaigne': ['Sardaigne', 'Sardegna', 'Cagliari', 'Alghero', 'Costa Smeralda'],
 }
 
-export function getRelatedArticles(articles: BlogPost[], destinationSlug: string): BlogPost[] {
-  const patterns = DESTINATION_PATTERNS[destinationSlug] || []
+/**
+ * Get related articles based on destination slug
+ * Matches articles using destination patterns
+ */
+export function getRelatedArticlesByDestination(articles: BlogPost[], destinationSlug: string): BlogPost[] {
+  const patterns = DESTINATION_PATTERNS[destinationSlug.toLowerCase()] || []
   if (patterns.length === 0) return []
 
   return articles
@@ -32,62 +42,71 @@ export function getRelatedArticles(articles: BlogPost[], destinationSlug: string
     .slice(0, 3)
 }
 
-export default function RelatedArticles({ articles, destinationTitle }: RelatedArticlesProps) {
-  if (!articles || articles.length === 0) {
+export default function RelatedArticles({ articles, destinationTitle, currentSlug }: RelatedArticlesProps) {
+  // Filter out current article if slug is provided
+  const filteredArticles = currentSlug 
+    ? articles.filter(a => a.slug !== currentSlug)
+    : articles
+
+  if (!filteredArticles || filteredArticles.length === 0) {
     return null
   }
 
   return (
-    <section className="py-16 md:py-24 bg-stone-50">
+    <section className="py-16 md:py-24 bg-[#f8f6f4]">
       <div className="container max-w-6xl">
         <div className="mb-10">
-          <p className="text-xs uppercase tracking-[0.2em] text-amber-700 font-semibold mb-2">
+          <p className="text-xs uppercase tracking-[0.2em] text-[#83C5BE] font-semibold mb-2">
             À lire aussi
           </p>
-          <h2 className="text-3xl font-serif text-stone-900">
-            Nos articles sur {destinationTitle}
+          <h2 className="text-3xl font-serif text-[#6b2a1a]">
+            {destinationTitle ? `Nos articles sur ${destinationTitle}` : 'Articles similaires'}
           </h2>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {articles.map((article) => (
-            <Link 
-              key={article.slug} 
-              href={`/blog/${article.slug}`}
-              className="group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300"
-            >
-              <div className="relative aspect-[16/10] overflow-hidden">
-                {article.featured_image ? (
-                  <Image
-                    src={article.featured_image}
-                    alt={article.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-stone-200 flex items-center justify-center">
-                    <span className="text-stone-400 text-sm">Photo</span>
-                  </div>
-                )}
-              </div>
-              <div className="p-5">
-                {article.category && (
-                  <p className="text-xs font-semibold text-amber-700 uppercase tracking-wider mb-2">
-                    {article.category}
-                  </p>
-                )}
-                <h3 className="font-serif text-lg text-stone-900 mb-2 group-hover:text-amber-800 transition-colors">
-                  {article.title}
-                </h3>
-                {article.excerpt && (
-                  <p className="text-sm text-stone-600 line-clamp-2">
-                    {article.excerpt}
-                  </p>
-                )}
-              </div>
-            </Link>
-          ))}
+        {/* Horizontal card row */}
+        <div className="flex flex-col md:flex-row gap-6 overflow-x-auto md:overflow-visible pb-4 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0">
+          {filteredArticles.map((article) => {
+            const readTime = getReadingTime(article.content)
+            return (
+              <Link 
+                key={article.slug} 
+                href={`/blog/${article.slug}`}
+                className="group flex-shrink-0 w-full md:w-80 bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+              >
+                <div className="relative h-48 overflow-hidden">
+                  {article.featured_image ? (
+                    <Image
+                      src={article.featured_image}
+                      alt={article.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      sizes="(max-width: 768px) 100vw, 320px"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-stone-200 flex items-center justify-center">
+                      <span className="text-stone-400 text-sm">Photo</span>
+                    </div>
+                  )}
+                </div>
+                <div className="p-5">
+                  {article.category && (
+                    <p className="text-xs font-semibold text-[#83C5BE] uppercase tracking-wider mb-2">
+                      {article.category}
+                    </p>
+                  )}
+                  <h3 className="font-serif text-lg text-[#6b2a1a] mb-2 group-hover:text-amber-800 transition-colors line-clamp-2">
+                    {article.title}
+                  </h3>
+                  {readTime > 0 && (
+                    <p className="text-xs text-stone-400 mt-3">
+                      {readTime} min de lecture
+                    </p>
+                  )}
+                </div>
+              </Link>
+            )
+          })}
         </div>
       </div>
     </section>
