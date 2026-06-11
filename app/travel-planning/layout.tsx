@@ -71,9 +71,31 @@ const schemaService = {
         "@type": "Offer",
         "itemOffered": {
           "@type": "Service",
-          "name": "Carnet de voyage sur mesure"
+          "name": "Pack Essentiel"
         },
-        "description": "Itinéraire personnalisé pour 7-14 jours"
+        "description": "Voyage de 3 à 5 jours",
+        "price": "150",
+        "priceCurrency": "EUR"
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Pack Confort"
+        },
+        "description": "Voyage de 7 à 14 jours",
+        "price": "250",
+        "priceCurrency": "EUR"
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Pack Premium"
+        },
+        "description": "Voyage de 2+ semaines",
+        "price": "350",
+        "priceCurrency": "EUR"
       }
     ]
   }

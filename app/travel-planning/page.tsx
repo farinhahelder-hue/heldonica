@@ -271,6 +271,97 @@ export default function TravelPlanning() {
           </div>
         </section>
 
+        {/* ── TARIFS ── */}
+        <section id="tarifs" className="py-16 md:py-20 bg-gradient-to-b from-stone-100 to-stone-50">
+          <div className="max-w-4xl mx-auto px-6 md:px-10">
+            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-3 text-center">Tarifs</p>
+            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-4 text-center">
+              Un prix juste pour un vrai service
+            </h2>
+            <p className="text-stone-500 text-center text-sm mb-12 max-w-xl mx-auto">
+              Pas de tarif caché. Pas de surprise. Le prix est défini dès le départ selon la complexité de ton projet.
+            </p>
+            
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* Pack Essentiel */}
+              <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
+                <div className="text-center mb-4">
+                  <span className="inline-block px-3 py-1 rounded-full bg-stone-100 text-stone-600 text-xs font-medium mb-3">
+                    Essentiel
+                  </span>
+                  <p className="text-sm text-stone-500 mb-2">Voyage de 3 à 5 jours</p>
+                  <p className="text-3xl font-serif text-stone-900">À partir de <span className="font-bold">150€</span></p>
+                </div>
+                <ul className="space-y-2 text-sm text-stone-600">
+                  <li className="flex items-start gap-2">✓ Programme jour par jour</li>
+                  <li className="flex items-start gap-2">✓ Carte interactive</li>
+                  <li className="flex items-start gap-2">✓ 5 hébergements recommandés</li>
+                  <li className="flex items-start gap-2">✓ Conseils transports</li>
+                  <li className="flex items-start gap-2 text-stone-400">✕ Ajustements illimités</li>
+                  <li className="flex items-start gap-2 text-stone-400">✕ Accompagnement sur place</li>
+                </ul>
+                <Link href="/travel-planning-form"
+                  className="mt-6 block text-center px-4 py-3 bg-stone-900 text-white rounded-lg font-medium text-sm hover:bg-stone-800 transition">
+                  Demander un devis →
+                </Link>
+              </div>
+              
+              {/* Pack Confort - recommandé */}
+              <div className="bg-stone-900 rounded-2xl p-6 text-white shadow-xl relative">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-amber-500 text-stone-900 text-xs font-bold rounded-full">
+                  Le plus populaire
+                </div>
+                <div className="text-center mb-4">
+                  <span className="inline-block px-3 py-1 rounded-full bg-white/10 text-white/80 text-xs font-medium mb-3">
+                    Confort
+                  </span>
+                  <p className="text-sm text-stone-400 mb-2">Voyage de 7 à 14 jours</p>
+                  <p className="text-3xl font-serif">À partir de <span className="font-bold text-amber-400">250€</span></p>
+                </div>
+                <ul className="space-y-2 text-sm text-stone-300">
+                  <li className="flex items-start gap-2">✓ Programme jour par jour</li>
+                  <li className="flex items-start gap-2">✓ Carte interactive</li>
+                  <li className="flex items-start gap-2">✓ 10 hébergements recommandés</li>
+                  <li className="flex items-start gap-2">✓ Restaurants testés</li>
+                  <li className="flex items-start gap-2">✓ 2 ajustements inclus</li>
+                  <li className="flex items-start gap-2">✕ Accompagnement sur place</li>
+                </ul>
+                <Link href="/travel-planning-form"
+                  className="mt-6 block text-center px-4 py-3 bg-amber-600 text-white rounded-lg font-medium text-sm hover:bg-amber-500 transition">
+                  Choisir Confort →
+                </Link>
+              </div>
+              
+              {/* Pack Premium */}
+              <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
+                <div className="text-center mb-4">
+                  <span className="inline-block px-3 py-1 rounded-full bg-stone-100 text-stone-600 text-xs font-medium mb-3">
+                    Premium
+                  </span>
+                  <p className="text-sm text-stone-500 mb-2">Voyage de 2+ semaines</p>
+                  <p className="text-3xl font-serif text-stone-900">À partir de <span className="font-bold">350€</span></p>
+                </div>
+                <ul className="space-y-2 text-sm text-stone-600">
+                  <li className="flex items-start gap-2">✓ Tout du pack Confort</li>
+                  <li className="flex items-start gap-2">✓ Hébergements illimités</li>
+                  <li className="flex items-start gap-2">✓ Contacts locaux</li>
+                  <li className="flex items-start gap-2">✓ Ajustements illimités</li>
+                  <li className="flex items-start gap-2">✓ Accompagnement sur place</li>
+                </ul>
+                <Link href="/travel-planning-form"
+                  className="mt-6 block text-center px-4 py-3 bg-stone-900 text-white rounded-lg font-medium text-sm hover:bg-stone-800 transition">
+                  Demander Premium →
+                </Link>
+              </div>
+            </div>
+            
+            <p className="text-center text-stone-500 text-xs mt-8">
+              Ces tarifs sont indicatifs. Le prix exact est défini après un échange gratuit pour comprendre ton projet.
+              <br />Paiement en une ou plusieurs fois possible.
+            </p>
+          </div>
+        </section>
+
         {/* ── CTA INTERMÉDIAIRE ── */}
         <section className="py-16 bg-amber-900 text-white">
           <div className="max-w-3xl mx-auto px-6 text-center">
