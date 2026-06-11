@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getMaintenanceMode } from '@/lib/supabase-edge';
 
 // Inline legacy redirect logic (duplicated from app/middleware.ts to avoid edge runtime issues)
 const LEGACY_REDIRECTS: Record<string, string> = {
@@ -185,13 +186,13 @@ export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
   // Maintenance mode check - redirect to /maintenance if active
-  // Priority: 1. Environment variable (most reliable), 2. Cookie (set by CMS admin)
+  // Priority: 1. Environment variable (for emergency), 2. Supabase (dynamic CMS toggle), 3. Cookie (fallback)
   // Exclude: /maintenance, /panel-manager, /cms-admin, /api, /_next, /robots.txt, /sitemap.xml, /favicon.ico
   const maintenanceExcludes = ['/maintenance', '/panel-manager', '/cms-admin', '/api', '/_next', '/robots.txt', '/sitemap.xml', '/favicon.ico'];
   const isMaintenanceExcluded = maintenanceExcludes.some(path => pathname.startsWith(path));
 
   if (!isMaintenanceExcluded) {
-    // First check environment variable (for quick enable/disable via deploy)
+    // 1. First check environment variable (emergency override - requires redeploy)
     const maintenanceEnvVar = process.env.MAINTENANCE_MODE;
     if (maintenanceEnvVar === '1' || maintenanceEnvVar === 'true') {
       const maintenanceUrl = req.nextUrl.clone();
@@ -199,7 +200,20 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(maintenanceUrl);
     }
     
-    // Fall back to cookie (set by CMS admin panel)
+    // 2. Check Supabase dynamically (no redeploy needed) - with fail open
+    try {
+      const isMaintenance = await getMaintenanceMode();
+      if (isMaintenance) {
+        const maintenanceUrl = req.nextUrl.clone();
+        maintenanceUrl.pathname = '/maintenance';
+        return NextResponse.redirect(maintenanceUrl);
+      }
+    } catch (error) {
+      // Fail open - if Supabase is unreachable, keep site accessible
+      console.warn('[Middleware] Supabase unreachable, allowing access:', error);
+    }
+    
+    // 3. Fall back to cookie (set by legacy CMS admin panel)
     const maintenanceCookie = req.cookies.get('heldonica_maintenance')?.value;
     if (maintenanceCookie === '1') {
       const maintenanceUrl = req.nextUrl.clone();

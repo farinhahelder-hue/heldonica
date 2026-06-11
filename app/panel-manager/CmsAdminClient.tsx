@@ -457,6 +457,8 @@ function CMSAdminInner() {
   const [savingPageKey, setSavingPageKey] = useState('');
   const [uploadingMediaKey, setUploadingMediaKey] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
+  const [showMaintenanceConfirm, setShowMaintenanceConfirm] = useState(false);
+  const [pendingMaintenanceValue, setPendingMaintenanceValue] = useState<string | null>(null);
 
   const isArticleDirty = getArticleDraftSignature(editingArticle) !== articleBaseline;
   const articleWordCount = getWordCount(editingArticle?.content);
@@ -1753,49 +1755,96 @@ function CMSAdminInner() {
                         <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>{groupCfg?.emoji} {groupCfg?.label}</h2>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
                           {groupItems.map(s => {
-                            // Special toggle for maintenance_mode
+                            // Special toggle for maintenance_mode with confirmation dialog
                             if (s.key === 'maintenance_mode') {
                               const isActive = editedSettings[s.key] === 'true' || editedSettings[s.key] === '1';
+                              
+                              const handleToggle = () => {
+                                const newValue = isActive ? 'false' : 'true';
+                                if (newValue === 'true') {
+                                  // Activating - show confirmation
+                                  setPendingMaintenanceValue(newValue);
+                                  setShowMaintenanceConfirm(true);
+                                } else {
+                                  // Deactivating - just do it
+                                  setEditedSettings(prev => ({ ...prev, [s.key]: newValue }));
+                                  setSavingSettings(true);
+                                  fetch('/api/cms/settings/maintenance', {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ active: false }),
+                                  }).then(res => {
+                                    if (res.ok) showToast('✅ Mode maintenance désactivé');
+                                    else showToast('❌ Erreur lors de la désactivation');
+                                  }).catch(() => showToast('❌ Erreur réseau')).finally(() => setSavingSettings(false));
+                                }
+                              };
+                              
+                              const confirmMaintenanceActivation = () => {
+                                if (pendingMaintenanceValue === 'true') {
+                                  setEditedSettings(prev => ({ ...prev, [s.key]: pendingMaintenanceValue }));
+                                  setSavingSettings(true);
+                                  fetch('/api/cms/settings/maintenance', {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ active: true }),
+                                  }).then(res => {
+                                    if (res.ok) showToast('🔴 Mode maintenance activé');
+                                    else showToast('❌ Erreur lors de l\'activation');
+                                  }).catch(() => showToast('❌ Erreur réseau')).finally(() => {
+                                    setSavingSettings(false);
+                                    setShowMaintenanceConfirm(false);
+                                    setPendingMaintenanceValue(null);
+                                  });
+                                }
+                              };
+                              
                               return (
-                                <div key={s.key} style={{ padding: '1.25rem', background: isActive ? '#eff6ff' : '#f9fafb', borderRadius: '.75rem', border: `1px solid ${isActive ? '#bfdbfe' : '#e5e7eb'}` }}>
-                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div>
-                                      <label style={{ fontWeight: 600, color: '#1a1a1a', display: 'block', marginBottom: '.25rem' }}>Mode Maintenance</label>
-                                      <p style={{ fontSize: '.8rem', color: '#666', margin: 0 }}>
-                                        {isActive ? '🔴 Le site affiche la page de maintenance' : '🟢 Site accessible aux visiteurs'}
-                                      </p>
+                                <div key={s.key}>
+                                  <div style={{ 
+                                    padding: '1.25rem', 
+                                    background: isActive ? '#fff5f5' : '#f0fdf4', 
+                                    borderRadius: '.75rem', 
+                                    border: `1px solid ${isActive ? '#fecaca' : '#bbf7d0'}`
+                                  }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                      <div>
+                                        <label style={{ fontWeight: 600, color: '#1a1a1a', display: 'block', marginBottom: '.25rem' }}>Mode Maintenance</label>
+                                        <p style={{ fontSize: '.8rem', color: '#666', margin: 0 }}>
+                                          {isActive ? '🔴 Le site affiche la page de maintenance' : '🟢 Site accessible aux visiteurs'}
+                                        </p>
+                                      </div>
+                                      <button
+                                        type="button"
+                                        onClick={handleToggle}
+                                        disabled={savingSettings}
+                                        style={{
+                                          width: '56px',
+                                          height: '30px',
+                                          borderRadius: '15px',
+                                          border: 'none',
+                                          cursor: savingSettings ? 'not-allowed' : 'pointer',
+                                          position: 'relative',
+                                          transition: 'background 0.2s',
+                                          background: isActive ? '#dc2626' : '#22c55e',
+                                          padding: 0,
+                                          opacity: savingSettings ? 0.6 : 1,
+                                        }}
+                                        aria-label={isActive ? 'Désactiver le mode maintenance' : 'Activer le mode maintenance'}
+                                      >
+                                        <span style={{
+                                          position: 'absolute',
+                                          top: '4px',
+                                          left: isActive ? '30px' : '4px',
+                                          width: '22px',
+                                          height: '22px',
+                                          borderRadius: '50%',
+                                          background: 'white',
+                                          transition: 'left 0.2s',
+                                          boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
+                                        }} />
+                                      </button>
                                     </div>
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        const newValue = isActive ? 'false' : 'true';
-                                        setEditedSettings(prev => ({ ...prev, [s.key]: newValue }));
-                                      }}
-                                      style={{
-                                        width: '56px',
-                                        height: '30px',
-                                        borderRadius: '15px',
-                                        border: 'none',
-                                        cursor: 'pointer',
-                                        position: 'relative',
-                                        transition: 'background 0.2s',
-                                        background: isActive ? '#059669' : '#d1d5db',
-                                        padding: 0,
-                                      }}
-                                      aria-label={isActive ? 'Désactiver le mode maintenance' : 'Activer le mode maintenance'}
-                                    >
-                                      <span style={{
-                                        position: 'absolute',
-                                        top: '4px',
-                                        left: isActive ? '30px' : '4px',
-                                        width: '22px',
-                                        height: '22px',
-                                        borderRadius: '50%',
-                                        background: 'white',
-                                        transition: 'left 0.2s',
-                                        boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
-                                      }} />
-                                    </button>
                                   </div>
                                 </div>
                               );
@@ -1811,6 +1860,74 @@ function CMSAdminInner() {
                           })}
                           {groupItems.length === 0 && <p style={{ color: '#aaa', fontSize: '.9rem', textAlign: 'center', padding: '2rem' }}>Aucun paramètre dans ce groupe.</p>}
                         </div>
+                        
+                        {/* Confirmation Dialog for Maintenance Mode */}
+                        {showMaintenanceConfirm && (
+                          <div style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: 'rgba(0,0,0,0.5)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            zIndex: 1000,
+                          }}>
+                            <div style={{
+                              background: 'white',
+                              borderRadius: '1rem',
+                              padding: '2rem',
+                              maxWidth: 400,
+                              margin: '1rem',
+                              boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+                            }}>
+                              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1rem' }}>
+                                ⚠️ Confirmer l&apos;activation
+                              </h3>
+                              <p style={{ color: '#444', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+                                Le site sera <strong>inaccessible aux visiteurs</strong>. Seuls le panneau CMS et les API resteront accessibles.
+                              </p>
+                              <p style={{ color: '#666', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
+                                Les modifications prendront effet dans les 30 secondes.
+                              </p>
+                              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+                                <button
+                                  onClick={() => { setShowMaintenanceConfirm(false); setPendingMaintenanceValue(null); }}
+                                  style={{
+                                    padding: '0.6rem 1.25rem',
+                                    background: '#e5e7eb',
+                                    color: '#374151',
+                                    border: 'none',
+                                    borderRadius: '0.5rem',
+                                    cursor: 'pointer',
+                                    fontWeight: 600,
+                                  }}
+                                >
+                                  Annuler
+                                </button>
+                                <button
+                                  onClick={confirmMaintenanceActivation}
+                                  disabled={savingSettings}
+                                  style={{
+                                    padding: '0.6rem 1.25rem',
+                                    background: '#dc2626',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '0.5rem',
+                                    cursor: savingSettings ? 'not-allowed' : 'pointer',
+                                    fontWeight: 600,
+                                    opacity: savingSettings ? 0.6 : 1,
+                                  }}
+                                >
+                                  {savingSettings ? 'Activation…' : 'Confirmer'}
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        
                         <button onClick={saveSettings} disabled={savingSettings}
                           style={{ marginTop: '1.75rem', padding: '.7rem 2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '.9rem', opacity: savingSettings ? .7 : 1 }}
                         >{savingSettings ? '⏳ Sauvegarde…' : '💾 Sauvegarder'}</button>
