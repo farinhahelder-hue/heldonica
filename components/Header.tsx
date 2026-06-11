@@ -45,6 +45,7 @@ export default function Header() {
     { href: '/', label: 'Accueil' },
     { href: '/destinations', label: 'Destinations' },
     { href: '/blog', label: 'Inspirations' },
+    { href: '/quiz', label: 'Quiz' },
     { href: '/travel-planning', label: 'Services' },
     { href: '/a-propos', label: 'À propos' },
   ]
