@@ -71,8 +71,8 @@ export async function POST(req: Request) {
 
   // Also try to update cms_blog_posts (may not have read_time column)
   for (const update of updates) {
-    await supabase
-      .from('cms_blog_posts')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase.from('cms_blog_posts') as any)
       .update({ read_time: update.read_time })
       .eq('id', update.id)
       .then(() => {})

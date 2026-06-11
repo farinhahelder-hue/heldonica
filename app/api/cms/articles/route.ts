@@ -2,6 +2,24 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireCmsAuth } from '@/lib/cms-auth'
 
+interface CmsBlogPost {
+  id: number;
+  title: string;
+  slug: string;
+  category: string | null;
+  excerpt: string | null;
+  content: string | null;
+  featured_image: string | null;
+  author: string | null;
+  published: boolean;
+  published_at: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  tags: string[] | null;
+  voice_notes?: string | null;
+  archived: boolean;
+}
+
 let _cached: ReturnType<typeof createClient> | null = null;
 function supabase() {
   if (!_cached) {
@@ -53,16 +71,16 @@ export async function POST(req: Request) {
   const payload = { ...body, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
 
   // Insert into cms_blog_posts (legacy table for CMS)
-  let { data, error } = await sb
-    .from('cms_blog_posts')
-    .insert([payload] as any)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let { data, error } = await (sb.from('cms_blog_posts') as any)
+    .insert([payload])
     .select()
     .single()
 
   if (error?.message?.includes('voice_notes') && error.message.includes('does not exist')) {
-    ;({ data, error } = await sb
-      .from('cms_blog_posts')
-      .insert([withoutVoiceNotes(payload)] as any)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;({ data, error } = await (sb.from('cms_blog_posts') as any)
+      .insert([withoutVoiceNotes(payload)])
       .select()
       .single())
   }
@@ -72,23 +90,24 @@ export async function POST(req: Request) {
   // Also sync to articles table for public pages
   if (data) {
     const articlesPayload = {
-      id: data.id,
-      title: data.title,
-      slug: data.slug,
-      category: data.category,
-      excerpt: data.excerpt,
-      content: data.content,
-      featured_image: data.featured_image,
-      author: data.author,
-      published: data.published,
-      published_at: data.published_at,
-      created_at: data.created_at,
-      updated_at: data.updated_at,
-      tags: data.tags || [],
+      id: (data as CmsBlogPost).id,
+      title: (data as CmsBlogPost).title,
+      slug: (data as CmsBlogPost).slug,
+      category: (data as CmsBlogPost).category,
+      excerpt: (data as CmsBlogPost).excerpt,
+      content: (data as CmsBlogPost).content,
+      featured_image: (data as CmsBlogPost).featured_image,
+      author: (data as CmsBlogPost).author,
+      published: (data as CmsBlogPost).published,
+      published_at: (data as CmsBlogPost).published_at,
+      created_at: (data as CmsBlogPost).created_at,
+      updated_at: (data as CmsBlogPost).updated_at,
+      tags: (data as CmsBlogPost).tags || [],
       archived: false,
     }
     // Sync to articles table - ignore errors as articles might not exist yet
-    sb.from('articles').upsert(articlesPayload).then(() => {}).catch(() => {})
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(sb.from('articles') as any).upsert(articlesPayload).then(() => {}).catch(() => {})
   }
 
   return NextResponse.json({ article: data }, { status: 201 })
