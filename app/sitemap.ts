@@ -3,6 +3,9 @@ import { getAllPosts } from '@/lib/blog-supabase'
 
 const BASE_URL = 'https://www.heldonica.fr'
 
+// Fallback image for articles without featured_image
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&q=80'
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Pages statiques principales
   const staticPages: MetadataRoute.Sitemap = [
@@ -422,20 +425,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // Pages dynamiques avec vraies dates de publication
-  // Articles publiés: priorité 0.9 selon les 要求
+  // Pages dynamiques avec vraies dates de publication et images
+  // Articles publiés: priorité 0.9 selon les要求
   const posts = await getAllPosts();
-  const blogPages: MetadataRoute.Sitemap = (posts ?? []).map((post) => ({
-    url: `${BASE_URL}/blog/${post.slug}`,
-    lastModified: new Date(
-      post.updated_at ??
-      post.published_at ??
-      post.created_at ??
-      new Date().toISOString()
-    ),
-    changeFrequency: 'weekly' as const,
-    priority: 0.9,
-  }));
+  
+  // Blog pages with image sitemap support
+  const blogPages: MetadataRoute.Sitemap = (posts ?? [])
+    .filter(post => post.status === 'published' || post.published_at)
+    .map((post) => {
+      const lastMod = new Date(
+        post.updated_at ??
+        post.published_at ??
+        post.created_at ??
+        new Date().toISOString()
+      );
+      
+      // Determine image URL
+      const imageUrl = post.featured_image || FALLBACK_IMAGE;
+      
+      return {
+        url: `${BASE_URL}/blog/${post.slug}`,
+        lastModified: lastMod,
+        changeFrequency: 'weekly' as const,
+        priority: 0.9,
+        // Image sitemap extension for Google
+        images: imageUrl ? [
+          {
+            url: imageUrl,
+            title: post.title || 'Article Heldonica',
+            caption: post.excerpt || undefined,
+          },
+        ] : undefined,
+      };
+    });
 
   return [...staticPages, ...blogPages];
 }
