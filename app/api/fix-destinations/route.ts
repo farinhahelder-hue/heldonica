@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase-client'
+import { createServiceClient } from '@/lib/supabase'
 
 export async function POST() {
   try {
+    const supabase = createServiceClient()
     const results = []
 
     // Tâche 1: Fix Paris image
