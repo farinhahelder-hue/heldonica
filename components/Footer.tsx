@@ -6,6 +6,7 @@ import Link from 'next/link'
 export default function Footer() {
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)
+  const [loading, setLoading] = useState(false)
   const currentYear = new Date().getFullYear()
 
   const navLinks = [
@@ -67,11 +68,27 @@ export default function Footer() {
     },
   ]
 
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (email) {
-      setSubscribed(true)
-      // TODO: Intégrer l'API Brevo ici
+    if (!email) return
+
+    setLoading(true)
+    try {
+      const res = await fetch('/api/brevo/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, source: 'footer' }),
+      })
+
+      if (res.ok) {
+        setSubscribed(true)
+      } else {
+        console.error('Erreur inscription:', await res.json())
+      }
+    } catch (err) {
+      console.error('Erreur réseau:', err)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -107,13 +124,15 @@ export default function Footer() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="ton@email.com"
                     required
-                    className="flex-1 px-5 py-3.5 bg-stone-900 border border-stone-700 rounded-xl text-white placeholder-stone-500 focus:outline-none focus:border-eucalyptus transition-colors"
+                    disabled={loading}
+                    className="flex-1 px-5 py-3.5 bg-stone-900 border border-stone-700 rounded-xl text-white placeholder-stone-500 focus:outline-none focus:border-eucalyptus transition-colors disabled:opacity-50"
                   />
                   <button
                     type="submit"
-                    className="px-6 py-3.5 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all whitespace-nowrap"
+                    disabled={loading}
+                    className="px-6 py-3.5 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Je m&apos;inscris
+                    {loading ? 'Envoi...' : "Je m'inscris"}
                   </button>
                 </form>
               )}
