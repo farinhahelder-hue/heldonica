@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { HELDONICA_TOKENS, SlideData } from './tokens'
+import { HELDONICA_TOKENS, SlideData, PROMPT_TEMPLATES, generateId } from './tokens'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -15,21 +15,28 @@ interface AIChatPanelProps {
   setIsGenerating: (v: boolean) => void
 }
 
-const EXAMPLE_PROMPTS = [
-  "Crée un carrousel 5 slides sur les meilleurs spots slow travel au Portugal",
-  "Génère un carrousel 8 slides sur l'éco-luxe en Normandie",
-  "5 slides sur les destinations romantiques hors sentiers battus",
-  "Carrousel 6 slides : itinéraire slow travel en Grèce",
+const QUICK_PROMPTS = [
+  { icon: '🌍', label: 'Destinations', prompts: PROMPT_TEMPLATES.destinations },
+  { icon: '💡', label: 'Conseils', prompts: PROMPT_TEMPLATES.tips },
+  { icon: '💑', label: 'Romantique', prompts: PROMPT_TEMPLATES.romantic },
 ]
 
 export default function AIChatPanel({ onSlidesGenerated, isGenerating, setIsGenerating }: AIChatPanelProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: `Bonjour ! Je suis votre assistant Carrousel Heldonica. \n\nJe peux générer des carrousels Instagram personnalisés avec le style slow travel et éco-luxe de la marque.\n\nTapez votre idée ou choisissez un exemple ci-dessous.`
+      content: `Bienvenue ! Je suis votre assistant Carrousel Heldonica ✨
+
+Je crée des carrousels Instagram personnalisés avec le style slow travel et éco-luxe de la marque.
+
+💡 Tips :
+• Précisez le nombre de slides (ex: "5 slides")
+• Mentionnez une destination (ex: Portugal, Madère)
+• Utilisez les exemples rapides ci-dessous`
     }
   ])
   const [input, setInput] = useState('')
+  const [showTemplates, setShowTemplates] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -42,6 +49,7 @@ export default function AIChatPanel({ onSlidesGenerated, isGenerating, setIsGene
     if (!userPrompt || isGenerating) return
 
     setInput('')
+    setShowTemplates(false)
     setMessages(prev => [...prev, { role: 'user', content: userPrompt }])
     setIsGenerating(true)
 
@@ -59,9 +67,13 @@ export default function AIChatPanel({ onSlidesGenerated, isGenerating, setIsGene
       const data = await res.json()
 
       if (data.slides && data.slides.length > 0) {
+        const responseContent = `J'ai généré ${data.slides.length} slides pour "${data.meta.prompt}"
+
+Chaque slide utilise une couleur différente de la palette Heldonica. Vous pouvez les réorganiser dans le filmstrip ou modifier chaque slide.`
+
         setMessages(prev => [...prev, {
           role: 'assistant',
-          content: `J'ai généré ${data.slides.length} slides pour votre carrousel ! Vous pouvez les réorganiser dans le filmstrip ou les modifier.`,
+          content: responseContent,
           slides: data.slides
         }])
         onSlidesGenerated(data.slides)
@@ -85,8 +97,18 @@ export default function AIChatPanel({ onSlidesGenerated, isGenerating, setIsGene
     <div className="flex flex-col h-full bg-white rounded-2xl border border-stone-200 overflow-hidden">
       {/* Header */}
       <div className="px-4 py-3 border-b border-stone-200 bg-gradient-to-r from-[#6b2a1a] to-[#4a7c59]">
-        <h3 className="font-semibold text-white text-sm">💬 Assistant Carrousel IA</h3>
-        <p className="text-xs text-white/80">Générez des carrousels en langage naturel</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-semibold text-white text-sm">🤖 Assistant Carrousel IA</h3>
+            <p className="text-xs text-white/80">Génération en langage naturel</p>
+          </div>
+          <button
+            onClick={() => setShowTemplates(!showTemplates)}
+            className="px-2 py-1 text-xs bg-white/20 text-white rounded-lg hover:bg-white/30 transition-colors"
+          >
+            {showTemplates ? 'Masquer' : 'Afficher'} tips
+          </button>
+        </div>
       </div>
 
       {/* Messages */}
@@ -101,7 +123,18 @@ export default function AIChatPanel({ onSlidesGenerated, isGenerating, setIsGene
               <p className="whitespace-pre-wrap">{msg.content}</p>
               {msg.slides && msg.slides.length > 0 && (
                 <div className="mt-3 pt-3 border-t border-stone-200/30">
-                  <span className="text-xs opacity-75">{msg.slides.length} slides générées</span>
+                  <div className="flex gap-1 flex-wrap">
+                    {msg.slides.slice(0, 5).map((slide, si) => (
+                      <span key={si} className="px-2 py-1 bg-white/50 rounded text-xs">
+                        {slide.title.substring(0, 20)}
+                      </span>
+                    ))}
+                    {msg.slides.length > 5 && (
+                      <span className="px-2 py-1 bg-white/50 rounded text-xs">
+                        +{msg.slides.length - 5}
+                      </span>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -121,21 +154,34 @@ export default function AIChatPanel({ onSlidesGenerated, isGenerating, setIsGene
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Example prompts */}
-      <div className="px-4 py-2 border-t border-stone-100">
-        <p className="text-xs text-stone-500 mb-2">Exemples :</p>
-        <div className="flex flex-wrap gap-1">
-          {EXAMPLE_PROMPTS.slice(0, 2).map((p, i) => (
-            <button
-              key={i}
-              onClick={(e) => handleSubmit(e, p)}
-              className="text-xs px-2 py-1 bg-stone-100 hover:bg-stone-200 rounded-lg text-stone-600 transition-colors"
-            >
-              {p.substring(0, 30)}...
-            </button>
-          ))}
+      {/* Quick templates */}
+      {showTemplates && (
+        <div className="px-4 py-2 border-t border-stone-100 bg-stone-50">
+          <p className="text-xs text-stone-500 mb-2">Exemples rapides :</p>
+          <div className="space-y-1">
+            {QUICK_PROMPTS.map((category, ci) => (
+              <details key={ci} className="group">
+                <summary className="text-xs px-2 py-1 cursor-pointer hover:bg-stone-100 rounded flex items-center gap-1">
+                  <span>{category.icon}</span>
+                  <span className="text-stone-600">{category.label}</span>
+                  <span className="ml-auto text-stone-400 group-open:rotate-90 transition-transform">▶</span>
+                </summary>
+                <div className="pl-4 mt-1 space-y-1">
+                  {category.prompts.slice(0, 2).map((p, pi) => (
+                    <button
+                      key={pi}
+                      onClick={(e) => handleSubmit(e, p.replace('{n}', '5').replace('{destination}', 'Madère').replace('{activity}', 'randonnée').replace('{topic}', 'slow travel'))}
+                      className="block w-full text-left text-xs px-2 py-1 bg-white rounded hover:bg-stone-100 text-stone-500 truncate"
+                    >
+                      {p.split('{')[0]}...
+                    </button>
+                  ))}
+                </div>
+              </details>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Input */}
       <form onSubmit={handleSubmit} className="p-4 border-t border-stone-200">
@@ -144,7 +190,7 @@ export default function AIChatPanel({ onSlidesGenerated, isGenerating, setIsGene
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Décrivez votre carrousel..."
+            placeholder="Ex: Crée un carrousel 5 slides sur Madère..."
             className="flex-1 px-3 py-2 text-sm border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6b2a1a]/30 focus:border-[#6b2a1a]"
             disabled={isGenerating}
           />
