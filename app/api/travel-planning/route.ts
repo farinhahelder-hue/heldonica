@@ -4,6 +4,35 @@ import { Resend } from 'resend'
 
 export const dynamic = 'force-dynamic'
 
+// Simple in-memory rate limiter: 5 requests per IP per hour
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
+const RATE_LIMIT = 5
+const RATE_WINDOW = 60 * 60 * 1000 // 1 hour in ms
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now()
+  const entry = rateLimitMap.get(ip)
+  
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW })
+    return true
+  }
+  
+  if (entry.count >= RATE_LIMIT) {
+    return false
+  }
+  
+  entry.count++
+  return true
+}
+
+function getClientIP(req: NextRequest): string {
+  return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+         req.headers.get('x-real-ip') ||
+         req.headers.get('cf-connecting-ip') || // Cloudflare
+         'unknown'
+}
+
 function escapeHtml(unsafe: any) {
   if (unsafe === undefined || unsafe === null) return '';
   return String(unsafe)
@@ -15,6 +44,15 @@ function escapeHtml(unsafe: any) {
 }
 
 export async function POST(req: NextRequest) {
+  // Rate limiting
+  const clientIP = getClientIP(req)
+  if (!checkRateLimit(clientIP)) {
+    return NextResponse.json(
+      { error: 'Trop de requêtes. Réessaie dans 1 heure.' },
+      { status: 429 }
+    )
+  }
+
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
   const supabase = (url && key) ? createClient(url, key) : null;
