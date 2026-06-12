@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     siteName: 'Heldonica',
     images: [
       {
-        url: 'https://heldonica.fr/og-image.jpg',
+        url: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&q=85',
         width: 1200,
         height: 630,
         alt: 'Heldonica — Slow travel vécu en duo, conçu pour toi',
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     title: 'Heldonica — Slow travel vécu en duo, conçu pour toi',
     description:
       'Carnets terrain, pépites vécues et voyages sur mesure pour couples, solos, familles ou amis.',
-    images: ['https://heldonica.fr/og-image.jpg'],
+    images: ['https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&q=85'],
   },
   alternates: {
     canonical: 'https://heldonica.fr',
