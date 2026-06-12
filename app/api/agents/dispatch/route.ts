@@ -1,6 +1,6 @@
 // ============================================================
 // /api/agents/dispatch - Heldonica CMS
-// Declenche Jules, AllHands ou Gemini depuis le panneau admin
+// Declenche Jules, AllHands, Perplexity ou Gemini depuis le panneau admin
 // POST { agent, task, context?, label? }
 // ============================================================
 import { NextRequest, NextResponse } from 'next/server';
@@ -11,8 +11,9 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const GITHUB_OWNER = 'farinhahelder-hue';
 const GITHUB_REPO = 'heldonica';
 const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_AGENTS_URL;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-type AgentType = 'jules' | 'allhands' | 'gemini' | 'all';
+type AgentType = 'jules' | 'allhands' | 'gemini' | 'perplexity' | 'all';
 
 interface DispatchPayload {
   agent: AgentType;
@@ -22,6 +23,18 @@ interface DispatchPayload {
   priority?: 'high' | 'medium' | 'low';
   source?: string;        // 'cms-admin' | 'n8n' | 'github'
 }
+
+// Error codes for better client-side handling
+export const AgentErrorCodes = {
+  MISSING_GITHUB_TOKEN: 'MISSING_GITHUB_TOKEN',
+  MISSING_JULES_API_KEY: 'MISSING_JULES_API_KEY',
+  MISSING_GEMINI_API_KEY: 'MISSING_GEMINI_API_KEY',
+  MISSING_N8N_WEBHOOK: 'MISSING_N8N_WEBHOOK',
+  GITHUB_API_ERROR: 'GITHUB_API_ERROR',
+  N8N_WEBHOOK_ERROR: 'N8N_WEBHOOK_ERROR',
+  GEMINI_API_ERROR: 'GEMINI_API_ERROR',
+  PERPLEXITY_NOT_IMPLEMENTED: 'PERPLEXITY_NOT_IMPLEMENTED',
+} as const;
 
 async function createGitHubIssue(payload: DispatchPayload) {
   if (!GITHUB_TOKEN) {
@@ -43,6 +56,11 @@ async function createGitHubIssue(payload: DispatchPayload) {
       label: 'gemini-content',
       emoji: '✨',
       desc: 'Gemini va generer le contenu SEO via n8n.',
+    },
+    perplexity: {
+      label: 'perplexity',
+      emoji: '🔍',
+      desc: 'Perplexity va effectuer une recherche web intelligente.',
     },
     all: {
       label: 'ai-task',
@@ -145,7 +163,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const validAgents: AgentType[] = ['jules', 'allhands', 'gemini', 'all'];
+    const validAgents: AgentType[] = ['jules', 'allhands', 'gemini', 'perplexity', 'all'];
     if (!validAgents.includes(payload.agent)) {
       return NextResponse.json(
         { error: `Agent invalide. Valeurs acceptees: ${validAgents.join(', ')}` },
@@ -153,36 +171,104 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Check for required env vars before processing
+    if (payload.agent === 'jules' || payload.agent === 'allhands' || payload.agent === 'all') {
+      if (!GITHUB_TOKEN) {
+        return NextResponse.json(
+          {
+            error: '❌ Clé API GitHub manquante',
+            code: 'MISSING_GITHUB_TOKEN',
+            details: 'La variable GITHUB_TOKEN doit être configurée dans Vercel.',
+            action: 'Ajouter GITHUB_TOKEN dans les variables d\'environnement Vercel',
+          },
+          { status: 503 }
+        );
+      }
+    }
+
+    if (payload.agent === 'gemini') {
+      if (!N8N_WEBHOOK_URL) {
+        return NextResponse.json(
+          {
+            error: '❌ Webhook n8n non configuré',
+            code: 'MISSING_N8N_WEBHOOK',
+            details: 'La variable N8N_WEBHOOK_AGENTS_URL doit être configurée.',
+            action: 'Ajouter N8N_WEBHOOK_AGENTS_URL dans les variables d\'environnement Vercel',
+          },
+          { status: 503 }
+        );
+      }
+    }
+
+    if (payload.agent === 'perplexity') {
+      return NextResponse.json(
+        {
+          error: '⚠️ Perplexity en cours d\'intégration',
+          code: 'PERPLEXITY_NOT_IMPLEMENTED',
+          details: 'L\'intégration Perplexity nécessite une clé API ou une autre approche.',
+          suggestion: 'Utilisez OpenHands, Jules ou Gemini pour le moment.',
+        },
+        { status: 501 }
+      );
+    }
+
     const results: Record<string, unknown> = {};
+    const warnings: string[] = [];
 
     // Pour Jules et AllHands: creer une issue GitHub avec le bon label
     if (payload.agent === 'jules' || payload.agent === 'allhands' || payload.agent === 'all') {
-      const issue = await createGitHubIssue(payload);
-      results.github = {
-        issue_number: issue.number,
-        issue_url: issue.html_url,
-        title: issue.title,
-      };
+      try {
+        const issue = await createGitHubIssue(payload);
+        results.github = {
+          issue_number: issue.number,
+          issue_url: issue.html_url,
+          title: issue.title,
+        };
+      } catch (err) {
+        console.error('[agents/dispatch] GitHub issue creation failed:', err);
+        return NextResponse.json(
+          {
+            error: '❌ Erreur lors de la création de l\'issue GitHub',
+            code: 'GITHUB_API_ERROR',
+            details: err instanceof Error ? err.message : String(err),
+          },
+          { status: 500 }
+        );
+      }
     }
 
     // Pour Gemini (et all): trigger n8n webhook
     if (payload.agent === 'gemini' || payload.agent === 'all') {
-      const n8nResult = await triggerN8nWebhook(payload);
-      results.n8n = n8nResult || { status: 'webhook_not_configured' };
+      try {
+        const n8nResult = await triggerN8nWebhook(payload);
+        results.n8n = n8nResult || { status: 'webhook_not_configured' };
+        if (!n8nResult) {
+          warnings.push('Le webhook n8n a été appelé mais n\'a pas répondu correctement.');
+        }
+      } catch (err) {
+        console.error('[agents/dispatch] n8n webhook failed:', err);
+        warnings.push(`Webhook n8n: ${err instanceof Error ? err.message : String(err)}`);
+      }
     }
 
-    return NextResponse.json({
+    const response: Record<string, unknown> = {
       success: true,
       agent: payload.agent,
       task: payload.task,
       dispatched_at: new Date().toISOString(),
       results,
-    });
+    };
+
+    if (warnings.length > 0) {
+      response.warnings = warnings;
+    }
+
+    return NextResponse.json(response);
   } catch (err) {
     console.error('[agents/dispatch] Error:', err);
     return NextResponse.json(
       {
-        error: 'Erreur lors du dispatch',
+        error: '❌ Erreur lors du dispatch',
         details: err instanceof Error ? err.message : String(err),
       },
       { status: 500 }
@@ -197,8 +283,14 @@ export async function GET() {
     endpoints: {
       dispatch: 'POST /api/agents/dispatch',
       status: 'GET /api/agents/status',
+      config: 'GET /api/agents/config',
     },
-    agents: ['jules', 'allhands', 'gemini', 'all'],
-    required_env: ['GITHUB_TOKEN', 'N8N_WEBHOOK_AGENTS_URL'],
+    agents: ['jules', 'allhands', 'gemini', 'perplexity', 'all'],
+    required_env: {
+      GITHUB_TOKEN: 'GitHub Personal Access Token (scope: repo)',
+      JULES_API_KEY: 'Clé API Jules (optionnel pour /api/jules)',
+      N8N_WEBHOOK_AGENTS_URL: 'URL webhook n8n pour les agents',
+      GEMINI_API_KEY: 'Clé API Gemini (optionnel)',
+    },
   });
 }
