@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
       locale: 'fr_FR',
       images: [
         {
-          url: '/og-blog.jpg',
+          url: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&q=85',
           width: 1200,
           height: 630,
           alt: 'Blog Heldonica — Carnets de route slow travel, pépites dénichées',
@@ -43,7 +43,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: 'summary_large_image',
       title: 'Blog Slow Travel — Carnets de Route & Pépites Dénichées | Heldonica',
       description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain.',
-      images: ['/og-blog.jpg'],
+      images: ['https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&q=85'],
       creator: '@heldonica',
     },
   }
