@@ -9,9 +9,9 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-  const JULES_API_KEY = process.env.JULES_API_KEY;
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-  const N8N_WEBHOOK_AGENTS_URL = process.env.N8N_WEBHOOK_AGENTS_URL;
+  const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+  const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
 
   const agents = {
     allhands: {
@@ -19,55 +19,62 @@ export async function GET() {
       name: 'OpenHands (AllHands)',
       emoji: '🤖',
       description: 'Agent IA polyvalent avec accès au code et exécution de tâches',
-      configured: Boolean(GITHUB_TOKEN),
-      missing: GITHUB_TOKEN ? [] : ['GITHUB_TOKEN'],
-      status: GITHUB_TOKEN ? 'configured' : 'missing_key',
-      message: GITHUB_TOKEN ? 'Prêt à envoyer des tâches' : '❌ Clé API GitHub manquante',
+      configured: false,
+      missing: [],
+      status: 'requires_cloud',
+      message: '⚫ Necessite AllHands Cloud',
       color: '#01696f',
-      usage: 'Crée une issue GitHub avec le label "allhands" qui déclenche OpenHands',
+      usage: 'OpenHands necessite un compte AllHands Cloud pour fonctionner. Visitez https://app.all-hands.dev',
+      beta: true,
     },
     jules: {
       id: 'jules',
       name: 'Jules (Google)',
       emoji: '🎯',
-      description: 'Agent IA de Google pour le développement',
-      configured: Boolean(JULES_API_KEY),
-      missing: JULES_API_KEY ? [] : ['JULES_API_KEY'],
-      status: JULES_API_KEY ? 'configured' : 'missing_key',
-      message: JULES_API_KEY ? 'Prêt à envoyer des tâches' : '❌ Clé API Jules manquante',
+      description: 'Agent IA de développement de Google',
+      configured: false,
+      missing: [],
+      status: 'beta_program',
+      message: '⚫ Programme Google en beta',
       color: '#9333ea',
-      usage: 'Crée une issue GitHub avec le label "jules" qui déclenche Jules',
+      usage: 'Jules est en programme beta. Demandez un accès sur https://aistudio.google.com/',
+      beta: true,
     },
     gemini: {
       id: 'gemini',
       name: 'Gemini (Google)',
       emoji: '✨',
-      description: 'Génère du contenu SEO via Gemini AI',
-      configured: Boolean(N8N_WEBHOOK_AGENTS_URL && GEMINI_API_KEY),
-      missing: [
-        ...(N8N_WEBHOOK_AGENTS_URL ? [] : ['N8N_WEBHOOK_AGENTS_URL']),
-        ...(GEMINI_API_KEY ? [] : ['GEMINI_API_KEY']),
-      ],
-      status: !N8N_WEBHOOK_AGENTS_URL ? 'not_configured' : !GEMINI_API_KEY ? 'missing_key' : 'configured',
-      message: !N8N_WEBHOOK_AGENTS_URL
-        ? '⚠️ Webhook n8n non configuré'
-        : !GEMINI_API_KEY
-        ? '❌ Clé API Gemini manquante'
-        : 'Prêt à envoyer des tâches',
+      description: 'Génère du contenu via l\'API Google Gemini',
+      configured: Boolean(GEMINI_API_KEY),
+      missing: GEMINI_API_KEY ? [] : ['GEMINI_API_KEY'],
+      status: !GEMINI_API_KEY ? 'missing_key' : 'configured',
+      message: GEMINI_API_KEY ? 'Prêt à générer du contenu' : '❌ Clé API Gemini manquante',
       color: '#2563eb',
-      usage: 'Déclenche un workflow n8n qui utilise Gemini pour générer du contenu',
+      usage: 'Appel direct à l\'API Google Gemini pour générer du contenu SEO',
+    },
+    claude: {
+      id: 'claude',
+      name: 'Claude (Anthropic)',
+      emoji: '🧠',
+      description: 'Génère du contenu via l\'API Anthropic Claude',
+      configured: Boolean(ANTHROPIC_API_KEY),
+      missing: ANTHROPIC_API_KEY ? [] : ['ANTHROPIC_API_KEY'],
+      status: !ANTHROPIC_API_KEY ? 'missing_key' : 'configured',
+      message: ANTHROPIC_API_KEY ? 'Prêt à générer du contenu' : '❌ Clé API Anthropic manquante',
+      color: '#dc7616',
+      usage: 'Appel direct à l\'API Anthropic Claude pour générer du contenu',
     },
     perplexity: {
       id: 'perplexity',
       name: 'Perplexity',
       emoji: '🔍',
-      description: 'Recherche web intelligente pour générer des captions Instagram',
-      configured: false,
-      missing: ['PERPLEXITY_API_KEY'],
-      status: 'not_implemented',
-      message: '⚠️ Integration en cours de développement',
+      description: 'Recherche web intelligente pour générer des captions',
+      configured: Boolean(PERPLEXITY_API_KEY),
+      missing: PERPLEXITY_API_KEY ? [] : ['PERPLEXITY_API_KEY'],
+      status: !PERPLEXITY_API_KEY ? 'missing_key' : 'configured',
+      message: PERPLEXITY_API_KEY ? 'Prêt à rechercher' : '❌ Clé API Perplexity manquante',
       color: '#10b981',
-      usage: 'Ouvre Perplexity dans le navigateur pour générer des captions',
+      usage: 'Appel direct à l\'API Perplexity pour la recherche web intelligente',
     },
   };
 
@@ -76,8 +83,8 @@ export async function GET() {
     total: Object.keys(agents).length,
     configured: Object.values(agents).filter(a => a.status === 'configured').length,
     missing_key: Object.values(agents).filter(a => a.status === 'missing_key').length,
-    not_configured: Object.values(agents).filter(a => a.status === 'not_configured').length,
-    not_implemented: Object.values(agents).filter(a => a.status === 'not_implemented').length,
+    beta_program: Object.values(agents).filter(a => a.status === 'beta_program').length,
+    requires_cloud: Object.values(agents).filter(a => a.status === 'requires_cloud').length,
   };
 
   return NextResponse.json({
@@ -85,9 +92,9 @@ export async function GET() {
     summary,
     required_env_vars: {
       GITHUB_TOKEN: 'GitHub Personal Access Token (scope: repo)',
-      JULES_API_KEY: 'Clé API Jules (Google AI Studio)',
       GEMINI_API_KEY: 'Clé API Gemini (Google AI Studio)',
-      N8N_WEBHOOK_AGENTS_URL: 'URL webhook n8n pour les agents',
+      ANTHROPIC_API_KEY: 'Clé API Anthropic',
+      PERPLEXITY_API_KEY: 'Clé API Perplexity',
     },
     timestamp: new Date().toISOString(),
   });
