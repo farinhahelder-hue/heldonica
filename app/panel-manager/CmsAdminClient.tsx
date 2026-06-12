@@ -298,9 +298,18 @@ function CMSAdminInner() {
   const [agentBranch, setAgentBranch] = useState('main');
   const [selectedAgent, setSelectedAgent] = useState('allhands');
   const [sendingTask, setSendingTask] = useState(false);
-  const [agentMessage, setAgentMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+  const [agentMessage, setAgentMessage] = useState<{type: 'success' | 'error' | 'warning', text: string, code?: string} | null>(null);
   const [taskHistory, setTaskHistory] = useState<{date: string; agent: string; task: string; repo: string; branch: string}[]>([]);
   const [agentStatus, setAgentStatus] = useState<any>(null);
+  const [agentConfig, setAgentConfig] = useState<Record<string, {
+    configured: boolean;
+    status: string;
+    message: string;
+    missing: string[];
+    name?: string;
+    color?: string;
+  }> | null>(null);
+  const [loadingAgentConfig, setLoadingAgentConfig] = useState(false);
 
   // Load task history from localStorage on mount
   useEffect(() => {
@@ -348,11 +357,19 @@ function CMSAdminInner() {
           perplexity: 'Perplexity',
         };
         const label = agentLabels[selectedAgent] || selectedAgent;
-        let messageText = `Tâche envoyée à ${label} avec succès!`;
-        if (data.issue_url) {
-          messageText += ` Issue: ${data.issue_url}`;
+        let messageText = `✅ Tâche envoyée à ${label} avec succès!`;
+        
+        // Show GitHub issue URL if available
+        if (data.results?.github?.issue_url) {
+          messageText += ` Issue #${data.results.github.issue_number}: ${data.results.github.issue_url}`;
         }
-        setAgentMessage({ type: 'success', text: messageText });
+        
+        // Show warnings if any
+        if (data.warnings && data.warnings.length > 0) {
+          setAgentMessage({ type: 'warning', text: messageText + '\n' + data.warnings.join('\n') });
+        } else {
+          setAgentMessage({ type: 'success', text: messageText });
+        }
 
         // Add to history
         const newEntry = {
@@ -369,11 +386,22 @@ function CMSAdminInner() {
         // Clear task field
         setAgentTask('');
       } else {
-        setAgentMessage({ type: 'error', text: data.error || `Erreur lors de l'envoi de la tâche (${res.status})` });
+        // Parse error response with detailed messages
+        let errorText = data.error || `Erreur lors de l'envoi de la tâche (${res.status})`;
+        if (data.details) {
+          errorText += `\n→ ${data.details}`;
+        }
+        if (data.action) {
+          errorText += `\n→ ${data.action}`;
+        }
+        if (data.suggestion) {
+          errorText += `\n→ ${data.suggestion}`;
+        }
+        setAgentMessage({ type: 'error', text: errorText, code: data.code });
       }
     } catch (err) {
       console.error('Failed to send task:', err);
-      setAgentMessage({ type: 'error', text: 'Erreur réseau. Veuillez réessayer.' });
+      setAgentMessage({ type: 'error', text: '❌ Erreur réseau. Veuillez réessayer.' });
     } finally {
       setSendingTask(false);
     }
@@ -391,6 +419,29 @@ function CMSAdminInner() {
       console.error('Failed to load agent status:', err);
     }
   };
+
+  // Load agent configuration status
+  const loadAgentConfig = async () => {
+    setLoadingAgentConfig(true);
+    try {
+      const res = await fetch('/api/agents/config');
+      if (res.ok) {
+        const data = await res.json();
+        setAgentConfig(data.agents);
+      }
+    } catch (err) {
+      console.error('Failed to load agent config:', err);
+    } finally {
+      setLoadingAgentConfig(false);
+    }
+  };
+
+  // Load agent config when switching to agents tab
+  useEffect(() => {
+    if (tab === 'agents' && !agentConfig) {
+      loadAgentConfig();
+    }
+  }, [tab, agentConfig]);
 
   // Load agent status when switching to agents tab
   useEffect(() => {
@@ -1942,6 +1993,55 @@ function CMSAdminInner() {
 
         {tab === 'agents' && (
           <div>
+            {/* Agent Status Indicators */}
+            <div style={{ background: 'white', borderRadius: '1rem', padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: 800, marginBottom: '1.5rem' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '.5rem' }}>
+                🔧 Statut des agents IA
+                {loadingAgentConfig && <span style={{ fontSize: '.8rem', color: '#888' }}>Chargement...</span>}
+              </h3>
+              {agentConfig && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '.75rem' }}>
+                  {Object.entries(agentConfig).map(([agentId, config]) => {
+                    const statusColor = config.status === 'configured' ? '#22c55e' : config.status === 'missing_key' ? '#ef4444' : '#f59e0b';
+                    const statusIcon = config.status === 'configured' ? '🟢' : config.status === 'missing_key' ? '🔴' : '🟡';
+                    const statusLabel = config.status === 'configured' ? 'Configuré' : config.status === 'missing_key' ? 'Clé manquante' : config.status === 'not_configured' ? 'Non configuré' : 'En développement';
+                    
+                    return (
+                      <div key={agentId} style={{ 
+                        padding: '.75rem', 
+                        background: '#f8f6f4', 
+                        borderRadius: '.5rem', 
+                        border: `2px solid ${statusColor}`,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                        onClick={() => setSelectedAgent(agentId)}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem', marginBottom: '.25rem' }}>
+                          <span style={{ fontSize: '1.2rem' }}>{statusIcon}</span>
+                          <span style={{ fontWeight: 600, fontSize: '.9rem', color: config.color || '#333' }}>
+                            {config.name}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '.75rem', color: '#555' }}>
+                          {statusLabel}
+                          {config.missing && config.missing.length > 0 && (
+                            <div style={{ marginTop: '.25rem', color: '#ef4444' }}>
+                              Missing: {config.missing.join(', ')}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              {!agentConfig && !loadingAgentConfig && (
+                <p style={{ color: '#888', fontSize: '.9rem' }}>Impossible de charger le statut des agents.</p>
+              )}
+            </div>
+
+            {/* Send Task Form */}
             <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: 800, marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '.5rem' }}>
                 <Bot size={24} /> Envoyer une tâche à un agent IA
@@ -1952,11 +2052,16 @@ function CMSAdminInner() {
                 <label style={lbl}>Agent</label>
                 <select value={selectedAgent} onChange={e => setSelectedAgent(e.target.value)}
                   style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.9rem', outline: 'none', background: '#faf9f7', color: '#1a1a1a', cursor: 'pointer' }}>
-                  <option value="allhands">OpenHands (AllHands)</option>
-                  <option value="jules">Jules (Google)</option>
-                  <option value="gemini">Gemini (Google)</option>
-                  <option value="perplexity">Perplexity</option>
+                  <option value="allhands">🤖 OpenHands (AllHands)</option>
+                  <option value="jules">🎯 Jules (Google)</option>
+                  <option value="gemini">✨ Gemini (Google)</option>
+                  <option value="perplexity">🔍 Perplexity</option>
                 </select>
+                {agentConfig && agentConfig[selectedAgent] && (
+                  <div style={{ marginTop: '.5rem', padding: '.5rem', background: agentConfig[selectedAgent].status === 'configured' ? '#d4edda' : agentConfig[selectedAgent].status === 'missing_key' ? '#f8d7da' : '#fff3cd', borderRadius: '.4rem', fontSize: '.8rem' }}>
+                    <span style={{ fontWeight: 600 }}>{agentConfig[selectedAgent].message}</span>
+                  </div>
+                )}
               </div>
 
               {/* Task textarea */}
@@ -1985,22 +2090,35 @@ function CMSAdminInner() {
               </div>
 
               {/* Send button */}
-              <button onClick={sendAgentTask} disabled={sendingTask}
-                style={{ padding: '.75rem 2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '1rem', opacity: sendingTask ? .7 : 1 }}>
-                {sendingTask ? '⏳ Envoi...' : '📤 Envoyer la tâche'}
+              <button 
+                onClick={sendAgentTask} 
+                disabled={sendingTask || (agentConfig?.[selectedAgent]?.status === 'not_implemented')}
+                style={{ 
+                  padding: '.75rem 2rem', 
+                  background: (agentConfig?.[selectedAgent]?.status === 'not_implemented') ? '#888' : '#6b2a1a', 
+                  color: 'white', 
+                  border: 'none', 
+                  borderRadius: '.5rem', 
+                  fontWeight: 700, 
+                  cursor: sendingTask || (agentConfig?.[selectedAgent]?.status === 'not_implemented') ? 'not-allowed' : 'pointer', 
+                  fontSize: '1rem', 
+                  opacity: sendingTask ? .7 : 1 
+                }}>
+                {sendingTask ? '⏳ Envoi en cours...' : '📤 Envoyer la tâche'}
               </button>
 
-              {/* Success/error message */}
+              {/* Success/error/warning message */}
               {agentMessage && (
                 <div style={{ 
                   marginTop: '1rem', 
                   padding: '.75rem 1rem', 
                   borderRadius: '.5rem', 
-                  background: agentMessage.type === 'success' ? '#d4edda' : '#f8d7da',
-                  color: agentMessage.type === 'success' ? '#155724' : '#721c24',
-                  fontSize: '.9rem'
+                  background: agentMessage.type === 'success' ? '#d4edda' : agentMessage.type === 'warning' ? '#fff3cd' : '#f8d7da',
+                  color: agentMessage.type === 'success' ? '#155724' : agentMessage.type === 'warning' ? '#856404' : '#721c24',
+                  fontSize: '.9rem',
+                  whiteSpace: 'pre-wrap'
                 }}>
-                  {agentMessage.type === 'success' ? '✓' : '✕'} {agentMessage.text}
+                  {agentMessage.type === 'success' ? '✅' : agentMessage.type === 'warning' ? '⚠️' : '❌'} {agentMessage.text}
                 </div>
               )}
             </div>
@@ -2019,8 +2137,14 @@ function CMSAdminInner() {
                       gemini: 'Gemini',
                       perplexity: 'Perplexity',
                     };
+                    const agentColors: Record<string, string> = {
+                      allhands: '#01696f',
+                      jules: '#9333ea',
+                      gemini: '#2563eb',
+                      perplexity: '#10b981',
+                    };
                     return (
-                      <div key={i} style={{ padding: '.75rem', background: '#f8f6f4', borderRadius: '.5rem', borderLeft: '3px solid #6b2a1a' }}>
+                      <div key={i} style={{ padding: '.75rem', background: '#f8f6f4', borderRadius: '.5rem', borderLeft: `3px solid ${agentColors[entry.agent] || '#6b2a1a'}` }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '.35rem', flexWrap: 'wrap', gap: '.5rem' }}>
                           <span style={{ fontWeight: 600, color: '#333', fontSize: '.9rem' }}>{agentLabels[entry.agent] || entry.agent}</span>
                           <span style={{ fontSize: '.75rem', color: '#888' }}>{entry.date}</span>
