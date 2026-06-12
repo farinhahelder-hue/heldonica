@@ -296,9 +296,9 @@ function CMSAdminInner() {
   const [agentTask, setAgentTask] = useState('');
   const [agentRepo, setAgentRepo] = useState('farinhahelder-hue/heldonica');
   const [agentBranch, setAgentBranch] = useState('main');
-  const [selectedAgent, setSelectedAgent] = useState('allhands');
+  const [selectedAgent, setSelectedAgent] = useState('gemini');
   const [sendingTask, setSendingTask] = useState(false);
-  const [agentMessage, setAgentMessage] = useState<{type: 'success' | 'error' | 'warning', text: string, code?: string} | null>(null);
+  const [agentMessage, setAgentMessage] = useState<{type: 'success' | 'error' | 'warning', text: string, code?: string, response?: string} | null>(null);
   const [taskHistory, setTaskHistory] = useState<{date: string; agent: string; task: string; repo: string; branch: string}[]>([]);
   const [agentStatus, setAgentStatus] = useState<any>(null);
   const [agentConfig, setAgentConfig] = useState<Record<string, {
@@ -308,6 +308,8 @@ function CMSAdminInner() {
     missing: string[];
     name?: string;
     color?: string;
+    usage?: string;
+    beta?: boolean;
   }> | null>(null);
   const [loadingAgentConfig, setLoadingAgentConfig] = useState(false);
 
@@ -354,22 +356,25 @@ function CMSAdminInner() {
           allhands: 'OpenHands (AllHands)',
           jules: 'Jules (Google)',
           gemini: 'Gemini (Google)',
+          claude: 'Claude (Anthropic)',
           perplexity: 'Perplexity',
         };
         const label = agentLabels[selectedAgent] || selectedAgent;
-        let messageText = `✅ Tâche envoyée à ${label} avec succès!`;
+        let messageText = `✅ Tâche traitée par ${label} avec succès!`;
         
-        // Show GitHub issue URL if available
+        // Show GitHub issue URL if available (for Jules)
         if (data.results?.github?.issue_url) {
-          messageText += ` Issue #${data.results.github.issue_number}: ${data.results.github.issue_url}`;
+          messageText += `\n\n📋 Issue GitHub #${data.results.github.issue_number}: ${data.results.github.issue_url}`;
         }
         
-        // Show warnings if any
-        if (data.warnings && data.warnings.length > 0) {
-          setAgentMessage({ type: 'warning', text: messageText + '\n' + data.warnings.join('\n') });
-        } else {
-          setAgentMessage({ type: 'success', text: messageText });
-        }
+        // Extract agent response for Gemini, Claude, Perplexity
+        const agentResponse = data.results?.agent?.response;
+        
+        setAgentMessage({ 
+          type: 'success', 
+          text: messageText,
+          response: agentResponse 
+        });
 
         // Add to history
         const newEntry = {
@@ -2053,10 +2058,11 @@ function CMSAdminInner() {
                 <label style={lbl}>Agent</label>
                 <select value={selectedAgent} onChange={e => setSelectedAgent(e.target.value)}
                   style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.9rem', outline: 'none', background: '#faf9f7', color: '#1a1a1a', cursor: 'pointer' }}>
-                  <option value="allhands">🤖 OpenHands (AllHands)</option>
-                  <option value="jules">🎯 Jules (Google)</option>
                   <option value="gemini">✨ Gemini (Google)</option>
+                  <option value="claude">🧠 Claude (Anthropic)</option>
                   <option value="perplexity">🔍 Perplexity</option>
+                  <option value="jules">⚫ Jules (Google - Beta)</option>
+                  <option value="allhands">⚫ OpenHands (AllHands Cloud)</option>
                 </select>
                 {agentConfig && agentConfig[selectedAgent] && (
                   <div style={{ marginTop: '.5rem', padding: '.5rem', background: agentConfig[selectedAgent].status === 'configured' ? '#d4edda' : agentConfig[selectedAgent].status === 'missing_key' ? '#f8d7da' : '#fff3cd', borderRadius: '.4rem', fontSize: '.8rem' }}>
@@ -2093,22 +2099,22 @@ function CMSAdminInner() {
               {/* Send button */}
               <button 
                 onClick={sendAgentTask} 
-                disabled={sendingTask || (agentConfig?.[selectedAgent]?.status === 'not_implemented')}
+                disabled={sendingTask || (agentConfig?.[selectedAgent]?.status === 'beta_program') || (agentConfig?.[selectedAgent]?.status === 'requires_cloud')}
                 style={{ 
                   padding: '.75rem 2rem', 
-                  background: (agentConfig?.[selectedAgent]?.status === 'not_implemented') ? '#888' : '#6b2a1a', 
+                  background: (agentConfig?.[selectedAgent]?.status === 'beta_program' || agentConfig?.[selectedAgent]?.status === 'requires_cloud') ? '#888' : '#6b2a1a', 
                   color: 'white', 
                   border: 'none', 
                   borderRadius: '.5rem', 
                   fontWeight: 700, 
-                  cursor: sendingTask || (agentConfig?.[selectedAgent]?.status === 'not_implemented') ? 'not-allowed' : 'pointer', 
+                  cursor: sendingTask || (agentConfig?.[selectedAgent]?.status === 'beta_program') || (agentConfig?.[selectedAgent]?.status === 'requires_cloud') ? 'not-allowed' : 'pointer', 
                   fontSize: '1rem', 
                   opacity: sendingTask ? .7 : 1 
                 }}>
                 {sendingTask ? '⏳ Envoi en cours...' : '📤 Envoyer la tâche'}
               </button>
 
-              {/* Success/error/warning message */}
+              {/* Success/error/warning message with agent response */}
               {agentMessage && (
                 <div style={{ 
                   marginTop: '1rem', 
@@ -2117,9 +2123,17 @@ function CMSAdminInner() {
                   background: agentMessage.type === 'success' ? '#d4edda' : agentMessage.type === 'warning' ? '#fff3cd' : '#f8d7da',
                   color: agentMessage.type === 'success' ? '#155724' : agentMessage.type === 'warning' ? '#856404' : '#721c24',
                   fontSize: '.9rem',
-                  whiteSpace: 'pre-wrap'
+                  whiteSpace: 'pre-wrap',
+                  maxHeight: '400px',
+                  overflow: 'auto'
                 }}>
                   {agentMessage.type === 'success' ? '✅' : agentMessage.type === 'warning' ? '⚠️' : '❌'} {agentMessage.text}
+                  {agentMessage.response && (
+                    <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid rgba(0,0,0,0.1)' }}>
+                      <strong>Réponse de l'agent:</strong>
+                      <pre style={{ marginTop: '0.5rem', whiteSpace: 'pre-wrap', fontSize: '0.85rem' }}>{agentMessage.response}</pre>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
