@@ -93,7 +93,7 @@ export function trackTravelPlanningConversion() {
 // CTA click tracking
 export function trackCtaClick(ctaName: string, location: string) {
   trackEvent('cta_click', {
-    cta_name,
+    ctaName,
     location,
   });
 }

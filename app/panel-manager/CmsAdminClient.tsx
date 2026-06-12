@@ -873,6 +873,26 @@ function CMSAdminInner() {
     }
   };
 
+  // Confirm maintenance activation from dialog
+  const confirmMaintenanceActivation = () => {
+    if (pendingMaintenanceValue === 'true') {
+      setEditedSettings(prev => ({ ...prev, maintenance_mode: pendingMaintenanceValue }));
+      setSavingSettings(true);
+      fetch('/api/cms/settings/maintenance', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ active: true }),
+      }).then(res => {
+        if (res.ok) showToast('🔴 Mode maintenance activé');
+        else showToast('❌ Erreur lors de l\'activation');
+      }).catch(() => showToast('❌ Erreur réseau')).finally(() => {
+        setSavingSettings(false);
+        setShowMaintenanceConfirm(false);
+        setPendingMaintenanceValue(null);
+      });
+    }
+  };
+
   const savePageContent = async (pageKey: string) => {
     setSavingSettings(true);
     const config = PAGES_CONFIG[pageKey];
@@ -1828,25 +1848,6 @@ function CMSAdminInner() {
                                     if (res.ok) showToast('✅ Mode maintenance désactivé');
                                     else showToast('❌ Erreur lors de la désactivation');
                                   }).catch(() => showToast('❌ Erreur réseau')).finally(() => setSavingSettings(false));
-                                }
-                              };
-                              
-                              const confirmMaintenanceActivation = () => {
-                                if (pendingMaintenanceValue === 'true') {
-                                  setEditedSettings(prev => ({ ...prev, [s.key]: pendingMaintenanceValue }));
-                                  setSavingSettings(true);
-                                  fetch('/api/cms/settings/maintenance', {
-                                    method: 'PATCH',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ active: true }),
-                                  }).then(res => {
-                                    if (res.ok) showToast('🔴 Mode maintenance activé');
-                                    else showToast('❌ Erreur lors de l\'activation');
-                                  }).catch(() => showToast('❌ Erreur réseau')).finally(() => {
-                                    setSavingSettings(false);
-                                    setShowMaintenanceConfirm(false);
-                                    setPendingMaintenanceValue(null);
-                                  });
                                 }
                               };
                               
