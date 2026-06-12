@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useDeferredValue } from 'react';
 
 type DemandeTravel = {
   id: string | number;
@@ -343,6 +343,7 @@ export default function TravelCRMPanel({ initialDemandes = [] }: TravelCRMPanelP
   const [loading, setLoading] = useState(initialDemandes.length === 0);
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const deferredSearch = useDeferredValue(search);
   const [selectedIds, setSelectedIds] = useState<Set<string | number>>(new Set());
   const [detailId, setDetailId] = useState<string | number | null>(null);
   const [view, setView] = useState<'list' | 'kanban'>('list');
@@ -373,11 +374,11 @@ export default function TravelCRMPanel({ initialDemandes = [] }: TravelCRMPanelP
   const filteredDemandes = useMemo(() => {
     return demandes.filter(d => {
       const matchesStatus = statusFilter === 'all' || d.statut === statusFilter;
-      const matchesSearch = !search ||
-        `${d.prenom} ${d.nom} ${d.destination} ${d.email || ''}`.toLowerCase().includes(search.toLowerCase());
+      const matchesSearch = !deferredSearch ||
+        `${d.prenom} ${d.nom} ${d.destination} ${d.email || ''}`.toLowerCase().includes(deferredSearch.toLowerCase());
       return matchesStatus && matchesSearch;
     });
-  }, [demandes, statusFilter, search]);
+  }, [demandes, statusFilter, deferredSearch]);
 
   const handleStatutChange = useCallback(async (id: string | number, newStatut: string) => {
     const res = await fetch('/api/cms/demandes-travel', {
