@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServiceClient } from '@/lib/supabase-service';
+import { createClient } from '@/lib/supabase-client';
 import { requireCmsAuth } from '@/lib/cms-auth';
 
 export async function GET(_req: NextRequest, { params }: { params: { slug: string } }) {
   const auth = await requireCmsAuth();
   if (!auth.ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const supabase = createServiceClient();
+  const supabase = createClient();
   const { slug } = params;
 
   const [{ data: routes }, { data: pois }] = await Promise.all([
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
   const auth = await requireCmsAuth();
   if (!auth.ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const supabase = createServiceClient();
+  const supabase = createClient();
   const body = await req.json();
   const { type, ...data } = body;
 
@@ -59,7 +59,7 @@ export async function PUT(req: NextRequest) {
   const auth = await requireCmsAuth();
   if (!auth.ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const supabase = createServiceClient();
+  const supabase = createClient();
   const body = await req.json();
   const { type, id, ...data } = body;
 
@@ -78,7 +78,7 @@ export async function DELETE(req: NextRequest) {
   const auth = await requireCmsAuth();
   if (!auth.ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const supabase = createServiceClient();
+  const supabase = createClient();
   const { searchParams } = new URL(req.url);
   const type = searchParams.get('type');
   const id = searchParams.get('id');
