@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { HELDONICA_TOKENS, HELDONICA_BRAND, BrandConfig, SlideData } from './tokens'
+
+const STORAGE_KEY = 'heldonica_brand_config'
 
 interface BrandConfigPanelProps {
   slides: SlideData[]
@@ -9,9 +11,47 @@ interface BrandConfigPanelProps {
   onApplyPalette: (palette: typeof HELDONICA_TOKENS.palettes[0]) => void
 }
 
+const FONT_TITLE_OPTIONS = [
+  { value: "'Playfair Display', Georgia, serif", label: 'Playfair Display' },
+  { value: "'Cormorant', Georgia, serif", label: 'Cormorant' },
+  { value: "'Lora', Georgia, serif", label: 'Lora' },
+]
+
+const FONT_BODY_OPTIONS = [
+  { value: "'Inter', -apple-system, sans-serif", label: 'Inter' },
+  { value: "'DM Sans', -apple-system, sans-serif", label: 'DM Sans' },
+  { value: "'Work Sans', -apple-system, sans-serif", label: 'Work Sans' },
+]
+
+const LOGO_POSITION_OPTIONS = [
+  { value: 'bottom-left', label: 'Bas gauche' },
+  { value: 'bottom-right', label: 'Bas droite' },
+  { value: 'bottom-center', label: 'Bas centre' },
+]
+
 export default function BrandConfigPanel({ slides, onApplyConfig, onApplyPalette }: BrandConfigPanelProps) {
   const [activeTab, setActiveTab] = useState<'colors' | 'palettes' | 'keywords' | 'options'>('colors')
-  const [config, setConfig] = useState<BrandConfig>(HELDONICA_BRAND)
+  const [config, setConfig] = useState<BrandConfig>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      if (saved) {
+        try { return { ...HELDONICA_BRAND, ...JSON.parse(saved) } } 
+        catch { return HELDONICA_BRAND }
+      }
+    }
+    return HELDONICA_BRAND
+  })
+
+  // Save to localStorage on config change
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
+    }
+  }, [config])
+
+  const handleApply = () => {
+    onApplyConfig(config)
+  }
 
   const tabs = [
     { id: 'colors', label: '🎨', title: 'Couleurs' },
@@ -160,10 +200,77 @@ export default function BrandConfigPanel({ slides, onApplyConfig, onApplyPalette
         {/* Options Tab */}
         {activeTab === 'options' && (
           <div className="space-y-4">
+            {/* Font Title */}
+            <div>
+              <label className="text-xs text-stone-600 mb-1 block">Police titre</label>
+              <select
+                value={config.fonts.title}
+                onChange={(e) => setConfig({ ...config, fonts: { ...config.fonts, title: e.target.value } })}
+                className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg bg-white"
+              >
+                {FONT_TITLE_OPTIONS.map(f => (
+                  <option key={f.value} value={f.value}>{f.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Font Body */}
+            <div>
+              <label className="text-xs text-stone-600 mb-1 block">Police corps</label>
+              <select
+                value={config.fonts.body}
+                onChange={(e) => setConfig({ ...config, fonts: { ...config.fonts, body: e.target.value } })}
+                className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg bg-white"
+              >
+                {FONT_BODY_OPTIONS.map(f => (
+                  <option key={f.value} value={f.value}>{f.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Logo URL */}
+            <div>
+              <label className="text-xs text-stone-600 mb-1 block">Logo URL</label>
+              <input
+                type="text"
+                value={config.logoUrl || ''}
+                onChange={(e) => setConfig({ ...config, logoUrl: e.target.value || undefined })}
+                placeholder="/logo.png"
+                className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg"
+              />
+            </div>
+
+            {/* Logo Position */}
+            <div>
+              <label className="text-xs text-stone-600 mb-1 block">Position logo</label>
+              <select
+                value={config.logoPosition || 'bottom-left'}
+                onChange={(e) => setConfig({ ...config, logoPosition: e.target.value as any })}
+                className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg bg-white"
+              >
+                {LOGO_POSITION_OPTIONS.map(p => (
+                  <option key={p.value} value={p.value}>{p.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Default Hashtags */}
+            <div>
+              <label className="text-xs text-stone-600 mb-1 block">Hashtags par défaut</label>
+              <input
+                type="text"
+                value={config.defaultHashtags || ''}
+                onChange={(e) => setConfig({ ...config, defaultHashtags: e.target.value })}
+                placeholder="#slowtravel #heldonica"
+                className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg"
+              />
+            </div>
+
+            {/* Faceless Toggle */}
             <div className="flex items-center justify-between p-3 bg-stone-50 rounded-xl">
               <div>
                 <p className="text-sm font-medium text-stone-700">Mode Faceless</p>
-                <p className="text-xs text-stone-500">Pas de visages dans les images</p>
+                <p className="text-xs text-stone-500">Pas de visages</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -172,42 +279,8 @@ export default function BrandConfigPanel({ slides, onApplyConfig, onApplyPalette
                   onChange={(e) => setConfig({ ...config, faceless: e.target.checked })}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#6b2a1a]/30 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#6b2a1a]"></div>
+                <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-[#6b2a1a] after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
               </label>
-            </div>
-
-            <div className="flex items-center justify-between p-3 bg-stone-50 rounded-xl">
-              <div>
-                <p className="text-sm font-medium text-stone-700">Logo en overlay</p>
-                <p className="text-xs text-stone-500">Bas de slide avec branding</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={!!config.logoUrl}
-                  onChange={(e) => setConfig({ ...config, logoUrl: e.target.checked ? '/logo.png' : undefined })}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-stone-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#6b2a1a]/30 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#6b2a1a]"></div>
-              </label>
-            </div>
-
-            <div className="pt-2">
-              <p className="text-xs text-stone-500 mb-2">Fonts</p>
-              <div className="p-3 bg-stone-50 rounded-xl space-y-2">
-                <div>
-                  <label className="text-xs text-stone-600">Titres (serif)</label>
-                  <p className="text-sm font-serif" style={{ fontFamily: config.fonts.title }}>
-                    {config.fonts.title.split(',')[0]}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-xs text-stone-600">Corps (sans-serif)</label>
-                  <p className="text-sm" style={{ fontFamily: config.fonts.body }}>
-                    {config.fonts.body.split(',')[0]}
-                  </p>
-                </div>
-              </div>
             </div>
           </div>
         )}
@@ -216,7 +289,7 @@ export default function BrandConfigPanel({ slides, onApplyConfig, onApplyPalette
       {/* Footer */}
       <div className="px-4 py-3 border-t border-stone-200 bg-stone-50">
         <button
-          onClick={() => onApplyConfig(config)}
+          onClick={handleApply}
           className="w-full px-4 py-2 text-sm bg-[#6b2a1a] text-white rounded-xl hover:bg-[#6b2a1a]/90 transition-colors"
         >
           ✓ Appliquer la config
