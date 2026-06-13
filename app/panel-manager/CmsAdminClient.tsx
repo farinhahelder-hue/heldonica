@@ -10,6 +10,7 @@ import MediaLibrary from '@/components/MediaLibrary';
 import { sanitizeHtml } from '@/lib/sanitize-html';
 import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot, Mail, Map as MapIcon } from 'lucide-react';
 import { Film, Clapperboard } from 'lucide-react';
+import CmsSettingsPanel from '@/components/admin/CmsSettingsPanel';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
 const CarouselEditor = dynamic(() => import('@/components/admin/CarouselEditor'), { ssr: false });
@@ -19,3 +20,488 @@ const VideoEditor = dynamic(() => import('@/components/admin/VideoEditor'), { ss
 const FastTrimTool = dynamic(() => import('@/components/admin/FastTrimTool'), { ssr: false });
 const VideoMaker = dynamic(() => import('@/components/admin/video-maker/VideoMaker'), { ssr: false });
 const MapManagerSection = dynamic(() => import('./maps/MapManagerSection'), { ssr: false });
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+type Article = {
+  id: number;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt?: string;
+  status: 'published' | 'draft' | 'scheduled';
+  category?: string;
+  tags?: string[];
+  featured_image?: string;
+  created_at?: string;
+  updated_at?: string;
+  published_at?: string;
+  author?: string;
+  seo_title?: string;
+  seo_description?: string;
+};
+
+type NavSection =
+  | 'dashboard' | 'articles' | 'new-article' | 'media'
+  | 'settings' | 'seo' | 'analytics' | 'carousel'
+  | 'blog-generator' | 'video' | 'fast-trim' | 'studio-video'
+  | 'map' | 'auto-shorts';
+
+// ─── Main component ───────────────────────────────────────────────────────────
+export default function CmsAdminClient() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [activeSection, setActiveSection] = useState<NavSection>('dashboard');
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loadingArticles, setLoadingArticles] = useState(false);
+  const [editingArticle, setEditingArticle] = useState<Article | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [password, setPassword] = useState('');
+  const [authError, setAuthError] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // ── Auth ──────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    fetch('/api/cms/auth/check')
+      .then(r => r.json())
+      .then(d => setIsAuthenticated(!!d.authenticated))
+      .catch(() => setIsAuthenticated(false))
+      .finally(() => setAuthLoading(false));
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError('');
+    const res = await fetch('/api/cms/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password }),
+    });
+    if (res.ok) {
+      setIsAuthenticated(true);
+    } else {
+      setAuthError('Mot de passe incorrect');
+    }
+  };
+
+  // ── Articles ──────────────────────────────────────────────────────────────
+  const loadArticles = useCallback(async () => {
+    setLoadingArticles(true);
+    try {
+      const res = await fetch('/api/cms/articles?limit=100');
+      const data = await res.json();
+      setArticles(Array.isArray(data) ? data : data.articles ?? []);
+    } catch {
+      console.error('Failed to load articles');
+    } finally {
+      setLoadingArticles(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated && activeSection === 'articles') loadArticles();
+  }, [isAuthenticated, activeSection, loadArticles]);
+
+  const openArticleEditor = (article: Article) => {
+    setEditingArticle({ ...article });
+    setActiveSection('new-article');
+  };
+
+  const handleSaveArticle = async () => {
+    if (!editingArticle) return;
+    setSaving(true);
+    setSaveMsg('');
+    try {
+      const method = editingArticle.id ? 'PATCH' : 'POST';
+      const url = editingArticle.id
+        ? `/api/cms/articles/${editingArticle.id}`
+        : '/api/cms/articles';
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingArticle),
+      });
+      if (!res.ok) throw new Error('Save failed');
+      setSaveMsg('✓ Sauvegardé');
+      setTimeout(() => setSaveMsg(''), 3000);
+      loadArticles();
+    } catch {
+      setSaveMsg('Erreur lors de la sauvegarde');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const filteredArticles = articles.filter(
+    a =>
+      a.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      a.category?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // ── Loading / Auth screens ─────────────────────────────────────────────────
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f5f3ef]">
+        <div className="bg-white p-10 rounded-2xl shadow-lg text-center">
+          <div className="text-4xl mb-3">⏳</div>
+          <p className="text-gray-500 text-sm">Vérification de l'authentification…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f5f3ef]">
+        <div className="bg-white p-10 rounded-2xl shadow-lg w-full max-w-sm">
+          <div className="text-center mb-6">
+            <div className="text-3xl mb-2">🌿</div>
+            <h1 className="text-xl font-bold text-[#6b2a1a]">Heldonica CMS</h1>
+            <p className="text-gray-400 text-sm mt-1">Connexion requise</p>
+          </div>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Mot de passe"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+              autoFocus
+            />
+            {authError && <p className="text-red-500 text-sm">{authError}</p>}
+            <button
+              type="submit"
+              className="w-full py-3 bg-[#2D8B7A] text-white rounded-xl font-medium hover:bg-[#256b5e] transition-colors"
+            >
+              Se connecter
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Nav items ─────────────────────────────────────────────────────────────
+  const navItems: { id: NavSection; label: string; icon: React.ReactNode }[] = [
+    { id: 'dashboard',     label: 'Tableau de bord', icon: <Home size={16} /> },
+    { id: 'articles',      label: 'Articles',         icon: <FileText size={16} /> },
+    { id: 'new-article',   label: 'Nouvel article',   icon: <Plus size={16} /> },
+    { id: 'media',         label: 'Médias',            icon: <Image size={16} /> },
+    { id: 'carousel',      label: 'Carousels',         icon: <Package size={16} /> },
+    { id: 'blog-generator',label: 'Générateur blog',  icon: <Bot size={16} /> },
+    { id: 'video',         label: 'Vidéos',            icon: <Film size={16} /> },
+    { id: 'fast-trim',     label: 'Fast Trim',         icon: <Clapperboard size={16} /> },
+    { id: 'map',           label: 'Cartes',            icon: <MapIcon size={16} /> },
+    { id: 'settings',      label: 'Paramètres',        icon: <Settings size={16} /> },
+  ];
+
+  // ── Layout ─────────────────────────────────────────────────────────────────
+  return (
+    <div className="min-h-screen bg-[#f5f3ef] flex">
+      {/* Sidebar */}
+      <aside className="w-56 shrink-0 bg-white border-r border-gray-100 flex flex-col py-6 px-3 min-h-screen">
+        <div className="px-3 mb-6">
+          <div className="text-lg font-bold text-[#6b2a1a]">🌿 Heldonica</div>
+          <div className="text-xs text-gray-400">CMS</div>
+        </div>
+        <nav className="flex-1">
+          <ul className="space-y-0.5">
+            {navItems.map(item => (
+              <li key={item.id}>
+                <button
+                  onClick={() => setActiveSection(item.id)}
+                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    activeSection === item.id
+                      ? 'bg-[#2D8B7A] text-white'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  {item.icon}
+                  {item.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <div className="px-3 mt-4">
+          <button
+            onClick={async () => {
+              await fetch('/api/cms/auth/logout', { method: 'POST' });
+              setIsAuthenticated(false);
+            }}
+            className="w-full text-xs text-gray-400 hover:text-gray-600 py-2"
+          >
+            Déconnexion
+          </button>
+        </div>
+      </aside>
+
+      {/* Main content */}
+      <main className="flex-1 p-6 overflow-auto">
+
+        {/* ── Dashboard ── */}
+        {activeSection === 'dashboard' && (
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-6">Tableau de bord</h1>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-white rounded-xl p-5 border border-gray-100">
+                <div className="text-2xl font-bold text-[#2D8B7A]">{articles.length}</div>
+                <div className="text-sm text-gray-500 mt-1">Articles</div>
+              </div>
+              <div className="bg-white rounded-xl p-5 border border-gray-100">
+                <div className="text-2xl font-bold text-[#C4714A]">
+                  {articles.filter(a => a.status === 'published').length}
+                </div>
+                <div className="text-sm text-gray-500 mt-1">Publiés</div>
+              </div>
+              <div className="bg-white rounded-xl p-5 border border-gray-100">
+                <div className="text-2xl font-bold text-gray-400">
+                  {articles.filter(a => a.status === 'draft').length}
+                </div>
+                <div className="text-sm text-gray-500 mt-1">Brouillons</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Articles list ── */}
+        {activeSection === 'articles' && (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h1 className="text-2xl font-bold text-gray-900">Articles</h1>
+              <button
+                onClick={() => { setEditingArticle(null); setActiveSection('new-article'); }}
+                className="flex items-center gap-2 px-4 py-2 bg-[#2D8B7A] text-white rounded-lg text-sm font-medium hover:bg-[#256b5e]"
+              >
+                <Plus size={16} /> Nouvel article
+              </button>
+            </div>
+            <div className="mb-4">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Rechercher un article…"
+                className="w-full max-w-sm px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+              />
+            </div>
+            {loadingArticles ? (
+              <div className="text-sm text-gray-400">Chargement…</div>
+            ) : (
+              <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
+                    <tr>
+                      <th className="px-4 py-3 text-left">Titre</th>
+                      <th className="px-4 py-3 text-left">Catégorie</th>
+                      <th className="px-4 py-3 text-left">Statut</th>
+                      <th className="px-4 py-3 text-left">Date</th>
+                      <th className="px-4 py-3"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {filteredArticles.map(article => (
+                      <tr key={article.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3 font-medium text-gray-900">{article.title}</td>
+                        <td className="px-4 py-3 text-gray-500">{article.category ?? '—'}</td>
+                        <td className="px-4 py-3">
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                            article.status === 'published'
+                              ? 'bg-green-100 text-green-700'
+                              : article.status === 'draft'
+                              ? 'bg-gray-100 text-gray-600'
+                              : 'bg-yellow-100 text-yellow-700'
+                          }`}>
+                            {article.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-gray-400 text-xs">
+                          {article.updated_at ? new Date(article.updated_at).toLocaleDateString('fr-FR') : '—'}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <button
+                            onClick={() => openArticleEditor(article)}
+                            className="text-[#2D8B7A] hover:underline text-xs font-medium"
+                          >
+                            ✏️ Éditer
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {filteredArticles.length === 0 && (
+                      <tr>
+                        <td colSpan={5} className="px-4 py-8 text-center text-gray-400 text-sm">
+                          Aucun article trouvé
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Article editor ── */}
+        {activeSection === 'new-article' && (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h1 className="text-2xl font-bold text-gray-900">
+                {editingArticle?.id ? 'Modifier l\'article' : 'Nouvel article'}
+              </h1>
+              <div className="flex items-center gap-3">
+                {saveMsg && <span className="text-sm text-green-600">{saveMsg}</span>}
+                <button
+                  onClick={handleSaveArticle}
+                  disabled={saving}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#C4714A] text-white rounded-lg text-sm font-medium hover:bg-[#b05f3a] disabled:opacity-50"
+                >
+                  <Save size={16} />
+                  {saving ? 'Sauvegarde…' : 'Sauvegarder'}
+                </button>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Titre</label>
+                <input
+                  type="text"
+                  value={editingArticle?.title ?? ''}
+                  onChange={e => setEditingArticle(prev => prev ? { ...prev, title: e.target.value } : prev)}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                  placeholder="Titre de l'article"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Slug</label>
+                <input
+                  type="text"
+                  value={editingArticle?.slug ?? ''}
+                  onChange={e => setEditingArticle(prev => prev ? { ...prev, slug: e.target.value } : prev)}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A] font-mono"
+                  placeholder="mon-article-slug"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
+                  <input
+                    type="text"
+                    value={editingArticle?.category ?? ''}
+                    onChange={e => setEditingArticle(prev => prev ? { ...prev, category: e.target.value } : prev)}
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                    placeholder="Slow Travel"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+                  <select
+                    value={editingArticle?.status ?? 'draft'}
+                    onChange={e => setEditingArticle(prev => prev ? { ...prev, status: e.target.value as Article['status'] } : prev)}
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                  >
+                    <option value="draft">Brouillon</option>
+                    <option value="published">Publié</option>
+                    <option value="scheduled">Planifié</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Extrait</label>
+                <textarea
+                  rows={2}
+                  value={editingArticle?.excerpt ?? ''}
+                  onChange={e => setEditingArticle(prev => prev ? { ...prev, excerpt: e.target.value } : prev)}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A] resize-y"
+                  placeholder="Résumé court de l'article"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Contenu</label>
+                <Suspense fallback={<div className="text-sm text-gray-400">Chargement de l'éditeur…</div>}>
+                  <RichEditor
+                    value={editingArticle?.content || ''}
+                    onChange={(html: string) =>
+                      setEditingArticle(prev => prev ? { ...prev, content: html } : prev)
+                    }
+                  />
+                </Suspense>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Media ── */}
+        {activeSection === 'media' && (
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-6">Médiathèque</h1>
+            <MediaLibrary />
+          </div>
+        )}
+
+        {/* ── Settings ── */}
+        {activeSection === 'settings' && (
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-6">Paramètres du site</h1>
+            <CmsSettingsPanel />
+          </div>
+        )}
+
+        {/* ── Carousel ── */}
+        {activeSection === 'carousel' && (
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-6">Carousels Instagram</h1>
+            <Suspense fallback={null}>
+              <CarouselEditor />
+            </Suspense>
+          </div>
+        )}
+
+        {/* ── Blog Generator ── */}
+        {activeSection === 'blog-generator' && (
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-6">Générateur de blog IA</h1>
+            <Suspense fallback={null}>
+              <BlogGenerator />
+            </Suspense>
+          </div>
+        )}
+
+        {/* ── Video ── */}
+        {activeSection === 'video' && (
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-6">Studio Vidéo</h1>
+            <Suspense fallback={null}>
+              <VideoEditor />
+            </Suspense>
+          </div>
+        )}
+
+        {/* ── Fast Trim ── */}
+        {activeSection === 'fast-trim' && (
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-6">Fast Trim</h1>
+            <Suspense fallback={null}>
+              <FastTrimTool />
+            </Suspense>
+          </div>
+        )}
+
+        {/* ── Map ── */}
+        {activeSection === 'map' && (
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-6">Gestion des cartes</h1>
+            <Suspense fallback={null}>
+              <MapManagerSection />
+            </Suspense>
+          </div>
+        )}
+
+      </main>
+    </div>
+  );
+}
