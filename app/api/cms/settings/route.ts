@@ -23,13 +23,18 @@ export async function GET(req: NextRequest) {
     .order('key');
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  
+
   // Transform to key-value object for easier consumption
   const settings = Object.fromEntries(
     (data || []).map(r => [r.key, r.value])
   );
-  
-  return NextResponse.json(settings);
+
+  return NextResponse.json(settings, {
+    headers: {
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
+      'Pragma': 'no-cache',
+    },
+  });
 }
 
 // PATCH /api/cms/settings - update settings (auth required)
@@ -43,10 +48,9 @@ export async function PATCH(req: NextRequest) {
 
   try {
     const body = await req.json();
-    
+
     // Support both { key: value } and { settings: [{ key, value }] }
     if (Array.isArray(body)) {
-      // Bulk update with array format
       const updates = body.map((s: { key: string; value: string }) => ({
         key: s.key,
         value: s.value,
@@ -59,7 +63,6 @@ export async function PATCH(req: NextRequest) {
 
       if (error) console.error(`Error bulk updating settings array:`, error.message);
     } else {
-      // Simple key-value format
       const entries = Object.entries(body);
       const updates = entries
         .filter(([key]) => key !== 'error' && key !== 'settings')
