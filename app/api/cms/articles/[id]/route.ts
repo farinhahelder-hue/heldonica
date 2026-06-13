@@ -36,6 +36,16 @@ function withoutVoiceNotes(payload: Record<string, unknown>) {
   return rest
 }
 
+function withoutReadTime(payload: Record<string, unknown>) {
+  const { read_time, ...rest } = payload
+  return rest
+}
+
+function withoutVoiceNotesAndReadTime(payload: Record<string, unknown>) {
+  const { voice_notes, read_time, ...rest } = payload
+  return rest
+}
+
 export const dynamic = 'force-dynamic'
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
@@ -100,10 +110,35 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     .single()
   let { data, error } = result;
 
+  // Fallback 1 — read_time column missing
+  if (error?.message?.includes('read_time') && error.message.includes('does not exist')) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let fallback: any = await (sb.from('cms_blog_posts') as any)
+      .update(withoutReadTime(payload))
+      .eq('id', params.id)
+      .select()
+      .single()
+    data = fallback.data;
+    error = fallback.error;
+  }
+
+  // Fallback 2 — voice_notes column missing
   if (error?.message?.includes('voice_notes') && error.message.includes('does not exist')) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let fallback: any = await (sb.from('cms_blog_posts') as any)
       .update(withoutVoiceNotes(payload))
+      .eq('id', params.id)
+      .select()
+      .single()
+    data = fallback.data;
+    error = fallback.error;
+  }
+
+  // Fallback 3 — both columns missing
+  if (error?.message && (error.message.includes('read_time') || error.message.includes('voice_notes'))) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let fallback: any = await (sb.from('cms_blog_posts') as any)
+      .update(withoutVoiceNotesAndReadTime(payload))
       .eq('id', params.id)
       .select()
       .single()
@@ -130,7 +165,6 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       updated_at: post.updated_at,
       tags: post.tags || [],
       archived: post.archived || false,
-      read_time: post.read_time,
     }
     // Sync to articles table - ignore errors
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
