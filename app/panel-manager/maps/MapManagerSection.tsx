@@ -2,12 +2,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
 
-const MapPreview = dynamic(() => import('./MapPreview'), {
-  ssr: false,
-  loading: () => (
-    <div style={{ width: '100%', height: 400, background: '#f3f0ec', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7a7974' }}>Chargement de la carte…</div>
-  ),
-});
+const MapPreview = dynamic(() => import('./MapPreview'), { ssr: false, loading: () => (
+  <div style={{ width: '100%', height: 400, background: '#f3f0ec', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7a7974' }}>Chargement de la carte…</div>
+)});
 
 type Route = {
   id: string; content_slug: string; name: string; description?: string;
@@ -51,13 +48,39 @@ const emptyPoi = (): Partial<POI> => ({
 });
 
 export default function MapManagerSection() {
-  // --- Article search state (paginated, debounced) ---
-  const [articleSearch, setArticleSearch] = useState('');
+  // --- article search: debounced, paginated, max 20 ---
+  const [searchQuery, setSearchQuery] = useState('');
   const [articles, setArticles] = useState<Article[]>([]);
-  const [articlesLoading, setArticlesLoading] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const fetchArticles = useCallback(async (q: string) => {
+    setSearchLoading(true);
+    try {
+      const params = new URLSearchParams({ limit: '20', page: '1' });
+      if (q.trim()) params.set('search', q.trim());
+      const res = await fetch(`/api/cms/articles?${params.toString()}`);
+      if (!res.ok) throw new Error('fetch failed');
+      const data = await res.json();
+      setArticles(Array.isArray(data) ? data.slice(0, 20) : (data.articles ?? []).slice(0, 20));
+    } catch {
+      setArticles([]);
+    } finally {
+      setSearchLoading(false);
+    }
+  }, []);
+
+  // Initial load (empty query → most recent 20)
+  useEffect(() => { fetchArticles(''); }, [fetchArticles]);
+
+  // Debounce on searchQuery change
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => fetchArticles(searchQuery), 300);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [searchQuery, fetchArticles]);
+
+  // --- map state ---
   const [slug, setSlug] = useState('');
   const [showMap, setShowMap] = useState(false);
   const [routes, setRoutes] = useState<Route[]>([]);
@@ -74,30 +97,6 @@ export default function MapManagerSection() {
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 3000); };
 
-  // Debounced article search — fetches only when user types, max 20 results
-  const searchArticles = useCallback((q: string) => {
-    if (!q.trim()) { setArticles([]); setShowDropdown(false); return; }
-    setArticlesLoading(true);
-    setShowDropdown(true);
-    fetch(`/api/cms/articles?search=${encodeURIComponent(q)}&limit=20`)
-      .then(r => r.json())
-      .then(data => {
-        setArticles(Array.isArray(data) ? data : (data.articles ?? []));
-      })
-      .catch(() => {})
-      .finally(() => setArticlesLoading(false));
-  }, []);
-
-  const handleArticleSearchChange = (value: string) => {
-    setArticleSearch(value);
-    // Also allow direct slug input
-    if (value.includes('-') && !value.includes(' ')) {
-      // Looks like a slug — show it as manual entry option
-    }
-    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
-    searchTimerRef.current = setTimeout(() => searchArticles(value), 300);
-  };
-
   const loadMapData = useCallback(async (s: string) => {
     if (!s) return;
     setLoading(true);
@@ -112,8 +111,7 @@ export default function MapManagerSection() {
       setPois(data.pois ?? []);
       const ptText: Record<string, string> = {};
       loadedRoutes.forEach(r => {
-        ptText[r.id] = (r.points ?? []).sort((a, b) => a.seq - b.seq)
-          .map(p => `${p.lat},${p.lng}`).join('\n');
+        ptText[r.id] = (r.points ?? []).sort((a, b) => a.seq - b.seq).map(p => `${p.lat},${p.lng}`).join('\n');
       });
       setPointsText(ptText);
     } catch {}
@@ -122,33 +120,24 @@ export default function MapManagerSection() {
 
   const loadShowMap = useCallback(async (s: string) => {
     if (!s) return;
-    const res = await fetch(`/api/cms/articles/${s}`);
+    const res = await fetch(`/api/cms/articles/by-slug/${s}`);
     if (res.ok) {
       const d = await res.json();
       setShowMap(Boolean(d.show_map));
     }
   }, []);
 
-  const handleSlugSelect = (s: string, title?: string) => {
+  const handleSlugSelect = (s: string) => {
     setSlug(s);
-    setArticleSearch(title ?? s);
-    setShowDropdown(false);
-    setArticles([]);
     setRoutes([]); setPois([]); setExpandedRouteId(null);
     setEditingRoute(null); setAddingRoute(false);
     loadMapData(s);
     loadShowMap(s);
   };
 
-  const handleManualSlugSubmit = () => {
-    const s = articleSearch.trim().toLowerCase().replace(/\s+/g, '-');
-    if (!s) return;
-    handleSlugSelect(s, s);
-  };
-
   const toggleShowMap = async (val: boolean) => {
     setShowMap(val);
-    await fetch(`/api/cms/articles/${slug}`, {
+    await fetch(`/api/cms/articles/by-slug/${slug}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ show_map: val }),
@@ -182,6 +171,7 @@ export default function MapManagerSection() {
     showToast('Parcours supprimé');
   };
 
+  // Save points
   const savePoints = async (routeId: string) => {
     const text = pointsText[routeId] ?? '';
     const points = text.split('\n').map(l => l.trim()).filter(Boolean).map((l, i) => {
@@ -199,6 +189,7 @@ export default function MapManagerSection() {
     setSaving(false);
   };
 
+  // Save POI
   const savePoi = async () => {
     if (!editingPoi?.name || !slug) return;
     setSaving(true);
@@ -231,6 +222,7 @@ export default function MapManagerSection() {
     showToast('POI supprimé');
   };
 
+  // Build preview data
   const previewRoutes = routes.map(r => ({ ...r, points: r.points ?? [], color: r.color || '#01696f' }));
 
   const inputStyle: React.CSSProperties = {
@@ -246,291 +238,302 @@ export default function MapManagerSection() {
     padding: '5px 12px', cursor: 'pointer', fontSize: 12,
   };
   const card: React.CSSProperties = {
-    background: '#fff', border: '1px solid #e8e6e2', borderRadius: 8, padding: '12px 16px', marginBottom: 8,
+    background: '#f9f8f5', border: '1px solid #dcd9d5', borderRadius: 8,
+    padding: '12px 14px', marginBottom: 8,
   };
-
-  const RouteForm = ({ route, onSave, onCancel }: { route: Partial<Route>; onSave: () => void; onCancel: () => void }) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
-      <input style={inputStyle} placeholder="Nom du parcours *" value={route.name ?? ''}
-        onChange={e => setEditingRoute(r => ({ ...r!, name: e.target.value }))} />
-      <textarea style={{ ...inputStyle, minHeight: 60, resize: 'vertical' }} placeholder="Description"
-        value={route.description ?? ''}
-        onChange={e => setEditingRoute(r => ({ ...r!, description: e.target.value }))} />
-      <div style={{ display: 'flex', gap: 8 }}>
-        <select style={{ ...inputStyle, width: 'auto', flex: 1 }} value={route.difficulty ?? 'libre'}
-          onChange={e => setEditingRoute(r => ({ ...r!, difficulty: e.target.value }))}>
-          {Object.entries(DIFFICULTY_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-        </select>
-        <input style={{ ...inputStyle, width: 90 }} type="number" placeholder="Min" value={route.duration_min ?? ''}
-          onChange={e => setEditingRoute(r => ({ ...r!, duration_min: Number(e.target.value) || undefined }))} />
-        <input style={{ ...inputStyle, width: 90 }} type="number" step="0.01" placeholder="km" value={route.distance_km ?? ''}
-          onChange={e => setEditingRoute(r => ({ ...r!, distance_km: Number(e.target.value) || undefined }))} />
-      </div>
-      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-        <span style={{ fontSize: 12, color: '#7a7974' }}>Couleur :</span>
-        {PRESET_COLORS.map(c => (
-          <button key={c.value} onClick={() => setEditingRoute(r => ({ ...r!, color: c.value }))}
-            style={{ width: 24, height: 24, borderRadius: '50%', background: c.value, border: route.color === c.value ? '2px solid #28251d' : '2px solid transparent', cursor: 'pointer' }} />
-        ))}
-      </div>
-      <div style={{ display: 'flex', gap: 8 }}>
-        <button style={btnPrimary} onClick={onSave} disabled={saving}>{saving ? 'Sauvegarde…' : 'Sauvegarder'}</button>
-        <button style={{ ...btnPrimary, background: '#7a7974' }} onClick={onCancel}>Annuler</button>
-      </div>
-    </div>
-  );
-
-  const PoiForm = ({ poi, onSave, onCancel }: { poi: Partial<POI>; onSave: () => void; onCancel: () => void }) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
-      <input style={inputStyle} placeholder="Nom du POI *" value={poi.name ?? ''}
-        onChange={e => setEditingPoi(p => ({ ...p!, name: e.target.value }))} />
-      <select style={{ ...inputStyle }} value={poi.category ?? 'info'}
-        onChange={e => setEditingPoi(p => ({ ...p!, category: e.target.value }))}>
-        {Object.entries(CATEGORY_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-      </select>
-      <div style={{ display: 'flex', gap: 8 }}>
-        <input style={inputStyle} type="number" step="0.0000001" placeholder="Latitude *" value={poi.lat ?? ''}
-          onChange={e => setEditingPoi(p => ({ ...p!, lat: parseFloat(e.target.value) }))} />
-        <input style={inputStyle} type="number" step="0.0000001" placeholder="Longitude *" value={poi.lng ?? ''}
-          onChange={e => setEditingPoi(p => ({ ...p!, lng: parseFloat(e.target.value) }))} />
-      </div>
-      <textarea style={{ ...inputStyle, minHeight: 50, resize: 'vertical' }} placeholder="Description"
-        value={poi.description ?? ''}
-        onChange={e => setEditingPoi(p => ({ ...p!, description: e.target.value }))} />
-      <input style={inputStyle} placeholder="Adresse (optionnel)" value={poi.address ?? ''}
-        onChange={e => setEditingPoi(p => ({ ...p!, address: e.target.value }))} />
-      <input style={inputStyle} placeholder="Lien Google Maps (optionnel)" value={poi.maps_url ?? ''}
-        onChange={e => setEditingPoi(p => ({ ...p!, maps_url: e.target.value }))} />
-      <div style={{ display: 'flex', gap: 8 }}>
-        <button style={btnPrimary} onClick={onSave} disabled={saving}>{saving ? 'Sauvegarde…' : 'Sauvegarder'}</button>
-        <button style={{ ...btnPrimary, background: '#7a7974' }} onClick={onCancel}>Annuler</button>
-      </div>
-    </div>
-  );
+  const label: React.CSSProperties = { fontSize: 12, color: '#7a7974', marginBottom: 3, display: 'block' };
 
   return (
-    <div style={{ display: 'flex', gap: 24, minHeight: 600, position: 'relative' }}>
+    <div style={{ display: 'flex', gap: 20, height: '100%', padding: '16px 0' }}>
       {/* Toast */}
       {toast && (
-        <div style={{ position: 'fixed', bottom: 24, right: 24, background: '#01696f', color: '#fff', padding: '10px 20px', borderRadius: 8, zIndex: 9999, fontSize: 14, fontWeight: 600, boxShadow: '0 4px 16px rgba(0,0,0,0.15)' }}>
-          {toast}
-        </div>
+        <div style={{
+          position: 'fixed', top: 20, right: 20, background: '#01696f', color: '#fff',
+          padding: '10px 18px', borderRadius: 8, zIndex: 9999, fontSize: 14, fontWeight: 600,
+        }}>{toast}</div>
       )}
 
       {/* LEFT PANEL */}
-      <div style={{ width: '40%', minWidth: 320, overflowY: 'auto', maxHeight: '80vh', paddingRight: 4 }}>
-        {/* Step 1 — Content Selector */}
-        <div style={{ marginBottom: 20 }}>
-          <h3 style={{ fontSize: 13, fontWeight: 700, color: '#28251d', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            1 — Choisir un article / une page
-          </h3>
-          <div style={{ position: 'relative' }}>
-            <div style={{ display: 'flex', gap: 6 }}>
-              <input
-                style={{ ...inputStyle, flex: 1 }}
-                placeholder="Rechercher par titre ou saisir un slug…"
-                value={articleSearch}
-                onChange={e => handleArticleSearchChange(e.target.value)}
-                onFocus={() => articleSearch && setShowDropdown(true)}
-                onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
-              />
-              <button
-                style={{ ...btnPrimary, padding: '6px 12px', fontSize: 12 }}
-                onClick={handleManualSlugSubmit}
-                title="Charger ce slug directement"
-              >
-                OK
-              </button>
-            </div>
-            {/* Dropdown results */}
-            {showDropdown && (
-              <div style={{
-                position: 'absolute', top: '100%', left: 0, right: 36, background: '#fff',
-                border: '1px solid #d4d1ca', borderRadius: 6, zIndex: 100,
-                boxShadow: '0 4px 16px rgba(0,0,0,0.12)', maxHeight: 220, overflowY: 'auto',
-              }}>
-                {articlesLoading && (
-                  <div style={{ padding: '8px 12px', fontSize: 13, color: '#7a7974' }}>Recherche…</div>
-                )}
-                {!articlesLoading && articles.length === 0 && (
-                  <div style={{ padding: '8px 12px', fontSize: 13, color: '#7a7974' }}>Aucun résultat — cliquez OK pour charger le slug saisi</div>
-                )}
-                {articles.map(a => (
-                  <div
-                    key={a.id}
-                    style={{ padding: '8px 12px', cursor: 'pointer', fontSize: 13, borderBottom: '1px solid #f3f0ec' }}
-                    onMouseDown={() => handleSlugSelect(a.slug, a.title)}
-                  >
-                    <div style={{ fontWeight: 600, color: '#28251d' }}>{a.title}</div>
-                    <div style={{ color: '#7a7974', fontSize: 12 }}>{a.slug}</div>
-                  </div>
-                ))}
-              </div>
-            )}
+      <div style={{ width: '40%', minWidth: 300, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+        {/* Step 1: Slug selector */}
+        <div style={card}>
+          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, color: '#28251d' }}>① Sélectionner un contenu</div>
+          <label style={label}>Slug de l&apos;article / page</label>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+            <input
+              style={{ ...inputStyle, flex: 1 }}
+              value={slug}
+              onChange={e => setSlug(e.target.value)}
+              placeholder="ex: road-trip-islande"
+              onKeyDown={e => e.key === 'Enter' && handleSlugSelect(slug)}
+            />
+            <button style={btnPrimary} onClick={() => handleSlugSelect(slug)}>OK</button>
           </div>
 
+          {/* Debounced search input + dropdown */}
+          <label style={label}>
+            Rechercher un article
+            {searchLoading && <span style={{ marginLeft: 6, color: '#bab9b4' }}>⏳</span>}
+          </label>
+          <input
+            style={{ ...inputStyle, marginBottom: 6 }}
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="Taper pour filtrer (300ms debounce)…"
+          />
+          {articles.length > 0 && (
+            <select style={inputStyle} value={slug} onChange={e => handleSlugSelect(e.target.value)}>
+              <option value="">-- Choisir parmi les {articles.length} résultats --</option>
+              {articles.map(a => (
+                <option key={a.id} value={a.slug}>{a.title} ({a.slug})</option>
+              ))}
+            </select>
+          )}
+          {articles.length === 0 && !searchLoading && searchQuery && (
+            <div style={{ fontSize: 12, color: '#7a7974', padding: '4px 0' }}>Aucun résultat pour &quot;{searchQuery}&quot;</div>
+          )}
+
           {slug && (
-            <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 13, color: '#7a7974' }}>Carte activée sur cet article :</span>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
-                <input type="checkbox" checked={showMap} onChange={e => toggleShowMap(e.target.checked)} />
-                <span style={{ fontSize: 13, fontWeight: 600, color: showMap ? '#01696f' : '#7a7974' }}>
-                  {showMap ? 'Affichée' : 'Masquée'}
-                </span>
-              </label>
-            </div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, fontSize: 13, cursor: 'pointer' }}>
+              <input type="checkbox" checked={showMap} onChange={e => toggleShowMap(e.target.checked)} />
+              Afficher la carte sur cet article
+            </label>
           )}
         </div>
 
-        {loading && <div style={{ fontSize: 13, color: '#7a7974', marginBottom: 12 }}>Chargement des données carte…</div>}
-
         {slug && (
           <>
-            {/* Step 2 — Routes */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <h3 style={{ fontSize: 13, fontWeight: 700, color: '#28251d', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  2 — Parcours ({routes.length})
-                </h3>
-                {!addingRoute && (
-                  <button style={{ ...btnPrimary, fontSize: 12, padding: '4px 10px' }}
-                    onClick={() => { setAddingRoute(true); setEditingRoute(emptyRoute()); setExpandedRouteId(null); }}>
-                    + Ajouter
-                  </button>
-                )}
-              </div>
+            {/* Step 2: Routes */}
+            <div style={card}>
+              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, color: '#28251d' }}>② Parcours {loading ? '(chargement…)' : `(${routes.length})`}</div>
 
-              {addingRoute && editingRoute && (
-                <div style={{ ...card, borderColor: '#01696f' }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#01696f', marginBottom: 4 }}>Nouveau parcours</div>
-                  <RouteForm route={editingRoute} onSave={saveRoute} onCancel={() => { setAddingRoute(false); setEditingRoute(null); }} />
-                </div>
-              )}
-
-              {routes.map(r => (
-                <div key={r.id} style={card}>
+              {routes.map(route => (
+                <div key={route.id} style={{ ...card, background: '#fff', marginBottom: 6 }}>
                   <div
                     style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
-                    onClick={() => {
-                      if (expandedRouteId === r.id) { setExpandedRouteId(null); setEditingRoute(null); }
-                      else { setExpandedRouteId(r.id); setEditingRoute({ ...r }); }
-                    }}
+                    onClick={() => setExpandedRouteId(expandedRouteId === route.id ? null : route.id)}
                   >
-                    <div style={{ width: 12, height: 12, borderRadius: '50%', background: r.color || '#01696f', flexShrink: 0 }} />
-                    <span style={{ fontWeight: 600, fontSize: 13, flex: 1 }}>{r.name}</span>
-                    {r.difficulty && <span style={{ fontSize: 11, background: '#f3f0ec', padding: '2px 7px', borderRadius: 10 }}>{DIFFICULTY_LABELS[r.difficulty] ?? r.difficulty}</span>}
-                    {r.duration_min && <span style={{ fontSize: 11, color: '#7a7974' }}>{r.duration_min} min</span>}
-                    <span style={{ fontSize: 18, color: '#bab9b4' }}>{expandedRouteId === r.id ? '▲' : '▼'}</span>
+                    <span style={{ width: 12, height: 12, borderRadius: '50%', background: route.color, flexShrink: 0 }} />
+                    <span style={{ flex: 1, fontWeight: 600, fontSize: 13 }}>{route.name}</span>
+                    {route.difficulty && <span style={{ fontSize: 11, background: '#f3f0ec', padding: '2px 6px', borderRadius: 10 }}>{DIFFICULTY_LABELS[route.difficulty] ?? route.difficulty}</span>}
+                    {route.duration_min && <span style={{ fontSize: 11, color: '#7a7974' }}>{route.duration_min}min</span>}
+                    <span style={{ fontSize: 13, color: '#bab9b4' }}>{expandedRouteId === route.id ? '▲' : '▼'}</span>
                   </div>
 
-                  {expandedRouteId === r.id && editingRoute && (
-                    <>
-                      <RouteForm route={editingRoute} onSave={saveRoute}
-                        onCancel={() => { setExpandedRouteId(null); setEditingRoute(null); }} />
-                      <button style={{ ...btnDanger, marginTop: 8 }}
-                        onClick={() => deleteRoute(r.id)}>Supprimer ce parcours</button>
-
-                      {/* Points editor */}
-                      <div style={{ marginTop: 12 }}>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: '#7a7974', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                          Points du tracé (lat,lng par ligne)
-                        </div>
-                        <textarea
-                          style={{ ...inputStyle, minHeight: 90, fontSize: 12, fontFamily: 'monospace', resize: 'vertical' }}
-                          placeholder={"48.8584,2.2945\n48.8570,2.2950\n..."}  
-                          value={pointsText[r.id] ?? ''}
-                          onChange={e => setPointsText(prev => ({ ...prev, [r.id]: e.target.value }))}
+                  {expandedRouteId === route.id && (
+                    <div style={{ marginTop: 10 }}>
+                      {editingRoute?.id === route.id ? (
+                        <RouteForm
+                          value={editingRoute}
+                          onChange={setEditingRoute}
+                          onSave={saveRoute}
+                          onCancel={() => setEditingRoute(null)}
+                          saving={saving}
+                          inputStyle={inputStyle}
+                          btnPrimary={btnPrimary}
+                          label={label}
                         />
-                        <button style={{ ...btnPrimary, fontSize: 12, padding: '5px 12px', marginTop: 4 }}
-                          onClick={() => savePoints(r.id)} disabled={saving}>
-                          Sauvegarder les points
-                        </button>
+                      ) : (
+                        <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+                          <button style={{ ...btnPrimary, background: '#1976d2' }} onClick={() => setEditingRoute({ ...route })}>Modifier</button>
+                          <button style={btnDanger} onClick={() => deleteRoute(route.id)}>Supprimer</button>
+                        </div>
+                      )}
+
+                      {/* Route points */}
+                      <div style={{ marginTop: 10 }}>
+                        <label style={label}>Points du tracé (lat,lng — une ligne par point)</label>
+                        <textarea
+                          style={{ ...inputStyle, minHeight: 80, fontFamily: 'monospace', fontSize: 12, resize: 'vertical' }}
+                          value={pointsText[route.id] ?? ''}
+                          onChange={e => setPointsText(prev => ({ ...prev, [route.id]: e.target.value }))}
+                          placeholder={"48.8566,2.3522\n48.8600,2.3600"}
+                        />
+                        <button style={{ ...btnPrimary, marginTop: 4, fontSize: 12 }} onClick={() => savePoints(route.id)} disabled={saving}>💾 Sauvegarder le tracé</button>
                       </div>
 
                       {/* POIs for this route */}
-                      <div style={{ marginTop: 12 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                          <span style={{ fontSize: 12, fontWeight: 700, color: '#7a7974', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                            POIs ({pois.filter(p => p.route_id === r.id).length})
-                          </span>
-                          <button style={{ ...btnPrimary, fontSize: 11, padding: '3px 8px' }}
-                            onClick={() => { setAddingPoi(r.id); setEditingPoi(emptyPoi()); }}>
-                            + POI
-                          </button>
-                        </div>
-                        {addingPoi === r.id && editingPoi && (
-                          <div style={{ ...card, borderColor: '#01696f' }}>
-                            <PoiForm poi={editingPoi} onSave={savePoi} onCancel={() => { setAddingPoi(null); setEditingPoi(null); }} />
-                          </div>
-                        )}
-                        {pois.filter(p => p.route_id === r.id).map(p => (
-                          <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0', borderBottom: '1px solid #f3f0ec', fontSize: 12 }}>
-                            <span>{CATEGORY_LABELS[p.category] ?? p.category} {p.name}</span>
-                            <div style={{ display: 'flex', gap: 4 }}>
-                              <button style={{ ...btnPrimary, fontSize: 11, padding: '2px 8px' }}
-                                onClick={() => { setEditingPoi({ ...p }); setAddingPoi(r.id); }}>Edit</button>
-                              <button style={{ ...btnDanger, fontSize: 11, padding: '2px 8px' }}
-                                onClick={() => deletePoi(p.id)}>×</button>
-                            </div>
-                          </div>
+                      <div style={{ marginTop: 10 }}>
+                        <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>POIs de ce parcours ({pois.filter(p => p.route_id === route.id).length})</div>
+                        {pois.filter(p => p.route_id === route.id).map(poi => (
+                          <PoiRow key={poi.id} poi={poi} onEdit={() => { setEditingPoi({ ...poi }); setAddingPoi(null); }} onDelete={() => deletePoi(poi.id)} />
                         ))}
+                        {addingPoi === route.id ? (
+                          <PoiForm
+                            value={editingPoi ?? emptyPoi()}
+                            onChange={setEditingPoi}
+                            onSave={savePoi}
+                            onCancel={() => { setAddingPoi(null); setEditingPoi(null); }}
+                            saving={saving}
+                            inputStyle={inputStyle}
+                            btnPrimary={btnPrimary}
+                            label={label}
+                          />
+                        ) : (
+                          <button style={{ ...btnPrimary, background: '#4CAF50', fontSize: 12, marginTop: 4 }}
+                            onClick={() => { setAddingPoi(route.id); setEditingPoi(emptyPoi()); }}>
+                            + Ajouter un POI
+                          </button>
+                        )}
                       </div>
-                    </>
+                    </div>
                   )}
                 </div>
               ))}
+
+              {addingRoute ? (
+                <RouteForm
+                  value={editingRoute ?? emptyRoute()}
+                  onChange={setEditingRoute}
+                  onSave={saveRoute}
+                  onCancel={() => { setAddingRoute(false); setEditingRoute(null); }}
+                  saving={saving}
+                  inputStyle={inputStyle}
+                  btnPrimary={btnPrimary}
+                  label={label}
+                />
+              ) : (
+                <button style={{ ...btnPrimary, width: '100%', marginTop: 4 }}
+                  onClick={() => { setAddingRoute(true); setEditingRoute(emptyRoute()); }}>
+                  + Ajouter un parcours
+                </button>
+              )}
             </div>
 
-            {/* Step 3 — Standalone POIs */}
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <h3 style={{ fontSize: 13, fontWeight: 700, color: '#28251d', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  3 — POIs indépendants ({pois.filter(p => !p.route_id).length})
-                </h3>
-                <button style={{ ...btnPrimary, fontSize: 12, padding: '4px 10px' }}
-                  onClick={() => { setAddingPoi('standalone'); setEditingPoi(emptyPoi()); }}>
-                  + POI
-                </button>
-              </div>
-              {addingPoi === 'standalone' && editingPoi && (
-                <div style={{ ...card, borderColor: '#01696f' }}>
-                  <PoiForm poi={editingPoi} onSave={savePoi} onCancel={() => { setAddingPoi(null); setEditingPoi(null); }} />
-                </div>
-              )}
-              {pois.filter(p => !p.route_id).map(p => (
-                <div key={p.id} style={{ ...card, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px' }}>
-                  <span style={{ fontSize: 13 }}>{CATEGORY_LABELS[p.category] ?? p.category} {p.name}</span>
-                  <div style={{ display: 'flex', gap: 4 }}>
-                    <button style={{ ...btnPrimary, fontSize: 11, padding: '2px 8px' }}
-                      onClick={() => { setEditingPoi({ ...p }); setAddingPoi('standalone'); }}>Edit</button>
-                    <button style={{ ...btnDanger, fontSize: 11, padding: '2px 8px' }}
-                      onClick={() => deletePoi(p.id)}>×</button>
-                  </div>
-                </div>
+            {/* Step 3: Standalone POIs */}
+            <div style={card}>
+              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, color: '#28251d' }}>③ POIs indépendants ({pois.filter(p => !p.route_id).length})</div>
+              {pois.filter(p => !p.route_id).map(poi => (
+                <PoiRow key={poi.id} poi={poi} onEdit={() => { setEditingPoi({ ...poi }); setAddingPoi(null); }} onDelete={() => deletePoi(poi.id)} />
               ))}
+              {editingPoi && !editingPoi.id && addingPoi === 'standalone' ? (
+                <PoiForm
+                  value={editingPoi}
+                  onChange={setEditingPoi}
+                  onSave={savePoi}
+                  onCancel={() => { setAddingPoi(null); setEditingPoi(null); }}
+                  saving={saving}
+                  inputStyle={inputStyle}
+                  btnPrimary={btnPrimary}
+                  label={label}
+                />
+              ) : editingPoi?.id ? (
+                <PoiForm
+                  value={editingPoi}
+                  onChange={setEditingPoi}
+                  onSave={savePoi}
+                  onCancel={() => setEditingPoi(null)}
+                  saving={saving}
+                  inputStyle={inputStyle}
+                  btnPrimary={btnPrimary}
+                  label={label}
+                />
+              ) : (
+                <button style={{ ...btnPrimary, width: '100%', marginTop: 4 }}
+                  onClick={() => { setAddingPoi('standalone'); setEditingPoi(emptyPoi()); }}>
+                  + Ajouter un POI indépendant
+                </button>
+              )}
             </div>
           </>
         )}
       </div>
 
-      {/* RIGHT PANEL — Map Preview */}
-      <div style={{ flex: 1, position: 'sticky', top: 0, height: 'fit-content' }}>
-        <h3 style={{ fontSize: 13, fontWeight: 700, color: '#28251d', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-          Aperçu carte
-        </h3>
+      {/* RIGHT PANEL — Map preview */}
+      <div style={{ flex: 1, position: 'sticky', top: 0, height: 'calc(100vh - 160px)', minHeight: 400, borderRadius: 10, overflow: 'hidden', border: '1px solid #dcd9d5' }}>
         {slug ? (
-          <MapPreview routes={previewRoutes} pois={pois} />
+          <MapPreview routes={previewRoutes} pois={pois} centerSlug={slug} />
         ) : (
-          <div style={{ width: '100%', height: 400, background: '#f3f0ec', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#bab9b4', flexDirection: 'column', gap: 8 }}>
-            <span style={{ fontSize: 32 }}>🗺️</span>
-            <span style={{ fontSize: 14 }}>Sélectionnez un article pour voir la carte</span>
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#bab9b4', fontSize: 14, background: '#f9f8f5' }}>
+            🗺️ Sélectionne un article pour afficher la carte
           </div>
         )}
-        {slug && (
-          <div style={{ marginTop: 8, fontSize: 12, color: '#7a7974' }}>
-            Slug actif : <strong>{slug}</strong> — {routes.length} parcours — {pois.length} POIs
-          </div>
-        )}
+      </div>
+    </div>
+  );
+}
+
+// ===== Sub-components =====
+
+function RouteForm({ value, onChange, onSave, onCancel, saving, inputStyle, btnPrimary, label }: any) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
+      <div><label style={label}>Nom *</label><input style={inputStyle} value={value.name ?? ''} onChange={e => onChange((v: any) => ({ ...v, name: e.target.value }))} /></div>
+      <div><label style={label}>Description</label><textarea style={{ ...inputStyle, minHeight: 60 }} value={value.description ?? ''} onChange={e => onChange((v: any) => ({ ...v, description: e.target.value }))} /></div>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ flex: 1 }}>
+          <label style={label}>Difficulté</label>
+          <select style={inputStyle} value={value.difficulty ?? 'libre'} onChange={e => onChange((v: any) => ({ ...v, difficulty: e.target.value }))}>
+            {Object.entries(DIFFICULTY_LABELS).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+          </select>
+        </div>
+        <div style={{ flex: 1 }}>
+          <label style={label}>Durée (min)</label>
+          <input style={inputStyle} type="number" value={value.duration_min ?? ''} onChange={e => onChange((v: any) => ({ ...v, duration_min: Number(e.target.value) || undefined }))}
+          />
+        </div>
+        <div style={{ flex: 1 }}>
+          <label style={label}>Distance (km)</label>
+          <input style={inputStyle} type="number" step="0.1" value={value.distance_km ?? ''} onChange={e => onChange((v: any) => ({ ...v, distance_km: Number(e.target.value) || undefined }))} />
+        </div>
+      </div>
+      <div>
+        <label style={label}>Couleur</label>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {PRESET_COLORS.map(c => (
+            <button key={c.value} onClick={() => onChange((v: any) => ({ ...v, color: c.value }))}
+              style={{ width: 24, height: 24, borderRadius: '50%', background: c.value, border: value.color === c.value ? '3px solid #28251d' : '2px solid transparent', cursor: 'pointer', padding: 0 }}
+              title={c.label}
+            />
+          ))}
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+        <button style={btnPrimary} onClick={onSave} disabled={saving}>{saving ? 'Sauvegarde…' : '💾 Sauvegarder'}</button>
+        <button style={{ ...btnPrimary, background: '#7a7974' }} onClick={onCancel}>Annuler</button>
+      </div>
+    </div>
+  );
+}
+
+function PoiRow({ poi, onEdit, onDelete }: { poi: POI; onEdit: () => void; onDelete: () => void }) {
+  const CATEGORY_EMOJI: Record<string, string> = {
+    depart: '🟢', arrivee: '🔴', danger: '⚠️', info: 'ℹ️', parking: '🅿️',
+    restaurant: '🍽️', baignade: '🏊', portage: '🎒', point_vue: '👁️',
+    transport: '🚌', logement: '🏠', activite: '🎯',
+  };
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 0', borderBottom: '1px solid #f3f0ec' }}>
+      <span>{CATEGORY_EMOJI[poi.category] ?? 'ℹ️'}</span>
+      <span style={{ flex: 1, fontSize: 12 }}>{poi.name}</span>
+      <span style={{ fontSize: 11, color: '#7a7974' }}>{poi.lat},{poi.lng}</span>
+      <button style={{ fontSize: 11, padding: '2px 8px', background: '#1976d2', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }} onClick={onEdit}>Éditer</button>
+      <button style={{ fontSize: 11, padding: '2px 8px', background: '#f44336', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }} onClick={onDelete}>×</button>
+    </div>
+  );
+}
+
+function PoiForm({ value, onChange, onSave, onCancel, saving, inputStyle, btnPrimary, label }: any) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8, padding: 8, background: '#f9f8f5', borderRadius: 6, border: '1px solid #dcd9d5' }}>
+      <div><label style={label}>Nom *</label><input style={inputStyle} value={value.name ?? ''} onChange={e => onChange((v: any) => ({ ...v, name: e.target.value }))} /></div>
+      <div>
+        <label style={label}>Catégorie</label>
+        <select style={inputStyle} value={value.category ?? 'info'} onChange={e => onChange((v: any) => ({ ...v, category: e.target.value }))}>
+          {Object.entries(CATEGORY_LABELS).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+        </select>
+      </div>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ flex: 1 }}><label style={label}>Latitude *</label><input style={inputStyle} type="number" step="0.0000001" value={value.lat ?? ''} onChange={e => onChange((v: any) => ({ ...v, lat: Number(e.target.value) }))} /></div>
+        <div style={{ flex: 1 }}><label style={label}>Longitude *</label><input style={inputStyle} type="number" step="0.0000001" value={value.lng ?? ''} onChange={e => onChange((v: any) => ({ ...v, lng: Number(e.target.value) }))} /></div>
+      </div>
+      <div><label style={label}>Description</label><input style={inputStyle} value={value.description ?? ''} onChange={e => onChange((v: any) => ({ ...v, description: e.target.value }))} /></div>
+      <div><label style={label}>Adresse</label><input style={inputStyle} value={value.address ?? ''} onChange={e => onChange((v: any) => ({ ...v, address: e.target.value }))} /></div>
+      <div><label style={label}>Lien Google Maps</label><input style={inputStyle} value={value.maps_url ?? ''} onChange={e => onChange((v: any) => ({ ...v, maps_url: e.target.value }))} /></div>
+      <div style={{ display: 'flex', gap: 6 }}>
+        <button style={btnPrimary} onClick={onSave} disabled={saving}>{saving ? 'Sauvegarde…' : '💾 Sauvegarder'}</button>
+        <button style={{ ...btnPrimary, background: '#7a7974' }} onClick={onCancel}>Annuler</button>
       </div>
     </div>
   );
