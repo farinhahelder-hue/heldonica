@@ -218,7 +218,10 @@ async function callClaude(task: string, context?: string): Promise<{ response: s
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 2048,
-      messages: [{ role: 'user', content: fullPrompt }],
+      messages: [
+        { role: 'system', content: 'Tu es un assistant utile. Reponds en francais.' },
+        { role: 'user', content: fullPrompt }
+      ],
     }),
   });
 
@@ -239,7 +242,7 @@ async function callClaude(task: string, context?: string): Promise<{ response: s
   };
 }
 
-async function callPerplexity(task: string, context?: string): Promise<{ response: string; usage?: { total_tokens: number } }> {
+async function callPerplexity(task: string, context?: string): Promise<{ response: string; usage?: { total_tokens: number; prompt_tokens?: number; completion_tokens?: number } }> {
   if (!PERPLEXITY_API_KEY) {
     throw new Error('PERPLEXITY_API_KEY non configuree');
   }
@@ -255,9 +258,13 @@ async function callPerplexity(task: string, context?: string): Promise<{ respons
       'Authorization': `Bearer ${PERPLEXITY_API_KEY}`,
     },
     body: JSON.stringify({
-      model: 'sonar',
-      messages: [{ role: 'user', content: fullPrompt }],
+      model: 'sonar-pro',
+      messages: [
+        { role: 'system', content: 'Tu es un assistant utile. Reponds en francais.' },
+        { role: 'user', content: fullPrompt }
+      ],
       max_tokens: 2048,
+      temperature: 0.7,
     }),
   });
 
@@ -267,12 +274,19 @@ async function callPerplexity(task: string, context?: string): Promise<{ respons
   }
 
   const data = await res.json();
-  const responseText = data.choices?.[0]?.message?.content || 'Reponse vide';
+  const responseText = data.choices?.[0]?.message?.content
+    || data.choices?.[0]?.text
+    || data.content
+    || data.response
+    || data.text
+    || 'Reponse vide';
   
   return {
     response: responseText,
     usage: {
       total_tokens: data.usage?.total_tokens || 0,
+      prompt_tokens: data.usage?.prompt_tokens || 0,
+      completion_tokens: data.usage?.completion_tokens || 0,
     },
   };
 }
