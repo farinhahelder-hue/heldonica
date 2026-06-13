@@ -1,11 +1,12 @@
-import { describe, it, expect } from 'vitest';
-import { getCredit, UnsplashPhoto } from '../../lib/unsplash';
+import { describe, it, expect } from 'vitest'
+import { getInstagramUrl, UnsplashPhoto } from '@/lib/unsplash'
 
 describe('unsplash', () => {
-  describe('getCredit', () => {
-    it('should return correctly formatted credit string with user name', () => {
+  describe('getInstagramUrl', () => {
+    it('should return instagram url if instagram_username exists', () => {
+      // Mock UnsplashPhoto object
       const mockPhoto = {
-        id: '123',
+        id: '1',
         urls: {
           raw: '',
           full: '',
@@ -16,19 +17,23 @@ describe('unsplash', () => {
         alt_description: '',
         description: '',
         user: {
-          name: 'Jane Doe',
-          username: 'janedoe',
+          name: 'Test User',
+          username: 'testuser',
+          social: {
+            instagram_username: 'test_insta'
+          }
         },
-        likes: 10,
-      } as UnsplashPhoto;
+        likes: 0
+      } as any as UnsplashPhoto;
 
-      const result = getCredit(mockPhoto);
-      expect(result).toBe('Photo de Jane Doe sur Unsplash');
-    });
+      const url = getInstagramUrl(mockPhoto);
+      expect(url).toBe('https://instagram.com/test_insta');
+    })
 
-    it('should handle names with special characters', () => {
+    it('should return empty string if instagram_username does not exist', () => {
+      // Mock UnsplashPhoto object without instagram_username
       const mockPhoto = {
-        id: '124',
+        id: '1',
         urls: {
           raw: '',
           full: '',
@@ -39,19 +44,23 @@ describe('unsplash', () => {
         alt_description: '',
         description: '',
         user: {
-          name: 'Jean-Luc Picard',
-          username: 'jlp',
+          name: 'Test User',
+          username: 'testuser',
+          social: {
+            instagram_username: null
+          }
         },
-        likes: 42,
-      } as UnsplashPhoto;
+        likes: 0
+      } as any as UnsplashPhoto;
 
-      const result = getCredit(mockPhoto);
-      expect(result).toBe('Photo de Jean-Luc Picard sur Unsplash');
-    });
+      const url = getInstagramUrl(mockPhoto);
+      expect(url).toBe('');
+    })
 
-    it('should handle names with accented characters', () => {
+    it('should return empty string if social object does not exist', () => {
+      // Mock UnsplashPhoto object without social object
       const mockPhoto = {
-        id: '125',
+        id: '1',
         urls: {
           raw: '',
           full: '',
@@ -62,37 +71,14 @@ describe('unsplash', () => {
         alt_description: '',
         description: '',
         user: {
-          name: 'Amélie Poulain',
-          username: 'amelie',
+          name: 'Test User',
+          username: 'testuser'
         },
-        likes: 100,
-      } as UnsplashPhoto;
+        likes: 0
+      } as any as UnsplashPhoto;
 
-      const result = getCredit(mockPhoto);
-      expect(result).toBe('Photo de Amélie Poulain sur Unsplash');
-    });
-
-    it('should handle empty name strings', () => {
-      const mockPhoto = {
-        id: '126',
-        urls: {
-          raw: '',
-          full: '',
-          regular: '',
-          small: '',
-          thumb: '',
-        },
-        alt_description: '',
-        description: '',
-        user: {
-          name: '',
-          username: 'unknown',
-        },
-        likes: 0,
-      } as UnsplashPhoto;
-
-      const result = getCredit(mockPhoto);
-      expect(result).toBe('Photo de  sur Unsplash');
-    });
-  });
-});
+      const url = getInstagramUrl(mockPhoto);
+      expect(url).toBe('');
+    })
+  })
+})
