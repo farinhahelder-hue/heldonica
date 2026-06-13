@@ -36,6 +36,7 @@ Je crée des carrousels Instagram personnalisés avec le style slow travel et é
     }
   ])
   const [input, setInput] = useState('')
+  const [slideCount, setSlideCount] = useState(5)
   const [showTemplates, setShowTemplates] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -59,6 +60,7 @@ Je crée des carrousels Instagram personnalisés avec le style slow travel et é
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           prompt: userPrompt,
+          slideCount,
           brand: 'heldonica',
           style: HELDONICA_TOKENS.style,
         })
@@ -183,6 +185,20 @@ Chaque slide utilise une couleur différente de la palette Heldonica. Vous pouve
         </div>
       )}
 
+      {/* Slide count selector */}
+      <div className="px-4 py-2 border-t border-stone-100 bg-stone-50 flex items-center gap-3">
+        <span className="text-xs text-stone-500">Slides :</span>
+        <input
+          type="range"
+          min="1"
+          max="10"
+          value={slideCount}
+          onChange={(e) => setSlideCount(parseInt(e.target.value))}
+          className="flex-1 h-1 bg-stone-200 rounded-lg appearance-none cursor-pointer"
+        />
+        <span className="text-xs font-medium text-stone-700 w-6">{slideCount}</span>
+      </div>
+
       {/* Input */}
       <form onSubmit={handleSubmit} className="p-4 border-t border-stone-200">
         <div className="flex gap-2">
@@ -190,7 +206,7 @@ Chaque slide utilise une couleur différente de la palette Heldonica. Vous pouve
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ex: Crée un carrousel 5 slides sur Madère..."
+            placeholder="Ex: Crée un carrousel sur Madère..."
             className="flex-1 px-3 py-2 text-sm border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6b2a1a]/30 focus:border-[#6b2a1a]"
             disabled={isGenerating}
           />
