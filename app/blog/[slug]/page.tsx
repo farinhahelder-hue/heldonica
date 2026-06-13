@@ -1,6 +1,7 @@
 import { getPostBySlug, getAllSlugs, getAllPosts, formatDate } from '@/lib/blog-supabase'
 import type { BlogPost } from '@/lib/blog-supabase'
 import type { Metadata } from 'next'
+import { createServiceClient } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getRelatedArticles } from '@/lib/related-articles'
@@ -33,33 +34,34 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const post = await getPostBySlug(params.slug)
+  const supabase = createServiceClient()
+  const { data: post } = await supabase
+    .from('cms_blog_posts')
+    .select('title, excerpt, featuredimage, publishedat, tags, author, updatedat')
+    .eq('slug', params.slug)
+    .eq('published', true)
+    .single()
 
   if (!post) return { title: 'Article introuvable | Heldonica' }
 
-  // Tronquer la description entre 140-160 caractères
+  // Tronquer la description à 150 caractères max
   let description = ''
   if (post.excerpt) {
-    const cleanExcerpt = post.excerpt.replace(/<[^>]*>/g, '').trim()
-    description = cleanExcerpt.length > 160
-      ? cleanExcerpt.substring(0, 157) + '...'
-      : cleanExcerpt
-  } else if (post.content) {
-    // Generate from content if no excerpt
-    const plainContent = post.content.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
-    description = plainContent.length > 160
-      ? plainContent.substring(0, 157) + '...'
-      : plainContent
+    description = post.excerpt.length > 150 
+      ? post.excerpt.substring(0, 147) + '...' 
+      : post.excerpt
   }
 
   const title = `${post.title} | Heldonica`
-  const ogImage = post.featured_image || DEFAULT_OG
+  const ogImage = post.featuredimage || DEFAULT_OG
   const canonical = `${SITE_URL}/blog/${params.slug}`
-  const publishedTime = post.published_at || undefined
+  const publishedTime = post.publishedat || undefined
   const authorName = post.author || 'Heldonica'
   
-  // Tags are already an array from getPostBySlug (normalizePost)
-  const tagsArray = Array.isArray(post.tags) ? post.tags : []
+  // Parser les tags (stockés comme texte séparé par virgules)
+  const tagsArray = post.tags 
+    ? post.tags.split(',').map((t: string) => t.trim()).filter(Boolean)
+    : []
 
   return {
     title,
@@ -191,9 +193,6 @@ export default async function BlogPostPage({ params }: Props) {
   const { articleLd, breadcrumbLd } = buildJsonLds(post, readTime)
   const canonicalUrl = `${SITE_URL}/blog/${post.slug}`
   const safeContent = sanitizeHtml(post.content)
-  
-  // Type-safe FAQ items
-  const faqItems = post.faq_content ?? []
 
   return (
     <>
@@ -210,15 +209,6 @@ export default async function BlogPostPage({ params }: Props) {
 
       <Header />
       <ReadingProgress />
-      <Script id="ga4-article-view" strategy="lazyOnload">{`
-        if (typeof window !== 'undefined' && window.gtag) {
-          window.gtag('event', 'article_view', {
-            category: '${post.category || 'unknown'}',
-            slug: '${post.slug}',
-            reading_time: ${readTime}
-          });
-        }
-      `}</Script>
       <main className="min-h-screen bg-white">
         <div className={`relative h-[56vh] w-full overflow-hidden md:h-[68vh] bg-stone-900`}>
           <Image
@@ -272,7 +262,6 @@ export default async function BlogPostPage({ params }: Props) {
         </div>
 
         <div className="mx-auto max-w-3xl px-4 py-12 md:py-16">
-          <article aria-label={post.title}>
           {post.excerpt && (
             <div className="mb-10 rounded-[2rem] border border-amber-200 bg-amber-50 px-6 py-6 md:px-8">
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-amber-800">Ouverture</p>
@@ -338,7 +327,6 @@ export default async function BlogPostPage({ params }: Props) {
               ← Retour aux carnets
             </Link>
           </div>
-          </article>
         </div>
 
         {related.length > 0 && (
@@ -384,19 +372,17 @@ export default async function BlogPostPage({ params }: Props) {
 
         <NewsletterForm variant="blog" />
 
-        {/* FAQ pour Guides Pratiques */}
-        {post.category === 'Guides Pratiques' && faqItems.length > 0 && (
+        {/* ── FAQ pour Guides Pratiques ─────────────────────────────────── */}
+        {post.category === 'Guides Pratiques' && post.faq_content && (
           <HeldonicaFAQ 
-            items={faqItems} 
+            items={(post.faq_content as Array<{question: string; answer: string}>) || []}
           />
         )}
 
         {/* ── Verdict Heldonica (à intégrer selon le contenu de l'article) ─── */}
 
-        {/* ── TRAVEL PLANNING CTA (uniquement pour Carnets et Découvertes) ── */}
-        {(post.category === 'Carnets Voyage' || post.category === 'Découvertes Locales') && (
-          <CtaTravelPlanning />
-        )}
+        {/* ── TRAVEL PLANNING CTA ──────────────────────────────────────────── */}
+        <CtaTravelPlanning />
       </main>
       <Footer />
     </>
