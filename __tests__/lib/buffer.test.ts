@@ -94,8 +94,18 @@ describe('buffer', () => {
   })
 
   describe('isBufferConfigured', () => {
-    it('should return true (always available - uses web interface)', () => {
+    afterEach(() => {
+      vi.unstubAllEnvs()
+    })
+
+    it('should return true when BUFFER_ACCESS_TOKEN is set', () => {
+      vi.stubEnv('BUFFER_ACCESS_TOKEN', 'test_token')
       expect(isBufferConfigured()).toBe(true)
+    })
+
+    it('should return false when BUFFER_ACCESS_TOKEN is not set', () => {
+      vi.stubEnv('BUFFER_ACCESS_TOKEN', '')
+      expect(isBufferConfigured()).toBe(false)
     })
   })
 })
