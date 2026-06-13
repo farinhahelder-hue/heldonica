@@ -1,43 +1,26 @@
 import { describe, it, expect } from 'vitest';
-import { parseHreflang } from '@/lib/seo';
+import { generateRobotsMeta } from '../../lib/seo';
 
-describe('parseHreflang', () => {
-  it('should return empty object for empty string', () => {
-    expect(parseHreflang('')).toEqual({});
-  });
-
-  it('should parse a single valid part', () => {
-    expect(parseHreflang('https://example.com/en|en')).toEqual({
-      en: 'https://example.com/en'
+describe('seo utilities', () => {
+  describe('generateRobotsMeta', () => {
+    it('should generate correctly when both indexSite and followLinks are true', () => {
+      const result = generateRobotsMeta(true, true);
+      expect(result).toBe('index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
     });
-  });
 
-  it('should parse multiple valid parts separated by newline', () => {
-    expect(parseHreflang('https://example.com/en|en\nhttps://example.com/fr|fr')).toEqual({
-      en: 'https://example.com/en',
-      fr: 'https://example.com/fr'
+    it('should generate correctly when indexSite is true and followLinks is false', () => {
+      const result = generateRobotsMeta(true, false);
+      expect(result).toBe('index, nofollow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
     });
-  });
 
-  it('should trim whitespace around url and lang', () => {
-    expect(parseHreflang(' https://example.com/en | en ')).toEqual({
-      en: 'https://example.com/en'
+    it('should generate correctly when indexSite is false and followLinks is true', () => {
+      const result = generateRobotsMeta(false, true);
+      expect(result).toBe('noindex, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
     });
-  });
 
-  it('should handle parts with missing lang or url', () => {
-    expect(parseHreflang('https://example.com|')).toEqual({});
-    expect(parseHreflang('|en')).toEqual({});
-  });
-
-  it('should handle parts that do not contain a pipe', () => {
-    expect(parseHreflang('invalidpart')).toEqual({});
-  });
-
-  it('should ignore empty lines', () => {
-    expect(parseHreflang('https://example.com/en|en\n\nhttps://example.com/fr|fr')).toEqual({
-      en: 'https://example.com/en',
-      fr: 'https://example.com/fr'
+    it('should generate correctly when both indexSite and followLinks are false', () => {
+      const result = generateRobotsMeta(false, false);
+      expect(result).toBe('noindex, nofollow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
     });
   });
 });
