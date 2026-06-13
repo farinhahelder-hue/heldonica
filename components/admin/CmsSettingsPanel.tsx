@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Save, Globe, Palette, Share2, Search, FileText, Wrench, RefreshCw } from 'lucide-react';
 
 type Setting = { key: string; value: string };
@@ -120,6 +120,27 @@ export default function CmsSettingsPanel() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const valuesRef = useRef(values);
+
+  const doSave = useCallback(async (data: Record<string, string>) => {
+    setSaving(true);
+    setError('');
+    try {
+      const res = await fetch('/api/cms/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Erreur serveur');
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch {
+      setError('Échec de la sauvegarde.');
+    } finally {
+      setSaving(false);
+    }
+  }, []);
 
   const loadSettings = useCallback(async () => {
     setLoading(true);
@@ -138,6 +159,7 @@ export default function CmsSettingsPanel() {
         });
         console.log('[CmsSettings] Parsed values:', flat);
         setValues(flat);
+        valuesRef.current = flat;
       }
     } catch (e) {
       console.error('[CmsSettings] Fetch error:', e);
@@ -150,27 +172,16 @@ export default function CmsSettingsPanel() {
   useEffect(() => { loadSettings(); }, [loadSettings]);
 
   const handleChange = (key: string, value: string) => {
-    setValues(prev => ({ ...prev, [key]: value }));
+    const next = { ...values, [key]: value };
+    setValues(next);
+    valuesRef.current = next;
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(() => doSave(next), 2000);
   };
 
   const handleSave = async () => {
-    setSaving(true);
-    setSaved(false);
-    setError('');
-    try {
-      const res = await fetch('/api/cms/settings', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
-      });
-      if (!res.ok) throw new Error('Erreur serveur');
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
-    } catch {
-      setError('Échec de la sauvegarde.');
-    } finally {
-      setSaving(false);
-    }
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    await doSave(values);
   };
 
   const currentGroup = GROUPS.find(g => g.id === activeGroup)!;

@@ -1,5 +1,6 @@
 'use client';
 
+// @deprecated Utilise components/admin/video-maker/VideoMaker.tsx à la place.
 import { useState } from 'react';
 import { Video, Image, Type, Play, Download, Loader2 } from 'lucide-react';
 
