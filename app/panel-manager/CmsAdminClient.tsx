@@ -9,6 +9,7 @@ import EnhancedRichContent from '@/components/EnhancedRichContent';
 import MediaLibrary from '@/components/MediaLibrary';
 import { sanitizeHtml } from '@/lib/sanitize-html';
 import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot, Mail, Map as MapIcon } from 'lucide-react';
+import { Film } from 'lucide-react';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
 const CarouselEditor = dynamic(() => import('@/components/admin/CarouselEditor'), { ssr: false });
@@ -1071,6 +1072,7 @@ function CMSAdminInner() {
     { id: 'media',   icon: <Image size={16} aria-hidden="true" />, label: 'Médiatèque', count: null },
     { id: 'carousel',icon: <Car size={16} />,  label: 'Carrousel', count: null },
     { id: 'maps',    icon: <MapIcon size={16} />, label: 'Cartes & Parcours', count: null },
+    { id: 'studio-video', icon: <Film size={16} />, label: 'Studio Vidéo', count: null },
     { id: 'settings',icon: <Settings size={16} />,label: 'Paramètres', count: null },
     { id: 'analytics',icon: <BarChart3 size={16} />,label: 'Analytics', count: null },
     { id: 'search',  icon: <Search size={16} />, label: 'Search', count: null },
@@ -1571,6 +1573,10 @@ function CMSAdminInner() {
             <CarouselGenerator />
             <CarouselEditor />
           </div>
+        )}
+
+        {tab === 'studio-video' && (
+          <iframe src='/panel-manager/studio-video' style={{ width: '100%', height: '100%', border: 'none' }} />
         )}
 
         {tab === 'maps' && (
