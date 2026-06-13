@@ -343,6 +343,9 @@ export default function TravelCRMPanel({ initialDemandes = [] }: TravelCRMPanelP
   const [loading, setLoading] = useState(initialDemandes.length === 0);
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
+
+  // ⚡ Bolt: Use useDeferredValue to debounce the search input.
+  // This prevents heavy list filtering from blocking the main UI thread during typing.
   const deferredSearch = useDeferredValue(search);
   const [selectedIds, setSelectedIds] = useState<Set<string | number>>(new Set());
   const [detailId, setDetailId] = useState<string | number | null>(null);
