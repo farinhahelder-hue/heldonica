@@ -1,18 +1,36 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { SlideData, HELDONICA_TOKENS, AspectRatio } from './tokens'
+import { exportSlide } from '@/lib/carousel/export'
 
 interface SlidePreviewPanelProps {
   slide: SlideData | null
   aspectRatio: AspectRatio
   brandOverlay: boolean
   previewRef: React.RefObject<HTMLDivElement | null>
+  slideIndex?: number
 }
 
-export default function SlidePreviewPanel({ slide, aspectRatio, brandOverlay, previewRef }: SlidePreviewPanelProps) {
+export default function SlidePreviewPanel({ slide, aspectRatio, brandOverlay, previewRef, slideIndex = 0 }: SlidePreviewPanelProps) {
+  const [isExporting, setIsExporting] = useState(false)
   const ratio = HELDONICA_TOKENS.aspectRatios[aspectRatio]
   const tokens = HELDONICA_TOKENS.colors
+
+  const handleExportSlide = async () => {
+    if (!previewRef?.current) return
+    setIsExporting(true)
+    try {
+      await exportSlide(previewRef.current, {
+        filename: `heldonica-slide-${slideIndex + 1}.png`,
+        pixelRatio: 2,
+      })
+    } catch (err) {
+      console.error('Export error:', err)
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   if (!slide) {
     return (
@@ -123,7 +141,7 @@ export default function SlidePreviewPanel({ slide, aspectRatio, brandOverlay, pr
       </div>
 
       {/* Edit controls */}
-      <div className="mt-4 grid grid-cols-3 gap-2">
+      <div className="mt-4 grid grid-cols-4 gap-2">
         <button className="px-3 py-2 text-xs bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors">
           ✏️ Titre
         </button>
@@ -132,6 +150,13 @@ export default function SlidePreviewPanel({ slide, aspectRatio, brandOverlay, pr
         </button>
         <button className="px-3 py-2 text-xs bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors">
           🖼️ Image
+        </button>
+        <button 
+          onClick={handleExportSlide}
+          disabled={isExporting || !slide}
+          className="px-3 py-2 text-xs bg-[#83C5BE] hover:bg-[#4a7c59] text-white rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-1"
+        >
+          {isExporting ? '...' : '📤'} Export
         </button>
       </div>
     </div>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { SlideData, HELDONICA_TOKENS } from './tokens'
+import { exportAllSlides } from '@/lib/carousel/export'
 
 interface FilmStripPanelProps {
   slides: SlideData[]
@@ -10,6 +11,7 @@ interface FilmStripPanelProps {
   onSlidesReorder: (slides: SlideData[]) => void
   onSlideDelete: (id: string) => void
   onSlideAdd: () => void
+  getSlideElement?: (index: number) => HTMLElement | null
 }
 
 export default function FilmStripPanel({ 
@@ -18,10 +20,27 @@ export default function FilmStripPanel({
   onSlideSelect, 
   onSlidesReorder, 
   onSlideDelete,
-  onSlideAdd 
+  onSlideAdd,
+  getSlideElement 
 }: FilmStripPanelProps) {
   const [draggedId, setDraggedId] = useState<string | null>(null)
   const [dragOverId, setDragOverId] = useState<string | null>(null)
+  const [isExportingAll, setIsExportingAll] = useState(false)
+
+  const handleExportAll = async () => {
+    if (!getSlideElement || slides.length === 0) return
+    setIsExportingAll(true)
+    try {
+      const elements = slides.map((_, i) => getSlideElement(i)).filter(Boolean) as HTMLElement[]
+      if (elements.length === slides.length) {
+        await exportAllSlides(elements, 'heldonica-slide')
+      }
+    } catch (err) {
+      console.error('Export all error:', err)
+    } finally {
+      setIsExportingAll(false)
+    }
+  }
 
   const handleDragStart = (e: React.DragEvent, id: string) => {
     setDraggedId(id)
@@ -165,8 +184,12 @@ export default function FilmStripPanel({
           <button className="flex-1 px-3 py-2 text-xs bg-white border border-stone-200 rounded-lg hover:bg-stone-100 transition-colors">
             📋 Dupliquer
           </button>
-          <button className="flex-1 px-3 py-2 text-xs bg-white border border-stone-200 rounded-lg hover:bg-stone-100 transition-colors">
-            🎨 Reset style
+          <button 
+            onClick={handleExportAll}
+            disabled={isExportingAll || slides.length === 0}
+            className="flex-1 px-3 py-2 text-xs bg-[#6b2a1a] text-white rounded-lg hover:bg-[#6b2a1a]/90 transition-colors disabled:opacity-50"
+          >
+            {isExportingAll ? '...' : '📦'} ZIP ({slides.length})
           </button>
         </div>
       </div>

@@ -79,6 +79,8 @@ export interface BrandConfig {
   }
   keywords: string[]
   logoUrl?: string
+  logoPosition?: 'bottom-left' | 'bottom-right' | 'bottom-center'
+  defaultHashtags?: string
   faceless: boolean
 }
 
@@ -98,6 +100,8 @@ export const HELDONICA_BRAND: BrandConfig = {
   },
   keywords: ['slow travel', 'éco-luxe', 'couple', 'hors sentiers battus', 'authenticité', 'voyage responsable'],
   logoUrl: '/logo.png',
+  logoPosition: 'bottom-left',
+  defaultHashtags: '#slowtravel #heldonica #pepite',
   faceless: true,
 }
 
