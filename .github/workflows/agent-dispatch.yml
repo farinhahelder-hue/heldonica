@@ -15,14 +15,14 @@ jobs:
       - name: Send task to AllHands
         run: |
           RESPONSE=$(curl -s -o /tmp/ah_response.json -w "%{http_code}" \
-            -X POST https://app.all-hands.dev/api/v1/conversations \
-            -H "X-API-Key: ${{ secrets.ALLHANDS_API_KEY }}" \
+            -X POST https://app.all-hands.dev/api/v1/app-conversations \
+            -H "Authorization: Bearer ${{ secrets.ALLHANDS_API_KEY }}" \
             -H "Content-Type: application/json" \
             -d "$(jq -n \
               --arg task "${{ github.event.issue.title }}\n\n${{ github.event.issue.body }}" \
               --arg repo "${{ github.repository }}" \
               --arg branch "main" \
-              '{task: $task, repo: $repo, branch: $branch}')")
+              '{initial_message: {content: [{type: "text", text: $task}]}, selected_repository: $repo, selected_branch: $branch}')")
           echo "HTTP Status: $RESPONSE"
           cat /tmp/ah_response.json
 
@@ -30,12 +30,15 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const response = JSON.parse(require('fs').readFileSync('/tmp/ah_response.json', 'utf8'));
+            const conversationId = response.app_conversation_id || response.id;
+            const status = response.status || 'STARTED';
             github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: '🤖 **AllHands** a reçu la tâche et travaille dessus.\n\n[Suivre la progression sur AllHands](https://app.all-hands.dev)'
-            })
+              body: `🤖 **AllHands** a reçu la tâche et travaille dessus.\n\n**Status**: ${status}\n${conversationId ? `\n[Suivre la progression sur AllHands](https://app.all-hands.dev/conversations/${conversationId})` : ''}`
+            });
 
   # ───────────────────────────────────────────
   # Gemini (Google AI)
@@ -68,7 +71,7 @@ jobs:
               repo: context.repo.repo,
               issue_number: context.issue.number,
               body: `🧠 **Réponse Gemini :**\n\n${answer}`
-            })
+            });
 
   # ───────────────────────────────────────────
   # Jules (Google) — en attente API publique
@@ -86,4 +89,4 @@ jobs:
               repo: context.repo.repo,
               issue_number: context.issue.number,
               body: '⏳ **Jules** (Google) n\'a pas encore d\'API publique. La tâche est en attente — ce workflow se mettra à jour automatiquement dès que l\'accès sera disponible.'
-            })
+            });
