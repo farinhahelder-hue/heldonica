@@ -17,7 +17,8 @@ const faqSchema = {
     { "@type": "Question", "name": "Est-ce que tu fais les réservations à ma place ?", "acceptedAnswer": { "@type": "Answer", "text": "On te fournit les liens, contacts et conseils pour chaque réservation. Pour un accompagnement complet (réservations incluses), c'est possible sur devis." }},
     { "@type": "Question", "name": "Qu'est-ce que tu reçois exactement ?", "acceptedAnswer": { "@type": "Answer", "text": "Un carnet de voyage PDF complet : programme jour par jour, carte interactive, hébergements testés, restaurants, transports, conseils pratiques et contacts locaux." }},
     { "@type": "Question", "name": "Et si le voyage ne correspond pas à ce qu'on avait prévu ?", "acceptedAnswer": { "@type": "Answer", "text": "On reste disponibles avant, pendant et après. Si quelque chose ne te convient pas sur place, tu nous écris et on trouve une solution ensemble." }},
-    { "@type": "Question", "name": "C'est quoi la différence avec un guide papier ou un blog ?", "acceptedAnswer": { "@type": "Answer", "text": "Un guide, c'est générique. Un blog, c'est le vécu de quelqu'un d'autre. Nous, on part de TOI : tes envies, ton rythme, tes contraintes. C'est ton voyage, pas le nôtre répété." }}
+    { "@type": "Question", "name": "C'est quoi la différence avec un guide papier ou un blog ?", "acceptedAnswer": { "@type": "Answer", "text": "Un guide, c'est générique. Un blog, c'est le vécu de quelqu'un d'autre. Nous, on part de TOI : tes envies, ton rythme, tes contraintes. C'est ton voyage, pas le nôtre répété." }},
+    { "@type": "Question", "name": "Ce n'est pas fait pour moi si…", "acceptedAnswer": { "@type": "Answer", "text": "Si tu cherches juste une liste d'hôtels ou un itinéraire en 10 minutes. On prend le temps, on va chercher ce qui est vrai sur le terrain. Ce n'est pas le service le plus rapide — c'est le plus utile une fois que tu es là-bas." }}
   ]
 }
 
@@ -211,7 +212,7 @@ export default function TravelPlanning() {
             </div>
             <div className="mt-8 inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-2">
               <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-              <span className="text-white/80 text-xs font-medium">On travaille en petit nombre — qualité délibérément limitée</span>
+              <span className="text-white/80 text-xs font-medium">Conception sur mesure — places limitées ce mois-ci</span>
             </div>
           </div>
         </section>
