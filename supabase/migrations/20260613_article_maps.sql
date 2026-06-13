@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS article_map_routes (
   created_at    TIMESTAMPTZ DEFAULT now()
 );
 
--- POIs
+-- POIs (can belong to a route or be standalone on the article)
 CREATE TABLE IF NOT EXISTS article_map_pois (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   content_slug  TEXT NOT NULL,
@@ -48,5 +48,5 @@ ALTER TABLE cms_blog_posts
   ADD COLUMN IF NOT EXISTS show_map BOOLEAN DEFAULT false;
 
 CREATE INDEX IF NOT EXISTS idx_routes_slug ON article_map_routes(content_slug);
-CREATE INDEX IF NOT EXISTS idx_pois_slug   ON article_map_pois(content_slug);
+CREATE INDEX IF NOT EXISTS idx_pois_slug ON article_map_pois(content_slug);
 CREATE INDEX IF NOT EXISTS idx_points_route ON article_map_route_points(route_id, seq);
