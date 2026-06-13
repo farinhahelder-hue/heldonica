@@ -23,7 +23,7 @@ export const EXPORT_PRESETS = {
     width: 1080,
     height: 1920,
     frameRate: 30,
-    videoBitrate: 8_000_000,
+    videoBitrate: 8_000_000, // 8 Mbps
     audioBitrate: 192_000,
     format: 'webm' as const,
   },
@@ -55,9 +55,9 @@ export const EXPORT_PRESETS = {
 
 // Color grading adjustments
 export interface ColorGrading {
-  brightness: number;
-  contrast: number;
-  saturation: number;
+  brightness: number; // 0-200, 100 = normal
+  contrast: number;   // 0-200, 100 = normal
+  saturation: number; // 0-200, 100 = normal
 }
 
 // Apply color grading to canvas context
@@ -122,6 +122,7 @@ export function calculateCropDimensions(
   const sourceAspect = sourceWidth / sourceHeight;
   
   if (sourceAspect > targetAspect) {
+    // Source is wider, crop sides
     const targetWidth = sourceHeight * targetAspect;
     return {
       x: (sourceWidth - targetWidth) / 2,
@@ -130,6 +131,7 @@ export function calculateCropDimensions(
       height: sourceHeight,
     };
   } else {
+    // Source is taller, crop top/bottom
     const targetHeight = sourceWidth / targetAspect;
     return {
       x: 0,

@@ -1,6 +1,6 @@
 // ============================================================
 // /api/agents/dispatch - Heldonica CMS
-// Déclenche les agents IA depuis le panneau admin
+// Declenche les agents IA directement via leurs APIs
 // POST { agent, task, context?, label? }
 // ============================================================
 import { NextRequest, NextResponse } from 'next/server';
@@ -10,11 +10,13 @@ export const dynamic = 'force-dynamic';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const GITHUB_OWNER = 'farinhahelder-hue';
 const GITHUB_REPO = 'heldonica';
+
+// Direct API keys
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
 
-type AgentType = 'jules' | 'allhands' | 'gemini' | 'claude' | 'perplexity';
+type AgentType = 'gemini' | 'claude' | 'perplexity' | 'openhands' | 'jules';
 
 interface DispatchPayload {
   agent: AgentType;
@@ -25,163 +27,70 @@ interface DispatchPayload {
   source?: string;
 }
 
-// Error codes for better client-side handling
-export const AgentErrorCodes = {
-  MISSING_GITHUB_TOKEN: 'MISSING_GITHUB_TOKEN',
-  MISSING_GEMINI_API_KEY: 'MISSING_GEMINI_API_KEY',
-  MISSING_ANTHROPIC_API_KEY: 'MISSING_ANTHROPIC_API_KEY',
-  MISSING_PERPLEXITY_API_KEY: 'MISSING_PERPLEXITY_API_KEY',
-  GITHUB_API_ERROR: 'GITHUB_API_ERROR',
-  GEMINI_API_ERROR: 'GEMINI_API_ERROR',
-  ANTHROPIC_API_ERROR: 'ANTHROPIC_API_ERROR',
-  PERPLEXITY_API_ERROR: 'PERPLEXITY_API_ERROR',
-} as const;
+// =============================================================================
+// AGENT CONFIGURATION
+// =============================================================================
 
-// Call Gemini API directly
-async function callGeminiAPI(task: string, context?: string): Promise<{ response: string }> {
-  if (!GEMINI_API_KEY) {
-    throw new Error('GEMINI_API_KEY not configured');
-  }
+const AGENT_CONFIG: Record<AgentType, {
+  label: string;
+  emoji: string;
+  description: string;
+  requiresApiKey: boolean;
+  apiKeyEnvVar: string;
+  status: 'direct' | 'cloud' | 'beta';
+}> = {
+  gemini: {
+    label: 'gemini',
+    emoji: '✨',
+    description: 'Gemini generera le contenu via l\'API Google directe',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'GEMINI_API_KEY',
+    status: 'direct',
+  },
+  claude: {
+    label: 'claude',
+    emoji: '🤖',
+    description: 'Claude (Anthropic) traitera la tache via API directe',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'ANTHROPIC_API_KEY',
+    status: 'direct',
+  },
+  perplexity: {
+    label: 'perplexity',
+    emoji: '🔍',
+    description: 'Perplexity repondra a vos questions en temps reel',
+    requiresApiKey: true,
+    apiKeyEnvVar: 'PERPLEXITY_API_KEY',
+    status: 'direct',
+  },
+  openhands: {
+    label: 'openhands',
+    emoji: '🌿',
+    description: 'OpenHands necessite un compte AllHands Cloud',
+    requiresApiKey: false,
+    apiKeyEnvVar: '',
+    status: 'cloud',
+  },
+  jules: {
+    label: 'jules',
+    emoji: '⚡',
+    description: 'Jules est en programme Google beta prive',
+    requiresApiKey: false,
+    apiKeyEnvVar: '',
+    status: 'beta',
+  },
+};
 
-  const model = 'gemini-1.5-flash';
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
-
-  const prompt = context
-    ? `Contexte: ${context}\n\nTâche: ${task}\n\nRéponds de manière détaillée et utile.`
-    : `Tâche: ${task}\n\nRéponds de manière détaillée et utile.`;
-
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 2048,
-      },
-    }),
-  });
-
-  if (!res.ok) {
-    const error = await res.text();
-    throw new Error(`Gemini API error ${res.status}: ${error}`);
-  }
-
-  const data = await res.json();
-  const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Réponse vide';
-
-  return { response: responseText };
-}
-
-// Call Claude API directly
-async function callClaudeAPI(task: string, context?: string): Promise<{ response: string }> {
-  if (!ANTHROPIC_API_KEY) {
-    throw new Error('ANTHROPIC_API_KEY not configured');
-  }
-
-  const url = 'https://api.anthropic.com/v1/messages';
-
-  const prompt = context
-    ? `Contexte: ${context}\n\nTâche: ${task}`
-    : `Tâche: ${task}`;
-
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-3-5-haiku-20241107',
-      max_tokens: 2048,
-      messages: [{ role: 'user', content: prompt }],
-    }),
-  });
-
-  if (!res.ok) {
-    const error = await res.text();
-    throw new Error(`Claude API error ${res.status}: ${error}`);
-  }
-
-  const data = await res.json();
-  const responseText = data.content?.[0]?.text || 'Réponse vide';
-
-  return { response: responseText };
-}
-
-// Call Perplexity API directly
-async function callPerplexityAPI(task: string): Promise<{ response: string }> {
-  if (!PERPLEXITY_API_KEY) {
-    throw new Error('PERPLEXITY_API_KEY not configured');
-  }
-
-  const url = 'https://api.perplexity.ai/chat/completions';
-
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${PERPLEXITY_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: 'sonar',
-      messages: [
-        {
-          role: 'system',
-          content: 'Tu es un assistant de recherche web intelligent. Réponds de manière concise et informative.',
-        },
-        { role: 'user', content: task },
-      ],
-      max_tokens: 2048,
-    }),
-  });
-
-  if (!res.ok) {
-    const error = await res.text();
-    throw new Error(`Perplexity API error ${res.status}: ${error}`);
-  }
-
-  const data = await res.json();
-  const responseText = data.choices?.[0]?.message?.content || 'Réponse vide';
-
-  return { response: responseText };
-}
+// =============================================================================
+// GITHUB ISSUE CREATION
+// =============================================================================
 
 async function createGitHubIssue(payload: DispatchPayload) {
   if (!GITHUB_TOKEN) {
     throw new Error('GITHUB_TOKEN non configure');
   }
 
-  const agentConfig: Record<AgentType, { label: string; emoji: string; desc: string }> = {
-    jules: {
-      label: 'jules',
-      emoji: '⚡',
-      desc: 'Jules va analyser et implementer cette tache automatiquement.',
-    },
-    allhands: {
-      label: 'allhands',
-      emoji: '🤖',
-      desc: 'OpenHands va traiter cette tache en session dev complete.',
-    },
-    gemini: {
-      label: 'gemini-content',
-      emoji: '✨',
-      desc: 'Gemini va generer le contenu via l\'API Google.',
-    },
-    claude: {
-      label: 'claude-content',
-      emoji: '🧠',
-      desc: 'Claude va generer le contenu via l\'API Anthropic.',
-    },
-    perplexity: {
-      label: 'perplexity',
-      emoji: '🔍',
-      desc: 'Perplexity va effectuer une recherche web intelligente.',
-    },
-  };
-
-  const config = agentConfig[payload.agent];
+  const config = AGENT_CONFIG[payload.agent];
   const date = new Date().toISOString().split('T')[0];
   const priorityLabel = payload.priority === 'high' ? 'priorite-haute' : undefined;
 
@@ -198,7 +107,7 @@ async function createGitHubIssue(payload: DispatchPayload) {
     `**Source**: ${payload.source || 'cms-admin'}`,
     payload.priority ? `**Priorite**: ${payload.priority}` : '',
     '',
-    config.desc,
+    config.description,
     '',
     payload.context ? `### Contexte\n\`\`\`\n${payload.context}\n\`\`\`` : '',
     '',
@@ -211,7 +120,6 @@ async function createGitHubIssue(payload: DispatchPayload) {
     '### Fichiers de reference',
     '- `JULES_TASKS.md` - Backlog sprint',
     '- `JULES_MEMORY.md` - Historique sessions',
-    '- `.jules/CONTEXT.md` - Stack complete',
     '',
     '---',
     `_Dispatche depuis le CMS Heldonica admin le ${new Date().toISOString()}_`,
@@ -245,6 +153,148 @@ async function createGitHubIssue(payload: DispatchPayload) {
   return res.json();
 }
 
+// =============================================================================
+// DIRECT API CALLS
+// =============================================================================
+
+async function callGemini(task: string, context?: string): Promise<{ response: string; usage?: { prompt_tokens: number; completion_tokens: number; total_tokens: number } }> {
+  if (!GEMINI_API_KEY) {
+    throw new Error('GEMINI_API_KEY non configuree');
+  }
+
+  const fullPrompt = context 
+    ? `Contexte: ${context}\n\nTache: ${task}`
+    : task;
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: fullPrompt }] }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 2048,
+        },
+      }),
+    }
+  );
+
+  if (!res.ok) {
+    const error = await res.text();
+    throw new Error(`Gemini API error ${res.status}: ${error}`);
+  }
+
+  const data = await res.json();
+  const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Reponse vide';
+  
+  return {
+    response: responseText,
+    usage: {
+      prompt_tokens: data.usageMetadata?.promptTokenCount || 0,
+      completion_tokens: data.usageMetadata?.candidatesTokenCount || 0,
+      total_tokens: data.usageMetadata?.totalTokenCount || 0,
+    },
+  };
+}
+
+async function callClaude(task: string, context?: string): Promise<{ response: string; usage?: { input_tokens: number; output_tokens: number } }> {
+  if (!ANTHROPIC_API_KEY) {
+    throw new Error('ANTHROPIC_API_KEY non configuree');
+  }
+
+  const fullPrompt = context 
+    ? `Contexte additionnel:\n${context}\n\n---\n\nTache:\n${task}`
+    : task;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2048,
+      messages: [
+        { role: 'system', content: 'Tu es un assistant utile. Reponds en francais.' },
+        { role: 'user', content: fullPrompt }
+      ],
+    }),
+  });
+
+  if (!res.ok) {
+    const error = await res.text();
+    throw new Error(`Claude API error ${res.status}: ${error}`);
+  }
+
+  const data = await res.json();
+  const responseText = data.content?.[0]?.text || 'Reponse vide';
+  
+  return {
+    response: responseText,
+    usage: {
+      input_tokens: data.usage?.input_tokens || 0,
+      output_tokens: data.usage?.output_tokens || 0,
+    },
+  };
+}
+
+async function callPerplexity(task: string, context?: string): Promise<{ response: string; usage?: { total_tokens: number; prompt_tokens?: number; completion_tokens?: number } }> {
+  if (!PERPLEXITY_API_KEY) {
+    throw new Error('PERPLEXITY_API_KEY non configuree');
+  }
+
+  const fullPrompt = context 
+    ? `Contexte: ${context}\n\nQuestion: ${task}`
+    : task;
+
+  const res = await fetch('https://api.perplexity.ai/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${PERPLEXITY_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: 'sonar-pro',
+      messages: [
+        { role: 'system', content: 'Tu es un assistant utile. Reponds en francais.' },
+        { role: 'user', content: fullPrompt }
+      ],
+      max_tokens: 2048,
+      temperature: 0.7,
+    }),
+  });
+
+  if (!res.ok) {
+    const error = await res.text();
+    throw new Error(`Perplexity API error ${res.status}: ${error}`);
+  }
+
+  const data = await res.json();
+  const responseText = data.choices?.[0]?.message?.content
+    || data.choices?.[0]?.text
+    || data.content
+    || data.response
+    || data.text
+    || 'Reponse vide';
+  
+  return {
+    response: responseText,
+    usage: {
+      total_tokens: data.usage?.total_tokens || 0,
+      prompt_tokens: data.usage?.prompt_tokens || 0,
+      completion_tokens: data.usage?.completion_tokens || 0,
+    },
+  };
+}
+
+// =============================================================================
+// MAIN HANDLER
+// =============================================================================
+
 export async function POST(req: NextRequest) {
   try {
     const payload: DispatchPayload = await req.json();
@@ -257,7 +307,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const validAgents: AgentType[] = ['jules', 'allhands', 'gemini', 'claude', 'perplexity'];
+    const validAgents: AgentType[] = ['gemini', 'claude', 'perplexity', 'openhands', 'jules'];
     if (!validAgents.includes(payload.agent)) {
       return NextResponse.json(
         { error: `Agent invalide. Valeurs acceptees: ${validAgents.join(', ')}` },
@@ -265,165 +315,93 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check for required env vars based on agent
-    if (payload.agent === 'jules') {
-      if (!GITHUB_TOKEN) {
-        return NextResponse.json(
-          {
-            error: '⚫ Programme Google en beta',
-            code: 'JULES_BETA',
-            details: 'Jules est actuellement en programme beta de Google. Demandez un accès sur https://aistudio.google.com/',
-            suggestion: 'Utilisez Claude, Gemini ou Perplexity pour le moment.',
-          },
-          { status: 501 }
-        );
-      }
+    const config = AGENT_CONFIG[payload.agent];
+    const result: {
+      success: boolean;
+      agent: AgentType;
+      status: string;
+      response?: string;
+      error?: string;
+      usage?: Record<string, number>;
+      github?: { issue_number: number; issue_url: string };
+    } = {
+      success: false,
+      agent: payload.agent,
+      status: config.status,
+    };
+
+    // Check if API key is required but not configured
+    if (config.requiresApiKey && !process.env[config.apiKeyEnvVar]) {
+      return NextResponse.json({
+        ...result,
+        success: false,
+        error: `${config.apiKeyEnvVar} non configuree`,
+      }, { status: 400 });
     }
 
-    if (payload.agent === 'allhands') {
-      return NextResponse.json(
-        {
-          error: '⚫ Necessite AllHands Cloud',
-          code: 'ALLHANDS_CLOUD_REQUIRED',
-          details: 'OpenHands necessite un compte AllHands Cloud pour fonctionner.',
-          suggestion: 'Visitez https://app.all-hands.dev pour configurer OpenHands.',
-        },
-        { status: 501 }
-      );
-    }
+    // Handle based on agent type
+    switch (payload.agent) {
+      case 'gemini':
+        const geminiResult = await callGemini(payload.task, payload.context);
+        result.success = true;
+        result.response = geminiResult.response;
+        result.usage = geminiResult.usage;
+        break;
 
-    if (payload.agent === 'gemini') {
-      if (!GEMINI_API_KEY) {
-        return NextResponse.json(
-          {
-            error: '❌ Clé API Gemini manquante',
-            code: 'MISSING_GEMINI_API_KEY',
-            details: 'La variable GEMINI_API_KEY doit être configurée dans Vercel.',
-            action: 'Ajouter GEMINI_API_KEY dans les variables d\'environnement Vercel',
-          },
-          { status: 503 }
-        );
-      }
-    }
+      case 'claude':
+        const claudeResult = await callClaude(payload.task, payload.context);
+        result.success = true;
+        result.response = claudeResult.response;
+        result.usage = claudeResult.usage;
+        break;
 
-    if (payload.agent === 'claude') {
-      if (!ANTHROPIC_API_KEY) {
-        return NextResponse.json(
-          {
-            error: '❌ Clé API Anthropic manquante',
-            code: 'MISSING_ANTHROPIC_API_KEY',
-            details: 'La variable ANTHROPIC_API_KEY doit être configurée dans Vercel.',
-            action: 'Ajouter ANTHROPIC_API_KEY dans les variables d\'environnement Vercel',
-          },
-          { status: 503 }
-        );
-      }
-    }
+      case 'perplexity':
+        const perplexityResult = await callPerplexity(payload.task, payload.context);
+        result.success = true;
+        result.response = perplexityResult.response;
+        result.usage = perplexityResult.usage;
+        break;
 
-    if (payload.agent === 'perplexity') {
-      if (!PERPLEXITY_API_KEY) {
-        return NextResponse.json(
-          {
-            error: '❌ Clé API Perplexity manquante',
-            code: 'MISSING_PERPLEXITY_API_KEY',
-            details: 'La variable PERPLEXITY_API_KEY doit être configurée dans Vercel.',
-            action: 'Ajouter PERPLEXITY_API_KEY dans les variables d\'environnement Vercel',
-          },
-          { status: 503 }
-        );
-      }
-    }
+      case 'openhands':
+        // OpenHands requires AllHands Cloud
+        if (!GITHUB_TOKEN) {
+          result.error = 'GITHUB_TOKEN non configure pour notifier OpenHands';
+        } else {
+          const issue = await createGitHubIssue({ ...payload, label: 'openhands' });
+          result.success = true;
+          result.github = {
+            issue_number: issue.number,
+            issue_url: issue.html_url,
+          };
+          result.response = `Issue GitHub creee: #${issue.number}`;
+        }
+        break;
 
-    const results: Record<string, unknown> = {};
-
-    // Handle Jules - GitHub issue creation
-    if (payload.agent === 'jules') {
-      try {
-        const issue = await createGitHubIssue(payload);
-        results.github = {
-          issue_number: issue.number,
-          issue_url: issue.html_url,
-          title: issue.title,
-        };
-      } catch (err) {
-        console.error('[agents/dispatch] GitHub issue creation failed:', err);
-        return NextResponse.json(
-          {
-            error: '❌ Erreur lors de la création de l\'issue GitHub',
-            code: 'GITHUB_API_ERROR',
-            details: err instanceof Error ? err.message : String(err),
-          },
-          { status: 500 }
-        );
-      }
-    }
-
-    // Handle Gemini - Direct API call
-    if (payload.agent === 'gemini') {
-      try {
-        const geminiResult = await callGeminiAPI(payload.task, payload.context);
-        results.agent = geminiResult;
-      } catch (err) {
-        console.error('[agents/dispatch] Gemini API failed:', err);
-        return NextResponse.json(
-          {
-            error: '❌ Erreur lors de l\'appel à Gemini',
-            code: 'GEMINI_API_ERROR',
-            details: err instanceof Error ? err.message : String(err),
-          },
-          { status: 500 }
-        );
-      }
-    }
-
-    // Handle Claude - Direct API call
-    if (payload.agent === 'claude') {
-      try {
-        const claudeResult = await callClaudeAPI(payload.task, payload.context);
-        results.agent = claudeResult;
-      } catch (err) {
-        console.error('[agents/dispatch] Claude API failed:', err);
-        return NextResponse.json(
-          {
-            error: '❌ Erreur lors de l\'appel à Claude',
-            code: 'ANTHROPIC_API_ERROR',
-            details: err instanceof Error ? err.message : String(err),
-          },
-          { status: 500 }
-        );
-      }
-    }
-
-    // Handle Perplexity - Direct API call
-    if (payload.agent === 'perplexity') {
-      try {
-        const perplexityResult = await callPerplexityAPI(payload.task);
-        results.agent = perplexityResult;
-      } catch (err) {
-        console.error('[agents/dispatch] Perplexity API failed:', err);
-        return NextResponse.json(
-          {
-            error: '❌ Erreur lors de l\'appel à Perplexity',
-            code: 'PERPLEXITY_API_ERROR',
-            details: err instanceof Error ? err.message : String(err),
-          },
-          { status: 500 }
-        );
-      }
+      case 'jules':
+        // Jules is in Google beta - notify via GitHub
+        if (!GITHUB_TOKEN) {
+          result.error = 'GITHUB_TOKEN non configure pour notifier Jules';
+        } else {
+          const issue = await createGitHubIssue({ ...payload, label: 'jules' });
+          result.success = true;
+          result.github = {
+            issue_number: issue.number,
+            issue_url: issue.html_url,
+          };
+          result.response = `Issue GitHub creee: #${issue.number}`;
+        }
+        break;
     }
 
     return NextResponse.json({
-      success: true,
-      agent: payload.agent,
-      task: payload.task,
+      ...result,
       dispatched_at: new Date().toISOString(),
-      results,
     });
   } catch (err) {
     console.error('[agents/dispatch] Error:', err);
     return NextResponse.json(
       {
-        error: '❌ Erreur lors du dispatch',
+        error: 'Erreur lors du dispatch',
         details: err instanceof Error ? err.message : String(err),
       },
       { status: 500 }
@@ -431,21 +409,18 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// GET - Verifier que la route est active
+// GET - Status endpoint
 export async function GET() {
+  const agents = Object.entries(AGENT_CONFIG).map(([key, cfg]) => ({
+    id: key,
+    ...cfg,
+    apiKeyConfigured: cfg.apiKeyEnvVar ? !!process.env[cfg.apiKeyEnvVar] : null,
+  }));
+
   return NextResponse.json({
     status: 'active',
-    endpoints: {
-      dispatch: 'POST /api/agents/dispatch',
-      status: 'GET /api/agents/status',
-      config: 'GET /api/agents/config',
-    },
-    agents: ['jules', 'allhands', 'gemini', 'claude', 'perplexity'],
-    required_env: {
-      GITHUB_TOKEN: 'GitHub Personal Access Token (scope: repo)',
-      GEMINI_API_KEY: 'Clé API Gemini (Google AI Studio)',
-      ANTHROPIC_API_KEY: 'Clé API Anthropic',
-      PERPLEXITY_API_KEY: 'Clé API Perplexity',
-    },
+    endpoint: 'POST /api/agents/dispatch',
+    agents,
+    required_env: ['GITHUB_TOKEN', 'GEMINI_API_KEY', 'ANTHROPIC_API_KEY', 'PERPLEXITY_API_KEY'],
   });
 }
