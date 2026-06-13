@@ -60,48 +60,44 @@ const DESTINATIONS = [
 
 export async function GET() {
   try {
-    const results = [];
+    const results = []
     
-    // Batch upsert to optimize performance (O(1) query instead of O(N) queries)
-    const { data, error } = await supabase
-      .from('destinations')
-      .upsert(DESTINATIONS, { onConflict: 'slug', ignoreDuplicates: true })
-      .select('slug, id');
-      
-    if (error) {
-      console.error('Batch insert error:', error);
-      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-    }
-
-    // Map the inserted data for easy lookup
-    const insertedMap = new Map();
-    if (data) {
-      for (const item of data) {
-        insertedMap.set(item.slug, item.id);
-      }
-    }
-
-    // Build results array matching the old format (reporting both inserted and skipped items)
     for (const dest of DESTINATIONS) {
-      if (insertedMap.has(dest.slug)) {
-        results.push({ slug: dest.slug, status: 'inserted', id: insertedMap.get(dest.slug) });
+      // Check if destination already exists
+      const { data: existing } = await supabase
+        .from('destinations')
+        .select('slug')
+        .eq('slug', dest.slug)
+        .single()
+      
+      if (existing) {
+        results.push({ slug: dest.slug, status: 'skipped', reason: 'already exists' })
+        continue
+      }
+      
+      // Insert destination
+      const { data, error } = await supabase
+        .from('destinations')
+        .insert(dest)
+        .select('slug')
+        .single()
+      
+      if (error) {
+        results.push({ slug: dest.slug, status: 'error', error: error.message })
       } else {
-        results.push({ slug: dest.slug, status: 'skipped', reason: 'already exists' });
+        results.push({ slug: dest.slug, status: 'inserted', id: (data as any).id })
       }
     }
     
-    const seededCount = insertedMap.size;
-    const skippedCount = DESTINATIONS.length - seededCount;
-
     // Get total count
     const { count } = await supabase
       .from('destinations')
-      .select('*', { count: 'exact', head: true });
+      .select('*', { count: 'exact', head: true })
     
     return NextResponse.json({
       success: true,
-      seeded: seededCount,
-      skipped: skippedCount,
+      seeded: results.filter(r => r.status === 'inserted').length,
+      skipped: results.filter(r => r.status === 'skipped').length,
       total_destinations: count,
       details: results,
     })
