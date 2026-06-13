@@ -32,7 +32,7 @@ const faqs = [
   },
   {
     q: 'Tu ne connais pas ma destination.',
-    a: 'C\'est possible. On travaille avec un réseau de contacts locaux et on fait des recherches approfondies pour chaque nouvelle destination. La règle qu\'on s\'est fixée : on ne te recommande que ce qu\'on serait prêts àconseiller à nos proches. Même si c\'est notre première fois sur place.'
+    a: 'C\'est possible. On travaille avec un réseau de contacts locaux et on fait des recherches approfondies pour chaque nouvelle destination. La règle qu\'on s\'est fixée : on ne te recommande que ce qu\'on serait prêts à conseiller à nos proches. Même si c\'est notre première fois sur place.'
   },
   {
     q: 'Est-ce que tu fais les réservations à ma place ?',
@@ -40,7 +40,7 @@ const faqs = [
   },
   {
     q: 'Qu\'est-ce que tu reçois exactement comme livrable ?',
-    a: 'Un carnet de voyage PDF complet, pensée pour toi : programme jour par jour avec horaires, carte interactive avec tous les points, hébergements sélectionnés avec liens directs, restaurants testés, transports détaillés, conseils pratiques (le meilleur moment pour y aller, les erreurs à éviter), contacts locaux. Tout reunidos en un seul document cohérent.'
+    a: 'Un carnet de voyage PDF complet, pensé pour toi : programme jour par jour avec horaires, carte interactive avec tous les points, hébergements sélectionnés avec liens directs, restaurants testés, transports détaillés, conseils pratiques (le meilleur moment pour y aller, les erreurs à éviter), contacts locaux. Tout réuni en un seul document cohérent.'
   },
   {
     q: 'Et si le voyage ne correspond pas à ce qu\'on avait prévu ?',
@@ -50,27 +50,31 @@ const faqs = [
     q: 'C\'est quoi la différence avec un guide papier ou un blog ?',
     a: 'Un guide, c\'est générique. Un blog, c\'est le vécu de quelqu\'un d\'autre qui ne te connaît pas. Nous, on part de TOI : tes envies, ton rythme, tes contraintes, ta façon de voyager. C\'est ton voyage, pas le nôtre répété.'
   },
+  {
+    q: 'Ce n\'est pas fait pour moi si…',
+    a: 'Si tu cherches juste une liste d\'hôtels ou un itinéraire en 10 minutes. On prend le temps, on va chercher ce qui est vrai sur le terrain. Ce n\'est pas le service le plus rapide — c\'est le plus utile une fois que tu es là-bas.'
+  },
 ]
 
 const personas = [
   {
     title: 'Couples aventuriers',
     subtitle: 'Notre spécialité',
-    desc: 'Ralentir sans ennuyer, laisser de la place au vrai, garder le hors-sentiers sans perdre le fil.',
+    desc: 'Ralentir sans s\'ennuyer, laisser de la place au vrai, garder le hors-sentiers sans perdre le fil.',
     icon: '🌿',
     accent: 'text-emerald-700',
   },
   {
     title: 'Solo & Familles curieuses',
     subtitle: 'Ouvert à ton format',
-    desc: 'On adapte cette même exigence terrain à votre énergie, vos contraintes et votre rythme.',
+    desc: 'On adapte cette même exigence terrain à ton énergie, tes contraintes et ton rythme.',
     icon: '✈️',
     accent: 'text-amber-700',
   },
   {
     title: 'Le terrain vécu',
     subtitle: 'Notre méthode',
-    desc: 'Cartes, adresses, conseils pratiques et pépites : tout part d\'expériences testées, pas inventées.',
+    desc: 'Cartes, adresses, conseils pratiques et pépites dénichées : tout part d\'expériences testées, jamais inventées.',
     icon: '🗺️',
     accent: 'text-stone-700',
   },
@@ -115,7 +119,7 @@ const deliverables = [
   },
   {
     title: 'Restaurants testés ou validés',
-    desc: 'Le meilleur de la cuisine locale, pas des chains internationales. Avec horaires, fourchette de prix, réservation conseillée ou pas.',
+    desc: 'Le meilleur de la cuisine locale, pas des chaînes internationales. Avec horaires, fourchette de prix, réservation conseillée ou pas.',
     icon: '🍽️',
   },
   {
@@ -186,14 +190,14 @@ export default function TravelPlanning() {
           <div className="absolute inset-0 bg-gradient-to-b from-stone-950/60 via-transparent to-stone-950" />
           <div className="relative max-w-4xl mx-auto px-6 md:px-10 py-28 md:py-40 text-center">
             <p className="fade-up-1 text-amber-400 text-xs font-bold tracking-[0.2em] uppercase mb-5">
-              Travel Planning · Terrain vécu
+              Travel Planning · Conception sur mesure · Terrain vécu
             </p>
             <h1 className="fade-up-2 text-4xl md:text-6xl lg:text-7xl font-serif font-light text-white leading-[1.1] mb-6">
               On ne fait pas des itinéraires.<br />
               <em className="text-amber-300">On fait le tien.</em>
             </h1>
             <p className="fade-up-3 text-base md:text-xl text-white max-w-2xl mx-auto leading-relaxed mb-10">
-              Tu nous envoies tes contraintes réelles — temps, budget, énergie, envie. On transforme ça en séquence concrète, avec les adresses qu'on a testées et l'ordre qui a du sens sur le terrain.
+              Tu nous envoies tes contraintes réelles — temps, budget, énergie, envie. On transforme ça en séquence concrète, avec les adresses qu&apos;on a testées et l&apos;ordre qui a du sens sur le terrain.
             </p>
             <div className="fade-up-4 flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link href="/travel-planning-form"
@@ -207,7 +211,7 @@ export default function TravelPlanning() {
             </div>
             <div className="mt-8 inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-2">
               <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-              <span className="text-white/80 text-xs font-medium">100% humain · Sans engagement · Réponse sous 48h</span>
+              <span className="text-white/80 text-xs font-medium">On travaille en petit nombre — qualité délibérément limitée</span>
             </div>
           </div>
         </section>
@@ -377,7 +381,7 @@ export default function TravelPlanning() {
           <div className="max-w-3xl mx-auto px-6 md:px-10">
             <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-3 text-center">FAQ</p>
             <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-10 text-center">
-              Les questions qu'on nous pose vraiment
+              Les questions qu&apos;on nous pose vraiment
             </h2>
             <FAQ />
           </div>
@@ -387,9 +391,9 @@ export default function TravelPlanning() {
         <section className="py-24 md:py-32 bg-stone-950 text-white relative overflow-hidden">
           <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1200&q=60)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
           <div className="relative max-w-2xl mx-auto px-6 text-center">
-            <p className="text-amber-400 text-xs font-bold tracking-[0.2em] uppercase mb-4">Prêts pour l'aventure ?</p>
+            <p className="text-amber-400 text-xs font-bold tracking-[0.2em] uppercase mb-4">Prêts pour l&apos;aventure ?</p>
             <h2 className="text-4xl md:text-5xl font-serif font-light mb-6">
-              Dis-nous où tu rêves d'aller.<br />
+              Dis-nous où tu rêves d&apos;aller.<br />
               <em className="text-amber-300">On conçoit ton voyage.</em>
             </h2>
             <p className="text-stone-300 leading-relaxed mb-10">
