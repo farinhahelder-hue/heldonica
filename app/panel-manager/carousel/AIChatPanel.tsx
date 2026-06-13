@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { HELDONICA_TOKENS, SlideData, PROMPT_TEMPLATES, generateId } from './tokens'
+import { HELDONICA_TOKENS, SlideData, PROMPT_TEMPLATES } from './tokens'
 
 interface Message {
   role: 'user' | 'assistant'
