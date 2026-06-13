@@ -1903,6 +1903,38 @@ function CMSAdminInner() {
                                       </button>
                                     </div>
                                   </div>
+                                  {/* Inline Confirmation Dialog */}
+                                  {showMaintenanceConfirm && (
+                                    <div style={{
+                                      marginTop: '1rem',
+                                      padding: '1.5rem',
+                                      background: '#fff5f5',
+                                      borderRadius: '.75rem',
+                                      border: '2px solid #fecaca',
+                                    }}>
+                                      <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#dc2626', marginBottom: '1rem' }}>
+                                        ⚠️ Confirmer l&apos;activation
+                                      </h3>
+                                      <p style={{ color: '#444', marginBottom: '1rem', fontSize: '.9rem' }}>
+                                        Le site sera <strong>inaccessible aux visiteurs</strong>. Seuls le CMS et les API resteront accessibles.
+                                      </p>
+                                      <div style={{ display: 'flex', gap: '.75rem', justifyContent: 'flex-end' }}>
+                                        <button
+                                          onClick={() => { setShowMaintenanceConfirm(false); setPendingMaintenanceValue(null); }}
+                                          style={{ padding: '.5rem 1rem', background: '#e5e7eb', color: '#374151', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}
+                                        >
+                                          Annuler
+                                        </button>
+                                        <button
+                                          onClick={confirmMaintenanceActivation}
+                                          disabled={savingSettings}
+                                          style={{ padding: '.5rem 1rem', background: '#dc2626', color: 'white', border: 'none', borderRadius: '.5rem', cursor: savingSettings ? 'not-allowed' : 'pointer', fontWeight: 600, opacity: savingSettings ? 0.6 : 1 }}
+                                        >
+                                          {savingSettings ? 'Activation…' : 'Confirmer'}
+                                        </button>
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
                               );
                             }
@@ -1918,72 +1950,7 @@ function CMSAdminInner() {
                           {groupItems.length === 0 && <p style={{ color: '#aaa', fontSize: '.9rem', textAlign: 'center', padding: '2rem' }}>Aucun paramètre dans ce groupe.</p>}
                         </div>
                         
-                        {/* Confirmation Dialog for Maintenance Mode */}
-                        {showMaintenanceConfirm && (
-                          <div style={{
-                            position: 'fixed',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            background: 'rgba(0,0,0,0.5)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            zIndex: 1000,
-                          }}>
-                            <div style={{
-                              background: 'white',
-                              borderRadius: '1rem',
-                              padding: '2rem',
-                              maxWidth: 400,
-                              margin: '1rem',
-                              boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-                            }}>
-                              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1rem' }}>
-                                ⚠️ Confirmer l&apos;activation
-                              </h3>
-                              <p style={{ color: '#444', marginBottom: '1.5rem', lineHeight: 1.5 }}>
-                                Le site sera <strong>inaccessible aux visiteurs</strong>. Seuls le panneau CMS et les API resteront accessibles.
-                              </p>
-                              <p style={{ color: '#666', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
-                                Les modifications prendront effet dans les 30 secondes.
-                              </p>
-                              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
-                                <button
-                                  onClick={() => { setShowMaintenanceConfirm(false); setPendingMaintenanceValue(null); }}
-                                  style={{
-                                    padding: '0.6rem 1.25rem',
-                                    background: '#e5e7eb',
-                                    color: '#374151',
-                                    border: 'none',
-                                    borderRadius: '0.5rem',
-                                    cursor: 'pointer',
-                                    fontWeight: 600,
-                                  }}
-                                >
-                                  Annuler
-                                </button>
-                                <button
-                                  onClick={confirmMaintenanceActivation}
-                                  disabled={savingSettings}
-                                  style={{
-                                    padding: '0.6rem 1.25rem',
-                                    background: '#dc2626',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '0.5rem',
-                                    cursor: savingSettings ? 'not-allowed' : 'pointer',
-                                    fontWeight: 600,
-                                    opacity: savingSettings ? 0.6 : 1,
-                                  }}
-                                >
-                                  {savingSettings ? 'Activation…' : 'Confirmer'}
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                        
                         
                         <button onClick={saveSettings} disabled={savingSettings}
                           style={{ marginTop: '1.75rem', padding: '.7rem 2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '.9rem', opacity: savingSettings ? .7 : 1 }}
@@ -2265,6 +2232,51 @@ function CMSAdminInner() {
 }
 
 // ===== Export avec Suspense (obligatoire car useSearchParams) =====
+const MaintenanceConfirmDialog = ({
+  onConfirm,
+  onCancel,
+  savingSettings
+}: {
+  onConfirm: () => void;
+  onCancel: () => void;
+  savingSettings: boolean;
+}) => (
+  <div style={{
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'rgba(0,0,0,0.5)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000,
+  }}>
+    <div style={{
+      background: 'white',
+      borderRadius: '1rem',
+      padding: '2rem',
+      maxWidth: 400,
+      margin: '1rem',
+      boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+    }}>
+      <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1rem' }}>
+        Confirm activation
+      </h3>
+      <p style={{ color: '#444', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+        Site will be <strong>inaccessible</strong>. Only CMS accessible.
+      </p>
+      <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+        <button onClick={onCancel} style={{ padding: '0.6rem 1.25rem', background: '#e5e7eb', color: '#374151', border: 'none', borderRadius: '0.5rem', cursor: 'pointer', fontWeight: 600 }}>Cancel</button>
+        <button onClick={onConfirm} disabled={savingSettings} style={{ padding: '0.6rem 1.25rem', background: '#dc2626', color: 'white', border: 'none', borderRadius: '0.5rem', cursor: savingSettings ? 'not-allowed' : 'pointer', fontWeight: 600, opacity: savingSettings ? 0.6 : 1 }}>
+          {savingSettings ? 'Activating...' : 'Confirm'}
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
 export default function CmsAdminClient() {
   return (
     <Suspense fallback={

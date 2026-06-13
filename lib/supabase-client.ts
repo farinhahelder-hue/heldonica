@@ -35,8 +35,8 @@ const createStubBuilder = () => {
     insert: (data: any) => ({ select: () => stubPromise(null) }),
     delete: () => ({ eq: () => stubPromise(null) }),
     // Promise-like interface
-    then: (onfulfilled: (value: any) => any, onrejected?: (reason: any) => any) => stubPromise([]).then(onfulfilled, onrejected),
-    catch: (onrejected: (reason: any) => any) => stubPromise([]).catch(onrejected),
+    then: <T,>(onfulfilled: (value: unknown) => T, onrejected?: (reason: unknown) => T) => stubPromise([]).then(onfulfilled, onrejected),
+    catch: <T,>(onrejected: (reason: unknown) => T) => stubPromise([]).catch(onrejected),
   };
   return builder;
 };

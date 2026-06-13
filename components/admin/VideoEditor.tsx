@@ -2,10 +2,10 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import {
-  Film, Music, Type, Download, Play, Pause, Volume2,
-  Plus, Trash2, Sun, Contrast, Droplet, ZoomIn, ZoomOut,
-  RotateCcw, ChevronLeft, ChevronRight, Layers, Image as ImageIcon,
-  Undo2, Redo2
+  Film, Music, Type, Scissors, Download, Play, Pause, Volume2,
+  Plus, Trash2, Move, Crop, Sun, Contrast, Droplet, ZoomIn, ZoomOut,
+  RotateCcw, Save, ChevronLeft, ChevronRight, Square, RectangleVertical,
+  RectangleHorizontal, Undo2, Redo2, Layers, Eye, EyeOff, Image as ImageIcon
 } from 'lucide-react';
 
 // ===== Types =====
@@ -100,6 +100,8 @@ export default function VideoEditor() {
   const [showExportModal, setShowExportModal] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   
+  const videoPreviewRef = useRef<HTMLVideoElement>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
   const playIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const totalDuration = Math.max(
@@ -107,12 +109,14 @@ export default function VideoEditor() {
     ...timelineClips.map(c => c.startTime + c.duration)
   );
 
+  // Cleanup play interval
   useEffect(() => {
     return () => {
       if (playIntervalRef.current) clearInterval(playIntervalRef.current);
     };
   }, []);
 
+  // Handle playback
   useEffect(() => {
     if (isPlaying) {
       playIntervalRef.current = setInterval(() => {
@@ -135,6 +139,7 @@ export default function VideoEditor() {
     };
   }, [isPlaying, totalDuration]);
 
+  // Handle file upload
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files) return;
@@ -157,6 +162,7 @@ export default function VideoEditor() {
     });
   }, []);
 
+  // Add clip to timeline
   const addToTimeline = useCallback((media: MediaClip, trackIndex: number) => {
     const newClip: TimelineClip = {
       id: `clip-${Date.now()}-${Math.random().toString(36).slice(2)}`,
@@ -174,17 +180,20 @@ export default function VideoEditor() {
     setTimelineClips(prev => [...prev, newClip]);
   }, [currentTime]);
 
+  // Update clip
   const updateClip = useCallback((clipId: string, updates: Partial<TimelineClip>) => {
     setTimelineClips(prev => prev.map(c => 
       c.id === clipId ? { ...c, ...updates } : c
     ));
   }, []);
 
+  // Delete clip
   const deleteClip = useCallback((clipId: string) => {
     setTimelineClips(prev => prev.filter(c => c.id !== clipId));
     if (selectedClipId === clipId) setSelectedClipId(null);
   }, [selectedClipId]);
 
+  // Add text overlay
   const addTextOverlay = useCallback((clipId: string) => {
     const textOverlay: TextOverlay = {
       text: 'Nouveau texte',
@@ -199,6 +208,7 @@ export default function VideoEditor() {
     updateClip(clipId, { text: textOverlay });
   }, [updateClip]);
 
+  // Format time display
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -206,11 +216,17 @@ export default function VideoEditor() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
   };
 
+  // Get selected clip
   const selectedClip = timelineClips.find(c => c.id === selectedClipId);
 
+  // Export video
   const handleExport = async () => {
     setIsExporting(true);
+    
+    // Simulate export process
     await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // In a real implementation, this would use WebCodecs or a library like ffmpeg.wasm
     alert(`Export terminé ! Format: ${exportFormat.label} (${exportFormat.width}x${exportFormat.height})`);
     setIsExporting(false);
     setShowExportModal(false);
@@ -370,9 +386,12 @@ export default function VideoEditor() {
               position: 'relative',
               overflow: 'hidden',
             }}>
+              {/* Preview content */}
               {selectedClip && (
                 <div style={{ textAlign: 'center' }}>
-                  <Film size={64} style={{ opacity: 0.3 }} />
+                  {timelineClips.find(c => c.id === selectedClipId)?.mediaId && (
+                    <Film size={64} style={{ opacity: 0.3 }} />
+                  )}
                   {selectedClip.text && (
                     <div style={{
                       position: 'absolute',
@@ -395,6 +414,7 @@ export default function VideoEditor() {
               )}
             </div>
 
+            {/* Timecode overlay */}
             <div style={{
               position: 'absolute',
               bottom: '1rem',
@@ -448,7 +468,7 @@ export default function VideoEditor() {
             </div>
           </div>
 
-          {/* Properties Panel */}
+          {/* Properties Panel (when clip selected) */}
           {selectedClip && (
             <div style={{
               padding: '1rem',
@@ -542,14 +562,18 @@ export default function VideoEditor() {
       </div>
 
       {/* Timeline */}
-      <div style={{
-        background: COLORS.surface,
-        borderTop: `1px solid ${COLORS.border}`,
-        height: 200,
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-      }}>
+      <div
+        ref={timelineRef}
+        style={{
+          background: COLORS.surface,
+          borderTop: `1px solid ${COLORS.border}`,
+          height: 200,
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {/* Timeline Header */}
         <div style={{
           padding: '0.5rem 1rem',
           borderBottom: `1px solid ${COLORS.border}`,
@@ -572,6 +596,7 @@ export default function VideoEditor() {
           </div>
         </div>
 
+        {/* Timeline Tracks */}
         <div style={{ flex: 1, overflowX: 'auto', overflowY: 'auto' }}>
           <div style={{ minWidth: totalDuration * (zoom / 10), padding: '0.5rem' }}>
             {/* Time Ruler */}
@@ -587,6 +612,7 @@ export default function VideoEditor() {
                   {formatTime(i).slice(0, 5)}
                 </div>
               ))}
+              {/* Playhead */}
               <div style={{
                 position: 'absolute',
                 left: currentTime * (zoom / 10) + 100,
@@ -805,6 +831,7 @@ export default function VideoEditor() {
   );
 }
 
+// ===== Styles =====
 const buttonStyle = (bg: string): React.CSSProperties => ({
   padding: '0.5rem 1rem',
   background: bg,

@@ -431,7 +431,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   
   // Blog pages with image sitemap support
   const blogPages: MetadataRoute.Sitemap = (posts ?? [])
-    .filter(post => post.published || post.published_at)
+    .filter(post => (post as { status?: string }).status === 'published' || post.published_at)
     .map((post) => {
       const lastMod = new Date(
         post.updated_at ??
