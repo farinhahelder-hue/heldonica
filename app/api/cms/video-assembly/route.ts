@@ -8,9 +8,17 @@ import os from 'os';
 import { v4 as uuidv4 } from 'uuid';
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
+// Lazy initialization to avoid build-time errors
+function getSupabaseAdmin() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!supabaseUrl || !supabaseServiceKey) {
+    throw new Error('Supabase environment variables are not configured');
+  }
+  
+  return createClient(supabaseUrl, supabaseServiceKey);
+}
 
 async function downloadFile(url: string, destPath: string) {
   const res = await fetch(url);
@@ -88,6 +96,8 @@ export async function POST(req: NextRequest) {
         .save(outputPath);
     });
 
+    const supabaseAdmin = getSupabaseAdmin();
+    
     // Read generated video and upload to Supabase Storage
     const videoBuffer = await fs.readFile(outputPath);
     const filename = `generated-video-${sessionId}.mp4`;
