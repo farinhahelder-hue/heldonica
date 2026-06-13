@@ -49,7 +49,8 @@ const STUDIO_MODULES = [
 ];
 
 // ===== Main Component =====
-export default function VideoStudioNav() {
+// children = the page content rendered by Next.js routing (page.tsx of each module)
+export default function VideoStudioNav({ children }: { children?: React.ReactNode }) {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -59,7 +60,7 @@ export default function VideoStudioNav() {
     setIsMobileMenuOpen(false);
   }, [pathname]);
 
-  // Determine active module
+  // Determine active module (for sidebar highlight only — rendering is done by children)
   const activeModule = STUDIO_MODULES.find(
     m => pathname?.startsWith(m.href)
   );
@@ -247,15 +248,12 @@ export default function VideoStudioNav() {
         )}
       </div>
 
-      {/* Main Content Area */}
+      {/* ✅ Main Content Area — rendered by Next.js routing via children */}
       <div style={{ flex: 1, overflow: 'auto' }}>
-        {activeModule ? (
-          // Show module content (will be rendered by dynamic import in page)
-          <div style={{ height: '100%' }}>
-            {renderActiveModule(activeModule)}
-          </div>
+        {children ? (
+          children
         ) : (
-          // Show studio overview
+          // Fallback overview when no module is active (e.g. /panel-manager/studio-video)
           <div style={{ padding: '2rem' }}>
             <div style={{
               background: 'white',
@@ -395,9 +393,9 @@ export default function VideoStudioNav() {
                 margin: 0,
                 lineHeight: 1.6,
               }}>
-                Commencez par importer une vidéo dans le模块 de votre choix, 
-                puis utilisez les outils IA pour générer automatiquement 
-                du contenu engageant pour vos réseaux sociaux.
+                Commence par importer une vidéo dans le module de ton choix,
+                puis utilise les outils IA pour générer automatiquement
+                du contenu engageant pour tes réseaux sociaux.
               </p>
             </div>
           </div>
@@ -419,7 +417,7 @@ export default function VideoStudioNav() {
           border: 'none',
           boxShadow: '0 4px 12px rgba(107, 42, 26, 0.3)',
           cursor: 'pointer',
-          display: 'none', // Hidden on desktop
+          display: 'none',
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 50,
@@ -437,7 +435,7 @@ export default function VideoStudioNav() {
             inset: 0,
             background: 'rgba(0,0,0,0.5)',
             zIndex: 40,
-            display: 'none', // Hidden on desktop
+            display: 'none',
           }}
         >
           <div
@@ -497,34 +495,6 @@ export default function VideoStudioNav() {
           }
         }
       `}</style>
-    </div>
-  );
-}
-
-// Helper to render active module placeholder
-function renderActiveModule(module: typeof STUDIO_MODULES[0]) {
-  return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100%',
-      color: '#888',
-    }}>
-      <div style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>
-          {module.icon === Film && '🎬'}
-          {module.icon === Type && '💬'}
-          {module.icon === Zap && '⚡'}
-          {module.icon === Scissors && '✂️'}
-        </div>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '0.5rem' }}>
-          {module.label}
-        </h2>
-        <p style={{ fontSize: '0.9rem' }}>
-          Ce module sera rendu dans la page dédiée
-        </p>
-      </div>
     </div>
   );
 }
