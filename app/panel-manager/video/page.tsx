@@ -2,16 +2,18 @@
 
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
+import VideoStudioNav from '@/components/admin/VideoStudioNav';
 
 const VideoEditor = dynamic(() => import('@/components/admin/VideoEditor'), {
   ssr: false,
   loading: () => (
     <div style={{ 
-      minHeight: '100vh', 
+      minHeight: '100%', 
       display: 'flex', 
       alignItems: 'center', 
       justifyContent: 'center', 
-      background: '#f5f3ef' 
+      background: '#f5f3ef',
+      padding: '2rem',
     }}>
       <div style={{ 
         background: 'white', 
@@ -23,8 +25,8 @@ const VideoEditor = dynamic(() => import('@/components/admin/VideoEditor'), {
         textAlign: 'center' 
       }}>
         <div style={{ fontSize: '2.5rem', marginBottom: '.5rem' }}>🎬</div>
-        <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#6b2a1a' }}>Studio Vidéo</h1>
-        <p style={{ color: '#888', fontSize: '.9rem' }}>Chargement de l'éditeur...</p>
+        <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#6b2a1a' }}>Éditeur Timeline</h1>
+        <p style={{ color: '#888', fontSize: '.9rem' }}>Chargement de l&apos;éditeur...</p>
       </div>
     </div>
   ),
@@ -32,8 +34,10 @@ const VideoEditor = dynamic(() => import('@/components/admin/VideoEditor'), {
 
 export default function VideoStudioPage() {
   return (
-    <Suspense fallback={null}>
-      <VideoEditor />
-    </Suspense>
+    <VideoStudioNav>
+      <Suspense fallback={null}>
+        <VideoEditor />
+      </Suspense>
+    </VideoStudioNav>
   );
 }
