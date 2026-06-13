@@ -11,14 +11,7 @@ const supabase = (supabaseUrl && supabaseKey)
 
 export const dynamic = 'force-dynamic';
 
-// Keys that must always appear in the CMS even if absent from the DB
-const DEFAULT_SETTINGS: { key: string; value: string; label: string; type: string }[] = [
-  { key: 'maintenance_mode',     value: 'false',       label: 'Mode maintenance (true/false)', type: 'text' },
-  { key: 'maintenance_message',  value: 'Site en maintenance. Revenez bientôt !', label: 'Message affiché', type: 'text' },
-  { key: 'maintenance_end_date', value: '',            label: 'Fin de maintenance (date/heure)', type: 'text' },
-];
-
-// GET /api/cms/settings - list all settings
+// GET /api/cms/settings - list all settings (public for layout)
 export async function GET(req: NextRequest) {
   if (!supabase) {
     return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
@@ -26,27 +19,17 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await supabase
     .from('site_settings')
-    .select('key, value, label, type')
+    .select('key, value')
     .order('key');
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-  const settings = (data || []).map(r => ({
-    key: r.key,
-    value: r.value ?? '',
-    label: r.label || r.key,
-    type: r.type || 'text',
-  }));
-
-  // Inject defaults for keys not yet in the DB
-  const existingKeys = new Set(settings.map(s => s.key));
-  for (const def of DEFAULT_SETTINGS) {
-    if (!existingKeys.has(def.key)) {
-      settings.push(def);
-    }
-  }
-
-  return NextResponse.json({ settings });
+  
+  // Transform to key-value object for easier consumption
+  const settings = Object.fromEntries(
+    (data || []).map(r => [r.key, r.value])
+  );
+  
+  return NextResponse.json(settings);
 }
 
 // PATCH /api/cms/settings - update settings (auth required)
@@ -60,25 +43,40 @@ export async function PATCH(req: NextRequest) {
 
   try {
     const body = await req.json();
-
+    
+    // Support both { key: value } and { settings: [{ key, value }] }
     if (Array.isArray(body)) {
+      // Bulk update with array format
       const updates = body.map((s: { key: string; value: string }) => ({
         key: s.key,
         value: s.value,
         updated_at: new Date().toISOString()
       }));
+
       const { error } = await supabase
         .from('site_settings')
         .upsert(updates, { onConflict: 'key' });
-      if (error) console.error('Error in bulk update:', error.message);
+
+      if (error) console.error(`Error bulk updating settings array:`, error.message);
     } else {
-      // Single key/value update { key, value }
-      const { key, value } = body as { key: string; value: string };
-      if (key) {
+      // Simple key-value format
+      const entries = Object.entries(body);
+      const updates = entries
+        .filter(([key]) => key !== 'error' && key !== 'settings')
+        .map(([key, value]) => ({
+          key,
+          value: String(value),
+          updated_at: new Date().toISOString()
+        }));
+
+      if (updates.length > 0) {
         const { error } = await supabase
           .from('site_settings')
-          .upsert({ key, value: String(value ?? ''), updated_at: new Date().toISOString() }, { onConflict: 'key' });
-        if (error) console.error('Error in single update:', error.message);
+          .upsert(updates, { onConflict: 'key' });
+
+        if (error) {
+          console.error(`Error bulk updating settings object:`, error.message);
+        }
       }
     }
 
