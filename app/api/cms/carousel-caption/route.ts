@@ -4,7 +4,8 @@ interface CaptionRequest {
   topic: string
   destination?: string
   slides?: Array<{ title: string; content: string }>
-  style?: 'informative' | 'romantic' | 'adventure' | 'minimal'
+  style?: 'narratif' | 'informatif' | 'inspirant'
+  defaultHashtags?: string
 }
 
 // French hashtags database by category
@@ -43,7 +44,7 @@ const HASHTAG_DATABASE = {
 // Generate caption based on topic and style
 function generateCaption(topic: string, style: string, destination?: string): string {
   const templates = {
-    informative: `Envie d'explorer ${destination || 'cette destination'} en profondeur ?
+    narratif: `Envie d'explorer ${destination || 'cette destination'} en profondeur ?
 
 Découvrez ${topic} à travers notre dernier carrousel ✨
 
@@ -53,31 +54,27 @@ Swipez pour tout savoir 👉
 
 ${destination ? `📍 ${destination}\n` : ''}📸 @heldonica
 🔗 Lien en bio`,
-    romantic: `Pour les voyageurs en quête d'amour et d'authenticité ❤️
+    informatif: `${topic} : tout ce que vous devez savoir 🗺️
 
-${topic} n'a plus de secrets pour nous. Et maintenant, c'est à votre tour de découvrir ces endroits magiques.
+Notre carrousel vous révèle les secrets, les meilleures adresses et les expériences inoubliables.
 
-Parce que les plus beaux voyages se partagent 💑
-
-${destination ? `📍 ${destination}\n` : ''}📸 @heldonica
-🔗 Lien en bio`,
-    adventure: `L'aventure commence ici 🌍✨
-
-Préparez-vous à découvrir ${topic} comme vous ne l'avez jamais imaginé.
-
-Des paysages à couper le souffle, des rencontres inoubliables, des moments suspendus.
-
-Prêt à sauter le pas ? 👇
+Conservez ce post pour ne rien manquer 📌
 
 ${destination ? `📍 ${destination}\n` : ''}📸 @heldonica
 🔗 Lien en bio`,
-    minimal: `${topic} ✨
+    inspirant: `Et si ${destination || 'votre prochain voyage'} était celui-ci ? ✨
 
-📍 ${destination || 'Europe'}
-📸 @heldonica`,
+${topic}
+
+Chaque image raconte une histoire. Chaque swipe révèle une découverte.
+
+Envolez-vous vers l'authenticité 🕊️
+
+${destination ? `📍 ${destination}\n` : ''}📸 @heldonica
+🔗 Lien en bio`,
   }
 
-  return templates[style as keyof typeof templates] || templates.informative
+  return templates[style as keyof typeof templates] || templates.narratif
 }
 
 // Generate hashtags based on topic and context
@@ -104,7 +101,7 @@ function generateHashtags(topic: string, destination?: string, style?: string): 
   // Add style-specific hashtags
   if (style === 'eco') {
     hashtags.push(...HASHTAG_DATABASE.eco.slice(0, 4))
-  } else if (style === 'couple' || style === 'romantic') {
+  } else if (style === 'couple') {
     hashtags.push(...HASHTAG_DATABASE.couple.slice(0, 4))
   } else if (style === 'luxury') {
     hashtags.push(...HASHTAG_DATABASE.luxury.slice(0, 4))
@@ -118,32 +115,85 @@ function generateHashtags(topic: string, destination?: string, style?: string): 
   return shuffled.slice(0, Math.min(shuffled.length, 28))
 }
 
+// Generate via OpenAI
+async function generateWithOpenAI(topic: string, slides: any[], style: string, destination?: string): Promise<string> {
+  const apiKey = process.env.OPENAI_API_KEY
+  if (!apiKey) {
+    return generateCaption(topic, style, destination)
+  }
+
+  const systemPrompt = `Tu es un expert en rédaction Instagram pour Heldonica, marque de slow travel en couple.
+Ton style : narratif, sensoriel, chaleureux. Utilise le tutoiement.
+Génère une légende de 150-220 mots avec :
+- Accroche forte (première ligne qui donne envie d'ouvrir)
+- Corps narratif basé sur le contenu des slides
+- CTA naturel ("Sauvegarde ce post 🔖", "Envoie-le à quelqu'un qui en a besoin")
+- Emojis intégrés dans le texte (pas en liste)
+
+Style demandé : ${style}
+Destination : ${destination || 'non spécifiée'}
+
+Slides :
+${slides.map((s, i) => `${i+1}. ${s.title} - ${s.content}`).join('\n')}`
+
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: `Génère la légende Instagram pour ce carrousel sur "${topic}"` }
+        ],
+        max_tokens: 500,
+      })
+    })
+
+    if (!response.ok) {
+      console.error('OpenAI error:', response.status)
+      return generateCaption(topic, style, destination)
+    }
+
+    const data = await response.json()
+    return data.choices[0]?.message?.content || generateCaption(topic, style, destination)
+  } catch (error) {
+    console.error('OpenAI caption error:', error)
+    return generateCaption(topic, style, destination)
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { topic, destination, slides, style } = body
+    const { topic, destination, slides, style, defaultHashtags } = body
 
     if (!topic) {
       return NextResponse.json({ error: 'Topic requis' }, { status: 400 })
     }
 
-    // Generate caption
-    const caption = generateCaption(topic, style || 'informative', destination)
+    // Generate caption (OpenAI if available)
+    const caption = await generateWithOpenAI(topic, slides || [], style || 'narratif', destination)
     
     // Generate hashtags
-    const hashtags = generateHashtags(topic, destination, style)
-
-    // Extract topic keywords for additional hashtags
-    const topicWords = topic.toLowerCase().split(' ').filter(w => w.length > 3)
-    const topicHashtags = topicWords.map(w => `#${w.replace(/[^a-z]/gi, '')}`).slice(0, 5)
+    let hashtags = generateHashtags(topic, destination, style)
+    
+    // Add default hashtags from brand config
+    if (defaultHashtags) {
+      const defaultTags = defaultHashtags.split(' ').filter(t => t.startsWith('#'))
+      hashtags = [...new Set([...defaultTags, ...hashtags])]
+    }
 
     return NextResponse.json({
       success: true,
       caption,
-      hashtags: [...hashtags, ...topicHashtags],
+      hashtags: hashtags.slice(0, 30),
       stats: {
         captionLength: caption.length,
-        hashtagCount: hashtags.length + topicHashtags.length,
+        hashtagCount: hashtags.length,
       }
     })
   } catch (error) {
