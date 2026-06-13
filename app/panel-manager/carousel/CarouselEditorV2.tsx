@@ -1,10 +1,12 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import AIChatPanel from './AIChatPanel'
 import SlidePreviewPanel from './SlidePreviewPanel'
 import FilmStripPanel from './FilmStripPanel'
-import { HELDONICA_TOKENS, SlideData, AspectRatio } from './tokens'
+import BrandConfigPanel from './BrandConfigPanel'
+import CaptionGenerator from './CaptionGenerator'
+import { HELDONICA_TOKENS, HELDONICA_BRAND, SlideData, AspectRatio, BrandConfig } from './tokens'
 
 interface CarouselEditorV2Props {
   onComplete?: (carousel: any) => void
@@ -23,9 +25,18 @@ export default function CarouselEditorV2({ onComplete }: CarouselEditorV2Props) 
   const [brandOverlay, setBrandOverlay] = useState(true)
   const [faceless, setFaceless] = useState(true)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [showBrandConfig, setShowBrandConfig] = useState(false)
+  const [showCaption, setShowCaption] = useState(false)
+  const [brandConfig, setBrandConfig] = useState<BrandConfig>(HELDONICA_BRAND)
   const previewRef = useRef<HTMLDivElement>(null)
+  const slideRefs = useRef<Map<string, HTMLElement>>(new Map())
 
   const activeSlide = slides.find(s => s.id === activeSlideId) || slides[0]
+  const activeSlideIndex = slides.findIndex(s => s.id === activeSlideId)
+
+  const getSlideElement = useCallback((index: number): HTMLElement | null => {
+    return slideRefs.current.get(slides[index]?.id) || null
+  }, [slides])
 
   const handleSlidesGenerated = (newSlides: SlideData[]) => {
     const slidesWithIds = newSlides.map(s => ({
@@ -62,6 +73,23 @@ export default function CarouselEditorV2({ onComplete }: CarouselEditorV2Props) 
     setActiveSlideId(newSlide.id)
   }
 
+  const handleApplyConfig = (config: BrandConfig) => {
+    setBrandConfig(config)
+    setShowBrandConfig(false)
+  }
+
+  const handleApplyPalette = (palette: typeof HELDONICA_TOKENS.palettes[0]) => {
+    setBrandConfig({
+      ...brandConfig,
+      colors: {
+        ...brandConfig.colors,
+        background: palette.bg,
+        primary: palette.accent,
+        text: palette.text,
+      }
+    })
+  }
+
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
@@ -88,27 +116,26 @@ export default function CarouselEditorV2({ onComplete }: CarouselEditorV2Props) 
             ))}
           </div>
           
-          {/* Brand options */}
-          <label className="flex items-center gap-2 text-xs">
-            <input
-              type="checkbox"
-              checked={brandOverlay}
-              onChange={(e) => setBrandOverlay(e.target.checked)}
-              className="rounded border-stone-300"
-            />
-            <span className="text-stone-600">Logo</span>
-          </label>
-          <label className="flex items-center gap-2 text-xs">
-            <input
-              type="checkbox"
-              checked={faceless}
-              onChange={(e) => setFaceless(e.target.checked)}
-              className="rounded border-stone-300"
-            />
-            <span className="text-stone-600">Faceless</span>
-          </label>
+          {/* Settings buttons */}
+          <button
+            onClick={() => setShowBrandConfig(!showBrandConfig)}
+            className="px-3 py-1.5 text-xs bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors"
+          >
+            ⚙️ Marque
+          </button>
         </div>
       </div>
+
+      {/* Brand Config Panel */}
+      {showBrandConfig && (
+        <div className="mb-4">
+          <BrandConfigPanel
+            slides={slides}
+            onApplyConfig={handleApplyConfig}
+            onApplyPalette={handleApplyPalette}
+          />
+        </div>
+      )}
 
       {/* 3-panel layout */}
       <div className="flex-1 grid grid-cols-12 gap-4 min-h-0">
@@ -128,6 +155,7 @@ export default function CarouselEditorV2({ onComplete }: CarouselEditorV2Props) 
             aspectRatio={aspectRatio}
             brandOverlay={brandOverlay}
             previewRef={previewRef}
+            slideIndex={activeSlideIndex}
           />
         </div>
 
@@ -140,9 +168,21 @@ export default function CarouselEditorV2({ onComplete }: CarouselEditorV2Props) 
             onSlidesReorder={handleSlidesReorder}
             onSlideDelete={handleSlideDelete}
             onSlideAdd={handleSlideAdd}
+            getSlideElement={getSlideElement}
           />
         </div>
       </div>
+
+      {/* Caption Panel */}
+      {showCaption && (
+        <div className="mt-4">
+          <CaptionGenerator
+            topic={slides.map(s => s.title).join(' ') || 'Carrousel Heldonica'}
+            slides={slides}
+            defaultHashtags={brandConfig.defaultHashtags}
+          />
+        </div>
+      )}
 
       {/* Footer actions */}
       <div className="flex items-center justify-between mt-4 pt-4 border-t border-stone-200">
@@ -155,11 +195,14 @@ export default function CarouselEditorV2({ onComplete }: CarouselEditorV2Props) 
           </button>
         </div>
         <div className="flex gap-2">
-          <button className="px-4 py-2 text-sm border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors">
-            📥 Exporter
+          <button 
+            onClick={() => setShowCaption(!showCaption)}
+            className="px-4 py-2 text-sm border border-[#83C5BE] text-[#83C5BE] rounded-xl hover:bg-[#83C5BE]/10 transition-colors"
+          >
+            ✨ Caption
           </button>
           <button className="px-4 py-2 text-sm bg-[#6b2a1a] text-white rounded-xl hover:bg-[#6b2a1a]/90 transition-colors">
-            ✨ Générer caption
+            📥 Exporter
           </button>
         </div>
       </div>
