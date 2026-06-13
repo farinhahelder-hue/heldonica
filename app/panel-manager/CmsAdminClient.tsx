@@ -17,5 +17,5 @@ const CarouselGenerator = dynamic(() => import('@/components/admin/CarouselGener
 const BlogGenerator = dynamic(() => import('@/components/admin/BlogGenerator'), { ssr: false });
 const VideoEditor = dynamic(() => import('@/components/admin/VideoEditor'), { ssr: false });
 const FastTrimTool = dynamic(() => import('@/components/admin/FastTrimTool'), { ssr: false });
-const VideoMaker = dynamic(() => import('@/components/admin/VideoMaker'), { ssr: false });
+const VideoMaker = dynamic(() => import('@/components/admin/video-maker/VideoMaker'), { ssr: false });
 const MapManagerSection = dynamic(() => import('./maps/MapManagerSection'), { ssr: false });
