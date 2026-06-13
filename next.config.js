@@ -69,6 +69,9 @@ const nextConfig = {
       config.externals = [
         ...(Array.isArray(config.externals) ? config.externals : [config.externals].filter(Boolean)),
         'dompurify',
+        'jsdom',
+        'html-encoding-sniffer',
+        '@exodus/bytes',
       ];
     }
     return config;
