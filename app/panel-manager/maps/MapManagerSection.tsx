@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
 
 const MapPreview = dynamic(() => import('./MapPreview'), { ssr: false, loading: () => (
@@ -47,31 +47,60 @@ const emptyPoi = (): Partial<POI> => ({
   lng: undefined as any, address: '', maps_url: '', display_order: 0,
 });
 
+// ─── Debounce hook ────────────────────────────────────────────────────────────
+function useDebounce<T>(value: T, delay: number): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
+  return debounced;
+}
+
 export default function MapManagerSection() {
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [slug, setSlug] = useState('');
-  const [showMap, setShowMap] = useState(false);
-  const [routes, setRoutes] = useState<Route[]>([]);
-  const [pois, setPois] = useState<POI[]>([]);
+  // ── Article search (debounced, paginated) ──────────────────────────────────
+  const [slugInput, setSlugInput]         = useState('');
+  const [searchResults, setSearchResults] = useState<Article[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [showDropdown, setShowDropdown]   = useState(false);
+  const debouncedQuery = useDebounce(slugInput, 300);
+  const searchRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    const q = debouncedQuery.trim();
+    if (!q || q.length < 2) { setSearchResults([]); setShowDropdown(false); return; }
+    if (searchRef.current) searchRef.current.abort();
+    const ctrl = new AbortController();
+    searchRef.current = ctrl;
+    setSearchLoading(true);
+    fetch(`/api/cms/articles?limit=20&search=${encodeURIComponent(q)}`, { signal: ctrl.signal })
+      .then(r => r.json())
+      .then(data => {
+        const list: Article[] = Array.isArray(data) ? data : (data.articles ?? []);
+        setSearchResults(list.slice(0, 20));
+        setShowDropdown(list.length > 0);
+      })
+      .catch(err => { if (err.name !== 'AbortError') setSearchResults([]); })
+      .finally(() => setSearchLoading(false));
+    return () => ctrl.abort();
+  }, [debouncedQuery]);
+
+  // ── Map state ──────────────────────────────────────────────────────────────
+  const [slug, setSlug]                       = useState('');
+  const [showMap, setShowMap]                 = useState(false);
+  const [routes, setRoutes]                   = useState<Route[]>([]);
+  const [pois, setPois]                       = useState<POI[]>([]);
   const [expandedRouteId, setExpandedRouteId] = useState<string | null>(null);
-  const [editingRoute, setEditingRoute] = useState<Partial<Route> | null>(null);
-  const [addingRoute, setAddingRoute] = useState(false);
-  const [editingPoi, setEditingPoi] = useState<Partial<POI> | null>(null);
-  const [addingPoi, setAddingPoi] = useState<string | null>(null); // route_id or 'standalone'
-  const [pointsText, setPointsText] = useState<Record<string, string>>({});
-  const [saving, setSaving] = useState(false);
-  const [toast, setToast] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [editingRoute, setEditingRoute]       = useState<Partial<Route> | null>(null);
+  const [addingRoute, setAddingRoute]         = useState(false);
+  const [editingPoi, setEditingPoi]           = useState<Partial<POI> | null>(null);
+  const [addingPoi, setAddingPoi]             = useState<string | null>(null);
+  const [pointsText, setPointsText]           = useState<Record<string, string>>({});
+  const [saving, setSaving]                   = useState(false);
+  const [toast, setToast]                     = useState('');
+  const [loading, setLoading]                 = useState(false);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 3000); };
-
-  // Load articles list
-  useEffect(() => {
-    fetch('/api/cms/articles?limit=200')
-      .then(r => r.json())
-      .then(data => setArticles(Array.isArray(data) ? data : (data.articles ?? [])))
-      .catch(() => {});
-  }, []);
 
   const loadMapData = useCallback(async (s: string) => {
     if (!s) return;
@@ -104,11 +133,14 @@ export default function MapManagerSection() {
   }, []);
 
   const handleSlugSelect = (s: string) => {
-    setSlug(s);
+    const trimmed = s.trim();
+    setSlug(trimmed);
+    setSlugInput(trimmed);
+    setShowDropdown(false);
     setRoutes([]); setPois([]); setExpandedRouteId(null);
     setEditingRoute(null); setAddingRoute(false);
-    loadMapData(s);
-    loadShowMap(s);
+    loadMapData(trimmed);
+    loadShowMap(trimmed);
   };
 
   const toggleShowMap = async (val: boolean) => {
@@ -120,7 +152,7 @@ export default function MapManagerSection() {
     });
   };
 
-  // Save route
+  // ── Save route ─────────────────────────────────────────────────────────────
   const saveRoute = async () => {
     if (!editingRoute?.name || !slug) return;
     setSaving(true);
@@ -147,7 +179,7 @@ export default function MapManagerSection() {
     showToast('Parcours supprimé');
   };
 
-  // Save points
+  // ── Save points ────────────────────────────────────────────────────────────
   const savePoints = async (routeId: string) => {
     const text = pointsText[routeId] ?? '';
     const points = text.split('\n').map(l => l.trim()).filter(Boolean).map((l, i) => {
@@ -165,7 +197,7 @@ export default function MapManagerSection() {
     setSaving(false);
   };
 
-  // Save POI
+  // ── Save POI ───────────────────────────────────────────────────────────────
   const savePoi = async () => {
     if (!editingPoi?.name || !slug) return;
     setSaving(true);
@@ -198,7 +230,7 @@ export default function MapManagerSection() {
     showToast('POI supprimé');
   };
 
-  // Build preview data
+  // ── Styles ─────────────────────────────────────────────────────────────────
   const previewRoutes = routes.map(r => ({ ...r, points: r.points ?? [], color: r.color || '#01696f' }));
 
   const inputStyle: React.CSSProperties = {
@@ -236,26 +268,66 @@ export default function MapManagerSection() {
         <div style={card}>
           <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, color: '#28251d' }}>① Sélectionner un contenu</div>
           <label style={label}>Slug de l'article / page</label>
-          <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-            <input
-              style={{ ...inputStyle, flex: 1 }}
-              value={slug}
-              onChange={e => setSlug(e.target.value)}
-              placeholder="ex: road-trip-islande"
-              onKeyDown={e => e.key === 'Enter' && handleSlugSelect(slug)}
-            />
-            <button style={btnPrimary} onClick={() => handleSlugSelect(slug)}>OK</button>
+
+          {/* Search input with live dropdown */}
+          <div style={{ position: 'relative', marginBottom: 8 }}>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input
+                style={{ ...inputStyle, flex: 1 }}
+                value={slugInput}
+                onChange={e => { setSlugInput(e.target.value); setShowDropdown(true); }}
+                placeholder="Tape pour chercher… (min 2 car.)"
+                onKeyDown={e => {
+                  if (e.key === 'Enter') handleSlugSelect(slugInput);
+                  if (e.key === 'Escape') setShowDropdown(false);
+                }}
+                onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
+                autoComplete="off"
+              />
+              <button style={btnPrimary} onClick={() => handleSlugSelect(slugInput)}>OK</button>
+            </div>
+
+            {/* Dropdown suggestions */}
+            {showDropdown && (searchLoading || searchResults.length > 0) && (
+              <div style={{
+                position: 'absolute', top: '100%', left: 0, right: 40,
+                background: '#fff', border: '1px solid #d4d1ca', borderRadius: 6,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 100,
+                maxHeight: 220, overflowY: 'auto',
+              }}>
+                {searchLoading && (
+                  <div style={{ padding: '8px 12px', fontSize: 12, color: '#7a7974' }}>Recherche…</div>
+                )}
+                {!searchLoading && searchResults.map(a => (
+                  <div
+                    key={a.id}
+                    style={{ padding: '8px 12px', cursor: 'pointer', fontSize: 13, borderBottom: '1px solid #f3f0ec' }}
+                    onMouseDown={() => handleSlugSelect(a.slug)}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#f3f0ec')}
+                    onMouseLeave={e => (e.currentTarget.style.background = '')}
+                  >
+                    <div style={{ fontWeight: 600 }}>{a.title}</div>
+                    <div style={{ fontSize: 11, color: '#7a7974' }}>{a.slug}</div>
+                  </div>
+                ))}
+                {!searchLoading && searchResults.length === 20 && (
+                  <div style={{ padding: '6px 12px', fontSize: 11, color: '#bab9b4', textAlign: 'center' }}>
+                    Affichage des 20 premiers — affine ta recherche
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-          {articles.length > 0 && (
-            <select style={inputStyle} value={slug} onChange={e => handleSlugSelect(e.target.value)}>
-              <option value="">-- Choisir un article --</option>
-              {articles.map(a => (
-                <option key={a.id} value={a.slug}>{a.title} ({a.slug})</option>
-              ))}
-            </select>
-          )}
+
+          {/* Confirm selected slug */}
           {slug && (
-            <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, fontSize: 13, cursor: 'pointer' }}>
+            <div style={{ fontSize: 12, color: '#01696f', marginBottom: 6, fontWeight: 600 }}>
+              ✓ Contenu actif : <code style={{ background: '#cedcd8', padding: '1px 5px', borderRadius: 4 }}>{slug}</code>
+            </div>
+          )}
+
+          {slug && (
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4, fontSize: 13, cursor: 'pointer' }}>
               <input type="checkbox" checked={showMap} onChange={e => toggleShowMap(e.target.checked)} />
               Afficher la carte sur cet article
             </label>
