@@ -1,51 +1,55 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { getPublicUrl } from '../../lib/s3-media'
+import { getPublicUrl } from '@/lib/s3-media'
 
 describe('s3-media', () => {
-  const originalEnv = process.env
-
-  beforeEach(() => {
-    vi.resetModules()
-    process.env = { ...originalEnv }
-  })
-
-  afterEach(() => {
-    process.env = originalEnv
-  })
-
   describe('getPublicUrl', () => {
-    it('should return empty string when S3 config is missing', () => {
-      delete process.env.AWS_ACCESS_KEY_ID
-      delete process.env.AWS_SECRET_ACCESS_KEY
-      delete process.env.AWS_S3_BUCKET
+    const originalEnv = process.env
 
-      expect(getPublicUrl('test-image.jpg')).toBe('')
+    beforeEach(() => {
+      // Clear all env vars before each test
+      vi.stubEnv('AWS_ACCESS_KEY_ID', '')
+      vi.stubEnv('AWS_SECRET_ACCESS_KEY', '')
+      vi.stubEnv('AWS_S3_BUCKET', '')
+      vi.stubEnv('AWS_REGION', '')
     })
 
-    it('should return empty string if bucket is missing', () => {
-      process.env.AWS_ACCESS_KEY_ID = 'test-key'
-      process.env.AWS_SECRET_ACCESS_KEY = 'test-secret'
-      delete process.env.AWS_S3_BUCKET
-
-      expect(getPublicUrl('test-image.jpg')).toBe('')
+    afterEach(() => {
+      vi.unstubAllEnvs()
     })
 
-    it('should return correct public URL with default region (eu-west-1)', () => {
-      process.env.AWS_ACCESS_KEY_ID = 'test-key'
-      process.env.AWS_SECRET_ACCESS_KEY = 'test-secret'
-      process.env.AWS_S3_BUCKET = 'my-test-bucket'
-      delete process.env.AWS_REGION
-
-      expect(getPublicUrl('folder/image.png')).toBe('https://my-test-bucket.s3.eu-west-1.amazonaws.com/folder/image.png')
+    it('should return empty string when AWS_ACCESS_KEY_ID is missing', () => {
+      vi.stubEnv('AWS_SECRET_ACCESS_KEY', 'secret')
+      vi.stubEnv('AWS_S3_BUCKET', 'my-bucket')
+      expect(getPublicUrl('test.jpg')).toBe('')
     })
 
-    it('should return correct public URL with custom region', () => {
-      process.env.AWS_ACCESS_KEY_ID = 'test-key'
-      process.env.AWS_SECRET_ACCESS_KEY = 'test-secret'
-      process.env.AWS_S3_BUCKET = 'my-test-bucket'
-      process.env.AWS_REGION = 'us-east-1'
+    it('should return empty string when AWS_SECRET_ACCESS_KEY is missing', () => {
+      vi.stubEnv('AWS_ACCESS_KEY_ID', 'key')
+      vi.stubEnv('AWS_S3_BUCKET', 'my-bucket')
+      expect(getPublicUrl('test.jpg')).toBe('')
+    })
 
-      expect(getPublicUrl('test.jpg')).toBe('https://my-test-bucket.s3.us-east-1.amazonaws.com/test.jpg')
+    it('should return empty string when AWS_S3_BUCKET is missing', () => {
+      vi.stubEnv('AWS_ACCESS_KEY_ID', 'key')
+      vi.stubEnv('AWS_SECRET_ACCESS_KEY', 'secret')
+      expect(getPublicUrl('test.jpg')).toBe('')
+    })
+
+    it('should return correct URL with provided region', () => {
+      vi.stubEnv('AWS_ACCESS_KEY_ID', 'key')
+      vi.stubEnv('AWS_SECRET_ACCESS_KEY', 'secret')
+      vi.stubEnv('AWS_S3_BUCKET', 'my-bucket')
+      vi.stubEnv('AWS_REGION', 'us-east-1')
+
+      expect(getPublicUrl('images/test.jpg')).toBe('https://my-bucket.s3.us-east-1.amazonaws.com/images/test.jpg')
+    })
+
+    it('should return correct URL with default region (eu-west-1) when region is missing', () => {
+      vi.stubEnv('AWS_ACCESS_KEY_ID', 'key')
+      vi.stubEnv('AWS_SECRET_ACCESS_KEY', 'secret')
+      vi.stubEnv('AWS_S3_BUCKET', 'my-bucket')
+
+      expect(getPublicUrl('images/test.jpg')).toBe('https://my-bucket.s3.eu-west-1.amazonaws.com/images/test.jpg')
     })
   })
 })
