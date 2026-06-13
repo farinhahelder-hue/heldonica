@@ -44,38 +44,42 @@ export async function POST(req: Request) {
     const destsToUpdate = (destinations || []).filter(dest => needsUpdate(dest.featured_image));
 
         let updatedCount = 0;
-
-    // ⚡ Bolt: Use Promise.all() for concurrent Unsplash requests and batch Supabase upserts to minimize database calls.
-    // 3. Process Blog Posts concurrently
-    const postUpdates = await Promise.all(postsToUpdate.map(async (post) => {
-        const query = post.category || 'travel';
-        const photos = await searchUnsplash(query, 1);
-        if (photos && photos.length > 0 && photos[0]?.urls?.regular) {
-            return { id: post.id, featured_image: photos[0].urls.regular };
-        }
-        return null;
+    // 3. Process Blog Posts concurrently for Unsplash API
+    // Optimization: using Promise.all speeds up the external API requests, reducing I/O wait time.
+    const postResults = await Promise.all(postsToUpdate.map(async (post) => {
+      const query = post.category || 'travel';
+      const photos = await searchUnsplash(query, 1);
+      if (photos && photos.length > 0 && photos[0]?.urls?.regular) {
+        return { id: post.id, featured_image: photos[0].urls.regular };
+      }
+      return null;
     }));
-    const validPostUpdates = postUpdates.filter((update): update is { id: number; featured_image: string } => update !== null);
 
+    const validPostUpdates = postResults.filter(Boolean);
     if (validPostUpdates.length > 0) {
-        await supabase.from('cms_blog_posts').upsert(validPostUpdates);
-        updatedCount += validPostUpdates.length;
+      // Optimization: batching updates using upsert instead of N+1 update queries reduces DB roundtrips.
+      const { error } = await supabase.from('cms_blog_posts').upsert(validPostUpdates);
+      if (error) throw error;
+      updatedCount += validPostUpdates.length;
     }
 
-    // 4. Process Destinations concurrently
-    const destUpdates = await Promise.all(destsToUpdate.map(async (dest) => {
-        const query = dest.name || dest.country || 'landscape';
-        const photos = await searchUnsplash(query, 1);
-        if (photos && photos.length > 0 && photos[0]?.urls?.regular) {
-            return { id: dest.id, featured_image: photos[0].urls.regular };
-        }
-        return null;
+    // 4. Process Destinations concurrently for Unsplash API
+    // Optimization: using Promise.all speeds up the external API requests, reducing I/O wait time.
+    const destResults = await Promise.all(destsToUpdate.map(async (dest) => {
+      const query = dest.name || dest.country || 'landscape';
+      const photos = await searchUnsplash(query, 1);
+      if (photos && photos.length > 0 && photos[0]?.urls?.regular) {
+        return { id: dest.id, featured_image: photos[0].urls.regular };
+      }
+      return null;
     }));
-    const validDestUpdates = destUpdates.filter((update): update is { id: number; featured_image: string } => update !== null);
 
+    const validDestUpdates = destResults.filter(Boolean);
     if (validDestUpdates.length > 0) {
-        await supabase.from('destinations').upsert(validDestUpdates);
-        updatedCount += validDestUpdates.length;
+      // Optimization: batching updates using upsert instead of N+1 update queries reduces DB roundtrips.
+      const { error } = await supabase.from('destinations').upsert(validDestUpdates);
+      if (error) throw error;
+      updatedCount += validDestUpdates.length;
     }
 
     return NextResponse.json({
