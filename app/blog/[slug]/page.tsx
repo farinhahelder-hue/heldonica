@@ -18,6 +18,9 @@ import CtaTravelPlanning from '@/components/CtaTravelPlanning'
 import HeldonicaFAQ from '@/components/HeldonicaFAQ'
 import HeldonicaVerdict from '@/components/HeldonicaVerdict'
 import { getReadingTime, formatReadingTime } from '@/lib/readingTime'
+import dynamic from 'next/dynamic'
+
+const ArticleMap = dynamic(() => import('@/components/ArticleMap'), { ssr: false })
 
 const SITE_URL = 'https://www.heldonica.fr'
 const DEFAULT_OG = `${SITE_URL}/og-default-heldonica.jpg`
@@ -44,11 +47,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!post) return { title: 'Article introuvable | Heldonica' }
 
-  // Tronquer la description à 150 caractères max
   let description = ''
   if (post.excerpt) {
-    description = post.excerpt.length > 150 
-      ? post.excerpt.substring(0, 147) + '...' 
+    description = post.excerpt.length > 150
+      ? post.excerpt.substring(0, 147) + '...'
       : post.excerpt
   }
 
@@ -57,9 +59,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const canonical = `${SITE_URL}/blog/${params.slug}`
   const publishedTime = post.publishedat || undefined
   const authorName = post.author || 'Heldonica'
-  
-  // Parser les tags (stockés comme texte séparé par virgules)
-  const tagsArray = post.tags 
+  const tagsArray = post.tags
     ? post.tags.split(',').map((t: string) => t.trim()).filter(Boolean)
     : []
 
@@ -184,6 +184,15 @@ export default async function BlogPostPage({ params }: Props) {
   const post = await getPostBySlug(params.slug)
   if (!post) notFound()
 
+  // Fetch show_map flag
+  const supabase = createServiceClient()
+  const { data: mapMeta } = await supabase
+    .from('cms_blog_posts')
+    .select('show_map')
+    .eq('slug', params.slug)
+    .single()
+  const showMap = mapMeta?.show_map === true
+
   const allPosts = await getAllPosts()
   const relatedResult = getRelatedArticles(post, allPosts, 3)
   const related = relatedResult ?? []
@@ -280,7 +289,7 @@ export default async function BlogPostPage({ params }: Props) {
                 prose-a:text-amber-700 prose-a:no-underline hover:prose-a:underline
                 prose-img:mx-auto prose-img:my-10 prose-img:rounded-[1.75rem] prose-img:shadow-lg
                 prose-strong:text-stone-900 prose-strong:font-semibold
-                prose-blockquote:rounded-r-2xl prose-blockquote:border-l-4 prose-blockquote:border-amber-400 prose-blockquote:bg-amber-50 prose-blockquote:px-6 prose-blockquote:py-4 prose-blockqu[...]
+                prose-blockquote:rounded-r-2xl prose-blockquote:border-l-4 prose-blockquote:border-amber-400 prose-blockquote:bg-amber-50 prose-blockquote:px-6 prose-blockquote:py-4
                 prose-ul:space-y-3 prose-li:text-stone-700
                 prose-hr:border-stone-200"
             />
@@ -291,6 +300,9 @@ export default async function BlogPostPage({ params }: Props) {
               </p>
             </div>
           )}
+
+          {/* ── Carte interactive (si activée dans le CMS) ────────────── */}
+          {showMap && <ArticleMap slug={params.slug} />}
 
           {post.voice_notes && (
             <aside className="mt-10 rounded-[2rem] border border-stone-200 bg-stone-50 px-6 py-6 md:px-8">
@@ -339,32 +351,33 @@ export default async function BlogPostPage({ params }: Props) {
               </p>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 {related.map((relatedPost: BlogPost) => {
-                      const relatedImage = relatedPost.featured_image ?? HERO_FALLBACK[relatedPost.category ?? ''] ?? DEFAULT_HERO
-                      return (
-                  <Link key={relatedPost.slug} href={`/blog/${relatedPost.slug}`} className="group block transition-all duration-200">
-                    <article className="overflow-hidden rounded-[1.5rem] bg-white shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-md">
-                      <div className="relative h-44 overflow-hidden">
-                        <Image
-                          src={relatedImage}
-                          alt={relatedPost.title}
-                          fill
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
-                          loading="lazy"
-                          sizes="(max-width: 768px) 100vw, 33vw"
-                        />
-                      </div>
-                      <div className="p-5">
-                        {relatedPost.category && (
-                          <span className="text-xs font-semibold text-amber-700">{relatedPost.category}</span>
-                        )}
-                        <h3 className="mt-2 text-base font-semibold leading-snug text-stone-900 transition-colors duration-200 group-hover:text-amber-700">
-                          {relatedPost.title}
-                        </h3>
-                        <p className="mt-3 text-xs text-stone-400">{formatDate(relatedPost.published_at)}</p>
-                      </div>
-                    </article>
-                  </Link>
-                )})}
+                  const relatedImage = relatedPost.featured_image ?? HERO_FALLBACK[relatedPost.category ?? ''] ?? DEFAULT_HERO
+                  return (
+                    <Link key={relatedPost.slug} href={`/blog/${relatedPost.slug}`} className="group block transition-all duration-200">
+                      <article className="overflow-hidden rounded-[1.5rem] bg-white shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-md">
+                        <div className="relative h-44 overflow-hidden">
+                          <Image
+                            src={relatedImage}
+                            alt={relatedPost.title}
+                            fill
+                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                            loading="lazy"
+                            sizes="(max-width: 768px) 100vw, 33vw"
+                          />
+                        </div>
+                        <div className="p-5">
+                          {relatedPost.category && (
+                            <span className="text-xs font-semibold text-amber-700">{relatedPost.category}</span>
+                          )}
+                          <h3 className="mt-2 text-base font-semibold leading-snug text-stone-900 transition-colors duration-200 group-hover:text-amber-700">
+                            {relatedPost.title}
+                          </h3>
+                          <p className="mt-3 text-xs text-stone-400">{formatDate(relatedPost.published_at)}</p>
+                        </div>
+                      </article>
+                    </Link>
+                  )
+                })}
               </div>
             </div>
           </section>
@@ -372,16 +385,12 @@ export default async function BlogPostPage({ params }: Props) {
 
         <NewsletterForm variant="blog" />
 
-        {/* ── FAQ pour Guides Pratiques ─────────────────────────────────── */}
         {post.category === 'Guides Pratiques' && post.faq_content && (
-          <HeldonicaFAQ 
+          <HeldonicaFAQ
             items={(post.faq_content as Array<{question: string; answer: string}>) || []}
           />
         )}
 
-        {/* ── Verdict Heldonica (à intégrer selon le contenu de l'article) ─── */}
-
-        {/* ── TRAVEL PLANNING CTA ──────────────────────────────────────────── */}
         <CtaTravelPlanning />
       </main>
       <Footer />
