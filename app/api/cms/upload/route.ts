@@ -1,3 +1,4 @@
+import crypto from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireCmsAuth } from '@/lib/cms-auth'
@@ -32,7 +33,7 @@ export async function POST(req: NextRequest) {
     }
 
     const ext = file.name.split('.').pop()
-    const filename = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+    const filename = `${folder}/${Date.now()}-${crypto.randomUUID()}.${ext}`
     const buffer = Buffer.from(await file.arrayBuffer())
 
     const { error } = await sb.storage
