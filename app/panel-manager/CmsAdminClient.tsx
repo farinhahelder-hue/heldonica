@@ -667,7 +667,6 @@ function CMSAdminInner() {
 
   // Auth
   const login = async () => {
-    console.log('[CMS] login called, pwd length:', pwd?.length);
     if (authLoading) return;
     setAuthErr('');
     setAuthLoading(true);
