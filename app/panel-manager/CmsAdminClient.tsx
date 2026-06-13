@@ -15,6 +15,8 @@ const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false
 const CarouselEditor = dynamic(() => import('@/components/admin/CarouselEditor'), { ssr: false });
 const CarouselGenerator = dynamic(() => import('@/components/admin/CarouselGenerator'), { ssr: false });
 const BlogGenerator = dynamic(() => import('@/components/admin/BlogGenerator'), { ssr: false });
+const VideoEditor = dynamic(() => import('@/components/admin/VideoEditor'), { ssr: false });
+const FastTrimTool = dynamic(() => import('@/components/admin/FastTrimTool'), { ssr: false });
 const MapManagerSection = dynamic(() => import('./maps/MapManagerSection'), { ssr: false });
 
 // ===== Types =====
@@ -1072,7 +1074,9 @@ function CMSAdminInner() {
     { id: 'media',   icon: <Image size={16} aria-hidden="true" />, label: 'Médiatèque', count: null },
     { id: 'carousel',icon: <Car size={16} />,  label: 'Carrousel', count: null },
     { id: 'maps',    icon: <MapIcon size={16} />, label: 'Cartes & Parcours', count: null },
-    { id: 'studio-video', icon: <Film size={16} />, label: 'Studio Vidéo', count: null },
+    { id: 'video',    icon: <Film size={16} />,  label: '🎬 Vidéos',        count: null },
+    { id: 'fast-trim', icon: <Film size={16} />, label: '✂️ Fast Trim',      count: null },
+    { id: 'studio-video', icon: <Film size={16} />, label: '🎥 Studio Vidéo', count: null },
     { id: 'settings',icon: <Settings size={16} />,label: 'Paramètres', count: null },
     { id: 'analytics',icon: <BarChart3 size={16} />,label: 'Analytics', count: null },
     { id: 'search',  icon: <Search size={16} />, label: 'Search', count: null },
@@ -1577,6 +1581,36 @@ function CMSAdminInner() {
 
         {tab === 'studio-video' && (
           <iframe src='/panel-manager/studio-video' style={{ width: '100%', height: '100%', border: 'none' }} />
+        )}
+
+        {tab === 'video' && (
+          <div style={{ minHeight: '80vh' }}>
+            <Suspense fallback={
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '400px', background: 'white', borderRadius: '1rem' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '2.5rem', marginBottom: '.5rem' }}>🎬</div>
+                  <p style={{ color: '#888' }}>Chargement de l'éditeur vidéo...</p>
+                </div>
+              </div>
+            }>
+              <VideoEditor />
+            </Suspense>
+          </div>
+        )}
+
+        {tab === 'fast-trim' && (
+          <div style={{ minHeight: '80vh' }}>
+            <Suspense fallback={
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '400px', background: 'white', borderRadius: '1rem' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '2.5rem', marginBottom: '.5rem' }}>✂️</div>
+                  <p style={{ color: '#888' }}>Chargement de Fast Trim...</p>
+                </div>
+              </div>
+            }>
+              <FastTrimTool />
+            </Suspense>
+          </div>
         )}
 
         {tab === 'maps' && (
