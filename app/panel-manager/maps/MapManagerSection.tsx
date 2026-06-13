@@ -96,7 +96,7 @@ export default function MapManagerSection() {
 
   const loadShowMap = useCallback(async (s: string) => {
     if (!s) return;
-    const res = await fetch(`/api/cms/articles/${s}`);
+    const res = await fetch(`/api/cms/articles/by-slug/${s}`);
     if (res.ok) {
       const d = await res.json();
       setShowMap(Boolean(d.show_map));
@@ -113,7 +113,7 @@ export default function MapManagerSection() {
 
   const toggleShowMap = async (val: boolean) => {
     setShowMap(val);
-    await fetch(`/api/cms/articles/${slug}`, {
+    await fetch(`/api/cms/articles/by-slug/${slug}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ show_map: val }),

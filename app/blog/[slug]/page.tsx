@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getRelatedArticles } from '@/lib/related-articles'
 import Script from 'next/script'
+import dynamic from 'next/dynamic'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import NewsletterForm from '@/components/NewsletterForm'
@@ -18,6 +19,9 @@ import CtaTravelPlanning from '@/components/CtaTravelPlanning'
 import HeldonicaFAQ from '@/components/HeldonicaFAQ'
 import HeldonicaVerdict from '@/components/HeldonicaVerdict'
 import { getReadingTime, formatReadingTime } from '@/lib/readingTime'
+
+// Dynamic import for ArticleMap to avoid SSR issues with Leaflet
+const ArticleMap = dynamic(() => import('@/components/ArticleMap'), { ssr: false });
 
 const SITE_URL = 'https://www.heldonica.fr'
 const DEFAULT_OG = `${SITE_URL}/og-default-heldonica.jpg`
@@ -184,6 +188,15 @@ export default async function BlogPostPage({ params }: Props) {
   const post = await getPostBySlug(params.slug)
   if (!post) notFound()
 
+  // Check if article has map enabled
+  const supabase = createServiceClient()
+  const { data: cmsPost } = await supabase
+    .from('cms_blog_posts')
+    .select('show_map')
+    .eq('slug', params.slug)
+    .single()
+  const showMap = cmsPost?.show_map === true
+
   const allPosts = await getAllPosts()
   const relatedResult = getRelatedArticles(post, allPosts, 3)
   const related = relatedResult ?? []
@@ -297,6 +310,12 @@ export default async function BlogPostPage({ params }: Props) {
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Détail terrain</p>
               <p className="text-base leading-relaxed text-stone-700">{post.voice_notes}</p>
             </aside>
+          )}
+
+          {showMap && (
+            <div className="mt-10">
+              <ArticleMap slug={post.slug} />
+            </div>
           )}
 
           <div className="mt-10 border-t border-stone-100 pt-8">
