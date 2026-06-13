@@ -1,5 +1,7 @@
 'use client';
 
+// @deprecated Utilise la liste intégrée dans CmsAdminClient.tsx à la place.
+// Utilise _id (string) au lieu de id (number) comme le nouveau CMS.
 interface Article {
   _id: string;
   title: string;

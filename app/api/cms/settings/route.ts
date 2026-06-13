@@ -61,7 +61,10 @@ export async function PATCH(req: NextRequest) {
         .from('site_settings')
         .upsert(updates, { onConflict: 'key' });
 
-      if (error) console.error(`Error bulk updating settings array:`, error.message);
+      if (error) {
+        console.error(`Error bulk updating settings array:`, error.message);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
     } else {
       const entries = Object.entries(body);
       const updates = entries
@@ -79,6 +82,7 @@ export async function PATCH(req: NextRequest) {
 
         if (error) {
           console.error(`Error bulk updating settings object:`, error.message);
+          return NextResponse.json({ error: error.message }, { status: 500 });
         }
       }
     }
