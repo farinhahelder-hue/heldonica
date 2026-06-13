@@ -1,21 +1,30 @@
 'use client'
 
 import { useState } from 'react'
+import { SlideData } from './tokens'
 
 interface CaptionGeneratorProps {
   topic: string
   destination?: string
-  slideCount?: number
+  slides?: SlideData[]
+  defaultHashtags?: string
   onCaptionGenerated?: (caption: string, hashtags: string[]) => void
 }
 
-type Style = 'informative' | 'romantic' | 'adventure' | 'minimal'
+type Style = 'narratif' | 'informatif' | 'inspirant'
 
-export default function CaptionGenerator({ topic, destination, slideCount, onCaptionGenerated }: CaptionGeneratorProps) {
+const TONE_LABELS = {
+  narratif: { icon: '📖', label: 'Narratif' },
+  informatif: { icon: '📝', label: 'Informatif' },
+  inspirant: { icon: '✨', label: 'Inspirant' },
+}
+
+export default function CaptionGenerator({ topic, destination, slides = [], defaultHashtags, onCaptionGenerated }: CaptionGeneratorProps) {
   const [isGenerating, setIsGenerating] = useState(false)
   const [caption, setCaption] = useState('')
+  const [editableCaption, setEditableCaption] = useState('')
   const [hashtags, setHashtags] = useState<string[]>([])
-  const [style, setStyle] = useState<Style>('informative')
+  const [style, setStyle] = useState<Style>('narratif')
   const [copied, setCopied] = useState<'caption' | 'hashtags' | 'all' | null>(null)
 
   const handleGenerate = async () => {
@@ -26,13 +35,20 @@ export default function CaptionGenerator({ topic, destination, slideCount, onCap
       const res = await fetch('/api/cms/carousel-caption', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic, destination, style })
+        body: JSON.stringify({ 
+          topic, 
+          destination, 
+          slides: slides.map(s => ({ title: s.title, content: s.content })),
+          style,
+          defaultHashtags 
+        })
       })
 
       const data = await res.json()
 
       if (data.success) {
         setCaption(data.caption)
+        setEditableCaption(data.caption)
         setHashtags(data.hashtags)
         onCaptionGenerated?.(data.caption, data.hashtags)
       }
@@ -53,17 +69,11 @@ export default function CaptionGenerator({ topic, destination, slideCount, onCap
     }
   }
 
-  const copyCaption = () => {
-    copyToClipboard(caption, 'caption')
-  }
+  const copyCaption = () => copyToClipboard(editableCaption, 'caption')
+  const copyHashtags = () => copyToClipboard(hashtags.join(' '), 'hashtags')
+  const copyAll = () => copyToClipboard(`${editableCaption}\n\n${hashtags.join(' ')}`, 'all')
 
-  const copyHashtags = () => {
-    copyToClipboard(hashtags.join(' '), 'hashtags')
-  }
-
-  const copyAll = () => {
-    copyToClipboard(`${caption}\n\n${hashtags.join(' ')}`, 'all')
-  }
+  const charCount = editableCaption.length
 
   return (
     <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
@@ -74,24 +84,21 @@ export default function CaptionGenerator({ topic, destination, slideCount, onCap
       </div>
 
       <div className="p-4 space-y-4">
-        {/* Style selector */}
+        {/* Tone selector */}
         <div>
-          <label className="text-xs font-medium text-stone-600 mb-2 block">Style de caption</label>
+          <label className="text-xs font-medium text-stone-600 mb-2 block">Ton de la légende</label>
           <div className="flex gap-1 bg-stone-100 rounded-lg p-1">
-            {(['informative', 'romantic', 'adventure', 'minimal'] as Style[]).map((s) => (
+            {(Object.keys(TONE_LABELS) as Style[]).map((s) => (
               <button
                 key={s}
                 onClick={() => setStyle(s)}
-                className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors ${
+                className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors flex items-center justify-center gap-1 ${
                   style === s
                     ? 'bg-white shadow text-[#6b2a1a] font-medium'
                     : 'text-stone-500 hover:text-stone-700'
                 }`}
               >
-                {s === 'informative' && '📝'}
-                {s === 'romantic' && '💑'}
-                {s === 'adventure' && '🌍'}
-                {s === 'minimal' && '✨'}
+                {TONE_LABELS[s].icon}
               </button>
             ))}
           </div>
@@ -100,20 +107,9 @@ export default function CaptionGenerator({ topic, destination, slideCount, onCap
         {/* Topic info */}
         <div className="flex items-center gap-2 text-xs text-stone-500 bg-stone-50 rounded-lg p-2">
           <span className="font-medium">Sujet:</span>
-          <span>{topic || 'Non défini'}</span>
-          {destination && (
-            <>
-              <span className="mx-1">•</span>
-              <span className="font-medium">📍</span>
-              <span>{destination}</span>
-            </>
-          )}
-          {slideCount && (
-            <>
-              <span className="mx-1">•</span>
-              <span>{slideCount} slides</span>
-            </>
-          )}
+          <span className="truncate flex-1">{topic || 'Non défini'}</span>
+          {destination && <><span className="mx-1">•</span><span>📍 {destination}</span></>}
+          {slides.length > 0 && <><span className="mx-1">•</span><span>{slides.length} slides</span></>}
         </div>
 
         {/* Generate button */}
@@ -132,19 +128,30 @@ export default function CaptionGenerator({ topic, destination, slideCount, onCap
           )}
         </button>
 
-        {/* Caption preview */}
+        {/* Caption preview with edit */}
         {caption && (
           <div className="space-y-3">
             <div className="relative">
-              <div className="p-3 bg-stone-50 rounded-xl text-sm text-stone-700 whitespace-pre-wrap">
-                {caption}
-              </div>
+              <textarea
+                value={editableCaption}
+                onChange={(e) => setEditableCaption(e.target.value)}
+                rows={6}
+                className="w-full p-3 bg-stone-50 rounded-xl text-sm text-stone-700 whitespace-pre-wrap resize-none border border-stone-200 focus:outline-none focus:ring-2 focus:ring-[#83C5BE]/30"
+              />
               <button
                 onClick={copyCaption}
                 className="absolute top-2 right-2 px-2 py-1 text-xs bg-white border border-stone-200 rounded-lg hover:bg-stone-100 transition-colors"
               >
                 {copied === 'caption' ? '✓ Copié!' : 'Copier'}
               </button>
+            </div>
+
+            {/* Character counter */}
+            <div className="flex justify-between items-center text-xs">
+              <span className={charCount > 2200 ? 'text-red-500' : charCount > 2000 ? 'text-orange-500' : 'text-stone-400'}>
+                {charCount} / 2200 caractères
+              </span>
+              {charCount > 2200 && <span className="text-red-500">⚠️ Trop long</span>}
             </div>
 
             {/* Hashtags */}
