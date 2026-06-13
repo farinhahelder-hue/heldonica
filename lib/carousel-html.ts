@@ -65,7 +65,7 @@ export function buildCarouselHtml(inputUrls: string[]) {
 }
 
 export function buildImageHtml(url: string) {
-  const trimmedUrl = url.trim();
+  const trimmedUrl = (url || '').trim();
   if (!trimmedUrl) {
     return '';
   }
