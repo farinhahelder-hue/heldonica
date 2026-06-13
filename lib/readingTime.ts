@@ -34,8 +34,9 @@ export function getReadingTime(content: string | null | undefined): number {
  * @returns Texte formaté (ex: "3 min de lecture")
  */
 export function formatReadingTime(minutes: number): string {
-  if (minutes <= 0) return ''
-  return `${minutes} min${minutes > 1 ? 's' : ''} de lecture`
+  if (minutes < 1) return 'Moins d\'une minute de lecture';
+  if (minutes === 1) return '1 minute de lecture';
+  return `${Math.ceil(minutes)} minutes de lecture`;
 }
 
 /**
