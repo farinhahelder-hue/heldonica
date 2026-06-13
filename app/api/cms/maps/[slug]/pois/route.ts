@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase-client';
+import { supabase } from '@/lib/supabase-client';
 import { requireCmsAuth } from '@/lib/cms-auth';
 
 export async function GET(req: NextRequest, { params }: { params: { slug: string } }) {
   const auth = await requireCmsAuth();
   if (!auth.ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const supabase = createClient();
   const { searchParams } = new URL(req.url);
   const routeId = searchParams.get('route_id');
 
@@ -16,7 +15,7 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
     .eq('content_slug', params.slug)
     .order('display_order');
 
-  if (routeId) query = query.eq('route_id', routeId);
+  if (routeId) query = (query as any).eq('route_id', routeId);
 
   const { data, error } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -27,7 +26,6 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
   const auth = await requireCmsAuth();
   if (!auth.ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const supabase = createClient();
   const body = await req.json();
 
   const { data, error } = await supabase
@@ -43,7 +41,6 @@ export async function PUT(req: NextRequest) {
   const auth = await requireCmsAuth();
   if (!auth.ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const supabase = createClient();
   const { id, ...body } = await req.json();
 
   const { data, error } = await supabase
@@ -60,7 +57,6 @@ export async function DELETE(req: NextRequest) {
   const auth = await requireCmsAuth();
   if (!auth.ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const supabase = createClient();
   const { searchParams } = new URL(req.url);
   const id = searchParams.get('id');
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });

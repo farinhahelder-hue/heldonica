@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase-client';
+import { supabase } from '@/lib/supabase-client';
 import { requireCmsAuth } from '@/lib/cms-auth';
 
 export async function GET(req: NextRequest) {
   const auth = await requireCmsAuth();
   if (!auth.ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const supabase = createClient();
   const { searchParams } = new URL(req.url);
   const routeId = searchParams.get('route_id');
   if (!routeId) return NextResponse.json({ error: 'Missing route_id' }, { status: 400 });
@@ -24,13 +23,11 @@ export async function POST(req: NextRequest) {
   const auth = await requireCmsAuth();
   if (!auth.ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const supabase = createClient();
   const { route_id, points } = await req.json();
   if (!route_id || !Array.isArray(points)) {
     return NextResponse.json({ error: 'Missing route_id or points' }, { status: 400 });
   }
 
-  // Delete existing points then bulk insert
   await supabase.from('article_map_route_points').delete().eq('route_id', route_id);
 
   if (points.length === 0) return NextResponse.json({ ok: true, count: 0 });
@@ -54,7 +51,6 @@ export async function DELETE(req: NextRequest) {
   const auth = await requireCmsAuth();
   if (!auth.ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const supabase = createClient();
   const { searchParams } = new URL(req.url);
   const routeId = searchParams.get('route_id');
   if (!routeId) return NextResponse.json({ error: 'Missing route_id' }, { status: 400 });
