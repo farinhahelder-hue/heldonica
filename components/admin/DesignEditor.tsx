@@ -2,10 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Save, RefreshCw, Palette, Type, Image, FileText, Smartphone, Monitor } from 'lucide-react';
-import { DESIGN_PRESETS, type DesignPreset } from '@/lib/design-presets';
+import { DESIGN_PRESETS } from '@/lib/design-presets';
+import type { DesignPreset } from '@/lib/design-presets';
 import LivePreview from './LivePreview';
-
-type SettingValue = string;
 
 export default function DesignEditor() {
   const [values, setValues] = useState<Record<string, string>>({});
