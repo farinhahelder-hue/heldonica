@@ -7,7 +7,12 @@ import { supabase } from '@/lib/supabase-client'
 
 export async function POST(request: NextRequest) {
   try {
-    const { email } = await request.json()
+    const { email, website_url } = await request.json()
+
+    // Server-side honeypot: silently reject if bot filled the hidden field
+    if (website_url) {
+      return NextResponse.json({ success: true, message: 'Inscription confirmée !' }, { status: 200 })
+    }
 
     if (!email || !email.includes('@')) {
       return NextResponse.json(
