@@ -116,7 +116,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
             <p className="text-white/60 text-xs mt-1">Vérifie ta boîte mail, on arrive doucement.</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center" style={{ position: 'relative' }}>
+<          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center" style={{ position: 'relative' }}>
             <HoneypotField />
             <input
               type="email"
@@ -163,7 +163,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
             <p className="text-white/60 text-sm mt-2">Vérifie ta boîte mail, on arrive doucement.</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto" style={{ position: 'relative' }}>
+<          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto" style={{ position: 'relative' }}>
             <HoneypotField />
             <input
               type="email"
