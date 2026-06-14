@@ -10,10 +10,10 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-      "style-src 'self' 'unsafe-inline' https://api.fontshare.com https://fonts.googleapis.com",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com",
+      "style-src 'self' 'unsafe-inline' https://api.fontshare.com https://fonts.googleapis.com https://unpkg.com",
       "img-src 'self' data: blob: https://images.unsplash.com https://*.supabase.co https://heldonica.fr https://www.heldonica.fr https://behold.pictures https://cdn2.behold.pictures https://lh3.googleusercontent.com https://lh4.googleusercontent.com https://lh5.googleusercontent.com https://lh6.googleusercontent.com https://storage.googleapis.com",
-      "font-src 'self' https://api.fontshare.com https://fonts.gstatic.com",
+      "font-src 'self' https://api.fontshare.com https://fonts.gstatic.com https://frontend-cdn.perplexity.ai",
       "connect-src 'self' https://*.supabase.co https://api.perplexity.ai https://api.unsplash.com https://api.bufferapp.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
