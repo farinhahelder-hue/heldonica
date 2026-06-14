@@ -12,6 +12,8 @@ interface EeaatScoreProps {
   publishedAt?: string;
   content?: string;
   category?: string;
+  visitDate?: string;
+  visitCount?: number;
 }
 
 type CheckResult = {
@@ -30,6 +32,8 @@ const EEAT_WEIGHTS: Record<string, number> = {
   published_at: 15,
   content_length: 15,
   category: 5,
+  visit_date: 5,
+  visit_count: 5,
 };
 
 const MAX_SCORE = Object.values(EEAT_WEIGHTS).reduce((a, b) => a + b, 0);
@@ -44,6 +48,8 @@ export default function EeaatScore({
   publishedAt,
   content,
   category,
+  visitDate,
+  visitCount,
 }: EeaatScoreProps) {
   const { checks, score, grade } = useMemo(() => {
     const results: CheckResult[] = [];
@@ -115,6 +121,11 @@ export default function EeaatScore({
 
     add('category', !!category && category.length >= 2, !!category ? category : 'Non definie');
 
+    const visitDateOk = !!visitDate && !isNaN(new Date(visitDate).getTime());
+    add('visit_date', visitDateOk, visitDateOk ? `Visite le ${new Date(visitDate!).toLocaleDateString('fr-FR')}` : 'Non renseignee');
+
+    add('visit_count', (visitCount ?? 0) >= 1, (visitCount ?? 0) >= 1 ? `${visitCount} visite(s)` : 'Non renseigne');
+
     const pct = Math.round((total / MAX_SCORE) * 100);
     let g: string;
     if (pct >= 90) g = 'A';
@@ -124,7 +135,7 @@ export default function EeaatScore({
     else g = 'E';
 
     return { checks: results, score: pct, grade: g };
-  }, [seoTitle, seoDescription, author, excerpt, featuredImage, tags, publishedAt, content, category]);
+  }, [seoTitle, seoDescription, author, excerpt, featuredImage, tags, publishedAt, content, category, visitDate, visitCount]);
 
   const colorMap: Record<string, string> = {
     A: 'bg-emerald-500', B: 'bg-green-500', C: 'bg-yellow-500',

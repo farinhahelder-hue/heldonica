@@ -45,6 +45,8 @@ type Article = {
   author?: string;
   seo_title?: string;
   seo_description?: string;
+  visit_date?: string;
+  visit_count?: number;
 };
 
 type NavSection =
@@ -74,6 +76,10 @@ function CmsAdminClientInner() {
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 15;
+
+  // Status filter & bulk
+  const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft' | 'scheduled'>('all');
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
   // Confirm dialog
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -181,8 +187,9 @@ function CmsAdminClientInner() {
 
   const filteredArticles = articles.filter(
     a =>
-      a.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      a.category?.toLowerCase().includes(searchQuery.toLowerCase())
+      (statusFilter === 'all' || a.status === statusFilter) &&
+      (a.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      a.category?.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   // ── Loading / Auth screens ─────────────────────────────────────────────────
@@ -300,16 +307,22 @@ function CmsAdminClientInner() {
           {activeSection === 'dashboard' && (
             <div>
               <h1 className="text-2xl font-bold text-gray-900 mb-6">Tableau de bord</h1>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="bg-white rounded-xl p-5 border border-gray-100">
                   <div className="text-2xl font-bold text-[#2D8B7A]">{articles.length}</div>
-                  <div className="text-sm text-gray-500 mt-1">Articles</div>
+                  <div className="text-sm text-gray-500 mt-1">Total articles</div>
                 </div>
                 <div className="bg-white rounded-xl p-5 border border-gray-100">
                   <div className="text-2xl font-bold text-[#C4714A]">
                     {articles.filter(a => a.status === 'published').length}
                   </div>
-                  <div className="text-sm text-gray-500 mt-1">Publiés</div>
+                  <div className="text-sm text-gray-500 mt-1">Publies</div>
+                </div>
+                <div className="bg-white rounded-xl p-5 border border-gray-100">
+                  <div className="text-2xl font-bold text-yellow-600">
+                    {articles.filter(a => a.status === 'scheduled').length}
+                  </div>
+                  <div className="text-sm text-gray-500 mt-1">Planifies</div>
                 </div>
                 <div className="bg-white rounded-xl p-5 border border-gray-100">
                   <div className="text-2xl font-bold text-gray-400">
@@ -318,6 +331,36 @@ function CmsAdminClientInner() {
                   <div className="text-sm text-gray-500 mt-1">Brouillons</div>
                 </div>
               </div>
+              {articles.some(a => a.author) && (
+                <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div className="bg-white rounded-xl p-5 border border-gray-100">
+                    <div className="text-sm font-medium text-gray-700">Dernier article</div>
+                    <div className="text-sm text-gray-400 mt-1">
+                      {articles.filter(a => a.status === 'published').sort((a, b) =>
+                        new Date(b.published_at ?? 0).getTime() - new Date(a.published_at ?? 0).getTime()
+                      )[0]?.title ?? '—'}
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-xl p-5 border border-gray-100">
+                    <div className="text-sm font-medium text-gray-700">Auteurs</div>
+                    <div className="text-sm text-gray-400 mt-1">
+                      {[...new Set(articles.map(a => a.author).filter(Boolean))].join(', ') || '—'}
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-xl p-5 border border-gray-100">
+                    <div className="text-sm font-medium text-gray-700">Categories</div>
+                    <div className="text-sm text-gray-400 mt-1">
+                      {[...new Set(articles.map(a => a.category).filter(Boolean))].length || '0'}
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-xl p-5 border border-gray-100">
+                    <div className="text-sm font-medium text-gray-700">Tags uniques</div>
+                    <div className="text-sm text-gray-400 mt-1">
+                      {[...new Set(articles.flatMap(a => a.tags ?? []).filter(Boolean))].length}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -326,14 +369,31 @@ function CmsAdminClientInner() {
             <div>
               <div className="flex items-center justify-between mb-6">
                 <h1 className="text-2xl font-bold text-gray-900">Articles</h1>
-                <button
-                  onClick={() => { setEditingArticle(null); setActiveSection('new-article'); }}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#2D8B7A] text-white rounded-lg text-sm font-medium hover:bg-[#256b5e]"
-                >
-                  <Plus size={16} /> Nouvel article
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      const data = JSON.stringify(articles, null, 2);
+                      const blob = new Blob([data], { type: 'application/json' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url; a.download = `heldonica-articles-${new Date().toISOString().split('T')[0]}.json`;
+                      a.click(); URL.revokeObjectURL(url);
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-2 text-xs border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50"
+                    title="Exporter tout en JSON"
+                  >
+                    <Download size={14} /> Export
+                  </button>
+                  <button
+                    onClick={() => { setEditingArticle(null); setActiveSection('new-article'); }}
+                    className="flex items-center gap-2 px-4 py-2 bg-[#2D8B7A] text-white rounded-lg text-sm font-medium hover:bg-[#256b5e]"
+                  >
+                    <Plus size={16} /> Nouvel article
+                  </button>
+                </div>
               </div>
-              <div className="mb-4">
+
+              <div className="flex items-center gap-2 mb-4 flex-wrap">
                 <input
                   type="text"
                   value={searchQuery}
@@ -341,7 +401,48 @@ function CmsAdminClientInner() {
                   placeholder="Rechercher un article…"
                   className="w-full max-w-sm px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
                 />
+                <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5">
+                  {(['all', 'published', 'draft', 'scheduled'] as const).map(s => (
+                    <button key={s} onClick={() => { setStatusFilter(s); setCurrentPage(1); setSelectedIds(new Set()); }}
+                      className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                        statusFilter === s ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                      }`}
+                    >
+                      {s === 'all' ? 'Tous' : s === 'published' ? 'Publies' : s === 'draft' ? 'Brouillons' : 'Planifies'}
+                      <span className="ml-1 text-gray-400">
+                        ({s === 'all' ? articles.length : articles.filter(a => a.status === s).length})
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
+
+              {selectedIds.size > 0 && (
+                <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-[#2D8B7A]/5 border border-[#2D8B7A]/20 rounded-lg">
+                  <span className="text-xs text-gray-600">{selectedIds.size} selectionne(s)</span>
+                  <button onClick={() => {
+                    const toPublish = articles.filter(a => selectedIds.has(a.id) && a.status !== 'published');
+                    Promise.all(toPublish.map(a =>
+                      fetch(`/api/cms/articles/${a.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...a, status: 'published' }) })
+                    )).then(() => { loadArticles(); setSelectedIds(new Set()); });
+                  }} className="px-3 py-1 text-xs bg-green-600 text-white rounded-lg hover:bg-green-700">
+                    Publier
+                  </button>
+                  <button onClick={() => {
+                    const toDelete = articles.filter(a => selectedIds.has(a.id));
+                    if (window.confirm(`Supprimer ${toDelete.length} article(s) ?`)) {
+                      Promise.all(toDelete.map(a =>
+                        fetch(`/api/cms/articles/${a.id}`, { method: 'DELETE' })
+                      )).then(() => { loadArticles(); setSelectedIds(new Set()); });
+                    }
+                  }} className="px-3 py-1 text-xs bg-red-500 text-white rounded-lg hover:bg-red-600">
+                    Supprimer
+                  </button>
+                  <button onClick={() => setSelectedIds(new Set())} className="px-3 py-1 text-xs border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50">
+                    Annuler
+                  </button>
+                </div>
+              )}
               {loadingArticles ? (
                 <SkeletonTable rows={5} />
               ) : (
@@ -350,6 +451,13 @@ function CmsAdminClientInner() {
                     <table className="w-full text-sm">
                       <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
                         <tr>
+                          <th className="px-4 py-3 w-8">
+                            <input type="checkbox" onChange={e => {
+                              if (e.target.checked) setSelectedIds(new Set(paginatedArticles.map(a => a.id)));
+                              else setSelectedIds(new Set());
+                            }} checked={paginatedArticles.length > 0 && selectedIds.size === paginatedArticles.length}
+                              className="w-3.5 h-3.5 rounded border-gray-300" />
+                          </th>
                           <th className="px-4 py-3 text-left">Titre</th>
                           <th className="px-4 py-3 text-left">Catégorie</th>
                           <th className="px-4 py-3 text-left">Statut</th>
@@ -360,6 +468,15 @@ function CmsAdminClientInner() {
                       <tbody className="divide-y divide-gray-50">
                         {paginatedArticles.map(article => (
                           <tr key={article.id} className="hover:bg-gray-50">
+                            <td className="px-4 py-3">
+                              <input type="checkbox" checked={selectedIds.has(article.id)}
+                                onChange={() => {
+                                  const next = new Set(selectedIds);
+                                  if (next.has(article.id)) next.delete(article.id); else next.add(article.id);
+                                  setSelectedIds(next);
+                                }}
+                                className="w-3.5 h-3.5 rounded border-gray-300" />
+                            </td>
                             <td className="px-4 py-3 font-medium text-gray-900">{article.title}</td>
                             <td className="px-4 py-3 text-gray-500">{article.category ?? '—'}</td>
                             <td className="px-4 py-3">
@@ -409,7 +526,7 @@ function CmsAdminClientInner() {
                         ))}
                         {paginatedArticles.length === 0 && (
                           <tr>
-                            <td colSpan={5} className="px-4 py-8 text-center text-gray-400 text-sm">
+                            <td colSpan={6} className="px-4 py-8 text-center text-gray-400 text-sm">
                               Aucun article trouvé
                             </td>
                           </tr>
@@ -539,6 +656,55 @@ function CmsAdminClientInner() {
                       />
                     </div>
                   )}
+                  <div className="border-t pt-4 grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">SEO Title</label>
+                      <input
+                        type="text"
+                        value={editingArticle?.seo_title ?? ''}
+                        onChange={e => setEditingArticle(prev => prev ? { ...prev, seo_title: e.target.value } : prev)}
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                        placeholder="Titre optimise SEO (30-60 car.)"
+                      />
+                      <p className="text-[10px] text-gray-400 mt-1">{(editingArticle?.seo_title?.length ?? 0)} car.</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">SEO Description</label>
+                      <input
+                        type="text"
+                        value={editingArticle?.seo_description ?? ''}
+                        onChange={e => setEditingArticle(prev => prev ? { ...prev, seo_description: e.target.value } : prev)}
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                        placeholder="Meta description (70-160 car.)"
+                      />
+                      <p className={`text-[10px] mt-1 ${(editingArticle?.seo_description?.length ?? 0) > 160 ? 'text-red-400' : 'text-gray-400'}`}>
+                        {(editingArticle?.seo_description?.length ?? 0)} car. {editingArticle?.seo_description && editingArticle.seo_description.length < 70 ? '(min. 70)' : ''}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="border-t pt-4 grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Date de visite</label>
+                      <input
+                        type="date"
+                        value={editingArticle?.visit_date ? editingArticle.visit_date.slice(0, 10) : ''}
+                        onChange={e => setEditingArticle(prev => prev ? { ...prev, visit_date: e.target.value } : prev)}
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                      />
+                      <p className="text-[10px] text-gray-400 mt-1">Quand le voyage a eu lieu (renforce E-E-A-T)</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Visites</label>
+                      <input
+                        type="number" min={1}
+                        value={editingArticle?.visit_count ?? ''}
+                        onChange={e => setEditingArticle(prev => prev ? { ...prev, visit_count: e.target.value ? parseInt(e.target.value) : undefined } : prev)}
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                        placeholder="Ex: 2"
+                      />
+                      <p className="text-[10px] text-gray-400 mt-1">Nombre de fois que vous avez visite ce lieu</p>
+                    </div>
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Extrait</label>
                     <textarea
@@ -590,6 +756,8 @@ function CmsAdminClientInner() {
                     publishedAt={editingArticle?.published_at}
                     content={editingArticle?.content}
                     category={editingArticle?.category}
+                    visitDate={editingArticle?.visit_date}
+                    visitCount={editingArticle?.visit_count}
                   />
                 </div>
               </div>
