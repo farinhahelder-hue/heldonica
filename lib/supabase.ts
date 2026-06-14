@@ -13,7 +13,8 @@ export const supabase = supabaseUrl && supabaseAnonKey
 export const createServiceClient = () => {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   if (!supabaseUrl || !serviceKey) {
-    throw new Error('Missing Supabase environment variables')
+    console.warn('[Supabase] Missing SUPABASE_SERVICE_ROLE_KEY — service client unavailable')
+    return null
   }
   return createClient(supabaseUrl, serviceKey, {
     auth: {

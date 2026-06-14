@@ -38,6 +38,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const supabase = createServiceClient()
+  if (!supabase) return { title: 'Heldonica' }
   const { data: post } = await supabase
     .from('cms_blog_posts')
     .select('title, excerpt, featuredimage, publishedat, tags, author, updatedat')
@@ -231,12 +232,13 @@ export default async function BlogPostPage({ params }: Props) {
 
   // Fetch show_map flag
   const supabase = createServiceClient()
-  const { data: mapMeta } = await supabase
-    .from('cms_blog_posts')
-    .select('show_map')
-    .eq('slug', params.slug)
-    .single()
-  const showMap = mapMeta?.show_map === true
+  const showMap = supabase
+    ? (await supabase
+        .from('cms_blog_posts')
+        .select('show_map')
+        .eq('slug', params.slug)
+        .single())?.data?.show_map === true
+    : false
 
   const allPosts = await getAllPosts()
   const relatedResult = getRelatedArticles(post, allPosts, 3)

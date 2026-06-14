@@ -23,6 +23,7 @@ type DemandeTravel = {
 async function getDemandesTravel(): Promise<DemandeTravel[]> {
   try {
     const supabase = createServiceClient();
+    if (!supabase) return [];
     const { data, error } = await supabase
       .from('demandes_travel')
       .select('id, prenom, nom, destination, budget_fourchette, statut, created_at')
