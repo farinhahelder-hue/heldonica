@@ -2,7 +2,7 @@
 
 console.log('[CMS] Rendering CMS admin page');
 
-import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useState, useEffect, useCallback, Suspense, useDeferredValue } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import EnhancedRichContent from '@/components/EnhancedRichContent';
@@ -66,6 +66,8 @@ function CmsAdminClientInner() {
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  // ⚡ Bolt: Use useDeferredValue to debounce the search query input. This optimization prevents the potentially heavy list filtering from blocking the main UI thread, ensuring smooth typing for the user.
+  const deferredSearchQuery = useDeferredValue(searchQuery);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Pagination
@@ -178,8 +180,8 @@ function CmsAdminClientInner() {
 
   const filteredArticles = articles.filter(
     a =>
-      a.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      a.category?.toLowerCase().includes(searchQuery.toLowerCase())
+      a.title?.toLowerCase().includes(deferredSearchQuery.toLowerCase()) ||
+      a.category?.toLowerCase().includes(deferredSearchQuery.toLowerCase())
   );
 
   // ── Loading / Auth screens ─────────────────────────────────────────────────
