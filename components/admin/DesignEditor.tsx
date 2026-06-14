@@ -5,7 +5,6 @@ import { Save, RefreshCw, Palette, Type, Image, FileText, Smartphone, Monitor, C
 import { DESIGN_PRESETS } from '@/lib/design-presets';
 import LivePreview from './LivePreview';
 import ImagePicker from './ImagePicker';
-import CustomCodeEditor from './CustomCodeEditor';
 
 const TABS = [
   { id: 'presets', label: 'Themes' },
@@ -254,7 +253,23 @@ export default function DesignEditor() {
     </div>
   );
 
-  const renderCode = () => <CustomCodeEditor />;
+  const renderCode = () => <div className="space-y-5">
+    <div>
+      <h3 className="text-sm font-semibold text-gray-900 mb-1">CSS personnalise</h3>
+      <p className="text-[11px] text-gray-500 mb-2">Surcharge les styles du site.</p>
+      <textarea rows={10} className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm font-mono leading-relaxed resize-y" />
+    </div>
+    <div>
+      <h3 className="text-sm font-semibold text-gray-900 mb-1">HTML head</h3>
+      <p className="text-[11px] text-gray-500 mb-2">Injecte avant /head.</p>
+      <textarea rows={6} className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm font-mono leading-relaxed resize-y" />
+    </div>
+    <div>
+      <h3 className="text-sm font-semibold text-gray-900 mb-1">HTML body (debut)</h3>
+      <p className="text-[11px] text-gray-500 mb-2">Injecte apres body.</p>
+      <textarea rows={6} className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm font-mono leading-relaxed resize-y" />
+    </div>
+  </div>;
 
   const renderTabContent = () => {
     switch (activeTab) {
