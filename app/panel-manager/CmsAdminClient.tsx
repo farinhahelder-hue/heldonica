@@ -9,7 +9,7 @@ import EnhancedRichContent from '@/components/EnhancedRichContent';
 import MediaLibrary from '@/components/MediaLibrary';
 import EeaatScore from '@/components/EeaatScore';
 import { sanitizeHtml } from '@/lib/sanitize-html';
-import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot, Mail, Map as MapIcon, ChevronLeft, ChevronRight, Palette } from 'lucide-react';
+import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot, Mail, Map as MapIcon, ChevronLeft, ChevronRight, Palette, Zap } from 'lucide-react';
 import { Film, Clapperboard } from 'lucide-react';
 import CmsSettingsPanel from '@/components/admin/CmsSettingsPanel';
 import ErrorBoundary from '@/components/admin/ErrorBoundary';
@@ -27,6 +27,7 @@ const FastTrimTool = dynamic(() => import('@/components/admin/FastTrimTool'), { 
 const VideoMaker = dynamic(() => import('@/components/admin/video-maker/VideoMaker'), { ssr: false });
 const MapManagerSection = dynamic(() => import('./maps/MapManagerSection'), { ssr: false });
 const DesignEditor = dynamic(() => import('@/components/admin/DesignEditor'), { ssr: false });
+const GeoAuditPanel = dynamic(() => import('@/components/admin/GeoAuditPanel'), { ssr: false });
 
 type Article = {
   id: number;
@@ -50,7 +51,7 @@ type NavSection =
   | 'dashboard' | 'articles' | 'new-article' | 'media'
   | 'settings' | 'seo' | 'analytics' | 'carousel'
   | 'blog-generator' | 'video' | 'fast-trim' | 'studio-video'
-  | 'map' | 'auto-shorts' | 'design';
+  | 'map' | 'auto-shorts' | 'design' | 'geo';
 
 function CmsAdminClientInner() {
   const router = useRouter();
@@ -246,6 +247,7 @@ function CmsAdminClientInner() {
     { id: 'fast-trim',     label: 'Fast Trim',         icon: <Clapperboard size={16} /> },
     { id: 'map',           label: 'Cartes',            icon: <MapIcon size={16} /> },
     { id: 'design',        label: 'Design',             icon: <Palette size={16} /> },
+    { id: 'geo',           label: 'GEO',                icon: <Zap size={16} /> },
     { id: 'settings',      label: 'Paramètres',        icon: <Settings size={16} /> },
   ];
 
@@ -613,6 +615,15 @@ function CmsAdminClientInner() {
                   <DesignEditor />
                 </Suspense>
               </div>
+            </ErrorBoundary>
+          )}
+
+          {/* ── GEO ── */}
+          {activeSection === 'geo' && (
+            <ErrorBoundary>
+              <Suspense fallback={<div className="text-sm text-gray-400 p-8">Chargement de l'audit GEO...</div>}>
+                <GeoAuditPanel />
+              </Suspense>
             </ErrorBoundary>
           )}
 
