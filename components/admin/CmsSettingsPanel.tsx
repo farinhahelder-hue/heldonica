@@ -2,13 +2,14 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Save, Globe, Palette, Share2, Search, FileText, Wrench, RefreshCw } from 'lucide-react';
+import ImagePicker from './ImagePicker';
 
 type Setting = { key: string; value: string };
 
 type FieldDef = {
   key: string;
   label: string;
-  type: 'text' | 'url' | 'email' | 'color' | 'textarea' | 'toggle' | 'select';
+  type: 'text' | 'url' | 'email' | 'color' | 'textarea' | 'toggle' | 'select' | 'image';
   placeholder?: string;
   options?: string[];
 };
@@ -32,8 +33,8 @@ const GROUPS: GroupDef[] = [
       { key: 'site_description', label: 'Description courte',   type: 'textarea', placeholder: 'Blog slow travel & conseil hôtelier' },
       { key: 'contact_email',    label: 'Email de contact',     type: 'email',    placeholder: 'bonjour@heldonica.fr' },
       { key: 'contact_phone',    label: 'Téléphone',            type: 'text',     placeholder: '+33 6 00 00 00 00' },
-      { key: 'logo_url',         label: 'URL du logo',          type: 'url',      placeholder: 'https://...' },
-      { key: 'favicon_url',      label: 'URL du favicon',       type: 'url',      placeholder: 'https://...' },
+      { key: 'logo_url',         label: 'Logo du site',          type: 'image',    placeholder: 'https://...' },
+      { key: 'favicon_url',      label: 'Favicon',               type: 'image',    placeholder: 'https://...' },
     ],
   },
   {
@@ -45,7 +46,7 @@ const GROUPS: GroupDef[] = [
       { key: 'secondary_color',   label: 'Couleur secondaire',  type: 'color' },
       { key: 'font_heading',      label: 'Police titres',       type: 'text',     placeholder: 'Playfair Display' },
       { key: 'font_body',         label: 'Police corps',        type: 'text',     placeholder: 'Inter' },
-      { key: 'hero_banner_url',   label: 'Image hero bannière', type: 'url',      placeholder: 'https://...' },
+      { key: 'hero_banner_url',   label: 'Image hero bannière', type: 'image',    placeholder: 'https://...' },
       { key: 'primary_cta_label', label: 'Label CTA principal', type: 'text',     placeholder: 'Planifier mon voyage' },
       { key: 'primary_cta_url',   label: 'URL CTA principal',   type: 'url',      placeholder: '/travel-planning' },
     ],
@@ -75,7 +76,7 @@ const GROUPS: GroupDef[] = [
     fields: [
       { key: 'meta_title',               label: 'Meta title',              type: 'text',     placeholder: 'Heldonica — Slow Travel & Conseil Hôtelier' },
       { key: 'meta_description',         label: 'Meta description',        type: 'textarea', placeholder: '160 caractères max' },
-      { key: 'meta_og_image',            label: 'OG Image URL',            type: 'url',      placeholder: 'https://...' },
+      { key: 'meta_og_image',            label: 'OG Image (partages)',     type: 'image',    placeholder: 'https://...' },
       { key: 'seo_title',                label: 'SEO Title par défaut',    type: 'text',     placeholder: 'Heldonica' },
       { key: 'seo_description',          label: 'SEO Description',         type: 'textarea', placeholder: '' },
       { key: 'seo_default_title',        label: 'Titre SEO global',        type: 'text',     placeholder: '' },
@@ -267,6 +268,12 @@ export default function CmsSettingsPanel() {
                     onChange={e => handleChange(field.key, e.target.value)}
                     placeholder={field.placeholder}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A] resize-y"
+                  />
+                ) : field.type === 'image' ? (
+                  <ImagePicker
+                    value={values[field.key] ?? ''}
+                    onChange={value => handleChange(field.key, value)}
+                    placeholder={field.placeholder}
                   />
                 ) : field.type === 'color' ? (
                   <div className="flex items-center gap-3">
