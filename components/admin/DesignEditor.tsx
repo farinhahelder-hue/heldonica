@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Save, RefreshCw, Palette, Type, Image, FileText, Smartphone, Monitor } from 'lucide-react';
+import { Save, RefreshCw, Palette, Type, Image, FileText, Smartphone, Monitor, Code } from 'lucide-react';
 import { DESIGN_PRESETS } from '@/lib/design-presets';
 import LivePreview from './LivePreview';
 import ImagePicker from './ImagePicker';
+import CustomCodeEditor from './CustomCodeEditor';
 
 const TABS = [
   { id: 'presets', label: 'Themes' },
@@ -12,6 +13,7 @@ const TABS = [
   { id: 'fonts', label: 'Polices' },
   { id: 'texts', label: 'Textes' },
   { id: 'logo', label: 'Logo' },
+  { id: 'code', label: 'Code' },
 ] as const;
 
 type TabId = typeof TABS[number]['id'];
@@ -60,6 +62,7 @@ export default function DesignEditor() {
     fonts: <Type size={14} />,
     texts: <FileText size={14} />,
     logo: <Image size={14} />,
+    code: <Code size={14} />,
   }), []);
 
   const loadSettings = useCallback(async () => {
@@ -251,6 +254,8 @@ export default function DesignEditor() {
     </div>
   );
 
+  const renderCode = () => <CustomCodeEditor />;
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'presets': return renderPresets();
@@ -258,6 +263,7 @@ export default function DesignEditor() {
       case 'fonts': return renderFonts();
       case 'texts': return renderTexts();
       case 'logo': return renderLogo();
+      case 'code': return renderCode();
     }
   };
 
