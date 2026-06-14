@@ -587,7 +587,7 @@ function CmsAdminClientInner() {
             <ErrorBoundary>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 mb-6">Médiathèque</h1>
-                <MediaLibrary onSelect={() => {}} onClose={() => {}} />
+                <MediaLibrary onSelect={() => {}} onClose={() => setActiveSection('dashboard')} />
               </div>
             </ErrorBoundary>
           )}
