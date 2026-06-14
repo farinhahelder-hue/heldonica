@@ -30,6 +30,9 @@ export default async function SiteTheme() {
     'footer_copyright',
     'footer_tagline',
     'contact_email',
+    'custom_css',
+    'custom_html_head',
+    'custom_html_body',
   )
   
   const opacity = parseInt(colors.hero_overlay_opacity || '40') / 100
@@ -68,10 +71,17 @@ export default async function SiteTheme() {
   const fontBody = colors.font_body || 'DM+Sans'
   const fontUrl = `https://fonts.googleapis.com/css2?family=${fontHeading}:wght@400;500;600;700&family=${fontBody}:wght@400;500;600&display=swap`
   
+  const customCss = colors.custom_css || ''
+  const customHtmlHead = colors.custom_html_head || ''
+  const customHtmlBody = colors.custom_html_body || ''
+
   return (
     <>
       <link href={fontUrl} rel="stylesheet" />
       <style dangerouslySetInnerHTML={{ __html: cssVars }} />
+      {customCss && <style dangerouslySetInnerHTML={{ __html: customCss }} />}
+      {customHtmlHead && <div dangerouslySetInnerHTML={{ __html: customHtmlHead }} />}
+      {customHtmlBody && <div dangerouslySetInnerHTML={{ __html: customHtmlBody }} className="custom-html-body" />}
     </>
   )
 }

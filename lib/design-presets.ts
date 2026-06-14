@@ -13,13 +13,14 @@ export type DesignPreset = {
     font_heading: string;
     font_body: string;
   };
+  css: string;
 };
 
 export const DESIGN_PRESETS: DesignPreset[] = [
   {
     id: 'eucalyptus',
     name: 'Eucalyptus',
-    description: 'Classique Heldonica — vert têtène, bleu doux',
+    description: 'Classique Heldonica — vert têtène, bleu doux',
     colors: {
       primary_color: '#006D77',
       secondary_color: '#83C5BE',
@@ -31,11 +32,25 @@ export const DESIGN_PRESETS: DesignPreset[] = [
       font_heading: 'Playfair Display',
       font_body: 'DM Sans',
     },
+    css: `
+--border-radius-sm: 6px;
+--border-radius-md: 12px;
+--border-radius-lg: 20px;
+--border-radius-full: 9999px;
+--shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+--shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+--shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+--spacing-section: 5rem;
+--button-style: rounded;
+--header-style: classic;
+--card-style: rounded;
+--hero-style: full;
+`.trim(),
   },
   {
     id: 'terracotta',
     name: 'Terracotta',
-    description: 'Chaud et accueillant — orange terreux, crème',
+    description: 'Chaud et accueillant — orange terreux, crème',
     colors: {
       primary_color: '#C4714A',
       secondary_color: '#E8C9B0',
@@ -47,10 +62,24 @@ export const DESIGN_PRESETS: DesignPreset[] = [
       font_heading: 'Cormorant Garamond',
       font_body: 'DM Sans',
     },
+    css: `
+--border-radius-sm: 4px;
+--border-radius-md: 8px;
+--border-radius-lg: 16px;
+--border-radius-full: 9999px;
+--shadow-sm: 0 2px 6px rgba(0,0,0,0.08);
+--shadow-md: 0 6px 20px rgba(0,0,0,0.10);
+--shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+--spacing-section: 6rem;
+--button-style: pill;
+--header-style: elegant;
+--card-style: rounded;
+--hero-style: minimal;
+`.trim(),
   },
   {
     id: 'ocean',
-    name: 'Océan',
+    name: 'Océan',
     description: 'Frais et apaisant — bleu profond, turquoise',
     colors: {
       primary_color: '#1A5F7A',
@@ -63,10 +92,24 @@ export const DESIGN_PRESETS: DesignPreset[] = [
       font_heading: 'Lora',
       font_body: 'Inter',
     },
+    css: `
+--border-radius-sm: 8px;
+--border-radius-md: 16px;
+--border-radius-lg: 24px;
+--border-radius-full: 9999px;
+--shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
+--shadow-md: 0 8px 24px rgba(0,0,0,0.07);
+--shadow-lg: 0 16px 48px rgba(0,0,0,0.09);
+--spacing-section: 5rem;
+--button-style: rounded;
+--header-style: transparent;
+--card-style: rounded;
+--hero-style: full;
+`.trim(),
   },
   {
     id: 'forest',
-    name: 'Forêt',
+    name: 'Forêt',
     description: 'Naturel et organique — vert sapin, olive',
     colors: {
       primary_color: '#3A5A40',
@@ -79,11 +122,25 @@ export const DESIGN_PRESETS: DesignPreset[] = [
       font_heading: 'Cormorant',
       font_body: 'Source Sans 3',
     },
+    css: `
+--border-radius-sm: 4px;
+--border-radius-md: 8px;
+--border-radius-lg: 12px;
+--border-radius-full: 9999px;
+--shadow-sm: 0 1px 4px rgba(0,0,0,0.06);
+--shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+--shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+--spacing-section: 4rem;
+--button-style: square;
+--header-style: classic;
+--card-style: square;
+--hero-style: split;
+`.trim(),
   },
   {
     id: 'minimal',
     name: 'Minimal',
-    description: 'Épuré et moderne — noir, blanc, gris',
+    description: 'Épuré et moderne — noir, blanc, gris',
     colors: {
       primary_color: '#2D2D2D',
       secondary_color: '#8C8C8C',
@@ -95,6 +152,20 @@ export const DESIGN_PRESETS: DesignPreset[] = [
       font_heading: 'Inter',
       font_body: 'Inter',
     },
+    css: `
+--border-radius-sm: 0px;
+--border-radius-md: 0px;
+--border-radius-lg: 0px;
+--border-radius-full: 0px;
+--shadow-sm: none;
+--shadow-md: none;
+--shadow-lg: none;
+--spacing-section: 5rem;
+--button-style: square;
+--header-style: minimal;
+--card-style: square;
+--hero-style: minimal;
+`.trim(),
   },
   {
     id: 'vintage',
@@ -111,5 +182,19 @@ export const DESIGN_PRESETS: DesignPreset[] = [
       font_heading: 'Libre Baskerville',
       font_body: 'Raleway',
     },
+    css: `
+--border-radius-sm: 2px;
+--border-radius-md: 6px;
+--border-radius-lg: 10px;
+--border-radius-full: 9999px;
+--shadow-sm: 0 2px 8px rgba(0,0,0,0.10);
+--shadow-md: 0 6px 24px rgba(0,0,0,0.12);
+--shadow-lg: 0 12px 48px rgba(0,0,0,0.15);
+--spacing-section: 6rem;
+--button-style: pill;
+--header-style: elegant;
+--card-style: rounded;
+--hero-style: full;
+`.trim(),
   },
 ];
