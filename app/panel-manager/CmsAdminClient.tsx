@@ -16,6 +16,7 @@ import { ToastProvider, useToast } from '@/components/admin/Toast';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import ArticlePreview from '@/components/admin/ArticlePreview';
 import { SkeletonTable, SkeletonForm, SkeletonCard } from '@/components/admin/SkeletonLoader';
+import EeaatScore from '@/components/EeaatScore';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
 const CarouselEditor = dynamic(() => import('@/components/admin/CarouselEditor'), { ssr: false });
@@ -577,6 +578,9 @@ function CmsAdminClientInner() {
                       />
                     </Suspense>
                   </div>
+
+                  {/* ── SEO & GEO — Score E-E-A-T ── */}
+                  <EeaatScore article={editingArticle} />
                 </div>
               </div>
             </ErrorBoundary>

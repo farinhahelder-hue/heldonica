@@ -13,6 +13,13 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Honeypot check — bots fill this hidden field
+    const honeypot = (e.currentTarget as HTMLFormElement).querySelector<HTMLInputElement>(
+      'input[name="website"]'
+    );
+    if (honeypot?.value) return; // Bot detected — silent reject
+
     if (!email || !email.includes("@")) {
       setStatus("error");
       setMessage("Adresse email invalide.");
@@ -81,6 +88,8 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
             >
               {status === "loading" ? "…" : "Je m'abonne"}
             </button>
+            {/* Honeypot — invisible aux humains, rempli par les bots */}
+            <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" />
           </form>
         )}
         {status === "error" && <p className="mt-2 text-red-300 text-xs">{message}</p>}
@@ -115,6 +124,8 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
             >
               {status === "loading" ? "…" : "Je m'abonne"}
             </button>
+            {/* Honeypot */}
+            <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" />
           </form>
         )}
         {status === "error" && <p className="text-red-300 text-xs mt-1">{message}</p>}
@@ -161,6 +172,8 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
             >
               {status === "loading" ? "Inscription…" : "Je m'abonne"}
             </button>
+            {/* Honeypot */}
+            <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" />
           </form>
         )}
         {status === "error" && <p className="mt-3 text-red-300 text-sm">{message}</p>}

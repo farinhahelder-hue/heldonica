@@ -95,6 +95,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 function buildJsonLds(post: BlogPost, readTime: number) {
+  // ── BlogPosting (toujours présent) ────────────────────────────
   const articleLd = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
@@ -124,6 +125,50 @@ function buildJsonLds(post: BlogPost, readTime: number) {
     timeRequired: readTime > 0 ? `PT${readTime}M` : undefined,
     inLanguage: 'fr-FR',
   }
+
+  // ── TravelArticle (si article de voyage) ─────────────────────
+  const isTravelCategory =
+    post.category === 'Travel' ||
+    post.category === 'Guides Pratiques' ||
+    post.category === 'Carnets Voyage' ||
+    post.category === 'Découvertes Locales'
+
+  const travelLd = isTravelCategory
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'TravelArticle',
+        headline: post.title,
+        description: post.excerpt ?? '',
+        image: post.featured_image ? [post.featured_image] : [DEFAULT_OG],
+        datePublished: post.published_at ?? '',
+        dateModified: post.updated_at ?? post.published_at ?? '',
+        author: {
+          '@type': 'Person',
+          name: post.author || 'Heldonica',
+          url: SITE_URL,
+        },
+        publisher: {
+          '@type': 'Organization',
+          name: 'Heldonica',
+          url: SITE_URL,
+          logo: {
+            '@type': 'ImageObject',
+            url: `${SITE_URL}/logo.png`,
+          },
+        },
+        url: `${SITE_URL}/blog/${post.slug}`,
+        keywords: post.tags?.join(', ') ?? '',
+        aboutPlace: post.destination
+          ? {
+              '@type': 'Place',
+              name: post.destination,
+            }
+          : undefined,
+        touristType: 'Couple slow travel',
+        suitableForCategory: ['Slow travel', 'Écotourisme'],
+        inLanguage: 'fr-FR',
+      }
+    : null
 
   const breadcrumbLd = {
     '@context': 'https://schema.org',
@@ -167,7 +212,7 @@ function buildJsonLds(post: BlogPost, readTime: number) {
     ],
   }
 
-  return { articleLd, breadcrumbLd }
+  return { articleLd, travelLd, breadcrumbLd }
 }
 
 const HERO_FALLBACK: Record<string, string> = {
@@ -199,7 +244,7 @@ export default async function BlogPostPage({ params }: Props) {
   const heroImage = post.featured_image ?? HERO_FALLBACK[post.category ?? ''] ?? DEFAULT_HERO
   const fallbackBg = HERO_FALLBACK[post.category ?? ''] ?? 'bg-gradient-to-br from-stone-900 to-amber-900'
   const readTime = getReadingTime(post.content)
-  const { articleLd, breadcrumbLd } = buildJsonLds(post, readTime)
+  const { articleLd, travelLd, breadcrumbLd } = buildJsonLds(post, readTime)
   const canonicalUrl = `${SITE_URL}/blog/${post.slug}`
   const safeContent = sanitizeHtml(post.content)
 
@@ -210,6 +255,13 @@ export default async function BlogPostPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleLd) }}
       />
+      {travelLd && (
+        <Script
+          id="travel-jsonld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(travelLd) }}
+        />
+      )}
       <Script
         id="breadcrumb-jsonld"
         type="application/ld+json"
