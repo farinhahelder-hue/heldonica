@@ -49,7 +49,7 @@ export async function GET(req: Request) {
 
   let query = sb
     .from('cms_blog_posts')
-    .select('id, title, slug, category, published, published_at, created_at, excerpt, featured_image')
+    .select('*')
     .order('created_at', { ascending: false })
 
   if (status === 'published') query = query.eq('published', true)
@@ -87,28 +87,35 @@ export async function POST(req: Request) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  // Also sync to articles table for public pages
-  if (data) {
-    const articlesPayload = {
-      id: (data as CmsBlogPost).id,
-      title: (data as CmsBlogPost).title,
-      slug: (data as CmsBlogPost).slug,
-      category: (data as CmsBlogPost).category,
-      excerpt: (data as CmsBlogPost).excerpt,
-      content: (data as CmsBlogPost).content,
-      featured_image: (data as CmsBlogPost).featured_image,
-      author: (data as CmsBlogPost).author,
-      published: (data as CmsBlogPost).published,
-      published_at: (data as CmsBlogPost).published_at,
-      created_at: (data as CmsBlogPost).created_at,
-      updated_at: (data as CmsBlogPost).updated_at,
-      tags: (data as CmsBlogPost).tags || [],
-      archived: false,
+    // Also sync to articles table for public pages
+    if (data) {
+      const synced = data as Record<string, unknown>;
+      const articlesPayload = {
+        id: synced.id,
+        title: synced.title,
+        slug: synced.slug,
+        category: synced.category,
+        excerpt: synced.excerpt,
+        content: synced.content,
+        featured_image: synced.featured_image,
+        author: synced.author,
+        published: synced.published,
+        published_at: synced.published_at,
+        created_at: synced.created_at,
+        updated_at: synced.updated_at,
+        tags: synced.tags || [],
+        archived: false,
+        seo_title: synced.seo_title,
+        seo_description: synced.seo_description,
+        visit_date: synced.visit_date,
+        visit_count: synced.visit_count,
+        sitemap_priority: synced.sitemap_priority,
+        sitemap_changefreq: synced.sitemap_changefreq,
+      }
+      // Sync to articles table - ignore errors as articles might not exist yet
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ;(sb.from('articles') as any).upsert(articlesPayload).then(() => {}).catch(() => {})
     }
-    // Sync to articles table - ignore errors as articles might not exist yet
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(sb.from('articles') as any).upsert(articlesPayload).then(() => {}).catch(() => {})
-  }
 
   return NextResponse.json({ article: data }, { status: 201 })
 }
