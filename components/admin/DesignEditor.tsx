@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Save, RefreshCw, Palette, Type, Image, FileText, Smartphone, Monitor } from 'lucide-react';
 import { DESIGN_PRESETS } from '@/lib/design-presets';
 import LivePreview from './LivePreview';
+import ImagePicker from './ImagePicker';
 
 const TABS = [
   { id: 'presets', label: 'Themes' },
@@ -231,15 +232,14 @@ export default function DesignEditor() {
   const renderLogo = () => (
     <div className="space-y-4">
       <h3 className="text-sm font-semibold text-gray-900">Logo &amp; Favicon</h3>
-      <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">URL du logo</label>
-        <input type="url" value={v('logo_url')} onChange={e => update('logo_url', e.target.value)} placeholder="https://votresite.com/logo.png" className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" />
-        {v('logo_url') && <img src={v('logo_url')} alt="" className="mt-2 h-12 rounded border border-gray-200 object-contain" />}
-      </div>
-      <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">URL du favicon</label>
-        <input type="url" value={v('favicon_url')} onChange={e => update('favicon_url', e.target.value)} placeholder="https://votresite.com/favicon.ico" className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm" />
-      </div>
+      <ImagePicker value={v('logo_url')} onChange={url => update('logo_url', url)} label="Logo du site" placeholder="https://votresite.com/logo.png" />
+      <ImagePicker value={v('favicon_url')} onChange={url => update('favicon_url', url)} label="Favicon" placeholder="https://votresite.com/favicon.ico" />
+      {v('logo_url') && (
+        <div>
+          <p className="text-xs text-gray-400 mb-1">Apercu du logo :</p>
+          <img src={v('logo_url')} alt="" className="h-12 rounded border border-gray-200 object-contain" />
+        </div>
+      )}
       <div className="border-t pt-4">
         <h4 className="text-xs font-semibold text-gray-700 mb-2">Compatibilite des cles</h4>
         <p className="text-[11px] text-gray-500 mb-2">Synchronise aussi avec les anciennes cles (site_logo, site_favicon).</p>
