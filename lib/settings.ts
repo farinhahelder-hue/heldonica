@@ -19,8 +19,8 @@ export async function getColorSettings(): Promise<Record<string, string>> {
 export async function getSiteAssets(): Promise<{ logo?: string; favicon?: string }> {
   const all = await getSiteSettings()
   return {
-    logo: all.site_logo,
-    favicon: all.site_favicon,
+    logo: all.site_logo || all.logo_url,
+    favicon: all.site_favicon || all.favicon_url,
   }
 }
 

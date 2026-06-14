@@ -21,16 +21,22 @@ export default async function SiteTheme() {
     'container_max_width',
     'header_sticky',
     'site_tagline',
-    'footer_text'
+    'footer_text',
+    'site_name',
+    'logo_url',
+    'favicon_url',
+    'primary_cta_label',
+    'primary_cta_url',
+    'footer_copyright',
+    'footer_tagline',
+    'contact_email',
   )
   
   const opacity = parseInt(colors.hero_overlay_opacity || '40') / 100
   
-  // Map new keys to CSS variable names
   const primaryColor = colors.primary_color || colors.color_primary || '#006D77'
   const secondaryColor = colors.secondary_color || colors.color_secondary || '#83C5BE'
   
-  // Build CSS variables
   const cssVars = `
     :root {
       --color-primary: ${primaryColor};
@@ -53,10 +59,11 @@ export default async function SiteTheme() {
       --cloud-dancer: var(--color-background);
       --site-tagline: '${colors.site_tagline || ''}';
       --footer-text: '${colors.footer_text || ''}';
+      --site-name: '${colors.site_name || 'Heldonica'}';
+      --cta-label: '${colors.primary_cta_label || 'Planifier mon voyage'}';
     }
   `
   
-  // Load Google Fonts if custom fonts are specified
   const fontHeading = colors.font_heading || 'Playfair+Display'
   const fontBody = colors.font_body || 'DM+Sans'
   const fontUrl = `https://fonts.googleapis.com/css2?family=${fontHeading}:wght@400;500;600;700&family=${fontBody}:wght@400;500;600&display=swap`
