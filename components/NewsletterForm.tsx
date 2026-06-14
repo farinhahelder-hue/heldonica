@@ -8,11 +8,14 @@ interface NewsletterFormProps {
 
 export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps) {
   const [email, setEmail] = useState("");
+  const [honeypot, setHoneypot] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Anti-spam : champ caché rempli = bot
+    if (honeypot) return;
     if (!email || !email.includes("@")) {
       setStatus("error");
       setMessage("Adresse email invalide.");
@@ -46,6 +49,20 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
     }
   };
 
+  // Champ honeypot commun aux 3 variantes — invisible pour les humains
+  const HoneypotField = () => (
+    <input
+      type="text"
+      name="website"
+      value={honeypot}
+      onChange={(e) => setHoneypot(e.target.value)}
+      tabIndex={-1}
+      autoComplete="off"
+      aria-hidden="true"
+      style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', opacity: 0 }}
+    />
+  );
+
   if (variant === "article") {
     return (
       <section className="my-14 rounded-2xl bg-gradient-to-br from-mahogany to-mahogany/80 px-8 py-10 text-white">
@@ -64,7 +81,8 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
             <p className="text-white/60 text-xs mt-2">Vérifie ta boîte mail, on arrive doucement.</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md">
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md" style={{ position: 'relative' }}>
+            <HoneypotField />
             <input
               type="email"
               value={email}
@@ -98,7 +116,8 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
             <p className="text-white/60 text-xs mt-1">Vérifie ta boîte mail, on arrive doucement.</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center" style={{ position: 'relative' }}>
+            <HoneypotField />
             <input
               type="email"
               value={email}
@@ -144,7 +163,8 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
             <p className="text-white/60 text-sm mt-2">Vérifie ta boîte mail, on arrive doucement.</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto" style={{ position: 'relative' }}>
+            <HoneypotField />
             <input
               type="email"
               value={email}
