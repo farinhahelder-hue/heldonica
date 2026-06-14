@@ -7,6 +7,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import EnhancedRichContent from '@/components/EnhancedRichContent';
 import MediaLibrary from '@/components/MediaLibrary';
+import EeaatScore from '@/components/EeaatScore';
 import { sanitizeHtml } from '@/lib/sanitize-html';
 import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot, Mail, Map as MapIcon, ChevronLeft, ChevronRight, Palette } from 'lucide-react';
 import { Film, Clapperboard } from 'lucide-react';
@@ -577,6 +578,17 @@ function CmsAdminClientInner() {
                       />
                     </Suspense>
                   </div>
+                  <EeaatScore
+                    seoTitle={editingArticle?.seo_title}
+                    seoDescription={editingArticle?.seo_description}
+                    author={editingArticle?.author}
+                    excerpt={editingArticle?.excerpt}
+                    featuredImage={editingArticle?.featured_image}
+                    tags={editingArticle?.tags}
+                    publishedAt={editingArticle?.published_at}
+                    content={editingArticle?.content}
+                    category={editingArticle?.category}
+                  />
                 </div>
               </div>
             </ErrorBoundary>

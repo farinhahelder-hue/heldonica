@@ -167,7 +167,29 @@ function buildJsonLds(post: BlogPost, readTime: number) {
     ],
   }
 
-  return { articleLd, breadcrumbLd }
+  const travelCategories = ['Travel', 'Guides Pratiques', 'Carnets Voyage', 'Decouvertes Locales']
+  const isTravelArticle = post.category && travelCategories.includes(post.category)
+  const travelLd = isTravelArticle
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'TravelArticle' as const,
+        headline: post.title,
+        description: post.excerpt ?? '',
+        image: post.featured_image ? [post.featured_image] : [DEFAULT_OG],
+        datePublished: post.published_at ?? '',
+        dateModified: post.updated_at ?? post.published_at ?? '',
+        author: { '@type': 'Person', name: post.author || 'Heldonica', url: SITE_URL },
+        publisher: { '@type': 'Organization', name: 'Heldonica', url: SITE_URL },
+        url: `${SITE_URL}/blog/${post.slug}`,
+        mainEntityOfPage: `${SITE_URL}/blog/${post.slug}`,
+        touristType: 'Couple slow travel',
+        aboutPlace: { '@type': 'Place', name: post.destination || post.category || '' },
+        suitableForCategory: 'Slow travel, ecotourisme, voyage en couple',
+        inLanguage: 'fr-FR',
+      }
+    : null
+
+  return { articleLd, breadcrumbLd, travelLd }
 }
 
 const HERO_FALLBACK: Record<string, string> = {
@@ -199,7 +221,7 @@ export default async function BlogPostPage({ params }: Props) {
   const heroImage = post.featured_image ?? HERO_FALLBACK[post.category ?? ''] ?? DEFAULT_HERO
   const fallbackBg = HERO_FALLBACK[post.category ?? ''] ?? 'bg-gradient-to-br from-stone-900 to-amber-900'
   const readTime = getReadingTime(post.content)
-  const { articleLd, breadcrumbLd } = buildJsonLds(post, readTime)
+  const { articleLd, breadcrumbLd, travelLd } = buildJsonLds(post, readTime)
   const canonicalUrl = `${SITE_URL}/blog/${post.slug}`
   const safeContent = sanitizeHtml(post.content)
 
@@ -215,6 +237,13 @@ export default async function BlogPostPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
+      {travelLd && (
+        <Script
+          id="travel-article-jsonld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(travelLd) }}
+        />
+      )}
 
       <Header />
       <ReadingProgress />
