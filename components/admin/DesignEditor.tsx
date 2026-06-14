@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Save, RefreshCw, Palette, Type, Image, FileText, Smartphone, Monitor, Code } from 'lucide-react';
+import { Save, RefreshCw, Palette, Type, Image, FileText, Smartphone, Monitor, Code, AlertTriangle } from 'lucide-react';
 import { DESIGN_PRESETS } from '@/lib/design-presets';
 import LivePreview from './LivePreview';
 import ImagePicker from './ImagePicker';
@@ -54,6 +54,12 @@ export default function DesignEditor() {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<TabId>('presets');
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
+  const [customCss, setCustomCss] = useState('');
+  const [customHtmlHead, setCustomHtmlHead] = useState('');
+  const [customHtmlBody, setCustomHtmlBody] = useState('');
+  const [codeSaving, setCodeSaving] = useState(false);
+  const [codeSaved, setCodeSaved] = useState(false);
+  const [codeError, setCodeError] = useState('');
 
   const tabIcons: Record<TabId, React.ReactNode> = useMemo(() => ({
     presets: <Palette size={14} />,
@@ -88,6 +94,12 @@ export default function DesignEditor() {
   }, []);
 
   useEffect(() => { loadSettings(); }, [loadSettings]);
+
+  useEffect(() => {
+    if (values.custom_css) setCustomCss(values.custom_css);
+    if (values.custom_html_head) setCustomHtmlHead(values.custom_html_head);
+    if (values.custom_html_body) setCustomHtmlBody(values.custom_html_body);
+  }, [values.custom_css, values.custom_html_head, values.custom_html_body]);
 
   const update = (key: string, value: string) => {
     setValues(prev => ({ ...prev, [key]: value }));
@@ -253,22 +265,52 @@ export default function DesignEditor() {
     </div>
   );
 
+  const saveCode = async () => {
+    setCodeSaving(true);
+    setCodeSaved(false);
+    setCodeError('');
+    try {
+      const r = await fetch('/api/cms/settings', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+        custom_css: customCss,
+        custom_html_head: customHtmlHead,
+        custom_html_body: customHtmlBody,
+      }) });
+      if (!r.ok) throw Error();
+      setCodeSaved(true);
+      setTimeout(() => setCodeSaved(false), 3000);
+    } catch {
+      setCodeError('Echec de la sauvegarde du code.');
+    } finally {
+      setCodeSaving(false);
+    }
+  };
+
   const renderCode = () => <div className="space-y-5">
     <div>
       <h3 className="text-sm font-semibold text-gray-900 mb-1">CSS personnalise</h3>
-      <p className="text-[11px] text-gray-500 mb-2">Surcharge les styles du site.</p>
-      <textarea rows={10} className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm font-mono leading-relaxed resize-y" />
+      <p className="text-[11px] text-gray-500 mb-2">Surcharge les styles du site. Les variables CSS du theme sont disponibles.</p>
+      <textarea value={customCss} onChange={e => { setCustomCss(e.target.value); update('custom_css', e.target.value); }} rows={10} className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm font-mono leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]" />
     </div>
     <div>
       <h3 className="text-sm font-semibold text-gray-900 mb-1">HTML head</h3>
-      <p className="text-[11px] text-gray-500 mb-2">Injecte avant /head.</p>
-      <textarea rows={6} className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm font-mono leading-relaxed resize-y" />
+      <p className="text-[11px] text-gray-500 mb-2">Injecte avant /head. Utile pour metas, scripts analytics.</p>
+      <textarea value={customHtmlHead} onChange={e => { setCustomHtmlHead(e.target.value); update('custom_html_head', e.target.value); }} rows={6} className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm font-mono leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]" />
     </div>
     <div>
       <h3 className="text-sm font-semibold text-gray-900 mb-1">HTML body (debut)</h3>
-      <p className="text-[11px] text-gray-500 mb-2">Injecte apres body.</p>
-      <textarea rows={6} className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm font-mono leading-relaxed resize-y" />
+      <p className="text-[11px] text-gray-500 mb-2">Injecte apres body. Ideal pour bannieres, annonces.</p>
+      <textarea value={customHtmlBody} onChange={e => { setCustomHtmlBody(e.target.value); update('custom_html_body', e.target.value); }} rows={6} className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm font-mono leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]" />
     </div>
+    <div className="flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+      <AlertTriangle size={16} className="shrink-0 mt-0.5 text-amber-600" />
+      <p className="text-xs text-amber-700">Le HTML personnalise est injecte sans sanitization. Assure-toi que le code est fiable.</p>
+    </div>
+    {codeError && <p className="text-sm text-red-600">{codeError}</p>}
+    <button onClick={saveCode} disabled={codeSaving} className="flex items-center gap-2 px-5 py-2.5 bg-[#C4714A] text-white rounded-lg text-sm font-medium hover:bg-[#b05f3a] disabled:opacity-50 transition-colors">
+      <Save size={16} />
+      {codeSaving ? 'Sauvegarde...' : 'Sauvegarder le code personnalise'}
+    </button>
+    {codeSaved && <p className="text-sm text-green-600 font-medium">✓ Code sauvegarde</p>}
   </div>;
 
   const renderTabContent = () => {
