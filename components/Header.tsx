@@ -5,15 +5,32 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 
-// Header avec hamburger animé + overlay amélioré pour mobile
+type SiteSettings = Record<string, string>;
+
 export default function Header() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [settings, setSettings] = useState<SiteSettings>({})
   const pathname = usePathname()
   const { user, loading } = useAuth()
 
+  useEffect(() => {
+    fetch('/api/cms/settings', { cache: 'no-store' })
+      .then(r => r.json())
+      .then(data => {
+        if (data && typeof data === 'object') setSettings(data);
+      })
+      .catch(() => {});
+  }, []);
+
+  const s = (key: string, fallback = '') => settings[key] || fallback;
+
   const accountHref = !loading && user ? '/dashboard' : '/auth/login'
   const accountLabel = !loading && user ? 'Mon espace' : 'Connexion'
+  const siteName = s('site_name', 'Heldonica')
+  const ctaLabel = s('primary_cta_label', 'Planifier mon voyage')
+  const ctaUrl = s('primary_cta_url', '/travel-planning')
+  const logoUrl = s('logo_url')
 
   // Fermer le menu mobile au changement de route + détection scroll
   useEffect(() => {
@@ -68,16 +85,20 @@ export default function Header() {
           <Link
             href="/"
             className="flex items-center gap-2 text-amber-900 transition-all duration-200 hover:text-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-offset-2"
-            aria-label="Heldonica accueil"
+            aria-label={`${siteName} accueil`}
           >
-            <svg width="32" height="32" viewBox="0 0 34 34" fill="none" aria-hidden="true">
-              <circle cx="17" cy="17" r="16" stroke="currentColor" strokeWidth="1.2" />
-              <line x1="10" y1="9" x2="10" y2="22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              <line x1="24" y1="9" x2="24" y2="22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              <line x1="10" y1="15.5" x2="24" y2="15.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-              <path d="M8 26 Q11 24 14 26 Q17 28 20 26 Q23 24 26 26" stroke="currentColor" strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.6" />
-            </svg>
-            <span className="text-lg font-serif font-bold tracking-tight lg:text-xl">Heldonica</span>
+            {logoUrl ? (
+              <img src={logoUrl} alt="" className="h-8 w-auto" />
+            ) : (
+              <svg width="32" height="32" viewBox="0 0 34 34" fill="none" aria-hidden="true">
+                <circle cx="17" cy="17" r="16" stroke="currentColor" strokeWidth="1.2" />
+                <line x1="10" y1="9" x2="10" y2="22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <line x1="24" y1="9" x2="24" y2="22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <line x1="10" y1="15.5" x2="24" y2="15.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <path d="M8 26 Q11 24 14 26 Q17 28 20 26 Q23 24 26 26" stroke="currentColor" strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.6" />
+              </svg>
+            )}
+            <span className="text-lg font-serif font-bold tracking-tight lg:text-xl">{siteName}</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -97,10 +118,10 @@ export default function Header() {
               </Link>
             ))}
             <Link
-              href="/travel-planning"
+              href={ctaUrl}
               className="ml-3 rounded-full bg-eucalyptus px-5 py-2 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:brightness-110 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:ring-offset-2"
             >
-              Planifier mon voyage
+              {ctaLabel}
             </Link>
           </div>
 
@@ -108,10 +129,10 @@ export default function Header() {
           <div className="flex items-center gap-3 lg:hidden">
             {/* CTA visible sur mobile */}
             <Link 
-              href="/travel-planning" 
+              href={ctaUrl} 
               className="rounded-full bg-eucalyptus px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:brightness-110 active:scale-95"
             >
-              Planifier
+              {ctaLabel}
             </Link>
             
             {/* Hamburger animé */}
@@ -213,7 +234,7 @@ export default function Header() {
 
               {/* CTA principal */}
               <Link
-                href="/travel-planning"
+                href={ctaUrl}
                 onClick={() => setOpen(false)}
                 className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-eucalyptus px-4 py-4 text-sm font-semibold text-white shadow-lg shadow-eucalyptus/20 transition-all duration-200 hover:brightness-110 hover:shadow-xl active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:ring-offset-2"
               >
@@ -221,7 +242,7 @@ export default function Header() {
                   <circle cx="12" cy="12" r="10" />
                   <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
                 </svg>
-                Planifier mon voyage
+                {ctaLabel}
               </Link>
 
               {/* Account link */}

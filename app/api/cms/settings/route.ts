@@ -66,7 +66,14 @@ export async function PATCH(req: NextRequest) {
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
     } else {
-      const entries = Object.entries(body);
+      const synced = { ...body };
+      // Sync logo_url→site_logo and favicon_url→site_favicon for legacy compatibility
+      if (synced.logo_url) synced.site_logo = synced.logo_url;
+      if (synced.favicon_url) synced.site_favicon = synced.favicon_url;
+      if (synced.site_logo && !synced.logo_url) synced.logo_url = synced.site_logo;
+      if (synced.site_favicon && !synced.favicon_url) synced.favicon_url = synced.site_favicon;
+
+      const entries = Object.entries(synced);
       const updates = entries
         .filter(([key]) => key !== 'error' && key !== 'settings')
         .map(([key, value]) => ({

@@ -173,8 +173,8 @@ export default async function RootLayout({
 }) {
   // Fetch site assets from CMS
   const siteSettings = await getSiteSettings();
-  const faviconUrl = siteSettings.site_favicon;
-  const logoUrl = siteSettings.site_logo;
+  const faviconUrl = siteSettings.site_favicon || siteSettings.favicon_url;
+  const logoUrl = siteSettings.site_logo || siteSettings.logo_url;
 
   return (
     <html lang="fr">
