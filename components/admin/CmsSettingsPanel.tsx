@@ -81,7 +81,7 @@ const GROUPS: GroupDef[] = [
       { key: 'seo_description',          label: 'SEO Description',         type: 'textarea', placeholder: '' },
       { key: 'seo_default_title',        label: 'Titre SEO global',        type: 'text',     placeholder: '' },
       { key: 'seo_default_description',  label: 'Description SEO globale', type: 'textarea', placeholder: '' },
-      { key: 'seo_og_image',             label: 'OG Image SEO',            type: 'url',      placeholder: '' },
+      { key: 'seo_og_image',             label: 'OG Image SEO',            type: 'image',    placeholder: '' },
       { key: 'seo_robots',               label: 'Robots',                  type: 'text',     placeholder: 'index, follow' },
       { key: 'seo_sitemap_url',          label: 'Sitemap URL',             type: 'url',      placeholder: '/sitemap.xml' },
       { key: 'seo_google_verification',  label: 'Google Search Console',   type: 'text',     placeholder: 'google-site-verification=...' },
