@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SERVICE_ROLE_KEY!
-);
+function getSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key);
+}
 
 export async function GET() {
+  const supabase = getSupabase();
+  if (!supabase) return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
   const { data, error } = await supabase
     .from('instagram_scheduled_posts')
     .select('*')
@@ -28,6 +32,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'image_url is required' }, { status: 400 });
     }
 
+    const supabase = getSupabase();
+    if (!supabase) return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
     const { data, error } = await supabase
       .from('instagram_scheduled_posts')
       .insert({
@@ -60,6 +66,8 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'id is required' }, { status: 400 });
     }
 
+    const supabase = getSupabase();
+    if (!supabase) return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
     const { data, error } = await supabase
       .from('instagram_scheduled_posts')
       .update({ ...updates, updated_at: new Date().toISOString() })
@@ -85,6 +93,8 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'id is required' }, { status: 400 });
   }
 
+  const supabase = getSupabase();
+  if (!supabase) return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
   const { error } = await supabase
     .from('instagram_scheduled_posts')
     .delete()
