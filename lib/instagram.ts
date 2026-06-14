@@ -223,3 +223,140 @@ export async function getRecentMedia(limit = 10) {
     return null;
   }
 }
+
+/**
+ * Publish a carousel (multiple images) to Instagram
+ * Requires each image_url to be a publicly accessible URL
+ */
+export async function postCarouselToInstagram(
+  imageUrls: string[],
+  caption: string
+): Promise<InstagramPost | null> {
+  const config = getInstagramConfig();
+  
+  if (!config.accessToken || !config.businessAccountId) {
+    console.warn('Instagram not configured');
+    return null;
+  }
+
+  if (imageUrls.length < 2 || imageUrls.length > 10) {
+    console.error('Carousel requires 2-10 images');
+    return null;
+  }
+
+  try {
+    // Step 1: Create media containers for each image (without publishing)
+    const childrenIds: string[] = [];
+    
+    for (const imageUrl of imageUrls) {
+      const containerResponse = await fetch(
+        `${INSTAGRAM_GRAPH_API_BASE}/${config.businessAccountId}/media`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            image_url: imageUrl,
+            is_carousel_item: true,
+            access_token: config.accessToken,
+          }),
+        }
+      );
+
+      const containerData = await containerResponse.json();
+      
+      if (containerData.error) {
+        console.error('Instagram carousel item error:', containerData.error);
+        return null;
+      }
+
+      childrenIds.push(containerData.id);
+    }
+
+    // Step 2: Create the carousel container
+    const carouselResponse = await fetch(
+      `${INSTAGRAM_GRAPH_API_BASE}/${config.businessAccountId}/media`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          media_type: 'CAROUSEL',
+          children: childrenIds,
+          caption: caption,
+          access_token: config.accessToken,
+        }),
+      }
+    );
+
+    const carouselData = await carouselResponse.json();
+
+    if (carouselData.error) {
+      console.error('Instagram carousel create error:', carouselData.error);
+      return null;
+    }
+
+    // Step 3: Publish the carousel
+    const publishResponse = await fetch(
+      `${INSTAGRAM_GRAPH_API_BASE}/${config.businessAccountId}/media_publish`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          creation_id: carouselData.id,
+          access_token: config.accessToken,
+        }),
+      }
+    );
+
+    const publishData = await publishResponse.json();
+
+    if (publishData.error) {
+      console.error('Instagram carousel publish error:', publishData.error);
+      return null;
+    }
+
+    // Get the published post details
+    const postResponse = await fetch(
+      `${INSTAGRAM_GRAPH_API_BASE}/${publishData.id}`,
+      {
+        headers: { access_token: config.accessToken },
+      }
+    );
+
+    const postData = await postResponse.json();
+
+    return {
+      id: publishData.id,
+      caption: postData.caption || caption,
+      mediaType: 'CAROSEL_ALBUM',
+      mediaUrl: postData.media_url || imageUrls[0],
+      permalink: postData.permalink || '',
+      timestamp: postData.timestamp || new Date().toISOString(),
+    };
+  } catch (error) {
+    console.error('Failed to publish carousel to Instagram:', error);
+    return null;
+  }
+}
+
+/**
+ * Get Instagram account insights (basic stats)
+ */
+export async function getInstagramStats() {
+  const config = getInstagramConfig();
+  
+  if (!config.accessToken || !config.businessAccountId) {
+    return null;
+  }
+
+  try {
+    const metrics = 'follower_count,media_count,reach,profile_views';
+    const response = await fetch(
+      `${INSTAGRAM_GRAPH_API_BASE}/${config.businessAccountId}/insights?metric=${metrics}&period=day&access_token=${config.accessToken}`
+    );
+
+    if (!response.ok) return null;
+    return await response.json();
+  } catch {
+    return null;
+  }
+}

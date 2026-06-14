@@ -84,6 +84,10 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     read_time: readingTime,
   }
 
+  // Map status to published boolean for backward compat
+  if (body.status === 'published') payload.published = true;
+  else if (body.status === 'draft') payload.published = false;
+
   // Phase 3: Save revision before updating
   const { data: raw } = await sb.from('cms_blog_posts').select('title, content, excerpt').eq('id', params.id).single();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -150,21 +154,27 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
   // Also sync to articles table for public pages
   if (data) {
-    const post = data as CmsBlogPost;
+    const p = data as unknown as Record<string, unknown>;
     const articlesPayload = {
-      id: post.id,
-      title: post.title,
-      slug: post.slug,
-      category: post.category,
-      excerpt: post.excerpt,
-      content: post.content,
-      featured_image: post.featured_image,
-      author: post.author,
-      published: post.published,
-      published_at: post.published_at,
-      updated_at: post.updated_at,
-      tags: post.tags || [],
-      archived: post.archived || false,
+      id: p.id,
+      title: p.title,
+      slug: p.slug,
+      category: p.category,
+      excerpt: p.excerpt,
+      content: p.content,
+      featured_image: p.featured_image,
+      author: p.author,
+      published: p.published,
+      published_at: p.published_at,
+      updated_at: p.updated_at,
+      tags: p.tags || [],
+      archived: p.archived || false,
+      seo_title: p.seo_title,
+      seo_description: p.seo_description,
+      visit_date: p.visit_date,
+      visit_count: p.visit_count,
+      sitemap_priority: p.sitemap_priority,
+      sitemap_changefreq: p.sitemap_changefreq,
     }
     // Sync to articles table - ignore errors
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

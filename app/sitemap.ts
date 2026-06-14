@@ -429,7 +429,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Articles publiés: priorité 0.9 selon les要求
   const posts = await getAllPosts();
   
-  // Blog pages with image sitemap support
+  // Blog pages with image sitemap support + per-article priority/changefreq
   const blogPages: MetadataRoute.Sitemap = (posts ?? [])
     .filter(post => (post as { status?: string }).status === 'published' || post.published_at)
     .map((post) => {
@@ -440,14 +440,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         new Date().toISOString()
       );
       
+      // Use per-article sitemap settings with fallbacks
+      const p = post as unknown as Record<string, unknown>;
+      const priority = (p.sitemap_priority as number) ?? 0.9;
+      const changeFreq = (p.sitemap_changefreq as string) || 'weekly';
+      
       // Determine image URL
       const imageUrl = post.featured_image || FALLBACK_IMAGE;
       
       return {
         url: `${BASE_URL}/blog/${post.slug}`,
         lastModified: lastMod,
-        changeFrequency: 'weekly' as const,
-        priority: 0.9,
+        changeFrequency: changeFreq as 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never',
+        priority: priority,
         // Image sitemap extension for Google
         images: imageUrl ? [
           {

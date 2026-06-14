@@ -9,9 +9,11 @@ type Props = {
   onChange: (value: string) => void;
   label?: string;
   placeholder?: string;
+  altText?: string;
+  onAltTextChange?: (alt: string) => void;
 };
 
-export default function ImagePicker({ value, onChange, label, placeholder }: Props) {
+export default function ImagePicker({ value, onChange, label, placeholder, altText, onAltTextChange }: Props) {
   const [showLibrary, setShowLibrary] = useState(false);
 
   return (
@@ -42,6 +44,18 @@ export default function ImagePicker({ value, onChange, label, placeholder }: Pro
           Parcourir
         </button>
       </div>
+      {onAltTextChange && (
+        <div className="mt-1.5">
+          <input
+            type="text"
+            value={altText || ''}
+            onChange={e => onAltTextChange(e.target.value)}
+            placeholder="Texte alternatif (accessibilité, SEO)"
+            className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs"
+          />
+          <p className="text-[10px] text-gray-400 mt-0.5">Décrivez l'image pour l'accessibilité et le SEO</p>
+        </div>
+      )}
 
       {showLibrary && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={e => { if (e.target === e.currentTarget) setShowLibrary(false); }}>

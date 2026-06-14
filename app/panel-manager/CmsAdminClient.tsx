@@ -10,7 +10,7 @@ import MediaLibrary from '@/components/MediaLibrary';
 import EeaatScore from '@/components/EeaatScore';
 import { sanitizeHtml } from '@/lib/sanitize-html';
 import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot, Mail, Map as MapIcon, ChevronLeft, ChevronRight, Palette, Zap } from 'lucide-react';
-import { Film, Clapperboard } from 'lucide-react';
+import { Film, Clapperboard, Camera, Calendar } from 'lucide-react';
 import CmsSettingsPanel from '@/components/admin/CmsSettingsPanel';
 import ErrorBoundary from '@/components/admin/ErrorBoundary';
 import { ToastProvider, useToast } from '@/components/admin/Toast';
@@ -28,6 +28,8 @@ const VideoMaker = dynamic(() => import('@/components/admin/video-maker/VideoMak
 const MapManagerSection = dynamic(() => import('./maps/MapManagerSection'), { ssr: false });
 const DesignEditor = dynamic(() => import('@/components/admin/DesignEditor'), { ssr: false });
 const GeoAuditPanel = dynamic(() => import('@/components/admin/GeoAuditPanel'), { ssr: false });
+const InstagramPublisher = dynamic(() => import('@/components/admin/InstagramPublisher'), { ssr: false });
+const InstagramStatsDashboard = dynamic(() => import('@/components/admin/InstagramStatsDashboard'), { ssr: false });
 
 type Article = {
   id: number;
@@ -47,13 +49,15 @@ type Article = {
   seo_description?: string;
   visit_date?: string;
   visit_count?: number;
+  sitemap_priority?: number;
+  sitemap_changefreq?: string;
 };
 
 type NavSection =
   | 'dashboard' | 'articles' | 'new-article' | 'media'
   | 'settings' | 'seo' | 'analytics' | 'carousel'
   | 'blog-generator' | 'video' | 'fast-trim' | 'studio-video'
-  | 'map' | 'auto-shorts' | 'design' | 'geo';
+  | 'map' | 'auto-shorts' | 'design' | 'geo' | 'instagram';
 
 function CmsAdminClientInner() {
   const router = useRouter();
@@ -90,6 +94,18 @@ function CmsAdminClientInner() {
 
   // Preview
   const [previewArticle, setPreviewArticle] = useState<Article | null>(null);
+
+  // Auto-save draft
+  const [lastAutoSave, setLastAutoSave] = useState<string>('');
+  useEffect(() => {
+    if (!editingArticle) return;
+    const timer = setInterval(() => {
+      const key = `heldonica-draft-${editingArticle.slug || 'new'}`;
+      localStorage.setItem(key, JSON.stringify(editingArticle));
+      setLastAutoSave(new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+    }, 30000);
+    return () => clearInterval(timer);
+  }, [editingArticle]);
 
   // ── Auth ──────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -255,6 +271,8 @@ function CmsAdminClientInner() {
     { id: 'map',           label: 'Cartes',            icon: <MapIcon size={16} /> },
     { id: 'design',        label: 'Design',             icon: <Palette size={16} /> },
     { id: 'geo',           label: 'GEO',                icon: <Zap size={16} /> },
+    { id: 'geo',           label: 'GEO',                icon: <Zap size={16} /> },
+    { id: 'instagram',     label: 'Instagram',           icon: <Camera size={16} /> },
     { id: 'settings',      label: 'Paramètres',        icon: <Settings size={16} /> },
   ];
 
@@ -589,6 +607,32 @@ function CmsAdminClientInner() {
                         <Eye size={16} /> Aperçu
                       </button>
                     )}
+                    {editingArticle && (
+                      <button
+                        onClick={async () => {
+                          const res = await fetch('/api/cms/carousel-caption', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              topic: editingArticle.title,
+                              destination: editingArticle.category,
+                              slides: [{ title: editingArticle.title, content: editingArticle.excerpt || '' }],
+                              style: 'narratif',
+                            }),
+                          });
+                          const data = await res.json();
+                          if (data.caption) {
+                            navigator.clipboard?.writeText(data.caption + '\n\n' + (data.hashtags || []).join(' '));
+                            toast('Caption copiée !', 'success');
+                          }
+                        }}
+                        className="flex items-center gap-1.5 px-3 py-2 text-xs border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50"
+                        title="Générer caption Instagram"
+                      >
+                        <Camera size={14} /> Caption IG
+                      </button>
+                    )}
+                    {lastAutoSave && <span className="text-[10px] text-gray-400">Auto-sauvegarde {lastAutoSave}</span>}
                     {saveMsg && <span className="text-sm text-green-600">{saveMsg}</span>}
                     <button
                       onClick={handleSaveArticle}
@@ -705,6 +749,39 @@ function CmsAdminClientInner() {
                       <p className="text-[10px] text-gray-400 mt-1">Nombre de fois que vous avez visite ce lieu</p>
                     </div>
                   </div>
+                  <div className="border-t pt-4 grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Priorité Sitemap</label>
+                      <select
+                        value={String(editingArticle?.sitemap_priority ?? 0.9)}
+                        onChange={e => setEditingArticle(prev => prev ? { ...prev, sitemap_priority: parseFloat(e.target.value) } : prev)}
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                      >
+                        <option value="1.0">1.0 — Page principale</option>
+                        <option value="0.9">0.9 — Prioritaire</option>
+                        <option value="0.8">0.8 — Important</option>
+                        <option value="0.7">0.7 — Standard</option>
+                        <option value="0.6">0.6 — Secondaire</option>
+                        <option value="0.5">0.5 — Archives</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Fréquence Sitemap</label>
+                      <select
+                        value={editingArticle?.sitemap_changefreq ?? 'weekly'}
+                        onChange={e => setEditingArticle(prev => prev ? { ...prev, sitemap_changefreq: e.target.value } : prev)}
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                      >
+                        <option value="always">always</option>
+                        <option value="hourly">hourly</option>
+                        <option value="daily">daily</option>
+                        <option value="weekly">weekly</option>
+                        <option value="monthly">monthly</option>
+                        <option value="yearly">yearly</option>
+                        <option value="never">never</option>
+                      </select>
+                    </div>
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Extrait</label>
                     <textarea
@@ -725,6 +802,20 @@ function CmsAdminClientInner() {
                       placeholder="https://..."
                     />
                   </div>
+                  {editingArticle?.content && (() => {
+                    const imgWithoutAlt = editingArticle.content.match(/<img(?![^>]*\salt=)[^>]*>/g);
+                    if (imgWithoutAlt && imgWithoutAlt.length > 0) {
+                      return (
+                        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                          <p className="text-xs text-amber-700 font-medium">
+                            ⚠️ {imgWithoutAlt.length} image(s) sans attribut alt dans le contenu
+                          </p>
+                          <p className="text-[10px] text-amber-600 mt-0.5">Ajoutez des textes alternatifs pour l'accessibilité et le SEO</p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Auteur</label>
                     <input
@@ -792,6 +883,25 @@ function CmsAdminClientInner() {
               <Suspense fallback={<div className="text-sm text-gray-400 p-8">Chargement de l'audit GEO...</div>}>
                 <GeoAuditPanel />
               </Suspense>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Instagram ── */}
+          {activeSection === 'instagram' && (
+            <ErrorBoundary>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 mb-6">Instagram</h1>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div>
+                    <Suspense fallback={<div className="text-sm text-gray-400">Chargement...</div>}>
+                      <InstagramPublisher />
+                    </Suspense>
+                  </div>
+                  <div>
+                    <InstagramStatsDashboard />
+                  </div>
+                </div>
+              </div>
             </ErrorBoundary>
           )}
 
