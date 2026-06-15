@@ -14,7 +14,6 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Anti-spam : champ caché rempli = bot
     if (honeypot) return;
     if (!email || !email.includes("@")) {
       setStatus("error");
@@ -22,7 +21,6 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
       return;
     }
 
-    // GA4 tracking
     if (typeof window !== 'undefined' && (window as any).gtag) {
       (window as any).gtag('event', 'newsletter_signup', { variant });
     }
@@ -49,7 +47,6 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
     }
   };
 
-  // Champ honeypot commun aux 3 variantes — invisible pour les humains
   const HoneypotField = () => (
     <input
       type="text"
@@ -116,7 +113,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
             <p className="text-white/60 text-xs mt-1">Vérifie ta boîte mail, on arrive doucement.</p>
           </div>
         ) : (
-<          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center" style={{ position: 'relative' }}>
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center" style={{ position: 'relative' }}>
             <HoneypotField />
             <input
               type="email"
@@ -163,7 +160,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
             <p className="text-white/60 text-sm mt-2">Vérifie ta boîte mail, on arrive doucement.</p>
           </div>
         ) : (
-<          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto" style={{ position: 'relative' }}>
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto" style={{ position: 'relative' }}>
             <HoneypotField />
             <input
               type="email"
