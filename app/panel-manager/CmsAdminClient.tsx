@@ -30,6 +30,7 @@ const DesignEditor = dynamic(() => import('@/components/admin/DesignEditor'), { 
 const GeoAuditPanel = dynamic(() => import('@/components/admin/GeoAuditPanel'), { ssr: false });
 const InstagramPublisher = dynamic(() => import('@/components/admin/InstagramPublisher'), { ssr: false });
 const InstagramStatsDashboard = dynamic(() => import('@/components/admin/InstagramStatsDashboard'), { ssr: false });
+const ScheduledPostsList = dynamic(() => import('@/components/admin/ScheduledPostsList'), { ssr: false });
 
 type Article = {
   id: number;
@@ -897,8 +898,11 @@ function CmsAdminClientInner() {
                       <InstagramPublisher />
                     </Suspense>
                   </div>
-                  <div>
+                  <div className="space-y-4">
                     <InstagramStatsDashboard />
+                    <Suspense fallback={<div className="text-sm text-gray-400">Chargement...</div>}>
+                      <ScheduledPostsList />
+                    </Suspense>
                   </div>
                 </div>
               </div>

@@ -51,6 +51,10 @@
     {
       "path": "/api/cron/revalidate-sitemap",
       "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/instagram/cron",
+      "schedule": "0 */6 * * *"
     }
   ]
 }

@@ -1,0 +1,27 @@
+INSERT INTO travel_guides (destination_slug, title, subtitle, cover_unsplash_url) VALUES
+  ('madere', 'Guide de Madère', 'Entre montagnes luxuriantes et océan — le guide slow travel de l''île aux fleurs', 'https://images.unsplash.com/photo-1593702288056-2c160f65cf12?w=1200&q=80'),
+  ('roumanie', 'Guide de Roumanie', 'Carpates, monastères et villages authentiques — slow travel en Transylvanie', 'https://images.unsplash.com/photo-1589656966895-2f33e7653819?w=1200&q=80'),
+  ('paris', 'Guide de Paris', 'Paris autrement — nos adresses slow, balades secrètes et pépites loin des foules', 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1200&q=80'),
+  ('montenegro', 'Guide du Monténégro', 'Montagnes, fjords et criques — le petit coin de paradis des Balkans', 'https://images.unsplash.com/photo-1602153987248-d3e28629e7d6?w=1200&q=80'),
+  ('lisbonne', 'Guide de Lisbonne', 'Collines, azulejos et fado — slow travel dans la capitale portugaise', 'https://images.unsplash.com/photo-1585208798174-6cedc86e7f2c?w=1200&q=80'),
+  ('iles-de-france', 'Guide des Îles de France', 'Petites îles françaises — escales sauvages et slow travel insulaire', 'https://images.unsplash.com/photo-1599447421416-3414500d18a5?w=1200&q=80'),
+  ('colombie', 'Guide de Colombie', 'Café, caraïbes et cordillères — slow travel au cœur de la Colombie', 'https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?w=1200&q=80'),
+  ('portugal', 'Guide du Portugal', 'Du nord au sud — road trip slow à travers le Portugal', 'https://images.unsplash.com/photo-1585208798174-6cedc86e7f2c?w=1200&q=80'),
+  ('normandie', 'Guide de Normandie', 'Falaises, bocages et havres — slow travel en Normandie', 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1200&q=80'),
+  ('suisse', 'Guide de Suisse', 'Alpes, lacs et trains panoramiques — slow travel helvétique', 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?w=1200&q=80'),
+  ('zurich', 'Guide de Zurich', 'Design, lac et slow living — le guide de la plus grande ville suisse', 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?w=1200&q=80'),
+  ('sardaigne', 'Guide de Sardaigne', 'Criques turquoise et montagnes sauvages — slow travel en Sardaigne', 'https://images.unsplash.com/photo-1580674285054-bed31e145f59?w=1200&q=80'),
+  ('sicile', 'Guide de Sicile', 'Volcans, temples et street food — la grande île méditerranéenne', 'https://images.unsplash.com/photo-1565626424178-c699f6601afd?w=1200&q=80'),
+  ('sicile-palerme', 'Guide de Palerme', 'Marchés, street food et décadence baroque — Palerme slow', 'https://images.unsplash.com/photo-1565626424178-c699f6601afd?w=1200&q=80'),
+  ('naples', 'Guide de Naples', 'Pizza, volcans et ruelles animées — Naples slow et authentique', 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1200&q=80'),
+  ('ies-eoliennes', 'Guide des Îles Éoliennes', 'Sept perles noires en Méditerranée — trek, voile et slow travel', 'https://images.unsplash.com/photo-1580674285054-bed31e145f59?w=1200&q=80'),
+  ('malte', 'Guide de Malte', 'Histoire, plages et temples mégalithiques — slow travel à Malte', 'https://images.unsplash.com/photo-1589357542421-6cdde2a22bb4?w=1200&q=80'),
+  ('espagne', 'Guide d''Espagne', 'Du nord vert à l''Andalousie — road trip slow en Espagne', 'https://images.unsplash.com/photo-1589631737091-2b1e1c7cb9a6?w=1200&q=80'),
+  ('pologne', 'Guide de Pologne', 'Forêts, lacs et villes historiques — slow travel en Pologne', 'https://images.unsplash.com/photo-1589923188900-85dae523342b?w=1200&q=80'),
+  ('corse', 'Guide de Corse', 'Montagnes en Méditerranée — slow travel sur l''Île de Beauté', 'https://images.unsplash.com/photo-1580070334957-5e2e8e17b9ad?w=1200&q=80'),
+  ('rome', 'Guide de Rome', 'La Ville Éternelle autrement — slow travel et dolce vita à Rome', 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=1200&q=80'),
+  ('bari-pouilles', 'Guide des Pouilles', 'Truelles, oliviers et villages blancs — slow travel dans les Pouilles', 'https://images.unsplash.com/photo-1580674285054-bed31e145f59?w=1200&q=80')
+ON CONFLICT (destination_slug) DO UPDATE SET
+  title = EXCLUDED.title,
+  subtitle = EXCLUDED.subtitle,
+  cover_unsplash_url = EXCLUDED.cover_unsplash_url;

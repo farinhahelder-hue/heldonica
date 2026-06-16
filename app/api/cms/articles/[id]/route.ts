@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireCmsAuth } from '@/lib/cms-auth'
+import { autoScheduleInstagramPost } from '@/lib/instagram'
 
 interface CmsBlogPost {
   id: number;
@@ -179,6 +180,17 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     // Sync to articles table - ignore errors
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(sb.from('articles') as any).upsert(articlesPayload).then(() => {}).catch(() => {})
+  }
+
+  // Auto-schedule Instagram post when article is published (fire-and-forget)
+  if (body.status === 'published' && data) {
+    autoScheduleInstagramPost(params.id, {
+      title: (data as any).title || '',
+      slug: (data as any).slug || '',
+      excerpt: (data as any).excerpt || '',
+      featured_image: (data as any).featured_image || '',
+      category: (data as any).category || '',
+    }).catch(() => {})
   }
 
   return NextResponse.json({ article: data })

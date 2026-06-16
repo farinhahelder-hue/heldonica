@@ -1,140 +1,212 @@
-import type { Metadata } from 'next'
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
-import Link from 'next/link'
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import Script from 'next/script';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
+const SITE_URL = 'https://heldonica.fr';
+
+// DRAFT — not linked from nav or sitemap
 export const metadata: Metadata = {
-  title: 'Expertise Hôtelière B2B — Heldonica | Audit & Consulting',
-  description:
-    "Service d'audit et consulting pour hôteliers et gestionnaires de biens. On analyse, on optimise, on forme. Expert slow travel et expérience client.",
-  keywords: [
-    'expertise hôtelière',
-    'audit hôtelier',
-    'consulting tourisme',
-    'gestion biens',
-    'B2B tourisme',
-    'Heldonica',
-  ],
-  alternates: {
-    canonical: 'https://heldonica.fr/expert-hotelier',
-  },
+  title: 'Consulting Hôtelier SEO & Revenue Management | Heldonica',
+  description: '+23% RevPAR, +22 pts réservation directe. Audit gratuit pour établissements indépendants. Revenue Management, SEO local, expérience client couple.',
+  keywords: ['consulting hôtelier', 'revenue management', 'SEO local hôtel', 'expérience client couple', 'audit hôtelier gratuit', 'conseil hôtellerie'],
+  robots: { index: false, follow: false },
+  alternates: { canonical: `${SITE_URL}/expert-hotelier` },
   openGraph: {
-    title: 'Expertise Hôtelière B2B | Heldonica',
-    description: "Audit et consulting pour hôteliers. On analyse ton offre, on optimise l'expérience client et on forme ton équipe.",
-    images: [
-      {
-        url: '/og-default.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Heldonica — Expertise hôtelière B2B',
-      },
-    ],
-    locale: 'fr_FR',
-    type: 'website',
+    title: 'Consulting Hôtelier SEO & Revenue Management | Heldonica',
+    description: '+23% RevPAR, +22 pts réservation directe. Audit gratuit pour établissements indépendants.',
+    url: `${SITE_URL}/expert-hotelier`,
+    images: [{ url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=80', width: 1200, height: 630, alt: 'Consulting hôtelier Heldonica' }],
+    locale: 'fr_FR', type: 'website',
   },
-}
+};
 
-const SERVICES = [
+const services = [
   {
-    title: 'Audit complet',
-    description: 'Analyse approfondie de ton offre, positionnement, concurrents et opportunités de croissance.',
+    title: 'Revenue Management',
+    subtitle: 'Optimisation tarifs et mix OTA/direct',
+    icon: '📈',
+    problem: 'Tarifs sous-optimisés, dépendance Booking.com (30%+ commission), remplissage irrégulier',
+    solution: 'Yield management dynamique, analyse des élasticités prix par segment, stratégie channel mix pour maximiser la réservation directe',
+    results: 'Jusqu\'à +23% de RevPAR en 6 mois, +22 pts de réservation directe',
+  },
+  {
+    title: 'SEO Local & Visibilité',
+    subtitle: 'Google Business Profile, E-E-A-T, rich snippets',
     icon: '🔍',
-    deliverables: ['Rapport détaillé 30+ pages', 'Analyse concurrentielle', 'Recommandations priorisées'],
+    problem: 'Visible uniquement sur Booking/OTA, pas dans Google local pack, avis non optimisés',
+    solution: 'Audit complet Google Business Profile, stratégie de contenu E-E-A-T locale, implémentation rich snippets, maillage de citations locales',
+    results: '+340% de visibilité Google Maps, 3× plus de clics sur GPS en 4 mois',
   },
   {
-    title: 'Stratégie contenu',
-    description: 'On définit ensemble votre voix de marque, votre stratégie editorialiale et votre calendrier de publication.',
-    icon: '📝',
-    deliverables: ['Charte éditoriale', 'Plan de contenu 3 mois', 'Formation rédaction web'],
+    title: 'Expérience Client Couple',
+    subtitle: 'Parcours UX, upsell romantique, fidélisation',
+    icon: '💎',
+    problem: 'Expérience client générique, pas de upsell personnalisé, taux de retour <15%',
+    solution: 'Audit parcours client 360°, design de séjours couple sur-mesure, programme fidélité émotionnel, upsell non-agressif intégré au parcours de réservation',
+    results: '+31% de panier moyen, 24% de taux de retour à 12 mois',
   },
-  {
-    title: 'Formation équipes',
-    description: 'Sessions de formation sur l\'accueil premium, la gestion des avis et l\'expérience client différenciante.',
-    icon: '🎓',
-    deliverables: ['Modules e-learning', 'Workshops en présentiel', 'Certification équipe'],
-  },
-]
+];
 
-const TESTIMONIALS = [
+const caseStudies = [
   {
-    quote: "L'audit Heldonica nous a permis de repositionner notre établissement et d'augmenter notre taux d'occupation de 15% en 6 mois.",
-    author: "Marie D.",
-    role: "Directrice, Hôtel du Port — Nice",
+    title: 'Hôtel boutique 18 chambres — Bretagne',
+    problem: 'Dépendance à Booking.com (78% des réservations), RevPAR stagnant à 89 €, pas de stratégie directe',
+    solution: 'Yield management dynamique, refonte GPS, programme de fidélité par paliers, SEO local',
+    resultat: '+23% RevPAR (109 €), réservation directe passe de 12% à 34%, 4,9 Google avg en 6 mois',
+    tags: ['RevPAR', 'Direct', 'Fidélisation'],
   },
   {
-    quote: "Leurs recommandations sur le contenu ont transformé notre presence en ligne. On reçoit des demandes de presse chaque semaine maintenant.",
-    author: "Thomas L.",
-    role: "Gérant, Maison d'hôtes — Bordeaux",
+    title: 'Maison d\'hôtes éco — Dordogne',
+    problem: 'Taux d\'occupation 52% hors saison, pas de visibilité Google, avis non gérés (4,0 / 3,2)',
+    solution: 'Stratégie contenu slow travel, Google Business Profile optimisé, campagnes email saisonnières',
+    resultat: '+34% TO hors saison, 4,8 Google avg, +280% trafic site en 4 mois',
+    tags: ['Saisonnalité', 'Avis', 'Trafic'],
   },
-]
+];
 
 export default function ExpertHotelierPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'LocalBusiness',
+            name: 'Heldonica — Consulting Hôtelier',
+            description: 'Consulting hôtelier indépendant — Revenue Management, SEO local, expérience client couple.',
+            url: `${SITE_URL}/expert-hotelier`,
+            telephone: '',
+            areaServed: 'FR',
+            hasOfferCatalog: {
+              '@type': 'OfferCatalog',
+              name: 'Services de consulting hôtelier',
+              itemListElement: services.map((s, i) => ({
+                '@type': 'Offer',
+                position: i + 1,
+                name: s.title,
+                description: s.subtitle,
+              })),
+            },
+          }),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'ProfessionalService',
+            name: 'Heldonica — Consulting Hôtelier',
+            description: 'Revenue Management, SEO local et expérience client couple pour hôtels indépendants.',
+            url: `${SITE_URL}/expert-hotelier`,
+            areaServed: { '@type': 'Country', name: 'FR' },
+            serviceType: ['Revenue Management', 'SEO Local', 'Expérience Client'],
+          }),
+        }}
+      />
       <Header />
+      <Script id="ga4-expert-hotelier" strategy="lazyOnload">{`
+        if (typeof window !== 'undefined' && window.gtag) {
+          window.gtag('event', 'page_view', { page_type: 'expert_hotelier_b2b' });
+        }
+      `}</Script>
       <main className="min-h-screen">
-        {/* Hero */}
-        <section className="relative bg-stone-950 text-white py-24 md:py-32 overflow-hidden">
-          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1400&q=70)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+        <section className="relative bg-stone-950 text-white py-28 md:py-36 overflow-hidden">
+          <div className="absolute inset-0 opacity-15" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1400&q=70)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+          <div className="absolute inset-0 bg-gradient-to-br from-stone-950/90 via-stone-950/80 to-stone-950/90" />
           <div className="relative max-w-4xl mx-auto px-6 text-center">
-            <span className="inline-block px-4 py-1.5 bg-amber-500/20 text-amber-400 text-xs font-semibold rounded-full uppercase tracking-wider mb-6">
-              Service B2B
+            <span className="inline-block px-4 py-1.5 bg-amber-500/15 text-amber-400 text-xs font-semibold rounded-full uppercase tracking-widest mb-6 border border-amber-500/20">
+              Consulting Hôtelier B2B
             </span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-light leading-tight mb-6">
-              Ton établissement mérite<br />
-              <span className="text-amber-400">mieux qu&apos;une stratégie générique.</span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-light leading-tight mb-8">
+              Votre établissement laisse-t-il 15 % de RevPAR sur la table&nbsp;?
             </h1>
-            <p className="text-stone-300 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto">
-              On analyse, on challenge, on forme. Et surtout, on partage ce qui fonctionne — parce qu&apos;on teste nous-mêmes.
+            <p className="text-stone-300 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto mb-10">
+              Consulting hôtelier indépendant — Revenue Management, SEO local, expérience client couple. 
+              On analyse les données, on challenge les habitudes, on délivre des résultats chiffrés.
             </p>
-          </div>
-        </section>
-
-        {/* Services */}
-        <section className="py-20 md:py-28 bg-white">
-          <div className="max-w-6xl mx-auto px-6">
-            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Ce qu&apos;on propose</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12 text-center">
-              Trois approches, un seul objectif&nbsp;:
-              <br className="hidden md:block" />
-              <span className="text-eucalyptus">ton établissement se différencie</span>
-            </h2>
-            
-            <div className="grid md:grid-cols-3 gap-8">
-              {SERVICES.map((service, i) => (
-                <div key={i} className="bg-stone-50 rounded-2xl p-8 border border-stone-100 hover:shadow-lg transition-shadow">
-                  <div className="text-4xl mb-5">{service.icon}</div>
-                  <h3 className="text-xl font-serif font-bold text-stone-900 mb-3">{service.title}</h3>
-                  <p className="text-stone-600 leading-relaxed mb-6">{service.description}</p>
-                  <ul className="space-y-2">
-                    {service.deliverables.map((d, j) => (
-                      <li key={j} className="flex items-start gap-2 text-sm text-stone-500">
-                        <span className="text-eucalyptus mt-0.5">✓</span>
-                        {d}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+            <div className="flex flex-wrap justify-center gap-4">
+              <a
+                href="#audit-form"
+                onClick={() => {
+                  if (typeof window !== 'undefined' && window.gtag) window.gtag('event', 'formulaire_audit_b2b_clique', { source: 'hero' });
+                }}
+                className="inline-flex px-8 py-4 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all text-lg"
+              >
+                Demander un audit gratuit →
+              </a>
+              <a
+                href="#cas-clients"
+                onClick={() => {
+                  if (typeof window !== 'undefined' && window.gtag) window.gtag('event', 'etude_cas_lue', { source: 'hero' });
+                }}
+                className="inline-flex px-8 py-4 border border-stone-600 text-stone-300 font-semibold rounded-xl hover:border-eucalyptus hover:text-white transition-all text-lg"
+              >
+                Voir les résultats concrets →
+              </a>
             </div>
           </div>
         </section>
 
-        {/* Témoignages */}
-        <section className="py-20 md:py-28 bg-stone-50">
-          <div className="max-w-4xl mx-auto px-6">
-            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Ils nous font confiance</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12 text-center">
-              Ce qu&apos;ils en disent
+        <section className="py-20 md:py-28 bg-white">
+          <div className="max-w-6xl mx-auto px-6">
+            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Le problème</p>
+            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-6 text-center max-w-3xl mx-auto">
+              Les hôtels indépendants perdent jusqu&apos;à 30 % de leur marge à cause d&apos;un positionnement générique.
             </h2>
-            
-            <div className="grid md:grid-cols-2 gap-8">
-              {TESTIMONIALS.map((t, i) => (
-                <div key={i} className="bg-white rounded-2xl p-8 border border-stone-100">
-                  <p className="text-lg text-stone-700 leading-relaxed mb-6 italic">&ldquo;{t.quote}&rdquo;</p>
-                  <div>
-                    <p className="font-semibold text-stone-900">{t.author}</p>
-                    <p className="text-sm text-stone-500">{t.role}</p>
+            <p className="text-stone-600 text-lg text-center max-w-2xl mx-auto mb-12 leading-relaxed">
+              Une stratégie OTA par défaut, un SEO local inexistant, une expérience client standardisée. 
+              Résultat&nbsp;: des commissions à 15-25 %, une visibilité captive des plateformes, des taux de retour anémiques. 
+              Et surtout, des séjours couple qui pourraient être vendus 30 % plus cher — avec une expérience vraiment mémorable.
+            </p>
+            <div className="grid grid-cols-3 gap-8 max-w-3xl mx-auto text-center">
+              <div>
+                <p className="text-4xl font-bold text-eucalyptus">78%</p>
+                <p className="text-sm text-stone-500 mt-2">des réservations via OTA en moyenne</p>
+              </div>
+              <div>
+                <p className="text-4xl font-bold text-amber-500">15-25%</p>
+                <p className="text-sm text-stone-500 mt-2">de commission par réservation</p>
+              </div>
+              <div>
+                <p className="text-4xl font-bold text-amber-500">&lt;15%</p>
+                <p className="text-sm text-stone-500 mt-2">de taux de retour client</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-20 md:py-28 bg-stone-50">
+          <div className="max-w-6xl mx-auto px-6">
+            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Notre solution</p>
+            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-4 text-center">
+              Trois leviers pour transformer votre établissement
+            </h2>
+            <p className="text-stone-500 text-center max-w-2xl mx-auto mb-12">
+              Chaque levier fait l&apos;objet d&apos;un diagnostic gratuit de 30 minutes, sans engagement.
+            </p>
+            <div className="grid md:grid-cols-3 gap-8">
+              {services.map((s, i) => (
+                <div key={i} className="bg-white rounded-2xl p-8 border border-stone-200 hover:shadow-lg transition-shadow">
+                  <div className="text-4xl mb-5">{s.icon}</div>
+                  <h3 className="text-xl font-serif font-bold text-stone-900 mb-1">{s.title}</h3>
+                  <p className="text-sm text-eucalyptus font-semibold mb-5">{s.subtitle}</p>
+                  <div className="space-y-4">
+                    <div className="bg-red-50 rounded-xl p-4 border border-red-100">
+                      <p className="text-xs font-semibold text-red-700 mb-1">Problème</p>
+                      <p className="text-sm text-stone-700">{s.problem}</p>
+                    </div>
+                    <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
+                      <p className="text-xs font-semibold text-emerald-700 mb-1">Notre approche</p>
+                      <p className="text-sm text-stone-700">{s.solution}</p>
+                    </div>
+                    <div className="bg-stone-50 rounded-xl p-4 border border-stone-200">
+                      <p className="text-xs font-semibold text-stone-600 mb-1">Résultats observés</p>
+                      <p className="text-sm font-semibold text-eucalyptus">{s.results}</p>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -142,23 +214,61 @@ export default function ExpertHotelierPage() {
           </div>
         </section>
 
-        {/* Processus */}
-        <section className="py-20 md:py-28 bg-white">
+        <section id="cas-clients" className="py-20 md:py-28 bg-white">
           <div className="max-w-5xl mx-auto px-6">
-            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Comment ça marche</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12 text-center">
-              Un process simple, efficace
+            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Études de cas</p>
+            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-4 text-center">
+              Des résultats qui parlent d&apos;eux-mêmes
             </h2>
-            
+            <p className="text-stone-500 text-center max-w-2xl mx-auto mb-12">
+              Chiffres réels, établissements indépendants. On ne vend pas de la théorie.
+            </p>
+            <div className="grid md:grid-cols-2 gap-8">
+              {caseStudies.map((cs, i) => (
+                <article key={i} className="rounded-2xl border border-stone-200 p-8 bg-stone-50 hover:shadow-lg transition-shadow"
+                  onClick={() => {
+                    if (typeof window !== 'undefined' && window.gtag) window.gtag('event', 'etude_cas_lue', { cas: cs.title });
+                  }}
+                >
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {cs.tags.map((t) => (
+                      <span key={t} className="px-2.5 py-1 bg-eucalyptus/10 text-eucalyptus text-xs font-semibold rounded-full">{t}</span>
+                    ))}
+                  </div>
+                  <h3 className="text-xl font-serif font-bold text-stone-900 mb-4">{cs.title}</h3>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex items-start gap-2">
+                      <span className="shrink-0 w-5 h-5 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs font-bold mt-0.5">!</span>
+                      <div><span className="font-semibold text-stone-700">Problème :</span> {cs.problem}</div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="shrink-0 w-5 h-5 rounded-full bg-eucalyptus/20 text-eucalyptus flex items-center justify-center text-xs font-bold mt-0.5">→</span>
+                      <div><span className="font-semibold text-stone-700">Solution :</span> {cs.solution}</div>
+                    </div>
+                    <div className="mt-4 p-4 bg-stone-900 text-white rounded-xl">
+                      <p className="text-xs uppercase tracking-wider text-stone-400 mb-1">Résultat</p>
+                      <p className="font-semibold text-lg">{cs.resultat}</p>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="py-20 md:py-28 bg-stone-50">
+          <div className="max-w-4xl mx-auto px-6 text-center">
+            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4">Processus</p>
+            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12">Comment nous travaillons</h2>
             <div className="grid md:grid-cols-4 gap-6">
               {[
-                { step: '1', title: 'Échange découverte', desc: '30 min pour comprendre ta situation et tes objectifs' },
-                { step: '2', title: 'Audit terrain', desc: 'On analyse ton établissement, tes avis, ta concurrence' },
-                { step: '3', title: 'Plan d&apos;action', desc: 'On te livre un rapport avec des recommandations concrètes' },
-                { step: '4', title: 'Suivi', desc: 'On reste disponibles pour accompagner la mise en place' },
+                { step: '01', title: 'Audit gratuit', desc: '30 min pour comprendre vos données, votre marché et vos objectifs' },
+                { step: '02', title: 'Diagnostic', desc: 'Rapport stratégique avec KPI, benchmarks et recommandations chiffrées' },
+                { step: '03', title: 'Mise en œuvre', desc: 'Accompagnement pas-à-pas sur 3 à 6 mois avec reporting mensuel' },
+                { step: '04', title: 'Suivi', desc: 'Bilan à froid à 6 mois, ajustements si nécessaire, autonomisation de votre équipe' },
               ].map((item, i) => (
                 <div key={i} className="text-center">
-                  <div className="w-14 h-14 rounded-full bg-eucalyptus text-white flex items-center justify-center text-xl font-bold mx-auto mb-4">
+                  <div className="w-14 h-14 rounded-full bg-eucalyptus text-white flex items-center justify-center text-lg font-bold mx-auto mb-4">
                     {item.step}
                   </div>
                   <h3 className="text-lg font-semibold text-stone-900 mb-2">{item.title}</h3>
@@ -169,170 +279,71 @@ export default function ExpertHotelierPage() {
           </div>
         </section>
 
-        {/* Formulaire de contact */}
-        <section className="py-20 md:py-28 bg-stone-950 text-white">
+        <section id="audit-form" className="py-20 md:py-28 bg-stone-950 text-white">
           <div className="max-w-2xl mx-auto px-6">
-            <p className="text-amber-400 text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Demande d&apos;information</p>
+            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Audit gratuit</p>
             <h2 className="text-3xl md:text-4xl font-serif font-light mb-4 text-center">
-              Parlons de ton établissement
+              Demandez votre audit personnalisé
             </h2>
-            <p className="text-stone-400 text-center mb-12">
-              Remplis le formulaire ci-dessous et on te recontacte sous 48h pour planifier un échange découverte gratuit.
+            <p className="text-stone-400 text-center mb-10 max-w-lg mx-auto">
+              Laissez-nous vos coordonnées. Nous vous recontactons sous 48h pour planifier un échange découverte de 30 minutes.
             </p>
-            
-            <form className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-stone-300 mb-2">Nom complet</label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    required
-                    className="w-full px-4 py-3 bg-stone-800 border border-stone-700 rounded-xl text-white placeholder-stone-500 focus:outline-none focus:border-eucalyptus transition-colors"
-                    placeholder="Marie Dupont"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-stone-300 mb-2">Email professionnel</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    required
-                    className="w-full px-4 py-3 bg-stone-800 border border-stone-700 rounded-xl text-white placeholder-stone-500 focus:outline-none focus:border-eucalyptus transition-colors"
-                    placeholder="marie@hotel.fr"
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label htmlFor="establishment" className="block text-sm font-medium text-stone-300 mb-2">Nom de l&apos;établissement</label>
-                <input
-                  type="text"
-                  id="establishment"
-                  name="establishment"
-                  required
-                  className="w-full px-4 py-3 bg-stone-800 border border-stone-700 rounded-xl text-white placeholder-stone-500 focus:outline-none focus:border-eucalyptus transition-colors"
-                  placeholder="Hôtel du Port"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="type" className="block text-sm font-medium text-stone-300 mb-2">Type d&apos;établissement</label>
-                <select
-                  id="type"
-                  name="type"
-                  required
-                  className="w-full px-4 py-3 bg-stone-800 border border-stone-700 rounded-xl text-white focus:outline-none focus:border-eucalyptus transition-colors"
-                >
-                  <option value="">Sélectionne...</option>
-                  <option value="hotel">Hôtel</option>
-                  <option value="maison-hotes">Maison d&apos;hôtes</option>
-                  <option value="gite">Gîte / Chambres d&apos;hôtes</option>
-                  <option value="villa">Villa / Appartement de luxe</option>
-                  <option value="restaurant">Restaurant avec hébergement</option>
-                  <option value="autre">Autre</option>
-                </select>
-              </div>
-              
-              <div>
-                <label htmlFor="services" className="block text-sm font-medium text-stone-300 mb-2">Service qui t&apos;intéresse</label>
-                <select
-                  id="services"
-                  name="services"
-                  className="w-full px-4 py-3 bg-stone-800 border border-stone-700 rounded-xl text-white focus:outline-none focus:border-eucalyptus transition-colors"
-                >
-                  <option value="">Sélectionne...</option>
-                  <option value="audit">Audit complet</option>
-                  <option value="strategie">Stratégie contenu</option>
-                  <option value="formation">Formation équipes</option>
-                  <option value="complet">Package complet</option>
-                  <option value="autre">Autre / Je ne sais pas encore</option>
-                </select>
-              </div>
-              
-              <div>
-                <label htmlFor="message" className="block text-sm font-medium text-stone-300 mb-2">Parle-nous de ton établissement</label>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows={4}
-                  className="w-full px-4 py-3 bg-stone-800 border border-stone-700 rounded-xl text-white placeholder-stone-500 focus:outline-none focus:border-eucalyptus transition-colors resize-none"
-                  placeholder="On a 12 chambres, un positionnement premium mais les avis en ligne ne reflètent pas la qualité réelle..."
-                />
-              </div>
-              
-              <div className="text-center">
-                <button
-                  type="submit"
-                  className="px-10 py-4 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all text-lg"
-                >
-                  Demander mon audit gratuit →
-                </button>
-                <p className="text-stone-500 text-sm mt-4">
-                  Pas de engagement. Réponse sous 48h.
-                </p>
-              </div>
-            </form>
+            <a
+              href="https://tally.so/embed/placeholder"
+              target="_blank"
+              rel="noreferrer noopener"
+              onClick={() => {
+                if (typeof window !== 'undefined' && window.gtag) window.gtag('event', 'formulaire_audit_b2b_clique', { source: 'section_audit' });
+              }}
+              className="block w-full max-w-md mx-auto px-8 py-5 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all text-center text-lg mb-6"
+            >
+              Ouvrir le formulaire d&apos;audit →
+            </a>
+            <p className="text-stone-500 text-center text-sm">Sans engagement. Réponse sous 48h ouvrées.</p>
           </div>
         </section>
 
-        {/* FAQ */}
-        <section className="py-20 md:py-28 bg-amber-50">
+        <section className="py-20 md:py-28 bg-white">
           <div className="max-w-3xl mx-auto px-6">
-            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Questions fréquentes</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12 text-center">
-              Tu te poses des questions&nbsp;?
-            </h2>
-            
-            <div className="space-y-6">
+            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">FAQ</p>
+            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12 text-center">Questions fréquentes</h2>
+            <div className="space-y-4">
               {[
-                {
-                  q: 'Combien coûte un audit ?',
-                  a: 'Chaque projet est unique. L\'audit commence à partir de 1 500€ pour les petites structures et peut aller jusqu\'à plusieurs milliers d\'euros pour les établissements premium. On en parle ensemble lors de l\'échange découverte.',
-                },
-                {
-                  q: 'Travaillez-vous uniquement avec des hôtels haut de gamme ?',
-                  a: 'Non. On adapte notre approche à tous les types d\'établissements, des maisons d\'hôtes aux hôtels 4 étoiles. Ce qui compte, c\'est la volonté de se différencier et d\'améliorer l\'expérience client.',
-                },
-                {
-                  q: 'En combien de temps voit-on des résultats ?',
-                  a: 'Cela dépend des actions recommandées. Certains changements (comme une meilleure gestion des avis) peuvent avoir un impact en quelques semaines. D\'autres (comme une refonte de la stratégie contenu) prennent 3 à 6 mois pour montrer leurs effets.',
-                },
-                {
-                  q: 'Travaillez-vous à distance uniquement ?',
-                  a: 'Pour l\'audit et la stratégie, on peut travailler à distance. Pour les formations, on propose des sessions en présentiel ou en visio selon ta localisation.',
-                },
+                { q: 'Combien coûte un diagnostic complet ?', a: 'Le premier audit est gratuit (30 min). Pour un accompagnement complet, nos forfaits commencent à partir de 2 500 € pour un diagnostic stratégique et jusqu\'à 12 000 € pour un accompagnement trimestriel full-service.' },
+                { q: 'Quels types d\'établissements accompagnons-nous ?', a: 'Hôtels indépendants 3-5 étoiles, maisons d\'hôtes premium, résidences de tourisme. De 8 à 80 chambres. Notre cœur de cible : les établissements qui veulent réduire leur dépendance aux OTA.' },
+                { q: 'Quels résultats puis-je attendre et en combien de temps ?', a: 'Les premiers impacts (visibilité locale, taux d\'ouverture email) sont visibles sous 4 à 6 semaines. Les résultats structurels (RevPAR, mix direct/OTA) se mesurent à 3-6 mois. On ne promet jamais de miracle — on livre des données.' },
+                { q: 'Travaillez-vous avec des agences ou directement ?', a: 'Directement avec les établissements. Pas d\'intermédiaire. On peut aussi travailler en marque blanche avec des agences de communication locales.' },
               ].map((faq, i) => (
-                <div key={i} className="bg-white rounded-2xl p-6 border border-stone-100">
-                  <h3 className="text-lg font-semibold text-stone-900 mb-3">{faq.q}</h3>
-                  <p className="text-stone-600 leading-relaxed">{faq.a}</p>
-                </div>
+                <details key={i} className="rounded-xl border border-stone-200 p-5 bg-stone-50">
+                  <summary className="font-semibold text-stone-900 cursor-pointer">{faq.q}</summary>
+                  <p className="text-stone-600 text-sm mt-3 leading-relaxed">{faq.a}</p>
+                </details>
               ))}
             </div>
           </div>
         </section>
 
-        {/* CTA final */}
-        <section className="py-20 md:py-28 bg-white text-center">
+        <section className="py-20 md:py-28 bg-stone-950 text-white text-center">
           <div className="max-w-2xl mx-auto px-6">
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-6">
-              Prêt à voir ton établissement sous un nouveau jour&nbsp;?
+            <h2 className="text-3xl md:text-4xl font-serif font-light mb-6">
+              Prêt à reprendre le contrôle de votre chiffre d&apos;affaires&nbsp;?
             </h2>
-            <p className="text-stone-600 mb-8">
-              On ne te propose que ce qu&apos;on sait faire. Et on sait faire pas mal de choses.
+            <p className="text-stone-400 mb-8 max-w-lg mx-auto">
+              30 minutes d&apos;échange gratuit pour analyser vos données et identifier vos leviers de croissance prioritaire.
             </p>
-            <Link
-              href="#formulaire"
-              className="inline-block px-8 py-4 bg-eucalyptus text-white font-semibold rounded-full hover:brightness-110 transition-all text-lg"
+            <a
+              href="#audit-form"
+              onClick={() => {
+                if (typeof window !== 'undefined' && window.gtag) window.gtag('event', 'formulaire_audit_b2b_clique', { source: 'cta_final' });
+              }}
+              className="inline-block px-10 py-5 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all text-lg"
             >
-              Demander mon audit gratuit →
-            </Link>
+              Demander mon audit →
+            </a>
           </div>
         </section>
       </main>
       <Footer />
     </>
-  )
+  );
 }
