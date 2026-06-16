@@ -53,12 +53,10 @@ const nextConfig = {
   eslint: { ignoreDuringBuilds: false },
   typescript: { ignoreBuildErrors: true },
 
-  // Fix ERR_REQUIRE_ESM: jsdom → html-encoding-sniffer → @exodus/bytes/encoding-lite.js
-  // These packages must NOT be bundled by webpack — let Node.js handle them natively
-  serverComponentsExternalPackages: ['jsdom', 'html-encoding-sniffer', '@exodus/bytes'],
-
   experimental: {
     optimizePackageImports: ['@supabase/supabase-js'],
+    // Fix ERR_REQUIRE_ESM: jsdom → html-encoding-sniffer → @exodus/bytes/encoding-lite.js
+    serverComponentsExternalPackages: ['jsdom', 'html-encoding-sniffer', '@exodus/bytes'],
   },
 
   staticPageGenerationTimeout: 300,

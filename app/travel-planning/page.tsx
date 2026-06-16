@@ -2,429 +2,369 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
+import Script from 'next/script'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import Breadcrumb from '@/components/Breadcrumb'
-import Link from 'next/link'
+import NewsletterForm from '@/components/NewsletterForm'
 
-const faqSchema = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    { "@type": "Question", "name": "Combien coûte la conception sur mesure ?", "acceptedAnswer": { "@type": "Answer", "text": "Chaque projet est unique. Le tarif est établi selon la complexité de l'itinéraire, la durée et le niveau de personnalisation. En moyenne, compte entre 150€ et 350€ pour un voyage de 7 à 14 jours." }},
-    { "@type": "Question", "name": "Dans combien de temps tu reçois ton carnet de route ?", "acceptedAnswer": { "@type": "Answer", "text": "En général sous 7 à 10 jours après validation du brief. Pour les projets urgents (départ dans moins de 3 semaines), on fait de notre mieux." }},
-    { "@type": "Question", "name": "Tu ne connais pas ma destination.", "acceptedAnswer": { "@type": "Answer", "text": "On travaille avec un réseau de contacts locaux et on fait des recherches approfondies pour chaque nouvelle destination. La règle : on ne te conseille que ce qu'on est prêts à recommander à nos proches." }},
-    { "@type": "Question", "name": "Est-ce que tu fais les réservations à ma place ?", "acceptedAnswer": { "@type": "Answer", "text": "On te fournit les liens, contacts et conseils pour chaque réservation. Pour un accompagnement complet (réservations incluses), c'est possible sur devis." }},
-    { "@type": "Question", "name": "Qu'est-ce que tu reçois exactement ?", "acceptedAnswer": { "@type": "Answer", "text": "Un carnet de voyage PDF complet : programme jour par jour, carte interactive, hébergements testés, restaurants, transports, conseils pratiques et contacts locaux." }},
-    { "@type": "Question", "name": "Et si le voyage ne correspond pas à ce qu'on avait prévu ?", "acceptedAnswer": { "@type": "Answer", "text": "On reste disponibles avant, pendant et après. Si quelque chose ne te convient pas sur place, tu nous écris et on trouve une solution ensemble." }},
-    { "@type": "Question", "name": "C'est quoi la différence avec un guide papier ou un blog ?", "acceptedAnswer": { "@type": "Answer", "text": "Un guide, c'est générique. Un blog, c'est le vécu de quelqu'un d'autre. Nous, on part de TOI : tes envies, ton rythme, tes contraintes. C'est ton voyage, pas le nôtre répété." }}
-  ]
-}
+const SITE_URL = 'https://heldonica.fr'
 
 const faqs = [
+  { q: 'Dans combien de temps reçoit-on la proposition ?', a: 'Sous 48h ouvrées maximum. On analyse ta demande en détail avant de te répondre avec une proposition concrète.' },
+  { q: 'La destination doit-elle être dans votre liste ?', a: 'Non — on peut aussi travailler sur une destination hors liste si elle correspond à nos valeurs slow travel. On fait des recherches approfondies pour chaque nouvelle destination.' },
+  { q: 'Peut-on modifier l\'itinéraire après validation ?', a: 'Oui, jusqu\'à 2 allers-retours inclus dans la formule. On ajuste jusqu\'à ce que le planning soit parfait pour vous.' },
+  { q: 'Travaillez-vous avec des agences partenaires ?', a: 'Non. On conçoit nous-mêmes, sans commission cachée. Chaque adresse est testée ou recommandée par quelqu\'un en qui on a confiance.' },
+  { q: 'Est-ce adapté aux voyages en famille ?', a: 'On se spécialise dans les voyages en couple. Pour les familles, on peut orienter vers des ressources adaptées — mais notre cœur de métier reste le slow travel à deux.' },
+]
+
+const testimonials = [
+  { text: 'On voulait du vrai, pas du touristique. Heldonica nous a trouvé une quinta qu\'on n\'aurait jamais découverte seuls.', author: 'Sophie & Marc', dest: 'Madère' },
+  { text: 'L\'itinéraire était tellement bien pensé qu\'on n\'a pas eu à réfléchir une seule fois. Juste à profiter.', author: 'Julie & Alex', dest: 'Monténégro' },
+  { text: 'On est partis 10 jours en Roumanie sans savoir par où commencer. Le carnet Heldonica a été notre meilleur investissement voyage.', author: 'Camille & Thomas', dest: 'Roumanie' },
+]
+
+const PRICING_PLANS = [
   {
-    q: 'Combien coûte la conception sur mesure ?',
-    a: 'Chaque projet est unique. Le tarif est établi selon la complexité de l\'itinéraire, la durée et le niveau de personnalisation. En moyenne, compte entre 150€ et 350€ pour un voyage de 7 à 14 jours. On commence toujours par un échange gratuit pour comprendre ton projet avant de proposer un chiffrage.'
+    name: 'Essentielle',
+    price: '250€',
+    desc: 'Pour ceux qui veulent l\'itinéraire clé en main',
+    features: [
+      'Itinéraire jour par jour personnalisé',
+      'Carnet de route PDF complet',
+      '1h de brief en visio pour cerner vos envies',
+      'Liens directs hébergements & restaurants',
+    ],
+    popular: false,
   },
   {
-    q: 'Dans combien de temps tu reçois ton carnet de route ?',
-    a: 'En général sous 7 à 10 jours après validation du brief. Pour les projets urgents (départ dans moins de 3 semaines), contacte-nous directement — on fait de notre mieux.'
+    name: 'Complète',
+    price: '450€',
+    desc: 'Le plus complet — on s\'occupe de tout',
+    features: [
+      'Tout l\'Essentiel',
+      'Réservations hébergements incluses',
+      'Accès au carnet d\'adresses privé Heldonica',
+      'Suivi WhatsApp pendant le voyage',
+    ],
+    popular: true,
   },
   {
-    q: 'Tu ne connais pas ma destination.',
-    a: 'C\'est possible. On travaille avec un réseau de contacts locaux et on fait des recherches approfondies pour chaque nouvelle destination. La règle qu\'on s\'est fixée : on ne te recommande que ce qu\'on serait prêts àconseiller à nos proches. Même si c\'est notre première fois sur place.'
-  },
-  {
-    q: 'Est-ce que tu fais les réservations à ma place ?',
-    a: 'On te fournit tous les liens directs, contacts et conseils pour chaque réservation. Tu gardes le contrôle. Pour un accompagnement complet avec réservations incluses, c\'est possible sur devis — précise-le lors de ta demande.'
-  },
-  {
-    q: 'Qu\'est-ce que tu reçois exactement comme livrable ?',
-    a: 'Un carnet de voyage PDF complet, pensée pour toi : programme jour par jour avec horaires, carte interactive avec tous les points, hébergements sélectionnés avec liens directs, restaurants testés, transports détaillés, conseils pratiques (le meilleur moment pour y aller, les erreurs à éviter), contacts locaux. Tout reunidos en un seul document cohérent.'
-  },
-  {
-    q: 'Et si le voyage ne correspond pas à ce qu\'on avait prévu ?',
-    a: 'On reste disponibles avant, pendant et après. Si quelque chose ne te convient pas sur place — un restau fermé, une route barrée — tu nous écris et on trouve une solution ensemble. Ça fait partie du truc.'
-  },
-  {
-    q: 'C\'est quoi la différence avec un guide papier ou un blog ?',
-    a: 'Un guide, c\'est générique. Un blog, c\'est le vécu de quelqu\'un d\'autre qui ne te connaît pas. Nous, on part de TOI : tes envies, ton rythme, tes contraintes, ta façon de voyager. C\'est ton voyage, pas le nôtre répété.'
+    name: 'Sur-Mesure',
+    price: 'Sur devis',
+    desc: 'Voyages complexes, 2+ semaines, destinations multiples',
+    features: [
+      'Tout la Complète',
+      'Itinéraires multi-destinations',
+      'Événements spéciaux (lune de miel, anniversaire)',
+      'Conciergerie dédiée 24/7',
+    ],
+    popular: false,
   },
 ]
 
-const personas = [
-  {
-    title: 'Couples aventuriers',
-    desc: 'Vous voulez ralentir sans vousennuyer, garder le hors-sentiers sans perdre le fil. Vous cherchez des adresses qu\'on ne trouve pas sur TripAdvisor. On vous comprend.',
-    icon: '🌿',
-  },
-  {
-    title: 'Solos en quête de vrai',
-    desc: 'Tu voyages seul mais tu ne veux pas tomber dans le piège du tourisme de groupe. Tu veux des conseils qui marchent, pas des généralités. Et parfois, tu veux qu\'on te dise où manger ce soir.',
-    icon: '✈️',
-  },
-  {
-    title: 'Familles vers autre chose',
-    desc: 'Vous avez des enfants et vous voulez leur montrer autre chose que des écrans et des files d\'attente. Un voyage qui les marque autant que vous. Ça existe, on peut t\'aider à le construire.',
-    icon: '🏔️',
-  },
+const FORM_DESTINATIONS = [
+  'Madère', 'Monténégro', 'Roumanie', 'Lisbonne', 'Paris',
+  'Colombie', 'Portugal', 'Normandie', 'Suisse', 'Sardaigne',
+  'Sicile', 'Naples', 'Malte', 'Corse',
 ]
 
-const steps = [
-  {
-    num: '01',
-    title: 'Brief — Tu nous racontes',
-    desc: 'Tu nous écris ou tu remplis le formulaire. Tu nous parles de ton voyage rêvé, de tes contraintes, de ce qui te tient à cœur. Pas de case à cocher. Un vrai échange.',
-    detail: 'Durée : 15-30 min. Résultat : on comprend ce qui compte pour toi.',
-  },
-  {
-    num: '02',
-    title: 'Conception — On bosse pour toi',
-    desc: 'On vérifie tout. Les horaires de bus qui ne marchent pas le dimanche. Le restaurant fermé en basse saison. L\'hébergement sans WiFi là où tu en as besoin. On te propose un premier jet sous 7-10 jours.',
-    detail: 'Durée : 7-10 jours. Résultat : ton carnet de route en PDF.',
-  },
-  {
-    num: '03',
-    title: 'Livraison & ajustements',
-    desc: 'Tu reçois ton carnet. Tu le lis, tu nous dis ce qui ne va pas. On ajuste ensemble. Quand c\'est bon, tu pars — et on reste dispo si besoin sur place.',
-    detail: 'Durée : aussi longtemps qu\'il faut. Résultat : tu pars serein.',
-  },
-]
+export default function TravelPlanningPage() {
+  const [faqOpen, setFaqOpen] = useState<number | null>(null)
+  const [formData, setFormData] = useState({
+    firstName: '', email: '', destination: '', duration: '', budget: '', startDate: '', notes: '',
+  })
+  const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [formError, setFormError] = useState('')
 
-const deliverables = [
-  {
-    title: 'Carnet de route PDF',
-    desc: 'Programme jour par jour avec horaires, liens, et conseils. Format lisible, imprimable, partageable.',
-    icon: '📋',
-  },
-  {
-    title: 'Carte interactive',
-    desc: 'Tous tes points sur une carte — hébergements, restaurants, spots, sentiers. À ouvrir sur ton téléphone sur place.',
-    icon: '🗺️',
-  },
-  {
-    title: 'Hébergements sélectionnés',
-    desc: 'Pas juste une liste. Chaque hébergement avec ce qui le rend bien, le prix indicatif, et le lien direct pour réserver.',
-    icon: '🏡',
-  },
-  {
-    title: 'Restaurants testés ou validés',
-    desc: 'Le meilleur de la cuisine locale, pas des chains internationales. Avec horaires, fourchette de prix, réservation conseillée ou pas.',
-    icon: '🍽️',
-  },
-  {
-    title: 'Transports détaillés',
-    desc: 'Comment aller d\'un point à un autre. Bus, trains, ferry, taxis locaux — avec horaires réels, pas estimés.',
-    icon: '🚐',
-  },
-  {
-    title: 'Contacts locaux',
-    desc: 'Les gens sur place qui peuvent vraiment t\'aider. Le réceptionniste qui parle français, le guide de montagne recommandé, le resto où le propriétaire te reconnaît.',
-    icon: '🤝',
-  },
-]
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+  }
 
-function FAQ() {
-  const [open, setOpen] = useState<number | null>(null)
-  return (
-    <div className="space-y-3">
-      {faqs.map((item, i) => (
-        <div key={i} className="border border-stone-200 rounded-xl overflow-hidden">
-          <button
-            onClick={() => setOpen(open === i ? null : i)}
-            className="w-full flex items-center justify-between px-6 py-4 text-left font-semibold text-stone-900 text-sm hover:bg-stone-50 transition"
-          >
-            <span>{item.q}</span>
-            <svg className={`w-4 h-4 shrink-0 ml-4 transition-transform ${open === i ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6" /></svg>
-          </button>
-          {open === i && (
-            <div className="px-6 pb-5 text-stone-600 text-sm leading-relaxed border-t border-stone-100">
-              <p className="pt-4">{item.a}</p>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  )
-}
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setFormStatus('loading')
+    setFormError('')
+    try {
+      const res = await fetch('/api/travel-planning', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          email: formData.email,
+          destination: formData.destination,
+          duration: formData.duration,
+          budget: formData.budget,
+          startDate: formData.startDate,
+          notes: formData.notes,
+        }),
+      })
+      if (!res.ok) throw new Error(await res.text())
+      if (typeof window !== 'undefined' && (window as any).gtag) {
+        (window as any).gtag('event', 'travel_planning_form_submit', { destination: formData.destination })
+      }
+      setFormStatus('success')
+    } catch (err: any) {
+      setFormStatus('error')
+      setFormError(err.message || 'Une erreur est survenue')
+    }
+  }
 
-export default function TravelPlanning() {
   return (
     <>
-      <style>{`
-        @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:none; } }
-        .fade-up { animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) forwards; }
-        .fade-up-1 { opacity:0; animation: fadeUp 0.7s 0.1s cubic-bezier(0.16,1,0.3,1) forwards; }
-        .fade-up-2 { opacity:0; animation: fadeUp 0.7s 0.25s cubic-bezier(0.16,1,0.3,1) forwards; }
-        .fade-up-3 { opacity:0; animation: fadeUp 0.7s 0.4s cubic-bezier(0.16,1,0.3,1) forwards; }
-        .fade-up-4 { opacity:0; animation: fadeUp 0.7s 0.55s cubic-bezier(0.16,1,0.3,1) forwards; }
-        .service-card { transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), box-shadow 0.35s ease; }
-        .service-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.09); }
-        .step-card { transition: transform 0.3s ease; }
-        .step-card:hover { transform: translateY(-2px); }
-      `}</style>
+      <Script id="service-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Service',
+          name: 'Travel Planning sur mesure Heldonica',
+          provider: { '@type': 'Organization', name: 'Heldonica', url: SITE_URL },
+          description: 'Conception de voyages slow travel sur mesure pour couples',
+          offers: [
+            { '@type': 'Offer', name: 'Formule Essentielle', price: '250', priceCurrency: 'EUR' },
+            { '@type': 'Offer', name: 'Formule Complète', price: '450', priceCurrency: 'EUR' },
+          ],
+        }),
+      }} />
+      <Script id="faq-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: faqs.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+        }),
+      }} />
 
       <Header />
-      <Breadcrumb />
       <main>
-
-        {/* ── HERO ── */}
-        <section className="relative overflow-hidden bg-stone-950 h-[60vh] md:h-[80vh]">
-          <Image
-            src="https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=1600&q=85"
-            alt="Couple en slow travel, vue panoramique sur la nature"
-            fill
-            className="object-cover opacity-30"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-stone-950/60 via-transparent to-stone-950" />
-          <div className="relative max-w-4xl mx-auto px-6 md:px-10 py-28 md:py-40 text-center">
-            <p className="fade-up-1 text-amber-400 text-xs font-bold tracking-[0.2em] uppercase mb-5">
-              Slow Travel · Conception sur mesure · En duo
-            </p>
-            <h1 className="fade-up-2 text-4xl md:text-6xl lg:text-7xl font-serif font-light text-white leading-[1.1] mb-6">
-              On a appris à voyager vrai.<br />
-              <em className="text-amber-300">Maintenant on conçoit le tien.</em>
+        {/* Hero */}
+        <section className="relative min-h-[75vh] flex items-center overflow-hidden bg-stone-900">
+          <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&h=1080&fit=crop" alt="Voyage sur mesure en couple" fill className="object-cover opacity-50" priority />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
+          <div className="relative container py-20">
+            <p className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold">Voyage sur mesure</p>
+            <h1 className="text-4xl md:text-6xl font-serif text-white max-w-2xl mb-5 leading-tight">
+              Ton voyage en couple, conçu sur mesure
             </h1>
-            <p className="fade-up-3 text-base md:text-xl text-white max-w-2xl mx-auto leading-relaxed mb-10">
-              Pas des itinéraires copiés sur des blogs. Des voyages conçus sur mesure — lents, sensoriels, mémorables. Un vrai échange, pas un formulaire.
+            <p className="text-white/80 max-w-xl text-lg leading-relaxed mb-8">
+              On s&apos;occupe de tout — tu n&apos;as qu&apos;à vivre l&apos;aventure.
             </p>
-            <div className="fade-up-4 flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link href="/travel-planning-form"
-                className="px-8 py-4 bg-amber-800 hover:bg-amber-700 text-white rounded font-semibold text-sm tracking-wide transition shadow-lg">
-                Dis-nous où tu veux aller →
-              </Link>
-              <p className="text-white/70 text-xs">Sans engagement · Réponse sous 48h</p>
-            </div>
-            <div className="mt-8 inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-2">
-              <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-              <span className="text-white/80 text-xs font-medium">{"On travaille en petit nombre — qualité délibérément limitée"}</span>
-            </div>
+            <a href="#formulaire" className="inline-flex items-center gap-2 rounded-full bg-eucalyptus px-7 py-3.5 text-sm font-semibold text-white hover:bg-eucalyptus/90 transition-all shadow-lg">
+              Démarrer ma demande
+            </a>
           </div>
         </section>
 
-        {/* ── POUR QUI ── */}
-        <section className="py-20 md:py-24 bg-white">
-          <div className="max-w-5xl mx-auto px-6 md:px-10">
-            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-3 text-center">Pour qui ?</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12 text-center">
-              Ce n'est pas pour tout le monde.<br />
-              <span className="italic text-stone-500">Et c'est ok.</span>
-            </h2>
-            <div className="grid md:grid-cols-3 gap-6">
-              {personas.map((p, i) => (
-                <div key={i} className="bg-stone-50 rounded-2xl p-8 border border-stone-100">
-                  <span className="text-3xl mb-4 block">{p.icon}</span>
-                  <h3 className="text-lg font-serif font-light text-stone-900 mb-3">{p.title}</h3>
-                  <p className="text-stone-600 text-sm leading-relaxed">{p.desc}</p>
-                </div>
-              ))}
-            </div>
-            <p className="text-center text-stone-500 text-sm mt-8 max-w-xl mx-auto">
-              Ce n'est pas pour toi si tu cherches juste une liste de hôtels. Par contre, si tu veux un voyage qui te ressemble — là, on peut parler.
-            </p>
-          </div>
-        </section>
-
-        {/* ── COMMENT ÇA MARCHE ── */}
-        <section className="py-20 md:py-24 bg-stone-50">
-          <div className="max-w-5xl mx-auto px-6 md:px-10">
-            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-3 text-center">Comment ça marche</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12 text-center">
-              Trois étapes. Pas de surprise.
-            </h2>
+        {/* Promesse — 3 colonnes */}
+        <section className="bg-white py-20">
+          <div className="container max-w-5xl">
             <div className="grid md:grid-cols-3 gap-8">
-              {steps.map((s, i) => (
-                <div key={i} className="step-card relative">
-                  <div className="absolute -top-3 left-6 bg-amber-800 text-white text-xs font-bold px-3 py-1 rounded-full">
-                    {s.num}
-                  </div>
-                  <div className="bg-white rounded-2xl p-8 pt-10 shadow-sm border border-stone-100 h-full">
-                    <h3 className="text-xl font-serif font-light text-stone-900 mb-4">{s.title}</h3>
-                    <p className="text-stone-600 text-sm leading-relaxed mb-4">{s.desc}</p>
-                    <p className="text-amber-700 text-xs font-semibold italic">{s.detail}</p>
-                  </div>
+              <div className="text-center">
+                <div className="w-14 h-14 rounded-2xl bg-teal/10 flex items-center justify-center mx-auto mb-4 text-2xl">🗺️</div>
+                <h3 className="font-semibold text-mahogany mb-2">Itinéraire sur mesure</h3>
+                <p className="text-sm text-charcoal/60 leading-relaxed">Chaque jour pensé pour vous deux — rythme slow, pépites dénichées sur le terrain.</p>
+              </div>
+              <div className="text-center">
+                <div className="w-14 h-14 rounded-2xl bg-teal/10 flex items-center justify-center mx-auto mb-4 text-2xl">🏡</div>
+                <h3 className="font-semibold text-mahogany mb-2">Hébergements triés</h3>
+                <p className="text-sm text-charcoal/60 leading-relaxed">Boutique-hôtels, masseries, riads — uniquement ce qu&apos;on referait demain.</p>
+              </div>
+              <div className="text-center">
+                <div className="w-14 h-14 rounded-2xl bg-teal/10 flex items-center justify-center mx-auto mb-4 text-2xl">📞</div>
+                <h3 className="font-semibold text-mahogany mb-2">Suivi humain</h3>
+                <p className="text-sm text-charcoal/60 leading-relaxed">Un interlocuteur unique du devis au retour. On reste disponibles.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Comment ça marche — 4 étapes */}
+        <section className="bg-cloud-dancer py-20">
+          <div className="container max-w-4xl">
+            <h2 className="text-3xl font-serif text-mahogany text-center mb-12">Comment ça marche</h2>
+            <div className="grid md:grid-cols-4 gap-6">
+              {[
+                { step: '1', title: 'Tu remplis le formulaire', desc: '5 minutes pour nous dire vos envies, contraintes et budget.' },
+                { step: '2', title: 'Proposition sous 48h', desc: 'On analyse, on conçoit et on vous envoie une proposition détaillée.' },
+                { step: '3', title: 'On affine ensemble', desc: 'Allers-retours jusqu\'à la perfection — votre voyage, pas le nôtre.' },
+                { step: '4', title: 'Tu pars l\'esprit libre', desc: 'Carnet de route, réservations, contacts — tout est prêt.' },
+              ].map((etape) => (
+                <div key={etape.step} className="text-center">
+                  <div className="w-12 h-12 rounded-full bg-eucalyptus text-white flex items-center justify-center mx-auto mb-4 text-lg font-bold">{etape.step}</div>
+                  <h3 className="font-semibold text-mahogany mb-2">{etape.title}</h3>
+                  <p className="text-sm text-charcoal/60">{etape.desc}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ── CE QUE TU REÇOIS ── */}
-        <section className="py-20 md:py-24 bg-white">
-          <div className="max-w-5xl mx-auto px-6 md:px-10">
-            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-3 text-center">Livrables</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12 text-center">
-              Ce que tu as entre les mains
-            </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {deliverables.map((d, i) => (
-                <div key={i} className="flex gap-4 p-5 bg-stone-50 rounded-xl border border-stone-100">
-                  <span className="text-2xl shrink-0">{d.icon}</span>
-                  <div>
-                    <h3 className="font-semibold text-stone-900 text-sm mb-1">{d.title}</h3>
-                    <p className="text-stone-500 text-xs leading-relaxed">{d.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── TARIFS ── */}
-        <section id="tarifs" className="py-16 md:py-20 bg-gradient-to-b from-stone-100 to-stone-50">
-          <div className="max-w-4xl mx-auto px-6 md:px-10">
-            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-3 text-center">Tarifs</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-4 text-center">
-              Un prix juste pour un vrai service
-            </h2>
-            <p className="text-stone-500 text-center text-sm mb-12 max-w-xl mx-auto">
-              Pas de tarif caché. Pas de surprise. Le prix est défini dès le départ selon la complexité de ton projet.
-            </p>
-            
+        {/* Tarifs */}
+        <section className="bg-white py-20">
+          <div className="container max-w-5xl">
+            <h2 className="text-3xl font-serif text-mahogany text-center mb-4">Tarifs transparents</h2>
+            <p className="text-charcoal/60 text-sm text-center mb-10 max-w-lg mx-auto">Des formules claires, sans surprise. Le devis est gratuit et sans engagement.</p>
             <div className="grid md:grid-cols-3 gap-6">
-              {/* Pack Essentiel */}
-              <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
-                <div className="text-center mb-4">
-                  <span className="inline-block px-3 py-1 rounded-full bg-stone-100 text-stone-600 text-xs font-medium mb-3">
-                    Essentiel
-                  </span>
-                  <p className="text-sm text-stone-500 mb-2">Voyage de 3 à 5 jours</p>
-                  <p className="text-3xl font-serif text-stone-900">À partir de <span className="font-bold">150€</span></p>
+              {PRICING_PLANS.map((plan) => (
+                <div key={plan.name} className={`rounded-2xl border-2 p-6 flex flex-col ${plan.popular ? 'border-eucalyptus bg-eucalyptus/5 shadow-lg scale-105' : 'border-stone-200 bg-white'}`}>
+                  {plan.popular && <span className="text-[10px] font-bold text-eucalyptus uppercase tracking-widest mb-2">Le plus populaire</span>}
+                  <h3 className="text-xl font-serif font-bold text-mahogany mb-1">{plan.name}</h3>
+                  <p className="text-3xl font-bold text-eucalyptus mb-3">{plan.price}</p>
+                  <p className="text-sm text-charcoal/60 mb-6">{plan.desc}</p>
+                  <ul className="space-y-2 mb-8 flex-1">
+                    {plan.features.map((f) => <li key={f} className="text-sm text-charcoal/70 flex items-start gap-2 before:content-['✓'] before:text-eucalyptus before:font-bold"> {f}</li>)}
+                  </ul>
+                  <a href="#formulaire" className={`block text-center rounded-full py-3 text-sm font-semibold transition-all ${plan.popular ? 'bg-eucalyptus text-white hover:bg-eucalyptus/90' : 'bg-stone-100 text-stone-700 hover:bg-stone-200 border border-stone-200'}`}>
+                    {plan.name === 'Sur-Mesure' ? 'Demander un devis' : 'Choisir cette formule'}
+                  </a>
                 </div>
-                <ul className="space-y-2 text-sm text-stone-600">
-                  <li className="flex items-start gap-2">✓ Programme jour par jour</li>
-                  <li className="flex items-start gap-2">✓ Carte interactive</li>
-                  <li className="flex items-start gap-2">✓ 5 hébergements recommandés</li>
-                  <li className="flex items-start gap-2">✓ Conseils transports</li>
-                  <li className="flex items-start gap-2 text-stone-400">✕ Ajustements illimités</li>
-                  <li className="flex items-start gap-2 text-stone-400">✕ Accompagnement sur place</li>
-                </ul>
-                <Link href="/travel-planning-form"
-                  className="mt-6 block text-center px-4 py-3 bg-stone-900 text-white rounded-lg font-medium text-sm hover:bg-stone-800 transition">
-                  Demander un devis →
-                </Link>
-              </div>
-              
-              {/* Pack Confort - recommandé */}
-              <div className="bg-stone-900 rounded-2xl p-6 text-white shadow-xl relative">
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-amber-500 text-stone-900 text-xs font-bold rounded-full">
-                  Le plus populaire
-                </div>
-                <div className="text-center mb-4">
-                  <span className="inline-block px-3 py-1 rounded-full bg-white/10 text-white/80 text-xs font-medium mb-3">
-                    Confort
-                  </span>
-                  <p className="text-sm text-stone-400 mb-2">Voyage de 7 à 14 jours</p>
-                  <p className="text-3xl font-serif">À partir de <span className="font-bold text-amber-400">250€</span></p>
-                </div>
-                <ul className="space-y-2 text-sm text-stone-300">
-                  <li className="flex items-start gap-2">✓ Programme jour par jour</li>
-                  <li className="flex items-start gap-2">✓ Carte interactive</li>
-                  <li className="flex items-start gap-2">✓ 10 hébergements recommandés</li>
-                  <li className="flex items-start gap-2">✓ Restaurants testés</li>
-                  <li className="flex items-start gap-2">✓ 2 ajustements inclus</li>
-                  <li className="flex items-start gap-2">✕ Accompagnement sur place</li>
-                </ul>
-                <Link href="/travel-planning-form"
-                  className="mt-6 block text-center px-4 py-3 bg-amber-600 text-white rounded-lg font-medium text-sm hover:bg-amber-500 transition">
-                  Choisir Confort →
-                </Link>
-              </div>
-              
-              {/* Pack Premium */}
-              <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm">
-                <div className="text-center mb-4">
-                  <span className="inline-block px-3 py-1 rounded-full bg-stone-100 text-stone-600 text-xs font-medium mb-3">
-                    Premium
-                  </span>
-                  <p className="text-sm text-stone-500 mb-2">Voyage de 2+ semaines</p>
-                  <p className="text-3xl font-serif text-stone-900">À partir de <span className="font-bold">350€</span></p>
-                </div>
-                <ul className="space-y-2 text-sm text-stone-600">
-                  <li className="flex items-start gap-2">✓ Tout du pack Confort</li>
-                  <li className="flex items-start gap-2">✓ Hébergements illimités</li>
-                  <li className="flex items-start gap-2">✓ Contacts locaux</li>
-                  <li className="flex items-start gap-2">✓ Ajustements illimités</li>
-                  <li className="flex items-start gap-2">✓ Accompagnement sur place</li>
-                </ul>
-                <Link href="/travel-planning-form"
-                  className="mt-6 block text-center px-4 py-3 bg-stone-900 text-white rounded-lg font-medium text-sm hover:bg-stone-800 transition">
-                  Demander Premium →
-                </Link>
-              </div>
+              ))}
             </div>
-            
-            <p className="text-center text-stone-500 text-xs mt-8">
-              Ces tarifs sont indicatifs. Le prix exact est défini après un échange gratuit pour comprendre ton projet.
-              <br />Paiement en une ou plusieurs fois possible.
-            </p>
           </div>
         </section>
 
-        {/* ── CTA INTERMÉDIAIRE ── */}
-        <section className="py-16 bg-amber-900 text-white">
-          <div className="max-w-3xl mx-auto px-6 text-center">
-            <h2 className="text-2xl md:text-3xl font-serif font-light mb-4">
-              Prêt à construire ton voyage ?
-            </h2>
-            <p className="text-amber-200 text-sm mb-6">
-              Dis-nous où tu veux aller. En 48h, tu as un premier retour, pas un devis froid.
-            </p>
-            <Link href="/travel-planning-form"
-              className="inline-block px-8 py-3 bg-white text-amber-900 font-bold rounded shadow hover:bg-amber-50 transition text-sm">
-              Commencer mon voyage →
-            </Link>
+        {/* Témoignages */}
+        <section className="bg-cloud-dancer py-20">
+          <div className="container max-w-5xl">
+            <h2 className="text-3xl font-serif text-mahogany text-center mb-10">Ils ont voyagé avec nous</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              {testimonials.map((t) => (
+                <div key={t.author} className="bg-white rounded-xl border border-stone-200 p-6">
+                  <div className="flex items-center gap-1 mb-4">
+                    {[...Array(5)].map((_, i) => <span key={i} className="text-amber-400 text-sm">★</span>)}
+                  </div>
+                  <p className="text-sm text-charcoal/70 leading-relaxed mb-4 italic">&ldquo;{t.text}&rdquo;</p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-eucalyptus/10 flex items-center justify-center text-eucalyptus font-semibold text-sm">{t.author[0]}</div>
+                    <div>
+                      <p className="text-sm font-semibold text-mahogany">{t.author}</p>
+                      <p className="text-xs text-charcoal/40">{t.dest}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
-        {/* ── FAQ ── */}
-        <section className="py-20 md:py-24 bg-white">
-          <div className="max-w-3xl mx-auto px-6 md:px-10">
-            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-3 text-center">FAQ</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-10 text-center">
-              Les questions qu'on nous pose vraiment
-            </h2>
-            <FAQ />
+        {/* Formulaire */}
+        <section id="formulaire" className="bg-white py-20 scroll-mt-20">
+          <div className="container max-w-2xl">
+            <h2 className="text-3xl font-serif text-mahogany text-center mb-2">Prêts à partir autrement ?</h2>
+            <p className="text-charcoal/60 text-sm text-center mb-8">Réponds à ces quelques questions — on te fait une proposition sous 48h.</p>
+
+            {formStatus === 'success' ? (
+              <div className="rounded-2xl bg-eucalyptus/5 border border-eucalyptus/20 p-8 text-center">
+                <div className="w-16 h-16 rounded-full bg-eucalyptus/10 flex items-center justify-center mx-auto mb-4 text-3xl">✉️</div>
+                <h3 className="text-xl font-serif text-mahogany mb-2">Merci ! On a reçu ta demande.</h3>
+                <p className="text-sm text-charcoal/60">On te répond sous 48h ouvrées maximum. Prépare-toi à rêver — on s'occupe du reste.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleFormSubmit} className="space-y-5">
+                <div className="grid md:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-sm font-semibold text-charcoal mb-1.5">Prénom(s)</label>
+                    <input type="text" name="firstName" value={formData.firstName} onChange={handleFormChange} required
+                      className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-charcoal mb-1.5">Email</label>
+                    <input type="email" name="email" value={formData.email} onChange={handleFormChange} required
+                      className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus" />
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-sm font-semibold text-charcoal mb-1.5">Destination souhaitée</label>
+                    <select name="destination" value={formData.destination} onChange={handleFormChange} required
+                      className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus bg-white">
+                      <option value="">Sélectionne une destination</option>
+                      <option value="autre">Autre (hors liste)</option>
+                      {FORM_DESTINATIONS.map((d) => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-charcoal mb-1.5">Durée envisagée</label>
+                    <select name="duration" value={formData.duration} onChange={handleFormChange} required
+                      className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus bg-white">
+                      <option value="">Sélectionne une durée</option>
+                      <option value="1 semaine">1 semaine</option>
+                      <option value="2 semaines">2 semaines</option>
+                      <option value="+2 semaines">+2 semaines</option>
+                      <option value="Flexible">Flexible</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-sm font-semibold text-charcoal mb-1.5">Budget estimé</label>
+                    <select name="budget" value={formData.budget} onChange={handleFormChange} required
+                      className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus bg-white">
+                      <option value="">Sélectionne un budget</option>
+                      <option value="<1000€">&lt;1000€</option>
+                      <option value="1000-2000€">1000-2000€</option>
+                      <option value="2000-3500€">2000-3500€</option>
+                      <option value="+3500€">+3500€</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-charcoal mb-1.5">Date de départ souhaitée</label>
+                    <input type="date" name="startDate" value={formData.startDate} onChange={handleFormChange}
+                      className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-charcoal mb-1.5">Ce qui vous tient à cœur</label>
+                  <textarea name="notes" value={formData.notes} onChange={handleFormChange} rows={4}
+                    className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus resize-none"
+                    placeholder="Rythme, centres d'intérêt, contraintes, rêves… tout ce qui vous passe par la tête." />
+                </div>
+
+                {/* Honeypot */}
+                <div className="hidden" aria-hidden="true">
+                  <input type="text" name="website_url" tabIndex={-1} autoComplete="off" />
+                </div>
+
+                {formStatus === 'error' && <p className="text-red-500 text-sm">{formError}</p>}
+
+                <button type="submit" disabled={formStatus === 'loading'}
+                  className="w-full py-3.5 bg-eucalyptus text-white rounded-xl text-sm font-semibold hover:bg-eucalyptus/90 disabled:opacity-50 transition-all">
+                  {formStatus === 'loading' ? 'Envoi en cours…' : 'Envoyer ma demande'}
+                </button>
+              </form>
+            )}
           </div>
         </section>
 
-        {/* ── CTA FINAL ── */}
-        <section className="py-24 md:py-32 bg-stone-950 text-white relative overflow-hidden">
-          <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1200&q=60)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
-          <div className="relative max-w-2xl mx-auto px-6 text-center">
-            <p className="text-amber-400 text-xs font-bold tracking-[0.2em] uppercase mb-4">Prêts pour l'aventure ?</p>
-            <h2 className="text-4xl md:text-5xl font-serif font-light mb-6">
-              Dis-nous où tu rêves d'aller.<br />
-              <em className="text-amber-300">On conçoit ton voyage.</em>
-            </h2>
-            <p className="text-stone-300 leading-relaxed mb-10">
-              Un échange gratuit, sans engagement. On prend le temps de comprendre ton projet avant de proposer quoi que ce soit. Réponse sous 48h.
-            </p>
-            <Link href="/travel-planning-form"
-              className="inline-block px-10 py-4 bg-amber-800 hover:bg-amber-700 text-white font-bold rounded shadow-xl transition text-sm tracking-wide">
-              Dis-nous où tu veux aller →
-            </Link>
-            <p className="mt-4 text-stone-500 text-xs">100% humain · Sans engagement · Réponse sous 48h</p>
+        {/* FAQ */}
+        <section className="bg-cloud-dancer py-20">
+          <div className="container max-w-3xl">
+            <h2 className="text-3xl font-serif text-mahogany text-center mb-8">Questions fréquentes</h2>
+            <div className="space-y-3">
+              {faqs.map((faq, i) => (
+                <div key={i} className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+                  <button onClick={() => setFaqOpen(faqOpen === i ? null : i)} className="w-full flex justify-between items-center p-5 text-left font-semibold text-mahogany hover:bg-stone-50 transition-colors">
+                    {faq.q}
+                    <span className={`text-eucalyptus text-xl transition-transform ${faqOpen === i ? 'rotate-45' : ''}`}>+</span>
+                  </button>
+                  {faqOpen === i && <p className="px-5 pb-5 text-sm text-charcoal/70 leading-relaxed">{faq.a}</p>}
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
+        {/* CTA final */}
+        <section className="bg-mahogany text-white py-20">
+          <div className="container text-center max-w-2xl">
+            <h2 className="text-3xl md:text-4xl font-serif mb-4">Prêt(e) à partir autrement ?</h2>
+            <p className="text-white/70 mb-8">Un voyage pensé pour vous, pas un itinéraire générique. Remplissez le formulaire et on vous prépare quelque chose d&apos;unique.</p>
+            <a href="#formulaire" className="inline-flex px-7 py-3 rounded-lg bg-teal text-charcoal font-semibold hover:bg-teal/90 transition-colors">Démarrer ma demande →</a>
+          </div>
+        </section>
       </main>
-
-      {/* ── CTA MOBILE STICKY ── */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-stone-950 border-t border-stone-800 px-4 py-3 flex items-center justify-between gap-3">
-        <div>
-          <p className="text-white text-xs font-bold">Voyage sur mesure</p>
-          <p className="text-amber-400 text-xs">100% humain · Réponse 48h</p>
-        </div>
-        <Link href="/travel-planning-form"
-          className="px-4 py-2 bg-amber-800 text-white rounded font-bold text-xs whitespace-nowrap shadow">
-          Dis-nous →
-        </Link>
-      </div>
-
       <Footer />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
     </>
   )
 }

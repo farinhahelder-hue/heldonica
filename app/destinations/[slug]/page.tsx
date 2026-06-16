@@ -1,6 +1,7 @@
 ﻿import Image from 'next/image'
 import { getDestinationBySlug, blogPosts } from '@/lib/wordpress-data'
 import { getAllDestinationSlugs } from '@/lib/blog-supabase'
+import { supabase } from '@/lib/supabase-client'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getRelatedArticles } from '@/lib/related-articles'
@@ -8,6 +9,8 @@ import EnhancedRichContent from '@/components/EnhancedRichContent'
 import { sanitizeHtml } from '@/lib/sanitize-html'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import ComingSoonDestination from '@/components/ComingSoonDestination'
+import GuideDownloadButton from '@/components/GuideDownloadButton'
 import type { Metadata } from 'next'
 import { SITE_URL, DEFAULT_OG_IMAGE, DEFAULT_TITLE, DEFAULT_DESCRIPTION } from '@/lib/seo'
 
@@ -133,13 +136,71 @@ const DEST_META: Record<string, DestinationMeta> = {
 
 export const revalidate = 3600
 
+async function getDestinationStatus(slug: string): Promise<{
+  status: string | null
+  title: string
+  country: string
+  flag_emoji?: string
+  teaser?: string
+  hero_unsplash_url?: string
+  featured_image?: string
+  travel_style?: string
+  best_season?: string
+  avg_budget_couple_week?: number
+} | null> {
+  if (!supabase) return null
+  try {
+    const { data, error } = await supabase
+      .from('destinations_public')
+      .select('status, title, country, flag_emoji, teaser, hero_unsplash_url, featured_image, travel_style, best_season, avg_budget_couple_week')
+      .eq('slug', slug)
+      .single()
+    if (error || !data) return null
+    return data as any
+  } catch {
+    return null
+  }
+}
+
 export async function generateStaticParams() {
-  return getAllDestinationSlugs()
+  try {
+    const slugs = await getAllDestinationSlugs()
+    if (!supabase) return slugs
+    const { data: comingSoon } = await supabase
+      .from('destinations')
+      .select('slug')
+      .in('status', ['coming_soon', 'draft'])
+    if (comingSoon) {
+      return [...slugs, ...comingSoon.map((d: any) => ({ slug: d.slug }))]
+    }
+    return slugs
+  } catch {
+    return getAllDestinationSlugs()
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const page = getDestinationBySlug(params.slug)
-  const meta = DEST_META[params.slug]
+  const slug = params.slug
+
+  const destStatus = await getDestinationStatus(slug)
+  if (destStatus && destStatus.status === 'coming_soon') {
+    return {
+      title: `${destStatus.title} — bientôt sur Heldonica`,
+      description: destStatus.teaser || `${destStatus.title} — notre guide arrive bientôt. Sois notifié en avant-première.`,
+      robots: { index: false, follow: false },
+      alternates: { canonical: `${SITE_URL}/destinations/${slug}` },
+      openGraph: {
+        title: `${destStatus.title} — bientôt sur Heldonica`,
+        description: destStatus.teaser || '',
+        url: `${SITE_URL}/destinations/${slug}`,
+        images: [{ url: destStatus.hero_unsplash_url || destStatus.featured_image || DEFAULT_OG_IMAGE, width: 1200, height: 630 }],
+        locale: 'fr_FR', type: 'website',
+      },
+    }
+  }
+
+  const page = getDestinationBySlug(slug)
+  const meta = DEST_META[slug]
 
   if (!page) return {
     title: 'Destination introuvable | Heldonica',
@@ -193,8 +254,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default function DestinationPage({ params }: Props) {
-  const page = getDestinationBySlug(params.slug)
+export default async function DestinationPage({ params }: Props) {
+  const slug = params.slug
+
+  const destStatus = await getDestinationStatus(slug)
+  if (destStatus && destStatus.status === 'coming_soon') {
+    return (
+      <ComingSoonDestination
+        slug={slug}
+        title={destStatus.title || slug}
+        country={destStatus.country || ''}
+        flag_emoji={destStatus.flag_emoji}
+        teaser={destStatus.teaser}
+        hero_unsplash_url={destStatus.hero_unsplash_url}
+        featured_image={destStatus.featured_image}
+        travel_style={destStatus.travel_style}
+        best_season={destStatus.best_season}
+        avg_budget_couple_week={destStatus.avg_budget_couple_week}
+      />
+    )
+  }
+
+  const page = getDestinationBySlug(slug)
   if (!page) notFound()
 
   const meta = DEST_META[params.slug]
@@ -348,6 +429,18 @@ export default function DestinationPage({ params }: Props) {
             </div>
           </section>
         )}
+
+        <section className="bg-cloud-dancer px-4 py-16">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="mb-3 text-2xl font-serif text-mahogany">
+              Télécharge le guide {page.title} en PDF
+            </h2>
+            <p className="mb-6 text-sm text-charcoal/60">
+              Itinéraires, budget, meilleure saison, adresses — tout dans un guide prêt à emporter.
+            </p>
+            <GuideDownloadButton slug={page.slug} title={page.title} />
+          </div>
+        </section>
 
         <section className="px-4 py-20">
           <div className="mx-auto max-w-3xl rounded-[2rem] bg-stone-950 px-6 py-12 text-center text-white md:px-10">

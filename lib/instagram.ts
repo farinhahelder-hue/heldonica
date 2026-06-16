@@ -360,3 +360,50 @@ export async function getInstagramStats() {
     return null;
   }
 }
+
+/**
+ * Auto-schedule an Instagram post when an article is published
+ * Creates a draft entry in instagram_scheduled_posts for manual review
+ */
+export async function autoScheduleInstagramPost(articleId: number | string, article: {
+  title: string
+  slug: string
+  excerpt?: string
+  featured_image?: string
+  category?: string
+}): Promise<boolean> {
+  try {
+    const { supabase } = await import('@/lib/supabase-client')
+    if (!supabase) return false
+
+    const caption = [
+      `📍 ${article.title}`,
+      '',
+      article.excerpt ? article.excerpt.substring(0, 200) : '',
+      '',
+      '🌍 heldonica.fr',
+      ...(article.slug ? [`🔗 heldonica.fr/blog/${article.slug}`] : []),
+      '',
+      '#slowtravel #voyage lent #heldonica #voyage encouple',
+    ].filter(Boolean).join('\n')
+
+    const { error } = await (supabase as any)
+      .from('instagram_scheduled_posts')
+      .insert({
+        image_url: article.featured_image || '',
+        caption,
+        status: 'draft',
+        article_id: articleId,
+      })
+
+    if (error) {
+      console.error('Failed to auto-schedule Instagram post:', error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('Auto-schedule Instagram error:', error)
+    return false
+  }
+}
