@@ -17,8 +17,9 @@ export function generateMetadata(): Metadata {
       card: "summary_large_image"
     },
     alternates: {
-      canonical: 'https://www.heldonica.fr/destinations/sicile/catane"
-    }
+      canonical: 'https://www.heldonica.fr/destinations/sicile/catane'
+    },
+  robots: { index: false, follow: false },
   };
 }
 

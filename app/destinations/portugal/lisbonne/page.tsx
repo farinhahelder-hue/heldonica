@@ -5,6 +5,7 @@ import Link from 'next/link'
 export const metadata = {
   title: 'Lisbonne slow travel | Guide Heldonica',
   description: 'Guide Lisbonne: Tram 28, fado, Alfama.',
+  robots: { index: false, follow: false },
 }
 
 const navLinks = [

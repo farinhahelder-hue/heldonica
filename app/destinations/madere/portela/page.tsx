@@ -17,8 +17,9 @@ export function generateMetadata(): Metadata {
       card: "summary_large_image"
     },
     alternates: {
-      canonical: 'https://www.heldonica.fr/destinations/madere/portela"
-    }
+      canonical: 'https://www.heldonica.fr/destinations/madere/portela'
+    },
+  robots: { index: false, follow: false },
   };
 }
 
