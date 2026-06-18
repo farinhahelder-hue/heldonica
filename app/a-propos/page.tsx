@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     'voyage authentique',
   ],
   alternates: {
-    canonical: 'https://heldonica.fr/a-propos',
+    canonical: 'https://www.heldonica.fr/a-propos',
   },
   openGraph: {
     url: 'https://heldonica.fr/a-propos',

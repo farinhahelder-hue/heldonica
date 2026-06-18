@@ -17,8 +17,9 @@ export function generateMetadata(): Metadata {
       card: "summary_large_image"
     },
     alternates: {
-      canonical: "https://heldonica.fr/destinations/roumanie/cluj"
-    }
+      canonical: 'https://www.heldonica.fr/destinations/roumanie/cluj'
+    },
+  robots: { index: false, follow: false },
   };
 }
 

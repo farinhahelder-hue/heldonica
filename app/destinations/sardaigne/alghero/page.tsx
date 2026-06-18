@@ -17,8 +17,9 @@ export function generateMetadata(): Metadata {
       card: "summary_large_image"
     },
     alternates: {
-      canonical: "https://heldonica.fr/destinations/sardaigne/alghero"
-    }
+      canonical: 'https://www.heldonica.fr/destinations/sardaigne/alghero'
+    },
+  robots: { index: false, follow: false },
   };
 }
 
