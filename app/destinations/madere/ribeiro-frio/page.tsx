@@ -17,8 +17,9 @@ export function generateMetadata(): Metadata {
       card: "summary_large_image"
     },
     alternates: {
-      canonical: 'https://www.heldonica.fr/destinations/madere/ribeiro-frio"
-    }
+      canonical: 'https://www.heldonica.fr/destinations/madere/ribeiro-frio'
+    },
+  robots: { index: false, follow: false },
   };
 }
 

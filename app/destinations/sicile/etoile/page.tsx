@@ -17,8 +17,9 @@ export function generateMetadata(): Metadata {
       card: "summary_large_image"
     },
     alternates: {
-      canonical: 'https://www.heldonica.fr/destinations/sicile/etoile"
-    }
+      canonical: 'https://www.heldonica.fr/destinations/sicile/etoile'
+    },
+  robots: { index: false, follow: false },
   };
 }
 

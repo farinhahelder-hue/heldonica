@@ -5,6 +5,7 @@ import Link from 'next/link'
 export const metadata = {
   title: 'Transylvanie slow travel | Guide Heldonica',
   description: 'Guide Transylvanie: chateaux, legends, villages.',
+  robots: { index: false, follow: false },
 }
 
 const navLinks = [

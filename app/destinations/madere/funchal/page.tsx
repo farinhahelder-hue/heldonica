@@ -20,6 +20,7 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://www.heldonica.fr/destinations/madere/funchal',
   },
+  robots: { index: false, follow: false },
 }
 
 const pepites = [

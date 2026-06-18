@@ -5,6 +5,7 @@ import Link from 'next/link'
 export const metadata = {
   title: 'Sibiu slow travel | Guide Heldonica',
   description: 'Guide Sibiu: fete, montagne, architecture.',
+  robots: { index: false, follow: false },
 }
 
 const navLinks = [

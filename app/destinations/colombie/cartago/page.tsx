@@ -17,8 +17,9 @@ export function generateMetadata(): Metadata {
       card: "summary_large_image"
     },
     alternates: {
-      canonical: 'https://www.heldonica.fr/destinations/colombie/cartago"
-    }
+      canonical: 'https://www.heldonica.fr/destinations/colombie/cartago'
+    },
+  robots: { index: false, follow: false },
   };
 }
 

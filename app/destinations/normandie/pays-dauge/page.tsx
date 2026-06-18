@@ -12,6 +12,7 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://www.heldonica.fr/destinations/normandie/pays-dauge',
   },
+  robots: { index: false, follow: false },
 }
 
 const pepites = [
