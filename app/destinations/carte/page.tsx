@@ -24,6 +24,14 @@ export const metadata: Metadata = {
     siteName: 'Heldonica',
     type: 'website',
     locale: 'fr_FR',
+    images: [
+      {
+        url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=85',
+        width: 1200,
+        height: 630,
+        alt: 'Carte des destinations slow travel Heldonica',
+      },
+    ],
   },
 };
 

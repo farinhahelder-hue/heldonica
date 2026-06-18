@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     images: ['https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&q=85'],
   },
   alternates: {
-    canonical: 'https://heldonica.fr',
+    canonical: 'https://www.heldonica.fr',
   },
   robots: {
     index: true,

@@ -21,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
       'blog écoresponsable',
     ],
     alternates: {
-      canonical: 'https://heldonica.fr/blog',
+      canonical: 'https://www.heldonica.fr/blog',
     },
     openGraph: {
       title: 'Blog Slow Travel — Carnets de Route & Pépites Dénichées | Heldonica',
