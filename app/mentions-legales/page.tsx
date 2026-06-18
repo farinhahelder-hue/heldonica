@@ -4,11 +4,11 @@ import Footer from '@/components/Footer';
 import Breadcrumb from '@/components/Breadcrumb';
 
 export const metadata: Metadata = {
-  title: 'Mentions légales',
+  title: 'Mentions légales | Heldonica',
   description:
-    "informations légales de l’éditeur, de l’hébergeur et conditions d’utilisation du site Heldonica.",
+    "Informations légales de l’éditeur, de l’hébergeur et conditions d’utilisation du site Heldonica.",
   alternates: {
-    canonical: 'https://heldonica.fr/mentions-légales',
+    canonical: 'https://www.heldonica.fr/mentions-légales',
   },
 };
 
@@ -36,13 +36,13 @@ export default function MentionslégalesPage() {
         <section className="bg-gradient-to-br from-cloud-dancer to-white py-16 md:py-24">
           <div className="max-w-4xl mx-auto px-6">
             <p className="text-xs uppercase tracking-[0.16em] text-eucalyptus font-semibold mb-3">
-              Cadre legal
+              Cadre légal
             </p>
             <h1 className="text-4xl md:text-6xl font-serif font-bold text-mahogany mb-5">
               Mentions légales
             </h1>
             <p className="text-lg text-charcoal/80">
-              informations légales du site heldonica.fr, de son éditeur et de son hébergeur.
+              Informations légales du site heldonica.fr, de son éditeur et de son hébergeur.
             </p>
           </div>
         </section>
@@ -51,7 +51,7 @@ export default function MentionslégalesPage() {
           <div className="max-w-4xl mx-auto px-6 space-y-12">
             <div className="rounded-2xl border border-mahogany/20 bg-cloud-dancer/50 p-6 text-charcoal">
               <p className="text-sm text-charcoal/60">
-                Derniere mise a jour : 16 avril 2026
+                Dernière mise à jour : 16 avril 2026
               </p>
             </div>
 
@@ -60,7 +60,7 @@ export default function MentionslégalesPage() {
                 <strong>Nom commercial :</strong> Heldonica
               </p>
               <p>
-                informations légales complementaires en cours de mise a jour.
+                Informations légales complémentaires en cours de mise à jour.
               </p>
               <p>
                 <strong>Email de contact :</strong>{' '}
@@ -73,9 +73,9 @@ export default function MentionslégalesPage() {
               </p>
             </LegalSection>
 
-            <LegalSection title="hébergeur">
+            <LegalSection title="Hébergeur">
               <p>
-                <strong>Societe :</strong> Vercel Inc.
+                <strong>Société :</strong> Vercel Inc.
               </p>
               <p>
                 <strong>Adresse :</strong> 340 S Lemon Ave #4133, Walnut, CA 91789, USA
@@ -93,7 +93,7 @@ export default function MentionslégalesPage() {
               </p>
             </LegalSection>
 
-            <LegalSection title="Propriete intellectuelle">
+            <LegalSection title="Propriété intellectuelle">
               <p>
                 L’ensemble des contenus presents sur heldonica.fr (textes, visuels, videos,
                 elements graphiques, structure et code) est protege par le droit de la propriete
@@ -101,7 +101,7 @@ export default function MentionslégalesPage() {
               </p>
               <p>
                 Toute reproduction, diffusion, adaptation ou exploitation, totale ou partielle,
-                sans autorisation prealable ecrite de Heldonica est interdite.
+                sans autorisation préalable écrite de Heldonica est interdite.
               </p>
               <p>
                 <strong>Credits photo :</strong> Heldonica et banques d’images sous licence.
@@ -111,11 +111,11 @@ export default function MentionslégalesPage() {
             <LegalSection title="Limitation de responsabilite">
               <p>
                 Heldonica s’efforce de fournir des informations fiables et a jour, sans garantie
-                d’exhaustivite ou d’absence d’erreur.
+                d’exhaustivité ou d’absence d’erreur.
               </p>
               <p>
                 Heldonica ne pourra etre tenue responsable des dommages directs ou indirects lies a
-                l’utilisation du site, a l’indisponibilite temporaire du service ou a l’usage
+                l’utilisation du site, a l’indisponibilité temporaire du service ou a l’usage
                 d’informations externes referencees.
               </p>
               <p>
@@ -124,9 +124,9 @@ export default function MentionslégalesPage() {
               </p>
             </LegalSection>
 
-            <LegalSection title="Contact legal">
+            <LegalSection title="Contact légal">
               <p>
-                Pour toute demande legale ou RGPD, vous pouvez nous ecrire a{' '}
+                Pour toute demande légale ou RGPD, vous pouvez nous écrire a{' '}
                 <a
                   href="mailto:contact@heldonica.fr"
                   className="text-eucalyptus hover:text-teal transition"

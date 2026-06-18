@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description:
     "Politique d'affiliation Heldonica : comment on sélectionne et utilise les liens partenaires (Booking.com, GetYourGuide, etc.) pour financer le site sans compromettre la qualité des recommandations.",
   alternates: {
-    canonical: 'https://heldonica.fr/politique-affiliation',
+    canonical: 'https://www.heldonica.fr/politique-affiliation',
   },
 }
 

@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     'services voyage',
   ],
   alternates: {
-    canonical: 'https://heldonica.fr/nos-services',
+    canonical: 'https://www.heldonica.fr/nos-services',
   },
   openGraph: {
     title: 'Nos Services | Heldonica',

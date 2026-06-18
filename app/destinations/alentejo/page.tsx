@@ -72,7 +72,7 @@ export const metadata: Metadata = {
   description:
     "Guide pilier Alentejo : quand partir, où dormir, vignobles, villages de pierre et itinéraire slow. 2 séjours vécus par le duo Heldonica.",
   alternates: {
-    canonical: 'https://heldonica.fr/destinations/alentejo',
+    canonical: 'https://www.heldonica.fr/destinations/alentejo',
   },
   openGraph: {
     title: 'Alentejo : Guide Slow Travel Complet | Heldonica',

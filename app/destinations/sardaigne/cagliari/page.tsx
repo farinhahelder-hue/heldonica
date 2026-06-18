@@ -17,7 +17,7 @@ export function generateMetadata(): Metadata {
       card: "summary_large_image"
     },
     alternates: {
-      canonical: "https://heldonica.fr/destinations/sardaigne/cagliari"
+      canonical: 'https://www.heldonica.fr/destinations/sardaigne/cagliari"
     }
   };
 }

@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     'Heldonica',
   ],
   alternates: {
-    canonical: 'https://heldonica.fr/guides/top-10-pepites-madere',
+    canonical: 'https://www.heldonica.fr/guides/top-10-pepites-madere',
   },
   openGraph: {
     title: 'Guide Top 10 Pépites Madère | Heldonica',
