@@ -17,8 +17,9 @@ export function generateMetadata(): Metadata {
       card: "summary_large_image"
     },
     alternates: {
-      canonical: "https://heldonica.fr/destinations/sardaigne/costa-smeralda"
-    }
+      canonical: 'https://www.heldonica.fr/destinations/sardaigne/costa-smeralda'
+    },
+  robots: { index: false, follow: false },
   };
 }
 

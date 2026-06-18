@@ -5,6 +5,7 @@ import Link from 'next/link'
 export const metadata = {
   title: 'Bucarest slow travel | Guide Heldonica',
   description: 'Guide Bucarest: Macro, culture, vie nocturne.',
+  robots: { index: false, follow: false },
 }
 
 const navLinks = [

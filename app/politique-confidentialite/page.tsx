@@ -4,11 +4,11 @@ import Footer from '@/components/Footer';
 import Breadcrumb from '@/components/Breadcrumb';
 
 export const metadata: Metadata = {
-  title: 'politique de confidentialite',
+  title: 'Politique de confidentialité | Heldonica',
   description:
-    "politique de confidentialite et traitement des données personnelles du site Heldonica.",
+    "Politique de confidentialité et traitement des données personnelles du site Heldonica.",
   alternates: {
-    canonical: 'https://heldonica.fr/politique-confidentialite',
+    canonical: 'https://www.heldonica.fr/politique-confidentialite',
   },
 };
 
@@ -39,10 +39,10 @@ export default function politiqueconfidentialitePage() {
               données personnelles
             </p>
             <h1 className="text-4xl md:text-6xl font-serif font-bold text-mahogany mb-5">
-              politique de confidentialite
+              Politique de confidentialité
             </h1>
             <p className="text-lg text-charcoal/80">
-              Cette page detaille la collecte, l’usage et la conservation de vos données sur
+              Cette page détaille la collecte, l’usage et la conservation de vos données sur
               heldonica.fr.
             </p>
           </div>
@@ -50,13 +50,13 @@ export default function politiqueconfidentialitePage() {
 
         <section className="py-16 md:py-24">
           <div className="max-w-4xl mx-auto px-6 space-y-12">
-            <PrivacySection title="données collectees">
+            <PrivacySection title="Données collectées">
               <p>
-                Selon votre usage du site, Heldonica peut collecter les categories de données
+                Selon votre usage du site, Heldonica peut collecter les catégories de données
                 suivantes :
               </p>
               <ul className="list-disc list-inside space-y-2">
-                <li>données d’identification : nom, prenom, email, telephone.</li>
+                <li>données d’identification : nom, prénom, email, téléphone.</li>
                 <li>données de projet : informations fournies via les formulaires de voyage.</li>
                 <li>données techniques : adresse IP, type d’appareil, navigateur, logs.</li>
                 <li>

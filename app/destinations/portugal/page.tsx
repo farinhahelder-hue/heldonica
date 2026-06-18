@@ -44,6 +44,14 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Portugal slow travel | Guide Heldonica',
     url: 'https://www.heldonica.fr/destinations/portugal',
+    images: [
+      {
+        url: 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1200&q=85',
+        width: 1200,
+        height: 630,
+        alt: 'Portugal slow travel — Madère, Porto, Lisbonne',
+      },
+    ],
   },
 }
 

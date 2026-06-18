@@ -17,8 +17,9 @@ export function generateMetadata(): Metadata {
       card: "summary_large_image"
     },
     alternates: {
-      canonical: "https://heldonica.fr/destinations/sardaigne/asinara"
-    }
+      canonical: 'https://www.heldonica.fr/destinations/sardaigne/asinara'
+    },
+  robots: { index: false, follow: false },
   };
 }
 
