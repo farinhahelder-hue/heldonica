@@ -2,7 +2,7 @@
 
 console.log('[CMS] Rendering CMS admin page');
 
-import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useState, useEffect, useCallback, Suspense, useDeferredValue, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import EnhancedRichContent from '@/components/EnhancedRichContent';
@@ -202,12 +202,17 @@ function CmsAdminClientInner() {
     }
   };
 
-  const filteredArticles = articles.filter(
-    a =>
-      (statusFilter === 'all' || a.status === statusFilter) &&
-      (a.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      a.category?.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const deferredSearchQuery = useDeferredValue(searchQuery);
+
+  // ⚡ Bolt: Use useDeferredValue and useMemo to prevent heavy list filtering from blocking the main thread during typing
+  const filteredArticles = useMemo(() => {
+    return articles.filter(
+      a =>
+        (statusFilter === 'all' || a.status === statusFilter) &&
+        (a.title?.toLowerCase().includes(deferredSearchQuery.toLowerCase()) ||
+        a.category?.toLowerCase().includes(deferredSearchQuery.toLowerCase()))
+    );
+  }, [articles, statusFilter, deferredSearchQuery]);
 
   // ── Loading / Auth screens ─────────────────────────────────────────────────
   if (authLoading) {
