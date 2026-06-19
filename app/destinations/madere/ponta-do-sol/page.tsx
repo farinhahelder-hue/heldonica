@@ -35,7 +35,7 @@ const pepites = [
   },
   { 
     title: 'Jetée panoramique', 
-    description: 'Une longue jetée de pierre s\'avance dans l\'océan, parfaite pour admirer le lever ou le coucher du soleil. C\'est l'endroit le plus photogénique de Madère.', 
+    description: "Une longue jetee de pierre s avance dans l ocean, parfaite pour admirer le lever ou le coucher du soleil. C est l endroit le plus photogenique de Madere.", 
     icon: '🌊' 
   },
   { 
@@ -45,7 +45,7 @@ const pepites = [
   },
   { 
     title: 'Point de coucher de soleil', 
-    description: 'Face à l'Atlantique, sans obstacle à l'horizon, c'est l'un des meilleurs spots de Madère pour regarder le soleil disparaître dans la mer.', 
+    description: "Face a l Atlantique, sans obstacle a l horizon, c est l un des meilleurs spots de Madere pour regarder le soleil disparaitre dans la mer.", 
     icon: '🌅' 
   },
 ]
