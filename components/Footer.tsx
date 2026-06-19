@@ -62,6 +62,7 @@ export default function Footer() {
   const legalLinks = [
     { href: '/mentions-legales', label: 'Mentions légales' },
     { href: '/politique-confidentialite', label: 'Politique de confidentialité' },
+    { href: '/conditions-generales-de-vente', label: 'CGV' },
     { href: '/politique-affiliation', label: 'Programme partenaires' },
   ]
 
