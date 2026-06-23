@@ -17,8 +17,9 @@ export function generateMetadata(): Metadata {
       card: "summary_large_image"
     },
     alternates: {
-      canonical: "https://heldonica.fr/destinations/colombie/medellin"
-    }
+      canonical: 'https://www.heldonica.fr/destinations/colombie/medellin'
+    },
+  robots: { index: false, follow: false },
   };
 }
 

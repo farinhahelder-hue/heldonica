@@ -193,8 +193,12 @@ export async function middleware(req: NextRequest) {
 
   if (!isMaintenanceExcluded) {
     // 1. First check environment variable (emergency override - requires redeploy)
+    // Skip env var check if DISABLE_MAINTENANCE=1 (temporary go-live override)
+    const disableMaintenanceEnv = process.env.DISABLE_MAINTENANCE;
     const maintenanceEnvVar = process.env.MAINTENANCE_MODE;
-    if (maintenanceEnvVar === '1' || maintenanceEnvVar === 'true') {
+    if (disableMaintenanceEnv === '1') {
+      // Maintenance explicitly disabled via DISABLE_MAINTENANCE env var
+    } else if (maintenanceEnvVar === '1' || maintenanceEnvVar === 'true') {
       const maintenanceUrl = req.nextUrl.clone();
       maintenanceUrl.pathname = '/maintenance';
       return NextResponse.redirect(maintenanceUrl);

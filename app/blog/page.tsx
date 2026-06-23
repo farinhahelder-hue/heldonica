@@ -22,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
       'blog écoresponsable',
     ],
     alternates: {
-      canonical: 'https://heldonica.fr/blog',
+      canonical: 'https://www.heldonica.fr/blog',
     },
     openGraph: {
       title: 'Blog Slow Travel — Carnets de Route & Pépites Dénichées | Heldonica',
@@ -48,6 +48,94 @@ export async function generateMetadata(): Promise<Metadata> {
       creator: '@heldonica',
     },
   }
+}
+
+function CollectionPageJsonLd({ posts }: { posts: BlogPost[] }) {
+  const baseUrl = 'https://www.heldonica.fr'
+  const blogUrl = `${baseUrl}/blog`
+
+  const collectionPageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Blog Slow Travel — Carnets de Route & Pépites Dénichées | Heldonica',
+    description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain. Récits authentiques, conseils pratiques et destinations hors des sentiers battus.',
+    url: blogUrl,
+    isPartOf: {
+      '@type': 'WebSite',
+      '@id': `${baseUrl}/#website`,
+      url: baseUrl,
+      name: 'Heldonica',
+      publisher: {
+        '@type': 'Organization',
+        name: 'Heldonica',
+        url: baseUrl,
+      },
+    },
+    about: {
+      '@type': 'Thing',
+      name: 'Slow Travel',
+    },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Accueil',
+          item: baseUrl,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Blog',
+          item: blogUrl,
+        },
+      ],
+    },
+  }
+
+  // Add mainEntity if we have posts
+  if (posts.length > 0) {
+    const blogPosts = posts.slice(0, 20).map((post) => ({
+      '@type': 'BlogPosting',
+      headline: post.title,
+      url: `${blogUrl}/${post.slug}`,
+      datePublished: post.published_at,
+      dateModified: post.updated_at || post.published_at,
+      image: post.featured_image,
+      author: {
+        '@type': 'Person',
+        name: post.author || 'Heldonica',
+      },
+      publisher: {
+        '@type': 'Organization',
+        name: 'Heldonica',
+        url: baseUrl,
+      },
+    }))
+
+    return (
+      <Script
+        id="collection-page-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          ...collectionPageSchema,
+          mainEntity: {
+            '@type': 'ItemList',
+            itemListElement: blogPosts,
+          },
+        }) }}
+      />
+    )
+  }
+
+  return (
+    <Script
+      id="collection-page-schema"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionPageSchema) }}
+    />
+  )
 }
 
 export default async function BlogPage() {
@@ -78,6 +166,7 @@ export default async function BlogPage() {
         <Breadcrumb />
         <BlogClientPage posts={[]} />
         <Footer />
+        <CollectionPageJsonLd posts={[]} />
       </>
     )
   }
@@ -109,6 +198,7 @@ export default async function BlogPage() {
       <Breadcrumb />
       <BlogClientPage posts={postsWithFormattedDate} />
       <Footer />
+      <CollectionPageJsonLd posts={safePosts} />
     </>
   )
 }

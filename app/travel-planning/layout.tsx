@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     'conception voyage',
   ],
   alternates: {
-    canonical: 'https://heldonica.fr/travel-planning',
+    canonical: 'https://www.heldonica.fr/travel-planning',
   },
   openGraph: {
     title: 'Voyage sur mesure hors sentiers — Heldonica',
