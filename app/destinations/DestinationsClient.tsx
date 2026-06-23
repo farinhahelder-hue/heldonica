@@ -61,7 +61,13 @@ export default function DestinationsClient() {
         setLoading(false)
       }
     }
-    fetchDestinations()
+    
+    // Fallback: if no destinations loaded after 3 seconds, force stop loading
+    const timeout = setTimeout(() => {
+      setLoading(false)
+    }, 3000)
+    
+    fetchDestinations().finally(() => clearTimeout(timeout))
   }, [])
 
   const starred = useMemo(() => destinations.filter(d => d.status === 'starred'), [destinations])
