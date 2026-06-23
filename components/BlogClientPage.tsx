@@ -218,6 +218,7 @@ export default function BlogClientPage({ posts: rawPosts }: Props) {
               className="w-full rounded-full border border-cloud-dancer bg-white py-3 pl-11 pr-4 text-sm text-charcoal shadow-sm outline-none transition-all duration-200 placeholder:text-charcoal/40 focus:border-eucalyptus focus:ring-2 focus:ring-eucalyptus/20"
             />
             <svg
+              aria-hidden="true"
               className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-charcoal/40"
               fill="none"
               stroke="currentColor"
@@ -412,6 +413,7 @@ function ArticleCard({ post }: { post: BlogPost & { formattedDate: string; readT
             /* Elegant gradient fallback with SVG icon */
             <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-stone-100 via-stone-50 to-stone-200 p-6">
               <svg 
+                aria-hidden="true"
                 className="h-12 w-12 opacity-30" 
                 style={{ color: accentColor }}
                 fill="none" 

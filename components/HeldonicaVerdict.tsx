@@ -35,12 +35,12 @@ export default function HeldonicaVerdict({ items, title = 'Le verdict Heldonica'
     return (
       <div className="flex items-center gap-1">
         {[...Array(fullStars)].map((_, i) => (
-          <svg key={`full-${i}`} className="h-4 w-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+          <svg key={`full-${i}`} aria-hidden="true" className="h-4 w-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
           </svg>
         ))}
         {hasHalfStar && (
-          <svg className="h-4 w-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+          <svg aria-hidden="true" className="h-4 w-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
             <defs>
               <linearGradient id="halfGradient">
                 <stop offset="50%" stopColor="currentColor" />
@@ -51,7 +51,7 @@ export default function HeldonicaVerdict({ items, title = 'Le verdict Heldonica'
           </svg>
         )}
         {[...Array(emptyStars)].map((_, i) => (
-          <svg key={`empty-${i}`} className="h-4 w-4 text-stone-300" fill="currentColor" viewBox="0 0 20 20">
+          <svg key={`empty-${i}`} aria-hidden="true" className="h-4 w-4 text-stone-300" fill="currentColor" viewBox="0 0 20 20">
             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
           </svg>
         ))}
@@ -76,7 +76,7 @@ export default function HeldonicaVerdict({ items, title = 'Le verdict Heldonica'
       {/* Header */}
       <div className="mb-6 flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500 text-white">
-          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
@@ -101,7 +101,7 @@ export default function HeldonicaVerdict({ items, title = 'Le verdict Heldonica'
                 <div className="mt-2 space-y-1 text-sm text-stone-600">
                   {item.address && (
                     <div className="flex items-start gap-2">
-                      <svg className="mt-0.5 h-4 w-4 flex-shrink-0 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg aria-hidden="true" className="mt-0.5 h-4 w-4 flex-shrink-0 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
@@ -110,7 +110,7 @@ export default function HeldonicaVerdict({ items, title = 'Le verdict Heldonica'
                   )}
                   {item.hours && (
                     <div className="flex items-start gap-2">
-                      <svg className="mt-0.5 h-4 w-4 flex-shrink-0 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg aria-hidden="true" className="mt-0.5 h-4 w-4 flex-shrink-0 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       <span>{item.hours}</span>
@@ -118,7 +118,7 @@ export default function HeldonicaVerdict({ items, title = 'Le verdict Heldonica'
                   )}
                   {item.price && (
                     <div className="flex items-start gap-2">
-                      <svg className="mt-0.5 h-4 w-4 flex-shrink-0 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg aria-hidden="true" className="mt-0.5 h-4 w-4 flex-shrink-0 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       <span>Prix constaté : {item.price}</span>
