@@ -1,7 +1,5 @@
 'use client';
 
-console.log('[CMS] Rendering CMS admin page');
-
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
@@ -29,6 +30,20 @@ export const metadata: Metadata = {
 export default function Contact() {
   return (
     <>
+      <Script id="contact-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'ContactPage',
+          name: 'Contact — Heldonica',
+          description: "Une question, un projet de voyage ? Écris-nous pour ton travel planning sur mesure.",
+          url: 'https://www.heldonica.fr/contact',
+          mainEntity: {
+            '@type': 'Person',
+            name: 'Heldonica',
+            email: 'contact@heldonica.fr',
+          },
+        }),
+      }} />
       <Header />
       <Breadcrumb />
       <main>

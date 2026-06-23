@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import { getAllPosts, formatDate, BlogPost } from '@/lib/blog-supabase'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
@@ -63,6 +64,16 @@ export default async function BlogPage() {
   if (!Array.isArray(posts) || posts.length === 0) {
     return (
       <>
+        <Script id="blog-collection-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'CollectionPage',
+            name: 'Blog Slow Travel — Carnets de Route & Pépites Dénichées | Heldonica',
+            description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain.',
+            url: 'https://heldonica.fr/blog',
+            isPartOf: { '@type': 'WebSite', name: 'Heldonica', url: 'https://heldonica.fr' },
+          }),
+        }} />
         <Header />
         <Breadcrumb />
         <BlogClientPage posts={[]} />
@@ -84,6 +95,16 @@ export default async function BlogPage() {
 
   return (
     <>
+      <Script id="blog-collection-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'CollectionPage',
+          name: 'Blog Slow Travel — Carnets de Route & Pépites Dénichées | Heldonica',
+          description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain.',
+          url: 'https://heldonica.fr/blog',
+          isPartOf: { '@type': 'WebSite', name: 'Heldonica', url: 'https://heldonica.fr' },
+        }),
+      }} />
       <Header />
       <Breadcrumb />
       <BlogClientPage posts={postsWithFormattedDate} />

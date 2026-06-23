@@ -6,7 +6,7 @@ import Link from 'next/link'
 export function generateMetadata(): Metadata {
   return {
     title: "Ponta do Sol en couple : slow travel & pépites cachées | Heldonica",
-    description: "Le bout de l ile. Le plus west. Le moins connu.",
+    description: "Le bout de l'île. Le plus west. Le moins connu.",
     openGraph: {
       type: "website",
       images: ["https://heldonica.fr/images/default-hero.jpg"],
@@ -43,7 +43,7 @@ export default function PontaPage() {
           <div className="max-w-4xl mx-auto px-4">
             <span className="text-amber-400 text-sm mb-4 inline-block">⭐ Secret Gem</span>
             <h1 className="text-4xl text-white font-serif">Ponta do Sol</h1>
-            <p className="text-stone-300">Le bout de l ile. Le plus west. Le moins connu.</p>
+            <p className="text-stone-300">Le bout de l'île. Le plus west. Le moins connu.</p>
           </div>
         </section>
         <nav className="bg-white border-b px-4 py-3 flex gap-4 text-sm">
@@ -54,7 +54,7 @@ export default function PontaPage() {
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-8">
             <p className="text-lg text-stone-700">
-              Ponta do Sol, c est literally le bout de l ile.
+              Ponta do Sol, c'est literally le bout de l'île.
               <strong>Le phare, la jetée, lesmaisons blanches.</strong>
               Personne n y va — et c est tant mieux.
             </p>

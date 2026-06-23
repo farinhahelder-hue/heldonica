@@ -294,7 +294,7 @@ export default function Itineraire7JoursPage() {
           <div className="container max-w-4xl">
             <h2 className="text-3xl font-serif text-mahogany mb-4">Télécharge le PDF de cet itinéraire</h2>
             <p className="text-charcoal/70 mb-6 max-w-2xl">
-              Emporte ce carnet Roumanie 7 jours dans ton téléphone ou imprime-le : les adresses, les pépites et les bons plans sans avoir besoin de réseau.
+               Emporte ce carnet Roumanie 7 jours dans ton téléphone ou imprime-le : les adresses et les pépites dénichées sans avoir besoin de réseau.
             </p>
             <a
               href="#pdf-download"
