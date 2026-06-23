@@ -68,15 +68,15 @@ export async function POST(req: NextRequest) {
       destinationDetail,
       duration,
       budget,
-      departureDate,
+      startDate,
       firstName,
       email,
       phone,
-      message,
+      notes,
     } = body
 
     // Honeypot anti-spam
-    if (body.honeypot) {
+    if (body.website_url) {
       return NextResponse.json({ success: true })
     }
 
@@ -99,12 +99,12 @@ export async function POST(req: NextRequest) {
         destination_detail: destinationDetail,
         duree_jours: duration,
         budget_fourchette: budget,
-        mois_depart: departureDate || null,
+        mois_depart: startDate || null,
         prenom: firstName,
         nom: '', // Pas de champ nom dans le formulaire, à améliorer
         email,
         telephone: phone || null,
-        notes: message || null,
+        notes: notes || null,
         statut: 'new',
       })
 
@@ -133,7 +133,7 @@ export async function POST(req: NextRequest) {
               DESTINATION: destination + (destinationDetail ? ` — ${destinationDetail}` : ''),
               DUREE: duration || '',
               BUDGET: budget || '',
-              DATE_DEPART: departureDate || '',
+              DATE_DEPART: startDate || '',
             },
             listIds: [2], // ID liste Brevo — à adapter
             updateEnabled: true,
@@ -167,8 +167,8 @@ export async function POST(req: NextRequest) {
     const sVibe = escapeHtml(vibe);
     const sDuration = escapeHtml(duration);
     const sBudget = escapeHtml(budget);
-    const sDepartureDate = escapeHtml(departureDate);
-    const sMessage = escapeHtml(message);
+    const sStartDate = escapeHtml(startDate);
+    const sNotes = escapeHtml(notes);
 
     // 3. Email interne à Heldonica
     if (resend) {
@@ -192,10 +192,10 @@ export async function POST(req: NextRequest) {
               <tr><td style="padding: 12px; background: #f9f8f5; border-bottom: 1px solid #dcd9d5; font-weight: bold; color: #28251d;">Ambiance</td><td style="padding: 12px; background: #f9f8f5; border-bottom: 1px solid #dcd9d5; color: #28251d;">${sVibe || 'Non précisé'}</td></tr>
               <tr><td style="padding: 12px; background: #fff; border-bottom: 1px solid #dcd9d5; font-weight: bold; color: #28251d;">Durée</td><td style="padding: 12px; background: #fff; border-bottom: 1px solid #dcd9d5; color: #28251d;">${sDuration || 'Non précisé'}</td></tr>
               <tr><td style="padding: 12px; background: #f9f8f5; border-bottom: 1px solid #dcd9d5; font-weight: bold; color: #28251d;">Budget</td><td style="padding: 12px; background: #f9f8f5; border-bottom: 1px solid #dcd9d5; color: #28251d;">${sBudget || 'Non précisé'}</td></tr>
-              ${departureDate ? `<tr><td style="padding: 12px; background: #fff; border-bottom: 1px solid #dcd9d5; font-weight: bold; color: #28251d;">Date de départ</td><td style="padding: 12px; background: #fff; border-bottom: 1px solid #dcd9d5; color: #28251d;">${sDepartureDate}</td></tr>` : ''}
+              ${startDate ? `<tr><td style="padding: 12px; background: #fff; border-bottom: 1px solid #dcd9d5; font-weight: bold; color: #28251d;">Date de départ</td><td style="padding: 12px; background: #fff; border-bottom: 1px solid #dcd9d5; color: #28251d;">${sStartDate}</td></tr>` : ''}
             </table>
 
-            ${message ? `<div style="margin-top: 24px; padding: 16px; background: #fff; border-left: 3px solid #01696f;"><p style="font-weight: bold; margin-bottom: 8px; color: #28251d;">Message :</p><p style="color: #28251d; line-height: 1.6;">${sMessage}</p></div>` : ''}
+            ${notes ? `<div style="margin-top: 24px; padding: 16px; background: #fff; border-left: 3px solid #01696f;"><p style="font-weight: bold; margin-bottom: 8px; color: #28251d;">Notes :</p><p style="color: #28251d; line-height: 1.6;">${sNotes}</p></div>` : ''}
 
             <div style="margin-top: 32px; text-align: center;">
               <a href="mailto:${sEmail}?subject=Re: Votre demande Travel Planning — ${sDestination}" style="display: inline-block; background: #01696f; color: #fff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-family: sans-serif; font-weight: bold;">Répondre à ${sFirstName}</a>
@@ -241,7 +241,7 @@ export async function POST(req: NextRequest) {
               ${vibe ? `<p style="margin: 8px 0; color: #1a1a1a; font-size: 15px;">✨ <strong>Vibe :</strong> ${sVibe}</p>` : ''}
               ${duration ? `<p style="margin: 8px 0; color: #1a1a1a; font-size: 15px;">📅 <strong>Durée :</strong> ${sDuration}</p>` : ''}
               ${budget ? `<p style="margin: 8px 0; color: #1a1a1a; font-size: 15px;">💶 <strong>Budget :</strong> ${sBudget}</p>` : ''}
-              ${departureDate ? `<p style="margin: 8px 0; color: #1a1a1a; font-size: 15px;">🛫 <strong>Départ :</strong> ${sDepartureDate}</p>` : ''}
+              ${startDate ? `<p style="margin: 8px 0; color: #1a1a1a; font-size: 15px;">🛫 <strong>Départ :</strong> ${sStartDate}</p>` : ''}
             </div>
 
             <p style="color: #1a1a1a; font-size: 16px; line-height: 1.7; margin-bottom: 8px;">

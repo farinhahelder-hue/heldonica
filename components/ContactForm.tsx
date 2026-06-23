@@ -46,7 +46,7 @@ export default function ContactForm() {
     } catch (error) {
       console.error('Erreur envoi formulaire:', error)
       setSubmitError(
-        "Le message n'a pas pu partir. Réessaie ici ou écris-nous directement à info@heldonica.fr.",
+        "Le message n'a pas pu partir. Réessaie ici ou écris-nous directement à contact@heldonica.fr.",
       )
     } finally {
       setLoading(false)

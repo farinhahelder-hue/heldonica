@@ -11,7 +11,7 @@ async function getRelatedArticles() {
   const { data } = await (supabase as any)
     .from('articles')
     .select('slug, title, excerpt, image_url, read_time')
-    .eq('destination', 'roumanie')
+    .or('destination.eq.roumanie,slug.ilike.%roumanie%')
     .eq('published', true)
     .order('created_at', { ascending: false })
     .limit(4)

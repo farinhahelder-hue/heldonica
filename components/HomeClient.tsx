@@ -339,9 +339,9 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <Link href={`/blog/${featured.slug}`} className="group block">
             <article className="relative h-[50vh] md:h-[60vh] w-full overflow-hidden flex items-end">
               {featImg && (
-                <img src={featImg} alt={featured.title} width={1400} height={700}
-                  className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-70 group-hover:scale-105 transition-all duration-700"
-                  loading="eager" fetchPriority="high" />
+                <Image src={featImg} alt={featured.title} fill
+                  className="object-cover opacity-60 group-hover:opacity-70 group-hover:scale-105 transition-all duration-700"
+                  priority />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
               <div className="relative z-10 p-8 md:p-16 max-w-3xl">
@@ -384,9 +384,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             {travelPosts.length >= 1 && (
               <div className="grid md:grid-cols-2 gap-6 mb-6">
                 <Link href={`/blog/${travelPosts[0].slug}`} className="card-lift group relative rounded-2xl overflow-hidden bg-mahogany/80 aspect-[4/3] md:row-span-2" data-reveal="left">
-                  <img src={postImage(travelPosts[0])} alt={travelPosts[0].title}
-                    className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700"
-                    loading="lazy" width={800} height={600} />
+                  <Image src={postImage(travelPosts[0])} alt={travelPosts[0].title} fill
+                    className="object-cover opacity-70 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
                   <div className="absolute bottom-0 left-0 p-6">
                     <span className="inline-block bg-eucalyptus text-white text-xs font-bold px-2.5 py-1 rounded-full mb-3">
@@ -408,9 +407,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                     <Link key={p.slug} href={`/blog/${p.slug}`}
                       className="group relative rounded-2xl overflow-hidden bg-mahogany/80"
                       data-reveal data-delay={String((i + 1) * 150)}>
-                      <img src={postImage(p)} alt={p.title}
-                        className="absolute inset-0 w-full h-full object-cover opacity-65 group-hover:opacity-75 group-hover:scale-105 transition-all duration-700"
-                        loading="lazy" width={600} height={300} />
+                      <Image src={postImage(p)} alt={p.title} fill
+                        className="object-cover opacity-65 group-hover:opacity-75 group-hover:scale-105 transition-all duration-700" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                       <div className="relative p-5 h-44 flex flex-col justify-end">
                         <h3 className="text-white text-lg font-serif font-light group-hover:text-teal/80 transition-colors line-clamp-2">
@@ -433,9 +431,10 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <div className="max-w-6xl mx-auto px-6 md:px-10">
             <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
               <div className="relative" data-reveal="left">
-                <img src={postImage(foodPosts[0])}
+                <Image src={postImage(foodPosts[0])}
                   alt={foodPosts[0].title}
-                  className="rounded-2xl w-full aspect-[4/3] object-cover shadow-lg" loading="lazy" width={700} height={525} />
+                  width={700} height={525}
+                  className="rounded-2xl w-full aspect-[4/3] object-cover shadow-lg" />
                 <div className="absolute -bottom-4 -right-4 bg-mahogany text-white px-5 py-3 rounded-xl shadow-lg hidden md:block">
                   <p className="text-xs font-bold tracking-wider uppercase">Adresses testées</p>
                   <p className="text-2xl font-serif font-light mt-0.5">100%</p>
@@ -451,8 +450,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   {foodPosts.slice(0, 3).map((p) => (
                     <Link key={p.slug} href={`/blog/${p.slug}`}
                       className="flex items-start gap-3 group hover:bg-eucalyptus/5 rounded-xl p-2 -mx-2 transition-colors">
-                      <img src={postImage(p)} alt={p.title} width={60} height={60}
-                        className="w-14 h-14 rounded-lg object-cover flex-shrink-0" loading="lazy" />
+                      <Image src={postImage(p)} alt={p.title} width={60} height={60}
+                        className="w-14 h-14 rounded-lg object-cover flex-shrink-0" />
                       <div>
                         <p className="font-semibold text-charcoal/90 text-sm group-hover:text-eucalyptus transition-colors line-clamp-1">{p.title}</p>
                         {p.excerpt && <p className="text-charcoal/60 text-xs line-clamp-2 mt-0.5">{p.excerpt}</p>}

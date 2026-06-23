@@ -15,7 +15,7 @@ const LINKS = [
     category: '📖 Blog',
     items: [
       { label: 'Tous les carnets de voyage', href: '/blog', desc: 'Récits slow travel, destinations authentiques' },
-      { label: 'Guides pratiques', href: '/blog?categorie=Guides Pratiques', desc: 'Itinéraires, conseils, bons plans testés' },
+      { label: 'Guides pratiques', href: '/blog?categorie=Guides Pratiques', desc: 'Itinéraires, conseils, pépites testées' },
       { label: 'Destinations', href: '/destinations', desc: 'Madère, Roumanie, Monténégro, Grèce...' },
     ],
   },

@@ -139,7 +139,7 @@ export default function TravelPlanningForm() {
       
       router.push('/merci')
     } catch {
-      setError('Une erreur est survenue. Réessaie ou écris-nous directement à info@heldonica.fr')
+      setError('Une erreur est survenue. Réessaie ou écris-nous directement à contact@heldonica.fr')
     } finally {
       setLoading(false)
     }

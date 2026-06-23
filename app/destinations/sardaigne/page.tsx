@@ -68,7 +68,7 @@ export default function SardaignePage() {
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-12">
             <p className="text-lg text-stone-700 leading-relaxed">
-              La Sardaigne, c est l ile qui reste.
+              La Sardaigne, c'est l'île qui reste.
               <strong>Entre Mediterranee et mer Tyrrhenienne.</strong>
               Les plages sont les plus belles d Europe.
             </p>
