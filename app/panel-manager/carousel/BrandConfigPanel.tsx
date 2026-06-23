@@ -8,7 +8,7 @@ const STORAGE_KEY = 'heldonica_brand_config'
 interface BrandConfigPanelProps {
   slides: SlideData[]
   onApplyConfig: (config: BrandConfig) => void
-  onApplyPalette: (palette: typeof HELDONICA_TOKENS.palettes[0]) => void
+  onApplyPalette: (palette: typeof HELDONICA_TOKENS.palettes[number]) => void
 }
 
 const FONT_TITLE_OPTIONS = [
