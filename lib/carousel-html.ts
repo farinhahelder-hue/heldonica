@@ -41,7 +41,7 @@ export function buildCarouselHtml(inputUrls: string[]) {
           type="button"
           class="heldonica-carousel__dot${index === 0 ? ' is-active' : ''}"
           data-carousel-dot="${index}"
-          aria-label="Aller à l'image ${index + 1}"
+          aria-label="Aller à l’image ${index + 1}"
         ></button>
       `
     )

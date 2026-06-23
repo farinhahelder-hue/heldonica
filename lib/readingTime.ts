@@ -29,7 +29,7 @@ export function getReadingTime(content: string | null | undefined): number {
 }
 
 /**
- * Formate le temps de lecture pour l'affichage
+ * Formate le temps de lecture pour l’affichage
  * @param minutes - Nombre de minutes
  * @returns Texte formaté (ex: "3 min de lecture")
  */

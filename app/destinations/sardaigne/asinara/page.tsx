@@ -40,7 +40,7 @@ export default function AsinaraPage() {
         </nav>
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-8">
-            <p className="text-lg text-stone-700">Asinara, c'est l'île aux ânes blanchis. Ils sont partout. Pas de tourists — seulement 1 ferry par jour.</p>
+            <p className="text-lg text-stone-700">Asinara, c’est l’île aux ânes blanchis. Ils sont partout. Pas de tourists — seulement 1 ferry par jour.</p>
           </section>
           <section className="mb-8 grid md:grid-cols-2 gap-4">
             <div className="p-4 bg-white rounded-lg border">

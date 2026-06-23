@@ -1,7 +1,7 @@
 // ============================================================
 // /api/agents/status - Heldonica CMS
-// Lit l'etat des issues/PRs des agents IA depuis GitHub
-// Utilise par l'onglet Agents du CMS admin pour afficher l'historique
+// Lit l’etat des issues/PRs des agents IA depuis GitHub
+// Utilise par l’onglet Agents du CMS admin pour afficher l’historique
 // GET ?agent=jules|allhands|gemini|all&limit=10
 // ============================================================
 import { NextRequest, NextResponse } from 'next/server';

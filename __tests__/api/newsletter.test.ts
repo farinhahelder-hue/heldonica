@@ -115,7 +115,7 @@ describe('newsletter API', () => {
       const emailData = {
         from: 'Heldonica <contact@heldonica.fr>',
         to: [email],
-        subject: "Bienvenue dans l'aventure Heldonica 🌿",
+        subject: "Bienvenue dans l’aventure Heldonica 🌿",
       }
 
       expect(emailData.from).toContain('Heldonica')

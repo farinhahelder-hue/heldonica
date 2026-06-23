@@ -39,14 +39,14 @@ async function generateContentWithGroq(imageContext: string): Promise<any> {
 
   const prompt = `Tu es un expert en voyages "slow travel", hors des sentiers battus. Ton ton est chaleureux, expert, curieux, non-commercial, tu utilises le "on" (couple de voyageurs).
 G\u00e9n\u00e8re un article de blog et un post Instagram.
-${imageContext ? `IMPORTANT : Le sujet DOIT correspondre \u00e0 l'image fournie, d\u00e9crite par les mots cl\u00e9s suivants : "${imageContext}".` : `Choisis un sujet au hasard parmi des p\u00e9pites cach\u00e9es en Europe (ex: Mad\u00e8re, Roumanie, Zurich, Paris secret).`}
+${imageContext ? `IMPORTANT : Le sujet DOIT correspondre \u00e0 l’image fournie, d\u00e9crite par les mots cl\u00e9s suivants : "${imageContext}".` : `Choisis un sujet au hasard parmi des p\u00e9pites cach\u00e9es en Europe (ex: Mad\u00e8re, Roumanie, Zurich, Paris secret).`}
 
 Tu dois retourner UNIQUEMENT un objet JSON valide avec cette structure stricte :
 {
   "title": "Titre accrocheur",
   "slug": "slug-url-optimise",
-  "excerpt": "Un r\u00e9sum\u00e9 accrocheur d'environ 2 phrases",
-  "content": "<p>Contenu de l'article en HTML</p>...",
+  "excerpt": "Un r\u00e9sum\u00e9 accrocheur d’environ 2 phrases",
+  "content": "<p>Contenu de l’article en HTML</p>...",
   "category": "Carnets Voyage",
   "unsplashKeyword": "Mots cl\u00e9s en anglais pour chercher une photo (si pas de photo fournie)",
   "instagramCaption": "L\u00e9gende Instagram compl\u00e8te avec hashtags"
@@ -118,7 +118,7 @@ export async function GET(req: Request) {
 
   let savedArticle = null;
   try {
-    // published = false : l'article arrive en brouillon dans le CMS.
+    // published = false : l’article arrive en brouillon dans le CMS.
     // Relire, enrichir du v\u00e9cu terrain, puis publier manuellement.
     // instagram_caption est sauvegard\u00e9 pour \u00e9dition avant envoi manuel.
     const payload: any = {

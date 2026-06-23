@@ -140,7 +140,7 @@ export async function GET() {
 
     const lineCount = lines.length
     const hasGoodDepth = lineCount >= 30
-    llmsChecks.push({ ok: hasGoodDepth, detail: `${lineCount} lignes (>= 30: bon)`, fix: "Ajouter plus d'articles et sections" })
+    llmsChecks.push({ ok: hasGoodDepth, detail: `${lineCount} lignes (>= 30: bon)`, fix: "Ajouter plus d’articles et sections" })
     if (hasGoodDepth) llmsScore += 4
 
     const hasArticles = /^###\s/.test(llmsTxtContent)
@@ -173,7 +173,7 @@ export async function GET() {
 
   ldCount = homeSchemas + blogSchemas
 
-  schemaChecks.push({ ok: homeSchemas > 0, detail: homeSchemas > 0 ? `${homeSchemas} schemas sur la homepage` : 'Aucun schema sur la homepage', fix: "Ajouter Organization + WebSite schema sur la page d'accueil" })
+  schemaChecks.push({ ok: homeSchemas > 0, detail: homeSchemas > 0 ? `${homeSchemas} schemas sur la homepage` : 'Aucun schema sur la homepage', fix: "Ajouter Organization + WebSite schema sur la page d’accueil" })
   if (homeSchemas > 0) schemaScore += 3
 
   schemaChecks.push({ ok: blogSchemas > 0, detail: blogSchemas > 0 ? `${blogSchemas} schemas sur l\'article blog` : 'Aucun schema sur l\'article', fix: "Ajouter BlogPosting schema sur les articles" })
@@ -244,7 +244,7 @@ export async function GET() {
   if (hasStats) contentScore += 3
 
   const hasLists = (blogPage?.match(/<ul[^>]*>|<ol[^>]*>/g)?.length ?? 0) > 0
-  contentChecks.push({ ok: hasLists, detail: hasLists ? 'Listes HTML trouvees' : 'Aucune liste', fix: "Utiliser des listes (ul/ol) pour structurer l'information" })
+  contentChecks.push({ ok: hasLists, detail: hasLists ? 'Listes HTML trouvees' : 'Aucune liste', fix: "Utiliser des listes (ul/ol) pour structurer l’information" })
   if (hasLists) contentScore += 3
 
   const wordCount = (blogPage?.replace(/<[^>]*>/g, '').split(/\s+/).length ?? 0)

@@ -124,7 +124,7 @@ async function llmEnhanceSearch(query: string, results: SearchableItem[]): Promi
         messages: [
           {
             role: 'system',
-            content: `Tu es un assistant de recherche intelligent. L'utilisateur cherche "${query}". 
+            content: `Tu es un assistant de recherche intelligent. L’utilisateur cherche "${query}". 
 Voici les résultats trouves: ${JSON.stringify(results.slice(0, 5).map(r => ({ titre: r.title, type: r.type })))}.
 Résume en 1-2 phrases ce qui correspond le mieux à la recherche.`
           }

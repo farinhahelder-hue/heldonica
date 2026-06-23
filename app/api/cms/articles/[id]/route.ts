@@ -96,13 +96,15 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     if (raw && typeof raw === 'object' && 'title' in raw) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const current = raw as any;
-      await sb.from('article_revisions').insert({
-        article_id: parseInt(params.id),
-        title: current.title,
-        content: current.content,
-        excerpt: current.excerpt,
-        word_count: (current.content || '').replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length,
-      });
+      await sb.from('article_revisions').insert(
+        {
+          article_id: String(parseInt(params.id)),
+          title: current.title,
+          content: current.content,
+          excerpt: current.excerpt,
+          word_count: ((current.content || '') as string).replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length,
+        } as any
+      );
     }
   })().catch(() => {/* ignore revision errors */});
 

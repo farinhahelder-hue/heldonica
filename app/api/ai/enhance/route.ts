@@ -230,7 +230,7 @@ function checkForbidden(article: any): any {
   const replacements: Record<string, string> = {
     'bons plans': 'pépites',
     'bon plan': 'adresse secrète',
-    'tips': "conseil d'initié",
+    'tips': "conseil d’initié",
     'circuit': 'itinéraire',
     'package': 'voyage sur-mesure',
     'lieu incontournable': 'adresse favorite',

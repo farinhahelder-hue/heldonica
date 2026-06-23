@@ -70,7 +70,7 @@ Slide 1 (Accroche): Titre + Texte court captivant
 Pour chaque slide, fournis:
 - Un titre court et accrocheur
 - 2-3 phrases de contenu pertinent
-- Un mot-clé pour l'image Unsplash associée
+- Un mot-clé pour l’image Unsplash associée
 
 Format JSON (sans code blocks):
 {

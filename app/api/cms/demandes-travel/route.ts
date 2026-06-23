@@ -37,7 +37,8 @@ export async function PUT(req: Request) {
   const { id, statut } = await req.json()
   const { error } = await sb
     .from('demandes_travel')
-    .update({ statut })
+    // @ts-expect-error — Supabase types don't cover this table
+    .update({ statut } as any)
     .eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
@@ -68,7 +69,8 @@ export async function PATCH(req: Request) {
   
   const { error } = await sb
     .from('demandes_travel')
-    .update(updates)
+    // @ts-expect-error — Supabase types don't cover this table
+    .update(updates as any)
     .eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })

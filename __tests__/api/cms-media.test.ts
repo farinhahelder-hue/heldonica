@@ -288,7 +288,7 @@ describe('cms/media API', () => {
 
     it('should handle fetch errors', () => {
       const status = 404
-      const errorMessage = `Impossible de télécharger l'image : ${status}`
+      const errorMessage = `Impossible de télécharger l’image : ${status}`
       expect(errorMessage).toContain('404')
     })
 

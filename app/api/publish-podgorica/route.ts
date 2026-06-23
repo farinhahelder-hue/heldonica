@@ -46,19 +46,19 @@ export async function POST() {
         published_at: new Date().toISOString(),
         featured_image: 'https://images.unsplash.com/photo-1555990793-da11153b6e8d?w=1200&q=80',
         author: 'Heldonica',
-        content: `<p>Podgorica. La capitale du Monténégro qu'on traverse en coup de vent, en route vers Kotor ou le parc du Lovćen. Celle qu'on zappe. Celle dont personne ne parle.</p>
+        content: `<p>Podgorica. La capitale du Monténégro qu’on traverse en coup de vent, en route vers Kotor ou le parc du Lovćen. Celle qu’on zappe. Celle dont personne ne parle.</p>
 
 <p>On a passé 4 jours ici. Pas en transit. En immersion. Et on a trouvé des trucs que même les gens du coin ne mettent pas sur TripAdvisor.</p>
 
-<h2>Ce qu'on a découvert</h2>
+<h2>Ce qu’on a découvert</h2>
 
-<p>Le vieux bazar, le matin, à 7h. Les femmes qui vendent des herbes dans des sacs en plastique, le parfum de café qui sort des fenêtres. Le pont sur la Morača à l'heure où les joggeurs passent et où les pêcheurs installent leur ligne.</p>
+<p>Le vieux bazar, le matin, à 7h. Les femmes qui vendent des herbes dans des sacs en plastique, le parfum de café qui sort des fenêtres. Le pont sur la Morača à l’heure où les joggeurs passent et où les pêcheurs installent leur ligne.</p>
 
-<p>La colline de Gorica, accessible à pied depuis le centre. Une colline boisée en plein ville, avec une église orthodoxe au sommet et une vue sur toute la vallée. L'endroit où les gens du coin vont vraiment, pas les touristes.</p>
+<p>La colline de Gorica, accessible à pied depuis le centre. Une colline boisée en plein ville, avec une église orthodoxe au sommet et une vue sur toute la vallée. L’endroit où les gens du coin vont vraiment, pas les touristes.</p>
 
 <h2>Le verdict</h2>
 
-<p>Podgorica mérite qu'on s'y arrête. Pas pour ses monuments, mais pour son absence de tourisme. Pour cette sensation rare de découvrir une capitale européenne qui n'a pas encore été transformée en décor.</p>
+<p>Podgorica mérite qu’on s’y arrête. Pas pour ses monuments, mais pour son absence de tourisme. Pour cette sensation rare de découvrir une capitale européenne qui n’a pas encore été transformée en décor.</p>
 
 <p>Si tu passes par le Monténégro, prends 2-3 jours à Podgorica. Tu verras un pays autrement.</p>`
       })

@@ -76,7 +76,7 @@ export default function VideoMaker() {
         </div>
         <div>
           <h2 className="text-xl font-bold text-gray-900">Générateur de Réels Instagram</h2>
-          <p className="text-sm text-gray-500">Créez des vidéos automatiquement à partir d'un prompt ou de Google Photos.</p>
+          <p className="text-sm text-gray-500">Créez des vidéos automatiquement à partir d’un prompt ou de Google Photos.</p>
         </div>
       </div>
 
@@ -94,7 +94,7 @@ export default function VideoMaker() {
 
           <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 border-dashed">
             <h3 className="font-semibold text-sm mb-2 flex items-center gap-2"><Camera size={16} /> Source des images</h3>
-            <p className="text-xs text-gray-500 mb-3">Si vous ne sélectionnez pas d'images, l'IA cherchera des photos d'illustration sur Unsplash.</p>
+            <p className="text-xs text-gray-500 mb-3">Si vous ne sélectionnez pas d’images, l’IA cherchera des photos d’illustration sur Unsplash.</p>
 
             <button className="text-sm text-blue-600 font-medium hover:underline flex items-center gap-1">
                <Camera size={14} /> Connecter Google Photos (En dev)

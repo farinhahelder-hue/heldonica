@@ -255,7 +255,7 @@ export default function TravelPlanningPage() {
               <div className="rounded-2xl bg-eucalyptus/5 border border-eucalyptus/20 p-8 text-center">
                 <div className="w-16 h-16 rounded-full bg-eucalyptus/10 flex items-center justify-center mx-auto mb-4 text-3xl">✉️</div>
                 <h3 className="text-xl font-serif text-mahogany mb-2">Merci ! On a reçu ta demande.</h3>
-                <p className="text-sm text-charcoal/60">On te répond sous 48h ouvrées maximum. Prépare-toi à rêver — on s'occupe du reste.</p>
+                <p className="text-sm text-charcoal/60">On te répond sous 48h ouvrées maximum. Prépare-toi à rêver — on s’occupe du reste.</p>
               </div>
             ) : (
               <form onSubmit={handleFormSubmit} className="space-y-5">
@@ -318,7 +318,7 @@ export default function TravelPlanningPage() {
                   <label className="block text-sm font-semibold text-charcoal mb-1.5">Ce qui vous tient à cœur</label>
                   <textarea name="notes" value={formData.notes} onChange={handleFormChange} rows={4}
                     className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus resize-none"
-                    placeholder="Rythme, centres d'intérêt, contraintes, rêves… tout ce qui vous passe par la tête." />
+                    placeholder="Rythme, centres d’intérêt, contraintes, rêves… tout ce qui vous passe par la tête." />
                 </div>
 
                 {/* Honeypot */}

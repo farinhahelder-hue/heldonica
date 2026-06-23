@@ -6,7 +6,7 @@ export const MADERE: PillarData = {
   country: 'Portugal',
   flag: '🇵🇹',
   hero: 'https://images.unsplash.com/photo-1593702288056-2c160f65cf12?w=1920&h=1080&fit=crop',
-  tagline: "L'île éternelle du printemps — levadas, falaises et douceur atlantique",
+  tagline: "L’île éternelle du printemps — levadas, falaises et douceur atlantique",
   budget: 1200,
   season: 'Avril–juin / Sept–oct',
   flight: '~2h30 depuis Paris',
@@ -16,9 +16,9 @@ export const MADERE: PillarData = {
   seoTitle: 'Madère en couple : guide slow travel complet 2026 | Heldonica',
   seoDesc: 'Notre guide terrain de Madère testé en couple : itinéraire 7 jours, budget réel ~1200€/semaine, levadas, falaises et pépites dénichées hors sentiers battus.',
   intro: [
-    "Madère, c'est le genre d'endroit qu'on découvre par hasard et dont on ne revient pas indemne. On y est arrivés sans savoir à quoi s'attendre — et on a trouvé bien plus que des levadas et des falaises.",
-    "On a marché dans la forêt de Fanal un matin de brume, les pieds dans la terre volcanique. On a mangé l'espetada dans un restaurant où personne ne parlait anglais. On s'est baignés dans les piscines naturelles de Porto Moniz, seuls au monde.",
-    "Madère pour un couple en 2026, c'est l'endroit où le slow travel prend tout son sens : des paysages qui ralentissent le temps, des sentiers où on croise plus de vaches que de touristes, une île qui n'a pas encore appris à se vendre — et c'est ce qui fait son charme.",
+    "Madère, c’est le genre d’endroit qu’on découvre par hasard et dont on ne revient pas indemne. On y est arrivés sans savoir à quoi s’attendre — et on a trouvé bien plus que des levadas et des falaises.",
+    "On a marché dans la forêt de Fanal un matin de brume, les pieds dans la terre volcanique. On a mangé l’espetada dans un restaurant où personne ne parlait anglais. On s’est baignés dans les piscines naturelles de Porto Moniz, seuls au monde.",
+    "Madère pour un couple en 2026, c’est l’endroit où le slow travel prend tout son sens : des paysages qui ralentissent le temps, des sentiers où on croise plus de vaches que de touristes, une île qui n’a pas encore appris à se vendre — et c’est ce qui fait son charme.",
   ],
   infoTable: [
     { label: 'Meilleure période', value: 'Avril-juin / Sept-oct' },
@@ -69,8 +69,8 @@ export const MONTENEGRO: PillarData = {
   seoTitle: 'Monténégro en couple : guide slow travel 2026 | Heldonica',
   seoDesc: 'Kotor, Durmitor, Perast — notre guide terrain du Monténégro testé en couple. Itinéraire 7 jours, budget ~900€/semaine, pépites hors des sentiers battus.',
   intro: [
-    "Le Monténégro, on y est allés un peu par hasard, attirés par une photo de la baie de Kotor. Ce qu'on a trouvé, c'est bien plus : un pays qui n'a pas encore appris à se vendre, où l'authenticité n'est pas un argument marketing.",
-    "On a marché dans les ruelles pavées de Kotor avant l'arrivée des croisiéristes. On a déjeuné avec des familles locales à Podgorica. On a gravi le parc du Lovćen sous un soleil de juillet, seuls au monde au sommet.",
+    "Le Monténégro, on y est allés un peu par hasard, attirés par une photo de la baie de Kotor. Ce qu’on a trouvé, c’est bien plus : un pays qui n’a pas encore appris à se vendre, où l’authenticité n’est pas un argument marketing.",
+    "On a marché dans les ruelles pavées de Kotor avant l’arrivée des croisiéristes. On a déjeuné avec des familles locales à Podgorica. On a gravi le parc du Lovćen sous un soleil de juillet, seuls au monde au sommet.",
     "Pour un couple en 2026, le Monténégro est ce que la Croatie était il y a quinze ans : préservé, abordable, sincère. Un pays où chaque virage révèle un nouveau paysage à couper le souffle.",
   ],
   infoTable: [
@@ -112,7 +112,7 @@ export const ROUMANIE: PillarData = {
   country: 'Roumanie',
   flag: '🇷🇴',
   hero: 'https://images.unsplash.com/photo-1555992836-003ea0c1b7a9?w=1920&h=1080&fit=crop',
-  tagline: "Transylvanie mystérieuse, Maramureș préservé — l'Europe d'avant",
+  tagline: "Transylvanie mystérieuse, Maramureș préservé — l’Europe d’avant",
   budget: 750,
   season: 'Mai–sept',
   flight: '~3h depuis Paris',
@@ -122,9 +122,9 @@ export const ROUMANIE: PillarData = {
   seoTitle: 'Roumanie en couple : guide slow travel Transylvanie 2026 | Heldonica',
   seoDesc: 'Brasov, Sighișoara, Maramureș — notre guide terrain de Roumanie testé en couple. Itinéraire 7 jours, budget ~750€/semaine, villages préservés et châteaux.',
   intro: [
-    "La Roumanie, on l'avait imaginée avant d'y poser le pied. On pensait connaître — Dracula, l'Est, le froid. Ce qu'on a trouvé, c'est un pays qui nous a pris par surprise.",
-    "On a bu un café sur une terrasse à Floreasca, entourés de jeunes qui construisent la nouvelle Roumanie. On a marché dans les rues pavées de Sighișoara un soir d'automne, seuls dans la citadelle. On a rencontré un berger en Maramureș qui nous a offert du fromage sans rien demander en retour.",
-    "Pour un couple en 2026, la Roumanie est l'une des dernières grandes destinations slow travel européennes : abordable, préservée, et profondément authentique. Loin des clichés, proche du cœur.",
+    "La Roumanie, on l’avait imaginée avant d’y poser le pied. On pensait connaître — Dracula, l’Est, le froid. Ce qu’on a trouvé, c’est un pays qui nous a pris par surprise.",
+    "On a bu un café sur une terrasse à Floreasca, entourés de jeunes qui construisent la nouvelle Roumanie. On a marché dans les rues pavées de Sighișoara un soir d’automne, seuls dans la citadelle. On a rencontré un berger en Maramureș qui nous a offert du fromage sans rien demander en retour.",
+    "Pour un couple en 2026, la Roumanie est l’une des dernières grandes destinations slow travel européennes : abordable, préservée, et profondément authentique. Loin des clichés, proche du cœur.",
   ],
   infoTable: [
     { label: 'Meilleure période', value: 'Mai-sept' },

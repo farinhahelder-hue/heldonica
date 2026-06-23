@@ -498,10 +498,10 @@ export default function AutoShortsGenerator() {
             }}>
               <Video size={64} style={{ opacity: 0.3, marginBottom: '1rem' }} />
               <p style={{ fontSize: '1rem' }}>
-                Importez une vidéo et lancez l'analyse
+                Importez une vidéo et lancez l’analyse
               </p>
               <p style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>
-                L'IA identifiera automatiquement les meilleurs moments
+                L’IA identifiera automatiquement les meilleurs moments
               </p>
             </div>
           ) : (

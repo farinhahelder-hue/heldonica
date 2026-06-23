@@ -103,7 +103,7 @@ const generateItinerary = (title: string, articles: GuideData['articles']) => {
   return [
     { day: 1, title: `Arrivée à ${name}`, desc: `Installation et première découverte de ${name}. Flânerie dans le centre historique, repérage des quartiers, premier repas local.` },
     { day: 2, title: articles[0]?.title || `Exploration de ${name}`, desc: articles[0]?.excerpt?.substring(0, 180) || `Journée consacrée à la découverte des incontournables de ${name}.` },
-    ...(articles[1] ? [{ day: 3, title: articles[1].title, desc: articles[1].excerpt?.substring(0, 180) || `Suite de l'exploration.` }] : []),
+    ...(articles[1] ? [{ day: 3, title: articles[1].title, desc: articles[1].excerpt?.substring(0, 180) || `Suite de l’exploration.` }] : []),
     ...(articles[2] ? [{ day: 4, title: articles[2].title, desc: articles[2].excerpt?.substring(0, 180) || `Journée découverte.` }] : []),
     { day: 5, title: `Dernier jour à ${name}`, desc: `Dernières balades, achats souvenirs, et départ. Ou prolongation du séjour !` },
   ]
@@ -129,7 +129,7 @@ export function TravelGuidePDF({ data }: { data: GuideData }) {
 
       {/* Page 1: Quick facts + Budget */}
       <Page size="A4" style={s.page}>
-        <Text style={s.sectionTitle}>En un coup d'œil</Text>
+        <Text style={s.sectionTitle}>En un coup d’œil</Text>
         <View style={s.factGrid}>
           {styleLabel && (
             <View style={s.factCard}>

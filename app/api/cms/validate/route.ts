@@ -141,7 +141,7 @@ export async function POST(req: Request) {
         // Auto-fix suggestions
         const replacement = word === 'bons plans' ? 'pépites' 
           : word === 'bon plan' ? 'adresse secrète'
-          : word === 'tips' ? "conseil d'initié"
+          : word === 'tips' ? "conseil d’initié"
           : word === 'circuit' ? 'itinéraire'
           : word === 'package' ? 'voyage sur mesure'
           : word === 'lieu incontournable' ? 'adresse favorite'
@@ -183,11 +183,11 @@ export async function POST(req: Request) {
           score -= 15
         }
       } catch {
-        // Timeout or network error - warn but don't fail
+        // Timeout or network error - warn but don’t fail
         issues.push({
           type: 'warning',
           field: 'featured_image',
-          message: `Impossible de vérifier l'image`
+          message: `Impossible de vérifier l’image`
         })
         score -= 5
       }

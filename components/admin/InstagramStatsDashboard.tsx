@@ -38,7 +38,7 @@ export default function InstagramStatsDashboard() {
   if (error) return (
     <div className="bg-white rounded-xl border border-gray-100 p-5">
       <p className="text-sm text-gray-500">{error}</p>
-      <p className="text-xs text-gray-400 mt-2">Définissez INSTAGRAM_ACCESS_TOKEN et INSTAGRAM_BUSINESS_ACCOUNT_ID dans les variables d'environnement.</p>
+      <p className="text-xs text-gray-400 mt-2">Définissez INSTAGRAM_ACCESS_TOKEN et INSTAGRAM_BUSINESS_ACCOUNT_ID dans les variables d’environnement.</p>
     </div>
   );
 

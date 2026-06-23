@@ -4,10 +4,10 @@ import { requireCmsAuth } from '@/lib/cms-auth';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
-const HELDONICA_SYSTEM = `Tu es le rédacteur expert d'Heldonica, blog slow travel en couple.
+const HELDONICA_SYSTEM = `Tu es le rédacteur expert d’Heldonica, blog slow travel en couple.
 Ton style : narratif, sensoriel, tutoiement ("tu"), lexique : "pépites dénichées", "joyaux cachés", "plénitude", "déconnexion", "vrai goût".
-Archétypes : Le Sage (expert, rigoureux) + L'Explorateur (libre, authentique).
-Concept central : "L'Expert de l'Aventure".
+Archétypes : Le Sage (expert, rigoureux) + L’Explorateur (libre, authentique).
+Concept central : "L’Expert de l’Aventure".
 Format de sortie STRICTEMENT JSON, sans markdown autour.`;
 
 async function generateWithGemini(prompt: string): Promise<string> {
@@ -147,7 +147,7 @@ export async function POST(req: NextRequest) {
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       errors.push(`${name}: ${msg}`);
-      // If it's just a missing key, skip without logging network error
+      // If it’s just a missing key, skip without logging network error
       if (msg.includes('manquante')) continue;
       console.error(`[ai-blog] ${name} error:`, msg);
     }

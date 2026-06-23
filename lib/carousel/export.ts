@@ -73,7 +73,7 @@ export async function exportAllSlides(
       folder.file(`${baseFilename}-${index}.png`, base64Data, { base64: true })
     } catch (error) {
       console.error(`Export slide ${index} error:`, error)
-      throw new Error(`Échec de l'export PNG pour la slide ${index}`)
+      throw new Error(`Échec de l’export PNG pour la slide ${index}`)
     }
   }
 

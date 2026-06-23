@@ -142,7 +142,7 @@ function buildBlogPrompt(topic: string, destination: string, notes: string, seoK
     story: 'Récit narratif à la première personne du pluriel ("on"). Commence par une anecdote vécue — une scène concrète, un moment précis. Pas de généralités en ouverture.',
     guide: 'Guide structuré en sections H2/H3. Commence par "on y est allés et voilà ce qu\'on a retenu". Inclure infos pratiques à la fin seulement.',
     list: 'Liste de pépites dénichées (pas de "bons plans" !). Chaque point commence par une micro-anecdote puis l\'info concrète.',
-    review: "Retour d'expérience authentique à la première personne du pluriel. Honnête, avec les points moins bons aussi."
+    review: "Retour d’expérience authentique à la première personne du pluriel. Honnête, avec les points moins bons aussi."
   }
 
   const toneAdjust: Record<string, string> = {
@@ -156,9 +156,9 @@ function buildBlogPrompt(topic: string, destination: string, notes: string, seoK
 
 STRUCTURE OBLIGATOIRE :
 1. Ouvre avec une anecdote réelle ou un moment précis vécu sur place (2-3 phrases max)
-2. "Le vécu d'abord" : ce qu'on a ressenti, découvert, compris
-3. "L'info pratique ensuite" : détails concrets (horaires, prix, comment y aller)
-4. Chaque paragraphe : une image sensorielle (ce qu'on a entendu / goûté / senti / vu)
+2. "Le vécu d’abord" : ce qu’on a ressenti, découvert, compris
+3. "L’info pratique ensuite" : détails concrets (horaires, prix, comment y aller)
+4. Chaque paragraphe : une image sensorielle (ce qu’on a entendu / goûté / senti / vu)
 
 `
   if (notes) prompt += `Intègre obligatoirement cette anecdote/note personnelle : ${notes}\n\n`

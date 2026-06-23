@@ -9,7 +9,7 @@ export const dynamicParams = true;
 export const metadata: Metadata = {
   title: 'Destinations Hors des Sentiers Battus — Pépites Dénichées | Heldonica',
   description:
-    "Madère, Roumanie, Sicile et bien d'autres : on te partage nos destinations authentiques testées sur le terrain, loin des foules. Itinéraires et pépites dénichées.",
+    "Madère, Roumanie, Sicile et bien d’autres : on te partage nos destinations authentiques testées sur le terrain, loin des foules. Itinéraires et pépites dénichées.",
   keywords: [
     'destination hors sentiers battus',
     'destination authentique',
@@ -51,7 +51,7 @@ export default function DestinationsPage() {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     name: 'Destinations Hors des Sentiers Battus — Pépites Dénichées | Heldonica',
-    description: "Madère, Roumanie, Sicile et bien d'autres : on te partage nos destinations authentiques testées sur le terrain, loin des foules. Itinéraires et pépites dénichées.",
+    description: "Madère, Roumanie, Sicile et bien d’autres : on te partage nos destinations authentiques testées sur le terrain, loin des foules. Itinéraires et pépites dénichées.",
     url: 'https://www.heldonica.fr/destinations',
     hasPart: [
       {

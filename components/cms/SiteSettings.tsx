@@ -342,7 +342,7 @@ https://heldonica.com/path|en-US"
           </h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-charcoal mb-2">Nom d'utilisateur</label>
+              <label className="block text-sm font-medium text-charcoal mb-2">Nom d’utilisateur</label>
               <Input
                 value={settings.instagramUsername || ''}
                 onChange={(e) => handleChange('instagramUsername', e.target.value)}
