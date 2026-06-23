@@ -95,7 +95,7 @@ export default function FunchalPage() {
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-12">
             <p className="text-lg text-stone-700 leading-relaxed">
-              Funchal, c est la porte d entree. L aéroport, le port, les croisières.
+              Funchal, c'est la porte d'entrée. L'aéroport, le port, les croisières.
               Mais derriere les touristcs, il y a une ville.
               <strong>Le vieuxquartier sent le poisson et les fruits murs.</strong>
             </p>
@@ -107,7 +107,7 @@ export default function FunchalPage() {
 
           <section className="mb-12">
             <h2 className="text-2xl font-serif text-stone-900 mb-6">
-              Ce qu on a deniché
+              Ce qu'on a deniché
             </h2>
             <div className="grid gap-6 md:grid-cols-2">
               {pepites.map((pepite, idx) => (

@@ -36,7 +36,7 @@ const pepites = [
   },
   {
     title: 'Etretat',
-    description: 'Le village classique. Mais tôt le matin, c est un autre monde.',
+    description: "Le village classique. Mais tôt le matin, c'est un autre monde.",
     icon: '🏘️',
     address: 'Etretat',
   },
@@ -80,19 +80,19 @@ export default function CoteAlbatrePage() {
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-12">
             <p className="text-lg text-stone-700 leading-relaxed">
-              La Côte d Albâtre, c est la Normandie qu on imagine quand on pense Normandie.
+              La Côte d'Albâtre, c'est la Normandie qu'on imagine quand on pense Normandie.
               Les falaises de craie blanche, les aiguilles, les plages de galets.
               <strong>Mais attention aux familles en été.</strong>
             </p>
             <p className="text-lg text-stone-700 leading-relaxed mt-4">
               Le trick : y aller tôt le matin ou hors saison.
-              Là, c est magnifique. Vous êtes seuls face aux falaises.
+              Là, c'est magnifique. Vous êtes seuls face aux falaises.
             </p>
           </section>
 
           <section className="mb-12">
             <h2 className="text-2xl font-serif text-stone-900 mb-6">
-              Ce qu on a deniché
+              Ce qu'on a deniché
             </h2>
             <div className="grid gap-6 md:grid-cols-2">
               {pepites.map((pepite, idx) => (

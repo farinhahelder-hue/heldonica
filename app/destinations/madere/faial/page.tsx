@@ -55,7 +55,7 @@ export default function FaialPage() {
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-8">
             <p className="text-lg text-stone-700">
-              Faial, c est la montagne.
+              Faial, c'est la montagne.
               <strong>Tu prends le funiculaire et hop — tu es dans les nuages.</strong>
               Les gens vivent la-haut, font leur miel.
             </p>

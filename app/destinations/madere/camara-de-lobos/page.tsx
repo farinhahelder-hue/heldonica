@@ -55,7 +55,7 @@ export default function CamaraPage() {
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-8">
             <p className="text-lg text-stone-700">
-              Camara de Lobos, c est le village.
+              Camara de Lobos, c'est le village.
               <strong>Les bateauxt les colores au premier plan, les montagnes derriere.</strong>
               Et le meilleur endroit pour le coucher du soleil.
             </p>

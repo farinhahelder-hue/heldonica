@@ -103,7 +103,7 @@ export default function LeHavrePage() {
             <p className="text-lg text-stone-700 leading-relaxed">
               On est tombés sur Le Havre par hasard. On cherchait une halte entre Caen et Rouen,
               et on s est retrouvé à marcher dans les rues d Auguste Perret.
-              <strong>C est une ville qu on ne attend pas.</strong>
+              <strong>C'est une ville qu'on ne attend pas.</strong>
             </p>
             <p className="text-lg text-stone-700 leading-relaxed mt-4">
               Le centre-ville est classé UNESCO. Non pas pour un monument, mais pour l ensemble.
@@ -115,7 +115,7 @@ export default function LeHavrePage() {
           {/* Pépites */}
           <section className="mb-12">
             <h2 className="text-2xl font-serif text-stone-900 mb-6">
-              Ce qu on a déniché
+              Ce qu'on a déniché
             </h2>
             <div className="grid gap-6 md:grid-cols-2">
               {pepites.map((pepite, idx) => (

@@ -55,7 +55,7 @@ export default function CoteEstPage() {
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-8">
             <p className="text-lg text-stone-700">
-              La cote Est, c est leventre.
+              La cote Est, c'est le ventre.
               <strong>Moins touristique que l Ouest, plus authentique.</strong>
               Les plages sont differentes — rochers, galets, pas de sable fin.
             </p>

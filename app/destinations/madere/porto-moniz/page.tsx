@@ -55,7 +55,7 @@ export default function PortoMonizPage() {
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-8">
             <p className="text-lg text-stone-700">
-              Porto Moniz, c est le grand voyage. La route pour y aller est une aventure —
+              Porto Moniz, c'est le grand voyage. La route pour y aller est une aventure —
               des virages, des tunnels, des vues sur l ocean.
               <strong>Mais les piscines naturelles valent le detour.</strong>
             </p>

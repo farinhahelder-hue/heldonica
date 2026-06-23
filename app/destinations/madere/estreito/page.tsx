@@ -55,9 +55,9 @@ export default function EstreitoPage() {
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-8">
             <p className="text-lg text-stone-700">
-              Estreito, c est la vallee.
+              Estreito, c'est la vallee.
               <strong>Les levadas les plus belles sans les foules.</strong>
-              Attention -- c est 3h de rando minimum.
+              Attention -- c'est 3h de rando minimum.
             </p>
           </section>
           <section className="mb-8 grid md:grid-cols-2 gap-4">

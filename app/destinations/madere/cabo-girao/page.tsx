@@ -55,7 +55,7 @@ export default function CaboGiraoPage() {
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-8">
             <p className="text-lg text-stone-700">
-              Cabo Girao, c est le spot qui fait rever.
+              Cabo Girao, c'est le spot qui fait rever.
               <strong>580 metres de falaise directe dans l ocean.</strong>
               Y aller pour le lever ou le coucher du soleil.
             </p>
@@ -79,7 +79,7 @@ export default function CaboGiraoPage() {
             </div>
             <div className="bg-white p-5 rounded-lg border">
               <h3 className="font-serif mb-3">Conseil</h3>
-              <p className="text-sm text-stone-600">Venez tot ou en fin de journee. En plein milieu, c est bus de touristes.</p>
+              <p className="text-sm text-stone-600">Venez tot ou en fin de journee. En plein milieu, c'est bus de touristes.</p>
             </div>
           </section>
           <Link href="/destinations/madere" className="text-amber-700">← Retour Madere</Link>

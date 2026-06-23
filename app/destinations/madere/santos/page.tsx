@@ -55,7 +55,7 @@ export default function SantosPage() {
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-8">
             <p className="text-lg text-stone-700">
-              Porto da Cruz (Santos), c est le village qu on voit quand on vole sur Madere.
+              Porto da Cruz (Santos), c'est le village qu'on voit quand on vole sur Madere.
               <strong>Petit, authentique, et les meilleures tavernes.</strong>
               Les locaux y mangent — pas les touristes.
             </p>

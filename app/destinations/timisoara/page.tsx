@@ -91,20 +91,20 @@ export default function TimisoaraPage() {
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-12">
             <p className="text-lg text-stone-700 leading-relaxed">
-              Timisoara, c est la surprise.
+              Timisoara, c'est la surprise.
               On y va pour Bucarest, mais on reste pour Timisoara.
               <strong>Une ville europeenne a petit prix.</strong>
             </p>
             <p className="text-lg text-stone-700 leading-relaxed mt-4">
               L architecture autrichienne, les cafes sur les places,
-              la vie nocturne active. C est la Troisieme ville de Roumanie
+              la vie nocturne active. C'est la Troisieme ville de Roumanie
               mais on dirait une ville autrichienne.
             </p>
           </section>
 
           <section className="mb-12">
             <h2 className="text-2xl font-serif text-stone-900 mb-6">
-              Ce qu on a deniché
+              Ce qu'on a deniché
             </h2>
             <div className="grid gap-6 md:grid-cols-2">
               {pepites.map((pepite, idx) => (

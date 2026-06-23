@@ -55,7 +55,7 @@ export default function RibeiroFrioPage() {
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-8">
             <p className="text-lg text-stone-700">
-              Ribeiro Frio, c est la montagne.
+              Ribeiro Frio, c'est la montagne.
               <strong>Les levadas dans la foret Laurisilva — patrimoine UNESCO.</strong>
               Attention, il peut fare gris et pluvieux.
             </p>
