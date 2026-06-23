@@ -138,7 +138,7 @@ export default function Footer() {
                     disabled={loading}
                     className="px-6 py-3.5 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {loading ? 'Envoi...' : "Je m'inscris"}
+                    {loading ? 'Envoi...' : "Je m’inscris"}
                   </button>
                 </form>
               )}

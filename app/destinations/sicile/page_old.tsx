@@ -68,7 +68,7 @@ export default function SicilePage() {
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-12">
             <p className="text-lg text-stone-700 leading-relaxed">
-              La Sicile, c'est l'île qu'on voit dans les films.
+              La Sicile, c’est l’île qu’on voit dans les films.
               <strong>L Etna, les temples grecs, les couleurs.</strong>
               Palermo, Catane, et les petits villages.
             </p>

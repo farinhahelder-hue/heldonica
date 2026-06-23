@@ -53,7 +53,7 @@ export default function ImagePicker({ value, onChange, label, placeholder, altTe
             placeholder="Texte alternatif (accessibilité, SEO)"
             className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs"
           />
-          <p className="text-[10px] text-gray-400 mt-0.5">Décrivez l'image pour l'accessibilité et le SEO</p>
+          <p className="text-[10px] text-gray-400 mt-0.5">Décrivez l’image pour l’accessibilité et le SEO</p>
         </div>
       )}
 

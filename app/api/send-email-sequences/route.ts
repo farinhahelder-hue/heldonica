@@ -17,13 +17,13 @@ const EMAIL_2 = {
       </div>
       <div style="padding: 40px; background: #faf9f7;">
         <p style="font-size: 18px; margin: 0 0 24px; color: #1a1a1a;">
-          Le slow travel, c'est pas voyager lentement. C'est voyager <em>vraiment</em>.
+          Le slow travel, c’est pas voyager lentement. C’est voyager <em>vraiment</em>.
         </p>
         <p style="color: #444; line-height: 1.7; margin: 0 0 20px;">
-          C'est prendre le temps de s'asseoir dans cette tasca de village où personne ne parle anglais. C'est rater son bus de retour parce que le coucher de soleil depuis ce belvédère valait le détour. C'est revenir avec l'adresse du café que même le réceptionniste de l'hôtel ne connaissait pas.
+          C’est prendre le temps de s’asseoir dans cette tasca de village où personne ne parle anglais. C’est rater son bus de retour parce que le coucher de soleil depuis ce belvédère valait le détour. C’est revenir avec l’adresse du café que même le réceptionniste de l’hôtel ne connaissait pas.
         </p>
         <p style="color: #444; line-height: 1.7; margin: 0 0 32px;">
-          On a testé, on a vécu, on a parfois raté des trucs — et c'est pour ça qu'on peut te dire ce qui vaut vraiment le coup.
+          On a testé, on a vécu, on a parfois raté des trucs — et c’est pour ça qu’on peut te dire ce qui vaut vraiment le coup.
         </p>
         <a href="https://heldonica.fr/a-propos" style="display: inline-block; background: #01696f; color: #fff; text-decoration: none; padding: 14px 28px; border-radius: 50px; font-size: 14px; font-family: sans-serif;">Découvrir notre histoire →</a>
       </div>
@@ -32,7 +32,7 @@ const EMAIL_2 = {
           Une pépite de notre dernier carnet :
         </p>
         <blockquote style="font-style: italic; color: #444; border-left: 3px solid #01696f; padding-left: 16px; margin: 0 0 20px;">
-          "On a passé 3 jours à Madère sans voir un seul touriste. Parce qu'on avait pris le temps de chercher les bons chemins."
+          "On a passé 3 jours à Madère sans voir un seul touriste. Parce qu’on avait pris le temps de chercher les bons chemins."
         </blockquote>
         <a href="https://heldonica.fr/blog" style="color: #6b2a1a; font-size: 13px;">Lire nos carnets de voyage →</a>
       </div>
@@ -53,10 +53,10 @@ const EMAIL_3 = {
           On ne te vend pas un voyage tout fait.
         </p>
         <p style="color: #444; line-height: 1.7; margin: 0 0 20px;">
-          On conçoit avec toi un carnet de route qui te ressemble. Tes envies, ton rythme, tes contraintes — on prend tout en compte. Et on ne te recommande que des endroits qu'on a vraiment vécus.
+          On conçoit avec toi un carnet de route qui te ressemble. Tes envies, ton rythme, tes contraintes — on prend tout en compte. Et on ne te recommande que des endroits qu’on a vraiment vécus.
         </p>
         <p style="color: #444; line-height: 1.7; margin: 0 0 24px;">
-          Un Travel Planning Heldonica, c'est 150€ à 350€ selon la complexité du voyage — et ça inclut un échange humain, un vrai brief, et un carnet de route détaillé.
+          Un Travel Planning Heldonica, c’est 150€ à 350€ selon la complexité du voyage — et ça inclut un échange humain, un vrai brief, et un carnet de route détaillé.
         </p>
         <div style="background: #f5f3ef; border-left: 4px solid #6b2a1a; padding: 20px; margin: 24px 0; border-radius: 0 8px 8px 0;">
           <p style="font-style: italic; color: #444; margin: 0 0 12px;">"Sophie, 34 ans, a voulu découvrir Madère en couple — sans le côté trop touristique. En 10 jours, on lui a conçu un itinéraire avec des levadas, des villages de pêcheurs et deux restaurants où le patron la reconnaît maintenant."</p>
@@ -66,7 +66,7 @@ const EMAIL_3 = {
       </div>
       <div style="padding: 24px 40px; background: #f5f3ef; text-align: center; border-top: 1px solid #e8e0d8;">
         <p style="font-size: 11px; color: #888; margin: 0;">
-          Tu reçois cet email car tu t'es inscrit(e) sur heldonica.fr · <a href="https://heldonica.fr/mentions-legales" style="color: #6b2a1a;">Se désabonner</a>
+          Tu reçois cet email car tu t’es inscrit(e) sur heldonica.fr · <a href="https://heldonica.fr/mentions-legales" style="color: #6b2a1a;">Se désabonner</a>
         </p>
       </div>
     </div>

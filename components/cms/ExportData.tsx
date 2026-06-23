@@ -85,7 +85,7 @@ export default function ExportData({ data, onSave }: any) {
         if (imported.version && imported.exportedAt) {
           alert(`Import confirmé!\n- ${imported.blogPosts?.length || 0} articles\n- ${imported.destinations?.length || 0} destinations`)
           
-          // Here you'd merge with existing data
+          // Here you’d merge with existing data
           if (onSave) {
             onSave({
               ...data,

@@ -55,7 +55,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
     }
 
-    // Appel direct à l'Edge Function pour garantir l'envoi email
+    // Appel direct à l’Edge Function pour garantir l’envoi email
     // (double sécurité en plus du trigger Postgres)
     try {
       await fetch(
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
         }
       );
     } catch (emailErr) {
-      // Ne pas bloquer la réponse si l'email échoue
+      // Ne pas bloquer la réponse si l’email échoue
       console.error('Email notification failed:', emailErr);
     }
 

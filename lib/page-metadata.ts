@@ -63,7 +63,7 @@ export const contactMetadata: Metadata = {
 export const slowTravelMetadata: Metadata = {
   title: 'Slow Travel — Notre philosophie | Heldonica',
   description:
-    "Le slow travel vu par Heldonica : voyager lentement, s'immerger vraiment, rencontrer les gens — pas juste les monuments. Notre manifeste.",
+    "Le slow travel vu par Heldonica : voyager lentement, s’immerger vraiment, rencontrer les gens — pas juste les monuments. Notre manifeste.",
   alternates: { canonical: `${SITE}/slow-travel` },
   openGraph: {
     title: 'Slow Travel | Heldonica',

@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase-client';
 import { requireCmsAuth } from '@/lib/cms-auth';
 
-export async function GET(_req: NextRequest, { params }: { params: { slug: string } }) {
-  const auth = await requireCmsAuth();
-  if (!auth.ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+export async function GET(req: NextRequest, { params }: { params: { slug: string } }) {
+  const auth = await requireCmsAuth(req);
+  if (auth) return auth;
 
   const { slug } = params;
 
@@ -28,8 +28,8 @@ export async function GET(_req: NextRequest, { params }: { params: { slug: strin
 }
 
 export async function POST(req: NextRequest, { params }: { params: { slug: string } }) {
-  const auth = await requireCmsAuth();
-  if (!auth.ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const auth = await requireCmsAuth(req);
+  if (auth) return auth; NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
   const { type, ...data } = body;
@@ -54,8 +54,8 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
 }
 
 export async function PUT(req: NextRequest) {
-  const auth = await requireCmsAuth();
-  if (!auth.ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const auth = await requireCmsAuth(req);
+  if (auth) return auth; NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
   const { type, id, ...data } = body;
@@ -72,8 +72,8 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const auth = await requireCmsAuth();
-  if (!auth.ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const auth = await requireCmsAuth(req);
+  if (auth) return auth; NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
   const type = searchParams.get('type');

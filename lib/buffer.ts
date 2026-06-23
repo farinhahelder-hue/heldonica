@@ -2,7 +2,7 @@
  * Buffer Integration for Instagram Publishing
  * 
  * Opens Buffer Composer with pre-filled content
- * No API key needed - just uses Buffer's web interface
+ * No API key needed - just uses Buffer’s web interface
  */
 
 export interface BufferPost {

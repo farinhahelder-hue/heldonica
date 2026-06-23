@@ -69,7 +69,7 @@ Je crée des carrousels Instagram personnalisés avec le style slow travel et é
       const data = await res.json()
 
       if (data.slides && data.slides.length > 0) {
-        const responseContent = `J'ai généré ${data.slides.length} slides pour "${data.meta.prompt}"
+        const responseContent = `J’ai généré ${data.slides.length} slides pour "${data.meta.prompt}"
 
 Chaque slide utilise une couleur différente de la palette Heldonica. Vous pouvez les réorganiser dans le filmstrip ou modifier chaque slide.`
 
@@ -82,13 +82,13 @@ Chaque slide utilise une couleur différente de la palette Heldonica. Vous pouve
       } else {
         setMessages(prev => [...prev, {
           role: 'assistant',
-          content: data.error || "Je n'ai pas pu générer de carrousel. Essayez une description plus précise."
+          content: data.error || "Je n’ai pas pu générer de carrousel. Essayez une description plus précise."
         }])
       }
     } catch (err) {
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: "Une erreur technique s'est produite. Veuillez réessayer."
+        content: "Une erreur technique s’est produite. Veuillez réessayer."
       }])
     } finally {
       setIsGenerating(false)

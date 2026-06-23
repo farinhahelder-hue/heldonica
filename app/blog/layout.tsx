@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Carnets de voyage — Blog Heldonica',
   description:
-    `Nos carnets slow travel écrits depuis le terrain : Madère, Portugal, Grèce, Colombie. Des récits authentiques d'Hélder & Elena — pas des guides génériques.`,
+    `Nos carnets slow travel écrits depuis le terrain : Madère, Portugal, Grèce, Colombie. Des récits authentiques d’Hélder & Elena — pas des guides génériques.`,
   keywords: ['blog voyage', 'slow travel', 'carnets de voyage', 'Madère', 'Portugal', 'Heldonica'],
   alternates: { canonical: 'https://www.heldonica.fr/blog' },
   openGraph: {

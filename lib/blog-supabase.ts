@@ -28,7 +28,7 @@ export interface BlogPost {
   faq_content?: Array<{ question: string; answer: string }> | null;
 }
 
-/** Normalise un post pour garantir qu'aucun champ tableau n'est null */
+/** Normalise un post pour garantir qu’aucun champ tableau n’est null */
 function normalizePost(post: BlogPost): BlogPost {
   return {
     ...post,
@@ -107,7 +107,7 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   }
 }
 
-/** Articles liés (même catégorie, sans l'article courant) */
+/** Articles liés (même catégorie, sans l’article courant) */
 export async function getRelatedPosts(
   currentSlug: string,
   category: string | null,
@@ -172,7 +172,7 @@ export function formatDate(iso: string | null | undefined): string {
 /**
  * Récupère une valeur de paramètre depuis la table site_settings
  * Utilise .limit(1).maybeSingle() pour gérer les doublons de clés
- * sans générer d'erreur lors du build statique
+ * sans générer d’erreur lors du build statique
  */
 export async function getSetting(key: string): Promise<string | null> {
   if (!supabase) return null;
@@ -198,7 +198,7 @@ export async function getSetting(key: string): Promise<string | null> {
 }
 
 /**
- * Récupère le contenu d'une page (depuis site_content table)
+ * Récupère le contenu d’une page (depuis site_content table)
  * Retourne un dictionnaire block_key -> value
  */
 export async function getPageContent(page: string): Promise<Record<string, string>> {

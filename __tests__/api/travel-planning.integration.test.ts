@@ -70,7 +70,7 @@ describe('travel-planning API Integration Tests', () => {
       expect(isValid).toBe(true)
 
       // 2. Supabase insert should be called
-      // (In real integration test, we'd call the route handler directly)
+      // (In real integration test, we’d call the route handler directly)
       mockSupabaseInsert.mockResolvedValueOnce({ error: null })
       const { error } = await mockSupabaseInsert({
         trip_type: payload.tripType,

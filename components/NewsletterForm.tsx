@@ -35,7 +35,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
       const data = await res.json();
       if (res.ok && data.success) {
         setStatus("success");
-        setMessage("🎉 Bienvenue dans l'aventure !");
+        setMessage("🎉 Bienvenue dans l’aventure !");
         setEmail("");
       } else {
         setStatus("error");
@@ -94,12 +94,12 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
               disabled={status === "loading"}
               className="px-6 py-3 bg-eucalyptus/50 hover:bg-teal text-white text-sm font-semibold rounded-full transition-colors whitespace-nowrap disabled:opacity-60"
             >
-              {status === "loading" ? "…" : "Je m'abonne"}
+              {status === "loading" ? "…" : "Je m’abonne"}
             </button>
           </form>
         )}
         {status === "error" && <p className="mt-2 text-red-300 text-xs">{message}</p>}
-        <p className="mt-4 text-white/35 text-xs">En t'inscrivant, tu acceptes de recevoir nos carnets de voyage. Désinscription possible à tout moment.</p>
+        <p className="mt-4 text-white/35 text-xs">En t’inscrivant, tu acceptes de recevoir nos carnets de voyage. Désinscription possible à tout moment.</p>
       </section>
     );
   }
@@ -129,12 +129,12 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
               disabled={status === "loading"}
               className="shrink-0 px-6 py-3 bg-eucalyptus/50 hover:bg-teal text-white text-sm font-semibold rounded-full transition-colors disabled:opacity-60"
             >
-              {status === "loading" ? "…" : "Je m'abonne"}
+              {status === "loading" ? "…" : "Je m’abonne"}
             </button>
           </form>
         )}
         {status === "error" && <p className="text-red-300 text-xs mt-1">{message}</p>}
-        <p className="text-white/35 text-xs">En t'inscrivant, tu acceptes de recevoir nos carnets de voyage. Désinscription possible à tout moment.</p>
+        <p className="text-white/35 text-xs">En t’inscrivant, tu acceptes de recevoir nos carnets de voyage. Désinscription possible à tout moment.</p>
       </div>
     );
   }
@@ -176,13 +176,13 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
               disabled={status === "loading"}
               className="px-7 py-3.5 bg-eucalyptus/50 hover:bg-teal text-white text-sm font-semibold rounded-full transition-colors whitespace-nowrap disabled:opacity-60"
             >
-              {status === "loading" ? "Inscription…" : "Je m'abonne"}
+              {status === "loading" ? "Inscription…" : "Je m’abonne"}
             </button>
           </form>
         )}
         {status === "error" && <p className="mt-3 text-red-300 text-sm">{message}</p>}
 
-        <p className="mt-4 text-white/35 text-xs">En t'inscrivant, tu acceptes de recevoir nos carnets de voyage. Désinscription possible à tout moment.</p>
+        <p className="mt-4 text-white/35 text-xs">En t’inscrivant, tu acceptes de recevoir nos carnets de voyage. Désinscription possible à tout moment.</p>
       </div>
     </section>
   );

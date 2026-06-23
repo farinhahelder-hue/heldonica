@@ -3,8 +3,8 @@ import { supabase } from '@/lib/supabase-client';
 import { requireCmsAuth } from '@/lib/cms-auth';
 
 export async function GET(req: NextRequest) {
-  const auth = await requireCmsAuth();
-  if (!auth.ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const auth = await requireCmsAuth(req);
+  if (auth) return auth; NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
   const routeId = searchParams.get('route_id');
@@ -20,8 +20,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const auth = await requireCmsAuth();
-  if (!auth.ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const auth = await requireCmsAuth(req);
+  if (auth) return auth; NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { route_id, points } = await req.json();
   if (!route_id || !Array.isArray(points)) {
@@ -48,8 +48,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const auth = await requireCmsAuth();
-  if (!auth.ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const auth = await requireCmsAuth(req);
+  if (auth) return auth; NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
   const routeId = searchParams.get('route_id');
