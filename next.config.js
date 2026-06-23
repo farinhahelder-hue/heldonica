@@ -34,6 +34,7 @@ const nextConfig = {
       { protocol: 'https', hostname: 'heldonica.fr' },
       { protocol: 'https', hostname: 'www.heldonica.fr' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'source.unsplash.com' },
       { protocol: 'https', hostname: 'behold.pictures' },
       { protocol: 'https', hostname: 'cdn2.behold.pictures' },
       // Google user profile images (OAuth avatars)
