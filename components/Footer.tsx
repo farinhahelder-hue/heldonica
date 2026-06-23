@@ -40,7 +40,9 @@ export default function Footer() {
     { href: '/', label: 'Accueil' },
     { href: '/destinations', label: 'Destinations' },
     { href: '/blog', label: 'Inspirations' },
+    { href: '/quiz', label: 'Quiz' },
     { href: '/travel-planning', label: 'Services' },
+    { href: '/expert-hotelier', label: 'Consulting hôtelier' },
     { href: '/a-propos', label: 'À propos' },
     { href: '/contact', label: 'Contact' },
   ]
