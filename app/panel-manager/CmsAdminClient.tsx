@@ -7,7 +7,7 @@ import EnhancedRichContent from '@/components/EnhancedRichContent';
 import MediaLibrary from '@/components/MediaLibrary';
 import EeaatScore from '@/components/EeaatScore';
 import { sanitizeHtml } from '@/lib/sanitize-html';
-import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot, Mail, Map as MapIcon, ChevronLeft, ChevronRight, Palette, Zap } from 'lucide-react';
+import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot, Mail, Map as MapIcon, ChevronLeft, ChevronRight, Palette, Zap, Inbox } from 'lucide-react';
 import { Film, Clapperboard, Camera, Calendar } from 'lucide-react';
 import CmsSettingsPanel from '@/components/admin/CmsSettingsPanel';
 import ErrorBoundary from '@/components/admin/ErrorBoundary';
@@ -56,7 +56,7 @@ type NavSection =
   | 'dashboard' | 'articles' | 'new-article' | 'media'
   | 'settings' | 'seo' | 'analytics' | 'carousel'
   | 'blog-generator' | 'video' | 'fast-trim' | 'studio-video'
-  | 'map' | 'auto-shorts' | 'design' | 'geo' | 'instagram';
+  | 'map' | 'auto-shorts' | 'design' | 'geo' | 'instagram' | 'messages';
 
 function CmsAdminClientInner() {
   const router = useRouter();
@@ -105,6 +105,163 @@ function CmsAdminClientInner() {
     }, 30000);
     return () => clearInterval(timer);
   }, [editingArticle]);
+
+  // ── Messages section ───────────────────────────────────────────────────────
+  type ContactMessage = {
+    id: string;
+    name: string;
+    email: string;
+    subject?: string;
+    message: string;
+    status: string;
+    created_at: string;
+    read_at?: string;
+  };
+
+  const [messages, setMessages] = useState<ContactMessage[]>([]);
+  const [messagesLoading, setMessagesLoading] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [msgFilter, setMsgFilter] = useState<'all' | 'unread' | 'read' | 'archived'>('all');
+  const [selectedMsg, setSelectedMsg] = useState<ContactMessage | null>(null);
+  const [msgActioning, setMsgActioning] = useState(false);
+
+  const loadMessages = useCallback(async () => {
+    setMessagesLoading(true);
+    try {
+      const params = msgFilter !== 'all' ? `?status=${msgFilter}` : '';
+      const res = await fetch(`/api/cms/contact-messages${params}`, { cache: 'no-store' });
+      const data = await res.json();
+      if (res.ok) {
+        setMessages(data.messages || []);
+        setUnreadCount(data.unread || 0);
+      }
+    } catch { /* silent */ } finally {
+      setMessagesLoading(false);
+    }
+  }, [msgFilter]);
+
+  useEffect(() => { if (activeSection === 'messages') loadMessages(); }, [activeSection, loadMessages]);
+
+  const handleMsgAction = async (id: string, action: 'read' | 'archive') => {
+    setMsgActioning(true);
+    try {
+      const res = await fetch('/api/cms/contact-messages', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, action }),
+      });
+      if (res.ok) {
+        setMessages(prev => prev.map(m => m.id === id ? { ...m, status: action === 'read' ? 'read' : 'archived', read_at: action === 'read' ? new Date().toISOString() : m.read_at } : m));
+        setUnreadCount(prev => action === 'read' && messages.find(m => m.id === id)?.status === 'unread' ? prev - 1 : prev);
+        if (selectedMsg?.id === id) setSelectedMsg(null);
+        toast(`${action === 'read' ? 'Marqué comme lu' : 'Archivé'}`, 'success');
+      }
+    } catch { toast('Erreur', 'error'); } finally { setMsgActioning(false); }
+  };
+
+  const handleMsgDelete = async (id: string) => {
+    if (!(window as Window & { confirm: (msg: string) => boolean }).confirm('Supprimer ce message ?')) return;
+    setMsgActioning(true);
+    try {
+      const res = await fetch(`/api/cms/contact-messages?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setMessages(prev => prev.filter(m => m.id !== id));
+        if (selectedMsg?.id === id) setSelectedMsg(null);
+        toast('Message supprime', 'success');
+      }
+    } catch { toast('Erreur', 'error'); } finally { setMsgActioning(false); }
+  };
+
+  const formatDate = (d: string) => new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+  function MessagesSection() {
+    const badgeStyle = (s: string) => s === 'unread' ? 'bg-red-100 text-red-700' : s === 'read' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500';
+    const filtered = messages;
+    return (
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">Messages</h1>
+        <p className="text-sm text-gray-500 mb-4">
+          {unreadCount > 0 ? `${unreadCount} message${unreadCount > 1 ? 's' : ''} non lu${unreadCount > 1 ? 's' : ''}` : 'Aucun message non lu'}
+        </p>
+        <div className="flex gap-1 bg-gray-100 rounded-lg p-1 mb-4 w-fit">
+          {(['all', 'unread', 'read', 'archived'] as const).map(f => (
+            <button key={f} onClick={() => setMsgFilter(f)}
+              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${msgFilter === f ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+              {f === 'all' ? 'Tous' : f === 'unread' ? `Non lus${unreadCount > 0 ? ` (${unreadCount})` : ''}` : f.charAt(0).toUpperCase() + f.slice(1)}
+            </button>
+          ))}
+        </div>
+        {messagesLoading ? (
+          <div className="text-sm text-gray-400 py-8 text-center">Chargement...</div>
+        ) : filtered.length === 0 ? (
+          <div className="text-sm text-gray-400 py-8 text-center">Aucun message</div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
+              {filtered.map(msg => (
+                <div key={msg.id} onClick={() => setSelectedMsg(msg)}
+                  className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${selectedMsg?.id === msg.id ? 'bg-blue-50' : ''}`}>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-gray-900 truncate">{msg.name}</p>
+                      <p className="text-xs text-gray-500 truncate">{msg.email}</p>
+                      {msg.subject && <p className="text-xs text-gray-600 mt-0.5 truncate">{msg.subject}</p>}
+                    </div>
+                    <span className={`shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${badgeStyle(msg.status)}`}>
+                      {msg.status === 'unread' ? 'NON LU' : msg.status.toUpperCase()}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">{formatDate(msg.created_at)}</p>
+                </div>
+              ))}
+            </div>
+            {selectedMsg ? (
+              <div className="bg-white rounded-xl border border-gray-200 p-5">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900">{selectedMsg.name}</h3>
+                    <p className="text-sm text-gray-500">{selectedMsg.email}</p>
+                    {selectedMsg.subject && <p className="text-sm text-gray-700 mt-1"><span className="font-semibold">Sujet :</span> {selectedMsg.subject}</p>}
+                  </div>
+                  <button onClick={() => setSelectedMsg(null)} className="text-gray-400 hover:text-gray-600 p-1"><span className="text-lg">&times;</span></button>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-700 whitespace-pre-wrap max-h-64 overflow-y-auto mb-4">
+                  {selectedMsg.message}
+                </div>
+                <p className="text-xs text-gray-400 mb-4">Recu le {formatDate(selectedMsg.created_at)}</p>
+                <div className="flex gap-2">
+                  {selectedMsg.status === 'unread' && (
+                    <button onClick={() => handleMsgAction(selectedMsg.id, 'read')} disabled={msgActioning}
+                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-[#2D8B7A] text-white rounded-lg text-sm font-medium hover:bg-[#257a6a] disabled:opacity-50 transition-colors">
+                      <Eye size={14} /> Marquer comme lu
+                    </button>
+                  )}
+                  {selectedMsg.status !== 'archived' && (
+                    <button onClick={() => handleMsgAction(selectedMsg.id, 'archive')} disabled={msgActioning}
+                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 disabled:opacity-50 transition-colors">
+                      Archive
+                    </button>
+                  )}
+                  <button onClick={() => handleMsgDelete(selectedMsg.id)} disabled={msgActioning}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium disabled:opacity-50 transition-colors">
+                    <Trash2 size={14} />
+                  </button>
+                  <a href={`mailto:${selectedMsg.email}`}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                    <Mail size={14} /> Repondre
+                  </a>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-white rounded-xl border border-gray-200 p-8 flex items-center justify-center">
+                <p className="text-sm text-gray-400">Selectionnez un message</p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   // ── Auth ──────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -270,8 +427,8 @@ function CmsAdminClientInner() {
     { id: 'map',           label: 'Cartes',            icon: <MapIcon size={16} /> },
     { id: 'design',        label: 'Design',             icon: <Palette size={16} /> },
     { id: 'geo',           label: 'GEO',                icon: <Zap size={16} /> },
-    { id: 'geo',           label: 'GEO',                icon: <Zap size={16} /> },
     { id: 'instagram',     label: 'Instagram',           icon: <Camera size={16} /> },
+    { id: 'messages',      label: 'Messages',           icon: <Inbox size={16} /> },
     { id: 'settings',      label: 'Paramètres',        icon: <Settings size={16} /> },
   ];
 
@@ -906,6 +1063,9 @@ function CmsAdminClientInner() {
               </div>
             </ErrorBoundary>
           )}
+
+          {/* ── Messages ── */}
+          {activeSection === 'messages' && <MessagesSection />}
 
           {/* ── Settings ── */}
           {activeSection === 'settings' && (
