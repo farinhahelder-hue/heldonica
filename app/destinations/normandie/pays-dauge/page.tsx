@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 const pepites = [
   {
     title: 'Honfleur',
-    description: 'Le portype. Mais hors saison, c est magic. Lesaufs sur le port.',
+    description: "Le portype. Mais hors saison, c'est magic. Lesaufs sur le port.",
     icon: '⚓',
     address: 'Honfleur',
   },
@@ -86,20 +86,20 @@ export default function PaysDaugePage() {
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-12">
             <p className="text-lg text-stone-700 leading-relaxed">
-              Le Pays d Auge, c est la Normandie postcards.
+              Le Pays d'Auge, c'est la Normandie postcards.
               Honfleur, Deauville, les plages du Débarquement tout proches.
-              <strong>Mais c est aussi l interieur des terres.</strong>
+              <strong>Mais c'est aussi l'intérieur des terres.</strong>
             </p>
             <p className="text-lg text-stone-700 leading-relaxed mt-4">
               Les prés avec les vaches (oui, les vraies, pour le lait et le fromage),
               les maisons a colombages, les petites routes entre lespommiers.
-              C est là qu on a trouvé notre Normandie.
+              C'est là qu'on a trouvé notre Normandie.
             </p>
           </section>
 
           <section className="mb-12">
             <h2 className="text-2xl font-serif text-stone-900 mb-6">
-              Ce qu on a deniché
+              Ce qu'on a deniché
             </h2>
             <div className="grid gap-6 md:grid-cols-2">
               {pepites.map((pepite, idx) => (

@@ -55,7 +55,7 @@ export default function AchadasPage() {
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-8">
             <p className="text-lg text-stone-700">
-              Achadas da Cruz, c est le spot the brave.
+              Achadas da Cruz, c'est le spot the brave.
               <strong>Le funiculaire le plus d EUROPE -- 1000m de chute verticale.</strong>
               Pas pour les gens qui ont le vertige.
             </p>

@@ -53,7 +53,7 @@ export default function IdfPage() {
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-12">
             <p className="text-lg text-stone-700 leading-relaxed">
-              L Ile-de-France, c est la region Parisienne.
+              L'Ile-de-France, c'est la région Parisienne.
               <strong>Paris, Versailles, Giverny, Fontainebleau.</strong>
               Les weekends et les journees.
             </p>

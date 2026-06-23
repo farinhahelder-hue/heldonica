@@ -38,7 +38,7 @@ export default function BucarestPage() {
         </nav>
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-8">
-            <p className="text-lg text-stone-700">Bucarest, c est le chaos. Mais un chaos passionnant.</p>
+            <p className="text-lg text-stone-700">Bucarest, c'est le chaos. Mais un chaos passionnant.</p>
           </section>
           <section className="mb-8 grid md:grid-cols-3 gap-4">
             {pepites.map((p, i) => (

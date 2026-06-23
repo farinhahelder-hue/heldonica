@@ -38,7 +38,7 @@ const faqLisbonneSchema = {"@context":"https://schema.org","@type":"FAQPage","ma
         </nav>
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-8">
-            <p className="text-lg text-stone-700">Lisbonne, c est les sept collines. On monte, on descend, on trouve.</p>
+            <p className="text-lg text-stone-700">Lisbonne, c'est les sept collines. On monte, on descend, on trouve.</p>
           </section>
           <section className="mb-8 grid md:grid-cols-3 gap-4">
             {pepites.map((p, i) => (

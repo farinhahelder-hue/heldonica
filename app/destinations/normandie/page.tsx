@@ -82,7 +82,7 @@ export default function NormandiePage() {
             </h1>
             <p className="text-xl text-stone-300 max-w-2xl">
               Falaises de craie blanche, ports de pêche authentique, histoire par chaque rue.
-              La Normandie qu on aime — entre mer et patrimoine.
+              La Normandie qu'on aime — entre mer et patrimoine.
             </p>
           </div>
         </section>
@@ -109,7 +109,7 @@ export default function NormandiePage() {
             <p className="text-lg text-stone-700 leading-relaxed">
               Quand on pense Normandie, on imagine les plages du Débarquement, les falaises d Etretat, Honfleur.
               Mais entre les sentiers battus, il y a une Normandie plus secrète : les petits ports de pêche, les vallons du Pays d Auge,
-              les apparts Art déco du Havre. <strong>C est celle-là qu on est allés chercher.</strong>
+              les apparts Art déco du Havre. <strong>C'est celle-là qu'on est allés chercher.</strong>
             </p>
           </section>
 

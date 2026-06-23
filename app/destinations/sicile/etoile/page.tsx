@@ -40,7 +40,7 @@ export default function EtoilePage() {
         </nav>
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-8">
-            <p className="text-lg text-stone-700">Les Eoliennes, c est le volcan sous la mer. Boue chaude, plages noires,Lipari, Salina.</p>
+            <p className="text-lg text-stone-700">Les Eoliennes, c'est le volcan sous la mer. Boue chaude, plages noires,Lipari, Salina.</p>
           </section>
           <section className="mb-8 grid md:grid-cols-2 gap-4">
             <div className="p-4 bg-white rounded-lg border">

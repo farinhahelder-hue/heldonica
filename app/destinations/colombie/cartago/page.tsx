@@ -40,7 +40,7 @@ export default function CartagoPage() {
         </nav>
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-8">
-            <p className="text-lg text-stone-700">Cartago, c est la zone cafe. Les fincas, les plantations, le meilleur cafe de Colombie.</p>
+            <p className="text-lg text-stone-700">Cartago, c'est la zone cafe. Les fincas, les plantations, le meilleur cafe de Colombie.</p>
           </section>
           <section className="mb-8 grid md:grid-cols-3 gap-4">
             <div className="p-4 bg-white rounded-lg border">

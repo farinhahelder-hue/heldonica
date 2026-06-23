@@ -55,7 +55,7 @@ export default function PortelaPage() {
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-8">
             <p className="text-lg text-stone-700">
-              Portela, c est le village qu on voit depuis Ribeiro Frio.
+              Portela, c'est le village qu'on voit depuis Ribeiro Frio.
               <strong>Petit, silent, et la vue est enorme.</strong>
               Les gens y vivent their vie.
             </p>

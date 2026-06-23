@@ -68,7 +68,7 @@ export default function ColombiePage() {
         <div className="max-w-4-xl mx-auto px-4 py-12">
           <section className="mb-12">
             <p className="text-lg text-stone-700 leading-relaxed">
-              La Colombie, c est le retour.
+              La Colombie, c'est le retour.
               <strong>La transformation est incredible.</strong>
               Bogota, Medellin, et le Valle del Cauca.
             </p>
@@ -88,7 +88,7 @@ export default function ColombiePage() {
               </Link>
               <Link href="/destinations/colombie/medellin" className="block p-6 bg-white rounded-lg border border-stone-200 hover:border-amber-400">
                 <h3 className="font-serif text-lg text-stone-900 mb-2">Medellin</h3>
-                <p className="text-stone-600 text-sm">Ville de l eternel打印. Transformation.</p>
+                <p className="text-stone-600 text-sm">Ville de l'éternel printemps. Transformation.</p>
               </Link>
               <Link href="/destinations/colombie/cali" className="block p-6 bg-white rounded-lg border border-stone-200 hover:border-amber-400">
                 <h3 className="font-serif text-lg text-stone-900 mb-2">Cali</h3>

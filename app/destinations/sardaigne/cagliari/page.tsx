@@ -40,7 +40,7 @@ export default function CagliariPage() {
         </nav>
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-8">
-            <p className="text-lg text-stone-700">Cagliari, c est le sud. La lagune avec les flamants, les dunes de Piscinas.</p>
+            <p className="text-lg text-stone-700">Cagliari, c'est le sud. La lagune avec les flamants, les dunes de Piscinas.</p>
           </section>
           <section className="mb-8 grid md:grid-cols-3 gap-4">
             <div className="p-4 bg-white rounded-lg border">

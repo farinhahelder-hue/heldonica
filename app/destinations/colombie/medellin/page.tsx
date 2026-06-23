@@ -6,7 +6,7 @@ import Link from 'next/link'
 export function generateMetadata(): Metadata {
   return {
     title: "Medellin en couple : slow travel & pépites cachées | Heldonica",
-    description: "Ville de l eternelle printemps. Parche, metro.",
+    description: "Ville de l'éternel printemps. Parche, metro.",
     openGraph: {
       type: "website",
       images: ["https://heldonica.fr/images/default-hero.jpg"],
@@ -32,7 +32,7 @@ export default function MedellinPage() {
           <div className="max-w-4xl mx-auto px-4">
             <span className="text-amber-400 text-sm">Colombie</span>
             <h1 className="text-4xl text-white font-serif">Medellin</h1>
-            <p className="text-stone-300">Ville de l eternelle printemps. Parche, metro.</p>
+            <p className="text-stone-300">Ville de l'éternel printemps. Parche, metro.</p>
           </div>
         </section>
         <nav className="bg-white border-b px-4 py-3 flex gap-4 text-sm">
@@ -40,7 +40,7 @@ export default function MedellinPage() {
         </nav>
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-8">
-            <p className="text-lg text-stone-700">Medellin, c est la transformation. Le clima eternal, les parches, le metro cable.</p>
+            <p className="text-lg text-stone-700">Medellin, c'est la transformation. Le clima eternal, les parches, le metro cable.</p>
           </section>
           <section className="mb-8 grid md:grid-cols-3 gap-4">
             <div className="p-4 bg-white rounded-lg border">

@@ -55,7 +55,7 @@ export default function SaoVicentePage() {
         <div className="max-w-4xl mx-auto px-4 py-12">
           <section className="mb-8">
             <p className="text-lg text-stone-700">
-              Sao Vicente, c est le nord qu on zappe.
+              Sao Vicente, c'est le nord qu'on zappe.
               <strong>Les grottes de lave — seulement 2 ouverts au public.</strong>
               Et la plage noire, une des rares.
             </p>
