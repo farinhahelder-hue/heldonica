@@ -33,7 +33,7 @@ export async function POST(req: Request) {
 
     if (postsError) throw postsError;
 
-    const postsToUpdate = (posts || []).filter(post => needsUpdate(post.featured_image));
+    const postsToUpdate = (posts || []).filter((post: { featured_image?: string | null }) => needsUpdate(post.featured_image));
 
     // 2. Fetch Destinations
     const { data: destinations, error: destError } = await supabase.from('destinations')
@@ -41,12 +41,12 @@ export async function POST(req: Request) {
 
     if (destError) throw destError;
 
-    const destsToUpdate = (destinations || []).filter(dest => needsUpdate(dest.featured_image));
+    const destsToUpdate = (destinations || []).filter((dest: { featured_image?: string | null }) => needsUpdate(dest.featured_image));
 
         let updatedCount = 0;
     // 3. Process Blog Posts concurrently for Unsplash API
     // Optimization: using Promise.all speeds up the external API requests, reducing I/O wait time.
-    const postResults = await Promise.all(postsToUpdate.map(async (post) => {
+    const postResults = await Promise.all(postsToUpdate.map(async (post: { id: number; category?: string }) => {
       const query = post.category || 'travel';
       const photos = await searchUnsplash(query, 1);
       if (photos && photos.length > 0 && photos[0]?.urls?.regular) {
@@ -65,7 +65,7 @@ export async function POST(req: Request) {
 
     // 4. Process Destinations concurrently for Unsplash API
     // Optimization: using Promise.all speeds up the external API requests, reducing I/O wait time.
-    const destResults = await Promise.all(destsToUpdate.map(async (dest) => {
+    const destResults = await Promise.all(destsToUpdate.map(async (dest: { id: number; name?: string; country?: string }) => {
       const query = dest.name || dest.country || 'landscape';
       const photos = await searchUnsplash(query, 1);
       if (photos && photos.length > 0 && photos[0]?.urls?.regular) {

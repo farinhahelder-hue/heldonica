@@ -36,7 +36,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     if (error || !data) return {}
 
     const settings: SiteSettings = {}
-    data.forEach(s => {
+    data.forEach((s: { key: string; value: string }) => {
       settings[s.key] = s.value || ''
     })
 

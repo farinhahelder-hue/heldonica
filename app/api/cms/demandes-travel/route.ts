@@ -37,7 +37,6 @@ export async function PUT(req: Request) {
   const { id, statut } = await req.json()
   const { error } = await sb
     .from('demandes_travel')
-    // @ts-expect-error Supabase types are not fully inferred
     .update({ statut })
     .eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
@@ -69,7 +68,6 @@ export async function PATCH(req: Request) {
   
   const { error } = await sb
     .from('demandes_travel')
-    // @ts-expect-error Supabase partial update typing
     .update(updates)
     .eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

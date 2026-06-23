@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await query
 
   // Enrich with taxonomy data
-  const enriched = data?.map(article => ({
+  const enriched = data?.map((article: { content?: string; category?: string; country?: string }) => ({
     ...article,
     word_count: article.content ? article.content.replace(/<[^>]*>/g, '').split(/\s+/).length : 0,
     read_time_min: Math.ceil((article.content?.length || 0) / 1000),
