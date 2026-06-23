@@ -27,9 +27,9 @@ export async function POST(req: Request) {
   if (authResponse) return authResponse;
 
   try {
-    // 1. Fetch Blog Posts
+    // 1. Fetch Blog Posts with title for better image search
     const { data: posts, error: postsError } = await supabase.from('cms_blog_posts')
-      .select('id, category, featured_image');
+      .select('id, title, category, tags, featured_image');
 
     if (postsError) throw postsError;
 
@@ -37,17 +37,22 @@ export async function POST(req: Request) {
 
     // 2. Fetch Destinations
     const { data: destinations, error: destError } = await supabase.from('destinations')
-      .select('id, name, country, featured_image');
+      .select('id, name, country, tags, featured_image');
 
     if (destError) throw destError;
 
     const destsToUpdate = (destinations || []).filter((dest: { featured_image?: string | null }) => needsUpdate(dest.featured_image));
 
-        let updatedCount = 0;
+    let updatedCount = 0;
+
     // 3. Process Blog Posts concurrently for Unsplash API
-    // Optimization: using Promise.all speeds up the external API requests, reducing I/O wait time.
-    const postResults = await Promise.all(postsToUpdate.map(async (post: { id: number; category?: string }) => {
-      const query = post.category || 'travel';
+    // Uses title + tags for relevant images instead of just category
+    const postResults = await Promise.all(postsToUpdate.map(async (post: { id: number; title?: string; category?: string; tags?: string[] }) => {
+      // Build query from title + category + tags for relevance
+      const titleWords = (post.title || '').split(' ').slice(0, 4).join(' ');
+      const category = post.category || '';
+      const tags = Array.isArray(post.tags) ? post.tags.slice(0, 2).join(' ') : '';
+      const query = [titleWords, category, tags].filter(Boolean).join(' ') || 'travel landscape';
       const photos = await searchUnsplash(query, 1);
       if (photos && photos.length > 0 && photos[0]?.urls?.regular) {
         return { id: post.id, featured_image: photos[0].urls.regular };
