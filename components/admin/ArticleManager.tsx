@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import ArticleForm from './ArticleForm';
 import ArticleList from './ArticleList';
 
-// @deprecated Utilise l'éditeur inline dans CmsAdminClient.tsx à la place.
-// Cet composant utilise l'ancienne API /api/articles et le type _id (string).
+// @deprecated Utilise l’éditeur inline dans CmsAdminClient.tsx à la place.
+// Cet composant utilise l’ancienne API /api/articles et le type _id (string).
 // La nouvelle implémentation utilise /api/cms/articles avec id (number).
 export default function ArticleManager() {
   const [articles, setArticles] = useState([]);

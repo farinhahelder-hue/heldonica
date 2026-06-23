@@ -103,7 +103,7 @@ export default function PortugalPage() {
               <strong>Madere au nord, Lisbonne au sud, et tout ce qu il y a entre.</strong>
             </p>
             <p className="text-lg text-stone-700 leading-relaxed mt-4">
-              Madère c'est l'île. Porto c'est le vin. Lisbonne c'est le fado.
+              Madère c’est l’île. Porto c’est le vin. Lisbonne c’est le fado.
               Mais entre les trois, il y a les plages de l Algarve, les villages de l Alentejo,
               et les routes qui longent l Atlantique.
             </p>

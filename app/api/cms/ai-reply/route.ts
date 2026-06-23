@@ -85,7 +85,7 @@ function generateFallbackReply(d: any): string {
 
   return `Bonjour ${prenom},
 
-Merci beaucoup pour votre demande — nous sommes vraiment enthousiastes à l'idée de construire ce voyage ${destination ? `vers ${destination}` : 'sur mesure'} avec vous.
+Merci beaucoup pour votre demande — nous sommes vraiment enthousiastes à l’idée de construire ce voyage ${destination ? `vers ${destination}` : 'sur mesure'} avec vous.
 
 ${budget ? `Votre budget de ${budget} nous laisse de belles options à explorer.` : ''} ${duree ? `Pour un voyage de ${duree}, nous pouvons concevoir un itinéraire qui respire vraiment.` : ''}
 

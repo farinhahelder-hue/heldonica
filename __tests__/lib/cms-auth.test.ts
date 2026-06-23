@@ -44,9 +44,9 @@ describe('isValidCmsPassword', () => {
     // So candidate must match the trimmed version
     expect(isValidCmsPassword('supersecret')).toBe(true);
 
-    // And candidate with same whitespace shouldn't match (because candidate isn't trimmed in the check)
+    // And candidate with same whitespace shouldn’t match (because candidate isn’t trimmed in the check)
     // Actually safeEqual checks lengths. '  supersecret  ' length is 15, 'supersecret' is 11.
-    // If the candidate isn't trimmed, safeEqual will compare '  supersecret  ' to 'supersecret'
+    // If the candidate isn’t trimmed, safeEqual will compare '  supersecret  ' to 'supersecret'
     expect(isValidCmsPassword('  supersecret  ')).toBe(false);
   });
 

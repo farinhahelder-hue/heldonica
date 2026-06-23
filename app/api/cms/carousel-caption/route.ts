@@ -44,7 +44,7 @@ const HASHTAG_DATABASE = {
 // Generate caption based on topic and style
 function generateCaption(topic: string, style: string, destination?: string): string {
   const templates = {
-    narratif: `Envie d'explorer ${destination || 'cette destination'} en profondeur ?
+    narratif: `Envie d’explorer ${destination || 'cette destination'} en profondeur ?
 
 Découvrez ${topic} à travers notre dernier carrousel ✨
 
@@ -68,7 +68,7 @@ ${topic}
 
 Chaque image raconte une histoire. Chaque swipe révèle une découverte.
 
-Envolez-vous vers l'authenticité 🕊️
+Envolez-vous vers l’authenticité 🕊️
 
 ${destination ? `📍 ${destination}\n` : ''}📸 @heldonica
 🔗 Lien en bio`,
@@ -125,9 +125,9 @@ async function generateWithOpenAI(topic: string, slides: any[], style: string, d
   const systemPrompt = `Tu es un expert en rédaction Instagram pour Heldonica, marque de slow travel en couple.
 Ton style : narratif, sensoriel, chaleureux. Utilise le tutoiement.
 Génère une légende de 150-220 mots avec :
-- Accroche forte (première ligne qui donne envie d'ouvrir)
+- Accroche forte (première ligne qui donne envie d’ouvrir)
 - Corps narratif basé sur le contenu des slides
-- CTA naturel ("Sauvegarde ce post 🔖", "Envoie-le à quelqu'un qui en a besoin")
+- CTA naturel ("Sauvegarde ce post 🔖", "Envoie-le à quelqu’un qui en a besoin")
 - Emojis intégrés dans le texte (pas en liste)
 
 Style demandé : ${style}
@@ -183,7 +183,7 @@ export async function POST(request: NextRequest) {
     
     // Add default hashtags from brand config
     if (defaultHashtags) {
-      const defaultTags = defaultHashtags.split(' ').filter(t => t.startsWith('#'))
+      const defaultTags = defaultHashtags.split(' ').filter((t: string) => t.startsWith('#'))
       hashtags = [...new Set([...defaultTags, ...hashtags])]
     }
 

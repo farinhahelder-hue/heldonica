@@ -46,7 +46,7 @@ const schemaPerson = {
   "name": "Heldonica",
   "url": "https://www.heldonica.fr/a-propos",
   "jobTitle": "Travel Planner",
-  "description": "Duo d'explorateurs passionnés par le slow travel et les pépites cachées",
+  "description": "Duo d’explorateurs passionnés par le slow travel et les pépites cachées",
   "sameAs": [
     "https://www.instagram.com/heldonica",
     "https://www.linkedin.com/company/heldonicatravel"

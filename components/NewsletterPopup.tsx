@@ -31,7 +31,7 @@ export default function NewsletterPopup() {
       document.removeEventListener('mouseleave', exitIntentHandler)
     }
 
-    // Timer: 45 seconds (augmenté pour moins d'agacement)
+    // Timer: 45 seconds (augmenté pour moins d’agacement)
     timeout = setTimeout(showPopup, 45000)
 
     // Scroll: 70%

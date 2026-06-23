@@ -30,7 +30,7 @@ describe('AI API Auth Checks', () => {
     // Clear out modules so env vars are read afresh if needed,
     // though vitest might need more complex mocking for module-level env vars.
     // Instead of relying on vitest to re-evaluate module-level consts,
-    // let's just test the behavior via stubbing, or accept that we might need vi.resetModules.
+    // let’s just test the behavior via stubbing, or accept that we might need vi.resetModules.
     vi.resetModules()
   })
 

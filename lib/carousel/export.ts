@@ -4,7 +4,7 @@
 import { toPng } from 'html-to-image'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
-import { SlideData, HELDONICA_TOKENS } from '../panel-manager/carousel/tokens'
+import { SlideData, HELDONICA_TOKENS } from '@/app/panel-manager/carousel/tokens'
 
 export interface ExportOptions {
   pixelRatio?: number
@@ -73,7 +73,7 @@ export async function exportAllSlides(
       folder.file(`${baseFilename}-${index}.png`, base64Data, { base64: true })
     } catch (error) {
       console.error(`Export slide ${index} error:`, error)
-      throw new Error(`Échec de l'export PNG pour la slide ${index}`)
+      throw new Error(`Échec de l’export PNG pour la slide ${index}`)
     }
   }
 

@@ -22,7 +22,7 @@ vi.mock('@/lib/supabase', () => ({
   supabase: { from: vi.fn() }
 }))
 
-// We'll test the route logic by calling the handler directly
+// We’ll test the route logic by calling the handler directly
 // Since Next.js App Router handlers are not directly exportable,
 // we test the escapeHtml function and validate behavior via integration-style tests
 
@@ -113,7 +113,7 @@ describe('travel-planning API', () => {
     })
 
     it('should escape single quotes', () => {
-      const input = "It's a beautiful day"
+      const input = "It’s a beautiful day"
       const escaped = escapeHtml(input)
       expect(escaped).toContain('&#039;')
     })
@@ -254,7 +254,7 @@ describe('travel-planning API', () => {
     })
 
     it('should handle special characters in French text', () => {
-      const frenchText = "C'est l'été, cafés & restaurants"
+      const frenchText = "C’est l’été, cafés & restaurants"
       const escaped = escapeHtml(frenchText)
       expect(escaped).toContain("&#039;")
       expect(escaped).toContain('&amp;')

@@ -5,6 +5,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import { createWriteStream, existsSync } from 'fs';
 import os from 'os';
+// @ts-ignore — uuid types not installed but module works at runtime
 import { v4 as uuidv4 } from 'uuid';
 import { createClient } from '@supabase/supabase-js'
 

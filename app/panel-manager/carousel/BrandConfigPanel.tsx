@@ -1,14 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { HELDONICA_TOKENS, HELDONICA_BRAND, BrandConfig, SlideData } from './tokens'
+import { HELDONICA_TOKENS, HELDONICA_BRAND, BrandConfig, SlideData, PaletteEntry } from './tokens'
 
 const STORAGE_KEY = 'heldonica_brand_config'
 
 interface BrandConfigPanelProps {
   slides: SlideData[]
   onApplyConfig: (config: BrandConfig) => void
-  onApplyPalette: (palette: typeof HELDONICA_TOKENS.palettes[0]) => void
+  onApplyPalette: (palette: PaletteEntry) => void
 }
 
 const FONT_TITLE_OPTIONS = [

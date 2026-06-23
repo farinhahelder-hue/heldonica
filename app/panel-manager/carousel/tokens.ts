@@ -1,6 +1,14 @@
 /**
  * Design tokens Heldonica pour le carrousel Instagram
  */
+
+export interface PaletteEntry {
+  name: string
+  bg: string
+  text: string
+  accent: string
+}
+
 export const HELDONICA_TOKENS = {
   colors: {
     background: '#f8f6f4',
@@ -37,7 +45,7 @@ export const HELDONICA_TOKENS = {
     { name: 'Sunset', bg: '#fdf5f0', text: '#4a2a1a', accent: '#d4a574' },
     { name: 'Ocean', bg: '#f0f7f8', text: '#1a3a4a', accent: '#4a9ebb' },
     { name: 'Minimal', bg: '#ffffff', text: '#2d2926', accent: '#6b2a1a' },
-  ],
+  ] as PaletteEntry[],
 } as const
 
 export type AspectRatio = keyof typeof HELDONICA_TOKENS.aspectRatios

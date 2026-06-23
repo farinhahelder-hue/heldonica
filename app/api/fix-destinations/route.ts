@@ -30,7 +30,7 @@ export async function POST() {
         {
           title: "Madère en mars : ce que personne ne te dit",
           slug: "madere-en-mars",
-          excerpt: "On y retourne chaque année et chaque fois l'île nous surprend. Voici ce qu'on a appris à force de revenir.",
+          excerpt: "On y retourne chaque année et chaque fois l’île nous surprend. Voici ce qu’on a appris à force de revenir.",
           category: "Carnets de voyage",
           status: 'published',
           published_at: '2026-05-15',
@@ -40,7 +40,7 @@ export async function POST() {
         {
           title: "Pourquoi le slow travel change la façon dont on revient",
           slug: "slow-travel-retour",
-          excerpt: "Ce n'est pas le voyage qui change, c'est ce qu'on ramène dans nos façons de vivre au quotidien.",
+          excerpt: "Ce n’est pas le voyage qui change, c’est ce qu’on ramène dans nos façons de vivre au quotidien.",
           category: "Découvertes",
           status: 'published',
           published_at: '2026-04-28',
@@ -50,7 +50,7 @@ export async function POST() {
         {
           title: "Roumanie : les villages que les guides ne mentionnent pas",
           slug: "roumanie-villages-caches",
-          excerpt: "Entre Sibiu et Sighișoara, il y a des routes qui n'existent que si tu sais les chercher.",
+          excerpt: "Entre Sibiu et Sighișoara, il y a des routes qui n’existent que si tu sais les chercher.",
           category: "Découvertes",
           status: 'published',
           published_at: '2026-04-10',

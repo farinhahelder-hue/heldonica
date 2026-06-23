@@ -1,5 +1,5 @@
 // Whisper API integration for automatic subtitles generation
-// Uses OpenAI's Whisper API for audio transcription
+// Uses OpenAI’s Whisper API for audio transcription
 
 export interface WhisperSegment {
   start: number;
@@ -73,7 +73,7 @@ export async function transcribeAudio(
 // Convert video to audio for transcription
 export async function extractAudioFromVideo(videoBlob: Blob): Promise<Blob> {
   // This would use ffmpeg.wasm in a real implementation
-  // For now, return the blob as-is (assuming it's already audio or will be handled by the API)
+  // For now, return the blob as-is (assuming it’s already audio or will be handled by the API)
   return videoBlob;
 }
 

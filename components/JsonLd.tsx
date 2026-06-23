@@ -84,7 +84,7 @@ interface BreadcrumbJsonLdProps {
 }
 
 /**
- * Composant JSON-LD pour le fil d'Ariane (BreadcrumbList Schema)
+ * Composant JSON-LD pour le fil d’Ariane (BreadcrumbList Schema)
  */
 export function BreadcrumbJsonLd({ items }: BreadcrumbJsonLdProps) {
   const breadcrumbLd = {
@@ -159,7 +159,7 @@ export function buildBlogBreadcrumbItems(
     })
   }
 
-  items.push({ label: title, href: '' }) // L'article actuel n'a pas de href
+  items.push({ label: title, href: '' }) // L’article actuel n’a pas de href
 
   return items
 }

@@ -191,7 +191,7 @@ export default function FastTrimTool() {
     }
 
     const totalDuration = state.segments.reduce((acc, seg) => acc + seg.duration, 0);
-    alert(`Export terminé !\n\n${state.segments.length} segments exportés\nDurée totale: ${totalDuration.toFixed(1)}s\n\nNote: L'export lossless réel utiliserait WebCodecs ou ffmpeg.wasm`);
+    alert(`Export terminé !\n\n${state.segments.length} segments exportés\nDurée totale: ${totalDuration.toFixed(1)}s\n\nNote: L’export lossless réel utiliserait WebCodecs ou ffmpeg.wasm`);
 
     setState(prev => ({ ...prev, isExporting: false }));
   }, [state.segments]);

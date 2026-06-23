@@ -1,9 +1,9 @@
 interface VerdictItem {
-  /** Nom du lieu ou de l'expérience */
+  /** Nom du lieu ou de l’expérience */
   name: string
   /** Adresse complète (optionnel) */
   address?: string
-  /** Horaires d'ouverture (optionnel) */
+  /** Horaires d’ouverture (optionnel) */
   hours?: string
   /** Prix constaté (optionnel, ex: "15€") */
   price?: string
@@ -21,7 +21,7 @@ interface HeldonicaVerdictProps {
 }
 
 /**
- * Composant Verdict Heldonica pour les recommandations terrain en fin d'article
+ * Composant Verdict Heldonica pour les recommandations terrain en fin d’article
  * Affiche les infos pratiques testées sur le terrain: adresse, horaires, prix, date, note
  */
 export default function HeldonicaVerdict({ items, title = 'Le verdict Heldonica' }: HeldonicaVerdictProps) {

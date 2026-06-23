@@ -197,7 +197,7 @@ export default function SeoAudit({ data, onSave }: any) {
       {results.length === 0 && !scanning && (
         <div className="text-center py-12 text-gray-500">
           <p className="text-4xl mb-4">🔍</p>
-          <p>Cliquez "Lancer l'audit" pour analyser votre contenu</p>
+          <p>Cliquez "Lancer l’audit" pour analyser votre contenu</p>
           <p className="text-sm mt-2">Détecte: titres, descriptions, images, liens...</p>
         </div>
       )}

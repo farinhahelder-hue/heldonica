@@ -87,9 +87,9 @@ export default function politiqueconfidentialitePage() {
 
             <PrivacySection title="Duree de conservation">
               <ul className="list-disc list-inside space-y-2">
-                <li>Demandes de contact : jusqu'a 24 mois apres le dernier echange.</li>
+                <li>Demandes de contact : jusqu’a 24 mois apres le dernier echange.</li>
                 <li>données clients : pendant la relation puis conservation legale obligatoire.</li>
-                <li>données newsletter : jusqu'au retrait du consentement.</li>
+                <li>données newsletter : jusqu’au retrait du consentement.</li>
                 <li>Logs techniques : duree courte de securite et de diagnostic.</li>
               </ul>
             </PrivacySection>

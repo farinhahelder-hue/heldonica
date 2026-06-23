@@ -6,7 +6,7 @@ import Script from 'next/script'
 const CTA_COLOR = '#2D8B8A' // Teal
 
 /**
- * Bloc CTA pour le Travel Planning en fin d'article
+ * Bloc CTA pour le Travel Planning en fin d’article
  */
 export default function CtaTravelPlanning() {
   const handleClick = () => {
