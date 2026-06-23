@@ -4,7 +4,7 @@
 import { toPng } from 'html-to-image'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
-import { SlideData, HELDONICA_TOKENS } from '../panel-manager/carousel/tokens'
+import { SlideData, HELDONICA_TOKENS } from '@/app/panel-manager/carousel/tokens'
 
 export interface ExportOptions {
   pixelRatio?: number

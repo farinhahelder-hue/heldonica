@@ -91,7 +91,7 @@ export default function SlidePreviewPanel({ slide, aspectRatio, brandOverlay, pr
               <h2 
                 className="text-xl font-bold mb-4 leading-tight"
                 style={{ 
-                  fontFamily: tokens.title,
+                  fontFamily: HELDONICA_TOKENS.fonts.title,
                   color: txtColor,
                   fontSize: slide.fontSize === 'lg' ? '1.5rem' : slide.fontSize === 'sm' ? '1rem' : '1.25rem'
                 }}
@@ -101,7 +101,7 @@ export default function SlidePreviewPanel({ slide, aspectRatio, brandOverlay, pr
               <p 
                 className="text-sm leading-relaxed"
                 style={{ 
-                  fontFamily: tokens.body,
+                  fontFamily: HELDONICA_TOKENS.fonts.body,
                   color: txtColor,
                   opacity: 0.9
                 }}
@@ -114,7 +114,7 @@ export default function SlidePreviewPanel({ slide, aspectRatio, brandOverlay, pr
                   style={{ 
                     backgroundColor: tokens.primary,
                     color: '#fff',
-                    fontFamily: tokens.body
+                    fontFamily: HELDONICA_TOKENS.fonts.body
                   }}
                 >
                   {slide.cta}
@@ -131,7 +131,7 @@ export default function SlidePreviewPanel({ slide, aspectRatio, brandOverlay, pr
             >
               <span 
                 className="text-xs font-medium text-white tracking-wider uppercase"
-                style={{ fontFamily: tokens.body }}
+                style={{ fontFamily: HELDONICA_TOKENS.fonts.body }}
               >
                 ✦ Heldonica
               </span>
