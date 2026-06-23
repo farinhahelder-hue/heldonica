@@ -3,11 +3,13 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Save, RefreshCw, Palette, Type, Image, FileText, Smartphone, Monitor, Code, AlertTriangle } from 'lucide-react';
 import { DESIGN_PRESETS } from '@/lib/design-presets';
+import { PAGE_DEFAULTS } from '@/lib/cms-page-defaults';
 import LivePreview from './LivePreview';
 import ImagePicker from './ImagePicker';
 
 const TABS = [
-  { id: 'presets', label: 'Themes' },
+  { id: 'theme', label: 'Theme' },
+  { id: 'presets', label: 'Presets' },
   { id: 'colors', label: 'Couleurs' },
   { id: 'fonts', label: 'Polices' },
   { id: 'texts', label: 'Textes' },
@@ -62,6 +64,7 @@ export default function DesignEditor() {
   const [codeError, setCodeError] = useState('');
 
   const tabIcons: Record<TabId, React.ReactNode> = useMemo(() => ({
+    theme: <Palette size={14} />,
     presets: <Palette size={14} />,
     colors: <Palette size={14} />,
     fonts: <Type size={14} />,
@@ -70,6 +73,30 @@ export default function DesignEditor() {
     code: <Code size={14} />,
   }), []);
 
+  const THEME_PRESETS_UI = [
+    { id: 'eucalyptus', label: 'Eucalyptus', emoji: 'Eucalyptus', colors: { primary: '#006D77', secondary: '#83C5BE', accent: '#E29578', bg: '#F8F5F0', text: '#1A1A1A' } },
+    { id: 'ocean', label: 'Ocean', emoji: 'Ocean', colors: { primary: '#1A3A5C', secondary: '#5BA4D4', accent: '#7EC8E3', bg: '#F4F8FB', text: '#1A2E3D' } },
+    { id: 'terre', label: 'Terre', emoji: 'Terre', colors: { primary: '#C4714A', secondary: '#E8C9B0', accent: '#8B5E3C', bg: '#FDF8F4', text: '#2C2220' } },
+    { id: 'ardoise', label: 'Ardoise', emoji: 'Ardoise', colors: { primary: '#36454F', secondary: '#94A3B8', accent: '#64748B', bg: '#F8FAFC', text: '#1E293B' } },
+    { id: 'rose', label: 'Rose', emoji: 'Rose', colors: { primary: '#9B2335', secondary: '#F4B0C2', accent: '#D4A0B0', bg: '#FDF4F6', text: '#2D1520' } },
+  ];
+
+  const currentTheme = values.theme_preset || 'eucalyptus';
+
+  const applyTheme = (themeId: string) => {
+    const theme = THEME_PRESETS_UI.find(t => t.id === themeId);
+    if (!theme) return;
+    setValues(prev => ({
+      ...prev,
+      theme_preset: themeId,
+      primary_color: theme.colors.primary,
+      secondary_color: theme.colors.secondary,
+      color_accent: theme.colors.accent,
+      color_background: theme.colors.bg,
+      color_text: theme.colors.text,
+    }));
+  };
+
   const loadSettings = useCallback(async () => {
     setLoading(true);
     setError('');
@@ -77,12 +104,15 @@ export default function DesignEditor() {
       const res = await fetch('/api/cms/settings', { cache: 'no-store' });
       const data = await res.json();
       if (data && typeof data === 'object' && !Array.isArray(data)) {
-        const flat: Record<string, string> = {};
+        // Start with PAGE_DEFAULTS, then overlay DB values (DB wins)
+        const flat: Record<string, string> = { ...PAGE_DEFAULTS };
         if (Array.isArray(data.settings)) {
-          data.settings.forEach((s: Record<string, string>) => { flat[s.key] = s.value ?? ''; });
+          data.settings.forEach((s: Record<string, string>) => {
+            if (s.key && s.value !== undefined) flat[s.key] = s.value;
+          });
         }
         for (const [k, v] of Object.entries(data)) {
-          if (k !== 'settings') flat[k] = String(v ?? '');
+          if (k !== 'settings' && v !== undefined) flat[k] = String(v);
         }
         setValues(flat);
       }
@@ -315,6 +345,7 @@ export default function DesignEditor() {
 
   const renderTabContent = () => {
     switch (activeTab) {
+      case 'theme': return renderTheme();
       case 'presets': return renderPresets();
       case 'colors': return renderColors();
       case 'fonts': return renderFonts();
@@ -323,6 +354,64 @@ export default function DesignEditor() {
       case 'code': return renderCode();
     }
   };
+
+  const renderTheme = () => (
+    <div className="space-y-4">
+      <h3 className="text-sm font-semibold text-gray-900">Theme visuel</h3>
+      <p className="text-xs text-gray-500">
+        Choisissez un theme predetermine ou personnalisez les couleurs ci-dessous.
+      </p>
+      <div className="grid grid-cols-1 gap-2">
+        {THEME_PRESETS_UI.map(theme => {
+          const isActive = currentTheme === theme.id;
+          return (
+            <button
+              key={theme.id}
+              onClick={() => applyTheme(theme.id)}
+              className={`relative flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left ${
+                isActive ? 'border-[#2D8B7A] bg-[#2D8B7A]/5' : 'border-gray-100 hover:border-gray-200 bg-white'
+              }`}
+            >
+              {isActive && (
+                <span className="absolute top-1 right-1 text-[10px] bg-[#2D8B7A] text-white px-1.5 py-0.5 rounded-full font-bold">Actif</span>
+              )}
+              <div className="flex gap-1 shrink-0">
+                <div className="w-5 h-5 rounded-full" style={{ background: theme.colors.primary }} />
+                <div className="w-5 h-5 rounded-full" style={{ background: theme.colors.secondary }} />
+                <div className="w-5 h-5 rounded-full" style={{ background: theme.colors.accent }} />
+                <div className="w-5 h-5 rounded-full border border-gray-200" style={{ background: theme.colors.bg }} />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-gray-900">{theme.label}</p>
+                <p className="text-[10px] text-gray-500">{theme.id === 'eucalyptus' ? 'Defaut Heldonica' : theme.id}</p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+      <div className="border-t pt-4">
+        <h4 className="text-xs font-semibold text-gray-700 mb-2">Couleurs du theme actif</h4>
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            { label: 'Primaire', key: 'primary_color' },
+            { label: 'Secondaire', key: 'secondary_color' },
+            { label: 'Accent', key: 'color_accent' },
+            { label: 'Fond', key: 'color_background' },
+          ].map(f => (
+            <div key={f.key} className="flex items-center gap-2">
+              <input
+                type="color"
+                value={v(f.key, '#000')}
+                onChange={e => update(f.key, e.target.value)}
+                className="w-7 h-7 rounded cursor-pointer border border-gray-200 p-0.5"
+              />
+              <span className="text-xs text-gray-600">{f.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex gap-6">

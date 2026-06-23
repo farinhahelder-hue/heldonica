@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Save, Globe, Palette, Share2, Search, FileText, Wrench, RefreshCw } from 'lucide-react';
 import ImagePicker from './ImagePicker';
+import { PAGE_DEFAULTS } from '@/lib/cms-page-defaults';
 
 type Setting = { key: string; value: string };
 
@@ -155,12 +156,17 @@ export default function CmsSettingsPanel() {
       }
 
       if (data && typeof data === 'object' && !Array.isArray(data)) {
-        const flat: Record<string, string> = {};
+        // Start with PAGE_DEFAULTS, then overlay DB values (DB wins)
+        const flat: Record<string, string> = { ...PAGE_DEFAULTS };
         if (Array.isArray(data.settings)) {
-          data.settings.forEach((s: Setting) => { flat[s.key] = s.value ?? ''; });
+          data.settings.forEach((s: Setting) => {
+            if (s.key && s.value !== undefined) {
+              flat[s.key] = s.value;
+            }
+          });
         }
         Object.entries(data).forEach(([k, v]) => {
-          if (k !== 'settings') flat[k] = String(v ?? '');
+          if (k !== 'settings' && v !== undefined) flat[k] = String(v);
         });
         setValues(flat);
         valuesRef.current = flat;
