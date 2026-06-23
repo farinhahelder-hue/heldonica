@@ -5,6 +5,7 @@ import Link from 'next/link'
 export const metadata = {
   title: 'Porto slow travel | Guide Heldonica',
   description: 'Guide Porto: vin de Porto, Ribeira, Douro.',
+  robots: { index: false, follow: false },
 }
 
 const navLinks = [

@@ -17,8 +17,9 @@ export function generateMetadata(): Metadata {
       card: "summary_large_image"
     },
     alternates: {
-      canonical: "https://heldonica.fr/destinations/idf/fontainebleau"
-    }
+      canonical: 'https://www.heldonica.fr/destinations/idf/fontainebleau'
+    },
+  robots: { index: false, follow: false },
   };
 }
 

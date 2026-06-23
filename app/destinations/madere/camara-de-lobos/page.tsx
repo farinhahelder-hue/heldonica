@@ -17,8 +17,9 @@ export function generateMetadata(): Metadata {
       card: "summary_large_image"
     },
     alternates: {
-      canonical: "https://heldonica.fr/destinations/madere/camara-de-lobos"
-    }
+      canonical: 'https://www.heldonica.fr/destinations/madere/camara-de-lobos'
+    },
+  robots: { index: false, follow: false },
   };
 }
 

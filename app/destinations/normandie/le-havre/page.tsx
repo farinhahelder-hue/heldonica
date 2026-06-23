@@ -12,6 +12,7 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://www.heldonica.fr/destinations/normandie/le-havre',
   },
+  robots: { index: false, follow: false },
   openGraph: {
     title: 'Le Havre slow travel | Guide Heldonica',
     description:
