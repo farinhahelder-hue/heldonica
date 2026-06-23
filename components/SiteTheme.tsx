@@ -1,5 +1,18 @@
 import { getSettings } from '@/lib/settings'
 
+// ── CSS escaping ───────────────────────────────────────────────────────────
+function escapeCss(str: string): string {
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/"/g, '\\"')
+    .replace(/;/g, '\\;')
+    .replace(/{/g, '\\{')
+    .replace(/}/g, '\\}')
+    .replace(/\n/g, '\\A')
+    .replace(/\r/g, '')
+}
+
 // ── Theme presets ───────────────────────────────────────────────────────────
 
 type ThemeColors = {
@@ -160,10 +173,10 @@ export default async function SiteTheme() {
       --header-sticky: ${settings.header_sticky === 'false' ? 'relative' : 'sticky'};
       --eucalyptus-green: var(--color-primary);
       --cloud-dancer: var(--color-background);
-      --site-tagline: '${settings.site_tagline || ''}';
-      --footer-text: '${settings.footer_text || ''}';
-      --site-name: '${settings.site_name || 'Heldonica'}';
-      --cta-label: '${settings.primary_cta_label || 'Planifier mon voyage'}';
+      --site-tagline: '${escapeCss(settings.site_tagline || '')}';
+      --footer-text: '${escapeCss(settings.footer_text || '')}';
+      --site-name: '${escapeCss(settings.site_name || 'Heldonica')}';
+      --cta-label: '${escapeCss(settings.primary_cta_label || 'Planifier mon voyage')}';
     }
   `
 

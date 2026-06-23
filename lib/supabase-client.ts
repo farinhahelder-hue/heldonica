@@ -20,24 +20,33 @@ const stubPromise = (data: any) => {
 
 // Create a query builder stub that chains methods properly
 const createStubBuilder = () => {
-  // Methods that return another builder (for chaining)
-  const builder = {
-    select: (columns?: string) => {
-      const result = { ...builder };
-      return result;
-    },
-    eq: (column: string, value: any) => ({ ...builder }),
-    order: (column: string, options?: { ascending?: boolean }) => stubPromise([]),
-    limit: (count: number) => ({ ...builder }),
-    single: () => stubPromise(null),
-    upsert: (data: any, options?: any) => ({ select: () => stubPromise([]) }),
-    update: (data: any) => ({ eq: () => stubPromise(null) }),
-    insert: (data: any) => ({ select: () => stubPromise(null) }),
-    delete: () => ({ eq: () => stubPromise(null) }),
-    // Promise-like interface
-    then: <T,>(onfulfilled: (value: unknown) => T, onrejected?: (reason: unknown) => T) => stubPromise([]).then(onfulfilled, onrejected),
+  // Shared promise interface for all methods
+  const promiseInterface = {
+    then: <T,>(onfulfilled: (value: unknown) => T, onrejected?: (reason: unknown) => T) => 
+      stubPromise([]).then(onfulfilled, onrejected),
     catch: <T,>(onrejected: (reason: unknown) => T) => stubPromise([]).catch(onrejected),
   };
+
+  // Methods that return another builder (for chaining)
+  const builder = {
+    select: () => ({ ...builder, ...promiseInterface }),
+    eq: () => ({ ...builder, ...promiseInterface }),
+    order: () => ({ ...stubBuilder, ...promiseInterface }),
+    limit: () => ({ ...builder, ...promiseInterface }),
+    single: () => stubPromise(null),
+    upsert: () => ({ select: () => stubPromise([]), ...promiseInterface }),
+    update: () => ({ eq: () => stubPromise(null), ...promiseInterface }),
+    insert: () => ({ select: () => stubPromise([]), ...promiseInterface }),
+    delete: () => ({ eq: () => stubPromise(null), ...promiseInterface }),
+    ...promiseInterface,
+  };
+
+  const stubBuilder = {
+    select: () => ({ ...stubBuilder, ...promiseInterface }),
+    eq: () => ({ ...stubBuilder, ...promiseInterface }),
+    ...promiseInterface,
+  };
+
   return builder;
 };
 
