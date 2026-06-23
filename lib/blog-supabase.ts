@@ -217,7 +217,7 @@ export async function getPageContent(page: string): Promise<Record<string, strin
 
     if (!data || data.length === 0) return {};
     
-    return data.reduce((acc, item) => {
+    return data.reduce((acc: Record<string, string>, item: { block_key: string; value: string }) => {
       if (item.block_key && item.value) {
         acc[item.block_key] = item.value;
       }

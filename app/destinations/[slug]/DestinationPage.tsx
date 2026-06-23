@@ -167,7 +167,7 @@ async function getRelatedArticlesForDestination(slug: string): Promise<BlogPost[
     const keywords = patterns[slug] || []
     if (keywords.length === 0) return []
     
-    return data.filter(post => {
+    return data.filter((post: { title: string; excerpt?: string | null; destination?: string | null }) => {
       const searchText = `${post.title} ${post.excerpt || ''} ${post.destination || ''}`.toLowerCase()
       return keywords.some(kw => searchText.includes(kw.toLowerCase()))
     }).slice(0, 3)

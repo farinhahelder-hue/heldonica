@@ -96,7 +96,6 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     if (raw && typeof raw === 'object' && 'title' in raw) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const current = raw as any;
-      // @ts-expect-error article_revisions table exists but types not generated
       await sb.from('article_revisions').insert({
         article_id: parseInt(params.id),
         title: current.title,

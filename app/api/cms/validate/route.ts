@@ -325,7 +325,7 @@ export async function GET(req: Request) {
       posts: results,
       summary: {
         total: results.length,
-        needs_review: results.filter(r => r.needs_review).length,
+        needs_review: results.filter((r: { needs_review: boolean }) => r.needs_review).length,
       }
     })
 

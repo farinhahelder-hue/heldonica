@@ -100,7 +100,7 @@ export async function PUT() {
 
     if (noImageArticles) {
       await Promise.all(
-        noImageArticles.map(async (article) => {
+        noImageArticles.map(async (article: { id: number; category?: string }) => {
           const image = defaultImages[article.category || ''] || Object.values(defaultImages)[0]
 
           const { error } = await supabase!
@@ -121,7 +121,7 @@ export async function PUT() {
 
     if (noExcerptArticles) {
       await Promise.all(
-        noExcerptArticles.map(async (article) => {
+        noExcerptArticles.map(async (article: { id: number; content?: string }) => {
           if (article.content) {
             // Extract first 155 chars of content, strip HTML
             const plainText = article.content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()

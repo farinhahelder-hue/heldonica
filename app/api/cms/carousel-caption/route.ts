@@ -183,7 +183,7 @@ export async function POST(request: NextRequest) {
     
     // Add default hashtags from brand config
     if (defaultHashtags) {
-      const defaultTags = defaultHashtags.split(' ').filter(t => t.startsWith('#'))
+      const defaultTags = defaultHashtags.split(' ').filter((t: string) => t.startsWith('#'))
       hashtags = [...new Set([...defaultTags, ...hashtags])]
     }
 

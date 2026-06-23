@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
 
   // Transform to key-value object for easier consumption
   const settings = Object.fromEntries(
-    (data || []).map(r => [r.key, r.value])
+    (data || []).map((r: { key: string; value: string }) => [r.key, r.value])
   );
 
   return NextResponse.json(settings, {

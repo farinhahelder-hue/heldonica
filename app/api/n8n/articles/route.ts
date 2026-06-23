@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  const items = data?.map(article => ({
+  const items = data?.map((article: { id: number; title: string; slug: string; category: string | null; excerpt: string | null; featured_image: string | null; published: boolean | null; created_at: string; published_at: string | null; country: string | null; city: string | null; travel_style: string | null; season: string | null }) => ({
     id: article.id,
     title: article.title,
     slug: article.slug,
