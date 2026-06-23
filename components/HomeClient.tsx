@@ -218,10 +218,9 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
   const featImg = featured ? postImage(featured) : null
   // Fallback: si totalPosts est undefined/null/0, on utilise 25+ (valeur de référence)
   const publishedArticles = totalPosts && totalPosts > 0 ? totalPosts : 25
-  // Fallback: si coveredCountries est invalide, on utilise 12 (valeur de référence actuelle)
-  const countryCount = typeof coveredCountries === 'number' && coveredCountries > 0 
-    ? coveredCountries 
-    : (parseInt(String(coveredCountries), 10) > 0 ? parseInt(String(coveredCountries), 10) : 12)
+  // Fallback: si coveredCountries est invalide, on utilise 5 (valeur minimale véridique)
+  const parsedCountries = parseInt(String(coveredCountries || '0'), 10)
+  const countryCount = isNaN(parsedCountries) || parsedCountries <= 0 ? 5 : parsedCountries
 
   const videoSrc = heroVideoUrl || 'https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4'
   const posterSrc = heroPosterImage || undefined
@@ -529,27 +528,6 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   <p className="text-charcoal/40 text-sm leading-relaxed">{item.d}</p>
                 </div>
               ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── NEWSLETTER ────────────────────────────────────────────────── */}
-      <section className="py-20 bg-mahogany text-white">
-        <div className="max-w-5xl mx-auto px-6 md:px-10">
-          <div className="grid md:grid-cols-[1.1fr_0.9fr] gap-10 items-center">
-            <div data-reveal="left">
-              <p className="text-teal text-xs font-semibold tracking-[0.2em] uppercase mb-4">Newsletter terrain</p>
-              <h2 className="text-3xl md:text-4xl font-serif font-light leading-tight mb-4">
-                Une fois par mois, on t&apos;envoie
-                <span className="block italic text-teal">ce qu&apos;on a vraiment trouvé.</span>
-              </h2>
-              <p className="text-charcoal/30 text-sm md:text-base leading-relaxed max-w-xl">
-                Une adresse, un timing, une erreur à éviter. Rien de plus. Pas de remplissage, pas de bruit, juste ce qui mérite vraiment une place dans ton prochain départ.
-              </p>
-            </div>
-            <div data-reveal="right">
-              <NewsletterForm variant="inline" />
             </div>
           </div>
         </div>
