@@ -5,7 +5,8 @@ import path from 'path';
 import fs from 'fs/promises';
 import { createWriteStream, existsSync } from 'fs';
 import os from 'os';
-import { v4 as uuidv4 } from 'uuid';
+// @ts-ignore: no types
+import { v4 as uuidv4 } from 'uuid'
 import { createClient } from '@supabase/supabase-js'
 
 // Lazy initialization to avoid build-time errors

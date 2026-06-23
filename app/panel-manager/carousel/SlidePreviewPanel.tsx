@@ -15,7 +15,9 @@ interface SlidePreviewPanelProps {
 export default function SlidePreviewPanel({ slide, aspectRatio, brandOverlay, previewRef, slideIndex = 0 }: SlidePreviewPanelProps) {
   const [isExporting, setIsExporting] = useState(false)
   const ratio = HELDONICA_TOKENS.aspectRatios[aspectRatio]
-  const tokens = HELDONICA_TOKENS.colors
+  const tokens = HELDONICA_TOKENS as any
+  const colors = HELDONICA_TOKENS.colors
+  const fonts = HELDONICA_TOKENS.fonts
 
   const handleExportSlide = async () => {
     if (!previewRef?.current) return
@@ -43,8 +45,8 @@ export default function SlidePreviewPanel({ slide, aspectRatio, brandOverlay, pr
     )
   }
 
-  const bgColor = slide.backgroundColor || tokens.background
-  const txtColor = slide.textColor || tokens.text
+  const bgColor = slide.backgroundColor || tokens.colors.background
+  const txtColor = slide.textColor || tokens.colors.text
 
   return (
     <div className="flex flex-col h-full">
@@ -81,7 +83,7 @@ export default function SlidePreviewPanel({ slide, aspectRatio, brandOverlay, pr
               >
                 <div 
                   className="absolute inset-0"
-                  style={{ backgroundColor: `${tokens.primary}30` }}
+                  style={{ backgroundColor: `${tokens.colors.primary}30` }}
                 />
               </div>
             )}
@@ -91,7 +93,7 @@ export default function SlidePreviewPanel({ slide, aspectRatio, brandOverlay, pr
               <h2 
                 className="text-xl font-bold mb-4 leading-tight"
                 style={{ 
-                  fontFamily: tokens.title,
+                  fontFamily: tokens.fonts.title,
                   color: txtColor,
                   fontSize: slide.fontSize === 'lg' ? '1.5rem' : slide.fontSize === 'sm' ? '1rem' : '1.25rem'
                 }}
@@ -101,7 +103,7 @@ export default function SlidePreviewPanel({ slide, aspectRatio, brandOverlay, pr
               <p 
                 className="text-sm leading-relaxed"
                 style={{ 
-                  fontFamily: tokens.body,
+                  fontFamily: tokens.fonts.body,
                   color: txtColor,
                   opacity: 0.9
                 }}
@@ -112,9 +114,9 @@ export default function SlidePreviewPanel({ slide, aspectRatio, brandOverlay, pr
                 <button 
                   className="mt-6 px-6 py-2 text-sm font-semibold rounded-full"
                   style={{ 
-                    backgroundColor: tokens.primary,
+                    backgroundColor: tokens.colors.primary,
                     color: '#fff',
-                    fontFamily: tokens.body
+                    fontFamily: tokens.fonts.body
                   }}
                 >
                   {slide.cta}
@@ -127,11 +129,11 @@ export default function SlidePreviewPanel({ slide, aspectRatio, brandOverlay, pr
           {brandOverlay && (
             <div 
               className="absolute bottom-0 left-0 right-0 py-3 px-4 flex items-center justify-center"
-              style={{ backgroundColor: tokens.primary }}
+              style={{ backgroundColor: tokens.colors.primary }}
             >
               <span 
                 className="text-xs font-medium text-white tracking-wider uppercase"
-                style={{ fontFamily: tokens.body }}
+                style={{ fontFamily: tokens.fonts.body }}
               >
                 ✦ Heldonica
               </span>

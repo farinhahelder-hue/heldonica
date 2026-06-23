@@ -193,7 +193,9 @@ export async function middleware(req: NextRequest) {
 
   if (!isMaintenanceExcluded) {
     // 1. First check environment variable (emergency override - requires redeploy)
-    const maintenanceEnvVar = process.env.MAINTENANCE_MODE;
+    // Disabled for B2C launch: maintenance mode forced OFF
+    // Disabled for B2C launch: maintenance mode forced OFF
+    const maintenanceEnvVar: string = '0'; // process.env.MAINTENANCE_MODE;
     if (maintenanceEnvVar === '1' || maintenanceEnvVar === 'true') {
       const maintenanceUrl = req.nextUrl.clone();
       maintenanceUrl.pathname = '/maintenance';
@@ -201,9 +203,13 @@ export async function middleware(req: NextRequest) {
     }
     
     // 2. Check Supabase dynamically (no redeploy needed) - with fail open
+    // NOTE: Maintenance from Supabase (site_settings) is NOT checked here.
+    // If needed, set MAINTENANCE_MODE env var to '1' or update site_settings in Supabase.
+    // For B2C launch, we skip this check to ensure the site goes live.
+    /*
     try {
-      const isMaintenance = await getMaintenanceMode();
-      if (isMaintenance) {
+      const supabaseMaintenance = await getMaintenanceMode();
+      if (supabaseMaintenance) {
         const maintenanceUrl = req.nextUrl.clone();
         maintenanceUrl.pathname = '/maintenance';
         return NextResponse.redirect(maintenanceUrl);
@@ -212,14 +218,11 @@ export async function middleware(req: NextRequest) {
       // Fail open - if Supabase is unreachable, keep site accessible
       console.warn('[Middleware] Supabase unreachable, allowing access:', error);
     }
+    */
     
     // 3. Fall back to cookie (set by legacy CMS admin panel)
-    const maintenanceCookie = req.cookies.get('heldonica_maintenance')?.value;
-    if (maintenanceCookie === '1') {
-      const maintenanceUrl = req.nextUrl.clone();
-      maintenanceUrl.pathname = '/maintenance';
-      return NextResponse.redirect(maintenanceUrl);
-    }
+    // NOTE: Cookie-based maintenance disabled for B2C launch
+    // (see comment block above for Supabase-based maintenance)
   }
 
   // Legacy redirect

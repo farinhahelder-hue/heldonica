@@ -4,7 +4,9 @@
 import { toPng } from 'html-to-image'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
-import { SlideData, HELDONICA_TOKENS } from '../panel-manager/carousel/tokens'
+// tokens.ts is in app/panel-manager/carousel/ — accessible via Next.js build system
+// @ts-ignore: path resolved by Next.js bundler
+import { SlideData, HELDONICA_TOKENS } from '@/app/panel-manager/carousel/tokens'
 
 export interface ExportOptions {
   pixelRatio?: number

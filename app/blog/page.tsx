@@ -6,6 +6,8 @@ import BlogClientPage from '@/components/BlogClientPage'
 import Breadcrumb from '@/components/Breadcrumb'
 import { getReadingTime } from '@/lib/readingTime'
 
+const SITE_URL = 'https://www.heldonica.fr'
+
 // ISR: cache for 1 hour
 export const revalidate = 3600
 
@@ -61,8 +63,25 @@ export default async function BlogPage() {
 
   // If we have no posts at build time, avoid crashing the build and just render an empty list.
   if (!Array.isArray(posts) || posts.length === 0) {
+    const jsonLd = {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'Blog Slow Travel — Carnets de Route & Pépites Dénichées | Heldonica',
+      description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain.',
+      url: `${SITE_URL}/blog`,
+      publisher: {
+        '@type': 'Organization',
+        name: 'Heldonica',
+        url: SITE_URL,
+      },
+    }
     return (
       <>
+        <script
+          id="blog-collection-jsonld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <Header />
         <Breadcrumb />
         <BlogClientPage posts={[]} />
@@ -82,8 +101,37 @@ export default async function BlogPage() {
     readTime: post.read_time ?? getReadingTime(post.content),
   }))
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Blog Slow Travel — Carnets de Route & Pépites Dénichées | Heldonica',
+    description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain.',
+    url: `${SITE_URL}/blog`,
+    publisher: {
+      '@type': 'Organization',
+      name: 'Heldonica',
+      url: SITE_URL,
+    },
+    ...(postsWithFormattedDate.length > 0 && {
+      hasPart: postsWithFormattedDate.map((post) => ({
+        '@type': 'BlogPosting',
+        name: post.title,
+        url: `${SITE_URL}/blog/${post.slug}`,
+        headline: post.title,
+        image: post.featured_image,
+        datePublished: post.published_at,
+        description: post.excerpt,
+      })),
+    }),
+  }
+
   return (
     <>
+      <script
+        id="blog-collection-jsonld"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Header />
       <Breadcrumb />
       <BlogClientPage posts={postsWithFormattedDate} />
