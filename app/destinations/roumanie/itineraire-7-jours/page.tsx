@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import NewsletterForm from '@/components/NewsletterForm';
+import TrackedLink from '@/components/TrackedLink';
 
 const SITE_URL = 'https://heldonica.fr';
 
@@ -296,22 +297,19 @@ export default function Itineraire7JoursPage() {
             <p className="text-charcoal/70 mb-6 max-w-2xl">
                Emporte ce carnet Roumanie 7 jours dans ton téléphone ou imprime-le : les adresses et les pépites dénichées sans avoir besoin de réseau.
             </p>
-            <a
+            <TrackedLink
               href="#pdf-download"
-              onClick={(e) => {
-                e.preventDefault();
+              preventDefault
+              onClick={() => {
                 if (typeof window !== 'undefined' && window.gtag) {
                   window.gtag('event', 'guide_pdf_telecharge', { destination: 'roumanie', duration: '7' });
                 }
                 alert('Le PDF sera bientôt disponible. En attendant, tu peux sauvegarder cette page ou nous écrire pour une version personnalisée.');
               }}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-mahogany text-white font-semibold hover:bg-mahogany/90 transition-colors"
+              className="inline-flex px-8 py-3 rounded-lg bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              Télécharger le PDF (bientôt disponible)
-            </a>
+              Télécharger le PDF →
+            </TrackedLink>
           </div>
         </section>
 
@@ -328,11 +326,6 @@ export default function Itineraire7JoursPage() {
             </p>
             <Link
               href="/travel-planning"
-              onClick={() => {
-                if (typeof window !== 'undefined' && window.gtag) {
-                  window.gtag('event', 'cta_travel_planning_clique', { destination: 'roumanie', itinerary: '7-jours' });
-                }
-              }}
               className="inline-flex px-7 py-3 rounded-lg bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors"
             >
       Construire mon itinéraire sur mesure →
