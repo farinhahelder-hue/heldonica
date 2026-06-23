@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Script from 'next/script';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import TrackedLink from '@/components/TrackedLink';
 
 const SITE_URL = 'https://heldonica.fr';
 
@@ -129,24 +130,20 @@ export default function ExpertHotelierPage() {
               On analyse les données, on challenge les habitudes, on délivre des résultats chiffrés.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <a
+              <TrackedLink
                 href="#audit-form"
-                onClick={() => {
-                  if (typeof window !== 'undefined' && window.gtag) window.gtag('event', 'formulaire_audit_b2b_clique', { source: 'hero' });
-                }}
+                onClick={() => { if (typeof window !== 'undefined' && window.gtag) window.gtag('event', 'formulaire_audit_b2b_clique', { source: 'hero' }); }}
                 className="inline-flex px-8 py-4 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all text-lg"
               >
                 Demander un audit gratuit →
-              </a>
-              <a
+              </TrackedLink>
+              <TrackedLink
                 href="#cas-clients"
-                onClick={() => {
-                  if (typeof window !== 'undefined' && window.gtag) window.gtag('event', 'etude_cas_lue', { source: 'hero' });
-                }}
+                onClick={() => { if (typeof window !== 'undefined' && window.gtag) window.gtag('event', 'etude_cas_lue', { source: 'hero' }); }}
                 className="inline-flex px-8 py-4 border border-stone-600 text-stone-300 font-semibold rounded-xl hover:border-eucalyptus hover:text-white transition-all text-lg"
               >
                 Voir les résultats concrets →
-              </a>
+              </TrackedLink>
             </div>
           </div>
         </section>
@@ -225,11 +222,7 @@ export default function ExpertHotelierPage() {
             </p>
             <div className="grid md:grid-cols-2 gap-8">
               {caseStudies.map((cs, i) => (
-                <article key={i} className="rounded-2xl border border-stone-200 p-8 bg-stone-50 hover:shadow-lg transition-shadow"
-                  onClick={() => {
-                    if (typeof window !== 'undefined' && window.gtag) window.gtag('event', 'etude_cas_lue', { cas: cs.title });
-                  }}
-                >
+                <article key={i} className="rounded-2xl border border-stone-200 p-8 bg-stone-50 hover:shadow-lg transition-shadow">
                   <div className="flex flex-wrap gap-2 mb-4">
                     {cs.tags.map((t) => (
                       <span key={t} className="px-2.5 py-1 bg-eucalyptus/10 text-eucalyptus text-xs font-semibold rounded-full">{t}</span>
@@ -288,17 +281,15 @@ export default function ExpertHotelierPage() {
             <p className="text-stone-400 text-center mb-10 max-w-lg mx-auto">
               Laissez-nous vos coordonnées. Nous vous recontactons sous 48h pour planifier un échange découverte de 30 minutes.
             </p>
-            <a
+            <TrackedLink
               href="https://tally.so/embed/placeholder"
               target="_blank"
               rel="noreferrer noopener"
-              onClick={() => {
-                if (typeof window !== 'undefined' && window.gtag) window.gtag('event', 'formulaire_audit_b2b_clique', { source: 'section_audit' });
-              }}
+              onClick={() => { if (typeof window !== 'undefined' && window.gtag) window.gtag('event', 'formulaire_audit_b2b_clique', { source: 'section_audit' }); }}
               className="block w-full max-w-md mx-auto px-8 py-5 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all text-center text-lg mb-6"
             >
               Ouvrir le formulaire d&apos;audit →
-            </a>
+            </TrackedLink>
             <p className="text-stone-500 text-center text-sm">Sans engagement. Réponse sous 48h ouvrées.</p>
           </div>
         </section>
@@ -331,15 +322,13 @@ export default function ExpertHotelierPage() {
             <p className="text-stone-400 mb-8 max-w-lg mx-auto">
               30 minutes d&apos;échange gratuit pour analyser vos données et identifier vos leviers de croissance prioritaire.
             </p>
-            <a
+            <TrackedLink
               href="#audit-form"
-              onClick={() => {
-                if (typeof window !== 'undefined' && window.gtag) window.gtag('event', 'formulaire_audit_b2b_clique', { source: 'cta_final' });
-              }}
+              onClick={() => { if (typeof window !== 'undefined' && window.gtag) window.gtag('event', 'formulaire_audit_b2b_clique', { source: 'cta_final' }); }}
               className="inline-block px-10 py-5 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all text-lg"
             >
               Demander mon audit →
-            </a>
+            </TrackedLink>
           </div>
         </section>
       </main>
