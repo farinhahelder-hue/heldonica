@@ -149,8 +149,7 @@ export default function CmsSettingsPanel() {
     try {
       const res = await fetch('/api/cms/settings', { cache: 'no-store' });
       const data = await res.json();
-      console.log('[CmsSettings] API response:', data);
-      
+
       if (!res.ok) {
         throw new Error(data.error || 'Erreur lors du chargement');
       }
@@ -163,12 +162,10 @@ export default function CmsSettingsPanel() {
         Object.entries(data).forEach(([k, v]) => {
           if (k !== 'settings') flat[k] = String(v ?? '');
         });
-        console.log('[CmsSettings] Parsed values:', flat);
         setValues(flat);
         valuesRef.current = flat;
       }
     } catch (e: any) {
-      console.error('[CmsSettings] Fetch error:', e);
       setError(e.message || 'Impossible de charger les paramètres.');
     } finally {
       setLoading(false);
