@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
     // Fallback to Resend
     const resend = new Resend(process.env.RESEND_API_KEY)
 
-    // Email notification à l'admin
+    // Email notification à l’admin
     await resend.emails.send({
       from: 'Heldonica <onboarding@resend.dev>',
       to: [process.env.ADMIN_EMAIL || 'contact@heldonica.fr'],
@@ -141,7 +141,7 @@ export async function POST(req: NextRequest) {
         <p>On revient vers toi sous <strong>48h</strong> avec une première proposition adaptée à vos envies.</p>
         <p>En attendant, tu peux explorer nos derniers carnets de voyage sur <a href="https://heldonica.fr/blog">notre blog</a>.</p>
         <br/>
-        <p>À très vite,<br/><strong>L'équipe Heldonica</strong></p>
+        <p>À très vite,<br/><strong>L’équipe Heldonica</strong></p>
       `,
     })
 

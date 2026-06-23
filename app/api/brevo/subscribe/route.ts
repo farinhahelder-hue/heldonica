@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
         const error = await brevoResponse.json()
         console.error('Erreur Brevo contact:', error)
         
-        // Contact déjà existant, c'est ok
+        // Contact déjà existant, c’est ok
         if (error.code === 'duplicate_parameter') {
           console.log(`Contact déjà existant: ${email}`)
         } else {
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Hash simple pour anonymiser l'email dans GA4
+// Hash simple pour anonymiser l’email dans GA4
 function hashEmail(email: string): string {
   let hash = 0
   for (let i = 0; i < email.length; i++) {

@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'Nos Services | Heldonica',
-    description: "Des services pensés pour les voyageurs en quête d'authenticité et les professionnels de l'hôtellerie.",
+    description: "Des services pensés pour les voyageurs en quête d’authenticité et les professionnels de l’hôtellerie.",
     images: [
       {
         url: '/og-default.jpg',
@@ -145,7 +145,7 @@ export default function NosServicesPage() {
         <FaqSection
           items={FAQ_QUESTIONS}
           title="Tout ce que tu veux savoir"
-          subtitle="Les questions qu'on nous pose le plus souvent"
+          subtitle="Les questions qu’on nous pose le plus souvent"
         />
 
         {/* CTA Section */}

@@ -213,7 +213,7 @@ function CmsAdminClientInner() {
       <div className="min-h-screen flex items-center justify-center bg-[#f5f3ef]">
         <div className="bg-white p-10 rounded-2xl shadow-lg text-center">
           <div className="text-4xl mb-3">⏳</div>
-          <p className="text-gray-500 text-sm">Vérification de l'authentification…</p>
+          <p className="text-gray-500 text-sm">Vérification de l’authentification…</p>
         </div>
       </div>
     );
@@ -651,7 +651,7 @@ function CmsAdminClientInner() {
                       value={editingArticle?.title ?? ''}
                       onChange={e => setEditingArticle(prev => prev ? { ...prev, title: e.target.value } : prev)}
                       className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
-                      placeholder="Titre de l'article"
+                      placeholder="Titre de l’article"
                     />
                   </div>
                   <div>
@@ -788,7 +788,7 @@ function CmsAdminClientInner() {
                       value={editingArticle?.excerpt ?? ''}
                       onChange={e => setEditingArticle(prev => prev ? { ...prev, excerpt: e.target.value } : prev)}
                       className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A] resize-y"
-                      placeholder="Résumé court de l'article"
+                      placeholder="Résumé court de l’article"
                     />
                   </div>
                   <div>
@@ -809,7 +809,7 @@ function CmsAdminClientInner() {
                           <p className="text-xs text-amber-700 font-medium">
                             ⚠️ {imgWithoutAlt.length} image(s) sans attribut alt dans le contenu
                           </p>
-                          <p className="text-[10px] text-amber-600 mt-0.5">Ajoutez des textes alternatifs pour l'accessibilité et le SEO</p>
+                          <p className="text-[10px] text-amber-600 mt-0.5">Ajoutez des textes alternatifs pour l’accessibilité et le SEO</p>
                         </div>
                       );
                     }
@@ -879,7 +879,7 @@ function CmsAdminClientInner() {
           {/* ── GEO ── */}
           {activeSection === 'geo' && (
             <ErrorBoundary>
-              <Suspense fallback={<div className="text-sm text-gray-400 p-8">Chargement de l'audit GEO...</div>}>
+              <Suspense fallback={<div className="text-sm text-gray-400 p-8">Chargement de l’audit GEO...</div>}>
                 <GeoAuditPanel />
               </Suspense>
             </ErrorBoundary>

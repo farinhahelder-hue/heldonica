@@ -76,7 +76,7 @@ export async function POST(req: Request) {
       .update({ read_time: update.read_time })
       .eq('id', update.id)
       .then(() => {})
-      .catch(() => {/* ignore errors if column doesn't exist */})
+      .catch(() => {/* ignore errors if column doesn’t exist */})
   }
 
   return NextResponse.json({

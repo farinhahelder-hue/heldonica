@@ -46,7 +46,7 @@ export default function ContactForm() {
     } catch (error) {
       console.error('Erreur envoi formulaire:', error)
       setSubmitError(
-        "Le message n'a pas pu partir. Réessaie ici ou écris-nous directement à contact@heldonica.fr.",
+        "Le message n’a pas pu partir. Réessaie ici ou écris-nous directement à contact@heldonica.fr.",
       )
     } finally {
       setLoading(false)
@@ -71,7 +71,7 @@ export default function ContactForm() {
           <label className="mb-2 block text-sm font-semibold text-charcoal/90">Email *</label>
           <input
             {...register('email', {
-              required: "L'email est requis.",
+              required: "L’email est requis.",
               pattern: {
                 value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                 message: 'Adresse email invalide.',
@@ -91,7 +91,7 @@ export default function ContactForm() {
           {...register('phone')}
           type="tel"
           className={inputClass}
-          placeholder="Si tu veux qu'on te rappelle"
+          placeholder="Si tu veux qu’on te rappelle"
         />
       </div>
 
@@ -99,7 +99,7 @@ export default function ContactForm() {
         <label className="mb-2 block text-sm font-semibold text-charcoal/90">Sujet *</label>
         <select
           {...register('subject', {
-            required: "Choisis un sujet pour qu'on parte dans la bonne direction.",
+            required: "Choisis un sujet pour qu’on parte dans la bonne direction.",
           })}
           className={inputClass}
         >

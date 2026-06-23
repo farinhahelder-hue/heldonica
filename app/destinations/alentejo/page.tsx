@@ -12,7 +12,7 @@ const schemaTouristDestination = {
   '@context': 'https://schema.org',
   '@type': 'TouristDestination',
   name: 'Alentejo',
-  description: "Région du sud du Portugal entre le Tage et l'Algarve. Plains, vignobles, liège et villages de pierre. Destination slow travel idéale pour lovers de terroir et de silence.",
+  description: "Région du sud du Portugal entre le Tage et l’Algarve. Plains, vignobles, liège et villages de pierre. Destination slow travel idéale pour lovers de terroir et de silence.",
   url: `${SITE_URL}/destinations/alentejo`,
   address: {
     '@type': 'PostalAddress',
@@ -76,7 +76,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'Alentejo : Guide Slow Travel Complet | Heldonica',
-    description: "L'Alentejo en slow travel : plains, vignobles et villages de pierre. Notre guide terrain.",
+    description: "L’Alentejo en slow travel : plains, vignobles et villages de pierre. Notre guide terrain.",
     images: [
       {
         url: 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1200&q=80',
@@ -138,7 +138,7 @@ export default function AlentejoPage() {
             </h1>
             <p className="text-stone-300 text-base md:text-lg leading-relaxed max-w-2xl">
               Plaines infinies, vignobles à perte de vue, villages de pierre figés dans le temps.
-              L'Alentejo, c'est le Portugal qu'on cherche quand on veut échapper aux foules.
+              L’Alentejo, c’est le Portugal qu’on cherche quand on veut échapper aux foules.
             </p>
           </div>
         </section>
@@ -148,17 +148,17 @@ export default function AlentejoPage() {
           <div className="max-w-4xl mx-auto px-6">
             <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4">Notre retour terrain</p>
             <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-8">
-              Pourquoi l'Alentejo nous a conquis
+              Pourquoi l’Alentejo nous a conquis
             </h2>
             <div className="prose prose-lg max-w-none prose-stone">
               <p className="text-stone-700 leading-relaxed text-lg">
-                <strong className="text-stone-900">La première fois</strong>, on a traversé l'Alentejo en vitesse, direction l'Algarve. Grosse erreur. On a traversé des siècles d'histoire, des plains qui donnaient le vertige, des villages où le temps semblait s'être arrêté — et on n'y a même pas posé pied.
+                <strong className="text-stone-900">La première fois</strong>, on a traversé l’Alentejo en vitesse, direction l’Algarve. Grosse erreur. On a traversé des siècles d’histoire, des plains qui donnaient le vertige, des villages où le temps semblait s’être arrêté — et on n’y a même pas posé pied.
               </p>
               <p className="text-stone-700 leading-relaxed">
-                <strong className="text-stone-900">La deuxième fois</strong>, on a pris 5 jours. Juste l'Alentejo central. Évoramonsaraz, les vignobles de Vidigueira, les routes sans autre voiture à l'horizon. C'est là qu'on a compris : l'Alentejo, c'est le Portugal <em>vraiment</em>.
+                <strong className="text-stone-900">La deuxième fois</strong>, on a pris 5 jours. Juste l’Alentejo central. Évoramonsaraz, les vignobles de Vidigueira, les routes sans autre voiture à l’horizon. C’est là qu’on a compris : l’Alentejo, c’est le Portugal <em>vraiment</em>.
               </p>
               <p className="text-stone-700 leading-relaxed">
-                Ce qu'on y a trouvé : du bon vin à 3€, des restaurants de village où le patron cooking tout lui-même, des champs de liège à perte de vue, et ce silence qu'on cherche tous sans jamais oser le dire.
+                Ce qu’on y a trouvé : du bon vin à 3€, des restaurants de village où le patron cooking tout lui-même, des champs de liège à perte de vue, et ce silence qu’on cherche tous sans jamais oser le dire.
               </p>
             </div>
           </div>
@@ -192,7 +192,7 @@ export default function AlentejoPage() {
         {/* ── NOS PÉPITES ── */}
         <section className="py-16 md:py-24 bg-white">
           <div className="max-w-5xl mx-auto px-6">
-            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Ce qu'on a vécu</p>
+            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Ce qu’on a vécu</p>
             <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12 text-center">
               Nos pépites dénichées
             </h2>
@@ -210,7 +210,7 @@ export default function AlentejoPage() {
                   </div>
                 </div>
                 <p className="text-stone-600 text-sm leading-relaxed mb-4">
-                  Capitale de l'Alentejo, classed UNESCO. On a aimé déambuler dans les ruelles avant 9h, visiter la chapelle des Ossements à la première heure (quasi déserte), et manger une açorda alentejana dans une tasca de la place principale.
+                  Capitale de l’Alentejo, classed UNESCO. On a aimé déambuler dans les ruelles avant 9h, visiter la chapelle des Ossements à la première heure (quasi déserte), et manger une açorda alentejana dans une tasca de la place principale.
                 </p>
                 <p className="text-xs text-stone-400 italic">
                   ⭐ Verdict Heldonica : À faire le matin, avant les bus de tourists.
@@ -229,10 +229,10 @@ export default function AlentejoPage() {
                   </div>
                 </div>
                 <p className="text-stone-600 text-sm leading-relaxed mb-4">
-                  Un des plus beaux villages d Portugal. Ruelles étroites, château en ruine avec vue sur l'Estrémadure espagnole, et ce silence le soir quand les derniers tourists repartent.
+                  Un des plus beaux villages d Portugal. Ruelles étroites, château en ruine avec vue sur l’Estrémadure espagnole, et ce silence le soir quand les derniers tourists repartent.
                 </p>
                 <p className="text-xs text-stone-400 italic">
-                  ⭐ Verdict Heldonica : Restez y dormir, pas qu'une journée.
+                  ⭐ Verdict Heldonica : Restez y dormir, pas qu’une journée.
                 </p>
               </div>
 
@@ -267,7 +267,7 @@ export default function AlentejoPage() {
                   </div>
                 </div>
                 <p className="text-stone-600 text-sm leading-relaxed mb-4">
-                  L'Alentejo inland a des beaches fluviaux incredibles. On a trouvé notre spot préféré près de Granja — une plage sur la rivière avec des eaux claires, des gens du coin, et aucun tourist.
+                  L’Alentejo inland a des beaches fluviaux incredibles. On a trouvé notre spot préféré près de Granja — une plage sur la rivière avec des eaux claires, des gens du coin, et aucun tourist.
                 </p>
                 <p className="text-xs text-stone-400 italic">
                   ⭐ Verdict Heldonica : Demandez aux locaux, ils indiquent les meilleurs spots.
@@ -285,7 +285,7 @@ export default function AlentejoPage() {
               Où dormir selon ton style
             </h2>
             <p className="text-stone-600 text-center mb-12 max-w-xl mx-auto">
-              L'Alentejo offre des options pour tous les budgets. Nous, on a testé ces trois-là.
+              L’Alentejo offre des options pour tous les budgets. Nous, on a testé ces trois-là.
             </p>
 
             <div className="grid md:grid-cols-3 gap-6">
@@ -321,7 +321,7 @@ export default function AlentejoPage() {
                 </div>
                 <h3 className="text-lg font-serif text-stone-900 mb-2">Quintas viticoles</h3>
                 <p className="text-sm text-stone-600 mb-4">
-                  Dormir chez le viticulteur, c'est possible. On a testé une quinta près de Vidigueira avec degustation privée incluse dans le prix de la chambre.
+                  Dormir chez le viticulteur, c’est possible. On a testé une quinta près de Vidigueira avec degustation privée incluse dans le prix de la chambre.
                 </p>
                 <p className="text-xs text-stone-400">
                   💡 Notre conseil : contactez directement pour les meilleurs tarifs.
@@ -362,7 +362,7 @@ export default function AlentejoPage() {
                 <div>
                   <h3 className="text-lg font-semibold text-stone-900 mb-2">Bus régionaux</h3>
                   <p className="text-stone-600 text-sm leading-relaxed">
-                    Si vous n'avez pas de voiture, les Rede Expressos连接 les grandes villes. Mais pour les villages, forget it.
+                    Si vous n’avez pas de voiture, les Rede Expressos连接 les grandes villes. Mais pour les villages, forget it.
                   </p>
                 </div>
               </div>
@@ -374,7 +374,7 @@ export default function AlentejoPage() {
         <section className="py-16 md:py-24" style={{ backgroundColor: '#01696f' }}>
           <div className="max-w-3xl mx-auto px-6 text-center text-white">
             <h2 className="text-3xl md:text-4xl font-serif font-light mb-4">
-              Tu veux qu'on conçoive ton séjour dans l'Alentejo sur mesure ?
+              Tu veux qu’on conçoive ton séjour dans l’Alentejo sur mesure ?
             </h2>
             <p className="text-white/80 mb-8 max-w-xl mx-auto">
               On te construit un itinerary basé sur nos séjours réels. Vignobles, villages, plages rivières — selon ton rythme.
@@ -422,7 +422,7 @@ export default function AlentejoPage() {
                 <div className="relative h-40 bg-stone-200">
                   <Image
                     src="https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=600&q=70"
-                    alt="Vignobles de l'Alentejo"
+                    alt="Vignobles de l’Alentejo"
                     fill
                     className="object-cover"
                   />
@@ -430,7 +430,7 @@ export default function AlentejoPage() {
                 <div className="p-5">
                   <p className="text-xs text-amber-700 font-semibold mb-1">Portugal</p>
                   <h3 className="font-serif text-stone-900 group-hover:text-amber-700 transition-colors">
-                    Routard dans l'Alentejo : notre journal de bord
+                    Routard dans l’Alentejo : notre journal de bord
                   </h3>
                 </div>
               </Link>
@@ -462,7 +462,7 @@ export default function AlentejoPage() {
                 <div className="p-5">
                   <p className="text-xs text-amber-700 font-semibold mb-1">Food & Lifestyle</p>
                   <h3 className="font-serif text-stone-900 group-hover:text-amber-700 transition-colors">
-                    Le vin portugais qu'on ramène à chaque fois
+                    Le vin portugais qu’on ramène à chaque fois
                   </h3>
                 </div>
               </Link>

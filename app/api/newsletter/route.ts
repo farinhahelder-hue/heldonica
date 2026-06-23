@@ -64,12 +64,12 @@ export async function POST(request: NextRequest) {
               <p style="color: #fde68a; font-size: 11px; letter-spacing: 0.2em; margin: 8px 0 0;">SLOW TRAVEL · VOYAGES VÉCUS</p>
             </div>
             <div style="padding: 40px; background: #faf9f7;">
-              <p style="font-size: 20px; margin: 0 0 20px; color: #6b2a1a;">Bienvenue dans l'aventure ✨</p>
+              <p style="font-size: 20px; margin: 0 0 20px; color: #6b2a1a;">Bienvenue dans l’aventure ✨</p>
               <p style="color: #444; line-height: 1.7; margin: 0 0 20px;">
-                On est ravis de t'avoir parmi nous. Tu vas recevoir nos meilleures pépites dénichées : carnets de voyage en couple, adresses hors sentiers battus, et expériences slow que seul un vrai terrain peut révéler.
+                On est ravis de t’avoir parmi nous. Tu vas recevoir nos meilleures pépites dénichées : carnets de voyage en couple, adresses hors sentiers battus, et expériences slow que seul un vrai terrain peut révéler.
               </p>
               <p style="color: #444; line-height: 1.7; margin: 0 0 32px;">
-                En attendant notre prochain carnet, explore les destinations qu'on a vraiment vécues :
+                En attendant notre prochain carnet, explore les destinations qu’on a vraiment vécues :
               </p>
               <a href="https://heldonica.fr/blog" style="display: inline-block; background: #6b2a1a; color: #fff; text-decoration: none; padding: 14px 28px; border-radius: 50px; font-size: 14px; font-family: sans-serif;">Voir le blog →</a>
               <p style="margin-top: 24px;">
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
             </div>
             <div style="padding: 24px 40px; background: #f5f3ef; text-align: center; border-top: 1px solid #e8e0d8;">
               <p style="font-size: 11px; color: #888; margin: 0;">
-                Tu reçois cet email car tu t'es inscrit(e) sur heldonica.fr · Désabonnement en 1 clic · <a href="https://heldonica.fr/mentions-legales" style="color: #6b2a1a;">Mentions légales</a>
+                Tu reçois cet email car tu t’es inscrit(e) sur heldonica.fr · Désabonnement en 1 clic · <a href="https://heldonica.fr/mentions-legales" style="color: #6b2a1a;">Mentions légales</a>
               </p>
             </div>
           </div>

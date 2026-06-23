@@ -26,7 +26,7 @@ const SANITIZE_OPTIONS = {
 export function sanitizeHtml(html: string | null | undefined): string {
   if (!html) return '';
 
-  // Côté serveur (SSR) : retourner le HTML tel quel — DOMPurify s'exécute côté client
+  // Côté serveur (SSR) : retourner le HTML tel quel — DOMPurify s’exécute côté client
   if (typeof window === 'undefined') {
     return html;
   }

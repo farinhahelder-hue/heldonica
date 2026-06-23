@@ -377,7 +377,7 @@ export default function KanbanBoard({ initialDemandes, onStatutChange }: KanbanB
 
       // Check if over.id matches a column
       if (!COLUMNS_CONFIG[targetStatut]) {
-        // It's a column id
+        // It’s a column id
         targetStatut = overId;
       }
 

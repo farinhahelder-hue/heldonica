@@ -32,9 +32,9 @@ describe('readingTime utility', () => {
 
   describe('formatReadingTime', () => {
     it('should return "Moins d\'une minute de lecture" for minutes < 1', () => {
-      expect(formatReadingTime(0)).toBe("Moins d'une minute de lecture");
-      expect(formatReadingTime(-1)).toBe("Moins d'une minute de lecture");
-      expect(formatReadingTime(0.5)).toBe("Moins d'une minute de lecture");
+      expect(formatReadingTime(0)).toBe("Moins d’une minute de lecture");
+      expect(formatReadingTime(-1)).toBe("Moins d’une minute de lecture");
+      expect(formatReadingTime(0.5)).toBe("Moins d’une minute de lecture");
     });
 
     it('should return "1 minute de lecture" for exactly 1 minute', () => {
@@ -50,8 +50,8 @@ describe('readingTime utility', () => {
 
   describe('getFormattedReadingTime', () => {
     it('should return "Moins d\'une minute de lecture" for null or empty content', () => {
-      expect(getFormattedReadingTime(null)).toBe("Moins d'une minute de lecture");
-      expect(getFormattedReadingTime('')).toBe("Moins d'une minute de lecture");
+      expect(getFormattedReadingTime(null)).toBe("Moins d’une minute de lecture");
+      expect(getFormattedReadingTime('')).toBe("Moins d’une minute de lecture");
     });
 
     it('should format minimum reading time for short text', () => {

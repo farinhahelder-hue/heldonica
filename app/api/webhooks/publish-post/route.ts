@@ -73,7 +73,7 @@ export async function POST(req: Request) {
       })
       .eq('slug', slug)
       .then(() => {})
-      .catch(() => {/* ignore if table doesn't exist */})
+      .catch(() => {/* ignore if table doesn’t exist */})
 
     // Revalidate ISR cache
     revalidatePath('/blog')

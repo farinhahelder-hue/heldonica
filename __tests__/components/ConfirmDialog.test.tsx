@@ -21,14 +21,14 @@ describe('ConfirmDialog', () => {
     render(
       <ConfirmDialog
         open={true}
-        title="Supprimer l'article"
+        title="Supprimer l’article"
         message="Cette action est irréversible."
         onConfirm={() => {}}
         onCancel={() => {}}
       />
     );
 
-    expect(screen.getByText("Supprimer l'article")).toBeTruthy();
+    expect(screen.getByText("Supprimer l’article")).toBeTruthy();
     expect(screen.getByText('Cette action est irréversible.')).toBeTruthy();
   });
 

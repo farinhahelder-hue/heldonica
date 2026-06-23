@@ -146,7 +146,7 @@ export default function BlockEditor({ value, onChange, placeholder = 'Commencez 
     }
   }, [blocks, value, onChange]);
 
-  // Update a block's content
+  // Update a block’s content
   const updateBlock = useCallback((id: string, updates: Partial<Block>) => {
     setBlocks(prev => prev.map(b => b.id === id ? { ...b, ...updates } : b));
   }, []);
@@ -312,7 +312,7 @@ export default function BlockEditor({ value, onChange, placeholder = 'Commencez 
             ) : (
               <div style={{ background: '#f8f6f4', border: '2px dashed #e8e0d8', borderRadius: '0.75rem', padding: '2rem', textAlign: 'center', cursor: 'pointer' }}>
                 <ImageIcon size={32} color="#888" style={{ marginBottom: '0.5rem' }} />
-                <p style={{ color: '#888', marginBottom: '0.5rem' }}>Cliquez pour ajouter une URL d'image</p>
+                <p style={{ color: '#888', marginBottom: '0.5rem' }}>Cliquez pour ajouter une URL d’image</p>
                 <input
                   type="url"
                   placeholder="https://example.com/image.jpg"
@@ -360,7 +360,7 @@ export default function BlockEditor({ value, onChange, placeholder = 'Commencez 
               onChange={(e: ChangeEvent<HTMLInputElement>) => updateBlock(block.id, { content: e.target.value })}
               onKeyDown={(e) => handleKeyDown(e, block)}
               onFocus={() => setFocusedId(block.id)}
-              placeholder="Conseil d'initié…"
+              placeholder="Conseil d’initié…"
               style={{
                 width: '100%', border: 'none', outline: 'none', background: 'transparent',
                 fontSize: '0.95rem', color: '#4a1c12', fontFamily: 'DM Sans, system-ui'
@@ -377,7 +377,7 @@ export default function BlockEditor({ value, onChange, placeholder = 'Commencez 
               </div>
             ) : (
               <div style={{ background: '#f8f6f4', border: '1px solid #e8e0d8', borderRadius: '0.5rem', padding: '1rem' }}>
-                <p style={{ color: '#888', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Collez l'URL YouTube ou Vimeo :</p>
+                <p style={{ color: '#888', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Collez l’URL YouTube ou Vimeo :</p>
                 <input
                   type="url"
                   placeholder="https://www.youtube.com/watch?v=..."

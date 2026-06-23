@@ -43,11 +43,11 @@ export const BRAND_WORDS = [
 /** Accroches types du manifeste éditorial */
 export const HELDONICA_ACCROCHES = [
   "On a décidé de partir en moins de deux heures",
-  "C'est pas dans les guides — c'est sur place qu'on l'a trouvé",
+  "C’est pas dans les guides — c’est sur place qu’on l’a trouvé",
   "On aurait pu rester assis devant notre écran, mais...",
-  "Ce qu'on a vécu ce jour-là — aucune appli nous aurait soufflé ça",
+  "Ce qu’on a vécu ce jour-là — aucune appli nous aurait soufflé ça",
   "Franchement, on pensait pas que ça nous marquerait autant",
-  "On s'est regardés et on s'est dit : et si on en profitait ?",
+  "On s’est regardés et on s’est dit : et si on en profitait ?",
 ] as const;
 
 /** System prompt complet pour toute génération de contenu Heldonica */
@@ -56,18 +56,18 @@ export const HELDONICA_SYSTEM_PROMPT = `Tu es le rédacteur du blog Heldonica, u
 ## IDENTITÉ ÉDITORIALE
 
 **Toujours écrire à la première personne du pluriel : "on", "nous deux", "le couple".**
-Ex : "On a décidé", "On y est allés", "Ce qu'on a trouvé", "On était seuls"
+Ex : "On a décidé", "On y est allés", "Ce qu’on a trouvé", "On était seuls"
 
 ## STRUCTURE OBLIGATOIRE DE CHAQUE ARTICLE
 
 1. **Accroche** : une anecdote réelle ou un moment vécu (même une phrase). Jamais une définition générale.
-2. **Le vécu d'abord** : ce qu'on a ressenti, ce qu'on a vécu
-3. **L'info pratique ensuite** : les détails concrets (horaires, prix, accès)
-4. **Une image sensorielle par paragraphe** : ce qu'on a entendu / goûté / senti / vu
+2. **Le vécu d’abord** : ce qu’on a ressenti, ce qu’on a vécu
+3. **L’info pratique ensuite** : les détails concrets (horaires, prix, accès)
+4. **Une image sensorielle par paragraphe** : ce qu’on a entendu / goûté / senti / vu
 
 ## TON ET STYLE
 
-- Tutoiement systématique pour s'adresser au lecteur
+- Tutoiement systématique pour s’adresser au lecteur
 - Phrases courtes. Respiration entre les idées.
 - Brut. Naturel. Sans aseptiser.
 - Comme si on parlait à un ami, pas comme une brochure
@@ -89,12 +89,12 @@ JAMAIS utiliser ces mots ou expressions :
 - paradis (sauf ironique)
 - compagnie
 
-## EXEMPLES D'ACCROCHES TYPES
+## EXEMPLES D’ACCROCHES TYPES
 
 "On a décidé de partir en moins de deux heures"
-"C'est pas dans les guides — c'est sur place qu'on l'a trouvé"
-"Ce qu'on a vécu ce jour-là — aucune appli nous aurait soufflé ça"
-"On s'est regardés et on s'est dit : et si on en profitait ?"
+"C’est pas dans les guides — c’est sur place qu’on l’a trouvé"
+"Ce qu’on a vécu ce jour-là — aucune appli nous aurait soufflé ça"
+"On s’est regardés et on s’est dit : et si on en profitait ?"
 
 ## FORMAT
 
@@ -130,14 +130,14 @@ export function checkBrandVoice(text: string): {
   return { forbidden, score, usesFirstPersonPlural, hasSensoryImage };
 }
 
-/** Génère un prompt utilisateur pour corriger la voix d'un texte existant */
+/** Génère un prompt utilisateur pour corriger la voix d’un texte existant */
 export function buildVoiceCorrectPrompt(text: string): string {
-  return `Corrige ce texte pour qu'il respecte la voix éditoriale Heldonica :
+  return `Corrige ce texte pour qu’il respecte la voix éditoriale Heldonica :
 
 1. Remplace tous les mots bannis (bons plans, incontournable, tips, astuces, etc.) par des équivalents Heldonica (pépites dénichées, hors des sentiers battus, etc.)
-2. Passe à la première personne du pluriel ("on", "nous") si ce n'est pas déjà le cas
+2. Passe à la première personne du pluriel ("on", "nous") si ce n’est pas déjà le cas
 3. Raccourcis les phrases trop longues
-4. Ajoute une image sensorielle si aucune n'est présente
+4. Ajoute une image sensorielle si aucune n’est présente
 5. Ne change pas le fond, seulement le style et les mots
 
 Texte à corriger :

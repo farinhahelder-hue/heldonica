@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const imgRes = await fetch(imageUrl);
-    if (!imgRes.ok) throw new Error(`Impossible de télécharger l'image : ${imgRes.status}`);
+    if (!imgRes.ok) throw new Error(`Impossible de télécharger l’image : ${imgRes.status}`);
     const buffer = Buffer.from(await imgRes.arrayBuffer());
     const contentType = imgRes.headers.get('content-type') || 'image/jpeg';
 

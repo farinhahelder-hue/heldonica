@@ -51,11 +51,11 @@ function parseSlideCount(prompt: string, defaultCount: number = 5): number {
 // Generate slide content based on topic
 function generateSlideContent(index: number, total: number, topic: string): { title: string; content: string } {
   const templates = [
-    { title: `Tip #${index + 1}`, content: `Découvrez ${topic} avec Heldonica. Une expérience unique pour les voyageurs en quête d'authenticité.` },
+    { title: `Tip #${index + 1}`, content: `Découvrez ${topic} avec Heldonica. Une expérience unique pour les voyageurs en quête d’authenticité.` },
       { title: `Astuce ${index + 1}`, content: `${topic} vous attend. Un moment suspendu, loin du tourisme de masse.` },
     { title: `Secret #${index + 1}`, content: `Ce que peu de gens savent sur ${topic}. Un voyage commence ici.` },
-    { title: `Éxo #${index + 1}`, content: `L'art de ${topic}. Slow travel, éco-luxe, moments précieux.` },
-    { title: `Découverte ${index + 1}`, content: `${topic} n'a plus de secrets pour vous. Partez avec Heldonica.` },
+    { title: `Éxo #${index + 1}`, content: `L’art de ${topic}. Slow travel, éco-luxe, moments précieux.` },
+    { title: `Découverte ${index + 1}`, content: `${topic} n’a plus de secrets pour vous. Partez avec Heldonica.` },
   ]
   return templates[index % templates.length]
 }

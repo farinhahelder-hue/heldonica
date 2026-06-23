@@ -46,7 +46,7 @@ const schemaService = {
   "@context": "https://schema.org",
   "@type": "Service",
   "name": "Travel Planning sur mesure — Heldonica",
-  "description": "Conception sur mesure d'itinéraires de voyage en couple, slow travel, hors des sentiers battus. On te livre un carnet de route PDF complet avec hébergements testés, restaurants, transports et contacts locaux.",
+  "description": "Conception sur mesure d’itinéraires de voyage en couple, slow travel, hors des sentiers battus. On te livre un carnet de route PDF complet avec hébergements testés, restaurants, transports et contacts locaux.",
   "provider": {
     "@type": "Organization",
     "name": "Heldonica",

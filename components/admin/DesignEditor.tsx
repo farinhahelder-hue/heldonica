@@ -20,7 +20,7 @@ type TabId = typeof TABS[number]['id'];
 const COLOR_FIELDS = [
   { key: 'primary_color', label: 'Couleur principale', fallback: '#006D77' },
   { key: 'secondary_color', label: 'Couleur secondaire', fallback: '#83C5BE' },
-  { key: 'color_accent', label: "Couleur d'accent", fallback: '#E29578' },
+  { key: 'color_accent', label: "Couleur d’accent", fallback: '#E29578' },
   { key: 'color_background', label: 'Fond de page', fallback: '#F8F5F0' },
   { key: 'color_text', label: 'Texte principal', fallback: '#1A1A1A' },
 ] as const;
