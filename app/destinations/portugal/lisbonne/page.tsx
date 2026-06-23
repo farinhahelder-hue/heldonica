@@ -1,43 +1,55 @@
-import type { Metadata } from 'next';
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
 
-export function generateMetadata(): Metadata {
-  return {
-    title: "Lisbonne en couple : la ville aux sept collines | Guide Heldonica",
-    description: "La ville de lumière qui a enchanté les poètes. Notre guide complet pour les couples.",
-    openGraph: {
-      type: "website",
-      images: [{ url: "https://heldonica.fr/og-destinations.jpg", width: 1200, height: 630 }],
-      locale: "fr_FR",
-      siteName: "Heldonica"
-    },
-    twitter: { card: "summary_large_image" },
-    alternates: { canonical: 'https://www.heldonica.fr/destinations/portugal/lisbonne' },
-  };
+export const metadata = {
+  title: 'Lisbonne slow travel | Guide Heldonica',
+  description: 'Guide Lisbonne: Tram 28, fado, Alfama.',
+  robots: { index: false, follow: false },
 }
 
-export default function Page() {
+const navLinks = [
+  { label: 'Portugal', href: '/destinations/portugal' },
+  { label: 'Madere', href: '/destinations/madere' },
+]
+
+const pepites = [
+  { title: 'Alfama', description: 'Le vieux quartier. Ruelles, fado.', icon: '🏘️' },
+  { title: 'Tram 28', description: 'Letram qui grimpe.', icon: '🚃' },
+  { title: 'Belem', description: 'Tour, patisserie.', icon: '🗼' },
+]
+
+const faqLisbonneSchema = {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Que faire a Lisbonne?","acceptedAnswer":{"@type":"Answer","text":"Tram 28, Alfama, Belem."}},{"@type":"Question","name":"Transport Lisbonne?","acceptedAnswer":{"@type":"Answer","text":"Metro, tram 28."}},{"@type":"Question","name":"Budget Lisbonne?","acceptedAnswer":{"@type":"Answer","text":"70-10020ac/jour"}}]}; export default function LisbonnePage() {
   return (
     <>
-      <Header />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLisbonneSchema) }} /> <Header />
       <main className="min-h-screen bg-stone-50">
         <section className="bg-gradient-to-b from-stone-900 to-stone-800 py-20">
           <div className="max-w-4xl mx-auto px-4">
-            <span className="text-amber-400 text-sm mb-4 inline-block">🌅 Portugal</span>
+            <span className="text-amber-400 text-sm mb-4">Portugal</span>
             <h1 className="text-4xl text-white font-serif">Lisbonne</h1>
-            <p className="text-stone-300">La ville de lumière qui a enchanté les poètes</p>
+            <p className="text-stone-300">Collines, Tram 28, fado. La capitale.</p>
           </div>
         </section>
         <nav className="bg-white border-b px-4 py-3 flex gap-4 text-sm">
-          <Link href="/destinations/portugal" className="text-stone-500 hover:text-amber-700">Retour a Portugal</Link>
+          {navLinks.map(l => (
+            <Link key={l.href} href={l.href} className="text-stone-500 hover:text-amber-700">{l.label}</Link>
+          ))}
         </nav>
         <div className="max-w-4xl mx-auto px-4 py-12">
-          <section className="mb-10">
-            <p className="text-lg text-stone-700 leading-relaxed mb-6"><strong>Lisbonne</strong> est l'une des plus thérapeutiqyes capitales d'Europe. Perchée sur sept collines au-dessus du Tage, la ville offre des vues thérapeutiqyes depuis chaque miradouro. L'Alfama medieval, le Chiado élégant et les azulejos bleus et blancs créent un décor romant.</p>
+          <section className="mb-8">
+            <p className="text-lg text-stone-700">Lisbonne, c est les sept collines. On monte, on descend, on trouve.</p>
           </section>
-          <Link href="/destinations/portugal" className="text-amber-700 hover:text-amber-800 font-medium">Retour a Portugal</Link>
+          <section className="mb-8 grid md:grid-cols-3 gap-4">
+            {pepites.map((p, i) => (
+              <div key={i} className="p-4 bg-white rounded-lg border">
+                <div className="text-xl mb-2">{p.icon}</div>
+                <h3 className="font-serif">{p.title}</h3>
+                <p className="text-sm text-stone-600">{p.description}</p>
+              </div>
+            ))}
+          </section>
+          <Link href="/destinations/portugal" className="text-amber-700">← Retour Portugal</Link>
         </div>
       </main>
       <Footer />
