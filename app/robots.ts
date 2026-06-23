@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/admin/', '/api/', '/_next/', '/cms/', '/panel-manager/'],
     },
-    sitemap: 'https://heldonica.fr/sitemap.xml',
+    sitemap: 'https://www.heldonica.fr/sitemap.xml',
   }
 }
