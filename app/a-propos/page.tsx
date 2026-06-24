@@ -72,7 +72,7 @@ const PILLIERS = [
 ]
 
 const STATS = [
-  { valeur: '12', label: 'Pays vécus' },
+  { valeur: '7', label: 'Pays habités' },
   { valeur: '25+', label: 'Carnets publiés' },
   { valeur: '4', label: 'Ans de slow travel' },
 ]

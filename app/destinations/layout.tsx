@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Destinations Slow Travel | Voyages Hors des Sentiers Battus | Heldonica',
+  title: 'Destinations Slow Travel — Voyages Hors des Sentiers Battus',
   description: 'Explorez nos destinations slow travel : Madère, Zurich, Portugal, Alpes... Des itinéraires authentiques pour voyager en couple hors des sentiers battus, testés sur le terrain.',
   keywords: ['destinations slow travel', 'voyages hors sentiers battus', 'voyage en couple', 'madère', 'zurich', 'portugal', 'itinéraire authentique', 'heldonica'],
   alternates: {
