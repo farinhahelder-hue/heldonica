@@ -134,9 +134,7 @@ const DEST_META: Record<string, DestinationMeta> = {
   'bretagne-heldonica-slow': bretagneMeta,
 }
 
-// Force dynamic rendering to avoid SSG timeout (>300s) on Vercel
-// The Supabase calls in generateStaticParams can timeout during static generation
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600
 
 async function getDestinationStatus(slug: string): Promise<{
   status: string | null
