@@ -1,4 +1,4 @@
-import type { PillarData } from '@/components/DestinationPillar'
+import type { PillarData } from '@/lib/pillar-types'
 
 export const MADERE: PillarData = {
   slug: 'madere',
