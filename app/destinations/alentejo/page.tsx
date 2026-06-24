@@ -37,7 +37,7 @@ const alentejoLd = {
       name: 'Quand partir dans l\'Alentejo pour le slow travel ?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Les meilleures périodes sont mars-mai et septembre-novembre. Températures agréables (20-28°C), vignobles en fleur ou vendanges, moins de touristes.',
+        text: 'Les meilleures périodes sont mars-mai et septembre-novembre. Températures agréables (20-28°C), vignobles en fleur ou vendanges, hors des circuits habituels.',
       },
     },
     {
