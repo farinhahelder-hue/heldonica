@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://www.heldonica.fr/contact' },
   openGraph: {
     title: 'Contactez Heldonica',
-    description: 'Votre projet de voyage sur mesure commence ici. Réponse sous 48h, sans engagement.',
+    description: 'Ton projet de voyage sur mesure commence ici. Réponse sous 48h, sans engagement.',
     url: 'https://www.heldonica.fr/contact',
     siteName: 'Heldonica',
     type: 'website',

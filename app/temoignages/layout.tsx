@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     locale: 'fr_FR',
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'Témoignages | Heldonica',
     description: 'Avis de voyageurs — des expériences sur mesure qui marquent.',
   },
