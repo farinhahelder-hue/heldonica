@@ -99,16 +99,20 @@ const schemaOrganization = {
 };
 
 export default async function Home() {
-  const allPostsResult = await getAllPosts()
+  // Batch independent server requests for faster TTFB
+  const [allPostsResult, rawCountries, homeContent] = await Promise.all([
+    getAllPosts(),
+    getSetting('covered_countries'),
+    getPageContent('home'),
+  ])
+
   // Defensive: ensure we always have an array
   const allPosts = Array.isArray(allPostsResult) ? allPostsResult : []
   
   // Get covered_countries as number with fallback
-  const rawCountries = await getSetting('covered_countries')
   const coveredCountries = rawCountries ? parseInt(rawCountries, 10) : 3
 
   // Fetch hero media from CMS
-  const homeContent = await getPageContent('home')
   const heroVideoUrl = homeContent['hero_video_url'] || null
   const heroPosterImage = homeContent['hero_poster_image'] || null
 
