@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase-client'
-import DestinationPillar, { buildPillarMetadata } from '@/components/DestinationPillar'
+import DestinationPillar from '@/components/DestinationPillar'
+import { buildPillarMetadata } from '@/lib/pillar-metadata'
 import { MONTENEGRO } from '@/lib/pillar-data'
 
 export const dynamic = 'force-dynamic'

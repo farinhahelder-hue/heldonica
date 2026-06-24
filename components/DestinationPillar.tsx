@@ -7,45 +7,8 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import NewsletterForm from '@/components/NewsletterForm'
 import GuideDownloadButton from '@/components/GuideDownloadButton'
-import type { Metadata } from 'next'
+import type { PillarData } from '@/lib/pillar-types'
 import { SITE_URL } from '@/lib/seo'
-
-export interface PillarData {
-  slug: string
-  name: string
-  country: string
-  flag: string
-  hero: string
-  tagline: string
-  budget: number
-  season: string
-  flight: string
-  visa: string
-  currency: string
-  language: string
-  seoTitle: string
-  seoDesc: string
-  intro: string[]
-  infoTable: { label: string; value: string }[]
-  itinerary: { day: number; title: string; activities: string[]; tip?: string; articleSlug?: string }[]
-  budgetBreakdown: { label: string; pct: number; amount: number }[]
-  faq: { q: string; a: string }[]
-}
-
-export function buildPillarMetadata(d: PillarData): Metadata {
-  return {
-    title: d.seoTitle,
-    description: d.seoDesc,
-    alternates: { canonical: `${SITE_URL}/destinations/${d.slug}` },
-    openGraph: {
-      title: d.seoTitle,
-      description: d.seoDesc,
-      url: `${SITE_URL}/destinations/${d.slug}`,
-      images: [{ url: d.hero, width: 1200, height: 630, alt: `${d.name} slow travel — Heldonica` }],
-      locale: 'fr_FR', type: 'website',
-    },
-  }
-}
 
 export default function DestinationPillar({
   data, relatedArticles,
