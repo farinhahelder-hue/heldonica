@@ -9,7 +9,7 @@ export function generateMetadata(): Metadata {
     description: "Est. Volcan, baroque.",
     openGraph: {
       type: "website",
-      images: ["https://heldonica.fr/images/default-hero.jpg"],
+      images: ["https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?w=1200&q=80"],
       locale: "fr_FR",
       siteName: "Heldonica"
     },

@@ -9,7 +9,7 @@ export function generateMetadata(): Metadata {
     description: "Le nord forgotten. Grottes, plage noire, eoliennes.",
     openGraph: {
       type: "website",
-      images: ["https://heldonica.fr/images/default-hero.jpg"],
+      images: ["https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200&q=80"],
       locale: "fr_FR",
       siteName: "Heldonica"
     },

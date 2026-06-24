@@ -9,7 +9,7 @@ export function generateMetadata(): Metadata {
     description: "Capitale Transylvanie. Cafe.",
     openGraph: {
       type: "website",
-      images: ["https://heldonica.fr/images/default-hero.jpg"],
+      images: ["https://images.unsplash.com/photo-1564658895070-cf234f4c34f1?w=1200&q=80"],
       locale: "fr_FR",
       siteName: "Heldonica"
     },

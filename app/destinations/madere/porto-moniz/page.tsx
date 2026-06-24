@@ -9,7 +9,7 @@ export function generateMetadata(): Metadata {
     description: "Au nord-ouest. Les piscines naturelles, le village, la route qui tangue.",
     openGraph: {
       type: "website",
-      images: ["https://heldonica.fr/images/default-hero.jpg"],
+      images: ["https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=1200&q=80"],
       locale: "fr_FR",
       siteName: "Heldonica"
     },

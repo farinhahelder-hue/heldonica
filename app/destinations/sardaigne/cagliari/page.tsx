@@ -9,7 +9,7 @@ export function generateMetadata(): Metadata {
     description: "Le sud. Lagune, dunes, sel.",
     openGraph: {
       type: "website",
-      images: ["https://heldonica.fr/images/default-hero.jpg"],
+      images: ["https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200&q=80"],
       locale: "fr_FR",
       siteName: "Heldonica"
     },
