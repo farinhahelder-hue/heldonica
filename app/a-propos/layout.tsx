@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Qui sommes-nous — Hélder & Elena | Heldonica',
+  title: 'Qui sommes-nous — Hélder & Elena',
   description:
     'Hélder et Elena, couple franco-portugais passionné de slow travel. On a appris à voyager vrai — maintenant on met ça au service du vôtre. Notre histoire, notre méthode.',
   alternates: { canonical: 'https://www.heldonica.fr/a-propos' },

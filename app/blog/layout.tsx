@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Carnets de voyage — Blog Heldonica',
+  title: 'Carnets de voyage — Blog',
   description:
     `Nos carnets slow travel écrits depuis le terrain : Madère, Portugal, Grèce, Colombie. Des récits authentiques d’Hélder & Elena — pas des guides génériques.`,
   keywords: ['blog voyage', 'slow travel', 'carnets de voyage', 'Madère', 'Portugal', 'Heldonica'],
