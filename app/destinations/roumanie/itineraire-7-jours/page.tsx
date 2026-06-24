@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import NewsletterForm from '@/components/NewsletterForm';
-import TrackedLink from '@/components/TrackedLink';
+import PdfDownloadButton from '@/components/PdfDownloadButton';
 
 const SITE_URL = 'https://heldonica.fr';
 
@@ -295,21 +295,9 @@ export default function Itineraire7JoursPage() {
           <div className="container max-w-4xl">
             <h2 className="text-3xl font-serif text-mahogany mb-4">Télécharge le PDF de cet itinéraire</h2>
             <p className="text-charcoal/70 mb-6 max-w-2xl">
-               Emporte ce carnet Roumanie 7 jours dans ton téléphone ou imprime-le : les adresses et les pépites dénichées sans avoir besoin de réseau.
+              Emporte ce carnet Roumanie 7 jours dans ton téléphone ou imprime-le : les adresses et les pépites dénichées sans avoir besoin de réseau.
             </p>
-            <TrackedLink
-              href="#pdf-download"
-              preventDefault
-              onClick={() => {
-                if (typeof window !== 'undefined' && window.gtag) {
-                  window.gtag('event', 'guide_pdf_telecharge', { destination: 'roumanie', duration: '7' });
-                }
-                alert('Le PDF sera bientôt disponible. En attendant, tu peux sauvegarder cette page ou nous écrire pour une version personnalisée.');
-              }}
-              className="inline-flex px-8 py-3 rounded-lg bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors"
-            >
-              Télécharger le PDF →
-            </TrackedLink>
+            <PdfDownloadButton destination="roumanie" duration="7" className="inline-flex px-8 py-3 rounded-lg bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors" />
           </div>
         </section>
 
