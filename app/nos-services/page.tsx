@@ -46,8 +46,8 @@ const FAQ_QUESTIONS = [
     answer: 'Le tarif du Travel Planning commence à 149€ pour un voyage de base. Le prix varie selon la complexité de l\'itinéraire, la durée du voyage et le niveau de personnalisation. Chaque projet est unique, on vous donne un chiffrage précis après notre échange découverte.',
   },
   {
-    question: 'Est-ce que Heldonica peut m\'aider si je voyage seul ?',
-    answer: 'Absolument. Le Travel Planning fonctionne pour tous les types de voyageurs : couples, solos, familles, groupes d\'amis. Pour les voyageurs solo, on peut aussi vous mettre en contact avec d\'autres voyageurs ou vous guider vers des expériences adaptées.',
+    question: 'Heldonica accompagne aussi les voyageurs en solo ?',
+    answer: 'Absolument. Le Travel Planning fonctionne pour tous les types de voyageurs : couples, solos, familles, groupes d\'amis. Pour les voyageurs solo, on peut aussi te mettre en contact avec d\'autres voyageurs ou te guider vers des expériences adaptées.',
   },
 ]
 

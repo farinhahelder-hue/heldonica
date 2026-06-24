@@ -305,7 +305,7 @@ export default function ExpertHotelierPage() {
               {[
                 { q: 'Combien coûte un diagnostic complet ?', a: 'Le premier audit est gratuit (30 min). Pour un accompagnement complet, nos forfaits commencent à partir de 2 500 € pour un diagnostic stratégique et jusqu\'à 12 000 € pour un accompagnement trimestriel full-service.' },
                 { q: 'Quels types d\'établissements accompagnons-nous ?', a: 'Hôtels indépendants 3-5 étoiles, maisons d\'hôtes premium, résidences de tourisme. De 8 à 80 chambres. Notre cœur de cible : les établissements qui veulent réduire leur dépendance aux OTA.' },
-                { q: 'Quels résultats puis-je attendre et en combien de temps ?', a: 'Les premiers impacts (visibilité locale, taux d\'ouverture email) sont visibles sous 4 à 6 semaines. Les résultats structurels (RevPAR, mix direct/OTA) se mesurent à 3-6 mois. On ne promet jamais de miracle — on livre des données.' },
+                { q: 'Quels résultats peut-on attendre et en combien de temps ?', a: 'Les premiers impacts (visibilité locale, taux d\'ouverture email) sont visibles sous 4 à 6 semaines. Les résultats structurels (RevPAR, mix direct/OTA) se mesurent à 3-6 mois. On ne promet jamais de miracle — on livre des données.' },
                 { q: 'Travaillez-vous avec des agences ou directement ?', a: 'Directement avec les établissements. Pas d\'intermédiaire. On peut aussi travailler en marque blanche avec des agences de communication locales.' },
               ].map((faq, i) => (
                 <details key={i} className="rounded-xl border border-stone-200 p-5 bg-stone-50">

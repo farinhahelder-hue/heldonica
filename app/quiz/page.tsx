@@ -10,17 +10,17 @@ const QUESTIONS = [
     id: 1,
     question: 'Comment tu choisis ta destination ?',
     options: [
-      { value: 'aventure', label: 'Je cherche l\'aventure, les émotions fortes et la nature sauvage', emoji: '🏔️' },
+      { value: 'aventure', label: 'Tu cherches l\'aventure, les émotions fortes et la nature sauvage', emoji: '🏔️' },
       { value: 'culture', label: 'Histoire, art, architecture et rencontres locales', emoji: '🏛️' },
       { value: 'nature', label: 'Calme, paysages, déconnexion totale', emoji: '🌿' },
-      { value: 'bien-etre', label: 'Je veux me faire dorloter, spa, yoga, douceur', emoji: '🧘' },
+      { value: 'bien-etre', label: 'Tu veux te faire dorloter, spa, yoga, douceur', emoji: '🧘' },
     ],
   },
   {
     id: 2,
     question: 'Ton rythme idéal en voyage ?',
     options: [
-      { value: 'aventure', label: 'Je me lève à l\'aube pour maximiser chaque journée', emoji: '⏰' },
+      { value: 'aventure', label: 'Tu te lèves à l\'aube pour maximiser chaque journée', emoji: '⏰' },
       { value: 'culture', label: '2-3 activités par jour, avec du temps pour flâner', emoji: '🚶' },
       { value: 'nature', label: 'Lent, contemplatif, un seul lieu par jour', emoji: '🐢' },
       { value: 'bien-etre', label: 'Au rythme du soleil et de mes envies', emoji: '☀️' },
@@ -50,7 +50,7 @@ const QUESTIONS = [
     id: 5,
     question: 'Ta philosophie de voyage en une phrase ?',
     options: [
-      { value: 'aventure', label: '"Vivre des histoires que je pourrai raconter toute ma vie"', emoji: '📖' },
+      { value: 'aventure', label: '"Vivre des histoires à raconter toute ma vie"', emoji: '📖' },
       { value: 'culture', label: '"Comprendre le monde à travers ceux qui y vivent"', emoji: '🌍' },
       { value: 'nature', label: '"Retourner à l\'essentiel, loin du bruit du monde"', emoji: '🍃' },
       { value: 'bien-etre', label: '"Prendre soin de soi, c\'est aussi voyager autrement"', emoji: '💝' },
