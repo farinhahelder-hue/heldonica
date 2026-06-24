@@ -9,7 +9,7 @@ export function generateMetadata(): Metadata {
     description: "Le village. La vue, le cimetiere, les eucalyptus.",
     openGraph: {
       type: "website",
-      images: ["https://heldonica.fr/images/default-hero.jpg"],
+      images: ["https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200&q=80"],
       locale: "fr_FR",
       siteName: "Heldonica"
     },

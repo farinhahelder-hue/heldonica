@@ -7,7 +7,7 @@ export function generateMetadata(): Metadata {
     description: "Point de depart fiable pour cadrer ton voyage. Reference heldonica: 1400-1800 EUR pour 7 jours en duo, style equilibre.",
     openGraph: {
       type: "website",
-      images: ["https://heldonica.fr/images/default-hero.jpg"],
+      images: ["https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=1200&q=80"],
       locale: "fr_FR",
       siteName: "Heldonica"
     },

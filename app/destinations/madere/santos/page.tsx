@@ -9,7 +9,7 @@ export function generateMetadata(): Metadata {
     description: "Le petit village. Les tavernes, le vin.",
     openGraph: {
       type: "website",
-      images: ["https://heldonica.fr/images/default-hero.jpg"],
+      images: ["https://images.unsplash.com/photo-1548690312-e3b507d8c110?w=1200&q=80"],
       locale: "fr_FR",
       siteName: "Heldonica"
     },

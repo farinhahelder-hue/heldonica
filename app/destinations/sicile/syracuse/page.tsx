@@ -9,7 +9,7 @@ export function generateMetadata(): Metadata {
     description: "Sud-est. Antique, Ortigia.",
     openGraph: {
       type: "website",
-      images: ["https://heldonica.fr/images/default-hero.jpg"],
+      images: ["https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1200&q=80"],
       locale: "fr_FR",
       siteName: "Heldonica"
     },

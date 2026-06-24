@@ -9,7 +9,7 @@ export function generateMetadata(): Metadata {
     description: "Capitale. 2600m, Graffiti, Candelaria.",
     openGraph: {
       type: "website",
-      images: ["https://heldonica.fr/images/default-hero.jpg"],
+      images: ["https://images.unsplash.com/photo-1555990793-da11153b6e8d?w=1200&q=80"],
       locale: "fr_FR",
       siteName: "Heldonica"
     },
