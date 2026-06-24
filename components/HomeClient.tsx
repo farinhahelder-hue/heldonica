@@ -443,7 +443,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4">Pépites terrain</p>
                 <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany leading-tight mb-4">Pépites dénichées</h2>
                 <p className="text-base text-charcoal/70 leading-relaxed mb-6">
-                  Ce qu&apos;on a trouvé en chemin — pas ce qu&apos;on a lu ailleurs. Des boulangeries de quartier aux itinéraires derando, des marchés de terroir aux coins de baignade que même Google Maps ne liste pas encore.
+                  Ce qu&apos;on a trouvé en chemin — pas ce qu&apos;on a lu ailleurs. Des boulangeries de quartier aux itinéraires de rando, des marchés de terroir aux coins de baignade que même Google Maps ne liste pas encore.
                 </p>
                 <div className="space-y-4 mb-8">
                   {foodPosts.slice(0, 3).map((p) => (

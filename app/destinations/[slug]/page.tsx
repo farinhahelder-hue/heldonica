@@ -1,6 +1,5 @@
 ﻿import Image from 'next/image'
 import { getDestinationBySlug, blogPosts } from '@/lib/wordpress-data'
-import { getAllDestinationSlugs } from '@/lib/blog-supabase'
 import { supabase } from '@/lib/supabase-client'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -163,20 +162,7 @@ async function getDestinationStatus(slug: string): Promise<{
 }
 
 export async function generateStaticParams() {
-  try {
-    const slugs = await getAllDestinationSlugs()
-    if (!supabase) return slugs
-    const { data: comingSoon } = await supabase
-      .from('destinations')
-      .select('slug')
-      .in('status', ['coming_soon', 'draft'])
-    if (comingSoon) {
-      return [...slugs, ...comingSoon.map((d: any) => ({ slug: d.slug }))]
-    }
-    return slugs
-  } catch {
-    return getAllDestinationSlugs()
-  }
+  return []
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
