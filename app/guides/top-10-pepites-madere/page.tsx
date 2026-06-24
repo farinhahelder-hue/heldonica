@@ -197,7 +197,7 @@ export default function Top10PepitesMaderePage() {
               Tu pars à Madère&nbsp;?
             </h2>
             <p className="text-stone-400 leading-relaxed mb-8">
-              Le guide complet avec toutes les adresses, les maps, et les tips pour éviter les pièges à touristes. Gratuit.
+              Le guide complet avec toutes les adresses, les maps, et les tips pour éviter les pièges à éviter. Gratuit.
             </p>
             <GuideDownloadForm variant="inline" />
             <p className="text-stone-500 text-sm mt-4">
