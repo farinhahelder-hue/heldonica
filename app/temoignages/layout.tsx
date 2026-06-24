@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Témoignages — Ce qu\'ils en disent | Heldonica',
+  title: 'Témoignages — Ce qu\'ils en disent',
   description:
     'Avis et retours de voyageurs Heldonica : des voyages sur mesure qui marquent, des itinéraires pensés pour chaque projet.',
   alternates: { canonical: 'https://www.heldonica.fr/temoignages' },
