@@ -64,7 +64,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
     return (
       <section className="my-14 rounded-2xl bg-gradient-to-br from-mahogany to-mahogany/80 px-8 py-10 text-white">
         <p className="text-teal text-xs font-semibold tracking-[0.2em] uppercase mb-3">
-          Une fois par mois
+          Chaque semaine
         </p>
         <h3 className="text-xl md:text-2xl font-serif font-light mb-2 leading-snug">
           On t&apos;envoie ce qu&apos;on a vraiment trouvé.
@@ -143,7 +143,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
     <section className="bg-gradient-to-br from-mahogany to-mahogany/80 py-20 px-4">
       <div className="max-w-2xl mx-auto text-center text-white">
         <p className="text-teal text-xs font-semibold tracking-[0.2em] uppercase mb-4">
-          Une fois par mois
+          Chaque semaine
         </p>
         <h2 className="text-3xl md:text-4xl font-serif font-light mb-4 leading-snug">
           Ce qu&apos;on a vraiment trouvé,

@@ -105,7 +105,7 @@ export default async function Home() {
   
   // Get covered_countries as number with fallback
   const rawCountries = await getSetting('covered_countries')
-  const coveredCountries = rawCountries ? parseInt(rawCountries, 10) : 3
+  const coveredCountries = rawCountries ? parseInt(rawCountries, 10) : 7
 
   // Fetch hero media from CMS
   const homeContent = await getPageContent('home')
