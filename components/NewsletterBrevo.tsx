@@ -52,7 +52,7 @@ export default function NewsletterBrevo() {
           Restez informé
         </h2>
         <p className="text-white/90 mb-8 text-lg">
-          Une fois par mois — une adresse, un timing, une erreur à éviter.
+          Chaque semaine — une adresse, un timing, une erreur à éviter.
         </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">

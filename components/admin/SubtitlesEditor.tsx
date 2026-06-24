@@ -105,7 +105,7 @@ export default function SubtitlesEditor() {
         { id: '1', startTime: 0, endTime: 3.5, text: 'Bienvenue dans cette aventure', isEdited: false, isCorrected: false },
         { id: '2', startTime: 3.5, endTime: 7.2, text: 'au cœur du Portugal', isEdited: false, isCorrected: false },
         { id: '3', startTime: 7.2, endTime: 11.0, text: 'avec Heldonica', isEdited: false, isCorrected: false },
-        { id: '4', startTime: 11.0, endTime: 15.5, text: 'aujourd\'hui je vous partage mes bons plans', isEdited: false, isCorrected: false },
+        { id: '4', startTime: 11.0, endTime: 15.5, text: 'on partage nos pépites dénichées', isEdited: false, isCorrected: false },
         { id: '5', startTime: 15.5, endTime: 20.0, text: 'et mes bonnes adresses', isEdited: false, isCorrected: false },
         { id: '6', startTime: 20.0, endTime: 25.0, text: 'cette destination est vraiment top', isEdited: false, isCorrected: false },
       ];
