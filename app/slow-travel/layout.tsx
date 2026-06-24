@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Slow Travel — Notre philosophie | Heldonica',
+  title: 'Slow Travel — Notre philosophie',
   description:
     'Le slow travel selon Heldonica : voyager lentement, s\'immerger vraiment, rencontrer les gens plutôt que les monuments. Notre manifeste et notre méthode.',
   keywords: ['slow travel', 'voyage lent', 'tourisme authentique', 'voyage responsable', 'Heldonica'],

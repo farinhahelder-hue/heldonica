@@ -1,7 +1,7 @@
 ﻿import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Voyage sur mesure hors sentiers | Heldonica',
+  title: 'Voyage sur mesure hors sentiers battus',
   description:
     'On ne fait pas des itinéraires. On fait le tien. Slow travel vécu, adresses testées et séquence pensée pour couples, solos, familles ou amis.',
   keywords: [

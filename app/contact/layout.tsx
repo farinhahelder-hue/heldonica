@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Contact — Heldonica',
+  title: 'Contact',
   description:
     'Une question, un projet de voyage sur mesure ? Écrivez à Hélder et Elena. On répond sous 48h ouvrées. Sans engagement.',
   alternates: { canonical: 'https://www.heldonica.fr/contact' },
