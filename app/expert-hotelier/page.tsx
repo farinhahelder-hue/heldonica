@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Script from 'next/script';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import TrackedLink from '@/components/TrackedLink';
+import B2bCtaButton from '@/components/B2bCtaButton';
 
 const SITE_URL = 'https://heldonica.fr';
 
@@ -130,20 +130,22 @@ export default function ExpertHotelierPage() {
               On analyse les données, on challenge les habitudes, on délivre des résultats chiffrés.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <TrackedLink
+              <B2bCtaButton
                 href="#audit-form"
-                onClick={() => { if (typeof window !== 'undefined' && window.gtag) window.gtag('event', 'formulaire_audit_b2b_clique', { source: 'hero' }); }}
+                eventName="formulaire_audit_b2b_clique"
+                eventParams={{ source: 'hero' }}
                 className="inline-flex px-8 py-4 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all text-lg"
               >
                 Demander un audit gratuit →
-              </TrackedLink>
-              <TrackedLink
+              </B2bCtaButton>
+              <B2bCtaButton
                 href="#cas-clients"
-                onClick={() => { if (typeof window !== 'undefined' && window.gtag) window.gtag('event', 'etude_cas_lue', { source: 'hero' }); }}
+                eventName="etude_cas_lue"
+                eventParams={{ source: 'hero' }}
                 className="inline-flex px-8 py-4 border border-stone-600 text-stone-300 font-semibold rounded-xl hover:border-eucalyptus hover:text-white transition-all text-lg"
               >
                 Voir les résultats concrets →
-              </TrackedLink>
+              </B2bCtaButton>
             </div>
           </div>
         </section>
@@ -281,15 +283,16 @@ export default function ExpertHotelierPage() {
             <p className="text-stone-400 text-center mb-10 max-w-lg mx-auto">
               Laissez-nous vos coordonnées. Nous vous recontactons sous 48h pour planifier un échange découverte de 30 minutes.
             </p>
-            <TrackedLink
+            <B2bCtaButton
               href="https://tally.so/embed/placeholder"
               target="_blank"
               rel="noreferrer noopener"
-              onClick={() => { if (typeof window !== 'undefined' && window.gtag) window.gtag('event', 'formulaire_audit_b2b_clique', { source: 'section_audit' }); }}
+              eventName="formulaire_audit_b2b_clique"
+              eventParams={{ source: 'section_audit' }}
               className="block w-full max-w-md mx-auto px-8 py-5 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all text-center text-lg mb-6"
             >
               Ouvrir le formulaire d&apos;audit →
-            </TrackedLink>
+            </B2bCtaButton>
             <p className="text-stone-500 text-center text-sm">Sans engagement. Réponse sous 48h ouvrées.</p>
           </div>
         </section>
@@ -322,13 +325,14 @@ export default function ExpertHotelierPage() {
             <p className="text-stone-400 mb-8 max-w-lg mx-auto">
               30 minutes d&apos;échange gratuit pour analyser vos données et identifier vos leviers de croissance prioritaire.
             </p>
-            <TrackedLink
+            <B2bCtaButton
               href="#audit-form"
-              onClick={() => { if (typeof window !== 'undefined' && window.gtag) window.gtag('event', 'formulaire_audit_b2b_clique', { source: 'cta_final' }); }}
+              eventName="formulaire_audit_b2b_clique"
+              eventParams={{ source: 'cta_final' }}
               className="inline-block px-10 py-5 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all text-lg"
             >
               Demander mon audit →
-            </TrackedLink>
+            </B2bCtaButton>
           </div>
         </section>
       </main>
