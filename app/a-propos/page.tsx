@@ -164,7 +164,7 @@ export default function AProposPage() {
               Concrètement, on fait quoi ?
             </h2>
             
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="grid md:grid-cols-3 gap-8">
               {/* Blog & Carnets */}
               <div className="bg-stone-50 rounded-2xl p-8 border border-stone-100">
                 <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center mb-5">
@@ -190,6 +190,20 @@ export default function AProposPage() {
                 </p>
                 <Link href="/travel-planning" className="inline-flex items-center gap-2 text-amber-400 font-semibold hover:gap-3 transition-all">
                   Concevoir mon voyage →
+                </Link>
+              </div>
+
+              {/* Consulting Hôtelier */}
+              <div className="bg-eucalyptus/10 rounded-2xl p-8 border border-eucalyptus/20">
+                <div className="w-12 h-12 rounded-full bg-eucalyptus/20 flex items-center justify-center mb-5">
+                  <span className="text-2xl">🏨</span>
+                </div>
+                <h3 className="text-xl font-serif font-light text-stone-900 mb-4">Consulting Hôtelier</h3>
+                <p className="text-stone-600 leading-relaxed mb-6">
+                  On accompagne les hôteliers indépendants qui veulent réduire leur dépendance aux OTA. Contenu, stratégie digitale, positionnement — avec le regard du voyageur.
+                </p>
+                <Link href="/expert-hotelier" className="inline-flex items-center gap-2 text-eucalyptus font-semibold hover:gap-3 transition-all">
+                  Voir l&apos;offre B2B →
                 </Link>
               </div>
             </div>

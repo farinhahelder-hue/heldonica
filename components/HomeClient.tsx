@@ -218,9 +218,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
   const featImg = featured ? postImage(featured) : null
   // Fallback: si totalPosts est undefined/null/0, on utilise 25+ (valeur de référence)
   const publishedArticles = totalPosts && totalPosts > 0 ? totalPosts : 25
-  // Fallback: si coveredCountries est invalide, on utilise 5 (valeur minimale véridique)
   const parsedCountries = parseInt(String(coveredCountries || '0'), 10)
-  const countryCount = isNaN(parsedCountries) || parsedCountries <= 0 ? 5 : parsedCountries
+  const countryCount = isNaN(parsedCountries) || parsedCountries <= 0 ? 7 : parsedCountries
 
   const videoSrc = heroVideoUrl || 'https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4'
   const posterSrc = heroPosterImage || undefined
@@ -304,7 +303,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 <span className="block italic text-eucalyptus">autrement</span>
               </h2>
               <p className="text-base text-charcoal/70 leading-relaxed mb-4">
-                On est un duo. On fabrique des voyages vrais, hors des sentiers, dans les endroits que les autres ne voient pas. Elle a habité sept pays. Pas visité, habité. C&apos;est différent. Ça change la manière de lire une rue, de sentir si une table vaut vraiment le détour, de savoir quand un quartier commence à parler.
+                On est un duo. On fabrique des voyages vrais, hors des sentiers, dans les endroits que les autres ne voient pas. Elena a grandi entre la Normandie et Paris, avec le voyage dans le sang depuis toujours. Ça change la manière de lire une rue, de sentir si une table vaut vraiment le détour, de savoir quand un quartier commence à parler.
               </p>
               <p className="text-base text-charcoal/70 leading-relaxed mb-4">
                 Lui est né à Madère, entre l&apos;Atlantique et des falaises que les cartes n&apos;ont pas encore toutes nommées. Il part là où les guides s&apos;arrêtent, puis il revient avec un regard que les hôtels indépendants peuvent vraiment utiliser.
@@ -317,7 +316,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               </Link>
             </div>
             <div className="md:col-span-2 grid grid-cols-2 gap-6" data-reveal="right">
-              <AnimatedStat nb="10+" label="Ans de terrain en duo" />
+              <AnimatedStat nb="4+" label="Ans de slow travel" />
               <AnimatedStat nb="100+" label="Adresses vécues" />
               <AnimatedStat nb={countryCount} label="Pays habités" />
               <AnimatedStat nb={publishedArticles} suffix="" label="Carnets publiés" />
