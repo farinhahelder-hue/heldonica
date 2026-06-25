@@ -103,43 +103,11 @@ CREATE POLICY "guides_pdf_public_select"
   USING (true);
 
 -- ──────────────────────────────────────────────────────────────
--- SECTION 4 — Sécurité : vue destinations_public en SECURITY INVOKER
--- La vue actuelle peut être en SECURITY DEFINER selon la config Supabase.
--- On la recrée explicitement sans ce flag.
+-- SECTION 4 — Vue destinations_public
+-- ⚠️  Déplacée dans 20260625_fix_destinations_view.sql
+--     (les colonnes continent/tagline/status doivent être ajoutées
+--      AVANT de recréer la vue — exécuter ce fichier en premier)
 -- ──────────────────────────────────────────────────────────────
-
-DROP VIEW IF EXISTS public.destinations_public;
-
-CREATE VIEW public.destinations_public
-WITH (security_invoker = true)
-AS
-SELECT
-  slug,
-  title,
-  excerpt,
-  country,
-  continent,
-  region,
-  flag_emoji,
-  tagline,
-  teaser,
-  hero_unsplash_url,
-  featured_image,
-  link,
-  COALESCE(travel_style, category) AS travel_style,
-  best_season,
-  avg_budget_couple_week,
-  status,
-  priority_score,
-  article_count,
-  coming_soon_date,
-  latitude,
-  longitude,
-  published
-FROM destinations
-WHERE published = true
-   OR status IN ('coming_soon', 'starred')
-ORDER BY priority_score DESC, title ASC;
 
 -- ──────────────────────────────────────────────────────────────
 -- SECTION 5 — Vérifications post-migration
