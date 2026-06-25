@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://www.heldonica.fr/slow-travel' },
   openGraph: {
     title: 'Slow Travel — Notre philosophie | Heldonica',
-    description: 'Voyager lentement, s\'immerger vraiment, rencontrer les gens. Le slow travel par Hélder & Elena.',
+    description: 'Voyager lentement, s\'immerger vraiment, rencontrer les gens. Le slow travel par Heldonica.',
     url: 'https://www.heldonica.fr/slow-travel',
     siteName: 'Heldonica',
     type: 'website',
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Slow Travel | Heldonica',
-    description: 'Notre philosophie du voyage : lenteur, authenticité, rencontres. Le slow travel par Hélder & Elena.',
+    description: 'Notre philosophie du voyage : lenteur, authenticité, rencontres. Le slow travel par Heldonica.',
   },
 }
 

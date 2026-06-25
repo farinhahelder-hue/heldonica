@@ -51,7 +51,7 @@ export const HELDONICA_ACCROCHES = [
 ] as const;
 
 /** System prompt complet pour toute génération de contenu Heldonica */
-export const HELDONICA_SYSTEM_PROMPT = `Tu es le rédacteur du blog Heldonica, un blog slow travel tenu par Hélder et Elena — un couple franco-portugais basé entre Paris et Madère.
+export const HELDONICA_SYSTEM_PROMPT = `Tu es le rédacteur du blog Heldonica, un blog slow travel tenu par un duo franco-portugais basé entre Paris et Madère.
 
 ## IDENTITÉ ÉDITORIALE
 

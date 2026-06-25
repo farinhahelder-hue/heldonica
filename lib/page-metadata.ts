@@ -34,13 +34,13 @@ export const blogListMetadata: Metadata = {
 }
 
 export const aProposMetadata: Metadata = {
-  title: 'Qui sommes-nous — Hélder & Elena | Heldonica',
+  title: 'Qui sommes-nous — le duo Heldonica | Heldonica',
   description:
-    "Hélder et Elena, couple franco-portugais passionné de slow travel. On a appris à voyager vrai — maintenant on met ça au service du vôtre.",
+    "Le duo Heldonica, couple franco-portugais passionné de slow travel. On a appris à voyager vrai — maintenant on met ça au service du vôtre.",
   alternates: { canonical: `${SITE}/a-propos` },
   openGraph: {
     title: 'Qui sommes-nous | Heldonica',
-    description: 'Hélder et Elena, slow travellers et travel planners. Notre histoire, notre méthode.',
+    description: 'Le duo Heldonica, slow travellers et travel planners. Notre histoire, notre méthode.',
     url: `${SITE}/a-propos`,
     siteName: 'Heldonica',
     type: 'profile',
@@ -53,7 +53,7 @@ export const contactMetadata: Metadata = {
   alternates: { canonical: `${SITE}/contact` },
   openGraph: {
     title: 'Contact | Heldonica',
-    description: 'Contactez Hélder & Elena pour votre projet de voyage sur mesure.',
+    description: 'Contactez le duo Heldonica pour votre projet de voyage sur mesure.',
     url: `${SITE}/contact`,
     siteName: 'Heldonica',
     type: 'website',
@@ -67,7 +67,7 @@ export const slowTravelMetadata: Metadata = {
   alternates: { canonical: `${SITE}/slow-travel` },
   openGraph: {
     title: 'Slow Travel | Heldonica',
-    description: "Notre philosophie du voyage : lenteur, authenticité, rencontres. Le slow travel par Hélder & Elena.",
+    description: "Notre philosophie du voyage : lenteur, authenticité, rencontres. Le slow travel par le duo Heldonica.",
     url: `${SITE}/slow-travel`,
     siteName: 'Heldonica',
     type: 'website',
