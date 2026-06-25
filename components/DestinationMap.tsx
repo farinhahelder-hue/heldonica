@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react';
 import type { DestinationMarker } from '@/lib/destinations-data';
-import 'leaflet.markercluster';
 
 interface DestinationMapProps {
   markers: DestinationMarker[];
@@ -11,15 +10,6 @@ interface DestinationMapProps {
   height?: string;
 }
 
-/**
- * Leaflet map component compatible with Next.js App Router
- * Uses dynamic import to avoid SSR issues with Leaflet
- * 
- * To add marker clustering later with leaflet.markercluster:
- * 1. npm install leaflet.markercluster @types/leaflet.markercluster
- * 2. Import and use L.markerClusterGroup() instead of L.featureGroup()
- * 3. Configure cluster options (showCoverageOnHover, maxClusterRadius, etc.)
- */
 export default function DestinationMap({
   markers,
   center = [46.8, 2],
@@ -27,8 +17,11 @@ export default function DestinationMap({
   height = '500px',
 }: DestinationMapProps) {
   useEffect(() => {
-    // Dynamically import Leaflet only on client side
-    import('leaflet').then((L) => {
+    const initMap = async () => {
+      // Load Leaflet first, then markercluster (order matters — markercluster extends L)
+      const L = await import('leaflet').then(m => m.default ?? m);
+      await import('leaflet.markercluster');
+
       // Fix default marker icon paths for webpack
       delete (L.Icon.Default.prototype as any)._getIconUrl;
       L.Icon.Default.mergeOptions({
@@ -37,19 +30,16 @@ export default function DestinationMap({
         shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
       });
 
-      // Initialize map if not already done
       const mapContainer = document.getElementById('heldonica-map');
       if (!mapContainer || mapContainer.querySelector('.leaflet-container')) return;
 
       const map = L.map('heldonica-map').setView(center, zoom);
 
-      // Add OpenStreetMap tiles with proper attribution
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 19,
       }).addTo(map);
 
-      // Custom Heldonica-style marker icon
       const heldonicaIcon = L.divIcon({
         className: 'heldonica-marker',
         html: `
@@ -65,12 +55,7 @@ export default function DestinationMap({
             align-items: center;
             justify-content: center;
           ">
-            <span style="
-              transform: rotate(45deg);
-              color: white;
-              font-size: 14px;
-              font-weight: bold;
-            "></span>
+            <span style="transform: rotate(45deg); color: white; font-size: 14px; font-weight: bold;"></span>
           </div>
         `,
         iconSize: [32, 32],
@@ -78,20 +63,17 @@ export default function DestinationMap({
         popupAnchor: [0, -32],
       });
 
-      // Add markers with clustering
       const markerClusterGroup = (L as any).markerClusterGroup({
         showCoverageOnHover: false,
         maxClusterRadius: 50,
         spiderfyOnMaxZoom: true,
         disableClusteringAtZoom: 15,
-        iconCreateFunction: function(cluster: any) {
+        iconCreateFunction: (cluster: any) => {
           const count = cluster.getChildCount();
-          let size = 'small';
-          if (count > 5) size = 'medium';
-          if (count > 15) size = 'large';
+          const size = count > 15 ? 'large' : count > 5 ? 'medium' : 'small';
           return (L as any).divIcon({
-            html: '<div class="cluster-icon cluster-' + size + '"><span>' + count + '</span></div>',
-            className: 'marker-cluster marker-cluster-' + size,
+            html: `<div class="cluster-icon cluster-${size}"><span>${count}</span></div>`,
+            className: `marker-cluster marker-cluster-${size}`,
             iconSize: (L as any).point(40, 40),
           });
         },
@@ -99,69 +81,31 @@ export default function DestinationMap({
 
       markers.forEach((marker) => {
         const mapMarker = L.marker([marker.latitude, marker.longitude], { icon: heldonicaIcon });
-
-        const popupContent = `
-          <div style="
-            font-family: 'Playfair Display', serif;
-            min-width: 220px;
-          ">
-            <p style="
-              font-size: 11px;
-              text-transform: uppercase;
-              letter-spacing: 0.14em;
-              color: #006D77;
-              font-weight: 600;
-              margin-bottom: 4px;
-            ">${marker.country}</p>
-            <h3 style="
-              font-size: 18px;
-              color: #6B2D1F;
-              margin: 0 0 8px 0;
-              font-weight: 700;
-            ">${marker.title}</h3>
-            <p style="
-              font-size: 13px;
-              color: #2C2C2C;
-              margin: 0 0 12px 0;
-              line-height: 1.5;
-            ">${marker.excerpt}</p>
-            <a href="${marker.url}" style="
-              display: inline-block;
-              background: #6B2D1F;
-              color: white;
-              padding: 8px 16px;
-              border-radius: 8px;
-              text-decoration: none;
-              font-size: 13px;
-              font-weight: 600;
-              transition: background 0.2s;
-            " onmouseover="this.style.background='#5a251a'" onmouseout="this.style.background='#6B2D1F'">
+        mapMarker.bindPopup(`
+          <div style="font-family: 'Playfair Display', serif; min-width: 220px;">
+            <p style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; color: #006D77; font-weight: 600; margin-bottom: 4px;">${marker.country}</p>
+            <h3 style="font-size: 18px; color: #6B2D1F; margin: 0 0 8px 0; font-weight: 700;">${marker.title}</h3>
+            <p style="font-size: 13px; color: #2C2C2C; margin: 0 0 12px 0; line-height: 1.5;">${marker.excerpt}</p>
+            <a href="${marker.url}" style="display: inline-block; background: #6B2D1F; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600;">
               Voir la destination →
             </a>
           </div>
-        `;
-
-        mapMarker.bindPopup(popupContent, {
-          maxWidth: 300,
-          className: 'heldonica-popup',
-        });
+        `, { maxWidth: 300, className: 'heldonica-popup' });
         markerClusterGroup.addLayer(mapMarker);
       });
 
       map.addLayer(markerClusterGroup);
 
-      // Fit bounds if multiple markers
       if (markers.length > 1) {
         map.fitBounds(markerClusterGroup.getBounds(), { padding: [50, 50] });
       }
-    });
+    };
 
-    // Cleanup on unmount
+    initMap();
+
     return () => {
       const mapContainer = document.getElementById('heldonica-map');
-      if (mapContainer) {
-        mapContainer.innerHTML = '';
-      }
+      if (mapContainer) mapContainer.innerHTML = '';
     };
   }, [markers, center, zoom]);
 
