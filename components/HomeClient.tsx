@@ -303,7 +303,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 <span className="block italic text-eucalyptus">autrement</span>
               </h2>
               <p className="text-base text-charcoal/70 leading-relaxed mb-4">
-                On est un duo. On fabrique des voyages vrais, hors des sentiers, dans les endroits que les autres ne voient pas. Elena a grandi entre la Normandie et Paris, avec le voyage dans le sang depuis toujours. Ça change la manière de lire une rue, de sentir si une table vaut vraiment le détour, de savoir quand un quartier commence à parler.
+                On est un duo. On fabrique des voyages vrais, hors des sentiers, dans les endroits que les autres ne voient pas. Elle a grandi entre la Normandie et Paris, avec le voyage dans le sang depuis toujours. Ça change la manière de lire une rue, de sentir si une table vaut vraiment le détour, de savoir quand un quartier commence à parler.
               </p>
               <p className="text-base text-charcoal/70 leading-relaxed mb-4">
                 Lui est né à Madère, entre l&apos;Atlantique et des falaises que les cartes n&apos;ont pas encore toutes nommées. Il part là où les guides s&apos;arrêtent, puis il revient avec un regard que les hôtels indépendants peuvent vraiment utiliser.
