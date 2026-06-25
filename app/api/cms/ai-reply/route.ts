@@ -57,7 +57,7 @@ export async function POST(req: Request) {
 }
 
 function buildPrompt(d: any): string {
-  return `Tu es Hélder, travel planner chez Heldonica (slow travel sur mesure, basé en France/Portugal).
+  return `Tu es un travel planner de l'équipe Heldonica (slow travel sur mesure, basé en France/Portugal).
 Rédige un email de réponse chaleureux, personnalisé et professionnel en français à ${d.prenom || d.first_name || 'ce client'}.
 
 Détails de leur demande :
@@ -72,7 +72,7 @@ Instructions :
 - Commence par "Bonjour ${d.prenom || d.first_name || ''},"
 - Montre que tu as lu leur demande en détail (cite 1-2 éléments spécifiques)
 - Propose un prochain appel de 20 min pour affiner le projet
-- Signe "Hélder & Elena — Heldonica"
+- Signe "L'équipe Heldonica"
 - Ton : chaleureux, expert, pas commercial
 - Longueur : 150-200 mots max`
 }
@@ -94,6 +94,6 @@ Nous aimerions vous proposer un appel de 20 minutes pour mieux comprendre vos en
 Il vous suffit de répondre à cet email avec vos disponibilités, et nous bloquerons un créneau.
 
 À très vite,
-Hélder & Elena — Heldonica
+L'équipe Heldonica
 ✉️ contact@heldonica.fr | 🌍 heldonica.fr`
 }

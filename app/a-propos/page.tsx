@@ -7,14 +7,12 @@ import Image from 'next/image'
 export const metadata: Metadata = {
   title: 'À propos — Heldonica | Slow Travel en couple',
   description:
-    "Hélder et Elena, le duo derrière Heldonica. Notre histoire, notre philosophie du slow travel et pourquoi on conçoit des voyages sur mesure.",
+    "Le duo derrière Heldonica. Notre histoire, notre philosophie du slow travel et pourquoi on conçoit des voyages sur mesure.",
   keywords: [
     'heldonica',
     'slow travel',
     'à propos',
     'duo voyage',
-    'Hélder',
-    'Elena',
     'travel planner',
     'voyage authentique',
   ],
@@ -24,7 +22,7 @@ export const metadata: Metadata = {
   openGraph: {
     url: 'https://heldonica.fr/a-propos',
     title: 'À propos — Heldonica | Slow Travel en couple',
-    description: "Hélder et Elena, le duo derrière Heldonica. Notre histoire et notre philosophie du slow travel.",
+    description: "Le duo derrière Heldonica. Notre histoire et notre philosophie du slow travel.",
     images: [
       {
         url: 'https://heldonica.fr/og-default.jpg',
@@ -42,11 +40,10 @@ export const revalidate = 3600
 
 const schemaPerson = {
   "@context": "https://schema.org",
-  "@type": "Person",
-  "name": "Hélder",
+  "@type": "Organization",
+  "name": "Heldonica",
   "url": "https://heldonica.fr/a-propos",
-  "jobTitle": "Travel Planner & Co-founder",
-  "description": "Co-fondateur de Heldonica, spécialiste slow travel entre Paris, Madère et Roumanie",
+  "description": "Duo franco-portugais spécialiste slow travel entre Paris, Madère et Roumanie",
   "sameAs": [
     "https://www.instagram.com/heldonica",
     "https://www.linkedin.com/company/heldonicatravel"
@@ -92,7 +89,7 @@ export default function AProposPage() {
               <span className="text-amber-400 italic">On est des voyageurs.</span>
             </h1>
             <p className="text-stone-300 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto">
-              Hélder & Elena — un duo qui a tout quitté pour voyager vrai.<br />
+              Un duo qui a tout quitté pour voyager vrai.<br />
               Et qui t&apos;aide à en faire autant.
             </p>
           </div>
@@ -108,7 +105,7 @@ export default function AProposPage() {
               {/* Texte narratif */}
               <div className="space-y-5">
                 <p className="text-stone-600 leading-relaxed">
-                  <strong className="text-stone-900">Hélder</strong> est né à Madère, entre l&apos;Atlantique et des falaises que les cartes n&apos;ont pas encore toutes nommées. Elena a grandi entre la Normandie et Paris, avec le voyage dans le sang depuis toujours.
+                  Lui est né à Madère, entre l&apos;Atlantique et des falaises que les cartes n&apos;ont pas encore toutes nommées. Elle a grandi entre la Normandie et Paris, avec le voyage dans le sang depuis toujours.
                 </p>
                 <p className="text-stone-600 leading-relaxed">
                   On s&apos;est rencontrés à Paris. Et très vite, on a compris qu&apos;on avait la même façon de voir un voyage : pas comme une checklist de lieux à cocher, mais comme une expérience à vivre pleinement.

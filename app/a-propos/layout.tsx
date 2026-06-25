@@ -1,13 +1,13 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Qui sommes-nous — Hélder & Elena',
+  title: 'Qui sommes-nous — Le duo Heldonica',
   description:
-    'Hélder et Elena, couple franco-portugais passionné de slow travel. On a appris à voyager vrai — maintenant on met ça au service du vôtre. Notre histoire, notre méthode.',
+    'Un duo franco-portugais passionné de slow travel. On a appris à voyager vrai — maintenant on met ça au service du vôtre. Notre histoire, notre méthode.',
   alternates: { canonical: 'https://www.heldonica.fr/a-propos' },
   openGraph: {
     title: 'Qui sommes-nous | Heldonica',
-    description: 'Hélder et Elena — slow travellers, travel planners, et le couple derrière Heldonica.',
+    description: 'Le duo derrière Heldonica — slow travellers, travel planners, et le couple franco-portugais.',
     url: 'https://www.heldonica.fr/a-propos',
     siteName: 'Heldonica',
     type: 'profile',
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Qui sommes-nous | Heldonica',
-    description: 'Hélder et Elena, le couple derrière Heldonica — slow travel et conception de voyages sur mesure.',
+    description: 'Le couple derrière Heldonica — slow travel et conception de voyages sur mesure.',
   },
 }
 

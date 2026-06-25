@@ -247,7 +247,7 @@ export async function POST(req: NextRequest) {
             <p style="color: #1a1a1a; font-size: 16px; line-height: 1.7; margin-bottom: 8px;">
               À très vite,
             </p>
-            <p style="color: #6b2a1a; font-size: 18px; font-style: italic; margin: 0;">Hélder & le duo Heldonica</p>
+            <p style="color: #6b2a1a; font-size: 18px; font-style: italic; margin: 0;">L'équipe Heldonica</p>
             <p style="color: #888; font-size: 13px; margin: 8px 0 0 0;">heldonica.fr</p>
 
             <hr style="border: none; border-top: 1px solid #e8e0d8; margin: 32px 0;" />

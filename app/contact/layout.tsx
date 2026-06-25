@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Contact',
   description:
-    'Une question, un projet de voyage sur mesure ? Écrivez à Hélder et Elena. On répond sous 48h ouvrées. Sans engagement.',
+    'Une question, un projet de voyage sur mesure ? Écrivez-nous. On répond sous 48h ouvrées. Sans engagement.',
   alternates: { canonical: 'https://www.heldonica.fr/contact' },
   openGraph: {
     title: 'Contactez Heldonica',
