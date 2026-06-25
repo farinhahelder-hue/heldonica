@@ -284,14 +284,12 @@ export default function ExpertHotelierPage() {
               Laissez-nous vos coordonnées. Nous vous recontactons sous 48h pour planifier un échange découverte de 30 minutes.
             </p>
             <B2bCtaButton
-              href="https://tally.so/embed/placeholder"
-              target="_blank"
-              rel="noreferrer noopener"
+              href="/contact"
               eventName="formulaire_audit_b2b_clique"
               eventParams={{ source: 'section_audit' }}
               className="block w-full max-w-md mx-auto px-8 py-5 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all text-center text-lg mb-6"
             >
-              Ouvrir le formulaire d&apos;audit →
+              Demander un audit gratuit →
             </B2bCtaButton>
             <p className="text-stone-500 text-center text-sm">Sans engagement. Réponse sous 48h ouvrées.</p>
           </div>
