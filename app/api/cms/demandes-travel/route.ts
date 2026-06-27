@@ -24,7 +24,7 @@ export async function GET(req: Request) {
     .from('demandes_travel')
     .select('*')
     .order('created_at', { ascending: false })
-  if (error) return NextResponse.json({ demandes: [] })
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ demandes: data })
 }
 

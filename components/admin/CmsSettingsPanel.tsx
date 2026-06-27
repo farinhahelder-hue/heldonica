@@ -57,17 +57,12 @@ const GROUPS: GroupDef[] = [
     label: 'Réseaux sociaux',
     icon: <Share2 size={16} />,
     fields: [
-      { key: 'social_instagram', label: 'Instagram',           type: 'url', placeholder: 'https://instagram.com/heldonica' },
-      { key: 'social_facebook',  label: 'Facebook',            type: 'url', placeholder: 'https://facebook.com/heldonica' },
-      { key: 'social_linkedin',  label: 'LinkedIn',            type: 'url', placeholder: 'https://linkedin.com/company/heldonica' },
-      { key: 'social_pinterest', label: 'Pinterest',           type: 'url', placeholder: 'https://pinterest.com/heldonica' },
-      { key: 'social_tiktok',    label: 'TikTok',              type: 'url', placeholder: 'https://tiktok.com/@heldonica' },
-      { key: 'instagram_url',    label: 'Instagram (legacy)',  type: 'url', placeholder: 'https://instagram.com/heldonica' },
-      { key: 'site_instagram',   label: 'Instagram (site)',    type: 'url', placeholder: 'https://instagram.com/heldonica' },
-      { key: 'site_facebook',    label: 'Facebook (site)',     type: 'url', placeholder: '' },
-      { key: 'site_linkedin',    label: 'LinkedIn (site)',     type: 'url', placeholder: '' },
-      { key: 'site_pinterest',   label: 'Pinterest (site)',    type: 'url', placeholder: '' },
-      { key: 'site_tiktok',      label: 'TikTok (site)',       type: 'url', placeholder: '' },
+      { key: 'social_instagram', label: 'Instagram',  type: 'url', placeholder: 'https://instagram.com/heldonica' },
+      { key: 'social_facebook',  label: 'Facebook',   type: 'url', placeholder: 'https://facebook.com/heldonica' },
+      { key: 'social_linkedin',  label: 'LinkedIn',   type: 'url', placeholder: 'https://linkedin.com/company/heldonica' },
+      { key: 'social_pinterest', label: 'Pinterest',  type: 'url', placeholder: 'https://pinterest.com/heldonica' },
+      { key: 'social_tiktok',    label: 'TikTok',     type: 'url', placeholder: 'https://tiktok.com/@heldonica' },
+      { key: 'social_youtube',   label: 'YouTube',    type: 'url', placeholder: 'https://youtube.com/@heldonica' },
     ],
   },
   {
@@ -149,11 +144,11 @@ export default function CmsSettingsPanel() {
     setError('');
     try {
       const res = await fetch('/api/cms/settings', { cache: 'no-store' });
-      const data = await res.json();
-      
       if (!res.ok) {
-        throw new Error(data.error || 'Erreur lors du chargement');
+        const text = await res.text().catch(() => '');
+        throw new Error('Erreur lors du chargement' + (text ? `: ${text.slice(0, 100)}` : ''));
       }
+      const data = await res.json();
 
       if (data && typeof data === 'object' && !Array.isArray(data)) {
         // Start with PAGE_DEFAULTS, then overlay DB values (DB wins)
