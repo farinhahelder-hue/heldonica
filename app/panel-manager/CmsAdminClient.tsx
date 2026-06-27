@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useState, useEffect, useCallback, Suspense, useMemo, useDeferredValue } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import EnhancedRichContent from '@/components/EnhancedRichContent';
@@ -74,6 +74,8 @@ function CmsAdminClientInner() {
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  // ⚡ Bolt: Use useDeferredValue to debounce the search query input.
+  const deferredSearchQuery = useDeferredValue(searchQuery);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Pagination
@@ -357,12 +359,12 @@ function CmsAdminClientInner() {
     }
   };
 
-  const filteredArticles = articles.filter(
+  const filteredArticles = useMemo(() => articles.filter(
     a =>
       (statusFilter === 'all' || a.status === statusFilter) &&
-      (a.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      a.category?.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+      (a.title?.toLowerCase().includes(deferredSearchQuery.toLowerCase()) ||
+      a.category?.toLowerCase().includes(deferredSearchQuery.toLowerCase()))
+  ), [articles, statusFilter, deferredSearchQuery]);
 
   // ── Loading / Auth screens ─────────────────────────────────────────────────
   if (authLoading) {
