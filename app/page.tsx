@@ -98,16 +98,32 @@ const schemaOrganization = {
 };
 
 export default async function Home() {
-  const allPostsResult = await getAllPosts()
+  // ⚡ Bolt Optimization: Batched these independent data sources using Promise.all to optimize TTFB
+  const [
+    allPostsResult,
+    rawCountries,
+    homeContent,
+    instagramUsername,
+    instagramPostCount,
+    instagramPosts,
+    siteEmail
+  ] = await Promise.all([
+    getAllPosts(),
+    getSetting('covered_countries'),
+    getPageContent('home'),
+    getSetting('social_instagram'),
+    getSetting('instagram_post_count'),
+    getSetting('instagram_posts'),
+    getSetting('contact_email'),
+  ]);
+
   // Defensive: ensure we always have an array
   const allPosts = Array.isArray(allPostsResult) ? allPostsResult : []
   
   // Get covered_countries as number with fallback
-  const rawCountries = await getSetting('covered_countries')
   const coveredCountries = rawCountries ? parseInt(rawCountries, 10) : 7
 
   // Fetch hero media from CMS
-  const homeContent = await getPageContent('home')
   const heroVideoUrl = homeContent['hero_video_url'] || null
   const heroPosterImage = homeContent['hero_poster_image'] || null
 
@@ -124,13 +140,6 @@ export default async function Home() {
     ? { ...featuredPost, formattedDate: formatDate(featuredPost.published_at), readTime: (featuredPost.read_time && featuredPost.read_time > 0) ? featuredPost.read_time : calcReadTime(featuredPost.content) }
     : null
 
-  // Fetch Instagram / site settings for HomeClient
-  const [instagramUsername, instagramPostCount, instagramPosts, siteEmail] = await Promise.all([
-    getSetting('social_instagram'),
-    getSetting('instagram_post_count'),
-    getSetting('instagram_posts'),
-    getSetting('contact_email'),
-  ])
   const siteSettings = {
     instagramUsername: instagramUsername || undefined,
     instagramPostCount: instagramPostCount ? Number(instagramPostCount) : undefined,
