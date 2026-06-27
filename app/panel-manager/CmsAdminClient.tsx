@@ -275,15 +275,19 @@ function CmsAdminClientInner() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError('');
-    const res = await fetch('/api/cms/auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password }),
-    });
-    if (res.ok) {
-      setIsAuthenticated(true);
-    } else {
-      setAuthError('Mot de passe incorrect');
+    try {
+      const res = await fetch('/api/cms/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      if (res.ok) {
+        setIsAuthenticated(true);
+      } else {
+        setAuthError('Mot de passe incorrect');
+      }
+    } catch {
+      setAuthError('Erreur réseau');
     }
   };
 
@@ -329,18 +333,21 @@ function CmsAdminClientInner() {
         : '/api/cms/articles';
       const body = { ...editingArticle };
       if (editingArticle.status === 'scheduled' && !editingArticle.published_at) {
-        body.published_at = new Date().toISOString();
+        throw new Error('Date de publication requise pour le statut planifié');
       }
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
-      if (!res.ok) throw new Error('Save failed');
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Save failed' }));
+        throw new Error(err.error || 'Save failed');
+      }
       toast('Article sauvegardé', 'success');
       loadArticles();
-    } catch {
-      toast('Erreur lors de la sauvegarde', 'error');
+    } catch (e: any) {
+      toast(e.message || 'Erreur lors de la sauvegarde', 'error');
     } finally {
       setSaving(false);
     }
@@ -594,21 +601,28 @@ function CmsAdminClientInner() {
               {selectedIds.size > 0 && (
                 <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-[#2D8B7A]/5 border border-[#2D8B7A]/20 rounded-lg">
                   <span className="text-xs text-gray-600">{selectedIds.size} selectionne(s)</span>
-                  <button onClick={() => {
+                  <button onClick={async () => {
                     const toPublish = articles.filter(a => selectedIds.has(a.id) && a.status !== 'published');
-                    Promise.all(toPublish.map(a =>
-                      fetch(`/api/cms/articles/${a.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...a, status: 'published' }) })
-                    )).then(() => { loadArticles(); setSelectedIds(new Set()); });
+                    try {
+                      await Promise.all(toPublish.map(a =>
+                        fetch(`/api/cms/articles/${a.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...a, status: 'published' }) })
+                      ));
+                      loadArticles(); setSelectedIds(new Set());
+                      toast('Articles publiés', 'success');
+                    } catch { toast('Erreur lors de la publication', 'error'); }
                   }} className="px-3 py-1 text-xs bg-green-600 text-white rounded-lg hover:bg-green-700">
                     Publier
                   </button>
-                  <button onClick={() => {
+                  <button onClick={async () => {
                     const toDelete = articles.filter(a => selectedIds.has(a.id));
-                    if (window.confirm(`Supprimer ${toDelete.length} article(s) ?`)) {
-                      Promise.all(toDelete.map(a =>
+                    if (!window.confirm(`Supprimer ${toDelete.length} article(s) ?`)) return;
+                    try {
+                      await Promise.all(toDelete.map(a =>
                         fetch(`/api/cms/articles/${a.id}`, { method: 'DELETE' })
-                      )).then(() => { loadArticles(); setSelectedIds(new Set()); });
-                    }
+                      ));
+                      loadArticles(); setSelectedIds(new Set());
+                      toast('Articles supprimés', 'success');
+                    } catch { toast('Erreur lors de la suppression', 'error'); }
                   }} className="px-3 py-1 text-xs bg-red-500 text-white rounded-lg hover:bg-red-600">
                     Supprimer
                   </button>

@@ -30,7 +30,7 @@ export default function ArticleForm({ articleId, onSave, onCancel }: ArticleForm
 
   const fetchArticle = useCallback(async () => {
     try {
-      const response = await fetch(`/api/articles/${articleId}`);
+      const response = await fetch(`/api/cms/articles/${articleId}`);
       const data = await response.json();
       setFormData(data);
     } catch (err) {
@@ -75,8 +75,8 @@ export default function ArticleForm({ articleId, onSave, onCancel }: ArticleForm
     setLoading(true);
 
     try {
-      const method = articleId ? 'PUT' : 'POST';
-      const url = articleId ? `/api/articles/${articleId}` : '/api/articles';
+      const method = articleId ? 'PATCH' : 'POST';
+      const url = articleId ? `/api/cms/articles/${articleId}` : '/api/cms/articles';
 
       const response = await fetch(url, {
         method,

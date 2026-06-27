@@ -92,7 +92,6 @@ const schemaOrganization = {
   ],
   "contactPoint": {
     "@type": "ContactPoint",
-    "telephone": "+33-6-XX-XX-XX",
     "contactType": "customer service",
     "availableLanguage": ["French", "English", "Portuguese"]
   }
