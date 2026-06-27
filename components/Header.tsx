@@ -63,6 +63,7 @@ export default function Header() {
     { href: '/destinations', label: 'Destinations' },
     { href: '/blog', label: 'Inspirations' },
     { href: '/quiz', label: 'Quiz' },
+    { href: '/coaching', label: 'Coaching' },
     { href: '/travel-planning', label: 'Services' },
     { href: '/expert-hotelier', label: 'Consulting hôtelier' },
     { href: '/a-propos', label: 'À propos' },
