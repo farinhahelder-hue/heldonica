@@ -220,3 +220,5 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 
   return NextResponse.json({ ok: true })
 }
+
+export const PATCH = PUT

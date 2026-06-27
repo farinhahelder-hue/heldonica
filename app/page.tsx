@@ -66,7 +66,7 @@ function formatPosts(posts: BlogPost[]) {
   return posts.map((post) => ({
     ...post,
     formattedDate: formatDate(post.published_at),
-    readTime: post.read_time ?? calcReadTime(post.content),
+    readTime: (post.read_time && post.read_time > 0) ? post.read_time : calcReadTime(post.content),
   }))
 }
 const schemaSpeakable = {
@@ -119,8 +119,10 @@ export default async function Home() {
       .filter((p) => p.category === 'Découvertes Locales' || p.category === 'Guides Pratiques')
       .slice(0, 3)
   )
-  const featured = allPosts[0]
-    ? { ...allPosts[0], formattedDate: formatDate(allPosts[0].published_at), readTime: allPosts[0].read_time ?? calcReadTime(allPosts[0].content) }
+  // Featured: use first published article with a valid slug (avoids 404)
+  const featuredPost = allPosts.find(p => p.slug && p.slug.trim().length > 0) ?? null
+  const featured = featuredPost
+    ? { ...featuredPost, formattedDate: formatDate(featuredPost.published_at), readTime: (featuredPost.read_time && featuredPost.read_time > 0) ? featuredPost.read_time : calcReadTime(featuredPost.content) }
     : null
 
   // Fetch Instagram / site settings for HomeClient

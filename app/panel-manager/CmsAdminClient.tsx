@@ -267,7 +267,7 @@ function CmsAdminClientInner() {
   useEffect(() => {
     fetch('/api/cms/auth/check')
       .then(r => r.json())
-      .then(d => setIsAuthenticated(!!d.authenticated))
+      .then(d => setIsAuthenticated(!!(d.authenticated || d.ok)))
       .catch(() => setIsAuthenticated(false))
       .finally(() => setAuthLoading(false));
   }, []);
@@ -302,7 +302,7 @@ function CmsAdminClientInner() {
   }, []);
 
   useEffect(() => {
-    if (isAuthenticated && activeSection === 'articles') loadArticles();
+    if (isAuthenticated && (activeSection === 'articles' || activeSection === 'dashboard')) loadArticles();
   }, [isAuthenticated, activeSection, loadArticles]);
 
   const openArticleEditor = (article: Article) => {
@@ -813,13 +813,32 @@ function CmsAdminClientInner() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Slug</label>
-                    <input
-                      type="text"
-                      value={editingArticle?.slug ?? ''}
-                      onChange={e => setEditingArticle(prev => prev ? { ...prev, slug: e.target.value } : prev)}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A] font-mono"
-                      placeholder="mon-article-slug"
-                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={editingArticle?.slug ?? ''}
+                        onChange={e => setEditingArticle(prev => prev ? { ...prev, slug: e.target.value } : prev)}
+                        className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A] font-mono"
+                        placeholder="mon-article-slug"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!editingArticle?.title) return;
+                          const slug = editingArticle.title
+                            .toLowerCase()
+                            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                            .replace(/[^a-z0-9\s-]/g, '')
+                            .trim()
+                            .replace(/\s+/g, '-')
+                            .replace(/-+/g, '-');
+                          setEditingArticle(prev => prev ? { ...prev, slug } : prev);
+                        }}
+                        className="px-3 py-2 text-xs border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 whitespace-nowrap"
+                      >
+                        ↺ Générer
+                      </button>
+                    </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -980,6 +999,19 @@ function CmsAdminClientInner() {
                       onChange={e => setEditingArticle(prev => prev ? { ...prev, author: e.target.value } : prev)}
                       className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
                       placeholder="Heldonica"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+                    <input
+                      type="text"
+                      value={editingArticle?.tags?.join(', ') ?? ''}
+                      onChange={e => {
+                        const tags = e.target.value.split(',').map(t => t.trim()).filter(Boolean);
+                        setEditingArticle(prev => prev ? { ...prev, tags } : prev);
+                      }}
+                      className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                      placeholder="slow-travel, portugal, madère (séparés par des virgules)"
                     />
                   </div>
                   <div>

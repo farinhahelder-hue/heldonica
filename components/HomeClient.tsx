@@ -162,7 +162,7 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
           <div className="absolute top-3 left-3">
-            <span className="bg-eucalyptus/90 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">
+            <span className="bg-eucalyptus/90 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-0.5 rounded-full capitalize">
               {post.category}
             </span>
           </div>
@@ -299,7 +299,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             <div className="md:col-span-3" data-reveal="left">
               <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4">Notre histoire</p>
               <h2 className="text-3xl md:text-5xl font-serif font-light text-mahogany leading-tight mb-6">
-                Un art du voyage
+                Un art du voyage{' '}
                 <span className="block italic text-eucalyptus">autrement</span>
               </h2>
               <p className="text-base text-charcoal/70 leading-relaxed mb-4">
@@ -344,7 +344,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
               <div className="relative z-10 p-8 md:p-16 max-w-3xl">
                 <p className="text-teal text-xs font-bold tracking-[0.2em] uppercase mb-3">✦ À la une</p>
-                <span className="inline-block bg-eucalyptus text-white text-xs font-semibold px-3 py-1 rounded-full mb-4">
+                <span className="inline-block bg-eucalyptus text-white text-xs font-semibold px-3 py-1 rounded-full mb-4 capitalize">
                   {featured.category}
                 </span>
                 <h2 className="text-2xl md:text-4xl font-serif font-light text-white leading-snug mb-3 group-hover:text-teal/80 transition-colors">
@@ -386,7 +386,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                     className="object-cover opacity-70 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
                   <div className="absolute bottom-0 left-0 p-6">
-                    <span className="inline-block bg-eucalyptus text-white text-xs font-bold px-2.5 py-1 rounded-full mb-3">
+                    <span className="inline-block bg-eucalyptus text-white text-xs font-bold px-2.5 py-1 rounded-full mb-3 capitalize">
                       {travelPosts[0].destination ?? travelPosts[0].category}
                     </span>
                     <h3 className="text-white text-2xl md:text-3xl font-serif font-light leading-tight group-hover:text-teal/80 transition-colors">
@@ -510,9 +510,9 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   className="px-6 py-3 bg-eucalyptus hover:bg-eucalyptus text-white rounded font-semibold text-sm transition">
                   Nous écrire →
                 </Link>
-                <Link href="/blog"
+                <Link href="/travel-planning"
                   className="px-6 py-3 border border-white/30 hover:border-white/60 text-white rounded font-semibold text-sm transition">
-                  Lire le carnet →
+                  Voir nos services →
                 </Link>
               </div>
             </div>

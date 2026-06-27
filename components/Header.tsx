@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
@@ -128,14 +128,6 @@ export default function Header() {
 
           {/* Mobile Navigation */}
           <div className="flex items-center gap-3 lg:hidden">
-            {/* CTA visible sur mobile */}
-            <Link 
-              href={ctaUrl} 
-              className="rounded-full bg-eucalyptus px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:brightness-110 active:scale-95"
-            >
-              {ctaLabel}
-            </Link>
-            
             {/* Hamburger animé */}
             <button
               onClick={() => setOpen((value) => !value)}
