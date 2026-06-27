@@ -172,7 +172,7 @@ export default function Footer() {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center w-10 h-10 rounded-full bg-stone-800 text-stone-400 transition-all duration-200 hover:bg-eucalyptus hover:text-white"
+                    className="flex items-center justify-center w-10 h-10 rounded-full bg-stone-700 text-stone-200 transition-all duration-200 hover:bg-eucalyptus hover:text-white"
                     title={social.label}
                     aria-label={`Suivez-nous sur ${social.label}`}
                   >

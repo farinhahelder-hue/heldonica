@@ -55,8 +55,9 @@ type CmsSessionPayload = {
 };
 
 function isProtectedPath(pathname: string) {
-  // Allow auth endpoints without authentication
-  if (pathname === '/api/cms/auth' || pathname === '/api/cms/login') {
+  // Allow auth endpoints without authentication (including sub-routes like /check, /logout)
+  if (pathname === '/api/cms/auth' || pathname === '/api/cms/login' ||
+      pathname.startsWith('/api/cms/auth/')) {
     return false;
   }
 
