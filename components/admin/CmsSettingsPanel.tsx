@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Save, Globe, Palette, Share2, Search, FileText, Wrench, RefreshCw, Sparkles } from 'lucide-react';
+import { Save, Globe, Palette, Share2, Search, FileText, Wrench, RefreshCw } from 'lucide-react';
 import ImagePicker from './ImagePicker';
 import { PAGE_DEFAULTS } from '@/lib/cms-page-defaults';
 
@@ -96,22 +96,6 @@ const GROUPS: GroupDef[] = [
       { key: 'footer_cta_label', label: 'Label CTA footer',    type: 'text',     placeholder: 'Écrire à Heldonica' },
       { key: 'footer_cta_url',   label: 'URL CTA footer',      type: 'url',      placeholder: 'mailto:contact@heldonica.fr' },
       { key: 'footer_links',     label: 'Liens footer (JSON)', type: 'textarea', placeholder: '[{"label":"Blog","url":"/blog"}]' },
-    ],
-  },
-  {
-    id: 'coaching',
-    label: 'Coaching',
-    icon: <Sparkles size={16} />,
-    fields: [
-      { key: 'coaching_duration_1',   label: 'Durée séance découverte', type: 'text', placeholder: '45 minutes' },
-      { key: 'coaching_price_1',      label: 'Tarif séance découverte', type: 'text', placeholder: 'Gratuit' },
-      { key: 'coaching_duration_2',   label: 'Durée séance individuelle', type: 'text', placeholder: '1h' },
-      { key: 'coaching_price_2',      label: 'Tarif séance individuelle', type: 'text', placeholder: 'Sur devis' },
-      { key: 'coaching_duration_3',   label: 'Durée Prise de Poste',  type: 'text', placeholder: '6 séances + 1 point hebdo' },
-      { key: 'coaching_price_3',      label: 'Tarif Prise de Poste',  type: 'text', placeholder: '1 700 € TTC' },
-      { key: 'coaching_duration_4',   label: 'Durée Happiness Design', type: 'text', placeholder: '12 séances' },
-      { key: 'coaching_price_4',      label: 'Tarif Happiness Design', type: 'text', placeholder: 'Sur mesure' },
-      { key: 'coaching_contact_email', label: 'Email de contact coaching', type: 'email', placeholder: 'contact@heldonica.fr' },
     ],
   },
   {
