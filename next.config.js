@@ -111,6 +111,10 @@ const nextConfig = {
       { source: '/sujets/bons-plans/', destination: '/blog', permanent: true },
       { source: '/sujets/:slug', destination: '/blog', permanent: true },
       { source: '/etiquettes/:slug', destination: '/blog', permanent: true },
+      { source: '/coaching', destination: '/travel-planning', permanent: true },
+      { source: '/coaching/', destination: '/travel-planning', permanent: true },
+      { source: '/happiness-design', destination: '/travel-planning', permanent: true },
+      { source: '/happiness-design/', destination: '/travel-planning', permanent: true },
     ];
   },
 }

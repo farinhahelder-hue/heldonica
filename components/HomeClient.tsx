@@ -489,27 +489,6 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         </section>
       )}
 
-      {/* ── COACHING ──────────────────────────────────────────────────── */}
-      <section className="py-20 md:py-28 bg-white">
-        <div className="max-w-5xl mx-auto px-6 md:px-10 text-center">
-          <p className="text-[#C4714A] text-xs font-bold tracking-[0.2em] uppercase mb-4">✦ Coaching & Transformation</p>
-          <h2 className="text-3xl md:text-5xl font-serif font-light text-mahogany leading-tight mb-6">
-            Deviens qui tu es
-          </h2>
-          <p className="text-charcoal/70 leading-relaxed max-w-2xl mx-auto mb-8">
-            Coaching exécutif, mentorat et Happiness Design — pour les moments clés de votre carrière et de votre vie. Accompagnement individuel et en entreprise.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/coaching" className="px-6 py-3 bg-[#C4714A] hover:bg-[#b05f3a] text-white rounded-xl font-semibold text-sm transition">
-              Découvrir le coaching →
-            </Link>
-            <Link href="/happiness-design" className="px-6 py-3 border border-stone-300 hover:border-[#C4714A] text-stone-700 hover:text-[#C4714A] rounded-xl font-semibold text-sm transition">
-              Programme Happiness Design →
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* ── CTA TRAVEL PLANNING ───────────────────────────────────────── */}
       <section className="py-20 md:py-28 bg-mahogany text-white">
         <div className="max-w-5xl mx-auto px-6 md:px-10">

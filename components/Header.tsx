@@ -63,7 +63,6 @@ export default function Header() {
     { href: '/destinations', label: 'Destinations' },
     { href: '/blog', label: 'Inspirations' },
     { href: '/quiz', label: 'Quiz' },
-    { href: '/coaching', label: 'Coaching' },
     { href: '/travel-planning', label: 'Services' },
     { href: '/expert-hotelier', label: 'Consulting hôtelier' },
     { href: '/a-propos', label: 'À propos' },
@@ -216,8 +215,7 @@ export default function Header() {
                       {index === 1 && <><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></>}
                       {index === 2 && <><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></>}
                       {index === 3 && <><circle cx="12" cy="12" r="10" /><polygon points="12 2 12 12 18 12" fill="currentColor" /></>}
-                      {index === 4 && <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>}
-                      {index === 5 && <><path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16" /></>}
+                      {index === 4 && <><path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16" /></>}
                     </svg>
                   </span>
                   {item.label}
