@@ -14,10 +14,7 @@ const SITE_URL = 'https://www.heldonica.fr';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: {
-    default: 'Heldonica — Slow Travel & Voyages Authentiques',
-    // Pas de template — chaque page définit son title complet avec la marque
-  },
+  title: 'Heldonica — Slow Travel & Voyages Authentiques',
   description:
     'Blog slow travel et pépites dénichées hors des sentiers battus. Carnets de route, destinations authentiques et travel planning sur mesure écoresponsable en Europe et ailleurs.',
   icons: {
