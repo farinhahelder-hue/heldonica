@@ -6,13 +6,21 @@ export const revalidate = 3600
 const SITE_URL = 'https://www.heldonica.fr'
 
 export async function GET() {
-  const supabase = createServiceClient()
+  let articles: any[] = []
 
-  const { data: articles } = await supabase
-    .from('articles')
-    .select('slug, title, excerpt, content, category, tags, author, published_at')
-    .eq('published', true)
-    .order('published_at', { ascending: false })
+  try {
+    const supabase = createServiceClient()
+    if (supabase) {
+      const { data } = await supabase
+        .from('articles')
+        .select('slug, title, excerpt, content, category, tags, author, published_at')
+        .eq('published', true)
+        .order('published_at', { ascending: false })
+      articles = data || []
+    }
+  } catch (error) {
+    console.warn('LLMS.txt: Supabase not available, using empty articles list')
+  }
 
   const sitePages = [
     { url: SITE_URL, importance: 1.0 },
