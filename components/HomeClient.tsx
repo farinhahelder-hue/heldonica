@@ -78,17 +78,22 @@ function useCounter(target: number, duration = 1400, start = false) {
 function AnimatedStat({ nb, label, suffix = '' }: { nb: number | string; label: string; suffix?: string }) {
   const [started, setStarted] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
-  const isNum = typeof nb === 'number'
-  const count = useCounter(isNum ? nb : 0, 1400, started && isNum)
+  const isNum = typeof nb === 'number' && nb > 0
+  const numericValue = isNum ? nb : 0
+  // Ne jamais afficher 0 — utiliser "—" comme fallback
+  const displayValue = isNum ? null : ((typeof nb === 'string' && nb !== '0') ? nb : '—')
+  const count = useCounter(numericValue, 1400, started && isNum)
+  
   useEffect(() => {
     const el = ref.current; if (!el) return
-    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setStarted(true); io.disconnect() } }, { threshold: 0.5 })
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setStarted(true); io.disconnect() } }, { threshold: 0.3 })
     io.observe(el); return () => io.disconnect()
   }, [])
+  
   return (
     <div ref={ref} className="border-t-2 border-mahogany pt-4 group hover:-translate-y-1 transition-transform duration-300">
       <p className="text-3xl md:text-4xl font-serif font-light text-mahogany mb-1">
-        {isNum ? (started ? count + suffix : '0' + suffix) : nb}
+        {isNum ? (started ? count + suffix : suffix) : displayValue}
       </p>
       <p className="text-xs text-charcoal/60 leading-snug">{label}</p>
     </div>
@@ -130,7 +135,7 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
   const [imgSrc, setImgSrc] = useState(img)
   const [imgFailed, setImgFailed] = useState(false)
   const h = size === 'lg' ? 'h-80' : size === 'md' ? 'h-60' : 'h-44'
-  const readTime = post.readTime ?? post.read_time
+  const readTime = (post.readTime ?? post.read_time) ?? 0
   const gradient = getCategoryGradient(post.category)
   const iconSvg = getCategoryIcon(post.category)
 
@@ -138,6 +143,11 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
     setImgSrc(img)
     setImgFailed(false)
   }, [img])
+
+  // Formater la destination avec capitalize
+  const displayDestination = post.destination
+    ? post.destination.charAt(0).toUpperCase() + post.destination.slice(1).toLowerCase()
+    : null
 
   return (
     <Link href={`/blog/${post.slug}`} className="group block h-full">
@@ -166,11 +176,11 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
               {post.category}
             </span>
           </div>
-          {readTime && readTime > 0 && (
+          {readTime > 0 ? (
             <span className="absolute bottom-3 right-3 bg-black/40 backdrop-blur-sm text-white/80 text-xs px-2 py-0.5 rounded-full">
               {readTime} min
             </span>
-          )}
+          ) : null}
         </div>
         <div className="p-4 flex flex-col flex-1 bg-white">
           <h3 className="font-semibold text-mahogany text-sm leading-snug mb-1.5 group-hover:text-eucalyptus transition-colors line-clamp-2">
@@ -183,9 +193,21 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
             <p className="text-charcoal/60 text-xs leading-relaxed line-clamp-2 flex-1 mb-2">{displayExcerpt(post)}</p>
           )}
           <div className="flex items-center justify-between mt-auto pt-2 border-t border-cloud-dancer">
-            <span className="text-xs text-charcoal/40">
-              {post.author ?? 'Heldonica'} {post.destination ? `• 📍 ${post.destination}` : ` • ${post.formattedDate}`}
-            </span>
+            <div className="flex items-center gap-2 text-xs text-charcoal/40">
+              <span>{post.author ?? 'Heldonica'}</span>
+              {displayDestination && (
+                <>
+                  <span>•</span>
+                  <span>📍 {displayDestination}</span>
+                </>
+              )}
+              {!displayDestination && (
+                <>
+                  <span>•</span>
+                  <span>{post.formattedDate}</span>
+                </>
+              )}
+            </div>
             <span className="text-xs text-eucalyptus font-semibold group-hover:translate-x-1 transition-transform">Lire le carnet →</span>
           </div>
         </div>
@@ -387,7 +409,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
                   <div className="absolute bottom-0 left-0 p-6">
                     <span className="inline-block bg-eucalyptus text-white text-xs font-bold px-2.5 py-1 rounded-full mb-3 capitalize">
-                      {travelPosts[0].destination ?? travelPosts[0].category}
+                      {travelPosts[0].destination ? travelPosts[0].destination.charAt(0).toUpperCase() + travelPosts[0].destination.slice(1).toLowerCase() : travelPosts[0].category}
                     </span>
                     <h3 className="text-white text-2xl md:text-3xl font-serif font-light leading-tight group-hover:text-teal/80 transition-colors">
                       {travelPosts[0].title}
@@ -412,7 +434,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                         <h3 className="text-white text-lg font-serif font-light group-hover:text-teal/80 transition-colors line-clamp-2">
                           {p.title}
                         </h3>
-                        <p className="text-gray-300 text-xs mt-1">{p.destination ?? p.formattedDate}</p>
+                        <p className="text-gray-300 text-xs mt-1">{p.destination ? p.destination.charAt(0).toUpperCase() + p.destination.slice(1).toLowerCase() : p.formattedDate}</p>
                       </div>
                     </Link>
                   ))}
@@ -488,6 +510,37 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           </div>
         </section>
       )}
+
+{/* ── DESTINATIONS ─────────────────────────────────────────────── */}
+      <section className="py-20 md:py-28 bg-white">
+        <div className="max-w-6xl mx-auto px-6 md:px-10 text-center">
+          <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4">✦ Nos territoires</p>
+          <h2 className="text-3xl md:text-5xl font-serif font-light text-mahogany leading-tight mb-6">
+            Des lieux qu&apos;on a aimés,
+            <br />qu&apos;on comprend vraiment.
+          </h2>
+          <p className="text-charcoal/70 leading-relaxed max-w-2xl mx-auto mb-12">
+            Madère, Roumanie, Monténégro, Sicile… On ne parle que de ce qu&apos;on a vécu. Chaque destination est un carnet qu&apos;on continue d&apos;écrire.
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {[
+              { name: 'Madère', emoji: '🏝️', slug: '/destinations/madere' },
+              { name: 'Roumanie', emoji: '🏔️', slug: '/destinations/roumanie' },
+              { name: 'Monténégro', emoji: '🌊', slug: '/destinations/montenegro' },
+              { name: 'Sicile', emoji: '🌋', slug: '/destinations/sicile' },
+            ].map((dest) => (
+              <Link key={dest.slug} href={dest.slug}
+                className="group p-6 md:p-8 rounded-2xl bg-stone-50 border border-stone-100 hover:border-eucalyptus/30 hover:bg-eucalyptus/5 transition-all duration-300">
+                <span className="text-4xl mb-3 block">{dest.emoji}</span>
+                <span className="font-semibold text-mahogany group-hover:text-eucalyptus transition-colors">{dest.name}</span>
+              </Link>
+            ))}
+          </div>
+          <Link href="/destinations" className="mt-10 inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
+            Explorer toutes les destinations →
+          </Link>
+        </div>
+      </section>
 
       {/* ── CTA TRAVEL PLANNING ───────────────────────────────────────── */}
       <section className="py-20 md:py-28 bg-mahogany text-white">

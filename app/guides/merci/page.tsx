@@ -4,7 +4,7 @@ import Footer from '@/components/Footer'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Merci ! — Heldonica | Téléchargement en cours',
+  title: 'Merci ! | | Téléchargement en cours',
   description: 'Ton guide est en train de partir dans ta boîte mail. En attendant, découvre nos autres ressources.',
   robots: { index: false, follow: false },
 }

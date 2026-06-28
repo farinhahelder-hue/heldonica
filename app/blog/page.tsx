@@ -12,7 +12,7 @@ export const revalidate = 3600
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: 'Blog Slow Travel — Carnets de Route & Pépites Dénichées | Heldonica',
+    title: 'Carnets de voyage | Heldonica',
     description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain. Récits authentiques, conseils pratiques et destinations hors des sentiers battus.',
     keywords: [
       'blog slow travel',
@@ -25,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
       canonical: 'https://www.heldonica.fr/blog',
     },
     openGraph: {
-      title: 'Blog Slow Travel — Carnets de Route & Pépites Dénichées | Heldonica',
+      title: 'Carnets de voyage | Heldonica',
       description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain.',
       url: 'https://heldonica.fr/blog',
       siteName: 'Heldonica',
@@ -42,7 +42,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'Blog Slow Travel — Carnets de Route & Pépites Dénichées | Heldonica',
+      title: 'Carnets de voyage | Heldonica',
       description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain.',
       images: ['https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&q=85'],
       creator: '@heldonica',
@@ -57,7 +57,7 @@ function CollectionPageJsonLd({ posts }: { posts: BlogPost[] }) {
   const collectionPageSchema = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: 'Blog Slow Travel — Carnets de Route & Pépites Dénichées | Heldonica',
+    name: 'Carnets de voyage | Heldonica',
     description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain. Récits authentiques, conseils pratiques et destinations hors des sentiers battus.',
     url: blogUrl,
     isPartOf: {
@@ -156,7 +156,7 @@ export default async function BlogPage() {
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'CollectionPage',
-            name: 'Blog Slow Travel — Carnets de Route & Pépites Dénichées | Heldonica',
+            name: 'Carnets de voyage | Heldonica',
             description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain.',
             url: 'https://heldonica.fr/blog',
             isPartOf: { '@type': 'WebSite', name: 'Heldonica', url: 'https://heldonica.fr' },
@@ -188,7 +188,7 @@ export default async function BlogPage() {
         __html: JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'CollectionPage',
-          name: 'Blog Slow Travel — Carnets de Route & Pépites Dénichées | Heldonica',
+          name: 'Carnets de voyage | Heldonica',
           description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain.',
           url: 'https://heldonica.fr/blog',
           isPartOf: { '@type': 'WebSite', name: 'Heldonica', url: 'https://heldonica.fr' },

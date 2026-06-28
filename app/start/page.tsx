@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 export const metadata: Metadata = {
-  title: 'Start — Heldonica | Liens rapides',
+  title: 'Start |',
   description: 'Retrouve tous les liens Heldonica : blog, guides gratuits, travel planning et contact.',
   robots: { index: false, follow: false },
 }

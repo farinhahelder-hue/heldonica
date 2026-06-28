@@ -5,7 +5,7 @@ import Breadcrumb from '@/components/Breadcrumb'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Programme Partenaires & Affiliation — Heldonica',
+  title: 'Programme Partenaires & Affiliation|',
   description:
     "Politique d’affiliation Heldonica : comment on sélectionne et utilise les liens partenaires (Booking.com, GetYourGuide, etc.) pour financer le site sans compromettre la qualité des recommandations.",
   alternates: {

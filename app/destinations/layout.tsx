@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     canonical: 'https://www.heldonica.fr/destinations',
   },
   openGraph: {
-    title: 'Destinations Slow Travel — Pépites Dénichées par Heldonica',
+    title: 'Destinations Slow Travel |',
     description: 'Nos destinations slow travel testées sur le terrain : pépites cachées, hébergements authentiques, tables de locaux. Voyager autrement en couple.',
     url: 'https://www.heldonica.fr/destinations',
     siteName: 'Heldonica',

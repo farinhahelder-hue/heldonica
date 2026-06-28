@@ -1,6 +1,17 @@
 const LEGACY_REDIRECTS: Record<string, string> = {
+  // Anciennes pages À propos
   '/a-propos-2': '/a-propos',
   '/presentation-3': '/a-propos',
+  // Anciennes pages WordPress / taxonomies
+  '/sujets': '/blog',
+  '/sujets/': '/blog',
+  '/sujets/experiences': '/blog',
+  '/sujets/experiences/randonnees': '/blog',
+  '/sujets/randonnees': '/blog',
+  '/sujets/adresses': '/blog',
+  '/sujets/decouvertes': '/blog',
+  '/categories': '/blog',
+  // Anciennes pages de présentation
   '/hello-biz-360': '/travel-planning',
   '/accueil-heldonica-video': '/',
   // Redirects B2B existants (service supprimé)
@@ -12,6 +23,11 @@ const LEGACY_REDIRECTS: Record<string, string> = {
   '/nos-services': '/travel-planning',
   '/bons-plans': '/blog',
   '/sujets/bons-plans': '/blog',
+  // Pages supprimées (contamination projet Monica Schneider)
+  '/coaching': '/',
+  '/happiness-design': '/',
+  '/organisateur': '/',
+  '/quiz': '/',
   // Destinations
   '/zurich': '/destinations/zurich',
   '/suisse': '/destinations/suisse',

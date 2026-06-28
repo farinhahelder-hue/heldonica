@@ -39,8 +39,7 @@ export default function Footer() {
   const navLinks = [
     { href: '/', label: 'Accueil' },
     { href: '/destinations', label: 'Destinations' },
-    { href: '/blog', label: 'Inspirations' },
-    { href: '/quiz', label: 'Quiz' },
+    { href: '/blog', label: 'Blog' },
     { href: '/travel-planning', label: 'Services' },
     { href: '/expert-hotelier', label: 'Consulting hôtelier' },
     { href: '/a-propos', label: 'À propos' },

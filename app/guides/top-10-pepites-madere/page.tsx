@@ -6,7 +6,7 @@ import NewsletterPopup from '@/components/NewsletterPopup'
 import GuideDownloadForm from '@/components/GuideDownloadForm'
 
 export const metadata: Metadata = {
-  title: 'Guide Top 10 Pépites Madère — Heldonica | Télécharge gratuitement',
+  title: 'Guide Top 10 Pépites Madère | Heldonica',
   description:
     "Télécharge notre guide des 10 meilleures adresses testées à Madère. Restaurants, sentiers, spots photo — tout ce qu’on a aimé et qu’on te recommande.",
   keywords: [
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
         url: '/og-default.jpg',
         width: 1200,
         height: 630,
-        alt: 'Guide Top 10 Pépites Madère — Heldonica',
+        alt: 'Guide Top 10 Pépites Madère',
       },
     ],
     locale: 'fr_FR',
