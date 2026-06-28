@@ -128,26 +128,6 @@ export const PAGE_DEFAULTS: Record<string, string> = {
   'mentions-legales__title': 'Mentions légales',
   'mentions-legales__intro': 'Éditeur du site',
 
-  // ── COACHING ────────────────────────────────────────────────────────────
-  'coaching__hero_title': 'Leadership, Coaching & Transformation',
-  'coaching__hero_subtitle': 'Coaching exécutif, mentorat et Happiness Design — pour les moments clés de votre carrière et de votre vie.',
-  'coaching__story_title': 'Deviens qui tu es',
-  'coaching__method_title': 'Ma méthode',
-  'coaching__method_text': 'Je m\'appuie sur des techniques classiques d\'executive coaching (modèles GROW, Gestalt, Solutions Focused, Co-active…) mais aussi sur des outils rencontrés plus rarement (méditation, philosophie, psychologie, design thinking) pour travailler aussi sur la transformation que vous devez accomplir au plus profond de vous pour réaliser vos objectifs.',
-  'coaching__programs_title': 'Mes programmes',
-  'coaching__orga_title': 'Accompagnement des entreprises',
-  'coaching__orga_text': 'Coaching de dirigeants, ateliers de cohésion, accompagnement du changement et séminaires sur mesure.',
-  'coaching__testimonials_title': 'Ils me recommandent',
-  'coaching__cta_title': 'Prêt à entamer votre transformation ?',
-  'coaching__cta_text': 'Réservez votre séance découverte de 45 minutes — sans engagement.',
-  'coaching__cta_label': 'Réserver ma séance découverte gratuite',
-  'coaching__cta_email': 'monica@heldonica.fr',
-
-  // ── HAPPINESS DESIGN ─────────────────────────────────────────────────────
-  'happiness-design__hero_title': 'Happiness Design',
-  'happiness-design__hero_subtitle': '12 séances pour reprendre les rênes de votre vie et de votre bonheur, au boulot et ailleurs.',
-  'happiness-design__intro': 'Un programme intensif et transformateur qui combine neurosciences, psychologie positive, philosophie pratique et design thinking.',
-
   // ── SHARED ─────────────────────────────────────────────────────────────
   'shared__read_more': 'Lire la suite',
   'shared__back': 'Retour',

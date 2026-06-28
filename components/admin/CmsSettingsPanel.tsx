@@ -111,7 +111,7 @@ const GROUPS: GroupDef[] = [
       { key: 'coaching_price_3',      label: 'Tarif Prise de Poste',  type: 'text', placeholder: '1 700 € TTC' },
       { key: 'coaching_duration_4',   label: 'Durée Happiness Design', type: 'text', placeholder: '12 séances' },
       { key: 'coaching_price_4',      label: 'Tarif Happiness Design', type: 'text', placeholder: 'Sur mesure' },
-      { key: 'coaching_contact_email', label: 'Email de contact coaching', type: 'email', placeholder: 'monica@heldonica.fr' },
+      { key: 'coaching_contact_email', label: 'Email de contact coaching', type: 'email', placeholder: 'contact@heldonica.fr' },
     ],
   },
   {
