@@ -29,7 +29,7 @@ const COLOR_FIELDS = [
 
 const TEXT_FIELDS = [
   { key: 'site_name', label: 'Nom du site', type: 'text', fallback: 'Heldonica' },
-  { key: 'site_tagline', label: 'Slogan / Tagline', type: 'text', fallback: 'Slow travel vecu, conçu juste.' },
+  { key: 'site_tagline', label: 'Slogan / Tagline', type: 'text', fallback: 'Slow travel vécu en duo, conçu pour toi.' },
   { key: 'site_description', label: 'Description courte', type: 'textarea', fallback: '' },
   { key: 'primary_cta_label', label: 'Bouton CTA (Header)', type: 'text', fallback: 'Planifier mon voyage' },
   { key: 'primary_cta_url', label: 'Lien CTA (Header)', type: 'text', fallback: '/travel-planning' },
@@ -456,7 +456,7 @@ export default function DesignEditor() {
         <div className={`bg-gray-50 rounded-xl border border-gray-200 p-4 ${viewMode === 'mobile' ? 'max-w-sm mx-auto' : ''}`}>
           <LivePreview
             siteName={v('site_name', 'Heldonica')}
-            tagline={v('site_tagline', 'Slow travel vecu, conçu juste.')}
+            tagline={v('site_tagline', 'Slow travel vécu en duo, conçu pour toi.')}
             primaryColor={v('primary_color', '#006D77')}
             secondaryColor={v('secondary_color', '#83C5BE')}
             fontHeading={v('font_heading', 'Playfair Display')}

@@ -61,8 +61,7 @@ export default function Header() {
   const navItems = [
     { href: '/', label: 'Accueil' },
     { href: '/destinations', label: 'Destinations' },
-    { href: '/blog', label: 'Inspirations' },
-    { href: '/quiz', label: 'Quiz' },
+    { href: '/blog', label: 'Blog' },
     { href: '/travel-planning', label: 'Services' },
     { href: '/expert-hotelier', label: 'Consulting hôtelier' },
     { href: '/a-propos', label: 'À propos' },
@@ -118,12 +117,6 @@ export default function Header() {
                 {item.label}
               </Link>
             ))}
-            <Link
-              href={ctaUrl}
-              className="ml-3 rounded-full bg-eucalyptus px-5 py-2 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:brightness-110 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:ring-offset-2"
-            >
-              {ctaLabel}
-            </Link>
           </div>
 
           {/* Mobile Navigation */}

@@ -6,7 +6,7 @@ import Breadcrumb from '@/components/Breadcrumb'
 import ContactForm from '@/components/ContactForm'
 
 export const metadata: Metadata = {
-  title: 'Contact — Parlons de Ton Voyage Sur Mesure | Heldonica',
+  title: 'Contact | Heldonica',
   description:
     "Une question, un projet de voyage ? On est là. Écris-nous pour ton travel planning sur mesure ou toute autre demande.",
   keywords: [
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     canonical: 'https://www.heldonica.fr/contact',
   },
   openGraph: {
-    title: 'Contact — Parlons de Ton Voyage Sur Mesure | Heldonica',
+    title: 'Contact | Heldonica',
     description:
       "Une question, un projet de voyage ? On est là. Écris-nous pour ton travel planning sur mesure.",
     url: 'https://www.heldonica.fr/contact',

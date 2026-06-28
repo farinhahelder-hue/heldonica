@@ -6,7 +6,7 @@ import FaqSection from '@/components/FaqSection'
 import { FAQJsonLd } from '@/components/JsonLd'
 
 export const metadata: Metadata = {
-  title: 'Nos Services — Heldonica | Travel Planning sur mesure',
+  title: 'Services | Travel Planning sur mesure',
   description:
     "Services Heldonica : Travel Planning personnalisé, expertise hôtelière B2B, et plus encore. Des solutions sur mesure pour vos voyages et établissements.",
   keywords: [

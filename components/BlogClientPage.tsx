@@ -325,9 +325,11 @@ export default function BlogClientPage({ posts: rawPosts }: Props) {
 }
 
 function StatChip({ value, label }: { value: number; label: string }) {
+  // Ne jamais afficher 0 — utiliser "—" comme fallback
+  const displayValue = (value === null || value === undefined || value === 0) ? '—' : String(value)
   return (
     <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-left backdrop-blur-sm">
-      <span className="mr-2 text-lg font-light text-white">{value}</span>
+      <span className="mr-2 text-lg font-light text-white">{displayValue}</span>
       <span className="text-xs uppercase tracking-[0.12em] text-white/60">{label}</span>
     </div>
   )

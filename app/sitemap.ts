@@ -22,18 +22,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
-      url: `${BASE_URL}/quiz`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-    {
-      url: `${BASE_URL}/nos-services`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-    {
       url: `${BASE_URL}/travel-planning`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
@@ -52,7 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
-      url: `${BASE_URL}/hotel-consulting`,
+      url: `${BASE_URL}/expert-hotelier`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.6,

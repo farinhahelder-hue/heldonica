@@ -9,11 +9,11 @@ import Script from 'next/script'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Comparer les destinations — Heldonica',
+  title: 'Comparer les destinations |',
   description: 'Compare nos destinations slow travel : budget, saison, style et articles publiés. Trouve la destination qui te correspond.',
   alternates: { canonical: `${SITE_URL}/destinations/compare` },
   openGraph: {
-    title: 'Comparer les destinations slow travel — Heldonica',
+    title: 'Comparer les destinations slow travel |',
     description: 'Budget, saison, style de voyage — compare et choisis ta prochaine destination.',
     url: `${SITE_URL}/destinations/compare`,
     images: [{ url: `${SITE_URL}/og-compare.jpg`, width: 1200, height: 630 }],
@@ -40,7 +40,7 @@ export default async function ComparePage() {
         __html: JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'WebPage',
-          name: 'Comparer les destinations slow travel — Heldonica',
+          name: 'Comparer les destinations slow travel |',
           description: 'Compare nos destinations slow travel : budget, saison, style et articles publiés.',
           breadcrumb: {
             '@type': 'BreadcrumbList',

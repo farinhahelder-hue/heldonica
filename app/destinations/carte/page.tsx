@@ -3,7 +3,7 @@ import MapClientPage from './MapClientPage';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Carte des Destinations — Explorez nos Pépites | Heldonica',
+  title: 'Carte des Destinations | Heldonica',
   description:
     'Carte interactive de nos destinations slow travel : Madère, Sicile, Roumanie, Portugal et plus. Cliquez sur les marqueurs pour découvrir chaque pépite.',
   keywords: [
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     canonical: 'https://www.heldonica.fr/destinations/carte',
   },
   openGraph: {
-    title: 'Carte des Destinations Slow Travel — Heldonica',
+    title: 'Carte des Destinations Slow Travel |',
     description:
       'Explorez nos destinations sur une carte interactive : Madère, Sicile, Roumanie, Portugal, et bien plus encore.',
     url: 'https://www.heldonica.fr/destinations/carte',

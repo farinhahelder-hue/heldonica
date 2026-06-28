@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 const SITE = 'https://www.heldonica.fr'
 
 export const travelPlanningMetadata: Metadata = {
-  title: 'Travel Planning sur mesure — Heldonica',
+  title: 'Travel Planning sur mesure | Heldonica',
   description:
     "Heldonica conçoit votre voyage sur mesure : itinéraire pensé pour votre rythme, pépites dénichées sur le terrain, carnet de route complet. Slow travel en couple ou en famille.",
   alternates: { canonical: `${SITE}/travel-planning` },
@@ -20,7 +20,7 @@ export const travelPlanningMetadata: Metadata = {
 }
 
 export const blogListMetadata: Metadata = {
-  title: 'Carnets de voyage — Blog Heldonica',
+  title: 'Carnets de voyage | Heldonica',
   description:
     "Nos carnets de voyage slow travel : Madère, Portugal, Grèce et au-delà. Des récits authentiques écrits depuis le terrain, pas depuis un bureau.",
   alternates: { canonical: `${SITE}/blog` },
@@ -34,12 +34,12 @@ export const blogListMetadata: Metadata = {
 }
 
 export const aProposMetadata: Metadata = {
-  title: 'Qui sommes-nous — le duo Heldonica | Heldonica',
+  title: 'À propos | Heldonica',
   description:
     "Le duo Heldonica, couple franco-portugais passionné de slow travel. On a appris à voyager vrai — maintenant on met ça au service du vôtre.",
   alternates: { canonical: `${SITE}/a-propos` },
   openGraph: {
-    title: 'Qui sommes-nous | Heldonica',
+    title: 'À propos | Heldonica',
     description: 'Le duo Heldonica, slow travellers et travel planners. Notre histoire, notre méthode.',
     url: `${SITE}/a-propos`,
     siteName: 'Heldonica',
@@ -48,7 +48,7 @@ export const aProposMetadata: Metadata = {
 }
 
 export const contactMetadata: Metadata = {
-  title: 'Contact — Heldonica',
+  title: 'Contact | Heldonica',
   description: 'Une question, un projet de voyage ? Écrivez-nous. On répond sous 48h ouvrées.',
   alternates: { canonical: `${SITE}/contact` },
   openGraph: {
@@ -61,7 +61,7 @@ export const contactMetadata: Metadata = {
 }
 
 export const slowTravelMetadata: Metadata = {
-  title: 'Slow Travel — Notre philosophie | Heldonica',
+  title: 'Slow Travel | Heldonica',
   description:
     "Le slow travel vu par Heldonica : voyager lentement, s’immerger vraiment, rencontrer les gens — pas juste les monuments. Notre manifeste.",
   alternates: { canonical: `${SITE}/slow-travel` },
@@ -75,7 +75,7 @@ export const slowTravelMetadata: Metadata = {
 }
 
 export const destinationsMetadata: Metadata = {
-  title: 'Destinations — Heldonica',
+  title: 'Destinations | Heldonica',
   description:
     "Nos destinations coup de cœur : Madère, Portugal, Grèce, Colombie… Chaque lieu sélectionné pour son authenticité et ses pépites hors des sentiers battus.",
   alternates: { canonical: `${SITE}/destinations` },
@@ -89,7 +89,7 @@ export const destinationsMetadata: Metadata = {
 }
 
 export const temoignagesMetadata: Metadata = {
-  title: 'Témoignages — Heldonica',
+  title: 'Témoignages | Heldonica',
   description: "Ce que nos voyageurs disent de leur expérience Heldonica. Des voyages sur mesure qui marquent.",
   alternates: { canonical: `${SITE}/temoignages` },
   openGraph: {
@@ -102,7 +102,7 @@ export const temoignagesMetadata: Metadata = {
 }
 
 export const etudesDeCasMetadata: Metadata = {
-  title: 'Études de cas — Heldonica',
+  title: 'Études de cas | Heldonica',
   description: "Études de cas Heldonica : comment on a conçu des voyages sur mesure pour des clients avec des envies très différentes.",
   alternates: { canonical: `${SITE}/etudes-de-cas` },
   openGraph: {

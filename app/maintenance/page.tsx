@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 // Prevent indexing of maintenance page
 export const metadata: Metadata = {
-  title: 'En maintenance — Heldonica',
+  title: 'En maintenance |',
   robots: {
     index: false,
     follow: false,

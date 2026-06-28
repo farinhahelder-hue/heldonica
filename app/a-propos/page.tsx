@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 export const metadata: Metadata = {
-  title: 'À propos — Heldonica | Slow Travel en couple',
+  title: 'À propos | Heldonica',
   description:
     "Le duo derrière Heldonica. Notre histoire, notre philosophie du slow travel et pourquoi on conçoit des voyages sur mesure.",
   keywords: [
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     url: 'https://heldonica.fr/a-propos',
-    title: 'À propos — Heldonica | Slow Travel en couple',
+    title: 'À propos | Heldonica',
     description: "Le duo derrière Heldonica. Notre histoire et notre philosophie du slow travel.",
     images: [
       {
