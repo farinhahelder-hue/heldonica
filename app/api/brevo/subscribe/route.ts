@@ -102,14 +102,6 @@ export async function POST(request: NextRequest) {
         })
       }
 
-      // Track event GA4 si disponible
-      if (typeof window !== 'undefined' && window.gtag) {
-        window.gtag('event', 'newsletter_signup', {
-          source: source,
-          email_hash: hashEmail(email),
-        })
-      }
-
       return NextResponse.json(
         { success: true, message: 'Inscription réussie' },
         { status: 200 }

@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase-client'
 // Méthode: GET /api/send-email-sequences?key=SECRET_KEY
 // Fréquence recommandée: toutes les heures
 
-const CRON_SECRET = process.env.CRON_SECRET || 'dev-secret'
+const CRON_SECRET = process.env.CRON_SECRET
 
 const EMAIL_2 = {
   subject: 'Le slow travel, ça ressemble à quoi vraiment ? 🌿',
