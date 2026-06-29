@@ -4,33 +4,36 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
-
-type SiteSettings = Record<string, string>;
+import { useContentLoader, getCmsOrSetting } from '@/hooks/useContentLoader'
+import type { CmsZone } from '@/lib/content-loader'
 
 export default function Header() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const [settings, setSettings] = useState<SiteSettings>({})
   const pathname = usePathname()
   const { user, loading } = useAuth()
-
-  useEffect(() => {
-    fetch('/api/cms/settings', { cache: 'no-store' })
-      .then(r => r.json())
-      .then(data => {
-        if (data && typeof data === 'object') setSettings(data);
-      })
-      .catch(() => {});
-  }, []);
-
-  const s = (key: string, fallback = '') => settings[key] || fallback;
+  const { zones, settings } = useContentLoader()
 
   const accountHref = !loading && user ? '/dashboard' : '/auth/login'
   const accountLabel = !loading && user ? 'Mon espace' : 'Connexion'
-  const siteName = s('site_name', 'Heldonica')
-  const ctaLabel = s('primary_cta_label', 'Planifier mon voyage')
-  const ctaUrl = s('primary_cta_url', '/travel-planning')
-  const logoUrl = s('logo_url')
+  
+  // CMS 3.0: cascade cms_editable_zones > site_settings > hardcoded
+  const siteName = getCmsOrSetting(
+    'header_site_name', 'site_name', 'Heldonica',
+    zones as Record<string, CmsZone>, settings
+  )
+  const ctaLabel = getCmsOrSetting(
+    'header_cta_label', 'primary_cta_label', 'Planifier mon voyage',
+    zones as Record<string, CmsZone>, settings
+  )
+  const ctaUrl = getCmsOrSetting(
+    'header_cta_url', 'primary_cta_url', '/travel-planning',
+    zones as Record<string, CmsZone>, settings
+  )
+  const logoUrl = getCmsOrSetting(
+    'header_logo_url', 'logo_url', '',
+    zones as Record<string, CmsZone>, settings
+  )
 
   // Fermer le menu mobile au changement de route + détection scroll
   useEffect(() => {
