@@ -86,7 +86,7 @@ export default function AProposPage() {
           <div className="relative max-w-4xl mx-auto px-6 text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-light leading-tight mb-6">
               On n&apos;est pas des guides.<br />
-              <span className="text-amber-400 italic">On est des voyageurs.</span>
+              <span className="text-teal italic">On est des voyageurs.</span>
             </h1>
             <p className="text-stone-300 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto">
               Un duo qui a tout quitté pour voyager vrai.<br />
@@ -98,7 +98,7 @@ export default function AProposPage() {
         {/* ── NOTRE HISTOIRE ── */}
         <section className="py-20 md:py-28 bg-white">
           <div className="max-w-6xl mx-auto px-6 md:px-10">
-            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4">Notre histoire</p>
+            <p className="text-mahogany text-xs font-bold tracking-[0.2em] uppercase mb-4">Notre histoire</p>
             <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-8">D&apos;où on vient</h2>
             
             <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-start">
@@ -122,7 +122,7 @@ export default function AProposPage() {
               <div className="grid grid-cols-1 gap-4">
                 {STATS.map((stat, i) => (
                   <div key={i} className="bg-stone-50 rounded-2xl p-6 border border-stone-100 text-center">
-                    <p className="text-4xl md:text-5xl font-serif font-light text-amber-800 mb-1">{stat.valeur}</p>
+                    <p className="text-4xl md:text-5xl font-serif font-light text-mahogany mb-1">{stat.valeur}</p>
                     <p className="text-stone-500 text-sm">{stat.label}</p>
                   </div>
                 ))}
@@ -134,7 +134,7 @@ export default function AProposPage() {
         {/* ── NOTRE PHILOSOPHIE ── */}
         <section className="py-20 md:py-28 bg-stone-50">
           <div className="max-w-5xl mx-auto px-6 md:px-10">
-            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Notre philosophie</p>
+            <p className="text-mahogany text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Notre philosophie</p>
             <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12 text-center">
               Trois piliers qu&apos;on ne négocie pas
             </h2>
@@ -142,7 +142,7 @@ export default function AProposPage() {
             <div className="grid md:grid-cols-3 gap-6">
               {PILLIERS.map((p, i) => (
                 <div key={i} className="bg-white rounded-2xl p-8 shadow-sm border border-stone-100">
-                  <div className="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center mb-5">
+                  <div className="w-14 h-14 rounded-full bg-eucalyptus/10 flex items-center justify-center mb-5">
                     <span className="text-2xl">{p.emoji}</span>
                   </div>
                   <h3 className="text-xl font-serif font-light text-stone-900 mb-3">{p.titre}</h3>
@@ -156,7 +156,7 @@ export default function AProposPage() {
         {/* ── CE QU&apos;ON FAIT CONCRÈTEMENT ── */}
         <section className="py-20 md:py-28 bg-white">
           <div className="max-w-5xl mx-auto px-6 md:px-10">
-            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Ce qu&apos;on fait</p>
+            <p className="text-mahogany text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Ce qu&apos;on fait</p>
             <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12 text-center">
               Concrètement, on fait quoi ?
             </h2>
@@ -164,28 +164,28 @@ export default function AProposPage() {
             <div className="grid md:grid-cols-3 gap-8">
               {/* Blog & Carnets */}
               <div className="bg-stone-50 rounded-2xl p-8 border border-stone-100">
-                <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center mb-5">
+                <div className="w-12 h-12 rounded-full bg-eucalyptus/10 flex items-center justify-center mb-5">
                   <span className="text-2xl">📖</span>
                 </div>
                 <h3 className="text-xl font-serif font-light text-stone-900 mb-4">Blog & Carnets</h3>
                 <p className="text-stone-600 leading-relaxed mb-6">
                   On documente ce qu&apos;on vit vraiment. Pas des listes copiées d&apos;internet, des récits avec les erreurs, les surprises, le vrai — ce qu&apos;on te cache ailleurs.
                 </p>
-                <Link href="/blog" className="inline-flex items-center gap-2 text-amber-800 font-semibold hover:gap-3 transition-all">
+                <Link href="/blog" className="inline-flex items-center gap-2 text-mahogany font-semibold hover:gap-3 transition-all">
                   Lire les carnets →
                 </Link>
               </div>
 
               {/* Travel Planning */}
               <div className="bg-stone-900 text-white rounded-2xl p-8">
-                <div className="w-12 h-12 rounded-full bg-amber-800 flex items-center justify-center mb-5">
+                <div className="w-12 h-12 rounded-full bg-mahogany flex items-center justify-center mb-5">
                   <span className="text-2xl">🗺️</span>
                 </div>
                 <h3 className="text-xl font-serif font-light mb-4">Travel Planning</h3>
                 <p className="text-stone-300 leading-relaxed mb-6">
                   On conçoit ton voyage sur mesure. Un brief, un échange humain, un carnet de route pensé pour toi — avec les adresses qu&apos;on a vraiment testées.
                 </p>
-                <Link href="/travel-planning" className="inline-flex items-center gap-2 text-amber-400 font-semibold hover:gap-3 transition-all">
+                <Link href="/travel-planning" className="inline-flex items-center gap-2 text-teal font-semibold hover:gap-3 transition-all">
                   Concevoir mon voyage →
                 </Link>
               </div>
@@ -208,14 +208,14 @@ export default function AProposPage() {
         </section>
 
         {/* ── RÉASSURANCE FINALE ── */}
-        <section className="py-20 md:py-28 bg-amber-50">
+        <section className="py-20 md:py-28 bg-eucalyptus/5">
           <div className="max-w-3xl mx-auto px-6 text-center">
             <blockquote className="text-2xl md:text-3xl font-serif font-light text-stone-900 leading-relaxed mb-8">
               &ldquo;On ne te recommande que ce qu&apos;on serait prêts<br />à conseiller à nos proches.&rdquo;
             </blockquote>
             <p className="text-stone-500 text-sm">
               Des questions ? Écris-nous à{' '}
-              <a href="mailto:contact@heldonica.fr" className="text-amber-800 hover:underline font-medium">
+              <a href="mailto:contact@heldonica.fr" className="text-mahogany hover:underline font-medium">
                 contact@heldonica.fr
               </a>
             </p>

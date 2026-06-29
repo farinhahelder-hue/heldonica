@@ -219,7 +219,7 @@ export default async function BlogPostPage({ params }: Props) {
   const relatedResult = getRelatedArticles(post, allPosts, 3)
   const related = relatedResult ?? []
   const heroImage = post.featured_image ?? HERO_FALLBACK[post.category ?? ''] ?? DEFAULT_HERO
-  const fallbackBg = HERO_FALLBACK[post.category ?? ''] ?? 'bg-gradient-to-br from-stone-900 to-amber-900'
+  const fallbackBg = HERO_FALLBACK[post.category ?? ''] ?? 'bg-gradient-to-br from-stone-900 to-mahogany'
   const readTime = getReadingTime(post.content)
   const { articleLd, breadcrumbLd, travelLd } = buildJsonLds(post, readTime)
   const canonicalUrl = `${SITE_URL}/blog/${post.slug}`
@@ -268,7 +268,7 @@ export default async function BlogPostPage({ params }: Props) {
               </Link>
               <div className="mb-4 flex flex-wrap items-center gap-2">
                 {post.category && (
-                  <span className="rounded-full bg-amber-500 px-3 py-1 text-xs font-bold text-white">
+                  <span className="rounded-full bg-teal px-3 py-1 text-xs font-bold text-white">
                     {post.category}
                   </span>
                 )}
@@ -301,8 +301,8 @@ export default async function BlogPostPage({ params }: Props) {
 
         <div className="mx-auto max-w-3xl px-4 py-12 md:py-16">
           {post.excerpt && (
-            <div className="mb-10 rounded-[2rem] border border-amber-200 bg-amber-50 px-6 py-6 md:px-8">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-amber-800">Ouverture</p>
+            <div className="mb-10 rounded-[2rem] border border-eucalyptus/20 bg-eucalyptus/5 px-6 py-6 md:px-8">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-mahogany">Ouverture</p>
               <p className="text-xl font-light leading-relaxed text-stone-800">{post.excerpt}</p>
             </div>
           )}
@@ -315,10 +315,10 @@ export default async function BlogPostPage({ params }: Props) {
                 prose-h2:mt-12 prose-h2:mb-5 prose-h2:text-3xl
                 prose-h3:mt-8 prose-h3:mb-3 prose-h3:text-2xl
                 prose-p:mb-6 prose-p:text-stone-700 prose-p:leading-8
-                prose-a:text-amber-700 prose-a:no-underline hover:prose-a:underline
+                prose-a:text-mahogany prose-a:no-underline hover:prose-a:underline
                 prose-img:mx-auto prose-img:my-10 prose-img:rounded-[1.75rem] prose-img:shadow-lg
                 prose-strong:text-stone-900 prose-strong:font-semibold
-                prose-blockquote:rounded-r-2xl prose-blockquote:border-l-4 prose-blockquote:border-amber-400 prose-blockquote:bg-amber-50 prose-blockquote:px-6 prose-blockquote:py-4
+                prose-blockquote:rounded-r-2xl prose-blockquote:border-l-4 prose-blockquote:border-teal prose-blockquote:bg-eucalyptus/5 prose-blockquote:px-6 prose-blockquote:py-4
                 prose-ul:space-y-3 prose-li:text-stone-700
                 prose-hr:border-stone-200"
             />
@@ -363,7 +363,7 @@ export default async function BlogPostPage({ params }: Props) {
           <div className="mt-8 border-t border-stone-100 pt-6">
             <Link
               href="/blog"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-amber-700 transition-colors duration-200 hover:text-amber-800"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-mahogany transition-colors duration-200 hover:text-mahogany"
             >
               ← Retour aux carnets
             </Link>
@@ -373,7 +373,7 @@ export default async function BlogPostPage({ params }: Props) {
         {related.length > 0 && (
           <section className="bg-stone-50 py-16">
             <div className="mx-auto max-w-6xl px-4">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">Continuer</p>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-mahogany">Continuer</p>
               <h2 className="mb-3 text-3xl font-serif font-light text-stone-900">Dans la même veine</h2>
               <p className="mb-8 max-w-2xl text-sm leading-relaxed text-stone-600">
                 D&apos;autres récits qui avancent au même rythme : un moment précis, un lieu, un détail qui reste.
@@ -396,9 +396,9 @@ export default async function BlogPostPage({ params }: Props) {
                         </div>
                         <div className="p-5">
                           {relatedPost.category && (
-                            <span className="text-xs font-semibold text-amber-700">{relatedPost.category}</span>
+                            <span className="text-xs font-semibold text-mahogany">{relatedPost.category}</span>
                           )}
-                          <h3 className="mt-2 text-base font-semibold leading-snug text-stone-900 transition-colors duration-200 group-hover:text-amber-700">
+                          <h3 className="mt-2 text-base font-semibold leading-snug text-stone-900 transition-colors duration-200 group-hover:text-mahogany">
                             {relatedPost.title}
                           </h3>
                           <p className="mt-3 text-xs text-stone-400">{formatDate(relatedPost.published_at)}</p>

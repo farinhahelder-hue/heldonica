@@ -38,7 +38,7 @@ export default function MerciPage() {
               {/* Sous-titre */}
               <p className="text-stone-300 text-lg md:text-xl leading-relaxed mb-8">
                 On revient vers toi sous 48h — un vrai échange,<br />
-                <span className="text-amber-400">pas un devis automatique.</span>
+                <span className="text-teal">pas un devis automatique.</span>
               </p>
 
               {/* Icône confirmation */}
@@ -54,7 +54,7 @@ export default function MerciPage() {
         {/* ── CE QUI SE PASSE MAINTENANT ── */}
         <section className="py-16 md:py-20 bg-white">
           <div className="max-w-4xl mx-auto px-6">
-            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-2 text-center">Prochaine étape</p>
+            <p className="text-mahogany text-xs font-bold tracking-[0.2em] uppercase mb-2 text-center">Prochaine étape</p>
             <h2 className="text-2xl md:text-3xl font-serif font-light text-stone-900 mb-12 text-center">
               Ce qui se passe maintenant
             </h2>
@@ -65,7 +65,7 @@ export default function MerciPage() {
                 <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-stone-100 flex items-center justify-center">
                   <span className="text-2xl">📖</span>
                 </div>
-                <div className="text-xs font-bold text-amber-800 uppercase tracking-wider mb-2">01</div>
+                <div className="text-xs font-bold text-mahogany uppercase tracking-wider mb-2">01</div>
                 <h3 className="text-lg font-serif font-light text-stone-900 mb-2">On lit ton brief</h3>
                 <p className="text-stone-600 text-sm leading-relaxed">
                   On prend le temps de comprendre ce que tu veux vraiment. Pas de case à cocher.
@@ -77,7 +77,7 @@ export default function MerciPage() {
                 <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-stone-100 flex items-center justify-center">
                   <span className="text-2xl">✉️</span>
                 </div>
-                <div className="text-xs font-bold text-amber-800 uppercase tracking-wider mb-2">02</div>
+                <div className="text-xs font-bold text-mahogany uppercase tracking-wider mb-2">02</div>
                 <h3 className="text-lg font-serif font-light text-stone-900 mb-2">On te répond sous 48h</h3>
                 <p className="text-stone-600 text-sm leading-relaxed">
                   Par email, avec nos premières idées et questions si besoin pour affiner ton voyage.
@@ -89,7 +89,7 @@ export default function MerciPage() {
                 <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-stone-100 flex items-center justify-center">
                   <span className="text-2xl">🗺️</span>
                 </div>
-                <div className="text-xs font-bold text-amber-800 uppercase tracking-wider mb-2">03</div>
+                <div className="text-xs font-bold text-mahogany uppercase tracking-wider mb-2">03</div>
                 <h3 className="text-lg font-serif font-light text-stone-900 mb-2">On construit ensemble</h3>
                 <p className="text-stone-600 text-sm leading-relaxed">
                   Si le courant passe, on démarre la conception sur mesure pour ton voyage.
@@ -109,10 +109,10 @@ export default function MerciPage() {
               Des destinations qu&apos;on a vraiment vécues. Peut-être que ta prochaine pépite est là.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/blog" className="px-8 py-4 bg-amber-900 hover:bg-amber-800 text-white rounded font-semibold text-sm transition shadow-lg">
+              <Link href="/blog" className="px-8 py-4 bg-mahogany hover:bg-mahogany/90 text-white rounded font-semibold text-sm transition shadow-lg">
                 Voir les carnets de voyage →
               </Link>
-              <Link href="/destinations" className="px-8 py-4 border-2 border-stone-300 hover:border-amber-900 text-stone-700 hover:text-amber-900 rounded font-semibold text-sm transition">
+              <Link href="/destinations" className="px-8 py-4 border-2 border-stone-300 hover:border-mahogany text-stone-700 hover:text-mahogany rounded font-semibold text-sm transition">
                 Découvrir nos destinations →
               </Link>
             </div>

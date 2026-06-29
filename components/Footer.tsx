@@ -169,7 +169,7 @@ export default function Footer() {
             <Link href="/" className="inline-block mb-4">
               <span className="text-2xl font-serif font-bold text-white">{siteName}</span>
             </Link>
-            <p className="text-sm text-amber-200 mb-4">{tagline}</p>
+            <p className="text-sm text-teal/80 mb-4">{tagline}</p>
             {settings.site_description && (
               <p className="text-sm leading-relaxed text-stone-400 mb-6">
                 {settings.site_description}
