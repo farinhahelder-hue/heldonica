@@ -9,18 +9,22 @@ function getSupabase() {
 }
 
 export async function GET() {
-  const supabase = getSupabase();
-  if (!supabase) return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
-  const { data, error } = await supabase
-    .from('instagram_scheduled_posts')
-    .select('*')
-    .order('scheduled_at', { ascending: true });
+  try {
+    const supabase = getSupabase();
+    if (!supabase) return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
+    const { data, error } = await supabase
+      .from('instagram_scheduled_posts')
+      .select('*')
+      .order('scheduled_at', { ascending: true });
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ posts: data || [] });
+  } catch {
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  return NextResponse.json({ posts: data || [] });
 }
 
 export async function POST(request: NextRequest) {
@@ -86,23 +90,27 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const url = new URL(request.url);
-  const id = url.searchParams.get('id');
+  try {
+    const url = new URL(request.url);
+    const id = url.searchParams.get('id');
 
-  if (!id) {
-    return NextResponse.json({ error: 'id is required' }, { status: 400 });
+    if (!id) {
+      return NextResponse.json({ error: 'id is required' }, { status: 400 });
+    }
+
+    const supabase = getSupabase();
+    if (!supabase) return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
+    const { error } = await supabase
+      .from('instagram_scheduled_posts')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  const supabase = getSupabase();
-  if (!supabase) return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
-  const { error } = await supabase
-    .from('instagram_scheduled_posts')
-    .delete()
-    .eq('id', id);
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  return NextResponse.json({ success: true });
 }

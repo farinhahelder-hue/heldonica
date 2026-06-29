@@ -308,7 +308,7 @@ export default async function DestinationPage({ params }: Props) {
           <div className="container max-w-4xl">
             <h2 className="text-2xl font-serif text-mahogany mb-6">Ce qu&apos;on te recommande</h2>
             <ul className="space-y-4">
-              {content.tips.map((tip: string, i: number) => (
+              {(content.tips ?? []).map((tip: string, i: number) => (
                 <li key={i} className="flex items-start gap-3">
                   <span className="w-6 h-6 rounded-full bg-eucalyptus/20 text-eucalyptus flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
                     {i + 1}
