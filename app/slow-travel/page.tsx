@@ -43,9 +43,9 @@ export default function SlowTravelPage() {
       <Header />
       <Breadcrumb />
       <main>
-        <section className="bg-gradient-to-br from-stone-50 via-amber-50/40 to-white py-24 md:py-28">
+        <section className="bg-gradient-to-br from-stone-50 via-eucalyptus/10 to-white py-24 md:py-28">
           <div className="mx-auto max-w-4xl px-6 text-center md:px-10">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-amber-800">Slow travel</p>
+            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-mahogany">Slow travel</p>
             <h1 className="mb-6 text-4xl font-serif font-light leading-tight text-stone-900 md:text-6xl">
               Le slow travel n’est pas une esthétique.
               <br />
@@ -61,7 +61,7 @@ export default function SlowTravelPage() {
         <section className="bg-white py-16 md:py-20">
           <div className="mx-auto grid max-w-6xl gap-6 px-6 md:grid-cols-3 md:px-10">
             {principles.map((principle) => (
-              <div key={principle.title} className="rounded-[1.75rem] border border-stone-200 bg-stone-50 p-8">
+              <div key={principle.title} className="rounded-2xl border border-stone-200 bg-stone-50 p-8">
                 <h2 className="mb-4 text-2xl font-serif font-light leading-tight text-stone-900">
                   {principle.title}
                 </h2>
@@ -73,7 +73,7 @@ export default function SlowTravelPage() {
 
         <section className="bg-stone-950 py-20 text-white md:py-24">
           <div className="mx-auto max-w-3xl px-6 text-center md:px-10">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-amber-300">Notre point de vue</p>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-teal/80">Notre point de vue</p>
             <p className="text-2xl font-serif font-light leading-relaxed md:text-3xl">
               Voyager lentement, ce n’est pas se retirer du monde.
               <br />
@@ -91,13 +91,13 @@ export default function SlowTravelPage() {
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link
                 href="/blog"
-                className="rounded-full bg-amber-900 px-7 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-amber-800"
+                className="rounded-full bg-mahogany px-7 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-mahogany/90"
               >
                 Lire le carnet →
               </Link>
               <Link
                 href="/destinations"
-                className="text-sm font-semibold text-amber-800 transition-colors duration-200 hover:text-amber-700"
+                className="text-sm font-semibold text-mahogany transition-colors duration-200 hover:text-mahogany/90"
               >
                 Voir les destinations →
               </Link>

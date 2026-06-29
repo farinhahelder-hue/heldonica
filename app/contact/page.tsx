@@ -55,9 +55,9 @@ export default function Contact() {
       <Header />
       <Breadcrumb />
       <main>
-        <section className="bg-gradient-to-br from-stone-50 via-amber-50/40 to-white py-20 md:py-28">
+        <section className="bg-gradient-to-br from-stone-50 via-eucalyptus/10 to-white py-20 md:py-28">
           <div className="mx-auto max-w-4xl px-6 md:px-10">
-            <p className="mb-4 text-xs font-bold uppercase tracking-[0.24em] text-amber-800">
+            <p className="mb-4 text-xs font-bold uppercase tracking-[0.24em] text-mahogany">
               On lit tous les messages. On répond.
             </p>
             <h1 className="mb-6 text-4xl font-serif font-light leading-tight text-stone-900 md:text-5xl">
@@ -95,7 +95,7 @@ export default function Contact() {
                 </p>
                 <a
                   href="mailto:contact@heldonica.fr"
-                  className="text-lg font-semibold text-amber-800 transition-colors duration-200 hover:text-amber-700"
+                  className="text-lg font-semibold text-mahogany transition-colors duration-200 hover:text-mahogany/90"
                 >
                   contact@heldonica.fr
                 </a>
@@ -112,7 +112,7 @@ export default function Contact() {
                   href="https://www.instagram.com/heldonica/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-lg font-semibold text-amber-800 transition-colors duration-200 hover:text-amber-700"
+                  className="text-lg font-semibold text-mahogany transition-colors duration-200 hover:text-mahogany/90"
                 >
                   @heldonica
                 </a>
@@ -121,8 +121,8 @@ export default function Contact() {
                 </p>
               </div>
 
-              <div className="rounded-3xl border border-amber-200 bg-amber-50 p-6">
-                <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-amber-800">
+              <div className="rounded-3xl border border-eucalyptus/20 bg-eucalyptus/5 p-6">
+                <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-mahogany">
                   Ce qu&apos;on fait
                 </p>
                 <ul className="space-y-3 text-sm leading-relaxed text-stone-700">
