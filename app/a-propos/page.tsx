@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import Breadcrumb from '@/components/Breadcrumb'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -78,6 +79,7 @@ export default function AProposPage() {
   return (
     <>
       <Header />
+      <Breadcrumb />
       <main className="min-h-screen">
         
         {/* ── HERO ── */}

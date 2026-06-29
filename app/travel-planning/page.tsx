@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Script from 'next/script'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import Breadcrumb from '@/components/Breadcrumb'
 import NewsletterForm from '@/components/NewsletterForm'
 
 const SITE_URL = 'https://heldonica.fr'
@@ -134,6 +135,7 @@ export default function TravelPlanningPage() {
       }} />
 
       <Header />
+      <Breadcrumb />
       <main>
         {/* Hero */}
         <section className="relative min-h-[75vh] flex items-center overflow-hidden bg-stone-900">

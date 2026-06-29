@@ -4,6 +4,7 @@ import { useMemo, useState, useEffect } from 'react'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import Breadcrumb from '@/components/Breadcrumb'
 import DestinationCard from '@/components/DestinationCard'
 import type { DestinationCardProps } from '@/components/DestinationCard'
 import SlowTravelQuiz from '@/components/SlowTravelQuiz'
@@ -90,6 +91,7 @@ export default function DestinationsClient() {
   return (
     <>
       <Header />
+      <Breadcrumb />
       <main>
         <section className="bg-gradient-to-br from-[#f8f6f4] to-white py-16 md:py-24 px-4">
           <div className="max-w-5xl mx-auto">
