@@ -16,7 +16,7 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
 
-type AgentType = 'gemini' | 'claude' | 'perplexity' | 'openhands' | 'jules';
+type AgentType = 'gemini' | 'claude' | 'perplexity' | 'allhands' | 'jules';
 
 interface DispatchPayload {
   agent: AgentType;
@@ -63,8 +63,8 @@ const AGENT_CONFIG: Record<AgentType, {
     apiKeyEnvVar: 'PERPLEXITY_API_KEY',
     status: 'direct',
   },
-  openhands: {
-    label: 'openhands',
+  allhands: {
+    label: 'allhands',
     emoji: '🌿',
     description: 'OpenHands necessite un compte AllHands Cloud',
     requiresApiKey: false,
@@ -307,7 +307,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const validAgents: AgentType[] = ['gemini', 'claude', 'perplexity', 'openhands', 'jules'];
+    const validAgents: AgentType[] = ['gemini', 'claude', 'perplexity', 'allhands', 'jules'];
     if (!validAgents.includes(payload.agent)) {
       return NextResponse.json(
         { error: `Agent invalide. Valeurs acceptees: ${validAgents.join(', ')}` },
@@ -362,12 +362,12 @@ export async function POST(req: NextRequest) {
         result.usage = perplexityResult.usage;
         break;
 
-      case 'openhands':
+      case 'allhands':
         // OpenHands requires AllHands Cloud
         if (!GITHUB_TOKEN) {
           result.error = 'GITHUB_TOKEN non configure pour notifier OpenHands';
         } else {
-          const issue = await createGitHubIssue({ ...payload, label: 'openhands' });
+          const issue = await createGitHubIssue({ ...payload, label: 'allhands' });
           result.success = true;
           result.github = {
             issue_number: issue.number,
