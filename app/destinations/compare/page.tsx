@@ -6,7 +6,7 @@ import type { Metadata } from 'next'
 import { SITE_URL } from '@/lib/seo'
 import Script from 'next/script'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 60
 
 export const metadata: Metadata = {
   title: 'Comparer les destinations |',
