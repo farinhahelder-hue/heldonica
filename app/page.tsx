@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     title: 'Heldonica — Slow travel vécu en duo, conçu pour toi',
     description:
       'On ferme les ordis. On part. On revient avec des pépites qu\'on n\'avait pas cherchées.',
-    url: 'https://heldonica.fr',
+    url: 'https://www.heldonica.fr',
     siteName: 'Heldonica',
     images: [
       {

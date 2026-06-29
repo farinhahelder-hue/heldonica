@@ -158,8 +158,8 @@ export default async function BlogPage() {
             '@type': 'CollectionPage',
             name: 'Carnets de voyage | Heldonica',
             description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain.',
-            url: 'https://heldonica.fr/blog',
-            isPartOf: { '@type': 'WebSite', name: 'Heldonica', url: 'https://heldonica.fr' },
+      url: 'https://www.heldonica.fr/blog',
+            isPartOf: { '@type': 'WebSite', name: 'Heldonica', url: 'https://www.heldonica.fr' },
           }),
         }} />
         <Header />
@@ -190,8 +190,8 @@ export default async function BlogPage() {
           '@type': 'CollectionPage',
           name: 'Carnets de voyage | Heldonica',
           description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain.',
-          url: 'https://heldonica.fr/blog',
-          isPartOf: { '@type': 'WebSite', name: 'Heldonica', url: 'https://heldonica.fr' },
+          url: 'https://www.heldonica.fr/blog',
+          isPartOf: { '@type': 'WebSite', name: 'Heldonica', url: 'https://www.heldonica.fr' },
         }),
       }} />
       <Header />

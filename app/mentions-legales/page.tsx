@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description:
     "Informations légales de l’éditeur, de l’hébergeur et conditions d’utilisation du site Heldonica.",
   alternates: {
-    canonical: 'https://www.heldonica.fr/mentions-légales',
+    canonical: 'https://www.heldonica.fr/mentions-legales',
   },
 };
 
