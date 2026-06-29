@@ -1,5 +1,5 @@
-import { getSetting, getAllPosts, formatDate, BlogPost, getPageContent } from '@/lib/blog-supabase'
-import { getSiteSettings } from '@/lib/settings'
+import { getAllPosts, formatDate, BlogPost, getPageContent } from '@/lib/blog-supabase'
+import { getSiteSettings, getSettings } from '@/lib/settings'
 import HomeClient from '@/components/HomeClient'
 import type { Metadata } from 'next'
 
@@ -102,10 +102,6 @@ export default async function Home() {
   // Defensive: ensure we always have an array
   const allPosts = Array.isArray(allPostsResult) ? allPostsResult : []
   
-  // Get covered_countries as number with fallback
-  const rawCountries = await getSetting('covered_countries')
-  const coveredCountries = rawCountries ? parseInt(rawCountries, 10) : 7
-
   // Fetch hero media from CMS
   const homeContent = await getPageContent('home')
   const heroVideoUrl = homeContent['hero_video_url'] || null
@@ -124,18 +120,23 @@ export default async function Home() {
     ? { ...featuredPost, formattedDate: formatDate(featuredPost.published_at), readTime: (featuredPost.read_time && featuredPost.read_time > 0) ? featuredPost.read_time : calcReadTime(featuredPost.content) }
     : null
 
-  // Fetch Instagram / site settings for HomeClient
-  const [instagramUsername, instagramPostCount, instagramPosts, siteEmail] = await Promise.all([
-    getSetting('social_instagram'),
-    getSetting('instagram_post_count'),
-    getSetting('instagram_posts'),
-    getSetting('contact_email'),
-  ])
+  // ⚡ Bolt: Eliminate N+1 queries. Batch site settings fetch into a single Supabase call.
+  const fetchedSettings = await getSettings(
+    'covered_countries',
+    'social_instagram',
+    'instagram_post_count',
+    'instagram_posts',
+    'contact_email'
+  )
+
+  const rawCountries = fetchedSettings['covered_countries']
+  const coveredCountries = rawCountries ? parseInt(rawCountries, 10) : 7
+
   const siteSettings = {
-    instagramUsername: instagramUsername || undefined,
-    instagramPostCount: instagramPostCount ? Number(instagramPostCount) : undefined,
-    instagramPosts: instagramPosts || undefined,
-    site_email: siteEmail || 'contact@heldonica.fr',
+    instagramUsername: fetchedSettings['social_instagram'] || undefined,
+    instagramPostCount: fetchedSettings['instagram_post_count'] ? Number(fetchedSettings['instagram_post_count']) : undefined,
+    instagramPosts: fetchedSettings['instagram_posts'] || undefined,
+    site_email: fetchedSettings['contact_email'] || 'contact@heldonica.fr',
   }
 
   return (
