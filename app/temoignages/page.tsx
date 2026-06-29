@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import Breadcrumb from '@/components/Breadcrumb';
 
 const testimonials = [
   {
@@ -47,6 +48,7 @@ export default function TemoignagesPage() {
   return (
     <>
       <Header />
+      <Breadcrumb />
       <main>
         <section className="bg-gradient-to-br from-cloud-dancer to-white py-20 md:py-28">
           <div className="container">

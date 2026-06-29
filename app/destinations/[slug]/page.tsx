@@ -8,6 +8,7 @@ import EnhancedRichContent from '@/components/EnhancedRichContent'
 import { sanitizeHtml } from '@/lib/sanitize-html'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import Breadcrumb from '@/components/Breadcrumb'
 import ComingSoonDestination from '@/components/ComingSoonDestination'
 import GuideDownloadButton from '@/components/GuideDownloadButton'
 import type { Metadata } from 'next'
@@ -292,6 +293,7 @@ export default async function DestinationPage({ params }: Props) {
   return (
     <>
       <Header />
+      <Breadcrumb />
       <main className="min-h-screen bg-[#f7f5f1]">
         <div className="relative h-[56vh] w-full overflow-hidden bg-stone-900 md:h-[70vh]">
           {heroImage && (
