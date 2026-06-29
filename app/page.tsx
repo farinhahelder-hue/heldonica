@@ -1,4 +1,4 @@
-import { getSetting, getAllPosts, formatDate, BlogPost, getPageContent } from '@/lib/blog-supabase'
+import { getAllPosts, formatDate, BlogPost, getPageContent } from '@/lib/blog-supabase'
 import { getSiteSettings } from '@/lib/settings'
 import HomeClient from '@/components/HomeClient'
 import type { Metadata } from 'next'
@@ -98,16 +98,23 @@ const schemaOrganization = {
 };
 
 export default async function Home() {
-  const allPostsResult = await getAllPosts()
+  // ⚡ Bolt Optimization: Batched independent data fetching
+  // Refactored multiple sequential `await` blocks and `getSetting` calls into a single `Promise.all`
+  // that uses `getSiteSettings()` to reduce DB roundtrips from 7 to 3, significantly improving TTFB.
+  const [allPostsResult, allSettings, homeContent] = await Promise.all([
+    getAllPosts(),
+    getSiteSettings(),
+    getPageContent('home')
+  ])
+
   // Defensive: ensure we always have an array
   const allPosts = Array.isArray(allPostsResult) ? allPostsResult : []
   
   // Get covered_countries as number with fallback
-  const rawCountries = await getSetting('covered_countries')
+  const rawCountries = allSettings['covered_countries']
   const coveredCountries = rawCountries ? parseInt(rawCountries, 10) : 7
 
   // Fetch hero media from CMS
-  const homeContent = await getPageContent('home')
   const heroVideoUrl = homeContent['hero_video_url'] || null
   const heroPosterImage = homeContent['hero_poster_image'] || null
 
@@ -124,18 +131,12 @@ export default async function Home() {
     ? { ...featuredPost, formattedDate: formatDate(featuredPost.published_at), readTime: (featuredPost.read_time && featuredPost.read_time > 0) ? featuredPost.read_time : calcReadTime(featuredPost.content) }
     : null
 
-  // Fetch Instagram / site settings for HomeClient
-  const [instagramUsername, instagramPostCount, instagramPosts, siteEmail] = await Promise.all([
-    getSetting('social_instagram'),
-    getSetting('instagram_post_count'),
-    getSetting('instagram_posts'),
-    getSetting('contact_email'),
-  ])
+  // Extract Instagram / site settings for HomeClient
   const siteSettings = {
-    instagramUsername: instagramUsername || undefined,
-    instagramPostCount: instagramPostCount ? Number(instagramPostCount) : undefined,
-    instagramPosts: instagramPosts || undefined,
-    site_email: siteEmail || 'contact@heldonica.fr',
+    instagramUsername: allSettings['social_instagram'] || undefined,
+    instagramPostCount: allSettings['instagram_post_count'] ? Number(allSettings['instagram_post_count']) : undefined,
+    instagramPosts: allSettings['instagram_posts'] || undefined,
+    site_email: allSettings['contact_email'] || 'contact@heldonica.fr',
   }
 
   return (
