@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     title: 'Voyage sur mesure |',
     description:
       'Adresses testées, rythme juste et vraie séquence de terrain pour couples, solos, familles ou amis.',
-    url: 'https://heldonica.fr/travel-planning',
+    url: 'https://www.heldonica.fr/travel-planning',
     siteName: 'Heldonica',
     images: [
       {

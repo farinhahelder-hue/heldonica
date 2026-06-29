@@ -20,12 +20,12 @@ export const metadata: Metadata = {
     canonical: 'https://www.heldonica.fr/a-propos',
   },
   openGraph: {
-    url: 'https://heldonica.fr/a-propos',
+    url: 'https://www.heldonica.fr/a-propos',
     title: 'À propos | Heldonica',
     description: "Le duo derrière Heldonica. Notre histoire et notre philosophie du slow travel.",
     images: [
       {
-        url: 'https://heldonica.fr/og-default.jpg',
+        url: 'https://www.heldonica.fr/og-default.jpg',
         width: 1200,
         height: 630,
         alt: 'Heldonica — Slow travel en couple',
@@ -42,7 +42,7 @@ const schemaPerson = {
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "Heldonica",
-  "url": "https://heldonica.fr/a-propos",
+  "url": "https://www.heldonica.fr/a-propos",
   "description": "Duo franco-portugais spécialiste slow travel entre Paris, Madère et Roumanie",
   "sameAs": [
     "https://www.instagram.com/heldonica",
