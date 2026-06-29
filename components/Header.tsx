@@ -67,6 +67,7 @@ export default function Header() {
     { href: '/blog', label: 'Blog' },
     { href: '/travel-planning', label: 'Services' },
     { href: '/expert-hotelier', label: 'Consulting hôtelier' },
+    { href: '/contact', label: 'Contact' },
     { href: '/a-propos', label: 'À propos' },
   ]
 

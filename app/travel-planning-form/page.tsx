@@ -51,10 +51,10 @@ function RadioCard({ name, value, current, onChange, emoji, label }: RadioCardPr
   const selected = current === value
   return (
     <label
-      className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+      className={`flex items-center gap-3 p-4 rounded-full border-2 cursor-pointer transition-all ${
         selected
           ? 'border-mahogany bg-mahogany/5 text-mahogany font-semibold'
-          : 'border-gray-200 hover:border-mahogany/40 text-gray-700'
+          : 'border-charcoal/10 hover:border-mahogany/40 text-charcoal/70'
       }`}
     >
       <input
@@ -149,19 +149,19 @@ export default function TravelPlanningForm() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-stone-50 to-white py-12 px-4">
+    <div className="min-h-screen bg-cloud-dancer py-12 px-4">
       <div className="max-w-2xl mx-auto">
 
         {/* Header */}
         <div className="text-center mb-10">
           <h1 className="text-4xl font-serif font-light text-mahogany mb-4">
             Dis-nous où tu veux aller.<br />
-            <em className="text-amber-800">On s&apos;occupe du reste.</em>
+            <em className="text-mahogany">On s&apos;occupe du reste.</em>
           </h1>
-          <p className="text-base text-gray-600 mb-2">
+          <p className="text-base text-charcoal/60 mb-2">
             Pas d&apos;itinéraire copié-collé. Un voyage conçu sur mesure, à partir de ce que tu vis vraiment.
           </p>
-          <p className="text-gray-400 text-sm">2 min · Sans engagement · Réponse sous 48h</p>
+          <p className="text-charcoal/40 text-sm">2 min · Sans engagement · Réponse sous 48h</p>
         </div>
 
         {/* Barre de progression */}
@@ -170,9 +170,9 @@ export default function TravelPlanningForm() {
             <span className="text-sm font-semibold text-mahogany">
               Étape {step} / 3 — {STEPS[step - 1]}
             </span>
-            <span className="text-sm text-gray-500">{Math.round(progress)}%</span>
+            <span className="text-sm text-charcoal/50">{Math.round(progress)}%</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-charcoal/10 rounded-full h-2">
             <div
               className="bg-mahogany h-2 rounded-full transition-all duration-500"
               style={{ width: `${progress}%` }}
@@ -201,7 +201,7 @@ export default function TravelPlanningForm() {
               </h2>
 
               <div>
-                <p className="text-sm font-semibold text-gray-700 mb-3">
+                <p className="text-sm font-semibold text-charcoal/70 mb-3">
                   C&apos;est quel type d&apos;escapade ?
                 </p>
                 <div className="grid grid-cols-2 gap-3">
@@ -227,7 +227,7 @@ export default function TravelPlanningForm() {
               </div>
 
               <div>
-                <p className="text-sm font-semibold text-gray-700 mb-3">
+                <p className="text-sm font-semibold text-charcoal/70 mb-3">
                   Quelle est la vibe recherchée ?
                 </p>
                 <div className="space-y-2">
@@ -252,7 +252,7 @@ export default function TravelPlanningForm() {
               </div>
 
               <div>
-                <p className="text-sm font-semibold text-gray-700 mb-3">
+                <p className="text-sm font-semibold text-charcoal/70 mb-3">
                   Tu as déjà une destination en tête ?
                 </p>
                 <div className="space-y-2">
@@ -282,7 +282,7 @@ export default function TravelPlanningForm() {
                     }
                     value={form.destinationDetail}
                     onChange={(e) => set('destinationDetail', e.target.value)}
-                    className="mt-3 w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-mahogany transition"
+                    className="mt-3 w-full border border-charcoal/10 rounded-full px-4 py-3 text-charcoal/70 focus:outline-none focus:border-mahogany transition"
                   />
                 )}
               </div>
@@ -297,7 +297,7 @@ export default function TravelPlanningForm() {
               </h2>
 
               <div>
-                <p className="text-sm font-semibold text-gray-700 mb-3">
+                <p className="text-sm font-semibold text-charcoal/70 mb-3">
                   Quelle durée envisages-tu ?
                 </p>
                 <div className="grid grid-cols-2 gap-3">
@@ -322,7 +322,7 @@ export default function TravelPlanningForm() {
               </div>
 
               <div>
-                <p className="text-sm font-semibold text-gray-700 mb-3">
+                <p className="text-sm font-semibold text-charcoal/70 mb-3">
                   Quel est votre budget global pour le voyage ?
                 </p>
                 <div className="space-y-2">
@@ -347,16 +347,16 @@ export default function TravelPlanningForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-charcoal/70 mb-2">
                   Date de départ envisagée (optionnel)
                 </label>
                 <input
                   type="month"
                   value={form.departureDate}
                   onChange={(e) => set('departureDate', e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:border-mahogany transition"
+                  className="w-full border border-charcoal/10 rounded-full px-4 py-3 text-charcoal/70 focus:outline-none focus:border-mahogany transition"
                 />
-                <p className="text-xs text-gray-400 mt-1">Laisse vide si les dates sont flexibles</p>
+                <p className="text-xs text-charcoal/40 mt-1">Laisse vide si les dates sont flexibles</p>
               </div>
             </div>
           )}
@@ -369,7 +369,7 @@ export default function TravelPlanningForm() {
               </h2>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-charcoal/70 mb-2">
                   Ton prénom <span className="text-mahogany">*</span>
                 </label>
                 <input
@@ -378,12 +378,12 @@ export default function TravelPlanningForm() {
                   placeholder="Ex : Sophie"
                   value={form.firstName}
                   onChange={(e) => set('firstName', e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-mahogany transition"
+                  className="w-full border border-charcoal/10 rounded-full px-4 py-3 focus:outline-none focus:border-mahogany transition"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-charcoal/70 mb-2">
                   Ton email <span className="text-mahogany">*</span>
                 </label>
                 <input
@@ -392,12 +392,12 @@ export default function TravelPlanningForm() {
                   placeholder="sophie@exemple.fr"
                   value={form.email}
                   onChange={(e) => set('email', e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-mahogany transition"
+                  className="w-full border border-charcoal/10 rounded-full px-4 py-3 focus:outline-none focus:border-mahogany transition"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-charcoal/70 mb-2">
                   Ton numéro (optionnel)
                 </label>
                 <input
@@ -405,12 +405,12 @@ export default function TravelPlanningForm() {
                   placeholder="+33 6 …"
                   value={form.phone}
                   onChange={(e) => set('phone', e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-mahogany transition"
+                  className="w-full border border-charcoal/10 rounded-full px-4 py-3 focus:outline-none focus:border-mahogany transition"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-charcoal/70 mb-2">
                   Un mot sur ton voyage de rêve ? (optionnel)
                 </label>
                 <textarea
@@ -418,11 +418,11 @@ export default function TravelPlanningForm() {
                   placeholder="Ce qui te fait rêver, des contraintes particulières, des envies précises… Tout est utile !"
                   value={form.message}
                   onChange={(e) => set('message', e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-mahogany transition resize-none"
+                  className="w-full border border-charcoal/10 rounded-full px-4 py-3 focus:outline-none focus:border-mahogany transition resize-none"
                 />
               </div>
 
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-charcoal/40">
                 * Champs obligatoires. Tes données ne sont jamais revendues et ne servent qu&apos;à concevoir ton itinéraire.
               </p>
             </div>
@@ -430,7 +430,7 @@ export default function TravelPlanningForm() {
 
           {/* Erreur */}
           {error && (
-            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-full text-red-700 text-sm">
               {error}
             </div>
           )}
@@ -441,7 +441,7 @@ export default function TravelPlanningForm() {
               <button
                 type="button"
                 onClick={() => setStep(step - 1)}
-                className="px-5 py-3 rounded-xl font-medium border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
+                className="px-5 py-3 rounded-full font-medium border border-charcoal/10 text-charcoal/60 hover:bg-cloud-dancer transition"
               >
                 ← Retour
               </button>
@@ -451,7 +451,7 @@ export default function TravelPlanningForm() {
                 type="button"
                 onClick={() => setStep(step + 1)}
                 disabled={!canGoNext()}
-                className="flex-1 py-3 rounded-xl font-medium transition bg-mahogany text-white hover:bg-red-900 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="flex-1 py-3 rounded-full font-medium transition bg-mahogany text-white hover:bg-mahogany/90 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Suivant →
               </button>
@@ -459,7 +459,7 @@ export default function TravelPlanningForm() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 py-3 rounded-xl font-medium transition bg-mahogany text-white hover:bg-red-900 disabled:opacity-60"
+                className="flex-1 py-3 rounded-full font-medium transition bg-mahogany text-white hover:bg-mahogany/90 disabled:opacity-60"
               >
                 {loading ? 'Envoi en cours…' : 'Envoyer ma demande 🌍'}
               </button>
