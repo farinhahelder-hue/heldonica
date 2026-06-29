@@ -1,68 +1,81 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
-
-type SiteSettings = Record<string, string>;
+import { useContentLoader, getCmsOrSetting } from '@/hooks/useContentLoader'
+import type { CmsZone } from '@/lib/content-loader'
 
 export default function Footer() {
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [settings, setSettings] = useState<SiteSettings>({})
+  const { zones, settings } = useContentLoader()
   const currentYear = new Date().getFullYear()
 
-  useEffect(() => {
-    fetch('/api/cms/settings', { cache: 'no-store' })
-      .then(r => r.json())
-      .then(data => {
-        if (data && typeof data === 'object') setSettings(data);
-      })
-      .catch(() => {});
-  }, []);
+  // CMS 3.0: cascade cms_editable_zones > site_settings > hardcoded
+  const siteName = getCmsOrSetting(
+    'header_site_name', 'site_name', 'Heldonica',
+    zones as Record<string, CmsZone>, settings
+  )
+  const footerTagline = getCmsOrSetting(
+    'footer_tagline', 'site_tagline', 'Slow travel vecu, conce pour toi.',
+    zones as Record<string, CmsZone>, settings
+  )
+  const footerNewsletterCta = getCmsOrSetting(
+    'footer_newsletter_cta', 'footer_newsletter_cta', 'Recois nos pepites directement dans ta boite mail',
+    zones as Record<string, CmsZone>, settings
+  )
+  const footerEmailPlaceholder = getCmsOrSetting(
+    'footer_email_placeholder', 'footer_email_placeholder', 'ton@email.fr',
+    zones as Record<string, CmsZone>, settings
+  )
+  const footerCtaLabel = getCmsOrSetting(
+    'footer_cta_label', 'footer_cta_label', 'Ecrire a Heldonica',
+    zones as Record<string, CmsZone>, settings
+  )
+  const footerCtaUrl = getCmsOrSetting(
+    'footer_cta_url', 'footer_cta_url', 'mailto:contact@heldonica.fr',
+    zones as Record<string, CmsZone>, settings
+  )
 
-  const s = (key: string, fallback = '') => settings[key] || fallback;
-
-  const siteName = s('site_name', 'Heldonica');
-  const tagline = s('site_tagline', 'Slow travel vécu, conçu juste.');
-  const footerText = s('footer_text', `© ${currentYear} Heldonica. Tous droits réservés.`);
-  const footerCopyright = s('footer_copyright', `© ${currentYear} Heldonica`);
-  const footerTagline = s('footer_tagline', 'Slow travel vécu, conçu juste.');
-  const contactEmail = s('contact_email', 'contact@heldonica.fr');
-  const socialIg = s('social_instagram', 'https://www.instagram.com/heldonica/');
-  const socialYt = s('social_youtube', 'https://www.youtube.com/@heldonica');
-  const socialPin = s('social_pinterest', 'https://fr.pinterest.com/heldonica');
-  const socialFb = s('social_facebook');
-  const socialTk = s('social_tiktok');
-  const socialLi = s('social_linkedin');
+  // Legacy settings (pas dans zones CMS 3.0)
+  const tagline = settings.site_tagline || 'Slow travel vecu, conce pour toi.'
+  const footerText = settings.footer_text || `© ${currentYear} Heldonica. Tous droits reserves.`
+  const contactEmail = settings.contact_email || 'contact@heldonica.fr'
+  const socialIg = settings.social_instagram || 'https://www.instagram.com/heldonica/'
+  const socialYt = settings.social_youtube || 'https://www.youtube.com/@heldonica'
+  const socialPin = settings.social_pinterest || 'https://fr.pinterest.com/heldonica'
+  const socialFb = settings.social_facebook
+  const socialTk = settings.social_tiktok
+  const socialLi = settings.social_linkedin
 
   const navLinks = [
     { href: '/', label: 'Accueil' },
     { href: '/destinations', label: 'Destinations' },
     { href: '/blog', label: 'Blog' },
     { href: '/travel-planning', label: 'Services' },
-    { href: '/expert-hotelier', label: 'Consulting hôtelier' },
-    { href: '/a-propos', label: 'À propos' },
+    { href: '/expert-hotelier', label: 'Consulting hotelier' },
+    { href: '/a-propos', label: 'A propos' },
     { href: '/contact', label: 'Contact' },
   ]
 
   const destinationsLinks = [
-    { href: '/destinations/madere', label: 'Madère' },
+    { href: '/destinations/madere', label: 'Madere' },
     { href: '/destinations/roumanie', label: 'Roumanie' },
-    { href: '/destinations/montenegro', label: 'Monténégro' },
-    { href: '/destinations/grece', label: 'Grèce' },
+    { href: '/destinations/montenegro', label: 'Montenegro' },
+    { href: '/destinations/grece', label: 'Grece' },
     { href: '/destinations/colombie', label: 'Colombie' },
   ]
 
   const guidesLinks = [
-    { href: '/guides/top-10-pepites-madere', label: 'Guide Madère' },
+    { href: '/guides/top-10-pepites-madere', label: 'Guide Madere' },
     { href: '/blog?categorie=Guides Pratiques', label: 'Guides pratiques' },
     { href: '/blog?categorie=Carnets Voyage', label: 'Carnets de voyage' },
   ]
 
   const legalLinks = [
-    { href: '/mentions-legales', label: 'Mentions légales' },
-    { href: '/politique-confidentialite', label: 'Politique de confidentialité' },
+    { href: '/mentions-legales', label: 'Mentions legales' },
+    { href: '/politique-confidentialite', label: 'Politique de confidentialite' },
     { href: '/politique-affiliation', label: 'Programme partenaires' },
   ]
 
@@ -93,7 +106,7 @@ export default function Footer() {
         console.error('Erreur inscription:', await res.json())
       }
     } catch (err) {
-      console.error('Erreur réseau:', err)
+      console.error('Erreur reseau:', err)
     } finally {
       setLoading(false)
     }
@@ -107,10 +120,10 @@ export default function Footer() {
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
               <h3 className="text-2xl md:text-3xl font-serif font-bold text-white mb-3">
-                Reçois les pépites avant les autres
+                Recois les pepites avant les autres
               </h3>
               <p className="text-stone-400 leading-relaxed">
-                Chaque semaine : un lieu qu&apos;on a aimé, un conseil qu&apos;on aurait aimé avoir avant, et parfois un avant-goût de ce qu&apos;on prépare.
+                Chaque semaine : un lieu qu&apos;on a aime, un conseil qu&apos;on aurait aime avoir avant, et parfois un avant-gout de ce qu&apos;on prepare.
                 Pas de spam, jamais.
               </p>
             </div>
@@ -119,8 +132,8 @@ export default function Footer() {
                 <div className="flex items-center gap-3 bg-eucalyptus/10 border border-eucalyptus/30 rounded-2xl px-6 py-4">
                   <span className="text-2xl">✨</span>
                   <div>
-                    <p className="text-white font-semibold">C&apos;est noté !</p>
-                    <p className="text-stone-400 text-sm">Tu recevras ta première pépite très bientôt.</p>
+                    <p className="text-white font-semibold">C&apos;est note !</p>
+                    <p className="text-stone-400 text-sm">Tu recevras ta premiere pepite tres vite.</p>
                   </div>
                 </div>
               ) : (
@@ -129,7 +142,7 @@ export default function Footer() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="ton@email.com"
+                    placeholder={footerEmailPlaceholder || 'ton@email.com'}
                     required
                     disabled={loading}
                     className="flex-1 px-5 py-3.5 bg-stone-900 border border-stone-700 rounded-xl text-white placeholder-stone-500 focus:outline-none focus:border-eucalyptus transition-colors disabled:opacity-50"
@@ -139,7 +152,7 @@ export default function Footer() {
                     disabled={loading}
                     className="px-6 py-3.5 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {loading ? 'Envoi...' : "Je m’inscris"}
+                    {loading ? 'Envoi...' : "Je m'inscris"}
                   </button>
                 </form>
               )}
@@ -162,7 +175,7 @@ export default function Footer() {
                 {settings.site_description}
               </p>
             )}
-            {/* Réseaux sociaux */}
+            {/* Reseaux sociaux */}
             {socialLinks.length > 0 && (
               <div className="flex items-center gap-4">
                 {socialLinks.map((social) => (
@@ -210,7 +223,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Colonne 4 - Guides & Légal */}
+          {/* Colonne 4 - Guides & Legal */}
           <div>
             <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-5">Guides gratuits</h4>
             <ul className="space-y-3 text-sm mb-8" role="list">
@@ -222,7 +235,7 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
-            <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-5">Légal</h4>
+            <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-5">Legal</h4>
             <ul className="space-y-3 text-sm" role="list">
               {legalLinks.map((link) => (
                 <li key={link.href}>
