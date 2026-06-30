@@ -1,4 +1,4 @@
-import { getSetting, getAllPosts, formatDate, BlogPost, getPageContent } from '@/lib/blog-supabase'
+import { getAllPosts, formatDate, BlogPost, getPageContent } from '@/lib/blog-supabase'
 import { getSiteSettings } from '@/lib/settings'
 import HomeClient from '@/components/HomeClient'
 import type { Metadata } from 'next'
@@ -98,16 +98,20 @@ const schemaOrganization = {
 };
 
 export default async function Home() {
-  const allPostsResult = await getAllPosts()
+  const [allPostsResult, homeContent, siteSettingsData] = await Promise.all([
+    getAllPosts(),
+    getPageContent('home'),
+    getSiteSettings()
+  ])
+
   // Defensive: ensure we always have an array
   const allPosts = Array.isArray(allPostsResult) ? allPostsResult : []
   
   // Get covered_countries as number with fallback
-  const rawCountries = await getSetting('covered_countries')
+  const rawCountries = siteSettingsData['covered_countries']
   const coveredCountries = rawCountries ? parseInt(rawCountries, 10) : 7
 
   // Fetch hero media from CMS
-  const homeContent = await getPageContent('home')
   const heroVideoUrl = homeContent['hero_video_url'] || null
   const heroPosterImage = homeContent['hero_poster_image'] || null
 
@@ -125,12 +129,11 @@ export default async function Home() {
     : null
 
   // Fetch Instagram / site settings for HomeClient
-  const [instagramUsername, instagramPostCount, instagramPosts, siteEmail] = await Promise.all([
-    getSetting('social_instagram'),
-    getSetting('instagram_post_count'),
-    getSetting('instagram_posts'),
-    getSetting('contact_email'),
-  ])
+  const instagramUsername = siteSettingsData['social_instagram']
+  const instagramPostCount = siteSettingsData['instagram_post_count']
+  const instagramPosts = siteSettingsData['instagram_posts']
+  const siteEmail = siteSettingsData['contact_email']
+
   const siteSettings = {
     instagramUsername: instagramUsername || undefined,
     instagramPostCount: instagramPostCount ? Number(instagramPostCount) : undefined,
