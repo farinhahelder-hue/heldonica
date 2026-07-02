@@ -76,6 +76,11 @@ function getSessionSecret() {
   return secret ? secret : process.env.CMS_PASSWORD?.trim() ?? null;
 }
 
+function getSubtle(): SubtleCrypto | null {
+  const c = globalThis.crypto;
+  return c?.subtle ?? null;
+}
+
 function base64UrlDecode(value: string) {
   const padding = (4 - (value.length % 4)) % 4;
   const normalized = `${value}${'='.repeat(padding)}`
@@ -112,12 +117,15 @@ async function verifySessionToken(token: string, secret: string) {
     return false;
   }
 
+  const subtle = getSubtle();
+  if (!subtle) return false;
+
   const signatureBytes = hexToBytes(signature);
   if (!signatureBytes) {
     return false;
   }
 
-  const key = await crypto.subtle.importKey(
+  const key = await subtle.importKey(
     'raw',
     new TextEncoder().encode(secret),
     { name: 'HMAC', hash: 'SHA-256' },
@@ -125,7 +133,7 @@ async function verifySessionToken(token: string, secret: string) {
     ['verify']
   );
 
-  const isValidSignature = await crypto.subtle.verify(
+  const isValidSignature = await subtle.verify(
     'HMAC',
     key,
     signatureBytes,

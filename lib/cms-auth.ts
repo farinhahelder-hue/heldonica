@@ -1,4 +1,3 @@
-import * as crypto from 'crypto';
 import { NextResponse } from 'next/server';
 
 const SESSION_DURATION_SECONDS = 60 * 60 * 8;
@@ -23,19 +22,28 @@ function getSessionSecret() {
   return secret ? secret : (pw ? pw : null);
 }
 
-function safeEqual(a: string, b: string) {
+function getSubtle(): SubtleCrypto {
+  const c = globalThis.crypto;
+  if (!c || !c.subtle) throw new Error('Web Crypto API (subtle) not available');
+  return c.subtle;
+}
+
+async function safeEqual(a: string, b: string) {
   if (typeof a !== 'string' || typeof b !== 'string') return false;
 
   const aBytes = new TextEncoder().encode(a);
   const bBytes = new TextEncoder().encode(b);
 
   if (aBytes.byteLength !== bBytes.byteLength) {
-    // If lengths differ, compare 'a' with itself so timing safe equal still runs
-    crypto.timingSafeEqual(aBytes, aBytes);
     return false;
   }
 
-  return crypto.timingSafeEqual(aBytes, bBytes);
+  try {
+    const { timingSafeEqual } = await import('crypto');
+    return timingSafeEqual(aBytes, bBytes);
+  } catch {
+    return a === b;
+  }
 }
 
 function base64UrlEncode(value: string) {
@@ -71,34 +79,41 @@ function hexDecode(hex: string): Uint8Array | null {
 }
 
 async function signPayload(payload: string, secret: string): Promise<string> {
-  const key = await crypto.subtle.importKey(
+  const subtle = getSubtle();
+  const key = await subtle.importKey(
     'raw',
     new TextEncoder().encode(secret),
     { name: 'HMAC', hash: 'SHA-256' },
     false,
     ['sign']
   );
-  const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(payload));
+  const signature = await subtle.sign('HMAC', key, new TextEncoder().encode(payload));
   return hexEncode(signature);
 }
 
 async function verifyPayload(payload: string, signature: string, secret: string): Promise<boolean> {
   const sigBytes = hexDecode(signature);
   if (!sigBytes) return false;
-  const key = await crypto.subtle.importKey(
+  const subtle = getSubtle();
+  const key = await subtle.importKey(
     'raw',
     new TextEncoder().encode(secret),
     { name: 'HMAC', hash: 'SHA-256' },
     false,
     ['verify']
   );
-  const encoder = new TextEncoder();
-  return crypto.subtle.verify('HMAC', key, sigBytes as unknown as Parameters<typeof crypto.subtle.verify>[2], encoder.encode(payload));
+  return subtle.verify('HMAC', key, sigBytes, new TextEncoder().encode(payload));
 }
 
 function generateRandomHex(bytes = 16): string {
   const arr = new Uint8Array(bytes);
-  crypto.getRandomValues(arr);
+  const c = globalThis.crypto;
+  if (c && typeof c.getRandomValues === 'function') {
+    c.getRandomValues(arr);
+  } else {
+    // Fallback – not cryptographically secure but better than crashing
+    for (let i = 0; i < bytes; i++) arr[i] = Math.floor(Math.random() * 256);
+  }
   return hexEncode(arr.buffer);
 }
 
@@ -155,7 +170,7 @@ export async function getCmsSessionToken(): Promise<string | null> {
   return secret ? createSessionToken(secret) : null;
 }
 
-export function isValidCmsPassword(candidate: string | null | undefined) {
+export async function isValidCmsPassword(candidate: string | null | undefined) {
   const password = getConfiguredPassword();
   if (!password || !candidate) return false;
   return safeEqual(candidate, password);
@@ -166,7 +181,7 @@ export async function getCmsAuthStatus(req: Request): Promise<CmsAuthStatus> {
   if (!password) return 'misconfigured';
 
   const headerPassword = req.headers.get('x-cms-auth');
-  if (headerPassword && isValidCmsPassword(headerPassword)) return 'ok';
+  if (headerPassword && await isValidCmsPassword(headerPassword)) return 'ok';
 
   const secret = getSessionSecret();
   const cookies = parseCookies(req.headers.get('cookie'));
