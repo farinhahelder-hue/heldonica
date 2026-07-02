@@ -4,6 +4,8 @@ import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
 import Link from 'next/link'
 import Image from 'next/image'
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import EditableZone from '@/components/inline-edit/EditableZone'
 
 export const metadata: Metadata = {
   title: 'À propos | Heldonica',
@@ -77,55 +79,65 @@ const STATS = [
 
 export default function AProposPage() {
   return (
-    <>
+    <InlineEditProvider page="a-propos">
       <Header />
       <Breadcrumb />
       <main className="min-h-screen">
         
         {/* ── HERO ── */}
         <section className="relative bg-stone-950 text-white py-24 md:py-32 overflow-hidden">
-          <div className="absolute inset-0 opacity-15" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1400&q=70)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+          <EditableZone page="a-propos" zone="hero_image_url" type="image" fallback="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1400&q=70"
+            className="absolute inset-0 opacity-15 w-full h-full object-cover"
+          />
           <div className="relative max-w-4xl mx-auto px-6 text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-light leading-tight mb-6">
-              On n&apos;est pas des guides.<br />
-              <span className="text-teal italic">On est des voyageurs.</span>
+              <EditableZone page="a-propos" zone="hero_title_1" fallback="On n'est pas des guides." className="inline" />
+              <br />
+              <span className="text-teal italic">
+                <EditableZone page="a-propos" zone="hero_title_2" fallback="On est des voyageurs." className="inline" />
+              </span>
             </h1>
-            <p className="text-stone-300 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto">
-              Un duo qui a tout quitté pour voyager vrai.<br />
-              Et qui t&apos;aide à en faire autant.
-            </p>
+            <EditableZone page="a-propos" zone="hero_text" type="textarea" fallback="Un duo qui a tout quitté pour voyager vrai. Et qui t'aide à en faire autant."
+              className="text-stone-300 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto block"
+            />
           </div>
         </section>
 
         {/* ── NOTRE HISTOIRE ── */}
         <section className="py-20 md:py-28 bg-white">
           <div className="max-w-6xl mx-auto px-6 md:px-10">
-            <p className="text-mahogany text-xs font-bold tracking-[0.2em] uppercase mb-4">Notre histoire</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-8">D&apos;où on vient</h2>
+            <EditableZone page="a-propos" zone="section_story_badge" fallback="Notre histoire"
+              className="text-mahogany text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
+            />
+            <EditableZone page="a-propos" zone="section_story_title" fallback="D'où on vient"
+              className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-8 block"
+            />
             
             <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-start">
-              {/* Texte narratif */}
               <div className="space-y-5">
-                <p className="text-stone-600 leading-relaxed">
-                  Lui est né à Madère, entre l&apos;Atlantique et des falaises que les cartes n&apos;ont pas encore toutes nommées. Elle a grandi entre la Normandie et Paris, avec le voyage dans le sang depuis toujours.
-                </p>
-                <p className="text-stone-600 leading-relaxed">
-                  On s&apos;est rencontrés à Paris. Et très vite, on a compris qu&apos;on avait la même façon de voir un voyage : pas comme une checklist de lieux à cocher, mais comme une expérience à vivre pleinement.
-                </p>
-                <p className="text-stone-600 leading-relaxed">
-                  En 2019, on a décidé de faire autrement. De ralentir. De prendre le temps de comprendre les endroits où on allait, plutôt que de les traverser. De garder les yeux ouverts quand les autres fermaient leur guide.
-                </p>
-                <p className="text-stone-600 leading-relaxed">
-                  Aujourd&apos;hui, on documente ce qu&apos;on vit — parce qu&apos;on croit que les meilleures infos sont celles qu&apos;on trouve sur le terrain, pas dans les blogs sponsorisés. Et quand t&apos;es prêt, on conçoit ton voyage sur mesure.
-                </p>
+                <EditableZone page="a-propos" zone="bio_text_1" type="textarea" fallback="Lui est né à Madère, entre l'Atlantique et des falaises que les cartes n'ont pas encore toutes nommées. Elle a grandi entre la Normandie et Paris, avec le voyage dans le sang depuis toujours."
+                  className="text-stone-600 leading-relaxed block"
+                />
+                <EditableZone page="a-propos" zone="bio_text_2" type="textarea" fallback="On s'est rencontrés à Paris. Et très vite, on a compris qu'on avait la même façon de voir un voyage : pas comme une checklist de lieux à cocher, mais comme une expérience à vivre pleinement."
+                  className="text-stone-600 leading-relaxed block"
+                />
+                <EditableZone page="a-propos" zone="bio_text_3" type="textarea" fallback="En 2019, on a décidé de faire autrement. De ralentir. De prendre le temps de comprendre les endroits où on allait, plutôt que de les traverser."
+                  className="text-stone-600 leading-relaxed block"
+                />
+                <EditableZone page="a-propos" zone="bio_text_4" type="textarea" fallback="Aujourd'hui, on documente ce qu'on vit — parce qu'on croit que les meilleures infos sont celles qu'on trouve sur le terrain, pas dans les blogs sponsorisés."
+                  className="text-stone-600 leading-relaxed block"
+                />
               </div>
 
-              {/* Stats cards */}
               <div className="grid grid-cols-1 gap-4">
                 {STATS.map((stat, i) => (
                   <div key={i} className="bg-stone-50 rounded-2xl p-6 border border-stone-100 text-center">
-                    <p className="text-4xl md:text-5xl font-serif font-light text-mahogany mb-1">{stat.valeur}</p>
-                    <p className="text-stone-500 text-sm">{stat.label}</p>
+                    <EditableZone page="a-propos" zone={`stat_${i + 1}_value`} fallback={stat.valeur}
+                      className="text-4xl md:text-5xl font-serif font-light text-mahogany mb-1 block"
+                    />
+                    <EditableZone page="a-propos" zone={`stat_${i + 1}_label`} fallback={stat.label}
+                      className="text-stone-500 text-sm block"
+                    />
                   </div>
                 ))}
               </div>
@@ -136,10 +148,12 @@ export default function AProposPage() {
         {/* ── NOTRE PHILOSOPHIE ── */}
         <section className="py-20 md:py-28 bg-stone-50">
           <div className="max-w-5xl mx-auto px-6 md:px-10">
-            <p className="text-mahogany text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Notre philosophie</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12 text-center">
-              Trois piliers qu&apos;on ne négocie pas
-            </h2>
+            <EditableZone page="a-propos" zone="section_philo_badge" fallback="Notre philosophie"
+              className="text-mahogany text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center block"
+            />
+            <EditableZone page="a-propos" zone="section_philo_title" fallback="Trois piliers qu'on ne négocie pas"
+              className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12 text-center block"
+            />
             
             <div className="grid md:grid-cols-3 gap-6">
               {PILLIERS.map((p, i) => (
@@ -147,62 +161,71 @@ export default function AProposPage() {
                   <div className="w-14 h-14 rounded-full bg-eucalyptus/10 flex items-center justify-center mb-5">
                     <span className="text-2xl">{p.emoji}</span>
                   </div>
-                  <h3 className="text-xl font-serif font-light text-stone-900 mb-3">{p.titre}</h3>
-                  <p className="text-stone-600 text-sm leading-relaxed">{p.description}</p>
+                  <EditableZone page="a-propos" zone={`pillar_${i + 1}_title`} fallback={p.titre}
+                    className="text-xl font-serif font-light text-stone-900 mb-3 block"
+                  />
+                  <EditableZone page="a-propos" zone={`pillar_${i + 1}_text`} type="textarea" fallback={p.description}
+                    className="text-stone-600 text-sm leading-relaxed block"
+                  />
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ── CE QU&apos;ON FAIT CONCRÈTEMENT ── */}
+        {/* ── CE QU'ON FAIT CONCRÈTEMENT ── */}
         <section className="py-20 md:py-28 bg-white">
           <div className="max-w-5xl mx-auto px-6 md:px-10">
-            <p className="text-mahogany text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Ce qu&apos;on fait</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12 text-center">
-              Concrètement, on fait quoi ?
-            </h2>
+            <EditableZone page="a-propos" zone="section_services_badge" fallback="Ce qu'on fait"
+              className="text-mahogany text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center block"
+            />
+            <EditableZone page="a-propos" zone="section_services_title" fallback="Concrètement, on fait quoi ?"
+              className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12 text-center block"
+            />
             
             <div className="grid md:grid-cols-3 gap-8">
-              {/* Blog & Carnets */}
               <div className="bg-stone-50 rounded-2xl p-8 border border-stone-100">
                 <div className="w-12 h-12 rounded-full bg-eucalyptus/10 flex items-center justify-center mb-5">
                   <span className="text-2xl">📖</span>
                 </div>
-                <h3 className="text-xl font-serif font-light text-stone-900 mb-4">Blog & Carnets</h3>
-                <p className="text-stone-600 leading-relaxed mb-6">
-                  On documente ce qu&apos;on vit vraiment. Pas des listes copiées d&apos;internet, des récits avec les erreurs, les surprises, le vrai — ce qu&apos;on te cache ailleurs.
-                </p>
+                <EditableZone page="a-propos" zone="service_1_title" fallback="Blog & Carnets"
+                  className="text-xl font-serif font-light text-stone-900 mb-4 block"
+                />
+                <EditableZone page="a-propos" zone="service_1_text" type="textarea" fallback="On documente ce qu'on vit vraiment. Pas des listes copiées d'internet, des récits avec les erreurs, les surprises, le vrai — ce qu'on te cache ailleurs."
+                  className="text-stone-600 leading-relaxed mb-6 block"
+                />
                 <Link href="/blog" className="inline-flex items-center gap-2 text-mahogany font-semibold hover:gap-3 transition-all">
-                  Lire les carnets →
+                  <EditableZone page="a-propos" zone="service_1_cta" fallback="Lire les carnets →" />
                 </Link>
               </div>
 
-              {/* Travel Planning */}
               <div className="bg-stone-900 text-white rounded-2xl p-8">
                 <div className="w-12 h-12 rounded-full bg-mahogany flex items-center justify-center mb-5">
                   <span className="text-2xl">🗺️</span>
                 </div>
-                <h3 className="text-xl font-serif font-light mb-4">Travel Planning</h3>
-                <p className="text-stone-300 leading-relaxed mb-6">
-                  On conçoit ton voyage sur mesure. Un brief, un échange humain, un carnet de route pensé pour toi — avec les adresses qu&apos;on a vraiment testées.
-                </p>
+                <EditableZone page="a-propos" zone="service_2_title" fallback="Travel Planning"
+                  className="text-xl font-serif font-light mb-4 block"
+                />
+                <EditableZone page="a-propos" zone="service_2_text" type="textarea" fallback="On conçoit ton voyage sur mesure. Un brief, un échange humain, un carnet de route pensé pour toi — avec les adresses qu'on a vraiment testées."
+                  className="text-stone-300 leading-relaxed mb-6 block"
+                />
                 <Link href="/travel-planning" className="inline-flex items-center gap-2 text-teal font-semibold hover:gap-3 transition-all">
-                  Concevoir mon voyage →
+                  <EditableZone page="a-propos" zone="service_2_cta" fallback="Concevoir mon voyage →" />
                 </Link>
               </div>
 
-              {/* Consulting Hôtelier */}
               <div className="bg-eucalyptus/10 rounded-2xl p-8 border border-eucalyptus/20">
                 <div className="w-12 h-12 rounded-full bg-eucalyptus/20 flex items-center justify-center mb-5">
                   <span className="text-2xl">🏨</span>
                 </div>
-                <h3 className="text-xl font-serif font-light text-stone-900 mb-4">Consulting Hôtelier</h3>
-                <p className="text-stone-600 leading-relaxed mb-6">
-                  On accompagne les hôteliers indépendants qui veulent réduire leur dépendance aux OTA. Contenu, stratégie digitale, positionnement — avec le regard du voyageur.
-                </p>
+                <EditableZone page="a-propos" zone="service_3_title" fallback="Consulting Hôtelier"
+                  className="text-xl font-serif font-light text-stone-900 mb-4 block"
+                />
+                <EditableZone page="a-propos" zone="service_3_text" type="textarea" fallback="On accompagne les hôteliers indépendants qui veulent réduire leur dépendance aux OTA. Contenu, stratégie digitale, positionnement — avec le regard du voyageur."
+                  className="text-stone-600 leading-relaxed mb-6 block"
+                />
                 <Link href="/expert-hotelier" className="inline-flex items-center gap-2 text-eucalyptus font-semibold hover:gap-3 transition-all">
-                  Voir l&apos;offre B2B →
+                  <EditableZone page="a-propos" zone="service_3_cta" fallback="Voir l'offre B2B →" />
                 </Link>
               </div>
             </div>
@@ -213,7 +236,7 @@ export default function AProposPage() {
         <section className="py-20 md:py-28 bg-eucalyptus/5">
           <div className="max-w-3xl mx-auto px-6 text-center">
             <blockquote className="text-2xl md:text-3xl font-serif font-light text-stone-900 leading-relaxed mb-8">
-              &ldquo;On ne te recommande que ce qu&apos;on serait prêts<br />à conseiller à nos proches.&rdquo;
+              &ldquo;<EditableZone page="a-propos" zone="quote_text" type="textarea" fallback="On ne te recommande que ce qu'on serait prêts à conseiller à nos proches." className="inline" />&rdquo;
             </blockquote>
             <p className="text-stone-500 text-sm">
               Des questions ? Écris-nous à{' '}
@@ -227,6 +250,6 @@ export default function AProposPage() {
       </main>
       <Footer />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaPerson) }} />
-    </>
+    </InlineEditProvider>
   )
 }

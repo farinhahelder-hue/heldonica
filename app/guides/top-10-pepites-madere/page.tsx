@@ -4,11 +4,13 @@ import Footer from '@/components/Footer'
 import Link from 'next/link'
 import NewsletterPopup from '@/components/NewsletterPopup'
 import GuideDownloadForm from '@/components/GuideDownloadForm'
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import EditableZone from '@/components/inline-edit/EditableZone'
 
 export const metadata: Metadata = {
   title: 'Guide Top 10 Pépites Madère | Heldonica',
   description:
-    "Télécharge notre guide des 10 meilleures adresses testées à Madère. Restaurants, sentiers, spots photo — tout ce qu’on a aimé et qu’on te recommande.",
+    "Télécharge notre guide des 10 meilleures adresses testées à Madère. Restaurants, sentiers, spots photo — tout ce qu'on a aimé et qu'on te recommande.",
   keywords: [
     'guide Madère',
     'pépites Madère',
@@ -99,7 +101,7 @@ const PEEPITES = [
     title: 'Wine Bar do Funchal',
     type: 'Bar à vin',
     description: 'Sélection de vins de Madère (les vrais, les doux) avec des amuse-bouches qui vont avec.',
-    secret: 'Le propriétaire fait des dégustations私ées pour ceux qui demandent gentiment.',
+    secret: 'Le propriétaire fait des dégustations privées pour ceux qui demandent gentiment.',
   },
   {
     rank: 10,
@@ -112,54 +114,56 @@ const PEEPITES = [
 
 export default function Top10PepitesMaderePage() {
   return (
-    <>
+    <InlineEditProvider page="top-10-pepites-madere">
       <Header />
       <main className="min-h-screen bg-cloud-dancer">
-        {/* Hero */}
         <section className="relative bg-stone-950 text-white py-20 md:py-28 overflow-hidden">
           <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1551632811-561732d1e306?w=1400&q=70)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
           <div className="relative max-w-4xl mx-auto px-6 text-center">
             <span className="inline-block px-4 py-1.5 bg-amber-500/20 text-amber-400 text-xs font-semibold rounded-full uppercase tracking-wider mb-6">
-              Guide gratuit
+              <EditableZone page="top-10-pepites-madere" zone="hero_badge" fallback="Guide gratuit" />
             </span>
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-serif font-bold leading-tight mb-6">
-              Top 10 Pépites<br />
-              <span className="text-amber-400">à Madère</span>
+              <EditableZone page="top-10-pepites-madere" zone="hero_title_line1" fallback="Top 10 Pépites" className="inline" />
+              <br />
+              <span className="text-amber-400">
+                <EditableZone page="top-10-pepites-madere" zone="hero_title_line2" fallback="à Madère" className="inline" />
+              </span>
             </h1>
-            <p className="text-stone-300 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-8">
-              Ce qu&apos;on a testé, aimé, et qu&apos;on te recommande sans hésiter. Restaurants, sentiers, vues, spots photo — tout ce qu&apos;on aurait aimé savoir avant d&apos;y aller.
-            </p>
-            
-            {/* CTA principal */}
+            <EditableZone page="top-10-pepites-madere" zone="hero_text" type="textarea"
+              fallback="Ce qu'on a testé, aimé, et qu'on te recommande sans hésiter. Restaurants, sentiers, vues, spots photo — tout ce qu'on aurait aimé savoir avant d'y aller."
+              className="text-stone-300 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-8 block"
+            />
+
             <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-white/10 max-w-md mx-auto">
-              <p className="text-amber-400 font-semibold mb-3">📥 Télécharge gratuitement</p>
+              <EditableZone page="top-10-pepites-madere" zone="hero_download_label" fallback="📥 Télécharge gratuitement"
+                className="text-amber-400 font-semibold mb-3 block"
+              />
               <GuideDownloadForm variant="hero" />
             </div>
           </div>
         </section>
 
-        {/* Introduction */}
         <section className="py-16 md:py-20 bg-white">
           <div className="max-w-3xl mx-auto px-6">
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-stone-900 mb-6 text-center">
-              On a passé 3 semaines à Madère.<br />Voici ce qu&apos;on en a retiré.
+              <EditableZone page="top-10-pepites-madere" zone="intro_title" fallback="On a passé 3 semaines à Madère.\nVoici ce qu'on en a retiré."
+                className="inline"
+              />
             </h2>
-            <p className="text-stone-600 leading-relaxed text-lg">
-              Madère, c&apos;est l&apos;inverse du tourisme de masse. C&apos;est des routes qui serpentent dans des forêts luxuriantes, des villages où le temps s&apos;est arrêté, des restaurants où le propriétaire te raconte l&apos;histoire de chaque plat.
-            </p>
-            <p className="text-stone-600 leading-relaxed mt-4">
-              On a testé,맛 пробовали, on s&apos;est perdus, on a trouvé des trucs incroyables. Et maintenant, on te les partage. Gratuitement.
-            </p>
+            <EditableZone page="top-10-pepites-madere" zone="intro_text" type="textarea"
+              fallback="Madère, c'est l'inverse du tourisme de masse. C'est des routes qui serpentent dans des forêts luxuriantes, des villages où le temps s'est arrêté, des restaurants où le propriétaire te raconte l'histoire de chaque plat.\n\nOn a testé, on s'est perdus, on a trouvé des trucs incroyables. Et maintenant, on te les partage. Gratuitement."
+              className="text-stone-600 leading-relaxed text-lg block"
+            />
           </div>
         </section>
 
-        {/* Liste des pépites */}
         <section className="py-16 md:py-20">
           <div className="max-w-4xl mx-auto px-6">
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-stone-900 mb-10 text-center">
-              Les 10 pépites 👇
+              <EditableZone page="top-10-pepites-madere" zone="list_title" fallback="Les 10 pépites 👇" />
             </h2>
-            
+
             <div className="space-y-6">
               {PEEPITES.map((pep) => (
                 <div
@@ -190,27 +194,25 @@ export default function Top10PepitesMaderePage() {
           </div>
         </section>
 
-        {/* CTA final pour le guide */}
         <section className="py-16 md:py-20 bg-stone-950 text-white">
           <div className="max-w-2xl mx-auto px-6 text-center">
-            <h2 className="text-2xl md:text-3xl font-serif font-bold mb-4">
-              Tu pars à Madère&nbsp;?
-            </h2>
-            <p className="text-stone-400 leading-relaxed mb-8">
-              Le guide complet avec toutes les adresses, les maps, et les tips pour éviter les pièges à éviter. Gratuit.
-            </p>
+            <EditableZone page="top-10-pepites-madere" zone="cta_title" fallback="Tu pars à Madère ?"
+              className="text-2xl md:text-3xl font-serif font-bold mb-4 block"
+            />
+            <EditableZone page="top-10-pepites-madere" zone="cta_text" fallback="Le guide complet avec toutes les adresses, les maps, et les tips pour éviter les pièges à éviter. Gratuit."
+              className="text-stone-400 leading-relaxed mb-8 block"
+            />
             <GuideDownloadForm variant="inline" />
-            <p className="text-stone-500 text-sm mt-4">
-              10 pages, PDF, sans engagement.
-            </p>
+            <EditableZone page="top-10-pepites-madere" zone="cta_footnote" fallback="10 pages, PDF, sans engagement."
+              className="text-stone-500 text-sm mt-4 block"
+            />
           </div>
         </section>
 
-        {/* Related content */}
         <section className="py-16 md:py-20 bg-white">
           <div className="max-w-4xl mx-auto px-6">
             <h2 className="text-2xl font-serif font-bold text-stone-900 mb-8 text-center">
-              Continue à explorer
+              <EditableZone page="top-10-pepites-madere" zone="related_title" fallback="Continue à explorer" />
             </h2>
             <div className="grid md:grid-cols-2 gap-6">
               <Link
@@ -219,9 +221,11 @@ export default function Top10PepitesMaderePage() {
               >
                 <span className="text-2xl mb-4 block">🌍</span>
                 <h3 className="text-lg font-semibold text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">
-                  Guide complet Madère
+                  <EditableZone page="top-10-pepites-madere" zone="related_1_title" fallback="Guide complet Madère" />
                 </h3>
-                <p className="text-sm text-stone-500">Tout ce qu&apos;il faut savoir pour préparer ton voyage.</p>
+                <EditableZone page="top-10-pepites-madere" zone="related_1_desc" fallback="Tout ce qu'il faut savoir pour préparer ton voyage."
+                  className="text-sm text-stone-500 block"
+                />
               </Link>
               <Link
                 href="/blog"
@@ -229,9 +233,11 @@ export default function Top10PepitesMaderePage() {
               >
                 <span className="text-2xl mb-4 block">📖</span>
                 <h3 className="text-lg font-semibold text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">
-                  Carnets de voyage
+                  <EditableZone page="top-10-pepites-madere" zone="related_2_title" fallback="Carnets de voyage" />
                 </h3>
-                <p className="text-sm text-stone-500">Nos récits depuis le terrain, destinations réelles.</p>
+                <EditableZone page="top-10-pepites-madere" zone="related_2_desc" fallback="Nos récits depuis le terrain, destinations réelles."
+                  className="text-sm text-stone-500 block"
+                />
               </Link>
             </div>
           </div>
@@ -239,6 +245,6 @@ export default function Top10PepitesMaderePage() {
       </main>
       <Footer />
       <NewsletterPopup />
-    </>
+    </InlineEditProvider>
   )
 }

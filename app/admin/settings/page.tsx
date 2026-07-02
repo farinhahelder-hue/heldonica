@@ -53,7 +53,7 @@ export default async function AdminSettingsPage() {
       id: 'contact',
       label: '📞 Contact & Réseaux',
       fields: [
-        { key: 'contact_email', label: 'Email contact principal', type: 'email', placeholder: 'info@heldonica.fr' },
+        { key: 'contact_email', label: 'Email contact principal', type: 'email', placeholder: 'contact@heldonica.fr' },
         { key: 'footer_contact_email', label: 'Email affiché dans le footer', type: 'email' },
         { key: 'instagram_url', label: 'URL Instagram', type: 'url', placeholder: 'https://www.instagram.com/heldonica' },
         { key: 'instagram_handle', label: 'Handle Instagram', type: 'text', placeholder: '@heldonica' },

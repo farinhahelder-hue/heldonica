@@ -145,7 +145,7 @@ const schemaOrganization = {
   '@type': ['Organization', 'TravelAgency'],
   name: 'Heldonica',
   url: SITE_URL,
-  logo: `${SITE_URL}/logo.png`,
+  logo: `${SITE_URL}/images/badges-heldonica.svg`,
   description: 'Travel planning sur mesure écoresponsable et blog slow travel. Pépites dénichées, destinations authentiques, itinéraires hors des sentiers battus.',
   areaServed: [
     { '@type': 'Country', name: 'France' },

@@ -107,7 +107,7 @@ export const HELDONICA_BRAND: BrandConfig = {
     body: "'Inter', -apple-system, sans-serif",
   },
   keywords: ['slow travel', 'éco-luxe', 'couple', 'hors sentiers battus', 'authenticité', 'voyage responsable'],
-  logoUrl: '/logo.png',
+  logoUrl: '/images/badges-heldonica.svg',
   logoPosition: 'bottom-left',
   defaultHashtags: '#slowtravel #heldonica #pepite',
   faceless: true,

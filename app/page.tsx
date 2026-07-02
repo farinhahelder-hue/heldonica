@@ -1,6 +1,7 @@
 import { getSetting, getAllPosts, formatDate, BlogPost, getPageContent } from '@/lib/blog-supabase'
 import { getSiteSettings } from '@/lib/settings'
 import HomeClient from '@/components/HomeClient'
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import type { Metadata } from 'next'
 
 export const revalidate = 60
@@ -85,7 +86,7 @@ const schemaOrganization = {
   "@type": "Organization",
   "name": "Heldonica",
   "url": "https://www.heldonica.fr",
-  "logo": "https://www.heldonica.fr/logo.png",
+  "logo": "https://www.heldonica.fr/images/badges-heldonica.svg",
   "sameAs": [
     "https://www.instagram.com/heldonica",
     "https://www.linkedin.com/company/heldonicatravel"
@@ -139,7 +140,7 @@ export default async function Home() {
   }
 
   return (
-    <>
+    <InlineEditProvider page="home">
       <HomeClient
         featured={featured}
         travelPosts={travelPosts}
@@ -156,6 +157,6 @@ export default async function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaSpeakable) }}
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrganization) }} />
-    </>
+    </InlineEditProvider>
   )
 }
