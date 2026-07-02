@@ -6,6 +6,8 @@ import {
   isValidCmsPassword,
 } from '@/lib/cms-auth'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(req: Request) {
   const { password } = await req.json()
 
@@ -16,7 +18,7 @@ export async function POST(req: Request) {
     )
   }
 
-  if (!isValidCmsPassword(password)) {
+  if (!await isValidCmsPassword(password)) {
     return clearCmsSessionResponse(401, { error: 'Mot de passe incorrect' })
   }
 
