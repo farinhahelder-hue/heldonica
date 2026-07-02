@@ -23,7 +23,7 @@ import dynamic from 'next/dynamic'
 const ArticleMap = dynamic(() => import('@/components/ArticleMap'), { ssr: false })
 
 const SITE_URL = 'https://www.heldonica.fr'
-const DEFAULT_OG = `${SITE_URL}/og-default-heldonica.jpg`
+const DEFAULT_OG = `${SITE_URL}/og-default.jpg`
 
 interface Props {
   params: { slug: string }

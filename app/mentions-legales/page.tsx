@@ -95,9 +95,9 @@ export default function MentionslégalesPage() {
 
             <LegalSection title="Propriété intellectuelle">
               <p>
-                L’ensemble des contenus presents sur heldonica.fr (textes, visuels, videos,
-                elements graphiques, structure et code) est protege par le droit de la propriete
-                intellectuelle.
+L’ensemble des contenus présents sur heldonica.fr (textes, visuels, vidéos,
+                 éléments graphiques, structure et code) est protégé par le droit de la propriété
+                 intellectuelle.
               </p>
               <p>
                 Toute reproduction, diffusion, adaptation ou exploitation, totale ou partielle,
@@ -108,25 +108,25 @@ export default function MentionslégalesPage() {
               </p>
             </LegalSection>
 
-            <LegalSection title="Limitation de responsabilite">
+            <LegalSection title="Limitation de responsabilité">
               <p>
-                Heldonica s’efforce de fournir des informations fiables et a jour, sans garantie
-                d’exhaustivité ou d’absence d’erreur.
+Heldonica s’efforce de fournir des informations fiables et à jour, sans garantie
+                 d’exhaustivité ou d’absence d’erreur.
               </p>
               <p>
-                Heldonica ne pourra etre tenue responsable des dommages directs ou indirects lies a
-                l’utilisation du site, a l’indisponibilité temporaire du service ou a l’usage
-                d’informations externes referencees.
+Heldonica ne pourra être tenue responsable des dommages directs ou indirects liés à
+                 l’utilisation du site, à l’indisponibilité temporaire du service ou à l’usage
+                 d’informations externes référencées.
               </p>
               <p>
-                Les liens sortants sont fournis a titre informatif et n’emportent pas validation de
-                leur contenu.
+Les liens sortants sont fournis à titre informatif et n’emportent pas validation de
+                 leur contenu.
               </p>
             </LegalSection>
 
             <LegalSection title="Contact légal">
               <p>
-                Pour toute demande légale ou RGPD, vous pouvez nous écrire a{' '}
+                Pour toute demande légale ou RGPD, vous pouvez nous écrire à{' '}
                 <a
                   href="mailto:contact@heldonica.fr"
                   className="text-eucalyptus hover:text-teal transition"

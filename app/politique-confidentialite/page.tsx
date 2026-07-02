@@ -65,29 +65,29 @@ export default function politiqueconfidentialitePage() {
               </ul>
             </PrivacySection>
 
-            <PrivacySection title="Finalites du traitement">
-              <p>Les données sont traitees pour :</p>
+            <PrivacySection title="Finalités du traitement">
+              <p>Les données sont traitées pour :</p>
               <ul className="list-disc list-inside space-y-2">
-                <li>Repondre a vos demandes de contact et de travel planning.</li>
-                <li>Executer une prestation (accompagnement voyage, suivi client).</li>
+                <li>Répondre à vos demandes de contact et de travel planning.</li>
+                <li>Exécuter une prestation (accompagnement voyage, suivi client).</li>
                 <li>Envoyer des contenus newsletter si vous y avez consenti.</li>
-                <li>Mesurer l’audience et ameliorer le site apres consentement cookies.</li>
-                <li>Respecter les obligations legales et comptables applicables.</li>
+                <li>Mesurer l’audience et améliorer le site après consentement cookies.</li>
+                <li>Respecter les obligations légales et comptables applicables.</li>
               </ul>
             </PrivacySection>
 
-            <PrivacySection title="Bases legales">
+            <PrivacySection title="Bases légales">
               <ul className="list-disc list-inside space-y-2">
-                <li>Execution precontractuelle ou contractuelle (demandes et prestations).</li>
+                <li>Exécution précontractuelle ou contractuelle (demandes et prestations).</li>
                 <li>Consentement (cookies non essentiels, communications marketing).</li>
                 <li>Interet legitime (securite, prevention de fraude, maintenance).</li>
                 <li>Obligation legale (conservation comptable et fiscale).</li>
               </ul>
             </PrivacySection>
 
-            <PrivacySection title="Duree de conservation">
+            <PrivacySection title="Durée de conservation">
               <ul className="list-disc list-inside space-y-2">
-                <li>Demandes de contact : jusqu’a 24 mois apres le dernier echange.</li>
+                <li>Demandes de contact : jusqu’à 24 mois après le dernier échange.</li>
                 <li>données clients : pendant la relation puis conservation legale obligatoire.</li>
                 <li>données newsletter : jusqu’au retrait du consentement.</li>
                 <li>Logs techniques : duree courte de securite et de diagnostic.</li>
@@ -96,8 +96,8 @@ export default function politiqueconfidentialitePage() {
 
             <PrivacySection title="Destinataires et sous-traitants">
               <p>
-                Les données peuvent etre traitees par des prestataires techniques selectionnes pour
-                l’hebergement, la base de données, l’emailing, l’analytics et le paiement.
+                Les données peuvent être traitées par des prestataires techniques sélectionnés pour
+                 l’hébergement, la base de données, l’emailing, l’analytics et le paiement.
               </p>
               <p>
                 Exemples d’outils utilises : Vercel, Supabase, Brevo, Google Analytics (si consenti)
@@ -112,7 +112,7 @@ export default function politiqueconfidentialitePage() {
                 <li>La rectification de données inexactes.</li>
                 <li>L’effacement de vos données, sous reserve des obligations legales.</li>
                 <li>La limitation ou l’opposition a certains traitements.</li>
-                <li>La portabilite des données lorsque applicable.</li>
+                <li>La portabilité des données lorsque applicable.</li>
                 <li>Le retrait de votre consentement a tout moment.</li>
               </ul>
             </PrivacySection>
@@ -131,7 +131,7 @@ export default function politiqueconfidentialitePage() {
 
             <PrivacySection title="Contact">
               <p>
-                Pour exercer vos droits ou poser une question relative a vos données, contactez-nous
+                Pour exercer vos droits ou poser une question relative à vos données, contactez-nous
                 a{' '}
                 <a
                   href="mailto:contact@heldonica.fr"
@@ -144,8 +144,8 @@ export default function politiqueconfidentialitePage() {
             </PrivacySection>
 
             <p className="text-sm text-charcoal/60 text-center">
-              Derniere mise a jour : 15 avril 2026
-            </p>
+               Dernière mise à jour : 15 avril 2026
+             </p>
           </div>
         </section>
       </main>

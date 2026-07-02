@@ -9,6 +9,7 @@ import type { BlogPost } from '@/lib/blog-supabase'
 import { getExcerpt } from '@/lib/blog-supabase'
 import InstagramFeed from '@/components/InstagramFeed'
 import NewsletterForm from '@/components/NewsletterForm'
+import EditableZone from '@/components/inline-edit/EditableZone'
 
 const HELDONICA_BADGE_FALLBACK = '/images/badges-heldonica.svg'
 
@@ -274,35 +275,30 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
         <div className="relative z-20 px-5 md:px-16 pb-12 md:pb-24 max-w-4xl">
-          <p className="text-teal text-xs font-semibold tracking-[0.2em] uppercase mb-5"
-             style={{ animation: 'wordIn 0.6s 0.2s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
-            Slow travel vécu en duo · Hors sentiers · Paris
-          </p>
+          <EditableZone page="home" zone="hero_badge" fallback="Slow travel vécu en duo · Hors sentiers · Paris"
+            className="text-teal text-xs font-semibold tracking-[0.2em] uppercase mb-5 block"
+          />
           <h1 className="text-3xl md:text-5xl lg:text-7xl font-serif font-light text-white leading-[1.15] mb-4 md:mb-6">
-            <span className="hero-word" style={{ animationDelay: '0.3s' }}>On ferme </span>
-            <span className="hero-word" style={{ animationDelay: '0.4s' }}>les ordis.</span>
+            <EditableZone page="home" zone="hero_line_1" fallback="On ferme " className="hero-word inline" />
+            <EditableZone page="home" zone="hero_line_2" fallback="les ordis." className="hero-word inline" />
             <br />
-            <span className="hero-word" style={{ animationDelay: '0.55s' }}>On part.</span>
+            <EditableZone page="home" zone="hero_line_3" fallback="On part." className="hero-word inline" />
             <br />
             <em>
-              <span className="hero-word" style={{ animationDelay: '0.7s' }}>On revient </span>
-              <span className="hero-word" style={{ animationDelay: '0.8s' }}>avec des pépites </span>
-              <span className="hero-word" style={{ animationDelay: '0.9s' }}>qu&apos;on n&apos;avait pas cherchées.</span>
+              <EditableZone page="home" zone="hero_line_4" fallback="On revient avec des pépites qu'on n'avait pas cherchées." className="hero-word inline" />
             </em>
           </h1>
-          <p className="text-sm md:text-lg text-gray-300 leading-relaxed mb-6 md:mb-8 max-w-xl"
-             style={{ animation: 'wordIn 0.7s 1.1s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
-            Un duo qui fabrique des voyages authentiques sur mesure — là où les autres passent sans regarder.
-          </p>
-          <div className="flex flex-wrap gap-3"
-               style={{ animation: 'wordIn 0.7s 1.3s cubic-bezier(0.16,1,0.3,1) forwards', opacity: 0 }}>
+          <EditableZone page="home" zone="hero_tagline" type="textarea" fallback="Un duo qui fabrique des voyages authentiques sur mesure — là où les autres passent sans regarder."
+            className="text-sm md:text-lg text-gray-300 leading-relaxed mb-6 md:mb-8 max-w-xl block"
+          />
+          <div className="flex flex-wrap gap-3">
             <Link href="/blog"
               className="px-5 md:px-6 py-2.5 md:py-3 bg-mahogany hover:bg-eucalyptus text-white rounded-full font-semibold text-sm tracking-wide transition">
-              Lire le carnet →
+              <EditableZone page="home" zone="hero_cta_1_label" fallback="Lire le carnet →" />
             </Link>
             <Link href="/travel-planning-form"
               className="px-5 md:px-6 py-2.5 md:py-3 border border-white/50 hover:border-white text-white hover:bg-white/10 rounded-full font-semibold text-sm tracking-wide transition">
-              Nous écrire →
+              <EditableZone page="home" zone="hero_cta_2_label" fallback="Nous écrire →" />
             </Link>
           </div>
         </div>
@@ -319,22 +315,23 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         <div className="max-w-6xl mx-auto px-6 md:px-10">
           <div className="grid md:grid-cols-5 gap-12 md:gap-16 items-start">
             <div className="md:col-span-3" data-reveal="left">
-              <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4">Notre histoire</p>
-              <h2 className="text-3xl md:text-5xl font-serif font-light text-mahogany leading-tight mb-6">
-                Un art du voyage{' '}
-                <span className="block italic text-eucalyptus">autrement</span>
-              </h2>
-              <p className="text-base text-charcoal/70 leading-relaxed mb-4">
-                On est un duo. On fabrique des voyages vrais, hors des sentiers, dans les endroits que les autres ne voient pas. Elle a grandi entre la Normandie et Paris, avec le voyage dans le sang depuis toujours. Ça change la manière de lire une rue, de sentir si une table vaut vraiment le détour, de savoir quand un quartier commence à parler.
-              </p>
-              <p className="text-base text-charcoal/70 leading-relaxed mb-4">
-                Lui est né à Madère, entre l&apos;Atlantique et des falaises que les cartes n&apos;ont pas encore toutes nommées. Il part là où les guides s&apos;arrêtent, puis il revient avec un regard que les hôtels indépendants peuvent vraiment utiliser.
-              </p>
-              <p className="text-base text-charcoal/70 leading-relaxed mb-8">
-                Notre regard est né à deux, entre Paris, Madère et la Roumanie. On ferme les ordis, on part, on revient, on note ce qui tient vraiment sur le terrain. Ensuite seulement, on le partage.
-              </p>
+              <EditableZone page="home" zone="section_story_badge" fallback="Notre histoire"
+                className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
+              />
+              <EditableZone page="home" zone="section_story_title" type="html" fallback={'Un art du voyage <span class="block italic text-eucalyptus">autrement</span>'}
+                className="text-3xl md:text-5xl font-serif font-light text-mahogany leading-tight mb-6 block"
+              />
+              <EditableZone page="home" zone="section_story_text_1" type="textarea" fallback="On est un duo. On fabrique des voyages vrais..."
+                className="text-base text-charcoal/70 leading-relaxed mb-4 block"
+              />
+              <EditableZone page="home" zone="section_story_text_2" type="textarea" fallback="Lui est né à Madère..."
+                className="text-base text-charcoal/70 leading-relaxed mb-4 block"
+              />
+              <EditableZone page="home" zone="section_story_text_3" type="textarea" fallback="Notre regard est né à deux..."
+                className="text-base text-charcoal/70 leading-relaxed mb-8 block"
+              />
               <Link href="/blog" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
-                Lire le carnet →
+                <EditableZone page="home" zone="section_story_cta" fallback="Lire le carnet →" />
               </Link>
             </div>
             <div className="md:col-span-2 grid grid-cols-2 gap-6" data-reveal="right">
@@ -365,7 +362,9 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
               <div className="relative z-10 p-8 md:p-16 max-w-3xl">
-                <p className="text-teal text-xs font-bold tracking-[0.2em] uppercase mb-3">✦ À la une</p>
+                <EditableZone page="home" zone="section_featured_badge" fallback="✦ À la une"
+                  className="text-teal text-xs font-bold tracking-[0.2em] uppercase mb-3 block"
+                />
                 <span className="inline-block bg-eucalyptus text-white text-xs font-semibold px-3 py-1 rounded-full mb-4 capitalize">
                   {featured.category}
                 </span>
@@ -378,9 +377,9 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 {!featured.excerpt && displayExcerpt(featured) && (
                   <p className="text-white/65 text-sm md:text-base leading-relaxed line-clamp-2 mb-4 max-w-xl">{displayExcerpt(featured)}</p>
                 )}
-                <span className="inline-flex items-center gap-2 text-teal font-semibold text-sm group-hover:gap-3 transition-all">
-                  Lire le carnet →
-                </span>
+                  <EditableZone page="home" zone="section_featured_cta" fallback="Lire le carnet →"
+                    className="inline-flex items-center gap-2 text-teal font-semibold text-sm group-hover:gap-3 transition-all"
+                  />
               </div>
             </article>
           </Link>
@@ -393,13 +392,19 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <div className="max-w-6xl mx-auto px-6 md:px-10">
             <div className="flex items-end justify-between mb-10 flex-wrap gap-4" data-reveal>
               <div>
-                <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-2">✦ Carnets de voyage</p>
-                <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany">Nos itinéraires vécus</h2>
-                <p className="text-sm text-charcoal/70 leading-relaxed mt-3 max-w-xl">
-                  Chaque itinéraire qu&apos;on propose, on l&apos;a fait. Plusieurs fois. En conditions réelles, pas en press trip.
-                </p>
+                <EditableZone page="home" zone="section_travel_badge" fallback="✦ Carnets de voyage"
+                  className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-2 block"
+                />
+                <EditableZone page="home" zone="section_travel_title" fallback="Nos itinéraires vécus"
+                  className="text-3xl md:text-4xl font-serif font-light text-mahogany block"
+                />
+                <EditableZone page="home" zone="section_travel_text" type="textarea" fallback="Chaque itinéraire qu'on propose..."
+                  className="text-sm text-charcoal/70 leading-relaxed mt-3 max-w-xl block"
+                />
               </div>
-              <Link href="/blog" className="text-sm text-eucalyptus font-semibold hover:underline">Voir tous les carnets →</Link>
+              <Link href="/blog" className="text-sm text-eucalyptus font-semibold hover:underline">
+                <EditableZone page="home" zone="section_travel_cta" fallback="Voir tous les carnets →" />
+              </Link>
             </div>
             {travelPosts.length >= 1 && (
               <div className="grid md:grid-cols-2 gap-6 mb-6">
@@ -461,11 +466,15 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 </div>
               </div>
               <div data-reveal="right">
-                <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4">Pépites terrain</p>
-                <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany leading-tight mb-4">Pépites dénichées</h2>
-                <p className="text-base text-charcoal/70 leading-relaxed mb-6">
-                  Ce qu&apos;on a trouvé en chemin — pas ce qu&apos;on a lu ailleurs. Des boulangeries de quartier aux itinéraires de rando, des marchés de terroir aux coins de baignade que même Google Maps ne liste pas encore.
-                </p>
+                <EditableZone page="home" zone="section_food_badge" fallback="Pépites terrain"
+                  className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
+                />
+                <EditableZone page="home" zone="section_food_title" fallback="Pépites dénichées"
+                  className="text-3xl md:text-4xl font-serif font-light text-mahogany leading-tight mb-4 block"
+                />
+                <EditableZone page="home" zone="section_food_text" type="textarea" fallback="Ce qu'on a trouvé en chemin..."
+                  className="text-base text-charcoal/70 leading-relaxed mb-6 block"
+                />
                 <div className="space-y-4 mb-8">
                   {foodPosts.slice(0, 3).map((p) => (
                     <Link key={p.slug} href={`/blog/${p.slug}`}
@@ -481,7 +490,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   ))}
                 </div>
                 <Link href="/blog" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
-                  Voir toutes les pépites →
+                  <EditableZone page="home" zone="section_food_cta" fallback="Voir toutes les pépites →" />
                 </Link>
               </div>
             </div>
@@ -495,10 +504,16 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <div className="max-w-6xl mx-auto px-6 md:px-10">
             <div className="flex items-end justify-between mb-10 flex-wrap gap-4" data-reveal>
               <div>
-                <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-2">✦ Fraîchement publié</p>
-                <h2 className="text-2xl md:text-3xl font-serif font-light text-mahogany">Les dernières pépites</h2>
+                <EditableZone page="home" zone="section_latest_badge" fallback="✦ Fraîchement publié"
+                  className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-2 block"
+                />
+                <EditableZone page="home" zone="section_latest_title" fallback="Les dernières pépites"
+                  className="text-2xl md:text-3xl font-serif font-light text-mahogany block"
+                />
               </div>
-              <Link href="/blog" className="text-sm text-eucalyptus font-semibold hover:underline">Tout voir →</Link>
+              <Link href="/blog" className="text-sm text-eucalyptus font-semibold hover:underline">
+                <EditableZone page="home" zone="section_latest_cta" fallback="Tout voir →" />
+              </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {latestPosts.map((p, i) => (
@@ -514,14 +529,17 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
 {/* ── DESTINATIONS ─────────────────────────────────────────────── */}
       <section className="py-20 md:py-28 bg-white">
         <div className="max-w-6xl mx-auto px-6 md:px-10 text-center">
-          <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4">✦ Nos territoires</p>
-          <h2 className="text-3xl md:text-5xl font-serif font-light text-mahogany leading-tight mb-6">
-            Des lieux qu&apos;on a aimés,
-            <br />qu&apos;on comprend vraiment.
-          </h2>
-          <p className="text-charcoal/70 leading-relaxed max-w-2xl mx-auto mb-12">
-            Madère, Roumanie, Monténégro, Sicile… On ne parle que de ce qu&apos;on a vécu. Chaque destination est un carnet qu&apos;on continue d&apos;écrire.
-          </p>
+            <EditableZone page="home" zone="section_destinations_badge" fallback="✦ Nos territoires"
+              className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 block text-center"
+            />
+            <h2 className="text-3xl md:text-5xl font-serif font-light text-mahogany leading-tight mb-6">
+              <EditableZone page="home" zone="section_destinations_title_1" fallback="Des lieux qu'on a aimés," className="inline" />
+              <br />
+              <EditableZone page="home" zone="section_destinations_title_2" fallback="qu'on comprend vraiment." className="inline" />
+            </h2>
+            <EditableZone page="home" zone="section_destinations_text" type="textarea" fallback="Madère, Roumanie, Monténégro, Sicile..."
+              className="text-charcoal/70 leading-relaxed max-w-2xl mx-auto mb-12 block"
+            />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {[
               { name: 'Madère', emoji: '🏝️', slug: '/destinations/madere' },
@@ -537,7 +555,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             ))}
           </div>
           <Link href="/destinations" className="mt-10 inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
-            Explorer toutes les destinations →
+            <EditableZone page="home" zone="section_destinations_cta" fallback="Explorer toutes les destinations →" />
           </Link>
         </div>
       </section>
@@ -547,25 +565,30 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         <div className="max-w-5xl mx-auto px-6 md:px-10">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div data-reveal="left">
-              <p className="text-teal text-xs font-bold tracking-[0.2em] uppercase mb-4">Travel Planning · terrain vécu</p>
+              <EditableZone page="home" zone="section_cta_badge" fallback="Travel Planning · terrain vécu"
+                className="text-teal text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
+              />
               <h2 className="text-3xl md:text-5xl font-serif font-light leading-tight mb-6">
-                On ne fait pas des itinéraires.<br />
-                <em className="text-teal">On fait le tien.</em>
+                <EditableZone page="home" zone="section_cta_title_1" fallback="On ne fait pas des itinéraires." className="inline" />
+                <br />
+                <em className="text-teal">
+                  <EditableZone page="home" zone="section_cta_title_2" fallback="On fait le tien." className="inline" />
+                </em>
               </h2>
-              <p className="text-charcoal/40 leading-relaxed mb-4">
-                Tu nous envoies tes contraintes réelles — temps, budget, énergie, envie. On transforme ça en séquence concrète, avec les adresses qu&apos;on a testées et l&apos;ordre qui a du sens sur le terrain.
-              </p>
-              <p className="text-charcoal/60 text-sm leading-relaxed mb-8">
-                Notre terrain naturel : les couples qui veulent ralentir sans s&apos;ennuyer, les solos qui cherchent du vrai, les familles qui en ont marre des parcs d&apos;attractions.
-              </p>
+              <EditableZone page="home" zone="section_cta_text" type="textarea" fallback="Tu nous envoies tes contraintes réelles..."
+                className="text-charcoal/40 leading-relaxed mb-4 block"
+              />
+              <EditableZone page="home" zone="section_cta_subtext" type="textarea" fallback="Notre terrain naturel : les couples..."
+                className="text-charcoal/60 text-sm leading-relaxed mb-8 block"
+              />
               <div className="flex flex-wrap gap-3">
                 <Link href="/travel-planning-form"
                   className="px-6 py-3 bg-eucalyptus hover:bg-eucalyptus text-white rounded font-semibold text-sm transition">
-                  Nous écrire →
+                  <EditableZone page="home" zone="section_cta_btn_1" fallback="Nous écrire →" />
                 </Link>
                 <Link href="/travel-planning"
                   className="px-6 py-3 border border-white/30 hover:border-white/60 text-white rounded font-semibold text-sm transition">
-                  Voir nos services →
+                  <EditableZone page="home" zone="section_cta_btn_2" fallback="Voir nos services →" />
                 </Link>
               </div>
             </div>

@@ -14,7 +14,7 @@ interface ArticleJsonLdProps {
 }
 
 const SITE_URL = 'https://www.heldonica.fr'
-const DEFAULT_OG = `${SITE_URL}/og-default-heldonica.jpg`
+const DEFAULT_OG = `${SITE_URL}/og-default.jpg`
 
 /**
  * Composant JSON-LD pour les articles de blog (BlogPosting Schema)
@@ -53,7 +53,7 @@ export function ArticleJsonLd({
       url: SITE_URL,
       logo: {
         '@type': 'ImageObject',
-        url: `${SITE_URL}/logo.png`,
+        url: `${SITE_URL}/images/badges-heldonica.svg`,
       },
     },
     url,
