@@ -171,3 +171,23 @@ h1, h2, h3, h4, h5, h6 {
   transform: scale(1.1);
   transition: transform 0.2s ease;
 }
+
+/* Animation pour la surbrillance (highlight) des zones éditables */
+@keyframes highlight-ring {
+  0% {
+    box-shadow: 0 0 0 0px rgba(124, 158, 138, 0.8);
+    background-color: rgba(124, 158, 138, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(124, 158, 138, 0.4);
+    background-color: rgba(124, 158, 138, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 0 0px rgba(124, 158, 138, 0);
+    background-color: transparent;
+  }
+}
+
+.animate-highlight-ring {
+  animation: highlight-ring 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
