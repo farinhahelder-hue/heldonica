@@ -37,8 +37,10 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const slug = (await params).slug
   const supabase = createServiceClient()
+  
+  // Read from cms_blog_posts (source of truth for CMS)
   const { data: post } = await supabase
-    .from('articles')
+    .from('cms_blog_posts')
     .select('title, excerpt, featured_image, published_at, tags, author, updated_at, slug')
     .eq('slug', slug)
     .eq('published', true)
@@ -58,7 +60,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const canonical = `${SITE_URL}/blog/${slug}`
   const publishedTime = post.published_at || undefined
   const authorName = post.author || 'Heldonica'
-  const tagsArray = Array.isArray(post.tags) ? post.tags : (post.tags ? post.tags.split(',').map((t: string) => t.trim()).filter(Boolean) : [])
+  // Handle tags - can be array (from CMS) or string
+  const tagsArray = Array.isArray(post.tags) ? post.tags : (post.tags ? String(post.tags).split(',').map((t: string) => t.trim()).filter(Boolean) : [])
 
   return {
     title,

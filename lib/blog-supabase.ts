@@ -67,19 +67,34 @@ export async function getAllPosts(): Promise<BlogPost[]> {
     return [];
   }
   try {
+    // Read from cms_blog_posts (source of truth for CMS)
     const { data, error } = await supabase
-      .from('articles')
+      .from('cms_blog_posts')
       .select('*')
       .eq('published', true)
-      .eq('archived', false)
       .order('published_at', { ascending: false })
       .limit(100);
     if (error) {
       console.error('Supabase getAllPosts error:', error.message);
       return [];
     }
-    const posts = Array.isArray(data) ? (data as BlogPost[]) : [];
-    return posts.map(normalizePost);
+    // Normalize cms_blog_posts fields to BlogPost format
+    const posts = (data || []).map((item: any) => normalizePost({
+      id: item.id,
+      title: item.title,
+      slug: item.slug,
+      category: item.category || 'Travel',
+      excerpt: item.excerpt || '',
+      content: item.content || '',
+      featured_image: item.featured_image || '',
+      author: item.author || 'Heldonica',
+      tags: item.tags || [],
+      published: item.published ?? false,
+      published_at: item.published_at,
+      created_at: item.created_at,
+      updated_at: item.updated_at,
+    } as BlogPost));
+    return posts;
   } catch (err) {
     console.error('getAllPosts exception:', err);
     return [];
@@ -90,8 +105,9 @@ export async function getAllPosts(): Promise<BlogPost[]> {
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   if (!supabase) return null;
   try {
+    // Read directly from cms_blog_posts (source of truth for CMS)
     const { data, error } = await supabase
-      .from('articles')
+      .from('cms_blog_posts')
       .select('*')
       .eq('slug', slug)
       .eq('published', true)
@@ -100,7 +116,24 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
       console.error('Supabase getPostBySlug error:', error.message);
       return null;
     }
-    return data ? normalizePost(data as BlogPost) : null;
+    if (!data) return null;
+    
+    // Normalize cms_blog_posts fields to BlogPost format
+    return normalizePost({
+      id: data.id,
+      title: data.title,
+      slug: data.slug,
+      category: data.category || 'Travel',
+      excerpt: data.excerpt || '',
+      content: data.content || '',
+      featured_image: data.featured_image || '',
+      author: data.author || 'Heldonica',
+      tags: data.tags || [],
+      published: data.published ?? false,
+      published_at: data.published_at,
+      created_at: data.created_at,
+      updated_at: data.updated_at,
+    } as BlogPost);
   } catch (err) {
     console.error('getPostBySlug exception:', err);
     return null;
