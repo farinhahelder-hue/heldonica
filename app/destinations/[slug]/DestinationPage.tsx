@@ -135,7 +135,7 @@ const DESTINATION_CONTENT: Record<string, any> = {
 }
 
 type Props = {
-  params: { slug: string }
+  slug: string
 }
 
 // Fetch related articles for a destination
@@ -176,21 +176,21 @@ async function getRelatedArticlesForDestination(slug: string): Promise<BlogPost[
   }
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const content = DESTINATION_CONTENT[params.slug]
-  const image = DESTINATION_IMAGES[params.slug]
+export async function generateMetadata({ slug }: Props): Promise<Metadata> {
+  const content = DESTINATION_CONTENT[slug]
+  const image = DESTINATION_IMAGES[slug]
   if (!content) return { title: 'Destination non trouvée' }
 
   return {
     title: `${content.title} slow travel | Guide Heldonica`,
     description: `${content.subtitle}. ${content.verdict}`.slice(0, 155),
     alternates: {
-      canonical: `https://www.heldonica.fr/destinations/${params.slug}`,
+      canonical: `https://www.heldonica.fr/destinations/${slug}`,
     },
     openGraph: {
       title: `${content.title} slow travel | Guide Heldonica`,
       description: content.description.slice(0, 160),
-      url: `https://www.heldonica.fr/destinations/${params.slug}`,
+      url: `https://www.heldonica.fr/destinations/${slug}`,
       images: [
         {
           url: image || '',
@@ -205,8 +205,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default async function DestinationPage({ params }: Props) {
-  const slug = params.slug
+export default async function DestinationPage({ slug }: Props) {
   const content = DESTINATION_CONTENT[slug]
   const image = DESTINATION_IMAGES[slug]
 

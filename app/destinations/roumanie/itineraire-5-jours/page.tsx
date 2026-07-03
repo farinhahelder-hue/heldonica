@@ -1,13 +1,11 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import NewsletterForm from '@/components/NewsletterForm';
+import DynamicArticleMap from '@/components/DynamicArticleMap';
 
 const SITE_URL = 'https://heldonica.fr';
-
-const ArticleMap = dynamic(() => import('@/components/ArticleMap'), { ssr: false });
 
 export const metadata: Metadata = {
   title: 'Roumanie 5 jours : itinéraire slow travel focus Transylvanie | Heldonica',
@@ -211,7 +209,7 @@ export default function Itineraire5JoursPage() {
               Explore chaque étape sur la carte : hébergements, pépites et points de passage.
             </p>
             <div className="rounded-2xl overflow-hidden border border-stone-200">
-              <ArticleMap slug="roumanie-5-jours" />
+              <DynamicArticleMap slug="roumanie-5-jours" />
             </div>
           </div>
         </section>

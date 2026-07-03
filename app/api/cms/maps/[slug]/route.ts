@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase-client';
 import { requireCmsAuth } from '@/lib/cms-auth';
 
-export async function GET(req: NextRequest, { params }: { params: { slug: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const auth = await requireCmsAuth(req);
   if (auth) return auth;
 
-  const { slug } = params;
+  const { slug } = await params;
 
   const [{ data: routes }, { data: pois }] = await Promise.all([
     supabase.from('article_map_routes').select('*').eq('content_slug', slug).order('display_order'),
@@ -27,17 +27,18 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
   return NextResponse.json({ routes: routes ?? [], pois: pois ?? [], points });
 }
 
-export async function POST(req: NextRequest, { params }: { params: { slug: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const auth = await requireCmsAuth(req);
   if (auth) return auth;
 
+  const { slug: params_slug } = await params;
   const body = await req.json();
   const { type, ...data } = body;
 
   if (type === 'poi') {
     const { data: poi, error } = await supabase
       .from('article_map_pois')
-      .insert({ ...data, content_slug: params.slug })
+      .insert({ ...data, content_slug: params_slug })
       .select()
       .single();
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -46,7 +47,7 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
 
   const { data: route, error } = await supabase
     .from('article_map_routes')
-    .insert({ ...data, content_slug: params.slug })
+    .insert({ ...data, content_slug: params_slug })
     .select()
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

@@ -15,7 +15,7 @@ import type { Metadata } from 'next'
 import { SITE_URL, DEFAULT_OG_IMAGE, DEFAULT_TITLE, DEFAULT_DESCRIPTION } from '@/lib/seo'
 
 interface Props {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 type DestinationMeta = {
@@ -167,7 +167,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const slug = params.slug
+  const slug = (await params).slug
 
   const destStatus = await getDestinationStatus(slug)
   if (destStatus && destStatus.status === 'coming_soon') {
@@ -207,11 +207,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
   }
 
-  const titleText = page.title || params.slug || 'Destination'
+  const titleText = page.title || slug || 'Destination'
   const title = `${titleText} | Heldonica`
   const description = meta?.description || `Découvre ${titleText} avec Heldonica, depuis le terrain et sans vernis inutile.` || DEFAULT_DESCRIPTION
   const ogImage = meta?.heroImage || page.image || DEFAULT_OG_IMAGE
-  const canonical = `${SITE_URL}/destinations/${params.slug}`
+  const canonical = `${SITE_URL}/destinations/${slug}`
 
   return {
     title,
@@ -242,7 +242,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function DestinationPage({ params }: Props) {
-  const slug = params.slug
+  const slug = (await params).slug
 
   const destStatus = await getDestinationStatus(slug)
   if (destStatus && destStatus.status === 'coming_soon') {
@@ -265,7 +265,7 @@ export default async function DestinationPage({ params }: Props) {
   const page = getDestinationBySlug(slug)
   if (!page) notFound()
 
-  const meta = DEST_META[params.slug]
+  const meta = DEST_META[slug]
   const heroImage = page.image || meta?.heroImage || ''
   const safeContent = sanitizeHtml(page.content)
 

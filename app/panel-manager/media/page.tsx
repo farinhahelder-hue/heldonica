@@ -1,6 +1,7 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { Suspense, useCallback, useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 interface MediaFile {
   name: string
@@ -18,8 +19,17 @@ interface GooglePhoto {
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ''
 
-export default function MediaPage({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
-  const pwd = typeof searchParams === 'object' ? String(searchParams?.pwd || '') : ''
+export default function MediaPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: '2rem' }}>Chargement...</div>}>
+      <MediaPageContent />
+    </Suspense>
+  )
+}
+
+function MediaPageContent() {
+  const searchParams = useSearchParams()
+  const pwd = searchParams?.get('pwd') ?? ''
   
   const [tab, setTab] = useState<'local' | 'google'>('local')
   const [files, setFiles] = useState<MediaFile[]>([])

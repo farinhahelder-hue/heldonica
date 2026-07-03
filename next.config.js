@@ -23,6 +23,7 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
+  outputFileTracingRoot: __dirname,
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 2678400,
@@ -55,9 +56,8 @@ const nextConfig = {
 
   experimental: {
     optimizePackageImports: ['@supabase/supabase-js'],
-    // Fix ERR_REQUIRE_ESM: jsdom → html-encoding-sniffer → @exodus/bytes/encoding-lite.js
-    serverComponentsExternalPackages: ['jsdom', 'html-encoding-sniffer', '@exodus/bytes'],
   },
+  serverExternalPackages: ['jsdom', 'html-encoding-sniffer', '@exodus/bytes'],
 
   staticPageGenerationTimeout: 300,
 

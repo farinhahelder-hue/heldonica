@@ -49,16 +49,17 @@ function withoutVoiceNotesAndReadTime(payload: Record<string, unknown>) {
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const authResponse = await requireCmsAuth(req)
   if (authResponse) return authResponse
 
+  const { id } = await params
   const sb = supabase()
   if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
   const { data, error } = await sb
     .from('cms_blog_posts')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
   
   if (error || !data) {
@@ -67,10 +68,11 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   return NextResponse.json({ article: data })
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const authResponse = await requireCmsAuth(req)
   if (authResponse) return authResponse
 
+  const { id } = await params
   const sb = supabase()
   if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
   const body = await req.json()
@@ -90,7 +92,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   else if (body.status === 'draft') payload.published = false;
 
   // Phase 3: Save revision before updating
-  const { data: raw } = await sb.from('cms_blog_posts').select('title, content, excerpt').eq('id', params.id).single();
+  const { data: raw } = await sb.from('cms_blog_posts').select('title, content, excerpt').eq('id', id).single();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (async () => {
     if (raw && typeof raw === 'object' && 'title' in raw) {
@@ -98,7 +100,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       const current = raw as any;
       await sb.from('article_revisions').insert(
         {
-          article_id: String(parseInt(params.id)),
+          article_id: String(parseInt(id)),
           title: current.title,
           content: current.content,
           excerpt: current.excerpt,
@@ -111,7 +113,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let result: any = await (sb.from('cms_blog_posts') as any)
     .update(payload)
-    .eq('id', params.id)
+    .eq('id', id)
     .select()
     .single()
   let { data, error } = result;
@@ -121,7 +123,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let fallback: any = await (sb.from('cms_blog_posts') as any)
       .update(withoutReadTime(payload))
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
     data = fallback.data;
@@ -133,7 +135,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let fallback: any = await (sb.from('cms_blog_posts') as any)
       .update(withoutVoiceNotes(payload))
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
     data = fallback.data;
@@ -145,7 +147,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let fallback: any = await (sb.from('cms_blog_posts') as any)
       .update(withoutVoiceNotesAndReadTime(payload))
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
     data = fallback.data;
@@ -185,7 +187,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
   // Auto-schedule Instagram post when article is published (fire-and-forget)
   if (body.status === 'published' && data) {
-    autoScheduleInstagramPost(params.id, {
+    autoScheduleInstagramPost(id, {
       title: (data as any).title || '',
       slug: (data as any).slug || '',
       excerpt: (data as any).excerpt || '',
@@ -197,19 +199,20 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   return NextResponse.json({ article: data })
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const authResponse = await requireCmsAuth(req)
   if (authResponse) return authResponse
 
+  const { id } = await params
   const sb = supabase()
   if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
 
   // Get article slug before deletion for articles table sync
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: article } = await (sb.from('cms_blog_posts') as any).select('slug').eq('id', params.id).single()
+  const { data: article } = await (sb.from('cms_blog_posts') as any).select('slug').eq('id', id).single()
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (sb.from('cms_blog_posts') as any).delete().eq('id', params.id)
+  const { error } = await (sb.from('cms_blog_posts') as any).delete().eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   // Also archive in articles table for public pages

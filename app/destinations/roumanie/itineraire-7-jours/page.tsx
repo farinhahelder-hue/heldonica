@@ -1,15 +1,13 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Script from 'next/script';
-import dynamic from 'next/dynamic';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import NewsletterForm from '@/components/NewsletterForm';
 import PdfDownloadButton from '@/components/PdfDownloadButton';
+import DynamicArticleMap from '@/components/DynamicArticleMap';
 
 const SITE_URL = 'https://heldonica.fr';
-
-const ArticleMap = dynamic(() => import('@/components/ArticleMap'), { ssr: false });
 
 export const metadata: Metadata = {
   title: 'Roumanie 7 jours : itinéraire slow travel en couple | Heldonica',
@@ -286,7 +284,7 @@ export default function Itineraire7JoursPage() {
               }
             `}</Script>
             <div className="rounded-2xl overflow-hidden border border-stone-200">
-              <ArticleMap slug="roumanie-7-jours" />
+              <DynamicArticleMap slug="roumanie-7-jours" />
             </div>
           </div>
         </section>
