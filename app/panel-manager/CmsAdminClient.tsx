@@ -124,11 +124,12 @@ function CmsAdminClientInner() {
   const [msgFilter, setMsgFilter] = useState<'all' | 'unread' | 'read' | 'archived'>('all');
   const [selectedMsg, setSelectedMsg] = useState<ContactMessage | null>(null);
   const [msgActioning, setMsgActioning] = useState(false);
+  const [messagesLoaded, setMessagesLoaded] = useState(false);
 
-  const loadMessages = useCallback(async () => {
+  const loadMessages = useCallback(async (filter?: string) => {
     setMessagesLoading(true);
     try {
-      const params = msgFilter !== 'all' ? `?status=${msgFilter}` : '';
+      const params = (filter ?? msgFilter) !== 'all' ? `?status=${filter ?? msgFilter}` : '';
       const res = await fetch(`/api/cms/contact-messages${params}`, { cache: 'no-store' });
       const data = await res.json();
       if (res.ok) {
@@ -140,7 +141,10 @@ function CmsAdminClientInner() {
     }
   }, [msgFilter]);
 
-  useEffect(() => { if (activeSection === 'messages') loadMessages(); }, [activeSection, loadMessages]);
+  useEffect(() => {
+    if (activeSection === 'messages') { if (!messagesLoaded) { loadMessages(); setMessagesLoaded(true); } }
+    else { setMessagesLoaded(false); }
+  }, [activeSection, loadMessages, messagesLoaded]);
 
   const handleMsgAction = async (id: string, action: 'read' | 'archive') => {
     setMsgActioning(true);
@@ -173,6 +177,20 @@ function CmsAdminClientInner() {
   };
 
   const formatDate = (d: string) => new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+function CollapsibleSection({ title, defaultOpen, children }: { title: string; defaultOpen?: boolean; children: React.ReactNode }) {
+  const [open, setOpen] = useState(defaultOpen ?? true);
+  return (
+    <div className="border border-gray-100 rounded-lg overflow-hidden">
+      <button type="button" onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-5 py-3 bg-gray-50 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition-colors">
+        <span>{title}</span>
+        <span className={`transform transition text-gray-400 ${open ? 'rotate-180' : ''}`}>▾</span>
+      </button>
+      {open && <div className="p-4 space-y-4">{children}</div>}
+    </div>
+  );
+}
 
   function MessagesSection() {
     const badgeStyle = (s: string) => s === 'unread' ? 'bg-red-100 text-red-700' : s === 'read' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500';
@@ -305,9 +323,12 @@ function CmsAdminClientInner() {
     }
   }, []);
 
+  const [articlesLoaded, setArticlesLoaded] = useState(false);
   useEffect(() => {
-    if (isAuthenticated && (activeSection === 'articles' || activeSection === 'dashboard')) loadArticles();
-  }, [isAuthenticated, activeSection, loadArticles]);
+    if (isAuthenticated && (activeSection === 'articles' || activeSection === 'dashboard') && !articlesLoaded) {
+      loadArticles().then(() => setArticlesLoaded(true));
+    }
+  }, [isAuthenticated, activeSection, loadArticles, articlesLoaded]);
 
   const openArticleEditor = (article: Article) => {
     setEditingArticle({ ...article });
@@ -325,7 +346,7 @@ function CmsAdminClientInner() {
   const handleSaveArticle = async () => {
     if (!editingArticle) return;
     setSaving(true);
-    setSaveMsg('');
+    setSaveMsg('💾 Sauvegarde en cours…');
     try {
       const method = editingArticle.id ? 'PATCH' : 'POST';
       const url = editingArticle.id
@@ -344,10 +365,10 @@ function CmsAdminClientInner() {
         const err = await res.json().catch(() => ({ error: 'Save failed' }));
         throw new Error(err.error || 'Save failed');
       }
-      toast('Article sauvegardé', 'success');
+      setSaveMsg('✅ Article sauvegardé');
       loadArticles();
     } catch (e: any) {
-      toast(e.message || 'Erreur lors de la sauvegarde', 'error');
+      setSaveMsg('❌ ' + (e.message || 'Erreur lors de la sauvegarde'));
     } finally {
       setSaving(false);
     }
@@ -376,8 +397,9 @@ function CmsAdminClientInner() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#f5f3ef]">
         <div className="bg-white p-10 rounded-2xl shadow-lg text-center">
-          <div className="text-4xl mb-3">⏳</div>
-          <p className="text-gray-500 text-sm">Vérification de l’authentification…</p>
+          <div className="text-3xl mb-2 text-[#2D8B7A]">🌿</div>
+          <h1 className="text-xl font-bold text-[#6b2a1a]">Heldonica CMS</h1>
+          <p className="text-gray-500 text-sm mt-1">Vérification…</p>
         </div>
       </div>
     );
@@ -764,7 +786,7 @@ function CmsAdminClientInner() {
           {activeSection === 'new-article' && (
             <ErrorBoundary>
               <div>
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center justify-between mb-4">
                   <h1 className="text-2xl font-bold text-gray-900">
                     {editingArticle?.id ? 'Modifier l\'article' : 'Nouvel article'}
                   </h1>
@@ -802,243 +824,274 @@ function CmsAdminClientInner() {
                         <Camera size={14} /> Caption IG
                       </button>
                     )}
-                    {lastAutoSave && <span className="text-[10px] text-gray-400">Auto-sauvegarde {lastAutoSave}</span>}
-                    {saveMsg && <span className="text-sm text-green-600">{saveMsg}</span>}
                     <button
                       onClick={handleSaveArticle}
                       disabled={saving}
-                      className="flex items-center gap-2 px-4 py-2 bg-[#C4714A] text-white rounded-lg text-sm font-medium hover:bg-[#b05f3a] disabled:opacity-50"
+                      className="flex items-center gap-2 px-5 py-2.5 bg-[#C4714A] text-white rounded-lg text-sm font-bold hover:bg-[#b05f3a] disabled:opacity-60 transition-colors shadow-sm"
                     >
                       <Save size={16} />
                       {saving ? 'Sauvegarde…' : 'Sauvegarder'}
                     </button>
                   </div>
                 </div>
-                <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Titre</label>
-                    <input
-                      type="text"
-                      value={editingArticle?.title ?? ''}
-                      onChange={e => setEditingArticle(prev => prev ? { ...prev, title: e.target.value } : prev)}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
-                      placeholder="Titre de l’article"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Slug</label>
-                    <div className="flex gap-2">
+
+                {/* Save status bar */}
+                <div className={`mb-4 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  saving ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                  saveMsg ? (saveMsg.includes('✅') ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                             'bg-red-50 text-red-700 border border-red-200') :
+                  'bg-transparent'
+                }`}>
+                  {saving && '💾 Sauvegarde en cours…'}
+                  {!saving && saveMsg && saveMsg}
+                  {!saving && lastAutoSave && !saveMsg &&
+                    <span className="text-gray-400 text-xs">Auto-sauvegarde {lastAutoSave}</span>}
+                </div>
+
+                <div className="space-y-3">
+
+                  {/* ── Content section ── */}
+                  <CollapsibleSection title="📝 Contenu" defaultOpen={true}>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Titre</label>
                       <input
                         type="text"
-                        value={editingArticle?.slug ?? ''}
-                        onChange={e => setEditingArticle(prev => prev ? { ...prev, slug: e.target.value } : prev)}
-                        className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A] font-mono"
-                        placeholder="mon-article-slug"
+                        value={editingArticle?.title ?? ''}
+                        onChange={e => setEditingArticle(prev => prev ? { ...prev, title: e.target.value } : prev)}
+                        className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base font-medium focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                        placeholder="Titre de l’article"
                       />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (!editingArticle?.title) return;
-                          const slug = editingArticle.title
-                            .toLowerCase()
-                            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-                            .replace(/[^a-z0-9\s-]/g, '')
-                            .trim()
-                            .replace(/\s+/g, '-')
-                            .replace(/-+/g, '-');
-                          setEditingArticle(prev => prev ? { ...prev, slug } : prev);
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Slug</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={editingArticle?.slug ?? ''}
+                          onChange={e => setEditingArticle(prev => prev ? { ...prev, slug: e.target.value } : prev)}
+                          className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A] font-mono"
+                          placeholder="mon-article-slug"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!editingArticle?.title) return;
+                            const slug = editingArticle.title
+                              .toLowerCase()
+                              .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                              .replace(/[^a-z0-9\s-]/g, '')
+                              .trim()
+                              .replace(/\s+/g, '-')
+                              .replace(/-+/g, '-');
+                            setEditingArticle(prev => prev ? { ...prev, slug } : prev);
+                          }}
+                          className="px-3 py-2 text-xs border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 whitespace-nowrap"
+                        >
+                          ↺ Générer
+                        </button>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Extrait</label>
+                      <textarea
+                        rows={2}
+                        value={editingArticle?.excerpt ?? ''}
+                        onChange={e => setEditingArticle(prev => prev ? { ...prev, excerpt: e.target.value } : prev)}
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A] resize-y"
+                        placeholder="Résumé court de l’article"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Contenu</label>
+                      <Suspense fallback={<SkeletonForm />}>
+                        <RichEditor
+                          value={editingArticle?.content || ''}
+                          onChange={(html: string) =>
+                            setEditingArticle(prev => prev ? { ...prev, content: html } : prev)
+                          }
+                        />
+                      </Suspense>
+                    </div>
+                  </CollapsibleSection>
+
+                  {/* ── Media section ── */}
+                  <CollapsibleSection title="🖼️ Média" defaultOpen={false}>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Image à la une (URL)</label>
+                      <input
+                        type="url"
+                        value={editingArticle?.featured_image ?? ''}
+                        onChange={e => setEditingArticle(prev => prev ? { ...prev, featured_image: e.target.value } : prev)}
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                        placeholder="https://..."
+                      />
+                    </div>
+                    {editingArticle?.content && (() => {
+                      const imgs = editingArticle.content.match(/<img(?![^>]*\salt=)[^>]*>/g);
+                      if (imgs && imgs.length > 0) {
+                        return (
+                          <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                            <p className="text-xs text-amber-700 font-medium">
+                              ⚠️ {imgs.length} image(s) sans attribut alt dans le contenu
+                            </p>
+                            <p className="text-[10px] text-amber-600 mt-0.5">Ajoutez des textes alternatifs pour l’accessibilité et le SEO</p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </CollapsibleSection>
+
+                  {/* ── SEO section ── */}
+                  <CollapsibleSection title="🔍 SEO & Métadonnées" defaultOpen={false}>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
+                        <input
+                          type="text"
+                          value={editingArticle?.category ?? ''}
+                          onChange={e => setEditingArticle(prev => prev ? { ...prev, category: e.target.value } : prev)}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                          placeholder="Slow Travel"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Auteur</label>
+                        <input
+                          type="text"
+                          value={editingArticle?.author ?? ''}
+                          onChange={e => setEditingArticle(prev => prev ? { ...prev, author: e.target.value } : prev)}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                          placeholder="Heldonica"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+                      <input
+                        type="text"
+                        value={editingArticle?.tags?.join(', ') ?? ''}
+                        onChange={e => {
+                          const tags = e.target.value.split(',').map(t => t.trim()).filter(Boolean);
+                          setEditingArticle(prev => prev ? { ...prev, tags } : prev);
                         }}
-                        className="px-3 py-2 text-xs border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 whitespace-nowrap"
-                      >
-                        ↺ Générer
-                      </button>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
-                      <input
-                        type="text"
-                        value={editingArticle?.category ?? ''}
-                        onChange={e => setEditingArticle(prev => prev ? { ...prev, category: e.target.value } : prev)}
                         className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
-                        placeholder="Slow Travel"
+                        placeholder="slow-travel, portugal, madère (séparés par des virgules)"
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Statut</label>
-                      <select
-                        value={editingArticle?.status ?? 'draft'}
-                        onChange={e => setEditingArticle(prev => prev ? { ...prev, status: e.target.value as Article['status'] } : prev)}
-                        className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
-                      >
-                        <option value="draft">Brouillon</option>
-                        <option value="published">Publié</option>
-                        <option value="scheduled">Planifié</option>
-                      </select>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">SEO Title</label>
+                        <input
+                          type="text"
+                          value={editingArticle?.seo_title ?? ''}
+                          onChange={e => setEditingArticle(prev => prev ? { ...prev, seo_title: e.target.value } : prev)}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                          placeholder="Titre optimisé SEO (30-60 car.)"
+                        />
+                        <p className="text-[10px] text-gray-400 mt-1">{(editingArticle?.seo_title?.length ?? 0)} car.</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">SEO Description</label>
+                        <input
+                          type="text"
+                          value={editingArticle?.seo_description ?? ''}
+                          onChange={e => setEditingArticle(prev => prev ? { ...prev, seo_description: e.target.value } : prev)}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                          placeholder="Meta description (70-160 car.)"
+                        />
+                        <p className={`text-[10px] mt-1 ${(editingArticle?.seo_description?.length ?? 0) > 160 ? 'text-red-400' : 'text-gray-400'}`}>
+                          {(editingArticle?.seo_description?.length ?? 0)} car. {editingArticle?.seo_description && editingArticle.seo_description.length < 70 ? '(min. 70)' : ''}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  {editingArticle?.status === 'scheduled' && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Date de publication</label>
-                      <input
-                        type="datetime-local"
-                        value={editingArticle?.published_at ? editingArticle.published_at.slice(0, 16) : ''}
-                        onChange={e => setEditingArticle(prev => prev ? { ...prev, published_at: new Date(e.target.value).toISOString() } : prev)}
-                        className="w-full max-w-xs px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
-                      />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Priorité Sitemap</label>
+                        <select
+                          value={String(editingArticle?.sitemap_priority ?? 0.9)}
+                          onChange={e => setEditingArticle(prev => prev ? { ...prev, sitemap_priority: parseFloat(e.target.value) } : prev)}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                        >
+                          <option value="1.0">1.0 — Page principale</option>
+                          <option value="0.9">0.9 — Prioritaire</option>
+                          <option value="0.8">0.8 — Important</option>
+                          <option value="0.7">0.7 — Standard</option>
+                          <option value="0.6">0.6 — Secondaire</option>
+                          <option value="0.5">0.5 — Archives</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Fréquence Sitemap</label>
+                        <select
+                          value={editingArticle?.sitemap_changefreq ?? 'weekly'}
+                          onChange={e => setEditingArticle(prev => prev ? { ...prev, sitemap_changefreq: e.target.value } : prev)}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                        >
+                          <option value="always">always</option>
+                          <option value="hourly">hourly</option>
+                          <option value="daily">daily</option>
+                          <option value="weekly">weekly</option>
+                          <option value="monthly">monthly</option>
+                          <option value="yearly">yearly</option>
+                          <option value="never">never</option>
+                        </select>
+                      </div>
                     </div>
-                  )}
-                  <div className="border-t pt-4 grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">SEO Title</label>
-                      <input
-                        type="text"
-                        value={editingArticle?.seo_title ?? ''}
-                        onChange={e => setEditingArticle(prev => prev ? { ...prev, seo_title: e.target.value } : prev)}
-                        className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
-                        placeholder="Titre optimise SEO (30-60 car.)"
-                      />
-                      <p className="text-[10px] text-gray-400 mt-1">{(editingArticle?.seo_title?.length ?? 0)} car.</p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">SEO Description</label>
-                      <input
-                        type="text"
-                        value={editingArticle?.seo_description ?? ''}
-                        onChange={e => setEditingArticle(prev => prev ? { ...prev, seo_description: e.target.value } : prev)}
-                        className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
-                        placeholder="Meta description (70-160 car.)"
-                      />
-                      <p className={`text-[10px] mt-1 ${(editingArticle?.seo_description?.length ?? 0) > 160 ? 'text-red-400' : 'text-gray-400'}`}>
-                        {(editingArticle?.seo_description?.length ?? 0)} car. {editingArticle?.seo_description && editingArticle.seo_description.length < 70 ? '(min. 70)' : ''}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="border-t pt-4 grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Date de visite</label>
-                      <input
-                        type="date"
-                        value={editingArticle?.visit_date ? editingArticle.visit_date.slice(0, 10) : ''}
-                        onChange={e => setEditingArticle(prev => prev ? { ...prev, visit_date: e.target.value } : prev)}
-                        className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
-                      />
-                      <p className="text-[10px] text-gray-400 mt-1">Quand le voyage a eu lieu (renforce E-E-A-T)</p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Visites</label>
-                      <input
-                        type="number" min={1}
-                        value={editingArticle?.visit_count ?? ''}
-                        onChange={e => setEditingArticle(prev => prev ? { ...prev, visit_count: e.target.value ? parseInt(e.target.value) : undefined } : prev)}
-                        className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
-                        placeholder="Ex: 2"
-                      />
-                      <p className="text-[10px] text-gray-400 mt-1">Nombre de fois que vous avez visite ce lieu</p>
-                    </div>
-                  </div>
-                  <div className="border-t pt-4 grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Priorité Sitemap</label>
-                      <select
-                        value={String(editingArticle?.sitemap_priority ?? 0.9)}
-                        onChange={e => setEditingArticle(prev => prev ? { ...prev, sitemap_priority: parseFloat(e.target.value) } : prev)}
-                        className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
-                      >
-                        <option value="1.0">1.0 — Page principale</option>
-                        <option value="0.9">0.9 — Prioritaire</option>
-                        <option value="0.8">0.8 — Important</option>
-                        <option value="0.7">0.7 — Standard</option>
-                        <option value="0.6">0.6 — Secondaire</option>
-                        <option value="0.5">0.5 — Archives</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Fréquence Sitemap</label>
-                      <select
-                        value={editingArticle?.sitemap_changefreq ?? 'weekly'}
-                        onChange={e => setEditingArticle(prev => prev ? { ...prev, sitemap_changefreq: e.target.value } : prev)}
-                        className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
-                      >
-                        <option value="always">always</option>
-                        <option value="hourly">hourly</option>
-                        <option value="daily">daily</option>
-                        <option value="weekly">weekly</option>
-                        <option value="monthly">monthly</option>
-                        <option value="yearly">yearly</option>
-                        <option value="never">never</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Extrait</label>
-                    <textarea
-                      rows={2}
-                      value={editingArticle?.excerpt ?? ''}
-                      onChange={e => setEditingArticle(prev => prev ? { ...prev, excerpt: e.target.value } : prev)}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A] resize-y"
-                      placeholder="Résumé court de l’article"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Image à la une (URL)</label>
-                    <input
-                      type="url"
-                      value={editingArticle?.featured_image ?? ''}
-                      onChange={e => setEditingArticle(prev => prev ? { ...prev, featured_image: e.target.value } : prev)}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
-                      placeholder="https://..."
-                    />
-                  </div>
-                  {editingArticle?.content && (() => {
-                    const imgWithoutAlt = editingArticle.content.match(/<img(?![^>]*\salt=)[^>]*>/g);
-                    if (imgWithoutAlt && imgWithoutAlt.length > 0) {
-                      return (
-                        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                          <p className="text-xs text-amber-700 font-medium">
-                            ⚠️ {imgWithoutAlt.length} image(s) sans attribut alt dans le contenu
-                          </p>
-                          <p className="text-[10px] text-amber-600 mt-0.5">Ajoutez des textes alternatifs pour l’accessibilité et le SEO</p>
+                  </CollapsibleSection>
+
+                  {/* ── Publication section ── */}
+                  <CollapsibleSection title="📅 Publication" defaultOpen={false}>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+                        <select
+                          value={editingArticle?.status ?? 'draft'}
+                          onChange={e => setEditingArticle(prev => prev ? { ...prev, status: e.target.value as Article['status'] } : prev)}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                        >
+                          <option value="draft">Brouillon</option>
+                          <option value="published">Publié</option>
+                          <option value="scheduled">Planifié</option>
+                        </select>
+                      </div>
+                      {editingArticle?.status === 'scheduled' && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Date de publication</label>
+                          <input
+                            type="datetime-local"
+                            value={editingArticle?.published_at ? editingArticle.published_at.slice(0, 16) : ''}
+                            onChange={e => setEditingArticle(prev => prev ? { ...prev, published_at: new Date(e.target.value).toISOString() } : prev)}
+                            className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                          />
                         </div>
-                      );
-                    }
-                    return null;
-                  })()}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Auteur</label>
-                    <input
-                      type="text"
-                      value={editingArticle?.author ?? ''}
-                      onChange={e => setEditingArticle(prev => prev ? { ...prev, author: e.target.value } : prev)}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
-                      placeholder="Heldonica"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
-                    <input
-                      type="text"
-                      value={editingArticle?.tags?.join(', ') ?? ''}
-                      onChange={e => {
-                        const tags = e.target.value.split(',').map(t => t.trim()).filter(Boolean);
-                        setEditingArticle(prev => prev ? { ...prev, tags } : prev);
-                      }}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
-                      placeholder="slow-travel, portugal, madère (séparés par des virgules)"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Contenu</label>
-                    <Suspense fallback={<SkeletonForm />}>
-                      <RichEditor
-                        value={editingArticle?.content || ''}
-                        onChange={(html: string) =>
-                          setEditingArticle(prev => prev ? { ...prev, content: html } : prev)
-                        }
-                      />
-                    </Suspense>
-                  </div>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Date de visite</label>
+                        <input
+                          type="date"
+                          value={editingArticle?.visit_date ? editingArticle.visit_date.slice(0, 10) : ''}
+                          onChange={e => setEditingArticle(prev => prev ? { ...prev, visit_date: e.target.value } : prev)}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                        />
+                        <p className="text-[10px] text-gray-400 mt-1">Quand le voyage a eu lieu (renforce E-E-A-T)</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Visites</label>
+                        <input
+                          type="number" min={1}
+                          value={editingArticle?.visit_count ?? ''}
+                          onChange={e => setEditingArticle(prev => prev ? { ...prev, visit_count: e.target.value ? parseInt(e.target.value) : undefined } : prev)}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                          placeholder="Ex: 2"
+                        />
+                        <p className="text-[10px] text-gray-400 mt-1">Nombre de fois que vous avez visité ce lieu</p>
+                      </div>
+                    </div>
+                  </CollapsibleSection>
+
                   <EeaatScore
                     seoTitle={editingArticle?.seo_title}
                     seoDescription={editingArticle?.seo_description}
