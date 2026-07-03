@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
+import EditableZone from '@/components/inline-edit/EditableZone';
 
 // GA4 tracking
 function trackEvent(action: string, params: object = {}) {
@@ -28,7 +30,7 @@ type ChecklistItem = {
   category: string;
 };
 
-const CHECKLIST_TEMPLATES: Record<string, { text: string; category: string }[]> = {
+const CHECKLIST_TEMPLATES_FALLBACK: Record<string, { text: string; category: string }[]> = {
   default: [
     { text: 'Passeport / CNI valide', category: 'documents' },
     { text: 'Billets avion/train', category: 'documents' },
@@ -82,6 +84,7 @@ export default function TravelOrganizer() {
     { id: '1', city: '', country: '', startDate: '', nights: 3, accommodation: 150, transport: 100, food: 80, activities: 50 },
   ]);
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
+  const [checklistTemplates, setChecklistTemplates] = useState<Record<string, { text: string; category: string }[]>>(CHECKLIST_TEMPLATES_FALLBACK);
   
   // Budget template states
   const [budgetVision, setBudgetVision] = useState({ destination: '', dates: '', style: 'Slow', priority: '' });
@@ -109,6 +112,32 @@ export default function TravelOrganizer() {
   const checkedItems = checklist.filter(i => i.checked).length;
   const progress = checklist.length > 0 ? Math.round((checkedItems / checklist.length) * 100) : 0;
 
+  // Fetch checklist templates from API
+  useEffect(() => {
+    async function fetchTemplates() {
+      try {
+        const res = await fetch('/api/cms/checklist-templates');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.templates && Array.isArray(data.templates)) {
+            const templates: Record<string, { text: string; category: string }[]> = {};
+            data.templates.forEach((t: any) => {
+              if (t.template_key && t.items) {
+                templates[t.template_key] = typeof t.items === 'string' ? JSON.parse(t.items) : t.items;
+              }
+            });
+            if (Object.keys(templates).length > 0) {
+              setChecklistTemplates(templates);
+            }
+          }
+        }
+      } catch {
+        // Use fallback templates on error
+      }
+    }
+    fetchTemplates();
+  }, []);
+
   // Load from localStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem('organizer_trip');
@@ -132,7 +161,7 @@ export default function TravelOrganizer() {
     localStorage.setItem('organizer_trip', JSON.stringify(data));
   }, [destination, startDate, endDate, travelers, tripType, stages, checklist]);
 
-  const template = CHECKLIST_TEMPLATES[tripType] || CHECKLIST_TEMPLATES.default;
+  const template = checklistTemplates[tripType] || checklistTemplates.default;
   useEffect(() => {
     if (!localStorage.getItem('organizer_trip')) {
       setChecklist(template.map((item, i) => ({
@@ -194,18 +223,23 @@ Généré avec Heldonica`;
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#faf8f5', padding: '2rem 1rem' }} id="organizer-content">
-      <style>{`@media print { body { background: white; } #organizer-content { background: white !important; padding: 1rem !important; } button { display: none !important; } }`}</style>
-      <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          {typeof window !== 'undefined' && localStorage.getItem('organizer_trip') && (
-        <div style={{ background: '#e8f5e9', padding: '.5rem 1rem', borderRadius: '.5rem', marginBottom: '1rem', fontSize: '.85rem', color: '#2e7d32' }}>
-          💾 Voyage localement sauvegardé • <button onClick={() => localStorage.removeItem('organizer_trip')} style={{ background: 'none', border: 'none', color: '#2e7d32', textDecoration: 'underline', cursor: 'pointer' }}>Effacer</button>
-        </div>
-      )}
-      <h1 style={{ fontSize: '2rem', fontWeight: 700, color: '#6b2a1a' }}>✈️ Organisateur de voyage</h1>
-          <p style={{ color: '#888' }}>Planifiez votre trip, gérez votre budget</p>
-        </div>
+    <InlineEditProvider page="organisateur">
+      <div style={{ minHeight: '100vh', background: '#faf8f5', padding: '2rem 1rem' }} id="organizer-content">
+        <style>{`@media print { body { background: white; } #organizer-content { background: white !important; padding: 1rem !important; } button { display: none !important; } }`}</style>
+        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            {typeof window !== 'undefined' && localStorage.getItem('organizer_trip') && (
+              <div style={{ background: '#e8f5e9', padding: '.5rem 1rem', borderRadius: '.5rem', marginBottom: '1rem', fontSize: '.85rem', color: '#2e7d32' }}>
+                💾 Voyage localement sauvegardé • <button onClick={() => localStorage.removeItem('organizer_trip')} style={{ background: 'none', border: 'none', color: '#2e7d32', textDecoration: 'underline', cursor: 'pointer' }}>Effacer</button>
+              </div>
+            )}
+            <h1 style={{ fontSize: '2rem', fontWeight: 700, color: '#6b2a1a' }}>
+              <EditableZone page="organisateur" zone="hero_title" fallback="✈️ Organisateur de voyage" />
+            </h1>
+            <p style={{ color: '#888' }}>
+              <EditableZone page="organisateur" zone="hero_subtitle" fallback="Planifiez votre trip, gérez votre budget" />
+            </p>
+          </div>
 
         {/* Trip Info */}
         <div style={{ background: 'white', borderRadius: '1rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
@@ -321,5 +355,6 @@ Généré avec Heldonica`;
         </div>
       </div>
     </div>
+    </InlineEditProvider>
   );
 }

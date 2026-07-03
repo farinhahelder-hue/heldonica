@@ -4,9 +4,12 @@ import { requireCmsAuth } from '@/lib/cms-auth'
 
 export const dynamic = 'force-dynamic'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null
+function getSupabase() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!supabaseUrl || !supabaseKey) return null
+  return createClient(supabaseUrl, supabaseKey)
+}
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY
 
@@ -26,7 +29,7 @@ interface SearchableItem {
   score?: number;
 }
 
-async function semanticSearch(query: string, type: string = 'all', limit: number = 10): Promise<SearchableItem[]> {
+async function semanticSearch(supabase: ReturnType<typeof getSupabase>, query: string, type: string = 'all', limit: number = 10): Promise<SearchableItem[]> {
   const results: SearchableItem[] = [];
   if (!supabase) throw new Error('Supabase unavailable');
 
@@ -146,6 +149,7 @@ export async function POST(request: NextRequest) {
   if (authResponse) return authResponse;
 
   try {
+    const supabase = getSupabase();
     const body = await request.json() as SearchRequest;
     const { query, type = 'all', limit = 10 } = body;
 
@@ -154,7 +158,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Perform semantic search
-    const results = await semanticSearch(query, type, limit);
+    const results = await semanticSearch(supabase, query, type, limit);
     
     // Optionally enhance with LLM
     const summary = await llmEnhanceSearch(query, results);

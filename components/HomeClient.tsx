@@ -9,6 +9,7 @@ import type { BlogPost } from '@/lib/blog-supabase'
 import { getExcerpt } from '@/lib/blog-supabase'
 import InstagramFeed from '@/components/InstagramFeed'
 import NewsletterForm from '@/components/NewsletterForm'
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import EditableZone from '@/components/inline-edit/EditableZone'
 
 const HELDONICA_BADGE_FALLBACK = '/images/badges-heldonica.svg'
@@ -248,7 +249,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
   const posterSrc = heroPosterImage || undefined
 
   return (
-    <>
+    <InlineEditProvider page="home">
       <style>{`
         [data-reveal] { opacity:0; transform:translateY(28px); transition:opacity 0.7s cubic-bezier(0.16,1,0.3,1),transform 0.7s cubic-bezier(0.16,1,0.3,1); }
         [data-reveal='left'] { transform:translateX(-32px); }
@@ -542,15 +543,17 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {[
-              { name: 'Madère', emoji: '🏝️', slug: '/destinations/madere' },
-              { name: 'Roumanie', emoji: '🏔️', slug: '/destinations/roumanie' },
-              { name: 'Monténégro', emoji: '🌊', slug: '/destinations/montenegro' },
-              { name: 'Sicile', emoji: '🌋', slug: '/destinations/sicile' },
+              { zone: 'dest_1', name: 'Madère', emoji: '🏝️', slug: '/destinations/madere' },
+              { zone: 'dest_2', name: 'Roumanie', emoji: '🏔️', slug: '/destinations/roumanie' },
+              { zone: 'dest_3', name: 'Monténégro', emoji: '🌊', slug: '/destinations/montenegro' },
+              { zone: 'dest_4', name: 'Sicile', emoji: '🌋', slug: '/destinations/sicile' },
             ].map((dest) => (
               <Link key={dest.slug} href={dest.slug}
                 className="group p-6 md:p-8 rounded-2xl bg-stone-50 border border-stone-100 hover:border-eucalyptus/30 hover:bg-eucalyptus/5 transition-all duration-300">
                 <span className="text-4xl mb-3 block">{dest.emoji}</span>
-                <span className="font-semibold text-mahogany group-hover:text-eucalyptus transition-colors">{dest.name}</span>
+                <span className="font-semibold text-mahogany group-hover:text-eucalyptus transition-colors">
+                  <EditableZone page="home" zone={`${dest.zone}_name`} fallback={dest.name} />
+                </span>
               </Link>
             ))}
           </div>
@@ -594,13 +597,17 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             </div>
             <div className="grid grid-cols-1 gap-4" data-reveal="right">
               {[
-                { t: 'Couples aventuriers', d: "Notre spécialité : ralentir sans ennuyer, laisser de la place au vrai, et garder le hors-sentiers sans perdre le fil." },
-                { t: 'Ouvert aussi à ton format', d: "Solo, famille curieuse ou groupe d’amis : on adapte cette même exigence terrain à votre énergie, vos contraintes et votre rythme." },
-                { t: 'Vécu sur le terrain', d: "Cartes, adresses, conseils pratiques et pépites dénichées : tout part d’expériences testées, pas inventées." },
+                { zone: 'cta_card_1', t: 'Couples aventuriers', d: "Notre spécialité : ralentir sans ennuyer, laisser de la place au vrai, et garder le hors-sentiers sans perdre le fil." },
+                { zone: 'cta_card_2', t: 'Ouvert aussi à ton format', d: "Solo, famille curieuse ou groupe d'amis : on adapte cette même exigence terrain à votre énergie, vos contraintes et votre rythme." },
+                { zone: 'cta_card_3', t: 'Vécu sur le terrain', d: "Cartes, adresses, conseils pratiques et pépites dénichées : tout part d'expériences testées, pas inventées." },
               ].map((item) => (
-                <div key={item.t} className="border border-white/10 rounded-xl p-5 hover:border-teal/30 transition">
-                  <h3 className="font-semibold text-white text-sm mb-1">{item.t}</h3>
-                  <p className="text-charcoal/40 text-sm leading-relaxed">{item.d}</p>
+                <div key={item.zone} className="border border-white/10 rounded-xl p-5 hover:border-teal/30 transition">
+                  <h3 className="font-semibold text-white text-sm mb-1">
+                    <EditableZone page="home" zone={`${item.zone}_title`} fallback={item.t} />
+                  </h3>
+                  <p className="text-charcoal/40 text-sm leading-relaxed">
+                    <EditableZone page="home" zone={`${item.zone}_text`} type="textarea" fallback={item.d} />
+                  </p>
                 </div>
               ))}
             </div>
@@ -612,6 +619,6 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
       <InstagramFeed />
 
       <Footer />
-    </>
+    </InlineEditProvider>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Script from 'next/script'
 import Header from '@/components/Header'
@@ -12,6 +12,18 @@ import EditableZone from '@/components/inline-edit/EditableZone'
 
 const SITE_URL = 'https://heldonica.fr'
 
+type Testimonial = {
+  id: string;
+  name: string;
+  location: string;
+  quote: string;
+  destination: string;
+  rating: number;
+  avatar_url: string | null;
+  source: string;
+  display_order: number;
+};
+
 const FAQS = [
   { zone: 'faq_1', q: 'Dans combien de temps reçoit-on la proposition ?', a: 'Sous 48h ouvrées maximum. On analyse ta demande en détail avant de te répondre avec une proposition concrète.' },
   { zone: 'faq_2', q: "La destination doit-elle être dans votre liste ?", a: 'Non — on peut aussi travailler sur une destination hors liste si elle correspond à nos valeurs slow travel. On fait des recherches approfondies pour chaque nouvelle destination.' },
@@ -20,7 +32,7 @@ const FAQS = [
   { zone: 'faq_5', q: 'Est-ce adapté aux voyages en famille ?', a: "On se spécialise dans les voyages en couple. Pour les familles, on peut orienter vers des ressources adaptées — mais notre cœur de métier reste le slow travel à deux." },
 ]
 
-const TESTIMONIALS_DATA = [
+const TESTIMONIALS_DATA_FALLBACK = [
   { zone: 'testimonial_1', text: 'On voulait du vrai, pas du touristique. Heldonica nous a trouvé une quinta qu\'on n\'aurait jamais découverte seuls.', author: 'Sophie & Marc', dest: 'Madère' },
   { zone: 'testimonial_2', text: "L'itinéraire était tellement bien pensé qu'on n'a pas eu à réfléchir une seule fois. Juste à profiter.", author: 'Julie & Alex', dest: 'Monténégro' },
   { zone: 'testimonial_3', text: 'On est partis 10 jours en Roumanie sans savoir par où commencer. Le carnet Heldonica a été notre meilleur investissement voyage.', author: 'Camille & Thomas', dest: 'Roumanie' },
@@ -66,6 +78,35 @@ export default function TravelPlanningPage() {
   })
   const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [formError, setFormError] = useState('')
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([])
+
+  // Fetch testimonials from API
+  useEffect(() => {
+    async function fetchTestimonials() {
+      try {
+        const res = await fetch('/api/cms/testimonials');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.testimonials && Array.isArray(data.testimonials)) {
+            setTestimonials(data.testimonials);
+          }
+        }
+      } catch {
+        // Use fallback on error
+      }
+    }
+    fetchTestimonials();
+  }, []);
+
+  // Convert testimonials to display format
+  const testimonialsData = testimonials.length > 0
+    ? testimonials.slice(0, 3).map((t, i) => ({
+        zone: `testimonial_${i + 1}`,
+        text: t.quote,
+        author: t.name,
+        dest: t.destination || t.location || 'Destination',
+      }))
+    : TESTIMONIALS_DATA_FALLBACK;
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
@@ -246,7 +287,7 @@ export default function TravelPlanningPage() {
               className="text-3xl font-serif text-mahogany text-center mb-10 block"
             />
             <div className="grid md:grid-cols-3 gap-6">
-              {TESTIMONIALS_DATA.map((t) => (
+              {testimonialsData.map((t) => (
                 <div key={t.zone} className="bg-white rounded-xl border border-stone-200 p-6">
                   <div className="flex items-center gap-1 mb-4">
                     {[...Array(5)].map((_, i) => <span key={i} className="text-amber-400 text-sm">★</span>)}
