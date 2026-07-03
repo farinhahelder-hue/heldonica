@@ -89,7 +89,15 @@ export async function POST(req: Request) {
 
     // Also sync to articles table for public pages
     if (data) {
-      const synced = data as Record<string, unknown>;
+      const synced = data as Record<string, any>;
+      
+      // Extraire destination de voice_notes si possible
+      let destination = null;
+      if (synced.voice_notes) {
+        const destMatch = synced.voice_notes.match(/Destination:\s*([^|\n]+)/i);
+        if (destMatch) destination = destMatch[1].trim();
+      }
+
       const articlesPayload = {
         id: synced.id,
         title: synced.title,
@@ -105,12 +113,12 @@ export async function POST(req: Request) {
         updated_at: synced.updated_at,
         tags: synced.tags || [],
         archived: false,
-        seo_title: synced.seo_title,
-        seo_description: synced.seo_description,
-        visit_date: synced.visit_date,
-        visit_count: synced.visit_count,
-        sitemap_priority: synced.sitemap_priority,
-        sitemap_changefreq: synced.sitemap_changefreq,
+        seo_title: synced.meta_title || synced.title,
+        seo_description: synced.meta_description || synced.excerpt || null,
+        faq_content: synced.faq_content,
+        destination: destination,
+        voice_notes: synced.voice_notes,
+        status: synced.status || 'draft',
       }
       // Sync to articles table - ignore errors as articles might not exist yet
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

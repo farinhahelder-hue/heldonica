@@ -1,4 +1,5 @@
-﻿import Image from 'next/image'
+import Image from 'next/image'
+import Script from 'next/script'
 import { getDestinationBySlug, blogPosts } from '@/lib/wordpress-data'
 import { supabase } from '@/lib/supabase-client'
 import { notFound } from 'next/navigation'
@@ -32,7 +33,7 @@ type DestinationMeta = {
 const zurichMeta: DestinationMeta = {
   description:
     'Badi flottantes, brasseries artisanales et vieille ville dense. Zurich se révèle quand on ralentit assez pour la laisser venir.',
-  heroImage: 'https://heldonica.fr/wp-content/uploads/2025/08/zurich-panorama-2-1024x679.jpg',
+  heroImage: 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1400&q=80',
   region: 'Suisse',
   duration: '3 à 4 jours',
   budget: 'Élevé mais rattrapable à pied',
@@ -45,7 +46,7 @@ const zurichMeta: DestinationMeta = {
 const suisseMeta: DestinationMeta = {
   description:
     'Montagnes, lacs, trains impeccables et détours qui demandent du temps. La Suisse devient juste quand on cesse de la résumer à son prix.',
-  heroImage: 'https://heldonica.fr/wp-content/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg',
+  heroImage: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1400&q=80',
   region: 'Europe',
   duration: '7 à 12 jours',
   budget: 'Moyen à élevé',
@@ -58,7 +59,7 @@ const suisseMeta: DestinationMeta = {
 const roumanieMeta: DestinationMeta = {
   description:
     'Timișoara, Delta du Danube, Carpates : la Roumanie donne beaucoup à celles et ceux qui acceptent de lui laisser de l&apos;espace.',
-  heroImage: 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
+  heroImage: 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=1400&q=80',
   region: 'Europe',
   duration: '8 à 14 jours',
   budget: 'Accessible',
@@ -71,7 +72,7 @@ const roumanieMeta: DestinationMeta = {
 const madereMeta: DestinationMeta = {
   description:
     'Forêts humides, levadas, falaises, pain chaud et retours successifs. Madère ne se livre pas en une seule fois.',
-  heroImage: 'https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg',
+  heroImage: 'https://images.unsplash.com/photo-1569959220744-ff553533f492?w=1400&q=80',
   region: 'Portugal',
   duration: '7 à 10 jours',
   budget: 'Moyen',
@@ -84,7 +85,7 @@ const madereMeta: DestinationMeta = {
 const parisMeta: DestinationMeta = {
   description:
     'Paris et l&apos;Île-de-France se lisent mieux quand on sort des grandes phrases. Un canal, une friche, une rue, et le rythme change.',
-  heroImage: 'https://heldonica.fr/wp-content/uploads/2025/09/paris-petite-ceinture-2-683x1024.jpg',
+  heroImage: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1400&q=80',
   region: 'France',
   duration: '2 à 5 jours',
   budget: 'Variable',
@@ -132,6 +133,21 @@ const DEST_META: Record<string, DestinationMeta> = {
   'ile-de-france-heldonica': parisMeta,
   'normandie-heldonica': normandieMeta,
   'bretagne-heldonica-slow': bretagneMeta,
+}
+
+const GPS_COORDINATES: Record<string, { lat: number; lon: number }> = {
+  zurich: { lat: 47.3769, lon: 8.5417 },
+  suisse: { lat: 46.8182, lon: 8.2275 },
+  roumanie: { lat: 45.9432, lon: 24.9668 },
+  madere: { lat: 32.7607, lon: -16.9592 },
+  paris: { lat: 48.8566, lon: 2.3522 },
+  normandie: { lat: 49.1828, lon: -0.3707 },
+  bretagne: { lat: 48.2020, lon: -2.9326 },
+  sicile: { lat: 37.5990, lon: 14.0154 },
+  sardaigne: { lat: 40.1209, lon: 9.0129 },
+  montenegro: { lat: 42.7087, lon: 19.3744 },
+  colombie: { lat: 4.5709, lon: -74.2973 },
+  lisbonne: { lat: 38.7223, lon: -9.1393 },
 }
 
 export const revalidate = 3600
@@ -290,8 +306,29 @@ export default async function DestinationPage({ params }: Props) {
       ]
     : []
 
+  const coords = GPS_COORDINATES[slug] || null
+  const destinationLd: any = {
+    '@context': 'https://schema.org',
+    '@type': 'TouristDestination',
+    name: page.title,
+    description: meta?.description || '',
+    touristType: 'Slow Travel / Couple',
+  }
+  if (coords) {
+    destinationLd.geo = {
+      '@type': 'GeoCoordinates',
+      latitude: coords.lat,
+      longitude: coords.lon,
+    }
+  }
+
   return (
     <>
+      <Script
+        id="destination-jsonld"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(destinationLd) }}
+      />
       <Header />
       <Breadcrumb />
       <main className="min-h-screen bg-[#f7f5f1]">

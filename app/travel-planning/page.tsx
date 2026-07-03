@@ -6,7 +6,6 @@ import Script from 'next/script'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
-import NewsletterForm from '@/components/NewsletterForm'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
 
@@ -26,16 +25,16 @@ type Testimonial = {
 
 const FAQS = [
   { zone: 'faq_1', q: 'Dans combien de temps reçoit-on la proposition ?', a: 'Sous 48h ouvrées maximum. On analyse ta demande en détail avant de te répondre avec une proposition concrète.' },
-  { zone: 'faq_2', q: "La destination doit-elle être dans votre liste ?", a: 'Non — on peut aussi travailler sur une destination hors liste si elle correspond à nos valeurs slow travel. On fait des recherches approfondies pour chaque nouvelle destination.' },
-  { zone: 'faq_3', q: "Peut-on modifier l'itinéraire après validation ?", a: "Oui, jusqu'à 2 allers-retours inclus dans la formule. On ajuste jusqu'à ce que le planning soit parfait pour vous." },
-  { zone: 'faq_4', q: 'Travaillez-vous avec des agences partenaires ?', a: 'Non. On conçoit nous-mêmes, sans commission cachée. Chaque adresse est testée ou recommandée par quelqu\'un en qui on a confiance.' },
+  { zone: 'faq_2', q: "La destination doit-elle être dans la liste ?", a: 'Non — on peut aussi concevoir ton voyage sur une destination hors liste si elle correspond à nos valeurs slow travel. On fait des recherches approfondies pour chaque nouvelle destination.' },
+  { zone: 'faq_3', q: "Peut-on modifier l'itinéraire après validation ?", a: "Oui, jusqu'à 2 allers-retours inclus dans la formule. On ajuste jusqu'à ce que le planning soit parfait pour toi." },
+  { zone: 'faq_4', q: 'Tu travailles avec des agences partenaires ?', a: 'Non. On conçoit nous-mêmes, sans commission cachée. Chaque adresse est testée ou recommandée par quelqu\'un en qui on a confiance.' },
   { zone: 'faq_5', q: 'Est-ce adapté aux voyages en famille ?', a: "On se spécialise dans les voyages en couple. Pour les familles, on peut orienter vers des ressources adaptées — mais notre cœur de métier reste le slow travel à deux." },
 ]
 
 const TESTIMONIALS_DATA_FALLBACK = [
-  { zone: 'testimonial_1', text: 'On voulait du vrai, pas du touristique. Heldonica nous a trouvé une quinta qu\'on n\'aurait jamais découverte seuls.', author: 'Sophie & Marc', dest: 'Madère' },
-  { zone: 'testimonial_2', text: "L'itinéraire était tellement bien pensé qu'on n'a pas eu à réfléchir une seule fois. Juste à profiter.", author: 'Julie & Alex', dest: 'Monténégro' },
-  { zone: 'testimonial_3', text: 'On est partis 10 jours en Roumanie sans savoir par où commencer. Le carnet Heldonica a été notre meilleur investissement voyage.', author: 'Camille & Thomas', dest: 'Roumanie' },
+  { zone: 'testimonial_1', text: 'On voulait du vrai, pas du touristique. Heldonica nous a trouvé une quinta sauvage qu\'on n\'aurait jamais découverte seuls.', author: 'Sophie & Marc — Madère, Mai 2025', dest: 'Madère' },
+  { zone: 'testimonial_2', text: "L'itinéraire slow était tellement bien pensé qu'on n'a pas eu à réfléchir une seule fois. Juste à se laisser porter.", author: 'Julie & Alex — Monténégro, Septembre 2025', dest: 'Monténégro' },
+  { zone: 'testimonial_3', text: 'On est partis 10 jours en Roumanie sans savoir par où commencer. Le carnet Heldonica a été notre meilleur investissement voyage.', author: 'Camille & Thomas — Roumanie, Juin 2025', dest: 'Roumanie' },
 ]
 
 const PRICING_PLANS = [
@@ -44,7 +43,7 @@ const PRICING_PLANS = [
     name: 'Essentielle',
     price: '250€',
     desc: 'Pour ceux qui veulent l\'itinéraire clé en main',
-    features: ['Itinéraire jour par jour personnalisé', 'Carnet de route PDF complet', '1h de brief en visio pour cerner vos envies', 'Liens directs hébergements & restaurants'],
+    features: ['Itinéraire jour par jour personnalisé', 'Carnet de route PDF complet', '1h de brief en visio pour cerner tes envies', 'Liens directs hébergements & restaurants'],
     popular: false,
   },
   {
@@ -52,7 +51,7 @@ const PRICING_PLANS = [
     name: 'Complète',
     price: '450€',
     desc: 'Le plus complet — on s\'occupe de tout',
-    features: ['Tout l\'Essentiel', 'Réservations hébergements incluses', 'Accès au carnet d\'adresses privé Heldonica', 'Suivi WhatsApp pendant le voyage'],
+    features: ['Tout l\'Essentiel', 'Réservations hébergements incluses', 'Accès au carnet d\'adresses privé Heldonica', 'Suivi WhatsApp pendant ton voyage'],
     popular: true,
   },
   {
@@ -66,15 +65,15 @@ const PRICING_PLANS = [
 ]
 
 const FORM_DESTINATIONS = [
-  'Madère', 'Monténégro', 'Roumanie', 'Lisbonne', 'Paris',
-  'Colombie', 'Portugal', 'Normandie', 'Suisse', 'Sardaigne',
+  'Madère', 'Monténégro', 'Roumanie', 'Lisbonne', 'Île-de-France',
+  'Colombie', 'Normandie', 'Suisse', 'Sardaigne',
   'Sicile', 'Naples', 'Malte', 'Corse',
 ]
 
 export default function TravelPlanningPage() {
   const [faqOpen, setFaqOpen] = useState<number | null>(null)
   const [formData, setFormData] = useState({
-    firstName: '', email: '', destination: '', duration: '', budget: '', startDate: '', notes: '',
+    firstName: '', email: '', destination: '', travelers: 'En duo / couple (Recommandé)', duration: '', budget: '', startDate: '', notes: '',
   })
   const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [formError, setFormError] = useState('')
@@ -117,17 +116,18 @@ export default function TravelPlanningPage() {
     setFormStatus('loading')
     setFormError('')
     try {
-      const res = await fetch('/api/travel-planning', {
+      const res = await fetch('/api/demandes-travel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          firstName: formData.firstName,
+          prenom: formData.firstName,
           email: formData.email,
           destination: formData.destination,
-          duration: formData.duration,
+          travelers: formData.travelers,
+          duree: formData.duration,
           budget: formData.budget,
-          startDate: formData.startDate,
-          notes: formData.notes,
+          date_depart: formData.startDate || null,
+          message: formData.notes,
         }),
       })
       if (!res.ok) throw new Error(await res.text())
@@ -170,12 +170,12 @@ export default function TravelPlanningPage() {
         {/* Hero */}
         <section className="relative min-h-[75vh] flex items-center overflow-hidden bg-stone-900">
           <EditableZone page="travel-planning" zone="hero_image_url" type="image"
-            fallback="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&h=1080&fit=crop"
+            fallback="https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=1920&h=1080&fit=crop"
             className="absolute inset-0 w-full h-full object-cover opacity-50"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
           <div className="relative container py-20">
-            <EditableZone page="travel-planning" zone="hero_badge" fallback="Voyage sur mesure"
+            <EditableZone page="travel-planning" zone="hero_badge" fallback="Slow travel vécu en duo · Hors sentiers · Île-de-France"
               className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold block"
             />
             <EditableZone page="travel-planning" zone="hero_title" fallback="Ton voyage en couple, conçu sur mesure"
@@ -195,7 +195,7 @@ export default function TravelPlanningPage() {
           <div className="container max-w-5xl">
             <div className="grid md:grid-cols-3 gap-8">
               {[
-                { zone: 'promise_1', emoji: '🗺️', fallbackTitle: 'Itinéraire sur mesure', fallbackText: 'Chaque jour pensé pour vous deux — rythme slow, pépites dénichées sur le terrain.' },
+                { zone: 'promise_1', emoji: '🗺️', fallbackTitle: 'Itinéraire sur mesure', fallbackText: 'Chaque jour pensé pour toi — rythme slow, pépites dénichées sur le terrain.' },
                 { zone: 'promise_2', emoji: '🏡', fallbackTitle: 'Hébergements triés', fallbackText: 'Boutique-hôtels, masseries, riads — uniquement ce qu\'on referait demain.' },
                 { zone: 'promise_3', emoji: '📞', fallbackTitle: 'Suivi humain', fallbackText: 'Un interlocuteur unique du devis au retour. On reste disponibles.' },
               ].map((p) => (
@@ -221,9 +221,9 @@ export default function TravelPlanningPage() {
             />
             <div className="grid md:grid-cols-4 gap-6">
               {[
-                { zone: 'step_1', step: '1', fallbackTitle: 'Tu remplis le formulaire', fallbackText: '5 minutes pour nous dire vos envies, contraintes et budget.' },
-                { zone: 'step_2', step: '2', fallbackTitle: 'Proposition sous 48h', fallbackText: 'On analyse, on conçoit et on vous envoie une proposition détaillée.' },
-                { zone: 'step_3', step: '3', fallbackTitle: "On affine ensemble", fallbackText: "Allers-retours jusqu'à la perfection — votre voyage, pas le nôtre." },
+                { zone: 'step_1', step: '1', fallbackTitle: 'Tu remplis le formulaire', fallbackText: '5 minutes pour nous dire tes envies, tes contraintes et ton budget.' },
+                { zone: 'step_2', step: '2', fallbackTitle: 'Proposition sous 48h', fallbackText: 'On analyse, on conçoit et on t\'envoie une proposition détaillée.' },
+                { zone: 'step_3', step: '3', fallbackTitle: "On affine ensemble", fallbackText: "Allers-retours jusqu'à la perfection — ton voyage, pas le nôtre." },
                 { zone: 'step_4', step: '4', fallbackTitle: "Tu pars l'esprit libre", fallbackText: 'Carnet de route, réservations, contacts — tout est prêt.' },
               ].map((etape) => (
                 <div key={etape.zone} className="text-center">
@@ -315,7 +315,7 @@ export default function TravelPlanningPage() {
         {/* Formulaire */}
         <section id="formulaire" className="bg-white py-20 scroll-mt-20">
           <div className="container max-w-2xl">
-            <EditableZone page="travel-planning" zone="form_title" fallback="Prêts à partir autrement ?"
+            <EditableZone page="travel-planning" zone="form_title" fallback="Prêt(e) à partir autrement ?"
               className="text-3xl font-serif text-mahogany text-center mb-2 block"
             />
             <EditableZone page="travel-planning" zone="form_text" fallback="Réponds à ces quelques questions — on te fait une proposition sous 48h."
@@ -336,7 +336,7 @@ export default function TravelPlanningPage() {
               <form onSubmit={handleFormSubmit} className="space-y-5">
                 <div className="grid md:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm font-semibold text-charcoal mb-1.5">Prénom(s)</label>
+                    <label className="block text-sm font-semibold text-charcoal mb-1.5">Ton prénom</label>
                     <input type="text" name="firstName" value={formData.firstName} onChange={handleFormChange} required
                       className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus" />
                   </div>
@@ -353,10 +353,23 @@ export default function TravelPlanningPage() {
                     <select name="destination" value={formData.destination} onChange={handleFormChange} required
                       className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus bg-white">
                       <option value="">Sélectionne une destination</option>
-                      <option value="autre">Autre (hors liste)</option>
                       {FORM_DESTINATIONS.map((d) => <option key={d} value={d}>{d}</option>)}
+                      <option value="autre">Autre (hors liste)</option>
                     </select>
                   </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-charcoal mb-1.5">Nombre de voyageurs</label>
+                    <select name="travelers" value={formData.travelers} onChange={handleFormChange} required
+                      className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus bg-white">
+                      <option value="En duo / couple (Recommandé)">En duo / couple (Recommandé)</option>
+                      <option value="Seul(e)">Seul(e)</option>
+                      <option value="En famille">En famille</option>
+                      <option value="Autre">Autre</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-sm font-semibold text-charcoal mb-1.5">Durée envisagée</label>
                     <select name="duration" value={formData.duration} onChange={handleFormChange} required
@@ -368,9 +381,6 @@ export default function TravelPlanningPage() {
                       <option value="Flexible">Flexible</option>
                     </select>
                   </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-sm font-semibold text-charcoal mb-1.5">Budget estimé</label>
                     <select name="budget" value={formData.budget} onChange={handleFormChange} required
@@ -382,6 +392,9 @@ export default function TravelPlanningPage() {
                       <option value="+3500€">+3500€</option>
                     </select>
                   </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-sm font-semibold text-charcoal mb-1.5">Date de départ souhaitée</label>
                     <input type="date" name="startDate" value={formData.startDate} onChange={handleFormChange}
@@ -390,10 +403,10 @@ export default function TravelPlanningPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-charcoal mb-1.5">Ce qui vous tient à cœur</label>
+                  <label className="block text-sm font-semibold text-charcoal mb-1.5">Ce qui te tient à cœur</label>
                   <textarea name="notes" value={formData.notes} onChange={handleFormChange} rows={4}
                     className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus resize-none"
-                    placeholder="Rythme, centres d'intérêt, contraintes, rêves… tout ce qui vous passe par la tête." />
+                    placeholder="Rythme, centres d'intérêt, contraintes, rêves… tout ce qui te passe par la tête." />
                 </div>
 
                 {/* Honeypot */}
@@ -439,13 +452,13 @@ export default function TravelPlanningPage() {
         {/* CTA final */}
         <section className="bg-mahogany text-white py-20">
           <div className="container text-center max-w-2xl">
-            <EditableZone page="travel-planning" zone="cta_title" fallback="Prêt(e) à partir autrement ?"
+            <EditableZone page="travel-planning" zone="cta_title" fallback="Envie de partir autrement ?"
               className="text-3xl md:text-4xl font-serif mb-4 block"
             />
-            <EditableZone page="travel-planning" zone="cta_text" type="textarea" fallback="Un voyage pensé pour vous, pas un itinéraire générique. Remplissez le formulaire et on vous prépare quelque chose d'unique."
+            <EditableZone page="travel-planning" zone="cta_text" type="textarea" fallback="Un voyage pensé pour toi, pas un itinéraire générique. Remplis le formulaire et on te prépare quelque chose d'unique."
               className="text-white/70 mb-8 block"
             />
-            <a href="#formulaire" className="inline-flex px-7 py-3 rounded-lg bg-teal text-charcoal font-semibold hover:bg-teal/90 transition-colors">
+            <a href="#formulaire" className="inline-flex px-7 py-3 rounded-xl bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors">
               <EditableZone page="travel-planning" zone="cta_button" fallback="Démarrer ma demande →" />
             </a>
           </div>

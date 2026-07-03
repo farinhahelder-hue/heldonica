@@ -168,8 +168,8 @@ export default function Header() {
           
           {/* Menu panel */}
           <div 
-            className={`absolute right-0 top-full z-50 w-full max-w-sm bg-white shadow-2xl transition-all duration-300 ease-out ${
-              open ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+            className={`absolute right-0 top-full z-50 w-full max-w-sm bg-white shadow-2xl transition-all duration-300 ease-out transform origin-top-right ${
+              open ? 'translate-x-0 scale-100 opacity-100 pointer-events-auto' : 'translate-x-6 scale-95 opacity-0 pointer-events-none'
             }`}
           >
             <div className="flex flex-col gap-1 p-5">

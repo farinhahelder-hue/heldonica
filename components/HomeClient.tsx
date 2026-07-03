@@ -32,12 +32,11 @@ const SLUG_IMAGES: Record<string, string> = {
 }
 
 const CAT_IMAGES: Record<string, string> = {
-  'Carnets Voyage': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/stoos-01.jpg',
-  'Découvertes Locales': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/romania-01.jpg',
-  'Guides Pratiques': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
-  'Expert Hôtelier': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
-  Travel: 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
+  'Carnets Voyage': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
+  'Découvertes Locales': 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=1200&q=80',
+  'Guides Pratiques': 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
   'Food & Lifestyle': 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=1200&q=80',
+  'Travel': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
 }
 
 function postImage(p: BlogPost): string {
@@ -83,7 +82,6 @@ function AnimatedStat({ nb, label, suffix = '' }: { nb: number | string; label: 
   const ref = useRef<HTMLDivElement>(null)
   const isNum = typeof nb === 'number' && nb > 0
   const numericValue = isNum ? nb : 0
-  // Ne jamais afficher 0 — utiliser "—" comme fallback
   const displayValue = isNum ? null : ((typeof nb === 'string' && nb !== '0') ? nb : '—')
   const count = useCounter(numericValue, 1400, started && isNum)
   
@@ -108,18 +106,18 @@ const CATEGORY_GRADIENTS: Record<string, string> = {
   'Carnets Voyage': 'from-[#006D77] to-[#4ECDC4]',
   'Découvertes Locales': 'from-[#6B2D1F] to-[#006D77]',
   'Guides Pratiques': 'from-[#006D77] to-[#4ECDC4]',
-  Travel: 'from-[#006D77] to-[#4ECDC4]',
-  'Food & Lifestyle': 'from-[#4ECDC4] to-[#006D77]',
-  default: 'from-[#006D77] to-[#6B2D1F]',
+  'Food & Lifestyle': 'from-[#8B6355] to-[#7C9E8A]',
+  'Travel': 'from-[#006D77] to-[#4ECDC4]',
+  default: 'from-[#6B2D1F] to-[#7C9E8A]',
 }
 
 const CATEGORY_ICONS: Record<string, string> = {
   'Carnets Voyage': `<path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`,
-  'Découvertes Locales': `<path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 11.25a1 1 0 110-2 1 1 0 010 2z" fill="currentColor"/> `,
+  'Découvertes Locales': `<path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="11" r="2" fill="currentColor"/>`,
   'Guides Pratiques': `<path d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.882 6 2.346m6-12.33c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.346m0-12.33c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.346" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`,
-  Travel: `<path d="M3.75 6A.75.75 0 014.5 5.25h13.5A.75.75 0 0119 6v12a.75.75 0 01-.75.75h-13.5A.75.75 0 014 18V6zm-1.5 7.5V6a.75.75 0 01.75-.75h13.5a.75.75 0 01.75.75v12a2.25 2.25 0 01-2.25 2.25H4.5a2.25 2.25 0 01-2.25-2.25V12.75z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`,
-  'Food & Lifestyle': `<path d="M12 3v7.5a3 3 0 01-.984 2.137L8.016 16.5a4.5 4.5 0 01-4.004.984A3 3 0 013 13.5V3h9z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 3v2m12-2v2m0 0l-3.5 3.5M18 5l-3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`,
-  default: `<path d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`,
+  'Food & Lifestyle': `<path d="M12 3v7.5a3 3 0 01-.984 2.137L8.016 16.5a4.5 4.5 0 01-4.004.984A3 3 0 013 13.5V3h9z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 3v2m12-2v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`,
+  'Travel': `<path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`,
+  default: `<path d="M12 21a9 9 0 100-18 9 9 0 000 18z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M12 8v4l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`,
 }
 
 function getCategoryGradient(category: string | null | undefined): string {
@@ -147,7 +145,6 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
     setImgFailed(false)
   }, [img])
 
-  // Formater la destination avec capitalize
   const displayDestination = post.destination
     ? post.destination.charAt(0).toUpperCase() + post.destination.slice(1).toLowerCase()
     : null
@@ -157,7 +154,6 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
       <article className="relative rounded-2xl overflow-hidden bg-mahogany/80 shadow-md hover:shadow-xl transition-all duration-400 h-full flex flex-col">
         <div className={`relative ${h} overflow-hidden`}>
           {imgFailed ? (
-            /* Gradient fallback élégant avec icône SVG */
             <div className={`w-full h-full flex flex-col items-center justify-center bg-gradient-to-br ${gradient} gap-3`}>
               <svg aria-hidden="true" width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-white/80" dangerouslySetInnerHTML={{ __html: iconSvg }} />
               <span className="text-white/90 text-xs font-semibold tracking-[0.12em] uppercase">{post.category || 'Travel'}</span>
@@ -244,13 +240,12 @@ interface HomeProps {
 export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries, heroVideoUrl, heroPosterImage, homeDestinations, homeZones }: HomeProps) {
   useScrollReveal()
   const featImg = featured ? postImage(featured) : null
-  // Fallback: si totalPosts est undefined/null/0, on utilise 25+ (valeur de référence)
   const publishedArticles = totalPosts && totalPosts > 0 ? totalPosts : 25
   const parsedCountries = parseInt(String(coveredCountries || '0'), 10)
   const countryCount = isNaN(parsedCountries) || parsedCountries <= 0 ? 7 : parsedCountries
 
   const videoSrc = heroVideoUrl || 'https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4'
-  const posterSrc = heroPosterImage || undefined
+  const posterSrc = heroPosterImage || 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&q=80'
 
   return (
     <InlineEditProvider page="home">
@@ -266,7 +261,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         .hero-word{display:inline;opacity:0;animation:wordIn 0.6s cubic-bezier(0.16,1,0.3,1) forwards}
         @keyframes wordIn{to{opacity:1}}
         @keyframes subtlePulse{0%,100%{opacity:.7;transform:translateY(0)}50%{opacity:1;transform:translateY(4px)}}
-        .scroll-cue{animation:subtlePulse 2.2s ease-in-out infinite}
+        .scroll-cue{opacity: 0; animation: wordIn 0.6s 1.6s forwards, subtlePulse 2.2s 1.8s ease-in-out infinite}
       `}</style>
 
       <Header />
@@ -274,13 +269,13 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
       {/* ── HERO ──────────────────────────────────────────────────────────── */}
       <section className="relative h-[85vh] md:h-screen bg-black flex items-end overflow-hidden">
         <video autoPlay muted loop playsInline preload="auto"
-          className="absolute inset-0 w-full h-full object-cover opacity-45"
+          className="absolute inset-0 w-full h-full object-cover opacity-[0.45]"
           src={videoSrc}
           poster={posterSrc}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
         <div className="relative z-20 px-5 md:px-16 pb-12 md:pb-24 max-w-4xl">
-          <EditableZone page="home" zone="hero_badge" fallback="Slow travel vécu en duo · Hors sentiers · Paris"
+          <EditableZone page="home" zone="hero_badge" fallback="Slow travel vécu en duo · Hors sentiers · Île-de-France"
             className="text-teal text-xs font-semibold tracking-[0.2em] uppercase mb-5 block"
           />
           <h1 className="text-3xl md:text-5xl lg:text-7xl font-serif font-light text-white leading-[1.15] mb-4 md:mb-6">
@@ -301,14 +296,13 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               className="px-5 md:px-6 py-2.5 md:py-3 bg-mahogany hover:bg-eucalyptus text-white rounded-full font-semibold text-sm tracking-wide transition">
               <EditableZone page="home" zone="hero_cta_1_label" fallback="Lire le carnet →" />
             </Link>
-            <Link href="/travel-planning-form"
+            <Link href="/travel-planning#formulaire"
               className="px-5 md:px-6 py-2.5 md:py-3 border border-white/50 hover:border-white text-white hover:bg-white/10 rounded-full font-semibold text-sm tracking-wide transition">
               <EditableZone page="home" zone="hero_cta_2_label" fallback="Nous écrire →" />
             </Link>
           </div>
         </div>
-        <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-20 scroll-cue"
-             style={{ animation: 'subtlePulse 2.2s 1.8s ease-in-out infinite, wordIn 0.6s 1.6s forwards', opacity: 0 }}>
+        <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-20 scroll-cue">
           <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeOpacity="0.6">
             <path d="M12 5v14M5 12l7 7 7-7" />
           </svg>
@@ -324,9 +318,9 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
               />
               <EditableZone page="home" zone="section_story_title" type="html" fallback={'Un art du voyage <span class="block italic text-eucalyptus">autrement</span>'}
-                className="text-3xl md:text-5xl font-serif font-light text-mahogany leading-tight mb-6 block"
+                className="text-3xl md:text-5xl font-serif font-light text-mahogany mb-6 leading-tight block"
               />
-              <EditableZone page="home" zone="section_story_text_1" type="textarea" fallback="On est un duo. On fabrique des voyages vrais..."
+              <EditableZone page="home" zone="section_story_text_1" type="textarea" fallback="Elle a grandi en habitant..."
                 className="text-base text-charcoal/70 leading-relaxed mb-4 block"
               />
               <EditableZone page="home" zone="section_story_text_2" type="textarea" fallback="Lui est né à Madère..."
@@ -346,7 +340,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               <AnimatedStat nb={publishedArticles} suffix="" label="Carnets publiés" />
               <div className="col-span-2 mt-2">
                 <p className="text-xs text-charcoal/40 leading-relaxed">
-                  <EditableZone page="home" zone="stats_playgrounds" type="textarea" fallback="Paris · Madère · Roumanie · Normandie · Sicile · Sardaigne · Tanzanie · Colombie · Afrique du Sud"
+                  <span className="font-semibold text-charcoal/70">Terrains de jeu :</span><br />
+                  <EditableZone page="home" zone="stats_playgrounds" type="textarea" fallback="Madère · Roumanie · Monténégro · Suisse · Lisbonne · Sicile · Sardaigne · Colombie · Île-de-France"
                     className="inline"
                   />
                 </p>
@@ -371,21 +366,14 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 <EditableZone page="home" zone="section_featured_badge" fallback="✦ À la une"
                   className="text-teal text-xs font-bold tracking-[0.2em] uppercase mb-3 block"
                 />
-                <span className="inline-block bg-eucalyptus text-white text-xs font-semibold px-3 py-1 rounded-full mb-4 capitalize">
-                  {featured.category}
-                </span>
-                <h2 className="text-2xl md:text-4xl font-serif font-light text-white leading-snug mb-3 group-hover:text-teal/80 transition-colors">
+                <h2 className="text-2xl md:text-4xl font-serif font-light text-white leading-tight mb-4 group-hover:text-teal/80 transition-colors">
                   {featured.title}
                 </h2>
-                {featured.excerpt && (
-                  <p className="text-white/65 text-sm md:text-base leading-relaxed line-clamp-2 mb-4 max-w-xl">{featured.excerpt}</p>
-                )}
-                {!featured.excerpt && displayExcerpt(featured) && (
-                  <p className="text-white/65 text-sm md:text-base leading-relaxed line-clamp-2 mb-4 max-w-xl">{displayExcerpt(featured)}</p>
-                )}
-                  <EditableZone page="home" zone="section_featured_cta" fallback="Lire le carnet →"
-                    className="inline-flex items-center gap-2 text-teal font-semibold text-sm group-hover:gap-3 transition-all"
-                  />
+                {featured.excerpt && <p className="text-gray-300 text-sm leading-relaxed mb-6 line-clamp-2">{featured.excerpt}</p>}
+                {!featured.excerpt && displayExcerpt(featured) && <p className="text-gray-300 text-sm leading-relaxed mb-6 line-clamp-2">{displayExcerpt(featured)}</p>}
+                <div className="inline-flex items-center gap-2 text-teal font-semibold text-sm group-hover:gap-3 transition-all">
+                  <EditableZone page="home" zone="section_featured_cta" fallback="Découvrir l'itinéraire →" />
+                </div>
               </div>
             </article>
           </Link>
@@ -532,7 +520,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         </section>
       )}
 
-{/* ── DESTINATIONS ─────────────────────────────────────────────── */}
+      {/* ── DESTINATIONS ─────────────────────────────────────────────── */}
       <section className="py-20 md:py-28 bg-white">
         <div className="max-w-6xl mx-auto px-6 md:px-10 text-center">
             <EditableZone page="home" zone="section_destinations_badge" fallback="✦ Nos territoires"
@@ -590,7 +578,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 className="text-charcoal/60 text-sm leading-relaxed mb-8 block"
               />
               <div className="flex flex-wrap gap-3">
-                <Link href="/travel-planning-form"
+                <Link href="/travel-planning#formulaire"
                   className="px-6 py-3 bg-eucalyptus hover:bg-eucalyptus text-white rounded font-semibold text-sm transition">
                   <EditableZone page="home" zone="section_cta_btn_1" fallback="Nous écrire →" />
                 </Link>

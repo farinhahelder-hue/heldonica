@@ -207,14 +207,22 @@ export default async function BlogPostPage({ params }: Props) {
   const post = await getPostBySlug(slug)
   if (!post) notFound()
 
-  // Fetch show_map flag
-  const supabase = createServiceClient()
-  const { data: mapMeta } = await supabase
-    .from('cms_blog_posts')
-    .select('show_map')
-    .eq('slug', slug)
-    .single()
-  const showMap = mapMeta?.show_map === true
+  // Fetch show_map flag safely with try-catch and key checks
+  let showMap = false
+  try {
+    const hasServiceKey = !!process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (hasServiceKey) {
+      const supabaseAdmin = createServiceClient()
+      const { data: mapMeta } = await supabaseAdmin
+        .from('cms_blog_posts')
+        .select('show_map')
+        .eq('slug', slug)
+        .single()
+      showMap = mapMeta?.show_map === true
+    }
+  } catch (err) {
+    console.warn("Could not query show_map from admin schema, defaulting to false:", err)
+  }
 
   const allPosts = await getAllPosts()
   const relatedResult = getRelatedArticles(post, allPosts, 3)

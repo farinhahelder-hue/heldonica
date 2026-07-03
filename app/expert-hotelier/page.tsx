@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   title: 'Consulting Hôtelier SEO & Revenue Management | Heldonica',
   description: '+23% RevPAR, +22 pts réservation directe. Audit gratuit pour établissements indépendants. Revenue Management, SEO local, expérience client couple.',
   keywords: ['consulting hôtelier', 'revenue management', 'SEO local hôtel', 'expérience client couple', 'audit hôtelier gratuit', 'conseil hôtellerie'],
-  robots: { index: false, follow: false },
+  robots: { index: true, follow: true },
   alternates: { canonical: `${SITE_URL}/expert-hotelier` },
   openGraph: {
     title: 'Consulting Hôtelier SEO & Revenue Management | Heldonica',
@@ -126,11 +126,11 @@ export default function ExpertHotelierPage() {
       <main className="min-h-screen">
         {/* Hero Section */}
         <section className="relative bg-stone-950 text-white py-28 md:py-36 overflow-hidden">
-          <div className="absolute inset-0 opacity-15" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1400&q=70)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
-          <div className="absolute inset-0 bg-gradient-to-br from-stone-950/90 via-stone-950/80 to-stone-950/90" />
+          <div className="absolute inset-0 opacity-[0.35]" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1400&q=70)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+          <div className="absolute inset-0 bg-gradient-to-br from-stone-950/[0.60] via-stone-950/50 to-stone-950/[0.60]" />
           <div className="relative max-w-4xl mx-auto px-6 text-center">
             <EditableZone page="expert-hotelier" zone="hero_badge" fallback="Consulting Hôtelier B2B"
-              className="inline-block px-4 py-1.5 bg-amber-500/15 text-amber-400 text-xs font-semibold rounded-full uppercase tracking-widest mb-6 border border-amber-500/20"
+              className="inline-block px-4 py-1.5 bg-eucalyptus/15 text-eucalyptus text-xs font-semibold rounded-full uppercase tracking-widest mb-6 border border-eucalyptus/20"
             />
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-light leading-tight mb-8">
               <EditableZone page="expert-hotelier" zone="hero_title" fallback="Votre établissement laisse-t-il 15 % de RevPAR sur la table ?" className="inline" />

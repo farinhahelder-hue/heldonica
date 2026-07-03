@@ -10,11 +10,11 @@ import { supabase } from '@/lib/supabase-client'
 const FALLBACK_FAQ_QUESTIONS = [
   {
     question: 'Comment fonctionne le Travel Planning sur mesure ?',
-    answer: "Vous nous décrivez votre voyage idéal via notre formulaire ou lors d'un échange. On analyse vos envies, contraintes et budget, puis on vous prépare un carnet de route PDF complet avec itinéraire, hébergements, restaurants et conseils pratiques. Le tout en 7-10 jours.",
+    answer: "Tu nous décris ton voyage idéal via notre formulaire ou lors d'un échange. On analyse tes envies, tes contraintes et ton budget, puis on te prépare un carnet de route PDF complet avec itinéraire, hébergements, restaurants et conseils pratiques. Le tout en 7-10 jours.",
   },
   {
     question: 'Combien coûte un voyage sur mesure avec Heldonica ?',
-    answer: "Le tarif du Travel Planning commence à 149€ pour un voyage de base. Le prix varie selon la complexité de l'itinéraire, la durée du voyage et le niveau de personnalisation. Chaque projet est unique, on vous donne un chiffrage précis après notre échange découverte.",
+    answer: "Le tarif du Travel Planning commence à 149€ pour un voyage de base. Le prix varie selon la complexité de l'itinéraire, la durée du voyage et le niveau de personnalisation. Chaque projet est unique, on te donne un chiffrage précis après notre échange découverte.",
   },
   {
     question: "Heldonica accompagne aussi les voyageurs en solo ?",
@@ -131,14 +131,14 @@ export default async function NosServicesPage() {
           />
           <div className="relative max-w-4xl mx-auto px-6 text-center">
             <EditableZone page="nos-services" zone="hero_badge" fallback="Ce qu'on propose"
-              className="inline-block px-4 py-1.5 bg-amber-500/20 text-amber-400 text-xs font-semibold rounded-full uppercase tracking-wider mb-6"
+              className="inline-block px-4 py-1.5 bg-eucalyptus/20 text-eucalyptus text-xs font-semibold rounded-full uppercase tracking-wider mb-6"
             />
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-light leading-tight mb-6">
               <EditableZone page="nos-services" zone="hero_title_line1" fallback="Des services pensés pour"
                 className="inline"
               />
               <br />
-              <span className="text-amber-400">
+              <span className="text-eucalyptus">
                 <EditableZone page="nos-services" zone="hero_title_line2" fallback="voyager autrement."
                   className="inline"
                 />
@@ -168,7 +168,7 @@ export default async function NosServicesPage() {
                   className="text-stone-600 leading-relaxed mb-6 block"
                 />
                 <EditableZone page="nos-services" zone="card_1_price" fallback="À partir de 149€"
-                  className="text-amber-700 font-semibold text-sm mb-4 block"
+                  className="text-eucalyptus font-semibold text-sm mb-4 block"
                 />
                 <Link href="/travel-planning" className="inline-flex items-center gap-2 text-sm font-semibold text-eucalyptus hover:text-eucalyptus/80 transition-colors">
                   <EditableZone page="nos-services" zone="card_1_cta" fallback="Découvrir →" />
@@ -224,8 +224,8 @@ export default async function NosServicesPage() {
             />
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
-                href="/travel-planning-form"
-                className="px-8 py-4 bg-amber-800 text-white font-semibold rounded-full hover:bg-amber-700 transition-colors"
+                href="/travel-planning#formulaire"
+                className="px-8 py-4 bg-eucalyptus text-white font-semibold rounded-full hover:bg-eucalyptus/90 transition-colors"
               >
                 <EditableZone page="nos-services" zone="cta_primary" fallback="Demander un voyage sur mesure →" />
               </Link>

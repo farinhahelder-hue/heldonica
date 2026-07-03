@@ -158,7 +158,15 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
   // Also sync to articles table for public pages
   if (data) {
-    const p = data as unknown as Record<string, unknown>;
+    const p = data as unknown as Record<string, any>;
+    
+    // Extraire destination de voice_notes si possible
+    let destination = null;
+    if (p.voice_notes) {
+      const destMatch = p.voice_notes.match(/Destination:\s*([^|\n]+)/i);
+      if (destMatch) destination = destMatch[1].trim();
+    }
+
     const articlesPayload = {
       id: p.id,
       title: p.title,
@@ -173,12 +181,12 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       updated_at: p.updated_at,
       tags: p.tags || [],
       archived: p.archived || false,
-      seo_title: p.seo_title,
-      seo_description: p.seo_description,
-      visit_date: p.visit_date,
-      visit_count: p.visit_count,
-      sitemap_priority: p.sitemap_priority,
-      sitemap_changefreq: p.sitemap_changefreq,
+      seo_title: p.meta_title || p.title,
+      seo_description: p.meta_description || p.excerpt || null,
+      faq_content: p.faq_content,
+      destination: destination,
+      voice_notes: p.voice_notes,
+      status: p.status || 'draft',
     }
     // Sync to articles table - ignore errors
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

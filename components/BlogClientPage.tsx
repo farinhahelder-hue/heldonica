@@ -119,7 +119,7 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
           className="absolute inset-0 opacity-25"
           style={{
             backgroundImage:
-              "url('https://heldonica.fr/wp-content/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg')",
+              "url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1400&q=80')",
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}

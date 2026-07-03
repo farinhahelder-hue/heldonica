@@ -8,21 +8,33 @@ interface ArticleFormProps {
   onCancel: () => void;
 }
 
+const CATEGORIES = [
+  'Carnets Voyage',
+  'Guides Pratiques',
+  'Food & Lifestyle',
+  'Découvertes Locales'
+];
+
 export default function ArticleForm({ articleId, onSave, onCancel }: ArticleFormProps) {
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
     excerpt: '',
     content: '',
-    category: 'Travel',
+    category: 'Carnets Voyage',
     author: 'Heldonica',
     published: false,
-    image: '',
-    seo: {
-      metaTitle: '',
-      metaDescription: '',
-      keywords: [] as string[],
-    },
+    featured_image: '',
+    meta_title: '',
+    meta_description: '',
+    tags: '',
+    published_at: '',
+    status: 'draft',
+    faq_content: '',
+    show_map: false,
+    og_image_url: '',
+    featured: false,
+    voice_notes: '',
   });
 
   const [loading, setLoading] = useState(false);
@@ -31,10 +43,34 @@ export default function ArticleForm({ articleId, onSave, onCancel }: ArticleForm
   const fetchArticle = useCallback(async () => {
     try {
       const response = await fetch(`/api/cms/articles/${articleId}`);
+      if (!response.ok) throw new Error('Impossible de charger l\'article');
       const data = await response.json();
-      setFormData(data);
-    } catch (err) {
-      console.error('Failed to fetch article:', err);
+      
+      if (data && data.article) {
+        const art = data.article;
+        setFormData({
+          title: art.title || '',
+          slug: art.slug || '',
+          excerpt: art.excerpt || '',
+          content: art.content || '',
+          category: art.category || 'Carnets Voyage',
+          author: art.author || 'Heldonica',
+          published: !!art.published,
+          featured_image: art.featured_image || '',
+          meta_title: art.meta_title || '',
+          meta_description: art.meta_description || '',
+          tags: Array.isArray(art.tags) ? art.tags.join(', ') : (art.tags || ''),
+          published_at: art.published_at ? new Date(art.published_at).toISOString().slice(0, 16) : '',
+          status: art.status || 'draft',
+          faq_content: typeof art.faq_content === 'object' ? JSON.stringify(art.faq_content, null, 2) : (art.faq_content || ''),
+          show_map: !!art.show_map,
+          og_image_url: art.og_image_url || '',
+          featured: !!art.featured,
+          voice_notes: art.voice_notes || '',
+        });
+      }
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors du chargement de l\'article');
     }
   }, [articleId]);
 
@@ -59,16 +95,6 @@ export default function ArticleForm({ articleId, onSave, onCancel }: ArticleForm
     }
   };
 
-  const handleSeoChange = (field: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      seo: {
-        ...prev.seo,
-        [field]: value,
-      },
-    }));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -78,14 +104,35 @@ export default function ArticleForm({ articleId, onSave, onCancel }: ArticleForm
       const method = articleId ? 'PATCH' : 'POST';
       const url = articleId ? `/api/cms/articles/${articleId}` : '/api/cms/articles';
 
+      const tagsArray = formData.tags
+        ? formData.tags.split(',').map((t) => t.trim()).filter(Boolean)
+        : [];
+
+      let faqJson = null;
+      if (formData.faq_content.trim()) {
+        try {
+          faqJson = JSON.parse(formData.faq_content);
+        } catch {
+          faqJson = formData.faq_content;
+        }
+      }
+
+      const payload = {
+        ...formData,
+        tags: tagsArray,
+        faq_content: faqJson,
+        published_at: formData.published_at ? new Date(formData.published_at).toISOString() : null,
+      };
+
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to save article');
+        const resData = await response.json();
+        throw new Error(resData.error || 'Erreur lors de la sauvegarde');
       }
 
       onSave();
@@ -97,147 +144,262 @@ export default function ArticleForm({ articleId, onSave, onCancel }: ArticleForm
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <h3 className="text-xl font-bold mb-6">{articleId ? 'Edit Article' : 'New Article'}</h3>
+    <div className="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 md:p-8">
+      <h3 className="text-2xl font-serif text-stone-900 mb-6">
+        {articleId ? 'Modifier l\'article' : 'Créer un article'}
+      </h3>
 
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 text-sm">
           {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
+            <label className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">Titre</label>
             <input
               type="text"
               name="title"
               value={formData.title}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2E4F4F]"
+              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-eucalyptus text-sm"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Slug</label>
+            <label className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">Slug (URL)</label>
             <input
               type="text"
               name="slug"
               value={formData.slug}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2E4F4F]"
+              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-eucalyptus text-sm"
               required
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Excerpt</label>
+          <label className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">Extrait (Excerpt)</label>
           <textarea
             name="excerpt"
             value={formData.excerpt}
             onChange={handleChange}
             rows={2}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2E4F4F]"
-            required
+            className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-eucalyptus text-sm"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
+          <label className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">Contenu (HTML / Markdown)</label>
           <textarea
             name="content"
             value={formData.content}
             onChange={handleChange}
-            rows={6}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2E4F4F]"
+            rows={12}
+            className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-eucalyptus text-sm font-mono"
             required
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+            <label className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">Image principale (featured_image)</label>
+            <input
+              type="text"
+              name="featured_image"
+              value={formData.featured_image}
+              onChange={handleChange}
+              placeholder="/images/uploads/exemple.jpg"
+              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-eucalyptus text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">Image OpenGraph (og_image_url)</label>
+            <input
+              type="text"
+              name="og_image_url"
+              value={formData.og_image_url}
+              onChange={handleChange}
+              placeholder="URL absolue de l'image de partage"
+              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-eucalyptus text-sm"
+            />
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">Catégorie</label>
             <select
               name="category"
               value={formData.category}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2E4F4F]"
+              className="w-full px-4 py-2.5 border border-stone-200 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-eucalyptus text-sm"
             >
-              <option>Travel</option>
-              <option>Culture</option>
-              <option>Destination</option>
-              <option>Tips</option>
-              <option>News</option>
+              {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Author</label>
+            <label className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">Auteur</label>
             <input
               type="text"
               name="author"
               value={formData.author}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2E4F4F]"
+              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-eucalyptus text-sm"
             />
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <label className="flex items-center gap-2">
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">Tags (séparés par des virgules)</label>
             <input
-              type="checkbox"
-              name="published"
-              checked={formData.published}
+              type="text"
+              name="tags"
+              value={formData.tags}
               onChange={handleChange}
-              className="w-4 h-4"
+              placeholder="suisse, slow travel, randonnée"
+              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-eucalyptus text-sm"
             />
-            <span className="text-sm font-medium text-gray-700">Published</span>
-          </label>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">Date de publication (ISO)</label>
+            <input
+              type="datetime-local"
+              name="published_at"
+              value={formData.published_at}
+              onChange={handleChange}
+              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-eucalyptus text-sm"
+            />
+          </div>
         </div>
 
-        <div className="border-t pt-6">
-          <h4 className="font-bold mb-4">SEO Settings</h4>
-          <div className="space-y-4">
+        <div className="grid md:grid-cols-3 gap-6 items-center bg-stone-50 p-5 rounded-2xl border border-stone-150">
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">Statut</label>
+            <select
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              className="w-full px-4 py-2.5 border border-stone-200 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-eucalyptus text-sm"
+            >
+              <option value="draft">Brouillon (Draft)</option>
+              <option value="published">Publié (Published)</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-2 mt-4 md:mt-0">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                name="published"
+                checked={formData.published}
+                onChange={handleChange}
+                className="w-4 h-4 rounded text-eucalyptus border-stone-300 focus:ring-eucalyptus"
+              />
+              <span className="text-sm font-medium text-stone-700">Rendre visible (published)</span>
+            </label>
+            
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                name="featured"
+                checked={formData.featured}
+                onChange={handleChange}
+                className="w-4 h-4 rounded text-eucalyptus border-stone-300 focus:ring-eucalyptus"
+              />
+              <span className="text-sm font-medium text-stone-700">Mettre à la une (featured)</span>
+            </label>
+          </div>
+
+          <div className="flex flex-col gap-2 mt-4 md:mt-0">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                name="show_map"
+                checked={formData.show_map}
+                onChange={handleChange}
+                className="w-4 h-4 rounded text-eucalyptus border-stone-300 focus:ring-eucalyptus"
+              />
+              <span className="text-sm font-medium text-stone-700">Afficher la carte</span>
+            </label>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">FAQ Content (JSON ou texte libre)</label>
+            <textarea
+              name="faq_content"
+              value={formData.faq_content}
+              onChange={handleChange}
+              rows={4}
+              placeholder='[{"question": "...", "answer": "..."}]'
+              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-eucalyptus text-sm font-mono"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">Notes Vocales / Memo Destination</label>
+            <textarea
+              name="voice_notes"
+              value={formData.voice_notes}
+              onChange={handleChange}
+              rows={4}
+              placeholder="Notes de terrain, destination, etc."
+              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-eucalyptus text-sm"
+            />
+          </div>
+        </div>
+
+        <div className="border-t border-stone-200 pt-6">
+          <h4 className="text-md font-serif text-stone-900 mb-4">Configuration SEO</h4>
+          <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Meta Title</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">Meta Title</label>
               <input
                 type="text"
-                value={formData.seo.metaTitle}
-                onChange={(e) => handleSeoChange('metaTitle', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2E4F4F]"
+                name="meta_title"
+                value={formData.meta_title}
+                onChange={handleChange}
+                className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-eucalyptus text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Meta Description</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">Meta Description</label>
               <textarea
-                value={formData.seo.metaDescription}
-                onChange={(e) => handleSeoChange('metaDescription', e.target.value)}
+                name="meta_description"
+                value={formData.meta_description}
+                onChange={handleChange}
                 rows={2}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2E4F4F]"
+                className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-eucalyptus text-sm"
               />
             </div>
           </div>
         </div>
 
-        <div className="flex gap-4 pt-6 border-t">
+        <div className="flex gap-4 pt-6 border-t border-stone-200">
           <button
             type="submit"
             disabled={loading}
-            className="bg-[#2E4F4F] text-white px-6 py-2 rounded-lg hover:bg-[#1a2f2f] transition disabled:opacity-50"
+            className="px-6 py-2.5 bg-stone-900 text-white font-semibold rounded-full hover:bg-stone-800 transition disabled:opacity-50 text-sm"
           >
-            {loading ? 'Saving...' : 'Save Article'}
+            {loading ? 'Sauvegarde...' : 'Enregistrer l\'article'}
           </button>
           <button
             type="button"
             onClick={onCancel}
-            className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition"
+            className="px-6 py-2.5 bg-stone-100 text-stone-700 font-semibold rounded-full hover:bg-stone-200 transition text-sm"
           >
-            Cancel
+            Annuler
           </button>
         </div>
       </form>

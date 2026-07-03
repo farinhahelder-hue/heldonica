@@ -57,24 +57,24 @@ const PILLIERS = [
   {
     emoji: '🐢',
     titre: 'Lent, pas lazy',
-    description: 'Ralentir pour mieux voir. Prendre le temps de comprendre un quartier, une culture, une cuisine. Le voyage qui compte vraiment demande de la présence.',
+    description: 'Ralentir pour mieux voir. Prendre le temps de comprendre un quartier, une culture, une cuisine. Le voyage qui compte vraiment demande de la présence, pas une liste à cocher.',
   },
   {
     emoji: '✨',
     titre: 'Vrai, pas parfait',
-    description: 'Le voyage testé, pas fantasmé. Les restaurants où le patron te reconnaît, les sentiers qui n\'existent sur aucune carte, les erreurs qui deviennent des histoires.',
+    description: 'Le voyage qu\'on te raconte, on l\'a vécu. Les adresses où le patron te reconnaît, les sentiers qui n\'existent sur aucune carte, les erreurs qui deviennent des histoires qu\'on garde.',
   },
   {
     emoji: '🎯',
     titre: 'Sur mesure, pas en série',
-    description: "Chaque voyage est unique. On ne copie pas un itinéraire, on construit avec toi — tes envies, ton rythme, tes contraintes.",
+    description: "On ne vend pas des destinations. On conçoit des expériences. Chaque voyage est construit avec toi — tes envies, ton rythme, tes contraintes. Pas un copier-coller.",
   },
 ]
 
 const STATS = [
-  { valeur: '7', label: 'Pays habités' },
+  { valeur: '7+', label: 'Pays habités' },
   { valeur: '25+', label: 'Carnets publiés' },
-  { valeur: '4', label: 'Ans de slow travel' },
+  { valeur: '3', label: 'Étapes pour concevoir ton voyage' },
 ]
 
 export default function AProposPage() {
@@ -115,16 +115,16 @@ export default function AProposPage() {
             
             <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-start">
               <div className="space-y-5">
-                <EditableZone page="a-propos" zone="bio_text_1" type="textarea" fallback="Lui est né à Madère, entre l'Atlantique et des falaises que les cartes n'ont pas encore toutes nommées. Elle a grandi entre la Normandie et Paris, avec le voyage dans le sang depuis toujours."
+                <EditableZone page="a-propos" zone="bio_text_1" type="textarea" fallback="Heldonica, c'est né comme ça : un jour, on s'est rendu compte qu'on avait passé plus de temps à planner nos voyages qu'à les vivre. Et que le planning, justement, c'était déjà une partie du voyage."
                   className="text-stone-600 leading-relaxed block"
                 />
-                <EditableZone page="a-propos" zone="bio_text_2" type="textarea" fallback="On s'est rencontrés à Paris. Et très vite, on a compris qu'on avait la même façon de voir un voyage : pas comme une checklist de lieux à cocher, mais comme une expérience à vivre pleinement."
+                <EditableZone page="a-propos" zone="bio_text_2" type="textarea" fallback="Alors on a décidé d'en faire notre métier : aider d'autres à concevoir des voyages qui ressemblent vraiment à leurs rêves."
                   className="text-stone-600 leading-relaxed block"
                 />
-                <EditableZone page="a-propos" zone="bio_text_3" type="textarea" fallback="En 2019, on a décidé de faire autrement. De ralentir. De prendre le temps de comprendre les endroits où on allait, plutôt que de les traverser."
+                <EditableZone page="a-propos" zone="bio_text_3" type="textarea" fallback="Le voyage le plus précieux n'est pas celui qu'on voit sur Instagram. C'est celui où tu te perds un peu. Où tu reviens avec une adresse que personne dans ton entourage ne connaît. Où tu sais exactement combien de temps il faut marcher pour trouver la meilleure terrasse de la ville."
                   className="text-stone-600 leading-relaxed block"
                 />
-                <EditableZone page="a-propos" zone="bio_text_4" type="textarea" fallback="Aujourd'hui, on documente ce qu'on vit — parce qu'on croit que les meilleures infos sont celles qu'on trouve sur le terrain, pas dans les blogs sponsorisés."
+                <EditableZone page="a-propos" zone="bio_text_4" type="textarea" fallback="Le slow travel, ce n'est pas une stratégie. C'est une évidence. Quand on voyage autrement, on vit autrement. On choisit qualité sur quantité. On revient moins fatigué qu'avant de partir."
                   className="text-stone-600 leading-relaxed block"
                 />
               </div>
@@ -236,7 +236,7 @@ export default function AProposPage() {
         <section className="py-20 md:py-28 bg-eucalyptus/5">
           <div className="max-w-3xl mx-auto px-6 text-center">
             <blockquote className="text-2xl md:text-3xl font-serif font-light text-stone-900 leading-relaxed mb-8">
-              &ldquo;<EditableZone page="a-propos" zone="quote_text" type="textarea" fallback="On ne te recommande que ce qu'on serait prêts à conseiller à nos proches." className="inline" />&rdquo;
+              &ldquo;<EditableZone page="a-propos" zone="quote_text" type="textarea" fallback="On n'a pas de témoignages clients. On a des années de route, des carnets remplis d'adresses dénichées, et une méthode éprouvée sur le terrain. C'est nos preuves." className="inline" />&rdquo;
             </blockquote>
             <p className="text-stone-500 text-sm">
               Des questions ? Écris-nous à{' '}
