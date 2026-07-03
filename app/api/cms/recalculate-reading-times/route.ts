@@ -6,22 +6,25 @@ import { requireCmsAuth } from '@/lib/cms-auth'
 // Protected by CMS auth - admin only
 // Recalculates reading_time for all articles
 
+function getSupabase() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
+  if (!supabaseUrl || !supabaseKey) return null
+  return createClient(supabaseUrl, supabaseKey)
+}
+
 export async function POST(req: Request) {
   // Verify CMS auth
   const authResponse = await requireCmsAuth(req)
   if (authResponse) return authResponse
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
-
-  if (!supabaseUrl || !supabaseKey) {
+  const supabase = getSupabase()
+  if (!supabase) {
     return NextResponse.json(
       { error: 'Supabase not configured' },
       { status: 503 }
     )
   }
-
-  const supabase = createClient(supabaseUrl, supabaseKey)
 
   // Get all articles
   const { data: articles, error: fetchError } = await supabase

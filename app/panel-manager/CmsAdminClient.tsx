@@ -8,7 +8,7 @@ import MediaLibrary from '@/components/MediaLibrary';
 import EeaatScore from '@/components/EeaatScore';
 import { sanitizeHtml } from '@/lib/sanitize-html';
 import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot, Mail, Map as MapIcon, ChevronLeft, ChevronRight, Palette, Zap, Inbox } from 'lucide-react';
-import { Film, Clapperboard, Camera, Calendar } from 'lucide-react';
+import { Film, Clapperboard, Camera, Calendar, MessageSquare, ClipboardList } from 'lucide-react';
 import CmsSettingsPanel from '@/components/admin/CmsSettingsPanel';
 import ErrorBoundary from '@/components/admin/ErrorBoundary';
 import { ToastProvider, useToast } from '@/components/admin/Toast';
@@ -26,6 +26,8 @@ const VideoMaker = dynamic(() => import('@/components/admin/video-maker/VideoMak
 const MapManagerSection = dynamic(() => import('./maps/MapManagerSection'), { ssr: false });
 const DesignEditor = dynamic(() => import('@/components/admin/DesignEditor'), { ssr: false });
 const GeoAuditPanel = dynamic(() => import('@/components/admin/GeoAuditPanel'), { ssr: false });
+const TestimonialsManager = dynamic(() => import('@/components/admin/TestimonialsManager'), { ssr: false });
+const ChecklistTemplatesManager = dynamic(() => import('@/components/admin/ChecklistTemplatesManager'), { ssr: false });
 const InstagramPublisher = dynamic(() => import('@/components/admin/InstagramPublisher'), { ssr: false });
 const InstagramStatsDashboard = dynamic(() => import('@/components/admin/InstagramStatsDashboard'), { ssr: false });
 const ScheduledPostsList = dynamic(() => import('@/components/admin/ScheduledPostsList'), { ssr: false });
@@ -56,7 +58,8 @@ type NavSection =
   | 'dashboard' | 'articles' | 'new-article' | 'media'
   | 'settings' | 'seo' | 'analytics' | 'carousel'
   | 'blog-generator' | 'video' | 'fast-trim' | 'studio-video'
-  | 'map' | 'auto-shorts' | 'design' | 'geo' | 'instagram' | 'messages';
+  | 'map' | 'auto-shorts' | 'design' | 'geo' | 'instagram' | 'messages'
+  | 'testimonials' | 'checklists';
 
 function CmsAdminClientInner() {
   const router = useRouter();
@@ -459,6 +462,8 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
     { id: 'instagram',     label: 'Instagram',           icon: <Camera size={16} /> },
     { id: 'messages',      label: 'Messages',           icon: <Inbox size={16} /> },
     { id: 'settings',      label: 'Paramètres',        icon: <Settings size={16} /> },
+    { id: 'testimonials',  label: 'Témoignages',      icon: <MessageSquare size={16} /> },
+    { id: 'checklists',    label: 'Checklists',        icon: <ClipboardList size={16} /> },
   ];
 
   // ── Layout ─────────────────────────────────────────────────────────────────
@@ -1231,6 +1236,30 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                 <h1 className="text-2xl font-bold text-gray-900 mb-6">Gestion des cartes</h1>
                 <Suspense fallback={<SkeletonForm />}>
                   <MapManagerSection />
+                </Suspense>
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Testimonials ── */}
+          {activeSection === 'testimonials' && (
+            <ErrorBoundary>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 mb-6">Témoignages</h1>
+                <Suspense fallback={<SkeletonForm />}>
+                  <TestimonialsManager />
+                </Suspense>
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Checklists ── */}
+          {activeSection === 'checklists' && (
+            <ErrorBoundary>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 mb-6">Checklists</h1>
+                <Suspense fallback={<SkeletonForm />}>
+                  <ChecklistTemplatesManager />
                 </Suspense>
               </div>
             </ErrorBoundary>

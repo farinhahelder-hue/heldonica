@@ -4,6 +4,8 @@ import Script from 'next/script';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import B2bCtaButton from '@/components/B2bCtaButton';
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
+import EditableZone from '@/components/inline-edit/EditableZone';
 
 const SITE_URL = 'https://heldonica.fr';
 
@@ -67,9 +69,16 @@ const caseStudies = [
   },
 ];
 
+const faqItems = [
+  { q: 'Combien coûte un diagnostic complet ?', a: 'Le premier audit est gratuit (30 min). Pour un accompagnement complet, nos forfaits commencent à partir de 2 500 € pour un diagnostic stratégique et jusqu\'à 12 000 € pour un accompagnement trimestriel full-service.' },
+  { q: 'Quels types d\'établissements accompagnons-nous ?', a: 'Hôtels indépendants 3-5 étoiles, maisons d\'hôtes premium, résidences de tourisme. De 8 à 80 chambres. Notre cœur de cible : les établissements qui veulent réduire leur dépendance aux OTA.' },
+  { q: 'Quels résultats peut-on attendre et en combien de temps ?', a: 'Les premiers impacts (visibilité locale, taux d\'ouverture email) sont visibles sous 4 à 6 semaines. Les résultats structurels (RevPAR, mix direct/OTA) se mesurent à 3-6 mois. On ne promet jamais de miracle — on livre des données.' },
+  { q: 'Travaillez-vous avec des agences ou directement ?', a: 'Directement avec les établissements. Pas d\'intermédiaire. On peut aussi travailler en marque blanche avec des agences de communication locales.' },
+];
+
 export default function ExpertHotelierPage() {
   return (
-    <>
+    <InlineEditProvider page="expert-hotelier">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -115,20 +124,20 @@ export default function ExpertHotelierPage() {
         }
       `}</Script>
       <main className="min-h-screen">
+        {/* Hero Section */}
         <section className="relative bg-stone-950 text-white py-28 md:py-36 overflow-hidden">
           <div className="absolute inset-0 opacity-15" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1400&q=70)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
           <div className="absolute inset-0 bg-gradient-to-br from-stone-950/90 via-stone-950/80 to-stone-950/90" />
           <div className="relative max-w-4xl mx-auto px-6 text-center">
-            <span className="inline-block px-4 py-1.5 bg-amber-500/15 text-amber-400 text-xs font-semibold rounded-full uppercase tracking-widest mb-6 border border-amber-500/20">
-              Consulting Hôtelier B2B
-            </span>
+            <EditableZone page="expert-hotelier" zone="hero_badge" fallback="Consulting Hôtelier B2B"
+              className="inline-block px-4 py-1.5 bg-amber-500/15 text-amber-400 text-xs font-semibold rounded-full uppercase tracking-widest mb-6 border border-amber-500/20"
+            />
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-light leading-tight mb-8">
-              Votre établissement laisse-t-il 15 % de RevPAR sur la table&nbsp;?
+              <EditableZone page="expert-hotelier" zone="hero_title" fallback="Votre établissement laisse-t-il 15 % de RevPAR sur la table ?" className="inline" />
             </h1>
-            <p className="text-stone-300 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto mb-10">
-              Consulting hôtelier indépendant — Revenue Management, SEO local, expérience client couple. 
-              On analyse les données, on challenge les habitudes, on délivre des résultats chiffrés.
-            </p>
+            <EditableZone page="expert-hotelier" zone="hero_text" type="textarea" fallback="Consulting hôtelier indépendant — Revenue Management, SEO local, expérience client couple. On analyse les données, on challenge les habitudes, on délivre des résultats chiffrés."
+              className="text-stone-300 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto mb-10 block"
+            />
             <div className="flex flex-wrap justify-center gap-4">
               <B2bCtaButton
                 href="#audit-form"
@@ -136,7 +145,7 @@ export default function ExpertHotelierPage() {
                 eventParams={{ source: 'hero' }}
                 className="inline-flex px-8 py-4 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all text-lg"
               >
-                Demander un audit gratuit →
+                <EditableZone page="expert-hotelier" zone="hero_cta_1" fallback="Demander un audit gratuit →" />
               </B2bCtaButton>
               <B2bCtaButton
                 href="#cas-clients"
@@ -144,67 +153,93 @@ export default function ExpertHotelierPage() {
                 eventParams={{ source: 'hero' }}
                 className="inline-flex px-8 py-4 border border-stone-600 text-stone-300 font-semibold rounded-xl hover:border-eucalyptus hover:text-white transition-all text-lg"
               >
-                Voir les résultats concrets →
+                <EditableZone page="expert-hotelier" zone="hero_cta_2" fallback="Voir les résultats concrets →" />
               </B2bCtaButton>
             </div>
           </div>
         </section>
 
+        {/* Problem Section */}
         <section className="py-20 md:py-28 bg-white">
           <div className="max-w-6xl mx-auto px-6">
-            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Le problème</p>
+            <EditableZone page="expert-hotelier" zone="section_problem_badge" fallback="Le problème"
+              className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center block"
+            />
             <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-6 text-center max-w-3xl mx-auto">
-              Les hôtels indépendants perdent jusqu&apos;à 30 % de leur marge à cause d&apos;un positionnement générique.
+              <EditableZone page="expert-hotelier" zone="section_problem_title" fallback="Les hôtels indépendants perdent jusqu'à 30 % de leur marge à cause d'un positionnement générique." className="inline" />
             </h2>
-            <p className="text-stone-600 text-lg text-center max-w-2xl mx-auto mb-12 leading-relaxed">
-              Une stratégie OTA par défaut, un SEO local inexistant, une expérience client standardisée. 
-              Résultat&nbsp;: des commissions à 15-25 %, une visibilité captive des plateformes, des taux de retour anémiques. 
-              Et surtout, des séjours couple qui pourraient être vendus 30 % plus cher — avec une expérience vraiment mémorable.
-            </p>
+            <EditableZone page="expert-hotelier" zone="section_problem_text" type="textarea" fallback="Une stratégie OTA par défaut, un SEO local inexistant, une expérience client standardisée. Résultat : des commissions à 15-25 %, une visibilité captive des plateformes, des taux de retour anémiques. Et surtout, des séjours couple qui pourraient être vendus 30 % plus cher — avec une expérience vraiment mémorable."
+              className="text-stone-600 text-lg text-center max-w-2xl mx-auto mb-12 leading-relaxed block"
+            />
             <div className="grid grid-cols-3 gap-8 max-w-3xl mx-auto text-center">
               <div>
-                <p className="text-4xl font-bold text-eucalyptus">78%</p>
-                <p className="text-sm text-stone-500 mt-2">des réservations via OTA en moyenne</p>
+                <EditableZone page="expert-hotelier" zone="stat_1_value" fallback="78%"
+                  className="text-4xl font-bold text-eucalyptus block"
+                />
+                <EditableZone page="expert-hotelier" zone="stat_1_label" fallback="des réservations via OTA en moyenne"
+                  className="text-sm text-stone-500 mt-2 block"
+                />
               </div>
               <div>
-                <p className="text-4xl font-bold text-amber-500">15-25%</p>
-                <p className="text-sm text-stone-500 mt-2">de commission par réservation</p>
+                <EditableZone page="expert-hotelier" zone="stat_2_value" fallback="15-25%"
+                  className="text-4xl font-bold text-amber-500 block"
+                />
+                <EditableZone page="expert-hotelier" zone="stat_2_label" fallback="de commission par réservation"
+                  className="text-sm text-stone-500 mt-2 block"
+                />
               </div>
               <div>
-                <p className="text-4xl font-bold text-amber-500">&lt;15%</p>
-                <p className="text-sm text-stone-500 mt-2">de taux de retour client</p>
+                <EditableZone page="expert-hotelier" zone="stat_3_value" fallback="<15%"
+                  className="text-4xl font-bold text-amber-500 block"
+                />
+                <EditableZone page="expert-hotelier" zone="stat_3_label" fallback="de taux de retour client"
+                  className="text-sm text-stone-500 mt-2 block"
+                />
               </div>
             </div>
           </div>
         </section>
 
+        {/* Services Section */}
         <section className="py-20 md:py-28 bg-stone-50">
           <div className="max-w-6xl mx-auto px-6">
-            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Notre solution</p>
+            <EditableZone page="expert-hotelier" zone="section_solution_badge" fallback="Notre solution"
+              className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center block"
+            />
             <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-4 text-center">
-              Trois leviers pour transformer votre établissement
+              <EditableZone page="expert-hotelier" zone="section_solution_title" fallback="Trois leviers pour transformer votre établissement" className="inline" />
             </h2>
-            <p className="text-stone-500 text-center max-w-2xl mx-auto mb-12">
-              Chaque levier fait l&apos;objet d&apos;un diagnostic gratuit de 30 minutes, sans engagement.
-            </p>
+            <EditableZone page="expert-hotelier" zone="section_solution_subtitle" type="textarea" fallback="Chaque levier fait l'objet d'un diagnostic gratuit de 30 minutes, sans engagement."
+              className="text-stone-500 text-center max-w-2xl mx-auto mb-12 block"
+            />
             <div className="grid md:grid-cols-3 gap-8">
               {services.map((s, i) => (
                 <div key={i} className="bg-white rounded-2xl p-8 border border-stone-200 hover:shadow-lg transition-shadow">
                   <div className="text-4xl mb-5">{s.icon}</div>
-                  <h3 className="text-xl font-serif font-bold text-stone-900 mb-1">{s.title}</h3>
-                  <p className="text-sm text-eucalyptus font-semibold mb-5">{s.subtitle}</p>
+                  <EditableZone page="expert-hotelier" zone={`service_${i + 1}_title`} fallback={s.title}
+                    className="text-xl font-serif font-bold text-stone-900 mb-1 block"
+                  />
+                  <EditableZone page="expert-hotelier" zone={`service_${i + 1}_subtitle`} fallback={s.subtitle}
+                    className="text-sm text-eucalyptus font-semibold mb-5 block"
+                  />
                   <div className="space-y-4">
                     <div className="bg-red-50 rounded-xl p-4 border border-red-100">
                       <p className="text-xs font-semibold text-red-700 mb-1">Problème</p>
-                      <p className="text-sm text-stone-700">{s.problem}</p>
+                      <EditableZone page="expert-hotelier" zone={`service_${i + 1}_problem`} fallback={s.problem}
+                        className="text-sm text-stone-700 block"
+                      />
                     </div>
                     <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
                       <p className="text-xs font-semibold text-emerald-700 mb-1">Notre approche</p>
-                      <p className="text-sm text-stone-700">{s.solution}</p>
+                      <EditableZone page="expert-hotelier" zone={`service_${i + 1}_solution`} type="textarea" fallback={s.solution}
+                        className="text-sm text-stone-700 block"
+                      />
                     </div>
                     <div className="bg-stone-50 rounded-xl p-4 border border-stone-200">
                       <p className="text-xs font-semibold text-stone-600 mb-1">Résultats observés</p>
-                      <p className="text-sm font-semibold text-eucalyptus">{s.results}</p>
+                      <EditableZone page="expert-hotelier" zone={`service_${i + 1}_results`} fallback={s.results}
+                        className="text-sm font-semibold text-eucalyptus block"
+                      />
                     </div>
                   </div>
                 </div>
@@ -213,15 +248,18 @@ export default function ExpertHotelierPage() {
           </div>
         </section>
 
+        {/* Case Studies Section */}
         <section id="cas-clients" className="py-20 md:py-28 bg-white">
           <div className="max-w-5xl mx-auto px-6">
-            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Études de cas</p>
+            <EditableZone page="expert-hotelier" zone="cas_clients_badge" fallback="Études de cas"
+              className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center block"
+            />
             <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-4 text-center">
-              Des résultats qui parlent d&apos;eux-mêmes
+              <EditableZone page="expert-hotelier" zone="cas_clients_title" fallback="Des résultats qui parlent d'eux-mêmes" className="inline" />
             </h2>
-            <p className="text-stone-500 text-center max-w-2xl mx-auto mb-12">
-              Chiffres réels, établissements indépendants. On ne vend pas de la théorie.
-            </p>
+            <EditableZone page="expert-hotelier" zone="cas_clients_text" type="textarea" fallback="Chiffres réels, établissements indépendants. On ne vend pas de la théorie."
+              className="text-stone-500 text-center max-w-2xl mx-auto mb-12 block"
+            />
             <div className="grid md:grid-cols-2 gap-8">
               {caseStudies.map((cs, i) => (
                 <article key={i} className="rounded-2xl border border-stone-200 p-8 bg-stone-50 hover:shadow-lg transition-shadow">
@@ -230,19 +268,29 @@ export default function ExpertHotelierPage() {
                       <span key={t} className="px-2.5 py-1 bg-eucalyptus/10 text-eucalyptus text-xs font-semibold rounded-full">{t}</span>
                     ))}
                   </div>
-                  <h3 className="text-xl font-serif font-bold text-stone-900 mb-4">{cs.title}</h3>
+                  <EditableZone page="expert-hotelier" zone={`cas_${i + 1}_title`} fallback={cs.title}
+                    className="text-xl font-serif font-bold text-stone-900 mb-4 block"
+                  />
                   <div className="space-y-3 text-sm">
                     <div className="flex items-start gap-2">
                       <span className="shrink-0 w-5 h-5 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs font-bold mt-0.5">!</span>
-                      <div><span className="font-semibold text-stone-700">Problème :</span> {cs.problem}</div>
+                      <div>
+                        <span className="font-semibold text-stone-700">Problème : </span>
+                        <EditableZone page="expert-hotelier" zone={`cas_${i + 1}_problem`} fallback={cs.problem} className="inline" />
+                      </div>
                     </div>
                     <div className="flex items-start gap-2">
                       <span className="shrink-0 w-5 h-5 rounded-full bg-eucalyptus/20 text-eucalyptus flex items-center justify-center text-xs font-bold mt-0.5">→</span>
-                      <div><span className="font-semibold text-stone-700">Solution :</span> {cs.solution}</div>
+                      <div>
+                        <span className="font-semibold text-stone-700">Solution : </span>
+                        <EditableZone page="expert-hotelier" zone={`cas_${i + 1}_solution`} type="textarea" fallback={cs.solution} className="inline" />
+                      </div>
                     </div>
                     <div className="mt-4 p-4 bg-stone-900 text-white rounded-xl">
                       <p className="text-xs uppercase tracking-wider text-stone-400 mb-1">Résultat</p>
-                      <p className="font-semibold text-lg">{cs.resultat}</p>
+                      <EditableZone page="expert-hotelier" zone={`cas_${i + 1}_resultat`} fallback={cs.resultat}
+                        className="font-semibold text-lg block"
+                      />
                     </div>
                   </div>
                 </article>
@@ -251,10 +299,15 @@ export default function ExpertHotelierPage() {
           </div>
         </section>
 
+        {/* Processus Section */}
         <section className="py-20 md:py-28 bg-stone-50">
           <div className="max-w-4xl mx-auto px-6 text-center">
-            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4">Processus</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12">Comment nous travaillons</h2>
+            <EditableZone page="expert-hotelier" zone="processus_badge" fallback="Processus"
+              className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
+            />
+            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12">
+              <EditableZone page="expert-hotelier" zone="processus_title" fallback="Comment nous travaillons" className="inline" />
+            </h2>
             <div className="grid md:grid-cols-4 gap-6">
               {[
                 { step: '01', title: 'Audit gratuit', desc: '30 min pour comprendre vos données, votre marché et vos objectifs' },
@@ -266,75 +319,89 @@ export default function ExpertHotelierPage() {
                   <div className="w-14 h-14 rounded-full bg-eucalyptus text-white flex items-center justify-center text-lg font-bold mx-auto mb-4">
                     {item.step}
                   </div>
-                  <h3 className="text-lg font-semibold text-stone-900 mb-2">{item.title}</h3>
-                  <p className="text-sm text-stone-500">{item.desc}</p>
+                  <EditableZone page="expert-hotelier" zone={`processus_${i + 1}_title`} fallback={item.title}
+                    className="text-lg font-semibold text-stone-900 mb-2 block"
+                  />
+                  <EditableZone page="expert-hotelier" zone={`processus_${i + 1}_desc`} type="textarea" fallback={item.desc}
+                    className="text-sm text-stone-500 block"
+                  />
                 </div>
               ))}
             </div>
           </div>
         </section>
 
+        {/* Audit Form Section */}
         <section id="audit-form" className="py-20 md:py-28 bg-stone-950 text-white">
           <div className="max-w-2xl mx-auto px-6">
-            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Audit gratuit</p>
+            <EditableZone page="expert-hotelier" zone="audit_badge" fallback="Audit gratuit"
+              className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center block"
+            />
             <h2 className="text-3xl md:text-4xl font-serif font-light mb-4 text-center">
-              Demandez votre audit personnalisé
+              <EditableZone page="expert-hotelier" zone="audit_title" fallback="Demandez votre audit personnalisé" className="inline" />
             </h2>
-            <p className="text-stone-400 text-center mb-10 max-w-lg mx-auto">
-              Laissez-nous vos coordonnées. Nous vous recontactons sous 48h pour planifier un échange découverte de 30 minutes.
-            </p>
+            <EditableZone page="expert-hotelier" zone="audit_text" type="textarea" fallback="Laissez-nous vos coordonnées. Nous vous recontactons sous 48h pour planifier un échange découverte de 30 minutes."
+              className="text-stone-400 text-center mb-10 max-w-lg mx-auto block"
+            />
             <B2bCtaButton
               href="/contact"
               eventName="formulaire_audit_b2b_clique"
               eventParams={{ source: 'section_audit' }}
               className="block w-full max-w-md mx-auto px-8 py-5 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all text-center text-lg mb-6"
             >
-              Demander un audit gratuit →
+              <EditableZone page="expert-hotelier" zone="audit_cta" fallback="Demander un audit gratuit →" />
             </B2bCtaButton>
-            <p className="text-stone-500 text-center text-sm">Sans engagement. Réponse sous 48h ouvrées.</p>
+            <EditableZone page="expert-hotelier" zone="audit_note" fallback="Sans engagement. Réponse sous 48h ouvrées."
+              className="text-stone-500 text-center text-sm block"
+            />
           </div>
         </section>
 
+        {/* FAQ Section */}
         <section className="py-20 md:py-28 bg-white">
           <div className="max-w-3xl mx-auto px-6">
-            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">FAQ</p>
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12 text-center">Questions fréquentes</h2>
+            <EditableZone page="expert-hotelier" zone="faq_badge" fallback="FAQ"
+              className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center block"
+            />
+            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12 text-center">
+              <EditableZone page="expert-hotelier" zone="faq_title" fallback="Questions fréquentes" className="inline" />
+            </h2>
             <div className="space-y-4">
-              {[
-                { q: 'Combien coûte un diagnostic complet ?', a: 'Le premier audit est gratuit (30 min). Pour un accompagnement complet, nos forfaits commencent à partir de 2 500 € pour un diagnostic stratégique et jusqu\'à 12 000 € pour un accompagnement trimestriel full-service.' },
-                { q: 'Quels types d\'établissements accompagnons-nous ?', a: 'Hôtels indépendants 3-5 étoiles, maisons d\'hôtes premium, résidences de tourisme. De 8 à 80 chambres. Notre cœur de cible : les établissements qui veulent réduire leur dépendance aux OTA.' },
-                { q: 'Quels résultats peut-on attendre et en combien de temps ?', a: 'Les premiers impacts (visibilité locale, taux d\'ouverture email) sont visibles sous 4 à 6 semaines. Les résultats structurels (RevPAR, mix direct/OTA) se mesurent à 3-6 mois. On ne promet jamais de miracle — on livre des données.' },
-                { q: 'Travaillez-vous avec des agences ou directement ?', a: 'Directement avec les établissements. Pas d\'intermédiaire. On peut aussi travailler en marque blanche avec des agences de communication locales.' },
-              ].map((faq, i) => (
+              {faqItems.map((faq, i) => (
                 <details key={i} className="rounded-xl border border-stone-200 p-5 bg-stone-50">
-                  <summary className="font-semibold text-stone-900 cursor-pointer">{faq.q}</summary>
-                  <p className="text-stone-600 text-sm mt-3 leading-relaxed">{faq.a}</p>
+                  <summary className="font-semibold text-stone-900 cursor-pointer">
+                    <EditableZone page="expert-hotelier" zone={`faq_${i + 1}_q`} fallback={faq.q} className="inline" />
+                  </summary>
+                  <EditableZone page="expert-hotelier" zone={`faq_${i + 1}_a`} type="textarea" fallback={faq.a}
+                    className="text-stone-600 text-sm mt-3 leading-relaxed block"
+                  />
                 </details>
               ))}
             </div>
           </div>
         </section>
 
+        {/* CTA Final Section */}
         <section className="py-20 md:py-28 bg-stone-950 text-white text-center">
           <div className="max-w-2xl mx-auto px-6">
             <h2 className="text-3xl md:text-4xl font-serif font-light mb-6">
-              Prêt à reprendre le contrôle de votre chiffre d&apos;affaires&nbsp;?
+              <EditableZone page="expert-hotelier" zone="cta_title" fallback="Prêt à reprendre le contrôle de votre chiffre d'affaires ?" className="inline" />
             </h2>
-            <p className="text-stone-400 mb-8 max-w-lg mx-auto">
-              30 minutes d&apos;échange gratuit pour analyser vos données et identifier vos leviers de croissance prioritaire.
-            </p>
+            <EditableZone page="expert-hotelier" zone="cta_text" type="textarea" fallback="30 minutes d'échange gratuit pour analyser vos données et identifier vos leviers de croissance prioritaire."
+              className="text-stone-400 mb-8 max-w-lg mx-auto block"
+            />
             <B2bCtaButton
               href="#audit-form"
               eventName="formulaire_audit_b2b_clique"
               eventParams={{ source: 'cta_final' }}
               className="inline-block px-10 py-5 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all text-lg"
             >
-              Demander mon audit →
+              <EditableZone page="expert-hotelier" zone="cta_button" fallback="Demander mon audit →" />
             </B2bCtaButton>
           </div>
         </section>
       </main>
       <Footer />
-    </>
+    </InlineEditProvider>
   );
 }

@@ -4,21 +4,25 @@ import { requireCmsAuth } from '@/lib/cms-auth';
 
 export const dynamic = 'force-dynamic';
 
+function getSupabase() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+  if (!supabaseUrl || !supabaseKey) return null;
+  return createClient(supabaseUrl, supabaseKey);
+}
+
 export async function GET(req: Request) {
   const authResponse = await requireCmsAuth(req);
   if (authResponse) return authResponse;
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+  const supabase = getSupabase();
 
-  if (!supabaseUrl || !serviceKey) {
+  if (!supabase) {
     return NextResponse.json(
       { ok: false, error: 'Variables NEXT_PUBLIC_SUPABASE_URL ou SUPABASE_SERVICE_ROLE_KEY manquantes dans Vercel.' },
       { status: 500 }
     );
   }
-
-  const supabase = createClient(supabaseUrl, serviceKey);
 
   // Vérifier si le bucket 'media' existe déjà
   const { data: existing } = await supabase.storage.getBucket('media');
