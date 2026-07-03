@@ -102,7 +102,7 @@ async function verifyPayload(payload: string, signature: string, secret: string)
     false,
     ['verify']
   );
-  return subtle.verify('HMAC', key, sigBytes, new TextEncoder().encode(payload));
+  return subtle.verify('HMAC', key, sigBytes as unknown as BufferSource, new TextEncoder().encode(payload));
 }
 
 function generateRandomHex(bytes = 16): string {
