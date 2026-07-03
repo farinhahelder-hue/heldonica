@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
 interface ArticleFormProps {
   articleId?: string | null;
@@ -39,6 +39,7 @@ export default function ArticleForm({ articleId, onSave, onCancel }: ArticleForm
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState<'content' | 'seo'>('content');
 
   const fetchArticle = useCallback(async () => {
     try {
@@ -143,6 +144,27 @@ export default function ArticleForm({ articleId, onSave, onCancel }: ArticleForm
     }
   };
 
+  // SEO derived values
+  const metaTitle = formData.meta_title || formData.title
+  const metaDesc = formData.meta_description || formData.excerpt
+  const titleLen = metaTitle.length
+  const descLen = metaDesc.length
+  const slugValid = /^[a-z0-9-]+$/.test(formData.slug)
+  const hasH1 = useMemo(() => {
+    const m = formData.content.match(/<h1[\s>]/gi)
+    return m ? m.length === 1 : false
+  }, [formData.content])
+  const seoChecks = [
+    { ok: !!formData.featured_image, label: 'Image principale renseignée' },
+    { ok: !!formData.excerpt && formData.excerpt.length >= 50, label: 'Extrait ≥ 50 caractères' },
+    { ok: slugValid && !!formData.slug, label: 'Slug valide (minuscules, tirets)' },
+    { ok: hasH1, label: 'Exactement 1 balise H1 dans le contenu' },
+    { ok: !!formData.category, label: 'Catégorie assignée' },
+    { ok: titleLen > 0 && titleLen <= 60, label: 'Titre SEO ≤ 60 caractères' },
+    { ok: descLen > 0 && descLen <= 155, label: 'Description SEO ≤ 155 caractères' },
+  ]
+  const seoScore = seoChecks.filter((c) => c.ok).length
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 md:p-8">
       <h3 className="text-2xl font-serif text-stone-900 mb-6">
@@ -155,7 +177,35 @@ export default function ArticleForm({ articleId, onSave, onCancel }: ArticleForm
         </div>
       )}
 
+      {/* Tab bar */}
+      <div className="flex gap-1 mb-6 border-b border-stone-200">
+        {(['content', 'seo'] as const).map((tab) => (
+          <button
+            key={tab}
+            type="button"
+            onClick={() => setActiveTab(tab)}
+            className={`px-5 py-2 text-sm font-semibold rounded-t-lg transition ${
+              activeTab === tab
+                ? 'bg-white border border-b-white border-stone-200 -mb-px text-stone-900'
+                : 'text-stone-400 hover:text-stone-600'
+            }`}
+          >
+            {tab === 'content' ? 'Contenu' : (
+              <span className="flex items-center gap-1.5">
+                SEO
+                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                  seoScore >= 6 ? 'bg-green-100 text-green-700' :
+                  seoScore >= 4 ? 'bg-amber-100 text-amber-700' :
+                  'bg-red-100 text-red-700'
+                }`}>{seoScore}/{seoChecks.length}</span>
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-6">
+        <div className={activeTab === 'seo' ? 'hidden' : 'space-y-6'}>
         <div className="grid md:grid-cols-2 gap-6">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">Titre</label>
@@ -290,8 +340,9 @@ export default function ArticleForm({ articleId, onSave, onCancel }: ArticleForm
               onChange={handleChange}
               className="w-full px-4 py-2.5 border border-stone-200 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-eucalyptus text-sm"
             >
-              <option value="draft">Brouillon (Draft)</option>
-              <option value="published">Publié (Published)</option>
+              <option value="draft">Brouillon</option>
+              <option value="scheduled">Programmé</option>
+              <option value="published">Publié</option>
             </select>
           </div>
 
@@ -359,32 +410,91 @@ export default function ArticleForm({ articleId, onSave, onCancel }: ArticleForm
           </div>
         </div>
 
-        <div className="border-t border-stone-200 pt-6">
-          <h4 className="text-md font-serif text-stone-900 mb-4">Configuration SEO</h4>
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">Meta Title</label>
-              <input
-                type="text"
-                name="meta_title"
-                value={formData.meta_title}
-                onChange={handleChange}
-                className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-eucalyptus text-sm"
-              />
+        </div>{/* end content tab wrapper */}
+
+        {/* SEO Tab */}
+        {activeTab === 'seo' && (
+          <div className="space-y-6">
+            {/* Google Snippet Preview */}
+            <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
+              <p className="text-xs font-bold uppercase tracking-wider text-stone-400 mb-3">Aperçu Google</p>
+              <div className="bg-white rounded-xl border border-stone-100 p-4 shadow-sm space-y-0.5">
+                <p className="text-[18px] text-[#1a0dab] font-normal leading-snug truncate">
+                  {metaTitle || 'Titre de l\'article'}
+                </p>
+                <p className="text-[13px] text-[#006621] truncate">
+                  heldonica.fr › blog › <span className="text-stone-400">{formData.slug || 'slug'}</span>
+                </p>
+                <p className="text-[13px] text-[#545454] leading-snug line-clamp-2">
+                  {metaDesc || 'Extrait ou description SEO de l\'article…'}
+                </p>
+              </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">Meta Description</label>
-              <textarea
-                name="meta_description"
-                value={formData.meta_description}
-                onChange={handleChange}
-                rows={2}
-                className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-eucalyptus text-sm"
-              />
+            {/* Char counters */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">
+                  Meta Title
+                  <span className={`ml-2 font-mono ${titleLen > 60 ? 'text-red-500' : 'text-stone-400'}`}>
+                    {titleLen}/60
+                  </span>
+                </label>
+                <input
+                  type="text"
+                  name="meta_title"
+                  value={formData.meta_title}
+                  onChange={handleChange}
+                  placeholder={formData.title}
+                  className={`w-full px-4 py-2.5 border rounded-xl focus:outline-none focus:ring-2 text-sm ${
+                    titleLen > 60
+                      ? 'border-red-300 focus:ring-red-300'
+                      : 'border-stone-200 focus:ring-eucalyptus'
+                  }`}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">
+                  Meta Description
+                  <span className={`ml-2 font-mono ${descLen > 155 ? 'text-red-500' : 'text-stone-400'}`}>
+                    {descLen}/155
+                  </span>
+                </label>
+                <textarea
+                  name="meta_description"
+                  value={formData.meta_description}
+                  onChange={handleChange}
+                  rows={3}
+                  placeholder={formData.excerpt}
+                  className={`w-full px-4 py-2.5 border rounded-xl focus:outline-none focus:ring-2 text-sm ${
+                    descLen > 155
+                      ? 'border-red-300 focus:ring-red-300'
+                      : 'border-stone-200 focus:ring-eucalyptus'
+                  }`}
+                />
+              </div>
+            </div>
+
+            {/* Checklist */}
+            <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
+              <p className="text-xs font-bold uppercase tracking-wider text-stone-400 mb-3">
+                Checklist SEO — {seoScore}/{seoChecks.length}
+              </p>
+              <ul className="space-y-2">
+                {seoChecks.map((c) => (
+                  <li key={c.label} className="flex items-center gap-2.5 text-sm">
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${
+                      c.ok ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'
+                    }`}>
+                      {c.ok ? '✓' : '✗'}
+                    </span>
+                    <span className={c.ok ? 'text-stone-700' : 'text-stone-400'}>{c.label}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
-        </div>
+        )}
 
         <div className="flex gap-4 pt-6 border-t border-stone-200">
           <button
