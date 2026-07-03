@@ -99,12 +99,20 @@ export async function PATCH(req: NextRequest) {
 
     const { data: existing } = await supabase
       .from('cms_editable_zones')
-      .select('id')
+      .select('id, value')
       .eq('page', page)
       .eq('zone_key', zone_key)
       .maybeSingle();
 
     if (existing) {
+      // Log history before overwriting
+      await supabase.from('cms_zone_history').insert({
+        page,
+        zone_key,
+        old_value: existing.value ?? null,
+        new_value: value,
+      });
+
       const { error } = await supabase
         .from('cms_editable_zones')
         .update({

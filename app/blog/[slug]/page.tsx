@@ -19,12 +19,14 @@ import HeldonicaFAQ from '@/components/HeldonicaFAQ'
 import HeldonicaVerdict from '@/components/HeldonicaVerdict'
 import { getReadingTime, formatReadingTime } from '@/lib/readingTime'
 import DynamicArticleMap from '@/components/DynamicArticleMap'
+import { verifyPreviewToken } from '@/app/api/cms/preview-token/route'
 
 const SITE_URL = 'https://www.heldonica.fr'
 const DEFAULT_OG = `${SITE_URL}/og-default.jpg`
 
 interface Props {
   params: Promise<{ slug: string }>
+  searchParams: Promise<{ preview_token?: string }>
 }
 
 export const revalidate = 3600
@@ -202,9 +204,26 @@ const HERO_FALLBACK: Record<string, string> = {
 
 const DEFAULT_HERO = 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80'
 
-export default async function BlogPostPage({ params }: Props) {
+export default async function BlogPostPage({ params, searchParams }: Props) {
   const slug = (await params).slug
-  const post = await getPostBySlug(slug)
+  const { preview_token } = await searchParams
+
+  let post = await getPostBySlug(slug)
+
+  // Preview mode: bypass published filter if token is valid
+  if (!post && preview_token) {
+    const verified = await verifyPreviewToken(preview_token)
+    if (verified && verified.slug === slug) {
+      const supabaseAdmin = createServiceClient()
+      const { data } = await supabaseAdmin
+        .from('cms_blog_posts')
+        .select('*')
+        .eq('slug', slug)
+        .single()
+      if (data) post = data as any
+    }
+  }
+
   if (!post) notFound()
 
   // Fetch show_map flag safely with try-catch and key checks
