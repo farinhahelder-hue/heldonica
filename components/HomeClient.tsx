@@ -346,8 +346,9 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               <AnimatedStat nb={publishedArticles} suffix="" label="Carnets publiés" />
               <div className="col-span-2 mt-2">
                 <p className="text-xs text-charcoal/40 leading-relaxed">
-                  <span className="font-semibold text-charcoal/70">Terrains de jeu :</span><br />
-                  Paris · Madère · Roumanie · Normandie · Sicile · Sardaigne · Tanzanie · Colombie · Afrique du Sud
+                  <EditableZone page="home" zone="stats_playgrounds" type="textarea" fallback="Paris · Madère · Roumanie · Normandie · Sicile · Sardaigne · Tanzanie · Colombie · Afrique du Sud"
+                    className="inline"
+                  />
                 </p>
               </div>
             </div>
