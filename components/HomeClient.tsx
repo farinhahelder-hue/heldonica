@@ -6,6 +6,7 @@ import Footer from '@/components/Footer'
 import Link from 'next/link'
 import Image from 'next/image'
 import type { BlogPost } from '@/lib/blog-supabase'
+import type { HomeDestination } from '@/lib/home-data'
 import { getExcerpt } from '@/lib/blog-supabase'
 import InstagramFeed from '@/components/InstagramFeed'
 import NewsletterForm from '@/components/NewsletterForm'
@@ -219,6 +220,7 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
 }
 
 // ─── Props ────────────────────────────────────────────────────────────────────
+
 interface HomeProps {
   featured: (BlogPost & { formattedDate: string; readTime?: number }) | null
   travelPosts: (BlogPost & { formattedDate: string; readTime?: number })[]
@@ -234,10 +236,12 @@ interface HomeProps {
     instagramPosts?: string
     site_email?: string
   }
+  homeDestinations?: HomeDestination[]
+  homeZones?: Record<string, string>
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries, heroVideoUrl, heroPosterImage }: HomeProps) {
+export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries, heroVideoUrl, heroPosterImage, homeDestinations, homeZones }: HomeProps) {
   useScrollReveal()
   const featImg = featured ? postImage(featured) : null
   // Fallback: si totalPosts est undefined/null/0, on utilise 25+ (valeur de référence)
@@ -542,17 +546,17 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               className="text-charcoal/70 leading-relaxed max-w-2xl mx-auto mb-12 block"
             />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            {[
-              { zone: 'dest_1', name: 'Madère', emoji: '🏝️', slug: '/destinations/madere' },
-              { zone: 'dest_2', name: 'Roumanie', emoji: '🏔️', slug: '/destinations/roumanie' },
-              { zone: 'dest_3', name: 'Monténégro', emoji: '🌊', slug: '/destinations/montenegro' },
-              { zone: 'dest_4', name: 'Sicile', emoji: '🌋', slug: '/destinations/sicile' },
-            ].map((dest) => (
-              <Link key={dest.slug} href={dest.slug}
+            {(homeDestinations && homeDestinations.length > 0 ? homeDestinations : [
+              { destination_slug: 'madere', title: 'Madère', flag_emoji: '🏝️' },
+              { destination_slug: 'roumanie', title: 'Roumanie', flag_emoji: '🏔️' },
+              { destination_slug: 'montenegro', title: 'Monténégro', flag_emoji: '🌊' },
+              { destination_slug: 'sicile', title: 'Sicile', flag_emoji: '🌋' },
+            ]).map((dest: any) => (
+              <Link key={dest.destination_slug || dest.slug} href={`/destinations/${dest.destination_slug || dest.slug}`}
                 className="group p-6 md:p-8 rounded-2xl bg-stone-50 border border-stone-100 hover:border-eucalyptus/30 hover:bg-eucalyptus/5 transition-all duration-300">
-                <span className="text-4xl mb-3 block">{dest.emoji}</span>
+                <span className="text-4xl mb-3 block">{dest.flag_emoji || dest.emoji || '📍'}</span>
                 <span className="font-semibold text-mahogany group-hover:text-eucalyptus transition-colors">
-                  <EditableZone page="home" zone={`${dest.zone}_name`} fallback={dest.name} />
+                  {dest.title}
                 </span>
               </Link>
             ))}

@@ -3,6 +3,7 @@ import { getSiteSettings } from '@/lib/settings'
 import HomeClient from '@/components/HomeClient'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import type { Metadata } from 'next'
+import { getHomeDestinations, getHomeContentZones } from '@/lib/home-data'
 
 export const revalidate = 60
 
@@ -99,18 +100,25 @@ const schemaOrganization = {
 };
 
 export default async function Home() {
-  const allPostsResult = await getAllPosts()
+  // Fetch all data in parallel
+  const [allPostsResult, homeDestinations, homeZones, rawCountries, heroSettings, siteSettingsResult] = await Promise.all([
+    getAllPosts(),
+    getHomeDestinations(),
+    getHomeContentZones(),
+    getSetting('covered_countries'),
+    getPageContent('home'),
+    getSiteSettings(),
+  ])
+
   // Defensive: ensure we always have an array
   const allPosts = Array.isArray(allPostsResult) ? allPostsResult : []
   
   // Get covered_countries as number with fallback
-  const rawCountries = await getSetting('covered_countries')
   const coveredCountries = rawCountries ? parseInt(rawCountries, 10) : 7
 
-  // Fetch hero media from CMS
-  const homeContent = await getPageContent('home')
-  const heroVideoUrl = homeContent['hero_video_url'] || null
-  const heroPosterImage = homeContent['hero_poster_image'] || null
+  // Hero media
+  const heroVideoUrl = heroSettings['hero_video_url'] || null
+  const heroPosterImage = heroSettings['hero_poster_image'] || null
 
   const latestPosts = allPosts.slice(0, 6)
   const travelPosts = formatPosts(allPosts.filter((p) => p.category === 'Carnets Voyage').slice(0, 3))
@@ -125,18 +133,12 @@ export default async function Home() {
     ? { ...featuredPost, formattedDate: formatDate(featuredPost.published_at), readTime: (featuredPost.read_time && featuredPost.read_time > 0) ? featuredPost.read_time : calcReadTime(featuredPost.content) }
     : null
 
-  // Fetch Instagram / site settings for HomeClient
-  const [instagramUsername, instagramPostCount, instagramPosts, siteEmail] = await Promise.all([
-    getSetting('social_instagram'),
-    getSetting('instagram_post_count'),
-    getSetting('instagram_posts'),
-    getSetting('contact_email'),
-  ])
+  // Site settings
   const siteSettings = {
-    instagramUsername: instagramUsername || undefined,
-    instagramPostCount: instagramPostCount ? Number(instagramPostCount) : undefined,
-    instagramPosts: instagramPosts || undefined,
-    site_email: siteEmail || 'contact@heldonica.fr',
+    instagramUsername: siteSettingsResult?.instagramUsername || undefined,
+    instagramPostCount: siteSettingsResult?.instagramPostCount ? Number(siteSettingsResult.instagramPostCount) : undefined,
+    instagramPosts: siteSettingsResult?.instagramPosts || undefined,
+    site_email: siteSettingsResult?.contact_email || 'contact@heldonica.fr',
   }
 
   return (
@@ -151,6 +153,8 @@ export default async function Home() {
         heroVideoUrl={heroVideoUrl}
         heroPosterImage={heroPosterImage}
         siteSettings={siteSettings}
+        homeDestinations={homeDestinations}
+        homeZones={homeZones}
       />
       <script
         type="application/ld+json"
