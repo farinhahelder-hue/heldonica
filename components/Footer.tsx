@@ -24,7 +24,7 @@ export default function Footer() {
     getCmsOrSetting(zoneKey, settingKey, fallback, z, settings)
 
   const siteName = cz('header_site_name', 'site_name', 'Heldonica')
-  const tagline = cz('footer_tagline', 'site_tagline', 'Slow travel vecu, conce pour toi.')
+  const tagline = cz('footer_tagline', 'site_tagline', 'Slow travel vécu, conçu pour toi.')
   const footerText = cz('footer_copyright', 'footer_text', `© ${currentYear} Heldonica. Tous droits reserves.`)
   const contactEmail = cz('footer_email', 'contact_email', 'contact@heldonica.fr')
 

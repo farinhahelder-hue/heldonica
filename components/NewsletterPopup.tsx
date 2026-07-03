@@ -160,7 +160,7 @@ export default function NewsletterPopup() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="ton@email.com"
+              placeholder="ton@email.fr"
               required
               className="w-full px-4 py-3 rounded-xl bg-stone-800 border border-stone-700 text-white placeholder-stone-500 focus:outline-none focus:border-amber-400 transition-colors text-sm"
             />

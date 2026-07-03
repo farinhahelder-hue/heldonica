@@ -130,7 +130,7 @@ export default function StartPage() {
             <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
               <input
                 type="email"
-                placeholder="ton@email.com"
+                placeholder="ton@email.fr"
                 required
                 className="flex-1 px-5 py-3.5 bg-stone-800 border border-stone-700 rounded-xl text-white placeholder-stone-500 focus:outline-none focus:border-eucalyptus transition-colors"
               />

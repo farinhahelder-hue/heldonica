@@ -88,7 +88,7 @@ export default function GuideDownloadForm({ variant = 'inline', className = '' }
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        placeholder="ton@email.com"
+        placeholder="ton@email.fr"
         required
         disabled={status === 'loading'}
         className={`${s.input} ${status === 'loading' ? 'opacity-50' : ''}`}

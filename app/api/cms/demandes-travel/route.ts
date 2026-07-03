@@ -20,8 +20,7 @@ export async function GET(req: Request) {
 
   const sb = supabase()
   if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
-  const { data, error } = await sb
-    .from('demandes_travel')
+  const { data, error } = await (sb.from('demandes_travel') as any)
     .select('*')
     .order('created_at', { ascending: false })
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
@@ -35,8 +34,7 @@ export async function PUT(req: Request) {
   const sb = supabase()
   if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
   const { id, statut } = await req.json()
-  const { error } = await sb
-    .from('demandes_travel')
+  const { error } = await (sb.from('demandes_travel') as any)
     .update({ statut } as any)
     .eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
@@ -66,8 +64,7 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ ok: true }) // nothing to update
   }
   
-  const { error } = await sb
-    .from('demandes_travel')
+  const { error } = await (sb.from('demandes_travel') as any)
     .update(updates as any)
     .eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

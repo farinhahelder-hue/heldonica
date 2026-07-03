@@ -44,7 +44,7 @@ export default function ContactForm() {
 
   const placeholders = {
     name: val('contact_form_name_placeholder', 'Ton nom'),
-    email: val('contact_form_email_placeholder', 'toi@email.com'),
+    email: val('contact_form_email_placeholder', 'toi@email.fr'),
     phone: val('contact_form_phone_placeholder', "Si tu veux qu'on te rappelle"),
     subject: val('contact_form_subject_placeholder', 'Choisir un sujet'),
     message: val('contact_form_message_placeholder', "Raconte-nous le contexte: destination, timing, budget, énergie du moment, ce que tu veux éviter."),

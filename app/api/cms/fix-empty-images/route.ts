@@ -63,8 +63,7 @@ export async function POST(req: Request) {
 
     const validPostUpdates = postResults.filter(Boolean);
     if (validPostUpdates.length > 0) {
-      // Optimization: batching updates using upsert instead of N+1 update queries reduces DB roundtrips.
-      const { error } = await supabase.from('cms_blog_posts').upsert(validPostUpdates);
+      const { error } = await supabase.from('cms_blog_posts').upsert(validPostUpdates as any);
       if (error) throw error;
       updatedCount += validPostUpdates.length;
     }
@@ -82,8 +81,7 @@ export async function POST(req: Request) {
 
     const validDestUpdates = destResults.filter(Boolean);
     if (validDestUpdates.length > 0) {
-      // Optimization: batching updates using upsert instead of N+1 update queries reduces DB roundtrips.
-      const { error } = await supabase.from('destinations').upsert(validDestUpdates);
+      const { error } = await supabase.from('destinations').upsert(validDestUpdates as any);
       if (error) throw error;
       updatedCount += validDestUpdates.length;
     }

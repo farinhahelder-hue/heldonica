@@ -86,6 +86,8 @@ const nextConfig = {
 
   async redirects() {
     return [
+      { source: '/bons-plans', destination: '/guides-pratiques', permanent: true },
+      { source: '/bons-plans/', destination: '/guides-pratiques', permanent: true },
       { source: '/about', destination: '/a-propos', permanent: true },
       { source: '/about-us', destination: '/a-propos', permanent: true },
       { source: '/admin', destination: '/cms-admin', permanent: true },
@@ -103,10 +105,8 @@ const nextConfig = {
       { source: '/stoos-ridge-notre-aventure-sur-la-crete-panoramique-2', destination: '/blog/stoos-ridge-notre-aventure-sur-la-crete-panoramique', permanent: true },
       { source: '/travel-planner', destination: '/travel-planning', permanent: true },
       { source: '/travel-planner/', destination: '/travel-planning', permanent: true },
-      { source: '/nos-services', destination: '/travel-planning', permanent: true },
-      { source: '/nos-services/', destination: '/travel-planning', permanent: true },
-      { source: '/hotel-consulting', destination: '/travel-planning', permanent: true },
-      { source: '/hotel-consulting/:path*', destination: '/travel-planning', permanent: true },
+      { source: '/hotel-consulting', destination: '/expert-hotelier', permanent: true },
+      { source: '/hotel-consulting/:path*', destination: '/expert-hotelier', permanent: true },
       { source: '/sujets/bons-plans', destination: '/blog', permanent: true },
       { source: '/sujets/bons-plans/', destination: '/blog', permanent: true },
       { source: '/sujets/:slug', destination: '/blog', permanent: true },
