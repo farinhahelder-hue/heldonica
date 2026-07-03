@@ -28,12 +28,21 @@ export default function EditableZone({
   href,
   wrapper = 'none',
 }: EditableZoneProps) {
-  const { zones, isEditing, updateZone, saving } = useEditableContext()
+  const { zones, isEditing, updateZone, saving, registerZone, unregisterZone, triggerUndo } = useEditableContext()
   const [editValue, setEditValue] = useState('')
   const [editing, setEditing] = useState(false)
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null)
   const zoneKey = `${page}__${zone}`
+  const hasCmsValue = zones[zoneKey] !== undefined
   const value = zones[zoneKey] ?? fallback
+
+  // Dynamic registration for sidebar listing
+  useEffect(() => {
+    registerZone(zoneKey, fallback, type)
+    return () => {
+      unregisterZone(zoneKey)
+    }
+  }, [zoneKey, fallback, type, registerZone, unregisterZone])
 
   useEffect(() => {
     if (editing && inputRef.current) inputRef.current.focus()
@@ -46,19 +55,33 @@ export default function EditableZone({
   }, [isEditing, value])
 
   const save = useCallback(async () => {
-    if (editValue === value) { setEditing(false); return }
+    if (editValue === value) {
+      setEditing(false)
+      return
+    }
+    const oldValue = value
     const ok = await updateZone(page, zone, editValue)
-    if (ok) setEditing(false)
-  }, [editValue, value, updateZone, page, zone])
+    if (ok) {
+      setEditing(false)
+      // Trigger undo action toast with the previous value
+      triggerUndo(page, zone, oldValue)
+    }
+  }, [editValue, value, updateZone, page, zone, triggerUndo])
 
-  const cancel = useCallback(() => { setEditing(false); setEditValue('') }, [])
+  const cancel = useCallback(() => {
+    setEditing(false)
+    setEditValue('')
+  }, [])
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') cancel()
-    if (e.key === 'Enter' && type !== 'textarea') save()
-  }, [cancel, save, type])
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Escape') cancel()
+      if (e.key === 'Enter' && type !== 'textarea') save()
+    },
+    [cancel, save, type]
+  )
 
-  const renderContent = (content: string, editMode: boolean) => {
+  const renderContent = (content: string) => {
     if (type === 'image') {
       return <img src={content} alt="" className={className} loading="lazy" />
     }
@@ -66,32 +89,51 @@ export default function EditableZone({
   }
 
   const renderViewMode = () => {
-    const content = renderContent(value, false)
+    const content = renderContent(value)
 
     if (isEditing && !editing) {
       return (
-        <button
+        <div
+          id={`zone-${zoneKey}`}
           onClick={startEdit}
-          className={`relative cursor-pointer rounded ring-2 ring-transparent hover:ring-amber-400/50 transition ${className}`}
+          className={`relative group cursor-pointer rounded outline-dashed outline-eucalyptus/60 hover:outline-eucalyptus transition duration-200 p-1 min-h-[1.5em] ${
+            type === 'image' ? 'inline-block' : 'block'
+          } ${className}`}
           title="Cliquer pour modifier"
-          type="button"
         >
+          {/* CMS / Fallback visual badge */}
+          <span
+            className={`absolute -top-3.5 -left-1 z-30 text-[8px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded shadow-sm select-none ${
+              hasCmsValue
+                ? 'bg-green-600 text-white'
+                : 'bg-orange-600 text-white'
+            }`}
+          >
+            {hasCmsValue ? 'CMS' : '↩ Fallback'}
+          </span>
+
           {type === 'image' ? (
             <img src={value} alt="" className={className} loading="lazy" />
           ) : (
             <Tag dangerouslySetInnerHTML={{ __html: value }} />
           )}
-          <span className="absolute -top-2 -right-2 w-4 h-4 bg-amber-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+
+          {/* Crayon overlay button */}
+          <span className="absolute -top-2 -right-2 w-5 h-5 bg-eucalyptus rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 shadow transition duration-200">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
               <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
             </svg>
           </span>
-        </button>
+        </div>
       )
     }
 
     if (href && wrapper === 'link') {
-      return <Link href={href} className={className}>{content}</Link>
+      return (
+        <Link href={href} className={className}>
+          {content}
+        </Link>
+      )
     }
 
     return content
@@ -100,13 +142,31 @@ export default function EditableZone({
   const renderEditMode = () => {
     if (type === 'image') {
       return (
-        <div className="relative group">
+        <div id={`zone-${zoneKey}`} className="relative group p-1 border border-eucalyptus rounded bg-stone-50">
           <img src={editValue || value} alt="" className={className} loading="lazy" />
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition">
-            <input type="text" value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyDown={handleKeyDown}
-              className="w-3/4 px-3 py-2 rounded text-sm text-black" placeholder="Image URL..." ref={inputRef as any} />
-            <button onClick={save} className="px-3 py-2 bg-green-600 text-white rounded text-sm" disabled={saving}>OK</button>
-            <button onClick={cancel} className="px-3 py-2 bg-gray-600 text-white rounded text-sm">X</button>
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition duration-200">
+            <input
+              type="text"
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="w-3/4 px-3 py-2 rounded text-sm text-black focus:outline-none"
+              placeholder="Image URL..."
+              ref={inputRef as any}
+            />
+            <button
+              onClick={save}
+              className="px-3 py-2 bg-eucalyptus text-white rounded text-sm font-semibold hover:brightness-110"
+              disabled={saving}
+            >
+              OK
+            </button>
+            <button
+              onClick={cancel}
+              className="px-3 py-2 bg-stone-600 text-white rounded text-sm font-semibold hover:bg-stone-700"
+            >
+              X
+            </button>
           </div>
         </div>
       )
@@ -114,28 +174,58 @@ export default function EditableZone({
 
     if (type === 'textarea') {
       return (
-        <div className="relative">
-          <textarea ref={inputRef as any} value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyDown={handleKeyDown}
-            className={`w-full bg-yellow-50 border-2 border-dashed border-amber-500 rounded p-2 text-sm ${className}`} rows={4} />
+        <div id={`zone-${zoneKey}`} className="relative p-2 border-2 border-dashed border-eucalyptus rounded bg-stone-50">
+          <textarea
+            ref={inputRef as any}
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className={`w-full bg-transparent p-1 text-sm focus:outline-none ${className}`}
+            rows={4}
+          />
           <div className="flex gap-1 mt-1">
-            <button onClick={save} className="px-2 py-1 bg-green-600 text-white rounded text-xs" disabled={saving}>
+            <button
+              onClick={save}
+              className="px-2 py-1 bg-eucalyptus text-white rounded text-xs font-semibold hover:brightness-110"
+              disabled={saving}
+            >
               {saving ? '...' : 'Sauvegarder'}
             </button>
-            <button onClick={cancel} className="px-2 py-1 bg-gray-500 text-white rounded text-xs">Annuler</button>
+            <button
+              onClick={cancel}
+              className="px-2 py-1 bg-stone-500 text-white rounded text-xs font-semibold hover:bg-stone-600"
+            >
+              Annuler
+            </button>
           </div>
         </div>
       )
     }
 
     return (
-      <div className="relative inline-block">
-        <input ref={inputRef as any} type="text" value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyDown={handleKeyDown}
-          className={`bg-yellow-50 border-2 border-dashed border-amber-500 rounded px-2 py-1 text-sm ${className}`} />
+      <div id={`zone-${zoneKey}`} className="relative inline-block p-1 border-2 border-dashed border-eucalyptus rounded bg-stone-50">
+        <input
+          ref={inputRef as any}
+          type="text"
+          value={editValue}
+          onChange={(e) => setEditValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className={`bg-transparent px-1 text-sm focus:outline-none ${className}`}
+        />
         <div className="flex gap-1 mt-1">
-          <button onClick={save} className="px-2 py-1 bg-green-600 text-white rounded text-xs" disabled={saving}>
+          <button
+            onClick={save}
+            className="px-2 py-1 bg-eucalyptus text-white rounded text-xs font-semibold hover:brightness-110"
+            disabled={saving}
+          >
             {saving ? '...' : 'OK'}
           </button>
-          <button onClick={cancel} className="px-2 py-1 bg-gray-500 text-white rounded text-xs">X</button>
+          <button
+            onClick={cancel}
+            className="px-2 py-1 bg-stone-500 text-white rounded text-xs font-semibold hover:bg-stone-600"
+          >
+            X
+          </button>
         </div>
       </div>
     )

@@ -18,9 +18,8 @@ async function getBlogCategories(): Promise<BlogCategory[]> {
     // Fetch categories directly from Supabase
     const { data: categories, error } = await supabase
       .from('cms_blog_categories')
-      .select('key, label')
-      .eq('is_active', true)
-      .order('display_order')
+      .select('db_value, label')
+      .order('display_order', { ascending: true })
     
     if (error) {
       console.error('[BlogPage] Failed to fetch categories:', error)
@@ -34,7 +33,7 @@ async function getBlogCategories(): Promise<BlogCategory[]> {
     // Add "Tous" as the first category
     return [
       { key: 'Tous', label: 'Tous' },
-      ...categories.map((c: { key: string; label: string }) => ({ key: c.key, label: c.label }))
+      ...categories.map((c: { db_value: string; label: string }) => ({ key: c.db_value, label: c.label }))
     ]
   } catch (error) {
     console.error('[BlogPage] Failed to fetch categories:', error)

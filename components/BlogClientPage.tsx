@@ -75,12 +75,31 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
   // the main UI thread, ensuring smooth typing for the user.
   const deferredSearchQuery = useDeferredValue(searchQuery)
 
-  // Use categories from props, or fallback to default categories
-  const categories = useMemo(() => {
-    if (propCategories && propCategories.length > 0) {
-      return propCategories
-    }
+  const [categories, setCategories] = useState<BlogCategory[]>(() => {
+    if (propCategories && propCategories.length > 0) return propCategories
     return DEFAULT_CATEGORIES
+  })
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const res = await fetch('/api/cms/blog-categories')
+        const data = await res.json()
+        if (data.success && data.categories) {
+          const mapped = [
+            { key: 'Tous', label: 'Tout lire' },
+            ...data.categories.map((c: any) => ({
+              key: c.db_value,
+              label: c.label
+            }))
+          ]
+          setCategories(mapped)
+        }
+      } catch (err) {
+        console.error('Failed to load dynamic blog categories:', err)
+      }
+    }
+    loadCategories()
   }, [propCategories])
 
   const filteredPosts = useMemo(() => {
@@ -99,16 +118,12 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
 
   const featuredPost = activeFilter === 'Tous' && deferredSearchQuery === '' ? posts[0] : null
 
-  // Compute stats from posts
+  // Compute stats dynamically from posts
   const safePosts = Array.isArray(posts) ? posts : []
-  const totalCarnets = safePosts.filter((post) => post.category === 'Carnets Voyage').length
-  const totalDecouvertes = safePosts.filter((post) => post.category === 'Découvertes Locales').length
-  const totalGuides = safePosts.filter((post) => post.category === 'Guides Pratiques').length
-
-  // Filter posts by category dynamically based on available categories
-  const carnets = filteredPosts.filter((post) => post.category === 'Carnets Voyage')
-  const decouvertes = filteredPosts.filter((post) => post.category === 'Découvertes Locales')
-  const guides = filteredPosts.filter((post) => post.category === 'Guides Pratiques')
+  const getPostCount = (catKey: string) => {
+    if (catKey === 'Tous') return safePosts.length
+    return safePosts.filter((post) => post.category === catKey).length
+  }
 
   return (
     <main className="min-h-screen bg-cloud-dancer">
@@ -137,9 +152,9 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
             moment, une erreur qu&apos;on ne refera pas. Le reste, on le laisse aux brochures.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-white/65">
-            <StatChip value={totalCarnets} label="Carnets" />
-            <StatChip value={totalDecouvertes} label="Pépites locales" />
-            <StatChip value={totalGuides} label="Guides" />
+            {categories.filter(c => c.key !== 'Tous').map(cat => (
+              <StatChip key={cat.key} value={getPostCount(cat.key)} label={cat.label} />
+            ))}
           </div>
         </div>
       </section>
@@ -219,10 +234,7 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
                 <span className={`ml-1.5 rounded-full px-1.5 text-xs ${
                   activeFilter === category.key ? 'bg-white/20' : 'bg-cloud-dancer'
                 }`}>
-                  {category.key === 'Tous' ? posts.length : 
-                   category.key === 'Carnets Voyage' ? totalCarnets :
-                   category.key === 'Découvertes Locales' ? totalDecouvertes :
-                   category.key === 'Guides Pratiques' ? totalGuides : 0}
+                  {getPostCount(category.key)}
                 </span>
               </button>
             ))}
@@ -288,53 +300,34 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
         </div>
       ) : (
         <div className="mx-auto max-w-7xl space-y-16 px-4 pb-20">
-          {(activeFilter === 'Tous' || activeFilter === 'Carnets Voyage') && carnets.length > 0 && (
-            <section>
-              <SectionHeader
-                eyebrow="Carnets"
-                title="Carnets de voyage"
-                description="Les récits qui gardent l’heure, le rythme et ce qu’on a retenu sur place."
-                count={carnets.length}
-              />
-              <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {carnets.map((post) => (
-                  <ArticleCard key={post.slug} post={post} />
-                ))}
-              </div>
-            </section>
-          )}
+          {categories.filter(c => c.key !== 'Tous').map((cat) => {
+            const postsInCategory = filteredPosts.filter((post) => post.category === cat.key)
+            if (postsInCategory.length === 0) return null
+            if (activeFilter !== 'Tous' && activeFilter !== cat.key) return null
 
-          {(activeFilter === 'Tous' || activeFilter === 'Découvertes Locales') && decouvertes.length > 0 && (
-            <section className="rounded-[2rem] bg-eucalyptus/5 px-4 py-12 md:px-8">
-              <SectionHeader
-                eyebrow="Pépites"
-                title="Découvertes locales"
-                description="Des lieux qu’on n’était pas venus chercher, et qu’on aurait regretté de rater."
-                count={decouvertes.length}
-              />
-              <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {decouvertes.map((post) => (
-                  <ArticleCard key={post.slug} post={post} />
-                ))}
-              </div>
-            </section>
-          )}
+            const isPepites = cat.key === 'Découvertes Locales'
 
-          {(activeFilter === 'Tous' || activeFilter === 'Guides Pratiques') && guides.length > 0 && (
-            <section>
-              <SectionHeader
-                eyebrow="Guides"
-                title="Guides pratiques"
-                description="Des repères concrets quand le terrain devient plus utile que la théorie."
-                count={guides.length}
-              />
-              <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {guides.map((post) => (
-                  <ArticleCard key={post.slug} post={post} />
-                ))}
-              </div>
-            </section>
-          )}
+            return (
+              <section key={cat.key} className={isPepites ? "rounded-[2rem] bg-eucalyptus/5 px-4 py-12 md:px-8" : ""}>
+                <SectionHeader
+                  eyebrow={cat.label}
+                  title={cat.label}
+                  description={
+                    cat.key === 'Carnets Voyage' ? "Les récits qui gardent l’heure, le rythme et ce qu’on a retenu sur place." :
+                    cat.key === 'Découvertes Locales' ? "Des lieux qu’on n’était pas venus chercher, et qu’on aurait regretté de rater." :
+                    cat.key === 'Guides Pratiques' ? "Des repères concrets quand le terrain devient plus utile que la théorie." :
+                    `Tous les articles de la catégorie ${cat.label}.`
+                  }
+                  count={postsInCategory.length}
+                />
+                <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {postsInCategory.map((post) => (
+                    <ArticleCard key={post.slug} post={post} />
+                  ))}
+                </div>
+              </section>
+            )
+          })}
         </div>
       )}
 

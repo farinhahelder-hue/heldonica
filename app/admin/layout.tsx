@@ -39,14 +39,20 @@ export default async function AdminLayout({
               </p>
             </div>
             <nav className="flex items-center gap-4 text-sm">
-              <Link 
-                href="/cms-admin" 
+              <Link
+                href="/admin/categories"
+                className="text-charcoal/60 hover:text-charcoal"
+              >
+                Catégories
+              </Link>
+              <Link
+                href="/cms-admin"
                 className="text-eucalyptus hover:underline"
               >
                 ← Retour au CMS
               </Link>
-              <Link 
-                href="/" 
+              <Link
+                href="/"
                 className="text-charcoal/60 hover:text-charcoal"
               >
                 Voir le site →
