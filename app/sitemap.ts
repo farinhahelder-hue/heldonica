@@ -442,13 +442,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: changeFreq as 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never',
         priority: priority,
         // Image sitemap extension for Google
-        images: imageUrl ? [
-          {
-            url: imageUrl,
-            title: post.title || 'Article Heldonica',
-            caption: post.excerpt || undefined,
-          },
-        ] : undefined,
+        images: imageUrl ? [imageUrl] : undefined,
       };
     });
 

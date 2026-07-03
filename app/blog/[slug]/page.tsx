@@ -18,15 +18,13 @@ import CtaTravelPlanning from '@/components/CtaTravelPlanning'
 import HeldonicaFAQ from '@/components/HeldonicaFAQ'
 import HeldonicaVerdict from '@/components/HeldonicaVerdict'
 import { getReadingTime, formatReadingTime } from '@/lib/readingTime'
-import dynamic from 'next/dynamic'
-
-const ArticleMap = dynamic(() => import('@/components/ArticleMap'), { ssr: false })
+import DynamicArticleMap from '@/components/DynamicArticleMap'
 
 const SITE_URL = 'https://www.heldonica.fr'
 const DEFAULT_OG = `${SITE_URL}/og-default.jpg`
 
 interface Props {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 export const revalidate = 3600
@@ -37,11 +35,12 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const slug = (await params).slug
   const supabase = createServiceClient()
   const { data: post } = await supabase
     .from('cms_blog_posts')
     .select('title, excerpt, featuredimage, publishedat, tags, author, updatedat')
-    .eq('slug', params.slug)
+    .eq('slug', slug)
     .eq('published', true)
     .single()
 
@@ -56,7 +55,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = `${post.title} | Heldonica`
   const ogImage = post.featuredimage || DEFAULT_OG
-  const canonical = `${SITE_URL}/blog/${params.slug}`
+  const canonical = `${SITE_URL}/blog/${slug}`
   const publishedTime = post.publishedat || undefined
   const authorName = post.author || 'Heldonica'
   const tagsArray = post.tags
@@ -203,7 +202,8 @@ const HERO_FALLBACK: Record<string, string> = {
 const DEFAULT_HERO = 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80'
 
 export default async function BlogPostPage({ params }: Props) {
-  const post = await getPostBySlug(params.slug)
+  const slug = (await params).slug
+  const post = await getPostBySlug(slug)
   if (!post) notFound()
 
   // Fetch show_map flag
@@ -211,7 +211,7 @@ export default async function BlogPostPage({ params }: Props) {
   const { data: mapMeta } = await supabase
     .from('cms_blog_posts')
     .select('show_map')
-    .eq('slug', params.slug)
+    .eq('slug', slug)
     .single()
   const showMap = mapMeta?.show_map === true
 
@@ -331,7 +331,7 @@ export default async function BlogPostPage({ params }: Props) {
           )}
 
           {/* ── Carte interactive (si activée dans le CMS) ────────────── */}
-          {showMap && <ArticleMap slug={params.slug} />}
+          {showMap && <DynamicArticleMap slug={slug} />}
 
           {post.voice_notes && (
             <aside className="mt-10 rounded-[2rem] border border-stone-200 bg-stone-50 px-6 py-6 md:px-8">
