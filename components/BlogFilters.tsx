@@ -3,18 +3,19 @@
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback } from 'react'
 
-interface BlogFiltersProps {
-  activeCategory?: string
-  counts?: {
-    all: number
-    'Carnets Voyage': number
-    'Découvertes Locales': number
-    'Guides Pratiques': number
-    'Coulisses de marque': number
-  }
+export interface BlogCategory {
+  key: string
+  label: string
+  icon?: string
 }
 
-const CATEGORIES = [
+export interface BlogFiltersProps {
+  activeCategory?: string
+  counts?: Record<string, number>
+  categories?: BlogCategory[]
+}
+
+const DEFAULT_CATEGORIES: BlogCategory[] = [
   { key: 'Tous', label: 'Tous' },
   { key: 'Carnets Voyage', label: 'Carnets Voyage' },
   { key: 'Découvertes Locales', label: 'Découvertes Locales' },
@@ -28,8 +29,13 @@ const INACTIVE_CLASS = 'bg-[#F5F0EB] text-[#4A7C6F] border border-[#4A7C6F]'
 /**
  * Filtres de catégorie pour la page blog
  * Gère le filtrage via URL params pour persistance et partage
+ * Accepte les catégories depuis les props ou utilise les valeurs par défaut
  */
-export default function BlogFilters({ activeCategory = 'Tous', counts }: BlogFiltersProps) {
+export default function BlogFilters({ 
+  activeCategory = 'Tous', 
+  counts,
+  categories = DEFAULT_CATEGORIES 
+}: BlogFiltersProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -47,9 +53,9 @@ export default function BlogFilters({ activeCategory = 'Tous', counts }: BlogFil
 
   return (
     <div className="mb-8 flex flex-wrap items-center gap-3">
-      {CATEGORIES.map(({ key, label }) => {
+      {categories.map(({ key, label }) => {
         const isActive = activeCategory === key
-        const count = counts?.[key as keyof typeof counts] ?? 0
+        const count = counts?.[key] ?? 0
         
         return (
           <button

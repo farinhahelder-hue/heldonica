@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, useDeferredValue } from 'react'
 import Link from 'next/link'
 import NewsletterForm from '@/components/NewsletterForm'
+import BlogFilters, { type BlogCategory } from '@/components/BlogFilters'
 import type { BlogPost } from '@/lib/blog-supabase'
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -22,8 +23,17 @@ const DEFAULT_CARD_FALLBACK = 'https://images.unsplash.com/photo-1501854140801-5
 
 const BADGE_FALLBACK_SRC = '/images/badges-heldonica.svg'
 
+// Default categories as fallback
+const DEFAULT_CATEGORIES: BlogCategory[] = [
+  { key: 'Tous', label: 'Tous' },
+  { key: 'Carnets Voyage', label: 'Carnets Voyage' },
+  { key: 'Découvertes Locales', label: 'Découvertes Locales' },
+  { key: 'Guides Pratiques', label: 'Guides Pratiques' },
+]
+
 interface Props {
   posts?: (BlogPost & { formattedDate: string; readTime?: number })[]
+  categories?: BlogCategory[]
 }
 
 function ReadProgressBar() {
@@ -52,7 +62,7 @@ function ReadProgressBar() {
   )
 }
 
-export default function BlogClientPage({ posts: rawPosts }: Props) {
+export default function BlogClientPage({ posts: rawPosts, categories: propCategories }: Props) {
   const posts = useMemo(
     () => (Array.isArray(rawPosts) ? rawPosts : []),
     [rawPosts]
@@ -65,7 +75,13 @@ export default function BlogClientPage({ posts: rawPosts }: Props) {
   // the main UI thread, ensuring smooth typing for the user.
   const deferredSearchQuery = useDeferredValue(searchQuery)
 
-  const categories = ['Tous', 'Carnets Voyage', 'Découvertes Locales', 'Guides Pratiques']
+  // Use categories from props, or fallback to default categories
+  const categories = useMemo(() => {
+    if (propCategories && propCategories.length > 0) {
+      return propCategories
+    }
+    return DEFAULT_CATEGORIES
+  }, [propCategories])
 
   const filteredPosts = useMemo(() => {
     return posts.filter((post) => {
@@ -82,14 +98,17 @@ export default function BlogClientPage({ posts: rawPosts }: Props) {
   }, [posts, activeFilter, deferredSearchQuery])
 
   const featuredPost = activeFilter === 'Tous' && deferredSearchQuery === '' ? posts[0] : null
-  const carnets = filteredPosts.filter((post) => post.category === 'Carnets Voyage')
-  const decouvertes = filteredPosts.filter((post) => post.category === 'Découvertes Locales')
-  const guides = filteredPosts.filter((post) => post.category === 'Guides Pratiques')
 
+  // Compute stats from posts
   const safePosts = Array.isArray(posts) ? posts : []
   const totalCarnets = safePosts.filter((post) => post.category === 'Carnets Voyage').length
   const totalDecouvertes = safePosts.filter((post) => post.category === 'Découvertes Locales').length
   const totalGuides = safePosts.filter((post) => post.category === 'Guides Pratiques').length
+
+  // Filter posts by category dynamically based on available categories
+  const carnets = filteredPosts.filter((post) => post.category === 'Carnets Voyage')
+  const decouvertes = filteredPosts.filter((post) => post.category === 'Découvertes Locales')
+  const guides = filteredPosts.filter((post) => post.category === 'Guides Pratiques')
 
   return (
     <main className="min-h-screen bg-cloud-dancer">
@@ -188,22 +207,22 @@ export default function BlogClientPage({ posts: rawPosts }: Props) {
           <div className="flex flex-wrap gap-2">
             {categories.map((category) => (
               <button
-                key={category}
-                onClick={() => setActiveFilter(category)}
+                key={category.key}
+                onClick={() => setActiveFilter(category.key)}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${
-                  activeFilter === category
+                  activeFilter === category.key
                     ? 'bg-eucalyptus text-white shadow-sm'
                     : 'border border-cloud-dancer bg-white text-charcoal/70 hover:border-eucalyptus hover:bg-eucalyptus/5 hover:text-eucalyptus'
                 }`}
               >
-                {CATEGORY_LABELS[category]}
+                {category.label}
                 <span className={`ml-1.5 rounded-full px-1.5 text-xs ${
-                  activeFilter === category ? 'bg-white/20' : 'bg-cloud-dancer'
+                  activeFilter === category.key ? 'bg-white/20' : 'bg-cloud-dancer'
                 }`}>
-                  {category === 'Tous' ? posts.length : 
-                   category === 'Carnets Voyage' ? totalCarnets :
-                   category === 'Découvertes Locales' ? totalDecouvertes :
-                   category === 'Guides Pratiques' ? totalGuides : 0}
+                  {category.key === 'Tous' ? posts.length : 
+                   category.key === 'Carnets Voyage' ? totalCarnets :
+                   category.key === 'Découvertes Locales' ? totalDecouvertes :
+                   category.key === 'Guides Pratiques' ? totalGuides : 0}
                 </span>
               </button>
             ))}
