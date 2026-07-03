@@ -38,8 +38,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const slug = (await params).slug
   const supabase = createServiceClient()
   const { data: post } = await supabase
-    .from('cms_blog_posts')
-    .select('title, excerpt, featuredimage, publishedat, tags, author, updatedat')
+    .from('articles')
+    .select('title, excerpt, featured_image, published_at, tags, author, updated_at, slug')
     .eq('slug', slug)
     .eq('published', true)
     .single()
@@ -54,13 +54,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const title = `${post.title} | Heldonica`
-  const ogImage = post.featuredimage || DEFAULT_OG
+  const ogImage = post.featured_image || DEFAULT_OG
   const canonical = `${SITE_URL}/blog/${slug}`
-  const publishedTime = post.publishedat || undefined
+  const publishedTime = post.published_at || undefined
   const authorName = post.author || 'Heldonica'
-  const tagsArray = post.tags
-    ? post.tags.split(',').map((t: string) => t.trim()).filter(Boolean)
-    : []
+  const tagsArray = Array.isArray(post.tags) ? post.tags : (post.tags ? post.tags.split(',').map((t: string) => t.trim()).filter(Boolean) : [])
 
   return {
     title,
