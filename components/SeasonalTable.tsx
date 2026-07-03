@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-interface SeasonData {
+export interface SeasonData {
   name: string
   emoji: string
   months: string[]
@@ -12,7 +12,7 @@ interface SeasonData {
   description: string
 }
 
-interface SeasonalTableProps {
+export interface SeasonalTableProps {
   destination: string
   seasons: SeasonData[]
 }
@@ -124,121 +124,3 @@ export default function SeasonalTable({ destination, seasons }: SeasonalTablePro
     </div>
   )
 }
-
-// Données pré-remplies pour les destinations principales
-export const MADEIRA_SEASONS: SeasonData[] = [
-  {
-    name: 'Printemps',
-    emoji: '🌸',
-    months: ['Mars', 'Avril', 'Mai'],
-    weather: '16-22°C, fleurs, végétation vive',
-    crowd: 'low',
-    price: 'medium',
-    description: 'La période reine pour Madère. Floraisons,气温 agréables, randos idéales. Prix encore modérés avant la haute saison.',
-  },
-  {
-    name: 'Été',
-    emoji: '☀️',
-    months: ['Juin', 'Juillet', 'Août'],
-    weather: '22-28°C, mer chaude, soleil',
-    crowd: 'high',
-    price: 'high',
-    description: 'Pic d\'affluence et prix élevés. Parfait pour la plage et les activités nautiques. Réservez longtemps à l\'avance.',
-  },
-  {
-    name: 'Automne',
-    emoji: '🍂',
-    months: ['Septembre', 'Octobre', 'Novembre'],
-    weather: '18-24°C, fin de l\'été indien',
-    crowd: 'medium',
-    price: 'medium',
-    description: 'Excellent compromis : chaleur encore présente, moins de monde, prix en baisse. Notre recommandation pour un premier voyage.',
-  },
-  {
-    name: 'Hiver',
-    emoji: '🌧️',
-    months: ['Décembre', 'Janvier', 'Février'],
-    weather: '14-20°C, plus humide, brumeux',
-    crowd: 'low',
-    price: 'low',
-    description: 'Version contemplatif de Madère. Moins de randos praticables (boue), mais ambiance unique et prix cassés.',
-  },
-]
-
-export const MONTENEGRO_SEASONS: SeasonData[] = [
-  {
-    name: 'Printemps',
-    emoji: '🌷',
-    months: ['Avril', 'Mai', 'Juin'],
-    weather: '18-26°C, idéal pour rando',
-    crowd: 'low',
-    price: 'low',
-    description: 'Températures agréables, nature en pleine croissance, sites historiques moins bondés. La meilleure période pour explorer.',
-  },
-  {
-    name: 'Été',
-    emoji: '🏖️',
-    months: ['Juillet', 'Août'],
-    weather: '25-32°C, plage, festivals',
-    crowd: 'high',
-    price: 'high',
-    description: 'Haute saison avec affluence maximale sur la côte. Ambiance festive, plages热闹, mais réserver tout à l\'avance.',
-  },
-  {
-    name: 'Automne',
-    emoji: '🍁',
-    months: ['Septembre', 'Octobre'],
-    weather: '18-24°C, vendanges, couleurs',
-    crowd: 'medium',
-    price: 'medium',
-    description: 'Notre coup de cœur : mer encore chaude, villages viticoles en couleurs, calme revenu. Parfait pour le slow travel.',
-  },
-  {
-    name: 'Hiver',
-    emoji: '❄️',
-    months: ['Novembre', 'Décembre', 'Janvier', 'Février', 'Mars'],
-    weather: '5-12°C, neige dans les montagnes',
-    crowd: 'low',
-    price: 'low',
-    description: 'Saison basse pour le tourisme晒日光浴 mais idéale pour le lac de Skadar, les Balkans intérieurs et lesrandos en montagne.',
-  },
-]
-
-export const ROUMANIE_SEASONS: SeasonData[] = [
-  {
-    name: 'Printemps',
-    emoji: '🌿',
-    months: ['Avril', 'Mai', 'Juin'],
-    weather: '12-22°C, transylvanie en fleurs',
-    crowd: 'medium',
-    price: 'low',
-    description: 'Bucovina accessible, champs de fleurs sauvages, températures agréables pour explorer. Prix encore doux.',
-  },
-  {
-    name: 'Été',
-    emoji: '☀️',
-    months: ['Juillet', 'Août'],
-    weather: '20-30°C, festivals, chaleur',
-    crowd: 'high',
-    price: 'medium',
-    description: 'Festivals暑热暑热暑热暑热暑热暑热暑热暑热暑热暑热暑热暑热暑热暑热暑热暑热暑热暑热暑热暑热暑热暑热. Attention à la chaleur à Bucarest.',
-  },
-  {
-    name: 'Automne',
-    emoji: '🍂',
-    months: ['Septembre', 'Octobre', 'Novembre'],
-    weather: '8-18°C, feuilles colorées, vendanges',
-    crowd: 'low',
-    price: 'low',
-    description: 'La Transylvanie en couleurs est un cauchemar photographique. Vendanges dans les vignobles, calme idéal.',
-  },
-  {
-    name: 'Hiver',
-    emoji: '❄️',
-    months: ['Décembre', 'Janvier', 'Février', 'Mars'],
-    weather: '-5 à 5°C, neige, marchés de Noël',
-    crowd: 'medium',
-    price: 'low',
-    description: 'Marchés de Noël féériques, neige sur les châteaux, chaleur des auberges. La Transylvanie enneigée, c\'est magique.',
-  },
-]

@@ -6,9 +6,50 @@ import Footer from '@/components/Footer'
 import BlogClientPage from '@/components/BlogClientPage'
 import Breadcrumb from '@/components/Breadcrumb'
 import { getReadingTime } from '@/lib/readingTime'
+import { type BlogCategory } from '@/components/BlogFilters'
+import { supabase } from '@/lib/supabase-client'
 
 // ISR: cache for 1 hour
 export const revalidate = 3600
+
+// Fetch blog categories from CMS
+async function getBlogCategories(): Promise<BlogCategory[]> {
+  try {
+    // Fetch categories directly from Supabase
+    const { data: categories, error } = await supabase
+      .from('cms_blog_categories')
+      .select('key, label')
+      .eq('is_active', true)
+      .order('display_order')
+    
+    if (error) {
+      console.error('[BlogPage] Failed to fetch categories:', error)
+      return getFallbackCategories()
+    }
+    
+    if (!categories || categories.length === 0) {
+      return getFallbackCategories()
+    }
+    
+    // Add "Tous" as the first category
+    return [
+      { key: 'Tous', label: 'Tous' },
+      ...categories.map((c: { key: string; label: string }) => ({ key: c.key, label: c.label }))
+    ]
+  } catch (error) {
+    console.error('[BlogPage] Failed to fetch categories:', error)
+    return getFallbackCategories()
+  }
+}
+
+function getFallbackCategories(): BlogCategory[] {
+  return [
+    { key: 'Tous', label: 'Tous' },
+    { key: 'Carnets Voyage', label: 'Carnets Voyage' },
+    { key: 'Découvertes Locales', label: 'Découvertes Locales' },
+    { key: 'Guides Pratiques', label: 'Guides Pratiques' },
+  ]
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -148,6 +189,9 @@ export default async function BlogPage() {
     posts = []
   }
 
+  // Fetch categories from CMS
+  const categories = await getBlogCategories()
+
   // If we have no posts at build time, avoid crashing the build and just render an empty list.
   if (!Array.isArray(posts) || posts.length === 0) {
     return (
@@ -164,7 +208,7 @@ export default async function BlogPage() {
         }} />
         <Header />
         <Breadcrumb />
-        <BlogClientPage posts={[]} />
+        <BlogClientPage posts={[]} categories={categories} />
         <Footer />
         <CollectionPageJsonLd posts={[]} />
       </>
@@ -196,7 +240,7 @@ export default async function BlogPage() {
       }} />
       <Header />
       <Breadcrumb />
-      <BlogClientPage posts={postsWithFormattedDate} />
+      <BlogClientPage posts={postsWithFormattedDate} categories={categories} />
       <Footer />
       <CollectionPageJsonLd posts={safePosts} />
     </>

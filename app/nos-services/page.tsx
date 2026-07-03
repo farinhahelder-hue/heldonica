@@ -4,23 +4,23 @@ import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import FaqSection from '@/components/FaqSection'
 import { FAQJsonLd } from '@/components/JsonLd'
+import { supabase } from '@/lib/supabase-client'
 
-const FAQ_QUESTIONS = [
+// Fallback FAQ questions for resilience
+const FALLBACK_FAQ_QUESTIONS = [
   {
     question: 'Comment fonctionne le Travel Planning sur mesure ?',
-    answer: 'Vous nous décrivez votre voyage idéal via notre formulaire ou lors d\'un échange. On analyse vos envies, contraintes et budget, puis on vous prépare un carnet de route PDF complet avec itinéraire, hébergements, restaurants et conseils pratiques. Le tout en 7-10 jours.',
+    answer: "Vous nous décrivez votre voyage idéal via notre formulaire ou lors d'un échange. On analyse vos envies, contraintes et budget, puis on vous prépare un carnet de route PDF complet avec itinéraire, hébergements, restaurants et conseils pratiques. Le tout en 7-10 jours.",
   },
   {
     question: 'Combien coûte un voyage sur mesure avec Heldonica ?',
-    answer: 'Le tarif du Travel Planning commence à 149€ pour un voyage de base. Le prix varie selon la complexité de l\'itinéraire, la durée du voyage et le niveau de personnalisation. Chaque projet est unique, on vous donne un chiffrage précis après notre échange découverte.',
+    answer: "Le tarif du Travel Planning commence à 149€ pour un voyage de base. Le prix varie selon la complexité de l'itinéraire, la durée du voyage et le niveau de personnalisation. Chaque projet est unique, on vous donne un chiffrage précis après notre échange découverte.",
   },
   {
-    question: 'Heldonica accompagne aussi les voyageurs en solo ?',
-    answer: 'Absolument. Le Travel Planning fonctionne pour tous les types de voyageurs : couples, solos, familles, groupes d\'amis. Pour les voyageurs solo, on peut aussi te mettre en contact avec d\'autres voyageurs ou te guider vers des expériences adaptées.',
+    question: "Heldonica accompagne aussi les voyageurs en solo ?",
+    answer: "Absolument. Le Travel Planning fonctionne pour tous les types de voyageurs : couples, solos, familles, groupes d'amis. Pour les voyageurs solo, on peut aussi te mettre en contact avec d'autres voyageurs ou te guider vers des expériences adaptées.",
   },
 ]
-
-const FAQ_ZONE_KEYS = ['faq_1', 'faq_2', 'faq_3']
 
 export const metadata: Metadata = {
   title: 'Services | Travel Planning sur mesure',
@@ -52,10 +52,76 @@ export const metadata: Metadata = {
   },
 }
 
-export default function NosServicesPage() {
+// Fetch FAQ from CMS zones
+async function getFaqQuestions(): Promise<{ question: string; answer: string }[]> {
+  try {
+    // Fetch FAQ zones directly from Supabase using ilike pattern
+    const { data: faqZones, error } = await supabase
+      .from('cms_editable_zones')
+      .select('zone, value')
+      .eq('page', 'nos-services')
+      .or('zone.ilike.faq_%')
+      .eq('is_active', true)
+    
+    if (error) {
+      console.error('[NosServices] Failed to fetch FAQ zones:', error)
+      return FALLBACK_FAQ_QUESTIONS
+    }
+    
+    if (!faqZones || faqZones.length === 0) {
+      return FALLBACK_FAQ_QUESTIONS
+    }
+    
+    // Organize zones into FAQ items
+    const faqItems: { question: string; answer: string }[] = []
+    
+    // Group zones by FAQ number
+    const faqMap = new Map<string, { question?: string; answer?: string }>()
+    
+    for (const zone of faqZones) {
+      const match = zone.zone.match(/^faq_(\d+)_(question|answer)$/)
+      if (match) {
+        const num = match[1]
+        const type = match[2]
+        if (!faqMap.has(num)) {
+          faqMap.set(num, {})
+        }
+        const item = faqMap.get(num)!
+        if (type === 'question') {
+          item.question = zone.value
+        } else {
+          item.answer = zone.value
+        }
+      }
+    }
+    
+    // Build FAQ items array
+    const sortedKeys = Array.from(faqMap.keys()).sort((a, b) => parseInt(a) - parseInt(b))
+    
+    for (const key of sortedKeys) {
+      const item = faqMap.get(key)!
+      if (item.question && item.answer) {
+        faqItems.push({ question: item.question, answer: item.answer })
+      }
+    }
+    
+    if (faqItems.length === 0) {
+      return FALLBACK_FAQ_QUESTIONS
+    }
+    
+    return faqItems
+  } catch (error) {
+    console.error('[NosServices] Failed to fetch FAQ:', error)
+    return FALLBACK_FAQ_QUESTIONS
+  }
+}
+
+export default async function NosServicesPage() {
+  const faqQuestions = await getFaqQuestions()
+
   return (
     <InlineEditProvider page="nos-services">
-      <FAQJsonLd questions={FAQ_QUESTIONS} />
+      <FAQJsonLd questions={faqQuestions} />
       <main className="min-h-screen">
         {/* Hero */}
         <section className="relative bg-stone-950 text-white py-24 md:py-32 overflow-hidden">
@@ -140,9 +206,9 @@ export default function NosServicesPage() {
           </div>
         </section>
 
-        {/* FAQ Section with accordion */}
+        {/* FAQ Section with accordion - from CMS */}
         <FaqSection
-          items={FAQ_QUESTIONS}
+          items={faqQuestions}
           title="Tout ce que tu veux savoir"
           subtitle="Les questions qu'on nous pose le plus souvent"
         />
