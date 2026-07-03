@@ -149,11 +149,11 @@ export async function getRelatedPosts(
   if (!supabase) return [];
   try {
     const { data, error } = await supabase
-      .from('articles')
+      .from('cms_blog_posts')
       .select('*')
       .eq('category', category ?? '')
       .eq('published', true)
-      .eq('archived', false)
+      
       .neq('slug', currentSlug)
       .order('published_at', { ascending: false })
       .limit(limit);
@@ -174,10 +174,10 @@ export async function getAllSlugs(): Promise<{ slug: string }[]> {
   if (!supabase) return [];
   try {
     const { data, error } = await supabase
-      .from('articles')
+      .from('cms_blog_posts')
       .select('slug')
       .eq('published', true)
-      .eq('archived', false);
+      ;
     if (error) {
       console.error('Supabase getAllSlugs error:', error.message);
       return [];
