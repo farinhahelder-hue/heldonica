@@ -97,17 +97,80 @@ function CmsAdminClientInner() {
   // Preview
   const [previewArticle, setPreviewArticle] = useState<Article | null>(null);
 
+  // Local draft recovery
+  const [localDraft, setLocalDraft] = useState<{ article: Article; timestamp: string } | null>(null);
+
+  // Article revisions
+  type ArticleRevision = {
+    id: number;
+    article_id: number;
+    title: string;
+    content: string;
+    excerpt?: string;
+    saved_at: string;
+    word_count: number;
+  };
+  const [revisions, setRevisions] = useState<ArticleRevision[]>([]);
+  const [revisionsLoading, setRevisionsLoading] = useState(false);
+
   // Auto-save draft
   const [lastAutoSave, setLastAutoSave] = useState<string>('');
   useEffect(() => {
     if (!editingArticle) return;
     const timer = setInterval(() => {
       const key = `heldonica-draft-${editingArticle.slug || 'new'}`;
-      localStorage.setItem(key, JSON.stringify(editingArticle));
+      const timestamp = new Date().toISOString();
+      localStorage.setItem(key, JSON.stringify({ article: editingArticle, timestamp }));
       setLastAutoSave(new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
     }, 30000);
     return () => clearInterval(timer);
   }, [editingArticle]);
+
+  // Check for local draft when editingArticle is set
+  useEffect(() => {
+    if (!editingArticle) {
+      setLocalDraft(null);
+      return;
+    }
+    const key = `heldonica-draft-${editingArticle.slug || 'new'}`;
+    const saved = localStorage.getItem(key);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        const draftTimestamp = new Date(parsed.timestamp).getTime();
+        const articleTimestamp = editingArticle.updated_at
+          ? new Date(editingArticle.updated_at).getTime()
+          : 0;
+        if (draftTimestamp > articleTimestamp) {
+          setLocalDraft({ article: parsed.article, timestamp: parsed.timestamp });
+        } else {
+          setLocalDraft(null);
+        }
+      } catch {
+        setLocalDraft(null);
+      }
+    } else {
+      setLocalDraft(null);
+    }
+  }, [editingArticle]);
+
+  // Load revisions when editing article changes
+  useEffect(() => {
+    if (!editingArticle?.id) {
+      setRevisions([]);
+      return;
+    }
+    setRevisionsLoading(true);
+    fetch(`/api/cms/article-revisions?article_id=${editingArticle.id}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.revisions) {
+          setRevisions(data.revisions);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setRevisionsLoading(false));
+  }, [editingArticle?.id]);
 
   // ── Messages section ───────────────────────────────────────────────────────
   type ContactMessage = {
@@ -853,6 +916,36 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                     <span className="text-gray-400 text-xs">Auto-sauvegarde {lastAutoSave}</span>}
                 </div>
 
+                {/* Local draft recovery banner */}
+                {localDraft && (
+                  <div className="mb-4 px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-amber-600">💡</span>
+                      <span className="text-sm text-amber-800">
+                        Brouillon local détecté : Un brouillon enregistré localement dans votre navigateur le {new Date(localDraft.timestamp).toLocaleString('fr-FR')} contient des modifications non enregistrées.
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          setEditingArticle(localDraft.article);
+                          setLocalDraft(null);
+                          toast('Brouillon restauré avec succès', 'success');
+                        }}
+                        className="px-3 py-1.5 text-xs font-medium bg-amber-200 text-amber-800 rounded-lg hover:bg-amber-300 transition-colors"
+                      >
+                        Restaurer le brouillon
+                      </button>
+                      <button
+                        onClick={() => setLocalDraft(null)}
+                        className="px-3 py-1.5 text-xs font-medium text-amber-700 hover:text-amber-900 transition-colors"
+                      >
+                        Ignorer
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-y-3">
 
                   {/* ── Content section ── */}
@@ -1043,6 +1136,35 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                         </select>
                       </div>
                     </div>
+
+                    {/* Google SERP Preview */}
+                    <div className="mt-4 p-4 bg-white border border-gray-200 rounded-lg">
+                      <p className="text-xs text-gray-500 mb-2">Aperçu Google</p>
+                      <div className="font-sans">
+                        <p className="text-blue-600 text-lg hover:underline cursor-pointer">
+                          {editingArticle?.seo_title || editingArticle?.title || 'Titre de l\'article'}
+                        </p>
+                        <p className="text-green-700 text-sm">heldonica.fr/blog/{editingArticle?.slug || 'slug'}</p>
+                        <p className="text-gray-600 text-sm line-clamp-2">
+                          {editingArticle?.seo_description || editingArticle?.excerpt || 'Description...'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Social Card Preview */}
+                    <div className="mt-4 p-4 bg-white border border-gray-200 rounded-lg">
+                      <p className="text-xs text-gray-500 mb-2">Aperçu réseau social</p>
+                      <div className="border border-gray-200 rounded-lg overflow-hidden max-w-[500px]">
+                        {editingArticle?.featured_image && (
+                          <img src={editingArticle.featured_image} className="w-full h-48 object-cover" alt="" />
+                        )}
+                        <div className="p-3 bg-gray-50">
+                          <p className="text-[10px] text-gray-500 uppercase">heldonica.fr</p>
+                          <p className="text-gray-900 font-semibold text-sm line-clamp-1">{editingArticle?.seo_title || editingArticle?.title}</p>
+                          <p className="text-gray-500 text-xs line-clamp-2">{editingArticle?.seo_description || editingArticle?.excerpt}</p>
+                        </div>
+                      </div>
+                    </div>
                   </CollapsibleSection>
 
                   {/* ── Publication section ── */}
@@ -1095,6 +1217,51 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                         <p className="text-[10px] text-gray-400 mt-1">Nombre de fois que vous avez visité ce lieu</p>
                       </div>
                     </div>
+                  </CollapsibleSection>
+
+                  {/* ── Revision History section ── */}
+                  <CollapsibleSection title="⏳ Historique des versions" defaultOpen={false}>
+                    {revisionsLoading ? (
+                      <div className="text-sm text-gray-400 py-2">Chargement...</div>
+                    ) : revisions.length === 0 ? (
+                      <div className="text-sm text-gray-400 py-2">Aucune version sauvegardée</div>
+                    ) : (
+                      <div className="space-y-2 max-h-64 overflow-y-auto">
+                        {revisions.map((rev) => (
+                          <div key={rev.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium text-gray-700 truncate">
+                                {new Date(rev.saved_at).toLocaleString('fr-FR')}
+                              </p>
+                              <p className="text-[10px] text-gray-400">
+                                {rev.word_count} mots • "{rev.title?.substring(0, 40) || 'Sans titre'}..."
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => {
+                                confirm(
+                                  'Restaurer cette version ?',
+                                  `Cette action remplacera le titre, l'extrait et le contenu actuels par la version du ${new Date(rev.saved_at).toLocaleString('fr-FR')}.`,
+                                  () => {
+                                    setEditingArticle(prev => prev ? {
+                                      ...prev,
+                                      title: rev.title || prev.title,
+                                      excerpt: rev.excerpt || prev.excerpt,
+                                      content: rev.content || prev.content,
+                                    } : prev);
+                                    toast('Version restaurée avec succès', 'success');
+                                  },
+                                  'default'
+                                );
+                              }}
+                              className="ml-2 px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
+                            >
+                              Restaurer
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </CollapsibleSection>
 
                   <EeaatScore

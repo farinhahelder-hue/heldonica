@@ -34,6 +34,9 @@ const EEAT_WEIGHTS: Record<string, number> = {
   category: 5,
   visit_date: 5,
   visit_count: 5,
+  internal_links: 5,
+  external_links: 5,
+  image_alts: 5,
 };
 
 const MAX_SCORE = Object.values(EEAT_WEIGHTS).reduce((a, b) => a + b, 0);
@@ -125,6 +128,35 @@ export default function EeaatScore({
     add('visit_date', visitDateOk, visitDateOk ? `Visite le ${new Date(visitDate!).toLocaleDateString('fr-FR')}` : 'Non renseignee');
 
     add('visit_count', (visitCount ?? 0) >= 1, (visitCount ?? 0) >= 1 ? `${visitCount} visite(s)` : 'Non renseigne');
+
+    // Link auditing
+    if (content) {
+      const linkRegex = /<a\s+[^>]*href=["']([^"']+)["'][^>]*>/gi;
+      const imgRegex = /<img[^>]*>/gi;
+      const links: string[] = [];
+      let match;
+      while ((match = linkRegex.exec(content)) !== null) {
+        links.push(match[1]);
+      }
+      const internalLinks = links.filter(h => h.startsWith('/') || h.includes('heldonica.fr')).length;
+      const externalLinks = links.length - internalLinks;
+      
+      add('internal_links', internalLinks >= 2, internalLinks >= 2 ? `${internalLinks} liens internes` : `${internalLinks} lien(s) interne(s) (min. 2)`);
+      add('external_links', externalLinks >= 1, externalLinks >= 1 ? `${externalLinks} lien(s) externe(s)` : 'Aucun lien externe');
+
+      // Image alt auditing
+      const imgs: string[] = [];
+      while ((match = imgRegex.exec(content)) !== null) {
+        imgs.push(match[0]);
+      }
+      const imgsWithoutAlt = imgs.filter(img => !img.includes('alt='));
+      const altOk = imgs.length === 0 || imgsWithoutAlt.length === 0;
+      add('image_alts', altOk, imgs.length === 0 ? 'Aucune image' : altOk ? `Toutes les ${imgs.length} images ont un alt` : `${imgsWithoutAlt.length}/${imgs.length} images sans alt`);
+    } else {
+      add('internal_links', false, 'Pas de contenu');
+      add('external_links', false, 'Pas de contenu');
+      add('image_alts', false, 'Pas de contenu');
+    }
 
     const pct = Math.round((total / MAX_SCORE) * 100);
     let g: string;
