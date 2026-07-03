@@ -1,5 +1,5 @@
-import { getSetting, getAllPosts, formatDate, BlogPost, getPageContent } from '@/lib/blog-supabase'
-import { getSiteSettings } from '@/lib/settings'
+import { getAllPosts, formatDate, BlogPost, getPageContent } from '@/lib/blog-supabase'
+import { getSettings } from '@/lib/settings'
 import HomeClient from '@/components/HomeClient'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import type { Metadata } from 'next'
@@ -103,9 +103,16 @@ export default async function Home() {
   // Defensive: ensure we always have an array
   const allPosts = Array.isArray(allPostsResult) ? allPostsResult : []
   
-  // Get covered_countries as number with fallback
-  const rawCountries = await getSetting('covered_countries')
-  const coveredCountries = rawCountries ? parseInt(rawCountries, 10) : 7
+  // ⚡ Optimization: Fetch all site settings in a single Supabase query to avoid N+1 bottleneck and reduce TTFB
+  const settings = await getSettings(
+    'covered_countries',
+    'social_instagram',
+    'instagram_post_count',
+    'instagram_posts',
+    'contact_email'
+  )
+
+  const coveredCountries = settings.covered_countries ? parseInt(settings.covered_countries, 10) : 7
 
   // Fetch hero media from CMS
   const homeContent = await getPageContent('home')
@@ -125,18 +132,11 @@ export default async function Home() {
     ? { ...featuredPost, formattedDate: formatDate(featuredPost.published_at), readTime: (featuredPost.read_time && featuredPost.read_time > 0) ? featuredPost.read_time : calcReadTime(featuredPost.content) }
     : null
 
-  // Fetch Instagram / site settings for HomeClient
-  const [instagramUsername, instagramPostCount, instagramPosts, siteEmail] = await Promise.all([
-    getSetting('social_instagram'),
-    getSetting('instagram_post_count'),
-    getSetting('instagram_posts'),
-    getSetting('contact_email'),
-  ])
   const siteSettings = {
-    instagramUsername: instagramUsername || undefined,
-    instagramPostCount: instagramPostCount ? Number(instagramPostCount) : undefined,
-    instagramPosts: instagramPosts || undefined,
-    site_email: siteEmail || 'contact@heldonica.fr',
+    instagramUsername: settings.social_instagram || undefined,
+    instagramPostCount: settings.instagram_post_count ? Number(settings.instagram_post_count) : undefined,
+    instagramPosts: settings.instagram_posts || undefined,
+    site_email: settings.contact_email || 'contact@heldonica.fr',
   }
 
   return (
