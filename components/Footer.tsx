@@ -5,8 +5,8 @@ import Link from 'next/link'
 import { useContentLoader, getCmsOrSetting } from '@/hooks/useContentLoader'
 import type { CmsZone } from '@/lib/content-loader'
 
-const NAV_LABEL_FALLBACKS = ['Accueil', 'Destinations', 'Blog', 'Services', 'Consulting hotelier', 'A propos', 'Contact']
-const NAV_URL_FALLBACKS = ['/', '/destinations', '/blog', '/travel-planning', '/expert-hotelier', '/a-propos', '/contact']
+const NAV_LABEL_FALLBACKS = ['Accueil', 'Destinations', 'Blog', 'Services', 'Services', 'À propos', 'Contact']
+const NAV_URL_FALLBACKS = ['/', '/destinations', '/blog', '/travel-planning', '/nos-services', '/a-propos', '/contact']
 
 function arr<T>(items: number, fn: (i: number) => T): T[] {
   return Array.from({ length: items }, (_, i) => fn(i))
@@ -25,21 +25,21 @@ export default function Footer() {
 
   const siteName = cz('header_site_name', 'site_name', 'Heldonica')
   const tagline = cz('footer_tagline', 'site_tagline', 'Slow travel vécu, conçu pour toi.')
-  const footerText = cz('footer_copyright', 'footer_text', `© ${currentYear} Heldonica. Tous droits reserves.`)
+  const footerText = cz('footer_copyright', 'footer_text', `© ${currentYear} Heldonica. Tous droits réservés.`)
   const contactEmail = cz('footer_email', 'contact_email', 'contact@heldonica.fr')
 
-  const newsletterTitle = cz('newsletter_title', 'newsletter_title', 'Recois les pepites avant les autres')
-  const newsletterDesc = cz('newsletter_desc', 'newsletter_desc', 'Chaque semaine : un lieu qu\'on a aime, un conseil qu\'on aurait aime avoir avant, et parfois un avant-gout de ce qu\'on prepare. Pas de spam, jamais.')
+  const newsletterTitle = cz('newsletter_title', 'newsletter_title', 'Reçois les pépites avant les autres')
+  const newsletterDesc = cz('newsletter_desc', 'newsletter_desc', 'Chaque semaine : un lieu qu\'on a aimé, un conseil qu\'on aurait aimé avoir avant, et parfois un avant-goût de ce qu\'on prépare. Pas de spam, jamais.')
   const newsletterPlaceholder = cz('footer_email_placeholder', 'footer_email_placeholder', 'ton@email.fr')
   const newsletterBtn = cz('newsletter_cta', 'newsletter_cta', "Je m'inscris")
   const newsletterBtnLoading = cz('newsletter_cta_loading', 'newsletter_cta_loading', 'Envoi...')
-  const footerCtaLabel = cz('footer_cta_label', 'footer_cta_label', 'Ecrire a Heldonica')
+  const footerCtaLabel = cz('footer_cta_label', 'footer_cta_label', 'Écrire à Heldonica')
   const footerCtaUrl = cz('footer_cta_url', 'footer_cta_url', 'mailto:contact@heldonica.fr')
 
   const navTitle = cz('nav_footer_title', 'nav_footer_title', 'Navigation')
   const destTitle = cz('destinations_footer_title', 'destinations_footer_title', 'Destinations')
   const guidesTitle = cz('guides_footer_title', 'guides_footer_title', 'Guides gratuits')
-  const legalTitle = cz('legal_footer_title', 'legal_footer_title', 'Legal')
+  const legalTitle = cz('legal_footer_title', 'legal_footer_title', 'Légal')
 
   const navLinks = arr(7, (i) => ({
     label: cz(`nav_item_${i + 1}_label`, `nav_item_${i + 1}_label`, NAV_LABEL_FALLBACKS[i]),
@@ -57,7 +57,7 @@ export default function Footer() {
   }))
 
   const legalLinks = arr(3, (i) => ({
-    label: cz(`footer_legal_item_${i + 1}_label`, `footer_legal_item_${i + 1}_label`, ['Mentions legales', 'Politique de confidentialite', 'Programme partenaires'][i]),
+    label: cz(`footer_legal_item_${i + 1}_label`, `footer_legal_item_${i + 1}_label`, ['Mentions légales', 'Politique de confidentialité', 'Programme partenaires'][i]),
     href: cz(`footer_legal_item_${i + 1}_url`, `footer_legal_item_${i + 1}_url`, ['/mentions-legales', '/politique-confidentialite', '/politique-affiliation'][i]),
   }))
 

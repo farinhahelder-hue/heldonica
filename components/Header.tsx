@@ -62,8 +62,8 @@ export default function Header() {
   }, [open])
 
   const navItems = Array.from({ length: 7 }, (_, i) => ({
-    label: getCmsOrSetting(`nav_item_${i + 1}_label`, `nav_item_${i + 1}_label`, ['Accueil', 'Destinations', 'Blog', 'Services', 'Consulting hôtelier', 'Contact', 'À propos'][i], zones as Record<string, CmsZone>, settings),
-    href: getCmsOrSetting(`nav_item_${i + 1}_url`, `nav_item_${i + 1}_url`, ['/', '/destinations', '/blog', '/travel-planning', '/expert-hotelier', '/contact', '/a-propos'][i], zones as Record<string, CmsZone>, settings),
+    label: getCmsOrSetting(`nav_item_${i + 1}_label`, `nav_item_${i + 1}_label`, ['Accueil', 'Destinations', 'Blog', 'Services', 'Services', 'Contact', 'À propos'][i], zones as Record<string, CmsZone>, settings),
+    href: getCmsOrSetting(`nav_item_${i + 1}_url`, `nav_item_${i + 1}_url`, ['/', '/destinations', '/blog', '/travel-planning', '/nos-services', '/contact', '/a-propos'][i], zones as Record<string, CmsZone>, settings),
   }))
 
   const safeNavItems = Array.isArray(navItems) ? navItems : []
