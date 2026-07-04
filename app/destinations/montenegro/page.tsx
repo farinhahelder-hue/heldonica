@@ -9,12 +9,13 @@ export const metadata = buildPillarMetadata(MONTENEGRO)
 
 async function getRelatedArticles() {
   if (!supabase) return []
-  const { data } = await (supabase as any)
-    .from('articles')
-    .select('slug, title, excerpt, image_url, read_time')
-    .or('destination.eq.montenegro,slug.ilike.%montenegro%')
+  // Use cms_blog_posts as the single source of truth
+  const { data } = await supabase
+    .from('cms_blog_posts')
+    .select('slug, title, excerpt, featured_image, read_time')
+    .or('destination.ilike.%montenegro%,slug.ilike.%montenegro%')
     .eq('published', true)
-    .order('created_at', { ascending: false })
+    .order('published_at', { ascending: false })
     .limit(4)
   return data || []
 }

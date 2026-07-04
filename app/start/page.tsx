@@ -27,7 +27,6 @@ const LINKS = [
     fallbackCat: '🗺️ Services',
     items: [
       { labelZone: 'link_4_label', fallbackLabel: 'Travel planning sur mesure', href: '/travel-planning', descZone: 'link_4_desc', fallbackDesc: 'Conçois ton voyage avec nous' },
-      { labelZone: 'link_5_label', fallbackLabel: 'Expertise hôtelière B2B', href: '/expert-hotelier', descZone: 'link_5_desc', fallbackDesc: 'Audit & consulting pour professionnels' },
       { labelZone: 'link_6_label', fallbackLabel: 'À propos', href: '/a-propos', descZone: 'link_6_desc', fallbackDesc: 'Notre histoire, notre philosophie' },
     ],
   },
