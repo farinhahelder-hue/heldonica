@@ -85,7 +85,7 @@ const nextConfig = {
   },
 
   async redirects() {
-    return [
+    const hardcoded = [
       { source: '/bons-plans', destination: '/guides-pratiques', permanent: true },
       { source: '/bons-plans/', destination: '/guides-pratiques', permanent: true },
       { source: '/about', destination: '/a-propos', permanent: true },
@@ -116,6 +116,29 @@ const nextConfig = {
       { source: '/happiness-design', destination: '/travel-planning', permanent: true },
       { source: '/happiness-design/', destination: '/travel-planning', permanent: true },
     ];
+
+    try {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
+      if (supabaseUrl && supabaseKey) {
+        const res = await fetch(`${supabaseUrl}/rest/v1/cms_redirects?active=eq.true&select=from_path,to_path,redirect_type`, {
+          headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` }
+        })
+        if (res.ok) {
+          const dbRedirects = await res.json()
+          const dynamic = (dbRedirects || []).map(r => ({
+            source: r.from_path,
+            destination: r.to_path,
+            permanent: r.redirect_type === 301,
+          }))
+          return [...hardcoded, ...dynamic]
+        }
+      }
+    } catch (e) {
+      console.error('[next.config.js] Failed to fetch redirects:', e)
+    }
+
+    return hardcoded;
   },
 }
 
