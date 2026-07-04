@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useEditableContext } from './InlineEditProvider'
+import AiImproveModal from './AiImproveModal'
 
 type ZoneType = 'text' | 'textarea' | 'image' | 'html'
 
@@ -31,6 +32,7 @@ export default function EditableZone({
   const { zones, isEditing, updateZone, saving, registerZone, unregisterZone, triggerUndo } = useEditableContext()
   const [editValue, setEditValue] = useState('')
   const [editing, setEditing] = useState(false)
+  const [aiModalOpen, setAiModalOpen] = useState(false)
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null)
   const zoneKey = `${page}__${zone}`
   const hasCmsValue = zones[zoneKey] !== undefined
@@ -183,7 +185,7 @@ export default function EditableZone({
             className={`w-full bg-transparent p-1 text-sm focus:outline-none ${className}`}
             rows={4}
           />
-          <div className="flex gap-1 mt-1">
+          <div className="flex items-center gap-1.5 mt-1.5">
             <button
               onClick={save}
               className="px-2 py-1 bg-eucalyptus text-white rounded text-xs font-semibold hover:brightness-110"
@@ -196,6 +198,13 @@ export default function EditableZone({
               className="px-2 py-1 bg-stone-500 text-white rounded text-xs font-semibold hover:bg-stone-600"
             >
               Annuler
+            </button>
+            <button
+              type="button"
+              onClick={() => setAiModalOpen(true)}
+              className="px-2 py-1 bg-purple-700 hover:bg-purple-800 text-white rounded text-xs font-semibold flex items-center gap-1 shadow-sm transition"
+            >
+              ✨ IA
             </button>
           </div>
         </div>
@@ -212,7 +221,7 @@ export default function EditableZone({
           onKeyDown={handleKeyDown}
           className={`bg-transparent px-1 text-sm focus:outline-none ${className}`}
         />
-        <div className="flex gap-1 mt-1">
+        <div className="flex items-center gap-1.5 mt-1.5">
           <button
             onClick={save}
             className="px-2 py-1 bg-eucalyptus text-white rounded text-xs font-semibold hover:brightness-110"
@@ -226,10 +235,31 @@ export default function EditableZone({
           >
             X
           </button>
+          <button
+            type="button"
+            onClick={() => setAiModalOpen(true)}
+            className="px-2 py-1 bg-purple-700 hover:bg-purple-800 text-white rounded text-xs font-semibold flex items-center gap-1 shadow-sm transition"
+          >
+            ✨
+          </button>
         </div>
       </div>
     )
   }
 
-  return editing ? renderEditMode() : renderViewMode()
+  return (
+    <>
+      {editing ? renderEditMode() : renderViewMode()}
+      <AiImproveModal
+        isOpen={aiModalOpen}
+        text={editValue || value}
+        zoneType={type === 'textarea' ? 'textarea' : 'text'}
+        onClose={() => setAiModalOpen(false)}
+        onSelect={(variant) => {
+          setEditValue(variant)
+          setAiModalOpen(false)
+        }}
+      />
+    </>
+  )
 }

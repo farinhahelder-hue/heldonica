@@ -19,7 +19,7 @@ import HeldonicaFAQ from '@/components/HeldonicaFAQ'
 import HeldonicaVerdict from '@/components/HeldonicaVerdict'
 import { getReadingTime, formatReadingTime } from '@/lib/readingTime'
 import DynamicArticleMap from '@/components/DynamicArticleMap'
-import { verifyPreviewToken } from '@/app/api/cms/preview-token/route'
+import { verifyPreviewToken } from '@/lib/preview-token'
 
 const SITE_URL = 'https://www.heldonica.fr'
 const DEFAULT_OG = `${SITE_URL}/og-default.jpg`
