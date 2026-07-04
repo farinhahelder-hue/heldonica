@@ -78,6 +78,33 @@ export default function TravelPlanningPage() {
   const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [formError, setFormError] = useState('')
   const [testimonials, setTestimonials] = useState<Testimonial[]>([])
+  const [pricingPlans, setPricingPlans] = useState(PRICING_PLANS)
+
+  // Fetch pricing plans from API
+  useEffect(() => {
+    async function fetchPricing() {
+      try {
+        const res = await fetch('/api/cms/pricing')
+        if (res.ok) {
+          const data = await res.json()
+          if (data.success && data.plans && data.plans.length > 0) {
+            const mapped = data.plans.map((p: any) => ({
+              zone: p.slug,
+              name: p.name,
+              price: p.price,
+              desc: p.description || '',
+              features: p.features || [],
+              popular: p.is_popular,
+            }))
+            setPricingPlans(mapped)
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load pricing plans:', err)
+      }
+    }
+    fetchPricing()
+  }, [])
 
   // Fetch testimonials from API
   useEffect(() => {
@@ -250,7 +277,7 @@ export default function TravelPlanningPage() {
               className="text-charcoal/60 text-sm text-center mb-10 max-w-lg mx-auto block"
             />
             <div className="grid md:grid-cols-3 gap-6">
-              {PRICING_PLANS.map((plan) => (
+              {pricingPlans.map((plan) => (
                 <div key={plan.zone} className={`rounded-2xl border-2 p-6 flex flex-col ${plan.popular ? 'border-eucalyptus bg-eucalyptus/5 shadow-lg scale-105' : 'border-stone-200 bg-white'}`}>
                   {plan.popular && <EditableZone page="travel-planning" zone={`${plan.zone}_badge`} fallback="Le plus populaire"
                     className="text-[10px] font-bold text-eucalyptus uppercase tracking-widest mb-2 block"
