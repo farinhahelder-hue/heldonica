@@ -38,7 +38,7 @@ export default async function AdminLayout({
                 Gestion des paramètres du site
               </p>
             </div>
-            <nav className="flex items-center gap-4 text-sm">
+            <nav className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm justify-end">
               <Link 
                 href="/cms-admin" 
                 className="text-eucalyptus hover:underline font-semibold"
@@ -51,6 +51,30 @@ export default async function AdminLayout({
                 className="text-charcoal/70 hover:text-charcoal hover:underline"
               >
                 Catégories
+              </Link>
+              <Link 
+                href="/admin/destinations" 
+                className="text-charcoal/70 hover:text-charcoal hover:underline"
+              >
+                Destinations
+              </Link>
+              <Link 
+                href="/admin/testimonials" 
+                className="text-charcoal/70 hover:text-charcoal hover:underline"
+              >
+                Témoignages
+              </Link>
+              <Link 
+                href="/admin/pricing" 
+                className="text-charcoal/70 hover:text-charcoal hover:underline"
+              >
+                Tarifs
+              </Link>
+              <Link 
+                href="/admin/media" 
+                className="text-charcoal/70 hover:text-charcoal hover:underline"
+              >
+                Médiathèque
               </Link>
               <Link 
                 href="/admin/redirects" 
