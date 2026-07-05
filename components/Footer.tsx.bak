@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useEditableContext } from '@/components/inline-edit/InlineEditProvider'
-import { useContentLoader } from '@/hooks/useContentLoader'
+import { useContentLoader, getCmsOrSetting } from '@/hooks/useContentLoader'
+import type { CmsZone } from '@/lib/content-loader'
 
 const NAV_LABEL_FALLBACKS = ['Accueil', 'Destinations', 'Blog', 'Services', 'Services', 'À propos', 'Contact']
 const NAV_URL_FALLBACKS = ['/', '/destinations', '/blog', '/travel-planning', '/nos-services', '/a-propos', '/contact']
@@ -16,56 +16,49 @@ export default function Footer() {
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { zones } = useEditableContext()
-  const { settings } = useContentLoader()
+  const { zones, settings } = useContentLoader()
   const currentYear = new Date().getFullYear()
 
-  const z = zones as Record<string, any>
-  const cz = (zoneKey: string, fallback: string) => {
-    // InlineEditProvider stores zones as 'page__zoneKey'
-    if (z[`global__${zoneKey}`]?.value) return z[`global__${zoneKey}`].value
-    for (const key of Object.keys(z)) {
-      if (key.endsWith(`__${zoneKey}`) && z[key]?.value) return z[key].value
-    }
-    return fallback
-  }
+  const z = zones as Record<string, CmsZone>
+  const cz = (zoneKey: string, settingKey: string, fallback: string) =>
+    getCmsOrSetting(zoneKey, settingKey, fallback, z, settings)
 
-  const siteName = cz('header_site_name', 'Heldonica')
-  const tagline = cz('footer_tagline', 'Slow travel vécu, conçu pour toi.')
-  const footerText = cz('footer_copyright', `© ${currentYear} Heldonica. Tous droits réservés.`)
-  const contactEmail = cz('footer_email', 'contact@heldonica.fr')
+  const siteName = cz('header_site_name', 'site_name', 'Heldonica')
+  const tagline = cz('footer_tagline', 'site_tagline', 'Slow travel vécu, conçu pour toi.')
+  const footerText = cz('footer_copyright', 'footer_text', `© ${currentYear} Heldonica. Tous droits réservés.`)
+  const contactEmail = cz('footer_email', 'contact_email', 'contact@heldonica.fr')
 
-  const newsletterTitle = cz('newsletter_title', 'Reçois les pépites avant les autres')
-  const newsletterDesc = cz('newsletter_desc', 'Chaque semaine : un lieu qu\'on a aimé, un conseil qu\'on aurait aimé avoir avant, et parfois un avant-goût de ce qu\'on prépare. Pas de spam, jamais.')
-  const newsletterPlaceholder = cz('footer_email_placeholder', 'ton@email.fr')
-  const newsletterBtn = cz('newsletter_cta', "Je m'inscris")
-  const newsletterBtnLoading = cz('newsletter_cta_loading', 'Envoi...')
-  const footerCtaLabel = cz('footer_cta_label', 'Écrire à Heldonica')
-  const footerCtaUrl = cz('footer_cta_url', 'mailto:contact@heldonica.fr')
+  const newsletterTitle = cz('newsletter_title', 'newsletter_title', 'Reçois les pépites avant les autres')
+  const newsletterDesc = cz('newsletter_desc', 'newsletter_desc', 'Chaque semaine : un lieu qu\'on a aimé, un conseil qu\'on aurait aimé avoir avant, et parfois un avant-goût de ce qu\'on prépare. Pas de spam, jamais.')
+  const newsletterPlaceholder = cz('footer_email_placeholder', 'footer_email_placeholder', 'ton@email.fr')
+  const newsletterBtn = cz('newsletter_cta', 'newsletter_cta', "Je m'inscris")
+  const newsletterBtnLoading = cz('newsletter_cta_loading', 'newsletter_cta_loading', 'Envoi...')
+  const footerCtaLabel = cz('footer_cta_label', 'footer_cta_label', 'Écrire à Heldonica')
+  const footerCtaUrl = cz('footer_cta_url', 'footer_cta_url', 'mailto:contact@heldonica.fr')
 
-  const navTitle = cz('nav_footer_title', 'Navigation')
-  const destTitle = cz('destinations_footer_title', 'Destinations')
-  const guidesTitle = cz('guides_footer_title', 'Guides gratuits')
-  const legalTitle = cz('legal_footer_title', 'Légal')
+  const navTitle = cz('nav_footer_title', 'nav_footer_title', 'Navigation')
+  const destTitle = cz('destinations_footer_title', 'destinations_footer_title', 'Destinations')
+  const guidesTitle = cz('guides_footer_title', 'guides_footer_title', 'Guides gratuits')
+  const legalTitle = cz('legal_footer_title', 'legal_footer_title', 'Légal')
 
   const navLinks = arr(7, (i) => ({
-    label: cz(`nav_item_${i + 1}_label`, NAV_LABEL_FALLBACKS[i]),
-    href: cz(`nav_item_${i + 1}_url`, NAV_URL_FALLBACKS[i]),
+    label: cz(`nav_item_${i + 1}_label`, `nav_item_${i + 1}_label`, NAV_LABEL_FALLBACKS[i]),
+    href: cz(`nav_item_${i + 1}_url`, `nav_item_${i + 1}_url`, NAV_URL_FALLBACKS[i]),
   }))
 
   const destinationsLinks = arr(5, (i) => ({
-    label: cz(`footer_dest_item_${i + 1}_label`, ['Madere', 'Roumanie', 'Montenegro', 'Grece', 'Colombie'][i]),
-    href: cz(`footer_dest_item_${i + 1}_url`, ['/destinations/madere', '/destinations/roumanie', '/destinations/montenegro', '/destinations/grece', '/destinations/colombie'][i]),
+    label: cz(`footer_dest_item_${i + 1}_label`, `footer_dest_item_${i + 1}_label`, ['Madere', 'Roumanie', 'Montenegro', 'Grece', 'Colombie'][i]),
+    href: cz(`footer_dest_item_${i + 1}_url`, `footer_dest_item_${i + 1}_url`, ['/destinations/madere', '/destinations/roumanie', '/destinations/montenegro', '/destinations/grece', '/destinations/colombie'][i]),
   }))
 
   const guidesLinks = arr(3, (i) => ({
-    label: cz(`footer_guide_item_${i + 1}_label`, ['Guide Madere', 'Guides pratiques', 'Carnets de voyage'][i]),
-    href: cz(`footer_guide_item_${i + 1}_url`, ['/guides/top-10-pepites-madere', '/blog?categorie=Guides Pratiques', '/blog?categorie=Carnets Voyage'][i]),
+    label: cz(`footer_guide_item_${i + 1}_label`, `footer_guide_item_${i + 1}_label`, ['Guide Madere', 'Guides pratiques', 'Carnets de voyage'][i]),
+    href: cz(`footer_guide_item_${i + 1}_url`, `footer_guide_item_${i + 1}_url`, ['/guides/top-10-pepites-madere', '/blog?categorie=Guides Pratiques', '/blog?categorie=Carnets Voyage'][i]),
   }))
 
   const legalLinks = arr(3, (i) => ({
-    label: cz(`footer_legal_item_${i + 1}_label`, ['Mentions légales', 'Politique de confidentialité', 'Programme partenaires'][i]),
-    href: cz(`footer_legal_item_${i + 1}_url`, ['/mentions-legales', '/politique-confidentialite', '/politique-affiliation'][i]),
+    label: cz(`footer_legal_item_${i + 1}_label`, `footer_legal_item_${i + 1}_label`, ['Mentions légales', 'Politique de confidentialité', 'Programme partenaires'][i]),
+    href: cz(`footer_legal_item_${i + 1}_url`, `footer_legal_item_${i + 1}_url`, ['/mentions-legales', '/politique-confidentialite', '/politique-affiliation'][i]),
   }))
 
   const soc = (key: string, fallback: string) => settings?.[key] || fallback
