@@ -5,7 +5,12 @@ function getSubtle(): SubtleCrypto {
 }
 
 function getSecret(): string {
-  return process.env.CMS_SESSION_SECRET || process.env.CMS_PASSWORD || 'heldonica-preview-secret'
+  // SECURITY: Require explicit secret configuration - no fallback to hardcoded value
+  const secret = process.env.CMS_SESSION_SECRET || process.env.CMS_PASSWORD
+  if (!secret) {
+    throw new Error('CRITICAL: CMS_SESSION_SECRET or CMS_PASSWORD environment variable is not configured. Preview tokens are disabled for security.')
+  }
+  return secret
 }
 
 function hexEncode(buf: ArrayBuffer): string {
