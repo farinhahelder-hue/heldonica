@@ -180,16 +180,24 @@ function CollectionPageJsonLd({ posts }: { posts: BlogPost[] }) {
 
 export default async function BlogPage() {
   let posts: BlogPost[] = []
-  try {
-    const result = await getAllPosts()
-    posts = Array.isArray(result) ? result : []
-  } catch (e) {
-    console.error('Supabase getAllPosts error:', e)
-    posts = []
-  }
+  let categories: BlogCategory[] = []
 
-  // Fetch categories from CMS
-  const categories = await getBlogCategories()
+  try {
+    const [result, cats] = await Promise.all([
+      getAllPosts().catch(e => {
+        console.error('Supabase getAllPosts error:', e)
+        return []
+      }),
+      getBlogCategories().catch(e => {
+        console.error('Supabase getBlogCategories error:', e)
+        return []
+      })
+    ])
+    posts = Array.isArray(result) ? result : []
+    categories = cats || []
+  } catch (e) {
+    console.error('BlogPage initial fetch error:', e)
+  }
 
   // If we have no posts at build time, avoid crashing the build and just render an empty list.
   if (!Array.isArray(posts) || posts.length === 0) {
