@@ -1,0 +1,21 @@
+node_modules/
+.next/
+dist/
+build/
+*.log
+.env
+.env.local
+.env.*.local
+.DS_Store
+.idea/
+*.swp
+*.swo
+*~
+tsconfig.tsbuildinfo
+.deploy-trigger
+.deploy-v2
+.vercel-cache-bust
+supabase/.temp/
+app/test-supabase/
+wordpresss old/
+content/salvaged/
