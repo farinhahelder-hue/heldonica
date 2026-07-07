@@ -1,7 +1,7 @@
 import { getPostBySlug, getAllSlugs, getAllPosts, formatDate } from '@/lib/blog-supabase'
 import type { BlogPost } from '@/lib/blog-supabase'
 import type { Metadata } from 'next'
-import { createServiceClient } from '@/lib/supabase'
+import { supabase as publicSupabase, createServiceClient } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getRelatedArticles } from '@/lib/related-articles'
@@ -38,10 +38,10 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const slug = (await params).slug
-  const supabase = createServiceClient()
+  if (!publicSupabase) return { title: 'Article introuvable | Heldonica' }
   
   // Read from cms_blog_posts (source of truth for CMS)
-  const { data: post } = await supabase
+  const { data: post } = await publicSupabase
     .from('cms_blog_posts')
     .select('title, excerpt, featured_image, og_image, seo_title, seo_description, alt_text, published_at, tags, author, updated_at, slug')
     .eq('slug', slug)
