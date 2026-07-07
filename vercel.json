@@ -4,22 +4,6 @@
   "installCommand": "npm install",
   "rewrites": [
     {
-      "source": "/home.html",
-      "destination": "/home.html"
-    },
-    {
-      "source": "/admin.html",
-      "destination": "/admin.html"
-    },
-    {
-      "source": "/cms.html",
-      "destination": "/cms.html"
-    },
-    {
-      "source": "/cms-complete.html",
-      "destination": "/cms-complete.html"
-    },
-    {
       "source": "/maintenance.html",
       "destination": "/maintenance.html"
     },
