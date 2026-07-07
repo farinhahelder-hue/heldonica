@@ -24,6 +24,12 @@ import { verifyPreviewToken } from '@/lib/preview-token'
 const SITE_URL = 'https://www.heldonica.fr'
 const DEFAULT_OG = `${SITE_URL}/og-default.jpg`
 
+/** Build a fallback OG image URL via /api/og when no real image exists */
+function ogFallbackUrl(title: string, description: string | null): string {
+  const desc = (description || '').length > 160 ? description!.substring(0, 157) + '...' : (description || '')
+  return `${SITE_URL}/api/og?title=${encodeURIComponent(title)}&description=${encodeURIComponent(desc)}&type=article`
+}
+
 interface Props {
   params: Promise<{ slug: string }>
   searchParams: Promise<{ preview_token?: string }>
@@ -50,7 +56,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? rawDesc.substring(0, 157) + '...'
     : rawDesc
 
-  const ogImageUrl = post.og_image || post.featured_image || DEFAULT_OG
+  const ogImageUrl = post.og_image || post.featured_image || ogFallbackUrl(post.title, rawDesc)
   const canonical = `${SITE_URL}/blog/${slug}`
   const publishedTime = post.published_at || undefined
   const modifiedTime = post.updated_at || post.published_at || undefined
@@ -96,7 +102,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 function buildJsonLds(post: BlogPost, readTime: number) {
-  const ldImage = post.og_image || post.featured_image || DEFAULT_OG
+  const ldImage = post.og_image || post.featured_image || ogFallbackUrl(post.title, post.seo_description || post.excerpt || '')
   const articleLd = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
