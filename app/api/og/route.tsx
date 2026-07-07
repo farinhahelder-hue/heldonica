@@ -1,7 +1,6 @@
 import { NextRequest } from 'next/server'
 import { ImageResponse } from 'next/og'
 
-// Palette Heldonica
 const COLORS = {
   eucalyptus: '#006D77',
   teal: '#4ECDC4',
@@ -15,19 +14,17 @@ export const runtime = 'edge'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
-  
+
   const title = searchParams.get('title') || 'Carnets de Route'
   const description = searchParams.get('description') || 'Pépites dénichées, slow travel vécu'
-  const type = searchParams.get('type') || 'article' // article, destination, blog, default
-  
-  // Dimensions OG standard
+  const type = searchParams.get('type') || 'article'
+
   const width = 1200
   const height = 630
-  
-  // Style basé sur le type
+
   let gradientStart = COLORS.eucalyptus
   let gradientEnd = COLORS.teal
-  
+
   if (type === 'destination') {
     gradientStart = COLORS.mahogany
     gradientEnd = '#8B4513'
@@ -35,7 +32,7 @@ export async function GET(request: NextRequest) {
     gradientStart = '#2D3748'
     gradientEnd = COLORS.eucalyptus
   }
-  
+
   return new ImageResponse(
     (
       <div
@@ -50,8 +47,7 @@ export async function GET(request: NextRequest) {
           fontFamily: 'system-ui, sans-serif',
         }}
       >
-        {/* Header avec logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
           <div
             style={{
               width: '48px',
@@ -64,6 +60,7 @@ export async function GET(request: NextRequest) {
               color: 'white',
               fontSize: '20px',
               fontWeight: 'bold',
+              marginRight: '16px',
             }}
           >
             H
@@ -73,34 +70,29 @@ export async function GET(request: NextRequest) {
               fontSize: '28px',
               fontWeight: 'bold',
               color: 'white',
-              letterSpacing: '-0.02em',
             }}
           >
             Heldonica
           </span>
         </div>
-        
-        {/* Contenu principal */}
+
         <div
           style={{
             display: 'flex',
             flexDirection: 'column',
-            gap: '24px',
             flex: 1,
             justifyContent: 'center',
           }}
         >
-          {/* Type badge */}
           <div
             style={{
-              display: 'inline-flex',
+              display: 'flex',
               alignItems: 'center',
-              gap: '8px',
               backgroundColor: 'rgba(255,255,255,0.15)',
-              backdropFilter: 'blur(10px)',
               borderRadius: '100px',
               padding: '8px 20px',
               width: 'fit-content',
+              marginBottom: '24px',
             }}
           >
             <span
@@ -108,15 +100,12 @@ export async function GET(request: NextRequest) {
                 fontSize: '14px',
                 fontWeight: '600',
                 color: 'white',
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
               }}
             >
-              {type === 'article' ? '📖 Article' : type === 'destination' ? '🌍 Destination' : '✨ Blog'}
+              {type === 'article' ? 'Article' : type === 'destination' ? 'Destination' : 'Blog'}
             </span>
           </div>
-          
-          {/* Titre */}
+
           <h1
             style={{
               fontSize: title.length > 60 ? '42px' : '56px',
@@ -124,13 +113,13 @@ export async function GET(request: NextRequest) {
               color: 'white',
               lineHeight: 1.1,
               margin: 0,
+              marginBottom: '24px',
               maxWidth: '900px',
             }}
           >
             {title}
           </h1>
-          
-          {/* Description */}
+
           <p
             style={{
               fontSize: '22px',
@@ -143,8 +132,7 @@ export async function GET(request: NextRequest) {
             {description}
           </p>
         </div>
-        
-        {/* Footer */}
+
         <div
           style={{
             display: 'flex',
@@ -168,7 +156,7 @@ export async function GET(request: NextRequest) {
               color: 'rgba(255,255,255,0.5)',
             }}
           >
-            Slow travel vécu ✦ Pépites dénichées
+            Slow travel vecu - Pepites denichees
           </span>
         </div>
       </div>
