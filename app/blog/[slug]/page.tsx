@@ -43,66 +43,74 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // Read from cms_blog_posts (source of truth for CMS)
   const { data: post } = await supabase
     .from('cms_blog_posts')
-    .select('title, excerpt, featured_image, published_at, tags, author, updated_at, slug')
+    .select('title, excerpt, featured_image, og_image, seo_title, seo_description, alt_text, published_at, tags, author, updated_at, slug')
     .eq('slug', slug)
     .eq('published', true)
     .single()
 
   if (!post) return { title: 'Article introuvable | Heldonica' }
 
-  let description = ''
-  if (post.excerpt) {
-    description = post.excerpt.length > 150
-      ? post.excerpt.substring(0, 147) + '...'
-      : post.excerpt
-  }
+  const seoTitle = post.seo_title || post.title
+  const pageTitle = `${seoTitle} | Heldonica`
 
-  const title = `${post.title} | Heldonica`
-  const ogImage = post.featured_image || DEFAULT_OG
+  const rawDesc = post.seo_description || post.excerpt || ''
+  const description = rawDesc.length > 160
+    ? rawDesc.substring(0, 157) + '...'
+    : rawDesc
+
+  const ogImageUrl = post.og_image || post.featured_image || DEFAULT_OG
   const canonical = `${SITE_URL}/blog/${slug}`
   const publishedTime = post.published_at || undefined
+  const modifiedTime = post.updated_at || post.published_at || undefined
   const authorName = post.author || 'Heldonica'
+  const imageAlt = post.alt_text || post.title
+
   // Handle tags - can be array (from CMS) or string
   const tagsArray = Array.isArray(post.tags) ? post.tags : (post.tags ? String(post.tags).split(',').map((t: string) => t.trim()).filter(Boolean) : [])
 
   return {
-    title,
+    title: pageTitle,
     description,
+    keywords: tagsArray,
     alternates: { canonical },
     openGraph: {
-      title,
+      title: pageTitle,
       description,
       url: canonical,
       siteName: 'Heldonica',
+      locale: 'fr_FR',
       type: 'article',
       publishedTime,
+      modifiedTime,
       authors: [authorName],
       tags: tagsArray,
       images: [
         {
-          url: ogImage,
+          url: ogImageUrl,
           width: 1200,
           height: 630,
-          alt: post.title,
+          alt: imageAlt,
         },
       ],
     },
     twitter: {
       card: 'summary_large_image',
-      title,
+      title: pageTitle,
       description,
-      images: [ogImage],
+      images: [ogImageUrl],
+      creator: '@heldonica',
     },
   }
 }
 
 function buildJsonLds(post: BlogPost, readTime: number) {
+  const ldImage = post.og_image || post.featured_image || DEFAULT_OG
   const articleLd = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
-    headline: post.title,
-    description: post.excerpt ?? '',
-    image: post.featured_image ? [post.featured_image] : [DEFAULT_OG],
+    headline: post.seo_title || post.title,
+        description: post.seo_description || post.excerpt || '',
+    image: [ldImage],
     datePublished: post.published_at ?? '',
     dateModified: post.updated_at ?? post.published_at ?? '',
     author: {
@@ -175,9 +183,9 @@ function buildJsonLds(post: BlogPost, readTime: number) {
     ? {
         '@context': 'https://schema.org',
         '@type': 'TravelArticle' as const,
-        headline: post.title,
-        description: post.excerpt ?? '',
-        image: post.featured_image ? [post.featured_image] : [DEFAULT_OG],
+        headline: post.seo_title || post.title,
+    description: post.seo_description || post.excerpt || '',
+        image: [ldImage],
         datePublished: post.published_at ?? '',
         dateModified: post.updated_at ?? post.published_at ?? '',
         author: { '@type': 'Person', name: post.author || 'Heldonica', url: SITE_URL },
@@ -279,7 +287,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
         <div className={`relative h-[56vh] w-full overflow-hidden md:h-[68vh] bg-stone-900`}>
           <Image
             src={heroImage}
-            alt={post.title}
+            alt={post.alt_text || post.title}
             fill
             className="object-cover opacity-75"
             loading="eager"
@@ -408,14 +416,14 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
               </p>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 {related.map((relatedPost: BlogPost) => {
-                  const relatedImage = relatedPost.featured_image ?? HERO_FALLBACK[relatedPost.category ?? ''] ?? DEFAULT_HERO
+                  const relatedImage = relatedPost.og_image || relatedPost.featured_image || HERO_FALLBACK[relatedPost.category ?? ''] || DEFAULT_HERO
                   return (
                     <Link key={relatedPost.slug} href={`/blog/${relatedPost.slug}`} className="group block transition-all duration-200">
                       <article className="overflow-hidden rounded-[1.5rem] bg-white shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-md">
                         <div className="relative h-44 overflow-hidden">
                           <Image
                             src={relatedImage}
-                            alt={relatedPost.title}
+                            alt={relatedPost.alt_text || relatedPost.title}
                             fill
                             className="object-cover transition-transform duration-500 group-hover:scale-105"
                             loading="lazy"
