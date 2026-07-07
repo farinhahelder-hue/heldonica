@@ -91,7 +91,6 @@ export async function GET(request: NextRequest) {
               backgroundColor: 'rgba(255,255,255,0.15)',
               borderRadius: '100px',
               padding: '8px 20px',
-              width: 'fit-content',
               marginBottom: '24px',
             }}
           >
