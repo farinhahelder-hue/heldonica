@@ -18,6 +18,10 @@ export interface BlogPost {
   destination?: string | null;
   tags: string[] | null;
   featured_image: string | null;
+  og_image?: string | null;
+  seo_title?: string | null;
+  seo_description?: string | null;
+  alt_text?: string | null;
   author: string | null;
   published: boolean;
   published_at: string | null;
