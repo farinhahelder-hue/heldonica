@@ -591,7 +591,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             <div className="grid grid-cols-1 gap-4" data-reveal="right">
               {[
                 { zone: 'cta_card_1', t: 'Couples aventuriers', d: "Notre spécialité : ralentir sans ennuyer, laisser de la place au vrai, et garder le hors-sentiers sans perdre le fil." },
-                { zone: 'cta_card_2', t: 'Ouvert aussi à ton format', d: "Solo, famille curieuse ou groupe d'amis : on adapte cette même exigence terrain à votre énergie, vos contraintes et votre rythme." },
+                { zone: 'cta_card_2', t: 'Ouvert aussi à ton format', d: "Solo, famille curieuse ou groupe d'amis : on adapte cette même exigence terrain à ton énergie, tes contraintes et ton rythme." },
                 { zone: 'cta_card_3', t: 'Vécu sur le terrain', d: "Cartes, adresses, conseils pratiques et pépites dénichées : tout part d'expériences testées, pas inventées." },
               ].map((item) => (
                 <div key={item.zone} className="border border-white/10 rounded-xl p-5 hover:border-teal/30 transition">

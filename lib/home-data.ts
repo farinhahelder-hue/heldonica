@@ -160,7 +160,7 @@ export async function getHomeDestinations(): Promise<HomeDestination[]> {
       .from('cms_home_destinations')
       .select('*')
       .eq('is_active', true)
-      .order('display_order', { ascending: true })
+      .order('sort_order', { ascending: true })
       .limit(6);
 
     if (homeError) {
@@ -173,7 +173,7 @@ export async function getHomeDestinations(): Promise<HomeDestination[]> {
       return FALLBACK_HOME_DESTINATIONS;
     }
 
-    const slugs = homeDests.map((d: any) => d.destination_slug);
+    const slugs = homeDests.map((d: any) => d.slug);
 
     const { data: destData, error: destError } = await supabase
       .from('destinations')
@@ -188,20 +188,20 @@ export async function getHomeDestinations(): Promise<HomeDestination[]> {
     const destMap = new Map((destData || []).map((d: any) => [d.slug, d]));
 
     const destinations: HomeDestination[] = homeDests.map((homeDest: any) => {
-      const dest: any = destMap.get(homeDest.destination_slug);
+      const dest: any = destMap.get(homeDest.slug);
       return {
         id: homeDest.id,
-        destination_slug: homeDest.destination_slug,
-        display_order: homeDest.display_order || 0,
-        is_featured: homeDest.is_featured || false,
-        custom_title: homeDest.custom_title || null,
-        custom_description: homeDest.custom_description || null,
-        custom_image_url: homeDest.custom_image_url || null,
-        title: homeDest.custom_title || dest?.title || homeDest.destination_slug,
-        tagline: dest?.tagline || homeDest.custom_description || null,
-        hero_unsplash_url: homeDest.custom_image_url || dest?.hero_unsplash_url || null,
+        destination_slug: homeDest.slug,
+        display_order: homeDest.sort_order || 0,
+        is_featured: true, // fallback to true
+        custom_title: homeDest.title || null,
+        custom_description: homeDest.description || null,
+        custom_image_url: null, // fallback
+        title: homeDest.title || dest?.title || homeDest.slug,
+        tagline: dest?.tagline || homeDest.description || null,
+        hero_unsplash_url: dest?.hero_unsplash_url || null,
         country: dest?.country || null,
-        flag_emoji: dest?.flag_emoji || getDestinationEmoji(homeDest.destination_slug),
+        flag_emoji: dest?.flag_emoji || getDestinationEmoji(homeDest.slug),
       };
     });
 

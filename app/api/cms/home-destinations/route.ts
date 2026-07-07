@@ -37,15 +37,13 @@ export async function GET(req: NextRequest) {
       .from('cms_home_destinations')
       .select(`
         id,
-        destination_slug,
-        display_order,
-        is_featured,
-        custom_title,
-        custom_description,
-        custom_image_url
+        slug,
+        sort_order,
+        title,
+        description
       `)
       .eq('is_active', true)
-      .order('display_order')
+      .order('sort_order')
 
     if (homeError) {
       console.error('[CMS Home Destinations API] Fetch error:', homeError)
@@ -56,7 +54,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Get destination details for each home destination
-    const destinationSlugs = (homeDests || []).map((d: any) => d.destination_slug)
+    const destinationSlugs = (homeDests || []).map((d: any) => d.slug)
 
     let destinationsWithDetails: CmsHomeDestination[] = []
 
@@ -75,12 +73,18 @@ export async function GET(req: NextRequest) {
       const destMap = new Map((destData || []).map((d: any) => [d.slug, d]))
       
       destinationsWithDetails = (homeDests || []).map((homeDest: any) => {
-        const dest = destMap.get(homeDest.destination_slug) as any
+        const dest = destMap.get(homeDest.slug) as any
         return {
-          ...homeDest,
-          title: homeDest.custom_title || dest?.title || homeDest.destination_slug,
+          id: homeDest.id,
+          destination_slug: homeDest.slug,
+          display_order: homeDest.sort_order || 0,
+          is_featured: true,
+          custom_title: homeDest.title || null,
+          custom_description: homeDest.description || null,
+          custom_image_url: null,
+          title: homeDest.title || dest?.title || homeDest.slug,
           tagline: dest?.tagline || null,
-          hero_unsplash_url: homeDest.custom_image_url || dest?.hero_unsplash_url || null,
+          hero_unsplash_url: dest?.hero_unsplash_url || null,
           country: dest?.country || null,
           flag_emoji: dest?.flag_emoji || null,
         }
