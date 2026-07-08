@@ -180,16 +180,21 @@ function CollectionPageJsonLd({ posts }: { posts: BlogPost[] }) {
 
 export default async function BlogPage() {
   let posts: BlogPost[] = []
-  try {
-    const result = await getAllPosts()
-    posts = Array.isArray(result) ? result : []
-  } catch (e) {
-    console.error('Supabase getAllPosts error:', e)
-    posts = []
-  }
+  let categories: BlogCategory[] = []
 
-  // Fetch categories from CMS
-  const categories = await getBlogCategories()
+  // ⚡ Bolt: Fetch posts and categories concurrently to optimize TTFB
+  try {
+    const [result, categoriesResult] = await Promise.all([
+      getAllPosts(),
+      getBlogCategories()
+    ])
+    posts = Array.isArray(result) ? result : []
+    categories = categoriesResult || []
+  } catch (e) {
+    console.error('Supabase fetch error in BlogPage:', e)
+    posts = []
+    categories = []
+  }
 
   // If we have no posts at build time, avoid crashing the build and just render an empty list.
   if (!Array.isArray(posts) || posts.length === 0) {
