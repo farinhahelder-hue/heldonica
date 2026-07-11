@@ -7,9 +7,11 @@ const SCROLL_COLOR = '#2D8B8A'
 /**
  * Barre de progression de lecture en haut de la page
  * Affiche la progression du scroll en temps réel
+ * Track l'engagement à 75% de lecture
  */
 export default function ReadingProgress() {
   const [progress, setProgress] = useState(0)
+  const [tracked75, setTracked75] = useState(false)
 
   useEffect(() => {
     const updateProgress = () => {
@@ -19,6 +21,17 @@ export default function ReadingProgress() {
       if (docHeight > 0) {
         const pct = Math.min(100, (scrollTop / docHeight) * 100)
         setProgress(pct)
+        
+        // Track article read at 75%
+        if (pct >= 75 && !tracked75 && typeof window !== 'undefined') {
+          setTracked75(true)
+          if ((window as any).gtag) {
+            (window as any).gtag('event', 'article_read_75', {
+              page: window.location.pathname,
+              slug: window.location.pathname.split('/').pop(),
+            })
+          }
+        }
       } else {
         setProgress(0)
       }
@@ -33,7 +46,7 @@ export default function ReadingProgress() {
     return () => {
       window.removeEventListener('scroll', updateProgress)
     }
-  }, [])
+  }, [tracked75])
 
   return (
     <div

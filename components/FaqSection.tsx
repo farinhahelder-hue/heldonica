@@ -11,10 +11,29 @@ interface FaqSectionProps {
   items: FAQItem[]
   title?: string
   subtitle?: string
+  pageSlug?: string
 }
 
-export default function FaqSection({ items, title, subtitle }: FaqSectionProps) {
+export default function FaqSection({ items, title, subtitle, pageSlug }: FaqSectionProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
+  const [openedFaqs, setOpenedFaqs] = useState<Set<number>>(new Set())
+
+  const handleToggle = (index: number) => {
+    const isOpening = openIndex !== index
+    setOpenIndex(isOpening ? index : null)
+    
+    // Track FAQ open event
+    if (isOpening && !openedFaqs.has(index)) {
+      setOpenedFaqs(prev => new Set([...prev, index]))
+      if (typeof window !== 'undefined' && (window as any).gtag) {
+        (window as any).gtag('event', 'faq_open', {
+          page: pageSlug || window.location.pathname,
+          question_index: index,
+          question_preview: items[index].question.substring(0, 50),
+        })
+      }
+    }
+  }
 
   if (!items || items.length === 0) {
     return null
@@ -43,7 +62,7 @@ export default function FaqSection({ items, title, subtitle }: FaqSectionProps) 
                 className="bg-white rounded-2xl border border-stone-100 overflow-hidden"
               >
                 <button
-                  onClick={() => setOpenIndex(isOpen ? null : index)}
+                  onClick={() => handleToggle(index)}
                   className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-stone-50 transition-colors"
                   aria-expanded={isOpen}
                 >
