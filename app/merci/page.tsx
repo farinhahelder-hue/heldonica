@@ -120,6 +120,23 @@ export default function MerciPage() {
           </div>
         </section>
 
+        {/* Lead magnet teaser */}
+        <section className="py-12 bg-eucalyptus/5 border-t border-eucalyptus/10">
+          <div className="max-w-2xl mx-auto px-6 text-center">
+            <p className="text-eucalyptus text-xs font-semibold uppercase tracking-wider mb-2">Avant-goût gratuit</p>
+            <EditableZone page="merci" zone="leadmagnet_title" fallback="Télécharge nos guides de destination"
+              className="text-xl md:text-2xl font-serif text-mahogany mb-3 block"
+            />
+            <EditableZone page="merci" zone="leadmagnet_text" fallback="Des guides gratuits avec nos meilleures adresses, nos itinéraires testés et les secrets qu'on n'aurait jamais partagés sans ça."
+              className="text-stone-600 text-sm leading-relaxed mb-6 block"
+            />
+            <Link href="/guides" className="inline-flex items-center gap-2 px-6 py-3 bg-eucalyptus hover:bg-eucalyptus/90 text-white rounded-full text-sm font-semibold transition">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+              <EditableZone page="merci" zone="leadmagnet_cta" fallback="Accéder aux guides gratuits →" />
+            </Link>
+          </div>
+        </section>
+
         <section className="py-12 bg-white border-t border-stone-100">
           <div className="max-w-3xl mx-auto px-6 text-center">
             <p className="text-stone-500 text-sm">

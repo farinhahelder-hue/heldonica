@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Script from 'next/script'
 import Header from '@/components/Header'
@@ -10,6 +10,26 @@ import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
 
 const SITE_URL = 'https://heldonica.fr'
+
+// Track form field interactions to detect engagement
+const trackFormEngagement = () => {
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', 'travel_planning_form_start', {
+      event_category: 'Travel Planning',
+    })
+  }
+}
+
+// Track CTA clicks on pricing plans
+const trackPricingCtaClick = (planName: string) => {
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', 'cta_click', {
+      event_category: 'Travel Planning',
+      ctaName: `pricing_${planName.toLowerCase().replace(/\s+/g, '_')}`,
+      location: 'pricing_section',
+    })
+  }
+}
 
 type Testimonial = {
   id: string;
@@ -79,6 +99,23 @@ export default function TravelPlanningPage() {
   const [formError, setFormError] = useState('')
   const [testimonials, setTestimonials] = useState<Testimonial[]>([])
   const [pricingPlans, setPricingPlans] = useState(PRICING_PLANS)
+  const formRef = useRef<HTMLFormElement>(null)
+  const hasTrackedFormStart = useRef(false)
+
+  // Track when user starts interacting with the form
+  useEffect(() => {
+    const form = formRef.current
+    if (!form || hasTrackedFormStart.current) return
+
+    const handleFocus = () => {
+      if (hasTrackedFormStart.current) return
+      hasTrackedFormStart.current = true
+      trackFormEngagement()
+    }
+
+    form.addEventListener('focusin', handleFocus, { once: true })
+    return () => form.removeEventListener('focusin', handleFocus)
+  }, [])
 
   // Fetch pricing plans from API
   useEffect(() => {
@@ -158,8 +195,16 @@ export default function TravelPlanningPage() {
         }),
       })
       if (!res.ok) throw new Error(await res.text())
+      // Track form submission - unify event name with /travel-planning-form
       if (typeof window !== 'undefined' && (window as any).gtag) {
-        (window as any).gtag('event', 'travel_planning_form_submit', { destination: formData.destination })
+        (window as any).gtag('event', 'formulaire_travel_soumis', {
+          event_category: 'Travel Planning',
+          event_label: formData.destination || 'Non précisé',
+          destination: formData.destination,
+          travelers: formData.travelers,
+          budget: formData.budget,
+          value: 1,
+        })
       }
       setFormStatus('success')
     } catch (err: any) {
@@ -298,7 +343,8 @@ export default function TravelPlanningPage() {
                       </li>
                     ))}
                   </ul>
-                  <a href="#formulaire" className={`block text-center rounded-full py-3 text-sm font-semibold transition-all ${plan.popular ? 'bg-eucalyptus text-white hover:bg-eucalyptus/90' : 'bg-stone-100 text-stone-700 hover:bg-stone-200 border border-stone-200'}`}>
+                  <a href="#formulaire" onClick={() => trackPricingCtaClick(plan.name)}
+                    className={`block text-center rounded-full py-3 text-sm font-semibold transition-all ${plan.popular ? 'bg-eucalyptus text-white hover:bg-eucalyptus/90' : 'bg-stone-100 text-stone-700 hover:bg-stone-200 border border-stone-200'}`}>
                     <EditableZone page="travel-planning" zone={`${plan.zone}_cta`} fallback={plan.name === 'Sur-Mesure' ? 'Demander un devis' : 'Choisir cette formule'} className="inline" />
                   </a>
                 </div>
@@ -447,6 +493,26 @@ export default function TravelPlanningPage() {
                   className="w-full py-3.5 bg-eucalyptus text-white rounded-xl text-sm font-semibold hover:bg-eucalyptus/90 disabled:opacity-50 transition-all">
                   {formStatus === 'loading' ? 'Envoi en cours…' : 'Envoyer ma demande'}
                 </button>
+
+                {/* Réassurance sous le formulaire */}
+                <div className="flex flex-wrap justify-center gap-4 pt-4 border-t border-stone-100 mt-4">
+                  <div className="flex items-center gap-1.5 text-xs text-charcoal/50">
+                    <svg className="w-4 h-4 text-eucalyptus" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                    Gratuit
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-charcoal/50">
+                    <svg className="w-4 h-4 text-eucalyptus" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                    Sans engagement
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-charcoal/50">
+                    <svg className="w-4 h-4 text-eucalyptus" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    Réponse sous 48h
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-charcoal/50">
+                    <svg className="w-4 h-4 text-eucalyptus" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                    Données protégées
+                  </div>
+                </div>
               </form>
             )}
           </div>
