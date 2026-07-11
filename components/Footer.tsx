@@ -122,8 +122,8 @@ export default function Footer() {
                 <div className="flex items-center gap-3 bg-eucalyptus/10 border border-eucalyptus/30 rounded-2xl px-6 py-4">
                   <span className="text-2xl">✨</span>
                   <div>
-                    <p className="text-white font-semibold">C'est note !</p>
-                    <p className="text-stone-400 text-sm">Tu recevras ta premiere pepite tres vite.</p>
+                    <p className="text-white font-semibold">C'est noté !</p>
+                    <p className="text-stone-400 text-sm">Tu recevras ta première pépite très vite.</p>
                   </div>
                 </div>
               ) : (
