@@ -8,6 +8,7 @@ import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import { trackTravelPlanningFormSubmit, trackCtaClick } from '@/lib/analytics'
 
 const SITE_URL = 'https://heldonica.fr'
 
@@ -158,9 +159,7 @@ export default function TravelPlanningPage() {
         }),
       })
       if (!res.ok) throw new Error(await res.text())
-      if (typeof window !== 'undefined' && (window as any).gtag) {
-        (window as any).gtag('event', 'travel_planning_form_submit', { destination: formData.destination })
-      }
+      trackTravelPlanningFormSubmit(formData.destination, formData.duration)
       setFormStatus('success')
     } catch (err: any) {
       setFormStatus('error')
@@ -211,7 +210,7 @@ export default function TravelPlanningPage() {
             <EditableZone page="travel-planning" zone="hero_text" fallback="On s'occupe de tout — tu n'as qu'à vivre l'aventure."
               className="text-white/80 max-w-xl text-lg leading-relaxed mb-8 block"
             />
-            <a href="#formulaire" className="inline-flex items-center gap-2 rounded-full bg-eucalyptus px-7 py-3.5 text-sm font-semibold text-white hover:bg-eucalyptus/90 transition-all shadow-lg">
+            <a href="#formulaire" onClick={() => trackCtaClick('hero_demarrer', 'travel-planning')} className="inline-flex items-center gap-2 rounded-full bg-eucalyptus px-7 py-3.5 text-sm font-semibold text-white hover:bg-eucalyptus/90 transition-all shadow-lg">
               <EditableZone page="travel-planning" zone="hero_cta" fallback="Démarrer ma demande" />
             </a>
           </div>
@@ -298,7 +297,7 @@ export default function TravelPlanningPage() {
                       </li>
                     ))}
                   </ul>
-                  <a href="#formulaire" className={`block text-center rounded-full py-3 text-sm font-semibold transition-all ${plan.popular ? 'bg-eucalyptus text-white hover:bg-eucalyptus/90' : 'bg-stone-100 text-stone-700 hover:bg-stone-200 border border-stone-200'}`}>
+                  <a href="#formulaire" onClick={() => trackCtaClick(`pricing_${plan.name.toLowerCase().replace(/\s+/g, '_')}`, 'travel-planning')} className={`block text-center rounded-full py-3 text-sm font-semibold transition-all ${plan.popular ? 'bg-eucalyptus text-white hover:bg-eucalyptus/90' : 'bg-stone-100 text-stone-700 hover:bg-stone-200 border border-stone-200'}`}>
                     <EditableZone page="travel-planning" zone={`${plan.zone}_cta`} fallback={plan.name === 'Sur-Mesure' ? 'Demander un devis' : 'Choisir cette formule'} className="inline" />
                   </a>
                 </div>
@@ -485,7 +484,7 @@ export default function TravelPlanningPage() {
             <EditableZone page="travel-planning" zone="cta_text" type="textarea" fallback="Un voyage pensé pour toi, pas un itinéraire générique. Remplis le formulaire et on te prépare quelque chose d'unique."
               className="text-white/70 mb-8 block"
             />
-            <a href="#formulaire" className="inline-flex px-7 py-3 rounded-xl bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors">
+            <a href="#formulaire" onClick={() => trackCtaClick('final_cta', 'travel-planning')} className="inline-flex px-7 py-3 rounded-xl bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors">
               <EditableZone page="travel-planning" zone="cta_button" fallback="Démarrer ma demande →" />
             </a>
           </div>

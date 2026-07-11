@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { trackTravelPlanningFormSubmit } from '@/lib/analytics'
 
 type FormData = {
   // Étape 1
@@ -128,14 +129,8 @@ export default function TravelPlanningForm() {
       })
       if (!res.ok) throw new Error('Erreur serveur')
       
-      // GA4 — Événement formulaire_travel_soumis
-      if (typeof window !== 'undefined' && (window as any).gtag) {
-        ;(window as any).gtag('event', 'formulaire_travel_soumis', {
-          event_category: 'Travel Planning',
-          event_label: form.destination || 'Non précisé',
-          value: 1,
-        })
-      }
+      // Track form submission with analytics lib
+      trackTravelPlanningFormSubmit(form.destination, form.duration)
       
       router.push('/merci')
     } catch {
