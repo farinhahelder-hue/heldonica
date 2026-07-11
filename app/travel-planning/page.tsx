@@ -79,6 +79,27 @@ export default function TravelPlanningPage() {
   const [formError, setFormError] = useState('')
   const [testimonials, setTestimonials] = useState<Testimonial[]>([])
   const [pricingPlans, setPricingPlans] = useState(PRICING_PLANS)
+  const [formStarted, setFormStarted] = useState(false)
+
+  // Track form start on first interaction
+  useEffect(() => {
+    if (formStarted) return
+    const handleInteraction = () => {
+      setFormStarted(true)
+      if (typeof window !== 'undefined' && (window as any).gtag) {
+        (window as any).gtag('event', 'travel_planning_form_start')
+      }
+    }
+    const form = document.getElementById('travel-form')
+    if (form) {
+      form.addEventListener('focusin', handleInteraction, { once: true })
+    }
+    return () => {
+      if (form) {
+        form.removeEventListener('focusin', handleInteraction)
+      }
+    }
+  }, [formStarted])
 
   // Fetch pricing plans from API
   useEffect(() => {
@@ -160,6 +181,7 @@ export default function TravelPlanningPage() {
       if (!res.ok) throw new Error(await res.text())
       if (typeof window !== 'undefined' && (window as any).gtag) {
         (window as any).gtag('event', 'travel_planning_form_submit', { destination: formData.destination })
+        (window as any).gtag('event', 'generate_lead', { method: 'travel_planning', destination: formData.destination })
       }
       setFormStatus('success')
     } catch (err: any) {
@@ -351,16 +373,22 @@ export default function TravelPlanningPage() {
 
             {formStatus === 'success' ? (
               <div className="rounded-2xl bg-eucalyptus/5 border border-eucalyptus/20 p-8 text-center">
-                <div className="w-16 h-16 rounded-full bg-eucalyptus/10 flex items-center justify-center mx-auto mb-4 text-3xl">✉️</div>
-                <EditableZone page="travel-planning" zone="success_title" fallback="Merci ! On a reçu ta demande."
+                <div className="w-16 h-16 rounded-full bg-eucalyptus/10 flex items-center justify-center mx-auto mb-4 text-3xl">✨</div>
+                <EditableZone page="travel-planning" zone="success_title" fallback="C'est noté ! On a bien reçu ta demande."
                   className="text-xl font-serif text-mahogany mb-2 block"
                 />
-                <EditableZone page="travel-planning" zone="success_text" fallback="On te répond sous 48h ouvrées maximum. Prépare-toi à rêver — on s'occupe du reste."
-                  className="text-sm text-charcoal/60 block"
+                <EditableZone page="travel-planning" zone="success_text" fallback="En attendant notre réponse, plonge dans nos carnets de voyage. On te prépare quelque chose de spécial."
+                  className="text-sm text-charcoal/60 mb-6 block"
                 />
+                <a 
+                  href="/blog" 
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-eucalyptus/20 text-eucalyptus text-sm font-semibold rounded-full hover:bg-eucalyptus/5 transition-colors"
+                >
+                  Découvrir nos carnets →
+                </a>
               </div>
             ) : (
-              <form onSubmit={handleFormSubmit} className="space-y-5">
+              <form id="travel-form" onSubmit={handleFormSubmit} className="space-y-5">
                 <div className="grid md:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-sm font-semibold text-charcoal mb-1.5">Ton prénom</label>
@@ -447,6 +475,22 @@ export default function TravelPlanningPage() {
                   className="w-full py-3.5 bg-eucalyptus text-white rounded-xl text-sm font-semibold hover:bg-eucalyptus/90 disabled:opacity-50 transition-all">
                   {formStatus === 'loading' ? 'Envoi en cours…' : 'Envoyer ma demande'}
                 </button>
+                
+                {/* Badge de confiance */}
+                <div className="flex items-center justify-center gap-4 pt-2">
+                  <div className="flex items-center gap-1.5 text-xs text-stone-500">
+                    <svg className="w-4 h-4 text-eucalyptus" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    <span>Données sécurisées</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-stone-500">
+                    <svg className="w-4 h-4 text-eucalyptus" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Réponse sous 48h</span>
+                  </div>
+                </div>
               </form>
             )}
           </div>
