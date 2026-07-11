@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useEditableContext } from '@/components/inline-edit/InlineEditProvider'
 import { useContentLoader } from '@/hooks/useContentLoader'
+import { trackNewsletterSignup } from '@/lib/analytics'
 
 const NAV_LABEL_FALLBACKS = ['Accueil', 'Destinations', 'Blog', 'Services', 'Services', 'À propos', 'Contact']
 const NAV_URL_FALLBACKS = ['/', '/destinations', '/blog', '/travel-planning', '/nos-services', '/a-propos', '/contact']
@@ -93,6 +94,7 @@ export default function Footer() {
 
       if (res.ok) {
         setSubscribed(true)
+        trackNewsletterSignup(email, 'footer')
       } else {
         console.error('Erreur inscription:', await res.json())
       }

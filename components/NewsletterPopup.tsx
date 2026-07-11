@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { trackNewsletterSignup } from '@/lib/analytics'
 
 export default function NewsletterPopup() {
   const [isVisible, setIsVisible] = useState(false)
@@ -77,6 +78,8 @@ export default function NewsletterPopup() {
 
       if (res.ok) {
         setStatus('success')
+        // Track newsletter signup
+        trackNewsletterSignup(email, 'popup')
         setTimeout(() => setIsVisible(false), 3000)
       } else {
         const data = await res.json()

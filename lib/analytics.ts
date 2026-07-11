@@ -58,7 +58,7 @@ export function initScrollDepthTracking() {
 }
 
 // Newsletter events
-export function trackNewsletterSignup(email: string, source: 'footer' | 'popup' | 'inline' | 'blog') {
+export function trackNewsletterSignup(email: string, source: 'footer' | 'popup' | 'inline' | 'blog' | 'guides') {
   trackEvent('newsletter_signup', {
     source,
     email_hash: hashString(email),

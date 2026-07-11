@@ -2,10 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { trackLeadMagnetDownload, trackNewsletterSignup } from '@/lib/analytics'
 
 interface GuideDownloadFormProps {
   variant?: 'hero' | 'inline' | 'footer'
   className?: string
+  guideName?: string
 }
 
 export default function GuideDownloadForm({ variant = 'inline', className = '' }: GuideDownloadFormProps) {
@@ -37,6 +39,9 @@ export default function GuideDownloadForm({ variant = 'inline', className = '' }
 
       if (res.ok) {
         setStatus('success')
+        // Track newsletter signup and lead magnet download
+        trackNewsletterSignup(email, 'guides')
+        trackLeadMagnetDownload('top-10-madere')
         // Redirect to thank you page
         setTimeout(() => {
           router.push('/guides/merci')
