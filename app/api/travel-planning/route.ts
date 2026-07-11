@@ -12,16 +12,16 @@ const RATE_WINDOW = 60 * 60 * 1000 // 1 hour in ms
 function checkRateLimit(ip: string): boolean {
   const now = Date.now()
   const entry = rateLimitMap.get(ip)
-  
+
   if (!entry || now > entry.resetAt) {
     rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW })
     return true
   }
-  
+
   if (entry.count >= RATE_LIMIT) {
     return false
   }
-  
+
   entry.count++
   return true
 }
@@ -33,7 +33,7 @@ function getClientIP(req: NextRequest): string {
          'unknown'
 }
 
-function escapeHtml(unsafe: any) {
+function escapeHtml(unsafe: unknown): string {
   if (unsafe === undefined || unsafe === null) return '';
   return String(unsafe)
     .replace(/&/g, '&amp;')
@@ -41,6 +41,22 @@ function escapeHtml(unsafe: any) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
+}
+
+interface TravelFormData {
+  tripType?: string
+  vibe?: string
+  destination?: string
+  destinationDetail?: string
+  duration?: string
+  budget?: string
+  departureDate?: string // Form sends departureDate, not startDate
+  firstName?: string
+  email?: string
+  phone?: string
+  message?: string // Form sends message, not notes
+  honeypot?: string
+  website_url?: string
 }
 
 export async function POST(req: NextRequest) {
@@ -60,7 +76,14 @@ export async function POST(req: NextRequest) {
   const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
   try {
-    const body = await req.json()
+    const body = await req.json() as TravelFormData
+
+    // Honeypot anti-spam
+    if (body.honeypot || body.website_url) {
+      return NextResponse.json({ success: true })
+    }
+
+    // Extract and normalize field names (form sends departureDate/message)
     const {
       tripType,
       vibe,
@@ -68,53 +91,70 @@ export async function POST(req: NextRequest) {
       destinationDetail,
       duration,
       budget,
-      startDate,
+      departureDate,
       firstName,
       email,
       phone,
-      notes,
+      message,
     } = body
 
-    // Honeypot anti-spam
-    if (body.website_url) {
-      return NextResponse.json({ success: true })
-    }
-
-    // Validation basique
+    // Validation
     if (!firstName || !email || !destination) {
       return NextResponse.json(
-        { error: 'Champs obligatoires manquants' },
+        { error: 'Ton prénom et ton email sont nécessaires.' },
         { status: 400 }
       )
     }
 
-    // 1. Sauvegarde Supabase
-    if (!supabase) return NextResponse.json({ error: 'DB unavailable' }, { status: 503 })
-    const { error: dbError } = await supabase
-      .from('demandes_travel')
-      .insert({
-        trip_type: tripType,
-        vibe,
-        destination,
-        destination_detail: destinationDetail,
-        duree_jours: duration,
-        budget_fourchette: budget,
-        mois_depart: startDate || null,
-        prenom: firstName,
-        nom: '', // Pas de champ nom dans le formulaire, à améliorer
-        email,
-        telephone: phone || null,
-        notes: notes || null,
-        statut: 'new',
-      })
+    // 1. Save to Supabase (priority)
+    let dbSaved = false
+    if (supabase) {
+      const { error: dbError } = await supabase
+        .from('demandes_travel')
+        .insert({
+          trip_type: tripType || null,
+          vibe: vibe || null,
+          destination,
+          destination_detail: destinationDetail || null,
+          duree_jours: duration || null,
+          budget_fourchette: budget || null,
+          mois_depart: departureDate || null,
+          prenom: firstName,
+          nom: '',
+          email,
+          telephone: phone || null,
+          notes: message || null,
+          statut: 'new',
+        })
 
-    if (dbError) {
-      console.error('Supabase error:', dbError)
+      if (dbError) {
+        console.error('Supabase insert error:', dbError)
+        return NextResponse.json(
+          { error: 'Impossible d\'enregistrer ta demande.' },
+          { status: 500 }
+        )
+      }
+      dbSaved = true
+    } else {
+      return NextResponse.json({ error: 'Service indisponible.' }, { status: 503 })
     }
 
-    // 2. Intégration Brevo — ajout du contact avec tag prospect_b2c
+    // Prepare escaped values
+    const sFirstName = escapeHtml(firstName);
+    const sEmail = escapeHtml(email);
+    const sPhone = escapeHtml(phone);
+    const sDestination = escapeHtml(destination);
+    const sDestinationDetail = escapeHtml(destinationDetail);
+    const sTripType = escapeHtml(tripType);
+    const sVibe = escapeHtml(vibe);
+    const sDuration = escapeHtml(duration);
+    const sBudget = escapeHtml(budget);
+    const sDepartureDate = escapeHtml(departureDate);
+    const sMessage = escapeHtml(message);
+
+    // 2. Brevo integration (secondary)
     const brevoApiKey = process.env.BREVO_API_KEY
-    if (brevoApiKey) {
+    if (brevoApiKey && dbSaved) {
       try {
         await fetch('https://api.brevo.com/v3/contacts', {
           method: 'POST',
@@ -133,137 +173,88 @@ export async function POST(req: NextRequest) {
               DESTINATION: destination + (destinationDetail ? ` — ${destinationDetail}` : ''),
               DUREE: duration || '',
               BUDGET: budget || '',
-              DATE_DEPART: startDate || '',
+              DATE_DEPART: departureDate || '',
             },
-            listIds: [2], // ID liste Brevo — à adapter
+            listIds: [2],
             updateEnabled: true,
           }),
         })
-
-        // Ajout du tag prospect_b2c
-        await fetch(`https://api.brevo.com/v3/contacts/${encodeURIComponent(email)}/tag`, {
+        await fetch(`https://api.brevo.com/v3/contacts/${encodeURIComponent(email as string)}/tag`, {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
             'api-key': brevoApiKey,
           },
-          body: JSON.stringify({
-            tags: ['prospect_b2c'],
-          }),
+          body: JSON.stringify({ tags: ['prospect_b2c'] }),
         })
       } catch (brevoErr) {
         console.error('Brevo sync error:', brevoErr)
       }
     }
 
-
-    const sFirstName = escapeHtml(firstName);
-    const sEmail = escapeHtml(email);
-    const sPhone = escapeHtml(phone);
-    const sDestination = escapeHtml(destination);
-    const sDestinationDetail = escapeHtml(destinationDetail);
-    const sTripType = escapeHtml(tripType);
-    const sVibe = escapeHtml(vibe);
-    const sDuration = escapeHtml(duration);
-    const sBudget = escapeHtml(budget);
-    const sStartDate = escapeHtml(startDate);
-    const sNotes = escapeHtml(notes);
-
-    // 3. Email interne à Heldonica
-    if (resend) {
+    // 3. Internal email (secondary)
+    if (resend && dbSaved) {
       const internalEmails = ['bonjour@heldonica.fr', 'contact@heldonica.fr'];
       for (const recipient of internalEmails) {
-        await resend.emails.send({
+        resend.emails.send({
           from: 'Heldonica <contact@heldonica.fr>',
           to: recipient,
           subject: `✈️ Nouvelle demande Travel Planning — ${sFirstName} (${sDestination})`,
-        html: `
-          <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #f7f6f2;">
-            <h1 style="color: #01696f; font-size: 24px; margin-bottom: 8px;">Nouvelle demande de Travel Planning</h1>
-            <p style="color: #7a7974; margin-bottom: 32px; font-size: 14px;">Reçue le ${new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-            
-            <table style="width: 100%; border-collapse: collapse;">
-              <tr><td style="padding: 12px; background: #fff; border-bottom: 1px solid #dcd9d5; font-weight: bold; width: 40%; color: #28251d;">Prénom</td><td style="padding: 12px; background: #fff; border-bottom: 1px solid #dcd9d5; color: #28251d;">${sFirstName}</td></tr>
-              <tr><td style="padding: 12px; background: #f9f8f5; border-bottom: 1px solid #dcd9d5; font-weight: bold; color: #28251d;">Email</td><td style="padding: 12px; background: #f9f8f5; border-bottom: 1px solid #dcd9d5;"><a href="mailto:${sEmail}" style="color: #01696f;">${sEmail}</a></td></tr>
-              ${phone ? `<tr><td style="padding: 12px; background: #fff; border-bottom: 1px solid #dcd9d5; font-weight: bold; color: #28251d;">Téléphone</td><td style="padding: 12px; background: #fff; border-bottom: 1px solid #dcd9d5; color: #28251d;">${sPhone}</td></tr>` : ''}
-              <tr><td style="padding: 12px; background: #f9f8f5; border-bottom: 1px solid #dcd9d5; font-weight: bold; color: #28251d;">Destination</td><td style="padding: 12px; background: #f9f8f5; border-bottom: 1px solid #dcd9d5; color: #28251d;">${sDestination}${destinationDetail ? ` — ${sDestinationDetail}` : ''}</td></tr>
-              <tr><td style="padding: 12px; background: #fff; border-bottom: 1px solid #dcd9d5; font-weight: bold; color: #28251d;">Type de voyage</td><td style="padding: 12px; background: #fff; border-bottom: 1px solid #dcd9d5; color: #28251d;">${sTripType || 'Non précisé'}</td></tr>
-              <tr><td style="padding: 12px; background: #f9f8f5; border-bottom: 1px solid #dcd9d5; font-weight: bold; color: #28251d;">Ambiance</td><td style="padding: 12px; background: #f9f8f5; border-bottom: 1px solid #dcd9d5; color: #28251d;">${sVibe || 'Non précisé'}</td></tr>
-              <tr><td style="padding: 12px; background: #fff; border-bottom: 1px solid #dcd9d5; font-weight: bold; color: #28251d;">Durée</td><td style="padding: 12px; background: #fff; border-bottom: 1px solid #dcd9d5; color: #28251d;">${sDuration || 'Non précisé'}</td></tr>
-              <tr><td style="padding: 12px; background: #f9f8f5; border-bottom: 1px solid #dcd9d5; font-weight: bold; color: #28251d;">Budget</td><td style="padding: 12px; background: #f9f8f5; border-bottom: 1px solid #dcd9d5; color: #28251d;">${sBudget || 'Non précisé'}</td></tr>
-              ${startDate ? `<tr><td style="padding: 12px; background: #fff; border-bottom: 1px solid #dcd9d5; font-weight: bold; color: #28251d;">Date de départ</td><td style="padding: 12px; background: #fff; border-bottom: 1px solid #dcd9d5; color: #28251d;">${sStartDate}</td></tr>` : ''}
-            </table>
-
-            ${notes ? `<div style="margin-top: 24px; padding: 16px; background: #fff; border-left: 3px solid #01696f;"><p style="font-weight: bold; margin-bottom: 8px; color: #28251d;">Notes :</p><p style="color: #28251d; line-height: 1.6;">${sNotes}</p></div>` : ''}
-
-            <div style="margin-top: 32px; text-align: center;">
-              <a href="mailto:${sEmail}?subject=Re: Votre demande Travel Planning — ${sDestination}" style="display: inline-block; background: #01696f; color: #fff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-family: sans-serif; font-weight: bold;">Répondre à ${sFirstName}</a>
+          html: `
+            <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #f7f6f2;">
+              <h1 style="color: #01696f; font-size: 24px; margin-bottom: 8px;">Nouvelle demande de Travel Planning</h1>
+              <p style="color: #7a7974; margin-bottom: 32px; font-size: 14px;">Reçue le ${new Date().toLocaleDateString('fr-FR')}</p>
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr><td style="padding: 12px; background: #fff; border-bottom: 1px solid #dcd9d5; font-weight: bold; width: 40%;">Prénom</td><td style="padding: 12px; background: #fff; border-bottom: 1px solid #dcd9d5;">${sFirstName}</td></tr>
+                <tr><td style="padding: 12px; background: #f9f8f5; border-bottom: 1px solid #dcd9d5; font-weight: bold;">Email</td><td style="padding: 12px; background: #f9f8f5; border-bottom: 1px solid #dcd9d5;"><a href="mailto:${sEmail}" style="color: #01696f;">${sEmail}</a></td></tr>
+                ${phone ? `<tr><td style="padding: 12px; background: #fff; border-bottom: 1px solid #dcd9d5; font-weight: bold;">Téléphone</td><td style="padding: 12px; background: #fff; border-bottom: 1px solid #dcd9d5;">${sPhone}</td></tr>` : ''}
+                <tr><td style="padding: 12px; background: #f9f8f5; border-bottom: 1px solid #dcd9d5; font-weight: bold;">Destination</td><td style="padding: 12px; background: #f9f8f5; border-bottom: 1px solid #dcd9d5;">${sDestination}${destinationDetail ? ` — ${sDestinationDetail}` : ''}</td></tr>
+                <tr><td style="padding: 12px; background: #fff; border-bottom: 1px solid #dcd9d5; font-weight: bold;">Type</td><td style="padding: 12px; background: #fff; border-bottom: 1px solid #dcd9d5;">${sTripType || 'Non précisé'}</td></tr>
+                <tr><td style="padding: 12px; background: #f9f8f5; border-bottom: 1px solid #dcd9d5; font-weight: bold;">Ambiance</td><td style="padding: 12px; background: #f9f8f5; border-bottom: 1px solid #dcd9d5;">${sVibe || 'Non précisé'}</td></tr>
+                <tr><td style="padding: 12px; background: #fff; border-bottom: 1px solid #dcd9d5; font-weight: bold;">Durée</td><td style="padding: 12px; background: #fff; border-bottom: 1px solid #dcd9d5;">${sDuration || 'Non précisé'}</td></tr>
+                <tr><td style="padding: 12px; background: #f9f8f5; border-bottom: 1px solid #dcd9d5; font-weight: bold;">Budget</td><td style="padding: 12px; background: #f9f8f5; border-bottom: 1px solid #dcd9d5;">${sBudget || 'Non précisé'}</td></tr>
+              </table>
+              ${message ? `<div style="margin-top: 24px; padding: 16px; background: #fff; border-left: 3px solid #01696f;"><p style="font-weight: bold;">Message :</p><p>${sMessage}</p></div>` : ''}
+              <div style="margin-top: 32px; text-align: center;">
+                <a href="mailto:${sEmail}?subject=Re: Votre demande Travel Planning" style="display: inline-block; background: #01696f; color: #fff; padding: 14px 28px; border-radius: 8px; text-decoration: none;">Répondre à ${sFirstName}</a>
+              </div>
             </div>
-
-            <p style="margin-top: 32px; font-size: 12px; color: #7a7974; text-align: center;">Heldonica • Travel Planning sur mesure • heldonica.fr</p>
-          </div>
-        `,
-        }).catch((err) => console.error('Failed to send internal email:', err));
+          `,
+        }).catch((err) => console.error('Internal email error:', err));
       }
-    } else {
-      console.warn('RESEND_API_KEY not configured, skipping internal email');
     }
 
-    // 4. Email de confirmation au prospect
-    if (resend) {
-      await resend.emails.send({
+    // 4. Confirmation email (secondary)
+    if (resend && dbSaved) {
+      resend.emails.send({
         from: 'Heldonica <contact@heldonica.fr>',
-        to: email,
+        to: email as string,
         subject: `On a reçu ton projet de voyage ✈️ — Heldonica`,
         html: `
           <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #ffffff;">
-            <div style="border-bottom: 3px solid #6b2a1a; padding-bottom: 24px; margin-bottom: 32px;">
-              <h1 style="color: #6b2a1a; font-size: 28px; margin: 0 0 8px 0;">Merci ${sFirstName} !</h1>
-              <p style="color: #1a1a1a; font-size: 16px; margin: 0; line-height: 1.6;">
-                On a bien reçu ton projet pour <strong>${sDestination}</strong>.
-              </p>
+            <h1 style="color: #6b2a1a; font-size: 28px; margin-bottom: 16px;">Merci ${sFirstName} !</h1>
+            <p style="font-size: 16px; line-height: 1.7;">On a bien reçu ton projet pour <strong>${sDestination}</strong>.</p>
+            <p style="font-size: 16px; line-height: 1.7;">On revient vers toi <strong>sous 48h</strong> avec un vrai retour.</p>
+            <div style="background: #f7f6f2; border-radius: 12px; padding: 24px; margin: 24px 0;">
+              <h2 style="color: #6b2a1a; font-size: 14px;">Récap de ta demande</h2>
+              <p>🗺️ <strong>Destination :</strong> ${sDestination}</p>
+              ${tripType ? `<p>🧳 <strong>Type :</strong> ${sTripType}</p>` : ''}
+              ${vibe ? `<p>✨ <strong>Vibe :</strong> ${sVibe}</p>` : ''}
+              ${duration ? `<p>📅 <strong>Durée :</strong> ${sDuration}</p>` : ''}
+              ${budget ? `<p>💶 <strong>Budget :</strong> ${sBudget}</p>` : ''}
             </div>
-            
-            <p style="color: #1a1a1a; font-size: 16px; line-height: 1.7; margin-bottom: 16px;">
-              On prend le temps de lire ton brief avant de répondre.<br />
-              <em style="color: #555;">Pas de réponse automatique ici.</em>
-            </p>
-            
-            <p style="color: #1a1a1a; font-size: 16px; line-height: 1.7; margin-bottom: 32px;">
-              On revient vers toi <strong>sous 48h</strong> avec un vrai retour — nos premières idées, et peut-être quelques questions pour affiner ce voyage sur mesure.
-            </p>
-
-            <div style="background: #f7f6f2; border-radius: 12px; padding: 24px; margin-bottom: 32px; border-left: 4px solid #6b2a1a;">
-              <h2 style="color: #6b2a1a; font-size: 14px; font-family: sans-serif; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 16px 0;">Récap de ta demande</h2>
-              <p style="margin: 8px 0; color: #1a1a1a; font-size: 15px;">🗺️ <strong>Destination :</strong> ${sDestination}${destinationDetail ? ` — ${sDestinationDetail}` : ''}</p>
-              ${tripType ? `<p style="margin: 8px 0; color: #1a1a1a; font-size: 15px;">🧳 <strong>Type :</strong> ${sTripType}</p>` : ''}
-              ${vibe ? `<p style="margin: 8px 0; color: #1a1a1a; font-size: 15px;">✨ <strong>Vibe :</strong> ${sVibe}</p>` : ''}
-              ${duration ? `<p style="margin: 8px 0; color: #1a1a1a; font-size: 15px;">📅 <strong>Durée :</strong> ${sDuration}</p>` : ''}
-              ${budget ? `<p style="margin: 8px 0; color: #1a1a1a; font-size: 15px;">💶 <strong>Budget :</strong> ${sBudget}</p>` : ''}
-              ${startDate ? `<p style="margin: 8px 0; color: #1a1a1a; font-size: 15px;">🛫 <strong>Départ :</strong> ${sStartDate}</p>` : ''}
-            </div>
-
-            <p style="color: #1a1a1a; font-size: 16px; line-height: 1.7; margin-bottom: 8px;">
-              À très vite,
-            </p>
-            <p style="color: #6b2a1a; font-size: 18px; font-style: italic; margin: 0;">L'équipe Heldonica</p>
-            <p style="color: #888; font-size: 13px; margin: 8px 0 0 0;">heldonica.fr</p>
-
-            <hr style="border: none; border-top: 1px solid #e8e0d8; margin: 32px 0;" />
-            <p style="font-size: 12px; color: #888; text-align: center;">
-              Tu peux aussi nous écrire directement à <a href="mailto:contact@heldonica.fr" style="color: #6b2a1a;">contact@heldonica.fr</a>
-            </p>
+            <p style="color: #6b2a1a; font-size: 18px; font-style: italic;">L'équipe Heldonica</p>
           </div>
         `,
-      }).catch((err) => console.error('Failed to send confirmation email:', err));
+      }).catch((err) => console.error('Confirmation email error:', err));
     }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: dbSaved })
   } catch (error) {
     console.error('Travel planning API error:', error)
     return NextResponse.json(
-      { error: 'Une erreur est survenue. Merci de réessayer.' },
+      { error: 'Une erreur est survenue.' },
       { status: 500 }
     )
   }
