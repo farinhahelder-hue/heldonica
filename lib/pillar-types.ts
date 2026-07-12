@@ -5,6 +5,7 @@ export interface PillarData {
   flag: string
   hero: string
   tagline: string
+  heroSubtitle?: string
   budget: number
   season: string
   flight: string
@@ -18,4 +19,18 @@ export interface PillarData {
   itinerary: { day: number; title: string; activities: string[]; tip?: string; articleSlug?: string }[]
   budgetBreakdown: { label: string; pct: number; amount: number }[]
   faq: { q: string; a: string }[]
+  testedByHeldonica?: {
+    when: string
+    duration: string
+    withWho: string
+    highlights: string[]
+    keyInsight: string
+  }
+  verdict?: {
+    score: number
+    forWho: string
+    strengths: string[]
+    considerations: string[]
+    finalWord: string
+  }
 }
