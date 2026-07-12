@@ -7,6 +7,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import NewsletterForm from '@/components/NewsletterForm'
 import GuideDownloadButton from '@/components/GuideDownloadButton'
+import LeadMagnetBlock from '@/components/LeadMagnetBlock'
 import type { PillarData } from '@/lib/pillar-types'
 import { SITE_URL } from '@/lib/seo'
 
@@ -154,6 +155,9 @@ export default function DestinationPillar({
             </div>
           </div>
         </section>
+
+        {/* Lead Magnet Block */}
+        <LeadMagnetBlock destinationSlug={data.slug} destinationName={data.name} />
 
         {/* Articles liés */}
         {relatedArticles.length > 0 && (

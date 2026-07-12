@@ -46,7 +46,7 @@ export default function GuideDownloadModal({
 
       setStatus('success')
       if (typeof window.gtag !== 'undefined') {
-        window.gtag('event', 'guide_downloaded', { destination: destinationSlug })
+        window.gtag('event', 'guidepdftelecharge', { destination: destinationSlug })
       }
     } catch (err: any) {
       setStatus('error')
@@ -73,9 +73,9 @@ export default function GuideDownloadModal({
         {status === 'success' ? (
           <div className="text-center py-6">
             <CheckCircle2 size={48} className="text-eucalyptus mx-auto mb-4" />
-            <h3 className="text-xl font-serif text-mahogany mb-2">C&apos;est parti !</h3>
+            <h3 className="text-xl font-serif text-mahogany mb-2">C&apos;est parti pour {destinationTitle} !</h3>
             <p className="text-charcoal/70 text-sm">
-              Ton guide de {destinationTitle} a été téléchargé. Vérifie aussi ta boîte mail.
+              Ton guide a été téléchargé. Vérifie aussi ta boîte mail — on t&apos;a envoyé une copie pour le retrouver facilement.
             </p>
             <button
               onClick={onClose}
@@ -89,10 +89,10 @@ export default function GuideDownloadModal({
             <div className="text-center mb-6">
               <Download size={32} className="text-eucalyptus mx-auto mb-3" />
               <h3 className="text-xl font-serif text-mahogany mb-2">
-                Télécharge ton guide {destinationTitle}
+                Télécharge le guide {destinationTitle}
               </h3>
               <p className="text-charcoal/60 text-sm">
-                Reçois notre guide complet en PDF avec les meilleures adresses et itinéraires.
+                On t&apos;a préparé une version claire et utile à consulter avant de partir. Adresse mail pour recevoir le guide PDF.
               </p>
             </div>
 
@@ -122,7 +122,7 @@ export default function GuideDownloadModal({
             </form>
 
             <p className="text-stone-400 text-xs text-center mt-4">
-              Gratuit — 1 email pour recevoir les prochains guides en avant-première
+              Gratuit · Tu restes inscrit·e à la newsletter · Désinscription à tout moment
             </p>
           </>
         )}
