@@ -7,6 +7,9 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import NewsletterForm from '@/components/NewsletterForm'
 import GuideDownloadButton from '@/components/GuideDownloadButton'
+import LeadMagnetBlock from '@/components/LeadMagnetBlock'
+import TestedByHeldonica from '@/components/TestedByHeldonica'
+import DestinationVerdict from '@/components/DestinationVerdict'
 import type { PillarData } from '@/lib/pillar-types'
 import { SITE_URL } from '@/lib/seo'
 
@@ -60,6 +63,9 @@ export default function DestinationPillar({
           <div className="relative container py-16 md:py-24">
             <p className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold">{data.flag} {data.name}</p>
             <h1 className="text-4xl md:text-6xl font-serif text-white max-w-3xl mb-4 leading-tight">{data.name} en couple — notre guide slow travel</h1>
+            {data.heroSubtitle && (
+              <p className="text-white/90 max-w-2xl text-lg leading-relaxed mb-4 font-medium">{data.heroSubtitle}</p>
+            )}
             <p className="text-white/80 max-w-2xl text-lg leading-relaxed mb-6">{data.tagline}</p>
             <div className="flex flex-wrap gap-2 mb-6">
               <span className="rounded-full bg-eucalyptus/20 text-eucalyptus text-xs font-semibold px-3 py-1.5 border border-eucalyptus/30">📅 {data.season}</span>
@@ -100,6 +106,18 @@ export default function DestinationPillar({
             ))}
           </div>
         </section>
+
+        {/* TestedByHeldonica */}
+        {data.testedByHeldonica && (
+          <TestedByHeldonica
+            when={data.testedByHeldonica.when}
+            duration={data.testedByHeldonica.duration}
+            withWho={data.testedByHeldonica.withWho}
+            highlights={data.testedByHeldonica.highlights}
+            keyInsight={data.testedByHeldonica.keyInsight}
+            destinationName={data.name}
+          />
+        )}
 
         {/* Itinéraire 7 jours */}
         <section className="bg-white py-16 md:py-20">
@@ -155,6 +173,9 @@ export default function DestinationPillar({
           </div>
         </section>
 
+        {/* Lead Magnet Block */}
+        <LeadMagnetBlock destinationSlug={data.slug} destinationName={data.name} />
+
         {/* Articles liés */}
         {relatedArticles.length > 0 && (
           <section className="bg-white py-16">
@@ -172,6 +193,18 @@ export default function DestinationPillar({
               </div>
             </div>
           </section>
+        )}
+
+        {/* DestinationVerdict */}
+        {data.verdict && (
+          <DestinationVerdict
+            score={data.verdict.score}
+            forWho={data.verdict.forWho}
+            strengths={data.verdict.strengths}
+            considerations={data.verdict.considerations}
+            finalWord={data.verdict.finalWord}
+            destinationName={data.name}
+          />
         )}
 
         {/* FAQ */}

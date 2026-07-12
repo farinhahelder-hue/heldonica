@@ -7,6 +7,7 @@ export const MADERE: PillarData = {
   flag: '🇵🇹',
   hero: 'https://images.unsplash.com/photo-1593702288056-2c160f65cf12?w=1920&h=1080&fit=crop',
   tagline: "L’île éternelle du printemps — levadas, falaises et douceur atlantique",
+  heroSubtitle: "Notre guide terrain avec itineraire teste, budget reel et pepites denichees hors sentiers battus.",
   budget: 1200,
   season: 'Avril–juin / Sept–oct',
   flight: '~2h30 depuis Paris',
@@ -20,7 +21,14 @@ export const MADERE: PillarData = {
     "On a marché dans la forêt de Fanal un matin de brume, les pieds dans la terre volcanique. On a mangé l’espetada dans un restaurant où personne ne parlait anglais. On s’est baignés dans les piscines naturelles de Porto Moniz, seuls au monde.",
     "Madère pour un couple en 2026, c’est l’endroit où le slow travel prend tout son sens : des paysages qui ralentissent le temps, des sentiers où on croise plus de vaches que de touristes, une île qui n’a pas encore appris à se vendre — et c’est ce qui fait son charme.",
   ],
-  infoTable: [
+    testedByHeldonica: {
+    when: "Septembre 2025",
+    duration: "8 jours",
+    withWho: "En couple",
+    highlights: ["Pico Ruivo au lever du soleil", "Piscines naturelles de Porto Moniz a 9h", "Dejeuner chez Ze Tinha"],
+    keyInsight: "Madere se decouvre lentement.",
+  },
+infoTable: [
     { label: 'Meilleure période', value: 'Avril-juin / Sept-oct' },
     { label: 'Budget couple/sem', value: '~1 200 €' },
     { label: 'Vol depuis Paris', value: '~2h30' },
@@ -51,6 +59,14 @@ export const MADERE: PillarData = {
     { q: 'Madère est-elle chère ?', a: 'Comptez ~1200€/semaine pour deux (vol, hébergement, repas, transport, activités). Hors saison, le budget peut descendre à 900€. Madère est moins chère que ses voisins des Açores.' },
     { q: 'Est-ce adapté aux non-randonneurs ?', a: 'Oui — les levadas plates longent les montagnes sans difficulté. Les piscines naturelles, les jardins et la gastronomie offrent mille façons de profiter sans s\'épuiser.' },
   ],
+  verdict: {
+    score: 9,
+    forWho: "Couples qui cherchent des paysages spectaculaires et du slow travel.",
+    strengths: ["Des paysages uniques", "Une ile compacte", "Une gastronomie authentique"],
+    considerations: ["Demande de marcher", "La voiture est indispensable"],
+    finalWord: "Madere est notre coup de coeur slow travel.",
+  },
+
 }
 
 export const MONTENEGRO: PillarData = {
