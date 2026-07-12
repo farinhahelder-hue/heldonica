@@ -10,6 +10,8 @@ import GuideDownloadButton from '@/components/GuideDownloadButton'
 import LeadMagnetBlock from '@/components/LeadMagnetBlock'
 import TestedByHeldonica from '@/components/TestedByHeldonica'
 import DestinationVerdict from '@/components/DestinationVerdict'
+import QuickAnswersBlock from '@/components/QuickAnswersBlock'
+import GeoDataBlock from '@/components/GeoDataBlock'
 import type { PillarData } from '@/lib/pillar-types'
 import { SITE_URL } from '@/lib/seo'
 
@@ -28,8 +30,28 @@ export default function DestinationPillar({
           name: data.name,
           description: data.tagline,
           url: `${SITE_URL}/destinations/${data.slug}`,
-          touristType: 'Couple slow travel',
+          touristType: ['Couple slow travel', 'Slow tourism'],
           hasMap: `https://maps.google.com/?q=${encodeURIComponent(data.name)}`,
+          image: data.hero,
+          containsPlace: data.itinerary.map((day) => ({
+            '@type': 'Place',
+            name: day.title,
+          })),
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: data.verdict?.score ? data.verdict.score / 2 : 4.5,
+            bestRating: 5,
+            worstRating: 1,
+            reviewCount: 1,
+          },
+          offers: {
+            '@type': 'Offer',
+            category: 'TravelGuide',
+            name: `Guide slow travel ${data.name}`,
+            price: 0,
+            priceCurrency: 'EUR',
+            availability: 'https://schema.org/InStock',
+          },
         }),
       }} />
       <Script id="pillar-faq" type="application/ld+json" dangerouslySetInnerHTML={{
@@ -53,6 +75,20 @@ export default function DestinationPillar({
           ],
         }),
       }} />
+
+      {/* GEO Data enrichi */}
+      <GeoDataBlock
+        destinationName={data.name}
+        country={data.country}
+        slug={data.slug}
+        tagline={data.tagline}
+        heroImage={data.hero}
+        season={data.season}
+        budget={data.budget}
+        flight={data.flight}
+        language={data.language}
+        currency={data.currency}
+      />
 
       <Header />
       <main>
@@ -96,6 +132,17 @@ export default function DestinationPillar({
             </div>
           </div>
         </section>
+
+        {/* Quick Answers pour SEO */}
+        <QuickAnswersBlock
+          destinationName={data.name}
+          budget={data.budget}
+          bestSeason={data.season}
+          flightTime={data.flight}
+          language={data.language}
+          currency={data.currency}
+          visa={data.visa}
+        />
 
         {/* Intro narrative */}
         <section className="bg-cloud-dancer py-16 md:py-20">
