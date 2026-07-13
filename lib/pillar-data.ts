@@ -7,7 +7,7 @@ export const MADERE: PillarData = {
   flag: '🇵🇹',
   hero: 'https://images.unsplash.com/photo-1593702288056-2c160f65cf12?w=1920&h=1080&fit=crop',
   tagline: "L’île éternelle du printemps — levadas, falaises et douceur atlantique",
-  heroSubtitle: "Notre guide terrain avec itineraire teste, budget reel et pepites denichees hors sentiers battus.",
+  heroSubtitle: "Notre guide terrain avec itinéraire testé, budget réel et pépites dénichées hors sentiers battus.",
   budget: 1200,
   season: 'Avril–juin / Sept–oct',
   flight: '~2h30 depuis Paris',
@@ -25,8 +25,8 @@ export const MADERE: PillarData = {
     when: "Septembre 2025",
     duration: "8 jours",
     withWho: "En couple",
-    highlights: ["Pico Ruivo au lever du soleil", "Piscines naturelles de Porto Moniz a 9h", "Dejeuner chez Ze Tinha"],
-    keyInsight: "Madere se decouvre lentement.",
+    highlights: ["Pico Ruivo au lever du soleil", "Piscines naturelles de Porto Moniz à 9h", "Déjeuner chez Ze Tinha"],
+    keyInsight: "Madère se découvre lentement.",
   },
 infoTable: [
     { label: 'Meilleure période', value: 'Avril-juin / Sept-oct' },
@@ -62,9 +62,9 @@ infoTable: [
   verdict: {
     score: 9,
     forWho: "Couples qui cherchent des paysages spectaculaires et du slow travel.",
-    strengths: ["Des paysages uniques", "Une ile compacte", "Une gastronomie authentique"],
+    strengths: ["Des paysages uniques", "Une île compacte", "Une gastronomie authentique"],
     considerations: ["Demande de marcher", "La voiture est indispensable"],
-    finalWord: "Madere est notre coup de coeur slow travel.",
+    finalWord: "Madère est notre coup de cœur slow travel.",
   },
 
 }
@@ -76,6 +76,7 @@ export const MONTENEGRO: PillarData = {
   flag: '🇲🇪',
   hero: 'https://images.unsplash.com/photo-1555992828-8e7e4c0c7a0a?w=1920&h=1080&fit=crop',
   tagline: 'Balkans sauvages — fjords adriatiques, monastères et silence alpin',
+  heroSubtitle: 'Notre guide terrain avec baie de Kotor au lever du soleil, parc du Lovćen et Durmitor.',
   budget: 900,
   season: 'Mai–juin / Sept–oct',
   flight: '~2h30 depuis Paris',
@@ -113,6 +114,13 @@ export const MONTENEGRO: PillarData = {
     { label: 'Activités', pct: 12, amount: 108 },
     { label: 'Divers', pct: 7, amount: 63 },
   ],
+  testedByHeldonica: {
+    when: 'Juillet 2025',
+    duration: '10 jours',
+    withWho: 'En couple',
+    highlights: ['Lever du soleil sur la baie de Kotor à 6h30', 'Randonnée au lac Noir du Durmitor', 'Déjeuner chez Pod Volat à Podgorica'],
+    keyInsight: 'Le Monténégro se mérite — prévoyez du temps pour les routes de montagne.',
+  },
   faq: [
     { q: 'Quand partir au Monténégro pour le slow travel ?', a: 'Mai-juin (printemps verdoyant, peu de touristes) et septembre-octobre (été indien, mer chaude) sont idéaux. Juillet-août est bondé à Kotor.' },
     { q: 'Combien de jours pour découvrir le Monténégro ?', a: '7 jours suffisent pour la côte et Lovćen. 10 jours permettent d\'ajouter le Durmitor et les lacs de Plav.' },
@@ -120,6 +128,13 @@ export const MONTENEGRO: PillarData = {
     { q: 'Le Monténégro est-il sûr ?', a: 'Très sûr. La criminalité est quasi inexistante dans les zones touristiques. Les habitants sont accueillants et serviables.' },
     { q: 'Quel budget prévoir ?', a: '~900€/semaine pour deux (vol, hébergement, repas, location voiture, activités). Hors saison, comptez 700€.' },
   ],
+  verdict: {
+    score: 8,
+    forWho: 'Couples qui cherchent des Balkans préservés et un mélange nature/culture.',
+    strengths: ['Baie de Kotor spectaculaire', 'Parcs nationaux impressionnants', 'Budget très accessible'],
+    considerations: ['Routes de montagne exigeantes', 'Kotor très touristique en été'],
+    finalWord: 'Le Monténégro est notre coup de cœur Balkans pour les couples.',
+  },
 }
 
 export const ROUMANIE: PillarData = {
@@ -129,6 +144,7 @@ export const ROUMANIE: PillarData = {
   flag: '🇷🇴',
   hero: 'https://images.unsplash.com/photo-1555992836-003ea0c1b7a9?w=1920&h=1080&fit=crop',
   tagline: "Transylvanie mystérieuse, Maramureș préservé — l’Europe d’avant",
+  heroSubtitle: "Notre guide terrain avec citadelle de Sighișoara, Maramureș authentique et château de Bran.",
   budget: 750,
   season: 'Mai–sept',
   flight: '~3h depuis Paris',
@@ -166,6 +182,13 @@ export const ROUMANIE: PillarData = {
     { label: 'Activités', pct: 13, amount: 98 },
     { label: 'Divers', pct: 10, amount: 74 },
   ],
+  testedByHeldonica: {
+    when: 'Septembre 2025',
+    duration: '9 jours',
+    withWho: 'En couple',
+    highlights: ['Café à Floreasca avant 8h', 'Soir dans la citadelle de Sighișoara', 'Fromage offert par un berger en Maramureș'],
+    keyInsight: "La Roumanie ne se visite pas — elle se ressent.",
+  },
   faq: [
     { q: 'Quand partir en Roumanie pour le slow travel ?', a: 'Mai à septembre est la meilleure période. Mai-juin pour les fleurs et les températures douces, septembre pour les couleurs d\'automne. Évitez juillet-août si vous craignez la chaleur (35°C dans les villes).' },
     { q: 'Combien de jours pour découvrir la Roumanie ?', a: '7 jours pour un circuit Bucarest-Transylvanie. 10-12 jours pour ajouter le Maramureș sans se presser et la Moldavie.' },
@@ -173,6 +196,13 @@ export const ROUMANIE: PillarData = {
     { q: 'La Roumanie est-elle sûre ?', a: 'Très sûre, même dans les grandes villes. Les zones rurales sont paisibles. Comme partout, surveillez vos affaires dans les marchés et transports en commun.' },
     { q: 'Quel budget prévoir ?', a: '~750€/semaine pour deux (vol, hébergement, repas, voiture, activités). La Roumanie est l\'une des destinations européennes les plus abordables.' },
   ],
+  verdict: {
+    score: 8,
+    forWho: "Couples curieux d'histoire et de traditions préservées.",
+    strengths: ['Citadelle de Sighișoara unique', 'Maramureș authentique', 'Budget imbattable en Europe'],
+    considerations: ['Routes parfois difficiles', 'Bucarest moins charmant qu\'attendu'],
+    finalWord: 'La Roumanie nous a surpris — elle dépasse tous les clichés.',
+  },
 }
 
 export const PILLAR_DESTINATIONS = [MADERE, MONTENEGRO, ROUMANIE]
