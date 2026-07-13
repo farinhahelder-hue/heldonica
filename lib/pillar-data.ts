@@ -7,7 +7,7 @@ export const MADERE: PillarData = {
   flag: '🇵🇹',
   hero: 'https://images.unsplash.com/photo-1593702288056-2c160f65cf12?w=1920&h=1080&fit=crop',
   tagline: "L’île éternelle du printemps — levadas, falaises et douceur atlantique",
-  heroSubtitle: "Notre guide terrain avec itineraire teste, budget reel et pepites denichees hors sentiers battus.",
+  heroSubtitle: "Notre guide terrain avec itinéraire testé, budget réel et pépites dénichées hors sentiers battus.",
   budget: 1200,
   season: 'Avril–juin / Sept–oct',
   flight: '~2h30 depuis Paris',
@@ -25,8 +25,8 @@ export const MADERE: PillarData = {
     when: "Septembre 2025",
     duration: "8 jours",
     withWho: "En couple",
-    highlights: ["Pico Ruivo au lever du soleil", "Piscines naturelles de Porto Moniz a 9h", "Dejeuner chez Ze Tinha"],
-    keyInsight: "Madere se decouvre lentement.",
+    highlights: ["Pico Ruivo au lever du soleil", "Piscines naturelles de Porto Moniz à 9h", "Déjeuner chez Ze Tinha"],
+    keyInsight: "Madère se découvre lentement.",
   },
 infoTable: [
     { label: 'Meilleure période', value: 'Avril-juin / Sept-oct' },
@@ -62,9 +62,9 @@ infoTable: [
   verdict: {
     score: 9,
     forWho: "Couples qui cherchent des paysages spectaculaires et du slow travel.",
-    strengths: ["Des paysages uniques", "Une ile compacte", "Une gastronomie authentique"],
+    strengths: ["Des paysages uniques", "Une île compacte", "Une gastronomie authentique"],
     considerations: ["Demande de marcher", "La voiture est indispensable"],
-    finalWord: "Madere est notre coup de coeur slow travel.",
+    finalWord: "Madère est notre coup de cœur slow travel.",
   },
 
 }
