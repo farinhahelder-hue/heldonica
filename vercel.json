@@ -39,10 +39,6 @@
     {
       "path": "/api/instagram/cron",
       "schedule": "0 12 * * *"
-    },
-    {
-      "path": "/api/send-email-sequences",
-      "schedule": "0 */2 * * *"
     }
   ]
 }
