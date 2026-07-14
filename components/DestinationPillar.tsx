@@ -77,7 +77,7 @@ export default function DestinationPillar({
               <GuideDownloadButton slug={data.slug} title={data.name} />
               <Link href={`/travel-planning-form?destination=${data.slug}`}
                 className="inline-flex items-center gap-2 rounded-full bg-amber-500 px-6 py-3 text-sm font-semibold text-white hover:bg-amber-400 transition-all"
-                onClick={() => { if (typeof window !== 'undefined' && (window as any).gtag) (window as any).gtag('event', 'cta_travel_planning_click', { source: 'page_pilier', destination: data.slug }) }}>
+                onClick={() => { if (typeof window !== 'undefined' && (window as any).gtag) (window as any).gtag('event', 'cta_travel_planning_clique', { source: 'page_pilier', destination: data.slug }) }}>
                 Demander mon voyage sur mesure →
               </Link>
             </div>
@@ -302,7 +302,7 @@ export default function DestinationPillar({
             <p className="text-white/80 mb-8">On peut concevoir ton séjour sur mesure, avec nos adresses testées et notre rythme slow.</p>
             <Link href={`/travel-planning-form?destination=${data.slug}`}
               className="inline-flex px-7 py-3 rounded-lg bg-teal text-charcoal font-semibold hover:bg-teal/90 transition-colors"
-              onClick={() => { if (typeof window !== 'undefined' && (window as any).gtag) (window as any).gtag('event', 'cta_travel_planning_click', { source: 'page_pilier', destination: data.slug }) }}>
+              onClick={() => { if (typeof window !== 'undefined' && (window as any).gtag) (window as any).gtag('event', 'cta_travel_planning_clique', { source: 'page_pilier', destination: data.slug }) }}>
               Demander mon voyage sur mesure →
             </Link>
           </div>
