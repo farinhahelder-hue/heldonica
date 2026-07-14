@@ -3,6 +3,34 @@ import { supabase } from '@/lib/supabase-client'
 
 export const dynamic = 'force-dynamic'
 
+// Brevo subscription helper — non-blocking
+async function subscribeToBrevo(email: string, destinationSlug: string): Promise<void> {
+  const brevoApiKey = process.env.BREVO_API_KEY
+  if (!brevoApiKey) return
+
+  try {
+    await fetch('https://api.brevo.com/v3/contacts', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'api-key': brevoApiKey,
+      },
+      body: JSON.stringify({
+        email,
+        listIds: [2], // "Newsletter Heldonica"
+        updateEnabled: true,
+        attributes: {
+          GUIDE_TELECHARGE: destinationSlug,
+        },
+      }),
+    })
+  } catch (err) {
+    // Non-blocking: log but don't fail the download
+    console.error('Brevo subscription failed:', err)
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { destinationSlug, email } = await request.json()
@@ -45,6 +73,9 @@ export async function POST(request: NextRequest) {
         })
         .then(() => {}).catch(() => {})
     }
+
+    // Subscribe to Brevo — non-blocking
+    await subscribeToBrevo(email, destinationSlug)
 
     const { TravelGuidePDF } = await import('@/lib/pdf-generator')
     const React = await import('react')
