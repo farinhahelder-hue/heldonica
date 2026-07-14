@@ -77,6 +77,7 @@ export default function TravelPlanningPage() {
   })
   const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [formError, setFormError] = useState('')
+  const [formStarted, setFormStarted] = useState(false)
   const [testimonials, setTestimonials] = useState<Testimonial[]>([])
   const [pricingPlans, setPricingPlans] = useState(PRICING_PLANS)
 
@@ -135,6 +136,16 @@ export default function TravelPlanningPage() {
     : TESTIMONIALS_DATA_FALLBACK;
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    // GA4 — form_start au premier changement
+    if (!formStarted) {
+      setFormStarted(true)
+      if (typeof window !== 'undefined' && (window as any).gtag) {
+        ;(window as any).gtag('event', 'form_start', {
+          event_category: 'Travel Planning',
+          form_name: 'travel_planning_main',
+        })
+      }
+    }
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
@@ -143,28 +154,39 @@ export default function TravelPlanningPage() {
     setFormStatus('loading')
     setFormError('')
     try {
-      const res = await fetch('/api/demandes-travel', {
+      // Route canonique : /api/travel-planning (source de vérité unique)
+      const res = await fetch('/api/travel-planning', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          prenom: formData.firstName,
+          firstName: formData.firstName,
           email: formData.email,
           destination: formData.destination,
-          travelers: formData.travelers,
-          duree: formData.duration,
+          // travelers mappé dans notes pour conserver la compatibilité API
+          notes: formData.travelers !== 'En duo / couple (Recommandé)'
+            ? `Voyageurs : ${formData.travelers}${formData.notes ? ' — ' + formData.notes : ''}`
+            : formData.notes || null,
+          duration: formData.duration,
           budget: formData.budget,
-          date_depart: formData.startDate || null,
-          message: formData.notes,
+          startDate: formData.startDate || null,
+          // Honeypot
+          website_url: '',
         }),
       })
       if (!res.ok) throw new Error(await res.text())
+      // GA4 — formulaire_travel_soumis (event canonique Heldonica)
       if (typeof window !== 'undefined' && (window as any).gtag) {
-        (window as any).gtag('event', 'travel_planning_form_submit', { destination: formData.destination })
+        ;(window as any).gtag('event', 'formulaire_travel_soumis', {
+          event_category: 'Travel Planning',
+          event_label: formData.destination || 'Non précisé',
+          form_name: 'travel_planning_main',
+          value: 1,
+        })
       }
       setFormStatus('success')
     } catch (err: any) {
       setFormStatus('error')
-      setFormError(err.message || 'Une erreur est survenue')
+      setFormError(err.message || 'Une erreur est survenue. Écris-nous à contact@heldonica.fr')
     }
   }
 
@@ -211,7 +233,19 @@ export default function TravelPlanningPage() {
             <EditableZone page="travel-planning" zone="hero_text" fallback="On conçoit ton voyage avec nos adresses terrain, sans compromis."
               className="text-white/80 max-w-xl text-lg leading-relaxed mb-8 block"
             />
-            <a href="#formulaire" className="inline-flex items-center gap-2 rounded-full bg-eucalyptus px-7 py-3.5 text-sm font-semibold text-white hover:bg-eucalyptus/90 transition-all shadow-lg">
+            <a
+              href="#formulaire"
+              onClick={() => {
+                if (typeof window !== 'undefined' && (window as any).gtag) {
+                  ;(window as any).gtag('event', 'cta_travel_planning_clique', {
+                    event_category: 'Travel Planning',
+                    event_label: 'hero_cta',
+                    source: 'page_travel_planning',
+                  })
+                }
+              }}
+              className="inline-flex items-center gap-2 rounded-full bg-eucalyptus px-7 py-3.5 text-sm font-semibold text-white hover:bg-eucalyptus/90 transition-all shadow-lg"
+            >
               <EditableZone page="travel-planning" zone="hero_cta" fallback="Démarrer ma demande" />
             </a>
           </div>
@@ -461,7 +495,21 @@ export default function TravelPlanningPage() {
             <div className="space-y-3">
               {FAQS.map((faq, i) => (
                 <div key={faq.zone} className="bg-white rounded-xl border border-stone-200 overflow-hidden">
-                  <button onClick={() => setFaqOpen(faqOpen === i ? null : i)} className="w-full flex justify-between items-center p-5 text-left font-semibold text-mahogany hover:bg-stone-50 transition-colors">
+                  <button
+                    onClick={() => {
+                      const isOpening = faqOpen !== i
+                      setFaqOpen(isOpening ? i : null)
+                      // GA4 — faq_ouverte
+                      if (isOpening && typeof window !== 'undefined' && (window as any).gtag) {
+                        ;(window as any).gtag('event', 'faq_ouverte', {
+                          event_category: 'Travel Planning',
+                          event_label: faq.q,
+                          faq_index: i + 1,
+                        })
+                      }
+                    }}
+                    className="w-full flex justify-between items-center p-5 text-left font-semibold text-mahogany hover:bg-stone-50 transition-colors"
+                  >
                     <EditableZone page="travel-planning" zone={`${faq.zone}_q`} fallback={faq.q} className="inline" />
                     <span className={`text-eucalyptus text-xl transition-transform ${faqOpen === i ? 'rotate-45' : ''}`}>+</span>
                   </button>
@@ -485,7 +533,19 @@ export default function TravelPlanningPage() {
             <EditableZone page="travel-planning" zone="cta_text" type="textarea" fallback="Un voyage pensé pour toi, pas un itinéraire générique. Remplis le formulaire et on te prépare quelque chose d'unique."
               className="text-white/70 mb-8 block"
             />
-            <a href="#formulaire" className="inline-flex px-7 py-3 rounded-xl bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors">
+            <a
+              href="#formulaire"
+              onClick={() => {
+                if (typeof window !== 'undefined' && (window as any).gtag) {
+                  ;(window as any).gtag('event', 'cta_travel_planning_clique', {
+                    event_category: 'Travel Planning',
+                    event_label: 'final_cta',
+                    source: 'page_travel_planning',
+                  })
+                }
+              }}
+              className="inline-flex px-7 py-3 rounded-xl bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors"
+            >
               <EditableZone page="travel-planning" zone="cta_button" fallback="Démarrer ma demande →" />
             </a>
           </div>
