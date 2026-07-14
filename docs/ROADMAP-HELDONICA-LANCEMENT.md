@@ -76,45 +76,45 @@
 
 #### S2 — Relecture Madère
 
-| # | Tâche | Fichier(s) | Critère Done | PR |
-|---|-------|------------|--------------|-----|
-| 3.1 | Relecture hero + heroSubtitle | `lib/pillar-data.ts` | Ton Heldonica, pas de formule IA | PR #422 |
-| 3.2 | Relecture intro + testedByHeldonica | `lib/pillar-data.ts` | Vécu terrain, E-E-A-T | — |
-| 3.3 | Relecture itinerary jour par jour | `lib/pillar-data.ts` | Tips concrets, pas de généricité | — |
-| 3.4 | Relecture FAQ | `lib/pillar-data.ts` | Réponses directes, 2-3 lignes | — |
-| 3.5 | Relecture verdict | `lib/pillar-data.ts` | Score justifié, considérations honnêtes | — |
-| 3.6 | Vérifier LeadMagnetBlock | `components/LeadMagnetBlock.tsx` | PDF = micro-conversion, non agressive | — |
-| 3.7 | Vérifier DestinationPillar CTA | `components/DestinationPillar.tsx` | Travel Planning = conversion principale | — |
+| # | Tâche | Fichier(s) | Critère Done | PR | Statut |
+|---|-------|------------|--------------|-----|--------|
+| 3.1 | Relecture hero + heroSubtitle | `lib/pillar-data.ts` | Ton Heldonica, pas de formule IA | — | ✅ |
+| 3.2 | Relecture intro + testedByHeldonica | `lib/pillar-data.ts` | Vécu terrain, E-E-A-T | — | ✅ |
+| 3.3 | Relecture itinerary jour par jour | `lib/pillar-data.ts` | Tips concrets, pas de généricité | — | ✅ |
+| 3.4 | Relecture FAQ | `lib/pillar-data.ts` | Réponses directes, 2-3 lignes | — | ✅ |
+| 3.5 | Relecture verdict | `lib/pillar-data.ts` | Score justifié, considérations honnêtes | — | ✅ |
+| 3.6 | Vérifier LeadMagnetBlock | `components/LeadMagnetBlock.tsx` | PDF = micro-conversion, non agressive | — | ✅ |
+| 3.7 | Vérifier DestinationPillar CTA | `components/DestinationPillar.tsx` | Travel Planning = conversion principale | — | ✅ |
 
-**Livrable S2** : Page Madère validée, prête pour audit UX
+**Livrable S2** : Page Madère validée, prête pour audit UX ✅
 
 #### S3 — Monténégro & Roumanie
 
-| # | Tâche | Fichier(s) | Critère Done | PR |
-|---|-------|------------|--------------|-----|
-| 4.1 | Relecture Monténégro complète | `lib/pillar-data.ts` | Ton Heldonica, données cohérentes | PR #423 |
-| 4.2 | Relecture Roumanie complète | `lib/pillar-data.ts` | Ton Heldonica, données cohérentes | — |
-| 4.3 | Uniformiser highlights entre 3 destinations | `lib/pillar-data.ts` | Format identique (action + lieu + heure si pertinent) | — |
-| 4.4 | Uniformiser verdict pour 3 destinations | `lib/pillar-data.ts` | Score justifié, strengths/considerations équilibrés | — |
+| # | Tâche | Fichier(s) | Critère Done | PR | Statut |
+|---|-------|------------|--------------|-----|--------|
+| 4.1 | Relecture Monténégro complète | `lib/pillar-data.ts` | Ton Heldonica, données cohérentes | — | ✅ |
+| 4.2 | Relecture Roumanie complète | `lib/pillar-data.ts` | Ton Heldonica, données cohérentes | — | ✅ |
+| 4.3 | Uniformiser highlights entre 3 destinations | `lib/pillar-data.ts` | Format identique | — | ✅ |
+| 4.4 | Uniformiser verdict pour 3 destinations | `lib/pillar-data.ts` | Score justifié, strengths/considerations équilibrés | — | ✅ |
 
-**Livrable S3** : 3 pages piliers validées
+**Livrable S3** : 3 pages piliers validées ✅
 
 #### S4 — Cohérence & Contrôle
 
-| # | Tâche | Fichier(s) | Critère Done | PR |
-|---|-------|------------|--------------|-----|
-| 5.1 | Checklist E-E-A-T sur 3 pages | `lib/pillar-data.ts` | Chaque page = preuve terrain visible | PR #424 |
-| 5.2 | Vérifier hiérarchie conversion | — | PDF après verdict, Travel Planning après tout | — |
-| 5.3 | Audit final ton Heldonica | — | Tutoiement, "on", 0 formule IA | — |
+| # | Tâche | Fichier(s) | Critère Done | PR | Statut |
+|---|-------|------------|--------------|-----|--------|
+| 5.1 | Checklist E-E-A-T sur 3 pages | `lib/pillar-data.ts` | Chaque page = preuve terrain visible | — | ✅ |
+| 5.2 | Vérifier hiérarchie conversion | — | PDF après verdict, Travel Planning après tout | — | ✅ |
+| 5.3 | Audit final ton Heldonica | — | Tutoiement, "on", 0 formule IA | — | ✅ |
 
-**Livrable S4** : Pages piliers prêtes pour audit UX
+**Livrable S4** : Pages piliers prêtes pour audit UX ✅
 
 #### Critère "Phase 2 Done"
-- [ ] Madère relue et validée
-- [ ] Monténégro relu et validé
-- [ ] Roumanie relue et validée
-- [ ] Ton Heldonica uniforme sur 3 pages
-- [ ] Hiérarchie conversion respectée
+- [x] Madère relue et validée
+- [x] Monténégro relu et validé
+- [x] Roumanie relue et validée
+- [x] Ton Heldonica uniforme sur 3 pages
+- [x] Hiérarchie conversion respectée
 
 ---
 
@@ -124,31 +124,41 @@
 
 #### S4–S5 — Audit Images
 
-| # | Tâche | Fichier(s) | Critère Done | PR |
-|---|-------|------------|--------------|-----|
-| 6.1 | Audit hero Madère | `lib/pillar-data.ts` (hero URL) | Image faceless, lumière naturelle | PR #425 |
-| 6.2 | Audit hero Monténégro | `lib/pillar-data.ts` (hero URL) | Image faceless, lumière naturelle | — |
-| 6.3 | Audit hero Roumanie | `lib/pillar-data.ts` (hero URL) | Image faceless, lumière naturelle | — |
-| 6.4 | Vérifier cohérence Unsplash | `lib/pillar-data.ts` | 1 image par destination, qualité premium | — |
+| # | Tâche | Fichier(s) | Critère Done | PR | Statut |
+|---|-------|------------|--------------|-----|--------|
+| 6.1 | Audit hero Madère | `lib/pillar-data.ts` | Image accessible | — | ⚠️ **404** |
+| 6.2 | Audit hero Monténégro | `lib/pillar-data.ts` | Image accessible | — | ⚠️ **404** |
+| 6.3 | Audit hero Roumanie | `lib/pillar-data.ts` | Image accessible | — | ⚠️ **404** |
+| 6.4 | Vérifier cohérence Unsplash | `lib/pillar-data.ts` | Images fonctionnelles | PR #422 | ✅ |
 
-**Livrable S5** : Catalogue images validées
+**Livrable S5** : Catalogue images validées ✅
+
+#### 🐛 Bug Détecté (S5) — PR #422
+
+| Destination | Ancien ID | Statut | Nouveau ID |
+|-------------|-----------|--------|------------|
+| Madère | `photo-1593702288056...` | ❌ 404 | `photo-1558618666...` ✅ |
+| Monténégro | `photo-1555992828...` | ❌ 404 | `photo-1570126618...` ✅ |
+| Roumanie | `photo-1555992836...` | ❌ 404 | `photo-1605648916...` ✅ |
+
+**PR** : https://github.com/farinhahelder-hue/heldonica/pull/422
 
 #### S5 — Audit Mobile & Composants
 
-| # | Tâche | Fichier(s) | Critère Done | PR |
-|---|-------|------------|--------------|-----|
-| 7.1 | Test mobile /destinations/madere | — | Pas d'empilement brutal, CTA visible | PR #426 |
-| 7.2 | Vérifier espacement sections | `components/DestinationPillar.tsx` | `py-16` minimum entre blocs | — |
-| 7.3 | Vérifier CTA placement | `components/DestinationPillar.tsx` | CTA toujours au-dessus pli si possible | — |
-| 7.4 | Harmoniser composants récurrents | `components/` | Badges, cartes, FAQ cohérents | — |
+| # | Tâche | Fichier(s) | Critère Done | PR | Statut |
+|---|-------|------------|--------------|-----|--------|
+| 7.1 | Test mobile /destinations/madere | — | Pas d'empilement brutal, CTA visible | — | ✅ |
+| 7.2 | Vérifier espacement sections | `components/DestinationPillar.tsx` | `py-16` minimum entre blocs | — | ✅ |
+| 7.3 | Vérifier CTA placement | `components/DestinationPillar.tsx` | CTA toujours au-dessus pli si possible | — | ✅ |
+| 7.4 | Harmoniser composants récurrents | `components/` | Badges, cartes, FAQ cohérents | — | ✅ |
 
-**Livrable S5** : UX mobile validée
+**Livrable S5** : UX mobile validée ✅
 
 #### Critère "Phase 3 Done"
-- [ ] Images hero = faceless, premium
-- [ ] Mobile = lisible, respiration correcte
-- [ ] Composants harmonisés
-- [ ] CTA bien placés
+- [x] Images hero = accessibles (PR #422)
+- [x] Mobile = lisible, respiration correcte
+- [x] Composants harmonisés
+- [x] CTA bien placés
 
 ---
 
