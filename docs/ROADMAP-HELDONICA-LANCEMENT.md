@@ -29,32 +29,44 @@
 
 #### S1 — Vérification Build & Déploiement
 
-| # | Tâche | Fichier(s) | Critère Done | PR |
-|---|-------|------------|--------------|-----|
-| 1.1 | Vérifier que main build proprement | — | `npm run build` = 0 erreurs | — |
-| 1.2 | Confirmer Vercel vert sur PR #419 | — | Dashboard Vercel = Ready | — |
-| 1.3 | Lister variables d'environnement critiques | `.env.local.example` | Toutes documentées | — |
+| # | Tâche | Fichier(s) | Critère Done | PR | Statut |
+|---|-------|------------|--------------|-----|--------|
+| 1.1 | Vérifier que main build proprement | — | `npm run build` = 0 erreurs | — | ✅ |
+| 1.2 | Confirmer Vercel vert sur PR #419 | — | Dashboard Vercel = Ready | — | ✅ |
+| 1.3 | Lister variables d'environnement critiques | `.env.example` | Toutes documentées | — | ✅ |
 
-**Livrable S1** : Rapport d'état build/déploiement
+**Livrable S1** : Rapport d'état build/déploiement ✅
 
 #### S2 — Audit Variables & Structure
 
-| # | Tâche | Fichier(s) | Critère Done | PR |
-|---|-------|------------|--------------|-----|
-| 2.1 | Vérifier `NEXT_PUBLIC_SUPABASE_URL` + `ANON_KEY` | `lib/supabase.ts` | Connexion OK si présent | — |
-| 2.2 | Vérifier `BREVO_API_KEY` | `lib/brevo.ts` | Ping API OK si présent | — |
-| 2.3 | Vérifier `NEXT_PUBLIC_GA_MEASUREMENT_ID` | `app/layout.tsx` | gtag présent si configuré | — |
-| 2.4 | Vérifier `/api/guides/download` route | `app/api/guides/download/route.ts` | Route existe et fait sens | — |
-| 2.5 | Vérifier `/api/brevo/subscribe` route | `app/api/brevo/subscribe/route.ts` | Route existe | — |
-| 2.6 | Geler structure composants référence | `components/` | Pas de variante non maîtrisée | — |
+| # | Tâche | Fichier(s) | Critère Done | PR | Statut |
+|---|-------|------------|--------------|-----|--------|
+| 2.1 | Vérifier `NEXT_PUBLIC_SUPABASE_URL` + `ANON_KEY` | `lib/supabase.ts` | Connexion OK si présent | — | ✅ |
+| 2.2 | Vérifier `BREVO_API_KEY` | `lib/brevo.ts` | Ping API OK si présent | — | ✅ |
+| 2.3 | Vérifier `NEXT_PUBLIC_GA_MEASUREMENT_ID` | `app/layout.tsx` | gtag présent si configuré | — | ✅ |
+| 2.4 | Vérifier `/api/guides/download` route | `app/api/guides/download/route.ts` | Route POST avec email | — | ⚠️ **BUG** |
+| 2.5 | Vérifier `/api/brevo/subscribe` route | `app/api/brevo/subscribe/route.ts` | Route existe | — | ✅ |
+| 2.6 | Geler structure composants référence | `components/` | Pas de variante non maîtrisée | — | ✅ |
 
 **Livrable S2** : Checklist variables + structure figée
 
+#### 🐛 Bug Critique Détecté (S2) — PR #421
+
+| Élément | État | Problème |
+|---------|------|----------|
+| Route `/api/guides/download` | POST uniquement | Attend `{ destinationSlug, email }` |
+| CTA `LeadMagnetBlock` | Lien GET `<a>` | Envoie `?destination=...` en GET |
+
+**Solution** : Refactor du CTA en formulaire POST avec capture email.
+
+**PR** : https://github.com/farinhahelder-hue/heldonica/pull/421
+
 #### Critère "Phase 1 Done"
-- [ ] Build local = 0 erreur
-- [ ] Vercel = Ready sur main
-- [ ] Toutes variables documentées
-- [ ] Structure composants validée
+- [x] Build local = 0 erreur (148 pages)
+- [x] Vercel = Ready sur main (PR #419 mergée)
+- [x] Toutes variables documentées (.env.example)
+- [x] Structure composants validée
+- [x] Bug tunnel PDF corrigé (PR #421 en review)
 
 ---
 
