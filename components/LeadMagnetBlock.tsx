@@ -28,11 +28,18 @@ export default function LeadMagnetBlock({
     setErrorMsg('')
 
     try {
-      // Track event before submission
+      // GA4 — guide_pdf_telecharge (event canonique Heldonica)
       if (typeof window !== 'undefined' && (window as any).gtag) {
-        (window as any).gtag('event', 'guidepdftelecharge', {
+        ;(window as any).gtag('event', 'guide_pdf_telecharge', {
+          event_category: 'Lead Magnet',
           destination: destinationSlug,
-          guide_name: `guide-${destinationSlug}`,
+          event_label: `guide-${destinationSlug}`,
+        })
+        // GA4 — newsletter_inscription (le lead magnet capte l'email pour Brevo/Newsletter)
+        ;(window as any).gtag('event', 'newsletter_inscription', {
+          event_category: 'Newsletter',
+          source: 'lead_magnet_block',
+          destination: destinationSlug,
         })
       }
 
