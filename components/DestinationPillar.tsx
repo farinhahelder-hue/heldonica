@@ -164,7 +164,10 @@ export default function DestinationPillar({
         <section className="bg-cloud-dancer py-16 md:py-20">
           <div className="container max-w-3xl">
             <h2 className="text-3xl font-serif text-mahogany mb-4">Quel budget prévoir pour {data.name} ?</h2>
-            <p className="text-charcoal/60 text-sm mb-6">Estimation basée sur notre séjour — hors saison, confort slow.</p>
+            <p className="text-charcoal/70 text-base mb-6 leading-relaxed">
+              <strong>Réponse rapide :</strong> comptez environ {data.budget}€/semaine pour deux en slow travel. 
+              Ce budget inclut vol, hébergement confortable, repas et transports locaux.
+            </p>
             <div className="space-y-4 mb-6">
               {data.budgetBreakdown.map((b) => (
                 <div key={b.label}>
@@ -181,6 +184,25 @@ export default function DestinationPillar({
             <div className="flex justify-between items-center p-4 rounded-xl bg-eucalyptus/10 border border-eucalyptus/20">
               <span className="font-bold text-mahogany">TOTAL estimé / semaine / couple</span>
               <span className="font-bold text-lg text-eucalyptus">~{data.budget}€</span>
+            </div>
+
+            {/* Points pratiques clés */}
+            <div className="mt-8 p-5 rounded-xl bg-white border border-stone-200">
+              <h3 className="font-semibold text-mahogany mb-4">Ce qu'on a vraiment payé sur place</h3>
+              <ul className="space-y-2 text-sm text-charcoal/80">
+                <li className="flex items-start gap-2 before:content-['✓'] before:text-eucalyptus before:font-bold">
+                  Vols : variable selon saison ({data.season} = moins cher)
+                </li>
+                <li className="flex items-start gap-2 before:content-['✓'] before:text-eucalyptus before:font-bold">
+                  Hébergement : 60-120€/nuit selon confort
+                </li>
+                <li className="flex items-start gap-2 before:content-['✓'] before:text-eucalyptus before:font-bold">
+                  Restaurant : 20-40€/repas pour deux
+                </li>
+                <li className="flex items-start gap-2 before:content-['✓'] before:text-eucalyptus before:font-bold">
+                  Activités : souvent moins cher que prévu
+                </li>
+              </ul>
             </div>
           </div>
         </section>
@@ -223,6 +245,41 @@ export default function DestinationPillar({
         <section className="bg-cloud-dancer py-16">
           <div className="container max-w-3xl">
             <h2 className="text-3xl font-serif text-mahogany mb-8 text-center">Questions fréquentes</h2>
+
+            {/* Tableau saison / affluence */}
+            <div className="mb-8 overflow-x-auto">
+              <h3 className="text-sm font-semibold text-charcoal/60 mb-4">Meilleure période pour {data.name}</h3>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-stone-200">
+                    <th className="text-left py-3 pr-4 font-semibold text-charcoal">Période</th>
+                    <th className="text-center py-3 px-2 font-semibold text-charcoal">Temps</th>
+                    <th className="text-center py-3 px-2 font-semibold text-charcoal">Affluence</th>
+                    <th className="text-center py-3 pl-4 font-semibold text-charcoal">Notre avis</th>
+                  </tr>
+                </thead>
+                <tbody className="text-charcoal/70">
+                  <tr className="border-b border-stone-100 bg-eucalyptus/5">
+                    <td className="py-3 pr-4 font-medium text-eucalyptus">{data.season}</td>
+                    <td className="py-3 px-2 text-center">⭐⭐⭐⭐⭐</td>
+                    <td className="py-3 px-2 text-center">Modérée</td>
+                    <td className="py-3 pl-4 text-eucalyptus font-medium">✓ Idéal</td>
+                  </tr>
+                  <tr className="border-b border-stone-100">
+                    <td className="py-3 pr-4 font-medium">Juillet–août</td>
+                    <td className="py-3 px-2 text-center">⭐⭐⭐⭐</td>
+                    <td className="py-3 px-2 text-center text-red-400">Forte</td>
+                    <td className="py-3 pl-4">À éviter pour slow travel</td>
+                  </tr>
+                  <tr>
+                    <td className="py-3 pr-4 font-medium">Nov–mars</td>
+                    <td className="py-3 px-2 text-center">⭐⭐</td>
+                    <td className="py-3 px-2 text-center">Faible</td>
+                    <td className="py-3 pl-4">Court séjour possible</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
             <div className="space-y-3">
               {data.faq.map((f) => (
                 <details key={f.q} className="bg-white rounded-xl border border-stone-200 [&[open]]:shadow-sm">
