@@ -45,7 +45,7 @@ export default function KotorPage() {
         <section className="relative bg-gradient-to-b from-stone-900 via-stone-800 to-stone-700 py-20 md:py-28">
           <div className="absolute inset-0 opacity-30">
             <img 
-              src="https://images.unsplash.com/photo-1555990538-1e4e1c0f4d8e?w=1920&h=1080&fit=crop" 
+              src="https://images.unsplash.com/photo-1570126618953-d437176e8c79?w=1920&h=1080&fit=crop" 
               alt="Baie de Kotor au lever du soleil" 
               className="w-full h-full object-cover"
             />
