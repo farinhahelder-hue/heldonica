@@ -110,8 +110,13 @@ const EMAIL_3 = {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const key = searchParams.get('key')
+  
+  // Support both query param (?key=SECRET) and Vercel Cron header (Authorization: Bearer SECRET)
+  const authHeader = request.headers.get('Authorization')
+  const isCron = authHeader === `Bearer ${CRON_SECRET}`
+  const isAuthorized = (key === CRON_SECRET) || isCron
 
-  if (process.env.NODE_ENV === 'production' && key !== CRON_SECRET) {
+  if (process.env.NODE_ENV === 'production' && !isAuthorized) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
