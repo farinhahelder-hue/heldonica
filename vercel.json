@@ -42,7 +42,7 @@
     },
     {
       "path": "/api/send-email-sequences",
-      "schedule": "0 * * * *"
+      "schedule": "0 4 * * *"
     }
   ]
 }
