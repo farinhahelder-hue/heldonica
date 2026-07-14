@@ -10,6 +10,7 @@ import GuideDownloadButton from '@/components/GuideDownloadButton'
 import LeadMagnetBlock from '@/components/LeadMagnetBlock'
 import TestedByHeldonica from '@/components/TestedByHeldonica'
 import DestinationVerdict from '@/components/DestinationVerdict'
+import QuickAnswersBlock from '@/components/QuickAnswersBlock'
 import type { PillarData } from '@/lib/pillar-types'
 import { SITE_URL } from '@/lib/seo'
 
@@ -106,6 +107,17 @@ export default function DestinationPillar({
             ))}
           </div>
         </section>
+
+        {/* Quick Answers — GEO friendly */}
+        <QuickAnswersBlock
+          destinationName={data.name}
+          budget={data.budget}
+          bestSeason={data.season}
+          flightTime={data.flight}
+          language={data.language}
+          currency={data.currency}
+          visa={data.visa}
+        />
 
         {/* TestedByHeldonica */}
         {data.testedByHeldonica && (
