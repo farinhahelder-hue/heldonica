@@ -202,13 +202,13 @@ export default function TravelPlanningPage() {
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
           <div className="relative container py-20">
-            <EditableZone page="travel-planning" zone="hero_badge" fallback="Slow travel vécu en duo · Hors sentiers · Île-de-France"
+            <EditableZone page="travel-planning" zone="hero_badge" fallback="Voyage couple sur mesure · Adresses testées · Duo"
               className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold block"
             />
             <EditableZone page="travel-planning" zone="hero_title" fallback="Ton voyage en couple, conçu sur mesure"
               className="text-4xl md:text-6xl font-serif text-white max-w-2xl mb-5 leading-tight block"
             />
-            <EditableZone page="travel-planning" zone="hero_text" fallback="On s'occupe de tout — tu n'as qu'à vivre l'aventure."
+            <EditableZone page="travel-planning" zone="hero_text" fallback="On conçoit ton voyage avec nos adresses terrain, sans compromis."
               className="text-white/80 max-w-xl text-lg leading-relaxed mb-8 block"
             />
             <a href="#formulaire" className="inline-flex items-center gap-2 rounded-full bg-eucalyptus px-7 py-3.5 text-sm font-semibold text-white hover:bg-eucalyptus/90 transition-all shadow-lg">
