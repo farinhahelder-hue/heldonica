@@ -45,8 +45,19 @@ export default function GuideDownloadModal({
       window.URL.revokeObjectURL(url)
 
       setStatus('success')
-      if (typeof window.gtag !== 'undefined') {
-        window.gtag('event', 'guide_downloaded', { destination: destinationSlug })
+      // GA4 — guide_pdf_telecharge (event canonique Heldonica)
+      if (typeof window !== 'undefined' && (window as any).gtag) {
+        ;(window as any).gtag('event', 'guide_pdf_telecharge', {
+          event_category: 'Lead Magnet',
+          destination: destinationSlug,
+          event_label: destinationTitle,
+        })
+        // GA4 — newsletter_inscription (le guide capte l'email pour Brevo)
+        ;(window as any).gtag('event', 'newsletter_inscription', {
+          event_category: 'Newsletter',
+          source: 'guide_pdf',
+          destination: destinationSlug,
+        })
       }
     } catch (err: any) {
       setStatus('error')
