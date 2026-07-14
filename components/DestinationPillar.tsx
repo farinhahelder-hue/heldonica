@@ -122,7 +122,7 @@ export default function DestinationPillar({
         {/* Itinéraire 7 jours */}
         <section className="bg-white py-16 md:py-20">
           <div className="container max-w-5xl">
-            <h2 className="text-3xl font-serif text-mahogany mb-2">Notre itinéraire {data.name} — 7 jours</h2>
+            <h2 className="text-3xl font-serif text-mahogany mb-2">Comment organiser 7 jours à {data.name} ?</h2>
             <p className="text-charcoal/60 text-sm mb-8 max-w-2xl">Un rythme slow, testé sur le terrain. Adaptable selon tes envies.</p>
             <div className="space-y-4">
               {data.itinerary.map((day) => (
@@ -151,7 +151,7 @@ export default function DestinationPillar({
         {/* Budget détaillé */}
         <section className="bg-cloud-dancer py-16 md:py-20">
           <div className="container max-w-3xl">
-            <h2 className="text-3xl font-serif text-mahogany mb-4">Budget {data.name} pour un couple</h2>
+            <h2 className="text-3xl font-serif text-mahogany mb-4">Quel budget prévoir pour {data.name} ?</h2>
             <p className="text-charcoal/60 text-sm mb-6">Estimation basée sur notre séjour — hors saison, confort slow.</p>
             <div className="space-y-4 mb-6">
               {data.budgetBreakdown.map((b) => (
@@ -229,7 +229,7 @@ export default function DestinationPillar({
         <section className="bg-mahogany text-white py-20">
           <div className="container text-center max-w-3xl">
             <p className="text-sm uppercase tracking-[0.16em] text-teal mb-3">Voyage sur mesure</p>
-            <h2 className="text-3xl md:text-4xl font-serif mb-4">On a exploré {data.name} en profondeur.</h2>
+            <h2 className="text-3xl md:text-4xl font-serif mb-4">Prêt à découvrir {data.name} à ton rythme ?</h2>
             <p className="text-white/80 mb-8">On peut concevoir ton séjour sur mesure, avec nos adresses testées et notre rythme slow.</p>
             <Link href={`/travel-planning-form?destination=${data.slug}`}
               className="inline-flex px-7 py-3 rounded-lg bg-teal text-charcoal font-semibold hover:bg-teal/90 transition-colors"
