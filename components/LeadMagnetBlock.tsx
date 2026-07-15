@@ -131,7 +131,7 @@ export default function LeadMagnetBlock({
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="ton@email.com"
+                placeholder="ton@email.fr"
                 required
                 className="flex-1 px-4 py-3 rounded-xl border border-stone-200 focus:border-eucalyptus focus:ring-2 focus:ring-eucalyptus/20 outline-none text-charcoal"
                 disabled={status === 'loading'}

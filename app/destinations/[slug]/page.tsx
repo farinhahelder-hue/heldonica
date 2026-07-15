@@ -426,21 +426,23 @@ export default async function DestinationPage({ params }: Props) {
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {related.map((post) => (
                   <Link key={post.slug} href={`/blog/${post.slug}`} className="group block transition-all duration-200">
-                    <article className="overflow-hidden rounded-[1.5rem] border border-stone-100 bg-stone-50 shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-md relative h-44">
-                      {post.image ? (
-                        <Image
-                          src={post.image}
-                          alt={post.title}
-                          fill
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        />
-                      ) : (
-                        <div className="flex h-44 items-center justify-center bg-stone-200 text-sm text-stone-500">
-                          Carnet Heldonica
-                        </div>
-                      )}
-                      <div className="p-5">
+                    <article className="overflow-hidden rounded-[1.5rem] border border-stone-100 bg-stone-50 shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-md flex flex-col">
+                      <div className="relative h-44 shrink-0">
+                        {post.image ? (
+                          <Image
+                            src={post.image}
+                            alt={post.title}
+                            fill
+                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center bg-stone-200 text-sm text-stone-500">
+                            Carnet Heldonica
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-5 flex-1">
                         <span className="text-xs font-semibold text-eucalyptus">{post.category}</span>
                         <h3 className="mt-2 text-base font-semibold leading-snug text-stone-900 transition-colors duration-200 group-hover:text-eucalyptus">
                           {post.title}

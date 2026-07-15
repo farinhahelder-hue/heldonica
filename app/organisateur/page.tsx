@@ -237,13 +237,13 @@ Généré avec Heldonica`;
               <EditableZone page="organisateur" zone="hero_title" fallback="✈️ Organisateur de voyage" />
             </h1>
             <p style={{ color: '#888' }}>
-              <EditableZone page="organisateur" zone="hero_subtitle" fallback="Planifiez votre trip, gérez votre budget" />
+              <EditableZone page="organisateur" zone="hero_subtitle" fallback="Planifie ton trip, gère ton budget" />
             </p>
           </div>
 
         {/* Trip Info */}
         <div style={{ background: 'white', borderRadius: '1rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
-          <h2 style={{ fontWeight: 700, marginBottom: '1rem' }}>📍 Votre voyage</h2>
+          <h2 style={{ fontWeight: 700, marginBottom: '1rem' }}>📍 Ton voyage</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
             <div>
               <label style={{ display: 'block', fontSize: '.85rem', color: '#666', marginBottom: '.3rem' }}>Destination</label>
