@@ -323,7 +323,7 @@ export default function TravelPlanningForm() {
 
               <div>
                 <p className="text-sm font-semibold text-charcoal/70 mb-3">
-                  Quel est votre budget global pour le voyage ?
+                  Quel est ton budget global pour le voyage ?
                 </p>
                 <div className="space-y-2">
                   {[

@@ -63,7 +63,7 @@ const DESTINATION_CONTENT: Record<string, any> = {
     budget: '600-1000€ / duo / 7 jours',
     profile: 'Couple en quête d\'authenticité, amateur de mer et de montagne',
     tips: [
-      'Passer 2 jours à Podgorica — la ville la plus、绿色 du monde selon certains',
+      'Passer 2 jours à Podgorica — la ville la plus verte du monde selon certains',
       'Visiter Kotor tôt le matin ou tard le soir pour éviter les cars de croisières',
       'Louer un bateau dans la baie de Boka pour voir les villages depuis la mer',
       'Monter au Parc National du Lovćen pour une vue panoramique',
