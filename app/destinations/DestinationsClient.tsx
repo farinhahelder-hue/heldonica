@@ -115,6 +115,7 @@ export default function DestinationsClient() {
                 <button
                   key={tab.value}
                   onClick={() => { setContinentFilter(tab.value); if (typeof window !== 'undefined' && (window as any).gtag) (window as any).gtag('event', 'filtre_continent_utilise', { filtre: tab.value }) }}
+                  aria-pressed={continentFilter === tab.value}
                   className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-all ${
                     continentFilter === tab.value
                       ? 'bg-eucalyptus text-white shadow-sm'

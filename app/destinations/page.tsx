@@ -7,19 +7,42 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 export const metadata: Metadata = {
-  title: 'Destinations | Heldonica',
+  title: ‘Destinations | Heldonica’,
   description:
     "Madère, Roumanie, Sicile et bien d’autres : on te partage nos destinations authentiques testées sur le terrain, loin des foules. Itinéraires et pépites dénichées.",
   keywords: [
-    'destination hors sentiers battus',
-    'destination authentique',
-    'que faire Madère',
-    'itinéraire Roumanie',
-    'voyage insolite Europe',
-    'pépites voyage',
+    ‘destination hors sentiers battus’,
+    ‘destination authentique’,
+    ‘que faire Madère’,
+    ‘itinéraire Roumanie’,
+    ‘voyage insolite Europe’,
+    ‘pépites voyage’,
   ],
   alternates: {
-    canonical: 'https://www.heldonica.fr/destinations',
+    canonical: ‘https://www.heldonica.fr/destinations’,
+  },
+  openGraph: {
+    title: ‘Destinations slow travel | Heldonica’,
+    description: "Madère, Roumanie, Sicile et bien d’autres : nos destinations authentiques testées sur le terrain, loin des foules.",
+    url: ‘https://www.heldonica.fr/destinations’,
+    siteName: ‘Heldonica’,
+    type: ‘website’,
+    locale: ‘fr_FR’,
+    images: [
+      {
+        url: ‘https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&q=85’,
+        width: 1200,
+        height: 630,
+        alt: ‘Destinations slow travel Heldonica — Madère, Roumanie, Sicile’,
+      },
+    ],
+  },
+  twitter: {
+    card: ‘summary_large_image’,
+    title: ‘Destinations slow travel | Heldonica’,
+    description: "Madère, Roumanie, Sicile et bien d’autres : nos destinations authentiques testées sur le terrain.",
+    images: [‘https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&q=85’],
+    creator: ‘@heldonica’,
   },
 };
 
@@ -62,7 +85,7 @@ export default function DestinationsPage() {
       {
         '@type': 'WebPage',
         name: 'Sicile',
-        url: 'https://www.heldonica.fr/travel-planning-form?destination=sicile'
+        url: 'https://www.heldonica.fr/destinations/sicile'
       },
       {
         '@type': 'WebPage',

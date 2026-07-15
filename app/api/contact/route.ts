@@ -1,4 +1,4 @@
-import { Resend } from 'resend'
+﻿import { Resend } from 'resend'
 import { NextRequest, NextResponse } from 'next/server'
 
 const BREVO_API_KEY = process.env.BREVO_API_KEY
@@ -50,17 +50,17 @@ async function sendViaBrevo(data: {
       body: JSON.stringify({
         sender: { name: 'Heldonica', email: 'contact@heldonica.fr' },
         to: [{ email: 'contact@heldonica.fr' }],
-        subject: `🌍 Nouvelle demande Travel Planning — ${data.firstName} (${data.destination || 'Non précisée'})`,
+        subject: `ðŸŒ Nouvelle demande Travel Planning â€” ${data.firstName} (${data.destination || 'Non prÃ©cisÃ©e'})`,
         htmlContent: `
           <h2>Nouvelle demande de conception sur mesure</h2>
           <table style="border-collapse: collapse;">
-            <tr><td style="padding: 8px; font-weight: bold;">Prénom</td><td style="padding: 8px;">${data.firstName}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold;">PrÃ©nom</td><td style="padding: 8px;">${data.firstName}</td></tr>
             <tr><td style="padding: 8px; font-weight: bold;">Email</td><td style="padding: 8px;"><a href="mailto:${data.email}">${data.email}</a></td></tr>
-            <tr><td style="padding: 8px; font-weight: bold;">Destination</td><td style="padding: 8px;">${data.destination || 'Non précisée'}</td></tr>
-            <tr><td style="padding: 8px; font-weight: bold;">Dates</td><td style="padding: 8px;">${data.dates || 'Non précisées'}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold;">Destination</td><td style="padding: 8px;">${data.destination || 'Non prÃ©cisÃ©e'}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold;">Dates</td><td style="padding: 8px;">${data.dates || 'Non prÃ©cisÃ©es'}</td></tr>
             <tr><td style="padding: 8px; font-weight: bold;">Message</td><td style="padding: 8px;">${data.message || 'Aucun'}</td></tr>
           </table>
-          <a href="mailto:${data.email}" style="display: inline-block; margin-top: 20px; background: #b45309; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Répondre</a>
+          <a href="mailto:${data.email}" style="display: inline-block; margin-top: 20px; background: #b45309; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">RÃ©pondre</a>
         `
       })
     })
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
 
     if (!contactEmail || !firstName) {
       return NextResponse.json(
-        { success: false, error: 'Email et prénom requis' },
+        { success: false, error: 'Email et prÃ©nom requis' },
         { status: 400 }
       )
     }
@@ -110,22 +110,22 @@ export async function POST(req: NextRequest) {
     // Fallback to Resend
     const resend = new Resend(process.env.RESEND_API_KEY)
 
-    // Email notification à l’admin
+    // Email notification Ã  lâ€™admin
     await resend.emails.send({
       from: 'Heldonica <onboarding@resend.dev>',
       to: [process.env.ADMIN_EMAIL || 'contact@heldonica.fr'],
-      subject: `✈️ Nouvelle demande Travel Planning – ${destination || 'Destination non précisée'}`,
+      subject: `âœˆï¸ Nouvelle demande Travel Planning â€“ ${destination || 'Destination non prÃ©cisÃ©e'}`,
       html: `
         <h2>Nouvelle demande de Travel Planning</h2>
         <table style="border-collapse:collapse;width:100%">
-          <tr><td style="padding:8px;border:1px solid #eee"><strong>Prénom</strong></td><td style="padding:8px;border:1px solid #eee">${firstName}</td></tr>
+          <tr><td style="padding:8px;border:1px solid #eee"><strong>PrÃ©nom</strong></td><td style="padding:8px;border:1px solid #eee">${firstName}</td></tr>
           <tr><td style="padding:8px;border:1px solid #eee"><strong>Email</strong></td><td style="padding:8px;border:1px solid #eee">${contactEmail}</td></tr>
-          <tr><td style="padding:8px;border:1px solid #eee"><strong>Téléphone</strong></td><td style="padding:8px;border:1px solid #eee">${telephone || '—'}</td></tr>
-          <tr><td style="padding:8px;border:1px solid #eee"><strong>Destination</strong></td><td style="padding:8px;border:1px solid #eee">${destination || '—'}</td></tr>
-          <tr><td style="padding:8px;border:1px solid #eee"><strong>Budget</strong></td><td style="padding:8px;border:1px solid #eee">${budget || '—'}</td></tr>
-          <tr><td style="padding:8px;border:1px solid #eee"><strong>Durée / Dates</strong></td><td style="padding:8px;border:1px solid #eee">${dates || duree || '—'}</td></tr>
-          <tr><td style="padding:8px;border:1px solid #eee"><strong>Voyageurs</strong></td><td style="padding:8px;border:1px solid #eee">${voyageurs || '—'}</td></tr>
-          <tr><td style="padding:8px;border:1px solid #eee"><strong>Message</strong></td><td style="padding:8px;border:1px solid #eee">${message || '—'}</td></tr>
+          <tr><td style="padding:8px;border:1px solid #eee"><strong>TÃ©lÃ©phone</strong></td><td style="padding:8px;border:1px solid #eee">${telephone || 'â€”'}</td></tr>
+          <tr><td style="padding:8px;border:1px solid #eee"><strong>Destination</strong></td><td style="padding:8px;border:1px solid #eee">${destination || 'â€”'}</td></tr>
+          <tr><td style="padding:8px;border:1px solid #eee"><strong>Budget</strong></td><td style="padding:8px;border:1px solid #eee">${budget || 'â€”'}</td></tr>
+          <tr><td style="padding:8px;border:1px solid #eee"><strong>DurÃ©e / Dates</strong></td><td style="padding:8px;border:1px solid #eee">${dates || duree || 'â€”'}</td></tr>
+          <tr><td style="padding:8px;border:1px solid #eee"><strong>Voyageurs</strong></td><td style="padding:8px;border:1px solid #eee">${voyageurs || 'â€”'}</td></tr>
+          <tr><td style="padding:8px;border:1px solid #eee"><strong>Message</strong></td><td style="padding:8px;border:1px solid #eee">${message || 'â€”'}</td></tr>
         </table>
       `,
     })
@@ -134,14 +134,14 @@ export async function POST(req: NextRequest) {
     await resend.emails.send({
       from: 'Heldonica <onboarding@resend.dev>',
       to: [contactEmail],
-      subject: '✅ On a bien reçu ta demande – Heldonica Travel Planning',
+      subject: 'âœ… On a bien reÃ§u ta demande â€“ Heldonica Travel Planning',
       html: `
         <p>Bonjour ${firstName},</p>
-        <p>On a bien reçu ta demande de Travel Planning sur mesure pour <strong>${destination || 'ta destination de rêve'}</strong> 🌍</p>
-        <p>On revient vers toi sous <strong>48h</strong> avec une première proposition adaptée à vos envies.</p>
-        <p>En attendant, tu peux explorer nos derniers carnets de voyage sur <a href="https://heldonica.fr/blog">notre blog</a>.</p>
+        <p>On a bien reÃ§u ta demande de Travel Planning sur mesure pour <strong>${destination || 'ta destination de rÃªve'}</strong> ðŸŒ</p>
+        <p>On revient vers toi sous <strong>48h</strong> avec une premiÃ¨re proposition adaptÃ©e Ã  vos envies.</p>
+        <p>En attendant, tu peux explorer nos derniers carnets de voyage sur <a href="https://www.heldonica.fr/blog">notre blog</a>.</p>
         <br/>
-        <p>À très vite,<br/><strong>L’équipe Heldonica</strong></p>
+        <p>Ã€ trÃ¨s vite,<br/><strong>Lâ€™Ã©quipe Heldonica</strong></p>
       `,
     })
 

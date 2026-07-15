@@ -60,7 +60,7 @@ const schemaService = {
     "@type": "Country",
     "name": "France"
   },
-  "url": "https://heldonica.fr/travel-planning",
+  "url": "https://www.heldonica.fr/travel-planning",
   "priceRange": "€€",
   "serviceType": "Voyage sur mesure",
   "hasOfferCatalog": {
