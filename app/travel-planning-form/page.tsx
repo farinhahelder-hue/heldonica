@@ -347,10 +347,11 @@ export default function TravelPlanningForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-charcoal/70 mb-2">
+                <label htmlFor="tpf-departureDate" className="block text-sm font-semibold text-charcoal/70 mb-2">
                   Date de départ envisagée (optionnel)
                 </label>
                 <input
+                  id="tpf-departureDate"
                   type="month"
                   value={form.departureDate}
                   onChange={(e) => set('departureDate', e.target.value)}
@@ -369,10 +370,11 @@ export default function TravelPlanningForm() {
               </h2>
 
               <div>
-                <label className="block text-sm font-semibold text-charcoal/70 mb-2">
+                <label htmlFor="tpf-firstName" className="block text-sm font-semibold text-charcoal/70 mb-2">
                   Ton prénom <span className="text-mahogany">*</span>
                 </label>
                 <input
+                  id="tpf-firstName"
                   type="text"
                   required
                   placeholder="Ex : Sophie"
@@ -383,10 +385,11 @@ export default function TravelPlanningForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-charcoal/70 mb-2">
+                <label htmlFor="tpf-email" className="block text-sm font-semibold text-charcoal/70 mb-2">
                   Ton email <span className="text-mahogany">*</span>
                 </label>
                 <input
+                  id="tpf-email"
                   type="email"
                   required
                   placeholder="sophie@exemple.fr"
@@ -397,10 +400,11 @@ export default function TravelPlanningForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-charcoal/70 mb-2">
+                <label htmlFor="tpf-phone" className="block text-sm font-semibold text-charcoal/70 mb-2">
                   Ton numéro (optionnel)
                 </label>
                 <input
+                  id="tpf-phone"
                   type="tel"
                   placeholder="+33 6 …"
                   value={form.phone}
@@ -410,10 +414,11 @@ export default function TravelPlanningForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-charcoal/70 mb-2">
+                <label htmlFor="tpf-message" className="block text-sm font-semibold text-charcoal/70 mb-2">
                   Un mot sur ton voyage de rêve ? (optionnel)
                 </label>
                 <textarea
+                  id="tpf-message"
                   rows={4}
                   placeholder="Ce qui te fait rêver, des contraintes particulières, des envies précises… Tout est utile !"
                   value={form.message}
