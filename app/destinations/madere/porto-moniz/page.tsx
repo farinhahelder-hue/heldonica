@@ -1,90 +1,55 @@
-import type { Metadata } from 'next';
+import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import Link from 'next/link'
+import SubDestinationTemplate from '@/components/SubDestinationTemplate'
 
-export function generateMetadata(): Metadata {
-  return {
-    title: "Porto Moniz en couple : slow travel & pépites cachées | Heldonica",
-    description: "Au nord-ouest. Les piscines naturelles, le village, la route qui tangue.",
-    openGraph: {
-      type: "website",
-      images: ["https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=1200&q=80"],
-      locale: "fr_FR",
-      siteName: "Heldonica"
-    },
-    twitter: {
-      card: "summary_large_image"
-    },
-    alternates: {
-      canonical: 'https://www.heldonica.fr/destinations/madere/porto-moniz'
-    },
-  robots: { index: false, follow: false },
-  };
+export const metadata: Metadata = {
+  title: 'Porto Moniz slow travel : piscines naturelles de Madère | Heldonica',
+  description: 'Notre guide pour visiter Porto Moniz à Madère. Baignade dans les piscines de roche volcanique naturelle, vagues atlantiques et conseils slow travel.',
+  openGraph: {
+    title: 'Porto Moniz slow travel : piscines naturelles de Madère | Heldonica',
+    description: 'Baignade dans les piscines de roche volcanique naturelle à Porto Moniz, vagues atlantiques et conseils slow travel.',
+    type: 'website',
+    images: ['https://images.unsplash.com/photo-1548567119-9486c91350a4?w=1200&q=80'],
+    locale: 'fr_FR',
+    siteName: 'Heldonica'
+  },
+  alternates: {
+    canonical: 'https://www.heldonica.fr/destinations/madere/porto-moniz'
+  }
 }
 
-const navLinks = [
-  { label: 'Madere', href: '/destinations/madere' },
-  { label: 'Funchal', href: '/destinations/madere/funchal' },
-]
-
-const pepites = [
-  { title: 'Piscines Naturelles', description: 'Piscines de lave naturelle. Quand la chaleur tape.', icon: '🏊' },
-  { title: 'Plage de Seixal', description: 'La seule plage de sable noir. Authentique.', icon: '🏖️' },
-  { title: 'Miroir d Eau', description: 'Plans d eau avec vue ocean.', icon: '💧' },
-  { title: 'Village de Seixal', description: 'Petit village de pecheurs.', icon: '⚓' },
+const highlights = [
+  {
+    title: 'Les Piscines Naturelles Volcaniques',
+    description: 'Des bassins de roche basaltique noire alimentés directement par les marées de l\'océan Atlantique. Une eau limpide et une baignade hors du commun.',
+    emoji: '🌊'
+  },
+  {
+    title: 'Le Fort de São João Baptista',
+    description: 'Une petite forteresse historique datant du XVIIe siècle édifiée pour protéger la côte des pirates. Elle abrite aujourd\'hui un petit aquarium.',
+    emoji: '🏰'
+  },
+  {
+    title: 'La Route Cotière Nord',
+    description: 'La route menant à Porto Moniz longe des falaises abruptes et traverse d\'anciens tunnels creusés dans la roche volcanique. Spectaculaire.',
+    emoji: '🚗'
+  }
 ]
 
 export default function PortoMonizPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-stone-50">
-        <section className="bg-gradient-to-b from-stone-900 to-stone-800 py-20">
-          <div className="max-w-4xl mx-auto px-4">
-            <span className="text-amber-400 text-sm mb-4">Madere</span>
-            <h1 className="text-4xl text-white font-serif">Porto Moniz</h1>
-            <p className="text-stone-300">Au nord-ouest. Les piscines naturelles, le village, la route qui tangue.</p>
-          </div>
-        </section>
-        <nav className="bg-white border-b px-4 py-3 flex gap-4 text-sm">
-          {navLinks.map(l => (
-            <Link key={l.href} href={l.href} className="text-stone-500 hover:text-amber-700">{l.label}</Link>
-          ))}
-        </nav>
-        <div className="max-w-4xl mx-auto px-4 py-12">
-          <section className="mb-8">
-            <p className="text-lg text-stone-700">
-              Porto Moniz, c'est le grand voyage. La route pour y aller est une aventure —
-              des virages, des tunnels, des vues sur l ocean.
-              <strong>Mais les piscines naturelles valent le detour.</strong>
-            </p>
-          </section>
-          <section className="mb-8 grid md:grid-cols-2 gap-4">
-            {pepites.map((p, i) => (
-              <div key={i} className="p-4 bg-white rounded-lg border">
-                <div className="text-xl mb-2">{p.icon}</div>
-                <h3 className="font-serif">{p.title}</h3>
-                <p className="text-sm text-stone-600">{p.description}</p>
-              </div>
-            ))}
-          </section>
-          <section className="grid md:grid-cols-2 gap-6 mb-8">
-            <div className="bg-white p-5 rounded-lg border">
-              <h3 className="font-serif mb-3">Ou dormir</h3>
-              <ul className="text-sm text-stone-600 space-y-1">
-                <li><strong>Quinta do Lorde:</strong> 80-120€</li>
-                <li><strong>Pension familiale:</strong> 50-70€</li>
-              </ul>
-            </div>
-            <div className="bg-white p-5 rounded-lg border">
-              <h3 className="font-serif mb-3">Conseil</h3>
-              <p className="text-sm text-stone-600">Partez tot le matin. Moins de monde aux piscines.</p>
-            </div>
-          </section>
-          <Link href="/destinations/madere" className="text-amber-700">← Retour Madere</Link>
-        </div>
-      </main>
+      <SubDestinationTemplate
+        name="Porto Moniz"
+        parentName="Madère"
+        parentSlug="madere"
+        heroImage="https://images.unsplash.com/photo-1548567119-9486c91350a4?w=1400&q=80"
+        introText="Porto Moniz, situé à la pointe nord-ouest de Madère, est célèbre pour ses extraordinaires piscines naturelles formées par la lave volcanique. C'est l'un des lieux où l'énergie brute de l'océan Atlantique rencontre la roche noire, créant un paysage inoubliable."
+        highlights={highlights}
+        localTip="Privilégie les piscines naturelles gratuites (plus sauvages) situées près du port plutôt que les piscines payantes si tu cherches une ambiance brute et sans touristes."
+      />
       <Footer />
     </>
   )

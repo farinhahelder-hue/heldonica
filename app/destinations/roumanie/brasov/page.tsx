@@ -1,55 +1,55 @@
-import type { Metadata } from 'next';
+import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import Link from 'next/link'
+import SubDestinationTemplate from '@/components/SubDestinationTemplate'
 
-export function generateMetadata(): Metadata {
-  return {
-    title: "Brasov en couple : slow travel & pépites cachées | Heldonica",
-    description: "Montagne. Dracula.",
-    openGraph: {
-      type: "website",
-      images: ["https://images.unsplash.com/photo-1564658895070-cf234f4c34f1?w=1200&q=80"],
-      locale: "fr_FR",
-      siteName: "Heldonica"
-    },
-    twitter: {
-      card: "summary_large_image"
-    },
-    alternates: {
-      canonical: 'https://www.heldonica.fr/destinations/roumanie/brasov'
-    },
-  robots: { index: false, follow: false },
-  };
+export const metadata: Metadata = {
+  title: 'Brașov slow travel : notre carnet de voyage | Heldonica',
+  description: 'Nichée au pied des Carpates en Transylvanie, Brașov est la destination slow travel par excellence. Conseils, randonnées douces et ruelles médiévales.',
+  openGraph: {
+    title: 'Brașov slow travel : notre carnet de voyage | Heldonica',
+    description: 'Nichée au pied des Carpates en Transylvanie, Brașov est la destination slow travel par excellence.',
+    type: 'website',
+    images: ['https://images.unsplash.com/photo-1588693951608-2083538bd1d8?w=1200&q=80'],
+    locale: 'fr_FR',
+    siteName: 'Heldonica'
+  },
+  alternates: {
+    canonical: 'https://www.heldonica.fr/destinations/roumanie/brasov'
+  }
 }
+
+const highlights = [
+  {
+    title: 'Le Mont Tâmpa',
+    description: 'Une montagne verdoyante en plein centre-ville. On peut y monter à pied ou en téléphérique pour profiter d\'une vue imprenable sur les toits rouges de la vieille ville.',
+    emoji: '🏔️'
+  },
+  {
+    title: 'L\'Église Noire',
+    description: 'Un chef-d\'œuvre gothique imposant qui abrite une collection impressionnante de tapis anatoliens offerts par les marchands de passage.',
+    emoji: '⛪'
+  },
+  {
+    title: 'La Rue de la Ficelle (Strada Sforii)',
+    description: 'L\'une des rues les plus étroites d\'Europe, un passage secret pittoresque chargé d\'histoire au cœur du quartier de Șchei.',
+    emoji: '🧱'
+  }
+]
 
 export default function BrasovPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-stone-50">
-        <section className="relative bg-gradient-to-b from-stone-900 to-stone-800 py-20">
-          <div className="max-w-4xl mx-auto px-4">
-            <span className="text-amber-400 text-sm">Roumanie</span>
-            <h1 className="text-4xl text-white font-serif">Brasov</h1>
-            <p className="text-stone-300">Montagne. Dracula.</p>
-          </div>
-        </section>
-        <nav className="bg-white border-b px-4 py-3 flex gap-4 text-sm">
-          <Link href="/destinations/roumanie" className="text-stone-500 hover:text-amber-700">Roumanie</Link>
-        </nav>
-        <div className="max-w-4xl mx-auto px-4 py-12">
-          <section className="mb-8">
-            <p className="text-lg text-stone-700">Montagne, Dracula, stations de ski.</p>
-          </section>
-          <section className="mb-8 grid md:grid-cols-3 gap-4">
-            <div className="p-4 bg-white rounded-lg border"><div className="text-2xl mb-2">🏰</div><h3 className="font-serif">Bran</h3></div>
-            <div className="p-4 bg-white rounded-lg border"><div className="text-2xl mb-2">⛷️</div><h3 className="font-serif">Ski</h3></div>
-            <div className="p-4 bg-white rounded-lg border"><div className="text-2xl mb-2">🕍</div><h3 className="font-serif">Eglise Noire</h3></div>
-          </section>
-          <Link href="/destinations/roumanie" className="text-amber-700">← Retour Roumanie</Link>
-        </div>
-      </main>
+      <SubDestinationTemplate
+        name="Brașov"
+        parentName="Roumanie"
+        parentSlug="roumanie"
+        heroImage="https://images.unsplash.com/photo-1588693951608-2083538bd1d8?w=1400&q=80"
+        introText="Brașov allie parfaitement le charme d'une cité médiévale fortifiée et la nature sauvage des Carpates. C'est le point de départ idéal pour explorer la Transylvanie à un rythme lent, en se perdant dans ses ruelles pavées pavoisées de maisons pastel."
+        highlights={highlights}
+        localTip="Monte au sommet du mont Tâmpa au coucher du soleil pour voir la brume s'installer sur la vallée et les lumières de la ville s'allumer une à une."
+      />
       <Footer />
     </>
   )

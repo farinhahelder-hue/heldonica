@@ -352,7 +352,7 @@ export default async function DestinationPage({ params }: Props) {
                 ← Retour aux destinations
               </Link>
               {meta?.region && (
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-amber-300">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-teal">
                   {meta.region}
                 </p>
               )}
@@ -382,7 +382,7 @@ export default async function DestinationPage({ params }: Props) {
         <section className="py-16 md:py-20">
           <div className="mx-auto max-w-5xl px-4">
             {meta?.intro && (
-              <div className="mb-10 rounded-[2rem] border border-amber-200 bg-amber-50 px-6 py-6 md:px-8">
+              <div className="mb-10 rounded-[2rem] border border-eucalyptus/20 bg-eucalyptus/5 px-6 py-6 md:px-8">
                 <p className="text-lg font-light leading-relaxed text-stone-800">{meta.intro}</p>
               </div>
             )}
@@ -394,12 +394,12 @@ export default async function DestinationPage({ params }: Props) {
                   prose-headings:font-serif prose-headings:font-light prose-headings:text-stone-900
                   prose-h2:mt-12 prose-h2:mb-5 prose-h2:text-3xl
                   prose-p:mb-6 prose-p:text-stone-700 prose-p:leading-8
-                  prose-a:text-amber-700 prose-a:no-underline hover:prose-a:underline
+                  prose-a:text-eucalyptus prose-a:no-underline hover:prose-a:underline
                   prose-img:mx-auto prose-img:my-10 prose-img:rounded-[1.75rem] prose-img:shadow-lg
                   prose-strong:text-stone-900 prose-strong:font-semibold
                   prose-ul:space-y-3 prose-li:text-stone-700
                   prose-ol:space-y-3 prose-ol:text-stone-700
-                  prose-li:marker:text-amber-600"
+                  prose-li:marker:text-eucalyptus"
               />
             ) : (
               <div className="rounded-[2rem] border border-stone-200 bg-white px-6 py-12 text-center shadow-sm">
@@ -414,7 +414,7 @@ export default async function DestinationPage({ params }: Props) {
         {related.length > 0 && (
           <section className="bg-white py-16">
             <div className="mx-auto max-w-6xl px-4">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-eucalyptus">
                 À lire aussi
               </p>
               <h2 className="mb-3 text-3xl font-serif font-light text-stone-900">
@@ -441,8 +441,8 @@ export default async function DestinationPage({ params }: Props) {
                         </div>
                       )}
                       <div className="p-5">
-                        <span className="text-xs font-semibold text-amber-700">{post.category}</span>
-                        <h3 className="mt-2 text-base font-semibold leading-snug text-stone-900 transition-colors duration-200 group-hover:text-amber-700">
+                        <span className="text-xs font-semibold text-eucalyptus">{post.category}</span>
+                        <h3 className="mt-2 text-base font-semibold leading-snug text-stone-900 transition-colors duration-200 group-hover:text-eucalyptus">
                           {post.title}
                         </h3>
                         <p className="mt-3 text-xs text-stone-400">{post.date} · {post.readTime} min</p>
@@ -469,7 +469,7 @@ export default async function DestinationPage({ params }: Props) {
 
         <section className="px-4 py-20">
           <div className="mx-auto max-w-3xl rounded-[2rem] bg-stone-950 px-6 py-12 text-center text-white md:px-10">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-amber-300">Planifier</p>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-teal">Planifier</p>
             <h2 className="mb-4 text-3xl font-serif font-light leading-tight md:text-4xl">
               Tu veux cette destination, mais à ton rythme ?
             </h2>
@@ -479,13 +479,13 @@ export default async function DestinationPage({ params }: Props) {
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link
                 href="/travel-planning-form"
-                className="rounded-full bg-amber-500 px-7 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-amber-400"
+                className="rounded-full bg-eucalyptus px-7 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-eucalyptus/90 shadow-md"
               >
                 Nous écrire →
               </Link>
               <Link
                 href="/travel-planning"
-                className="text-sm font-semibold text-amber-200 transition-colors duration-200 hover:text-white"
+                className="text-sm font-semibold text-teal transition-colors duration-200 hover:text-white"
               >
                 Voir notre approche →
               </Link>

@@ -192,21 +192,23 @@ export default function CmsSettingsPanel() {
   const currentGroup = GROUPS.find(g => g.id === activeGroup)!;
 
   return (
-    <div className="flex gap-6 h-full">
+    <div className="flex gap-6 h-full font-sans">
       {/* Sidebar navigation */}
-      <nav className="w-48 shrink-0">
+      <nav className="w-52 shrink-0">
         <ul className="space-y-1">
           {GROUPS.map(group => (
             <li key={group.id}>
               <button
                 onClick={() => setActiveGroup(group.id)}
-                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all ${
                   activeGroup === group.id
-                    ? 'bg-[#2D8B7A] text-white'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-[#2D8B7A] text-white shadow-sm shadow-[#2D8B7A]/20'
+                    : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
                 }`}
               >
-                {group.icon}
+                <span className={activeGroup === group.id ? 'text-white' : 'text-stone-400'}>
+                  {group.icon}
+                </span>
                 {group.label}
               </button>
             </li>
@@ -216,47 +218,51 @@ export default function CmsSettingsPanel() {
 
       {/* Main panel */}
       <div className="flex-1 min-w-0">
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              {currentGroup.icon}
+        <div className="bg-white rounded-2xl border border-stone-200/80 p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-stone-100">
+            <h2 className="text-base font-bold text-stone-900 flex items-center gap-2.5">
+              <span className="text-[#2D8B7A]">{currentGroup.icon}</span>
               {currentGroup.label}
             </h2>
             <button
               onClick={loadSettings}
               disabled={loading}
               title="Recharger"
-              className="p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-40 transition-colors"
+              className="p-1.5 text-stone-400 hover:text-stone-600 hover:bg-stone-50 rounded-lg disabled:opacity-40 transition-all"
             >
               <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
             </button>
           </div>
 
           {loading && (
-            <div className="text-xs text-gray-400 mb-4 flex items-center gap-2">
+            <div className="text-xs text-stone-400 mb-4 flex items-center gap-2">
               <RefreshCw size={12} className="animate-spin" /> Chargement…
             </div>
           )}
 
           {/* Champs TOUJOURS visibles, même pendant le chargement */}
-          <div className="space-y-4">
+          <div className="space-y-5">
             {currentGroup.fields.map(field => (
-              <div key={field.key}>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {field.label}
-                  <span className="ml-1 text-xs text-gray-400 font-mono">({field.key})</span>
-                </label>
+              <div key={field.key} className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-stone-700">
+                    {field.label}
+                  </label>
+                  <span className="text-[10px] text-stone-400 font-mono select-all">
+                    {field.key}
+                  </span>
+                </div>
 
                 {field.type === 'toggle' ? (
-                  <label className="relative inline-flex items-center cursor-pointer">
+                  <label className="relative inline-flex items-center cursor-pointer select-none">
                     <input
                       type="checkbox"
                       className="sr-only peer"
                       checked={values[field.key] === 'true'}
                       onChange={e => handleChange(field.key, e.target.checked ? 'true' : 'false')}
                     />
-                    <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-[#2D8B7A] transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5" />
-                    <span className="ml-3 text-sm text-gray-600">
+                    <div className="w-10 h-5 bg-stone-200 rounded-full peer peer-checked:bg-[#2D8B7A] transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5" />
+                    <span className="ml-3 text-xs font-semibold text-stone-600">
                       {values[field.key] === 'true' ? 'Activé' : 'Désactivé'}
                     </span>
                   </label>
@@ -266,7 +272,7 @@ export default function CmsSettingsPanel() {
                     value={values[field.key] ?? ''}
                     onChange={e => handleChange(field.key, e.target.value)}
                     placeholder={field.placeholder}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A] resize-y"
+                    className="w-full px-3 py-2 border border-stone-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]/20 focus:border-[#2D8B7A] transition-all resize-y leading-relaxed"
                   />
                 ) : field.type === 'image' ? (
                   <ImagePicker
@@ -280,14 +286,14 @@ export default function CmsSettingsPanel() {
                       type="color"
                       value={values[field.key] || '#000000'}
                       onChange={e => handleChange(field.key, e.target.value)}
-                      className="w-10 h-10 rounded border border-gray-300 cursor-pointer p-0.5"
+                      className="w-9 h-9 rounded-lg border border-stone-200 cursor-pointer p-0.5"
                     />
                     <input
                       type="text"
                       value={values[field.key] ?? ''}
                       onChange={e => handleChange(field.key, e.target.value)}
                       placeholder="#2D8B7A"
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                      className="flex-1 px-3 py-2 border border-stone-200 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]/20 focus:border-[#2D8B7A] transition-all"
                     />
                   </div>
                 ) : (
@@ -296,7 +302,7 @@ export default function CmsSettingsPanel() {
                     value={values[field.key] ?? ''}
                     onChange={e => handleChange(field.key, e.target.value)}
                     placeholder={field.placeholder}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                    className="w-full px-3 py-2 border border-stone-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]/20 focus:border-[#2D8B7A] transition-all"
                   />
                 )}
               </div>
@@ -304,20 +310,20 @@ export default function CmsSettingsPanel() {
           </div>
 
           {error && (
-            <p className="mt-4 text-sm text-red-600">{error}</p>
+            <p className="mt-4 text-xs font-semibold text-red-600">{error}</p>
           )}
 
-          <div className="mt-6 flex items-center gap-3">
+          <div className="mt-6 pt-4 border-t border-stone-100 flex items-center gap-3">
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[#C4714A] text-white rounded-lg text-sm font-medium hover:bg-[#b05f3a] disabled:opacity-50 transition-colors"
+              className="flex items-center gap-2 px-5 py-2.5 bg-[#C4714A] text-white rounded-xl text-xs font-semibold hover:bg-[#b05f3a] disabled:opacity-50 transition-colors shadow-sm"
             >
-              <Save size={16} />
-              {saving ? 'Sauvegarde…' : 'Sauvegarder'}
+              <Save size={14} />
+              {saving ? 'Sauvegarde…' : 'Sauvegarder les paramètres'}
             </button>
             {saved && (
-              <span className="text-sm text-green-600 font-medium">✓ Paramètres sauvegardés</span>
+              <span className="text-xs text-green-600 font-bold">✓ Paramètres sauvegardés</span>
             )}
           </div>
         </div>

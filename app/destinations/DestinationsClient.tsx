@@ -81,7 +81,8 @@ export default function DestinationsClient() {
     if (continentFilter === 'all' || continentFilter === 'Toutes') return list
     if (continentFilter === 'Amériques') return list.filter(d => ['Colombie', 'Amérique du Sud'].includes(d.country))
     return list.filter(d => {
-      if (continentFilter === 'Europe') return d.country !== 'Colombie'
+      if (continentFilter === 'Europe') return !['Colombie'].includes(d.country) && d.country !== 'Amérique du Sud'
+      if (continentFilter === 'Méditerranée') return ['Italie', 'Sicile', 'Sardaigne', 'Espagne', 'Grèce', 'Malte', 'Maroc', 'Portugal', 'Monténégro'].includes(d.country)
       return false
     })
   }, [starred, published, continentFilter])
@@ -190,7 +191,7 @@ export default function DestinationsClient() {
                     <div className="text-center mb-8">
                       <h2 className="text-2xl font-serif text-mahogany mb-2">Prochainement sur Heldonica</h2>
                       <p className="text-charcoal/70 max-w-lg mx-auto">
-                        On explore ces destinations pour vous. Sois notifié en avant-première quand un nouveau guide sort.
+                        On explore ces destinations pour toi. Sois notifié en avant-première quand un nouveau guide sort.
                       </p>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">

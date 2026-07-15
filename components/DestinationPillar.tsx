@@ -13,6 +13,8 @@ import DestinationVerdict from '@/components/DestinationVerdict'
 import QuickAnswersBlock from '@/components/QuickAnswersBlock'
 import type { PillarData } from '@/lib/pillar-types'
 import { SITE_URL } from '@/lib/seo'
+import { SUB_DESTINATIONS } from '@/lib/sub-destinations'
+
 
 export default function DestinationPillar({
   data, relatedArticles,
@@ -70,13 +72,13 @@ export default function DestinationPillar({
             <p className="text-white/80 max-w-2xl text-lg leading-relaxed mb-6">{data.tagline}</p>
             <div className="flex flex-wrap gap-2 mb-6">
               <span className="rounded-full bg-eucalyptus/20 text-eucalyptus text-xs font-semibold px-3 py-1.5 border border-eucalyptus/30">📅 {data.season}</span>
-              <span className="rounded-full bg-amber-400/20 text-amber-300 text-xs font-semibold px-3 py-1.5 border border-amber-400/30">💰 ~{data.budget}€/sem/couple</span>
+              <span className="rounded-full bg-teal/20 text-teal text-xs font-semibold px-3 py-1.5 border border-teal/30">💰 ~{data.budget}€/sem/couple</span>
               <span className="rounded-full bg-teal/20 text-teal text-xs font-semibold px-3 py-1.5 border border-teal/30">🌿 Slow travel</span>
             </div>
             <div className="flex flex-wrap gap-3">
               <GuideDownloadButton slug={data.slug} title={data.name} />
               <Link href={`/travel-planning-form?destination=${data.slug}`}
-                className="inline-flex items-center gap-2 rounded-full bg-amber-500 px-6 py-3 text-sm font-semibold text-white hover:bg-amber-400 transition-all"
+                className="inline-flex items-center gap-2 rounded-full bg-eucalyptus px-6 py-3 text-sm font-semibold text-white hover:bg-eucalyptus/90 transition-all shadow-md"
                 onClick={() => { if (typeof window !== 'undefined' && (window as any).gtag) (window as any).gtag('event', 'cta_travel_planning_clique', { source: 'page_pilier', destination: data.slug }) }}>
                 Demander mon voyage sur mesure →
               </Link>
@@ -107,6 +109,44 @@ export default function DestinationPillar({
             ))}
           </div>
         </section>
+
+        {/* Villes & pépites de la région */}
+        {(() => {
+          const subDests = SUB_DESTINATIONS[data.slug] || []
+          if (subDests.length === 0) return null
+          return (
+            <section className="bg-white py-16 border-b border-stone-200/60">
+              <div className="container max-w-5xl">
+                <h2 className="text-3xl font-serif text-mahogany mb-2 text-center">
+                  Explorer les pépites de la région
+                </h2>
+                <p className="text-charcoal/60 text-sm text-center mb-10">
+                  Nos guides détaillés de terrain par ville et site d&apos;intérêt.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                  {subDests.map((sub) => (
+                    <Link
+                      key={sub.slug}
+                      href={`/destinations/${data.slug}/${sub.slug}`}
+                      className="group p-5 rounded-2xl bg-stone-50 border border-stone-100 hover:border-eucalyptus/30 hover:bg-eucalyptus/5 transition-all duration-300 flex flex-col h-full"
+                    >
+                      <span className="text-3xl mb-3 block">{sub.emoji}</span>
+                      <h3 className="font-serif font-bold text-stone-900 group-hover:text-eucalyptus transition-colors mb-2">
+                        {sub.title}
+                      </h3>
+                      <p className="text-xs text-charcoal/60 leading-relaxed line-clamp-2 flex-1">
+                        {sub.teaser}
+                      </p>
+                      <span className="text-xs font-semibold text-eucalyptus mt-3 inline-block group-hover:translate-x-1 transition-transform">
+                        Voir le guide →
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )
+        })()}
 
         {/* Quick Answers — GEO friendly */}
         <QuickAnswersBlock

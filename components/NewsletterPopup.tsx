@@ -143,7 +143,7 @@ export default function NewsletterPopup() {
       ) : (
         <>
           <div className="mb-4">
-            <span className="inline-block px-3 py-1 bg-amber-500/20 text-amber-400 text-xs font-semibold rounded-full uppercase tracking-wider mb-3">
+            <span className="inline-block px-3 py-1 bg-eucalyptus/20 text-eucalyptus text-xs font-semibold rounded-full uppercase tracking-wider mb-3">
               Guide gratuit
             </span>
             <h3 className="text-xl font-bold mb-2">
@@ -162,12 +162,12 @@ export default function NewsletterPopup() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="ton@email.fr"
               required
-              className="w-full px-4 py-3 rounded-xl bg-stone-800 border border-stone-700 text-white placeholder-stone-500 focus:outline-none focus:border-amber-400 transition-colors text-sm"
+              className="w-full px-4 py-3 rounded-xl bg-stone-800 border border-stone-700 text-white placeholder-stone-500 focus:outline-none focus:border-eucalyptus transition-colors text-sm"
             />
             <button
               type="submit"
               disabled={status === 'loading'}
-              className="w-full px-6 py-3.5 bg-amber-500 text-stone-900 font-bold rounded-xl hover:bg-amber-400 transition-all text-sm disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full px-6 py-3.5 bg-eucalyptus text-white font-bold rounded-xl hover:bg-eucalyptus/90 transition-all text-sm disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {status === 'loading' ? 'Inscription...' : 'Je veux le guide →'}
             </button>

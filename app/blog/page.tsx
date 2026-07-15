@@ -136,22 +136,28 @@ function CollectionPageJsonLd({ posts }: { posts: BlogPost[] }) {
 
   // Add mainEntity if we have posts
   if (posts.length > 0) {
-    const blogPosts = posts.slice(0, 20).map((post) => ({
-      '@type': 'BlogPosting',
-      headline: post.title,
-      url: `${blogUrl}/${post.slug}`,
-      datePublished: post.published_at,
-      dateModified: post.updated_at || post.published_at,
-      image: post.featured_image,
-      author: {
-        '@type': 'Person',
-        name: post.author || 'Heldonica',
-      },
-      publisher: {
-        '@type': 'Organization',
-        name: 'Heldonica',
-        url: baseUrl,
-      },
+    const blogPosts = posts.slice(0, 20).map((post, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@type': 'BlogPosting',
+        '@id': `${baseUrl}/blog/${post.slug}#article`,
+        url: `${blogUrl}/${post.slug}`,
+        headline: post.title,
+        description: post.excerpt || undefined,
+        image: post.featured_image || undefined,
+        datePublished: post.published_at,
+        dateModified: post.updated_at || post.published_at || undefined,
+        author: {
+          '@type': 'Person',
+          name: post.author || 'Heldonica',
+        },
+        publisher: {
+          '@type': 'Organization',
+          name: 'Heldonica',
+          url: baseUrl,
+        },
+      }
     }))
 
     return (

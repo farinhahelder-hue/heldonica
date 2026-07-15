@@ -3,13 +3,14 @@ import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Script from 'next/script'
+import Image from 'next/image'
 
 const faqKotorSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
     { "@type": "Question", "name": "Quel est le meilleur moment pour visiter Kotor ?", "acceptedAnswer": { "@type": "Answer", "text": "Tôt le matin (7h-9h) pour avoir la vieille ville avant l'arrivée des croisiéristes. Mai-juin et septembre-octobre offrent le meilleur équilibre température/affluence." }},
-    { "@type": "Question", "name": "Combien de temps rester à Kotor ?", "acceptedAnswer": { "@type": "Answer", "text": "2 à 3 jours suffisent pour découvrir la vieille ville, les remparts et une excursion dans les bouches de Kotor. Prévoyez 4-5 jours si vous voulez explorer Lovćen ou le Durmitor." }},
+    { "@type": "Question", "name": "Combien de temps rester à Kotor ?", "acceptedAnswer": { "@type": "Answer", "text": "2 à 3 jours suffisent pour découvrir la vieille ville, les remparts et une excursion dans les bouches de Kotor. Compte 4-5 jours si tu veux explorer Lovćen ou le Durmitor." }},
     { "@type": "Question", "name": "Les remparts de Kotor sont-ils difficiles ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui — 1350 marches pour rejoindre la forteresse de San Giovanni. C'est éprouvant mais la vue sur la baie en vaut la peine. Partez tôt pour éviter la chaleur." }}
   ]
 }
@@ -44,10 +45,13 @@ export default function KotorPage() {
         {/* Hero */}
         <section className="relative bg-gradient-to-b from-stone-900 via-stone-800 to-stone-700 py-20 md:py-28">
           <div className="absolute inset-0 opacity-30">
-            <img 
+            <Image 
               src="https://images.unsplash.com/photo-1570126618953-d437176e8c79?w=1920&h=1080&fit=crop" 
               alt="Baie de Kotor au lever du soleil" 
-              className="w-full h-full object-cover"
+              fill
+              priority
+              className="object-cover"
+              sizes="100vw"
             />
           </div>
           <div className="relative max-w-4xl mx-auto px-4">
@@ -58,8 +62,8 @@ export default function KotorPage() {
               Kotor avant les croisiéristes
             </h1>
             <p className="text-xl text-stone-200 max-w-2xl leading-relaxed mb-8">
-              Le secret de Kotor, c'est l'heure. À 7h du matin, la vieille ville est à vous. 
-              Les ruelles pavées, la lumière sur la baie, le silence avant l'invasion. 
+              Le secret de Kotor, c'est l'heure. À 7h du matin, la vieille ville est à toi.
+              Les ruelles pavées, la lumière sur la baie, le silence avant l'invasion.
               Voici comment on l'a vécue — et comment tu peux la vivre aussi.
             </p>
             <div className="flex flex-wrap gap-4">
@@ -109,8 +113,8 @@ export default function KotorPage() {
               qui la envahissent à partir de 10h.
             </p>
             <p className="text-lg text-stone-700 leading-relaxed">
-              <strong>Notre conseil terrain :</strong> Levez-vous à 7h.Faites les remparts avant 9h. 
-              Ensuite, allez nager dans une crique de la baie ou prenez le bateau pour Perast.
+              <strong>Notre conseil terrain :</strong> Lève-toi à 7h. Fais les remparts avant 9h.
+              Ensuite, va nager dans une crique de la baie ou prends le bateau pour Perast.
             </p>
           </section>
 
@@ -128,15 +132,15 @@ export default function KotorPage() {
               <div className="p-6 bg-white rounded-xl border border-stone-200 shadow-sm">
                 <h3 className="font-serif text-lg text-mahogany mb-3">Une vieille ville vide</h3>
                 <p className="text-stone-600">
-                  Avant 9h, les ruelles pavées sont à vous. Les portes colorées, les chats endormis, 
+                  Avant 9h, les ruelles pavées sont à toi. Les portes colorées, les chats endormis,
                   l'odeur du café qui sort des fenêtres — c'est le Kotor authentique.
                 </p>
               </div>
               <div className="p-6 bg-white rounded-xl border border-stone-200 shadow-sm">
                 <h3 className="font-serif text-lg text-mahogany mb-3">Des remparts tranquilles</h3>
                 <p className="text-stone-600">
-                  1350 marches avec vue sur la baie — difficile de profiter si vous montez 
-                  derrière 200 passagers de cruise. À 7h, vous serez seuls ou quasi.
+                  1350 marches avec vue sur la baie — difficile de profiter si tu montes
+                  derrière 200 passagers de cruise. À 7h, tu seras seul·e ou quasi.
                 </p>
               </div>
               <div className="p-6 bg-white rounded-xl border border-stone-200 shadow-sm">
@@ -149,8 +153,8 @@ export default function KotorPage() {
               <div className="p-6 bg-white rounded-xl border border-stone-200 shadow-sm">
                 <h3 className="font-serif text-lg text-mahogany mb-3">Les criques accessibles</h3>
                 <p className="text-stone-600">
-                  Les petites plages autour de Kotor sont vides le matin. 
-                  Bajova Quay, Stoliv — vous aurez le choix.
+                  Les petites plages autour de Kotor sont vides le matin.
+                  Bajova Quay, Stoliv — tu auras le choix.
                 </p>
               </div>
             </div>
@@ -169,8 +173,8 @@ export default function KotorPage() {
                 <div>
                   <h3 className="font-semibold text-mahogany mb-2">Lever du soleil sur la baie</h3>
                   <p className="text-stone-600">
-                    Promenade le long de la marina, puis remontée vers les remparts. 
-                    Si vous montez, préparez de l'eau — les marches sont raides.
+                    Promenade le long de la marina, puis remontée vers les remparts.
+                    Si tu montes, prépare de l'eau — les marches sont raides.
                   </p>
                 </div>
               </div>
@@ -181,7 +185,7 @@ export default function KotorPage() {
                 <div>
                   <h3 className="font-semibold text-mahogany mb-2">Petit-déjeuner dans la vieille ville</h3>
                   <p className="text-stone-600">
-                    Premier café, dernier calme. Profitez-en pour flâner dans les ruelles 
+                    Premier café, dernier calme. Profites-en pour flâner dans les ruelles
                     avant que les boutiques ouvrent.
                   </p>
                 </div>
@@ -225,7 +229,7 @@ export default function KotorPage() {
                 <ul className="space-y-2 text-stone-600">
                   <li><strong className="text-eucalyptus">Mai-juin :</strong> Températures agréables, peu de croisiéristes</li>
                   <li><strong className="text-eucalyptus">Septembre-octobre :</strong> Mer chaude, touristes en baisse</li>
-                  <li><strong className="text-red-500">Juillet-août :</strong> À éviter si vous cherchez le calme</li>
+                  <li><strong className="text-red-500">Juillet-août :</strong> À éviter si tu cherches le calme</li>
                 </ul>
               </div>
               <div>
@@ -278,7 +282,7 @@ export default function KotorPage() {
                 </summary>
                 <p className="text-stone-600 mt-4 pt-4 border-t border-stone-100">
                   2 à 3 jours suffisent pour découvrir la vieille ville, les remparts et une excursion 
-                  dans les bouches de Kotor. Prévoyez 4-5 jours si vous voulez explorer Lovćen ou Budva.
+                  dans les bouches de Kotor. Compte 4-5 jours si tu veux explorer Lovćen ou Budva.
                 </p>
               </details>
               <details className="bg-white rounded-xl border border-stone-200 p-6 group">
@@ -319,7 +323,7 @@ export default function KotorPage() {
               <div className="md:col-span-2">
                 <h3 className="font-semibold text-teal mb-3">Ce qu'on évite</h3>
                 <p className="text-stone-200">
-                  Les croisiéristes. Juillet-août si vous cherchez du slow travel. 
+                  Les croisiéristes. Juillet-août si tu cherches du slow travel.
                   Les restaurants hors de la vieille ville — moins authentiques, plus chers.
                 </p>
               </div>

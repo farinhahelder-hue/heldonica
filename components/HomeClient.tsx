@@ -78,23 +78,10 @@ function useCounter(target: number, duration = 1400, start = false) {
 }
 
 function AnimatedStat({ nb, label, suffix = '' }: { nb: number | string; label: string; suffix?: string }) {
-  const [started, setStarted] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-  const isNum = typeof nb === 'number' && nb > 0
-  const numericValue = isNum ? nb : 0
-  const displayValue = isNum ? null : ((typeof nb === 'string' && nb !== '0') ? nb : '—')
-  const count = useCounter(numericValue, 1400, started && isNum)
-  
-  useEffect(() => {
-    const el = ref.current; if (!el) return
-    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setStarted(true); io.disconnect() } }, { threshold: 0.3 })
-    io.observe(el); return () => io.disconnect()
-  }, [])
-  
   return (
-    <div ref={ref} className="border-t-2 border-mahogany pt-4 group hover:-translate-y-1 transition-transform duration-300">
+    <div className="border-t-2 border-mahogany pt-4 group hover:-translate-y-1 transition-transform duration-300">
       <p className="text-3xl md:text-4xl font-serif font-light text-mahogany mb-1">
-        {isNum ? (started ? count + suffix : suffix) : displayValue}
+        {nb}{suffix}
       </p>
       <p className="text-xs text-charcoal/60 leading-snug">{label}</p>
     </div>
@@ -320,17 +307,17 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               <EditableZone page="home" zone="section_story_title" type="html" fallback={'Un art du voyage <span class="block italic text-eucalyptus">autrement</span>'}
                 className="text-3xl md:text-5xl font-serif font-light text-mahogany mb-6 leading-tight block"
               />
-              <EditableZone page="home" zone="section_story_text_1" type="textarea" fallback="Elle a grandi en habitant..."
+              <EditableZone page="home" zone="section_story_text_1" type="textarea" fallback="Elena a grandi entre la France et la Roumanie, avec l'habitude de prendre la route dès que possible. Elle apporte au duo son sens du détail, sa plume éditoriale et sa passion pour les adresses insolites qui racontent une vraie histoire."
                 className="text-base text-charcoal/70 leading-relaxed mb-4 block"
               />
-              <EditableZone page="home" zone="section_story_text_2" type="textarea" fallback="Lui est né à Madère..."
+              <EditableZone page="home" zone="section_story_text_2" type="textarea" fallback="Hélder est né à Madère, au milieu de l'Atlantique. Ses racines portugaises et son amour pour la nature sauvage lui ont donné le goût des sentiers cachés, des restaurants locaux familiaux et du voyage au rythme de l'océan."
                 className="text-base text-charcoal/70 leading-relaxed mb-4 block"
               />
-              <EditableZone page="home" zone="section_story_text_3" type="textarea" fallback="Notre regard est né à deux..."
+              <EditableZone page="home" zone="section_story_text_3" type="textarea" fallback="Notre regard est né à deux. Ensemble, on ferme les ordinateurs, on prend le large et on revient avec des pépites vécues, prêtes à être partagées. Pas de copier-coller d'Internet, uniquement des conseils terrain."
                 className="text-base text-charcoal/70 leading-relaxed mb-8 block"
               />
               <Link href="/blog" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
-                <EditableZone page="home" zone="section_story_cta" fallback="Lire le carnet →" />
+                <EditableZone page="home" zone="section_story_cta" fallback="Lire les carnets →" />
               </Link>
             </div>
             <div className="md:col-span-2 grid grid-cols-2 gap-6" data-reveal="right">
@@ -392,7 +379,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 <EditableZone page="home" zone="section_travel_title" fallback="Nos itinéraires vécus"
                   className="text-3xl md:text-4xl font-serif font-light text-mahogany block"
                 />
-                <EditableZone page="home" zone="section_travel_text" type="textarea" fallback="Chaque itinéraire qu'on propose..."
+                <EditableZone page="home" zone="section_travel_text" type="textarea" fallback="Chaque itinéraire que l'on propose a été parcouru, testé et ajusté de nos propres mains. Pas de compromis, pas de copier-coller d'agences : juste la réalité du terrain et nos coups de cœur partagés."
                   className="text-sm text-charcoal/70 leading-relaxed mt-3 max-w-xl block"
                 />
               </div>
@@ -424,7 +411,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 <div className="grid grid-rows-2 gap-6">
                   {travelPosts.slice(1, 3).map((p, i) => (
                     <Link key={p.slug} href={`/blog/${p.slug}`}
-                      className="group relative rounded-2xl overflow-hidden bg-mahogany/80"
+                       className="group relative rounded-2xl overflow-hidden bg-mahogany/80"
                       data-reveal data-delay={String((i + 1) * 150)}>
                       <Image src={postImage(p)} alt={p.title} fill
                         className="object-cover opacity-65 group-hover:opacity-75 group-hover:scale-105 transition-all duration-700" />
@@ -466,7 +453,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 <EditableZone page="home" zone="section_food_title" fallback="Pépites dénichées"
                   className="text-3xl md:text-4xl font-serif font-light text-mahogany leading-tight mb-4 block"
                 />
-                <EditableZone page="home" zone="section_food_text" type="textarea" fallback="Ce qu'on a trouvé en chemin..."
+                <EditableZone page="home" zone="section_food_text" type="textarea" fallback="Que ce soit une petite table de village à Madère ou un gîte caché en Transylvanie, on ne partage que des lieux où nous avons mangé, dormi et aimé passer du temps. Des adresses à taille humaine, loin des foules."
                   className="text-base text-charcoal/70 leading-relaxed mb-6 block"
                 />
                 <div className="space-y-4 mb-8">

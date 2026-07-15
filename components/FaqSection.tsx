@@ -43,7 +43,7 @@ export default function FaqSection({ items, title, subtitle, pageSlug }: FaqSect
     <section className="py-16 md:py-24 bg-[#f8f6f4]">
       <div className="max-w-3xl mx-auto px-6">
         {title && (
-          <h2 className="text-3xl md:text-4xl font-serif text-[#6b2a1a] mb-4 text-center">
+          <h2 className="text-3xl md:text-4xl font-serif text-mahogany mb-4 text-center">
             {title}
           </h2>
         )}
@@ -66,11 +66,11 @@ export default function FaqSection({ items, title, subtitle, pageSlug }: FaqSect
                   className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-stone-50 transition-colors"
                   aria-expanded={isOpen}
                 >
-                  <span className="font-semibold text-[#6b2a1a] pr-4">
+                  <span className="font-semibold text-mahogany pr-4">
                     {item.question}
                   </span>
                   <span 
-                    className={`flex-shrink-0 w-8 h-8 rounded-full bg-[#83C5BE]/10 flex items-center justify-center transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                    className={`flex-shrink-0 w-8 h-8 rounded-full bg-eucalyptus/10 flex items-center justify-center transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
                     aria-hidden="true"
                   >
                     <svg
@@ -78,7 +78,7 @@ export default function FaqSection({ items, title, subtitle, pageSlug }: FaqSect
                       height="16"
                       viewBox="0 0 16 16"
                       fill="none"
-                      className="text-[#83C5BE]"
+                      className="text-eucalyptus"
                     >
                       <path
                         d="M4 6l4 4 4-4"

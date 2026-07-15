@@ -1,57 +1,55 @@
+import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import Link from 'next/link'
+import SubDestinationTemplate from '@/components/SubDestinationTemplate'
 
-export const metadata = {
-  title: 'Lisbonne slow travel | Guide Heldonica',
-  description: 'Guide Lisbonne: Tram 28, fado, Alfama.',
-  robots: { index: false, follow: false },
+export const metadata: Metadata = {
+  title: 'Lisbonne en couple : notre itinéraire slow travel | Heldonica',
+  description: 'Prendre le temps à Lisbonne : ruelles de l\'Alfama, points de vue secrets (miradouros), fado authentique et pépites dénichées en duo.',
+  openGraph: {
+    title: 'Lisbonne en couple : notre itinéraire slow travel | Heldonica',
+    description: 'Prendre le temps à Lisbonne : ruelles de l\'Alfama, miradouros secrets et fado authentique.',
+    type: 'website',
+    images: ['https://images.unsplash.com/photo-1509840144299-db508400a780?w=1200&q=80'],
+    locale: 'fr_FR',
+    siteName: 'Heldonica'
+  },
+  alternates: {
+    canonical: 'https://www.heldonica.fr/destinations/portugal/lisbonne'
+  }
 }
 
-const navLinks = [
-  { label: 'Portugal', href: '/destinations/portugal' },
-  { label: 'Madere', href: '/destinations/madere' },
+const highlights = [
+  {
+    title: 'Les Miradouros Secrets',
+    description: 'Les collines de Lisbonne offrent des belvédères spectaculaires. Évite les plus connus et pose-toi au Miradouro de Santa Luzia pour regarder le Tage en silence.',
+    emoji: '🌅'
+  },
+  {
+    title: 'Le Labyrinthe de l\'Alfama',
+    description: 'Le plus vieux quartier de la ville, rescapé du séisme de 1755. Perds-toi dans ses escaliers suspendus où le linge sèche aux fenêtres et où résonne le Fado.',
+    emoji: '🏘️'
+  },
+  {
+    title: 'Pastéis de Belém originaux',
+    description: 'Une institution depuis 1837. Si la file d\'attente est longue, prends-les à emporter et déguste-les tièdes dans le parc voisin sous les arbres.',
+    emoji: '🥧'
+  }
 ]
 
-const pepites = [
-  { title: 'Alfama', description: 'Le vieux quartier. Ruelles, fado.', icon: '🏘️' },
-  { title: 'Tram 28', description: 'Letram qui grimpe.', icon: '🚃' },
-  { title: 'Belem', description: 'Tour, patisserie.', icon: '🗼' },
-]
-
-const faqLisbonneSchema = {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Que faire a Lisbonne?","acceptedAnswer":{"@type":"Answer","text":"Tram 28, Alfama, Belem."}},{"@type":"Question","name":"Transport Lisbonne?","acceptedAnswer":{"@type":"Answer","text":"Metro, tram 28."}},{"@type":"Question","name":"Budget Lisbonne?","acceptedAnswer":{"@type":"Answer","text":"70-10020ac/jour"}}]}; export default function LisbonnePage() {
+export default function LisbonnePage() {
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLisbonneSchema) }} /> <Header />
-      <main className="min-h-screen bg-stone-50">
-        <section className="bg-gradient-to-b from-stone-900 to-stone-800 py-20">
-          <div className="max-w-4xl mx-auto px-4">
-            <span className="text-amber-400 text-sm mb-4">Portugal</span>
-            <h1 className="text-4xl text-white font-serif">Lisbonne</h1>
-            <p className="text-stone-300">Collines, Tram 28, fado. La capitale.</p>
-          </div>
-        </section>
-        <nav className="bg-white border-b px-4 py-3 flex gap-4 text-sm">
-          {navLinks.map(l => (
-            <Link key={l.href} href={l.href} className="text-stone-500 hover:text-amber-700">{l.label}</Link>
-          ))}
-        </nav>
-        <div className="max-w-4xl mx-auto px-4 py-12">
-          <section className="mb-8">
-            <p className="text-lg text-stone-700">Lisbonne, c'est les sept collines. On monte, on descend, on trouve.</p>
-          </section>
-          <section className="mb-8 grid md:grid-cols-3 gap-4">
-            {pepites.map((p, i) => (
-              <div key={i} className="p-4 bg-white rounded-lg border">
-                <div className="text-xl mb-2">{p.icon}</div>
-                <h3 className="font-serif">{p.title}</h3>
-                <p className="text-sm text-stone-600">{p.description}</p>
-              </div>
-            ))}
-          </section>
-          <Link href="/destinations/portugal" className="text-amber-700">← Retour Portugal</Link>
-        </div>
-      </main>
+      <Header />
+      <SubDestinationTemplate
+        name="Lisbonne"
+        parentName="Portugal"
+        parentSlug="portugal"
+        heroImage="https://images.unsplash.com/photo-1509840144299-db508400a780?w=1400&q=80"
+        introText="Lisbonne, la ville aux sept collines baignée par la lumière dorée du Tage, est une invitation à ralentir. Entre tramways historiques, façades d'azulejos patinées et mélodies nostalgiques du Fado, elle se découvre à pied, une ruelle pavée après l'autre."
+        highlights={highlights}
+        localTip="Prends le tramway 28 tôt le matin (avant 8h30) pour éviter la foule des touristes et observer les Lisboètes faire leurs courses."
+      />
       <Footer />
     </>
   )

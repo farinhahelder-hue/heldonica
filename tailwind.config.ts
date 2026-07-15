@@ -11,7 +11,7 @@ const config: Config = {
         'cloud-dancer': 'var(--color-background, #F8F6F2)',
         'eucalyptus': 'var(--color-primary, #006D77)',
         'teal': 'var(--color-secondary, #4ECDC4)',
-        'mahogany': 'var(--color-accent, #6B2D1F)',
+        'mahogany': '#6B2D1F',
         'charcoal': 'var(--color-text, #2C2C2C)',
       },
       fontFamily: {

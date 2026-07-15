@@ -216,16 +216,16 @@ export default function AProposPage() {
 
               <div className="bg-eucalyptus/10 rounded-2xl p-8 border border-eucalyptus/20">
                 <div className="w-12 h-12 rounded-full bg-eucalyptus/20 flex items-center justify-center mb-5">
-                  <span className="text-2xl">🏨</span>
+                  <span className="text-2xl">🎁</span>
                 </div>
-                <EditableZone page="a-propos" zone="service_3_title" fallback="Consulting Hôtelier"
+                <EditableZone page="a-propos" zone="service_3_title" fallback="Guides & Pépites Offerts"
                   className="text-xl font-serif font-light text-stone-900 mb-4 block"
                 />
-                <EditableZone page="a-propos" zone="service_3_text" type="textarea" fallback="On accompagne les hôteliers indépendants qui veulent réduire leur dépendance aux OTA. Contenu, stratégie digitale, positionnement — avec le regard du voyageur."
+                <EditableZone page="a-propos" zone="service_3_text" type="textarea" fallback="On partage gratuitement nos cartes interactives de terrain, nos checklists de voyage et nos guides de voyage thématiques pour t'aider à partir sereinement."
                   className="text-stone-600 leading-relaxed mb-6 block"
                 />
-                <Link href="/expert-hotelier" className="inline-flex items-center gap-2 text-eucalyptus font-semibold hover:gap-3 transition-all">
-                  <EditableZone page="a-propos" zone="service_3_cta" fallback="Voir l'offre B2B →" />
+                <Link href="/destinations" className="inline-flex items-center gap-2 text-eucalyptus font-semibold hover:gap-3 transition-all">
+                  <EditableZone page="a-propos" zone="service_3_cta" fallback="Découvrir les guides →" />
                 </Link>
               </div>
             </div>
