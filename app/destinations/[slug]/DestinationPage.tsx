@@ -8,6 +8,7 @@ import RelatedArticles from '@/components/RelatedArticles'
 import { supabase } from '@/lib/supabase-client'
 import { notFound } from 'next/navigation'
 import { BlogPost } from '@/lib/blog-supabase'
+import { SUB_DESTINATIONS } from '@/lib/sub-destinations'
 
 const DESTINATION_IMAGES: Record<string, string> = {
   'sicile': 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1400&q=85',
@@ -256,11 +257,11 @@ export default async function DestinationPage({ slug }: Props) {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
           <div className="relative container py-14 md:py-20 max-w-4xl">
-            <p className="text-xs uppercase tracking-[0.2em] text-amber-300 mb-4 font-semibold">
+            <p className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold">
               Destination testée
             </p>
             <h1 className="text-4xl md:text-6xl font-serif text-white mb-4">
-              {content.title}, <em className="text-amber-300">{content.subtitle}</em>
+              {content.title}, <em className="text-teal">{content.subtitle}</em>
             </h1>
             <p className="text-white/85 max-w-2xl text-lg leading-relaxed">
               {content.description.slice(0, 200)}...
@@ -302,6 +303,44 @@ export default async function DestinationPage({ slug }: Props) {
           </div>
         </section>
 
+        {/* Villes & pépites de la région */}
+        {(() => {
+          const subDests = SUB_DESTINATIONS[slug] || []
+          if (subDests.length === 0) return null
+          return (
+            <section className="bg-stone-50 py-16 border-t border-b border-stone-200/60">
+              <div className="container max-w-5xl">
+                <h2 className="text-3xl font-serif text-mahogany mb-2 text-center">
+                  Explorer les pépites de la région
+                </h2>
+                <p className="text-charcoal/60 text-sm text-center mb-10">
+                  Nos guides détaillés de terrain par ville et site d&apos;intérêt.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                  {subDests.map((sub) => (
+                    <Link
+                      key={sub.slug}
+                      href={`/destinations/${slug}/${sub.slug}`}
+                      className="group p-5 rounded-2xl bg-white border border-stone-100 hover:border-eucalyptus/30 hover:bg-eucalyptus/5 transition-all duration-300 flex flex-col h-full text-left"
+                    >
+                      <span className="text-3xl mb-3 block">{sub.emoji}</span>
+                      <h3 className="font-serif font-bold text-stone-900 group-hover:text-eucalyptus transition-colors mb-2">
+                        {sub.title}
+                      </h3>
+                      <p className="text-xs text-charcoal/60 leading-relaxed line-clamp-2 flex-1">
+                        {sub.teaser}
+                      </p>
+                      <span className="text-xs font-semibold text-eucalyptus mt-3 inline-block group-hover:translate-x-1 transition-transform">
+                        Voir le guide →
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )
+        })()}
+
         {/* Nos tips */}
         <section className="bg-cloud-dancer py-16">
           <div className="container max-w-4xl">
@@ -322,7 +361,7 @@ export default async function DestinationPage({ slug }: Props) {
         {/* Verdict */}
         <section className="bg-stone-900 py-16">
           <div className="container max-w-3xl text-center">
-            <p className="text-xs uppercase tracking-[0.2em] text-amber-300 mb-4 font-semibold">Notre verdict</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold">Notre verdict</p>
             <blockquote className="text-2xl md:text-3xl font-serif text-white leading-relaxed italic mb-6">
               &ldquo;{content.verdict}&rdquo;
             </blockquote>
@@ -341,7 +380,7 @@ export default async function DestinationPage({ slug }: Props) {
             </p>
             <Link
               href={`/travel-planning-form?destination=${slug}`}
-              className="inline-flex px-8 py-4 rounded-lg bg-amber-800 text-white font-semibold hover:bg-amber-700 transition-colors"
+              className="inline-flex px-8 py-4 rounded-lg bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors shadow-md"
             >
               Planifier ce voyage avec Heldonica →
             </Link>

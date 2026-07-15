@@ -509,64 +509,115 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
     currentPage * pageSize
   );
 
-  // ── Nav items ─────────────────────────────────────────────────────────────
-  const navItems: { id: NavSection; label: string; icon: React.ReactNode }[] = [
-    { id: 'dashboard',     label: 'Tableau de bord', icon: <Home size={16} /> },
-    { id: 'articles',      label: 'Articles',         icon: <FileText size={16} /> },
-    { id: 'new-article',   label: 'Nouvel article',   icon: <Plus size={16} /> },
-    { id: 'media',         label: 'Médias',            icon: <Image size={16} /> },
-    { id: 'carousel',      label: 'Carousels',         icon: <Package size={16} /> },
-    { id: 'blog-generator',label: 'Générateur blog',  icon: <Bot size={16} /> },
-    { id: 'video',         label: 'Vidéos',            icon: <Film size={16} /> },
-    { id: 'fast-trim',     label: 'Fast Trim',         icon: <Clapperboard size={16} /> },
-    { id: 'map',           label: 'Cartes',            icon: <MapIcon size={16} /> },
-    { id: 'design',        label: 'Design',             icon: <Palette size={16} /> },
-    { id: 'geo',           label: 'GEO',                icon: <Zap size={16} /> },
-    { id: 'instagram',     label: 'Instagram',           icon: <Camera size={16} /> },
-    { id: 'messages',      label: 'Messages',           icon: <Inbox size={16} /> },
-    { id: 'settings',      label: 'Paramètres',        icon: <Settings size={16} /> },
-    { id: 'testimonials',  label: 'Témoignages',      icon: <MessageSquare size={16} /> },
-    { id: 'checklists',    label: 'Checklists',        icon: <ClipboardList size={16} /> },
+  // ── Nav items grouped ──────────────────────────────────────────────────────
+  const navGroups: {
+    title: string;
+    items: {
+      id: NavSection;
+      label: string;
+      icon: React.ReactNode;
+      badge?: string;
+      badgeColor?: string;
+    }[];
+  }[] = [
+    {
+      title: 'Édition',
+      items: [
+        { id: 'dashboard',     label: 'Tableau de bord', icon: <Home size={15} /> },
+        { id: 'articles',      label: 'Articles',         icon: <FileText size={15} />, badge: articles.length > 0 ? String(articles.length) : undefined },
+        { id: 'new-article',   label: 'Nouvel article',   icon: <Plus size={15} /> },
+        { id: 'testimonials',  label: 'Témoignages',      icon: <MessageSquare size={15} /> },
+      ]
+    },
+    {
+      title: 'Contenu & Médias',
+      items: [
+        { id: 'media',         label: 'Médias',            icon: <Image size={15} /> },
+        { id: 'carousel',      label: 'Carousels',         icon: <Package size={15} /> },
+        { id: 'video',         label: 'Vidéos',            icon: <Film size={15} /> },
+        { id: 'fast-trim',     label: 'Fast Trim',         icon: <Clapperboard size={15} /> },
+        { id: 'map',           label: 'Cartes',            icon: <MapIcon size={15} /> },
+        { id: 'checklists',    label: 'Checklists',        icon: <ClipboardList size={15} /> },
+      ]
+    },
+    {
+      title: 'Marketing & Outils',
+      items: [
+        { id: 'blog-generator',label: 'Générateur blog',  icon: <Bot size={15} /> },
+        { id: 'instagram',     label: 'Instagram',           icon: <Camera size={15} /> },
+        { id: 'messages',      label: 'Messages',           icon: <Inbox size={15} />, badge: unreadCount > 0 ? String(unreadCount) : undefined, badgeColor: 'bg-red-500 text-white' },
+      ]
+    },
+    {
+      title: 'Configuration',
+      items: [
+        { id: 'design',        label: 'Design',             icon: <Palette size={15} /> },
+        { id: 'geo',           label: 'GEO',                icon: <Zap size={15} /> },
+        { id: 'settings',      label: 'Paramètres',        icon: <Settings size={15} /> },
+      ]
+    }
   ];
 
   // ── Layout ─────────────────────────────────────────────────────────────────
   return (
     <>
-      <div className="min-h-screen bg-[#f5f3ef] flex">
+      <div className="min-h-screen bg-[#f8f6f2] flex font-sans">
         {/* Sidebar */}
-        <aside className="w-56 shrink-0 bg-white border-r border-gray-100 flex flex-col py-6 px-3 min-h-screen">
-          <div className="px-3 mb-6">
-            <div className="text-lg font-bold text-[#6b2a1a]">🌿 Heldonica</div>
-            <div className="text-xs text-gray-400">CMS</div>
+        <aside className="w-60 shrink-0 bg-stone-900 text-stone-300 flex flex-col py-6 px-4 min-h-screen shadow-xl">
+          <div className="px-3 mb-6 flex items-center gap-2">
+            <span className="text-2xl">🌿</span>
+            <div>
+              <div className="text-base font-bold text-white tracking-wide">Heldonica</div>
+              <div className="text-[10px] text-teal tracking-widest uppercase font-semibold">Workspace</div>
+            </div>
           </div>
-          <nav className="flex-1">
-            <ul className="space-y-0.5">
-              {navItems.map(item => (
-                <li key={item.id}>
-                  <button
-                    onClick={() => setActiveSection(item.id)}
-                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      activeSection === item.id
-                        ? 'bg-[#2D8B7A] text-white'
-                        : 'text-gray-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    {item.icon}
-                    {item.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
+          <nav className="flex-1 overflow-y-auto pr-1 space-y-5 scrollbar-thin scrollbar-thumb-stone-800">
+            {navGroups.map((group, groupIdx) => (
+              <div key={groupIdx} className="space-y-1">
+                <div className="px-3 text-[10px] font-bold text-stone-500 uppercase tracking-wider">
+                  {group.title}
+                </div>
+                <ul className="space-y-0.5">
+                  {group.items.map(item => {
+                    const isActive = activeSection === item.id;
+                    return (
+                      <li key={item.id}>
+                        <button
+                          onClick={() => setActiveSection(item.id)}
+                          className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                            isActive
+                              ? 'bg-teal text-white shadow-md shadow-teal/10 font-semibold'
+                              : 'text-stone-400 hover:text-white hover:bg-stone-800/60'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <span className={isActive ? 'text-white' : 'text-stone-500 group-hover:text-stone-300'}>
+                              {item.icon}
+                            </span>
+                            <span>{item.label}</span>
+                          </div>
+                          {item.badge && (
+                            <span className={`px-1.5 py-0.5 text-[9px] font-bold rounded-full ${item.badgeColor || 'bg-stone-800 text-stone-300 border border-stone-700'}`}>
+                              {item.badge}
+                            </span>
+                          )}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
           </nav>
-          <div className="px-3 mt-4">
+          <div className="px-3 mt-4 pt-4 border-t border-stone-800">
             <button
               onClick={async () => {
                 await fetch('/api/cms/auth/logout', { method: 'POST' });
                 setIsAuthenticated(false);
               }}
-              className="w-full text-xs text-gray-400 hover:text-gray-600 py-2"
+              className="w-full text-left text-xs text-stone-500 hover:text-stone-300 transition-colors flex items-center gap-2 py-2"
             >
-              Déconnexion
+              🚪 Déconnexion
             </button>
           </div>
         </aside>

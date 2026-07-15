@@ -1,91 +1,55 @@
-import type { Metadata } from 'next';
+import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import Link from 'next/link'
+import SubDestinationTemplate from '@/components/SubDestinationTemplate'
 
-export function generateMetadata(): Metadata {
-  return {
-    title: "Ribeiro Frio en couple : slow travel & pépites cachées | Heldonica",
-    description: "Le centre montagne. Levadas, foret, altitude.",
-    openGraph: {
-      type: "website",
-      images: ["https://images.unsplash.com/photo-1548690312-e3b507d8c110?w=1200&q=80"],
-      locale: "fr_FR",
-      siteName: "Heldonica"
-    },
-    twitter: {
-      card: "summary_large_image"
-    },
-    alternates: {
-      canonical: 'https://www.heldonica.fr/destinations/madere/ribeiro-frio'
-    },
-  robots: { index: false, follow: false },
-  };
+export const metadata: Metadata = {
+  title: 'Ribeiro Frio en couple : notre carnet slow travel | Heldonica',
+  description: 'Le centre montagne. Levadas, foret, altitude en Madere. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
+  openGraph: {
+    title: 'Ribeiro Frio en couple : notre carnet slow travel | Heldonica',
+    description: 'Le centre montagne. Levadas, foret, altitude en Madere. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
+    type: 'website',
+    images: ['https://images.unsplash.com/photo-1548690312-e3b507d8c110?w=1200&q=80'],
+    locale: 'fr_FR',
+    siteName: 'Heldonica'
+  },
+  alternates: {
+    canonical: 'https://www.heldonica.fr/destinations/madere/ribeiro-frio'
+  }
 }
 
-const navLinks = [
-  { label: 'Madere', href: '/destinations/madere' },
-  { label: 'Funchal', href: '/destinations/madere/funchal' },
-]
-
-const pepites = [
-  { title: 'Levada do Furado', description: 'La rando star. 2h30 de tunnel vegetal.', icon: '🌿' },
-  { title: 'Portela', description: 'Le village avec la vue. Pour decelerer.', icon: '🏘️' },
-  { title: 'Balcoes', description: 'Le spot avec vue sur la valle. Court et doable.', icon: '⛰️' },
-  { title: 'Poiso', description: 'Le haut, la foret. Frais.', icon: '🌲' },
+const highlights = [
+  {
+    "emoji": "📍",
+    "title": "Découvertes calmes",
+    "description": "Prendre le temps d'arpenter les ruelles et les recoins cachés."
+  },
+  {
+    "emoji": "🌿",
+    "title": "Artisanat & Nature",
+    "description": "Découvrir la gastronomie locale et les petits producteurs."
+  },
+  {
+    "emoji": "✨",
+    "title": "Points de vue",
+    "description": "Admirer le panorama au coucher du soleil loin de l'agitation."
+  }
 ]
 
 export default function RibeiroFrioPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-stone-50">
-        <section className="bg-gradient-to-b from-stone-900 to-stone-800 py-20">
-          <div className="max-w-4xl mx-auto px-4">
-            <span className="text-amber-400 text-sm mb-4">Madere</span>
-            <h1 className="text-4xl text-white font-serif">Ribeiro Frio</h1>
-            <p className="text-stone-300">Le centre montagne. Levadas, foret, altitude.</p>
-          </div>
-        </section>
-        <nav className="bg-white border-b px-4 py-3 flex gap-4 text-sm">
-          {navLinks.map(l => (
-            <Link key={l.href} href={l.href} className="text-stone-500 hover:text-amber-700">{l.label}</Link>
-          ))}
-        </nav>
-        <div className="max-w-4xl mx-auto px-4 py-12">
-          <section className="mb-8">
-            <p className="text-lg text-stone-700">
-              Ribeiro Frio, c'est la montagne.
-              <strong>Les levadas dans la foret Laurisilva — patrimoine UNESCO.</strong>
-              Attention, il peut fare gris et pluvieux.
-            </p>
-          </section>
-          <section className="mb-8 grid md:grid-cols-2 gap-4">
-            {pepites.map((p, i) => (
-              <div key={i} className="p-4 bg-white rounded-lg border">
-                <div className="text-xl mb-2">{p.icon}</div>
-                <h3 className="font-serif">{p.title}</h3>
-                <p className="text-sm text-stone-600">{p.description}</p>
-              </div>
-            ))}
-          </section>
-          <section className="grid md:grid-cols-2 gap-6 mb-8">
-            <div className="bg-white p-5 rounded-lg border">
-              <h3 className="font-serif mb-3">Quand y aller</h3>
-              <ul className="text-sm text-stone-600 space-y-1">
-                <li><strong>Printemps:</strong> Ideal, vegetation.</li>
-                <li><strong>Septembre:</strong> Encore bon.</li>
-                <li><strong>Eviter:</strong> Hiver,多有雨水.</li>
-              </ul>
-            </div>
-            <div className="bg-white p-5 rounded-lg border">
-              <h3 className="font-serif mb-3">Conseil</h3>
-              <p className="text-sm text-stone-600">Prevoyez des Chaussures de rando. Les chemins sont glissants.</p>
-            </div>
-          </section>
-          <Link href="/destinations/madere" className="text-amber-700">← Retour Madere</Link>
-        </div>
-      </main>
+      <SubDestinationTemplate
+        name="Ribeiro Frio"
+        parentName="Madere"
+        parentSlug="madere"
+        heroImage="https://images.unsplash.com/photo-1548690312-e3b507d8c110?w=1200&q=80"
+        introText="Le centre montagne. Levadas, foret, altitude."
+        highlights={highlights}
+        localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."
+      />
       <Footer />
     </>
   )

@@ -25,20 +25,21 @@ const FALLBACK_FAQ_QUESTIONS = [
 export const metadata: Metadata = {
   title: 'Services | Travel Planning sur mesure',
   description:
-    "Services Heldonica : Travel Planning personnalisé, expertise hôtelière B2B, et plus encore. Des solutions sur mesure pour vos voyages et établissements.",
+    "Découvrez les services Heldonica : Travel Planning sur mesure, carnets de voyage personnalisés en duo et guides slow travel de terrain pour vos escapades en couple.",
   keywords: [
     'travel planning',
     'voyage sur mesure',
-    'expert hotelier',
+    'slow travel',
     'heldonica',
-    'services voyage',
+    'carnets de voyage',
+    'itineraire couple',
   ],
   alternates: {
     canonical: 'https://www.heldonica.fr/nos-services',
   },
   openGraph: {
     title: 'Nos Services | Heldonica',
-    description: "Des services pensés pour les voyageurs en quête d'authenticité et les professionnels de l'hôtellerie.",
+    description: "Des services de travel planning sur mesure et des guides de terrain pour les voyageurs en quête d'authenticité et de slow travel.",
     images: [
       {
         url: '/og-default.jpg',
@@ -144,7 +145,7 @@ export default async function NosServicesPage() {
                 />
               </span>
             </h1>
-            <EditableZone page="nos-services" zone="hero_text" type="textarea" fallback="Du voyage sur mesure à l'expertise hôtelière, on vous accompagne à chaque étape de votre projet."
+            <EditableZone page="nos-services" zone="hero_text" type="textarea" fallback="Du carnet de route sur mesure aux guides de terrain offerts, on t'accompagne pour créer un voyage qui te ressemble."
               className="text-stone-300 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto block"
             />
           </div>
@@ -164,7 +165,7 @@ export default async function NosServicesPage() {
                 <EditableZone page="nos-services" zone="card_1_title" fallback="Travel Planning"
                   className="text-xl font-serif font-bold text-stone-900 mb-3 block"
                 />
-                <EditableZone page="nos-services" zone="card_1_text" type="textarea" fallback="On conçoit votre voyage sur mesure. Carnet de route PDF, hébergements triés sur le volet, pépites dénichées, support WhatsApp."
+                <EditableZone page="nos-services" zone="card_1_text" type="textarea" fallback="On conçoit ton voyage sur mesure. Carnet de route PDF, hébergements triés sur le volet, pépites dénichées, support WhatsApp."
                   className="text-stone-600 leading-relaxed mb-6 block"
                 />
                 <EditableZone page="nos-services" zone="card_1_price" fallback="À partir de 149€"
@@ -175,17 +176,17 @@ export default async function NosServicesPage() {
                 </Link>
               </div>
 
-              {/* Expertise Hôtelière */}
+              {/* Guides de Voyage */}
               <div className="bg-stone-50 rounded-2xl p-8 border border-stone-100 hover:shadow-lg transition-shadow">
-                <div className="text-4xl mb-5">🏨</div>
-                <EditableZone page="nos-services" zone="card_2_title" fallback="Expertise Hôtelière B2B"
+                <div className="text-4xl mb-5">🎁</div>
+                <EditableZone page="nos-services" zone="card_2_title" fallback="Guides & Cartes Offerts"
                   className="text-xl font-serif font-bold text-stone-900 mb-3 block"
                 />
-                <EditableZone page="nos-services" zone="card_2_text" type="textarea" fallback="Audit complet, stratégie contenu et formation équipes pour hôteliers et gestionnaires de biens. On analyse, on optimise, on forme."
+                <EditableZone page="nos-services" zone="card_2_text" type="textarea" fallback="Télécharge librement nos cartes de terrain interactives et nos guides top 10 pépites pour préparer tes escapades sereinement."
                   className="text-stone-600 leading-relaxed mb-6 block"
                 />
-                <Link href="/expert-hotelier" className="inline-flex items-center gap-2 text-sm font-semibold text-eucalyptus hover:text-eucalyptus/80 transition-colors">
-                  <EditableZone page="nos-services" zone="card_2_cta" fallback="En savoir plus →" />
+                <Link href="/destinations" className="inline-flex items-center gap-2 text-sm font-semibold text-eucalyptus hover:text-eucalyptus/80 transition-colors">
+                  <EditableZone page="nos-services" zone="card_2_cta" fallback="Découvrir les guides →" />
                 </Link>
               </div>
 
@@ -195,7 +196,7 @@ export default async function NosServicesPage() {
                 <EditableZone page="nos-services" zone="card_3_title" fallback="Carnets de Voyage"
                   className="text-xl font-serif font-bold text-stone-900 mb-3 block"
                 />
-                <EditableZone page="nos-services" zone="card_3_text" type="textarea" fallback="Des récits de voyage authentiques, des guides pratiques et des inspirations pour voyager à votre rythme. Sans filtre."
+                <EditableZone page="nos-services" zone="card_3_text" type="textarea" fallback="Des récits de voyage authentiques, des guides pratiques et des inspirations pour voyager à ton rythme. Sans filtre."
                   className="text-stone-600 leading-relaxed mb-6 block"
                 />
                 <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-semibold text-eucalyptus hover:text-eucalyptus/80 transition-colors">
@@ -230,10 +231,10 @@ export default async function NosServicesPage() {
                 <EditableZone page="nos-services" zone="cta_primary" fallback="Demander un voyage sur mesure →" />
               </Link>
               <Link
-                href="/expert-hotelier"
+                href="/blog"
                 className="px-8 py-4 bg-stone-100 text-stone-900 font-semibold rounded-full hover:bg-stone-200 transition-colors"
               >
-                <EditableZone page="nos-services" zone="cta_secondary" fallback="Découvrir l'offre B2B" />
+                <EditableZone page="nos-services" zone="cta_secondary" fallback="Consulter nos carnets →" />
               </Link>
             </div>
           </div>

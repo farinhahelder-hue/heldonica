@@ -120,18 +120,35 @@ export default async function Home() {
   const heroVideoUrl = heroSettings['hero_video_url'] || null
   const heroPosterImage = heroSettings['hero_poster_image'] || null
 
-  const latestPosts = allPosts.slice(0, 6)
-  const travelPosts = formatPosts(allPosts.filter((p) => p.category === 'Carnets Voyage').slice(0, 3))
-  const foodPosts = formatPosts(
-    allPosts
-      .filter((p) => p.category === 'Découvertes Locales' || p.category === 'Guides Pratiques')
-      .slice(0, 3)
-  )
   // Featured: use first published article with a valid slug (avoids 404)
   const featuredPost = allPosts.find(p => p.slug && p.slug.trim().length > 0) ?? null
+  const featuredSlug = featuredPost?.slug || '';
   const featured = featuredPost
     ? { ...featuredPost, formattedDate: formatDate(featuredPost.published_at), readTime: (featuredPost.read_time && featuredPost.read_time > 0) ? featuredPost.read_time : calcReadTime(featuredPost.content) }
     : null
+
+  // Travel posts: exclude featured
+  const filteredTravel = allPosts.filter((p) => p.category === 'Carnets Voyage' && p.slug !== featuredSlug)
+  const travelPosts = formatPosts(filteredTravel.slice(0, 3))
+
+  // Food posts: exclude featured
+  const filteredFood = allPosts.filter(
+    (p) => (p.category === 'Découvertes Locales' || p.category === 'Guides Pratiques') && p.slug !== featuredSlug
+  )
+  const foodPosts = formatPosts(filteredFood.slice(0, 3))
+
+  // Latest posts: exclude featured, travel, and food posts to prevent duplicates
+  const travelSlugs = new Set(travelPosts.map(p => p.slug))
+  const foodSlugs = new Set(foodPosts.map(p => p.slug))
+  
+  let filteredLatest = allPosts.filter(
+    (p) => p.slug !== featuredSlug && !travelSlugs.has(p.slug) && !foodSlugs.has(p.slug)
+  )
+  // If we don't have enough posts, fall back to letting them overlap rather than showing nothing
+  if (filteredLatest.length === 0) {
+    filteredLatest = allPosts.filter((p) => p.slug !== featuredSlug)
+  }
+  const latestPosts = filteredLatest.slice(0, 6)
 
   // Site settings
   const siteSettings = {

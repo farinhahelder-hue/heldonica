@@ -55,10 +55,9 @@ export async function POST(request: NextRequest) {
       destData = d || null
 
       const { data: a } = await (supabase as any)
-        .from('articles')
+        .from('cms_blog_posts')
         .select('title, excerpt, slug')
         .eq('published', true)
-        .eq('archived', false)
         .contains('tags', [destinationSlug])
         .limit(5)
       if (a) articles = a

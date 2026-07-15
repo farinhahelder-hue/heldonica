@@ -1,81 +1,55 @@
-import type { Metadata } from 'next';
+import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import Link from 'next/link'
+import SubDestinationTemplate from '@/components/SubDestinationTemplate'
 
-export function generateMetadata(): Metadata {
-  return {
-    title: "Portela en couple : slow travel & pépites cachées | Heldonica",
-    description: "Le village. La vue, le cimetiere, les eucalyptus.",
-    openGraph: {
-      type: "website",
-      images: ["https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200&q=80"],
-      locale: "fr_FR",
-      siteName: "Heldonica"
-    },
-    twitter: {
-      card: "summary_large_image"
-    },
-    alternates: {
-      canonical: 'https://www.heldonica.fr/destinations/madere/portela'
-    },
-  robots: { index: false, follow: false },
-  };
+export const metadata: Metadata = {
+  title: 'Portela en couple : notre carnet slow travel | Heldonica',
+  description: 'Le village. La vue, le cimetiere, les eucalyptus en ⭐ Secret Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
+  openGraph: {
+    title: 'Portela en couple : notre carnet slow travel | Heldonica',
+    description: 'Le village. La vue, le cimetiere, les eucalyptus en ⭐ Secret Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
+    type: 'website',
+    images: ['https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200&q=80'],
+    locale: 'fr_FR',
+    siteName: 'Heldonica'
+  },
+  alternates: {
+    canonical: 'https://www.heldonica.fr/destinations/madere/portela'
+  }
 }
 
-const navLinks = [
-  { label: 'Madere', href: '/destinations/madere' },
-  { label: 'Ribeiro Frio', href: '/destinations/madere/ribeiro-frio' },
-]
-
-const pepites = [
-  { title: 'Viewpoint', description: 'Vue a 360. Sur tout.', icon: '🌄' },
-  { title: 'Cemetery', description: 'Le cimetiere. Beaux monuments.', icon: '🪦' },
-  { title: 'Church', description: 'L eglise du village. Simple.', icon: '⛪' },
-  { title: 'Eucalyptus', description: 'Les arbres. Parfums.', icon: '🌳' },
+const highlights = [
+  {
+    "emoji": "📍",
+    "title": "Découvertes calmes",
+    "description": "Prendre le temps d'arpenter les ruelles et les recoins cachés."
+  },
+  {
+    "emoji": "🌿",
+    "title": "Artisanat & Nature",
+    "description": "Découvrir la gastronomie locale et les petits producteurs."
+  },
+  {
+    "emoji": "✨",
+    "title": "Points de vue",
+    "description": "Admirer le panorama au coucher du soleil loin de l'agitation."
+  }
 ]
 
 export default function PortelaPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-stone-50">
-        <section className="bg-gradient-to-b from-stone-900 to-stone-800 py-20">
-          <div className="max-w-4xl mx-auto px-4">
-            <span className="text-amber-400 text-sm mb-4 inline-block">⭐ Secret Gem</span>
-            <h1 className="text-4xl text-white font-serif">Portela</h1>
-            <p className="text-stone-300">Le village. La vue, le cimetiere, les eucalyptus.</p>
-          </div>
-        </section>
-        <nav className="bg-white border-b px-4 py-3 flex gap-4 text-sm">
-          {navLinks.map(l => (
-            <Link key={l.href} href={l.href} className="text-stone-500 hover:text-amber-700">{l.label}</Link>
-          ))}
-        </nav>
-        <div className="max-w-4xl mx-auto px-4 py-12">
-          <section className="mb-8">
-            <p className="text-lg text-stone-700">
-              Portela, c'est le village qu'on voit depuis Ribeiro Frio.
-              <strong>Petit, silent, et la vue est enorme.</strong>
-              Les gens y vivent their vie.
-            </p>
-          </section>
-          <section className="mb-8 grid md:grid-cols-2 gap-4">
-            {pepites.map((p, i) => (
-              <div key={i} className="p-4 bg-white rounded-lg border">
-                <div className="text-xl mb-2">{p.icon}</div>
-                <h3 className="font-serif">{p.title}</h3>
-                <p className="text-sm text-stone-600">{p.description}</p>
-              </div>
-            ))}
-          </section>
-          <section className="mb-8 p-5 bg-amber-50 rounded-lg border border-amber-200">
-            <h3 className="font-serif mb-2">⭐ Le moment</h3>
-            <p className="text-sm text-stone-700">Le matin tot -- la brume descend des montagnes et le silence est Total.</p>
-          </section>
-          <Link href="/destinations/madere" className="text-amber-700">← Retour Madere</Link>
-        </div>
-      </main>
+      <SubDestinationTemplate
+        name="Portela"
+        parentName="⭐ Secret Gem"
+        parentSlug="madere"
+        heroImage="https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200&q=80"
+        introText="Le village. La vue, le cimetiere, les eucalyptus."
+        highlights={highlights}
+        localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."
+      />
       <Footer />
     </>
   )

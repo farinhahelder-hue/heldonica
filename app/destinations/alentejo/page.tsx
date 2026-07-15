@@ -362,7 +362,7 @@ export default function AlentejoPage() {
                 <div>
                   <h3 className="text-lg font-semibold text-stone-900 mb-2">Bus régionaux</h3>
                   <p className="text-stone-600 text-sm leading-relaxed">
-                    Si vous n’avez pas de voiture, les Rede Expressos连接 les grandes villes. Mais pour les villages, forget it.
+                    Sans voiture, les Rede Expressos relient les grandes villes. Mais pour les villages, c’est compliqué.
                   </p>
                 </div>
               </div>
