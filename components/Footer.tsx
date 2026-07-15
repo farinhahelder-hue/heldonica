@@ -16,6 +16,7 @@ export default function Footer() {
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [subscribeError, setSubscribeError] = useState('')
   const { zones } = useEditableContext()
   const { settings } = useContentLoader()
   const currentYear = new Date().getFullYear()
@@ -55,7 +56,7 @@ export default function Footer() {
 
   const destinationsLinks = arr(5, (i) => ({
     label: cz(`footer_dest_item_${i + 1}_label`, ['Madère', 'Roumanie', 'Monténégro', 'Grèce', 'Colombie'][i]),
-    href: cz(`footer_dest_item_${i + 1}_url`, ['/destinations/madere', '/destinations/roumanie', '/destinations/montenegro', '/destinations/grece', '/destinations/colombie'][i]),
+    href: cz(`footer_dest_item_${i + 1}_url`, ['/destinations/madere', '/destinations/roumanie', '/destinations/montenegro', '/destinations', '/destinations/colombie'][i]),
   }))
 
   const guidesLinks = arr(3, (i) => ({
@@ -84,6 +85,7 @@ export default function Footer() {
     if (!email) return
 
     setLoading(true)
+    setSubscribeError('')
     try {
       const res = await fetch('/api/brevo/subscribe', {
         method: 'POST',
@@ -94,10 +96,10 @@ export default function Footer() {
       if (res.ok) {
         setSubscribed(true)
       } else {
-        console.error('Erreur inscription:', await res.json())
+        setSubscribeError('Une erreur est survenue. Réessaie ou écris-nous directement.')
       }
-    } catch (err) {
-      console.error('Erreur reseau:', err)
+    } catch {
+      setSubscribeError('Connexion impossible. Réessaie dans quelques instants.')
     } finally {
       setLoading(false)
     }
@@ -128,7 +130,9 @@ export default function Footer() {
                 </div>
               ) : (
                 <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3">
+                  <label htmlFor="footer-newsletter-email" className="sr-only">{newsletterPlaceholder}</label>
                   <input
+                    id="footer-newsletter-email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -145,6 +149,9 @@ export default function Footer() {
                     {loading ? newsletterBtnLoading : newsletterBtn}
                   </button>
                 </form>
+                {subscribeError && (
+                  <p role="alert" className="mt-2 text-red-400 text-sm">{subscribeError}</p>
+                )}
               )}
             </div>
           </div>

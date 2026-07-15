@@ -124,7 +124,7 @@ export default function AlentejoPage() {
           {/* Badge testage */}
           <div className="absolute left-4 top-4 md:left-8 md:top-8">
             <span className="inline-block rounded-full bg-amber-500/90 px-4 py-2 text-xs font-bold text-white shadow-lg backdrop-blur-sm">
-              ✦ Testé par Heldonica · 2 séjours · 2023-2024
+              <span aria-hidden="true">✦ </span>Testé par Heldonica · 2 séjours · 2023-2024
             </span>
           </div>
 

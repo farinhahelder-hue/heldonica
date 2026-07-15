@@ -156,7 +156,9 @@ export default function NewsletterPopup() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-3">
+            <label htmlFor="popup-newsletter-email" className="sr-only">Ton adresse email</label>
             <input
+              id="popup-newsletter-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}

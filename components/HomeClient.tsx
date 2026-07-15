@@ -137,7 +137,7 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
     : null
 
   return (
-    <Link href={`/blog/${post.slug}`} className="group block h-full">
+    <Link href={`/blog/${post.slug}`} className="group block h-full" aria-label={`Lire le carnet : ${post.title}`}>
       <article className="relative rounded-2xl overflow-hidden bg-mahogany/80 shadow-md hover:shadow-xl transition-all duration-400 h-full flex flex-col">
         <div className={`relative ${h} overflow-hidden`}>
           {imgFailed ? (

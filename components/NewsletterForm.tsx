@@ -99,7 +99,9 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md" style={{ position: 'relative' }}>
             <HoneypotField />
+            <label htmlFor="newsletter-email-article" className="sr-only">Ton adresse email</label>
             <input
+              id="newsletter-email-article"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -134,7 +136,9 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center" style={{ position: 'relative' }}>
             <HoneypotField />
+            <label htmlFor="newsletter-email-inline" className="sr-only">Ton adresse email</label>
             <input
+              id="newsletter-email-inline"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -179,7 +183,9 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto" style={{ position: 'relative' }}>
             <HoneypotField />
+            <label htmlFor="newsletter-email-blog" className="sr-only">Ton adresse email</label>
             <input
+              id="newsletter-email-blog"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}

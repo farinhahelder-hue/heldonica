@@ -351,7 +351,7 @@ export default function TravelPlanningPage() {
               {testimonialsData.map((t) => (
                 <div key={t.zone} className="bg-white rounded-xl border border-stone-200 p-6">
                   <div className="flex items-center gap-1 mb-4">
-                    {[...Array(5)].map((_, i) => <span key={i} className="text-amber-400 text-sm">★</span>)}
+                    <span aria-label="5 étoiles">{[...Array(5)].map((_, i) => <span key={i} className="text-amber-400 text-sm" aria-hidden="true">★</span>)}</span>
                   </div>
                   <EditableZone page="travel-planning" zone={`${t.zone}_text`} type="textarea" fallback={t.text}
                     className="text-sm text-charcoal/70 leading-relaxed mb-4 italic block"
