@@ -69,13 +69,13 @@ export default function Breadcrumb() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
-    <nav className="bg-cloud-dancer/80 backdrop-blur-sm border-b border-cloud-dancer py-3 px-4 md:px-6 mt-16">
+    <nav aria-label="Fil d'Ariane" className="bg-cloud-dancer/80 backdrop-blur-sm border-b border-cloud-dancer py-3 px-4 md:px-6 mt-16">
       <div className="max-w-7xl mx-auto">
         <ol className="flex items-center gap-1.5 text-xs md:text-sm overflow-x-auto no-scrollbar">
           {safeBreadcrumbsWithNames.map((crumb, index) => (
             <li key={crumb.href} className="flex items-center gap-1.5 whitespace-nowrap">
               {index > 0 && (
-                <svg className="w-3 h-3 text-charcoal/40 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg aria-hidden="true" className="w-3 h-3 text-charcoal/40 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               )}
