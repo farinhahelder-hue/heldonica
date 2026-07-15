@@ -19,12 +19,12 @@ export const metadata: Metadata = {
   title: 'Kotor avant les croisiéristes — guide slow travel | Heldonica',
   description: 'Notre guide pour découvrir Kotor à son meilleur : lever du soleil sur la baie, remparts vides et vieille ville avant 9h. Conseils terrain pour un slow travel réussi.',
   alternates: {
-    canonical: 'https://heldonica.fr/destinations/montenegro/kotor',
+    canonical: 'https://www.heldonica.fr/destinations/montenegro/kotor',
   },
   openGraph: {
     title: 'Kotor avant les croisiéristes | Heldonica',
     description: 'Le secret de Kotor : partir à 7h. Notre guide slow travel pour une ville vide.',
-    url: 'https://heldonica.fr/destinations/montenegro/kotor',
+    url: 'https://www.heldonica.fr/destinations/montenegro/kotor',
     siteName: 'Heldonica',
     locale: 'fr_FR',
     type: 'article',

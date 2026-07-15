@@ -142,7 +142,7 @@ export default function SubDestinationTemplate({
                     />
                   </div>
                   <div>
-                    <h4 className="font-serif font-bold text-stone-800 text-sm group-hover:text-[#2D8B7A] transition-colors line-clamp-2">
+                    <h4 className="font-serif font-bold text-stone-800 text-sm group-hover:text-eucalyptus transition-colors line-clamp-2">
                       {post.title}
                     </h4>
                     {post.excerpt && (
@@ -161,7 +161,7 @@ export default function SubDestinationTemplate({
       {/* ── B2C CTA TRAVEL PLANNING ── */}
       <section className="py-20 bg-stone-900 text-white text-center">
         <div className="max-w-2xl mx-auto px-6">
-          <span className="text-[#2D8B7A] text-xs font-bold tracking-[0.2em] uppercase mb-4 block">
+          <span className="text-teal text-xs font-bold tracking-[0.2em] uppercase mb-4 block">
             Ton itinéraire sur mesure
           </span>
           <h2 className="text-3xl md:text-4xl font-serif font-light mb-6">

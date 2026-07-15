@@ -67,7 +67,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: 'Carnets de voyage | Heldonica',
       description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain.',
-      url: 'https://heldonica.fr/blog',
+      url: 'https://www.heldonica.fr/blog',
       siteName: 'Heldonica',
       type: 'website',
       locale: 'fr_FR',

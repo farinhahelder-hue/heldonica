@@ -194,7 +194,7 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
                 </>
               )}
             </div>
-            <span className="text-xs text-eucalyptus font-semibold group-hover:translate-x-1 transition-transform">Lire le carnet →</span>
+            <span className="text-xs text-eucalyptus font-semibold group-hover:translate-x-1 transition-transform" aria-hidden="true">Lire le carnet →</span>
           </div>
         </div>
       </article>
@@ -323,8 +323,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             <div className="md:col-span-2 grid grid-cols-2 gap-6" data-reveal="right">
               <AnimatedStat nb="4+" label="Ans de slow travel" />
               <AnimatedStat nb="100+" label="Adresses vécues" />
-              <AnimatedStat nb={countryCount} label="Pays habités" />
-              <AnimatedStat nb={publishedArticles} suffix="" label="Carnets publiés" />
+              <AnimatedStat nb={countryCount} suffix="+" label="Pays habités" />
+              <AnimatedStat nb={publishedArticles} suffix="+" label="Carnets publiés" />
               <div className="col-span-2 mt-2">
                 <p className="text-xs text-charcoal/40 leading-relaxed">
                   <span className="font-semibold text-charcoal/70">Terrains de jeu :</span><br />
@@ -559,14 +559,14 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 </em>
               </h2>
               <EditableZone page="home" zone="section_cta_text" type="textarea" fallback="Tu nous envoies tes contraintes réelles..."
-                className="text-charcoal/40 leading-relaxed mb-4 block"
+                className="text-white/65 leading-relaxed mb-4 block"
               />
               <EditableZone page="home" zone="section_cta_subtext" type="textarea" fallback="Notre terrain naturel : les couples..."
-                className="text-charcoal/60 text-sm leading-relaxed mb-8 block"
+                className="text-white/50 text-sm leading-relaxed mb-8 block"
               />
               <div className="flex flex-wrap gap-3">
                 <Link href="/travel-planning#formulaire"
-                  className="px-6 py-3 bg-eucalyptus hover:bg-eucalyptus text-white rounded font-semibold text-sm transition">
+                  className="px-6 py-3 bg-eucalyptus hover:bg-eucalyptus/80 text-white rounded font-semibold text-sm transition">
                   <EditableZone page="home" zone="section_cta_btn_1" fallback="Nous écrire →" />
                 </Link>
                 <Link href="/travel-planning"
@@ -585,7 +585,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   <h3 className="font-semibold text-white text-sm mb-1">
                     <EditableZone page="home" zone={`${item.zone}_title`} fallback={item.t} />
                   </h3>
-                  <p className="text-charcoal/40 text-sm leading-relaxed">
+                  <p className="text-white/60 text-sm leading-relaxed">
                     <EditableZone page="home" zone={`${item.zone}_text`} type="textarea" fallback={item.d} />
                   </p>
                 </div>

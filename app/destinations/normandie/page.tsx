@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     url: 'https://www.heldonica.fr/destinations/normandie',
     images: [
       {
-        url: 'https://heldonica.fr/og-destinations.jpg',
+        url: 'https://www.heldonica.fr/og-destinations.jpg',
         width: 1200,
         height: 630,
         alt: 'Normandie slow travel - Falaises d Etretat',
