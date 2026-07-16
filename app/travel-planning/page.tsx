@@ -310,29 +310,49 @@ export default function TravelPlanningPage() {
             <EditableZone page="travel-planning" zone="pricing_subtitle" fallback="Des formules claires, sans surprise. Le devis est gratuit et sans engagement."
               className="text-charcoal/60 text-sm text-center mb-10 max-w-lg mx-auto block"
             />
-            <div className="grid md:grid-cols-3 gap-6">
+             <div className="grid md:grid-cols-3 gap-8 items-stretch pt-4">
               {pricingPlans.map((plan) => (
-                <div key={plan.zone} className={`rounded-2xl border-2 p-6 flex flex-col ${plan.popular ? 'border-eucalyptus bg-eucalyptus/5 shadow-lg scale-105' : 'border-stone-200 bg-white'}`}>
-                  {plan.popular && <EditableZone page="travel-planning" zone={`${plan.zone}_badge`} fallback="Le plus populaire"
-                    className="text-[10px] font-bold text-eucalyptus uppercase tracking-widest mb-2 block"
-                  />}
-                  <h3 className="text-xl font-serif font-bold text-mahogany mb-1">
+                <div
+                  key={plan.zone}
+                  className={`rounded-3xl p-8 flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 border ${
+                    plan.popular
+                      ? 'border-eucalyptus bg-gradient-to-b from-eucalyptus/5 to-white shadow-xl shadow-eucalyptus/5 md:scale-105 z-10'
+                      : 'border-stone-200 bg-white shadow-sm'
+                  }`}
+                >
+                  {plan.popular && (
+                    <div className="mb-3">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-eucalyptus/10 text-[10px] font-bold text-eucalyptus uppercase tracking-wider">
+                        <EditableZone page="travel-planning" zone={`${plan.zone}_badge`} fallback="Le plus populaire" className="inline" />
+                      </span>
+                    </div>
+                  )}
+                  <h3 className="text-2xl font-serif font-bold text-mahogany mb-1">
                     <EditableZone page="travel-planning" zone={`${plan.zone}_name`} fallback={plan.name} className="inline" />
                   </h3>
                   <EditableZone page="travel-planning" zone={`${plan.zone}_price`} fallback={plan.price}
-                    className="text-3xl font-bold text-eucalyptus mb-3 block"
+                    className="text-4xl font-bold text-eucalyptus mb-3 block"
                   />
                   <EditableZone page="travel-planning" zone={`${plan.zone}_desc`} fallback={plan.desc}
-                    className="text-sm text-charcoal/60 mb-6 block"
+                    className="text-sm text-charcoal/60 mb-6 block leading-relaxed"
                   />
-                  <ul className="space-y-2 mb-8 flex-1">
+                  <div className="w-full h-px bg-stone-100 mb-6" />
+                  <ul className="space-y-3.5 mb-8 flex-1">
                     {plan.features.map((f, fi) => (
-                      <li key={fi} className="text-sm text-charcoal/70 flex items-start gap-2 before:content-['✓'] before:text-eucalyptus before:font-bold">
-                        <EditableZone page="travel-planning" zone={`${plan.zone}_feature_${fi + 1}`} fallback={f} className="inline" />
+                      <li key={fi} className="text-sm text-charcoal/70 flex items-start gap-2.5">
+                        <span className="text-eucalyptus font-bold mt-0.5">✓</span>
+                        <EditableZone page="travel-planning" zone={`${plan.zone}_feature_${fi + 1}`} fallback={f} className="inline-1 leading-relaxed" />
                       </li>
                     ))}
                   </ul>
-                  <a href="#formulaire" className={`block text-center rounded-full py-3 text-sm font-semibold transition-all ${plan.popular ? 'bg-eucalyptus text-white hover:bg-eucalyptus/90' : 'bg-stone-100 text-stone-700 hover:bg-stone-200 border border-stone-200'}`}>
+                  <a
+                    href="#formulaire"
+                    className={`block text-center rounded-full py-3.5 text-sm font-semibold transition-all duration-200 ${
+                      plan.popular
+                        ? 'bg-gradient-to-r from-eucalyptus to-teal text-white hover:brightness-110 shadow-md shadow-eucalyptus/20 hover:shadow-lg'
+                        : 'bg-stone-50 text-stone-700 hover:bg-stone-100 border border-stone-200'
+                    }`}
+                  >
                     <EditableZone page="travel-planning" zone={`${plan.zone}_cta`} fallback={plan.name === 'Sur-Mesure' ? 'Demander un devis' : 'Choisir cette formule'} className="inline" />
                   </a>
                 </div>
