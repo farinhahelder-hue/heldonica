@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import EditableZone from '@/components/inline-edit/EditableZone';
 
@@ -349,9 +350,9 @@ Généré avec Heldonica`;
           <button onClick={exportPlan} style={{ padding: '.75rem 1.5rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600, marginRight: '1rem' }}>
             📥 Exporter
           </button>
-          <a href="/travel-planning" style={{ display: 'inline-block', padding: '.75rem 1.5rem', background: '#6b2a1a', color: 'white', borderRadius: '.5rem', textDecoration: 'none', fontWeight: 600 }}>
+          <Link href="/travel-planning" style={{ display: 'inline-block', padding: '.75rem 1.5rem', background: '#6b2a1a', color: 'white', borderRadius: '.5rem', textDecoration: 'none', fontWeight: 600 }}>
             ✈️ Demander un devis
-          </a>
+          </Link>
         </div>
       </div>
     </div>
