@@ -29,9 +29,9 @@ const faqNormandieSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    { "@type": "Question", "name": "Quand aller en Normandie ?", "acceptedAnswer": { "@type": "Answer", "text": "Mai-septembre pour meteo agreable. Juin pour cimetiere americain moins foule." }},
-    { "@type": "Question", "name": "Comment aller en Normandie ?", "acceptedAnswer": { "@type": "Answer", "text": "Train depuis Paris (2h). Voiture pour flexibilite. Baleines à Etretat." }},
-    { "@type": "Question", "name": "Que voir en Normandie ?", "acceptedAnswer": { "@type": "Answer", "text": "Le Havre (UNESCO), Honfleur, plages du debarquement, Mont Saint-Michel." }}
+    { "@type": "Question", "name": "Quand aller en Normandie ?", "acceptedAnswer": { "@type": "Answer", "text": "Mai-juin pour la météo douce et les foules maîtrisées. Juin idéal pour les commémorations avec moins de monde qu'en juillet. Éviter les week-ends de juillet-août sur la Côte d'Albâtre." }},
+    { "@type": "Question", "name": "Comment aller en Normandie depuis Paris ?", "acceptedAnswer": { "@type": "Answer", "text": "Train depuis Paris-Saint-Lazare jusqu'au Havre (2h15) ou Caen (2h). Voiture indispensable pour explorer la Côte d'Albâtre, le Pays d'Auge et les plages du Débarquement. Location possible à l'arrivée en gare." }},
+    { "@type": "Question", "name": "Que voir en Normandie hors des sentiers battus ?", "acceptedAnswer": { "@type": "Answer", "text": "Le centre Auguste Perret du Havre (UNESCO), les petits ports de la Côte d'Albâtre entre Étretat et Fécamp, les vallons du Pays d'Auge loin des routes touristiques, les producteurs de Calvados en direct." }}
   ]
 };
 
@@ -62,8 +62,8 @@ export const metadata: Metadata = {
 
 const subNav = [
   { label: 'Le Havre', href: '/destinations/normandie/le-havre' },
-  { label: 'Côte d Albâtre', href: '/destinations/normandie/cote-albatre' },
-  { label: 'Pays d Auge', href: '/destinations/normandie/pays-dauge' },
+  { label: "Côte d'Albâtre", href: '/destinations/normandie/cote-albatre' },
+  { label: "Pays d'Auge", href: '/destinations/normandie/pays-dauge' },
 ]
 
 export default function NormandiePage() {
@@ -107,9 +107,9 @@ export default function NormandiePage() {
           {/* Intro */}
           <section className="mb-12">
             <p className="text-lg text-stone-700 leading-relaxed">
-              Quand on pense Normandie, on imagine les plages du Débarquement, les falaises d Etretat, Honfleur.
-              Mais entre les sentiers battus, il y a une Normandie plus secrète : les petits ports de pêche, les vallons du Pays d Auge,
-              les apparts Art déco du Havre. <strong>C'est celle-là qu'on est allés chercher.</strong>
+              Quand on pense Normandie, on imagine les plages du Débarquement, les falaises d'Étretat, Honfleur.
+              Mais entre les sentiers battus, il y a une Normandie plus secrète : les petits ports de pêche, les vallons du Pays d'Auge,
+              l'architecture Art Déco du Havre. <strong>C'est celle-là qu'on est allés chercher.</strong>
             </p>
           </section>
 
@@ -127,7 +127,7 @@ export default function NormandiePage() {
                   Le Havre et environs
                 </h3>
                 <p className="text-stone-600 text-sm">
-                  Deuxième port de France, patrimoine UNESCO d Auguste Perret.
+                  Deuxième port de France, patrimoine UNESCO d'Auguste Perret. Ville reconstruite, fascinante.
                 </p>
               </Link>
               <Link
@@ -135,10 +135,10 @@ export default function NormandiePage() {
                 className="block p-6 bg-white rounded-lg border border-stone-200 hover:border-eucalyptus/40 transition-colors"
               >
                 <h3 className="font-serif text-lg text-stone-900 mb-2">
-                  Côte d Albâtre
+                  Côte d'Albâtre
                 </h3>
                 <p className="text-stone-600 text-sm">
-                  Les fameuses falaises de craie blanche, d Etretat aux caps.
+                  Les falaises de craie blanche d'Étretat aux caps. La Normandie qui coupe le souffle.
                 </p>
               </Link>
               <Link
@@ -146,10 +146,10 @@ export default function NormandiePage() {
                 className="block p-6 bg-white rounded-lg border border-stone-200 hover:border-eucalyptus/40 transition-colors"
               >
                 <h3 className="font-serif text-lg text-stone-900 mb-2">
-                  Pays d Auge
+                  Pays d'Auge
                 </h3>
                 <p className="text-stone-600 text-sm">
-                  Bocage normand, Calvados, villages pittoresques et fromage.
+                  Bocage normand, Calvados en direct, villages pittoresques et camembert fermier.
                 </p>
               </Link>
             </div>

@@ -44,7 +44,7 @@ export const PAGE_DEFAULTS: Record<string, string> = {
   // ── TRAVEL PLANNING ────────────────────────────────────────────────────
   'travel-planning__hero_title': 'Conçu sur mesure pour vous',
   'travel-planning__hero_subtitle': 'On分析 votre demande, on conçoit un itinéraire personnalisé et on vous livre un carnet de route complet.',
-  'travel-planning__hero_image': 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1920&q=85',
+  'travel-planning__hero_image': 'https://heldonica.fr/wp-content/uploads/2025/08/zurich-panorama-2-1024x679.jpg',
   'travel-planning__form_intro_title': 'Parlez-nous de votre voyage',
   'travel-planning__form_intro_text': 'Remplissez ce formulaire et recevez une proposition sous 48h ouvrées.',
   'travel-planning__form_name_label': 'Votre prénom',
