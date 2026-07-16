@@ -22,7 +22,7 @@ export default function NewsletterPopup() {
     let exitIntentEnabled = false
 
     const showPopup = () => {
-      sessionStorage.setItem(‘newsletter-popup-shown’, ‘true’)
+      sessionStorage.setItem('newsletter-popup-shown', 'true')
       setIsVisible(true)
       cleanup()
     }
@@ -38,8 +38,8 @@ export default function NewsletterPopup() {
     const cleanup = () => {
       clearTimeout(timeout)
       clearTimeout(exitIntentGrace)
-      window.removeEventListener(‘scroll’, scrollHandler)
-      document.removeEventListener(‘mouseleave’, exitIntentHandler)
+      window.removeEventListener('scroll', scrollHandler)
+      document.removeEventListener('mouseleave', exitIntentHandler)
     }
 
     // Timer: 45 seconds
@@ -52,11 +52,11 @@ export default function NewsletterPopup() {
       const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0
       if (scrollPercent >= 70) showPopup()
     }
-    window.addEventListener(‘scroll’, scrollHandler, { passive: true })
+    window.addEventListener('scroll', scrollHandler, { passive: true })
 
     // Exit intent: attendre 8s après le chargement pour éviter le déclenchement immédiat
     exitIntentGrace = setTimeout(() => { exitIntentEnabled = true }, 8000)
-    document.addEventListener(‘mouseleave’, exitIntentHandler)
+    document.addEventListener('mouseleave', exitIntentHandler)
 
     return cleanup
   }, [])

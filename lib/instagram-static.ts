@@ -46,7 +46,7 @@ export const INSTAGRAM_STORIES: InstagramStory[] = [
     title: 'Cour cachée à Timișoara',
     location: 'Roumanie',
     permalink: 'https://www.instagram.com/heldonica/',
-    image: 'https://images.unsplash.com/photo-1555990538-1e0700b21df9?w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1572445271230-a78b5944a659?w=1200&q=80',
   },
   {
     id: 'story-paris',

@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
         console.error('Erreur Brevo contact:', error)
         
         // Contact déjà existant, c’est ok
-        if (error.code !== ‘duplicate_parameter’) {
+        if (error.code !== 'duplicate_parameter') {
           // Erreur autre que duplicate
           return NextResponse.json(
             { error: 'Erreur lors de l\'inscription' },
