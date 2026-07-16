@@ -220,7 +220,7 @@ export default function Itineraire7JoursPage() {
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
                         <h2 className="text-2xl font-serif text-mahogany">{day.title}</h2>
-                        <span className="text-xs text-stone-400">{day.from}</span>
+                        <span className="text-xs text-stone-500">{day.from}</span>
                       </div>
                       <p className="text-xs uppercase tracking-[0.1em] text-eucalyptus font-semibold">{day.location}</p>
                     </div>
@@ -260,7 +260,7 @@ export default function Itineraire7JoursPage() {
                   </div>
 
                   {day.accommodationUrl && (
-                    <div className="text-xs text-stone-400">
+                    <div className="text-xs text-stone-500">
                       <span>Liens Booking.com — un petit geste qui nous aide sans rien changer à ton tarif.</span>
                     </div>
                   )}
