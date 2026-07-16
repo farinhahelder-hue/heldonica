@@ -61,7 +61,7 @@ export default function DestinationPillar({
       <main>
         {/* Hero */}
         <section className="relative min-h-[70vh] flex items-end overflow-hidden bg-stone-900">
-          <Image src={data.hero} alt={`${data.name} slow travel en couple`} fill className="object-cover opacity-60" priority />
+          <Image src={data.hero} alt={`${data.name} slow travel en couple`} fill className="object-cover opacity-60" priority sizes="100vw" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
           <div className="relative container py-16 md:py-24">
             <p className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold">{data.flag} {data.name}</p>
@@ -261,7 +261,7 @@ export default function DestinationPillar({
                   <Link key={a.slug} href={`/blog/${a.slug}`} className="group block rounded-xl border border-stone-200 bg-stone-50 p-5 hover:bg-white hover:shadow-sm transition-all">
                     <h3 className="font-semibold text-mahogany group-hover:text-eucalyptus transition-colors">{a.title}</h3>
                     <p className="text-sm text-charcoal/60 mt-2 line-clamp-2">{a.excerpt}</p>
-                    {a.read_time && <p className="text-xs text-stone-400 mt-2">{a.read_time} min de lecture</p>}
+                    {a.read_time && <p className="text-xs text-stone-500 mt-2">{a.read_time} min de lecture</p>}
                   </Link>
                 ))}
               </div>

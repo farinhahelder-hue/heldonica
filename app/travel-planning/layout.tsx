@@ -50,7 +50,7 @@ const schemaService = {
   "provider": {
     "@type": "Organization",
     "name": "Heldonica",
-    "url": "https://heldonica.fr",
+    "url": "https://www.heldonica.fr",
     "sameAs": [
       "https://www.instagram.com/heldonica",
       "https://www.linkedin.com/company/heldonicatravel"
@@ -60,7 +60,7 @@ const schemaService = {
     "@type": "Country",
     "name": "France"
   },
-  "url": "https://heldonica.fr/travel-planning",
+  "url": "https://www.heldonica.fr/travel-planning",
   "priceRange": "€€",
   "serviceType": "Voyage sur mesure",
   "hasOfferCatalog": {

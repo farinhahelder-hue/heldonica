@@ -23,9 +23,9 @@ const FALLBACK_FAQ_QUESTIONS = [
 ]
 
 export const metadata: Metadata = {
-  title: 'Services | Travel Planning sur mesure',
+  title: 'Nos services | Heldonica',
   description:
-    "Découvrez les services Heldonica : Travel Planning sur mesure, carnets de voyage personnalisés en duo et guides slow travel de terrain pour vos escapades en couple.",
+    "Travel Planning sur mesure, carnets de voyage personnalisés en duo et guides slow travel de terrain pour tes escapades en couple et en solo.",
   keywords: [
     'travel planning',
     'voyage sur mesure',
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     description: "Des services de travel planning sur mesure et des guides de terrain pour les voyageurs en quête d'authenticité et de slow travel.",
     images: [
       {
-        url: '/og-default.jpg',
+        url: 'https://www.heldonica.fr/og-default.jpg',
         width: 1200,
         height: 630,
         alt: 'Heldonica — Nos Services',

@@ -36,8 +36,23 @@ export default function SubDestinationTemplate({
   localTip,
   relatedArticles = [],
 }: SubDestinationProps) {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'TouristDestination',
+    name,
+    description: introText,
+    image: heroImage,
+    url: `https://www.heldonica.fr/destinations/${parentSlug}/${name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, '-')}`,
+    containedInPlace: {
+      '@type': 'TouristDestination',
+      name: parentName,
+      url: `https://www.heldonica.fr/destinations/${parentSlug}`,
+    },
+  }
+
   return (
-    <main className="min-h-screen bg-[#F8F5F0] font-sans">
+    <main className="min-h-screen bg-cloud-dancer font-sans">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       {/* ── HERO ── */}
       <section className="relative h-[45vh] md:h-[55vh] flex items-end bg-stone-950 overflow-hidden">
         <Image
@@ -68,7 +83,7 @@ export default function SubDestinationTemplate({
       {/* ── INTRO ── */}
       <section className="py-16 bg-white border-b border-stone-200/60">
         <div className="max-w-3xl mx-auto px-6">
-          <p className="text-stone-400 text-xs font-bold uppercase tracking-[0.2em] mb-4">
+          <p className="text-stone-500 text-xs font-bold uppercase tracking-[0.2em] mb-4">
             L'esprit du lieu
           </p>
           <p className="text-lg md:text-xl text-stone-800 font-serif font-light leading-relaxed mb-8">
@@ -142,7 +157,7 @@ export default function SubDestinationTemplate({
                     />
                   </div>
                   <div>
-                    <h4 className="font-serif font-bold text-stone-800 text-sm group-hover:text-[#2D8B7A] transition-colors line-clamp-2">
+                    <h4 className="font-serif font-bold text-stone-800 text-sm group-hover:text-eucalyptus transition-colors line-clamp-2">
                       {post.title}
                     </h4>
                     {post.excerpt && (
@@ -161,7 +176,7 @@ export default function SubDestinationTemplate({
       {/* ── B2C CTA TRAVEL PLANNING ── */}
       <section className="py-20 bg-stone-900 text-white text-center">
         <div className="max-w-2xl mx-auto px-6">
-          <span className="text-[#2D8B7A] text-xs font-bold tracking-[0.2em] uppercase mb-4 block">
+          <span className="text-teal text-xs font-bold tracking-[0.2em] uppercase mb-4 block">
             Ton itinéraire sur mesure
           </span>
           <h2 className="text-3xl md:text-4xl font-serif font-light mb-6">

@@ -22,7 +22,6 @@ import DynamicArticleMap from '@/components/DynamicArticleMap'
 import { verifyPreviewToken } from '@/lib/preview-token'
 
 const SITE_URL = 'https://www.heldonica.fr'
-const DEFAULT_OG = `${SITE_URL}/og-default.jpg`
 
 /** Build a fallback OG image URL via /api/og when no real image exists */
 function ogFallbackUrl(title: string, description: string | null): string {
@@ -380,7 +379,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
 
           {post.tags && post.tags.length > 0 && (
             <div className="mt-8 border-t border-stone-100 pt-6">
-              <p className="mb-3 text-xs uppercase tracking-[0.18em] text-stone-400">Tags</p>
+              <p className="mb-3 text-xs uppercase tracking-[0.18em] text-stone-500">Tags</p>
               <div className="flex flex-wrap gap-2">
                 {post.tags.slice(0, 3).map((tag) => (
                   <span
@@ -435,7 +434,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
                           <h3 className="mt-2 text-base font-semibold leading-snug text-stone-900 transition-colors duration-200 group-hover:text-mahogany">
                             {relatedPost.title}
                           </h3>
-                          <p className="mt-3 text-xs text-stone-400">{formatDate(relatedPost.published_at)}</p>
+                          <p className="mt-3 text-xs text-stone-500">{formatDate(relatedPost.published_at)}</p>
                         </div>
                       </article>
                     </Link>

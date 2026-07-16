@@ -86,6 +86,7 @@ export default function GuideDownloadForm({ variant = 'inline', className = '' }
     <form onSubmit={handleSubmit} className={`${s.wrapper} ${className}`}>
       <input
         type="email"
+        aria-label="Ton adresse email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="ton@email.fr"

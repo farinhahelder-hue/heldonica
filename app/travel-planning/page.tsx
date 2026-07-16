@@ -9,7 +9,7 @@ import Breadcrumb from '@/components/Breadcrumb'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
 
-const SITE_URL = 'https://heldonica.fr'
+const SITE_URL = 'https://www.heldonica.fr'
 
 type Testimonial = {
   id: string;
@@ -397,21 +397,21 @@ export default function TravelPlanningPage() {
               <form onSubmit={handleFormSubmit} className="space-y-5">
                 <div className="grid md:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm font-semibold text-charcoal mb-1.5">Ton prénom</label>
-                    <input type="text" name="firstName" value={formData.firstName} onChange={handleFormChange} required
+                    <label htmlFor="tp-firstName" className="block text-sm font-semibold text-charcoal mb-1.5">Ton prénom</label>
+                    <input id="tp-firstName" type="text" name="firstName" value={formData.firstName} onChange={handleFormChange} required
                       className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus" />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-charcoal mb-1.5">Email</label>
-                    <input type="email" name="email" value={formData.email} onChange={handleFormChange} required
+                    <label htmlFor="tp-email" className="block text-sm font-semibold text-charcoal mb-1.5">Email</label>
+                    <input id="tp-email" type="email" name="email" value={formData.email} onChange={handleFormChange} required
                       className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus" />
                   </div>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm font-semibold text-charcoal mb-1.5">Destination souhaitée</label>
-                    <select name="destination" value={formData.destination} onChange={handleFormChange} required
+                    <label htmlFor="tp-destination" className="block text-sm font-semibold text-charcoal mb-1.5">Destination souhaitée</label>
+                    <select id="tp-destination" name="destination" value={formData.destination} onChange={handleFormChange} required
                       className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus bg-white">
                       <option value="">Sélectionne une destination</option>
                       {FORM_DESTINATIONS.map((d) => <option key={d} value={d}>{d}</option>)}
@@ -419,8 +419,8 @@ export default function TravelPlanningPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-charcoal mb-1.5">Nombre de voyageurs</label>
-                    <select name="travelers" value={formData.travelers} onChange={handleFormChange} required
+                    <label htmlFor="tp-travelers" className="block text-sm font-semibold text-charcoal mb-1.5">Nombre de voyageurs</label>
+                    <select id="tp-travelers" name="travelers" value={formData.travelers} onChange={handleFormChange} required
                       className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus bg-white">
                       <option value="En duo / couple (Recommandé)">En duo / couple (Recommandé)</option>
                       <option value="Seul(e)">Seul(e)</option>
@@ -432,8 +432,8 @@ export default function TravelPlanningPage() {
 
                 <div className="grid md:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm font-semibold text-charcoal mb-1.5">Durée envisagée</label>
-                    <select name="duration" value={formData.duration} onChange={handleFormChange} required
+                    <label htmlFor="tp-duration" className="block text-sm font-semibold text-charcoal mb-1.5">Durée envisagée</label>
+                    <select id="tp-duration" name="duration" value={formData.duration} onChange={handleFormChange} required
                       className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus bg-white">
                       <option value="">Sélectionne une durée</option>
                       <option value="1 semaine">1 semaine</option>
@@ -443,8 +443,8 @@ export default function TravelPlanningPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-charcoal mb-1.5">Budget estimé</label>
-                    <select name="budget" value={formData.budget} onChange={handleFormChange} required
+                    <label htmlFor="tp-budget" className="block text-sm font-semibold text-charcoal mb-1.5">Budget estimé</label>
+                    <select id="tp-budget" name="budget" value={formData.budget} onChange={handleFormChange} required
                       className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus bg-white">
                       <option value="">Sélectionne un budget</option>
                       <option value="<1000€">&lt;1000€</option>
@@ -457,15 +457,15 @@ export default function TravelPlanningPage() {
 
                 <div className="grid md:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm font-semibold text-charcoal mb-1.5">Date de départ souhaitée</label>
-                    <input type="date" name="startDate" value={formData.startDate} onChange={handleFormChange}
+                    <label htmlFor="tp-startDate" className="block text-sm font-semibold text-charcoal mb-1.5">Date de départ souhaitée</label>
+                    <input id="tp-startDate" type="date" name="startDate" value={formData.startDate} onChange={handleFormChange}
                       className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-charcoal mb-1.5">Ce qui te tient à cœur</label>
-                  <textarea name="notes" value={formData.notes} onChange={handleFormChange} rows={4}
+                  <label htmlFor="tp-notes" className="block text-sm font-semibold text-charcoal mb-1.5">Ce qui te tient à cœur</label>
+                  <textarea id="tp-notes" name="notes" value={formData.notes} onChange={handleFormChange} rows={4}
                     className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus resize-none"
                     placeholder="Rythme, centres d'intérêt, contraintes, rêves… tout ce qui te passe par la tête." />
                 </div>
@@ -508,6 +508,7 @@ export default function TravelPlanningPage() {
                         })
                       }
                     }}
+                    aria-expanded={faqOpen === i}
                     className="w-full flex justify-between items-center p-5 text-left font-semibold text-mahogany hover:bg-stone-50 transition-colors"
                   >
                     <EditableZone page="travel-planning" zone={`${faq.zone}_q`} fallback={faq.q} className="inline" />

@@ -90,12 +90,12 @@ function AnimatedStat({ nb, label, suffix = '' }: { nb: number | string; label: 
 
 // ─── Gradients et icônes SVG par catégorie ─────────────────────────────────────
 const CATEGORY_GRADIENTS: Record<string, string> = {
-  'Carnets Voyage': 'from-[#006D77] to-[#4ECDC4]',
-  'Découvertes Locales': 'from-[#6B2D1F] to-[#006D77]',
-  'Guides Pratiques': 'from-[#006D77] to-[#4ECDC4]',
-  'Food & Lifestyle': 'from-[#8B6355] to-[#7C9E8A]',
-  'Travel': 'from-[#006D77] to-[#4ECDC4]',
-  default: 'from-[#6B2D1F] to-[#7C9E8A]',
+  'Carnets Voyage': 'from-eucalyptus to-teal',
+  'Découvertes Locales': 'from-mahogany to-eucalyptus',
+  'Guides Pratiques': 'from-eucalyptus to-teal',
+  'Food & Lifestyle': 'from-mahogany/80 to-teal/80',
+  'Travel': 'from-eucalyptus to-teal',
+  default: 'from-mahogany to-teal/60',
 }
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -190,11 +190,11 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
               {!displayDestination && (
                 <>
                   <span>•</span>
-                  <span>{post.formattedDate}</span>
+                  <span>{post.formattedDate || 'Récemment'}</span>
                 </>
               )}
             </div>
-            <span className="text-xs text-eucalyptus font-semibold group-hover:translate-x-1 transition-transform">Lire le carnet →</span>
+            <span className="text-xs text-eucalyptus font-semibold group-hover:translate-x-1 transition-transform" aria-hidden="true">Lire le carnet →</span>
           </div>
         </div>
       </article>
@@ -323,8 +323,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             <div className="md:col-span-2 grid grid-cols-2 gap-6" data-reveal="right">
               <AnimatedStat nb="4+" label="Ans de slow travel" />
               <AnimatedStat nb="100+" label="Adresses vécues" />
-              <AnimatedStat nb={countryCount} label="Pays habités" />
-              <AnimatedStat nb={publishedArticles} suffix="" label="Carnets publiés" />
+              <AnimatedStat nb={countryCount} suffix="+" label="Pays habités" />
+              <AnimatedStat nb={publishedArticles} suffix="+" label="Carnets publiés" />
               <div className="col-span-2 mt-2">
                 <p className="text-xs text-charcoal/40 leading-relaxed">
                   <span className="font-semibold text-charcoal/70">Terrains de jeu :</span><br />
@@ -346,7 +346,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               {featImg && (
                 <Image src={featImg} alt={featured.title} fill
                   className="object-cover opacity-60 group-hover:opacity-70 group-hover:scale-105 transition-all duration-700"
-                  priority />
+                  priority sizes="100vw" />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
               <div className="relative z-10 p-8 md:p-16 max-w-3xl">
@@ -391,7 +391,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               <div className="grid md:grid-cols-2 gap-6 mb-6">
                 <Link href={`/blog/${travelPosts[0].slug}`} className="card-lift group relative rounded-2xl overflow-hidden bg-mahogany/80 aspect-[4/3] md:row-span-2" data-reveal="left">
                   <Image src={postImage(travelPosts[0])} alt={travelPosts[0].title} fill
-                    className="object-cover opacity-70 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700" />
+                    className="object-cover opacity-70 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700"
+                    sizes="(max-width: 768px) 100vw, 50vw" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
                   <div className="absolute bottom-0 left-0 p-6">
                     <span className="inline-block bg-eucalyptus text-white text-xs font-bold px-2.5 py-1 rounded-full mb-3 capitalize">
@@ -414,7 +415,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                        className="group relative rounded-2xl overflow-hidden bg-mahogany/80"
                       data-reveal data-delay={String((i + 1) * 150)}>
                       <Image src={postImage(p)} alt={p.title} fill
-                        className="object-cover opacity-65 group-hover:opacity-75 group-hover:scale-105 transition-all duration-700" />
+                        className="object-cover opacity-65 group-hover:opacity-75 group-hover:scale-105 transition-all duration-700"
+                        sizes="(max-width: 768px) 100vw, 33vw" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                       <div className="relative p-5 h-44 flex flex-col justify-end">
                         <h3 className="text-white text-lg font-serif font-light group-hover:text-teal/80 transition-colors line-clamp-2">
@@ -481,7 +483,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
 
       {/* ── DERNIERS ARTICLES ─────────────────────────────────────────── */}
       {latestPosts.length > 0 && (
-        <section className="py-20 bg-[#f7f6f2]">
+        <section className="py-20 bg-cloud-dancer">
           <div className="max-w-6xl mx-auto px-6 md:px-10">
             <div className="flex items-end justify-between mb-10 flex-wrap gap-4" data-reveal>
               <div>
@@ -559,18 +561,18 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 </em>
               </h2>
               <EditableZone page="home" zone="section_cta_text" type="textarea" fallback="Tu nous envoies tes contraintes réelles..."
-                className="text-charcoal/40 leading-relaxed mb-4 block"
+                className="text-white/65 leading-relaxed mb-4 block"
               />
               <EditableZone page="home" zone="section_cta_subtext" type="textarea" fallback="Notre terrain naturel : les couples..."
-                className="text-charcoal/60 text-sm leading-relaxed mb-8 block"
+                className="text-white/50 text-sm leading-relaxed mb-8 block"
               />
               <div className="flex flex-wrap gap-3">
                 <Link href="/travel-planning#formulaire"
-                  className="px-6 py-3 bg-eucalyptus hover:bg-eucalyptus text-white rounded font-semibold text-sm transition">
+                  className="px-6 py-3 bg-eucalyptus hover:bg-eucalyptus/80 text-white rounded-full font-semibold text-sm transition">
                   <EditableZone page="home" zone="section_cta_btn_1" fallback="Nous écrire →" />
                 </Link>
                 <Link href="/travel-planning"
-                  className="px-6 py-3 border border-white/30 hover:border-white/60 text-white rounded font-semibold text-sm transition">
+                  className="px-6 py-3 border border-white/30 hover:border-white/60 text-white rounded-full font-semibold text-sm transition">
                   <EditableZone page="home" zone="section_cta_btn_2" fallback="Voir nos services →" />
                 </Link>
               </div>
@@ -585,7 +587,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   <h3 className="font-semibold text-white text-sm mb-1">
                     <EditableZone page="home" zone={`${item.zone}_title`} fallback={item.t} />
                   </h3>
-                  <p className="text-charcoal/40 text-sm leading-relaxed">
+                  <p className="text-white/60 text-sm leading-relaxed">
                     <EditableZone page="home" zone={`${item.zone}_text`} type="textarea" fallback={item.d} />
                   </p>
                 </div>

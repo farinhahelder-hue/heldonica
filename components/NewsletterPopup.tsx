@@ -16,8 +16,10 @@ export default function NewsletterPopup() {
     if (wasShown) return
 
     let timeout: NodeJS.Timeout
+    let exitIntentGrace: NodeJS.Timeout
     let scrollHandler: () => void
     let exitIntentTriggered = false
+    let exitIntentEnabled = false
 
     const showPopup = () => {
       sessionStorage.setItem('newsletter-popup-shown', 'true')
@@ -25,13 +27,22 @@ export default function NewsletterPopup() {
       cleanup()
     }
 
+    const exitIntentHandler = (e: MouseEvent) => {
+      if (exitIntentTriggered || !exitIntentEnabled) return
+      if (e.clientY <= 0) {
+        exitIntentTriggered = true
+        showPopup()
+      }
+    }
+
     const cleanup = () => {
-      if (timeout) clearTimeout(timeout)
+      clearTimeout(timeout)
+      clearTimeout(exitIntentGrace)
       window.removeEventListener('scroll', scrollHandler)
       document.removeEventListener('mouseleave', exitIntentHandler)
     }
 
-    // Timer: 45 seconds (augmenté pour moins d’agacement)
+    // Timer: 45 seconds
     timeout = setTimeout(showPopup, 45000)
 
     // Scroll: 70%
@@ -39,20 +50,12 @@ export default function NewsletterPopup() {
       const scrollTop = window.scrollY
       const docHeight = document.documentElement.scrollHeight - window.innerHeight
       const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0
-      if (scrollPercent >= 70) {
-        showPopup()
-      }
+      if (scrollPercent >= 70) showPopup()
     }
     window.addEventListener('scroll', scrollHandler, { passive: true })
 
-    // Exit intent: quand la souris quitte le document par le haut
-    const exitIntentHandler = (e: MouseEvent) => {
-      if (exitIntentTriggered) return
-      if (e.clientY <= 0) {
-        exitIntentTriggered = true
-        showPopup()
-      }
-    }
+    // Exit intent: attendre 8s après le chargement pour éviter le déclenchement immédiat
+    exitIntentGrace = setTimeout(() => { exitIntentEnabled = true }, 8000)
     document.addEventListener('mouseleave', exitIntentHandler)
 
     return cleanup
@@ -136,7 +139,7 @@ export default function NewsletterPopup() {
           <h3 className="text-xl font-bold mb-2">
             Bienvenue dans l&apos;aventure !
           </h3>
-          <p className="text-stone-400 text-sm">
+          <p className="text-stone-600 text-sm">
             Tu vas recevoir nos carnets de voyage et nos meilleures pépites.
           </p>
         </div>
@@ -149,7 +152,7 @@ export default function NewsletterPopup() {
             <h3 className="text-xl font-bold mb-2">
               Reçois les 10 meilleures adresses Madère
             </h3>
-            <p className="text-stone-400 text-sm leading-relaxed">
+            <p className="text-stone-600 text-sm leading-relaxed">
               On t&apos;envoie notre guide testé sur le terrain + les pépites chaque semaine.
               Pas de spam, jamais.
             </p>

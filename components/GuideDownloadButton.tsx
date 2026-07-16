@@ -32,7 +32,7 @@ export default function GuideDownloadButton({ slug, title, variant = 'default' }
     <>
       <button
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 rounded-full bg-eucalyptus px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-eucalyptus/90"
+        className="inline-flex items-center gap-2 rounded-full border border-eucalyptus px-6 py-3 text-sm font-semibold text-eucalyptus transition-all hover:bg-eucalyptus/10"
       >
         <Download size={16} /> Télécharger le guide PDF
       </button>

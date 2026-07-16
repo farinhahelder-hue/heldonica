@@ -56,7 +56,7 @@ export default function Footer() {
 
   const destinationsLinks = arr(5, (i) => ({
     label: cz(`footer_dest_item_${i + 1}_label`, ['Madère', 'Roumanie', 'Monténégro', 'Grèce', 'Colombie'][i]),
-    href: cz(`footer_dest_item_${i + 1}_url`, ['/destinations/madere', '/destinations/roumanie', '/destinations/montenegro', '/destinations', '/destinations/colombie'][i]),
+    href: cz(`footer_dest_item_${i + 1}_url`, ['/destinations/madere', '/destinations/roumanie', '/destinations/montenegro', '/destinations/grece', '/destinations/colombie'][i]),
   }))
 
   const guidesLinks = arr(3, (i) => ({
@@ -129,29 +129,31 @@ export default function Footer() {
                   </div>
                 </div>
               ) : (
-                <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3">
-                  <label htmlFor="footer-newsletter-email" className="sr-only">{newsletterPlaceholder}</label>
-                  <input
-                    id="footer-newsletter-email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder={newsletterPlaceholder}
-                    required
-                    disabled={loading}
-                    className="flex-1 px-5 py-3.5 bg-stone-900 border border-stone-700 rounded-xl text-white placeholder-stone-500 focus:outline-none focus:border-eucalyptus transition-colors disabled:opacity-50"
-                  />
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="px-6 py-3.5 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {loading ? newsletterBtnLoading : newsletterBtn}
-                  </button>
-                </form>
-                {subscribeError && (
-                  <p role="alert" className="mt-2 text-red-400 text-sm">{subscribeError}</p>
-                )}
+                <>
+                  <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3">
+                    <label htmlFor="footer-newsletter-email" className="sr-only">{newsletterPlaceholder}</label>
+                    <input
+                      id="footer-newsletter-email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder={newsletterPlaceholder}
+                      required
+                      disabled={loading}
+                      className="flex-1 px-5 py-3.5 bg-stone-900 border border-stone-700 rounded-xl text-white placeholder-stone-500 focus:outline-none focus:border-eucalyptus transition-colors disabled:opacity-50"
+                    />
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="px-6 py-3.5 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {loading ? newsletterBtnLoading : newsletterBtn}
+                    </button>
+                  </form>
+                  {subscribeError && (
+                    <p role="alert" className="mt-2 text-red-400 text-sm">{subscribeError}</p>
+                  )}
+                </>
               )}
             </div>
           </div>
