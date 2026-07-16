@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState, useDeferredValue } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import NewsletterForm from '@/components/NewsletterForm'
 import BlogFilters, { type BlogCategory } from '@/components/BlogFilters'
@@ -22,6 +23,12 @@ const CATEGORY_FALLBACK_BG: Record<string, string> = {
 const DEFAULT_CARD_FALLBACK = 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80'
 
 const BADGE_FALLBACK_SRC = '/images/badges-heldonica.svg'
+
+const CATEGORY_GRADIENT: Record<string, string> = {
+  'Carnets Voyage': 'from-eucalyptus to-teal',
+  'Découvertes Locales': 'from-mahogany to-eucalyptus',
+  'Guides Pratiques': 'from-eucalyptus to-teal',
+}
 
 // Default categories as fallback
 const DEFAULT_CATEGORIES: BlogCategory[] = [
@@ -172,22 +179,22 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
           <Link href={`/blog/${featuredPost.slug}`} className="group block transition-all duration-200">
             <article className="relative flex h-[380px] items-end overflow-hidden rounded-[2rem] bg-mahogany shadow-xl md:h-[500px]">
               {featuredPost.featured_image ? (
-                <img
+                <Image
                   src={featuredPost.featured_image}
                   alt={featuredPost.title}
-                  width={1200}
-                  height={500}
-                  className="absolute inset-0 h-full w-full object-cover opacity-60 transition-all duration-500 group-hover:scale-105 group-hover:opacity-70"
-                  loading="eager"
+                  fill
+                  priority
+                  className="object-cover opacity-60 transition-all duration-500 group-hover:scale-105 group-hover:opacity-70"
+                  sizes="(max-width: 768px) 100vw, 1200px"
                 />
               ) : (
-                <img
+                <Image
                   src={CATEGORY_FALLBACK_BG[featuredPost.category ?? ''] ?? DEFAULT_CARD_FALLBACK}
                   alt={featuredPost.title}
-                  width={1200}
-                  height={500}
-                  className="absolute inset-0 h-full w-full object-cover opacity-60"
-                  loading="eager"
+                  fill
+                  priority
+                  className="object-cover opacity-60"
+                  sizes="(max-width: 768px) 100vw, 1200px"
                 />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
@@ -414,29 +421,27 @@ function ArticleCard({ post }: { post: BlogPost & { formattedDate: string; readT
         {/* Image section - always show something, never empty blocks */}
         <div className="relative h-52 w-full overflow-hidden bg-gradient-to-br from-stone-100 to-stone-200">
           {imageSrc && !imageError ? (
-            <img
+            <Image
               src={imageSrc}
               alt={post.title}
-              width={400}
-              height={208}
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
               loading="lazy"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               onError={() => setImageError(true)}
             />
           ) : (
-            /* Elegant gradient fallback with SVG icon */
-            <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-stone-100 via-stone-50 to-stone-200 p-6">
-              <svg 
+            <div className={`flex h-full w-full flex-col items-center justify-center bg-gradient-to-br p-6 ${CATEGORY_GRADIENT[post.category ?? ''] ?? 'from-eucalyptus to-teal'}`}>
+              <svg
                 aria-hidden="true"
-                className="h-12 w-12 opacity-30" 
-                style={{ color: accentColor }}
-                fill="none" 
-                stroke="currentColor" 
+                className="h-12 w-12 text-white/70"
+                fill="none"
+                stroke="currentColor"
                 viewBox="0 0 24 24"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={categoryIcon} />
               </svg>
-              <span className="mt-2 text-xs font-medium uppercase tracking-wider text-stone-600">
+              <span className="mt-2 text-xs font-medium uppercase tracking-wider text-white/90">
                 {post.category || 'Slow Travel'}
               </span>
             </div>
