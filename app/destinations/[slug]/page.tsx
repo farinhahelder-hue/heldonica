@@ -340,6 +340,7 @@ export default async function DestinationPage({ params }: Props) {
               fill
               className="object-cover opacity-75"
               priority
+              sizes="100vw"
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
