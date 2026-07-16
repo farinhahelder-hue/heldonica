@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import { getAllPosts } from '@/lib/blog-supabase'
 
 export const metadata: Metadata = {
   title: 'À propos | Heldonica',
@@ -71,13 +72,16 @@ const PILLIERS = [
   },
 ]
 
-const STATS = [
-  { valeur: '7+', label: 'Pays habités' },
-  { valeur: '25+', label: 'Carnets publiés' },
-  { valeur: '3', label: 'Étapes pour concevoir ton voyage' },
-]
+export default async function AProposPage() {
+  const posts = await getAllPosts().catch(() => [])
+  const carnetCount = posts.length || 25
 
-export default function AProposPage() {
+  const STATS = [
+    { valeur: '7+', label: 'Pays habités' },
+    { valeur: `${carnetCount}+`, label: 'Carnets publiés' },
+    { valeur: '3', label: 'Étapes pour concevoir ton voyage' },
+  ]
+
   return (
     <InlineEditProvider page="a-propos">
       <Header />
