@@ -129,6 +129,7 @@ export default function LeadMagnetBlock({
             <div className="flex flex-col sm:flex-row gap-3">
               <input
                 type="email"
+                aria-label="Ton adresse email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="ton@email.fr"
