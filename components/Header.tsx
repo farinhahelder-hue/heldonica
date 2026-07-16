@@ -80,8 +80,8 @@ export default function Header() {
       <nav
         className={`fixed top-0 z-50 w-full transition-all duration-300 ${
           scrolled
-            ? 'bg-white/98 backdrop-blur-md shadow-sm border-b border-stone-100/50'
-            : 'bg-white/95 backdrop-blur-sm border-b border-stone-100'
+            ? 'bg-white/98 dark:bg-stone-900/98 backdrop-blur-md shadow-sm border-b border-stone-100/50 dark:border-stone-800/50'
+            : 'bg-white/95 dark:bg-stone-900/95 backdrop-blur-sm border-b border-stone-100 dark:border-stone-800'
         }`}
         role="navigation"
         aria-label="Navigation principale"
@@ -117,7 +117,7 @@ export default function Header() {
                   className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:ring-offset-2 ${
                     pathname === item.href
                       ? 'text-eucalyptus'
-                      : 'text-stone-600 hover:text-eucalyptus'
+                      : 'text-stone-600 dark:text-stone-300 hover:text-eucalyptus dark:hover:text-eucalyptus'
                   }`}
                 >
                   {item.label}
@@ -136,18 +136,18 @@ export default function Header() {
               aria-label={open ? 'Fermer le menu' : 'Ouvrir le menu'}
               aria-expanded={open}
               aria-controls="mobile-menu"
-              className="group relative flex h-10 w-10 items-center justify-center rounded-xl bg-stone-50 transition-all duration-300 hover:bg-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus active:scale-95"
+              className="group relative flex h-10 w-10 items-center justify-center rounded-xl bg-stone-50 dark:bg-stone-800 transition-all duration-300 hover:bg-stone-100 dark:hover:bg-stone-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus active:scale-95"
             >
               <span className="flex h-5 w-5 flex-col items-center justify-center">
                 {/* Ligne du haut */}
                 <span 
-                  className={`mb-1 block h-0.5 w-5 transform rounded-full bg-stone-700 transition-all duration-300 ${
-                    open ? 'translate-y-1.5 rotate-45 bg-eucalyptus' : ''
+                  className={`mb-1 block h-0.5 w-5 transform rounded-full bg-stone-700 dark:bg-stone-300 transition-all duration-300 ${
+                    open ? 'translate-y-1.5 rotate-45 !bg-eucalyptus' : ''
                   }`}
                 />
                 {/* Ligne du milieu */}
                 <span 
-                  className={`mb-1 block h-0.5 w-5 rounded-full bg-stone-700 transition-all duration-300 ${
+                  className={`mb-1 block h-0.5 w-5 rounded-full bg-stone-700 dark:bg-stone-300 transition-all duration-300 ${
                     open ? 'scale-x-0 opacity-0' : ''
                   }`}
                 />
@@ -182,17 +182,17 @@ export default function Header() {
             aria-modal="true"
             aria-label="Menu de navigation"
             aria-hidden={!open}
-            className={`absolute right-0 top-full z-50 w-full max-w-sm bg-white shadow-2xl transition-all duration-300 ease-out transform origin-top-right ${
+            className={`absolute right-0 top-full z-50 w-full max-w-sm bg-white dark:bg-stone-900 shadow-2xl transition-all duration-300 ease-out transform origin-top-right ${
               open ? 'translate-x-0 scale-100 opacity-100 pointer-events-auto' : 'translate-x-6 scale-95 opacity-0 pointer-events-none'
             }`}
           >
             <div className="flex flex-col gap-1 p-5">
               {/* Header du menu avec bouton fermer */}
-              <div className="flex items-center justify-between mb-4 pb-4 border-b border-stone-100">
-                <span className="text-sm font-semibold text-stone-700">Menu</span>
+              <div className="flex items-center justify-between mb-4 pb-4 border-b border-stone-100 dark:border-stone-800">
+                <span className="text-sm font-semibold text-stone-700 dark:text-stone-200">Menu</span>
                 <button
                   onClick={() => setOpen(false)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-stone-100 text-stone-500 transition-colors hover:bg-stone-200 hover:text-stone-700"
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-200 dark:hover:bg-stone-700 hover:text-stone-700 dark:hover:text-stone-200"
                   aria-label="Fermer le menu"
                 >
                   <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -212,10 +212,10 @@ export default function Header() {
                   className={`flex items-center gap-3 rounded-xl px-4 py-3.5 font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus ${
                     pathname === item.href
                       ? 'bg-eucalyptus/5 text-eucalyptus'
-                      : 'text-stone-700 hover:bg-eucalyptus/5 hover:text-eucalyptus active:scale-[0.98]'
+                      : 'text-stone-700 dark:text-stone-300 hover:bg-eucalyptus/5 hover:text-eucalyptus dark:hover:text-eucalyptus active:scale-[0.98]'
                   }`}
                 >
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-500 shadow-sm" aria-hidden="true">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-500 dark:text-stone-400 shadow-sm" aria-hidden="true">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       {index === 0 && <><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></>}
                       {index === 1 && <><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></>}
@@ -229,7 +229,7 @@ export default function Header() {
               ))}
 
               {/* Séparateur */}
-              <div className="my-3 border-t border-stone-100" />
+              <div className="my-3 border-t border-stone-100 dark:border-stone-800" />
 
               {/* CTA principal */}
               <Link
@@ -248,7 +248,7 @@ export default function Header() {
               <Link
                 href={accountHref}
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-3 rounded-xl px-4 py-3.5 font-medium text-stone-600 transition-colors hover:bg-stone-50 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus active:scale-[0.98]"
+                className="flex items-center gap-3 rounded-xl px-4 py-3.5 font-medium text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 hover:text-stone-900 dark:hover:text-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus active:scale-[0.98]"
               >
                 <span className="flex h-9 w-9 items-center justify-center rounded-full border border-eucalyptus/20 bg-eucalyptus/10 text-eucalyptus" aria-hidden="true">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -261,11 +261,11 @@ export default function Header() {
 
               {/* Liens légaux rapides */}
               <div className="mt-4 flex flex-wrap gap-3 px-1">
-                <Link href="/contact" className="text-xs text-stone-500 hover:text-stone-700">Contact</Link>
-                <span className="text-xs text-stone-300">•</span>
-                <Link href="/mentions-legales" className="text-xs text-stone-500 hover:text-stone-700">Mentions légales</Link>
-                <span className="text-xs text-stone-300">•</span>
-                <Link href="/politique-confidentialite" className="text-xs text-stone-500 hover:text-stone-700">Confidentialité</Link>
+                <Link href="/contact" className="text-xs text-stone-500 dark:text-stone-500 hover:text-stone-700 dark:hover:text-stone-300">Contact</Link>
+                <span className="text-xs text-stone-300 dark:text-stone-700">•</span>
+                <Link href="/mentions-legales" className="text-xs text-stone-500 dark:text-stone-500 hover:text-stone-700 dark:hover:text-stone-300">Mentions légales</Link>
+                <span className="text-xs text-stone-300 dark:text-stone-700">•</span>
+                <Link href="/politique-confidentialite" className="text-xs text-stone-500 dark:text-stone-500 hover:text-stone-700 dark:hover:text-stone-300">Confidentialité</Link>
               </div>
             </div>
           </div>
