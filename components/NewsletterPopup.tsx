@@ -16,22 +16,33 @@ export default function NewsletterPopup() {
     if (wasShown) return
 
     let timeout: NodeJS.Timeout
+    let exitIntentGrace: NodeJS.Timeout
     let scrollHandler: () => void
     let exitIntentTriggered = false
+    let exitIntentEnabled = false
 
     const showPopup = () => {
-      sessionStorage.setItem('newsletter-popup-shown', 'true')
+      sessionStorage.setItem(‘newsletter-popup-shown’, ‘true’)
       setIsVisible(true)
       cleanup()
     }
 
-    const cleanup = () => {
-      if (timeout) clearTimeout(timeout)
-      window.removeEventListener('scroll', scrollHandler)
-      document.removeEventListener('mouseleave', exitIntentHandler)
+    const exitIntentHandler = (e: MouseEvent) => {
+      if (exitIntentTriggered || !exitIntentEnabled) return
+      if (e.clientY <= 0) {
+        exitIntentTriggered = true
+        showPopup()
+      }
     }
 
-    // Timer: 45 seconds (augmenté pour moins d’agacement)
+    const cleanup = () => {
+      clearTimeout(timeout)
+      clearTimeout(exitIntentGrace)
+      window.removeEventListener(‘scroll’, scrollHandler)
+      document.removeEventListener(‘mouseleave’, exitIntentHandler)
+    }
+
+    // Timer: 45 seconds
     timeout = setTimeout(showPopup, 45000)
 
     // Scroll: 70%
@@ -39,21 +50,13 @@ export default function NewsletterPopup() {
       const scrollTop = window.scrollY
       const docHeight = document.documentElement.scrollHeight - window.innerHeight
       const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0
-      if (scrollPercent >= 70) {
-        showPopup()
-      }
+      if (scrollPercent >= 70) showPopup()
     }
-    window.addEventListener('scroll', scrollHandler, { passive: true })
+    window.addEventListener(‘scroll’, scrollHandler, { passive: true })
 
-    // Exit intent: quand la souris quitte le document par le haut
-    const exitIntentHandler = (e: MouseEvent) => {
-      if (exitIntentTriggered) return
-      if (e.clientY <= 0) {
-        exitIntentTriggered = true
-        showPopup()
-      }
-    }
-    document.addEventListener('mouseleave', exitIntentHandler)
+    // Exit intent: attendre 8s après le chargement pour éviter le déclenchement immédiat
+    exitIntentGrace = setTimeout(() => { exitIntentEnabled = true }, 8000)
+    document.addEventListener(‘mouseleave’, exitIntentHandler)
 
     return cleanup
   }, [])

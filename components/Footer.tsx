@@ -56,7 +56,7 @@ export default function Footer() {
 
   const destinationsLinks = arr(5, (i) => ({
     label: cz(`footer_dest_item_${i + 1}_label`, ['Madère', 'Roumanie', 'Monténégro', 'Grèce', 'Colombie'][i]),
-    href: cz(`footer_dest_item_${i + 1}_url`, ['/destinations/madere', '/destinations/roumanie', '/destinations/montenegro', '/destinations', '/destinations/colombie'][i]),
+    href: cz(`footer_dest_item_${i + 1}_url`, ['/destinations/madere', '/destinations/roumanie', '/destinations/montenegro', '/destinations/grece', '/destinations/colombie'][i]),
   }))
 
   const guidesLinks = arr(3, (i) => ({

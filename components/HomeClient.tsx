@@ -190,7 +190,7 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
               {!displayDestination && (
                 <>
                   <span>•</span>
-                  <span>{post.formattedDate}</span>
+                  <span>{post.formattedDate || 'Récemment'}</span>
                 </>
               )}
             </div>
@@ -568,11 +568,11 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               />
               <div className="flex flex-wrap gap-3">
                 <Link href="/travel-planning#formulaire"
-                  className="px-6 py-3 bg-eucalyptus hover:bg-eucalyptus/80 text-white rounded font-semibold text-sm transition">
+                  className="px-6 py-3 bg-eucalyptus hover:bg-eucalyptus/80 text-white rounded-full font-semibold text-sm transition">
                   <EditableZone page="home" zone="section_cta_btn_1" fallback="Nous écrire →" />
                 </Link>
                 <Link href="/travel-planning"
-                  className="px-6 py-3 border border-white/30 hover:border-white/60 text-white rounded font-semibold text-sm transition">
+                  className="px-6 py-3 border border-white/30 hover:border-white/60 text-white rounded-full font-semibold text-sm transition">
                   <EditableZone page="home" zone="section_cta_btn_2" fallback="Voir nos services →" />
                 </Link>
               </div>
