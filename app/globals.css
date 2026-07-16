@@ -254,3 +254,20 @@ h1, h2, h3, h4, h5, h6 {
     @apply text-charcoal/80;
   }
 }
+
+/* === DARK MODE CONFIGURATION === */
+.dark {
+  --color-background: #151413;       /* Warm dark charcoal */
+  --color-text: #F4F1EB;             /* Soft readable warm cream */
+  --color-primary: #83C5BE;          /* High contrast eucalyptus */
+  --color-secondary: #006D77;        /* Supporting eucalyptus tint */
+  --cloud-dancer: #1E1C1A;           /* Warm dark slate for cards and grids */
+  --mahogany: #E29578;               /* Warm terracotta/apricot instead of dark mahogany */
+}
+
+/* Smooth theme transition */
+html, body, header, footer, section, article, div, button, p, span, h1, h2, h3, h4, select, input, textarea {
+  transition-property: background-color, border-color, text-decoration-color, fill, stroke;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}

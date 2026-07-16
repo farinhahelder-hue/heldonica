@@ -185,6 +185,18 @@ export default async function RootLayout({
   return (
     <html lang="fr">
       <head>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              try {
+                var saved = localStorage.getItem('theme');
+                var preferred = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                var theme = saved || preferred;
+                if (theme === 'dark') document.documentElement.classList.add('dark');
+              } catch (e) {}
+            })();
+          `
+        }} />
         <link rel="icon" href={faviconUrl || '/favicon.ico'} sizes="any" />
         <link rel="apple-touch-icon" href={logoUrl || '/apple-touch-icon.png'} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />

@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 import { useContentLoader, getCmsOrSetting } from '@/hooks/useContentLoader'
 import type { CmsZone } from '@/lib/content-loader'
+import ThemeToggle from './ThemeToggle'
 
 export default function Header() {
   const [open, setOpen] = useState(false)
@@ -106,25 +107,29 @@ export default function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden items-center gap-1 lg:flex">
-            {safeNavItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={pathname === item.href ? 'page' : undefined}
-                className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-offset-2 ${
-                  pathname === item.href
-                    ? 'text-amber-900'
-                    : 'text-stone-600 hover:text-amber-900'
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
+          <div className="hidden items-center gap-4 lg:flex">
+            <div className="flex items-center gap-1">
+              {safeNavItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={pathname === item.href ? 'page' : undefined}
+                  className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-offset-2 ${
+                    pathname === item.href
+                      ? 'text-amber-900'
+                      : 'text-stone-600 hover:text-amber-900'
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+            <ThemeToggle />
           </div>
 
           {/* Mobile Navigation */}
           <div className="flex items-center gap-3 lg:hidden">
+            <ThemeToggle />
             {/* Hamburger animé */}
             <button
               onClick={() => setOpen((value) => !value)}
