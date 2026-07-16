@@ -149,7 +149,7 @@ export default function QuizPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-gradient-to-b from-stone-50 via-amber-50/30 to-white">
+      <main className="min-h-screen bg-gradient-to-b from-stone-50 via-cloud-dancer/40 to-white">
         {/* Hero */}
         <section className="py-16 md:py-24 text-center px-6">
           <div className="max-w-2xl mx-auto">
@@ -241,7 +241,7 @@ export default function QuizPage() {
                           <Link
                             key={dest}
                             href={`/destinations/${slugify(dest)}`}
-                            className="px-4 py-2 bg-white rounded-full text-sm font-medium text-stone-700 border border-stone-200 hover:border-amber-700 hover:text-amber-800 transition-colors"
+                            className="px-4 py-2 bg-white rounded-full text-sm font-medium text-stone-700 border border-stone-200 hover:border-eucalyptus hover:text-eucalyptus transition-colors"
                           >
                             {dest}
                           </Link>

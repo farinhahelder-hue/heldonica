@@ -35,12 +35,12 @@ export default function HeldonicaVerdict({ items, title = 'Le verdict Heldonica'
     return (
       <div className="flex items-center gap-1">
         {[...Array(fullStars)].map((_, i) => (
-          <svg key={`full-${i}`} aria-hidden="true" className="h-4 w-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+          <svg key={`full-${i}`} aria-hidden="true" className="h-4 w-4 text-eucalyptus" fill="currentColor" viewBox="0 0 20 20">
             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
           </svg>
         ))}
         {hasHalfStar && (
-          <svg aria-hidden="true" className="h-4 w-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+          <svg aria-hidden="true" className="h-4 w-4 text-eucalyptus" fill="currentColor" viewBox="0 0 20 20">
             <defs>
               <linearGradient id="halfGradient">
                 <stop offset="50%" stopColor="currentColor" />
@@ -72,16 +72,16 @@ export default function HeldonicaVerdict({ items, title = 'Le verdict Heldonica'
   }
 
   return (
-    <section className="my-12 rounded-[2rem] border-2 border-amber-200 bg-amber-50/50 px-6 py-8 md:px-10">
+    <section className="my-12 rounded-[2rem] border-2 border-eucalyptus/20 bg-eucalyptus/5 px-6 py-8 md:px-10">
       {/* Header */}
       <div className="mb-6 flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500 text-white">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-eucalyptus text-white">
           <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-700">Testé sur le terrain</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-eucalyptus">Testé sur le terrain</p>
           <h2 className="text-xl font-serif font-light text-stone-900 md:text-2xl">{title}</h2>
         </div>
       </div>
@@ -91,7 +91,7 @@ export default function HeldonicaVerdict({ items, title = 'Le verdict Heldonica'
         {items.map((item, index) => (
           <div
             key={index}
-            className="rounded-xl border border-amber-100 bg-white p-5"
+            className="rounded-xl border border-stone-200 bg-white p-5"
           >
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
               {/* Left: name and details */}
@@ -135,7 +135,7 @@ export default function HeldonicaVerdict({ items, title = 'Le verdict Heldonica'
               <div className="flex flex-col items-end gap-2 md:min-w-[120px]">
                 <div className="flex items-center gap-1">
                   {renderStars(item.rating)}
-                  <span className="ml-1 text-sm font-semibold text-amber-700">{item.rating}/5</span>
+                  <span className="ml-1 text-sm font-semibold text-eucalyptus">{item.rating}/5</span>
                 </div>
                 <p className="text-xs text-stone-500">Testé {formatDate(item.testDate)}</p>
               </div>

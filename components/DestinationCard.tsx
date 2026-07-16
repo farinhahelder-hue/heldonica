@@ -64,7 +64,7 @@ export default function DestinationCard({
     <article
       className={`group flex flex-col overflow-hidden rounded-2xl border transition-all duration-300 h-full
         ${status === 'coming_soon' ? 'opacity-75 border-stone-200 dark:border-stone-850 bg-white dark:bg-[#1E1C1A]' : 'hover:-translate-y-1 hover:shadow-lg'}
-        ${status === 'starred' ? 'border-amber-200 dark:border-amber-900 bg-gradient-to-b from-amber-50/20 to-white dark:from-amber-900/10 dark:to-[#1E1C1A] shadow-md shadow-amber-500/5' : 'border-stone-200 dark:border-stone-800 bg-white dark:bg-[#1E1C1A] shadow-sm'}
+        ${status === 'starred' ? 'border-eucalyptus/20 dark:border-eucalyptus/10 bg-gradient-to-b from-eucalyptus/5 to-white dark:from-eucalyptus/5 dark:to-[#1E1C1A] shadow-md shadow-eucalyptus/5' : 'border-stone-200 dark:border-stone-800 bg-white dark:bg-[#1E1C1A] shadow-sm'}
         ${!isClickable ? 'cursor-default' : 'cursor-pointer'}
       `}
     >
@@ -79,7 +79,7 @@ export default function DestinationCard({
         />
         <div className="absolute top-3 left-3 flex flex-wrap gap-2">
           {status === 'starred' && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/90 backdrop-blur-sm text-white px-2.5 py-1 text-xs font-bold shadow-md border border-amber-400/20">
+            <span className="inline-flex items-center gap-1 rounded-full bg-eucalyptus/90 backdrop-blur-sm text-white px-2.5 py-1 text-xs font-bold shadow-md border border-eucalyptus/20">
               ⭐ Coup de cœur
             </span>
           )}

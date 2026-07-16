@@ -33,7 +33,7 @@ export default function TestedByHeldonica({
         </div>
 
         {/* Contenu */}
-        <div className="bg-gradient-to-br from-stone-50 to-amber-50/30 rounded-2xl p-8 border border-stone-100">
+        <div className="bg-gradient-to-br from-stone-50 to-cloud-dancer/50 rounded-2xl p-8 border border-stone-100">
           {/* Métadonnées */}
           <div className="flex flex-wrap justify-center gap-6 mb-8 text-sm text-charcoal/60">
             <div className="flex items-center gap-2">
