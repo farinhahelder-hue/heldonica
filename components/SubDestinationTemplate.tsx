@@ -37,7 +37,7 @@ export default function SubDestinationTemplate({
   relatedArticles = [],
 }: SubDestinationProps) {
   return (
-    <main className="min-h-screen bg-[#F8F5F0] font-sans">
+    <main className="min-h-screen bg-cloud-dancer font-sans">
       {/* ── HERO ── */}
       <section className="relative h-[45vh] md:h-[55vh] flex items-end bg-stone-950 overflow-hidden">
         <Image
