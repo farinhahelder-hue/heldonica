@@ -123,7 +123,7 @@ function MapRenderer({ routes, pois }: { routes: Route[]; pois: POI[] }) {
               <strong style="font-size:14px">${emoji} ${poi.name}</strong>
               ${poi.description ? `<br/><span style="font-size:12px;color:#555">${poi.description}</span>` : ''}
               ${poi.address ? `<br/><span style="font-size:11px;color:#888">📍 ${poi.address}</span>` : ''}
-              ${poi.maps_url ? `<br/><a href="${poi.maps_url}" target="_blank" rel="noopener" style="font-size:11px;color:#01696f">Voir sur Maps →</a>` : ''}
+              ${poi.maps_url ? `<br/><a href="${poi.maps_url}" target="_blank" rel="noopener noreferrer" style="font-size:11px;color:#01696f">Voir sur Maps →</a>` : ''}
             </div>
           `)
           .addTo(map);

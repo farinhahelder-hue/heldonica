@@ -22,7 +22,6 @@ import DynamicArticleMap from '@/components/DynamicArticleMap'
 import { verifyPreviewToken } from '@/lib/preview-token'
 
 const SITE_URL = 'https://www.heldonica.fr'
-const DEFAULT_OG = `${SITE_URL}/og-default.jpg`
 
 /** Build a fallback OG image URL via /api/og when no real image exists */
 function ogFallbackUrl(title: string, description: string | null): string {
