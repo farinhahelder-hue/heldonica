@@ -26,8 +26,8 @@ export default function HeldonicaProof({ type, location, rating = 5, size = 'md'
   if (type === 'pepite' || type === 'verdict') {
     const stars = type === 'verdict' ? Array.from({ length: 5 }, (_, i) => i < rating) : []
     return (
-      <span className={`inline-flex items-center gap-1.5 bg-amber-100 text-amber-800 font-medium rounded-full ${sizes[size]}`}>
-        {type === 'pepite' ? <Heart size={iconSizes[size]} className="fill-amber-500" /> : <ThumbsUp size={iconSizes[size]} />}
+      <span className={`inline-flex items-center gap-1.5 bg-mahogany/10 text-mahogany font-medium rounded-full ${sizes[size]}`}>
+        {type === 'pepite' ? <Heart size={iconSizes[size]} className="fill-mahogany" /> : <ThumbsUp size={iconSizes[size]} />}
         <span>{type === 'pepite' ? 'Pépite' : 'Verdict Heldonica'}{location && ` • ${location}`}</span>
         {type === 'verdict' && (
           <span className="flex gap-0.5 ml-1">

@@ -76,7 +76,7 @@ export default function LeadMagnetBlock({
     return (
       <section className="bg-white py-16 md:py-20 border-y border-stone-100">
         <div className="container max-w-3xl">
-          <div className="bg-gradient-to-br from-eucalyptus/5 via-white to-amber-50/30 rounded-2xl p-8 md:p-10 border border-eucalyptus/10 text-center">
+          <div className="bg-gradient-to-br from-eucalyptus/5 via-white to-cloud-dancer rounded-2xl p-8 md:p-10 border border-eucalyptus/10 text-center">
             <CheckCircle size={48} className="mx-auto text-eucalyptus mb-4" />
             <h2 className="text-2xl md:text-3xl font-serif text-mahogany mb-3">
               C&apos;est parti ! 
@@ -94,7 +94,7 @@ export default function LeadMagnetBlock({
   return (
     <section className="bg-white py-16 md:py-20 border-y border-stone-100">
       <div className="container max-w-3xl">
-        <div className="bg-gradient-to-br from-eucalyptus/5 via-white to-amber-50/30 rounded-2xl p-8 md:p-10 border border-eucalyptus/10">
+        <div className="bg-gradient-to-br from-eucalyptus/5 via-white to-cloud-dancer rounded-2xl p-8 md:p-10 border border-eucalyptus/10">
           {/* Header */}
           <div className="text-center mb-8">
             <h2 className="text-2xl md:text-3xl font-serif text-mahogany mb-3">

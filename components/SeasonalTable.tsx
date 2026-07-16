@@ -19,13 +19,13 @@ export interface SeasonalTableProps {
 
 const crowdLabels = {
   low: { label: 'Faible', color: 'bg-emerald-100 text-emerald-700' },
-  medium: { label: 'Modéré', color: 'bg-amber-100 text-amber-700' },
+  medium: { label: 'Modéré', color: 'bg-stone-100 text-stone-600' },
   high: { label: 'Élevé', color: 'bg-red-100 text-red-700' },
 }
 
 const priceLabels = {
   low: { label: '€', color: 'text-emerald-600' },
-  medium: { label: '€€', color: 'text-amber-600' },
+  medium: { label: '€€', color: 'text-mahogany' },
   high: { label: '€€€', color: 'text-red-600' },
 }
 
@@ -51,7 +51,7 @@ export default function SeasonalTable({ destination, seasons }: SeasonalTablePro
             key={index}
             onClick={() => setSelectedSeason(season)}
             className={`p-5 text-left transition-all hover:bg-stone-50 ${
-              selectedSeason?.name === season.name ? 'bg-amber-50 ring-2 ring-amber-200' : ''
+              selectedSeason?.name === season.name ? 'bg-eucalyptus/5 ring-2 ring-eucalyptus/20' : ''
             }`}
           >
             <div className="flex items-center gap-2 mb-2">
@@ -73,7 +73,7 @@ export default function SeasonalTable({ destination, seasons }: SeasonalTablePro
 
       {/* Detail panel */}
       {selectedSeason && (
-        <div className="border-t border-stone-200 p-6 bg-amber-50/50">
+        <div className="border-t border-stone-200 p-6 bg-cloud-dancer/50">
           <div className="flex items-start justify-between mb-4">
             <div>
               <span className="text-2xl mr-2">{selectedSeason.emoji}</span>
@@ -102,7 +102,7 @@ export default function SeasonalTable({ destination, seasons }: SeasonalTablePro
               <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">Affluence</p>
               <p className={`text-sm font-semibold ${
                 selectedSeason.crowd === 'low' ? 'text-emerald-600' :
-                selectedSeason.crowd === 'medium' ? 'text-amber-600' : 'text-red-600'
+                selectedSeason.crowd === 'medium' ? 'text-mahogany' : 'text-red-600'
               }`}>
                 {crowdLabels[selectedSeason.crowd].label}
               </p>

@@ -90,7 +90,7 @@ export default function Header() {
           {/* Logo */}
           <Link
             href="/"
-            className="flex items-center gap-2 text-amber-900 transition-all duration-200 hover:text-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-offset-2"
+            className="flex items-center gap-2 text-mahogany transition-all duration-200 hover:text-eucalyptus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:ring-offset-2"
             aria-label={`${siteName} accueil`}
           >
             {logoUrl ? (
@@ -114,10 +114,10 @@ export default function Header() {
                   key={item.href}
                   href={item.href}
                   aria-current={pathname === item.href ? 'page' : undefined}
-                  className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-offset-2 ${
+                  className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:ring-offset-2 ${
                     pathname === item.href
-                      ? 'text-amber-900'
-                      : 'text-stone-600 hover:text-amber-900'
+                      ? 'text-eucalyptus'
+                      : 'text-stone-600 hover:text-eucalyptus'
                   }`}
                 >
                   {item.label}
@@ -136,13 +136,13 @@ export default function Header() {
               aria-label={open ? 'Fermer le menu' : 'Ouvrir le menu'}
               aria-expanded={open}
               aria-controls="mobile-menu"
-              className="group relative flex h-10 w-10 items-center justify-center rounded-xl bg-stone-50 transition-all duration-300 hover:bg-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 active:scale-95"
+              className="group relative flex h-10 w-10 items-center justify-center rounded-xl bg-stone-50 transition-all duration-300 hover:bg-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus active:scale-95"
             >
               <span className="flex h-5 w-5 flex-col items-center justify-center">
                 {/* Ligne du haut */}
                 <span 
                   className={`mb-1 block h-0.5 w-5 transform rounded-full bg-stone-700 transition-all duration-300 ${
-                    open ? 'translate-y-1.5 rotate-45 bg-amber-900' : ''
+                    open ? 'translate-y-1.5 rotate-45 bg-eucalyptus' : ''
                   }`}
                 />
                 {/* Ligne du milieu */}
@@ -154,7 +154,7 @@ export default function Header() {
                 {/* Ligne du bas */}
                 <span 
                   className={`block h-0.5 w-5 transform rounded-full bg-stone-700 transition-all duration-300 ${
-                    open ? '-translate-y-1.5 -rotate-45 bg-amber-900' : ''
+                    open ? '-translate-y-1.5 -rotate-45 bg-eucalyptus' : ''
                   }`}
                 />
               </span>
@@ -209,10 +209,10 @@ export default function Header() {
                   href={item.href}
                   onClick={() => setOpen(false)}
                   aria-current={pathname === item.href ? 'page' : undefined}
-                  className={`flex items-center gap-3 rounded-xl px-4 py-3.5 font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 ${
+                  className={`flex items-center gap-3 rounded-xl px-4 py-3.5 font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus ${
                     pathname === item.href
-                      ? 'bg-amber-50 text-amber-900'
-                      : 'text-stone-700 hover:bg-amber-50 hover:text-amber-900 active:scale-[0.98]'
+                      ? 'bg-eucalyptus/5 text-eucalyptus'
+                      : 'text-stone-700 hover:bg-eucalyptus/5 hover:text-eucalyptus active:scale-[0.98]'
                   }`}
                 >
                   <span className="flex h-9 w-9 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-500 shadow-sm" aria-hidden="true">
@@ -248,7 +248,7 @@ export default function Header() {
               <Link
                 href={accountHref}
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-3 rounded-xl px-4 py-3.5 font-medium text-stone-600 transition-colors hover:bg-stone-50 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 active:scale-[0.98]"
+                className="flex items-center gap-3 rounded-xl px-4 py-3.5 font-medium text-stone-600 transition-colors hover:bg-stone-50 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus active:scale-[0.98]"
               >
                 <span className="flex h-9 w-9 items-center justify-center rounded-full border border-eucalyptus/20 bg-eucalyptus/10 text-eucalyptus" aria-hidden="true">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

@@ -30,7 +30,7 @@ export default function HeldonicaFAQ({ items, title = 'Questions fréquentes' }:
               key={index}
               className="group rounded-xl border border-stone-200 bg-white p-4 transition-all duration-200"
             >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-semibold text-stone-800 hover:text-amber-700">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-semibold text-stone-800 hover:text-eucalyptus">
                 <span>{item.question}</span>
                 <svg
                   className="h-5 w-5 flex-shrink-0 transition-transform duration-200 group-open:rotate-180"
