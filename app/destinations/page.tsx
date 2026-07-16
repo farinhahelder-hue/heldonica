@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import DestinationsClient from './DestinationsClient';
 import Script from 'next/script';
 
-// These must be server-rendered, not statically pre-rendered
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 export const dynamicParams = true;
 
 export const metadata: Metadata = {
