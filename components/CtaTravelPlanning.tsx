@@ -71,7 +71,7 @@ export default function CtaTravelPlanning() {
         <Link
           href="/travel-planning"
           onClick={handleClick}
-          className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-4 font-semibold text-[#2D8B8A] transition-all duration-200 hover:bg-white/90 hover:shadow-lg"
+          className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-4 font-semibold text-eucalyptus transition-all duration-200 hover:bg-white/90 hover:shadow-lg"
         >
           {ctaLabel}
           <svg

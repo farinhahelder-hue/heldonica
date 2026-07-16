@@ -23,8 +23,8 @@ const DEFAULT_CATEGORIES: BlogCategory[] = [
   { key: 'Coulisses de marque', label: 'Coulisses de marque' },
 ]
 
-const ACTIVE_CLASS = 'bg-[#2D8B8A] text-white border-transparent'
-const INACTIVE_CLASS = 'bg-[#F5F0EB] text-[#4A7C6F] border border-[#4A7C6F]'
+const ACTIVE_CLASS = 'bg-eucalyptus text-white border-transparent'
+const INACTIVE_CLASS = 'bg-stone-100 text-eucalyptus/80 border border-eucalyptus/60'
 
 /**
  * Filtres de catégorie pour la page blog
@@ -65,7 +65,7 @@ export default function BlogFilters({
               inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium
               transition-all duration-200
               ${isActive ? ACTIVE_CLASS : INACTIVE_CLASS}
-              ${!isActive ? 'hover:bg-[#2D8B8A]/10' : ''}
+              ${!isActive ? 'hover:bg-eucalyptus/10' : ''}
             `}
             aria-pressed={isActive}
           >
@@ -74,7 +74,7 @@ export default function BlogFilters({
               <span 
                 className={`
                   rounded-full px-2 py-0.5 text-xs
-                  ${isActive ? 'bg-white/20 text-white' : 'bg-[#4A7C6F]/10 text-[#4A7C6F]'}
+                  ${isActive ? 'bg-white/20 text-white' : 'bg-eucalyptus/10 text-eucalyptus/80'}
                 `}
               >
                 {count}
