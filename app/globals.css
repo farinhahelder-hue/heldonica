@@ -256,13 +256,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* === DARK MODE CONFIGURATION === */
-html.dark { color-scheme: dark; }
-
-.dark {
+/* html.dark has specificity (0,1,1) — beats :root (0,1,0) from SiteTheme */
+html.dark {
+  color-scheme: dark;
   --color-background: #151413;
   --color-text: #F4F1EB;
   --color-primary: #83C5BE;
-  --color-secondary: #006D77;
+  --color-secondary: #4ECDC4;
   --cloud-dancer: #1E1C1A;
   --mahogany: #E29578;
 }
@@ -287,8 +287,17 @@ html.dark { color-scheme: dark; }
 .dark .text-stone-700      { color: #D6D1C8; }
 .dark .text-stone-600      { color: #B8B2A8; }
 .dark .text-stone-500      { color: #8A8480; }
-.dark .text-stone-400      { color: #6B6660; }
-.dark .text-stone-300      { color: #504C48; }
+.dark .text-stone-400      { color: #9E9890; }
+.dark .text-stone-300      { color: #B8B2A8; }
+
+/* Mahogany — hardcoded in Tailwind config (no CSS var), must be overridden explicitly */
+.dark .text-mahogany                  { color: #C87962; }
+.dark .hover\:text-mahogany:hover     { color: #C87962; }
+.dark .focus\:text-mahogany:focus     { color: #C87962; }
+.dark .bg-mahogany                    { background-color: #7A3020; }
+.dark .hover\:bg-mahogany:hover       { background-color: #7A3020; }
+.dark .border-mahogany                { border-color: rgba(200, 121, 98, 0.45); }
+.dark .ring-mahogany                  { --tw-ring-color: rgba(200, 121, 98, 0.45); }
 
 /* Borders */
 .dark .border-stone-50     { border-color: #252320; }
