@@ -108,7 +108,9 @@ export default function GuideDownloadModal({
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              <label htmlFor="guide-modal-email" className="sr-only">Ton adresse email</label>
               <input
+                id="guide-modal-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

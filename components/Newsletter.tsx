@@ -27,6 +27,7 @@ export default function Newsletter() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-full max-w-md mx-auto">
           <input
             type="email"
+            aria-label="Ton adresse email"
             placeholder="ton@email.fr"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
