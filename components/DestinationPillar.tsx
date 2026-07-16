@@ -61,7 +61,7 @@ export default function DestinationPillar({
       <main>
         {/* Hero */}
         <section className="relative min-h-[70vh] flex items-end overflow-hidden bg-stone-900">
-          <Image src={data.hero} alt={`${data.name} slow travel en couple`} fill className="object-cover opacity-60" priority />
+          <Image src={data.hero} alt={`${data.name} slow travel en couple`} fill className="object-cover opacity-60" priority sizes="100vw" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
           <div className="relative container py-16 md:py-24">
             <p className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold">{data.flag} {data.name}</p>

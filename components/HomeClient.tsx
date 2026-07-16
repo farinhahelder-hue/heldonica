@@ -346,7 +346,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               {featImg && (
                 <Image src={featImg} alt={featured.title} fill
                   className="object-cover opacity-60 group-hover:opacity-70 group-hover:scale-105 transition-all duration-700"
-                  priority />
+                  priority sizes="100vw" />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
               <div className="relative z-10 p-8 md:p-16 max-w-3xl">
@@ -391,7 +391,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               <div className="grid md:grid-cols-2 gap-6 mb-6">
                 <Link href={`/blog/${travelPosts[0].slug}`} className="card-lift group relative rounded-2xl overflow-hidden bg-mahogany/80 aspect-[4/3] md:row-span-2" data-reveal="left">
                   <Image src={postImage(travelPosts[0])} alt={travelPosts[0].title} fill
-                    className="object-cover opacity-70 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700" />
+                    className="object-cover opacity-70 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700"
+                    sizes="(max-width: 768px) 100vw, 50vw" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
                   <div className="absolute bottom-0 left-0 p-6">
                     <span className="inline-block bg-eucalyptus text-white text-xs font-bold px-2.5 py-1 rounded-full mb-3 capitalize">
@@ -414,7 +415,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                        className="group relative rounded-2xl overflow-hidden bg-mahogany/80"
                       data-reveal data-delay={String((i + 1) * 150)}>
                       <Image src={postImage(p)} alt={p.title} fill
-                        className="object-cover opacity-65 group-hover:opacity-75 group-hover:scale-105 transition-all duration-700" />
+                        className="object-cover opacity-65 group-hover:opacity-75 group-hover:scale-105 transition-all duration-700"
+                        sizes="(max-width: 768px) 100vw, 33vw" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                       <div className="relative p-5 h-44 flex flex-col justify-end">
                         <h3 className="text-white text-lg font-serif font-light group-hover:text-teal/80 transition-colors line-clamp-2">
