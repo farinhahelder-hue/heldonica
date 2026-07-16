@@ -73,7 +73,7 @@ export default function MapClientPage() {
         </section>
 
         {/* Filters Section */}
-        <section className="bg-white pb-4 sticky top-0 z-40 shadow-sm">
+        <section className="bg-white/95 backdrop-blur-md pb-4 sticky top-[60px] lg:top-[72px] z-30 shadow-sm">
           <div className="container py-4">
             <div className="flex flex-wrap gap-3 md:gap-4 items-end">
               {/* Country Filter */}
