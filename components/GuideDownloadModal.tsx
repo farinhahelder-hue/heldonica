@@ -75,7 +75,7 @@ export default function GuideDownloadModal({
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-stone-400 hover:text-stone-600"
+          className="absolute top-4 right-4 text-stone-500 hover:text-stone-600"
           aria-label="Fermer"
         >
           <X size={20} />
@@ -132,7 +132,7 @@ export default function GuideDownloadModal({
               </button>
             </form>
 
-            <p className="text-stone-400 text-xs text-center mt-4">
+            <p className="text-stone-500 text-xs text-center mt-4">
               Gratuit — 1 email pour recevoir les prochains guides en avant-première
             </p>
           </>

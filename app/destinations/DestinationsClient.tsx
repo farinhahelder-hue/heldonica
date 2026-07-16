@@ -125,7 +125,7 @@ export default function DestinationsClient() {
                   <span>{tab.icon}</span>
                   <span>{tab.label}</span>
                   {tab.value === 'starred' && starred.length > 0 && (
-                    <span className={`ml-1 text-xs ${continentFilter === 'starred' ? 'text-white/80' : 'text-stone-400'}`}>
+                    <span className={`ml-1 text-xs ${continentFilter === 'starred' ? 'text-white/80' : 'text-stone-500'}`}>
                       ({starred.length})
                     </span>
                   )}

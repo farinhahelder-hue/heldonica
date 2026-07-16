@@ -116,7 +116,7 @@ export default function TimisoaraPage() {
                   <p className="text-stone-600 text-sm">
                     {pepite.description}
                   </p>
-                  <p className="text-stone-400 text-xs mt-2">{pepite.address}</p>
+                  <p className="text-stone-500 text-xs mt-2">{pepite.address}</p>
                 </div>
               ))}
             </div>

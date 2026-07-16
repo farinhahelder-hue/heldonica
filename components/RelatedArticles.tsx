@@ -85,7 +85,7 @@ export default function RelatedArticles({ articles, destinationTitle, currentSlu
                     />
                   ) : (
                     <div className="absolute inset-0 bg-stone-200 flex items-center justify-center">
-                      <span className="text-stone-400 text-sm">Photo</span>
+                      <span className="text-stone-600 text-sm">Photo</span>
                     </div>
                   )}
                 </div>

@@ -134,7 +134,7 @@ export default function DestinationComparison({ destinations }: Props) {
                     <Link href={`/destinations/${d.slug}`} className="font-serif font-bold text-mahogany hover:text-eucalyptus">
                       {d.flag_emoji} {d.title}
                     </Link>
-                    <p className="text-xs text-stone-400 mt-0.5">{d.country}</p>
+                    <p className="text-xs text-stone-500 mt-0.5">{d.country}</p>
                   </th>
                 ))}
               </tr>
