@@ -481,7 +481,7 @@ export default async function DestinationPage({ params }: Props) {
             </p>
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link
-                href="/travel-planning-form"
+                href="/travel-planning"
                 className="rounded-full bg-eucalyptus px-7 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-eucalyptus/90 shadow-md"
               >
                 Nous écrire →

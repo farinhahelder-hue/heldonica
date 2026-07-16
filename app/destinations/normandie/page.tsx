@@ -74,7 +74,7 @@ export default function NormandiePage() {
         {/* Hero */}
         <section className="relative bg-gradient-to-b from-stone-900 to-stone-800 py-20">
           <div className="max-w-4xl mx-auto px-4">
-            <span className="inline-block text-amber-400 text-sm font-medium mb-4">
+            <span className="inline-block text-teal text-sm font-medium mb-4">
               Destinations
             </span>
             <h1 className="text-4xl md:text-5xl font-serif text-white mb-6">
@@ -94,7 +94,7 @@ export default function NormandiePage() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-stone-600 hover:text-amber-700 whitespace-nowrap text-sm font-medium"
+                className="text-stone-600 hover:text-eucalyptus whitespace-nowrap text-sm font-medium"
               >
                 {item.label}
               </Link>
@@ -121,7 +121,7 @@ export default function NormandiePage() {
             <div className="grid gap-6 md:grid-cols-3">
               <Link
                 href="/destinations/normandie/le-havre"
-                className="block p-6 bg-white rounded-lg border border-stone-200 hover:border-amber-400 transition-colors"
+                className="block p-6 bg-white rounded-lg border border-stone-200 hover:border-eucalyptus/40 transition-colors"
               >
                 <h3 className="font-serif text-lg text-stone-900 mb-2">
                   Le Havre et environs
@@ -132,7 +132,7 @@ export default function NormandiePage() {
               </Link>
               <Link
                 href="/destinations/normandie/cote-albatre"
-                className="block p-6 bg-white rounded-lg border border-stone-200 hover:border-amber-400 transition-colors"
+                className="block p-6 bg-white rounded-lg border border-stone-200 hover:border-eucalyptus/40 transition-colors"
               >
                 <h3 className="font-serif text-lg text-stone-900 mb-2">
                   Côte d Albâtre
@@ -143,7 +143,7 @@ export default function NormandiePage() {
               </Link>
               <Link
                 href="/destinations/normandie/pays-dauge"
-                className="block p-6 bg-white rounded-lg border border-stone-200 hover:border-amber-400 transition-colors"
+                className="block p-6 bg-white rounded-lg border border-stone-200 hover:border-eucalyptus/40 transition-colors"
               >
                 <h3 className="font-serif text-lg text-stone-900 mb-2">
                   Pays d Auge
@@ -187,13 +187,13 @@ export default function NormandiePage() {
             <div className="flex flex-wrap gap-4">
               <Link
                 href="/destinations/normandie/le-havre"
-                className="px-6 py-3 bg-amber-700 text-white rounded-lg hover:bg-amber-800 transition-colors"
+                className="px-6 py-3 bg-mahogany text-white rounded-lg hover:bg-mahogany/90 transition-colors"
               >
                 Le Havre et environs →
               </Link>
               <Link
                 href="/blog"
-                className="px-6 py-3 border border-stone-300 text-stone-700 rounded-lg hover:border-amber-400 transition-colors"
+                className="px-6 py-3 border border-stone-300 text-stone-700 rounded-lg hover:border-eucalyptus/40 transition-colors"
               >
                 Articles Normandie →
               </Link>

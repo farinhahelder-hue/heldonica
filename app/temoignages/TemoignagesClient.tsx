@@ -96,7 +96,7 @@ export default function TemoignagesClient({ testimonials }: Props) {
             />
             <div className="flex flex-wrap items-center justify-center gap-4">
               <Link
-                href="/travel-planning-form"
+                href="/travel-planning"
                 className="px-7 py-3 rounded-lg bg-teal text-charcoal font-semibold hover:bg-teal/90 transition-colors"
               >
                 <EditableZone page="temoignages" zone="cta_button_write" fallback="Nous écrire" />
