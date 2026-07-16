@@ -137,7 +137,7 @@ export default function HeldonicaVerdict({ items, title = 'Le verdict Heldonica'
                   {renderStars(item.rating)}
                   <span className="ml-1 text-sm font-semibold text-amber-700">{item.rating}/5</span>
                 </div>
-                <p className="text-xs text-stone-400">Testé {formatDate(item.testDate)}</p>
+                <p className="text-xs text-stone-500">Testé {formatDate(item.testDate)}</p>
               </div>
             </div>
           </div>
@@ -145,7 +145,7 @@ export default function HeldonicaVerdict({ items, title = 'Le verdict Heldonica'
       </div>
 
       {/* Footer note */}
-      <p className="mt-6 text-xs text-stone-400">
+      <p className="mt-6 text-xs text-stone-500">
         Tous nos verdicts sont basés sur des visites terrain réels. Les prix et horaires peuvent évoluer — vérifiez avant de vous déplacer.
       </p>
     </section>

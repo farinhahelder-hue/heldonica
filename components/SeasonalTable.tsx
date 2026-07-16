@@ -84,7 +84,7 @@ export default function SeasonalTable({ destination, seasons }: SeasonalTablePro
             </div>
             <button
               onClick={() => setSelectedSeason(null)}
-              className="text-stone-400 hover:text-stone-600 p-1"
+              className="text-stone-500 hover:text-stone-700 p-1"
               aria-label="Fermer"
             >
               <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">

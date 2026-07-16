@@ -436,7 +436,7 @@ function ArticleCard({ post }: { post: BlogPost & { formattedDate: string; readT
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={categoryIcon} />
               </svg>
-              <span className="mt-2 text-xs font-medium uppercase tracking-wider text-stone-400">
+              <span className="mt-2 text-xs font-medium uppercase tracking-wider text-stone-600">
                 {post.category || 'Slow Travel'}
               </span>
             </div>
