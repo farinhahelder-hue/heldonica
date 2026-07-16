@@ -124,7 +124,7 @@ export default function DestinationComparison({ destinations }: Props) {
                   <th key={d.slug} className="p-4 text-center min-w-[180px]">
                     <div className="relative h-24 w-full rounded-lg overflow-hidden mb-2">
                       <Image
-                        src={d.hero_unsplash_url || d.featured_image || 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&q=60'}
+                        src={d.hero_unsplash_url || d.featured_image || 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80'}
                         alt={d.title}
                         fill
                         className="object-cover"

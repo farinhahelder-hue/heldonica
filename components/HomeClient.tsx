@@ -122,7 +122,7 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
   const img = postImage(post)
   const [imgSrc, setImgSrc] = useState(img)
   const [imgFailed, setImgFailed] = useState(false)
-  const h = size === 'lg' ? 'h-80' : size === 'md' ? 'h-60' : 'h-44'
+  const h = size === 'lg' ? 'h-80' : size === 'md' ? 'h-52' : 'h-44'
   const readTime = (post.readTime ?? post.read_time) ?? 0
   const gradient = getCategoryGradient(post.category)
   const iconSvg = getCategoryIcon(post.category)

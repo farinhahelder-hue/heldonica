@@ -38,7 +38,7 @@ export default function Blog() {
             >
               {/* Image responsive */}
               <Link href={`/blog/${article.slug}`} className="block">
-                <div className="relative h-44 sm:h-48 w-full overflow-hidden">
+                <div className="relative h-48 sm:h-52 w-full overflow-hidden">
                   {article.image ? (
                     <Image
                       src={article.image}

@@ -98,7 +98,7 @@ const parisMeta: DestinationMeta = {
 const normandieMeta: DestinationMeta = {
   description:
     'Étretat, Honfleur, Deauville : la Normandie côtière demande moins de cases à cocher et plus de temps entre deux marées.',
-  heroImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600',
+  heroImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1400&q=80',
   region: 'France',
   duration: '3 à 5 jours',
   budget: 'Modulable',
@@ -111,7 +111,7 @@ const normandieMeta: DestinationMeta = {
 const bretagneMeta: DestinationMeta = {
   description:
     'Sentiers côtiers, crêperies, lumière changeante et Saint-Malo comme point d&apos;appui. La Bretagne gagne à être laissée tranquille.',
-  heroImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=1600',
+  heroImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=1400&q=80',
   region: 'France',
   duration: '4 à 7 jours',
   budget: 'Modulable',
