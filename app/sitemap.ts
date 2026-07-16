@@ -364,19 +364,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     },
     {
-      url: `${BASE_URL}/destinations/timisoara`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
       url: `${BASE_URL}/destinations/alentejo`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${BASE_URL}/destinations/lisbonne`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.7,
@@ -436,10 +424,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     },
     {
-      url: `${BASE_URL}/nos-services`,
+      url: `${BASE_URL}/organisateur`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.6,
+    },
+    {
+      url: `${BASE_URL}/guides`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${BASE_URL}/politique-affiliation`,
+      lastModified: new Date('2026-06-01'),
+      changeFrequency: 'yearly',
+      priority: 0.2,
     },
     {
       url: `${BASE_URL}/quiz`,

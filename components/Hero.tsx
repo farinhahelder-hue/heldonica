@@ -93,7 +93,7 @@ export default async function Hero({
           </h1>
         )}
         {subtitle && (
-          <p className="text-gray-300 text-base md:text-lg leading-relaxed max-w-xl">
+          <p className="text-stone-300 text-base md:text-lg leading-relaxed max-w-xl">
             {subtitle}
           </p>
         )}

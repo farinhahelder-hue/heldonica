@@ -29,7 +29,7 @@ function PrivacySection({
   );
 }
 
-export default function politiqueconfidentialitePage() {
+export default function PolitiqueConfidentialitePage() {
   return (
     <InlineEditProvider page="politique-confidentialite">
       <Header />

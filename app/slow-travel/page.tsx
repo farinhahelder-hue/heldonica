@@ -22,6 +22,29 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://www.heldonica.fr/slow-travel',
   },
+  openGraph: {
+    url: 'https://www.heldonica.fr/slow-travel',
+    title: 'Slow Travel — Voyager Autrement, Lentement, Authentiquement | Heldonica',
+    description: "Notre approche du voyage lent : ralentir pour mieux voir, choisir la qualité sur la quantité, revenir changé plutôt qu'épuisé.",
+    images: [
+      {
+        url: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1200&q=85',
+        width: 1200,
+        height: 630,
+        alt: 'Slow Travel — Heldonica',
+      },
+    ],
+    locale: 'fr_FR',
+    type: 'website',
+    siteName: 'Heldonica',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Slow Travel — Voyager Autrement | Heldonica',
+    description: "Ralentir pour mieux voir. Notre approche du voyage lent et authentique.",
+    creator: '@heldonica',
+    images: ['https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1200&q=85'],
+  },
 }
 
 export default function SlowTravelPage() {
@@ -106,5 +129,4 @@ export default function SlowTravelPage() {
   )
 }
 
-// ⚡ Bolt Optimization: Use Incremental Static Regeneration (ISR) to cache the page for 60 seconds. This significantly improves Time To First Byte (TTFB).
 export const revalidate = 60;
