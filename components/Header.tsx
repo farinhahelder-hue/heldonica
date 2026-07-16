@@ -95,12 +95,11 @@ export default function Header() {
             {logoUrl ? (
               <img src={logoUrl} alt="" className="h-8 w-auto" />
             ) : (
-              <svg width="32" height="32" viewBox="0 0 34 34" fill="none" aria-hidden="true">
-                <circle cx="17" cy="17" r="16" stroke="currentColor" strokeWidth="1.2" />
-                <line x1="10" y1="9" x2="10" y2="22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                <line x1="24" y1="9" x2="24" y2="22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                <line x1="10" y1="15.5" x2="24" y2="15.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                <path d="M8 26 Q11 24 14 26 Q17 28 20 26 Q23 24 26 26" stroke="currentColor" strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.6" />
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" className="text-eucalyptus" aria-hidden="true">
+                <circle cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 3" className="opacity-40" />
+                <path d="M8 21l6.5-9 6.5 9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M14 21l5-7 6 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M5 25c6-2.5 11 0.5 16-2.5s5-3.5 7-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
             )}
             <span className="text-lg font-serif font-bold tracking-tight lg:text-xl">{siteName}</span>
