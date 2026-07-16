@@ -558,7 +558,7 @@ export default function TravelPlanningClient() {
               }}
               className="inline-flex px-7 py-3 rounded-xl bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors"
             >
-              <EditableZone page="travel-planning" zone="cta_button" fallback="Lancer mon voyage →" />
+              <EditableZone page="travel-planning" zone="cta_button" fallback="Démarrer ma demande →" />
             </a>
           </div>
         </section>
