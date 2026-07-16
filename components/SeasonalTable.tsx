@@ -95,11 +95,11 @@ export default function SeasonalTable({ destination, seasons }: SeasonalTablePro
           
           <div className="grid md:grid-cols-3 gap-4 mb-4">
             <div className="bg-white rounded-xl p-4 border border-stone-100">
-              <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-1">Météo</p>
+              <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">Météo</p>
               <p className="text-sm text-stone-700">{selectedSeason.weather}</p>
             </div>
             <div className="bg-white rounded-xl p-4 border border-stone-100">
-              <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-1">Affluence</p>
+              <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">Affluence</p>
               <p className={`text-sm font-semibold ${
                 selectedSeason.crowd === 'low' ? 'text-emerald-600' :
                 selectedSeason.crowd === 'medium' ? 'text-amber-600' : 'text-red-600'
@@ -108,7 +108,7 @@ export default function SeasonalTable({ destination, seasons }: SeasonalTablePro
               </p>
             </div>
             <div className="bg-white rounded-xl p-4 border border-stone-100">
-              <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-1">Budget</p>
+              <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">Budget</p>
               <p className={`text-sm font-semibold ${priceLabels[selectedSeason.price].color}`}>
                 {selectedSeason.price === 'low' ? 'Économique' :
                  selectedSeason.price === 'medium' ? 'Intermédiaire' : 'Premium'}

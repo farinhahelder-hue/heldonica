@@ -68,7 +68,7 @@ export default function SubDestinationTemplate({
       {/* ── INTRO ── */}
       <section className="py-16 bg-white border-b border-stone-200/60">
         <div className="max-w-3xl mx-auto px-6">
-          <p className="text-stone-400 text-xs font-bold uppercase tracking-[0.2em] mb-4">
+          <p className="text-stone-500 text-xs font-bold uppercase tracking-[0.2em] mb-4">
             L'esprit du lieu
           </p>
           <p className="text-lg md:text-xl text-stone-800 font-serif font-light leading-relaxed mb-8">

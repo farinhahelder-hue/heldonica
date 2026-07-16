@@ -261,7 +261,7 @@ export default function DestinationPillar({
                   <Link key={a.slug} href={`/blog/${a.slug}`} className="group block rounded-xl border border-stone-200 bg-stone-50 p-5 hover:bg-white hover:shadow-sm transition-all">
                     <h3 className="font-semibold text-mahogany group-hover:text-eucalyptus transition-colors">{a.title}</h3>
                     <p className="text-sm text-charcoal/60 mt-2 line-clamp-2">{a.excerpt}</p>
-                    {a.read_time && <p className="text-xs text-stone-400 mt-2">{a.read_time} min de lecture</p>}
+                    {a.read_time && <p className="text-xs text-stone-500 mt-2">{a.read_time} min de lecture</p>}
                   </Link>
                 ))}
               </div>
