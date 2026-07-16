@@ -38,7 +38,7 @@ const DESTINATION_EMOJI: Record<string, string> = {
   'montenegro': '🌊',
   'sicile': '🌋',
   'sicily': '🌋',
-  'zurich': '🇨🇭',
+  'zurich': '🏙️',
   'suisse': '🏔️',
   'switzerland': '🏔️',
   'grece': '🏛️',
@@ -69,10 +69,10 @@ export const FALLBACK_HOME_DESTINATIONS: HomeDestination[] = [
     custom_description: null,
     custom_image_url: null,
     title: 'Madère',
-    tagline: "L'Île de l'Éternel Printemps",
+    tagline: 'Île de l’Éternel Printemps',
     hero_unsplash_url: null,
     country: 'Portugal',
-    flag_emoji: '🇵🇹',
+    flag_emoji: '🏝️',
   },
   {
     id: 'fallback-2',
@@ -86,7 +86,7 @@ export const FALLBACK_HOME_DESTINATIONS: HomeDestination[] = [
     tagline: 'Nature Sauvage et Traditions',
     hero_unsplash_url: null,
     country: 'Roumanie',
-    flag_emoji: '🇷🇴',
+    flag_emoji: '🏰',
   },
   {
     id: 'fallback-3',
@@ -100,7 +100,7 @@ export const FALLBACK_HOME_DESTINATIONS: HomeDestination[] = [
     tagline: 'Côte Adriatique Préservée',
     hero_unsplash_url: null,
     country: 'Monténégro',
-    flag_emoji: '🇲🇪',
+    flag_emoji: '🌊',
   },
   {
     id: 'fallback-4',
@@ -114,7 +114,7 @@ export const FALLBACK_HOME_DESTINATIONS: HomeDestination[] = [
     tagline: 'Tranche de Vie Italienne',
     hero_unsplash_url: null,
     country: 'Italie',
-    flag_emoji: '🇮🇹',
+    flag_emoji: '🌋',
   },
 ];
 
