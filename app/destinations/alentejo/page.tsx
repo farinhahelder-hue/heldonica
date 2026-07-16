@@ -6,7 +6,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import SlowTravelQuiz from '@/components/SlowTravelQuiz'
 
-const SITE_URL = 'https://heldonica.fr'
+const SITE_URL = 'https://www.heldonica.fr'
 
 const schemaTouristDestination = {
   '@context': 'https://schema.org',

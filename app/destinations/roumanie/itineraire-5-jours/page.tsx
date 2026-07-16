@@ -5,7 +5,7 @@ import Footer from '@/components/Footer';
 import NewsletterForm from '@/components/NewsletterForm';
 import DynamicArticleMap from '@/components/DynamicArticleMap';
 
-const SITE_URL = 'https://heldonica.fr';
+const SITE_URL = 'https://www.heldonica.fr';
 
 export const metadata: Metadata = {
   title: 'Roumanie 5 jours : itinéraire slow travel focus Transylvanie | Heldonica',

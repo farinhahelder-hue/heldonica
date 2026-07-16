@@ -7,7 +7,7 @@ import NewsletterForm from '@/components/NewsletterForm';
 import PdfDownloadButton from '@/components/PdfDownloadButton';
 import DynamicArticleMap from '@/components/DynamicArticleMap';
 
-const SITE_URL = 'https://heldonica.fr';
+const SITE_URL = 'https://www.heldonica.fr';
 
 export const metadata: Metadata = {
   title: 'Roumanie 10 jours : grande traversée slow travel en couple | Heldonica',

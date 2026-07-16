@@ -3,7 +3,7 @@ import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
-const SITE_URL = 'https://heldonica.fr'
+const SITE_URL = 'https://www.heldonica.fr'
 
 export const metadata: Metadata = {
   title: 'Timisoara slow travel | Guide Heldonica',
