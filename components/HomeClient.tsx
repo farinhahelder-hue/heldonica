@@ -402,10 +402,10 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               <EditableZone page="home" zone="section_story_title" type="html" fallback={'Deux regards. <span class="block italic text-eucalyptus">Un seul terrain.</span>'}
                 className="text-3xl md:text-5xl font-serif font-light text-mahogany mb-6 leading-tight block"
               />
-              <EditableZone page="home" zone="section_story_text_1" type="textarea" fallback="Elena a grandi entre la France et la Roumanie, avec l'habitude de prendre la route dès que possible. Elle apporte au duo son sens du détail, sa plume éditoriale et sa passion pour les adresses insolites qui racontent une vraie histoire."
+              <EditableZone page="home" zone="section_story_text_1" type="textarea" fallback="L'une a grandi entre deux pays, deux langues, la route comme habitude naturelle. Elle apporte au duo son sens du détail, sa plume éditoriale et une passion pour les adresses qui racontent une vraie histoire — celles dont tu te souviens après, pas celles que tu coches."
                 className="text-base text-charcoal/70 leading-relaxed mb-4 block"
               />
-              <EditableZone page="home" zone="section_story_text_2" type="textarea" fallback="Hélder est né à Madère, au milieu de l'Atlantique. Ses racines portugaises et son amour pour la nature sauvage lui ont donné le goût des sentiers cachés, des restaurants locaux familiaux et du voyage au rythme de l'océan."
+              <EditableZone page="home" zone="section_story_text_2" type="textarea" fallback="L'autre est né sur une île au milieu de l'Atlantique, entre levadas et océan. Ses racines insulaires et son amour pour la nature sauvage lui ont donné le goût des sentiers cachés, des tables sans enseigne et du voyage au rythme de l'eau."
                 className="text-base text-charcoal/70 leading-relaxed mb-4 block"
               />
               <EditableZone page="home" zone="section_story_text_3" type="textarea" fallback="Notre regard est né à deux. Ensemble, on ferme les ordinateurs, on prend le large et on revient avec des pépites vécues, prêtes à être partagées. Pas de copier-coller d'Internet, uniquement des conseils terrain."
