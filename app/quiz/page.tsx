@@ -5,6 +5,15 @@ import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
+function slugify(str: string): string {
+  return str
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+}
+
 const QUESTIONS = [
   {
     id: 1,
@@ -94,7 +103,7 @@ const PROFILES: Record<string, {
     title: 'L\'Amateur de Bien-être',
     emoji: '🧘',
     description: 'Voyager pour se faire du bien. Tu mérites le meilleur, et tu le sais. Un voyage qui nourrit le corps et l\'esprit.',
-    destinations: ['Madère', 'Sardaigne', 'Île de Ré'],
+    destinations: ['Madère', 'Sardaigne', 'Alentejo'],
     vibes: ['Spa', 'Yoga', 'Gastronomie healthy'],
     color: '#0891b2',
   },
@@ -144,7 +153,7 @@ export default function QuizPage() {
         {/* Hero */}
         <section className="py-16 md:py-24 text-center px-6">
           <div className="max-w-2xl mx-auto">
-            <span className="text-amber-700 text-xs font-bold tracking-[0.2em] uppercase">
+            <span className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase">
               Quiz Heldonica
             </span>
             <h1 className="text-4xl md:text-5xl font-serif font-light text-stone-900 mt-4 mb-6">
@@ -164,14 +173,14 @@ export default function QuizPage() {
                 {/* Progress */}
                 <div className="mb-8">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-semibold text-amber-800">
+                    <span className="text-sm font-semibold text-eucalyptus">
                       Question {currentQuestion + 1} / {QUESTIONS.length}
                     </span>
                     <span className="text-sm text-stone-500">{Math.round(progress)}%</span>
                   </div>
                   <div className="w-full bg-stone-100 rounded-full h-2">
                     <div
-                      className="bg-amber-700 h-2 rounded-full transition-all duration-500"
+                      className="bg-eucalyptus h-2 rounded-full transition-all duration-500"
                       style={{ width: `${progress}%` }}
                     />
                   </div>
@@ -188,7 +197,7 @@ export default function QuizPage() {
                     <button
                       key={opt.value}
                       onClick={() => handleAnswer(opt.value)}
-                      className="w-full text-left p-4 rounded-xl border-2 border-stone-100 hover:border-amber-700/40 transition-all group hover:shadow-md"
+                      className="w-full text-left p-4 rounded-xl border-2 border-stone-100 hover:border-eucalyptus/40 transition-all group hover:shadow-md"
                     >
                       <div className="flex items-center gap-4">
                         <span className="text-2xl">{opt.emoji}</span>
@@ -231,7 +240,7 @@ export default function QuizPage() {
                         {profile.destinations.map((dest) => (
                           <Link
                             key={dest}
-                            href={`/destinations/${dest.toLowerCase()}`}
+                            href={`/destinations/${slugify(dest)}`}
                             className="px-4 py-2 bg-white rounded-full text-sm font-medium text-stone-700 border border-stone-200 hover:border-amber-700 hover:text-amber-800 transition-colors"
                           >
                             {dest}
@@ -256,8 +265,8 @@ export default function QuizPage() {
                     {/* CTA */}
                     <div className="space-y-4">
                       <Link
-                        href="/travel-planning-form"
-                        className="inline-block w-full py-4 bg-amber-800 hover:bg-amber-700 text-white font-bold rounded-xl transition-colors shadow-lg"
+                        href="/travel-planning#formulaire"
+                        className="inline-block w-full py-4 bg-mahogany hover:brightness-110 text-white font-semibold rounded-xl transition-all shadow-lg"
                       >
                         ✈️ Créer mon voyage sur mesure
                       </Link>
