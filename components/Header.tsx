@@ -70,13 +70,19 @@ export default function Header() {
 
   return (
     <>
-      <nav 
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-eucalyptus focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lg"
+      >
+        Aller au contenu principal
+      </a>
+      <nav
         className={`fixed top-0 z-50 w-full transition-all duration-300 ${
-          scrolled 
-            ? 'bg-white/98 backdrop-blur-md shadow-sm border-b border-stone-100/50' 
+          scrolled
+            ? 'bg-white/98 backdrop-blur-md shadow-sm border-b border-stone-100/50'
             : 'bg-white/95 backdrop-blur-sm border-b border-stone-100'
-        }`} 
-        role="navigation" 
+        }`}
+        role="navigation"
         aria-label="Navigation principale"
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5 sm:px-6 lg:py-3">
@@ -167,7 +173,11 @@ export default function Header() {
           />
           
           {/* Menu panel */}
-          <div 
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu de navigation"
+            aria-hidden={!open}
             className={`absolute right-0 top-full z-50 w-full max-w-sm bg-white shadow-2xl transition-all duration-300 ease-out transform origin-top-right ${
               open ? 'translate-x-0 scale-100 opacity-100 pointer-events-auto' : 'translate-x-6 scale-95 opacity-0 pointer-events-none'
             }`}

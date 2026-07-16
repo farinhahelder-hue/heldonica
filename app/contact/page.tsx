@@ -54,9 +54,10 @@ export default function Contact() {
           description: "Une question, un projet de voyage ? Écris-nous pour ton travel planning sur mesure.",
           url: 'https://www.heldonica.fr/contact',
           mainEntity: {
-            '@type': 'Person',
+            '@type': 'Organization',
             name: 'Heldonica',
             email: 'contact@heldonica.fr',
+            url: 'https://www.heldonica.fr',
           },
         }),
       }} />

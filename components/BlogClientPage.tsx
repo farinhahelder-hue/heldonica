@@ -178,7 +178,7 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
                   width={1200}
                   height={500}
                   className="absolute inset-0 h-full w-full object-cover opacity-60 transition-all duration-500 group-hover:scale-105 group-hover:opacity-70"
-                  loading="lazy"
+                  loading="eager"
                 />
               ) : (
                 <img
@@ -187,7 +187,7 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
                   width={1200}
                   height={500}
                   className="absolute inset-0 h-full w-full object-cover opacity-60"
-                  loading="lazy"
+                  loading="eager"
                 />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
