@@ -223,6 +223,101 @@ interface HomeProps {
   homeZones?: Record<string, string>
 }
 
+// ─── Premium SVG Icons ─────────────────────────────────────────────────────────
+function renderPremiumIcon(slug: string) {
+  const normalized = slug.toLowerCase().replace(/[^a-z]/g, '');
+  if (normalized.includes('madere') || normalized.includes('maderia')) {
+    return (
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="text-eucalyptus dark:text-teal mx-auto" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 38c6-2 10 2 16 0s10-4 16-2" className="opacity-50" />
+        <path d="M10 42c6-2 10 2 16 0s10-4 16-2" className="opacity-30" />
+        <path d="M24 36V14" strokeWidth="2" />
+        <path d="M24 18c-6-1-12 1-16 6 8-1 14-3 16-6z" fill="currentColor" fillOpacity={0.1} />
+        <path d="M24 22c6-1 12 1 16 6-8-1-14-3-16-6z" fill="currentColor" fillOpacity={0.1} />
+        <path d="M24 22c-5-2-10-1-14 3 6 0 11-1 14-3z" fill="currentColor" fillOpacity={0.1} />
+        <path d="M24 26c5-2 10-1 14 3-6 0-11-1-14-3z" fill="currentColor" fillOpacity={0.1} />
+      </svg>
+    )
+  }
+  if (normalized.includes('suisse') || normalized.includes('switzerland')) {
+    return (
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="text-eucalyptus dark:text-teal mx-auto" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M8 38l12-18 8 12 12-18 4 6" strokeWidth="2" />
+        <path d="M16 38h24" className="opacity-50" />
+        <path d="M20 20l-3 4.5h6l-3-4.5z" fill="currentColor" fillOpacity={0.2} />
+        <path d="M40 14l-3 4.5h6l-3-4.5z" fill="currentColor" fillOpacity={0.2} />
+        <circle cx="34" cy="10" r="4" className="opacity-40" strokeWidth="1.2" strokeDasharray="2 2" />
+      </svg>
+    )
+  }
+  if (normalized.includes('zurich')) {
+    return (
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="text-eucalyptus dark:text-teal mx-auto" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M8 38c8-1.5 16-1.5 24 0M12 42c6-1 12-1 18 0" className="opacity-50" />
+        <path d="M16 34V18l4-6 4 6v14" fill="currentColor" fillOpacity={0.1} strokeWidth="2" />
+        <path d="M26 34l8-14v14z" fill="currentColor" fillOpacity={0.2} />
+        <path d="M24 34h12" />
+      </svg>
+    )
+  }
+  if (normalized.includes('roumanie') || normalized.includes('romania')) {
+    return (
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="text-eucalyptus dark:text-teal mx-auto" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 38V22h4v-6h4v6h4v-6h4v6h4v16" fill="currentColor" fillOpacity={0.1} strokeWidth="2" />
+        <path d="M12 22l5-6 5 6M26 22l5-6 5 6" />
+        <path d="M8 38l3-6 3 6M36 38l3-6 3 6" className="opacity-50" />
+      </svg>
+    )
+  }
+  if (normalized.includes('montenegro')) {
+    return (
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="text-eucalyptus dark:text-teal mx-auto" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 34l12-16 10 14 14-20 4 6" strokeWidth="2" />
+        <path d="M4 38c8-2 16 2 24 0s12-2 16 0" strokeWidth="2" />
+        <path d="M8 42c8-2 16 2 24 0s12-2 16 0" className="opacity-40" />
+      </svg>
+    )
+  }
+  if (normalized.includes('sicile') || normalized.includes('sicily')) {
+    return (
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="text-eucalyptus dark:text-teal mx-auto" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M8 38l14-22 6 8 12 14" strokeWidth="2" />
+        <path d="M20 18h4" strokeWidth="2" />
+        <path d="M22 14c-1-3 2-4 1-6" className="opacity-50" />
+        <path d="M6 42c9-1.5 18-1.5 27 0" className="opacity-30" />
+      </svg>
+    )
+  }
+  if (normalized.includes('paris')) {
+    return (
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="text-eucalyptus dark:text-teal mx-auto" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20 38c2-4 3-8 4-18 1 10 2 14 4 18M16 38h16" strokeWidth="2" />
+        <path d="M24 20v-8M23 12h2" />
+        <path d="M21 28h6" className="opacity-50" />
+        <path d="M24 38c-3-1-6-1-8-1M24 38c3-1 6-1 8-1" className="opacity-30" />
+      </svg>
+    )
+  }
+  if (normalized.includes('colombie') || normalized.includes('colombia')) {
+    return (
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="text-eucalyptus dark:text-teal mx-auto" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M24 38V16" strokeWidth="2" />
+        <path d="M24 20c-5-2-11-2-16 2 8 0 13-1 16-2z" fill="currentColor" fillOpacity={0.1} />
+        <path d="M24 24c5-2 11-2 16 2-8 0-13-1-16-2z" fill="currentColor" fillOpacity={0.1} />
+        <path d="M24 28c-4-2-9-2-13 1 6 0 10-1 13-1z" fill="currentColor" fillOpacity={0.1} />
+      </svg>
+    )
+  }
+  return (
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="text-eucalyptus dark:text-teal mx-auto" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="24" cy="24" r="20" strokeDasharray="3 3" className="opacity-40" />
+      <circle cx="24" cy="24" r="16" className="opacity-20" />
+      <path d="M24 8v32M8 24h32" strokeWidth="1.2" />
+      <path d="M24 14l4 10-4 10-4-10z" fill="currentColor" fillOpacity={0.2} strokeWidth="1.5" />
+    </svg>
+  )
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries, heroVideoUrl, heroPosterImage, homeDestinations, homeZones }: HomeProps) {
   useScrollReveal()
@@ -531,9 +626,11 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               { destination_slug: 'sicile', title: 'Sicile', flag_emoji: '🌋' },
             ]).map((dest: any) => (
               <Link key={dest.destination_slug || dest.slug} href={`/destinations/${dest.destination_slug || dest.slug}`}
-                className="group p-6 md:p-8 rounded-2xl bg-stone-50 border border-stone-100 hover:border-eucalyptus/30 hover:bg-eucalyptus/5 transition-all duration-300">
-                <span className="text-4xl mb-3 block">{dest.flag_emoji || dest.emoji || '📍'}</span>
-                <span className="font-semibold text-mahogany group-hover:text-eucalyptus transition-colors">
+                className="group p-6 md:p-8 rounded-2xl bg-stone-50 border border-stone-100 hover:border-eucalyptus/30 hover:bg-eucalyptus/5 dark:hover:bg-eucalyptus/10 transition-all duration-300 flex flex-col items-center">
+                <div className="mb-4 flex justify-center h-12 w-12 items-center">
+                  {renderPremiumIcon(dest.destination_slug || dest.slug || '')}
+                </div>
+                <span className="font-semibold text-mahogany dark:text-stone-200 group-hover:text-eucalyptus dark:group-hover:text-teal transition-colors">
                   {dest.title}
                 </span>
               </Link>
