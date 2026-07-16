@@ -40,7 +40,7 @@ export default function FaqSection({ items, title, subtitle, pageSlug }: FaqSect
   }
 
   return (
-    <section className="py-16 md:py-24 bg-[#f8f6f4]">
+    <section className="py-16 md:py-24 bg-cloud-dancer">
       <div className="max-w-3xl mx-auto px-6">
         {title && (
           <h2 className="text-3xl md:text-4xl font-serif text-mahogany mb-4 text-center">

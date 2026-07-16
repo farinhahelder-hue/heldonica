@@ -115,6 +115,7 @@ export default function DestinationsClient() {
                 <button
                   key={tab.value}
                   onClick={() => { setContinentFilter(tab.value); if (typeof window !== 'undefined' && (window as any).gtag) (window as any).gtag('event', 'filtre_continent_utilise', { filtre: tab.value }) }}
+                  aria-pressed={continentFilter === tab.value}
                   className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-all ${
                     continentFilter === tab.value
                       ? 'bg-eucalyptus text-white shadow-sm'
@@ -124,7 +125,7 @@ export default function DestinationsClient() {
                   <span>{tab.icon}</span>
                   <span>{tab.label}</span>
                   {tab.value === 'starred' && starred.length > 0 && (
-                    <span className={`ml-1 text-xs ${continentFilter === 'starred' ? 'text-white/80' : 'text-stone-400'}`}>
+                    <span className={`ml-1 text-xs ${continentFilter === 'starred' ? 'text-white/80' : 'text-stone-500'}`}>
                       ({starred.length})
                     </span>
                   )}

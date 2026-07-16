@@ -7,7 +7,7 @@ import B2bCtaButton from '@/components/B2bCtaButton';
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import EditableZone from '@/components/inline-edit/EditableZone';
 
-const SITE_URL = 'https://heldonica.fr';
+const SITE_URL = 'https://www.heldonica.fr';
 
 // DRAFT — not linked from nav or sitemap
 export const metadata: Metadata = {

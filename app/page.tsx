@@ -110,8 +110,13 @@ export default async function Home() {
     getSiteSettings(),
   ])
 
-  // Defensive: ensure we always have an array
-  const allPosts = Array.isArray(allPostsResult) ? allPostsResult : []
+  // Defensive: ensure we always have an array; dedup by slug to prevent duplicate cards
+  const seenSlugs = new Set<string>()
+  const allPosts = (Array.isArray(allPostsResult) ? allPostsResult : []).filter(p => {
+    if (!p.slug || seenSlugs.has(p.slug)) return false
+    seenSlugs.add(p.slug)
+    return true
+  })
   
   // Get covered_countries as number with fallback
   const coveredCountries = rawCountries ? parseInt(rawCountries, 10) : 7
@@ -144,7 +149,7 @@ export default async function Home() {
   let filteredLatest = allPosts.filter(
     (p) => p.slug !== featuredSlug && !travelSlugs.has(p.slug) && !foodSlugs.has(p.slug)
   )
-  // If we don't have enough posts, fall back to letting them overlap rather than showing nothing
+  // If we don't have enough posts, allow travel/food overlap but still exclude featured
   if (filteredLatest.length === 0) {
     filteredLatest = allPosts.filter((p) => p.slug !== featuredSlug)
   }

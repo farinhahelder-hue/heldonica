@@ -99,8 +99,9 @@ export default function ContactForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="mx-auto max-w-2xl space-y-6">
       <div className="grid gap-6 md:grid-cols-2">
         <div>
-          <label className="mb-2 block text-sm font-semibold text-charcoal/90">{labels.name}</label>
+          <label htmlFor="cf-name" className="mb-2 block text-sm font-semibold text-charcoal/90">{labels.name}</label>
           <input
+            id="cf-name"
             {...register('name', { required: errorsMsg.name })}
             type="text"
             className={inputClass}
@@ -110,8 +111,9 @@ export default function ContactForm() {
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-charcoal/90">{labels.email}</label>
+          <label htmlFor="cf-email" className="mb-2 block text-sm font-semibold text-charcoal/90">{labels.email}</label>
           <input
+            id="cf-email"
             {...register('email', {
               required: errorsMsg.email_required,
               pattern: {
@@ -128,8 +130,9 @@ export default function ContactForm() {
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-semibold text-charcoal/90">{labels.phone}</label>
+        <label htmlFor="cf-phone" className="mb-2 block text-sm font-semibold text-charcoal/90">{labels.phone}</label>
         <input
+          id="cf-phone"
           {...register('phone')}
           type="tel"
           className={inputClass}
@@ -138,8 +141,9 @@ export default function ContactForm() {
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-semibold text-charcoal/90">{labels.subject}</label>
+        <label htmlFor="cf-subject" className="mb-2 block text-sm font-semibold text-charcoal/90">{labels.subject}</label>
         <select
+          id="cf-subject"
           {...register('subject', {
             required: errorsMsg.subject_required,
           })}
@@ -153,8 +157,9 @@ export default function ContactForm() {
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-semibold text-charcoal/90">{labels.message}</label>
+        <label htmlFor="cf-message" className="mb-2 block text-sm font-semibold text-charcoal/90">{labels.message}</label>
         <textarea
+          id="cf-message"
           {...register('message', { required: 'Le message est requis.' })}
           rows={6}
           className={inputClass}

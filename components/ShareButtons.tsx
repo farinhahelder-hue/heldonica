@@ -6,7 +6,7 @@ export default function ShareButtons({ title, url }: { title: string; url: strin
 
   return (
     <div className="flex items-center gap-3 flex-wrap">
-      <span className="text-xs text-stone-400 uppercase tracking-wider font-medium">Partager</span>
+      <span className="text-xs text-stone-500 uppercase tracking-wider font-medium">Partager</span>
 
       {/* Pinterest */}
       <a

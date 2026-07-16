@@ -187,6 +187,8 @@ export default async function RootLayout({
       <head>
         <link rel="icon" href={faviconUrl || '/favicon.ico'} sizes="any" />
         <link rel="apple-touch-icon" href={logoUrl || '/apple-touch-icon.png'} />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://images.unsplash.com" />
         <script
           type="application/ld+json"
@@ -218,7 +220,7 @@ export default async function RootLayout({
           <AuthProvider>
             <WebVitalsReporter />
             <SiteTheme />
-            {children}
+            <div id="main-content">{children}</div>
             <BackToTop />
             <CookieConsentBanner />
             <NewsletterPopup />

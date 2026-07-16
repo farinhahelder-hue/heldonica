@@ -79,7 +79,7 @@ export default function SlowTravelPage() {
         <section className="bg-white py-20 md:py-24">
           <div className="mx-auto max-w-3xl px-6 text-center md:px-10">
             <EditableZone page="slow-travel" zone="cta_badge" fallback="Continuer"
-              className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-stone-400 block"
+              className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-stone-500 block"
             />
             <EditableZone page="slow-travel" zone="cta_title" fallback="Si cette façon de voyager te parle, on a déjà des carnets pour ça."
               className="mb-6 text-3xl font-serif font-light leading-tight text-stone-900 md:text-4xl block"

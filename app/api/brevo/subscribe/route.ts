@@ -47,7 +47,6 @@ export async function POST(request: NextRequest) {
 
     if (!brevoApiKey) {
       console.warn('BREVO_API_KEY non configurée, inscription simulée')
-      console.log(`[Brevo Simulation] Email: ${email}, Source: ${source}, Tags: ${config.tags.join(', ')}`)
       return NextResponse.json(
         { success: true, message: 'Inscription réussie (simulation)' },
         { status: 200 }
@@ -76,9 +75,7 @@ export async function POST(request: NextRequest) {
         console.error('Erreur Brevo contact:', error)
         
         // Contact déjà existant, c’est ok
-        if (error.code === 'duplicate_parameter') {
-          console.log(`Contact déjà existant: ${email}`)
-        } else {
+        if (error.code !== 'duplicate_parameter') {
           // Erreur autre que duplicate
           return NextResponse.json(
             { error: 'Erreur lors de l\'inscription' },

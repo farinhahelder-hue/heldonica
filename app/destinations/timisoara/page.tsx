@@ -3,7 +3,7 @@ import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
-const SITE_URL = 'https://heldonica.fr'
+const SITE_URL = 'https://www.heldonica.fr'
 
 export const metadata: Metadata = {
   title: 'Timisoara slow travel | Guide Heldonica',
@@ -116,7 +116,7 @@ export default function TimisoaraPage() {
                   <p className="text-stone-600 text-sm">
                     {pepite.description}
                   </p>
-                  <p className="text-stone-400 text-xs mt-2">{pepite.address}</p>
+                  <p className="text-stone-500 text-xs mt-2">{pepite.address}</p>
                 </div>
               ))}
             </div>
