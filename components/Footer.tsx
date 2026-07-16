@@ -5,8 +5,8 @@ import Link from 'next/link'
 import { useEditableContext } from '@/components/inline-edit/InlineEditProvider'
 import { useContentLoader } from '@/hooks/useContentLoader'
 
-const NAV_LABEL_FALLBACKS = ['Accueil', 'Destinations', 'Blog', 'Sur mesure', 'À propos', 'Contact']
-const NAV_URL_FALLBACKS = ['/', '/destinations', '/blog', '/travel-planning', '/a-propos', '/contact']
+const NAV_LABEL_FALLBACKS = ['Destinations', 'Blog', 'Sur mesure', 'À propos', 'Contact']
+const NAV_URL_FALLBACKS = ['/destinations', '/blog', '/travel-planning', '/a-propos', '/contact']
 
 function arr<T>(items: number, fn: (i: number) => T): T[] {
   return Array.from({ length: items }, (_, i) => fn(i))
@@ -49,7 +49,7 @@ export default function Footer() {
   const guidesTitle = cz('guides_footer_title', 'Guides gratuits')
   const legalTitle = cz('legal_footer_title', 'Légal')
 
-  const navLinks = arr(6, (i) => ({
+  const navLinks = arr(5, (i) => ({
     label: cz(`nav_item_${i + 1}_label`, NAV_LABEL_FALLBACKS[i]),
     href: cz(`nav_item_${i + 1}_url`, NAV_URL_FALLBACKS[i]),
   }))

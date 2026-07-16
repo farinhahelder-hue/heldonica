@@ -62,9 +62,9 @@ export default function Header() {
     }
   }, [open])
 
-  const navItems = Array.from({ length: 6 }, (_, i) => ({
-    label: getCmsOrSetting(`nav_item_${i + 1}_label`, `nav_item_${i + 1}_label`, ['Accueil', 'Destinations', 'Blog', 'Sur mesure', 'À propos', 'Contact'][i], zones as Record<string, CmsZone>, settings),
-    href: getCmsOrSetting(`nav_item_${i + 1}_url`, `nav_item_${i + 1}_url`, ['/', '/destinations', '/blog', '/travel-planning', '/a-propos', '/contact'][i], zones as Record<string, CmsZone>, settings),
+  const navItems = Array.from({ length: 5 }, (_, i) => ({
+    label: getCmsOrSetting(`nav_item_${i + 1}_label`, `nav_item_${i + 1}_label`, ['Destinations', 'Blog', 'Sur mesure', 'À propos', 'Contact'][i], zones as Record<string, CmsZone>, settings),
+    href: getCmsOrSetting(`nav_item_${i + 1}_url`, `nav_item_${i + 1}_url`, ['/destinations', '/blog', '/travel-planning', '/a-propos', '/contact'][i], zones as Record<string, CmsZone>, settings),
   }))
 
   const safeNavItems = Array.isArray(navItems) ? navItems : []
@@ -217,12 +217,11 @@ export default function Header() {
                 >
                   <span className="flex h-9 w-9 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-500 shadow-sm" aria-hidden="true">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      {index === 0 && <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />}
-                      {index === 1 && <><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></>}
-                      {index === 2 && <><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></>}
-                      {index === 3 && <><circle cx="12" cy="12" r="10" /><polygon points="12 2 12 12 18 12" fill="currentColor" /></>}
-                      {index === 4 && <><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" /></>}
-                      {index === 5 && <><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></>}
+                      {index === 0 && <><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></>}
+                      {index === 1 && <><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></>}
+                      {index === 2 && <><circle cx="12" cy="12" r="10" /><polygon points="12 2 12 12 18 12" fill="currentColor" /></>}
+                      {index === 3 && <><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" /></>}
+                      {index === 4 && <><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></>}
                     </svg>
                   </span>
                   {item.label}

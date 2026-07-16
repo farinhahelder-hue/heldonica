@@ -642,6 +642,41 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         </div>
       </section>
 
+      {/* ── QUIZ : QUEL VOYAGEUR ES-TU ? ─────────────────────────────── */}
+      <section className="py-16 md:py-20 bg-eucalyptus/5 border-y border-eucalyptus/10">
+        <div className="max-w-3xl mx-auto px-6 md:px-10 text-center" data-reveal>
+          <span className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 block">
+            ✦ Quel voyageur es-tu ?
+          </span>
+          <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany leading-tight mb-4">
+            Trouve ton profil<br />
+            <em className="text-eucalyptus">en 2 minutes</em>
+          </h2>
+          <p className="text-charcoal/65 leading-relaxed mb-8 max-w-xl mx-auto">
+            5 questions. 4 profils. Des destinations qui te correspondent vraiment — pas les mêmes que tout le monde.
+          </p>
+          <div className="flex flex-wrap justify-center gap-3 mb-8">
+            {[
+              { label: 'Aventure', icon: '⛰️' },
+              { label: 'Culture', icon: '🏛️' },
+              { label: 'Nature', icon: '🌿' },
+              { label: 'Bien-être', icon: '🌊' },
+            ].map((p) => (
+              <span key={p.label} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-eucalyptus/20 text-charcoal/70 text-sm font-medium shadow-sm">
+                <span>{p.icon}</span>
+                {p.label}
+              </span>
+            ))}
+          </div>
+          <Link
+            href="/quiz"
+            className="inline-flex items-center gap-2.5 px-8 py-4 bg-eucalyptus hover:bg-eucalyptus/90 text-white rounded-full font-semibold text-sm shadow-lg shadow-eucalyptus/20 transition-all hover:shadow-xl hover:-translate-y-0.5"
+          >
+            Faire le quiz →
+          </Link>
+        </div>
+      </section>
+
       {/* ── CTA TRAVEL PLANNING ───────────────────────────────────────── */}
       <section className="py-20 md:py-28 bg-mahogany text-white">
         <div className="max-w-5xl mx-auto px-6 md:px-10">
