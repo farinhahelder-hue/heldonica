@@ -371,7 +371,7 @@ export default async function DestinationPage({ params }: Props) {
             <div className="mx-auto grid max-w-6xl gap-4 px-4 py-8 md:grid-cols-4">
               {facts.map((fact) => (
                 <div key={fact.label} className="rounded-[1.5rem] border border-stone-200 bg-stone-50 p-5">
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-400">{fact.label}</p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">{fact.label}</p>
                   <p className="text-sm leading-relaxed text-stone-700">{fact.value}</p>
                 </div>
               ))}
@@ -447,7 +447,7 @@ export default async function DestinationPage({ params }: Props) {
                         <h3 className="mt-2 text-base font-semibold leading-snug text-stone-900 transition-colors duration-200 group-hover:text-eucalyptus">
                           {post.title}
                         </h3>
-                        <p className="mt-3 text-xs text-stone-400">{post.date} · {post.readTime} min</p>
+                        <p className="mt-3 text-xs text-stone-500">{post.date} · {post.readTime} min</p>
                       </div>
                     </article>
                   </Link>
