@@ -53,13 +53,13 @@ export default function RelatedArticles({ articles, destinationTitle, currentSlu
   }
 
   return (
-    <section className="py-16 md:py-24 bg-[#f8f6f4]">
+    <section className="py-16 md:py-24 bg-cloud-dancer">
       <div className="container max-w-6xl">
         <div className="mb-10">
-          <p className="text-xs uppercase tracking-[0.2em] text-[#83C5BE] font-semibold mb-2">
+          <p className="text-xs uppercase tracking-[0.2em] text-teal font-semibold mb-2">
             À lire aussi
           </p>
-          <h2 className="text-3xl font-serif text-[#6b2a1a]">
+          <h2 className="text-3xl font-serif text-mahogany">
             {destinationTitle ? `Nos articles sur ${destinationTitle}` : 'Articles similaires'}
           </h2>
         </div>
@@ -91,11 +91,11 @@ export default function RelatedArticles({ articles, destinationTitle, currentSlu
                 </div>
                 <div className="p-5">
                   {article.category && (
-                    <p className="text-xs font-semibold text-[#83C5BE] uppercase tracking-wider mb-2">
+                    <p className="text-xs font-semibold text-teal uppercase tracking-wider mb-2">
                       {article.category}
                     </p>
                   )}
-                  <h3 className="font-serif text-lg text-[#6b2a1a] mb-2 group-hover:text-amber-800 transition-colors line-clamp-2">
+                  <h3 className="font-serif text-lg text-mahogany mb-2 group-hover:text-mahogany/80 transition-colors line-clamp-2">
                     {article.title}
                   </h3>
                   {readTime > 0 && (

@@ -481,7 +481,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
 
       {/* ── DERNIERS ARTICLES ─────────────────────────────────────────── */}
       {latestPosts.length > 0 && (
-        <section className="py-20 bg-[#f7f6f2]">
+        <section className="py-20 bg-cloud-dancer">
           <div className="max-w-6xl mx-auto px-6 md:px-10">
             <div className="flex items-end justify-between mb-10 flex-wrap gap-4" data-reveal>
               <div>
