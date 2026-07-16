@@ -90,12 +90,12 @@ function AnimatedStat({ nb, label, suffix = '' }: { nb: number | string; label: 
 
 // ─── Gradients et icônes SVG par catégorie ─────────────────────────────────────
 const CATEGORY_GRADIENTS: Record<string, string> = {
-  'Carnets Voyage': 'from-[#006D77] to-[#4ECDC4]',
-  'Découvertes Locales': 'from-[#6B2D1F] to-[#006D77]',
-  'Guides Pratiques': 'from-[#006D77] to-[#4ECDC4]',
-  'Food & Lifestyle': 'from-[#8B6355] to-[#7C9E8A]',
-  'Travel': 'from-[#006D77] to-[#4ECDC4]',
-  default: 'from-[#6B2D1F] to-[#7C9E8A]',
+  'Carnets Voyage': 'from-eucalyptus to-teal',
+  'Découvertes Locales': 'from-mahogany to-eucalyptus',
+  'Guides Pratiques': 'from-eucalyptus to-teal',
+  'Food & Lifestyle': 'from-mahogany/80 to-teal/80',
+  'Travel': 'from-eucalyptus to-teal',
+  default: 'from-mahogany to-teal/60',
 }
 
 const CATEGORY_ICONS: Record<string, string> = {
