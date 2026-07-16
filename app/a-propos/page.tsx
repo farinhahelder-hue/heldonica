@@ -97,7 +97,7 @@ export default async function AProposPage() {
         
         {/* ── HERO ── */}
         <section className="relative bg-stone-950 text-white py-24 md:py-32 overflow-hidden">
-          <EditableZone page="a-propos" zone="hero_image_url" type="image" fallback="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1400&q=70"
+          <EditableZone page="a-propos" zone="hero_image_url" type="image" fallback="https://heldonica.fr/wp-content/uploads/2025/08/zurich-panorama-2-1024x679.jpg"
             className="absolute inset-0 opacity-15 w-full h-full object-cover"
           />
           <div className="relative max-w-4xl mx-auto px-6 text-center">
