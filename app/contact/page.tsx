@@ -82,7 +82,7 @@ export default function Contact() {
             <div className="md:col-span-2">
               <div className="mb-10 max-w-2xl">
                 <EditableZone page="contact" zone="form_badge" fallback="Ce qui nous aide"
-                  className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-stone-400 block"
+                  className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-stone-500 block"
                 />
                 <EditableZone page="contact" zone="form_title" fallback="Quelques lignes suffisent pour commencer juste."
                   className="mb-4 text-3xl font-serif font-light leading-tight text-stone-900 block"
@@ -97,7 +97,7 @@ export default function Contact() {
             <aside className="space-y-8 md:pt-2">
               <div className="rounded-3xl border border-stone-200 bg-stone-50 p-6">
                 <EditableZone page="contact" zone="email_title" fallback="Email direct"
-                  className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-stone-400 block"
+                  className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-stone-500 block"
                 />
                 <a
                   href="mailto:contact@heldonica.fr"
@@ -112,7 +112,7 @@ export default function Contact() {
 
               <div className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
                 <EditableZone page="contact" zone="instagram_title" fallback="Instagram"
-                  className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-stone-400 block"
+                  className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-stone-500 block"
                 />
                 <a
                   href="https://www.instagram.com/heldonica/"

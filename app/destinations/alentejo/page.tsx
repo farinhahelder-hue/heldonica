@@ -212,7 +212,7 @@ export default function AlentejoPage() {
                 <p className="text-stone-600 text-sm leading-relaxed mb-4">
                   Capitale de l’Alentejo, classed UNESCO. On a aimé déambuler dans les ruelles avant 9h, visiter la chapelle des Ossements à la première heure (quasi déserte), et manger une açorda alentejana dans une tasca de la place principale.
                 </p>
-                <p className="text-xs text-stone-400 italic">
+                <p className="text-xs text-stone-500 italic">
                   ⭐ Verdict Heldonica : À faire le matin, avant les bus de tourists.
                 </p>
               </div>
@@ -231,7 +231,7 @@ export default function AlentejoPage() {
                 <p className="text-stone-600 text-sm leading-relaxed mb-4">
                   Un des plus beaux villages d Portugal. Ruelles étroites, château en ruine avec vue sur l’Estrémadure espagnole, et ce silence le soir quand les derniers tourists repartent.
                 </p>
-                <p className="text-xs text-stone-400 italic">
+                <p className="text-xs text-stone-500 italic">
                   ⭐ Verdict Heldonica : Restez y dormir, pas qu’une journée.
                 </p>
               </div>
@@ -250,7 +250,7 @@ export default function AlentejoPage() {
                 <p className="text-stone-600 text-sm leading-relaxed mb-4">
                   On a fait la rota entre Vidigueira et Redondo. Dégustations dans des quintas familiales, vin à 4€ la bouteille sur place, et des hôtes qui te racontent trois générations de tradition viticole.
                 </p>
-                <p className="text-xs text-stone-400 italic">
+                <p className="text-xs text-stone-500 italic">
                   ⭐ Verdict Heldonica : Prévoyez un driver ou un copilote.
                 </p>
               </div>
@@ -269,7 +269,7 @@ export default function AlentejoPage() {
                 <p className="text-stone-600 text-sm leading-relaxed mb-4">
                   L’Alentejo inland a des beaches fluviaux incredibles. On a trouvé notre spot préféré près de Granja — une plage sur la rivière avec des eaux claires, des gens du coin, et aucun tourist.
                 </p>
-                <p className="text-xs text-stone-400 italic">
+                <p className="text-xs text-stone-500 italic">
                   ⭐ Verdict Heldonica : Demandez aux locaux, ils indiquent les meilleurs spots.
                 </p>
               </div>
@@ -297,7 +297,7 @@ export default function AlentejoPage() {
                 <p className="text-sm text-stone-600 mb-4">
                   Pour ceux qui veulent être au milieu de la plain. On a dormi dans un monte rénové près de Monsaraz — oliviers, piscine, silence total.
                 </p>
-                <p className="text-xs text-stone-400">
+                <p className="text-xs text-stone-500">
                   💡 Notre conseil : bookezminimum 3 nuits, le temps de décompresser.
                 </p>
               </div>
@@ -310,7 +310,7 @@ export default function AlentejoPage() {
                 <p className="text-sm text-stone-600 mb-4">
                   À Évora ou à Monsaraz même. Pratique pour explorer à pied, et souvent dans des bâtiments historiques restaurés avec goût.
                 </p>
-                <p className="text-xs text-stone-400">
+                <p className="text-xs text-stone-500">
                   💡 Notre conseil : privilégiez les establecimientos avec petit-déjeuner inclus.
                 </p>
               </div>
@@ -323,7 +323,7 @@ export default function AlentejoPage() {
                 <p className="text-sm text-stone-600 mb-4">
                   Dormir chez le viticulteur, c’est possible. On a testé une quinta près de Vidigueira avec degustation privée incluse dans le prix de la chambre.
                 </p>
-                <p className="text-xs text-stone-400">
+                <p className="text-xs text-stone-500">
                   💡 Notre conseil : contactez directement pour les meilleurs tarifs.
                 </p>
               </div>
@@ -349,7 +349,7 @@ export default function AlentejoPage() {
                   <p className="text-stone-600 text-sm leading-relaxed">
                     <strong>Indispensable.</strong> Les distances sont grandes (Évora → Monsaraz = 1h30), les taxis rares, les bus limités. Louez une petite citadine : les routes sont bonnes, le traffic quasi nul.
                   </p>
-                  <p className="text-xs text-stone-400 mt-2">
+                  <p className="text-xs text-stone-500 mt-2">
                     💡 Notre conseil : reservez depuis Lisbonne airport, compter 30-40€/jour.
                   </p>
                 </div>

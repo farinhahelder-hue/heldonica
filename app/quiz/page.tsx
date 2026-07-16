@@ -167,7 +167,7 @@ export default function QuizPage() {
                     <span className="text-sm font-semibold text-amber-800">
                       Question {currentQuestion + 1} / {QUESTIONS.length}
                     </span>
-                    <span className="text-sm text-stone-400">{Math.round(progress)}%</span>
+                    <span className="text-sm text-stone-500">{Math.round(progress)}%</span>
                   </div>
                   <div className="w-full bg-stone-100 rounded-full h-2">
                     <div
@@ -283,7 +283,7 @@ export default function QuizPage() {
         {/* Trust */}
         <section className="pb-16 px-6">
           <div className="max-w-xl mx-auto text-center">
-            <p className="text-stone-400 text-sm">
+            <p className="text-stone-500 text-sm">
               +500 voyageurs accompagnés par an · Réponse sous 48h · 100% sur mesure
             </p>
           </div>

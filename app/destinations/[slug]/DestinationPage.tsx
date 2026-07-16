@@ -254,6 +254,7 @@ export default async function DestinationPage({ slug }: Props) {
             fill
             className="object-cover opacity-60"
             priority
+            sizes="100vw"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
           <div className="relative container py-14 md:py-20 max-w-4xl">
