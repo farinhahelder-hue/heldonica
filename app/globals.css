@@ -13,9 +13,14 @@
   box-sizing: border-box;
 }
 
-/* Supprime le ring bleu Tailwind par défaut */
-*, *:focus, *:focus-visible {
-  outline-color: transparent;
+/* Supprime le ring sur clic souris, conserve la navigation clavier */
+*, *:focus {
+  outline: none;
+}
+*:focus-visible {
+  outline: 2px solid #006D77;
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 html {
