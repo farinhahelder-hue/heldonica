@@ -1,8 +1,12 @@
 User-agent: *
 Allow: /
 
-Disallow: /cms-admin
+Disallow: /admin/
+Disallow: /cms-admin/
+Disallow: /panel-manager/
+Disallow: /dashboard/
+Disallow: /auth/
 Disallow: /api/
 Disallow: /_next/
 
-Sitemap: https://heldonica.fr/sitemap.xml
+Sitemap: https://www.heldonica.fr/sitemap.xml
