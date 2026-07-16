@@ -5,8 +5,8 @@ import Link from 'next/link'
 import { useEditableContext } from '@/components/inline-edit/InlineEditProvider'
 import { useContentLoader } from '@/hooks/useContentLoader'
 
-const NAV_LABEL_FALLBACKS = ['Accueil', 'Destinations', 'Blog', 'Sur mesure', 'Organisateur', 'À propos', 'Contact']
-const NAV_URL_FALLBACKS = ['/', '/destinations', '/blog', '/travel-planning', '/organisateur', '/a-propos', '/contact']
+const NAV_LABEL_FALLBACKS = ['Accueil', 'Destinations', 'Blog', 'Sur mesure', 'À propos', 'Contact']
+const NAV_URL_FALLBACKS = ['/', '/destinations', '/blog', '/travel-planning', '/a-propos', '/contact']
 
 function arr<T>(items: number, fn: (i: number) => T): T[] {
   return Array.from({ length: items }, (_, i) => fn(i))
@@ -49,7 +49,7 @@ export default function Footer() {
   const guidesTitle = cz('guides_footer_title', 'Guides gratuits')
   const legalTitle = cz('legal_footer_title', 'Légal')
 
-  const navLinks = arr(7, (i) => ({
+  const navLinks = arr(6, (i) => ({
     label: cz(`nav_item_${i + 1}_label`, NAV_LABEL_FALLBACKS[i]),
     href: cz(`nav_item_${i + 1}_url`, NAV_URL_FALLBACKS[i]),
   }))
@@ -59,9 +59,9 @@ export default function Footer() {
     href: cz(`footer_dest_item_${i + 1}_url`, ['/destinations/madere', '/destinations/roumanie', '/destinations/montenegro', '/destinations/grece', '/destinations/colombie'][i]),
   }))
 
-  const guidesLinks = arr(3, (i) => ({
-    label: cz(`footer_guide_item_${i + 1}_label`, ['Guide Madère', 'Guides pratiques', 'Carnets de voyage'][i]),
-    href: cz(`footer_guide_item_${i + 1}_url`, ['/guides/top-10-pepites-madere', '/blog?categorie=Guides Pratiques', '/blog?categorie=Carnets Voyage'][i]),
+  const guidesLinks = arr(4, (i) => ({
+    label: cz(`footer_guide_item_${i + 1}_label`, ['Guide Madère', 'Guides pratiques', 'Carnets de voyage', 'Organisateur de voyage'][i]),
+    href: cz(`footer_guide_item_${i + 1}_url`, ['/guides/top-10-pepites-madere', '/blog?categorie=Guides Pratiques', '/blog?categorie=Carnets Voyage', '/organisateur'][i]),
   }))
 
   const legalLinks = arr(3, (i) => ({

@@ -34,12 +34,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
-      url: `${BASE_URL}/expert-hotelier`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-    {
       url: `${BASE_URL}/blog`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
