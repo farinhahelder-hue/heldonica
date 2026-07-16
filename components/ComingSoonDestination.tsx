@@ -67,7 +67,7 @@ export default function ComingSoonDestination({
               {flag_emoji} {country} — Bientôt
             </p>
             <h1 className="text-4xl md:text-6xl font-serif text-white max-w-3xl mb-5 leading-tight">
-              {title} — bientôt sur Heldonica
+              {title}
             </h1>
             {teaser && (
               <p className="text-white/80 max-w-2xl text-lg leading-relaxed">{teaser}</p>
@@ -102,13 +102,13 @@ export default function ComingSoonDestination({
 
         <section className="bg-cloud-dancer py-20 md:py-28">
           <div className="container max-w-2xl text-center">
-            <p className="text-4xl mb-6">🛠️</p>
+            <p className="text-4xl mb-6">🗺️</p>
             <h2 className="text-3xl font-serif text-mahogany mb-4">
-              On prépare notre guide complet pour {title.toLowerCase()}
+              On prépare le guide {title.toLowerCase()} — à notre façon.
             </h2>
             <p className="text-charcoal/70 mb-8 max-w-lg mx-auto">
-              On est en train de tester, arpenter et sélectionner les meilleures adresses.
-              Sois notifié en avant-première quand le guide sera prêt.
+              On arpente les ruelles, on teste les adresses, on sélectionne ce qu'on referait vraiment.
+              Laisse-nous ton email et tu seras le premier averti — avant qu'on publie quoi que ce soit ailleurs.
             </p>
             <div className="max-w-md mx-auto mb-8">
               <NewsletterForm variant="inline" />

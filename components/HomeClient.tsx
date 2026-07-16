@@ -399,7 +399,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               <EditableZone page="home" zone="section_story_badge" fallback="Notre histoire"
                 className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
               />
-              <EditableZone page="home" zone="section_story_title" type="html" fallback={'Un art du voyage <span class="block italic text-eucalyptus">autrement</span>'}
+              <EditableZone page="home" zone="section_story_title" type="html" fallback={'Deux regards. <span class="block italic text-eucalyptus">Un seul terrain.</span>'}
                 className="text-3xl md:text-5xl font-serif font-light text-mahogany mb-6 leading-tight block"
               />
               <EditableZone page="home" zone="section_story_text_1" type="textarea" fallback="Elena a grandi entre la France et la Roumanie, avec l'habitude de prendre la route dès que possible. Elle apporte au duo son sens du détail, sa plume éditoriale et sa passion pour les adresses insolites qui racontent une vraie histoire."
@@ -454,7 +454,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 {featured.excerpt && <p className="text-gray-300 text-sm leading-relaxed mb-6 line-clamp-2">{featured.excerpt}</p>}
                 {!featured.excerpt && displayExcerpt(featured) && <p className="text-gray-300 text-sm leading-relaxed mb-6 line-clamp-2">{displayExcerpt(featured)}</p>}
                 <div className="inline-flex items-center gap-2 text-teal font-semibold text-sm group-hover:gap-3 transition-all">
-                  <EditableZone page="home" zone="section_featured_cta" fallback="Découvrir l'itinéraire →" />
+                  <EditableZone page="home" zone="section_featured_cta" fallback="Lire le carnet →" />
                 </div>
               </div>
             </article>
@@ -590,7 +590,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 />
               </div>
               <Link href="/blog" className="text-sm text-eucalyptus font-semibold hover:underline">
-                <EditableZone page="home" zone="section_latest_cta" fallback="Tout voir →" />
+                <EditableZone page="home" zone="section_latest_cta" fallback="Voir tous les carnets →" />
               </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -615,7 +615,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               <br />
               <EditableZone page="home" zone="section_destinations_title_2" fallback="qu'on comprend vraiment." className="inline" />
             </h2>
-            <EditableZone page="home" zone="section_destinations_text" type="textarea" fallback="Madère, Roumanie, Monténégro, Sicile..."
+            <EditableZone page="home" zone="section_destinations_text" type="textarea" fallback="On ne documente que les endroits où on a vraiment posé nos sacs. Chaque destination sur cette carte, on la connaît à pied — ses ruelles de derrière, ses tables sans enseigne, ses moments qui ne se photographient pas."
               className="text-charcoal/70 leading-relaxed max-w-2xl mx-auto mb-12 block"
             />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
@@ -657,10 +657,10 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   <EditableZone page="home" zone="section_cta_title_2" fallback="On fait le tien." className="inline" />
                 </em>
               </h2>
-              <EditableZone page="home" zone="section_cta_text" type="textarea" fallback="Tu nous envoies tes contraintes réelles..."
+              <EditableZone page="home" zone="section_cta_text" type="textarea" fallback="Tu nous décris ton voyage idéal — durée, rythme, envies, budget. On te construit un itinéraire terrain avec nos adresses, nos conseils et les détails qu'on n'aurait pas mis sur un blog."
                 className="text-white/65 leading-relaxed mb-4 block"
               />
-              <EditableZone page="home" zone="section_cta_subtext" type="textarea" fallback="Notre terrain naturel : les couples..."
+              <EditableZone page="home" zone="section_cta_subtext" type="textarea" fallback="Notre terrain naturel, c'est les couples qui veulent partir autrement — ni trop planifié, ni trop improvisé. Mais on adapte ce même regard à solo, famille ou groupe d'amis."
                 className="text-white/50 text-sm leading-relaxed mb-8 block"
               />
               <div className="flex flex-wrap gap-3">

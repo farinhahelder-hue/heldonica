@@ -32,9 +32,9 @@ const FAQS = [
 ]
 
 const TESTIMONIALS_DATA_FALLBACK = [
-  { zone: 'testimonial_1', text: 'On voulait du vrai, pas du touristique. Heldonica nous a trouvé une quinta sauvage qu\'on n\'aurait jamais découverte seuls.', author: 'Sophie & Marc — Madère, Mai 2025', dest: 'Madère' },
+  { zone: 'testimonial_1', text: 'On voulait du vrai, pas du touristique. Heldonica nous a trouvé une quinta sauvage qu\'on n\'aurait jamais découverte seuls.', author: 'Sophie & Marc — Madère, Mai 2026', dest: 'Madère' },
   { zone: 'testimonial_2', text: "L'itinéraire slow était tellement bien pensé qu'on n'a pas eu à réfléchir une seule fois. Juste à se laisser porter.", author: 'Julie & Alex — Monténégro, Septembre 2025', dest: 'Monténégro' },
-  { zone: 'testimonial_3', text: 'On est partis 10 jours en Roumanie sans savoir par où commencer. Le carnet Heldonica a été notre meilleur investissement voyage.', author: 'Camille & Thomas — Roumanie, Juin 2025', dest: 'Roumanie' },
+  { zone: 'testimonial_3', text: 'On est partis 10 jours en Roumanie sans savoir par où commencer. Le carnet Heldonica a été notre meilleur investissement voyage.', author: 'Camille & Thomas — Roumanie, Juin 2026', dest: 'Roumanie' },
 ]
 
 const PRICING_PLANS = [
@@ -59,7 +59,7 @@ const PRICING_PLANS = [
     name: 'Sur-Mesure',
     price: 'Sur devis',
     desc: 'Voyages complexes, 2+ semaines, destinations multiples',
-    features: ['Tout la Complète', 'Itinéraires multi-destinations', 'Événements spéciaux (lune de miel, anniversaire)', 'Conciergerie dédiée 24/7'],
+    features: ['Tout de la Complète', 'Itinéraires multi-destinations', 'Événements spéciaux (lune de miel, anniversaire)', 'Disponibilité WhatsApp pendant le voyage'],
     popular: false,
   },
 ]
@@ -227,7 +227,7 @@ export default function TravelPlanningPage() {
             <EditableZone page="travel-planning" zone="hero_badge" fallback="Voyage couple sur mesure · Adresses testées · Duo"
               className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold block"
             />
-            <EditableZone page="travel-planning" zone="hero_title" fallback="Ton voyage en couple, conçu sur mesure"
+            <EditableZone page="travel-planning" zone="hero_title" fallback="On a fait le trajet. À toi de vivre le voyage."
               className="text-4xl md:text-6xl font-serif text-white max-w-2xl mb-5 leading-tight block"
             />
             <EditableZone page="travel-planning" zone="hero_text" fallback="On conçoit ton voyage avec nos adresses terrain, sans compromis."
@@ -258,7 +258,7 @@ export default function TravelPlanningPage() {
               {[
                 { zone: 'promise_1', emoji: '🗺️', fallbackTitle: 'Itinéraire sur mesure', fallbackText: 'Chaque jour pensé pour toi — rythme slow, pépites dénichées sur le terrain.' },
                 { zone: 'promise_2', emoji: '🏡', fallbackTitle: 'Hébergements triés', fallbackText: 'Boutique-hôtels, masseries, riads — uniquement ce qu\'on referait demain.' },
-                { zone: 'promise_3', emoji: '📞', fallbackTitle: 'Suivi humain', fallbackText: 'Un interlocuteur unique du devis au retour. On reste disponibles.' },
+                { zone: 'promise_3', emoji: '📞', fallbackTitle: 'Suivi humain', fallbackText: 'Un mail, un WhatsApp — on répond, on ajuste, on reste là du premier échange jusqu\'à votre retour.' },
               ].map((p) => (
                 <div key={p.zone} className="text-center">
                   <div className="w-14 h-14 rounded-2xl bg-teal/10 flex items-center justify-center mx-auto mb-4 text-2xl">{p.emoji}</div>
@@ -277,7 +277,7 @@ export default function TravelPlanningPage() {
         {/* Comment ça marche — 4 étapes */}
         <section className="bg-cloud-dancer py-20">
           <div className="container max-w-4xl">
-            <EditableZone page="travel-planning" zone="steps_title" fallback="Comment ça marche"
+            <EditableZone page="travel-planning" zone="steps_title" fallback="De ton rêve à ton départ"
               className="text-3xl font-serif text-mahogany text-center mb-12 block"
             />
             <div className="grid md:grid-cols-4 gap-6">
@@ -323,7 +323,7 @@ export default function TravelPlanningPage() {
                   {plan.popular && (
                     <div className="mb-3">
                       <span className="inline-flex items-center px-3 py-1 rounded-full bg-eucalyptus/10 text-[10px] font-bold text-eucalyptus uppercase tracking-wider">
-                        <EditableZone page="travel-planning" zone={`${plan.zone}_badge`} fallback="Le plus populaire" className="inline" />
+                        <EditableZone page="travel-planning" zone={`${plan.zone}_badge`} fallback="Le plus choisi" className="inline" />
                       </span>
                     </div>
                   )}
@@ -396,7 +396,7 @@ export default function TravelPlanningPage() {
         {/* Formulaire */}
         <section id="formulaire" className="bg-white py-20 scroll-mt-20">
           <div className="container max-w-2xl">
-            <EditableZone page="travel-planning" zone="form_title" fallback="Prêt(e) à partir autrement ?"
+            <EditableZone page="travel-planning" zone="form_title" fallback="Dis-nous où tu veux aller."
               className="text-3xl font-serif text-mahogany text-center mb-2 block"
             />
             <EditableZone page="travel-planning" zone="form_text" fallback="Réponds à ces quelques questions — on te fait une proposition sous 48h."
@@ -443,7 +443,7 @@ export default function TravelPlanningPage() {
                     <select id="tp-travelers" name="travelers" value={formData.travelers} onChange={handleFormChange} required
                       className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus bg-white">
                       <option value="En duo / couple (Recommandé)">En duo / couple (Recommandé)</option>
-                      <option value="Seul(e)">Seul(e)</option>
+                      <option value="En solo">En solo</option>
                       <option value="En famille">En famille</option>
                       <option value="Autre">Autre</option>
                     </select>
@@ -509,7 +509,7 @@ export default function TravelPlanningPage() {
         {/* FAQ */}
         <section className="bg-cloud-dancer py-20">
           <div className="container max-w-3xl">
-            <EditableZone page="travel-planning" zone="faq_title" fallback="Questions fréquentes"
+            <EditableZone page="travel-planning" zone="faq_title" fallback="Ce qu'on nous demande souvent"
               className="text-3xl font-serif text-mahogany text-center mb-8 block"
             />
             <div className="space-y-3">
@@ -548,10 +548,10 @@ export default function TravelPlanningPage() {
         {/* CTA final */}
         <section className="bg-mahogany text-white py-20">
           <div className="container text-center max-w-2xl">
-            <EditableZone page="travel-planning" zone="cta_title" fallback="Envie de partir autrement ?"
+            <EditableZone page="travel-planning" zone="cta_title" fallback="Le seul itinéraire qui compte, c'est le tien."
               className="text-3xl md:text-4xl font-serif mb-4 block"
             />
-            <EditableZone page="travel-planning" zone="cta_text" type="textarea" fallback="Un voyage pensé pour toi, pas un itinéraire générique. Remplis le formulaire et on te prépare quelque chose d'unique."
+            <EditableZone page="travel-planning" zone="cta_text" type="textarea" fallback="Un brief, un échange, et on te revient avec un voyage pensé pour toi — pas pour une masse. Ça commence par quelques lignes dans le formulaire."
               className="text-white/70 mb-8 block"
             />
             <a
@@ -567,7 +567,7 @@ export default function TravelPlanningPage() {
               }}
               className="inline-flex px-7 py-3 rounded-xl bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors"
             >
-              <EditableZone page="travel-planning" zone="cta_button" fallback="Démarrer ma demande →" />
+              <EditableZone page="travel-planning" zone="cta_button" fallback="Lancer mon voyage →" />
             </a>
           </div>
         </section>
