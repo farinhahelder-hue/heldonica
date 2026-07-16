@@ -108,7 +108,7 @@ export default function DestinationsClient() {
           </div>
         </section>
 
-        <section className="bg-white pb-4 sticky top-0 z-10 border-b border-stone-200 shadow-sm">
+        <section className="bg-white/95 backdrop-blur-md pb-4 sticky top-[60px] lg:top-[72px] z-30 border-b border-stone-200 shadow-sm">
           <div className="max-w-5xl mx-auto px-4 py-4">
             <div className="flex flex-wrap items-center gap-2">
               {CONTINENT_TABS.map((tab) => (
