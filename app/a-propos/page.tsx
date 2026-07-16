@@ -121,7 +121,7 @@ export default async function AProposPage() {
                 <EditableZone page="a-propos" zone="bio_text_1" type="textarea" fallback="Heldonica est né d'une frustration simple : après Madère, on s'est rendu compte qu'on avait passé plus de temps à planifier notre voyage qu'à le vivre. Et qu'avec les bonnes adresses et le bon rythme, tout aurait été différent."
                   className="text-stone-600 leading-relaxed block"
                 />
-                <EditableZone page="a-propos" zone="bio_text_2" type="textarea" fallback="Elena, entre Paris et Bucarest, avec sa plume et son sens des adresses qui racontent une vraie histoire. Hélder, entre Madère et l'Atlantique, avec sa connaissance des sentiers cachés et ses réseaux locaux. Ensemble, on a construit un regard à deux — et une méthode fondée sur le vécu, pas sur les algorithmes."
+                <EditableZone page="a-propos" zone="bio_text_2" type="textarea" fallback="L'un vient d'une île au milieu de l'Atlantique. L'autre a grandi entre deux cultures, deux langues, deux façons de voyager. C'est ce croisement de regards qui a construit la méthode Heldonica — fondée sur le vécu, pas sur les algorithmes."
                   className="text-stone-600 leading-relaxed block"
                 />
                 <EditableZone page="a-propos" zone="bio_text_3" type="textarea" fallback="Le voyage le plus précieux n'est pas celui qu'on voit sur Instagram. C'est celui où tu te perds un peu. Où tu reviens avec une adresse que personne dans ton entourage ne connaît. Où tu sais exactement combien de temps il faut marcher pour trouver la meilleure terrasse de la ville."
