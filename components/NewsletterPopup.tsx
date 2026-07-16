@@ -136,7 +136,7 @@ export default function NewsletterPopup() {
           <h3 className="text-xl font-bold mb-2">
             Bienvenue dans l&apos;aventure !
           </h3>
-          <p className="text-stone-400 text-sm">
+          <p className="text-stone-600 text-sm">
             Tu vas recevoir nos carnets de voyage et nos meilleures pépites.
           </p>
         </div>
@@ -149,7 +149,7 @@ export default function NewsletterPopup() {
             <h3 className="text-xl font-bold mb-2">
               Reçois les 10 meilleures adresses Madère
             </h3>
-            <p className="text-stone-400 text-sm leading-relaxed">
+            <p className="text-stone-600 text-sm leading-relaxed">
               On t&apos;envoie notre guide testé sur le terrain + les pépites chaque semaine.
               Pas de spam, jamais.
             </p>

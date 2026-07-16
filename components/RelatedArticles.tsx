@@ -99,7 +99,7 @@ export default function RelatedArticles({ articles, destinationTitle, currentSlu
                     {article.title}
                   </h3>
                   {readTime > 0 && (
-                    <p className="text-xs text-stone-400 mt-3">
+                    <p className="text-xs text-stone-500 mt-3">
                       {readTime} min de lecture
                     </p>
                   )}
