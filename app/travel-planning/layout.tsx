@@ -50,7 +50,7 @@ const schemaService = {
   "provider": {
     "@type": "Organization",
     "name": "Heldonica",
-    "url": "https://heldonica.fr",
+    "url": "https://www.heldonica.fr",
     "sameAs": [
       "https://www.instagram.com/heldonica",
       "https://www.linkedin.com/company/heldonicatravel"
