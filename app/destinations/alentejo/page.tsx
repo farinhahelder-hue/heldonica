@@ -426,6 +426,7 @@ export default function AlentejoPage() {
                     alt="Vignobles de l’Alentejo"
                     fill
                     className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   />
                 </div>
                 <div className="p-5">
@@ -442,6 +443,7 @@ export default function AlentejoPage() {
                     alt="Évora"
                     fill
                     className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   />
                 </div>
                 <div className="p-5">
@@ -458,6 +460,7 @@ export default function AlentejoPage() {
                     alt="Vins portugais"
                     fill
                     className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   />
                 </div>
                 <div className="p-5">
