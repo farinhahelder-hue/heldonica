@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { getSettings } from '@/lib/settings'
 
 type HeroSectionProps = {
@@ -74,14 +75,14 @@ export default async function Hero({
       )}
       {/* Hero Image (default or fallback) */}
       {(heroType === 'image' || !heroVideo) && (
-        <img
+        <Image
           src={backgroundImage}
-          alt={`Hero ${page}`}
-          className="absolute inset-0 w-full h-full object-cover"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
           style={{ opacity: `calc(var(--hero-overlay-opacity, 0.4) * 1)` }}
-          width={1400}
-          height={900}
-          loading="eager"
         />
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />

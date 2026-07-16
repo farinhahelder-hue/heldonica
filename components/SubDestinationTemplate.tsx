@@ -36,8 +36,23 @@ export default function SubDestinationTemplate({
   localTip,
   relatedArticles = [],
 }: SubDestinationProps) {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'TouristDestination',
+    name,
+    description: introText,
+    image: heroImage,
+    url: `https://www.heldonica.fr/destinations/${parentSlug}/${name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, '-')}`,
+    containedInPlace: {
+      '@type': 'TouristDestination',
+      name: parentName,
+      url: `https://www.heldonica.fr/destinations/${parentSlug}`,
+    },
+  }
+
   return (
     <main className="min-h-screen bg-cloud-dancer font-sans">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       {/* ── HERO ── */}
       <section className="relative h-[45vh] md:h-[55vh] flex items-end bg-stone-950 overflow-hidden">
         <Image

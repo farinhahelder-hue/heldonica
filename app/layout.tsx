@@ -220,7 +220,7 @@ export default async function RootLayout({
           <AuthProvider>
             <WebVitalsReporter />
             <SiteTheme />
-            {children}
+            <div id="main-content">{children}</div>
             <BackToTop />
             <CookieConsentBanner />
             <NewsletterPopup />

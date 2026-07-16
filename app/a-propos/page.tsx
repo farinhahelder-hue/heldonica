@@ -3,7 +3,6 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
 import Link from 'next/link'
-import Image from 'next/image'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { getAllPosts } from '@/lib/blog-supabase'
@@ -46,7 +45,7 @@ const schemaPerson = {
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "Heldonica",
-  "url": "https://www.heldonica.fr/a-propos",
+  "url": "https://www.heldonica.fr",
   "description": "Duo franco-portugais spécialiste slow travel entre Paris, Madère et Roumanie",
   "sameAs": [
     "https://www.instagram.com/heldonica",
