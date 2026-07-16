@@ -11,10 +11,10 @@ export async function POST(request: NextRequest) {
 
     // Server-side honeypot: silently reject if bot filled the hidden field
     if (website_url) {
-      return NextResponse.json({ success: true, message: 'Inscription confirmÃ©e !' }, { status: 200 })
+      return NextResponse.json({ success: true, message: 'Inscription confirmée !' }, { status: 200 })
     }
 
-    if (!email || !email.includes('@')) {
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json(
         { error: 'Adresse email invalide' },
         { status: 400 }
@@ -86,18 +86,22 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // 3. Programmer les sÃ©quences J+3 et J+7 dans Supabase
+    // 3. Programmer les séquences J+3 et J+7 dans Supabase
     const now = new Date()
     const j3 = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000)
     const j7 = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
 
-    await supabase.from('email_sequences').upsert([
+    const { error: upsertError } = await supabase.from('email_sequences').upsert([
       { email, step: 2, scheduled_at: j3.toISOString() },
       { email, step: 3, scheduled_at: j7.toISOString() },
     ], { onConflict: 'email,step' })
 
+    if (upsertError) {
+      console.error('Supabase sequence upsert error:', upsertError)
+    }
+
     return NextResponse.json(
-      { success: true, message: 'Inscription confirmÃ©e !' },
+      { success: true, message: 'Inscription confirmée !' },
       { status: 200 }
     )
   } catch (error) {
