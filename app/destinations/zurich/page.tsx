@@ -12,13 +12,13 @@ export const metadata: Metadata = {
     siteName: 'Heldonica',
     type: 'website',
     locale: 'fr_FR',
-    images: [{ url: 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80', width: 1200, height: 630, alt: 'Zurich slow travel — Heldonica' }],
+    images: [{ url: 'https://heldonica.fr/wp-content/uploads/2025/08/zurich-panorama-2-1024x679.jpg', width: 1200, height: 630, alt: 'Zurich slow travel — Heldonica' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Zurich slow travel | Guide Heldonica',
     description: "Badi flottantes, brasseries artisanales et vieille ville dense. Zurich se révèle quand on ralentit.",
-    images: ['https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80'],
+    images: ['https://heldonica.fr/wp-content/uploads/2025/08/zurich-panorama-2-1024x679.jpg'],
     creator: '@heldonica',
   },
 }

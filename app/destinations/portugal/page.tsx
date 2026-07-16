@@ -84,7 +84,7 @@ const destinations = [
     label: 'Porto',
     href: '/destinations/portugal/porto',
     desc: 'Le vin de Porto, les caves de Vila Nova de Gaia, les bords du Douro et les librairies du centre historique. Porto est dense et mémorable.',
-    image: 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=600&q=80',
     tag: 'Vin · Histoire',
   },
   {
