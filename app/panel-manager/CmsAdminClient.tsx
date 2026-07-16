@@ -561,7 +561,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
   // ── Layout ─────────────────────────────────────────────────────────────────
   return (
     <>
-      <div className="min-h-screen bg-[#f8f6f2] flex font-sans">
+      <div className="min-h-screen bg-cloud-dancer flex font-sans">
         {/* Sidebar */}
         <aside className="w-60 shrink-0 bg-stone-900 text-stone-300 flex flex-col py-6 px-4 min-h-screen shadow-xl">
           <div className="px-3 mb-6 flex items-center gap-2">

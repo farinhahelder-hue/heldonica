@@ -10,10 +10,10 @@ const CATEGORY_COLOR: Record<string, string> = {
 }
 
 const PLACEHOLDER_BG: Record<string, string> = {
-  Travel: 'bg-gradient-to-br from-[#006D77] to-[#4ECDC4]',
-  'Food & Lifestyle': 'bg-gradient-to-br from-[#4ECDC4] to-[#006D77]',
-  'Expertise Hoteliere': 'bg-gradient-to-br from-[#006D77] to-[#6B2D1F]',
-  'Expertise Hôtelière': 'bg-gradient-to-br from-[#006D77] to-[#6B2D1F]',
+  Travel: 'bg-gradient-to-br from-eucalyptus to-teal',
+  'Food & Lifestyle': 'bg-gradient-to-br from-teal to-eucalyptus',
+  'Expertise Hoteliere': 'bg-gradient-to-br from-eucalyptus to-mahogany',
+  'Expertise Hôtelière': 'bg-gradient-to-br from-eucalyptus to-mahogany',
 }
 
 export default function Blog() {
@@ -51,7 +51,7 @@ export default function Blog() {
                   ) : (
                     <div
                       className={`w-full h-full flex flex-col items-center justify-center gap-2 ${
-                        PLACEHOLDER_BG[article.category] ?? 'bg-gradient-to-br from-[#006D77] to-[#4ECDC4]'
+                        PLACEHOLDER_BG[article.category] ?? 'bg-gradient-to-br from-eucalyptus to-teal'
                       }`}
                     >
                       <Image
