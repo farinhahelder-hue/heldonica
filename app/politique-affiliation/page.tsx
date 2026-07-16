@@ -7,7 +7,7 @@ import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
 
 export const metadata: Metadata = {
-  title: 'Programme Partenaires & Affiliation|',
+  title: 'Programme Partenaires & Affiliation | Heldonica',
   description:
     "Politique d'affiliation Heldonica : comment on sélectionne et utilise les liens partenaires (Booking.com, GetYourGuide, etc.) pour financer le site sans compromettre la qualité des recommandations.",
   alternates: {

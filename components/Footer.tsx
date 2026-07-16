@@ -184,7 +184,7 @@ export default function Footer() {
                     rel="noopener noreferrer"
                     className="flex items-center justify-center w-10 h-10 rounded-full bg-stone-700 text-stone-200 transition-all duration-200 hover:bg-eucalyptus hover:text-white"
                     title={social.label}
-                    aria-label={`Suivez-nous sur ${social.label}`}
+                    aria-label={`Nous suivre sur ${social.label}`}
                   >
                     {social.icon}
                   </a>

@@ -27,7 +27,6 @@ export const metadata: Metadata = {
   },
   manifest: '/site.webmanifest',
   keywords: [
-    // Slow travel — axe principal (volume en hausse +156% en 2025)
     'slow travel',
     'slow travel Europe',
     'slow travel France',

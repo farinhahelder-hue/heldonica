@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     description: "Le duo derrière Heldonica. Notre histoire et notre philosophie du slow travel.",
     images: [
       {
-        url: 'https://www.heldonica.fr/og-default.jpg',
+        url: '/og-default.jpg',
         width: 1200,
         height: 630,
         alt: 'Heldonica — Slow travel en couple',
@@ -36,12 +36,20 @@ export const metadata: Metadata = {
     ],
     locale: 'fr_FR',
     type: 'website',
+    siteName: 'Heldonica',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'À propos | Heldonica',
+    description: "Le duo derrière Heldonica. Notre histoire et notre philosophie du slow travel.",
+    creator: '@heldonica',
+    images: ['/og-default.jpg'],
   },
 }
 
 export const revalidate = 3600
 
-const schemaPerson = {
+const schemaOrganization = {
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "Heldonica",
@@ -252,7 +260,7 @@ export default async function AProposPage() {
 
       </main>
       <Footer />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaPerson) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrganization) }} />
     </InlineEditProvider>
   )
 }
