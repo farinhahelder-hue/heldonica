@@ -63,12 +63,12 @@ export default function DestinationCard({
   const cardContent = (
     <article
       className={`group flex flex-col overflow-hidden rounded-2xl border transition-all duration-300 h-full
-        ${status === 'coming_soon' ? 'opacity-75 border-stone-200 bg-white' : 'hover:-translate-y-1 hover:shadow-lg'}
-        ${status === 'starred' ? 'border-amber-200 bg-gradient-to-b from-amber-50/20 to-white shadow-md shadow-amber-500/5' : 'border-stone-200 bg-white shadow-sm'}
+        ${status === 'coming_soon' ? 'opacity-75 border-stone-200 dark:border-stone-850 bg-white dark:bg-[#1E1C1A]' : 'hover:-translate-y-1 hover:shadow-lg'}
+        ${status === 'starred' ? 'border-amber-200 dark:border-amber-900 bg-gradient-to-b from-amber-50/20 to-white dark:from-amber-900/10 dark:to-[#1E1C1A] shadow-md shadow-amber-500/5' : 'border-stone-200 dark:border-stone-800 bg-white dark:bg-[#1E1C1A] shadow-sm'}
         ${!isClickable ? 'cursor-default' : 'cursor-pointer'}
       `}
     >
-      <div className="relative aspect-[16/9] overflow-hidden bg-stone-100">
+      <div className="relative aspect-[16/9] overflow-hidden bg-stone-100 dark:bg-stone-800">
         <Image
           src={imgSrc}
           alt={title}
@@ -92,7 +92,7 @@ export default function DestinationCard({
           )}
         </div>
         {article_count && article_count > 0 && (
-          <span className="absolute top-3 right-3 rounded-full bg-white/90 backdrop-blur-sm px-2.5 py-1 text-xs font-semibold text-stone-700 shadow-sm">
+          <span className="absolute top-3 right-3 rounded-full bg-white/90 dark:bg-stone-900/90 backdrop-blur-sm px-2.5 py-1 text-xs font-semibold text-stone-700 dark:text-stone-300 shadow-sm">
             {article_count} article{article_count > 1 ? 's' : ''}
           </span>
         )}
@@ -101,24 +101,24 @@ export default function DestinationCard({
       <div className="flex flex-1 flex-col p-5">
         <div className="flex items-center gap-2 mb-1.5">
           {flag_emoji && <span className="text-base leading-none">{flag_emoji}</span>}
-          <span className="text-xs font-medium text-stone-500 uppercase tracking-wider">{country}</span>
+          <span className="text-xs font-medium text-stone-500 dark:text-stone-400 uppercase tracking-wider">{country}</span>
         </div>
-        <h3 className="text-lg font-serif font-bold text-stone-900 mb-2 leading-snug">
+        <h3 className="text-lg font-serif font-bold text-stone-900 dark:text-stone-100 mb-2 leading-snug">
           {title}
         </h3>
         {(teaser) && (
-          <p className="text-sm text-stone-600 leading-relaxed mb-4 line-clamp-2 flex-1">
+          <p className="text-sm text-stone-600 dark:text-stone-300 leading-relaxed mb-4 line-clamp-2 flex-1">
             {teaser}
           </p>
         )}
         <div className="flex flex-wrap gap-1.5 mb-3">
           {styleLabel && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2.5 py-1 text-xs font-medium text-stone-600">
+            <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 dark:bg-stone-800 px-2.5 py-1 text-xs font-medium text-stone-600 dark:text-stone-300">
               {styleEmoji} {styleLabel}
             </span>
           )}
           {best_season && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-teal/10 px-2.5 py-1 text-xs font-medium text-teal">
+            <span className="inline-flex items-center gap-1 rounded-full bg-teal/10 dark:bg-teal/20 px-2.5 py-1 text-xs font-medium text-teal">
               📅 {best_season}
             </span>
           )}
