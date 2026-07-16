@@ -14,10 +14,10 @@ const DESTINATION_IMAGES: Record<string, string> = {
   'sicile': 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1400&q=85',
   'lisbonne': 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1400&q=85',
   'montenegro': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1400&q=85',
-  'suisse': 'https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=1400&q=85',
-  'zurich': 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1400&q=85',
-  'paris': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1400&q=85',
-  'roumanie': 'https://images.unsplash.com/photo-1601597111158-2fceff292cdc?w=1400&q=85',
+  'suisse': 'https://heldonica.fr/wp-content/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg',
+  'zurich': 'https://heldonica.fr/wp-content/uploads/2025/08/zurich-panorama-2-1024x679.jpg',
+  'paris': 'https://heldonica.fr/wp-content/uploads/2025/09/paris-petite-ceinture-2-683x1024.jpg',
+  'roumanie': 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
 }
 
 const DESTINATION_CONTENT: Record<string, any> = {

@@ -10,7 +10,7 @@ export const PAGE_DEFAULTS: Record<string, string> = {
   'home__hero_subtitle': 'On ferme les ordis. On part. On revient avec des pépites qu\'on n\'avait pas cherchées.',
   'home__hero_cta_label': 'Planifier mon voyage',
   'home__hero_cta_url': '/travel-planning',
-  'home__hero_image': 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&q=85',
+  'home__hero_image': 'https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg',
   'home__intro_title': 'Carnets de terrain, pépites vécues',
   'home__intro_text': 'On documente ce qu\'on a vraiment vécu — pas ce qu\'on a lu ailleurs. Destinations authentiques, hébergements testés, restaurants dénichés.',
   'home__pillars_title': 'Nos expertises',
@@ -71,7 +71,7 @@ export const PAGE_DEFAULTS: Record<string, string> = {
   // ── A-PROPOS ──────────────────────────────────────────────────────────
   'a-propos__hero_title': 'Notre histoire',
   'a-propos__hero_subtitle': 'Un duo Paris-Madère-Roumanie qui voyage lentement',
-  'a-propos__hero_image': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=85',
+  'a-propos__hero_image': 'https://heldonica.fr/wp-content/uploads/2025/08/zurich-panorama-2-1024x679.jpg',
   'a-propos__intro_title': 'On ferme les ordis. On part.',
   'a-propos__intro_text': 'Heldonica est né de l\'envie de partager ce qu\'on découvre vraiment sur le terrain — pas ce qu\'on trouve dans les guides.',
   'a-propos__bio_name': 'L\'équipe Heldonica',
