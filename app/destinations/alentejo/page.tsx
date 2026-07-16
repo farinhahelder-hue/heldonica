@@ -124,18 +124,18 @@ export default function AlentejoPage() {
           
           {/* Badge testage */}
           <div className="absolute left-4 top-4 md:left-8 md:top-8">
-            <span className="inline-block rounded-full bg-amber-500/90 px-4 py-2 text-xs font-bold text-white shadow-lg backdrop-blur-sm">
+            <span className="inline-block rounded-full bg-eucalyptus/90 px-4 py-2 text-xs font-bold text-white shadow-lg backdrop-blur-sm">
               <span aria-hidden="true">✦ </span>Testé par Heldonica · 2 séjours · 2023-2024
             </span>
           </div>
 
           <div className="relative z-10 px-6 md:px-16 pb-12 md:pb-20 max-w-4xl">
-            <p className="text-amber-400 text-xs font-bold tracking-[0.2em] uppercase mb-3">
+            <p className="text-teal text-xs font-bold tracking-[0.2em] uppercase mb-3">
               Destination Portugal
             </p>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-light text-white mb-4 leading-tight">
               Alentejo : le slow travel absolu<br />
-              <span className="text-amber-300 italic">au cœur du Portugal</span>
+              <span className="text-teal/80 italic">au cœur du Portugal</span>
             </h1>
             <p className="text-stone-300 text-base md:text-lg leading-relaxed max-w-2xl">
               Plaines infinies, vignobles à perte de vue, villages de pierre figés dans le temps.
@@ -147,7 +147,7 @@ export default function AlentejoPage() {
         {/* ── INTRODUCTION E-E-A-T ── */}
         <section className="py-16 md:py-24 bg-white">
           <div className="max-w-4xl mx-auto px-6">
-            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4">Notre retour terrain</p>
+            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4">Notre retour terrain</p>
             <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-8">
               Pourquoi l’Alentejo nous a conquis
             </h2>
@@ -168,11 +168,11 @@ export default function AlentejoPage() {
         {/* ── INFOS PRATIQUES ── */}
         <section className="py-12 bg-stone-50 border-y border-stone-200">
           <div className="max-w-5xl mx-auto px-6">
-            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-6 text-center">Bon à savoir</p>
+            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-6 text-center">Bon à savoir</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="text-center">
                 <p className="text-xs text-stone-500 uppercase tracking-wider mb-1">Meilleure période</p>
-                <p className="text-lg font-serif text-stone-900">Mars–Juin<br /><span className="text-amber-700">Sept–Nov</span></p>
+                <p className="text-lg font-serif text-stone-900">Mars–Juin<br /><span className="text-eucalyptus">Sept–Nov</span></p>
               </div>
               <div className="text-center">
                 <p className="text-xs text-stone-500 uppercase tracking-wider mb-1">Durée idéale</p>
@@ -184,7 +184,7 @@ export default function AlentejoPage() {
               </div>
               <div className="text-center">
                 <p className="text-xs text-stone-500 uppercase tracking-wider mb-1">Langue</p>
-                <p className="text-lg font-serif text-stone-900">Portugais<br /><span className="text-amber-700">+ français</span></p>
+                <p className="text-lg font-serif text-stone-900">Portugais<br /><span className="text-eucalyptus">+ français</span></p>
               </div>
             </div>
           </div>
@@ -193,7 +193,7 @@ export default function AlentejoPage() {
         {/* ── NOS PÉPITES ── */}
         <section className="py-16 md:py-24 bg-white">
           <div className="max-w-5xl mx-auto px-6">
-            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Ce qu’on a vécu</p>
+            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Ce qu’on a vécu</p>
             <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12 text-center">
               Nos pépites dénichées
             </h2>
@@ -202,12 +202,12 @@ export default function AlentejoPage() {
               {/* Évora */}
               <div className="bg-stone-50 rounded-2xl p-6 border border-stone-100">
                 <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-eucalyptus/10 flex items-center justify-center shrink-0">
                     <span className="text-2xl">🏛️</span>
                   </div>
                   <div>
                     <h3 className="text-xl font-serif text-stone-900 mb-1">Évora</h3>
-                    <p className="text-sm text-amber-700 font-medium">La ville UNESCO à taille humaine</p>
+                    <p className="text-sm text-eucalyptus/80 font-medium">La ville UNESCO à taille humaine</p>
                   </div>
                 </div>
                 <p className="text-stone-600 text-sm leading-relaxed mb-4">
@@ -221,12 +221,12 @@ export default function AlentejoPage() {
               {/* Monsaraz */}
               <div className="bg-stone-50 rounded-2xl p-6 border border-stone-100">
                 <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-eucalyptus/10 flex items-center justify-center shrink-0">
                     <span className="text-2xl">🏰</span>
                   </div>
                   <div>
                     <h3 className="text-xl font-serif text-stone-900 mb-1">Monsaraz</h3>
-                    <p className="text-sm text-amber-700 font-medium">Le village perché sur la plaine</p>
+                    <p className="text-sm text-eucalyptus/80 font-medium">Le village perché sur la plaine</p>
                   </div>
                 </div>
                 <p className="text-stone-600 text-sm leading-relaxed mb-4">
@@ -240,12 +240,12 @@ export default function AlentejoPage() {
               {/* Vignobles */}
               <div className="bg-stone-50 rounded-2xl p-6 border border-stone-100">
                 <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-eucalyptus/10 flex items-center justify-center shrink-0">
                     <span className="text-2xl">🍷</span>
                   </div>
                   <div>
                     <h3 className="text-xl font-serif text-stone-900 mb-1">Rota dos Vinhos</h3>
-                    <p className="text-sm text-amber-700 font-medium">La route des vignobles</p>
+                    <p className="text-sm text-eucalyptus/80 font-medium">La route des vignobles</p>
                   </div>
                 </div>
                 <p className="text-stone-600 text-sm leading-relaxed mb-4">
@@ -259,12 +259,12 @@ export default function AlentejoPage() {
               {/* Praias Fluviais */}
               <div className="bg-stone-50 rounded-2xl p-6 border border-stone-100">
                 <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-eucalyptus/10 flex items-center justify-center shrink-0">
                     <span className="text-2xl">🏊</span>
                   </div>
                   <div>
                     <h3 className="text-xl font-serif text-stone-900 mb-1">Praia Fluvial de頼</h3>
-                    <p className="text-sm text-amber-700 font-medium">Les plages rivières secrètes</p>
+                    <p className="text-sm text-eucalyptus/80 font-medium">Les plages rivières secrètes</p>
                   </div>
                 </div>
                 <p className="text-stone-600 text-sm leading-relaxed mb-4">
@@ -281,7 +281,7 @@ export default function AlentejoPage() {
         {/* ── OÙ DORMIR ── */}
         <section className="py-16 md:py-24 bg-stone-50">
           <div className="max-w-5xl mx-auto px-6">
-            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Hébergement</p>
+            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Hébergement</p>
             <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-4 text-center">
               Où dormir selon ton style
             </h2>
@@ -335,14 +335,14 @@ export default function AlentejoPage() {
         {/* ── COMMENT SE DÉPLACER ── */}
         <section className="py-16 md:py-24 bg-white border-t border-stone-100">
           <div className="max-w-4xl mx-auto px-6">
-            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Logistique</p>
+            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Logistique</p>
             <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-8 text-center">
               Comment se déplacer
             </h2>
 
             <div className="space-y-6">
               <div className="flex gap-4 p-6 bg-stone-50 rounded-2xl">
-                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-full bg-eucalyptus/10 flex items-center justify-center shrink-0">
                   <span className="text-xl">🚗</span>
                 </div>
                 <div>
@@ -357,7 +357,7 @@ export default function AlentejoPage() {
               </div>
 
               <div className="flex gap-4 p-6 bg-stone-50 rounded-2xl">
-                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-full bg-eucalyptus/10 flex items-center justify-center shrink-0">
                   <span className="text-xl">🚌</span>
                 </div>
                 <div>
@@ -400,7 +400,7 @@ export default function AlentejoPage() {
                 <details key={i} className="bg-white rounded-xl p-5 border border-stone-100 group">
                   <summary className="font-semibold text-stone-900 cursor-pointer list-none flex justify-between items-center">
                     <span>{item.name}</span>
-                    <span className="text-amber-600 group-open:rotate-45 transition-transform">+</span>
+                    <span className="text-eucalyptus group-open:rotate-45 transition-transform">+</span>
                   </summary>
                   <p className="mt-3 text-stone-600 text-sm leading-relaxed">
                     {item.acceptedAnswer.text}
@@ -414,7 +414,7 @@ export default function AlentejoPage() {
         {/* ── RELATED ARTICLES ── */}
         <section className="py-16 md:py-24 bg-white border-t border-stone-100">
           <div className="max-w-5xl mx-auto px-6">
-            <p className="text-amber-800 text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Pour aller plus loin</p>
+            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Pour aller plus loin</p>
             <h2 className="text-2xl md:text-3xl font-serif font-light text-stone-900 mb-8 text-center">
               Nos carnets liés
             </h2>
@@ -430,8 +430,8 @@ export default function AlentejoPage() {
                   />
                 </div>
                 <div className="p-5">
-                  <p className="text-xs text-amber-700 font-semibold mb-1">Portugal</p>
-                  <h3 className="font-serif text-stone-900 group-hover:text-amber-700 transition-colors">
+                  <p className="text-xs text-eucalyptus font-semibold mb-1">Portugal</p>
+                  <h3 className="font-serif text-stone-900 group-hover:text-eucalyptus transition-colors">
                     Routard dans l’Alentejo : notre journal de bord
                   </h3>
                 </div>
@@ -447,8 +447,8 @@ export default function AlentejoPage() {
                   />
                 </div>
                 <div className="p-5">
-                  <p className="text-xs text-amber-700 font-semibold mb-1">Découvertes Locales</p>
-                  <h3 className="font-serif text-stone-900 group-hover:text-amber-700 transition-colors">
+                  <p className="text-xs text-eucalyptus font-semibold mb-1">Découvertes Locales</p>
+                  <h3 className="font-serif text-stone-900 group-hover:text-eucalyptus transition-colors">
                     Évora : 48h dans la ville UNESCO
                   </h3>
                 </div>
@@ -464,15 +464,15 @@ export default function AlentejoPage() {
                   />
                 </div>
                 <div className="p-5">
-                  <p className="text-xs text-amber-700 font-semibold mb-1">Food & Lifestyle</p>
-                  <h3 className="font-serif text-stone-900 group-hover:text-amber-700 transition-colors">
+                  <p className="text-xs text-eucalyptus font-semibold mb-1">Food & Lifestyle</p>
+                  <h3 className="font-serif text-stone-900 group-hover:text-eucalyptus transition-colors">
                     Le vin portugais qu’on ramène à chaque fois
                   </h3>
                 </div>
               </Link>
             </div>
             <div className="mt-8 text-center">
-              <Link href="/blog" className="text-amber-700 font-semibold hover:text-amber-800">
+              <Link href="/blog" className="text-eucalyptus font-semibold hover:text-eucalyptus/80">
                 Voir tous nos carnets →
               </Link>
             </div>

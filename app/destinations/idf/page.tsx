@@ -43,7 +43,7 @@ export default function IdfPage() {
       <main className="min-h-screen bg-stone-50">
         <section className="relative bg-gradient-to-b from-stone-900 to-stone-800 py-20">
           <div className="max-w-4xl mx-auto px-4">
-            <span className="inline-block text-amber-400 text-sm font-medium mb-4">Destinations</span>
+            <span className="inline-block text-teal text-sm font-medium mb-4">Destinations</span>
             <h1 className="text-4xl md:text-5xl font-serif text-white mb-6">Ile-de-France</h1>
             <p className="text-xl text-stone-300 max-w-2xl">Paris, chateaux, nature.</p>
           </div>
@@ -52,7 +52,7 @@ export default function IdfPage() {
         <nav className="bg-white border-b border-stone-200">
           <div className="max-w-4xl mx-auto px-4 py-3 flex gap-6 overflow-x-auto">
             {subNav.map((item) => (
-              <Link key={item.href} href={item.href} className="text-stone-600 hover:text-amber-700 whitespace-nowrap text-sm font-medium">
+              <Link key={item.href} href={item.href} className="text-stone-600 hover:text-eucalyptus whitespace-nowrap text-sm font-medium">
                 {item.label}
               </Link>
             ))}
@@ -71,19 +71,19 @@ export default function IdfPage() {
           <section className="mb-12">
             <h2 className="text-2xl font-serif text-stone-900 mb-6">Zones</h2>
             <div className="grid gap-6 md:grid-cols-2">
-              <Link href="/destinations/idf/paris" className="block p-6 bg-white rounded-lg border border-stone-200 hover:border-amber-400">
+              <Link href="/destinations/idf/paris" className="block p-6 bg-white rounded-lg border border-stone-200 hover:border-eucalyptus/40">
                 <h3 className="font-serif text-lg text-stone-900 mb-2">Paris</h3>
                 <p className="text-stone-600 text-sm">Capitale, balades.</p>
               </Link>
-              <Link href="/destinations/idf/versailles" className="block p-6 bg-white rounded-lg border border-stone-200 hover:border-amber-400">
+              <Link href="/destinations/idf/versailles" className="block p-6 bg-white rounded-lg border border-stone-200 hover:border-eucalyptus/40">
                 <h3 className="font-serif text-lg text-stone-900 mb-2">Versailles</h3>
                 <p className="text-stone-600 text-sm">Chateau, jardins.</p>
               </Link>
-              <Link href="/destinations/idf/giverny" className="block p-6 bg-white rounded-lg border border-stone-200 hover:border-amber-400">
+              <Link href="/destinations/idf/giverny" className="block p-6 bg-white rounded-lg border border-stone-200 hover:border-eucalyptus/40">
                 <h3 className="font-serif text-lg text-stone-900 mb-2">Giverny</h3>
                 <p className="text-stone-600 text-sm">Monet, jardins.</p>
               </Link>
-              <Link href="/destinations/idf/fontainebleau" className="block p-6 bg-white rounded-lg border border-stone-200 hover:border-amber-400">
+              <Link href="/destinations/idf/fontainebleau" className="block p-6 bg-white rounded-lg border border-stone-200 hover:border-eucalyptus/40">
                 <h3 className="font-serif text-lg text-stone-900 mb-2">Fontainebleau</h3>
                 <p className="text-stone-600 text-sm">Foret, escalade.</p>
               </Link>
@@ -107,7 +107,7 @@ export default function IdfPage() {
             </div>
           </section>
 
-          <Link href="/destinations" className="text-amber-700">← Retour Destinations</Link>
+          <Link href="/destinations" className="text-eucalyptus hover:text-eucalyptus/80">← Retour Destinations</Link>
         </div>
       </main>
       <Footer />

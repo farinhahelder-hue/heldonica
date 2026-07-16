@@ -26,7 +26,7 @@ export default function HeroVideo() {
           Des voyages authentiques, conçus pour vous
         </p>
         <Link
-          href="/travel-planning-form"
+          href="/travel-planning"
           className="inline-block px-8 py-4 bg-white text-mahogany font-semibold rounded-lg hover:bg-gray-100 transition text-lg"
         >
           Planifier mon voyage

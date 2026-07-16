@@ -215,7 +215,7 @@ export default function MapClientPage() {
               On transforme tes contraintes en carnet de voyage concret, avec destinations testées et séquence logique.
             </p>
             <Link
-              href="/travel-planning-form"
+              href="/travel-planning"
               className="inline-flex px-8 py-3 rounded-xl bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors"
             >
               Créer mon voyage →
