@@ -197,60 +197,26 @@ async function isAuthorized(req: NextRequest) {
   return { ok, misconfigured: false };
 }
 
+// Défaut code : site en pause. Le CMS peut écraser cette valeur sans redéploiement.
+// Pour mettre en ligne sans CMS : passer MAINTENANCE_ACTIVE à false et pousser.
+const MAINTENANCE_ACTIVE = true;
+
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
-  // Maintenance mode — contrôlé depuis panel-manager → Paramètres → Maintenance
-  // Priority: 1. Env var MAINTENANCE_MODE (urgence, nécessite redéploiement), 2. Supabase (toggle CMS, ~30s), 3. Cookie (legacy)
-  // Exclu: /maintenance, /panel-manager, /cms-admin, /api, /_next, /robots.txt, /sitemap.xml, /favicon.ico
   const maintenanceExcludes = ['/maintenance', '/panel-manager', '/cms-admin', '/api', '/_next', '/robots.txt', '/sitemap.xml', '/favicon.ico'];
   const isMaintenanceExcluded = maintenanceExcludes.some(path => pathname.startsWith(path));
 
   if (!isMaintenanceExcluded) {
-    // 0. Check for bypass token (cookie or header) - allows private access during maintenance
-    const bypassToken = process.env.MAINTENANCE_BYPASS_TOKEN;
-    const requestBypassToken = req.cookies.get('heldonica_maintenance_bypass')?.value || 
-                               req.headers.get('x-maintenance-bypass');
-    // Vercel preview URLs automatically bypass maintenance
-    const isVercelPreview = req.nextUrl.hostname.includes('--');
-    const hasValidBypass = bypassToken && (
-      requestBypassToken === bypassToken || isVercelPreview
-    );
+    // CMS (Supabase) a la priorité absolue — toggle panel-manager → Paramètres → Maintenance
+    // Retourne true/false si défini explicitement, null si jamais configuré
+    const cmsValue = await getMaintenanceMode();
+    const isMaintenance = cmsValue !== null ? cmsValue : MAINTENANCE_ACTIVE;
 
-    // If bypass token is valid or it's a preview URL, skip maintenance
-    if (!hasValidBypass) {
-    // 1. First check environment variable (emergency override - requires redeploy)
-    // Skip env var check if DISABLE_MAINTENANCE=1 (temporary go-live override)
-    const disableMaintenanceEnv = process.env.DISABLE_MAINTENANCE;
-    const maintenanceEnvVar = process.env.MAINTENANCE_MODE;
-    if (disableMaintenanceEnv === '1') {
-      // Maintenance explicitly disabled via DISABLE_MAINTENANCE env var
-    } else if (maintenanceEnvVar === '1' || maintenanceEnvVar === 'true') {
+    if (isMaintenance) {
       const maintenanceUrl = req.nextUrl.clone();
       maintenanceUrl.pathname = '/maintenance';
       return NextResponse.redirect(maintenanceUrl);
-    }
-    
-    // 2. Check Supabase dynamically (no redeploy needed) - with fail open
-    try {
-      const isMaintenance = await getMaintenanceMode();
-      if (isMaintenance) {
-        const maintenanceUrl = req.nextUrl.clone();
-        maintenanceUrl.pathname = '/maintenance';
-        return NextResponse.redirect(maintenanceUrl);
-      }
-    } catch (error) {
-      // Fail open - if Supabase is unreachable, keep site accessible
-      console.warn('[Middleware] Supabase unreachable, allowing access:', error);
-    }
-    
-    // 3. Fall back to cookie (set by legacy CMS admin panel)
-    const maintenanceCookie = req.cookies.get('heldonica_maintenance')?.value;
-    if (maintenanceCookie === '1') {
-      const maintenanceUrl = req.nextUrl.clone();
-      maintenanceUrl.pathname = '/maintenance';
-      return NextResponse.redirect(maintenanceUrl);
-    }
     }
   }
 
