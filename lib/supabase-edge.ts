@@ -18,10 +18,13 @@ export function isSupabaseConfigured(): boolean {
  * Returns true if maintenance is active, false otherwise
  * Fails open (returns false) if Supabase is unreachable
  */
-export async function getMaintenanceMode(): Promise<boolean> {
+/**
+ * Retourne true/false si le CMS a explicitement défini la valeur,
+ * ou null si non configuré / erreur (laisser le défaut du middleware décider).
+ */
+export async function getMaintenanceMode(): Promise<boolean | null> {
   if (!isSupabaseConfigured()) {
-    console.warn('[Edge] Supabase not configured, defaulting to maintenance=false');
-    return false;
+    return null;
   }
 
   try {
@@ -32,23 +35,22 @@ export async function getMaintenanceMode(): Promise<boolean> {
         'Authorization': `Bearer ${supabaseServiceKey}`,
         'Prefer': 'single object'
       },
-      // Edge runtime cache - short TTL for quick propagation
-      next: { revalidate: 30 } // 30 seconds max
+      next: { revalidate: 30 }
     });
 
     if (!response.ok) {
-      console.error('[Edge] Supabase error:', response.status, response.statusText);
-      return false; // Fail open
+      // 406 = row doesn't exist → CMS n'a pas encore défini la valeur
+      return null;
     }
 
     const data = await response.json();
     const value = data?.value;
-    
-    // Support multiple truthy values
-    return value === 'true' || value === '1' || value === true;
-  } catch (error) {
-    console.error('[Edge] Failed to fetch maintenance mode from Supabase:', error);
-    return false; // Fail open - keep site accessible
+
+    if (value === 'true' || value === '1' || value === true)  return true;
+    if (value === 'false' || value === '0' || value === false) return false;
+    return null; // valeur inconnue → laisser le défaut décider
+  } catch {
+    return null; // Supabase injoignable → laisser le défaut décider
   }
 }
 
