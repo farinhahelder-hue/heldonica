@@ -50,7 +50,7 @@ const PROTECTED_PATHS = [
 const PROTECTED_PREFIXES = [
   '/api/cms',
   '/api/agents',
-  '/panel-manager',
+  // /panel-manager a son propre écran de login React — pas besoin de le protéger ici
 ];
 const CMS_SESSION_COOKIE = 'heldonica_cms_session';
 
