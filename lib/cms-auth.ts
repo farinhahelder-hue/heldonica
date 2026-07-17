@@ -11,15 +11,19 @@ type CmsSessionPayload = {
   sid: string;
 };
 
+// Mot de passe par défaut si CMS_PASSWORD non configuré en Vercel.
+// Change-le via Vercel → Project Settings → Environment Variables → CMS_PASSWORD
+const DEFAULT_CMS_PASSWORD = 'heldonica2026';
+
 function getConfiguredPassword() {
   const password = process.env.CMS_PASSWORD?.trim();
-  return password ? password : null;
+  return password || DEFAULT_CMS_PASSWORD;
 }
 
 function getSessionSecret() {
   const secret = process.env.CMS_SESSION_SECRET?.trim();
-  const pw = process.env.CMS_PASSWORD?.trim();
-  return secret ? secret : (pw ? pw : null);
+  const pw = process.env.CMS_PASSWORD?.trim() || DEFAULT_CMS_PASSWORD;
+  return secret || pw;
 }
 
 function getSubtle(): SubtleCrypto {
