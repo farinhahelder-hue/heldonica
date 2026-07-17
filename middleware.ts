@@ -197,23 +197,14 @@ async function isAuthorized(req: NextRequest) {
   return { ok, misconfigured: false };
 }
 
-// Site en pause — maintenance activée manuellement
-const MAINTENANCE_ACTIVE = true;
-
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
-  // Maintenance mode check - redirect to /maintenance if active
-  // Priority: 1. Environment variable (for emergency), 2. Supabase (dynamic CMS toggle), 3. Cookie (fallback)
-  // Exclude: /maintenance, /panel-manager, /cms-admin, /api, /_next, /robots.txt, /sitemap.xml, /favicon.ico
+  // Maintenance mode — contrôlé depuis panel-manager → Paramètres → Maintenance
+  // Priority: 1. Env var MAINTENANCE_MODE (urgence, nécessite redéploiement), 2. Supabase (toggle CMS, ~30s), 3. Cookie (legacy)
+  // Exclu: /maintenance, /panel-manager, /cms-admin, /api, /_next, /robots.txt, /sitemap.xml, /favicon.ico
   const maintenanceExcludes = ['/maintenance', '/panel-manager', '/cms-admin', '/api', '/_next', '/robots.txt', '/sitemap.xml', '/favicon.ico'];
   const isMaintenanceExcluded = maintenanceExcludes.some(path => pathname.startsWith(path));
-
-  if (MAINTENANCE_ACTIVE && !isMaintenanceExcluded) {
-    const maintenanceUrl = req.nextUrl.clone();
-    maintenanceUrl.pathname = '/maintenance';
-    return NextResponse.redirect(maintenanceUrl);
-  }
 
   if (!isMaintenanceExcluded) {
     // 0. Check for bypass token (cookie or header) - allows private access during maintenance
