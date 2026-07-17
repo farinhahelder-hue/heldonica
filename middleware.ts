@@ -20,6 +20,12 @@ const LEGACY_REDIRECTS: Record<string, string> = {
   '/madere': '/destinations/madere',
   '/stoos-ridge-notre-aventure-sur-la-crete-panoramique-2':
     '/blog/stoos-ridge-notre-aventure-sur-la-crete-panoramique',
+  '/blog/stoos-ridge-coucher-soleil-traversee-funiculaire':
+    '/blog/stoos-ridge-notre-aventure-sur-la-crete-panoramique',
+  '/blog/stoos-ridge-notre-aventure-crete-panoramique':
+    '/blog/stoos-ridge-notre-aventure-sur-la-crete-panoramique',
+  '/blog/stoos-ridge-la-crete-pano':
+    '/blog/stoos-ridge-notre-aventure-sur-la-crete-panoramique',
 };
 
 function normalizePath(pathname: string) {
@@ -191,6 +197,9 @@ async function isAuthorized(req: NextRequest) {
   return { ok, misconfigured: false };
 }
 
+// Site en pause — maintenance activée manuellement
+const MAINTENANCE_ACTIVE = true;
+
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
@@ -199,6 +208,12 @@ export async function middleware(req: NextRequest) {
   // Exclude: /maintenance, /panel-manager, /cms-admin, /api, /_next, /robots.txt, /sitemap.xml, /favicon.ico
   const maintenanceExcludes = ['/maintenance', '/panel-manager', '/cms-admin', '/api', '/_next', '/robots.txt', '/sitemap.xml', '/favicon.ico'];
   const isMaintenanceExcluded = maintenanceExcludes.some(path => pathname.startsWith(path));
+
+  if (MAINTENANCE_ACTIVE && !isMaintenanceExcluded) {
+    const maintenanceUrl = req.nextUrl.clone();
+    maintenanceUrl.pathname = '/maintenance';
+    return NextResponse.redirect(maintenanceUrl);
+  }
 
   if (!isMaintenanceExcluded) {
     // 0. Check for bypass token (cookie or header) - allows private access during maintenance
