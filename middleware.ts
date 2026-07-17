@@ -198,7 +198,7 @@ async function isAuthorized(req: NextRequest) {
 }
 
 // Fallback code — écrasé par MAINTENANCE_MODE (Vercel) ou CMS (Supabase)
-const MAINTENANCE_ACTIVE = true;
+const MAINTENANCE_ACTIVE = false;
 
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
