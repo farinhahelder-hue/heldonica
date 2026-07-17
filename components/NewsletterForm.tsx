@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useContentLoader } from "@/hooks/useContentLoader";
 import type { CmsZone } from "@/lib/content-loader";
 
@@ -97,27 +98,43 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
             <p className="text-white/60 text-xs mt-2">{successSubtext}</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md" style={{ position: 'relative' }}>
-            <HoneypotField />
-            <label htmlFor="newsletter-email-article" className="sr-only">Ton adresse email</label>
-            <input
-              id="newsletter-email-article"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={placeholder}
-              required
-              disabled={status === "loading"}
-              className="flex-1 px-4 py-3 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent disabled:opacity-60"
-            />
-            <button
-              type="submit"
-              disabled={status === "loading"}
-              className="px-6 py-3 bg-eucalyptus/50 hover:bg-teal text-white text-sm font-semibold rounded-full transition-colors whitespace-nowrap disabled:opacity-60"
-            >
-              {status === "loading" ? ctaLoading : ctaLabel}
-            </button>
-          </form>
+          <div className="flex flex-col gap-3">
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md" style={{ position: 'relative' }}>
+              <HoneypotField />
+              <label htmlFor="newsletter-email-article" className="sr-only">Ton adresse email</label>
+              <input
+                id="newsletter-email-article"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={placeholder}
+                required
+                disabled={status === "loading"}
+                className="flex-1 px-4 py-3 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent disabled:opacity-60"
+              />
+              <button
+                type="submit"
+                disabled={status === "loading"}
+                className="px-6 py-3 bg-eucalyptus/50 hover:bg-teal text-white text-sm font-semibold rounded-full transition-colors whitespace-nowrap disabled:opacity-60"
+              >
+                {status === "loading" ? ctaLoading : ctaLabel}
+              </button>
+            </form>
+            <div className="flex items-start gap-2.5 max-w-md">
+              <input
+                id="newsletter-rgpd-article"
+                type="checkbox"
+                required
+                className="mt-1 h-4 w-4 rounded border-white/20 bg-white/10 text-eucalyptus focus:ring-teal cursor-pointer"
+              />
+              <label htmlFor="newsletter-rgpd-article" className="text-xs text-white/60 leading-normal">
+                J'accepte de recevoir les e-mails de slow travel d'Heldonica. Voir notre{' '}
+                <Link href="/politique-confidentialite" className="text-teal hover:underline font-medium">
+                  politique de confidentialité
+                </Link>.
+              </label>
+            </div>
+          </div>
         )}
         {status === "error" && <p className="mt-2 text-red-300 text-xs">{message}</p>}
         <p className="mt-4 text-white/35 text-xs">{disclaimer}</p>
@@ -134,27 +151,43 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
             <p className="text-white/60 text-xs mt-1">{successSubtext}</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center" style={{ position: 'relative' }}>
-            <HoneypotField />
-            <label htmlFor="newsletter-email-inline" className="sr-only">Ton adresse email</label>
-            <input
-              id="newsletter-email-inline"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={placeholder}
-              required
-              disabled={status === "loading"}
-              className="flex-1 min-w-0 px-5 py-3 rounded-full bg-white/15 border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-teal disabled:opacity-60"
-            />
-            <button
-              type="submit"
-              disabled={status === "loading"}
-              className="shrink-0 px-6 py-3 bg-eucalyptus/50 hover:bg-teal text-white text-sm font-semibold rounded-full transition-colors disabled:opacity-60"
-            >
-              {status === "loading" ? ctaLoading : ctaLabel}
-            </button>
-          </form>
+          <div className="flex flex-col gap-3">
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center" style={{ position: 'relative' }}>
+              <HoneypotField />
+              <label htmlFor="newsletter-email-inline" className="sr-only">Ton adresse email</label>
+              <input
+                id="newsletter-email-inline"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={placeholder}
+                required
+                disabled={status === "loading"}
+                className="flex-1 min-w-0 px-5 py-3 rounded-full bg-white/15 border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-teal disabled:opacity-60"
+              />
+              <button
+                type="submit"
+                disabled={status === "loading"}
+                className="shrink-0 px-6 py-3 bg-eucalyptus/50 hover:bg-teal text-white text-sm font-semibold rounded-full transition-colors disabled:opacity-60"
+              >
+                {status === "loading" ? ctaLoading : ctaLabel}
+              </button>
+            </form>
+            <div className="flex items-start gap-2.5">
+              <input
+                id="newsletter-rgpd-inline"
+                type="checkbox"
+                required
+                className="mt-1 h-4 w-4 rounded border-white/20 bg-white/10 text-eucalyptus focus:ring-teal cursor-pointer"
+              />
+              <label htmlFor="newsletter-rgpd-inline" className="text-xs text-white/60 leading-normal">
+                J'accepte de recevoir les e-mails d'Heldonica. Voir notre{' '}
+                <Link href="/politique-confidentialite" className="text-teal hover:underline font-medium">
+                  politique de confidentialité
+                </Link>.
+              </label>
+            </div>
+          </div>
         )}
         {status === "error" && <p className="text-red-300 text-xs mt-1">{message}</p>}
         <p className="text-white/35 text-xs">{disclaimer}</p>
@@ -181,27 +214,43 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
             <p className="text-white/60 text-sm mt-2">{successSubtext}</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto" style={{ position: 'relative' }}>
-            <HoneypotField />
-            <label htmlFor="newsletter-email-blog" className="sr-only">Ton adresse email</label>
-            <input
-              id="newsletter-email-blog"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={placeholder}
-              required
-              disabled={status === "loading"}
-              className="flex-1 px-5 py-3.5 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent disabled:opacity-60"
-            />
-            <button
-              type="submit"
-              disabled={status === "loading"}
-              className="px-7 py-3.5 bg-eucalyptus/50 hover:bg-teal text-white text-sm font-semibold rounded-full transition-colors whitespace-nowrap disabled:opacity-60"
-            >
-              {status === "loading" ? "Inscription…" : ctaLabel}
-            </button>
-          </form>
+          <div className="flex flex-col gap-3">
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto" style={{ position: 'relative' }}>
+              <HoneypotField />
+              <label htmlFor="newsletter-email-blog" className="sr-only">Ton adresse email</label>
+              <input
+                id="newsletter-email-blog"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={placeholder}
+                required
+                disabled={status === "loading"}
+                className="flex-1 px-5 py-3.5 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent disabled:opacity-60"
+              />
+              <button
+                type="submit"
+                disabled={status === "loading"}
+                className="px-7 py-3.5 bg-eucalyptus/50 hover:bg-teal text-white text-sm font-semibold rounded-full transition-colors whitespace-nowrap disabled:opacity-60"
+              >
+                {status === "loading" ? "Inscription…" : ctaLabel}
+              </button>
+            </form>
+            <div className="flex items-start gap-2.5 max-w-md mx-auto text-left">
+              <input
+                id="newsletter-rgpd-blog"
+                type="checkbox"
+                required
+                className="mt-1 h-4 w-4 rounded border-white/20 bg-white/10 text-eucalyptus focus:ring-teal cursor-pointer"
+              />
+              <label htmlFor="newsletter-rgpd-blog" className="text-xs text-white/60 leading-normal">
+                J'accepte de recevoir les e-mails de slow travel d'Heldonica. Voir notre{' '}
+                <Link href="/politique-confidentialite" className="text-teal hover:underline font-medium">
+                  politique de confidentialité
+                </Link>.
+              </label>
+            </div>
+          </div>
         )}
         {status === "error" && <p className="mt-3 text-red-300 text-sm">{message}</p>}
 

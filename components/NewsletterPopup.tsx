@@ -1,15 +1,34 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { readCookieConsent } from '@/lib/consent'
 
 export default function NewsletterPopup() {
   const [isVisible, setIsVisible] = useState(false)
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [errorMessage, setErrorMessage] = useState('')
+  const [hasConsentChoice, setHasConsentChoice] = useState(false)
+
+  // Listen to cookie consent updates
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const checkConsent = () => {
+      const consent = readCookieConsent()
+      setHasConsentChoice(consent !== null)
+    }
+
+    checkConsent()
+    window.addEventListener('heldonica-cookie-consent-updated', checkConsent)
+    return () => {
+      window.removeEventListener('heldonica-cookie-consent-updated', checkConsent)
+    }
+  }, [])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
+    if (!hasConsentChoice) return
     
     // Check if popup was already shown this session
     const wasShown = sessionStorage.getItem('newsletter-popup-shown')
@@ -59,7 +78,7 @@ export default function NewsletterPopup() {
     document.addEventListener('mouseleave', exitIntentHandler)
 
     return cleanup
-  }, [])
+  }, [hasConsentChoice])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -103,7 +122,7 @@ export default function NewsletterPopup() {
 
   return (
     <div
-      className="fixed bottom-6 right-6 z-50 bg-stone-950 rounded-2xl p-6 md:p-8 max-w-sm w-full shadow-2xl text-white"
+      className="fixed bottom-6 right-6 left-6 md:left-auto md:max-w-sm z-50 bg-stone-950 rounded-2xl p-6 md:p-8 shadow-2xl text-white"
       style={{
         animation: 'slideUp 0.3s ease-out',
       }}
@@ -123,11 +142,12 @@ export default function NewsletterPopup() {
 
       {/* Close button */}
       <button
+        type="button"
         onClick={handleClose}
-        className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white/70 hover:bg-white/20 hover:text-white transition-colors"
+        className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 text-white/70 hover:bg-white/20 hover:text-white transition-colors cursor-pointer z-10"
         aria-label="Fermer"
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
           <line x1="18" y1="6" x2="6" y2="18" />
           <line x1="6" y1="6" x2="18" y2="18" />
         </svg>
@@ -169,6 +189,20 @@ export default function NewsletterPopup() {
               required
               className="w-full px-4 py-3 rounded-xl bg-stone-800 border border-stone-700 text-white placeholder-stone-500 focus:outline-none focus:border-eucalyptus transition-colors text-sm"
             />
+            <div className="flex items-start gap-2.5 text-left">
+              <input
+                id="popup-newsletter-rgpd"
+                type="checkbox"
+                required
+                className="mt-1 h-4 w-4 rounded border-stone-700 bg-stone-800 text-eucalyptus focus:ring-eucalyptus cursor-pointer"
+              />
+              <label htmlFor="popup-newsletter-rgpd" className="text-[11px] text-stone-400 leading-normal">
+                J'accepte de recevoir le guide et les e-mails de slow travel d'Heldonica. Voir notre{' '}
+                <a href="/politique-confidentialite" className="text-eucalyptus hover:underline font-medium">
+                  politique de confidentialité
+                </a>.
+              </label>
+            </div>
             <button
               type="submit"
               disabled={status === 'loading'}

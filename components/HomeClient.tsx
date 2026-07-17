@@ -187,12 +187,8 @@ function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: 
                   <span>📍 {displayDestination}</span>
                 </>
               )}
-              {!displayDestination && (
-                <>
-                  <span>•</span>
-                  <span>{post.formattedDate || 'Récemment'}</span>
-                </>
-              )}
+              <span>•</span>
+              <span>{post.formattedDate || 'Récemment'}</span>
             </div>
             <span className="text-xs text-eucalyptus font-semibold group-hover:translate-x-1 transition-transform" aria-hidden="true">Lire le carnet →</span>
           </div>
@@ -726,6 +722,28 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               ))}
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ── B2B CONSULTING HÔTELIER ───────────────────────────────────── */}
+      <section className="py-20 bg-stone-50 dark:bg-stone-900 border-t border-stone-200/50 dark:border-stone-800/50">
+        <div className="max-w-4xl mx-auto px-6 md:px-10 text-center" data-reveal>
+          <span className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 block">
+            ✦ Espace Hébergeurs & Hôteliers
+          </span>
+          <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany dark:text-stone-200 leading-tight mb-6">
+            Vous gérez un hébergement de charme ?<br />
+            <em className="text-eucalyptus">Faites vivre l'expérience slow travel</em>
+          </h2>
+          <p className="text-charcoal/70 dark:text-stone-400 leading-relaxed max-w-2xl mx-auto mb-8">
+            Maison d'hôtes, gîte insolite ou hôtel indépendant : on vous aide à attirer des voyageurs qui prennent leur temps, à maximiser vos réservations directes et à optimiser votre SEO de destination.
+          </p>
+          <Link
+            href="/expert-hotelier"
+            className="inline-flex items-center gap-2 px-6 py-3.5 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 text-charcoal dark:text-stone-200 hover:border-eucalyptus dark:hover:border-eucalyptus hover:text-eucalyptus dark:hover:text-eucalyptus font-semibold rounded-full text-sm transition-all"
+          >
+            Découvrir notre offre Consulting →
+          </Link>
         </div>
       </section>
 

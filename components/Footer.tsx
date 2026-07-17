@@ -5,8 +5,8 @@ import Link from 'next/link'
 import { useEditableContext } from '@/components/inline-edit/InlineEditProvider'
 import { useContentLoader } from '@/hooks/useContentLoader'
 
-const NAV_LABEL_FALLBACKS = ['Destinations', 'Blog', 'Sur mesure', 'À propos', 'Contact']
-const NAV_URL_FALLBACKS = ['/destinations', '/blog', '/travel-planning', '/a-propos', '/contact']
+const NAV_LABEL_FALLBACKS = ['Destinations', 'Blog', 'Sur mesure', 'À propos', 'Consulting', 'Contact']
+const NAV_URL_FALLBACKS = ['/destinations', '/blog', '/travel-planning', '/a-propos', '/expert-hotelier', '/contact']
 
 function arr<T>(items: number, fn: (i: number) => T): T[] {
   return Array.from({ length: items }, (_, i) => fn(i))
@@ -49,7 +49,7 @@ export default function Footer() {
   const guidesTitle = cz('guides_footer_title', 'Guides gratuits')
   const legalTitle = cz('legal_footer_title', 'Légal')
 
-  const navLinks = arr(5, (i) => ({
+  const navLinks = arr(6, (i) => ({
     label: cz(`nav_item_${i + 1}_label`, NAV_LABEL_FALLBACKS[i]),
     href: cz(`nav_item_${i + 1}_url`, NAV_URL_FALLBACKS[i]),
   }))
@@ -130,25 +130,41 @@ export default function Footer() {
                 </div>
               ) : (
                 <>
-                  <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3">
-                    <label htmlFor="footer-newsletter-email" className="sr-only">{newsletterPlaceholder}</label>
-                    <input
-                      id="footer-newsletter-email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder={newsletterPlaceholder}
-                      required
-                      disabled={loading}
-                      className="flex-1 px-5 py-3.5 bg-stone-900 border border-stone-700 rounded-xl text-white placeholder-stone-500 focus:outline-none focus:border-eucalyptus transition-colors disabled:opacity-50"
-                    />
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="px-6 py-3.5 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {loading ? newsletterBtnLoading : newsletterBtn}
-                    </button>
+                  <form onSubmit={handleNewsletterSubmit} className="flex flex-col gap-3">
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <label htmlFor="footer-newsletter-email" className="sr-only">{newsletterPlaceholder}</label>
+                      <input
+                        id="footer-newsletter-email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder={newsletterPlaceholder}
+                        required
+                        disabled={loading}
+                        className="flex-1 px-5 py-3.5 bg-stone-900 border border-stone-700 rounded-xl text-white placeholder-stone-500 focus:outline-none focus:border-eucalyptus transition-colors disabled:opacity-50"
+                      />
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="px-6 py-3.5 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {loading ? newsletterBtnLoading : newsletterBtn}
+                      </button>
+                    </div>
+                    <div className="flex items-start gap-2.5">
+                      <input
+                        id="footer-newsletter-rgpd"
+                        type="checkbox"
+                        required
+                        className="mt-1 h-4 w-4 rounded border-stone-700 bg-stone-900 text-eucalyptus focus:ring-eucalyptus cursor-pointer"
+                      />
+                      <label htmlFor="footer-newsletter-rgpd" className="text-xs text-stone-400 leading-normal">
+                        J'accepte de recevoir les e-mails de slow travel d'Heldonica. Tu peux te désinscrire à tout moment. Voir notre{' '}
+                        <Link href="/politique-confidentialite" className="text-eucalyptus hover:underline">
+                          politique de confidentialité
+                        </Link>.
+                      </label>
+                    </div>
                   </form>
                   {subscribeError && (
                     <p role="alert" className="mt-2 text-red-400 text-sm">{subscribeError}</p>
