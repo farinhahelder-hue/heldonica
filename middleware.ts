@@ -197,8 +197,7 @@ async function isAuthorized(req: NextRequest) {
   return { ok, misconfigured: false };
 }
 
-// Défaut code : site en pause. Le CMS peut écraser cette valeur sans redéploiement.
-// Pour mettre en ligne sans CMS : passer MAINTENANCE_ACTIVE à false et pousser.
+// Fallback code — écrasé par MAINTENANCE_MODE (Vercel) ou CMS (Supabase)
 const MAINTENANCE_ACTIVE = true;
 
 export async function middleware(req: NextRequest) {
@@ -208,10 +207,21 @@ export async function middleware(req: NextRequest) {
   const isMaintenanceExcluded = maintenanceExcludes.some(path => pathname.startsWith(path));
 
   if (!isMaintenanceExcluded) {
-    // CMS (Supabase) a la priorité absolue — toggle panel-manager → Paramètres → Maintenance
-    // Retourne true/false si défini explicitement, null si jamais configuré
-    const cmsValue = await getMaintenanceMode();
-    const isMaintenance = cmsValue !== null ? cmsValue : MAINTENANCE_ACTIVE;
+    // Priorité 1 : variable Vercel MAINTENANCE_MODE (sans Supabase, nécessite redéploiement)
+    //   → Vercel dashboard > Project Settings > Environment Variables > MAINTENANCE_MODE = true/false
+    //   → puis "Redeploy latest deployment" (~2 min)
+    const envMode = process.env.MAINTENANCE_MODE?.trim().toLowerCase();
+    let isMaintenance: boolean;
+
+    if (envMode === 'false' || envMode === '0') {
+      isMaintenance = false;                          // env var force OFF
+    } else if (envMode === 'true' || envMode === '1') {
+      isMaintenance = true;                           // env var force ON
+    } else {
+      // Priorité 2 : CMS Supabase (sans redéploiement, si Supabase actif)
+      const cmsValue = await getMaintenanceMode();
+      isMaintenance = cmsValue !== null ? cmsValue : MAINTENANCE_ACTIVE;
+    }
 
     if (isMaintenance) {
       const maintenanceUrl = req.nextUrl.clone();
