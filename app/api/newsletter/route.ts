@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase-client'
+import { createServiceClient } from '@/lib/supabase'
 
-// Newsletter Heldonica — Brevo (contacts) + Resend (email de bienvenue + séquences)
-// Variables requises : BREVO_API_KEY, RESEND_API_KEY, NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
-// Liste Brevo cible : listIds [2] — "Newsletter Heldonica"
+// Newsletter Heldonica — Resend (email de bienvenue + séquences) + Supabase (stockage)
+// Variables requises : RESEND_API_KEY, NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 
 export async function POST(request: NextRequest) {
   try {
     const { email, website_url } = await request.json()
+    const supabase = createServiceClient()
 
     // Server-side honeypot: silently reject if bot filled the hidden field
     if (website_url) {
@@ -21,32 +21,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 1. Ajout dans Brevo
-    const brevoApiKey = process.env.BREVO_API_KEY
-    if (brevoApiKey) {
-      const brevoRes = await fetch('https://api.brevo.com/v3/contacts', {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'api-key': brevoApiKey,
-        },
-        body: JSON.stringify({
-          email,
-          listIds: [2],
-          updateEnabled: true,
-        }),
-      })
+    // 1. Ajout dans Supabase (table newsletter_subscribers)
+    const { error: subError } = await supabase
+      .from('newsletter_subscribers')
+      .upsert({ email, source: 'popup' }, { onConflict: 'email' })
 
-      if (!brevoRes.ok) {
-        const err = await brevoRes.json()
-        // Contact déjà inscrit → pas une erreur bloquante
-        if (err.code !== 'duplicate_parameter') {
-          console.error('Brevo error:', err)
-          return NextResponse.json({ error: 'Erreur inscription newsletter' }, { status: 400 })
-        }
-      }
+    if (subError) {
+      console.error('Erreur Supabase newsletter:', subError)
     }
+
 
     // 2. Email de bienvenue via Resend (Email 1 — immédiate)
     const resendApiKey = process.env.RESEND_API_KEY
