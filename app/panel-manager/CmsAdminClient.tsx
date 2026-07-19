@@ -7,7 +7,7 @@ import EnhancedRichContent from '@/components/EnhancedRichContent';
 import MediaLibrary from '@/components/MediaLibrary';
 import EeaatScore from '@/components/EeaatScore';
 import { sanitizeHtml } from '@/lib/sanitize-html';
-import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot, Mail, Map as MapIcon, ChevronLeft, ChevronRight, Palette, Zap, Inbox } from 'lucide-react';
+import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot, Mail, Map as MapIcon, ChevronLeft, ChevronRight, Palette, Zap, Inbox, MapPin, ListTree, Type } from 'lucide-react';
 import { Film, Clapperboard, Camera, Calendar, MessageSquare, ClipboardList } from 'lucide-react';
 import CmsSettingsPanel from '@/components/admin/CmsSettingsPanel';
 import ErrorBoundary from '@/components/admin/ErrorBoundary';
@@ -31,6 +31,11 @@ const ChecklistTemplatesManager = dynamic(() => import('@/components/admin/Check
 const InstagramPublisher = dynamic(() => import('@/components/admin/InstagramPublisher'), { ssr: false });
 const InstagramStatsDashboard = dynamic(() => import('@/components/admin/InstagramStatsDashboard'), { ssr: false });
 const ScheduledPostsList = dynamic(() => import('@/components/admin/ScheduledPostsList'), { ssr: false });
+
+// New CMS integrations
+const DestinationPillarEditor = dynamic(() => import('@/components/admin/DestinationPillarEditor'), { ssr: false });
+const GuidesManager = dynamic(() => import('@/components/admin/GuidesManager'), { ssr: false });
+const EditableZonesManager = dynamic(() => import('@/components/admin/EditableZonesManager'), { ssr: false });
 
 type Article = {
   id: number;
@@ -59,7 +64,8 @@ type NavSection =
   | 'settings' | 'seo' | 'analytics' | 'carousel'
   | 'blog-generator' | 'video' | 'fast-trim' | 'studio-video'
   | 'map' | 'auto-shorts' | 'design' | 'geo' | 'instagram' | 'messages'
-  | 'testimonials' | 'checklists';
+  | 'testimonials' | 'checklists'
+  | 'destination-pillars' | 'guides' | 'editable-zones';
 
 function CmsAdminClientInner() {
   const router = useRouter();
@@ -524,6 +530,9 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
       title: 'Édition',
       items: [
         { id: 'dashboard',     label: 'Tableau de bord', icon: <Home size={15} /> },
+        { id: 'destination-pillars', label: 'Destinations', icon: <MapPin size={15} /> },
+        { id: 'guides',        label: 'Guides Pépites',   icon: <ListTree size={15} /> },
+        { id: 'editable-zones', label: 'Zones de Texte',  icon: <Type size={15} /> },
         { id: 'articles',      label: 'Articles',         icon: <FileText size={15} />, badge: articles.length > 0 ? String(articles.length) : undefined },
         { id: 'new-article',   label: 'Nouvel article',   icon: <Plus size={15} /> },
         { id: 'testimonials',  label: 'Témoignages',      icon: <MessageSquare size={15} /> },
@@ -1456,6 +1465,33 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                   <MapManagerSection />
                 </Suspense>
               </div>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Destination Pillars ── */}
+          {activeSection === 'destination-pillars' && (
+            <ErrorBoundary>
+              <Suspense fallback={<SkeletonForm />}>
+                <DestinationPillarEditor />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Guides ── */}
+          {activeSection === 'guides' && (
+            <ErrorBoundary>
+              <Suspense fallback={<SkeletonForm />}>
+                <GuidesManager />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Editable Zones ── */}
+          {activeSection === 'editable-zones' && (
+            <ErrorBoundary>
+              <Suspense fallback={<SkeletonForm />}>
+                <EditableZonesManager />
+              </Suspense>
             </ErrorBoundary>
           )}
 
