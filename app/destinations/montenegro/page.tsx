@@ -1,11 +1,14 @@
 import { supabase } from '@/lib/supabase-client'
 import DestinationPillar from '@/components/DestinationPillar'
 import { buildPillarMetadata } from '@/lib/pillar-metadata'
-import { MONTENEGRO } from '@/lib/pillar-data'
+import { fetchPillarData } from '@/lib/pillar-data'
 
 export const dynamic = 'force-dynamic'
 
-export const metadata = buildPillarMetadata(MONTENEGRO)
+export async function generateMetadata() {
+  const data = await fetchPillarData('montenegro')
+  return buildPillarMetadata(data)
+}
 
 async function getRelatedArticles() {
   if (!supabase) return []
@@ -21,6 +24,9 @@ async function getRelatedArticles() {
 }
 
 export default async function MontenegroPage() {
-  const relatedArticles = await getRelatedArticles()
-  return <DestinationPillar data={MONTENEGRO} relatedArticles={relatedArticles} />
+  const [data, relatedArticles] = await Promise.all([
+    fetchPillarData('montenegro'),
+    getRelatedArticles(),
+  ])
+  return <DestinationPillar data={data} relatedArticles={relatedArticles} />
 }
