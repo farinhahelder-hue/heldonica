@@ -14,6 +14,8 @@ import QuickAnswersBlock from '@/components/QuickAnswersBlock'
 import type { PillarData } from '@/lib/pillar-types'
 import { SITE_URL } from '@/lib/seo'
 import { SUB_DESTINATIONS } from '@/lib/sub-destinations'
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import EditableZone from '@/components/inline-edit/EditableZone'
 
 
 export default function DestinationPillar({
@@ -103,7 +105,9 @@ export default function DestinationPillar({
         {/* Intro narrative */}
         <section className="bg-cloud-dancer py-16 md:py-20">
           <div className="container max-w-3xl">
-            <h2 className="text-3xl font-serif text-mahogany mb-6">Pourquoi {data.name} pour un couple slow travel ?</h2>
+            <h2 className="text-3xl font-serif text-mahogany mb-6">
+              <EditableZone page="destinations" zone="intro_title" fallback="Pourquoi" className="inline" /> {data.name} <EditableZone page="destinations" zone="intro_title_suffix" fallback="pour un couple slow travel ?" className="inline" />
+            </h2>
             {data.intro.map((p, i) => (
               <p key={i} className="text-charcoal/80 leading-relaxed mb-4 last:mb-0">{p}</p>
             ))}
@@ -118,10 +122,10 @@ export default function DestinationPillar({
             <section className="bg-white py-16 border-b border-stone-200/60">
               <div className="container max-w-5xl">
                 <h2 className="text-3xl font-serif text-mahogany mb-2 text-center">
-                  Explorer les pépites de la région
+                  <EditableZone page="destinations" zone="subdests_title" fallback="Explorer les pépites de la région" />
                 </h2>
                 <p className="text-charcoal/60 text-sm text-center mb-10">
-                  Nos guides détaillés de terrain par ville et site d&apos;intérêt.
+                  <EditableZone page="destinations" zone="subdests_subtitle" type="textarea" fallback="Nos guides détaillés de terrain par ville et site d'intérêt." />
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                   {subDests.map((sub) => (
@@ -138,7 +142,7 @@ export default function DestinationPillar({
                         {sub.teaser}
                       </p>
                       <span className="text-xs font-semibold text-eucalyptus mt-3 inline-block group-hover:translate-x-1 transition-transform">
-                        Voir le guide →
+                        <EditableZone page="destinations" zone="subdests_cta" fallback="Voir le guide →" />
                       </span>
                     </Link>
                   ))}
@@ -174,8 +178,12 @@ export default function DestinationPillar({
         {/* Itinéraire 7 jours */}
         <section className="bg-white py-16 md:py-20">
           <div className="container max-w-5xl">
-            <h2 className="text-3xl font-serif text-mahogany mb-2">Comment organiser 7 jours à {data.name} ?</h2>
-            <p className="text-charcoal/60 text-sm mb-8 max-w-2xl">Un rythme slow, testé sur le terrain. Adaptable selon tes envies.</p>
+            <h2 className="text-3xl font-serif text-mahogany mb-2">
+              <EditableZone page="destinations" zone="itinerary_title_prefix" fallback="Comment organiser 7 jours à" className="inline" /> {data.name} ?
+            </h2>
+            <p className="text-charcoal/60 text-sm mb-8 max-w-2xl">
+              <EditableZone page="destinations" zone="itinerary_subtitle" type="textarea" fallback="Un rythme slow, testé sur le terrain. Adaptable selon tes envies." />
+            </p>
             <div className="space-y-4">
               {data.itinerary.map((day) => (
                 <div key={day.day} className="flex gap-5 bg-stone-50 rounded-xl p-5 border border-stone-100">
@@ -203,10 +211,12 @@ export default function DestinationPillar({
         {/* Budget détaillé */}
         <section className="bg-cloud-dancer py-16 md:py-20">
           <div className="container max-w-3xl">
-            <h2 className="text-3xl font-serif text-mahogany mb-4">Quel budget prévoir pour {data.name} ?</h2>
+            <h2 className="text-3xl font-serif text-mahogany mb-4">
+              <EditableZone page="destinations" zone="budget_title_prefix" fallback="Quel budget prévoir pour" className="inline" /> {data.name} ?
+            </h2>
             <p className="text-charcoal/70 text-base mb-6 leading-relaxed">
-              <strong>Réponse rapide :</strong> comptez environ {data.budget}€/semaine pour deux en slow travel. 
-              Ce budget inclut vol, hébergement confortable, repas et transports locaux.
+              <strong><EditableZone page="destinations" zone="budget_quick_answer" fallback="Réponse rapide :" className="inline" /></strong> <EditableZone page="destinations" zone="budget_estimate_1" fallback="comptez environ" className="inline" /> {data.budget}€/semaine <EditableZone page="destinations" zone="budget_estimate_2" fallback="pour deux en slow travel." className="inline" /> 
+              <br/><EditableZone page="destinations" zone="budget_estimate_3" fallback="Ce budget inclut vol, hébergement confortable, repas et transports locaux." className="inline block mt-1" />
             </p>
             <div className="space-y-4 mb-6">
               {data.budgetBreakdown.map((b) => (
@@ -228,7 +238,9 @@ export default function DestinationPillar({
 
             {/* Points pratiques clés */}
             <div className="mt-8 p-5 rounded-xl bg-white border border-stone-200">
-              <h3 className="font-semibold text-mahogany mb-4">Ce qu'on a vraiment payé sur place</h3>
+              <h3 className="font-semibold text-mahogany mb-4">
+                <EditableZone page="destinations" zone="budget_reality_title" fallback="Ce qu'on a vraiment payé sur place" />
+              </h3>
               <ul className="space-y-2 text-sm text-charcoal/80">
                 <li className="flex items-start gap-2 before:content-['✓'] before:text-eucalyptus before:font-bold">
                   Vols : variable selon saison ({data.season} = moins cher)
@@ -358,6 +370,7 @@ export default function DestinationPillar({
           </div>
         </section>
       </main>
+      </InlineEditProvider>
       <Footer />
     </>
   )

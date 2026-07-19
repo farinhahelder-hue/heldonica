@@ -12,6 +12,7 @@ import InstagramFeed from '@/components/InstagramFeed'
 import NewsletterForm from '@/components/NewsletterForm'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import EditableZone from '@/components/inline-edit/EditableZone'
+import { useContentLoader, getCmsOrSetting } from '@/hooks/useContentLoader'
 
 const HELDONICA_BADGE_FALLBACK = '/images/badges-heldonica.svg'
 
@@ -333,14 +334,18 @@ function renderPremiumIcon(slug: string) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries, heroVideoUrl, heroPosterImage, homeDestinations, homeZones }: HomeProps) {
+  const { zones, settings } = useContentLoader()
   useScrollReveal()
   const featImg = featured ? postImage(featured) : null
   const publishedArticles = totalPosts && totalPosts > 0 ? totalPosts : 25
   const parsedCountries = parseInt(String(coveredCountries || '0'), 10)
   const countryCount = isNaN(parsedCountries) || parsedCountries <= 0 ? 7 : parsedCountries
 
-  const videoSrc = heroVideoUrl || 'https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4'
-  const posterSrc = heroPosterImage || 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&q=80'
+  const defaultVideoSrc = heroVideoUrl || 'https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4'
+  const defaultPosterSrc = heroPosterImage || 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&q=80'
+
+  const videoSrc = getCmsOrSetting('hero_video_url', 'hero_video_url', defaultVideoSrc, zones, settings)
+  const posterSrc = getCmsOrSetting('hero_poster_image', 'hero_poster_image', defaultPosterSrc, zones, settings)
 
   return (
     <InlineEditProvider page="home">
@@ -429,10 +434,10 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               </Link>
             </div>
             <div className="md:col-span-2 grid grid-cols-2 gap-6" data-reveal="right">
-              <AnimatedStat nb="4+" label="Ans de slow travel" />
-              <AnimatedStat nb="100+" label="Adresses vécues" />
-              <AnimatedStat nb={countryCount} suffix="+" label="Pays habités" />
-              <AnimatedStat nb={publishedArticles} suffix="+" label="Carnets publiés" />
+              <AnimatedStat nb={getCmsOrSetting('stat_1_nb', 'stat_1_nb', '4+', zones, settings)} label={getCmsOrSetting('stat_1_label', 'stat_1_label', 'Ans de slow travel', zones, settings)} />
+              <AnimatedStat nb={getCmsOrSetting('stat_2_nb', 'stat_2_nb', '100+', zones, settings)} label={getCmsOrSetting('stat_2_label', 'stat_2_label', 'Adresses vécues', zones, settings)} />
+              <AnimatedStat nb={countryCount} suffix="+" label={getCmsOrSetting('stat_3_label', 'stat_3_label', 'Pays habités', zones, settings)} />
+              <AnimatedStat nb={publishedArticles} suffix="+" label={getCmsOrSetting('stat_4_label', 'stat_4_label', 'Carnets publiés', zones, settings)} />
               <div className="col-span-2 mt-2">
                 <p className="text-xs text-charcoal/40 leading-relaxed">
                   <span className="font-semibold text-charcoal/70">Terrains de jeu :</span><br />
@@ -658,34 +663,30 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
       {/* ── QUIZ : QUEL VOYAGEUR ES-TU ? ─────────────────────────────── */}
       <section className="py-16 md:py-20 bg-eucalyptus/5 border-y border-eucalyptus/10">
         <div className="max-w-3xl mx-auto px-6 md:px-10 text-center" data-reveal>
-          <span className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 block">
-            ✦ Quel voyageur es-tu ?
-          </span>
-          <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany leading-tight mb-4">
-            Trouve ton profil<br />
-            <em className="text-eucalyptus">en 2 minutes</em>
-          </h2>
-          <p className="text-charcoal/65 leading-relaxed mb-8 max-w-xl mx-auto">
-            5 questions. 4 profils. Des destinations qui te correspondent vraiment — pas les mêmes que tout le monde.
-          </p>
+          <EditableZone page="home" zone="section_quiz_badge" fallback="✦ Quel voyageur es-tu ?"
+            className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
+          />
+          <EditableZone page="home" zone="section_quiz_title" type="html" fallback="Trouve ton profil<br /><em className='text-eucalyptus'>en 2 minutes</em>"
+            className="text-3xl md:text-4xl font-serif font-light text-mahogany leading-tight mb-4 block"
+          />
+          <EditableZone page="home" zone="section_quiz_text" type="textarea" fallback="5 questions. 4 profils. Des destinations qui te correspondent vraiment — pas les mêmes que tout le monde."
+            className="text-charcoal/65 leading-relaxed mb-8 max-w-xl mx-auto block"
+          />
           <div className="flex flex-wrap justify-center gap-3 mb-8">
             {[
-              { label: 'Aventure', icon: '⛰️' },
-              { label: 'Culture', icon: '🏛️' },
-              { label: 'Nature', icon: '🌿' },
-              { label: 'Bien-être', icon: '🌊' },
+              { zone: 'quiz_tag_1', defaultLabel: 'Aventure', icon: '⛰️' },
+              { zone: 'quiz_tag_2', defaultLabel: 'Culture', icon: '🏛️' },
+              { zone: 'quiz_tag_3', defaultLabel: 'Nature', icon: '🌿' },
+              { zone: 'quiz_tag_4', defaultLabel: 'Bien-être', icon: '🌊' },
             ].map((p) => (
-              <span key={p.label} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-eucalyptus/20 text-charcoal/70 text-sm font-medium shadow-sm">
+              <span key={p.zone} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-eucalyptus/20 text-charcoal/70 text-sm font-medium shadow-sm">
                 <span>{p.icon}</span>
-                {p.label}
+                <EditableZone page="home" zone={p.zone} fallback={p.defaultLabel} />
               </span>
             ))}
           </div>
-          <Link
-            href="/quiz"
-            className="inline-flex items-center gap-2.5 px-8 py-4 bg-eucalyptus hover:bg-eucalyptus/90 text-white rounded-full font-semibold text-sm shadow-lg shadow-eucalyptus/20 transition-all hover:shadow-xl hover:-translate-y-0.5"
-          >
-            Faire le quiz →
+          <Link href="/quiz" className="inline-flex items-center gap-2.5 px-8 py-4 bg-eucalyptus hover:bg-eucalyptus/90 text-white rounded-full font-semibold text-sm shadow-lg shadow-eucalyptus/20 transition-all hover:shadow-xl hover:-translate-y-0.5">
+            <EditableZone page="home" zone="section_quiz_cta" fallback="Faire le quiz →" />
           </Link>
         </div>
       </section>
@@ -745,21 +746,17 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
       {/* ── B2B CONSULTING HÔTELIER ───────────────────────────────────── */}
       <section className="py-20 bg-stone-50 dark:bg-stone-900 border-t border-stone-200/50 dark:border-stone-800/50">
         <div className="max-w-4xl mx-auto px-6 md:px-10 text-center" data-reveal>
-          <span className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 block">
-            ✦ Espace Hébergeurs & Hôteliers
-          </span>
-          <h2 className="text-3xl md:text-4xl font-serif font-light text-mahogany dark:text-stone-200 leading-tight mb-6">
-            Vous gérez un hébergement de charme ?<br />
-            <em className="text-eucalyptus">Faites vivre l'expérience slow travel</em>
-          </h2>
-          <p className="text-charcoal/70 dark:text-stone-400 leading-relaxed max-w-2xl mx-auto mb-8">
-            Maison d'hôtes, gîte insolite ou hôtel indépendant : on vous aide à attirer des voyageurs qui prennent leur temps, à maximiser vos réservations directes et à optimiser votre SEO de destination.
-          </p>
-          <Link
-            href="/expert-hotelier"
-            className="inline-flex items-center gap-2 px-6 py-3.5 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 text-charcoal dark:text-stone-200 hover:border-eucalyptus dark:hover:border-eucalyptus hover:text-eucalyptus dark:hover:text-eucalyptus font-semibold rounded-full text-sm transition-all"
-          >
-            Découvrir notre offre Consulting →
+          <EditableZone page="home" zone="section_b2b_badge" fallback="✦ Espace Hébergeurs & Hôteliers"
+            className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
+          />
+          <EditableZone page="home" zone="section_b2b_title" type="html" fallback="Vous gérez un hébergement de charme ?<br /><em className='text-eucalyptus'>Faites vivre l'expérience slow travel</em>"
+            className="text-3xl md:text-4xl font-serif font-light text-mahogany dark:text-stone-200 leading-tight mb-6 block"
+          />
+          <EditableZone page="home" zone="section_b2b_text" type="textarea" fallback="Maison d'hôtes, gîte insolite ou hôtel indépendant : on vous aide à attirer des voyageurs qui prennent leur temps, à maximiser vos réservations directes et à optimiser votre SEO de destination."
+            className="text-charcoal/70 dark:text-stone-400 leading-relaxed max-w-2xl mx-auto mb-8 block"
+          />
+          <Link href="/expert-hotelier" className="inline-flex items-center gap-2 px-6 py-3.5 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 text-charcoal dark:text-stone-200 hover:border-eucalyptus dark:hover:border-eucalyptus hover:text-eucalyptus dark:hover:text-eucalyptus font-semibold rounded-full text-sm transition-all">
+            <EditableZone page="home" zone="section_b2b_cta" fallback="Découvrir notre offre Consulting →" />
           </Link>
         </div>
       </section>

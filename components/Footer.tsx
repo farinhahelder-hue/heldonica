@@ -44,6 +44,12 @@ export default function Footer() {
   const footerCtaLabel = cz('footer_cta_label', 'Écrire à Heldonica')
   const footerCtaUrl = cz('footer_cta_url', 'mailto:contact@heldonica.fr')
 
+  const newsletterSuccessTitle = cz('newsletter_success_title', "C'est noté !")
+  const newsletterSuccessText = cz('newsletter_success_text', "Tu recevras ta première pépite très vite.")
+  const newsletterErrorApi = cz('newsletter_error_api', "Une erreur est survenue. Réessaie ou écris-nous directement.")
+  const newsletterErrorNet = cz('newsletter_error_net', "Connexion impossible. Réessaie dans quelques instants.")
+  const newsletterRgpdHtml = cz('newsletter_rgpd_html', "J'accepte de recevoir les e-mails de slow travel d'Heldonica. Tu peux te désinscrire à tout moment. Voir notre <a href='/politique-confidentialite' class='text-eucalyptus hover:underline'>politique de confidentialité</a>.")
+
   const navTitle = cz('nav_footer_title', 'Navigation')
   const destTitle = cz('destinations_footer_title', 'Destinations')
   const guidesTitle = cz('guides_footer_title', 'Guides gratuits')
@@ -96,10 +102,10 @@ export default function Footer() {
       if (res.ok) {
         setSubscribed(true)
       } else {
-        setSubscribeError('Une erreur est survenue. Réessaie ou écris-nous directement.')
+        setSubscribeError(newsletterErrorApi)
       }
     } catch {
-      setSubscribeError('Connexion impossible. Réessaie dans quelques instants.')
+      setSubscribeError(newsletterErrorNet)
     } finally {
       setLoading(false)
     }
@@ -124,8 +130,8 @@ export default function Footer() {
                 <div className="flex items-center gap-3 bg-eucalyptus/10 border border-eucalyptus/30 rounded-2xl px-6 py-4">
                   <span className="text-2xl">✨</span>
                   <div>
-                    <p className="text-white font-semibold">C'est noté !</p>
-                    <p className="text-stone-400 text-sm">Tu recevras ta première pépite très vite.</p>
+                    <p className="text-white font-semibold">{newsletterSuccessTitle}</p>
+                    <p className="text-stone-400 text-sm">{newsletterSuccessText}</p>
                   </div>
                 </div>
               ) : (
@@ -158,12 +164,11 @@ export default function Footer() {
                         required
                         className="mt-1 h-4 w-4 rounded border-stone-700 bg-stone-900 text-eucalyptus focus:ring-eucalyptus cursor-pointer"
                       />
-                      <label htmlFor="footer-newsletter-rgpd" className="text-xs text-stone-400 leading-normal">
-                        J'accepte de recevoir les e-mails de slow travel d'Heldonica. Tu peux te désinscrire à tout moment. Voir notre{' '}
-                        <Link href="/politique-confidentialite" className="text-eucalyptus hover:underline">
-                          politique de confidentialité
-                        </Link>.
-                      </label>
+                      <label 
+                        htmlFor="footer-newsletter-rgpd" 
+                        className="text-xs text-stone-400 leading-normal"
+                        dangerouslySetInnerHTML={{ __html: newsletterRgpdHtml }}
+                      />
                     </div>
                   </form>
                   {subscribeError && (
