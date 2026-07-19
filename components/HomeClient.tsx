@@ -22,22 +22,39 @@ function displayExcerpt(post: BlogPost): string {
 
 // ─── Images de secours par slug ──────────────────────────────────────────────
 const SLUG_IMAGES: Record<string, string> = {
+  // Madère — voyages & nature
   'madere-slow-travel-guide':                     'https://images.unsplash.com/photo-1560719887-fe3105fa1e55?w=1200&q=80',
-  'urbex-paris-safe':                             'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=1200&q=80',
-  'guide-pratique-comment-debuter-le-slow-travel-en-duo': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
   'madere-quand-partir-sur-lile-de-leternel-printemps':   'https://images.unsplash.com/photo-1569959220744-ff553533f492?w=1200&q=80',
   'pepites-mystiques-de-madere':                  'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1200&q=80',
+  'madere-automne-voyage-couple':                 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80',
+  // Madère — food & boissons
+  'poncha-liquide-dore-des-montagnes':            '/images/poncha-madere.jpg',
+  'poncha-boisson-madere':                        '/images/poncha-madere.jpg',
+  'poncha-madere':                                '/images/poncha-madere.jpg',
+  'bacalhau-a-gomes-de-sa':                       '/images/bacalhau-gomes-sa.jpg',
+  'bacalhau-gomes-de-sa':                         '/images/bacalhau-gomes-sa.jpg',
+  'bacalhau-a-lagareiro':                         '/images/bacalhau-gomes-sa.jpg',
+  'pudim-de-nata':                                '/images/pudim-nata-madere.jpg',
+  'pudim-nata-madere':                            '/images/pudim-nata-madere.jpg',
   'prego-no-bolo-do-caco':                        'https://images.unsplash.com/photo-1574484284002-952d92a03a52?w=1200&q=80',
+  'bolo-do-caco-recette-traditionnelle-de-madere-3': 'https://images.unsplash.com/photo-1574484284002-952d92a03a52?w=1200&q=80',
+  // Paris & France
+  'urbex-paris-safe':                             'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=1200&q=80',
+  // Slow travel
+  'guide-pratique-comment-debuter-le-slow-travel-en-duo': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
+  // Zurich
   'flotter-sur-la-limmat-a-zurich-notre-aventure-dete':   'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
+  'les-meilleures-brasseries-authentiques-de-zurich-guide-2025': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
 }
 
 const CAT_IMAGES: Record<string, string> = {
-  'Carnets Voyage': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
-  'Découvertes Locales': 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=1200&q=80',
-  'Guides Pratiques': 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
-  'Food & Lifestyle': 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=1200&q=80',
-  'Travel': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
+  'Carnets Voyage':      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
+  'Découvertes Locales': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80',
+  'Guides Pratiques':    'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
+  'Food & Lifestyle':    'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&q=80',
+  'Travel':              'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
 }
+
 
 function postImage(p: BlogPost): string {
   if (p.featured_image && p.featured_image.trim().length > 0) return p.featured_image

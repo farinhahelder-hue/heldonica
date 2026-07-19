@@ -1,12 +1,27 @@
-import type { PillarData } from '@/lib/pillar-types'
+/**
+ * Pillar Data — CMS 3.0
+ * 
+ * Source de vérité : table Supabase `cms_pillar_pages`
+ * Fallback : données statiques ci-dessous (si Supabase indisponible)
+ * 
+ * Pour modifier le contenu : aller dans le panel admin Heldonica → Destinations
+ * ou directement dans Supabase → table cms_pillar_pages
+ */
 
-export const MADERE: PillarData = {
+import type { PillarData } from '@/lib/pillar-types'
+import { createServiceClient } from '@/lib/supabase'
+
+// ─── Données statiques de fallback ────────────────────────────────────────────
+// Ces données sont utilisées uniquement si Supabase est indisponible.
+// La source de vérité est la table cms_pillar_pages dans Supabase.
+
+export const MADERE_FALLBACK: PillarData = {
   slug: 'madere',
   name: 'Madère',
   country: 'Portugal',
   flag: '🇵🇹',
   hero: 'https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg',
-  tagline: "L’île éternelle du printemps — levadas, falaises et douceur atlantique",
+  tagline: "L'île éternelle du printemps — levadas, falaises et douceur atlantique",
   heroSubtitle: "Notre guide terrain avec itinéraire testé, budget réel et pépites dénichées hors sentiers battus.",
   budget: 1200,
   season: 'Avril–juin / Sept–oct',
@@ -17,18 +32,18 @@ export const MADERE: PillarData = {
   seoTitle: 'Madère en couple : guide slow travel complet 2026 | Heldonica',
   seoDesc: 'Notre guide terrain de Madère testé en couple : itinéraire 7 jours, budget réel ~1200€/semaine, levadas, falaises et pépites dénichées hors sentiers battus.',
   intro: [
-    "Madère, c’est le genre d’endroit qu’on découvre par hasard et dont on ne revient pas indemne. On y est arrivés sans savoir à quoi s’attendre — et on a trouvé bien plus que des levadas et des falaises.",
-    "On a marché dans la forêt de Fanal un matin de brume, les pieds dans la terre volcanique. On a mangé l’espetada dans un restaurant où personne ne parlait anglais. On s’est baignés dans les piscines naturelles de Porto Moniz, seuls au monde.",
-    "Madère pour un couple en 2026, c’est l’endroit où le slow travel prend tout son sens : des paysages qui ralentissent le temps, des sentiers où on croise plus de vaches que de touristes, une île qui n’a pas encore appris à se vendre — et c’est ce qui fait son charme.",
+    "Madère, c'est le genre d'endroit qu'on découvre par hasard et dont on ne revient pas indemne. On y est arrivés sans savoir à quoi s'attendre — et on a trouvé bien plus que des levadas et des falaises.",
+    "On a marché dans la forêt de Fanal un matin de brume, les pieds dans la terre volcanique. On a mangé l'espetada dans un restaurant où personne ne parlait anglais. On s'est baignés dans les piscines naturelles de Porto Moniz, seuls au monde.",
+    "Madère pour un couple en 2026, c'est l'endroit où le slow travel prend tout son sens : des paysages qui ralentissent le temps, des sentiers où on croise plus de vaches que de touristes, une île qui n'a pas encore appris à se vendre — et c'est ce qui fait son charme.",
   ],
-    testedByHeldonica: {
+  testedByHeldonica: {
     when: "Septembre 2025",
     duration: "8 jours",
     withWho: "En couple",
     highlights: ["Pico Ruivo au lever du soleil", "Piscines naturelles de Porto Moniz à 9h", "Déjeuner chez Ze Tinha"],
     keyInsight: "Madère se découvre lentement.",
   },
-infoTable: [
+  infoTable: [
     { label: 'Meilleure période', value: 'Avril-juin / Sept-oct' },
     { label: 'Budget couple/sem', value: '~1 200 €' },
     { label: 'Vol depuis Paris', value: '~2h30' },
@@ -66,8 +81,10 @@ infoTable: [
     considerations: ["Demande de marcher", "La voiture est indispensable"],
     finalWord: "Madère est notre coup de cœur slow travel.",
   },
-
 }
+
+// Pour rétrocompatibilité — les imports existants continuent de fonctionner
+export const MADERE = MADERE_FALLBACK
 
 export const MONTENEGRO: PillarData = {
   slug: 'montenegro',
@@ -86,8 +103,8 @@ export const MONTENEGRO: PillarData = {
   seoTitle: 'Monténégro en couple : guide slow travel 2026 | Heldonica',
   seoDesc: 'Kotor, Durmitor, Perast — notre guide terrain du Monténégro testé en couple. Itinéraire 7 jours, budget ~900€/semaine, pépites hors des sentiers battus.',
   intro: [
-    "Le Monténégro, on y est allés un peu par hasard, attirés par une photo de la baie de Kotor. Ce qu’on a trouvé, c’est bien plus : un pays qui n’a pas encore appris à se vendre, où l’authenticité n’est pas un argument marketing.",
-    "On a marché dans les ruelles pavées de Kotor avant l’arrivée des croisiéristes. On a déjeuné avec des familles locales à Podgorica. On a gravi le parc du Lovćen sous un soleil de juillet, seuls au monde au sommet.",
+    "Le Monténégro, on y est allés un peu par hasard, attirés par une photo de la baie de Kotor. Ce qu'on a trouvé, c'est bien plus : un pays qui n'a pas encore appris à se vendre, où l'authenticité n'est pas un argument marketing.",
+    "On a marché dans les ruelles pavées de Kotor avant l'arrivée des croisiéristes. On a déjeuné avec des familles locales à Podgorica. On a gravi le parc du Lovćen sous un soleil de juillet, seuls au monde au sommet.",
     "Pour un couple en 2026, le Monténégro est ce que la Croatie était il y a quinze ans : préservé, abordable, sincère. Un pays où chaque virage révèle un nouveau paysage à couper le souffle.",
   ],
   infoTable: [
@@ -143,7 +160,7 @@ export const ROUMANIE: PillarData = {
   country: 'Roumanie',
   flag: '🇷🇴',
   hero: 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
-  tagline: "Transylvanie mystérieuse, Maramureș préservé — l’Europe d’avant",
+  tagline: "Transylvanie mystérieuse, Maramureș préservé — l'Europe d'avant",
   heroSubtitle: "Notre guide terrain avec citadelle de Sighișoara, Maramureș authentique et château de Bran.",
   budget: 750,
   season: 'Mai–sept',
@@ -154,9 +171,9 @@ export const ROUMANIE: PillarData = {
   seoTitle: 'Roumanie en couple : guide slow travel Transylvanie 2026 | Heldonica',
   seoDesc: 'Brasov, Sighișoara, Maramureș — notre guide terrain de Roumanie testé en couple. Itinéraire 7 jours, budget ~750€/semaine, villages préservés et châteaux.',
   intro: [
-    "La Roumanie, on l’avait imaginée avant d’y poser le pied. On pensait connaître — Dracula, l’Est, le froid. Ce qu’on a trouvé, c’est un pays qui nous a pris par surprise.",
-    "On a bu un café sur une terrasse à Floreasca, entourés de jeunes qui construisent la nouvelle Roumanie. On a marché dans les rues pavées de Sighișoara un soir d’automne, seuls dans la citadelle. On a rencontré un berger en Maramureș qui nous a offert du fromage sans rien demander en retour.",
-    "Pour un couple en 2026, la Roumanie est l’une des dernières grandes destinations slow travel européennes : abordable, préservée, et profondément authentique. Loin des clichés, proche du cœur.",
+    "La Roumanie, on l'avait imaginée avant d'y poser le pied. On pensait connaître — Dracula, l'Est, le froid. Ce qu'on a trouvé, c'est un pays qui nous a pris par surprise.",
+    "On a bu un café sur une terrasse à Floreasca, entourés de jeunes qui construisent la nouvelle Roumanie. On a marché dans les rues pavées de Sighișoara un soir d'automne, seuls dans la citadelle. On a rencontré un berger en Maramureș qui nous a offert du fromage sans rien demander en retour.",
+    "Pour un couple en 2026, la Roumanie est l'une des dernières grandes destinations slow travel européennes : abordable, préservée, et profondément authentique. Loin des clichés, proche du cœur.",
   ],
   infoTable: [
     { label: 'Meilleure période', value: 'Mai-sept' },
@@ -206,3 +223,76 @@ export const ROUMANIE: PillarData = {
 }
 
 export const PILLAR_DESTINATIONS = [MADERE, MONTENEGRO, ROUMANIE]
+
+// ─── Helper : fetch depuis Supabase avec fallback ─────────────────────────────
+function mapRowToPillarData(row: Record<string, any>): PillarData {
+  return {
+    slug: row.slug,
+    name: row.name,
+    country: row.country,
+    flag: row.flag || '',
+    hero: row.hero || '',
+    tagline: row.tagline || '',
+    heroSubtitle: row.hero_subtitle,
+    budget: row.budget,
+    season: row.season || '',
+    flight: row.flight || '',
+    visa: row.visa || '',
+    currency: row.currency || '',
+    language: row.language || '',
+    seoTitle: row.seo_title || row.name,
+    seoDesc: row.seo_desc || '',
+    intro: Array.isArray(row.intro) ? row.intro : [],
+    infoTable: Array.isArray(row.info_table) ? row.info_table : [],
+    itinerary: Array.isArray(row.itinerary) ? row.itinerary : [],
+    budgetBreakdown: Array.isArray(row.budget_breakdown) ? row.budget_breakdown : [],
+    faq: Array.isArray(row.faq) ? row.faq : [],
+    testedByHeldonica: row.tested_by_heldonica || undefined,
+    verdict: row.verdict || undefined,
+  }
+}
+
+const FALLBACK_MAP: Record<string, PillarData> = {
+  madere: MADERE,
+  montenegro: MONTENEGRO,
+  roumanie: ROUMANIE,
+}
+
+export async function fetchPillarData(slug: string): Promise<PillarData> {
+  try {
+    const supabase = createServiceClient()
+    const { data, error } = await supabase
+      .from('cms_pillar_pages')
+      .select('*')
+      .eq('slug', slug)
+      .eq('is_active', true)
+      .maybeSingle()
+
+    if (error || !data) {
+      return FALLBACK_MAP[slug] || MADERE
+    }
+
+    return mapRowToPillarData(data)
+  } catch {
+    return FALLBACK_MAP[slug] || MADERE
+  }
+}
+
+export async function fetchAllPillarData(): Promise<PillarData[]> {
+  try {
+    const supabase = createServiceClient()
+    const { data, error } = await supabase
+      .from('cms_pillar_pages')
+      .select('*')
+      .eq('is_active', true)
+      .order('slug')
+
+    if (error || !data || data.length === 0) {
+      return PILLAR_DESTINATIONS
+    }
+
+    return data.map(mapRowToPillarData)
+  } catch {
+    return PILLAR_DESTINATIONS
+  }
+}
