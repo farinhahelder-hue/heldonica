@@ -127,7 +127,7 @@ export const MONTENEGRO: PillarData = {
   budgetBreakdown: [
     { label: 'Hébergement', pct: 33, amount: 297 },
     { label: 'Repas', pct: 28, amount: 252 },
-    { label: 'Location voiture', pct: 20, amount: 180 },
+    { label: 'Transports', pct: 20, amount: 180 },
     { label: 'Activités', pct: 12, amount: 108 },
     { label: 'Divers', pct: 7, amount: 63 },
   ],
@@ -195,7 +195,7 @@ export const ROUMANIE: PillarData = {
   budgetBreakdown: [
     { label: 'Hébergement', pct: 30, amount: 225 },
     { label: 'Repas', pct: 25, amount: 188 },
-    { label: 'Location voiture', pct: 22, amount: 165 },
+    { label: 'Transports', pct: 22, amount: 165 },
     { label: 'Activités', pct: 13, amount: 98 },
     { label: 'Divers', pct: 10, amount: 74 },
   ],

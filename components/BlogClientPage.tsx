@@ -339,6 +339,26 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
       )}
 
       <NewsletterForm variant="blog" />
+
+      {/* CTA Travel Planning */}
+      <section className="bg-mahogany text-white py-16 md:py-20">
+        <div className="container text-center max-w-3xl mx-auto px-4">
+          <p className="text-sm uppercase tracking-[0.16em] text-teal mb-3">Voyage sur mesure</p>
+          <h2 className="text-3xl md:text-4xl font-serif mb-4">
+            Tu veux qu'on te prépare un voyage sur mesure ?
+          </h2>
+          <p className="text-white/80 mb-8 max-w-xl mx-auto">
+            Dis-nous où tu veux aller et comment tu voyages. On te envoie une proposition concrète sous 48h.
+          </p>
+          <Link 
+            href="/travel-planning"
+            className="inline-flex px-7 py-3 rounded-lg bg-teal text-charcoal font-semibold hover:bg-teal/90 transition-colors"
+            onClick={() => { if (typeof window !== 'undefined' && (window as any).gtag) (window as any).gtag('event', 'cta_travel_planning_click', { source: 'page_blog' }) }}
+          >
+            Planifier mon voyage →
+          </Link>
+        </div>
+      </section>
     </main>
   )
 }
