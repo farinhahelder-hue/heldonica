@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { requireCmsAuth } from '@/lib/cms-auth'
 
 const SITE_URL = 'https://www.heldonica.fr'
 
@@ -67,7 +68,10 @@ function calculateGrade(score: number, max: number): string {
   return 'E'
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const authResponse = await requireCmsAuth(request)
+  if (authResponse) return authResponse
+
   const report: Record<string, CategoryResult> = {}
   const recommendations: string[] = []
 
