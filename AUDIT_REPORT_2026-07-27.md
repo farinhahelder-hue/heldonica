@@ -1,6 +1,19 @@
 # Heldonica - Audit Technique
 **Date**: 2026-07-27
 **Auditeur**: OpenHands Agent
+**Dernière mise à jour**: 2026-07-27 (après corrections)
+
+---
+
+## Corrections Appliquées
+
+| Commit | Description | Status |
+|--------|-------------|--------|
+| 8e1c83b | fix(auth): corriger imports et signatures requireCmsAuth | ✅ |
+| 0ebfc30 | fix(security): ajouter rate limiting sur routes email/newsletter | ✅ |
+| e3afcc6 | refactor: extraire rate limiting dans lib/rate-limit.ts | ✅ |
+| 0aff6ca | refactor: migrer demandes-travel et travel-planning | ✅ |
+| 4d8c955 | fix: securiser route n8n et nettoyer code legacy MongoDB | ✅ |
 
 ---
 
@@ -187,23 +200,23 @@ if (secret !== process.env.N8N_WEBHOOK_SECRET) {
 
 ### Top 5 actions immédiates
 
-1. **Redéployer sur Vercel** pour appliquer le fix sitemap
-2. **Protéger `/api/n8n/articles`** avec authentification
-3. **Supprimer code MongoDB legacy** (`lib/db.ts`, `models/SiteContent.ts`)
-4. **Auditer `/panel-manager`** - ajouter auth serveur si manquant
-5. **Nettoyer variables MONGODB_URI** dans `lib/env.ts`
+1. **Redéployer sur Vercel** pour appliquer le fix sitemap ⚠️ Action requise
+2. ~~**Protéger `/api/n8n/articles`**~~ ✅ Corrigé (commit 4d8c955)
+3. ~~**Supprimer code MongoDB legacy**~~ ✅ Corrigé (commit 4d8c955)
+4. **Auditer `/panel-manager`** - vérifier auth serveur
+5. ~~**Nettoyer variables MONGODB_URI**~~ ✅ Corrigé (commit 4d8c955)
 
 ### Top 5 nettoyages techniques
 
-1. Supprimer `models/` si vide après cleanup
-2. Audit des 52 env vars - identifier utilisées vs legacy
-3. Dédupliquer `GOOGLE_SERVICE_ACCOUNT_JSON` / `GOOGLE_SERVICE_ACCOUNT_KEY`
+1. ~~Supprimer `models/`~~ ✅ Fait
+2. **Audit des 52 env vars** - identifier utilisées vs legacy
+3. **Dédupliquer** `GOOGLE_SERVICE_ACCOUNT_JSON` / `GOOGLE_SERVICE_ACCOUNT_KEY`
 4. Consolider imports Supabase (`createServiceClient` vs `supabase` direct)
-5. Vérifier si `ollama` ou `ollama_model` sont utilisés
+5. Vérifier si `OLLAMA_URL` / `OLLAMA_MODEL` sont utilisés en prod
 
 ### Top 5 vérifications UX/Editorial
 
-1. Vérifier que toutes les pages principales (blog, destinations, contact) sont à jour
+1. Vérifier que toutes les pages principales sont à jour
 2. Tester les formulaires (newsletter, contact, travel planning)
 3. Valider les redirections 404
 4. Vérifier la cohérence des meta descriptions
@@ -211,102 +224,58 @@ if (secret !== process.env.N8N_WEBHOOK_SECRET) {
 
 ---
 
-## 6. Issues GitHub Prêtes à Ouvrir
+## 6. Issues GitHub
 
 ### Issue 1: Route API n8n sans authentification
-**Titre**: `[SECURITY] /api/n8n/articles exposure - public API without authentication`
+**Titre**: `[SECURITY] /api/n8n/articles sans authentification`
 
-**Priorité**: High
+**Priorité**: High | **Status**: ✅ Corrigé (commit 4d8c955)
 
-**Description**:
-The route `/api/n8n/articles` returns all blog posts metadata (titles, slugs, excerpts, images) without any authentication. While the route is blocked by robots.txt, it remains publicly accessible and could be abused.
+**Description**: Route `/api/n8n/articles` exposée sans authentification.
 
-**Preuve**: `app/api/n8n/articles/route.ts` - no auth check
-
-**Résultat attendu**: 
-- Add `x-n8n-secret` header validation
-- Return 401 for unauthorized requests
+**Action**: Ajout validation header `x-n8n-secret` avec `N8N_WEBHOOK_SECRET`.
 
 ---
 
 ### Issue 2: Sitemap XML invalide en production
-**Titre**: `[SEO] Sitemap contains unescaped ampersands (& instead of &amp;)`
+**Titre**: `[SEO] Sitemap contient des esperluettes non echappees`
 
-**Priorité**: High
+**Priorité**: High | **Status**: ⚠️ En attente de redéploiement
 
-**Description**:
-The production sitemap at https://www.heldonica.fr/sitemap.xml contains 22 unescaped ampersands in Unsplash image URLs. This violates XML spec and may cause search engines to ignore some image URLs.
+**Description**: 22 esperluettes non échappées dans le sitemap production.
 
-**Preuve**: `curl -s https://www.heldonica.fr/sitemap.xml | grep -c "&"` → 22
-
-The fix exists in code at `app/sitemap.ts:497` but is not deployed.
-
-**Résultat attendu**: 
-- Redeploy on Vercel to apply the fix
-- Verify sitemap validity with XML validator
+**Action requise**: Redéployer sur Vercel pour appliquer le fix (`app/sitemap.ts:497`).
 
 ---
 
 ### Issue 3: Code MongoDB legacy non utilisé
-**Titre**: `[TECH] Remove unused MongoDB code (lib/db.ts, models/SiteContent.ts)`
+**Titre**: `[TECH] Supprimer le code MongoDB legacy non utilise`
 
-**Priorité**: Medium
+**Priorité**: Medium | **Status**: ✅ Corrigé (commit 4d8c955)
 
-**Description**:
-Files `lib/db.ts` and `models/SiteContent.ts` import mongoose and reference `MONGODB_URI`, but are never used in production code. Only imported in tests.
+**Description**: `lib/db.ts` et `models/SiteContent.ts` supprimés.
 
-This creates:
-- Bundle inflation
-- Developer confusion
-- Unnecessary env var in production
-
-**Preuve**: 
-- `grep -rn "from.*db" | grep -v test` → no results
-- `grep -rn "SiteContent" | grep -v models/` → no results
-
-**Résultat attendu**: 
-- Delete `lib/db.ts` and `models/SiteContent.ts`
-- Remove `MONGODB_URI` from `lib/env.ts`
-- Remove mongoose from dependencies if only used by these files
+**Action**: `MONGODB_URI` nettoyé de `lib/env.ts`.
 
 ---
 
 ### Issue 4: Audit Supabase tables
-**Titre**: `[DB] Audit coexistence of `articles` and `cms_blog_posts` tables`
+**Titre**: `[DB] Auditer coexistence tables articles et cms_blog_posts`
 
-**Priorité**: Medium
+**Priorité**: Medium | **Status**: ⚠️ Accès Supabase requis
 
-**Description**:
-Both `articles` (8 code usages) and `cms_blog_posts` (72 code usages) tables exist. Need to clarify which is the source of truth and if one is legacy.
+**Description**: Deux tables coexistent avec usage différencié.
 
-**Preuve**: 
-```
-.from('cms_blog_posts') - 72 usages
-.from('articles') - 8 usages
-```
-
-**Résultat attendu**: 
-- Document the purpose of each table
-- Migrate data if `articles` is legacy
-- Remove duplicate table if applicable
+**Action requise**: Accès Dashboard Supabase pour audit complet.
 
 ---
 
 ### Issue 5: Panel-manager server-side auth
-**Titre**: `[SECURITY] Add server-side auth check for /panel-manager`
+**Titre**: `[SECURITY] Ajouter verification auth serveur pour /panel-manager`
 
-**Priorité**: Medium
+**Priorité**: Medium | **Status**: ⚠️ Non vérifié
 
-**Description**:
-The `/panel-manager` route returns 200 with a CMS loader UI. While meta robots has `noindex,nofollow`, server-side auth should be added to prevent unauthorized access at the middleware level.
-
-**Preuve**: 
-- `curl -s https://www.heldonica.fr/panel-manager` → 200 with CMS UI
-- No server-side auth found in route handler
-
-**Résultat attendu**: 
-- Add auth middleware to `/panel-manager/**`
-- Return 401/redirect for unauthenticated users
+**Description**: Route retourne 200 avec CMS UI, pas de vérif auth serveur.
 
 ---
 
