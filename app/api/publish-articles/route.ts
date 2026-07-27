@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase-client'
+import { requireCmsAuth } from '@/lib/auth'
 
 export async function POST() {
+  // Vérification auth CMS
+  const authError = await requireCmsAuth()
+  if (authError) return authError
+
   try {
     // Find Maramureș article
     const { data: maramures } = await supabase

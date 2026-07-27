@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase'
+import { requireCmsAuth } from '@/lib/auth'
 
 export async function POST() {
+  // Vérification auth CMS
+  const authError = await requireCmsAuth()
+  if (authError) return authError
+
   try {
     const supabase = createServiceClient()
     const results = []
