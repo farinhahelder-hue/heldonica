@@ -541,12 +541,12 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
     {
       title: 'Contenu & Médias',
       items: [
-        { id: 'media',         label: 'Médias',            icon: <Image size={15} /> },
-        { id: 'carousel',      label: 'Carousels',         icon: <Package size={15} /> },
-        { id: 'video',         label: 'Vidéos',            icon: <Film size={15} /> },
-        { id: 'fast-trim',     label: 'Fast Trim',         icon: <Clapperboard size={15} /> },
-        { id: 'map',           label: 'Cartes',            icon: <MapIcon size={15} /> },
-        { id: 'checklists',    label: 'Checklists',        icon: <ClipboardList size={15} /> },
+        { id: 'media',         label: 'Médias',            icon: <Image size={15} aria-hidden="true" /> },
+        { id: 'carousel',      label: 'Carousels',         icon: <Package size={15} aria-hidden="true" /> },
+        { id: 'video',         label: 'Vidéos',            icon: <Film size={15} aria-hidden="true" /> },
+        { id: 'fast-trim',     label: 'Fast Trim',         icon: <Clapperboard size={15} aria-hidden="true" /> },
+        { id: 'map',           label: 'Cartes',            icon: <MapIcon size={15} aria-hidden="true" /> },
+        { id: 'checklists',    label: 'Checklists',        icon: <ClipboardList size={15} aria-hidden="true" /> },
       ]
     },
     {

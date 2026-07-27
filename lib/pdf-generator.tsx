@@ -118,6 +118,7 @@ export function TravelGuidePDF({ data }: { data: GuideData }) {
     <Document>
       {/* Cover */}
       <Page size="A4" style={s.coverPage}>
+        {/* eslint-disable-next-line jsx-a11y/alt-text */}
         <Image src={data.heroImage || 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&q=80'} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} />
         <View style={s.coverOverlay}>
           <Text style={s.coverLabel}>{data.flagEmoji} Guide de voyage</Text>
