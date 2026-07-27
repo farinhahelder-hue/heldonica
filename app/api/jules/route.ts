@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { requireCmsAuth } from '@/lib/cms-auth';
 
 const JULES_API_KEY = process.env.JULES_API_KEY;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -82,7 +83,11 @@ export async function POST(request: NextRequest) {
 }
 
 // GET - List Jules sessions from Supabase
-export async function GET() {
+export async function GET(request: Request) {
+  // Vérification auth CMS
+  const authError = await requireCmsAuth(request)
+  if (authError) return authError
+
   const supabase = getSupabaseAdmin();
   
   if (!supabase) {

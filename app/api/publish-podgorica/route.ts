@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/blog-supabase'
-import { requireCmsAuth } from '@/lib/auth'
+import { requireCmsAuth } from '@/lib/cms-auth'
 
-export async function POST() {
+export async function POST(request: Request) {
   // Vérification auth CMS
-  const authError = await requireCmsAuth()
+  const authError = await requireCmsAuth(request)
   if (authError) return authError
 
   if (!supabase) {
