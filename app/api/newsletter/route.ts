@@ -1,35 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase'
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
 
 // Newsletter Heldonica — Resend (email de bienvenue + séquences) + Supabase (stockage)
 // Variables requises : RESEND_API_KEY, NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 
-// Rate limiting: 10 requests per IP per hour
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
-const RATE_LIMIT = 10
-const RATE_WINDOW = 60 * 60 * 1000
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const entry = rateLimitMap.get(ip)
-
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW })
-    return true
-  }
-
-  if (entry.count >= RATE_LIMIT) {
-    return false
-  }
-
-  entry.count++
-  return true
-}
-
 export async function POST(request: NextRequest) {
-  // Rate limiting
-  const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
-  if (!checkRateLimit(clientIp)) {
+  // Rate limiting: 10 requests per IP per hour
+  const result = checkRateLimit(getClientIp(request), { limit: 10, prefix: 'newsletter' })
+  if (!result.success) {
     return NextResponse.json(
       { error: 'Trop de requetes. Veuillez patienter.' },
       { status: 429 }
