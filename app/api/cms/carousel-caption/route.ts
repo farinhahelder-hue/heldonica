@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { requireCmsAuth } from '@/lib/cms-auth'
 
 interface CaptionRequest {
   topic: string
@@ -167,6 +168,9 @@ ${slides.map((s, i) => `${i+1}. ${s.title} - ${s.content}`).join('\n')}`
 }
 
 export async function POST(request: NextRequest) {
+  const authResponse = await requireCmsAuth(request)
+  if (authResponse) return authResponse
+
   try {
     const body = await request.json()
     const { topic, destination, slides, style, defaultHashtags } = body

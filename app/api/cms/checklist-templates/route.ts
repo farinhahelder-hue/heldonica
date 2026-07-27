@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
+import { requireCmsAuth } from '@/lib/cms-auth';
 
 function getSupabase() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -14,7 +15,10 @@ function getSupabase() {
   });
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const authResponse = await requireCmsAuth(request)
+  if (authResponse) return authResponse
+
   try {
     const supabase = getSupabase();
     const { data, error } = await supabase
@@ -33,6 +37,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const authResponse = await requireCmsAuth(request)
+  if (authResponse) return authResponse
+
   try {
     const supabase = getSupabase();
     const body = await request.json();
@@ -64,6 +71,8 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  const authResponse = await requireCmsAuth(request)
+  if (authResponse) return authResponse
   try {
     const supabase = getSupabase();
     const body = await request.json();
@@ -90,6 +99,9 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const authResponse = await requireCmsAuth(request)
+  if (authResponse) return authResponse
+
   try {
     const supabase = getSupabase();
     const { searchParams } = new URL(request.url);
