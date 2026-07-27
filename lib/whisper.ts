@@ -133,5 +133,5 @@ export const HELDONICA_SUBTITLE_STYLES: SubtitleStyle = {
 
 // Check if OPENAI_API_KEY is configured
 export function isWhisperConfigured(): boolean {
-  return typeof process !== 'undefined' && !!process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+  return typeof process !== 'undefined' && !!process.env.OPENAI_API_KEY;
 }
