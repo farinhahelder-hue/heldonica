@@ -279,6 +279,47 @@ if (secret !== process.env.N8N_WEBHOOK_SECRET) {
 
 ---
 
+## Nouvelles Découvertes
+
+### Tables Supabase Identifiées
+
+| Table | Usage | Status |
+|-------|-------|--------|
+| `cms_blog_posts` | 72 | ✅ Principale |
+| `site_settings` | 14 | ✅ Active |
+| `destinations` | 10 | ✅ Active |
+| `demandes_travel` | 9 | ✅ Active |
+| `cms_editable_zones` | 9 | ✅ Active |
+| `articles` | 8 | ⚠️ Legacy (sync?) |
+| `site_content` | 3 | ⚠️ À vérifier |
+
+### Routes API Actives (34 routes)
+
+Routes CMS/API principales:
+- `/api/cms/*` - Protected par middleware
+- `/api/blog/*` - Blog API
+- `/api/destinations/*` - Destinations API
+- `/api/demandes-travel/*` - Formulaire voyage
+- `/api/newsletter/*` - Newsletter
+- `/api/contact/*` - Contact
+
+Routes de migration/script (protégées):
+- `/api/fix-destinations/*` - Script migration
+- `/api/publish-articles/*` - Publication
+- `/api/update-content/*` - Update contenu
+- `/api/revalidate-articles/*` - Revalidation cache
+
+Routes webhook:
+- `/api/webhook/trigger` - Trigger webhook
+- `/api/webhooks/publish-post` - Publication post
+
+### Sécurité
+
+✅ Middleware protège `/api/cms/**` et `/api/agents/**`
+⚠️ `/panel-manager` protégé côté client uniquement (choix documenté)
+
+---
+
 ## Annexe: Accès Nécessaires pour Audit Complet
 
 Pour finaliser l'audit, les accès suivants sont nécessaires:
