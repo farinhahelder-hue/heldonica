@@ -1,30 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
-// Simple in-memory rate limiter: 5 requests per IP per hour
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
-const RATE_LIMIT = 5
-const RATE_WINDOW = 60 * 60 * 1000 // 1 hour in ms
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const entry = rateLimitMap.get(ip)
-
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW })
-    return true
-  }
-
-  if (entry.count >= RATE_LIMIT) {
-    return false
-  }
-
-  entry.count++
-  return true
-}
 
 function getClientIP(req: NextRequest): string {
   return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
@@ -60,9 +40,9 @@ interface TravelFormData {
 }
 
 export async function POST(req: NextRequest) {
-  // Rate limiting
-  const clientIP = getClientIP(req)
-  if (!checkRateLimit(clientIP)) {
+  // Rate limiting: 5 requests per IP per hour
+  const result = checkRateLimit(getClientIP(req), { limit: 5, prefix: 'travel-planning' })
+  if (!result.success) {
     return NextResponse.json(
       { error: 'Trop de requêtes. Réessaie dans 1 heure.' },
       { status: 429 }
