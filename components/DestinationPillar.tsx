@@ -370,7 +370,6 @@ export default function DestinationPillar({
           </div>
         </section>
       </main>
-      </InlineEditProvider>
       <Footer />
     </>
   )
