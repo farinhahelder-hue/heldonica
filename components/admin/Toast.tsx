@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { X } from 'lucide-react';
 
-type ToastType = 'success' | 'error' | 'info';
+type ToastType = 'success' | 'error' | 'info' | 'danger';
 
 type Toast = {
   id: number;
@@ -11,8 +11,12 @@ type Toast = {
   type: ToastType;
 };
 
+type ToastOptions = 
+  | string 
+  | { title?: string; description?: string; variant?: ToastType };
+
 type ToastContextValue = {
-  toast: (message: string, type?: ToastType) => void;
+  toast: (options: ToastOptions, type?: ToastType) => void;
 };
 
 const ToastContext = createContext<ToastContextValue>({ toast: () => {} });
@@ -24,9 +28,23 @@ let nextId = 0;
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const toast = useCallback((message: string, type: ToastType = 'info') => {
+  const toast = useCallback((options: ToastOptions, type?: ToastType) => {
     const id = nextId++;
-    setToasts(prev => [...prev, { id, message, type }]);
+    let message: string;
+    let toastType: ToastType = type || 'info';
+    
+    if (typeof options === 'string') {
+      message = options;
+    } else {
+      message = options.title || options.description || '';
+      if (options.variant) {
+        toastType = options.variant === 'danger' ? 'error' : options.variant;
+      }
+    }
+    
+    if (message) {
+      setToasts(prev => [...prev, { id, message, type: toastType }]);
+    }
   }, []);
 
   const remove = useCallback((id: number) => {
@@ -53,6 +71,7 @@ function ToastItem({ toast, onDone }: { toast: Toast; onDone: () => void }) {
 
   const bg = toast.type === 'success' ? 'bg-green-600'
     : toast.type === 'error' ? 'bg-red-600'
+    : toast.type === 'danger' ? 'bg-red-600'
     : 'bg-gray-800';
 
   return (

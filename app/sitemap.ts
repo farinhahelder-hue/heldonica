@@ -501,8 +501,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: lastMod,
         changeFrequency: changeFreq as 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never',
         priority: priority,
-        // Image sitemap extension for Google (XML-escaped to avoid parse errors)
-        images: imageUrl ? [{ url: imageUrl }] : undefined,
+        // Image sitemap extension for Google
+        images: imageUrl ? [imageUrl] : undefined,
       };
     });
 
