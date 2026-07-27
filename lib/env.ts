@@ -47,7 +47,6 @@ export type ServerEnv = {
   AWS_ACCESS_KEY_ID?: string;
   AWS_SECRET_ACCESS_KEY?: string;
   AWS_S3_BUCKET?: string;
-  MONGODB_URI?: string;
   GITHUB_TOKEN?: string;
   N8N_WEBHOOK_AGENTS_URL?: string;
   MAINTENANCE_MODE?: string;
@@ -141,7 +140,6 @@ export function validateServerEnv(): ValidationResult<ServerEnv> {
     AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
     AWS_S3_BUCKET: process.env.AWS_S3_BUCKET,
-    MONGODB_URI: process.env.MONGODB_URI,
     GITHUB_TOKEN: process.env.GITHUB_TOKEN,
     N8N_WEBHOOK_AGENTS_URL: process.env.N8N_WEBHOOK_AGENTS_URL,
     MAINTENANCE_MODE: process.env.MAINTENANCE_MODE,
