@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/components/admin/Toast';
 import { Search, Save, Edit2, Check, X, RefreshCw } from 'lucide-react';
 import type { CmsZone, CmsZonesData } from '@/lib/content-loader';
@@ -13,7 +13,7 @@ export default function EditableZonesManager() {
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
 
-  const fetchZones = async () => {
+  const fetchZones = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch('/api/cms/zones');
@@ -30,15 +30,15 @@ export default function EditableZonesManager() {
       }
     } catch (e) {
       console.error(e);
-      toast({ title: 'Erreur', description: 'Impossible de charger les zones', variant: 'danger' });
+      toast('Impossible de charger les zones', 'error');
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchZones();
-  }, []);
+  }, [fetchZones]);
 
   const handleSave = async (zone: CmsZone) => {
     try {

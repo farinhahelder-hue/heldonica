@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/components/admin/Toast';
 import { Save, RefreshCw, Code, LayoutList } from 'lucide-react';
 import type { PillarData } from '@/lib/pillar-types';
@@ -21,7 +21,7 @@ export default function DestinationPillarEditor() {
   const [formData, setFormData] = useState<PillarData | null>(null);
   const [jsonText, setJsonText] = useState('');
 
-  const fetchPillars = async () => {
+  const fetchPillars = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch('/api/cms/pillar-pages');
@@ -31,16 +31,16 @@ export default function DestinationPillarEditor() {
           setPillars(data.pages);
         }
       }
-    } catch (e) {
-      toast({ title: 'Erreur', description: 'Impossible de charger les destinations', variant: 'danger' });
+    } catch {
+      toast('Impossible de charger les destinations', 'error');
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchPillars();
-  }, []);
+  }, [fetchPillars]);
 
   const handleSelect = (slug: string) => {
     const record = pillars.find(p => p.destination_slug === slug);

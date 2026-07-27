@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface Season {
   id?: string;
@@ -26,7 +26,7 @@ export default function SeasonsManager({ destinationKey }: SeasonsManagerProps) 
   const [editingSeason, setEditingSeason] = useState<Season | null>(null);
   const [showForm, setShowForm] = useState(false);
 
-  const fetchSeasons = async () => {
+  const fetchSeasons = useCallback(async () => {
     try {
       setLoading(true);
       const url = destinationKey 
@@ -40,11 +40,11 @@ export default function SeasonsManager({ destinationKey }: SeasonsManagerProps) 
     } finally {
       setLoading(false);
     }
-  };
+  }, [destinationKey]);
 
   useEffect(() => {
     fetchSeasons();
-  }, [destinationKey]);
+  }, [fetchSeasons]);
 
   const handleDelete = async (id: string) => {
     if (!confirm('Êtes-vous sûr de vouloir supprimer cette saison ?')) return;

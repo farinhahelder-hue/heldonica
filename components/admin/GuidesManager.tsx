@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/components/admin/Toast';
 import { Plus, Edit2, Trash2, Save, X, RefreshCw } from 'lucide-react';
 
@@ -25,7 +25,7 @@ export default function GuidesManager() {
   const [editingItem, setEditingItem] = useState<Partial<GuideItem> | null>(null);
   const [isCreating, setIsCreating] = useState(false);
 
-  const fetchItems = async () => {
+  const fetchItems = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(`/api/cms/guide-items?guide_slug=${guideSlug}`);
@@ -33,16 +33,16 @@ export default function GuidesManager() {
         const data = await res.json();
         setItems(data.items || []);
       }
-    } catch (e) {
-      toast({ title: 'Erreur', description: 'Impossible de charger les guides', variant: 'danger' });
+    } catch {
+      toast('Impossible de charger les guides', 'error');
     } finally {
       setLoading(false);
     }
-  };
+  }, [guideSlug, toast]);
 
   useEffect(() => {
     fetchItems();
-  }, [guideSlug]);
+  }, [fetchItems]);
 
   const handleSave = async () => {
     if (!editingItem) return;

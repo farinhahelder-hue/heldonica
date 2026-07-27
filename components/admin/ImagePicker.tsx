@@ -40,7 +40,7 @@ export default function ImagePicker({ value, onChange, label, placeholder, altTe
           onClick={() => setShowLibrary(true)}
           className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-200 transition-colors"
         >
-          <Image size={14} />
+          <Image size={14} aria-hidden="true" />
           Parcourir
         </button>
       </div>
