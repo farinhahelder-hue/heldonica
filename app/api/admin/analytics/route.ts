@@ -86,7 +86,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const period = searchParams.get('period') || '30d'
 
-  const propertyId = process.env.GA4_PROPERTY_ID
+  const propertyId = process.env.GOOGLE_ANALYTICS_PROPERTY_ID
   const credentialsJson = process.env.GOOGLE_APPLICATION_CREDENTIALS
 
   // If credentials or property ID are missing, serve mock data immediately
