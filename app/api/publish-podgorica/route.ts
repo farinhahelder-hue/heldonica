@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/blog-supabase'
+import { requireCmsAuth } from '@/lib/auth'
 
 export async function POST() {
+  // Vérification auth CMS
+  const authError = await requireCmsAuth()
+  if (authError) return authError
+
   if (!supabase) {
     return NextResponse.json({ error: 'Supabase not configured' }, { status: 500 })
   }
