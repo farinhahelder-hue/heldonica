@@ -47,7 +47,15 @@ export type ServerEnv = {
   AWS_ACCESS_KEY_ID?: string;
   AWS_SECRET_ACCESS_KEY?: string;
   AWS_S3_BUCKET?: string;
+  AWS_REGION?: string;
+  BUFFER_ACCESS_TOKEN?: string;
   GITHUB_TOKEN?: string;
+  ANTHROPIC_API_KEY?: string;
+  PERPLEXITY_API_KEY?: string;
+  OLLAMA_URL?: string;
+  OLLAMA_MODEL?: string;
+  WEBHOOK_SECRET?: string;
+  N8N_WEBHOOK_SECRET?: string;
   N8N_WEBHOOK_AGENTS_URL?: string;
   MAINTENANCE_MODE?: string;
 };
