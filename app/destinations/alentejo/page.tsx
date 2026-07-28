@@ -79,7 +79,7 @@ export const metadata: Metadata = {
     description: "L’Alentejo en slow travel : plains, vignobles et villages de pierre. Notre guide terrain.",
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1200&q=80',
+        url: '/og-default.jpg',
         width: 1200,
         height: 630,
         alt: 'Alentejo — vignobles et plains dorées',
@@ -113,7 +113,7 @@ export default function AlentejoPage() {
         {/* ── HERO ── */}
         <section className="relative min-h-[66vh] flex items-end overflow-hidden bg-stone-900">
           <Image
-            src="https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1600&q=85"
+            src="/og-default.jpg"
             alt="Alentejo — vignobles dorés sous le soleil portugais"
             fill
             className="object-cover opacity-65"
@@ -230,7 +230,7 @@ export default function AlentejoPage() {
                   </div>
                 </div>
                 <p className="text-stone-600 text-sm leading-relaxed mb-4">
-                  Un des plus beaux villages d Portugal. Ruelles étroites, château en ruine avec vue sur l’Estrémadure espagnole, et ce silence le soir quand les derniers tourists repartent.
+                  Un des plus beaux villages du Portugal. Ruelles étroites, château en ruine avec vue sur l’Estrémadure espagnole, et ce silence le soir quand les derniers touristes repartent.
                 </p>
                 <p className="text-xs text-stone-500 italic">
                   ⭐ Verdict Heldonica : Restez y dormir, pas qu’une journée.
@@ -263,12 +263,12 @@ export default function AlentejoPage() {
                     <span className="text-2xl">🏊</span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-serif text-stone-900 mb-1">Praia Fluvial de頼</h3>
+                    <h3 className="text-xl font-serif text-stone-900 mb-1">Praia Fluvial de Granja</h3>
                     <p className="text-sm text-eucalyptus/80 font-medium">Les plages rivières secrètes</p>
                   </div>
                 </div>
                 <p className="text-stone-600 text-sm leading-relaxed mb-4">
-                  L’Alentejo inland a des beaches fluviaux incredibles. On a trouvé notre spot préféré près de Granja — une plage sur la rivière avec des eaux claires, des gens du coin, et aucun tourist.
+                  L’Alentejo intérieur a des plages fluviales incroyables. On a trouvé notre spot préféré près de Granja — une plage sur la rivière avec des eaux claires, des gens du coin, et aucun touriste.
                 </p>
                 <p className="text-xs text-stone-500 italic">
                   ⭐ Verdict Heldonica : Demandez aux locaux, ils indiquent les meilleurs spots.
@@ -422,7 +422,7 @@ export default function AlentejoPage() {
               <Link href="/blog" className="group block bg-stone-50 rounded-2xl overflow-hidden border border-stone-100 hover:shadow-md transition-shadow">
                 <div className="relative h-40 bg-stone-200">
                   <Image
-                    src="https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=600&q=70"
+                    src="/og-default.jpg"
                     alt="Vignobles de l’Alentejo"
                     fill
                     className="object-cover"
@@ -439,7 +439,7 @@ export default function AlentejoPage() {
               <Link href="/blog" className="group block bg-stone-50 rounded-2xl overflow-hidden border border-stone-100 hover:shadow-md transition-shadow">
                 <div className="relative h-40 bg-stone-200">
                   <Image
-                    src="https://images.unsplash.com/photo-1519955266818-c78a3d4b4c82?w=600&q=70"
+                    src="/og-default.jpg"
                     alt="Évora"
                     fill
                     className="object-cover"
@@ -456,7 +456,7 @@ export default function AlentejoPage() {
               <Link href="/blog" className="group block bg-stone-50 rounded-2xl overflow-hidden border border-stone-100 hover:shadow-md transition-shadow">
                 <div className="relative h-40 bg-stone-200">
                   <Image
-                    src="https://images.unsplash.com/photo-1560719887-fe3105fa1e55?w=600&q=70"
+                    src="/og-default.jpg"
                     alt="Vins portugais"
                     fill
                     className="object-cover"

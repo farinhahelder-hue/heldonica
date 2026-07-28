@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     locale: 'fr_FR',
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&q=85',
+        url: '/og-default.jpg',
         width: 1200,
         height: 630,
         alt: 'Destinations slow travel Heldonica — Madère, Roumanie, Sicile',
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Destinations slow travel | Heldonica',
     description: "Madère, Roumanie, Sicile et bien d’autres : nos destinations authentiques testées sur le terrain.",
-    images: ['https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&q=85'],
+    images: ['/og-default.jpg'],
     creator: '@heldonica',
   },
 };

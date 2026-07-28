@@ -64,10 +64,10 @@ export default function MapClientPage() {
               Carte interactive
             </p>
             <h1 className="text-4xl md:text-5xl font-serif text-mahogany mb-4">
-              Explorez nos destinations sur la carte
+              Explore nos destinations sur la carte
             </h1>
             <p className="text-charcoal/80 text-lg max-w-2xl leading-relaxed">
-              Cliquez sur les marqueurs pour découvrir chaque pépite, son atmosphere et son lien direct vers le guide complet.
+              Clique sur les marqueurs pour découvrir chaque pépite, son atmosphère et son lien direct vers le guide complet.
             </p>
           </div>
         </section>

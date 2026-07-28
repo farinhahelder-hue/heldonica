@@ -5,12 +5,12 @@ import SubDestinationTemplate from '@/components/SubDestinationTemplate'
 
 export const metadata: Metadata = {
   title: 'Fontainebleau en couple : notre carnet slow travel | Heldonica',
-  description: 'Foret. Escarpements, escalade en IdF. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
+  description: 'Forêt. Escarpements, escalade en Île-de-France. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
   openGraph: {
     title: 'Fontainebleau en couple : notre carnet slow travel | Heldonica',
-    description: 'Foret. Escarpements, escalade en IdF. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
+    description: 'Forêt. Escarpements, escalade en Île-de-France. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
     type: 'website',
-    images: ['https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1200&q=80'],
+    images: ['/og-default.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica'
   },
@@ -45,8 +45,8 @@ export default function FontainebleauPage() {
         name="Fontainebleau"
         parentName="IdF"
         parentSlug="idf"
-        heroImage="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1200&q=80"
-        introText="La foret. Les rochers, les parcours."
+        heroImage="/og-default.jpg"
+        introText="La forêt. Les rochers, les parcours."
         highlights={highlights}
         localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."
       />

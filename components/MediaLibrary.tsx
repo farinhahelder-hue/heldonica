@@ -166,10 +166,10 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
         // Demo mode - load sample images
         setGoogleDriveConnected(true);
         setCloudFiles([
-          { id: '1', name: 'Vacances 2024.jpg', thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200', url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200' },
-          { id: '2', name: 'Madere trip.jpg', thumbnail: 'https://images.unsplash.com/photo-1560719887-fe3105fa1e55?w=200', url: 'https://images.unsplash.com/photo-1560719887-fe3105fa1e55?w=1200' },
-          { id: '3', name: 'Paris street.jpg', thumbnail: 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=200', url: 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=1200' },
-          { id: '4', name: 'Zurich lake.jpg', thumbnail: 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=200', url: 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200' },
+          { id: '1', name: 'Vacances 2024.jpg', thumbnail: '/og-default.jpg', url: '/og-default.jpg' },
+          { id: '2', name: 'Madere trip.jpg', thumbnail: '/og-default.jpg', url: '/og-default.jpg' },
+          { id: '3', name: 'Paris street.jpg', thumbnail: '/og-default.jpg', url: '/og-default.jpg' },
+          { id: '4', name: 'Zurich lake.jpg', thumbnail: '/og-default.jpg', url: '/og-default.jpg' },
         ]);
         showToast('🔗 Connecté à Google Photos (démo)');
       }
@@ -237,8 +237,8 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
       if (data.demo) {
         setIdriveConnected(true);
         setCloudFiles([
-          { id: '5', name: 'Roumanie.jpg', thumbnail: 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=200', url: 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=1200' },
-          { id: '6', name: 'Sicily.jpg', thumbnail: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=200', url: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1200' },
+          { id: '5', name: 'Roumanie.jpg', thumbnail: '/og-default.jpg', url: '/og-default.jpg' },
+          { id: '6', name: 'Sicily.jpg', thumbnail: '/og-default.jpg', url: '/og-default.jpg' },
         ]);
         showToast('🔗 Connecté à iDrive (démo)');
       }

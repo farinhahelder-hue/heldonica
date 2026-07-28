@@ -21,25 +21,25 @@ const FALLBACK_DESTINATIONS: Destination[] = [
     destination_slug: 'suisse', 
     title: 'Suisse', 
     custom_description: 'Slow travel alpin authentique',
-    custom_image_url: 'https://images.unsplash.com/photo-1502786129236-63f2598fd7b9?w=600&q=80'
+    custom_image_url: '/og-default.jpg'
   },
   { 
     destination_slug: 'roumanie', 
     title: 'Roumanie', 
     custom_description: 'Nature sauvage Delta du Danube',
-    custom_image_url: 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=600&q=80'
+    custom_image_url: '/og-default.jpg'
   },
   { 
     destination_slug: 'ile-de-france', 
     title: 'Île-de-France', 
     custom_description: 'Paris alternatif & Petite Ceinture',
-    custom_image_url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80'
+    custom_image_url: '/og-default.jpg'
   },
   { 
     destination_slug: 'madere', 
     title: 'Madère', 
     custom_description: 'Randonnées volcaniques en couple',
-    custom_image_url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80'
+    custom_image_url: '/og-default.jpg'
   },
 ]
 

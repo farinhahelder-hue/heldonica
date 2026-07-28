@@ -46,14 +46,14 @@ export default function MadereBudgetClient() {
         <section className="bg-gradient-to-br from-cloud-dancer to-white py-20 md:py-28">
           <div className="container">
             <p className="text-xs uppercase tracking-[0.2em] text-eucalyptus font-semibold mb-4">
-              Madere - Budget
+              Madère - Budget
             </p>
             <h1 className="text-4xl md:text-6xl font-serif text-mahogany mb-6">
-              Calculateur budget Madere
+              Calculateur budget Madère
             </h1>
             <p className="text-charcoal/80 text-lg max-w-3xl leading-relaxed">
-              Point de depart fiable pour cadrer ton voyage. Reference heldonica:
-              1400-1800 EUR pour 7 jours en duo, style equilibre.
+              Point de départ fiable pour cadrer ton voyage. Référence Heldonica :
+              1400-1800 € pour 7 jours en duo, style équilibré.
             </p>
           </div>
         </section>

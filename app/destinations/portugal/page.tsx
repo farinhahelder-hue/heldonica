@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     title: 'Portugal slow travel | Guide Heldonica',
     description: 'De Madère à Porto — le Portugal slow travel selon Heldonica.',
     url: 'https://www.heldonica.fr/destinations/portugal',
-    images: [{ url: 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=1200&q=85', width: 1200, height: 630, alt: 'Portugal slow travel — Madère, Porto, Lisbonne' }],
+    images: [{ url: '/og-default.jpg', width: 1200, height: 630, alt: 'Portugal slow travel — Madère, Porto, Lisbonne' }],
     locale: 'fr_FR',
     type: 'website',
   },
@@ -70,28 +70,28 @@ const destinations = [
     label: 'Madère',
     href: '/destinations/madere',
     desc: 'L\'île de l\'éternel printemps. Forêt de Fanal dans la brume, levadas, bolo do caco. Notre destination portugaise favorite, de loin.',
-    image: 'https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg',
+    image: '/og-default.jpg',
     tag: 'Île · Nature',
   },
   {
     label: 'Lisbonne',
     href: '/destinations/lisbonne',
     desc: 'Les collines, les azulejos, le Tram 28 bondé qu\'on évite au profit des ruelles du Mouraria. La ville qui se vit lentement.',
-    image: 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=600&q=80',
+    image: '/og-default.jpg',
     tag: 'Capitale · Culture',
   },
   {
     label: 'Porto',
     href: '/destinations/portugal/porto',
     desc: 'Le vin de Porto, les caves de Vila Nova de Gaia, les bords du Douro et les librairies du centre historique. Porto est dense et mémorable.',
-    image: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=600&q=80',
+    image: '/og-default.jpg',
     tag: 'Vin · Histoire',
   },
   {
     label: 'Alentejo',
     href: '/destinations/alentejo',
     desc: 'Les plaines de liège, les villages blancs perchés, les vignerons qui vous racontent leur terroir. L\'Alentejo prend son temps — et c\'est tant mieux.',
-    image: 'https://images.unsplash.com/photo-1548681528-6a5c45b66063?w=600&q=80',
+    image: '/og-default.jpg',
     tag: 'Rural · Terroir',
   },
 ]
@@ -107,7 +107,7 @@ export default function PortugalPage() {
         <section className="relative overflow-hidden bg-gradient-to-b from-stone-900 via-stone-800 to-stone-700 py-24 md:py-32">
           <div
             className="absolute inset-0 opacity-25 bg-cover bg-center"
-            style={{ backgroundImage: 'url(https://heldonica.fr/wp-content/uploads/2026/03/madere-cascade-1024x683.jpg)' }}
+            style={{ backgroundImage: 'url(/og-default.jpg)' }}
             aria-hidden="true"
           />
           <div className="relative max-w-4xl mx-auto px-4">

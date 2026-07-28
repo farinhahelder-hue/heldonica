@@ -124,23 +124,66 @@ function buildQuery(post: {
   slug?: string;
   voice_notes?: string;
 }): string {
+  const title = (post.title || '').toLowerCase();
+  const slug = (post.slug || '').toLowerCase();
+  const tags = (post.tags || []).map(t => t.toLowerCase());
+  const category = (post.category || '').toLowerCase();
+  const allText = [title, slug, ...tags, category].join(' ');
+
+  if (allText.includes('madere') || allText.includes('madère') || allText.includes('madeira')) {
+    if (allText.includes('poncha')) return 'Madeira poncha traditional drink cocktail';
+    if (allText.includes('fanal')) return 'Madeira Fanal forest mist laurissilva';
+    if (allText.includes('bacalhau')) return 'portuguese codfish bacalhau dish';
+    if (allText.includes('bolo')) return 'traditional bread bolo do caco madeira';
+    if (allText.includes('prego')) return 'beef sandwich prego portugal';
+    if (allText.includes('levada')) return 'Madeira levada hiking trail forest';
+    if (allText.includes('curral')) return 'Curral das Freiras valley madeira mountains';
+    return 'Madeira island landscape coast nature';
+  }
+  if (allText.includes('suisse') || allText.includes('switzerland') || allText.includes('zurich') || allText.includes('stoos') || allText.includes('limmat')) {
+    if (allText.includes('stoos')) return 'Stoos Ridge switzerland mountain lake';
+    if (allText.includes('zurich') || allText.includes('limmat')) return 'Zurich city Limmat river switzerland';
+    if (allText.includes('brasserie') || allText.includes('bière')) return 'zurich brewery beer craft';
+    return 'Swiss Alps mountain landscape';
+  }
+  if (allText.includes('roumanie') || allText.includes('romania') || allText.includes('maramures') || allText.includes('timisoara') || allText.includes('mocanita')) {
+    if (allText.includes('mocanita') || allText.includes('train')) return 'Mocanita steam train maramures romania';
+    if (allText.includes('timisoara') || allText.includes('cuib')) return 'Timisoara city square romania';
+    if (allText.includes('roumanie') || allText.includes('romania')) return 'Maramures wooden churches landscape romania';
+    return 'Romania landscape countryside';
+  }
+  if (allText.includes('montenegro') || allText.includes('podgorica')) {
+    return 'Podgorica city montenegro landscape';
+  }
+  if (allText.includes('paris') || allText.includes('mouffetard') || allText.includes('ceinture')) {
+    if (allText.includes('mouffetard')) return 'Rue Mouffetard Paris street market';
+    if (allText.includes('ceinture')) return 'Petite Ceinture Paris abandoned railway garden';
+    return 'Paris street seine cityscape';
+  }
+  if (allText.includes('lisbonne') || allText.includes('lisbon') || allText.includes('porto') || allText.includes('portugal')) {
+    if (allText.includes('porto')) return 'Porto city riverside douro portugal';
+    return 'Lisbon Alfama street view portugal';
+  }
+  if (allText.includes('sicile') || allText.includes('sicily')) {
+    return 'Sicily landscape nature sea italy';
+  }
+  if (allText.includes('grece') || allText.includes('grèce') || allText.includes('greek')) {
+    if (allText.includes('athènes') || allText.includes('athens')) return 'Athens acropolis greece';
+    return 'Greek island aegean sea landscape';
+  }
+
+  // Fallback : utiliser le contenu terrain (voice_notes) puis le titre
   const parts: string[] = [];
-  // Priorité 1 : mots-clés voice_notes (contenu terrain)
   if (post.voice_notes) {
     const words = post.voice_notes.split(/\s+/).filter(w => w.length > 3).slice(0, 3).join(' ');
     if (words) parts.push(words);
   }
-  // Priorité 2 : titre (4 premiers mots)
-  const titleWords = (post.title || '').split(' ').slice(0, 4).join(' ');
-  if (titleWords) parts.push(titleWords);
-  // Priorité 3 : catégorie
-  if (post.category) parts.push(post.category);
-  // Priorité 4 : tags (2 premiers)
-  if (Array.isArray(post.tags)) {
-    const t = post.tags.slice(0, 2).join(' ');
-    if (t) parts.push(t);
+  if (title) {
+    const titleWords = title.split(' ').slice(0, 4).join(' ');
+    if (titleWords) parts.push(titleWords);
   }
-  return parts.filter(Boolean).join(' ') || 'slow travel landscape';
+  if (category && !parts.some(p => p.includes(category))) parts.push(category);
+  return parts.filter(Boolean).join(' ') || 'slow travel landscape europe';
 }
 
 export async function POST(req: Request) {

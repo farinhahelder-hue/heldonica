@@ -149,7 +149,7 @@ export default function SubDestinationTemplate({
                     <Image
                       src={
                         post.featured_image ||
-                        'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&q=80'
+                        '/og-default.jpg'
                       }
                       alt={post.title}
                       fill

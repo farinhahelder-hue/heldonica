@@ -46,7 +46,7 @@ export default function KotorPage() {
         <section className="relative bg-gradient-to-b from-stone-900 via-stone-800 to-stone-700 py-20 md:py-28">
           <div className="absolute inset-0 opacity-30">
             <Image 
-              src="https://images.unsplash.com/photo-1570126618953-d437176e8c79?w=1400&q=80" 
+              src="/og-default.jpg" 
               alt="Baie de Kotor au lever du soleil" 
               fill
               priority
@@ -118,7 +118,7 @@ export default function KotorPage() {
             </p>
           </section>
 
-          {/* Pourquoi早起 */}
+          {/* Pourquoi se lever tôt */}
           <section className="mb-16 bg-gradient-to-b from-white to-stone-50 -mx-4 px-4 py-12 rounded-2xl">
             <h2 className="text-3xl font-serif text-mahogany mb-6">
               Pourquoi découvrir Kotor tôt le matin

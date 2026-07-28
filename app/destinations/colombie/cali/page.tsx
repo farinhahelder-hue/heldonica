@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     title: 'Cali en couple : notre carnet slow travel | Heldonica',
     description: 'Capitale de la salsa. Valle del Cauca en Colombie. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
     type: 'website',
-    images: ['https://images.unsplash.com/photo-1555990793-da11153b6e8d?w=1200&q=80'],
+    images: ['/og-default.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica'
   },
@@ -45,7 +45,7 @@ export default function CaliPage() {
         name="Cali"
         parentName="Colombie"
         parentSlug="colombie"
-        heroImage="https://images.unsplash.com/photo-1555990793-da11153b6e8d?w=1200&q=80"
+        heroImage="/og-default.jpg"
         introText="Cali, c'est la capitale mondiale de la salsa. Les clubs, les festivals, la fievre."
         highlights={highlights}
         localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."

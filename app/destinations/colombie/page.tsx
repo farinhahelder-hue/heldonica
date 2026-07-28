@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     locale: 'fr_FR',
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1523986371872-9d3ba2e2a389?w=1200&q=80',
+        url: '/og-default.jpg',
         width: 1200,
         height: 630,
         alt: 'Colombie — Bogotá et la région du café',
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Colombie slow travel | Guide Heldonica',
     description: "Bogotá, Medellín, Cali et la région du café. Adresses dénichées et itinéraires testés.",
-    images: ['https://images.unsplash.com/photo-1523986371872-9d3ba2e2a389?w=1200&q=80'],
+    images: ['/og-default.jpg'],
     creator: '@heldonica',
   },
 }
@@ -74,7 +74,7 @@ export default function ColombiePage() {
         <section className="relative bg-stone-900 py-24 md:py-32 overflow-hidden">
           <div
             className="absolute inset-0 opacity-30 bg-cover bg-center"
-            style={{ backgroundImage: "url('https://images.unsplash.com/photo-1523986371872-9d3ba2e2a389?w=1400&q=70')" }}
+            style={{ backgroundImage: "url('/og-default.jpg')" }}
           />
           <div className="relative max-w-4xl mx-auto px-6">
             <p className="text-teal text-xs font-bold tracking-[0.2em] uppercase mb-4">

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     title: 'Côte d Albâtre en couple : notre carnet slow travel | Heldonica',
     description: 'Le village classique. Mais tôt le matin, c\'est un autre monde en Normandie. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
     type: 'website',
-    images: ['https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1400&q=80'],
+    images: ['/og-default.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica'
   },
@@ -45,7 +45,7 @@ export default function CtedAlbtrePage() {
         name="Côte d Albâtre"
         parentName="Normandie"
         parentSlug="normandie"
-        heroImage="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1400&q=80"
+        heroImage="/og-default.jpg"
         introText="Les falaises de craie blanche. Etretat, Caps, et les petits villages entre les deux."
         highlights={highlights}
         localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."

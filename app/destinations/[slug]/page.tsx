@@ -33,7 +33,7 @@ type DestinationMeta = {
 const zurichMeta: DestinationMeta = {
   description:
     'Badi flottantes, brasseries artisanales et vieille ville dense. Zurich se révèle quand on ralentit assez pour la laisser venir.',
-  heroImage: 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1400&q=80',
+  heroImage: '/og-default.jpg',
   region: 'Suisse',
   duration: '3 à 4 jours',
   budget: 'Élevé mais rattrapable à pied',
@@ -46,7 +46,7 @@ const zurichMeta: DestinationMeta = {
 const suisseMeta: DestinationMeta = {
   description:
     'Montagnes, lacs, trains impeccables et détours qui demandent du temps. La Suisse devient juste quand on cesse de la résumer à son prix.',
-  heroImage: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1400&q=80',
+  heroImage: '/og-default.jpg',
   region: 'Europe',
   duration: '7 à 12 jours',
   budget: 'Moyen à élevé',
@@ -59,7 +59,7 @@ const suisseMeta: DestinationMeta = {
 const roumanieMeta: DestinationMeta = {
   description:
     'Timișoara, Delta du Danube, Carpates : la Roumanie donne beaucoup à celles et ceux qui acceptent de lui laisser de l&apos;espace.',
-  heroImage: 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=1400&q=80',
+  heroImage: '/og-default.jpg',
   region: 'Europe',
   duration: '8 à 14 jours',
   budget: 'Accessible',
@@ -72,7 +72,7 @@ const roumanieMeta: DestinationMeta = {
 const madereMeta: DestinationMeta = {
   description:
     'Forêts humides, levadas, falaises, pain chaud et retours successifs. Madère ne se livre pas en une seule fois.',
-  heroImage: 'https://images.unsplash.com/photo-1569959220744-ff553533f492?w=1400&q=80',
+  heroImage: '/og-default.jpg',
   region: 'Portugal',
   duration: '7 à 10 jours',
   budget: 'Moyen',
@@ -85,7 +85,7 @@ const madereMeta: DestinationMeta = {
 const parisMeta: DestinationMeta = {
   description:
     'Paris et l&apos;Île-de-France se lisent mieux quand on sort des grandes phrases. Un canal, une friche, une rue, et le rythme change.',
-  heroImage: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1400&q=80',
+  heroImage: '/og-default.jpg',
   region: 'France',
   duration: '2 à 5 jours',
   budget: 'Variable',
@@ -98,7 +98,7 @@ const parisMeta: DestinationMeta = {
 const normandieMeta: DestinationMeta = {
   description:
     'Étretat, Honfleur, Deauville : la Normandie côtière demande moins de cases à cocher et plus de temps entre deux marées.',
-  heroImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1400&q=80',
+  heroImage: '/og-default.jpg',
   region: 'France',
   duration: '3 à 5 jours',
   budget: 'Modulable',
@@ -111,7 +111,7 @@ const normandieMeta: DestinationMeta = {
 const bretagneMeta: DestinationMeta = {
   description:
     'Sentiers côtiers, crêperies, lumière changeante et Saint-Malo comme point d&apos;appui. La Bretagne gagne à être laissée tranquille.',
-  heroImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=1400&q=80',
+  heroImage: '/og-default.jpg',
   region: 'France',
   duration: '4 à 7 jours',
   budget: 'Modulable',
