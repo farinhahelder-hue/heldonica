@@ -13,6 +13,12 @@ export default function robots(): MetadataRoute.Robots {
         '/panel-manager/',
         // Pages hors positionnement principal (hors sitemap)
         '/start',
+      ],
+        '/_next/',
+        '/cms/',
+        '/panel-manager/',
+        // Pages hors positionnement principal (hors sitemap)
+        '/start',
         '/expert-hotelier',
       ],
     },
