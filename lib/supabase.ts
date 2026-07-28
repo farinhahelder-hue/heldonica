@@ -1,7 +1,8 @@
+import 'server-only'
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 // Public client (uses anon key - respects RLS policies)
 export const supabase = supabaseUrl && supabaseAnonKey
@@ -11,7 +12,7 @@ export const supabase = supabaseUrl && supabaseAnonKey
 // Service role client (bypasses RLS - for admin operations only)
 // Only use this on server-side, never expose to client
 export const createServiceClient = () => {
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
   if (!supabaseUrl || !serviceKey) {
     throw new Error('Missing Supabase environment variables')
   }
