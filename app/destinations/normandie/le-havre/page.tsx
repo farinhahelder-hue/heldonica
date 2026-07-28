@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     title: 'Le Havre et environs en couple : notre carnet slow travel | Heldonica',
     description: 'Guide Le Havre et environs: architecture Art Deco d Auguste Perret, plages de la Manche, roadtrip en Normandie. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
     type: 'website',
-    images: ['https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1400&q=80'],
+    images: ['/og-default.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica'
   },
@@ -45,7 +45,7 @@ export default function LeHavreetenvironsPage() {
         name="Le Havre et environs"
         parentName="Normandie"
         parentSlug="normandie"
-        heroImage="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1400&q=80"
+        heroImage="/og-default.jpg"
         introText="Deuxième port de France. Mais pas que ça. Architecture Art Deco,
               plages, et un esprit qui surprend."
         highlights={highlights}

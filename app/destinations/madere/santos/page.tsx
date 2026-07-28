@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     title: 'Santos en couple : notre carnet slow travel | Heldonica',
     description: 'Le petit village. Les tavernes, le vin en ⭐ Hidden Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
     type: 'website',
-    images: ['https://images.unsplash.com/photo-1548690312-e3b507d8c110?w=1200&q=80'],
+    images: ['/og-default.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica'
   },
@@ -43,9 +43,9 @@ export default function SantosPage() {
       <Header />
       <SubDestinationTemplate
         name="Santos"
-        parentName="⭐ Hidden Gem"
+        parentName="Madère"
         parentSlug="madere"
-        heroImage="https://images.unsplash.com/photo-1548690312-e3b507d8c110?w=1200&q=80"
+        heroImage="/og-default.jpg"
         introText="Le petit village. Les tavernes, le vin."
         highlights={highlights}
         localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."

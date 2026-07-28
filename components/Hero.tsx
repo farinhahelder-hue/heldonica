@@ -12,16 +12,29 @@ type HeroSectionProps = {
 }
 
 const DEFAULT_IMAGES: Record<string, string> = {
-  'home': 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1400&q=85',
-  'a-propos': 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1400&q=85',
-  'contact': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1400&q=85',
-  'slow-travel': 'https://images.unsplash.com/photo-1506905925346-21bda4dcddf9?w=1400&q=85',
-  'destinations': 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1400&q=85',
-  'travel-planning': 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1400&q=85',
-  'hotel-consulting': 'https://images.unsplash.com/photo-1566073771259-6a8506399945?w=1400&q=85',
-  'temoignages': 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1400&q=85',
-  'etudes-de-cas': 'https://images.unsplash.com/photo-1553484771-371a605b060b?w=1400&q=85',
-  'ai-hotellerie': 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1400&q=85',
+  'home': '/og-default.jpg',
+  'a-propos': '/og-default.jpg',
+  'contact': '/og-default.jpg',
+  'slow-travel': '/og-default.jpg',
+  'destinations': '/og-default.jpg',
+  'travel-planning': '/og-default.jpg',
+  'hotel-consulting': '/og-default.jpg',
+  'temoignages': '/og-default.jpg',
+  'etudes-de-cas': '/og-default.jpg',
+  'ai-hotellerie': '/og-default.jpg',
+}
+
+async function getPageImages(): Promise<Record<string, string>> {
+  try {
+    const settings = await getSettings('hero_page_images')
+    if (settings.hero_page_images) {
+      const parsed = JSON.parse(settings.hero_page_images)
+      if (typeof parsed === 'object' && parsed !== null) {
+        return { ...DEFAULT_IMAGES, ...parsed }
+      }
+    }
+  } catch {}
+  return DEFAULT_IMAGES
 }
 
 export default async function Hero({ 
@@ -33,25 +46,27 @@ export default async function Hero({
   defaultCta,
   defaultCtaLink,
 }: HeroSectionProps) {
-  // Build the key prefix for this page
   const prefix = page === 'home' ? '' : `${page}_`
   
-  const heroSettings = await getSettings(
-    'hero_type',
-    `hero_video_url`,
-    `hero_poster_image`,
-    `hero_background_image`,
-    `${prefix}page_title`,
-    `${prefix}hero_title`,
-    `${prefix}hero_subtitle`,
-    `${prefix}hero_cta`,
-    `${prefix}hero_cta_link`,
-  )
+  const [heroSettings, pageImages] = await Promise.all([
+    getSettings(
+      'hero_type',
+      `hero_video_url`,
+      `hero_poster_image`,
+      `hero_background_image`,
+      `${prefix}page_title`,
+      `${prefix}hero_title`,
+      `${prefix}hero_subtitle`,
+      `${prefix}hero_cta`,
+      `${prefix}hero_cta_link`,
+    ),
+    getPageImages(),
+  ])
   
   const heroType = heroSettings.hero_type || 'image'
   const heroVideo = heroSettings.hero_video_url || defaultVideo
   const heroPoster = heroSettings.hero_poster_image || heroSettings.hero_background_image
-  const backgroundImage = heroSettings.hero_background_image || defaultImage || DEFAULT_IMAGES[page] || DEFAULT_IMAGES['a-propos']
+  const backgroundImage = heroSettings.hero_background_image || defaultImage || pageImages[page] || pageImages['a-propos']
   const title = heroSettings.hero_title || heroSettings[`${prefix}page_title`] || defaultTitle || ''
   const subtitle = heroSettings.hero_subtitle || heroSettings[`${prefix}hero_subtitle`] || defaultSubtitle || ''
   const cta = heroSettings.hero_cta || defaultCta || ''

@@ -211,7 +211,7 @@ export default function TravelPlanningClient() {
         {/* Hero */}
         <section className="relative min-h-[75vh] flex items-center overflow-hidden bg-stone-900">
           <EditableZone page="travel-planning" zone="hero_image_url" type="image"
-            fallback="https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=1920&h=1080&fit=crop"
+            fallback="/og-default.jpg"
             className="absolute inset-0 w-full h-full object-cover opacity-50"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
@@ -219,7 +219,7 @@ export default function TravelPlanningClient() {
             <EditableZone page="travel-planning" zone="hero_badge" fallback="Voyage couple sur mesure · Adresses testées · Duo"
               className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold block"
             />
-            <EditableZone page="travel-planning" zone="hero_title" fallback="On a fait le trajet. À toi de vivre le voyage."
+            <EditableZone page="travel-planning" zone="hero_title" as="h1" fallback="On a fait le trajet. À toi de vivre le voyage."
               className="text-4xl md:text-6xl font-serif text-white max-w-2xl mb-5 leading-tight block"
             />
             <EditableZone page="travel-planning" zone="hero_text" fallback="On conçoit ton voyage avec nos adresses terrain, sans compromis."
@@ -269,7 +269,7 @@ export default function TravelPlanningClient() {
         {/* Comment ça marche — 4 étapes */}
         <section className="bg-cloud-dancer py-20">
           <div className="container max-w-4xl">
-            <EditableZone page="travel-planning" zone="steps_title" fallback="De ton rêve à ton départ"
+            <EditableZone page="travel-planning" zone="steps_title" as="h2" fallback="De ton rêve à ton départ"
               className="text-3xl font-serif text-mahogany text-center mb-12 block"
             />
             <div className="grid md:grid-cols-4 gap-6">
@@ -296,7 +296,7 @@ export default function TravelPlanningClient() {
         {/* Tarifs */}
         <section className="bg-white py-20">
           <div className="container max-w-5xl">
-            <EditableZone page="travel-planning" zone="pricing_title" fallback="Tarifs transparents"
+            <EditableZone page="travel-planning" zone="pricing_title" as="h2" fallback="Tarifs transparents"
               className="text-3xl font-serif text-mahogany text-center mb-4 block"
             />
             <EditableZone page="travel-planning" zone="pricing_subtitle" fallback="Des formules claires, sans surprise. Le devis est gratuit et sans engagement."
@@ -356,7 +356,7 @@ export default function TravelPlanningClient() {
         {/* Témoignages */}
         <section className="bg-cloud-dancer py-20">
           <div className="container max-w-5xl">
-            <EditableZone page="travel-planning" zone="testimonials_title" fallback="Ils ont voyagé avec nous"
+            <EditableZone page="travel-planning" zone="testimonials_title" as="h2" fallback="Ils ont voyagé avec nous"
               className="text-3xl font-serif text-mahogany text-center mb-10 block"
             />
             <div className="grid md:grid-cols-3 gap-6">
@@ -388,7 +388,7 @@ export default function TravelPlanningClient() {
         {/* Formulaire */}
         <section id="formulaire" className="bg-white py-20 scroll-mt-20">
           <div className="container max-w-2xl">
-            <EditableZone page="travel-planning" zone="form_title" fallback="Dis-nous où tu veux aller."
+            <EditableZone page="travel-planning" zone="form_title" as="h2" fallback="Dis-nous où tu veux aller."
               className="text-3xl font-serif text-mahogany text-center mb-2 block"
             />
             <EditableZone page="travel-planning" zone="form_text" fallback="Réponds à ces quelques questions — on te fait une proposition sous 48h."
@@ -487,12 +487,30 @@ export default function TravelPlanningClient() {
                   <input type="text" name="website_url" tabIndex={-1} autoComplete="off" />
                 </div>
 
+                <div className="flex items-start gap-2.5">
+                  <input
+                    id="tp-rgpd"
+                    type="checkbox"
+                    required
+                    className="mt-1 h-4 w-4 rounded border-stone-300 text-eucalyptus focus:ring-eucalyptus cursor-pointer"
+                  />
+                  <label htmlFor="tp-rgpd" className="text-xs leading-normal text-charcoal/70">
+                    J&apos;accepte que ces informations soient utilisées pour me faire une proposition. Voir notre{' '}
+                    <a href="/politique-confidentialite" className="text-eucalyptus hover:underline font-medium">
+                      politique de confidentialité
+                    </a>.
+                  </label>
+                </div>
+
                 {formStatus === 'error' && <p className="text-red-500 text-sm">{formError}</p>}
 
                 <button type="submit" disabled={formStatus === 'loading'}
                   className="w-full py-3.5 bg-eucalyptus text-white rounded-xl text-sm font-semibold hover:bg-eucalyptus/90 disabled:opacity-50 transition-all">
                   {formStatus === 'loading' ? 'Envoi en cours…' : 'Envoyer ma demande'}
                 </button>
+                <p className="text-center text-xs text-charcoal/50">
+                  Réponse humaine sous 48h · Devis gratuit · Sans engagement · Données non revendues
+                </p>
               </form>
             )}
           </div>
@@ -501,7 +519,7 @@ export default function TravelPlanningClient() {
         {/* FAQ */}
         <section className="bg-cloud-dancer py-20">
           <div className="container max-w-3xl">
-            <EditableZone page="travel-planning" zone="faq_title" fallback="Ce qu'on nous demande souvent"
+            <EditableZone page="travel-planning" zone="faq_title" as="h2" fallback="Ce qu'on nous demande souvent"
               className="text-3xl font-serif text-mahogany text-center mb-8 block"
             />
             <div className="space-y-3">
@@ -539,7 +557,7 @@ export default function TravelPlanningClient() {
         {/* CTA final */}
         <section className="bg-mahogany text-white py-20">
           <div className="container text-center max-w-2xl">
-            <EditableZone page="travel-planning" zone="cta_title" fallback="Le seul itinéraire qui compte, c'est le tien."
+            <EditableZone page="travel-planning" zone="cta_title" as="h2" fallback="Le seul itinéraire qui compte, c'est le tien."
               className="text-3xl md:text-4xl font-serif mb-4 block"
             />
             <EditableZone page="travel-planning" zone="cta_text" type="textarea" fallback="Un brief, un échange, et on te revient avec un voyage pensé pour toi — pas pour une masse. Ça commence par quelques lignes dans le formulaire."

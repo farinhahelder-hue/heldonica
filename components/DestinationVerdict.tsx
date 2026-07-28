@@ -1,6 +1,7 @@
 'use client'
 
 import { ThumbsUp, AlertCircle, Star } from 'lucide-react'
+import { useContentLoader } from '@/hooks/useContentLoader'
 
 interface DestinationVerdictProps {
   score: number
@@ -11,6 +12,16 @@ interface DestinationVerdictProps {
   destinationName: string
 }
 
+const LABELS_DEFAULT = {
+  badge: 'Notre verdict',
+  headingTemplate: '{name}, on te le recommande si...',
+  subtext: 'Et on te le dit aussi si ce n\'est pas pour toi.',
+  scoreLabel: 'Notre note slow travel',
+  forWhoLabel: 'Pour qui ?',
+  strengthsLabel: 'Ce qu\'on a adoré',
+  considerationsLabel: 'Ce qu\'il faut savoir',
+}
+
 export default function DestinationVerdict({
   score,
   forWho,
@@ -19,6 +30,13 @@ export default function DestinationVerdict({
   finalWord,
   destinationName,
 }: DestinationVerdictProps) {
+  const { settings } = useContentLoader()
+  let labels = LABELS_DEFAULT
+  try {
+    const raw = settings?.verdict_labels
+    if (raw) labels = { ...LABELS_DEFAULT, ...JSON.parse(raw) }
+  } catch {}
+  const t = (s: string) => s.replace(/\{name\}/g, destinationName)
   return (
     <section className="bg-gradient-to-b from-white to-cloud-dancer py-16 md:py-20">
       <div className="container max-w-3xl">
@@ -26,12 +44,12 @@ export default function DestinationVerdict({
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-50 text-amber-600 text-xs font-semibold mb-4">
             <Star size={14} className="fill-current" />
-            Notre verdict
+            {labels.badge}
           </div>
           <h2 className="text-2xl md:text-3xl font-serif text-mahogany mb-2">
-            {destinationName}, on te le recommande si...
+            {t(labels.headingTemplate)}
           </h2>
-          <p className="text-charcoal/60 text-sm">Et on te le dit aussi si ce n&apos;est pas pour toi.</p>
+          <p className="text-charcoal/60 text-sm">{labels.subtext}</p>
         </div>
 
         {/* Score et pour qui */}
@@ -42,12 +60,12 @@ export default function DestinationVerdict({
               <div className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center mb-2">
                 <span className="text-4xl font-bold">{score}/10</span>
               </div>
-              <p className="text-sm text-white/60">Notre note slow travel</p>
+              <p className="text-sm text-white/60">{labels.scoreLabel}</p>
             </div>
 
             {/* Pour qui */}
             <div className="flex-1 text-center md:text-left">
-              <p className="text-sm font-semibold text-amber-300 mb-2">Pour qui ?</p>
+              <p className="text-sm font-semibold text-amber-300 mb-2">{labels.forWhoLabel}</p>
               <p className="text-white/90 leading-relaxed">{forWho}</p>
             </div>
           </div>
@@ -59,7 +77,7 @@ export default function DestinationVerdict({
           <div className="bg-eucalyptus/5 rounded-xl p-6 border border-eucalyptus/10">
             <h3 className="font-semibold text-eucalyptus mb-4 flex items-center gap-2">
               <ThumbsUp size={18} className="fill-current" />
-              Ce qu&apos;on a adoré
+              {labels.strengthsLabel}
             </h3>
             <ul className="space-y-3">
               {strengths.map((strength, i) => (
@@ -75,7 +93,7 @@ export default function DestinationVerdict({
           <div className="bg-amber-50/50 rounded-xl p-6 border border-amber-100">
             <h3 className="font-semibold text-amber-600 mb-4 flex items-center gap-2">
               <AlertCircle size={18} className="fill-current" />
-              Ce qu&apos;il faut savoir
+              {labels.considerationsLabel}
             </h3>
             <ul className="space-y-3">
               {considerations.map((consideration, i) => (

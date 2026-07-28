@@ -11,6 +11,7 @@ type FormData = {
   phone?: string
   subject: string
   message: string
+  rgpd: boolean
 }
 
 const inputClass =
@@ -65,6 +66,8 @@ export default function ContactForm() {
   const subjectOptions = [
     { value: '', label: val('contact_form_subject_option_placeholder', 'Choisir un sujet') },
     { value: 'travel-planning', label: val('contact_form_subject_option_travel', 'Voyage sur mesure') },
+    { value: 'hebergeur', label: val('contact_form_subject_option_hebergeur', 'Consulting hébergeur / hôtelier') },
+    { value: 'carnet', label: val('contact_form_subject_option_carnet', 'Question sur un carnet') },
     { value: 'partnership', label: val('contact_form_subject_option_partnership', 'Partenariat / média') },
     { value: 'other', label: val('contact_form_subject_option_other', 'Autre') },
   ]
@@ -168,6 +171,22 @@ export default function ContactForm() {
         {errors.message && <p className="mt-1 text-sm text-red-600">{errors.message.message}</p>}
       </div>
 
+      <div className="flex items-start gap-2.5">
+        <input
+          id="cf-rgpd"
+          type="checkbox"
+          {...register('rgpd', { required: val('contact_form_error_rgpd', "Merci de valider ce point avant d'envoyer.") })}
+          className="mt-1 h-4 w-4 rounded border-cloud-dancer text-eucalyptus focus:ring-eucalyptus cursor-pointer"
+        />
+        <label htmlFor="cf-rgpd" className="text-xs leading-normal text-charcoal/70">
+          {val('contact_form_rgpd_label', "J'accepte que ces informations soient utilisées pour me répondre. Voir notre")}{' '}
+          <a href="/politique-confidentialite" className="text-eucalyptus hover:underline font-medium">
+            {val('contact_form_rgpd_link', 'politique de confidentialité')}
+          </a>.
+        </label>
+      </div>
+      {errors.rgpd && <p className="-mt-3 text-sm text-red-600">{errors.rgpd.message}</p>}
+
       <button
         type="submit"
         disabled={loading}
@@ -175,6 +194,9 @@ export default function ContactForm() {
       >
         {loading ? btnLoading : btnLabel}
       </button>
+      <p className="text-center text-xs text-charcoal/50">
+        {val('contact_form_reassurance', 'Réponse humaine sous 48h · Sans tunnel automatique · Données non revendues')}
+      </p>
 
       {submitError && (
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">

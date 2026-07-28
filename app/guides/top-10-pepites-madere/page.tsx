@@ -118,7 +118,7 @@ export default function Top10PepitesMaderePage() {
       <Header />
       <main className="min-h-screen bg-cloud-dancer">
         <section className="relative bg-stone-950 text-white py-20 md:py-28 overflow-hidden">
-          <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1551632811-561732d1e306?w=1400&q=70)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+          <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'url(/og-default.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
           <div className="relative max-w-4xl mx-auto px-6 text-center">
             <span className="inline-block px-4 py-1.5 bg-amber-500/20 text-amber-400 text-xs font-semibold rounded-full uppercase tracking-wider mb-6">
               <EditableZone page="top-10-pepites-madere" zone="hero_badge" fallback="Guide gratuit" />

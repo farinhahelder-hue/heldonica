@@ -12,13 +12,13 @@ export const metadata: Metadata = {
     siteName: 'Heldonica',
     type: 'website',
     locale: 'fr_FR',
-    images: [{ url: 'https://images.unsplash.com/photo-1548707309-dcebeab9ea9b?w=1200&q=80', width: 1200, height: 630, alt: 'Lisbonne slow travel — Heldonica' }],
+    images: [{ url: '/og-default.jpg', width: 1200, height: 630, alt: 'Lisbonne slow travel — Heldonica' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Lisbonne slow travel | Guide Heldonica',
     description: "Alfama, miradouros, trams. Lisbonne se donne à ceux qui traînent.",
-    images: ['https://images.unsplash.com/photo-1548707309-dcebeab9ea9b?w=1200&q=80'],
+    images: ['/og-default.jpg'],
     creator: '@heldonica',
   },
 }

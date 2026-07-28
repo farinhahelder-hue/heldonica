@@ -8,7 +8,7 @@ interface ArticleFormProps {
   onCancel: () => void;
 }
 
-const CATEGORIES = [
+const FALLBACK_CATEGORIES = [
   'Carnets Voyage',
   'Guides Pratiques',
   'Food & Lifestyle',
@@ -16,6 +16,7 @@ const CATEGORIES = [
 ];
 
 export default function ArticleForm({ articleId, onSave, onCancel }: ArticleFormProps) {
+  const [categories, setCategories] = useState<string[]>(FALLBACK_CATEGORIES);
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
@@ -74,6 +75,17 @@ export default function ArticleForm({ articleId, onSave, onCancel }: ArticleForm
       setError(err.message || 'Erreur lors du chargement de l\'article');
     }
   }, [articleId]);
+
+  useEffect(() => {
+    fetch('/api/cms/blog-categories')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.categories?.length) {
+          setCategories(data.categories.map((c: any) => c.db_value || c.label));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (articleId) {
@@ -290,7 +302,7 @@ export default function ArticleForm({ articleId, onSave, onCancel }: ArticleForm
               onChange={handleChange}
               className="w-full px-4 py-2.5 border border-stone-200 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-eucalyptus text-sm"
             >
-              {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              {categories.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
 

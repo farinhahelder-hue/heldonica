@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     title: 'Nuoro en couple : notre carnet slow travel | Heldonica',
     description: 'Centre. Montagnes, pasteurs en Sardaigne. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
     type: 'website',
-    images: ['https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200&q=80'],
+    images: ['/og-default.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica'
   },
@@ -45,7 +45,7 @@ export default function NuoroPage() {
         name="Nuoro"
         parentName="Sardaigne"
         parentSlug="sardaigne"
-        heroImage="https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200&q=80"
+        heroImage="/og-default.jpg"
         introText="Nuoro, c'est la montagne. Les pasteurs, les transhumances, le silence."
         highlights={highlights}
         localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."

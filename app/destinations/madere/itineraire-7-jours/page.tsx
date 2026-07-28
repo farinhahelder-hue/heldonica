@@ -4,9 +4,9 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
-  title: 'Itineraire Madere 7 jours | Heldonica',
+  title: 'Itinéraire Madère 7 jours | Heldonica',
   description:
-    'Itineraire slow travel Madere sur 7 jours: rythme, points de vue, levadas et adresses locales.',
+    'Itinéraire slow travel Madère sur 7 jours : rythme, points de vue, levadas et adresses locales.',
   alternates: {
     canonical: 'https://www.heldonica.fr/destinations/madere/itineraire-7-jours',
   },
@@ -14,19 +14,19 @@ export const metadata: Metadata = {
 
 const days = [
   {
-    title: 'Jour 1 - Atterrissage doux a Funchal',
+    title: 'Jour 1 - Atterrissage doux à Funchal',
     content:
-      'Installation, marche des lavradores, front de mer, dinner local sans pression horaire.',
+      'Installation, marché des lavradores, front de mer, dîner local sans pression horaire.',
   },
   {
-    title: 'Jour 2 - Ponta de Sao Lourenco',
+    title: 'Jour 2 - Ponta de São Lourenço',
     content:
-      'Depart matinal, rando cote est, pause longue face aux reliefs puis retour lent.',
+      'Départ matinal, rando côte est, pause longue face aux reliefs puis retour lent.',
   },
   {
-    title: 'Jour 3 - Levadas et forets',
+    title: 'Jour 3 - Levadas et forêts',
     content:
-      'Section de levada adaptee a ton niveau, pause pique-nique et fin de journee en village.',
+      'Section de levada adaptée à ton niveau, pause pique-nique et fin de journée en village.',
   },
   {
     title: 'Jour 4 - Nord volcanique',
@@ -36,17 +36,17 @@ const days = [
   {
     title: 'Jour 5 - Villages suspendus',
     content:
-      'Jardins, belvederes et cafes de hauteur. Journee ideale pour ralentir sans se couper du paysage.',
+      'Jardins, belvédères et cafés de hauteur. Journée idéale pour ralentir sans se couper du paysage.',
   },
   {
-    title: 'Jour 6 - Journee modulable',
+    title: 'Jour 6 - Journée modulable',
     content:
-      'Option mer, option montagne ou option repos complet selon meteo et niveau d energie.',
+      "Option mer, option montagne ou option repos complet selon météo et niveau d'énergie.",
   },
   {
-    title: 'Jour 7 - Cloture sensorielle',
+    title: 'Jour 7 - Clôture sensorielle',
     content:
-      'Dernier panorama, achats utiles, retour a Funchal et depart sans course de fin de voyage.',
+      'Dernier panorama, achats utiles, retour à Funchal et départ sans course de fin de voyage.',
   },
 ];
 
@@ -58,14 +58,14 @@ export default function MadereItineraryPage() {
         <section className="bg-gradient-to-br from-cloud-dancer to-white py-20 md:py-28">
           <div className="container">
             <p className="text-xs uppercase tracking-[0.2em] text-eucalyptus font-semibold mb-4">
-              Madere - Itineraire
+              Madère - Itinéraire
             </p>
             <h1 className="text-4xl md:text-6xl font-serif text-mahogany mb-6">
-              Itineraire Madere 7 jours
+              Itinéraire Madère 7 jours
             </h1>
             <p className="text-charcoal/80 text-lg max-w-3xl leading-relaxed">
-              Un plan fait pour respirer: moins de zigzags, plus de coherence entre
-              paysages, adresses et energie du duo.
+              Un plan fait pour respirer : moins de zigzags, plus de cohérence entre
+              paysages, adresses et énergie du duo.
             </p>
           </div>
         </section>
@@ -93,8 +93,8 @@ export default function MadereItineraryPage() {
                 Conseil rythme
               </p>
               <p className="text-charcoal/80">
-                Ne surcharge pas les jours 2 a 4. Madere fatigue vite si on empile
-                trop de denivele et de route.
+                Ne surcharge pas les jours 2 à 4. Madère fatigue vite si on empile
+                trop de dénivelé et de route.
               </p>
             </article>
             <article className="rounded-2xl border border-stone-200 p-6 bg-white">
@@ -102,8 +102,8 @@ export default function MadereItineraryPage() {
                 Conseil budget
               </p>
               <p className="text-charcoal/80">
-                Garde une marge pour la meteo: parfois on decale une activite et on
-                gagne en qualite d experience.
+                Garde une marge pour la météo : parfois on décale une activité et on
+                gagne en qualité d&apos;expérience.
               </p>
             </article>
           </div>
@@ -112,17 +112,17 @@ export default function MadereItineraryPage() {
         <section className="bg-mahogany text-white section-spacing">
           <div className="container max-w-3xl text-center">
             <h2 className="text-3xl md:text-4xl font-serif mb-4">
-              Besoin de la version sur mesure de cet itinerary ?
+              Besoin de la version sur mesure de cet itinéraire ?
             </h2>
             <p className="text-white/80 mb-8">
-              On ajuste ce cadre a ton budget, ta saison et ton energie reelle.
+              On ajuste ce cadre à ton budget, ta saison et ton énergie réelle.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link
                 href="/travel-planning-form?destination=madere"
                 className="px-7 py-3 rounded-lg bg-teal text-charcoal font-semibold hover:bg-teal/90 transition-colors"
               >
-                Construire mon itinerary
+                Construire mon itinéraire
               </Link>
               <Link
                 href="/destinations/madere/budget"

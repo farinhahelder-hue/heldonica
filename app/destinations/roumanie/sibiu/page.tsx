@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     title: 'Sibiu en couple : notre carnet slow travel | Heldonica',
     description: 'Guide Sibiu: fete, montagne, architecture en Roumanie. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
     type: 'website',
-    images: ['https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1400&q=80'],
+    images: ['/og-default.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica'
   },
@@ -45,7 +45,7 @@ export default function SibiuPage() {
         name="Sibiu"
         parentName="Roumanie"
         parentSlug="roumanie"
-        heroImage="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1400&q=80"
+        heroImage="/og-default.jpg"
         introText="Sibiu, c'est la petite Europe. Propre, rangee, avec les montagnes a cote."
         highlights={highlights}
         localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."

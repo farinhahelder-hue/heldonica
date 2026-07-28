@@ -5,12 +5,12 @@ import SubDestinationTemplate from '@/components/SubDestinationTemplate'
 
 export const metadata: Metadata = {
   title: 'Ribeiro Frio en couple : notre carnet slow travel | Heldonica',
-  description: 'Le centre montagne. Levadas, foret, altitude en Madere. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
+  description: 'Le centre montagne. Levadas, forêt, altitude à Madère. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
   openGraph: {
     title: 'Ribeiro Frio en couple : notre carnet slow travel | Heldonica',
-    description: 'Le centre montagne. Levadas, foret, altitude en Madere. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
+    description: 'Le centre montagne. Levadas, forêt, altitude à Madère. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
     type: 'website',
-    images: ['https://images.unsplash.com/photo-1548690312-e3b507d8c110?w=1200&q=80'],
+    images: ['/og-default.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica'
   },
@@ -43,10 +43,10 @@ export default function RibeiroFrioPage() {
       <Header />
       <SubDestinationTemplate
         name="Ribeiro Frio"
-        parentName="Madere"
+        parentName="Madère"
         parentSlug="madere"
-        heroImage="https://images.unsplash.com/photo-1548690312-e3b507d8c110?w=1200&q=80"
-        introText="Le centre montagne. Levadas, foret, altitude."
+        heroImage="/og-default.jpg"
+        introText="Le centre montagne. Levadas, forêt, altitude."
         highlights={highlights}
         localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."
       />

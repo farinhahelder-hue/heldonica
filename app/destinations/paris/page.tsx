@@ -12,13 +12,13 @@ export const metadata: Metadata = {
     siteName: 'Heldonica',
     type: 'website',
     locale: 'fr_FR',
-    images: [{ url: 'https://heldonica.fr/wp-content/uploads/2025/09/paris-petite-ceinture-2-683x1024.jpg', width: 1200, height: 630, alt: 'Paris slow travel — Heldonica' }],
+    images: [{ url: 'https://www.heldonica.fr/og-default.jpg', width: 1200, height: 630, alt: 'Paris slow travel — Heldonica' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Paris slow travel | Guide Heldonica',
     description: "Paris et l'Île-de-France se lisent mieux quand on sort des grandes phrases.",
-    images: ['https://heldonica.fr/wp-content/uploads/2025/09/paris-petite-ceinture-2-683x1024.jpg'],
+    images: ['https://www.heldonica.fr/og-default.jpg'],
     creator: '@heldonica',
   },
 }

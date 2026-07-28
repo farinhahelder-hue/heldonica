@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     title: 'Lisbonne en couple : notre itinéraire slow travel | Heldonica',
     description: 'Prendre le temps à Lisbonne : ruelles de l\'Alfama, miradouros secrets et fado authentique.',
     type: 'website',
-    images: ['https://images.unsplash.com/photo-1509840144299-db508400a780?w=1200&q=80'],
+    images: ['/og-default.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica'
   },
@@ -45,7 +45,7 @@ export default function LisbonnePage() {
         name="Lisbonne"
         parentName="Portugal"
         parentSlug="portugal"
-        heroImage="https://images.unsplash.com/photo-1509840144299-db508400a780?w=1400&q=80"
+        heroImage="/og-default.jpg"
         introText="Lisbonne, la ville aux sept collines baignée par la lumière dorée du Tage, est une invitation à ralentir. Entre tramways historiques, façades d'azulejos patinées et mélodies nostalgiques du Fado, elle se découvre à pied, une ruelle pavée après l'autre."
         highlights={highlights}
         localTip="Prends le tramway 28 tôt le matin (avant 8h30) pour éviter la foule des touristes et observer les Lisboètes faire leurs courses."

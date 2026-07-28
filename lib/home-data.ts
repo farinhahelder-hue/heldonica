@@ -30,32 +30,7 @@ export interface HomeData {
   contentZones: Record<string, string>;
 }
 
-const DESTINATION_EMOJI: Record<string, string> = {
-  'madere': '🏝️',
-  'maderia': '🏝️',
-  'roumanie': '🏰',
-  'romania': '🏰',
-  'montenegro': '🌊',
-  'sicile': '🌋',
-  'sicily': '🌋',
-  'zurich': '🏙️',
-  'suisse': '🏔️',
-  'switzerland': '🏔️',
-  'grece': '🏛️',
-  'greece': '🏛️',
-  'colombie': '🌴',
-  'colombia': '🌴',
-  'paris': '🗼',
-  'default': '📍',
-};
-
-function getDestinationEmoji(slug: string): string {
-  const normalized = slug.toLowerCase().replace(/[^a-z]/g, '');
-  for (const [key, emoji] of Object.entries(DESTINATION_EMOJI)) {
-    if (normalized.includes(key)) {
-      return emoji;
-    }
-  }
+function getDestinationEmoji(_slug: string): string {
   return '📍';
 }
 

@@ -16,18 +16,12 @@ interface ComingSoonDestinationProps {
   travel_style?: string
   best_season?: string
   avg_budget_couple_week?: number
+  heroFallback?: string
 }
 
-const HERO_FALLBACK = 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&q=80'
+const HERO_FALLBACK_DEFAULT = '/og-default.jpg'
 
-const STYLE_LABELS: Record<string, string> = {
-  'slow-culture': 'Culture',
-  'slow-nature': 'Nature',
-  'nature': 'Nature',
-  'culture': 'Culture',
-  'city': 'Ville',
-  'food': 'Food',
-}
+import { getStyleLabel } from '@/lib/travel-styles'
 
 function formatBudget(amount?: number): string {
   if (!amount) return ''
@@ -38,10 +32,10 @@ function formatBudget(amount?: number): string {
 export default function ComingSoonDestination({
   slug, title, country, flag_emoji, teaser,
   hero_unsplash_url, featured_image, travel_style,
-  best_season, avg_budget_couple_week,
+  best_season, avg_budget_couple_week, heroFallback,
 }: ComingSoonDestinationProps) {
-  const imgSrc = hero_unsplash_url || featured_image || HERO_FALLBACK
-  const styleLabel = travel_style ? STYLE_LABELS[travel_style] || travel_style : ''
+  const imgSrc = hero_unsplash_url || featured_image || heroFallback || HERO_FALLBACK_DEFAULT
+  const styleLabel = getStyleLabel(travel_style)
 
   return (
     <>
