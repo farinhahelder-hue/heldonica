@@ -15,11 +15,6 @@ build/
 *.swo
 *~
 
-twillo.txt
-OLLAMA_MEMORY.md
-wordpresss old/
-
-app/test-supabase/supabase/.temp/
 app/test-supabase/
 supabase/.temp/
 

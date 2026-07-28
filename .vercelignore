@@ -17,5 +17,4 @@ tsconfig.tsbuildinfo
 .vercel-cache-bust
 supabase/.temp/
 app/test-supabase/
-wordpresss old/
 content/salvaged/
