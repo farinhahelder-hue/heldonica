@@ -460,7 +460,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     },
     {
+      url: `${BASE_URL}/expert-hotelier`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
       url: `${BASE_URL}/mentions-legales`,
+      lastModified: new Date('2026-01-01'),
+      changeFrequency: 'yearly',
+      priority: 0.2,
+    },
+    {
+      url: `${BASE_URL}/politique-confidentialite`,
       lastModified: new Date('2026-01-01'),
       changeFrequency: 'yearly',
       priority: 0.2,

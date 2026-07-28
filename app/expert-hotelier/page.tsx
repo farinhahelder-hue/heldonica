@@ -9,12 +9,11 @@ import EditableZone from '@/components/inline-edit/EditableZone';
 
 const SITE_URL = 'https://www.heldonica.fr';
 
-// DRAFT — not linked from nav or sitemap
 export const metadata: Metadata = {
   title: 'Hébergements Slow Travel & Indépendance | Heldonica',
   description: 'Accompagnement pour hôtels indépendants, maisons d’hôtes et gîtes de charme. Valorise ton positionnement slow travel, libère-toi des plateformes et fidélise les couples.',
   keywords: ['slow travel gîte', 'maison d\'hôtes de charme', 'indépendance booking', 'expérience couple', 'conseil hébergement insolite'],
-  robots: { index: false, follow: false },
+  robots: { index: true, follow: true },
   alternates: { canonical: `${SITE_URL}/expert-hotelier` },
   openGraph: {
     title: 'Hébergements Slow Travel & Indépendance | Heldonica',

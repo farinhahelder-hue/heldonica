@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useEditableContext } from '@/components/inline-edit/InlineEditProvider'
 import { useContentLoader } from '@/hooks/useContentLoader'
 
-const NAV_LABEL_FALLBACKS = ['Destinations', 'Blog', 'Sur mesure', 'À propos', 'Consulting', 'Contact']
+const NAV_LABEL_FALLBACKS = ['Destinations', 'Blog', 'Sur mesure', 'À propos', 'Consulting Hôtelier', 'Contact']
 const NAV_URL_FALLBACKS = ['/destinations', '/blog', '/travel-planning', '/a-propos', '/expert-hotelier', '/contact']
 
 function arr<T>(items: number, fn: (i: number) => T): T[] {

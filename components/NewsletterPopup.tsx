@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { readCookieConsent } from '@/lib/consent'
 
+const OFFER_PAGES = ['/travel-planning', '/expert-hotelier', '/travel-planning-form', '/nos-services']
+
 export default function NewsletterPopup() {
   const [isVisible, setIsVisible] = useState(false)
   const [email, setEmail] = useState('')
@@ -10,7 +12,8 @@ export default function NewsletterPopup() {
   const [errorMessage, setErrorMessage] = useState('')
   const [hasConsentChoice, setHasConsentChoice] = useState(false)
 
-  // Listen to cookie consent updates
+  const isOfferPage = typeof window !== 'undefined' && OFFER_PAGES.some(p => window.location.pathname.startsWith(p))
+
   useEffect(() => {
     if (typeof window === 'undefined') return
 
@@ -27,10 +30,9 @@ export default function NewsletterPopup() {
   }, [])
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
+    if (typeof window === 'undefined' || isOfferPage) return
     if (!hasConsentChoice) return
-    
-    // Check if popup was already shown this session
+
     const wasShown = sessionStorage.getItem('newsletter-popup-shown')
     if (wasShown) return
 
@@ -61,10 +63,8 @@ export default function NewsletterPopup() {
       document.removeEventListener('mouseleave', exitIntentHandler)
     }
 
-    // Timer: 45 seconds
     timeout = setTimeout(showPopup, 45000)
 
-    // Scroll: 70%
     scrollHandler = () => {
       const scrollTop = window.scrollY
       const docHeight = document.documentElement.scrollHeight - window.innerHeight
@@ -73,12 +73,11 @@ export default function NewsletterPopup() {
     }
     window.addEventListener('scroll', scrollHandler, { passive: true })
 
-    // Exit intent: attendre 8s après le chargement pour éviter le déclenchement immédiat
     exitIntentGrace = setTimeout(() => { exitIntentEnabled = true }, 8000)
     document.addEventListener('mouseleave', exitIntentHandler)
 
     return cleanup
-  }, [hasConsentChoice])
+  }, [hasConsentChoice, isOfferPage])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -140,7 +139,6 @@ export default function NewsletterPopup() {
         }
       `}</style>
 
-      {/* Close button */}
       <button
         type="button"
         onClick={handleClose}
