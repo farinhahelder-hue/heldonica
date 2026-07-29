@@ -248,7 +248,7 @@ export default function Footer() {
             <ul className="space-y-3 text-sm" role="list">
               {navLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-stone-400 transition-colors duration-200 hover:text-white">
+                  <Link href={link.href} className="inline-block py-1.5 text-stone-400 transition-colors duration-200 hover:text-white">
                     {link.label}
                   </Link>
                 </li>
@@ -262,7 +262,7 @@ export default function Footer() {
             <ul className="space-y-3 text-sm" role="list">
               {destinationsLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-stone-400 transition-colors duration-200 hover:text-white">
+                  <Link href={link.href} className="inline-block py-1.5 text-stone-400 transition-colors duration-200 hover:text-white">
                     {link.label}
                   </Link>
                 </li>
@@ -276,7 +276,7 @@ export default function Footer() {
             <ul className="space-y-3 text-sm mb-8" role="list">
               {guidesLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-stone-400 transition-colors duration-200 hover:text-white">
+                  <Link href={link.href} className="inline-block py-1.5 text-stone-400 transition-colors duration-200 hover:text-white">
                     {link.label}
                   </Link>
                 </li>
@@ -286,7 +286,7 @@ export default function Footer() {
             <ul className="space-y-3 text-sm" role="list">
               {legalLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-stone-400 transition-colors duration-200 hover:text-white">
+                  <Link href={link.href} className="inline-block py-1.5 text-stone-400 transition-colors duration-200 hover:text-white">
                     {link.label}
                   </Link>
                 </li>

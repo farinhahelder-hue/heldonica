@@ -60,16 +60,24 @@ type CmsSessionPayload = {
   sid: string;
 };
 
-function isProtectedPath(pathname: string) {
+function isProtectedPath(pathname: string, method: string) {
   // Allow auth endpoints without authentication (including sub-routes like /check, /logout)
   if (pathname === '/api/cms/auth' || pathname === '/api/cms/login' ||
       pathname.startsWith('/api/cms/auth/')) {
     return false;
   }
 
-  // Check prefix patterns
+  // /api/cms/* : les lectures (GET) alimentent le contenu public de chaque page
+  // (useContentLoader, InlineEditProvider, EditableZone...) et doivent rester
+  // ouvertes. Chaque route protège déjà ses propres écritures (POST/PATCH/DELETE)
+  // via requireCmsAuth — la protection ici ne doit viser que ces écritures.
+  if (pathname.startsWith('/api/cms')) {
+    return method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS';
+  }
+
+  // Check other prefix patterns (protégés quelle que soit la méthode)
   for (const prefix of PROTECTED_PREFIXES) {
-    if (pathname.startsWith(prefix)) {
+    if (prefix !== '/api/cms' && pathname.startsWith(prefix)) {
       return true;
     }
   }
@@ -240,7 +248,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(redirectUrl, 301);
   }
 
-  if (!isProtectedPath(pathname)) {
+  if (!isProtectedPath(pathname, req.method)) {
     return NextResponse.next();
   }
 
