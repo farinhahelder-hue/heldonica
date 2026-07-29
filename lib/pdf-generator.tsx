@@ -111,7 +111,8 @@ export function TravelGuidePDF({ data }: { data: GuideData }) {
     <Document>
       {/* Cover */}
       <Page size="A4" style={s.coverPage}>
-        <Image src={data.heroImage || '/og-default.jpg'} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} />
+        {/* eslint-disable-next-line jsx-a11y/alt-text */}
+        <Image src={data.heroImage || 'https://www.heldonica.fr/og-default.jpg'} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} />
         <View style={s.coverOverlay}>
           <Text style={s.coverLabel}>{data.flagEmoji} Guide de voyage</Text>
           <Text style={s.coverTitle}>{data.title}</Text>

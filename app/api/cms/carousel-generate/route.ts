@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { HELDONICA_TOKENS } from '@/app/panel-manager/carousel/tokens'
+import { requireCmsAuth } from '@/lib/cms-auth'
 
 interface SlideData {
   id: string
@@ -173,6 +174,9 @@ Style Heldonica: slow travel, éco-luxe, authenticité`
 
 // POST handler
 export async function POST(request: NextRequest) {
+  const authResponse = await requireCmsAuth(request)
+  if (authResponse) return authResponse
+
   try {
     const body = await request.json()
     const { prompt, slideCount, brand, style, destination, brandConfig } = body

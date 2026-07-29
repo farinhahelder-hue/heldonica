@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 
 interface MediaFile {
   key: string
@@ -22,7 +22,7 @@ export default function MediaAdminPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [folder, setFolder] = useState('articles')
 
-  const fetchMedia = async () => {
+  const fetchMedia = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
@@ -38,11 +38,11 @@ export default function MediaAdminPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [folder])
 
   useEffect(() => {
     fetchMedia()
-  }, [folder])
+  }, [fetchMedia])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {

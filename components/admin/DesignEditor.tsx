@@ -64,13 +64,13 @@ export default function DesignEditor() {
   const [codeError, setCodeError] = useState('');
 
   const tabIcons: Record<TabId, React.ReactNode> = useMemo(() => ({
-    theme: <Palette size={14} />,
-    presets: <Palette size={14} />,
-    colors: <Palette size={14} />,
-    fonts: <Type size={14} />,
-    texts: <FileText size={14} />,
-    logo: <Image size={14} />,
-    code: <Code size={14} />,
+    theme: <Palette size={14} aria-hidden="true" />,
+    presets: <Palette size={14} aria-hidden="true" />,
+    colors: <Palette size={14} aria-hidden="true" />,
+    fonts: <Type size={14} aria-hidden="true" />,
+    texts: <FileText size={14} aria-hidden="true" />,
+    logo: <Image size={14} aria-hidden="true" />,
+    code: <Code size={14} aria-hidden="true" />,
   }), []);
 
   const THEME_PRESETS_UI = [

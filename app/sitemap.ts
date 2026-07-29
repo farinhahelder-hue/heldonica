@@ -512,8 +512,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const priority = (p.sitemap_priority as number) ?? 0.9;
       const changeFreq = (p.sitemap_changefreq as string) || 'weekly';
       
-      // Determine image URL
-      const imageUrl = post.featured_image || FALLBACK_IMAGE;
+      // Determine image URL - escape XML entities for valid sitemap XML
+      const imageUrl = (post.featured_image || FALLBACK_IMAGE).replace(/&/g, '&amp;');
       
       return {
         url: `${BASE_URL}/blog/${post.slug}`,

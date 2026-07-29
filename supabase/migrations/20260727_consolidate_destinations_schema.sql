@@ -1,0 +1,81 @@
+-- Migration: Consolider le schema complet de la table destinations
+-- Date: 2026-07-27
+-- Probleme: La table etait definie en 2 etapes distinctes (base + ALTER TABLE)
+--   - 20260523_create_destinations_table.sql (colonnes de base)
+--   - 20260615_destinations_v2.sql (colonnes etendues: status, travel_style, etc.)
+-- Solution: Ce fichier documente le schema COMPLET de la table destinations
+--           tel qu'il est utilise par le code actuel.
+-- Note: Ne PAS executer sur un environnement existant - les donnees seraient perdues.
+--       Pour un environnement existant, verifier d'abord que toutes les colonnes
+--       sont presentes via: SELECT column_name FROM information_schema.columns WHERE table_name = 'destinations';
+
+-- Schema complet de la table destinations
+-- CREATE TABLE IF NOT EXISTS destinations (
+--   id                       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--   slug                     TEXT UNIQUE NOT NULL,
+--   title                    TEXT NOT NULL,
+--   excerpt                  TEXT,
+--   country                  TEXT,
+--   region                   TEXT,
+--   category                 TEXT CHECK (category IN ('nature', 'culture', 'city', 'food')),
+--   latitude                 DOUBLE PRECISION,
+--   longitude                DOUBLE PRECISION,
+--   featured_image           TEXT,
+--   link                     TEXT,
+--   published                BOOLEAN DEFAULT true,
+--   created_at               TIMESTAMPTZ DEFAULT NOW(),
+--   updated_at               TIMESTAMPTZ DEFAULT NOW(),
+--   -- Colonnes ajoutees par 20260615_destinations_v2.sql:
+--   status                   TEXT DEFAULT 'draft' CHECK (status IN ('draft', 'coming_soon', 'published', 'starred')),
+--   priority_score           INTEGER DEFAULT 0,
+--   article_count            INTEGER DEFAULT 0,
+--   continent                TEXT,
+--   flag_emoji              TEXT,
+--   hero_unsplash_url       TEXT,
+--   teaser                  TEXT,
+--   coming_soon_date        TEXT,
+--   travel_style            TEXT,
+--   best_season             TEXT,
+--   avg_budget_couple_week  INTEGER
+-- );
+
+-- Index consolides
+-- CREATE INDEX idx_destinations_country      ON destinations(country);
+-- CREATE INDEX idx_destinations_region       ON destinations(region);
+-- CREATE INDEX idx_destinations_category    ON destinations(category);
+-- CREATE INDEX idx_destinations_published   ON destinations(published) WHERE published = true;
+-- CREATE INDEX idx_destinations_status      ON destinations(status);
+-- CREATE INDEX idx_destinations_slug       ON destinations(slug);
+
+-- Trigger auto_star_destination
+-- Met a jour le statut 'starred' quand 3+ articles referenciaient la destination
+-- CREATE OR REPLACE FUNCTION update_destination_stars()
+-- RETURNS TRIGGER AS $$
+-- BEGIN
+--   UPDATE destinations
+--   SET status = 'starred', priority_score = GREATEST(priority_score, 95)
+--   WHERE slug = NEW.destination
+--     AND (
+--       SELECT COUNT(*) FROM articles
+--       WHERE destination = NEW.destination AND published = true
+--     ) >= 3
+--     AND status IN ('published', 'draft');
+--   RETURN NEW;
+-- END;
+-- $$ LANGUAGE plpgsql;
+-- DROP TRIGGER IF EXISTS auto_star_destination ON articles;
+-- CREATE TRIGGER auto_star_destination
+-- AFTER INSERT OR UPDATE ON articles
+-- FOR EACH ROW EXECUTE FUNCTION update_destination_stars();
+
+-- Vue destinations_public (voir 20260615_destinations_v2.sql)
+-- CREATE OR REPLACE VIEW destinations_public AS
+-- SELECT slug, title, excerpt, country, continent, region, flag_emoji,
+--        tagline, teaser, hero_unsplash_url, featured_image, link,
+--        COALESCE(travel_style, category) AS travel_style,
+--        best_season, avg_budget_couple_week, status,
+--        priority_score, article_count, coming_soon_date,
+--        latitude, longitude, published
+-- FROM destinations
+-- WHERE published = true OR status IN ('coming_soon', 'starred')
+-- ORDER BY priority_score DESC, title ASC;

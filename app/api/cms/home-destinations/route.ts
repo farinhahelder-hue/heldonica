@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase-client'
+import { requireCmsAuth } from '@/lib/cms-auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,6 +32,9 @@ export interface CmsHomeDestinationsResponse {
  * Uses cms_home_destinations joined with destinations table
  */
 export async function GET(req: NextRequest) {
+  const authResponse = await requireCmsAuth(req)
+  if (authResponse) return authResponse
+
   try {
     // Fetch home destinations with joined destination data
     const { data: homeDests, error: homeError } = await supabase
