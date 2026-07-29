@@ -50,6 +50,13 @@ function postImage(p: BlogPost, slugImages: Record<string, string>, catImages: R
 function useScrollReveal() {
   useEffect(() => {
     const els = document.querySelectorAll('[data-reveal]')
+
+    // Respecte la préférence système : pas d'animation, contenu visible immédiatement.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      els.forEach((el) => el.classList.add('revealed'))
+      return
+    }
+
     const io = new IntersectionObserver(
       (entries) => entries.forEach((e) => {
         if (e.isIntersecting) { e.target.classList.add('revealed'); io.unobserve(e.target) }
@@ -57,7 +64,15 @@ function useScrollReveal() {
       { threshold: 0.12 }
     )
     els.forEach((el) => io.observe(el))
-    return () => io.disconnect()
+
+    // Filet de sécurité : un scroll très rapide peut faire manquer l'observer à
+    // certains éléments (ex. 3e carte, 2e rangée) et les laisser invisibles pour
+    // toujours. On force la révélation de tout ce qui reste après un délai.
+    const failsafe = window.setTimeout(() => {
+      els.forEach((el) => el.classList.add('revealed'))
+    }, 2500)
+
+    return () => { io.disconnect(); window.clearTimeout(failsafe) }
   }, [])
 }
 
@@ -379,6 +394,11 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         @keyframes wordIn{to{opacity:1}}
         @keyframes subtlePulse{0%,100%{opacity:.7;transform:translateY(0)}50%{opacity:1;transform:translateY(4px)}}
         .scroll-cue{opacity: 0; animation: wordIn 0.6s 1.6s forwards, subtlePulse 2.2s 1.8s ease-in-out infinite}
+        @media (prefers-reduced-motion: reduce) {
+          [data-reveal] { opacity:1 !important; transform:none !important; transition:none !important; }
+          .hero-word { opacity:1 !important; animation:none !important; }
+          .scroll-cue { opacity:1 !important; animation:none !important; }
+        }
       `}</style>
 
       <Header />
