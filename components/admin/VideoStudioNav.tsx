@@ -220,7 +220,7 @@ export default function VideoStudioNav({ children }: { children?: React.ReactNod
                 fontSize: '0.7rem',
                 color: '#555',
               }}>
-                <Image size={10} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+                <Image size={10} style={{ marginRight: 4, verticalAlign: 'middle' }} aria-hidden="true" />
                 Images
               </span>
               <span style={{

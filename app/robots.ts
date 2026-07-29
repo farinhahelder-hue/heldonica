@@ -5,7 +5,16 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/admin/', '/api/', '/_next/', '/cms/', '/panel-manager/'],
+      disallow: [
+        '/admin/',
+        '/api/',
+        '/_next/',
+        '/cms/',
+        '/panel-manager/',
+        // Pages hors positionnement principal (hors sitemap)
+        '/start',
+        '/expert-hotelier',
+      ],
     },
     sitemap: 'https://www.heldonica.fr/sitemap.xml',
   }

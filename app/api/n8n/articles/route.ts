@@ -12,8 +12,15 @@ const getSupabase = () => {
 
 // GET /api/n8n/articles - Get articles for n8n workflows
 // Query: ?category=&country=&status=&days=&limit=
+// Requires header: x-n8n-secret: <N8N_WEBHOOK_SECRET>
 
 export async function GET(request: NextRequest) {
+  // Verify webhook secret
+  const secret = request.headers.get('x-n8n-secret')
+  if (!secret || secret !== process.env.N8N_WEBHOOK_SECRET) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const supabase = getSupabase()
   if (!supabase) {
     return NextResponse.json({ error: 'Service unavailable - Supabase not configured' }, { status: 503 })

@@ -63,7 +63,7 @@ export default function GuideDownloadModal({
       setStatus('error')
       setErrorMsg(err.message || 'Erreur lors du téléchargement')
     }
-  }, [destinationSlug, email])
+  }, [destinationSlug, email, destinationTitle])
 
   if (!open) return null
 

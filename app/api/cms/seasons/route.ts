@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase-client'
+import { requireCmsAuth } from '@/lib/cms-auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,6 +30,9 @@ export interface CmsSeasonsResponse {
  * Query params: destination (optional) - destination_key to filter by
  */
 export async function GET(req: NextRequest) {
+  const authResponse = await requireCmsAuth(req)
+  if (authResponse) return authResponse
+
   try {
     const { searchParams } = new URL(req.url)
     const destination = searchParams.get('destination')

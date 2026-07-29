@@ -183,7 +183,7 @@ export default function AnalyticsDashboardPage() {
         <div className="p-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl text-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
             <span className="font-semibold block mb-0.5">Mode Demonstration actif</span>
-            Pour connecter des donnees réelles, ajoutez la variable <code className="font-mono bg-amber-100 px-1 py-0.5 rounded text-xs">GA4_PROPERTY_ID</code> dans Vercel.
+            Pour connecter des donnees réelles, ajoutez la variable <code className="font-mono bg-amber-100 px-1 py-0.5 rounded text-xs">GOOGLE_ANALYTICS_PROPERTY_ID</code> dans Vercel.
           </div>
           <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-100 px-2 py-0.5 rounded border border-amber-200 shrink-0">
             Mocked GA4 Data

@@ -14,42 +14,9 @@ import QuickAnswersBlock from '@/components/QuickAnswersBlock'
 import type { PillarData } from '@/lib/pillar-types'
 import { SITE_URL } from '@/lib/seo'
 import { SUB_DESTINATIONS } from '@/lib/sub-destinations'
-import { useContentLoader } from '@/hooks/useContentLoader'
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import EditableZone from '@/components/inline-edit/EditableZone'
 
-const PILLAR_LABELS_DEFAULT = {
-  cta: 'Demander mon voyage sur mesure →',
-  heroTitleSuffix: 'en couple — notre guide slow travel',
-  badgeSlowTravel: 'Slow travel',
-  whyHeading: 'Pourquoi {name} pour un couple slow travel ?',
-  subdestHeading: 'Explorer les pépites de la région',
-  subdestSubtext: 'Nos guides détaillés de terrain par ville et site d\'intérêt.',
-  subdestCardLink: 'Voir le guide →',
-  itineraryHeading: 'Comment organiser 7 jours à {name} ?',
-  itinerarySubtext: 'Un rythme slow, testé sur le terrain. Adaptable selon tes envies.',
-  budgetHeading: 'Quel budget prévoir pour {name} ?',
-  budgetTotalLabel: 'TOTAL estimé / semaine / couple',
-  budgetPracticalHeading: 'Ce qu\'on a vraiment payé sur place',
-  relatedBadge: 'Nos carnets',
-  relatedHeading: 'Articles sur {name}',
-  faqHeading: 'Questions fréquentes',
-  seasonHeading: 'Meilleure période pour {name}',
-  seasonHeaderPeriod: 'Période',
-  seasonHeaderWeather: 'Temps',
-  seasonHeaderCrowd: 'Affluence',
-  seasonHeaderOpinion: 'Notre avis',
-  seasonBestCrowd: 'Modérée',
-  seasonBestOpinion: '✓ Idéal',
-  seasonPeakLabel: 'Juillet–août',
-  seasonPeakCrowd: 'Forte',
-  seasonPeakOpinion: 'À éviter pour slow travel',
-  seasonOffLabel: 'Nov–mars',
-  seasonOffCrowd: 'Faible',
-  seasonOffOpinion: 'Court séjour possible',
-  ctaPreHeading: 'Voyage sur mesure',
-  ctaHeading: 'Prêt à découvrir {name} à ton rythme ?',
-  ctaText: 'On peut concevoir ton séjour sur mesure, avec nos adresses testées et notre rythme slow.',
-  newsletterText: '{name} et nos autres guides slow — reçois les prochains en avant-première.',
-}
 
 export default function DestinationPillar({
   data, relatedArticles,
@@ -57,16 +24,6 @@ export default function DestinationPillar({
   data: PillarData
   relatedArticles: { slug: string; title: string; excerpt: string; image_url?: string; read_time?: number }[]
 }) {
-  const { settings } = useContentLoader()
-  const rawLabels = settings?.pillar_labels
-  let labels = PILLAR_LABELS_DEFAULT
-  if (rawLabels) {
-    try {
-      const parsed = JSON.parse(rawLabels)
-      labels = { ...PILLAR_LABELS_DEFAULT, ...parsed }
-    } catch {}
-  }
-  const t = (template: string) => template.replace(/\{name\}/g, data.name)
   return (
     <>
       <Script id="pillar-tourist-destination" type="application/ld+json" dangerouslySetInnerHTML={{
@@ -110,7 +67,7 @@ export default function DestinationPillar({
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
           <div className="relative container py-16 md:py-24">
             <p className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold">{data.flag} {data.name}</p>
-            <h1 className="text-4xl md:text-6xl font-serif text-white max-w-3xl mb-4 leading-tight">{data.name} {t(labels.heroTitleSuffix)}</h1>
+            <h1 className="text-4xl md:text-6xl font-serif text-white max-w-3xl mb-4 leading-tight">{data.name} en couple — notre guide slow travel</h1>
             {data.heroSubtitle && (
               <p className="text-white/90 max-w-2xl text-lg leading-relaxed mb-4 font-medium">{data.heroSubtitle}</p>
             )}
@@ -118,14 +75,14 @@ export default function DestinationPillar({
             <div className="flex flex-wrap gap-2 mb-6">
               <span className="rounded-full bg-eucalyptus/20 text-eucalyptus text-xs font-semibold px-3 py-1.5 border border-eucalyptus/30">📅 {data.season}</span>
               <span className="rounded-full bg-teal/20 text-teal text-xs font-semibold px-3 py-1.5 border border-teal/30">💰 ~{data.budget}€/sem/couple</span>
-              <span className="rounded-full bg-teal/20 text-teal text-xs font-semibold px-3 py-1.5 border border-teal/30">🌿 {labels.badgeSlowTravel}</span>
+              <span className="rounded-full bg-teal/20 text-teal text-xs font-semibold px-3 py-1.5 border border-teal/30">🌿 Slow travel</span>
             </div>
             <div className="flex flex-wrap gap-3">
               <GuideDownloadButton slug={data.slug} title={data.name} />
               <Link href={`/travel-planning-form?destination=${data.slug}`}
                 className="inline-flex items-center gap-2 rounded-full bg-eucalyptus px-6 py-3 text-sm font-semibold text-white hover:bg-eucalyptus/90 transition-all shadow-md"
                 onClick={() => { if (typeof window !== 'undefined' && (window as any).gtag) (window as any).gtag('event', 'cta_travel_planning_clique', { source: 'page_pilier', destination: data.slug }) }}>
-                {labels.cta}
+                Demander mon voyage sur mesure →
               </Link>
             </div>
           </div>
@@ -148,7 +105,9 @@ export default function DestinationPillar({
         {/* Intro narrative */}
         <section className="bg-cloud-dancer py-16 md:py-20">
           <div className="container max-w-3xl">
-            <h2 className="text-3xl font-serif text-mahogany mb-6">{t(labels.whyHeading)}</h2>
+            <h2 className="text-3xl font-serif text-mahogany mb-6">
+              <EditableZone page="destinations" zone="intro_title" fallback="Pourquoi" className="inline" /> {data.name} <EditableZone page="destinations" zone="intro_title_suffix" fallback="pour un couple slow travel ?" className="inline" />
+            </h2>
             {data.intro.map((p, i) => (
               <p key={i} className="text-charcoal/80 leading-relaxed mb-4 last:mb-0">{p}</p>
             ))}
@@ -163,10 +122,10 @@ export default function DestinationPillar({
             <section className="bg-white py-16 border-b border-stone-200/60">
               <div className="container max-w-5xl">
                 <h2 className="text-3xl font-serif text-mahogany mb-2 text-center">
-                  {labels.subdestHeading}
+                  <EditableZone page="destinations" zone="subdests_title" fallback="Explorer les pépites de la région" />
                 </h2>
                 <p className="text-charcoal/60 text-sm text-center mb-10">
-                  {labels.subdestSubtext}
+                  <EditableZone page="destinations" zone="subdests_subtitle" type="textarea" fallback="Nos guides détaillés de terrain par ville et site d'intérêt." />
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                   {subDests.map((sub) => (
@@ -183,7 +142,7 @@ export default function DestinationPillar({
                         {sub.teaser}
                       </p>
                       <span className="text-xs font-semibold text-eucalyptus mt-3 inline-block group-hover:translate-x-1 transition-transform">
-                        {labels.subdestCardLink}
+                        <EditableZone page="destinations" zone="subdests_cta" fallback="Voir le guide →" />
                       </span>
                     </Link>
                   ))}
@@ -219,8 +178,12 @@ export default function DestinationPillar({
         {/* Itinéraire 7 jours */}
         <section className="bg-white py-16 md:py-20">
           <div className="container max-w-5xl">
-            <h2 className="text-3xl font-serif text-mahogany mb-2">{t(labels.itineraryHeading)}</h2>
-            <p className="text-charcoal/60 text-sm mb-8 max-w-2xl">{labels.itinerarySubtext}</p>
+            <h2 className="text-3xl font-serif text-mahogany mb-2">
+              <EditableZone page="destinations" zone="itinerary_title_prefix" fallback="Comment organiser 7 jours à" className="inline" /> {data.name} ?
+            </h2>
+            <p className="text-charcoal/60 text-sm mb-8 max-w-2xl">
+              <EditableZone page="destinations" zone="itinerary_subtitle" type="textarea" fallback="Un rythme slow, testé sur le terrain. Adaptable selon tes envies." />
+            </p>
             <div className="space-y-4">
               {data.itinerary.map((day) => (
                 <div key={day.day} className="flex gap-5 bg-stone-50 rounded-xl p-5 border border-stone-100">
@@ -248,10 +211,12 @@ export default function DestinationPillar({
         {/* Budget détaillé */}
         <section className="bg-cloud-dancer py-16 md:py-20">
           <div className="container max-w-3xl">
-            <h2 className="text-3xl font-serif text-mahogany mb-4">{t(labels.budgetHeading)}</h2>
+            <h2 className="text-3xl font-serif text-mahogany mb-4">
+              <EditableZone page="destinations" zone="budget_title_prefix" fallback="Quel budget prévoir pour" className="inline" /> {data.name} ?
+            </h2>
             <p className="text-charcoal/70 text-base mb-6 leading-relaxed">
-              <strong>Réponse rapide :</strong> comptez environ {data.budget}€/semaine pour deux en slow travel. 
-              Ce budget inclut vol, hébergement confortable, repas et transports locaux.
+              <strong><EditableZone page="destinations" zone="budget_quick_answer" fallback="Réponse rapide :" className="inline" /></strong> <EditableZone page="destinations" zone="budget_estimate_1" fallback="comptez environ" className="inline" /> {data.budget}€/semaine <EditableZone page="destinations" zone="budget_estimate_2" fallback="pour deux en slow travel." className="inline" /> 
+              <br/><EditableZone page="destinations" zone="budget_estimate_3" fallback="Ce budget inclut vol, hébergement confortable, repas et transports locaux." className="inline block mt-1" />
             </p>
             <div className="space-y-4 mb-6">
               {data.budgetBreakdown.map((b) => (
@@ -267,13 +232,15 @@ export default function DestinationPillar({
               ))}
             </div>
             <div className="flex justify-between items-center p-4 rounded-xl bg-eucalyptus/10 border border-eucalyptus/20">
-              <span className="font-bold text-mahogany">{labels.budgetTotalLabel}</span>
+              <span className="font-bold text-mahogany">TOTAL estimé / semaine / couple</span>
               <span className="font-bold text-lg text-eucalyptus">~{data.budget}€</span>
             </div>
 
             {/* Points pratiques clés */}
             <div className="mt-8 p-5 rounded-xl bg-white border border-stone-200">
-              <h3 className="font-semibold text-mahogany mb-4">{labels.budgetPracticalHeading}</h3>
+              <h3 className="font-semibold text-mahogany mb-4">
+                <EditableZone page="destinations" zone="budget_reality_title" fallback="Ce qu'on a vraiment payé sur place" />
+              </h3>
               <ul className="space-y-2 text-sm text-charcoal/80">
                 <li className="flex items-start gap-2 before:content-['✓'] before:text-eucalyptus before:font-bold">
                   Vols : variable selon saison ({data.season} = moins cher)
@@ -299,8 +266,8 @@ export default function DestinationPillar({
         {relatedArticles.length > 0 && (
           <section className="bg-white py-16">
             <div className="container max-w-5xl">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-eucalyptus mb-3">{labels.relatedBadge}</p>
-              <h2 className="text-2xl font-serif text-mahogany mb-6">{t(labels.relatedHeading)}</h2>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-eucalyptus mb-3">Nos carnets</p>
+              <h2 className="text-2xl font-serif text-mahogany mb-6">Articles sur {data.name}</h2>
               <div className="grid md:grid-cols-2 gap-4">
                 {relatedArticles.map((a) => (
                   <Link key={a.slug} href={`/blog/${a.slug}`} className="group block rounded-xl border border-stone-200 bg-stone-50 p-5 hover:bg-white hover:shadow-sm transition-all">
@@ -329,38 +296,38 @@ export default function DestinationPillar({
         {/* FAQ */}
         <section className="bg-cloud-dancer py-16">
           <div className="container max-w-3xl">
-            <h2 className="text-3xl font-serif text-mahogany mb-8 text-center">{labels.faqHeading}</h2>
+            <h2 className="text-3xl font-serif text-mahogany mb-8 text-center">Questions fréquentes</h2>
 
             {/* Tableau saison / affluence */}
             <div className="mb-8 overflow-x-auto">
-              <h3 className="text-sm font-semibold text-charcoal/60 mb-4">{t(labels.seasonHeading)}</h3>
+              <h3 className="text-sm font-semibold text-charcoal/60 mb-4">Meilleure période pour {data.name}</h3>
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-stone-200">
-                    <th className="text-left py-3 pr-4 font-semibold text-charcoal">{labels.seasonHeaderPeriod}</th>
-                    <th className="text-center py-3 px-2 font-semibold text-charcoal">{labels.seasonHeaderWeather}</th>
-                    <th className="text-center py-3 px-2 font-semibold text-charcoal">{labels.seasonHeaderCrowd}</th>
-                    <th className="text-center py-3 pl-4 font-semibold text-charcoal">{labels.seasonHeaderOpinion}</th>
+                    <th className="text-left py-3 pr-4 font-semibold text-charcoal">Période</th>
+                    <th className="text-center py-3 px-2 font-semibold text-charcoal">Temps</th>
+                    <th className="text-center py-3 px-2 font-semibold text-charcoal">Affluence</th>
+                    <th className="text-center py-3 pl-4 font-semibold text-charcoal">Notre avis</th>
                   </tr>
                 </thead>
                 <tbody className="text-charcoal/70">
                   <tr className="border-b border-stone-100 bg-eucalyptus/5">
                     <td className="py-3 pr-4 font-medium text-eucalyptus">{data.season}</td>
                     <td className="py-3 px-2 text-center">⭐⭐⭐⭐⭐</td>
-                    <td className="py-3 px-2 text-center">{labels.seasonBestCrowd}</td>
-                    <td className="py-3 pl-4 text-eucalyptus font-medium">{labels.seasonBestOpinion}</td>
+                    <td className="py-3 px-2 text-center">Modérée</td>
+                    <td className="py-3 pl-4 text-eucalyptus font-medium">✓ Idéal</td>
                   </tr>
                   <tr className="border-b border-stone-100">
-                    <td className="py-3 pr-4 font-medium">{labels.seasonPeakLabel}</td>
+                    <td className="py-3 pr-4 font-medium">Juillet–août</td>
                     <td className="py-3 px-2 text-center">⭐⭐⭐⭐</td>
-                    <td className="py-3 px-2 text-center text-red-400">{labels.seasonPeakCrowd}</td>
-                    <td className="py-3 pl-4">{labels.seasonPeakOpinion}</td>
+                    <td className="py-3 px-2 text-center text-red-400">Forte</td>
+                    <td className="py-3 pl-4">À éviter pour slow travel</td>
                   </tr>
                   <tr>
-                    <td className="py-3 pr-4 font-medium">{labels.seasonOffLabel}</td>
+                    <td className="py-3 pr-4 font-medium">Nov–mars</td>
                     <td className="py-3 px-2 text-center">⭐⭐</td>
-                    <td className="py-3 px-2 text-center">{labels.seasonOffCrowd}</td>
-                    <td className="py-3 pl-4">{labels.seasonOffOpinion}</td>
+                    <td className="py-3 px-2 text-center">Faible</td>
+                    <td className="py-3 pl-4">Court séjour possible</td>
                   </tr>
                 </tbody>
               </table>
@@ -382,13 +349,13 @@ export default function DestinationPillar({
         {/* CTA Travel Planning */}
         <section className="bg-mahogany text-white py-20">
           <div className="container text-center max-w-3xl">
-            <p className="text-sm uppercase tracking-[0.16em] text-teal mb-3">{labels.ctaPreHeading}</p>
-            <h2 className="text-3xl md:text-4xl font-serif mb-4">{t(labels.ctaHeading)}</h2>
-            <p className="text-white/80 mb-8">{labels.ctaText}</p>
+            <p className="text-sm uppercase tracking-[0.16em] text-teal mb-3">Voyage sur mesure</p>
+            <h2 className="text-3xl md:text-4xl font-serif mb-4">Prêt à découvrir {data.name} à ton rythme ?</h2>
+            <p className="text-white/80 mb-8">On peut concevoir ton séjour sur mesure, avec nos adresses testées et notre rythme slow.</p>
             <Link href={`/travel-planning-form?destination=${data.slug}`}
               className="inline-flex px-7 py-3 rounded-lg bg-teal text-charcoal font-semibold hover:bg-teal/90 transition-colors"
               onClick={() => { if (typeof window !== 'undefined' && (window as any).gtag) (window as any).gtag('event', 'cta_travel_planning_clique', { source: 'page_pilier', destination: data.slug }) }}>
-              {labels.cta}
+              Demander mon voyage sur mesure →
             </Link>
           </div>
         </section>
@@ -397,7 +364,7 @@ export default function DestinationPillar({
         <section className="bg-white py-16">
           <div className="container max-w-md text-center">
             <p className="text-sm text-charcoal/60 mb-4">
-              {t(labels.newsletterText)}
+              {data.name} et nos autres guides slow — reçois les prochains en avant-première.
             </p>
             <NewsletterForm variant="article" />
           </div>

@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     })
 
     const [response] = await client.runReport({
-      property: `properties/${process.env.GA4_PROPERTY_ID}`,
+      property: `properties/${process.env.GOOGLE_ANALYTICS_PROPERTY_ID}`,
       dateRanges: [{ startDate, endDate }],
       metrics: [
         { name: 'sessions' },
