@@ -11,9 +11,8 @@ export default function robots(): MetadataRoute.Robots {
         '/_next/',
         '/cms/',
         '/panel-manager/',
-        // Pages hors positionnement principal (hors sitemap)
+        // Page linktree pour les réseaux, volontairement hors index
         '/start',
-        '/expert-hotelier',
       ],
     },
     sitemap: 'https://www.heldonica.fr/sitemap.xml',
