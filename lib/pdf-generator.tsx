@@ -69,14 +69,7 @@ interface GuideData {
   articles: { title: string; excerpt: string; slug: string }[]
 }
 
-const STYLE_LABELS: Record<string, string> = {
-  'slow-culture': 'Slow & Culture',
-  'slow-nature': 'Slow & Nature',
-  'nature': 'Nature',
-  'culture': 'Culture',
-  'city': 'Ville',
-  'food': 'Food & Gastronomie',
-}
+import { getStyleLabel } from '@/lib/travel-styles'
 
 function formatBudget(amount?: number): string {
   if (!amount) return ''
@@ -110,7 +103,7 @@ const generateItinerary = (title: string, articles: GuideData['articles']) => {
 }
 
 export function TravelGuidePDF({ data }: { data: GuideData }) {
-  const styleLabel = data.travelStyle ? STYLE_LABELS[data.travelStyle] || data.travelStyle : ''
+  const styleLabel = getStyleLabel(data.travelStyle)
   const itinerary = generateItinerary(data.title, data.articles)
   const destName = data.title.toLowerCase().split('—')[0].trim()
 
@@ -119,7 +112,7 @@ export function TravelGuidePDF({ data }: { data: GuideData }) {
       {/* Cover */}
       <Page size="A4" style={s.coverPage}>
         {/* eslint-disable-next-line jsx-a11y/alt-text */}
-        <Image src={data.heroImage || 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&q=80'} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} />
+        <Image src={data.heroImage || 'https://www.heldonica.fr/og-default.jpg'} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} />
         <View style={s.coverOverlay}>
           <Text style={s.coverLabel}>{data.flagEmoji} Guide de voyage</Text>
           <Text style={s.coverTitle}>{data.title}</Text>

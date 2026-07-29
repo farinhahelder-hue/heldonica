@@ -1,3 +1,5 @@
+import { supabase } from './supabase-client'
+
 export interface InstagramStory {
   id: string
   title: string
@@ -12,47 +14,35 @@ export const INSTAGRAM_PROFILE = {
   website: 'https://heldonica.fr',
 }
 
-export const INSTAGRAM_STORIES: InstagramStory[] = [
-  {
-    id: 'story-madere-fanal',
-    title: 'Brume de Fanal',
-    location: 'Madère',
-    permalink: 'https://www.instagram.com/heldonica/',
-    image: 'https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg',
-  },
-  {
-    id: 'story-madere-cascade',
-    title: 'Cascade en levada',
-    location: 'Madère',
-    permalink: 'https://www.instagram.com/heldonica/',
-    image: 'https://heldonica.fr/wp-content/uploads/2026/03/madere-cascade-1024x683.jpg',
-  },
-  {
-    id: 'story-zurich-limmat',
-    title: 'Limmat au ralenti',
-    location: 'Zurich',
-    permalink: 'https://www.instagram.com/heldonica/',
-    image: 'https://heldonica.fr/wp-content/uploads/2025/09/zurich-limmat-ete-3-1024x681.jpg',
-  },
-  {
-    id: 'story-stoos-ridge',
-    title: 'Crête Stoos',
-    location: 'Suisse',
-    permalink: 'https://www.instagram.com/heldonica/',
-    image: 'https://heldonica.fr/wp-content/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg',
-  },
-  {
-    id: 'story-roumanie',
-    title: 'Cour cachée à Timișoara',
-    location: 'Roumanie',
-    permalink: 'https://www.instagram.com/heldonica/',
-    image: 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
-  },
-  {
-    id: 'story-paris',
-    title: 'Petite Ceinture',
-    location: 'Paris',
-    permalink: 'https://www.instagram.com/heldonica/',
-    image: 'https://heldonica.fr/wp-content/uploads/2025/09/paris-petite-ceinture-2-683x1024.jpg',
-  },
-]
+// Anciennement peuplé de liens heldonica.fr/wp-content — tous morts (403) depuis la migration
+// vers Next.js. Tant qu'un flux Instagram ou des photos maison réelles ne sont pas configurés
+// via CMS (instagram_stories_json), on n'affiche rien plutôt qu'une image cassée.
+const HARDCODED_STORIES: InstagramStory[] = []
+
+export async function getInstagramStories(): Promise<InstagramStory[]> {
+  if (!supabase) return HARDCODED_STORIES
+
+  try {
+    const { data } = await supabase
+      .from('site_settings')
+      .select('key, value')
+      .in('key', ['instagram_stories_json', 'instagram_username', 'instagram_followers_label'])
+
+    if (!data || data.length === 0) return HARDCODED_STORIES
+
+    const settingsMap = Object.fromEntries(data.map(s => [s.key, s.value]))
+
+    if (settingsMap.instagram_stories_json) {
+      try {
+        const parsed = JSON.parse(settingsMap.instagram_stories_json)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed as InstagramStory[]
+        }
+      } catch {}
+    }
+
+    return HARDCODED_STORIES
+  } catch {
+    return HARDCODED_STORIES
+  }
+}

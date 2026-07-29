@@ -55,20 +55,48 @@ export default function Footer() {
   const guidesTitle = cz('guides_footer_title', 'Guides gratuits')
   const legalTitle = cz('legal_footer_title', 'Légal')
 
-  const navLinks = arr(6, (i) => ({
-    label: cz(`nav_item_${i + 1}_label`, NAV_LABEL_FALLBACKS[i]),
-    href: cz(`nav_item_${i + 1}_url`, NAV_URL_FALLBACKS[i]),
-  }))
+  const navLinks = (() => {
+    const raw = settings?.footer_nav_json
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed as { label: string; href: string }[]
+      } catch {}
+    }
+    return arr(6, (i) => ({
+      label: cz(`nav_item_${i + 1}_label`, NAV_LABEL_FALLBACKS[i]),
+      href: cz(`nav_item_${i + 1}_url`, NAV_URL_FALLBACKS[i]),
+    }))
+  })()
 
-  const destinationsLinks = arr(5, (i) => ({
-    label: cz(`footer_dest_item_${i + 1}_label`, ['Madère', 'Roumanie', 'Monténégro', 'Grèce', 'Colombie'][i]),
-    href: cz(`footer_dest_item_${i + 1}_url`, ['/destinations/madere', '/destinations/roumanie', '/destinations/montenegro', '/destinations/grece', '/destinations/colombie'][i]),
-  }))
+  const destinationsLinks = (() => {
+    const raw = settings?.footer_destinations_json
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed as { label: string; href: string }[]
+      } catch {}
+    }
+    // fallback: 5 individual zone overrides
+    return arr(5, (i) => ({
+      label: cz(`footer_dest_item_${i + 1}_label`, ['Madère', 'Roumanie', 'Monténégro', 'Grèce', 'Colombie'][i]),
+      href: cz(`footer_dest_item_${i + 1}_url`, ['/destinations/madere', '/destinations/roumanie', '/destinations/montenegro', '/destinations/grece', '/destinations/colombie'][i]),
+    }))
+  })()
 
-  const guidesLinks = arr(4, (i) => ({
-    label: cz(`footer_guide_item_${i + 1}_label`, ['Guide Madère', 'Guides pratiques', 'Carnets de voyage', 'Organisateur de voyage'][i]),
-    href: cz(`footer_guide_item_${i + 1}_url`, ['/guides/top-10-pepites-madere', '/blog?categorie=Guides Pratiques', '/blog?categorie=Carnets Voyage', '/organisateur'][i]),
-  }))
+  const guidesLinks = (() => {
+    const raw = settings?.footer_guides_json
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed as { label: string; href: string }[]
+      } catch {}
+    }
+    return arr(4, (i) => ({
+      label: cz(`footer_guide_item_${i + 1}_label`, ['Guide Madère', 'Guides pratiques', 'Carnets de voyage', 'Organisateur de voyage'][i]),
+      href: cz(`footer_guide_item_${i + 1}_url`, ['/guides/top-10-pepites-madere', '/blog?categorie=Guides Pratiques', '/blog?categorie=Carnets Voyage', '/organisateur'][i]),
+    }))
+  })()
 
   const legalLinks = arr(3, (i) => ({
     label: cz(`footer_legal_item_${i + 1}_label`, ['Mentions légales', 'Politique de confidentialité', 'Programme partenaires'][i]),
@@ -164,8 +192,8 @@ export default function Footer() {
                         required
                         className="mt-1 h-4 w-4 rounded border-stone-700 bg-stone-900 text-eucalyptus focus:ring-eucalyptus cursor-pointer"
                       />
-                      <label 
-                        htmlFor="footer-newsletter-rgpd" 
+                      <label
+                        htmlFor="footer-newsletter-rgpd"
                         className="text-xs text-stone-400 leading-normal"
                         dangerouslySetInnerHTML={{ __html: newsletterRgpdHtml }}
                       />

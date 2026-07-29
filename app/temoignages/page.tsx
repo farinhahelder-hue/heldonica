@@ -50,7 +50,7 @@ export default async function TemoignagesPage() {
         {/* Hero Section */}
         <section className="relative bg-stone-950 text-white py-24 md:py-32 overflow-hidden">
           <EditableZone page="temoignages" zone="hero_image_url" type="image"
-            fallback="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1400&q=70"
+            fallback="/og-default.jpg"
             className="absolute inset-0 opacity-20 w-full h-full object-cover"
           />
           <div className="relative max-w-4xl mx-auto px-6 text-center">

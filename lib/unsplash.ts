@@ -83,20 +83,19 @@ export function getCredit(photo: UnsplashPhoto): string {
   return `Photo de ${photo.user.name} sur Unsplash`;
 }
 
-// Default fallback images by category
+// Default fallback images by category — tous remplacés par le fallback de marque
 export const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
-  default: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1200&q=80',
-  'Carnets Voyage': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
-  'Découvertes Locales': 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=1200&q=80',
-  'Guides Pratiques': 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
-  // Destination-based fallbacks
-  'europe': 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=1200&q=80',
-  'france': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1200&q=80',
-  'portugal': 'https://images.unsplash.com/photo-1555881400-74d7feeac3e4?w=1200&q=80',
-  'espagne': 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=1200&q=80',
-  'italie': 'https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?w=1200&q=80',
-  'voyage': 'https://images.unsplash.com/photo-1488646953014-85cb44b258dc?w=1200&q=80',
-  'slow-travel': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80',
+  default: '/og-default.jpg',
+  'Carnets Voyage': '/og-default.jpg',
+  'Découvertes Locales': '/og-default.jpg',
+  'Guides Pratiques': '/og-default.jpg',
+  'europe': '/og-default.jpg',
+  'france': '/og-default.jpg',
+  'portugal': '/og-default.jpg',
+  'espagne': '/og-default.jpg',
+  'italie': '/og-default.jpg',
+  'voyage': '/og-default.jpg',
+  'slow-travel': '/og-default.jpg',
 };
 
 /**

@@ -9,18 +9,17 @@ import DestinationCard from '@/components/DestinationCard'
 import type { DestinationCardProps } from '@/components/DestinationCard'
 import SlowTravelQuiz from '@/components/SlowTravelQuiz'
 import NewsletterForm from '@/components/NewsletterForm'
+import { useContentLoader } from '@/hooks/useContentLoader'
 
 type RawDestination = Record<string, any>
 
-const CONTINENT_TABS = [
+const CONTINENT_TABS_DEFAULT = [
   { value: 'all', label: 'Toutes', icon: '🌍' },
   { value: 'starred', label: 'Coups de cœur', icon: '⭐' },
   { value: 'Europe', label: 'Europe', icon: '🇪🇺' },
   { value: 'Méditerranée', label: 'Méditerranée', icon: '🌊' },
   { value: 'Amériques', label: 'Amériques', icon: '🌎' },
 ]
-
-const HERO_FALLBACK = 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80'
 
 function mapRawToCard(d: RawDestination): DestinationCardProps {
   return {
@@ -43,9 +42,21 @@ function mapRawToCard(d: RawDestination): DestinationCardProps {
 }
 
 export default function DestinationsClient() {
+  const { settings } = useContentLoader()
   const [destinations, setDestinations] = useState<DestinationCardProps[]>([])
   const [loading, setLoading] = useState(true)
   const [continentFilter, setContinentFilter] = useState('all')
+
+  const tabs = (() => {
+    const raw = settings?.destinations_tabs_json
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed as { value: string; label: string; icon: string }[]
+      } catch {}
+    }
+    return CONTINENT_TABS_DEFAULT
+  })()
 
   useEffect(() => {
     async function fetchDestinations() {
@@ -97,13 +108,13 @@ export default function DestinationsClient() {
         <section className="bg-gradient-to-br from-[#f8f6f4] to-white py-16 md:py-24 px-4">
           <div className="max-w-5xl mx-auto">
             <p className="text-xs uppercase tracking-[0.2em] text-eucalyptus font-semibold mb-4">
-              Hub destinations
+              {settings?.destinations_hub_badge || 'Hub destinations'}
             </p>
             <h1 className="text-3xl md:text-5xl font-serif text-mahogany mb-6 leading-tight">
-              Nos destinations slow travel en couple
+              {settings?.destinations_hub_title || 'Nos destinations slow travel en couple'}
             </h1>
             <p className="text-charcoal text-base md:text-lg max-w-3xl leading-relaxed">
-              Toutes nos destinations testées sur le terrain — pas de contenu généré sans vécu.
+              {settings?.destinations_hub_subtitle || 'Toutes nos destinations testées sur le terrain — pas de contenu généré sans vécu.'}
             </p>
           </div>
         </section>
@@ -111,7 +122,7 @@ export default function DestinationsClient() {
         <section className="bg-white/95 backdrop-blur-md pb-4 sticky top-[60px] lg:top-[72px] z-30 border-b border-stone-200 shadow-sm">
           <div className="max-w-5xl mx-auto px-4 py-4">
             <div className="flex flex-wrap items-center gap-2">
-              {CONTINENT_TABS.map((tab) => (
+              {tabs.map((tab) => (
                 <button
                   key={tab.value}
                   onClick={() => { setContinentFilter(tab.value); if (typeof window !== 'undefined' && (window as any).gtag) (window as any).gtag('event', 'filtre_continent_utilise', { filtre: tab.value }) }}

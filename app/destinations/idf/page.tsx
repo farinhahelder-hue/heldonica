@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     title: 'Île-de-France slow travel | Guide Heldonica',
     description: 'Paris autrement, Versailles hors saison, Giverny au petit matin. Slow travel en Île-de-France.',
     url: 'https://www.heldonica.fr/destinations/idf',
-    images: [{ url: 'https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?w=1200&q=80', width: 1200, height: 630, alt: 'Paris slow travel — Île-de-France' }],
+    images: [{ url: '/og-default.jpg', width: 1200, height: 630, alt: 'Paris slow travel — Île-de-France' }],
     locale: 'fr_FR',
     type: 'website',
   },
@@ -128,7 +128,7 @@ export default function IdfPage() {
         <section className="relative overflow-hidden bg-gradient-to-b from-stone-900 via-stone-800 to-stone-700 py-24 md:py-32">
           <div
             className="absolute inset-0 opacity-20 bg-cover bg-center"
-            style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?w=1920&q=75)' }}
+            style={{ backgroundImage: 'url(/og-default.jpg)' }}
             aria-hidden="true"
           />
           <div className="relative max-w-4xl mx-auto px-4">

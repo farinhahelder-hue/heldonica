@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     title: 'Faial en couple : notre carnet slow travel | Heldonica',
     description: 'Le village dans les nuages. Montagne en ⭐ Hidden Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
     type: 'website',
-    images: ['https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200&q=80'],
+    images: ['/og-default.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica'
   },
@@ -43,9 +43,9 @@ export default function FaialPage() {
       <Header />
       <SubDestinationTemplate
         name="Faial"
-        parentName="⭐ Hidden Gem"
+        parentName="Madère"
         parentSlug="madere"
-        heroImage="https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200&q=80"
+        heroImage="/og-default.jpg"
         introText="Le village dans les nuages. Montagne."
         highlights={highlights}
         localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."

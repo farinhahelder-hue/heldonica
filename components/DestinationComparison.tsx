@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowUpDown, Download, X } from 'lucide-react'
 import GuideDownloadButton from '@/components/GuideDownloadButton'
+import { useContentLoader } from '@/hooks/useContentLoader'
 
 interface DestCompare {
   slug: string
@@ -26,14 +27,7 @@ interface Props {
   destinations: DestCompare[]
 }
 
-const STYLE_LABELS: Record<string, string> = {
-  'slow-culture': 'Slow & Culture',
-  'slow-nature': 'Slow & Nature',
-  'nature': 'Nature',
-  'culture': 'Culture',
-  'city': 'Ville',
-  'food': 'Food',
-}
+import { getStyleLabel } from '@/lib/travel-styles'
 
 const CONTINENT_ORDER = ['europe', 'mediterranee', 'ameriques', 'asie', 'afrique', 'oceanie']
 
@@ -45,15 +39,28 @@ function formatBudget(amount?: number): string {
 
 type SortKey = 'title' | 'continent' | 'avg_budget_couple_week' | 'article_count' | 'best_season'
 
-const SORT_OPTIONS: { key: SortKey; label: string }[] = [
-  { key: 'title', label: 'Nom' },
-  { key: 'continent', label: 'Continent' },
-  { key: 'avg_budget_couple_week', label: 'Budget' },
-  { key: 'article_count', label: 'Articles' },
-  { key: 'best_season', label: 'Saison' },
-]
+const LABELS_DEFAULT = {
+  emptyState: 'Sélectionne des destinations pour les comparer',
+  sortLabel: 'Critère',
+  maxNote: '(max 5)',
+  headerTemplate: '{count} destination{s} sélectionnée{s}',
+  rowContinent: 'Continent',
+  rowStyle: 'Style',
+  rowBestSeason: 'Meilleure saison',
+  rowBudget: 'Budget / semaine / couple',
+  rowArticles: 'Articles',
+  rowTeaser: 'En bref',
+  rowGuide: 'Guide PDF',
+}
 
 export default function DestinationComparison({ destinations }: Props) {
+  const { settings } = useContentLoader()
+
+  const labels = { ...LABELS_DEFAULT }
+  try {
+    const raw = settings?.comparison_labels
+    if (raw) Object.assign(labels, JSON.parse(raw))
+  } catch {}
   const [selected, setSelected] = useState<Set<string>>(new Set(
     destinations.slice(0, 4).map((d) => d.slug)
   ))
@@ -84,8 +91,8 @@ export default function DestinationComparison({ destinations }: Props) {
     <div>
       <div className="mb-8">
         <h2 className="text-lg font-serif text-mahogany mb-3">
-          {selected.size} destination{selected.size > 1 ? 's' : ''} sélectionnée{selected.size > 1 ? 's' : ''}
-          <span className="text-sm font-normal text-stone-500 ml-2">(max 5)</span>
+          {labels.headerTemplate.replace(/\{count\}/g, String(selected.size)).replace(/\{s\}/g, selected.size > 1 ? 's' : '')}
+          <span className="text-sm font-normal text-stone-500 ml-2">{labels.maxNote}</span>
         </h2>
         <div className="flex flex-wrap gap-2">
           {destinations.map((d) => {
@@ -107,7 +114,7 @@ export default function DestinationComparison({ destinations }: Props) {
 
       {sorted.length === 0 ? (
         <div className="rounded-2xl border border-stone-200 bg-white p-12 text-center">
-          <p className="text-stone-500 text-sm">Sélectionne des destinations pour les comparer</p>
+          <p className="text-stone-500 text-sm">{labels.emptyState}</p>
         </div>
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-stone-200 bg-white shadow-sm">
@@ -117,14 +124,14 @@ export default function DestinationComparison({ destinations }: Props) {
                 <th className="p-4 text-left text-xs font-semibold uppercase tracking-wider text-stone-500 w-40">
                   <button onClick={() => { setSortKey('title'); setSortAsc(!sortAsc) }}
                     className="flex items-center gap-1 hover:text-eucalyptus">
-                    Critère <ArrowUpDown size={12} />
+                    {labels.sortLabel} <ArrowUpDown size={12} />
                   </button>
                 </th>
                 {sorted.map((d) => (
                   <th key={d.slug} className="p-4 text-center min-w-[180px]">
                     <div className="relative h-24 w-full rounded-lg overflow-hidden mb-2">
                       <Image
-                        src={d.hero_unsplash_url || d.featured_image || 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80'}
+                        src={d.hero_unsplash_url || d.featured_image || '/og-default.jpg'}
                         alt={d.title}
                         fill
                         className="object-cover"
@@ -141,13 +148,13 @@ export default function DestinationComparison({ destinations }: Props) {
             </thead>
             <tbody>
               {[
-                { key: 'continent', label: 'Continent', render: (d: DestCompare) => <span className="capitalize">{d.continent || '—'}</span> },
-                { key: 'travel_style', label: 'Style', render: (d: DestCompare) => <span>{d.travel_style ? STYLE_LABELS[d.travel_style] || d.travel_style : '—'}</span> },
-                { key: 'best_season', label: 'Meilleure saison', render: (d: DestCompare) => <span>{d.best_season || '—'}</span> },
-                { key: 'budget', label: 'Budget / semaine / couple', render: (d: DestCompare) => <span className="font-semibold text-eucalyptus">{formatBudget(d.avg_budget_couple_week)}</span> },
-                { key: 'articles', label: 'Articles', render: (d: DestCompare) => <span>{d.article_count || 0}</span> },
-                { key: 'teaser', label: 'En bref', render: (d: DestCompare) => <p className="text-xs text-stone-600 line-clamp-3">{d.teaser || '—'}</p> },
-                { key: 'guide', label: 'Guide PDF', render: (d: DestCompare) => (
+                { key: 'continent', label: labels.rowContinent, render: (d: DestCompare) => <span className="capitalize">{d.continent || '—'}</span> },
+                { key: 'travel_style', label: labels.rowStyle, render: (d: DestCompare) => <span>{getStyleLabel(d.travel_style) || '—'}</span> },
+                { key: 'best_season', label: labels.rowBestSeason, render: (d: DestCompare) => <span>{d.best_season || '—'}</span> },
+                { key: 'budget', label: labels.rowBudget, render: (d: DestCompare) => <span className="font-semibold text-eucalyptus">{formatBudget(d.avg_budget_couple_week)}</span> },
+                { key: 'articles', label: labels.rowArticles, render: (d: DestCompare) => <span>{d.article_count || 0}</span> },
+                { key: 'teaser', label: labels.rowTeaser, render: (d: DestCompare) => <p className="text-xs text-stone-600 line-clamp-3">{d.teaser || '—'}</p> },
+                { key: 'guide', label: labels.rowGuide, render: (d: DestCompare) => (
                   <div onClick={(e) => e.stopPropagation()}>
                     <GuideDownloadButton slug={d.slug} title={d.title} variant="card" />
                   </div>

@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     title: 'Timișoara slow travel | Guide Heldonica',
     description: 'Première ville d\'Europe à avoir l\'éclairage électrique, première ville de la révolution roumaine. Timișoara se découvre lentement.',
     url: `${SITE_URL}/destinations/timisoara`,
-    images: [{ url: 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg', width: 1024, height: 683, alt: 'Timișoara — Heldonica' }],
+    images: [{ url: `${SITE_URL}/og-default.jpg`, width: 1024, height: 683, alt: 'Timișoara — Heldonica' }],
     locale: 'fr_FR',
     type: 'website',
     siteName: 'Heldonica',
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Timișoara slow travel | Guide Heldonica',
     description: 'Capitale européenne de la culture 2023. Bars, cours cachées, architecture baroque — notre guide.',
-    images: ['https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg'],
+    images: [`${SITE_URL}/og-default.jpg`],
     creator: '@heldonica',
   },
 }
@@ -94,7 +94,7 @@ export default function TimisoaraPage() {
         <section className="relative overflow-hidden bg-gradient-to-b from-stone-900 via-stone-800 to-stone-700 py-24 md:py-32">
           <div
             className="absolute inset-0 opacity-30 bg-cover bg-center"
-            style={{ backgroundImage: 'url(https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg)' }}
+            style={{ backgroundImage: 'url(/og-default.jpg)' }}
             aria-hidden="true"
           />
           <div className="relative max-w-4xl mx-auto px-4">

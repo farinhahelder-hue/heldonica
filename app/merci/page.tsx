@@ -20,7 +20,7 @@ export default function MerciPage() {
       <main className="min-h-screen">
         <section className="relative bg-stone-950 text-white py-20 md:py-28 overflow-hidden">
           <EditableZone page="merci" zone="hero_image_url" type="image"
-            fallback="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1200&q=60"
+            fallback="/og-default.jpg"
             className="absolute inset-0 opacity-10 w-full h-full object-cover"
           />
           <div className="relative max-w-3xl mx-auto px-6 text-center">

@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     siteName: 'Heldonica',
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=1200&q=85',
+        url: '/og-default.jpg',
         width: 1200,
         height: 630,
         alt: 'Heldonica — voyage sur mesure hors sentiers',
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     title: 'Voyage sur mesure hors sentiers | Heldonica',
     description:
       'On part de tes contraintes réelles pour construire un voyage qui tient sur le terrain.',
-    images: ['https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=1200&q=85'],
+    images: ['/og-default.jpg'],
   },
 };
 

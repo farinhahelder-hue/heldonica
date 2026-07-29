@@ -22,25 +22,10 @@ export interface DestinationCardProps {
   priority_score?: number
 }
 
-const STYLE_LABELS: Record<string, string> = {
-  'slow-culture': 'Culture',
-  'slow-nature': 'Nature',
-  'nature': 'Nature',
-  'culture': 'Culture',
-  'city': 'Ville',
-  'food': 'Food',
-}
+import { getStyleLabel, getStyleEmoji } from '@/lib/travel-styles'
+import { useContentLoader } from '@/hooks/useContentLoader'
 
-const STYLE_EMOJIS: Record<string, string> = {
-  'slow-culture': '🏛️',
-  'slow-nature': '🌿',
-  'nature': '🌿',
-  'culture': '🏛️',
-  'city': '🏙️',
-  'food': '🍽️',
-}
-
-const HERO_FALLBACK = 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=600&q=80'
+const HERO_FALLBACK_DEFAULT = '/og-default.jpg'
 
 function formatBudget(amount?: number): string {
   if (!amount) return ''
@@ -54,9 +39,11 @@ export default function DestinationCard({
   travel_style, best_season, avg_budget_couple_week,
   article_count, coming_soon_date
 }: DestinationCardProps) {
-  const imgSrc = hero_unsplash_url || featured_image || HERO_FALLBACK
-  const styleLabel = travel_style ? STYLE_LABELS[travel_style] || travel_style : ''
-  const styleEmoji = travel_style ? STYLE_EMOJIS[travel_style] || '' : ''
+  const { settings } = useContentLoader()
+  const fallback = settings?.hero_fallback_default || HERO_FALLBACK_DEFAULT
+  const imgSrc = hero_unsplash_url || featured_image || fallback
+  const styleLabel = getStyleLabel(travel_style)
+  const styleEmoji = getStyleEmoji(travel_style)
   const isClickable = status === 'published' || status === 'starred'
   const href = isClickable ? `/destinations/${slug}` : '#'
 

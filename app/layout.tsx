@@ -182,7 +182,7 @@ export default async function RootLayout({
   const logoUrl = siteSettings.site_logo || siteSettings.logo_url;
 
   return (
-    <html lang="fr">
+    <html lang="fr" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{
           __html: `
@@ -200,7 +200,6 @@ export default async function RootLayout({
         <link rel="apple-touch-icon" href={logoUrl || '/apple-touch-icon.png'} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://images.unsplash.com" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaWebSite) }}
@@ -231,7 +230,7 @@ export default async function RootLayout({
           <AuthProvider>
             <WebVitalsReporter />
             <SiteTheme />
-            <div id="main-content">{children}</div>
+            <div id="main-content" className="pt-[72px]">{children}</div>
             <BackToTop />
             <CookieConsentBanner />
             <NewsletterPopup />

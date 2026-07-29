@@ -3,6 +3,24 @@
 import { useEffect } from 'react';
 import type { DestinationMarker } from '@/lib/destinations-data';
 
+const ICON_URLS_DEFAULT = {
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+}
+
+async function getIconUrls() {
+  try {
+    const res = await fetch('/api/cms/settings?keys=leaflet_icon_urls')
+    const data = await res.json()
+    if (data?.settings?.leaflet_icon_urls) {
+      const parsed = JSON.parse(data.settings.leaflet_icon_urls)
+      return { ...ICON_URLS_DEFAULT, ...parsed }
+    }
+  } catch {}
+  return ICON_URLS_DEFAULT
+}
+
 interface DestinationMapProps {
   markers: DestinationMarker[];
   center?: [number, number];
@@ -18,17 +36,12 @@ export default function DestinationMap({
 }: DestinationMapProps) {
   useEffect(() => {
     const initMap = async () => {
-      // Load Leaflet first, then markercluster (order matters — markercluster extends L)
       const L = await import('leaflet').then(m => m.default ?? m);
       await import('leaflet.markercluster');
 
-      // Fix default marker icon paths for webpack
+      const iconUrls = await getIconUrls()
       delete (L.Icon.Default.prototype as any)._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-      });
+      L.Icon.Default.mergeOptions(iconUrls);
 
       const mapContainer = document.getElementById('heldonica-map');
       if (!mapContainer || mapContainer.querySelector('.leaflet-container')) return;

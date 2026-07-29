@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     description: "Notre approche du voyage lent : ralentir pour mieux voir, choisir la qualité sur la quantité, revenir changé plutôt qu'épuisé.",
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1200&q=85',
+        url: '/og-default.jpg',
         width: 1200,
         height: 630,
         alt: 'Slow Travel — Heldonica',
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     title: 'Slow Travel — Voyager Autrement | Heldonica',
     description: "Ralentir pour mieux voir. Notre approche du voyage lent et authentique.",
     creator: '@heldonica',
-    images: ['https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1200&q=85'],
+    images: ['/og-default.jpg'],
   },
 }
 

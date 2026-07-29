@@ -6,36 +6,32 @@ import Link from 'next/link'
 import NewsletterForm from '@/components/NewsletterForm'
 import BlogFilters, { type BlogCategory } from '@/components/BlogFilters'
 import type { BlogPost } from '@/lib/blog-supabase'
+import { useContentLoader } from '@/hooks/useContentLoader'
 
-const CATEGORY_LABELS: Record<string, string> = {
-  Tous: 'Tout lire',
-  'Carnets Voyage': 'Carnets',
-  'Découvertes Locales': 'Pépites locales',
-  'Guides Pratiques': 'Guides',
+const CATEGORY_FALLBACK_BG_DEFAULT: Record<string, string> = {
+  'Carnets Voyage': '/og-default.jpg',
+  'Découvertes Locales': '/og-default.jpg',
+  'Guides Pratiques': '/og-default.jpg',
 }
 
-const CATEGORY_FALLBACK_BG: Record<string, string> = {
-  'Carnets Voyage': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80',
-  'Découvertes Locales': 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=600&q=80',
-  'Guides Pratiques': 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=600&q=80',
-}
+const DEFAULT_CARD_FALLBACK = '/og-default.jpg'
 
-const DEFAULT_CARD_FALLBACK = 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80'
-
-const BADGE_FALLBACK_SRC = '/images/badges-heldonica.svg'
-
-const CATEGORY_GRADIENT: Record<string, string> = {
+const CATEGORY_GRADIENT_DEFAULT: Record<string, string> = {
   'Carnets Voyage': 'from-eucalyptus to-teal',
   'Découvertes Locales': 'from-mahogany to-eucalyptus',
   'Guides Pratiques': 'from-eucalyptus to-teal',
+}
+
+const CATEGORY_DESCRIPTIONS_DEFAULT: Record<string, string> = {
+  'Carnets Voyage': 'Les récits qui gardent l\'heure, le rythme et ce qu\'on a retenu sur place.',
+  'Découvertes Locales': 'Des lieux qu\'on n\'était pas venus chercher, et qu\'on aurait regretté de rater.',
+  'Guides Pratiques': 'Des repères concrets quand le terrain devient plus utile que la théorie.',
 }
 
 // Default categories as fallback
 const DEFAULT_CATEGORIES: BlogCategory[] = [
   { key: 'Tous', label: 'Tous' },
   { key: 'Carnets Voyage', label: 'Carnets Voyage' },
-  { key: 'Découvertes Locales', label: 'Découvertes Locales' },
-  { key: 'Guides Pratiques', label: 'Guides Pratiques' },
 ]
 
 interface Props {
@@ -70,6 +66,7 @@ function ReadProgressBar() {
 }
 
 export default function BlogClientPage({ posts: rawPosts, categories: propCategories }: Props) {
+  const { settings } = useContentLoader()
   const posts = useMemo(
     () => (Array.isArray(rawPosts) ? rawPosts : []),
     [rawPosts]
@@ -77,10 +74,39 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
   const [activeFilter, setActiveFilter] = useState('Tous')
   const [searchQuery, setSearchQuery] = useState('')
 
-  // ⚡ Bolt: Use useDeferredValue to debounce the search query input.
-  // This optimization prevents the potentially heavy list filtering from blocking
-  // the main UI thread, ensuring smooth typing for the user.
   const deferredSearchQuery = useDeferredValue(searchQuery)
+
+  const categoryLabels = useMemo(() => {
+    try {
+      const raw = settings?.blog_category_labels
+      if (raw) return { 'Tout lire': 'Tout lire', ...JSON.parse(raw) }
+    } catch {}
+    return { 'Tout lire': 'Tout lire', 'Carnets Voyage': 'Carnets', 'Découvertes Locales': 'Pépites locales', 'Guides Pratiques': 'Guides' }
+  }, [settings])
+
+  const categoryFallbackBg = useMemo(() => {
+    try {
+      const raw = settings?.blog_category_fallbacks
+      if (raw) return { ...CATEGORY_FALLBACK_BG_DEFAULT, ...JSON.parse(raw) }
+    } catch {}
+    return CATEGORY_FALLBACK_BG_DEFAULT
+  }, [settings])
+
+  const categoryGradient = useMemo(() => {
+    try {
+      const raw = settings?.blog_category_gradients
+      if (raw) return { ...CATEGORY_GRADIENT_DEFAULT, ...JSON.parse(raw) }
+    } catch {}
+    return CATEGORY_GRADIENT_DEFAULT
+  }, [settings])
+
+  const categoryDescriptions = useMemo(() => {
+    try {
+      const raw = settings?.blog_category_descriptions
+      if (raw) return { ...CATEGORY_DESCRIPTIONS_DEFAULT, ...JSON.parse(raw) }
+    } catch {}
+    return CATEGORY_DESCRIPTIONS_DEFAULT
+  }, [settings])
 
   const [categories, setCategories] = useState<BlogCategory[]>(() => {
     if (propCategories && propCategories.length > 0) return propCategories
@@ -94,7 +120,7 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
         const data = await res.json()
         if (data.success && data.categories) {
           const mapped = [
-            { key: 'Tous', label: 'Tout lire' },
+            { key: 'Tous', label: categoryLabels['Tout lire'] || 'Tout lire' },
             ...data.categories.map((c: any) => ({
               key: c.db_value,
               label: c.label
@@ -107,7 +133,7 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
       }
     }
     loadCategories()
-  }, [propCategories])
+  }, [propCategories, categoryLabels])
 
   const filteredPosts = useMemo(() => {
     return posts.filter((post) => {
@@ -141,7 +167,7 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
           className="absolute inset-0 opacity-25"
           style={{
             backgroundImage:
-              "url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1400&q=80')",
+              "url('/og-default.jpg')",
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
@@ -189,7 +215,7 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
                 />
               ) : (
                 <Image
-                  src={CATEGORY_FALLBACK_BG[featuredPost.category ?? ''] ?? DEFAULT_CARD_FALLBACK}
+                  src={categoryFallbackBg[featuredPost.category ?? ''] ?? DEFAULT_CARD_FALLBACK}
                   alt={featuredPost.title}
                   fill
                   priority
@@ -319,17 +345,12 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
                 <SectionHeader
                   eyebrow={cat.label}
                   title={cat.label}
-                  description={
-                    cat.key === 'Carnets Voyage' ? "Les récits qui gardent l’heure, le rythme et ce qu’on a retenu sur place." :
-                    cat.key === 'Découvertes Locales' ? "Des lieux qu’on n’était pas venus chercher, et qu’on aurait regretté de rater." :
-                    cat.key === 'Guides Pratiques' ? "Des repères concrets quand le terrain devient plus utile que la théorie." :
-                    `Tous les articles de la catégorie ${cat.label}.`
-                  }
+                  description={categoryDescriptions[cat.key] || `Tous les articles de la catégorie ${cat.label}.`}
                   count={postsInCategory.length}
                 />
                 <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {postsInCategory.map((post) => (
-                    <ArticleCard key={post.slug} post={post} />
+                    <ArticleCard key={post.slug} post={post} fallbackImages={categoryFallbackBg} gradientMap={categoryGradient} />
                   ))}
                 </div>
               </section>
@@ -381,8 +402,10 @@ function SectionHeader({
   )
 }
 
-function ArticleCard({ post }: { post: BlogPost & { formattedDate: string; readTime?: number } }) {
-  const fallbackImg = CATEGORY_FALLBACK_BG[post.category ?? ''] ?? DEFAULT_CARD_FALLBACK
+function ArticleCard({ post, fallbackImages, gradientMap }: { post: BlogPost & { formattedDate: string; readTime?: number }; fallbackImages?: Record<string, string>; gradientMap?: Record<string, string> }) {
+  const fb = fallbackImages || CATEGORY_FALLBACK_BG_DEFAULT
+  const gm = gradientMap || CATEGORY_GRADIENT_DEFAULT
+  const fallbackImg = fb[post.category ?? ''] ?? DEFAULT_CARD_FALLBACK
   
   // Better image handling: check for valid URL
   const hasValidImage = post.featured_image && 
@@ -431,7 +454,7 @@ function ArticleCard({ post }: { post: BlogPost & { formattedDate: string; readT
               onError={() => setImageError(true)}
             />
           ) : (
-            <div className={`flex h-full w-full flex-col items-center justify-center bg-gradient-to-br p-6 ${CATEGORY_GRADIENT[post.category ?? ''] ?? 'from-eucalyptus to-teal'}`}>
+            <div className={`flex h-full w-full flex-col items-center justify-center bg-gradient-to-br p-6 ${gm[post.category ?? ''] || 'from-eucalyptus to-teal'}`}>
               <svg
                 aria-hidden="true"
                 className="h-12 w-12 text-white/70"

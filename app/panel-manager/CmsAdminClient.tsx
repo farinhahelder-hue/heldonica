@@ -11,6 +11,7 @@ import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChar
 import { Film, Clapperboard, Camera, Calendar, MessageSquare, ClipboardList } from 'lucide-react';
 import CmsSettingsPanel from '@/components/admin/CmsSettingsPanel';
 import ErrorBoundary from '@/components/admin/ErrorBoundary';
+import CategorySelect from '@/components/admin/CategorySelect';
 import { ToastProvider, useToast } from '@/components/admin/Toast';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import ArticlePreview from '@/components/admin/ArticlePreview';
@@ -1105,12 +1106,9 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
-                        <input
-                          type="text"
+                        <CategorySelect
                           value={editingArticle?.category ?? ''}
-                          onChange={e => setEditingArticle(prev => prev ? { ...prev, category: e.target.value } : prev)}
-                          className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
-                          placeholder="Slow Travel"
+                          onChange={v => setEditingArticle(prev => prev ? { ...prev, category: v } : prev)}
                         />
                       </div>
                       <div>

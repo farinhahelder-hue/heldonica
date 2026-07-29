@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     description: 'Itinéraire terrain, adresses testées, suivi WhatsApp. On conçoit ton voyage slow travel. Devis gratuit.',
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=1200&q=85',
+        url: '/og-default.jpg',
         width: 1200,
         height: 630,
         alt: 'Travel Planning sur mesure — Heldonica',
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     title: 'Travel Planning sur mesure | Heldonica',
     description: 'Itinéraire terrain, adresses testées, suivi WhatsApp. On conçoit ton voyage slow travel. Devis gratuit.',
     creator: '@heldonica',
-    images: ['https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=1200&q=85'],
+    images: ['/og-default.jpg'],
   },
 }
 
