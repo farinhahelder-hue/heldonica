@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     url: `${SITE_URL}/destinations/roumanie/itineraire-5-jours`,
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1601597111158-2fceff292cdc?w=1200&q=85',
+        url: '/og-default.jpg',
         width: 1200,
         height: 630,
         alt: 'Itinéraire Roumanie 5 jours - Focus Transylvanie',

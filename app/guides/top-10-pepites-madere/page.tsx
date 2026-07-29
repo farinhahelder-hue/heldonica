@@ -156,9 +156,9 @@ async function getHeroImage() {
       .eq('zone_key', 'hero_bg_image')
       .eq('is_active', true)
       .maybeSingle()
-    return data?.value || 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1400&q=70'
+    return data?.value || '/og-default.jpg'
   } catch {
-    return 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1400&q=70'
+    return '/og-default.jpg'
   }
 }
 

@@ -71,14 +71,16 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
   );
 
   const badge = cz("newsletter_badge", "Chaque semaine");
-  const headingDefault = "On t'envoie ce qu'on a vraiment trouvé.";
-  const headingBlog = "Ce qu'on a vraiment trouvé,<br />directement dans ta boîte mail";
+  const headingDefault = cz("newsletter_heading_default", "On t'envoie ce qu'on a vraiment trouvé.");
+  const headingBlog = cz("newsletter_heading_blog", "Ce qu'on a vraiment trouvé,<br />directement dans ta boîte mail");
   const description = cz("newsletter_desc", "Une adresse, un timing, une erreur à éviter. Rien de plus.");
   const placeholder = cz("newsletter_placeholder", "ton@email.fr");
   const ctaLabel = cz("newsletter_cta", "Je m'abonne");
-  const ctaLoading = cz("newsletter_cta_loading", "…");
+  const ctaLoading = cz("newsletter_cta_loading", "Inscription…");
   const disclaimer = cz("newsletter_disclaimer", "En t'inscrivant, tu acceptes de recevoir nos carnets de voyage. Désinscription possible à tout moment.");
   const successSubtext = cz("newsletter_success_subtext", "Vérifie ta boîte mail, on arrive doucement.");
+  const rgpdLabel = cz("newsletter_rgpd_label", "J'accepte de recevoir les e-mails de slow travel d'Heldonica. Voir notre");
+  const rgpdLinkLabel = cz("newsletter_rgpd_link", "politique de confidentialité");
 
   if (variant === "article") {
     return (
@@ -128,9 +130,9 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
                 className="mt-1 h-4 w-4 rounded border-white/20 bg-white/10 text-eucalyptus focus:ring-teal cursor-pointer"
               />
               <label htmlFor="newsletter-rgpd-article" className="text-xs text-white/60 leading-normal">
-                J'accepte de recevoir les e-mails de slow travel d'Heldonica. Voir notre{' '}
+                {rgpdLabel}{' '}
                 <Link href="/politique-confidentialite" className="text-teal hover:underline font-medium">
-                  politique de confidentialité
+                  {rgpdLinkLabel}
                 </Link>.
               </label>
             </div>
@@ -181,9 +183,9 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
                 className="mt-1 h-4 w-4 rounded border-white/20 bg-white/10 text-eucalyptus focus:ring-teal cursor-pointer"
               />
               <label htmlFor="newsletter-rgpd-inline" className="text-xs text-white/60 leading-normal">
-                J'accepte de recevoir les e-mails d'Heldonica. Voir notre{' '}
+                {rgpdLabel}{' '}
                 <Link href="/politique-confidentialite" className="text-teal hover:underline font-medium">
-                  politique de confidentialité
+                  {rgpdLinkLabel}
                 </Link>.
               </label>
             </div>
@@ -233,7 +235,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
                 disabled={status === "loading"}
                 className="px-7 py-3.5 bg-eucalyptus/50 hover:bg-teal text-white text-sm font-semibold rounded-full transition-colors whitespace-nowrap disabled:opacity-60"
               >
-                {status === "loading" ? "Inscription…" : ctaLabel}
+                {status === "loading" ? ctaLoading : ctaLabel}
               </button>
             </form>
             <div className="flex items-start gap-2.5 max-w-md mx-auto text-left">
@@ -244,9 +246,9 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
                 className="mt-1 h-4 w-4 rounded border-white/20 bg-white/10 text-eucalyptus focus:ring-teal cursor-pointer"
               />
               <label htmlFor="newsletter-rgpd-blog" className="text-xs text-white/60 leading-normal">
-                J'accepte de recevoir les e-mails de slow travel d'Heldonica. Voir notre{' '}
+                {rgpdLabel}{' '}
                 <Link href="/politique-confidentialite" className="text-teal hover:underline font-medium">
-                  politique de confidentialité
+                  {rgpdLinkLabel}
                 </Link>.
               </label>
             </div>

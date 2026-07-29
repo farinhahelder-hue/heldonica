@@ -4,7 +4,8 @@ import { getAllPosts } from '@/lib/blog-supabase'
 const BASE_URL = 'https://www.heldonica.fr'
 
 // Fallback image for articles without featured_image
-const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&q=80'
+// TODO: Remplacer par les vrais visuels issus des prompts image (13 prompts prêts dans le plan de correction)
+const FALLBACK_IMAGE = 'https://www.heldonica.fr/og-default.jpg'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Pages statiques principales
@@ -22,6 +23,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
+      url: `${BASE_URL}/expert-hotelier`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
       url: `${BASE_URL}/slow-travel`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
@@ -32,6 +39,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/destinations/carte`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${BASE_URL}/destinations/compare`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.6,
     },
     {
       url: `${BASE_URL}/blog`,

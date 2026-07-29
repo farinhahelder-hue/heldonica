@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     title: 'Cluj-Napoca slow travel : notre carnet d’adresses | Heldonica',
     description: 'Découvre Cluj-Napoca, le cœur de la Transylvanie. Cafés de spécialité, ruelles cachées et ambiance bohème.',
     type: 'website',
-    images: ['https://images.unsplash.com/photo-1564658895070-cf234f4c34f1?w=1200&q=80'],
+    images: ['/og-default.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica'
   },
@@ -45,7 +45,7 @@ export default function ClujPage() {
         name="Cluj-Napoca"
         parentName="Roumanie"
         parentSlug="roumanie"
-        heroImage="https://images.unsplash.com/photo-1564658895070-cf234f4c34f1?w=1400&q=80"
+        heroImage="/og-default.jpg"
         introText="Cluj-Napoca, la capitale non officielle de la Transylvanie, est une ville qui se vit à travers ses cafés indépendants, ses universités vibrantes et ses parcs cachés. Moins touristique que Brașov, elle offre un aperçu sincère de la Roumanie moderne et créative."
         highlights={highlights}
         localTip="Rends-toi chez Roots ou Meron pour goûter à l'un des meilleurs expressos du pays, puis termine ton après-midi dans les allées calmes du Jardin Botanique."

@@ -23,6 +23,38 @@ import { verifyPreviewToken } from '@/lib/preview-token'
 
 const SITE_URL = 'https://www.heldonica.fr'
 
+// TODO: Remplacer ce fallback de marque par des visuels définitifs issus des prompts image validés
+// Concernés : tous les articles sans featured_image dans la DB (cf. plan de correction)
+// Prompts associés : 13 prompts prêts dans le plan de correction (madere-foret, zurich-limmat, stoos-ridge, etc.)
+const HERO_FALLBACK_DEFAULT: Record<string, string> = {
+  'Carnets Voyage': '/og-default.jpg',
+  'Découvertes Locales': '/og-default.jpg',
+  'Guides Pratiques': '/og-default.jpg',
+  'Travel': '/og-default.jpg',
+  'Food & Lifestyle': '/og-default.jpg',
+}
+
+const DEFAULT_HERO = '/og-default.jpg'
+
+async function getHeroFallback(): Promise<Record<string, string>> {
+  try {
+    const { createServiceClient } = await import('@/lib/supabase')
+    const supabase = createServiceClient()
+    const { data } = await supabase
+      .from('site_settings')
+      .select('value')
+      .eq('key', 'hero_fallback_images')
+      .single()
+    if (data?.value) {
+      const parsed = JSON.parse(data.value)
+      if (typeof parsed === 'object' && parsed !== null) {
+        return { ...HERO_FALLBACK_DEFAULT, ...parsed }
+      }
+    }
+  } catch {}
+  return HERO_FALLBACK_DEFAULT
+}
+
 /** Build a fallback OG image URL via /api/og when no real image exists */
 function ogFallbackUrl(title: string, description: string | null): string {
   const desc = (description || '').length > 160 ? description!.substring(0, 157) + '...' : (description || '')
@@ -199,16 +231,6 @@ function buildJsonLds(post: BlogPost, readTime: number) {
   return { articleLd, breadcrumbLd, travelLd }
 }
 
-const HERO_FALLBACK: Record<string, string> = {
-  'Carnets Voyage': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80',
-  'Découvertes Locales': 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=1600&q=80',
-  'Guides Pratiques': 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1600&q=80',
-  'Travel': 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1600&q=80',
-  'Food & Lifestyle': 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=1600&q=80',
-}
-
-const DEFAULT_HERO = 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80'
-
 export default async function BlogPostPage({ params, searchParams }: Props) {
   const slug = (await params).slug
   const { preview_token } = await searchParams
@@ -248,11 +270,16 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
     console.warn("Could not query show_map from admin schema, defaulting to false:", err)
   }
 
-  const allPosts = await getAllPosts()
+  const [allPosts, heroFallback] = await Promise.all([
+    getAllPosts(),
+    getHeroFallback(),
+  ])
   const relatedResult = getRelatedArticles(post, allPosts, 3)
   const related = relatedResult ?? []
-  const heroImage = post.featured_image ?? HERO_FALLBACK[post.category ?? ''] ?? DEFAULT_HERO
-  const fallbackBg = HERO_FALLBACK[post.category ?? ''] ?? 'bg-gradient-to-br from-stone-900 to-mahogany'
+  const heroImage = (post.featured_image && post.featured_image.trim().length > 0)
+    ? post.featured_image
+    : (heroFallback[post.category ?? ''] ?? DEFAULT_HERO)
+  const fallbackBg = heroFallback[post.category ?? ''] ?? 'bg-gradient-to-br from-stone-900 to-mahogany'
   const readTime = getReadingTime(post.content)
   const { articleLd, breadcrumbLd, travelLd } = buildJsonLds(post, readTime)
   const canonicalUrl = `${SITE_URL}/blog/${post.slug}`
@@ -413,7 +440,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
               </p>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 {related.map((relatedPost: BlogPost) => {
-                  const relatedImage = relatedPost.og_image || relatedPost.featured_image || HERO_FALLBACK[relatedPost.category ?? ''] || DEFAULT_HERO
+                  const relatedImage = relatedPost.og_image || relatedPost.featured_image || heroFallback[relatedPost.category ?? ''] || DEFAULT_HERO
                   return (
                     <Link key={relatedPost.slug} href={`/blog/${relatedPost.slug}`} className="group block transition-all duration-200">
                       <article className="overflow-hidden rounded-[1.5rem] bg-white shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-md">

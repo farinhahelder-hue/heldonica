@@ -1,9 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { readCookieConsent } from '@/lib/consent'
 
+// Jamais sur les pages offre : un pop-up "guide gratuit" pendant un tunnel d'achat détourne l'intention.
+const EXCLUDED_PATH_PREFIXES = ['/travel-planning', '/expert-hotelier']
+
 export default function NewsletterPopup() {
+  const pathname = usePathname()
+  const isExcludedPage = EXCLUDED_PATH_PREFIXES.some((prefix) => pathname?.startsWith(prefix))
   const [isVisible, setIsVisible] = useState(false)
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
@@ -29,7 +35,8 @@ export default function NewsletterPopup() {
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (!hasConsentChoice) return
-    
+    if (isExcludedPage) return
+
     // Check if popup was already shown this session
     const wasShown = sessionStorage.getItem('newsletter-popup-shown')
     if (wasShown) return
@@ -78,7 +85,7 @@ export default function NewsletterPopup() {
     document.addEventListener('mouseleave', exitIntentHandler)
 
     return cleanup
-  }, [hasConsentChoice])
+  }, [hasConsentChoice, isExcludedPage])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -118,7 +125,7 @@ export default function NewsletterPopup() {
     }
   }
 
-  if (!isVisible) return null
+  if (!isVisible || isExcludedPage) return null
 
   return (
     <div

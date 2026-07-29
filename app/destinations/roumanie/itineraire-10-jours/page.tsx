@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     description: 'Circuit Roumanie complet testé sur le terrain : Transylvanie + Maramureș + Bucovine. 10 jours d\'immersion.',
     url: `${SITE_URL}/destinations/roumanie/itineraire-10-jours`,
     images: [{
-      url: 'https://images.unsplash.com/photo-1589656966895-2f33e7653819?w=1200&q=85',
+      url: '/og-default.jpg',
       width: 1200, height: 630,
       alt: 'Itinéraire Roumanie 10 jours - Grande traversée slow travel',
     }],

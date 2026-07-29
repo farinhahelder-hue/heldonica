@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
@@ -14,53 +14,35 @@ import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { useContentLoader, getCmsOrSetting } from '@/hooks/useContentLoader'
 
-const HELDONICA_BADGE_FALLBACK = '/images/badges-heldonica.svg'
+const HELDONICA_BADGE_FALLBACK = '/og-default.jpg'
 
 // Get display excerpt: use stored excerpt or generate from content
 function displayExcerpt(post: BlogPost): string {
   return getExcerpt(post, 140);
 }
 
-// ─── Images de secours par slug ──────────────────────────────────────────────
-const SLUG_IMAGES: Record<string, string> = {
-  // Madère — voyages & nature
-  'madere-slow-travel-guide':                     'https://images.unsplash.com/photo-1560719887-fe3105fa1e55?w=1200&q=80',
-  'madere-quand-partir-sur-lile-de-leternel-printemps':   'https://images.unsplash.com/photo-1569959220744-ff553533f492?w=1200&q=80',
-  'pepites-mystiques-de-madere':                  'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1200&q=80',
-  'madere-automne-voyage-couple':                 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80',
-  // Madère — food & boissons
-  'poncha-liquide-dore-des-montagnes':            '/images/poncha-madere.jpg',
-  'poncha-boisson-madere':                        '/images/poncha-madere.jpg',
-  'poncha-madere':                                '/images/poncha-madere.jpg',
-  'bacalhau-a-gomes-de-sa':                       '/images/bacalhau-gomes-sa.jpg',
-  'bacalhau-gomes-de-sa':                         '/images/bacalhau-gomes-sa.jpg',
-  'bacalhau-a-lagareiro':                         '/images/bacalhau-gomes-sa.jpg',
-  'pudim-de-nata':                                '/images/pudim-nata-madere.jpg',
-  'pudim-nata-madere':                            '/images/pudim-nata-madere.jpg',
-  'prego-no-bolo-do-caco':                        'https://images.unsplash.com/photo-1574484284002-952d92a03a52?w=1200&q=80',
-  'bolo-do-caco-recette-traditionnelle-de-madere-3': 'https://images.unsplash.com/photo-1574484284002-952d92a03a52?w=1200&q=80',
-  // Paris & France
-  'urbex-paris-safe':                             'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=1200&q=80',
-  // Slow travel
-  'guide-pratique-comment-debuter-le-slow-travel-en-duo': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
-  // Zurich
-  'flotter-sur-la-limmat-a-zurich-notre-aventure-dete':   'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
-  'les-meilleures-brasseries-authentiques-de-zurich-guide-2025': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
+const SLUG_IMAGES_DEFAULT: Record<string, string> = {
+  'madere-slow-travel-guide':                     '/og-default.jpg',
+  'urbex-paris-safe':                             '/og-default.jpg',
+  'guide-pratique-comment-debuter-le-slow-travel-en-duo': '/og-default.jpg',
+  'madere-quand-partir-sur-lile-de-leternel-printemps':   '/og-default.jpg',
+  'pepites-mystiques-de-madere':                  '/og-default.jpg',
+  'prego-no-bolo-do-caco':                        '/og-default.jpg',
+  'flotter-sur-la-limmat-a-zurich-notre-aventure-dete':   '/og-default.jpg',
 }
 
-const CAT_IMAGES: Record<string, string> = {
-  'Carnets Voyage':      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
-  'Découvertes Locales': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80',
-  'Guides Pratiques':    'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
-  'Food & Lifestyle':    'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&q=80',
-  'Travel':              'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
+const CAT_IMAGES_DEFAULT: Record<string, string> = {
+  'Carnets Voyage': '/og-default.jpg',
+  'Découvertes Locales': '/og-default.jpg',
+  'Guides Pratiques': '/og-default.jpg',
+  'Food & Lifestyle': '/og-default.jpg',
+  'Travel': '/og-default.jpg',
 }
 
-
-function postImage(p: BlogPost): string {
+function postImage(p: BlogPost, slugImages: Record<string, string>, catImages: Record<string, string>): string {
   if (p.featured_image && p.featured_image.trim().length > 0) return p.featured_image
-  if (p.slug && SLUG_IMAGES[p.slug]) return SLUG_IMAGES[p.slug]
-  if (p.category && CAT_IMAGES[p.category]) return CAT_IMAGES[p.category]
+  if (p.slug && slugImages[p.slug]) return slugImages[p.slug]
+  if (p.category && catImages[p.category]) return catImages[p.category]
   return HELDONICA_BADGE_FALLBACK
 }
 
@@ -125,25 +107,27 @@ const CATEGORY_ICONS: Record<string, string> = {
   default: `<path d="M12 21a9 9 0 100-18 9 9 0 000 18z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M12 8v4l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`,
 }
 
-function getCategoryGradient(category: string | null | undefined): string {
-  if (!category) return CATEGORY_GRADIENTS.default
-  return CATEGORY_GRADIENTS[category] ?? CATEGORY_GRADIENTS.default
+function getCategoryGradient(category: string | null | undefined, gradientMap?: Record<string, string>): string {
+  const map = gradientMap || CATEGORY_GRADIENTS
+  if (!category) return map.default
+  return map[category] ?? map.default
 }
 
-function getCategoryIcon(category: string | null | undefined): string {
-  if (!category) return CATEGORY_ICONS.default
-  return CATEGORY_ICONS[category] ?? CATEGORY_ICONS.default
+function getCategoryIcon(category: string | null | undefined, iconMap?: Record<string, string>): string {
+  const map = iconMap || CATEGORY_ICONS
+  if (!category) return map.default
+  return map[category] ?? map.default
 }
 
 // ─── Card article ─────────────────────────────────────────────────────────────
-function ArticleCard({ post, size = 'md' }: { post: BlogPost & { formattedDate: string; readTime?: number }; size?: 'sm' | 'md' | 'lg' }) {
-  const img = postImage(post)
+function ArticleCard({ post, size = 'md', slugImages, catImages, gradientMap, iconMap }: { post: BlogPost & { formattedDate: string; readTime?: number }; size?: 'sm' | 'md' | 'lg'; slugImages?: Record<string, string>; catImages?: Record<string, string>; gradientMap?: Record<string, string>; iconMap?: Record<string, string> }) {
+  const img = postImage(post, slugImages || SLUG_IMAGES_DEFAULT, catImages || CAT_IMAGES_DEFAULT)
   const [imgSrc, setImgSrc] = useState(img)
   const [imgFailed, setImgFailed] = useState(false)
   const h = size === 'lg' ? 'h-80' : size === 'md' ? 'h-52' : 'h-44'
   const readTime = (post.readTime ?? post.read_time) ?? 0
-  const gradient = getCategoryGradient(post.category)
-  const iconSvg = getCategoryIcon(post.category)
+  const gradient = getCategoryGradient(post.category, gradientMap)
+  const iconSvg = getCategoryIcon(post.category, iconMap)
 
   useEffect(() => {
     setImgSrc(img)
@@ -336,13 +320,46 @@ function renderPremiumIcon(slug: string) {
 export default function HomeClient({ featured, travelPosts, foodPosts, latestPosts, totalPosts, coveredCountries, heroVideoUrl, heroPosterImage, homeDestinations, homeZones }: HomeProps) {
   const { zones, settings } = useContentLoader()
   useScrollReveal()
-  const featImg = featured ? postImage(featured) : null
+
+  const slugImages = useMemo(() => {
+    try {
+      const raw = settings?.home_slug_images
+      if (raw) return { ...SLUG_IMAGES_DEFAULT, ...JSON.parse(raw) }
+    } catch {}
+    return SLUG_IMAGES_DEFAULT
+  }, [settings])
+
+  const catImages = useMemo(() => {
+    try {
+      const raw = settings?.home_cat_images
+      if (raw) return { ...CAT_IMAGES_DEFAULT, ...JSON.parse(raw) }
+    } catch {}
+    return CAT_IMAGES_DEFAULT
+  }, [settings])
+
+  const catGradients = useMemo(() => {
+    try {
+      const raw = settings?.home_cat_gradients
+      if (raw) return { ...CATEGORY_GRADIENTS, ...JSON.parse(raw) }
+    } catch {}
+    return CATEGORY_GRADIENTS
+  }, [settings])
+
+  const catIcons = useMemo(() => {
+    try {
+      const raw = settings?.home_cat_icons
+      if (raw) return { ...CATEGORY_ICONS, ...JSON.parse(raw) }
+    } catch {}
+    return CATEGORY_ICONS
+  }, [settings])
+
+  const featImg = featured ? postImage(featured, slugImages, catImages) : null
   const publishedArticles = totalPosts && totalPosts > 0 ? totalPosts : 25
   const parsedCountries = parseInt(String(coveredCountries || '0'), 10)
   const countryCount = isNaN(parsedCountries) || parsedCountries <= 0 ? 7 : parsedCountries
 
   const defaultVideoSrc = heroVideoUrl || 'https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4'
-  const defaultPosterSrc = heroPosterImage || 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&q=80'
+  const defaultPosterSrc = heroPosterImage || '/og-default.jpg'
 
   const videoSrc = getCmsOrSetting('hero_video_url', 'hero_video_url', defaultVideoSrc, zones, settings)
   const posterSrc = getCmsOrSetting('hero_poster_image', 'hero_poster_image', defaultPosterSrc, zones, settings)
@@ -503,7 +520,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             {travelPosts.length >= 1 && (
               <div className="grid md:grid-cols-2 gap-6 mb-6">
                 <Link href={`/blog/${travelPosts[0].slug}`} className="card-lift group relative rounded-2xl overflow-hidden bg-mahogany/80 aspect-[4/3] md:row-span-2" data-reveal="left">
-                  <Image src={postImage(travelPosts[0])} alt={travelPosts[0].title} fill
+                  <Image src={postImage(travelPosts[0], slugImages, catImages)} alt={travelPosts[0].title} fill
                     className="object-cover opacity-70 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700"
                     sizes="(max-width: 768px) 100vw, 50vw" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
@@ -527,7 +544,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                     <Link key={p.slug} href={`/blog/${p.slug}`}
                        className="group relative rounded-2xl overflow-hidden bg-mahogany/80"
                       data-reveal data-delay={String((i + 1) * 150)}>
-                      <Image src={postImage(p)} alt={p.title} fill
+                      <Image src={postImage(p, slugImages, catImages)} alt={p.title} fill
                         className="object-cover opacity-65 group-hover:opacity-75 group-hover:scale-105 transition-all duration-700"
                         sizes="(max-width: 768px) 100vw, 33vw" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
@@ -552,7 +569,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <div className="max-w-6xl mx-auto px-6 md:px-10">
             <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
               <div className="relative" data-reveal="left">
-                <Image src={postImage(foodPosts[0])}
+                <Image src={postImage(foodPosts[0], slugImages, catImages)}
                   alt={foodPosts[0].title}
                   width={700} height={525}
                   className="rounded-2xl w-full aspect-[4/3] object-cover shadow-lg" />
@@ -575,7 +592,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   {foodPosts.slice(0, 3).map((p) => (
                     <Link key={p.slug} href={`/blog/${p.slug}`}
                       className="flex items-start gap-3 group hover:bg-eucalyptus/5 rounded-xl p-2 -mx-2 transition-colors">
-                      <Image src={postImage(p)} alt={p.title} width={60} height={60}
+                      <Image src={postImage(p, slugImages, catImages)} alt={p.title} width={60} height={60}
                         className="w-14 h-14 rounded-lg object-cover flex-shrink-0" />
                       <div>
                         <p className="font-semibold text-charcoal/90 text-sm group-hover:text-eucalyptus transition-colors line-clamp-1">{p.title}</p>
@@ -614,7 +631,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {latestPosts.map((p, i) => (
                 <div key={p.slug} data-reveal data-delay={String(i * 100)}>
-                  <ArticleCard post={p} size="md" />
+                  <ArticleCard post={p} size="md" slugImages={slugImages} catImages={catImages} gradientMap={catGradients} iconMap={catIcons} />
                 </div>
               ))}
             </div>
@@ -749,10 +766,10 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <EditableZone page="home" zone="section_b2b_badge" fallback="✦ Espace Hébergeurs & Hôteliers"
             className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
           />
-          <EditableZone page="home" zone="section_b2b_title" type="html" fallback="Vous gérez un hébergement de charme ?<br /><em className='text-eucalyptus'>Faites vivre l'expérience slow travel</em>"
+          <EditableZone page="home" zone="section_b2b_title" type="html" fallback="Tu gères un hébergement de charme ?<br /><em className='text-eucalyptus'>Fais vivre l'expérience slow travel</em>"
             className="text-3xl md:text-4xl font-serif font-light text-mahogany dark:text-stone-200 leading-tight mb-6 block"
           />
-          <EditableZone page="home" zone="section_b2b_text" type="textarea" fallback="Maison d'hôtes, gîte insolite ou hôtel indépendant : on vous aide à attirer des voyageurs qui prennent leur temps, à maximiser vos réservations directes et à optimiser votre SEO de destination."
+          <EditableZone page="home" zone="section_b2b_text" type="textarea" fallback="Maison d'hôtes, gîte insolite ou hôtel indépendant : on t'aide à attirer des voyageurs qui prennent leur temps, à maximiser tes réservations directes et à optimiser ton SEO de destination."
             className="text-charcoal/70 dark:text-stone-400 leading-relaxed max-w-2xl mx-auto mb-8 block"
           />
           <Link href="/expert-hotelier" className="inline-flex items-center gap-2 px-6 py-3.5 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 text-charcoal dark:text-stone-200 hover:border-eucalyptus dark:hover:border-eucalyptus hover:text-eucalyptus dark:hover:text-eucalyptus font-semibold rounded-full text-sm transition-all">

@@ -4,23 +4,22 @@ import Script from 'next/script';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import B2bCtaButton from '@/components/B2bCtaButton';
+import HotelierForm from '@/components/HotelierForm';
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import EditableZone from '@/components/inline-edit/EditableZone';
 
 const SITE_URL = 'https://www.heldonica.fr';
 
-// DRAFT — not linked from nav or sitemap
 export const metadata: Metadata = {
   title: 'Hébergements Slow Travel & Indépendance | Heldonica',
   description: 'Accompagnement pour hôtels indépendants, maisons d’hôtes et gîtes de charme. Valorise ton positionnement slow travel, libère-toi des plateformes et fidélise les couples.',
   keywords: ['slow travel gîte', 'maison d\'hôtes de charme', 'indépendance booking', 'expérience couple', 'conseil hébergement insolite'],
-  robots: { index: false, follow: false },
   alternates: { canonical: `${SITE_URL}/expert-hotelier` },
   openGraph: {
     title: 'Hébergements Slow Travel & Indépendance | Heldonica',
     description: 'Accompagnement pour hôtels indépendants, gîtes de charme et maisons d’hôtes pour développer les réservations directes.',
     url: `${SITE_URL}/expert-hotelier`,
-    images: [{ url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=80', width: 1200, height: 630, alt: 'Accompagnement hébergements Heldonica' }],
+    images: [{ url: '/og-default.jpg', width: 1200, height: 630, alt: 'Accompagnement hébergements Heldonica' }],
     locale: 'fr_FR', type: 'website',
   },
 };
@@ -126,7 +125,7 @@ export default function ExpertHotelierPage() {
       <main className="min-h-screen">
         {/* Hero Section */}
         <section className="relative bg-stone-950 text-white py-28 md:py-36 overflow-hidden">
-          <div className="absolute inset-0 opacity-[0.35]" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1400&q=70)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+          <div className="absolute inset-0 opacity-[0.35]" style={{ backgroundImage: 'url(/og-default.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
           <div className="absolute inset-0 bg-gradient-to-br from-stone-950/[0.60] via-stone-950/50 to-stone-950/[0.60]" />
           <div className="relative max-w-4xl mx-auto px-6 text-center">
             <EditableZone page="expert-hotelier" zone="hero_badge" fallback="Hébergements & Slow Travel"
@@ -340,20 +339,10 @@ export default function ExpertHotelierPage() {
             <h2 className="text-3xl md:text-4xl font-serif font-light mb-4 text-center">
               <EditableZone page="expert-hotelier" zone="audit_title" fallback="Raconte-nous ton projet" className="inline" />
             </h2>
-            <EditableZone page="expert-hotelier" zone="audit_text" type="textarea" fallback="Laisse-nous tes coordonnées. On te recontacte sous 48h pour planifier un appel découverte de 30 minutes, en toute simplicité."
+            <EditableZone page="expert-hotelier" zone="audit_text" type="textarea" fallback="Remplis ce formulaire. On te recontacte sous 48h pour planifier un appel découverte de 30 minutes, en toute simplicité."
               className="text-stone-400 text-center mb-10 max-w-lg mx-auto block"
             />
-            <B2bCtaButton
-              href="/contact"
-              eventName="formulaire_audit_b2b_clique"
-              eventParams={{ source: 'section_audit' }}
-              className="block w-full max-w-md mx-auto px-8 py-5 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all text-center text-lg mb-6"
-            >
-              <EditableZone page="expert-hotelier" zone="audit_cta" fallback="Échanger sur mon projet →" />
-            </B2bCtaButton>
-            <EditableZone page="expert-hotelier" zone="audit_note" fallback="Sans engagement. Échange simple de 30 minutes."
-              className="text-stone-500 text-center text-sm block"
-            />
+            <HotelierForm />
           </div>
         </section>
 

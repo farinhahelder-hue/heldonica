@@ -85,7 +85,7 @@ export default function EditableZone({
 
   const renderContent = (content: string) => {
     if (type === 'image') {
-      return <img src={content} alt="" className={className} loading="lazy" />
+      return <ZoneImage src={content} className={className} />
     }
     return <Tag className={className} dangerouslySetInnerHTML={{ __html: content }} />
   }
@@ -262,4 +262,11 @@ export default function EditableZone({
       />
     </>
   )
+}
+
+/** Image zone that hides itself on load failure instead of showing a broken-image icon. */
+function ZoneImage({ src, className }: { src: string; className?: string }) {
+  const [failed, setFailed] = useState(false)
+  if (!src || failed) return null
+  return <img src={src} alt="" className={className} loading="lazy" onError={() => setFailed(true)} />
 }

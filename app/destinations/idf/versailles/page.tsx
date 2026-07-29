@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     title: 'Versailles en couple : notre carnet slow travel | Heldonica',
     description: 'Chateau. Jardins, Grand Canal en IdF. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
     type: 'website',
-    images: ['https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1200&q=80'],
+    images: ['/og-default.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica'
   },
@@ -45,7 +45,7 @@ export default function VersaillesPage() {
         name="Versailles"
         parentName="IdF"
         parentSlug="idf"
-        heroImage="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1200&q=80"
+        heroImage="/og-default.jpg"
         introText="Le chateau. Les journees entieres a explore."
         highlights={highlights}
         localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."

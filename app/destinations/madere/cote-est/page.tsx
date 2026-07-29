@@ -4,13 +4,13 @@ import Footer from '@/components/Footer'
 import SubDestinationTemplate from '@/components/SubDestinationTemplate'
 
 export const metadata: Metadata = {
-  title: 'Cote Est en couple : notre carnet slow travel | Heldonica',
-  description: 'Machico, Canical, la cote sauvage. L arrivee en avion en Madere. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
+  title: 'Côte Est en couple : notre carnet slow travel | Heldonica',
+  description: 'Machico, Caniçal, la côte sauvage. L\'arrivée en avion à Madère. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
   openGraph: {
-    title: 'Cote Est en couple : notre carnet slow travel | Heldonica',
-    description: 'Machico, Canical, la cote sauvage. L arrivee en avion en Madere. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
+    title: 'Côte Est en couple : notre carnet slow travel | Heldonica',
+    description: 'Machico, Caniçal, la côte sauvage. L\'arrivée en avion à Madère. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
     type: 'website',
-    images: ['https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=1200&q=80'],
+    images: ['/og-default.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica'
   },
@@ -42,11 +42,11 @@ export default function CoteEstPage() {
     <>
       <Header />
       <SubDestinationTemplate
-        name="Cote Est"
-        parentName="Madere"
+        name="Côte Est"
+        parentName="Madère"
         parentSlug="madere"
-        heroImage="https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=1200&q=80"
-        introText="Machico, Canical, la cote sauvage. L arrivee en avion."
+        heroImage="/og-default.jpg"
+        introText="Machico, Caniçal, la côte sauvage. L'arrivée en avion."
         highlights={highlights}
         localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."
       />
