@@ -4,6 +4,8 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import NewsletterForm from '@/components/NewsletterForm';
 import DynamicArticleMap from '@/components/DynamicArticleMap';
+import AffiliateLink from '@/components/AffiliateLink';
+import { AFFILIATE_DISCLOSURE, bookingSearchUrl } from '@/lib/affiliates';
 
 const SITE_URL = 'https://www.heldonica.fr';
 
@@ -38,7 +40,7 @@ const days = [
     activity: 'Arrivée, vieille ville, rue Republicii, place du Conseil',
     pepite: 'La terrasse du Ceai la Metrou — salon de thé caché sous les arcades, thé maison et vue sur la place',
     accommodation: 'Hotel Belvedere — 3*, vue citadelle, 50 €/nuit',
-    accommodationUrl: 'https://www.booking.com/searchresults.fr.html?ss=Brașov&aid=2420035',
+    accommodationUrl: bookingSearchUrl('Brașov'),
     detail: 'On pose les bases à Brașov, la plus belle porte d\'entrée de la Transylvanie. La vieille ville se découvre à pied en une après-midi : la rue Republicii, piétonne et bordée d\'arcades, la place du Conseil avec ses bâtiments pastel, et la première terrasse pour un café en observant le rythme local. Pas de précipitation — on s\'imprègne.',
   },
   {
@@ -48,7 +50,7 @@ const days = [
     activity: 'Château de Peleș, forêt des Carpates, randonnée légère',
     pepite: 'Le sentier Sinaia-Cota 1400 — 2h de montée douce à travers la forêt, vue panoramique sur toute la vallée',
     accommodation: 'Hotel Sinaia — 4*, vue montagne, 70 €/nuit',
-    accommodationUrl: 'https://www.booking.com/searchresults.fr.html?ss=Sinaia&aid=2420035',
+    accommodationUrl: bookingSearchUrl('Sinaia'),
     detail: 'À 40 minutes de Brașov, Sinaia est le joyau des Carpates. Le château de Peleș mérite qu\'on arrive à l\'ouverture — les salles sont plus impressionnantes sans la foule. L\'après-midi, on prend un sentier dans la forêt au-dessus de la ville. Les Carpates ont cette capacité à te faire oublier le temps. On redescend fatigué mais apaisé.',
   },
   {
@@ -58,7 +60,7 @@ const days = [
     activity: 'Tour de l\'Horloge, escalier couvert, citadelle',
     pepite: 'Restaurant din Turn — dîner dans une tour du 14e siècle, cuisine transylvanienne, 25 € pour deux',
     accommodation: 'Hotel Sighișoara — 3*, intra-muros, 45 €/nuit',
-    accommodationUrl: 'https://www.booking.com/searchresults.fr.html?ss=Sighișoara&aid=2420035',
+    accommodationUrl: bookingSearchUrl('Sighișoara'),
     detail: 'Sighișoara est un arrêt obligé, et on comprend pourquoi dès qu\'on franchit la tour de l\'Horloge. La citadelle est vivante, habitée, pas un décor pour touristes. On flâne dans les ruelles pavées, on monte les marches couvertes jusqu\'au sommet, et le soir venu, on s\'installe au din Turn pour un dîner qui restera dans les mémoires.',
   },
   {
@@ -68,7 +70,7 @@ const days = [
     activity: 'Grande place, pont des Mensonges, musée ASTRA',
     pepite: 'Le musée ASTRA en plein air — 30 hectares de vie rurale roumaine reconstituée, 5 €, prévois 3h',
     accommodation: 'Hotel Sibiul — 3*, vieille ville, 50 €/nuit',
-    accommodationUrl: 'https://www.booking.com/searchresults.fr.html?ss=Sibiu&aid=2420035',
+    accommodationUrl: bookingSearchUrl('Sibiu'),
     detail: 'Sibiu, ancienne capitale européenne de la culture, a gardé un charme saxon irrésistible. La Grande Place est l\'une des plus belles d\'Europe de l\'Est. Le pont des Mensonges offre une vue parfaite sur la ville basse. L\'après-midi au musée ASTRA est une plongée fascinante dans la Roumanie rurale — moulins, églises en bois, fermes reconstituées. Un musée à ciel ouvert unique.',
   },
   {
@@ -178,9 +180,9 @@ export default function Itineraire5JoursPage() {
                       <div className="rounded-xl bg-stone-50 border border-stone-200 p-3">
                         <p className="text-xs font-semibold text-stone-600 mb-1">On a dormi chez</p>
                         <p className="text-sm text-charcoal/80 mb-1">{day.accommodation}</p>
-                        <a href={day.accommodationUrl} target="_blank" rel="noreferrer noopener" className="text-xs text-eucalyptus font-semibold hover:underline">
+                        <AffiliateLink href={day.accommodationUrl} partner="booking" destination="roumanie" className="text-xs text-eucalyptus font-semibold hover:underline">
                           Voir les disponibilités →
-                        </a>
+                        </AffiliateLink>
                       </div>
                     )}
                     {!day.accommodation && (
@@ -193,7 +195,7 @@ export default function Itineraire5JoursPage() {
 
                   {day.accommodationUrl && (
                     <div className="text-xs text-stone-500 mt-2">
-                      <span>Liens Booking.com — un petit geste qui nous aide sans rien changer à ton tarif.</span>
+                      <span>{AFFILIATE_DISCLOSURE}</span>
                     </div>
                   )}
                 </article>

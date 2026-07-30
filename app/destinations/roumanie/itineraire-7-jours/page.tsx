@@ -6,6 +6,8 @@ import Footer from '@/components/Footer';
 import NewsletterForm from '@/components/NewsletterForm';
 import PdfDownloadButton from '@/components/PdfDownloadButton';
 import DynamicArticleMap from '@/components/DynamicArticleMap';
+import AffiliateLink from '@/components/AffiliateLink';
+import { AFFILIATE_DISCLOSURE, bookingSearchUrl } from '@/lib/affiliates';
 
 const SITE_URL = 'https://www.heldonica.fr';
 
@@ -41,7 +43,7 @@ const days = [
     activity: 'Installation dans le quartier Floreasca, découverte du quartier, premier repas roumain',
     pepite: 'Restaurant fără Zahăr — cantine locale dans Floreasca, cuisine maison, 12 € pour deux',
     accommodation: 'Hotel Cismigiu — 3*, quartier centre, 55 €/nuit',
-    accommodationUrl: 'https://www.booking.com/searchresults.fr.html?ss=Bucarest&aid=2420035',
+    accommodationUrl: bookingSearchUrl('Bucarest'),
     detail: 'On pose les valises dans le quartier Floreasca, loin du bruit du centre. C\'est là qu\'on trouve les meilleures adresses locales — des cantines où les avocats du coin mangent à midi, des petits parcs où personne ne se prend en photo. Premier dîner : sarmale (choux farcis) et mămăligă (polenta), arrosés de vin de Murfatlar. On rentre tôt, demain la route commence.',
   },
   {
@@ -52,7 +54,7 @@ const days = [
     activity: 'Château de Peleș, forêt des Carpates',
     pepite: 'Le château de Peleș — arrive à l\'ouverture (9h15), tu évites 90 % des groupes',
     accommodation: 'Hotel Sinaia — 4*, vue montagne, 70 €/nuit',
-    accommodationUrl: 'https://www.booking.com/searchresults.fr.html?ss=Sinaia&aid=2420035',
+    accommodationUrl: bookingSearchUrl('Sinaia'),
     detail: 'La route Bucarest-Sinaia est une mise en jambe parfaite. Les plaines cèdent progressivement la place aux collines, puis aux Carpates qui surgissent sans prévenir. Le château de Peleș est le premier choc visuel du voyage — un concentré d\'architecture néo-Renaissance perché dans la forêt. L\'après-midi, on marche dans les bois au-dessus de Sinaia. L\'air change, le rythme aussi. On comprend déjà pourquoi on vient ici.',
   },
   {
@@ -63,7 +65,7 @@ const days = [
     activity: 'Vieille ville, rue Republicii, tramway nostalgique',
     pepite: 'Le tramway 102 jusqu\'à la gare de Brașov — un voyage dans le temps pour 0.50 €',
     accommodation: 'Hotel Belvedere — 3*, vue sur la citadelle, 50 €/nuit',
-    accommodationUrl: 'https://www.booking.com/searchresults.fr.html?ss=Brașov&aid=2420035',
+    accommodationUrl: bookingSearchUrl('Brașov'),
     detail: 'Brașov est la plus belle ville de Transylvanie, point barre. La place du Conseil (Piața Sfatului) est entourée de bâtiments pastel qui n\'ont pas besoin de filtre. La rue Republicii — piétonne, bordée d\'arcades — est faite pour flâner sans but. On monte jusqu\'à la forteresse pour la vue, mais le vrai moment, c\'est le tramway 102 : une vieille rame qui traverse la ville avec un bruit de ferraille réconfortant. Soirée dans un restaurant du vieux Brașov : papanași (beignets au fromage blanc et crème) en dessert. Indispensable.',
   },
   {
@@ -74,7 +76,7 @@ const days = [
     activity: 'Citadelle médiévale, tour de l\'Horloge',
     pepite: 'Restaurant din Turn — dîner dans une tour médiévale, cuisine transylvanienne revisitée, 25 € pour deux',
     accommodation: 'Hotel Sighișoara — 3*, intra-muros, 45 €/nuit',
-    accommodationUrl: 'https://www.booking.com/searchresults.fr.html?ss=Sighișoara&aid=2420035',
+    accommodationUrl: bookingSearchUrl('Sighișoara'),
     detail: 'Sighișoara est la seule citadelle médiévale d\'Europe encore habitée en continu. On y entre par la tour de l\'Horloge, on gravit les escaliers couverts, et on débouche sur une place où le temps semble figé. La différence avec Brașov : ici, pas de foule. Les ruelles sont calmes, les chats dorment sur les pavés. Le restaurant din Turn est perché dans une tour — on y mange une mici (saucisses roumaines) en regardant la ville s\'illuminer. C\'est notre journée préférée du circuit.',
   },
   {
@@ -85,7 +87,7 @@ const days = [
     activity: 'Village saxon, église fortifiée UNESCO, Fondation Charles',
     pepite: 'Chez Elena — déjeuner chez l\'habitant dans sa cour : soupe, pain cuit au feu de bois, 8 €',
     accommodation: 'Guesthouse Viscri — chez l\'habitant, 35 €/nuit',
-    accommodationUrl: 'https://www.booking.com/searchresults.fr.html?ss=Viscri&aid=2420035',
+    accommodationUrl: bookingSearchUrl('Viscri'),
     detail: 'Viscri est ce qui reste de la Roumanie d\'avant. Un village saxon où les rues sont en terre battue, où les charrettes croisent les vélos, où le seul bruit vient des cloches des moutons. L\'église fortifiée classée UNESCO domine le village. La Fondation Charles (le prince Charles a une maison ici) a aidé à restaurer plusieurs bâtiments, mais l\'esprit reste celui d\'un village qui vit pour lui-même, pas pour les touristes. On déjeune chez Elena, dans sa cour, assis sur un banc en bois. On repart en comprenant pourquoi on voyage vraiment.',
   },
   {
@@ -96,7 +98,7 @@ const days = [
     activity: 'Ville universitaire, scène culturelle, bars alternatifs',
     pepite: 'La muzica până la capăt — librairie-café alternative au sous-sol, rue Memorandumului',
     accommodation: 'Hotel Deja Vu — 3*, quartier centre, 55 €/nuit',
-    accommodationUrl: 'https://www.booking.com/searchresults.fr.html?ss=Cluj&aid=2420035',
+    accommodationUrl: bookingSearchUrl('Cluj'),
     detail: 'Cluj, c\'est l\'autre Roumanie. Étudiante, connectée, tournée vers l\'avenir. Le contraste avec Viscri est brutal : on passe du silence absolu aux terrasses bondées de l\'avenue Eroilor. La vie culturelle est bouillonnante — théâtre alternatif, galeries d\'art contemporain, bars qui ferment à 4h du matin. On flâne dans le quartier Mărăști, on boit un café chez Laika, on dîne dans un bistro hongrois. Cluj est un rappel que la Roumanie ne se réduit pas à ses cartes postales médiévales.',
   },
   {
@@ -241,14 +243,14 @@ export default function Itineraire7JoursPage() {
                           On a dormi chez
                         </p>
                         <p className="text-sm text-charcoal/80 mb-1">{day.accommodation}</p>
-                        <a
+                        <AffiliateLink
                           href={day.accommodationUrl}
-                          target="_blank"
-                          rel="noreferrer noopener"
+                          partner="booking"
+                          destination="roumanie"
                           className="text-xs text-eucalyptus font-semibold hover:underline"
                         >
                           Voir les disponibilités →
-                        </a>
+                        </AffiliateLink>
                       </div>
                     )}
                     {!day.accommodation && (
@@ -261,7 +263,7 @@ export default function Itineraire7JoursPage() {
 
                   {day.accommodationUrl && (
                     <div className="text-xs text-stone-500">
-                      <span>Liens Booking.com — un petit geste qui nous aide sans rien changer à ton tarif.</span>
+                      <span>{AFFILIATE_DISCLOSURE}</span>
                     </div>
                   )}
                 </article>

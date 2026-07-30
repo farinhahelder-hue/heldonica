@@ -11,6 +11,9 @@ import LeadMagnetBlock from '@/components/LeadMagnetBlock'
 import TestedByHeldonica from '@/components/TestedByHeldonica'
 import DestinationVerdict from '@/components/DestinationVerdict'
 import QuickAnswersBlock from '@/components/QuickAnswersBlock'
+import DestinationMapEmbed from '@/components/DestinationMapEmbed'
+import AffiliateLink from '@/components/AffiliateLink'
+import { AFFILIATE_DISCLOSURE, bookingSearchUrl, getYourGuideSearchUrl } from '@/lib/affiliates'
 import type { PillarData } from '@/lib/pillar-types'
 import { SITE_URL } from '@/lib/seo'
 import { SUB_DESTINATIONS } from '@/lib/sub-destinations'
@@ -208,8 +211,93 @@ export default function DestinationPillar({
           </div>
         </section>
 
-        {/* Budget détaillé */}
+        {/* Où dormir — hébergements + liens partenaires */}
+        <section className="bg-white py-16 md:py-20 border-t border-stone-200/60">
+          <div className="container max-w-5xl">
+            <h2 className="text-3xl font-serif text-mahogany mb-2">
+              Où dormir à {data.name} ?
+            </h2>
+            <p className="text-charcoal/70 text-base mb-8 max-w-2xl leading-relaxed">
+              On dort rarement au même endroit toute la semaine : à {data.name}, changer
+              de base une ou deux fois évite des heures de route inutiles.
+            </p>
+
+            {data.accommodations.length > 0 && (
+              <div className="grid md:grid-cols-3 gap-5 mb-8">
+                {data.accommodations.map((acc) => {
+                  const query = acc.searchQuery || data.name
+                  return (
+                    <div key={`${acc.type}-${acc.label}`} className="rounded-2xl border border-stone-200 bg-stone-50 p-5 flex flex-col">
+                      <h3 className="font-semibold text-mahogany mb-2">{acc.label}</h3>
+                      <p className="text-sm text-charcoal/70 leading-relaxed flex-1">{acc.description}</p>
+                      <AffiliateLink
+                        href={bookingSearchUrl(query)}
+                        partner="booking"
+                        destination={data.slug}
+                        className="text-xs font-semibold text-eucalyptus hover:underline mt-4 inline-block"
+                      >
+                        Voir les disponibilités à {query} →
+                      </AffiliateLink>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
+            <div className="flex flex-wrap gap-3">
+              <AffiliateLink
+                href={bookingSearchUrl(data.name)}
+                partner="booking"
+                destination={data.slug}
+                className="inline-flex items-center gap-2 rounded-full bg-eucalyptus px-6 py-3 text-sm font-semibold text-white hover:bg-eucalyptus/90 transition-all shadow-sm"
+              >
+                Chercher un hébergement à {data.name}
+              </AffiliateLink>
+              {(() => {
+                const gygUrl = getYourGuideSearchUrl(data.name)
+                if (!gygUrl) return null
+                return (
+                  <AffiliateLink
+                    href={gygUrl}
+                    partner="getyourguide"
+                    destination={data.slug}
+                    className="inline-flex items-center gap-2 rounded-full border border-eucalyptus px-6 py-3 text-sm font-semibold text-eucalyptus hover:bg-eucalyptus/5 transition-all"
+                  >
+                    Réserver une activité à {data.name}
+                  </AffiliateLink>
+                )
+              })()}
+            </div>
+
+            <p className="text-xs text-stone-500 mt-4 max-w-2xl">
+              {AFFILIATE_DISCLOSURE}{' '}
+              <Link href="/politique-affiliation" className="underline hover:text-eucalyptus">
+                Notre politique d&apos;affiliation
+              </Link>
+            </p>
+          </div>
+        </section>
+
+        {/* Carte interactive */}
         <section className="bg-cloud-dancer py-16 md:py-20">
+          <div className="container max-w-5xl">
+            <h2 className="text-3xl font-serif text-mahogany mb-2">
+              Où se situe {data.name} ?
+            </h2>
+            <p className="text-charcoal/70 text-base mb-8 max-w-2xl leading-relaxed">
+              Repère les étapes de l&apos;itinéraire avant de partir : les distances
+              paraissent courtes sur le papier, beaucoup moins une fois sur les routes.
+            </p>
+            <DestinationMapEmbed
+              query={data.country && data.country !== data.name ? `${data.name}, ${data.country}` : data.name}
+              label={data.name}
+              destination={data.slug}
+            />
+          </div>
+        </section>
+
+        {/* Budget détaillé */}
+        <section className="bg-cloud-dancer py-16 md:py-20 border-t border-stone-200/60">
           <div className="container max-w-3xl">
             <h2 className="text-3xl font-serif text-mahogany mb-4">
               <EditableZone page="destinations" zone="budget_title_prefix" fallback="Quel budget prévoir pour" className="inline" /> {data.name} ?
