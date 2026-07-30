@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 import { useContentLoader, getCmsOrSetting } from '@/hooks/useContentLoader'
 import type { CmsZone } from '@/lib/content-loader'
-import ThemeToggle from './ThemeToggle'
 
 export default function Header() {
   const [open, setOpen] = useState(false)
@@ -62,99 +61,94 @@ export default function Header() {
     }
   }, [open])
 
-  const navItems = Array.from({ length: 6 }, (_, i) => ({
-    label: getCmsOrSetting(`nav_item_${i + 1}_label`, `nav_item_${i + 1}_label`, ['Destinations', 'Blog', 'Sur mesure', 'À propos', 'Consulting', 'Contact'][i], zones as Record<string, CmsZone>, settings),
-    href: getCmsOrSetting(`nav_item_${i + 1}_url`, `nav_item_${i + 1}_url`, ['/destinations', '/blog', '/travel-planning', '/a-propos', '/expert-hotelier', '/contact'][i], zones as Record<string, CmsZone>, settings),
-  }))
+  const navItems = [
+    { href: '/', label: 'Accueil' },
+    { href: '/destinations', label: 'Destinations' },
+    { href: '/blog', label: 'Blog' },
+    { href: '/travel-planning', label: 'Services' },
+    { href: '/expert-hotelier', label: 'Consulting hôtelier' },
+    { href: '/a-propos', label: 'À propos' },
+  ]
 
   const safeNavItems = Array.isArray(navItems) ? navItems : []
 
   return (
     <>
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-eucalyptus focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lg"
-      >
-        Aller au contenu principal
-      </a>
-      <nav
+      <nav 
         className={`fixed top-0 z-50 w-full transition-all duration-300 ${
-          scrolled
-            ? 'bg-white/98 dark:bg-stone-900/98 backdrop-blur-md shadow-sm border-b border-stone-100/50 dark:border-stone-800/50'
-            : 'bg-white/95 dark:bg-stone-900/95 backdrop-blur-sm border-b border-stone-100 dark:border-stone-800'
-        }`}
-        role="navigation"
+          scrolled 
+            ? 'bg-white/98 backdrop-blur-md shadow-sm border-b border-stone-100/50' 
+            : 'bg-white/95 backdrop-blur-sm border-b border-stone-100'
+        }`} 
+        role="navigation" 
         aria-label="Navigation principale"
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5 sm:px-6 lg:py-3">
           {/* Logo */}
           <Link
             href="/"
-            className="flex items-center gap-2 text-mahogany transition-all duration-200 hover:text-eucalyptus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:ring-offset-2"
+            className="flex items-center gap-2 text-amber-900 transition-all duration-200 hover:text-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-offset-2"
             aria-label={`${siteName} accueil`}
           >
             {logoUrl ? (
               <img src={logoUrl} alt="" className="h-8 w-auto" />
             ) : (
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" className="text-eucalyptus" aria-hidden="true">
-                <circle cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 3" className="opacity-40" />
-                <path d="M8 21l6.5-9 6.5 9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M14 21l5-7 6 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M5 25c6-2.5 11 0.5 16-2.5s5-3.5 7-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              <svg width="32" height="32" viewBox="0 0 34 34" fill="none" aria-hidden="true">
+                <circle cx="17" cy="17" r="16" stroke="currentColor" strokeWidth="1.2" />
+                <line x1="10" y1="9" x2="10" y2="22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <line x1="24" y1="9" x2="24" y2="22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <line x1="10" y1="15.5" x2="24" y2="15.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <path d="M8 26 Q11 24 14 26 Q17 28 20 26 Q23 24 26 26" stroke="currentColor" strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.6" />
               </svg>
             )}
             <span className="text-lg font-serif font-bold tracking-tight lg:text-xl">{siteName}</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden items-center gap-4 lg:flex">
-            <div className="flex items-center gap-1">
-              {safeNavItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  aria-current={pathname === item.href ? 'page' : undefined}
-                  className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:ring-offset-2 ${
-                    pathname === item.href
-                      ? 'text-eucalyptus'
-                      : 'text-stone-600 dark:text-stone-300 hover:text-eucalyptus dark:hover:text-eucalyptus'
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-            <ThemeToggle />
+          <div className="hidden items-center gap-1 lg:flex">
+            {safeNavItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={pathname === item.href ? 'page' : undefined}
+                className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-offset-2 ${
+                  pathname === item.href
+                    ? 'text-amber-900'
+                    : 'text-stone-600 hover:text-amber-900'
+                }`}
+              >
+                {item.label}
+              </Link>
+            ))}
           </div>
 
           {/* Mobile Navigation */}
           <div className="flex items-center gap-3 lg:hidden">
-            <ThemeToggle />
             {/* Hamburger animé */}
             <button
               onClick={() => setOpen((value) => !value)}
               aria-label={open ? 'Fermer le menu' : 'Ouvrir le menu'}
               aria-expanded={open}
               aria-controls="mobile-menu"
-              className="group relative flex h-10 w-10 items-center justify-center rounded-xl bg-stone-50 dark:bg-stone-800 transition-all duration-300 hover:bg-stone-100 dark:hover:bg-stone-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus active:scale-95"
+              className="group relative flex h-10 w-10 items-center justify-center rounded-xl bg-stone-50 transition-all duration-300 hover:bg-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 active:scale-95"
             >
               <span className="flex h-5 w-5 flex-col items-center justify-center">
                 {/* Ligne du haut */}
                 <span 
-                  className={`mb-1 block h-0.5 w-5 transform rounded-full bg-stone-700 dark:bg-stone-300 transition-all duration-300 ${
-                    open ? 'translate-y-1.5 rotate-45 !bg-eucalyptus' : ''
+                  className={`mb-1 block h-0.5 w-5 transform rounded-full bg-stone-700 transition-all duration-300 ${
+                    open ? 'translate-y-1.5 rotate-45 bg-amber-900' : ''
                   }`}
                 />
                 {/* Ligne du milieu */}
                 <span 
-                  className={`mb-1 block h-0.5 w-5 rounded-full bg-stone-700 dark:bg-stone-300 transition-all duration-300 ${
+                  className={`mb-1 block h-0.5 w-5 rounded-full bg-stone-700 transition-all duration-300 ${
                     open ? 'scale-x-0 opacity-0' : ''
                   }`}
                 />
                 {/* Ligne du bas */}
                 <span 
                   className={`block h-0.5 w-5 transform rounded-full bg-stone-700 transition-all duration-300 ${
-                    open ? '-translate-y-1.5 -rotate-45 bg-eucalyptus' : ''
+                    open ? '-translate-y-1.5 -rotate-45 bg-amber-900' : ''
                   }`}
                 />
               </span>
@@ -177,22 +171,18 @@ export default function Header() {
           />
           
           {/* Menu panel */}
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label="Menu de navigation"
-            aria-hidden={!open}
-            className={`absolute right-0 top-full z-50 w-full max-w-sm bg-white dark:bg-stone-900 shadow-2xl transition-all duration-300 ease-out transform origin-top-right ${
-              open ? 'translate-x-0 scale-100 opacity-100 pointer-events-auto' : 'translate-x-6 scale-95 opacity-0 pointer-events-none'
+          <div 
+            className={`absolute right-0 top-full z-50 w-full max-w-sm bg-white shadow-2xl transition-all duration-300 ease-out ${
+              open ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
             }`}
           >
             <div className="flex flex-col gap-1 p-5">
               {/* Header du menu avec bouton fermer */}
-              <div className="flex items-center justify-between mb-4 pb-4 border-b border-stone-100 dark:border-stone-800">
-                <span className="text-sm font-semibold text-stone-700 dark:text-stone-200">Menu</span>
+              <div className="flex items-center justify-between mb-4 pb-4 border-b border-stone-100">
+                <span className="text-sm font-semibold text-stone-700">Menu</span>
                 <button
                   onClick={() => setOpen(false)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-200 dark:hover:bg-stone-700 hover:text-stone-700 dark:hover:text-stone-200"
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-stone-100 text-stone-500 transition-colors hover:bg-stone-200 hover:text-stone-700"
                   aria-label="Fermer le menu"
                 >
                   <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -209,20 +199,19 @@ export default function Header() {
                   href={item.href}
                   onClick={() => setOpen(false)}
                   aria-current={pathname === item.href ? 'page' : undefined}
-                  className={`flex items-center gap-3 rounded-xl px-4 py-3.5 font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus ${
+                  className={`flex items-center gap-3 rounded-xl px-4 py-3.5 font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 ${
                     pathname === item.href
-                      ? 'bg-eucalyptus/5 text-eucalyptus'
-                      : 'text-stone-700 dark:text-stone-300 hover:bg-eucalyptus/5 hover:text-eucalyptus dark:hover:text-eucalyptus active:scale-[0.98]'
+                      ? 'bg-amber-50 text-amber-900'
+                      : 'text-stone-700 hover:bg-amber-50 hover:text-amber-900 active:scale-[0.98]'
                   }`}
                 >
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-500 dark:text-stone-400 shadow-sm" aria-hidden="true">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-500 shadow-sm" aria-hidden="true">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      {index === 0 && <><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></>}
-                      {index === 1 && <><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></>}
-                      {index === 2 && <><circle cx="12" cy="12" r="10" /><polygon points="12 2 12 12 18 12" fill="currentColor" /></>}
-                      {index === 3 && <><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" /></>}
-                      {index === 4 && <><rect x="2" y="7" width="20" height="14" rx="2" ry="2" strokeWidth="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" strokeWidth="2" /></>}
-                      {index === 5 && <><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></>}
+                      {index === 0 && <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />}
+                      {index === 1 && <><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></>}
+                      {index === 2 && <><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></>}
+                      {index === 3 && <><circle cx="12" cy="12" r="10" /><polygon points="12 2 12 12 18 12" fill="currentColor" /></>}
+                      {index === 4 && <><path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16" /></>}
                     </svg>
                   </span>
                   {item.label}
@@ -230,7 +219,7 @@ export default function Header() {
               ))}
 
               {/* Séparateur */}
-              <div className="my-3 border-t border-stone-100 dark:border-stone-800" />
+              <div className="my-3 border-t border-stone-100" />
 
               {/* CTA principal */}
               <Link
@@ -249,7 +238,7 @@ export default function Header() {
               <Link
                 href={accountHref}
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-3 rounded-xl px-4 py-3.5 font-medium text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 hover:text-stone-900 dark:hover:text-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus active:scale-[0.98]"
+                className="flex items-center gap-3 rounded-xl px-4 py-3.5 font-medium text-stone-600 transition-colors hover:bg-stone-50 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 active:scale-[0.98]"
               >
                 <span className="flex h-9 w-9 items-center justify-center rounded-full border border-eucalyptus/20 bg-eucalyptus/10 text-eucalyptus" aria-hidden="true">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -262,11 +251,11 @@ export default function Header() {
 
               {/* Liens légaux rapides */}
               <div className="mt-4 flex flex-wrap gap-3 px-1">
-                <Link href="/contact" className="text-xs text-stone-500 dark:text-stone-500 hover:text-stone-700 dark:hover:text-stone-300">Contact</Link>
-                <span className="text-xs text-stone-300 dark:text-stone-700">•</span>
-                <Link href="/mentions-legales" className="text-xs text-stone-500 dark:text-stone-500 hover:text-stone-700 dark:hover:text-stone-300">Mentions légales</Link>
-                <span className="text-xs text-stone-300 dark:text-stone-700">•</span>
-                <Link href="/politique-confidentialite" className="text-xs text-stone-500 dark:text-stone-500 hover:text-stone-700 dark:hover:text-stone-300">Confidentialité</Link>
+                <Link href="/contact" className="text-xs text-stone-500 hover:text-stone-700">Contact</Link>
+                <span className="text-xs text-stone-300">•</span>
+                <Link href="/mentions-legales" className="text-xs text-stone-500 hover:text-stone-700">Mentions légales</Link>
+                <span className="text-xs text-stone-300">•</span>
+                <Link href="/politique-confidentialite" className="text-xs text-stone-500 hover:text-stone-700">Confidentialité</Link>
               </div>
             </div>
           </div>
