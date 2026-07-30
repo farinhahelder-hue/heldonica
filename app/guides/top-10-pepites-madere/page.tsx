@@ -4,6 +4,7 @@ import Footer from '@/components/Footer'
 import Link from 'next/link'
 import NewsletterPopup from '@/components/NewsletterPopup'
 import GuideDownloadForm from '@/components/GuideDownloadForm'
+import DestinationMapEmbed from '@/components/DestinationMapEmbed'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { createServiceClient } from '@/lib/supabase'
@@ -260,6 +261,23 @@ export default async function Top10PepitesMaderePage() {
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+
+        <section className="py-16 md:py-20 bg-white">
+          <div className="max-w-4xl mx-auto px-6">
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-stone-900 mb-4 text-center">
+              <EditableZone page="top-10-pepites-madere" zone="map_title" fallback="Situe les pépites sur la carte" />
+            </h2>
+            <EditableZone page="top-10-pepites-madere" zone="map_text" type="textarea"
+              fallback="Madère fait 57 km de long, et pourtant il faut compter 1h30 pour traverser du sud au nord. Repère les distances avant de caler ton programme."
+              className="text-stone-600 leading-relaxed text-center max-w-2xl mx-auto mb-8 block"
+            />
+            <DestinationMapEmbed
+              query="Madère, Portugal"
+              label="Madère"
+              destination="madere"
+            />
           </div>
         </section>
 
