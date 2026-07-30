@@ -12,7 +12,7 @@ const SITE_URL = 'https://www.heldonica.fr';
 
 export const metadata: Metadata = {
   title: 'Hébergements Slow Travel & Indépendance | Heldonica',
-  description: 'Accompagnement pour hôtels indépendants, maisons d’hôtes et gîtes de charme. Valorise ton positionnement slow travel, libère-toi des plateformes et fidélise les couples.',
+  description: 'Accompagnement pour hôtels indépendants, maisons d’hôtes et gîtes de charme. Valorisez votre positionnement slow travel, réduisez votre dépendance aux plateformes et fidélisez les couples.',
   keywords: ['slow travel gîte', 'maison d\'hôtes de charme', 'indépendance booking', 'expérience couple', 'conseil hébergement insolite'],
   alternates: { canonical: `${SITE_URL}/expert-hotelier` },
   openGraph: {
@@ -30,7 +30,7 @@ const services = [
     subtitle: 'Se libérer de la dépendance aux plateformes',
     icon: '🌾',
     problem: 'Forte dépendance à Booking.com ou Airbnb, commissions élevées (jusqu\'à 25%), relation client inexistante avant le séjour.',
-    solution: 'Optimisation de ton propre parcours de réservation, stratégie tarifaire intelligente en direct, et maillage de contacts avant l\'arrivée pour instaurer la confiance.',
+    solution: 'Optimisation de votre propre parcours de réservation, stratégie tarifaire intelligente en direct, et maillage de contacts avant l\'arrivée pour instaurer la confiance.',
     results: 'Marge préservée et jusqu\'à 45% de réservations en direct en quelques mois.',
   },
   {
@@ -38,8 +38,8 @@ const services = [
     subtitle: 'Attirer les bons voyageurs au bon endroit',
     icon: '🔍',
     problem: 'Invisible sur Google en dehors des plateformes intermédiaires, fiche locale délaissée, pas d\'histoire racontée.',
-    solution: 'Référencement local (Google Business Profile) optimisé aux petits oignons, création de contenu authentique inspiré du slow travel, et mise en valeur de tes vrais atouts régionaux.',
-    results: 'Un trafic qualifié de voyageurs qui recherchent précisément ton authenticité.',
+    solution: 'Référencement local (Google Business Profile) optimisé en profondeur, création de contenu authentique inspiré du slow travel, et mise en valeur de vos vrais atouts régionaux.',
+    results: 'Un trafic qualifié de voyageurs qui recherchent précisément votre authenticité.',
   },
   {
     title: 'L\'Expérience Slow Travel Couple',
@@ -47,7 +47,7 @@ const services = [
     icon: '💎',
     problem: 'Accueil générique similaire aux hôtels standard, manque d\'attention personnalisée, aucun levier pour encourager le retour.',
     solution: 'Audit du parcours d\'accueil, création d\'attentions locales personnalisées pour les couples (guides papier, adresses secrètes testées), et conception d\'activités de slow-tourisme sur place.',
-    results: 'Des voyageurs conquis qui deviennent tes meilleurs ambassadeurs et reviennent.',
+    results: 'Des voyageurs conquis qui deviennent vos meilleurs ambassadeurs et reviennent.',
   },
 ];
 
@@ -69,10 +69,10 @@ const caseStudies = [
 ];
 
 const faqItems = [
-  { q: 'Comment se passe notre premier échange ?', a: 'On s’appelle pendant 30 minutes. Tu nous présentes ton projet, tes problématiques (taux de remplissage, dépendance aux plateformes, etc.), et on regarde ensemble si notre approche slow travel est adaptée à ton lieu.' },
+  { q: 'Comment se passe notre premier échange ?', a: 'Un appel de 30 minutes. Vous nous présentez votre projet et vos problématiques (taux de remplissage, dépendance aux plateformes, saisonnalité), et nous regardons ensemble si notre approche slow travel est adaptée à votre établissement.' },
   { q: 'À quel type d’hébergements s’adresse cet accompagnement ?', a: 'Aux maisons d’hôtes de charme, aux gîtes éco-conçus, aux hébergements insolites haut de gamme, et aux petits hôtels indépendants qui mettent l’humain et l’authenticité au centre de leur projet.' },
-  { q: 'Quels résultats peut-on attendre ?', a: 'Une augmentation significative de tes réservations directes (et donc une baisse des commissions payées), une meilleure visibilité sur Google auprès d’une clientèle qualifiée, et surtout des voyageurs qui viennent pour ton concept.' },
-  { q: 'Combien coûte un accompagnement ?', a: 'Le premier échange de diagnostic est totalement gratuit et sans engagement. Si nous décidons de travailler ensemble, nous te proposons un forfait sur-mesure adapté à la taille de ton établissement et à tes besoins.' },
+  { q: 'Quels résultats peut-on attendre ?', a: 'Une hausse mesurable de vos réservations directes — donc une baisse mécanique des commissions versées aux plateformes —, une meilleure visibilité locale sur Google auprès d’une clientèle qualifiée, et des voyageurs qui viennent pour votre positionnement plutôt que pour un prix.' },
+  { q: 'Combien coûte un accompagnement ?', a: 'Le diagnostic initial est gratuit et sans engagement. Si nous décidons de travailler ensemble, nous vous proposons un forfait sur mesure, calibré sur la taille de votre établissement et sur le périmètre retenu.' },
 ];
 
 export default function ExpertHotelierPage() {
@@ -132,9 +132,14 @@ export default function ExpertHotelierPage() {
               className="inline-block px-4 py-1.5 bg-eucalyptus/15 text-eucalyptus text-xs font-semibold rounded-full uppercase tracking-widest mb-6 border border-eucalyptus/20"
             />
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-light leading-tight mb-8">
-              <EditableZone page="expert-hotelier" zone="hero_title" fallback="Fais vivre l'expérience slow travel dans ton hébergement" className="inline" />
+              <EditableZone page="expert-hotelier" zone="hero_title" fallback="Jusqu'à 25 % de votre chiffre part en commissions. Reprenez la main." className="inline" />
             </h1>
-            <EditableZone page="expert-hotelier" zone="hero_text" type="textarea" fallback="Tu gères une maison d'hôtes, un gîte de charme ou un hôtel indépendant ? On t'aide à attirer des voyageurs qui aiment prendre leur temps, à maximiser tes réservations directes et à créer des séjours inoubliables."
+            {/*
+              Clé `hero_subtitle` et non `hero_text` : c'est sous ce nom que la
+              valeur existe dans cms_editable_zones. Le code lisait `hero_text`,
+              donc le sous-titre saisi au CMS n'a jamais été affiché.
+            */}
+            <EditableZone page="expert-hotelier" zone="hero_subtitle" type="textarea" fallback="Vous dirigez une maison d'hôtes, un gîte de charme ou un hôtel indépendant. Nous vous aidons à attirer des voyageurs qui prennent leur temps, à développer vos réservations directes et à faire revenir vos clients."
               className="text-stone-300 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto mb-10 block"
             />
             <div className="flex flex-wrap justify-center gap-4">
@@ -144,7 +149,7 @@ export default function ExpertHotelierPage() {
                 eventParams={{ source: 'hero' }}
                 className="inline-flex px-8 py-4 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all text-lg"
               >
-                <EditableZone page="expert-hotelier" zone="hero_cta_1" fallback="Échangeons sur ton projet →" />
+                <EditableZone page="expert-hotelier" zone="hero_cta_1" fallback="Parlons de votre établissement →" />
               </B2bCtaButton>
               <B2bCtaButton
                 href="#cas-clients"
@@ -167,7 +172,7 @@ export default function ExpertHotelierPage() {
             <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-6 text-center max-w-3xl mx-auto">
               <EditableZone page="expert-hotelier" zone="section_problem_title" fallback="Pourquoi le positionnement standard ne suffit plus aujourd'hui" className="inline" />
             </h2>
-            <EditableZone page="expert-hotelier" zone="section_problem_text" type="textarea" fallback="Des commissions élevées versées aux plateformes intermédiaires, une visibilité captive et un accueil souvent trop impersonnel font perdre de la valeur à ton hébergement. En adoptant un positionnement slow travel authentique, tu attires des couples de voyageurs engagés en direct, prêts à s'investir pour vivre une vraie expérience locale."
+            <EditableZone page="expert-hotelier" zone="section_problem_text" type="textarea" fallback="Des commissions élevées versées aux plateformes, une visibilité que vous ne contrôlez pas et un accueil trop souvent standardisé : autant de valeur qui sort de votre établissement. Un positionnement slow travel assumé attire en direct des couples engagés, prêts à payer pour une vraie expérience locale."
               className="text-stone-600 text-lg text-center max-w-2xl mx-auto mb-12 leading-relaxed block"
             />
             <div className="grid grid-cols-3 gap-8 max-w-3xl mx-auto text-center">
@@ -206,9 +211,9 @@ export default function ExpertHotelierPage() {
               className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center block"
             />
             <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-4 text-center">
-              <EditableZone page="expert-hotelier" zone="section_solution_title" fallback="Trois leviers pour révéler ton hébergement" className="inline" />
+              <EditableZone page="expert-hotelier" zone="section_solution_title" fallback="Trois leviers pour révéler votre établissement" className="inline" />
             </h2>
-            <EditableZone page="expert-hotelier" zone="section_solution_subtitle" type="textarea" fallback="On t'accompagne pas à pas pour valoriser ton lieu de vie."
+            <EditableZone page="expert-hotelier" zone="section_solution_subtitle" type="textarea" fallback="Nous vous accompagnons étape par étape pour valoriser votre lieu."
               className="text-stone-500 text-center max-w-2xl mx-auto mb-12 block"
             />
             <div className="grid md:grid-cols-3 gap-8">
@@ -256,7 +261,7 @@ export default function ExpertHotelierPage() {
             <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-4 text-center">
               <EditableZone page="expert-hotelier" zone="cas_clients_title" fallback="Ils nous font confiance" className="inline" />
             </h2>
-            <EditableZone page="expert-hotelier" zone="cas_clients_text" type="textarea" fallback="Découvre comment d'autres hébergements ont franchi le pas."
+            <EditableZone page="expert-hotelier" zone="cas_clients_text" type="textarea" fallback="Deux établissements, deux problématiques, des résultats mesurés."
               className="text-stone-500 text-center max-w-2xl mx-auto mb-12 block"
             />
             <div className="grid md:grid-cols-2 gap-8">
@@ -309,10 +314,10 @@ export default function ExpertHotelierPage() {
             </h2>
             <div className="grid md:grid-cols-4 gap-6">
               {[
-                { step: '01', title: 'Diagnostic initial', desc: 'Un appel de 30 min pour faire le point sur ton positionnement et tes objectifs' },
-                { step: '02', title: 'Plan d\'action', desc: 'Une feuille de route personnalisée avec des solutions adaptées et concrètes' },
-                { step: '03', title: 'Mise en place', desc: 'On t\'accompagne pas-à-pas pour implémenter les changements à ton rythme' },
-                { step: '04', title: 'Autonomie', desc: 'Un bilan à 6 mois pour ajuster et s\'assurer que tu es totalement autonome' },
+                { step: '01', title: 'Diagnostic initial', desc: 'Un appel de 30 min pour faire le point sur votre positionnement et vos objectifs' },
+                { step: '02', title: 'Plan d\'action', desc: 'Une feuille de route chiffrée, priorisée, avec des actions concrètes' },
+                { step: '03', title: 'Mise en place', desc: 'Nous vous accompagnons dans le déploiement, à votre rythme' },
+                { step: '04', title: 'Autonomie', desc: 'Un bilan à 6 mois pour ajuster et vérifier que vos équipes sont autonomes' },
               ].map((item, i) => (
                 <div key={i} className="text-center">
                   <div className="w-14 h-14 rounded-full bg-eucalyptus text-white flex items-center justify-center text-lg font-bold mx-auto mb-4">
@@ -337,9 +342,9 @@ export default function ExpertHotelierPage() {
               className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center block"
             />
             <h2 className="text-3xl md:text-4xl font-serif font-light mb-4 text-center">
-              <EditableZone page="expert-hotelier" zone="audit_title" fallback="Raconte-nous ton projet" className="inline" />
+              <EditableZone page="expert-hotelier" zone="audit_title" fallback="Parlez-nous de votre établissement" className="inline" />
             </h2>
-            <EditableZone page="expert-hotelier" zone="audit_text" type="textarea" fallback="Remplis ce formulaire. On te recontacte sous 48h pour planifier un appel découverte de 30 minutes, en toute simplicité."
+            <EditableZone page="expert-hotelier" zone="audit_text" type="textarea" fallback="Remplissez ce formulaire. Nous vous recontactons sous 48h pour planifier un appel de diagnostic de 30 minutes, sans engagement."
               className="text-stone-400 text-center mb-10 max-w-lg mx-auto block"
             />
             <HotelierForm />
@@ -353,7 +358,7 @@ export default function ExpertHotelierPage() {
               className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center block"
             />
             <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12 text-center">
-              <EditableZone page="expert-hotelier" zone="faq_title" fallback="Tout ce que tu te demandes" className="inline" />
+              <EditableZone page="expert-hotelier" zone="faq_title" fallback="Vos questions les plus fréquentes" className="inline" />
             </h2>
             <div className="space-y-4">
               {faqItems.map((faq, i) => (
@@ -374,9 +379,9 @@ export default function ExpertHotelierPage() {
         <section className="py-20 md:py-28 bg-stone-950 text-white text-center">
           <div className="max-w-2xl mx-auto px-6">
             <h2 className="text-3xl md:text-4xl font-serif font-light mb-6">
-              <EditableZone page="expert-hotelier" zone="cta_title" fallback="Prêt à franchir le pas du slow travel ?" className="inline" />
+              <EditableZone page="expert-hotelier" zone="cta_title" fallback="Parlons de votre établissement" className="inline" />
             </h2>
-            <EditableZone page="expert-hotelier" zone="cta_text" type="textarea" fallback="30 minutes d'échange offert pour faire le point ensemble et imaginer la suite."
+            <EditableZone page="expert-hotelier" zone="cta_text" type="textarea" fallback="30 minutes de diagnostic offert pour faire le point sur vos chiffres et définir les priorités."
               className="text-stone-400 mb-8 max-w-lg mx-auto block"
             />
             <B2bCtaButton
@@ -385,7 +390,7 @@ export default function ExpertHotelierPage() {
               eventParams={{ source: 'cta_final' }}
               className="inline-block px-10 py-5 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all text-lg"
             >
-              <EditableZone page="expert-hotelier" zone="cta_button" fallback="Discuter de mon projet →" />
+              <EditableZone page="expert-hotelier" zone="cta_button" fallback="Demander mon diagnostic →" />
             </B2bCtaButton>
           </div>
         </section>
