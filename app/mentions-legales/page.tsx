@@ -3,6 +3,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumb from '@/components/Breadcrumb';
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
+import { getPageZones } from '@/lib/cms-zones'
 import EditableZone from '@/components/inline-edit/EditableZone';
 
 export const metadata: Metadata = {
@@ -29,9 +30,10 @@ function LegalSection({
   );
 }
 
-export default function MentionslégalesPage() {
+export default async function MentionslégalesPage() {
+  const zones = await getPageZones('mentions-legales')
   return (
-    <InlineEditProvider page="mentions-legales">
+    <InlineEditProvider page="mentions-legales" initialZones={zones}>
       <Header />
       <Breadcrumb />
       <main className="bg-white">

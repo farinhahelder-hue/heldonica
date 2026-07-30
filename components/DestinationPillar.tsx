@@ -22,13 +22,19 @@ import EditableZone from '@/components/inline-edit/EditableZone'
 
 
 export default function DestinationPillar({
-  data, relatedArticles,
+  data, relatedArticles, initialZones,
 }: {
   data: PillarData
   relatedArticles: { slug: string; title: string; excerpt: string; image_url?: string; read_time?: number }[]
+  /** Zones CMS de la page 'destinations', préchargées par la page serveur. */
+  initialZones?: Record<string, string>
 }) {
+  // Ce composant utilisait des <EditableZone page="destinations"> sans jamais
+  // rendre InlineEditProvider — l'import existait, le composant n'était pas
+  // monté. Les zones étaient donc hors contexte et figées sur leurs fallbacks,
+  // sans possibilité de les piloter depuis le CMS.
   return (
-    <>
+    <InlineEditProvider page="destinations" initialZones={initialZones}>
       <Script id="pillar-tourist-destination" type="application/ld+json" dangerouslySetInnerHTML={{
         __html: JSON.stringify({
           '@context': 'https://schema.org',
@@ -459,6 +465,6 @@ export default function DestinationPillar({
         </section>
       </main>
       <Footer />
-    </>
+    </InlineEditProvider>
   )
 }

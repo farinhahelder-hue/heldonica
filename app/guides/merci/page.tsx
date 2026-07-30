@@ -4,6 +4,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import { getPageZones } from '@/lib/cms-zones'
 
 export const metadata: Metadata = {
   title: 'Merci ! | | Téléchargement en cours',
@@ -36,9 +37,11 @@ const NEXT_STEPS = [
   },
 ]
 
-export default function GuidesMerciPage() {
+export default async function GuidesMerciPage() {
+  const zones = await getPageZones('guides-merci')
+
   return (
-    <InlineEditProvider page="guides-merci">
+    <InlineEditProvider page="guides-merci" initialZones={zones}>
       <Header />
       <main className="min-h-screen bg-cloud-dancer">
         <section className="py-16 md:py-24 text-center">

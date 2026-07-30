@@ -91,7 +91,12 @@ const FORM_DESTINATIONS = [
   'Sicile', 'Naples', 'Malte', 'Corse',
 ]
 
-export default function TravelPlanningClient() {
+export default function TravelPlanningClient({
+  initialZones,
+}: {
+  /** Zones CMS préchargées par la page serveur parente. */
+  initialZones?: Record<string, string>
+}) {
   const [faqOpen, setFaqOpen] = useState<number | null>(null)
   const [formData, setFormData] = useState({
     firstName: '', email: '', destination: '', travelers: 'En duo / couple (Recommandé)', duration: '', budget: '', startDate: '', notes: '',
@@ -204,7 +209,7 @@ export default function TravelPlanningClient() {
   }
 
   return (
-    <InlineEditProvider page="travel-planning">
+    <InlineEditProvider page="travel-planning" initialZones={initialZones}>
       <Script id="service-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{
         __html: JSON.stringify({
           '@context': 'https://schema.org',

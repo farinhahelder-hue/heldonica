@@ -6,6 +6,7 @@ import Breadcrumb from '@/components/Breadcrumb';
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import EditableZone from '@/components/inline-edit/EditableZone';
 import TemoignagesClient from './TemoignagesClient';
+import { getPageZones } from '@/lib/cms-zones';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY!;
@@ -40,10 +41,13 @@ async function getTestimonials() {
 }
 
 export default async function TemoignagesPage() {
-  const testimonials = await getTestimonials();
-  
+  const [testimonials, zones] = await Promise.all([
+    getTestimonials(),
+    getPageZones('temoignages'),
+  ]);
+
   return (
-    <InlineEditProvider page="temoignages">
+    <InlineEditProvider page="temoignages" initialZones={zones}>
       <Header />
       <Breadcrumb />
       <main className="min-h-screen bg-white">

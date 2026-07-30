@@ -60,11 +60,19 @@ export function useEditableContext() {
 export default function InlineEditProvider({
   page,
   children,
+  initialZones,
 }: {
   page?: string
   children: ReactNode
+  /**
+   * Zones préchargées côté serveur (voir `lib/cms-zones.ts`). Sans elles, le
+   * premier rendu affiche les fallbacks et ne bascule sur le contenu CMS
+   * qu'après le fetch client — visible par le lecteur, et absent du HTML
+   * que reçoit un crawler qui n'exécute pas le JS.
+   */
+  initialZones?: Record<string, string>
 }) {
-  const [zones, setZones] = useState<Record<string, string>>({})
+  const [zones, setZones] = useState<Record<string, string>>(initialZones ?? {})
   const [isEditing, setIsEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [admin, setAdmin] = useState(false)
@@ -97,10 +105,20 @@ export default function InlineEditProvider({
     }
   }, [])
 
+  const hasServerZones = !!initialZones && Object.keys(initialZones).length > 0
+
   useEffect(() => {
-    fetchZones()
     checkAuth()
-  }, [fetchZones, checkAuth])
+  }, [checkAuth])
+
+  useEffect(() => {
+    // Si la page a préchargé ses zones côté serveur, le visiteur a déjà le bon
+    // contenu : refaire l'appel ne changerait rien et coûterait une requête par
+    // page vue. On ne charge que dans deux cas — page pas encore câblée au
+    // chargement serveur, ou session admin (pour repartir d'un état frais
+    // après une édition).
+    if (!hasServerZones || admin) fetchZones()
+  }, [fetchZones, hasServerZones, admin])
 
   const toggleEditing = useCallback(() => {
     setIsEditing((e) => !e)
@@ -140,16 +158,23 @@ export default function InlineEditProvider({
     []
   )
 
+  // `registeredZones` n'alimente que ZonesSidebar, une UI réservée aux admins.
+  // Depuis que le provider enveloppe aussi les visiteurs, ces callbacks étaient
+  // appelés à chaque montage de zone : sur Travel Planning, 75 mises à jour
+  // d'état successives, chacune parcourant une liste qui grandit — pour un
+  // résultat que le visiteur ne verra jamais. On ne les active donc qu'en admin.
   const registerZone = useCallback((key: string, fallback: string, type: string) => {
+    if (!admin) return
     setRegisteredZones((prev) => {
       if (prev.some((z) => z.key === key)) return prev
       return [...prev, { key, fallback, type }]
     })
-  }, [])
+  }, [admin])
 
   const unregisterZone = useCallback((key: string) => {
+    if (!admin) return
     setRegisteredZones((prev) => prev.filter((z) => z.key !== key))
-  }, [])
+  }, [admin])
 
   const triggerUndo = useCallback((zonePage: string, zoneKey: string, previousValue: string) => {
     setUndoAction({ page: zonePage, zone: zoneKey, previousValue })
@@ -163,13 +188,24 @@ export default function InlineEditProvider({
     await fetchZones()
   }, [fetchZones])
 
-  if (!admin) return <>{children}</>
-
+  // Le contexte est fourni à TOUT LE MONDE, pas seulement aux admins.
+  //
+  // Auparavant : `if (!admin) return <>{children}</>`. Pour un visiteur non
+  // connecté, les <EditableZone> se retrouvaient hors provider et retombaient
+  // sur le contexte par défaut de useEditableContext(), dont `zones` vaut `{}`.
+  // Comme EditableZone calcule `zones[zoneKey] ?? fallback`, chaque zone
+  // affichait son fallback codé en dur. Autrement dit : le contenu saisi au CMS
+  // n'était visible que par un admin connecté — donc par personne en pratique.
+  // Le bug était invisible en préversion admin, ce qui l'a fait passer inaperçu.
+  //
+  // Seule l'INTERFACE d'édition reste réservée aux admins.
   return (
     <EditableContext.Provider
       value={{
         zones,
-        isEditing,
+        // Un non-admin ne peut jamais entrer en mode édition, même si l'état
+        // local était forcé : la garde vit ici, pas seulement dans l'UI.
+        isEditing: admin && isEditing,
         saving,
         toggleEditing,
         updateZone,
@@ -182,12 +218,16 @@ export default function InlineEditProvider({
         clearUndo,
       }}
     >
-      <div className="relative">
-        {children}
-        <EditModeToggle />
-        <ZonesSidebar page={page} />
-        <UndoToast />
-      </div>
+      {admin ? (
+        <div className="relative">
+          {children}
+          <EditModeToggle />
+          <ZonesSidebar page={page} />
+          <UndoToast />
+        </div>
+      ) : (
+        children
+      )}
     </EditableContext.Provider>
   )
 }
