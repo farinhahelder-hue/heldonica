@@ -56,8 +56,7 @@ const schemaOrganization = {
   "url": "https://www.heldonica.fr",
   "description": "Duo franco-portugais spécialiste slow travel entre Paris, Madère et Roumanie",
   "sameAs": [
-    "https://www.instagram.com/heldonica",
-    "https://www.linkedin.com/company/heldonicatravel"
+    "https://www.instagram.com/heldonica"
   ]
 };
 

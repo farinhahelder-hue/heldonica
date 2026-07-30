@@ -155,7 +155,6 @@ const schemaOrganization = {
   sameAs: [
     'https://www.instagram.com/heldonica',
     'https://www.youtube.com/@heldonica',
-    'https://www.facebook.com/heldonica',
     'https://fr.pinterest.com/heldonica',
   ],
   contactPoint: {
