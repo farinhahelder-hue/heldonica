@@ -31,7 +31,8 @@ const EXTS = new Set(['.ts', '.tsx']);
  */
 const KNOWN_DRIFT = new Set([
   // Back-office
-  'cms_pillar_pages',        // migration 20260730_cms_pillar_pages_idempotent.sql prête, non appliquée
+  // cms_pillar_pages : RÉSOLU le 2026-07-30 (Phase 1). Retiré volontairement de
+  // cette liste — toute disparition future de la table fera échouer le script.
   'cms_pricing_plans',       // /admin/pricing cassé — décision produit en attente
   'cms_redirects',           // /admin/redirects cassé
   'cms_checklist_templates', // /api/cms/checklist-templates cassé
