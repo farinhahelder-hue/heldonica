@@ -379,8 +379,17 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
   const videoSrc = getCmsOrSetting('hero_video_url', 'hero_video_url', defaultVideoSrc, zones, settings)
   const posterSrc = getCmsOrSetting('hero_poster_image', 'hero_poster_image', defaultPosterSrc, zones, settings)
 
+  // `homeZones` arrive du serveur (lib/home-data.ts) indexé par zone_key nu.
+  // InlineEditProvider attend des clés `page__zone_key` : on préfixe pour que
+  // les <EditableZone> de l'accueil aient la bonne valeur dès le premier rendu,
+  // sans refaire l'aller-retour réseau côté client.
+  const inlineEditZones = useMemo(
+    () => Object.fromEntries(Object.entries(homeZones ?? {}).map(([k, v]) => [`home__${k}`, v])),
+    [homeZones]
+  )
+
   return (
-    <InlineEditProvider page="home">
+    <InlineEditProvider page="home" initialZones={inlineEditZones}>
       <style>{`
         [data-reveal] { opacity:0; transform:translateY(28px); transition:opacity 0.7s cubic-bezier(0.16,1,0.3,1),transform 0.7s cubic-bezier(0.16,1,0.3,1); }
         [data-reveal='left'] { transform:translateX(-32px); }

@@ -6,6 +6,7 @@ import NewsletterPopup from '@/components/NewsletterPopup'
 import GuideDownloadForm from '@/components/GuideDownloadForm'
 import DestinationMapEmbed from '@/components/DestinationMapEmbed'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import { getPageZones } from '@/lib/cms-zones'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { createServiceClient } from '@/lib/supabase'
 
@@ -164,13 +165,15 @@ async function getHeroImage() {
 }
 
 export default async function Top10PepitesMaderePage() {
+  const zones = await getPageZones('top-10-pepites-madere')
+
   const [pepites, heroImage] = await Promise.all([
     getGuideItems(),
     getHeroImage(),
   ])
 
   return (
-    <InlineEditProvider page="top-10-pepites-madere">
+    <InlineEditProvider page="top-10-pepites-madere" initialZones={zones}>
       <Header />
       <main className="min-h-screen bg-cloud-dancer">
         <section className="relative bg-stone-950 text-white py-20 md:py-28 overflow-hidden">

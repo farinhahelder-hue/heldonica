@@ -4,6 +4,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import { getPageZones } from '@/lib/cms-zones'
 import EditableZone from '@/components/inline-edit/EditableZone'
 
 export const metadata: Metadata = {
@@ -47,9 +48,11 @@ export const metadata: Metadata = {
   },
 }
 
-export default function SlowTravelPage() {
+export default async function SlowTravelPage() {
+  const zones = await getPageZones('slow-travel')
+
   return (
-    <InlineEditProvider page="slow-travel">
+    <InlineEditProvider page="slow-travel" initialZones={zones}>
       <Header />
       <Breadcrumb />
       <main>
