@@ -24,15 +24,24 @@ Aucun workflow CI n'applique les migrations (`.github/workflows/` = `agent-dispa
 
 Ce n'est pas une découverte isolée : la migration `20260625_fix_destinations_view.sql` documente elle-même en commentaire que `20260615_destinations_v2.sql` « n'a pas été appliquée en production ». Le problème est structurel et ancien.
 
-**Conséquence directe : 5 onglets du back-office sont cassés en prod.** Ces routes API interrogent des tables inexistantes :
+**Conséquence directe : 10 tables référencées par le code sont absentes de la base.** Mesuré automatiquement par `npm run check:cms-drift` (voir §11) :
 
-- `app/api/cms/pillar-pages/route.ts` → `cms_pillar_pages`
-- `app/api/cms/pricing/route.ts` → `cms_pricing_plans`
-- `app/api/cms/redirects/route.ts` → `cms_redirects`
-- `app/api/cms/guide-items/route.ts` → `cms_guide_items`
-- `app/api/cms/testimonials/route.ts` → `cms_testimonials`
+| Table manquante | Points d'appel | Impact réel |
+|---|---|---|
+| `cms_pillar_pages` | `/api/cms/pillar-pages`, `lib/pillar-data.ts` | Pages piliers 100 % hardcodées (voir §3) + édition impossible |
+| `cms_pricing_plans` | `/api/cms/pricing` | `/admin/pricing` inopérant |
+| `cms_redirects` | `/api/cms/redirects` | `/admin/redirects` inopérant |
+| `cms_checklist_templates` | `/api/cms/checklist-templates` | inopérant |
+| `cms_guide_items` | `/api/cms/guide-items`, **`/guides/top-10-pepites-madere`** | page publique servie depuis `PEPITES_FALLBACK` hardcodé |
+| `cms_testimonials` | `/api/cms/testimonials`, **`/temoignages`** | page publique renvoie une liste vide |
+| `instagram_scheduled_posts` | `/api/instagram/cron`, `/api/instagram/scheduled`, `lib/instagram.ts` | planification Instagram hors service |
+| `jules_sessions` | `/api/jules` | intégration Jules hors service |
+| `jules_memory` | `/api/jules` | intégration Jules hors service |
+| `media` | `/api/cms/video-assembly` | nom de table probablement erroné (`cms_media` ?) |
 
-Les pages `/admin/pricing`, `/admin/redirects`, `/admin/testimonials` et l'édition des pages piliers dans `/admin/destinations` ne peuvent donc rien lire ni écrire.
+Aucune de ces pannes n'est visible côté visiteur : les deux pages publiques concernées dégradent proprement (`catch` → fallback ou tableau vide). C'est précisément ce qui a permis à la dérive de durer des mois.
+
+**Nuance importante sur `/temoignages` :** la page affiche une liste vide *parce que* la table manque. La décision A2 « pas de faux témoignages » ne tient donc pas à un choix de contenu mais à une panne. Créer `cms_testimonials` avec un seed réintroduirait mécaniquement de faux avis → voir question bloquante Q4.
 
 ---
 
@@ -132,21 +141,42 @@ Le brief liste des tables cibles `cms_*`. Confrontées au réel, voici ce que je
 | consolider zones éditables | **Rien à faire** | Déjà consolidé sur `cms_editable_zones` |
 
 Ajouts que je recommande et qui ne sont pas dans le brief :
-1. **Un workflow CI qui applique les migrations** (`supabase db push` sur merge vers `main`). Sans ça, la Phase 1 produira la même dérive dans trois mois. C'est la correction la plus rentable du chantier.
-2. **Un test de garde `__tests__` qui vérifie que chaque table référencée par `from('...')` dans le code existe réellement.** Aurait détecté les 5 onglets admin cassés.
-3. **Retirer les `catch` silencieux** de `fetchPillarData` / `fetchAllPillarData` au profit d'un log d'erreur. Le fallback reste, mais la panne devient visible.
+
+1. **Un garde-fou anti-dérive automatisé.** Fait : `npm run check:cms-drift` (§11). C'est lui qui a trouvé 4 des 10 tables cassées que ma lecture manuelle avait manquées.
+2. **Retirer les `catch` silencieux** de `fetchPillarData` / `fetchAllPillarData` au profit d'un log d'erreur. Le fallback reste, mais la panne devient visible.
+3. **Un CI qui applique les migrations — mais PAS avant d'avoir baseliné l'historique.** ⚠️ Voir l'avertissement ci-dessous.
+
+### ⚠️ Avertissement critique — ne pas brancher `supabase db push` en l'état
+
+C'est le réflexe naturel face à la dérive, et ce serait un incident de production.
+
+87 fichiers de migration existent dans le repo, appliqués de façon partielle et inconnue sur une base **partagée avec une autre application**. Un `supabase db push` naïf rejouerait tout le backlog, dont :
+
+- `20260613_maintenance_ON.sql` et `20260613_120000_maintenance_ON_and_fix_rls.sql` → **basculent le site en mode maintenance**
+- `20260527_maintenance_mode.sql`, `20260610000001_maintenance_mode.sql`, `20260611_maintenance_mode_toggle.sql` → idem
+- `02_enable_rls.sql`, `20260519_rls_security_fix.sql`, `20260603000000_rls_optimisation_fixes.sql` → réécrivent les policies RLS, potentiellement sur les tables de l'autre application
+- `20260406010001_rls_bypass_seed.sql` → désactive des protections
+- `EMERGENCY_FIX_20260602.sql` → recrée `site_settings`
+- plusieurs `seed_*` → réinjecteraient du contenu, dont les images Unsplash nettoyées en A2
+
+**Ordre correct :** (1) établir la liste exacte des migrations déjà appliquées, (2) baseliner l'historique (`supabase migration repair --status applied` sur les anciennes), (3) archiver les migrations one-shot / dangereuses hors du dossier actif, (4) seulement ensuite brancher le CI. Cette étape demande un accès DB et une validation — elle n'est pas faite dans cette phase.
+
+En attendant, `check:cms-drift` couvre le besoin immédiat : détecter la dérive sans rien appliquer.
 
 ---
 
 ## 9. Checklist exécutable
 
-### On fait maintenant (non destructif, réversible)
-- [ ] Migration `cms_pillar_pages` corrigée : idempotente (`DROP POLICY IF EXISTS`), seed **sans** URL Unsplash ni WordPress, contenu strictement repris de `lib/pillar-data.ts` (aucune invention)
+### Fait dans cette phase (livré, non appliqué en base)
+- [x] Garde-fou anti-dérive `scripts/check-cms-drift.mjs` + `npm run check:cms-drift` — a détecté 4 tables cassées supplémentaires
+- [x] Migration `cms_pillar_pages` corrigée : `20260730_cms_pillar_pages_idempotent.sql` — idempotente, seed **sans** URL Unsplash ni WordPress, `ON CONFLICT DO NOTHING`, contenu strictement repris de `lib/pillar-data.ts`. **Fichier écrit, volontairement PAS appliqué en base.**
+- [x] Requêtes de validation post-migration : `20260730_cms_pillar_pages_VALIDATION.sql` (8 tests, lecture seule)
+
+### À faire dès validation (non destructif)
+- [ ] Appliquer `20260730_cms_pillar_pages_idempotent.sql` puis lancer le fichier de validation
+- [ ] Logging des échecs de lecture CMS (suppression des `catch` muets dans `pillar-data.ts`)
 - [ ] Migration `destination_pois` : FK `destination_slug → destinations(slug)`, dédoublonnage `latitude/lat` et `longitude/lng`
-- [ ] Requêtes SQL de validation post-migration (comptages + intégrité FK + absence d'URL Unsplash dans les seeds)
-- [ ] Workflow CI d'application des migrations
-- [ ] Test de garde « toute table référencée existe »
-- [ ] Logging des échecs de lecture CMS (suppression des catch muets)
+- [ ] Baseline de l'historique des migrations (préalable obligatoire à tout CI — voir avertissement §8)
 
 ### On fait après validation métier (questions §10)
 - [ ] Couche data centralisée `lib/cms/` (Phase 2) — l'API cible dépend de la réponse à Q1
@@ -165,7 +195,25 @@ Ajouts que je recommande et qui ne sont pas dans le brief :
 
 ---
 
-## 10. Questions bloquantes (décisions métier)
+## 10. Garde-fou anti-dérive livré
+
+```bash
+npm run check:cms-drift
+```
+
+`scripts/check-cms-drift.mjs` scanne tous les `from('<table>')` de `app/`, `components/`, `lib/`, `hooks/` puis interroge l'API REST Supabase pour vérifier que chaque table existe réellement.
+
+- Les dérives déjà inventoriées sont listées dans `KNOWN_DRIFT` : rapportées, mais sans faire échouer le run. Le script est donc utilisable en CI immédiatement.
+- Toute dérive **nouvelle** → sortie en code 1 avec le nom de la table et les fichiers fautifs.
+- Un `401`/`403` est traité comme « table présente mais RLS bloquante », pas comme une dérive de schéma.
+
+Quand une migration est appliquée, retirer son entrée de `KNOWN_DRIFT` : le script protège alors contre la régression.
+
+État mesuré au 2026-07-30 : **25 tables présentes, 10 dérives connues, 0 dérive nouvelle.**
+
+---
+
+## 11. Questions bloquantes (décisions métier)
 
 **Q1 — Les 12 destinations absentes du hub.** Sicile, Sardaigne, Portugal, Normandie, Colombie, Île-de-France, Alentejo, Grèce, Zurich, Suisse, Paris, Timișoara ont des pages publiées et indexées mais n'apparaissent pas sur `/destinations`. Trois options : (a) les créer en base avec `status='published'` pour les afficher — mais le contenu de leurs pages est mince (fiches de ~56 lignes, 3 « highlights » de 1 à 3 mots) ; (b) les laisser hors hub et les désindexer du sitemap ; (c) les laisser exactement en l'état. Je ne peux pas trancher : ça touche au positionnement « testé sur le terrain ».
 
