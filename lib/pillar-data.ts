@@ -268,12 +268,19 @@ export async function fetchPillarData(slug: string): Promise<PillarData> {
       .eq('is_active', true)
       .maybeSingle()
 
-    if (error || !data) {
+    if (error) {
+      console.error(`[CMS pillar] Error fetching ${slug}:`, error.message)
+      return FALLBACK_MAP[slug] || MADERE
+    }
+
+    if (!data) {
+      console.warn(`[CMS pillar] No data found for slug "${slug}", using fallback`)
       return FALLBACK_MAP[slug] || MADERE
     }
 
     return mapRowToPillarData(data)
-  } catch {
+  } catch (err) {
+    console.error(`[CMS pillar] Unexpected error loading ${slug}:`, err instanceof Error ? err.message : String(err))
     return FALLBACK_MAP[slug] || MADERE
   }
 }
