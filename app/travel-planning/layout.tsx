@@ -52,8 +52,7 @@ const schemaService = {
     "name": "Heldonica",
     "url": "https://www.heldonica.fr",
     "sameAs": [
-      "https://www.instagram.com/heldonica",
-      "https://www.linkedin.com/company/heldonicatravel"
+      "https://www.instagram.com/heldonica"
     ]
   },
   "areaServed": {

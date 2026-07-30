@@ -89,8 +89,7 @@ const schemaOrganization = {
   "url": "https://www.heldonica.fr",
   "logo": "https://www.heldonica.fr/images/badges-heldonica.svg",
   "sameAs": [
-    "https://www.instagram.com/heldonica",
-    "https://www.linkedin.com/company/heldonicatravel"
+    "https://www.instagram.com/heldonica"
   ],
   "contactPoint": {
     "@type": "ContactPoint",

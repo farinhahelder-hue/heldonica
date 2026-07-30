@@ -63,8 +63,6 @@ export default function Footer() {
     { href: '/destinations/madere', label: 'Madere' },
     { href: '/destinations/roumanie', label: 'Roumanie' },
     { href: '/destinations/montenegro', label: 'Montenegro' },
-    { href: '/destinations/grece', label: 'Grece' },
-    { href: '/destinations/colombie', label: 'Colombie' },
   ]
 
   const guidesLinks = [

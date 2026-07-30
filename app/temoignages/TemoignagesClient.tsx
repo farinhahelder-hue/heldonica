@@ -16,19 +16,14 @@ type Testimonial = {
   display_order: number;
 };
 
-const TESTIMONIALS_DATA_FALLBACK = [
-  { zone: 'testimonial_1', couple: 'Lucie et Maxime', dest: 'Madère', quote: "On voulait un voyage lent, sensoriel et sans stress. On a reçu un carnet ultra clair, avec des pépites qu'on n'aurait jamais trouvées seuls.", result: '7 jours fluides, zéro improvisation subie' },
-  { zone: 'testimonial_2', couple: 'Inès et Adrien', dest: 'Sicile', quote: "Le rythme était parfait pour nous. Chaque jour avait une vraie ambiance, sans courir. Le plus : les adresses locales testées sur le terrain.", result: '5 jours construits autour de nos envies' },
-  { zone: 'testimonial_3', couple: 'Camille et Théo', dest: 'Suisse', quote: "On a senti qu'il y avait du vécu dans chaque recommandation. Rien de générique. On s'est sentis accompagnés du début à la fin.", result: '10 jours de voyage contemplatif en duo' },
-  { zone: 'testimonial_4', couple: 'Léa et Nicolas', dest: 'Roumanie', quote: "On voulait sortir des circuits classiques, sans prendre de risques inutiles. Le carnet Heldonica nous a donné exactement cet équilibre.", result: 'Transylvanie authentique, budget maîtrisé' },
-];
+// Fallback removed — only authentic testimonials from base are displayed
 
 type Props = {
   testimonials: Testimonial[];
 };
 
 export default function TemoignagesClient({ testimonials }: Props) {
-  const displayTestimonials = testimonials.length > 0 
+  const displayTestimonials = testimonials.length > 0
     ? testimonials.slice(0, 4).map((t, i) => ({
         zone: `testimonial_${i + 1}`,
         couple: t.name,
@@ -36,7 +31,7 @@ export default function TemoignagesClient({ testimonials }: Props) {
         quote: t.quote,
         result: t.location || 'Voyage réussi',
       }))
-    : TESTIMONIALS_DATA_FALLBACK;
+    : [];
 
   return (
     <InlineEditProvider page="temoignages">
@@ -57,29 +52,40 @@ export default function TemoignagesClient({ testimonials }: Props) {
 
         <section className="bg-white section-spacing">
           <div className="container">
-            <div className="grid md:grid-cols-2 gap-6">
-              {displayTestimonials.map((item) => (
-                <article
-                  key={item.zone}
-                  className="rounded-2xl border border-stone-200 p-7 bg-cloud-dancer/40"
-                >
-                  <EditableZone page="temoignages" zone={`${item.zone}_dest`} fallback={item.dest}
-                    className="text-xs uppercase tracking-[0.16em] text-eucalyptus font-semibold mb-3 block"
-                  />
-                  <blockquote className="text-charcoal leading-relaxed mb-5">
-                    &ldquo;<EditableZone page="temoignages" zone={`${item.zone}_quote`} type="textarea" fallback={item.quote} className="inline" />&rdquo;
-                  </blockquote>
-                  <div className="pt-4 border-t border-stone-200">
-                    <EditableZone page="temoignages" zone={`${item.zone}_couple`} fallback={item.couple}
-                      className="font-semibold text-mahogany block"
+            {displayTestimonials.length > 0 ? (
+              <div className="grid md:grid-cols-2 gap-6">
+                {displayTestimonials.map((item) => (
+                  <article
+                    key={item.zone}
+                    className="rounded-2xl border border-stone-200 p-7 bg-cloud-dancer/40"
+                  >
+                    <EditableZone page="temoignages" zone={`${item.zone}_dest`} fallback={item.dest}
+                      className="text-xs uppercase tracking-[0.16em] text-eucalyptus font-semibold mb-3 block"
                     />
-                    <EditableZone page="temoignages" zone={`${item.zone}_result`} fallback={item.result}
-                      className="text-sm text-charcoal/70 mt-1 block"
-                    />
-                  </div>
-                </article>
-              ))}
-            </div>
+                    <blockquote className="text-charcoal leading-relaxed mb-5">
+                      &ldquo;<EditableZone page="temoignages" zone={`${item.zone}_quote`} type="textarea" fallback={item.quote} className="inline" />&rdquo;
+                    </blockquote>
+                    <div className="pt-4 border-t border-stone-200">
+                      <EditableZone page="temoignages" zone={`${item.zone}_couple`} fallback={item.couple}
+                        className="font-semibold text-mahogany block"
+                      />
+                      <EditableZone page="temoignages" zone={`${item.zone}_result`} fallback={item.result}
+                        className="text-sm text-charcoal/70 mt-1 block"
+                      />
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-16 md:py-24">
+                <p className="text-charcoal/60 text-lg mb-6">
+                  On construit nos retours clients en ce moment. Chaque témoignage qu'on partage doit être authentique et vérifiable — c'est notre promesse.
+                </p>
+                <p className="text-charcoal/50 text-sm">
+                  Reviens bientôt pour découvrir les histoires de ceux qu'on a accompagnés.
+                </p>
+              </div>
+            )}
           </div>
         </section>
 
