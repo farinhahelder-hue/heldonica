@@ -1,5 +1,5 @@
 ﻿import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase-client'
+import { createServiceClient } from '@/lib/supabase'
 
 // Route appelÃ©e par un cron (Vercel Cron ou CMS) pour envoyer les emails en attente
 // MÃ©thode: GET /api/send-email-sequences?key=SECRET_KEY
@@ -126,6 +126,10 @@ export async function GET(request: Request) {
       console.warn('RESEND_API_KEY non configurÃ©e â€” emails non envoyÃ©s')
       return NextResponse.json({ success: false, message: 'RESEND_API_KEY non configurÃ©e' })
     }
+
+    // Client service_role : cette route est un cron server-side, et la table
+    // email_sequences est protégée par RLS (policy service_role only).
+    const supabase = createServiceClient()
 
     const { data: pending, error } = await supabase
       .from('email_sequences')
