@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
-import { useContentLoader, getCmsOrSetting } from '@/hooks/useContentLoader'
+import { useContentLoader, getCmsOrSetting, getZoneLinks } from '@/hooks/useContentLoader'
 import type { CmsZone } from '@/lib/content-loader'
 
 export default function Header() {
@@ -61,16 +61,21 @@ export default function Header() {
     }
   }, [open])
 
-  const navItems = [
-    { href: '/', label: 'Accueil' },
-    { href: '/destinations', label: 'Destinations' },
-    { href: '/blog', label: 'Blog' },
-    { href: '/travel-planning', label: 'Services' },
-    { href: '/expert-hotelier', label: 'Consulting hôtelier' },
-    { href: '/a-propos', label: 'À propos' },
-  ]
-
-  const safeNavItems = Array.isArray(navItems) ? navItems : []
+  // Menu principal piloté par le CMS (zones `nav_item_<n>_label` / `_url`).
+  // Le tableau ci-dessous n'est plus qu'un filet : il ne sert que si aucune
+  // entrée exploitable n'existe en base.
+  const safeNavItems = getZoneLinks(
+    'nav_item',
+    [
+      { label: 'Accueil', url: '/' },
+      { label: 'Destinations', url: '/destinations' },
+      { label: 'Blog', url: '/blog' },
+      { label: 'Services', url: '/travel-planning' },
+      { label: 'Consulting hôtelier', url: '/expert-hotelier' },
+      { label: 'À propos', url: '/a-propos' },
+    ],
+    zones as Record<string, CmsZone>
+  )
 
   return (
     <>
@@ -108,11 +113,11 @@ export default function Header() {
           <div className="hidden items-center gap-1 lg:flex">
             {safeNavItems.map((item) => (
               <Link
-                key={item.href}
-                href={item.href}
-                aria-current={pathname === item.href ? 'page' : undefined}
+                key={item.url}
+                href={item.url}
+                aria-current={pathname === item.url ? 'page' : undefined}
                 className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-offset-2 ${
-                  pathname === item.href
+                  pathname === item.url
                     ? 'text-amber-900'
                     : 'text-stone-600 hover:text-amber-900'
                 }`}
@@ -195,12 +200,12 @@ export default function Header() {
               {/* Navigation items */}
               {safeNavItems.map((item, index) => (
                 <Link
-                  key={item.href}
-                  href={item.href}
+                  key={item.url}
+                  href={item.url}
                   onClick={() => setOpen(false)}
-                  aria-current={pathname === item.href ? 'page' : undefined}
+                  aria-current={pathname === item.url ? 'page' : undefined}
                   className={`flex items-center gap-3 rounded-xl px-4 py-3.5 font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 ${
-                    pathname === item.href
+                    pathname === item.url
                       ? 'bg-amber-50 text-amber-900'
                       : 'text-stone-700 hover:bg-amber-50 hover:text-amber-900 active:scale-[0.98]'
                   }`}

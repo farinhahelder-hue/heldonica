@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useContentLoader, getCmsOrSetting } from '@/hooks/useContentLoader'
+import { useContentLoader, getCmsOrSetting, getZoneLinks } from '@/hooks/useContentLoader'
 import type { CmsZone } from '@/lib/content-loader'
 
 export default function Footer() {
@@ -49,33 +49,46 @@ export default function Footer() {
   const socialTk = settings.social_tiktok
   const socialLi = settings.social_linkedin
 
-  const navLinks = [
-    { href: '/', label: 'Accueil' },
-    { href: '/destinations', label: 'Destinations' },
-    { href: '/blog', label: 'Blog' },
-    { href: '/travel-planning', label: 'Services' },
-    { href: '/expert-hotelier', label: 'Consulting hôtelier' },
-    { href: '/a-propos', label: 'À propos' },
-    { href: '/contact', label: 'Contact' },
-  ]
+  // Colonnes du pied de page pilotées par le CMS. Les tableaux ci-dessous ne
+  // servent que si aucune entrée exploitable n'existe en base.
+  const z = zones as Record<string, CmsZone>
 
-  const destinationsLinks = [
-    { href: '/destinations/madere', label: 'Madère' },
-    { href: '/destinations/roumanie', label: 'Roumanie' },
-    { href: '/destinations/montenegro', label: 'Monténégro' },
-  ]
+  const navLinks = getZoneLinks('nav_item', [
+    { label: 'Accueil', url: '/' },
+    { label: 'Destinations', url: '/destinations' },
+    { label: 'Blog', url: '/blog' },
+    { label: 'Services', url: '/travel-planning' },
+    { label: 'Consulting hôtelier', url: '/expert-hotelier' },
+    { label: 'À propos', url: '/a-propos' },
+    { label: 'Contact', url: '/contact' },
+  ], z)
 
-  const guidesLinks = [
-    { href: '/guides/top-10-pepites-madere', label: 'Guide Madère' },
-    { href: '/blog?categorie=Guides Pratiques', label: 'Guides pratiques' },
-    { href: '/blog?categorie=Carnets Voyage', label: 'Carnets de voyage' },
-  ]
+  const destinationsLinks = getZoneLinks('footer_dest_item', [
+    { label: 'Madère', url: '/destinations/madere' },
+    { label: 'Roumanie', url: '/destinations/roumanie' },
+    { label: 'Monténégro', url: '/destinations/montenegro' },
+  ], z)
 
-  const legalLinks = [
-    { href: '/mentions-legales', label: 'Mentions légales' },
-    { href: '/politique-confidentialite', label: 'Politique de confidentialité' },
-    { href: '/politique-affiliation', label: 'Programme partenaires' },
-  ]
+  const guidesLinks = getZoneLinks('footer_guide_item', [
+    { label: 'Guide Madère', url: '/guides/top-10-pepites-madere' },
+    { label: 'Guides pratiques', url: '/blog?categorie=Guides Pratiques' },
+    { label: 'Carnets de voyage', url: '/blog?categorie=Carnets Voyage' },
+  ], z)
+
+  const legalLinks = getZoneLinks('footer_legal_item', [
+    { label: 'Mentions légales', url: '/mentions-legales' },
+    { label: 'Politique de confidentialité', url: '/politique-confidentialite' },
+    { label: 'Programme partenaires', url: '/politique-affiliation' },
+  ], z)
+
+  // Titres de colonnes et mentions
+  const navTitle = getCmsOrSetting('nav_footer_title', '', 'Navigation', z, settings)
+  const destTitle = getCmsOrSetting('destinations_footer_title', '', 'Destinations', z, settings)
+  const guidesTitle = getCmsOrSetting('guides_footer_title', '', 'Guides gratuits', z, settings)
+  const legalTitle = getCmsOrSetting('legal_footer_title', '', 'Légal', z, settings)
+  const newsletterTitle = getCmsOrSetting(
+    'newsletter_title', '', 'Reçois les pépites avant les autres', z, settings
+  )
 
   const socialLinks = [
     ...(socialIg ? [{ href: socialIg, label: 'Instagram', icon: <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.322a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z" /></svg> }] : []),
@@ -118,7 +131,7 @@ export default function Footer() {
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
               <h3 className="text-2xl md:text-3xl font-serif font-bold text-white mb-3">
-                Reçois les pépites avant les autres
+                {newsletterTitle}
               </h3>
               <p className="text-stone-400 leading-relaxed">
                 Chaque semaine : un lieu qu&apos;on a aimé, un conseil qu&apos;on aurait aimé avoir avant, et parfois un avant-goût de ce qu&apos;on prépare.
@@ -195,11 +208,11 @@ export default function Footer() {
 
           {/* Colonne 2 - Navigation */}
           <div>
-            <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-5">Navigation</h4>
+            <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-5">{navTitle}</h4>
             <ul className="space-y-3 text-sm" role="list">
               {navLinks.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="text-stone-400 transition-colors duration-200 hover:text-white">
+                <li key={link.url}>
+                  <Link href={link.url} className="text-stone-400 transition-colors duration-200 hover:text-white">
                     {link.label}
                   </Link>
                 </li>
@@ -209,11 +222,11 @@ export default function Footer() {
 
           {/* Colonne 3 - Destinations */}
           <div>
-            <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-5">Destinations</h4>
+            <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-5">{destTitle}</h4>
             <ul className="space-y-3 text-sm" role="list">
               {destinationsLinks.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="text-stone-400 transition-colors duration-200 hover:text-white">
+                <li key={link.url}>
+                  <Link href={link.url} className="text-stone-400 transition-colors duration-200 hover:text-white">
                     {link.label}
                   </Link>
                 </li>
@@ -223,21 +236,21 @@ export default function Footer() {
 
           {/* Colonne 4 - Guides & Legal */}
           <div>
-            <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-5">Guides gratuits</h4>
+            <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-5">{guidesTitle}</h4>
             <ul className="space-y-3 text-sm mb-8" role="list">
               {guidesLinks.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="text-stone-400 transition-colors duration-200 hover:text-white">
+                <li key={link.url}>
+                  <Link href={link.url} className="text-stone-400 transition-colors duration-200 hover:text-white">
                     {link.label}
                   </Link>
                 </li>
               ))}
             </ul>
-            <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-5">Legal</h4>
+            <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-5">{legalTitle}</h4>
             <ul className="space-y-3 text-sm" role="list">
               {legalLinks.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="text-stone-400 transition-colors duration-200 hover:text-white">
+                <li key={link.url}>
+                  <Link href={link.url} className="text-stone-400 transition-colors duration-200 hover:text-white">
                     {link.label}
                   </Link>
                 </li>
