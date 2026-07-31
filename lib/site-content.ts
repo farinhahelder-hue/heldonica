@@ -19,11 +19,24 @@ import type { CmsZone } from '@/lib/content-loader'
 export type GlobalZones = Record<string, CmsZone>
 
 /**
- * Les seules clés que le front lit via `getCmsOrSetting`.
+ * Génère les clés d'un menu indexé : `nav_item_1_label`, `nav_item_1_url`, …
+ * Le nombre d'entrées est borné volontairement ; pour allonger un menu depuis
+ * le CMS, il faut augmenter ce compte, sinon les entrées supplémentaires ne
+ * remonteraient pas jusqu'au front.
+ */
+function buildLinkKeys(prefix: string, count: number): string[] {
+  return Array.from({ length: count }, (_, i) => [
+    `${prefix}_${i + 1}_label`,
+    `${prefix}_${i + 1}_url`,
+  ]).flat()
+}
+
+/**
+ * Les seules clés que le front lit, via `getCmsOrSetting` ou `getZoneLinks`.
  *
  * On ne sérialise que celles-là. Charger toutes les zones actives ferait passer
  * ~367 lignes dans le payload de CHAQUE page (mesuré : +80 Ko de HTML), pour
- * neuf valeurs réellement utilisées.
+ * une poignée de valeurs réellement affichées.
  *
  * C'est aussi une précaution de confidentialité. `lib/home-data.ts` renvoie
  * toutes les zones actives de l'accueil et les passe en props : c'est
@@ -31,10 +44,10 @@ export type GlobalZones = Record<string, CmsZone>
  * Schneider / Executive Coach » d'un ancien projet, invisibles à l'écran mais
  * lus par Googlebot. On n'expose que ce qui est affiché.
  *
- * Toute nouvelle clé lue par `getCmsOrSetting` doit être ajoutée ici, sinon
- * elle retombera silencieusement sur son fallback.
+ * Toute nouvelle clé lue par le front doit être ajoutée ici, sinon elle
+ * retombera silencieusement sur son fallback codé en dur.
  */
-const CONSUMED_ZONE_KEYS = [
+const CONSUMED_ZONE_KEYS: string[] = [
   // Header
   'header_site_name',
   'header_cta_label',
@@ -55,7 +68,34 @@ const CONSUMED_ZONE_KEYS = [
   'stat_2_label',
   'stat_3_label',
   'stat_4_label',
-] as const
+
+  // Pied de page — titres de colonnes, mentions, contact
+  'nav_footer_title',
+  'destinations_footer_title',
+  'guides_footer_title',
+  'legal_footer_title',
+  'footer_copyright',
+  'footer_email',
+
+  // Réseaux sociaux
+  'social_instagram_url',
+  'social_pinterest_url',
+  'social_youtube_url',
+
+  // Bloc newsletter du pied de page
+  'newsletter_title',
+  'newsletter_desc',
+  'newsletter_placeholder',
+  'newsletter_cta',
+  'newsletter_success_title',
+  'newsletter_success_subtext',
+
+  // Menus : paires `<prefix>_<n>_label` / `<prefix>_<n>_url`, cf. getZoneLinks()
+  ...buildLinkKeys('nav_item', 7),
+  ...buildLinkKeys('footer_dest_item', 5),
+  ...buildLinkKeys('footer_guide_item', 3),
+  ...buildLinkKeys('footer_legal_item', 3),
+]
 
 /**
  * Charge les zones actives destinées au header, au pied de page et aux blocs
@@ -73,7 +113,7 @@ export async function getGlobalZones(): Promise<GlobalZones> {
       .from('cms_editable_zones')
       .select('id, page, zone_key, zone_type, value, is_active')
       .eq('is_active', true)
-      .in('zone_key', CONSUMED_ZONE_KEYS as unknown as string[])
+      .in('zone_key', CONSUMED_ZONE_KEYS)
 
     if (error) {
       console.error('[SiteContent] Erreur de lecture des zones globales:', error.message)
