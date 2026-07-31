@@ -70,9 +70,10 @@ const GROUPS: GroupDef[] = [
     label: 'Destinations',
     icon: <Globe size={16} />,
     fields: [
-      { key: 'destinations_hub_badge',    label: 'Badge hub',        type: 'text',     placeholder: 'Hub destinations' },
-      { key: 'destinations_hub_title',    label: 'Titre hub',        type: 'text',     placeholder: 'Nos destinations slow travel en couple' },
-      { key: 'destinations_hub_subtitle', label: 'Sous-titre hub',   type: 'textarea', placeholder: 'Toutes nos destinations testées sur le terrain...' },
+      // Le hero de /destinations (badge, titre, sous-titre) est désormais servi
+      // par les zones CMS de la page, éditables en inline. Les champs
+      // destinations_hub_* qui vivaient ici ne sont plus lus par personne :
+      // les laisser afficherait un éditeur sans effet.
       { key: 'destinations_tabs_json',    label: 'Onglets (JSON)',   type: 'textarea', placeholder: '[{"value":"all","label":"Toutes","icon":"🌍"},{"value":"starred","label":"Coups de cœur","icon":"⭐"}]' },
     ],
   },
