@@ -82,13 +82,29 @@ const CONSUMED_ZONE_KEYS: string[] = [
   'social_pinterest_url',
   'social_youtube_url',
 
-  // Bloc newsletter du pied de page
+  // Newsletter — NewsletterForm lit ces clés via son accesseur local `cz()`.
+  // Les six premières étaient déjà servies ; les suivantes manquaient, et le
+  // composant affichait donc son fallback alors que le CMS avait une valeur.
   'newsletter_title',
   'newsletter_desc',
   'newsletter_placeholder',
   'newsletter_cta',
   'newsletter_success_title',
   'newsletter_success_subtext',
+  'newsletter_badge',
+  'newsletter_cta_loading',
+  'newsletter_disclaimer',
+  'newsletter_error_invalid',
+  'newsletter_error_generic',
+  'newsletter_error_network',
+
+  // Encart Instagram (InstagramFeed) et CTA Travel Planning transverse
+  // (CtaTravelPlanning) — même mécanisme d'accesseur local `val()`.
+  'instagram_section_title',
+  'instagram_cta_text',
+  'cta_travel_planning_title',
+  'cta_travel_planning_text',
+  'cta_travel_planning_cta',
 
   // Menus : paires `<prefix>_<n>_label` / `<prefix>_<n>_url`, cf. getZoneLinks()
   ...buildLinkKeys('nav_item', 7),
