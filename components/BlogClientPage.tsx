@@ -7,6 +7,7 @@ import NewsletterForm from '@/components/NewsletterForm'
 import BlogFilters, { type BlogCategory } from '@/components/BlogFilters'
 import type { BlogPost } from '@/lib/blog-supabase'
 import { useContentLoader } from '@/hooks/useContentLoader'
+import EditableZone from '@/components/inline-edit/EditableZone'
 
 const CATEGORY_FALLBACK_BG_DEFAULT: Record<string, string> = {
   'Carnets Voyage': '/og-default.jpg',
@@ -174,15 +175,27 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
         />
         <div className="absolute inset-0 bg-gradient-to-br from-mahogany/80 via-mahogany/75 to-mahogany/65" />
         <div className="relative mx-auto max-w-4xl text-center">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-teal/80">Blog Heldonica</p>
-          <h1 className="mb-6 text-5xl font-serif font-light leading-tight md:text-7xl">
-            Des moments, des détours,
-            <br />
-            des repères qu&apos;on aurait aimé avoir avant.
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-teal/80">
+            <EditableZone page="blog" zone="hero_badge" fallback="Blog Heldonica" />
+          </p>
+          {/* Le titre tient sur deux lignes. Le saut vient de la valeur CMS
+              (`whitespace-pre-line`) et non d'un <br /> figé : il reste ainsi
+              modifiable depuis l'admin. */}
+          <h1 className="mb-6 whitespace-pre-line text-5xl font-serif font-light leading-tight md:text-7xl">
+            <EditableZone
+              page="blog"
+              zone="hero_title"
+              type="textarea"
+              fallback={'Des moments, des détours,\ndes repères qu\'on aurait aimé avoir avant.'}
+            />
           </h1>
           <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-white/75">
-            On écrit depuis le terrain : une arrivée trop tardive, une adresse trouvée au bon
-            moment, une erreur qu&apos;on ne refera pas. Le reste, on le laisse aux brochures.
+            <EditableZone
+              page="blog"
+              zone="hero_subtitle"
+              type="textarea"
+              fallback="On écrit depuis le terrain : une arrivée trop tardive, une adresse trouvée au bon moment, une erreur qu'on ne refera pas. Le reste, on le laisse aux brochures."
+            />
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-white/65">
             {categories.filter(c => c.key !== 'Tous').map(cat => (
