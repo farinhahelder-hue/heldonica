@@ -97,6 +97,45 @@ const ZONE_TO_SETTING_MAP: Record<string, string> = {
   'footer_cta_url': 'footer_cta_url',
 };
 
+/** Un lien de navigation piloté par le CMS. */
+export interface ZoneLink {
+  label: string;
+  url: string;
+}
+
+/**
+ * Reconstruit une liste de liens à partir de zones numérotées.
+ *
+ * Le CMS stocke les menus sous forme de paires indexées — `nav_item_1_label`
+ * et `nav_item_1_url`, `nav_item_2_label`… — plutôt qu'en JSON, pour rester
+ * éditables une entrée à la fois depuis le panneau d'administration.
+ *
+ * Une entrée dont le libellé OU l'URL manque est ignorée : un menu à moitié
+ * saisi ne doit pas produire de lien mort ou de libellé vide en production.
+ *
+ * Si le CMS ne fournit aucune entrée exploitable, on retombe sur `fallback`.
+ * En revanche, dès qu'il en fournit au moins une, c'est SA liste qui fait foi,
+ * même plus courte : c'est ce qui permet de retirer un lien du menu depuis le
+ * CMS sans toucher au code.
+ */
+export function getZoneLinks(
+  prefix: string,
+  fallback: ZoneLink[],
+  zones: Record<string, CmsZone>,
+  maxItems = 12
+): ZoneLink[] {
+  const links: ZoneLink[] = [];
+
+  for (let i = 1; i <= maxItems; i++) {
+    const label = zones[`${prefix}_${i}_label`]?.value?.trim();
+    const url = zones[`${prefix}_${i}_url`]?.value?.trim();
+    if (!label || !url) continue;
+    links.push({ label, url });
+  }
+
+  return links.length > 0 ? links : fallback;
+}
+
 /**
  * Helper pour obtenir une valeur avec fallback en cascade
  */
