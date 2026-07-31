@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import TravelPlanningClient from './TravelPlanningClient'
+import { getPageZones } from '@/lib/cms-zones'
 
 export const metadata: Metadata = {
   title: 'Travel Planning sur mesure | Heldonica',
@@ -32,6 +33,9 @@ export const metadata: Metadata = {
   },
 }
 
-export default function TravelPlanningPage() {
-  return <TravelPlanningClient />
+export default async function TravelPlanningPage() {
+  // Chargées ici plutôt que dans le client : le premier rendu porte déjà les
+  // valeurs CMS, sans changement de texte après hydratation.
+  const zones = await getPageZones('travel-planning')
+  return <TravelPlanningClient initialZones={zones} />
 }

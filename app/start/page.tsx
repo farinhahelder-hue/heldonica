@@ -4,6 +4,7 @@ import Footer from '@/components/Footer'
 import Link from 'next/link'
 import Image from 'next/image'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import { getPageZones } from '@/lib/cms-zones'
 import EditableZone from '@/components/inline-edit/EditableZone'
 
 export const metadata: Metadata = {
@@ -49,9 +50,11 @@ const LINKS = [
   },
 ]
 
-export default function StartPage() {
+export default async function StartPage() {
+  const zones = await getPageZones('start')
+
   return (
-    <InlineEditProvider page="start">
+    <InlineEditProvider page="start" initialZones={zones}>
       <Header />
       <main className="min-h-screen bg-cloud-dancer">
         <section className="py-16 md:py-24 text-center">

@@ -4,6 +4,7 @@ import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
 import Link from 'next/link'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import { getPageZones } from '@/lib/cms-zones'
 import EditableZone from '@/components/inline-edit/EditableZone'
 
 export const metadata: Metadata = {
@@ -15,9 +16,11 @@ export const metadata: Metadata = {
   },
 }
 
-export default function PolitiqueAffiliationPage() {
+export default async function PolitiqueAffiliationPage() {
+  const zones = await getPageZones('politique-affiliation')
+
   return (
-    <InlineEditProvider page="politique-affiliation">
+    <InlineEditProvider page="politique-affiliation" initialZones={zones}>
       <Header />
       <Breadcrumb />
       <main className="bg-white">

@@ -7,6 +7,8 @@ import ThemeProvider from '@/components/ThemeProvider';
 import { WebVitalsReporter } from "@/components/web-vitals/WebVitalsReporter";
 import SiteTheme from '@/components/SiteTheme';
 import { getSiteSettings } from '@/lib/settings';
+import { getGlobalZones } from '@/lib/site-content';
+import SiteContentProvider from '@/components/SiteContentProvider';
 import NewsletterPopup from '@/components/NewsletterPopup';
 import BackToTop from '@/components/BackToTop';
 
@@ -176,7 +178,10 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   // Fetch site assets from CMS
-  const siteSettings = await getSiteSettings();
+  const [siteSettings, globalZones] = await Promise.all([
+    getSiteSettings(),
+    getGlobalZones(),
+  ]);
   const faviconUrl = siteSettings.site_favicon || siteSettings.favicon_url;
   const logoUrl = siteSettings.site_logo || siteSettings.logo_url;
 
@@ -227,12 +232,16 @@ export default async function RootLayout({
       <body>
         <ThemeProvider>
           <AuthProvider>
-            <WebVitalsReporter />
-            <SiteTheme />
-            <div id="main-content" className="pt-[72px]">{children}</div>
-            <BackToTop />
-            <CookieConsentBanner />
-            <NewsletterPopup />
+            {/* Zones et réglages chargés une fois ici : le header et le pied de
+                page n'ont plus à les récupérer eux-mêmes après hydratation. */}
+            <SiteContentProvider zones={globalZones} settings={siteSettings}>
+              <WebVitalsReporter />
+              <SiteTheme />
+              <div id="main-content" className="pt-[72px]">{children}</div>
+              <BackToTop />
+              <CookieConsentBanner />
+              <NewsletterPopup />
+            </SiteContentProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
