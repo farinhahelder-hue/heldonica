@@ -38,8 +38,8 @@ export default function HotelierForm() {
   if (status === 'success') {
     return (
       <div className="rounded-2xl border border-eucalyptus/20 bg-eucalyptus/5 p-8 text-center">
-        <p className="text-lg font-semibold text-white mb-2">Merci ! On a bien reçu ta demande.</p>
-        <p className="text-sm text-stone-400">On te recontacte sous 48h pour planifier ton appel découverte de 30 minutes.</p>
+        <p className="text-lg font-semibold text-white mb-2">Merci, votre demande est bien enregistrée.</p>
+        <p className="text-sm text-stone-400">Nous vous recontactons sous 48h pour planifier votre appel de diagnostic de 30 minutes.</p>
       </div>
     )
   }
@@ -48,7 +48,7 @@ export default function HotelierForm() {
     <form onSubmit={onSubmit} className="space-y-5 text-left">
       <div className="grid md:grid-cols-2 gap-5">
         <div>
-          <label htmlFor="hf-name" className="block text-sm font-semibold text-stone-300 mb-1.5">Ton nom *</label>
+          <label htmlFor="hf-name" className="block text-sm font-semibold text-stone-300 mb-1.5">Votre nom *</label>
           <input id="hf-name" name="name" type="text" required className={inputClass} />
         </div>
         <div>
@@ -103,8 +103,8 @@ export default function HotelierForm() {
       </div>
 
       <div>
-        <label htmlFor="hf-message" className="block text-sm font-semibold text-stone-300 mb-1.5">Ton message</label>
-        <textarea id="hf-message" name="message" rows={4} className={inputClass} placeholder="Ta situation, tes objectifs, ce qui te freine aujourd'hui…" />
+        <label htmlFor="hf-message" className="block text-sm font-semibold text-stone-300 mb-1.5">Votre message</label>
+        <textarea id="hf-message" name="message" rows={4} className={inputClass} placeholder="Votre situation, vos objectifs, ce qui vous freine aujourd'hui…" />
       </div>
 
       <div className="flex items-start gap-2.5">
