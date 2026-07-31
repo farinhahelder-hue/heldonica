@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase-client'
 import DestinationPillar from '@/components/DestinationPillar'
 import { buildPillarMetadata } from '@/lib/pillar-metadata'
 import { fetchPillarData } from '@/lib/pillar-data'
+import { getPageZones } from '@/lib/cms-zones'
 
 // ISR : Next sert le dernier rendu valide si Supabase est momentanement
 // injoignable, ce qui absorbe les incidents transitoires sans contenu hardcode.
@@ -27,9 +28,10 @@ async function getRelatedArticles() {
 }
 
 export default async function MontenegroPage() {
-  const [data, relatedArticles] = await Promise.all([
+  const [data, relatedArticles, zones] = await Promise.all([
     fetchPillarData('montenegro'),
     getRelatedArticles(),
+    getPageZones('destinations'),
   ])
-  return <DestinationPillar data={data} relatedArticles={relatedArticles} />
+  return <DestinationPillar data={data} relatedArticles={relatedArticles} initialZones={zones} />
 }

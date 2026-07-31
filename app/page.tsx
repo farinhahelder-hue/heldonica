@@ -4,6 +4,7 @@ import HomeClient from '@/components/HomeClient'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import type { Metadata } from 'next'
 import { getHomeDestinations, getHomeContentZones } from '@/lib/home-data'
+import { getPageZones } from '@/lib/cms-zones'
 
 export const revalidate = 60
 
@@ -100,13 +101,17 @@ const schemaOrganization = {
 
 export default async function Home() {
   // Fetch all data in parallel
-  const [allPostsResult, homeDestinations, homeZones, rawCountries, heroSettings, siteSettingsResult] = await Promise.all([
+  const [allPostsResult, homeDestinations, homeZones, rawCountries, heroSettings, siteSettingsResult, homeEditableZones] = await Promise.all([
     getAllPosts(),
     getHomeDestinations(),
     getHomeContentZones(),
     getSetting('covered_countries'),
     getPageContent('home'),
     getSiteSettings(),
+    // Zones de la page 'home' au format `page__zone_key` attendu par les
+    // <EditableZone>. Distinct de getHomeContentZones(), qui renvoie des clés
+    // nues fusionnées avec des valeurs de repli codées en dur.
+    getPageZones('home'),
   ])
 
   // Defensive: ensure we always have an array; dedup by slug to prevent duplicate cards
@@ -163,7 +168,7 @@ export default async function Home() {
   }
 
   return (
-    <InlineEditProvider page="home">
+    <InlineEditProvider page="home" initialZones={homeEditableZones}>
       <HomeClient
         featured={featured}
         travelPosts={travelPosts}

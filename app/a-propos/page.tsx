@@ -4,6 +4,7 @@ import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
 import Link from 'next/link'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import { getPageZones } from '@/lib/cms-zones'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { getAllPosts } from '@/lib/blog-supabase'
 
@@ -79,6 +80,8 @@ const PILLIERS = [
 ]
 
 export default async function AProposPage() {
+  const zones = await getPageZones('a-propos')
+
   const posts = await getAllPosts().catch(() => [])
   const carnetCount = posts.length || 25
 
@@ -89,7 +92,7 @@ export default async function AProposPage() {
   ]
 
   return (
-    <InlineEditProvider page="a-propos">
+    <InlineEditProvider page="a-propos" initialZones={zones}>
       <Header />
       <Breadcrumb />
       <main className="min-h-screen">

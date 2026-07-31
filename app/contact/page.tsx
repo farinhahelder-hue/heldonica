@@ -5,6 +5,7 @@ import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
 import ContactForm from '@/components/ContactForm'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import { getPageZones } from '@/lib/cms-zones'
 import EditableZone from '@/components/inline-edit/EditableZone'
 
 export const metadata: Metadata = {
@@ -43,9 +44,11 @@ const CONTACT_SERVICES = [
   { zone: 'service_3', fallback: 'Partenariats éditoriaux et collaborations alignées avec notre voix.' },
 ]
 
-export default function Contact() {
+export default async function Contact() {
+  const zones = await getPageZones('contact')
+
   return (
-    <InlineEditProvider page="contact">
+    <InlineEditProvider page="contact" initialZones={zones}>
       <Script id="contact-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{
         __html: JSON.stringify({
           '@context': 'https://schema.org',

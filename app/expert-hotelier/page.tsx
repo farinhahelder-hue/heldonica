@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import B2bCtaButton from '@/components/B2bCtaButton';
 import HotelierForm from '@/components/HotelierForm';
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
+import { getPageZones } from '@/lib/cms-zones'
 import EditableZone from '@/components/inline-edit/EditableZone';
 
 const SITE_URL = 'https://www.heldonica.fr';
@@ -75,9 +76,11 @@ const faqItems = [
   { q: 'Combien coûte un accompagnement ?', a: 'Le diagnostic initial est gratuit et sans engagement. Si nous décidons de travailler ensemble, nous vous proposons un forfait sur mesure, calibré sur la taille de votre établissement et sur le périmètre retenu.' },
 ];
 
-export default function ExpertHotelierPage() {
+export default async function ExpertHotelierPage() {
+  const zones = await getPageZones('expert-hotelier')
+
   return (
-    <InlineEditProvider page="expert-hotelier">
+    <InlineEditProvider page="expert-hotelier" initialZones={zones}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
