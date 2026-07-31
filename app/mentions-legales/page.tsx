@@ -30,6 +30,30 @@ function LegalSection({
   );
 }
 
+/**
+ * Mentions d'identification exigées de l'éditeur par la LCEN (art. 6-III) et
+ * l'article R123-237 du Code de commerce.
+ *
+ * Jusqu'ici, tout cela tenait dans une seule zone de texte libre `editor_info`,
+ * dont la valeur affichée était « Informations légales complémentaires en cours
+ * de mise à jour ». Une zone libre ne dit pas ce qui manque ; une liste de
+ * mentions nommées, si.
+ *
+ * Chaque ligne n'est rendue que si elle est renseignée dans le CMS : une
+ * mention vide disparaît au lieu d'afficher un libellé sans valeur.
+ */
+const EDITOR_LEGAL_FIELDS: { zone: string; label: string }[] = [
+  { zone: 'editor_legal_form', label: 'Forme juridique' },
+  { zone: 'editor_capital', label: 'Capital social' },
+  { zone: 'editor_address', label: 'Adresse du siège social' },
+  { zone: 'editor_siren', label: 'SIREN' },
+  { zone: 'editor_siret', label: 'SIRET' },
+  { zone: 'editor_rcs', label: 'RCS' },
+  { zone: 'editor_vat', label: 'TVA intracommunautaire' },
+  { zone: 'editor_phone', label: 'Téléphone' },
+  { zone: 'editor_publication_director', label: 'Directeur de la publication' },
+];
+
 export default async function MentionslégalesPage() {
   const zones = await getPageZones('mentions-legales')
   return (
@@ -63,9 +87,26 @@ export default async function MentionslégalesPage() {
               <p>
                 <strong>Nom commercial :</strong> <EditableZone page="mentions-legales" zone="editor_name" fallback="Heldonica" />
               </p>
-              <p>
-                <EditableZone page="mentions-legales" zone="editor_info" type="textarea" fallback="Informations légales complémentaires en cours de mise à jour." />
-              </p>
+
+              {EDITOR_LEGAL_FIELDS.map((field) => {
+                const value = zones[`mentions-legales__${field.zone}`]?.trim()
+                if (!value) return null
+                return (
+                  <p key={field.zone}>
+                    <strong>{field.label} :</strong>{' '}
+                    <EditableZone page="mentions-legales" zone={field.zone} fallback={value} />
+                  </p>
+                )
+              })}
+
+              {/* Tant qu'aucune mention structurée n'est renseignée, on continue
+                  d'afficher la zone de texte libre historique — sinon la section
+                  se réduirait au seul nom commercial. */}
+              {!EDITOR_LEGAL_FIELDS.some((f) => zones[`mentions-legales__${f.zone}`]?.trim()) && (
+                <p>
+                  <EditableZone page="mentions-legales" zone="editor_info" type="textarea" fallback="Informations légales complémentaires en cours de mise à jour." />
+                </p>
+              )}
               <p>
                 <strong>Email de contact :</strong>{' '}
                 <a
