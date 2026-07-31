@@ -72,9 +72,12 @@ export default async function Contact() {
             <EditableZone page="contact" zone="hero_badge" fallback="On lit tous les messages. On répond."
               className="mb-4 text-xs font-bold uppercase tracking-[0.24em] text-mahogany block"
             />
-            <EditableZone page="contact" zone="hero_title" fallback="Parle-nous de ce qui est vrai."
-              className="mb-6 text-4xl font-serif font-light leading-tight text-stone-900 md:text-5xl block"
-            />
+            {/* Le titre du hero était rendu hors de toute balise de titre : la
+                page ne comportait donc aucun H1. Le <h1> porte la mise en forme,
+                la zone reste éditable à l'identique. */}
+            <h1 className="mb-6 text-4xl font-serif font-light leading-tight text-stone-900 md:text-5xl">
+              <EditableZone page="contact" zone="hero_title" fallback="Parle-nous de ce qui est vrai." />
+            </h1>
             <EditableZone page="contact" zone="hero_text" type="textarea" fallback="Un projet encore flou, une contrainte qu'on n'ose pas mettre dans un brief, une envie qu'on n'a pas encore mise en mots : c'est très bien comme ça. On préfère partir de la vraie vie que d'un brief lissé."
               className="max-w-2xl text-lg leading-relaxed text-stone-700 block"
             />
