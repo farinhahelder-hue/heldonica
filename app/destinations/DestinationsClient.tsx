@@ -10,6 +10,7 @@ import type { DestinationCardProps } from '@/components/DestinationCard'
 import SlowTravelQuiz from '@/components/SlowTravelQuiz'
 import NewsletterForm from '@/components/NewsletterForm'
 import { useContentLoader } from '@/hooks/useContentLoader'
+import EditableZone from '@/components/inline-edit/EditableZone'
 
 type RawDestination = Record<string, any>
 
@@ -107,14 +108,22 @@ export default function DestinationsClient() {
       <main>
         <section className="bg-gradient-to-br from-[#f8f6f4] to-white py-16 md:py-24 px-4">
           <div className="max-w-5xl mx-auto">
+            {/* Ces trois textes passaient par settings.destinations_hub_*, clés
+                qui n'ont jamais existé dans site_settings : le composant servait
+                donc ses littéraux. Ils sont désormais pilotés par les zones. */}
             <p className="text-xs uppercase tracking-[0.2em] text-eucalyptus font-semibold mb-4">
-              {settings?.destinations_hub_badge || 'Hub destinations'}
+              <EditableZone page="destinations" zone="hero_badge" fallback="Hub destinations" />
             </p>
             <h1 className="text-3xl md:text-5xl font-serif text-mahogany mb-6 leading-tight">
-              {settings?.destinations_hub_title || 'Nos destinations slow travel en couple'}
+              <EditableZone page="destinations" zone="hero_title" fallback="Nos destinations slow travel en couple" />
             </h1>
             <p className="text-charcoal text-base md:text-lg max-w-3xl leading-relaxed">
-              {settings?.destinations_hub_subtitle || 'Toutes nos destinations testées sur le terrain — pas de contenu généré sans vécu.'}
+              <EditableZone
+                page="destinations"
+                zone="hero_subtitle"
+                type="textarea"
+                fallback="Toutes nos destinations testées sur le terrain — pas de contenu généré sans vécu."
+              />
             </p>
           </div>
         </section>

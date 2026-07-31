@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import DestinationsClient from './DestinationsClient';
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
+import { getPageZones } from '@/lib/cms-zones';
 import Script from 'next/script';
 
 export const revalidate = 300;
@@ -45,7 +47,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function DestinationsPage() {
+export default async function DestinationsPage() {
+  const zones = await getPageZones('destinations');
   const breadcrumbLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -121,7 +124,9 @@ export default function DestinationsPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionLd) }}
       />
-      <DestinationsClient />
+      <InlineEditProvider page="destinations" initialZones={zones}>
+        <DestinationsClient />
+      </InlineEditProvider>
     </>
   );
 }
