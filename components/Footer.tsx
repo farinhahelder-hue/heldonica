@@ -40,11 +40,30 @@ export default function Footer() {
 
   // Legacy settings (pas dans zones CMS 3.0)
   const tagline = settings.site_tagline || 'Slow travel vécu, conçu pour toi.'
-  const footerText = settings.footer_text || `© ${currentYear} Heldonica. Tous droits réservés.`
-  const contactEmail = settings.contact_email || 'contact@heldonica.fr'
-  const socialIg = settings.social_instagram || 'https://www.instagram.com/heldonica/'
-  const socialYt = settings.social_youtube || 'https://www.youtube.com/@heldonica'
-  const socialPin = settings.social_pinterest || 'https://fr.pinterest.com/heldonica'
+
+  // Mention de copyright. `{année}` est substitué à la volée : sans ce jeton,
+  // une valeur figée au CMS afficherait une année périmée dès le 1er janvier.
+  const footerText = getCmsOrSetting(
+    'footer_copyright', 'footer_text', '© {année} Heldonica. Tous droits réservés.',
+    zones as Record<string, CmsZone>, settings
+  ).replace('{année}', String(currentYear))
+
+  const contactEmail = getCmsOrSetting(
+    'footer_email', 'contact_email', 'contact@heldonica.fr',
+    zones as Record<string, CmsZone>, settings
+  )
+  const socialIg = getCmsOrSetting(
+    'social_instagram_url', 'social_instagram', 'https://www.instagram.com/heldonica/',
+    zones as Record<string, CmsZone>, settings
+  )
+  const socialYt = getCmsOrSetting(
+    'social_youtube_url', 'social_youtube', 'https://www.youtube.com/@heldonica',
+    zones as Record<string, CmsZone>, settings
+  )
+  const socialPin = getCmsOrSetting(
+    'social_pinterest_url', 'social_pinterest', 'https://fr.pinterest.com/heldonica',
+    zones as Record<string, CmsZone>, settings
+  )
   const socialFb = settings.social_facebook
   const socialTk = settings.social_tiktok
   const socialLi = settings.social_linkedin
