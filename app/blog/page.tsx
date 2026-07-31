@@ -4,6 +4,8 @@ import { getAllPosts, formatDate, BlogPost } from '@/lib/blog-supabase'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import BlogClientPage from '@/components/BlogClientPage'
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import { getPageZones } from '@/lib/cms-zones'
 import Breadcrumb from '@/components/Breadcrumb'
 import { getReadingTime } from '@/lib/readingTime'
 import { type BlogCategory } from '@/components/BlogFilters'
@@ -197,6 +199,10 @@ export default async function BlogPage() {
   // Fetch categories from CMS
   const categories = await getBlogCategories()
 
+  // Hero piloté par le CMS. Les deux branches de rendu ci-dessous (avec et sans
+  // articles) affichent le même hero : les zones sont donc chargées une fois ici.
+  const zones = await getPageZones('blog')
+
   // If we have no posts at build time, avoid crashing the build and just render an empty list.
   if (!Array.isArray(posts) || posts.length === 0) {
     return (
@@ -213,7 +219,9 @@ export default async function BlogPage() {
         }} />
         <Header />
         <Breadcrumb />
-        <BlogClientPage posts={[]} categories={categories} />
+        <InlineEditProvider page="blog" initialZones={zones}>
+          <BlogClientPage posts={[]} categories={categories} />
+        </InlineEditProvider>
         <Footer />
         <CollectionPageJsonLd posts={[]} />
       </>
@@ -245,7 +253,9 @@ export default async function BlogPage() {
       }} />
       <Header />
       <Breadcrumb />
-      <BlogClientPage posts={postsWithFormattedDate} categories={categories} />
+      <InlineEditProvider page="blog" initialZones={zones}>
+        <BlogClientPage posts={postsWithFormattedDate} categories={categories} />
+      </InlineEditProvider>
       <Footer />
       <CollectionPageJsonLd posts={safePosts} />
     </>
