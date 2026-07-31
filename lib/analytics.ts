@@ -122,6 +122,21 @@ export function trackAffiliateClick(partner: string, destination: string) {
   });
 }
 
+// Carte interactive (embed Google Maps ou ArticleMap) — engagement Sprint 2
+export function trackMapInteraction(destination: string) {
+  trackEvent('carte_interactive_utilisee', {
+    destination,
+  });
+}
+
+// Ouverture d'une question de FAQ — engagement Sprint 2
+export function trackFaqOpen(question: string, page: string) {
+  trackEvent('faq_ouverte', {
+    question,
+    page,
+  });
+}
+
 // Lead magnet downloads
 export function trackLeadMagnetDownload(guideName: string) {
   trackEvent('lead_magnet_download', {

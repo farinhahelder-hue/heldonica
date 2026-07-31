@@ -66,6 +66,7 @@ function buildTechnicalFallback(slug: string): PillarData {
     itinerary: [],
     budgetBreakdown: [],
     faq: [],
+    accommodations: [],
   }
 }
 
@@ -92,6 +93,7 @@ function mapRowToPillarData(row: Record<string, any>): PillarData {
     itinerary: Array.isArray(row.itinerary) ? row.itinerary : [],
     budgetBreakdown: Array.isArray(row.budget_breakdown) ? row.budget_breakdown : [],
     faq: Array.isArray(row.faq) ? row.faq : [],
+    accommodations: Array.isArray(row.accommodations) ? row.accommodations : [],
     // Objets vides traités comme absents : `{}` est truthy et ferait rendre
     // un encadré « testé par Heldonica » ou un verdict complètement vide.
     testedByHeldonica: hasKeys(row.tested_by_heldonica) ? row.tested_by_heldonica : undefined,

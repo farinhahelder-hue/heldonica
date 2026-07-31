@@ -64,6 +64,27 @@ const PRICING_PLANS = [
   },
 ]
 
+const PERSONAS = [
+  {
+    zone: 'persona_1',
+    emoji: '🕰️',
+    title: 'Tu n\'as plus le temps de tout organiser',
+    text: 'Deux agendas pleins, des congés à poser et zéro envie de passer tes soirées à comparer quinze onglets. On prend le relais — tu gardes la décision, on absorbe le travail.',
+  },
+  {
+    zone: 'persona_2',
+    emoji: '🧭',
+    title: 'Tu as déjà fait les capitales',
+    text: 'Les grandes villes, c\'est coché. Ce que tu cherches maintenant, ce sont les pépites dénichées : le village où personne ne descend, la table sans carte en anglais, le sentier qui n\'est dans aucun classement.',
+  },
+  {
+    zone: 'persona_3',
+    emoji: '💍',
+    title: 'Ce voyage-là compte plus que les autres',
+    text: 'Lune de miel, dix ans ensemble, la parenthèse promise depuis trop longtemps. Sur ces voyages-là, tu ne veux pas d\'un circuit standard — tu veux que chaque jour tombe juste.',
+  },
+]
+
 const FORM_DESTINATIONS = [
   'Madère', 'Monténégro', 'Roumanie', 'Lisbonne', 'Île-de-France',
   'Colombie', 'Normandie', 'Suisse', 'Sardaigne',
@@ -289,6 +310,53 @@ export default function TravelPlanningClient() {
                   />
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Pour qui ? — personas */}
+        <section className="bg-cloud-dancer py-20 border-t border-stone-200/60">
+          <div className="container max-w-5xl">
+            <EditableZone page="travel-planning" zone="personas_title" as="h2" fallback="C'est fait pour toi si…"
+              className="text-3xl font-serif text-mahogany text-center mb-4 block"
+            />
+            <EditableZone page="travel-planning" zone="personas_subtitle" type="textarea"
+              fallback="On ne conçoit pas pour tout le monde. Voilà les couples avec qui ça fonctionne le mieux."
+              className="text-charcoal/60 text-sm text-center mb-12 max-w-lg mx-auto block"
+            />
+            <div className="grid md:grid-cols-3 gap-8">
+              {PERSONAS.map((p) => (
+                <div key={p.zone} className="rounded-2xl border border-stone-200 bg-white p-6 flex flex-col">
+                  <div className="w-14 h-14 rounded-2xl bg-eucalyptus/10 flex items-center justify-center mb-4 text-2xl">{p.emoji}</div>
+                  <h3 className="font-semibold text-mahogany mb-3">
+                    <EditableZone page="travel-planning" zone={`${p.zone}_title`} fallback={p.title} className="inline" />
+                  </h3>
+                  <EditableZone page="travel-planning" zone={`${p.zone}_text`} type="textarea" fallback={p.text}
+                    className="text-sm text-charcoal/70 leading-relaxed block"
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Honnêteté : à qui ça ne s'adresse pas */}
+            <div className="mt-10 rounded-2xl border border-stone-200 bg-white p-6 max-w-3xl mx-auto">
+              <EditableZone page="travel-planning" zone="personas_not_title" fallback="En revanche, on n'est pas les bons pour :"
+                className="font-semibold text-mahogany mb-3 block"
+              />
+              <ul className="space-y-2 text-sm text-charcoal/70">
+                <li className="flex items-start gap-2.5">
+                  <span className="text-stone-400 font-bold mt-0.5">—</span>
+                  <EditableZone page="travel-planning" zone="personas_not_1" fallback="Les voyages en famille : notre cœur de métier, c'est le slow travel à deux." className="inline" />
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-stone-400 font-bold mt-0.5">—</span>
+                  <EditableZone page="travel-planning" zone="personas_not_2" fallback="Les séjours où l'objectif est de cocher un maximum de sites en un minimum de jours." className="inline" />
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-stone-400 font-bold mt-0.5">—</span>
+                  <EditableZone page="travel-planning" zone="personas_not_3" fallback="Les départs dans moins de dix jours : on a besoin de temps pour faire les choses bien." className="inline" />
+                </li>
+              </ul>
             </div>
           </div>
         </section>
