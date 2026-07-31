@@ -18,11 +18,11 @@ export default function Footer() {
     zones as Record<string, CmsZone>, settings
   )
   const footerTagline = getCmsOrSetting(
-    'footer_tagline', 'site_tagline', 'Slow travel vecu, conce pour toi.',
+    'footer_tagline', 'site_tagline', 'Slow travel vécu, conçu pour toi.',
     zones as Record<string, CmsZone>, settings
   )
   const footerNewsletterCta = getCmsOrSetting(
-    'footer_newsletter_cta', 'footer_newsletter_cta', 'Recois nos pepites directement dans ta boite mail',
+    'footer_newsletter_cta', 'footer_newsletter_cta', 'Reçois nos pépites directement dans ta boîte mail',
     zones as Record<string, CmsZone>, settings
   )
   const footerEmailPlaceholder = getCmsOrSetting(
@@ -39,8 +39,8 @@ export default function Footer() {
   )
 
   // Legacy settings (pas dans zones CMS 3.0)
-  const tagline = settings.site_tagline || 'Slow travel vecu, conce pour toi.'
-  const footerText = settings.footer_text || `© ${currentYear} Heldonica. Tous droits reserves.`
+  const tagline = settings.site_tagline || 'Slow travel vécu, conçu pour toi.'
+  const footerText = settings.footer_text || `© ${currentYear} Heldonica. Tous droits réservés.`
   const contactEmail = settings.contact_email || 'contact@heldonica.fr'
   const socialIg = settings.social_instagram || 'https://www.instagram.com/heldonica/'
   const socialYt = settings.social_youtube || 'https://www.youtube.com/@heldonica'
@@ -54,26 +54,26 @@ export default function Footer() {
     { href: '/destinations', label: 'Destinations' },
     { href: '/blog', label: 'Blog' },
     { href: '/travel-planning', label: 'Services' },
-    { href: '/expert-hotelier', label: 'Consulting hotelier' },
-    { href: '/a-propos', label: 'A propos' },
+    { href: '/expert-hotelier', label: 'Consulting hôtelier' },
+    { href: '/a-propos', label: 'À propos' },
     { href: '/contact', label: 'Contact' },
   ]
 
   const destinationsLinks = [
-    { href: '/destinations/madere', label: 'Madere' },
+    { href: '/destinations/madere', label: 'Madère' },
     { href: '/destinations/roumanie', label: 'Roumanie' },
-    { href: '/destinations/montenegro', label: 'Montenegro' },
+    { href: '/destinations/montenegro', label: 'Monténégro' },
   ]
 
   const guidesLinks = [
-    { href: '/guides/top-10-pepites-madere', label: 'Guide Madere' },
+    { href: '/guides/top-10-pepites-madere', label: 'Guide Madère' },
     { href: '/blog?categorie=Guides Pratiques', label: 'Guides pratiques' },
     { href: '/blog?categorie=Carnets Voyage', label: 'Carnets de voyage' },
   ]
 
   const legalLinks = [
-    { href: '/mentions-legales', label: 'Mentions legales' },
-    { href: '/politique-confidentialite', label: 'Politique de confidentialite' },
+    { href: '/mentions-legales', label: 'Mentions légales' },
+    { href: '/politique-confidentialite', label: 'Politique de confidentialité' },
     { href: '/politique-affiliation', label: 'Programme partenaires' },
   ]
 
@@ -104,7 +104,7 @@ export default function Footer() {
         console.error('Erreur inscription:', await res.json())
       }
     } catch (err) {
-      console.error('Erreur reseau:', err)
+      console.error('Erreur réseau :', err)
     } finally {
       setLoading(false)
     }
@@ -118,10 +118,10 @@ export default function Footer() {
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
               <h3 className="text-2xl md:text-3xl font-serif font-bold text-white mb-3">
-                Recois les pepites avant les autres
+                Reçois les pépites avant les autres
               </h3>
               <p className="text-stone-400 leading-relaxed">
-                Chaque semaine : un lieu qu&apos;on a aime, un conseil qu&apos;on aurait aime avoir avant, et parfois un avant-gout de ce qu&apos;on prepare.
+                Chaque semaine : un lieu qu&apos;on a aimé, un conseil qu&apos;on aurait aimé avoir avant, et parfois un avant-goût de ce qu&apos;on prépare.
                 Pas de spam, jamais.
               </p>
             </div>
@@ -130,8 +130,8 @@ export default function Footer() {
                 <div className="flex items-center gap-3 bg-eucalyptus/10 border border-eucalyptus/30 rounded-2xl px-6 py-4">
                   <span className="text-2xl">✨</span>
                   <div>
-                    <p className="text-white font-semibold">C&apos;est note !</p>
-                    <p className="text-stone-400 text-sm">Tu recevras ta premiere pepite tres vite.</p>
+                    <p className="text-white font-semibold">C&apos;est noté !</p>
+                    <p className="text-stone-400 text-sm">Tu recevras ta première pépite très vite.</p>
                   </div>
                 </div>
               ) : (

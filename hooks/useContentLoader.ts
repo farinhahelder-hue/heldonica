@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { CmsZone, CmsZonesData } from '@/lib/content-loader';
+import { useSiteContent } from '@/components/SiteContentProvider';
 
 // Types
 export interface ContentLoaderState {
@@ -16,10 +17,21 @@ export interface ContentLoaderState {
  * Utilise un cache simple pour éviter les appels répétés
  */
 export function useContentLoader() {
+  // Contenu préchargé par le layout serveur (SiteContentProvider). Quand il est
+  // présent, le hook n'a plus rien à charger : le premier rendu porte déjà les
+  // bonnes valeurs, y compris dans le HTML servi aux crawlers.
+  //
+  // Auparavant chaque appelant refaisait ses propres `/api/cms/zones` et
+  // `/api/cms/settings` en `no-store`, sans cache partagé : sur une page qui
+  // monte Header, Footer et le composant de page, cela faisait six requêtes par
+  // affichage, et le header/footer restaient sur leurs valeurs codées en dur
+  // le temps du réseau.
+  const preloaded = useSiteContent();
+
   const [state, setState] = useState<ContentLoaderState>({
-    zones: {},
-    settings: {},
-    loading: true,
+    zones: preloaded?.zones ?? {},
+    settings: preloaded?.settings ?? {},
+    loading: !preloaded,
     error: null,
   });
 
@@ -57,8 +69,11 @@ export function useContentLoader() {
   }, []);
 
   useEffect(() => {
+    // Rien à charger si le serveur a déjà fourni le contenu. `refresh()` reste
+    // disponible pour recharger après une édition CMS.
+    if (preloaded) return;
     fetchAll();
-  }, [fetchAll]);
+  }, [fetchAll, preloaded]);
 
   // Refresh function for manual refresh
   const refresh = useCallback(() => {

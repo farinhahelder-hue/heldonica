@@ -10,7 +10,6 @@ import type { HomeDestination } from '@/lib/home-data'
 import { getExcerpt } from '@/lib/blog-supabase'
 import InstagramFeed from '@/components/InstagramFeed'
 import NewsletterForm from '@/components/NewsletterForm'
-import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { useContentLoader, getCmsOrSetting } from '@/hooks/useContentLoader'
 
@@ -379,17 +378,13 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
   const videoSrc = getCmsOrSetting('hero_video_url', 'hero_video_url', defaultVideoSrc, zones, settings)
   const posterSrc = getCmsOrSetting('hero_poster_image', 'hero_poster_image', defaultPosterSrc, zones, settings)
 
-  // `homeZones` arrive du serveur (lib/home-data.ts) indexé par zone_key nu.
-  // InlineEditProvider attend des clés `page__zone_key` : on préfixe pour que
-  // les <EditableZone> de l'accueil aient la bonne valeur dès le premier rendu,
-  // sans refaire l'aller-retour réseau côté client.
-  const inlineEditZones = useMemo(
-    () => Object.fromEntries(Object.entries(homeZones ?? {}).map(([k, v]) => [`home__${k}`, v])),
-    [homeZones]
-  )
+  // Ce composant ne monte plus son propre InlineEditProvider : app/page.tsx en
+  // rend déjà un pour la page 'home' et l'alimente en zones côté serveur. Deux
+  // providers imbriqués sur la même page faisaient partir un fetch et un
+  // contrôle d'authentification en double à chaque affichage.
 
   return (
-    <InlineEditProvider page="home" initialZones={inlineEditZones}>
+    <>
       <style>{`
         [data-reveal] { opacity:0; transform:translateY(28px); transition:opacity 0.7s cubic-bezier(0.16,1,0.3,1),transform 0.7s cubic-bezier(0.16,1,0.3,1); }
         [data-reveal='left'] { transform:translateX(-32px); }
@@ -811,6 +806,6 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
       <InstagramFeed />
 
       <Footer />
-    </InlineEditProvider>
+    </>
   )
 }
