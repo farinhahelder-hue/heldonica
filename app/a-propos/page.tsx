@@ -7,8 +7,9 @@ import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import { getPageZones } from '@/lib/cms-zones'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { getAllPosts } from '@/lib/blog-supabase'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'À propos | Heldonica',
   description:
     "Le duo derrière Heldonica. Notre histoire, notre philosophie du slow travel et pourquoi on conçoit des voyages sur mesure.",
@@ -47,6 +48,11 @@ export const metadata: Metadata = {
     images: ['/og-default.jpg'],
   },
 }
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('a-propos', metadata)
+}
+
 
 export const revalidate = 3600
 

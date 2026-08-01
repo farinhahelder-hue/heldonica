@@ -4,8 +4,9 @@ import Footer from '@/components/Footer'
 import SubDestinationTemplate from '@/components/SubDestinationTemplate'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import { getPageZones } from '@/lib/cms-zones'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: "Pays d Auge en couple : notre carnet slow travel | Heldonica",
   description: "Le portype. Mais hors saison, c'est magic. Lesaufs sur le port en Normandie. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
   openGraph: {
@@ -20,6 +21,11 @@ export const metadata: Metadata = {
     canonical: "https://www.heldonica.fr/destinations/normandie/pays-d-auge"
   }
 }
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-normandie-pays-dauge', metadata)
+}
+
 
 const highlights = [
   {

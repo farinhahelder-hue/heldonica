@@ -5,11 +5,12 @@ import Footer from '@/components/Footer';
 import { getPageZones } from '@/lib/cms-zones';
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import EditableZone from '@/components/inline-edit/EditableZone';
+import { buildPageMetadata } from '@/lib/page-metadata'
 
 const SITE_URL = 'https://www.heldonica.fr';
 const PAGE = "destinations-madere-itineraire-7-jours";
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Itinéraire Madère 7 jours | Heldonica',
   description:
     'Itinéraire slow travel Madère sur 7 jours : rythme, points de vue, levadas et adresses locales.',
@@ -17,6 +18,11 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/destinations/madere/itineraire-7-jours`,
   },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-madere-itineraire-7-jours', metadata)
+}
+
 
 export default async function MadereItineraryPage() {
   const zones = await getPageZones(PAGE)

@@ -8,10 +8,11 @@ import HotelierForm from '@/components/HotelierForm';
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import { getPageZones } from '@/lib/cms-zones'
 import EditableZone from '@/components/inline-edit/EditableZone';
+import { buildPageMetadata } from '@/lib/page-metadata'
 
 const SITE_URL = 'https://www.heldonica.fr';
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Hébergements Slow Travel & Indépendance | Heldonica',
   description: 'Accompagnement pour hôtels indépendants, maisons d’hôtes et gîtes de charme. Valorisez votre positionnement slow travel, réduisez votre dépendance aux plateformes et fidélisez les couples.',
   keywords: ['slow travel gîte', 'maison d\'hôtes de charme', 'indépendance booking', 'expérience couple', 'conseil hébergement insolite'],
@@ -24,6 +25,11 @@ export const metadata: Metadata = {
     locale: 'fr_FR', type: 'website',
   },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('expert-hotelier', metadata)
+}
+
 
 const services = [
   {

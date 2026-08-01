@@ -6,8 +6,9 @@ import Breadcrumb from '@/components/Breadcrumb'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import { getPageZones } from '@/lib/cms-zones'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Slow Travel — Voyager Autrement, Lentement, Authentiquement | Heldonica',
   description:
     "Qu’est-ce que le slow travel ? On te partage notre approche du voyage lent, écoresponsable et hors des sentiers battus. Destinations, conseils et carnets de route.",
@@ -47,6 +48,11 @@ export const metadata: Metadata = {
     images: ['/og-default.jpg'],
   },
 }
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('slow-travel', metadata)
+}
+
 
 export default async function SlowTravelPage() {
   const zones = await getPageZones('slow-travel')

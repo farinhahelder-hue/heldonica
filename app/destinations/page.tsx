@@ -3,11 +3,12 @@ import DestinationsClient from './DestinationsClient';
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import { getPageZones } from '@/lib/cms-zones';
 import Script from 'next/script';
+import { buildPageMetadata } from '@/lib/page-metadata'
 
 export const revalidate = 300;
 export const dynamicParams = true;
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Destinations | Heldonica',
   description:
     "Madère, Roumanie, Sicile et bien d’autres : on te partage nos destinations authentiques testées sur le terrain, loin des foules. Itinéraires et pépites dénichées.",
@@ -46,6 +47,11 @@ export const metadata: Metadata = {
     creator: '@heldonica',
   },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-', metadata)
+}
+
 
 export default async function DestinationsPage() {
   const zones = await getPageZones('destinations');

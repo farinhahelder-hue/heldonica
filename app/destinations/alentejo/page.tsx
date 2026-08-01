@@ -8,6 +8,7 @@ import SlowTravelQuiz from '@/components/SlowTravelQuiz'
 import { getPageZones } from '@/lib/cms-zones'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
 const PAGE = "destinations-alentejo";
 const FAQS: { q: string; a: string }[] = [
@@ -17,7 +18,7 @@ const FAQS: { q: string; a: string }[] = [
   { q: "Budget moyen par jour dans l'Alentejo ?", a: "Comptez 70-120€/jour en milieu de gamme (hébergement + repas + activités). L'Alentejo est moins cher que le littoral Algarve." },
 ];
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: "Alentejo : Guide Slow Travel Complet | Heldonica",
   description: "Guide pilier Alentejo : quand partir, où dormir, vignobles, villages de pierre et itinéraire slow. 2 séjours vécus par le duo Heldonica.",
   alternates: {
@@ -38,6 +39,11 @@ export const metadata: Metadata = {
     type: "website",
   },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-alentejo', metadata)
+}
+
 
 export default async function AlentejoPage() {
   const zones = await getPageZones(PAGE)

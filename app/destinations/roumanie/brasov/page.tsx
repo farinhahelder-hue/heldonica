@@ -4,8 +4,9 @@ import Footer from '@/components/Footer'
 import SubDestinationTemplate from '@/components/SubDestinationTemplate'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import { getPageZones } from '@/lib/cms-zones'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: "Brașov slow travel : notre carnet de voyage | Heldonica",
   description: "Nichée au pied des Carpates en Transylvanie, Brașov est la destination slow travel par excellence. Conseils, randonnées douces et ruelles médiévales.",
   openGraph: {
@@ -20,6 +21,11 @@ export const metadata: Metadata = {
     canonical: "https://www.heldonica.fr/destinations/roumanie/brasov"
   }
 }
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-roumanie-brasov', metadata)
+}
+
 
 const highlights = [
   {

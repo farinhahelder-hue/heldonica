@@ -8,10 +8,11 @@ import { getPageZones } from '@/lib/cms-zones'
 import type { Metadata } from 'next'
 import { SITE_URL } from '@/lib/seo'
 import Script from 'next/script'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
 export const dynamic = 'force-dynamic'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Comparer les destinations | Heldonica',
   description: 'Compare nos destinations slow travel : budget, saison, style et articles publiés. Trouve la destination qui te correspond.',
   alternates: { canonical: `${SITE_URL}/destinations/compare` },
@@ -23,6 +24,11 @@ export const metadata: Metadata = {
     locale: 'fr_FR', type: 'website',
   },
 }
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-compare', metadata)
+}
+
 
 async function getDestinations() {
   if (!supabase) return []

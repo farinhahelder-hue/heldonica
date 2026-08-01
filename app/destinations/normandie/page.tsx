@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import { getPageZones } from '@/lib/cms-zones';
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import EditableZone from '@/components/inline-edit/EditableZone';
+import { buildPageMetadata } from '@/lib/page-metadata'
 
 const PAGE = "destinations-normandie";
 const SUBNav = [
@@ -19,7 +20,7 @@ const FAQS: { q: string; a: string }[] = [
 ];
 const HERO_SUBTITLE = "";
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: "Normandie slow travel | Guide Heldonica",
   description: "Guide pilier Normandie: Le Havre, Honfleur, Bayeux et les environs. Quand partir, budget réel, où dormir, et choses à faire.",
   alternates: {
@@ -41,6 +42,11 @@ export const metadata: Metadata = {
     type: "article",
   },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-normandie', metadata)
+}
+
 
 export default async function NormandiePage() {
   const zones = await getPageZones(PAGE)

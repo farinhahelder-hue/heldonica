@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import MapClientPage from './MapClientPage';
 import Link from 'next/link';
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Carte des Destinations | Heldonica',
   description:
     'Carte interactive de nos destinations slow travel : Madère, Sicile, Roumanie, Portugal et plus. Clique sur les marqueurs pour découvrir chaque pépite.',
@@ -34,6 +35,11 @@ export const metadata: Metadata = {
     ],
   },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-carte', metadata)
+}
+
 
 export default function MapPage() {
   return (

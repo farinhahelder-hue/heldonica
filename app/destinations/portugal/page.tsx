@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import { getPageZones } from '@/lib/cms-zones';
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import EditableZone from '@/components/inline-edit/EditableZone';
+import { buildPageMetadata } from '@/lib/page-metadata'
 
 const PAGE = "destinations-portugal";
 const SUBNav = [
@@ -21,7 +22,7 @@ const FAQS: { q: string; a: string }[] = [
 ];
 const HERO_SUBTITLE = "";
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: "Portugal slow travel | Guide Heldonica — Madère, Porto, Lisbonne",
   description: "Guide Portugal slow travel : Madère, Lisbonne, Porto, Alentejo. Nos adresses testées, budgets réels et itinéraires pour un voyage authentique.",
   alternates: {
@@ -43,6 +44,11 @@ export const metadata: Metadata = {
     type: "website",
   },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-portugal', metadata)
+}
+
 
 export default async function PortugalPage() {
   const zones = await getPageZones(PAGE)

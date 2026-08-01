@@ -7,8 +7,9 @@ import ContactForm from '@/components/ContactForm'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import { getPageZones } from '@/lib/cms-zones'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Contact | Heldonica',
   description:
     "Une question, un projet de voyage ? On est là. Écris-nous pour ton travel planning sur mesure ou toute autre demande.",
@@ -37,6 +38,11 @@ export const metadata: Metadata = {
     ],
   },
 }
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('contact', metadata)
+}
+
 
 const CONTACT_SERVICES = [
   { zone: 'service_1', fallback: 'Voyages sur mesure construits à partir de contraintes réelles.' },

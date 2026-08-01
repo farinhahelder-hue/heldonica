@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import DestinationPage from '../[slug]/DestinationPage'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Paris slow travel | Guide Heldonica',
   description: "Paris et l'Île-de-France se lisent mieux quand on sort des grandes phrases. Un canal, une friche, une rue, et le rythme change.",
   alternates: { canonical: 'https://www.heldonica.fr/destinations/paris' },
@@ -22,6 +23,11 @@ export const metadata: Metadata = {
     creator: '@heldonica',
   },
 }
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-paris', metadata)
+}
+
 
 export default function ParisPage() {
   return <DestinationPage slug="paris" />

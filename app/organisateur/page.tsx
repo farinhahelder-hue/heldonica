@@ -3,8 +3,9 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
 import TravelOrganizerClient from './TravelOrganizerClient'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Organisateur de voyage gratuit | Heldonica',
   description: 'Planifie ton voyage en ligne : itinéraire étape par étape, budget par poste, checklist de départ. Outil gratuit, sauvegarde locale automatique.',
   alternates: {
@@ -34,6 +35,11 @@ export const metadata: Metadata = {
     images: ['/og-default.jpg'],
   },
 }
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('organisateur', metadata)
+}
+
 
 export default function OrganizerPage() {
   return (

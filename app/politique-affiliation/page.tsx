@@ -6,8 +6,9 @@ import Link from 'next/link'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import { getPageZones } from '@/lib/cms-zones'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Programme Partenaires & Affiliation | Heldonica',
   description:
     "Politique d'affiliation Heldonica : comment on sélectionne et utilise les liens partenaires (Booking.com, GetYourGuide, etc.) pour financer le site sans compromettre la qualité des recommandations.",
@@ -15,6 +16,11 @@ export const metadata: Metadata = {
     canonical: 'https://www.heldonica.fr/politique-affiliation',
   },
 }
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('politique-affiliation', metadata)
+}
+
 
 export default async function PolitiqueAffiliationPage() {
   const zones = await getPageZones('politique-affiliation')

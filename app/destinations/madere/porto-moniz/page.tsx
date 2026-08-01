@@ -4,8 +4,9 @@ import Footer from '@/components/Footer'
 import SubDestinationTemplate from '@/components/SubDestinationTemplate'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import { getPageZones } from '@/lib/cms-zones'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: "Porto Moniz slow travel : piscines naturelles de Madère | Heldonica",
   description: "Notre guide pour visiter Porto Moniz à Madère. Baignade dans les piscines de roche volcanique naturelle, vagues atlantiques et conseils slow travel.",
   openGraph: {
@@ -20,6 +21,11 @@ export const metadata: Metadata = {
     canonical: "https://www.heldonica.fr/destinations/madere/porto-moniz"
   }
 }
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-madere-porto-moniz', metadata)
+}
+
 
 const highlights = [
   {

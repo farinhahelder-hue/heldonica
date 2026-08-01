@@ -5,10 +5,11 @@ import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import type { Metadata } from 'next'
 import { getHomeDestinations, getHomeContentZones } from '@/lib/home-data'
 import { getPageZones } from '@/lib/cms-zones'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
 export const revalidate = 60
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Heldonica — Slow travel vécu en duo, conçu pour toi',
   description:
     'Un duo Paris-Madère-Roumanie qui voyage lentement, documente vraiment et partage ce qu\'il a vécu — pas ce qu\'il a lu ailleurs.',
@@ -58,6 +59,11 @@ export const metadata: Metadata = {
     },
   },
 }
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('page.tsx', metadata)
+}
+
 
 function calcReadTime(content: string | null): number {
   if (!content) return 0

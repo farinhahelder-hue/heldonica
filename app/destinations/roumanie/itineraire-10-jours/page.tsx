@@ -11,12 +11,13 @@ import Script from 'next/script';
 import PdfDownloadButton from '@/components/PdfDownloadButton';
 import DaySummaryTable from '@/components/itinerary/DaySummaryTable';
 import DayAccommodationBox from '@/components/itinerary/DayAccommodationBox';
+import { buildPageMetadata } from '@/lib/page-metadata'
 
 const SITE_URL = 'https://www.heldonica.fr';
 const PAGE = "destinations-roumanie-itineraire-10-jours";
 const DAYS: { day: number; location: string; activity: string; accommodation: string | null }[] = [{"day":1,"location":"Bucarest","activity":"Installation Floreasca, premier repas roumain","accommodation":"Hotel Cismigiu — 3*, centre, 55 €/nuit"},{"day":2,"location":"Sinaia","activity":"Château de Peleș, forêt des Carpates","accommodation":"Hotel Sinaia — 4*, vue montagne, 70 €/nuit"},{"day":3,"location":"Brașov","activity":"Vieille ville, rue Republicii, tramway nostalgique","accommodation":"Hotel Belvedere — 3*, vue citadelle, 50 €/nuit"},{"day":4,"location":"Sighișoara","activity":"Citadelle médiévale, tour de l'Horloge","accommodation":"Hotel Sighișoara — 3*, intra-muros, 45 €/nuit"},{"day":5,"location":"Viscri","activity":"Village saxon, église fortifiée UNESCO","accommodation":"Guesthouse Viscri — chez l'habitant, 35 €/nuit"},{"day":6,"location":"Cluj-Napoca","activity":"Arrivée, premiers pas en ville","accommodation":"Hotel Deja Vu — 3*, centre, 55 €/nuit"},{"day":7,"location":"Cluj-Napoca","activity":"Musée ethnographique Romulus Vuia, marché Piața Unirii, quartier Mănăștur","accommodation":"Hotel Deja Vu — 3*, centre, 55 €/nuit"},{"day":8,"location":"Maramureș","activity":"Route vers le nord, premiers villages en bois","accommodation":"Guesthouse Maramureș — chez l'habitant, 30 €/nuit"},{"day":9,"location":"Maramureș","activity":"Marché paysan du dimanche, villages de bois, églises UNESCO","accommodation":"Guesthouse Maramureș — chez l'habitant, 30 €/nuit"},{"day":10,"location":"Maramureș / Cluj-Napoca","activity":"Dernier petit déjeuner paysan, route retour Cluj, vol départ","accommodation":null}];
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: "Roumanie 10 jours : grande traversée slow travel en couple | Heldonica",
   description: "Itinéraire Roumanie 10 jours testé sur place : Bucarest, Brașov, Sighișoara, Viscri, Cluj, Maramureș. Le circuit complet incluant la région la plus authentique du pays.",
   alternates: {
@@ -38,6 +39,11 @@ export const metadata: Metadata = {
     type: 'article',
   },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-roumanie-itineraire-10-jours', metadata)
+}
+
 
 export default async function Itineraire10JoursPage() {
   const zones = await getPageZones(PAGE)

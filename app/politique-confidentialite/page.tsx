@@ -5,8 +5,9 @@ import Breadcrumb from '@/components/Breadcrumb';
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import { getPageZones } from '@/lib/cms-zones'
 import EditableZone from '@/components/inline-edit/EditableZone';
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Politique de confidentialité | Heldonica',
   description:
     "Politique de confidentialité et traitement des données personnelles du site Heldonica.",
@@ -14,6 +15,11 @@ export const metadata: Metadata = {
     canonical: 'https://www.heldonica.fr/politique-confidentialite',
   },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('politique-confidentialite', metadata)
+}
+
 
 function PrivacySection({
   title,

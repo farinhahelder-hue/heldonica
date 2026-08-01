@@ -6,13 +6,14 @@ import Breadcrumb from '@/components/Breadcrumb'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { getPageZones } from '@/lib/cms-zones'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
 const PAGE = "guides";
 const GUIDES = [
   { slug: "top-10-pepites-madere", title: "Les 10 pépites de Madère qu'on ne te dit pas", description: "Les adresses dénichées sur le terrain, les sentiers hors des cartes et les tables familiales que les guides touristiques ignorent.", destination: "Madère", emoji: "🌿" },
 ];
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: "Guides de voyage | Heldonica",
   description: "Nos guides pratiques terrain : pépites dénichées, adresses testées, conseils slow travel. Ce qu'on n'a pas mis sur le blog.",
   alternates: {
@@ -42,6 +43,11 @@ export const metadata: Metadata = {
     images: ['/og-default.jpg'],
   },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('guides', metadata)
+}
+
 
 export default async function GuidesPage() {
   const zones = await getPageZones(PAGE)
