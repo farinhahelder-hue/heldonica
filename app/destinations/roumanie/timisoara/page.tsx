@@ -36,7 +36,7 @@ const metadata: Metadata = {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  return buildPageMetadata('destinations-timisoara', metadata)
+  return buildPageMetadata(PAGE, metadata)
 }
 
 
