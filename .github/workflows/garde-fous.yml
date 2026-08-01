@@ -1,0 +1,72 @@
+# Garde-fous du CMS.
+#
+# Ces contrôles existaient déjà comme scripts npm, mais rien ne les exécutait :
+# ils ne tournaient que lancés à la main. C'est ainsi que deux commits de
+# 11 000 lignes ont atterri sur `main` le 01/08 sans qu'aucune vérification ne
+# passe — les régressions ont été découvertes le lendemain.
+#
+# Ce workflow les rend obligatoires sur chaque pull request et chaque push.
+
+name: Garde-fous
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  typecheck:
+    name: Types
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+
+  cms:
+    name: Zones et tables CMS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+
+      # Les deux contrôles interrogent Supabase. Sans identifiants ils sortent
+      # en 2 — on préfère un avertissement explicite dans l'onglet Actions à un
+      # échec cryptique, mais surtout pas un succès silencieux.
+      - name: Vérifier la présence des identifiants
+        id: secrets
+        env:
+          URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "presents=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Garde-fous CMS inactifs::Ajouter les secrets NEXT_PUBLIC_SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY dans Settings > Secrets and variables > Actions. Sans eux, les zones orphelines et les dérives de tables ne sont pas détectées."
+          else
+            echo "presents=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Zones actives qu'aucun composant n'affiche, et clés lues mais absentes
+      # du filtre serveur CONSUMED_ZONE_KEYS.
+      - name: Zones orphelines
+        if: steps.secrets.outputs.presents == 'true'
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npm run check:cms-zones
+
+      # Tables référencées par le code mais absentes du schéma, et inversement.
+      - name: Dérive des tables
+        if: steps.secrets.outputs.presents == 'true'
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npm run check:cms-drift
