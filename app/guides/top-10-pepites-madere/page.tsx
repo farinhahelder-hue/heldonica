@@ -9,9 +9,10 @@ import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import { getPageZones } from '@/lib/cms-zones'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { createServiceClient } from '@/lib/supabase'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
 // ─── Métadonnées SEO dynamiques (depuis site_settings si dispo) ──────────────
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Guide Top 10 Pépites Madère | Heldonica',
   description:
     "Télécharge notre guide des 10 meilleures adresses testées à Madère. Restaurants, sentiers, spots photo — tout ce qu'on a aimé et qu'on te recommande.",
@@ -42,6 +43,11 @@ export const metadata: Metadata = {
     type: 'website',
   },
 }
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('guides-top-10-pepites-madere', metadata)
+}
+
 
 // ─── Données statiques de fallback (si Supabase indisponible) ─────────────────
 const PEPITES_FALLBACK = [

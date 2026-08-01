@@ -5,12 +5,18 @@ import Footer from '@/components/Footer'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { getPageZones } from '@/lib/cms-zones'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Merci ! | | Téléchargement en cours',
   description: 'Ton guide est en train de partir dans ta boîte mail. En attendant, découvre nos autres ressources.',
   robots: { index: false, follow: false },
 }
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('guides-merci', metadata)
+}
+
 
 const NEXT_STEPS = [
   {

@@ -4,8 +4,9 @@ import Footer from '@/components/Footer'
 import SubDestinationTemplate from '@/components/SubDestinationTemplate'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import { getPageZones } from '@/lib/cms-zones'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: "Cali en couple : notre carnet slow travel | Heldonica",
   description: "Capitale de la salsa. Valle del Cauca en Colombie. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
   openGraph: {
@@ -20,6 +21,11 @@ export const metadata: Metadata = {
     canonical: "https://www.heldonica.fr/destinations/colombie/cali"
   }
 }
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-colombie-cali', metadata)
+}
+
 
 const highlights = [
   {

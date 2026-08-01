@@ -6,12 +6,18 @@ import Image from 'next/image'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import { getPageZones } from '@/lib/cms-zones'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Tous nos liens | Heldonica',
   description: 'Retrouve tous les liens Heldonica : blog, guides gratuits, travel planning et contact.',
   robots: { index: false, follow: false },
 }
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('start', metadata)
+}
+
 
 const LINKS = [
   {

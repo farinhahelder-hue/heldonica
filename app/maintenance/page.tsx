@@ -2,9 +2,10 @@ import type { Metadata } from 'next';
 import EditableZone from '@/components/inline-edit/EditableZone';
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import { getPageZones } from '@/lib/cms-zones';
+import { buildPageMetadata } from '@/lib/page-metadata'
 
 // Prevent indexing of maintenance page
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'En maintenance | Heldonica',
   description: 'Heldonica est temporairement en maintenance. Nous revenons tres vite avec de nouvelles pepites.',
   robots: {
@@ -12,6 +13,11 @@ export const metadata: Metadata = {
     follow: false,
   },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('maintenance', metadata)
+}
+
 
 export default async function MaintenancePage() {
   const zones = await getPageZones('maintenance')

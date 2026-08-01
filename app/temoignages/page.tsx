@@ -7,11 +7,12 @@ import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import EditableZone from '@/components/inline-edit/EditableZone';
 import TemoignagesClient from './TemoignagesClient';
 import { getPageZones } from '@/lib/cms-zones';
+import { buildPageMetadata } from '@/lib/page-metadata'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY!;
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Témoignages clients | Heldonica',
   description:
     'Retours de couples accompagnés par Heldonica pour leur voyage slow travel sur mesure.',
@@ -19,6 +20,11 @@ export const metadata: Metadata = {
     canonical: 'https://www.heldonica.fr/temoignages',
   },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('temoignages', metadata)
+}
+
 
 async function getTestimonials() {
   try {

@@ -5,10 +5,11 @@ import Footer from '@/components/Footer'
 import { getPageZones } from '@/lib/cms-zones'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
 const PAGE = 'destinations-idf'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Île-de-France slow travel | Guide Heldonica',
   description: 'Paris autrement, Versailles hors saison, Giverny au petit matin. Notre guide Île-de-France pour voyager lentement dans la région la plus visitée du monde.',
   alternates: { canonical: 'https://www.heldonica.fr/destinations/idf' },
@@ -22,6 +23,11 @@ export const metadata: Metadata = {
   },
   twitter: { card: 'summary_large_image', creator: '@heldonica', title: 'Île-de-France slow travel | Guide Heldonica', description: 'Paris autrement, Versailles hors saison, Giverny au petit matin.' },
 }
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-idf', metadata)
+}
+
 
 const subNav = [
   { label: 'Paris', href: '/destinations/idf/paris' },

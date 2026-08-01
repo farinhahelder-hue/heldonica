@@ -4,8 +4,9 @@ import Footer from '@/components/Footer'
 import SubDestinationTemplate from '@/components/SubDestinationTemplate'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import { getPageZones } from '@/lib/cms-zones'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: "Lisbonne en couple : notre itinéraire slow travel | Heldonica",
   description: "Prendre le temps à Lisbonne : ruelles de l'Alfama, points de vue secrets (miradouros), fado authentique et pépites dénichées en duo.",
   openGraph: {
@@ -20,6 +21,11 @@ export const metadata: Metadata = {
     canonical: "https://www.heldonica.fr/destinations/portugal/lisbonne"
   }
 }
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-portugal-lisbonne', metadata)
+}
+
 
 const highlights = [
   {

@@ -6,10 +6,11 @@ import Breadcrumb from '@/components/Breadcrumb'
 import { getPageZones } from '@/lib/cms-zones'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
 const PAGE = 'destinations-sardaigne'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Sardaigne slow travel | Guide Heldonica',
   description: "Guide slow travel Sardaigne : plages sauvages, villages de l'intérieur, agritourisme et adresses dénichées loin des foules. Testé par Heldonica.",
   alternates: {
@@ -39,6 +40,11 @@ export const metadata: Metadata = {
     creator: '@heldonica',
   },
 }
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-sardaigne', metadata)
+}
+
 
 const subNav = [
   { label: 'Cagliari', href: '/destinations/sardaigne/cagliari' },

@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import { getPageZones } from '@/lib/cms-zones';
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import EditableZone from '@/components/inline-edit/EditableZone';
+import { buildPageMetadata } from '@/lib/page-metadata'
 
 const PAGE = "destinations-colombie";
 const SUBNav = [
@@ -20,7 +21,7 @@ const FAQS: { q: string; a: string }[] = [
 ];
 const HERO_SUBTITLE = "le pays qui a changé plus vite que sa réputation";
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: "Colombie slow travel | Guide Heldonica",
   description: "Guide slow travel Colombie : Bogotá, Medellín, Cali et la région du café. Adresses dénichées, itinéraires testés et conseils terrain par Heldonica.",
   alternates: {
@@ -42,6 +43,11 @@ export const metadata: Metadata = {
     type: "website",
   },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-colombie', metadata)
+}
+
 
 export default async function ColombiePage() {
   const zones = await getPageZones(PAGE)

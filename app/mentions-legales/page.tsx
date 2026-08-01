@@ -5,8 +5,9 @@ import Breadcrumb from '@/components/Breadcrumb';
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import { getPageZones } from '@/lib/cms-zones'
 import EditableZone from '@/components/inline-edit/EditableZone';
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Mentions légales | Heldonica',
   description:
     "Informations légales de l'éditeur, de l'hébergeur et conditions d'utilisation du site Heldonica.",
@@ -14,6 +15,11 @@ export const metadata: Metadata = {
     canonical: 'https://www.heldonica.fr/mentions-legales',
   },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('mentions-legales', metadata)
+}
+
 
 function LegalSection({
   title,

@@ -6,10 +6,11 @@ import Script from 'next/script'
 import { getPageZones } from '@/lib/cms-zones'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
 const PAGE = 'destinations-montenegro-kotor'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Kotor avant les croisiéristes — guide slow travel | Heldonica',
   description: 'Notre guide pour découvrir Kotor à son meilleur : lever du soleil sur la baie, remparts vides et vieille ville avant 9h. Conseils terrain pour un slow travel réussi.',
   alternates: {
@@ -24,6 +25,11 @@ export const metadata: Metadata = {
     type: 'article',
   },
 }
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-montenegro-kotor', metadata)
+}
+
 
 const navLinks = [
   { label: 'Destinations', href: '/destinations' },

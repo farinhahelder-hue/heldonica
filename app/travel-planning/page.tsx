@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 import TravelPlanningClient from './TravelPlanningClient'
 import { getPageZones } from '@/lib/cms-zones'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Travel Planning sur mesure | Heldonica',
   description: 'On conçoit ton voyage slow travel sur mesure — itinéraire terrain, hébergements testés et suivi humain. Formules à partir de 250€. Devis gratuit.',
   alternates: {
@@ -32,6 +33,11 @@ export const metadata: Metadata = {
     images: ['/og-default.jpg'],
   },
 }
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('travel-planning', metadata)
+}
+
 
 export default async function TravelPlanningPage() {
   // Chargées ici plutôt que dans le client : le premier rendu porte déjà les

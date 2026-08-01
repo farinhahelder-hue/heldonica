@@ -11,12 +11,13 @@ import Script from 'next/script';
 import PdfDownloadButton from '@/components/PdfDownloadButton';
 import DaySummaryTable from '@/components/itinerary/DaySummaryTable';
 import DayAccommodationBox from '@/components/itinerary/DayAccommodationBox';
+import { buildPageMetadata } from '@/lib/page-metadata'
 
 const SITE_URL = 'https://www.heldonica.fr';
 const PAGE = "destinations-roumanie-itineraire-7-jours";
 const DAYS: { day: number; location: string; activity: string; accommodation: string | null }[] = [{"day":1,"location":"Bucarest","activity":"Installation dans le quartier Floreasca, découverte du quartier, premier repas roumain","accommodation":"Hotel Cismigiu — 3*, quartier centre, 55 €/nuit"},{"day":2,"location":"Sinaia","activity":"Château de Peleș, forêt des Carpates","accommodation":"Hotel Sinaia — 4*, vue montagne, 70 €/nuit"},{"day":3,"location":"Brașov","activity":"Vieille ville, rue Republicii, tramway nostalgique","accommodation":"Hotel Belvedere — 3*, vue sur la citadelle, 50 €/nuit"},{"day":4,"location":"Sighișoara","activity":"Citadelle médiévale, tour de l'Horloge","accommodation":"Hotel Sighișoara — 3*, intra-muros, 45 €/nuit"},{"day":5,"location":"Viscri","activity":"Village saxon, église fortifiée UNESCO, Fondation Charles","accommodation":"Guesthouse Viscri — chez l'habitant, 35 €/nuit"},{"day":6,"location":"Cluj-Napoca","activity":"Ville universitaire, scène culturelle, bars alternatifs","accommodation":"Hotel Deja Vu — 3*, quartier centre, 55 €/nuit"},{"day":7,"location":"Cluj-Napoca","activity":"Marché Piața Unirii, café Laika, dernier pătrat de cozonac","accommodation":null}];
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: "Roumanie 7 jours : itinéraire slow travel en couple | Heldonica",
   description: "Itinéraire Roumanie 7 jours testé sur place : Bucarest, Sinaia, Brașov, Sighișoara, Viscri, Cluj. Budget, hébergements, pépites et conseils slow travel.",
   alternates: {
@@ -38,6 +39,11 @@ export const metadata: Metadata = {
     type: 'article',
   },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-roumanie-itineraire-7-jours', metadata)
+}
+
 
 export default async function Itineraire7JoursPage() {
   const zones = await getPageZones(PAGE)

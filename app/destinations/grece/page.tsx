@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 import ComingSoonDestination from '@/components/ComingSoonDestination'
 import { getPageZones } from '@/lib/cms-zones'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Grèce slow travel | Guide Heldonica — Bientôt',
   description: "Archipels discrets, villages calcaires, tavernes de port. Notre guide Grèce slow travel arrive prochainement — sois notifié en avant-première.",
   alternates: { canonical: 'https://www.heldonica.fr/destinations/grece' },
@@ -16,6 +17,11 @@ export const metadata: Metadata = {
   },
   twitter: { card: 'summary_large_image', creator: '@heldonica', title: 'Grèce slow travel | Guide Heldonica — Bientôt', description: "Notre guide Grèce slow travel arrive prochainement." },
 }
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-grece', metadata)
+}
+
 
 export default async function GrecePage() {
   const zones = await getPageZones('destinations-grece')

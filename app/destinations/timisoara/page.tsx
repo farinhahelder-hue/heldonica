@@ -5,11 +5,12 @@ import Footer from '@/components/Footer'
 import { getPageZones } from '@/lib/cms-zones'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
 const SITE_URL = 'https://www.heldonica.fr'
 const PAGE = 'destinations-timisoara'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Timișoara slow travel | Guide Heldonica',
   description:
     'Timișoara, capitale européenne de la culture 2023 : architecture baroque, scène culturelle vivante et cafés de quartier. Notre guide slow travel.',
@@ -33,6 +34,11 @@ export const metadata: Metadata = {
     creator: '@heldonica',
   },
 }
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-timisoara', metadata)
+}
+
 
 // Valeurs de référence (source de vérité = cms_editable_zones ; ces valeurs
 // servent de fallback technique tant que le CMS n'a pas été appliqué/seeded).

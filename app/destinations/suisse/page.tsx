@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import DestinationPage from '../[slug]/DestinationPage'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Suisse slow travel | Guide Heldonica',
   description: "Montagnes, lacs, trains impeccables et détours qui demandent du temps. La Suisse devient juste quand on cesse de la résumer à son prix.",
   alternates: { canonical: 'https://www.heldonica.fr/destinations/suisse' },
@@ -22,6 +23,11 @@ export const metadata: Metadata = {
     creator: '@heldonica',
   },
 }
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-suisse', metadata)
+}
+
 
 export default function SuissePage() {
   return <DestinationPage slug="suisse" />

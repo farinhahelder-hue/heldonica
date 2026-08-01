@@ -9,12 +9,13 @@ import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import EditableZone from '@/components/inline-edit/EditableZone';
 import DaySummaryTable from '@/components/itinerary/DaySummaryTable';
 import DayAccommodationBox from '@/components/itinerary/DayAccommodationBox';
+import { buildPageMetadata } from '@/lib/page-metadata'
 
 const SITE_URL = 'https://www.heldonica.fr';
 const PAGE = "destinations-roumanie-itineraire-5-jours";
 const DAYS: { day: number; location: string; activity: string; accommodation: string | null }[] = [{"day":1,"location":"Brașov","activity":"Arrivée, vieille ville, rue Republicii, place du Conseil","accommodation":"Hotel Belvedere — 3*, vue citadelle, 50 €/nuit"},{"day":2,"location":"Sinaia","activity":"Château de Peleș, forêt des Carpates, randonnée légère","accommodation":"Hotel Sinaia — 4*, vue montagne, 70 €/nuit"},{"day":3,"location":"Sighișoara","activity":"Tour de l'Horloge, escalier couvert, citadelle","accommodation":"Hotel Sighișoara — 3*, intra-muros, 45 €/nuit"},{"day":4,"location":"Sibiu","activity":"Grande place, pont des Mensonges, musée ASTRA","accommodation":"Hotel Sibiul — 3*, vieille ville, 50 €/nuit"},{"day":5,"location":"Brașov","activity":"Petit déjeuner tardif, dernier tour, départ","accommodation":null}];
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: "Roumanie 5 jours : itinéraire slow travel focus Transylvanie | Heldonica",
   description: "Itinéraire Roumanie 5 jours testé sur place : Brașov, Sighișoara, Sibiu, château de Peleș, randonnée dans les Carpates. L'essentiel de la Transylvanie en version concentrée.",
   alternates: {
@@ -36,6 +37,11 @@ export const metadata: Metadata = {
     type: 'article',
   },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-roumanie-itineraire-5-jours', metadata)
+}
+
 
 export default async function Itineraire5JoursPage() {
   const zones = await getPageZones(PAGE)
