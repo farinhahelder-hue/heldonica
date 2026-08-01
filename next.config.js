@@ -95,6 +95,13 @@ const nextConfig = {
       { source: '/admin/:path*', destination: '/panel-manager', permanent: true },
       { source: '/cms-admin', destination: '/panel-manager', permanent: true },
       { source: '/cms-admin/:path*', destination: '/panel-manager', permanent: true },
+      // Timisoara existait a deux URL vivantes. La page riche vit desormais
+      // sous /destinations/roumanie/timisoara, comme Brasov, Cluj et Bucarest.
+      // La redirection est declaree ici plutot que par une page-stub : celle-ci
+      // ne l'emportait pas sur la route dynamique [slug], qui continuait a servir
+      // un « bientot disponible » en 200 sur l'ancienne URL.
+      { source: '/destinations/timisoara', destination: '/destinations/roumanie/timisoara', permanent: true },
+      { source: '/destinations/timisoara/', destination: '/destinations/roumanie/timisoara', permanent: true },
       { source: '/zurich', destination: '/destinations/zurich', permanent: true },
       { source: '/zurich/', destination: '/destinations/zurich', permanent: true },
       { source: '/suisse', destination: '/destinations/suisse', permanent: true },
