@@ -2,46 +2,50 @@ import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import SubDestinationTemplate from '@/components/SubDestinationTemplate'
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import { getPageZones } from '@/lib/cms-zones'
 
 export const metadata: Metadata = {
-  title: 'Estreito de Câmara de Lobos en couple : notre carnet slow travel | Heldonica',
-  description: 'La vallée. Les levadas, les cascades, la forêt à Madère. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
+  title: "Estreito de Câmara de Lobos en couple : notre carnet slow travel | Heldonica",
+  description: "La vallée. Les levadas, les cascades, la forêt à Madère. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
   openGraph: {
-    title: 'Estreito de Câmara de Lobos en couple : notre carnet slow travel | Heldonica',
-    description: 'La vallée. Les levadas, les cascades, la forêt à Madère. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
+    title: "Estreito de Câmara de Lobos en couple : notre carnet slow travel | Heldonica",
+    description: "La vallée. Les levadas, les cascades, la forêt à Madère. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
     type: 'website',
     images: ['/og-default.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica'
   },
   alternates: {
-    canonical: 'https://www.heldonica.fr/destinations/madere/estreito'
+    canonical: "https://www.heldonica.fr/destinations/madere/estreito"
   }
 }
 
 const highlights = [
   {
-    "emoji": "📍",
-    "title": "Découvertes calmes",
-    "description": "Prendre le temps d'arpenter les ruelles et les recoins cachés."
+    emoji: '📍',
+    title: 'Découvertes calmes',
+    description: 'Prendre le temps d\'arpenter les ruelles et les recoins cachés.',
   },
   {
-    "emoji": "🌿",
-    "title": "Artisanat & Nature",
-    "description": "Découvrir la gastronomie locale et les petits producteurs."
+    emoji: '🌿',
+    title: 'Artisanat & Nature',
+    description: 'Découvrir la gastronomie locale et les petits producteurs.',
   },
   {
-    "emoji": "✨",
-    "title": "Points de vue",
-    "description": "Admirer le panorama au coucher du soleil loin de l'agitation."
+    emoji: '✨',
+    title: 'Points de vue',
+    description: 'Admirer le panorama au coucher du soleil loin de l\'agitation.',
   }
 ]
 
-export default function EstreitodeCamaraPage() {
+export default async function EstreitodeCamaraPage() {
+  const zones = await getPageZones('destinations-madere-estreito')
   return (
-    <>
+    <InlineEditProvider page="destinations-madere-estreito" initialZones={zones}>
       <Header />
       <SubDestinationTemplate
+        page="destinations-madere-estreito"
         name="Estreito de Câmara de Lobos"
         parentName="Madère"
         parentSlug="madere"
@@ -51,6 +55,6 @@ export default function EstreitodeCamaraPage() {
         localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."
       />
       <Footer />
-    </>
+    </InlineEditProvider>
   )
 }

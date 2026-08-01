@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import ComingSoonDestination from '@/components/ComingSoonDestination'
+import { getPageZones } from '@/lib/cms-zones'
 
 export const metadata: Metadata = {
   title: 'Grèce slow travel | Guide Heldonica — Bientôt',
@@ -16,7 +17,9 @@ export const metadata: Metadata = {
   twitter: { card: 'summary_large_image', creator: '@heldonica', title: 'Grèce slow travel | Guide Heldonica — Bientôt', description: "Notre guide Grèce slow travel arrive prochainement." },
 }
 
-export default function GrecePage() {
+export default async function GrecePage() {
+  const zones = await getPageZones('destinations-grece')
+
   return (
     <ComingSoonDestination
       slug="grece"
@@ -28,6 +31,7 @@ export default function GrecePage() {
       travel_style="slow-culture"
       best_season="Avril – juin · Septembre – octobre"
       avg_budget_couple_week={1400}
+      zones={zones}
     />
   )
 }

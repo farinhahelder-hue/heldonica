@@ -2,56 +2,59 @@ import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import SubDestinationTemplate from '@/components/SubDestinationTemplate'
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import { getPageZones } from '@/lib/cms-zones'
 
 export const metadata: Metadata = {
-  title: 'Le Havre et environs en couple : notre carnet slow travel | Heldonica',
-  description: 'Guide Le Havre et environs: architecture Art Deco d Auguste Perret, plages de la Manche, roadtrip en Normandie. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
+  title: "Le Havre et environs en couple : notre carnet slow travel | Heldonica",
+  description: "Guide Le Havre et environs: architecture Art Deco d Auguste Perret, plages de la Manche, roadtrip en Normandie. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
   openGraph: {
-    title: 'Le Havre et environs en couple : notre carnet slow travel | Heldonica',
-    description: 'Guide Le Havre et environs: architecture Art Deco d Auguste Perret, plages de la Manche, roadtrip en Normandie. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
+    title: "Le Havre et environs en couple : notre carnet slow travel | Heldonica",
+    description: "Guide Le Havre et environs: architecture Art Deco d Auguste Perret, plages de la Manche, roadtrip en Normandie. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
     type: 'website',
     images: ['/og-default.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica'
   },
   alternates: {
-    canonical: 'https://www.heldonica.fr/destinations/normandie/le-havre-et-environs'
+    canonical: "https://www.heldonica.fr/destinations/normandie/le-havre-et-environs"
   }
 }
 
 const highlights = [
   {
-    "emoji": "📍",
-    "title": "Découvertes calmes",
-    "description": "Prendre le temps d'arpenter les ruelles et les recoins cachés."
+    emoji: '📍',
+    title: 'Découvertes calmes',
+    description: 'Prendre le temps d\'arpenter les ruelles et les recoins cachés.',
   },
   {
-    "emoji": "🌿",
-    "title": "Artisanat & Nature",
-    "description": "Découvrir la gastronomie locale et les petits producteurs."
+    emoji: '🌿',
+    title: 'Artisanat & Nature',
+    description: 'Découvrir la gastronomie locale et les petits producteurs.',
   },
   {
-    "emoji": "✨",
-    "title": "Points de vue",
-    "description": "Admirer le panorama au coucher du soleil loin de l'agitation."
+    emoji: '✨',
+    title: 'Points de vue',
+    description: 'Admirer le panorama au coucher du soleil loin de l\'agitation.',
   }
 ]
 
-export default function LeHavreetenvironsPage() {
+export default async function LeHavreetenvironsPage() {
+  const zones = await getPageZones('destinations-normandie-le-havre')
   return (
-    <>
+    <InlineEditProvider page="destinations-normandie-le-havre" initialZones={zones}>
       <Header />
       <SubDestinationTemplate
+        page="destinations-normandie-le-havre"
         name="Le Havre et environs"
         parentName="Normandie"
         parentSlug="normandie"
         heroImage="/og-default.jpg"
-        introText="Deuxième port de France. Mais pas que ça. Architecture Art Deco,
-              plages, et un esprit qui surprend."
+        introText="Deuxième port de France. Mais pas que ça. Architecture Art Deco, plages, et un esprit qui surprend."
         highlights={highlights}
         localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."
       />
       <Footer />
-    </>
+    </InlineEditProvider>
   )
 }

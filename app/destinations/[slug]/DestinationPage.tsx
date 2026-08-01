@@ -9,6 +9,9 @@ import { supabase } from '@/lib/supabase-client'
 import { notFound } from 'next/navigation'
 import { BlogPost } from '@/lib/blog-supabase'
 import { SUB_DESTINATIONS } from '@/lib/sub-destinations'
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import EditableZone from '@/components/inline-edit/EditableZone'
+import { getPageZones } from '@/lib/cms-zones'
 
 const DESTINATION_IMAGES: Record<string, string> = {
   'sicile': '/og-default.jpg',
@@ -20,6 +23,8 @@ const DESTINATION_IMAGES: Record<string, string> = {
   'roumanie': '/og-default.jpg',
 }
 
+// Contenu de référence (source de vérité = cms_editable_zones ; ces valeurs
+// servent de fallback technique tant que le CMS n'a pas été appliqué/seeded).
 const DESTINATION_CONTENT: Record<string, any> = {
   'sicile': {
     title: 'Sicile',
@@ -30,12 +35,7 @@ const DESTINATION_CONTENT: Record<string, any> = {
     season: 'Avril à juin · Septembre à octobre',
     budget: '900-1400€ / duo / 7 jours',
     profile: 'Couple curieux, amateur de culture et de cuisine',
-    tips: [
-      'Visiter la Vallée des Temples à Agrigente à 7h du matin',
-      'Manger chez Teresa à Modica — sa arancini est légendaire',
-      'Prendre le ferry pour Stromboli et voir l\'éruption nocturne',
-      'Rester 3 nuits minimum à Raguse pour voir deux couchers de soleil différents',
-    ],
+    tips: ['Visiter la Vallée des Temples à Agrigente à 7h du matin', 'Manger chez Teresa à Modica — sa arancini est légendaire', 'Prendre le ferry pour Stromboli et voir l\'éruption nocturne', 'Rester 3 nuits minimum à Raguse pour voir deux couchers de soleil différents'],
   },
   'lisbonne': {
     title: 'Lisbonne',
@@ -46,28 +46,7 @@ const DESTINATION_CONTENT: Record<string, any> = {
     season: 'Toute l\'année · Mai et septembre idéaux',
     budget: '400-700€ / duo / 4 jours',
     profile: 'City breaker, amateur d\'architecture et de fado',
-    tips: [
-      'Monter au Miradouro da Senhora do Monte pour le coucher du soleil',
-      'Prendre le tram 28 à 7h du matin — avant la foule',
-      'Manger des pastéis de nata à Antónia ici, pas ailleurs',
-      'Traverser le Tage pour voir Lisbonne depuis Cacilhas',
-    ],
-  },
-  'montenegro': {
-    title: 'Monténégro',
-    subtitle: 'les Balkans par leur côté lumineux',
-    description: 'Podgorica comme base, souvent ignorée des touristes. Kotor avant l\'arrivée des cars de croisières. Le fjord de Boka, qu\'on prend par la mer et pas par la route. Les Balkans ne sont pas ce qu\'on croit — ils sont plus lumineux, plus accueillants, plus goûteux.',
-    verdict: 'Un pays qui n\'a pas encore appris à vendre ce qu\'il est. C\'est ce qui le rend précieux.',
-    duration: '5-7 jours',
-    season: 'Juin à septembre',
-    budget: '600-1000€ / duo / 7 jours',
-    profile: 'Couple en quête d\'authenticité, amateur de mer et de montagne',
-    tips: [
-      'Passer 2 jours à Podgorica — la ville la plus verte du monde selon certains',
-      'Visiter Kotor tôt le matin ou tard le soir pour éviter les cars de croisières',
-      'Louer un bateau dans la baie de Boka pour voir les villages depuis la mer',
-      'Monter au Parc National du Lovćen pour une vue panoramique',
-    ],
+    tips: ['Monter au Miradouro da Senhora do Monte pour le coucher du soleil', 'Prendre le tram 28 à 7h du matin — avant la foule', 'Manger des pastéis de nata à Antónia ici, pas ailleurs', 'Traverser le Tage pour voir Lisbonne depuis Cacilhas'],
   },
   'suisse': {
     title: 'Suisse',
@@ -78,12 +57,7 @@ const DESTINATION_CONTENT: Record<string, any> = {
     season: 'Juin à septembre · Décembre pour les sports d\'hiver',
     budget: '1200-2000€ / duo / 7 jours',
     profile: 'Randonneur, amateur de montagne et de villages alpin',
-    tips: [
-      'Prendre le funiculaire Schwyz-Stoos — 110% de pente',
-      'Rester une nuit dans un chalet d\'alpage entre Stoos et Klein Mythen',
-      'Visiter les bains de Vals — architecture sensationnelle',
-      'Marcher jusqu\'au sommet du Moléson pour voir la Riviera vaudoise',
-    ],
+    tips: ['Prendre le funiculaire Schwyz-Stoos — 110% de pente', 'Rester une nuit dans un chalet d\'alpage entre Stoos et Klein Mythen', 'Visiter les bains de Vals — architecture sensationnelle', 'Marcher jusqu\'au sommet du Moléson pour voir la Riviera vaudoise'],
   },
   'zurich': {
     title: 'Zurich',
@@ -94,12 +68,7 @@ const DESTINATION_CONTENT: Record<string, any> = {
     season: 'Avril à octobre',
     budget: '800-1400€ / duo / 4 jours',
     profile: 'Amateur de culture, de design et de nature',
-    tips: [
-      'Visiter le Kunsthaus — l\'un des plus beaux musées d\'Europe',
-      'Manger au Volkshaus — design Bauhaus, cuisine locale',
-      'Prendre le train pour Stein am Rhein — le plus beau village de Suisse',
-      'Longer la Limmat au coucher du soleil depuis le Niederdorf',
-    ],
+    tips: ['Visiter le Kunsthaus — l\'un des plus beaux musées d\'Europe', 'Manger au Volkshaus — design Bauhaus, cuisine locale', 'Prendre le train pour Stein am Rhein — le plus beau village de Suisse', 'Longer la Limmat au coucher du soleil depuis le Niederdorf'],
   },
   'paris': {
     title: 'Paris',
@@ -110,28 +79,7 @@ const DESTINATION_CONTENT: Record<string, any> = {
     season: 'Toute l\'année',
     budget: 'Modulable',
     profile: 'Amateur de culture, de flânerie et de bonne chère',
-    tips: [
-      'Explorer la Petite Ceinture — l\'ancienne ligne de chemin de fer transformée en coulée verte',
-      'Monter au Miradouro (équivalent) du Sacré-Cœur à l\'aube',
-      'Manger au mercado local du quartier, pas dans les restaurants touristiques',
-      'Prendre le temps de s\'asseoir dans un café sans commander autre chose qu\'un café',
-    ],
-  },
-  'roumanie': {
-    title: 'Roumanie',
-    subtitle: 'la Transylvanie qu\'on ne trouve pas dans les guides',
-    description: 'Entre Brasov et Sibiu, entre les Carpates et les collines de Maramureș, il y a une Roumanie que les circuits ne visitent pas. Celle des villages où le temps s\'arrête, des châteaux qui n\'ont pas encore été pris par le tourisme, des forêts où les ours sont encore plus nombreux que les touristes.',
-    verdict: 'La Roumanie ne se visite pas — elle se découvre.',
-    duration: '7-14 jours',
-    season: 'Mai à septembre · Avril pour Maramureș',
-    budget: '600-1200€ / duo / 10 jours',
-    profile: 'Couple en quête d\'authenticité, amateur d\'histoire et de nature',
-    tips: [
-      'Visiter le village de Saschiz — classé UNESCO et presque désert',
-      'Prendre le train à vapeur Mocănița dans la vallée de la Vaser',
-      'Dormir dans un manor transylvanien restauré — expérience unique',
-      'Rester 3 jours à Sighișoara pour voir la ville sans les cars de touristes',
-    ],
+    tips: ['Explorer la Petite Ceinture — l\'ancienne ligne de chemin de fer transformée en coulée verte', 'Monter au Miradouro (équivalent) du Sacré-Cœur à l\'aube', 'Manger au mercado local du quartier, pas dans les restaurants touristiques', 'Prendre le temps de s\'asseoir dans un café sans commander autre chose qu\'un café'],
   },
 }
 
@@ -214,11 +162,17 @@ export default async function DestinationPage({ slug }: Props) {
     notFound()
   }
 
-  // Fetch related articles
-  const relatedArticles = await getRelatedArticlesForDestination(slug)
+  const [relatedArticles, zones] = await Promise.all([
+    getRelatedArticlesForDestination(slug),
+    getPageZones(`destinations-${slug}`),
+  ])
+
+  const Z = (zone: string, type: 'text' | 'textarea' | 'image', fallback: string, className?: string, as?: any) => (
+    <EditableZone page={`destinations-${slug}`} zone={zone} type={type} fallback={fallback} className={className} as={as} />
+  )
 
   return (
-    <>
+    <InlineEditProvider page={`destinations-${slug}`} initialZones={zones}>
       {/* JSON-LD Structured Data */}
       <script
         type="application/ld+json"
@@ -248,24 +202,17 @@ export default async function DestinationPage({ slug }: Props) {
       <main>
         {/* Hero */}
         <section className="relative min-h-[60vh] flex items-end overflow-hidden bg-stone-900">
-          <Image
-            src={image}
-            alt={`${content.title} - Slow travel`}
-            fill
-            className="object-cover opacity-60"
-            priority
-            sizes="100vw"
-          />
+          {Z('hero_image', 'image', image, 'w-full h-full object-cover opacity-60')}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
           <div className="relative container py-14 md:py-20 max-w-4xl">
             <p className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold">
               Destination testée
             </p>
             <h1 className="text-4xl md:text-6xl font-serif text-white mb-4">
-              {content.title}, <em className="text-teal">{content.subtitle}</em>
+              {Z('title', 'text', content.title, undefined, 'span')}, <em className="text-teal">{Z('subtitle', 'text', content.subtitle, undefined, 'span')}</em>
             </h1>
             <p className="text-white/85 max-w-2xl text-lg leading-relaxed">
-              {content.description.slice(0, 200)}...
+              {Z('description', 'textarea', content.description).toString().slice(0, 200)}...
             </p>
           </div>
         </section>
@@ -276,19 +223,19 @@ export default async function DestinationPage({ slug }: Props) {
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
                 <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Durée idéale</p>
-                <p className="text-charcoal font-medium">{content.duration}</p>
+                <p className="text-charcoal font-medium">{Z('duration', 'text', content.duration, undefined, 'span')}</p>
               </div>
               <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
                 <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Meilleure saison</p>
-                <p className="text-charcoal font-medium">{content.season}</p>
+                <p className="text-charcoal font-medium">{Z('season', 'text', content.season, undefined, 'span')}</p>
               </div>
               <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
                 <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Budget indicatif</p>
-                <p className="text-charcoal font-medium">{content.budget}</p>
+                <p className="text-charcoal font-medium">{Z('budget', 'text', content.budget, undefined, 'span')}</p>
               </div>
               <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
                 <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Profil</p>
-                <p className="text-charcoal font-medium text-sm">{content.profile}</p>
+                <p className="text-charcoal font-medium text-sm">{Z('profile', 'text', content.profile, undefined, 'span')}</p>
               </div>
             </div>
           </div>
@@ -299,7 +246,7 @@ export default async function DestinationPage({ slug }: Props) {
           <div className="container max-w-4xl">
             <h2 className="text-3xl font-serif text-mahogany mb-6">On y est allés</h2>
             <p className="text-charcoal/80 leading-relaxed text-lg mb-8">
-              {content.description}
+              {Z('description', 'textarea', content.description, undefined, 'span')}
             </p>
           </div>
         </section>
@@ -352,7 +299,7 @@ export default async function DestinationPage({ slug }: Props) {
                   <span className="w-6 h-6 rounded-full bg-eucalyptus/20 text-eucalyptus flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
                     {i + 1}
                   </span>
-                  <p className="text-charcoal/80">{tip}</p>
+                  <p className="text-charcoal/80">{Z(`tip_${i + 1}`, 'textarea', tip, undefined, 'span')}</p>
                 </li>
               ))}
             </ul>
@@ -364,7 +311,7 @@ export default async function DestinationPage({ slug }: Props) {
           <div className="container max-w-3xl text-center">
             <p className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold">Notre verdict</p>
             <blockquote className="text-2xl md:text-3xl font-serif text-white leading-relaxed italic mb-6">
-              &ldquo;{content.verdict}&rdquo;
+              &ldquo;{Z('verdict', 'textarea', content.verdict, undefined, 'span')}&rdquo;
             </blockquote>
             <p className="text-stone-400 text-sm">— Heldonica, testés sur place</p>
           </div>
@@ -399,6 +346,6 @@ export default async function DestinationPage({ slug }: Props) {
         <RelatedArticles articles={relatedArticles} destinationTitle={content.title} />
       </main>
       <Footer />
-    </>
+    </InlineEditProvider>
   )
 }

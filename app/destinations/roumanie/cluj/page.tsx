@@ -2,46 +2,50 @@ import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import SubDestinationTemplate from '@/components/SubDestinationTemplate'
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import { getPageZones } from '@/lib/cms-zones'
 
 export const metadata: Metadata = {
-  title: 'Cluj-Napoca slow travel : notre carnet d’adresses | Heldonica',
-  description: 'Découvre Cluj-Napoca, le cœur culturel et universitaire de la Transylvanie. Cafés de spécialité, ruelles cachées et ambiance bohème pour un séjour slow travel.',
+  title: "Cluj-Napoca slow travel : notre carnet d’adresses | Heldonica",
+  description: "Découvre Cluj-Napoca, le cœur culturel et universitaire de la Transylvanie. Cafés de spécialité, ruelles cachées et ambiance bohème pour un séjour slow travel.",
   openGraph: {
-    title: 'Cluj-Napoca slow travel : notre carnet d’adresses | Heldonica',
-    description: 'Découvre Cluj-Napoca, le cœur de la Transylvanie. Cafés de spécialité, ruelles cachées et ambiance bohème.',
+    title: "Cluj-Napoca slow travel : notre carnet d’adresses | Heldonica",
+    description: "Découvre Cluj-Napoca, le cœur de la Transylvanie. Cafés de spécialité, ruelles cachées et ambiance bohème.",
     type: 'website',
     images: ['/og-default.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica'
   },
   alternates: {
-    canonical: 'https://www.heldonica.fr/destinations/roumanie/cluj'
+    canonical: "https://www.heldonica.fr/destinations/roumanie/cluj"
   }
 }
 
 const highlights = [
   {
+    emoji: '☕',
     title: 'La Scène des Cafés',
     description: 'Cluj possède l\'une des scènes de cafés de spécialité les plus vivantes d\'Europe de l\'Est. Des torréfacteurs passionnés et des recoins bohèmes pour lire tranquille.',
-    emoji: '☕'
   },
   {
+    emoji: '🌿',
     title: 'Le Jardin Botanique',
     description: 'Un immense havre de paix vallonné en plein cœur de la ville, parfait pour s\'isoler avec un livre sous les serres tropicales centenaires.',
-    emoji: '🌿'
   },
   {
+    emoji: '⛪',
     title: 'Le Quartier Historique',
     description: 'Des ruelles pavées préservées autour de la place de l\'Union (Piața Unirii) et l\'église gothique Saint-Michel qui domine la ville.',
-    emoji: '⛪'
   }
 ]
 
-export default function ClujPage() {
+export default async function ClujPage() {
+  const zones = await getPageZones('destinations-roumanie-cluj')
   return (
-    <>
+    <InlineEditProvider page="destinations-roumanie-cluj" initialZones={zones}>
       <Header />
       <SubDestinationTemplate
+        page="destinations-roumanie-cluj"
         name="Cluj-Napoca"
         parentName="Roumanie"
         parentSlug="roumanie"
@@ -51,6 +55,6 @@ export default function ClujPage() {
         localTip="Rends-toi chez Roots ou Meron pour goûter à l'un des meilleurs expressos du pays, puis termine ton après-midi dans les allées calmes du Jardin Botanique."
       />
       <Footer />
-    </>
+    </InlineEditProvider>
   )
 }

@@ -2,46 +2,50 @@ import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import SubDestinationTemplate from '@/components/SubDestinationTemplate'
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import { getPageZones } from '@/lib/cms-zones'
 
 export const metadata: Metadata = {
-  title: 'Cartago en couple : notre carnet slow travel | Heldonica',
-  description: 'Valle del Cauca. Zone cafe. Tradition en Colombie. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
+  title: "Cartago en couple : notre carnet slow travel | Heldonica",
+  description: "Valle del Cauca. Zone cafe. Tradition en Colombie. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
   openGraph: {
-    title: 'Cartago en couple : notre carnet slow travel | Heldonica',
-    description: 'Valle del Cauca. Zone cafe. Tradition en Colombie. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.',
+    title: "Cartago en couple : notre carnet slow travel | Heldonica",
+    description: "Valle del Cauca. Zone cafe. Tradition en Colombie. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
     type: 'website',
     images: ['/og-default.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica'
   },
   alternates: {
-    canonical: 'https://www.heldonica.fr/destinations/colombie/cartago'
+    canonical: "https://www.heldonica.fr/destinations/colombie/cartago"
   }
 }
 
 const highlights = [
   {
-    "emoji": "☕",
-    "title": "Cafe",
-    "description": "Finca."
+    emoji: '☕',
+    title: 'Cafe',
+    description: 'Finca.',
   },
   {
-    "emoji": "🌱",
-    "title": "Ferme",
-    "description": "Visites."
+    emoji: '🌱',
+    title: 'Ferme',
+    description: 'Visites.',
   },
   {
-    "emoji": "🥭",
-    "title": "Fruit",
-    "description": "Local."
+    emoji: '🥭',
+    title: 'Fruit',
+    description: 'Local.',
   }
 ]
 
-export default function CartagoPage() {
+export default async function CartagoPage() {
+  const zones = await getPageZones('destinations-colombie-cartago')
   return (
-    <>
+    <InlineEditProvider page="destinations-colombie-cartago" initialZones={zones}>
       <Header />
       <SubDestinationTemplate
+        page="destinations-colombie-cartago"
         name="Cartago"
         parentName="Colombie"
         parentSlug="colombie"
@@ -51,6 +55,6 @@ export default function CartagoPage() {
         localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."
       />
       <Footer />
-    </>
+    </InlineEditProvider>
   )
 }
