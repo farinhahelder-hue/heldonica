@@ -2,6 +2,9 @@ import { supabase } from '@/lib/supabase-client'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import DestinationComparison from '@/components/DestinationComparison'
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import EditableZone from '@/components/inline-edit/EditableZone'
+import { getPageZones } from '@/lib/cms-zones'
 import type { Metadata } from 'next'
 import { SITE_URL } from '@/lib/seo'
 import Script from 'next/script'
@@ -32,6 +35,7 @@ async function getDestinations() {
 
 export default async function ComparePage() {
   const destinations = await getDestinations()
+  const zones = await getPageZones('destinations-compare')
 
   return (
     <>
@@ -52,18 +56,21 @@ export default async function ComparePage() {
         }),
       }} />
       <main>
+        <InlineEditProvider page="destinations-compare" initialZones={zones}>
         <section className="bg-stone-50 py-16 md:py-24">
           <div className="container max-w-6xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-eucalyptus mb-3">Comparateur</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-eucalyptus mb-3">
+              <EditableZone page="destinations-compare" zone="eyebrow" fallback="Comparateur" />
+            </p>
             <h1 className="text-4xl md:text-5xl font-serif text-mahogany mb-4">
-              Compare nos destinations
+              <EditableZone page="destinations-compare" zone="title" fallback="Compare nos destinations" />
             </h1>
             <p className="text-stone-600 max-w-2xl text-sm leading-relaxed mb-2">
-              Budget, saison, style de voyage, nombre d&apos;articles — sélectionne jusqu&apos;à 5 destinations
-              et compare-les pour trouver celle qui te correspond.
+              <EditableZone page="destinations-compare" zone="description" fallback="Budget, saison, style de voyage, nombre d&apos;articles — sélectionne jusqu&apos;à 5 destinations et compare-les pour trouver celle qui te correspond." />
             </p>
           </div>
         </section>
+        </InlineEditProvider>
 
         <section className="py-12 md:py-16">
           <div className="container max-w-6xl">

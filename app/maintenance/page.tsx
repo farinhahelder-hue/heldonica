@@ -1,4 +1,7 @@
 import type { Metadata } from 'next';
+import EditableZone from '@/components/inline-edit/EditableZone';
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
+import { getPageZones } from '@/lib/cms-zones';
 
 // Prevent indexing of maintenance page
 export const metadata: Metadata = {
@@ -10,7 +13,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function MaintenancePage() {
+export default async function MaintenancePage() {
+  const zones = await getPageZones('maintenance')
+
   return (
     <html lang="fr">
       <head>
@@ -185,6 +190,7 @@ export default function MaintenancePage() {
         <div className="deco-circle deco-1"></div>
         <div className="deco-circle deco-2"></div>
         
+        <InlineEditProvider page="maintenance" initialZones={zones}>
         <main className="container">
           <div className="logo">Heldonica</div>
           
@@ -211,10 +217,10 @@ export default function MaintenancePage() {
             </svg>
           </div>
           
-          <h1>On prepare quelque chose pour toi</h1>
+          <h1><EditableZone page="maintenance" zone="title" fallback="On prépare quelque chose pour toi" as="span" /></h1>
           
           <div className="message-card">
-            <p>On prepare quelque chose de nouveau pour toi. On revient tres vite avec de nouvelles destinations et des pepites toutes fraiches.</p>
+            <p><EditableZone page="maintenance" zone="message" fallback="On prépare quelque chose de nouveau pour toi. On revient très vite avec de nouvelles destinations et des pépites toutes fraîches." type="textarea" as="span" /></p>
           </div>
           
           <div className="features">
@@ -222,14 +228,14 @@ export default function MaintenancePage() {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
               </svg>
-              <span>Donnees en securite</span>
+              <span><EditableZone page="maintenance" zone="feature_security" fallback="Données en sécurité" /></span>
             </div>
             <div className="feature">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10"/>
                 <polyline points="12 6 12 12 16 14"/>
               </svg>
-              <span>Bientot de retour</span>
+              <span><EditableZone page="maintenance" zone="feature_soon" fallback="Bientôt de retour" /></span>
             </div>
           </div>
           
@@ -237,12 +243,13 @@ export default function MaintenancePage() {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
             </svg>
-            Nous suivre sur Instagram
+            <EditableZone page="maintenance" zone="cta_label" fallback="Nous suivre sur Instagram" />
           </a>
           
           <div className="divider"></div>
-          <p className="footer">Merci de ta patience 🌿</p>
+          <p className="footer"><EditableZone page="maintenance" zone="footer" fallback="Merci de ta patience 🌿" /></p>
         </main>
+        </InlineEditProvider>
       </body>
     </html>
   );

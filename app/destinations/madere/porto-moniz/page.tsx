@@ -2,46 +2,50 @@ import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import SubDestinationTemplate from '@/components/SubDestinationTemplate'
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import { getPageZones } from '@/lib/cms-zones'
 
 export const metadata: Metadata = {
-  title: 'Porto Moniz slow travel : piscines naturelles de Madère | Heldonica',
-  description: 'Notre guide pour visiter Porto Moniz à Madère. Baignade dans les piscines de roche volcanique naturelle, vagues atlantiques et conseils slow travel.',
+  title: "Porto Moniz slow travel : piscines naturelles de Madère | Heldonica",
+  description: "Notre guide pour visiter Porto Moniz à Madère. Baignade dans les piscines de roche volcanique naturelle, vagues atlantiques et conseils slow travel.",
   openGraph: {
-    title: 'Porto Moniz slow travel : piscines naturelles de Madère | Heldonica',
-    description: 'Baignade dans les piscines de roche volcanique naturelle à Porto Moniz, vagues atlantiques et conseils slow travel.',
+    title: "Porto Moniz slow travel : piscines naturelles de Madère | Heldonica",
+    description: "Baignade dans les piscines de roche volcanique naturelle à Porto Moniz, vagues atlantiques et conseils slow travel.",
     type: 'website',
     images: ['/og-default.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica'
   },
   alternates: {
-    canonical: 'https://www.heldonica.fr/destinations/madere/porto-moniz'
+    canonical: "https://www.heldonica.fr/destinations/madere/porto-moniz"
   }
 }
 
 const highlights = [
   {
+    emoji: '🌊',
     title: 'Les Piscines Naturelles Volcaniques',
     description: 'Des bassins de roche basaltique noire alimentés directement par les marées de l\'océan Atlantique. Une eau limpide et une baignade hors du commun.',
-    emoji: '🌊'
   },
   {
+    emoji: '🏰',
     title: 'Le Fort de São João Baptista',
     description: 'Une petite forteresse historique datant du XVIIe siècle édifiée pour protéger la côte des pirates. Elle abrite aujourd\'hui un petit aquarium.',
-    emoji: '🏰'
   },
   {
+    emoji: '🚗',
     title: 'La Route Cotière Nord',
     description: 'La route menant à Porto Moniz longe des falaises abruptes et traverse d\'anciens tunnels creusés dans la roche volcanique. Spectaculaire.',
-    emoji: '🚗'
   }
 ]
 
-export default function PortoMonizPage() {
+export default async function PortoMonizPage() {
+  const zones = await getPageZones('destinations-madere-porto-moniz')
   return (
-    <>
+    <InlineEditProvider page="destinations-madere-porto-moniz" initialZones={zones}>
       <Header />
       <SubDestinationTemplate
+        page="destinations-madere-porto-moniz"
         name="Porto Moniz"
         parentName="Madère"
         parentSlug="madere"
@@ -51,6 +55,6 @@ export default function PortoMonizPage() {
         localTip="Privilégie les piscines naturelles gratuites (plus sauvages) situées près du port plutôt que les piscines payantes si tu cherches une ambiance brute et sans touristes."
       />
       <Footer />
-    </>
+    </InlineEditProvider>
   )
 }

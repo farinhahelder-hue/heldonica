@@ -382,8 +382,8 @@ Généré avec Heldonica — heldonica.fr`
             {hasSaved && (
               <div className="inline-flex items-center gap-2 text-xs text-eucalyptus bg-eucalyptus/10 border border-eucalyptus/20 rounded-full px-4 py-1.5 mb-5">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                <span>Voyage sauvegardé localement</span>
-                <button onClick={clearSaved} className="underline hover:no-underline">Effacer</button>
+                <span><EditableZone page="organisateur" zone="saved_badge" fallback="Voyage sauvegardé localement" /></span>
+                <button onClick={clearSaved} className="underline hover:no-underline"><EditableZone page="organisateur" zone="saved_clear" fallback="Effacer" /></button>
               </div>
             )}
             <h1 className="text-4xl md:text-5xl font-serif font-light text-mahogany mb-3">
@@ -396,14 +396,14 @@ Généré avec Heldonica — heldonica.fr`
 
           {/* ── Ton voyage ────────────────────────────────────────────────── */}
           <section className={sectionClass}>
-            <h2 className={headClass}>Ton voyage</h2>
+            <h2 className={headClass}><EditableZone page="organisateur" zone="section_trip" fallback="Ton voyage" /></h2>
             <div className="grid sm:grid-cols-2 gap-4 mb-4">
               <div>
-                <label className="block text-xs text-charcoal/50 mb-1.5 font-medium">Destination principale</label>
+                <label className="block text-xs text-charcoal/50 mb-1.5 font-medium"><EditableZone page="organisateur" zone="label_destination" fallback="Destination principale" /></label>
                 <input value={destination} onChange={e => setDestination(e.target.value)} placeholder="Portugal, Toscane…" className={inputClass} />
               </div>
               <div>
-                <label className="block text-xs text-charcoal/50 mb-1.5 font-medium">Type de voyage</label>
+                <label className="block text-xs text-charcoal/50 mb-1.5 font-medium"><EditableZone page="organisateur" zone="label_trip_type" fallback="Type de voyage" /></label>
                 <select value={tripType} onChange={e => setTripType(e.target.value)} className={inputClass}>
                   {TRIP_TYPES.map(t => <option key={t.value} value={t.value}>{t.emoji} {t.label}</option>)}
                 </select>
@@ -411,18 +411,18 @@ Généré avec Heldonica — heldonica.fr`
             </div>
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs text-charcoal/50 mb-1.5 font-medium">Voyageurs</label>
+                <label className="block text-xs text-charcoal/50 mb-1.5 font-medium"><EditableZone page="organisateur" zone="label_travelers" fallback="Voyageurs" /></label>
                 <input type="number" value={travelers} onChange={e => setTravelers(Math.max(1, Number(e.target.value)))} min={1} className={inputClass} />
               </div>
               <div>
-                <label className="block text-xs text-charcoal/50 mb-1.5 font-medium">Dates</label>
+                <label className="block text-xs text-charcoal/50 mb-1.5 font-medium"><EditableZone page="organisateur" zone="label_dates" fallback="Dates" /></label>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <span className="block text-[10px] text-charcoal/35 mb-1">Départ</span>
+                    <span className="block text-[10px] text-charcoal/35 mb-1"><EditableZone page="organisateur" zone="label_departure" fallback="Départ" /></span>
                     <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className={inputClass} />
                   </div>
                   <div>
-                    <span className="block text-[10px] text-charcoal/35 mb-1">Retour</span>
+                    <span className="block text-[10px] text-charcoal/35 mb-1"><EditableZone page="organisateur" zone="label_return" fallback="Retour" /></span>
                     <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className={inputClass} />
                   </div>
                 </div>
@@ -433,7 +433,7 @@ Généré avec Heldonica — heldonica.fr`
           {/* ── Itinéraire ────────────────────────────────────────────────── */}
           <section className={sectionClass}>
             <div className="flex items-center justify-between mb-5">
-              <h2 className={headClass + ' mb-0'}>Itinéraire</h2>
+              <h2 className={headClass + ' mb-0'}><EditableZone page="organisateur" zone="section_itineraire" fallback="Itinéraire" /></h2>
               <span className="text-charcoal/40 text-sm">{totalNights} nuit{totalNights > 1 ? 's' : ''} · {stages.length} étape{stages.length > 1 ? 's' : ''}</span>
             </div>
 
@@ -540,7 +540,7 @@ Généré avec Heldonica — heldonica.fr`
 
             <button onClick={addStage} className="mt-4 flex items-center gap-2 text-sm text-eucalyptus font-semibold hover:gap-3 transition-all">
               <span className="w-6 h-6 rounded-full border-2 border-eucalyptus flex items-center justify-center font-bold leading-none">+</span>
-              Ajouter une étape
+              <EditableZone page="organisateur" zone="add_stage" fallback="Ajouter une étape" />
             </button>
 
             {/* ── Carte ── */}
@@ -553,7 +553,7 @@ Généré avec Heldonica — heldonica.fr`
               ) : (
                 <div className="flex flex-col items-center justify-center bg-stone-100 rounded-xl text-center px-6 py-10 text-charcoal/40">
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="mb-3 text-charcoal/25" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                  <p className="text-sm">Saisis le nom d'une ville et son pays pour visualiser ton itinéraire sur la carte</p>
+                  <p className="text-sm"><EditableZone page="organisateur" zone="map_hint" fallback="Saisis le nom d'une ville et son pays pour visualiser ton itinéraire sur la carte" /></p>
                 </div>
               )}
             </div>
@@ -561,7 +561,7 @@ Généré avec Heldonica — heldonica.fr`
 
           {/* ── Budget ────────────────────────────────────────────────────── */}
           <section className="bg-mahogany text-white rounded-2xl p-6 md:p-8 mb-6">
-            <h2 className="text-xs font-bold tracking-[0.2em] uppercase text-white/50 mb-6">Budget estimé</h2>
+            <h2 className="text-xs font-bold tracking-[0.2em] uppercase text-white/50 mb-6"><EditableZone page="organisateur" zone="section_budget" fallback="Budget estimé" /></h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center mb-8">
               {[
                 { value: fmt(totalBudget),   label: 'Total', suffix: '€' },
@@ -577,7 +577,7 @@ Généré avec Heldonica — heldonica.fr`
             </div>
             {totalBudget > 0 && (
               <div>
-                <p className="text-xs text-white/40 uppercase tracking-widest mb-3">Répartition</p>
+                <p className="text-xs text-white/40 uppercase tracking-widest mb-3"><EditableZone page="organisateur" zone="budget_split" fallback="Répartition" /></p>
                 <div className="flex h-3 rounded-full overflow-hidden mb-4">
                   {catTotals.map(c => c.total > 0 ? (
                     <div key={c.key} style={{ width: `${(c.total / totalBudget) * 100}%`, background: c.color }} title={`${c.label} : ${fmt(c.total)} €`} />
@@ -601,7 +601,7 @@ Généré avec Heldonica — heldonica.fr`
           {/* ── Checklist ─────────────────────────────────────────────────── */}
           <section className={sectionClass}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className={headClass + ' mb-0'}>Checklist</h2>
+              <h2 className={headClass + ' mb-0'}><EditableZone page="organisateur" zone="section_checklist" fallback="Checklist" /></h2>
               <span className="text-sm font-semibold text-charcoal/50">
                 {checkedItems}/{checklist.length}
                 {progress === 100 && checklist.length > 0 && <span className="ml-2 text-emerald-500">✓</span>}
@@ -632,7 +632,7 @@ Généré avec Heldonica — heldonica.fr`
               })}
             </div>
             <div className="border-t border-stone-100 pt-5">
-              <p className="text-xs text-charcoal/40 mb-3">Ajouter un item personnalisé</p>
+              <p className="text-xs text-charcoal/40 mb-3"><EditableZone page="organisateur" zone="checklist_add_label" fallback="Ajouter un item personnalisé" /></p>
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -646,7 +646,7 @@ Généré avec Heldonica — heldonica.fr`
                   {CHECKLIST_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
                 <button onClick={addChecklistItem} disabled={!newItemText.trim()} className="px-4 py-2 bg-eucalyptus text-white text-xs font-semibold rounded-lg hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
-                  Ajouter
+                  <EditableZone page="organisateur" zone="checklist_add_button" fallback="Ajouter" />
                 </button>
               </div>
             </div>
@@ -660,12 +660,12 @@ Généré avec Heldonica — heldonica.fr`
               { label: 'Exporter .txt', onClick: exportPlan, cls: 'bg-eucalyptus/10 border border-eucalyptus/20 text-eucalyptus font-semibold hover:bg-eucalyptus hover:text-white', icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> },
             ].map(({ label, onClick, cls, icon }) => (
               <button key={label} onClick={onClick} className={`px-5 py-2.5 text-sm rounded-full transition-colors inline-flex items-center gap-2 ${cls}`}>
-                {icon}{label}
+                {icon}<EditableZone page="organisateur" zone={`action_${label.toLowerCase().replace(/\W/g, '_')}`} fallback={label} />
               </button>
             ))}
             <Link href="/travel-planning" className="px-6 py-2.5 bg-mahogany text-white text-sm font-semibold rounded-full hover:brightness-110 transition-all inline-flex items-center gap-2">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-              Demander un itinéraire sur mesure
+              <EditableZone page="organisateur" zone="cta_custom" fallback="Demander un itinéraire sur mesure" />
             </Link>
           </div>
 

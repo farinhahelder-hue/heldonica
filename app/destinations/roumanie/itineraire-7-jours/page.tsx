@@ -1,32 +1,37 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import Script from 'next/script';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import NewsletterForm from '@/components/NewsletterForm';
-import PdfDownloadButton from '@/components/PdfDownloadButton';
 import DynamicArticleMap from '@/components/DynamicArticleMap';
-import AffiliateLink from '@/components/AffiliateLink';
-import { AFFILIATE_DISCLOSURE, bookingSearchUrl } from '@/lib/affiliates';
+import { getPageZones } from '@/lib/cms-zones';
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
+import EditableZone from '@/components/inline-edit/EditableZone';
+import Script from 'next/script';
+import PdfDownloadButton from '@/components/PdfDownloadButton';
+import DaySummaryTable from '@/components/itinerary/DaySummaryTable';
+import DayAccommodationBox from '@/components/itinerary/DayAccommodationBox';
 
 const SITE_URL = 'https://www.heldonica.fr';
+const PAGE = "destinations-roumanie-itineraire-7-jours";
+const DAYS: { day: number; location: string; activity: string; accommodation: string | null }[] = [{"day":1,"location":"Bucarest","activity":"Installation dans le quartier Floreasca, découverte du quartier, premier repas roumain","accommodation":"Hotel Cismigiu — 3*, quartier centre, 55 €/nuit"},{"day":2,"location":"Sinaia","activity":"Château de Peleș, forêt des Carpates","accommodation":"Hotel Sinaia — 4*, vue montagne, 70 €/nuit"},{"day":3,"location":"Brașov","activity":"Vieille ville, rue Republicii, tramway nostalgique","accommodation":"Hotel Belvedere — 3*, vue sur la citadelle, 50 €/nuit"},{"day":4,"location":"Sighișoara","activity":"Citadelle médiévale, tour de l'Horloge","accommodation":"Hotel Sighișoara — 3*, intra-muros, 45 €/nuit"},{"day":5,"location":"Viscri","activity":"Village saxon, église fortifiée UNESCO, Fondation Charles","accommodation":"Guesthouse Viscri — chez l'habitant, 35 €/nuit"},{"day":6,"location":"Cluj-Napoca","activity":"Ville universitaire, scène culturelle, bars alternatifs","accommodation":"Hotel Deja Vu — 3*, quartier centre, 55 €/nuit"},{"day":7,"location":"Cluj-Napoca","activity":"Marché Piața Unirii, café Laika, dernier pătrat de cozonac","accommodation":null}];
 
 export const metadata: Metadata = {
-  title: 'Roumanie 7 jours : itinéraire slow travel en couple | Heldonica',
-  description: 'Itinéraire Roumanie 7 jours testé sur place : Bucarest, Sinaia, Brașov, Sighișoara, Viscri, Cluj. Budget, hébergements, pépites et conseils slow travel.',
+  title: "Roumanie 7 jours : itinéraire slow travel en couple | Heldonica",
+  description: "Itinéraire Roumanie 7 jours testé sur place : Bucarest, Sinaia, Brașov, Sighișoara, Viscri, Cluj. Budget, hébergements, pépites et conseils slow travel.",
   alternates: {
     canonical: `${SITE_URL}/destinations/roumanie/itineraire-7-jours`,
   },
   openGraph: {
-    title: 'Roumanie 7 jours : itinéraire slow travel en couple | Heldonica',
-    description: 'Circuit Transylvanie complet testé sur le terrain : villes, nature et villages authentiques.',
+    title: "Roumanie 7 jours : itinéraire slow travel en couple | Heldonica",
+    description: "Circuit Transylvanie complet testé sur le terrain : villes, nature et villages authentiques.",
     url: `${SITE_URL}/destinations/roumanie/itineraire-7-jours`,
     images: [
       {
         url: '/og-default.jpg',
         width: 1200,
         height: 630,
-        alt: 'Itinéraire Roumanie 7 jours - Transylvanie slow travel',
+        alt: "Itinéraire Roumanie 7 jours - Transylvanie slow travel",
       },
     ],
     locale: 'fr_FR',
@@ -34,126 +39,53 @@ export const metadata: Metadata = {
   },
 };
 
-const days = [
-  {
-    day: 1,
-    title: 'Bucarest — Premier contact',
-    from: 'Arrivée à l\'aéroport Otopeni',
-    location: 'Bucarest',
-    activity: 'Installation dans le quartier Floreasca, découverte du quartier, premier repas roumain',
-    pepite: 'Restaurant fără Zahăr — cantine locale dans Floreasca, cuisine maison, 12 € pour deux',
-    accommodation: 'Hotel Cismigiu — 3*, quartier centre, 55 €/nuit',
-    accommodationUrl: bookingSearchUrl('Bucarest'),
-    detail: 'On pose les valises dans le quartier Floreasca, loin du bruit du centre. C\'est là qu\'on trouve les meilleures adresses locales — des cantines où les avocats du coin mangent à midi, des petits parcs où personne ne se prend en photo. Premier dîner : sarmale (choux farcis) et mămăligă (polenta), arrosés de vin de Murfatlar. On rentre tôt, demain la route commence.',
-  },
-  {
-    day: 2,
-    title: 'Bucarest → Sinaia — Les Carpates',
-    from: 'Bucarest (1h30 de route)',
-    location: 'Sinaia',
-    activity: 'Château de Peleș, forêt des Carpates',
-    pepite: 'Le château de Peleș — arrive à l\'ouverture (9h15), tu évites 90 % des groupes',
-    accommodation: 'Hotel Sinaia — 4*, vue montagne, 70 €/nuit',
-    accommodationUrl: bookingSearchUrl('Sinaia'),
-    detail: 'La route Bucarest-Sinaia est une mise en jambe parfaite. Les plaines cèdent progressivement la place aux collines, puis aux Carpates qui surgissent sans prévenir. Le château de Peleș est le premier choc visuel du voyage — un concentré d\'architecture néo-Renaissance perché dans la forêt. L\'après-midi, on marche dans les bois au-dessus de Sinaia. L\'air change, le rythme aussi. On comprend déjà pourquoi on vient ici.',
-  },
-  {
-    day: 3,
-    title: 'Sinaia → Brașov — La perle transylvanienne',
-    from: 'Sinaia (40 min de route)',
-    location: 'Brașov',
-    activity: 'Vieille ville, rue Republicii, tramway nostalgique',
-    pepite: 'Le tramway 102 jusqu\'à la gare de Brașov — un voyage dans le temps pour 0.50 €',
-    accommodation: 'Hotel Belvedere — 3*, vue sur la citadelle, 50 €/nuit',
-    accommodationUrl: bookingSearchUrl('Brașov'),
-    detail: 'Brașov est la plus belle ville de Transylvanie, point barre. La place du Conseil (Piața Sfatului) est entourée de bâtiments pastel qui n\'ont pas besoin de filtre. La rue Republicii — piétonne, bordée d\'arcades — est faite pour flâner sans but. On monte jusqu\'à la forteresse pour la vue, mais le vrai moment, c\'est le tramway 102 : une vieille rame qui traverse la ville avec un bruit de ferraille réconfortant. Soirée dans un restaurant du vieux Brașov : papanași (beignets au fromage blanc et crème) en dessert. Indispensable.',
-  },
-  {
-    day: 4,
-    title: 'Brașov → Sighișoara — La citadelle habitée',
-    from: 'Brașov (1h45 de route)',
-    location: 'Sighișoara',
-    activity: 'Citadelle médiévale, tour de l\'Horloge',
-    pepite: 'Restaurant din Turn — dîner dans une tour médiévale, cuisine transylvanienne revisitée, 25 € pour deux',
-    accommodation: 'Hotel Sighișoara — 3*, intra-muros, 45 €/nuit',
-    accommodationUrl: bookingSearchUrl('Sighișoara'),
-    detail: 'Sighișoara est la seule citadelle médiévale d\'Europe encore habitée en continu. On y entre par la tour de l\'Horloge, on gravit les escaliers couverts, et on débouche sur une place où le temps semble figé. La différence avec Brașov : ici, pas de foule. Les ruelles sont calmes, les chats dorment sur les pavés. Le restaurant din Turn est perché dans une tour — on y mange une mici (saucisses roumaines) en regardant la ville s\'illuminer. C\'est notre journée préférée du circuit.',
-  },
-  {
-    day: 5,
-    title: 'Sighișoara → Viscri — Le silence saxon',
-    from: 'Sighișoara (45 min de route)',
-    location: 'Viscri',
-    activity: 'Village saxon, église fortifiée UNESCO, Fondation Charles',
-    pepite: 'Chez Elena — déjeuner chez l\'habitant dans sa cour : soupe, pain cuit au feu de bois, 8 €',
-    accommodation: 'Guesthouse Viscri — chez l\'habitant, 35 €/nuit',
-    accommodationUrl: bookingSearchUrl('Viscri'),
-    detail: 'Viscri est ce qui reste de la Roumanie d\'avant. Un village saxon où les rues sont en terre battue, où les charrettes croisent les vélos, où le seul bruit vient des cloches des moutons. L\'église fortifiée classée UNESCO domine le village. La Fondation Charles (le prince Charles a une maison ici) a aidé à restaurer plusieurs bâtiments, mais l\'esprit reste celui d\'un village qui vit pour lui-même, pas pour les touristes. On déjeune chez Elena, dans sa cour, assis sur un banc en bois. On repart en comprenant pourquoi on voyage vraiment.',
-  },
-  {
-    day: 6,
-    title: 'Viscri → Cluj-Napoca — L\'effervescence',
-    from: 'Viscri (2h45 de route)',
-    location: 'Cluj-Napoca',
-    activity: 'Ville universitaire, scène culturelle, bars alternatifs',
-    pepite: 'La muzica până la capăt — librairie-café alternative au sous-sol, rue Memorandumului',
-    accommodation: 'Hotel Deja Vu — 3*, quartier centre, 55 €/nuit',
-    accommodationUrl: bookingSearchUrl('Cluj'),
-    detail: 'Cluj, c\'est l\'autre Roumanie. Étudiante, connectée, tournée vers l\'avenir. Le contraste avec Viscri est brutal : on passe du silence absolu aux terrasses bondées de l\'avenue Eroilor. La vie culturelle est bouillonnante — théâtre alternatif, galeries d\'art contemporain, bars qui ferment à 4h du matin. On flâne dans le quartier Mărăști, on boit un café chez Laika, on dîne dans un bistro hongrois. Cluj est un rappel que la Roumanie ne se réduit pas à ses cartes postales médiévales.',
-  },
-  {
-    day: 7,
-    title: 'Cluj-Napoca → Départ — La dernière gorgée',
-    from: 'Cluj (aéroport)',
-    location: 'Cluj-Napoca',
-    activity: 'Marché Piața Unirii, café Laika, dernier pătrat de cozonac',
-    pepite: 'Café Laika — torréfaction locale, pet-friendly, meilleur flat white de Roumanie',
-    accommodation: null,
-    accommodationUrl: null,
-    detail: 'Dernier matin à Cluj. On traîne au marché Piața Unirii, on achète un dernier cozonac (brioche à la noix), on boit un café à Laika en faisant le bilan. Sept jours qui passent trop vite — c\'est toujours le signe d\'un bon voyage. Le vol retour depuis Cluj est direct vers plusieurs villes européennes. Dans l\'avion, on commence déjà à rêver au prochain retour. Parce qu\'on reviendra — la Roumanie a cette capacité à retenir ceux qui prennent le temps de la connaître.',
-  },
-];
+export default async function Itineraire7JoursPage() {
+  const zones = await getPageZones(PAGE)
 
-const summaryRows = days.map(d => ({
-  jour: `J${d.day}`,
-  ville: d.location.split('—')[0].trim(),
-  activite: d.activity.split(',')[0],
-  nuit: d.accommodation?.split('—')[0]?.trim() ?? 'Départ',
-}));
+  const Z = (zone: string, type: 'text' | 'textarea' | 'html', fallback: string, className?: string, as?: any) => (
+    <EditableZone page={PAGE} zone={zone} type={type} fallback={fallback} className={className} as={as} />
+  )
 
-export default function Itineraire7JoursPage() {
+  const departText = "Vol retour depuis Cluj-Napoca";
+
   return (
-    <>
+    <InlineEditProvider page={PAGE} initialZones={zones}>
       <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'Article',
-            headline: 'Roumanie 7 jours : itinéraire slow travel en couple',
-            description: 'Circuit Transylvanie complet testé sur le terrain : Bucarest, Sinaia, Brașov, Sighișoara, Viscri, Cluj.',
-            author: { '@type': 'Organization', name: 'Heldonica' },
-            url: `${SITE_URL}/destinations/roumanie/itineraire-7-jours`,
-          }),
-        }}
-      />
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify({
+                  '@context': 'https://schema.org',
+                  '@type': 'Article',
+                  headline: 'Roumanie 7 jours : itinéraire slow travel en couple',
+                  description: 'Circuit Transylvanie complet testé sur le terrain : Bucarest, Sinaia, Brașov, Sighișoara, Viscri, Cluj.',
+                  author: { '@type': 'Organization', name: 'Heldonica' },
+                  url: `${SITE_URL}/destinations/roumanie/itineraire-7-jours`,
+                }),
+              }}
+            />
       <Header />
       <Script id="ga4-itinerary-view" strategy="lazyOnload">{`
-        if (typeof window !== 'undefined' && window.gtag) {
-          window.gtag('event', 'itinerary_view', { destination: 'roumanie', duration: '7' });
-        }
-      `}</Script>
-      <main>
+              if (typeof window !== 'undefined' && window.gtag) {
+                window.gtag('event', 'itinerary_view', { destination: 'roumanie', duration: '7' });
+              }
+            `}</Script>
+      <Script id="ga4-map-interaction" strategy="lazyOnload">{`
+                    if (typeof window !== 'undefined' && window.gtag) {
+                      document.querySelector('[class*="leaflet"]')?.addEventListener('click', function() {
+                        window.gtag('event', 'carte_interactive_utilisee', { destination: 'roumanie', itinerary: '7-jours' });
+                      });
+                    }
+                  `}</Script>      <main>
         <section className="bg-gradient-to-br from-cloud-dancer to-white py-20 md:py-28">
           <div className="container">
             <p className="text-xs uppercase tracking-[0.2em] text-eucalyptus font-semibold mb-4">
-              Roumanie — Itinéraire 7 jours
+              {Z('hero_badge', 'text', "Roumanie — Itinéraire 7 jours", undefined, 'span')}
             </p>
             <h1 className="text-4xl md:text-6xl font-serif text-mahogany mb-6">
-              Roumanie 7 jours : itinéraire slow travel en couple
+              {Z('hero_title', 'text', "Roumanie 7 jours : itinéraire slow travel en couple", undefined, 'span')}
             </h1>
             <p className="text-charcoal/80 text-lg max-w-3xl leading-relaxed">
-              Bucarest, Sinaia, Brașov, Sighișoara, Viscri, Cluj — le circuit Transylvanie qu&apos;on a testé, ajusté, et qu&apos;on referait sans hésiter.
+              {Z('hero_description', 'textarea', "Bucarest, Sinaia, Brașov, Sighișoara, Viscri, Cluj — le circuit Transylvanie qu'on a testé, ajusté, et qu'on referait sans hésiter.", undefined, 'span')}
             </p>
           </div>
         </section>
@@ -162,21 +94,13 @@ export default function Itineraire7JoursPage() {
           <div className="container max-w-4xl">
             <div className="rounded-2xl border border-eucalyptus/20 bg-eucalyptus/5 p-6">
               <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-eucalyptus/10 text-eucalyptus px-3 py-1 text-xs font-semibold">
-                  Testé par Heldonica
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 text-amber-700 px-3 py-1 text-xs font-semibold">
-                  2 visites
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-stone-100 text-stone-600 px-3 py-1 text-xs font-semibold">
-                  Septembre 2024
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 text-emerald-700 px-3 py-1 text-xs font-semibold">
-                  Automne doré
-                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-eucalyptus/10 text-eucalyptus px-3 py-1 text-xs font-semibold">Testé par Heldonica</span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 text-amber-700 px-3 py-1 text-xs font-semibold">{Z('chip_1', 'text', "2 visites", undefined, 'span')}</span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-stone-100 text-stone-600 px-3 py-1 text-xs font-semibold">{Z('chip_2', 'text', "Septembre 2024", undefined, 'span')}</span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 text-emerald-700 px-3 py-1 text-xs font-semibold">{Z('chip_3', 'text', "Automne doré", undefined, 'span')}</span>
               </div>
               <p className="text-sm text-charcoal/80 leading-relaxed">
-                On a testé cet itinéraire en septembre 2024, en plein automne doré. Les températures étaient douces (18-25°C), les couleurs incroyables et les sites nettement moins fréquentés qu&apos;en juillet-août. Chaque étape a été vérifiée, chaque adresse testée — on ne recommande que ce qu&apos;on a vraiment expérimenté. <strong>Budget réel : 1 150 € pour deux, tout compris.</strong>
+                {Z('blurb', 'html', "On a testé cet itinéraire en septembre 2024, en plein automne doré. Les températures étaient douces (18-25°C), les couleurs incroyables et les sites nettement moins fréquentés qu'en juillet-août. Chaque étape a été vérifiée, chaque adresse testée — on ne recommande que ce qu'on a vraiment expérimenté. <strong>Budget réel : 1 150 € pour deux, tout compris.</strong>", undefined, 'span')}
               </p>
             </div>
           </div>
@@ -195,16 +119,7 @@ export default function Itineraire7JoursPage() {
                     <th className="px-4 py-3 text-left hidden md:table-cell">Nuit</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-stone-100">
-                  {summaryRows.map((row) => (
-                    <tr key={row.jour} className="hover:bg-cloud-dancer/50">
-                      <td className="px-4 py-3 font-semibold text-eucalyptus">{row.jour}</td>
-                      <td className="px-4 py-3 text-charcoal">{row.ville}</td>
-                      <td className="px-4 py-3 text-charcoal/70 hidden md:table-cell">{row.activite}</td>
-                      <td className="px-4 py-3 text-charcoal/70 hidden md:table-cell">{row.nuit}</td>
-                    </tr>
-                  ))}
-                </tbody>
+                <DaySummaryTable page={PAGE} days={DAYS} />
               </table>
             </div>
           </div>
@@ -213,61 +128,223 @@ export default function Itineraire7JoursPage() {
         <section className="bg-cloud-dancer section-spacing">
           <div className="container max-w-4xl">
             <div className="space-y-6">
-              {days.map((day) => (
-                <article key={day.day} className="rounded-2xl border border-stone-200 bg-white p-6 md:p-8">
+                <article key={1} className="rounded-2xl border border-stone-200 bg-white p-6 md:p-8">
                   <div className="flex items-start gap-4 mb-4">
                     <span className="shrink-0 w-10 h-10 rounded-full bg-eucalyptus text-white flex items-center justify-center text-sm font-bold">
-                      {day.day}
+                      1
                     </span>
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <h2 className="text-2xl font-serif text-mahogany">{day.title}</h2>
-                        <span className="text-xs text-stone-500">{day.from}</span>
+                        <h2 className="text-2xl font-serif text-mahogany">{Z('day_1_title', 'text', "Bucarest — Premier contact", undefined, 'span')}</h2>
+                        <span className="text-xs text-stone-500">{Z('day_1_from', 'text', "Arrivée à l'aéroport Otopeni", undefined, 'span')}</span>
                       </div>
-                      <p className="text-xs uppercase tracking-[0.1em] text-eucalyptus font-semibold">{day.location}</p>
+                      <p className="text-xs uppercase tracking-[0.1em] text-eucalyptus font-semibold">{Z('day_1_location', 'text', "Bucarest", undefined, 'span')}</p>
                     </div>
                   </div>
 
-                  <p className="text-charcoal/80 leading-relaxed mb-4">{day.detail}</p>
+                  <p className="text-charcoal/80 leading-relaxed mb-4">{Z('day_1_detail', 'textarea', "On pose les valises dans le quartier Floreasca, loin du bruit du centre. C'est là qu'on trouve les meilleures adresses locales — des cantines où les avocats du coin mangent à midi, des petits parcs où personne ne se prend en photo. Premier dîner : sarmale (choux farcis) et mămăligă (polenta), arrosés de vin de Murfatlar. On rentre tôt, demain la route commence.", undefined, 'span')}</p>
 
                   <div className="grid md:grid-cols-2 gap-3 mb-4">
                     <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
-                      <p className="text-xs font-semibold text-amber-700 mb-1">
-                        Pépite dénichée
-                      </p>
-                      <p className="text-sm text-charcoal/80">{day.pepite}</p>
+                      <p className="text-xs font-semibold text-amber-700 mb-1">Pépite dénichée</p>
+                      <p className="text-sm text-charcoal/80">{Z('day_1_pepite', 'textarea', "Restaurant fără Zahăr — cantine locale dans Floreasca, cuisine maison, 12 € pour deux", undefined, 'span')}</p>
                     </div>
-                    {day.accommodation && day.accommodationUrl && (
-                      <div className="rounded-xl bg-stone-50 border border-stone-200 p-3">
-                        <p className="text-xs font-semibold text-stone-600 mb-1">
-                          On a dormi chez
-                        </p>
-                        <p className="text-sm text-charcoal/80 mb-1">{day.accommodation}</p>
-                        <AffiliateLink
-                          href={day.accommodationUrl}
-                          partner="booking"
-                          destination="roumanie"
-                          className="text-xs text-eucalyptus font-semibold hover:underline"
-                        >
-                          Voir les disponibilités →
-                        </AffiliateLink>
+                    <DayAccommodationBox
+                      page={PAGE}
+                      day={1}
+                      cityFallback={"Bucarest"}
+                      accommodationFallback={"Hotel Cismigiu — 3*, quartier centre, 55 €/nuit"}
+                      departText={departText}
+                      disclosureClassName=""
+                    />
+                  </div>
+                </article>
+                <article key={2} className="rounded-2xl border border-stone-200 bg-white p-6 md:p-8">
+                  <div className="flex items-start gap-4 mb-4">
+                    <span className="shrink-0 w-10 h-10 rounded-full bg-eucalyptus text-white flex items-center justify-center text-sm font-bold">
+                      2
+                    </span>
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <h2 className="text-2xl font-serif text-mahogany">{Z('day_2_title', 'text', "Bucarest → Sinaia — Les Carpates", undefined, 'span')}</h2>
+                        <span className="text-xs text-stone-500">{Z('day_2_from', 'text', "Bucarest (1h30 de route)", undefined, 'span')}</span>
                       </div>
-                    )}
-                    {!day.accommodation && (
-                      <div className="rounded-xl bg-teal/5 border border-teal/20 p-3">
-                        <p className="text-xs font-semibold text-teal mb-1">Départ</p>
-                        <p className="text-sm text-charcoal/80">Vol retour depuis Cluj-Napoca</p>
-                      </div>
-                    )}
+                      <p className="text-xs uppercase tracking-[0.1em] text-eucalyptus font-semibold">{Z('day_2_location', 'text', "Sinaia", undefined, 'span')}</p>
+                    </div>
                   </div>
 
-                  {day.accommodationUrl && (
-                    <div className="text-xs text-stone-500">
-                      <span>{AFFILIATE_DISCLOSURE}</span>
+                  <p className="text-charcoal/80 leading-relaxed mb-4">{Z('day_2_detail', 'textarea', "La route Bucarest-Sinaia est une mise en jambe parfaite. Les plaines cèdent progressivement la place aux collines, puis aux Carpates qui surgissent sans prévenir. Le château de Peleș est le premier choc visuel du voyage — un concentré d'architecture néo-Renaissance perché dans la forêt. L'après-midi, on marche dans les bois au-dessus de Sinaia. L'air change, le rythme aussi. On comprend déjà pourquoi on vient ici.", undefined, 'span')}</p>
+
+                  <div className="grid md:grid-cols-2 gap-3 mb-4">
+                    <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
+                      <p className="text-xs font-semibold text-amber-700 mb-1">Pépite dénichée</p>
+                      <p className="text-sm text-charcoal/80">{Z('day_2_pepite', 'textarea', "Le château de Peleș — arrive à l'ouverture (9h15), tu évites 90 % des groupes", undefined, 'span')}</p>
                     </div>
-                  )}
+                    <DayAccommodationBox
+                      page={PAGE}
+                      day={2}
+                      cityFallback={"Sinaia"}
+                      accommodationFallback={"Hotel Sinaia — 4*, vue montagne, 70 €/nuit"}
+                      departText={departText}
+                      disclosureClassName=""
+                    />
+                  </div>
                 </article>
-              ))}
+                <article key={3} className="rounded-2xl border border-stone-200 bg-white p-6 md:p-8">
+                  <div className="flex items-start gap-4 mb-4">
+                    <span className="shrink-0 w-10 h-10 rounded-full bg-eucalyptus text-white flex items-center justify-center text-sm font-bold">
+                      3
+                    </span>
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <h2 className="text-2xl font-serif text-mahogany">{Z('day_3_title', 'text', "Sinaia → Brașov — La perle transylvanienne", undefined, 'span')}</h2>
+                        <span className="text-xs text-stone-500">{Z('day_3_from', 'text', "Sinaia (40 min de route)", undefined, 'span')}</span>
+                      </div>
+                      <p className="text-xs uppercase tracking-[0.1em] text-eucalyptus font-semibold">{Z('day_3_location', 'text', "Brașov", undefined, 'span')}</p>
+                    </div>
+                  </div>
+
+                  <p className="text-charcoal/80 leading-relaxed mb-4">{Z('day_3_detail', 'textarea', "Brașov est la plus belle ville de Transylvanie, point barre. La place du Conseil (Piața Sfatului) est entourée de bâtiments pastel qui n'ont pas besoin de filtre. La rue Republicii — piétonne, bordée d'arcades — est faite pour flâner sans but. On monte jusqu'à la forteresse pour la vue, mais le vrai moment, c'est le tramway 102 : une vieille rame qui traverse la ville avec un bruit de ferraille réconfortant. Soirée dans un restaurant du vieux Brașov : papanași (beignets au fromage blanc et crème) en dessert. Indispensable.", undefined, 'span')}</p>
+
+                  <div className="grid md:grid-cols-2 gap-3 mb-4">
+                    <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
+                      <p className="text-xs font-semibold text-amber-700 mb-1">Pépite dénichée</p>
+                      <p className="text-sm text-charcoal/80">{Z('day_3_pepite', 'textarea', "Le tramway 102 jusqu'à la gare de Brașov — un voyage dans le temps pour 0.50 €", undefined, 'span')}</p>
+                    </div>
+                    <DayAccommodationBox
+                      page={PAGE}
+                      day={3}
+                      cityFallback={"Brașov"}
+                      accommodationFallback={"Hotel Belvedere — 3*, vue sur la citadelle, 50 €/nuit"}
+                      departText={departText}
+                      disclosureClassName=""
+                    />
+                  </div>
+                </article>
+                <article key={4} className="rounded-2xl border border-stone-200 bg-white p-6 md:p-8">
+                  <div className="flex items-start gap-4 mb-4">
+                    <span className="shrink-0 w-10 h-10 rounded-full bg-eucalyptus text-white flex items-center justify-center text-sm font-bold">
+                      4
+                    </span>
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <h2 className="text-2xl font-serif text-mahogany">{Z('day_4_title', 'text', "Brașov → Sighișoara — La citadelle habitée", undefined, 'span')}</h2>
+                        <span className="text-xs text-stone-500">{Z('day_4_from', 'text', "Brașov (1h45 de route)", undefined, 'span')}</span>
+                      </div>
+                      <p className="text-xs uppercase tracking-[0.1em] text-eucalyptus font-semibold">{Z('day_4_location', 'text', "Sighișoara", undefined, 'span')}</p>
+                    </div>
+                  </div>
+
+                  <p className="text-charcoal/80 leading-relaxed mb-4">{Z('day_4_detail', 'textarea', "Sighișoara est la seule citadelle médiévale d'Europe encore habitée en continu. On y entre par la tour de l'Horloge, on gravit les escaliers couverts, et on débouche sur une place où le temps semble figé. La différence avec Brașov : ici, pas de foule. Les ruelles sont calmes, les chats dorment sur les pavés. Le restaurant din Turn est perché dans une tour — on y mange une mici (saucisses roumaines) en regardant la ville s'illuminer. C'est notre journée préférée du circuit.", undefined, 'span')}</p>
+
+                  <div className="grid md:grid-cols-2 gap-3 mb-4">
+                    <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
+                      <p className="text-xs font-semibold text-amber-700 mb-1">Pépite dénichée</p>
+                      <p className="text-sm text-charcoal/80">{Z('day_4_pepite', 'textarea', "Restaurant din Turn — dîner dans une tour médiévale, cuisine transylvanienne revisitée, 25 € pour deux", undefined, 'span')}</p>
+                    </div>
+                    <DayAccommodationBox
+                      page={PAGE}
+                      day={4}
+                      cityFallback={"Sighișoara"}
+                      accommodationFallback={"Hotel Sighișoara — 3*, intra-muros, 45 €/nuit"}
+                      departText={departText}
+                      disclosureClassName=""
+                    />
+                  </div>
+                </article>
+                <article key={5} className="rounded-2xl border border-stone-200 bg-white p-6 md:p-8">
+                  <div className="flex items-start gap-4 mb-4">
+                    <span className="shrink-0 w-10 h-10 rounded-full bg-eucalyptus text-white flex items-center justify-center text-sm font-bold">
+                      5
+                    </span>
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <h2 className="text-2xl font-serif text-mahogany">{Z('day_5_title', 'text', "Sighișoara → Viscri — Le silence saxon", undefined, 'span')}</h2>
+                        <span className="text-xs text-stone-500">{Z('day_5_from', 'text', "Sighișoara (45 min de route)", undefined, 'span')}</span>
+                      </div>
+                      <p className="text-xs uppercase tracking-[0.1em] text-eucalyptus font-semibold">{Z('day_5_location', 'text', "Viscri", undefined, 'span')}</p>
+                    </div>
+                  </div>
+
+                  <p className="text-charcoal/80 leading-relaxed mb-4">{Z('day_5_detail', 'textarea', "Viscri est ce qui reste de la Roumanie d'avant. Un village saxon où les rues sont en terre battue, où les charrettes croisent les vélos, où le seul bruit vient des cloches des moutons. L'église fortifiée classée UNESCO domine le village. La Fondation Charles (le prince Charles a une maison ici) a aidé à restaurer plusieurs bâtiments, mais l'esprit reste celui d'un village qui vit pour lui-même, pas pour les touristes. On déjeune chez Elena, dans sa cour, assis sur un banc en bois. On repart en comprenant pourquoi on voyage vraiment.", undefined, 'span')}</p>
+
+                  <div className="grid md:grid-cols-2 gap-3 mb-4">
+                    <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
+                      <p className="text-xs font-semibold text-amber-700 mb-1">Pépite dénichée</p>
+                      <p className="text-sm text-charcoal/80">{Z('day_5_pepite', 'textarea', "Chez Elena — déjeuner chez l'habitant dans sa cour : soupe, pain cuit au feu de bois, 8 €", undefined, 'span')}</p>
+                    </div>
+                    <DayAccommodationBox
+                      page={PAGE}
+                      day={5}
+                      cityFallback={"Viscri"}
+                      accommodationFallback={"Guesthouse Viscri — chez l'habitant, 35 €/nuit"}
+                      departText={departText}
+                      disclosureClassName=""
+                    />
+                  </div>
+                </article>
+                <article key={6} className="rounded-2xl border border-stone-200 bg-white p-6 md:p-8">
+                  <div className="flex items-start gap-4 mb-4">
+                    <span className="shrink-0 w-10 h-10 rounded-full bg-eucalyptus text-white flex items-center justify-center text-sm font-bold">
+                      6
+                    </span>
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <h2 className="text-2xl font-serif text-mahogany">{Z('day_6_title', 'text', "Viscri → Cluj-Napoca — L'effervescence", undefined, 'span')}</h2>
+                        <span className="text-xs text-stone-500">{Z('day_6_from', 'text', "Viscri (2h45 de route)", undefined, 'span')}</span>
+                      </div>
+                      <p className="text-xs uppercase tracking-[0.1em] text-eucalyptus font-semibold">{Z('day_6_location', 'text', "Cluj-Napoca", undefined, 'span')}</p>
+                    </div>
+                  </div>
+
+                  <p className="text-charcoal/80 leading-relaxed mb-4">{Z('day_6_detail', 'textarea', "Cluj, c'est l'autre Roumanie. Étudiante, connectée, tournée vers l'avenir. Le contraste avec Viscri est brutal : on passe du silence absolu aux terrasses bondées de l'avenue Eroilor. La vie culturelle est bouillonnante — théâtre alternatif, galeries d'art contemporain, bars qui ferment à 4h du matin. On flâne dans le quartier Mărăști, on boit un café chez Laika, on dîne dans un bistro hongrois. Cluj est un rappel que la Roumanie ne se réduit pas à ses cartes postales médiévales.", undefined, 'span')}</p>
+
+                  <div className="grid md:grid-cols-2 gap-3 mb-4">
+                    <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
+                      <p className="text-xs font-semibold text-amber-700 mb-1">Pépite dénichée</p>
+                      <p className="text-sm text-charcoal/80">{Z('day_6_pepite', 'textarea', "La muzica până la capăt — librairie-café alternative au sous-sol, rue Memorandumului", undefined, 'span')}</p>
+                    </div>
+                    <DayAccommodationBox
+                      page={PAGE}
+                      day={6}
+                      cityFallback={"Cluj-Napoca"}
+                      accommodationFallback={"Hotel Deja Vu — 3*, quartier centre, 55 €/nuit"}
+                      departText={departText}
+                      disclosureClassName=""
+                    />
+                  </div>
+                </article>
+                <article key={7} className="rounded-2xl border border-stone-200 bg-white p-6 md:p-8">
+                  <div className="flex items-start gap-4 mb-4">
+                    <span className="shrink-0 w-10 h-10 rounded-full bg-eucalyptus text-white flex items-center justify-center text-sm font-bold">
+                      7
+                    </span>
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <h2 className="text-2xl font-serif text-mahogany">{Z('day_7_title', 'text', "Cluj-Napoca → Départ — La dernière gorgée", undefined, 'span')}</h2>
+                        <span className="text-xs text-stone-500">{Z('day_7_from', 'text', "Cluj (aéroport)", undefined, 'span')}</span>
+                      </div>
+                      <p className="text-xs uppercase tracking-[0.1em] text-eucalyptus font-semibold">{Z('day_7_location', 'text', "Cluj-Napoca", undefined, 'span')}</p>
+                    </div>
+                  </div>
+
+                  <p className="text-charcoal/80 leading-relaxed mb-4">{Z('day_7_detail', 'textarea', "Dernier matin à Cluj. On traîne au marché Piața Unirii, on achète un dernier cozonac (brioche à la noix), on boit un café à Laika en faisant le bilan. Sept jours qui passent trop vite — c'est toujours le signe d'un bon voyage. Le vol retour depuis Cluj est direct vers plusieurs villes européennes. Dans l'avion, on commence déjà à rêver au prochain retour. Parce qu'on reviendra — la Roumanie a cette capacité à retenir ceux qui prennent le temps de la connaître.", undefined, 'span')}</p>
+
+                  <div className="grid md:grid-cols-2 gap-3 mb-4">
+                    <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
+                      <p className="text-xs font-semibold text-amber-700 mb-1">Pépite dénichée</p>
+                      <p className="text-sm text-charcoal/80">{Z('day_7_pepite', 'textarea', "Café Laika — torréfaction locale, pet-friendly, meilleur flat white de Roumanie", undefined, 'span')}</p>
+                    </div>
+                    <DayAccommodationBox
+                      page={PAGE}
+                      day={7}
+                      cityFallback={"Cluj-Napoca"}
+                      accommodationFallback={""}
+                      departText={departText}
+                      disclosureClassName=""
+                    />
+                  </div>
+                </article>
             </div>
           </div>
         </section>
@@ -278,13 +355,6 @@ export default function Itineraire7JoursPage() {
             <p className="text-charcoal/70 mb-6 max-w-2xl">
               Explore chaque étape sur la carte : hébergements, pépites, points de passage et routes empruntées.
             </p>
-            <Script id="ga4-map-interaction" strategy="lazyOnload">{`
-              if (typeof window !== 'undefined' && window.gtag) {
-                document.querySelector('[class*="leaflet"]')?.addEventListener('click', function() {
-                  window.gtag('event', 'carte_interactive_utilisee', { destination: 'roumanie', itinerary: '7-jours' });
-                });
-              }
-            `}</Script>
             <div className="rounded-2xl overflow-hidden border border-stone-200">
               <DynamicArticleMap slug="roumanie-7-jours" />
             </div>
@@ -310,13 +380,13 @@ export default function Itineraire7JoursPage() {
               Tu veux la version personnalisée de cet itinéraire ?
             </h2>
             <p className="text-charcoal/70 mb-8 max-w-lg mx-auto">
-              On adapte ce circuit à ton budget, ta saison et ton énergie réelle. Dates flexibles, hébergements ajustés, rythme sur mesure.
+              On adapte ce circuit à ton budget, ta saison et ton énergie réelle.
             </p>
             <Link
               href="/travel-planning"
               className="inline-flex px-7 py-3 rounded-lg bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors"
             >
-      Construire mon itinéraire sur mesure →
+              Construire mon itinéraire sur mesure →
             </Link>
           </div>
         </section>
@@ -331,9 +401,8 @@ export default function Itineraire7JoursPage() {
             </h2>
             <NewsletterForm variant="inline" />
           </div>
-        </section>
-      </main>
+        </section>      </main>
       <Footer />
-    </>
+    </InlineEditProvider>
   );
 }

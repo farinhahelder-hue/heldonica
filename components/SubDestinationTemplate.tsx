@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import EditableZone from '@/components/inline-edit/EditableZone'
 
 export interface SubDestinationHighlight {
   title: string
@@ -10,6 +11,13 @@ export interface SubDestinationHighlight {
 }
 
 export interface SubDestinationProps {
+  /**
+   * Namespace des zones CMS (ex: `destinations-madere-funchal`).
+   * Quand il est fourni, chaque champ est piloté par `cms_editable_zones`
+   * avec les props comme fallback technique. Sans lui, le composant se
+   * comporte comme avant (fallback direct, aucun appel CMS).
+   */
+  page?: string
   name: string
   parentName: string
   parentSlug: string
@@ -27,6 +35,7 @@ export interface SubDestinationProps {
 }
 
 export default function SubDestinationTemplate({
+  page,
   name,
   parentName,
   parentSlug,
@@ -55,14 +64,26 @@ export default function SubDestinationTemplate({
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       {/* ── HERO ── */}
       <section className="relative h-[45vh] md:h-[55vh] flex items-end bg-stone-950 overflow-hidden">
-        <Image
-          src={heroImage}
-          alt={`Voyage slow travel à ${name}`}
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover opacity-60"
-        />
+        <div className="absolute inset-0">
+          {page ? (
+            <EditableZone
+              page={page}
+              zone="hero_image"
+              type="image"
+              fallback={heroImage}
+              className="w-full h-full object-cover opacity-60"
+            />
+          ) : (
+            <Image
+              src={heroImage}
+              alt={`Voyage slow travel à ${name}`}
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover opacity-60"
+            />
+          )}
+        </div>
         <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-transparent to-transparent z-10" />
         <div className="relative z-20 max-w-4xl mx-auto px-6 pb-12 w-full">
           <nav className="flex items-center gap-2 text-teal text-xs font-bold tracking-widest uppercase mb-3">
@@ -87,7 +108,17 @@ export default function SubDestinationTemplate({
             L'esprit du lieu
           </p>
           <p className="text-lg md:text-xl text-stone-800 font-serif font-light leading-relaxed mb-8">
-            {introText}
+            {page ? (
+              <EditableZone
+                page={page}
+                zone="intro_text"
+                type="textarea"
+                fallback={introText}
+                as="p"
+              />
+            ) : (
+              introText
+            )}
           </p>
 
           <div className="p-5 rounded-2xl bg-[#F8F5F0] border border-stone-200/50 flex items-start gap-4">
@@ -96,7 +127,19 @@ export default function SubDestinationTemplate({
               <p className="text-xs font-bold uppercase tracking-wider text-mahogany mb-1">
                 Le conseil d'Hélder & Elena
               </p>
-              <p className="text-sm text-stone-600 leading-relaxed">{localTip}</p>
+              <p className="text-sm text-stone-600 leading-relaxed">
+                {page ? (
+                  <EditableZone
+                    page={page}
+                    zone="local_tip"
+                    type="textarea"
+                    fallback={localTip}
+                    as="p"
+                  />
+                ) : (
+                  localTip
+                )}
+              </p>
             </div>
           </div>
         </div>
@@ -119,12 +162,41 @@ export default function SubDestinationTemplate({
                 className="bg-white rounded-2xl p-6 border border-stone-200/60 hover:shadow-md transition-shadow flex flex-col items-center text-center"
               >
                 <div className="w-12 h-12 rounded-full bg-teal/10 flex items-center justify-center text-2xl mb-4">
-                  {h.emoji}
+                  {page ? (
+                    <EditableZone
+                      page={page}
+                      zone={`highlight_${i + 1}_emoji`}
+                      fallback={h.emoji}
+                    />
+                  ) : (
+                    h.emoji
+                  )}
                 </div>
                 <h3 className="font-serif font-bold text-stone-800 text-lg mb-2">
-                  {h.title}
+                  {page ? (
+                    <EditableZone
+                      page={page}
+                      zone={`highlight_${i + 1}_title`}
+                      fallback={h.title}
+                      as="span"
+                    />
+                  ) : (
+                    h.title
+                  )}
                 </h3>
-                <p className="text-stone-600 text-xs leading-relaxed">{h.description}</p>
+                <p className="text-stone-600 text-xs leading-relaxed">
+                  {page ? (
+                    <EditableZone
+                      page={page}
+                      zone={`highlight_${i + 1}_description`}
+                      type="textarea"
+                      fallback={h.description}
+                      as="span"
+                    />
+                  ) : (
+                    h.description
+                  )}
+                </p>
               </div>
             ))}
           </div>
