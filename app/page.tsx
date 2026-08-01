@@ -61,7 +61,7 @@ const metadata: Metadata = {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  return buildPageMetadata('page.tsx', metadata)
+  return buildPageMetadata('home', metadata)
 }
 
 
