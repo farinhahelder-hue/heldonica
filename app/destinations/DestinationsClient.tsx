@@ -184,7 +184,9 @@ export default function DestinationsClient() {
                   <section>
                     <div className="flex items-center gap-2 mb-6">
                       <span className="text-xl">⭐</span>
-                      <h2 className="text-2xl font-serif text-mahogany">Nos coups de cœur</h2>
+                      <h2 className="text-2xl font-serif text-mahogany">
+                        <EditableZone page="destinations" zone="section_curated_title" fallback="Nos coups de cœur" />
+                      </h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {starred.map((d) => (
@@ -197,7 +199,9 @@ export default function DestinationsClient() {
                 {filteredPublished.length > 0 && (
                   <section>
                     {(continentFilter === 'all' || continentFilter === 'Toutes') && starred.length > 0 && (
-                      <h2 className="text-2xl font-serif text-mahogany mb-6">Toutes nos destinations</h2>
+                      <h2 className="text-2xl font-serif text-mahogany mb-6">
+                        <EditableZone page="destinations" zone="section_all_title" fallback="Toutes nos destinations" />
+                      </h2>
                     )}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {(continentFilter === 'starred' ? starred : filteredPublished).map((d) => (
@@ -210,9 +214,16 @@ export default function DestinationsClient() {
                 {comingSoon.length > 0 && (continentFilter === 'all' || continentFilter === 'Europe' || continentFilter === 'Méditerranée') && (
                   <section className="rounded-2xl bg-stone-50 border border-stone-200 p-8 md:p-10">
                     <div className="text-center mb-8">
-                      <h2 className="text-2xl font-serif text-mahogany mb-2">Prochainement sur Heldonica</h2>
+                      <h2 className="text-2xl font-serif text-mahogany mb-2">
+                        <EditableZone page="destinations" zone="section_soon_title" fallback="Prochainement sur Heldonica" />
+                      </h2>
                       <p className="text-charcoal/70 max-w-lg mx-auto">
-                        On explore ces destinations pour toi. Sois notifié en avant-première quand un nouveau guide sort.
+                        <EditableZone
+                          page="destinations"
+                          zone="section_soon_text"
+                          type="textarea"
+                          fallback="On explore ces destinations pour toi. Sois notifié en avant-première quand un nouveau guide sort."
+                        />
                       </p>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">

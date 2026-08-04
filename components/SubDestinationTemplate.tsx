@@ -12,12 +12,17 @@ export interface SubDestinationHighlight {
 
 export interface SubDestinationProps {
   /**
-   * Namespace des zones CMS (ex: `destinations-madere-funchal`).
-   * Quand il est fourni, chaque champ est piloté par `cms_editable_zones`
-   * avec les props comme fallback technique. Sans lui, le composant se
-   * comporte comme avant (fallback direct, aucun appel CMS).
+   * Namespace des zones CMS (ex: `destinations-madere-funchal`). Chaque champ
+   * est piloté par `cms_editable_zones`, les props servant de fallback
+   * technique.
+   *
+   * Obligatoire : les 41 pages qui montent ce gabarit le fournissent toutes.
+   * Tant qu'il était optionnel, chaque zone devait s'écrire en ternaire, ce qui
+   * poussait à passer par un accesseur — et un accesseur rend les clés
+   * *globales* aux yeux de `check-cms-zones.mjs`, qui cesse alors de signaler
+   * les mêmes clés orphelines sur les autres pages.
    */
-  page?: string
+  page: string
   name: string
   parentName: string
   parentSlug: string
@@ -59,49 +64,19 @@ export default function SubDestinationTemplate({
     },
   }
 
-  /**
-   * Accesseur court pour les libellés de section — kickers, titres, CTA.
-   *
-   * Ces dix zones existaient en base et étaient éditables dans l'admin, mais le
-   * gabarit affichait du texte codé en dur : les modifier ne changeait rien sur
-   * les 41 pages concernées, sans le moindre signal.
-   *
-   * Le premier paramètre s'appelle `zoneKey` à dessein : c'est ce nom que
-   * `scripts/check-cms-zones.mjs` reconnaît pour rattacher un accesseur local à
-   * ses clés. Le renommer rendrait ces zones invisibles au garde-fou, donc
-   * réputées orphelines à nouveau.
-   */
-  const Z = (zoneKey: string, fallback: string, type: 'text' | 'textarea' = 'text') =>
-    page ? (
-      <EditableZone page={page} zone={zoneKey} type={type} fallback={fallback} />
-    ) : (
-      <>{fallback}</>
-    )
-
   return (
     <main className="min-h-screen bg-cloud-dancer font-sans">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       {/* ── HERO ── */}
       <section className="relative h-[45vh] md:h-[55vh] flex items-end bg-stone-950 overflow-hidden">
         <div className="absolute inset-0">
-          {page ? (
-            <EditableZone
-              page={page}
-              zone="hero_image"
-              type="image"
-              fallback={heroImage}
-              className="w-full h-full object-cover opacity-60"
-            />
-          ) : (
-            <Image
-              src={heroImage}
-              alt={`Voyage slow travel à ${name}`}
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover opacity-60"
-            />
-          )}
+          <EditableZone
+            page={page}
+            zone="hero_image"
+            type="image"
+            fallback={heroImage}
+            className="w-full h-full object-cover opacity-60"
+          />
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-transparent to-transparent z-10" />
         <div className="relative z-20 max-w-4xl mx-auto px-6 pb-12 w-full">
@@ -124,22 +99,22 @@ export default function SubDestinationTemplate({
       <section className="py-16 bg-white border-b border-stone-200/60">
         <div className="max-w-3xl mx-auto px-6">
           <p className="text-stone-500 text-xs font-bold uppercase tracking-[0.2em] mb-4">
-            {Z('intro_kicker', "L'esprit du lieu")}
+            <EditableZone page={page} zone="intro_kicker" fallback="L'esprit du lieu" />
           </p>
           <p className="text-lg md:text-xl text-stone-800 font-serif font-light leading-relaxed mb-8">
             {/* Pas de `as="p"` : le parent est déjà un <p>, et un <p> imbriqué
                 fait échouer l'hydratation (erreur console à chaque rendu). */}
-            {Z('intro_text', introText, 'textarea')}
+            <EditableZone page={page} zone="intro_text" type="textarea" fallback={introText} />
           </p>
 
           <div className="p-5 rounded-2xl bg-[#F8F5F0] border border-stone-200/50 flex items-start gap-4">
             <span className="text-2xl shrink-0">💡</span>
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-mahogany mb-1">
-                {Z('local_tip_kicker', 'Notre conseil')}
+                <EditableZone page={page} zone="local_tip_kicker" fallback="Notre conseil" />
               </p>
               <p className="text-sm text-stone-600 leading-relaxed">
-                {Z('local_tip', localTip, 'textarea')}
+                <EditableZone page={page} zone="local_tip" type="textarea" fallback={localTip} />
               </p>
             </div>
           </div>
@@ -150,10 +125,15 @@ export default function SubDestinationTemplate({
       <section className="py-20">
         <div className="max-w-4xl mx-auto px-6">
           <h2 className="text-2xl md:text-3xl font-serif font-light text-stone-900 mb-2 text-center">
-            {Z('highlights_title_prefix', 'Pépites dénichées à')} {name}
+            <EditableZone page={page} zone="highlights_title_prefix" fallback="Pépites dénichées à" />{' '}
+            {name}
           </h2>
           <p className="text-xs text-stone-500 tracking-wider text-center uppercase mb-12">
-            {Z('highlights_subtitle', 'Testé et vécu, loin de l\'agitation')}
+            <EditableZone
+              page={page}
+              zone="highlights_subtitle"
+              fallback="Testé et vécu, loin de l'agitation"
+            />
           </p>
 
           <div className="grid md:grid-cols-3 gap-6">
@@ -163,40 +143,24 @@ export default function SubDestinationTemplate({
                 className="bg-white rounded-2xl p-6 border border-stone-200/60 hover:shadow-md transition-shadow flex flex-col items-center text-center"
               >
                 <div className="w-12 h-12 rounded-full bg-teal/10 flex items-center justify-center text-2xl mb-4">
-                  {page ? (
-                    <EditableZone
-                      page={page}
-                      zone={`highlight_${i + 1}_emoji`}
-                      fallback={h.emoji}
-                    />
-                  ) : (
-                    h.emoji
-                  )}
+                  <EditableZone page={page} zone={`highlight_${i + 1}_emoji`} fallback={h.emoji} />
                 </div>
                 <h3 className="font-serif font-bold text-stone-800 text-lg mb-2">
-                  {page ? (
-                    <EditableZone
-                      page={page}
-                      zone={`highlight_${i + 1}_title`}
-                      fallback={h.title}
-                      as="span"
-                    />
-                  ) : (
-                    h.title
-                  )}
+                  <EditableZone
+                    page={page}
+                    zone={`highlight_${i + 1}_title`}
+                    fallback={h.title}
+                    as="span"
+                  />
                 </h3>
                 <p className="text-stone-600 text-xs leading-relaxed">
-                  {page ? (
-                    <EditableZone
-                      page={page}
-                      zone={`highlight_${i + 1}_description`}
-                      type="textarea"
-                      fallback={h.description}
-                      as="span"
-                    />
-                  ) : (
-                    h.description
-                  )}
+                  <EditableZone
+                    page={page}
+                    zone={`highlight_${i + 1}_description`}
+                    type="textarea"
+                    fallback={h.description}
+                    as="span"
+                  />
                 </p>
               </div>
             ))}
@@ -209,7 +173,11 @@ export default function SubDestinationTemplate({
         <section className="py-16 bg-white border-t border-stone-200/60">
           <div className="max-w-4xl mx-auto px-6">
             <h3 className="text-xl font-serif font-light text-stone-900 mb-8">
-              {Z('related_title', `Dans la même veine : nos carnets ${parentName}`)}
+              <EditableZone
+                page={page}
+                zone="related_title"
+                fallback={`Dans la même veine : nos carnets ${parentName}`}
+              />
             </h3>
             <div className="grid sm:grid-cols-2 gap-6">
               {relatedArticles.map((post) => (
@@ -250,30 +218,39 @@ export default function SubDestinationTemplate({
       <section className="py-20 bg-stone-900 text-white text-center">
         <div className="max-w-2xl mx-auto px-6">
           <span className="text-teal text-xs font-bold tracking-[0.2em] uppercase mb-4 block">
-            {Z('cta_kicker', 'Ton itinéraire sur mesure')}
+            <EditableZone page={page} zone="cta_kicker" fallback="Ton itinéraire sur mesure" />
           </span>
           <h2 className="text-3xl md:text-4xl font-serif font-light mb-6">
-            {Z('cta_title', `Tu prépares un voyage en ${parentName} ?`)}
+            <EditableZone
+              page={page}
+              zone="cta_title"
+              fallback={`Tu prépares un voyage en ${parentName} ?`}
+            />
           </h2>
           <p className="text-stone-400 text-sm md:text-base leading-relaxed mb-8 max-w-lg mx-auto">
-            {Z(
-              'cta_text',
-              "On s'occupe de concevoir ton carnet de route complet à partir de tes contraintes et de nos adresses vécues.",
-              'textarea'
-            )}
+            <EditableZone
+              page={page}
+              zone="cta_text"
+              type="textarea"
+              fallback="On s'occupe de concevoir ton carnet de route complet à partir de tes contraintes et de nos adresses vécues."
+            />
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               href="/travel-planning"
               className="px-8 py-3.5 bg-teal text-white rounded-full font-semibold text-sm hover:brightness-110 transition shadow-lg"
             >
-              {Z('cta_button_1', 'Planifier mon voyage')}
+              <EditableZone page={page} zone="cta_button_1" fallback="Planifier mon voyage" />
             </Link>
             <Link
               href={`/destinations/${parentSlug}`}
               className="px-8 py-3.5 border border-stone-600 text-stone-300 hover:text-white rounded-full font-semibold text-sm hover:border-white transition"
             >
-              {Z('cta_button_2', `Voir le guide ${parentName}`)}
+              <EditableZone
+                page={page}
+                zone="cta_button_2"
+                fallback={`Voir le guide ${parentName}`}
+              />
             </Link>
           </div>
         </div>

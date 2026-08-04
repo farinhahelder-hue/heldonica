@@ -167,9 +167,14 @@ export default async function DestinationPage({ slug }: Props) {
     getPageZones(`destinations-${slug}`),
   ])
 
-  const Z = (zone: string, type: 'text' | 'textarea' | 'image', fallback: string, className?: string, as?: any) => (
-    <EditableZone page={`destinations-${slug}`} zone={zone} type={type} fallback={fallback} className={className} as={as} />
-  )
+  /*
+   * Les zones s'écrivent en clair, `zone="title"`, et non via un accesseur
+   * local : `check-cms-zones.mjs` rattache un gabarit à ses pages en lisant
+   * `page={`destinations-${slug}`}` + une clé littérale, puis en résolvant
+   * `slug` depuis les points d'appel (`<DestinationPage slug="suisse" />`).
+   * Passer par un accesseur rend `zone` variable, donc les 65 zones de ces
+   * cinq pages ressortaient orphelines alors qu'elles sont bien affichées.
+   */
 
   return (
     <InlineEditProvider page={`destinations-${slug}`} initialZones={zones}>
@@ -202,17 +207,43 @@ export default async function DestinationPage({ slug }: Props) {
       <main>
         {/* Hero */}
         <section className="relative min-h-[60vh] flex items-end overflow-hidden bg-stone-900">
-          {Z('hero_image', 'image', image, 'w-full h-full object-cover opacity-60')}
+          <EditableZone
+            page={`destinations-${slug}`}
+            zone="hero_image"
+            type="image"
+            fallback={image}
+            className="w-full h-full object-cover opacity-60"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
           <div className="relative container py-14 md:py-20 max-w-4xl">
             <p className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold">
               Destination testée
             </p>
             <h1 className="text-4xl md:text-6xl font-serif text-white mb-4">
-              {Z('title', 'text', content.title, undefined, 'span')}, <em className="text-teal">{Z('subtitle', 'text', content.subtitle, undefined, 'span')}</em>
+              <EditableZone
+                page={`destinations-${slug}`}
+                zone="title"
+                fallback={content.title}
+                as="span"
+              />
+              ,{' '}
+              <em className="text-teal">
+                <EditableZone
+                  page={`destinations-${slug}`}
+                  zone="subtitle"
+                  fallback={content.subtitle}
+                  as="span"
+                />
+              </em>
             </h1>
+            {/*
+              Accroche tronquée : on lit la valeur, pas le composant. L'ancien
+              `Z('description', …).toString().slice(0, 200)` appelait toString()
+              sur un élément React — le hero affichait « [object Object]… ».
+              La zone reste éditable plus bas, section « On y est allés ».
+            */}
             <p className="text-white/85 max-w-2xl text-lg leading-relaxed">
-              {Z('description', 'textarea', content.description).toString().slice(0, 200)}...
+              {(zones[`destinations-${slug}__description`] ?? content.description).slice(0, 200)}...
             </p>
           </div>
         </section>
@@ -223,19 +254,19 @@ export default async function DestinationPage({ slug }: Props) {
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
                 <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Durée idéale</p>
-                <p className="text-charcoal font-medium">{Z('duration', 'text', content.duration, undefined, 'span')}</p>
+                <p className="text-charcoal font-medium"><EditableZone page={`destinations-${slug}`} zone="duration" fallback={content.duration} as="span" /></p>
               </div>
               <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
                 <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Meilleure saison</p>
-                <p className="text-charcoal font-medium">{Z('season', 'text', content.season, undefined, 'span')}</p>
+                <p className="text-charcoal font-medium"><EditableZone page={`destinations-${slug}`} zone="season" fallback={content.season} as="span" /></p>
               </div>
               <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
                 <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Budget indicatif</p>
-                <p className="text-charcoal font-medium">{Z('budget', 'text', content.budget, undefined, 'span')}</p>
+                <p className="text-charcoal font-medium"><EditableZone page={`destinations-${slug}`} zone="budget" fallback={content.budget} as="span" /></p>
               </div>
               <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
                 <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Profil</p>
-                <p className="text-charcoal font-medium text-sm">{Z('profile', 'text', content.profile, undefined, 'span')}</p>
+                <p className="text-charcoal font-medium text-sm"><EditableZone page={`destinations-${slug}`} zone="profile" fallback={content.profile} as="span" /></p>
               </div>
             </div>
           </div>
@@ -246,7 +277,7 @@ export default async function DestinationPage({ slug }: Props) {
           <div className="container max-w-4xl">
             <h2 className="text-3xl font-serif text-mahogany mb-6">On y est allés</h2>
             <p className="text-charcoal/80 leading-relaxed text-lg mb-8">
-              {Z('description', 'textarea', content.description, undefined, 'span')}
+              <EditableZone page={`destinations-${slug}`} zone="description" type="textarea" fallback={content.description} as="span" />
             </p>
           </div>
         </section>
@@ -299,7 +330,7 @@ export default async function DestinationPage({ slug }: Props) {
                   <span className="w-6 h-6 rounded-full bg-eucalyptus/20 text-eucalyptus flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
                     {i + 1}
                   </span>
-                  <p className="text-charcoal/80">{Z(`tip_${i + 1}`, 'textarea', tip, undefined, 'span')}</p>
+                  <p className="text-charcoal/80"><EditableZone page={`destinations-${slug}`} zone={`tip_${i + 1}`} type="textarea" fallback={tip} as="span" /></p>
                 </li>
               ))}
             </ul>
@@ -311,7 +342,7 @@ export default async function DestinationPage({ slug }: Props) {
           <div className="container max-w-3xl text-center">
             <p className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold">Notre verdict</p>
             <blockquote className="text-2xl md:text-3xl font-serif text-white leading-relaxed italic mb-6">
-              &ldquo;{Z('verdict', 'textarea', content.verdict, undefined, 'span')}&rdquo;
+              &ldquo;<EditableZone page={`destinations-${slug}`} zone="verdict" type="textarea" fallback={content.verdict} as="span" />&rdquo;
             </blockquote>
             <p className="text-stone-400 text-sm">— Heldonica, testés sur place</p>
           </div>

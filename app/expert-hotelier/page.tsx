@@ -82,8 +82,23 @@ const faqItems = [
   { q: 'Combien coûte un accompagnement ?', a: 'Le diagnostic initial est gratuit et sans engagement. Si nous décidons de travailler ensemble, nous vous proposons un forfait sur mesure, calibré sur la taille de votre établissement et sur le périmètre retenu.' },
 ];
 
+const PAGE = 'expert-hotelier'
+
 export default async function ExpertHotelierPage() {
-  const zones = await getPageZones('expert-hotelier')
+  const zones = await getPageZones(PAGE)
+
+  /*
+   * Les étiquettes des cas clients sont stockées en une chaîne — « Bretagne,
+   * Réservations Directes, Expérience » — et rendues en pastilles : il faut la
+   * valeur, pas un <EditableZone>. Le premier paramètre s'appelle `zone` : c'est
+   * ce nom que check-cms-zones.mjs reconnaît pour rattacher un accesseur local
+   * à ses clés, avec le `const PAGE` ci-dessus.
+   */
+  const zoneTags = (zone: string, fallback: string[]) =>
+    (zones[`${PAGE}__${zone}`] ?? fallback.join(', '))
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean)
 
   return (
     <InlineEditProvider page="expert-hotelier" initialZones={zones}>
@@ -277,7 +292,7 @@ export default async function ExpertHotelierPage() {
               {caseStudies.map((cs, i) => (
                 <article key={i} className="rounded-2xl border border-stone-200 p-8 bg-stone-50 hover:shadow-lg transition-shadow">
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {cs.tags.map((t) => (
+                    {zoneTags(`cas_${i + 1}_tags`, cs.tags).map((t) => (
                       <span key={t} className="px-2.5 py-1 bg-eucalyptus/10 text-eucalyptus text-xs font-semibold rounded-full">{t}</span>
                     ))}
                   </div>
