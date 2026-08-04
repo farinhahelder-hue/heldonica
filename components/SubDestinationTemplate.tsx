@@ -59,6 +59,25 @@ export default function SubDestinationTemplate({
     },
   }
 
+  /**
+   * Accesseur court pour les libellés de section — kickers, titres, CTA.
+   *
+   * Ces dix zones existaient en base et étaient éditables dans l'admin, mais le
+   * gabarit affichait du texte codé en dur : les modifier ne changeait rien sur
+   * les 41 pages concernées, sans le moindre signal.
+   *
+   * Le premier paramètre s'appelle `zoneKey` à dessein : c'est ce nom que
+   * `scripts/check-cms-zones.mjs` reconnaît pour rattacher un accesseur local à
+   * ses clés. Le renommer rendrait ces zones invisibles au garde-fou, donc
+   * réputées orphelines à nouveau.
+   */
+  const Z = (zoneKey: string, fallback: string, type: 'text' | 'textarea' = 'text') =>
+    page ? (
+      <EditableZone page={page} zone={zoneKey} type={type} fallback={fallback} />
+    ) : (
+      <>{fallback}</>
+    )
+
   return (
     <main className="min-h-screen bg-cloud-dancer font-sans">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
@@ -105,40 +124,22 @@ export default function SubDestinationTemplate({
       <section className="py-16 bg-white border-b border-stone-200/60">
         <div className="max-w-3xl mx-auto px-6">
           <p className="text-stone-500 text-xs font-bold uppercase tracking-[0.2em] mb-4">
-            L'esprit du lieu
+            {Z('intro_kicker', "L'esprit du lieu")}
           </p>
           <p className="text-lg md:text-xl text-stone-800 font-serif font-light leading-relaxed mb-8">
-            {page ? (
-              <EditableZone
-                page={page}
-                zone="intro_text"
-                type="textarea"
-                fallback={introText}
-                as="p"
-              />
-            ) : (
-              introText
-            )}
+            {/* Pas de `as="p"` : le parent est déjà un <p>, et un <p> imbriqué
+                fait échouer l'hydratation (erreur console à chaque rendu). */}
+            {Z('intro_text', introText, 'textarea')}
           </p>
 
           <div className="p-5 rounded-2xl bg-[#F8F5F0] border border-stone-200/50 flex items-start gap-4">
             <span className="text-2xl shrink-0">💡</span>
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-mahogany mb-1">
-                Le conseil d'Hélder & Elena
+                {Z('local_tip_kicker', 'Notre conseil')}
               </p>
               <p className="text-sm text-stone-600 leading-relaxed">
-                {page ? (
-                  <EditableZone
-                    page={page}
-                    zone="local_tip"
-                    type="textarea"
-                    fallback={localTip}
-                    as="p"
-                  />
-                ) : (
-                  localTip
-                )}
+                {Z('local_tip', localTip, 'textarea')}
               </p>
             </div>
           </div>
@@ -149,10 +150,10 @@ export default function SubDestinationTemplate({
       <section className="py-20">
         <div className="max-w-4xl mx-auto px-6">
           <h2 className="text-2xl md:text-3xl font-serif font-light text-stone-900 mb-2 text-center">
-            Pépites dénichées à {name}
+            {Z('highlights_title_prefix', 'Pépites dénichées à')} {name}
           </h2>
           <p className="text-xs text-stone-500 tracking-wider text-center uppercase mb-12">
-            Testé et vécu, loin de l'agitation
+            {Z('highlights_subtitle', 'Testé et vécu, loin de l\'agitation')}
           </p>
 
           <div className="grid md:grid-cols-3 gap-6">
@@ -208,7 +209,7 @@ export default function SubDestinationTemplate({
         <section className="py-16 bg-white border-t border-stone-200/60">
           <div className="max-w-4xl mx-auto px-6">
             <h3 className="text-xl font-serif font-light text-stone-900 mb-8">
-              Dans la même veine : nos carnets {parentName}
+              {Z('related_title', `Dans la même veine : nos carnets ${parentName}`)}
             </h3>
             <div className="grid sm:grid-cols-2 gap-6">
               {relatedArticles.map((post) => (
@@ -249,26 +250,30 @@ export default function SubDestinationTemplate({
       <section className="py-20 bg-stone-900 text-white text-center">
         <div className="max-w-2xl mx-auto px-6">
           <span className="text-teal text-xs font-bold tracking-[0.2em] uppercase mb-4 block">
-            Ton itinéraire sur mesure
+            {Z('cta_kicker', 'Ton itinéraire sur mesure')}
           </span>
           <h2 className="text-3xl md:text-4xl font-serif font-light mb-6">
-            Tu prépares un voyage en {parentName} ?
+            {Z('cta_title', `Tu prépares un voyage en ${parentName} ?`)}
           </h2>
           <p className="text-stone-400 text-sm md:text-base leading-relaxed mb-8 max-w-lg mx-auto">
-            On s'occupe de concevoir ton carnet de route complet à partir de tes contraintes et de nos adresses vécues.
+            {Z(
+              'cta_text',
+              "On s'occupe de concevoir ton carnet de route complet à partir de tes contraintes et de nos adresses vécues.",
+              'textarea'
+            )}
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               href="/travel-planning"
               className="px-8 py-3.5 bg-teal text-white rounded-full font-semibold text-sm hover:brightness-110 transition shadow-lg"
             >
-              Planifier mon voyage
+              {Z('cta_button_1', 'Planifier mon voyage')}
             </Link>
             <Link
               href={`/destinations/${parentSlug}`}
               className="px-8 py-3.5 border border-stone-600 text-stone-300 hover:text-white rounded-full font-semibold text-sm hover:border-white transition"
             >
-              Voir le guide {parentName}
+              {Z('cta_button_2', `Voir le guide ${parentName}`)}
             </Link>
           </div>
         </div>
