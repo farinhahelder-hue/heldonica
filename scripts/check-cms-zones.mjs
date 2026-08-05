@@ -104,8 +104,25 @@ function collectReaders() {
       //    puis `<EditableZone page={PAGE} …>`. Sans résoudre cette constante,
       //    le fichier semble ne lire aucune zone et TOUTES les zones de la page
       //    ressortent orphelines — 926 faux positifs sur 46 pages au 01/08.
+      //    À défaut de constante, on déduit la page des <EditableZone> du
+      //    fichier — mais seulement s'ils désignent tous la même. Trois pages
+      //    (contact, home, mentions-legales) déclarent leurs clés dans un
+      //    tableau (`{ zone: 'service_1', … }`) puis les rendent via la
+      //    variable : la passe 0 quater sait les lire, mais elle était inhibée
+      //    faute de `const PAGE`. Leurs 19 zones restaient « indéterminées »,
+      //    c'est-à-dire de statut inconnu — ni confirmées, ni infirmées.
+      //
+      //    Exiger la constante n'avait pas de sens : ce qui compte est la page
+      //    que le fichier adresse, pas la façon dont il l'écrit. On déduit donc,
+      //    et on s'abstient dès qu'il y a ambiguïté.
       const pageConst = src.match(/const\s+PAGE\s*=\s*['"]([a-z0-9-]+)['"]/);
-      const filePage = pageConst ? pageConst[1] : null;
+      let filePage = pageConst ? pageConst[1] : null;
+      if (!filePage) {
+        const literals = new Set(
+          [...src.matchAll(/<EditableZone\s+page="([^"]+)"/g)].map((m) => m[1])
+        );
+        if (literals.size === 1) filePage = [...literals][0];
+      }
 
       // 0 bis. Helper local de zone : `const Z = (zone: string, type, fallback)`
       //    appelé en `Z('hero_title', …)`. Même rôle que <EditableZone>, mais

@@ -52,7 +52,15 @@ export default async function Itineraire10JoursPage() {
     <EditableZone page={PAGE} zone={zone} type={type} fallback={fallback} className={className} as={as} />
   )
 
-  const departText = "Vol retour depuis Cluj-Napoca";
+  /*
+   * `departText` est une valeur, pas un élément : il descend en prop dans
+   * DaySummaryTable. On lit donc la zone directement. Le premier paramètre
+   * s'appelle `zone` comme celui de Z ci-dessus — c'est ce nom que
+   * check-cms-zones.mjs reconnaît pour rattacher un accesseur local.
+   */
+  const zoneText = (zone: string, fallback: string) => zones[`${PAGE}__${zone}`] ?? fallback
+
+  const departText = zoneText('depart_text', "Vol retour depuis Cluj-Napoca");
 
   return (
     <InlineEditProvider page={PAGE} initialZones={zones}>

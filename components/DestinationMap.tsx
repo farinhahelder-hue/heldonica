@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import type { DestinationMarker } from '@/lib/destinations-data';
 
 const ICON_URLS_DEFAULT = {
@@ -34,19 +34,31 @@ export default function DestinationMap({
   zoom = 5,
   height = '500px',
 }: DestinationMapProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // `center` a une valeur par défaut littérale : c'est un nouveau tableau à
+  // chaque rendu. Mis tel quel en dépendance, il relançait tout l'effet à chaque
+  // rendu. On dépend des coordonnées, pas de l'identité du tableau.
+  const [centerLat, centerLng] = center;
+
   useEffect(() => {
+    let map: any = null;
+    let annule = false;
+
     const initMap = async () => {
       const L = await import('leaflet').then(m => m.default ?? m);
       await import('leaflet.markercluster');
 
       const iconUrls = await getIconUrls()
+
+      // Les imports et la lecture des icônes sont asynchrones : le composant a
+      // pu être démonté entre-temps, ou les filtres avoir changé à nouveau.
+      if (annule || !containerRef.current) return;
+
       delete (L.Icon.Default.prototype as any)._getIconUrl;
       L.Icon.Default.mergeOptions(iconUrls);
 
-      const mapContainer = document.getElementById('heldonica-map');
-      if (!mapContainer || mapContainer.querySelector('.leaflet-container')) return;
-
-      const map = L.map('heldonica-map').setView(center, zoom);
+      map = L.map(containerRef.current).setView([centerLat, centerLng], zoom);
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -117,13 +129,22 @@ export default function DestinationMap({
     initMap();
 
     return () => {
-      const mapContainer = document.getElementById('heldonica-map');
-      if (mapContainer) mapContainer.innerHTML = '';
+      annule = true;
+      // `map.remove()`, et non `innerHTML = ''`. Le vidage effaçait les enfants
+      // mais laissait `_leaflet_id` sur le conteneur : l'initialisation suivante
+      // levait « Map container is already initialized », l'exception se perdait
+      // dans la promesse de `initMap`, et la carte restait définitivement vide.
+      // Concrètement : plus un seul marqueur dès qu'on touchait à un filtre.
+      if (map) {
+        map.remove();
+        map = null;
+      }
     };
-  }, [markers, center, zoom]);
+  }, [markers, centerLat, centerLng, zoom]);
 
   return (
     <div
+      ref={containerRef}
       id="heldonica-map"
       style={{
         height,
