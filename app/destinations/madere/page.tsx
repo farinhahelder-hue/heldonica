@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase-client'
 import DestinationPillar from '@/components/DestinationPillar'
 import { buildPillarMetadata } from '@/lib/pillar-metadata'
 import { fetchPillarData } from '@/lib/pillar-data'
+import { fetchSeasons } from '@/lib/seasons-data'
 import { getPageZones } from '@/lib/cms-zones'
 
 // ISR : Next sert le dernier rendu valide si Supabase est momentanement
@@ -28,11 +29,12 @@ async function getRelatedArticles() {
 }
 
 export default async function MaderePage() {
-  const [data, relatedArticles, zones] = await Promise.all([
+  const [data, relatedArticles, zones, seasons] = await Promise.all([
     fetchPillarData('madere'),
     getRelatedArticles(),
     getPageZones('destinations'),
+    fetchSeasons('madere'),
   ])
-  return <DestinationPillar data={data} relatedArticles={relatedArticles} initialZones={zones} />
+  return <DestinationPillar data={data} relatedArticles={relatedArticles} initialZones={zones} seasons={seasons} />
 }
 
