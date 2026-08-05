@@ -290,10 +290,10 @@ export default async function DestinationPage({ slug }: Props) {
             <section className="bg-stone-50 py-16 border-t border-b border-stone-200/60">
               <div className="container max-w-5xl">
                 <h2 className="text-3xl font-serif text-mahogany mb-2 text-center">
-                  Explorer les pépites de la région
+                  <EditableZone page="destinations" zone="subdests_title" fallback="Explorer les pépites de la région" />
                 </h2>
                 <p className="text-charcoal/60 text-sm text-center mb-10">
-                  Nos guides détaillés de terrain par ville et site d&apos;intérêt.
+                  <EditableZone page="destinations" zone="subdests_subtitle" type="textarea" fallback="Nos guides détaillés de terrain par ville et site d'intérêt." />
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                   {subDests.map((sub) => (
@@ -310,7 +310,7 @@ export default async function DestinationPage({ slug }: Props) {
                         {sub.teaser}
                       </p>
                       <span className="text-xs font-semibold text-eucalyptus mt-3 inline-block group-hover:translate-x-1 transition-transform">
-                        Voir le guide →
+                        <EditableZone page="destinations" zone="subdests_cta" fallback="Voir le guide →" />
                       </span>
                     </Link>
                   ))}
