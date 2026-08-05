@@ -209,9 +209,15 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
         <section className="mx-auto max-w-7xl px-4 pb-4 pt-14">
           <div className="mb-5 flex items-end justify-between gap-4">
             <div>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-eucalyptus">À lire d&apos;abord</p>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-eucalyptus">
+                <EditableZone page="blog" zone="featured_kicker" fallback="À lire d'abord" />
+              </p>
               <h2 className="text-2xl font-serif font-light text-mahogany md:text-3xl">
-                Un carnet qui donne le ton.
+                <EditableZone
+                  page="blog"
+                  zone="featured_title"
+                  fallback="Un carnet qui donne le ton."
+                />
               </h2>
             </div>
           </div>

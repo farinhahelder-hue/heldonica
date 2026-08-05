@@ -18,6 +18,9 @@ import CtaTravelPlanning from '@/components/CtaTravelPlanning'
 import HeldonicaFAQ from '@/components/HeldonicaFAQ'
 import HeldonicaVerdict from '@/components/HeldonicaVerdict'
 import { getReadingTime, formatReadingTime } from '@/lib/readingTime'
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import EditableZone from '@/components/inline-edit/EditableZone'
+import { getPageZones } from '@/lib/cms-zones'
 import DynamicArticleMap from '@/components/DynamicArticleMap'
 import { verifyPreviewToken } from '@/lib/preview-token'
 
@@ -285,8 +288,13 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
   const canonicalUrl = `${SITE_URL}/blog/${post.slug}`
   const safeContent = sanitizeHtml(post.content)
 
+  // Les libellés du bloc « articles liés » sont communs à tous les articles :
+  // ils vivent sous la page `blog`, pas sous l'article. Le provider porte donc
+  // ce namespace-là — c'est aussi lui qui reçoit les modifications.
+  const blogZones = await getPageZones('blog')
+
   return (
-    <>
+    <InlineEditProvider page="blog" initialZones={blogZones}>
       <Script
         id="article-jsonld"
         type="application/ld+json"
@@ -433,10 +441,19 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
         {related.length > 0 && (
           <section className="bg-stone-50 py-16">
             <div className="mx-auto max-w-6xl px-4">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-mahogany">Continuer</p>
-              <h2 className="mb-3 text-3xl font-serif font-light text-stone-900">Dans la même veine</h2>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-mahogany">
+                <EditableZone page="blog" zone="related_kicker" fallback="Continuer" />
+              </p>
+              <h2 className="mb-3 text-3xl font-serif font-light text-stone-900">
+                <EditableZone page="blog" zone="related_title" fallback="Dans la même veine" />
+              </h2>
               <p className="mb-8 max-w-2xl text-sm leading-relaxed text-stone-600">
-                D&apos;autres récits qui avancent au même rythme : un moment précis, un lieu, un détail qui reste.
+                <EditableZone
+                  page="blog"
+                  zone="related_intro"
+                  type="textarea"
+                  fallback="D'autres récits qui avancent au même rythme : un moment précis, un lieu, un détail qui reste."
+                />
               </p>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 {related.map((relatedPost: BlogPost) => {
@@ -483,6 +500,6 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
         <CtaTravelPlanning />
       </main>
       <Footer />
-    </>
+    </InlineEditProvider>
   )
 }

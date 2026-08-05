@@ -481,7 +481,9 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               <AnimatedStat nb={publishedArticles} suffix="+" label={getCmsOrSetting('stat_4_label', 'stat_4_label', 'Carnets publiés', zones, settings)} />
               <div className="col-span-2 mt-2">
                 <p className="text-xs text-charcoal/40 leading-relaxed">
-                  <span className="font-semibold text-charcoal/70">Terrains de jeu :</span><br />
+                  <span className="font-semibold text-charcoal/70">
+                    <EditableZone page="home" zone="stats_playgrounds_label" fallback="Terrains de jeu :" />
+                  </span><br />
                   <EditableZone page="home" zone="stats_playgrounds" type="textarea" fallback="Madère · Roumanie · Monténégro · Suisse · Lisbonne · Sicile · Sardaigne · Colombie · Île-de-France"
                     className="inline"
                   />
@@ -598,8 +600,12 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   width={700} height={525}
                   className="rounded-2xl w-full aspect-[4/3] object-cover shadow-lg" />
                 <div className="absolute -bottom-4 -right-4 bg-mahogany text-white px-5 py-3 rounded-xl shadow-lg hidden md:block">
-                  <p className="text-xs font-bold tracking-wider uppercase">Adresses testées</p>
-                  <p className="text-2xl font-serif font-light mt-0.5">100%</p>
+                  <p className="text-xs font-bold tracking-wider uppercase">
+                    <EditableZone page="home" zone="section_food_ribbon_label" fallback="Adresses testées" />
+                  </p>
+                  <p className="text-2xl font-serif font-light mt-0.5">
+                    <EditableZone page="home" zone="section_food_ribbon_value" fallback="100%" />
+                  </p>
                 </div>
               </div>
               <div data-reveal="right">

@@ -191,7 +191,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          # Node 24, comme les garde-fous et comme en local. En 20, `npm ci`
+          # échoue : @supabase/auth-js exige Node >= 22.
+          node-version: '24'
           cache: 'npm'
 
       - name: Install dependencies
