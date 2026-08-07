@@ -215,20 +215,28 @@ export async function middleware(req: NextRequest) {
   const isMaintenanceExcluded = maintenanceExcludes.some(path => pathname.startsWith(path));
 
   if (!isMaintenanceExcluded) {
-    // Priorité 1 : variable Vercel MAINTENANCE_MODE (sans Supabase, nécessite redéploiement)
-    //   → Vercel dashboard > Project Settings > Environment Variables > MAINTENANCE_MODE = true/false
-    //   → puis "Redeploy latest deployment" (~2 min)
-    const envMode = process.env.MAINTENANCE_MODE?.trim().toLowerCase();
+    // La source de vérité est le CMS Supabase (site_settings.maintenance_mode),
+    // pilotable sans redéploiement depuis le panel / l'API. La variable Vercel
+    // MAINTENANCE_MODE n'intervient qu'en SECOURS quand Supabase est
+    // injoignable ou non configuré (getMaintenanceMode() renvoie null) :
+    //   → true/1 force ON, false/0 force OFF, sinon défaut codé
+    //     MAINTENANCE_ACTIVE (fail-closed = true).
+    // Avant le 02/08/2026, l'env var avait priorité et un MAINTENANCE_MODE=false
+    // fantôme gardait le site en ligne malgré maintenance_mode='true' en base.
+    const cmsValue = await getMaintenanceMode();
     let isMaintenance: boolean;
 
-    if (envMode === 'false' || envMode === '0') {
-      isMaintenance = false;                          // env var force OFF
-    } else if (envMode === 'true' || envMode === '1') {
-      isMaintenance = true;                           // env var force ON
+    if (cmsValue !== null) {
+      isMaintenance = cmsValue;                       // CMS Supabase : source de vérité
     } else {
-      // Priorité 2 : CMS Supabase (sans redéploiement, si Supabase actif)
-      const cmsValue = await getMaintenanceMode();
-      isMaintenance = cmsValue !== null ? cmsValue : MAINTENANCE_ACTIVE;
+      const envMode = process.env.MAINTENANCE_MODE?.trim().toLowerCase();
+      if (envMode === 'false' || envMode === '0') {
+        isMaintenance = false;                        // secours : env var force OFF
+      } else if (envMode === 'true' || envMode === '1') {
+        isMaintenance = true;                         // secours : env var force ON
+      } else {
+        isMaintenance = MAINTENANCE_ACTIVE;           // défaut fail-closed
+      }
     }
 
     if (isMaintenance) {
