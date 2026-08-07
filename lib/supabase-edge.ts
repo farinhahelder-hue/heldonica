@@ -44,7 +44,8 @@ export async function getMaintenanceMode(): Promise<boolean | null> {
     }
 
     const data = await response.json();
-    const value = data?.value;
+    const row = Array.isArray(data) ? data[0] : data;
+    const value = row?.value;
 
     if (value === 'true' || value === '1' || value === true)  return true;
     if (value === 'false' || value === '0' || value === false) return false;
@@ -81,7 +82,8 @@ export async function getSetting(key: string): Promise<string | null> {
     }
 
     const data = await response.json();
-    return data?.value ?? null;
+    const row = Array.isArray(data) ? data[0] : data;
+    return row?.value ?? null;
   } catch (error) {
     console.error(`[Edge] Failed to fetch setting ${key}:`, error);
     return null;
