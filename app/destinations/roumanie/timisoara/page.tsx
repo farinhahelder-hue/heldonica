@@ -121,8 +121,8 @@ export default async function TimisoaraPage() {
 
           {/* Pépites grid */}
           <section className="mb-16">
-            <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">Ce qu'on a déniché</p>
-            <h2 className="text-2xl font-serif text-stone-900 mb-6">Les spots qu'on revisite</h2>
+            <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">{Z('pepites_kicker', 'text', "Ce qu'on a déniché", undefined, 'span')}</p>
+            <h2 className="text-2xl font-serif text-stone-900 mb-6">{Z('pepites_title', 'text', "Les spots qu'on revisite", undefined, 'span')}</h2>
             <div className="grid gap-5 sm:grid-cols-2">
                 <div className="bg-white rounded-2xl border border-stone-200 p-6 hover:border-eucalyptus/30 transition-colors">
                   <div className="flex items-start justify-between mb-3">
@@ -177,11 +177,11 @@ export default async function TimisoaraPage() {
 
           {/* Infos pratiques */}
           <section className="mb-16">
-            <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">Côté pratique</p>
-            <h2 className="text-2xl font-serif text-stone-900 mb-6">Ce qu'il faut savoir</h2>
+            <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">{Z('practical_kicker', 'text', "Côté pratique", undefined, 'span')}</p>
+            <h2 className="text-2xl font-serif text-stone-900 mb-6">{Z('practical_title', 'text', "Ce qu'il faut savoir", undefined, 'span')}</h2>
             <div className="grid md:grid-cols-2 gap-6">
               <div className="bg-white p-6 rounded-xl border border-stone-200">
-                <h3 className="font-serif text-lg text-stone-900 mb-4">Où dormir</h3>
+                <h3 className="font-serif text-lg text-stone-900 mb-4">{Z('sleep_title', 'text', "Où dormir", undefined, 'span')}</h3>
                 <ul className="space-y-3 text-stone-600 text-sm">
                   <li>{Z('sleep_1', 'html', "<strong>Hôtel Timișoara</strong> — Centre historique, vue Piața Victoriei. 70–100€/nuit.", undefined, 'span')}</li>
                   <li>{Z('sleep_2', 'html', "<strong>Casa del Arte</strong> — Boutique hôtel dans une villa Art Nouveau restaurée. 60–90€.", undefined, 'span')}</li>
@@ -189,7 +189,7 @@ export default async function TimisoaraPage() {
                 </ul>
               </div>
               <div className="bg-white p-6 rounded-xl border border-stone-200">
-                <h3 className="font-serif text-lg text-stone-900 mb-4">Où manger</h3>
+                <h3 className="font-serif text-lg text-stone-900 mb-4">{Z('eat_title', 'text', "Où manger", undefined, 'span')}</h3>
                 <ul className="space-y-3 text-stone-600 text-sm">
                   <li>{Z('eat_1', 'html', "<strong>Conviva</strong> — Gastro-pub, cuisine locale revisitée. Réservation conseillée.", undefined, 'span')}</li>
                   <li>{Z('eat_2', 'html', "<strong>Barista Fabric</strong> — Café de spécialité, viennoiseries. Le matin incontournable.", undefined, 'span')}</li>
@@ -201,7 +201,7 @@ export default async function TimisoaraPage() {
 
           {/* FAQ */}
           <section className="mb-16">
-            <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">Questions fréquentes</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">{Z('faq_kicker', 'text', "Questions fréquentes", undefined, 'span')}</p>
             <div className="space-y-4">
               {FAQS.map((f, i) => (
                 <details key={i} className="group bg-white rounded-xl border border-stone-200 p-5">
@@ -217,34 +217,34 @@ export default async function TimisoaraPage() {
 
           {/* À proximité */}
           <section className="mb-12">
-            <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">À proximité</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">{Z('nearby_kicker', 'text', "À proximité", undefined, 'span')}</p>
             <div className="grid gap-4 md:grid-cols-3">
               <Link href="/destinations/roumanie" className="p-4 bg-white rounded-xl border border-stone-200 text-center hover:border-eucalyptus/40 transition-colors">
                 <span className="text-stone-700 font-medium">Roumanie</span>
                 <span className="block text-xs text-stone-500 mt-1">Guide complet</span>
               </Link>
               <div className="p-4 bg-stone-100 rounded-xl text-center">
-                <span className="text-stone-700 font-medium">Budapest</span>
-                <span className="block text-xs text-stone-500 mt-1">~3h en train</span>
+                <span className="text-stone-700 font-medium">{Z('nearby_1_label', 'text', "Budapest", undefined, 'span')}</span>
+                <span className="block text-xs text-stone-500 mt-1">{Z('nearby_1_time', 'text', "~3h en train", undefined, 'span')}</span>
               </div>
               <div className="p-4 bg-stone-100 rounded-xl text-center">
-                <span className="text-stone-700 font-medium">Belgrade</span>
-                <span className="block text-xs text-stone-500 mt-1">~4h en bus</span>
+                <span className="text-stone-700 font-medium">{Z('nearby_2_label', 'text', "Belgrade", undefined, 'span')}</span>
+                <span className="block text-xs text-stone-500 mt-1">{Z('nearby_2_time', 'text', "~4h en bus", undefined, 'span')}</span>
               </div>
             </div>
           </section>
 
           {/* CTA */}
           <div className="bg-eucalyptus/5 border border-eucalyptus/20 rounded-2xl p-8 text-center mb-8">
-            <h3 className="font-serif text-xl text-stone-900 mb-3">Un itinéraire Roumanie sur mesure</h3>
+            <h3 className="font-serif text-xl text-stone-900 mb-3">{Z('cta_title', 'text', "Un itinéraire Roumanie sur mesure", undefined, 'span')}</h3>
             <p className="text-stone-600 text-sm mb-5 max-w-md mx-auto">
-              Timișoara + Transylvanie + Bucarest : on conçoit le circuit qui correspond à ton rythme.
+              {Z('cta_text', 'textarea', "Timișoara + Transylvanie + Bucarest : on conçoit le circuit qui correspond à ton rythme.", undefined, 'span')}
             </p>
             <Link
               href="/travel-planning"
               className="inline-flex items-center gap-2 px-6 py-3 bg-eucalyptus text-white font-semibold rounded-xl hover:bg-eucalyptus/90 transition-colors text-sm"
             >
-              Concevoir mon voyage →
+              {Z('cta_button', 'text', "Concevoir mon voyage →", undefined, 'span')}
             </Link>
           </div>
 

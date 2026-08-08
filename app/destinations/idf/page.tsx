@@ -101,13 +101,13 @@ export default async function IdfPage() {
                 href="/destinations/idf/paris"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-eucalyptus text-white font-semibold rounded-xl hover:bg-eucalyptus/90 transition-colors text-sm"
               >
-                Explorer Paris →
+                {Z('hero_cta_1', 'text', "Explorer Paris →", undefined, 'span')}
               </Link>
               <Link
                 href="/destinations/idf/fontainebleau"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 text-white font-medium rounded-xl hover:bg-white/20 transition-colors text-sm border border-white/20"
               >
-                Fontainebleau →
+                {Z('hero_cta_2', 'text', "Fontainebleau →", undefined, 'span')}
               </Link>
             </div>
           </div>
@@ -116,13 +116,13 @@ export default async function IdfPage() {
         {/* Sub navigation */}
         <nav className="bg-white border-b border-stone-200 sticky top-16 z-40" aria-label="Sous-destinations Île-de-France">
           <div className="max-w-4xl mx-auto px-4 py-3 flex gap-6 overflow-x-auto no-scrollbar">
-            {subNav.map((item) => (
+            {subNav.map((item, i) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className="text-stone-600 hover:text-eucalyptus whitespace-nowrap text-sm font-medium transition-colors pb-0.5 border-b-2 border-transparent hover:border-eucalyptus/50"
               >
-                {item.label}
+                {Z(`subnav_${i + 1}_label`, 'text', item.label, undefined, 'span')}
               </Link>
             ))}
           </div>
@@ -131,7 +131,7 @@ export default async function IdfPage() {
         <div className="max-w-4xl mx-auto px-4 py-12">
           {/* Intro */}
           <section className="mb-16">
-            <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">Notre angle</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">{Z('intro_kicker', 'text', "Notre angle", undefined, 'span')}</p>
             <h2 className="text-2xl md:text-3xl font-serif text-stone-900 mb-5">
               {Z('intro_title', 'text', "Le slow travel commence parfois à 30 minutes de chez soi", undefined, 'span')}
             </h2>
@@ -147,8 +147,8 @@ export default async function IdfPage() {
 
           {/* Pépites */}
           <section className="mb-16">
-            <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">Ce qu'on a vraiment aimé</p>
-            <h2 className="text-2xl font-serif text-stone-900 mb-6">Nos pépites en Île-de-France</h2>
+            <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">{Z('pepites_kicker', 'text', "Ce qu'on a vraiment aimé", undefined, 'span')}</p>
+            <h2 className="text-2xl font-serif text-stone-900 mb-6">{Z('pepites_title', 'text', "Nos pépites en Île-de-France", undefined, 'span')}</h2>
             <div className="grid gap-5 md:grid-cols-2">
                 <Link
                   key={"/destinations/idf/paris"}
@@ -191,8 +191,8 @@ export default async function IdfPage() {
 
           {/* Zones */}
           <section className="mb-16">
-            <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">Par secteur</p>
-            <h2 className="text-2xl font-serif text-stone-900 mb-6">Explorer par zone</h2>
+            <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">{Z('zones_kicker', 'text', "Par secteur", undefined, 'span')}</p>
+            <h2 className="text-2xl font-serif text-stone-900 mb-6">{Z('zones_title', 'text', "Explorer par zone", undefined, 'span')}</h2>
             <div className="grid gap-4 sm:grid-cols-2">
                 <Link
                   key={"/destinations/idf/paris"}
@@ -251,8 +251,8 @@ export default async function IdfPage() {
 
           {/* Infos pratiques */}
           <section className="mb-16">
-            <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">Côté pratique</p>
-            <h2 className="text-2xl font-serif text-stone-900 mb-6">Ce qu'il faut savoir</h2>
+            <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">{Z('practical_kicker', 'text', "Côté pratique", undefined, 'span')}</p>
+            <h2 className="text-2xl font-serif text-stone-900 mb-6">{Z('practical_title', 'text', "Ce qu'il faut savoir", undefined, 'span')}</h2>
             <div className="grid md:grid-cols-2 gap-6">
               <div className="bg-white p-6 rounded-xl border border-stone-200">
                 <h3 className="font-serif text-lg text-stone-900 mb-4">Quand y aller</h3>
@@ -293,7 +293,7 @@ export default async function IdfPage() {
 
           {/* FAQ */}
           <section className="mb-12">
-            <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">Questions fréquentes</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">{Z('faq_kicker', 'text', "Questions fréquentes", undefined, 'span')}</p>
             <div className="space-y-4">
               {FAQS.map((f) => (
                 <details key={f.q.fb} className="group bg-white rounded-xl border border-stone-200 p-5">
@@ -309,7 +309,7 @@ export default async function IdfPage() {
 
           {/* Back link */}
           <Link href="/destinations" className="text-eucalyptus hover:text-eucalyptus/80 text-sm font-medium transition-colors">
-            ← Toutes les destinations
+            {Z('back_link', 'text', "← Toutes les destinations", undefined, 'span')}
           </Link>
         </div>
       </main>
