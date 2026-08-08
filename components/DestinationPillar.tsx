@@ -12,6 +12,7 @@ import TestedByHeldonica from '@/components/TestedByHeldonica'
 import DestinationVerdict from '@/components/DestinationVerdict'
 import QuickAnswersBlock from '@/components/QuickAnswersBlock'
 import DestinationMapEmbed from '@/components/DestinationMapEmbed'
+import SeasonalTable, { type SeasonData } from '@/components/SeasonalTable'
 import AffiliateLink from '@/components/AffiliateLink'
 import { AFFILIATE_DISCLOSURE, bookingSearchUrl, getYourGuideSearchUrl } from '@/lib/affiliates'
 import type { PillarData } from '@/lib/pillar-types'
@@ -22,12 +23,14 @@ import EditableZone from '@/components/inline-edit/EditableZone'
 
 
 export default function DestinationPillar({
-  data, relatedArticles, initialZones,
+  data, relatedArticles, initialZones, seasons = [],
 }: {
   data: PillarData
   relatedArticles: { slug: string; title: string; excerpt: string; image_url?: string; read_time?: number }[]
   /** Zones CMS de la page 'destinations', préchargées par la page serveur. */
   initialZones?: Record<string, string>
+  /** Saisons pilotées par le CMS (`cms_seasons`). Vide = section masquée. */
+  seasons?: SeasonData[]
 }) {
   // Ce composant utilisait des <EditableZone page="destinations"> sans jamais
   // rendre InlineEditProvider — l'import existait, le composant n'était pas
@@ -352,6 +355,22 @@ export default function DestinationPillar({
             </div>
           </div>
         </section>
+
+        {/* Quand partir — tableau saisonnier piloté par le CMS (cms_seasons).
+            Masqué tant qu'aucune saison n'est renseignée pour la destination. */}
+        {seasons.length > 0 && (
+          <section className="bg-white py-16 md:py-20 border-t border-stone-200/60">
+            <div className="container max-w-3xl">
+              <h2 className="text-3xl font-serif text-mahogany mb-4">
+                <EditableZone page="destinations" zone="seasons_title_prefix" fallback="Quand partir à" className="inline" /> {data.name} ?
+              </h2>
+              <p className="text-charcoal/70 text-base mb-6 leading-relaxed">
+                <EditableZone page="destinations" zone="seasons_intro" type="textarea" fallback="On a testé plusieurs saisons sur place. Voici comment on les vit, entre météo, affluence et budget — clique sur une saison pour le détail." className="inline" />
+              </p>
+              <SeasonalTable destination={data.name} seasons={seasons} />
+            </div>
+          </section>
+        )}
 
         {/* Lead Magnet Block */}
         <LeadMagnetBlock destinationSlug={data.slug} destinationName={data.name} />
