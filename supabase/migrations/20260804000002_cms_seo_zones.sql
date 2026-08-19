@@ -5,7 +5,7 @@
 
 INSERT INTO public.cms_editable_zones (page, zone_key, zone_type, value, label, is_active)
 VALUES
-  ('a-propos', 'seo_title', 'text', 'À propos | Heldonica', 'SEO — title', true),
+('a-propos', 'seo_title', 'text', 'À propos | Heldonica', 'SEO — title', true),
   ('a-propos', 'seo_description', 'textarea', 'Le duo derrière Heldonica. Notre histoire, notre philosophie du slow travel et pourquoi on conçoit des voyages sur mesure.', 'SEO — description', true),
   ('a-propos', 'seo_og_image', 'text', '/og-default.jpg', 'SEO — image Open Graph', true),
   ('contact', 'seo_title', 'text', 'Contact | Heldonica', 'SEO — title', true),

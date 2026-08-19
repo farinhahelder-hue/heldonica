@@ -124,11 +124,21 @@ export default function InlineEditProvider({
     setIsEditing((e) => !e)
   }, [])
 
-  // Quit edit mode on Escape press
+  // Quit edit mode on Escape — but only if no individual zone is being edited.
+  // Without this guard, pressing Escape inside a zone input both cancels the
+  // zone edit (local handler) AND exits global edit mode (this handler).
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isEditing) {
-        setIsEditing(false)
+        // If the active element is an input/textarea inside an editable zone, let
+        // the zone's own handler deal with Escape — don't exit global edit mode.
+        const active = document.activeElement
+        const insideZone = active && (
+          active.tagName === 'INPUT' ||
+          active.tagName === 'TEXTAREA' ||
+          (active as HTMLElement).closest('[data-zone-editing]')
+        )
+        if (!insideZone) setIsEditing(false)
       }
     }
     window.addEventListener('keydown', handleKeyDown)

@@ -43,6 +43,9 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
   const [deleting, setDeleting] = useState<string | null>(null);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 3500); };
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => showToast('✅ URL copiée !')).catch(() => showToast('❌ Impossible de copier'));
+  };
 
   const loadFiles = useCallback(async () => {
     setLoading(true);
@@ -406,6 +409,17 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
                           cursor: 'pointer', fontSize: '.72rem', fontWeight: 600, whiteSpace: 'nowrap',
                         }}
                       >✅ Sélectionner</button>
+                      <button
+                        onClick={() => copyToClipboard(f.url)}
+                        title="Copier l'URL"
+                        style={{
+                          position: 'absolute', top: 6, left: 6,
+                          background: 'rgba(45,139,122,.9)', color: 'white',
+                          border: 'none', borderRadius: '50%', width: 22, height: 22,
+                          cursor: 'pointer', fontSize: '.72rem', lineHeight: 1,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}
+                      >📋</button>
                     </div>
                   ))}
                 </div>

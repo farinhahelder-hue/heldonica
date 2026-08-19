@@ -21,9 +21,20 @@ export default function GuidesManager() {
   const [items, setItems] = useState<GuideItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [guideSlug, setGuideSlug] = useState('top-10-pepites-madere');
+  const [availableSlugs, setAvailableSlugs] = useState<string[]>(['top-10-pepites-madere']);
   
   const [editingItem, setEditingItem] = useState<Partial<GuideItem> | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+
+  // Fetch all distinct guide slugs dynamically
+  useEffect(() => {
+    fetch('/api/cms/guide-items?distinct_slugs=1')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.slugs?.length) setAvailableSlugs(data.slugs)
+      })
+      .catch(() => {})
+  }, [])
 
   const fetchItems = useCallback(async () => {
     setLoading(true);
@@ -95,8 +106,9 @@ export default function GuidesManager() {
             onChange={(e) => setGuideSlug(e.target.value)}
             className="p-2 border border-stone-300 rounded-lg outline-none focus:ring-2 focus:ring-eucalyptus/20"
           >
-            <option value="top-10-pepites-madere">Top 10 Madère</option>
-            {/* Add more guide slugs here if needed */}
+            {availableSlugs.map(slug => (
+              <option key={slug} value={slug}>{slug}</option>
+            ))}
           </select>
           <button onClick={() => { setIsCreating(true); setEditingItem({ rank: items.length + 1 }); }} className="p-2 bg-eucalyptus text-white rounded-lg hover:bg-eucalyptus/90 transition-colors flex items-center gap-2 text-sm font-semibold shadow-sm">
             <Plus className="w-4 h-4" /> Ajouter

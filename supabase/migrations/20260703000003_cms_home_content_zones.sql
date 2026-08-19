@@ -4,7 +4,7 @@
 -- Seed pillars content
 INSERT INTO cms_editable_zones (page, zone_key, zone_type, value, is_active) VALUES
 -- Pillars section
-('home', 'pillar_1_title', 'text', "L'émerveillement", true),
+('home', 'pillar_1_title', 'text', 'L''émerveillement', true),
 ('home', 'pillar_1_desc', 'textarea', 'Il se cache dans un marché de quartier, une ruelle oubliée, ou un café perdu en Provence. Partout où vous posez les yeux, il y a quelque chose à découvrir.', true),
 ('home', 'pillar_1_icon', 'text', '✨', true),
 ('home', 'pillar_2_title', 'text', 'Notre philosophie', true),

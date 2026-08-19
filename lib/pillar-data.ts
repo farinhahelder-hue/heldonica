@@ -25,6 +25,16 @@
 import type { PillarData } from '@/lib/pillar-types'
 import { createServiceClient } from '@/lib/supabase'
 
+export interface SubDestinationInfo {
+  id?: string
+  title: string
+  slug: string
+  parentSlug: string
+  teaser: string
+  emoji: string
+  display_order?: number
+}
+
 /** Slugs des pages piliers pilotées par le CMS. */
 export const PILLAR_SLUGS = ['madere', 'montenegro', 'roumanie'] as const
 export type PillarSlug = (typeof PILLAR_SLUGS)[number]
@@ -159,6 +169,40 @@ export async function fetchAllPillarData(): Promise<PillarData[]> {
   } catch (err) {
     console.error(
       '[CMS pillar] Erreur inattendue au chargement de la liste:',
+      err instanceof Error ? err.message : String(err)
+    )
+    return []
+  }
+}
+
+/** Charge les sous-destinations actives pour une destination parente. */
+export async function fetchSubDestinations(parentSlug: string): Promise<SubDestinationInfo[]> {
+  try {
+    const supabase = createServiceClient()
+    const { data, error } = await supabase
+      .from('cms_sub_destinations')
+      .select('*')
+      .eq('parent_slug', parentSlug)
+      .eq('is_active', true)
+      .order('display_order')
+
+    if (error) {
+      console.error(`[CMS sub-destinations] Erreur de lecture pour "${parentSlug}":`, error.message)
+      return []
+    }
+
+    return (data ?? []).map(row => ({
+      id: row.id,
+      title: row.title,
+      slug: row.slug,
+      parentSlug: row.parent_slug,
+      teaser: row.teaser || '',
+      emoji: row.emoji || '',
+      display_order: row.display_order
+    }))
+  } catch (err) {
+    console.error(
+      `[CMS sub-destinations] Erreur inattendue au chargement de "${parentSlug}":`,
       err instanceof Error ? err.message : String(err)
     )
     return []

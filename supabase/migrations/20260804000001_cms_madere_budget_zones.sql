@@ -9,7 +9,7 @@
 
 INSERT INTO public.cms_editable_zones (page, zone_key, zone_type, value, label, is_active)
 VALUES
-  ('destinations-madere-budget', 'hero_badge', 'text', 'Madère — Budget', 'Hero — surtitre', true),
+('destinations-madere-budget', 'hero_badge', 'text', 'Madère — Budget', 'Hero — surtitre', true),
   ('destinations-madere-budget', 'hero_title', 'text', 'Calculateur budget Madère', 'Hero — titre', true),
   ('destinations-madere-budget', 'hero_text', 'textarea', 'Point de départ fiable pour cadrer ton voyage. Référence Heldonica : 1 400–1 800 € pour 7 jours en duo, style équilibré.', 'Hero — accroche', true),
   ('destinations-madere-budget', 'form_title', 'text', 'Paramètres du voyage', 'Formulaire — titre', true),
