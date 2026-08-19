@@ -7,6 +7,22 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
 
 /**
+ * Les nouvelles cles Supabase (sb_secret_..., sb_publishable_...) ne sont pas
+ * des JWT : le gateway les resout directement via `apikey`. L'ancienne cle
+ * service_role (JWT HS256, prefixe eyJ) a besoin de `Authorization: Bearer`
+ * pour que PostgREST en lise le role. On envoie les deux headers seulement
+ * quand c'est encore l'ancien format, pour rester compatible avant/apres
+ * la rotation de cle sans devoir toucher ce fichier une seconde fois.
+ */
+function authHeaders(key: string): Record<string, string> {
+  const headers: Record<string, string> = { apikey: key };
+  if (key.startsWith('eyJ')) {
+    headers['Authorization'] = `Bearer ${key}`;
+  }
+  return headers;
+}
+
+/**
  * Check if Supabase is configured
  */
 export function isSupabaseConfigured(): boolean {
@@ -31,8 +47,7 @@ export async function getMaintenanceMode(): Promise<boolean | null> {
     const response = await fetch(`${supabaseUrl}/rest/v1/site_settings?key=eq.maintenance_mode&select=value`, {
       headers: {
         'Content-Type': 'application/json',
-        'apikey': supabaseServiceKey!,
-        'Authorization': `Bearer ${supabaseServiceKey}`,
+        ...authHeaders(supabaseServiceKey!),
         'Prefer': 'single object'
       },
       next: { revalidate: 30 }
@@ -69,8 +84,7 @@ export async function getSetting(key: string): Promise<string | null> {
       {
         headers: {
           'Content-Type': 'application/json',
-          'apikey': supabaseServiceKey!,
-          'Authorization': `Bearer ${supabaseServiceKey}`,
+          ...authHeaders(supabaseServiceKey!),
           'Prefer': 'single object'
         },
         next: { revalidate: 60 }
@@ -106,8 +120,7 @@ export async function setSetting(key: string, value: string): Promise<boolean> {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'apikey': supabaseServiceKey!,
-          'Authorization': `Bearer ${supabaseServiceKey}`,
+          ...authHeaders(supabaseServiceKey!),
           'Prefer': 'resolution=merge-duplicates'
         },
         body: JSON.stringify({

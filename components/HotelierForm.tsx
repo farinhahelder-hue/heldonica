@@ -31,7 +31,7 @@ export default function HotelierForm() {
       form.reset()
     } catch (err) {
       setStatus('error')
-      setError(err instanceof Error && err.message !== 'request_failed' ? err.message : "La demande n'a pas pu partir. Réessaie ou écris-nous à contact@heldonica.fr.")
+      setError(err instanceof Error && err.message !== 'request_failed' ? err.message : "La demande n'a pas pu aboutir. Réessayez ou écrivez-nous directement à contact@heldonica.fr.")
     }
   }
 
@@ -39,7 +39,7 @@ export default function HotelierForm() {
     return (
       <div className="rounded-2xl border border-eucalyptus/20 bg-eucalyptus/5 p-8 text-center">
         <p className="text-lg font-semibold text-white mb-2">Merci, votre demande est bien enregistrée.</p>
-        <p className="text-sm text-stone-400">Nous vous recontactons sous 48h pour planifier votre appel de diagnostic de 30 minutes.</p>
+        <p className="text-sm text-stone-400">On vous recontacte sous 48h pour planifier votre appel de diagnostic de 30 minutes.</p>
       </div>
     )
   }

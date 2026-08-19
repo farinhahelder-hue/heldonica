@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireCmsAuth } from '@/lib/cms-auth';
+import { revalidateCmsTarget } from '@/lib/revalidate';
 
 function getSupabase() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -55,5 +56,6 @@ export async function PUT(req: NextRequest) {
     .eq('block_key', block_key);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  await revalidateCmsTarget({ page });
   return NextResponse.json({ success: true });
 }

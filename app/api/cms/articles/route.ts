@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireCmsAuth } from '@/lib/cms-auth'
+import { revalidateCmsTarget } from '@/lib/revalidate'
 
 interface CmsBlogPost {
   id: number;
@@ -130,6 +131,8 @@ export async function POST(req: Request) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ;(sb.from('articles') as any).upsert(articlesPayload).then(() => {}).catch(() => {})
     }
+
+  await revalidateCmsTarget({ slug: data?.slug, type: 'article' })
 
   return NextResponse.json({ article: data }, { status: 201 })
 }

@@ -21,26 +21,35 @@ export default function AiImproveModal({
   const [variants, setVariants] = useState<[string, string] | null>(null)
   const [error, setError] = useState<string | null>(null)
 
+  const [providerInfo, setProviderInfo] = useState<string | null>(null)
+
   useEffect(() => {
     if (isOpen && text) {
       const generateSuggestions = async () => {
         setLoading(true)
         setError(null)
         setVariants(null)
+        setProviderInfo(null)
         try {
-          const res = await fetch('/api/cms/ai-improve', {
+          const res = await fetch('/api/cms/ai-assist', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text, zone_type: zoneType }),
+            body: JSON.stringify({ action: 'voice_polish', text }),
           })
-          const data = await res.json()
-          if (data.success && data.variants) {
-            setVariants(data.variants)
+          const result = await res.json()
+          if (result.success && result.data) {
+            const d = result.data
+            const v1 = d.variant_1 || (Array.isArray(d) ? d[0] : typeof d === 'string' ? d : '')
+            const v2 = d.variant_2 || (Array.isArray(d) ? d[1] : '')
+            setVariants([v1, v2].filter(Boolean) as [string, string])
+            if (result.provider && result.model) {
+              setProviderInfo(`${result.provider.toUpperCase()} (${result.model})`)
+            }
           } else {
-            setError(data.error || 'Impossible de generer des suggestions')
+            setError(result.error || 'Impossible de générer des suggestions')
           }
         } catch {
-          setError('Erreur reseau lors de la generation')
+          setError('Erreur réseau lors de la génération IA')
         } finally {
           setLoading(false)
         }
@@ -122,7 +131,14 @@ export default function AiImproveModal({
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-stone-100 flex justify-end bg-stone-50">
+        <div className="p-6 border-t border-stone-100 flex justify-between items-center bg-stone-50">
+          <div>
+            {providerInfo && (
+              <span className="text-[11px] text-stone-400 font-mono">
+                Propulsé par {providerInfo}
+              </span>
+            )}
+          </div>
           <button
             onClick={onClose}
             className="px-4 py-2 border border-stone-300 text-stone-600 rounded-xl text-sm font-semibold hover:bg-stone-100 transition"

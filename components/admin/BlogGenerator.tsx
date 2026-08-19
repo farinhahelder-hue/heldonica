@@ -75,7 +75,7 @@ export default function BlogGenerator({ onGenerated }: BlogGeneratorProps) {
           style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.88rem', background: '#fff' }}
         />
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.3rem', marginTop: '.4rem' }}>
-          {HELDONICA_ACCROCHES.slice(0, 3).map((a, i) => (
+          {HELDONICA_ACCROCHES.slice(0, 3).map((a: string, i: number) => (
             <button key={i} onClick={() => setNotes(prev => prev ? prev : a)}
               style={{ fontSize: '.72rem', padding: '.2rem .5rem', borderRadius: '9999px', background: '#f0e8e4', color: '#6b2a1a', border: 'none', cursor: 'pointer' }}>
               ✨ {a.slice(0, 30)}…

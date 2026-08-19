@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireCmsAuth } from '@/lib/cms-auth'
-import { revalidatePath } from 'next/cache'
+import { revalidateCmsTarget } from '@/lib/revalidate'
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -51,7 +51,10 @@ export async function POST(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  revalidatePath('/destinations/[slug]', 'page')
+  await revalidateCmsTarget({
+    page: data?.parent_slug ? `destinations-${data.parent_slug}` : 'destinations',
+    type: 'destination'
+  })
   return NextResponse.json(data)
 }
 
@@ -76,7 +79,10 @@ export async function PATCH(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  revalidatePath('/destinations/[slug]', 'page')
+  await revalidateCmsTarget({
+    page: data?.parent_slug ? `destinations-${data.parent_slug}` : 'destinations',
+    type: 'destination'
+  })
   return NextResponse.json(data)
 }
 
@@ -99,6 +105,6 @@ export async function DELETE(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  revalidatePath('/destinations/[slug]', 'page')
+  await revalidateCmsTarget({ page: 'destinations', type: 'destination' })
   return NextResponse.json({ success: true })
 }
