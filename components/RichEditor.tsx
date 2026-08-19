@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import CarouselBuilderModal from '@/components/cms/CarouselBuilderModal';
+import AiCopilotModal from '@/components/cms/AiCopilotModal';
 import { buildCarouselHtml, buildImageHtml } from '@/lib/carousel-html';
 
 const MediaLibrary = dynamic(() => import('@/components/MediaLibrary'), { ssr: false });
@@ -48,6 +49,19 @@ export default function RichEditor({
   const savedRangeRef = useRef<Range | null>(null);
   const [showCarouselBuilder, setShowCarouselBuilder] = useState(false);
   const [showMediaLibrary, setShowMediaLibrary] = useState(false);
+  const [showAiCopilot, setShowAiCopilot] = useState(false);
+  const [copilotText, setCopilotText] = useState('');
+
+  const handleOpenCopilot = () => {
+    saveSelection();
+    const selection = window.getSelection();
+    let text = selection ? selection.toString().trim() : '';
+    if (!text && editorRef.current) {
+      text = editorRef.current.innerText.trim();
+    }
+    setCopilotText(text);
+    setShowAiCopilot(true);
+  };
 
   useEffect(() => {
     if (editorRef.current && editorRef.current.innerHTML !== value) {
@@ -212,6 +226,35 @@ export default function RichEditor({
           📤
           <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
         </label>
+        <span style={{ width: 1, height: 22, background: '#e0dbd5', margin: '0 .15rem' }} />
+        <button
+          type="button"
+          title="Copilote IA Heldonica (Polir la voix, développer des notes, structurer)"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            handleOpenCopilot();
+          }}
+          style={{
+            padding: '.3rem .65rem',
+            border: '1px solid #c9b09a',
+            borderRadius: '.35rem',
+            background: 'linear-gradient(135deg, #faf3ee, #f0e6dd)',
+            cursor: 'pointer',
+            fontSize: '.82rem',
+            fontWeight: 700,
+            color: '#6b2a1a',
+            lineHeight: 1,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '.3rem',
+            transition: 'all .15s',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.background = '#e8dcd0')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'linear-gradient(135deg, #faf3ee, #f0e6dd)')}
+        >
+          <span>✨</span>
+          <span>Copilote IA</span>
+        </button>
       </div>
 
       <div
@@ -254,6 +297,13 @@ export default function RichEditor({
           insertHtml(carouselHtml);
           setShowCarouselBuilder(false);
         }}
+      />
+
+      <AiCopilotModal
+        isOpen={showAiCopilot}
+        initialText={copilotText}
+        onClose={() => setShowAiCopilot(false)}
+        onApply={(html) => insertHtml(html)}
       />
 
       {showMediaLibrary && (

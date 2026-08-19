@@ -12,6 +12,8 @@ import TestedByHeldonica from '@/components/TestedByHeldonica'
 import DestinationVerdict from '@/components/DestinationVerdict'
 import QuickAnswersBlock from '@/components/QuickAnswersBlock'
 import DestinationMapEmbed from '@/components/DestinationMapEmbed'
+import SeasonalTable from '@/components/SeasonalTable'
+import type { SeasonInfo } from '@/lib/pillar-data'
 import AffiliateLink from '@/components/AffiliateLink'
 import { AFFILIATE_DISCLOSURE, bookingSearchUrl, getYourGuideSearchUrl } from '@/lib/affiliates'
 import type { PillarData } from '@/lib/pillar-types'
@@ -22,13 +24,15 @@ import { SubDestinationInfo } from '@/lib/pillar-data'
 
 
 export default function DestinationPillar({
-  data, relatedArticles, initialZones, subDestinations = [],
+  data, relatedArticles, initialZones, subDestinations = [], seasons = [],
 }: {
   data: PillarData
-  relatedArticles: { slug: string; title: string; excerpt: string; image_url?: string; read_time?: number }[]
+  relatedArticles: { slug: string; title: string; excerpt: string; image_url?: string; featured_image?: string; read_time?: number }[]
   /** Zones CMS de la page 'destinations', préchargées par la page serveur. */
   initialZones?: Record<string, string>
   subDestinations?: SubDestinationInfo[]
+  /** Saisons détaillées (cms_seasons) ; vide tant que la donnée n'est pas complète pour la destination. */
+  seasons?: SeasonInfo[]
 }) {
   // Ce composant utilisait des <EditableZone page="destinations"> sans jamais
   // rendre InlineEditProvider — l'import existait, le composant n'était pas
@@ -123,6 +127,21 @@ export default function DestinationPillar({
             ))}
           </div>
         </section>
+
+        {/* Saisons détaillées — n'apparaît que si la donnée cms_seasons est complète */}
+        {seasons.length > 0 && (
+          <section className="bg-white py-16 border-b border-stone-200/60">
+            <div className="container max-w-5xl">
+              <h2 className="text-3xl font-serif text-mahogany mb-2">
+                <EditableZone page="destinations" zone="seasons_title_prefix" fallback="Quand partir à" className="inline" /> {data.name} ?
+              </h2>
+              <p className="text-charcoal/60 text-sm mb-8 max-w-2xl">
+                <EditableZone page="destinations" zone="seasons_intro" type="textarea" fallback="On a testé plusieurs saisons sur place. Voici comment on les vit, entre météo, affluence et budget." />
+              </p>
+              <SeasonalTable destination={data.name} seasons={seasons} />
+            </div>
+          </section>
+        )}
 
         {/* Villes & pépites de la région */}
         {(() => {

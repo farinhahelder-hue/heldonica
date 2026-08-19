@@ -429,17 +429,17 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               <EditableZone page="home" zone="hero_line_4" fallback="On revient avec des pépites qu'on n'avait pas cherchées." className="hero-word inline" />
             </em>
           </h1>
-          <EditableZone page="home" zone="hero_tagline" type="textarea" fallback="Un duo qui fabrique des voyages authentiques sur mesure — là où les autres passent sans regarder."
+          <EditableZone page="home" zone="hero_tagline" type="textarea" fallback="Deux voyageurs, dix ans de terrain, des destinations qu'on a vraiment arpentées — pas lu dans un guide."
             className="text-sm md:text-lg text-gray-300 leading-relaxed mb-6 md:mb-8 max-w-xl block"
           />
           <div className="flex flex-wrap gap-3">
-            <Link href="/blog"
+            <Link href="/travel-planning"
               className="px-5 md:px-6 py-2.5 md:py-3 bg-mahogany hover:bg-eucalyptus text-white rounded-full font-semibold text-sm tracking-wide transition">
-              <EditableZone page="home" zone="hero_cta_1_label" fallback="Lire le carnet →" />
+              <EditableZone page="home" zone="hero_cta_1_label" fallback="Planifier mon voyage →" />
             </Link>
-            <Link href="/travel-planning#formulaire"
+            <Link href="/blog"
               className="px-5 md:px-6 py-2.5 md:py-3 border border-white/50 hover:border-white text-white hover:bg-white/10 rounded-full font-semibold text-sm tracking-wide transition">
-              <EditableZone page="home" zone="hero_cta_2_label" fallback="Nous écrire →" />
+              <EditableZone page="home" zone="hero_cta_2_label" fallback="Lire les carnets →" />
             </Link>
           </div>
         </div>
@@ -796,14 +796,14 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <EditableZone page="home" zone="section_b2b_badge" fallback="✦ Espace Hébergeurs & Hôteliers"
             className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
           />
-          <EditableZone page="home" zone="section_b2b_title" type="html" fallback="Tu gères un hébergement de charme ?<br /><em className='text-eucalyptus'>Fais vivre l'expérience slow travel</em>"
+          <EditableZone page="home" zone="section_b2b_title" type="html" fallback="Vous gérez un hébergement de charme ?<br /><em className='text-eucalyptus'>Faites vivre l'expérience slow travel</em>"
             className="text-3xl md:text-4xl font-serif font-light text-mahogany dark:text-stone-200 leading-tight mb-6 block"
           />
-          <EditableZone page="home" zone="section_b2b_text" type="textarea" fallback="Maison d'hôtes, gîte insolite ou hôtel indépendant : on t'aide à attirer des voyageurs qui prennent leur temps, à maximiser tes réservations directes et à optimiser ton SEO de destination."
+          <EditableZone page="home" zone="section_b2b_text" type="textarea" fallback="Maison d'hôtes, gîte insolite ou hôtel indépendant : on vous aide à valoriser votre ancrage, préserver votre marge directe et attirer des voyageurs slow travel."
             className="text-charcoal/70 dark:text-stone-400 leading-relaxed max-w-2xl mx-auto mb-8 block"
           />
           <Link href="/expert-hotelier" className="inline-flex items-center gap-2 px-6 py-3.5 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 text-charcoal dark:text-stone-200 hover:border-eucalyptus dark:hover:border-eucalyptus hover:text-eucalyptus dark:hover:text-eucalyptus font-semibold rounded-full text-sm transition-all">
-            <EditableZone page="home" zone="section_b2b_cta" fallback="Découvrir notre offre Consulting →" />
+            <EditableZone page="home" zone="section_b2b_cta" fallback="Découvrir l'accompagnement hôtelier →" />
           </Link>
         </div>
       </section>

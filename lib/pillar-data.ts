@@ -175,6 +175,57 @@ export async function fetchAllPillarData(): Promise<PillarData[]> {
   }
 }
 
+export interface SeasonInfo {
+  name: string
+  emoji: string
+  months: string[]
+  weather: string
+  crowd: 'low' | 'medium' | 'high'
+  price: 'low' | 'medium' | 'high'
+  description: string
+}
+
+/**
+ * Charge les saisons actives pour une destination, triées par sort_order.
+ * Retourne un tableau vide si la donnée est incomplète (moins de 3 saisons) :
+ * le composant appelant garde alors son ancien tableau générique en repli.
+ */
+export async function fetchSeasons(destinationSlug: string): Promise<SeasonInfo[]> {
+  try {
+    const supabase = createServiceClient()
+    const { data, error } = await supabase
+      .from('cms_seasons')
+      .select('*')
+      .eq('destination_slug', destinationSlug)
+      .eq('is_active', true)
+      .order('sort_order')
+
+    if (error) {
+      console.error(`[CMS seasons] Erreur de lecture pour "${destinationSlug}":`, error.message)
+      return []
+    }
+
+    const rows = data ?? []
+    if (rows.length < 3) return []
+
+    return rows.map(row => ({
+      name: row.season_label,
+      emoji: row.emoji || '',
+      months: row.months_array || [],
+      weather: row.weather || '',
+      crowd: (row.crowd || 'medium') as SeasonInfo['crowd'],
+      price: (row.price || 'medium') as SeasonInfo['price'],
+      description: row.note || '',
+    }))
+  } catch (err) {
+    console.error(
+      `[CMS seasons] Erreur inattendue au chargement de "${destinationSlug}":`,
+      err instanceof Error ? err.message : String(err)
+    )
+    return []
+  }
+}
+
 /** Charge les sous-destinations actives pour une destination parente. */
 export async function fetchSubDestinations(parentSlug: string): Promise<SubDestinationInfo[]> {
   try {

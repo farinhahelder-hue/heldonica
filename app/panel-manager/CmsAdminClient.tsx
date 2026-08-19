@@ -52,6 +52,7 @@ type Article = {
   category?: string;
   tags?: string[];
   featured_image?: string;
+  og_image?: string;
   created_at?: string;
   updated_at?: string;
   published_at?: string;
@@ -850,7 +851,21 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                                 }}
                                 className="w-3.5 h-3.5 rounded border-gray-300" />
                             </td>
-                            <td className="px-4 py-3 font-medium text-gray-900">{article.title}</td>
+                            <td className="px-4 py-3 font-medium text-gray-900">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span>{article.title}</span>
+                                {(!article.featured_image || article.featured_image.trim() === '' || article.featured_image === '/og-default.jpg') && (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-200" title="Image de couverture manquante (utilise le fallback par défaut)">
+                                    🖼️ Image manquante
+                                  </span>
+                                )}
+                                {(!article.og_image || article.og_image.trim() === '' || article.og_image === '/og-default.jpg') && (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-orange-100 text-orange-800 border border-orange-200" title="Image OpenGraph (réseaux sociaux) manquante">
+                                    📱 Pas d'OG
+                                  </span>
+                                )}
+                              </div>
+                            </td>
                             <td className="px-4 py-3 text-gray-500">{article.category ?? '—'}</td>
                             <td className="px-4 py-3">
                               <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${

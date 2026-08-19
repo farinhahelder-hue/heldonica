@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireCmsAuth } from '@/lib/cms-auth';
+import { revalidateCmsTarget } from '@/lib/revalidate';
 
 function getSupabase() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -95,6 +96,8 @@ export async function PATCH(req: NextRequest) {
         }
       }
     }
+
+    await revalidateCmsTarget({ type: 'settings' });
 
     return NextResponse.json({ success: true });
   } catch (err) {

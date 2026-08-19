@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireCmsAuth } from '@/lib/cms-auth'
 import { autoScheduleInstagramPost } from '@/lib/instagram'
+import { revalidateCmsTarget } from '@/lib/revalidate'
 
 interface CmsBlogPost {
   id: number;
@@ -204,6 +205,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     }).catch(() => {})
   }
 
+  await revalidateCmsTarget({ slug: data?.slug, type: 'article' })
+
   return NextResponse.json({ article: data })
 }
 
@@ -228,6 +231,8 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(sb.from('articles') as any).update({ archived: true }).eq('slug', article.slug).then(() => {}).catch(() => {})
   }
+
+  await revalidateCmsTarget({ slug: article?.slug, type: 'article' })
 
   return NextResponse.json({ ok: true })
 }

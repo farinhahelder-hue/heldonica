@@ -72,3 +72,11 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: npm run check:cms-drift
+
+      # Cohérence éditoriale et respect des 7 garde-fous (pronoms, mots bannis, E-E-A-T)
+      - name: Cohérence éditoriale et lexique
+        if: steps.secrets.outputs.presents == 'true'
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npm run check:content-coherence

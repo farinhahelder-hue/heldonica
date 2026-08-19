@@ -62,16 +62,13 @@ export default function Header() {
   }, [open])
 
   // Menu principal piloté par le CMS (zones `nav_item_<n>_label` / `_url`).
-  // Le tableau ci-dessous n'est plus qu'un filet : il ne sert que si aucune
-  // entrée exploitable n'existe en base.
   const safeNavItems = getZoneLinks(
     'nav_item',
     [
       { label: 'Accueil', url: '/' },
       { label: 'Destinations', url: '/destinations' },
-      { label: 'Blog', url: '/blog' },
-      { label: 'Services', url: '/travel-planning' },
-      { label: 'Consulting hôtelier', url: '/expert-hotelier' },
+      { label: 'Carnets de route', url: '/blog' },
+      { label: 'Travel Planning', url: '/travel-planning' },
       { label: 'À propos', url: '/a-propos' },
     ],
     zones as Record<string, CmsZone>
@@ -116,15 +113,31 @@ export default function Header() {
                 key={item.url}
                 href={item.url}
                 aria-current={pathname === item.url ? 'page' : undefined}
-                className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-offset-2 ${
+                className={`rounded-lg px-3.5 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-offset-2 ${
                   pathname === item.url
-                    ? 'text-amber-900'
+                    ? 'text-amber-900 font-semibold'
                     : 'text-stone-600 hover:text-amber-900'
                 }`}
               >
                 {item.label}
               </Link>
             ))}
+          </div>
+
+          {/* Desktop Right CTA */}
+          <div className="hidden items-center gap-3 lg:flex">
+            <Link
+              href="/expert-hotelier"
+              className="text-xs font-semibold text-stone-500 hover:text-eucalyptus transition-colors px-2 py-1"
+            >
+              Espace Hôteliers
+            </Link>
+            <Link
+              href={ctaUrl}
+              className="rounded-full bg-mahogany hover:bg-eucalyptus px-5 py-2 text-xs font-semibold uppercase tracking-wider text-white shadow-sm transition-all duration-200"
+            >
+              {ctaLabel}
+            </Link>
           </div>
 
           {/* Mobile Navigation */}
