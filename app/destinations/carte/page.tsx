@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import MapClientPage from './MapClientPage';
 import Link from 'next/link';
 import { buildPageMetadata } from '@/lib/page-metadata'
+import { getDestinationMarkers } from '@/lib/destinations-data'
 
 const metadata: Metadata = {
   title: 'Carte des Destinations | Heldonica',
@@ -41,7 +42,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 
-export default function MapPage() {
+export default async function MapPage() {
+  const markers = await getDestinationMarkers();
+
   return (
     <>
       <nav className="bg-cloud-dancer/80 backdrop-blur-sm border-b border-cloud-dancer py-3 px-4 md:px-6 mt-16">
@@ -65,7 +68,7 @@ export default function MapPage() {
           </ol>
         </div>
       </nav>
-      <MapClientPage />
+      <MapClientPage markers={markers} />
     </>
   );
 }
