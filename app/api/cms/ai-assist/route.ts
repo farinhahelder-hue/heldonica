@@ -288,29 +288,50 @@ Rends l'article entièrement réécrit et prêt à la publication, précédé d'
 
         if (!lieu && !moment && !detail) {
           return NextResponse.json(
-            { error: 'Renseigne au moins un des trois champs (lieu, moment ou détail).' },
+            { error: 'Renseigne au moins un des trois champs pour démarrer.' },
             { status: 400 }
           );
         }
 
-        const prompt = `Le duo Heldonica t'a donné trois informations brutes sur un moment vécu, sans les mettre en forme. À partir de CES SEULS faits, rédige une caption Instagram complète (120 à 200 mots) dans la voix Heldonica.
+        if (audience === 'b2b') {
+          const prompt = `Un hôtelier ou le duo Heldonica t'a fourni trois informations brutes sur un hébergement de charme et son marché. À partir de CES SEULS faits, rédige un contenu d'analyse / post conseil B2B (150 à 220 mots) selon la structure P-A-S et la voix officielle Heldonica.
+
+Établissement & localisation : ${lieu || 'Hébergement de charme indépendant'}
+Constat chiffré / problème : ${moment || 'Dépendance aux commissions OTAs'}
+Solution slow travel & bénéfice visé : ${detail || 'Valorisation de l’ancrage local et de la marge directe'}
+
+RÈGLE D'OR : "On n'invente rien." Reste fidèle aux faits fournis.
+PRONOMS OBLIGATOIRES : "On" (le duo/Heldonica) et "Vous" (l'hôtelier). Interdiction absolue de "je", "tu", "nous".
+STRUCTURE P-A-S :
+1. Hook percutant & Problème : Constat chiffré sur l'hébergement ou la perte de marge.
+2. Agitation : L'impact sur la rentabilité et la dépendance aux plateformes.
+3. Solution : La stratégie slow travel de terroir et le bénéfice concret.
+4. CTA doux : "On ouvre 3 audits ce mois-ci. Si vous voulez qu'on regarde votre cas, envoyez-nous un DM."`;
+
+          messages = [
+            { role: 'system', content: HELDONICA_B2B_PROMPT },
+            { role: 'user', content: prompt },
+          ];
+        } else {
+          const prompt = `Le duo Heldonica t'a donné trois informations brutes sur un moment vécu, sans les mettre en forme. À partir de CES SEULS faits, rédige une légende Instagram immersive (120 à 180 mots) dans la voix Heldonica.
 
 Lieu / contexte : ${lieu || 'non précisé'}
 Ce qu'on faisait juste avant ou après : ${moment || 'non précisé'}
 Détail marquant (bruit, odeur, sensation, parole) : ${detail || 'non précisé'}
 
-RÈGLE ABSOLUE : "On n'invente rien." Tu peux travailler le style, le rythme et les mots — mais n'ajoute AUCUN fait, lieu, personne ou événement qui n'est pas dans les trois informations ci-dessus. S'il manque un champ, ne le remplace pas par une invention : construis avec ce que tu as.
-
+RÈGLE ABSOLUE : "On n'invente rien." Tu peux travailler le style, le rythme et les mots — mais n'ajoute AUCUN fait, lieu, personne ou événement qui n'est pas dans les trois informations ci-dessus.
+PRONOMS : "On" (duo) + "Tu" (voyageur). 0 mot banni (pas de magnifique, spot, bon plan).
 Structure :
 - Accroche courte tirée du détail marquant.
 - 3-4 lignes qui posent le lieu et le moment, sobres, sans superlatif.
 - Question complice en "tu" à la fin.
 - 5-6 hashtags ciblés (#slowtravel #ecoluxe...).`;
 
-        messages = [
-          { role: 'system', content: HELDONICA_B2C_PROMPT },
-          { role: 'user', content: prompt },
-        ];
+          messages = [
+            { role: 'system', content: HELDONICA_B2C_PROMPT },
+            { role: 'user', content: prompt },
+          ];
+        }
         break;
       }
 

@@ -99,7 +99,7 @@ async function main() {
   }
 
   try {
-    const res = await fetch(`${url}/rest/v1/cms_blog_posts?select=id,title,slug,excerpt,content`, {
+    const res = await fetch(`${url}/rest/v1/cms_blog_posts?select=id,title,slug,excerpt,content,published`, {
       headers: { apikey: key, Authorization: `Bearer ${key}` }
     });
     if (!res.ok) {
@@ -112,27 +112,60 @@ async function main() {
 
     let compliantCount = 0;
     const toImprove = [];
+    const publishedShortPosts = [];
 
     for (const p of posts) {
+      const rawText = (p.content || '').replace(/<[^>]*>/g, '').trim();
+      const textLen = rawText.length;
+
+      // Détection des ébauches vides publiées
+      if (p.published && textLen < 300) {
+        publishedShortPosts.push({
+          id: p.id,
+          title: p.title,
+          slug: p.slug,
+          len: textLen,
+        });
+      }
+
       const res = evaluatePost(p.title, p.content, p.excerpt);
-      if (res.passed) {
+      if (res.passed && (!p.published || textLen >= 300)) {
         compliantCount++;
       } else {
-        toImprove.push({ id: p.id, title: p.title, slug: p.slug, score: res.score, forbidden: res.forbiddenFound });
+        toImprove.push({
+          id: p.id,
+          title: p.title,
+          slug: p.slug,
+          published: p.published,
+          len: textLen,
+          score: res.score,
+          forbidden: res.forbiddenFound,
+        });
       }
     }
 
     const globalCoherence = Math.round((compliantCount / posts.length) * 100);
     console.log(`\n📊 Score Global de Cohérence : ${globalCoherence}% (${compliantCount}/${posts.length} articles conformes à ≥85%)\n`);
 
+    if (publishedShortPosts.length > 0) {
+      console.error(`❌ ALERTE : ${publishedShortPosts.length} article(s) publié(s) ont un contenu vide ou trop court (< 300 car.) :`);
+      publishedShortPosts.forEach(p => {
+        console.error(`  🔴 [ID ${p.id}] "${p.title}" (${p.slug}) — ${p.len} caractères`);
+      });
+      console.error('👉 Veuillez passer ces ébauches en published = false ou rédiger leur contenu.\n');
+      process.exit(1);
+    } else {
+      console.log('✓ Aucun article publié vide (< 300 caractères).');
+    }
+
     if (toImprove.length > 0) {
-      console.log('⚠️ Contenus identifiés pour la Phase d\'audit (J+8 à J+30) :');
-      toImprove.slice(0, 5).forEach(p => {
-        console.log(`  - [${p.score}%] ${p.title} (${p.slug}) ${p.forbidden.length > 0 ? `[Mots bannis: ${p.forbidden.join(', ')}]` : ''}`);
+      console.log('\n⚠️ Contenus en cours d’optimisation / brouillons :');
+      toImprove.slice(0, 6).forEach(p => {
+        console.log(`  - [${p.score}%${p.published ? ' • PUBLIC' : ' • BROUILLON'}] ${p.title} (${p.slug}) ${p.forbidden.length > 0 ? `[Mots bannis: ${p.forbidden.join(', ')}]` : ''}`);
       });
     }
 
-    console.log('\n✓ Vérification terminée avec succès.\n');
+    console.log('\n✓ Vérification de cohérence terminée avec succès.\n');
   } catch (err) {
     console.error('Erreur lors du contrôle de cohérence :', err);
   }

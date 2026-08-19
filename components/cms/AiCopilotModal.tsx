@@ -215,15 +215,17 @@ export default function AiCopilotModal({
           {mode === 'guided_from_facts' ? (
             <div className="space-y-4">
               <p className="text-xs text-stone-500 -mt-1">
-                Pas besoin de rédiger : réponds en quelques mots à chaque question, le reste s'écrit tout seul. Un seul champ rempli suffit pour démarrer.
+                {audience === 'b2b'
+                  ? 'Génère un diagnostic ou un contenu hôtelier P-A-S à partir de 3 faits réels sur un hébergement ou son marché.'
+                  : 'Pas besoin de rédiger : réponds en quelques mots à chaque question, le reste s\'écrit tout seul. Un seul champ rempli suffit pour démarrer.'}
               </p>
               <div>
                 <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
-                  C'est où / c'est quoi ?
+                  {audience === 'b2b' ? '1. Type d’établissement & localisation' : 'C’est où / c’est quoi ?'}
                 </label>
                 <input
                   type="text"
-                  placeholder="Ex : la crique sous Kotor, Monténégro"
+                  placeholder={audience === 'b2b' ? 'Ex : Maison d’hôtes de charme (6 chambres), Val di Noto, Sicile' : 'Ex : la crique sous Kotor, Monténégro'}
                   value={guidedLieu}
                   onChange={(e) => setGuidedLieu(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus"
@@ -231,11 +233,11 @@ export default function AiCopilotModal({
               </div>
               <div>
                 <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
-                  Tu faisais quoi juste avant / après ?
+                  {audience === 'b2b' ? '2. Problème ou constat chiffré (OTAs, commissions, saison creuse)' : 'Tu faisais quoi juste avant / après ?'}
                 </label>
                 <input
                   type="text"
-                  placeholder="Ex : on venait de descendre du bateau"
+                  placeholder={audience === 'b2b' ? 'Ex : 85% de résas via Booking, 18% de commissions, hiver creux' : 'Ex : on venait de descendre du bateau'}
                   value={guidedMoment}
                   onChange={(e) => setGuidedMoment(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus"
@@ -243,11 +245,11 @@ export default function AiCopilotModal({
               </div>
               <div>
                 <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
-                  Un détail qui te revient (bruit, odeur, sensation, parole)
+                  {audience === 'b2b' ? '3. Solution slow travel & bénéfice visé' : 'Un détail qui te revient (bruit, odeur, sensation, parole)'}
                 </label>
                 <input
                   type="text"
-                  placeholder="Ex : l'eau était glacée, personne d'autre autour"
+                  placeholder={audience === 'b2b' ? 'Ex : Immersion récolte d’olives, valorisation terroir, +35% de marge directe' : 'Ex : l’eau était glacée, personne d’autre autour'}
                   value={guidedDetail}
                   onChange={(e) => setGuidedDetail(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus"

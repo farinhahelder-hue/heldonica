@@ -21,12 +21,12 @@ export interface AiCompletionOptions {
 
 export interface AiCompletionResult {
   content: string;
-  provider: 'groq' | 'gemini' | 'openai' | 'anthropic' | 'none';
+  provider: 'groq' | 'gemini' | 'mistral' | 'cerebras' | 'openrouter' | 'openai' | 'anthropic' | 'none';
   model: string;
 }
 
 /**
- * Appel à Groq (OpenAI-compatible)
+ * Appel à Groq (OpenAI-compatible) — Tier gratuit
  */
 async function callGroq(options: AiCompletionOptions, apiKey: string): Promise<AiCompletionResult> {
   const model = 'llama-3.3-70b-versatile';
@@ -56,13 +56,12 @@ async function callGroq(options: AiCompletionOptions, apiKey: string): Promise<A
 }
 
 /**
- * Appel à Google Gemini (REST API)
+ * Appel à Google Gemini (REST API) — Tier gratuit
  */
 async function callGemini(options: AiCompletionOptions, apiKey: string): Promise<AiCompletionResult> {
   const model = 'gemini-2.0-flash';
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
-  // Extraire le prompt système si présent
   const systemMsg = options.messages.find(m => m.role === 'system');
   const userAndAssistantMsgs = options.messages.filter(m => m.role !== 'system');
 
@@ -103,7 +102,99 @@ async function callGemini(options: AiCompletionOptions, apiKey: string): Promise
 }
 
 /**
- * Appel à OpenAI
+ * Appel à Mistral AI (OpenAI-compatible) — Tier gratuit & excellent en français
+ */
+async function callMistral(options: AiCompletionOptions, apiKey: string): Promise<AiCompletionResult> {
+  const model = 'mistral-small-latest';
+  const res = await fetch('https://api.mistral.ai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model,
+      messages: options.messages,
+      temperature: options.temperature ?? 0.7,
+      max_tokens: options.max_tokens ?? 2000,
+      ...(options.jsonMode ? { response_format: { type: 'json_object' } } : {}),
+    }),
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Mistral API Error (${res.status}): ${errorText}`);
+  }
+
+  const data = await res.json();
+  const content = data.choices?.[0]?.message?.content || '';
+  return { content, provider: 'mistral', model };
+}
+
+/**
+ * Appel à Cerebras (OpenAI-compatible) — Inférence ultra-rapide & tier gratuit
+ */
+async function callCerebras(options: AiCompletionOptions, apiKey: string): Promise<AiCompletionResult> {
+  const model = 'llama-3.3-70b';
+  const res = await fetch('https://api.cerebras.ai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model,
+      messages: options.messages,
+      temperature: options.temperature ?? 0.7,
+      max_tokens: options.max_tokens ?? 2000,
+      ...(options.jsonMode ? { response_format: { type: 'json_object' } } : {}),
+    }),
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Cerebras API Error (${res.status}): ${errorText}`);
+  }
+
+  const data = await res.json();
+  const content = data.choices?.[0]?.message?.content || '';
+  return { content, provider: 'cerebras', model };
+}
+
+/**
+ * Appel à OpenRouter (OpenAI-compatible) — Agrégateur avec modèles gratuits
+ */
+async function callOpenRouter(options: AiCompletionOptions, apiKey: string): Promise<AiCompletionResult> {
+  const model = 'meta-llama/llama-3.3-70b-instruct:free';
+  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'HTTP-Referer': 'https://www.heldonica.fr',
+      'X-Title': 'Heldonica Editorial Copilot',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model,
+      messages: options.messages,
+      temperature: options.temperature ?? 0.7,
+      max_tokens: options.max_tokens ?? 2000,
+      ...(options.jsonMode ? { response_format: { type: 'json_object' } } : {}),
+    }),
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`OpenRouter API Error (${res.status}): ${errorText}`);
+  }
+
+  const data = await res.json();
+  const content = data.choices?.[0]?.message?.content || '';
+  return { content, provider: 'openrouter', model };
+}
+
+/**
+ * Appel à OpenAI (Payant)
  */
 async function callOpenAI(options: AiCompletionOptions, apiKey: string): Promise<AiCompletionResult> {
   const model = 'gpt-4o-mini';
@@ -133,7 +224,7 @@ async function callOpenAI(options: AiCompletionOptions, apiKey: string): Promise
 }
 
 /**
- * Appel à Anthropic Claude
+ * Appel à Anthropic Claude (Payant)
  */
 async function callAnthropic(options: AiCompletionOptions, apiKey: string): Promise<AiCompletionResult> {
   const model = 'claude-3-5-haiku-20241022';
@@ -172,12 +263,19 @@ async function callAnthropic(options: AiCompletionOptions, apiKey: string): Prom
 }
 
 /**
- * Orchestrateur principal : tente les fournisseurs dans l'ordre de priorité
+ * Orchestrateur principal : tente les fournisseurs dans l'ordre de priorité :
+ * 1. Groq (Gratuit, Llama 3.3 70B)
+ * 2. Google Gemini (Gratuit, Gemini 2.0 Flash)
+ * 3. Mistral AI (Gratuit, Mistral Small, excellent en français)
+ * 4. Cerebras (Gratuit, Inférence Llama 3.3 70B ultra-rapide)
+ * 5. OpenRouter (Gratuit, Modèles Llama / DeepSeek)
+ * 6. OpenAI (Payant, GPT-4o-mini)
+ * 7. Anthropic (Payant, Claude 3.5 Haiku)
  */
 export async function generateAiCompletion(options: AiCompletionOptions): Promise<AiCompletionResult> {
   const errors: string[] = [];
 
-  // 1. Groq
+  // 1. Groq (Gratuit)
   const groqKey = process.env.GROQ_API_KEY;
   if (groqKey) {
     try {
@@ -188,7 +286,7 @@ export async function generateAiCompletion(options: AiCompletionOptions): Promis
     }
   }
 
-  // 2. Gemini
+  // 2. Gemini (Gratuit)
   const geminiKey = process.env.GEMINI_API_KEY;
   if (geminiKey) {
     try {
@@ -199,7 +297,40 @@ export async function generateAiCompletion(options: AiCompletionOptions): Promis
     }
   }
 
-  // 3. OpenAI
+  // 3. Mistral AI (Gratuit)
+  const mistralKey = process.env.MISTRAL_API_KEY;
+  if (mistralKey) {
+    try {
+      return await callMistral(options, mistralKey);
+    } catch (err: any) {
+      console.warn('[AI Provider] Mistral fallback:', err.message);
+      errors.push(`Mistral: ${err.message}`);
+    }
+  }
+
+  // 4. Cerebras (Gratuit)
+  const cerebrasKey = process.env.CEREBRAS_API_KEY;
+  if (cerebrasKey) {
+    try {
+      return await callCerebras(options, cerebrasKey);
+    } catch (err: any) {
+      console.warn('[AI Provider] Cerebras fallback:', err.message);
+      errors.push(`Cerebras: ${err.message}`);
+    }
+  }
+
+  // 5. OpenRouter (Gratuit / Fallback)
+  const openrouterKey = process.env.OPENROUTER_API_KEY;
+  if (openrouterKey) {
+    try {
+      return await callOpenRouter(options, openrouterKey);
+    } catch (err: any) {
+      console.warn('[AI Provider] OpenRouter fallback:', err.message);
+      errors.push(`OpenRouter: ${err.message}`);
+    }
+  }
+
+  // 6. OpenAI (Payant)
   const openaiKey = process.env.OPENAI_API_KEY || process.env.NEXT_PUBLIC_OPENAI_API_KEY;
   if (openaiKey) {
     try {
@@ -210,7 +341,7 @@ export async function generateAiCompletion(options: AiCompletionOptions): Promis
     }
   }
 
-  // 4. Anthropic
+  // 7. Anthropic (Payant)
   const anthropicKey = process.env.ANTHROPIC_API_KEY;
   if (anthropicKey) {
     try {
