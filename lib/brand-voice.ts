@@ -39,6 +39,21 @@ export const FORBIDDEN_WORDS = [
   'solutions innovantes',
   'expertise reconnue',
   'meilleur partenaire',
+  // Tics de langage IA générique
+  'plongez dans',
+  'plonger dans',
+  'laissez-vous transporter',
+  'laissez-vous emporter',
+  'au cœur de',
+  'véritable havre de paix',
+  'un cocon',
+  'il est temps de',
+  'n\'attendez plus',
+  'n\'attends plus',
+  'une expérience inoubliable vous attend',
+  'préparez-vous à',
+  'embarquez pour',
+  'à ne pas manquer',
 ] as const;
 
 /** Mots et expressions Heldonica à privilégier (B2C) */

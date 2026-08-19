@@ -10,6 +10,7 @@ interface AiCopilotModalProps {
 }
 
 type AiMode =
+  | 'guided_from_facts'
   | 'voice_polish'
   | 'expand_notes'
   | 'email_sequence'
@@ -28,9 +29,12 @@ export default function AiCopilotModal({
   onApply,
 }: AiCopilotModalProps) {
   const [audience, setAudience] = useState<'b2c' | 'b2b'>('b2c');
-  const [mode, setMode] = useState<AiMode>('voice_polish');
+  const [mode, setMode] = useState<AiMode>('guided_from_facts');
   const [inputText, setInputText] = useState(initialText || '');
   const [destination, setDestination] = useState('');
+  const [guidedLieu, setGuidedLieu] = useState('');
+  const [guidedMoment, setGuidedMoment] = useState('');
+  const [guidedDetail, setGuidedDetail] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [variants, setVariants] = useState<[string, string] | null>(null);
@@ -41,7 +45,17 @@ export default function AiCopilotModal({
   if (!isOpen) return null;
 
   const handleGenerate = async () => {
-    if (!inputText && mode !== 'structure_itinerary' && mode !== 'email_sequence' && mode !== 'destination_hub') {
+    if (
+      mode === 'guided_from_facts' &&
+      !guidedLieu.trim() && !guidedMoment.trim() && !guidedDetail.trim()
+    ) {
+      setError('Remplis au moins un des trois champs.');
+      return;
+    }
+    if (
+      mode !== 'guided_from_facts' &&
+      !inputText && mode !== 'structure_itinerary' && mode !== 'email_sequence' && mode !== 'destination_hub'
+    ) {
       setError('Veuillez saisir du texte, des notes ou des faits réels.');
       return;
     }
@@ -62,6 +76,9 @@ export default function AiCopilotModal({
           audience,
           text: inputText,
           destination: destination || undefined,
+          context: mode === 'guided_from_facts'
+            ? { lieu: guidedLieu, moment: guidedMoment, detail: guidedDetail }
+            : undefined,
         }),
       });
 
@@ -159,6 +176,7 @@ export default function AiCopilotModal({
         {/* Mode Tabs */}
         <div className="flex border-b border-stone-200 px-6 bg-stone-50/50 gap-2 pt-3 overflow-x-auto">
           {[
+            { key: 'guided_from_facts', label: '🧭 Partir de 3 infos' },
             { key: 'voice_polish', label: '🌿 Sublimer la Voix' },
             { key: 'expand_notes', label: '📝 Notes ➔ Carnet' },
             { key: 'email_sequence', label: '✉️ Séquence Email' },
@@ -194,6 +212,66 @@ export default function AiCopilotModal({
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Inputs */}
+          {mode === 'guided_from_facts' ? (
+            <div className="space-y-4">
+              <p className="text-xs text-stone-500 -mt-1">
+                Pas besoin de rédiger : réponds en quelques mots à chaque question, le reste s'écrit tout seul. Un seul champ rempli suffit pour démarrer.
+              </p>
+              <div>
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+                  C'est où / c'est quoi ?
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ex : la crique sous Kotor, Monténégro"
+                  value={guidedLieu}
+                  onChange={(e) => setGuidedLieu(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+                  Tu faisais quoi juste avant / après ?
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ex : on venait de descendre du bateau"
+                  value={guidedMoment}
+                  onChange={(e) => setGuidedMoment(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+                  Un détail qui te revient (bruit, odeur, sensation, parole)
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ex : l'eau était glacée, personne d'autre autour"
+                  value={guidedDetail}
+                  onChange={(e) => setGuidedDetail(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus"
+                />
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={handleGenerate}
+                  disabled={loading}
+                  className="px-6 py-2.5 bg-mahogany hover:bg-eucalyptus text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow transition duration-200 flex items-center gap-2 disabled:opacity-50"
+                >
+                  {loading ? (
+                    <>
+                      <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Génération en cours…
+                    </>
+                  ) : (
+                    <>✨ Écrire à partir de ça</>
+                  )}
+                </button>
+              </div>
+            </div>
+          ) : (
           <div className="space-y-4">
             {(mode === 'structure_itinerary' || mode === 'b2c_instagram' || mode === 'email_sequence' || mode === 'destination_hub') && (
               <div>
@@ -260,6 +338,7 @@ export default function AiCopilotModal({
               </button>
             </div>
           </div>
+          )}
 
           {/* Erreur */}
           {error && (

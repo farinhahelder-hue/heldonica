@@ -23,7 +23,8 @@ export interface AiAssistRequest {
     | 'email_sequence'
     | 'destination_hub'
     | 'case_study'
-    | 'audit_refresh';
+    | 'audit_refresh'
+    | 'guided_from_facts';
   audience?: 'b2c' | 'b2b';
   text?: string;
   title?: string;
@@ -275,6 +276,39 @@ Rends l'article entièrement réécrit et prêt à la publication, précédé d'
 
         messages = [
           { role: 'system', content: basePrompt },
+          { role: 'user', content: prompt },
+        ];
+        break;
+      }
+
+      case 'guided_from_facts': {
+        const lieu = context?.lieu?.trim() || '';
+        const moment = context?.moment?.trim() || '';
+        const detail = context?.detail?.trim() || '';
+
+        if (!lieu && !moment && !detail) {
+          return NextResponse.json(
+            { error: 'Renseigne au moins un des trois champs (lieu, moment ou détail).' },
+            { status: 400 }
+          );
+        }
+
+        const prompt = `Le duo Heldonica t'a donné trois informations brutes sur un moment vécu, sans les mettre en forme. À partir de CES SEULS faits, rédige une caption Instagram complète (120 à 200 mots) dans la voix Heldonica.
+
+Lieu / contexte : ${lieu || 'non précisé'}
+Ce qu'on faisait juste avant ou après : ${moment || 'non précisé'}
+Détail marquant (bruit, odeur, sensation, parole) : ${detail || 'non précisé'}
+
+RÈGLE ABSOLUE : "On n'invente rien." Tu peux travailler le style, le rythme et les mots — mais n'ajoute AUCUN fait, lieu, personne ou événement qui n'est pas dans les trois informations ci-dessus. S'il manque un champ, ne le remplace pas par une invention : construis avec ce que tu as.
+
+Structure :
+- Accroche courte tirée du détail marquant.
+- 3-4 lignes qui posent le lieu et le moment, sobres, sans superlatif.
+- Question complice en "tu" à la fin.
+- 5-6 hashtags ciblés (#slowtravel #ecoluxe...).`;
+
+        messages = [
+          { role: 'system', content: HELDONICA_B2C_PROMPT },
           { role: 'user', content: prompt },
         ];
         break;
