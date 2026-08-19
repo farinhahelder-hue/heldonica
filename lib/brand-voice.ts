@@ -22,13 +22,23 @@ export const FORBIDDEN_WORDS = [
   'aventure inoubliable',
   'inoubliable',
   'paradis',
+  'paradisiaque',
   'coup de cœur',
   'must-have',
   'must see',
+  'must-see',
   'les voyageurs',
   'les touristes',
   'solution miracle',
   'solution magique',
+  'magnifique',
+  'splendide',
+  'incroyable',
+  'spot',
+  'optimiser',
+  'solutions innovantes',
+  'expertise reconnue',
+  'meilleur partenaire',
 ] as const;
 
 /** Mots et expressions Heldonica à privilégier (B2C) */
@@ -68,15 +78,15 @@ export const B2B_WORDS = [
   'séjour expérientiel',
 ] as const;
 
-/** Les 7 Garde-fous obligatoires */
+/** Les 7 Garde-fous obligatoires avec pondération officielle */
 export const GARDE_FOUS_CHECKLIST = [
-  { id: 'eeat', label: 'E-E-A-T complet (faits réels, adresses, prix réels vérifiables)' },
-  { id: 'sensory', label: 'Détail sensoriel (au moins 1 image sensorielle : odeur, son, texture, lumière)' },
-  { id: 'honesty', label: 'Honnêteté & Nuance (mention de contrainte ou « Ce qu’on a moins aimé »)' },
-  { id: 'geo', label: 'Données GEO précises (noms exacts de villages, sentiers, routes)' },
-  { id: 'pronouns', label: 'Pronoms stricts (« on » pour le duo, « tu » en B2C, « vous » en B2B)' },
-  { id: 'forbidden', label: 'Zéro mot banni (aucun « bon plan », « incontournable », « tips », etc.)' },
-  { id: 'cta', label: 'CTA doux (sobre, sans agressivité commerciale)' },
+  { id: 'pronouns', label: 'Pronoms (on/tu B2C, vous B2B)', weight: 20, desc: '100% conforme : on (duo), tu (voyageur), vous (hôtelier)' },
+  { id: 'forbidden', label: 'Lexique (0 mot interdit)', weight: 20, desc: 'Zéro mot banni : pas de bon plan, incontournable, tips, magnifique, spot' },
+  { id: 'eeat', label: 'E-E-A-T (visites réelles, saison, date MAJ)', weight: 15, desc: 'Au moins 1 mention concrète d’expérience terrain vérifiée' },
+  { id: 'sensory', label: 'Détails sensoriels (odeur, texture, son, goût)', weight: 15, desc: 'Au moins 1 détail sensoriel vif impossible à inventer' },
+  { id: 'honesty', label: 'Honnêteté (« Ce qu’on a moins aimé »)', weight: 10, desc: 'Présence indispensable de nuance et transparence' },
+  { id: 'geo', label: 'Infos GEO extractibles', weight: 10, desc: 'Au moins 3 repères concrets : adresse, prix, durée, sentier' },
+  { id: 'cta', label: 'CTA doux (non agressif)', weight: 10, desc: 'Invitation sobre : on en parle en DM, lien en bio, formulaire' },
 ] as const;
 
 /** System prompt maître Heldonica */
@@ -117,66 +127,101 @@ export const HELDONICA_B2B_PROMPT = `${HELDONICA_SYSTEM_PROMPT}
 2. **Agitation :** Coût réel de l'inaction (érosion du RevPAR, perte de maîtrise de la relation client).
 3. **Solution :** Stratégie slow travel éco-luxe, storytelling de terroir, conversion directe.`;
 
-/** Valide un texte par rapport aux 7 garde-fous */
+/** Valide un texte par rapport aux 7 garde-fous avec scoring pondéré */
 export function validateGardeFous(text: string, audience: 'b2c' | 'b2b' = 'b2c'): {
   passed: boolean;
   score: number;
-  checks: Record<string, { ok: boolean; message: string }>;
+  isExcellent: boolean;
+  checks: Record<string, { ok: boolean; weight: number; message: string }>;
   forbiddenFound: string[];
 } {
   const lower = text.toLowerCase();
 
-  // 1. Mots bannis
+  // 1. Mots bannis (Poids : 20%)
   const forbiddenFound = FORBIDDEN_WORDS.filter(w => lower.includes(w.toLowerCase()));
   const forbiddenOk = forbiddenFound.length === 0;
 
-  // 2. Pronoms
+  // Détection des pronoms
   const hasJe = /\bje\b|\bj'/.test(lower);
-  const hasNous = /\bnous\b/.test(lower);
+  const hasSubjectNous = /\bnous\s+[a-zÀ-ÿ]+ons\b|\bnous\s+ne\b|\bnous\s+y\b|\bnous\s+en\b/.test(lower);
   const hasOn = /\bon\b/.test(lower);
   const hasTu = /\btu\b|\btoi\b|\bton\b|\bta\b|\btes\b/.test(lower);
   const hasVous = /\bvous\b|\bvotre\b|\bvos\b/.test(lower);
+  const hasTravelers = /\bles voyageurs\b|\bles touristes\b/.test(lower);
 
-  let pronounsOk = hasOn && !hasJe && !hasNous;
-  if (audience === 'b2c') {
-    pronounsOk = pronounsOk && (hasTu || !hasVous);
-  } else {
-    pronounsOk = pronounsOk && hasVous;
-  }
-
-  // 3. Sensoriel
-  const sensoryKeywords = ['odeur', 'senti', 'goût', 'goûté', 'frais', 'lumière', 'vent', 'pierre', 'bois', 'silence', 'bruit', 'eau', 'froid', 'chaud', 'texture', 'saveur'];
-  const sensoryOk = sensoryKeywords.some(w => lower.includes(w));
-
-  // 4. Honnêteté / Nuance
-  const honestyKeywords = ['moins aimé', 'piège', 'attention', 'attente', 'glissant', 'bruyant', 'évite', 'difficile', 'cher', 'limite', 'bémol', 'par contre', 'mais'];
-  const honestyOk = honestyKeywords.some(w => lower.includes(w));
-
-  // 5. GEO
-  const geoOk = /[A-ZÀ-ÿ][a-zà-ÿ]+|\d+\s*(€|km|min|h)/.test(text);
-
-  // 6. E-E-A-T
-  const eeatOk = text.length > 80 && (lower.includes('on a') || lower.includes('testé') || lower.includes('vécu') || lower.includes('sur place'));
-
-  // 7. CTA doux
-  const aggressiveCta = ['clique vite', 'offre limitée', 'achète maintenant', 'dépêchez-vous'].some(w => lower.includes(w));
+  // Détection CTA agressif
+  const aggressiveCta = ['clique vite', 'offre limitée', 'achète maintenant', 'dépêchez-vous', 'réservez maintenant', 'reservez maintenant', 'urgent', 'offre exclusive'].some(w => lower.includes(w));
   const ctaOk = !aggressiveCta;
 
+  if (audience === 'b2b') {
+    // 💼 B2B (5 Garde-fous pondérés à 20% chacun)
+    const pronounsOk = hasVous && hasOn && !hasJe && !hasSubjectNous;
+    const numberMatches = text.match(/(\d+[\d\s.,]*\s*(%|€|k€|chambres|nuitées|jours|h|revpar|adr)|[0-9]{2,})/gi) || [];
+    const numbersOk = numberMatches.length >= 3;
+    const pasOk = (lower.includes('problème') || lower.includes('commissions') || lower.includes('dépendance') || lower.includes('perte') || lower.includes('stagne') || lower.includes('direct') || lower.includes('booking')) &&
+                  (lower.includes('aide') || lower.includes('accompagn') || lower.includes('stratégie') || lower.includes('ancrage') || lower.includes('séjour') || lower.includes('solution'));
+
+    const checks = {
+      pronouns: { ok: pronounsOk, weight: 20, message: pronounsOk ? 'Pronoms B2B conformes (« vous » + « on »)' : 'Utiliser le vouvoiement (« vous ») et « on », bannir « je » et « nous » sujet' },
+      forbidden: { ok: forbiddenOk, weight: 20, message: forbiddenOk ? '0 mot interdit' : `Mots interdits détectés : ${forbiddenFound.join(', ')}` },
+      numbers: { ok: numbersOk, weight: 20, message: numbersOk ? 'Chiffres concrets présents (≥3 repères : %, €, RevPAR)' : 'Ajouter au moins 3 chiffres concrets (RevPAR, %, €, jours)' },
+      pas: { ok: pasOk, weight: 20, message: pasOk ? 'Structure P-A-S identifiée' : 'Structurer en Problème ➔ Agitation ➔ Solution' },
+      cta: { ok: ctaOk, weight: 20, message: ctaOk ? 'CTA doux et sobre' : 'Adoucir l’appel (« on ouvre 3 audits », « contactez-nous en DM »)' },
+    };
+
+    let totalScore = 0;
+    for (const c of Object.values(checks)) {
+      if (c.ok) totalScore += c.weight;
+    }
+
+    return {
+      passed: totalScore >= 85,
+      score: totalScore,
+      isExcellent: totalScore >= 95,
+      checks,
+      forbiddenFound,
+    };
+  }
+
+  // 🌿 B2C (7 Garde-fous pondérés)
+  const pronounsOk = hasOn && !hasJe && !hasSubjectNous && !hasTravelers && (hasTu || !hasVous);
+
+  // E-E-A-T (Poids : 15%)
+  const eeatKeywords = ['on a testé', 'on a vécu', 'on a visité', 'on a passé', 'notre voyage', 'en 202', 'hors saison', 'en mai', 'en juin', 'en septembre', 'en octobre', 'sur place', 'sur le terrain', 'années de route'];
+  const eeatOk = text.length > 40 && eeatKeywords.some(w => lower.includes(w));
+
+  // Détails sensoriels (Poids : 15%)
+  const sensoryKeywords = ['odeur', 'senti', 'goût', 'goûté', 'frais', 'lumière', 'vent', 'pierre', 'bois', 'silence', 'bruit', 'eau', 'froid', 'chaud', 'texture', 'saveur', 'turquoise', 'parfum', 'café', 'brume', 'clapotis', 'rochers'];
+  const sensoryOk = sensoryKeywords.some(w => lower.includes(w));
+
+  // Honnêteté / Nuance (Poids : 10%)
+  const honestyKeywords = ['moins aimé', 'piège', 'attention', 'attente', 'glissant', 'bruyant', 'évite', 'difficile', 'cher', 'limite', 'bémol', 'par contre', 'mais', 'inconvénient'];
+  const honestyOk = honestyKeywords.some(w => lower.includes(w));
+
+  // Données GEO extractibles (Poids : 10%)
+  const geoMatches = text.match(/([A-ZÀ-ÿ][a-zà-ÿ]+|\d+\s*(€|km|min|h|\%))/g) || [];
+  const geoOk = geoMatches.length >= 3;
+
   const checks = {
-    forbidden: { ok: forbiddenOk, message: forbiddenOk ? 'Aucun mot banni' : `Mots bannis détectés : ${forbiddenFound.join(', ')}` },
-    pronouns: { ok: pronounsOk, message: pronounsOk ? 'Pronoms respectés' : 'Vérifier l’usage de "on" (duo) et "tu" (B2C) / "vous" (B2B), bannir "je"/"nous"' },
-    sensory: { ok: sensoryOk, message: sensoryOk ? 'Détail sensoriel présent' : 'Ajouter au moins une évocation sensorielle (matière, son, odeur)' },
-    honesty: { ok: honestyOk, message: honestyOk ? 'Nuance / honnêteté présente' : 'Ajouter une nuance transparente ("Ce qu’on a moins aimé")' },
-    geo: { ok: geoOk, message: geoOk ? 'Repères GEO ou chiffres présents' : 'Préciser des noms de lieux, prix réels ou distances' },
-    eeat: { ok: eeatOk, message: eeatOk ? 'Ancrage E-E-A-T vérifié' : 'Renforcer l’ancrage terrain vécu' },
-    cta: { ok: ctaOk, message: ctaOk ? 'CTA doux et sobre' : 'Adoucir l’appel à l’action' },
+    pronouns: { ok: pronounsOk, weight: 20, message: pronounsOk ? 'Pronoms 100% conformes (« on » + « tu »)' : 'Corriger les pronoms : bannir "je", "nous", "les voyageurs", utiliser "on" et "tu"' },
+    forbidden: { ok: forbiddenOk, weight: 20, message: forbiddenOk ? '0 mot interdit' : `Mots interdits détectés : ${forbiddenFound.join(', ')}` },
+    eeat: { ok: eeatOk, weight: 15, message: eeatOk ? 'E-E-A-T validé (visites réelles, saison, dates)' : 'Ajouter au moins 1 mention de visite réelle, saison ou date de mise à jour' },
+    sensory: { ok: sensoryOk, weight: 15, message: sensoryOk ? 'Détail sensoriel présent' : 'Ajouter au moins 1 détail sensoriel (odeur, texture, son, goût)' },
+    honesty: { ok: honestyOk, weight: 10, message: honestyOk ? 'Honnêteté / nuance présente' : 'Ajouter la section ou mention « Ce qu’on a moins aimé »' },
+    geo: { ok: geoOk, weight: 10, message: geoOk ? 'Infos GEO extractibles (≥3 repères)' : 'Fournir au moins 3 repères concrets (adresses, prix, durées, itinéraires)' },
+    cta: { ok: ctaOk, weight: 10, message: ctaOk ? 'CTA doux et sobre' : 'Remplacer l’appel agressif par un CTA doux (« on en parle en DM », « lien en bio »)' },
   };
 
-  const okCount = Object.values(checks).filter(c => c.ok).length;
-  const score = Math.round((okCount / 7) * 100);
-  const passed = okCount === 7;
+  let totalScore = 0;
+  for (const c of Object.values(checks)) {
+    if (c.ok) totalScore += c.weight;
+  }
 
-  return { passed, score, checks, forbiddenFound };
+  const score = totalScore;
+  const passed = score >= 85;
+  const isExcellent = score >= 95;
+
+  return { passed, score, isExcellent, checks, forbiddenFound };
 }
 
 export function checkBrandVoice(text: string) {
@@ -184,24 +229,28 @@ export function checkBrandVoice(text: string) {
   return {
     forbidden: v.forbiddenFound,
     score: v.score,
+    passed: v.passed,
+    isExcellent: v.isExcellent,
     usesFirstPersonPlural: v.checks.pronouns.ok,
     hasSensoryImage: v.checks.sensory.ok,
   };
 }
 
 export function buildVoiceCorrectPrompt(text: string, audience: 'b2c' | 'b2b' = 'b2c'): string {
-  return `Corrige et sublime ce texte selon le Guide de Voix Heldonica officiel :
+  return `Tu es le rédacteur en chef d'Heldonica. Corrige et sublime ce contenu selon les 7 garde-fous officiels (Seuil minimum requis : 85%, visé : 95%+) :
 
-1. Respecte la règle d'or : "On n'invente rien. On raconte ce qu'on a vécu."
-2. Pronoms obligatoires : "on" (le duo), "${audience === 'b2c' ? 'tu' : 'vous'}" (le lecteur/client). Interdis "je", "nous", "les voyageurs".
-3. Élimine tout mot banni (bons plans, incontournable, tips, astuces, inoubliable, paradis).
-4. Ajoute un détail sensoriel vif (matière, son, odeur, lumière) si manquant.
-5. Intègre une nuance honnête si approprié.
+1. PRONOMS : Utilise strictement "on" pour le duo et "${audience === 'b2c' ? 'tu' : 'vous'}". Interdiction totale de "je", "nous", "les voyageurs".
+2. LEXIQUE : 0 mot interdit (aucun "bon plan", "incontournable", "tips", "magnifique", "splendide", "incroyable", "spot", "optimiser").
+3. E-E-A-T : Intègre au moins 1 mention de vécu terrain (visites réelles, saison, dates 2025-2026).
+4. SENSORIEL : Ajoute au moins 1 détail sensoriel concret (odeur, texture, son, goût).
+5. HONNÊTETÉ : Inclure la nuance "Ce qu'on a moins aimé" (en B2C).
+6. INFOS GEO : Conserve ou ajoute ≥3 repères extractibles (adresses, prix en €, durées).
+7. CTA DOUX : Termine par une invitation sobre non agressive ("On en parle en DM", "Formulaire sur le site").
 
-Texte source :
+Texte source à corriger :
 ---
 ${text}
 ---
 
-Retourne uniquement le texte corrigé, sans commentaire.`;
+Retourne uniquement le texte corrigé, prêt à publication.`;
 }

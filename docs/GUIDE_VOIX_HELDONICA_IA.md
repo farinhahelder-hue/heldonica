@@ -47,19 +47,56 @@
 
 ---
 
-## 4. 🛡️ Les 7 Garde-fous Obligatoires (Checklist de validation)
+## 4. 🛡️ Les 7 Garde-fous Obligatoires (Grille de notation pondérée)
 
-Avant toute publication, le contenu généré par l'IA doit valider ces 7 points :
+Avant toute publication, le contenu généré par l'IA ou rédigé à la main est évalué selon la grille officielle :
 
-1. [ ] **E-E-A-T complet** : Présence de données réelles et vérifiables (lieux, prix, contextes).
-2. [ ] **Détail sensoriel** : Au moins une image sensorielle forte par section (matière, odeur, son, lumière).
-3. [ ] **Honnêteté & Nuance** : Mention transparente de la contrainte ou de *« Ce qu'on a moins aimé »*.
-4. [ ] **Données GEO exploitables** : Noms exacts de villes, routes, sentiers ou coordonnées.
-5. [ ] **Voix du duo respectée** : Emploi strict de « on » (émetteur) et « tu » (B2C) ou « vous » (B2B).
-6. [ ] **Zéro mot banni** : Absence totale de *« bon plan »*, *« incontournable »*, *« tips »*, *« inoubliable »*, etc.
-7. [ ] **CTA doux** : Invitation sobre (*« Lire le carnet »*, *« Découvrir nos services »*) sans agressivité commerciale.
+| # | Critère | Poids | Seuil requis | Description & Exigences |
+|---|---|:---:|:---:|---|
+| 1 | **Pronoms** (on/tu B2C, vous B2B) | **20%** | 100% conforme | Strictement « on » (duo), « tu » (voyageur B2C), « vous » (hôtelier B2B). Interdiction de *« je / nous / les voyageurs »*. |
+| 2 | **Lexique** (0 mot interdit) | **20%** | 0 mot interdit | Zéro mot banni : pas de *bon plan, incontournable, tips, magnifique, splendide, incroyable, spot, optimiser*. |
+| 3 | **E-E-A-T** (visites, saison, date MAJ) | **15%** | ≥1 mention | Au moins 1 mention concrète de vécu terrain (ex: *« On a testé ces budgets sur 3 voyages en 2025–2026, hors saison »*). |
+| 4 | **Détails sensoriels** (odeur, texture, son, goût) | **15%** | ≥1 détail | Au moins 1 détail sensoriel vif (ex: *« Le goût du café local à 2 €, le bruit des marchés le matin »*). |
+| 5 | **Honnêteté** (« Ce qu'on a moins aimé ») | **10%** | Présent (B2C) | Section ou mention de nuance, pièges à éviter ou limite rencontrée. |
+| 6 | **Infos GEO extractibles** | **10%** | ≥3 infos | Au moins 3 données précises extractibles (adresses réelles, prix en €, temps de trajet, altitude). |
+| 7 | **CTA doux** (non agressif) | **10%** | Présent | Appel sobre : *« On en parle en DM »*, *« Lien en bio »*, *« Formulaire sur le site »*. |
 
-> **⚠️ Règle absolue : Si 1 seul point manque → Contenu non publiable.**
+* **Seuil minimum de publication :** 85% ✅
+* **Seuil d'excellence :** 95%+ 🌟
+* **⚠️ Règle absolue : Si le score < 85% ou si un mot banni est présent → Contenu non publiable.**
+
+---
+
+## 4.1. 📋 Checklists Pré-Publication Systématiques
+
+### A. Checklist Contenus B2C (Articles, Captions Instagram, Newsletters)
+- [ ] **Pronoms :** 100% « on » et « tu », aucun « je / nous / les voyageurs ».
+- [ ] **Lexique :** 0 mot interdit (*spot, must-see, incroyable, optimiser, package, magnifique, splendide, paradis*).
+- [ ] **E-E-A-T :** Au moins 1 mention (nombre de visites réelles, saison, années 2025-2026).
+- [ ] **Détail sensoriel :** Au moins 1 phrase (odeur, texture, son, goût, brume, lumière).
+- [ ] **Honnêteté :** Section *« Ce qu'on a moins aimé »* présente pour tout guide ou destination.
+- [ ] **Infos GEO :** Au moins 3 infos extractibles (adresse, prix, lien, horaire).
+- [ ] **CTA doux :** Présent et non agressif (*« On en parle en DM »*, *« Lien en bio »*, *« Formulaire sur le site »*).
+* **Score minimum requis : 7/7 (ou ≥ 85%)**
+
+### B. Checklist Contenus B2B (Posts LinkedIn, Pages Partenaires, Diagnostics Hôteliers)
+- [ ] **Pronoms :** 100% « vous » (client) et « on » (duo Heldonica), aucun « je / nous ».
+- [ ] **Lexique :** 0 mot interdit (*solutions innovantes, expertise reconnue, meilleur partenaire, formule miracle*).
+- [ ] **Chiffres concrets :** Au moins 3 chiffres précis (*RevPAR, %, €, taux d'occupation, jours*).
+- [ ] **Structure P-A-S :** Problème ➔ Agitation ➔ Solution clairement identifiables.
+- [ ] **CTA doux :** Présent et non agressif (*« On ouvre 3 audits ce mois-ci. Si vous voulez qu'on regarde votre cas, envoyez-nous un DM »*).
+* **Score minimum requis : 5/5 (ou ≥ 85%)**
+
+---
+
+## 4.2. 🔴 Cas Pratiques de Correction Validés
+
+| Contenu | Problème détecté | Correction appliquée conforme |
+|---|---|---|
+| **Article "Budget voyage en couple"** | 1 « nous », 0 sensoriel, 0 E-E-A-T | Remplacer « nous » par « on ». Ajouter : *« Le goût du café local à 2 €, le bruit des marchés le matin »*. Ajouter E-E-A-T : *« On a testé ces budgets sur 3 voyages en 2025–2026, hors saison »*. |
+| **Article "Check-list avant de partir"** | 0 sensoriel, 0 E-E-A-T | Ajouter : *« La texture du passeport qu'on feuillette, l'odeur du sac à dos neuf »*. Ajouter E-E-A-T : *« Check-list testée sur 5 voyages en 2025–2026 »*. |
+| **Post LinkedIn "SEO local hôtelier"** | 1 « nous », CTA agressif | Remplacer « nous » par « on ». Remplacer le CTA par : *« On ouvre 3 audits ce mois-ci. Si vous voulez qu'on regarde votre cas, envoyez-nous un DM. »* |
+| **Caption Instagram "Montenegro : crique"** | 1 « magnifique » (mot banni) | Remplacer par : *« L'eau turquoise qu'on ne veut plus quitter »*. |
 
 ---
 
