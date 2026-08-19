@@ -46,19 +46,25 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const search = searchParams.get('search') || ''
   const status = searchParams.get('status') || 'all'
+  const page = parseInt(searchParams.get('page') || '1', 10)
+  const limit = parseInt(searchParams.get('limit') || '15', 10)
+  
+  const from = (page - 1) * limit
+  const to = from + limit - 1
 
   let query = sb
     .from('cms_blog_posts')
-    .select('*')
+    .select('*', { count: 'exact' })
     .order('created_at', { ascending: false })
+    .range(from, to)
 
   if (status === 'published') query = query.eq('published', true)
   if (status === 'draft') query = query.eq('published', false)
   if (search) query = query.ilike('title', `%${search}%`)
 
-  const { data, error } = await query
+  const { data, error, count } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ articles: data })
+  return NextResponse.json({ articles: data, total: count || 0, page, limit })
 }
 
 export async function POST(req: Request) {

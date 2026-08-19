@@ -12,12 +12,25 @@ function getSupabase() {
 export const dynamic = 'force-dynamic'
 
 // GET /api/cms/guide-items?guide_slug=top-10-pepites-madere
+// GET /api/cms/guide-items?distinct_slugs=1  → returns all unique guide slugs
 export async function GET(req: NextRequest) {
   const supabase = getSupabase()
   if (!supabase) return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 })
 
   const { searchParams } = new URL(req.url)
   const guide_slug = searchParams.get('guide_slug')
+  const distinctSlugs = searchParams.get('distinct_slugs')
+
+  // Return list of all distinct guide slugs for the dropdown
+  if (distinctSlugs === '1') {
+    const { data, error } = await supabase
+      .from('cms_guide_items')
+      .select('guide_slug')
+      .eq('is_active', true)
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    const slugs = [...new Set((data || []).map((r: any) => r.guide_slug))].sort()
+    return NextResponse.json({ slugs })
+  }
 
   let query = supabase
     .from('cms_guide_items')

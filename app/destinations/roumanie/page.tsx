@@ -2,11 +2,9 @@ import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase-client'
 import DestinationPillar from '@/components/DestinationPillar'
 import { buildPillarMetadata } from '@/lib/pillar-metadata'
-import { fetchPillarData } from '@/lib/pillar-data'
+import { fetchPillarData, fetchSubDestinations } from '@/lib/pillar-data'
 import { getPageZones } from '@/lib/cms-zones'
 
-// ISR : Next sert le dernier rendu valide si Supabase est momentanement
-// injoignable, ce qui absorbe les incidents transitoires sans contenu hardcode.
 export const revalidate = 300
 
 export async function generateMetadata() {
@@ -16,7 +14,6 @@ export async function generateMetadata() {
 
 async function getRelatedArticles() {
   if (!supabase) return []
-  // Use cms_blog_posts as the single source of truth
   const { data } = await supabase
     .from('cms_blog_posts')
     .select('slug, title, excerpt, featured_image, read_time')
@@ -28,10 +25,11 @@ async function getRelatedArticles() {
 }
 
 export default async function RoumaniePage() {
-  const [data, relatedArticles, zones] = await Promise.all([
+  const [data, relatedArticles, zones, subDestinations] = await Promise.all([
     fetchPillarData('roumanie'),
     getRelatedArticles(),
     getPageZones('destinations'),
+    fetchSubDestinations('roumanie'),
   ])
-  return <DestinationPillar data={data} relatedArticles={relatedArticles} initialZones={zones} />
+  return <DestinationPillar data={data} relatedArticles={relatedArticles} initialZones={zones} subDestinations={subDestinations} />
 }

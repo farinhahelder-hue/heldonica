@@ -16,18 +16,19 @@ import AffiliateLink from '@/components/AffiliateLink'
 import { AFFILIATE_DISCLOSURE, bookingSearchUrl, getYourGuideSearchUrl } from '@/lib/affiliates'
 import type { PillarData } from '@/lib/pillar-types'
 import { SITE_URL } from '@/lib/seo'
-import { SUB_DESTINATIONS } from '@/lib/sub-destinations'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import { SubDestinationInfo } from '@/lib/pillar-data'
 
 
 export default function DestinationPillar({
-  data, relatedArticles, initialZones,
+  data, relatedArticles, initialZones, subDestinations = [],
 }: {
   data: PillarData
   relatedArticles: { slug: string; title: string; excerpt: string; image_url?: string; read_time?: number }[]
   /** Zones CMS de la page 'destinations', préchargées par la page serveur. */
   initialZones?: Record<string, string>
+  subDestinations?: SubDestinationInfo[]
 }) {
   // Ce composant utilisait des <EditableZone page="destinations"> sans jamais
   // rendre InlineEditProvider — l'import existait, le composant n'était pas
@@ -125,7 +126,7 @@ export default function DestinationPillar({
 
         {/* Villes & pépites de la région */}
         {(() => {
-          const subDests = SUB_DESTINATIONS[data.slug] || []
+          const subDests = subDestinations
           if (subDests.length === 0) return null
           return (
             <section className="bg-white py-16 border-b border-stone-200/60">
@@ -288,7 +289,7 @@ export default function DestinationPillar({
         <section className="bg-cloud-dancer py-16 md:py-20">
           <div className="container max-w-5xl">
             <h2 className="text-3xl font-serif text-mahogany mb-2">
-              Où se situe {data.name} ?
+              <EditableZone page="destinations" zone="map_title_prefix" fallback="Où se situe" className="inline" /> {data.name} ?
             </h2>
             <p className="text-charcoal/70 text-base mb-8 max-w-2xl leading-relaxed">
               Repère les étapes de l&apos;itinéraire avant de partir : les distances
@@ -390,11 +391,15 @@ export default function DestinationPillar({
         {/* FAQ */}
         <section className="bg-cloud-dancer py-16">
           <div className="container max-w-3xl">
-            <h2 className="text-3xl font-serif text-mahogany mb-8 text-center">Questions fréquentes</h2>
+            <h2 className="text-3xl font-serif text-mahogany mb-8 text-center">
+              <EditableZone page="destinations" zone="faq_title" fallback="Questions fréquentes" />
+            </h2>
 
             {/* Tableau saison / affluence */}
             <div className="mb-8 overflow-x-auto">
-              <h3 className="text-sm font-semibold text-charcoal/60 mb-4">Meilleure période pour {data.name}</h3>
+              <h3 className="text-sm font-semibold text-charcoal/60 mb-4">
+                <EditableZone page="destinations" zone="season_table_title" fallback="Meilleure période pour" className="inline" /> {data.name}
+              </h3>
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-stone-200">
@@ -443,9 +448,15 @@ export default function DestinationPillar({
         {/* CTA Travel Planning */}
         <section className="bg-mahogany text-white py-20">
           <div className="container text-center max-w-3xl">
-            <p className="text-sm uppercase tracking-[0.16em] text-teal mb-3">Voyage sur mesure</p>
-            <h2 className="text-3xl md:text-4xl font-serif mb-4">Prêt à découvrir {data.name} à ton rythme ?</h2>
-            <p className="text-white/80 mb-8">On peut concevoir ton séjour sur mesure, avec nos adresses testées et notre rythme slow.</p>
+            <p className="text-sm uppercase tracking-[0.16em] text-teal mb-3">
+              <EditableZone page="destinations" zone="cta_surmesure_subtitle" fallback="Voyage sur mesure" />
+            </p>
+            <h2 className="text-3xl md:text-4xl font-serif mb-4">
+              <EditableZone page="destinations" zone="cta_surmesure_title" fallback="Prêt à découvrir" className="inline" /> {data.name} <EditableZone page="destinations" zone="cta_surmesure_title_suffix" fallback="à ton rythme ?" className="inline" />
+            </h2>
+            <p className="text-white/80 mb-8">
+              <EditableZone page="destinations" type="textarea" zone="cta_surmesure_text" fallback="On peut concevoir ton séjour sur mesure, avec nos adresses testées et notre rythme slow." />
+            </p>
             <Link href={`/travel-planning-form?destination=${data.slug}`}
               className="inline-flex px-7 py-3 rounded-lg bg-teal text-charcoal font-semibold hover:bg-teal/90 transition-colors"
               onClick={() => { if (typeof window !== 'undefined' && (window as any).gtag) (window as any).gtag('event', 'cta_travel_planning_clique', { source: 'page_pilier', destination: data.slug }) }}>

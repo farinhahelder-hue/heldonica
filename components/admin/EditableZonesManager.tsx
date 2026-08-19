@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/components/admin/Toast';
-import { Search, Save, Edit2, Check, X, RefreshCw } from 'lucide-react';
+import { Search, Save, Edit2, Check, X, RefreshCw, History, Clock } from 'lucide-react';
 import type { CmsZone, CmsZonesData } from '@/lib/content-loader';
 
 export default function EditableZonesManager() {
@@ -12,6 +12,10 @@ export default function EditableZonesManager() {
   const [search, setSearch] = useState('');
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
+  
+  const [historyModal, setHistoryModal] = useState<{page: string, key: string} | null>(null);
+  const [historyData, setHistoryData] = useState<any[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   const fetchZones = useCallback(async () => {
     setLoading(true);
@@ -60,6 +64,41 @@ export default function EditableZonesManager() {
       fetchZones();
     } catch (e) {
       toast({ title: 'Erreur', description: 'Échec de la sauvegarde', variant: 'danger' });
+    }
+  };
+
+  const loadHistory = async (page: string, key: string) => {
+    setHistoryModal({ page, key });
+    setHistoryData([]);
+    setHistoryLoading(true);
+    try {
+      const res = await fetch(`/api/cms/zone-history?page=${page}&zone_key=${key}`);
+      if (res.ok) {
+        const data = await res.json();
+        setHistoryData(data.history || []);
+      }
+    } catch {
+      toast('Impossible de charger l\'historique', 'error');
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  const restoreHistory = async (page: string, key: string, value: string) => {
+    if (!confirm('Restaurer cette version ?')) return;
+    try {
+      const res = await fetch('/api/cms/zone-history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ page, zone_key: key, value })
+      });
+      if (res.ok) {
+        toast({ title: 'Restauré', description: 'Zone restaurée avec succès' });
+        setHistoryModal(null);
+        fetchZones();
+      }
+    } catch {
+      toast({ title: 'Erreur', description: 'Échec de la restauration', variant: 'danger' });
     }
   };
 
@@ -144,15 +183,24 @@ export default function EditableZonesManager() {
                           </button>
                         </div>
                       ) : (
-                        <button
-                          onClick={() => {
-                            setEditingKey(`${zone.page}__${zone.zone_key}`);
-                            setEditValue(zone.value);
-                          }}
-                          className="p-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-100 transition-colors flex items-center gap-2"
-                        >
-                          <Edit2 className="w-4 h-4" /> <span className="text-xs font-semibold">Éditer</span>
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => {
+                              setEditingKey(`${zone.page}__${zone.zone_key}`);
+                              setEditValue(zone.value);
+                            }}
+                            className="p-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-100 transition-colors flex items-center gap-2"
+                          >
+                            <Edit2 className="w-4 h-4" /> <span className="text-xs font-semibold">Éditer</span>
+                          </button>
+                          <button
+                            onClick={() => loadHistory(zone.page, zone.zone_key)}
+                            className="p-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-100 transition-colors"
+                            title="Historique"
+                          >
+                            <History className="w-4 h-4" />
+                          </button>
+                        </div>
                       )}
                     </td>
                   </tr>
@@ -162,6 +210,60 @@ export default function EditableZonesManager() {
           </div>
         )}
       </div>
+
+      {historyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-xl overflow-hidden">
+            <div className="px-6 py-4 border-b border-stone-200 flex justify-between items-center bg-stone-50">
+              <h3 className="font-semibold text-stone-800 flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                Historique : {historyModal.page} / {historyModal.key}
+              </h3>
+              <button onClick={() => setHistoryModal(null)} className="p-1 hover:bg-stone-200 rounded">
+                <X className="w-5 h-5 text-stone-500" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto flex-1 bg-white">
+              {historyLoading ? (
+                <div className="text-center text-stone-500">Chargement de l'historique...</div>
+              ) : historyData.length === 0 ? (
+                <div className="text-center text-stone-500">Aucun historique pour cette zone.</div>
+              ) : (
+                <div className="space-y-4">
+                  {historyData.map(record => (
+                    <div key={record.id} className="border border-stone-200 rounded-xl overflow-hidden">
+                      <div className="bg-stone-50 px-4 py-2 border-b border-stone-200 flex justify-between items-center text-xs text-stone-600">
+                        <span>Modifié le {new Date(record.changed_at).toLocaleString('fr-FR')}</span>
+                        <button 
+                          onClick={() => restoreHistory(historyModal.page, historyModal.key, record.new_value)}
+                          className="px-3 py-1 bg-eucalyptus text-white font-medium rounded hover:bg-eucalyptus/90 transition-colors"
+                        >
+                          Restaurer cette version
+                        </button>
+                      </div>
+                      <div className="p-4 grid grid-cols-2 gap-4">
+                        <div>
+                          <div className="text-[10px] font-bold text-red-400 uppercase mb-1">Ancienne Valeur</div>
+                          <div className="bg-red-50 p-3 rounded text-sm text-stone-700 whitespace-pre-wrap max-h-48 overflow-y-auto">
+                            {record.old_value || <em className="text-stone-400">N/A (création)</em>}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] font-bold text-green-500 uppercase mb-1">Nouvelle Valeur</div>
+                          <div className="bg-green-50 p-3 rounded text-sm text-stone-700 whitespace-pre-wrap max-h-48 overflow-y-auto">
+                            {record.new_value}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

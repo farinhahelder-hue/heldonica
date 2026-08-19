@@ -4,6 +4,10 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useEditableContext } from './InlineEditProvider'
 import AiImproveModal from './AiImproveModal'
+import dynamic from 'next/dynamic'
+import TiptapEditor from './TiptapEditor'
+
+const MediaLibrary = dynamic(() => import('@/components/MediaLibrary'), { ssr: false })
 
 type ZoneType = 'text' | 'textarea' | 'image' | 'html'
 
@@ -33,6 +37,7 @@ export default function EditableZone({
   const [editValue, setEditValue] = useState('')
   const [editing, setEditing] = useState(false)
   const [aiModalOpen, setAiModalOpen] = useState(false)
+  const [mediaLibOpen, setMediaLibOpen] = useState(false)
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null)
   const zoneKey = `${page}__${zone}`
   const hasCmsValue = zones[zoneKey] !== undefined
@@ -144,7 +149,7 @@ export default function EditableZone({
   const renderEditMode = () => {
     if (type === 'image') {
       return (
-        <div id={`zone-${zoneKey}`} className="relative group p-1 border border-eucalyptus rounded bg-stone-50">
+        <div data-zone-editing id={`zone-${zoneKey}`} className="relative group p-1 border border-eucalyptus rounded bg-stone-50">
           <img src={editValue || value} alt="" className={className} loading="lazy" />
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition duration-200">
             <input
@@ -164,6 +169,12 @@ export default function EditableZone({
               OK
             </button>
             <button
+              onClick={() => setMediaLibOpen(true)}
+              className="px-3 py-2 bg-blue-600 text-white rounded text-sm font-semibold hover:bg-blue-700"
+            >
+              📷 Media
+            </button>
+            <button
               onClick={cancel}
               className="px-3 py-2 bg-stone-600 text-white rounded text-sm font-semibold hover:bg-stone-700"
             >
@@ -176,14 +187,11 @@ export default function EditableZone({
 
     if (type === 'textarea') {
       return (
-        <div id={`zone-${zoneKey}`} className="relative p-2 border-2 border-dashed border-eucalyptus rounded bg-stone-50">
-          <textarea
-            ref={inputRef as any}
+        <div data-zone-editing id={`zone-${zoneKey}`} className="relative p-2 border-2 border-dashed border-eucalyptus rounded bg-stone-50 min-w-[300px]">
+          <TiptapEditor
             value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className={`w-full bg-transparent p-1 text-sm focus:outline-none ${className}`}
-            rows={4}
+            onChange={(html) => setEditValue(html)}
+            className={className}
           />
           <div className="flex items-center gap-1.5 mt-1.5">
             <button
@@ -212,7 +220,7 @@ export default function EditableZone({
     }
 
     return (
-      <div id={`zone-${zoneKey}`} className="relative inline-block p-1 border-2 border-dashed border-eucalyptus rounded bg-stone-50">
+      <div data-zone-editing id={`zone-${zoneKey}`} className="relative inline-block p-1 border-2 border-dashed border-eucalyptus rounded bg-stone-50">
         <input
           ref={inputRef as any}
           type="text"
@@ -260,6 +268,28 @@ export default function EditableZone({
           setAiModalOpen(false)
         }}
       />
+      {mediaLibOpen && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto relative shadow-2xl">
+            <button
+              onClick={() => setMediaLibOpen(false)}
+              className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-stone-100 text-stone-500 hover:bg-stone-200"
+            >
+              ✕
+            </button>
+            <div className="p-6">
+              <h2 className="text-xl font-bold mb-4">Bibliothèque de médias</h2>
+              <MediaLibrary
+                onSelect={(url) => {
+                  setEditValue(url)
+                  setMediaLibOpen(false)
+                }}
+                onClose={() => setMediaLibOpen(false)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

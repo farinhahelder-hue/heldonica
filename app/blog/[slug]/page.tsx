@@ -23,6 +23,7 @@ import EditableZone from '@/components/inline-edit/EditableZone'
 import { getPageZones } from '@/lib/cms-zones'
 import DynamicArticleMap from '@/components/DynamicArticleMap'
 import { verifyPreviewToken } from '@/lib/preview-token'
+import { getPageLayout } from '@/lib/layout-helpers'
 
 const SITE_URL = 'https://www.heldonica.fr'
 
@@ -171,42 +172,10 @@ function buildJsonLds(post: BlogPost, readTime: number) {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Accueil',
-        item: SITE_URL,
-      },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: 'Blog',
-        item: `${SITE_URL}/blog`,
-      },
-      ...(post.category
-        ? [
-            {
-              '@type': 'ListItem',
-              position: 3,
-              name: post.category,
-              item: `${SITE_URL}/blog?categorie=${encodeURIComponent(post.category)}`,
-            },
-            {
-              '@type': 'ListItem',
-              position: 4,
-              name: post.title,
-              item: `${SITE_URL}/blog/${post.slug}`,
-            },
-          ]
-        : [
-            {
-              '@type': 'ListItem',
-              position: 3,
-              name: post.title,
-              item: `${SITE_URL}/blog/${post.slug}`,
-            },
-          ]),
-    ],
+      { '@type': 'ListItem', position: 1, name: 'Accueil', item: SITE_URL },
+      { '@type': 'ListItem', position: 2, name: 'Carnets de voyage', item: `${SITE_URL}/blog` },
+      { '@type': 'ListItem', position: 3, name: post.title }
+    ]
   }
 
   const travelCategories = ['Travel', 'Guides Pratiques', 'Carnets Voyage', 'Decouvertes Locales']
@@ -216,8 +185,8 @@ function buildJsonLds(post: BlogPost, readTime: number) {
         '@context': 'https://schema.org',
         '@type': 'TravelArticle' as const,
         headline: post.seo_title || post.title,
-    description: post.seo_description || post.excerpt || '',
-        image: [ldImage],
+        description: post.seo_description || post.excerpt || '',
+        image: [],
         datePublished: post.published_at ?? '',
         dateModified: post.updated_at ?? post.published_at ?? '',
         author: { '@type': 'Person', name: post.author || 'Heldonica', url: SITE_URL },
@@ -240,7 +209,6 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
 
   let post = await getPostBySlug(slug)
 
-  // Preview mode: bypass published filter if token is valid
   if (!post && preview_token) {
     const verified = await verifyPreviewToken(preview_token)
     if (verified && verified.slug === slug) {
@@ -256,7 +224,6 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
 
   if (!post) notFound()
 
-  // Fetch show_map flag safely with try-catch and key checks
   let showMap = false
   try {
     const hasServiceKey = !!process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -273,25 +240,233 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
     console.warn("Could not query show_map from admin schema, defaulting to false:", err)
   }
 
-  const [allPosts, heroFallback] = await Promise.all([
+  const [allPosts, heroFallback, blogZones] = await Promise.all([
     getAllPosts(),
     getHeroFallback(),
+    getPageZones('blog')
   ])
   const relatedResult = getRelatedArticles(post, allPosts, 3)
   const related = relatedResult ?? []
   const heroImage = (post.featured_image && post.featured_image.trim().length > 0)
     ? post.featured_image
     : (heroFallback[post.category ?? ''] ?? DEFAULT_HERO)
-  const fallbackBg = heroFallback[post.category ?? ''] ?? 'bg-gradient-to-br from-stone-900 to-mahogany'
   const readTime = getReadingTime(post.content)
   const { articleLd, breadcrumbLd, travelLd } = buildJsonLds(post, readTime)
   const canonicalUrl = `${SITE_URL}/blog/${post.slug}`
   const safeContent = sanitizeHtml(post.content)
 
-  // Les libellés du bloc « articles liés » sont communs à tous les articles :
-  // ils vivent sous la page `blog`, pas sous l'article. Le provider porte donc
-  // ce namespace-là — c'est aussi lui qui reçoit les modifications.
-  const blogZones = await getPageZones('blog')
+  const layoutConfig = await getPageLayout('article')
+  const activeBlocks = layoutConfig.filter(b => b.active).map(b => b.id)
+
+  const BlockHero = () => (
+    <div className={`relative h-[56vh] w-full overflow-hidden md:h-[68vh] bg-stone-900`}>
+      <Image
+        src={heroImage}
+        alt={post.alt_text || post.title}
+        fill
+        className="object-cover opacity-75"
+        loading="eager"
+        sizes="100vw"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12">
+        <div className="mx-auto max-w-4xl">
+          <Link
+            href="/blog"
+            className="mb-5 inline-flex items-center gap-2 text-sm text-white/65 transition-colors duration-200 hover:text-white"
+          >
+            ← Retour aux carnets
+          </Link>
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            {post.category && (
+              <span className="rounded-full bg-teal px-3 py-1 text-xs font-bold text-white">
+                {post.category}
+              </span>
+            )}
+            {post.tags?.slice(0, 2).map((tag) => (
+              <span
+                key={tag}
+                className="rounded-full bg-white/15 px-2.5 py-1 text-xs text-white/80 backdrop-blur-sm"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+          <h1 className="mb-4 text-3xl font-serif font-light leading-tight text-white md:text-5xl">
+            {post.title}
+          </h1>
+          <div className="flex flex-wrap items-center gap-4 text-sm text-white/65">
+            <span>{post.author || 'Heldonica'}</span>
+            <span>•</span>
+            <span>{formatDate(post.published_at)}</span>
+            {readTime > 0 && (
+              <>
+                <span>•</span>
+                <span>{readTime} min de lecture</span>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  const BlockContent = () => (
+    <div className="mx-auto max-w-3xl px-4 py-12 md:py-16">
+      {post.excerpt && (
+        <div className="mb-10 rounded-[2rem] border border-eucalyptus/20 bg-eucalyptus/5 px-6 py-6 md:px-8">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-mahogany">Ouverture</p>
+          <p className="text-xl font-light leading-relaxed text-stone-800">{post.excerpt}</p>
+        </div>
+      )}
+
+      {safeContent ? (
+        <EnhancedRichContent
+          html={safeContent}
+          className="prose prose-lg max-w-none
+            prose-headings:font-serif prose-headings:font-light prose-headings:text-stone-900
+            prose-h2:mt-12 prose-h2:mb-5 prose-h2:text-3xl
+            prose-h3:mt-8 prose-h3:mb-3 prose-h3:text-2xl
+            prose-p:mb-6 prose-p:text-stone-700 prose-p:leading-8
+            prose-a:text-mahogany prose-a:no-underline hover:prose-a:underline
+            prose-img:mx-auto prose-img:my-10 prose-img:rounded-[1.75rem] prose-img:shadow-lg
+            prose-strong:text-stone-900 prose-strong:font-semibold
+            prose-blockquote:rounded-r-2xl prose-blockquote:border-l-4 prose-blockquote:border-teal prose-blockquote:bg-eucalyptus/5 prose-blockquote:px-6 prose-blockquote:py-4
+            prose-ul:space-y-3 prose-li:text-stone-700
+            prose-hr:border-stone-200"
+        />
+      ) : (
+        <div className="rounded-[2rem] border border-stone-200 bg-stone-50 px-6 py-12 text-center">
+          <p className="text-lg leading-relaxed text-stone-500">
+            Le récit n&apos;est pas encore publié en entier.
+          </p>
+        </div>
+      )}
+    </div>
+  )
+
+  const BlockMap = () => (
+    showMap ? (
+      <div className="mx-auto max-w-3xl px-4 pb-8">
+        <DynamicArticleMap slug={slug} />
+      </div>
+    ) : null
+  )
+
+  const BlockVoiceNotes = () => (
+    post.voice_notes ? (
+      <div className="mx-auto max-w-3xl px-4 pb-8">
+        <aside className="rounded-[2rem] border border-stone-200 bg-stone-50 px-6 py-6 md:px-8">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Détail terrain</p>
+          <p className="text-base leading-relaxed text-stone-700">{post.voice_notes}</p>
+        </aside>
+      </div>
+    ) : null
+  )
+
+  const BlockTags = () => (
+    <div className="mx-auto max-w-3xl px-4 pb-16">
+      <div className="border-t border-stone-100 pt-8">
+        <ShareButtons title={post.title} url={canonicalUrl} />
+      </div>
+
+      {post.tags && post.tags.length > 0 && (
+        <div className="mt-8 border-t border-stone-100 pt-6">
+          <p className="mb-3 text-xs uppercase tracking-[0.18em] text-stone-500">Tags</p>
+          <div className="flex flex-wrap gap-2">
+            {post.tags.slice(0, 3).map((tag) => (
+              <span
+                key={tag}
+                className="rounded-full bg-stone-100 px-3 py-1.5 text-xs text-stone-600"
+              >
+                #{tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="mt-8 border-t border-stone-100 pt-6">
+        <Link
+          href="/blog"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-mahogany transition-colors duration-200 hover:text-mahogany"
+        >
+          ← Retour aux carnets
+        </Link>
+      </div>
+    </div>
+  )
+
+  const BlockRelated = () => (
+    related.length > 0 ? (
+      <section className="bg-stone-50 py-16">
+        <div className="mx-auto max-w-6xl px-4">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-mahogany">
+            <EditableZone page="blog" zone="related_kicker" fallback="Continuer" />
+          </p>
+          <h2 className="mb-3 text-3xl font-serif font-light text-stone-900">
+            <EditableZone page="blog" zone="related_title" fallback="Dans la même veine" />
+          </h2>
+          <p className="mb-8 max-w-2xl text-sm leading-relaxed text-stone-600">
+            <EditableZone
+              page="blog"
+              zone="related_intro"
+              type="textarea"
+              fallback="D'autres récits qui avancent au même rythme : un moment précis, un lieu, un détail qui reste."
+            />
+          </p>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            {related.map((relatedPost: BlogPost) => {
+              const relatedImage = relatedPost.og_image || relatedPost.featured_image || heroFallback[relatedPost.category ?? ''] || DEFAULT_HERO
+              return (
+                <Link key={relatedPost.slug} href={`/blog/${relatedPost.slug}`} className="group block transition-all duration-200">
+                  <article className="overflow-hidden rounded-[1.5rem] bg-white shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-md">
+                    <div className="relative h-44 overflow-hidden">
+                      <Image
+                        src={relatedImage}
+                        alt={relatedPost.alt_text || relatedPost.title}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        loading="lazy"
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                      />
+                    </div>
+                    <div className="p-5">
+                      {relatedPost.category && (
+                        <span className="text-xs font-semibold text-mahogany">{relatedPost.category}</span>
+                      )}
+                      <h3 className="mt-2 text-base font-semibold leading-snug text-stone-900 transition-colors duration-200 group-hover:text-mahogany">
+                        {relatedPost.title}
+                      </h3>
+                      {relatedPost.excerpt && (
+                        <p className="mt-3 line-clamp-2 text-sm text-stone-500">
+                          {relatedPost.excerpt}
+                        </p>
+                      )}
+                      <div className="mt-4 flex items-center gap-2 text-xs text-stone-400">
+                        <span>{formatDate(relatedPost.published_at)}</span>
+                        <span>•</span>
+                        <span>{getReadingTime(relatedPost.content || '')} min</span>
+                      </div>
+                    </div>
+                  </article>
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+    ) : null
+  )
+
+  const blockComponents: Record<string, React.FC> = {
+    hero: BlockHero,
+    content: BlockContent,
+    map: BlockMap,
+    voice_notes: BlockVoiceNotes,
+    tags: BlockTags,
+    related_articles: BlockRelated,
+  }
 
   return (
     <InlineEditProvider page="blog" initialZones={blogZones}>
@@ -315,182 +490,12 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
 
       <Header />
       <ReadingProgress />
-      <main className="min-h-screen bg-white">
-        <div className={`relative h-[56vh] w-full overflow-hidden md:h-[68vh] bg-stone-900`}>
-          <Image
-            src={heroImage}
-            alt={post.alt_text || post.title}
-            fill
-            className="object-cover opacity-75"
-            loading="eager"
-            sizes="100vw"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12">
-            <div className="mx-auto max-w-4xl">
-              <Link
-                href="/blog"
-                className="mb-5 inline-flex items-center gap-2 text-sm text-white/65 transition-colors duration-200 hover:text-white"
-              >
-                ← Retour aux carnets
-              </Link>
-              <div className="mb-4 flex flex-wrap items-center gap-2">
-                {post.category && (
-                  <span className="rounded-full bg-teal px-3 py-1 text-xs font-bold text-white">
-                    {post.category}
-                  </span>
-                )}
-                {post.tags?.slice(0, 2).map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full bg-white/15 px-2.5 py-1 text-xs text-white/80 backdrop-blur-sm"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              <h1 className="mb-4 text-3xl font-serif font-light leading-tight text-white md:text-5xl">
-                {post.title}
-              </h1>
-              <div className="flex flex-wrap items-center gap-4 text-sm text-white/65">
-                <span>{post.author || 'Heldonica'}</span>
-                <span>•</span>
-                <span>{formatDate(post.published_at)}</span>
-                {readTime > 0 && (
-                  <>
-                    <span>•</span>
-                    <span>{readTime} min de lecture</span>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mx-auto max-w-3xl px-4 py-12 md:py-16">
-          {post.excerpt && (
-            <div className="mb-10 rounded-[2rem] border border-eucalyptus/20 bg-eucalyptus/5 px-6 py-6 md:px-8">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-mahogany">Ouverture</p>
-              <p className="text-xl font-light leading-relaxed text-stone-800">{post.excerpt}</p>
-            </div>
-          )}
-
-          {safeContent ? (
-            <EnhancedRichContent
-              html={safeContent}
-              className="prose prose-lg max-w-none
-                prose-headings:font-serif prose-headings:font-light prose-headings:text-stone-900
-                prose-h2:mt-12 prose-h2:mb-5 prose-h2:text-3xl
-                prose-h3:mt-8 prose-h3:mb-3 prose-h3:text-2xl
-                prose-p:mb-6 prose-p:text-stone-700 prose-p:leading-8
-                prose-a:text-mahogany prose-a:no-underline hover:prose-a:underline
-                prose-img:mx-auto prose-img:my-10 prose-img:rounded-[1.75rem] prose-img:shadow-lg
-                prose-strong:text-stone-900 prose-strong:font-semibold
-                prose-blockquote:rounded-r-2xl prose-blockquote:border-l-4 prose-blockquote:border-teal prose-blockquote:bg-eucalyptus/5 prose-blockquote:px-6 prose-blockquote:py-4
-                prose-ul:space-y-3 prose-li:text-stone-700
-                prose-hr:border-stone-200"
-            />
-          ) : (
-            <div className="rounded-[2rem] border border-stone-200 bg-stone-50 px-6 py-12 text-center">
-              <p className="text-lg leading-relaxed text-stone-500">
-                Le récit n&apos;est pas encore publié en entier.
-              </p>
-            </div>
-          )}
-
-          {/* ── Carte interactive (si activée dans le CMS) ────────────── */}
-          {showMap && <DynamicArticleMap slug={slug} />}
-
-          {post.voice_notes && (
-            <aside className="mt-10 rounded-[2rem] border border-stone-200 bg-stone-50 px-6 py-6 md:px-8">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Détail terrain</p>
-              <p className="text-base leading-relaxed text-stone-700">{post.voice_notes}</p>
-            </aside>
-          )}
-
-          <div className="mt-10 border-t border-stone-100 pt-8">
-            <ShareButtons title={post.title} url={canonicalUrl} />
-          </div>
-
-          {post.tags && post.tags.length > 0 && (
-            <div className="mt-8 border-t border-stone-100 pt-6">
-              <p className="mb-3 text-xs uppercase tracking-[0.18em] text-stone-500">Tags</p>
-              <div className="flex flex-wrap gap-2">
-                {post.tags.slice(0, 3).map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full bg-stone-100 px-3 py-1.5 text-xs text-stone-600"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="mt-8 border-t border-stone-100 pt-6">
-            <Link
-              href="/blog"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-mahogany transition-colors duration-200 hover:text-mahogany"
-            >
-              ← Retour aux carnets
-            </Link>
-          </div>
-        </div>
-
-        {related.length > 0 && (
-          <section className="bg-stone-50 py-16">
-            <div className="mx-auto max-w-6xl px-4">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-mahogany">
-                <EditableZone page="blog" zone="related_kicker" fallback="Continuer" />
-              </p>
-              <h2 className="mb-3 text-3xl font-serif font-light text-stone-900">
-                <EditableZone page="blog" zone="related_title" fallback="Dans la même veine" />
-              </h2>
-              <p className="mb-8 max-w-2xl text-sm leading-relaxed text-stone-600">
-                <EditableZone
-                  page="blog"
-                  zone="related_intro"
-                  type="textarea"
-                  fallback="D'autres récits qui avancent au même rythme : un moment précis, un lieu, un détail qui reste."
-                />
-              </p>
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                {related.map((relatedPost: BlogPost) => {
-                  const relatedImage = relatedPost.og_image || relatedPost.featured_image || heroFallback[relatedPost.category ?? ''] || DEFAULT_HERO
-                  return (
-                    <Link key={relatedPost.slug} href={`/blog/${relatedPost.slug}`} className="group block transition-all duration-200">
-                      <article className="overflow-hidden rounded-[1.5rem] bg-white shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-md">
-                        <div className="relative h-44 overflow-hidden">
-                          <Image
-                            src={relatedImage}
-                            alt={relatedPost.alt_text || relatedPost.title}
-                            fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                            loading="lazy"
-                            sizes="(max-width: 768px) 100vw, 33vw"
-                          />
-                        </div>
-                        <div className="p-5">
-                          {relatedPost.category && (
-                            <span className="text-xs font-semibold text-mahogany">{relatedPost.category}</span>
-                          )}
-                          <h3 className="mt-2 text-base font-semibold leading-snug text-stone-900 transition-colors duration-200 group-hover:text-mahogany">
-                            {relatedPost.title}
-                          </h3>
-                          <p className="mt-3 text-xs text-stone-500">{formatDate(relatedPost.published_at)}</p>
-                        </div>
-                      </article>
-                    </Link>
-                  )
-                })}
-              </div>
-            </div>
-          </section>
-        )}
-
+      <main className="min-h-screen bg-white pb-12">
+        {activeBlocks.map(blockId => {
+          const Component = blockComponents[blockId]
+          return Component ? <Component key={blockId} /> : null
+        })}
         <NewsletterForm variant="blog" />
-
         {post.category === 'Guides Pratiques' && post.faq_content && (
           <HeldonicaFAQ
             items={(post.faq_content as Array<{question: string; answer: string}>) || []}
