@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/components/admin/Toast';
-import { Save, RefreshCw, Code, LayoutList } from 'lucide-react';
+import { Save, RefreshCw, Code, LayoutList, Plus, Trash2 } from 'lucide-react';
 import type { PillarData } from '@/lib/pillar-types';
 
 type PillarRecord = {
@@ -163,8 +163,150 @@ export default function DestinationPillarEditor() {
                       </div>
                     </div>
                     
-                    <div className="p-4 bg-yellow-50 text-yellow-800 text-sm rounded-lg border border-yellow-200">
-                      <strong>Note:</strong> L'éditeur Formulaire ne gère pour l'instant que les champs simples. Pour modifier les itinéraires (Itinerary), les textes d'intro ou les budgets détaillés, veuillez passer en mode <strong>JSON</strong>.
+                    <div className="space-y-4 pt-4 border-t border-stone-200">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-semibold text-stone-800">Introduction (Paragraphes)</h4>
+                        <button
+                          onClick={() => setFormData({...formData, intro: [...(formData.intro || []), '']})}
+                          className="p-1.5 bg-eucalyptus/10 text-eucalyptus rounded hover:bg-eucalyptus/20 transition-colors"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div className="space-y-2">
+                        {(formData.intro || []).map((p, i) => (
+                          <div key={i} className="flex gap-2">
+                            <textarea
+                              value={p}
+                              onChange={e => {
+                                const newIntro = [...formData.intro];
+                                newIntro[i] = e.target.value;
+                                setFormData({...formData, intro: newIntro});
+                              }}
+                              className="flex-1 p-2 border border-stone-300 rounded-lg text-sm focus:ring-2 focus:ring-eucalyptus outline-none min-h-[80px]"
+                            />
+                            <button
+                              onClick={() => {
+                                const newIntro = formData.intro.filter((_, idx) => idx !== i);
+                                setFormData({...formData, intro: newIntro});
+                              }}
+                              className="p-2 text-red-500 hover:bg-red-50 rounded-lg self-start"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-4 pt-4 border-t border-stone-200">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-semibold text-stone-800">Itinéraire</h4>
+                        <button
+                          onClick={() => setFormData({...formData, itinerary: [...(formData.itinerary || []), { day: (formData.itinerary?.length || 0) + 1, title: '', activities: [] }]})}
+                          className="p-1.5 bg-eucalyptus/10 text-eucalyptus rounded hover:bg-eucalyptus/20 transition-colors"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div className="space-y-4">
+                        {(formData.itinerary || []).map((day, i) => (
+                          <div key={i} className="p-4 bg-stone-50 border border-stone-200 rounded-xl relative">
+                            <button
+                              onClick={() => {
+                                const newItin = formData.itinerary.filter((_, idx) => idx !== i);
+                                setFormData({...formData, itinerary: newItin});
+                              }}
+                              className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-100 rounded-md"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3 pr-8">
+                              <div>
+                                <label className="text-xs font-semibold text-stone-600">Jour</label>
+                                <input type="number" value={day.day} onChange={e => {
+                                  const newItin = [...formData.itinerary];
+                                  newItin[i].day = Number(e.target.value);
+                                  setFormData({...formData, itinerary: newItin});
+                                }} className="w-full p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-eucalyptus outline-none" />
+                              </div>
+                              <div>
+                                <label className="text-xs font-semibold text-stone-600">Titre</label>
+                                <input type="text" value={day.title} onChange={e => {
+                                  const newItin = [...formData.itinerary];
+                                  newItin[i].title = e.target.value;
+                                  setFormData({...formData, itinerary: newItin});
+                                }} className="w-full p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-eucalyptus outline-none" />
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <label className="text-xs font-semibold text-stone-600">Activités (une par ligne)</label>
+                              </div>
+                              <textarea
+                                value={(day.activities || []).join('\n')}
+                                onChange={e => {
+                                  const newItin = [...formData.itinerary];
+                                  newItin[i].activities = e.target.value.split('\n').filter(Boolean);
+                                  setFormData({...formData, itinerary: newItin});
+                                }}
+                                className="w-full p-2 border border-stone-300 rounded-lg text-sm focus:ring-2 focus:ring-eucalyptus outline-none min-h-[80px]"
+                                placeholder="Activité 1&#10;Activité 2"
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-4 pt-4 border-t border-stone-200">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-semibold text-stone-800">FAQ</h4>
+                        <button
+                          onClick={() => setFormData({...formData, faq: [...(formData.faq || []), { q: '', a: '' }]})}
+                          className="p-1.5 bg-eucalyptus/10 text-eucalyptus rounded hover:bg-eucalyptus/20 transition-colors"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div className="space-y-3">
+                        {(formData.faq || []).map((faq, i) => (
+                          <div key={i} className="flex gap-2 items-start p-3 bg-stone-50 border border-stone-200 rounded-lg">
+                            <div className="flex-1 space-y-2">
+                              <input
+                                type="text"
+                                placeholder="Question..."
+                                value={faq.q}
+                                onChange={e => {
+                                  const newFaq = [...formData.faq];
+                                  newFaq[i].q = e.target.value;
+                                  setFormData({...formData, faq: newFaq});
+                                }}
+                                className="w-full p-2 font-medium border border-stone-300 rounded-lg text-sm focus:ring-2 focus:ring-eucalyptus outline-none"
+                              />
+                              <textarea
+                                placeholder="Réponse..."
+                                value={faq.a}
+                                onChange={e => {
+                                  const newFaq = [...formData.faq];
+                                  newFaq[i].a = e.target.value;
+                                  setFormData({...formData, faq: newFaq});
+                                }}
+                                className="w-full p-2 border border-stone-300 rounded-lg text-sm focus:ring-2 focus:ring-eucalyptus outline-none min-h-[60px]"
+                              />
+                            </div>
+                            <button
+                              onClick={() => {
+                                const newFaq = formData.faq.filter((_, idx) => idx !== i);
+                                setFormData({...formData, faq: newFaq});
+                              }}
+                              className="p-2 text-red-500 hover:bg-red-100 rounded-lg mt-1"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}

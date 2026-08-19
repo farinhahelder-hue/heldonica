@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import EnhancedRichContent from '@/components/EnhancedRichContent';
@@ -37,6 +37,10 @@ const ScheduledPostsList = dynamic(() => import('@/components/admin/ScheduledPos
 const DestinationPillarEditor = dynamic(() => import('@/components/admin/DestinationPillarEditor'), { ssr: false });
 const GuidesManager = dynamic(() => import('@/components/admin/GuidesManager'), { ssr: false });
 const EditableZonesManager = dynamic(() => import('@/components/admin/EditableZonesManager'), { ssr: false });
+const SubDestinationsManager = dynamic(() => import('@/components/admin/SubDestinationsManager'), { ssr: false });
+const SeasonsManager = dynamic(() => import('@/components/admin/SeasonsManager'), { ssr: false });
+const RedirectsManager = dynamic(() => import('@/components/admin/RedirectsManager'), { ssr: false });
+const LayoutManager = dynamic(() => import('@/components/admin/LayoutManager'), { ssr: false });
 
 type Article = {
   id: number;
@@ -66,7 +70,8 @@ type NavSection =
   | 'blog-generator' | 'video' | 'fast-trim' | 'studio-video'
   | 'map' | 'auto-shorts' | 'design' | 'geo' | 'instagram' | 'messages'
   | 'testimonials' | 'checklists'
-  | 'destination-pillars' | 'guides' | 'editable-zones';
+  | 'destination-pillars' | 'guides' | 'editable-zones' | 'sub-destinations'
+  | 'seasons' | 'redirects' | 'layouts';
 
 function CmsAdminClientInner() {
   const router = useRouter();
@@ -83,11 +88,13 @@ function CmsAdminClientInner() {
   const [authError, setAuthError] = useState('');
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
+  const [isDirty, setIsDirty] = useState(false); // tracks unsaved article changes
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalArticles, setTotalArticles] = useState(0);
   const pageSize = 15;
 
   // Status filter & bulk
@@ -120,10 +127,14 @@ function CmsAdminClientInner() {
   const [revisions, setRevisions] = useState<ArticleRevision[]>([]);
   const [revisionsLoading, setRevisionsLoading] = useState(false);
 
-  // Auto-save draft
+  // Auto-save draft + mark dirty on any change
   const [lastAutoSave, setLastAutoSave] = useState<string>('');
+  const isDirtyRef = useRef(false); // ref to avoid stale closure in effect
   useEffect(() => {
     if (!editingArticle) return;
+    // Mark dirty after first change (skip the initial set from openArticleEditor)
+    if (isDirtyRef.current) setIsDirty(true);
+    isDirtyRef.current = true;
     const timer = setInterval(() => {
       const key = `heldonica-draft-${editingArticle.slug || 'new'}`;
       const timestamp = new Date().toISOString();
@@ -132,6 +143,7 @@ function CmsAdminClientInner() {
     }, 30000);
     return () => clearInterval(timer);
   }, [editingArticle]);
+
 
   // Check for local draft when editingArticle is set
   useEffect(() => {
@@ -237,16 +249,22 @@ function CmsAdminClientInner() {
   };
 
   const handleMsgDelete = async (id: string) => {
-    if (!(window as Window & { confirm: (msg: string) => boolean }).confirm('Supprimer ce message ?')) return;
-    setMsgActioning(true);
-    try {
-      const res = await fetch(`/api/cms/contact-messages?id=${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        setMessages(prev => prev.filter(m => m.id !== id));
-        if (selectedMsg?.id === id) setSelectedMsg(null);
-        toast('Message supprime', 'success');
-      }
-    } catch { toast('Erreur', 'error'); } finally { setMsgActioning(false); }
+    confirm(
+      'Supprimer le message',
+      'Cette action est irréversible. Supprimer ce message ?',
+      async () => {
+        setMsgActioning(true);
+        try {
+          const res = await fetch(`/api/cms/contact-messages?id=${id}`, { method: 'DELETE' });
+          if (res.ok) {
+            setMessages(prev => prev.filter(m => m.id !== id));
+            if (selectedMsg?.id === id) setSelectedMsg(null);
+            toast('Message supprimé', 'success');
+          }
+        } catch { toast('Erreur', 'error'); } finally { setMsgActioning(false); }
+      },
+      'danger'
+    );
   };
 
   const formatDate = (d: string) => new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -386,26 +404,51 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
   const loadArticles = useCallback(async () => {
     setLoadingArticles(true);
     try {
-      const res = await fetch('/api/cms/articles?limit=100');
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: pageSize.toString(),
+        status: statusFilter,
+        search: searchQuery
+      });
+      const res = await fetch(`/api/cms/articles?${params.toString()}`);
       const data = await res.json();
       setArticles(Array.isArray(data) ? data : data.articles ?? []);
+      setTotalArticles(data.total ?? 0);
     } catch {
       console.error('Failed to load articles');
     } finally {
       setLoadingArticles(false);
     }
-  }, []);
+  }, [currentPage, statusFilter, searchQuery]);
 
-  const [articlesLoaded, setArticlesLoaded] = useState(false);
+  // Debounce search query to avoid spamming the API
   useEffect(() => {
-    if (isAuthenticated && (activeSection === 'articles' || activeSection === 'dashboard') && !articlesLoaded) {
-      loadArticles().then(() => setArticlesLoaded(true));
-    }
-  }, [isAuthenticated, activeSection, loadArticles, articlesLoaded]);
+    const handler = setTimeout(() => {
+      if (isAuthenticated && (activeSection === 'articles' || activeSection === 'dashboard')) {
+        loadArticles();
+      }
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [isAuthenticated, activeSection, loadArticles]);
 
   const openArticleEditor = (article: Article) => {
     setEditingArticle({ ...article });
+    setIsDirty(false);
     setActiveSection('new-article');
+  };
+
+  // Guard: intercept sidebar navigation when article has unsaved changes
+  const navigateTo = (section: NavSection) => {
+    if (isDirty && activeSection === 'new-article' && section !== 'new-article') {
+      confirm(
+        'Modifications non sauvegardées',
+        'Tu as des modifications non sauvegardées. Quitter sans sauvegarder ?',
+        () => { setIsDirty(false); setActiveSection(section); },
+        'danger'
+      );
+    } else {
+      setActiveSection(section);
+    }
   };
 
   const confirm = (title: string, message: string, action: () => void, variant: 'danger' | 'default' = 'default') => {
@@ -439,6 +482,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
         throw new Error(err.error || 'Save failed');
       }
       setSaveMsg('✅ Article sauvegardé');
+      setIsDirty(false);
       loadArticles();
     } catch (e: any) {
       setSaveMsg('❌ ' + (e.message || 'Erreur lors de la sauvegarde'));
@@ -457,13 +501,6 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
       toast('Erreur lors de la suppression', 'error');
     }
   };
-
-  const filteredArticles = articles.filter(
-    a =>
-      (statusFilter === 'all' || a.status === statusFilter) &&
-      (a.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      a.category?.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
 
   // ── Loading / Auth screens ─────────────────────────────────────────────────
   if (authLoading) {
@@ -510,11 +547,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
   }
 
   // ── Pagination ─────────────────────────────────────────────────────────────
-  const totalPages = Math.ceil(filteredArticles.length / pageSize);
-  const paginatedArticles = filteredArticles.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
+  const totalPages = Math.ceil(totalArticles / pageSize);
 
   // ── Nav items grouped ──────────────────────────────────────────────────────
   const navGroups: {
@@ -532,6 +565,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
       items: [
         { id: 'dashboard',     label: 'Tableau de bord', icon: <Home size={15} /> },
         { id: 'destination-pillars', label: 'Destinations', icon: <MapPin size={15} /> },
+        { id: 'sub-destinations', label: 'Sous-Destinations', icon: <ListTree size={15} /> },
         { id: 'guides',        label: 'Guides Pépites',   icon: <ListTree size={15} /> },
         { id: 'editable-zones', label: 'Zones de Texte',  icon: <Type size={15} /> },
         { id: 'articles',      label: 'Articles',         icon: <FileText size={15} />, badge: articles.length > 0 ? String(articles.length) : undefined },
@@ -548,6 +582,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
         { id: 'fast-trim',     label: 'Fast Trim',         icon: <Clapperboard size={15} aria-hidden="true" /> },
         { id: 'map',           label: 'Cartes',            icon: <MapIcon size={15} aria-hidden="true" /> },
         { id: 'checklists',    label: 'Checklists',        icon: <ClipboardList size={15} aria-hidden="true" /> },
+        { id: 'seasons',       label: 'Saisons',           icon: <Calendar size={15} aria-hidden="true" /> },
       ]
     },
     {
@@ -563,6 +598,8 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
       items: [
         { id: 'design',        label: 'Design',             icon: <Palette size={15} /> },
         { id: 'geo',           label: 'GEO',                icon: <Zap size={15} /> },
+        { id: 'layouts',       label: 'Templates',          icon: <Type size={15} /> },
+        { id: 'redirects',     label: 'Redirections',       icon: <Plane size={15} /> },
         { id: 'settings',      label: 'Paramètres',        icon: <Settings size={15} /> },
       ]
     }
@@ -593,7 +630,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                     return (
                       <li key={item.id}>
                         <button
-                          onClick={() => setActiveSection(item.id)}
+                          onClick={() => navigateTo(item.id)}
                           className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                             isActive
                               ? 'bg-teal text-white shadow-md shadow-teal/10 font-semibold'
@@ -740,10 +777,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                         statusFilter === s ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
                       }`}
                     >
-                      {s === 'all' ? 'Tous' : s === 'published' ? 'Publies' : s === 'draft' ? 'Brouillons' : 'Planifies'}
-                      <span className="ml-1 text-gray-400">
-                        ({s === 'all' ? articles.length : articles.filter(a => a.status === s).length})
-                      </span>
+                      {s === 'all' ? 'Tous' : s === 'published' ? 'Publiés' : s === 'draft' ? 'Brouillons' : 'Planifiés'}
                     </button>
                   ))}
                 </div>
@@ -792,9 +826,9 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                         <tr>
                           <th className="px-4 py-3 w-8">
                             <input type="checkbox" onChange={e => {
-                              if (e.target.checked) setSelectedIds(new Set(paginatedArticles.map(a => a.id)));
+                              if (e.target.checked) setSelectedIds(new Set(articles.map(a => a.id)));
                               else setSelectedIds(new Set());
-                            }} checked={paginatedArticles.length > 0 && selectedIds.size === paginatedArticles.length}
+                            }} checked={articles.length > 0 && selectedIds.size === articles.length}
                               className="w-3.5 h-3.5 rounded border-gray-300" />
                           </th>
                           <th className="px-4 py-3 text-left">Titre</th>
@@ -805,7 +839,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-50">
-                        {paginatedArticles.map(article => (
+                        {articles.map(article => (
                           <tr key={article.id} className="hover:bg-gray-50">
                             <td className="px-4 py-3">
                               <input type="checkbox" checked={selectedIds.has(article.id)}
@@ -863,7 +897,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                             </td>
                           </tr>
                         ))}
-                        {paginatedArticles.length === 0 && (
+                        {articles.length === 0 && (
                           <tr>
                             <td colSpan={6} className="px-4 py-8 text-center text-gray-400 text-sm">
                               Aucun article trouvé
@@ -1406,6 +1440,24 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
             </ErrorBoundary>
           )}
 
+          {/* ── Layouts ── */}
+          {activeSection === 'layouts' && (
+            <ErrorBoundary>
+              <Suspense fallback={<div className="text-sm text-gray-400">Chargement...</div>}>
+                <LayoutManager />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Redirects ── */}
+          {activeSection === 'redirects' && (
+            <ErrorBoundary>
+              <Suspense fallback={<div className="text-sm text-gray-400">Chargement...</div>}>
+                <RedirectsManager />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
           {/* ── Carousel ── */}
           {activeSection === 'carousel' && (
             <ErrorBoundary>
@@ -1493,6 +1545,15 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
             </ErrorBoundary>
           )}
 
+          {/* ── Sub-Destinations ── */}
+          {activeSection === 'sub-destinations' && (
+            <ErrorBoundary>
+              <Suspense fallback={<SkeletonForm />}>
+                <SubDestinationsManager />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
           {/* ── Testimonials ── */}
           {activeSection === 'testimonials' && (
             <ErrorBoundary>
@@ -1514,6 +1575,15 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                   <ChecklistTemplatesManager />
                 </Suspense>
               </div>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Seasons ── */}
+          {activeSection === 'seasons' && (
+            <ErrorBoundary>
+              <Suspense fallback={<SkeletonForm />}>
+                <SeasonsManager />
+              </Suspense>
             </ErrorBoundary>
           )}
 

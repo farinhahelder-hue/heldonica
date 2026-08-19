@@ -4,11 +4,12 @@ import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import SlowTravelQuiz from '@/components/SlowTravelQuiz'
+import { getPageLayout } from '@/lib/layout-helpers'
 import RelatedArticles from '@/components/RelatedArticles'
 import { supabase } from '@/lib/supabase-client'
 import { notFound } from 'next/navigation'
 import { BlogPost } from '@/lib/blog-supabase'
-import { SUB_DESTINATIONS } from '@/lib/sub-destinations'
+import { fetchSubDestinations } from '@/lib/pillar-data'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { getPageZones } from '@/lib/cms-zones'
@@ -157,6 +158,7 @@ export async function generateMetadata({ slug }: Props): Promise<Metadata> {
 export default async function DestinationPage({ slug }: Props) {
   const content = DESTINATION_CONTENT[slug]
   const image = DESTINATION_IMAGES[slug]
+  const subDests = await fetchSubDestinations(slug)
 
   if (!content) {
     notFound()
@@ -175,6 +177,191 @@ export default async function DestinationPage({ slug }: Props) {
    * Passer par un accesseur rend `zone` variable, donc les 65 zones de ces
    * cinq pages ressortaient orphelines alors qu'elles sont bien affichées.
    */
+
+  const layoutConfig = await getPageLayout('destination')
+  const activeBlocks = layoutConfig.filter(b => b.active).map(b => b.id)
+
+  const BlockHero = () => (
+    <section className="relative min-h-[60vh] flex items-end overflow-hidden bg-stone-900">
+      <EditableZone
+        page={`destinations-${slug}`}
+        zone="hero_image"
+        type="image"
+        fallback={image}
+        className="w-full h-full object-cover opacity-60"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+      <div className="relative container py-14 md:py-20 max-w-4xl">
+        <p className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold">
+          Destination testée
+        </p>
+        <h1 className="text-4xl md:text-6xl font-serif text-white mb-4">
+          <EditableZone
+            page={`destinations-${slug}`}
+            zone="title"
+            fallback={content.title}
+            as="span"
+          />
+          ,{' '}
+          <em className="text-teal">
+            <EditableZone
+              page={`destinations-${slug}`}
+              zone="subtitle"
+              fallback={content.subtitle}
+              as="span"
+            />
+          </em>
+        </h1>
+        <p className="text-white/85 max-w-2xl text-lg leading-relaxed">
+          {(zones[`destinations-${slug}__description`] ?? content.description).slice(0, 200)}...
+        </p>
+      </div>
+    </section>
+  )
+
+  const BlockInfoCards = () => (
+    <section className="bg-white py-12">
+      <div className="container">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
+            <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Durée idéale</p>
+            <p className="text-charcoal font-medium"><EditableZone page={`destinations-${slug}`} zone="duration" fallback={content.duration} as="span" /></p>
+          </div>
+          <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
+            <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Meilleure saison</p>
+            <p className="text-charcoal font-medium"><EditableZone page={`destinations-${slug}`} zone="season" fallback={content.season} as="span" /></p>
+          </div>
+          <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
+            <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Budget indicatif</p>
+            <p className="text-charcoal font-medium"><EditableZone page={`destinations-${slug}`} zone="budget" fallback={content.budget} as="span" /></p>
+          </div>
+          <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
+            <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Profil</p>
+            <p className="text-charcoal font-medium text-sm"><EditableZone page={`destinations-${slug}`} zone="profile" fallback={content.profile} as="span" /></p>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+
+  const BlockDescription = () => (
+    <section className="bg-white py-16">
+      <div className="container max-w-4xl">
+        <h2 className="text-3xl font-serif text-mahogany mb-6">On y est allés</h2>
+        <p className="text-charcoal/80 leading-relaxed text-lg mb-8">
+          <EditableZone page={`destinations-${slug}`} zone="description" type="textarea" fallback={content.description} as="span" />
+        </p>
+      </div>
+    </section>
+  )
+
+  const BlockSubDestinations = () => (
+    subDests.length > 0 ? (
+      <section className="bg-stone-50 py-16 border-t border-b border-stone-200/60">
+        <div className="container max-w-5xl">
+          <h2 className="text-3xl font-serif text-mahogany mb-2 text-center">
+            Explorer les pépites de la région
+          </h2>
+          <p className="text-charcoal/60 text-sm text-center mb-10">
+            Nos guides détaillés de terrain par ville et site d&apos;intérêt.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {subDests.map((sub) => (
+              <Link
+                key={sub.slug}
+                href={`/destinations/${slug}/${sub.slug}`}
+                className="group p-5 rounded-2xl bg-white border border-stone-100 hover:border-eucalyptus/30 hover:bg-eucalyptus/5 transition-all duration-300 flex flex-col h-full text-left"
+              >
+                <span className="text-3xl mb-3 block">{sub.emoji}</span>
+                <h3 className="font-serif font-bold text-stone-900 group-hover:text-eucalyptus transition-colors mb-2">
+                  {sub.title}
+                </h3>
+                <p className="text-xs text-charcoal/60 leading-relaxed line-clamp-2 flex-1">
+                  {sub.teaser}
+                </p>
+                <span className="text-xs font-semibold text-eucalyptus mt-3 inline-block group-hover:translate-x-1 transition-transform">
+                  Voir le guide →
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+    ) : null
+  )
+
+  const BlockTips = () => (
+    <section className="bg-cloud-dancer py-16">
+      <div className="container max-w-4xl">
+        <h2 className="text-2xl font-serif text-mahogany mb-6">Ce qu&apos;on te recommande</h2>
+        <ul className="space-y-4">
+          {(content.tips ?? []).map((tip: string, i: number) => (
+            <li key={i} className="flex items-start gap-3">
+              <span className="w-6 h-6 rounded-full bg-eucalyptus/20 text-eucalyptus flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                {i + 1}
+              </span>
+              <p className="text-charcoal/80"><EditableZone page={`destinations-${slug}`} zone={`tip_${i + 1}`} type="textarea" fallback={tip} as="span" /></p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+
+  const BlockVerdict = () => (
+    <section className="bg-stone-900 py-16">
+      <div className="container max-w-3xl text-center">
+        <p className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold">Notre verdict</p>
+        <blockquote className="text-2xl md:text-3xl font-serif text-white leading-relaxed italic mb-6">
+          &ldquo;<EditableZone page={`destinations-${slug}`} zone="verdict" type="textarea" fallback={content.verdict} as="span" />&rdquo;
+        </blockquote>
+        <p className="text-stone-400 text-sm">— Heldonica, testés sur place</p>
+      </div>
+    </section>
+  )
+
+  const BlockCTA = () => (
+    <section className="bg-mahogany py-16 text-white">
+      <div className="container max-w-2xl text-center">
+        <h2 className="text-2xl md:text-3xl font-serif mb-4">
+          Tu veux un voyage adapté à ton rythme ?
+        </h2>
+        <p className="text-white/80 mb-8">
+          On transforme tes contraintes en itinéraire sur mesure, avec adresses testées.
+        </p>
+        <Link
+          href={`/travel-planning-form?destination=${slug}`}
+          className="inline-flex px-8 py-4 rounded-lg bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors shadow-md"
+        >
+          Planifier ce voyage avec Heldonica →
+        </Link>
+      </div>
+    </section>
+  )
+
+  const BlockQuiz = () => (
+    <section className="bg-cloud-dancer py-16">
+      <div className="container max-w-4xl">
+        <SlowTravelQuiz />
+      </div>
+    </section>
+  )
+
+  const BlockRelated = () => (
+    <RelatedArticles articles={relatedArticles} destinationTitle={content.title} />
+  )
+
+  const blockComponents: Record<string, React.FC> = {
+    hero: BlockHero,
+    info_cards: BlockInfoCards,
+    description: BlockDescription,
+    sub_destinations: BlockSubDestinations,
+    tips: BlockTips,
+    verdict: BlockVerdict,
+    cta: BlockCTA,
+    quiz: BlockQuiz,
+    related_articles: BlockRelated,
+  }
 
   return (
     <InlineEditProvider page={`destinations-${slug}`} initialZones={zones}>
@@ -205,176 +392,10 @@ export default async function DestinationPage({ slug }: Props) {
       />
       <Header />
       <main>
-        {/* Hero */}
-        <section className="relative min-h-[60vh] flex items-end overflow-hidden bg-stone-900">
-          <EditableZone
-            page={`destinations-${slug}`}
-            zone="hero_image"
-            type="image"
-            fallback={image}
-            className="w-full h-full object-cover opacity-60"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-          <div className="relative container py-14 md:py-20 max-w-4xl">
-            <p className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold">
-              Destination testée
-            </p>
-            <h1 className="text-4xl md:text-6xl font-serif text-white mb-4">
-              <EditableZone
-                page={`destinations-${slug}`}
-                zone="title"
-                fallback={content.title}
-                as="span"
-              />
-              ,{' '}
-              <em className="text-teal">
-                <EditableZone
-                  page={`destinations-${slug}`}
-                  zone="subtitle"
-                  fallback={content.subtitle}
-                  as="span"
-                />
-              </em>
-            </h1>
-            {/*
-              Accroche tronquée : on lit la valeur, pas le composant. L'ancien
-              `Z('description', …).toString().slice(0, 200)` appelait toString()
-              sur un élément React — le hero affichait « [object Object]… ».
-              La zone reste éditable plus bas, section « On y est allés ».
-            */}
-            <p className="text-white/85 max-w-2xl text-lg leading-relaxed">
-              {(zones[`destinations-${slug}__description`] ?? content.description).slice(0, 200)}...
-            </p>
-          </div>
-        </section>
-
-        {/* Info cards */}
-        <section className="bg-white py-12">
-          <div className="container">
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
-                <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Durée idéale</p>
-                <p className="text-charcoal font-medium"><EditableZone page={`destinations-${slug}`} zone="duration" fallback={content.duration} as="span" /></p>
-              </div>
-              <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
-                <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Meilleure saison</p>
-                <p className="text-charcoal font-medium"><EditableZone page={`destinations-${slug}`} zone="season" fallback={content.season} as="span" /></p>
-              </div>
-              <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
-                <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Budget indicatif</p>
-                <p className="text-charcoal font-medium"><EditableZone page={`destinations-${slug}`} zone="budget" fallback={content.budget} as="span" /></p>
-              </div>
-              <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
-                <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Profil</p>
-                <p className="text-charcoal font-medium text-sm"><EditableZone page={`destinations-${slug}`} zone="profile" fallback={content.profile} as="span" /></p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* On y est allés */}
-        <section className="bg-white py-16">
-          <div className="container max-w-4xl">
-            <h2 className="text-3xl font-serif text-mahogany mb-6">On y est allés</h2>
-            <p className="text-charcoal/80 leading-relaxed text-lg mb-8">
-              <EditableZone page={`destinations-${slug}`} zone="description" type="textarea" fallback={content.description} as="span" />
-            </p>
-          </div>
-        </section>
-
-        {/* Villes & pépites de la région */}
-        {(() => {
-          const subDests = SUB_DESTINATIONS[slug] || []
-          if (subDests.length === 0) return null
-          return (
-            <section className="bg-stone-50 py-16 border-t border-b border-stone-200/60">
-              <div className="container max-w-5xl">
-                <h2 className="text-3xl font-serif text-mahogany mb-2 text-center">
-                  Explorer les pépites de la région
-                </h2>
-                <p className="text-charcoal/60 text-sm text-center mb-10">
-                  Nos guides détaillés de terrain par ville et site d&apos;intérêt.
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                  {subDests.map((sub) => (
-                    <Link
-                      key={sub.slug}
-                      href={`/destinations/${slug}/${sub.slug}`}
-                      className="group p-5 rounded-2xl bg-white border border-stone-100 hover:border-eucalyptus/30 hover:bg-eucalyptus/5 transition-all duration-300 flex flex-col h-full text-left"
-                    >
-                      <span className="text-3xl mb-3 block">{sub.emoji}</span>
-                      <h3 className="font-serif font-bold text-stone-900 group-hover:text-eucalyptus transition-colors mb-2">
-                        {sub.title}
-                      </h3>
-                      <p className="text-xs text-charcoal/60 leading-relaxed line-clamp-2 flex-1">
-                        {sub.teaser}
-                      </p>
-                      <span className="text-xs font-semibold text-eucalyptus mt-3 inline-block group-hover:translate-x-1 transition-transform">
-                        Voir le guide →
-                      </span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </section>
-          )
-        })()}
-
-        {/* Nos tips */}
-        <section className="bg-cloud-dancer py-16">
-          <div className="container max-w-4xl">
-            <h2 className="text-2xl font-serif text-mahogany mb-6">Ce qu&apos;on te recommande</h2>
-            <ul className="space-y-4">
-              {(content.tips ?? []).map((tip: string, i: number) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span className="w-6 h-6 rounded-full bg-eucalyptus/20 text-eucalyptus flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
-                    {i + 1}
-                  </span>
-                  <p className="text-charcoal/80"><EditableZone page={`destinations-${slug}`} zone={`tip_${i + 1}`} type="textarea" fallback={tip} as="span" /></p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        {/* Verdict */}
-        <section className="bg-stone-900 py-16">
-          <div className="container max-w-3xl text-center">
-            <p className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold">Notre verdict</p>
-            <blockquote className="text-2xl md:text-3xl font-serif text-white leading-relaxed italic mb-6">
-              &ldquo;<EditableZone page={`destinations-${slug}`} zone="verdict" type="textarea" fallback={content.verdict} as="span" />&rdquo;
-            </blockquote>
-            <p className="text-stone-400 text-sm">— Heldonica, testés sur place</p>
-          </div>
-        </section>
-
-        {/* CTA */}
-        <section className="bg-mahogany py-16 text-white">
-          <div className="container max-w-2xl text-center">
-            <h2 className="text-2xl md:text-3xl font-serif mb-4">
-              Tu veux un voyage adapté à ton rythme ?
-            </h2>
-            <p className="text-white/80 mb-8">
-              On transforme tes contraintes en itinéraire sur mesure, avec adresses testées.
-            </p>
-            <Link
-              href={`/travel-planning-form?destination=${slug}`}
-              className="inline-flex px-8 py-4 rounded-lg bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors shadow-md"
-            >
-              Planifier ce voyage avec Heldonica →
-            </Link>
-          </div>
-        </section>
-
-        {/* Quiz */}
-        <section className="bg-cloud-dancer py-16">
-          <div className="container max-w-4xl">
-            <SlowTravelQuiz />
-          </div>
-        </section>
-
-        {/* Related Articles */}
-        <RelatedArticles articles={relatedArticles} destinationTitle={content.title} />
+        {activeBlocks.map(blockId => {
+          const Component = blockComponents[blockId]
+          return Component ? <Component key={blockId} /> : null
+        })}
       </main>
       <Footer />
     </InlineEditProvider>

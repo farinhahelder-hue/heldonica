@@ -1,8 +1,11 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
 import CarouselBuilderModal from '@/components/cms/CarouselBuilderModal';
 import { buildCarouselHtml, buildImageHtml } from '@/lib/carousel-html';
+
+const MediaLibrary = dynamic(() => import('@/components/MediaLibrary'), { ssr: false });
 
 type Props = {
   value: string;
@@ -44,6 +47,7 @@ export default function RichEditor({
   const lastHtml = useRef(value);
   const savedRangeRef = useRef<Range | null>(null);
   const [showCarouselBuilder, setShowCarouselBuilder] = useState(false);
+  const [showMediaLibrary, setShowMediaLibrary] = useState(false);
 
   useEffect(() => {
     if (editorRef.current && editorRef.current.innerHTML !== value) {
@@ -149,6 +153,12 @@ export default function RichEditor({
     e.target.value = '';
   };
 
+  const handleMediaSelect = (url: string) => {
+    insertHtml(buildImageHtml(url));
+    if (onImageUpload) onImageUpload(url);
+    setShowMediaLibrary(false);
+  };
+
   return (
     <div style={{ border: '1.5px solid #e0dbd5', borderRadius: '.75rem', overflow: 'hidden', background: '#faf9f7' }}>
       <div style={{
@@ -178,14 +188,28 @@ export default function RichEditor({
           );
         })}
         <span style={{ width: 1, height: 22, background: '#e0dbd5', margin: '0 .15rem' }} />
-        <label
-          title="Insérer une image"
-          onMouseDown={saveSelection}
+        <button
+          type="button"
+          title="Insérer une image depuis la librairie"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            saveSelection();
+            setShowMediaLibrary(true);
+          }}
           style={{ padding: '.3rem .55rem', border: '1px solid transparent', borderRadius: '.35rem', background: 'none', cursor: 'pointer', fontSize: '.88rem', color: '#444', lineHeight: 1 }}
           onMouseEnter={e => (e.currentTarget.style.background = '#f0ece6')}
           onMouseLeave={e => (e.currentTarget.style.background = 'none')}
         >
           🖼️
+        </button>
+        <label
+          title="Uploader une nouvelle image"
+          onMouseDown={saveSelection}
+          style={{ padding: '.3rem .55rem', border: '1px solid transparent', borderRadius: '.35rem', background: 'none', cursor: 'pointer', fontSize: '.88rem', color: '#444', lineHeight: 1 }}
+          onMouseEnter={e => (e.currentTarget.style.background = '#f0ece6')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+        >
+          📤
           <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
         </label>
       </div>
@@ -231,6 +255,28 @@ export default function RichEditor({
           setShowCarouselBuilder(false);
         }}
       />
+
+      {showMediaLibrary && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between p-4 border-b border-stone-200 bg-stone-50">
+              <h3 className="font-serif text-lg text-stone-900">Sélectionner une image</h3>
+              <button
+                onClick={() => setShowMediaLibrary(false)}
+                className="p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-200 rounded-lg transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="flex-1 overflow-hidden relative">
+              <MediaLibrary 
+                onSelect={handleMediaSelect} 
+                onClose={() => setShowMediaLibrary(false)} 
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
