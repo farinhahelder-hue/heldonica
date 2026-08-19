@@ -29,6 +29,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS after_revision_insert ON article_revisions;
 CREATE TRIGGER after_revision_insert
 AFTER INSERT ON article_revisions
 FOR EACH ROW EXECUTE FUNCTION trim_article_revisions();

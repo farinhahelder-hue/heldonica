@@ -39,4 +39,6 @@ INSERT INTO destinations (slug, title, excerpt, country, region, category, latit
 -- Colombie
 ('colombie', 'Colombie, Andes et Caraïbes', 'Café, patrimoine colonial et écosystèmes diversifiés.', 'Colombie', 'Amérique du Sud', 'nature', 4.5709, -74.2973, '/destinations/colombie'),
 ('bogota', 'Bogotá, capitale andine', 'Musée de l''Or, Graffiti district et air de hauteur.', 'Colombie', 'Andes', 'city', 4.7110, -74.0721, '/destinations/colombie/bogota'),
-('medellin', 'Medellín, vallée de l''éternel printemps', 'Transformation urbaine, jardins botaniques et innovation sociale.', 'Colombie', 'Antioquia', 'city', 6.2442, -75.5812, '/destinations/colombie/medellin');
+('medellin', 'Medellín, vallée de l''éternel printemps', 'Transformation urbaine, jardins botaniques et innovation sociale.', 'Colombie', 'Antioquia', 'city', 6.2442, -75.5812, '/destinations/colombie/medellin')
+
+ON CONFLICT (slug) DO NOTHING;

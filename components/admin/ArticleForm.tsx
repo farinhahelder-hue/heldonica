@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import dynamic from 'next/dynamic';
+
+const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
 
 interface ArticleFormProps {
   articleId?: string | null;
@@ -255,16 +258,15 @@ export default function ArticleForm({ articleId, onSave, onCancel }: ArticleForm
           />
         </div>
 
-        <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">Contenu (HTML / Markdown)</label>
-          <textarea
-            name="content"
-            value={formData.content}
-            onChange={handleChange}
-            rows={12}
-            className="w-full px-4 py-2.5 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-eucalyptus text-sm font-mono"
-            required
-          />
+        <div className="md:col-span-2">
+          <label className="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">Contenu</label>
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <RichEditor
+              value={formData.content}
+              onChange={(html) => setFormData(prev => ({ ...prev, content: html }))}
+              placeholder="Écrivez le contenu de votre article ici..."
+            />
+          </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">

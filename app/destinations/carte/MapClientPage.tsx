@@ -8,7 +8,6 @@ import MapWrapper from '@/components/MapWrapper';
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import EditableZone from '@/components/inline-edit/EditableZone';
 import {
-  destinationMarkers,
   getCountries,
   getRegions,
   getCategories,
@@ -23,23 +22,28 @@ const categoryLabels: Record<DestinationMarker['category'], string> = {
   food: 'Food & Gastro',
 };
 
-export default function MapClientPage() {
+/**
+ * Les marqueurs viennent de la table `map_markers`, chargée côté serveur par
+ * la page. Ce composant ne connaît plus de jeu de données par défaut : si la
+ * base est injoignable, la carte est vide — et ça se voit.
+ */
+export default function MapClientPage({ markers }: { markers: DestinationMarker[] }) {
   const [countryFilter, setCountryFilter] = useState('all');
   const [regionFilter, setRegionFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState<DestinationMarker['category'] | 'all'>('all');
 
-  const countries = getCountries();
-  const regions = getRegions();
-  const categories = getCategories();
+  const countries = useMemo(() => getCountries(markers), [markers]);
+  const regions = useMemo(() => getRegions(markers), [markers]);
+  const categories = useMemo(() => getCategories(markers), [markers]);
 
   const filteredMarkers = useMemo(() => {
-    return destinationMarkers.filter((marker) => {
+    return markers.filter((marker) => {
       const countryOk = countryFilter === 'all' || marker.country === countryFilter;
       const regionOk = regionFilter === 'all' || marker.region === regionFilter;
       const categoryOk = categoryFilter === 'all' || marker.category === categoryFilter;
       return countryOk && regionOk && categoryOk;
     });
-  }, [countryFilter, regionFilter, categoryFilter]);
+  }, [markers, countryFilter, regionFilter, categoryFilter]);
 
   // Get regions available for the selected country
   const availableRegions = useMemo(() => {
@@ -48,12 +52,12 @@ export default function MapClientPage() {
     }
     return Array.from(
       new Set(
-        destinationMarkers
+        markers
           .filter((m) => m.country === countryFilter)
           .map((m) => m.region)
       )
     ).sort();
-  }, [countryFilter, regions]);
+  }, [markers, countryFilter, regions]);
 
   return (
     <>
