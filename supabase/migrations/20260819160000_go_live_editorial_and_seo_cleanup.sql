@@ -7,7 +7,7 @@
 --   4. Renseigner les images de couverture pour les articles publiés
 -- ============================================================================
 
--- 1. Passer en brouillon les 5 articles vides (et le manifeste interne)
+-- 1. Passer en brouillon les 9 ébauches ou articles incomplets
 UPDATE cms_blog_posts
 SET published = false
 WHERE slug IN (
@@ -16,7 +16,10 @@ WHERE slug IN (
   'maramures-roumanie-authentique',
   'podgorica-capitale-oubliee-montenegro',
   'madere-en-mars',
-  'voix-heldonica-manifeste'
+  'voix-heldonica-manifeste',
+  'lisbonne-72h-sans-touristes',
+  'bacalhau-a-lagareiro',
+  'bolo-do-caco-recette-traditionnelle-de-madere-3'
 );
 
 -- 2. Purger les 4 articles de test de la table legacy 'articles'
