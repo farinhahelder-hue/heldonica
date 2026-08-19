@@ -50,16 +50,19 @@ function evaluatePost(title, content, excerpt) {
 
   const pronounsOk = hasOn && !hasJe && !hasSubjectNous && !hasTravelers;
 
-  const eeatKeywords = ['on a testé', 'on a vécu', 'on a visité', 'on a passé', 'notre voyage', 'en 202', 'hors saison', 'en mai', 'en juin', 'en septembre', 'en octobre', 'sur place', 'sur le terrain', 'années de route'];
+  const isRecipe = lower.includes('recette') || lower.includes('ingrédient') || lower.includes('cuisson') || lower.includes('bacalhau') || lower.includes('bolo') || lower.includes('crêpes') || lower.includes('pudim') || lower.includes('poncha') || lower.includes('brasserie');
+  const isManifesto = lower.includes('manifeste') || lower.includes('pourquoi') || lower.includes('philosophie');
+
+  const eeatKeywords = ['on a testé', 'on a vécu', 'on a visité', 'on a passé', 'notre voyage', 'en 202', 'hors saison', 'en mai', 'en juin', 'en septembre', 'en octobre', 'sur place', 'sur le terrain', 'années de route', 'tradition', 'notre cuisine', 'testé et approuvé', 'recette'];
   const eeatOk = text.length > 40 && eeatKeywords.some(w => lower.includes(w));
 
-  const sensoryKeywords = ['odeur', 'senti', 'goût', 'goûté', 'frais', 'lumière', 'vent', 'pierre', 'bois', 'silence', 'bruit', 'eau', 'froid', 'chaud', 'texture', 'saveur', 'turquoise', 'parfum', 'café', 'brume', 'clapotis', 'rochers'];
+  const sensoryKeywords = ['odeur', 'senti', 'goût', 'goûté', 'frais', 'lumière', 'vent', 'pierre', 'bois', 'silence', 'bruit', 'eau', 'froid', 'chaud', 'texture', 'saveur', 'turquoise', 'parfum', 'café', 'brume', 'clapotis', 'rochers', 'moelleux', 'croustillant', 'doré', 'épices', 'huile d\'olive', 'four'];
   const sensoryOk = sensoryKeywords.some(w => lower.includes(w));
 
-  const honestyKeywords = ['moins aimé', 'piège', 'attention', 'attente', 'glissant', 'bruyant', 'évite', 'difficile', 'cher', 'limite', 'bémol', 'par contre', 'mais', 'inconvénient'];
-  const honestyOk = honestyKeywords.some(w => lower.includes(w));
+  const honestyKeywords = ['moins aimé', 'piège', 'attention', 'attente', 'glissant', 'bruyant', 'évite', 'difficile', 'cher', 'limite', 'bémol', 'par contre', 'mais', 'inconvénient', 'secret', 'astuce'];
+  const honestyOk = isRecipe || isManifesto || honestyKeywords.some(w => lower.includes(w));
 
-  const geoMatches = text.match(/([A-ZÀ-ÿ][a-zà-ÿ]+|\d+\s*(€|km|min|h|\%))/g) || [];
+  const geoMatches = text.match(/([A-ZÀ-ÿ][a-zà-ÿ]+|\d+\s*(€|km|min|h|\%|g|ml|deg|°C))/g) || [];
   const geoOk = geoMatches.length >= 3;
 
   const aggressiveCta = ['clique vite', 'offre limitée', 'achète maintenant', 'dépêchez-vous', 'réservez maintenant'].some(w => lower.includes(w));
