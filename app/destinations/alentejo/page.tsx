@@ -140,7 +140,7 @@ export default async function AlentejoPage() {
         {/* ── INFOS PRATIQUES ── */}
         <section className="py-12 bg-stone-50 border-y border-stone-200">
           <div className="max-w-5xl mx-auto px-6">
-            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-6 text-center">Bon à savoir</p>
+            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-6 text-center">{Z('quick_kicker', 'text', "Bon à savoir", undefined, 'span')}</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="text-center">
                 <p className="text-xs text-stone-500 uppercase tracking-wider mb-1">
@@ -181,9 +181,9 @@ export default async function AlentejoPage() {
         {/* ── NOS PÉPITES ── */}
         <section className="py-16 md:py-24 bg-white">
           <div className="max-w-5xl mx-auto px-6">
-            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Ce qu'on a vécu</p>
+            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">{Z('pepites_kicker', 'text', "Ce qu'on a vécu", undefined, 'span')}</p>
             <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-12 text-center">
-              Nos pépites dénichées
+              {Z('pepites_title', 'text', "Nos pépites dénichées", undefined, 'span')}
             </h2>
             <div className="grid md:grid-cols-2 gap-8">
               <div className="bg-stone-50 rounded-2xl p-6 border border-stone-100">
@@ -277,12 +277,12 @@ export default async function AlentejoPage() {
         {/* ── OÙ DORMIR ── */}
         <section className="py-16 md:py-24 bg-stone-50">
           <div className="max-w-5xl mx-auto px-6">
-            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Hébergement</p>
+            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">{Z('accom_kicker', 'text', "Hébergement", undefined, 'span')}</p>
             <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-4 text-center">
-              Où dormir selon ton style
+              {Z('accom_title', 'text', "Où dormir selon ton style", undefined, 'span')}
             </h2>
             <p className="text-stone-600 text-center mb-12 max-w-xl mx-auto">
-              L'Alentejo offre des options pour tous les budgets. Nous, on a testé ces trois-là.
+              {Z('accom_intro', 'text', "L'Alentejo offre des options pour tous les budgets. Nous, on a testé ces trois-là.", undefined, 'span')}
             </p>
             <div className="grid md:grid-cols-3 gap-6">
               <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100">
@@ -334,9 +334,9 @@ export default async function AlentejoPage() {
         {/* ── COMMENT SE DÉPLACER ── */}
         <section className="py-16 md:py-24 bg-white border-t border-stone-100">
           <div className="max-w-4xl mx-auto px-6">
-            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Logistique</p>
+            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">{Z('transport_kicker', 'text', "Logistique", undefined, 'span')}</p>
             <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-8 text-center">
-              Comment se déplacer
+              {Z('transport_title', 'text', "Comment se déplacer", undefined, 'span')}
             </h2>
             <div className="space-y-6">
               <div className="flex gap-4 p-6 bg-stone-50 rounded-2xl">
@@ -386,7 +386,7 @@ export default async function AlentejoPage() {
               href="/travel-planning"
               className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-4 font-semibold text-teal transition-all hover:bg-white/90"
             >
-              Dis-nous ton projet →
+              {Z('cta_button', 'text', "Dis-nous ton projet →", undefined, 'span')}
             </Link>
           </div>
         </section>
@@ -395,7 +395,7 @@ export default async function AlentejoPage() {
         <section className="py-16 md:py-24 bg-stone-50">
           <div className="max-w-3xl mx-auto px-6">
             <h2 className="text-2xl md:text-3xl font-serif font-light text-stone-900 mb-8 text-center">
-              Questions fréquentes
+              {Z('faq_title', 'text', "Questions fréquentes", undefined, 'span')}
             </h2>
             <div className="space-y-4">
                 <details key={0} className="bg-white rounded-xl p-5 border border-stone-100 group">
@@ -441,9 +441,9 @@ export default async function AlentejoPage() {
         {/* ── RELATED ARTICLES ── */}
         <section className="py-16 md:py-24 bg-white border-t border-stone-100">
           <div className="max-w-5xl mx-auto px-6">
-            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">Pour aller plus loin</p>
+            <p className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center">{Z('articles_kicker', 'text', "Pour aller plus loin", undefined, 'span')}</p>
             <h2 className="text-2xl md:text-3xl font-serif font-light text-stone-900 mb-8 text-center">
-              Nos carnets liés
+              {Z('articles_title', 'text', "Nos carnets liés", undefined, 'span')}
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               <Link href="/blog" className="group block bg-stone-50 rounded-2xl overflow-hidden border border-stone-100 hover:shadow-md transition-shadow">
@@ -506,7 +506,7 @@ export default async function AlentejoPage() {
             </div>
             <div className="mt-8 text-center">
               <Link href="/blog" className="text-eucalyptus font-semibold hover:text-eucalyptus/80">
-                Voir tous nos carnets →
+                {Z('articles_cta', 'text', "Voir tous nos carnets →", undefined, 'span')}
               </Link>
             </div>
           </div>
