@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Quel type de voyageur es-tu ? | Quiz Heldonica',
   description: "Réponds à 5 questions et découvre le profil de voyageur qui te correspond — et les destinations slow travel qui te ressemblent.",
   alternates: { canonical: 'https://www.heldonica.fr/quiz' },
@@ -18,6 +19,10 @@ export const metadata: Metadata = {
     description: "5 questions pour trouver le profil de voyageur qui te correspond.",
     creator: '@heldonica',
   },
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('quiz', metadata)
 }
 
 export default function Layout({ children }: { children: React.ReactNode }) {
