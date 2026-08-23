@@ -6,54 +6,53 @@ describe('isValidCmsPassword', () => {
     vi.unstubAllEnvs();
   });
 
-  it('returns true when candidate matches CMS_PASSWORD exactly', () => {
+  it('returns true when candidate matches CMS_PASSWORD exactly', async () => {
     vi.stubEnv('CMS_PASSWORD', 'supersecret');
-    expect(isValidCmsPassword('supersecret')).toBe(true);
+    expect(await isValidCmsPassword('supersecret')).toBe(true);
   });
 
-  it('returns false when candidate is incorrect', () => {
+  it('returns false when candidate is incorrect', async () => {
     vi.stubEnv('CMS_PASSWORD', 'supersecret');
-    expect(isValidCmsPassword('wrongpassword')).toBe(false);
+    expect(await isValidCmsPassword('wrongpassword')).toBe(false);
   });
 
-  it('returns false when candidate is an empty string', () => {
+  it('returns false when candidate is an empty string', async () => {
     vi.stubEnv('CMS_PASSWORD', 'supersecret');
-    expect(isValidCmsPassword('')).toBe(false);
+    expect(await isValidCmsPassword('')).toBe(false);
   });
 
-  it('returns false when candidate is null or undefined', () => {
+  it('returns false when candidate is null or undefined', async () => {
     vi.stubEnv('CMS_PASSWORD', 'supersecret');
-    expect(isValidCmsPassword(null)).toBe(false);
-    expect(isValidCmsPassword(undefined)).toBe(false);
+    expect(await isValidCmsPassword(null)).toBe(false);
+    expect(await isValidCmsPassword(undefined)).toBe(false);
   });
 
-  it('returns false when CMS_PASSWORD environment variable is not set', () => {
+  it('returns false when CMS_PASSWORD environment variable is not set', async () => {
     // Ensuring it is not set
     vi.stubEnv('CMS_PASSWORD', '');
-    expect(isValidCmsPassword('supersecret')).toBe(false);
+    expect(await isValidCmsPassword('supersecret')).toBe(false);
 
     // Completely remove the variable
     delete process.env.CMS_PASSWORD;
-    expect(isValidCmsPassword('supersecret')).toBe(false);
+    expect(await isValidCmsPassword('supersecret')).toBe(false);
   });
 
-  it('handles configured password with whitespace', () => {
+  it('handles configured password with whitespace', async () => {
     // getConfiguredPassword uses .trim()
     vi.stubEnv('CMS_PASSWORD', '  supersecret  ');
 
     // So candidate must match the trimmed version
-    expect(isValidCmsPassword('supersecret')).toBe(true);
+    expect(await isValidCmsPassword('supersecret')).toBe(true);
 
-    // And candidate with same whitespace shouldn’t match (because candidate isn’t trimmed in the check)
-    // Actually safeEqual checks lengths. '  supersecret  ' length is 15, 'supersecret' is 11.
-    // If the candidate isn’t trimmed, safeEqual will compare '  supersecret  ' to 'supersecret'
-    expect(isValidCmsPassword('  supersecret  ')).toBe(false);
+    // Candidate is not trimmed: safeEqual compares '  supersecret  ' (15 chars)
+    // to 'supersecret' (11 chars) and returns false on length mismatch
+    expect(await isValidCmsPassword('  supersecret  ')).toBe(false);
   });
 
-  it('handles passwords of different lengths correctly without leaking length via early return', () => {
+  it('handles passwords of different lengths correctly without leaking length via early return', async () => {
     vi.stubEnv('CMS_PASSWORD', 'supersecret');
     // safeEqual securely compares lengths without returning early to prevent timing attacks
-    expect(isValidCmsPassword('super')).toBe(false);
-    expect(isValidCmsPassword('supersecretlonger')).toBe(false);
+    expect(await isValidCmsPassword('super')).toBe(false);
+    expect(await isValidCmsPassword('supersecretlonger')).toBe(false);
   });
 });
