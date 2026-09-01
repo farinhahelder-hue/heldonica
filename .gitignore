@@ -29,3 +29,15 @@ tsconfig.tsbuildinfo
 .deploy-v2
 .vercel-cache-bust
 .env*
+
+# Google Photos tokens
+credentials.json
+token.json
+scripts/credentials.json
+scripts/token.json
+# Jetons OAuth Google : ces fichiers portent refresh_token et client_secret.
+# Le motif nomme chaque variante plutot qu'un token*.json trop large, mais
+# token_picker.json manquait — il serait parti dans un depot public.
+token_picker.json
+scripts/token_picker.json
+scripts/*token*.json

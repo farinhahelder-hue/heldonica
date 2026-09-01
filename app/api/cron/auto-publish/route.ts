@@ -1,176 +1,133 @@
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-dynamic';
 
-import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { requireCmsAuth } from '@/lib/cms-auth'
+import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import { getCmsAuthStatus } from '@/lib/cms-auth';
 
-let _cached: ReturnType<typeof createClient> | null = null;
-function supabaseAdmin() {
-  if (!_cached) {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
-    _cached = (url && key) ? createClient(url, key) : null;
+function getSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key);
+}
+
+/**
+ * Validation de l'authentification (Vercel Cron ou CMS Session)
+ */
+async function isAuthorized(req: Request): Promise<boolean> {
+  // Vercel Cron : en-tête Bearer signé par CRON_SECRET.
+  const cronSecret = process.env.CRON_SECRET?.trim();
+  if (cronSecret && req.headers.get('authorization') === `Bearer ${cronSecret}`) {
+    return true;
   }
-  return _cached;
+
+  // Appel manuel depuis le CMS. On délègue à getCmsAuthStatus, qui compare le
+  // mot de passe en temps constant et vérifie la signature HMAC du cookie de
+  // session.
+  //
+  // Les deux contrôles écrits ici auparavant étaient inopérants :
+  //   · `process.env.CMS_PASSWORD || 'heldonica2026'` — repli codé en dur dans
+  //     un dépôt public, donc connu de quiconque lit le code ;
+  //   · `cookie.includes('heldonica_cms_session=true')` — une session réelle
+  //     contient un jeton signé (`payload.signature`), jamais la chaîne `true`.
+  //     Cette ligne ne reconnaissait donc aucune session légitime, mais laissait
+  //     entrer quiconque posait ce cookie lui-même.
+  return (await getCmsAuthStatus(req)) === 'ok';
 }
 
-const BUCKET = 'media';
-const AUTO_PUBLISH_FOLDER = 'auto-publish';
-
-async function fetchUnsplashImage(keyword: string): Promise<string | null> {
-  const accessKey = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY;
-  if (!accessKey) return null;
-
-  try {
-    const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(keyword)}&per_page=1&orientation=landscape`;
-    const res = await fetch(url, { headers: { Authorization: `Client-ID ${accessKey}` } });
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (data.results && data.results.length > 0) return data.results[0].urls.regular;
-  } catch (e) {
-    console.error("Unsplash error", e);
-  }
-  return null;
-}
-
-async function generateContentWithGroq(imageContext: string): Promise<any> {
-  const apiKey = process.env.GROQ_API_KEY;
-  if (!apiKey) throw new Error("Missing GROQ_API_KEY");
-
-  const prompt = `Tu es un expert en voyages "slow travel", hors des sentiers battus. Ton ton est chaleureux, expert, curieux, non-commercial, tu utilises le "on" (couple de voyageurs).
-G\u00e9n\u00e8re un article de blog et un post Instagram.
-${imageContext ? `IMPORTANT : Le sujet DOIT correspondre \u00e0 l’image fournie, d\u00e9crite par les mots cl\u00e9s suivants : "${imageContext}".` : `Choisis un sujet au hasard parmi des p\u00e9pites cach\u00e9es en Europe (ex: Mad\u00e8re, Roumanie, Zurich, Paris secret).`}
-
-Tu dois retourner UNIQUEMENT un objet JSON valide avec cette structure stricte :
-{
-  "title": "Titre accrocheur",
-  "slug": "slug-url-optimise",
-  "excerpt": "Un r\u00e9sum\u00e9 accrocheur d’environ 2 phrases",
-  "content": "<p>Contenu de l’article en HTML</p>...",
-  "category": "Carnets Voyage",
-  "unsplashKeyword": "Mots cl\u00e9s en anglais pour chercher une photo (si pas de photo fournie)",
-  "instagramCaption": "L\u00e9gende Instagram compl\u00e8te avec hashtags"
-}`;
-
-  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${apiKey}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model: "llama3-8b-8192",
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" }
-    })
-  });
-
-  if (!res.ok) throw new Error(`Groq API error: ${await res.text()}`);
-  const data = await res.json();
-  return JSON.parse(data.choices[0].message.content);
-}
-
+/**
+ * Cron Quotidien Heldonica — Générateur de Squelettes de Brouillons Bruts
+ * RÈGLE ABSOLUE (AGENTS.md : "On n'invente rien") :
+ * - ZÉRO appel LLM pour inventer un faux vécu.
+ * - Statut STRICTEMENT 'draft' (published: false).
+ * - Squelette neutre basé uniquement sur les métadonnées réelles du fichier.
+ */
 export async function GET(req: Request) {
-  const authResponse = await requireCmsAuth(req as any);
-  if (authResponse) return authResponse;
+  if (!await isAuthorized(req)) {
+    return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+  }
 
-  const sb = supabaseAdmin();
-  if (!sb) return NextResponse.json({ error: 'Supabase non configur\u00e9' }, { status: 503 })
-
-  let imageUrl: string | null = null;
-  let fileToMove: string | null = null;
-  let newFilePath: string | null = null;
-  let imageContextForAi: string = '';
+  const sb = getSupabase();
+  if (!sb) {
+    return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 });
+  }
 
   try {
-    const { data: files, error } = await sb.storage.from(BUCKET).list(AUTO_PUBLISH_FOLDER, { limit: 10, sortBy: { column: 'created_at', order: 'asc' }});
-    if (!error) {
-      const images = files?.filter(f => /\.(jpg|jpeg|png|webp|avif)$/i.test(f.name)) || [];
-      if (images.length > 0) {
-        const file = images[0];
-        fileToMove = `${AUTO_PUBLISH_FOLDER}/${file.name}`;
-        newFilePath = `articles/${file.name}`;
+    // 1. Recherche de médias réels déposés dans le bucket media/auto-publish
+    const { data: files, error } = await sb.storage.from('media').list('auto-publish', {
+      limit: 10,
+      sortBy: { column: 'created_at', order: 'asc' },
+    });
 
-        const { data: newUrlData } = sb.storage.from(BUCKET).getPublicUrl(newFilePath);
-        imageUrl = newUrlData.publicUrl;
-        imageContextForAi = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
-      }
+    if (error || !files || files.length === 0) {
+      return NextResponse.json({
+        message: 'Aucun média en attente dans auto-publish. Zéro brouillon créé (règle : on n\'invente rien).',
+      });
     }
-  } catch (err) {
-    console.error("Failed to list Supabase files", err);
-  }
 
-  let generatedData;
-  try {
-    generatedData = await generateContentWithGroq(imageContextForAi);
-  } catch (err) {
-    console.error("Groq generation failed", err);
-    return NextResponse.json({ error: 'Content generation failed' }, { status: 500 });
-  }
+    const images = files.filter(f => /\.(jpg|jpeg|png|webp|avif)$/i.test(f.name));
+    if (images.length === 0) {
+      return NextResponse.json({ message: 'Aucune image valide trouvée dans auto-publish.' });
+    }
 
-  if (!imageUrl) {
-    imageUrl = await fetchUnsplashImage(generatedData.unsplashKeyword || 'slow travel nature');
-  }
+    const file = images[0];
+    const cleanName = file.name.replace(/\.[^/.]+$/, '');
+    const { data: urlData } = sb.storage.from('media').getPublicUrl(`auto-publish/${file.name}`);
+    const imageUrl = urlData.publicUrl;
 
-  if (!imageUrl) {
-    imageUrl = 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80';
-  }
+    const title = `Brouillon Média : ${cleanName}`;
+    const slug = `brouillon-media-${cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now()}`;
+    const excerpt = `Brouillon créé à partir du fichier ${file.name}. Récit et détails sensoriels réels à compléter par l'auteur.`;
 
-  let savedArticle = null;
-  try {
-    // published = false : l’article arrive en brouillon dans le CMS.
-    // Relire, enrichir du v\u00e9cu terrain, puis publier manuellement.
-    // instagram_caption est sauvegard\u00e9 pour \u00e9dition avant envoi manuel.
-    const payload: any = {
-      title: generatedData.title,
-      slug: generatedData.slug,
-      excerpt: generatedData.excerpt,
-      content: generatedData.content,
-      category: generatedData.category || 'Carnets Voyage',
-      featured_image: imageUrl,
-      published: false,
-      instagram_caption: generatedData.instagramCaption || null,
-      author: 'Heldonica',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
+    const content = `<h2>Étape documentée : ${cleanName}</h2>
+<p><em>Photo capturée sur le terrain :</em></p>
+<p><img src="${imageUrl}" alt="${cleanName}" /></p>
 
-    const { data, error } = await sb
+<h3>Ce qu'on a ressenti sur place</h3>
+<p>[À TOI : Décris l'atmosphère, la lumière et les odeurs réelles constatées lors de cette étape.]</p>
+
+<h3>Repères pratiques & budget</h3>
+<ul>
+  <li><strong>Accès & route :</strong> [À TOI : état de la route, virages, accès parking]</li>
+  <li><strong>Budget réel :</strong> [À TOI : prix réels en €, tickets d'entrée constatés]</li>
+  <li><strong>Temps de visite :</strong> [À TOI : durée de visite réelle]</li>
+</ul>
+
+<h3>Ce qu'on a moins aimé</h3>
+<p>[À TOI : Note honnête sur ce qui était moins agréable — foule, météo, accès.]</p>`;
+
+    // 2. Insertion en BROUILLON STRICT (published = false, status = 'draft')
+    const { data: inserted, error: insertErr } = await (sb as any)
       .from('cms_blog_posts')
-      .insert([payload] as any)
+      .insert({
+        title,
+        slug,
+        excerpt,
+        content,
+        category: 'Carnets Voyage',
+        featured_image: imageUrl,
+        published: false,
+        status: 'draft',
+        tags: ['squelette-brut', 'a-completer'],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
       .select()
       .single();
 
-    if (error) {
-      console.error("Failed to save article to Supabase", error);
-    } else {
-      savedArticle = data;
+    if (insertErr) {
+      return NextResponse.json({ error: insertErr.message }, { status: 500 });
     }
-  } catch (err) {
-    console.error("Error inserting article into database", err);
+
+    return NextResponse.json({
+      success: true,
+      message: 'Squelette de brouillon brut créé avec succès (zéro texte inventé).',
+      article_id: inserted.id,
+      title: inserted.title,
+      status: 'draft',
+      published: false,
+    });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
-
-  if (savedArticle && fileToMove && newFilePath) {
-    try {
-      const { error: moveError } = await sb.storage.from(BUCKET).move(fileToMove, newFilePath);
-      if (moveError) {
-        console.error(`Failed to move file from ${fileToMove} to ${newFilePath}`, moveError);
-      }
-    } catch (err) {
-      console.error("Error during file move", err);
-    }
-  }
-
-  // Instagram : d\u00e9sactiv\u00e9 ici.
-  // La l\u00e9gende est sauvegard\u00e9e dans instagram_caption du brouillon.
-  // Poster manuellement depuis le CMS apr\u00e8s relecture et \u00e9dition.
-
-  return NextResponse.json({
-    success: true,
-    savedArticle,
-    instagramPost: null,
-    imageUrl,
-    fileToMove,
-    newFilePath
-  })
 }
