@@ -25,6 +25,7 @@ const COLOR_FIELDS = [
   { key: 'color_accent', label: "Couleur d’accent", fallback: '#E29578' },
   { key: 'color_background', label: 'Fond de page', fallback: '#F8F5F0' },
   { key: 'color_text', label: 'Texte principal', fallback: '#1A1A1A' },
+  { key: 'heading_color', label: 'Titres', fallback: '#6B2D1F' },
 ] as const;
 
 const TEXT_FIELDS = [
