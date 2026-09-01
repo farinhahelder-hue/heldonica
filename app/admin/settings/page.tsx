@@ -25,6 +25,7 @@ export default async function AdminSettingsPage() {
         { key: 'og_image', label: 'Image OG (partage réseaux)', type: 'image' },
         { key: 'primary_color', label: 'Couleur principale', type: 'color', description: 'Couleur de marque' },
         { key: 'secondary_color', label: 'Couleur secondaire', type: 'color' },
+        { key: 'heading_color', label: 'Couleur des titres', type: 'color', description: 'Titres et intertitres — défaut #6B2D1F' },
         { key: 'accent_color', label: 'Couleur accent', type: 'color' },
         { key: 'bg_color', label: 'Couleur fond', type: 'color' },
       ] as SettingField[],

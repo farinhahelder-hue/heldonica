@@ -269,6 +269,11 @@ html.dark {
   --color-secondary: #4ECDC4;
   --cloud-dancer: #1E1C1A;
   --mahogany: #E29578;
+  /* La teinte des titres du mode clair vire au brun illisible sur fond sombre.
+     On redéfinit la variable ici plutôt que de réécrire chaque utilitaire :
+     `text-mahogany` vaut désormais `var(--color-heading, …)` côté Tailwind, donc
+     cette seule ligne couvre texte, survol et focus. */
+  --color-heading: var(--color-heading-dark, #C87962);
 }
 
 /* ── Couverture globale : Tailwind hardcoded colors → dark equivalents ─────── */
@@ -294,14 +299,12 @@ html.dark {
 .dark .text-stone-400      { color: #9E9890; }
 .dark .text-stone-300      { color: #B8B2A8; }
 
-/* Mahogany — hardcoded in Tailwind config (no CSS var), must be overridden explicitly */
-.dark .text-mahogany                  { color: #C87962; }
-.dark .hover\:text-mahogany:hover     { color: #C87962; }
-.dark .focus\:text-mahogany:focus     { color: #C87962; }
-.dark .bg-mahogany                    { background-color: #7A3020; }
-.dark .hover\:bg-mahogany:hover       { background-color: #7A3020; }
-.dark .border-mahogany                { border-color: rgba(200, 121, 98, 0.45); }
-.dark .ring-mahogany                  { --tw-ring-color: rgba(200, 121, 98, 0.45); }
+/* Mahogany — `text-mahogany`, `hover:`, `focus:` et `border-mahogany` suivent
+   maintenant --color-heading, redéfinie plus haut sous html.dark : plus besoin
+   de les réécrire. Seul le fond garde une valeur propre — la teinte des titres,
+   posée en aplat, écraserait le texte qu'elle porte. */
+.dark .bg-mahogany                    { background-color: var(--color-heading-dark-bg, #7A3020); }
+.dark .hover\:bg-mahogany:hover       { background-color: var(--color-heading-dark-bg, #7A3020); }
 
 /* Borders */
 .dark .border-stone-50     { border-color: #252320; }

@@ -115,6 +115,10 @@ export default async function SiteTheme() {
     'color_accent',
     'color_background',
     'color_text',
+    'heading_color',
+    'color_heading',
+    'heading_color_dark',
+    'heading_color_dark_bg',
     'hero_overlay_color',
     'hero_overlay_opacity',
     'button_primary_bg',
@@ -151,12 +155,21 @@ export default async function SiteTheme() {
   const primaryColor = settings.primary_color || settings.color_primary || preset.colors.primary_color
   const secondaryColor = settings.secondary_color || settings.color_secondary || preset.colors.secondary_color
 
+  // Couleur des titres (classe `mahogany`, 73 fichiers). Elle était figée dans
+  // tailwind.config.ts : aucun préréglage ni réglage CMS ne l'atteignait, et un
+  // changement de thème laissait les titres à leur brun d'origine. Sans réglage
+  // explicite on garde cette teinte, pour ne pas altérer le rendu existant.
+  const headingColor = settings.heading_color || settings.color_heading || '#6B2D1F'
+
   const cssVars = `
     :root {
       --theme-preset: '${presetId}';
       --theme-label: '${preset.label}';
       --color-primary: ${primaryColor};
       --color-secondary: ${secondaryColor};
+      --color-heading: ${headingColor};
+      --color-heading-dark: ${settings.heading_color_dark || '#C87962'};
+      --color-heading-dark-bg: ${settings.heading_color_dark_bg || '#7A3020'};
       --color-accent: ${settings.color_accent || preset.colors.color_accent};
       --color-background: ${settings.color_background || preset.colors.color_background};
       --color-text: ${settings.color_text || preset.colors.color_text};
