@@ -208,11 +208,28 @@ async function isAuthorized(req: NextRequest) {
 // Fallback code — écrasé par MAINTENANCE_MODE (Vercel) ou CMS (Supabase)
 const MAINTENANCE_ACTIVE = true;
 
+const MAINTENANCE_BYPASS_COOKIE = 'heldonica_maintenance_bypass';
+
+// Documenté dans MAINTENANCE_MODE.md depuis le début mais jamais câblé : permet
+// de prévisualiser le site (cookie ou header) sans désactiver la maintenance
+// pour le public. Si MAINTENANCE_BYPASS_TOKEN n'est pas configuré, aucun bypass
+// n'est possible (comparaison contre undefined échoue toujours).
+function hasMaintenanceBypass(req: NextRequest) {
+  const token = process.env.MAINTENANCE_BYPASS_TOKEN?.trim();
+  if (!token) return false;
+
+  const headerValue = req.headers.get('x-maintenance-bypass');
+  if (headerValue === token) return true;
+
+  const cookieValue = req.cookies.get(MAINTENANCE_BYPASS_COOKIE)?.value;
+  return cookieValue === token;
+}
+
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
   const maintenanceExcludes = ['/maintenance', '/panel-manager', '/cms-admin', '/admin', '/api', '/_next', '/robots.txt', '/sitemap.xml', '/favicon.ico'];
-  const isMaintenanceExcluded = maintenanceExcludes.some(path => pathname.startsWith(path));
+  const isMaintenanceExcluded = maintenanceExcludes.some(path => pathname.startsWith(path)) || hasMaintenanceBypass(req);
 
   if (!isMaintenanceExcluded) {
     // La source de vérité est le CMS Supabase (site_settings.maintenance_mode),
