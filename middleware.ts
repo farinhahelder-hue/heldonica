@@ -211,7 +211,7 @@ const MAINTENANCE_ACTIVE = true;
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
-  const maintenanceExcludes = ['/maintenance', '/panel-manager', '/cms-admin', '/api', '/_next', '/robots.txt', '/sitemap.xml', '/favicon.ico'];
+  const maintenanceExcludes = ['/maintenance', '/panel-manager', '/cms-admin', '/admin', '/api', '/_next', '/robots.txt', '/sitemap.xml', '/favicon.ico'];
   const isMaintenanceExcluded = maintenanceExcludes.some(path => pathname.startsWith(path));
 
   if (!isMaintenanceExcluded) {

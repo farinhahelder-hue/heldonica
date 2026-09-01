@@ -22,7 +22,7 @@ export default async function AdminLayout({
   const authStatus = await getCmsAuthStatus(mockRequest)
   
   if (authStatus !== 'ok') {
-    redirect('/login')
+    redirect('/panel-manager')
   }
 
   return (
