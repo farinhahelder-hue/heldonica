@@ -80,3 +80,11 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: npm run check:content-coherence
+
+      # Le contrôle ci-dessus mesure la *ressemblance* avec du vécu : son critère
+      # E-E-A-T est satisfait par la seule présence de « en 202… », si bien qu'un
+      # texte inventé de bout en bout obtient 100 %. Celui-ci vérifie l'inverse —
+      # que chaque date et chaque lieu revendiqué soit attesté par les
+      # métadonnées d'une photo du voyage (content/evidence/*.json).
+      - name: Vécu adossé aux photos
+        run: npm run check:content-evidence
