@@ -183,8 +183,11 @@ class MainActivity : ComponentActivity() {
             "isVideo" to isVideo,
             "mode" to mode,
             "autoCaption" to (mode != "manuel"),
-            "baseUrl" to "https://www.heldonica.fr",
-            "cmsPassword" to "heldonica2026" // à mettre dans local.properties en prod
+            // Valeurs issues de local.properties via BuildConfig, plutôt
+            // qu'écrites en dur : le mot de passe précédent était celui du repli
+            // public, retiré du code serveur — l'envoi échouait en 401.
+            "baseUrl" to BuildConfig.CMS_BASE_URL,
+            "cmsPassword" to BuildConfig.CMS_PASSWORD
         )
         val req = OneTimeWorkRequestBuilder<UploadWorker>()
             .setInputData(data)

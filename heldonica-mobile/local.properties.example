@@ -4,4 +4,10 @@ sdk.dir=C\:\\Users\\farin\\AppData\\Local\\Android\\Sdk
 
 # Configuration de connexion à l'API Heldonica CMS
 cms.baseUrl=https://www.heldonica.fr
-cms.password=heldonica2026
+
+# Mot de passe CMS — celui defini dans Vercel (variable CMS_PASSWORD).
+# Ce fichier d'exemple portait la valeur `heldonica2026`, l'ancien repli code en
+# dur dans lib/cms-auth.ts. Ce repli a ete supprime : un depot public ne peut
+# pas contenir un mot de passe qui ouvre l'administration. Laisse le champ vide
+# ici et renseigne-le dans local.properties, qui n'est pas versionne.
+cms.password=
