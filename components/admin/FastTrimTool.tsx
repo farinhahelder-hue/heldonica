@@ -179,22 +179,62 @@ export default function FastTrimTool() {
     }
   }, [selectedSegment, state.currentTime, state.segments, updateSegment]);
 
-  // Export segments (lossless cut simulation)
+  // Export réel des segments actifs, un fichier par segment.
+  //
+  // L'ancienne version attendait trois secondes puis annonçait « Export
+  // terminé ! » sans rien produire. Le rendu passe désormais par
+  // lib/video-export : il réencode en temps réel, donc ce n'est pas une coupe
+  // sans perte — mais un fichier réellement exploitable vaut mieux qu'une
+  // promesse de coupe lossless jamais tenue.
   const exportSegments = useCallback(async () => {
-    if (state.segments.length === 0) return;
+    const actifs = state.segments.filter(s => s.isActive);
+    if (actifs.length === 0 || !state.videoUrl) return;
 
-    setState(prev => ({ ...prev, isExporting: true }));
+    setState(prev => ({ ...prev, isExporting: true, error: null }));
 
-    // Simulate lossless export
-    for (let i = 0; i < 10; i++) {
-      await new Promise(resolve => setTimeout(resolve, 300));
+    try {
+      const { rendreTimeline, formatSupporte, extensionPour, telecharger } =
+        await import('@/lib/video-export');
+
+      const mimeType = formatSupporte();
+      if (!mimeType) {
+        throw new Error("Ce navigateur ne sait pas enregistrer de vidéo. Essaie Chrome ou Edge.");
+      }
+
+      const base = (state.videoName || 'segment').replace(/\.[^.]+$/, '');
+
+      for (const [index, seg] of actifs.entries()) {
+        const blob = await rendreTimeline({
+          // Le format de sortie suit la source : recadrer sans le demander
+          // rognerait l'image à l'insu de l'utilisateur.
+          largeur: videoRef.current?.videoWidth || 1080,
+          hauteur: videoRef.current?.videoHeight || 1920,
+          duree: seg.duration,
+          clips: [{
+            id: seg.id,
+            type: 'video',
+            url: state.videoUrl!,
+            startTime: 0,
+            duration: seg.duration,
+            trimStart: seg.startTime,
+            volume: 1,
+            fadeIn: 0,
+            fadeOut: 0,
+            effects: { brightness: 100, contrast: 100, saturation: 100 },
+          }],
+        });
+
+        telecharger(blob, `${base}-${index + 1}.${extensionPour(mimeType)}`);
+      }
+    } catch (e) {
+      setState(prev => ({
+        ...prev,
+        error: e instanceof Error ? e.message : "Le rendu a échoué.",
+      }));
+    } finally {
+      setState(prev => ({ ...prev, isExporting: false }));
     }
-
-    const totalDuration = state.segments.reduce((acc, seg) => acc + seg.duration, 0);
-    alert(`Export terminé !\n\n${state.segments.length} segments exportés\nDurée totale: ${totalDuration.toFixed(1)}s\n\nNote: L’export lossless réel utiliserait WebCodecs ou ffmpeg.wasm`);
-
-    setState(prev => ({ ...prev, isExporting: false }));
-  }, [state.segments]);
+  }, [state.segments, state.videoUrl, state.videoName]);
 
   // Format time display
   const formatTime = (seconds: number): string => {
@@ -293,6 +333,21 @@ export default function FastTrimTool() {
           )}
         </div>
       </div>
+
+      {/* `error` existait dans l'état sans jamais être rendu : une panne d'export
+          restait donc invisible pour l'utilisateur. */}
+      {state.error && (
+        <div style={{
+          margin: '0 1rem 0.75rem',
+          padding: '0.75rem 1rem',
+          borderRadius: '0.5rem',
+          background: '#fdeaea',
+          color: '#8a1f1f',
+          fontSize: '0.85rem',
+        }}>
+          {state.error}
+        </div>
+      )}
 
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         {/* Left - Video Preview */}
