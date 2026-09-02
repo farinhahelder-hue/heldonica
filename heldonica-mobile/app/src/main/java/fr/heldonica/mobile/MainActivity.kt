@@ -2,6 +2,7 @@ package fr.heldonica.mobile
 
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.PickVisualMediaRequest
@@ -193,11 +194,41 @@ class MainActivity : ComponentActivity() {
             .setInputData(data)
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 10, TimeUnit.SECONDS)
             .build()
-        WorkManager.getInstance(this).enqueue(req)
+
+        val wm = WorkManager.getInstance(this)
+        wm.enqueue(req)
+        status = "Envoi en cours…"
+
+        // L'envoi se faisait en aveugle : le travail partait en arriere-plan et
+        // rien ne revenait a l'ecran, qu'il reussisse, echoue ou boucle. On
+        // suit son etat pour dire ce qui se passe.
+        wm.getWorkInfoByIdLiveData(req.id).observe(this) { info ->
+            status = when (info?.state) {
+                WorkInfo.State.SUCCEEDED -> "Brouillon cree sur le site"
+                WorkInfo.State.FAILED ->
+                    info.outputData.getString(UploadWorker.ERREUR) ?: "Envoi impossible"
+                WorkInfo.State.RUNNING -> "Envoi en cours…"
+                WorkInfo.State.ENQUEUED -> "En attente du reseau…"
+                else -> status
+            }
+        }
     }
 }
 
 class UploadWorker(ctx: android.content.Context, params: WorkerParameters) : CoroutineWorker(ctx, params) {
+
+    companion object {
+        const val TAG = "Heldonica"
+        const val ERREUR = "erreur"
+
+        /** Extrait le champ `error` de la reponse JSON, sinon renvoie le brut tronque. */
+        fun messageLisible(corps: String): String {
+            val m = Regex("\"error\"\\s*:\\s*\"((?:\\\\.|[^\"\\\\])*)\"").find(corps)
+            return m?.groupValues?.get(1)?.replace("\\\"", "\"")
+                ?: corps.take(140).ifBlank { "reponse vide" }
+        }
+    }
+
     override suspend fun doWork(): Result {
         val urisStr = inputData.getString("uris") ?: return Result.failure()
         val uris = urisStr.split(",").mapNotNull { runCatching { Uri.parse(it) }.getOrNull() }
@@ -239,8 +270,41 @@ class UploadWorker(ctx: android.content.Context, params: WorkerParameters) : Cor
                 .post(builder.build())
                 .build()
             val resp = client.newCall(req).execute()
-            if (resp.isSuccessful) Result.success() else Result.retry()
-        } catch (_: Exception) { Result.retry() }
+            val corps = resp.body?.string().orEmpty()
+
+            when {
+                resp.isSuccessful -> {
+                    Log.i(TAG, "Envoi reussi (${uris.size} media)")
+                    Result.success()
+                }
+
+                // 401, 400, 413… : reessayer ne changera rien. Un mot de passe
+                // faux ou un fichier trop lourd le resteront a la tentative
+                // suivante. On rend la main avec le message du serveur, qui
+                // explique la cause — il etait jusqu'ici lu puis jete.
+                resp.code in 400..499 -> {
+                    Log.e(TAG, "Refus du serveur ${resp.code} : $corps")
+                    Result.failure(workDataOf(ERREUR to "Erreur ${resp.code} : ${messageLisible(corps)}"))
+                }
+
+                // 5xx : panne passagere, la nouvelle tentative a du sens.
+                else -> {
+                    Log.w(TAG, "Erreur serveur ${resp.code}, nouvelle tentative : $corps")
+                    Result.retry()
+                }
+            }
+        } catch (e: Exception) {
+            // Tout echec devenait un retry silencieux : reseau coupe, mot de
+            // passe refuse ou plantage donnaient le meme resultat invisible,
+            // et l'envoi bouclait indefiniment en arriere-plan sans que rien
+            // ne l'indique a l'ecran.
+            Log.e(TAG, "Echec de l'envoi", e)
+            if (runAttemptCount >= 3) {
+                Result.failure(workDataOf(ERREUR to "Envoi impossible : ${e.message ?: "reseau indisponible"}"))
+            } else {
+                Result.retry()
+            }
+        }
     }
 
     private fun copyUriToTemp(uri: Uri): File? {
