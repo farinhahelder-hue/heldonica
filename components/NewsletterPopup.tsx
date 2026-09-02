@@ -3,13 +3,18 @@
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { readCookieConsent } from '@/lib/consent'
+import { estRouteAdmin } from '@/lib/routes-admin'
 
 // Jamais sur les pages offre : un pop-up "guide gratuit" pendant un tunnel d'achat détourne l'intention.
 const EXCLUDED_PATH_PREFIXES = ['/travel-planning', '/expert-hotelier']
 
 export default function NewsletterPopup() {
   const pathname = usePathname()
-  const isExcludedPage = EXCLUDED_PATH_PREFIXES.some((prefix) => pathname?.startsWith(prefix))
+  // Les routes d'administration s'ajoutent aux pages exclues : la fenetre
+  // s'ouvrait par-dessus l'editeur, ou elle n'a rien a proposer.
+  const isExcludedPage =
+    estRouteAdmin(pathname) ||
+    EXCLUDED_PATH_PREFIXES.some((prefix) => pathname?.startsWith(prefix))
   const [isVisible, setIsVisible] = useState(false)
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
