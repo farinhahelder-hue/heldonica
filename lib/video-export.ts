@@ -18,6 +18,15 @@
 
 export type EffetsClip = { brightness: number; contrast: number; saturation: number };
 
+export type TypeTransition = 'none' | 'fondu' | 'glisse-gauche' | 'glisse-haut' | 'zoom';
+
+/**
+ * Transition jouée à l'entrée du plan. Elle se superpose au plan précédent :
+ * pour qu'elle soit visible, les deux clips doivent se chevaucher sur la
+ * timeline pendant `duree`.
+ */
+export type Transition = { type: TypeTransition; duree: number };
+
 export type ClipRendu = {
   id: string;
   type: 'video' | 'image' | 'audio';
@@ -29,6 +38,7 @@ export type ClipRendu = {
   fadeIn: number;
   fadeOut: number;
   effects: EffetsClip;
+  transition?: Transition;
   texte?: {
     text: string;
     fontSize: number;
@@ -99,6 +109,49 @@ function dessinerCouvrant(
   const w = sw * echelle;
   const h = sh * echelle;
   ctx.drawImage(source, (largeur - w) / 2, (hauteur - h) / 2, w, h);
+}
+
+/**
+ * Applique la transition d'entrée et renvoie l'opacité à utiliser.
+ * Les translations et l'échelle passent par la matrice du contexte, si bien que
+ * le plan sortant reste visible dessous — c'est ce qui fait la transition.
+ */
+function appliquerTransition(
+  ctx: CanvasRenderingContext2D,
+  clip: ClipRendu,
+  tempsLocal: number,
+  largeur: number,
+  hauteur: number
+): number {
+  const t = clip.transition;
+  if (!t || t.type === 'none' || t.duree <= 0 || tempsLocal >= t.duree) return 1;
+
+  // Courbe d'accélération douce : une progression linéaire donne une transition
+  // mécanique, très visible sur des plans courts.
+  const lineaire = Math.max(0, Math.min(1, tempsLocal / t.duree));
+  const p = lineaire < 0.5
+    ? 2 * lineaire * lineaire
+    : 1 - Math.pow(-2 * lineaire + 2, 2) / 2;
+
+  switch (t.type) {
+    case 'fondu':
+      return p;
+    case 'glisse-gauche':
+      ctx.translate((1 - p) * largeur, 0);
+      return 1;
+    case 'glisse-haut':
+      ctx.translate(0, (1 - p) * hauteur);
+      return 1;
+    case 'zoom': {
+      const echelle = 1 + (1 - p) * 0.25;
+      ctx.translate(largeur / 2, hauteur / 2);
+      ctx.scale(echelle, echelle);
+      ctx.translate(-largeur / 2, -hauteur / 2);
+      return p;
+    }
+    default:
+      return 1;
+  }
 }
 
 function opaciteFondu(clip: ClipRendu, tempsLocal: number): number {
@@ -253,7 +306,10 @@ export async function rendreTimeline(o: OptionsRendu): Promise<Blob> {
         if (!el) continue;
 
         ctx.save();
-        ctx.globalAlpha = opaciteFondu(clip, local);
+        // La transition se compose avec les fondus : un plan peut entrer en
+        // glissant tout en montant progressivement en opacité.
+        ctx.globalAlpha = opaciteFondu(clip, local)
+          * appliquerTransition(ctx, clip, local, o.largeur, o.hauteur);
         const { brightness, contrast, saturation } = clip.effects;
         ctx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%)`;
 
