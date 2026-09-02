@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import AIChatPanel from './AIChatPanel'
 import SlidePreviewPanel from './SlidePreviewPanel'
+import PhotoPickerPanel from './PhotoPickerPanel'
 import FilmStripPanel from './FilmStripPanel'
 import { HELDONICA_TOKENS, SlideData, AspectRatio } from './tokens'
 
@@ -129,6 +130,15 @@ export default function CarouselEditorV2({ onComplete }: CarouselEditorV2Props) 
             brandOverlay={brandOverlay}
             previewRef={previewRef}
           />
+
+          {activeSlide && (
+            <PhotoPickerPanel
+              valeur={activeSlide.image}
+              onChoisir={(url) => setSlides(slides.map(s =>
+                s.id === activeSlide.id ? { ...s, image: url } : s
+              ))}
+            />
+          )}
         </div>
 
         {/* Right: Filmstrip */}
