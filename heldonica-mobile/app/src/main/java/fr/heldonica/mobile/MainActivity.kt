@@ -41,6 +41,18 @@ class MainActivity : ComponentActivity() {
     private var isCarousel by mutableStateOf(false)
     private var status by mutableStateOf("Prêt — choisis 1 à 10 photos/vidéos")
 
+    // Ecran affiche : accueil, ou formulaire de publication.
+    //
+    // Tout tenait auparavant sur une seule page — selecteur, quatre champs,
+    // trois modes, cases a cocher, deux boutons d'envoi et quatre boutons
+    // d'edition. Une trentaine d'elements presentes ensemble, sans hierarchie.
+    // On n'en montre plus qu'un a la fois, avec une action evidente par ecran.
+    private var ecran by mutableStateOf("accueil")
+
+    // Les reglages fins restent replies : ils servent rarement, et leur
+    // presence permanente noyait l'action principale.
+    private var optionsOuvertes by mutableStateOf(false)
+
     private val picker = registerForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(10)) { uris ->
         if (uris.isNotEmpty()) {
             pickedUris = uris
@@ -55,12 +67,105 @@ class MainActivity : ComponentActivity() {
         setContent { HeldonicaScreen() }
     }
 
+    /**
+     * Accueil : une action par carte, avec ce qu'elle fait ecrit en clair.
+     *
+     * Les libelles disent le resultat plutot que l'outil — « Publier une photo »
+     * plutot que « Picker systeme ». Chaque carte porte une phrase de contexte,
+     * pour qu'aucun choix ne demande de se souvenir de ce qu'il declenche.
+     */
+    @Composable
+    fun EcranAccueil(modifier: Modifier = Modifier) {
+        Column(
+            modifier
+                .verticalScroll(rememberScrollState())
+                .padding(20.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text("Que veux-tu faire ?", style = MaterialTheme.typography.headlineSmall)
+
+            CarteAction(
+                titre = "Publier une photo",
+                detail = "Choisir des photos, ajouter le lieu, créer un brouillon sur le site.",
+                principale = true
+            ) { ecran = "publier" }
+
+            Text("Modifier le site", style = MaterialTheme.typography.titleMedium)
+
+            CarteAction(
+                titre = "Articles et carnets",
+                detail = "Écrire, corriger, relire ce qui est en brouillon."
+            ) { ouvrirEditeur("/panel-manager") }
+
+            CarteAction(
+                titre = "Carrousels Instagram",
+                detail = "Composer les diapositives et les illustrer avec tes photos."
+            ) { ouvrirEditeur("/panel-manager/carousel") }
+
+            CarteAction(
+                titre = "Photos du voyage",
+                detail = "Importer depuis Google Photos vers la médiathèque."
+            ) { ouvrirEditeur("/panel-manager/photos") }
+
+            CarteAction(
+                titre = "Apparence du site",
+                detail = "Couleurs, logo, polices, titres."
+            ) { ouvrirEditeur("/admin/settings") }
+
+            Text(
+                "Rien n'est publié sans ton accord : tout arrive en brouillon.",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+
+    @Composable
+    private fun CarteAction(
+        titre: String,
+        detail: String,
+        principale: Boolean = false,
+        onClick: () -> Unit
+    ) {
+        // Zone de clic pleine largeur et hauteur confortable : viser un petit
+        // bouton demande une precision inutile.
+        Card(
+            onClick = onClick,
+            modifier = Modifier.fillMaxWidth(),
+            colors = if (principale)
+                CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+            else CardDefaults.cardColors()
+        ) {
+            Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(titre, style = MaterialTheme.typography.titleMedium)
+                Text(detail, style = MaterialTheme.typography.bodySmall)
+            }
+        }
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun HeldonicaScreen() {
         val scope = rememberCoroutineScope()
         MaterialTheme {
-            Scaffold(topBar = { TopAppBar(title = { Text("Heldonica Mobile — 0€") }) }) { pad ->
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        // Le titre dit ou l'on se trouve : sur un ecran unique
+                        // pour tout faire, rien ne l'indiquait.
+                        title = { Text(if (ecran == "accueil") "Heldonica" else "Publier") },
+                        navigationIcon = {
+                            if (ecran != "accueil") {
+                                TextButton(onClick = { ecran = "accueil" }) { Text("← Retour") }
+                            }
+                        }
+                    )
+                }
+            ) { pad ->
+                if (ecran == "accueil") {
+                    EcranAccueil(Modifier.padding(pad))
+                    return@Scaffold
+                }
                 // Colonne defilante : l'ecran depassait deja la hauteur d'un
                 // telephone avant l'ajout des boutons d'edition, qui restaient
                 // donc hors d'atteinte. Le clavier reduit encore la zone visible
@@ -74,34 +179,57 @@ class MainActivity : ComponentActivity() {
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Button(onClick = { picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) }) {
-                        Text("Choisir photos/vidéos (Picker système)")
+                        Text("Choisir des photos")
                     }
                     Text(status, style = MaterialTheme.typography.bodySmall)
                     if (pickedUris.isNotEmpty()) Text("${pickedUris.size} média(s) prêts", color = MaterialTheme.colorScheme.primary)
 
-                    OutlinedTextField(value = placeTitle, onValueChange = { placeTitle = it }, label = { Text("Lieu — ex: Gârda de Sus") }, modifier = Modifier.fillMaxWidth())
-                    OutlinedTextField(value = placeAddress, onValueChange = { placeAddress = it }, label = { Text("Adresse (auto via OSM)") }, modifier = Modifier.fillMaxWidth())
-                    OutlinedTextField(value = caption, onValueChange = { caption = it }, label = { Text("Note [À TOI] — ressenti, prix") }, modifier = Modifier.fillMaxWidth(), minLines = 3)
+                    OutlinedTextField(value = placeTitle, onValueChange = { placeTitle = it }, label = { Text("Lieu") }, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = placeAddress, onValueChange = { placeAddress = it }, label = { Text("Adresse (remplie automatiquement)") }, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = caption, onValueChange = { caption = it }, label = { Text("Ce que tu as vécu là (facultatif)") }, modifier = Modifier.fillMaxWidth(), minLines = 3)
 
-                    // Mode auto/manuel/both
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        listOf("manuel" to "Manuel [À TOI]", "auto" to "Auto IA", "both" to "Both").forEach { (v, label) ->
-                            FilterChip(selected = mode == v, onClick = { mode = v }, label = { Text(label, style = MaterialTheme.typography.labelSmall) })
-                        }
-                    }
-                    Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Checkbox(checked = isCarousel, onCheckedChange = { isCarousel = it })
-                        Text("Carrousel (2-10) — sinon image/vidéo simple", style = MaterialTheme.typography.bodySmall)
-                    }
                     if (pickedUris.size > 1) LaunchedEffect(pickedUris.size) { isCarousel = true }
 
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(onClick = {
-                            scope.launch { useLiveLocationAsFallback() }
-                        }) { Text("GPS live") }
-                        OutlinedButton(onClick = {
-                            scope.launch { reverseGeocodeNominatim() }
-                        }) { Text("Adresse OSM") }
+                    // Reglages replies : ils ont des valeurs par defaut qui
+                    // conviennent, et les afficher en permanence noyait l'action
+                    // principale sous une dizaine de controles.
+                    TextButton(onClick = { optionsOuvertes = !optionsOuvertes }) {
+                        Text(if (optionsOuvertes) "Masquer les options" else "Options (facultatif)")
+                    }
+
+                    if (optionsOuvertes) {
+                        Text("Texte de la légende", style = MaterialTheme.typography.labelLarge)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            listOf(
+                                "manuel" to "J'écris",
+                                "auto" to "L'IA propose",
+                                "both" to "Les deux"
+                            ).forEach { (v, label) ->
+                                FilterChip(
+                                    selected = mode == v,
+                                    onClick = { mode = v },
+                                    label = { Text(label, style = MaterialTheme.typography.labelSmall) }
+                                )
+                            }
+                        }
+
+                        Row(
+                            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Checkbox(checked = isCarousel, onCheckedChange = { isCarousel = it })
+                            Text("Carrousel Instagram", style = MaterialTheme.typography.bodySmall)
+                        }
+
+                        Text("Si le lieu est vide", style = MaterialTheme.typography.labelLarge)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedButton(onClick = { scope.launch { useLiveLocationAsFallback() } }) {
+                                Text("Position actuelle")
+                            }
+                            OutlinedButton(onClick = { scope.launch { reverseGeocodeNominatim() } }) {
+                                Text("Trouver l'adresse")
+                            }
+                        }
                     }
 
                     Button(
@@ -109,9 +237,9 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             enqueueUpload(publishInstagram = false)
-                            status = "Upload en file d'attente (WorkManager) — mode $mode, carrousel=$isCarousel..."
+                            status = "Envoi en cours…"
                         }
-                    ) { Text("Créer brouillon Heldonica (${mode})") }
+                    ) { Text("Créer le brouillon") }
 
                     Button(
                         enabled = pickedUris.isNotEmpty(),
@@ -119,38 +247,17 @@ class MainActivity : ComponentActivity() {
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
                         onClick = {
                             enqueueUpload(publishInstagram = true)
-                            status = "Brouillon + brouillon Instagram en file — mode $mode..."
+                            status = "Envoi en cours…"
                         }
-                    ) { Text("Brouillon + Instagram (draft, ${mode})") }
+                    ) { Text("Brouillon + Instagram") }
 
-                    Spacer(Modifier.height(8.dp))
-                    HorizontalDivider()
-                    Spacer(Modifier.height(8.dp))
-
-                    Text("Éditer le site", style = MaterialTheme.typography.titleSmall)
-
-                    // Le panel web est affiche tel quel plutot que reconstruit en
-                    // natif : une seule implementation du CMS a maintenir, et
-                    // chaque evolution y arrive sans portage.
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedButton(onClick = { ouvrirEditeur("/panel-manager") }) {
-                            Text("Contenu")
-                        }
-                        OutlinedButton(onClick = { ouvrirEditeur("/panel-manager/carousel") }) {
-                            Text("Carrousels")
-                        }
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedButton(onClick = { ouvrirEditeur("/panel-manager/photos") }) {
-                            Text("Photos")
-                        }
-                        OutlinedButton(onClick = { ouvrirEditeur("/admin/settings") }) {
-                            Text("Apparence")
-                        }
-                    }
-
-                    Spacer(Modifier.height(8.dp))
-                    Text("Règle: published:false toujours. Valide dans /panel-manager avant publication.", style = MaterialTheme.typography.labelSmall)
+                    // Les acces a l'editeur vivent desormais sur l'accueil : les
+                    // repeter ici melait deux intentions sur le meme ecran.
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "Le brouillon arrive sur le site. Rien n'est publié tant que tu ne l'as pas relu.",
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
             }
         }
