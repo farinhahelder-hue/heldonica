@@ -88,22 +88,56 @@ export async function POST(req: NextRequest) {
     const form = await req.formData()
     const files = form.getAll('photos') as File[]
     const videoFile = form.get('video') as File | null
+
+    // Références aux fichiers déjà déposés via les URL signées. L'application
+    // envoie leur description en JSON ; les octets, eux, ne passent plus par
+    // ici — c'est ce qui permet de depasser la limite de 4,5 Mo de Vercel.
+    type PreUpload = {
+      nom: string
+      chemin: string
+      url: string
+      mime?: string
+      taille?: number
+      lat?: number | null
+      lng?: number | null
+      priseDeVue?: string | null
+    }
+
+    let preUploads: PreUpload[] = []
+    const brutPre = form.get('uploaded') as string | null
+    if (brutPre) {
+      try {
+        const parse = JSON.parse(brutPre)
+        // On ne garde que les entrées exploitables : sans chemin ni URL, la
+        // ligne de traçage pointerait dans le vide.
+        preUploads = Array.isArray(parse)
+          ? parse.filter((p: PreUpload) => p?.chemin && p?.url)
+          : []
+      } catch {
+        return NextResponse.json({ error: 'Champ `uploaded` illisible (JSON attendu)' }, { status: 400 })
+      }
+    }
     const caption = (form.get('caption') as string) || ''
     const placeTitle = (form.get('place_title') as string) || ''
     const placeLat = form.get('place_lat') ? parseFloat(form.get('place_lat') as string) : null
     const placeLng = form.get('place_lng') ? parseFloat(form.get('place_lng') as string) : null
     const placeAddress = (form.get('place_address') as string) || ''
     const publishInstagram = form.get('publish_instagram') === '1'
-    const isCarousel = form.get('is_carousel') === '1' || files.length > 1
+    // Total des deux voies : les photos pre-deposees ne passent pas par
+    // `files`, et les compter a part ferait perdre le mode carrousel.
+    const nbPhotos = files.length + preUploads.length
+    const isCarousel = form.get('is_carousel') === '1' || nbPhotos > 1
     const autoCaption = form.get('auto_caption') === '1'
     const mode = (form.get('mode') as string) || (autoCaption ? 'both' : 'manuel')
 
-    const hasPhotos = files && files.length > 0
+    // Les médias pré-déposés comptent comme des photos présentes : sans cela,
+    // un envoi passant par les URL signées serait refusé faute de multipart.
+    const hasPhotos = (files && files.length > 0) || preUploads.length > 0
     const hasVideo = !!videoFile && videoFile.size > 0
     if (!hasPhotos && !hasVideo) {
       return NextResponse.json({ error: 'Aucun média fourni (photos[] ou video)' }, { status: 400 })
     }
-    if (files.length > 10) {
+    if (nbPhotos > 10) {
       return NextResponse.json({ error: 'Max 10 photos par upload (carousel IG: 2-10)' }, { status: 400 })
     }
     if (hasVideo && videoFile && videoFile.size > 100 * 1024 * 1024) {
@@ -117,9 +151,9 @@ export async function POST(req: NextRequest) {
       try {
         const { generateAiCompletion } = await import('@/lib/ai-provider')
         const { HELDONICA_B2C_PROMPT } = await import('@/lib/brand-voice')
-        if (isCarousel && files.length >= 2) {
+        if (isCarousel && nbPhotos >= 2) {
           // Carrousel : 1 caption globale + légendes par slide
-          const prompt = `${HELDONICA_B2C_PROMPT}\nLieu: ${placeTitle} — ${placeAddress}. ${files.length} photos terrain. Note utilisateur: "${caption}". Génère JSON {"caption":"Légende IG globale 120-180 mots, pronoms on/tu, 0 mot banni","slides":["Légende slide 1","..."]} sans inventer prix/horaires, mets [À TOI] si incertain.`
+          const prompt = `${HELDONICA_B2C_PROMPT}\nLieu: ${placeTitle} — ${placeAddress}. ${nbPhotos} photos terrain. Note utilisateur: "${caption}". Génère JSON {"caption":"Légende IG globale 120-180 mots, pronoms on/tu, 0 mot banni","slides":["Légende slide 1","..."]} sans inventer prix/horaires, mets [À TOI] si incertain.`
           const res = await generateAiCompletion({ messages: [{ role: 'user', content: prompt }], temperature: 0.6, max_tokens: 800, jsonMode: true })
           const parsed = JSON.parse(res.content.match(/\{[\s\S]*\}/)?.[0] || '{}')
           aiCaption = parsed.caption || null
@@ -136,8 +170,48 @@ export async function POST(req: NextRequest) {
       } catch (e) { console.warn('[mobile-publish] auto caption failed', e) }
     }
 
-    // 1. Upload vers Supabase Storage (gratuit, même bucket que auto-publish)
+    // 1. Médias déjà déposés dans le stockage par l'application, via les URL
+    //    signées de /upload-url. Ce chemin evite la limite de 4,5 Mo par
+    //    requete des fonctions Vercel, qui rejetait toute photo de telephone
+    //    par un FUNCTION_PAYLOAD_TOO_LARGE emis avant meme d'atteindre ce code.
+    //
+    //    Le multipart reste accepte plus bas pour les petits fichiers et les
+    //    appels directs en ligne de commande.
     const uploadedUrls: string[] = []
+
+    for (const dejaDepose of preUploads) {
+      const { error: erreurTrace } = await (sb as any).from('cms_media').insert({
+        filename: dejaDepose.nom,
+        url: dejaDepose.url,
+        path: dejaDepose.chemin,
+        mime_type: dejaDepose.mime || 'image/jpeg',
+        size: dejaDepose.taille ?? null,
+        source: 'mobile',
+        // Les coordonnees et la date de prise de vue viennent de l'EXIF lu par
+        // l'application : le serveur ne voit plus passer les octets, il ne peut
+        // donc plus les extraire lui-meme.
+        latitude: dejaDepose.lat ?? placeLat,
+        longitude: dejaDepose.lng ?? placeLng,
+        taken_at: dejaDepose.priseDeVue ?? null,
+        metadata: {
+          place_title: placeTitle,
+          place_address: placeAddress,
+          caption,
+          geo_source: dejaDepose.lat != null ? 'exif' : placeLat !== null ? 'formulaire' : 'aucune',
+        },
+      })
+
+      if (erreurTrace) {
+        await sb.storage.from('media').remove([dejaDepose.chemin])
+        return NextResponse.json(
+          { error: `Media refuse par la base : ${erreurTrace.message}` },
+          { status: 422 }
+        )
+      }
+
+      uploadedUrls.push(dejaDepose.url)
+    }
+
     for (const file of files) {
       const bytes = Buffer.from(await file.arrayBuffer())
       if (bytes.length > 15 * 1024 * 1024) {
