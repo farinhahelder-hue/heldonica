@@ -92,12 +92,15 @@ class MainActivity : ComponentActivity() {
                 principale = true
             ) { ecran = "publier" }
 
+            // Chaque carte ouvre directement sa section du panneau. Sans le
+            // parametre, toutes arrivaient sur le tableau de bord et il fallait
+            // retrouver la bonne entree dans une barre laterale etroite.
             Text("Modifier le site", style = MaterialTheme.typography.titleMedium)
 
             CarteAction(
                 titre = "Articles et carnets",
                 detail = "Écrire, corriger, relire ce qui est en brouillon."
-            ) { ouvrirEditeur("/panel-manager") }
+            ) { ouvrirEditeur("/panel-manager?section=articles") }
 
             CarteAction(
                 titre = "Carrousels Instagram",
@@ -112,7 +115,7 @@ class MainActivity : ComponentActivity() {
             CarteAction(
                 titre = "Apparence du site",
                 detail = "Couleurs, logo, polices, titres."
-            ) { ouvrirEditeur("/admin/settings") }
+            ) { ouvrirEditeur("/panel-manager?section=design") }
 
             Text(
                 "Rien n'est publié sans ton accord : tout arrive en brouillon.",

@@ -75,12 +75,33 @@ type NavSection =
   | 'destination-pillars' | 'guides' | 'editable-zones' | 'sub-destinations'
   | 'seasons' | 'redirects' | 'layouts';
 
+// Sections adressables depuis l'URL. Le panneau ne gardait sa section qu'en
+// memoire : impossible d'ouvrir directement « Design » ou « Articles », que ce
+// soit par un signet ou depuis l'application mobile, qui retombait donc chaque
+// fois sur le tableau de bord.
+const SECTIONS_URL: readonly NavSection[] = [
+  'dashboard', 'articles', 'new-article', 'media',
+  'settings', 'seo', 'analytics', 'carousel',
+  'blog-generator', 'video', 'fast-trim', 'studio-video',
+  'map', 'auto-shorts', 'design', 'geo', 'instagram', 'messages',
+  'testimonials', 'checklists',
+  'destination-pillars', 'guides', 'editable-zones', 'sub-destinations',
+  'seasons', 'redirects', 'layouts',
+]
+
+function sectionDepuisUrl(valeur: string | null): NavSection | null {
+  if (!valeur) return null
+  return SECTIONS_URL.find((s) => s === valeur) ?? null
+}
+
 function CmsAdminClientInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
 
-  const [activeSection, setActiveSection] = useState<NavSection>('dashboard');
+  const [activeSection, setActiveSection] = useState<NavSection>(
+    () => sectionDepuisUrl(searchParams.get('section')) ?? 'dashboard'
+  );
   const [articles, setArticles] = useState<Article[]>([]);
   const [loadingArticles, setLoadingArticles] = useState(false);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
