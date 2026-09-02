@@ -99,6 +99,8 @@ export default function VideoEditor() {
   const [exportFormat, setExportFormat] = useState<ExportFormat>(EXPORT_FORMATS[0]);
   const [showExportModal, setShowExportModal] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [exportProgress, setExportProgress] = useState(0);
+  const [exportError, setExportError] = useState<string | null>(null);
   
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -219,17 +221,63 @@ export default function VideoEditor() {
   // Get selected clip
   const selectedClip = timelineClips.find(c => c.id === selectedClipId);
 
-  // Export video
+  // Export video — rendu réel de la timeline (lib/video-export).
+  // Le rendu s'effectue en temps réel : MediaRecorder enregistre un flux, il ne
+  // transcode pas. La progression est donc affichée pour que l'attente reste
+  // lisible sur un reel d'une minute.
   const handleExport = async () => {
+    if (timelineClips.length === 0) {
+      setExportError('Ajoute au moins un plan à la timeline avant d\'exporter.');
+      return;
+    }
+
+    setExportError(null);
+    setExportProgress(0);
     setIsExporting(true);
-    
-    // Simulate export process
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // In a real implementation, this would use WebCodecs or a library like ffmpeg.wasm
-    alert(`Export terminé ! Format: ${exportFormat.label} (${exportFormat.width}x${exportFormat.height})`);
-    setIsExporting(false);
-    setShowExportModal(false);
+
+    try {
+      const { rendreTimeline, formatSupporte, extensionPour, telecharger } =
+        await import('@/lib/video-export');
+
+      const mimeType = formatSupporte();
+      if (!mimeType) {
+        throw new Error("Ce navigateur ne sait pas enregistrer de vidéo. Essaie Chrome ou Edge.");
+      }
+
+      const fin = Math.max(...timelineClips.map(c => c.startTime + c.duration));
+
+      const blob = await rendreTimeline({
+        largeur: exportFormat.width,
+        hauteur: exportFormat.height,
+        duree: fin,
+        surProgression: setExportProgress,
+        clips: timelineClips.map(c => {
+          const media = mediaClips.find(m => m.id === c.mediaId);
+          return {
+            id: c.id,
+            type: (media?.type ?? 'video') as 'video' | 'image' | 'audio',
+            url: media?.url ?? '',
+            startTime: c.startTime,
+            duration: c.duration,
+            trimStart: c.trimStart,
+            volume: c.volume,
+            fadeIn: c.fadeIn,
+            fadeOut: c.fadeOut,
+            effects: c.effects,
+            texte: c.text,
+          };
+        }),
+      });
+
+      const horodatage = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
+      telecharger(blob, `heldonica-${exportFormat.id}-${horodatage}.${extensionPour(mimeType)}`);
+      setShowExportModal(false);
+    } catch (e) {
+      setExportError(e instanceof Error ? e.message : "Le rendu a échoué.");
+    } finally {
+      setIsExporting(false);
+      setExportProgress(0);
+    }
   };
 
   return (
@@ -795,6 +843,33 @@ export default function VideoEditor() {
                 ))}
               </div>
             </div>
+
+            {/* Le rendu est en temps réel : sans jauge ni durée annoncée, une
+                minute d'attente passerait pour un blocage. */}
+            {isExporting && (
+              <div style={{ marginBottom: '1rem' }}>
+                <div style={{ height: 6, background: COLORS.border, borderRadius: 3, overflow: 'hidden' }}>
+                  <div style={{
+                    height: '100%',
+                    width: `${Math.round(exportProgress * 100)}%`,
+                    background: COLORS.secondary,
+                    transition: 'width .2s',
+                  }} />
+                </div>
+                <p style={{ fontSize: '.8rem', color: COLORS.textMuted, marginTop: '.5rem' }}>
+                  Rendu {Math.round(exportProgress * 100)} % — en temps réel, garde cet onglet au premier plan.
+                </p>
+              </div>
+            )}
+
+            {exportError && (
+              <p style={{
+                marginBottom: '1rem', padding: '.75rem', borderRadius: '.5rem',
+                background: '#fdeaea', color: '#8a1f1f', fontSize: '.85rem',
+              }}>
+                {exportError}
+              </p>
+            )}
 
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
               <button
