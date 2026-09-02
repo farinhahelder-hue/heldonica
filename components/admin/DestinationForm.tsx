@@ -117,7 +117,7 @@ export default function DestinationForm({ destinationId, onSave, onCancel }: Des
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
             <input
@@ -166,7 +166,7 @@ export default function DestinationForm({ destinationId, onSave, onCancel }: Des
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Best Time to Visit</label>
             <input

@@ -685,7 +685,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
           {activeSection === 'dashboard' && (
             <div>
               <h1 className="text-2xl font-bold text-gray-900 mb-6">Tableau de bord</h1>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="bg-white rounded-xl p-5 border border-gray-100">
                   <div className="text-2xl font-bold text-[#2D8B7A]">{articles.length}</div>
                   <div className="text-sm text-gray-500 mt-1">Total articles</div>
@@ -710,7 +710,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                 </div>
               </div>
               {articles.some(a => a.author) && (
-                <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-4 gap-4">
                   <div className="bg-white rounded-xl p-5 border border-gray-100">
                     <div className="text-sm font-medium text-gray-700">Dernier article</div>
                     <div className="text-sm text-gray-400 mt-1">

@@ -188,7 +188,7 @@ export default function DesignEditor() {
       <p className="text-xs text-gray-500 mb-4">
         Applique une combinaison complete de couleurs et polices.
       </p>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {DESIGN_PRESETS.map(preset => {
           const isActive = currentPreset?.id === preset.id;
           return (
@@ -392,7 +392,7 @@ export default function DesignEditor() {
       </div>
       <div className="border-t pt-4">
         <h4 className="text-xs font-semibold text-gray-700 mb-2">Couleurs du theme actif</h4>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {[
             { label: 'Primaire', key: 'primary_color' },
             { label: 'Secondaire', key: 'secondary_color' },

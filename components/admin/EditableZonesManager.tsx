@@ -242,7 +242,7 @@ export default function EditableZonesManager() {
                           Restaurer cette version
                         </button>
                       </div>
-                      <div className="p-4 grid grid-cols-2 gap-4">
+                      <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                           <div className="text-[10px] font-bold text-red-400 uppercase mb-1">Ancienne Valeur</div>
                           <div className="bg-red-50 p-3 rounded text-sm text-stone-700 whitespace-pre-wrap max-h-48 overflow-y-auto">

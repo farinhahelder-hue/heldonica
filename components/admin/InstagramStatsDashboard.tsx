@@ -49,7 +49,7 @@ export default function InstagramStatsDashboard() {
     <div className="space-y-4">
       <div className="bg-white rounded-xl border border-gray-100 p-5">
         <h3 className="font-semibold text-sm text-gray-700 mb-3">Statistiques</h3>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <div>
             <div className="text-xl font-bold text-[#2D8B7A]">{(profile?.media_count as number) || media.length}</div>
             <div className="text-[10px] text-gray-400">Posts</div>
@@ -70,7 +70,7 @@ export default function InstagramStatsDashboard() {
         {media.length === 0 ? (
           <p className="text-xs text-gray-400">Aucun post trouvé</p>
         ) : (
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {media.map((post) => (
               <a
                 key={post.id}

@@ -242,7 +242,7 @@ function SeasonForm({ season, defaultDestination, onSave, onCancel }: SeasonForm
       </h3>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Destination
@@ -271,7 +271,7 @@ function SeasonForm({ season, defaultDestination, onSave, onCancel }: SeasonForm
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Emoji
@@ -321,7 +321,7 @@ function SeasonForm({ season, defaultDestination, onSave, onCancel }: SeasonForm
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Foule

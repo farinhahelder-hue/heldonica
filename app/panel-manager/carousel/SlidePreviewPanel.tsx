@@ -143,7 +143,7 @@ export default function SlidePreviewPanel({ slide, aspectRatio, brandOverlay, pr
       </div>
 
       {/* Edit controls */}
-      <div className="mt-4 grid grid-cols-4 gap-2">
+      <div className="mt-4 grid grid-cols-3 sm:grid-cols-4 gap-2">
         <button className="px-3 py-2 text-xs bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors">
           ✏️ Titre
         </button>

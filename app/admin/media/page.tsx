@@ -204,7 +204,7 @@ export default function MediaAdminPage() {
         ) : files.length === 0 ? (
           <p className="text-stone-400 text-sm italic">Aucun fichier dans ce dossier</p>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
             {files.map((file) => (
               <div
                 key={file.key}
