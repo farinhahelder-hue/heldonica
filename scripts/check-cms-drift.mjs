@@ -44,9 +44,14 @@ const KNOWN_DRIFT = new Set([
                              // la table avec un seed réintroduirait de faux avis.
   // Automatisations
   'instagram_scheduled_posts', // /api/instagram/cron + /scheduled : planification Instagram HS
+  'instagram_comments',        // /api/webhooks/instagram + /api/cms/instagram/comments
+  'instagram_webhook_logs',    // /api/webhooks/instagram
   'jules_sessions',            // /api/jules
   'jules_memory',              // /api/jules
-  'media',                     // /api/cms/video-assembly — nom probablement faux (cms_media ?)
+  // 'media' figurait ici avec la mention « nom probablement faux (cms_media ?) ».
+  // Ce n'était ni une table ni une faute de frappe : le scanner confondait
+  // `storage.from('media')`, qui vise un bucket, avec une lecture de table.
+  // La cause est corrigée dans collectTables ; l'exception n'a plus lieu d'être.
 ]);
 
 function readEnv() {
@@ -84,7 +89,18 @@ function collectTables() {
   const found = new Map(); // table -> Set<file>
   for (const dir of SCAN_DIRS) {
     for (const file of walk(dir)) {
-      const src = readFileSync(file, 'utf8');
+      // On retire d'abord les appels de stockage : `storage.from('media')`
+      // désigne un bucket, pas une table. Sans cela, `media` était rapporté
+      // comme table manquante à chaque exécution — une dérive fantôme, du bruit
+      // qui finit par faire ignorer les vraies alertes.
+      //
+      // Le retrait se fait sur le texte plutôt que par une anti-recherche dans
+      // le motif : la chaîne s'écrit souvent sur deux lignes
+      // (`sb.storage` puis `.from(...)`), et un lookbehind n'y verrait alors
+      // qu'une espace avant `.from`.
+      const src = readFileSync(file, 'utf8')
+        .replace(/\.storage\s*\n?\s*\.from\(\s*['"`][^'"`]+['"`]\s*\)/g, '.storage.__bucket__()');
+
       for (const m of src.matchAll(/\.from\(\s*['"`]([a-zA-Z0-9_]+)['"`]\s*\)/g)) {
         const t = m[1];
         if (!found.has(t)) found.set(t, new Set());
