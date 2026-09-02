@@ -1,6 +1,7 @@
 package fr.heldonica.mobile
 
 import android.net.Uri
+import android.provider.MediaStore
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -63,8 +64,21 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    // Sans cette permission, le selecteur livre des fichiers dont les
+    // coordonnees ont ete retirees. Elle est demandee au lancement plutot qu'au
+    // moment du choix : une demande surgissant en plein parcours de publication
+    // interrompt ce qu'on etait en train de faire.
+    private val permissionLieuMedia =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (android.os.Build.VERSION.SDK_INT >= 29 &&
+            checkSelfPermission(android.Manifest.permission.ACCESS_MEDIA_LOCATION) !=
+            android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionLieuMedia.launch(android.Manifest.permission.ACCESS_MEDIA_LOCATION)
+        }
         setContent { HeldonicaScreen() }
     }
 
@@ -281,7 +295,12 @@ class MainActivity : ComponentActivity() {
 
     private fun readExifAndReverseGeocode(uri: Uri) {
         try {
-            contentResolver.openInputStream(uri)?.use { input ->
+            // Meme fichier d'origine que pour l'envoi : sans cela, l'apercu
+            // annoncait « GPS manquant » sur une photo qui portait bien ses
+            // coordonnees, et le lieu ne se remplissait jamais tout seul.
+            val origine = runCatching { MediaStore.setRequireOriginal(uri) }.getOrDefault(uri)
+            (runCatching { contentResolver.openInputStream(origine) }.getOrNull()
+                ?: contentResolver.openInputStream(uri))?.use { input ->
                 val exif = ExifInterface(input)
                 val latLong = exif.latLong
                 val date = exif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL)
@@ -575,9 +594,25 @@ class UploadWorker(ctx: android.content.Context, params: WorkerParameters) : Cor
         }.getOrNull()
     }
 
+    /**
+     * Copie locale du media choisi, coordonnees comprises.
+     *
+     * Le selecteur de photos d'Android retire les coordonnees GPS de l'EXIF
+     * avant de livrer le fichier. Les brouillons partaient donc sans position,
+     * alors meme que la photo d'origine en portait une : le registre de preuves
+     * ne pouvait rien adosser au lieu.
+     *
+     * setRequireOriginal demande la version non expurgee. Elle exige la
+     * permission ACCESS_MEDIA_LOCATION ; si elle est refusee, l'appel echoue et
+     * on retombe sur le fichier expurge plutot que d'abandonner l'envoi.
+     */
     private fun copyUriToTemp(uri: Uri): File? {
         return try {
-            val input = applicationContext.contentResolver.openInputStream(uri) ?: return null
+            val origine = runCatching { MediaStore.setRequireOriginal(uri) }.getOrDefault(uri)
+            val input = runCatching { applicationContext.contentResolver.openInputStream(origine) }
+                .getOrNull()
+                ?: applicationContext.contentResolver.openInputStream(uri)
+                ?: return null
             val tmp = File.createTempFile("heldonica_", ".jpg", applicationContext.cacheDir)
             tmp.outputStream().use { out -> input.copyTo(out) }
             tmp

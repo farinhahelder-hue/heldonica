@@ -4,6 +4,9 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Le selecteur de photos retire les coordonnees de l'EXIF sans cette
+         permission : les brouillons partaient alors sans lieu. -->
+    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
     <application
         android:label="Heldonica Mobile"
         android:theme="@android:style/Theme.Material.Light">
