@@ -132,6 +132,11 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
           {
             filename: nom,
             url,
+            // Noms alignes sur la table reelle : la migration d'origine declare
+            // file_path / file_type / file_size, dont la production a diverge.
+            path: chemin,
+            mime_type: mf.mimeType ?? (estVideo ? 'video/mp4' : 'image/jpeg'),
+            size: buffer.length,
             source: 'gphotos',
             google_photo_id: item.id,
             latitude: meta.lat,
