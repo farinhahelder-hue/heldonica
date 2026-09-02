@@ -41,3 +41,10 @@ scripts/token.json
 token_picker.json
 scripts/token_picker.json
 scripts/*token*.json
+# Heldonica Mobile (0€) - build local
+heldonica-mobile/.gradle/
+heldonica-mobile/app/build/
+heldonica-mobile/.idea/
+heldonica-mobile/local.properties
+content/evidence/*.json
+content/drafts/*.md
