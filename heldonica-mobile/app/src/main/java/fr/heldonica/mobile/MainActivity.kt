@@ -258,7 +258,8 @@ class UploadWorker(ctx: android.content.Context, params: WorkerParameters) : Cor
             val deposes = televerserDirect(client, baseUrl, password, uris)
                 ?: return Result.failure(workDataOf(ERREUR to "Preparation du televersement impossible"))
 
-            if (deposes.isEmpty()) {
+            // JSONArray n'expose pas isEmpty() sur Android, seulement length().
+            if (deposes.length() == 0) {
                 return Result.failure(workDataOf(ERREUR to "Aucun media n'a pu etre televerse"))
             }
 
