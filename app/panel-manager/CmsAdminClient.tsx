@@ -102,6 +102,11 @@ function CmsAdminClientInner() {
   const [activeSection, setActiveSection] = useState<NavSection>(
     () => sectionDepuisUrl(searchParams.get('section')) ?? 'dashboard'
   );
+  // Sur telephone, les vingt-sept entrees de navigation occupaient un ecran
+  // entier avant le moindre contenu : on arrivait sur une liste de sections, pas
+  // sur ce qu'on venait editer. Elles sont repliees par defaut sous lg, ou la
+  // barre laterale reste affichee en permanence.
+  const [menuOuvert, setMenuOuvert] = useState(false);
   const [articles, setArticles] = useState<Article[]>([]);
   const [loadingArticles, setLoadingArticles] = useState(false);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
@@ -472,6 +477,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
     } else {
       setActiveSection(section);
     }
+    setMenuOuvert(false);
   };
 
   const confirm = (title: string, message: string, action: () => void, variant: 'danger' | 'default' = 'default') => {
@@ -628,6 +634,11 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
     }
   ];
 
+  // Nom de la section en cours, pour le bouton du menu replie.
+  const etiquetteSection = navGroups
+    .flatMap(g => g.items)
+    .find(i => i.id === activeSection)?.label;
+
   // ── Layout ─────────────────────────────────────────────────────────────────
   return (
     <>
@@ -638,17 +649,27 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
       <div className="min-h-screen bg-cloud-dancer flex flex-col lg:flex-row font-sans">
         {/* Sidebar */}
         <aside className="w-full lg:w-60 shrink-0 bg-stone-900 text-stone-300 flex flex-col py-4 lg:py-6 px-4 lg:min-h-screen shadow-xl">
-          <div className="px-3 mb-6 flex items-center gap-2">
+          <div className="px-3 mb-4 lg:mb-6 flex items-center gap-2">
             <span className="text-2xl">🌿</span>
-            <div>
+            <div className="flex-1">
               <div className="text-base font-bold text-white tracking-wide">Heldonica</div>
               <div className="text-[10px] text-teal tracking-widest uppercase font-semibold">Workspace</div>
             </div>
+            {/* Le nom de la section en cours tient lieu d'etiquette : replie, le
+                menu doit dire ou l'on se trouve. */}
+            <button
+              type="button"
+              onClick={() => setMenuOuvert(o => !o)}
+              aria-expanded={menuOuvert}
+              className="lg:hidden shrink-0 rounded-lg border border-stone-700 px-3 py-2 text-xs font-medium text-stone-300"
+            >
+              {menuOuvert ? 'Fermer' : (etiquetteSection ?? 'Menu')}
+            </button>
           </div>
           {/* Hauteur bornee sur telephone : sans limite, la liste complete des
               sections repousse le contenu hors de l'ecran et il faut defiler
               longuement avant d'atteindre l'editeur. */}
-          <nav className="flex-1 max-h-48 lg:max-h-none overflow-y-auto pr-1 space-y-5 scrollbar-thin scrollbar-thumb-stone-800">
+          <nav className={`flex-1 max-h-72 lg:max-h-none overflow-y-auto pr-1 space-y-5 scrollbar-thin scrollbar-thumb-stone-800 ${menuOuvert ? "block" : "hidden"} lg:block`}>
             {navGroups.map((group, groupIdx) => (
               <div key={groupIdx} className="space-y-1">
                 <div className="px-3 text-[10px] font-bold text-stone-500 uppercase tracking-wider">
@@ -686,7 +707,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
               </div>
             ))}
           </nav>
-          <div className="px-3 mt-4 pt-4 border-t border-stone-800">
+          <div className={`px-3 mt-4 pt-4 border-t border-stone-800 ${menuOuvert ? "block" : "hidden"} lg:block`}>
             <button
               onClick={async () => {
                 await fetch('/api/cms/auth/logout', { method: 'POST' });
