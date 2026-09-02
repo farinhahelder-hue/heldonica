@@ -110,10 +110,45 @@ class MainActivity : ComponentActivity() {
                         }
                     ) { Text("Brouillon + Instagram (draft, ${mode})") }
 
+                    Spacer(Modifier.height(8.dp))
+                    HorizontalDivider()
+                    Spacer(Modifier.height(8.dp))
+
+                    Text("Éditer le site", style = MaterialTheme.typography.titleSmall)
+
+                    // Le panel web est affiche tel quel plutot que reconstruit en
+                    // natif : une seule implementation du CMS a maintenir, et
+                    // chaque evolution y arrive sans portage.
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(onClick = { ouvrirEditeur("/panel-manager") }) {
+                            Text("Contenu")
+                        }
+                        OutlinedButton(onClick = { ouvrirEditeur("/panel-manager/carousel") }) {
+                            Text("Carrousels")
+                        }
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(onClick = { ouvrirEditeur("/panel-manager/photos") }) {
+                            Text("Photos")
+                        }
+                        OutlinedButton(onClick = { ouvrirEditeur("/admin/settings") }) {
+                            Text("Apparence")
+                        }
+                    }
+
+                    Spacer(Modifier.height(8.dp))
                     Text("Règle: published:false toujours. Valide dans /panel-manager avant publication.", style = MaterialTheme.typography.labelSmall)
                 }
             }
         }
+    }
+
+    /** Ouvre l'editeur sur une page precise du panel. */
+    private fun ouvrirEditeur(chemin: String) {
+        startActivity(
+            android.content.Intent(this, EditeurActivity::class.java)
+                .putExtra(EditeurActivity.EXTRA_CHEMIN, chemin)
+        )
     }
 
     private fun readExifAndReverseGeocode(uri: Uri) {
