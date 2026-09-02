@@ -82,72 +82,32 @@ export default function AutoShortsGenerator() {
     }));
   }, []);
 
-  // Analyze video and generate shorts
+  /**
+   * Decoupage automatique : non branche.
+   *
+   * Rien ici n'analysait la video. Une barre de progression tournait pendant
+   * trois secondes, puis des extraits etaient tires au hasard dans la duree
+   * totale, illustres par des vignettes picsum.photos - des images sans rapport
+   * avec le voyage - et legendes avec des phrases ecrites en dur : « Le secret
+   * que personne ne vous dit... », « Mon coup de coeur de l'annee ». La suite du
+   * traitement et l'export etaient eux aussi des attentes simulees.
+   *
+   * Ces legendes racontent un vecu qui n'a pas eu lieu, ce que la charte du
+   * projet exclut. Plutot que de laisser croire a un outil qui fonctionne, le
+   * bouton dit ce qu'il en est.
+   */
   const generateShorts = useCallback(async () => {
-    if (!state.videoUrl) return;
-
-    setState(prev => ({ ...prev, isAnalyzing: true, analysisProgress: 0, error: null }));
-
-    try {
-      // Simulate AI analysis
-      for (let i = 0; i <= 100; i += 10) {
-        await new Promise(resolve => setTimeout(resolve, 300));
-        setState(prev => ({ ...prev, analysisProgress: i }));
-      }
-
-      // Generate sample clips
-      const generatedClips: ShortClip[] = [];
-      const totalDuration = state.videoDuration;
-      const clipDuration = selectedDuration;
-      const actualClipDuration = clipDuration - BRANDED_INTRO.duration - BRANDED_OUTRO.duration;
-      
-      for (let i = 0; i < numberOfClips; i++) {
-        const startTime = Math.random() * (totalDuration - clipDuration);
-        const captions = [
-          'Cette destination va vous surprendre 🤩',
-          'Le secret que personne ne vous dit...',
-          'Voici pourquoi j\'adore ce lieu ✨',
-          'Mon coup de cœur de l\'année 💕',
-          'À faire absolument lors de votre visite 🌍',
-          'La vue à couper le souffle 😍',
-          'Mon conseil pour votre prochain voyage 🎯',
-          'Découvrez cette pépite cachée 🌟',
-        ];
-        
-        const hashtags = [
-          '#travel', '#voyage', '#destination', '#travelgram',
-          '#wanderlust', '#travelphotography', '#travelblogger',
-          '#heldonica', '#pépitesvoyage', '#voyageinspirant'
-        ];
-
-        generatedClips.push({
-          id: `clip-${Date.now()}-${i}`,
-          startTime: Math.round(startTime),
-          endTime: Math.round(startTime + clipDuration),
-          duration: clipDuration,
-          thumbnail: `https://picsum.photos/seed/${Date.now() + i}/1080/1920`,
-          caption: captions[i % captions.length],
-          hashtags: hashtags.slice(0, 5 + Math.floor(Math.random() * 4)),
-          isSelected: true,
-          isProcessing: false,
-          isReady: false,
-        });
-      }
-
-      setState(prev => ({
-        ...prev,
-        clips: generatedClips,
-        isAnalyzing: false,
-        analysisProgress: 100,
-      }));
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        isAnalyzing: false,
-        error: 'Erreur lors de l\'analyse de la vidéo',
-      }));
-    }
-  }, [state.videoUrl, state.videoDuration, selectedDuration, numberOfClips]);
+    setState(prev => ({
+      ...prev,
+      isAnalyzing: false,
+      analysisProgress: 0,
+      clips: [],
+      error:
+        "Le decoupage automatique n'est pas branche : aucune analyse de video " +
+        "n'a lieu ici. Utilise « Montage video » pour couper toi-meme tes " +
+        "extraits.",
+    }));
+  }, []);
 
   // Toggle clip selection
   const toggleClipSelection = useCallback((clipId: string) => {
