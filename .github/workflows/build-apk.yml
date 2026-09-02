@@ -12,21 +12,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
+
       - uses: android-actions/setup-android@v3
-      - name: Init Gradle wrapper (if missing)
-        run: |
-          if [ ! -f heldonica-mobile/gradlew ]; then
-            cd heldonica-mobile
-            gradle wrapper --gradle-version 8.7 || (apt-get update && apt-get install -y gradle && gradle wrapper --gradle-version 8.7)
-          fi
-      # local.properties n'est pas versionné — il porte le mot de passe du CMS.
-      # Sans ce fichier, BuildConfig.CMS_PASSWORD sort vide et l'application
-      # construite ici ne peut pas s'authentifier : elle televerse, recoit un
-      # 401, et rien n'arrive sur le site.
+
+      - uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: "8.7"
+
       - name: Préparer local.properties
         env:
           CMS_PASSWORD: ${{ secrets.CMS_PASSWORD }}
@@ -34,6 +31,7 @@ jobs:
           if [ -z "$CMS_PASSWORD" ]; then
             echo "::warning title=APK sans identifiants::Ajoute le secret CMS_PASSWORD (Settings > Secrets and variables > Actions). Sans lui l'APK se construit mais ne peut pas publier."
           fi
+          mkdir -p heldonica-mobile
           {
             echo "cms.baseUrl=https://www.heldonica.fr"
             echo "cms.password=$CMS_PASSWORD"
@@ -42,8 +40,8 @@ jobs:
       - name: Build Debug APK
         run: |
           cd heldonica-mobile
-          chmod +x gradlew
-          ./gradlew assembleDebug --stacktrace
+          gradle assembleDebug --stacktrace
+
       - uses: actions/upload-artifact@v4
         with:
           name: heldonica-mobile-debug
