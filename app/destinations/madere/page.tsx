@@ -17,13 +17,19 @@ export async function generateMetadata() {
 async function getRelatedArticles() {
   if (!supabase) return []
   // Use cms_blog_posts as the single source of truth
-  const { data } = await supabase
+  // `destination` et `read_time` n'existent pas dans cms_blog_posts : la requête
+  // partait en 400 et, l'erreur n'étant pas lue, `data` valait null. La section
+  // « Dans la même veine » restait donc vide sans que rien ne le signale.
+  // Le rattachement se fait par le slug et le titre, seuls champs disponibles.
+  const { data, error } = await supabase
     .from('cms_blog_posts')
-    .select('slug, title, excerpt, featured_image, read_time')
-    .or('destination.ilike.%madere%,slug.ilike.%madere%')
+    .select('slug, title, excerpt, featured_image')
+    .or('slug.ilike.%madere%,title.ilike.%madère%,title.ilike.%madere%')
     .eq('published', true)
     .order('published_at', { ascending: false })
     .limit(4)
+
+  if (error) console.error('[destinations/madere] articles liés :', error.message)
   return data || []
 }
 

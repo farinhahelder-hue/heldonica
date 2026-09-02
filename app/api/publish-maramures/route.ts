@@ -48,9 +48,15 @@ export async function POST(request: Request) {
           slug: "maramures-roumanie-authentique",
           excerpt: "Des villages en bois, des traditions vivantes et des paysages qui semblent sortis d’un autre siècle. On t’emmène dans le Maramureș, la région roumaine la plus préservée qu’on ait jamais traversée.",
           category: "Carnets de voyage",
-          destination: "Roumanie",
-          status: "published",
-          published_at: new Date().toISOString(),
+          // `destination` n'existe pas dans cms_blog_posts : sa présence faisait
+          // échouer l'insertion entière. Le rattachement se fait par le slug.
+          //
+          // Insertion en brouillon, non plus en publication directe. Ce contenu
+          // est écrit en dur — « on y est allés en avril 2026 », photo Unsplash —
+          // sans qu'aucune photo ne l'atteste. La règle « on n'invente rien »
+          // veut qu'une relecture précède la mise en ligne.
+          status: "draft",
+          published: false,
           featured_image: "https://images.unsplash.com/photo-1601597111158-2fceff292cdc?w=1200&q=80",
           author: "Heldonica",
           content: `<p>Le Maramureș est une région du nord de la Roumanie, coincée entre les Carpates et la frontière ukrainienne. C’est l’une des zones les plus préservées d’Europe — pas à cause du manque d’intérêt, mais parce que les gens qui y vivent ont choisi de le garder ainsi.</p>

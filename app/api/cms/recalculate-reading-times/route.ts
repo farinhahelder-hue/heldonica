@@ -72,15 +72,16 @@ export async function POST(req: Request) {
     if (!error) updatedCount++
   }
 
-  // Also try to update cms_blog_posts (may not have read_time column)
-  for (const update of updates) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase.from('cms_blog_posts') as any)
-      .update({ read_time: update.read_time })
-      .eq('id', update.id)
-      .then(() => {})
-      .catch(() => {/* ignore errors if column doesn’t exist */})
-  }
+  // La table cms_blog_posts n'a pas de colonne read_time — verifie sur la base.
+  // Une seconde boucle tentait l'ecriture « au cas ou », en ignorant l'erreur :
+  // elle envoyait donc autant de requetes vouees a l'echec qu'il y a
+  // d'articles, a chaque execution.
+  //
+  // Le filet ne tenait pas davantage : PostgREST renvoie ses erreurs dans le
+  // resultat et non par un rejet, si bien que le .catch ne se declenchait
+  // jamais et que le .then vide les avalait toutes.
+  //
+  // Le temps de lecture vit dans articles.read_time, mis a jour au-dessus.
 
   return NextResponse.json({
     success: true,

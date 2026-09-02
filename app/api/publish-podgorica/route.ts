@@ -45,10 +45,13 @@ export async function POST(request: Request) {
         slug: 'podgorica-capitale-montenegro-guide',
         excerpt: 'Podgorica n\'est ni belle ni laide — elle est honnête. On y a passé 4 jours et on a trouvé des pépites que les guides ignorent encore.',
         category: 'Carnets de voyage',
-        destination: 'Monténégro',
-        status: 'published',
-        published: true,
-        published_at: new Date().toISOString(),
+        // `destination` n'existe pas dans cms_blog_posts : sa présence faisait
+        // échouer l'insertion entière. Le rattachement se fait par le slug.
+        //
+        // Insertion en brouillon, non plus en publication directe : ce contenu
+        // est écrit en dur et affirme un vécu qu'aucune photo n'atteste.
+        status: 'draft',
+        published: false,
         featured_image: 'https://images.unsplash.com/photo-1555990793-da11153b6e8d?w=1200&q=80',
         author: 'Heldonica',
         content: `<p>Podgorica. La capitale du Monténégro qu’on traverse en coup de vent, en route vers Kotor ou le parc du Lovćen. Celle qu’on zappe. Celle dont personne ne parle.</p>
