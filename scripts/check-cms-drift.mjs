@@ -111,10 +111,116 @@ function collectTables() {
   return found;
 }
 
-async function tableExists(url, key, table) {
-  const r = await fetch(`${url}/rest/v1/${table}?select=*&limit=1`, {
-    headers: { apikey: key, Authorization: `Bearer ${key}`, Prefer: 'count=exact', Range: '0-0' },
-  });
+/**
+ * Colonnes écrites par le code, table par table.
+ *
+ * Ce contrôle manquait, et son absence a coûté cher : `cms_media` a divergé de
+ * sa migration d'origine (`file_path`/`file_type`/`file_size` déclarés, mais
+ * `url`/`mime_type`/`size` en base). Deux routes écrivaient contre les noms de
+ * la migration, donc contre des colonnes inexistantes — sans que rien ne le
+ * signale, puisque seule l'existence des tables était vérifiée.
+ *
+ * On ne lit que les écritures (`insert`, `update`, `upsert`) : ce sont elles
+ * qui échouent sur une colonne absente. Un `select` erroné se voit tout de
+ * suite, une écriture silencieuse non.
+ */
+/**
+ * Clés du premier niveau d'un littéral d'objet.
+ *
+ * Une colonne jsonb comme `metadata` contient ses propres clés : les compter
+ * comme colonnes produirait une avalanche de fausses alertes (`place_title`,
+ * `geo_source`…), et une alerte fausse finit toujours par faire ignorer les
+ * vraies. On suit donc la profondeur des accolades et des crochets.
+ */
+function clesDePremierNiveau(corps) {
+  const cles = [];
+  let profondeur = 0;
+
+  for (const m of corps.matchAll(/[{}[\]]|([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g)) {
+    const jeton = m[0];
+    if (jeton === '{' || jeton === '[') { profondeur++; continue; }
+    if (jeton === '}' || jeton === ']') { profondeur--; continue; }
+    if (profondeur === 0 && m[1]) cles.push(m[1]);
+  }
+  return cles;
+}
+
+function collectColumns() {
+  const found = new Map(); // table -> Map<colonne, Set<file>>
+
+  for (const dir of SCAN_DIRS) {
+    for (const file of walk(dir)) {
+      const src = readFileSync(file, 'utf8')
+        // Les commentaires sont retirés avant analyse : une phrase du type
+        // « la colonne réelle : url » y ressemble à une clé d'objet et
+        // produisait des colonnes fantômes.
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+        .replace(/(^|[^:'"`\\])\/\/[^\n]*/g, '$1')
+        .replace(/\.storage\s*\n?\s*\.from\(\s*['"`][^'"`]+['"`]\s*\)/g, '.storage.__bucket__()')
+        // Le nom de table est mis à l'abri avant le vidage des chaînes, qui
+        // l'effacerait avec le reste.
+        .replace(/\.from\(\s*['"`]([a-zA-Z0-9_]+)['"`]\s*\)/g, '.from(@@$1@@)')
+        // Contenu des chaînes vidé : une URL (`https://…`) ou un libellé
+        // (`'Carnets Voyage'`) y ressemble à une clé et devenait une colonne
+        // fantôme. Les vraies clés sont toujours hors des chaînes.
+        .replace(/'(?:\\.|[^'\\])*'/g, "''")
+        .replace(/"(?:\\.|[^"\\])*"/g, '""')
+        .replace(/`(?:\\.|[^`\\])*`/g, '``');
+
+      // `.from(table)` suivi, dans les 400 caractères, d'une écriture dont on
+      // lit le littéral d'objet. La fenêtre évite de rattacher à une table les
+      // clés d'un appel situé bien plus loin dans le fichier.
+      const re = /\.from\(@@([a-zA-Z0-9_]+)@@\)([\s\S]{0,400}?)\.(insert|update|upsert)\(\s*\{([\s\S]{0,900}?)\}/g;
+
+      for (const m of src.matchAll(re)) {
+        const [, table, entreDeux, , corps] = m;
+        // Un autre `.from(` entre-temps signifie que l'écriture appartient à
+        // une requête différente.
+        if (/\.from\(/.test(entreDeux)) continue;
+
+        for (const col of clesDePremierNiveau(corps)) {
+          if (!found.has(table)) found.set(table, new Map());
+          if (!found.get(table).has(col)) found.get(table).set(col, new Set());
+          found.get(table).get(col).add(file);
+        }
+      }
+    }
+  }
+  return found;
+}
+
+/** Colonnes réelles, lues dans le schéma OpenAPI exposé par PostgREST. */
+async function fetchSchema(url, key) {
+  try {
+    const r = await fetch(`${url}/rest/v1/`, { headers: { apikey: key, Authorization: `Bearer ${key}` } });
+    if (!r.ok) return null;
+    const spec = await r.json();
+    const par = new Map();
+    for (const [table, def] of Object.entries(spec.definitions ?? {})) {
+      par.set(table, new Set(Object.keys(def.properties ?? {})));
+    }
+    return par;
+  } catch {
+    return null;
+  }
+}
+
+async function tableExists(url, key, table, essai = 1) {
+  let r;
+  try {
+    r = await fetch(`${url}/rest/v1/${table}?select=*&limit=1`, {
+      headers: { apikey: key, Authorization: `Bearer ${key}`, Prefer: 'count=exact', Range: '0-0' },
+    });
+  } catch (e) {
+    // Une coupure passagère faisait planter tout le contrôle sur une trace
+    // brute : en CI, cela ressemblait à une dérive détectée alors que rien
+    // n'avait été verifié. On réessaie, puis on l'annonce comme indéterminé.
+    if (essai < 3) {
+      await new Promise(r => setTimeout(r, 400 * essai));
+      return tableExists(url, key, table, essai + 1);
+    }
+    return { exists: true, rows: `?(réseau : ${e.cause?.code ?? 'échec'})` };
+  }
   if (r.status === 200 || r.status === 206) {
     const cr = r.headers.get('content-range');
     return { exists: true, rows: cr ? cr.split('/')[1] : '?' };
@@ -164,6 +270,51 @@ if (newMissing.length) {
   }
   console.log('\nSoit la migration n\'est pas appliquée, soit le nom de table est faux.');
   process.exit(1);
+}
+
+// ── Colonnes ────────────────────────────────────────────────────────────────
+const schema = await fetchSchema(url, key);
+let colonnesAbsentes = 0;
+
+if (!schema) {
+  console.log('\n? Schéma des colonnes illisible — contrôle des colonnes ignoré.');
+} else {
+  const parTable = collectColumns();
+  const rapport = [];
+
+  for (const [table, colonnes] of parTable) {
+    const reelles = schema.get(table);
+    // Table absente : déjà signalée plus haut, inutile d'y ajouter le bruit de
+    // toutes ses colonnes.
+    if (!reelles) continue;
+
+    for (const [col, fichiers] of colonnes) {
+      if (!reelles.has(col)) rapport.push({ table, col, fichiers: [...fichiers] });
+    }
+  }
+
+  colonnesAbsentes = rapport.length;
+
+  if (colonnesAbsentes === 0) {
+    console.log('\n✓ Toutes les colonnes écrites existent en base.');
+  } else {
+    console.log(`\n✗ ${colonnesAbsentes} colonne(s) écrite(s) mais absente(s) de la base :`);
+    for (const r of rapport) {
+      const proches = [...(schema.get(r.table) ?? [])]
+        .filter(c => c.includes(r.col.replace(/^file_/, '')) || r.col.includes(c));
+      console.log(`    ${r.table}.${r.col}${proches.length ? `   (existe : ${proches.join(', ')} ?)` : ''}`);
+      for (const f of r.fichiers) console.log(`        ${f}`);
+    }
+    console.log(
+      "\nUne ecriture sur une colonne absente echoue silencieusement si son resultat n'est pas lu."
+    );
+    console.log(
+      "Signale sans faire echouer : une colonne peut n'attendre qu'une migration\n" +
+      "non encore appliquee. Rien ne permet de la distinguer d'une faute de frappe\n" +
+      "sans lire les migrations en attente — et une CI rouge pour une migration\n" +
+      'programmee pousserait a desactiver le controle.'
+    );
+  }
 }
 
 console.log('\n✓ Aucune dérive nouvelle.');
