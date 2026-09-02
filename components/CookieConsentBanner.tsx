@@ -4,13 +4,16 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { readCookieConsent, writeCookieConsent } from '@/lib/consent';
+import { estRouteAdmin } from '@/lib/routes-admin';
 
 export default function CookieConsentBanner() {
   const [visible, setVisible] = useState(false);
   const pathname = usePathname();
 
-  // Masquer sur les routes admin
-  const isAdminRoute = pathname?.startsWith('/cms');
+  // Masquer sur les routes admin. Le prefixe teste ici etait « /cms », renomme
+  // depuis en « /panel-manager » : le bandeau reapparaissait donc par-dessus le
+  // panneau d'administration.
+  const isAdminRoute = estRouteAdmin(pathname);
 
   useEffect(() => {
     if (isAdminRoute) {
