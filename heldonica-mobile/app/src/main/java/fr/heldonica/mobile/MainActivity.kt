@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -246,14 +247,23 @@ class UploadWorker(ctx: android.content.Context, params: WorkerParameters) : Cor
         val autoCaption = inputData.getBoolean("autoCaption", false)
 
         return try {
-            val client = OkHttpClient.Builder().callTimeout(90, TimeUnit.SECONDS).build()
-            val builder = MultipartBody.Builder().setType(MultipartBody.FORM)
-            for (uri in uris) {
-                val mime = applicationContext.contentResolver.getType(uri) ?: "image/jpeg"
-                val tmp = copyUriToTemp(uri) ?: continue
-                val field = if (mime.startsWith("video")) "video" else "photos"
-                builder.addFormDataPart(field, tmp.name, tmp.asRequestBody(mime.toMediaType()))
+            val client = OkHttpClient.Builder().callTimeout(300, TimeUnit.SECONDS).build()
+
+            // Les octets ne passent plus par l'API : les fonctions Vercel
+            // plafonnent la requete a 4,5 Mo, et une photo de telephone la
+            // depasse souvent — le serveur repondait FUNCTION_PAYLOAD_TOO_LARGE
+            // avant meme d'executer la moindre ligne. On demande des URL
+            // signees, on depose les fichiers directement dans le stockage,
+            // puis on n'envoie a l'API que leur description.
+            val deposes = televerserDirect(client, baseUrl, password, uris)
+                ?: return Result.failure(workDataOf(ERREUR to "Preparation du televersement impossible"))
+
+            if (deposes.isEmpty()) {
+                return Result.failure(workDataOf(ERREUR to "Aucun media n'a pu etre televerse"))
             }
+
+            val builder = MultipartBody.Builder().setType(MultipartBody.FORM)
+            builder.addFormDataPart("uploaded", deposes.toString())
             builder.addFormDataPart("place_title", placeTitle)
             builder.addFormDataPart("place_address", placeAddress)
             builder.addFormDataPart("place_lat", placeLat)
@@ -305,6 +315,100 @@ class UploadWorker(ctx: android.content.Context, params: WorkerParameters) : Cor
                 Result.retry()
             }
         }
+    }
+
+    /**
+     * Demande une URL signee par fichier, y depose les octets, et renvoie la
+     * description des medias deposes — celle que l'API attend dans `uploaded`.
+     *
+     * Le GPS et la date de prise de vue sont lus ici, dans le fichier : le
+     * serveur ne voyant plus passer les octets, il ne peut plus les extraire.
+     * Ce sont eux qui alimentent le registre de preuves.
+     */
+    private fun televerserDirect(
+        client: OkHttpClient,
+        baseUrl: String,
+        password: String,
+        uris: List<Uri>
+    ): org.json.JSONArray? {
+        val noms = org.json.JSONArray()
+        val temporaires = mutableListOf<Pair<Uri, File>>()
+
+        for (uri in uris) {
+            val tmp = copyUriToTemp(uri) ?: continue
+            temporaires += uri to tmp
+            noms.put(tmp.name)
+        }
+        if (temporaires.isEmpty()) return null
+
+        val demande = Request.Builder()
+            .url("$baseUrl/api/cms/mobile-publish/upload-url")
+            .header("x-cms-auth", password)
+            .post(
+                org.json.JSONObject().put("fichiers", noms).toString()
+                    .toRequestBody("application/json".toMediaType())
+            )
+            .build()
+
+        val cibles = client.newCall(demande).execute().use { r ->
+            if (!r.isSuccessful) {
+                Log.e(TAG, "URL signees refusees ${r.code} : ${r.body?.string()}")
+                return null
+            }
+            org.json.JSONObject(r.body?.string().orEmpty()).getJSONArray("cibles")
+        }
+
+        val deposes = org.json.JSONArray()
+
+        for (i in 0 until minOf(cibles.length(), temporaires.size)) {
+            val cible = cibles.getJSONObject(i)
+            val (uri, fichier) = temporaires[i]
+            val mime = applicationContext.contentResolver.getType(uri) ?: "image/jpeg"
+
+            val envoi = Request.Builder()
+                .url(cible.getString("signedUrl"))
+                .put(fichier.asRequestBody(mime.toMediaType()))
+                .build()
+
+            client.newCall(envoi).execute().use { r ->
+                if (!r.isSuccessful) {
+                    Log.e(TAG, "Depot direct refuse ${r.code} pour ${fichier.name}")
+                    return@use
+                }
+
+                val exif = runCatching { ExifInterface(fichier.absolutePath) }.getOrNull()
+                val coord = FloatArray(2)
+                val aGps = exif?.getLatLong(coord) == true
+
+                deposes.put(
+                    org.json.JSONObject()
+                        .put("nom", cible.getString("nom"))
+                        .put("chemin", cible.getString("chemin"))
+                        .put("url", cible.getString("url"))
+                        .put("mime", mime)
+                        .put("taille", fichier.length())
+                        .put("lat", if (aGps) coord[0].toDouble() else org.json.JSONObject.NULL)
+                        .put("lng", if (aGps) coord[1].toDouble() else org.json.JSONObject.NULL)
+                        .put("priseDeVue", isoPriseDeVue(exif) ?: org.json.JSONObject.NULL)
+                )
+            }
+        }
+
+        temporaires.forEach { (_, f) -> f.delete() }
+        return deposes
+    }
+
+    /** Date de prise de vue EXIF, au format ISO attendu par la base. */
+    private fun isoPriseDeVue(exif: ExifInterface?): String? {
+        val brut = exif?.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL)
+            ?: exif?.getAttribute(ExifInterface.TAG_DATETIME)
+            ?: return null
+        // L'EXIF s'ecrit "2026:08:28 09:14:00" : ni la date ni l'heure ne sont
+        // au format ISO, d'ou la reecriture plutot qu'un simple remplacement.
+        return runCatching {
+            val (d, h) = brut.split(" ")
+            "${d.replace(':', '-')}T$h"
+        }.getOrNull()
     }
 
     private fun copyUriToTemp(uri: Uri): File? {
