@@ -311,7 +311,26 @@ ${hasVideo ? `<p>Vidéo : <a href="${videoUrl}">voir vidéo</a></p><video src="$
       .select('id, slug')
       .single()
 
-    if (insertErr) return NextResponse.json({ error: insertErr.message }, { status: 500 })
+    if (insertErr) {
+      // Une contrainte violee ou une colonne absente ne se resoudra pas en
+      // rejouant : la requete repartirait identique. Renvoyer 500 faisait boucler
+      // WorkManager, et chaque tour re-televersait les photos — sept copies pour
+      // un seul envoi, constate sur l'appareil.
+      //
+      // 23514 = check_violation, 23502 = not_null_violation, 42703 = colonne
+      // inconnue : autant de refus definitifs cote schema.
+      const definitif = ['23514', '23502', '42703', '23505'].includes((insertErr as any).code)
+      return NextResponse.json(
+        {
+          error: insertErr.message,
+          detail: definitif
+            ? "Le schema refuse cet enregistrement. Verifie les contraintes de cms_blog_posts."
+            : undefined,
+          medias: uploadedUrls,
+        },
+        { status: definitif ? 422 : 500 }
+      )
+    }
 
     // 4. Instagram : jamais publish direct depuis mobile. Draft pour validation 1-clic. Support carrousel + vidéo
     let instagramScheduled: any = null
