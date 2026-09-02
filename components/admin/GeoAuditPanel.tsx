@@ -140,7 +140,7 @@ export default function GeoAuditPanel() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-4 gap-3">
         {Object.entries(data.breakdown).map(([key, cat]) => (
           <div key={key} className="bg-white rounded-xl border border-gray-100 p-4">
             <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-2">

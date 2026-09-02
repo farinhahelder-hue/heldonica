@@ -167,7 +167,7 @@ export default function LivePreview({
         </div>
 
         {/* Mini cards */}
-        <div className="p-6 grid grid-cols-3 gap-4">
+        <div className="p-6 grid grid-cols-2 sm:grid-cols-3 gap-4">
           {[1, 2, 3].map(i => (
             <div key={i} className="bg-white rounded-lg border border-gray-100 p-4">
               <div

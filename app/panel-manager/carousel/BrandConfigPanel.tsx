@@ -142,7 +142,7 @@ export default function BrandConfigPanel({ slides, onApplyConfig, onApplyPalette
           <div className="space-y-3">
             <p className="text-xs text-stone-500 mb-2">Palettes prédéfinies</p>
             
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {HELDONICA_TOKENS.palettes.map((palette) => (
                 <button
                   key={palette.name}

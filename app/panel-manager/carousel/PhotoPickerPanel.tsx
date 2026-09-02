@@ -93,7 +93,7 @@ export default function PhotoPickerPanel({ valeur, onChoisir }: Props) {
           )}
 
           {medias.length > 0 && (
-            <div className="grid grid-cols-4 gap-2 max-h-64 overflow-y-auto">
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-64 overflow-y-auto">
               {medias.map(m => (
                 <button
                   key={m.url}
