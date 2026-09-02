@@ -8,6 +8,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -59,7 +61,18 @@ class MainActivity : ComponentActivity() {
         val scope = rememberCoroutineScope()
         MaterialTheme {
             Scaffold(topBar = { TopAppBar(title = { Text("Heldonica Mobile — 0€") }) }) { pad ->
-                Column(Modifier.padding(pad).padding(16.dp).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                // Colonne defilante : l'ecran depassait deja la hauteur d'un
+                // telephone avant l'ajout des boutons d'edition, qui restaient
+                // donc hors d'atteinte. Le clavier reduit encore la zone visible
+                // quand on saisit un lieu.
+                Column(
+                    Modifier
+                        .padding(pad)
+                        .verticalScroll(rememberScrollState())
+                        .padding(16.dp)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                     Button(onClick = { picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) }) {
                         Text("Choisir photos/vidéos (Picker système)")
                     }
