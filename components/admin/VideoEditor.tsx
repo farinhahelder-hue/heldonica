@@ -30,12 +30,27 @@ export interface TimelineClip {
   fadeIn: number;
   fadeOut: number;
   text?: TextOverlay;
+  /**
+   * Transition d'entrée du plan. Pour qu'elle soit visible, ce plan doit
+   * chevaucher le précédent sur sa durée — sinon elle se joue sur du noir.
+   */
+  transition?: { type: TypeTransition; duree: number };
   effects: {
     brightness: number;
     contrast: number;
     saturation: number;
   };
 }
+
+export type TypeTransition = 'none' | 'fondu' | 'glisse-gauche' | 'glisse-haut' | 'zoom';
+
+export const TRANSITIONS: { id: TypeTransition; label: string }[] = [
+  { id: 'none', label: 'Aucune' },
+  { id: 'fondu', label: 'Fondu' },
+  { id: 'glisse-gauche', label: 'Glissé latéral' },
+  { id: 'glisse-haut', label: 'Glissé vertical' },
+  { id: 'zoom', label: 'Zoom' },
+];
 
 export interface TextOverlay {
   text: string;
@@ -88,6 +103,20 @@ const COLORS = {
   trackText: '#d4c8e8',
 };
 
+/** Durée réelle d'un média, lue depuis ses métadonnées. */
+function lireDuree(url: string): Promise<number> {
+  return new Promise((resolve) => {
+    const el = document.createElement('video');
+    el.preload = 'metadata';
+    el.crossOrigin = 'anonymous';
+    // Repli à 10 s si les métadonnées sont illisibles : mieux vaut un plan à
+    // ajuster qu'un import qui échoue.
+    el.onloadedmetadata = () => resolve(Number.isFinite(el.duration) ? el.duration : 10);
+    el.onerror = () => resolve(10);
+    el.src = url;
+  });
+}
+
 // ===== Main Component =====
 export default function VideoEditor() {
   const [mediaClips, setMediaClips] = useState<MediaClip[]>([]);
@@ -101,6 +130,8 @@ export default function VideoEditor() {
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
   const [exportError, setExportError] = useState<string | null>(null);
+  const [chargementBibliotheque, setChargementBibliotheque] = useState(false);
+  const [erreurBibliotheque, setErreurBibliotheque] = useState<string | null>(null);
   
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -146,22 +177,66 @@ export default function VideoEditor() {
     const files = event.target.files;
     if (!files) return;
 
-    Array.from(files).forEach(file => {
+    Array.from(files).forEach(async file => {
       const url = URL.createObjectURL(file);
       const type = file.type.startsWith('video/') ? 'video'
         : file.type.startsWith('audio/') ? 'audio'
         : 'image';
-      
+
       const mediaClip: MediaClip = {
         id: `media-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         type,
         name: file.name,
         url,
-        duration: type === 'video' ? 10 : type === 'audio' ? 60 : 5,
+        // Durée réelle du média : elle valait 10 s en dur pour toute vidéo, si
+        // bien qu'un plan de trois minutes arrivait tronqué à dix secondes sur
+        // la timeline, sans que rien ne le signale.
+        duration: type === 'image' ? 5 : await lireDuree(url),
       };
 
       setMediaClips(prev => [...prev, mediaClip]);
     });
+  }, []);
+
+  // Médias déjà importés depuis Google Photos (table cms_media). Ils portent
+  // leurs coordonnées et leur date de prise de vue, ce qui permet de monter
+  // directement à partir du voyage plutôt que de re-téléverser des fichiers.
+  const chargerBibliotheque = useCallback(async () => {
+    setChargementBibliotheque(true);
+    setErreurBibliotheque(null);
+    try {
+      const res = await fetch('/api/cms/media?folder=destinations');
+      if (!res.ok) throw new Error(`Bibliothèque indisponible (${res.status})`);
+      const data = await res.json();
+      const fichiers: any[] = data.files ?? data.media ?? [];
+
+      const importes = await Promise.all(
+        fichiers
+          .filter(f => /\.(mp4|mov|webm|m4v|jpe?g|png|webp)$/i.test(f.name ?? f.filename ?? ''))
+          .map(async f => {
+            const nom = f.name ?? f.filename;
+            const estVideo = /\.(mp4|mov|webm|m4v)$/i.test(nom);
+            return {
+              id: `lib-${nom}`,
+              type: (estVideo ? 'video' : 'image') as MediaClip['type'],
+              name: nom,
+              url: f.url,
+              duration: estVideo ? await lireDuree(f.url).catch(() => 10) : 5,
+            } satisfies MediaClip;
+          })
+      );
+
+      // On écarte ce qui est déjà présent pour éviter les doublons si on
+      // rouvre la bibliothèque en cours de montage.
+      setMediaClips(prev => {
+        const connus = new Set(prev.map(m => m.id));
+        return [...prev, ...importes.filter(m => !connus.has(m.id))];
+      });
+    } catch (e) {
+      setErreurBibliotheque(e instanceof Error ? e.message : 'Chargement impossible');
+    } finally {
+      setChargementBibliotheque(false);
+    }
   }, []);
 
   // Add clip to timeline
@@ -264,6 +339,7 @@ export default function VideoEditor() {
             fadeIn: c.fadeIn,
             fadeOut: c.fadeOut,
             effects: c.effects,
+            transition: c.transition,
             texte: c.text,
           };
         }),
@@ -357,6 +433,29 @@ export default function VideoEditor() {
                 style={{ display: 'none' }}
               />
             </label>
+
+            {/* Monter directement depuis les medias importes du voyage, sans
+                repasser par un televersement manuel. */}
+            <button
+              onClick={chargerBibliotheque}
+              disabled={chargementBibliotheque}
+              style={{
+                ...uploadButtonStyle,
+                marginTop: '0.5rem',
+                background: 'transparent',
+                border: `1px dashed ${COLORS.border}`,
+                color: COLORS.text,
+                opacity: chargementBibliotheque ? 0.6 : 1,
+              }}
+            >
+              {chargementBibliotheque ? 'Chargement…' : '🌿 Depuis Google Photos'}
+            </button>
+
+            {erreurBibliotheque && (
+              <p style={{ fontSize: '0.75rem', color: '#8a1f1f', marginTop: '0.5rem' }}>
+                {erreurBibliotheque}
+              </p>
+            )}
           </div>
 
           <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
@@ -527,6 +626,51 @@ export default function VideoEditor() {
               gap: '1rem',
               alignItems: 'flex-start',
             }}>
+              <div style={{ flex: 1, minWidth: 200 }}>
+                <label style={labelStyle}>Transition d&apos;entrée</label>
+                <select
+                  value={selectedClip.transition?.type ?? 'none'}
+                  onChange={(e) => updateClip(selectedClip.id, {
+                    transition: {
+                      type: e.target.value as TypeTransition,
+                      duree: selectedClip.transition?.duree ?? 0.6,
+                    },
+                  })}
+                  style={{
+                    width: '100%', padding: '0.4rem', borderRadius: '0.4rem',
+                    border: `1px solid ${COLORS.border}`, fontSize: '0.85rem',
+                  }}
+                >
+                  {TRANSITIONS.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+                </select>
+
+                {selectedClip.transition && selectedClip.transition.type !== 'none' && (
+                  <>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
+                      <input
+                        type="range" min="2" max="20"
+                        value={Math.round((selectedClip.transition.duree ?? 0.6) * 10)}
+                        onChange={(e) => updateClip(selectedClip.id, {
+                          transition: {
+                            type: selectedClip.transition!.type,
+                            duree: Number(e.target.value) / 10,
+                          },
+                        })}
+                        style={{ flex: 1 }}
+                      />
+                      <span style={{ fontSize: '0.8rem', minWidth: 40 }}>
+                        {(selectedClip.transition.duree ?? 0.6).toFixed(1)}s
+                      </span>
+                    </div>
+                    {/* Sans chevauchement, la transition se joue sur du noir au
+                        lieu du plan precedent — le rappeler evite un montage rate. */}
+                    <p style={{ fontSize: '0.72rem', color: COLORS.textMuted, marginTop: '0.35rem' }}>
+                      Fais chevaucher ce plan avec le précédent sur cette durée.
+                    </p>
+                  </>
+                )}
+              </div>
+
               <div style={{ flex: 1, minWidth: 200 }}>
                 <label style={labelStyle}>Volume</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
