@@ -141,14 +141,18 @@ class EditeurActivity : ComponentActivity() {
             CookieManager.getInstance().apply {
                 setAcceptCookie(true)
                 setAcceptThirdPartyCookies(web, true)
-                // Le cookie est pose sur le domaine avant le chargement : la page
-                // arrive donc deja authentifiee, sans passer par l'ecran de
-                // connexion.
-                setCookie(base, "$COOKIE_SESSION=$cookie; path=/")
-                flush()
+                // setCookie est asynchrone : on attend sa confirmation avant de
+                // charger la page. Sans cela, /panel-manager s'en sortait - sa
+                // coquille se charge sans cookie et ses appels partent une fois
+                // le cookie pose - mais /admin verifie la session des la premiere
+                // requete, arrivait sans cookie, et renvoyait vers l'accueil du
+                // panneau. La carte « Apparence du site » n'atteignait donc
+                // jamais l'editeur de theme.
+                setCookie(base, "$COOKIE_SESSION=$cookie; path=/") {
+                    flush()
+                    web.loadUrl(base + chemin)
+                }
             }
-
-            web.loadUrl(base + chemin)
         }
     }
 
