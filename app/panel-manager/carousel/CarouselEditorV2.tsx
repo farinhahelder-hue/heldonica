@@ -112,9 +112,12 @@ export default function CarouselEditorV2({ onComplete }: CarouselEditorV2Props) 
       </div>
 
       {/* 3-panel layout */}
-      <div className="flex-1 grid grid-cols-12 gap-4 min-h-0">
+      {/* Une seule colonne sous md : la grille en 12 colonnes ecrasait chaque
+          panneau a un mot par ligne sur un telephone, rendant l'editeur
+          inutilisable depuis l'application mobile. */}
+      <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4 min-h-0">
         {/* Left: AI Chat */}
-        <div className="col-span-4 min-h-0">
+        <div className="md:col-span-4 min-h-0">
           <AIChatPanel
             onSlidesGenerated={handleSlidesGenerated}
             isGenerating={isGenerating}
@@ -123,7 +126,7 @@ export default function CarouselEditorV2({ onComplete }: CarouselEditorV2Props) 
         </div>
 
         {/* Center: Preview */}
-        <div className="col-span-5 min-h-0">
+        <div className="md:col-span-5 min-h-0">
           <SlidePreviewPanel
             slide={activeSlide}
             aspectRatio={aspectRatio}
@@ -142,7 +145,7 @@ export default function CarouselEditorV2({ onComplete }: CarouselEditorV2Props) 
         </div>
 
         {/* Right: Filmstrip */}
-        <div className="col-span-3 min-h-0">
+        <div className="md:col-span-3 min-h-0">
           <FilmStripPanel
             slides={slides}
             activeSlideId={activeSlideId}
