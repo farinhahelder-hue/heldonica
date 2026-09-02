@@ -32,6 +32,7 @@ const ChecklistTemplatesManager = dynamic(() => import('@/components/admin/Check
 const InstagramPublisher = dynamic(() => import('@/components/admin/InstagramPublisher'), { ssr: false });
 const InstagramStatsDashboard = dynamic(() => import('@/components/admin/InstagramStatsDashboard'), { ssr: false });
 const ScheduledPostsList = dynamic(() => import('@/components/admin/ScheduledPostsList'), { ssr: false });
+const InstagramManagerSection = dynamic(() => import('./instagram/InstagramManagerSection'), { ssr: false });
 
 // New CMS integrations
 const DestinationPillarEditor = dynamic(() => import('@/components/admin/DestinationPillarEditor'), { ssr: false });
@@ -609,9 +610,13 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
   // ── Layout ─────────────────────────────────────────────────────────────────
   return (
     <>
-      <div className="min-h-screen bg-cloud-dancer flex font-sans">
+      {/* Colonne sur telephone, deux colonnes des lg : la barre laterale fait
+          240 px de large, soit les deux tiers d'un ecran de 360 px. Ouvert
+          depuis l'application mobile, l'espace d'edition s'y reduisait a une
+          bande inutilisable. */}
+      <div className="min-h-screen bg-cloud-dancer flex flex-col lg:flex-row font-sans">
         {/* Sidebar */}
-        <aside className="w-60 shrink-0 bg-stone-900 text-stone-300 flex flex-col py-6 px-4 min-h-screen shadow-xl">
+        <aside className="w-full lg:w-60 shrink-0 bg-stone-900 text-stone-300 flex flex-col py-4 lg:py-6 px-4 lg:min-h-screen shadow-xl">
           <div className="px-3 mb-6 flex items-center gap-2">
             <span className="text-2xl">🌿</span>
             <div>
@@ -619,7 +624,10 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
               <div className="text-[10px] text-teal tracking-widest uppercase font-semibold">Workspace</div>
             </div>
           </div>
-          <nav className="flex-1 overflow-y-auto pr-1 space-y-5 scrollbar-thin scrollbar-thumb-stone-800">
+          {/* Hauteur bornee sur telephone : sans limite, la liste complete des
+              sections repousse le contenu hors de l'ecran et il faut defiler
+              longuement avant d'atteindre l'editeur. */}
+          <nav className="flex-1 max-h-48 lg:max-h-none overflow-y-auto pr-1 space-y-5 scrollbar-thin scrollbar-thumb-stone-800">
             {navGroups.map((group, groupIdx) => (
               <div key={groupIdx} className="space-y-1">
                 <div className="px-3 text-[10px] font-bold text-stone-500 uppercase tracking-wider">
@@ -1152,7 +1160,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
 
                   {/* ── SEO section ── */}
                   <CollapsibleSection title="🔍 SEO & Métadonnées" defaultOpen={false}>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
                         <CategorySelect
@@ -1184,7 +1192,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                         placeholder="slow-travel, portugal, madère (séparés par des virgules)"
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">SEO Title</label>
                         <input
@@ -1210,7 +1218,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                         </p>
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Priorité Sitemap</label>
                         <select
@@ -1276,7 +1284,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
 
                   {/* ── Publication section ── */}
                   <CollapsibleSection title="📅 Publication" defaultOpen={false}>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Statut</label>
                         <select
@@ -1301,7 +1309,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                         </div>
                       )}
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Date de visite</label>
                         <input
@@ -1530,6 +1538,15 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                   <MapManagerSection />
                 </Suspense>
               </div>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Instagram ── */}
+          {activeSection === 'instagram' && (
+            <ErrorBoundary>
+              <Suspense fallback={<SkeletonForm />}>
+                <InstagramManagerSection />
+              </Suspense>
             </ErrorBoundary>
           )}
 
