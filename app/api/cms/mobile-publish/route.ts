@@ -189,13 +189,26 @@ export async function POST(req: NextRequest) {
       })
 
       if (erreurTrace) {
+        // Le fichier vient d'etre televerse mais n'a aucune ligne pour le
+        // designer : il n'est atteignable par rien. On le retire.
+        //
+        // Sans ce nettoyage, chaque tentative laissait une copie derriere elle.
+        // Observe sur l'appareil : une contrainte refusee cote base, WorkManager
+        // qui rejoue, et 86 fichiers accumules dans le stockage en quelques
+        // minutes — pour une seule photo choisie.
+        await sb.storage.from('media').remove([key])
+
+        // 422 et non 500 : la requete est bien formee, c'est son contenu que la
+        // base refuse. Rejouer a l'identique echouera pareil, et l'application
+        // traite les 4xx comme definitifs — la boucle s'arrete.
         return NextResponse.json(
           {
-            error: `Media televerse mais non trace en base : ${erreurTrace.message}`,
-            detail: "Applique la migration 20260902000001_google_enrichment (colonnes source, latitude, longitude, taken_at).",
-            url: data.publicUrl,
+            error: `Media refuse par la base : ${erreurTrace.message}`,
+            detail:
+              "Verifie que les migrations cms_media sont appliquees (colonnes source, latitude, " +
+              "longitude, taken_at, et valeur 'mobile' autorisee pour source).",
           },
-          { status: 500 }
+          { status: 422 }
         )
       }
     }
@@ -228,9 +241,13 @@ export async function POST(req: NextRequest) {
       })
 
       if (erreurTraceVideo) {
+        // Meme logique que pour les photos : un fichier sans ligne pour le
+        // designer n'est atteignable par rien, et le laisser ferait grossir le
+        // stockage a chaque nouvelle tentative.
+        await sb.storage.from('media').remove([key])
         return NextResponse.json(
-          { error: `Video televersee mais non tracee en base : ${erreurTraceVideo.message}`, url: videoUrl },
-          { status: 500 }
+          { error: `Video refusee par la base : ${erreurTraceVideo.message}` },
+          { status: 422 }
         )
       }
     }
