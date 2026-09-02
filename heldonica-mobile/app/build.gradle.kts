@@ -14,6 +14,24 @@ android {
     namespace = "fr.heldonica.mobile"
     compileSdk = 34
 
+    // Cle de signature stable, versionnee volontairement. Sans elle, chaque
+    // execution de la CI fabrique une cle de debug differente : Android refuse
+    // alors la mise a jour (INSTALL_FAILED_UPDATE_INCOMPATIBLE) et il faut
+    // desinstaller l'application - donc perdre ses reglages - a chaque version.
+    // C'est une cle de debug : elle ne protege rien, elle identifie seulement
+    // les APK de cette serie entre eux.
+    signingConfigs {
+        getByName("debug") {
+            val cle = rootProject.file("keystore/heldonica-debug.keystore")
+            if (cle.exists()) {
+                storeFile = cle
+                storePassword = "heldonica"
+                keyAlias = "heldonica"
+                keyPassword = "heldonica"
+            }
+        }
+    }
+
     buildFeatures {
         buildConfig = true
         compose = true
@@ -27,8 +45,11 @@ android {
         applicationId = "fr.heldonica.mobile"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0-oss"
+        // Numero de build de la CI : chaque APK produit est ainsi plus recent
+        // que le precedent. Sans cela toutes les versions portent le meme
+        // numero et Android ne les distingue pas.
+        versionCode = (System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInt()
+        versionName = "1.0." + (System.getenv("GITHUB_RUN_NUMBER") ?: "0")
 
         buildConfigField(
             "String",
@@ -45,6 +66,9 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+            // Aucune cle de publication : sans cette ligne, un assembleRelease
+            // produit un APK non signe, impossible a installer.
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 
