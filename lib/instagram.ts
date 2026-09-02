@@ -407,3 +407,159 @@ export async function autoScheduleInstagramPost(articleId: number | string, arti
     return false
   }
 }
+
+export interface InstagramComment {
+  id: string;
+  text: string;
+  username: string;
+  timestamp: string;
+  like_count?: number;
+  replies?: {
+    data: Array<{
+      id: string;
+      text: string;
+      username: string;
+      timestamp: string;
+    }>;
+  };
+}
+
+/**
+ * Récupère les commentaires d'un média Instagram
+ */
+export async function getMediaComments(mediaId: string): Promise<InstagramComment[]> {
+  const config = getInstagramConfig();
+  if (!config.accessToken) return [];
+
+  try {
+    const fields = 'id,text,username,timestamp,like_count,replies{id,text,username,timestamp}';
+    const res = await fetch(
+      `${INSTAGRAM_GRAPH_API_BASE}/${mediaId}/comments?fields=${fields}&access_token=${config.accessToken}`
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.data || [];
+  } catch (error) {
+    console.error('Failed to get media comments:', error);
+    return [];
+  }
+}
+
+/**
+ * Répond à un commentaire Instagram
+ */
+export async function replyToInstagramComment(commentId: string, message: string): Promise<{ id: string } | null> {
+  const config = getInstagramConfig();
+  if (!config.accessToken) return null;
+
+  try {
+    const res = await fetch(
+      `${INSTAGRAM_GRAPH_API_BASE}/${commentId}/replies`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message,
+          access_token: config.accessToken,
+        }),
+      }
+    );
+
+    if (!res.ok) {
+      const err = await res.json();
+      console.error('Instagram reply error:', err);
+      return null;
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error('Failed to reply to Instagram comment:', error);
+    return null;
+  }
+}
+
+/**
+ * Masque ou démasque un commentaire Instagram
+ */
+export async function toggleHideComment(commentId: string, hide: boolean = true): Promise<boolean> {
+  const config = getInstagramConfig();
+  if (!config.accessToken) return false;
+
+  try {
+    const res = await fetch(
+      `${INSTAGRAM_GRAPH_API_BASE}/${commentId}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          hide,
+          access_token: config.accessToken,
+        }),
+      }
+    );
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Rafraîchit le token d'accès longue durée (valide 60 jours supplémentaires)
+ */
+export async function refreshLongLivedToken(): Promise<{ access_token: string; expires_in: number } | null> {
+  const config = getInstagramConfig();
+  if (!config.accessToken) return null;
+
+  try {
+    const res = await fetch(
+      `${INSTAGRAM_GRAPH_API_BASE}/v20.0/oauth/access_token?grant_type=ig_refresh_token&access_token=${config.accessToken}`
+    );
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (error) {
+    console.error('Failed to refresh Instagram token:', error);
+    return null;
+  }
+}
+
+/**
+ * Vidéo / Reels — création conteneur + polling status (gratuit, pas de transcode serveur)
+ */
+export async function createVideoContainer(videoUrl: string, caption: string): Promise<InstagramMediaContainer | null> {
+  const config = getInstagramConfig();
+  if (!config.accessToken || !config.businessAccountId) return null;
+  try {
+    const res = await fetch(`${INSTAGRAM_GRAPH_API_BASE}/${config.businessAccountId}/media`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ media_type: 'REELS', video_url: videoUrl, caption, access_token: config.accessToken }),
+    });
+    const data = await res.json();
+    if (data.error) { console.error('Instagram video container error:', data.error); return null; }
+    return { id: data.id, status: 'PENDING' };
+  } catch (e) { console.error('createVideoContainer failed', e); return null; }
+}
+
+export async function getContainerStatus(containerId: string): Promise<string | null> {
+  const config = getInstagramConfig();
+  if (!config.accessToken) return null;
+  try {
+    const res = await fetch(`${INSTAGRAM_GRAPH_API_BASE}/${containerId}?fields=status_code&access_token=${config.accessToken}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.status_code || null; // FINISHED | IN_PROGRESS | ERROR
+  } catch { return null; }
+}
+
+export async function postVideoToInstagram(videoUrl: string, caption: string, maxWaitMs = 90000): Promise<InstagramPost | null> {
+  const container = await createVideoContainer(videoUrl, caption);
+  if (!container) return null;
+  const start = Date.now();
+  while (Date.now() - start < maxWaitMs) {
+    const status = await getContainerStatus(container.id);
+    if (status === 'FINISHED') break;
+    if (status === 'ERROR') { console.error('Video container ERROR'); return null; }
+    await new Promise(r => setTimeout(r, 5000));
+  }
+  return publishMediaContainer(container.id);
+}
