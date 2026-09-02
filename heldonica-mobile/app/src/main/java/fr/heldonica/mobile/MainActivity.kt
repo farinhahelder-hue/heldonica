@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -147,6 +148,10 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun HeldonicaScreen() {
         val scope = rememberCoroutineScope()
+        // La touche Retour d'Android fermait l'application depuis l'ecran de
+        // publication : le formulaire en cours - photos choisies, lieu saisi -
+        // etait perdu sans avertissement. Elle ramene desormais a l'accueil.
+        BackHandler(enabled = ecran != "accueil") { ecran = "accueil" }
         MaterialTheme {
             Scaffold(
                 topBar = {
