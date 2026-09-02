@@ -89,47 +89,26 @@ export default function SubtitlesEditor() {
     return corrected;
   }, []);
 
-  // Generate subtitles using Whisper API simulation
+  /**
+   * Transcription automatique : non branchee.
+   *
+   * Ce bouton simulait un appel a Whisper puis inserait six sous-titres ecrits
+   * en dur - « Bienvenue dans cette aventure », « au coeur du Portugal » - quelle
+   * que soit la video chargee. Rien ne signalait qu'ils etaient inventes : on
+   * pouvait les exporter tels quels, sous une video tournee ailleurs.
+   *
+   * Tant qu'aucun service de transcription n'est relie, le bouton le dit. Les
+   * sous-titres s'ecrivent a la main, avec « Ajouter un sous-titre ».
+   */
   const generateSubtitles = useCallback(async () => {
-    if (!state.videoUrl) return;
-
-    setState(prev => ({ ...prev, isTranscribing: true, error: null }));
-
-    try {
-      // Simulate API call to Whisper
-      // In production, this would call your Whisper API endpoint
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Generate sample subtitles
-      const sampleSubtitles: Subtitle[] = [
-        { id: '1', startTime: 0, endTime: 3.5, text: 'Bienvenue dans cette aventure', isEdited: false, isCorrected: false },
-        { id: '2', startTime: 3.5, endTime: 7.2, text: 'au cœur du Portugal', isEdited: false, isCorrected: false },
-        { id: '3', startTime: 7.2, endTime: 11.0, text: 'avec Heldonica', isEdited: false, isCorrected: false },
-        { id: '4', startTime: 11.0, endTime: 15.5, text: 'on partage nos pépites dénichées', isEdited: false, isCorrected: false },
-        { id: '5', startTime: 15.5, endTime: 20.0, text: 'et mes bonnes adresses', isEdited: false, isCorrected: false },
-        { id: '6', startTime: 20.0, endTime: 25.0, text: 'cette destination est vraiment top', isEdited: false, isCorrected: false },
-      ];
-
-      // Apply brand corrections
-      const correctedSubtitles = sampleSubtitles.map(sub => ({
-        ...sub,
-        text: applyBrandCorrections(sub.text),
-        isCorrected: sub.text !== applyBrandCorrections(sub.text),
-      }));
-
-      setState(prev => ({
-        ...prev,
-        subtitles: correctedSubtitles,
-        isTranscribing: false,
-      }));
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        isTranscribing: false,
-        error: 'Erreur lors de la génération des sous-titres',
-      }));
-    }
-  }, [state.videoUrl, applyBrandCorrections]);
+    setState(prev => ({
+      ...prev,
+      isTranscribing: false,
+      error:
+        "La transcription automatique n'est pas encore branchee. " +
+        "Ajoute tes sous-titres a la main ci-dessous.",
+    }));
+  }, []);
 
   // Apply corrections to all subtitles
   const applyAllCorrections = useCallback(() => {
