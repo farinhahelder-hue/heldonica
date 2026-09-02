@@ -32,6 +32,44 @@ function getSupabase() {
 }
 
 /**
+ * Lieu et date de prise de vue, lus dans le fichier lui-meme.
+ *
+ * L'EXIF prime sur les coordonnees du formulaire et sur l'heure d'envoi : il
+ * atteste ou et quand la photo a ete prise, la ou l'heure d'upload daterait du
+ * jour meme une image vieille de deux ans. C'est cette distinction qui fait la
+ * valeur du registre de preuves.
+ *
+ * Le formulaire sert de repli quand le telephone n'a pas geolocalise le cliche.
+ */
+async function lireMetadonnees(bytes: Buffer, repli: { lat: number | null; lng: number | null }) {
+  try {
+    const exifr = (await import('exifr')).default
+    const d = await exifr.parse(bytes, { gps: true, exif: true })
+    const prise: Date | undefined = d?.DateTimeOriginal || d?.CreateDate
+    const gpsExif = typeof d?.latitude === 'number' && typeof d?.longitude === 'number'
+
+    return {
+      latitude: gpsExif ? d.latitude : repli.lat,
+      longitude: gpsExif ? d.longitude : repli.lng,
+      // Pas de repli sur l'heure d'envoi : mieux vaut une date absente qu'une
+      // date fausse, que le controle du vecu prendrait pour une preuve.
+      taken_at: prise instanceof Date && !isNaN(prise.valueOf()) ? prise.toISOString() : null,
+      // Origine determinee ici plutot que deduite d'une comparaison de valeurs :
+      // sans GPS ni dans le fichier ni dans le formulaire, une comparaison
+      // conclurait a tort a une provenance EXIF.
+      geo_source: gpsExif ? 'exif' : repli.lat !== null ? 'formulaire' : 'aucune',
+    }
+  } catch {
+    return {
+      latitude: repli.lat,
+      longitude: repli.lng,
+      taken_at: null,
+      geo_source: repli.lat !== null ? 'formulaire' : 'aucune',
+    }
+  }
+}
+
+/**
  * POST /api/cms/mobile-publish — 0€ (OSM, pas Places), auto+manuel
  * FormData:
  *  photos[] (1-10 images), video? (1 mp4), caption?, place_title?, place_lat?, place_lng?, place_address?,
@@ -115,15 +153,51 @@ export async function POST(req: NextRequest) {
       const { data } = sb.storage.from('media').getPublicUrl(key)
       uploadedUrls.push(data.publicUrl)
 
-      // Trace cms_media (pour photos_evidence.py)
-      await (sb as any).from('cms_media').insert({
+      // Trace cms_media, socle du registre de preuves.
+      //
+      // Les noms de colonnes suivent la table reelle — `url`, `path`,
+      // `mime_type`, `size` — et non ceux de la migration d'origine
+      // (`file_path`, `file_type`, `file_size`), dont la production a diverge.
+      // Ecrite contre la migration, l'insertion echouait a chaque envoi, en
+      // silence puisque l'erreur n'etait jamais lue : la photo arrivait dans le
+      // stockage, l'application affichait un succes, et aucune trace n'existait.
+      //
+      // Les coordonnees vont dans latitude/longitude et non dans metadata :
+      // c'est la que check-content-evidence lit la preuve du lieu. Rangees
+      // ailleurs, les photos prises sur le terrain — le cas d'usage le plus
+      // fort de l'application — n'attesteraient rien.
+      const meta = await lireMetadonnees(bytes, { lat: placeLat, lng: placeLng })
+
+      const { error: erreurTrace } = await (sb as any).from('cms_media').insert({
         filename: safe,
-        file_path: data.publicUrl,
-        file_type: file.type || 'image/jpeg',
-        file_size: bytes.length,
+        url: data.publicUrl,
+        path: key,
+        mime_type: file.type || 'image/jpeg',
+        size: bytes.length,
         source: 'mobile',
-        metadata: { place_title: placeTitle, place_lat: placeLat, place_lng: placeLng, caption },
+        latitude: meta.latitude,
+        longitude: meta.longitude,
+        taken_at: meta.taken_at,
+        metadata: {
+          place_title: placeTitle,
+          place_address: placeAddress,
+          caption,
+          // Origine des coordonnees : celles de l'EXIF valent preuve, celles
+          // saisies dans l'application restent declaratives.
+          geo_source: meta.geo_source,
+        },
       })
+
+      if (erreurTrace) {
+        return NextResponse.json(
+          {
+            error: `Media televerse mais non trace en base : ${erreurTrace.message}`,
+            detail: "Applique la migration 20260902000001_google_enrichment (colonnes source, latitude, longitude, taken_at).",
+            url: data.publicUrl,
+          },
+          { status: 500 }
+        )
+      }
     }
 
     const primaryImage = uploadedUrls[0] || null
@@ -138,7 +212,27 @@ export async function POST(req: NextRequest) {
       if (error) return NextResponse.json({ error: `Upload vidéo failed: ${error.message}` }, { status: 500 })
       const { data } = sb.storage.from('media').getPublicUrl(key)
       videoUrl = data.publicUrl
-      await (sb as any).from('cms_media').insert({ filename: safe, file_path: videoUrl, file_type: videoFile.type || 'video/mp4', file_size: bytes.length, source: 'mobile', metadata: { place_title: placeTitle, video: true } })
+      const { error: erreurTraceVideo } = await (sb as any).from('cms_media').insert({
+        filename: safe,
+        url: videoUrl,
+        path: key,
+        mime_type: videoFile.type || 'video/mp4',
+        size: bytes.length,
+        source: 'mobile',
+        // Une video ne porte pas d'EXIF exploitable par exifr : on retombe sur
+        // ce que l'application a transmis, sans dater la prise de vue.
+        latitude: placeLat,
+        longitude: placeLng,
+        taken_at: null,
+        metadata: { place_title: placeTitle, place_address: placeAddress, video: true, geo_source: 'formulaire' },
+      })
+
+      if (erreurTraceVideo) {
+        return NextResponse.json(
+          { error: `Video televersee mais non tracee en base : ${erreurTraceVideo.message}`, url: videoUrl },
+          { status: 500 }
+        )
+      }
     }
 
     // 2. POI si lieu fourni (gratuit via OSM côté Android, on stocke tel quel)
