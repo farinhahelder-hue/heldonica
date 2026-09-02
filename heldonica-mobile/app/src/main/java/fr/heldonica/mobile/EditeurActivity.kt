@@ -84,6 +84,22 @@ class EditeurActivity : ComponentActivity() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 barre.visibility = android.view.View.GONE
             }
+
+            // Sans ce cas, une coupure reseau laissait une page blanche muette :
+            // impossible de savoir s'il fallait attendre, recharger, ou si
+            // l'editeur etait casse.
+            override fun onReceivedError(
+                view: WebView?,
+                requete: android.webkit.WebResourceRequest?,
+                erreur: android.webkit.WebResourceError?
+            ) {
+                if (requete?.isForMainFrame != true) return
+                Log.e(TAG, "Chargement editeur echoue: " + erreur?.description)
+                afficherMessage(
+                    "Impossible de charger l'editeur.\n\n" +
+                    "Verifie ta connexion, puis rouvre depuis l'accueil."
+                )
+            }
         }
 
         // Le bouton retour navigue dans l'historique de l'editeur avant de
