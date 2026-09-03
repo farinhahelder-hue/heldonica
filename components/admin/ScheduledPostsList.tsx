@@ -17,14 +17,30 @@ interface ScheduledPost {
 export default function ScheduledPostsList() {
   const [posts, setPosts] = useState<ScheduledPost[]>([])
   const [loading, setLoading] = useState(true)
+  // Une requete en echec affichait « Aucun post programme » : impossible de
+  // distinguer une file vide d'une file inaccessible.
+  const [erreur, setErreur] = useState<string | null>(null)
 
   const fetchPosts = async () => {
+    setErreur(null)
     try {
       const res = await fetch('/api/instagram/scheduled')
-      if (!res.ok) throw new Error()
+      if (!res.ok) {
+        setErreur(
+          res.status === 401
+            ? 'Session expiree : reconnecte-toi au panneau.'
+            : `La file n'a pas pu etre lue (${res.status}).`
+        )
+        setPosts([])
+        return
+      }
       const data = await res.json()
-      setPosts(data.scheduledPosts || data || [])
+      // La route repond { posts: [...] }. Le nom lu ici etait
+      // `scheduledPosts`, absent de la reponse : l'objet entier finissait dans
+      // l'etat, et `posts.map` levait une erreur des qu'une entree existait.
+      setPosts(Array.isArray(data?.posts) ? data.posts : [])
     } catch {
+      setErreur('La file est injoignable.')
       setPosts([])
     } finally {
       setLoading(false)
@@ -48,6 +64,21 @@ export default function ScheduledPostsList() {
   }
 
   if (loading) return <div className="text-sm text-stone-400">Chargement...</div>
+
+  if (erreur) {
+    return (
+      <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
+        <h3 className="font-semibold text-sm text-stone-700 mb-2">Posts programmes</h3>
+        <p className="text-xs text-amber-800">{erreur}</p>
+        <button
+          onClick={() => { setLoading(true); fetchPosts() }}
+          className="mt-3 text-xs underline text-stone-600 hover:text-stone-900"
+        >
+          Reessayer
+        </button>
+      </div>
+    )
+  }
 
   if (posts.length === 0) {
     return (
