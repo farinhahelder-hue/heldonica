@@ -65,6 +65,16 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: npm run check:cms-zones
 
+      # Gestionnaires d'API maniant la clé service — qui contourne les règles de
+      # sécurité de la base — sans vérifier qui les appelle. Deux trous de cette
+      # forme ont été trouvés à la main le 3 septembre 2026 : la file Instagram,
+      # entièrement ouverte, et le POST de /api/jules, qui laissait n'importe qui
+      # faire écrire du code dans le dépôt. Les deux étaient latents, masqués par
+      # une table absente et une variable non renseignée.
+      # Sans secret : ce contrôle lit le code, pas la base.
+      - name: Routes sans vérification
+        run: npm run check:api-auth
+
       # Tables référencées par le code mais absentes du schéma, et inversement.
       - name: Dérive des tables
         if: steps.secrets.outputs.presents == 'true'

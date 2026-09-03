@@ -15,7 +15,20 @@ const getSupabaseAdmin = () => {
 };
 
 // POST - Create a new Jules session
+//
+// L'authentification manquait ici, alors que GET l'avait. Un appelant anonyme
+// pouvait donc faire creer une session Jules sur le depot avec le prompt de son
+// choix : l'agent de Google ecrit du code dans heldonica, sur la branche
+// demandee, avec la cle du site et son quota. La faille n'etait inexploitable
+// que parce que JULES_API_KEY n'est pas renseignee en production ; elle se
+// serait ouverte a la seconde ou cette variable aurait ete ajoutee.
+//
+// Le controle passe avant la verification de la cle, pour qu'un anonyme
+// n'apprenne meme pas si elle est configuree.
 export async function POST(request: NextRequest) {
+  const authError = await requireCmsAuth(request)
+  if (authError) return authError
+
   if (!JULES_API_KEY) {
     return NextResponse.json({ error: 'JULES_API_KEY not configured' }, { status: 500 });
   }
