@@ -57,9 +57,12 @@ class MainActivity : ComponentActivity() {
     private val picker = registerForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(10)) { uris ->
         if (uris.isNotEmpty()) {
             pickedUris = uris
-            // Lit EXIF du premier pour auto-remplir lieu
+            // Le nombre de photos est deja affiche juste en dessous. Cette ligne
+            // le repetait, et surtout elle s'executait apres la lecture EXIF :
+            // elle effacait donc le seul message utile, celui qui dit ce que la
+            // photo apporte et ce qui reste a saisir.
+            status = ""
             uris.firstOrNull()?.let { uri -> readExifAndReverseGeocode(uri) }
-            status = "${uris.size} photo(s) sélectionnée(s)"
         }
     }
 
