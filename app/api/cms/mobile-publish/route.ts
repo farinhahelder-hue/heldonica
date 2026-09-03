@@ -157,7 +157,7 @@ export async function POST(req: NextRequest) {
           const res = await generateAiCompletion({ messages: [{ role: 'user', content: prompt }], temperature: 0.6, max_tokens: 800, jsonMode: true })
           const parsed = JSON.parse(res.content.match(/\{[\s\S]*\}/)?.[0] || '{}')
           aiCaption = parsed.caption || null
-          aiCarouselCaptions = Array.isArray(parsed.slides) ? parsed.slides.slice(0, files.length) as string[] : null
+          aiCarouselCaptions = Array.isArray(parsed.slides) ? parsed.slides.slice(0, nbPhotos) as string[] : null
         } else if (hasVideo) {
           const prompt = `${HELDONICA_B2C_PROMPT}\nVidéo terrain à ${placeTitle}. Note: "${caption}". Génère JSON {"caption":"Légende Reels 80-120 mots, on/tu, 0 mot banni, [À TOI] si prix/horaire incertain"}.`
           const res = await generateAiCompletion({ messages: [{ role: 'user', content: prompt }], temperature: 0.6, max_tokens: 500, jsonMode: true })
@@ -408,20 +408,49 @@ ${hasVideo ? `<p>Vidéo : <a href="${videoUrl}">voir vidéo</a></p><video src="$
 
     // 4. Instagram : jamais publish direct depuis mobile. Draft pour validation 1-clic. Support carrousel + vidéo
     let instagramScheduled: any = null
+    // Motif d'echec cote Instagram, remonte a l'appelant.
+    //
+    // Les trois insertions ci-dessous ne lisaient que `data` : l'erreur etait
+    // jetee. Quand la table manquait - ce qui etait le cas - l'application
+    // annoncait « brouillon + Instagram cree » alors que seul l'article existait.
+    // Un envoi rate se voit desormais.
+    let instagramErreur: string | null = null
     if (publishInstagram) {
       const baseCaption = aiCaption || caption
       const igCaption = baseCaption
         ? `${baseCaption}\n\n📍 ${placeTitle || ''}\n🌍 heldonica.fr/blog/${slug}\n#slowtravel #heldonica`
         : `📍 ${placeTitle || 'Carnet mobile'}\n[À TOI]\n🌍 heldonica.fr/blog/${slug}\n#slowtravel #heldonica`
-      if (hasVideo && videoUrl) {
-        const { data: ig } = await (sb as any).from('instagram_scheduled_posts').insert({ image_url: videoUrl, caption: igCaption.slice(0, 2200), status: 'draft', article_id: null, metadata: { type: 'REELS', video_url: videoUrl } }).select('id').single()
-        instagramScheduled = ig
-      } else if (isCarousel && uploadedUrls.length >= 2) {
-        const { data: ig } = await (sb as any).from('instagram_scheduled_posts').insert({ image_url: primaryImage!, caption: igCaption.slice(0, 2200), status: 'draft', article_id: null, metadata: { type: 'CAROUSEL', children: uploadedUrls } }).select('id').single()
-        instagramScheduled = ig
-      } else if (primaryImage) {
-        const { data: ig } = await (sb as any).from('instagram_scheduled_posts').insert({ image_url: primaryImage, caption: igCaption.slice(0, 2200), status: 'draft', article_id: null }).select('id').single()
-        instagramScheduled = ig
+
+      const entree =
+        hasVideo && videoUrl
+          ? { image_url: videoUrl, metadata: { type: 'REELS', video_url: videoUrl } }
+          : isCarousel && uploadedUrls.length >= 2
+            ? { image_url: primaryImage!, metadata: { type: 'CAROUSEL', children: uploadedUrls } }
+            : primaryImage
+              ? { image_url: primaryImage, metadata: null }
+              : null
+
+      if (!entree) {
+        instagramErreur = "Aucune image ni video : rien a envoyer sur Instagram."
+      } else {
+        const { data: ig, error } = await (sb as any)
+          .from('instagram_scheduled_posts')
+          .insert({
+            image_url: entree.image_url,
+            caption: igCaption.slice(0, 2200),
+            status: 'draft',
+            article_id: post.id,
+            metadata: entree.metadata,
+          })
+          .select('id')
+          .single()
+
+        if (error) {
+          console.error('[mobile-publish] file Instagram', error)
+          instagramErreur = "Le brouillon Instagram n'a pas pu etre cree."
+        } else {
+          instagramScheduled = ig
+        }
       }
     }
 
@@ -436,7 +465,10 @@ ${hasVideo ? `<p>Vidéo : <a href="${videoUrl}">voir vidéo</a></p><video src="$
       aiCarouselCaptions,
       mode,
       instagramScheduled,
-      message: 'Brouillon créé (published:false). Valide dans /panel-manager avant publication.',
+      instagramErreur,
+      message: instagramErreur
+        ? `Brouillon créé sur le site (published:false). En revanche : ${instagramErreur}`
+        : 'Brouillon créé (published:false). Valide dans /panel-manager avant publication.',
     })
   } catch (e: any) {
     return NextResponse.json({ error: e.message || 'Erreur serveur' }, { status: 500 })
