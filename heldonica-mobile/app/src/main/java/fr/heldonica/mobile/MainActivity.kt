@@ -318,10 +318,15 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
+                // L'EXIF date au format « 2026:09:03 20:17:17 » : les deux
+                // premiers deux-points separent l'annee, le mois et le jour.
+                val jour = date?.substringBefore(' ')?.replace(':', '-')
+
                 status = when {
-                    latLong != null -> "Lieu trouve dans la photo."
-                    date != null -> "Date lue : $date. Le lieu est a ecrire : Android le retire des photos."
-                    else -> "Ni date ni lieu dans cette photo : les deux sont a ecrire."
+                    latLong != null -> "Lieu trouvé dans la photo."
+                    jour != null ->
+                        "Photo du $jour. Écris le lieu : Android le retire des photos."
+                    else -> "Ni date ni lieu dans cette photo : les deux sont à écrire."
                 }
             }
         } catch (_: Exception) {}
