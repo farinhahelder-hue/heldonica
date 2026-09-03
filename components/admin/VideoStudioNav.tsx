@@ -19,23 +19,28 @@ const STUDIO_MODULES = [
     color: '#6b2a1a',
     features: ['Multi-piste', 'Color grading', 'Text overlays'],
   },
+  // Ces deux modules annonçaient une transcription Whisper et une analyse IA
+  // qui n'ont jamais existé : l'un insérait six sous-titres écrits en dur,
+  // l'autre tirait des extraits au hasard et les légendait de phrases toutes
+  // faites. Les fonctions sont neutralisées ; les libellés le disent, pour qu'on
+  // ne clique pas dessus en croyant y trouver un outil.
   {
     id: 'subtitles',
-    label: 'Sous-titres IA',
-    description: 'Accessibilité + engagement',
+    label: 'Sous-titres',
+    description: 'À écrire à la main — transcription non branchée',
     icon: Type,
     href: '/panel-manager/subtitles',
     color: '#2563eb',
-    features: ['Transcription Whisper', 'Correction vocabulaire', 'Export SRT'],
+    features: ['Saisie manuelle', 'Correction vocabulaire', 'Export SRT'],
   },
   {
     id: 'auto-shorts',
     label: 'Auto-Shorts',
-    description: 'Recycler les vlogs en Reels',
+    description: 'Non branché — passe par la découpe rapide',
     icon: Zap,
     href: '/panel-manager/auto-shorts',
     color: '#9333ea',
-    features: ['Analyse IA', 'Captions auto', 'Hashtags'],
+    features: ['Indisponible'],
   },
   {
     id: 'fast-trim',
