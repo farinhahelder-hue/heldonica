@@ -329,7 +329,9 @@ export async function POST(req: NextRequest) {
     // 2. POI si lieu fourni (gratuit via OSM côté Android, on stocke tel quel)
     let poiId: string | null = null
     if (placeTitle && placeLat !== null && placeLng !== null) {
-      const { data: poi } = await (sb as any)
+      // Meme precaution que pour la file Instagram : l'erreur etait jetee, et
+      // un point de carte perdu ne se voyait nulle part.
+      const { data: poi, error: erreurPoi } = await (sb as any)
         .from('article_map_pois')
         .insert({
           content_slug: 'mobile-inbox',
@@ -343,6 +345,7 @@ export async function POST(req: NextRequest) {
         })
         .select('id')
         .single()
+      if (erreurPoi) console.error('[mobile-publish] point de carte', erreurPoi)
       poiId = poi?.id || null
     }
 
