@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 import { useContentLoader, getCmsOrSetting, getZoneLinks } from '@/hooks/useContentLoader'
@@ -93,7 +94,7 @@ export default function Header() {
             aria-label={`${siteName} accueil`}
           >
             {logoUrl ? (
-              <img src={logoUrl} alt="" className="h-8 w-auto" />
+              <Image src={logoUrl} alt={siteName} width={120} height={32} className="h-8 w-auto" unoptimized />
             ) : (
               <svg width="32" height="32" viewBox="0 0 34 34" fill="none" aria-hidden="true">
                 <circle cx="17" cy="17" r="16" stroke="currentColor" strokeWidth="1.2" />

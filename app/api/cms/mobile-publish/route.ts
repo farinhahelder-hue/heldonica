@@ -4,6 +4,7 @@ export const maxDuration = 60
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getCmsAuthStatus } from '@/lib/cms-auth'
+import { rateLimit, getClientIp } from '@/lib/rate-limit'
 
 // Auth identique à auto-publish : CRON_SECRET / x-cms-auth / cookie session
 async function isAuthorized(req: NextRequest): Promise<boolean> {
@@ -77,6 +78,9 @@ async function lireMetadonnees(bytes: Buffer, repli: { lat: number | null; lng: 
  * Règle n°1 : published toujours false. Instagram en draft uniquement. Auto IA seulement si auto_caption=1.
  */
 export async function POST(req: NextRequest) {
+  if (!rateLimit(getClientIp(req), 60, 60_000)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
   if (!await isAuthorized(req)) {
     return NextResponse.json({ error: 'Non autorisé (x-cms-auth ou Bearer CRON_SECRET requis)' }, { status: 401 })
   }

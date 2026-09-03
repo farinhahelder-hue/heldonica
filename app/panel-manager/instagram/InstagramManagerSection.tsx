@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface InstagramComment {
   id: number;
@@ -23,7 +23,7 @@ export default function InstagramManagerSection() {
   const [refreshingToken, setRefreshingToken] = useState(false);
   const [tokenStatus, setTokenStatus] = useState<string | null>(null);
 
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(`/api/cms/instagram/comments?status=${activeTab === 'all' ? 'all' : activeTab === 'pending' ? 'pending_review' : 'approved'}`);
@@ -42,11 +42,11 @@ export default function InstagramManagerSection() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab]);
 
   useEffect(() => {
     fetchComments();
-  }, [activeTab]);
+  }, [fetchComments]);
 
   const handleApproveReply = async (comment: InstagramComment) => {
     const replyText = editingReply[comment.ig_comment_id] || comment.ai_draft;
