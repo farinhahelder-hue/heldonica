@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server'
+import { rateLimit, getClientIp } from '@/lib/rate-limit'
 
 export async function GET(req: Request) {
+  if (!rateLimit(getClientIp(req), 30, 60_000)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
   const { searchParams } = new URL(req.url)
   const q = searchParams.get('q')?.trim()
   if (!q) return NextResponse.json({ error: 'Missing q' }, { status: 400 })

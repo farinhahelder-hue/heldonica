@@ -10,12 +10,12 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com",
+      "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com",
       "style-src 'self' 'unsafe-inline' https://api.fontshare.com https://fonts.googleapis.com https://unpkg.com",
       "img-src 'self' data: blob: https://images.unsplash.com https://*.supabase.co https://heldonica.fr https://www.heldonica.fr https://behold.pictures https://cdn2.behold.pictures https://lh3.googleusercontent.com https://lh4.googleusercontent.com https://lh5.googleusercontent.com https://lh6.googleusercontent.com https://storage.googleapis.com https://*.tile.openstreetmap.org",
       "media-src 'self' https://d2xsxph8kpxj0f.cloudfront.net https://*.cloudfront.net",
       "font-src 'self' https://api.fontshare.com https://fonts.gstatic.com https://frontend-cdn.perplexity.ai",
-      "connect-src 'self' https://*.supabase.co https://api.perplexity.ai https://api.unsplash.com https://api.bufferapp.com",
+      "connect-src 'self' https://*.supabase.co https://api.perplexity.ai https://api.unsplash.com https://api.bufferapp.com https://nominatim.openstreetmap.org https://www.google-analytics.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
@@ -26,6 +26,7 @@ const securityHeaders = [
 const nextConfig = {
   outputFileTracingRoot: __dirname,
   images: {
+    qualities: [60, 75, 85],
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 2678400,
     remotePatterns: [
@@ -58,7 +59,7 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['@supabase/supabase-js'],
   },
-  serverExternalPackages: ['jsdom', 'html-encoding-sniffer', '@exodus/bytes'],
+  serverExternalPackages: ['jsdom', 'html-encoding-sniffer', '@exodus/bytes', 'fluent-ffmpeg'],
 
   staticPageGenerationTimeout: 300,
 
