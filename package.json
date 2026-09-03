@@ -9,6 +9,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit --incremental false",
     "test": "vitest run",
+    "check:api-auth": "node scripts/check-api-auth.mjs",
     "check:cms-drift": "node scripts/check-cms-drift.mjs",
     "check:cms-zones": "node scripts/check-cms-zones.mjs",
     "check:content-coherence": "node scripts/check-content-coherence.mjs",
