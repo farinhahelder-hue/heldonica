@@ -1,7 +1,6 @@
 package fr.heldonica.mobile
 
 import android.net.Uri
-import android.provider.MediaStore
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -64,21 +63,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // Sans cette permission, le selecteur livre des fichiers dont les
-    // coordonnees ont ete retirees. Elle est demandee au lancement plutot qu'au
-    // moment du choix : une demande surgissant en plein parcours de publication
-    // interrompt ce qu'on etait en train de faire.
-    private val permissionLieuMedia =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (android.os.Build.VERSION.SDK_INT >= 29 &&
-            checkSelfPermission(android.Manifest.permission.ACCESS_MEDIA_LOCATION) !=
-            android.content.pm.PackageManager.PERMISSION_GRANTED
-        ) {
-            permissionLieuMedia.launch(android.Manifest.permission.ACCESS_MEDIA_LOCATION)
-        }
         setContent { HeldonicaScreen() }
     }
 
@@ -207,7 +193,20 @@ class MainActivity : ComponentActivity() {
                     if (pickedUris.isNotEmpty()) Text("${pickedUris.size} média(s) prêts", color = MaterialTheme.colorScheme.primary)
 
                     OutlinedTextField(value = placeTitle, onValueChange = { placeTitle = it }, label = { Text("Lieu") }, modifier = Modifier.fillMaxWidth())
-                    OutlinedTextField(value = placeAddress, onValueChange = { placeAddress = it }, label = { Text("Adresse (remplie automatiquement)") }, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = placeAddress, onValueChange = { placeAddress = it }, label = { Text("Adresse (facultatif)") }, modifier = Modifier.fillMaxWidth())
+
+                    // Ces deux aides etaient repliees sous « Options », au titre
+                    // du cas rare. Le selecteur d'Android retirant les
+                    // coordonnees de toutes les photos, le lieu est a renseigner
+                    // a chaque fois : elles sont donc a leur place ici.
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(onClick = { scope.launch { useLiveLocationAsFallback() } }) {
+                            Text("Je suis sur place")
+                        }
+                        OutlinedButton(onClick = { scope.launch { reverseGeocodeNominatim() } }) {
+                            Text("Trouver l'adresse")
+                        }
+                    }
                     OutlinedTextField(value = caption, onValueChange = { caption = it }, label = { Text("Ce que tu as vécu là (facultatif)") }, modifier = Modifier.fillMaxWidth(), minLines = 3)
 
                     if (pickedUris.size > 1) LaunchedEffect(pickedUris.size) { isCarousel = true }
@@ -243,15 +242,6 @@ class MainActivity : ComponentActivity() {
                             Text("Carrousel Instagram", style = MaterialTheme.typography.bodySmall)
                         }
 
-                        Text("Si le lieu est vide", style = MaterialTheme.typography.labelLarge)
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedButton(onClick = { scope.launch { useLiveLocationAsFallback() } }) {
-                                Text("Position actuelle")
-                            }
-                            OutlinedButton(onClick = { scope.launch { reverseGeocodeNominatim() } }) {
-                                Text("Trouver l'adresse")
-                            }
-                        }
                     }
 
                     Button(
@@ -293,25 +283,43 @@ class MainActivity : ComponentActivity() {
         )
     }
 
+    /**
+     * Date et lieu de prise de vue, lus dans la photo choisie.
+     *
+     * Le selecteur de photos d'Android retire les coordonnees GPS de l'EXIF, et
+     * il n'existe aucun moyen documente de les recuperer : ni
+     * MediaStore.setRequireOriginal, qui ne s'applique pas a ses URI, ni la
+     * permission ACCESS_MEDIA_LOCATION, ni aucune option de
+     * PickVisualMediaRequest — sa surface publique n'en propose pas, meme sur la
+     * branche principale d'androidx. Seule la date survit.
+     *
+     * Le champ Lieu restait donc vide sans explication. Il est desormais annonce
+     * comme etant a remplir, avec les deux moyens qui marchent : le bouton
+     * « GPS live » quand on est sur place, ou la saisie a la main.
+     *
+     * L'import depuis /panel-manager/photos, lui, passe par l'API Google Photos
+     * et rapatrie le fichier d'origine : c'est la que les coordonnees du voyage
+     * entrent dans la mediatheque.
+     */
     private fun readExifAndReverseGeocode(uri: Uri) {
         try {
-            // Meme fichier d'origine que pour l'envoi : sans cela, l'apercu
-            // annoncait « GPS manquant » sur une photo qui portait bien ses
-            // coordonnees, et le lieu ne se remplissait jamais tout seul.
-            val origine = runCatching { MediaStore.setRequireOriginal(uri) }.getOrDefault(uri)
-            (runCatching { contentResolver.openInputStream(origine) }.getOrNull()
-                ?: contentResolver.openInputStream(uri))?.use { input ->
+            contentResolver.openInputStream(uri)?.use { input ->
                 val exif = ExifInterface(input)
                 val latLong = exif.latLong
                 val date = exif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL)
+
                 if (latLong != null) {
                     placeLat = latLong[0]; placeLng = latLong[1]
-                    // Nominatim gratuit
                     kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
                         reverseGeocodeNominatim()
                     }
                 }
-                if (date != null) status = "EXIF: $date @ ${latLong?.joinToString() ?: "GPS manquant"}"
+
+                status = when {
+                    latLong != null -> "Lieu trouve dans la photo."
+                    date != null -> "Date lue : $date. Le lieu est a ecrire : Android le retire des photos."
+                    else -> "Ni date ni lieu dans cette photo : les deux sont a ecrire."
+                }
             }
         } catch (_: Exception) {}
     }
@@ -595,24 +603,16 @@ class UploadWorker(ctx: android.content.Context, params: WorkerParameters) : Cor
     }
 
     /**
-     * Copie locale du media choisi, coordonnees comprises.
+     * Copie locale du media choisi.
      *
-     * Le selecteur de photos d'Android retire les coordonnees GPS de l'EXIF
-     * avant de livrer le fichier. Les brouillons partaient donc sans position,
-     * alors meme que la photo d'origine en portait une : le registre de preuves
-     * ne pouvait rien adosser au lieu.
-     *
-     * setRequireOriginal demande la version non expurgee. Elle exige la
-     * permission ACCESS_MEDIA_LOCATION ; si elle est refusee, l'appel echoue et
-     * on retombe sur le fichier expurge plutot que d'abandonner l'envoi.
+     * Le fichier arrive sans coordonnees GPS : le selecteur d'Android les retire
+     * et ne propose aucun moyen de les conserver. La date de prise de vue, elle,
+     * est bien la — c'est elle qui alimente le registre de preuves. Le lieu
+     * vient du champ que l'on remplit soi-meme.
      */
     private fun copyUriToTemp(uri: Uri): File? {
         return try {
-            val origine = runCatching { MediaStore.setRequireOriginal(uri) }.getOrDefault(uri)
-            val input = runCatching { applicationContext.contentResolver.openInputStream(origine) }
-                .getOrNull()
-                ?: applicationContext.contentResolver.openInputStream(uri)
-                ?: return null
+            val input = applicationContext.contentResolver.openInputStream(uri) ?: return null
             val tmp = File.createTempFile("heldonica_", ".jpg", applicationContext.cacheDir)
             tmp.outputStream().use { out -> input.copyTo(out) }
             tmp
