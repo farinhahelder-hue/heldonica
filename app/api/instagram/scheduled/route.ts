@@ -1,5 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { requireCmsAuth } from '@/lib/cms-auth';
+
+/**
+ * File d'attente des publications Instagram.
+ *
+ * Cette route n'avait aucune vérification, alors qu'elle travaille avec la clé
+ * service — qui contourne les règles de sécurité de la base. N'importe qui
+ * pouvait donc lire la file, y ajouter une publication, ou passer une entrée en
+ * « scheduled » : le cron l'aurait ensuite publiée sur le compte Instagram réel.
+ * Le trou était masqué par l'absence de la table, qui faisait échouer chaque
+ * appel ; il devenait exploitable dès sa création.
+ *
+ * Les messages d'erreur de la base ne sont plus renvoyés tels quels : ils
+ * décrivent le schéma à qui les lit.
+ */
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -8,7 +23,16 @@ function getSupabase() {
   return createClient(url, key);
 }
 
-export async function GET() {
+/** Journalise le détail et ne renvoie qu'un motif générique. */
+function erreurBase(contexte: string, error: unknown) {
+  console.error(`[instagram/scheduled] ${contexte}`, error);
+  return NextResponse.json({ error: 'Opération refusée par la base' }, { status: 500 });
+}
+
+export async function GET(request: NextRequest) {
+  const refus = await requireCmsAuth(request);
+  if (refus) return refus;
+
   try {
     const supabase = getSupabase();
     if (!supabase) return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
@@ -17,17 +41,18 @@ export async function GET() {
       .select('*')
       .order('scheduled_at', { ascending: true });
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    if (error) return erreurBase('lecture', error);
 
     return NextResponse.json({ posts: data || [] });
-  } catch {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  } catch (e) {
+    return erreurBase('lecture', e);
   }
 }
 
 export async function POST(request: NextRequest) {
+  const refus = await requireCmsAuth(request);
+  if (refus) return refus;
+
   try {
     const body = await request.json();
     const { image_url, caption, hashtags, scheduled_at, article_id } = body;
@@ -51,17 +76,18 @@ export async function POST(request: NextRequest) {
       .select()
       .single();
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    if (error) return erreurBase('creation', error);
 
     return NextResponse.json({ success: true, post: data });
-  } catch (error) {
+  } catch (e) {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
 }
 
 export async function PATCH(request: NextRequest) {
+  const refus = await requireCmsAuth(request);
+  if (refus) return refus;
+
   try {
     const body = await request.json();
     const { id, ...updates } = body;
@@ -79,17 +105,18 @@ export async function PATCH(request: NextRequest) {
       .select()
       .single();
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    if (error) return erreurBase('mise a jour', error);
 
     return NextResponse.json({ success: true, post: data });
-  } catch {
+  } catch (e) {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
 }
 
 export async function DELETE(request: NextRequest) {
+  const refus = await requireCmsAuth(request);
+  if (refus) return refus;
+
   try {
     const url = new URL(request.url);
     const id = url.searchParams.get('id');
@@ -105,12 +132,10 @@ export async function DELETE(request: NextRequest) {
       .delete()
       .eq('id', id);
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    if (error) return erreurBase('suppression', error);
 
     return NextResponse.json({ success: true });
-  } catch {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  } catch (e) {
+    return erreurBase('suppression', e);
   }
 }
