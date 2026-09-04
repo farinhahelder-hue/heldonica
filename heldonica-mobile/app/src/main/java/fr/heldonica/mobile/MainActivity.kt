@@ -21,7 +21,9 @@ import androidx.work.*
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -237,7 +239,13 @@ class MainActivity : ComponentActivity() {
                         OutlinedButton(onClick = { demanderPosition() }) {
                             Text("Je suis sur place")
                         }
-                        OutlinedButton(onClick = { scope.launch { reverseGeocodeNominatim() } }) {
+                        OutlinedButton(onClick = {
+                            scope.launch {
+                                status = if (placeLat == null) "Touche d'abord « Je suis sur place »."
+                                    else if (reverseGeocodeNominatim()) "Adresse trouvée."
+                                    else "Adresse introuvable pour ce point."
+                            }
+                        }) {
                             Text("Trouver l'adresse")
                         }
                     }
@@ -363,30 +371,56 @@ class MainActivity : ComponentActivity() {
         } catch (_: Exception) {}
     }
 
-    private suspend fun reverseGeocodeNominatim() {
-        val lat = placeLat ?: return
-        val lng = placeLng ?: return
-        try {
-            val client = OkHttpClient()
-            val req = Request.Builder()
-                .url("https://nominatim.openstreetmap.org/reverse?lat=$lat&lon=$lng&format=jsonv2&zoom=14&accept-language=fr")
-                .header("User-Agent", "Heldonica Mobile (contact@heldonica.fr)")
-                .build()
-            val resp = client.newCall(req).execute()
-            val body = resp.body?.string() ?: return
-            // parse minimal : display_name
-            val name = Regex("\"display_name\"\\s*:\\s*\"([^\"]+)\"").find(body)?.groupValues?.get(1)
-            if (name != null) {
-                placeAddress = name
-                if (placeTitle.isBlank()) {
-                    // village/town
-                    val village = Regex("\"village\"\\s*:\\s*\"([^\"]+)\"").find(body)?.groupValues?.get(1)
-                        ?: Regex("\"town\"\\s*:\\s*\"([^\"]+)\"").find(body)?.groupValues?.get(1)
-                    if (village != null) placeTitle = village
+    /**
+     * Adresse a partir des coordonnees, via Nominatim.
+     *
+     * L'appel reseau tourne explicitement sur le fil d'entrees-sorties. Il etait
+     * lance tel quel depuis le fil principal quand on touchait le bouton :
+     * Android levait NetworkOnMainThreadException, que le catch vide effacait.
+     * Le message disait alors « adresse introuvable » alors que la requete
+     * n'etait jamais partie. Un seul appelant s'en sortait, celui de la lecture
+     * EXIF, parce qu'il basculait deja sur Dispatchers.IO.
+     *
+     * La bascule est ici, dans la fonction, et non chez ses appelants : c'est la
+     * seule facon qu'aucun ne se trompe.
+     */
+    private suspend fun reverseGeocodeNominatim(): Boolean {
+        val lat = placeLat ?: return false
+        val lng = placeLng ?: return false
+
+        val corps = withContext(Dispatchers.IO) {
+            try {
+                val client = OkHttpClient()
+                val req = Request.Builder()
+                    .url("https://nominatim.openstreetmap.org/reverse?lat=$lat&lon=$lng&format=jsonv2&zoom=14&accept-language=fr")
+                    // Nominatim exige une identification, sous peine de blocage.
+                    .header("User-Agent", "Heldonica Mobile (contact@heldonica.fr)")
+                    .build()
+
+                client.newCall(req).execute().use { resp ->
+                    if (!resp.isSuccessful) {
+                        Log.e(TAG, "Nominatim a refuse : ${resp.code}")
+                        return@withContext null
+                    }
+                    resp.body?.string()
                 }
+            } catch (e: Exception) {
+                Log.e(TAG, "Adresse indisponible", e)
+                null
             }
-            kotlinx.coroutines.delay(1100) // respect 1 req/s
-        } catch (_: Exception) {}
+        } ?: return false
+
+        val adresse = Regex("\"display_name\"\\s*:\\s*\"([^\"]+)\"")
+            .find(corps)?.groupValues?.get(1) ?: return false
+
+        placeAddress = adresse
+        if (placeTitle.isBlank()) {
+            val commune = Regex("\"village\"\\s*:\\s*\"([^\"]+)\"").find(corps)?.groupValues?.get(1)
+                ?: Regex("\"town\"\\s*:\\s*\"([^\"]+)\"").find(corps)?.groupValues?.get(1)
+                ?: Regex("\"city\"\\s*:\\s*\"([^\"]+)\"").find(corps)?.groupValues?.get(1)
+            if (commune != null) placeTitle = commune
+        }
+        return true
     }
 
     /** Point d'entree du bouton : demande la permission si besoin, puis lit. */
@@ -450,8 +484,8 @@ class MainActivity : ComponentActivity() {
         placeLng = lng
         status = "Position trouvée. Recherche de l'adresse…"
         portee.launch {
-            reverseGeocodeNominatim()
-            if (placeAddress.isBlank()) status = "Position trouvée, adresse introuvable."
+            status = if (reverseGeocodeNominatim()) "Lieu et adresse remplis."
+                else "Position trouvée, mais l'adresse est introuvable. Écris le lieu."
         }
     }
 
