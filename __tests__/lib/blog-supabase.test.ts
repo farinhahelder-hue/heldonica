@@ -48,9 +48,12 @@ describe('formatDate', () => {
       expect(result).toContain('1970');
     });
 
-    it('should handle future date', () => {
+    // Une date UTC de fin de journée bascule au lendemain à Paris. Ces deux cas
+    // l'attendaient en UTC : ils passaient en CI, qui y tourne, et échouaient
+    // sur une machine française. C'est bien le basculement qu'on vérifie ici.
+    it('bascule au 1er janvier suivant pour un 31 décembre à 23h59 UTC', () => {
       const result = formatDate('2099-12-31T23:59:59Z');
-      expect(result).toContain('2099');
+      expect(result).toBe('1 janvier 2100');
     });
 
     it('should handle first day of year', () => {
@@ -58,9 +61,9 @@ describe('formatDate', () => {
       expect(result).toContain('2024');
     });
 
-    it('should handle last day of year', () => {
+    it('bascule aussi pour le dernier jour de 2024', () => {
       const result = formatDate('2024-12-31T23:59:59Z');
-      expect(result).toContain('2024');
+      expect(result).toBe('1 janvier 2025');
     });
   });
 
