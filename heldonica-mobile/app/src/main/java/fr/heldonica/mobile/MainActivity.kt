@@ -16,8 +16,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.exifinterface.media.ExifInterface
+import androidx.lifecycle.lifecycleScope
 import androidx.work.*
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.launch
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
@@ -31,6 +34,12 @@ import java.util.concurrent.TimeUnit
  * Aucun Google Places/MAPS payant. OSM Nominatim gratuit (1 req/s, cache).
  */
 class MainActivity : ComponentActivity() {
+
+    companion object {
+        // Meme etiquette que UploadWorker, dont le TAG appartient a sa propre
+        // classe et n'est pas visible ici.
+        private const val TAG = "Heldonica"
+    }
 
     private var pickedUris by mutableStateOf<List<Uri>>(emptyList())
     private var placeTitle by mutableStateOf("")
@@ -48,11 +57,33 @@ class MainActivity : ComponentActivity() {
     // trois modes, cases a cocher, deux boutons d'envoi et quatre boutons
     // d'edition. Une trentaine d'elements presentes ensemble, sans hierarchie.
     // On n'en montre plus qu'un a la fois, avec une action evidente par ecran.
+    // Portee tenue par l'activite : le contrat de permission repond hors
+    // composition, il n'a donc pas acces au rememberCoroutineScope de l'ecran.
+    private val portee by lazy { lifecycleScope }
+
     private var ecran by mutableStateOf("accueil")
 
     // Les reglages fins restent replies : ils servent rarement, et leur
     // presence permanente noyait l'action principale.
     private var optionsOuvertes by mutableStateOf(false)
+
+    // Demande de la position, a l'execution.
+    //
+    // ACCESS_FINE_LOCATION est une permission dangereuse : la declarer au
+    // manifeste ne suffit pas depuis Android 6. Elle ne l'etait nulle part, et
+    // fused.lastLocation levait donc une SecurityException, avalee par un catch
+    // vide. Le bouton « Je suis sur place » ne faisait rien et ne le disait pas.
+    //
+    // La demande part au moment ou l'on touche le bouton, pas au lancement :
+    // c'est la seule seconde ou la raison en est evidente.
+    private val permissionPosition =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { accordee ->
+            if (accordee) {
+                portee.launch { lirePosition() }
+            } else {
+                status = "Position refusee. Écris le lieu à la main."
+            }
+        }
 
     private val picker = registerForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(10)) { uris ->
         if (uris.isNotEmpty()) {
@@ -203,7 +234,7 @@ class MainActivity : ComponentActivity() {
                     // coordonnees de toutes les photos, le lieu est a renseigner
                     // a chaque fois : elles sont donc a leur place ici.
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedButton(onClick = { scope.launch { useLiveLocationAsFallback() } }) {
+                        OutlinedButton(onClick = { demanderPosition() }) {
                             Text("Je suis sur place")
                         }
                         OutlinedButton(onClick = { scope.launch { reverseGeocodeNominatim() } }) {
@@ -358,14 +389,70 @@ class MainActivity : ComponentActivity() {
         } catch (_: Exception) {}
     }
 
-    private suspend fun useLiveLocationAsFallback() {
+    /** Point d'entree du bouton : demande la permission si besoin, puis lit. */
+    private fun demanderPosition() {
+        if (checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) ==
+            android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            portee.launch { lirePosition() }
+        } else {
+            permissionPosition.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+    }
+
+    /**
+     * Position du telephone, puis adresse.
+     *
+     * lastLocation rend la derniere position connue, qui est nulle tant qu'aucune
+     * application n'en a demande recemment — cas courant sur un telephone qui
+     * sort de la poche. On demande alors un releve neuf.
+     *
+     * Chaque issue se voit : l'ancienne version echouait en silence, y compris
+     * quand la permission manquait.
+     */
+    private suspend fun lirePosition() {
+        status = "Recherche de la position…"
         try {
             val fused = LocationServices.getFusedLocationProviderClient(this)
-            // permission déjà demandée via manifest, request si besoin
-            fused.lastLocation.addOnSuccessListener { loc ->
-                if (loc != null) { placeLat = loc.latitude; placeLng = loc.longitude }
+
+            fused.lastLocation.addOnSuccessListener { connue ->
+                if (connue != null) {
+                    retenirPosition(connue.latitude, connue.longitude)
+                    return@addOnSuccessListener
+                }
+                // Rien en cache : on interroge le capteur.
+                fused.getCurrentLocation(
+                    Priority.PRIORITY_HIGH_ACCURACY,
+                    CancellationTokenSource().token
+                )
+                    .addOnSuccessListener { fraiche ->
+                        if (fraiche != null) retenirPosition(fraiche.latitude, fraiche.longitude)
+                        else status = "Position introuvable ici. Écris le lieu à la main."
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e(TAG, "Position indisponible", e)
+                        status = "Position indisponible. Écris le lieu à la main."
+                    }
+            }.addOnFailureListener { e ->
+                Log.e(TAG, "Derniere position indisponible", e)
+                status = "Position indisponible. Écris le lieu à la main."
             }
-        } catch (_: Exception) {}
+        } catch (e: SecurityException) {
+            // Permission revoquee entre-temps.
+            Log.e(TAG, "Position refusee", e)
+            status = "Position refusee. Écris le lieu à la main."
+        }
+    }
+
+    /** Enchaine sur l'adresse : sans cela, il fallait toucher un second bouton. */
+    private fun retenirPosition(lat: Double, lng: Double) {
+        placeLat = lat
+        placeLng = lng
+        status = "Position trouvée. Recherche de l'adresse…"
+        portee.launch {
+            reverseGeocodeNominatim()
+            if (placeAddress.isBlank()) status = "Position trouvée, adresse introuvable."
+        }
     }
 
     private fun enqueueUpload(publishInstagram: Boolean) {
