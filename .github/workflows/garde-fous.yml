@@ -75,6 +75,14 @@ jobs:
       - name: Routes sans vérification
         run: npm run check:api-auth
 
+      # Écritures en base dont l'erreur n'est jamais lue. Supabase ne lève pas :
+      # il rend { data, error }. Sans nommer `error`, un échec devient un `data`
+      # null et l'appelant annonce une réussite. Cinq bugs de cette forme le
+      # 3 septembre 2026, chacun caché par le précédent — le symptôme étant
+      # toujours « rien ne se passe » ou « c'est fait » alors que rien n'est fait.
+      - name: Erreurs avalées
+        run: npm run check:erreurs-avalees
+
       # Tables référencées par le code mais absentes du schéma, et inversement.
       - name: Dérive des tables
         if: steps.secrets.outputs.presents == 'true'
