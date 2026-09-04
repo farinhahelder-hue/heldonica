@@ -29,6 +29,13 @@ jobs:
       - run: npm ci
       - run: npx tsc --noEmit
 
+      # Aucun workflow n'executait la suite de tests : 20 des 356 avaient pourri
+      # sans que personne ne le voie, dont les onze de l'authentification du CMS,
+      # qui comparaient une promesse a un booleen. Un test qui ne tourne pas ne
+      # protege rien.
+      - name: Tests
+        run: npx vitest run
+
   cms:
     name: Zones et tables CMS
     runs-on: ubuntu-latest

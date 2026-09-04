@@ -226,8 +226,11 @@ export default function CmsSettingsPanel() {
         valuesRef.current = flat;
       }
     } catch (e: any) {
+      // Le détail technique va dans la console, pas à l'écran : « Network
+      // error » ou « Failed to fetch » n'apprend rien à qui rédige, et masque
+      // la seule chose utile — que les réglages ne sont pas chargés.
       console.error('[CmsSettings] Fetch error:', e);
-      setError(e.message || 'Impossible de charger les paramètres.');
+      setError('Impossible de charger les paramètres.');
     } finally {
       setLoading(false);
     }

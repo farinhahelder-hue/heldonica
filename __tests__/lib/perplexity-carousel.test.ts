@@ -30,7 +30,8 @@ describe('Perplexity Carousel Generator', () => {
 
       expect(result).toContain('- Un titre court et accrocheur');
       expect(result).toContain('- 2-3 phrases de contenu pertinent');
-      expect(result).toContain('- Un mot-clé pour l\'image Unsplash associée');
+      // Apostrophe typographique, comme dans le prompt.
+      expect(result).toContain('- Un mot-clé pour l’image Unsplash associée');
       expect(result).toContain('"title": "Titre principal du carrousel"');
       expect(result).toContain('"slides": [');
       expect(result).toContain('"callToAction": "CTA final"');

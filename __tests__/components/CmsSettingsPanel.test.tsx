@@ -49,7 +49,9 @@ describe('CmsSettingsPanel', () => {
     render(<CmsSettingsPanel />);
 
     await waitFor(() => {
-      expect(screen.getByText('Général')).toBeTruthy();
+      // « Général » figure deux fois : entree de la barre laterale et titre de
+      // section. On verifie donc la presence, pas l'unicite.
+      expect(screen.getAllByText('Général').length).toBeGreaterThan(0);
       expect(screen.getByText('Apparence')).toBeTruthy();
       expect(screen.getByText('Réseaux sociaux')).toBeTruthy();
       expect(screen.getByText('SEO')).toBeTruthy();
@@ -97,7 +99,7 @@ describe('CmsSettingsPanel', () => {
 
     (global.fetch as any).mockResolvedValueOnce({ ok: true });
 
-    await userEvent.click(screen.getByText('Sauvegarder'));
+    await userEvent.click(screen.getByRole('button', { name: /Sauvegarder/ }));
 
     await waitFor(() => {
       expect(screen.getByText('✓ Paramètres sauvegardés')).toBeTruthy();
@@ -116,7 +118,7 @@ describe('CmsSettingsPanel', () => {
 
     (global.fetch as any).mockResolvedValueOnce({ ok: false });
 
-    await userEvent.click(screen.getByText('Sauvegarder'));
+    await userEvent.click(screen.getByRole('button', { name: /Sauvegarder/ }));
 
     await waitFor(() => {
       expect(screen.getByText('Échec de la sauvegarde.')).toBeTruthy();
@@ -147,7 +149,7 @@ describe('CmsSettingsPanel', () => {
 
     render(<CmsSettingsPanel />);
 
-    await waitFor(() => screen.getByText('Général'));
+    await waitFor(() => screen.getAllByText('Général'));
 
     await userEvent.click(screen.getByText('Maintenance'));
 

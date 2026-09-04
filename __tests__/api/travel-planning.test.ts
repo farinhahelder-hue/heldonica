@@ -113,9 +113,11 @@ describe('travel-planning API', () => {
     })
 
     it('should escape single quotes', () => {
-      const input = "It’s a beautiful day"
+      const input = "It's a beautiful day"
       const escaped = escapeHtml(input)
-      expect(escaped).toContain('&#039;')
+      const normalize = (s: string) => s.replace(/&#x27;|&#39;|&apos;/g, "'")
+      expect(normalize(escaped)).not.toContain("'")
+      expect(escaped).toMatch(/&#0?39;|&#x27;|&apos;/)
     })
 
     it('should escape ampersands', () => {
@@ -254,9 +256,10 @@ describe('travel-planning API', () => {
     })
 
     it('should handle special characters in French text', () => {
-      const frenchText = "C’est l’été, cafés & restaurants"
+      const frenchText = "C'est l'été, cafés & restaurants"
       const escaped = escapeHtml(frenchText)
-      expect(escaped).toContain("&#039;")
+      const normalize = (s: string) => s.replace(/&#x27;|&#39;|&apos;/g, "'")
+      expect(normalize(escaped)).not.toContain("'")
       expect(escaped).toContain('&amp;')
     })
   })
