@@ -44,7 +44,8 @@ describe('ConfirmDialog', () => {
       />
     );
 
-    await userEvent.click(screen.getByText('Confirmer'));
+    // Le titre du dialogue porte aussi « Confirmer » : on vise le bouton.
+    await userEvent.click(screen.getByRole('button', { name: 'Confirmer' }));
     expect(onConfirm).toHaveBeenCalledOnce();
   });
 
@@ -93,7 +94,7 @@ describe('ConfirmDialog', () => {
       />
     );
 
-    const confirmBtn = screen.getByText('Confirmer');
+    const confirmBtn = screen.getByRole('button', { name: 'Confirmer' });
     expect(confirmBtn.className).toContain('bg-red-600');
   });
 });

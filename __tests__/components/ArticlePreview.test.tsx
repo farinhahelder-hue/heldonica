@@ -54,7 +54,7 @@ describe('ArticlePreview', () => {
       />
     );
 
-    const closeBtn = screen.getByText('Aperçu de l\'article').parentElement?.querySelector('button');
+    const closeBtn = screen.getByText('Aperçu de l’article').parentElement?.querySelector('button');
     if (closeBtn) {
       await userEvent.click(closeBtn);
       expect(onClose).toHaveBeenCalledOnce();
