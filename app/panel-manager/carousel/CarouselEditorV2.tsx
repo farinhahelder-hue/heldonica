@@ -7,6 +7,7 @@ import PhotoPickerPanel from './PhotoPickerPanel'
 import FilmStripPanel from './FilmStripPanel'
 import SlideExport from './SlideExport'
 import CaptionGenerator from './CaptionGenerator'
+import { texteEnDiapositives } from './texteEnDiapositives'
 import { HELDONICA_TOKENS, SlideData, AspectRatio } from './tokens'
 
 interface CarouselEditorV2Props {
@@ -35,10 +36,25 @@ export default function CarouselEditorV2({ onComplete }: CarouselEditorV2Props) 
   const [motsCles, setMotsCles] = useState<string[]>([])
 
   // Un seul panneau ouvert a la fois, sous la barre d'actions.
-  const [panneau, setPanneau] = useState<'aucun' | 'export' | 'legende' | 'historique'>('aucun')
+  const [panneau, setPanneau] = useState<'aucun' | 'export' | 'legende' | 'historique' | 'texte'>('aucun')
   const [message, setMessage] = useState<string | null>(null)
   const [enregistrement, setEnregistrement] = useState(false)
   const [historique, setHistorique] = useState<any[] | null>(null)
+
+  const [texteColle, setTexteColle] = useState('')
+
+  /** Découpe un texte collé en diapositives. */
+  const collerTexte = () => {
+    const decoupees = texteEnDiapositives(texteColle, generateId)
+    if (decoupees.length === 0) {
+      setMessage('Rien à découper dans ce texte.')
+      return
+    }
+    setSlides(decoupees)
+    setActiveSlideId(decoupees[0].id)
+    setPanneau('aucun')
+    setMessage(`${decoupees.length} diapositive(s) créée(s) à partir du texte.`)
+  }
 
   const basculer = (cible: typeof panneau) =>
     setPanneau(p => (p === cible ? 'aucun' : cible))
@@ -276,6 +292,12 @@ export default function CarouselEditorV2({ onComplete }: CarouselEditorV2Props) 
           >
             📋 Historique
           </button>
+          <button
+            onClick={() => basculer('texte')}
+            className="px-4 py-2 text-sm bg-stone-100 text-stone-600 rounded-xl hover:bg-stone-200 transition-colors"
+          >
+            📝 Coller un texte
+          </button>
         </div>
         <div className="flex gap-2">
           <button
@@ -317,6 +339,30 @@ export default function CarouselEditorV2({ onComplete }: CarouselEditorV2Props) 
             slides={slides}
             onCaptionGenerated={(c, h) => { setLegende(c); setMotsCles(h) }}
           />
+        </div>
+      )}
+
+      {panneau === 'texte' && (
+        <div className="mt-3 bg-white rounded-2xl border border-stone-200 p-4">
+          <h3 className="font-semibold text-stone-800 text-sm mb-2">📝 Coller un texte</h3>
+          <p className="text-xs text-stone-500 mb-3">
+            Une ligne courte, ou numérotée, ouvre une diapositive. Les lignes qui
+            suivent en forment le corps. Cela remplace les diapositives actuelles.
+          </p>
+          <textarea
+            value={texteColle}
+            onChange={e => setTexteColle(e.target.value)}
+            rows={8}
+            placeholder={'1. Les portes en bois\nÀ Maramureș, chaque cour en a une…\n\n2. Le train de 4h15\nOn part avant le jour…'}
+            className="w-full px-4 py-2 text-sm border border-stone-200 rounded-xl font-mono"
+          />
+          <button
+            onClick={collerTexte}
+            disabled={!texteColle.trim()}
+            className="mt-3 px-4 py-2 text-sm bg-[#6b2a1a] text-white rounded-xl hover:bg-[#6b2a1a]/90 disabled:opacity-50 transition-colors"
+          >
+            Découper en diapositives
+          </button>
         </div>
       )}
 
