@@ -11,6 +11,8 @@ import android.text.style.ForegroundColorSpan
 import android.util.Log
 import androidx.annotation.OptIn
 import androidx.media3.common.Effect
+import androidx.media3.common.audio.ChannelMixingAudioProcessor
+import androidx.media3.common.audio.ChannelMixingMatrix
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.effect.OverlayEffect
@@ -44,7 +46,9 @@ import kotlin.coroutines.resume
  * ffmpeg-kit, la voie habituelle, retiree en 2025.
  *
  * Ce qui est fait : decouper chaque plan, y incruster du texte, les mettre bout
- * a bout. Ce qui manque encore : les transitions entre plans, et une piste son.
+ * a bout, et poser une musique par-dessus. Ce qui manque encore : les
+ * transitions entre plans, qui demandent des effets composes sur deux plans a la
+ * fois - Media3 ne les fournit pas tout faits.
  */
 
 /**
@@ -64,6 +68,23 @@ data class Plan(
     val dureeRetenueMs: Long
         get() = (if (finMs > 0) finMs else dureeMs) - debutMs
 }
+
+/**
+ * Bande son du montage.
+ *
+ * Trois choix, parce qu'aucun n'a de reponse evidente : garder le son d'origine
+ * ou non, a quel volume mettre la musique, et ce qu'on fait quand elle est plus
+ * courte que le montage.
+ */
+data class BandeSon(
+    val musique: Uri,
+    /** Le son des plans est conserve sous la musique. */
+    val garderSonOriginal: Boolean = true,
+    /** Entre 0 et 1. Baisse par defaut : la musique accompagne, elle ne couvre pas. */
+    val volumeMusique: Float = 0.35f,
+    /** Une musique plus courte que le montage reprend au debut. */
+    val enBoucle: Boolean = true,
+)
 
 sealed interface ResultatMontage {
     data class Reussi(val fichier: File, val dureeMs: Long) : ResultatMontage
@@ -116,6 +137,7 @@ private fun calqueTexte(texte: String): TextureOverlay {
 suspend fun monterVideo(
     contexte: Context,
     plans: List<Plan>,
+    bandeSon: BandeSon? = null,
 ): ResultatMontage {
     if (plans.isEmpty()) return ResultatMontage.Echoue("Aucun plan à monter.")
 
@@ -141,6 +163,12 @@ suspend fun monterVideo(
 
         EditedMediaItem.Builder(media)
             .apply {
+                // Le son des plans est retire ici, et non plus tard : Media3
+                // melange les sequences telles qu'elles arrivent, il n'y a pas
+                // d'etape ou l'on pourrait encore le faire taire.
+                if (bandeSon != null && !bandeSon.garderSonOriginal) {
+                    setRemoveAudio(true)
+                }
                 if (plan.texte.isNotBlank()) {
                     // La liste est typee explicitement : ImmutableList.of()
                     // infere ImmutableList<OverlayEffect>, la ou Effects attend
@@ -182,10 +210,34 @@ suspend fun monterVideo(
             })
             .build()
 
-        val composition = Composition.Builder(
-            // Constructeur et non Builder : celui-ci n'arrive qu'en 1.6.
-            listOf(EditedMediaItemSequence(morceaux))
-        ).build()
+        // Constructeur et non Builder : celui-ci n'arrive qu'en 1.6.
+        val sequences = mutableListOf(EditedMediaItemSequence(morceaux))
+
+        if (bandeSon != null) {
+            // Le volume passe par un melangeur de canaux : c'est le seul moyen
+            // d'attenuer une piste dans Media3. Sans lui, la musique arrive a
+            // plein niveau et couvre tout.
+            val melangeur = ChannelMixingAudioProcessor().apply {
+                putChannelMixingMatrix(
+                    ChannelMixingMatrix.create(1, 1).scaleBy(bandeSon.volumeMusique)
+                )
+                putChannelMixingMatrix(
+                    ChannelMixingMatrix.create(2, 2).scaleBy(bandeSon.volumeMusique)
+                )
+            }
+
+            val piste = EditedMediaItem.Builder(MediaItem.fromUri(bandeSon.musique))
+                .setRemoveVideo(true)
+                .setEffects(Effects(listOf(melangeur), emptyList()))
+                .build()
+
+            // La duree du montage est celle de la premiere sequence. En boucle,
+            // une musique plus courte reprend au debut ; sinon elle s'arrete et
+            // la fin du montage reste muette.
+            sequences += EditedMediaItemSequence(listOf(piste), bandeSon.enBoucle)
+        }
+
+        val composition = Composition.Builder(sequences).build()
 
         transformer.start(composition, sortie.absolutePath)
 
