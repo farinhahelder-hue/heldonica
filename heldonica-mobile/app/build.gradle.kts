@@ -97,4 +97,15 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.2.0")
     implementation("androidx.exifinterface:exifinterface:1.3.7")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    // Montage video, sur le telephone.
+    //
+    // L'assemblage vivait cote serveur, dans une route qui appelait
+    // fluent-ffmpeg : elle ne pouvait pas fonctionner, les fonctions Vercel
+    // n'embarquant pas le binaire ffmpeg. Media3 Transformer s'appuie sur
+    // MediaCodec, donc sur l'encodeur materiel du telephone - rien a embarquer,
+    // contrairement a ffmpeg-kit, retire en 2025.
+    implementation("androidx.media3:media3-transformer:1.10.1")
+    implementation("androidx.media3:media3-effect:1.10.1")
+    implementation("androidx.media3:media3-common:1.10.1")
 }
