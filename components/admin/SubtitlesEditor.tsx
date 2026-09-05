@@ -58,6 +58,8 @@ export default function SubtitlesEditor() {
     error: null,
   });
   
+  const [fichier, setFichier] = useState<File | null>(null);
+
   const [editingSubtitle, setEditingSubtitle] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
   const [editStart, setEditStart] = useState(0);
@@ -70,6 +72,9 @@ export default function SubtitlesEditor() {
     if (!file) return;
 
     const url = URL.createObjectURL(file);
+    // Le fichier est garde a part : l'URL blob sert a l'apercu, mais on ne peut
+    // pas la deposer sur le stockage — il faut les octets.
+    setFichier(file);
     setState(prev => ({
       ...prev,
       videoUrl: url,
@@ -90,25 +95,104 @@ export default function SubtitlesEditor() {
   }, []);
 
   /**
-   * Transcription automatique : non branchee.
+   * Transcription par Whisper, chez Groq.
    *
-   * Ce bouton simulait un appel a Whisper puis inserait six sous-titres ecrits
-   * en dur - « Bienvenue dans cette aventure », « au coeur du Portugal » - quelle
-   * que soit la video chargee. Rien ne signalait qu'ils etaient inventes : on
-   * pouvait les exporter tels quels, sous une video tournee ailleurs.
+   * Ce bouton insérait auparavant six sous-titres écrits en dur — « Bienvenue
+   * dans cette aventure », « au cœur du Portugal » — quelle que soit la vidéo,
+   * et rien ne signalait qu'ils étaient inventés : on pouvait les exporter tels
+   * quels, sous une vidéo tournée ailleurs. Ce qui sort d'ici est ce qui a été
+   * dit.
    *
-   * Tant qu'aucun service de transcription n'est relie, le bouton le dit. Les
-   * sous-titres s'ecrivent a la main, avec « Ajouter un sous-titre ».
+   * Le fichier est choisi dans le navigateur, donc absent du serveur. Il est
+   * déposé sur le stockage du site par URL signée — le même chemin que
+   * l'application mobile, et pour la même raison : la requête entrante d'une
+   * fonction Vercel plafonne à 4,5 Mo, une vidéo n'y passerait jamais. Seule son
+   * adresse part ensuite vers la route de transcription.
    */
   const generateSubtitles = useCallback(async () => {
-    setState(prev => ({
-      ...prev,
-      isTranscribing: false,
-      error:
-        "La transcription automatique n'est pas encore branchee. " +
-        "Ajoute tes sous-titres a la main ci-dessous.",
-    }));
-  }, []);
+    if (!fichier) {
+      setState(prev => ({ ...prev, error: "Choisis d'abord une vidéo." }));
+      return;
+    }
+
+    setState(prev => ({ ...prev, isTranscribing: true, error: null }));
+
+    try {
+      // 1. URL de dépôt.
+      const resUrl = await fetch('/api/cms/mobile-publish/upload-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fichiers: [fichier.name], dossier: 'transcriptions' }),
+      });
+      if (!resUrl.ok) {
+        setState(prev => ({
+          ...prev,
+          isTranscribing: false,
+          error: resUrl.status === 401
+            ? 'Session expirée : reconnecte-toi au panneau.'
+            : "Le dépôt de la vidéo a été refusé.",
+        }));
+        return;
+      }
+      const { cibles } = await resUrl.json();
+      const cible = cibles?.[0];
+
+      // 2. Dépôt du fichier.
+      const depot = await fetch(cible.signedUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': fichier.type || 'video/mp4' },
+        body: fichier,
+      });
+      if (!depot.ok) {
+        setState(prev => ({
+          ...prev,
+          isTranscribing: false,
+          error: "La vidéo n'a pas pu être déposée.",
+        }));
+        return;
+      }
+
+      // 3. Transcription.
+      const resTr = await fetch('/api/cms/transcrire', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: cible.url }),
+      });
+      const donnees = await resTr.json().catch(() => ({}));
+
+      if (!resTr.ok) {
+        setState(prev => ({
+          ...prev,
+          isTranscribing: false,
+          error: donnees?.error || "La transcription a échoué.",
+        }));
+        return;
+      }
+
+      const transcrits: Subtitle[] = (donnees.segments || []).map(
+        (seg: { debut: number; fin: number; texte: string }, i: number) => {
+          const corrige = applyBrandCorrections(seg.texte);
+          return {
+            id: String(i + 1),
+            startTime: seg.debut,
+            endTime: seg.fin,
+            text: corrige,
+            isEdited: false,
+            isCorrected: corrige !== seg.texte,
+          };
+        }
+      );
+
+      setState(prev => ({ ...prev, subtitles: transcrits, isTranscribing: false }));
+    } catch (err) {
+      console.error('Transcription error:', err);
+      setState(prev => ({
+        ...prev,
+        isTranscribing: false,
+        error: 'Transcription impossible : réseau injoignable.',
+      }));
+    }
+  }, [fichier, applyBrandCorrections]);
 
   // Apply corrections to all subtitles
   const applyAllCorrections = useCallback(() => {
