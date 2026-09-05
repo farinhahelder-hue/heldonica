@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireCmsAuth } from '@/lib/cms-auth'
 
 // Verified local attractions to prevent AI hallucinations
 const VERIFIED_GUIDE: Record<string, any> = {
@@ -36,6 +37,12 @@ function getGuideForTopic(topic: string): string {
 }
 
 export async function POST(request: NextRequest) {
+// Sans verification, l'appel a l'API Groq se faisait avec la cle du site pour
+// qui le demandait : un POST anonyme suffisait a consommer le quota. La route
+// sert au panneau, dont la session suffit.
+  const refus = await requireCmsAuth(request as unknown as Request)
+  if (refus) return refus
+
   const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
   const UNSPLASH_ACCESS_KEY = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY || '';
   

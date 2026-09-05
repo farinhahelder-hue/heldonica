@@ -34,6 +34,25 @@ const AUTH = /requireCmsAuth|getCmsAuthStatus|isAuthorized|CRON_SECRET|x-cms-aut
 
 const SERVICE = /SUPABASE_SERVICE_ROLE_KEY|SUPABASE_SERVICE_KEY/
 
+/**
+ * Clés de tiers facturées à l'usage.
+ *
+ * Ce script ne surveillait que la clé service. Trois routes de génération —
+ * /api/blog/generate, /api/blog/rewrite, /api/carousel/generate — appelaient
+ * l'API Groq sans aucune vérification : un POST anonyme suffisait à consommer
+ * le quota du compte. Elles ne touchaient pas la base, donc rien ne les voyait.
+ *
+ * Une route ouverte qui dépense de l'argent mérite le même garde-fou qu'une
+ * route ouverte qui écrit en base.
+ */
+const PAYANTES = /GROQ_API_KEY|OPENAI_API_KEY|PERPLEXITY_API_KEY|ANTHROPIC_API_KEY|GEMINI_API_KEY|RESEND_API_KEY|UNSPLASH_ACCESS_KEY|BREVO_API_KEY|REPLICATE|ELEVENLABS/
+
+/**
+ * Une limite de débit tient lieu de garde sur un formulaire public : elle
+ * n'empêche pas l'appel, elle en borne le coût.
+ */
+const DEBIT = /checkRateLimit|rateLimit\s*\(/
+
 const VERBE_EXPORTE = /export\s+(?:async\s+)?function\s+(GET|POST|PATCH|PUT|DELETE|HEAD|OPTIONS)\s*\(/g
 const FONCTION_LOCALE = /(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(|const\s+([A-Za-z_$][\w$]*)\s*=\s*(?:async\s*)?\(/g
 
@@ -48,11 +67,17 @@ const EXCEPTIONS = new Map([
   ['app/api/demandes-travel/route.ts POST', 'Formulaire public.'],
   ['app/api/travel-planning/route.ts POST', 'Formulaire public.'],
   ['app/api/webhooks/instagram/route.ts GET', "Poignee de main de verification exigee par Meta, sans corps a signer."],
+  ['app/api/guides/download/route.ts POST', "Aimant a prospects : un visiteur echange son courriel contre un guide. Ecriture publique assumee, bornee par checkRateLimit."],
 ])
 
 /** Les lectures sous /api/cms alimentent le site public : le middleware les ouvre. */
 function lectureCmsPublique(fichier, verbe) {
   return fichier.startsWith('app/api/cms') && (verbe === 'GET' || verbe === 'HEAD' || verbe === 'OPTIONS')
+}
+
+/** Le middleware garde /api/agents quelle que soit la méthode. */
+function gardeParMiddleware(fichier) {
+  return fichier.startsWith('app/api/agents')
 }
 
 function fichiersRoute(dossier) {
@@ -101,7 +126,8 @@ const exceptionsVues = new Set()
 for (const chemin of fichiersRoute(RACINE)) {
   const fichier = chemin.split(path.sep).join('/')
   const source = fs.readFileSync(chemin, 'utf8')
-  if (!SERVICE.test(source)) continue
+  const depense = PAYANTES.test(source)
+  if (!SERVICE.test(source) && !depense) continue
 
   const delegues = fonctionsQuiVerifient(source)
 
@@ -110,7 +136,11 @@ for (const chemin of fichiersRoute(RACINE)) {
 
     if (EXCEPTIONS.has(cle)) { exceptionsVues.add(cle); continue }
     if (lectureCmsPublique(fichier, verbe)) continue
+    if (gardeParMiddleware(fichier)) continue
     if (AUTH.test(corps)) continue
+    // Un formulaire public qui ne fait que dépenser est acceptable s'il borne
+    // son débit ; une route qui touche la base, non.
+    if (depense && !SERVICE.test(source) && DEBIT.test(corps)) continue
     if ([...delegues].some(n => new RegExp(`\\b${n}\\s*\\(`).test(corps))) continue
 
     // Un verbe qui se contente d'en appeler un autre hérite de sa garde :
@@ -133,8 +163,9 @@ if (nus.length === 0) {
   for (const c of nus) console.error('    ' + c)
   console.error(
     '\n  Ajoute requireCmsAuth au début du gestionnaire. Si la route doit rester\n' +
-    '  publique, inscris-la dans EXCEPTIONS avec sa raison — et pèse-la : la clé\n' +
-    '  service ignore les règles de sécurité de la base.'
+    '  publique, borne son débit avec checkRateLimit, ou inscris-la dans\n' +
+    '  EXCEPTIONS avec sa raison — et pèse-la : la clé service ignore les règles\n' +
+    '  de sécurité de la base, et une clé de tiers se paie à chaque appel.'
   )
 }
 

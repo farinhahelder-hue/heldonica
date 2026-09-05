@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { NextRequest, NextResponse } from 'next/server'
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
 
 const BREVO_API_KEY = process.env.BREVO_API_KEY
 const BREVO_API_URL = 'https://api.brevo.com/v3'
@@ -60,6 +61,17 @@ async function notifyViaBrevo(email: string, data: HotelierLead): Promise<boolea
 }
 
 export async function POST(req: NextRequest) {
+  // Ce formulaire envoie un courriel a chaque soumission, aux frais du
+  // compte Resend. Ses trois voisins etaient limites, celui-ci non : rien
+  // n'empechait d'en declencher autant qu'on voulait.
+  const debit = checkRateLimit(getClientIp(req), { limit: 5, prefix: 'expert-hotelier' })
+  if (!debit.success) {
+    return NextResponse.json(
+      { error: 'Trop de demandes. Réessaie dans un instant.' },
+      { status: 429 }
+    )
+  }
+
   try {
     const body = await req.json()
     const { name, email, establishment, city, website, type, rooms, directBookingsShare, message, rgpd } = body
