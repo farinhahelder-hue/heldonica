@@ -39,7 +39,15 @@ export async function POST(req: NextRequest) {
   const sb = getSupabase()
   if (!sb) return NextResponse.json({ error: 'Supabase non configure' }, { status: 503 })
 
-  const { fichiers } = (await req.json().catch(() => ({}))) as { fichiers?: string[] }
+  const { fichiers, dossier } = (await req.json().catch(() => ({}))) as {
+    fichiers?: string[]
+    dossier?: string
+  }
+
+  // Le dossier separe les origines : « mobile » pour l'application, « carrousels »
+  // pour l'editeur. Il vient du client, donc on ne garde que des caracteres surs
+  // plutot que de faire confiance a la chaine recue.
+  const rangement = String(dossier || 'mobile').replace(/[^a-z0-9_-]/gi, '') || 'mobile'
 
   if (!Array.isArray(fichiers) || fichiers.length === 0) {
     return NextResponse.json({ error: 'Liste `fichiers` requise' }, { status: 400 })
@@ -54,7 +62,7 @@ export async function POST(req: NextRequest) {
     // Le nom vient du telephone : on ne garde que des caracteres surs et on
     // prefixe d'un horodatage, pour qu'aucun envoi n'ecrase le precedent.
     const sain = String(nom).replace(/[^a-zA-Z0-9._-]/g, '_').slice(-80) || 'media.jpg'
-    const chemin = `mobile/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${sain}`
+    const chemin = `${rangement}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${sain}`
 
     const { data, error } = await sb.storage.from(BUCKET).createSignedUploadUrl(chemin)
     if (error) {

@@ -11,12 +11,18 @@ interface SlideExportProps {
   aspectRatio: AspectRatio
   brandOverlay: boolean
   title: string
+  /** Légende et mots-clés, pour l'envoi vers la file Instagram. */
+  legende?: string
+  motsCles?: string[]
 }
 
-export default function SlideExport({ slides, aspectRatio, brandOverlay, title }: SlideExportProps) {
+export default function SlideExport({
+  slides, aspectRatio, brandOverlay, title, legende, motsCles,
+}: SlideExportProps) {
   const [isExporting, setIsExporting] = useState(false)
   const [progress, setProgress] = useState(0)
   const [error, setError] = useState<string | null>(null)
+  const [envoi, setEnvoi] = useState<string | null>(null)
 
   const ratio = HELDONICA_TOKENS.aspectRatios[aspectRatio]
   const tokens = HELDONICA_TOKENS.colors
@@ -252,9 +258,122 @@ export default function SlideExport({ slides, aspectRatio, brandOverlay, title }
     }
   }
 
+  /**
+   * Dépose le carrousel dans la file Instagram, en brouillon.
+   *
+   * Jusqu'ici l'éditeur s'arrêtait à un ZIP : les images atterrissaient dans le
+   * dossier de téléchargement, et il fallait les reprendre à la main dans
+   * l'application Instagram. Le carrousel rejoint maintenant la même file que
+   * les brouillons envoyés depuis le téléphone.
+   *
+   * Rien n'est publié : l'entrée arrive en `draft`, comme tout le reste.
+   */
+  const envoyerVersInstagram = async () => {
+    if (slides.length < 2) {
+      setEnvoi('Un carrousel Instagram demande au moins deux diapositives.')
+      return
+    }
+
+    setIsExporting(true)
+    setEnvoi(null)
+    setError(null)
+    setProgress(0)
+
+    try {
+      // 1. Rendu de chaque diapositive.
+      const images: Blob[] = []
+      for (let i = 0; i < slides.length; i++) {
+        setProgress(Math.round((i / slides.length) * 60))
+        const blob = await exportSingleSlide(slides[i], aspectRatio)
+        if (!blob) {
+          setEnvoi(`La diapositive ${i + 1} n'a pas pu être rendue. Envoi interrompu.`)
+          return
+        }
+        images.push(blob)
+      }
+
+      // 2. URL de dépôt signées : les octets vont au stockage sans passer par
+      //    une fonction serveur, dont la requête plafonne à 4,5 Mo.
+      setProgress(65)
+      const noms = images.map((_, i) => `carrousel-${String(i + 1).padStart(2, '0')}.png`)
+      const resUrls = await fetch('/api/cms/mobile-publish/upload-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fichiers: noms, dossier: 'carrousels' }),
+      })
+      if (!resUrls.ok) {
+        setEnvoi(
+          resUrls.status === 401
+            ? 'Session expirée : reconnecte-toi au panneau.'
+            : "Le dépôt des images a été refusé."
+        )
+        return
+      }
+      const { cibles } = await resUrls.json()
+
+      // 3. Dépôt.
+      const urls: string[] = []
+      for (let i = 0; i < cibles.length; i++) {
+        setProgress(65 + Math.round((i / cibles.length) * 25))
+        const dep = await fetch(cibles[i].signedUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'image/png' },
+          body: images[i],
+        })
+        if (!dep.ok) {
+          setEnvoi(`Le dépôt de l'image ${i + 1} a échoué. Envoi interrompu.`)
+          return
+        }
+        urls.push(cibles[i].url)
+      }
+
+      // 4. Entrée dans la file, en brouillon.
+      setProgress(95)
+      const texte = [legende, (motsCles || []).join(' ')].filter(Boolean).join('\n\n')
+      const resFile = await fetch('/api/instagram/scheduled', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image_url: urls[0],
+          caption: texte.slice(0, 2200),
+          hashtags: motsCles || [],
+          // Sans le type et la liste complète, la file ne verrait que la
+          // première diapositive.
+          metadata: { type: 'CAROUSEL', children: urls, titre: title || null },
+        }),
+      })
+      if (!resFile.ok) {
+        setEnvoi("Les images sont déposées, mais l'entrée dans la file a été refusée.")
+        return
+      }
+
+      setProgress(100)
+      setEnvoi(
+        `Carrousel de ${urls.length} images déposé en brouillon. ` +
+        'Retrouve-le dans Instagram → Posts programmés.'
+      )
+    } catch {
+      setEnvoi("Envoi impossible : réseau injoignable.")
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
   return (
     <div className="bg-white rounded-2xl border border-stone-200 p-4">
       <h3 className="font-semibold text-stone-800 text-sm mb-3">📥 Export PNG</h3>
+
+      <button
+        onClick={envoyerVersInstagram}
+        disabled={isExporting || slides.length < 2}
+        className="w-full mb-3 px-4 py-2.5 text-sm font-medium bg-[#6b2a1a] text-white rounded-xl hover:bg-[#6b2a1a]/90 disabled:opacity-50 transition-colors"
+      >
+        📤 Envoyer vers Instagram (brouillon)
+      </button>
+
+      {envoi && (
+        <p className="mb-3 text-xs text-stone-600 bg-stone-50 rounded-lg p-2">{envoi}</p>
+      )}
       
       <div className="space-y-3">
         <div className="text-xs text-stone-500 bg-stone-50 rounded-lg p-2">

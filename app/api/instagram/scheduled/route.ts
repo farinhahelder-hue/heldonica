@@ -55,7 +55,10 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { image_url, caption, hashtags, scheduled_at, article_id } = body;
+    // `metadata` porte le type de publication et, pour un carrousel, les URL de
+    // toutes ses images. Sans elle, un carrousel arrivait dans la file comme une
+    // image seule : les autres diapositives étaient déposées puis oubliées.
+    const { image_url, caption, hashtags, scheduled_at, article_id, metadata } = body;
 
     if (!image_url) {
       return NextResponse.json({ error: 'image_url is required' }, { status: 400 });
@@ -72,6 +75,7 @@ export async function POST(request: NextRequest) {
         scheduled_at: scheduled_at || null,
         status: scheduled_at ? 'scheduled' : 'draft',
         article_id: article_id || null,
+        metadata: metadata ?? null,
       })
       .select()
       .single();
