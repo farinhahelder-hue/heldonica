@@ -94,6 +94,44 @@ function sectionDepuisUrl(valeur: string | null): NavSection | null {
   return SECTIONS_URL.find((s) => s === valeur) ?? null
 }
 
+/**
+ * Accueil guide du panneau.
+ *
+ * Le tableau de bord ouvrait sur huit compteurs - « Auteurs », « Tags uniques » -
+ * puis une barre de vingt-sept entrees. Rien n'y disait par ou commencer pour
+ * alimenter le site, ce qui est pourtant la seule raison d'ouvrir cet ecran.
+ *
+ * On reprend ce qui a marche sur l'accueil de l'application : une question, peu
+ * de cartes, et pour chacune ce qu'elle fait en une phrase. L'aide de l'IA est
+ * nommee la ou elle existe reellement - et seulement la.
+ */
+function CarteAction({
+  titre, detail, aide, principale, onClick,
+}: {
+  titre: string
+  detail: string
+  aide?: string
+  principale?: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full text-left rounded-2xl border p-5 transition-colors ${
+        principale
+          ? 'border-teal/30 bg-teal/5 hover:bg-teal/10'
+          : 'border-gray-100 bg-white hover:bg-gray-50'
+      }`}
+    >
+      <div className="font-semibold text-gray-900">{titre}</div>
+      <div className="text-sm text-gray-500 mt-1">{detail}</div>
+      {aide && (
+        <div className="text-xs text-teal mt-2">✨ {aide}</div>
+      )}
+    </button>
+  )
+}
+
 function CmsAdminClientInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -726,7 +764,51 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
           {/* ── Dashboard ── */}
           {activeSection === 'dashboard' && (
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-6">Tableau de bord</h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">Que veux-tu faire ?</h1>
+              <p className="text-sm text-gray-500 mb-6">
+                Rien n&apos;est publié sans ton accord : tout arrive en brouillon.
+              </p>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+                {articles.filter(a => a.status === 'draft').length > 0 && (
+                  <CarteAction
+                    principale
+                    titre={`Relire ${articles.filter(a => a.status === 'draft').length} brouillon(s)`}
+                    detail="Ce qui est arrivé du téléphone ou de l'import attend ta relecture."
+                    onClick={() => { setStatusFilter('draft'); navigateTo('articles') }}
+                  />
+                )}
+
+                <CarteAction
+                  titre="Écrire un carnet"
+                  detail="Partir d'une page blanche, ou reprendre un brouillon."
+                  onClick={() => navigateTo('new-article')}
+                />
+
+                <CarteAction
+                  titre="Composer un carrousel Instagram"
+                  detail="Des diapositives, tes photos, puis un brouillon dans la file."
+                  aide="L'assistant propose les diapositives, tu corriges."
+                  onClick={() => navigateTo('carousel')}
+                />
+
+                <CarteAction
+                  titre="Importer les photos du voyage"
+                  detail="Depuis Google Photos vers la médiathèque, avec leur date."
+                  onClick={() => { window.location.href = '/panel-manager/photos' }}
+                />
+
+                <CarteAction
+                  titre="Partir d'une idée"
+                  detail="Décris ce que tu as vécu, l'assistant met en forme un brouillon."
+                  aide="Tu gardes la main : rien n'est publié sans relecture."
+                  onClick={() => navigateTo('blog-generator')}
+                />
+              </div>
+
+              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                Où en est le site
+              </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="bg-white rounded-xl p-5 border border-gray-100">
                   <div className="text-2xl font-bold text-[#2D8B7A]">{articles.length}</div>
