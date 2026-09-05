@@ -10,6 +10,7 @@ import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
 import android.util.Log
 import androidx.annotation.OptIn
+import androidx.media3.common.Effect
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.effect.OverlayEffect
@@ -141,14 +142,12 @@ suspend fun monterVideo(
         EditedMediaItem.Builder(media)
             .apply {
                 if (plan.texte.isNotBlank()) {
-                    setEffects(
-                        Effects(
-                            /* audioProcessors = */ ImmutableList.of(),
-                            /* videoEffects = */ ImmutableList.of(
-                                OverlayEffect(ImmutableList.of(calqueTexte(plan.texte)))
-                            )
-                        )
-                    )
+                    // La liste est typee explicitement : ImmutableList.of()
+                    // infere ImmutableList<OverlayEffect>, la ou Effects attend
+                    // une List<Effect>, et Kotlin refuse la conversion.
+                    val effetsVideo: List<Effect> =
+                        listOf(OverlayEffect(ImmutableList.of(calqueTexte(plan.texte))))
+                    setEffects(Effects(emptyList(), effetsVideo))
                 }
             }
             .build()
