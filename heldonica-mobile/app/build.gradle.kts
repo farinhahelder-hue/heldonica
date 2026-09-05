@@ -105,7 +105,11 @@ dependencies {
     // n'embarquant pas le binaire ffmpeg. Media3 Transformer s'appuie sur
     // MediaCodec, donc sur l'encodeur materiel du telephone - rien a embarquer,
     // contrairement a ffmpeg-kit, retire en 2025.
-    implementation("androidx.media3:media3-transformer:1.10.1")
-    implementation("androidx.media3:media3-effect:1.10.1")
-    implementation("androidx.media3:media3-common:1.10.1")
+    //
+    // Version 1.4.1 et non la derniere : a partir de 1.5, Media3 exige
+    // compileSdk 36, que l'AGP 8.4 de ce projet ne sait pas viser. Monter toute
+    // la chaine de build pour cette seule dependance serait disproportionne.
+    implementation("androidx.media3:media3-transformer:1.4.1")
+    implementation("androidx.media3:media3-effect:1.4.1")
+    implementation("androidx.media3:media3-common:1.4.1")
 }

@@ -105,7 +105,8 @@ suspend fun monterVideo(
             .build()
 
         val composition = Composition.Builder(
-            listOf(EditedMediaItemSequence.Builder(morceaux).build())
+            // Constructeur et non Builder : celui-ci n'arrive qu'en 1.6.
+            listOf(EditedMediaItemSequence(morceaux))
         ).build()
 
         transformer.start(composition, sortie.absolutePath)
