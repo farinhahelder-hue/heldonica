@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireCmsAuth } from '@/lib/cms-auth'
 
 const HELDONICA_SYSTEM_PROMPT = `Tu es l'assistant de voix de marque Heldonica. Réécris le texte fourni en adaptant le ton au slow travel:
 
@@ -13,6 +14,12 @@ RÈGLES:
 `;
 
 export async function POST(req: NextRequest) {
+// Sans verification, l'appel a l'API Groq se faisait avec la cle du site pour
+// qui le demandait : un POST anonyme suffisait a consommer le quota. La route
+// sert au panneau, dont la session suffit.
+  const refus = await requireCmsAuth(req as unknown as Request)
+  if (refus) return refus
+
   try {
     const { text } = await req.json();
     if (!text?.trim()) {

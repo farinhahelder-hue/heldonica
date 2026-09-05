@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase-client'
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
@@ -32,6 +33,17 @@ async function subscribeToBrevo(email: string, destinationSlug: string): Promise
 }
 
 export async function POST(request: NextRequest) {
+  // Route publique par nature : on echange son courriel contre un guide.
+  // Elle ecrit malgre tout en base avec la cle service, et rien n'empechait
+  // d'en declencher autant qu'on voulait.
+  const debit = checkRateLimit(getClientIp(request), { limit: 5, prefix: 'guide-download' })
+  if (!debit.success) {
+    return NextResponse.json(
+      { error: 'Trop de demandes. Réessaie dans un instant.' },
+      { status: 429 }
+    )
+  }
+
   try {
     const { destinationSlug, email } = await request.json()
 
