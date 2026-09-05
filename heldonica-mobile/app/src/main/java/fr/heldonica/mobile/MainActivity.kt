@@ -13,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.exifinterface.media.ExifInterface
@@ -69,6 +70,31 @@ class MainActivity : ComponentActivity() {
     private var plans by mutableStateOf<List<Plan>>(emptyList())
     private var montageEnCours by mutableStateOf(false)
     private var messageMontage by mutableStateOf<String?>(null)
+
+    // Bande son : nulle tant qu'aucune musique n'est choisie.
+    private var musique by mutableStateOf<Uri?>(null)
+    private var nomMusique by mutableStateOf("")
+    private var garderSonOriginal by mutableStateOf(true)
+    private var volumeMusique by mutableStateOf(0.35f)
+
+    // Le selecteur de photos ne montre pas les fichiers audio : on passe par le
+    // selecteur de documents.
+    private val selecteurMusique =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            if (uri != null) {
+                // Sans cette permission persistante, l'URI cesse d'etre lisible
+                // des que l'application repasse en arriere-plan, et le montage
+                // echoue au moment ou l'on croit avoir tout regle.
+                runCatching {
+                    contentResolver.takePersistableUriPermission(
+                        uri, android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                }
+                musique = uri
+                nomMusique = uri.lastPathSegment?.substringAfterLast('/') ?: "musique"
+                messageMontage = "Musique choisie."
+            }
+        }
 
     private val selecteurVideos =
         registerForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(6)) { uris ->
@@ -237,6 +263,68 @@ class MainActivity : ComponentActivity() {
                 )
             }
 
+            if (plans.isNotEmpty()) {
+                Card(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Musique", style = MaterialTheme.typography.titleMedium)
+
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedButton(
+                                onClick = { selecteurMusique.launch(arrayOf("audio/*")) },
+                                enabled = !montageEnCours
+                            ) { Text(if (musique == null) "Choisir" else "Changer") }
+
+                            if (musique != null) {
+                                TextButton(
+                                    onClick = { musique = null; nomMusique = "" },
+                                    enabled = !montageEnCours
+                                ) { Text("Retirer") }
+                            }
+                        }
+
+                        if (musique == null) {
+                            Text(
+                                "Aucune musique : le montage garde le son des plans.",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        } else {
+                            Text(nomMusique, style = MaterialTheme.typography.bodySmall)
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Checkbox(
+                                    checked = garderSonOriginal,
+                                    onCheckedChange = { garderSonOriginal = it },
+                                    enabled = !montageEnCours
+                                )
+                                Text(
+                                    "Garder aussi le son des plans",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+
+                            Text(
+                                "Volume de la musique : ${(volumeMusique * 100).toInt()} %",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                            Slider(
+                                value = volumeMusique,
+                                onValueChange = { volumeMusique = it },
+                                valueRange = 0f..1f,
+                                enabled = !montageEnCours,
+                            )
+
+                            Text(
+                                "Plus courte que le montage, elle reprend au début.",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
+                }
+            }
+
             Button(
                 onClick = { lancerMontage() },
                 enabled = plans.isNotEmpty() && !montageEnCours,
@@ -254,7 +342,7 @@ class MainActivity : ComponentActivity() {
             )
 
             Text(
-                "Pas encore possible : les transitions entre plans, et la musique.",
+                "Pas encore possible : les transitions entre plans.",
                 style = MaterialTheme.typography.bodySmall
             )
         }
@@ -327,7 +415,14 @@ class MainActivity : ComponentActivity() {
         montageEnCours = true
         messageMontage = "Montage en cours…"
         portee.launch {
-            when (val r = monterVideo(this@MainActivity, plans)) {
+            val bande = musique?.let {
+                BandeSon(
+                    musique = it,
+                    garderSonOriginal = garderSonOriginal,
+                    volumeMusique = volumeMusique,
+                )
+            }
+            when (val r = monterVideo(this@MainActivity, plans, bande)) {
                 is ResultatMontage.Reussi -> {
                     val secondes = r.dureeMs / 1000
                     pickedUris = listOf(Uri.fromFile(r.fichier))
