@@ -65,6 +65,19 @@ class MainActivity : ComponentActivity() {
 
     private var ecran by mutableStateOf("accueil")
 
+    // Montage video : les plans choisis, leurs bornes, et l'avancement.
+    private var plans by mutableStateOf<List<Plan>>(emptyList())
+    private var montageEnCours by mutableStateOf(false)
+    private var messageMontage by mutableStateOf<String?>(null)
+
+    private val selecteurVideos =
+        registerForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(6)) { uris ->
+            if (uris.isNotEmpty()) {
+                plans = uris.map { Plan(it) }
+                messageMontage = "${uris.size} plan(s) choisi(s)."
+            }
+        }
+
     // Les reglages fins restent replies : ils servent rarement, et leur
     // presence permanente noyait l'action principale.
     private var optionsOuvertes by mutableStateOf(false)
@@ -128,11 +141,16 @@ class MainActivity : ComponentActivity() {
                 principale = true
             ) { ecran = "publier" }
 
+            CarteAction(
+                titre = "Monter une vidéo",
+                detail = "Mettre plusieurs plans bout à bout, puis en faire un brouillon."
+            ) { ecran = "montage" }
+
+            Text("Modifier le site", style = MaterialTheme.typography.titleMedium)
+
             // Chaque carte ouvre directement sa section du panneau. Sans le
             // parametre, toutes arrivaient sur le tableau de bord et il fallait
             // retrouver la bonne entree dans une barre laterale etroite.
-            Text("Modifier le site", style = MaterialTheme.typography.titleMedium)
-
             CarteAction(
                 titre = "Articles et carnets",
                 detail = "Écrire, corriger, relire ce qui est en brouillon."
@@ -157,6 +175,85 @@ class MainActivity : ComponentActivity() {
                 "Rien n'est publié sans ton accord : tout arrive en brouillon.",
                 style = MaterialTheme.typography.bodySmall
             )
+        }
+    }
+
+    /**
+     * Montage : choisir des plans, les mettre bout a bout, en faire un brouillon.
+     *
+     * Le resultat rejoint le parcours de publication existant plutot que d'avoir
+     * son propre envoi : une fois monte, le fichier devient le media choisi, et
+     * l'ecran « Publier » s'occupe du reste.
+     *
+     * Les bornes de decoupe ne sont pas encore reglables ici — les plans partent
+     * entiers. C'est la brique suivante, et l'ecran le dit plutot que de laisser
+     * chercher un reglage absent.
+     */
+    @Composable
+    fun EcranMontage(modifier: Modifier = Modifier) {
+        Column(
+            modifier
+                .verticalScroll(rememberScrollState())
+                .padding(20.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Button(
+                onClick = {
+                    selecteurVideos.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly)
+                    )
+                },
+                enabled = !montageEnCours
+            ) { Text("Choisir des vidéos") }
+
+            messageMontage?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+
+            if (plans.isNotEmpty()) {
+                Text(
+                    "${plans.size} plan(s), dans cet ordre. Ils seront mis bout à bout, " +
+                    "entiers — la découpe viendra plus tard.",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
+            Button(
+                onClick = { lancerMontage() },
+                enabled = plans.size >= 2 && !montageEnCours,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(if (montageEnCours) "Montage en cours…" else "Monter la vidéo")
+            }
+
+            if (montageEnCours) LinearProgressIndicator(Modifier.fillMaxWidth())
+
+            Text(
+                "Le montage se fait sur le téléphone : garde l'application ouverte. " +
+                "Une fois fini, la vidéo arrive dans l'écran Publier.",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+
+    /** Lance le montage, puis bascule vers la publication. */
+    private fun lancerMontage() {
+        montageEnCours = true
+        messageMontage = "Montage en cours…"
+        portee.launch {
+            when (val r = monterVideo(this@MainActivity, plans)) {
+                is ResultatMontage.Reussi -> {
+                    val secondes = r.dureeMs / 1000
+                    pickedUris = listOf(Uri.fromFile(r.fichier))
+                    status = "Vidéo montée (${secondes} s). Ajoute le lieu, puis crée le brouillon."
+                    messageMontage = null
+                    montageEnCours = false
+                    ecran = "publier"
+                }
+                is ResultatMontage.Echoue -> {
+                    messageMontage = r.motif
+                    montageEnCours = false
+                }
+            }
         }
     }
 
@@ -197,7 +294,15 @@ class MainActivity : ComponentActivity() {
                     TopAppBar(
                         // Le titre dit ou l'on se trouve : sur un ecran unique
                         // pour tout faire, rien ne l'indiquait.
-                        title = { Text(if (ecran == "accueil") "Heldonica" else "Publier") },
+                        title = {
+                            Text(
+                                when (ecran) {
+                                    "accueil" -> "Heldonica"
+                                    "montage" -> "Monter une vidéo"
+                                    else -> "Publier"
+                                }
+                            )
+                        },
                         navigationIcon = {
                             if (ecran != "accueil") {
                                 TextButton(onClick = { ecran = "accueil" }) { Text("← Retour") }
@@ -208,6 +313,10 @@ class MainActivity : ComponentActivity() {
             ) { pad ->
                 if (ecran == "accueil") {
                     EcranAccueil(Modifier.padding(pad))
+                    return@Scaffold
+                }
+                if (ecran == "montage") {
+                    EcranMontage(Modifier.padding(pad))
                     return@Scaffold
                 }
                 // Colonne defilante : l'ecran depassait deja la hauteur d'un
