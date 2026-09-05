@@ -26,10 +26,14 @@ export default function CaptionGenerator({ topic, destination, slides = [], defa
   const [hashtags, setHashtags] = useState<string[]>([])
   const [style, setStyle] = useState<Style>('narratif')
   const [copied, setCopied] = useState<'caption' | 'hashtags' | 'all' | null>(null)
+  // Un echec restait muet : le bouton tournait, puis plus rien. Sans message,
+  // rien ne distingue « le service a refuse » de « la legende est vide ».
+  const [erreur, setErreur] = useState<string | null>(null)
 
   const handleGenerate = async () => {
     setIsGenerating(true)
     setCopied(null)
+    setErreur(null)
 
     try {
       const res = await fetch('/api/cms/carousel-caption', {
@@ -44,16 +48,29 @@ export default function CaptionGenerator({ topic, destination, slides = [], defa
         })
       })
 
+      if (!res.ok) {
+        setErreur(
+          res.status === 401
+            ? 'Session expirée : reconnecte-toi au panneau.'
+            : `La légende n'a pas pu être générée (${res.status}).`
+        )
+        return
+      }
+
       const data = await res.json()
 
-      if (data.success) {
-        setCaption(data.caption)
-        setEditableCaption(data.caption)
-        setHashtags(data.hashtags)
-        onCaptionGenerated?.(data.caption, data.hashtags)
+      if (!data?.success || !data.caption) {
+        setErreur("Le service n'a rien renvoyé. Écris la légende à la main.")
+        return
       }
+
+      setCaption(data.caption)
+      setEditableCaption(data.caption)
+      setHashtags(data.hashtags || [])
+      onCaptionGenerated?.(data.caption, data.hashtags || [])
     } catch (err) {
       console.error('Caption generation error:', err)
+      setErreur('Génération impossible : réseau injoignable.')
     } finally {
       setIsGenerating(false)
     }
@@ -127,6 +144,10 @@ export default function CaptionGenerator({ topic, destination, slides = [], defa
             '✨ Générer caption + hashtags'
           )}
         </button>
+
+      {erreur && (
+        <p className="mt-3 text-xs text-amber-800 bg-amber-50 rounded-lg p-2">{erreur}</p>
+      )}
 
         {/* Caption preview with edit */}
         {caption && (
