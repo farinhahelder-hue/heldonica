@@ -18,12 +18,14 @@ import ArticlePreview from '@/components/admin/ArticlePreview';
 import { SkeletonTable, SkeletonForm, SkeletonCard } from '@/components/admin/SkeletonLoader';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
-const CarouselEditor = dynamic(() => import('@/components/admin/CarouselEditor'), { ssr: false });
-const CarouselGenerator = dynamic(() => import('@/components/admin/CarouselGenerator'), { ssr: false });
+// Un seul editeur de carrousels. Trois coexistaient : celui-ci sur sa route
+// autonome, un autre dans cette section sous le meme libelle mais au
+// comportement different, et un troisieme jamais monte. Deux entrees portant le
+// meme nom ouvraient des outils differents.
+const CarouselEditor = dynamic(() => import('@/app/panel-manager/carousel/CarouselEditorV2'), { ssr: false });
 const BlogGenerator = dynamic(() => import('@/components/admin/BlogGenerator'), { ssr: false });
 const VideoEditor = dynamic(() => import('@/components/admin/VideoEditor'), { ssr: false });
 const FastTrimTool = dynamic(() => import('@/components/admin/FastTrimTool'), { ssr: false });
-const VideoMaker = dynamic(() => import('@/components/admin/video-maker/VideoMaker'), { ssr: false });
 const MapManagerSection = dynamic(() => import('./maps/MapManagerSection'), { ssr: false });
 const DesignEditor = dynamic(() => import('@/components/admin/DesignEditor'), { ssr: false });
 const GeoAuditPanel = dynamic(() => import('@/components/admin/GeoAuditPanel'), { ssr: false });
