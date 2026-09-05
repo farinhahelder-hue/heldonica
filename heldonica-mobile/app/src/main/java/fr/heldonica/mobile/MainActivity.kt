@@ -73,8 +73,24 @@ class MainActivity : ComponentActivity() {
     private val selecteurVideos =
         registerForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(6)) { uris ->
             if (uris.isNotEmpty()) {
-                plans = uris.map { Plan(it) }
-                messageMontage = "${uris.size} plan(s) choisi(s)."
+                messageMontage = "Lecture des durées…"
+                portee.launch {
+                    // La lecture ouvre chaque fichier : sur le fil d'entrees-sorties,
+                    // pas sur celui de l'interface.
+                    val lus = withContext(Dispatchers.IO) {
+                        uris.map { uri ->
+                            val duree = lireDuree(this@MainActivity, uri)
+                            Plan(uri = uri, dureeMs = duree, finMs = duree)
+                        }
+                    }
+                    plans = lus
+                    val illisibles = lus.count { it.dureeMs == 0L }
+                    messageMontage = when {
+                        illisibles == lus.size -> "Durées illisibles : les plans partiront entiers."
+                        illisibles > 0 -> "${lus.size} plan(s). $illisibles sans durée lisible."
+                        else -> "${lus.size} plan(s)."
+                    }
+                }
             }
         }
 
@@ -179,15 +195,15 @@ class MainActivity : ComponentActivity() {
     }
 
     /**
-     * Montage : choisir des plans, les mettre bout a bout, en faire un brouillon.
+     * Montage : choisir des plans, les regler, en faire un brouillon.
+     *
+     * Un bloc par plan, dans l'ordre du montage : ce qu'on garde, et le texte a
+     * incruster. Mettre bout a bout sans pouvoir couper ne servait a rien - c'est
+     * la premiere chose qu'on fait d'un rush.
      *
      * Le resultat rejoint le parcours de publication existant plutot que d'avoir
      * son propre envoi : une fois monte, le fichier devient le media choisi, et
      * l'ecran « Publier » s'occupe du reste.
-     *
-     * Les bornes de decoupe ne sont pas encore reglables ici — les plans partent
-     * entiers. C'est la brique suivante, et l'ecran le dit plutot que de laisser
-     * chercher un reglage absent.
      */
     @Composable
     fun EcranMontage(modifier: Modifier = Modifier) {
@@ -209,17 +225,21 @@ class MainActivity : ComponentActivity() {
 
             messageMontage?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
 
+            plans.forEachIndexed { index, plan ->
+                ReglagesPlan(index, plan)
+            }
+
             if (plans.isNotEmpty()) {
+                val total = plans.sumOf { it.dureeRetenueMs }.coerceAtLeast(0) / 1000
                 Text(
-                    "${plans.size} plan(s), dans cet ordre. Ils seront mis bout à bout, " +
-                    "entiers — la découpe viendra plus tard.",
-                    style = MaterialTheme.typography.bodySmall
+                    "Durée du montage : environ ${total} s",
+                    style = MaterialTheme.typography.titleMedium
                 )
             }
 
             Button(
                 onClick = { lancerMontage() },
-                enabled = plans.size >= 2 && !montageEnCours,
+                enabled = plans.isNotEmpty() && !montageEnCours,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(if (montageEnCours) "Montage en cours…" else "Monter la vidéo")
@@ -232,6 +252,73 @@ class MainActivity : ComponentActivity() {
                 "Une fois fini, la vidéo arrive dans l'écran Publier.",
                 style = MaterialTheme.typography.bodySmall
             )
+
+            Text(
+                "Pas encore possible : les transitions entre plans, et la musique.",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+
+    /** Ce qu'on garde d'un plan, et le texte a y incruster. */
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun ReglagesPlan(index: Int, plan: Plan) {
+        Card(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Plan ${index + 1}", style = MaterialTheme.typography.titleMedium)
+
+                if (plan.dureeMs > 0) {
+                    val debut = plan.debutMs.toFloat()
+                    val fin = (if (plan.finMs > 0) plan.finMs else plan.dureeMs).toFloat()
+
+                    Text(
+                        "De ${plan.debutMs / 1000} s à ${(if (plan.finMs > 0) plan.finMs else plan.dureeMs) / 1000} s " +
+                        "— sur ${plan.dureeMs / 1000} s",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+
+                    RangeSlider(
+                        value = debut..fin,
+                        onValueChange = { bornes ->
+                            plans = plans.toMutableList().also {
+                                it[index] = plan.copy(
+                                    debutMs = bornes.start.toLong(),
+                                    finMs = bornes.endInclusive.toLong(),
+                                )
+                            }
+                        },
+                        valueRange = 0f..plan.dureeMs.toFloat(),
+                        enabled = !montageEnCours,
+                    )
+                } else {
+                    // Sans duree lisible, un curseur n'aurait pas de borne : le
+                    // plan part entier, et l'ecran le dit.
+                    Text(
+                        "Durée illisible : ce plan partira entier.",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+
+                OutlinedTextField(
+                    value = plan.texte,
+                    onValueChange = { t ->
+                        plans = plans.toMutableList().also { it[index] = plan.copy(texte = t) }
+                    },
+                    label = { Text("Texte à incruster (facultatif)") },
+                    enabled = !montageEnCours,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+
+                if (plans.size > 1) {
+                    TextButton(
+                        onClick = {
+                            plans = plans.toMutableList().also { it.removeAt(index) }
+                        },
+                        enabled = !montageEnCours
+                    ) { Text("Retirer ce plan") }
+                }
+            }
         }
     }
 
