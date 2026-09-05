@@ -91,7 +91,7 @@ class MainActivity : ComponentActivity() {
                     )
                 }
                 musique = uri
-                nomMusique = uri.lastPathSegment?.substringAfterLast('/') ?: "musique"
+                nomMusique = nomAffichable(uri)
                 messageMontage = "Musique choisie."
             }
         }
@@ -712,6 +712,26 @@ class MainActivity : ComponentActivity() {
             if (commune != null) placeTitle = commune
         }
         return true
+    }
+
+    /**
+     * Nom lisible d'un fichier choisi.
+     *
+     * lastPathSegment d'une URI de mediatheque rend un identifiant opaque -
+     * « audio:1000186087 » - qui n'aide personne a reconnaitre son morceau. Le
+     * nom d'affichage se demande au fournisseur de contenu.
+     */
+    private fun nomAffichable(uri: Uri): String {
+        val defaut = uri.lastPathSegment?.substringAfterLast('/') ?: "musique"
+        return runCatching {
+            contentResolver.query(
+                uri,
+                arrayOf(android.provider.OpenableColumns.DISPLAY_NAME),
+                null, null, null
+            )?.use { curseur ->
+                if (curseur.moveToFirst()) curseur.getString(0) else null
+            }
+        }.getOrNull() ?: defaut
     }
 
     /** Point d'entree du bouton : demande la permission si besoin, puis lit. */
