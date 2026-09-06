@@ -24,13 +24,18 @@ import kotlin.math.abs
  */
 @OptIn(UnstableApi::class)
 class CalqueFondu(
-    /** Instants des coupes, en microsecondes, dans le temps du montage. */
+    /** Instants des coupes, en microsecondes, comptes depuis le debut du plan. */
     private val coupesUs: List<Long>,
     /** Duree totale du fondu, coupe au centre. */
     dureeMs: Long = 500,
 ) : BitmapOverlay() {
 
     private val moitieUs = dureeMs * 500L
+
+    // Les instants recus sont ceux du montage entier, pas ceux du plan : mesure
+    // faite, un second plan commencant a 3 s recoit 3 s a sa premiere image.
+    // Origine ramene le compte a zero quelle que soit la convention.
+    private val origine = Origine()
 
     // Un carre uni suffit : il est etire sur toute l'image par setScale. Le
     // garder petit evite de transporter une image pleine resolution a chaque
@@ -42,19 +47,19 @@ class CalqueFondu(
 
     override fun getOverlaySettings(presentationTimeUs: Long): OverlaySettings =
         OverlaySettings.Builder()
-            .setAlphaScale(opacite(presentationTimeUs))
+            .setAlphaScale(opacite(origine.relatif(presentationTimeUs)))
             // Le calque doit deborder de l'image : un carre de 64 pixels sur une
             // video verticale ne couvrirait qu'un timbre-poste.
             .setScale(100f, 100f)
             .build()
 
     /**
-     * Opacite du noir a cet instant : 1 exactement sur la coupe, 0 des qu'on
-     * s'en eloigne de plus d'une demi-duree.
+     * Opacite du noir a cet instant du plan : 1 exactement sur la coupe, 0 des
+     * qu'on s'en eloigne de plus d'une demi-duree.
      */
-    private fun opacite(presentationTimeUs: Long): Float {
+    private fun opacite(instantDuPlanUs: Long): Float {
         if (moitieUs <= 0) return 0f
-        val plusProche = coupesUs.minOfOrNull { abs(presentationTimeUs - it) } ?: return 0f
+        val plusProche = coupesUs.minOfOrNull { abs(instantDuPlanUs - it) } ?: return 0f
         if (plusProche >= moitieUs) return 0f
         return 1f - (plusProche.toFloat() / moitieUs.toFloat())
     }
