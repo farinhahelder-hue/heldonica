@@ -192,7 +192,11 @@ suspend fun monterVideo(
 
     val sortie = File(contexte.cacheDir, "montage-${System.currentTimeMillis()}.mp4")
 
-    val morceaux = plans.map { plan ->
+    // Debut de chaque plan dans le temps du montage : sert a decouper les
+    // sous-titres et a placer les fondus.
+    val debutsMs = plans.runningFold(0L) { cumul, plan -> cumul + plan.dureeRetenueMs }
+
+    val morceaux = plans.mapIndexed { index, plan ->
         val media = MediaItem.Builder()
             .setUri(plan.uri)
             .apply {
@@ -218,12 +222,52 @@ suspend fun monterVideo(
                 if (bandeSon != null && !bandeSon.garderSonOriginal) {
                     setRemoveAudio(true)
                 }
-                if (plan.texte.isNotBlank()) {
+                // Tous les calques sont poses ici, sur le plan.
+                //
+                // Ils vivaient auparavant au niveau de la composition, ce qui
+                // paraissait juste : sous-titres et fondus suivent le temps du
+                // montage entier. Mais Media3 1.4 ignore en silence les effets
+                // video d'une composition — l'encodage reussissait, et rien
+                // n'etait incruste. Verifie a la mesure : la luminance ne bougeait
+                // pas d'un pouce aux coupes.
+                //
+                // Les horodatages sont donc ramenes au temps du plan, qui part de
+                // zero apres decoupe.
+                val calques = mutableListOf<TextureOverlay>()
+
+                if (plan.texte.isNotBlank()) calques += calqueTexte(plan.texte)
+
+                if (sousTitres.isNotEmpty()) {
+                    val debutS = debutsMs[index] / 1000.0
+                    val finS = debutS + plan.dureeRetenueMs / 1000.0
+                    val siens = sousTitres
+                        .filter { it.finS > debutS && it.debutS < finS }
+                        .map {
+                            Segment(
+                                (it.debutS - debutS).coerceAtLeast(0.0),
+                                (it.finS - debutS).coerceAtMost(finS - debutS),
+                                it.texte,
+                            )
+                        }
+                    if (siens.isNotEmpty()) calques += CalqueSousTitres(siens)
+                }
+
+                if (fondu && plans.size > 1) {
+                    // Une coupe au debut du plan, sauf pour le premier ; une a la
+                    // fin, sauf pour le dernier. Exprimees dans le temps du plan.
+                    val coupes = buildList {
+                        if (index > 0) add(0L)
+                        if (index < plans.size - 1) add(plan.dureeRetenueMs * 1000L)
+                    }
+                    if (coupes.isNotEmpty()) calques += CalqueFondu(coupes)
+                }
+
+                if (calques.isNotEmpty()) {
                     // La liste est typee explicitement : ImmutableList.of()
                     // infere ImmutableList<OverlayEffect>, la ou Effects attend
                     // une List<Effect>, et Kotlin refuse la conversion.
                     val effetsVideo: List<Effect> =
-                        listOf(OverlayEffect(ImmutableList.of(calqueTexte(plan.texte))))
+                        listOf(OverlayEffect(ImmutableList.copyOf(calques)))
                     setEffects(Effects(emptyList(), effetsVideo))
                 }
             }
@@ -286,33 +330,7 @@ suspend fun monterVideo(
             sequences += EditedMediaItemSequence(listOf(piste), bandeSon.enBoucle)
         }
 
-        // Sous-titres et fondu vivent tous deux au niveau de la composition :
-        // ils suivent le temps du montage entier, pas celui d'un plan. Poses sur
-        // un plan, ils repartiraient de zero a chaque coupe.
-        val calques = mutableListOf<TextureOverlay>()
-
-        if (sousTitres.isNotEmpty()) calques += CalqueSousTitres(sousTitres)
-
-        if (fondu && plans.size > 1) {
-            // Les coupes tombent aux durees cumulees des plans, une fois
-            // decoupes. Le dernier plan n'en ouvre pas : il n'y a rien apres.
-            var cumulUs = 0L
-            val coupes = plans.dropLast(1).map { plan ->
-                cumulUs += plan.dureeRetenueMs * 1000L
-                cumulUs
-            }
-            calques += CalqueFondu(coupes)
-        }
-
-        val composition = Composition.Builder(sequences)
-            .apply {
-                if (calques.isNotEmpty()) {
-                    val effets: List<Effect> =
-                        listOf(OverlayEffect(ImmutableList.copyOf(calques)))
-                    setEffects(Effects(emptyList(), effets))
-                }
-            }
-            .build()
+        val composition = Composition.Builder(sequences).build()
 
         transformer.start(composition, sortie.absolutePath)
 
