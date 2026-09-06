@@ -81,6 +81,11 @@ class MainActivity : ComponentActivity() {
     // gratuite en temps. On ne la lance que si elle est demandee.
     private var sousTitresDemandes by mutableStateOf(false)
 
+    // Fondu au noir aux coupes. Faux par defaut : la coupe franche est la norme
+    // en format court, et un fondu impose serait une signature qu'on n'a pas
+    // choisie.
+    private var fonduDemande by mutableStateOf(false)
+
     // Le selecteur de photos ne montre pas les fichiers audio : on passe par le
     // selecteur de documents.
     private val selecteurMusique =
@@ -361,6 +366,32 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
+            if (plans.size > 1) {
+                Card(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Transitions", style = MaterialTheme.typography.titleMedium)
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Checkbox(
+                                checked = fonduDemande,
+                                onCheckedChange = { fonduDemande = it },
+                                enabled = !montageEnCours
+                            )
+                            Text("Fondu au noir entre les plans", style = MaterialTheme.typography.bodySmall)
+                        }
+
+                        Text(
+                            "Le plan s'assombrit jusqu'au noir, puis le suivant s'éclaircit. " +
+                            "Ce n'est pas un fondu enchaîné : les deux plans ne se superposent pas.",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+            }
+
             Button(
                 onClick = { lancerMontage() },
                 enabled = plans.isNotEmpty() && !montageEnCours,
@@ -377,10 +408,6 @@ class MainActivity : ComponentActivity() {
                 style = MaterialTheme.typography.bodySmall
             )
 
-            Text(
-                "Pas encore possible : les transitions entre plans.",
-                style = MaterialTheme.typography.bodySmall
-            )
         }
     }
 
@@ -466,7 +493,7 @@ class MainActivity : ComponentActivity() {
                 )
             }
 
-            when (val premier = monterVideo(this@MainActivity, plans, bande)) {
+            when (val premier = monterVideo(this@MainActivity, plans, bande, fondu = fonduDemande)) {
                 is ResultatMontage.Echoue -> {
                     messageMontage = premier.motif
                     montageEnCours = false
@@ -504,6 +531,7 @@ class MainActivity : ComponentActivity() {
                             messageMontage = "Gravure des sous-titres…"
                             val second = monterVideo(
                                 this@MainActivity, plans, bande, transcription.segments,
+                                fondu = fonduDemande,
                             )
                             when (second) {
                                 is ResultatMontage.Reussi -> {
