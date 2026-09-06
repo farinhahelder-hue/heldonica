@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireCmsAuth } from '@/lib/cms-auth'
+import { estInvente } from '@/lib/transcription-filtre'
 
 /**
  * Transcription d'une vidéo, par Whisper.
@@ -97,15 +98,37 @@ export async function POST(req: NextRequest) {
 
     const donnees = await reponse.json()
 
-    const segments: Segment[] = Array.isArray(donnees?.segments)
+    // verbose_json porte, pour chaque segment, ce que Whisper pense de sa
+    // propre sortie. On ne la lisait pas : c'est là que se voit l'invention.
+    const bruts = Array.isArray(donnees?.segments)
       ? donnees.segments
           .map((s: any) => ({
             debut: Number(s.start) || 0,
             fin: Number(s.end) || 0,
             texte: String(s.text ?? '').trim(),
+            probaSilence: Number(s.no_speech_prob ?? 0),
+            vraisemblance: Number(s.avg_logprob ?? 0),
           }))
-          .filter((s: Segment) => s.texte.length > 0)
+          .filter((s: { texte: string }) => s.texte.length > 0)
       : []
+
+    const inventes = bruts.filter(estInvente)
+    const segments: Segment[] = bruts
+      .filter((s: (typeof bruts)[number]) => !estInvente(s))
+      .map(({ debut, fin, texte }: (typeof bruts)[number]) => ({ debut, fin, texte }))
+
+    if (inventes.length > 0) {
+      // Tracé : si le filtre se met à manger de la vraie parole, c'est ici
+      // qu'on le verra, et non dans une vidéo muette sans explication.
+      console.warn(
+        '[transcrire] segments écartés comme inventés',
+        inventes.map((s: (typeof bruts)[number]) => ({
+          texte: s.texte.slice(0, 80),
+          probaSilence: s.probaSilence,
+          vraisemblance: s.vraisemblance,
+        }))
+      )
+    }
 
     if (segments.length === 0) {
       return NextResponse.json(
