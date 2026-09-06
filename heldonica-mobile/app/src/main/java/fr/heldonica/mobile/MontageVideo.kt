@@ -46,9 +46,11 @@ import kotlin.coroutines.resume
  * ffmpeg-kit, la voie habituelle, retiree en 2025.
  *
  * Ce qui est fait : decouper chaque plan, y incruster du texte, les mettre bout
- * a bout, poser une musique par-dessus, et graver les sous-titres dans l'image. Ce qui manque encore : les
- * transitions entre plans, qui demandent des effets composes sur deux plans a la
- * fois - Media3 ne les fournit pas tout faits.
+ * a bout, poser une musique par-dessus, graver les sous-titres dans l'image, et
+ * fondre au noir entre les plans.
+ *
+ * Ce que Media3 ne permet pas : le fondu enchaine, ou deux plans se superposent.
+ * Il faudrait ecrire un shader ; le fondu au noir s'obtient avec l'API publique.
  */
 
 /**
@@ -184,6 +186,7 @@ suspend fun monterVideo(
     plans: List<Plan>,
     bandeSon: BandeSon? = null,
     sousTitres: List<Segment> = emptyList(),
+    fondu: Boolean = false,
 ): ResultatMontage {
     if (plans.isEmpty()) return ResultatMontage.Echoue("Aucun plan à monter.")
 
@@ -283,16 +286,30 @@ suspend fun monterVideo(
             sequences += EditedMediaItemSequence(listOf(piste), bandeSon.enBoucle)
         }
 
+        // Sous-titres et fondu vivent tous deux au niveau de la composition :
+        // ils suivent le temps du montage entier, pas celui d'un plan. Poses sur
+        // un plan, ils repartiraient de zero a chaque coupe.
+        val calques = mutableListOf<TextureOverlay>()
+
+        if (sousTitres.isNotEmpty()) calques += CalqueSousTitres(sousTitres)
+
+        if (fondu && plans.size > 1) {
+            // Les coupes tombent aux durees cumulees des plans, une fois
+            // decoupes. Le dernier plan n'en ouvre pas : il n'y a rien apres.
+            var cumulUs = 0L
+            val coupes = plans.dropLast(1).map { plan ->
+                cumulUs += plan.dureeRetenueMs * 1000L
+                cumulUs
+            }
+            calques += CalqueFondu(coupes)
+        }
+
         val composition = Composition.Builder(sequences)
             .apply {
-                if (sousTitres.isNotEmpty()) {
-                    // A la composition et non a un plan : un sous-titre suit le
-                    // temps du montage entier. Pose sur un plan, il repartirait
-                    // de zero a chaque coupe et se retrouverait decale.
-                    val calque: List<Effect> = listOf(
-                        OverlayEffect(ImmutableList.of(CalqueSousTitres(sousTitres)))
-                    )
-                    setEffects(Effects(emptyList(), calque))
+                if (calques.isNotEmpty()) {
+                    val effets: List<Effect> =
+                        listOf(OverlayEffect(ImmutableList.copyOf(calques)))
+                    setEffects(Effects(emptyList(), effets))
                 }
             }
             .build()
