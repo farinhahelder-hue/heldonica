@@ -77,6 +77,10 @@ class MainActivity : ComponentActivity() {
     private var garderSonOriginal by mutableStateOf(true)
     private var volumeMusique by mutableStateOf(0.35f)
 
+    // Sous-titres : la transcription passe par le site, elle n'est donc pas
+    // gratuite en temps. On ne la lance que si elle est demandee.
+    private var sousTitresDemandes by mutableStateOf(false)
+
     // Le selecteur de photos ne montre pas les fichiers audio : on passe par le
     // selecteur de documents.
     private val selecteurMusique =
@@ -325,6 +329,38 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
+            if (plans.isNotEmpty()) {
+                Card(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Sous-titres", style = MaterialTheme.typography.titleMedium)
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Checkbox(
+                                checked = sousTitresDemandes,
+                                onCheckedChange = { sousTitresDemandes = it },
+                                enabled = !montageEnCours
+                            )
+                            Text(
+                                "Écrire ce qui est dit, dans l'image",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+
+                        Text(
+                            if (sousTitresDemandes)
+                                "Le montage part sur le site pour être transcrit, puis revient " +
+                                "avec les sous-titres gravés. Compte une minute de plus."
+                            else
+                                "Un Reel se regarde souvent sans le son.",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+            }
+
             Button(
                 onClick = { lancerMontage() },
                 enabled = plans.isNotEmpty() && !montageEnCours,
@@ -410,7 +446,14 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    /** Lance le montage, puis bascule vers la publication. */
+    /**
+     * Lance le montage, puis bascule vers la publication.
+     *
+     * Avec sous-titres, il faut deux encodages : le premier produit la video,
+     * qui part se faire transcrire, et le second y grave le texte. On ne peut
+     * pas transcrire les plans d'origine — leurs horodatages ne survivraient ni
+     * a la decoupe ni a la mise bout a bout.
+     */
     private fun lancerMontage() {
         montageEnCours = true
         messageMontage = "Montage en cours…"
@@ -422,21 +465,67 @@ class MainActivity : ComponentActivity() {
                     volumeMusique = volumeMusique,
                 )
             }
-            when (val r = monterVideo(this@MainActivity, plans, bande)) {
-                is ResultatMontage.Reussi -> {
-                    val secondes = r.dureeMs / 1000
-                    pickedUris = listOf(Uri.fromFile(r.fichier))
-                    status = "Vidéo montée (${secondes} s). Ajoute le lieu, puis crée le brouillon."
-                    messageMontage = null
-                    montageEnCours = false
-                    ecran = "publier"
-                }
+
+            when (val premier = monterVideo(this@MainActivity, plans, bande)) {
                 is ResultatMontage.Echoue -> {
-                    messageMontage = r.motif
+                    messageMontage = premier.motif
                     montageEnCours = false
+                }
+
+                is ResultatMontage.Reussi -> {
+                    if (!sousTitresDemandes) {
+                        terminerMontage(premier)
+                        return@launch
+                    }
+
+                    messageMontage = "Transcription en cours…"
+                    val transcription = withContext(Dispatchers.IO) {
+                        transcrire(
+                            BuildConfig.CMS_BASE_URL,
+                            BuildConfig.CMS_PASSWORD,
+                            premier.fichier,
+                        )
+                    }
+
+                    when (transcription) {
+                        is ResultatTranscription.Echoue -> {
+                            // Le montage existe : on le garde plutot que de tout
+                            // perdre parce que la transcription a echoue.
+                            terminerMontage(premier)
+                            messageMontage = "${transcription.motif} Le montage est prêt, sans sous-titres."
+                        }
+
+                        is ResultatTranscription.Reussi -> {
+                            messageMontage = "Gravure des sous-titres…"
+                            val second = monterVideo(
+                                this@MainActivity, plans, bande, transcription.segments,
+                            )
+                            when (second) {
+                                is ResultatMontage.Reussi -> {
+                                    premier.fichier.delete()
+                                    terminerMontage(second)
+                                    status += " ${transcription.segments.size} sous-titre(s)."
+                                }
+                                is ResultatMontage.Echoue -> {
+                                    terminerMontage(premier)
+                                    messageMontage =
+                                        "Sous-titres impossibles à graver. Le montage est prêt, sans eux."
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
+    }
+
+    /** Le montage devient le media choisi, et l'ecran de publication prend la suite. */
+    private fun terminerMontage(resultat: ResultatMontage.Reussi) {
+        pickedUris = listOf(Uri.fromFile(resultat.fichier))
+        status = "Vidéo montée (${resultat.dureeMs / 1000} s). Ajoute le lieu, puis crée le brouillon."
+        messageMontage = null
+        montageEnCours = false
+        ecran = "publier"
     }
 
     @Composable
