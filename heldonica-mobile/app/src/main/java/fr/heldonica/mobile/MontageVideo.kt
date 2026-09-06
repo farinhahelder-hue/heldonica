@@ -133,6 +133,51 @@ private fun calqueTexte(texte: String): TextureOverlay {
     )
 }
 
+/**
+ * Extrait la bande son d'un montage, dans un fichier a part.
+ *
+ * Whisper ne transcrit que du son : envoyer la video entiere fait transiter des
+ * dizaines de megaoctets pour rien. Un montage de cinq secondes pese 46 Mo,
+ * son audio moins d'un.
+ *
+ * Ce n'est pas qu'une economie : le stockage plafonne, et Groq refuse au-dela
+ * de 25 Mo. Une video de plus d'une minute ne passerait jamais entiere.
+ */
+@OptIn(UnstableApi::class)
+suspend fun extraireAudio(contexte: Context, montage: File): File? {
+    val sortie = File(contexte.cacheDir, "son-${System.currentTimeMillis()}.m4a")
+
+    val piste = EditedMediaItem.Builder(MediaItem.fromUri(Uri.fromFile(montage)))
+        .setRemoveVideo(true)
+        .build()
+
+    return suspendCancellableCoroutine { suite ->
+        val transformer = Transformer.Builder(contexte)
+            .addListener(object : Transformer.Listener {
+                override fun onCompleted(composition: Composition, resultat: ExportResult) {
+                    Log.i(TAG_MONTAGE, "Son extrait : ${sortie.length()} octets")
+                    suite.resume(sortie)
+                }
+
+                override fun onError(
+                    composition: Composition,
+                    resultat: ExportResult,
+                    erreur: ExportException,
+                ) {
+                    Log.e(TAG_MONTAGE, "Extraction du son echouee", erreur)
+                    suite.resume(null)
+                }
+            })
+            .build()
+
+        transformer.start(
+            Composition.Builder(listOf(EditedMediaItemSequence(listOf(piste)))).build(),
+            sortie.absolutePath,
+        )
+        suite.invokeOnCancellation { transformer.cancel() }
+    }
+}
+
 @OptIn(UnstableApi::class)
 suspend fun monterVideo(
     contexte: Context,

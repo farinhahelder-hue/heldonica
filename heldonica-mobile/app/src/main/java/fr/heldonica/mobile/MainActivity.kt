@@ -478,14 +478,19 @@ class MainActivity : ComponentActivity() {
                         return@launch
                     }
 
+                    messageMontage = "Extraction du son…"
+                    val son = extraireAudio(this@MainActivity, premier.fichier)
+                    if (son == null) {
+                        terminerMontage(premier)
+                        messageMontage = "Son illisible. Le montage est prêt, sans sous-titres."
+                        return@launch
+                    }
+
                     messageMontage = "Transcription en cours…"
                     val transcription = withContext(Dispatchers.IO) {
-                        transcrire(
-                            BuildConfig.CMS_BASE_URL,
-                            BuildConfig.CMS_PASSWORD,
-                            premier.fichier,
-                        )
+                        transcrire(BuildConfig.CMS_BASE_URL, BuildConfig.CMS_PASSWORD, son)
                     }
+                    son.delete()
 
                     when (transcription) {
                         is ResultatTranscription.Echoue -> {
