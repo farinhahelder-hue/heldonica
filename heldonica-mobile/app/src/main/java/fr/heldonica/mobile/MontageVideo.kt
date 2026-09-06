@@ -46,7 +46,7 @@ import kotlin.coroutines.resume
  * ffmpeg-kit, la voie habituelle, retiree en 2025.
  *
  * Ce qui est fait : decouper chaque plan, y incruster du texte, les mettre bout
- * a bout, et poser une musique par-dessus. Ce qui manque encore : les
+ * a bout, poser une musique par-dessus, et graver les sous-titres dans l'image. Ce qui manque encore : les
  * transitions entre plans, qui demandent des effets composes sur deux plans a la
  * fois - Media3 ne les fournit pas tout faits.
  */
@@ -138,6 +138,7 @@ suspend fun monterVideo(
     contexte: Context,
     plans: List<Plan>,
     bandeSon: BandeSon? = null,
+    sousTitres: List<Segment> = emptyList(),
 ): ResultatMontage {
     if (plans.isEmpty()) return ResultatMontage.Echoue("Aucun plan à monter.")
 
@@ -237,7 +238,19 @@ suspend fun monterVideo(
             sequences += EditedMediaItemSequence(listOf(piste), bandeSon.enBoucle)
         }
 
-        val composition = Composition.Builder(sequences).build()
+        val composition = Composition.Builder(sequences)
+            .apply {
+                if (sousTitres.isNotEmpty()) {
+                    // A la composition et non a un plan : un sous-titre suit le
+                    // temps du montage entier. Pose sur un plan, il repartirait
+                    // de zero a chaque coupe et se retrouverait decale.
+                    val calque: List<Effect> = listOf(
+                        OverlayEffect(ImmutableList.of(CalqueSousTitres(sousTitres)))
+                    )
+                    setEffects(Effects(emptyList(), calque))
+                }
+            }
+            .build()
 
         transformer.start(composition, sortie.absolutePath)
 
