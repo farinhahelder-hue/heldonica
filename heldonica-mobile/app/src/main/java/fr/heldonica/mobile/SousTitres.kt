@@ -42,21 +42,41 @@ class CalqueSousTitres(
         .setBackgroundFrameAnchor(0f, -0.7f)
         .build()
 
-    override fun getOverlaySettings(presentationTimeUs: Long): OverlaySettings = reglages
+    private val efface = OverlaySettings.Builder()
+        .setBackgroundFrameAnchor(0f, -0.7f)
+        .setAlphaScale(0f)
+        .build()
 
-    override fun getText(presentationTimeUs: Long): SpannableString {
+    /** Le segment a cet instant du plan, ou null entre deux phrases. */
+    private fun segmentA(presentationTimeUs: Long): Segment? {
         val seconde = origine.relatif(presentationTimeUs) / 1_000_000.0
-
         // Les segments arrivent dans l'ordre et ne se chevauchent pas : le
         // premier qui contient l'instant est le bon.
-        val courant = segments.firstOrNull { seconde >= it.debutS && seconde < it.finS }
+        return segments.firstOrNull { seconde >= it.debutS && seconde < it.finS }
+    }
 
-        // Hors segment, on rend une chaine vide plutot que null : TextOverlay
-        // exige un texte, et une chaine vide n'affiche rien.
-        val texte = courant?.texte ?: ""
+    override fun getOverlaySettings(presentationTimeUs: Long): OverlaySettings =
+        // Entre deux phrases, le calque est efface. L'espace rendu par getText
+        // ne porte aucun fond et ne se verrait pas, mais l'effacer est plus
+        // franc que de compter sur une transparence de circonstance.
+        if (segmentA(presentationTimeUs) == null) efface else reglages
+
+    override fun getText(presentationTimeUs: Long): SpannableString {
+        val courant = segmentA(presentationTimeUs)
+
+        // Hors segment, un espace et non une chaine vide : TextOverlay mesure
+        // le texte pour dimensionner sa bitmap, et une chaine vide donne une
+        // bitmap de zero pixel — Bitmap.createBitmap leve alors
+        // "width and height must be > 0", et tout l'encodage tombe.
+        //
+        // Le montage entier echouait donc des qu'un silence separait deux
+        // phrases, c'est-a-dire presque toujours. Un premier essai y avait
+        // echappe par chance : son unique segment couvrait le plan de bout en
+        // bout, et le cas vide ne s'est jamais presente.
+        val texte = courant?.texte ?: " "
 
         return SpannableString(texte).apply {
-            if (texte.isEmpty()) return@apply
+            if (courant == null) return@apply
             setSpan(ForegroundColorSpan(Color.WHITE), 0, texte.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
             // Fond sombre translucide : sans lui, un sous-titre blanc devient
             // illisible des que l'image sous-jacente est claire - un ciel, un mur.
