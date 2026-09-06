@@ -18,8 +18,9 @@ import java.util.concurrent.TimeUnit
  * photos, et pour la meme raison, la requete entrante d'une fonction Vercel
  * plafonnant a 4,5 Mo - puis n'envoie que son adresse.
  *
- * Whisper travaille sur la bande son. Le montage part donc tel quel, sans qu'on
- * ait a en extraire l'audio.
+ * Seule la bande son part : un montage de cinq secondes pese 46 Mo, son audio
+ * moins d'un. Ce n'est pas qu'une economie - le stockage plafonne, et Groq
+ * refuse au-dela de 25 Mo.
  */
 
 sealed interface ResultatTranscription {
@@ -50,7 +51,7 @@ private fun deposer(
 
     val cible = client.newCall(demande).execute().use { r ->
         if (!r.isSuccessful) {
-            Log.e(TAG_TRANSCRIPTION, "URL signee refusee ${r.code}")
+            Log.e(TAG_TRANSCRIPTION, "URL signee refusee ${r.code} : ${r.body?.string()}")
             return null
         }
         JSONObject(r.body?.string().orEmpty()).getJSONArray("cibles").getJSONObject(0)
@@ -58,12 +59,14 @@ private fun deposer(
 
     val envoi = Request.Builder()
         .url(cible.getString("signedUrl"))
-        .put(fichier.asRequestBody("video/mp4".toMediaType()))
+        .put(fichier.asRequestBody("audio/mp4".toMediaType()))
         .build()
 
     client.newCall(envoi).execute().use { r ->
         if (!r.isSuccessful) {
-            Log.e(TAG_TRANSCRIPTION, "Depot du montage refuse ${r.code}")
+            // Le corps porte le motif : sans lui, un 400 ne dit pas s'il s'agit
+            // d'un fichier trop lourd, d'un chemin deja pris, ou d'autre chose.
+            Log.e(TAG_TRANSCRIPTION, "Depot du montage refuse ${r.code} : ${r.body?.string()}")
             return null
         }
     }
