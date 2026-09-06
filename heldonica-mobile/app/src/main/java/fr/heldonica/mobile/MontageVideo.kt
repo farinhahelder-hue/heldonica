@@ -231,8 +231,10 @@ suspend fun monterVideo(
                 // n'etait incruste. Verifie a la mesure : la luminance ne bougeait
                 // pas d'un pouce aux coupes.
                 //
-                // Les horodatages sont donc ramenes au temps du plan, qui part de
-                // zero apres decoupe.
+                // Les horodatages des calques sont ramenes au temps du plan. Le
+                // plan, lui, ne recoit pas ce temps-la : mesure faite, un second
+                // plan commencant a 3 s voit 3 s a sa premiere image, pas 0. Les
+                // calques recalent donc eux-memes (voir Origine).
                 val calques = mutableListOf<TextureOverlay>()
 
                 if (plan.texte.isNotBlank()) calques += calqueTexte(plan.texte)

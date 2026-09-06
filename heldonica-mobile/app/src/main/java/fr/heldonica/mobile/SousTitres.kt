@@ -32,6 +32,10 @@ class CalqueSousTitres(
     private val segments: List<Segment>,
 ) : TextOverlay() {
 
+    // Comme le fondu : les instants recus suivent le montage entier, les
+    // segments sont decoupes au temps du plan. Origine accorde les deux.
+    private val origine = Origine()
+
     private val reglages = OverlaySettings.Builder()
         // Bas de l'image, comme le texte fixe : le haut d'un Reel est masque par
         // l'interface d'Instagram.
@@ -41,7 +45,7 @@ class CalqueSousTitres(
     override fun getOverlaySettings(presentationTimeUs: Long): OverlaySettings = reglages
 
     override fun getText(presentationTimeUs: Long): SpannableString {
-        val seconde = presentationTimeUs / 1_000_000.0
+        val seconde = origine.relatif(presentationTimeUs) / 1_000_000.0
 
         // Les segments arrivent dans l'ordre et ne se chevauchent pas : le
         // premier qui contient l'instant est le bon.
