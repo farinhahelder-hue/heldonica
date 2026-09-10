@@ -1,0 +1,21 @@
+name: Discord Notifications
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [closed]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord notification
+        uses: Ilshidur/action-discord@master
+        with:
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
+          content: |
+            🤖 **${{ github.actor }}** a pushé¬© sur `heldonica`
+            
+            📝 Commit : `${{ github.sha }}`
+            🔗 https://github.com/${{ github.repository }}/commit/${{ github.sha }}
