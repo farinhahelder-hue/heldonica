@@ -8,7 +8,11 @@ export const dynamic = 'force-dynamic';
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  // La cle service seulement. Le repli sur la cle anon fonctionnait tant que
+  // ces tables etaient sans RLS ; une fois RLS actif il aurait transforme une
+  // variable d'environnement manquante en ecritures qui echouent sans bruit.
+  // Mieux vaut ne pas avoir de client du tout : le garde en aval repond alors.
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) return null;
   return createClient(url, key);
 }
@@ -84,12 +88,19 @@ export async function POST(req: NextRequest) {
 
     // 1. Log webhook
     if (supabase) {
-      await (supabase as any).from('instagram_webhook_logs').insert({
-        event_type: body.object || 'instagram',
-        payload: body,
-        processed: true,
-        created_at: new Date().toISOString(),
-      }).catch(() => {});
+      // Supabase ne leve pas : il rend { data, error }. Le .catch() precedent
+      // n'attrapait donc rien, et un refus de la base disparaissait purement.
+      const { error: erreurJournal } = await (supabase as any)
+        .from('instagram_webhook_logs')
+        .insert({
+          event_type: body.object || 'instagram',
+          payload: body,
+          processed: true,
+          created_at: new Date().toISOString(),
+        });
+      if (erreurJournal) {
+        console.error('[webhook instagram] journal non ecrit :', erreurJournal.message);
+      }
     }
 
     if (body.object === 'instagram') {

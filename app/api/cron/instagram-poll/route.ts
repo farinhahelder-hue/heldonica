@@ -16,7 +16,11 @@ function isCron(req: NextRequest) {
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  // La cle service seulement. Le repli sur la cle anon fonctionnait tant que
+  // ces tables etaient sans RLS ; une fois RLS actif il aurait transforme une
+  // variable d'environnement manquante en ecritures qui echouent sans bruit.
+  // Mieux vaut ne pas avoir de client du tout : le garde en aval repond alors.
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) return null;
   return createClient(url, key);
 }
@@ -86,7 +90,7 @@ Rédige la proposition de réponse :`;
           const aiDraft = aiRes?.content?.trim() || 'Merci pour ton mot ! N\'hésite pas à nous écrire en message si tu prépares ton prochain voyage.';
           const audit = validateGardeFous(aiDraft, 'b2c');
 
-          await (supabase as any).from('instagram_comments').insert({
+          const { error: erreurInsertion } = await (supabase as any).from('instagram_comments').insert({
             ig_comment_id: comment.id,
             media_id: media.id,
             media_permalink: media.permalink,
@@ -98,6 +102,14 @@ Rédige la proposition de réponse :`;
             created_at: comment.timestamp || new Date().toISOString(),
             updated_at: new Date().toISOString(),
           });
+
+          // Sans ce controle, un refus de la base etait compte comme une
+          // reussite : la route repondait new_comments_ingested: 12 avec zero
+          // ligne ecrite.
+          if (erreurInsertion) {
+            console.error('[instagram-poll] commentaire non enregistre :', erreurInsertion.message);
+            continue;
+          }
 
           newCommentsCount++;
         }
