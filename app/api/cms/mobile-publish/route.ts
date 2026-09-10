@@ -138,9 +138,24 @@ export async function POST(req: NextRequest) {
     // un envoi passant par les URL signées serait refusé faute de multipart.
     const hasPhotos = (files && files.length > 0) || preUploads.length > 0
     const hasVideo = !!videoFile && videoFile.size > 0
-    if (!hasPhotos && !hasVideo) {
-      return NextResponse.json({ error: 'Aucun média fourni (photos[] ou video)' }, { status: 400 })
+
+    // Un carnet peut n'etre que du texte, et c'etait justement le seul cas
+    // refuse : la garde exigeait un media, si bien qu'ecrire un article sans
+    // photo depuis le telephone renvoyait 400. Le squelette du brouillon sait
+    // deja se passer de photos — ses blocs media sont conditionnels — et
+    // featured_image accepte null. Il n'y avait que cette porte a ouvrir.
+    const hasTexte = caption.trim().length > 0 || placeTitle.trim().length > 0
+    if (!hasPhotos && !hasVideo && !hasTexte) {
+      return NextResponse.json(
+        { error: 'Rien à publier : ni photo, ni vidéo, ni texte' },
+        { status: 400 }
+      )
     }
+
+    // Instagram exige une image ou une video : un carnet en texte seul ne peut
+    // pas y aller. Sans ce garde-fou, la file Instagram recevait primaryImage
+    // a null et publiait une entree inexploitable.
+    const versInstagram = publishInstagram && (hasPhotos || hasVideo)
     if (nbPhotos > 10) {
       return NextResponse.json({ error: 'Max 10 photos par upload (carousel IG: 2-10)' }, { status: 400 })
     }
@@ -422,7 +437,7 @@ ${hasVideo ? `<p>Vidéo : <a href="${videoUrl}">voir vidéo</a></p><video src="$
     // annoncait « brouillon + Instagram cree » alors que seul l'article existait.
     // Un envoi rate se voit desormais.
     let instagramErreur: string | null = null
-    if (publishInstagram) {
+    if (versInstagram) {
       const baseCaption = aiCaption || caption
       const igCaption = baseCaption
         ? `${baseCaption}\n\n📍 ${placeTitle || ''}\n🌍 heldonica.fr/blog/${slug}\n#slowtravel #heldonica`
