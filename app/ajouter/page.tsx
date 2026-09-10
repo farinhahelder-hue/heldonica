@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 /**
@@ -29,6 +29,18 @@ export default function AjouterPage() {
   const [etat, setEtat] = useState<'repos' | 'envoi' | 'fait' | 'erreur'>('repos');
   const [message, setMessage] = useState('');
 
+  // La session se verifie a l'ouverture, pas au moment d'envoyer. Sans cela, on
+  // ecrivait un carnet entier avant d'apprendre qu'il ne partirait pas : un
+  // formulaire qui accepte la frappe alors qu'il ne peut rien en faire.
+  const [session, setSession] = useState<'inconnue' | 'ouverte' | 'absente'>('inconnue');
+  useEffect(() => {
+    fetch('/api/cms/auth/check')
+      .then((r) => setSession(r.ok ? 'ouverte' : 'absente'))
+      // Reseau coupe : on n'affirme pas que la session est absente, on laisse
+      // l'envoi tenter sa chance et dire ce qu'il trouve.
+      .catch(() => setSession('inconnue'));
+  }, []);
+
   const poids = photos.reduce((t, f) => t + f.size, 0);
   const tropLourd = poids > LIMITE_OCTETS;
 
@@ -40,6 +52,9 @@ export default function AjouterPage() {
     corps.append('place_title', titre);
     corps.append('place_address', lieu);
     corps.append('caption', recit);
+    // Sans quoi le carnet se declarerait venu du telephone : la route ecrivait
+    // sa provenance en dur, du temps ou elle n'avait qu'un seul appelant.
+    corps.append('source', 'web');
     photos.forEach((f) => corps.append('photos', f));
 
     try {
@@ -49,7 +64,8 @@ export default function AjouterPage() {
         setEtat('erreur');
         // Pas de champ mot de passe ici : la session vit dans le panneau, et
         // en redemander un deuxieme endroit ferait deux endroits a tenir.
-        setMessage('Session expiree. Ouvre le panneau pour te reconnecter, puis reviens.');
+        setSession('absente');
+        setMessage('Session expirée. Ouvre le panneau pour te reconnecter, puis reviens.');
         return;
       }
 
@@ -90,6 +106,16 @@ export default function AjouterPage() {
       <p className="mb-8 text-sm text-neutral-600">
         Un titre suffit pour commencer. Le reste se complète plus tard.
       </p>
+
+      {session === 'absente' && (
+        <p className="mb-8 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Tu n’es pas connecté·e.{' '}
+          <Link className="underline" href="/panel-manager">
+            Ouvre le panneau
+          </Link>{' '}
+          pour te connecter, puis reviens — ce que tu écris ici ne partirait pas.
+        </p>
+      )}
 
       <div className="flex flex-col gap-5">
         <label className="flex flex-col gap-1.5">
@@ -142,7 +168,7 @@ export default function AjouterPage() {
 
         <button
           type="button"
-          disabled={!titre.trim() || etat === 'envoi' || tropLourd}
+          disabled={!titre.trim() || etat === 'envoi' || tropLourd || session === 'absente'}
           onClick={envoyer}
           className="rounded-lg bg-neutral-900 px-4 py-2.5 text-white disabled:bg-neutral-300"
         >
