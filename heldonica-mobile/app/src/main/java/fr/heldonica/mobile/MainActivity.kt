@@ -66,6 +66,15 @@ class MainActivity : ComponentActivity() {
 
     private var ecran by mutableStateOf("accueil")
 
+    // Vrai tant qu'un envoi n'a pas rendu son verdict.
+    //
+    // Les boutons d'envoi restaient actifs pendant le televersement : deux
+    // appuis creaient deux brouillons. Constate en base, huit brouillons pour
+    // trois envois reels — dont deux a une seconde d'intervalle, ce qu'aucune
+    // reprise de WorkManager n'explique, son backoff etant de dix secondes.
+    // La meme photo s'y trouvait quatre fois, octet pour octet.
+    private var envoiEnCours by mutableStateOf(false)
+
     // Montage video : les plans choisis, leurs bornes, et l'avancement.
     private var plans by mutableStateOf<List<Plan>>(emptyList())
     private var montageEnCours by mutableStateOf(false)
@@ -206,11 +215,16 @@ class MainActivity : ComponentActivity() {
             ) {
                 // Les photos d'un envoi precedent restaient en memoire : le
                 // carnet serait parti avec elles sans que rien ne le montre.
-                pickedUris = emptyList()
-                placeTitle = ""
-                placeAddress = ""
-                caption = ""
-                status = ""
+                // Un envoi encore en vol garde ses champs : les vider ne
+                // l'annulerait pas, cela ferait seulement perdre de vue ce qui
+                // est parti.
+                if (!envoiEnCours) {
+                    pickedUris = emptyList()
+                    placeTitle = ""
+                    placeAddress = ""
+                    caption = ""
+                    status = ""
+                }
                 ecran = "carnet"
             }
 
@@ -623,7 +637,7 @@ class MainActivity : ComponentActivity() {
             Button(
                 // Le titre suffit : le reste peut se completer sur le site, et
                 // exiger davantage ici ferait perdre une note prise sur le vif.
-                enabled = placeTitle.isNotBlank(),
+                enabled = placeTitle.isNotBlank() && !envoiEnCours,
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     enqueueUpload(publishInstagram = false)
@@ -789,7 +803,7 @@ class MainActivity : ComponentActivity() {
                     }
 
                     Button(
-                        enabled = pickedUris.isNotEmpty(),
+                        enabled = pickedUris.isNotEmpty() && !envoiEnCours,
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             enqueueUpload(publishInstagram = false)
@@ -798,7 +812,7 @@ class MainActivity : ComponentActivity() {
                     ) { Text("Créer le brouillon") }
 
                     Button(
-                        enabled = pickedUris.isNotEmpty(),
+                        enabled = pickedUris.isNotEmpty() && !envoiEnCours,
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
                         onClick = {
@@ -1039,12 +1053,17 @@ class MainActivity : ComponentActivity() {
 
         val wm = WorkManager.getInstance(this)
         wm.enqueue(req)
+        envoiEnCours = true
         status = "Envoi en cours…"
 
         // L'envoi se faisait en aveugle : le travail partait en arriere-plan et
         // rien ne revenait a l'ecran, qu'il reussisse, echoue ou boucle. On
         // suit son etat pour dire ce qui se passe.
         wm.getWorkInfoByIdLiveData(req.id).observe(this) { info ->
+            // On ne rouvre le bouton qu'une fois le sort de l'envoi connu :
+            // reussi, echoue ou annule. Tant qu'il tourne, reappuyer ferait un
+            // second brouillon.
+            if (info?.state?.isFinished == true) envoiEnCours = false
             status = when (info?.state) {
                 WorkInfo.State.SUCCEEDED -> "Brouillon cree sur le site"
                 WorkInfo.State.FAILED ->
