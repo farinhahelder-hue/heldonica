@@ -197,6 +197,23 @@ class MainActivity : ComponentActivity() {
                 detail = "Mettre plusieurs plans bout à bout, puis en faire un brouillon."
             ) { ecran = "montage" }
 
+            // Ecrire sans photo passait auparavant par « Articles et carnets »,
+            // qui ouvre le panneau de bureau dans une WebView : vingt-quatre
+            // onglets sur un ecran de telephone. Ici, trois champs et un bouton.
+            CarteAction(
+                titre = "Écrire un carnet",
+                detail = "Un titre, ce que tu as vécu. Sans photo, si tu n'en as pas."
+            ) {
+                // Les photos d'un envoi precedent restaient en memoire : le
+                // carnet serait parti avec elles sans que rien ne le montre.
+                pickedUris = emptyList()
+                placeTitle = ""
+                placeAddress = ""
+                caption = ""
+                status = "Écris au moins un titre."
+                ecran = "carnet"
+            }
+
             Text("Modifier le site", style = MaterialTheme.typography.titleMedium)
 
             // Chaque carte ouvre directement sa section du panneau. Sans le
@@ -561,6 +578,67 @@ class MainActivity : ComponentActivity() {
         ecran = "publier"
     }
 
+    /**
+     * Un carnet en texte seul : titre, lieu facultatif, recit.
+     *
+     * Meme forme que « Publier une photo », dont le parcours est verifie : les
+     * champs sont les memes cote serveur — placeTitle devient le titre du
+     * billet, caption son corps. Rien de nouveau a apprendre, et rien de
+     * nouveau a maintenir.
+     *
+     * Le brouillon part avec les memes garde-fous que les autres : jamais
+     * publie, et des marqueurs [À TOI] la ou il manque quelque chose.
+     */
+    @Composable
+    fun EcranCarnet(modifier: Modifier = Modifier) {
+        Column(
+            modifier
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            OutlinedTextField(
+                value = placeTitle,
+                onValueChange = { placeTitle = it },
+                label = { Text("Titre du carnet") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+            OutlinedTextField(
+                value = placeAddress,
+                onValueChange = { placeAddress = it },
+                label = { Text("Lieu (facultatif)") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+            OutlinedTextField(
+                value = caption,
+                onValueChange = { caption = it },
+                label = { Text("Ce que tu as vécu (facultatif)") },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 6
+            )
+
+            Button(
+                // Le titre suffit : le reste peut se completer sur le site, et
+                // exiger davantage ici ferait perdre une note prise sur le vif.
+                enabled = placeTitle.isNotBlank(),
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {
+                    enqueueUpload(publishInstagram = false)
+                    status = "Envoi en cours…"
+                }
+            ) { Text("Créer le brouillon") }
+
+            Text(status, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                "Le brouillon arrive sur le site. Rien n'est publié tant que tu ne l'as pas relu.",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+
     @Composable
     private fun CarteAction(
         titre: String,
@@ -603,6 +681,7 @@ class MainActivity : ComponentActivity() {
                                 when (ecran) {
                                     "accueil" -> "Heldonica"
                                     "montage" -> "Monter une vidéo"
+                                    "carnet" -> "Écrire un carnet"
                                     else -> "Publier"
                                 }
                             )
@@ -621,6 +700,10 @@ class MainActivity : ComponentActivity() {
                 }
                 if (ecran == "montage") {
                     EcranMontage(Modifier.padding(pad))
+                    return@Scaffold
+                }
+                if (ecran == "carnet") {
+                    EcranCarnet(Modifier.padding(pad))
                     return@Scaffold
                 }
                 // Colonne defilante : l'ecran depassait deja la hauteur d'un
@@ -984,7 +1067,12 @@ class UploadWorker(ctx: android.content.Context, params: WorkerParameters) : Cor
 
     override suspend fun doWork(): Result {
         val urisStr = inputData.getString("uris") ?: return Result.failure()
-        val uris = urisStr.split(",").mapNotNull { runCatching { Uri.parse(it) }.getOrNull() }
+        // Une chaine vide se scinde en une liste d'un element vide, dont
+        // Uri.parse fait un Uri vide et non nul : sans ce filtre, un carnet sans
+        // photo partait televerser un fichier inexistant.
+        val uris = urisStr.split(",")
+            .filter { it.isNotBlank() }
+            .mapNotNull { runCatching { Uri.parse(it) }.getOrNull() }
         val baseUrl = inputData.getString("baseUrl") ?: "https://www.heldonica.fr"
         val password = inputData.getString("cmsPassword") ?: ""
         val placeTitle = inputData.getString("placeTitle") ?: ""
@@ -1007,16 +1095,21 @@ class UploadWorker(ctx: android.content.Context, params: WorkerParameters) : Cor
             // avant meme d'executer la moindre ligne. On demande des URL
             // signees, on depose les fichiers directement dans le stockage,
             // puis on n'envoie a l'API que leur description.
-            val deposes = televerserDirect(client, baseUrl, password, uris)
-                ?: return Result.failure(workDataOf(ERREUR to "Preparation du televersement impossible"))
+            // Un carnet peut n'avoir aucune photo. Demander des URL signees
+            // pour une liste vide echouerait, et l'envoi serait perdu la.
+            val deposes = if (uris.isEmpty()) org.json.JSONArray() else {
+                televerserDirect(client, baseUrl, password, uris)
+                    ?: return Result.failure(workDataOf(ERREUR to "Preparation du televersement impossible"))
+            }
 
             // JSONArray n'expose pas isEmpty() sur Android, seulement length().
-            if (deposes.length() == 0) {
+            // Zero depose n'est un echec que si des photos etaient attendues.
+            if (uris.isNotEmpty() && deposes.length() == 0) {
                 return Result.failure(workDataOf(ERREUR to "Aucun media n'a pu etre televerse"))
             }
 
             val builder = MultipartBody.Builder().setType(MultipartBody.FORM)
-            builder.addFormDataPart("uploaded", deposes.toString())
+            if (deposes.length() > 0) builder.addFormDataPart("uploaded", deposes.toString())
             builder.addFormDataPart("place_title", placeTitle)
             builder.addFormDataPart("place_address", placeAddress)
             builder.addFormDataPart("place_lat", placeLat)
