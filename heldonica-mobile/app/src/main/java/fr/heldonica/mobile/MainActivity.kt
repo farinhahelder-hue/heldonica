@@ -210,7 +210,7 @@ class MainActivity : ComponentActivity() {
                 placeTitle = ""
                 placeAddress = ""
                 caption = ""
-                status = "Écris au moins un titre."
+                status = ""
                 ecran = "carnet"
             }
 
@@ -631,7 +631,13 @@ class MainActivity : ComponentActivity() {
                 }
             ) { Text("Créer le brouillon") }
 
-            Text(status, style = MaterialTheme.typography.bodyMedium)
+            // Le rappel du titre manquant restait affiche une fois le titre
+            // saisi, sous un bouton devenu actif : deux messages contraires sur
+            // le meme ecran. Il ne s'affiche donc que tant qu'il est vrai.
+            val message = if (placeTitle.isBlank()) "Écris au moins un titre." else status
+            if (message.isNotBlank()) {
+                Text(message, style = MaterialTheme.typography.bodyMedium)
+            }
             Text(
                 "Le brouillon arrive sur le site. Rien n'est publié tant que tu ne l'as pas relu.",
                 style = MaterialTheme.typography.bodySmall
