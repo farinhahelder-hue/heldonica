@@ -80,7 +80,11 @@ export async function getAllPosts(): Promise<BlogPost[]> {
       .from('cms_blog_posts')
       .select('*')
       .eq('published', true)
-      .order('published_at', { ascending: false })
+      // nullsFirst: false — sans cette precision, PostgreSQL place les NULL en
+      // tete d'un tri descendant, et un article publie sans date passait devant
+      // tous les autres. Le correctif cote ecriture date desormais les
+      // publications ; celui-ci protege les lignes deja en base.
+      .order('published_at', { ascending: false, nullsFirst: false })
       .limit(100);
     if (error) {
       console.error('Supabase getAllPosts error:', error.message);
@@ -171,7 +175,7 @@ export async function getRelatedPosts(
       .eq('published', true)
       
       .neq('slug', currentSlug)
-      .order('published_at', { ascending: false })
+      .order('published_at', { ascending: false, nullsFirst: false })
       .limit(limit);
     if (error) {
       console.error('Supabase getRelatedPosts error:', error.message);

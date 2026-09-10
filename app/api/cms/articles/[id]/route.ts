@@ -92,6 +92,25 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   if (body.status === 'published') payload.published = true;
   else if (body.status === 'draft') payload.published = false;
 
+  // Un brouillon venu du telephone n'a pas de published_at : le champ ne se
+  // remplit que par le selecteur de date de l'editeur, qu'il faut penser a
+  // ouvrir. Publie sans lui, l'article se retrouvait en tete du blog — la
+  // liste publique trie sur published_at en descendant, et PostgreSQL place
+  // les NULL en premier dans ce sens.
+  //
+  // On date donc la publication au moment ou elle a lieu, sans jamais ecraser
+  // une date deja choisie : une republication ne doit pas remonter l'article.
+  if (payload.published === true && !payload.published_at) {
+    const { data: dejaDate } = await sb
+      .from('cms_blog_posts')
+      .select('published_at')
+      .eq('id', id)
+      .single();
+    if (!(dejaDate as { published_at?: string } | null)?.published_at) {
+      payload.published_at = new Date().toISOString();
+    }
+  }
+
   // Phase 3: Save revision before updating
   const { data: raw } = await sb.from('cms_blog_posts').select('title, content, excerpt').eq('id', id).single();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
