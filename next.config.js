@@ -16,6 +16,11 @@ const securityHeaders = [
       "media-src 'self' https://d2xsxph8kpxj0f.cloudfront.net https://*.cloudfront.net",
       "font-src 'self' https://api.fontshare.com https://fonts.gstatic.com https://frontend-cdn.perplexity.ai",
       "connect-src 'self' https://*.supabase.co https://api.perplexity.ai https://api.unsplash.com https://api.bufferapp.com https://nominatim.openstreetmap.org https://www.google-analytics.com",
+      // Sans frame-src, la regle retombe sur default-src 'self' et l'iframe de
+      // repli de Tag Manager (ns.html, pour les visiteurs sans JavaScript) est
+      // bloquee en silence — une violation de CSP dans la console, rien de
+      // plus visible.
+      "frame-src 'self' https://www.googletagmanager.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
