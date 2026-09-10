@@ -228,7 +228,10 @@ function hasMaintenanceBypass(req: NextRequest) {
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
-  const maintenanceExcludes = ['/maintenance', '/panel-manager', '/cms-admin', '/admin', '/api', '/_next', '/robots.txt', '/sitemap.xml', '/favicon.ico'];
+  // /ajouter est un outil d'ecriture, pas du contenu public : le laisser
+  // derriere la maintenance le rendrait inutilisable precisement quand on
+  // prepare le site. Meme raison que /panel-manager et /admin.
+  const maintenanceExcludes = ['/maintenance', '/panel-manager', '/cms-admin', '/admin', '/ajouter', '/api', '/_next', '/robots.txt', '/sitemap.xml', '/favicon.ico'];
   const isMaintenanceExcluded = maintenanceExcludes.some(path => pathname.startsWith(path)) || hasMaintenanceBypass(req);
 
   if (!isMaintenanceExcluded) {

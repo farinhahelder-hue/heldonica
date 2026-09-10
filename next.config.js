@@ -10,7 +10,14 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com",
+      // Next.js evalue son bundle en developpement, pour le rechargement a
+      // chaud. Sans 'unsafe-eval', le navigateur le refuse, React n'hydrate
+      // jamais, et la page reste inerte : les champs se remplissent mais aucun
+      // gestionnaire ne tourne. `npm run dev` etait donc inutilisable, et
+      // l'erreur ne se voyait que dans la console.
+      //
+      // La permission ne vaut qu'en developpement : la production ne l'a pas.
+      `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''} https://www.googletagmanager.com`,
       "style-src 'self' 'unsafe-inline' https://api.fontshare.com https://fonts.googleapis.com https://unpkg.com",
       "img-src 'self' data: blob: https://images.unsplash.com https://*.supabase.co https://heldonica.fr https://www.heldonica.fr https://behold.pictures https://cdn2.behold.pictures https://lh3.googleusercontent.com https://lh4.googleusercontent.com https://lh5.googleusercontent.com https://lh6.googleusercontent.com https://storage.googleapis.com https://*.tile.openstreetmap.org",
       "media-src 'self' https://d2xsxph8kpxj0f.cloudfront.net https://*.cloudfront.net",
