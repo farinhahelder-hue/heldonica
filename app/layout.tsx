@@ -185,16 +185,30 @@ export default async function RootLayout({
   const faviconUrl = siteSettings.site_favicon || siteSettings.favicon_url;
   const logoUrl = siteSettings.site_logo || siteSettings.logo_url;
 
-  // Mesure GA4 : la cle du CMS d'abord, sinon la valeur qui tournait jusqu'ici.
-  // Sans ce repli, une cle vide couperait la mesure au lieu de la deplacer.
-  const gaId = siteSettings.seo_google_analytics_id || 'G-JDJNTZLBJS';
+  // Deux conventions de nommage coexistent dans les reglages : seo_* pour
+  // l'ecran d'admin de app/admin/settings, sans prefixe pour celui de
+  // CmsSettingsPanel. On lit les deux plutot que d'en couronner une au hasard.
+  //
+  // Et on verifie la forme, parce que les valeurs en base sont fausses : la
+  // migration 20260903000001 a ecrit l'identifiant du conteneur Tag Manager
+  // dans google_analytics_id et ga_measurement_id, qui attendent un G-. Passer
+  // un GTM- a gtag('config') ne leve rien : la mesure part simplement nulle
+  // part. Un identifiant de la mauvaise famille est donc ignore.
+  const premierValide = (prefixe: string, ...valeurs: (string | undefined)[]) =>
+    valeurs.find((v) => v?.startsWith(prefixe));
+
+  const gaId =
+    premierValide('G-', siteSettings.seo_google_analytics_id, siteSettings.google_analytics_id)
+    // Repli sur la valeur qui tournait jusqu'ici : sans lui, une cle vide ou
+    // mal remplie couperait la mesure au lieu de la deplacer.
+    || 'G-JDJNTZLBJS';
   // Conteneur Tag Manager : facultatif, et pose a cote de gtag.js plutot qu'a
   // sa place. Les 34 appels gtag('event') du site continuent donc de remonter
   // a GA4 directement ; GTM ne sert qu'a poser de nouveaux tags sans
   // redeployer. Si ce conteneur recoit un jour un tag GA4 sur la meme
   // propriete, les pages seront comptees deux fois : la mesure doit rester
   // ici, ou la-bas, mais pas aux deux endroits.
-  const gtmId = siteSettings.seo_gtm_id;
+  const gtmId = premierValide('GTM-', siteSettings.seo_gtm_id, siteSettings.gtm_id);
 
   return (
     <html lang="fr" suppressHydrationWarning>

@@ -15,7 +15,11 @@ const securityHeaders = [
       "img-src 'self' data: blob: https://images.unsplash.com https://*.supabase.co https://heldonica.fr https://www.heldonica.fr https://behold.pictures https://cdn2.behold.pictures https://lh3.googleusercontent.com https://lh4.googleusercontent.com https://lh5.googleusercontent.com https://lh6.googleusercontent.com https://storage.googleapis.com https://*.tile.openstreetmap.org",
       "media-src 'self' https://d2xsxph8kpxj0f.cloudfront.net https://*.cloudfront.net",
       "font-src 'self' https://api.fontshare.com https://fonts.gstatic.com https://frontend-cdn.perplexity.ai",
-      "connect-src 'self' https://*.supabase.co https://api.perplexity.ai https://api.unsplash.com https://api.bufferapp.com https://nominatim.openstreetmap.org https://www.google-analytics.com",
+      // GA4 n'emet pas vers www.google-analytics.com mais vers un point de
+      // collecte regional — region1 pour l'Europe. La regle ne listait que
+      // www : toutes les mesures partaient et etaient refusees par le
+      // navigateur, sans que rien ne le signale ailleurs que dans la console.
+      "connect-src 'self' https://*.supabase.co https://api.perplexity.ai https://api.unsplash.com https://api.bufferapp.com https://nominatim.openstreetmap.org https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com",
       // Sans frame-src, la regle retombe sur default-src 'self' et l'iframe de
       // repli de Tag Manager (ns.html, pour les visiteurs sans JavaScript) est
       // bloquee en silence — une violation de CSP dans la console, rien de
