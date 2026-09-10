@@ -115,7 +115,8 @@ const GROUPS: GroupDef[] = [
       { key: 'seo_title',                label: 'SEO Title par défaut',    type: 'text',     placeholder: 'Heldonica' },
       { key: 'seo_description',          label: 'SEO Description',         type: 'textarea', placeholder: '' },
       { key: 'seo_og_image',             label: 'OG Image SEO',            type: 'image',    placeholder: '' },
-      { key: 'google_analytics_id',      label: 'Google Analytics ID',     type: 'text',     placeholder: 'G-XXXXXXXXXX' },
+      { key: 'seo_google_analytics_id',  label: 'Google Analytics ID',     type: 'text',     placeholder: 'G-XXXXXXXXXX' },
+      { key: 'seo_gtm_id',               label: 'GTM Container ID',        type: 'text',     placeholder: 'GTM-XXXXXXX' },
     ],
   },
   {

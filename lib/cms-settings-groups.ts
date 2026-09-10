@@ -35,9 +35,10 @@ export function matchSettingsGroup(key: string, group: string): boolean {
 
     case 'seo':
       return (
+        // google_analytics_id figurait ici en exception : la cle est
+        // desormais seo_google_analytics_id, que le prefixe couvre deja.
         key.startsWith('seo_') ||
-        key.startsWith('meta_') ||
-        key === 'google_analytics_id'
+        key.startsWith('meta_')
       );
 
     case 'footer':
