@@ -126,6 +126,12 @@ export async function POST(req: NextRequest) {
     const placeLat = form.get('place_lat') ? parseFloat(form.get('place_lat') as string) : null
     const placeLng = form.get('place_lng') ? parseFloat(form.get('place_lng') as string) : null
     const placeAddress = (form.get('place_address') as string) || ''
+    // La route a d'abord servi le telephone, et ecrivait donc source: 'mobile'
+    // en dur — sur le billet comme sur les medias et le point de carte.
+    // L'ecran web l'emprunte maintenant : sans ce champ, un carnet ecrit a
+    // l'ordinateur se declarait venu du telephone. Le defaut reste 'mobile'
+    // pour l'application, qui ne l'envoie pas.
+    const origine = ((form.get('source') as string) || 'mobile').slice(0, 20)
     const publishInstagram = form.get('publish_instagram') === '1'
     // Total des deux voies : les photos pre-deposees ne passent pas par
     // `files`, et les compter a part ferait perdre le mode carrousel.
@@ -205,7 +211,7 @@ export async function POST(req: NextRequest) {
         path: dejaDepose.chemin,
         mime_type: dejaDepose.mime || 'image/jpeg',
         size: dejaDepose.taille ?? null,
-        source: 'mobile',
+        source: origine,
         // Les coordonnees et la date de prise de vue viennent de l'EXIF lu par
         // l'application : le serveur ne voit plus passer les octets, il ne peut
         // donc plus les extraire lui-meme.
@@ -267,7 +273,7 @@ export async function POST(req: NextRequest) {
         path: key,
         mime_type: file.type || 'image/jpeg',
         size: bytes.length,
-        source: 'mobile',
+        source: origine,
         latitude: meta.latitude,
         longitude: meta.longitude,
         taken_at: meta.taken_at,
@@ -324,7 +330,7 @@ export async function POST(req: NextRequest) {
         path: key,
         mime_type: videoFile.type || 'video/mp4',
         size: bytes.length,
-        source: 'mobile',
+        source: origine,
         // Une video ne porte pas d'EXIF exploitable par exifr : on retombe sur
         // ce que l'application a transmis, sans dater la prise de vue.
         latitude: placeLat,
@@ -359,7 +365,7 @@ export async function POST(req: NextRequest) {
           lat: placeLat,
           lng: placeLng,
           address: placeAddress.slice(0, 300),
-          source: 'mobile',
+          source: origine,
           metadata: { uploaded_urls: uploadedUrls, caption },
         })
         .select('id')
@@ -401,7 +407,7 @@ ${hasVideo ? `<p>Vidéo : <a href="${videoUrl}">voir vidéo</a></p><video src="$
         published: false,
         status: 'draft',
         tags: ['mobile', 'brouillon-media'],
-        source: 'mobile',
+        source: origine,
         source_metadata: { place: { title: placeTitle, lat: placeLat, lng: placeLng, address: placeAddress }, poi_id: poiId, uploaded_urls: uploadedUrls },
       })
       .select('id, slug')
