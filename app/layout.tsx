@@ -185,6 +185,17 @@ export default async function RootLayout({
   const faviconUrl = siteSettings.site_favicon || siteSettings.favicon_url;
   const logoUrl = siteSettings.site_logo || siteSettings.logo_url;
 
+  // Mesure GA4 : la cle du CMS d'abord, sinon la valeur qui tournait jusqu'ici.
+  // Sans ce repli, une cle vide couperait la mesure au lieu de la deplacer.
+  const gaId = siteSettings.seo_google_analytics_id || 'G-JDJNTZLBJS';
+  // Conteneur Tag Manager : facultatif, et pose a cote de gtag.js plutot qu'a
+  // sa place. Les 34 appels gtag('event') du site continuent donc de remonter
+  // a GA4 directement ; GTM ne sert qu'a poser de nouveaux tags sans
+  // redeployer. Si ce conteneur recoit un jour un tag GA4 sur la meme
+  // propriete, les pages seront comptees deux fois : la mesure doit rester
+  // ici, ou la-bas, mais pas aux deux endroits.
+  const gtmId = siteSettings.seo_gtm_id;
+
   return (
     <html lang="fr" suppressHydrationWarning>
       <head>
@@ -217,7 +228,7 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrganization) }}
         />
         <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-JDJNTZLBJS"
+          src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
           strategy="afterInteractive"
         />
         <Script id="google-analytics" strategy="afterInteractive" dangerouslySetInnerHTML={{
@@ -225,11 +236,35 @@ export default async function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-JDJNTZLBJS');
+            gtag('config', '${gaId}');
           `
         }} />
+        {gtmId && (
+          <>
+            <Script id="gtm-init" strategy="afterInteractive" dangerouslySetInnerHTML={{
+              __html: `
+                window.dataLayer = window.dataLayer || [];
+                window.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+              `
+            }} />
+            <Script
+              src={`https://www.googletagmanager.com/gtm.js?id=${gtmId}`}
+              strategy="afterInteractive"
+            />
+          </>
+        )}
       </head>
       <body>
+        {gtmId && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+              height="0"
+              width="0"
+              style={{ display: 'none', visibility: 'hidden' }}
+            />
+          </noscript>
+        )}
         <ThemeProvider>
           <AuthProvider>
             {/* Zones et réglages chargés une fois ici : le header et le pied de
