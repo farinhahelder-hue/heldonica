@@ -60,12 +60,17 @@ export async function POST(req: NextRequest) {
     .maybeSingle()
 
   if (existing) {
-    await supabase.from('cms_zone_history').insert({
+    const { error: erreurHistorique } = await supabase.from('cms_zone_history').insert({
       page,
       zone_key,
       old_value: existing.value ?? null,
       new_value: value,
     })
+    if (erreurHistorique) {
+      // L'historique sert a revenir en arriere. Sans lui, la modification
+      // passe quand meme, mais on ne pourra plus la defaire.
+      console.error('[cms/zone-history] historique non ecrit :', erreurHistorique.message)
+    }
     const { error } = await supabase
       .from('cms_editable_zones')
       .update({ value, updated_at: new Date().toISOString() })

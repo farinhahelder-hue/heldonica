@@ -75,21 +75,35 @@ export async function POST(req: NextRequest) {
       }
 
       // 2. Mise à jour du statut en base
-      await (supabase as any).from('instagram_comments').update({
+      const { error: erreurApprobation } = await (supabase as any).from('instagram_comments').update({
         status: 'approved',
         reply_published: replyMessage,
         replied_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }).eq('ig_comment_id', igCommentId);
+      if (erreurApprobation) {
+        // La reponse est deja partie chez Instagram : on ne peut plus la
+        // retenir. Mais dire success alors que le statut n'a pas bouge ferait
+        // reproposer le meme commentaire a la prochaine relecture.
+        console.error('[cms/instagram/comments] statut non enregistre :', erreurApprobation.message);
+        return NextResponse.json(
+          { error: "Réponse publiée, mais le statut n'a pas pu être enregistré." },
+          { status: 500 }
+        );
+      }
 
       return NextResponse.json({ success: true, igReplyId: igRes.id });
     }
 
     if (action === 'reject') {
-      await (supabase as any).from('instagram_comments').update({
+      const { error: erreurRejet } = await (supabase as any).from('instagram_comments').update({
         status: 'rejected',
         updated_at: new Date().toISOString(),
       }).eq('ig_comment_id', igCommentId);
+      if (erreurRejet) {
+        console.error('[cms/instagram/comments] rejet non enregistre :', erreurRejet.message);
+        return NextResponse.json({ error: "Le rejet n'a pas pu être enregistré." }, { status: 500 });
+      }
 
       return NextResponse.json({ success: true, status: 'rejected' });
     }
@@ -121,11 +135,20 @@ Rédige une proposition de réponse directe, sobre et complice (2-3 phrases max)
       const newDraft = aiRes.content.trim();
       const audit = validateGardeFous(newDraft, 'b2c');
 
-      await (supabase as any).from('instagram_comments').update({
+      const { error: erreurBrouillon } = await (supabase as any).from('instagram_comments').update({
         ai_draft: newDraft,
         ai_confidence: audit.passed ? 0.95 : 0.75,
         updated_at: new Date().toISOString(),
       }).eq('ig_comment_id', igCommentId);
+      if (erreurBrouillon) {
+        // Le brouillon a coute une completion IA. Le rendre quand meme evite de
+        // la repayer, mais on dit qu'il n'est pas enregistre.
+        console.error('[cms/instagram/comments] brouillon non enregistre :', erreurBrouillon.message);
+        return NextResponse.json(
+          { success: false, ai_draft: newDraft, auditScore: audit.score, error: 'Brouillon généré mais non enregistré.' },
+          { status: 500 }
+        );
+      }
 
       return NextResponse.json({ success: true, ai_draft: newDraft, auditScore: audit.score });
     }

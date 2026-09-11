@@ -28,7 +28,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing route_id or points' }, { status: 400 });
   }
 
-  await supabase.from('article_map_route_points').delete().eq('route_id', route_id);
+  // On remplace la trace : d'abord l'effacer, puis reposer les points. Si
+  // l'effacement echoue en silence, les nouveaux s'ajoutent aux anciens et la
+  // trace se dedouble.
+  const { error: erreurEffacement } = await supabase
+    .from('article_map_route_points')
+    .delete()
+    .eq('route_id', route_id);
+  if (erreurEffacement) {
+    console.error('[cms/maps/points] ancienne trace non effacee :', erreurEffacement.message);
+    return NextResponse.json({ error: "L'ancienne trace n'a pas pu être effacée." }, { status: 500 });
+  }
 
   if (points.length === 0) return NextResponse.json({ ok: true, count: 0 });
 

@@ -65,10 +65,15 @@ export async function POST(req: NextRequest) {
 
     // Handle single popular plan rule: if this plan is popular, turn off others
     if (is_popular) {
-      await supabase
+      // Une seule offre peut etre « populaire ». Si la precedente n'est pas
+      // retiree, on en affiche deux.
+      const { error: erreurPopulaire } = await supabase
         .from('cms_pricing_plans')
         .update({ is_popular: false })
         .eq('is_popular', true)
+      if (erreurPopulaire) {
+        console.error('[cms/pricing] ancienne offre populaire non retiree :', erreurPopulaire.message)
+      }
     }
 
     const { data: newPlan, error } = await supabase
@@ -116,10 +121,15 @@ export async function PATCH(req: NextRequest) {
 
     // Handle single popular plan rule: if setting this plan to popular, turn off others
     if (is_popular) {
-      await supabase
+      // Une seule offre peut etre « populaire ». Si la precedente n'est pas
+      // retiree, on en affiche deux.
+      const { error: erreurPopulaire } = await supabase
         .from('cms_pricing_plans')
         .update({ is_popular: false })
         .eq('is_popular', true)
+      if (erreurPopulaire) {
+        console.error('[cms/pricing] ancienne offre populaire non retiree :', erreurPopulaire.message)
+      }
     }
 
     const { data: updatedPlan, error } = await supabase

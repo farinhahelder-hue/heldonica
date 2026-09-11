@@ -31,19 +31,27 @@ export async function GET(request: Request) {
         const { postToInstagram } = await import('@/lib/instagram')
         const result = await postToInstagram(post.image_url, post.caption || '')
         if (result) {
-          await (supabase as any)
+          // Si ce statut n'est pas ecrit, le meme post repart au prochain
+          // passage : deux publications identiques sur le compte.
+          const { error: erreurStatut } = await (supabase as any)
             .from('instagram_scheduled_posts')
             .update({ status: 'published', published_at: now, permalink: result.permalink, error_message: null })
             .eq('id', post.id)
+          if (erreurStatut) {
+            console.error('[instagram/cron] statut publie non enregistre :', erreurStatut.message)
+          }
           results.push({ id: post.id, status: 'published' })
         } else {
           throw new Error('Échec publication Instagram')
         }
       } catch (err: any) {
-        await (supabase as any)
+        const { error: erreurEchec } = await (supabase as any)
           .from('instagram_scheduled_posts')
           .update({ status: 'failed', error_message: err.message })
           .eq('id', post.id)
+        if (erreurEchec) {
+          console.error('[instagram/cron] statut echec non enregistre :', erreurEchec.message)
+        }
         results.push({ id: post.id, status: 'failed', error: err.message })
       }
     }

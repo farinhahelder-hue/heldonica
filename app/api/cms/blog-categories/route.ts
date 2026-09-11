@@ -147,15 +147,23 @@ export async function PATCH(req: NextRequest) {
 
     // Cascade update to articles/posts category columns if db_value changed
     if (existing && existing.db_value !== db_value) {
-      await supabase
+      // Renommer une categorie touche deux tables. Un echec sur l'une
+      // laissait l'autre renommee, et la reponse disait success.
+      const { error: erreurArticles } = await supabase
         .from('articles')
         .update({ category: db_value })
         .eq('category', existing.db_value)
+      if (erreurArticles) {
+        console.error('[cms/blog-categories] articles non renommes :', erreurArticles.message)
+      }
 
-      await supabase
+      const { error: erreurBillets } = await supabase
         .from('cms_blog_posts')
         .update({ category: db_value })
         .eq('category', existing.db_value)
+      if (erreurBillets) {
+        console.error('[cms/blog-categories] billets non renommes :', erreurBillets.message)
+      }
     }
 
     return NextResponse.json({ success: true, category: updatedCategory })

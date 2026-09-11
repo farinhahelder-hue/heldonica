@@ -162,10 +162,15 @@ export async function GET(request: Request) {
           html: emailContent.html(),
         })
 
-        await supabase
+        // L'e-mail est parti. Si sent_at n'est pas ecrit, il repartira au
+        // prochain passage : c'est l'abonne qui recoit le doublon.
+        const { error: erreurEnvoye } = await supabase
           .from('email_sequences')
           .update({ sent_at: new Date().toISOString() })
           .eq('id', seq.id)
+        if (erreurEnvoye) {
+          console.error('[send-email-sequences] sent_at non ecrit, risque de doublon :', seq.email, erreurEnvoye.message)
+        }
 
         results.push({ email: seq.email, step: seq.step, success: true })
       } catch (err) {
