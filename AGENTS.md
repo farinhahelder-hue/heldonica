@@ -68,6 +68,14 @@ n'est pas dans la table, ça n'a pas été demandé ni fait.
 
 ### Les quatre gestes
 
+Ils existent sous forme d'outils MCP dans `mcp/agent-tasks/` — cinq outils,
+les mêmes pour Claude Code (`.mcp.json`), Gemini CLI (`.gemini/settings.json`)
+et OpenCode (`opencode.json`) : `taches_en_attente`, `lire_tache`,
+`prendre_tache`, `rendre_compte`, `deposer_tache`. Pas d'outil de suppression,
+c'est voulu. Chaque client se présente par `AGENT_NAME` ; sans nom, lecture
+seule. Détails et installation : `mcp/agent-tasks/README.md`.
+
+
 1. **Lire avant d'agir.** Au début d'une session, lister les tâches qui te sont
    adressées (`agent = ton nom`) ou ouvertes à tous, en `sent`. Lire aussi ce qui
    est `in_progress` chez les autres : tu ne touches pas à leurs fichiers.
