@@ -41,6 +41,28 @@ const ECRITURES = /\.(insert|update|upsert|delete|rpc)\s*\(/
  */
 const DESTRUCTURATION = /const\s*\{([^}]*)\}\s*=\s*await\b/g
 
+/**
+ * Deuxième classe : un `await` en instruction nue, dont le résultat n'est ni
+ * affecté ni renvoyé.
+ *
+ *     await sb.from('t').insert({...})
+ *
+ * Pire que la première : l'échec ne laisse même pas une variable à ignorer.
+ * Deux cas de ce genre sont passés sous le nez de ce script le 10 septembre —
+ * le journal du webhook Instagram et le compteur du poll — parce qu'il ne
+ * cherchait qu'une déstructuration.
+ */
+const AWAIT_NU = /^[ \t]*await\b/gm
+
+/**
+ * Troisième classe : un `.catch` vide au bout d'une écriture, avec ou sans
+ * `await`. Il n'attrape rien — Supabase ne lève pas, il rend `{ error }` — et
+ * signale surtout que l'auteur a voulu faire taire quelque chose.
+ *
+ *     sb.from('t').upsert(p).then(() => {}).catch(() => {})
+ */
+const CATCH_VIDE = /\.catch\s*\(\s*\(\s*\w*\s*\)\s*=>\s*\{\s*\}\s*\)/g
+
 const EXCEPTIONS = new Map([
   // Aucune pour l'instant. Une entrée ici doit dire pourquoi l'échec peut être ignoré.
 ])
@@ -116,6 +138,49 @@ for (const racine of RACINES) {
 
       trouves.push({ cle, extrait: (lignes[ligne - 1] || '').trim().slice(0, 96) })
     }
+
+    // Deuxième classe : `await` nu.
+    AWAIT_NU.lastIndex = 0
+    while ((m = AWAIT_NU.exec(source)) !== null) {
+      const suite = source.slice(m.index, finExpression(source, m.index))
+      // Une enveloppe — IIFE asynchrone, Promise.all — n'écrit rien elle-même :
+      // ce sont ses instructions intérieures qui écrivent, et cette même passe
+      // les examine une à une. La signaler compterait deux fois.
+      if (/^\s*await\s*\(\s*async\b/.test(suite)) continue
+      if (/^\s*await\s+Promise\.(all|allSettled|race)\s*\(/.test(suite)) continue
+      if (!ECRITURES.test(suite)) continue
+      if (!/\.from\s*\(|supabase|\bsb\b/.test(suite)) continue
+      // Un `.catch` qui fait quelque chose lit l'échec ; le vide est traité
+      // par la troisième passe, pour ne pas le compter deux fois.
+      if (/\.catch\s*\(/.test(suite)) continue
+
+      const ligne = source.slice(0, m.index).split(/\r?\n/).length
+      const cle = `${fichier}:${ligne}`
+      if (EXCEPTIONS.has(cle)) continue
+      trouves.push({ cle, extrait: (lignes[ligne - 1] || '').trim().slice(0, 96) })
+    }
+
+    // Troisième classe : `.catch(() => {})` au bout d'une écriture.
+    CATCH_VIDE.lastIndex = 0
+    while ((m = CATCH_VIDE.exec(source)) !== null) {
+      // On remonte au début de l'instruction : le dernier `;` ou saut de ligne
+      // suivi d'une ligne qui ne commence pas par `.` (une chaîne qui continue).
+      let debut = m.index
+      while (debut > 0) {
+        const c = source[debut - 1]
+        if (c === ';') break
+        if (c === '\n' && !/^\s*[.)]/.test(source.slice(debut, debut + 40))) break
+        debut--
+      }
+      const instruction = source.slice(debut, m.index)
+      if (!ECRITURES.test(instruction)) continue
+      if (!/\.from\s*\(|supabase|\bsb\b/.test(instruction)) continue
+
+      const ligne = source.slice(0, m.index).split(/\r?\n/).length
+      const cle = `${fichier}:${ligne}`
+      if (EXCEPTIONS.has(cle)) continue
+      trouves.push({ cle, extrait: (lignes[ligne - 1] || '').trim().slice(0, 96) })
+    }
   }
 }
 
@@ -131,7 +196,8 @@ for (const t of trouves) {
 }
 console.error(
   "\n  Supabase ne lève pas : il rend { data, error }. Sans nommer `error`, un\n" +
-  "  échec devient un `data` null, et l'appelant annonce une réussite.\n" +
-  "  Nomme-la et fais-en quelque chose — au minimum un console.error."
+  "  échec devient un `data` null, et l'appelant annonce une réussite. Un\n" +
+  "  `await` nu jette même ce null ; un `.catch(() => {})` n'attrape rien.\n" +
+  "  Nomme l'erreur et fais-en quelque chose — au minimum un console.error."
 )
 process.exit(1)

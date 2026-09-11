@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     // Store session in Supabase
     const supabase = getSupabaseAdmin();
     if (supabase) {
-      await supabase.from('jules_sessions').insert({
+      const { error: erreurSession } = await supabase.from('jules_sessions').insert({
         id: julesData.id || String(julesData.name)?.split('/').pop(),
         title: title || prompt.slice(0, 50),
         prompt,
@@ -77,11 +77,17 @@ export async function POST(request: NextRequest) {
         url: julesData.url
       });
 
-      await supabase.from('jules_memory').insert({
+      if (erreurSession) {
+        console.error('[jules] session non enregistree :', erreurSession.message);
+      }
+      const { error: erreurMemoire } = await supabase.from('jules_memory').insert({
         action_type: 'session_created',
         description: title || prompt.slice(0, 50),
         session_id: julesData.id || String(julesData.name)?.split('/').pop()
       });
+      if (erreurMemoire) {
+        console.error('[jules] memoire non ecrite :', erreurMemoire.message);
+      }
     }
 
     return NextResponse.json({
@@ -142,7 +148,10 @@ export async function GET(request: Request) {
         });
 
         if (batchSessions.length > 0) {
-          await supabase.from('jules_sessions').upsert(batchSessions, { onConflict: 'id' });
+          const { error: erreurLot } = await supabase.from('jules_sessions').upsert(batchSessions, { onConflict: 'id' });
+          if (erreurLot) {
+            console.error('[jules] lot de sessions non synchronise :', erreurLot.message);
+          }
         }
       }
     } catch (e) {

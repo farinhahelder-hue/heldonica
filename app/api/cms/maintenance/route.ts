@@ -32,10 +32,20 @@ export async function POST(req: NextRequest) {
 
   // Persist to Supabase
   if (supabase) {
-    await supabase.from('site_settings').upsert(
+    // C'est ce reglage qui decide si le public voit le site. Un echec ici
+    // repondait quand meme success : on croyait avoir bascule, rien n'avait
+    // bouge. Le pire endroit pour une erreur muette.
+    const { error: erreurBascule } = await supabase.from('site_settings').upsert(
       { key: 'maintenance_mode', value: active ? 'true' : 'false', updated_at: new Date().toISOString() },
       { onConflict: 'key' }
     );
+    if (erreurBascule) {
+      console.error('[cms/maintenance] bascule non enregistree :', erreurBascule.message);
+      return NextResponse.json(
+        { error: "La maintenance n'a pas pu être basculée.", detail: erreurBascule.message },
+        { status: 500 }
+      );
+    }
   }
 
   const res = NextResponse.json({ success: true, active });

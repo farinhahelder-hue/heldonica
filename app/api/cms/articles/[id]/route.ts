@@ -118,7 +118,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     if (raw && typeof raw === 'object' && 'title' in raw) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const current = raw as any;
-      await sb.from('article_revisions').insert(
+      const { error: erreurRevision } = await sb.from('article_revisions').insert(
         {
           article_id: String(parseInt(id)),
           title: current.title,
@@ -127,8 +127,13 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
           word_count: ((current.content || '') as string).replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length,
         } as any
       );
+      if (erreurRevision) {
+        // La revision sert a revenir en arriere. Sans elle, la modification
+        // passe, mais on ne pourra plus la defaire.
+        console.error('[cms/articles/id] revision non ecrite :', erreurRevision.message);
+      }
     }
-  })().catch(() => {/* ignore revision errors */});
+  })().catch((e: unknown) => console.error('[cms/articles/id] revision :', e));
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let result: any = await (sb.from('cms_blog_posts') as any)
@@ -210,7 +215,11 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     }
     // Sync to articles table - ignore errors
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(sb.from('articles') as any).upsert(articlesPayload).then(() => {}).catch(() => {})
+    ;(sb.from('articles') as any).upsert(articlesPayload)
+      .then(({ error }: { error: { message: string } | null }) => {
+        if (error) console.error('[cms/articles/id] sync articles :', error.message)
+      })
+      .catch((e: unknown) => console.error('[cms/articles/id] sync articles :', e))
   }
 
   // Auto-schedule Instagram post when article is published (fire-and-forget)
@@ -248,7 +257,11 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
   // Also archive in articles table for public pages
   if (article?.slug) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(sb.from('articles') as any).update({ archived: true }).eq('slug', article.slug).then(() => {}).catch(() => {})
+    ;(sb.from('articles') as any).update({ archived: true }).eq('slug', article.slug)
+      .then(({ error }: { error: { message: string } | null }) => {
+        if (error) console.error('[cms/articles/id] archivage articles :', error.message)
+      })
+      .catch((e: unknown) => console.error('[cms/articles/id] archivage articles :', e))
   }
 
   await revalidateCmsTarget({ slug: article?.slug, type: 'article' })

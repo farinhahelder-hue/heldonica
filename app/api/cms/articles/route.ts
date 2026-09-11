@@ -129,7 +129,14 @@ export async function POST(req: Request) {
       }
       // Sync to articles table - ignore errors as articles might not exist yet
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ;(sb.from('articles') as any).upsert(articlesPayload).then(() => {}).catch(() => {})
+      // Synchronisation vers la table historique, sans bloquer la reponse.
+      // Le .catch vide n'attrapait rien : Supabase ne leve pas, il rend
+      // { error }. C'est dans le .then qu'il faut le lire.
+      ;(sb.from('articles') as any).upsert(articlesPayload)
+        .then(({ error }: { error: { message: string } | null }) => {
+          if (error) console.error('[cms/articles] sync articles :', error.message)
+        })
+        .catch((e: unknown) => console.error('[cms/articles] sync articles :', e))
     }
 
   await revalidateCmsTarget({ slug: data?.slug, type: 'article' })

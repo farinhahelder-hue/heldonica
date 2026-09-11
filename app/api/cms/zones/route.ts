@@ -111,7 +111,7 @@ export async function PATCH(req: NextRequest) {
 
     if (existingZone && existingZone.value !== value) {
       try {
-        await supabase.from('cms_zone_history').insert({
+        const { error: erreurHistorique } = await supabase.from('cms_zone_history').insert({
           zone_id: existingZone.id,
           page,
           zone_key,
@@ -119,7 +119,12 @@ export async function PATCH(req: NextRequest) {
           new_value: value,
           created_at: new Date().toISOString(),
         });
-      } catch {}
+        if (erreurHistorique) {
+          console.error('[cms/zones] historique non ecrit :', erreurHistorique.message);
+        }
+      } catch (e) {
+        console.error('[cms/zones] historique :', e);
+      }
     }
 
     const { error } = await supabase

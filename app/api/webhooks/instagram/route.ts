@@ -140,7 +140,7 @@ Rédige la proposition de réponse directe :`;
 
               // 3. Sauvegarde dans Supabase pour validation 1-clic
               if (supabase) {
-                await (supabase as any).from('instagram_comments').upsert(
+                const { error: erreurCommentaire } = await (supabase as any).from('instagram_comments').upsert(
                   {
                     ig_comment_id: commentId,
                     media_id: mediaId,
@@ -155,6 +155,11 @@ Rédige la proposition de réponse directe :`;
                   },
                   { onConflict: 'ig_comment_id' }
                 );
+                if (erreurCommentaire) {
+                  // Meta ne renverra pas cet evenement : un commentaire perdu
+                  // ici est perdu pour la relecture.
+                  console.error('[webhook instagram] commentaire non enregistre :', commentId, erreurCommentaire.message);
+                }
               }
             }
           }
