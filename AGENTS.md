@@ -56,10 +56,100 @@ portraits indéfinis ("l'un", "l'autre") si besoin de les évoquer.
   schéma réel (`information_schema.columns`) avant d'écrire une requête ou une
   nouvelle migration sur une table existante.
 
+## Coordination entre agents — la table `agent_tasks`
+
+Plusieurs agents travaillent sur ce dépôt sans se parler : Claude Code, Gemini,
+OpenCode, Jules, Muse Spark… Ils n'ont aucune session commune. Ce qui les
+coordonne, c'est **un registre, un dépôt git et une CI** — les mêmes pour tous.
+
+Le registre est la table Supabase `agent_tasks`. Discord, les issues GitHub et
+`CHANGELOG.md` sont des **notifications** ; la table est la **vérité**. Si ce
+n'est pas dans la table, ça n'a pas été demandé ni fait.
+
+### Les quatre gestes
+
+1. **Lire avant d'agir.** Au début d'une session, lister les tâches qui te sont
+   adressées (`agent = ton nom`) ou ouvertes à tous, en `sent`. Lire aussi ce qui
+   est `in_progress` chez les autres : tu ne touches pas à leurs fichiers.
+
+2. **Prendre avant de toucher.** Passer la tâche en `in_progress` et poser
+   `claimed_by = ton nom`, `claimed_at = now()` **avant** la première
+   modification. Une tâche déjà prise par un autre agent ne se prend pas —
+   on lui laisse, ou on dépose une nouvelle tâche qui la complète
+   (`depends_on = son id`).
+
+3. **Une tâche, une branche.** Nommer la branche `agent/<ton-nom>/<slug>` et la
+   noter dans `branch`. Le dépôt `main` est l'arbitre : on y arrive par PR ou par
+   push rebasé, jamais en écrasant. Deux agents ont déjà divergé sur `main` le
+   10 septembre ; ça n'a rien cassé parce que leurs fichiers différaient. Un jour
+   ils ne différeront pas.
+
+4. **Rendre compte, honnêtement.** Clore avec le statut juste et un
+   `actions_done` que le suivant peut reprendre sans relire ta session.
+
+### Le vocabulaire des statuts
+
+| Statut | Sens exact |
+|---|---|
+| `sent` | Déposée, personne ne l'a prise. |
+| `in_progress` | Prise (`claimed_by` renseigné). Les fichiers qu'elle touche sont réservés. |
+| `waiting_validation` | Le code est fait ; **une action humaine manque** — appliquer une migration, publier, poser un secret. La description commence par ce qui manque. |
+| `blocked` | Impossible depuis le poste (permission, secret, réseau). La description dit quoi, et à qui. |
+| `done` | Fait **et vérifié**. Jamais `done` sur la foi d'un `git push` ou d'un message d'application. |
+
+`done` sans vérification est le mensonge le plus coûteux de ce projet : un
+montage vidéo annoncé fini et jamais rendu, une CSP qui bloquait GA4 pendant des
+semaines, des routes cron en 401 chaque nuit. Si tu n'as pas mesuré, écris
+`waiting_validation` et dis ce qu'il reste à mesurer.
+
+### La forme de `actions_done`
+
+Un objet JSON à clés fixes, pour que n'importe quel agent — ou l'utilisateur —
+reprenne là où tu t'es arrêté :
+
+```json
+{
+  "corrige":       ["ce qui a été changé, avec le commit"],
+  "verifie":       ["ce qui a été mesuré, et comment — pas 'testé', mais 'HTTP 200, 2 388 393 octets'"],
+  "non_verifie":   ["ce qui aurait dû l'être et ne l'a pas été, et pourquoi"],
+  "reste_a_faire": ["à qui, et la commande ou le geste exact"]
+}
+```
+
+Les colonnes `risk_level`, `rollback_sql`, `allowed_tables`, `forbidden_ops`,
+`files_modified`, `validated_by` existent pour les tâches qui touchent la base
+ou la production : les remplir quand c'est le cas.
+
+### Ce qu'on ne fait jamais
+
+- Marquer `done` une tâche qu'on n'a pas prise.
+- Modifier un fichier listé dans `files_modified` d'une tâche `in_progress`
+  d'un autre agent.
+- Éditer une tâche qui n'est pas la sienne autrement qu'en y ajoutant une
+  `notes`.
+- Supprimer des données de l'utilisateur sur la foi d'un nom ou d'un préfixe :
+  le 11 septembre, quatre brouillons `paris-*` semblaient des doublons ; deux
+  étaient des notes distinctes. On compare les octets, pas les slugs.
+
 ## Garde-fous CI (doivent rester au vert)
 
-`.github/workflows/garde-fous.yml` exécute à chaque PR/push vers `main` :
-`tsc --noEmit`, `check:cms-zones` (zones CMS orphelines), `check:cms-drift`
-(dérive de schéma), `check:content-coherence` (voix éditoriale). Les lancer
-en local avant de pousser : `npm run check:cms-zones && npm run check:cms-drift
-&& npm run check:content-coherence && npx tsc --noEmit`.
+`.github/workflows/garde-fous.yml` exécute à chaque PR et chaque push vers
+`main` : `tsc --noEmit`, `vitest`, et six contrôles —
+
+| Script | Ce qu'il attrape |
+|---|---|
+| `check:cms-zones` | Zones CMS actives qu'aucun composant n'affiche, et l'inverse. |
+| `check:cms-drift` | Tables en base absentes des migrations, ou l'inverse. |
+| `check:api-auth` | Route maniant la clé service sans vérifier son appelant. |
+| `check:erreurs-avalees` | Écriture Supabase dont l'erreur n'est pas lue — `const { data } = await`, `await` nu, `.catch(() => {})`. |
+| `check:content-coherence` | Voix éditoriale et mots bannis. |
+| `check:content-evidence` | Vécu qui n'est adossé à aucune photo. |
+
+Les lancer **tous** en local avant de pousser :
+
+```bash
+for g in cms-zones cms-drift api-auth erreurs-avalees content-coherence content-evidence; do npm run check:$g --silent || echo "ROUGE : $g"; done; npx tsc --noEmit
+```
+
+Ils sont le même juge pour tous les agents. Un garde-fou rouge n'est pas
+« à corriger plus tard » : c'est une tâche qui n'est pas finie.
