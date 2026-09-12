@@ -97,13 +97,13 @@ export default async function ColombiePage() {
         {/* Sub navigation */}
         <nav className="bg-white border-b border-stone-200 sticky top-16 z-40" aria-label="Sous-destinations">
           <div className="max-w-4xl mx-auto px-4 py-3 flex gap-6 overflow-x-auto no-scrollbar">
-            {SUBNav.map((item) => (
+            {SUBNav.map((item, i) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className="text-stone-600 hover:text-eucalyptus whitespace-nowrap text-sm font-medium transition-colors"
               >
-                {item.label}
+                {Z(`subnav_${i + 1}_label`, 'text', item.label, undefined, 'span')}
               </Link>
             ))}
           </div>
@@ -124,7 +124,7 @@ export default async function ColombiePage() {
           {/* Cards grid */}
           <section className="mb-12">
             <h2 className="text-2xl font-serif text-stone-900 mb-6">
-              Nos villes favorites
+              {Z('cards_title', 'text', "Nos villes favorites", undefined, 'span')}
             </h2>
             <div className="grid gap-5 md:grid-cols-2">
               <div className="bg-white p-6 rounded-xl border border-stone-200 hover:border-eucalyptus/40 hover:shadow-md transition-all group">
@@ -134,7 +134,7 @@ export default async function ColombiePage() {
                 <p className="text-stone-600 text-sm leading-relaxed">
                   {Z('card_1_desc', 'textarea', "Capitale à 2 600 m. Musées de classe mondiale, street food, graffitis engagés.", undefined, 'span')}
                 </p>
-                <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">Voir le guide →</span>
+                <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">{Z('cards_cta', 'text', "Voir le guide →", undefined, 'span')}</span>
               </div>
               <div className="bg-white p-6 rounded-xl border border-stone-200 hover:border-eucalyptus/40 hover:shadow-md transition-all group">
                 <h3 className="font-serif text-lg text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">
@@ -143,7 +143,7 @@ export default async function ColombiePage() {
                 <p className="text-stone-600 text-sm leading-relaxed">
                   {Z('card_2_desc', 'textarea', "La ville de l'éternel printemps. Innovation urbaine, quartier El Poblado, tramway.", undefined, 'span')}
                 </p>
-                <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">Voir le guide →</span>
+                <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">{Z('cards_cta', 'text', "Voir le guide →", undefined, 'span')}</span>
               </div>
               <div className="bg-white p-6 rounded-xl border border-stone-200 hover:border-eucalyptus/40 hover:shadow-md transition-all group">
                 <h3 className="font-serif text-lg text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">
@@ -152,7 +152,7 @@ export default async function ColombiePage() {
                 <p className="text-stone-600 text-sm leading-relaxed">
                   {Z('card_3_desc', 'textarea', "Reine de la salsa. Valle del Cauca, ambiance décalée, feria en décembre.", undefined, 'span')}
                 </p>
-                <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">Voir le guide →</span>
+                <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">{Z('cards_cta', 'text', "Voir le guide →", undefined, 'span')}</span>
               </div>
               <div className="bg-white p-6 rounded-xl border border-stone-200 hover:border-eucalyptus/40 hover:shadow-md transition-all group">
                 <h3 className="font-serif text-lg text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">
@@ -161,7 +161,7 @@ export default async function ColombiePage() {
                 <p className="text-stone-600 text-sm leading-relaxed">
                   {Z('card_4_desc', 'textarea', "UNESCO. Fincas caféières, paysages ondulés, haciendas coloniales.", undefined, 'span')}
                 </p>
-                <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">Voir le guide →</span>
+                <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">{Z('cards_cta', 'text', "Voir le guide →", undefined, 'span')}</span>
               </div>
             </div>
           </section>
@@ -208,7 +208,7 @@ export default async function ColombiePage() {
 
           <div className="pt-4 border-t border-stone-200">
             <Link href="/destinations" className="text-sm text-eucalyptus font-semibold hover:underline">
-              ← Toutes les destinations
+              {Z('back_link', 'text', "← Toutes les destinations", undefined, 'span')}
             </Link>
           </div>
         </div>

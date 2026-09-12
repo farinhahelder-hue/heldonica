@@ -102,13 +102,13 @@ export default async function PortugalPage() {
         {/* Sub navigation */}
         <nav className="bg-white border-b border-stone-200 sticky top-16 z-40" aria-label="Sous-destinations">
           <div className="max-w-4xl mx-auto px-4 py-3 flex gap-6 overflow-x-auto no-scrollbar">
-            {SUBNav.map((item) => (
+            {SUBNav.map((item, i) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className="text-stone-600 hover:text-eucalyptus whitespace-nowrap text-sm font-medium transition-colors"
               >
-                {item.label}
+                {Z(`subnav_${i + 1}_label`, 'text', item.label, undefined, 'span')}
               </Link>
             ))}
           </div>
@@ -185,7 +185,7 @@ export default async function PortugalPage() {
           {/* Infos pratiques */}
           <section className="mb-12">
             
-            <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">Côté pratique</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">{Z('practical_kicker', 'text', "Côté pratique", undefined, 'span')}</p>
             <h2 className="text-2xl font-serif text-stone-900 mb-6">
               {Z('info_title', 'text', "Ce qu'il faut savoir", undefined, 'span')}
             </h2>
@@ -232,7 +232,7 @@ export default async function PortugalPage() {
           </section>
 
           <section className="mb-12">
-            <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">Questions fréquentes</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">{Z('faq_kicker', 'text', "Questions fréquentes", undefined, 'span')}</p>
             <div className="space-y-4">
               <details key={0} className="group bg-white rounded-xl border border-stone-200 p-5">
                 <summary className="font-semibold text-stone-900 cursor-pointer list-none flex items-center justify-between">
@@ -283,7 +283,7 @@ export default async function PortugalPage() {
               href="/travel-planning"
               className="inline-flex items-center gap-2 px-6 py-3 bg-eucalyptus text-white font-semibold rounded-xl hover:bg-eucalyptus/90 transition-colors text-sm"
             >
-              Planifier mon voyage Portugal →
+              {Z('cta_button', 'text', "Planifier mon voyage Portugal →", undefined, 'span')}
             </Link>
           </div>          <div className="pt-4 border-t border-stone-200">
             <Link href="/destinations" className="text-sm text-eucalyptus font-semibold hover:underline">

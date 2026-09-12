@@ -100,13 +100,13 @@ export default async function NormandiePage() {
         {/* Sub navigation */}
         <nav className="bg-white border-b border-stone-200 sticky top-16 z-40" aria-label="Sous-destinations">
           <div className="max-w-4xl mx-auto px-4 py-3 flex gap-6 overflow-x-auto no-scrollbar">
-            {SUBNav.map((item) => (
+            {SUBNav.map((item, i) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className="text-stone-600 hover:text-eucalyptus whitespace-nowrap text-sm font-medium transition-colors"
               >
-                {item.label}
+                {Z(`subnav_${i + 1}_label`, 'text', item.label, undefined, 'span')}
               </Link>
             ))}
           </div>
@@ -124,7 +124,7 @@ export default async function NormandiePage() {
           {/* Cards grid */}
           <section className="mb-12">
             <h2 className="text-2xl font-serif text-stone-900 mb-6">
-              Nos régions
+              {Z('cards_title', 'text', "Nos régions", undefined, 'span')}
             </h2>
             <div className="grid gap-5 md:grid-cols-2">
               <div className="bg-white p-6 rounded-xl border border-stone-200 hover:border-eucalyptus/40 hover:shadow-md transition-all group">
@@ -196,20 +196,20 @@ export default async function NormandiePage() {
 
           <section className="mb-12">
             <h2 className="text-2xl font-serif text-stone-900 mb-6">
-              En voir plus
+              {Z('more_title', 'text', "En voir plus", undefined, 'span')}
             </h2>
             <div className="flex flex-wrap gap-4">
               <Link
                 href="/destinations/normandie/le-havre"
                 className="px-6 py-3 bg-mahogany text-white rounded-lg hover:bg-mahogany/90 transition-colors"
               >
-                Le Havre et environs →
+                {Z('more_cta_1', 'text', "Le Havre et environs →", undefined, 'span')}
               </Link>
               <Link
                 href="/blog"
                 className="px-6 py-3 border border-stone-300 text-stone-700 rounded-lg hover:border-eucalyptus/40 transition-colors"
               >
-                Articles Normandie →
+                {Z('more_cta_2', 'text', "Articles Normandie →", undefined, 'span')}
               </Link>
             </div>
           </section>

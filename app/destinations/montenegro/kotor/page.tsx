@@ -131,12 +131,10 @@ export default async function KotorPage() {
           {/* Pourquoi se lever tôt */}
           <section className="mb-16 bg-gradient-to-b from-white to-stone-50 -mx-4 px-4 py-12 rounded-2xl">
             <h2 className="text-3xl font-serif text-mahogany mb-6">
-              Pourquoi découvrir Kotor tôt le matin
+              {Z('why_title', 'text', "Pourquoi découvrir Kotor tôt le matin", undefined, 'span')}
             </h2>
             <p className="text-lg text-stone-700 leading-relaxed mb-8">
-              Kotor subit le syndrome des destinations méditerranéennes :
-              magnifiques hors saison, invivables en juillet-août.
-              Mais même hors saison, les croisiéristes débarquent chaque matin.
+              {Z('why_intro', 'textarea', "Kotor subit le syndrome des destinations méditerranéennes :\n              magnifiques hors saison, invivables en juillet-août.\n              Mais même hors saison, les croisiéristes débarquent chaque matin.", undefined, 'span')}
             </p>
             <div className="grid md:grid-cols-2 gap-6">
               <div className="p-6 bg-white rounded-xl border border-stone-200 shadow-sm">
@@ -161,7 +159,7 @@ export default async function KotorPage() {
           {/* Notre façon de vivre */}
           <section className="mb-16">
             <h2 className="text-3xl font-serif text-mahogany mb-6">
-              Comment on organise une journée type à Kotor
+              {Z('day_title', 'text', "Comment on organise une journée type à Kotor", undefined, 'span')}
             </h2>
             <div className="space-y-8">
               <div className="flex gap-4">
@@ -206,7 +204,7 @@ export default async function KotorPage() {
           {/* Infos pratiques */}
           <section className="mb-16 bg-white rounded-2xl p-8 border border-stone-200">
             <h2 className="text-3xl font-serif text-mahogany mb-6">
-              Infos pratiques pour Kotor
+              {Z('info_title', 'text', "Infos pratiques pour Kotor", undefined, 'span')}
             </h2>
             <div className="grid md:grid-cols-2 gap-8">
               <div>
@@ -247,7 +245,7 @@ export default async function KotorPage() {
           {/* FAQ */}
           <section className="mb-16">
             <h2 className="text-3xl font-serif text-mahogany mb-6">
-              Questions fréquentes sur Kotor
+              {Z('faq_title', 'text', "Questions fréquentes sur Kotor", undefined, 'span')}
             </h2>
             <div className="space-y-4">
               {FAQS.map((f) => (
@@ -267,17 +265,17 @@ export default async function KotorPage() {
           {/* Verdict */}
           <section className="mb-16 bg-mahogany text-white rounded-2xl p-8 md:p-12">
             <h2 className="text-3xl font-serif mb-6">
-              Notre verdict sur Kotor
+              {Z('verdict_title', 'text', "Notre verdict sur Kotor", undefined, 'span')}
             </h2>
             <div className="grid md:grid-cols-2 gap-8">
               <div>
-                <h3 className="font-semibold text-teal mb-3">Pour qui</h3>
+                <h3 className="font-semibold text-teal mb-3">{Z('verdict_who_title', 'text', "Pour qui", undefined, 'span')}</h3>
                 <p className="text-stone-200">
                   {Z('verdict_who', 'textarea', "Couples qui cherchent une destination romantique avec de vrais beaux paysages. Amateurs d'histoire (vieille ville UNESCO) et de nature (baie, montagnes).", undefined, 'span')}
                 </p>
               </div>
               <div>
-                <h3 className="font-semibold text-teal mb-3">Ce qu'on adore</h3>
+                <h3 className="font-semibold text-teal mb-3">{Z('verdict_adore_title', 'text', "Ce qu'on adore", undefined, 'span')}</h3>
                 <ul className="text-stone-200 space-y-1">
                   <li>{Z('verdict_adore_1', 'textarea', "✓ La baie au lever du soleil", undefined, 'span')}</li>
                   <li>{Z('verdict_adore_2', 'textarea', "✓ Les ruelles pavées avant 9h", undefined, 'span')}</li>
@@ -286,7 +284,7 @@ export default async function KotorPage() {
                 </ul>
               </div>
               <div className="md:col-span-2">
-                <h3 className="font-semibold text-teal mb-3">Ce qu'on évite</h3>
+                <h3 className="font-semibold text-teal mb-3">{Z('verdict_avoid_title', 'text', "Ce qu'on évite", undefined, 'span')}</h3>
                 <p className="text-stone-200">
                   {Z('verdict_avoid', 'textarea', "Les croisiéristes. Juillet-août si tu cherches du slow travel. Les restaurants hors de la vieille ville — moins authentiques, plus chers.", undefined, 'span')}
                 </p>
@@ -303,18 +301,17 @@ export default async function KotorPage() {
           <section className="mb-16 text-center">
             <div className="inline-block bg-gradient-to-r from-eucalyptus/10 to-teal/10 rounded-2xl p-8 md:p-12">
               <h2 className="text-2xl font-serif text-mahogany mb-4">
-                Envie d'explorer le Monténégro sur mesure ?
+                {Z('cta_title', 'text', "Envie d'explorer le Monténégro sur mesure ?", undefined, 'span')}
               </h2>
               <p className="text-stone-600 mb-6 max-w-lg mx-auto">
-                On peut concevoir ton itinéraire Monténégro avec nos adresses testées terrain —
-                de Kotor à Durmitor, sans compromis.
+                {Z('cta_text', 'textarea', "On peut concevoir ton itinéraire Monténégro avec nos adresses testées terrain —\n                de Kotor à Durmitor, sans compromis.", undefined, 'span')}
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <Link href="/travel-planning" className="inline-flex items-center gap-2 bg-eucalyptus text-white px-8 py-4 rounded-full font-semibold hover:bg-eucalyptus/90 transition-colors">
-                  Découvrir Travel Planning →
+                  {Z('cta_button_1', 'text', "Découvrir Travel Planning →", undefined, 'span')}
                 </Link>
                 <Link href="/destinations/montenegro" className="inline-flex items-center gap-2 bg-white text-mahogany px-8 py-4 rounded-full font-semibold hover:bg-stone-100 transition-colors border border-stone-200">
-                  Retour au Monténégro
+                  {Z('cta_button_2', 'text', "Retour au Monténégro", undefined, 'span')}
                 </Link>
               </div>
             </div>
@@ -322,19 +319,19 @@ export default async function KotorPage() {
 
           {/* Liens vers autres destinations */}
           <section className="border-t border-stone-200 pt-12">
-            <h3 className="text-sm uppercase tracking-wider text-stone-500 mb-6">Autres destinations Heldonica</h3>
+            <h3 className="text-sm uppercase tracking-wider text-stone-500 mb-6">{Z('related_title', 'text', "Autres destinations Heldonica", undefined, 'span')}</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <Link href="/destinations/madere" className="p-4 bg-white rounded-xl border border-stone-200 hover:border-eucalyptus hover:shadow-md transition-all">
                 <span className="text-2xl mr-2">🇵🇹</span>
-                <span className="text-mahogany font-medium">Madère</span>
+                <span className="text-mahogany font-medium">{Z('related_1_label', 'text', "Madère", undefined, 'span')}</span>
               </Link>
               <Link href="/destinations/roumanie" className="p-4 bg-white rounded-xl border border-stone-200 hover:border-eucalyptus hover:shadow-md transition-all">
                 <span className="text-2xl mr-2">🇷🇴</span>
-                <span className="text-mahogany font-medium">Roumanie</span>
+                <span className="text-mahogany font-medium">{Z('related_2_label', 'text', "Roumanie", undefined, 'span')}</span>
               </Link>
               <Link href="/destinations" className="p-4 bg-white rounded-xl border border-stone-200 hover:border-eucalyptus hover:shadow-md transition-all">
                 <span className="text-2xl mr-2">🗺️</span>
-                <span className="text-mahogany font-medium">Toutes</span>
+                <span className="text-mahogany font-medium">{Z('related_3_label', 'text', "Toutes", undefined, 'span')}</span>
               </Link>
             </div>
           </section>
