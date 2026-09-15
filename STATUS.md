@@ -45,5 +45,5 @@ _Derniere mise a jour : 14 septembre 2026 — a rafraichir chaque lundi (Sprint 
 - Discord et les issues GitHub sont des notifications, pas la verite
 - Regle : ne pas recreer de systeme parallele pour assigner des taches (pas de bot Discord de coordination, pas de Google Sheet, pas de Cloud Function externe) — tout passe par `agent_tasks` + MCP, que les agents lisent en local sur le poste de travail
 
-## 4. Nettoyage a faire (meta, mais utile)
-Le repo contient plus de 15 fichiers d'audit a la racine (AUDIT_*.md, RAPPORT_AUDIT_CMS.md, SITE_AUDIT_REPORT.md, TECHNICAL_AUDIT_REPORT_2026-07-05.md, etc.) — exactement le type d'eparpillement qu'on essaie d'eviter avec ce scaffold. A deplacer dans `docs/archive/` au prochain passage de nettoyage, en gardant seulement STATUS.md, TASKS.md, AGENTS.md, CLAUDE.md, ROADMAP.md, CHANGELOG.md a la racine.
+## 4. Nettoyage fait (15/09/2026)
+26 fichiers d'audit déplacés vers `docs/archive/` (commit NET01) — racine nettoyée, ne restent que `STATUS.md`, `TASKS.md`, `AGENTS.md`, `CLAUDE.md`, `ROADMAP.md`, `CHANGELOG.md`, `README.md`.
