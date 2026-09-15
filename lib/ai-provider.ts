@@ -17,6 +17,7 @@ export interface AiCompletionOptions {
   temperature?: number;
   max_tokens?: number;
   jsonMode?: boolean;
+  preferredProvider?: "groq" | "gemini" | "openrouter";
 }
 
 export interface AiCompletionResult {
