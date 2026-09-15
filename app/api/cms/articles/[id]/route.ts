@@ -181,46 +181,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  // Also sync to articles table for public pages
-  if (data) {
-    const p = data as unknown as Record<string, any>;
-    
-    // Extraire destination de voice_notes si possible
-    let destination = null;
-    if (p.voice_notes) {
-      const destMatch = p.voice_notes.match(/Destination:\s*([^|\n]+)/i);
-      if (destMatch) destination = destMatch[1].trim();
-    }
-
-    const articlesPayload = {
-      id: p.id,
-      title: p.title,
-      slug: p.slug,
-      category: p.category,
-      excerpt: p.excerpt,
-      content: p.content,
-      featured_image: p.featured_image,
-      author: p.author,
-      published: p.published,
-      published_at: p.published_at,
-      updated_at: p.updated_at,
-      tags: p.tags || [],
-      archived: p.archived || false,
-      seo_title: p.meta_title || p.title,
-      seo_description: p.meta_description || p.excerpt || null,
-      faq_content: p.faq_content,
-      destination: destination,
-      voice_notes: p.voice_notes,
-      status: p.status || 'draft',
-    }
-    // Sync to articles table - ignore errors
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(sb.from('articles') as any).upsert(articlesPayload)
-      .then(({ error }: { error: { message: string } | null }) => {
-        if (error) console.error('[cms/articles/id] sync articles :', error.message)
-      })
-      .catch((e: unknown) => console.error('[cms/articles/id] sync articles :', e))
-  }
+  // Legacy sync to articles removed — cms_blog_posts is source of truth (#448)
 
   // Auto-schedule Instagram post when article is published (fire-and-forget)
   if (body.status === 'published' && data) {
@@ -254,15 +215,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
   const { error } = await (sb.from('cms_blog_posts') as any).delete().eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  // Also archive in articles table for public pages
-  if (article?.slug) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(sb.from('articles') as any).update({ archived: true }).eq('slug', article.slug)
-      .then(({ error }: { error: { message: string } | null }) => {
-        if (error) console.error('[cms/articles/id] archivage articles :', error.message)
-      })
-      .catch((e: unknown) => console.error('[cms/articles/id] archivage articles :', e))
-  }
+  // Legacy archivage articles removed (#448)
 
   await revalidateCmsTarget({ slug: article?.slug, type: 'article' })
 

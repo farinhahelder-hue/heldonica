@@ -94,50 +94,8 @@ export async function POST(req: Request) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-    // Also sync to articles table for public pages
-    if (data) {
-      const synced = data as Record<string, any>;
-      
-      // Extraire destination de voice_notes si possible
-      let destination = null;
-      if (synced.voice_notes) {
-        const destMatch = synced.voice_notes.match(/Destination:\s*([^|\n]+)/i);
-        if (destMatch) destination = destMatch[1].trim();
-      }
-
-      const articlesPayload = {
-        id: synced.id,
-        title: synced.title,
-        slug: synced.slug,
-        category: synced.category,
-        excerpt: synced.excerpt,
-        content: synced.content,
-        featured_image: synced.featured_image,
-        author: synced.author,
-        published: synced.published,
-        published_at: synced.published_at,
-        created_at: synced.created_at,
-        updated_at: synced.updated_at,
-        tags: synced.tags || [],
-        archived: false,
-        seo_title: synced.meta_title || synced.title,
-        seo_description: synced.meta_description || synced.excerpt || null,
-        faq_content: synced.faq_content,
-        destination: destination,
-        voice_notes: synced.voice_notes,
-        status: synced.status || 'draft',
-      }
-      // Sync to articles table - ignore errors as articles might not exist yet
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      // Synchronisation vers la table historique, sans bloquer la reponse.
-      // Le .catch vide n'attrapait rien : Supabase ne leve pas, il rend
-      // { error }. C'est dans le .then qu'il faut le lire.
-      ;(sb.from('articles') as any).upsert(articlesPayload)
-        .then(({ error }: { error: { message: string } | null }) => {
-          if (error) console.error('[cms/articles] sync articles :', error.message)
-        })
-        .catch((e: unknown) => console.error('[cms/articles] sync articles :', e))
-    }
+    // Legacy sync to articles removed — cms_blog_posts is source of truth (#448)
+    // Table articles backed up to backup_articles_20260915, will be dropped after 7d
 
   await revalidateCmsTarget({ slug: data?.slug, type: 'article' })
 

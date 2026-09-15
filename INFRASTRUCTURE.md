@@ -45,8 +45,8 @@ _Derniere mise a jour : 15 septembre 2026 — a garder a jour si un projet/ID ch
 
 **Tables cles** :
 - `agent_tasks` : registre de coordination IA (via MCP, voir `AGENTS.md`)
-- `cms_blog_posts` : source de verite pour les articles (72 usages dans le code)
-- `articles` : legacy (8 usages) → a migrer et supprimer (voir #448)
+- `cms_blog_posts` : source de verite pour les articles (74 usages, 8 migrés #448)
+- `articles` : legacy → backup `backup_articles_20260915` (48 lignes), 0 usage restant, DROP prévu après 7j (#448)
 - `destinations`, `cms_pillar_pages`, `cms_settings` : contenu CMS
 - `instagram_drafts`, `instagram_scheduled_posts`, `instagram_comments` : pipeline Instagram
 - `newsletter_subscribers` : mailing
