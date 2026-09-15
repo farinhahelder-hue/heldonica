@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { requireCmsAuth } from '@/lib/cms-auth'
+import { rateLimit, getClientIp } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,6 +21,12 @@ Ne demande pas de choisir entre plusieurs choses.
 Si une tâche implique un risque pour la production, Supabase ou Vercel, prépare un plan mais attends la validation avant toute modification.`
 
 export async function POST(req: NextRequest) {
+  const authErr = await requireCmsAuth(req)
+  if (authErr) return authErr
+  if (!rateLimit(getClientIp(req), 10, 60_000)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
+
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) {
     return NextResponse.json({ error: 'GEMINI_API_KEY manquante (Vercel Env)' }, { status: 503 })
