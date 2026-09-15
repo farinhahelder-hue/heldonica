@@ -46,10 +46,10 @@ export async function POST(req: Request) {
 
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    // Update article status
+    // Update article status (source of truth cms_blog_posts #448)
     const published = action === 'publish'
     const { error: updateError } = await supabase
-      .from('articles')
+      .from('cms_blog_posts')
       .update({ 
         published,
         published_at: published ? new Date().toISOString() : null,
@@ -57,23 +57,12 @@ export async function POST(req: Request) {
       .eq('slug', slug)
 
     if (updateError) {
-      console.error('Error updating article:', updateError)
+      console.error('Error updating cms_blog_posts:', updateError)
       return NextResponse.json(
         { error: updateError.message },
         { status: 500 }
       )
     }
-
-    // Also update cms_blog_posts if it exists
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase.from('cms_blog_posts') as any)
-      .update({
-        published,
-        published_at: published ? new Date().toISOString() : null,
-      })
-      .eq('slug', slug)
-      .then(() => {})
-      .catch(() => {/* ignore if table doesn’t exist */})
 
     // Revalidate ISR cache
     revalidatePath('/blog')

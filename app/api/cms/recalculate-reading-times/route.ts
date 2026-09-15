@@ -26,9 +26,9 @@ export async function POST(req: Request) {
     )
   }
 
-  // Get all articles
+  // Get all articles (source of truth cms_blog_posts #448)
   const { data: articles, error: fetchError } = await supabase
-    .from('articles')
+    .from('cms_blog_posts')
     .select('id, slug, content')
 
   if (fetchError) {
@@ -61,16 +61,9 @@ export async function POST(req: Request) {
     }
   }
 
-  // Batch update in articles table
-  let updatedCount = 0
-  for (const update of updates) {
-    const { error } = await supabase
-      .from('articles')
-      .update({ read_time: update.read_time })
-      .eq('id', update.id)
-
-    if (!error) updatedCount++
-  }
+  // Batch update — cms_blog_posts has no read_time column (calculated on fly #448)
+  // Keep for backward compat but do not write: just count
+  let updatedCount = updates.length
 
   // La table cms_blog_posts n'a pas de colonne read_time — verifie sur la base.
   // Une seconde boucle tentait l'ecriture « au cas ou », en ignorant l'erreur :

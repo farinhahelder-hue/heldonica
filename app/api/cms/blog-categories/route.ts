@@ -50,19 +50,9 @@ export async function POST(req: NextRequest) {
 
     // Handle Normalization action
     if (action === 'normalize') {
-      let articlesUpdated = 0
       let cmsBlogPostsUpdated = 0
       
-      // We will perform updates in block
-      const { data: articlesData, error: articlesErr } = await supabase
-        .from('articles')
-        .update({ category: 'Carnets Voyage' })
-        .in('category', ['Carnets de voyage', 'Carnets de Voyage', 'carnets de voyage', 'carnets'])
-        .select('id')
-
-      if (!articlesErr && articlesData) articlesUpdated = articlesData.length
-
-      // Normalize "cms_blog_posts" table if it exists
+      // Normalize cms_blog_posts (source of truth #448, articles legacy removed)
       const { data: postsData, error: postsErr } = await supabase
         .from('cms_blog_posts')
         .update({ category: 'Carnets Voyage' })
@@ -74,7 +64,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         success: true,
         message: 'Normalisation effectuee avec succes',
-        normalizedCount: articlesUpdated + cmsBlogPostsUpdated,
+        normalizedCount: cmsBlogPostsUpdated,
       })
     }
 
@@ -145,18 +135,8 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    // Cascade update to articles/posts category columns if db_value changed
+    // Cascade update to cms_blog_posts category column if db_value changed (#448: articles removed)
     if (existing && existing.db_value !== db_value) {
-      // Renommer une categorie touche deux tables. Un echec sur l'une
-      // laissait l'autre renommee, et la reponse disait success.
-      const { error: erreurArticles } = await supabase
-        .from('articles')
-        .update({ category: db_value })
-        .eq('category', existing.db_value)
-      if (erreurArticles) {
-        console.error('[cms/blog-categories] articles non renommes :', erreurArticles.message)
-      }
-
       const { error: erreurBillets } = await supabase
         .from('cms_blog_posts')
         .update({ category: db_value })
