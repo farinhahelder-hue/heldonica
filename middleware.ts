@@ -50,7 +50,6 @@ const PROTECTED_PATHS = [
 const PROTECTED_PREFIXES = [
   '/api/cms',
   '/api/agents',
-  // /panel-manager a son propre écran de login React — pas besoin de le protéger ici
 ];
 const CMS_SESSION_COOKIE = 'heldonica_cms_session';
 
@@ -274,6 +273,27 @@ export async function middleware(req: NextRequest) {
     redirectUrl.pathname = redirectDestination;
 
     return NextResponse.redirect(redirectUrl, 301);
+  }
+
+  // Fix #449: protection serveur pour /panel-manager (avant, 200 public avec seulement React)
+  if (pathname === '/panel-manager' || pathname.startsWith('/panel-manager/')) {
+    const auth = await isAuthorized(req);
+    if (!auth.ok) {
+      if (auth.misconfigured) {
+        return NextResponse.json({ error: 'CMS non configuré : variable CMS_PASSWORD manquante.' }, { status: 503 });
+      }
+      // Si la requête attend du HTML (navigation), rediriger vers le login
+      // Sinon (fetch/XHR), renvoyer 401 JSON
+      const accept = req.headers.get('accept') || '';
+      if (accept.includes('text/html')) {
+        const loginUrl = req.nextUrl.clone();
+        loginUrl.pathname = '/auth/login';
+        loginUrl.searchParams.set('next', pathname);
+        return NextResponse.redirect(loginUrl);
+      }
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    }
+    return NextResponse.next();
   }
 
   if (!isProtectedPath(pathname, req.method)) {
