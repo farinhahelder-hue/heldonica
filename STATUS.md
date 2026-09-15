@@ -10,8 +10,8 @@ _Derniere mise a jour : 14 septembre 2026 — a rafraichir chaque lundi (Sprint 
 - Fixes recents : GA4 bloque par la CSP (corrige), upload web sans passer par l'API pour eviter le 413 Vercel, 23 endroits ou des erreurs Supabase etaient avalees silencieusement (corrige)
 
 ### CMS
-- Le repo standalone `heldonica-cms` (Vercel) est figé©© depuis le 13/06/2026 → considere abandonne
-- Decision a prendre : fusionner ce qui reste utile (MapManagerSection, Travel Planning) dans `heldonica`, ou l'archiver — voir issue #441 sur le projet Vercel orphelin `heldonica2`
+- Le repo standalone `heldonica-cms` archivé le 15/09/2026 (GitHub Archived + Vercel projet supprimé) → considéré abandonné, rien à fusionner
+- Projet Vercel `heldonica2` déjà supprimé (404 DEPLOYMENT_NOT_FOUND vérifié)
 
 ### APK / app mobile (`heldonica-mobile/`)
 - Ecrans natifs progressifs : publier une photo, monter une video, ecrire un carnet sans photo/texte seul

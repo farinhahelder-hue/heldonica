@@ -9,7 +9,7 @@ _Derniere mise a jour : 15 septembre 2026 — a garder a jour si un projet/ID ch
 - Fichiers cles : `STATUS.md` (snapshot), `TASKS.md` (priorites hebdo), `AGENTS.md` + `CLAUDE.md` (protocole IA), `INFRASTRUCTURE.md` (ce fichier)
 
 **Autres repos** :
-- `heldonica-cms` : fige depuis juin 2026 → considere abandonne (a fusionner ou archiver, voir #441)
+- `heldonica-cms` : archivé le 15/09/2026 (GitHub Archived, Vercel projet supprimé) → abandonné
 - `heldonica-skills`, `heldonica-travel-companion`, `heldonica-content-factory-next` : prives, utilitaires
 
 **CI/CD** : GitHub Actions → deploiement auto sur Vercel a chaque push sur `main`
