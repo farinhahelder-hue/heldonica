@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireCmsAuth } from '@/lib/cms-auth';
+import { verifyAiAuth } from '@/lib/ai-auth';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
@@ -43,8 +44,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Trop de requêtes' }, { status: 429 });
   }
 
-  const refus = await requireCmsAuth(req);
-  if (refus) return refus;
+  // Supporte à la fois les clés API agents (x-api-key) et la session CMS
+  const auth = await verifyAiAuth(req);
+  if (!auth.ok) {
+    const refus = await requireCmsAuth(req);
+    if (refus) return refus;
+  }
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
@@ -108,7 +113,8 @@ export async function POST(req: NextRequest) {
           maxOutputTokens: 2500,
           responseMimeType: 'application/json'
         }
-      })
+      }),
+      signal: AbortSignal.timeout(50_000)
     });
 
     if (!geminiRes.ok) {

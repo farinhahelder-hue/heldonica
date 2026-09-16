@@ -48,10 +48,6 @@ const KNOWN_DRIFT = new Set([
   'instagram_webhook_logs',    // /api/webhooks/instagram
   'jules_sessions',            // /api/jules
   'jules_memory',              // /api/jules
-  // Historique du Copilote — migration 20260916100000_copilot_generations.sql
-  // ecrite le 16/09, a appliquer par l'utilisateur (editeur SQL Supabase).
-  // Retirer cette ligne des qu'elle l'est : la route ecrit deja dedans.
-  'copilot_generations',
   // 'media' figurait ici avec la mention « nom probablement faux (cms_media ?) ».
   // Ce n'était ni une table ni une faute de frappe : le scanner confondait
   // `storage.from('media')`, qui vise un bucket, avec une lecture de table.

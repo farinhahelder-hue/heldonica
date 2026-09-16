@@ -48,3 +48,9 @@ heldonica-mobile/.idea/
 heldonica-mobile/local.properties
 content/evidence/*.json
 content/drafts/*.md
+
+# Outillage local du poste (chemins Windows en dur, caches Python)
+__pycache__/
+.vscode/
+aider-*.cmd
+interpreter.cmd

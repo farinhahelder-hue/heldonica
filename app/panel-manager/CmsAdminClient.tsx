@@ -44,6 +44,7 @@ const SubDestinationsManager = dynamic(() => import('@/components/admin/SubDesti
 const SeasonsManager = dynamic(() => import('@/components/admin/SeasonsManager'), { ssr: false });
 const RedirectsManager = dynamic(() => import('@/components/admin/RedirectsManager'), { ssr: false });
 const LayoutManager = dynamic(() => import('@/components/admin/LayoutManager'), { ssr: false });
+const AiAnalyticsDashboard = dynamic(() => import('@/components/admin/AiAnalyticsDashboard'), { ssr: false });
 
 type Article = {
   id: number;
@@ -659,6 +660,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
       items: [
         { id: 'blog-generator',label: 'Générateur blog',  icon: <Bot size={15} /> },
         { id: 'instagram',     label: 'Instagram',           icon: <Camera size={15} /> },
+        { id: 'analytics',     label: 'Analytics IA',        icon: <BarChart3 size={15} /> },
         { id: 'messages',      label: 'Messages',           icon: <Inbox size={15} />, badge: unreadCount > 0 ? String(unreadCount) : undefined, badgeColor: 'bg-red-500 text-white' },
       ]
     },
@@ -1578,6 +1580,15 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
 
           {/* ── Messages ── */}
           {activeSection === 'messages' && <MessagesSection />}
+
+          {/* ── Analytics IA ── */}
+          {activeSection === 'analytics' && (
+            <ErrorBoundary>
+              <Suspense fallback={<div className="text-sm text-gray-400">Chargement des analytics...</div>}>
+                <AiAnalyticsDashboard embedded />
+              </Suspense>
+            </ErrorBoundary>
+          )}
 
           {/* ── Settings ── */}
           {activeSection === 'settings' && (
