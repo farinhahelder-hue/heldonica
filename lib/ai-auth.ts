@@ -13,35 +13,10 @@ export interface AiAgentContext {
   response?: NextResponse;
 }
 
-// Clés d'amorçage provisionnées pour les différents agents du projet Heldonica
-// Elles permettent un fonctionnement immédiat en environnement local ou dev.
-// En production, chaque clé est vérifiée via son hash SHA-256 dans la table `api_keys`.
-export const INITIAL_AGENT_KEYS = [
-  {
-    name: 'antigravity',
-    token: 'hld_ag_9f8b2c4e6a1d3f5e7b9a0c2d4e6f8a1b',
-    prefix: 'hld_ag_',
-    rateLimit: 120, // req / heure
-  },
-  {
-    name: 'claude',
-    token: 'hld_cl_7e3a1b5c9d2f4e6a8b0c2d4f6e8a1b3c',
-    prefix: 'hld_cl_',
-    rateLimit: 120,
-  },
-  {
-    name: 'pencode',
-    token: 'hld_pe_4b6d8f0a2c4e6b8a1c3e5f7a9b1d3f5e',
-    prefix: 'hld_pe_',
-    rateLimit: 100,
-  },
-  {
-    name: 'mobile_apk',
-    token: 'hld_mb_1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1b',
-    prefix: 'hld_mb_',
-    rateLimit: 150,
-  },
-];
+// Aucun jeton n'est écrit dans le code : le 16/09/2026 quatre jetons
+// d'amorçage codés ici (et acceptés en repli plus bas) se sont retrouvés dans
+// le dépôt public ; ils ont été révoqués. Une clé n'existe que sous forme de
+// hash dans `api_keys` — voir scripts/seed_agent_keys.mjs pour en créer.
 
 export function hashApiKey(token: string): string {
   return crypto.createHash('sha256').update(token.trim()).digest('hex');
@@ -166,34 +141,6 @@ export async function verifyAiAuth(req: NextRequest): Promise<AiAgentContext> {
           keyId: data.id,
         };
       }
-    }
-
-    // Fallback : vérification dans les clés d'amorçage
-    const matchedSeed = INITIAL_AGENT_KEYS.find((k) => k.token === token);
-    if (matchedSeed) {
-      const rl = checkRateLimit(matchedSeed.name, {
-        limit: matchedSeed.rateLimit,
-        prefix: 'ai_seed',
-        windowMs: 3600_000,
-      });
-
-      if (!rl.success) {
-        return {
-          ok: false,
-          status: 429,
-          error: 'Limite de requêtes atteinte',
-          response: NextResponse.json(
-            { error: 'Limite de requêtes atteinte' },
-            { status: 429 }
-          ),
-        };
-      }
-
-      return {
-        ok: true,
-        agentName: matchedSeed.name,
-        keyId: `seed_${matchedSeed.name}`,
-      };
     }
 
     // Token fourni mais inconnu
