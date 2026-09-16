@@ -57,3 +57,6 @@ interpreter.cmd
 
 # Jetons d agent en clair, generes par scripts/seed_agent_keys.mjs
 .agent-keys.local
+
+# Exports Timeline, photos et reconstitutions de voyage (donnees personnelles)
+imports/
