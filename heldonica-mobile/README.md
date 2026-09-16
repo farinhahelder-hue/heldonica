@@ -20,7 +20,7 @@ cd heldonica-mobile
 ```
 
 ## Config
-- `local.properties` : `cms.baseUrl=https://www.heldonica.fr` + `cms.password=HELDONICA2026` (ou token session)
+- `local.properties` (non versionné) : `cms.baseUrl=https://www.heldonica.fr` + `cms.password=<la valeur de CMS_PASSWORD sur Vercel>` — jamais en clair dans le dépôt, voir `local.properties.example`
 - Aucune clé Google Cloud nécessaire pour le MVP. Pour OSM tu mets `User-Agent: Heldonica (contact@heldonica.fr)`.
 
 ## Structure
