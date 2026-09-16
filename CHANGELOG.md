@@ -4,6 +4,27 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-09-16] — Travel Planning : le tunnel reçoit, le panneau montre, l'IA propose (tâche `02a82ba8`, commits `972e265` → `0576d55`)
+
+Chantier choisi par l'utilisateur (« Travel Planning IA »). Avant d'écrire une ligne d'IA, deux constats mesurés :
+
+### 1. Le formulaire répondait 500 depuis le 11/07 (`972e265`)
+`demandes_travel` : **0 ligne**. `POST /api/travel-planning` insérait `trip_type`, `vibe`, `destination_detail` — colonnes que la table n'a jamais eues : la migration `20260709000001` disait `CREATE TABLE IF NOT EXISTS` sur une table créée à la main avant elle (`prenom`, `style_voyage`, `nb_voyageurs`, `duree_jours integer`) — « appliquée » dans l'historique, sans effet. Et « 1 semaine » ne rentre pas dans un integer. **Piège n° 3 d'AGENTS.md, en vrai.** Migration `20260916142000` appliquée (table vide) : colonnes ajoutées, `duree_jours → TEXT`, `proposition_ia JSONB`. Vérifié : INSERT avec la charge exacte de la route → 201 ; ligne de test supprimée par son id.
+
+### 2. La connexion au panneau était inaccessible (`3a0a756`)
+Le correctif #449 (`1390b28`, 15/09) renvoyait toute navigation non connectée de `/panel-manager` vers `/auth/login` — la connexion **client** Supabase Auth, pas exclue de la maintenance → `/maintenance`. Le formulaire du panneau vit dans `/panel-manager` lui-même : **session expirée = plus aucun moyen de se reconnecter**. Corrigé : la page du formulaire est servie sans session (elle n'affiche que ce formulaire, les données restent en 401 derrière `/api/cms/*`), les sous-pages y renvoient avec `?next=`. Vérifié en local.
+
+### 3. Les demandes dans le panneau + pré-itinéraire IA (`0576d55`)
+- `components/admin/DemandesTravelSection.tsx`, section « Demandes Travel » (`?section=demandes`) : liste, détail, statut (`new` / `contacted` / `proposal_sent` / `converted` / `lost`), notes, copie. Modèle = les colonnes de la table. `components/cms/TravelCRMPanel.tsx` supprimé : jamais monté, autre objet (`dates_souhaitees`, `message`, `nouvelle_demande`).
+- `POST /api/ai/travel-plan { id }` (session CMS ou clé agent) : destination nommée si elle est dans nos 41 + `match_destinations`, trois sources au plus ; le modèle ne reçoit que `intro_narrative`, l'itinéraire jour par jour et les tags, avec consigne d'écrire **ce que ce vécu ne couvre pas** plutôt que de combler. `validateGardeFous` ; stocké dans `demandes_travel.proposition_ia` ; **jamais envoyé au client**.
+- Mesuré sur « Madère, 1 semaine, octobre, couple » : 200 en 18 s, `pgvector_cosine`, voix **100/100**, 0 mot banni ; jour par jour ancré dans l'itinéraire réel (Funchal, Levada do Caldeirão Verde, Cabo Girão) ; section 4 : « visité en avril 2026, pas d'expérience pour octobre », « pas d'adresses d'hébergements testées ». Écran vérifié dans le navigateur, par les deux chemins d'authentification.
+
+### Vu en passant, non traité
+- **Le panneau n'a aucune classe `dark:`** (`CmsAdminClient` + `components/admin`, 0 occurrence) alors que le site pose `html.dark` (localStorage `theme` ou préférence système) : en mode sombre, tout le panneau écrit `text-gray-900` sur fond sombre. Tâche déposée dans `agent_tasks`.
+- `.env.local` porte désormais un `CMS_PASSWORD` **local** (valeur `local-…`, différente de la prod) et un `CRON_SECRET` local : le panneau et les crons se testent depuis le poste.
+
+---
+
 ## [2026-09-16] — Incident règle 3 : quatre jetons d'agent en clair dans le dépôt public — révoqués (tâche `70ab9778`, commit `a5671d7`)
 
 ### Ce qui s'est passé
