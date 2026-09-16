@@ -45,5 +45,5 @@ _Derniere mise a jour : 14 septembre 2026 — a rafraichir chaque lundi (Sprint 
 - Discord et les issues GitHub sont des notifications, pas la verite
 - Regle : ne pas recreer de systeme parallele pour assigner des taches (pas de bot Discord de coordination, pas de Google Sheet, pas de Cloud Function externe) — tout passe par `agent_tasks` + MCP, que les agents lisent en local sur le poste de travail
 
-## 4. Nettoyage fait (15/09/2026)
-26 fichiers d'audit déplacés vers `docs/archive/` (commit NET01) — racine nettoyée, ne restent que `STATUS.md`, `TASKS.md`, `AGENTS.md`, `CLAUDE.md`, `ROADMAP.md`, `CHANGELOG.md`, `README.md`.
+## 4. Nettoyage fait (15-16/09/2026)
+26 fichiers d'audit copiés vers `docs/archive/` le 15/09 (commit NET01) — mais NET01 avait copié sans retirer les originaux : les 26 doublons ont été supprimés de la racine le 16/09 (identiques à l'octet près, CRLF ignoré). Restent à la racine : `STATUS.md`, `TASKS.md`, `AGENTS.md`, `CLAUDE.md`, `INFRASTRUCTURE.md`, `ROADMAP.md`, `CHANGELOG.md`, `README.md`, `SECURITY_AUDIT.md`, `TESTS_APP_ET_CMS.md` et 7 `PROMPT_*.md` — ces derniers n'ont pas été tranchés.
