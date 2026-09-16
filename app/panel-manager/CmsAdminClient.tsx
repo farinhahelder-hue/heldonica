@@ -35,6 +35,7 @@ const InstagramPublisher = dynamic(() => import('@/components/admin/InstagramPub
 const InstagramStatsDashboard = dynamic(() => import('@/components/admin/InstagramStatsDashboard'), { ssr: false });
 const ScheduledPostsList = dynamic(() => import('@/components/admin/ScheduledPostsList'), { ssr: false });
 const InstagramManagerSection = dynamic(() => import('./instagram/InstagramManagerSection'), { ssr: false });
+const DemandesTravelSection = dynamic(() => import('@/components/admin/DemandesTravelSection'), { ssr: false });
 
 // New CMS integrations
 const DestinationPillarEditor = dynamic(() => import('@/components/admin/DestinationPillarEditor'), { ssr: false });
@@ -73,7 +74,7 @@ type NavSection =
   | 'dashboard' | 'articles' | 'new-article' | 'media'
   | 'settings' | 'seo' | 'analytics' | 'carousel'
   | 'blog-generator' | 'video' | 'fast-trim' | 'studio-video'
-  | 'map' | 'auto-shorts' | 'design' | 'geo' | 'instagram' | 'messages'
+  | 'map' | 'auto-shorts' | 'design' | 'geo' | 'instagram' | 'messages' | 'demandes'
   | 'testimonials' | 'checklists'
   | 'destination-pillars' | 'guides' | 'editable-zones' | 'sub-destinations'
   | 'seasons' | 'redirects' | 'layouts';
@@ -86,7 +87,7 @@ const SECTIONS_URL: readonly NavSection[] = [
   'dashboard', 'articles', 'new-article', 'media',
   'settings', 'seo', 'analytics', 'carousel',
   'blog-generator', 'video', 'fast-trim', 'studio-video',
-  'map', 'auto-shorts', 'design', 'geo', 'instagram', 'messages',
+  'map', 'auto-shorts', 'design', 'geo', 'instagram', 'messages', 'demandes',
   'testimonials', 'checklists',
   'destination-pillars', 'guides', 'editable-zones', 'sub-destinations',
   'seasons', 'redirects', 'layouts',
@@ -662,6 +663,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
         { id: 'instagram',     label: 'Instagram',           icon: <Camera size={15} /> },
         { id: 'analytics',     label: 'Analytics IA',        icon: <BarChart3 size={15} /> },
         { id: 'messages',      label: 'Messages',           icon: <Inbox size={15} />, badge: unreadCount > 0 ? String(unreadCount) : undefined, badgeColor: 'bg-red-500 text-white' },
+        { id: 'demandes',      label: 'Demandes Travel',    icon: <Plane size={15} /> },
       ]
     },
     {
@@ -1580,6 +1582,15 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
 
           {/* ── Messages ── */}
           {activeSection === 'messages' && <MessagesSection />}
+
+          {/* ── Demandes Travel Planning ── */}
+          {activeSection === 'demandes' && (
+            <ErrorBoundary>
+              <Suspense fallback={<div className="text-sm text-gray-400">Chargement des demandes...</div>}>
+                <DemandesTravelSection />
+              </Suspense>
+            </ErrorBoundary>
+          )}
 
           {/* ── Analytics IA ── */}
           {activeSection === 'analytics' && (
