@@ -18,7 +18,13 @@ jobs:
           distribution: temurin
           java-version: "17"
 
+      # Sans liste explicite, l'action installe « tools platform-tools » ;
+      # le paquet « tools » n'existe plus dans le depot SDK depuis mi-septembre
+      # 2026 et sdkmanager sort en erreur avant meme le build (run du 16/09,
+      # alors que celui du 10/09 passait). On nomme ce dont l'AGP a besoin.
       - uses: android-actions/setup-android@v3
+        with:
+          packages: "platform-tools platforms;android-34 build-tools;34.0.0"
 
       - uses: gradle/actions/setup-gradle@v3
         with:
