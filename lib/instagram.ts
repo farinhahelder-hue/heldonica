@@ -30,6 +30,37 @@ export interface InstagramMediaContainer {
 const INSTAGRAM_GRAPH_API_BASE = 'https://graph.facebook.com';
 
 /**
+ * Raison du dernier echec Meta, en clair.
+ *
+ * Les fonctions ci-dessous renvoient null quand l'API refuse : le cron s'en
+ * contente, mais un bouton « Publier » dans le panneau doit dire pourquoi
+ * (token expire, image inaccessible, compte non professionnel...). Plutot que
+ * de changer la signature de chaque fonction, la raison est posee ici et lue
+ * par la route de publication juste apres l'appel.
+ */
+let derniereErreur: string | null = null;
+
+function noterErreur(contexte: string, detail: unknown) {
+  const message =
+    detail && typeof detail === 'object' && 'message' in (detail as Record<string, unknown>)
+      ? String((detail as { message: unknown }).message)
+      : detail instanceof Error
+        ? detail.message
+        : typeof detail === 'string'
+          ? detail
+          : JSON.stringify(detail ?? null);
+  derniereErreur = `${contexte} : ${message}`;
+  console.error(`[instagram] ${derniereErreur}`);
+}
+
+/** Lit puis efface la raison du dernier echec. */
+export function lireDerniereErreurInstagram(): string | null {
+  const r = derniereErreur;
+  derniereErreur = null;
+  return r;
+}
+
+/**
  * Get the Instagram Graph API configuration
  */
 function getInstagramConfig() {
@@ -58,7 +89,7 @@ export async function createMediaContainer(
   const config = getInstagramConfig();
   
   if (!config.accessToken || !config.businessAccountId) {
-    console.warn('Instagram not configured');
+    noterErreur('Configuration', 'INSTAGRAM_ACCESS_TOKEN ou INSTAGRAM_BUSINESS_ACCOUNT_ID absent');
     return null;
   }
 
@@ -81,7 +112,7 @@ export async function createMediaContainer(
     const data = await response.json();
     
     if (data.error) {
-      console.error('Instagram API error:', data.error);
+      noterErreur('Conteneur image refuse', data.error);
       return null;
     }
 
@@ -90,7 +121,7 @@ export async function createMediaContainer(
       status: 'OK',
     };
   } catch (error) {
-    console.error('Failed to create Instagram media container:', error);
+    noterErreur('Conteneur image injoignable', error);
     return null;
   }
 }
@@ -126,7 +157,7 @@ export async function publishMediaContainer(
     const data = await response.json();
     
     if (data.error) {
-      console.error('Instagram publish error:', data.error);
+      noterErreur('Publication refusee', data.error);
       return null;
     }
 
@@ -151,7 +182,7 @@ export async function publishMediaContainer(
       timestamp: postData.timestamp || new Date().toISOString(),
     };
   } catch (error) {
-    console.error('Failed to publish to Instagram:', error);
+    noterErreur('Publication injoignable', error);
     return null;
   }
 }
@@ -235,12 +266,12 @@ export async function postCarouselToInstagram(
   const config = getInstagramConfig();
   
   if (!config.accessToken || !config.businessAccountId) {
-    console.warn('Instagram not configured');
+    noterErreur('Configuration', 'INSTAGRAM_ACCESS_TOKEN ou INSTAGRAM_BUSINESS_ACCOUNT_ID absent');
     return null;
   }
 
   if (imageUrls.length < 2 || imageUrls.length > 10) {
-    console.error('Carousel requires 2-10 images');
+    noterErreur('Carrousel', 'il faut entre 2 et 10 images');
     return null;
   }
 
@@ -265,7 +296,7 @@ export async function postCarouselToInstagram(
       const containerData = await containerResponse.json();
       
       if (containerData.error) {
-        console.error('Instagram carousel item error:', containerData.error);
+        noterErreur('Image du carrousel refusee', containerData.error);
         return null;
       }
 
@@ -290,7 +321,7 @@ export async function postCarouselToInstagram(
     const carouselData = await carouselResponse.json();
 
     if (carouselData.error) {
-      console.error('Instagram carousel create error:', carouselData.error);
+      noterErreur('Conteneur carrousel refuse', carouselData.error);
       return null;
     }
 
@@ -310,7 +341,7 @@ export async function postCarouselToInstagram(
     const publishData = await publishResponse.json();
 
     if (publishData.error) {
-      console.error('Instagram carousel publish error:', publishData.error);
+      noterErreur('Publication du carrousel refusee', publishData.error);
       return null;
     }
 
@@ -333,7 +364,7 @@ export async function postCarouselToInstagram(
       timestamp: postData.timestamp || new Date().toISOString(),
     };
   } catch (error) {
-    console.error('Failed to publish carousel to Instagram:', error);
+    noterErreur('Carrousel injoignable', error);
     return null;
   }
 }
@@ -535,9 +566,9 @@ export async function createVideoContainer(videoUrl: string, caption: string): P
       body: JSON.stringify({ media_type: 'REELS', video_url: videoUrl, caption, access_token: config.accessToken }),
     });
     const data = await res.json();
-    if (data.error) { console.error('Instagram video container error:', data.error); return null; }
+    if (data.error) { noterErreur('Conteneur video refuse', data.error); return null; }
     return { id: data.id, status: 'PENDING' };
-  } catch (e) { console.error('createVideoContainer failed', e); return null; }
+  } catch (e) { noterErreur('Conteneur video injoignable', e); return null; }
 }
 
 export async function getContainerStatus(containerId: string): Promise<string | null> {
@@ -558,8 +589,58 @@ export async function postVideoToInstagram(videoUrl: string, caption: string, ma
   while (Date.now() - start < maxWaitMs) {
     const status = await getContainerStatus(container.id);
     if (status === 'FINISHED') break;
-    if (status === 'ERROR') { console.error('Video container ERROR'); return null; }
+    if (status === 'ERROR') { noterErreur('Traitement video', 'Meta a renvoye ERROR sur le conteneur'); return null; }
     await new Promise(r => setTimeout(r, 5000));
   }
   return publishMediaContainer(container.id);
-}
+}
+
+/**
+ * Une entree de la file `instagram_scheduled_posts`, telle que le panneau et
+ * le telephone la deposent : `metadata.type` distingue une image seule d'un
+ * carrousel (`children` = URLs de toutes les images) ou d'un reel
+ * (`video_url`).
+ */
+export interface EntreeFileInstagram {
+  image_url: string;
+  caption: string | null;
+  metadata?: { type?: string; children?: string[]; video_url?: string } | null;
+}
+
+export type ResultatPublication =
+  | { ok: true; post: InstagramPost }
+  | { ok: false; raison: string };
+
+/**
+ * Publie une entree de la file selon son type.
+ *
+ * Le cron publiait tout en image seule : un carrousel depose depuis le
+ * telephone partait avec sa premiere photo seulement, et un reel avec l'URL de
+ * sa video comme image. Ce point d'entree unique sert le cron et le bouton
+ * « Publier » du panneau, pour que les deux fassent la meme chose.
+ */
+export async function publierEntreeFile(entree: EntreeFileInstagram): Promise<ResultatPublication> {
+  if (!isInstagramConfigured()) {
+    return {
+      ok: false,
+      raison: 'Instagram non configure : INSTAGRAM_ACCESS_TOKEN et INSTAGRAM_BUSINESS_ACCOUNT_ID manquent (Vercel Env).',
+    };
+  }
+
+  lireDerniereErreurInstagram();
+  const caption = entree.caption || '';
+  const type = (entree.metadata?.type || '').toUpperCase();
+  const enfants = Array.isArray(entree.metadata?.children) ? entree.metadata!.children!.filter(Boolean) : [];
+
+  let post: InstagramPost | null;
+  if (type === 'CAROUSEL' && enfants.length >= 2) {
+    post = await postCarouselToInstagram(enfants.slice(0, 10), caption);
+  } else if (type === 'REELS' && (entree.metadata?.video_url || entree.image_url)) {
+    post = await postVideoToInstagram(entree.metadata?.video_url || entree.image_url, caption);
+  } else {
+    post = await postToInstagram(entree.image_url, caption);
+  }
+
+  if (post) return { ok: true, post };
+  return { ok: false, raison: lireDerniereErreurInstagram() || 'Meta a refuse la publication sans detail.' };
+}
