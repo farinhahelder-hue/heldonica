@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     // Import dynamique pour éviter d'exploser le build si la lib manque
     const { GoogleGenerativeAI } = await import('@google/generative-ai')
     const genAI = new GoogleGenerativeAI(apiKey)
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: `${SYSTEM_PROMPT}\n\nMode ${mode} — ${message}` }] }],

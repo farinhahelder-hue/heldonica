@@ -48,8 +48,8 @@ android {
         // Numero de build de la CI : chaque APK produit est ainsi plus recent
         // que le precedent. Sans cela toutes les versions portent le meme
         // numero et Android ne les distingue pas.
-        versionCode = (System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInt()
-        versionName = "1.0." + (System.getenv("GITHUB_RUN_NUMBER") ?: "0")
+        versionCode = maxOf(40, (System.getenv("GITHUB_RUN_NUMBER") ?: "40").toInt())
+        versionName = "1.0." + (System.getenv("GITHUB_RUN_NUMBER") ?: "40")
 
         buildConfigField(
             "String",
@@ -60,6 +60,11 @@ android {
             "String",
             "CMS_PASSWORD",
             "\"${cmsProps.getProperty("cms.password") ?: ""}\""
+        )
+        buildConfigField(
+            "String",
+            "GEMINI_API_KEY",
+            "\"${cmsProps.getProperty("gemini.apiKey") ?: ""}\""
         )
     }
 

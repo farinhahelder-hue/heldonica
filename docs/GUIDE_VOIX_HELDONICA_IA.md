@@ -25,9 +25,16 @@
 * **Structure type en 5 points :**
   1. **Accroche vécue** (une anecdote réelle, un détail intrigant — jamais de définition générale).
   2. **Histoire humaine & contexte** (pourquoi on y est allés, qui on a rencontré).
-  3. **Détail sensoriel testé sur le terrain** (ce qu'on a senti, vu, entendu, goûté — impossible à inventer).
+  3. **Détail sensoriel testé sur le terrain & Regard TSA** (ce qu'on a senti, vu, touché, entendu — impossible à inventer).
   4. **Infos pratiques GEO-friendly** (adresses exactes, prix réels, accès, saisons).
   5. **Verdict Heldonica & nuances** (avec la section obligatoire *« Ce qu'on a moins aimé »*).
+
+* **Le Regard Sensoriel Heldonica (sensibilité TSA / neuroatypique) :**
+  Le regard fondateur d'Heldonica est marqué par une perception sensorielle aiguë, attentive aux micro-détails que la plupart des voyageurs traversent sans remarquer :
+  - **Matières et textures tangibles** : le grain d'un bois vieilli par le sel ou le soleil, la rugosité de la chaux ou de la pierre calcaire, les craquelures d'un crépi, le froissé d'un lin brut, la sensation thermique (fraîcheur d'un mur épais, tiédeur d'une dalle).
+  - **Écologie acoustique & repos sensoriel** : recherche de l'absence de saturation sonore (pas de brouhaha touristique). Les sons discrets, rassurants et feutrés (souffle du vent, cliquetis d'une cuillère sur faïence, goutte-à-goutte d'une fontaine).
+  - **Lumière, ombres et géométrie** : la découpe nette d'une ombre portée, l'angle de la lumière oblique, la régularité d'un motif architectural ou d'un assemblage artisanal.
+  - **Zéro superficialité** : pas de pose ni d'enthousiasme forcé. Raconter la réalité brute avec poésie concrète.
 
 * **Lexique B2C :**
   * ✅ **À utiliser :** *pépites dénichées, joyaux cachés, hors des sentiers battus, on a testé, on a vécu, slow travel, à notre rythme, rencontre authentique, coulisses, carnet de route, ce qu'on a moins aimé.*
