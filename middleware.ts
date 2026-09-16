@@ -209,7 +209,7 @@ const MAINTENANCE_ACTIVE = true;
 
 const MAINTENANCE_BYPASS_COOKIE = 'heldonica_maintenance_bypass';
 
-// Documenté dans MAINTENANCE_MODE.md depuis le début mais jamais câblé : permet
+// Documenté dans docs/archive/MAINTENANCE_MODE.md depuis le début mais jamais câblé : permet
 // de prévisualiser le site (cookie ou header) sans désactiver la maintenance
 // pour le public. Si MAINTENANCE_BYPASS_TOKEN n'est pas configuré, aucun bypass
 // n'est possible (comparaison contre undefined échoue toujours).
