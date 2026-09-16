@@ -97,11 +97,15 @@ async function destinationsProches(sb: SupabaseClient, demande: Demande): Promis
   const retenues = new Map<string, DestinationVecue>();
   let methode = 'pgvector_cosine';
 
-  if (demande.destination) {
+  // Le formulaire met « Destination précise » / « Suggestions Heldonica » /
+  // « Région/continent » dans `destination` ; le nom réel est dans
+  // `destination_detail`. On cherche celui-là dans nos 41.
+  const nommee = (demande.destination_detail || '').trim() || (demande.destination || '').trim();
+  if (nommee && nommee.length >= 3) {
     const { data, error } = await sb
       .from('destinations')
       .select(COLONNES_DESTINATION)
-      .ilike('title', `%${demande.destination.replace(/[%_]/g, '')}%`)
+      .ilike('title', `%${nommee.replace(/[%_]/g, '')}%`)
       .limit(2);
     if (error) console.warn('[travel-plan] lecture destination nommée :', error.message);
     for (const d of (data ?? []) as any[]) retenues.set(d.id, { ...d, similarity: null });
