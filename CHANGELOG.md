@@ -4,6 +4,26 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-09-16] — Reconstituer un voyage : Timeline du téléphone + photos → `voyage.md` à relire (tâche `0a86a282`, commit `d520bc0`)
+
+### Ce que c'est
+`scripts/reconstituer_voyage.py` (`npm run media:voyage -- --timeline … --photos … --slug …`) : une **extension du pipeline de preuves** (`photos_evidence.py` → `content/evidence` → `draft_from_evidence.mjs`), pas un système parallèle. La Timeline et l'EXIF donnent le mesurable — où, quand, combien de km, quelles photos où — et le script n'écrit rien d'autre : pas de lieu inventé, pas de ressenti, pas de prix. Le récit reste à l'auteur, dans les balises `[A TOI]`.
+
+### Ce qu'il faut savoir (et que le plan collé disait faux)
+- **Timeline n'est plus dans Takeout** depuis 2024 : export depuis l'appli Google Maps (photo de profil → Vos trajets → ⚙️ → Exporter les données Timeline) → `Timeline.json` immédiat, quelques dizaines de Mo. Le script lit ce format (`semanticSegments` / `rawSignals`, Android et iOS) et les anciens Takeout (`Records.json`, Semantic Location History).
+- **L'API Google Photos ne sert plus** (depuis 03/2025 elle ne voit que les médias créés par l'appli) ; la « Takeout API » n'existe pas. Ce qui marche : Takeout par album, ou « Télécharger » dans Google Photos — l'EXIF est conservé, et Takeout ajoute un `.json` par photo avec la position estimée, que le script lit quand l'EXIF n'a pas de GPS.
+
+### Règles de rattachement des photos (dans l'ordre)
+GPS au lieu le plus proche du jour (≤ 1 km) → GPS sur la trace du jour (≤ 500 m, photo prise en chemin) → GPS qui contredit tout → **sans lieu, avec la distance** (Paris un soir de Madère : « à 2410 km ») → sans GPS : lieu où l'on était à cette heure. `HOME`/`INFERRED_HOME` → « hébergement, déduit ». `--geocode` : Nominatim niveau rue/lieu-dit, 1 req/s ; un échec réseau laisse « à nommer ».
+
+### Mesuré (jeu synthétique, Madère 3 jours, 6 photos, 3 formats)
+10 lieux, 104,6 km, jour hors voyage exclu, 5/6 photos placées (la 6e sans date), 10/10 lieux nommés par OSM ; `Records.json` → 3 arrêts détectés ; Semantic → noms et adresses repris. Sorties dans `imports/<slug>/` (gitignoré : positions personnelles).
+
+### Non vérifié
+L'export réel de l'utilisatrice — le format on-device a des variantes (iOS, versions), le script tolère celles connues ; premier vrai fichier à passer avec `--slug madere-2024`.
+
+---
+
 ## [2026-09-16] — Travel Planning : envoi réel de bout en bout, et ce qu'il a révélé (commit `3330f06`, tâche `703d9426`)
 
 Deux envois réels sur `POST /api/travel-planning` en production, avec l'accord de l'utilisatrice et son adresse comme cliente (lignes de test supprimées ensuite par leur id ; table à 0).
