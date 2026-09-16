@@ -53,6 +53,12 @@ function statutDe(id: string | null) {
   return STATUTS.find((s) => s.id === id) ?? { id: id ?? '?', label: id ?? '—', classe: 'bg-gray-100 text-gray-600' };
 }
 
+// « Destination précise » / « Suggestions Heldonica » / « Région/continent »
+// sont les cases du formulaire ; le nom réel est dans destination_detail.
+function destinationLisible(d: Pick<Demande, 'destination' | 'destination_detail'>): string {
+  return (d.destination_detail || '').trim() || (d.destination || '').trim() || 'destination libre';
+}
+
 function joursDepuis(iso: string): number {
   return Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
 }
@@ -170,7 +176,7 @@ export default function DemandesTravelSection() {
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="font-semibold text-gray-900">
-                          {d.prenom || '—'} · {d.destination || 'destination libre'}
+                          {d.prenom || '—'} · {destinationLisible(d)}
                         </div>
                         <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${s.classe}`}>{s.label}</span>
                       </div>
@@ -313,8 +319,8 @@ function Detail({
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Champ label="Type d'escapade" valeur={demande.trip_type} />
           <Champ label="Ambiance" valeur={demande.vibe} />
-          <Champ label="Destination" valeur={demande.destination} />
-          <Champ label="Précision" valeur={demande.destination_detail} />
+          <Champ label="Destination" valeur={destinationLisible(demande)} />
+          <Champ label="Case cochée" valeur={demande.destination_detail ? demande.destination : null} />
           <Champ label="Durée" valeur={demande.duree_jours} />
           <Champ label="Période" valeur={demande.mois_depart} />
           <Champ label="Budget" valeur={demande.budget_fourchette} />

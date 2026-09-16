@@ -86,10 +86,16 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // La liste du formulaire met « Destination précise » / « Suggestions
+    // Heldonica » / « Région/continent » dans `destination` ; le nom réel
+    // (« Madère ») est dans `destinationDetail`. C'est lui qu'on montre.
+    const destinationAffichee = (destinationDetail || destination || '').toString().trim()
+
     // 1. Save to Supabase (priority)
     let dbSaved = false
+    let demandeId: string | null = null
     if (supabase) {
-      const { error: dbError } = await supabase
+      const { data: inseree, error: dbError } = await supabase
         .from('demandes_travel')
         .insert({
           trip_type: tripType || null,
@@ -106,6 +112,8 @@ export async function POST(req: NextRequest) {
           notes: message || null,
           statut: 'new',
         })
+        .select('id')
+        .single()
 
       if (dbError) {
         console.error('Supabase insert error:', dbError)
@@ -115,6 +123,7 @@ export async function POST(req: NextRequest) {
         )
       }
       dbSaved = true
+      demandeId = inseree?.id ?? null
     } else {
       return NextResponse.json({ error: 'Service indisponible.' }, { status: 503 })
     }
@@ -123,7 +132,7 @@ export async function POST(req: NextRequest) {
     const sFirstName = escapeHtml(firstName);
     const sEmail = escapeHtml(email);
     const sPhone = escapeHtml(phone);
-    const sDestination = escapeHtml(destination);
+    const sDestination = escapeHtml(destinationAffichee);
     const sDestinationDetail = escapeHtml(destinationDetail);
     const sTripType = escapeHtml(tripType);
     const sVibe = escapeHtml(vibe);
@@ -133,10 +142,13 @@ export async function POST(req: NextRequest) {
     const sMessage = escapeHtml(message);
 
     // 2. Brevo integration (secondary)
+    // Brevo n'a pas de liste blanche d'IP pour Vercel par défaut : un 401
+    // arrivait ici sans être lu. On lit res.ok et on trace brevoSynced.
     const brevoApiKey = process.env.BREVO_API_KEY
+    let brevoSynced = false
     if (brevoApiKey && dbSaved) {
       try {
-        await fetch('https://api.brevo.com/v3/contacts', {
+        const contactRes = await fetch('https://api.brevo.com/v3/contacts', {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
@@ -150,7 +162,7 @@ export async function POST(req: NextRequest) {
               TELEPHONE: phone || '',
               TYPE_VOYAGE: tripType || '',
               VIBE: vibe || '',
-              DESTINATION: destination + (destinationDetail ? ` — ${destinationDetail}` : ''),
+              DESTINATION: destinationAffichee,
               DUREE: duration || '',
               BUDGET: budget || '',
               DATE_DEPART: departureDate || '',
@@ -159,7 +171,10 @@ export async function POST(req: NextRequest) {
             updateEnabled: true,
           }),
         })
-        await fetch(`https://api.brevo.com/v3/contacts/${encodeURIComponent(email as string)}/tag`, {
+        if (!contactRes.ok) {
+          console.error('Brevo contact error:', contactRes.status, await contactRes.text())
+        }
+        const tagRes = await fetch(`https://api.brevo.com/v3/contacts/${encodeURIComponent(email as string)}/tag`, {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
@@ -168,16 +183,25 @@ export async function POST(req: NextRequest) {
           },
           body: JSON.stringify({ tags: ['prospect_b2c'] }),
         })
+        if (!tagRes.ok) {
+          console.error('Brevo tag error:', tagRes.status, await tagRes.text())
+        }
+        brevoSynced = contactRes.ok
       } catch (brevoErr) {
         console.error('Brevo sync error:', brevoErr)
       }
     }
 
     // 3. Internal email (secondary)
+    //
+    // Les envois étaient lancés sans await : la fonction répondait « success »
+    // avant qu'ils partent, et une promesse orpheline peut être tuée à la fin
+    // d'une fonction Vercel. On attend, on lit le retour, on trace en base.
+    const envois: Promise<{ quoi: string; ok: boolean; erreur?: string }>[] = []
     if (resend && dbSaved) {
       const internalEmails = ['bonjour@heldonica.fr', 'contact@heldonica.fr'];
       for (const recipient of internalEmails) {
-        resend.emails.send({
+        envois.push(resend.emails.send({
           from: 'Heldonica <contact@heldonica.fr>',
           to: recipient,
           subject: `✈️ Nouvelle demande Travel Planning — ${sFirstName} (${sDestination})`,
@@ -201,13 +225,14 @@ export async function POST(req: NextRequest) {
               </div>
             </div>
           `,
-        }).catch((err) => console.error('Internal email error:', err));
+        }).then((r) => ({ quoi: `interne ${recipient}`, ok: !r.error, erreur: r.error?.message }))
+          .catch((err) => ({ quoi: `interne ${recipient}`, ok: false, erreur: String(err) })));
       }
     }
 
     // 4. Confirmation email (secondary)
     if (resend && dbSaved) {
-      resend.emails.send({
+      envois.push(resend.emails.send({
         from: 'Heldonica <contact@heldonica.fr>',
         to: email as string,
         subject: `On a reçu ton projet de voyage ✈️ — Heldonica`,
@@ -227,10 +252,34 @@ export async function POST(req: NextRequest) {
             <p style="color: #6b2a1a; font-size: 18px; font-style: italic;">L'équipe Heldonica</p>
           </div>
         `,
-      }).catch((err) => console.error('Confirmation email error:', err));
+      }).then((r) => ({ quoi: 'confirmation', ok: !r.error, erreur: r.error?.message }))
+        .catch((err) => ({ quoi: 'confirmation', ok: false, erreur: String(err) })));
     }
 
-    return NextResponse.json({ success: dbSaved })
+    const resultats = await Promise.all(envois)
+    for (const r of resultats) {
+      if (!r.ok) console.error(`Travel planning e-mail ${r.quoi} :`, r.erreur)
+    }
+    const confirmationEnvoyee = resultats.some((r) => r.quoi === 'confirmation' && r.ok)
+
+    // 5. Trace en base de ce qui est vraiment parti — sans ça, rien ne
+    // distingue une demande dont les e-mails ont échoué.
+    if (supabase && demandeId) {
+      const { error: traceError } = await supabase
+        .from('demandes_travel')
+        .update({
+          brevo_synced: brevoSynced,
+          email_sent_at: confirmationEnvoyee ? new Date().toISOString() : null,
+        })
+        .eq('id', demandeId)
+      if (traceError) console.error('Travel planning trace error:', traceError.message)
+    }
+
+    return NextResponse.json({
+      success: dbSaved,
+      emails: resultats.map((r) => ({ quoi: r.quoi, ok: r.ok })),
+      brevo: brevoSynced,
+    })
   } catch (error) {
     console.error('Travel planning API error:', error)
     return NextResponse.json(
