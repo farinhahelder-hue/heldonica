@@ -4,6 +4,28 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-09-16] — Travel Planning : envoi réel de bout en bout, et ce qu'il a révélé (commit `3330f06`, tâche `703d9426`)
+
+Deux envois réels sur `POST /api/travel-planning` en production, avec l'accord de l'utilisatrice et son adresse comme cliente (lignes de test supprimées ensuite par leur id ; table à 0).
+
+### Envoi 1 (ancienne route) — `200` en 4 s, e-mail de confirmation reçu
+Mais rien en base ne le disait, et pour cause : les trois `resend.emails.send(...)` étaient lancés **sans `await`** (une promesse orpheline peut être tuée à la fin d'une fonction Vercel — cette fois elle a survécu), Brevo était attendu sans lire `res.ok`, et `email_sent_at` / `brevo_synced` n'étaient jamais écrits. L'e-mail disait « ton projet pour **Destination précise** » : le formulaire met la case cochée dans `destination` et le nom réel dans `destinationDetail`.
+
+### Correctif `3330f06`
+- Envois attendus (`Promise.all`), retour `{ error }` lu, réponse `{ emails: [{quoi, ok}], brevo }`.
+- Brevo : `res.ok` lu et journalisé avec le corps ; `brevo_synced` tracé.
+- `email_sent_at` écrit quand la confirmation est partie (insert `.select('id')`).
+- `destinationDetail || destination` partout : e-mails, Brevo, `/api/ai/travel-plan` (destination nommée), section Demandes.
+- `app/api/demandes-travel` supprimée : route publique morte, doublon avec un autre vocabulaire.
+
+### Envoi 2 (route corrigée) — mesuré
+`{"success":true,"emails":[interne bonjour ok, interne contact ok, confirmation ok],"brevo":false}` ; en base `email_sent_at` posé, `brevo_synced=false`.
+
+### Découverte : Brevo refuse l'IP de Vercel
+Logs Vercel : `Brevo contact error: 401 … unrecognised IP address 34.229.73.239 … authorised_ips`. La restriction d'IP est activée sur le compte Brevo ; Vercel n'a pas d'IP fixe. **Aucune synchro contact depuis le site n'aboutit** — `contact`, `expert-hotelier`, `guides/download`, `travel-planning` — et jusqu'à aujourd'hui en silence. À désactiver dans Brevo → Security → Authorised IPs (action utilisateur), tâche `703d9426`.
+
+---
+
 ## [2026-09-16] — Travel Planning : le tunnel reçoit, le panneau montre, l'IA propose (tâche `02a82ba8`, commits `972e265` → `0576d55`)
 
 Chantier choisi par l'utilisateur (« Travel Planning IA »). Avant d'écrire une ligne d'IA, deux constats mesurés :
