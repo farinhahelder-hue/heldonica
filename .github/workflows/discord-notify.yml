@@ -10,12 +10,15 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
+      # Ilshidur/action-discord ne lit que `env.DISCORD_WEBHOOK` et `with.args` :
+      # `webhook-url` / `content` étaient ignorés et le job échouait à chaque push.
       - name: Send Discord notification
-        uses: Ilshidur/action-discord@master
+        uses: Ilshidur/action-discord@0.4.0
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         with:
-          webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
-          content: |
-            🤖 **${{ github.actor }}** a pushé¬© sur `heldonica`
-            
+          args: |
+            🤖 **${{ github.actor }}** a poussé sur `heldonica`
+
             📝 Commit : `${{ github.sha }}`
             🔗 https://github.com/${{ github.repository }}/commit/${{ github.sha }}
