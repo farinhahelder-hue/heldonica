@@ -4,6 +4,50 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-09-16] — Incident règle 3 : quatre jetons d'agent en clair dans le dépôt public — révoqués (tâche `70ab9778`, commit `a5671d7`)
+
+### Ce qui s'est passé
+- Les jetons `antigravity`, `claude`, `pencode`, `mobile_apk` figuraient **en clair** dans `lib/ai-auth.ts` (`INITIAL_AGENT_KEYS`, accepté en repli par `verifyAiAuth` — valides en prod quel que soit l'état de la table), dans `scripts/seed_agent_keys.mjs` et dans `docs/API_IA.md` (12 occurrences, sous une note « ne jamais les committer en clair »). Écrits par un autre agent le 16/09 au matin, commités dans `b7f3082` par une session Claude dont le filtre de secrets cherchait `AIza`/`gsk_`/`sk-`/`eyJ`/`sb_secret_`, pas `hld_`. Dépôt public ⇒ exposés ~1 h 10 (12 h 40 → 13 h 50 UTC).
+- Seul `antigravity` avait servi (`last_used_at` 11:25) ; `mobile_apk` jamais (l'APK n'embarque pas de jeton, pas de rebuild).
+
+### Ce qui a été fait
+- `lib/ai-auth.ts` : plus aucun jeton dans le code, plus de repli.
+- `scripts/seed_agent_keys.mjs` réécrit : ne porte aucun jeton, n'écrit plus en base. Génère des jetons aléatoires dans `.agent-keys.local` (gitignoré) et une **migration versionnée** avec les hashes seulement.
+- `docs/API_IA.md` : exemples factices, colonne « où est le jeton ».
+- Migration `20260916134640_rotate_api_keys.sql` appliquée par Claude (`db push --include-all`, un seul fichier, vérifié en dry-run) : anciens hashes `is_active=false`, quatre nouveaux insérés.
+- **Pas de réécriture de l'historique git** — même traitement que le `service_role` du 19/08 : la rotation rend les anciens jetons inertes.
+
+### Mesuré
+- Base : 8 lignes `api_keys`, 4 inactives (09:36) / 4 actives (13:50) ; historique `20260916134640` enregistré.
+- Production `www.heldonica.fr/api/ai/destinations` **avant redéploiement** : ancien jeton → **403**, nouveau → **200**, sans jeton → **401** — la lecture de la table précède le repli, la migration révoque à elle seule.
+
+### À toi
+- Copier le nouveau jeton `antigravity` depuis `.agent-keys.local` (racine du projet, non versionné) dans la configuration d'Antigravity ; idem `pencode` si utilisé. `claude` et `mobile_apk` n'ont pas encore d'usage.
+- Pour toute rotation future : `node scripts/seed_agent_keys.mjs [agent…]` puis `supabase db push --linked --include-all`.
+
+---
+
+## [2026-09-16] — Recherche sémantique réelle : cron `/api/cron/embeddings` (tâche `ebc8dfdb`, commit `6558a89`)
+
+### Constat
+Après le `db push` du matin, pgvector était actif mais **0/41 destinations et 0/50 articles** vectorisés : `/api/ai/search` tournait sur le repli textuel. `scripts/generate_embeddings.mjs` ne traitait que les destinations, dupliquait le constructeur de passage de `lib/ai-embeddings.ts` et déposait un fichier SQL sans horodatage dans `supabase/migrations/`.
+
+### Fait
+- `lib/ai-embeddings.ts` : `generateEmbeddingsBatch` (`batchEmbedContents`, lots de 50, 768 d) ; `taskType` `RETRIEVAL_DOCUMENT` pour les passages stockés, `RETRIEVAL_QUERY` pour les requêtes — changer l'un impose `?force=1` ; `local_insider_tips` est un jsonb, le constructeur le normalise.
+- `app/api/cron/embeddings/route.ts` : même auth qu'`enrich-places` (`Bearer CRON_SECRET` ou session CMS) ; lignes sans vecteur ou modifiées depuis 26 h ; `?force=1` régénère tout ; chaque erreur Supabase lue ; 207 si échec partiel. Écrire `embedding` ne touche pas `updated_at` (aucun trigger sur ces tables).
+- `vercel.json` : cron `0 7 * * *`.
+- `scripts/generate_embeddings.mjs` supprimé (source de vérité unique = `lib`).
+
+### Mesuré
+- Premier remplissage depuis le poste (`next dev` + `CRON_SECRET` local) : `?force=1` → **41/41 et 50/50 en 17,7 s, 0 échec**.
+- Base : `count(embedding) = count(*)` sur les deux tables.
+- `/api/ai/search` : méthode `pgvector_cosine` ; « randonnée en crête et lever de soleil » → Cabo Girão, Stoos Ridge ; « village de montagne en Roumanie » → Maramureș, Mocănița, Brașov.
+
+### Découverte pour #448 (à ne pas oublier avant le DROP de `articles`)
+`cms_blog_posts` porte **quatre triggers** actifs — `cms_blog_posts_sync_trigger`, `sync_cms_blog_posts_to_articles`, `trigger_sync_to_articles` (INSERT/UPDATE → `sync_to_articles()`, `ON CONFLICT (slug) DO UPDATE`) et `cms_blog_posts_delete_trigger` (→ `sync_delete_from_articles()`). **Un `DROP TABLE articles` casserait toute écriture d'article** tant qu'ils existent : la migration du DROP doit d'abord retirer les quatre triggers et les deux fonctions. Tâche déposée dans `agent_tasks`.
+
+---
+
 ## [2026-09-16] — Mise au propre : commit du travail IA, secret retiré, CI Discord, racine, scripts `articles` (tâche `87b50224`)
 
 ### Ce qui a été fait (six commits, `b7f3082` → `f1d9b3c`)
