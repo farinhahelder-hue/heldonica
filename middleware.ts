@@ -276,21 +276,33 @@ export async function middleware(req: NextRequest) {
   }
 
   // Fix #449: protection serveur pour /panel-manager (avant, 200 public avec seulement React)
+  //
+  // Le formulaire de connexion du panneau vit dans la page /panel-manager
+  // elle-même (CmsAdminClient) : sans session elle n'affiche que ce formulaire,
+  // toutes les données restant derrière /api/cms/* (401). La version du 15/09
+  // renvoyait toute navigation non connectée vers /auth/login — la connexion
+  // *client* Supabase, qui n'est pas exclue de la maintenance et retombait sur
+  // /maintenance : session expirée = panneau inaccessible. Ici : la page de
+  // connexion reste servie, les sous-pages non connectées y renvoient.
   if (pathname === '/panel-manager' || pathname.startsWith('/panel-manager/')) {
     const auth = await isAuthorized(req);
     if (!auth.ok) {
       if (auth.misconfigured) {
         return NextResponse.json({ error: 'CMS non configuré : variable CMS_PASSWORD manquante.' }, { status: 503 });
       }
-      // Si la requête attend du HTML (navigation), rediriger vers le login
-      // Sinon (fetch/XHR), renvoyer 401 JSON
       const accept = req.headers.get('accept') || '';
-      if (accept.includes('text/html')) {
+      const navigation = accept.includes('text/html');
+      if (navigation && pathname === '/panel-manager') {
+        return NextResponse.next();
+      }
+      if (navigation) {
         const loginUrl = req.nextUrl.clone();
-        loginUrl.pathname = '/auth/login';
+        loginUrl.pathname = '/panel-manager';
+        loginUrl.search = '';
         loginUrl.searchParams.set('next', pathname);
         return NextResponse.redirect(loginUrl);
       }
+      // fetch/XHR : 401 JSON
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
     return NextResponse.next();
