@@ -23,10 +23,20 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 | `20260916120000` api_keys / ai_requests_log | oui (4 / 2 lignes) | **non** |
 | `20260916140000` pgvector | **non** (`destinations.embedding` → 400 ; la recherche sémantique tourne sur le repli textuel) | non |
 
-`supabase db push --dry-run` refuse : neuf versions distantes sans fichier local (`20260523 20260526 20260613 20260614 20260615 20260625 20260629 20260903191642 20260903191920`). Les six fichiers sont idempotents (`IF NOT EXISTS`, `OR REPLACE`, `DROP POLICY IF EXISTS`) : une fois l'historique réparé, `db push` rejoue les trois déjà en base sans effet et applique les trois manquantes.
+`supabase db push --dry-run` refusait : « neuf versions distantes sans fichier local ». Faux pour sept d'entre elles (`20260523 … 20260629`) : elles ont un fichier à 8 chiffres, mais un frère à 14 chiffres partage le préfixe et la CLI trie le local par nom de fichier (`0` < `_`), le distant par version — l'appariement dérape. **Le `repair --status reverted` que la CLI propose aurait rejoué ces sept migrations.** Commit `b375e27` : les sept renommées en `<v>000000_…` (même ordre dans les deux tris, `git mv`), et les deux vraies orphelines (`20260903191642` gouvernance agent_tasks, `20260903191920` table ai_context) **reconstituées à l'octet près** depuis `supabase_migrations.schema_migrations.statements` — pas de placeholder. Les six fichiers en attente sont idempotents (`IF NOT EXISTS`, `OR REPLACE`, `DROP POLICY IF EXISTS`) : `db push` rejouera les trois déjà en base sans effet et appliquera les trois manquantes.
 
 ### Reste à faire — à l'utilisateur
-1. `supabase migration repair --status reverted 20260523 20260526 20260613 20260614 20260615 20260625 20260629 20260903191642 20260903191920` puis `supabase db push --linked`, puis vérifier : `destinations.embedding` doit répondre 200, `backup_articles_20260915` doit exister.
+1. Réécrire l'historique distant pour les sept versions renommées — métadonnées seulement, aucun SQL de schéma, dans cet ordre :
+   ```bash
+   supabase migration repair --status applied 20260523000000 20260526000000 20260613000000 20260614000000 20260615000000 20260625000000 20260629000000
+   ```
+   ```bash
+   supabase migration repair --status reverted 20260523 20260526 20260613 20260614 20260615 20260625 20260629
+   ```
+   ```bash
+   supabase db push --linked
+   ```
+   Puis vérifier : `supabase migration list --linked` sans ligne à une seule colonne ; `destinations.embedding` répond 200 ; `backup_articles_20260915` existe.
 2. `gh secret set DISCORD_WEBHOOK` avec l'URL d'un webhook du serveur Discord.
 3. Vérifier `CMS_PASSWORD` sur Vercel ; changer si c'est encore `HELDONICA2026` / `heldonica2026`.
 
