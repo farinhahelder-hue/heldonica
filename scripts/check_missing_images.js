@@ -20,9 +20,10 @@ const sb = createClient(vars.NEXT_PUBLIC_SUPABASE_URL, vars.SUPABASE_SERVICE_ROL
 async function main() {
   console.log('=== AUDIT DES IMAGES MANQUANTES OU VIDES ===\n')
 
-  // 1. Articles
-  console.log('--- Table: articles ---')
-  const { data: articles, error: errArt } = await sb.from('articles').select('id, title, slug, featured_image, category, destination')
+  // 1. Articles — cms_blog_posts est la source de vérité (#448) ; `articles` est
+  // le legacy en attente de DROP. Pas de colonne `destination` ici : on affiche les tags.
+  console.log('--- Table: cms_blog_posts ---')
+  const { data: articles, error: errArt } = await sb.from('cms_blog_posts').select('id, title, slug, featured_image, category, tags, published')
   if (errArt) {
     console.error('Erreur articles:', errArt.message)
   } else {
@@ -38,7 +39,7 @@ async function main() {
         if (isEmpty) emptyCount++
         else placeholderCount++
         console.log(`❌ Article: "${a.title}" (slug: ${a.slug})`)
-        console.log(`   - Catégorie: ${a.category} | Destination: ${a.destination || '—'}`)
+        console.log(`   - Catégorie: ${a.category} | Tags: ${Array.isArray(a.tags) && a.tags.length ? a.tags.join(', ') : '—'} | ${a.published ? 'publié' : 'brouillon'}`)
         console.log(`   - Image: ${img ? `"${img}" (Placeholder)` : 'VIDE'}`)
         console.log()
       }
