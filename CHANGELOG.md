@@ -4,6 +4,37 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-09-16] — Mise au propre : commit du travail IA, secret retiré, CI Discord, racine, scripts `articles` (tâche `87b50224`)
+
+### Ce qui a été fait (six commits, `b7f3082` → `f1d9b3c`)
+- **`b7f3082` feat(ia)** : le travail non commité du 16/09 (clés API agents, analytics IA, recherche sémantique, copilote, APK) commité **fichier par fichier** — pas de `git add .` : `.vscode/`, `aider-*.cmd`, `interpreter.cmd`, `__pycache__/` sont de l'outillage du poste, désormais dans `.gitignore`.
+- **`a6a8953` fix(mobile)** : `heldonica-mobile/README.md:23` affichait `cms.password=HELDONICA2026` en clair. Retiré. **Si c'est encore la valeur de `CMS_PASSWORD` sur Vercel, elle est à changer** — non lisible depuis le poste.
+- **`2edc4d7` ci(discord)** : `discord-notify.yml` passait `webhook-url`/`content` à `Ilshidur/action-discord`, qui ne lit que `env.DISCORD_WEBHOOK` + `with.args` → rouge à chaque push depuis sa création. Corrigé, version épinglée `0.4.0`. **Mais le secret `DISCORD_WEBHOOK` n'existe pas sur GitHub** (`gh secret list`) : le job restera rouge tant qu'il n'est pas posé.
+- **`e26d24f` chore(docs)** : NET01 (`9fab0da`) avait *copié* 26 audits dans `docs/archive/` sans les retirer de la racine, et STATUS.md disait « racine nettoyée ». Comparés à l'octet près (seul écart : CRLF/LF sur `RAPPORT_AUDIT_CMS.md`), supprimés de la racine ; STATUS.md §4 corrigé.
+- **`58857de` + `f1d9b3c` chore(scripts)** : huit scripts lisaient ou écrivaient encore dans `articles` (legacy #448). `check_missing_images.js` recâblé sur `cms_blog_posts` (pas de colonne `destination` là-bas → tags). Sept supprimés : `fix-data.mjs`, `check_trigger.js`, `fix_all_placeholders.js`, `fix_audit_db_anomalies.js`, `fix_missing_images.js`, `test_cms_pipeline.js`, `verify_sync.js` — tous des écritures prod hors migration (règle 2), deux allaient chercher des photos Unsplash (règle 1). Restent dans l'historique.
+
+### État de la base, vérifié par HEAD REST (pas supposé)
+| Migration | En base ? | Dans l'historique `supabase migration list` ? |
+|---|---|---|
+| `20260911120000` agent_tasks | oui (51 lignes) | **non** |
+| `20260915000001` backup articles | **non** (`backup_articles_20260915` → 404 ; `articles` a 50 lignes, pas 48) | non |
+| `20260915000002` RLS 7 tables | non vérifiable par REST | non |
+| `20260916100000` copilot_generations | oui (1 ligne) | **non** |
+| `20260916120000` api_keys / ai_requests_log | oui (4 / 2 lignes) | **non** |
+| `20260916140000` pgvector | **non** (`destinations.embedding` → 400 ; la recherche sémantique tourne sur le repli textuel) | non |
+
+`supabase db push --dry-run` refuse : neuf versions distantes sans fichier local (`20260523 20260526 20260613 20260614 20260615 20260625 20260629 20260903191642 20260903191920`). Les six fichiers sont idempotents (`IF NOT EXISTS`, `OR REPLACE`, `DROP POLICY IF EXISTS`) : une fois l'historique réparé, `db push` rejoue les trois déjà en base sans effet et applique les trois manquantes.
+
+### Reste à faire — à l'utilisateur
+1. `supabase migration repair --status reverted 20260523 20260526 20260613 20260614 20260615 20260625 20260629 20260903191642 20260903191920` puis `supabase db push --linked`, puis vérifier : `destinations.embedding` doit répondre 200, `backup_articles_20260915` doit exister.
+2. `gh secret set DISCORD_WEBHOOK` avec l'URL d'un webhook du serveur Discord.
+3. Vérifier `CMS_PASSWORD` sur Vercel ; changer si c'est encore `HELDONICA2026` / `heldonica2026`.
+
+### Vérifié avant push
+`tsc --noEmit` 0 erreur ; `vitest` 33 fichiers / 372 tests ; six garde-fous verts (avant et après les commits).
+
+---
+
 ## [2026-09-16] — Intelligence Artificielle & Base : Recherche Sémantique & pgvector (Gemini 768d)
 
 ### 🧠 Cerveau Sémantique Vectoriel (`/api/ai/search`, `lib/ai-embeddings.ts`, `supabase/migrations/20260916140000_enable_pgvector_and_embeddings.sql`)
