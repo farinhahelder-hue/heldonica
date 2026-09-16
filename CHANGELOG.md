@@ -4,6 +4,21 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-09-16] — Option A : publier sur Instagram depuis le panneau (image, carrousel, reel)
+
+### 📤 Publication réelle depuis la file `instagram_scheduled_posts`
+- **Nouvelle route `POST /api/instagram/publish { id }`** (`requireCmsAuth`, 5 appels/min, clé service) : publie une entrée de la file via la Graph API selon `metadata.type` — image, **carrousel** (`children`), **reel** (`video_url`) — puis écrit `published` + `permalink` ou `failed` + `error_message`. `GET` renvoie `{ configured, manque }`. Sans token Meta : **503 explicite** nommant `INSTAGRAM_ACCESS_TOKEN` et `INSTAGRAM_BUSINESS_ACCOUNT_ID`.
+- **`lib/instagram.ts`** : `publierEntreeFile()` (point d'entrée unique par type) et `lireDerniereErreurInstagram()` — la raison exacte du refus Meta remonte jusqu'au panneau au lieu d'un `null` muet.
+- **`/api/instagram/cron`** passe par le même dispatcher : il publiait tout en image seule (un carrousel partait avec sa première photo, un reel avec l'URL de sa vidéo comme image).
+- **`components/admin/ScheduledPostsList.tsx`** : le bouton « Marquer comme publié » — qui ne changeait que le statut, sans rien publier — devient **« Publier sur Instagram »** (confirmation, résultat ou raison d'échec sous l'entrée, lien vers le post). Badge du type (Image / Carrousel · N photos / Reel), bandeau « pas encore possible » listant les variables manquantes, bouton inactif tant qu'elles manquent.
+- **Sécurité** : `POST /api/instagram/post` publiait sur le compte réel **sans aucune authentification** → `requireCmsAuth` + rate limit.
+- **`docs/INSTAGRAM_META_SETUP.md`** : les 7 étapes côté Meta/Vercel, une à la fois.
+- **Vérifié en local** (dev server, `CMS_PASSWORD` de test) : `POST /publish` sans auth → 401 ; `GET` → `{"configured":false,"manque":[…]}` ; `POST` authentifié sans token → 503 lisible ; `POST /api/instagram/post` sans auth → 401 ; panneau : bandeau affiché, 6 entrées de la file rendues avec badge et bouton désactivé (`title` explicatif). `tsc` + garde-fous verts.
+- **Non vérifié** : une publication réelle — aucun token Meta sur le poste. Premier essai à faire sur une entrée image, depuis le panneau, une fois les variables posées.
+- **Constaté en passant** : en maintenance, `/auth/login` n'est pas dans `maintenanceExcludes` du middleware — la redirection de `/panel-manager` vers le login atterrit sur la page de maintenance quand la session est expirée. Non modifié (surface de maintenance = décision de mise en ligne).
+
+---
+
 ## [2026-09-16] — Mobile & IA : Vision Multimodale (Gemini 2.5 Flash) & Partage Instagram direct
 
 ### 👁️ IA Vision Multimodale (`/api/cms/ai-vision` & App Mobile) — Calibrage Sensoriel TSA & Heldonica

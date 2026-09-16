@@ -17,7 +17,7 @@ export async function GET(request: Request) {
     const now = new Date().toISOString()
     const { data: duePosts, error: fetchError } = await (supabase as any)
       .from('instagram_scheduled_posts')
-      .select('id, image_url, caption, article_id')
+      .select('id, image_url, caption, article_id, metadata')
       .eq('status', 'scheduled')
       .lte('scheduled_at', now)
       .limit(5)
@@ -28,8 +28,15 @@ export async function GET(request: Request) {
 
     for (const post of duePosts || []) {
       try {
-        const { postToInstagram } = await import('@/lib/instagram')
-        const result = await postToInstagram(post.image_url, post.caption || '')
+        // Meme point d'entree que le bouton « Publier » du panneau : le cron
+        // publiait tout en image seule et perdait carrousels et reels.
+        const { publierEntreeFile } = await import('@/lib/instagram')
+        const resultat = await publierEntreeFile({
+          image_url: post.image_url,
+          caption: post.caption,
+          metadata: post.metadata,
+        })
+        const result = resultat.ok ? resultat.post : null
         if (result) {
           // Si ce statut n'est pas ecrit, le meme post repart au prochain
           // passage : deux publications identiques sur le compte.
@@ -42,7 +49,7 @@ export async function GET(request: Request) {
           }
           results.push({ id: post.id, status: 'published' })
         } else {
-          throw new Error('Échec publication Instagram')
+          throw new Error(resultat.ok ? 'Échec publication Instagram' : resultat.raison)
         }
       } catch (err: any) {
         const { error: erreurEchec } = await (supabase as any)

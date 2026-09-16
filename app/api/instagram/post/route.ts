@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { postToInstagram, isInstagramConfigured } from '@/lib/instagram';
+import { postToInstagram, isInstagramConfigured, lireDerniereErreurInstagram } from '@/lib/instagram';
+import { requireCmsAuth } from '@/lib/cms-auth';
+import { rateLimit, getClientIp } from '@/lib/rate-limit';
 
 /**
  * API route to publish content to Instagram
@@ -13,6 +15,15 @@ import { postToInstagram, isInstagramConfigured } from '@/lib/instagram';
  * Requires INSTAGRAM_ACCESS_TOKEN and INSTAGRAM_BUSINESS_ACCOUNT_ID env vars
  */
 export async function POST(request: NextRequest) {
+  // Cette route publiait sur le compte reel sans verifier son appelant :
+  // n'importe qui connaissant l'URL pouvait poster une image et une legende
+  // sous le nom d'Heldonica des que le token Meta serait pose.
+  const refus = await requireCmsAuth(request);
+  if (refus) return refus;
+  if (!rateLimit(getClientIp(request), 5, 60_000)) {
+    return NextResponse.json({ error: 'Trop de requetes' }, { status: 429 });
+  }
+
   // Check if Instagram is configured
   if (!isInstagramConfigured()) {
     return NextResponse.json(
@@ -45,8 +56,8 @@ export async function POST(request: NextRequest) {
 
     if (!result) {
       return NextResponse.json(
-        { error: 'Failed to publish to Instagram' },
-        { status: 500 }
+        { error: 'Failed to publish to Instagram', detail: lireDerniereErreurInstagram() },
+        { status: 502 }
       );
     }
 
