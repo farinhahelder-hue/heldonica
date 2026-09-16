@@ -4,6 +4,31 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-09-16] — Mobile & IA : Vision Multimodale (Gemini 2.5 Flash) & Partage Instagram direct
+
+### 👁️ IA Vision Multimodale (`/api/cms/ai-vision` & App Mobile) — Calibrage Sensoriel TSA & Heldonica
+- **Ancrage Sensoriel TSA (Neuroatypique)** : Refonte complète du prompt système dans `app/api/cms/ai-vision/route.ts` et `MainActivity.kt`. L'IA adopte la sensibilité singulière du regard TSA : focalisation sur les micro-détails tangibles (grain du bois, chaux rugueuse, patine, lin, découpe géométrique des ombres, contrastes doux), l'acoustique apaisante (sons feutrés, absence de foule ou de surcharge sensorielle), et l'observation intime de ce que la plupart des gens traversent sans voir.
+- **Conformité stricte Heldonica** : Émetteur 100% « on » (duo fondateur, 0 « je » / 0 « nous »), destinataire complice « tu », 0 mot banni (zéro cliché touristique ni enthousiasme artificiel), 4 hashtags ciblés (#slowtravel, #heldonica).
+- **Gestion des tokens Gemini 2.5 Flash Thinking** : Élévation de `maxOutputTokens` à 2500 (les tokens de raisonnement interne consommaient le quota initial de 500 tokens). Timeout porté à 45s.
+- **App Mobile** : Bouton renommé `✨ Regard Heldonica & micro-détails (IA)`. Suppression des doublons de hashtags lors de l'export Instagram. Compilation Gradle et installation réussie sur le téléphone (`adb install -r -d`).
+- **Garde-fous CI** : `check:api-auth`, `check:cms-drift`, `check:cms-zones`, `check:erreurs-avalees` et `tsc --noEmit` tous 100% au vert.
+- **Partage natif direct (`MainActivity.kt`)** : Ajout du bouton `📸 Ouvrir directement dans Instagram` et amélioration du bouton `Brouillon + Ouvrir Instagram`.
+- **Copie automatique de la légende** : La légende générée (lieu, récit, hashtags) est copiée dans le presse-papier (`ClipboardManager`) avec un message Toast explicatif pour collage direct dans Instagram Feed / Carousel / Reels.
+- **Intent multi-médias** : Support `ACTION_SEND` (photo/vidéo unique) et `ACTION_SEND_MULTIPLE` (carrousel) avec `FLAG_GRANT_READ_URI_PERMISSION` et repli sélecteur standard si Instagram n'est pas présent.
+- **Manifeste** : Ajout de `<queries><package android:name="com.instagram.android" /></queries>` pour la visibilité du package sur Android 11+.
+
+### ✅ Vérifié sur l'appareil (Pixel 8 Pro, adb, 16/09 02:15) — Option B
+- Bouton `📸 Ouvrir directement dans Instagram` présent, inactif sans média, actif dès 1 photo.
+- 1 photo (`ACTION_SEND image/*`) : Instagram propose **Share with Instagram (fil)**, Direct, Stories, Reels ; le flux de création de post s'ouvre avec la photo.
+- 2 photos (`ACTION_SEND_MULTIPLE`) : Instagram ne propose **que Stories et Reels** — jamais le fil. Le carrousel du fil ne passe donc pas par le partage natif ; il passe par la file `instagram_scheduled_posts` et le panneau (Option A).
+- Toast « Légende copiée ! » affiché ; la bulle presse-papier Android montre le texte de la légende. Le collage lui-même reste un geste manuel (appui long).
+- Rien n'a été publié : brouillon Instagram écarté, images de test supprimées de l'appareil.
+- **Correctif** (`MainActivity.kt`) : avec plusieurs photos, le bouton s'intitule « Ouvrir dans Instagram (story ou reel) » et une note oriente vers « Brouillon + Ouvrir Instagram » pour le carrousel — plutôt qu'un libellé qui promet un carrousel que le partage natif ne fait pas.
+- Le stub `gradlew.bat` ne compile pas ; la compilation locale passe par `~/.gradle/wrapper/dists/gradle-8.7-bin/*/gradle-8.7/bin/gradle.bat assembleDebug` (SDK `C:\Android\Sdk`, JDK 17).
+- Les routes `app/api/cron/enrich-photos` et `enrich-places`, déclarées dans `vercel.json` mais absentes du dépôt (404 chaque nuit), sont versionnées avec ce lot.
+
+---
+
 ## [2026-09-02] — Mobile 0€ : Photos/Maps → Heldonica + Instagram (Carrousels/Vidéos auto+manuel)
 
 ### 📱 App Android 0€ + Backend `mobile-publish`

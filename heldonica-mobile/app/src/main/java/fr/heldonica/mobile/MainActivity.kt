@@ -1,8 +1,15 @@
 package fr.heldonica.mobile
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -29,6 +36,7 @@ import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -53,6 +61,7 @@ class MainActivity : ComponentActivity() {
     private var mode by mutableStateOf("both") // both | manuel | auto
     private var isCarousel by mutableStateOf(false)
     private var status by mutableStateOf("Prêt — choisis 1 à 10 photos/vidéos")
+    private var analyseEnCours by mutableStateOf(false)
 
     // Ecran affiche : accueil, ou formulaire de publication.
     //
@@ -765,6 +774,17 @@ class MainActivity : ComponentActivity() {
                             Text("Trouver l'adresse")
                         }
                     }
+
+                    if (pickedUris.isNotEmpty()) {
+                        FilledTonalButton(
+                            enabled = !analyseEnCours,
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = { analyserPhotoAvecIa(pickedUris.first()) }
+                        ) {
+                            Text(if (analyseEnCours) "✨ Regard Heldonica en cours…" else "✨ Regard Heldonica & micro-détails (IA)")
+                        }
+                    }
+
                     OutlinedTextField(value = caption, onValueChange = { caption = it }, label = { Text("Ce que tu as vécu là (facultatif)") }, modifier = Modifier.fillMaxWidth(), minLines = 3)
 
                     if (pickedUris.size > 1) LaunchedEffect(pickedUris.size) { isCarousel = true }
@@ -818,8 +838,36 @@ class MainActivity : ComponentActivity() {
                         onClick = {
                             enqueueUpload(publishInstagram = true)
                             status = "Envoi en cours…"
+                            ouvrirInstagram(pickedUris, genererCaptionInstagram())
                         }
-                    ) { Text("Brouillon + Instagram") }
+                    ) { Text("Brouillon + Ouvrir Instagram") }
+
+                    OutlinedButton(
+                        enabled = pickedUris.isNotEmpty(),
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            ouvrirInstagram(pickedUris, genererCaptionInstagram())
+                        }
+                    ) {
+                        Text(
+                            if (pickedUris.size > 1) "📸 Ouvrir dans Instagram (story ou reel)"
+                            else "📸 Ouvrir directement dans Instagram"
+                        )
+                    }
+
+                    // Constate sur l'appareil le 16/09 : avec plusieurs photos,
+                    // Instagram ne propose que Story et Reel au partage — jamais
+                    // le fil. Le carrousel du fil passe par la file du panneau
+                    // (« Brouillon + Ouvrir Instagram », puis « Publier » depuis
+                    // le PC). Le dire ici evite de chercher un bouton absent.
+                    if (pickedUris.size > 1) {
+                        Text(
+                            "Avec plusieurs photos, Instagram s'ouvre en story ou en reel. " +
+                                "Pour un carrousel dans le fil : « Brouillon + Ouvrir Instagram », " +
+                                "puis publie-le depuis le panneau.",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
 
                     // Les acces a l'editeur vivent desormais sur l'accueil : les
                     // repeter ici melait deux intentions sur le meme ecran.
@@ -830,6 +878,276 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             }
+        }
+    }
+
+    /** Génère le texte de légende adapté pour Instagram avec le lieu et la signature. */
+    private fun genererCaptionInstagram(): String {
+        val texte = caption.trim()
+        return buildString {
+            if (texte.isNotBlank()) append(texte)
+            if (placeTitle.isNotBlank() && !texte.contains(placeTitle)) {
+                append("\n\n📍 ").append(placeTitle)
+                if (placeAddress.isNotBlank()) append(" — ").append(placeAddress)
+            }
+            if (!texte.contains("heldonica.fr")) {
+                append("\n\n🌍 heldonica.fr")
+            }
+            if (!texte.contains("#slowtravel") && !texte.contains("#heldonica")) {
+                append("\n#slowtravel #heldonica")
+            }
+        }
+    }
+
+    /**
+     * Ouvre directement l'application Instagram native avec la ou les photos sélectionnées.
+     * Copie la légende dans le presse-papier car Instagram n'accepte pas toujours EXTRA_TEXT en Feed.
+     */
+    private fun ouvrirInstagram(uris: List<Uri>, texte: String) {
+        if (uris.isEmpty()) {
+            Toast.makeText(this, "Choisis d'abord au moins une photo ou vidéo", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // 1. Copier la légende dans le presse-papier
+        try {
+            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+            if (clipboard != null && texte.isNotBlank()) {
+                val clip = ClipData.newPlainText("Légende Heldonica", texte)
+                clipboard.setPrimaryClip(clip)
+                Toast.makeText(
+                    this,
+                    "Légende copiée ! Maintiens appuyé pour la coller dans Instagram.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Erreur presse-papier: ${e.message}")
+        }
+
+        // 2. Préparer l'Intent de partage (simple ou carrousel)
+        val isVideo = uris.any { applicationContext.contentResolver.getType(it)?.startsWith("video") == true }
+
+        val shareIntent = if (uris.size > 1) {
+            Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+                type = "image/*"
+                putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(uris))
+                putExtra(Intent.EXTRA_TEXT, texte)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+        } else {
+            Intent(Intent.ACTION_SEND).apply {
+                type = if (isVideo) "video/*" else "image/*"
+                putExtra(Intent.EXTRA_STREAM, uris.first())
+                putExtra(Intent.EXTRA_TEXT, texte)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+        }
+
+        // 3. Tenter d'ouvrir l'application Instagram directement
+        shareIntent.setPackage("com.instagram.android")
+
+        try {
+            startActivity(shareIntent)
+        } catch (_: Exception) {
+            // Repli vers le sélecteur Android standard si Instagram n'est pas trouvé
+            shareIntent.setPackage(null)
+            try {
+                startActivity(Intent.createChooser(shareIntent, "Partager avec..."))
+            } catch (e: Exception) {
+                Toast.makeText(this, "Impossible d'ouvrir le partage : ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    /**
+     * Analyse la photo via l'IA Vision pour extraire une légende sensorielle et des hashtags
+     * cohérents avec l'atmosphère réelle de l'image.
+     */
+    private fun analyserPhotoAvecIa(uri: Uri) {
+        analyseEnCours = true
+        status = "Analyse de la photo par l'IA en cours…"
+        portee.launch(Dispatchers.IO) {
+            try {
+                val bytes = preparerImagePourVision(uri)
+                if (bytes == null) {
+                    withContext(Dispatchers.Main) {
+                        analyseEnCours = false
+                        status = "Impossible de lire la photo pour l'analyse"
+                        Toast.makeText(this@MainActivity, "Impossible de lire la photo", Toast.LENGTH_SHORT).show()
+                    }
+                    return@launch
+                }
+
+                val geminiKey = BuildConfig.GEMINI_API_KEY.ifBlank { null }
+                val client = OkHttpClient.Builder()
+                    .callTimeout(45, TimeUnit.SECONDS)
+                    .build()
+
+                if (!geminiKey.isNullOrBlank()) {
+                    // 1. Appel direct à Gemini 2.5 Flash Vision (0 dépendance serveur, immédiat)
+                    val base64 = android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
+                    val prompt = """
+Tu es la voix éditoriale d'Heldonica (média et concepteur de voyages slow travel en duo).
+Notre regard sur le voyage est singulier : il est porté par une sensibilité neuroatypique (TSA), attentive aux micro-détails sensoriels et tangibles que la plupart des gens traversent sans remarquer.
+
+RÈGLES ÉDITORIALES & REGARD SENSORIEL (TSA) :
+1. LE REGARD SUR L'IMAGE :
+- Observe attentivement ce que montre la photo. Décris la matière réelle (le grain du bois, la pierre calcaire rugueuse, les reflets, la céramique artisanale, le lin froissé, la découpe des ombres, la texture des surfaces ou des ingrédients).
+- Sensibilité TSA : relève les micro-détails qui ancrent dans le réel (sensations tactiles, acoustique apaisante suggérée comme un cliquetis feutré ou le souffle du vent, absence de foule ou d'agitation saturante, régularité des formes, authenticité du geste).
+- Règle d'or absolue : « On n'invente rien. On raconte ce qu'on a vécu. » Ne mentionne AUCUN élément absent de l'image.
+
+2. ÉMETTEUR DUO (« on » exclusif) :
+- Le duo s'exprime toujours par « on » (« on s'est posés », « ce qui nous a marqués », « on a pris le temps »).
+- Ne dis JAMAIS « je », « nous », « nos », « notre équipe », « la rédaction ».
+
+3. DESTINATAIRE (« tu ») :
+- Tutoiement direct et complice (« tu »), comme une note intime partagée dans un carnet de route.
+
+4. MOTS STRICTEMENT BANNIS (zéro tolérance) :
+- Clichés d'influenceurs et superlatifs interdits : pépite, pépites, incontournable, incontournables, bon plan, bons plans, must-see, must-have, paradis, paradisiaque, magnifique, splendide, incroyable, magique, merveilleux, spot.
+- Tics de langage IA bannis : plongez dans, laissez-vous emporter, au cœur de, véritable havre de paix, cocon, n'attends plus, embarquez.
+- Pas d'exclamation artificielle ni d'enthousiasme forcé. Ton calme, posé, sincère, reposant.
+
+5. FORMAT D'ÉCRITURE :
+- Un texte court et aéré (3 à 5 phrases, 50 à 75 mots environ).
+- Termine par une question douce ou une observation suspendue en tutoiement ("tu").
+- Ligne vide, puis 4 hashtags sobres : #slowtravel #heldonica + 2 hashtags de contexte précis.
+${if (placeTitle.isNotBlank()) "Lieu / contexte indiqué : $placeTitle" else ""}
+""".trimIndent()
+
+                    val jsonReq = org.json.JSONObject().apply {
+                        val contents = org.json.JSONArray().apply {
+                            val msg = org.json.JSONObject().apply {
+                                val parts = org.json.JSONArray().apply {
+                                    put(org.json.JSONObject().put("text", prompt))
+                                    put(org.json.JSONObject().put("inline_data", org.json.JSONObject().apply {
+                                        put("mime_type", "image/jpeg")
+                                        put("data", base64)
+                                    }))
+                                }
+                                put("parts", parts)
+                            }
+                            put(msg)
+                        }
+                        put("contents", contents)
+                        put("generationConfig", org.json.JSONObject().apply {
+                            put("temperature", 0.5)
+                            put("maxOutputTokens", 2500)
+                        })
+                    }
+
+                    val req = Request.Builder()
+                        .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$geminiKey")
+                        .post(jsonReq.toString().toRequestBody("application/json".toMediaType()))
+                        .build()
+
+                    val resp = client.newCall(req).execute()
+                    val corps = resp.body?.string().orEmpty()
+
+                    withContext(Dispatchers.Main) {
+                        analyseEnCours = false
+                        if (resp.isSuccessful) {
+                            val respJson = org.json.JSONObject(corps)
+                            val candidates = respJson.optJSONArray("candidates")
+                            val text = candidates?.optJSONObject(0)
+                                ?.optJSONObject("content")
+                                ?.optJSONArray("parts")
+                                ?.optJSONObject(0)
+                                ?.optString("text")
+                                .orEmpty()
+
+                            if (text.isNotBlank()) {
+                                caption = text.trim()
+                                status = "Légende et hashtags générés depuis ta photo !"
+                                Toast.makeText(this@MainActivity, "✨ Légende générée depuis ta photo !", Toast.LENGTH_LONG).show()
+                            } else {
+                                status = "Réponse IA vide"
+                            }
+                        } else {
+                            status = "Erreur Gemini (${resp.code})"
+                            Log.e(TAG, "Erreur Gemini ${resp.code}: $corps")
+                            Toast.makeText(this@MainActivity, "Erreur Gemini (${resp.code})", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } else {
+                    // 2. Repli vers le serveur CMS
+                    val baseUrl = BuildConfig.CMS_BASE_URL
+                    val password = BuildConfig.CMS_PASSWORD
+
+                    val body = MultipartBody.Builder()
+                        .setType(MultipartBody.FORM)
+                        .addFormDataPart(
+                            "image",
+                            "photo.jpg",
+                            bytes.toRequestBody("image/jpeg".toMediaType())
+                        )
+                        .addFormDataPart("place_title", placeTitle)
+                        .build()
+
+                    val req = Request.Builder()
+                        .url("$baseUrl/api/cms/ai-vision")
+                        .header("x-cms-auth", password)
+                        .post(body)
+                        .build()
+
+                    val resp = client.newCall(req).execute()
+                    val corps = resp.body?.string().orEmpty()
+
+                    withContext(Dispatchers.Main) {
+                        analyseEnCours = false
+                        if (resp.isSuccessful) {
+                            val json = org.json.JSONObject(corps)
+                            val fullText = json.optString("fullText", "")
+                            if (fullText.isNotBlank()) {
+                                caption = fullText
+                                status = "Légende et hashtags générés depuis ta photo !"
+                                Toast.makeText(this@MainActivity, "✨ Légende générée depuis ta photo !", Toast.LENGTH_LONG).show()
+                            } else {
+                                status = "Réponse IA vide"
+                            }
+                        } else {
+                            status = "Échec analyse IA (${resp.code})"
+                            Log.e(TAG, "Erreur ai-vision ${resp.code}: $corps")
+                            Toast.makeText(this@MainActivity, "Erreur analyse IA : $corps", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    analyseEnCours = false
+                    status = "Erreur connexion IA : ${e.message}"
+                    Log.e(TAG, "Erreur vision", e)
+                }
+            }
+        }
+    }
+
+    /** Compresse l'image à 1024px max pour une analyse vision rapide et légère. */
+    private fun preparerImagePourVision(uri: Uri): ByteArray? {
+        return try {
+            val input = contentResolver.openInputStream(uri) ?: return null
+            val original = BitmapFactory.decodeStream(input)
+            input.close()
+            if (original == null) return null
+
+            val maxDim = 1024
+            val ratio = minOf(1f, maxDim.toFloat() / maxOf(original.width, original.height))
+            val scaled = if (ratio < 1f) {
+                Bitmap.createScaledBitmap(
+                    original,
+                    (original.width * ratio).toInt(),
+                    (original.height * ratio).toInt(),
+                    true
+                )
+            } else original
+
+            val baos = ByteArrayOutputStream()
+            scaled.compress(Bitmap.CompressFormat.JPEG, 80, baos)
+            baos.toByteArray()
+        } catch (e: Exception) {
+            Log.w(TAG, "Erreur compression image vision", e)
+            null
         }
     }
 
