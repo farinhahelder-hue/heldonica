@@ -54,3 +54,6 @@ __pycache__/
 .vscode/
 aider-*.cmd
 interpreter.cmd
+
+# Jetons d agent en clair, generes par scripts/seed_agent_keys.mjs
+.agent-keys.local

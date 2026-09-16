@@ -11,23 +11,23 @@ Chaque agent dispose d'une clé API dédiée avec rate limiting indépendant et 
 ### Format de l'en-tête
 Fournir la clé soit via l'en-tête `x-api-key`, soit via `Authorization: Bearer` :
 ```http
-x-api-key: hld_ag_9f8b2c4e6a1d3f5e7b9a0c2d4e6f8a1b
+x-api-key: hld_ag_<32 caractères hexadécimaux>
 ```
 ou
 ```http
-Authorization: Bearer hld_ag_9f8b2c4e6a1d3f5e7b9a0c2d4e6f8a1b
+Authorization: Bearer hld_ag_<32 caractères hexadécimaux>
 ```
 
 ### Clés pré-provisionnées par agent
 
-| Agent | Préfixe | Quota (req/h) | Clé API d'accès |
+| Agent | Préfixe | Quota (req/h) | Où est le jeton |
 |---|---|---|---|
-| **Antigravity (IDE local)** | `hld_ag_` | 120 | `hld_ag_9f8b2c4e6a1d3f5e7b9a0c2d4e6f8a1b` |
-| **Claude Code (CLI)** | `hld_cl_` | 120 | `hld_cl_7e3a1b5c9d2f4e6a8b0c2d4f6e8a1b3c` |
-| **Pencode (éditeur distant)** | `hld_pe_` | 100 | `hld_pe_4b6d8f0a2c4e6b8a1c3e5f7a9b1d3f5e` |
-| **Mobile APK (Heldonica App)** | `hld_mb_` | 150 | `hld_mb_1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1b` |
+| **Antigravity (IDE local)** | `hld_ag_` | 120 | `.agent-keys.local` du poste qui a lancé `scripts/seed_agent_keys.mjs` |
+| **Claude Code (CLI)** | `hld_cl_` | 120 | `.agent-keys.local` du poste qui a lancé `scripts/seed_agent_keys.mjs` |
+| **Pencode (éditeur distant)** | `hld_pe_` | 100 | `.agent-keys.local` du poste qui a lancé `scripts/seed_agent_keys.mjs` |
+| **Mobile APK (Heldonica App)** | `hld_mb_` | 150 | `.agent-keys.local` du poste qui a lancé `scripts/seed_agent_keys.mjs` |
 
-*Note de sécurité : Les clés sont stockées sous forme de hash SHA-256 dans la table `api_keys`. Ne jamais les committer en clair dans des dépôts publics.*
+*Sécurité : les clés n'existent en base que sous forme de hash SHA-256 (`api_keys.key_hash`) et ne sont écrites nulle part dans le dépôt — ni ici, ni dans le code, ni dans les migrations. Le 16/09/2026, quatre jetons figuraient dans ce fichier, dans `lib/ai-auth.ts` et dans `scripts/seed_agent_keys.mjs` d'un dépôt public ; ils ont été révoqués (migration `20260916134640_rotate_api_keys.sql`). Pour créer ou faire tourner une clé : `node scripts/seed_agent_keys.mjs [agent…]` puis `supabase db push --linked`.*
 
 ---
 
@@ -213,7 +213,7 @@ Permet de rechercher des destinations et articles par similarité sémantique en
 # Copilote Heldonica (Mode Instagram)
 curl -X POST https://heldonica.com/api/ai/copilot \
   -H "Content-Type: application/json" \
-  -H "x-api-key: hld_ag_9f8b2c4e6a1d3f5e7b9a0c2d4e6f8a1b" \
+  -H "x-api-key: hld_ag_<32 caractères hexadécimaux>" \
   -d '{
     "mode": "instagram",
     "message": "Bord de mer à Madère, galets polis par les vagues, odeur d iode et embruns froids. Fin d apres-midi silencieuse."
@@ -224,7 +224,7 @@ curl -X POST https://heldonica.com/api/ai/copilot \
 ```typescript
 import fs from 'node:fs';
 
-const API_KEY = process.env.HELDONICA_AI_KEY || 'hld_ag_9f8b2c4e6a1d3f5e7b9a0c2d4e6f8a1b';
+const API_KEY = process.env.HELDONICA_AI_KEY || 'hld_ag_<32 caractères hexadécimaux>';
 const BASE_URL = process.env.HELDONICA_BASE_URL || 'https://heldonica.com';
 
 // 1. Analyse Vision
@@ -271,7 +271,7 @@ import os
 import requests
 import base64
 
-API_KEY = os.getenv("HELDONICA_AI_KEY", "hld_cl_7e3a1b5c9d2f4e6a8b0c2d4f6e8a1b3c")
+API_KEY = os.getenv("HELDONICA_AI_KEY", "hld_cl_<32 caractères hexadécimaux>")
 BASE_URL = os.getenv("HELDONICA_BASE_URL", "https://heldonica.com")
 
 headers = {
@@ -297,18 +297,18 @@ print(response.json())
 La clé est provisionnée par défaut dans `lib/ai-auth.ts`.
 Dans vos scripts locaux ou sidecars, définissez dans `.env.local` :
 ```env
-AI_AGENT_API_KEY=hld_ag_9f8b2c4e6a1d3f5e7b9a0c2d4e6f8a1b
+AI_AGENT_API_KEY=hld_ag_<32 caractères hexadécimaux>
 ```
 
 ### Claude Code (CLI)
 Ajoutez la variable d'environnement dans votre shell (`~/.bashrc`, `~/.zshrc` ou session CLI) :
 ```bash
-export HELDONICA_AI_KEY="hld_cl_7e3a1b5c9d2f4e6a8b0c2d4f6e8a1b3c"
+export HELDONICA_AI_KEY="hld_cl_<32 caractères hexadécimaux>"
 ```
 
 ### Pencode (éditeur distant)
 Renseignez dans la configuration des secrets de l'environnement :
-`HELDONICA_AI_KEY = hld_pe_4b6d8f0a2c4e6b8a1c3e5f7a9b1d3f5e`
+`HELDONICA_AI_KEY = hld_pe_<32 caractères hexadécimaux>`
 
 ---
 
