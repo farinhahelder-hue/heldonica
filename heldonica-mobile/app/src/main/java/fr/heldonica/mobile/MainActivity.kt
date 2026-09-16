@@ -785,7 +785,28 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    OutlinedTextField(value = caption, onValueChange = { caption = it }, label = { Text("Ce que tu as vécu là (facultatif)") }, modifier = Modifier.fillMaxWidth(), minLines = 3)
+                    OutlinedTextField(
+                        value = caption,
+                        onValueChange = { caption = it },
+                        label = { Text("Ce que tu as vécu là (facultatif)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        minLines = 3
+                    )
+
+                    if (caption.isNotBlank()) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            TextButton(
+                                onClick = {
+                                    copierDansPressePapier(genererCaptionInstagram(), montrerToast = true)
+                                }
+                            ) {
+                                Text("📋 Copier la légende")
+                            }
+                        }
+                    }
 
                     if (pickedUris.size > 1) LaunchedEffect(pickedUris.size) { isCarousel = true }
 
@@ -826,10 +847,21 @@ class MainActivity : ComponentActivity() {
                         enabled = pickedUris.isNotEmpty() && !envoiEnCours,
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
+                            copierDansPressePapier(genererCaptionInstagram(), montrerToast = false)
                             enqueueUpload(publishInstagram = false)
                             status = "Envoi en cours…"
                         }
                     ) { Text("Créer le brouillon") }
+
+                    Spacer(Modifier.height(6.dp))
+
+                    Text(
+                        "💡 Instagram n'autorise aucune application externe à coller du texte automatiquement. Ta légende est dans le presse-papier : sur Instagram, touche simplement « Coller » (ou la puce au-dessus du clavier).",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Spacer(Modifier.height(4.dp))
 
                     Button(
                         enabled = pickedUris.isNotEmpty() && !envoiEnCours,
@@ -899,6 +931,24 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /** Copie le texte dans le presse-papier Android avec logging et toast facultatif. */
+    private fun copierDansPressePapier(texte: String, montrerToast: Boolean = true) {
+        if (texte.isBlank()) return
+        try {
+            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+            if (clipboard != null) {
+                val clip = ClipData.newPlainText("Légende Heldonica", texte)
+                clipboard.setPrimaryClip(clip)
+                Log.i(TAG, "Légende copiée dans le presse-papier (${texte.length} car.)")
+                if (montrerToast) {
+                    Toast.makeText(this, "📋 Légende copiée dans le presse-papier !", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Erreur presse-papier: ${e.message}")
+        }
+    }
+
     /**
      * Ouvre directement l'application Instagram native avec la ou les photos sélectionnées.
      * Copie la légende dans le presse-papier car Instagram n'accepte pas toujours EXTRA_TEXT en Feed.
@@ -910,20 +960,12 @@ class MainActivity : ComponentActivity() {
         }
 
         // 1. Copier la légende dans le presse-papier
-        try {
-            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
-            if (clipboard != null && texte.isNotBlank()) {
-                val clip = ClipData.newPlainText("Légende Heldonica", texte)
-                clipboard.setPrimaryClip(clip)
-                Toast.makeText(
-                    this,
-                    "Légende copiée ! Maintiens appuyé pour la coller dans Instagram.",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        } catch (e: Exception) {
-            Log.w(TAG, "Erreur presse-papier: ${e.message}")
-        }
+        copierDansPressePapier(texte, montrerToast = false)
+        Toast.makeText(
+            this,
+            "📋 Légende copiée ! Touche « Coller » dans Instagram.",
+            Toast.LENGTH_LONG
+        ).show()
 
         // 2. Préparer l'Intent de partage (simple ou carrousel)
         val isVideo = uris.any { applicationContext.contentResolver.getType(it)?.startsWith("video") == true }
@@ -981,11 +1023,17 @@ class MainActivity : ComponentActivity() {
 
                 val geminiKey = BuildConfig.GEMINI_API_KEY.ifBlank { null }
                 val client = OkHttpClient.Builder()
-                    .callTimeout(45, TimeUnit.SECONDS)
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(60, TimeUnit.SECONDS)
+                    .writeTimeout(30, TimeUnit.SECONDS)
+                    .callTimeout(75, TimeUnit.SECONDS)
+                    .retryOnConnectionFailure(true)
                     .build()
+                var textResult = ""
+                var dernierErreur = ""
 
+                // 1. Tenter l'appel direct Gemini 2.5 Flash avec retry automatique (jusqu'à 2 essais)
                 if (!geminiKey.isNullOrBlank()) {
-                    // 1. Appel direct à Gemini 2.5 Flash Vision (0 dépendance serveur, immédiat)
                     val base64 = android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
                     val prompt = """
 Tu es la voix éditoriale d'Heldonica (média et concepteur de voyages slow travel en duo).
@@ -1037,41 +1085,52 @@ ${if (placeTitle.isNotBlank()) "Lieu / contexte indiqué : $placeTitle" else ""}
                         })
                     }
 
-                    val req = Request.Builder()
-                        .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$geminiKey")
-                        .post(jsonReq.toString().toRequestBody("application/json".toMediaType()))
-                        .build()
-
-                    val resp = client.newCall(req).execute()
-                    val corps = resp.body?.string().orEmpty()
-
-                    withContext(Dispatchers.Main) {
-                        analyseEnCours = false
-                        if (resp.isSuccessful) {
-                            val respJson = org.json.JSONObject(corps)
-                            val candidates = respJson.optJSONArray("candidates")
-                            val text = candidates?.optJSONObject(0)
-                                ?.optJSONObject("content")
-                                ?.optJSONArray("parts")
-                                ?.optJSONObject(0)
-                                ?.optString("text")
-                                .orEmpty()
-
-                            if (text.isNotBlank()) {
-                                caption = text.trim()
-                                status = "Légende et hashtags générés depuis ta photo !"
-                                Toast.makeText(this@MainActivity, "✨ Légende générée depuis ta photo !", Toast.LENGTH_LONG).show()
-                            } else {
-                                status = "Réponse IA vide"
+                    for (essai in 1..2) {
+                        try {
+                            if (essai > 1) {
+                                withContext(Dispatchers.Main) {
+                                    status = "Nouvelle tentative d'analyse…"
+                                }
+                                kotlinx.coroutines.delay(1000)
                             }
-                        } else {
-                            status = "Erreur Gemini (${resp.code})"
-                            Log.e(TAG, "Erreur Gemini ${resp.code}: $corps")
-                            Toast.makeText(this@MainActivity, "Erreur Gemini (${resp.code})", Toast.LENGTH_SHORT).show()
+
+                            val req = Request.Builder()
+                                .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$geminiKey")
+                                .post(jsonReq.toString().toRequestBody("application/json".toMediaType()))
+                                .build()
+
+                            val resp = client.newCall(req).execute()
+                            val corps = resp.body?.string().orEmpty()
+
+                            if (resp.isSuccessful) {
+                                val respJson = org.json.JSONObject(corps)
+                                val candidates = respJson.optJSONArray("candidates")
+                                val text = candidates?.optJSONObject(0)
+                                    ?.optJSONObject("content")
+                                    ?.optJSONArray("parts")
+                                    ?.optJSONObject(0)
+                                    ?.optString("text")
+                                    .orEmpty()
+                                if (text.isNotBlank()) {
+                                    textResult = text.trim()
+                                    break
+                                }
+                            } else {
+                                dernierErreur = "Gemini HTTP ${resp.code}"
+                                Log.w(TAG, "Tentative $essai Gemini échec: $corps")
+                            }
+                        } catch (e: Exception) {
+                            dernierErreur = e.message ?: "timeout"
+                            Log.w(TAG, "Tentative $essai Gemini exception: ${e.message}")
                         }
                     }
-                } else {
-                    // 2. Repli vers le serveur CMS
+                }
+
+                // 2. Repli automatique vers le serveur CMS si l'appel direct n'a pas abouti
+                if (textResult.isBlank()) {
+                    withContext(Dispatchers.Main) {
+                        status = "Repli sur le serveur Heldonica…"
+                    }
                     val baseUrl = BuildConfig.CMS_BASE_URL
                     val password = BuildConfig.CMS_PASSWORD
 
@@ -1091,59 +1150,87 @@ ${if (placeTitle.isNotBlank()) "Lieu / contexte indiqué : $placeTitle" else ""}
                         .post(body)
                         .build()
 
-                    val resp = client.newCall(req).execute()
-                    val corps = resp.body?.string().orEmpty()
-
-                    withContext(Dispatchers.Main) {
-                        analyseEnCours = false
+                    try {
+                        val resp = client.newCall(req).execute()
+                        val corps = resp.body?.string().orEmpty()
                         if (resp.isSuccessful) {
                             val json = org.json.JSONObject(corps)
                             val fullText = json.optString("fullText", "")
                             if (fullText.isNotBlank()) {
-                                caption = fullText
-                                status = "Légende et hashtags générés depuis ta photo !"
-                                Toast.makeText(this@MainActivity, "✨ Légende générée depuis ta photo !", Toast.LENGTH_LONG).show()
-                            } else {
-                                status = "Réponse IA vide"
+                                textResult = fullText.trim()
                             }
                         } else {
-                            status = "Échec analyse IA (${resp.code})"
-                            Log.e(TAG, "Erreur ai-vision ${resp.code}: $corps")
-                            Toast.makeText(this@MainActivity, "Erreur analyse IA : $corps", Toast.LENGTH_SHORT).show()
+                            dernierErreur = "CMS HTTP ${resp.code}"
+                            Log.w(TAG, "Repli CMS échec: $corps")
                         }
+                    } catch (e: Exception) {
+                        dernierErreur = e.message ?: "timeout serveur"
+                        Log.w(TAG, "Repli CMS exception: ${e.message}")
+                    }
+                }
+
+                withContext(Dispatchers.Main) {
+                    analyseEnCours = false
+                    if (textResult.isNotBlank()) {
+                        caption = textResult
+                        status = "Légende et hashtags générés depuis ta photo !"
+                        copierDansPressePapier(genererCaptionInstagram(), montrerToast = false)
+                        Toast.makeText(this@MainActivity, "✨ Légende prête et copiée dans le presse-papier !", Toast.LENGTH_LONG).show()
+                    } else {
+                        status = "Échec de l'analyse ($dernierErreur)"
+                        Toast.makeText(this@MainActivity, "Délai dépassé ($dernierErreur). Touche pour réessayer.", Toast.LENGTH_LONG).show()
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     analyseEnCours = false
                     status = "Erreur connexion IA : ${e.message}"
-                    Log.e(TAG, "Erreur vision", e)
+                    Log.e(TAG, "Erreur vision globale", e)
                 }
             }
         }
     }
 
-    /** Compresse l'image à 1024px max pour une analyse vision rapide et légère. */
+    /** Compresse l'image à 800px max avec inSampleSize pour une analyse vision rapide et ultra légère. */
     private fun preparerImagePourVision(uri: Uri): ByteArray? {
         return try {
-            val input = contentResolver.openInputStream(uri) ?: return null
-            val original = BitmapFactory.decodeStream(input)
-            input.close()
-            if (original == null) return null
+            // 1. Lire les dimensions sans allouer de bitmap en RAM
+            val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            contentResolver.openInputStream(uri)?.use { input ->
+                BitmapFactory.decodeStream(input, null, options)
+            }
+            if (options.outWidth <= 0 || options.outHeight <= 0) return null
 
-            val maxDim = 1024
-            val ratio = minOf(1f, maxDim.toFloat() / maxOf(original.width, original.height))
-            val scaled = if (ratio < 1f) {
+            // 2. Calcul du sous-échantillonnage optimal (évite OutOfMemory sur 50MP Pixel 8)
+            val targetDim = 800
+            val maxOriginal = maxOf(options.outWidth, options.outHeight)
+            var sampleSize = 1
+            while (maxOriginal / (sampleSize * 2) >= targetDim) {
+                sampleSize *= 2
+            }
+
+            // 3. Décodage allégé en RGB_565
+            val decodeOptions = BitmapFactory.Options().apply {
+                inSampleSize = sampleSize
+                inPreferredConfig = Bitmap.Config.RGB_565
+            }
+            val sampledBitmap = contentResolver.openInputStream(uri)?.use { input ->
+                BitmapFactory.decodeStream(input, null, decodeOptions)
+            } ?: return null
+
+            // 4. Redimensionnement précis à targetDim (800px max)
+            val ratio = minOf(1f, targetDim.toFloat() / maxOf(sampledBitmap.width, sampledBitmap.height))
+            val finalBitmap = if (ratio < 1f) {
                 Bitmap.createScaledBitmap(
-                    original,
-                    (original.width * ratio).toInt(),
-                    (original.height * ratio).toInt(),
+                    sampledBitmap,
+                    (sampledBitmap.width * ratio).toInt().coerceAtLeast(1),
+                    (sampledBitmap.height * ratio).toInt().coerceAtLeast(1),
                     true
                 )
-            } else original
+            } else sampledBitmap
 
             val baos = ByteArrayOutputStream()
-            scaled.compress(Bitmap.CompressFormat.JPEG, 80, baos)
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 75, baos)
             baos.toByteArray()
         } catch (e: Exception) {
             Log.w(TAG, "Erreur compression image vision", e)

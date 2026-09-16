@@ -30,7 +30,7 @@ import path from 'node:path'
 const RACINE = 'app/api'
 
 // Un appel a l'une de ces formes vaut vérification.
-const AUTH = /requireCmsAuth|getCmsAuthStatus|isAuthorized|CRON_SECRET|x-cms-auth|signatureValide|verifyWebhook|WEBHOOK_SECRET|APP_SECRET|AI_AGENT_API_KEY|checkAuth|isAdmin/
+const AUTH = /requireCmsAuth|getCmsAuthStatus|isAuthorized|CRON_SECRET|x-cms-auth|signatureValide|verifyWebhook|WEBHOOK_SECRET|APP_SECRET|AI_AGENT_API_KEY|verifyAiAuth|checkAuth|isAdmin/
 
 const SERVICE = /SUPABASE_SERVICE_ROLE_KEY|SUPABASE_SERVICE_KEY/
 

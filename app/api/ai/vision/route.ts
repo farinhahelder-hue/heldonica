@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireCmsAuth } from '@/lib/cms-auth';
-import { verifyAiAuth } from '@/lib/ai-auth';
-import { rateLimit, getClientIp } from '@/lib/rate-limit';
+import { verifyAiAuth, logAiRequest } from '@/lib/ai-auth';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
+
+const MODEL = 'gemini-2.5-flash';
 
 const SYSTEM_PROMPT = `Tu es la voix éditoriale d'Heldonica (média et concepteur de voyages slow travel en duo).
 Notre regard sur le voyage est singulier : il est porté par une sensibilité neuroatypique (TSA), attentive aux micro-détails sensoriels et tangibles que la plupart des gens traversent sans remarquer.
@@ -40,15 +40,10 @@ Réponds UNIQUEMENT en JSON valide avec ce schéma :
 }`;
 
 export async function POST(req: NextRequest) {
-  if (!rateLimit(getClientIp(req), 30, 60_000)) {
-    return NextResponse.json({ error: 'Trop de requêtes' }, { status: 429 });
-  }
-
-  // Supporte à la fois les clés API agents (x-api-key) et la session CMS
+  const startTime = Date.now();
   const auth = await verifyAiAuth(req);
   if (!auth.ok) {
-    const refus = await requireCmsAuth(req);
-    if (refus) return refus;
+    return auth.response || NextResponse.json({ error: auth.error || 'Non autorisé' }, { status: auth.status || 401 });
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
@@ -56,22 +51,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'GEMINI_API_KEY non configurée' }, { status: 503 });
   }
 
-  try {
-    let base64Image = '';
-    let mimeType = 'image/jpeg';
-    let placeTitle = '';
+  let base64Image = '';
+  let mimeType = 'image/jpeg';
+  let placeTitle = '';
 
+  try {
     const contentType = req.headers.get('content-type') || '';
 
     if (contentType.includes('application/json')) {
       const body = await req.json();
       base64Image = (body.image || '').replace(/^data:image\/[a-zA-Z+]+;base64,/, '');
       mimeType = body.mimeType || 'image/jpeg';
-      placeTitle = body.placeTitle || '';
+      placeTitle = (body.placeTitle || body.place_title || '').trim();
     } else if (contentType.includes('multipart/form-data')) {
       const form = await req.formData();
       const file = form.get('image') as File | null;
-      placeTitle = (form.get('place_title') as string) || '';
+      placeTitle = ((form.get('place_title') || form.get('placeTitle')) as string || '').trim();
       if (!file) {
         return NextResponse.json({ error: 'Aucun fichier image fourni' }, { status: 400 });
       }
@@ -86,11 +81,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Image requise pour analyse visuelle' }, { status: 400 });
     }
 
-    const promptText = placeTitle.trim()
+    const promptText = placeTitle
       ? `${SYSTEM_PROMPT}\n\nIndication du lieu : ${placeTitle}. Raconte ce que la photo montre avec ce point d'ancrage.`
       : `${SYSTEM_PROMPT}\n\nRaconte ce que la photo montre avec un regard attentif et sensoriel.`;
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`;
     const geminiRes = await fetch(geminiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -102,36 +97,55 @@ export async function POST(req: NextRequest) {
               {
                 inline_data: {
                   mime_type: mimeType,
-                  data: base64Image
-                }
-              }
-            ]
-          }
+                  data: base64Image,
+                },
+              },
+            ],
+          },
         ],
         generationConfig: {
           temperature: 0.5,
-          maxOutputTokens: 2500,
-          responseMimeType: 'application/json'
-        }
+          maxOutputTokens: 4096,
+          responseMimeType: 'application/json',
+        },
       }),
-      signal: AbortSignal.timeout(50_000)
+      signal: AbortSignal.timeout(50_000),
     });
+
+    const durationMs = Date.now() - startTime;
 
     if (!geminiRes.ok) {
       const errText = await geminiRes.text();
       console.error('[ai-vision] Erreur Gemini:', geminiRes.status, errText);
+
+      await logAiRequest({
+        apiKeyId: auth.keyId,
+        agentName: auth.agentName || 'unknown',
+        endpoint: '/api/ai/vision',
+        model: MODEL,
+        promptPreview: placeTitle ? `Lieu: ${placeTitle}` : 'Analyse visuelle photo',
+        statusCode: geminiRes.status,
+        durationMs,
+        error: `Erreur Gemini: ${geminiRes.status}`,
+      });
+
       return NextResponse.json({ error: `Erreur API Vision (${geminiRes.status})` }, { status: 502 });
     }
 
     const geminiData = await geminiRes.json();
-    const rawOutput = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+    const candidate = geminiData.candidates?.[0];
+    const parts: Array<{ text?: string; thought?: boolean }> = candidate?.content?.parts || [];
+    const textParts = parts.filter((p) => p.text && !p.thought);
+    const rawOutput = (textParts.length > 0 ? textParts[textParts.length - 1].text : parts[0]?.text) || '{}';
 
     let parsed;
     try {
       parsed = JSON.parse(rawOutput);
     } catch {
       const match = rawOutput.match(/\{[\s\S]*\}/);
-      parsed = match ? JSON.parse(match[0]) : { caption: rawOutput, hashtags: ['#slowtravel', '#heldonica'], fullText: rawOutput };
+      parsed = match
+        ? JSON.parse(match[0])
+        : { caption: rawOutput, hashtags: ['#slowtravel', '#heldonica'], fullText: rawOutput };
     }
 
     const hashtagsList = Array.isArray(parsed.hashtags)
@@ -141,15 +155,40 @@ export async function POST(req: NextRequest) {
     const caption = parsed.caption || parsed.fullText || '';
     const fullText = parsed.fullText || `${caption}\n\n${hashtagsList.join(' ')}`;
 
+    await logAiRequest({
+      apiKeyId: auth.keyId,
+      agentName: auth.agentName || 'unknown',
+      endpoint: '/api/ai/vision',
+      model: MODEL,
+      promptPreview: placeTitle ? `Lieu: ${placeTitle}` : 'Analyse visuelle photo',
+      statusCode: 200,
+      durationMs,
+      error: null,
+    });
+
     return NextResponse.json({
       success: true,
+      agent: auth.agentName,
       caption,
       hashtags: hashtagsList,
-      fullText
+      fullText,
     });
   } catch (err: unknown) {
+    const durationMs = Date.now() - startTime;
     const message = err instanceof Error ? err.message : String(err);
     console.error('[ai-vision] Exception:', message);
+
+    await logAiRequest({
+      apiKeyId: auth.keyId,
+      agentName: auth.agentName || 'unknown',
+      endpoint: '/api/ai/vision',
+      model: MODEL,
+      promptPreview: placeTitle ? `Lieu: ${placeTitle}` : 'Analyse visuelle photo',
+      statusCode: 500,
+      durationMs,
+      error: message,
+    });
+
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

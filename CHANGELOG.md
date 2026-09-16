@@ -4,6 +4,142 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-09-16] — Intelligence Artificielle & Base : Recherche Sémantique & pgvector (Gemini 768d)
+
+### 🧠 Cerveau Sémantique Vectoriel (`/api/ai/search`, `lib/ai-embeddings.ts`, `supabase/migrations/20260916140000_enable_pgvector_and_embeddings.sql`)
+- **Modèle d'Embeddings Gemini 768 dimensions** (`lib/ai-embeddings.ts`) :
+  - Intégration de `gemini-embedding-001` avec réduction de dimensionnalité à 768 (`outputDimensionality: 768`), optimal pour pgvector et la mémoire PostgreSQL.
+  - Constructeurs de passages sémantiques pour destinations et articles (titre, pays, région, ambiance, itinéraire, conseils secrets, tags).
+  - Calcul de similarité cosinus en mémoire (`cosineSimilarity`).
+- **Migration SQL Versionnée (`pgvector`)** :
+  - `supabase/migrations/20260916140000_enable_pgvector_and_embeddings.sql` :
+    - Activation de l'extension `vector`.
+    - Colonnes `embedding vector(768)` sur `destinations` et `cms_blog_posts`.
+    - Index vectoriels IVFFLAT (`destinations_embedding_idx`, `cms_blog_posts_embedding_idx`).
+    - Fonctions SQL RPC : `match_destinations` et `match_articles` pour calcul de similarité cosinus (`1 - (embedding <=> query_embedding)`).
+- **Endpoint Universel de Recherche Sémantique** (`app/api/ai/search/route.ts`) :
+  - `POST & GET /api/ai/search` : Recherche en langage naturel (*« crique secrète sans vent »*, *« randonnée en crête »*).
+  - Filtrage par type (`destinations`, `articles`, `all`), par seuil de similarité cosinus et limite de résultats.
+  - Double moteur : similarité vectorielle `pgvector_cosine` et fallback textuel pondéré instantané si la RPC n'est pas encore instanciée.
+  - Journalisation automatique dans `ai_requests_log`.
+- **Intégration dans le Copilote (`/panel-manager/copilote`)** :
+  - Nouvel onglet **« 🧠 Recherche sémantique »** dans l'injecteur de vécu terrain.
+  - Recherche instantanée par intention / ambiance avec badge de pertinence (ex: `🎯 95% Madère slow travel`).
+  - Injection 1-clic de la destination et de son vécu dans les notes de terrain.
+- **Script de Vectorisation par Lot** (`scripts/generate_embeddings.mjs`) :
+  - Permet de générer les vecteurs des 41 destinations en production et d'exporter le fichier SQL d'application.
+- **Garde-fous CI** : `npx tsc --noEmit` et 6 garde-fous conformes (`check:cms-drift` à 39 tables, `check:api-auth`, `check:erreurs-avalees`).
+
+---
+
+## [2026-09-16] — Panel Manager : Dashboard Analytics IA & Supervision des Quotas (P3)
+
+### 📊 Supervision en Temps Réel & Quotas Agents (`/panel-manager/analytics`, `app/api/ai/analytics/route.ts`, `components/admin/AiAnalyticsDashboard.tsx`)
+- **Tableau de bord Analytics IA interactif** :
+  - Métriques clés temps réel : Volume total de requêtes, taux de succès %, latence moyenne (ms/s), agents actifs.
+  - Cartes de statut par agent (`antigravity`, `claude`, `pencode`, `mobile_apk`) avec quota horaire configuré, dernier appel horodaté et filtrage en 1 clic.
+  - Ventilation graphique par endpoint (`/api/ai/copilot`, `/api/ai/vision`, `/api/ai/destinations`) avec calcul des latences moyennes.
+  - Journal live des requêtes IA (`ai_requests_log`) avec filtres par agent, par statut (succès/erreur) et recherche textuelle.
+  - Modal et dépliage des prompts de terrain et détails d'erreurs éventuelles.
+  - Export CSV en 1 clic des logs d'appels (`?export=csv`).
+- **Endpoint Universel `GET /api/ai/analytics`** :
+  - Sécurisé via `verifyAiAuth` (session CMS ou clé API).
+  - Lecture des tables Supabase `api_keys` et `ai_requests_log`.
+  - Calcul dynamique des agrégats et support de l'export CSV RFC 4180 avec en-têtes `Content-Disposition`.
+- **Navigation & Intégration CMS** :
+  - Raccourci `📊 Analytics IA` ajouté dans l'en-tête du Copilote (`/panel-manager/copilote`).
+  - Section `analytics` intégrée dans la barre latérale du CMS (`/panel-manager?section=analytics`).
+  - Page standalone dédiée sur `/panel-manager/analytics`.
+- **Garde-fous CI** : `npx tsc --noEmit` vert (0 erreur) et 6 garde-fous conformes (`check:api-auth`, `check:cms-drift`, `check:erreurs-avalees`).
+
+---
+
+## [2026-09-16] — Panel Manager & Connaissance : Injecteur de terrain (41 destinations) & Raccourci Meta Business Suite
+ 
+### 🧭 Cerveau de Connaissance & Vécu Réel (`/panel-manager/copilote`, `app/api/ai/destinations/route.ts`)
+- **Injecteur de vécu terrain (Zéro hallucination)** :
+  - Intégration en direct des **41 destinations authentiques** de la base Supabase (`destinations`).
+  - Sélecteur de destination groupé par pays (Portugal, Suisse, Roumanie, France, Monténégro, Italie, Colombie...).
+  - Sous-sélecteur d'étape d'itinéraire : injection au choix de la destination complète ou d'un jour d'itinéraire précis (ex: *Jour 2 - Levada do Caldeirão Verde*, *Jour 4 - Lever de soleil au Pico do Arieiro*).
+  - Bouton `⚡ Injecter ce vécu dans mes notes` qui pré-remplit instantanément l'éditeur avec des détails sensoriels vécus (titre, lieu, récit, météo/terrain).
+- **Publication 100% Gratuite via Meta Business Suite** :
+  - Ajout du bouton raccourci direct `↗️ Meta Business Suite` (`https://business.facebook.com/latest/composer`) ouvrant le compositeur officiel de publication Instagram/Facebook.
+  - Workflow optimisé à 0€ : `Copier légende` -> `↗️ Meta Business Suite` -> coller et planifier sans abonnement tiers (Later/Hootsuite).
+- **Nouvel Endpoint Universel** :
+  - `GET /api/ai/destinations` : Accès authentifié (via clé API ou session CMS) aux itinéraires et récits de terrain pour tous les agents.
+
+---
+
+## [2026-09-16] — Panel Manager : Interface Copilote améliorée (copie ciblée, historique live Supabase, filtres)
+
+### ✨ Expérience Copilote (`/panel-manager/copilote`)
+- **Boutons de copie 1-clic ciblés** :
+  - Découpage automatique pour le format Instagram : `📝 Légende seule` (sans hashtags) et `🏷️ Hashtags seuls` en plus de `📋 Copier tout`.
+  - Bouton `📋 Copier` direct sur chaque carte de l'historique sans avoir à recharger la génération dans l'éditeur.
+  - Feedback visuel instantané sur chaque action (`✓ Légende copiée`, `✓ Hashtags copiés`, `✓ Copié !`).
+- **Historique dynamique connecté à Supabase** :
+  - Chargement automatique à l'ouverture depuis la table `copilot_generations`.
+  - Filtrage par onglets : `Tous`, `📸 Instagram`, `⚡ Story`, `📖 Blog`, `💌 Newsletter`, `🧭 Coachs`.
+  - Bouton `🔄 Actualiser` avec indicateur de chargement.
+  - Badges de statut : score de voix `/100`, alertes mots bannis, bouton `↩ Reprendre` pour réinjecter le texte.
+- **Sélecteur de modes & ergonomie** :
+  - Séparation visuelle nette entre *Contenu Slow Travel* et *Coaching ADHD/TSA*.
+  - Préservation des notes de terrain saisies lors du changement de mode.
+  - Compteur temps réel de mots et caractères pour le message et la réponse, avec rappels de calibrage (ex : 80-150 mots Instagram, ≤ 25 mots Story).
+- **Garde-fous CI** : `npx tsc --noEmit` et 6 garde-fous verts (`check:cms-drift` à 39 tables, `check:api-auth`, `check:erreurs-avalees`).
+
+---
+
+## [2026-09-16] — Architecture IA : Endpoints universels `/api/ai/*` pour tous les agents (Antigravity, Claude, Pencode, Mobile)
+
+### 🤖 Accès Universel IA & Gouvernance (`/api/ai/*`, `lib/ai-auth.ts`, `docs/API_IA.md`)
+- **Endpoints universels** :
+  - `POST /api/ai/vision` : Vision sensorielle multimodale avec regard neuroatypique (TSA) et voix slow travel Heldonica (Gemini 2.5 Flash, 4096 tokens max, AbortSignal 50s, filtrage des tokens de réflexion).
+  - `POST /api/ai/copilot` : Génération de contenu (légende Instagram, story, article de blog, newsletter) et coaching de pilotage ADHD/TSA (modes 1, 2, 3) avec validation des garde-fous de voix en temps réel (`validateGardeFous`).
+  - `GET /api/ai/copilot` : Consultation de l'historique des générations (`copilot_generations`).
+  - `POST /api/cms/ai-vision` : Rétrocompatibilité totale avec l'APK mobile et le panneau d'administration via support hybride clé API et session CMS.
+- **Authentification & Rate limiting centralisé** (`lib/ai-auth.ts`) :
+  - Support de l'en-tête `x-api-key` et `Authorization: Bearer <clé>`.
+  - Hashage SHA-256 pour comparaison sécurisée en base (`api_keys`).
+  - Clés d'amorçage provisionnées pour exécution immédiate : `antigravity` (120 req/h), `claude` (120 req/h), `pencode` (100 req/h), `mobile_apk` (150 req/h).
+  - Rate limiting glissant par clé via `checkRateLimit` (fenêtre 1h).
+  - Journalisation unifiée des requêtes (`ai_requests_log`) avec mesure de latence (`duration_ms`), code de statut HTTP et erreur éventuelle.
+- **Base de données & Migration** :
+  - `supabase/migrations/20260916120000_create_api_keys_and_ai_logs.sql` : Tables `api_keys` et `ai_requests_log`, RLS restrictif et index de performance.
+  - Script d'amorçage `scripts/seed_agent_keys.mjs` pour insérer les clés ou générer les instructions SQL prêtes pour le Supabase SQL Editor.
+  - Inscription dans `KNOWN_DRIFT` de `scripts/check-cms-drift.mjs` pour maintenir la CI au vert.
+- **Documentation & Garde-fous** :
+  - `docs/API_IA.md` : Guide complet avec spécification des routes, exemples curl, Node.js / TypeScript et Python.
+  - Garde-fou `scripts/check-api-auth.mjs` mis à jour pour reconnaître `verifyAiAuth`.
+  - Tous les tests unitaires et appels réels Gemini vérifiés : HTTP 200, conformité de voix 100%. Garde-fous CI 100% verts (`check:api-auth`, `check:erreurs-avalees`, `check:cms-drift`, `tsc --noEmit`).
+
+---
+
+## [2026-09-16] — Mobile & CMS : Résolution des timeouts IA Vision (OkHttpClient, compression inSampleSize & retry)
+
+### ⚡ Résilience IA Vision (`heldonica-mobile/` & `/api/cms/ai-vision`)
+- **Correction des timeouts OkHttpClient** : Dans `MainActivity.kt`, `callTimeout` ne protégeait pas contre le `readTimeout` par défaut (10s), qui expirait lorsque Gemini 2.5 Flash générait sa chaîne de pensée (5-12s). Configuration explicite : `connectTimeout(30s)`, `readTimeout(60s)`, `writeTimeout(30s)`, `callTimeout(75s)` et `retryOnConnectionFailure(true)`.
+- **Compression ultra-rapide avec `inSampleSize`** : Remplacement du décodage naïf qui chargeait en RAM les 50 Mégapixels du Pixel 8 Pro (200 Mo). Nouveau processus en 4 étapes : lecture des dimensions (`inJustDecodeBounds`), calcul de `inSampleSize` optimal, décodage allégé en `RGB_565`, et redimensionnement à 800px max (JPEG 75%). Poids réduit à ~35-50 Ko (transfert réseau quasi-instantané, < 50ms).
+- **Retry automatique & repli multi-niveaux** : En cas d'aléa réseau, une deuxième tentative est automatiquement exécutée après 1 seconde avec message d'état clair (*« Nouvelle tentative d'analyse… »*). Si l'appel direct échoue, bascule transparente sur le serveur CMS `/api/cms/ai-vision`.
+- **Timeout côté serveur** : Ajout de `AbortSignal.timeout(50_000)` dans `app/api/cms/ai-vision/route.ts`.
+- **Déploiement** : Build Gradle 8.7 réussi (`BUILD SUCCESSFUL in 31s`), APK installée sur le Pixel 8 Pro (`Success`), relance automatique de `MainActivity`. Tous garde-fous CI verts (`check:api-auth`, `check:erreurs-avalees`, `tsc`).
+
+---
+
+## [2026-09-16] — Mobile : Clarification flux Instagram, auto-copie presse-papier & bouton dédié
+
+### 📱 Android `heldonica-mobile/` (Vérifié sur Pixel 8 Pro physique `39151FDJG000Z0`)
+- **Diagnostic terrain (brouillon id 174)** : Vérification en base Supabase du brouillon généré à 09:44:26 (`carnet-mobile-665679`, média 113) : la légende et les micro-détails sensoriels TSA ont bien été générés directement par Gemini 2.5 Flash dans l'APK (*« On a observé la lumière rasante qui découpait des ombres nettes sur l'asphalte granuleux... »*).
+- **Architecture Android & Instagram** : Instagram interdit formellement à toute application tierce d'écrire ou de pré-remplir le champ légende d'un post (`Intent.EXTRA_TEXT` est ignoré par Meta par politique anti-spam). Le texte ne peut donc pas « se coller tout seul ». Le collage se fait manuellement via le presse-papier (`ClipboardManager`).
+- **Améliorations du flux presse-papier dans l'APK** :
+  - **Copie anticipée immédiate** : Dès que l'IA vision termine la génération, le texte de la légende est immédiatement copié dans le presse-papier système (avant même de cliquer sur un bouton).
+  - **Bouton dédié `📋 Copier la légende`** : Ajouté sous le champ de saisie avec confirmation visuelle immédiate.
+  - **Copie sur « Créer le brouillon »** : Le presse-papier est également garni lors de la création d'un simple brouillon.
+  - **Note explicative dans l'UI** : Mention claire rappelant que sur Instagram, il suffit de toucher « Coller » (ou la puce de suggestion Gboard).
+- **Déploiement** : Compilation Gradle 8.7 (`BUILD SUCCESSFUL in 34s`) et installation immédiate via ADB sur le Pixel 8 Pro.
+
+---
+
 ## [2026-09-16] — Copilote : quatre modes d'écriture, contrôle de voix, historique
 
 ### ✍️ `/panel-manager/copilote` + `/api/ai/gemini-gallery`
