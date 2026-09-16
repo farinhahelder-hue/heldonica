@@ -4,6 +4,20 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-09-16] — Copilote : quatre modes d'écriture, contrôle de voix, historique
+
+### ✍️ `/panel-manager/copilote` + `/api/ai/gemini-gallery`
+- **Quatre modes d'écriture** à côté des trois modes coach (inchangés) : **Légende Instagram** (80-150 mots, accroche en première ligne, 4-6 hashtags), **Story** (25 mots + ligne `Sticker :` obligatoire), **Article de blog** (Markdown, 5 sections H2, infos pratiques en liste, méta description), **Newsletter** (`Objet :` ≤ 45 car., `Pré-en-tête :`, une histoire, un seul appel doux). Tous sur `HELDONICA_B2C_PROMPT` + un préambule « notes de terrain » : tout fait absent des notes devient `[À TOI : …]`.
+- **Contrôle de voix réel** : chaque texte passe par `validateGardeFous` ; la réponse renvoie `controle` (checks, mots bannis, score). Pour les formats courts (légende, story) seuls **pronoms + lexique** sont évalués — appliquer les 7 points à une story de 25 mots donnerait un score faux ; le score /100 n'est affiché que pour article et newsletter.
+- **Exemples pré-remplis** par mode : des trames à crochets (`[Lieu]`, `[ce qu'on a moins aimé]`), pas des faits inventés.
+- **Historique** : migration `20260916100000_copilot_generations.sql` (mode, prompt, result, provider, model, score, forbidden_found ; RLS sans politique, clé service seule ; pas de `user_id` — le panneau n'a pas d'`auth.users`). `POST` écrit chaque génération (erreur lue, `enregistre: false` renvoyé si refus) ; `GET ?limit=` liste les dernières, un clic les rouvre. Table absente (`PGRST205`) → message clair « migration à appliquer » au lieu d'un historique vide.
+- **`check:cms-drift`** : `copilot_generations` inscrite dans `KNOWN_DRIFT` tant que la migration n'est pas appliquée — **à retirer dès qu'elle l'est**.
+- **Tokens** : 2.5 Flash raisonne avant d'écrire ; à 600 tokens une story sortait tronquée après `Sticker :`. Limites relevées (2000 à 8192 selon le format).
+- **Vérifié en local** (Gemini réel, 3 appels) : story → deux parties dont `Sticker : Café ou thé ?`, contrôle `passed:true` ; newsletter → format respecté, 100/100, 0 mot banni ; `GET` historique → `indisponible` explicite ; page : 7 cartes, trames cliquables, textarea pour l'écriture, encart de contrôle, note « Non enregistré » tant que la table manque. `tsc`, 6 garde-fous verts.
+- **Non fait** : « Sélection IA » dans l'APK (spécification insuffisante : quoi sélectionner, sur quel critère) ; triggers « X likes → notification » (canal non défini) ; suppression de tables `test_*`/`temp_*` (on ne supprime pas sur un préfixe — AGENTS.md).
+
+---
+
 ## [2026-09-16] — Option A : publier sur Instagram depuis le panneau (image, carrousel, reel)
 
 ### 📤 Publication réelle depuis la file `instagram_scheduled_posts`
