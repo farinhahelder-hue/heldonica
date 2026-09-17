@@ -15,39 +15,10 @@ interface BlogGenerationRequest {
   length?: 'short' | 'medium' | 'long'
 }
 
-// Verified data to prevent AI hallucinations
-const VERIFIED_DESTINATIONS: Record<string, any> = {
-  'madeire': {
-    places: ['Funchal', 'Monte Palace', 'Cabo Girão', 'Porto Moniz', 'Santana', 'Pico do Arieiro', 'Ribeiro Frio'],
-    food: ['Espada', 'Espetada', 'Lapas', 'Bolo de Mel', 'Queijada', 'Poncha'],
-    tips: ['Privilégier avril-juin pour la météo', 'Location de voiture recommandée', 'Randonnée au Pico do Arieiro']
-  },
-  'maderia': {
-    places: ['Funchal', 'Monte Palace', 'Cabo Girão', 'Porto Moniz', 'Santana'],
-    food: ['Espada', 'Espetada', 'Lapas', 'Bolo de Mel'],
-    tips: ['Climat subtropical', 'Randonnées spectaculaires']
-  },
-  'zurich': {
-    places: ['Lake Zurich', 'Old Town', 'Bahnhofstrasse', 'Uetliberg', 'Kunsthaus'],
-    food: ['Fondue', 'Rösti', 'Tièchler'],
-    tips: ['Carte journalière CFF', 'mont Uetliberg panorama']
-  },
-  'paris': {
-    places: ['Eiffel', 'Louvre', 'Notre-Dame', 'Montmartre', 'Champs-Élysées', 'Musée d\'Orsay'],
-    food: ['Croissant', 'Baguette', 'Crème brûlée', 'Coq au vin', 'Macaron'],
-    tips: ['Paris Museum Pass', 'Walk along Seine']
-  }
-}
-
-function getVerifiedInfo(topic: string): string {
-  const t = topic.toLowerCase()
-  for (const [key, val] of Object.entries(VERIFIED_DESTINATIONS)) {
-    if (t.includes(key)) {
-      return `Données vérifiées: ${val.places.slice(0, 5).join(', ')}. Vraies spécialités: ${val.food.slice(0, 4).join(', ')}. Conseils: ${val.tips.slice(0, 3).join(', ')}.`
-    }
-  }
-  return 'Utilise uniquement des lieux et spécialités réels et vérifiés, jamais inventés.'
-}
+// Le générateur n'injecte plus de « données vérifiées » génériques (Eiffel,
+// Louvre, croissant…) : un article Heldonica ne contient que ce que le duo a
+// vécu, et c'est dans les notes qu'il le trouve.
+const NOTES_MIN = 200
 
 /**
  * Generate blog content using Groq API (same as carousel)
@@ -79,9 +50,22 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // Le générateur met en forme du vécu, il n'en fabrique pas. Sans notes,
+    // le modèle « ouvrait avec une anecdote réelle vécue sur place » qu'il
+    // inventait : c'est ainsi que les brouillons 119 et 120 sont nés
+    // (en-têtes de prompt, prix et sensations sortis de nulle part).
+    if ((notes || '').trim().length < NOTES_MIN) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Raconte d'abord ce que tu as vécu (au moins ${NOTES_MIN} caractères : ce que tu as vu, mangé, ce qui a raté, ce qu'on a moins aimé). Sans ça, l'assistant inventerait.`,
+        },
+        { status: 400 }
+      )
+    }
+
     // Build prompt
     const prompt = buildBlogPrompt(topic, destination, notes, seoKeywords, style, length)
-    const verifiedInfo = getVerifiedInfo(topic)
 
     // Call Groq API
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -159,26 +143,31 @@ function buildBlogPrompt(topic: string, destination: string, notes: string, seoK
     expert: 'Expertise slow travel visible, mais jamais condescendant. On partage ce qu\'on sait vraiment.'
   }
 
-  let prompt = `Écris un article de blog Heldonica ${destination ? `sur ${destination}` : ''} avec ce sujet : "${topic}".
+  let prompt = `Mets en forme, en article de blog Heldonica ${destination ? `sur ${destination}` : ''}, le vécu ci-dessous. Sujet : "${topic}".
 
-STRUCTURE OBLIGATOIRE :
-1. Ouvre avec une anecdote réelle ou un moment précis vécu sur place (2-3 phrases max)
-2. "Le vécu d’abord" : ce qu’on a ressenti, découvert, compris
-3. "L’info pratique ensuite" : détails concrets (horaires, prix, comment y aller)
-4. Chaque paragraphe : une image sensorielle (ce qu’on a entendu / goûté / senti / vu)
+LA RÈGLE QUI PRIME SUR TOUT : tu n'ajoutes RIEN qui ne soit dans les notes.
+- Aucun fait, chiffre, prix, horaire, distance, durée, date, nom de lieu, d'adresse ou de plat absent des notes.
+- Aucune sensation (odeur, goût, son, texture) que les notes ne décrivent pas.
+- Là où la structure appellerait un détail que les notes ne donnent pas, tu écris exactement : [À TOI : ce qui manque] — et rien d'autre.
+- Les titres de sections décrivent le contenu (« Le marché à 7 h »), jamais la consigne (« Accroche vécue », « Détail sensoriel »).
+
+STRUCTURE :
+1. Ouvre sur le moment le plus concret des notes (2-3 phrases)
+2. Le vécu d'abord : ce qu'on a ressenti, découvert, compris — d'après les notes
+3. L'info pratique ensuite : uniquement celle des notes, sinon [À TOI]
+4. « Ce qu'on a moins aimé » : d'après les notes, sinon [À TOI]
+
+LES NOTES (la seule source autorisée) :
+---
+${notes}
+---
 
 `
-  if (notes) prompt += `Intègre obligatoirement cette anecdote/note personnelle : ${notes}\n\n`
-  if (seoKeywords) prompt += `Inclure naturellement ces mots-clés (sans les forcer) : ${seoKeywords}\n\n`
+  if (seoKeywords) prompt += `Inclure naturellement ces mots-clés (sans les forcer, sans inventer un fait pour les placer) : ${seoKeywords}\n\n`
   prompt += `Style éditorial : ${styleInstructions[style] || styleInstructions.story}\n`
   if (toneAdjust[style]) prompt += `${toneAdjust[style]}\n`
   prompt += `Longueur cible : ${lengthMap[length as keyof typeof lengthMap] || lengthMap.medium}.\n`
   prompt += `\nRappel : JAMAIS "bons plans", "incontournable", "tips", "astuces", "inoubliable". Toujours "on", "nous deux", jamais "je".`
-
-  if (destination) {
-    const verifiedInfo = getVerifiedInfo(topic + ' ' + destination)
-    if (verifiedInfo) prompt += `\n\nDonnées factuelles vérifiées à utiliser : ${verifiedInfo}`
-  }
 
   return prompt
 }
