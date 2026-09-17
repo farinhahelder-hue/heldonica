@@ -36,6 +36,7 @@ const InstagramStatsDashboard = dynamic(() => import('@/components/admin/Instagr
 const ScheduledPostsList = dynamic(() => import('@/components/admin/ScheduledPostsList'), { ssr: false });
 const InstagramManagerSection = dynamic(() => import('./instagram/InstagramManagerSection'), { ssr: false });
 const DemandesTravelSection = dynamic(() => import('@/components/admin/DemandesTravelSection'), { ssr: false });
+const FileAPublier = dynamic(() => import('@/components/admin/FileAPublier'), { ssr: false });
 
 // New CMS integrations
 const DestinationPillarEditor = dynamic(() => import('@/components/admin/DestinationPillarEditor'), { ssr: false });
@@ -507,6 +508,19 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
     setActiveSection('new-article');
   };
 
+  // Depuis la file « À publier » : l'article n'est pas forcément dans la page
+  // courante de la liste, on le lit par son id.
+  const ouvrirDepuisFile = async (id: number) => {
+    try {
+      const res = await fetch(`/api/cms/articles/${id}`);
+      const article = await res.json();
+      if (!res.ok) throw new Error(article.error || `HTTP ${res.status}`);
+      openArticleEditor({ ...article, status: article.status || (article.published ? 'published' : 'draft') });
+    } catch (e) {
+      alert(`Impossible d'ouvrir l'article : ${e instanceof Error ? e.message : e}`);
+    }
+  };
+
   // Guard: intercept sidebar navigation when article has unsaved changes
   const navigateTo = (section: NavSection) => {
     if (isDirty && activeSection === 'new-article' && section !== 'new-article') {
@@ -775,12 +789,21 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                 Rien n&apos;est publié sans ton accord : tout arrive en brouillon.
               </p>
 
+              {/* Un seul brouillon à la fois, le plus prêt — remplace le compteur
+                  « Relire N brouillons » qui ne disait pas par lequel commencer. */}
+              <div className="mb-6">
+                <ErrorBoundary>
+                  <Suspense fallback={<div className="text-sm text-gray-400">On regarde ce qui est prêt…</div>}>
+                    <FileAPublier onOuvrir={ouvrirDepuisFile} onPublie={loadArticles} />
+                  </Suspense>
+                </ErrorBoundary>
+              </div>
+
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
                 {articles.filter(a => a.status === 'draft').length > 0 && (
                   <CarteAction
-                    principale
-                    titre={`Relire ${articles.filter(a => a.status === 'draft').length} brouillon(s)`}
-                    detail="Ce qui est arrivé du téléphone ou de l'import attend ta relecture."
+                    titre="Tous les brouillons"
+                    detail="La liste complète, pour choisir toi-même par lequel commencer."
                     onClick={() => { setStatusFilter('draft'); navigateTo('articles') }}
                   />
                 )}
