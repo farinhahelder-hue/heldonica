@@ -16,6 +16,8 @@ type Entree = {
   image: boolean;
   meta_description: boolean;
   a_toi: number;
+  entetes_prompt: boolean;
+  a_confirmer: { total: number; extraits: { type: string; phrase: string }[] };
   score: number;
   voix_ok: boolean;
   manques: { id: string; message: string }[];
@@ -160,7 +162,8 @@ export default function FileAPublier({ onOuvrir, onPublie }: Props) {
     );
   }
 
-  const pret = courant.voix_ok && courant.a_toi === 0 && !courant.doublon_de;
+  const pret = courant.voix_ok && courant.a_toi === 0 && !courant.doublon_de && !courant.entetes_prompt;
+  const LIBELLE: Record<string, string> = { prix: 'prix', horaire: 'horaire', date: 'date', chiffre: 'chiffre', vecu: 'vécu', lieu: 'lieu' };
 
   return (
     <div className={`rounded-2xl border p-5 ${pret ? 'border-teal/40 bg-teal/5' : 'border-amber-200 bg-amber-50/40'}`}>
@@ -199,6 +202,26 @@ export default function FileAPublier({ onOuvrir, onPublie }: Props) {
           <div className="text-amber-900">· Même sujet qu’un article déjà publié : « {courant.doublon_de} »</div>
         )}
       </div>
+
+      {courant.a_confirmer.total > 0 && (
+        <details className="mt-4 rounded-xl border border-gray-200 bg-white p-3 text-sm">
+          <summary className="cursor-pointer font-medium text-gray-900">
+            À confirmer avant de publier : {courant.a_confirmer.total} affirmation{courant.a_confirmer.total > 1 ? 's' : ''}
+            <span className="ml-2 font-normal text-gray-500">— prix, horaires, chiffres, lieux : seule toi peux dire si c’est vrai</span>
+          </summary>
+          <ul className="mt-2 space-y-1.5">
+            {courant.a_confirmer.extraits.map((r, i) => (
+              <li key={i} className="flex gap-2 text-gray-700">
+                <span className="shrink-0 rounded-full bg-gray-100 px-2 text-xs leading-5 text-gray-600">{LIBELLE[r.type] ?? r.type}</span>
+                <span>{r.phrase}</span>
+              </li>
+            ))}
+            {courant.a_confirmer.total > courant.a_confirmer.extraits.length && (
+              <li className="text-gray-500">… et {courant.a_confirmer.total - courant.a_confirmer.extraits.length} autre(s) dans l’article.</li>
+            )}
+          </ul>
+        </details>
+      )}
 
       {message && (
         <div className={`mt-4 rounded-xl p-3 text-sm ${publication === 'ko' ? 'bg-red-50 text-red-800' : 'bg-emerald-50 text-emerald-800'}`}>

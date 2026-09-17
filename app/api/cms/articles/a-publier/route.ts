@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireCmsAuth } from '@/lib/cms-auth';
 import { validateGardeFous } from '@/lib/brand-voice';
+import { extraireRevendications, porteLesConsignesDuPrompt } from '@/lib/revendications';
 
 export const dynamic = 'force-dynamic';
 
@@ -82,6 +83,16 @@ export async function GET(req: Request) {
     const manques = Object.entries(v.checks)
       .filter(([, c]) => !c.ok)
       .map(([id, c]) => ({ id, message: c.message }));
+    // Les titres sont encore les consignes du prompt : texte du générateur
+    // jamais relu. La voix peut être à 100 %, le vécu n'y est pas.
+    const entetesPrompt = porteLesConsignesDuPrompt(texte);
+    if (entetesPrompt) {
+      manques.unshift({
+        id: 'generateur',
+        message: 'Sorti du générateur, jamais relu : les titres sont encore les consignes du prompt. À réécrire avec ton vécu, pas à publier.',
+      });
+    }
+    const aConfirmer = extraireRevendications(texte, 10);
     return {
       id: b.id,
       title: b.title,
@@ -92,6 +103,8 @@ export async function GET(req: Request) {
       image: !!(b.featured_image && b.featured_image.trim()),
       meta_description: !!(b.meta_description && b.meta_description.trim()),
       a_toi: aToi,
+      entetes_prompt: entetesPrompt,
+      a_confirmer: aConfirmer,
       score: v.score,
       voix_ok: v.passed,
       manques,
@@ -105,8 +118,8 @@ export async function GET(req: Request) {
   // doublon, meilleur score, puis le plus long (un article court n'est pas
   // plus prêt parce qu'il est court).
   file.sort((a, b) => {
-    const pa = (a.voix_ok ? 0 : 1) + (a.a_toi > 0 ? 1 : 0) + (a.doublon_de ? 1 : 0);
-    const pb = (b.voix_ok ? 0 : 1) + (b.a_toi > 0 ? 1 : 0) + (b.doublon_de ? 1 : 0);
+    const pa = (a.voix_ok ? 0 : 1) + (a.a_toi > 0 ? 1 : 0) + (a.doublon_de ? 1 : 0) + (a.entetes_prompt ? 2 : 0);
+    const pb = (b.voix_ok ? 0 : 1) + (b.a_toi > 0 ? 1 : 0) + (b.doublon_de ? 1 : 0) + (b.entetes_prompt ? 2 : 0);
     if (pa !== pb) return pa - pb;
     if (a.score !== b.score) return b.score - a.score;
     return b.mots - a.mots;
@@ -115,6 +128,6 @@ export async function GET(req: Request) {
   return NextResponse.json({
     file,
     total: file.length,
-    prets: file.filter((f) => f.voix_ok && f.a_toi === 0 && !f.doublon_de).length,
+    prets: file.filter((f) => f.voix_ok && f.a_toi === 0 && !f.doublon_de && !f.entetes_prompt).length,
   });
 }

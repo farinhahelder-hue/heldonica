@@ -251,21 +251,40 @@ export function checkBrandVoice(text: string) {
   };
 }
 
+/**
+ * Correction de voix : la forme, jamais le fond.
+ *
+ * L'ancienne version ordonnait au modèle d'« intégrer une mention de vécu »,
+ * d'« ajouter un détail sensoriel » et « ≥ 3 repères (prix, durées) » : à
+ * partir d'un texte pauvre, il fabriquait des prix, des odeurs et des lieux —
+ * un score de 100 % au garde-fou, et rien de vécu (constaté le 17/09/2026 sur
+ * une réécriture du brouillon 120 : +500 mots, 98 %, 35 €/kg, maracujá…).
+ * Le garde-fou mesure la ressemblance avec du vécu ; seul l'auteur détient le
+ * vécu. Là où il manque, on laisse [À TOI].
+ */
 export function buildVoiceCorrectPrompt(text: string, audience: 'b2c' | 'b2b' = 'b2c'): string {
-  return `Tu es le rédacteur en chef d'Heldonica. Corrige et sublime ce contenu selon les 7 garde-fous officiels (Seuil minimum requis : 85%, visé : 95%+) :
+  const lecteur = audience === 'b2c' ? 'tu' : 'vous';
+  return `Tu es le correcteur d'Heldonica. Tu corriges la FORME de ce texte, et seulement la forme.
 
-1. PRONOMS : Utilise strictement "on" pour le duo et "${audience === 'b2c' ? 'tu' : 'vous'}". Interdiction totale de "je", "nous", "les voyageurs".
-2. LEXIQUE : 0 mot interdit (aucun "bon plan", "incontournable", "tips", "magnifique", "splendide", "incroyable", "spot", "optimiser").
-3. E-E-A-T : Intègre au moins 1 mention de vécu terrain (visites réelles, saison, dates 2025-2026).
-4. SENSORIEL : Ajoute au moins 1 détail sensoriel concret (odeur, texture, son, goût).
-5. HONNÊTETÉ : Inclure la nuance "Ce qu'on a moins aimé" (en B2C).
-6. INFOS GEO : Conserve ou ajoute ≥3 repères extractibles (adresses, prix en €, durées).
-7. CTA DOUX : Termine par une invitation sobre non agressive ("On en parle en DM", "Formulaire sur le site").
+CE QUE TU FAIS :
+1. PRONOMS : « on » pour le duo, « ${lecteur} » pour le lecteur. Aucun « je », « nous », « les voyageurs », « les touristes ».
+2. LEXIQUE : retire les mots interdits (« bon plan », « incontournable », « tips », « astuces », « magnifique », « splendide », « incroyable », « inoubliable », « paradis », « spot », « optimiser ») en reformulant avec ce que le texte dit déjà.
+3. TITRES : un titre de section décrit ce qu'il contient ; s'il reprend une consigne (« Accroche vécue », « Détail sensoriel », « Infos pratiques GEO-friendly »), remplace-le par un titre tiré du contenu.
+4. CTA : si le texte finit par un appel appuyé, adoucis-le (« on en parle en DM », « le formulaire est sur le site »). S'il n'y en a pas, n'en ajoute pas.
+5. Phrases lourdes, répétitions, tournures scolaires : allège sans changer le sens.
 
-Texte source à corriger :
+CE QUE TU NE FAIS JAMAIS :
+- Ajouter un fait, un chiffre, un prix, un horaire, une distance, une durée, une date, un nom de lieu, d'adresse, de plat ou de personne qui n'est pas dans le texte.
+- Ajouter une sensation (odeur, goût, son, texture, météo) que le texte ne décrit pas.
+- Ajouter une anecdote, un « ce qu'on a moins aimé », une mention de saison ou de visite.
+- Allonger : le texte corrigé fait au plus la longueur du texte source.
+
+Si la voix Heldonica demanderait un élément que le texte ne contient pas (un détail sensoriel, une nuance honnête, un repère pratique), tu écris à cet endroit exactement : [À TOI : ce qui manque]. C'est l'auteur qui le remplira.
+
+Texte source :
 ---
 ${text}
 ---
 
-Retourne uniquement le texte corrigé, prêt à publication.`;
+Retourne uniquement le texte corrigé.`;
 }
