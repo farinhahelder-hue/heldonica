@@ -188,6 +188,7 @@ async function handleSearch(req: NextRequest, queryText: string, typeParam: stri
       const { data: fallbackArticles } = await sb
         .from('cms_blog_posts')
         .select('id, slug, title, category, excerpt, tags')
+        .eq('published', true)
         .limit(50);
 
       if (fallbackArticles) {
