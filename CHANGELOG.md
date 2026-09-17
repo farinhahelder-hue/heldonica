@@ -4,6 +4,31 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-09-17] — Débloquer le contenu : 26 brouillons mesurés, 9 supprimés, une file « À publier » (tâche `8eacf209`, commits `a714393` → `7b5e23c`)
+
+### Le constat de la veille
+24 articles publiés, 26 en brouillon, 0 demande, 0 post programmé, 2 abonnés, 16 entrées CHANGELOG en 7 jours : une usine qui tourne et rien qui sort. Le goulot n'est pas l'outillage, c'est la publication.
+
+### Mesuré sur les 26 brouillons (longueur, `validateGardeFous`, image, balises `[A TOI]`, dates)
+- **9 prêts** (voix 85-100, 1 400-4 000 caractères) : Madère ruelles de basalte, Itinéraire Roumanie, Podgorica, Pourquoi le slow travel, Bolo do caco, Bacalhau à Lagareiro, Maramureș, Villages secrets Sibiu-Sighișoara, Street art.
+- **5 à retoucher**, un défaut chacun : CuiB d'Arte (pronoms), Check-list rando (pronoms), Mouffetard (pronoms), Crêpes (honnêteté), Brasseries Zurich (740 caractères).
+- **3 Stoos Ridge** alors qu'un Stoos est publié — décision d'auteur.
+- **9 faux brouillons** : 6 carnets de test de l'APK (« Carnet : Paris » ×3 identiques, « Carnet : ici », « Carnet mobile (à titrer) », « Carnet : Timișoara », 200-918 caractères, `[A TOI]` vides) + 3 coquilles de 0-29 caractères. **Supprimés par id** (75, 80, 84, 159, 164, 165, 170, 173, 174) avec l'accord de l'utilisatrice, sauvegarde complète dans `imports/sauvegardes/` (hors dépôt), propagation legacy vérifiée.
+- **L'absence d'image de couverture n'est pas un blocage** : 10 des 24 publiés n'en ont pas, page et liste ont un repli par catégorie.
+
+### Fuite corrigée en passant (`a714393`)
+`match_articles` (SECURITY DEFINER, exécutable par `anon`) renvoyait les brouillons ; le repli textuel de `/api/ai/search` aussi. Filtre `published = true` des deux côtés. Prouvé : rpc en `anon` avec le vecteur exact d'un brouillon → 5 résultats, tous publiés, le brouillon absent.
+
+### La file « À publier » (`7b5e23c`)
+`GET /api/cms/articles/a-publier` mesure chaque brouillon (même contrôle que le Copilote) et trie : voix qui passe, pas de balise, pas de doublon de titre publié (mots pleins), score, longueur. `components/admin/FileAPublier.tsx` sur l'accueil du panneau : **un article**, ce que la machine sait (voix N/100, ce qui manque en clair, image, doublon), trois gestes — Publier (confirmation inline), Ouvrir et relire, Plus tard (24 h). Remplace le compteur « Relire N brouillons ».
+
+Vérifié en local : 17 en file, 9 prêts, ordre attendu ; « Plus tard » survit au rechargement ; « Publier » sur un brouillon technique → PUT 200, `published_at` posé, compteurs rafraîchis ; brouillon technique supprimé par id. Aucun vrai article publié par un agent : c'est à elle.
+
+### Ce que ça change
+9 articles finis = un mois de publication à deux par semaine, un écran, un bouton. Le reste (Stoos, les 5 à retoucher) est visible avec sa raison, pas caché derrière un compteur.
+
+---
+
 ## [2026-09-16] — Reconstituer un voyage : Timeline du téléphone + photos → `voyage.md` à relire (tâche `0a86a282`, commit `d520bc0`)
 
 ### Ce que c'est
