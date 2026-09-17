@@ -4,6 +4,22 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-09-17] — Règle 1 : la chaîne de production demandait d'inventer (commit `60f5c31`)
+
+### Ce qui l'a révélé
+Une autre session a « réécrit dans le modèle Limmat » le brouillon 120 (Madère) : **+500 mots, 98 %, 450 m, 35 €/kg, 19 °C, l'odeur du maracujá, l'espada au couperet, Fajã da Quebrada Nova** — aucun de ces faits fourni par l'autrice, score 100 % au garde-fou. Rien n'a été écrit en base (ligne 120 intacte) ; les fichiers `content/articles/brouillons/carnet-maderes-2025-2026.{original.json,rewritten.md}` restent non versionnés, **la réécriture ne doit pas être appliquée**. Et 120 lui-même est une sortie brute du générateur (titres = consignes du prompt), comme 119 et deux Stoos : **4 des 17 brouillons**.
+
+### La cause est dans le code, pas dans l'autre session
+- `buildVoiceCorrectPrompt` ordonnait « *intègre* au moins 1 mention de vécu », « *ajoute* au moins 1 détail sensoriel », « *ajoute* ≥ 3 repères (prix, durées) ». → Corrige la forme seulement (pronoms, mots bannis, titres-consignes, CTA), n'ajoute jamais un fait ni une sensation, n'allonge pas, met `[À TOI : …]` là où la voix demanderait ce que le texte n'a pas.
+- `/api/blog/generate` (« Partir d'une idée ») demandait d'« ouvrir avec une anecdote réelle vécue sur place » à partir d'un sujet, et injectait des « données vérifiées » (Eiffel, Louvre, croissant…) ; `BlogGenerator` insérait des accroches toutes faites d'un clic. → **Notes obligatoires** (≥ 200 caractères, 400 sinon), prompt « mets en forme, n'ajoute RIEN, `[À TOI]` là où ça manque », clichés supprimés, textarea « Ce que tu as vécu (obligatoire — la seule source) ».
+- `lib/revendications.ts` : ce qu'un texte affirme et que seule l'autrice peut confirmer (prix, horaires, dates, chiffres, « on a … », lieux) — déterministe, sans modèle ; `porteLesConsignesDuPrompt`. 4 tests.
+- File « À publier » : un texte du générateur jamais relu n'est plus « prêt » ; chaque carte ouvre **« À confirmer avant de publier : N affirmations »**. 9 prêts → **7** (119 et 120 sortent, à réécrire depuis du vécu — l'export Timeline + photos est fait pour ça).
+
+### Le principe, pour tous les agents
+Un score de garde-fou mesure la *ressemblance* avec du vécu. Aucun modèle n'a le droit d'ajouter un fait, un chiffre, un lieu, un prix ou une sensation que l'autrice n'a pas écrits. « Réécrire en mieux » un texte sans source, c'est inventer deux fois.
+
+---
+
 ## [2026-09-17] — Débloquer le contenu : 26 brouillons mesurés, 9 supprimés, une file « À publier » (tâche `8eacf209`, commits `a714393` → `7b5e23c`)
 
 ### Le constat de la veille
