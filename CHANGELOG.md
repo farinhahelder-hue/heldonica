@@ -4,6 +4,22 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-09-20] — Google Photos : trois portes, aucune prouvée → une seule, qui dit son état (commit `e5f4899`, tâche `04b85155`)
+
+### Constat
+« Que l'app pioche des photos depuis Google Photos cloud. » Le panneau avait **trois** chemins : le Picker (`/panel-manager/photos`, la voie officielle depuis que Google a fermé la Library API en mars 2025 — variables Vercel posées le 01/09, **0 photo jamais importée**), l'onglet Cloud de la médiathèque (Library API en 403, et sans identifiants un mode **« démo » qui affichait des images d'exemple comme si la connexion avait réussi**, plus un iDrive en démo) et `/panel-manager/media` (Library API depuis le navigateur). L'APK, elle, utilise déjà le sélecteur système Android, qui inclut Google Photos cloud sur un Pixel — non vérifié sur l'appareil (débranché).
+
+### Fait
+- Médiathèque : l'onglet Cloud → une carte, un lien vers la vraie page. Démo, iDrive, handlers et états retirés.
+- Supprimés : `app/api/cms/cloud/*`, `app/api/cms/google-photos/*`, `app/panel-manager/media`.
+- `GET /api/cms/photos/session` : l'état (configuré ? jeton renouvelable ? sinon la raison exacte de Google — `invalid_grant` = révoqué, ce qu'une app OAuth « Testing » fait après 7 jours), affiché **au chargement** de la page.
+- `scripts/reconstituer_voyage.py --photos-cms <destination|toutes>` : les photos de la médiathèque (Picker ou APK) entrent dans `voyage.md` avec date et GPS.
+
+### Limite d'agent, à retenir
+`vercel env pull` rend **vides** les variables *Sensitive* (`SUPABASE_SERVICE_ROLE_KEY`, `CMS_PASSWORD`, `GOOGLE_PHOTOS_*`…) : « vide » ne veut pas dire non renseignée. Un agent ne peut ni lire ni tester ces jetons ; c'est la ligne d'état de la page, en production, qui tranche. Google retire le GPS des fichiers téléchargés par le Picker : ces photos se placent par l'heure sur la Timeline.
+
+---
+
 ## [2026-09-17] — Règle 1 : la chaîne de production demandait d'inventer (commit `60f5c31`)
 
 ### Ce qui l'a révélé
