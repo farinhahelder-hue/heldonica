@@ -16,7 +16,9 @@ Entrees :
     aussi : Records.json (locations[]) et Semantic Location History
     (timelineObjects[] avec placeVisit / activitySegment, qui portent des noms).
   - optionnellement un dossier de photos (EXIF : date de prise de vue, GPS),
-    lues par les memes fonctions que photos_evidence.py.
+    lues par les memes fonctions que photos_evidence.py — ou, avec --photos-cms,
+    les photos deja importees dans la mediatheque du panneau (Google Photos >
+    /panel-manager/photos > table cms_media : date, GPS s'il a survecu, url).
 
 Sorties (dans le dossier de sortie, par defaut imports/<slug>/, non versionne —
 les positions sont des donnees personnelles) :
@@ -28,6 +30,7 @@ Usage :
   python scripts/reconstituer_voyage.py --timeline ~/Downloads/Timeline.json --slug madere-2024
   python scripts/reconstituer_voyage.py --timeline Timeline.json --photos ~/Photos/Madere --slug madere-2024
   python scripts/reconstituer_voyage.py --timeline Timeline.json --slug x --from 2024-04-15 --to 2024-04-22 --geocode
+  python scripts/reconstituer_voyage.py --timeline Timeline.json --photos-cms madere --slug madere-2024
 """
 
 import argparse
@@ -377,6 +380,65 @@ def lire_photos(dossier: Path):
     return photos
 
 
+def lire_env_local():
+    """NEXT_PUBLIC_SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY depuis .env.local,
+    jamais depuis le code (regle 3)."""
+    env = {}
+    for nom in (".env.local", ".env"):
+        f = Path(nom)
+        if not f.exists():
+            continue
+        for ligne in f.read_text(encoding="utf-8").splitlines():
+            if "=" in ligne and not ligne.lstrip().startswith("#"):
+                k, v = ligne.split("=", 1)
+                env.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+    return env
+
+
+def lire_photos_cms(destination: str):
+    """Les photos de la mediatheque (cms_media) pour une destination : celles
+    que l'auteur a choisies dans Google Photos via /panel-manager/photos, ou
+    envoyees depuis l'APK. Meme structure que lire_photos, meme regle : on ne
+    prend que ce qui est mesure (taken_at, latitude/longitude) — rien n'est
+    deduit. Google retire le GPS des fichiers telecharges par le Picker : ces
+    photos se placent alors par l'heure, sur la Timeline."""
+    import urllib.request
+    env = lire_env_local()
+    url, cle = env.get("NEXT_PUBLIC_SUPABASE_URL"), env.get("SUPABASE_SERVICE_ROLE_KEY")
+    if not url or not cle:
+        raise ValueError("NEXT_PUBLIC_SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY manquent dans .env.local")
+    # Les photos venues de l'APK n'ont pas de destination : « toutes » les prend
+    # aussi, la fenetre de dates fait ensuite le tri.
+    dest = re.sub(r"[^a-z0-9-]", "", destination.lower())
+    filtre = "" if dest in ("", "toutes", "tout", "all") else f"&metadata->>destination=eq.{dest}"
+    requete = (f"{url}/rest/v1/cms_media?select=filename,url,taken_at,latitude,longitude,source,metadata"
+               f"{filtre}&order=taken_at.asc.nullslast&limit=1000")
+    req = urllib.request.Request(requete, headers={"apikey": cle, "Authorization": f"Bearer {cle}"})
+    with urllib.request.urlopen(req, timeout=60) as r:
+        lignes = json.load(r)
+    photos = []
+    for l in lignes:
+        prise_dt = None
+        if l.get("taken_at"):
+            try:
+                prise_dt = datetime.fromisoformat(str(l["taken_at"]).replace("Z", "+00:00"))
+            except ValueError:
+                prise_dt = None
+            if prise_dt is not None and prise_dt.tzinfo is None:
+                prise_dt = prise_dt.replace(tzinfo=timezone.utc)
+        lat, lon = l.get("latitude"), l.get("longitude")
+        photos.append({
+            "fichier": l.get("filename") or l.get("url"),
+            "url": l.get("url"),
+            "prise_de_vue": prise_dt.isoformat() if prise_dt else None,
+            "prise_dt": prise_dt,
+            "prise_fuseau_connu": prise_dt is not None,
+            "gps": {"lat": round(float(lat), 6), "lon": round(float(lon), 6)} if lat is not None and lon is not None else None,
+            "source": f"cms:{l.get('source') or '?'}",
+        })
+    return photos
+
+
 def nom_lieu_osm(lat, lon, cache):
     """Nom fin d'un arret (zoom 17 : lieu-dit, commerce, rue) + commune. Nominatim,
     1 requete/s. Different de lieu_osm (niveau commune) qui sert au registre."""
@@ -567,6 +629,8 @@ def main():
     p = argparse.ArgumentParser(description="Reconstituer un voyage depuis la Timeline et les photos")
     p.add_argument("--timeline", required=True, help="Timeline.json (telephone), Records.json ou fichier Semantic Location History")
     p.add_argument("--photos", help="Dossier de photos (EXIF)")
+    p.add_argument("--photos-cms", metavar="DESTINATION",
+                   help="Photos deja importees dans la mediatheque du panneau pour cette destination (ex. madere), ou « toutes »")
     p.add_argument("--slug", required=True, help="Nom du voyage, ex. madere-2024")
     p.add_argument("--from", dest="date_min", help="Premier jour (AAAA-MM-JJ)")
     p.add_argument("--to", dest="date_max", help="Dernier jour (AAAA-MM-JJ)")
@@ -596,6 +660,15 @@ def main():
         aligner_fuseau_photos(photos, visites)
         print(f"[INFO] {len(photos)} photo(s) lue(s), {sum(1 for x in photos if x['gps'])} avec GPS, "
               f"{sum(1 for x in photos if x['prise_dt'])} avec date")
+    if args.photos_cms:
+        try:
+            cms = lire_photos_cms(args.photos_cms)
+        except (ValueError, OSError) as e:
+            print(f"[ERREUR] Mediatheque illisible : {e}")
+            sys.exit(1)
+        photos.extend(cms)
+        print(f"[INFO] {len(cms)} photo(s) de la mediatheque pour « {args.photos_cms} », "
+              f"{sum(1 for x in cms if x['gps'])} avec GPS, {sum(1 for x in cms if x['prise_dt'])} avec date")
 
     # Fenetre par defaut : les jours ou il y a des photos, sinon tout l'export.
     date_min, date_max = args.date_min, args.date_max
