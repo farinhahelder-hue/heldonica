@@ -30,6 +30,13 @@ export default function ImportPhotosPage() {
   const [pickerUri, setPickerUri] = useState<string | null>(null);
   const [message, setMessage] = useState<string>('');
   const [bilan, setBilan] = useState<Bilan | null>(null);
+  const [connexion, setConnexion] = useState<{ configure: boolean; jeton_ok: boolean; raison?: string } | null>(null);
+
+  useEffect(() => {
+    fetch('/api/cms/photos/session')
+      .then(async (r) => setConnexion(await r.json()))
+      .catch((e) => setConnexion({ configure: false, jeton_ok: false, raison: String(e) }));
+  }, []);
 
   // Conservé hors du rendu : l'intervalle doit survivre aux re-rendus et être
   // nettoyé au démontage, sinon le sondage continue après la fermeture.
@@ -110,6 +117,21 @@ export default function ImportPhotosPage() {
       <p className="text-sm text-charcoal/60 mb-8">
         Les photos apportent le lieu et la date. Le reste du carnet reste à ta main.
       </p>
+
+      <div className={`mb-6 rounded-xl border px-4 py-3 text-sm ${!connexion ? 'border-stone-200 text-charcoal/50' : connexion.jeton_ok ? 'border-emerald-200 bg-emerald-50 text-emerald-900' : 'border-red-200 bg-red-50 text-red-800'}`}>
+        {!connexion && 'On vérifie la connexion à Google Photos…'}
+        {connexion && connexion.jeton_ok && 'Google Photos connecté : le jeton obtient un accès.'}
+        {connexion && !connexion.jeton_ok && (
+          <>
+            <div className="font-semibold">Google Photos n&apos;est pas connecté.</div>
+            <div className="mt-1">{connexion.raison}</div>
+            <div className="mt-2 text-xs opacity-80">
+              À faire une fois, hors du site : <code>python scripts/auth_google_picker.py</code> donne le refresh token ;
+              les trois variables se posent dans Vercel (Settings → Environment Variables), puis on redéploie.
+            </div>
+          </>
+        )}
+      </div>
 
       <label className="block text-sm font-medium text-charcoal mb-2" htmlFor="destination">
         Destination

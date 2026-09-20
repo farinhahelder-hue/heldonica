@@ -74,7 +74,12 @@ export async function getAccessToken(): Promise<string> {
   });
 
   if (!res.ok) {
-    throw new Error(`Renouvellement du jeton Google refusé (${res.status}).`);
+    // Google dit pourquoi : « invalid_grant » = refresh token révoqué ou expiré
+    // (une app OAuth en statut « Testing » les révoque après 7 jours) ;
+    // « invalid_client » = client id / secret faux. On le remonte tel quel.
+    const corps = await res.json().catch(() => ({}));
+    const raison = corps.error_description || corps.error || `HTTP ${res.status}`;
+    throw new Error(`Renouvellement du jeton Google refusé : ${raison}`);
   }
 
   const data = await res.json();

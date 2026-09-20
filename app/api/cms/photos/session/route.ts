@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { requireCmsAuth } from '@/lib/cms-auth';
-import { createPickerSession, isPickerConfigured } from '@/lib/google-photos-picker';
+import { getAccessToken, createPickerSession, isPickerConfigured } from '@/lib/google-photos-picker';
 
 /**
  * POST /api/cms/photos/session
@@ -12,6 +12,25 @@ import { createPickerSession, isPickerConfigured } from '@/lib/google-photos-pic
  * interface : aucune API ne permet de s'en passer depuis mars 2025. Le CMS
  * supprime le terminal, pas ce clic.
  */
+// L'état de la connexion, au chargement de la page : configuré ou non, et si
+// oui, le jeton obtient-il encore un accès. Sans ça, on ne découvrait un
+// jeton révoqué qu'en cliquant « Choisir des photos » — et rien, dans les
+// 19 jours qui ont suivi la configuration, n'a jamais été importé par ici.
+export async function GET(req: NextRequest) {
+  const refus = await requireCmsAuth(req);
+  if (refus) return refus;
+
+  if (!isPickerConfigured()) {
+    return NextResponse.json({ configure: false, jeton_ok: false, raison: 'Les trois variables GOOGLE_PHOTOS_* ne sont pas toutes renseignées sur Vercel.' });
+  }
+  try {
+    await getAccessToken();
+    return NextResponse.json({ configure: true, jeton_ok: true });
+  } catch (e: any) {
+    return NextResponse.json({ configure: true, jeton_ok: false, raison: e?.message ?? 'Erreur inconnue' });
+  }
+}
+
 export async function POST(req: NextRequest) {
   const refus = await requireCmsAuth(req);
   if (refus) return refus;
