@@ -573,6 +573,24 @@ def etiquette_lieu(l):
     return f"lieu a nommer ({l['lat']}, {l['lon']})"
 
 
+def moments_photos(photos, ecart_min=45):
+    """Regroupe des photos datees en « moments » : une serie de prises de vue
+    sans trou de plus de `ecart_min` minutes. Sans Timeline, c'est la seule
+    structure mesurable d'une journee — ou on a sorti l'appareil, et quand.
+    Rien d'autre n'est deduit : ni lieu, ni activite."""
+    datees = sorted((p for p in photos if p.get("prise_de_vue")), key=lambda p: p["prise_de_vue"])
+    moments, courant = [], []
+    for p in datees:
+        dt = datetime.fromisoformat(p["prise_de_vue"])
+        if courant and (dt - datetime.fromisoformat(courant[-1]["prise_de_vue"])).total_seconds() > ecart_min * 60:
+            moments.append(courant)
+            courant = []
+        courant.append(p)
+    if courant:
+        moments.append(courant)
+    return moments
+
+
 def ecrire_markdown(voyage, chemin: Path):
     L = []
     r = voyage["resume"]
@@ -616,7 +634,22 @@ def ecrire_markdown(voyage, chemin: Path):
             ))
         if j["photos_sans_lieu"]:
             L.append("")
-            L.append("Photos du jour sans lieu rattache : " + ", ".join(f"`{p['fichier']}` ({p['raison']})" for p in j["photos_sans_lieu"]))
+            moments = moments_photos(j["photos_sans_lieu"])
+            if not j["lieux"] and moments:
+                # Journee sans Timeline : les moments de prise de vue sont la
+                # seule trame. Un [A TOI] par moment, jamais un lieu invente.
+                L.append("Moments (series de photos, sans lieu connu) :")
+                for m in moments:
+                    h1, h2 = heure(m[0]["prise_de_vue"]), heure(m[-1]["prise_de_vue"])
+                    plage = h1 if h1 == h2 else f"{h1} -> {h2}"
+                    apercu = ", ".join(f"`{p['fichier']}`" for p in m[:3]) + (f" … (+{len(m) - 3})" if len(m) > 3 else "")
+                    L.append(f"- {plage} — {len(m)} photo(s) : {apercu}")
+                    L.append("  - [A TOI : ou etait-on, qu'est-ce qu'on faisait, ce qu'on a moins aime]")
+                sans_date = [p for p in j["photos_sans_lieu"] if not p.get("prise_de_vue")]
+                if sans_date:
+                    L.append("- sans heure : " + ", ".join(f"`{p['fichier']}`" for p in sans_date))
+            else:
+                L.append("Photos du jour sans lieu rattache : " + ", ".join(f"`{p['fichier']}` ({p['raison']})" for p in j["photos_sans_lieu"]))
         L.append("")
     if voyage["resume"]["photos_sans_date"]:
         L.append("## Photos sans date EXIF (non placees)")
@@ -627,7 +660,8 @@ def ecrire_markdown(voyage, chemin: Path):
 
 def main():
     p = argparse.ArgumentParser(description="Reconstituer un voyage depuis la Timeline et les photos")
-    p.add_argument("--timeline", required=True, help="Timeline.json (telephone), Records.json ou fichier Semantic Location History")
+    p.add_argument("--timeline", help="Timeline.json (telephone), Records.json ou fichier Semantic Location History. "
+                   "Facultatif si des photos sont fournies : le squelette se fait alors par jour, sans lieux.")
     p.add_argument("--photos", help="Dossier de photos (EXIF)")
     p.add_argument("--photos-cms", metavar="DESTINATION",
                    help="Photos deja importees dans la mediatheque du panneau pour cette destination (ex. madere), ou « toutes »")
@@ -638,17 +672,26 @@ def main():
     p.add_argument("--out", help="Dossier de sortie (defaut : imports/<slug>/)")
     args = p.parse_args()
 
-    chemin_timeline = Path(args.timeline)
-    if not chemin_timeline.exists():
-        print(f"[ERREUR] Fichier introuvable : {chemin_timeline}")
+    if not args.timeline and not (args.photos or args.photos_cms):
+        print("[ERREUR] Donne une Timeline (--timeline) ou des photos (--photos / --photos-cms), sinon il n'y a rien a reconstituer.")
         sys.exit(1)
 
-    try:
-        visites, trajets, positions, fmt = lire_timeline(chemin_timeline)
-    except (ValueError, json.JSONDecodeError) as e:
-        print(f"[ERREUR] {e}")
-        sys.exit(1)
-    print(f"[INFO] Timeline lue ({fmt}) : {len(visites)} visite(s), {len(trajets)} trajet(s), {len(positions)} position(s)")
+    visites, trajets, positions, fmt = [], [], [], "aucune"
+    if args.timeline:
+        chemin_timeline = Path(args.timeline)
+        if not chemin_timeline.exists():
+            print(f"[ERREUR] Fichier introuvable : {chemin_timeline}")
+            sys.exit(1)
+        try:
+            visites, trajets, positions, fmt = lire_timeline(chemin_timeline)
+        except (ValueError, json.JSONDecodeError) as e:
+            print(f"[ERREUR] {e}")
+            sys.exit(1)
+        print(f"[INFO] Timeline lue ({fmt}) : {len(visites)} visite(s), {len(trajets)} trajet(s), {len(positions)} position(s)")
+    else:
+        # Sans Timeline, le squelette n'a que des jours et des photos : aucun
+        # lieu, aucune distance. Les lieux viendront de l'export du telephone.
+        print("[INFO] Pas de Timeline : squelette par jour depuis les photos seulement, sans lieux ni trajets.")
 
     photos = []
     if args.photos:
@@ -700,7 +743,7 @@ def main():
     voyage = {
         "slug": args.slug,
         "genere_le": datetime.now().isoformat(timespec="seconds"),
-        "source": {"fichier": str(chemin_timeline), "format": fmt, "lieux": source_lieux,
+        "source": {"fichier": str(args.timeline) if args.timeline else None, "format": fmt, "lieux": source_lieux,
                    "photos": str(args.photos) if args.photos else None},
         "avertissement": (
             "Faits mesures par la Timeline du telephone et l'EXIF des photos. Aucun nom de lieu "
