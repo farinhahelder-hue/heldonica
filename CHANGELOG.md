@@ -4,6 +4,28 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-09-21] — L'IA du panneau ne marchait plus depuis des mois : modèles retirés ; socle réparé, carrousel/légendes/article sur les mots de l'autrice (commits `2252641`, `d2ee392`)
+
+### Constat, mesuré avec les clés locales
+Demande : « continuer à améliorer APK et CMS pour créer du contenu authentique depuis le téléphone avec l'IA ». Avant d'ajouter, mesurer : **aucun Llama n'est plus servi par Groq** (`llama-3.3-70b-versatile` du client partagé, `llama-3.1-70b` de « Partir d'une idée », `llama3-8b`), **Google a retiré gemini-1.5 et gemini-2.0-flash**, et `OPENAI_API_KEY` n'a jamais existé en production. Donc le Copilote, « Partir d'une idée », le carrousel et sa légende **échouaient à chaque appel** — le carrousel rendait des slogans à trous (« Découvrez {sujet} avec Heldonica… »), la légende un gabarit — sans qu'aucun écran ne le dise. 15 identifiants de modèles en dur dans 11 routes.
+
+### Socle
+- `lib/ai-provider.ts` : `GROQ_MODEL = openai/gpt-oss-120b`, `GEMINI_MODEL = gemini-2.5-flash`, seul endroit. gpt-oss : `reasoning_effort: low`, plancher 1 500 jetons, second essai sans mode JSON strict (`json_validate_failed` intermittent). Gemini 2.5 : `thinkingBudget: 0` (la réflexion se décomptait des jetons de sortie → JSON tronqué).
+- `npm run check:ai-models` (+ CI) : interroge les deux modèles avec les clés locales, refuse tout identifiant en dur ailleurs.
+- 7 routes IA sans appelant, sur des modèles ou des clés inexistants, retirées.
+
+### Règle 1, mesurée au lieu d'être crue
+- `ajoutsParRapportA(texte, source)` dans `lib/revendications.ts` : sensations (son, odeur, goût, toucher, température) et répliques entre guillemets présentes dans le texte généré et absentes des notes. Première passe de « Partir d'une idée » : le modèle avait glissé « brouhaha », « cliquetis », une réplique inventée — attrapés.
+- « Partir d'une idée » : client partagé, format Markdown imposé, `ajouts_non_sources` renvoyé.
+- Carrousel : `carousel-generate` réécrit (tes notes ≥ 80 caractères → diapositives, chiffre ajouté = second essai puis `[À TOI]`), `carousel-caption` réécrit (tes diapositives → légende, hashtags déterministes), `AIChatPanel` → « Tes notes → diapositives », gabarits « Top {n} endroits » retirés.
+- `ai-vision` (légende de photo) : reçoit les notes comme seule source ; l'image ne donne que le visible ; sans notes, `[À TOI : ce que tu as ressenti là]`.
+- **APK** : le champ « Ce que tu as vécu là » entre dans le prompt et le repli ; « ↩ Revenir à mon texte » ; libellés honnêtes. Compilé, installé sur le Pixel, libellé vérifié à l'écran.
+
+### Reste
+Instagram (publication par l'API Meta : jetons à toi), montage vidéo (sur l'appareil, non revu). La médiathèque Google Photos attend toujours ta ligne d'état en production.
+
+---
+
 ## [2026-09-20] — Google Photos : trois portes, aucune prouvée → une seule, qui dit son état (commit `e5f4899`, tâche `04b85155`)
 
 ### Constat
