@@ -62,6 +62,10 @@ class MainActivity : ComponentActivity() {
     private var isCarousel by mutableStateOf(false)
     private var status by mutableStateOf("Prêt — choisis 1 à 10 photos/vidéos")
     private var analyseEnCours by mutableStateOf(false)
+    // Ce que l'autrice avait écrit avant que l'IA propose sa version : la
+    // proposition remplace le champ, ce bouton la ramène. Sans lui, un clic
+    // sur « Regard Heldonica » effaçait ses mots sans retour (mesuré 21/09/2026).
+    private var texteAvantIa by mutableStateOf<String?>(null)
 
     // Ecran affiche : accueil, ou formulaire de publication.
     //
@@ -781,17 +785,26 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.fillMaxWidth(),
                             onClick = { analyserPhotoAvecIa(pickedUris.first()) }
                         ) {
-                            Text(if (analyseEnCours) "✨ Regard Heldonica en cours…" else "✨ Regard Heldonica & micro-détails (IA)")
+                            Text(if (analyseEnCours) "✨ Regard Heldonica en cours…" else if (caption.isNotBlank()) "✨ Mettre en forme mes notes avec la photo" else "✨ Décrire la photo (puis [À TOI])")
                         }
                     }
 
                     OutlinedTextField(
                         value = caption,
                         onValueChange = { caption = it },
-                        label = { Text("Ce que tu as vécu là (facultatif)") },
+                        label = { Text("Ce que tu as vécu là — l'IA part de ça") },
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 3
                     )
+                    if (texteAvantIa != null) {
+                        TextButton(onClick = {
+                            caption = texteAvantIa ?: caption
+                            texteAvantIa = null
+                            status = "Ton texte est revenu."
+                        }) {
+                            Text("↩ Revenir à mon texte")
+                        }
+                    }
 
                     if (caption.isNotBlank()) {
                         Row(
@@ -1009,6 +1022,9 @@ class MainActivity : ComponentActivity() {
     private fun analyserPhotoAvecIa(uri: Uri) {
         analyseEnCours = true
         status = "Analyse de la photo par l'IA en cours…"
+        // Le champ contient ce que l'autrice a écrit : c'est la source, pas un
+        // brouillon à écraser.
+        val notesAutrice = caption.trim()
         portee.launch(Dispatchers.IO) {
             try {
                 val bytes = preparerImagePourVision(uri)
@@ -1040,13 +1056,14 @@ Tu es la voix éditoriale d'Heldonica (média et concepteur de voyages slow trav
 Notre regard sur le voyage est singulier : il est porté par une sensibilité neuroatypique (TSA), attentive aux micro-détails sensoriels et tangibles que la plupart des gens traversent sans remarquer.
 
 RÈGLES ÉDITORIALES & REGARD SENSORIEL (TSA) :
-1. LE REGARD SUR L'IMAGE :
-- Observe attentivement ce que montre la photo. Décris la matière réelle (le grain du bois, la pierre calcaire rugueuse, les reflets, la céramique artisanale, le lin froissé, la découpe des ombres, la texture des surfaces ou des ingrédients).
-- Sensibilité TSA : relève les micro-détails qui ancrent dans le réel (sensations tactiles, acoustique apaisante suggérée comme un cliquetis feutré ou le souffle du vent, absence de foule ou d'agitation saturante, régularité des formes, authenticité du geste).
-- Règle d'or absolue : « On n'invente rien. On raconte ce qu'on a vécu. » Ne mentionne AUCUN élément absent de l'image.
+1. LA SOURCE — CE QUI PRIME SUR TOUT :
+- Les NOTES de l'autrice, si elles sont données plus bas, sont la seule source du vécu : ce qu'on a fait, ressenti, entendu, goûté. Reprends-les, resserre-les, ne les contredis pas.
+- L'IMAGE ne donne que ce qui est visible : matières, lumière, couleurs, objets, lieu, absence ou présence de gens. Décris-la avec précision (le grain du bois, la pierre, les reflets, la découpe des ombres, le lin froissé).
+- N'AJOUTE RIEN : aucune sensation non visible (son, odeur, toucher, goût, température), aucune action du duo (« on s'est posés », « on a pris le temps ») qui ne soit dans les notes, aucun nom de lieu, aucun chiffre, aucune heure absents des notes et de l'image.
+- Sans notes : décris ce que la photo montre, sans raconter ce que le duo a fait, et termine par exactement « [À TOI : ce que tu as ressenti là] ».
 
 2. ÉMETTEUR DUO (« on » exclusif) :
-- Le duo s'exprime toujours par « on » (« on s'est posés », « ce qui nous a marqués », « on a pris le temps »).
+- Le duo s'exprime toujours par « on » — et seulement pour ce que les notes racontent.
 - Ne dis JAMAIS « je », « nous », « nos », « notre équipe », « la rédaction ».
 
 3. DESTINATAIRE (« tu ») :
@@ -1061,7 +1078,8 @@ RÈGLES ÉDITORIALES & REGARD SENSORIEL (TSA) :
 - Un texte court et aéré (3 à 5 phrases, 50 à 75 mots environ).
 - Termine par une question douce ou une observation suspendue en tutoiement ("tu").
 - Ligne vide, puis 4 hashtags sobres : #slowtravel #heldonica + 2 hashtags de contexte précis.
-${if (placeTitle.isNotBlank()) "Lieu / contexte indiqué : $placeTitle" else ""}
+${if (placeTitle.isNotBlank()) "Lieu indiqué par l'autrice : $placeTitle." else ""}
+${if (notesAutrice.isNotBlank()) "NOTES DE L'AUTRICE (la seule source du vécu) :\n---\n$notesAutrice\n---\nÉcris la légende à partir de ces notes et de ce que la photo montre." else "Aucune note : décris ce que la photo montre, sans inventer ce que le duo a fait, et termine par [À TOI : ce que tu as ressenti là]."}
 """.trimIndent()
 
                     val jsonReq = org.json.JSONObject().apply {
@@ -1142,6 +1160,7 @@ ${if (placeTitle.isNotBlank()) "Lieu / contexte indiqué : $placeTitle" else ""}
                             bytes.toRequestBody("image/jpeg".toMediaType())
                         )
                         .addFormDataPart("place_title", placeTitle)
+                        .addFormDataPart("notes", notesAutrice)
                         .build()
 
                     val req = Request.Builder()
@@ -1172,8 +1191,9 @@ ${if (placeTitle.isNotBlank()) "Lieu / contexte indiqué : $placeTitle" else ""}
                 withContext(Dispatchers.Main) {
                     analyseEnCours = false
                     if (textResult.isNotBlank()) {
+                        if (notesAutrice.isNotBlank()) texteAvantIa = notesAutrice
                         caption = textResult
-                        status = "Légende et hashtags générés depuis ta photo !"
+                        status = if (notesAutrice.isNotBlank()) "Légende proposée depuis tes notes et ta photo." else "Légende proposée depuis ta photo — le [À TOI] est à toi."
                         copierDansPressePapier(genererCaptionInstagram(), montrerToast = false)
                         Toast.makeText(this@MainActivity, "✨ Légende prête et copiée dans le presse-papier !", Toast.LENGTH_LONG).show()
                     } else {
