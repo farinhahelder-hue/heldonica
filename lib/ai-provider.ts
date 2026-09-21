@@ -1,11 +1,18 @@
 /**
  * lib/ai-provider.ts
  * Moteur universel de génération IA pour Heldonica avec cascade de fallback :
- * 1. Groq (Llama 3.3 / Llama 3)
- * 2. Google Gemini (Gemini 2.0 / 1.5 Flash)
- * 3. OpenAI (GPT-4o-mini)
- * 4. Anthropic (Claude 3.5 Haiku)
+ * 1. Groq   2. Google Gemini   3. Mistral   4. Cerebras   5. OpenRouter
+ * 6. OpenAI   7. Anthropic — seuls Groq et Gemini ont une clé en production.
+ *
+ * Les identifiants de modèles vivent ICI et nulle part ailleurs. Mesuré le
+ * 21/09/2026 : « llama-3.3-70b-versatile » n'était plus servi par Groq et
+ * « gemini-2.0-flash » était retiré par Google — le Copilote, « Partir d'une
+ * idée », le carrousel et sa légende échouaient à chaque appel, sans qu'aucun
+ * écran ne le dise. `npm run check:ai-models` interroge les fournisseurs avec
+ * les clés locales et refuse un identifiant qui ne répond plus.
  */
+export const GROQ_MODEL = 'openai/gpt-oss-120b';
+export const GEMINI_MODEL = 'gemini-2.5-flash';
 
 export interface AiMessage {
   role: 'system' | 'user' | 'assistant';
@@ -29,8 +36,13 @@ export interface AiCompletionResult {
 /**
  * Appel à Groq (OpenAI-compatible) — Tier gratuit
  */
-async function callGroq(options: AiCompletionOptions, apiKey: string): Promise<AiCompletionResult> {
-  const model = 'llama-3.3-70b-versatile';
+async function callGroq(options: AiCompletionOptions, apiKey: string, sansJson = false): Promise<AiCompletionResult> {
+  const model = GROQ_MODEL;
+  const gptOss = model.startsWith('openai/gpt-oss');
+  // Le raisonnement de gpt-oss se décompte des jetons de sortie : sous ~1500,
+  // la réponse est vide et Groq rend « json_validate_failed ».
+  const maxTokens = gptOss ? Math.max(options.max_tokens ?? 2000, 1500) : (options.max_tokens ?? 2000);
+  const jsonMode = options.jsonMode && !sansJson;
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -41,13 +53,24 @@ async function callGroq(options: AiCompletionOptions, apiKey: string): Promise<A
       model,
       messages: options.messages,
       temperature: options.temperature ?? 0.7,
-      max_tokens: options.max_tokens ?? 2000,
-      ...(options.jsonMode ? { response_format: { type: 'json_object' } } : {}),
+      max_tokens: maxTokens,
+      // Nos appels sont de la mise en forme, pas de la résolution de problème :
+      // l'effort de raisonnement par défaut de gpt-oss consommait les jetons
+      // (mesuré le 21/09/2026 : échecs intermittents ; avec « low », 1,7 s).
+      ...(gptOss ? { reasoning_effort: 'low' } : {}),
+      ...(jsonMode ? { response_format: { type: 'json_object' } } : {}),
     }),
   });
 
   if (!res.ok) {
     const errorText = await res.text();
+    // Le mode JSON strict de Groq refuse une génération qu'il juge invalide,
+    // souvent vide. Nos appelants savent extraire un objet d'un texte : on
+    // redemande une fois sans le mode strict avant de passer au fournisseur
+    // suivant.
+    if (jsonMode && errorText.includes('json_validate_failed')) {
+      return callGroq(options, apiKey, true);
+    }
     throw new Error(`Groq API Error (${res.status}): ${errorText}`);
   }
 
@@ -60,7 +83,7 @@ async function callGroq(options: AiCompletionOptions, apiKey: string): Promise<A
  * Appel à Google Gemini (REST API) — Tier gratuit
  */
 async function callGemini(options: AiCompletionOptions, apiKey: string): Promise<AiCompletionResult> {
-  const model = 'gemini-2.0-flash';
+  const model = GEMINI_MODEL;
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
   const systemMsg = options.messages.find(m => m.role === 'system');
@@ -77,6 +100,10 @@ async function callGemini(options: AiCompletionOptions, apiKey: string): Promise
       temperature: options.temperature ?? 0.7,
       maxOutputTokens: options.max_tokens ?? 2000,
       ...(options.jsonMode ? { responseMimeType: 'application/json' } : {}),
+      // Gemini 2.5 « réfléchit » avant d'écrire et ces jetons se décomptent
+      // de maxOutputTokens : avec 500, la légende revenait tronquée au milieu
+      // d'un JSON (mesuré le 21/09/2026). Mise en forme : pas de réflexion.
+      ...(model.startsWith('gemini-2.5') ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
     },
   };
 

@@ -82,6 +82,15 @@ jobs:
       - name: Routes sans vérification
         run: npm run check:api-auth
 
+      # Identifiants de modèles d'IA écrits en dur. Un modèle meurt sans
+      # prévenir : Groq a retiré les Llama 3.x, Google Gemini 1.5 puis 2.0, et
+      # le 21 septembre 2026 toutes les fonctions IA du panneau échouaient
+      # depuis des mois sans qu'un écran le dise. Les identifiants vivent dans
+      # lib/ai-provider.ts, seul endroit vérifié. Sans clé, le script ne teste
+      # pas les fournisseurs : il refuse seulement la dérive dans le code.
+      - name: Modèles d'IA en dur
+        run: npm run check:ai-models
+
       # Écritures en base dont l'erreur n'est jamais lue. Supabase ne lève pas :
       # il rend { data, error }. Sans nommer `error`, un échec devient un `data`
       # null et l'appelant annonce une réussite. Cinq bugs de cette forme le

@@ -816,8 +816,8 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
 
                 <CarteAction
                   titre="Composer un carrousel Instagram"
-                  detail="Des diapositives, tes photos, puis un brouillon dans la file."
-                  aide="L'assistant propose les diapositives, tu corriges."
+                  detail="Tes notes en diapositives, tes photos, puis un brouillon dans la file."
+                  aide="Tes notes et tes photos ; l'assistant découpe et resserre, il n'invente pas."
                   onClick={() => navigateTo('carousel')}
                 />
 

@@ -1,207 +1,141 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireCmsAuth } from '@/lib/cms-auth'
+import { generateAiCompletion } from '@/lib/ai-provider'
+import { validateGardeFous } from '@/lib/brand-voice'
+import { ajoutsParRapportA, LIBELLES_AJOUT } from '@/lib/revendications'
 
-interface CaptionRequest {
-  topic: string
-  destination?: string
-  slides?: Array<{ title: string; content: string }>
-  style?: 'narratif' | 'informatif' | 'inspirant'
-  defaultHashtags?: string
+export const dynamic = 'force-dynamic'
+export const maxDuration = 60
+
+// Tes diapositives → une légende Instagram. La source, c'est le texte des
+// diapositives — les mots de l'autrice. Avant le 21/09/2026, sans clé OpenAI
+// (absente en production), cette route rendait un gabarit : « Découvrez {sujet}
+// à travers notre dernier carrousel ✨ Vous y trouverez nos meilleurs
+// conseils, nos découvertes secrètes… » — du vide, avec « vous » et
+// « conseils », pour n'importe quel carrousel.
+
+const SOURCE_MIN = 40
+
+function nombres(texte: string): string[] {
+  return (texte.match(/\d+(?:[.,]\d+)?/g) || []).map((n) => n.replace(',', '.'))
 }
 
-// French hashtags database by category
-const HASHTAG_DATABASE = {
-  travel: [
-    '#slowtravel', '#travelyourway', '#exploremore', '#traveladdict',
-    '#travelphotography', '#travelblogger', '#instatravel', '#travelgram',
-    '#wanderlust', '#adventuretravel', '#solotravel', '#traveltips',
-  ],
-  destinations: [
-    '#portugal', '#madeira', '#france', '#espagne', '#italie',
-    '#grece', '#roumanie', '#voyage', '#destination', '#roadtrip',
-  ],
-  lifestyle: [
-    '#lifestyle', '#lifestyleblogger', '#lifestylephotography',
-    '#modedevie', '#lavieestbelle', '#bonheur', '#savoirvivre',
-  ],
-  eco: [
-    '#ecotourism', '#sustainabletravel', '#ecofriendly', '#greenliving',
-    '#voyageecoresponsable', '#tourismresponsable', '#respectnature',
-  ],
-  couple: [
-    '#coupletravel', '#travelcouple', '#loveandtravel', '#couplegoals',
-    '#romantictravel', '#honeymoon', '#escapade', '#weekendenduo',
-  ],
-  luxury: [
-    '#luxurytravel', '#luxury', '#luxurytravelblogger', '#luxuryhotels',
-    '#travelinstyle', '#hautdegamme', '#ecoluxe', '#prestige',
-  ],
-  brand: [
-    '#heldonica', '#heldonicatravel', '#pepite', '#decouvrir',
-    '#horssentiersbattus', '#voyageauthentique', '#authenticite',
-  ],
+function slug(t: string): string {
+  return t
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]/g, '')
 }
 
-// Generate caption based on topic and style
-function generateCaption(topic: string, style: string, destination?: string): string {
-  const templates = {
-    narratif: `Envie d’explorer ${destination || 'cette destination'} en profondeur ?
-
-Découvrez ${topic} à travers notre dernier carrousel ✨
-
-Vous y trouverez nos meilleurs conseils, nos découvertes secrètes et nos coups de cœur travel.
-
-Swipez pour tout savoir 👉
-
-${destination ? `📍 ${destination}\n` : ''}📸 @heldonica
-🔗 Lien en bio`,
-    informatif: `${topic} : tout ce que vous devez savoir 🗺️
-
-Notre carrousel vous révèle les secrets, les meilleures adresses et les expériences inoubliables.
-
-Conservez ce post pour ne rien manquer 📌
-
-${destination ? `📍 ${destination}\n` : ''}📸 @heldonica
-🔗 Lien en bio`,
-    inspirant: `Et si ${destination || 'votre prochain voyage'} était celui-ci ? ✨
-
-${topic}
-
-Chaque image raconte une histoire. Chaque swipe révèle une découverte.
-
-Envolez-vous vers l’authenticité 🕊️
-
-${destination ? `📍 ${destination}\n` : ''}📸 @heldonica
-🔗 Lien en bio`,
-  }
-
-  return templates[style as keyof typeof templates] || templates.narratif
+/** Hashtags déterministes : la marque, la destination si donnée, ceux du réglage. Aucun inventé. */
+function hashtags(destination: string, defaults: string): string[] {
+  const liste = ['#slowtravel', '#heldonica']
+  const d = slug(destination)
+  if (d) liste.push(`#${d}`)
+  for (const t of defaults.split(/\s+/)) if (t.startsWith('#') && t.length > 1) liste.push(t.toLowerCase())
+  return [...new Set(liste)].slice(0, 12)
 }
 
-// Generate hashtags based on topic and context
-function generateHashtags(topic: string, destination?: string, style?: string): string[] {
-  const hashtags: string[] = []
-  
-  // Always include brand hashtags
-  hashtags.push(...HASHTAG_DATABASE.brand)
-  
-  // Add travel hashtags
-  hashtags.push(...HASHTAG_DATABASE.travel.slice(0, 6))
-  
-  // Add destination if specified
-  if (destination) {
-    const destLower = destination.toLowerCase()
-    const destHashtag = HASHTAG_DATABASE.destinations.find(h => h.includes(destLower))
-    if (destHashtag) {
-      hashtags.push(destHashtag)
-    } else {
-      hashtags.push(`#${destLower}`)
-    }
-  }
-  
-  // Add style-specific hashtags
-  if (style === 'eco') {
-    hashtags.push(...HASHTAG_DATABASE.eco.slice(0, 4))
-  } else if (style === 'couple') {
-    hashtags.push(...HASHTAG_DATABASE.couple.slice(0, 4))
-  } else if (style === 'luxury') {
-    hashtags.push(...HASHTAG_DATABASE.luxury.slice(0, 4))
-  }
-  
-  // Add lifestyle hashtags
-  hashtags.push(...HASHTAG_DATABASE.lifestyle.slice(0, 3))
-  
-  // Shuffle and limit to 25-30 hashtags
-  const shuffled = hashtags.sort(() => Math.random() - 0.5)
-  return shuffled.slice(0, Math.min(shuffled.length, 28))
+function consigne(interdits: string[]): string {
+  return `Écris la légende Instagram d'un carrousel à partir du TEXTE DES DIAPOSITIVES ci-dessous.
+
+LA RÈGLE QUI PRIME : tu n'ajoutes RIEN qui ne soit dans ce texte.
+- Aucun lieu, chiffre, prix, horaire, durée, nom, sensation (odeur, son, goût, texture, température) absent du texte. Aucun dialogue ni réplique entre guillemets qui ne soit dans le texte.
+- Tu reprends les mots de l'autrice ; tu relies, tu ne brodes pas.
+- Voix : « on » pour le duo, « tu » pour le lecteur. Jamais « je », « nous », « vous », « les voyageurs ».
+- Aucun mot de ceux-ci : pépite, incontournable, bon plan, must-see, paradis, magnifique, splendide, incroyable, inoubliable, spot, découvrez, plongez, swipe.
+- Pas de point d'exclamation, pas d'emoji, pas d'appel à l'action (« lien en bio », « abonne-toi »).
+- 3 à 5 phrases, 50 à 90 mots. Termine par une question douce ou une observation suspendue, au « tu ».
+- Pas de hashtags dans le texte : ils sont ajoutés à part.
+${interdits.length ? `- INTERDIT (chiffres absents du texte que tu avais ajoutés) : ${interdits.join(', ')}.\n` : ''}
+Réponds UNIQUEMENT en JSON : {"caption":"…"}`
 }
 
-// Generate via OpenAI
-async function generateWithOpenAI(topic: string, slides: any[], style: string, destination?: string): Promise<string> {
-  const apiKey = process.env.OPENAI_API_KEY
-  if (!apiKey) {
-    return generateCaption(topic, style, destination)
-  }
-
-  const systemPrompt = `Tu es un expert en rédaction Instagram pour Heldonica, marque de slow travel en couple.
-Ton style : narratif, sensoriel, chaleureux. Utilise le tutoiement.
-Génère une légende de 150-220 mots avec :
-- Accroche forte (première ligne qui donne envie d’ouvrir)
-- Corps narratif basé sur le contenu des slides
-- CTA naturel ("Sauvegarde ce post 🔖", "Envoie-le à quelqu’un qui en a besoin")
-- Emojis intégrés dans le texte (pas en liste)
-
-Style demandé : ${style}
-Destination : ${destination || 'non spécifiée'}
-
-Slides :
-${slides.map((s, i) => `${i+1}. ${s.title} - ${s.content}`).join('\n')}`
-
+function lireCaption(brut: string): string {
+  const nettoye = brut.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim()
   try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Génère la légende Instagram pour ce carrousel sur "${topic}"` }
-        ],
-        max_tokens: 500,
-      })
-    })
-
-    if (!response.ok) {
-      console.error('OpenAI error:', response.status)
-      return generateCaption(topic, style, destination)
+    return String(JSON.parse(nettoye)?.caption ?? '').trim()
+  } catch {
+    const m = nettoye.match(/\{[\s\S]*\}/)
+    if (m) {
+      try {
+        return String(JSON.parse(m[0])?.caption ?? '').trim()
+      } catch {
+        /* texte brut ci-dessous */
+      }
     }
-
-    const data = await response.json()
-    return data.choices[0]?.message?.content || generateCaption(topic, style, destination)
-  } catch (error) {
-    console.error('OpenAI caption error:', error)
-    return generateCaption(topic, style, destination)
+    return nettoye.replace(/^"|"$/g, '').trim()
   }
 }
 
 export async function POST(request: NextRequest) {
-  const authResponse = await requireCmsAuth(request)
-  if (authResponse) return authResponse
+  const refus = await requireCmsAuth(request)
+  if (refus) return refus
 
-  try {
-    const body = await request.json()
-    const { topic, destination, slides, style, defaultHashtags } = body
+  const body = await request.json().catch(() => ({}))
+  const slides: { title?: string; content?: string }[] = Array.isArray(body.slides) ? body.slides : []
+  const destination = String(body.destination ?? '')
+  const defaults = String(body.defaultHashtags ?? '')
 
-    if (!topic) {
-      return NextResponse.json({ error: 'Topic requis' }, { status: 400 })
-    }
+  const source = slides
+    .map((s) => `${String(s.title ?? '').trim()}\n${String(s.content ?? '').trim()}`.trim())
+    .filter(Boolean)
+    .join('\n\n')
 
-    // Generate caption (OpenAI if available)
-    const caption = await generateWithOpenAI(topic, slides || [], style || 'narratif', destination)
-    
-    // Generate hashtags
-    let hashtags = generateHashtags(topic, destination, style)
-    
-    // Add default hashtags from brand config
-    if (defaultHashtags) {
-      const defaultTags = defaultHashtags.split(' ').filter((t: string) => t.startsWith('#'))
-      hashtags = [...new Set([...defaultTags, ...hashtags])]
-    }
-
-    return NextResponse.json({
-      success: true,
-      caption,
-      hashtags: hashtags.slice(0, 30),
-      stats: {
-        captionLength: caption.length,
-        hashtagCount: hashtags.length,
-      }
-    })
-  } catch (error) {
-    console.error('Caption generation error:', error)
-    return NextResponse.json({ error: 'Erreur lors de la génération' }, { status: 500 })
+  if (source.length < SOURCE_MIN) {
+    return NextResponse.json(
+      { success: false, error: 'Écris d’abord les diapositives : la légende se fait avec leurs mots, pas avec un sujet.' },
+      { status: 400 }
+    )
   }
+
+  const dansSource = new Set(nombres(source))
+  let caption = ''
+  let interdits: string[] = []
+  let fournisseur = ''
+  try {
+    for (let essai = 0; essai < 2; essai++) {
+      const result = await generateAiCompletion({
+        messages: [
+          { role: 'system', content: consigne(interdits) },
+          { role: 'user', content: `TEXTE DES DIAPOSITIVES :\n---\n${source}\n---` },
+        ],
+        temperature: 0.3,
+        max_tokens: 500,
+        jsonMode: true,
+      })
+      fournisseur = `${result.provider}/${result.model}`
+      caption = lireCaption(result.content)
+      const ajoutes = nombres(caption).filter((n) => !dansSource.has(n))
+      if (!ajoutes.length) break
+      interdits = [...new Set(ajoutes)]
+    }
+  } catch (e) {
+    const raison = e instanceof Error ? e.message : String(e)
+    console.error('carousel-caption — fournisseur IA:', raison)
+    return NextResponse.json({ success: false, error: `L'assistant ne répond pas : ${raison}` }, { status: 502 })
+  }
+
+  if (!caption) {
+    return NextResponse.json({ success: false, error: "L'assistant n'a rien rendu d'exploitable. Réessaie." }, { status: 502 })
+  }
+
+  const ajoutsRestants = [
+    ...new Set(nombres(caption).filter((n) => !dansSource.has(n))),
+    ...ajoutsParRapportA(caption, source).map((a) => `${LIBELLES_AJOUT[a.type]} : ${a.mot}`),
+  ]
+  if (ajoutsRestants.length) {
+    caption = `[À TOI : la légende contient ce que les diapositives ne disent pas (${ajoutsRestants.join(', ')}) — corrige-la]\n${caption}`
+  }
+  const voix = validateGardeFous(caption, 'b2c')
+  const tags = hashtags(destination, defaults)
+
+  return NextResponse.json({
+    success: true,
+    caption,
+    hashtags: tags,
+    stats: { captionLength: caption.length, hashtagCount: tags.length },
+    meta: { fournisseur, voix: { score: voix.score, mots_bannis: voix.forbiddenFound }, ajouts_non_sources: ajoutsRestants },
+  })
 }

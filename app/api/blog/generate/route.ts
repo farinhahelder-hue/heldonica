@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { HELDONICA_SYSTEM_PROMPT, checkBrandVoice } from '@/lib/brand-voice'
 import { requireCmsAuth } from '@/lib/cms-auth'
+import { generateAiCompletion } from '@/lib/ai-provider'
+import { extraireRevendications, ajoutsParRapportA, LIBELLES_AJOUT } from '@/lib/revendications'
 
 export const maxDuration = 60
 
@@ -30,15 +32,6 @@ export async function POST(req: NextRequest) {
   const refus = await requireCmsAuth(req as unknown as Request)
   if (refus) return refus
 
-  const GROQ_API_KEY = process.env.GROQ_API_KEY || ''
-  
-  if (!GROQ_API_KEY) {
-    return NextResponse.json(
-      { success: false, error: 'GROQ_API_KEY non configurée' },
-      { status: 500 }
-    )
-  }
-
   try {
     const body: BlogGenerationRequest = await req.json()
     const { topic, destination = '', notes = '', seoKeywords = '', tone = 'informatif', language = 'FR', style = 'story', length = 'medium' } = body
@@ -67,41 +60,44 @@ export async function POST(req: NextRequest) {
     // Build prompt
     const prompt = buildBlogPrompt(topic, destination, notes, seoKeywords, style, length)
 
-    // Call Groq API
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${GROQ_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'llama-3.1-70b-versatile',
+    // Le client partagé (lib/ai-provider.ts) porte l'identifiant de modèle :
+    // celui écrit ici, « llama-3.1-70b-versatile », avait été retiré par Groq
+    // et le bouton échouait en silence.
+    let content = ''
+    try {
+      const result = await generateAiCompletion({
         messages: [
           {
             role: 'system',
-            content: `${HELDONICA_SYSTEM_PROMPT}\n\n${language === 'EN' ? 'EXCEPTION: Write in English for this article only, but keep the Heldonica voice.' : 'Écris en français.'}`
+            content: `${HELDONICA_SYSTEM_PROMPT}
+
+${language === 'EN' ? 'EXCEPTION: Write in English for this article only, but keep the Heldonica voice.' : 'Écris en français.'}`,
           },
-          {
-            role: 'user',
-            content: prompt
-          }
+          { role: 'user', content: prompt },
         ],
         max_tokens: getMaxTokens(length),
-        temperature: 0.75,
-      }),
-    })
-
-    if (!response.ok) {
-      const error = await response.text()
-      console.error('Groq API error:', error)
-      return NextResponse.json(
-        { success: false, error: 'Erreur API' },
-        { status: 500 }
-      )
+        temperature: 0.5,
+      })
+      content = result.content
+    } catch (e) {
+      const raison = e instanceof Error ? e.message : String(e)
+      console.error('Blog generation — fournisseur IA:', raison)
+      return NextResponse.json({ success: false, error: `L'assistant ne répond pas : ${raison}` }, { status: 502 })
     }
 
-    const data = await response.json()
-    const content = data.choices?.[0]?.message?.content || ''
+    // Ce que le texte affirme et que les notes ne contiennent pas : chiffres,
+    // prix, horaires. Le modèle a pour consigne de ne rien ajouter ; on le
+    // mesure au lieu de le croire, et on le dit à l'autrice.
+    const notesNorm = notes.toLowerCase()
+    const ajouts = extraireRevendications(content, 40).extraits
+      .filter((r) => r.type === 'prix' || r.type === 'chiffre' || r.type === 'horaire')
+      .map((r) => r.phrase)
+      .filter((ph) => {
+        const nombres = ph.match(/\d+(?:[.,]\d+)?/g) || []
+        return nombres.some((n) => !notesNorm.includes(n.toLowerCase()))
+      })
+    // …et les sensations ou répliques que les notes ne contiennent pas.
+    for (const a of ajoutsParRapportA(content, notes)) ajouts.push(`${LIBELLES_AJOUT[a.type]} : ${a.mot}`)
 
     // Parse the response
     const parsed = parseBlogResponse(content, length)
@@ -111,6 +107,7 @@ export async function POST(req: NextRequest) {
       success: true,
       ...parsed,
       voiceCheck,
+      ajouts_non_sources: ajouts,
     })
 
   } catch (error) {
@@ -147,7 +144,8 @@ function buildBlogPrompt(topic: string, destination: string, notes: string, seoK
 
 LA RÈGLE QUI PRIME SUR TOUT : tu n'ajoutes RIEN qui ne soit dans les notes.
 - Aucun fait, chiffre, prix, horaire, distance, durée, date, nom de lieu, d'adresse ou de plat absent des notes.
-- Aucune sensation (odeur, goût, son, texture) que les notes ne décrivent pas.
+- Aucune sensation (odeur, goût, son, texture, température) que les notes ne décrivent pas.
+- Aucun dialogue, aucune réplique entre guillemets, aucune pensée prêtée à quelqu'un, qui ne soient dans les notes.
 - Là où la structure appellerait un détail que les notes ne donnent pas, tu écris exactement : [À TOI : ce qui manque] — et rien d'autre.
 - Les titres de sections décrivent le contenu (« Le marché à 7 h »), jamais la consigne (« Accroche vécue », « Détail sensoriel »).
 
@@ -161,6 +159,8 @@ LES NOTES (la seule source autorisée) :
 ---
 ${notes}
 ---
+
+FORMAT : Markdown simple. Première ligne : « # » puis le titre. Sections : « ## » puis un titre tiré du contenu. Paragraphes en texte brut, sans gras ni italique, sans liste à puces, sans emoji.
 
 `
   if (seoKeywords) prompt += `Inclure naturellement ces mots-clés (sans les forcer, sans inventer un fait pour les placer) : ${seoKeywords}\n\n`
@@ -179,7 +179,7 @@ function getMaxTokens(length: string): number {
 function parseBlogResponse(content: string, length: string) {
   // Extract title
   const titleMatch = content.match(/^#?\s*(.+)$/m)
-  const title = titleMatch?.[1]?.trim() || 'Mon voyage à...'
+  const title = (titleMatch?.[1]?.trim() || 'Mon voyage à...').replace(/^\*\*|\*\*$/g, '').trim()
 
   // Extract excerpt
   const lines = content.split('\n')
