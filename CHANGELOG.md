@@ -4,6 +4,21 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-09-21] — Le Copilote met en forme, il n'est plus une source (commit `3053cb1`)
+
+### Constat
+Onze modes exposés dans la modale de l'éditeur. Trois fabriquaient par construction : **« Notes ➔ Carnet »** (« rédige un carnet complet de 1 200 à 1 800 mots », structure « Accroche vécue, Histoire humaine, Détails sensoriels » — **le générateur des brouillons 119 et 120**, titres-consignes compris), **« Page Hub »** (« 3 pépites testées (nom, ressenti, prix réel) », notes par défaut « Découverte immersive en duo »), **« Témoignage / Étude »** (« résultats chiffrés » d'un client inexistant — la catégorie de l'incident du 19/08). Les autres poussaient à ajouter.
+
+### Fait
+- `REGLE_SOURCE` dans chaque consigne ; `[À TOI]` là où ça manque ; titres = contenu.
+- « Mettre en forme mes notes » : au plus 2× les notes, notes ≥ 200 caractères exigées. « Zones de page depuis mes notes » : refuse sans notes. Témoignage : **retiré**. « Trame de repérage (à remplir) » : une grille de `[À TOI]`, aucun établissement, aucun avis. « Sublimer » : la forme seulement.
+- La route mesure chiffres, sensations et répliques absents de l'entrée (`ajouts_non_sources`) ; la modale les affiche avant « Insérer ».
+- Les messages du garde-fou de voix ne disent plus « Ajouter au moins 1 détail sensoriel » mais « n'en invente pas ».
+
+Vérifié en local sur cinq modes ; à l'écran, la modale rend le texte et le bloc de mesure.
+
+---
+
 ## [2026-09-21] — L'IA du panneau ne marchait plus depuis des mois : modèles retirés ; socle réparé, carrousel/légendes/article sur les mots de l'autrice (commits `2252641`, `d2ee392`)
 
 ### Constat, mesuré avec les clés locales
