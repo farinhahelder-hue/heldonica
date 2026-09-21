@@ -4,6 +4,22 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-09-21] — Premier import Google Photos réel : 135 photos téléversées, 0 fiche — réparé, repris, et un premier `voyage.md` (commits `e0187f0`, `9f90d1e`)
+
+### Constat
+L'autrice a sélectionné 135 photos de Roumanie dans le Picker, en production : **la connexion Google Photos fonctionne** (première preuve depuis la configuration du 01/09). Les fichiers arrivent dans `media/destinations/roumanie`, mais `cms_media` reste à 0 : l'upsert faisait `on conflict (google_photo_id)` sans contrainte unique — 42P10 à chaque photo, après le téléversement. Autre constat : Google retire le GPS des fichiers du Picker (0/135), et réencode certains fichiers (Osmo Mobile → « Software: Picasa ») en perdant la date EXIF.
+
+### Fait
+- Migrations : index unique sur `cms_media.path` (un objet du stockage = une fiche). L'index partiel ne satisfait pas `ON CONFLICT` via PostgREST — remplacé par un index plein.
+- Route d'import : conflit sur `path` ; date du nom de fichier en repli (`DJI_20260827_222212`, `IMG_…`, `PXL_…`, écrite par l'appareil), étiquetée `metadata.date_source = exif | google | nom_fichier | aucune`.
+- `scripts/reprise_media_storage.py` : recrée les fiches depuis le stockage, idempotent par chemin. Exécuté : **135 fiches, 135 datées (124 EXIF, 11 nom de fichier), 0 GPS, 0 échec**.
+- `scripts/reconstituer_voyage.py` : `--timeline` facultatif avec des photos ; sans Timeline, les photos datées sont regroupées en **moments** (séries sans trou > 45 min), un `[A TOI]` par moment, aucun lieu déduit. Produit : `imports/roumanie-2026/voyage.md` — 2 jours (25 et 27 août), 4 moments.
+
+### À retenir
+Le Picker ne rend pas le GPS : la Timeline reste la seule source des lieux. Une photo dont l'EXIF a été réencodé par Google garde sa date dans son nom — c'est une donnée de l'appareil, à étiqueter, pas à cacher.
+
+---
+
 ## [2026-09-21] — Le Copilote met en forme, il n'est plus une source (commit `3053cb1`)
 
 ### Constat
