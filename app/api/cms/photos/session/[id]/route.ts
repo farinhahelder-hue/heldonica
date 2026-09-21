@@ -47,6 +47,21 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
  * du ressort de l'auteur : c'est la ligne que trace AGENTS.md, et la raison
  * d'être de ce registre.
  */
+/**
+ * DJI_20260827_222212_341.jpg, IMG_20260827_134657.jpg, PXL_… : l'appareil
+ * écrit l'instant de prise de vue dans le nom. Google réencode certains
+ * fichiers du Picker (« Software: Picasa ») et y perd DateTimeOriginal —
+ * mesuré le 21/09/2026 sur les photos d'un Osmo Mobile. Le nom reste une
+ * donnée de l'appareil, pas une déduction ; on l'étiquette comme telle.
+ */
+function dateDuNom(nom: string): string | null {
+  const m = nom.match(/(20\d{2})(\d{2})(\d{2})[_-](\d{2})(\d{2})(\d{2})/);
+  if (!m) return null;
+  const [, a, mo, j, h, mi, se] = m;
+  const d = new Date(`${a}-${mo}-${j}T${h}:${mi}:${se}`);
+  return isNaN(d.valueOf()) ? null : d.toISOString();
+}
+
 async function lireExif(buffer: Buffer) {
   try {
     const d = await exifr.parse(buffer, { gps: true, tiff: true, exif: true });
@@ -125,6 +140,11 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
         const meta = estVideo
           ? { lat: null, lon: null, prise: item.createTime ?? null, appareil: null }
           : await lireExif(buffer);
+        let dateSource: 'exif' | 'google' | 'nom_fichier' | 'aucune' = estVideo ? 'google' : meta.prise ? 'exif' : 'aucune';
+        if (!meta.prise) {
+          const duNom = dateDuNom(nom);
+          if (duNom) { meta.prise = duNom; dateSource = 'nom_fichier'; }
+        }
 
         if (!estVideo && meta.lat === null) sansGps.push(nom);
 
@@ -148,9 +168,14 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
               largeur: mf.mediaFileMetadata?.width ?? null,
               hauteur: mf.mediaFileMetadata?.height ?? null,
               destination: dossier,
+              date_source: dateSource,
             },
           },
-          { onConflict: 'google_photo_id' }
+          // Un objet du stockage = une fiche : le chemin est la clé (index
+          // unique cms_media_path_key). L'ancien conflit sur google_photo_id
+          // n'avait aucune contrainte derrière : 42P10 à chaque photo, après
+          // le téléversement — 135 fichiers, 0 fiche, le 21/09/2026.
+          { onConflict: 'path' }
         );
         if (erreurBase) throw new Error(erreurBase.message);
 
