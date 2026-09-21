@@ -17,7 +17,6 @@ type AiMode =
   | 'destination_hub'
   | 'b2c_instagram'
   | 'b2b_linkedin'
-  | 'case_study'
   | 'audit_refresh'
   | 'structure_itinerary'
   | 'generate_excerpt';
@@ -37,6 +36,7 @@ export default function AiCopilotModal({
   const [guidedDetail, setGuidedDetail] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
+  const [ajouts, setAjouts] = useState<string[]>([]);
   const [variants, setVariants] = useState<[string, string] | null>(null);
   const [validation, setValidation] = useState<any | null>(null);
   const [providerInfo, setProviderInfo] = useState<string | null>(null);
@@ -66,6 +66,7 @@ export default function AiCopilotModal({
     setVariants(null);
     setValidation(null);
     setProviderInfo(null);
+    setAjouts([]);
 
     try {
       const res = await fetch('/api/cms/ai-assist', {
@@ -94,6 +95,7 @@ export default function AiCopilotModal({
       if (data.validation) {
         setValidation(data.validation);
       }
+      setAjouts(Array.isArray(data.ajouts_non_sources) ? data.ajouts_non_sources : []);
 
       if (mode === 'voice_polish' && data.data) {
         const d = data.data;
@@ -178,14 +180,13 @@ export default function AiCopilotModal({
           {[
             { key: 'guided_from_facts', label: '🧭 Partir de 3 infos' },
             { key: 'voice_polish', label: '🌿 Sublimer la Voix' },
-            { key: 'expand_notes', label: '📝 Notes ➔ Carnet' },
+            { key: 'expand_notes', label: '📝 Mettre en forme mes notes' },
             { key: 'email_sequence', label: '✉️ Séquence Email' },
-            { key: 'destination_hub', label: '📍 Page Hub / Région' },
+            { key: 'destination_hub', label: '📍 Zones de page depuis mes notes' },
             { key: 'b2c_instagram', label: '📸 Caption Instagram' },
             { key: 'b2b_linkedin', label: '💼 LinkedIn (P-A-S)' },
-            { key: 'case_study', label: '🏆 Témoignage / Étude' },
             { key: 'audit_refresh', label: '🔄 Audit 3R Ancien Contenu' },
-            { key: 'structure_itinerary', label: '🗺️ Itinéraire Slow' },
+            { key: 'structure_itinerary', label: '🗺️ Trame de repérage (à remplir)' },
             { key: 'generate_excerpt', label: '🎯 Accroche' },
           ].map((tab) => (
             <button
@@ -293,13 +294,11 @@ export default function AiCopilotModal({
             <div>
               <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
                 {mode === 'expand_notes'
-                  ? 'Vos données / notes de terrain vérifiées'
+                  ? 'Tes notes de terrain — le Copilote les met en forme, il n’écrit pas à leur place'
                   : mode === 'audit_refresh'
                   ? 'Ancien texte à auditer et réécrire selon les 3R'
-                  : mode === 'case_study'
-                  ? 'Faits sur le couple ou l’hôtel accompagné'
                   : mode === 'b2b_linkedin'
-                  ? 'Faits chiffrés ou friction hôtelière constatée'
+                  ? 'Ce que tu as constaté chez l’hôtelier (les chiffres, seulement les vrais)'
                   : mode === 'voice_polish'
                   ? 'Texte à reformuler / polir'
                   : 'Notes, contexte ou texte source'}
@@ -414,6 +413,21 @@ export default function AiCopilotModal({
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Ce que le modèle a ajouté par rapport à ce que tu as donné */}
+          {(result || variants) && (
+            <div className={`rounded-xl border px-4 py-3 text-xs ${ajouts.length ? 'border-amber-200 bg-amber-50 text-amber-900' : 'border-stone-200 bg-stone-50 text-stone-600'}`}>
+              {ajouts.length ? (
+                <>
+                  <div className="font-semibold">Le texte contient ce que tes notes ne disent pas :</div>
+                  <div className="mt-1">{ajouts.join(' · ')}</div>
+                  <div className="mt-1 opacity-80">À retirer ou à confirmer avant d&apos;insérer — c&apos;est toi qui sais.</div>
+                </>
+              ) : (
+                'Aucun chiffre, sensation ou réplique ajoutés par rapport à tes notes. Relis quand même : c’est toi qui publies.'
+              )}
             </div>
           )}
 

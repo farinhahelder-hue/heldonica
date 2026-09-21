@@ -220,10 +220,10 @@ export function validateGardeFous(text: string, audience: 'b2c' | 'b2b' = 'b2c')
   const checks = {
     pronouns: { ok: pronounsOk, weight: 20, message: pronounsOk ? 'Pronoms 100% conformes (« on » + « tu »)' : 'Corriger les pronoms : bannir "je", "nous", "les voyageurs", utiliser "on" et "tu"' },
     forbidden: { ok: forbiddenOk, weight: 20, message: forbiddenOk ? '0 mot interdit' : `Mots interdits détectés : ${forbiddenFound.join(', ')}` },
-    eeat: { ok: eeatOk, weight: 15, message: eeatOk ? 'E-E-A-T validé (visites réelles, saison, dates)' : 'Ajouter au moins 1 mention de visite réelle, saison ou date de mise à jour' },
-    sensory: { ok: sensoryOk, weight: 15, message: sensoryOk ? 'Détail sensoriel présent' : 'Ajouter au moins 1 détail sensoriel (odeur, texture, son, goût)' },
-    honesty: { ok: honestyOk, weight: 10, message: honestyOk ? 'Honnêteté / nuance présente' : 'Ajouter la section ou mention « Ce qu’on a moins aimé »' },
-    geo: { ok: geoOk, weight: 10, message: geoOk ? 'Infos GEO extractibles (≥3 repères)' : 'Fournir au moins 3 repères concrets (adresses, prix, durées, itinéraires)' },
+    eeat: { ok: eeatOk, weight: 15, message: eeatOk ? 'E-E-A-T validé (visites réelles, saison, dates)' : 'Aucune mention de quand on y était (saison, date) — ajoute-la seulement si c’est vrai, jamais pour le score' },
+    sensory: { ok: sensoryOk, weight: 15, message: sensoryOk ? 'Détail sensoriel présent' : 'Aucun détail sensoriel — n’en invente pas : si tu en as un en mémoire (odeur, texture, son, goût), écris-le' },
+    honesty: { ok: honestyOk, weight: 10, message: honestyOk ? 'Honnêteté / nuance présente' : 'Pas de « Ce qu’on a moins aimé » — si tu as un vrai bémol, dis-le ; sinon laisse' },
+    geo: { ok: geoOk, weight: 10, message: geoOk ? 'Infos GEO extractibles (≥3 repères)' : 'Moins de 3 repères concrets (adresses, prix, durées) — seulement ceux que tu as notés' },
     cta: { ok: ctaOk, weight: 10, message: ctaOk ? 'CTA doux et sobre' : 'Remplacer l’appel agressif par un CTA doux (« on en parle en DM », « lien en bio »)' },
   };
 
