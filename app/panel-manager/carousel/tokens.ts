@@ -114,27 +114,6 @@ export const HELDONICA_BRAND: BrandConfig = {
 }
 
 // Prompt templates for AI generation
-export const PROMPT_TEMPLATES = {
-  destinations: [
-    "Crée un carrousel {n} slides sur {destination}",
-    "Top {n} endroits pour {activity} à {destination}",
-    "{n} bonnes raisons de visiter {destination}",
-    "Comment explorer {destination} en mode slow travel",
-  ],
-  tips: [
-    "{n} conseils pour {topic}",
-    "Les secrets de {topic} que personne ne vous dit",
-    "Guide complet : {topic} pour débutants",
-    "{n} erreurs à éviter sur {topic}",
-  ],
-  romantic: [
-    "{n} escapades romantiques pour couples",
-    "Week-end en amoureux : {destination}",
-    "Voyage à deux : {n} destinations",
-    "{n} expériences couple à {destination}",
-  ],
-}
-
 export function generateId() {
   return Math.random().toString(36).substring(2, 9)
 }

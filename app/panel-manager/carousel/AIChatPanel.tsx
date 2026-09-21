@@ -1,13 +1,14 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
-import { HELDONICA_TOKENS, SlideData, PROMPT_TEMPLATES } from './tokens'
+import { useState } from 'react'
+import { SlideData } from './tokens'
 
-interface Message {
-  role: 'user' | 'assistant'
-  content: string
-  slides?: SlideData[]
-}
+// Tes notes → des diapositives. Ce panneau était un « chat IA » avec des
+// gabarits « Top {n} endroits pour {activité} à {destination} », « Les secrets
+// de {sujet} que personne ne vous dit » : une invitation à inventer, et sans
+// clé OpenAI la route rendait des slogans à trous. Ici : un seul champ, tes
+// notes en vrac ; l'assistant découpe et resserre, et la route signale tout
+// chiffre qu'il aurait ajouté.
 
 interface AIChatPanelProps {
   onSlidesGenerated: (slides: SlideData[]) => void
@@ -15,209 +16,115 @@ interface AIChatPanelProps {
   setIsGenerating: (v: boolean) => void
 }
 
-const QUICK_PROMPTS = [
-  { icon: '🌍', label: 'Destinations', prompts: PROMPT_TEMPLATES.destinations },
-  { icon: '💡', label: 'Conseils', prompts: PROMPT_TEMPLATES.tips },
-  { icon: '💑', label: 'Romantique', prompts: PROMPT_TEMPLATES.romantic },
-]
+type Resultat =
+  | { ok: true; nb: number; fournisseur?: string; voix?: { score: number; mots_bannis: string[] }; ajouts: string[] }
+  | { ok: false; erreur: string }
+
+const NOTES_MIN = 80
 
 export default function AIChatPanel({ onSlidesGenerated, isGenerating, setIsGenerating }: AIChatPanelProps) {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: 'assistant',
-      content: `Bienvenue ! Je suis votre assistant Carrousel Heldonica ✨
-
-Je crée des carrousels Instagram personnalisés avec le style slow travel et éco-luxe de la marque.
-
-💡 Tips :
-• Précisez le nombre de slides (ex: "5 slides")
-• Mentionnez une destination (ex: Portugal, Madère)
-• Utilisez les exemples rapides ci-dessous`
-    }
-  ])
-  const [input, setInput] = useState('')
+  const [notes, setNotes] = useState('')
   const [slideCount, setSlideCount] = useState(5)
-  const [showTemplates, setShowTemplates] = useState(true)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [resultat, setResultat] = useState<Resultat | null>(null)
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
-
-  const handleSubmit = async (e: React.FormEvent, prompt?: string) => {
+  const decouper = async (e: React.FormEvent) => {
     e.preventDefault()
-    const userPrompt = prompt || input.trim()
-    if (!userPrompt || isGenerating) return
-
-    setInput('')
-    setShowTemplates(false)
-    setMessages(prev => [...prev, { role: 'user', content: userPrompt }])
+    if (isGenerating || notes.trim().length < NOTES_MIN) return
     setIsGenerating(true)
-
+    setResultat(null)
     try {
       const res = await fetch('/api/cms/carousel-generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt: userPrompt,
-          slideCount,
-          brand: 'heldonica',
-          style: HELDONICA_TOKENS.style,
-        })
+        body: JSON.stringify({ notes: notes.trim(), slideCount }),
       })
-
-      const data = await res.json()
-
-      if (data.slides && data.slides.length > 0) {
-        const responseContent = `J’ai généré ${data.slides.length} slides pour "${data.meta.prompt}"
-
-Chaque slide utilise une couleur différente de la palette Heldonica. Vous pouvez les réorganiser dans le filmstrip ou modifier chaque slide.`
-
-        setMessages(prev => [...prev, {
-          role: 'assistant',
-          content: responseContent,
-          slides: data.slides
-        }])
-        onSlidesGenerated(data.slides)
-      } else {
-        setMessages(prev => [...prev, {
-          role: 'assistant',
-          content: data.error || "Je n’ai pas pu générer de carrousel. Essayez une description plus précise."
-        }])
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || !data.slides?.length) {
+        setResultat({ ok: false, erreur: data.error || `L'assistant n'a pas répondu (HTTP ${res.status}).` })
+        return
       }
+      onSlidesGenerated(data.slides)
+      setResultat({
+        ok: true,
+        nb: data.slides.length,
+        fournisseur: data.meta?.fournisseur,
+        voix: data.meta?.voix,
+        ajouts: data.meta?.ajouts_non_sources ?? [],
+      })
     } catch (err) {
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: "Une erreur technique s’est produite. Veuillez réessayer."
-      }])
+      setResultat({ ok: false, erreur: err instanceof Error ? err.message : String(err) })
     } finally {
       setIsGenerating(false)
     }
   }
 
+  const manque = Math.max(0, NOTES_MIN - notes.trim().length)
+
   return (
     <div className="flex flex-col h-full bg-white rounded-2xl border border-stone-200 overflow-hidden">
-      {/* Header */}
-      <div className="px-4 py-3 border-b border-stone-200 bg-gradient-to-r from-[#6b2a1a] to-[#4a7c59]">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="font-semibold text-white text-sm">🤖 Assistant Carrousel IA</h3>
-            <p className="text-xs text-white/80">Génération en langage naturel</p>
-          </div>
-          <button
-            onClick={() => setShowTemplates(!showTemplates)}
-            className="px-2 py-1 text-xs bg-white/20 text-white rounded-lg hover:bg-white/30 transition-colors"
-          >
-            {showTemplates ? 'Masquer' : 'Afficher'} tips
-          </button>
-        </div>
+      <div className="px-4 py-3 border-b border-stone-200">
+        <h3 className="font-semibold text-stone-800 text-sm">Tes notes → diapositives</h3>
+        <p className="text-xs text-stone-500 mt-0.5">
+          L&apos;assistant découpe et resserre ce que tu as écrit. Il n&apos;ajoute ni lieu, ni chiffre, ni sensation.
+        </p>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((msg, i) => (
-          <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${
-              msg.role === 'user'
-                ? 'bg-[#6b2a1a] text-white rounded-br-md'
-                : 'bg-stone-100 text-stone-800 rounded-bl-md'
-            }`}>
-              <p className="whitespace-pre-wrap">{msg.content}</p>
-              {msg.slides && msg.slides.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-stone-200/30">
-                  <div className="flex gap-1 flex-wrap">
-                    {msg.slides.slice(0, 5).map((slide, si) => (
-                      <span key={si} className="px-2 py-1 bg-white/50 rounded text-xs">
-                        {slide.title.substring(0, 20)}
-                      </span>
-                    ))}
-                    {msg.slides.length > 5 && (
-                      <span className="px-2 py-1 bg-white/50 rounded text-xs">
-                        +{msg.slides.length - 5}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
+      <form onSubmit={decouper} className="flex-1 flex flex-col p-4 gap-3 min-h-0">
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          disabled={isGenerating}
+          placeholder={'En vrac : où on était, à quelle heure, ce qu\'on a vu, mangé, ce qui a raté, ce qu\'on a moins aimé. Une idée par ligne, c\'est parfait.'}
+          className="flex-1 min-h-[160px] w-full resize-none rounded-xl border border-stone-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59] disabled:bg-stone-100"
+        />
+        <div className="flex items-center justify-between text-xs text-stone-500">
+          <span className={manque > 0 ? 'text-stone-400' : 'text-[#2D8B7A]'}>
+            {manque > 0 ? `encore ${manque} caractère${manque > 1 ? 's' : ''}` : `${notes.trim().length} caractères`}
+          </span>
+          <label className="flex items-center gap-2">
+            <span>Diapositives</span>
+            <input
+              type="range"
+              min={2}
+              max={10}
+              value={slideCount}
+              onChange={(e) => setSlideCount(Number(e.target.value))}
+              disabled={isGenerating}
+              className="w-24 accent-[#4a7c59]"
+            />
+            <span className="w-5 font-medium text-stone-700">{slideCount}</span>
+          </label>
+        </div>
+        <button
+          type="submit"
+          disabled={isGenerating || manque > 0}
+          className="w-full rounded-full bg-[#4a7c59] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#3d6749] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isGenerating ? 'Découpage…' : 'Découper en diapositives'}
+        </button>
+
+        {resultat && !resultat.ok && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">{resultat.erreur}</div>
+        )}
+        {resultat && resultat.ok && (
+          <div className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-xs text-stone-700 space-y-1">
+            <div>
+              {resultat.nb} diapositive{resultat.nb > 1 ? 's' : ''} depuis tes notes
+              {resultat.voix && ` · voix ${resultat.voix.score}/100`}
+              {resultat.voix && resultat.voix.mots_bannis.length > 0 && ` · mots bannis : ${resultat.voix.mots_bannis.join(', ')}`}
             </div>
-          </div>
-        ))}
-        {isGenerating && (
-          <div className="flex justify-start">
-            <div className="bg-stone-100 rounded-2xl rounded-bl-md px-4 py-3">
-              <div className="flex gap-1">
-                <span className="w-2 h-2 bg-stone-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span className="w-2 h-2 bg-stone-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <span className="w-2 h-2 bg-stone-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+            {resultat.ajouts.length > 0 ? (
+              <div className="text-amber-900">
+                L&apos;assistant avait ajouté un chiffre absent de tes notes ({resultat.ajouts.join(', ')}) : la diapositive concernée porte un [À TOI].
               </div>
-            </div>
+            ) : (
+              <div className="text-stone-500">Aucun chiffre ajouté. Relis quand même : c&apos;est toi qui publies.</div>
+            )}
           </div>
         )}
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Quick templates */}
-      {showTemplates && (
-        <div className="px-4 py-2 border-t border-stone-100 bg-stone-50">
-          <p className="text-xs text-stone-500 mb-2">Exemples rapides :</p>
-          <div className="space-y-1">
-            {QUICK_PROMPTS.map((category, ci) => (
-              <details key={ci} className="group">
-                <summary className="text-xs px-2 py-1 cursor-pointer hover:bg-stone-100 rounded flex items-center gap-1">
-                  <span>{category.icon}</span>
-                  <span className="text-stone-600">{category.label}</span>
-                  <span className="ml-auto text-stone-400 group-open:rotate-90 transition-transform">▶</span>
-                </summary>
-                <div className="pl-4 mt-1 space-y-1">
-                  {category.prompts.slice(0, 2).map((p, pi) => (
-                    <button
-                      key={pi}
-                      onClick={(e) => handleSubmit(e, p.replace('{n}', '5').replace('{destination}', 'Madère').replace('{activity}', 'randonnée').replace('{topic}', 'slow travel'))}
-                      className="block w-full text-left text-xs px-2 py-1 bg-white rounded hover:bg-stone-100 text-stone-500 truncate"
-                    >
-                      {p.split('{')[0]}...
-                    </button>
-                  ))}
-                </div>
-              </details>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Slide count selector */}
-      <div className="px-4 py-2 border-t border-stone-100 bg-stone-50 flex items-center gap-3">
-        <span className="text-xs text-stone-500">Slides :</span>
-        <input
-          type="range"
-          min="1"
-          max="10"
-          value={slideCount}
-          onChange={(e) => setSlideCount(parseInt(e.target.value))}
-          className="flex-1 h-1 bg-stone-200 rounded-lg appearance-none cursor-pointer"
-        />
-        <span className="text-xs font-medium text-stone-700 w-6">{slideCount}</span>
-      </div>
-
-      {/* Input */}
-      <form onSubmit={handleSubmit} className="p-4 border-t border-stone-200">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ex: Crée un carrousel sur Madère..."
-            className="flex-1 px-3 py-2 text-sm border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6b2a1a]/30 focus:border-[#6b2a1a]"
-            disabled={isGenerating}
-          />
-          <button
-            type="submit"
-            disabled={isGenerating || !input.trim()}
-            className="px-4 py-2 bg-[#6b2a1a] text-white text-sm font-medium rounded-xl hover:bg-[#6b2a1a]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {isGenerating ? '...' : '→'}
-          </button>
-        </div>
+        <p className="text-[11px] text-stone-400">
+          Sans IA : « Coller un texte », à droite, découpe ligne par ligne.
+        </p>
       </form>
     </div>
   )

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireCmsAuth } from '@/lib/cms-auth';
 import { verifyAiAuth } from '@/lib/ai-auth';
 import { rateLimit, getClientIp } from '@/lib/rate-limit';
+import { GEMINI_MODEL } from '@/lib/ai-provider';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -10,13 +11,14 @@ const SYSTEM_PROMPT = `Tu es la voix éditoriale d'Heldonica (média et concepte
 Notre regard sur le voyage est singulier : il est porté par une sensibilité neuroatypique (TSA), attentive aux micro-détails sensoriels et tangibles que la plupart des gens traversent sans remarquer.
 
 RÈGLES ÉDITORIALES & REGARD SENSORIEL (TSA) :
-1. LE REGARD SUR L'IMAGE :
-- Observe attentivement ce que montre la photo. Décris la matière réelle (le grain du bois, la pierre calcaire rugueuse, les reflets, la céramique artisanale, le lin froissé, la découpe des ombres, la texture des surfaces ou des ingrédients).
-- Sensibilité TSA : relève les micro-détails qui ancrent dans le réel (sensations tactiles, acoustique apaisante suggérée comme un cliquetis feutré ou le souffle du vent, absence de foule ou d'agitation saturante, régularité des formes, authenticité du geste).
-- Règle d'or absolue : « On n'invente rien. On raconte ce qu'on a vécu. » Ne mentionne AUCUN élément absent de l'image.
+1. LA SOURCE — CE QUI PRIME SUR TOUT :
+- Les NOTES de l'autrice, si elles sont données plus bas, sont la seule source du vécu : ce qu'on a fait, ressenti, entendu, goûté. Reprends-les, resserre-les, ne les contredis pas.
+- L'IMAGE ne donne que ce qui est visible : matières, lumière, couleurs, objets, lieu, absence ou présence de gens. Décris-la avec précision (le grain du bois, la pierre, les reflets, la découpe des ombres, le lin froissé).
+- N'AJOUTE RIEN : aucune sensation non visible (son, odeur, toucher, goût, température), aucune action du duo (« on s'est posés », « on a pris le temps ») qui ne soit dans les notes, aucun nom de lieu, aucun chiffre, aucune heure absents des notes et de l'image.
+- Sans notes : décris ce que la photo montre, sans raconter ce que le duo a fait, et termine par exactement « [À TOI : ce que tu as ressenti là] ».
 
 2. ÉMETTEUR DUO (« on » exclusif) :
-- Le duo s'exprime toujours par « on » (« on s'est posés », « ce qui nous a marqués », « on a pris le temps »).
+- Le duo s'exprime toujours par « on » — et seulement pour ce que les notes racontent.
 - Ne dis JAMAIS « je », « nous », « nos », « notre équipe », « la rédaction ».
 
 3. DESTINATAIRE (« tu ») :
@@ -60,6 +62,7 @@ export async function POST(req: NextRequest) {
     let base64Image = '';
     let mimeType = 'image/jpeg';
     let placeTitle = '';
+    let notes = '';
 
     const contentType = req.headers.get('content-type') || '';
 
@@ -68,10 +71,12 @@ export async function POST(req: NextRequest) {
       base64Image = (body.image || '').replace(/^data:image\/[a-zA-Z+]+;base64,/, '');
       mimeType = body.mimeType || 'image/jpeg';
       placeTitle = body.placeTitle || '';
+      notes = String(body.notes || '');
     } else if (contentType.includes('multipart/form-data')) {
       const form = await req.formData();
       const file = form.get('image') as File | null;
       placeTitle = (form.get('place_title') as string) || '';
+      notes = (form.get('notes') as string) || '';
       if (!file) {
         return NextResponse.json({ error: 'Aucun fichier image fourni' }, { status: 400 });
       }
@@ -86,11 +91,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Image requise pour analyse visuelle' }, { status: 400 });
     }
 
-    const promptText = placeTitle.trim()
-      ? `${SYSTEM_PROMPT}\n\nIndication du lieu : ${placeTitle}. Raconte ce que la photo montre avec ce point d'ancrage.`
-      : `${SYSTEM_PROMPT}\n\nRaconte ce que la photo montre avec un regard attentif et sensoriel.`;
+    const blocs = [SYSTEM_PROMPT];
+    if (placeTitle.trim()) blocs.push(`Lieu indiqué par l'autrice : ${placeTitle.trim()}.`);
+    blocs.push(
+      notes.trim()
+        ? `NOTES DE L'AUTRICE (la seule source du vécu) :\n---\n${notes.trim()}\n---\nÉcris la légende à partir de ces notes et de ce que la photo montre.`
+        : `Aucune note : décris ce que la photo montre, sans inventer ce que le duo a fait, et termine par [À TOI : ce que tu as ressenti là].`
+    );
+    const promptText = blocs.join('\n\n');
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
     const geminiRes = await fetch(geminiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -109,9 +119,13 @@ export async function POST(req: NextRequest) {
           }
         ],
         generationConfig: {
-          temperature: 0.5,
-          maxOutputTokens: 2500,
-          responseMimeType: 'application/json'
+          temperature: 0.4,
+          maxOutputTokens: 1500,
+          responseMimeType: 'application/json',
+          // Gemini 2.5 « réfléchit » avant d'écrire et ces jetons se décomptent
+          // de maxOutputTokens : la légende revenait coupée au milieu du JSON
+          // (mesuré le 21/09/2026). Décrire une photo n'a rien à résoudre.
+          thinkingConfig: { thinkingBudget: 0 },
         }
       }),
       signal: AbortSignal.timeout(50_000)
@@ -126,12 +140,23 @@ export async function POST(req: NextRequest) {
     const geminiData = await geminiRes.json();
     const rawOutput = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
 
-    let parsed;
+    let parsed: { caption?: string; hashtags?: unknown; fullText?: string };
     try {
       parsed = JSON.parse(rawOutput);
     } catch {
-      const match = rawOutput.match(/\{[\s\S]*\}/);
-      parsed = match ? JSON.parse(match[0]) : { caption: rawOutput, hashtags: ['#slowtravel', '#heldonica'], fullText: rawOutput };
+      // JSON coupé net (sortie tronquée) : on récupère au moins la valeur de
+      // « caption » plutôt que de renvoyer le JSON brut comme légende.
+      const objet = rawOutput.match(/\{[\s\S]*\}/);
+      const valeur = rawOutput.match(/"caption"\s*:\s*"((?:[^"\\]|\\.)*)/);
+      if (objet) {
+        try {
+          parsed = JSON.parse(objet[0]);
+        } catch {
+          parsed = { caption: valeur ? JSON.parse(`"${valeur[1]}"`) : rawOutput };
+        }
+      } else {
+        parsed = { caption: valeur ? JSON.parse(`"${valeur[1]}"`) : rawOutput };
+      }
     }
 
     const hashtagsList = Array.isArray(parsed.hashtags)

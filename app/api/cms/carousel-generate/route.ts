@@ -1,218 +1,159 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { HELDONICA_TOKENS } from '@/app/panel-manager/carousel/tokens'
 import { requireCmsAuth } from '@/lib/cms-auth'
+import { generateAiCompletion } from '@/lib/ai-provider'
+import { validateGardeFous } from '@/lib/brand-voice'
+import { ajoutsParRapportA, LIBELLES_AJOUT } from '@/lib/revendications'
+import { HELDONICA_TOKENS, SlideData } from '@/app/panel-manager/carousel/tokens'
 
-interface SlideData {
-  id: string
-  title: string
-  content: string
-  cta?: string
-  backgroundColor?: string
-  textColor?: string
-  fontSize?: 'sm' | 'md' | 'lg'
+export const dynamic = 'force-dynamic'
+export const maxDuration = 60
+
+// Tes notes → des diapositives. Rien d'autre.
+//
+// Jusqu'au 21/09/2026 cette route fabriquait des slogans à trous (« Découvrez
+// {sujet} avec Heldonica. Une expérience unique pour les voyageurs… ») dès que
+// la clé OpenAI manquait — et elle manquait en production. Un « chat IA » avec
+// des gabarits « Top {n} endroits » demandait d'inventer. Ici la seule source
+// est ce que l'autrice a écrit : le modèle découpe et resserre, n'ajoute ni
+// lieu, ni chiffre, ni sensation, et on le mesure au lieu de le croire.
+
+const NOTES_MIN = 80
+const DIAPOS_MIN = 2
+const DIAPOS_MAX = 10
+
+function generateId(): string {
+  return `slide-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 }
 
-interface GenerateRequest {
-  prompt: string
-  slideCount?: number
-  brand?: string
-  style?: string
-  destination?: string
-  brandConfig?: {
-    colors?: { primary: string; secondary: string; accent: string; background: string; text: string }
-    keywords?: string[]
-  }
+function nombres(texte: string): string[] {
+  return (texte.match(/\d+(?:[.,]\d+)?/g) || []).map((n) => n.replace(',', '.'))
 }
 
-function generateId() {
-  return Math.random().toString(36).substring(2, 9)
+/** Les chiffres d'une diapositive qui ne sont pas dans les notes. */
+function chiffresAjoutes(diapo: string, notes: string): string[] {
+  const dansNotes = new Set(nombres(notes))
+  return nombres(diapo).filter((n) => !dansNotes.has(n))
 }
 
-// Extract destination from prompt
-function extractDestination(prompt: string): string {
-  const destinations = [
-    'Portugal', 'Madère', 'Espagne', 'France', 'Italie', 'Grèce',
-    'Roumanie', 'Croatie', 'Maroc', 'Japon', 'Portugal',
-    'Provence', 'Bretagne', 'Alsace', 'Côte d\'Azur',
-  ]
-  for (const dest of destinations) {
-    if (prompt.toLowerCase().includes(dest.toLowerCase())) {
-      return dest
+function consigne(nb: number, interdits: string[]): string {
+  return `Découpe les NOTES ci-dessous en ${nb} diapositives Instagram.
+
+LA RÈGLE QUI PRIME : tu n'ajoutes RIEN qui ne soit dans les notes.
+- Aucun lieu, chiffre, prix, horaire, durée, nom, sensation (odeur, son, goût, texture, température) absent des notes. Aucun dialogue ni réplique entre guillemets qui ne soit dans les notes.
+- Tu reprends les mots de l'autrice ; tu resserres, tu ne réécris pas son regard.
+- Voix : « on » pour le duo, « tu » pour le lecteur. Jamais « je », « nous », « vous », « les voyageurs ».
+- Aucun mot de ceux-ci : pépite, incontournable, bon plan, must-see, paradis, magnifique, splendide, incroyable, inoubliable, spot, découvrez, plongez.
+- Pas de point d'exclamation, pas d'enthousiasme forcé, pas d'appel à l'action.
+- Si les notes ne remplissent pas ${nb} diapositives, rends-en moins : jamais de remplissage.
+${interdits.length ? `- INTERDIT (chiffres absents des notes que tu avais ajoutés) : ${interdits.join(', ')}.\n` : ''}
+Chaque diapositive : "title" = 8 mots maximum, tiré des notes ; "content" = 30 mots maximum, tiré des notes.
+
+Réponds UNIQUEMENT en JSON : {"slides":[{"title":"…","content":"…"}]}`
+}
+
+type DiapoBrute = { title?: string; content?: string }
+
+function lireDiapos(brut: string): DiapoBrute[] {
+  const nettoye = brut.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim()
+  try {
+    const j = JSON.parse(nettoye)
+    return Array.isArray(j?.slides) ? j.slides : []
+  } catch {
+    const m = nettoye.match(/\{[\s\S]*\}/)
+    if (!m) return []
+    try {
+      const j = JSON.parse(m[0])
+      return Array.isArray(j?.slides) ? j.slides : []
+    } catch {
+      return []
     }
   }
-  return 'cette destination'
 }
 
-// Parse slide count from prompt
-function parseSlideCount(prompt: string, defaultCount: number = 5): number {
-  const match = prompt.match(/(\d+)\s*slides?/i)
-  return match ? parseInt(match[1]) : defaultCount
-}
+export async function POST(request: NextRequest) {
+  const refus = await requireCmsAuth(request)
+  if (refus) return refus
 
-// Generate slide content based on topic
-function generateSlideContent(index: number, total: number, topic: string): { title: string; content: string } {
-  const templates = [
-    { title: `Tip #${index + 1}`, content: `Découvrez ${topic} avec Heldonica. Une expérience unique pour les voyageurs en quête d’authenticité.` },
-      { title: `Astuce ${index + 1}`, content: `${topic} vous attend. Un moment suspendu, loin du tourisme de masse.` },
-    { title: `Secret #${index + 1}`, content: `Ce que peu de gens savent sur ${topic}. Un voyage commence ici.` },
-    { title: `Éxo #${index + 1}`, content: `L’art de ${topic}. Slow travel, éco-luxe, moments précieux.` },
-    { title: `Découverte ${index + 1}`, content: `${topic} n’a plus de secrets pour vous. Partez avec Heldonica.` },
-  ]
-  return templates[index % templates.length]
-}
+  const body = await request.json().catch(() => ({}))
+  // « prompt » est l'ancien nom du champ ; on l'accepte, mais c'est bien des notes qu'il faut.
+  const notes = String(body.notes ?? body.prompt ?? '').trim()
+  const nb = Math.min(DIAPOS_MAX, Math.max(DIAPOS_MIN, Number(body.slideCount) || 5))
 
-// Mock generation (when no OpenAI key)
-function generateMockSlides(request: GenerateRequest): SlideData[] {
-  const { prompt } = request
-  const slideCount = Math.min(parseSlideCount(prompt, 5), 10)
-  const destination = extractDestination(prompt)
-  const topic = prompt.replace(/\d+\s*slides?/gi, '').replace(/carrousel|carousel/g, '').trim()
-  
+  if (notes.length < NOTES_MIN) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: `Écris d'abord ce que tu as vécu, en vrac (au moins ${NOTES_MIN} caractères). L'assistant découpe et resserre ; il n'invente pas une diapositive.`,
+      },
+      { status: 400 }
+    )
+  }
+
+  let diapos: DiapoBrute[] = []
+  let interdits: string[] = []
+  let fournisseur = ''
+  try {
+    for (let essai = 0; essai < 2; essai++) {
+      const result = await generateAiCompletion({
+        messages: [
+          { role: 'system', content: consigne(nb, interdits) },
+          { role: 'user', content: `NOTES :\n---\n${notes}\n---` },
+        ],
+        temperature: 0.3,
+        max_tokens: 1200,
+        jsonMode: true,
+      })
+      fournisseur = `${result.provider}/${result.model}`
+      diapos = lireDiapos(result.content).filter((d) => (d.title || d.content || '').trim())
+      const ajoutes = diapos.flatMap((d) => chiffresAjoutes(`${d.title ?? ''} ${d.content ?? ''}`, notes))
+      if (!ajoutes.length) break
+      interdits = [...new Set(ajoutes)]
+    }
+  } catch (e) {
+    const raison = e instanceof Error ? e.message : String(e)
+    console.error('carousel-generate — fournisseur IA:', raison)
+    return NextResponse.json({ success: false, error: `L'assistant ne répond pas : ${raison}` }, { status: 502 })
+  }
+
+  if (!diapos.length) {
+    return NextResponse.json({ success: false, error: "L'assistant n'a rien rendu d'exploitable. Réessaie, ou colle ton texte à droite : il se découpe sans IA." }, { status: 502 })
+  }
+
+  // Après le second essai, un chiffre encore absent des notes est signalé sur
+  // la diapositive même : l'autrice le voit, elle ne le publie pas par mégarde.
   const tokens = HELDONICA_TOKENS
-  const slides: SlideData[] = []
-  
-  const colorSchemes = [
+  const couleurs = [
     { bg: tokens.colors.background, text: tokens.colors.text },
     { bg: tokens.colors.primary, text: '#ffffff' },
     { bg: tokens.colors.secondary, text: tokens.colors.text },
     { bg: tokens.colors.accent, text: '#ffffff' },
     { bg: tokens.colors.backgroundAlt, text: tokens.colors.primary },
   ]
-  
-  for (let i = 0; i < slideCount; i++) {
-    const colors = colorSchemes[i % colorSchemes.length]
-    const { title, content } = generateSlideContent(i, slideCount, topic || destination)
-    
-    slides.push({
-      id: generateId(),
-      title,
-      content,
-      cta: i === slideCount - 1 ? 'Découvrir' : undefined,
-      backgroundColor: colors.bg,
-      textColor: colors.text,
-      fontSize: 'md',
-    })
-  }
-  
-  return slides
-}
-
-// Generate via OpenAI
-async function generateWithOpenAI(request: GenerateRequest): Promise<SlideData[]> {
-  const apiKey = process.env.OPENAI_API_KEY
-  if (!apiKey) {
-    return generateMockSlides(request)
-  }
-
-  const slideCount = Math.min(request.slideCount || parseSlideCount(request.prompt, 5), 10)
-  const destination = extractDestination(request.prompt)
-  
-  const systemPrompt = `Tu es le générateur de contenu Instagram pour Heldonica, une marque de slow travel en couple. 
-Ton style : narratif, sensoriel, chaleureux. Utilise le tutoiement.
-Génère ${slideCount} slides avec ce format JSON:
-{
-  "slides": [{
-    "title": "max 8 mots",
-    "content": "max 30 mots",
-    "backgroundColor": "#hex",
-    "textColor": "#hex",
-    "layout": "title-only|title-body|quote"
-  }]
-}`
-
-  const userPrompt = `${request.prompt}
-Destination: ${destination}
-Nombre de slides: ${slideCount}
-Style Heldonica: slow travel, éco-luxe, authenticité`
-
-  try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        response_format: { type: 'json_object' }
-      })
-    })
-
-    if (!response.ok) {
-      console.error('OpenAI error:', response.status)
-      return generateMockSlides(request)
+  const ajoutsRestants: string[] = []
+  const slides: SlideData[] = diapos.slice(0, nb).map((d, i) => {
+    const title = String(d.title ?? '').trim()
+    let content = String(d.content ?? '').trim()
+    const ajoutes = chiffresAjoutes(`${title} ${content}`, notes)
+    if (ajoutes.length) {
+      ajoutsRestants.push(...ajoutes)
+      content = `[À TOI : cette diapositive contient un chiffre absent de tes notes (${ajoutes.join(', ')}) — corrige-la] ${content}`
     }
+    const c = couleurs[i % couleurs.length]
+    return { id: generateId(), title, content, backgroundColor: c.bg, textColor: c.text, fontSize: 'md' }
+  })
 
-    const data = await response.json()
-    const content = data.choices[0]?.message?.content
-    
-    if (content) {
-      const parsed = JSON.parse(content)
-      const generatedSlides = parsed.slides || []
-      
-      const tokens = HELDONICA_TOKENS
-      return generatedSlides.map((s: any, i: number) => ({
-        id: generateId(),
-        title: s.title || `Slide ${i + 1}`,
-        content: s.content || '',
-        backgroundColor: s.backgroundColor || tokens.colors.background,
-        textColor: s.textColor || tokens.colors.text,
-        fontSize: 'md',
-        cta: i === generatedSlides.length - 1 ? 'Découvrir' : undefined,
-      }))
-    }
-  } catch (error) {
-    console.error('OpenAI generation error:', error)
-  }
-  
-  return generateMockSlides(request)
-}
+  const texteDiapos = slides.map((s) => `${s.title}. ${s.content}`).join('\n')
+  const voix = validateGardeFous(texteDiapos, 'b2c')
+  const sensoriel = ajoutsParRapportA(texteDiapos, notes).map((a) => `${LIBELLES_AJOUT[a.type]} : ${a.mot}`)
 
-// POST handler
-export async function POST(request: NextRequest) {
-  const authResponse = await requireCmsAuth(request)
-  if (authResponse) return authResponse
-
-  try {
-    const body = await request.json()
-    const { prompt, slideCount, brand, style, destination, brandConfig } = body
-
-    if (!prompt) {
-      return NextResponse.json({ error: 'Prompt requis' }, { status: 400 })
-    }
-
-    // Generate slides (OpenAI if available, mock otherwise)
-    const slides = await generateWithOpenAI({ prompt, slideCount, brand, style, destination, brandConfig })
-
-    return NextResponse.json({
-      success: true,
-      slides,
-      meta: {
-        brand: brand || 'heldonica',
-        slideCount: slides.length,
-        style: HELDONICA_TOKENS.style,
-        prompt: prompt,
-        hasOpenAI: !!process.env.OPENAI_API_KEY,
-      }
-    })
-  } catch (error) {
-    console.error('Carousel generation error:', error)
-    return NextResponse.json({ error: 'Erreur lors de la génération' }, { status: 500 })
-  }
-}
-
-// OPTIONS for CORS preflight
-export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+  return NextResponse.json({
+    success: true,
+    slides,
+    meta: {
+      slideCount: slides.length,
+      fournisseur,
+      voix: { score: voix.score, mots_bannis: voix.forbiddenFound },
+      ajouts_non_sources: [...new Set([...ajoutsRestants, ...sensoriel])],
     },
   })
 }

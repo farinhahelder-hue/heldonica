@@ -35,3 +35,29 @@ describe('revendications — ce que seul l’auteur peut confirmer', () => {
     expect(extraireRevendications('<p>On aime prendre le temps, et on le dit sans détour.</p>')).toEqual({ total: 0, extraits: [] });
   });
 });
+
+import { ajoutsParRapportA } from '@/lib/revendications';
+
+describe('ajoutsParRapportA — ce que le texte généré a ajouté', () => {
+  const notes = 'Marché de Funchal, 7h30. On a acheté deux maracujás, 1,20 € pièce. Le vendeur a ri quand on a demandé si c’était mûr.';
+
+  it('relève les sensations et les répliques absentes des notes', () => {
+    const texte = `<p>Le brouhaha des premiers vendeurs se mêle au cliquetis des chariots. Une odeur de poisson flotte.</p>
+      <p>« Ils le sont ! », répond-il en pointant la chair brillante. Le vendeur a ri quand on a demandé si c’était mûr.</p>`;
+    const a = ajoutsParRapportA(texte, notes);
+    expect(a.map((x) => x.type)).toEqual(expect.arrayContaining(['son', 'odeur', 'citation']));
+    expect(a.find((x) => x.type === 'son')?.mot).toBe('brouhaha');
+    expect(a.filter((x) => x.type === 'son').map((x) => x.mot)).toEqual(['brouhaha', 'cliquetis']);
+    expect(a.find((x) => x.type === 'citation')?.mot).toContain('Ils le sont');
+  });
+
+  it('ne compte pas ce que les notes contiennent déjà', () => {
+    const texte = '<p>Le vendeur a ri quand on a demandé si c’était mûr. Un cliquetis de pièces.</p>';
+    const a = ajoutsParRapportA(texte, notes + ' On entendait le cliquetis de la caisse.');
+    expect(a).toEqual([]);
+  });
+
+  it('ignore les guillemets courts et un texte fidèle', () => {
+    expect(ajoutsParRapportA('<p>On a acheté deux maracujás, dits « mûrs ».</p>', notes)).toEqual([]);
+  });
+});
