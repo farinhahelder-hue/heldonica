@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase-client';
+import { createClient } from '@supabase/supabase-js';
 import { requireCmsAuth } from '@/lib/cms-auth';
+
+// Route serveur derrière requireCmsAuth : on utilise la clé service_role
+// (la clé anon legacy est désactivée côté Supabase depuis le 19/08).
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const auth = await requireCmsAuth(req);
   if (auth) return auth;
+  if (!supabase) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 });
 
   const { slug } = await params;
   const { searchParams } = new URL(req.url);
@@ -26,6 +33,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
 export async function POST(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const auth = await requireCmsAuth(req);
   if (auth) return auth;
+  if (!supabase) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 });
 
   const { slug } = await params;
   const body = await req.json();
@@ -42,6 +50,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
 export async function PUT(req: NextRequest) {
   const auth = await requireCmsAuth(req);
   if (auth) return auth;
+  if (!supabase) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 });
 
   const { id, ...body } = await req.json();
 
@@ -58,6 +67,7 @@ export async function PUT(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const auth = await requireCmsAuth(req);
   if (auth) return auth;
+  if (!supabase) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 });
 
   const { searchParams } = new URL(req.url);
   const id = searchParams.get('id');

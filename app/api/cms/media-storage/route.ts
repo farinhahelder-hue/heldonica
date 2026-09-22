@@ -2,12 +2,14 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getSupabaseClientKey } from '@/lib/supabase-key'
+import { requireCmsAuth } from '@/lib/cms-auth'
 
 let supabase: ReturnType<typeof createClient> | null = null;
 function getSupabase() {
   if (!supabase) {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || getSupabaseClientKey();
     if (url && key) supabase = createClient(url, key);
   }
   return supabase;
@@ -15,18 +17,11 @@ function getSupabase() {
 
 const BUCKET = 'blog-images'
 
-// Simple auth check based on CMS password header
-function checkAuth(req: NextRequest) {
-  const pwd = req.headers.get('x-cms-password')
-  const expected = process.env.CMS_PASSWORD
-  if (expected && pwd !== expected) {
-    return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
-  }
-  return null
-}
-
 export async function GET(req: NextRequest) {
-  const authErr = checkAuth(req)
+  // Auth unifiée (x-cms-auth ou cookie de session). L'ancien check
+  // 'x-cms-password' laissait la route ouverte quand CMS_PASSWORD
+  // n'était pas défini.
+  const authErr = await requireCmsAuth(req)
   if (authErr) return authErr
 
   try {
@@ -53,7 +48,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const authErr = checkAuth(req)
+  const authErr = await requireCmsAuth(req)
   if (authErr) return authErr
 
   try {
