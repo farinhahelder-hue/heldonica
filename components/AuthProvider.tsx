@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase-client';
+import { getSupabaseClientKey } from '@/lib/supabase-key';
 
 type AuthContextValue = {
   user: User | null;
@@ -25,7 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     typeof process !== 'undefined' &&
     process.env &&
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    getSupabaseClientKey()
   );
 
   useEffect(() => {

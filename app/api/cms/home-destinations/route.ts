@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase-client'
+import { createClient } from '@supabase/supabase-js'
 import { requireCmsAuth } from '@/lib/cms-auth'
 
 export const dynamic = 'force-dynamic'
+
+// Route serveur derrière requireCmsAuth : on utilise la clé service_role
+// (la clé anon legacy est désactivée côté Supabase depuis le 19/08).
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
 
 export interface CmsHomeDestination {
   id: string
@@ -34,6 +40,12 @@ export interface CmsHomeDestinationsResponse {
 export async function GET(req: NextRequest) {
   const authResponse = await requireCmsAuth(req)
   if (authResponse) return authResponse
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Supabase non configuré' },
+      { status: 503 }
+    )
+  }
 
   try {
     // Fetch home destinations with joined destination data

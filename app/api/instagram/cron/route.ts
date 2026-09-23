@@ -1,7 +1,18 @@
 import { NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 120
+
+// Le cron tourne côté serveur : clé service_role. La table
+// instagram_scheduled_posts est volontairement fermée à anon
+// (migration 20260915000002, « service_role only »).
+function getSupabaseService() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key);
+}
 
 export async function GET(request: Request) {
   try {
@@ -11,7 +22,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
-    const { supabase } = await import('@/lib/supabase-client')
+    const supabase = getSupabaseService()
     if (!supabase) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
 
     const now = new Date().toISOString()

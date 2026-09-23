@@ -28,9 +28,6 @@ curl -s -L -X POST "$BASE_URL/api/cms/articles" \
   -H "Content-Type: application/json" \
   -H "x-cms-auth: $PASSWORD" \
   -d "$ARTICLE_2" | jq .
-  -H "Content-Type: application/json" \
-  -H "x-cms-password: $PASSWORD" \
-  -d "$ARTICLE_2" | jq .
 
 echo ""
 echo "✅ Import complete!"

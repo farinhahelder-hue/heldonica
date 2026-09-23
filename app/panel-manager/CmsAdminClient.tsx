@@ -463,6 +463,8 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
       });
       if (res.ok) {
         setIsAuthenticated(true);
+      } else if (res.status === 503) {
+        setAuthError('CMS non configuré : variable CMS_PASSWORD manquante côté serveur.');
       } else {
         setAuthError('Mot de passe incorrect');
       }
