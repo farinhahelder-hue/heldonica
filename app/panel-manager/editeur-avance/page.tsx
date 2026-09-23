@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Smartphone,
   Tablet,
@@ -30,13 +30,45 @@ import {
   Home,
   MapPin,
   Compass,
-  Briefcase
+  Briefcase,
+  Maximize2,
+  Minimize2,
+  HelpCircle,
+  Bell,
+  Clock,
+  Target,
+  Filter,
+  Shield,
+  ToggleLeft,
+  Layout,
+  Bookmark,
+  Trash2,
+  Pen,
+  Zap,
+  Moon,
+  Sun,
+  Loader2,
+  MousePointer,
+  Keyboard,
+  Volume2,
+  VolumeX,
+  Grid,
+  List,
+  ChevronsLeft,
+  ChevronsRight,
+  X
 } from 'lucide-react'
 import { pathToNamespace } from '@/lib/cms-namespace'
 
 type Device = 'desktop' | 'tablet' | 'mobile'
 type Orientation = 'portrait' | 'landscape'
 type Tab = 'brouillons' | 'zones' | 'social'
+type Mode = 'normal' | 'focus' | 'zen'
+type DraftChecklist = {
+  id: string
+  label: string
+  done: boolean
+}
 
 interface Draft {
   id: number
@@ -91,6 +123,17 @@ export default function EditeurAvancePage() {
   // Feedback Toast
   const [toast, setToast] = useState<{ message: string; type?: 'success' | 'info' | 'error' } | null>(null)
 
+  // QoL State
+  const [mode, setMode] = useState<Mode>('normal')
+  const [focusMode, setFocusMode] = useState(false)
+  const [distractionFree, setDistractionFree] = useState(false)
+  const [keyboardHelpOpen, setKeyboardHelpOpen] = useState(false)
+  const [autoSaveEnabled, setAutoSaveEnabled] = useState(true)
+  const [lastAutoSave, setLastAutoSave] = useState<Date | null>(null)
+  const [draftChecklists, setDraftChecklists] = useState<Record<number, DraftChecklist[]>>({})
+  const [focusTimer, setFocusTimer] = useState(0)
+  const [focusTimerRunning, setFocusTimerRunning] = useState(false)
+
   function showToast(message: string, type: 'success' | 'info' | 'error' = 'info') {
     setToast({ message, type })
     setTimeout(() => setToast(null), 3000)
@@ -108,6 +151,130 @@ export default function EditeurAvancePage() {
   useEffect(() => {
     setInputPath(path)
   }, [path])
+
+  // Keyboard Shortcuts
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      // Ignore if typing in input/textarea
+      const target = e.target as HTMLElement
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+        return
+      }
+
+      // Mod+Key combinations
+      if (e.metaKey || e.ctrlKey) {
+        switch (e.key.toLowerCase()) {
+          case 's':
+            e.preventDefault()
+            // Save current zone if editing
+            const saving = Object.keys(editing).find((k) => editing[k] !== undefined)
+            if (saving) saveZone(saving)
+            break
+          case 'b':
+            e.preventDefault()
+            setSidebarOpen((v) => !v)
+            showToast(sidebarOpen ? 'Barre latérale masquée' : 'Barre latérale affichée', 'info')
+            break
+          case 'f':
+            e.preventDefault()
+            setFocusMode((v) => !v)
+            showToast(focusMode ? 'Mode focus désactivé' : 'Mode focus activé', 'info')
+            break
+          case 'd':
+            e.preventDefault()
+            setDistractionFree((v) => !v)
+            showToast(distractionFree ? 'Mode normal' : 'Mode distraction-free', 'info')
+            break
+          case '/':
+            e.preventDefault()
+            setKeyboardHelpOpen((v) => !v)
+            break
+          case 'arrowright':
+            e.preventDefault()
+            {
+              const list = filteredDraftsRef.current
+              if (list.length > 0) {
+                const currentIdx = drafts.findIndex((d) => d.slug === path.split('/blog/')[1]?.split('?')[0])
+                const nextIdx = Math.min(currentIdx + 1, list.length - 1)
+                if (nextIdx >= 0) previewDraft(list[nextIdx].slug)
+              }
+            }
+            break
+          case 'arrowleft':
+            e.preventDefault()
+            {
+              const list = filteredDraftsRef.current
+              if (list.length > 0) {
+                const currentIdx = drafts.findIndex((d) => d.slug === path.split('/blog/')[1]?.split('?')[0])
+                const prevIdx = Math.max(currentIdx - 1, 0)
+                if (prevIdx >= 0) previewDraft(list[prevIdx].slug)
+              }
+            }
+            break
+        }
+      }
+
+      // Single keys (when not in input)
+      switch (e.key) {
+        case 'Escape':
+          if (keyboardHelpOpen) setKeyboardHelpOpen(false)
+          if (distractionFree) setDistractionFree(false)
+          if (focusMode) setFocusMode(false)
+          break
+        case '?':
+          if (!e.metaKey && !e.ctrlKey) setKeyboardHelpOpen((v) => !v)
+          break
+        case ' ':
+          if (!focusTimerRunning && !distractionFree && !focusMode) {
+            e.preventDefault()
+            setFocusTimerRunning(true)
+            showToast('Timer de focus démarré (25 min)', 'info')
+          }
+          break
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editing, sidebarOpen])
+
+  // Focus Timer
+  useEffect(() => {
+    let interval: NodeJS.Timeout
+    if (focusTimerRunning && focusTimer < 25 * 60) {
+      interval = setInterval(() => setFocusTimer((t) => t + 1), 1000)
+    } else if (focusTimer >= 25 * 60) {
+      setFocusTimerRunning(false)
+      showToast('⏰ Session focus terminée (25 min) ! Pause recommandée.', 'success')
+      setFocusTimer(0)
+    }
+    return () => clearInterval(interval)
+  }, [focusTimerRunning, focusTimer])
+
+  // Auto-save indicator
+  useEffect(() => {
+    if (!autoSaveEnabled) return
+    let interval: NodeJS.Timeout
+    interval = setInterval(() => {
+      const hasChanges = Object.keys(editing).length > 0
+      if (hasChanges) {
+        setLastAutoSave(new Date())
+      }
+    }, 30000) // Check every 30s
+    return () => clearInterval(interval)
+  }, [autoSaveEnabled, editing])
+
+  // Miroir ref de la liste filtrée pour le handler clavier (déclaré avant le memo).
+  const filteredDraftsRef = useRef<Draft[]>([])
+
+  // Auto-focus first input when sidebar opens
+  const firstInputRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null)
+  useEffect(() => {
+    if (sidebarOpen && firstInputRef.current) {
+      firstInputRef.current.focus()
+    }
+  }, [sidebarOpen])
 
   // Load Drafts
   const loadDrafts = useCallback(async () => {
@@ -180,6 +347,57 @@ export default function EditeurAvancePage() {
     }
   }
 
+  // Checklist SEO per draft
+  function getDefaultChecklist(draftId: number): DraftChecklist[] {
+    const key = `draft-checklist-${draftId}`
+    const stored = localStorage.getItem(key)
+    if (stored) return JSON.parse(stored)
+    const defaultChecklist: DraftChecklist[] = [
+      { id: 'title', label: 'Titre 50-60 caractères', done: false },
+      { id: 'excerpt', label: 'Extrait 130-160 caractères', done: false },
+      { id: 'image', label: 'Image à la une 1200x630', done: false },
+      { id: 'alt', label: 'Texte alternatif image', done: false },
+      { id: 'h1', label: 'H1 unique présent', done: false },
+      { id: 'links', label: 'Liens internes (2+)', done: false },
+      { id: 'meta', label: 'Meta title & description', done: false },
+      { id: 'readtime', label: 'Temps de lecture affiché', done: false },
+    ]
+    localStorage.setItem(key, JSON.stringify(defaultChecklist))
+    return defaultChecklist
+  }
+
+  function toggleChecklistItem(draftId: number, itemId: string) {
+    setDraftChecklists((prev) => {
+      const current = prev[draftId] || getDefaultChecklist(draftId)
+      const updated = current.map((item) =>
+        item.id === itemId ? { ...item, done: !item.done } : item
+      )
+      localStorage.setItem(`draft-checklist-${draftId}`, JSON.stringify(updated))
+      return { ...prev, [draftId]: updated }
+    })
+  }
+
+  function getChecklistProgress(draftId: number): { done: number; total: number } {
+    const checklist = draftChecklists[draftId] || getDefaultChecklist(draftId)
+    const done = checklist.filter((i) => i.done).length
+    return { done, total: checklist.length }
+  }
+
+  // Toggle modes
+  function toggleFocusMode() {
+    setFocusMode((v) => !v)
+    showToast(focusMode ? 'Mode focus désactivé' : 'Mode focus activé (sidebar masquée)', 'info')
+  }
+
+  function toggleDistractionFree() {
+    setDistractionFree((v) => !v)
+    showToast(distractionFree ? 'Mode normal' : 'Mode distraction-free (sidebar + header masqués)', 'info')
+  }
+
+  function toggleKeyboardHelp() {
+    setKeyboardHelpOpen((v) => !v)
+  }
+
   // Save Zone
   async function saveZone(zoneKey: string) {
     const value = editing[zoneKey] ?? zones.find((z) => z.zone_key === zoneKey)?.value ?? ''
@@ -232,6 +450,11 @@ export default function EditeurAvancePage() {
     return zones.filter((z) => z.zone_key.toLowerCase().includes(q) || z.value?.toLowerCase().includes(q))
   }, [zones, searchZone])
 
+  // Tient le miroir à jour pour le handler clavier (monté plus haut).
+  useEffect(() => {
+    filteredDraftsRef.current = filteredDrafts
+  }, [filteredDrafts])
+
   // Device dimensions calculation
   const deviceDimensions = useMemo(() => {
     if (device === 'desktop') {
@@ -250,9 +473,14 @@ export default function EditeurAvancePage() {
 
   const fullUrl = `${origin}${path}`
 
+  // Les modes masquent réellement le chrome : focus = sans sidebar,
+  // distraction-free = sans sidebar ni header (sortie : Échap ou pastille).
+  const sidebarVisible = sidebarOpen && !focusMode && !distractionFree
+
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-stone-950 text-stone-100 font-sans select-none">
-      {/* Top Header Bar */}
+      {/* Top Header Bar (masquée en mode distraction-free) */}
+      {!distractionFree && (
       <header className="h-14 bg-stone-900/90 backdrop-blur border-b border-stone-800 px-4 flex items-center justify-between gap-3 z-30 shrink-0">
         {/* Brand & Breadcrumbs */}
         <div className="flex items-center gap-3 shrink-0">
@@ -292,6 +520,58 @@ export default function EditeurAvancePage() {
               </button>
             )
           })}
+        </div>
+
+        {/* QoL Mode Toggles */}
+        <div className="flex items-center gap-1.5 bg-stone-950/60 p-1 rounded-lg border border-stone-800/80">
+          {/* Focus Timer Display */}
+          {focusTimerRunning && (
+            <div className="flex items-center gap-1.5 px-2 py-1 bg-amber-950/70 border border-amber-800 rounded-lg text-xs">
+              <Clock size={12} className="text-amber-400 animate-pulse" />
+              <span className="font-mono text-amber-300">
+                {Math.floor(focusTimer / 60)}:{String(focusTimer % 60).padStart(2, '0')}
+              </span>
+              <button onClick={() => setFocusTimerRunning(false)} className="text-amber-400 hover:text-amber-200" title="Arrêter le timer">
+                <X size={12} />
+              </button>
+            </div>
+          )}
+          
+          {/* Auto-save Indicator */}
+          {lastAutoSave && (
+            <div className="flex items-center gap-1 px-2 py-1 bg-stone-800/60 rounded-lg text-xs text-stone-400">
+              <Loader2 size={11} className="text-teal-400 animate-spin" />
+              Auto-save: {lastAutoSave.toLocaleTimeString()}
+            </div>
+          )}
+
+          {/* Mode Toggles */}
+          <button
+            onClick={toggleFocusMode}
+            className={`p-1.5 rounded-lg transition ${focusMode ? 'bg-teal-600 text-white shadow-sm' : 'bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white'}`}
+            title={`Mode Focus (Ctrl+B) - ${focusMode ? 'Activé' : 'Désactivé'}`}
+          >
+            <Target size={14} className={focusMode ? 'text-teal-300' : 'text-stone-400'} />
+            <span className="hidden sm:inline text-xs ml-1 font-medium">Focus</span>
+          </button>
+          
+          <button
+            onClick={toggleDistractionFree}
+            className={`p-1.5 rounded-lg transition ${distractionFree ? 'bg-amber-600 text-white shadow-sm' : 'bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white'}`}
+            title={`Distraction-free (Ctrl+D) - ${distractionFree ? 'Activé' : 'Désactivé'}`}
+          >
+            <Layout size={14} className={distractionFree ? 'text-amber-300' : 'text-stone-400'} />
+            <span className="hidden sm:inline text-xs ml-1 font-medium">Zen</span>
+          </button>
+
+          <button
+            onClick={toggleKeyboardHelp}
+            className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white transition"
+            title="Raccourcis clavier (Ctrl+/) ou (?)"
+          >
+            <Keyboard size={14} />
+            <span className="hidden sm:inline text-xs ml-1 font-medium">Raccourcis</span>
+          </button>
         </div>
 
         {/* Address Bar */}
@@ -403,6 +683,18 @@ export default function EditeurAvancePage() {
           </a>
         </div>
       </header>
+      )}
+
+      {/* Pastille de sortie des modes immersifs (header masqué) */}
+      {distractionFree && (
+        <button
+          onClick={() => setDistractionFree(false)}
+          className="fixed top-3 right-3 z-50 px-3 py-1.5 rounded-full bg-amber-600 hover:bg-amber-500 text-white text-xs font-medium shadow-lg transition"
+          title="Quitter le mode zen (Échap)"
+        >
+          ✕ Zen — Échap pour quitter
+        </button>
+      )}
 
       {/* Auth / Session Warning Banner */}
       {editable === false && (
@@ -422,10 +714,10 @@ export default function EditeurAvancePage() {
 
       {/* Main Workspace: Sidebar + Preview Canvas */}
       <div className="flex-1 flex overflow-hidden relative">
-        {/* Left Sidebar Panel */}
+        {/* Left Sidebar Panel (masquée en modes focus / zen) */}
         <aside
           className={`${
-            sidebarOpen ? 'w-80 md:w-96' : 'w-0'
+            sidebarVisible ? 'w-80 md:w-96' : 'w-0'
           } shrink-0 bg-stone-900/95 border-r border-stone-800 transition-all duration-300 flex flex-col overflow-hidden z-20`}
         >
           {/* Sidebar Tabs Header */}
@@ -548,6 +840,46 @@ export default function EditeurAvancePage() {
                             <Eye size={12} />
                             <span>Aperçu</span>
                           </button>
+                        </div>
+
+                        {/* SEO Checklist */}
+                        <div className="pt-2 space-y-1.5">
+                          {(() => {
+                            const checklist = getDefaultChecklist(draft.id)
+                            const { done, total } = getChecklistProgress(draft.id)
+                            return (
+                              <details className="group bg-stone-900/50 rounded-lg p-2 border border-stone-800/60">
+                                <summary className="flex items-center justify-between cursor-pointer text-[10px] font-medium text-stone-300">
+                                  <span className="flex items-center gap-1.5">
+                                    <Bookmark size={11} className="text-teal-400" />
+                                    <span className="text-xs font-medium">Checklist SEO</span>
+                                    <span className="px-1.5 py-0.5 bg-stone-800 rounded text-[10px] font-mono">
+                                      {done}/{total}
+                                    </span>
+                                  </span>
+                                  <span className="text-[10px] text-stone-500">▼</span>
+                                </summary>
+                                <div className="mt-2 space-y-1.5 p-2">
+                                  {getDefaultChecklist(draft.id).map((item) => (
+                                    <label
+                                      key={item.id}
+                                      className="flex items-center gap-2 cursor-pointer text-[11px] text-stone-300 group-hover:text-stone-100 transition"
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={item.done}
+                                        onChange={() => toggleChecklistItem(draft.id, item.id)}
+                                        className="w-3.5 h-3.5 rounded border-stone-700 text-teal-600 focus:ring-teal-500 focus:ring-1"
+                                      />
+                                      <span className={`text-xs ${item.done ? 'line-through text-stone-500' : 'text-stone-300'}`}>
+                                        {item.label}
+                                      </span>
+                                    </label>
+                                  ))}
+                                </div>
+                              </details>
+                            )
+                          })()}
                         </div>
                       </div>
                     ))}
@@ -842,6 +1174,49 @@ export default function EditeurAvancePage() {
           </div>
         </main>
       </div>
+
+      {/* Modale d'aide clavier */}
+      {keyboardHelpOpen && (
+        <div
+          className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-4"
+          onClick={() => setKeyboardHelpOpen(false)}
+        >
+          <div
+            className="bg-stone-900 border border-stone-700 rounded-2xl p-6 max-w-md w-full space-y-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-stone-100 flex items-center gap-2">
+                <Keyboard size={16} className="text-teal-400" />
+                Raccourcis clavier
+              </h3>
+              <button onClick={() => setKeyboardHelpOpen(false)} className="text-stone-400 hover:text-white" title="Fermer (Échap)">
+                <X size={16} />
+              </button>
+            </div>
+            <ul className="space-y-2 text-xs text-stone-300">
+              {[
+                ['Ctrl/⌘ + S', 'Enregistrer la zone en cours'],
+                ['Ctrl/⌘ + B', 'Afficher / masquer la sidebar'],
+                ['Ctrl/⌘ + F', 'Mode focus (sans sidebar)'],
+                ['Ctrl/⌘ + D', 'Mode zen (plein écran)'],
+                ['Ctrl/⌘ + /', 'Cette aide'],
+                ['Ctrl/⌘ + ← / →', 'Brouillon précédent / suivant'],
+                ['Espace', 'Démarrer le timer focus (25 min)'],
+                ['Échap', 'Fermer / quitter les modes'],
+              ].map(([keys, desc]) => (
+                <li key={keys} className="flex items-center justify-between gap-3">
+                  <span>{desc}</span>
+                  <kbd className="px-2 py-0.5 rounded bg-stone-800 border border-stone-700 font-mono text-[11px] text-teal-300 whitespace-nowrap">
+                    {keys}
+                  </kbd>
+                </li>
+              ))}
+            </ul>
+            <p className="text-[11px] text-stone-500">Inactifs pendant la frappe dans un champ.</p>
+          </div>
+        </div>
+      )}
 
       {/* Toast Notification */}
       {toast && (
