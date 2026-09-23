@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ pages: data || [] })
+  return NextResponse.json({ success: true, pages: data || [] })
 }
 
 // PATCH /api/cms/pillar-pages — update a destination
