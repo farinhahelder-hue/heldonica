@@ -27,11 +27,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'article_id required' }, { status: 400 })
   }
 
-  // Get article to find media
+  // Get article to find media — publiés uniquement : la route est sans
+  // auth et utilise service_role, sans ce filtre elle exposait les brouillons.
   const { data: article, error } = await supabase
     .from('cms_blog_posts')
     .select('id,title,featured_image,content')
     .eq('id', articleId)
+    .eq('published', true)
     .single()
 
   if (error || !article) {
