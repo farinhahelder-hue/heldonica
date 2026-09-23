@@ -29,6 +29,20 @@ export interface InstagramMediaContainer {
 
 const INSTAGRAM_GRAPH_API_BASE = 'https://graph.facebook.com';
 
+import { createClient } from '@supabase/supabase-js';
+
+/**
+ * Écritures serveur (file de planification) : clé service_role. La table
+ * instagram_scheduled_posts est volontairement fermée à anon
+ * (migration 20260915000002, « service_role only »).
+ */
+function getSupabaseService() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key);
+}
+
 /**
  * Raison du dernier echec Meta, en clair.
  *
@@ -404,7 +418,7 @@ export async function autoScheduleInstagramPost(articleId: number | string, arti
   category?: string
 }): Promise<boolean> {
   try {
-    const { supabase } = await import('@/lib/supabase-client')
+    const supabase = getSupabaseService()
     if (!supabase) return false
 
     const caption = [
