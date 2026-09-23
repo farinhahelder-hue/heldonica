@@ -7,21 +7,35 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
+import android.util.Size
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.lifecycleScope
@@ -695,6 +709,50 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @Composable
+    private fun VignetteMedia(uri: Uri, onRemove: () -> Unit) {
+        val context = LocalContext.current
+        val bitmap = remember(uri) {
+            runCatching {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    context.contentResolver.loadThumbnail(uri, Size(200, 200), null)
+                } else {
+                    @Suppress("DEPRECATION")
+                    MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+                }
+            }.getOrNull()
+        }
+
+        Box(
+            modifier = Modifier
+                .size(80.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+        ) {
+            if (bitmap != null) {
+                Image(
+                    bitmap = bitmap.asImageBitmap(),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("📷", style = MaterialTheme.typography.titleMedium)
+                }
+            }
+            IconButton(
+                onClick = onRemove,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .size(24.dp)
+                    .background(Color.Black.copy(alpha = 0.5f), CircleShape)
+            ) {
+                Text("✕", color = Color.White, style = MaterialTheme.typography.labelSmall)
+            }
+        }
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun HeldonicaScreen() {
@@ -751,31 +809,44 @@ class MainActivity : ComponentActivity() {
                         .fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Button(onClick = { picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) }) {
-                        Text("Choisir des photos")
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(onClick = { picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) }) {
+                            Text(if (pickedUris.isEmpty()) "📸 Choisir des photos / vidéos" else "➕ Ajouter des médias")
+                        }
+                        if (pickedUris.isNotEmpty()) {
+                            TextButton(onClick = { pickedUris = emptyList() }) {
+                                Text("Tout effacer", color = MaterialTheme.colorScheme.error)
+                            }
+                        }
                     }
+
+                    if (pickedUris.isNotEmpty()) {
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                        ) {
+                            items(pickedUris) { uri ->
+                                VignetteMedia(
+                                    uri = uri,
+                                    onRemove = { pickedUris = pickedUris.filter { it != uri } }
+                                )
+                            }
+                        }
+                        Text("${pickedUris.size} média(s) sélectionné(s)", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                    }
+
                     Text(status, style = MaterialTheme.typography.bodySmall)
-                    if (pickedUris.isNotEmpty()) Text("${pickedUris.size} média(s) prêts", color = MaterialTheme.colorScheme.primary)
 
                     OutlinedTextField(value = placeTitle, onValueChange = { placeTitle = it }, label = { Text("Lieu") }, modifier = Modifier.fillMaxWidth())
                     OutlinedTextField(value = placeAddress, onValueChange = { placeAddress = it }, label = { Text("Adresse (facultatif)") }, modifier = Modifier.fillMaxWidth())
 
-                    // Ces deux aides etaient repliees sous « Options », au titre
-                    // du cas rare. Le selecteur d'Android retirant les
-                    // coordonnees de toutes les photos, le lieu est a renseigner
-                    // a chaque fois : elles sont donc a leur place ici.
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedButton(onClick = { demanderPosition() }) {
-                            Text("Je suis sur place")
-                        }
-                        OutlinedButton(onClick = {
-                            scope.launch {
-                                status = if (placeLat == null) "Touche d'abord « Je suis sur place »."
-                                    else if (reverseGeocodeNominatim()) "Adresse trouvée."
-                                    else "Adresse introuvable pour ce point."
-                            }
-                        }) {
-                            Text("Trouver l'adresse")
+                        Button(onClick = { demanderPosition() }) {
+                            Text("📍 Je suis sur place (GPS auto)")
                         }
                     }
 
@@ -853,7 +924,22 @@ class MainActivity : ComponentActivity() {
                             Checkbox(checked = isCarousel, onCheckedChange = { isCarousel = it })
                             Text("Carrousel Instagram", style = MaterialTheme.typography.bodySmall)
                         }
+                    }
 
+                    if (envoiEnCours) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                        ) {
+                            Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                LinearProgressIndicator(Modifier.fillMaxWidth())
+                                Text(
+                                    text = "Publication en cours... Merci de patienter.",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
+                        }
                     }
 
                     Button(
@@ -1537,7 +1623,11 @@ class UploadWorker(ctx: android.content.Context, params: WorkerParameters) : Cor
         val autoCaption = inputData.getBoolean("autoCaption", false)
 
         return try {
-            val client = OkHttpClient.Builder().callTimeout(300, TimeUnit.SECONDS).build()
+            val client = OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(300, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .build()
 
             // Les octets ne passent plus par l'API : les fonctions Vercel
             // plafonnent la requete a 4,5 Mo, et une photo de telephone la
@@ -1630,68 +1720,74 @@ class UploadWorker(ctx: android.content.Context, params: WorkerParameters) : Cor
         val noms = org.json.JSONArray()
         val temporaires = mutableListOf<Pair<Uri, File>>()
 
-        for (uri in uris) {
-            val tmp = copyUriToTemp(uri) ?: continue
-            temporaires += uri to tmp
-            noms.put(tmp.name)
-        }
-        if (temporaires.isEmpty()) return null
-
-        val demande = Request.Builder()
-            .url("$baseUrl/api/cms/mobile-publish/upload-url")
-            .header("x-cms-auth", password)
-            .post(
-                org.json.JSONObject().put("fichiers", noms).toString()
-                    .toRequestBody("application/json".toMediaType())
-            )
-            .build()
-
-        val cibles = client.newCall(demande).execute().use { r ->
-            if (!r.isSuccessful) {
-                Log.e(TAG, "URL signees refusees ${r.code} : ${r.body?.string()}")
-                return null
+        try {
+            for (uri in uris) {
+                val tmp = copyUriToTemp(uri) ?: continue
+                temporaires += uri to tmp
+                noms.put(tmp.name)
             }
-            org.json.JSONObject(r.body?.string().orEmpty()).getJSONArray("cibles")
-        }
+            if (temporaires.isEmpty()) return null
 
-        val deposes = org.json.JSONArray()
-
-        for (i in 0 until minOf(cibles.length(), temporaires.size)) {
-            val cible = cibles.getJSONObject(i)
-            val (uri, fichier) = temporaires[i]
-            val mime = applicationContext.contentResolver.getType(uri) ?: "image/jpeg"
-
-            val envoi = Request.Builder()
-                .url(cible.getString("signedUrl"))
-                .put(fichier.asRequestBody(mime.toMediaType()))
+            val demande = Request.Builder()
+                .url("$baseUrl/api/cms/mobile-publish/upload-url")
+                .header("x-cms-auth", password)
+                .post(
+                    org.json.JSONObject().put("fichiers", noms).toString()
+                        .toRequestBody("application/json".toMediaType())
+                )
                 .build()
 
-            client.newCall(envoi).execute().use { r ->
+            val cibles = client.newCall(demande).execute().use { r ->
                 if (!r.isSuccessful) {
-                    Log.e(TAG, "Depot direct refuse ${r.code} pour ${fichier.name}")
-                    return@use
+                    Log.e(TAG, "URL signees refusees ${r.code} : ${r.body?.string()}")
+                    return null
                 }
-
-                val exif = runCatching { ExifInterface(fichier.absolutePath) }.getOrNull()
-                val coord = FloatArray(2)
-                val aGps = exif?.getLatLong(coord) == true
-
-                deposes.put(
-                    org.json.JSONObject()
-                        .put("nom", cible.getString("nom"))
-                        .put("chemin", cible.getString("chemin"))
-                        .put("url", cible.getString("url"))
-                        .put("mime", mime)
-                        .put("taille", fichier.length())
-                        .put("lat", if (aGps) coord[0].toDouble() else org.json.JSONObject.NULL)
-                        .put("lng", if (aGps) coord[1].toDouble() else org.json.JSONObject.NULL)
-                        .put("priseDeVue", isoPriseDeVue(exif) ?: org.json.JSONObject.NULL)
-                )
+                org.json.JSONObject(r.body?.string().orEmpty()).getJSONArray("cibles")
             }
-        }
 
-        temporaires.forEach { (_, f) -> f.delete() }
-        return deposes
+            val deposes = org.json.JSONArray()
+
+            for (i in 0 until minOf(cibles.length(), temporaires.size)) {
+                val cible = cibles.getJSONObject(i)
+                val (uri, fichier) = temporaires[i]
+                val mime = applicationContext.contentResolver.getType(uri)
+                    ?: if (fichier.extension == "mp4") "video/mp4" else "image/jpeg"
+
+                val envoi = Request.Builder()
+                    .url(cible.getString("signedUrl"))
+                    .put(fichier.asRequestBody(mime.toMediaType()))
+                    .build()
+
+                client.newCall(envoi).execute().use { r ->
+                    if (!r.isSuccessful) {
+                        Log.e(TAG, "Depot direct refuse ${r.code} pour ${fichier.name}")
+                        return@use
+                    }
+
+                    val exif = runCatching { ExifInterface(fichier.absolutePath) }.getOrNull()
+                    val coord = FloatArray(2)
+                    val aGps = exif?.getLatLong(coord) == true
+
+                    deposes.put(
+                        org.json.JSONObject()
+                            .put("nom", cible.getString("nom"))
+                            .put("chemin", cible.getString("chemin"))
+                            .put("url", cible.getString("url"))
+                            .put("mime", mime)
+                            .put("taille", fichier.length())
+                            .put("lat", if (aGps) coord[0].toDouble() else org.json.JSONObject.NULL)
+                            .put("lng", if (aGps) coord[1].toDouble() else org.json.JSONObject.NULL)
+                            .put("priseDeVue", isoPriseDeVue(exif) ?: org.json.JSONObject.NULL)
+                    )
+                }
+            }
+
+            return deposes
+        } finally {
+            // Nettoyage garanti en toutes circonstances : evite les gigaoctets
+            // orphelins dans le cache si la connexion coupe ou expire.
+            temporaires.forEach { (_, f) -> runCatching { f.delete() } }
+        }
     }
 
     /** Date de prise de vue EXIF, au format ISO attendu par la base. */
@@ -1710,15 +1806,20 @@ class UploadWorker(ctx: android.content.Context, params: WorkerParameters) : Cor
     /**
      * Copie locale du media choisi.
      *
-     * Le fichier arrive sans coordonnees GPS : le selecteur d'Android les retire
-     * et ne propose aucun moyen de les conserver. La date de prise de vue, elle,
-     * est bien la — c'est elle qui alimente le registre de preuves. Le lieu
-     * vient du champ que l'on remplit soi-meme.
+     * Conserve l'extension approprie (.mp4 pour les videos, .jpg pour les photos).
      */
     private fun copyUriToTemp(uri: Uri): File? {
         return try {
             val input = applicationContext.contentResolver.openInputStream(uri) ?: return null
-            val tmp = File.createTempFile("heldonica_", ".jpg", applicationContext.cacheDir)
+            val mime = applicationContext.contentResolver.getType(uri).orEmpty()
+            val ext = when {
+                mime.contains("video") || mime.contains("mp4") -> ".mp4"
+                mime.contains("png") -> ".png"
+                mime.contains("webp") -> ".webp"
+                uri.path?.endsWith(".mp4", ignoreCase = true) == true -> ".mp4"
+                else -> ".jpg"
+            }
+            val tmp = File.createTempFile("heldonica_", ext, applicationContext.cacheDir)
             tmp.outputStream().use { out -> input.copyTo(out) }
             tmp
         } catch (_: Exception) { null }

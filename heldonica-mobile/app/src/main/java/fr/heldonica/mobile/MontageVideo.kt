@@ -14,9 +14,11 @@ import androidx.media3.common.Effect
 import androidx.media3.common.audio.ChannelMixingAudioProcessor
 import androidx.media3.common.audio.ChannelMixingMatrix
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MimeTypes
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.effect.OverlayEffect
 import androidx.media3.effect.OverlaySettings
+import androidx.media3.effect.Presentation
 import androidx.media3.effect.TextOverlay
 import androidx.media3.effect.TextureOverlay
 import androidx.media3.transformer.Composition
@@ -264,20 +266,25 @@ suspend fun monterVideo(
                     if (coupes.isNotEmpty()) calques += CalqueFondu(coupes)
                 }
 
+                val effetsVideo = mutableListOf<Effect>()
                 if (calques.isNotEmpty()) {
-                    // La liste est typee explicitement : ImmutableList.of()
-                    // infere ImmutableList<OverlayEffect>, la ou Effects attend
-                    // une List<Effect>, et Kotlin refuse la conversion.
-                    val effetsVideo: List<Effect> =
-                        listOf(OverlayEffect(ImmutableList.copyOf(calques)))
-                    setEffects(Effects(emptyList(), effetsVideo))
+                    effetsVideo += OverlayEffect(ImmutableList.copyOf(calques))
                 }
+                // Limite a 1080p pour le web et les reseaux :
+                // Les telephones recents (Pixel 8 Pro...) filment en 4K a tres haut debit,
+                // ce qui produisait des montages de 1,2 Go qui saturaient le cache et
+                // echouaient au televersement. En 1080p H.264, la video reste fidele
+                // et pese 15 a 30 Mo.
+                effetsVideo += Presentation.createForHeight(1920)
+                setEffects(Effects(emptyList(), effetsVideo))
             }
             .build()
     }
 
     return suspendCancellableCoroutine { suite ->
         val transformer = Transformer.Builder(contexte)
+            .setVideoMimeType(MimeTypes.VIDEO_H264)
+            .setAudioMimeType(MimeTypes.AUDIO_AAC)
             .addListener(object : Transformer.Listener {
                 override fun onCompleted(composition: Composition, resultat: ExportResult) {
                     Log.i(TAG_MONTAGE, "Montage termine : ${sortie.length()} octets")

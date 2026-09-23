@@ -4,6 +4,39 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-09-22] — CMS : diagnostic complet, relance dev, nettoyage .next et réparation de /api/cms/seasons
+
+### Constat
+- Le serveur Next.js de développement n'était pas démarré sur la machine locale (port 3000 inactif).
+- Le cache `.next` contenait des types générés obsolètes provoquant des erreurs TS2307 sur d'anciennes routes déplacées.
+- L'endpoint `/api/cms/seasons` échouait systématiquement avec une erreur 500 (`column cms_seasons.destination_key does not exist`) suite à une divergence de noms de colonnes avec la table Supabase (`destination_slug`, `season_label`, `sort_order`, `note`), et manquait les méthodes POST, PUT et DELETE attendues par `SeasonsManager`.
+
+### Fait
+- Cache `.next` purgé et validé via `npx tsc --noEmit` (0 erreur).
+- Route [app/api/cms/seasons/route.ts](file:///c:/Users/farin/StudioProjects/heldonica/app/api/cms/seasons/route.ts) réécrite : alignement sur le schéma réel, utilisation du client service-role Supabase, CRUD complet (GET/POST/PUT/DELETE), vérification des erreurs Supabase (`check:erreurs-avalees`) et revalidation du cache (`revalidateCmsTarget`).
+- Serveur de dev Next.js démarré et testé sur `http://localhost:3000/panel-manager`.
+- Test automatisé exhaustif des 21 endpoints du CMS avec session d'authentification valide : 21/21 répondent HTTP 200.
+- Garde-fous CI (`check:api-auth`, `check:erreurs-avalees`, `check:cms-drift`, `check:cms-zones`) et tests Vitest (379/379) à 100% au vert.
+
+---
+
+## [2026-09-21] — APK Mobile : refonte UX rapide (« 10 secondes chrono »), raccourci Clearhead & Clearhead Figma Make
+
+### Mobile (Heldonica Mobile)
+- **UX Publication (« 10 secondes chrono »)** :
+  - Rangée de miniatures réelles (`VignettePhoto`) avec chargement asynchrone économe (`BitmapFactory` downsampled), suppression rapide `✕` et bouton d'ajout `+`.
+  - Localisation unifiée en 1 tap (GPS + Nominatim automatique, suppression du bouton redondant « Trouver l'adresse »).
+  - Suppression des 3 boutons concurrents d'envoi au profit d'un seul bouton d'action principal (`🚀 Créer le brouillon + Instagram`) avec case à cocher.
+  - Carte **Clearhead (Coach projets)** ajoutée sur l'accueil de l'APK (ouverture plein écran de `/clearhead`).
+  - Compilé avec Gradle 8.9 (`assembleDebug`) et **installé directement sur le Pixel 8 Pro** via adb.
+
+### Clearhead (SaaS pour fondateurs créatifs)
+- **Interface Figma Make** : Refonte pixel-perfect de `app/clearhead/page.tsx` avec sidebar SaaS sombre (compteurs `THIS WEEK`, filtres `PROJECTS`, profil), en-tête avec puces de statuts d'urgence, bannière interactive PM Coach avec réponse rapide en ligne, sélecteur 4 modes de Mindset (dont `Evening Clear` et `Smart Rank`), cartes de tâches avec bordure d'urgence et barres de progression.
+- **Sécurité** : Protection de `/api/clearhead/coach` avec `rateLimit` sur GET et POST.
+- Garde-fous CI (`check:api-auth`, `check:cms-zones`, `check:content-coherence`) et `tsc --noEmit` : **100% verts**.
+
+---
+
 ## [2026-09-21] — Premier import Google Photos réel : 135 photos téléversées, 0 fiche — réparé, repris, et un premier `voyage.md` (commits `e0187f0`, `9f90d1e`)
 
 ### Constat
