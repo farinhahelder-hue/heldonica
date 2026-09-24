@@ -145,6 +145,25 @@ function CmsAdminClientInner() {
   const [activeSection, setActiveSection] = useState<NavSection>(
     () => sectionDepuisUrl(searchParams.get('section')) ?? 'dashboard'
   );
+  const [navSearch, setNavSearch] = useState('');
+  const [showPalette, setShowPalette] = useState(false);
+  const [recentSections, setRecentSections] = useState<NavSection[]>([]);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('heldonica-recent-sections');
+      if (raw) setRecentSections(JSON.parse(raw));
+    } catch {}
+  }, []);
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setShowPalette(v => !v);
+      }
+    };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, []);
   // Sur telephone, les vingt-sept entrees de navigation occupaient un ecran
   // entier avant le moindre contenu : on arrivait sur une liste de sections, pas
   // sur ce qu'on venait editer. Elles sont repliees par defaut sous lg, ou la
@@ -550,6 +569,11 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
       setActiveSection(section);
     }
     setMenuOuvert(false);
+    try {
+      const next = [section, ...recentSections.filter(s => s !== section)].slice(0, 3);
+      setRecentSections(next);
+      localStorage.setItem('heldonica-recent-sections', JSON.stringify(next));
+    } catch {}
   };
 
   const confirm = (title: string, message: string, action: () => void, variant: 'danger' | 'default' = 'default') => {
@@ -712,6 +736,9 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
   const etiquetteSection = navGroups
     .flatMap(g => g.items)
     .find(i => i.id === activeSection)?.label;
+  const filteredGroups = navSearch
+    ? navGroups.map(g => ({ ...g, items: g.items.filter(i => i.label.toLowerCase().includes(navSearch.toLowerCase())) })).filter(g => g.items.length > 0)
+    : navGroups;
 
   // ── Layout ─────────────────────────────────────────────────────────────────
   return (
@@ -744,7 +771,27 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
               sections repousse le contenu hors de l'ecran et il faut defiler
               longuement avant d'atteindre l'editeur. */}
           <nav className={`flex-1 max-h-72 lg:max-h-none overflow-y-auto pr-1 space-y-5 scrollbar-thin scrollbar-thumb-stone-800 ${menuOuvert ? "block" : "hidden"} lg:block`}>
-            {navGroups.map((group, groupIdx) => (
+            <div className="px-3">
+              <input
+                value={navSearch}
+                onChange={e => setNavSearch(e.target.value)}
+                placeholder="Rechercher une action…"
+                className="w-full px-3 py-1.5 bg-stone-800 border border-stone-700 rounded-lg text-xs text-white placeholder:text-stone-500 focus:outline-none focus:ring-1 focus:ring-teal"
+              />
+            </div>
+            {recentSections.length > 0 && !navSearch && (
+              <div className="px-3">
+                <div className="text-[10px] font-bold text-stone-500 uppercase tracking-wider mb-1">Récents</div>
+                <div className="flex flex-wrap gap-1">
+                  {recentSections.map(s => (
+                    <button key={s} onClick={() => navigateTo(s)} className="px-2 py-1 bg-stone-800 text-stone-300 rounded text-[10px] hover:bg-stone-700">
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {filteredGroups.map((group, groupIdx) => (
               <div key={groupIdx} className="space-y-1">
                 <div className="px-3 text-[10px] font-bold text-stone-500 uppercase tracking-wider">
                   {group.title}
@@ -1830,6 +1877,38 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
         featured_image={previewArticle?.featured_image}
         onClose={() => setPreviewArticle(null)}
       />
+      {showPalette && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-start justify-center pt-20" onClick={() => setShowPalette(false)}>
+          <div className="bg-white rounded-xl w-full max-w-md mx-4 p-4 shadow-xl" onClick={e => e.stopPropagation()}>
+            <input
+              autoFocus
+              placeholder="Tape 'carrousel'…"
+              value={navSearch}
+              onChange={e => setNavSearch(e.target.value)}
+              className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal"
+            />
+            <div className="mt-3 max-h-64 overflow-y-auto space-y-1">
+              {navGroups
+                .flatMap(g => g.items)
+                .filter(i => i.label.toLowerCase().includes(navSearch.toLowerCase()))
+                .slice(0, 8)
+                .map(item => (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      navigateTo(item.id)
+                      setShowPalette(false)
+                      setNavSearch('')
+                    }}
+                    className="w-full text-left px-3 py-2 hover:bg-stone-100 rounded-lg text-sm flex items-center gap-2"
+                  >
+                    {item.icon} {item.label}
+                  </button>
+                ))}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
