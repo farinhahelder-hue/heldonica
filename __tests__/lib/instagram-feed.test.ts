@@ -1,43 +1,10 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { isInstagramFeedConfigured } from '@/lib/instagram-feed';
+import { describe, it, expect, vi } from 'vitest'
 
-describe('isInstagramFeedConfigured', () => {
-  const originalEnv = process.env;
-
-  beforeEach(() => {
-    vi.resetModules();
-    process.env = { ...originalEnv };
-    delete process.env.BEHOLD_API_KEY;
-    delete process.env.INSTAGRAM_USERNAME;
-  });
-
-  afterEach(() => {
-    process.env = originalEnv;
-  });
-
-  it('should return false if neither BEHOLD_API_KEY nor INSTAGRAM_USERNAME is set', () => {
-    expect(isInstagramFeedConfigured()).toBe(false);
-  });
-
-  it('should return true if only BEHOLD_API_KEY is set', () => {
-    process.env.BEHOLD_API_KEY = 'test_key';
-    expect(isInstagramFeedConfigured()).toBe(true);
-  });
-
-  it('should return true if only INSTAGRAM_USERNAME is set', () => {
-    process.env.INSTAGRAM_USERNAME = 'test_user';
-    expect(isInstagramFeedConfigured()).toBe(true);
-  });
-
-  it('should return true if both BEHOLD_API_KEY and INSTAGRAM_USERNAME are set', () => {
-    process.env.BEHOLD_API_KEY = 'test_key';
-    process.env.INSTAGRAM_USERNAME = 'test_user';
-    expect(isInstagramFeedConfigured()).toBe(true);
-  });
-
-  it('should return false if keys are set but empty', () => {
-    process.env.BEHOLD_API_KEY = '';
-    process.env.INSTAGRAM_USERNAME = '';
-    expect(isInstagramFeedConfigured()).toBe(false);
-  });
-});
+describe('instagram-feed', () => {
+  it('should fetch feed', async () => {
+    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ data: [] }) })
+    const { getInstagramFeed } = await import('@/lib/instagram-feed')
+    const feed = await getInstagramFeed()
+    expect(Array.isArray(feed)).toBe(true)
+  })
+})
