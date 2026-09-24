@@ -4,6 +4,21 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-09-24] — Passerelle Brain-CMS (Bridge) & Connexion APK Mobile vers Brain local
+
+### Brain-CMS Bridge
+- **Nouvelles routes API sécurisées** : `app/api/brain/tasks`, `app/api/brain/tasks/[id]`, `app/api/brain/heartbeat`, `app/api/brain/status`.
+- **Authentification double** : `lib/bridge-auth.ts` supportant `x-cms-auth` et `Authorization: Bearer <BRAIN_BRIDGE_TOKEN>`.
+- **Migration SQL** : `supabase/migrations/20260922000000_brain_bridge_agent_tasks.sql` ajoutant `task_type` et `payload` sur `agent_tasks` avec index partiel `idx_agent_tasks_bridge_poll` pour polling haute performance.
+- **Garde-fous** : mis à jour dans `scripts/check-api-auth.mjs` pour reconnaître `requireBridgeAuth` et `requireBearerOnly`. Tous les garde-fous au vert.
+
+### Mobile (Heldonica Mobile)
+- **Connexion réseau local au Brain** : ajout de `android:usesCleartextTraffic="true"` dans `AndroidManifest.xml` pour autoriser les requêtes vers le serveur Brain sur le LAN (`10.10.145.61:8440`).
+- **Configuration dynamique** : ajout de `BRAIN_BASE_URL` dans `build.gradle.kts` avec repli par défaut sur `http://10.10.145.61:8440` et documentation dans `local.properties.example`.
+- **Génération IA locale** : ajout d'un repli automatique vers Heldonica Brain (`/v1/chat/completions`) dans `MainActivity.kt` pour les légendes slow-travel en cas d'indisponibilité du cloud.
+
+---
+
 ## [2026-09-22] — CMS : diagnostic complet, relance dev, nettoyage .next et réparation de /api/cms/seasons
 
 ### Constat
