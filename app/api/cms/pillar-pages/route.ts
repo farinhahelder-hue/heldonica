@@ -29,7 +29,14 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ success: true, pages: data || [] })
+  // Compat front : DestinationPillarEditor attend {destination_slug, content}, pas {slug, name} plat
+  const pages = (data || []).map((row: Record<string, unknown>) => ({
+    ...row,
+    destination_slug: (row as { slug: string }).slug,
+    slug: (row as { slug: string }).slug,
+    content: row,
+  }))
+  return NextResponse.json({ success: true, pages })
 }
 
 // PATCH /api/cms/pillar-pages — update a destination
@@ -41,7 +48,8 @@ export async function PATCH(req: NextRequest) {
   if (!supabase) return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 })
 
   const body = await req.json()
-  const { slug, ...rest } = body
+  const slug = body.slug || body.destination_slug || body.content?.slug || body.content?.destination_slug
+  const rest = body.content && typeof body.content === 'object' ? { ...body.content, ...body } : body
 
   if (!slug) return NextResponse.json({ error: 'Missing slug' }, { status: 400 })
 
@@ -50,6 +58,7 @@ export async function PATCH(req: NextRequest) {
     'budget', 'season', 'flight', 'visa', 'currency', 'language',
     'seo_title', 'seo_desc', 'intro', 'info_table', 'itinerary',
     'budget_breakdown', 'faq', 'tested_by_heldonica', 'verdict',
+    'is_active', 'accommodations',
   ]
 
   const updates: Record<string, any> = { updated_at: new Date().toISOString() }
@@ -61,3 +70,7 @@ export async function PATCH(req: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ success: true })
 }
+
+export const POST = PATCH
+export const PUT = PATCH
+
