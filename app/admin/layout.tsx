@@ -1,0 +1,105 @@
+import Link from 'next/link'
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
+import { getCmsAuthStatus, CMS_SESSION_COOKIE } from '@/lib/cms-auth'
+
+export default async function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const cookieStore = await cookies()
+  const sessionCookie = cookieStore.get(CMS_SESSION_COOKIE)
+  
+  const mockRequest = new Request('http://localhost', {
+    headers: {
+      cookie: sessionCookie 
+        ? `${CMS_SESSION_COOKIE}=${sessionCookie.value}` 
+        : ''
+    }
+  })
+  
+  const authStatus = await getCmsAuthStatus(mockRequest)
+  
+  if (authStatus !== 'ok') {
+    redirect('/panel-manager')
+  }
+
+  return (
+    <div className="min-h-screen bg-stone-50">
+      <div className="max-w-4xl mx-auto py-8 px-4">
+        <header className="mb-8 pb-6 border-b border-stone-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-serif font-semibold text-mahogany">
+                🛠️ Admin Heldonica
+              </h1>
+              <p className="text-charcoal/60 text-sm mt-1">
+                Gestion des paramètres du site
+              </p>
+            </div>
+            <nav className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm justify-end">
+              <Link 
+                href="/cms-admin" 
+                className="text-eucalyptus hover:underline font-semibold"
+              >
+                ← Retour au CMS
+              </Link>
+              <span className="text-stone-300">|</span>
+              <Link 
+                href="/admin/categories" 
+                className="text-charcoal/70 hover:text-charcoal hover:underline"
+              >
+                Catégories
+              </Link>
+              <Link 
+                href="/admin/destinations" 
+                className="text-charcoal/70 hover:text-charcoal hover:underline"
+              >
+                Destinations
+              </Link>
+              <Link 
+                href="/admin/testimonials" 
+                className="text-charcoal/70 hover:text-charcoal hover:underline"
+              >
+                Témoignages
+              </Link>
+              <Link 
+                href="/admin/pricing" 
+                className="text-charcoal/70 hover:text-charcoal hover:underline"
+              >
+                Tarifs
+              </Link>
+              <Link 
+                href="/admin/media" 
+                className="text-charcoal/70 hover:text-charcoal hover:underline"
+              >
+                Médiathèque
+              </Link>
+              <Link 
+                href="/admin/redirects" 
+                className="text-charcoal/70 hover:text-charcoal hover:underline"
+              >
+                Redirections
+              </Link>
+              <Link 
+                href="/admin/analytics" 
+                className="text-charcoal/70 hover:text-charcoal hover:underline"
+              >
+                Analytics
+              </Link>
+              <span className="text-stone-300">|</span>
+              <Link 
+                href="/" 
+                className="text-charcoal/60 hover:text-charcoal"
+              >
+                Voir le site →
+              </Link>
+            </nav>
+          </div>
+        </header>
+        {children}
+      </div>
+    </div>
+  )
+}

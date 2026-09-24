@@ -134,7 +134,7 @@ export default function DashboardPage() {
       .select('id, destination, destination_detail, duration, budget, status, created_at')
       .eq('email', user.email)
       .order('created_at', { ascending: false })
-      .then(({ data, error: queryError }) => {
+      .then(({ data, error: queryError }: { data: any; error: any }) => {
         if (!active) return;
 
         if (queryError) {

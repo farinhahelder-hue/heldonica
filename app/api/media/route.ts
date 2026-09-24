@@ -11,6 +11,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(media)
   } catch (err) {
     console.error('Media list error:', err)
-    return NextResponse.json({ error: 'Erreur liste média' }, { status: 500 })
+    return NextResponse.json({ error: 'S3 non configuré ou erreur de connexion' }, { status: 200 })
   }
 }

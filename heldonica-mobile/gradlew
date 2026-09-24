@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+# Stub — Android Studio va régénérer le vrai wrapper au premier open.
+# Si tu veux builder sans Studio : `gradle wrapper --gradle-version 8.7` puis `./gradlew assembleDebug`
+echo "Wrapper stub — ouvre ce projet dans Android Studio pour générer le vrai gradlew (Gradle 8.7)."
+exit 1

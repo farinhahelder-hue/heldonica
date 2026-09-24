@@ -11,15 +11,52 @@ build/
 .DS_Store
 .vercel
 .idea/
+.claude/settings.local.json
 *.swp
 *.swo
 *~
 
 twillo.txt
 OLLAMA_MEMORY.md
+wordpresss old/
 
 app/test-supabase/supabase/.temp/
 app/test-supabase/
 supabase/.temp/
 
 tsconfig.tsbuildinfo
+.deploy-trigger
+.deploy-v2
+.vercel-cache-bust
+.env*
+
+# Google Photos tokens
+credentials.json
+token.json
+scripts/credentials.json
+scripts/token.json
+# Jetons OAuth Google : ces fichiers portent refresh_token et client_secret.
+# Le motif nomme chaque variante plutot qu'un token*.json trop large, mais
+# token_picker.json manquait — il serait parti dans un depot public.
+token_picker.json
+scripts/token_picker.json
+scripts/*token*.json
+# Heldonica Mobile (0€) - build local
+heldonica-mobile/.gradle/
+heldonica-mobile/app/build/
+heldonica-mobile/.idea/
+heldonica-mobile/local.properties
+content/evidence/*.json
+content/drafts/*.md
+
+# Outillage local du poste (chemins Windows en dur, caches Python)
+__pycache__/
+.vscode/
+aider-*.cmd
+interpreter.cmd
+
+# Jetons d agent en clair, generes par scripts/seed_agent_keys.mjs
+.agent-keys.local
+
+# Exports Timeline, photos et reconstitutions de voyage (donnees personnelles)
+imports/

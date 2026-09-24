@@ -1,3 +1,5 @@
+import { supabase } from './supabase-client'
+
 export interface InstagramStory {
   id: string
   title: string
@@ -12,47 +14,35 @@ export const INSTAGRAM_PROFILE = {
   website: 'https://heldonica.fr',
 }
 
-export const INSTAGRAM_STORIES: InstagramStory[] = [
-  {
-    id: 'story-madere-fanal',
-    title: 'Brume de Fanal',
-    location: 'Madere',
-    permalink: 'https://www.instagram.com/heldonica/',
-    image: 'https://images.unsplash.com/photo-1560719887-fe3105fa1e55?w=1200&q=80',
-  },
-  {
-    id: 'story-madere-cabo',
-    title: 'Lever 6h a Cabo Girao',
-    location: 'Madere',
-    permalink: 'https://www.instagram.com/heldonica/',
-    image: 'https://images.unsplash.com/photo-1559494007-9f5847c49d94?w=1200&q=80',
-  },
-  {
-    id: 'story-zurich-limmat',
-    title: 'Limmat au ralenti',
-    location: 'Zurich',
-    permalink: 'https://www.instagram.com/heldonica/',
-    image: 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=1200&q=80',
-  },
-  {
-    id: 'story-stoos-ridge',
-    title: 'Crete Stoos',
-    location: 'Suisse',
-    permalink: 'https://www.instagram.com/heldonica/',
-    image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
-  },
-  {
-    id: 'story-roumanie',
-    title: 'Cour cachée à Timișoara',
-    location: 'Roumanie',
-    permalink: 'https://www.instagram.com/heldonica/',
-    image: 'https://images.unsplash.com/photo-1555990538-1e0700b21df9?w=1200&q=80',
-  },
-  {
-    id: 'story-paris',
-    title: 'Petite Ceinture',
-    location: 'Paris',
-    permalink: 'https://www.instagram.com/heldonica/',
-    image: 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=1200&q=80',
-  },
-]
+// Anciennement peuplé de liens heldonica.fr/wp-content — tous morts (403) depuis la migration
+// vers Next.js. Tant qu'un flux Instagram ou des photos maison réelles ne sont pas configurés
+// via CMS (instagram_stories_json), on n'affiche rien plutôt qu'une image cassée.
+const HARDCODED_STORIES: InstagramStory[] = []
+
+export async function getInstagramStories(): Promise<InstagramStory[]> {
+  if (!supabase) return HARDCODED_STORIES
+
+  try {
+    const { data } = await supabase
+      .from('site_settings')
+      .select('key, value')
+      .in('key', ['instagram_stories_json', 'instagram_username', 'instagram_followers_label'])
+
+    if (!data || data.length === 0) return HARDCODED_STORIES
+
+    const settingsMap = Object.fromEntries(data.map(s => [s.key, s.value]))
+
+    if (settingsMap.instagram_stories_json) {
+      try {
+        const parsed = JSON.parse(settingsMap.instagram_stories_json)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed as InstagramStory[]
+        }
+      } catch {}
+    }
+
+    return HARDCODED_STORIES
+  } catch {
+    return HARDCODED_STORIES
+  }
+}

@@ -17,7 +17,7 @@ interface PageHeroProps {
  * <PageHero
  *   title="Nos Destinations Slow Travel"
  *   breadcrumb="Heldonica → Destinations"
- *   description="Des lieux qu'on a vraiment pris le temps de comprendre."
+ *   description="Des lieux qu’on a vraiment pris le temps de comprendre."
  * />
  */
 export function PageHero({

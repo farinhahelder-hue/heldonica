@@ -1,29 +1,43 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useDeferredValue } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import NewsletterForm from '@/components/NewsletterForm'
+import BlogFilters, { type BlogCategory } from '@/components/BlogFilters'
 import type { BlogPost } from '@/lib/blog-supabase'
+import { useContentLoader } from '@/hooks/useContentLoader'
+import EditableZone from '@/components/inline-edit/EditableZone'
 
-const CATEGORY_LABELS: Record<string, string> = {
-  Tous: 'Tout lire',
-  'Carnets Voyage': 'Carnets',
-  'Découvertes Locales': 'Pépites locales',
-  'Guides Pratiques': 'Guides',
+const CATEGORY_FALLBACK_BG_DEFAULT: Record<string, string> = {
+  'Carnets Voyage': '/og-default.jpg',
+  'Découvertes Locales': '/og-default.jpg',
+  'Guides Pratiques': '/og-default.jpg',
 }
 
-const CATEGORY_FALLBACK_BG: Record<string, string> = {
-  'Carnets Voyage': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80',
-  'Découvertes Locales': 'https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=600&q=80',
-  'Guides Pratiques': 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?w=600&q=80',
+const DEFAULT_CARD_FALLBACK = '/og-default.jpg'
+
+const CATEGORY_GRADIENT_DEFAULT: Record<string, string> = {
+  'Carnets Voyage': 'from-eucalyptus to-teal',
+  'Découvertes Locales': 'from-mahogany to-eucalyptus',
+  'Guides Pratiques': 'from-eucalyptus to-teal',
 }
 
-const DEFAULT_CARD_FALLBACK = 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80'
+const CATEGORY_DESCRIPTIONS_DEFAULT: Record<string, string> = {
+  'Carnets Voyage': 'Les récits qui gardent l\'heure, le rythme et ce qu\'on a retenu sur place.',
+  'Découvertes Locales': 'Des lieux qu\'on n\'était pas venus chercher, et qu\'on aurait regretté de rater.',
+  'Guides Pratiques': 'Des repères concrets quand le terrain devient plus utile que la théorie.',
+}
 
-const BADGE_FALLBACK_SRC = '/images/badges-heldonica.svg'
+// Default categories as fallback
+const DEFAULT_CATEGORIES: BlogCategory[] = [
+  { key: 'Tous', label: 'Tous' },
+  { key: 'Carnets Voyage', label: 'Carnets Voyage' },
+]
 
 interface Props {
   posts?: (BlogPost & { formattedDate: string; readTime?: number })[]
+  categories?: BlogCategory[]
 }
 
 function ReadProgressBar() {
@@ -52,7 +66,8 @@ function ReadProgressBar() {
   )
 }
 
-export default function BlogClientPage({ posts: rawPosts }: Props) {
+export default function BlogClientPage({ posts: rawPosts, categories: propCategories }: Props) {
+  const { settings } = useContentLoader()
   const posts = useMemo(
     () => (Array.isArray(rawPosts) ? rawPosts : []),
     [rawPosts]
@@ -60,12 +75,71 @@ export default function BlogClientPage({ posts: rawPosts }: Props) {
   const [activeFilter, setActiveFilter] = useState('Tous')
   const [searchQuery, setSearchQuery] = useState('')
 
-  const categories = ['Tous', 'Carnets Voyage', 'Découvertes Locales', 'Guides Pratiques']
+  const deferredSearchQuery = useDeferredValue(searchQuery)
+
+  const categoryLabels = useMemo(() => {
+    try {
+      const raw = settings?.blog_category_labels
+      if (raw) return { 'Tout lire': 'Tout lire', ...JSON.parse(raw) }
+    } catch {}
+    return { 'Tout lire': 'Tout lire', 'Carnets Voyage': 'Carnets', 'Découvertes Locales': 'Pépites locales', 'Guides Pratiques': 'Guides' }
+  }, [settings])
+
+  const categoryFallbackBg = useMemo(() => {
+    try {
+      const raw = settings?.blog_category_fallbacks
+      if (raw) return { ...CATEGORY_FALLBACK_BG_DEFAULT, ...JSON.parse(raw) }
+    } catch {}
+    return CATEGORY_FALLBACK_BG_DEFAULT
+  }, [settings])
+
+  const categoryGradient = useMemo(() => {
+    try {
+      const raw = settings?.blog_category_gradients
+      if (raw) return { ...CATEGORY_GRADIENT_DEFAULT, ...JSON.parse(raw) }
+    } catch {}
+    return CATEGORY_GRADIENT_DEFAULT
+  }, [settings])
+
+  const categoryDescriptions = useMemo(() => {
+    try {
+      const raw = settings?.blog_category_descriptions
+      if (raw) return { ...CATEGORY_DESCRIPTIONS_DEFAULT, ...JSON.parse(raw) }
+    } catch {}
+    return CATEGORY_DESCRIPTIONS_DEFAULT
+  }, [settings])
+
+  const [categories, setCategories] = useState<BlogCategory[]>(() => {
+    if (propCategories && propCategories.length > 0) return propCategories
+    return DEFAULT_CATEGORIES
+  })
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const res = await fetch('/api/cms/blog-categories')
+        const data = await res.json()
+        if (data.success && data.categories) {
+          const mapped = [
+            { key: 'Tous', label: categoryLabels['Tout lire'] || 'Tout lire' },
+            ...data.categories.map((c: any) => ({
+              key: c.db_value,
+              label: c.label
+            }))
+          ]
+          setCategories(mapped)
+        }
+      } catch (err) {
+        console.error('Failed to load dynamic blog categories:', err)
+      }
+    }
+    loadCategories()
+  }, [propCategories, categoryLabels])
 
   const filteredPosts = useMemo(() => {
     return posts.filter((post) => {
       const matchCategory = activeFilter === 'Tous' || post.category === activeFilter
-      const query = searchQuery.trim().toLowerCase()
+      const query = deferredSearchQuery.trim().toLowerCase()
       const matchSearch =
         query === '' ||
         post.title.toLowerCase().includes(query) ||
@@ -74,17 +148,16 @@ export default function BlogClientPage({ posts: rawPosts }: Props) {
 
       return matchCategory && matchSearch
     })
-  }, [posts, activeFilter, searchQuery])
+  }, [posts, activeFilter, deferredSearchQuery])
 
-  const featuredPost = activeFilter === 'Tous' && searchQuery === '' ? posts[0] : null
-  const carnets = filteredPosts.filter((post) => post.category === 'Carnets Voyage')
-  const decouvertes = filteredPosts.filter((post) => post.category === 'Découvertes Locales')
-  const guides = filteredPosts.filter((post) => post.category === 'Guides Pratiques')
+  const featuredPost = activeFilter === 'Tous' && deferredSearchQuery === '' ? posts[0] : null
 
+  // Compute stats dynamically from posts
   const safePosts = Array.isArray(posts) ? posts : []
-  const totalCarnets = safePosts.filter((post) => post.category === 'Carnets Voyage').length
-  const totalDecouvertes = safePosts.filter((post) => post.category === 'Découvertes Locales').length
-  const totalGuides = safePosts.filter((post) => post.category === 'Guides Pratiques').length
+  const getPostCount = (catKey: string) => {
+    if (catKey === 'Tous') return safePosts.length
+    return safePosts.filter((post) => post.category === catKey).length
+  }
 
   return (
     <main className="min-h-screen bg-cloud-dancer">
@@ -95,27 +168,39 @@ export default function BlogClientPage({ posts: rawPosts }: Props) {
           className="absolute inset-0 opacity-25"
           style={{
             backgroundImage:
-              "url('https://heldonica.fr/wp-content/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg')",
+              "url('/og-default.jpg')",
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-br from-mahogany/80 via-mahogany/75 to-mahogany/65" />
         <div className="relative mx-auto max-w-4xl text-center">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-teal/80">Blog Heldonica</p>
-          <h1 className="mb-6 text-5xl font-serif font-light leading-tight md:text-7xl">
-            Des moments, des détours,
-            <br />
-            des repères qu&apos;on aurait aimé avoir avant.
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-teal/80">
+            <EditableZone page="blog" zone="hero_badge" fallback="Blog Heldonica" />
+          </p>
+          {/* Le titre tient sur deux lignes. Le saut vient de la valeur CMS
+              (`whitespace-pre-line`) et non d'un <br /> figé : il reste ainsi
+              modifiable depuis l'admin. */}
+          <h1 className="mb-6 whitespace-pre-line text-5xl font-serif font-light leading-tight md:text-7xl">
+            <EditableZone
+              page="blog"
+              zone="hero_title"
+              type="textarea"
+              fallback={'Des moments, des détours,\ndes repères qu\'on aurait aimé avoir avant.'}
+            />
           </h1>
           <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-white/75">
-            On écrit depuis le terrain : une arrivée trop tardive, une adresse trouvée au bon
-            moment, une erreur qu&apos;on ne refera pas. Le reste, on le laisse aux brochures.
+            <EditableZone
+              page="blog"
+              zone="hero_subtitle"
+              type="textarea"
+              fallback="On écrit depuis le terrain : une arrivée trop tardive, une adresse trouvée au bon moment, une erreur qu'on ne refera pas. Le reste, on le laisse aux brochures."
+            />
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-white/65">
-            <StatChip value={totalCarnets} label="Carnets" />
-            <StatChip value={totalDecouvertes} label="Pépites locales" />
-            <StatChip value={totalGuides} label="Guides" />
+            {categories.filter(c => c.key !== 'Tous').map(cat => (
+              <StatChip key={cat.key} value={getPostCount(cat.key)} label={cat.label} />
+            ))}
           </div>
         </div>
       </section>
@@ -124,31 +209,37 @@ export default function BlogClientPage({ posts: rawPosts }: Props) {
         <section className="mx-auto max-w-7xl px-4 pb-4 pt-14">
           <div className="mb-5 flex items-end justify-between gap-4">
             <div>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-eucalyptus">À lire d&apos;abord</p>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-eucalyptus">
+                <EditableZone page="blog" zone="featured_kicker" fallback="À lire d'abord" />
+              </p>
               <h2 className="text-2xl font-serif font-light text-mahogany md:text-3xl">
-                Un carnet qui donne le ton.
+                <EditableZone
+                  page="blog"
+                  zone="featured_title"
+                  fallback="Un carnet qui donne le ton."
+                />
               </h2>
             </div>
           </div>
           <Link href={`/blog/${featuredPost.slug}`} className="group block transition-all duration-200">
             <article className="relative flex h-[380px] items-end overflow-hidden rounded-[2rem] bg-mahogany shadow-xl md:h-[500px]">
               {featuredPost.featured_image ? (
-                <img
+                <Image
                   src={featuredPost.featured_image}
                   alt={featuredPost.title}
-                  width={1200}
-                  height={500}
-                  className="absolute inset-0 h-full w-full object-cover opacity-60 transition-all duration-500 group-hover:scale-105 group-hover:opacity-70"
-                  loading="lazy"
+                  fill
+                  priority
+                  className="object-cover opacity-60 transition-all duration-500 group-hover:scale-105 group-hover:opacity-70"
+                  sizes="(max-width: 768px) 100vw, 1200px"
                 />
               ) : (
-                <img
-                  src={CATEGORY_FALLBACK_BG[featuredPost.category ?? ''] ?? DEFAULT_CARD_FALLBACK}
+                <Image
+                  src={categoryFallbackBg[featuredPost.category ?? ''] ?? DEFAULT_CARD_FALLBACK}
                   alt={featuredPost.title}
-                  width={1200}
-                  height={500}
-                  className="absolute inset-0 h-full w-full object-cover opacity-60"
-                  loading="lazy"
+                  fill
+                  priority
+                  className="object-cover opacity-60"
+                  sizes="(max-width: 768px) 100vw, 1200px"
                 />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
@@ -183,22 +274,19 @@ export default function BlogClientPage({ posts: rawPosts }: Props) {
           <div className="flex flex-wrap gap-2">
             {categories.map((category) => (
               <button
-                key={category}
-                onClick={() => setActiveFilter(category)}
+                key={category.key}
+                onClick={() => setActiveFilter(category.key)}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${
-                  activeFilter === category
+                  activeFilter === category.key
                     ? 'bg-eucalyptus text-white shadow-sm'
                     : 'border border-cloud-dancer bg-white text-charcoal/70 hover:border-eucalyptus hover:bg-eucalyptus/5 hover:text-eucalyptus'
                 }`}
               >
-                {CATEGORY_LABELS[category]}
+                {category.label}
                 <span className={`ml-1.5 rounded-full px-1.5 text-xs ${
-                  activeFilter === category ? 'bg-white/20' : 'bg-cloud-dancer'
+                  activeFilter === category.key ? 'bg-white/20' : 'bg-cloud-dancer'
                 }`}>
-                  {category === 'Tous' ? posts.length : 
-                   category === 'Carnets Voyage' ? totalCarnets :
-                   category === 'Découvertes Locales' ? totalDecouvertes :
-                   category === 'Guides Pratiques' ? totalGuides : 0}
+                  {getPostCount(category.key)}
                 </span>
               </button>
             ))}
@@ -213,6 +301,7 @@ export default function BlogClientPage({ posts: rawPosts }: Props) {
               className="w-full rounded-full border border-cloud-dancer bg-white py-3 pl-11 pr-4 text-sm text-charcoal shadow-sm outline-none transition-all duration-200 placeholder:text-charcoal/40 focus:border-eucalyptus focus:ring-2 focus:ring-eucalyptus/20"
             />
             <svg
+              aria-hidden="true"
               className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-charcoal/40"
               fill="none"
               stroke="currentColor"
@@ -263,53 +352,29 @@ export default function BlogClientPage({ posts: rawPosts }: Props) {
         </div>
       ) : (
         <div className="mx-auto max-w-7xl space-y-16 px-4 pb-20">
-          {(activeFilter === 'Tous' || activeFilter === 'Carnets Voyage') && carnets.length > 0 && (
-            <section>
-              <SectionHeader
-                eyebrow="Carnets"
-                title="Carnets de voyage"
-                description="Les récits qui gardent l’heure, le rythme et ce qu’on a retenu sur place."
-                count={carnets.length}
-              />
-              <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {carnets.map((post) => (
-                  <ArticleCard key={post.slug} post={post} />
-                ))}
-              </div>
-            </section>
-          )}
+          {categories.filter(c => c.key !== 'Tous').map((cat) => {
+            const postsInCategory = filteredPosts.filter((post) => post.category === cat.key)
+            if (postsInCategory.length === 0) return null
+            if (activeFilter !== 'Tous' && activeFilter !== cat.key) return null
 
-          {(activeFilter === 'Tous' || activeFilter === 'Découvertes Locales') && decouvertes.length > 0 && (
-            <section className="rounded-[2rem] bg-eucalyptus/5 px-4 py-12 md:px-8">
-              <SectionHeader
-                eyebrow="Pépites"
-                title="Découvertes locales"
-                description="Des lieux qu’on n’était pas venus chercher, et qu’on aurait regretté de rater."
-                count={decouvertes.length}
-              />
-              <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {decouvertes.map((post) => (
-                  <ArticleCard key={post.slug} post={post} />
-                ))}
-              </div>
-            </section>
-          )}
+            const isPepites = cat.key === 'Découvertes Locales'
 
-          {(activeFilter === 'Tous' || activeFilter === 'Guides Pratiques') && guides.length > 0 && (
-            <section>
-              <SectionHeader
-                eyebrow="Guides"
-                title="Guides pratiques"
-                description="Des repères concrets quand le terrain devient plus utile que la théorie."
-                count={guides.length}
-              />
-              <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {guides.map((post) => (
-                  <ArticleCard key={post.slug} post={post} />
-                ))}
-              </div>
-            </section>
-          )}
+            return (
+              <section key={cat.key} className={isPepites ? "rounded-[2rem] bg-eucalyptus/5 px-4 py-12 md:px-8" : ""}>
+                <SectionHeader
+                  eyebrow={cat.label}
+                  title={cat.label}
+                  description={categoryDescriptions[cat.key] || `Tous les articles de la catégorie ${cat.label}.`}
+                  count={postsInCategory.length}
+                />
+                <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {postsInCategory.map((post) => (
+                    <ArticleCard key={post.slug} post={post} fallbackImages={categoryFallbackBg} gradientMap={categoryGradient} />
+                  ))}
+                </div>
+              </section>
+            )
+          })}
         </div>
       )}
 
@@ -319,9 +384,11 @@ export default function BlogClientPage({ posts: rawPosts }: Props) {
 }
 
 function StatChip({ value, label }: { value: number; label: string }) {
+  // Ne jamais afficher 0 — utiliser "—" comme fallback
+  const displayValue = (value === null || value === undefined || value === 0) ? '—' : String(value)
   return (
     <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-left backdrop-blur-sm">
-      <span className="mr-2 text-lg font-light text-white">{value}</span>
+      <span className="mr-2 text-lg font-light text-white">{displayValue}</span>
       <span className="text-xs uppercase tracking-[0.12em] text-white/60">{label}</span>
     </div>
   )
@@ -354,68 +421,85 @@ function SectionHeader({
   )
 }
 
-function ArticleCard({ post }: { post: BlogPost & { formattedDate: string; readTime?: number } }) {
-  const fallbackImg = CATEGORY_FALLBACK_BG[post.category ?? ''] ?? DEFAULT_CARD_FALLBACK
-  const [imageSrc, setImageSrc] = useState(post.featured_image ?? null)
+function ArticleCard({ post, fallbackImages, gradientMap }: { post: BlogPost & { formattedDate: string; readTime?: number }; fallbackImages?: Record<string, string>; gradientMap?: Record<string, string> }) {
+  const fb = fallbackImages || CATEGORY_FALLBACK_BG_DEFAULT
+  const gm = gradientMap || CATEGORY_GRADIENT_DEFAULT
+  const fallbackImg = fb[post.category ?? ''] ?? DEFAULT_CARD_FALLBACK
+  
+  // Better image handling: check for valid URL
+  const hasValidImage = post.featured_image && 
+    typeof post.featured_image === 'string' && 
+    post.featured_image.trim().length > 0 &&
+    (post.featured_image.startsWith('http') || post.featured_image.startsWith('/'))
+  
+  const [imageSrc, setImageSrc] = useState(hasValidImage ? post.featured_image : null)
+  const [imageError, setImageError] = useState(false)
 
   useEffect(() => {
-    setImageSrc(post.featured_image ?? null)
-  }, [post.featured_image])
-
-  const isFallback = !imageSrc
+    setImageSrc(hasValidImage ? post.featured_image : null)
+    setImageError(false)
+  }, [post.featured_image, hasValidImage])
 
   // Ensure tags is always an array
   const safeTags = Array.isArray(post.tags) ? post.tags : []
 
+  // Category icon SVG
+  const categoryIcons: Record<string, string> = {
+    'Carnets Voyage': 'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5',
+    'Découvertes Locales': 'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z M12 12m-3 0a3 3 0 106 0 3 3 0 10-6 0',
+    'Guides Pratiques': 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+  }
+  const categoryIcon = categoryIcons[post.category ?? ''] || 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
+  const categoryColors: Record<string, string> = {
+    'Carnets Voyage': '#2D8B7A',
+    'Découvertes Locales': '#C4714A', 
+    'Guides Pratiques': '#6B5B4F',
+  }
+  const accentColor = categoryColors[post.category ?? ''] || '#2D8B7A'
+
   return (
     <Link href={`/blog/${post.slug}`} className="group block h-full transition-all duration-200">
       <article className="flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-cloud-dancer bg-white shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-lg">
-        {isFallback ? (
-          <div className="relative h-52 w-full overflow-hidden">
-            <img
-              src={fallbackImg}
-              alt="Heldonica"
-              width={400}
-              height={208}
-              className="h-full w-full object-cover"
-              loading="lazy"
-            />
-            {post.category && (
-              <div className="absolute left-4 top-4">
-                <span className="rounded-full bg-eucalyptus/90 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">
-                  {post.category}
-                </span>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="relative h-52 w-full overflow-hidden">
-            <img
-              src={imageSrc!}
+        {/* Image section - always show something, never empty blocks */}
+        <div className="relative h-52 w-full overflow-hidden bg-gradient-to-br from-stone-100 to-stone-200">
+          {imageSrc && !imageError ? (
+            <Image
+              src={imageSrc}
               alt={post.title}
-              width={400}
-              height={208}
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
               loading="lazy"
-              onError={() => setImageSrc(null)}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              onError={() => setImageError(true)}
             />
-            {post.category && (
-              <div className="absolute left-4 top-4">
-                <span className="rounded-full bg-eucalyptus/90 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">
-                  {post.category}
-                </span>
-              </div>
-            )}
-          </div>
-        )}
-
-        {isFallback && post.category && (
-          <div className="px-5 pt-4">
-            <span className="rounded-full bg-eucalyptus/10 px-2.5 py-1 text-xs font-semibold text-eucalyptus">
-              {post.category}
-            </span>
-          </div>
-        )}
+          ) : (
+            <div className={`flex h-full w-full flex-col items-center justify-center bg-gradient-to-br p-6 ${gm[post.category ?? ''] || 'from-eucalyptus to-teal'}`}>
+              <svg
+                aria-hidden="true"
+                className="h-12 w-12 text-white/70"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={categoryIcon} />
+              </svg>
+              <span className="mt-2 text-xs font-medium uppercase tracking-wider text-white/90">
+                {post.category || 'Slow Travel'}
+              </span>
+            </div>
+          )}
+          {/* Category badge */}
+          {post.category && (
+            <div className="absolute left-4 top-4">
+              <span 
+                className="rounded-full px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm"
+                style={{ backgroundColor: `${accentColor}dd` }}
+              >
+                {post.category}
+              </span>
+            </div>
+          )}
+        </div>
 
         <div className="flex flex-1 flex-col p-5">
           <h3 className="mb-2 text-lg font-semibold leading-snug text-mahogany transition-colors duration-200 group-hover:text-eucalyptus">

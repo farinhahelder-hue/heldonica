@@ -56,15 +56,9 @@ export function generateGeoDistribution(targetCountries: string[]): string {
 
 // Generate robots meta
 export function generateRobotsMeta(indexSite: boolean, followLinks: boolean): string {
-  const parts: string[] = []
-  
-  if (indexSite !== false) parts.push('index')
-  else parts.push('noindex')
-  
-  if (followLinks !== false) parts.push('follow')
-  else parts.push('nofollow')
-  
-  return parts.join(', ')
+  const index = indexSite ? 'index' : 'noindex';
+  const follow = followLinks ? 'follow' : 'nofollow';
+  return `${index}, ${follow}, max-image-preview:large, max-snippet:-1, max-video-preview:-1`;
 }
 
 // Build full metadata from SEO settings
@@ -128,3 +122,7 @@ export function buildPageMetadata(input: PageSeoInput) {
     },
   }
 }
+export const SITE_URL = 'https://www.heldonica.fr'
+export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-default.jpg`
+export const DEFAULT_TITLE = 'Heldonica — Slow Travel & Voyages Authentiques'
+export const DEFAULT_DESCRIPTION = 'Blog slow travel et pépites dénichées hors des sentiers battus. Carnets de route, destinations authentiques et travel planning sur mesure écoresponsable en Europe et ailleurs.'

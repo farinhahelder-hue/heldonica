@@ -10,11 +10,28 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-      "style-src 'self' 'unsafe-inline' https://api.fontshare.com https://fonts.googleapis.com",
-      "img-src 'self' data: blob: https://images.unsplash.com https://*.supabase.co https://heldonica.fr https://www.heldonica.fr https://behold.pictures https://cdn2.behold.pictures https://lh3.googleusercontent.com https://lh4.googleusercontent.com https://lh5.googleusercontent.com https://lh6.googleusercontent.com https://storage.googleapis.com",
-      "font-src 'self' https://api.fontshare.com https://fonts.gstatic.com",
-      "connect-src 'self' https://*.supabase.co https://api.perplexity.ai https://api.unsplash.com https://api.bufferapp.com",
+      // Next.js evalue son bundle en developpement, pour le rechargement a
+      // chaud. Sans 'unsafe-eval', le navigateur le refuse, React n'hydrate
+      // jamais, et la page reste inerte : les champs se remplissent mais aucun
+      // gestionnaire ne tourne. `npm run dev` etait donc inutilisable, et
+      // l'erreur ne se voyait que dans la console.
+      //
+      // La permission ne vaut qu'en developpement : la production ne l'a pas.
+      `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''} https://www.googletagmanager.com`,
+      "style-src 'self' 'unsafe-inline' https://api.fontshare.com https://fonts.googleapis.com https://unpkg.com",
+      "img-src 'self' data: blob: https://images.unsplash.com https://*.supabase.co https://heldonica.fr https://www.heldonica.fr https://behold.pictures https://cdn2.behold.pictures https://lh3.googleusercontent.com https://lh4.googleusercontent.com https://lh5.googleusercontent.com https://lh6.googleusercontent.com https://storage.googleapis.com https://*.tile.openstreetmap.org",
+      "media-src 'self' https://d2xsxph8kpxj0f.cloudfront.net https://*.cloudfront.net",
+      "font-src 'self' https://api.fontshare.com https://fonts.gstatic.com https://frontend-cdn.perplexity.ai",
+      // GA4 n'emet pas vers www.google-analytics.com mais vers un point de
+      // collecte regional — region1 pour l'Europe. La regle ne listait que
+      // www : toutes les mesures partaient et etaient refusees par le
+      // navigateur, sans que rien ne le signale ailleurs que dans la console.
+      "connect-src 'self' https://*.supabase.co https://api.perplexity.ai https://api.unsplash.com https://api.bufferapp.com https://nominatim.openstreetmap.org https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com",
+      // Sans frame-src, la regle retombe sur default-src 'self' et l'iframe de
+      // repli de Tag Manager (ns.html, pour les visiteurs sans JavaScript) est
+      // bloquee en silence — une violation de CSP dans la console, rien de
+      // plus visible.
+      "frame-src 'self' https://www.googletagmanager.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
@@ -23,7 +40,9 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
+  outputFileTracingRoot: __dirname,
   images: {
+    qualities: [60, 75, 85],
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 2678400,
     remotePatterns: [
@@ -51,14 +70,12 @@ const nextConfig = {
   compress: true,
 
   eslint: { ignoreDuringBuilds: false },
-  typescript: { ignoreBuildErrors: true },
+  typescript: { ignoreBuildErrors: false },
 
   experimental: {
     optimizePackageImports: ['@supabase/supabase-js'],
-    // Fix ERR_REQUIRE_ESM: jsdom → html-encoding-sniffer → @exodus/bytes/encoding-lite.js
-    // These packages must NOT be bundled by webpack — let Node.js handle them natively
-    serverComponentsExternalPackages: ['jsdom', 'html-encoding-sniffer', '@exodus/bytes'],
   },
+  serverExternalPackages: ['jsdom', 'html-encoding-sniffer', '@exodus/bytes', 'fluent-ffmpeg'],
 
   staticPageGenerationTimeout: 300,
 
@@ -68,6 +85,9 @@ const nextConfig = {
       config.externals = [
         ...(Array.isArray(config.externals) ? config.externals : [config.externals].filter(Boolean)),
         'dompurify',
+        'jsdom',
+        'html-encoding-sniffer',
+        '@exodus/bytes',
       ];
     }
     return config;
@@ -83,11 +103,22 @@ const nextConfig = {
   },
 
   async redirects() {
-    return [
+    const hardcoded = [
+      { source: '/bons-plans', destination: '/guides-pratiques', permanent: true },
+      { source: '/bons-plans/', destination: '/guides-pratiques', permanent: true },
       { source: '/about', destination: '/a-propos', permanent: true },
       { source: '/about-us', destination: '/a-propos', permanent: true },
-      { source: '/admin', destination: '/cms-admin', permanent: true },
-      { source: '/admin/:path*', destination: '/cms-admin/:path*', permanent: true },
+      { source: '/admin', destination: '/panel-manager', permanent: true },
+      { source: '/admin/:path*', destination: '/panel-manager', permanent: true },
+      { source: '/cms-admin', destination: '/panel-manager', permanent: true },
+      { source: '/cms-admin/:path*', destination: '/panel-manager', permanent: true },
+      // Timisoara existait a deux URL vivantes. La page riche vit desormais
+      // sous /destinations/roumanie/timisoara, comme Brasov, Cluj et Bucarest.
+      // La redirection est declaree ici plutot que par une page-stub : celle-ci
+      // ne l'emportait pas sur la route dynamique [slug], qui continuait a servir
+      // un « bientot disponible » en 200 sur l'ancienne URL.
+      { source: '/destinations/timisoara', destination: '/destinations/roumanie/timisoara', permanent: true },
+      { source: '/destinations/timisoara/', destination: '/destinations/roumanie/timisoara', permanent: true },
       { source: '/zurich', destination: '/destinations/zurich', permanent: true },
       { source: '/zurich/', destination: '/destinations/zurich', permanent: true },
       { source: '/suisse', destination: '/destinations/suisse', permanent: true },
@@ -99,17 +130,46 @@ const nextConfig = {
       { source: '/paris', destination: '/destinations/paris', permanent: true },
       { source: '/paris/', destination: '/destinations/paris', permanent: true },
       { source: '/stoos-ridge-notre-aventure-sur-la-crete-panoramique-2', destination: '/blog/stoos-ridge-notre-aventure-sur-la-crete-panoramique', permanent: true },
+      { source: '/blog/stoos-ridge-coucher-soleil-traversee-funiculaire', destination: '/blog/stoos-ridge-notre-aventure-sur-la-crete-panoramique', permanent: true },
+      { source: '/blog/stoos-ridge-notre-aventure-crete-panoramique', destination: '/blog/stoos-ridge-notre-aventure-sur-la-crete-panoramique', permanent: true },
+      { source: '/blog/stoos-ridge-la-crete-pano', destination: '/blog/stoos-ridge-notre-aventure-sur-la-crete-panoramique', permanent: true },
+      { source: '/blog/greve-reserve-naturelle', destination: '/blog/greve-reserve-naturelle-suisse', permanent: true },
       { source: '/travel-planner', destination: '/travel-planning', permanent: true },
       { source: '/travel-planner/', destination: '/travel-planning', permanent: true },
-      { source: '/nos-services', destination: '/travel-planning', permanent: true },
-      { source: '/nos-services/', destination: '/travel-planning', permanent: true },
-      { source: '/hotel-consulting', destination: '/travel-planning', permanent: true },
-      { source: '/hotel-consulting/:path*', destination: '/travel-planning', permanent: true },
+      { source: '/hotel-consulting', destination: '/expert-hotelier', permanent: true },
+      { source: '/hotel-consulting/:path*', destination: '/expert-hotelier', permanent: true },
       { source: '/sujets/bons-plans', destination: '/blog', permanent: true },
       { source: '/sujets/bons-plans/', destination: '/blog', permanent: true },
       { source: '/sujets/:slug', destination: '/blog', permanent: true },
       { source: '/etiquettes/:slug', destination: '/blog', permanent: true },
+      { source: '/coaching', destination: '/travel-planning', permanent: true },
+      { source: '/coaching/', destination: '/travel-planning', permanent: true },
+      { source: '/happiness-design', destination: '/travel-planning', permanent: true },
+      { source: '/happiness-design/', destination: '/travel-planning', permanent: true },
     ];
+
+    try {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
+      if (supabaseUrl && supabaseKey) {
+        const res = await fetch(`${supabaseUrl}/rest/v1/cms_redirects?active=eq.true&select=from_path,to_path,redirect_type`, {
+          headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` }
+        })
+        if (res.ok) {
+          const dbRedirects = await res.json()
+          const dynamic = (dbRedirects || []).map(r => ({
+            source: r.from_path,
+            destination: r.to_path,
+            permanent: r.redirect_type === 301,
+          }))
+          return [...hardcoded, ...dynamic]
+        }
+      }
+    } catch (e) {
+      console.error('[next.config.js] Failed to fetch redirects:', e)
+    }
+
+    return hardcoded;
   },
 }
 

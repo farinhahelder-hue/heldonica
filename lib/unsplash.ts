@@ -1,15 +1,11 @@
 /**
  * Unsplash API Integration for Free Stock Photos
- * 
- * Use your Unsplash credentials:
- * - Application ID: 921608
- * - Access Key: VKxcQvLNtFlLcgTxXW5YjnsQng4mu-WyIjyNHvLYsWA
  */
 
 export const UNSPLASH_CONFIG = {
-  applicationId: '921608',
-  accessKey: 'VKxcQvLNtFlLcgTxXW5YjnsQng4mu-WyIjyNHvLYsWA',
-  secretKey: 'b8b0mVr_GrMJXdB8ddQTSma5Cf2zo-EHXBFAosljpVQ',
+  applicationId: process.env.UNSPLASH_APP_ID || '',
+  accessKey: process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY || '',
+  secretKey: process.env.UNSPLASH_SECRET_KEY || '',
 };
 
 export interface UnsplashPhoto {
@@ -26,6 +22,9 @@ export interface UnsplashPhoto {
   user: {
     name: string;
     username: string;
+    social?: {
+      instagram_username?: string | null;
+    };
   };
   likes: number;
 }
@@ -40,7 +39,7 @@ export async function searchUnsplash(query: string, perPage = 10): Promise<Unspl
   
   try {
     const response = await fetch(
-      `${UNSPLASH_API}/search/photos?query=${encodeURIComponent(query)}&per_page=${perPage}&orientation=portrait`,
+      `${UNSPLASH_API}/search/photos?query=${encodeURIComponent(query)}&per_page=${perPage}&orientation=landscape`,
       {
         headers: {
           'Authorization': `Client-ID ${accessKey}`,
@@ -72,13 +71,81 @@ export async function getRandomPhoto(topic: string): Promise<UnsplashPhoto | nul
  * Format photo URL for Instagram (needs high quality)
  */
 export function getInstagramUrl(photo: UnsplashPhoto): string {
-  // regular size is good for Instagram
-  return photo.urls.regular;
+  return photo.user.social?.instagram_username
+    ? `https://instagram.com/${photo.user.social.instagram_username}`
+    : '';
 }
 
 /**
  * Get photographer credit for caption
  */
 export function getCredit(photo: UnsplashPhoto): string {
-  return `Photo by ${photo.user.name} @${photo.user.username}`;
+  return `Photo de ${photo.user.name} sur Unsplash`;
+}
+
+// Default fallback images by category — tous remplacés par le fallback de marque
+export const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
+  default: '/og-default.jpg',
+  'Carnets Voyage': '/og-default.jpg',
+  'Découvertes Locales': '/og-default.jpg',
+  'Guides Pratiques': '/og-default.jpg',
+  'europe': '/og-default.jpg',
+  'france': '/og-default.jpg',
+  'portugal': '/og-default.jpg',
+  'espagne': '/og-default.jpg',
+  'italie': '/og-default.jpg',
+  'voyage': '/og-default.jpg',
+  'slow-travel': '/og-default.jpg',
+};
+
+/**
+ * Get a fallback image URL for articles without featured images
+ * Uses category, title keyword, or default
+ */
+export function getFallbackImageUrl(category?: string, title?: string): string {
+  // 1. Try category
+  if (category && CATEGORY_FALLBACK_IMAGES[category]) {
+    return CATEGORY_FALLBACK_IMAGES[category];
+  }
+  
+  // 2. Try matching title keywords
+  if (title) {
+    const lowerTitle = title.toLowerCase();
+    for (const [keyword, url] of Object.entries(CATEGORY_FALLBACK_IMAGES)) {
+      if (keyword !== 'default' && lowerTitle.includes(keyword)) {
+        return url;
+      }
+    }
+  }
+  
+  // 3. Use default
+  return CATEGORY_FALLBACK_IMAGES.default;
+}
+
+/**
+ * Auto-fix article with empty featured image using Unsplash
+ * Uses article title/category to find relevant photo
+ */
+export async function autoFixEmptyImage(title: string, category?: string): Promise<string | null> {
+  // Build search query from title and category
+  const titleWords = title
+    .toLowerCase()
+    .replace(/[^a-zà-ÿ\s]/g, '')
+    .split(/\s+/)
+    .filter(w => w.length > 3)
+    .slice(0, 3);
+  
+  const searchQuery = category 
+    ? `${category} ${titleWords.join(' ')}`
+    : titleWords.join(' ');
+  
+  const photo = await getRandomPhoto(searchQuery);
+  
+  if (photo) {
+    // Use regular URL (good balance of quality and size)
+    return photo.urls.regular;
+  }
+  
+  // Fallback to static image
+  return getFallbackImageUrl(category, title);
 }

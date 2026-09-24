@@ -2,7 +2,7 @@
  * Buffer Integration for Instagram Publishing
  * 
  * Opens Buffer Composer with pre-filled content
- * No API key needed - just uses Buffer's web interface
+ * No API key needed - just uses Buffer’s web interface
  */
 
 export interface BufferPost {
@@ -16,14 +16,8 @@ export interface BufferPost {
  * Opens Buffer with pre-filled image and caption
  */
 export function getBufferComposerUrl(profileId?: string): string {
-  const baseUrl = 'https://buffer.com/app/compose';
-  
-  // Can add profile ID if available
-  if (profileId) {
-    return `${baseUrl}?profile=${profileId}`;
-  }
-  
-  return baseUrl;
+  const baseUrl = 'https://publish.buffer.com/composer';
+  return profileId ? `${baseUrl}?profile=${profileId}` : baseUrl;
 }
 
 /**
@@ -31,7 +25,7 @@ export function getBufferComposerUrl(profileId?: string): string {
  * Opens Buffer and pre-fills the caption
  */
 export function getBufferPostUrl(text: string, profileId?: string): string {
-  const baseUrl = 'https://buffer.com/app/compose';
+  const baseUrl = 'https://publish.buffer.com/composer';
   
   // Encode text for URL
   const encodedText = encodeURIComponent(text);
@@ -56,5 +50,7 @@ export function openBufferComposer(profileId?: string): void {
  * Check if Buffer is configured
  */
 export function isBufferConfigured(): boolean {
-  return true; // Always available - uses web interface
+  // Always true for composer link approach, but checking if token exists
+  // for future API expansion
+  return !!process.env.BUFFER_ACCESS_TOKEN;
 }

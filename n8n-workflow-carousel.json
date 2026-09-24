@@ -20,7 +20,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Client-ID VKxcQvLNtFlLcgTxXW5YjnsQng4mu-WyIjyNHvLYsWA"
+            "value": "Client-ID {YOUR_UNSPLASH_ACCESS_KEY}"
             }
           ]
         },

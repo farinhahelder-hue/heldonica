@@ -1,1822 +1,1925 @@
 'use client';
 
-console.log('[CMS] Rendering CMS admin page');
-
-import { useState, useEffect, useCallback, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import EnhancedRichContent from '@/components/EnhancedRichContent';
 import MediaLibrary from '@/components/MediaLibrary';
+import EeaatScore from '@/components/EeaatScore';
 import { sanitizeHtml } from '@/lib/sanitize-html';
-import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot } from 'lucide-react';
+import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot, Mail, Map as MapIcon, ChevronLeft, ChevronRight, Palette, Zap, Inbox, MapPin, ListTree, Type } from 'lucide-react';
+import { Film, Clapperboard, Camera, Calendar, MessageSquare, ClipboardList } from 'lucide-react';
+import CmsSettingsPanel from '@/components/admin/CmsSettingsPanel';
+import ErrorBoundary from '@/components/admin/ErrorBoundary';
+import CategorySelect from '@/components/admin/CategorySelect';
+import { ToastProvider, useToast } from '@/components/admin/Toast';
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
+import ArticlePreview from '@/components/admin/ArticlePreview';
+import { SkeletonTable, SkeletonForm, SkeletonCard } from '@/components/admin/SkeletonLoader';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
-const CarouselEditor = dynamic(() => import('@/components/admin/CarouselEditor'), { ssr: false });
-const CarouselGenerator = dynamic(() => import('@/components/admin/CarouselGenerator'), { ssr: false });
+// Un seul editeur de carrousels. Trois coexistaient : celui-ci sur sa route
+// autonome, un autre dans cette section sous le meme libelle mais au
+// comportement different, et un troisieme jamais monte. Deux entrees portant le
+// meme nom ouvraient des outils differents.
+const CarouselEditor = dynamic(() => import('@/app/panel-manager/carousel/CarouselEditorV2'), { ssr: false });
 const BlogGenerator = dynamic(() => import('@/components/admin/BlogGenerator'), { ssr: false });
+const VideoEditor = dynamic(() => import('@/components/admin/VideoEditor'), { ssr: false });
+const FastTrimTool = dynamic(() => import('@/components/admin/FastTrimTool'), { ssr: false });
+const MapManagerSection = dynamic(() => import('./maps/MapManagerSection'), { ssr: false });
+const DesignEditor = dynamic(() => import('@/components/admin/DesignEditor'), { ssr: false });
+const GeoAuditPanel = dynamic(() => import('@/components/admin/GeoAuditPanel'), { ssr: false });
+const TestimonialsManager = dynamic(() => import('@/components/admin/TestimonialsManager'), { ssr: false });
+const ChecklistTemplatesManager = dynamic(() => import('@/components/admin/ChecklistTemplatesManager'), { ssr: false });
+const InstagramPublisher = dynamic(() => import('@/components/admin/InstagramPublisher'), { ssr: false });
+const InstagramStatsDashboard = dynamic(() => import('@/components/admin/InstagramStatsDashboard'), { ssr: false });
+const ScheduledPostsList = dynamic(() => import('@/components/admin/ScheduledPostsList'), { ssr: false });
+const InstagramManagerSection = dynamic(() => import('./instagram/InstagramManagerSection'), { ssr: false });
+const DemandesTravelSection = dynamic(() => import('@/components/admin/DemandesTravelSection'), { ssr: false });
+const FileAPublier = dynamic(() => import('@/components/admin/FileAPublier'), { ssr: false });
 
-// ===== Types =====
+// New CMS integrations
+const DestinationPillarEditor = dynamic(() => import('@/components/admin/DestinationPillarEditor'), { ssr: false });
+const GuidesManager = dynamic(() => import('@/components/admin/GuidesManager'), { ssr: false });
+const EditableZonesManager = dynamic(() => import('@/components/admin/EditableZonesManager'), { ssr: false });
+const SubDestinationsManager = dynamic(() => import('@/components/admin/SubDestinationsManager'), { ssr: false });
+const SeasonsManager = dynamic(() => import('@/components/admin/SeasonsManager'), { ssr: false });
+const RedirectsManager = dynamic(() => import('@/components/admin/RedirectsManager'), { ssr: false });
+const LayoutManager = dynamic(() => import('@/components/admin/LayoutManager'), { ssr: false });
+const AiAnalyticsDashboard = dynamic(() => import('@/components/admin/AiAnalyticsDashboard'), { ssr: false });
+
 type Article = {
-  id: number; title: string; slug: string; category: string; scheduled_published_at?: string;
-  published: boolean; published_at: string; created_at: string;
-  excerpt: string; featured_image: string; content?: string; voice_notes?: string;
+  id: number;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt?: string;
+  status: 'published' | 'draft' | 'scheduled';
+  category?: string;
+  tags?: string[];
+  featured_image?: string;
+  og_image?: string;
+  created_at?: string;
+  updated_at?: string;
+  published_at?: string;
+  author?: string;
+  seo_title?: string;
+  seo_description?: string;
+  visit_date?: string;
+  visit_count?: number;
+  sitemap_priority?: number;
+  sitemap_changefreq?: string;
 };
 
-type Demande = {
-  id: string; prenom: string; nom: string; email: string;
-  telephone: string; destination: string; style_voyage: string;
-  duree_jours: number; budget_fourchette: string; nb_voyageurs: number;
-  mois_depart: string; notes: string; statut: string; created_at: string;
-};
+type NavSection =
+  | 'dashboard' | 'articles' | 'new-article' | 'media'
+  | 'settings' | 'seo' | 'analytics' | 'carousel'
+  | 'blog-generator' | 'video' | 'fast-trim' | 'studio-video'
+  | 'map' | 'auto-shorts' | 'design' | 'geo' | 'instagram' | 'messages' | 'demandes'
+  | 'testimonials' | 'checklists'
+  | 'destination-pillars' | 'guides' | 'editable-zones' | 'sub-destinations'
+  | 'seasons' | 'redirects' | 'layouts';
 
-type Setting = { id: number; key: string; value: string; label: string; type?: string; };
-type SiteContent = { id: number; page: string; block_key: string; value: string; label: string; type: string; };
+// Sections adressables depuis l'URL. Le panneau ne gardait sa section qu'en
+// memoire : impossible d'ouvrir directement « Design » ou « Articles », que ce
+// soit par un signet ou depuis l'application mobile, qui retombait donc chaque
+// fois sur le tableau de bord.
+const SECTIONS_URL: readonly NavSection[] = [
+  'dashboard', 'articles', 'new-article', 'media',
+  'settings', 'seo', 'analytics', 'carousel',
+  'blog-generator', 'video', 'fast-trim', 'studio-video',
+  'map', 'auto-shorts', 'design', 'geo', 'instagram', 'messages', 'demandes',
+  'testimonials', 'checklists',
+  'destination-pillars', 'guides', 'editable-zones', 'sub-destinations',
+  'seasons', 'redirects', 'layouts',
+]
 
-// ===== Helpers =====
-const fmt = (d: string) => d ? new Date(d).toLocaleDateString('fr-FR') : '—';
-const slug = (t: string) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-  .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-
-function normalizeArticleDraft(article: Partial<Article> | null | undefined) {
-  return {
-    id: article?.id ?? null,
-    title: article?.title ?? '',
-    slug: article?.slug ?? '',
-    category: article?.category ?? '',
-    excerpt: article?.excerpt ?? '',
-    featured_image: article?.featured_image ?? '',
-    content: article?.content ?? '',
-    voice_notes: article?.voice_notes ?? '',
-    published: Boolean(article?.published),
-  };
+function sectionDepuisUrl(valeur: string | null): NavSection | null {
+  if (!valeur) return null
+  return SECTIONS_URL.find((s) => s === valeur) ?? null
 }
 
-function getArticleDraftSignature(article: Partial<Article> | null | undefined) {
-  return JSON.stringify(normalizeArticleDraft(article));
+/**
+ * Accueil guide du panneau.
+ *
+ * Le tableau de bord ouvrait sur huit compteurs - « Auteurs », « Tags uniques » -
+ * puis une barre de vingt-sept entrees. Rien n'y disait par ou commencer pour
+ * alimenter le site, ce qui est pourtant la seule raison d'ouvrir cet ecran.
+ *
+ * On reprend ce qui a marche sur l'accueil de l'application : une question, peu
+ * de cartes, et pour chacune ce qu'elle fait en une phrase. L'aide de l'IA est
+ * nommee la ou elle existe reellement - et seulement la.
+ */
+function CarteAction({
+  titre, detail, aide, principale, onClick,
+}: {
+  titre: string
+  detail: string
+  aide?: string
+  principale?: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full text-left rounded-2xl border p-5 transition-colors ${
+        principale
+          ? 'border-teal/30 bg-teal/5 hover:bg-teal/10'
+          : 'border-gray-100 bg-white hover:bg-gray-50'
+      }`}
+    >
+      <div className="font-semibold text-gray-900">{titre}</div>
+      <div className="text-sm text-gray-500 mt-1">{detail}</div>
+      {aide && (
+        <div className="text-xs text-teal mt-2">✨ {aide}</div>
+      )}
+    </button>
+  )
 }
 
-function getWordCount(content?: string) {
-  if (!content) return 0;
-  return content.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
-}
-
-function getReadTimeMinutes(content?: string) {
-  const words = getWordCount(content);
-  return words === 0 ? 0 : Math.max(1, Math.ceil(words / 200));
-}
-
-// ===== Config pages CMS =====
-const PAGES_CONFIG: Record<string, { label: string; emoji: string; sections: { key: string; label: string; type: 'text' | 'textarea' | 'media' | 'color' }[] }> = {
-  'home': {
-    label: 'Accueil',
-    emoji: '🏠',
-    sections: [
-      { key: 'hero_video_url',    label: 'Hero — Vidéo (URL)',              type: 'media' },
-      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)',        type: 'media' },
-      { key: 'hero_title',          label: 'Hero — Titre',                     type: 'text' },
-      { key: 'hero_subtitle',       label: 'Hero — Sous-titre',                type: 'textarea' },
-      { key: 'hero_cta',            label: 'Hero — Bouton CTA',                type: 'text' },
-      { key: 'section_about_title', label: 'Section À propos — Titre',         type: 'text' },
-      { key: 'section_about_text',  label: 'Section À propos — Texte',         type: 'textarea' },
-      { key: 'services_title',      label: 'Section Services — Titre',         type: 'text' },
-      { key: 'services_subtitle',   label: 'Section Services — Sous-titre',    type: 'textarea' },
-      { key: 'newsletter_title',    label: 'Newsletter — Titre',               type: 'text' },
-      { key: 'newsletter_subtitle', label: 'Newsletter — Sous-titre',          type: 'textarea' },
-    ],
-  },
-  'a-propos': {
-    label: 'À propos',
-    emoji: '👋',
-    sections: [
-      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
-      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
-      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
-      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
-      { key: 'page_title',  label: 'Titre de la page',      type: 'text' },
-      { key: 'intro_text',  label: "Texte d’introduction",  type: 'textarea' },
-    ],
-  },
-  'nos-services': {
-    label: 'Nos services',
-    emoji: '✨',
-    sections: [
-      { key: 'hero_title',    label: 'Hero — Titre',              type: 'text' },
-      { key: 'hero_subtitle', label: 'Hero — Sous-titre',         type: 'textarea' },
-      { key: 'b2c_title',     label: 'B2C — Titre service',       type: 'text' },
-      { key: 'b2c_desc',      label: 'B2C — Description',         type: 'textarea' },
-      { key: 'b2c_cta',       label: 'B2C — Bouton CTA',          type: 'text' },
-      { key: 'b2b_title',     label: 'B2B — Titre service',       type: 'text' },
-      { key: 'b2b_desc',      label: 'B2B — Description',         type: 'textarea' },
-      { key: 'b2b_cta',       label: 'B2B — Bouton CTA',          type: 'text' },
-    ],
-  },
-  'travel-planning': {
-    label: 'Travel Planning',
-    emoji: '✈️',
-    sections: [
-      { key: 'hero_title',    label: 'Hero — Titre',       type: 'text' },
-      { key: 'hero_subtitle', label: 'Hero — Sous-titre',  type: 'textarea' },
-      { key: 'form_intro',    label: 'Intro formulaire',   type: 'textarea' },
-      { key: 'reassurance',   label: 'Texte réassurance',  type: 'text' },
-    ],
-  },
-  'contact': {
-    label: 'Contact',
-    emoji: '📧',
-    sections: [
-      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
-      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
-      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
-      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
-      { key: 'page_title',  label: 'Titre de la page',      type: 'text' },
-      { key: 'intro_text',  label: "Texte d’introduction",  type: 'textarea' },
-      { key: 'contact_email', label: 'Email de contact', type: 'text' },
-      { key: 'contact_phone', label: 'Téléphone', type: 'text' },
-    ],
-  },
-  'hotel-consulting': {
-    label: 'Hotel Consulting',
-    emoji: '🏨',
-    sections: [
-      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
-      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
-      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
-      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
-      { key: 'page_title',  label: 'Titre de la page',      type: 'text' },
-      { key: 'intro_text',  label: "Texte d’introduction",  type: 'textarea' },
-      { key: 'hero_cta', label: 'Hero — Bouton CTA', type: 'text' },
-      { key: 'hero_cta_link', label: 'Hero — Lien du bouton', type: 'text' },
-      { key: 'section_approach_title', label: 'Section Approche — Titre', type: 'text' },
-      { key: 'section_approach_text', label: 'Section Approche — Texte', type: 'textarea' },
-      { key: 'section_services_title', label: 'Section Services — Titre', type: 'text' },
-      { key: 'section_services_list', label: 'Services (liste séparée par |)', type: 'textarea' },
-    ],
-  },
-  'mentions-legales': {
-    label: 'Mentions légales',
-    emoji: '⚖️',
-    sections: [
-      { key: 'page_title', label: 'Titre de la page', type: 'text' },
-      { key: 'content', label: 'Contenu (HTML)', type: 'textarea' },
-    ],
-  },
-  'politique-confidentialite': {
-    label: 'Politique de confidentialité',
-    emoji: '🔒',
-    sections: [
-      { key: 'page_title', label: 'Titre de la page', type: 'text' },
-      { key: 'content', label: 'Contenu (HTML)', type: 'textarea' },
-    ],
-  },
-  'slow-travel': {
-    label: 'Slow Travel',
-    emoji: '🐌',
-    sections: [
-      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
-      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
-      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
-      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
-      { key: 'page_title', label: 'Titre de la page', type: 'text' },
-      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
-      { key: 'definition_title', label: 'Titre Définition', type: 'text' },
-      { key: 'definition_text', label: 'Texte Définition', type: 'textarea' },
-      { key: 'principles_title', label: 'Titre Principes', type: 'text' },
-      { key: 'principles_list', label: 'Principes (séparés par |)', type: 'textarea' },
-    ],
-  },
-  'destinations': {
-    label: 'Destinations',
-    emoji: '🗺️',
-    sections: [
-      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
-      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
-      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
-      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
-      { key: 'page_title', label: 'Titre de la page', type: 'text' },
-      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
-    ],
-  },
-  'temoignages': {
-    label: 'Témoignages',
-    emoji: '💬',
-    sections: [
-      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
-      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
-      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
-      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
-      { key: 'page_title', label: 'Titre de la page', type: 'text' },
-      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
-    ],
-  },
-  'etudes-de-cas': {
-    label: 'Études de cas',
-    emoji: '📁',
-    sections: [
-      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
-      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
-      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
-      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
-      { key: 'page_title', label: 'Titre de la page', type: 'text' },
-      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
-    ],
-  },
-  'ai-hotellerie': {
-    label: 'IA & Hôtellerie',
-    emoji: '🤖',
-    sections: [
-      { key: 'hero_type', label: 'Hero — Type (video/image)', type: 'text' },
-      { key: 'hero_video_url', label: 'Hero — Vidéo (URL mp4)', type: 'media' },
-      { key: 'hero_poster_image', label: 'Hero — Image poster (URL)', type: 'media' },
-      { key: 'hero_background_image', label: 'Hero — Image de fond (URL)', type: 'media' },
-      { key: 'page_title', label: 'Titre de la page', type: 'text' },
-      { key: 'intro_text', label: 'Texte introduction', type: 'textarea' },
-    ],
-  },
-};
-
-const SETTINGS_GROUPS: Record<string, { label: string; emoji: string }> = {
-  general:    { label: 'Général',         emoji: '🌐' },
-  appearance:{ label: 'Apparence',      emoji: '🎨' },
-  social:    { label: 'Réseaux sociaux', emoji: '📱' },
-  seo:       { label: 'SEO',            emoji: '🔍' },
-  footer:   { label: 'Footer',          emoji: '📄' },
-};
-
-// Paramètres d’apparence (couleurs, logo, favicon)
-const APPEARANCE_SETTINGS = [
-  { key: 'site_logo',        label: 'Logo du site (PNG/SVG)',      type: 'media' },
-  { key: 'site_favicon',    label: 'Favicon (32x32, PNG/ICO)',   type: 'media' },
-  // Couleurs du site
-  { key: 'color_primary',   label: 'Couleur primaire',         type: 'color' },
-  { key: 'color_secondary', label: 'Couleur secondaire',       type: 'color' },
-  { key: 'color_accent',    label: 'Couleur d\'accent',         type: 'color' },
-  { key: 'color_background',label: 'Couleur de fond',          type: 'color' },
-  { key: 'color_text',      label: 'Couleur du texte',           type: 'color' },
-  // Couleurs des héros
-  { key: 'hero_overlay_color', label: 'Hero — Couleur de overlay', type: 'color' },
-  { key: 'hero_overlay_opacity', label: 'Hero — Opacité overlay (0-100)', type: 'text' },
-  // Couleurs des boutons
-  { key: 'button_primary_bg', label: 'Bouton principal — Fond', type: 'color' },
-  { key: 'button_primary_text', label: 'Bouton principal — Texte', type: 'color' },
-  { key: 'button_secondary_bg', label: 'Bouton secondaire — Fond', type: 'color' },
-  { key: 'button_secondary_text', label: 'Bouton secondaire — Texte', type: 'color' },
-  // Typographie
-  { key: 'font_heading',    label: 'Police des titres (Google Fonts)',           type: 'text' },
-  { key: 'font_body',      label: 'Police du texte (Google Fonts)',             type: 'text' },
-  { key: 'font_size_base', label: 'Taille de base (ex: 16px)', type: 'text' },
-  // Layout
-  { key: 'container_max_width', label: 'Largeur max container (ex: 1280px)', type: 'text' },
-  { key: 'header_sticky', label: 'Header fixe (true/false)', type: 'text' },
-];
-
-// ===== Composant interne (utilise useSearchParams) =====
-function CMSAdminInner() {
-  const searchParams = useSearchParams();
+function CmsAdminClientInner() {
   const router = useRouter();
-  const [checkingSession, setCheckingSession] = useState(true);
-  const [authed, setAuthed] = useState(false);
-  const [pwd, setPwd] = useState('');
-  const [authErr, setAuthErr] = useState('');
-  const [tab, setTab] = useState('articles');
-  const [toast, setToast] = useState('');
-  const [showMediaLibrary, setShowMediaLibrary] = useState(false);
+  const searchParams = useSearchParams();
+  const { toast } = useToast();
 
-  // Articles
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [editingArticle, setEditingArticle] = useState<Partial<Article> | null>(null);
-  const [loadingArticles, setLoadingArticles] = useState(false);
-  const [savingArticle, setSavingArticle] = useState(false);
-  const [unsavedChanges, setUnsavedChanges] = useState(false);
-  const [scheduleMode, setScheduleMode] = useState(false);
-
-  // Agents panel
-  const [agentTask, setAgentTask] = useState('');
-  const [agentRepo, setAgentRepo] = useState('farinhahelder-hue/heldonica');
-  const [agentBranch, setAgentBranch] = useState('main');
-  const [selectedAgent, setSelectedAgent] = useState('allhands');
-  const [sendingTask, setSendingTask] = useState(false);
-  const [agentMessage, setAgentMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
-  const [taskHistory, setTaskHistory] = useState<{date: string; agent: string; task: string; repo: string; branch: string}[]>([]);
-
-  // Load task history from localStorage on mount
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('agent-task-history');
-      if (saved) {
-        try {
-          setTaskHistory(JSON.parse(saved));
-        } catch (e) {
-          console.error('Failed to parse task history:', e);
-        }
-      }
-    }
-  }, []);
-
-  // Send task to agent via n8n webhook
-  const sendAgentTask = async () => {
-    if (!agentTask.trim()) {
-      setAgentMessage({ type: 'error', text: 'Veuillez描述ez une tâche à effectuer.' });
-      return;
-    }
-
-    const webhookUrl = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL;
-    if (!webhookUrl) {
-      setAgentMessage({ type: 'error', text: 'URL du webhook n8n non configurée. Ajoutez NEXT_PUBLIC_N8N_WEBHOOK_URL dans .env.local' });
-      return;
-    }
-
-    setSendingTask(true);
-    setAgentMessage(null);
-
-    try {
-      const res = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          agent: selectedAgent,
-          task: agentTask,
-          repo: agentRepo,
-          branch: agentBranch,
-        }),
-      });
-
-      if (res.ok) {
-        const agentLabels: Record<string, string> = {
-          allhands: 'OpenHands (AllHands)',
-          jules: 'Jules (Google)',
-          gemini: 'Gemini (Google)',
-          perplexity: 'Perplexity',
-        };
-        const label = agentLabels[selectedAgent] || selectedAgent;
-        setAgentMessage({ type: 'success', text: `Tâche envoyée à ${label} avec succès!` });
-
-        // Add to history
-        const newEntry = {
-          date: new Date().toLocaleString('fr-FR'),
-          agent: selectedAgent,
-          task: agentTask,
-          repo: agentRepo,
-          branch: agentBranch,
-        };
-        const updatedHistory = [newEntry, ...taskHistory].slice(0, 10);
-        setTaskHistory(updatedHistory);
-        localStorage.setItem('agent-task-history', JSON.stringify(updatedHistory));
-
-        // Clear task field
-        setAgentTask('');
-      } else {
-        setAgentMessage({ type: 'error', text: `Erreur lors de l'envoi de la tâche (${res.status})` });
-      }
-    } catch (err) {
-      console.error('Failed to send task:', err);
-      setAgentMessage({ type: 'error', text: 'Erreur réseau. Le webhook est-il accessible?' });
-    } finally {
-      setSendingTask(false);
-    }
-  };
-
-  // SEO analysis
-  const analyzeSEO = (content: string, title: string) => {
-    if (!content || !title) return { score: 0, readability: '-', wordCount: 0, density: 0, issues: [] };
-    const text = content.replace(/<[^>]+>/g, ' ');
-    const words = text.split(/\s+/).filter(Boolean);
-    const wordCount = words.length;
-    const sentences = text.split(/[.!?]+/).filter(Boolean);
-    const avgWordsPerSentence = wordCount / Math.max(sentences.length, 1);
-    const readability = avgWordsPerSentence < 15 ? '✅ Bonne' : avgWordsPerSentence < 20 ? '⚠️ Moyenne' : '❌ Difficile';
-    const titleLower = title.toLowerCase();
-    const contentLower = text.toLowerCase();
-    const titleInContent = contentLower.includes(titleLower) ? 1 : 0;
-    const density = titleInContent ? Math.round((contentLower.split(titleLower).length - 1) * 100 / wordCount) : 0;
-    const issues: string[] = [];
-    if (wordCount < 300) issues.push('Contenu court (< 300 mots)');
-    if (avgWordsPerSentence > 20) issues.push('Phrases trop longues');
-    if (!titleInContent) issues.push('Titre absent du contenu');
-    if (density > 5) issues.push('Répétition excessive du titre');
-    const score = Math.max(0, 100 - issues.length * 20 - (wordCount < 300 ? 20 : 0));
-    return { score, readability, wordCount, density, issues };
-  };
-  const seo = analyzeSEO(editingArticle?.content || '', editingArticle?.title || '');
-  const [uploadingFeaturedImage, setUploadingFeaturedImage] = useState(false);
-  const [articleBaseline, setArticleBaseline] = useState(() => getArticleDraftSignature(null));
-  const [showArticlePreview, setShowArticlePreview] = useState(false);
-
-  // Demandes travel
-  const [demandes, setDemandes] = useState<Demande[]>([]);
-  const [loadingDemandes, setLoadingDemandes] = useState(false);
-  const [updatingDemandeId, setUpdatingDemandeId] = useState<string | null>(null);
-
-  // Paramètres + Contenu pages
-  const [settings, setSettings] = useState<Setting[]>([]);
-  const [siteContent, setSiteContent] = useState<SiteContent[]>([]);
-  const [loadingSettings, setLoadingSettings] = useState(false);
-  const [settingsGroup, setSettingsGroup] = useState('general');
-  const [analyticsData, setAnalyticsData] = useState<any>(null);
-  const [loadingAnalytics, setLoadingAnalytics] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [loadingSearch, setLoadingSearch] = useState(false);
-  const [searchType, setSearchType] = useState<'all' | 'articles' | 'demandes'>('all');
+  const [activeSection, setActiveSection] = useState<NavSection>(
+    () => sectionDepuisUrl(searchParams.get('section')) ?? 'dashboard'
+  );
+  const [navSearch, setNavSearch] = useState('');
   const [showPalette, setShowPalette] = useState(false);
-  const [paletteQuery, setPaletteQuery] = useState('');
-  const [demandesStatusFilter, setDemandesStatusFilter] = useState('all');
-  const [categoryFilter, setCategoryFilter] = useState('all');
-  const [pilier, setPilier] = useState('');
-  const [eeat, setEeat] = useState('');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [availableCategories, setAvailableCategories] = useState<string[]>([]);
-  const [archivedFilter, setArchivedFilter] = useState(false);
-  const [activePage, setActivePage] = useState('home');
-  const [editedSettings, setEditedSettings] = useState<Record<string, string>>({});
-  const [editedContent, setEditedContent] = useState<Record<string, string>>({});
-  const [savingSettings, setSavingSettings] = useState(false);
-  const [savingPageKey, setSavingPageKey] = useState('');
-  const [uploadingMediaKey, setUploadingMediaKey] = useState('');
-  const [authLoading, setAuthLoading] = useState(false);
-
-  const isArticleDirty = getArticleDraftSignature(editingArticle) !== articleBaseline;
-  const articleWordCount = getWordCount(editingArticle?.content);
-  const articleReadTime = getReadTimeMinutes(editingArticle?.content);
-  const articlePreviewHtml = sanitizeHtml(editingArticle?.content);
-
-  const handleSearch = useCallback(async () => {
-    if (!searchQuery || searchQuery.length < 2) return;
-    setLoadingSearch(true);
-    try {
-      const res = await fetch('/api/cms/llm-search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: searchQuery, type: searchType, limit: 10 })
-      });
-      const data = await res.json();
-      setSearchResults(data.results || []);
-    } catch (e) { console.error(e); }
-    setLoadingSearch(false);
-  }, [searchQuery, searchType]);
-
-  const showToast = useCallback((msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(''), 3500);
-  }, []);
-
-  const handleUnauthorized = useCallback((res: Response, message = 'Session expirée. Merci de vous reconnecter.') => {
-    if (res.status !== 401) return false;
-    setAuthed(false);
-    setPwd('');
-    setAuthErr(message);
-    showToast(message);
-    return true;
-  }, [showToast]);
-
-  const resetArticleEditor = useCallback((nextTab = 'articles') => {
-    setEditingArticle(null);
-    setArticleBaseline(getArticleDraftSignature(null));
-    setShowArticlePreview(false);
-    setTab(nextTab);
-  }, []);
-
-  const confirmDiscardArticleChanges = useCallback(() => {
-    if (!isArticleDirty) return true;
-    return confirm('Tu as des modifications non sauvegardées. Les quitter ?');
-  }, [isArticleDirty]);
-
-  const openArticleEditor = useCallback((article?: Partial<Article>) => {
-    if ((editingArticle || tab === 'new') && !confirmDiscardArticleChanges()) return;
-    const draft = article ? { ...article } : {};
-    setEditingArticle(draft);
-    setArticleBaseline(getArticleDraftSignature(draft));
-    setShowArticlePreview(false);
-    setTab('new');
-  }, [confirmDiscardArticleChanges, editingArticle, tab]);
-
-  const closeArticleEditor = useCallback(() => {
-    if (!confirmDiscardArticleChanges()) return false;
-    resetArticleEditor();
-    return true;
-  }, [confirmDiscardArticleChanges, resetArticleEditor]);
-
-  const handleTabChange = useCallback((nextTab: string) => {
-    if (nextTab === 'new') {
-      openArticleEditor({});
-      return;
-    }
-    if (tab === 'new' && nextTab !== 'new' && !confirmDiscardArticleChanges()) {
-      return;
-    }
-    setTab(nextTab);
-  }, [confirmDiscardArticleChanges, openArticleEditor, tab]);
-
-  // Ctrl+K palette
+  const [recentSections, setRecentSections] = useState<NavSection[]>([]);
   useEffect(() => {
-    const handlePaletteKey = (e: KeyboardEvent) => {
+    try {
+      const raw = localStorage.getItem('heldonica-recent-sections');
+      if (raw) setRecentSections(JSON.parse(raw));
+    } catch {}
+  }, []);
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
-        setShowPalette(true);
+        setShowPalette(v => !v);
       }
-      if (e.key === 'Escape') setShowPalette(false);
     };
-    window.addEventListener('keydown', handlePaletteKey);
-    return () => window.removeEventListener('keydown', handlePaletteKey);
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
   }, []);
+  // Sur telephone, les vingt-sept entrees de navigation occupaient un ecran
+  // entier avant le moindre contenu : on arrivait sur une liste de sections, pas
+  // sur ce qu'on venait editer. Elles sont repliees par defaut sous lg, ou la
+  // barre laterale reste affichee en permanence.
+  const [menuOuvert, setMenuOuvert] = useState(false);
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loadingArticles, setLoadingArticles] = useState(false);
+  const [editingArticle, setEditingArticle] = useState<Article | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [password, setPassword] = useState('');
+  const [authError, setAuthError] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState('');
+  const [isDirty, setIsDirty] = useState(false); // tracks unsaved article changes
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Autosave every 30s when editing
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalArticles, setTotalArticles] = useState(0);
+  const pageSize = 15;
+
+  // Status filter & bulk
+  const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft' | 'scheduled'>('all');
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+
+  // Confirm dialog
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmTitle, setConfirmTitle] = useState('');
+  const [confirmMessage, setConfirmMessage] = useState('');
+  const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
+  const [confirmVariant, setConfirmVariant] = useState<'danger' | 'default'>('default');
+
+  // Preview
+  const [previewArticle, setPreviewArticle] = useState<Article | null>(null);
+
+  // Local draft recovery
+  const [localDraft, setLocalDraft] = useState<{ article: Article; timestamp: string } | null>(null);
+
+  // Article revisions
+  type ArticleRevision = {
+    id: number;
+    article_id: number;
+    title: string;
+    content: string;
+    excerpt?: string;
+    saved_at: string;
+    word_count: number;
+  };
+  const [revisions, setRevisions] = useState<ArticleRevision[]>([]);
+  const [revisionsLoading, setRevisionsLoading] = useState(false);
+
+  // Auto-save draft + mark dirty on any change — fix B3
+  const [lastAutoSave, setLastAutoSave] = useState<string>('');
+  const isDirtyRef = useRef(false);
+  // Reset dirty on article change
   useEffect(() => {
-    if (tab !== 'new' || !unsavedChanges || savingArticle) return;
-    const timer = setTimeout(async () => {
-      if (!editingArticle || savingArticle || !editingArticle.title?.trim()) return;
-      const payload = { ...editingArticle };
-      const isNew = !editingArticle.id;
-      const url = isNew ? '/api/cms/articles' : `/api/cms/articles/${editingArticle.id}`;
-      const method = isNew ? 'POST' : 'PUT';
-      try {
-        await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        showToast('💾 Brouillon auto-sauvegardé');
-        setUnsavedChanges(false);
-      } catch { /* silent */ }
+    isDirtyRef.current = false;
+    setIsDirty(false);
+  }, [editingArticle?.id]);
+  useEffect(() => {
+    if (!editingArticle) return;
+    if (isDirtyRef.current) setIsDirty(true);
+    isDirtyRef.current = true;
+    const draftKey = `heldonica-draft-${editingArticle.id ?? 'new'}`;
+    const timer = setInterval(() => {
+      const timestamp = new Date().toISOString();
+      localStorage.setItem(draftKey, JSON.stringify({ article: editingArticle, timestamp }));
+      setLastAutoSave(new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
     }, 30000);
-    return () => clearTimeout(timer);
-  }, [tab, unsavedChanges, savingArticle, editingArticle, showToast]);
-
-  // Clean URL params on mount
-  useEffect(() => {
-    const error = searchParams.get('error');
-    const connected = searchParams.get('connected');
-    if (error || connected) {
-      router.replace('/cms-admin');
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Check session on mount
-  useEffect(() => {
-    let active = true;
-    const checkSession = async () => {
-      try {
-        const res = await fetch('/api/cms/auth');
-        if (!active) return;
-        setAuthed(res.ok);
-      } catch {
-        if (!active) return;
-        setAuthed(false);
-      } finally {
-        if (active) setCheckingSession(false);
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirtyRef.current) {
+        e.preventDefault();
+        e.returnValue = '';
       }
-    };
-    checkSession();
-    return () => { active = false; };
-  }, []);
-
-  // Logout when session lost
-  useEffect(() => {
-    if (checkingSession || authed) return;
-    fetch('/api/cms/auth', { method: 'DELETE' }).catch(() => {});
-  }, [authed, checkingSession]);
-
-  // beforeunload guard
-  useEffect(() => {
-    if (!isArticleDirty) return;
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      event.preventDefault();
-      event.returnValue = '';
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [isArticleDirty]);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [editingArticle]);
 
-  // Auth
-  const login = async () => {
-    console.log('[CMS] login called, pwd length:', pwd?.length);
-    if (authLoading) return;
-    setAuthErr('');
-    setAuthLoading(true);
-    try {
-      console.log('[CMS] making POST to /api/cms/auth');
-      const res = await fetch('/api/cms/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: pwd }),
-      });
-      console.log('[CMS] got response:', res.status);
-      const data = await res.json().catch(() => ({}));
-      console.log('[CMS] response data:', data);
-      if (res.ok) {
-        setAuthed(true);
-        setPwd('');
-      } else {
-        setAuthErr(data.error || 'Mot de passe incorrect');
-      }
-    } catch (e) {
-      console.log('[CMS] login error:', e);
-      setAuthErr('Impossible de contacter le CMS pour le moment.');
-    } finally {
-      setAuthLoading(false);
-    }
-  };
 
-  const logout = async () => {
-    await fetch('/api/cms/auth', { method: 'DELETE' }).catch(() => {});
-    setAuthed(false);
-    setPwd('');
-    setAuthErr('');
-    setShowMediaLibrary(false);
-    resetArticleEditor();
-  };
-
-  // Load articles
-  const loadCategories = useCallback(async () => {
-    try {
-      const res = await fetch('/api/cms/articles?aggregate=category');
-      const data = await res.json();
-      if (data.articles) {
-        const cats = [...new Set(data.articles.map((a: any) => a.category).filter(Boolean))];
-        setAvailableCategories(cats as string[]);
-      }
-    } catch { /* ignore */ }
-  }, []);
-
-  const loadArticles = useCallback(async () => {
-    setLoadingArticles(true);
-    try {
-      const params = new URLSearchParams();
-      if (search) params.set('search', search);
-      if (statusFilter !== 'all') params.set('status', statusFilter);
-      const res = await fetch(`/api/cms/articles?${params}`);
-      if (handleUnauthorized(res)) return;
-      const data = await res.json();
-      setArticles(data.articles || []);
-    } catch {
-      showToast('Impossible de charger les articles.');
-    } finally {
-      setLoadingArticles(false);
-    }
-  }, [handleUnauthorized, search, showToast, statusFilter]);
-
-  const loadDemandes = useCallback(async () => {
-    setLoadingDemandes(true);
-    try {
-      const res = await fetch('/api/cms/demandes-travel');
-      if (handleUnauthorized(res)) return;
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || res.statusText);
-      setDemandes(data.demandes || []);
-    } catch (e: any) {
-      showToast('Impossible de charger les demandes travel : ' + (e.message || 'Erreur inconnue'));
-    } finally {
-      setLoadingDemandes(false);
-    }
-  }, [handleUnauthorized, showToast]);
-
-  const loadSettings = useCallback(async () => {
-    setLoadingSettings(true);
-    try {
-      const [sRes, cRes] = await Promise.all([
-        fetch('/api/cms/settings'),
-        fetch('/api/cms/content'),
-      ]);
-      if (handleUnauthorized(sRes) || handleUnauthorized(cRes)) return;
-      const sData = await sRes.json();
-      const cData = await cRes.json();
-      setSettings(sData.settings || []);
-      setSiteContent(cData.content || []);
-      const initS: Record<string, string> = {};
-      (sData.settings || []).forEach((s: Setting) => { initS[s.key] = s.value || ''; });
-      const initC: Record<string, string> = {};
-      (cData.content || []).forEach((c: SiteContent) => { initC[`${c.page}__${c.block_key}`] = c.value || ''; });
-      setEditedSettings(initS);
-      setEditedContent(initC);
-    } catch {
-      showToast('Impossible de charger les contenus du CMS.');
-    } finally {
-      setLoadingSettings(false);
-    }
-  }, [handleUnauthorized, showToast]);
-
-  useEffect(() => { if (authed) loadArticles(); }, [authed, loadArticles]);
-  useEffect(() => { if (authed && tab === 'demandes') loadDemandes(); }, [authed, tab, loadDemandes]);
-  useEffect(() => { if (authed && (tab === 'settings' || tab === 'pages')) loadSettings(); }, [authed, tab, loadSettings]);
-
-  const saveArticle = useCallback(async () => {
-    if (!editingArticle || savingArticle) return;
-    if (!editingArticle.title?.trim()) {
-      showToast("Le titre est obligatoire avant d’enregistrer.");
+  // Check for local draft when editingArticle is set — fix B3: use id
+  useEffect(() => {
+    if (!editingArticle) {
+      setLocalDraft(null);
       return;
     }
-    const isNew = !editingArticle.id;
-    const payload = {
-      ...editingArticle,
-      slug: editingArticle.slug || slug(editingArticle.title || ''),
-      published_at: editingArticle.published && !editingArticle.published_at
-        ? new Date().toISOString() : editingArticle.published_at,
-      ...(scheduleMode && editingArticle?.scheduled_published_at ?
-        { scheduled_published_at: new Date(editingArticle.scheduled_published_at).toISOString() } : {}),
-    };
-    const url = isNew ? '/api/cms/articles' : `/api/cms/articles/${editingArticle.id}`;
-    const method = isNew ? 'POST' : 'PUT';
-    setSavingArticle(true);
-    try {
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (handleUnauthorized(res)) return;
-      if (res.ok) {
-        showToast(isNew ? '✅ Article créé !' : '✅ Article mis à jour !');
-        setArticleBaseline(getArticleDraftSignature(payload));
-        resetArticleEditor();
-        loadArticles();
-      } else {
-        const d = await res.json();
-        showToast(`❌ Erreur : ${d.error}`);
+    const key = `heldonica-draft-${editingArticle.id ?? 'new'}`;
+    const saved = localStorage.getItem(key);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        const draftTimestamp = new Date(parsed.timestamp).getTime();
+        const articleTimestamp = editingArticle.updated_at
+          ? new Date(editingArticle.updated_at).getTime()
+          : 0;
+        if (draftTimestamp > articleTimestamp) {
+          setLocalDraft({ article: parsed.article, timestamp: parsed.timestamp });
+        } else {
+          setLocalDraft(null);
+        }
+      } catch {
+        setLocalDraft(null);
       }
-    } catch {
-      showToast('Impossible de sauvegarder cet article.');
-    } finally {
-      setSavingArticle(false);
+    } else {
+      setLocalDraft(null);
     }
-  }, [editingArticle, handleUnauthorized, loadArticles, resetArticleEditor, savingArticle, scheduleMode, showToast]);
+  }, [editingArticle]);
 
-  // Ctrl+S shortcut
+  // Load revisions when editing article changes
   useEffect(() => {
-    if (tab !== 'new') return;
-    const handleSaveShortcut = (event: KeyboardEvent) => {
-      if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 's') return;
-      event.preventDefault();
-      void saveArticle();
-    };
-    window.addEventListener('keydown', handleSaveShortcut);
-    return () => window.removeEventListener('keydown', handleSaveShortcut);
-  }, [tab, saveArticle]);
-
-  const saveSettings = async () => {
-    setSavingSettings(true);
-    try {
-      const promises: Promise<Response>[] = [];
-      settings.forEach(s => {
-        const newVal = editedSettings[s.key];
-        if (newVal !== undefined && newVal !== s.value) {
-          promises.push(fetch('/api/cms/settings', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ key: s.key, value: newVal }),
-          }));
+    if (!editingArticle?.id) {
+      setRevisions([]);
+      return;
+    }
+    setRevisionsLoading(true);
+    fetch(`/api/cms/article-revisions?article_id=${editingArticle.id}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.revisions) {
+          setRevisions(data.revisions);
         }
-      });
-      if (promises.length === 0) { showToast('Aucune modification à enregistrer.'); return; }
-      const responses = await Promise.all(promises);
-      if (responses.some(res => handleUnauthorized(res))) return;
-      showToast('✅ Paramètres sauvegardés !');
-      loadSettings();
-    } catch {
-      showToast('Impossible de sauvegarder les paramètres.');
-    } finally {
-      setSavingSettings(false);
-    }
+      })
+      .catch(() => {})
+      .finally(() => setRevisionsLoading(false));
+  }, [editingArticle?.id]);
+
+  // ── Messages section ───────────────────────────────────────────────────────
+  type ContactMessage = {
+    id: string;
+    name: string;
+    email: string;
+    subject?: string;
+    message: string;
+    status: string;
+    created_at: string;
+    read_at?: string;
   };
 
-  const savePageContent = async (pageKey: string) => {
-    setSavingSettings(true);
-    const config = PAGES_CONFIG[pageKey];
-    if (!config) { setSavingSettings(false); return; }
-    try {
-      const promises: Promise<Response>[] = [];
-      config.sections.forEach(section => {
-        const key = `${pageKey}__${section.key}`;
-        const newVal = editedContent[key] ?? '';
-        const existing = siteContent.find(c => c.page === pageKey && c.block_key === section.key);
-        if (!existing || newVal !== existing.value) {
-          promises.push(fetch('/api/cms/content', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ page: pageKey, block_key: section.key, value: newVal }),
-          }));
-        }
-      });
-      if (promises.length === 0) { showToast('Aucune modification à enregistrer sur cette page.'); return; }
-      const responses = await Promise.all(promises);
-      if (responses.some(res => handleUnauthorized(res))) return;
-      showToast(`✅ Page "${config.label}" sauvegardée !`);
-      loadSettings();
-    } catch {
-      showToast('Impossible de sauvegarder cette page.');
-    } finally {
-      setSavingSettings(false);
-    }
-  };
+  const [messages, setMessages] = useState<ContactMessage[]>([]);
+  const [messagesLoading, setMessagesLoading] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [msgFilter, setMsgFilter] = useState<'all' | 'unread' | 'read' | 'archived'>('all');
+  const [selectedMsg, setSelectedMsg] = useState<ContactMessage | null>(null);
+  const [msgActioning, setMsgActioning] = useState(false);
+  const [messagesLoaded, setMessagesLoaded] = useState(false);
 
-
-  const togglePublish = async (a: Article) => {
+  const loadMessages = useCallback(async (filter?: string) => {
+    setMessagesLoading(true);
     try {
-      const res = await fetch(`/api/cms/articles/${a.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          published: !a.published,
-          published_at: !a.published ? new Date().toISOString() : a.published_at,
-        }),
-      });
-      if (handleUnauthorized(res)) return;
-      if (res.ok) { showToast(!a.published ? '✓ Publié !' : '📝 Repassé en brouillon'); loadArticles(); }
-    } catch {
-      showToast('Impossible de mettre à jour le statut de publication.');
-    }
-  };
-
-  const deleteArticle = async (id: number) => {
-    if (!confirm('Supprimer cet article ?')) return;
-    try {
-      const res = await fetch(`/api/cms/articles/${id}`, { method: 'DELETE' });
-      if (handleUnauthorized(res)) return;
-      if (res.ok) { showToast('🗑 Article supprimé'); loadArticles(); }
-    } catch {
-      showToast('Impossible de supprimer cet article.');
-    }
-  };
-
-  const uploadFeaturedImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploadingFeaturedImage(true);
-    const fd = new FormData();
-    fd.append('file', file);
-    fd.append('folder', 'articles');
-    try {
-      const res = await fetch('/api/cms/media-upload', { method: 'POST', body: fd });
-      if (handleUnauthorized(res)) return;
+      const params = (filter ?? msgFilter) !== 'all' ? `?status=${filter ?? msgFilter}` : '';
+      const res = await fetch(`/api/cms/contact-messages${params}`, { cache: 'no-store' });
       const data = await res.json();
-      if (data.url) {
-        setEditingArticle(prev => prev ? { ...prev, featured_image: data.url } : prev);
-        showToast('✅ Image uploadée sur Supabase !');
-      } else {
-        showToast(`❌ Upload échoué : ${data.error}`);
+      if (res.ok) {
+        setMessages(data.messages || []);
+        setUnreadCount(data.unread || 0);
       }
-    } catch {
-      showToast("Impossible d’envoyer cette image.");
-    } finally {
-      setUploadingFeaturedImage(false);
-      e.target.value = '';
+    } catch { /* silent */ } finally {
+      setMessagesLoading(false);
     }
-  };
+  }, [msgFilter]);
 
-  // Upload media (image or video) for page content
-  const uploadMediaForPage = async (e: React.ChangeEvent<HTMLInputElement>, sectionKey: string, pageKey: string) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const key = `${pageKey}__${sectionKey}`;
-    setUploadingMediaKey(key);
-    const fd = new FormData();
-    fd.append('file', file);
-    fd.append('folder', 'hero-media');
-    try {
-      const res = await fetch('/api/cms/media-upload', { method: 'POST', body: fd });
-      if (handleUnauthorized(res)) return;
-      const data = await res.json();
-      if (data.url) {
-        setEditedContent(prev => ({ ...prev, [key]: data.url }));
-        showToast('✅ Média uploadé sur Supabase !');
-      } else {
-        showToast(`❌ Upload échoué : ${data.error}`);
-      }
-    } catch {
-      showToast("Impossible d’envoyer ce média.");
-    } finally {
-      setUploadingMediaKey('');
-      e.target.value = '';
-    }
-  };
+  useEffect(() => {
+    if (activeSection === 'messages') { if (!messagesLoaded) { loadMessages(); setMessagesLoaded(true); } }
+    else { setMessagesLoaded(false); }
+  }, [activeSection, loadMessages, messagesLoaded]);
 
-  const updateStatut = async (id: string, statut: string) => {
-    setUpdatingDemandeId(id);
+  const handleMsgAction = async (id: string, action: 'read' | 'archive') => {
+    setMsgActioning(true);
     try {
-      const res = await fetch('/api/cms/demandes-travel', {
-        method: 'PUT',
+      const res = await fetch('/api/cms/contact-messages', {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, statut }),
+        body: JSON.stringify({ id, action }),
       });
-      if (handleUnauthorized(res)) return;
-      if (res.ok) { showToast('✅ Statut mis à jour'); loadDemandes(); }
-    } catch {
-      showToast('Impossible de mettre à jour cette demande.');
-    } finally {
-      setUpdatingDemandeId(null);
-    }
+      if (res.ok) {
+        setMessages(prev => prev.map(m => m.id === id ? { ...m, status: action === 'read' ? 'read' : 'archived', read_at: action === 'read' ? new Date().toISOString() : m.read_at } : m));
+        setUnreadCount(prev => action === 'read' && messages.find(m => m.id === id)?.status === 'unread' ? prev - 1 : prev);
+        if (selectedMsg?.id === id) setSelectedMsg(null);
+        toast(`${action === 'read' ? 'Marqué comme lu' : 'Archivé'}`, 'success');
+      }
+    } catch { toast('Erreur', 'error'); } finally { setMsgActioning(false); }
   };
 
-  // ===== Login screen =====
-  if (checkingSession) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f3ef' }}>
-      <div style={{ background: 'white', padding: '2.5rem', borderRadius: '1rem', boxShadow: '0 8px 32px rgba(0,0,0,.1)', width: '100%', maxWidth: 380, textAlign: 'center' }}>
-        <div style={{ fontSize: '2.5rem', marginBottom: '.5rem' }}>⏳</div>
-        <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#6b2a1a' }}>Heldonica CMS</h1>
-        <p style={{ color: '#888', fontSize: '.9rem' }}>Vérification de la session...</p>
-      </div>
-    </div>
-  );
+  const handleMsgDelete = async (id: string) => {
+    confirm(
+      'Supprimer le message',
+      'Cette action est irréversible. Supprimer ce message ?',
+      async () => {
+        setMsgActioning(true);
+        try {
+          const res = await fetch(`/api/cms/contact-messages?id=${id}`, { method: 'DELETE' });
+          if (res.ok) {
+            setMessages(prev => prev.filter(m => m.id !== id));
+            if (selectedMsg?.id === id) setSelectedMsg(null);
+            toast('Message supprimé', 'success');
+          }
+        } catch { toast('Erreur', 'error'); } finally { setMsgActioning(false); }
+      },
+      'danger'
+    );
+  };
 
-  if (!authed) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f3ef' }}>
-      <div style={{ background: 'white', padding: '2.5rem', borderRadius: '1rem', boxShadow: '0 8px 32px rgba(0,0,0,.1)', width: '100%', maxWidth: 380 }}>
-        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '.5rem' }}>🌍</div>
-          <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#6b2a1a' }}>Heldonica CMS</h1>
-          <p style={{ color: '#888', fontSize: '.9rem' }}>Accès réservé</p>
-        </div>
-        <input type="password" placeholder="Mot de passe" value={pwd}
-          onChange={e => setPwd(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && login()}
-          style={{ width: '100%', padding: '.75rem 1rem', border: '1.5px solid #ddd', borderRadius: '.5rem', fontSize: '1rem', marginBottom: '.75rem', outline: 'none' }}
-        />
-        {authErr && <p style={{ color: '#c0392b', fontSize: '.85rem', marginBottom: '.75rem' }}>{authErr}</p>}
-        <button onClick={login} disabled={authLoading}
-          style={{ width: '100%', padding: '.8rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, fontSize: '1rem', cursor: authLoading ? 'wait' : 'pointer', opacity: authLoading ? .7 : 1 }}
-        >{authLoading ? 'Connexion…' : 'Entrer'}</button>
-      </div>
-    </div>
-  );
+  const formatDate = (d: string) => new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-  // ===== CMS UI =====
-  const TABS = [
-    { id: 'dashboard', icon: <Home size={16} />, label: 'Accueil', count: null },
-    { id: 'articles', icon: <FileText size={16} />, label: 'Articles', count: articles.length },
-    { id: 'new',      icon: <Plus size={16} />,  label: 'Nouvel article', count: null },
-    { id: 'blog',    icon: <Sparkles size={16} />, label: 'Générateur Blog IA', count: null },
-    { id: 'pages',    icon: <Folder size={16} />, label: 'Pages', count: null },
-    { id: 'demandes',icon: <Plane size={16} />, label: 'Travel Planning', count: demandes.length },
-    // eslint-disable-next-line jsx-a11y/alt-text -- Image is a lucide-react icon, not an <img> element
-    { id: 'media',   icon: <Image size={16} aria-hidden="true" />, label: 'Médiatèque', count: null },
-    { id: 'carousel',icon: <Car size={16} />,  label: 'Carrousel', count: null },
-    { id: 'settings',icon: <Settings size={16} />,label: 'Paramètres', count: null },
-    { id: 'analytics',icon: <BarChart3 size={16} />,label: 'Analytics', count: null },
-    { id: 'search',  icon: <Search size={16} />, label: 'Search', count: null },
-    { id: 'agents',  icon: <Bot size={16} />,   label: 'Agents', count: null },
-  ];
-
+function CollapsibleSection({ title, defaultOpen, children }: { title: string; defaultOpen?: boolean; children: React.ReactNode }) {
+  const [open, setOpen] = useState(defaultOpen ?? true);
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f3ef', fontFamily: 'DM Sans, system-ui, sans-serif' }}>
-      <style>{`
-        .cms-grid-kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-        .cms-layout-sidebar { display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem; align-items: start; }
-        .cms-mobile-tabs { display: flex; }
-        .cms-mobile-sidebar-panel { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: white; z-index: 50; padding: 2rem 1rem; box-shadow: 2px 0 12px rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: 0.5rem; transform: translateX(-100%); transition: transform 0.3s ease; overflow-y: auto; }
-        .cms-mobile-sidebar-panel.open { transform: translateX(0); }
-        .cms-top-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+    <div className="border border-gray-100 rounded-lg overflow-hidden">
+      <button type="button" onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-5 py-3 bg-gray-50 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition-colors">
+        <span>{title}</span>
+        <span className={`transform transition text-gray-400 ${open ? 'rotate-180' : ''}`}>▾</span>
+      </button>
+      {open && <div className="p-4 space-y-4">{children}</div>}
+    </div>
+  );
+}
 
-        @media (max-width: 767px) {
-          .cms-layout-sidebar { grid-template-columns: 1fr; }
-          .cms-mobile-tabs { display: none !important; }
-        }
-
-        @media (min-width: 768px) {
-          [data-mobile-only="true"] { display: none !important; }
-          .cms-mobile-sidebar-panel { display: none !important; }
-        }
-      `}</style>
-      {sidebarOpen && (
-        <div
-          onClick={() => setSidebarOpen(false)}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 40 }}
-          data-mobile-only="true"
-        />
-      )}
-      <div className={`cms-mobile-sidebar-panel ${sidebarOpen ? 'open' : ''}`}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', padding: '0 0.5rem' }}>
-          <span style={{ fontWeight: 700, fontSize: '1.2rem', color: '#6b2a1a' }}>🌍 Menu CMS</span>
-          <button onClick={() => setSidebarOpen(false)} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#6b2a1a' }}>✕</button>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          {TABS.map(t => (
-            <button key={t.id}
-              onClick={() => { handleTabChange(t.id); setSidebarOpen(false); }}
-              style={{
-                padding: '1rem', border: 'none', background: tab === t.id ? '#f0e8e4' : 'transparent', cursor: 'pointer',
-                fontWeight: tab === t.id ? 700 : 500,
-                color: tab === t.id ? '#6b2a1a' : '#444',
-                borderRadius: '0.5rem',
-                fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', textAlign: 'left'
-              }}
-            >
-              {t.icon} {t.label}
-              {t.count !== null && t.count > 0 && (
-                <span style={{ background: '#6b2a1a', color: 'white', borderRadius: '9999px', padding: '.1rem .55rem', fontSize: '.75rem', fontWeight: 700, marginLeft: 'auto' }}>{t.count}</span>
-              )}
+  function MessagesSection() {
+    const badgeStyle = (s: string) => s === 'unread' ? 'bg-red-100 text-red-700' : s === 'read' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500';
+    const filtered = messages;
+    return (
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">Messages</h1>
+        <p className="text-sm text-gray-500 mb-4">
+          {unreadCount > 0 ? `${unreadCount} message${unreadCount > 1 ? 's' : ''} non lu${unreadCount > 1 ? 's' : ''}` : 'Aucun message non lu'}
+        </p>
+        <div className="flex gap-1 bg-gray-100 rounded-lg p-1 mb-4 w-fit">
+          {(['all', 'unread', 'read', 'archived'] as const).map(f => (
+            <button key={f} onClick={() => setMsgFilter(f)}
+              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${msgFilter === f ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+              {f === 'all' ? 'Tous' : f === 'unread' ? `Non lus${unreadCount > 0 ? ` (${unreadCount})` : ''}` : f.charAt(0).toUpperCase() + f.slice(1)}
             </button>
           ))}
         </div>
+        {messagesLoading ? (
+          <div className="text-sm text-gray-400 py-8 text-center">Chargement...</div>
+        ) : filtered.length === 0 ? (
+          <div className="text-sm text-gray-400 py-8 text-center">Aucun message</div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
+              {filtered.map(msg => (
+                <div key={msg.id} onClick={() => setSelectedMsg(msg)}
+                  className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${selectedMsg?.id === msg.id ? 'bg-blue-50' : ''}`}>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-gray-900 truncate">{msg.name}</p>
+                      <p className="text-xs text-gray-500 truncate">{msg.email}</p>
+                      {msg.subject && <p className="text-xs text-gray-600 mt-0.5 truncate">{msg.subject}</p>}
+                    </div>
+                    <span className={`shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${badgeStyle(msg.status)}`}>
+                      {msg.status === 'unread' ? 'NON LU' : msg.status.toUpperCase()}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">{formatDate(msg.created_at)}</p>
+                </div>
+              ))}
+            </div>
+            {selectedMsg ? (
+              <div className="bg-white rounded-xl border border-gray-200 p-5">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900">{selectedMsg.name}</h3>
+                    <p className="text-sm text-gray-500">{selectedMsg.email}</p>
+                    {selectedMsg.subject && <p className="text-sm text-gray-700 mt-1"><span className="font-semibold">Sujet :</span> {selectedMsg.subject}</p>}
+                  </div>
+                  <button onClick={() => setSelectedMsg(null)} className="text-gray-400 hover:text-gray-600 p-1"><span className="text-lg">&times;</span></button>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-700 whitespace-pre-wrap max-h-64 overflow-y-auto mb-4">
+                  {selectedMsg.message}
+                </div>
+                <p className="text-xs text-gray-400 mb-4">Recu le {formatDate(selectedMsg.created_at)}</p>
+                <div className="flex gap-2">
+                  {selectedMsg.status === 'unread' && (
+                    <button onClick={() => handleMsgAction(selectedMsg.id, 'read')} disabled={msgActioning}
+                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-[#2D8B7A] text-white rounded-lg text-sm font-medium hover:bg-[#257a6a] disabled:opacity-50 transition-colors">
+                      <Eye size={14} /> Marquer comme lu
+                    </button>
+                  )}
+                  {selectedMsg.status !== 'archived' && (
+                    <button onClick={() => handleMsgAction(selectedMsg.id, 'archive')} disabled={msgActioning}
+                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 disabled:opacity-50 transition-colors">
+                      Archive
+                    </button>
+                  )}
+                  <button onClick={() => handleMsgDelete(selectedMsg.id)} disabled={msgActioning}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium disabled:opacity-50 transition-colors">
+                    <Trash2 size={14} />
+                  </button>
+                  <a href={`mailto:${selectedMsg.email}`}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                    <Mail size={14} /> Repondre
+                  </a>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-white rounded-xl border border-gray-200 p-8 flex items-center justify-center">
+                <p className="text-sm text-gray-400">Selectionnez un message</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
+    );
+  }
 
-      <div style={{ background: '#6b2a1a', color: 'white', padding: '1rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 45, boxShadow: '0 2px 12px rgba(0,0,0,.15)' }}>
-        <button onClick={() => setSidebarOpen(!sidebarOpen)}
-          style={{ display: 'none', background: 'none', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer', marginRight: '0.5rem' }}
-          data-mobile-only="true"
-        >☰</button>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
-          <span style={{ fontSize: '1.5rem' }}>🌍</span>
-          <span style={{ fontWeight: 700, fontSize: '1.1rem', letterSpacing: '.03em' }}>Heldonica CMS</span>
-          <span style={{ background: 'rgba(255,255,255,.18)', fontSize: '.72rem', padding: '.2rem .6rem', borderRadius: '9999px', fontWeight: 600 }}>Supabase</span>
+  // ── Auth ──────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    fetch('/api/cms/auth/check')
+      .then(r => r.json())
+      .then(d => setIsAuthenticated(!!(d.authenticated || d.ok)))
+      .catch(() => setIsAuthenticated(false))
+      .finally(() => setAuthLoading(false));
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError('');
+    try {
+      const res = await fetch('/api/cms/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      if (res.ok) {
+        setIsAuthenticated(true);
+      } else if (res.status === 503) {
+        setAuthError('CMS non configuré : variable CMS_PASSWORD manquante côté serveur.');
+      } else {
+        setAuthError('Mot de passe incorrect');
+      }
+    } catch {
+      setAuthError('Erreur réseau');
+    }
+  };
+
+  // ── Articles ──────────────────────────────────────────────────────────────
+  const loadArticles = useCallback(async () => {
+    setLoadingArticles(true);
+    try {
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: pageSize.toString(),
+        status: statusFilter,
+        search: searchQuery
+      });
+      const res = await fetch(`/api/cms/articles?${params.toString()}`);
+      const data = await res.json();
+      setArticles(Array.isArray(data) ? data : data.articles ?? []);
+      setTotalArticles(data.total ?? 0);
+    } catch {
+      console.error('Failed to load articles');
+    } finally {
+      setLoadingArticles(false);
+    }
+  }, [currentPage, statusFilter, searchQuery]);
+
+  // Debounce search query to avoid spamming the API
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (isAuthenticated && (activeSection === 'articles' || activeSection === 'dashboard')) {
+        loadArticles();
+      }
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [isAuthenticated, activeSection, loadArticles]);
+
+  const openArticleEditor = (article: Article) => {
+    setEditingArticle({ ...article });
+    setIsDirty(false);
+    setActiveSection('new-article');
+  };
+
+  // Depuis la file « À publier » : l'article n'est pas forcément dans la page
+  // courante de la liste, on le lit par son id.
+  const ouvrirDepuisFile = async (id: number) => {
+    try {
+      const res = await fetch(`/api/cms/articles/${id}`);
+      const { article } = await res.json();
+      if (!res.ok || !article) throw new Error(article?.error || `HTTP ${res.status}`);
+      openArticleEditor({ ...article, status: article.status || (article.published ? 'published' : 'draft') });
+    } catch (e) {
+      alert(`Impossible d'ouvrir l'article : ${e instanceof Error ? e.message : e}`);
+    }
+  };
+
+  // Guard: intercept sidebar navigation when article has unsaved changes
+  const navigateTo = (section: NavSection) => {
+    if (isDirty && activeSection === 'new-article' && section !== 'new-article') {
+      confirm(
+        'Modifications non sauvegardées',
+        'Tu as des modifications non sauvegardées. Quitter sans sauvegarder ?',
+        () => { setIsDirty(false); setActiveSection(section); },
+        'danger'
+      );
+    } else {
+      setActiveSection(section);
+    }
+    setMenuOuvert(false);
+    try {
+      const next = [section, ...recentSections.filter(s => s !== section)].slice(0, 3);
+      setRecentSections(next);
+      localStorage.setItem('heldonica-recent-sections', JSON.stringify(next));
+    } catch {}
+  };
+
+  const confirm = (title: string, message: string, action: () => void, variant: 'danger' | 'default' = 'default') => {
+    setConfirmTitle(title);
+    setConfirmMessage(message);
+    setConfirmAction(() => action);
+    setConfirmVariant(variant);
+    setConfirmOpen(true);
+  };
+
+  const handleSaveArticle = async () => {
+    if (!editingArticle) return;
+    setSaving(true);
+    toast('💾 Sauvegarde en cours…', 'info');
+    try {
+      const method = editingArticle.id ? 'PATCH' : 'POST';
+      const url = editingArticle.id
+        ? `/api/cms/articles/${editingArticle.id}`
+        : '/api/cms/articles';
+      const body = { ...editingArticle };
+      if (editingArticle.status === 'scheduled' && !editingArticle.published_at) {
+        throw new Error('Date de publication requise pour le statut planifié');
+      }
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Save failed' }));
+        throw new Error(err.error || 'Save failed');
+      }
+      toast('✅ Article sauvegardé — 14:32', 'success');
+      setIsDirty(false);
+      try {
+        localStorage.removeItem(`heldonica-draft-${editingArticle.id ?? 'new'}`);
+      } catch {}
+      loadArticles();
+    } catch (e: any) {
+      toast('❌ ' + (e.message || 'Erreur lors de la sauvegarde'), 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteArticle = async (article: Article) => {
+    try {
+      const res = await fetch(`/api/cms/articles/${article.id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Delete failed');
+      toast('Article supprimé', 'success');
+      loadArticles();
+    } catch {
+      toast('Erreur lors de la suppression', 'error');
+    }
+  };
+
+  // ── Loading / Auth screens ─────────────────────────────────────────────────
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f5f3ef]">
+        <div className="bg-white p-10 rounded-2xl shadow-lg text-center">
+          <div className="text-3xl mb-2 text-[#2D8B7A]">🌿</div>
+          <h1 className="text-xl font-bold text-[#6b2a1a]">Heldonica CMS</h1>
+          <p className="text-gray-500 text-sm mt-1">Vérification…</p>
         </div>
-        <button onClick={logout} style={{ background: 'rgba(255,255,255,.15)', border: 'none', color: 'white', padding: '.4rem .9rem', borderRadius: '.4rem', cursor: 'pointer', fontSize: '.85rem' }}>Déconnexion</button>
       </div>
+    );
+  }
 
-      {toast && (
-        <div style={{ position: 'fixed', top: '5rem', right: '1.5rem', background: '#1a1a1a', color: 'white', padding: '.8rem 1.4rem', borderRadius: '.6rem', zIndex: 100, fontSize: '.9rem', boxShadow: '0 4px 16px rgba(0,0,0,.2)' }}>{toast}</div>
-      )}
-
-      {showMediaLibrary && (
-        <MediaLibrary
-          cmsPassword={pwd}
-          onClose={() => setShowMediaLibrary(false)}
-          onSelect={(url) => {
-            setEditingArticle(prev => prev ? { ...prev, featured_image: url } : prev);
-            showToast('✅ Image sélectionnée depuis la médiathèque !');
-          }}
-        />
-      )}
-
-      <div className="cms-mobile-tabs" style={{ background: 'white', borderBottom: '1.5px solid #e8e3dc', padding: '0 2rem', display: 'flex', gap: '.25rem', overflowX: 'auto' }}>
-        {TABS.map(t => (
-          <button key={t.id}
-            onClick={() => handleTabChange(t.id)}
-            style={{
-              padding: '.85rem 1.2rem', border: 'none', background: 'none', cursor: 'pointer',
-              fontWeight: tab === t.id ? 700 : 400,
-              color: tab === t.id ? '#6b2a1a' : '#666',
-              borderBottom: tab === t.id ? '2.5px solid #6b2a1a' : '2.5px solid transparent',
-              fontSize: '.9rem', display: 'flex', alignItems: 'center', gap: '.4rem', whiteSpace: 'nowrap',
-            }}
-          >
-            {t.icon} {t.label}
-            {t.count !== null && t.count > 0 && (
-              <span style={{ background: '#f0e8e4', color: '#6b2a1a', borderRadius: '9999px', padding: '.1rem .55rem', fontSize: '.75rem', fontWeight: 700 }}>{t.count}</span>
-            )}
-          </button>
-        ))}
-      </div>
-
-      <div style={{ maxWidth: 1100, margin: '2rem auto', padding: '0 1.5rem' }}>
-
-        {tab === 'dashboard' && (
-          <div>
-            <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', marginBottom: '1.5rem' }}>
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>🏠 Tableau de bord</h2>
-              <div className="cms-grid-kpi">
-                <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
-                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{articles.filter(a => a.published).length}</p>
-                  <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Articles publiés</p>
-                </div>
-                <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
-                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{articles.filter(a => !a.published).length}</p>
-                  <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Brouillons</p>
-                </div>
-                <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
-                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{demandes.length}</p>
-                  <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Demandes travel</p>
-                </div>
-                <div style={{ background: '#f8f6f4', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center' }}>
-                  <p style={{ fontSize: '1.8rem', fontWeight: 700, color: '#6b2a1a' }}>{settings.length}</p>
-                  <p style={{ fontSize: '.75rem', color: '#888', textTransform: 'uppercase' }}>Paramètres</p>
-                </div>
-              </div>
-              <div className="cms-top-actions">
-                <button onClick={() => openArticleEditor({})} style={{ padding: '.7rem 1.5rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>+ Nouvel article</button>
-                <button onClick={() => setTab('blog')} style={{ padding: '.7rem 1.5rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>✨ Générateur IA</button>
-                <button onClick={() => setTab('demandes')} style={{ padding: '.7rem 1.5rem', background: '#444', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>✈️ Travel Planning</button>
-                <button onClick={() => window.open('/', '_blank')} style={{ padding: '.7rem 1.5rem', background: '#e0dbd5', color: '#333', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontWeight: 600 }}>🌐 Voir le site</button>
-              </div>
-            </div>
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f5f3ef]">
+        <div className="bg-white p-10 rounded-2xl shadow-lg w-full max-w-sm">
+          <div className="text-center mb-6">
+            <div className="text-3xl mb-2">🌿</div>
+            <h1 className="text-xl font-bold text-[#6b2a1a]">Heldonica CMS</h1>
+            <p className="text-gray-400 text-sm mt-1">Connexion requise</p>
           </div>
-        )}
+          <form onSubmit={handleLogin} className="space-y-4">
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Mot de passe"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+              autoFocus
+            />
+            {authError && <p className="text-red-500 text-sm">{authError}</p>}
+            <button
+              type="submit"
+              className="w-full py-3 bg-[#2D8B7A] text-white rounded-xl font-medium hover:bg-[#256b5e] transition-colors"
+            >
+              Se connecter
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
-        {tab === 'articles' && (
-          <div>
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-              <input placeholder="Rechercher un article..." value={search}
-                onChange={e => setSearch(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && loadArticles()}
-                style={{ padding: '.6rem 1rem', border: '1.5px solid #ddd', borderRadius: '.5rem', flex: 1, minWidth: 200, fontSize: '.9rem' }}
+  // ── Pagination ─────────────────────────────────────────────────────────────
+  const totalPages = Math.ceil(totalArticles / pageSize);
+
+  // ── Nav items grouped ──────────────────────────────────────────────────────
+  const navGroups: {
+    title: string;
+    items: {
+      id: NavSection;
+      label: string;
+      icon: React.ReactNode;
+      badge?: string;
+      badgeColor?: string;
+    }[];
+  }[] = [
+    {
+      title: 'Édition',
+      items: [
+        { id: 'dashboard',     label: 'Tableau de bord', icon: <Home size={15} /> },
+        { id: 'destination-pillars', label: 'Destinations', icon: <MapPin size={15} /> },
+        { id: 'sub-destinations', label: 'Sous-Destinations', icon: <ListTree size={15} /> },
+        { id: 'guides',        label: 'Guides Pépites',   icon: <ListTree size={15} /> },
+        { id: 'editable-zones', label: 'Zones de Texte',  icon: <Type size={15} /> },
+        { id: 'articles',      label: 'Articles',         icon: <FileText size={15} />, badge: articles.length > 0 ? String(articles.length) : undefined },
+        { id: 'new-article',   label: 'Nouvel article',   icon: <Plus size={15} /> },
+        { id: 'testimonials',  label: 'Témoignages',      icon: <MessageSquare size={15} /> },
+      ]
+    },
+    {
+      title: 'Contenu & Médias',
+      items: [
+        { id: 'media',         label: 'Médias',            icon: <Image size={15} aria-hidden="true" /> },
+        { id: 'carousel',      label: 'Carousels',         icon: <Package size={15} aria-hidden="true" /> },
+        { id: 'video',         label: 'Vidéos',            icon: <Film size={15} aria-hidden="true" /> },
+        { id: 'fast-trim',     label: 'Fast Trim',         icon: <Clapperboard size={15} aria-hidden="true" /> },
+        { id: 'map',           label: 'Cartes',            icon: <MapIcon size={15} aria-hidden="true" /> },
+        { id: 'checklists',    label: 'Checklists',        icon: <ClipboardList size={15} aria-hidden="true" /> },
+        { id: 'seasons',       label: 'Saisons',           icon: <Calendar size={15} aria-hidden="true" /> },
+      ]
+    },
+    {
+      title: 'Marketing & Outils',
+      items: [
+        { id: 'blog-generator',label: 'Générateur blog',  icon: <Bot size={15} /> },
+        { id: 'instagram',     label: 'Instagram',           icon: <Camera size={15} /> },
+        { id: 'analytics',     label: 'Analytics IA',        icon: <BarChart3 size={15} /> },
+        { id: 'messages',      label: 'Messages',           icon: <Inbox size={15} />, badge: unreadCount > 0 ? String(unreadCount) : undefined, badgeColor: 'bg-red-500 text-white' },
+        { id: 'demandes',      label: 'Demandes Travel',    icon: <Plane size={15} /> },
+      ]
+    },
+    {
+      title: 'Configuration',
+      items: [
+        { id: 'design',        label: 'Design',             icon: <Palette size={15} /> },
+        { id: 'geo',           label: 'GEO',                icon: <Zap size={15} /> },
+        { id: 'layouts',       label: 'Templates',          icon: <Type size={15} /> },
+        { id: 'redirects',     label: 'Redirections',       icon: <Plane size={15} /> },
+        { id: 'settings',      label: 'Paramètres',        icon: <Settings size={15} /> },
+      ]
+    }
+  ];
+
+  // Nom de la section en cours, pour le bouton du menu replie.
+  const etiquetteSection = navGroups
+    .flatMap(g => g.items)
+    .find(i => i.id === activeSection)?.label;
+  const filteredGroups = navSearch
+    ? navGroups.map(g => ({ ...g, items: g.items.filter(i => i.label.toLowerCase().includes(navSearch.toLowerCase())) })).filter(g => g.items.length > 0)
+    : navGroups;
+
+  // ── Layout ─────────────────────────────────────────────────────────────────
+  return (
+    <>
+      {/* Colonne sur telephone, deux colonnes des lg : la barre laterale fait
+          240 px de large, soit les deux tiers d'un ecran de 360 px. Ouvert
+          depuis l'application mobile, l'espace d'edition s'y reduisait a une
+          bande inutilisable. */}
+      <div className="min-h-screen bg-cloud-dancer flex flex-col lg:flex-row font-sans">
+        {/* Sidebar */}
+        <aside className="w-full lg:w-60 shrink-0 bg-stone-900 text-stone-300 flex flex-col py-4 lg:py-6 px-4 lg:min-h-screen shadow-xl">
+          <div className="px-3 mb-4 lg:mb-6 flex items-center gap-2">
+            <span className="text-2xl">🌿</span>
+            <div className="flex-1">
+              <div className="text-base font-bold text-white tracking-wide">Heldonica</div>
+              <div className="text-[10px] text-teal tracking-widest uppercase font-semibold">Workspace</div>
+            </div>
+            {/* Le nom de la section en cours tient lieu d'etiquette : replie, le
+                menu doit dire ou l'on se trouve. */}
+            <button
+              type="button"
+              onClick={() => setMenuOuvert(o => !o)}
+              aria-expanded={menuOuvert}
+              className="lg:hidden shrink-0 rounded-lg border border-stone-700 px-3 py-2 text-xs font-medium text-stone-300"
+            >
+              {menuOuvert ? 'Fermer' : (etiquetteSection ?? 'Menu')}
+            </button>
+          </div>
+          {/* Hauteur bornee sur telephone : sans limite, la liste complete des
+              sections repousse le contenu hors de l'ecran et il faut defiler
+              longuement avant d'atteindre l'editeur. */}
+          <nav className={`flex-1 max-h-72 lg:max-h-none overflow-y-auto pr-1 space-y-5 scrollbar-thin scrollbar-thumb-stone-800 ${menuOuvert ? "block" : "hidden"} lg:block`}>
+            <div className="px-3">
+              <input
+                value={navSearch}
+                onChange={e => setNavSearch(e.target.value)}
+                placeholder="Rechercher une action…"
+                className="w-full px-3 py-1.5 bg-stone-800 border border-stone-700 rounded-lg text-xs text-white placeholder:text-stone-500 focus:outline-none focus:ring-1 focus:ring-teal"
               />
-              <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-                style={{ padding: '.6rem .9rem', border: '1.5px solid #ddd', borderRadius: '.5rem', fontSize: '.9rem' }}>
-                <option value="all">Tous</option>
-                <option value="published">Publiés</option>
-                <option value="draft">Brouillons</option>
-                <option value="archived">Archivés</option>
-              </select>
-              <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}
-                style={{ padding: '.6rem .9rem', border: '1.5px solid #ddd', borderRadius: '.5rem', fontSize: '.9rem' }}>
-                <option value="all">Toutes catégories</option>
-                {availableCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-              </select>
-              <button onClick={loadArticles} style={{ padding: '.6rem 1.2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>🔍</button>
-              <button onClick={() => openArticleEditor({})} style={{ padding: '.6rem 1.2rem', background: '#01696f', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.9rem' }}>+ Nouvel article</button>
             </div>
-            {loadingArticles ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p>
-              : articles.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '4rem', color: '#aaa' }}>
-                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📝</div>
-                  <p>Aucun article trouvé</p>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '.75rem' }}>
-                  {articles.filter(a => {
-                    if (categoryFilter !== 'all' && a.category !== categoryFilter) return false;
-                    return true;
-                  }).map(a => (
-                    <div key={a.id} style={{ background: 'white', borderRadius: '.75rem', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', flexWrap: 'wrap' }}>
-                      {a.featured_image && <img src={a.featured_image} alt="" style={{ width: 64, height: 48, objectFit: 'cover', borderRadius: '.4rem', flexShrink: 0 }} />}
-                      <div style={{ flex: 1, minWidth: 200 }}>
-                        <div style={{ fontWeight: 600, fontSize: '1rem', color: '#1a1a1a', marginBottom: '.2rem' }}>{a.title}</div>
-                        <div style={{ fontSize: '.8rem', color: '#888', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                          <span>{a.category || '—'}</span>
-                          <span>{fmt(a.created_at)}</span>
-                        </div>
-                      </div>
-                      <span style={{ padding: '.3rem .8rem', borderRadius: '9999px', fontSize: '.78rem', fontWeight: 600, background: a.published ? '#d4edda' : '#fff3cd', color: a.published ? '#155724' : '#856404' }}>
-                        {a.published ? '✓ Publié' : '📝 Brouillon'}
-                      </span>
-                      <div style={{ display: 'flex', gap: '.5rem' }}>
-                        <button onClick={() => openArticleEditor(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>✏️ Éditer</button>
-                        <button onClick={() => togglePublish(a)} style={{ padding: '.35rem .8rem', border: '1px solid #ddd', borderRadius: '.4rem', background: 'white', cursor: 'pointer', fontSize: '.82rem' }}>{a.published ? '📦 Dépublier' : 'Publier'}</button>
-                        <button onClick={() => deleteArticle(a.id)} style={{ padding: '.35rem .8rem', border: '1px solid #fcc', borderRadius: '.4rem', background: '#fff5f5', color: '#c0392b', cursor: 'pointer', fontSize: '.82rem' }}>🗑</button>
-                      </div>
-                    </div>
+            {recentSections.length > 0 && !navSearch && (
+              <div className="px-3">
+                <div className="text-[10px] font-bold text-stone-500 uppercase tracking-wider mb-1">Récents</div>
+                <div className="flex flex-wrap gap-1">
+                  {recentSections.map(s => (
+                    <button key={s} onClick={() => navigateTo(s)} className="px-2 py-1 bg-stone-800 text-stone-300 rounded text-[10px] hover:bg-stone-700">
+                      {s}
+                    </button>
                   ))}
-                </div>
-              )}
-          </div>
-        )}
-
-        {tab === 'new' && (
-          <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 2px 12px rgba(0,0,0,.07)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.75rem' }}>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>{editingArticle?.id ? `✏️ Modifier : ${editingArticle.title}` : '✏️ Nouvel article'}</h2>
-              <button onClick={closeArticleEditor} style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: '1.3rem' }}>✖️</button>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
-              <button onClick={() => setShowArticlePreview(prev => !prev)}
-                style={{ padding: '.5rem .95rem', border: '1px solid #ddd', borderRadius: '.5rem', background: 'white', color: '#6b2a1a', cursor: 'pointer', fontSize: '.82rem', fontWeight: 700 }}
-              >{showArticlePreview ? "Masquer l’aperçu" : 'Aperçu live'}</button>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
-              <div style={{ gridColumn: '1/-1' }}>
-                <label style={lbl}>Titre *</label>
-                <input value={editingArticle?.title || ''}
-                  onChange={e => setEditingArticle(p => ({ ...p, title: e.target.value, slug: slug(e.target.value) }))}
-                  style={inp} placeholder="Titre de l’article" />
-              </div>
-              <div>
-                <label style={lbl}>Slug (URL)</label>
-                <input value={editingArticle?.slug || ''}
-                  onChange={e => setEditingArticle(p => ({ ...p, slug: e.target.value }))}
-                  style={inp} placeholder="slug-auto-genere" />
-              </div>
-              <div style={{ gridColumn: '1/-1', marginBottom: '1rem' }}>
-                <label style={{ ...lbl, fontWeight: 600, marginBottom: '0.5rem', display: 'block' }}>Pilier éditorial</label>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  {['Découvertes locales', 'Carnets de voyage', 'Coulisses', 'Expert hôtelier'].map(p => (
-                    <button key={p}
-                      onClick={() => { setPilier(p); setEditingArticle(art => ({ ...art, category: p })); }}
-                      style={{
-                        padding: '0.5rem 1rem', borderRadius: '9999px',
-                        border: pilier === p ? '2px solid #4A7C59' : '1px solid #4A7C59',
-                        background: pilier === p ? '#4A7C59' : 'transparent',
-                        color: pilier === p ? 'white' : '#4A7C59',
-                        cursor: 'pointer', fontSize: '0.85rem', transition: 'all 0.2s'
-                      }}
-                    >{p}</button>
-                  ))}
-                </div>
-              </div>
-              <div style={{ gridColumn: '1/-1' }}>
-                <label style={lbl}>Image à la une</label>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '.75rem' }}>
-                  <button onClick={() => setShowMediaLibrary(true)}
-                    style={{ padding: '.6rem 1.1rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.85rem', fontWeight: 600 }}
-                  >🖼️ Médiathèque Supabase</button>
-                  <span style={{ color: '#aaa', fontSize: '.82rem' }}>ou</span>
-                  <label style={{ padding: '.6rem 1rem', background: uploadingFeaturedImage ? '#8aa8a9' : '#01696f', color: 'white', borderRadius: '.5rem', cursor: uploadingFeaturedImage ? 'wait' : 'pointer', fontSize: '.85rem', fontWeight: 600 }}>
-                    {uploadingFeaturedImage ? '⏳ Upload…' : '⬆️ Upload direct'}
-                    <input type="file" accept="image/*" onChange={uploadFeaturedImage} style={{ display: 'none' }} disabled={uploadingFeaturedImage} />
-                  </label>
-                </div>
-                {editingArticle?.featured_image ? (
-                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                    <div style={{ position: 'relative' }}>
-                      <img src={editingArticle.featured_image} alt="" style={{ height: 80, borderRadius: '.5rem', objectFit: 'cover' }} />
-                      <button onClick={() => setEditingArticle(p => ({ ...p, featured_image: '' }))}
-                        style={{ position: 'absolute', top: -6, right: -6, background: '#c0392b', color: 'white', border: 'none', borderRadius: '50%', width: 20, height: 20, cursor: 'pointer', fontSize: '.7rem' }}>✖️</button>
-                    </div>
-                    <input value={editingArticle.featured_image}
-                      onChange={e => setEditingArticle(p => ({ ...p, featured_image: e.target.value }))}
-                      style={{ ...inp, flex: 1, fontSize: '.82rem' }} placeholder="URL de l’image" />
-                  </div>
-                ) : (
-                  <input value=""
-                    onChange={e => setEditingArticle(p => ({ ...p, featured_image: e.target.value }))}
-                    style={{ ...inp, fontSize: '.82rem' }} placeholder="Ou coller une URL directement" />
-                )}
-              </div>
-              <div style={{ gridColumn: '1/-1' }}>
-                <label style={lbl}>Extrait</label>
-                <textarea value={editingArticle?.excerpt || ''}
-                  onChange={e => setEditingArticle(p => ({ ...p, excerpt: e.target.value }))}
-                  style={{ ...inp, height: 80, resize: 'vertical' }}
-                  placeholder="Résumé accrocheur pour les cards du blog…" />
-              </div>
-              <div style={{ gridColumn: '1/-1' }}>
-                <label style={lbl}>Contenu</label>
-                <RichEditor value={editingArticle?.content || ''}
-                  onChange={html => setEditingArticle(p => ({ ...p, content: html }))}
-                  placeholder="Commence à écrire ton article ici…" />
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '.5rem', cursor: 'pointer', fontWeight: 600, color: '#444', fontSize: '.9rem' }}>
-                  <input type="checkbox" checked={!!editingArticle?.published}
-                    onChange={e => setEditingArticle(p => ({ ...p, published: e.target.checked }))}
-                    style={{ width: 18, height: 18 }} />
-                  Publier immédiatement
-                </label>
-                <button onClick={() => { setScheduleMode(!scheduleMode); if (!scheduleMode) setEditingArticle(p => ({ ...p, published: false })); }}
-                  style={{ padding: '.25rem .6rem', border: '1px solid #ddd', borderRadius: '.3rem', background: '#faf8f5', cursor: 'pointer', fontSize: '.75rem' }}>
-                  {scheduleMode ? '📅 Programmer' : '⏰ Planifier'}
-                </button>
-              </div>
-              {scheduleMode && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem', marginTop: '.5rem' }}>
-                  <label style={{ fontWeight: 600, color: '#444', fontSize: '.85rem' }}>Publication prévue:</label>
-                  <input type="datetime-local"
-                    value={editingArticle?.scheduled_published_at?.slice(0, 16) || ''}
-                    onChange={e => setEditingArticle(p => ({ ...p, scheduled_published_at: e.target.value, published: false }))}
-                    style={{ padding: '.4rem .6rem', border: '1.5px solid #ddd', borderRadius: '.4rem', fontSize: '.85rem' }}
-                  />
-                </div>
-              )}
-              <div style={{ gridColumn: '1 / -1', padding: '1rem', background: '#f8f9fa', borderRadius: '.5rem', marginTop: '1rem' }}>
-                <div style={{ fontWeight: 600, marginBottom: '.5rem', fontSize: '.85rem' }}>📊 Analyse SEO</div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '.5rem', fontSize: '.8rem' }}>
-                  <div>📖 Lisibilité: <strong>{seo.readability}</strong></div>
-                  <div>📄 Mots: <strong>{seo.wordCount}</strong></div>
-                  <div>🔑 Densité titre: <strong>{seo.density}%</strong></div>
-                </div>
-                {seo.issues.length > 0 && (
-                  <div style={{ marginTop: '.5rem', color: '#c0392b', fontSize: '.75rem' }}>
-                    {seo.issues.map((issue, i) => <div key={i}>⚠️ {issue}</div>)}
-                  </div>
-                )}
-              </div>
-              <div style={{ gridColumn: '1/-1', display: 'flex', gap: '.6rem', flexWrap: 'wrap' }}>
-                <span style={metaChip}>URL: /blog/{editingArticle?.slug || slug(editingArticle?.title || '') || 'nouvel-article'}</span>
-                <span style={metaChip}>{articleWordCount} mots</span>
-                <span style={metaChip}>{articleReadTime} min de lecture</span>
-                <span style={{ ...metaChip, background: seo.score >= 70 ? '#d4edda' : seo.score >= 40 ? '#fff3cd' : '#f8d7da', color: seo.score >= 70 ? '#155724' : seo.score >= 40 ? '#856404' : '#721c24' }}>SEO: {seo.score}/100</span>
-                <span style={metaChip}>Cmd/Ctrl+S pour enregistrer</span>
-                {isArticleDirty && <span style={{ ...metaChip, background: '#fff4db', color: '#8a5a00' }}>Brouillon non sauvegardé</span>}
-              </div>
-            </div>
-            {showArticlePreview && (
-              <div style={previewPanel}>
-                <h3 style={{ margin: '0 0 1rem', fontSize: '1rem', color: '#6b2a1a' }}>Aperçu public</h3>
-                <div style={previewFrame}>
-                  {editingArticle?.featured_image ? (
-                    <img src={editingArticle.featured_image} alt="" style={{ width: '100%', maxHeight: 320, objectFit: 'cover', borderRadius: '.9rem', marginBottom: '1.5rem' }} />
-                  ) : (
-                    <div style={previewImageFallback}>Ajoute une image à la une</div>
-                  )}
-                  <h1 style={{ margin: 0, fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', lineHeight: 1.1, color: '#1f1a17' }}>{editingArticle?.title || "Titre de l’article"}</h1>
-                  <p style={{ margin: '1rem 0 1.5rem', color: '#6d625a', fontSize: '1rem', lineHeight: 1.7 }}>{editingArticle?.excerpt || "Ton extrait apparaîtra ici."}</p>
-                  {articlePreviewHtml ? (
-                    <EnhancedRichContent html={articlePreviewHtml} style={previewBody} />
-                  ) : (
-                    <p style={{ margin: 0, color: '#8a7a70', lineHeight: 1.7 }}>Commence à écrire dans l&apos;éditeur pour voir le rendu ici.</p>
-                  )}
                 </div>
               </div>
             )}
-            <div style={{ display: 'flex', gap: '1rem', marginTop: '1.75rem', justifyContent: 'flex-end' }}>
-              <button onClick={closeArticleEditor}
-                style={{ padding: '.7rem 1.5rem', border: '1.5px solid #ddd', borderRadius: '.5rem', background: 'white', cursor: 'pointer', fontSize: '.9rem' }}>Annuler</button>
-              <button onClick={saveArticle} disabled={savingArticle}
-                style={{ padding: '.7rem 2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: savingArticle ? 'wait' : 'pointer', fontSize: '.9rem', opacity: savingArticle ? .75 : 1 }}>{savingArticle ? '⏳ Enregistrement…' : '💾 Enregistrer'}</button>
-            </div>
+            {filteredGroups.map((group, groupIdx) => (
+              <div key={groupIdx} className="space-y-1">
+                <div className="px-3 text-[10px] font-bold text-stone-500 uppercase tracking-wider">
+                  {group.title}
+                </div>
+                <ul className="space-y-0.5">
+                  {group.items.map(item => {
+                    const isActive = activeSection === item.id;
+                    return (
+                      <li key={item.id}>
+                        <button
+                          onClick={() => navigateTo(item.id)}
+                          className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                            isActive
+                              ? 'bg-teal text-white shadow-md shadow-teal/10 font-semibold'
+                              : 'text-stone-400 hover:text-white hover:bg-stone-800/60'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <span className={isActive ? 'text-white' : 'text-stone-500 group-hover:text-stone-300'}>
+                              {item.icon}
+                            </span>
+                            <span>{item.label}</span>
+                          </div>
+                          {item.badge && (
+                            <span className={`px-1.5 py-0.5 text-[9px] font-bold rounded-full ${item.badgeColor || 'bg-stone-800 text-stone-300 border border-stone-700'}`}>
+                              {item.badge}
+                            </span>
+                          )}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </nav>
+          <div className={`px-3 mt-4 pt-4 border-t border-stone-800 ${menuOuvert ? "block" : "hidden"} lg:block`}>
+            <button
+              onClick={async () => {
+                await fetch('/api/cms/auth/logout', { method: 'POST' });
+                setIsAuthenticated(false);
+              }}
+              className="w-full text-left text-xs text-stone-500 hover:text-stone-300 transition-colors flex items-center gap-2 py-2"
+            >
+              🚪 Déconnexion
+            </button>
           </div>
-        )}
+        </aside>
 
-        {tab === 'pages' && (
-          <div>
-            {loadingSettings ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p> : (
-              <div className="cms-layout-sidebar">
-                <div style={{ background: 'white', borderRadius: '1rem', padding: '1rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
-                  {Object.entries(PAGES_CONFIG).map(([key, cfg]) => (
-                    <button key={key} onClick={() => setActivePage(key)}
-                      style={{ display: 'flex', alignItems: 'center', gap: '.5rem', width: '100%', textAlign: 'left', padding: '.6rem .75rem', borderRadius: '.5rem', border: 'none', cursor: 'pointer', fontSize: '.88rem', fontWeight: activePage === key ? 700 : 400, background: activePage === key ? '#f0e8e4' : 'transparent', color: activePage === key ? '#6b2a1a' : '#555', marginBottom: '.2rem' }}
-                    ><span>{cfg.emoji}</span> {cfg.label}</button>
+        {/* Main content */}
+        <main className="flex-1 p-6 overflow-auto">
+
+          {/* ── Dashboard ── */}
+          {activeSection === 'dashboard' && (
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">Que veux-tu faire ?</h1>
+              <p className="text-sm text-gray-500 mb-6">
+                Rien n&apos;est publié sans ton accord : tout arrive en brouillon.
+              </p>
+
+              {/* Un seul brouillon à la fois, le plus prêt — remplace le compteur
+                  « Relire N brouillons » qui ne disait pas par lequel commencer. */}
+              <div className="mb-6">
+                <ErrorBoundary>
+                  <Suspense fallback={<div className="text-sm text-gray-400">On regarde ce qui est prêt…</div>}>
+                    <FileAPublier onOuvrir={ouvrirDepuisFile} onPublie={loadArticles} />
+                  </Suspense>
+                </ErrorBoundary>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+                {articles.filter(a => a.status === 'draft').length > 0 && (
+                  <CarteAction
+                    titre="Tous les brouillons"
+                    detail="La liste complète, pour choisir toi-même par lequel commencer."
+                    onClick={() => { setStatusFilter('draft'); navigateTo('articles') }}
+                  />
+                )}
+
+                <CarteAction
+                  titre="Écrire un carnet"
+                  detail="Partir d'une page blanche, ou reprendre un brouillon."
+                  onClick={() => navigateTo('new-article')}
+                />
+
+                <CarteAction
+                  titre="Composer un carrousel Instagram"
+                  detail="Tes notes en diapositives, tes photos, puis un brouillon dans la file."
+                  aide="Tes notes et tes photos ; l'assistant découpe et resserre, il n'invente pas."
+                  onClick={() => navigateTo('carousel')}
+                />
+
+                <CarteAction
+                  titre="Importer les photos du voyage"
+                  detail="Depuis Google Photos vers la médiathèque, avec leur date."
+                  onClick={() => { window.location.href = '/panel-manager/photos' }}
+                />
+
+                <CarteAction
+                  titre="Partir d'une idée"
+                  detail="Décris ce que tu as vécu, l'assistant met en forme un brouillon."
+                  aide="Tu gardes la main : rien n'est publié sans relecture."
+                  onClick={() => navigateTo('blog-generator')}
+                />
+              </div>
+
+              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                Où en est le site
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="bg-white rounded-xl p-5 border border-gray-100">
+                  <div className="text-2xl font-bold text-[#2D8B7A]">{articles.length}</div>
+                  <div className="text-sm text-gray-500 mt-1">Total articles</div>
+                </div>
+                <div className="bg-white rounded-xl p-5 border border-gray-100">
+                  <div className="text-2xl font-bold text-[#C4714A]">
+                    {articles.filter(a => a.status === 'published').length}
+                  </div>
+                  <div className="text-sm text-gray-500 mt-1">Publies</div>
+                </div>
+                <div className="bg-white rounded-xl p-5 border border-gray-100">
+                  <div className="text-2xl font-bold text-yellow-600">
+                    {articles.filter(a => a.status === 'scheduled').length}
+                  </div>
+                  <div className="text-sm text-gray-500 mt-1">Planifies</div>
+                </div>
+                <div className="bg-white rounded-xl p-5 border border-gray-100">
+                  <div className="text-2xl font-bold text-gray-400">
+                    {articles.filter(a => a.status === 'draft').length}
+                  </div>
+                  <div className="text-sm text-gray-500 mt-1">Brouillons</div>
+                </div>
+              </div>
+              {articles.some(a => a.author) && (
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div className="bg-white rounded-xl p-5 border border-gray-100">
+                    <div className="text-sm font-medium text-gray-700">Dernier article</div>
+                    <div className="text-sm text-gray-400 mt-1">
+                      {articles.filter(a => a.status === 'published').sort((a, b) =>
+                        new Date(b.published_at ?? 0).getTime() - new Date(a.published_at ?? 0).getTime()
+                      )[0]?.title ?? '—'}
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-xl p-5 border border-gray-100">
+                    <div className="text-sm font-medium text-gray-700">Auteurs</div>
+                    <div className="text-sm text-gray-400 mt-1">
+                      {[...new Set(articles.map(a => a.author).filter(Boolean))].join(', ') || '—'}
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-xl p-5 border border-gray-100">
+                    <div className="text-sm font-medium text-gray-700">Categories</div>
+                    <div className="text-sm text-gray-400 mt-1">
+                      {[...new Set(articles.map(a => a.category).filter(Boolean))].length || '0'}
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-xl p-5 border border-gray-100">
+                    <div className="text-sm font-medium text-gray-700">Tags uniques</div>
+                    <div className="text-sm text-gray-400 mt-1">
+                      {[...new Set(articles.flatMap(a => a.tags ?? []).filter(Boolean))].length}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Articles list ── */}
+          {activeSection === 'articles' && (
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <h1 className="text-2xl font-bold text-gray-900">Articles</h1>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      const data = JSON.stringify(articles, null, 2);
+                      const blob = new Blob([data], { type: 'application/json' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url; a.download = `heldonica-articles-${new Date().toISOString().split('T')[0]}.json`;
+                      a.click(); URL.revokeObjectURL(url);
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-2 text-xs border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50"
+                    title="Exporter tout en JSON"
+                  >
+                    <Download size={14} /> Export
+                  </button>
+                  <button
+                    onClick={() => { setEditingArticle(null); setActiveSection('new-article'); }}
+                    className="flex items-center gap-2 px-4 py-2 bg-[#2D8B7A] text-white rounded-lg text-sm font-medium hover:bg-[#256b5e]"
+                  >
+                    <Plus size={16} /> Nouvel article
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 mb-4 flex-wrap">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+                  placeholder="Rechercher un article…"
+                  className="w-full max-w-sm px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                />
+                <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5">
+                  {(['all', 'published', 'draft', 'scheduled'] as const).map(s => (
+                    <button key={s} onClick={() => { setStatusFilter(s); setCurrentPage(1); setSelectedIds(new Set()); }}
+                      className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                        statusFilter === s ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                      }`}
+                    >
+                      {s === 'all' ? 'Tous' : s === 'published' ? 'Publiés' : s === 'draft' ? 'Brouillons' : 'Planifiés'}
+                    </button>
                   ))}
                 </div>
-                <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
-                  {(() => {
-                    const config = PAGES_CONFIG[activePage];
-                    if (!config) return null;
-                    return (
-                      <div>
-                        <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>{config.emoji} {config.label}</h2>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                          {config.sections.map(section => {
-                            const key = `${activePage}__${section.key}`;
-                            return (
-                              <div key={key}>
-                                <label style={lbl}>{section.label}</label>
-                                {section.type === 'textarea' ? (
-                                  <textarea value={editedContent[key] ?? ''} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={{ ...inp, height: 110, resize: 'vertical' }} placeholder={section.label} />
-                                ) : section.type === 'media' ? (
-                                  <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                                    <input value={editedContent[key] ?? ''} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={{ ...inp, flex: 1, minWidth: 200 }} placeholder="URL ou upload..." />
-                                    <label style={{ padding: '.5rem .85rem', background: uploadingMediaKey === key ? '#8aa8a9' : '#01696f', color: 'white', borderRadius: '.4rem', cursor: uploadingMediaKey === key ? 'wait' : 'pointer', fontSize: '.8rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                                      {uploadingMediaKey === key ? '⏳...' : '⬆️ Upload'}
-                                      <input type="file" accept="video/*,image/*" onChange={(e) => uploadMediaForPage(e, section.key, activePage)} style={{ display: 'none' }} disabled={!!uploadingMediaKey} />
-                                    </label>
-                                    {editedContent[key] && (
-                                      <button onClick={() => setEditedContent(prev => ({ ...prev, [key]: '' }))} style={{ padding: '.5rem .75rem', background: '#f0e8e4', color: '#6b2a1a', border: 'none', borderRadius: '.4rem', cursor: 'pointer', fontSize: '.8rem' }}>✕</button>
-                                    )}
-                                  </div>
-                                ) : section.type === 'color' ? (
-                                  <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
-                                    <input type="color" value={editedContent[key] || '#6b2a1a'} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={{ width: 50, height: 40, padding: 0, border: 'none', cursor: 'pointer' }} />
-                                    <input value={editedContent[key] ?? ''} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={{ ...inp, flex: 1 }} placeholder="#RRGGBB" />
-                                  </div>
-                                ) : (
-                                  <input value={editedContent[key] ?? ''} onChange={e => setEditedContent(prev => ({ ...prev, [key]: e.target.value }))} style={inp} placeholder={section.label} />
+              </div>
+
+              {selectedIds.size > 0 && (
+                <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-[#2D8B7A]/5 border border-[#2D8B7A]/20 rounded-lg">
+                  <span className="text-xs text-gray-600">{selectedIds.size} selectionne(s)</span>
+                  <button onClick={async () => {
+                    const toPublish = articles.filter(a => selectedIds.has(a.id) && a.status !== 'published');
+                    try {
+                      await Promise.all(toPublish.map(a =>
+                        fetch(`/api/cms/articles/${a.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...a, status: 'published' }) })
+                      ));
+                      loadArticles(); setSelectedIds(new Set());
+                      toast('Articles publiés', 'success');
+                    } catch { toast('Erreur lors de la publication', 'error'); }
+                  }} className="px-3 py-1 text-xs bg-green-600 text-white rounded-lg hover:bg-green-700">
+                    Publier
+                  </button>
+                  <button onClick={async () => {
+                    const toDelete = articles.filter(a => selectedIds.has(a.id));
+                    if (!window.confirm(`Supprimer ${toDelete.length} article(s) ?`)) return;
+                    try {
+                      await Promise.all(toDelete.map(a =>
+                        fetch(`/api/cms/articles/${a.id}`, { method: 'DELETE' })
+                      ));
+                      loadArticles(); setSelectedIds(new Set());
+                      toast('Articles supprimés', 'success');
+                    } catch { toast('Erreur lors de la suppression', 'error'); }
+                  }} className="px-3 py-1 text-xs bg-red-500 text-white rounded-lg hover:bg-red-600">
+                    Supprimer
+                  </button>
+                  <button onClick={() => setSelectedIds(new Set())} className="px-3 py-1 text-xs border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50">
+                    Annuler
+                  </button>
+                </div>
+              )}
+              {loadingArticles ? (
+                <SkeletonTable rows={5} />
+              ) : (
+                <>
+                  <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                    <table className="w-full text-sm">
+                      <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
+                        <tr>
+                          <th className="px-4 py-3 w-8">
+                            <input type="checkbox" onChange={e => {
+                              if (e.target.checked) setSelectedIds(new Set(articles.map(a => a.id)));
+                              else setSelectedIds(new Set());
+                            }} checked={articles.length > 0 && selectedIds.size === articles.length}
+                              className="w-3.5 h-3.5 rounded border-gray-300" />
+                          </th>
+                          <th className="px-4 py-3 text-left">Titre</th>
+                          <th className="px-4 py-3 text-left">Catégorie</th>
+                          <th className="px-4 py-3 text-left">Statut</th>
+                          <th className="px-4 py-3 text-left">Date</th>
+                          <th className="px-4 py-3 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-50">
+                        {articles.map(article => (
+                          <tr key={article.id} className="hover:bg-gray-50">
+                            <td className="px-4 py-3">
+                              <input type="checkbox" checked={selectedIds.has(article.id)}
+                                onChange={() => {
+                                  const next = new Set(selectedIds);
+                                  if (next.has(article.id)) next.delete(article.id); else next.add(article.id);
+                                  setSelectedIds(next);
+                                }}
+                                className="w-3.5 h-3.5 rounded border-gray-300" />
+                            </td>
+                            <td className="px-4 py-3 font-medium text-gray-900">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span>{article.title}</span>
+                                {(!article.featured_image || article.featured_image.trim() === '' || article.featured_image === '/og-default.jpg') && (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-200" title="Image de couverture manquante (utilise le fallback par défaut)">
+                                    🖼️ Image manquante
+                                  </span>
                                 )}
-                                {section.type === 'media' && editedContent[key] && (
-                                  <div style={{ marginTop: '.5rem', borderRadius: '.5rem', overflow: 'hidden', maxWidth: 320 }}>
-                                    {section.key.includes('video') || editedContent[key]?.endsWith('.mp4') || editedContent[key]?.endsWith('.webm') ? (
-                                      <video src={editedContent[key]} controls style={{ width: '100%', borderRadius: '.5rem' }} />
-                                    ) : (
-                                      <img src={editedContent[key]} alt="Preview" style={{ width: '100%', borderRadius: '.5rem', objectFit: 'cover' }} />
-                                    )}
-                                  </div>
+                                {(!article.og_image || article.og_image.trim() === '' || article.og_image === '/og-default.jpg') && (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-orange-100 text-orange-800 border border-orange-200" title="Image OpenGraph (réseaux sociaux) manquante">
+                                    📱 Pas d'OG
+                                  </span>
                                 )}
                               </div>
-                            );
-                          })}
-                        </div>
-                        <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end' }}>
-                          <button onClick={() => savePageContent(activePage)} disabled={savingSettings}
-                            style={{ padding: '.75rem 2.25rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '.95rem', opacity: savingSettings ? .7 : 1 }}
-                          >{savingSettings ? '⏳ Sauvegarde…' : '💾 Sauvegarder la page'}</button>
-                        </div>
-                      </div>
-                    );
-                  })()}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+                            </td>
+                            <td className="px-4 py-3 text-gray-500">{article.category ?? '—'}</td>
+                            <td className="px-4 py-3">
+                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                article.status === 'published'
+                                  ? 'bg-green-100 text-green-700'
+                                  : article.status === 'draft'
+                                  ? 'bg-gray-100 text-gray-600'
+                                  : 'bg-yellow-100 text-yellow-700'
+                              }`}>
+                                {article.status === 'scheduled' ? 'Planifié' : article.status}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-gray-400 text-xs">
+                              {article.updated_at ? new Date(article.updated_at).toLocaleDateString('fr-FR') : '—'}
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  onClick={() => setPreviewArticle(article)}
+                                  className="text-gray-400 hover:text-gray-600 text-xs"
+                                  title="Aperçu"
+                                >
+                                  <Eye size={14} />
+                                </button>
+                                <button
+                                  onClick={() => openArticleEditor(article)}
+                                  className="text-[#2D8B7A] hover:underline text-xs font-medium"
+                                >
+                                  Modifier
+                                </button>
+                                <button
+                                  onClick={() => confirm(
+                                    'Supprimer l\'article',
+                                    `Supprimer « ${article.title} » ? Cette action est irréversible.`,
+                                    () => handleDeleteArticle(article),
+                                    'danger'
+                                  )}
+                                  className="text-red-400 hover:text-red-600 text-xs"
+                                  title="Supprimer"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                        {articles.length === 0 && (
+                          <tr>
+                            <td colSpan={6} className="px-4 py-8 text-center text-gray-400 text-sm">
+                              Aucun article trouvé
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
 
-        {tab === 'media' && (
-          <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 2px 12px rgba(0,0,0,.07)', minHeight: 400 }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>🖼️ Médiathèque</h2>
-            <div style={{ background: '#faf8f5', borderRadius: '.75rem', padding: '2rem', textAlign: 'center', border: '2px dashed #e8e3dc' }}>
-              <p style={{ color: '#555', marginBottom: '1.25rem' }}>Toutes tes images sont stockées sur <strong>Supabase Storage</strong>.</p>
-              <button onClick={() => setShowMediaLibrary(true)}
-                style={{ padding: '.8rem 1.75rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '.95rem' }}
-              >🖼️ Ouvrir la médiathèque</button>
-            </div>
-          </div>
-        )}
-
-        {tab === 'demandes' && (
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a' }}>✈️ Demandes Travel Planning</h2>
-              <div style={{ display: 'flex', gap: '.5rem', alignItems: 'center' }}>
-                <select value={demandesStatusFilter} onChange={e => setDemandesStatusFilter(e.target.value)}
-                  style={{ padding: '.5rem .8rem', border: '1.5px solid #ddd', borderRadius: '.5rem', fontSize: '.85rem' }}>
-                  <option value="all">Tous statuts</option>
-                  <option value="nouvelle">🆕 Nouvelle</option>
-                  <option value="en_cours">🔍 En cours</option>
-                  <option value="devis_envoye">📨 Devis envoyé</option>
-                  <option value="accepte">✅ Acceptée</option>
-                  <option value="terminee">🏁 Terminée</option>
-                  <option value="annulee">❌ Annulée</option>
-                </select>
-                <button onClick={loadDemandes} disabled={loadingDemandes} style={{ padding: '.5rem 1rem', background: 'white', border: '1.5px solid #ddd', borderRadius: '.5rem', cursor: loadingDemandes ? 'wait' : 'pointer', fontSize: '.85rem', opacity: loadingDemandes ? .7 : 1 }}>{loadingDemandes ? '⏳' : '🔄'}</button>
-              </div>
-            </div>
-            {loadingDemandes ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p>
-              : demandes.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '4rem', color: '#aaa' }}>
-                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✉️</div>
-                  <p>Aucune demande pour le moment</p>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {demandes.filter(d => demandesStatusFilter === 'all' || d.statut === demandesStatusFilter).map(d => (
-                    <div key={d.id} style={{ background: 'white', borderRadius: '.75rem', padding: '1.25rem 1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '.75rem', flexWrap: 'wrap', gap: '.5rem' }}>
-                        <div>
-                          <div style={{ fontWeight: 700, fontSize: '1rem', color: '#1a1a1a' }}>{d.prenom} {d.nom}</div>
-                          <div style={{ fontSize: '.85rem', color: '#888' }}>{d.email} {d.telephone && `· ${d.telephone}`}</div>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem' }}>
-                          <span style={{ fontSize: '.75rem', color: '#aaa' }}>{fmt(d.created_at)}</span>
-                          <select value={d.statut || 'nouvelle'} onChange={e => updateStatut(d.id, e.target.value)} disabled={updatingDemandeId === d.id}
-                            style={{ padding: '.3rem .7rem', border: '1.5px solid #ddd', borderRadius: '.4rem', fontSize: '.82rem' }}>
-                            <option value="nouvelle">🆕 Nouvelle</option>
-                            <option value="en_cours">🔍 En cours</option>
-                            <option value="devis_envoye">📨 Devis envoyé</option>
-                            <option value="accepte">✅ Acceptée</option>
-                            <option value="terminee">🏁 Terminée</option>
-                            <option value="annulee">❌ Annulée</option>
-                          </select>
-                        </div>
-                      </div>
-                      {d.notes && (
-                        <div style={{ marginTop: '.75rem', padding: '.75rem', background: '#faf8f5', borderRadius: '.5rem', fontSize: '.85rem', color: '#666' }}>💬 {d.notes}</div>
-                      )}
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <div className="flex items-center justify-center gap-2 mt-4">
+                      <button
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-30"
+                      >
+                        <ChevronLeft size={16} />
+                      </button>
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                        <button
+                          key={p}
+                          onClick={() => setCurrentPage(p)}
+                          className={`px-3 py-1 text-sm rounded-lg ${
+                            p === currentPage
+                              ? 'bg-[#2D8B7A] text-white'
+                              : 'text-gray-600 hover:bg-gray-100'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      ))}
+                      <button
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                        className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-30"
+                      >
+                        <ChevronRight size={16} />
+                      </button>
                     </div>
-                  ))}
-                </div>
+                  )}
+                </>
               )}
-          </div>
-        )}
+            </div>
+          )}
 
-        {tab === 'carousel' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <CarouselGenerator />
-            <CarouselEditor />
-          </div>
-        )}
-
-        {tab === 'blog' && (
-          <BlogGenerator
-            onGenerated={(data) => {
-              setEditingArticle({
-                title: data.title, slug: data.suggestedSlug,
-                excerpt: data.excerpt, content: data.content,
-                voice_notes: '', featured_image: '',
-                category: 'Voyage', published: false,
-              });
-              showToast('✅ Article généré ! Édite-le puis enregistre.');
-              setTab('new');
-            }}
-          />
-        )}
-
-        {tab === 'analytics' && (
-              <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: '960px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                  <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a', margin: 0 }}>📊 Analytics GA4</h2>
-                  <div style={{ display: 'flex', gap: '.75rem', alignItems: 'center' }}>
-                    {analyticsData?.period && <span style={{ fontSize: '.75rem', color: '#888', background: '#f5f5f5', padding: '.25rem .75rem', borderRadius: '1rem' }}>{analyticsData.period.startDate} → {analyticsData.period.endDate}</span>}
-                    <button onClick={async () => {
-                      setLoadingAnalytics(true);
-                      try {
-                        const res = await fetch('/api/cms/analytics', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ startDate: '30daysAgo', endDate: 'today' }) });
-                        const data = await res.json();
-                        setAnalyticsData(data);
-                      } catch (e) { console.error(e); }
-                      setLoadingAnalytics(false);
-                    }} disabled={loadingAnalytics}
-                    style={{ padding: '.5rem 1.25rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 600, cursor: 'pointer', fontSize: '.85rem' }}>
-                      {loadingAnalytics ? '⏳ Chargement…' : '🔄 Actualiser'}
+          {/* ── Article editor ── */}
+          {activeSection === 'new-article' && (
+            <ErrorBoundary>
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    {editingArticle?.id ? 'Modifier l\'article' : 'Nouvel article'}
+                  </h1>
+                  <div className="flex items-center gap-3">
+                    {editingArticle && (
+                      <button
+                        onClick={() => setPreviewArticle(editingArticle)}
+                        className="flex items-center gap-2 px-4 py-2 text-gray-600 border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50"
+                      >
+                        <Eye size={16} /> Aperçu
+                      </button>
+                    )}
+                    {editingArticle && (
+                      <button
+                        onClick={async () => {
+                          const res = await fetch('/api/cms/carousel-caption', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              topic: editingArticle.title,
+                              destination: editingArticle.category,
+                              slides: [{ title: editingArticle.title, content: editingArticle.excerpt || '' }],
+                              style: 'narratif',
+                            }),
+                          });
+                          const data = await res.json();
+                          if (data.caption) {
+                            navigator.clipboard?.writeText(data.caption + '\n\n' + (data.hashtags || []).join(' '));
+                            toast('Caption copiée !', 'success');
+                          }
+                        }}
+                        className="flex items-center gap-1.5 px-3 py-2 text-xs border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50"
+                        title="Générer caption Instagram"
+                      >
+                        <Camera size={14} /> Caption IG
+                      </button>
+                    )}
+                    <button
+                      onClick={handleSaveArticle}
+                      disabled={saving}
+                      className="flex items-center gap-2 px-5 py-2.5 bg-[#C4714A] text-white rounded-lg text-sm font-bold hover:bg-[#b05f3a] disabled:opacity-60 transition-colors shadow-sm"
+                    >
+                      <Save size={16} />
+                      {saving ? 'Sauvegarde…' : 'Sauvegarder'}
                     </button>
                   </div>
                 </div>
 
-                {/* KPIs principaux - ligne 1 */}
-                <div className="cms-grid-kpi">
-                  {([
-                    { key: 'sessions', label: 'Sessions', icon: '📈', fmt: (v: number) => v.toLocaleString('fr') },
-                    { key: 'users', label: 'Utilisateurs', icon: '👥', fmt: (v: number) => v.toLocaleString('fr') },
-                    { key: 'newUsers', label: 'Nv. utilisateurs', icon: '✨', fmt: (v: number) => v.toLocaleString('fr') },
-                    { key: 'screenPageViews', label: 'Pages vues', icon: '📄', fmt: (v: number) => v.toLocaleString('fr') },
-                  ] as const).map(({ key, label, icon, fmt }) => {
-                    const val = analyticsData?.totals?.[key]?.value ?? null;
-                    return (
-                      <div key={key} style={{ background: '#fdf8f6', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center', border: '1px solid #f0e8e4' }}>
-                        <div style={{ fontSize: '1.5rem', marginBottom: '.25rem' }}>{icon}</div>
-                        <p style={{ fontSize: '1.6rem', fontWeight: 700, color: '#6b2a1a', margin: '.25rem 0' }}>{val != null ? fmt(val) : '--'}</p>
-                        <p style={{ fontSize: '.7rem', color: '#999', textTransform: 'uppercase', letterSpacing: '.05em', margin: 0 }}>{label}</p>
-                      </div>
-                    );
-                  })}
+                {/* Save status bar */}
+                <div className={`mb-4 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  saving ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                  saveMsg ? (saveMsg.includes('✅') ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                             'bg-red-50 text-red-700 border border-red-200') :
+                  'bg-transparent'
+                }`}>
+                  {saving && '💾 Sauvegarde en cours…'}
+                  {!saving && saveMsg && saveMsg}
+                  {!saving && lastAutoSave && !saveMsg &&
+                    <span className="text-gray-400 text-xs">Auto-sauvegarde {lastAutoSave}</span>}
                 </div>
 
-                {/* KPIs secondaires - ligne 2 */}
-                <div className="cms-grid-kpi">
-                  {([
-                    { key: 'bounceRate', label: 'Taux rebond', icon: '↩️', fmt: (v: number) => `${(v*100).toFixed(1)}%` },
-                    { key: 'engagementRate', label: 'Taux engagement', icon: '💡', fmt: (v: number) => `${(v*100).toFixed(1)}%` },
-                    { key: 'avgSessionDuration', label: 'Durée moy. session', icon: '⏱️', fmt: (v: number) => { const m = Math.floor(v/60); const s = Math.round(v%60); return `${m}m${s < 10 ? '0' : ''}${s}s`; } },
-                    { key: 'pagesPerSession', label: 'Pages / session', icon: '📑', fmt: (v: number) => v.toFixed(2) },
-                  ] as const).map(({ key, label, icon, fmt }) => {
-                    const val = analyticsData?.totals?.[key]?.value ?? null;
-                    return (
-                      <div key={key} style={{ background: '#f6f9fd', padding: '1.25rem', borderRadius: '.75rem', textAlign: 'center', border: '1px solid #e4ecf5' }}>
-                        <div style={{ fontSize: '1.5rem', marginBottom: '.25rem' }}>{icon}</div>
-                        <p style={{ fontSize: '1.6rem', fontWeight: 700, color: '#1a4a6b', margin: '.25rem 0' }}>{val != null ? fmt(val) : '--'}</p>
-                        <p style={{ fontSize: '.7rem', color: '#999', textTransform: 'uppercase', letterSpacing: '.05em', margin: 0 }}>{label}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Top pages + Sources de trafic */}
-                <div className="cms-grid-kpi">
-                  {/* Top pages */}
-                  <div style={{ background: '#fafafa', borderRadius: '.75rem', padding: '1.25rem', border: '1px solid #eee' }}>
-                    <h3 style={{ fontSize: '.9rem', fontWeight: 700, color: '#333', margin: '0 0 1rem' }}>🏆 Top pages</h3>
-                    {analyticsData?.topPages?.length > 0 ? (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
-                        {analyticsData.topPages.slice(0, 7).map((p: any, i: number) => (
-                          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '.8rem' }}>
-                            <span style={{ color: '#555', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '75%' }}>
-                              <span style={{ color: '#aaa', marginRight: '.4rem' }}>#{i+1}</span>{p.path}
-                            </span>
-                            <span style={{ fontWeight: 700, color: '#6b2a1a', marginLeft: '.5rem' }}>{p.views}</span>
-                          </div>
-                        ))}
-                      </div>
-                    ) : <p style={{ fontSize: '.8rem', color: '#bbb', textAlign: 'center', margin: '1rem 0' }}>Cliquez Actualiser</p>}
-                  </div>
-
-                  {/* Sources de trafic */}
-                  <div style={{ background: '#fafafa', borderRadius: '.75rem', padding: '1.25rem', border: '1px solid #eee' }}>
-                    <h3 style={{ fontSize: '.9rem', fontWeight: 700, color: '#333', margin: '0 0 1rem' }}>🌐 Sources de trafic</h3>
-                    {analyticsData?.trafficSources?.length > 0 ? (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
-                        {analyticsData.trafficSources.map((s: any, i: number) => {
-                          const total = analyticsData.trafficSources.reduce((acc: number, x: any) => acc + x.sessions, 0);
-                          const pct = total > 0 ? Math.round((s.sessions / total) * 100) : 0;
-                          return (
-                            <div key={i} style={{ fontSize: '.8rem' }}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '.2rem' }}>
-                                <span style={{ color: '#555' }}>{s.channel}</span>
-                                <span style={{ fontWeight: 700, color: '#333' }}>{s.sessions} <span style={{ color: '#aaa', fontWeight: 400 }}>({pct}%)</span></span>
-                              </div>
-                              <div style={{ background: '#e8e8e8', borderRadius: '4px', height: '4px' }}>
-                                <div style={{ width: `${pct}%`, background: '#6b2a1a', borderRadius: '4px', height: '4px' }} />
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : <p style={{ fontSize: '.8rem', color: '#bbb', textAlign: 'center', margin: '1rem 0' }}>Cliquez Actualiser</p>}
-                  </div>
-                </div>
-
-                {/* Appareils */}
-                {analyticsData?.devices?.length > 0 && (
-                  <div style={{ background: '#fafafa', borderRadius: '.75rem', padding: '1.25rem', border: '1px solid #eee' }}>
-                    <h3 style={{ fontSize: '.9rem', fontWeight: 700, color: '#333', margin: '0 0 1rem' }}>📱 Appareils</h3>
-                    <div style={{ display: 'flex', gap: '1.5rem' }}>
-                      {analyticsData.devices.map((d: any, i: number) => {
-                        const total = analyticsData.devices.reduce((acc: number, x: any) => acc + x.sessions, 0);
-                        const pct = total > 0 ? Math.round((d.sessions / total) * 100) : 0;
-                        const icons: Record<string,string> = { desktop: '🖥️', mobile: '📱', tablet: '📲' };
-                        return (
-                          <div key={i} style={{ textAlign: 'center' }}>
-                            <div style={{ fontSize: '1.5rem' }}>{icons[d.device] ?? '💻'}</div>
-                            <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#333' }}>{pct}%</div>
-                            <div style={{ fontSize: '.7rem', color: '#999', textTransform: 'capitalize' }}>{d.device}</div>
-                          </div>
-                        );
-                      })}
+                {/* Local draft recovery banner */}
+                {localDraft && (
+                  <div className="mb-4 px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-amber-600">💡</span>
+                      <span className="text-sm text-amber-800">
+                        Brouillon local détecté : Un brouillon enregistré localement dans votre navigateur le {new Date(localDraft.timestamp).toLocaleString('fr-FR')} contient des modifications non enregistrées.
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          setEditingArticle(localDraft.article);
+                          setLocalDraft(null);
+                          toast('Brouillon restauré avec succès', 'success');
+                        }}
+                        className="px-3 py-1.5 text-xs font-medium bg-amber-200 text-amber-800 rounded-lg hover:bg-amber-300 transition-colors"
+                      >
+                        Restaurer le brouillon
+                      </button>
+                      <button
+                        onClick={() => setLocalDraft(null)}
+                        className="px-3 py-1.5 text-xs font-medium text-amber-700 hover:text-amber-900 transition-colors"
+                      >
+                        Ignorer
+                      </button>
                     </div>
                   </div>
                 )}
-              </div>
-            )}
 
-        {tab === 'search' && (
-          <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: '900px' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>🔍 Recherche intelligente</h2>
-            <div style={{ display: 'flex', gap: '.75rem', marginBottom: '1.5rem' }}>
-              <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleSearch()}
-                style={{ flex: 1, padding: '.75rem 1rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '1rem' }}
-                placeholder="Rechercher dans articles, demandes..." />
-              <button onClick={handleSearch} disabled={loadingSearch || !searchQuery}
-                style={{ padding: '.75rem 1.5rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 600, cursor: 'pointer', opacity: loadingSearch || !searchQuery ? .7 : 1 }}>
-                {loadingSearch ? '⏳' : '🔍'}
-              </button>
-            </div>
-            {searchResults.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <p style={{ fontSize: '.85rem', color: '#888' }}>{searchResults.length} résultat(s)</p>
-                {searchResults.map((r: any, i: number) => (
-                  <div key={i} style={{ padding: '1rem', background: '#f8f6f4', borderRadius: '.5rem', cursor: 'pointer' }} onClick={() => setTab(r.type === 'article' ? 'articles' : 'demandes')}>
-                    <div style={{ fontWeight: 600, color: '#333', marginBottom: '.35rem' }}>{r.title}</div>
-                    {r.excerpt && <p style={{ fontSize: '.85rem', color: '#666' }}>{r.excerpt}</p>}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+                <div className="space-y-3">
 
-        {tab === 'settings' && (
-          <div>
-            {loadingSettings ? <p style={{ textAlign: 'center', color: '#888', padding: '3rem' }}>Chargement…</p> : (
-              <div className="cms-layout-sidebar">
-                <div style={{ background: 'white', borderRadius: '1rem', padding: '1rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
-                  {Object.entries(SETTINGS_GROUPS).map(([key, cfg]) => (
-                    <button key={key} onClick={() => setSettingsGroup(key)}
-                      style={{ display: 'flex', alignItems: 'center', gap: '.5rem', width: '100%', textAlign: 'left', padding: '.6rem .75rem', borderRadius: '.5rem', border: 'none', cursor: 'pointer', fontSize: '.88rem', fontWeight: settingsGroup === key ? 700 : 400, background: settingsGroup === key ? '#f0e8e4' : 'transparent', color: settingsGroup === key ? '#6b2a1a' : '#555', marginBottom: '.2rem' }}
-                    ><span>{cfg.emoji}</span> {cfg.label}</button>
-                  ))}
-                </div>
-                <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)' }}>
-                  {(() => {
-                    const groupItems = settings.filter(s => {
-                      if (settingsGroup === 'general') return ['site_title', 'site_logo', 'site_favicon'].includes(s.key);
-                      if (settingsGroup === 'appearance') return true; // Show all appearance settings
-                      if (settingsGroup === 'social') return s.key.startsWith('social_');
-                      if (settingsGroup === 'seo') return s.key.startsWith('seo_');
-                      if (settingsGroup === 'footer') return s.key.startsWith('footer_');
-                      return true;
-                    });
-                    const groupCfg = SETTINGS_GROUPS[settingsGroup];
-                    return (
+                  {/* ── Content section ── */}
+                  <CollapsibleSection title="📝 Contenu" defaultOpen={true}>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Titre</label>
+                      <input
+                        type="text"
+                        value={editingArticle?.title ?? ''}
+                        onChange={e => setEditingArticle(prev => prev ? { ...prev, title: e.target.value } : prev)}
+                        className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base font-medium focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                        placeholder="Titre de l’article"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Slug</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={editingArticle?.slug ?? ''}
+                          onChange={e => setEditingArticle(prev => prev ? { ...prev, slug: e.target.value } : prev)}
+                          className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A] font-mono"
+                          placeholder="mon-article-slug"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!editingArticle?.title) return;
+                            const slug = editingArticle.title
+                              .toLowerCase()
+                              .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                              .replace(/[^a-z0-9\s-]/g, '')
+                              .trim()
+                              .replace(/\s+/g, '-')
+                              .replace(/-+/g, '-');
+                            setEditingArticle(prev => prev ? { ...prev, slug } : prev);
+                          }}
+                          className="px-3 py-2 text-xs border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 whitespace-nowrap"
+                        >
+                          ↺ Générer
+                        </button>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Extrait</label>
+                      <textarea
+                        rows={2}
+                        value={editingArticle?.excerpt ?? ''}
+                        onChange={e => setEditingArticle(prev => prev ? { ...prev, excerpt: e.target.value } : prev)}
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A] resize-y"
+                        placeholder="Résumé court de l’article"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Contenu</label>
+                      <Suspense fallback={<SkeletonForm />}>
+                        <RichEditor
+                          value={editingArticle?.content || ''}
+                          onChange={(html: string) =>
+                            setEditingArticle(prev => prev ? { ...prev, content: html } : prev)
+                          }
+                        />
+                      </Suspense>
+                    </div>
+                  </CollapsibleSection>
+
+                  {/* ── Media section ── */}
+                  <CollapsibleSection title="🖼️ Média" defaultOpen={false}>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Image à la une (URL)</label>
+                      <input
+                        type="url"
+                        value={editingArticle?.featured_image ?? ''}
+                        onChange={e => setEditingArticle(prev => prev ? { ...prev, featured_image: e.target.value } : prev)}
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                        placeholder="https://..."
+                      />
+                    </div>
+                    {editingArticle?.content && (() => {
+                      const imgs = editingArticle.content.match(/<img(?![^>]*\salt=)[^>]*>/g);
+                      if (imgs && imgs.length > 0) {
+                        return (
+                          <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                            <p className="text-xs text-amber-700 font-medium">
+                              ⚠️ {imgs.length} image(s) sans attribut alt dans le contenu
+                            </p>
+                            <p className="text-[10px] text-amber-600 mt-0.5">Ajoutez des textes alternatifs pour l’accessibilité et le SEO</p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </CollapsibleSection>
+
+                  {/* ── SEO section ── */}
+                  <CollapsibleSection title="🔍 SEO & Métadonnées" defaultOpen={false}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem' }}>{groupCfg?.emoji} {groupCfg?.label}</h2>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
-                          {groupItems.map(s => (
-                            <div key={s.key}>
-                              <label style={lbl}>{s.label}</label>
-                              <input value={editedSettings[s.key] || ''}
-                                onChange={e => setEditedSettings(prev => ({ ...prev, [s.key]: e.target.value }))}
-                                style={inp} placeholder={s.label} />
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
+                        <CategorySelect
+                          value={editingArticle?.category ?? ''}
+                          onChange={v => setEditingArticle(prev => prev ? { ...prev, category: v } : prev)}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Auteur</label>
+                        <input
+                          type="text"
+                          value={editingArticle?.author ?? ''}
+                          onChange={e => setEditingArticle(prev => prev ? { ...prev, author: e.target.value } : prev)}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                          placeholder="Heldonica"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+                      <input
+                        type="text"
+                        value={editingArticle?.tags?.join(', ') ?? ''}
+                        onChange={e => {
+                          const tags = e.target.value.split(',').map(t => t.trim()).filter(Boolean);
+                          setEditingArticle(prev => prev ? { ...prev, tags } : prev);
+                        }}
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                        placeholder="slow-travel, portugal, madère (séparés par des virgules)"
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">SEO Title</label>
+                        <input
+                          type="text"
+                          value={editingArticle?.seo_title ?? ''}
+                          onChange={e => setEditingArticle(prev => prev ? { ...prev, seo_title: e.target.value } : prev)}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                          placeholder="Titre optimisé SEO (30-60 car.)"
+                        />
+                        <p className="text-[10px] text-gray-400 mt-1">{(editingArticle?.seo_title?.length ?? 0)} car.</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">SEO Description</label>
+                        <input
+                          type="text"
+                          value={editingArticle?.seo_description ?? ''}
+                          onChange={e => setEditingArticle(prev => prev ? { ...prev, seo_description: e.target.value } : prev)}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                          placeholder="Meta description (70-160 car.)"
+                        />
+                        <p className={`text-[10px] mt-1 ${(editingArticle?.seo_description?.length ?? 0) > 160 ? 'text-red-400' : 'text-gray-400'}`}>
+                          {(editingArticle?.seo_description?.length ?? 0)} car. {editingArticle?.seo_description && editingArticle.seo_description.length < 70 ? '(min. 70)' : ''}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Priorité Sitemap</label>
+                        <select
+                          value={String(editingArticle?.sitemap_priority ?? 0.9)}
+                          onChange={e => setEditingArticle(prev => prev ? { ...prev, sitemap_priority: parseFloat(e.target.value) } : prev)}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                        >
+                          <option value="1.0">1.0 — Page principale</option>
+                          <option value="0.9">0.9 — Prioritaire</option>
+                          <option value="0.8">0.8 — Important</option>
+                          <option value="0.7">0.7 — Standard</option>
+                          <option value="0.6">0.6 — Secondaire</option>
+                          <option value="0.5">0.5 — Archives</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Fréquence Sitemap</label>
+                        <select
+                          value={editingArticle?.sitemap_changefreq ?? 'weekly'}
+                          onChange={e => setEditingArticle(prev => prev ? { ...prev, sitemap_changefreq: e.target.value } : prev)}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                        >
+                          <option value="always">always</option>
+                          <option value="hourly">hourly</option>
+                          <option value="daily">daily</option>
+                          <option value="weekly">weekly</option>
+                          <option value="monthly">monthly</option>
+                          <option value="yearly">yearly</option>
+                          <option value="never">never</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Google SERP Preview */}
+                    <div className="mt-4 p-4 bg-white border border-gray-200 rounded-lg">
+                      <p className="text-xs text-gray-500 mb-2">Aperçu Google</p>
+                      <div className="font-sans">
+                        <p className="text-blue-600 text-lg hover:underline cursor-pointer">
+                          {editingArticle?.seo_title || editingArticle?.title || 'Titre de l\'article'}
+                        </p>
+                        <p className="text-green-700 text-sm">heldonica.fr/blog/{editingArticle?.slug || 'slug'}</p>
+                        <p className="text-gray-600 text-sm line-clamp-2">
+                          {editingArticle?.seo_description || editingArticle?.excerpt || 'Description...'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Social Card Preview */}
+                    <div className="mt-4 p-4 bg-white border border-gray-200 rounded-lg">
+                      <p className="text-xs text-gray-500 mb-2">Aperçu réseau social</p>
+                      <div className="border border-gray-200 rounded-lg overflow-hidden max-w-[500px]">
+                        {editingArticle?.featured_image && (
+                          <img src={editingArticle.featured_image} className="w-full h-48 object-cover" alt="" />
+                        )}
+                        <div className="p-3 bg-gray-50">
+                          <p className="text-[10px] text-gray-500 uppercase">heldonica.fr</p>
+                          <p className="text-gray-900 font-semibold text-sm line-clamp-1">{editingArticle?.seo_title || editingArticle?.title}</p>
+                          <p className="text-gray-500 text-xs line-clamp-2">{editingArticle?.seo_description || editingArticle?.excerpt}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CollapsibleSection>
+
+                  {/* ── Publication section ── */}
+                  <CollapsibleSection title="📅 Publication" defaultOpen={false}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+                        <select
+                          value={editingArticle?.status ?? 'draft'}
+                          onChange={e => setEditingArticle(prev => prev ? { ...prev, status: e.target.value as Article['status'] } : prev)}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                        >
+                          <option value="draft">Brouillon</option>
+                          <option value="published">Publié</option>
+                          <option value="scheduled">Planifié</option>
+                        </select>
+                      </div>
+                      {editingArticle?.status === 'scheduled' && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Date de publication</label>
+                          <input
+                            type="datetime-local"
+                            value={editingArticle?.published_at ? editingArticle.published_at.slice(0, 16) : ''}
+                            onChange={e => setEditingArticle(prev => prev ? { ...prev, published_at: new Date(e.target.value).toISOString() } : prev)}
+                            className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                          />
+                        </div>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Date de visite</label>
+                        <input
+                          type="date"
+                          value={editingArticle?.visit_date ? editingArticle.visit_date.slice(0, 10) : ''}
+                          onChange={e => setEditingArticle(prev => prev ? { ...prev, visit_date: e.target.value } : prev)}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                        />
+                        <p className="text-[10px] text-gray-400 mt-1">Quand le voyage a eu lieu (renforce E-E-A-T)</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Visites</label>
+                        <input
+                          type="number" min={1}
+                          value={editingArticle?.visit_count ?? ''}
+                          onChange={e => setEditingArticle(prev => prev ? { ...prev, visit_count: e.target.value ? parseInt(e.target.value) : undefined } : prev)}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                          placeholder="Ex: 2"
+                        />
+                        <p className="text-[10px] text-gray-400 mt-1">Nombre de fois que vous avez visité ce lieu</p>
+                      </div>
+                    </div>
+                  </CollapsibleSection>
+
+                  {/* ── Revision History section ── */}
+                  <CollapsibleSection title="⏳ Historique des versions" defaultOpen={false}>
+                    {revisionsLoading ? (
+                      <div className="text-sm text-gray-400 py-2">Chargement...</div>
+                    ) : revisions.length === 0 ? (
+                      <div className="text-sm text-gray-400 py-2">Aucune version sauvegardée</div>
+                    ) : (
+                      <div className="space-y-2 max-h-64 overflow-y-auto">
+                        {revisions.map((rev) => (
+                          <div key={rev.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium text-gray-700 truncate">
+                                {new Date(rev.saved_at).toLocaleString('fr-FR')}
+                              </p>
+                              <p className="text-[10px] text-gray-400">
+                                {rev.word_count} mots • "{rev.title?.substring(0, 40) || 'Sans titre'}..."
+                              </p>
                             </div>
-                          ))}
-                          {groupItems.length === 0 && <p style={{ color: '#aaa', fontSize: '.9rem', textAlign: 'center', padding: '2rem' }}>Aucun paramètre dans ce groupe.</p>}
-                        </div>
-                        <button onClick={saveSettings} disabled={savingSettings}
-                          style={{ marginTop: '1.75rem', padding: '.7rem 2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '.9rem', opacity: savingSettings ? .7 : 1 }}
-                        >{savingSettings ? '⏳ Sauvegarde…' : '💾 Sauvegarder'}</button>
+                            <button
+                              onClick={() => {
+                                confirm(
+                                  'Restaurer cette version ?',
+                                  `Cette action remplacera le titre, l'extrait et le contenu actuels par la version du ${new Date(rev.saved_at).toLocaleString('fr-FR')}.`,
+                                  () => {
+                                    setEditingArticle(prev => prev ? {
+                                      ...prev,
+                                      title: rev.title || prev.title,
+                                      excerpt: rev.excerpt || prev.excerpt,
+                                      content: rev.content || prev.content,
+                                    } : prev);
+                                    toast('Version restaurée avec succès', 'success');
+                                  },
+                                  'default'
+                                );
+                              }}
+                              className="ml-2 px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
+                            >
+                              Restaurer
+                            </button>
+                          </div>
+                        ))}
                       </div>
-                    );
-                  })()}
+                    )}
+                  </CollapsibleSection>
+
+                  <EeaatScore
+                    seoTitle={editingArticle?.seo_title}
+                    seoDescription={editingArticle?.seo_description}
+                    author={editingArticle?.author}
+                    excerpt={editingArticle?.excerpt}
+                    featuredImage={editingArticle?.featured_image}
+                    tags={editingArticle?.tags}
+                    publishedAt={editingArticle?.published_at}
+                    content={editingArticle?.content}
+                    category={editingArticle?.category}
+                    visitDate={editingArticle?.visit_date}
+                    visitCount={editingArticle?.visit_count}
+                  />
                 </div>
               </div>
-            )}
-          </div>
-        )}
+            </ErrorBoundary>
+          )}
 
-        {tab === 'agents' && (
-          <div>
-            <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: 800, marginBottom: '1.5rem' }}>
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '.5rem' }}>
-                <Bot size={24} /> Envoyer une tâche à un agent IA
-              </h2>
-              
-              {/* Agent select */}
-              <div style={{ marginBottom: '1.25rem' }}>
-                <label style={lbl}>Agent</label>
-                <select value={selectedAgent} onChange={e => setSelectedAgent(e.target.value)}
-                  style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.9rem', outline: 'none', background: '#faf9f7', color: '#1a1a1a', cursor: 'pointer' }}>
-                  <option value="allhands">OpenHands (AllHands)</option>
-                  <option value="jules">Jules (Google)</option>
-                  <option value="gemini">Gemini (Google)</option>
-                  <option value="perplexity">Perplexity</option>
-                </select>
+          {/* ── Media ── */}
+          {activeSection === 'media' && (
+            <ErrorBoundary>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 mb-6">Médiathèque</h1>
+                <MediaLibrary onSelect={() => {}} onClose={() => setActiveSection('dashboard')} />
               </div>
+            </ErrorBoundary>
+          )}
 
-              {/* Task textarea */}
-              <div style={{ marginBottom: '1.25rem' }}>
-                <label style={lbl}>Tâche</label>
-                <textarea value={agentTask} onChange={e => setAgentTask(e.target.value)}
-                  placeholder="Décrivez la tâche à effectuer..."
-                  rows={4}
-                  style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.9rem', outline: 'none', background: '#faf9f7', color: '#1a1a1a', resize: 'vertical', fontFamily: 'inherit' }} />
+          {/* ── Design ── */}
+          {activeSection === 'design' && (
+            <ErrorBoundary>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 mb-6">Personnalisation du site</h1>
+                <Suspense fallback={<div className="text-sm text-gray-400">Chargement...</div>}>
+                  <DesignEditor />
+                </Suspense>
               </div>
+            </ErrorBoundary>
+          )}
 
-              {/* Repo input */}
-              <div style={{ marginBottom: '1.25rem' }}>
-                <label style={lbl}>Repo</label>
-                <input value={agentRepo} onChange={e => setAgentRepo(e.target.value)}
-                  placeholder="farinhahelder-hue/heldonica"
-                  style={inp} />
-              </div>
+          {/* ── GEO ── */}
+          {activeSection === 'geo' && (
+            <ErrorBoundary>
+              <Suspense fallback={<div className="text-sm text-gray-400 p-8">Chargement de l’audit GEO...</div>}>
+                <GeoAuditPanel />
+              </Suspense>
+            </ErrorBoundary>
+          )}
 
-              {/* Branch input */}
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={lbl}>Branche</label>
-                <input value={agentBranch} onChange={e => setAgentBranch(e.target.value)}
-                  placeholder="main"
-                  style={inp} />
-              </div>
-
-              {/* Send button */}
-              <button onClick={sendAgentTask} disabled={sendingTask}
-                style={{ padding: '.75rem 2rem', background: '#6b2a1a', color: 'white', border: 'none', borderRadius: '.5rem', fontWeight: 700, cursor: 'pointer', fontSize: '1rem', opacity: sendingTask ? .7 : 1 }}>
-                {sendingTask ? '⏳ Envoi...' : '📤 Envoyer la tâche'}
-              </button>
-
-              {/* Success/error message */}
-              {agentMessage && (
-                <div style={{ 
-                  marginTop: '1rem', 
-                  padding: '.75rem 1rem', 
-                  borderRadius: '.5rem', 
-                  background: agentMessage.type === 'success' ? '#d4edda' : '#f8d7da',
-                  color: agentMessage.type === 'success' ? '#155724' : '#721c24',
-                  fontSize: '.9rem'
-                }}>
-                  {agentMessage.type === 'success' ? '✓' : '✕'} {agentMessage.text}
+          {/* ── Instagram ── */}
+          {activeSection === 'instagram' && (
+            <ErrorBoundary>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 mb-6">Instagram</h1>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div>
+                    <Suspense fallback={<div className="text-sm text-gray-400">Chargement...</div>}>
+                      <InstagramPublisher />
+                    </Suspense>
+                  </div>
+                  <div className="space-y-4">
+                    <InstagramStatsDashboard />
+                    <Suspense fallback={<div className="text-sm text-gray-400">Chargement...</div>}>
+                      <ScheduledPostsList />
+                    </Suspense>
+                  </div>
                 </div>
-              )}
-            </div>
+              </div>
+            </ErrorBoundary>
+          )}
 
-            {/* Task History */}
-            <div style={{ background: 'white', borderRadius: '1rem', padding: '2rem', boxShadow: '0 1px 4px rgba(0,0,0,.06)', maxWidth: 800 }}>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1rem' }}>Historique des 10 dernières tâches</h3>
-              {taskHistory.length === 0 ? (
-                <p style={{ color: '#888', fontSize: '.9rem', textAlign: 'center', padding: '1.5rem' }}>Aucune tâche envoyée récemment.</p>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '.75rem' }}>
-                  {taskHistory.map((entry, i) => {
-                    const agentLabels: Record<string, string> = {
-                      allhands: 'OpenHands',
-                      jules: 'Jules',
-                      gemini: 'Gemini',
-                      perplexity: 'Perplexity',
-                    };
-                    return (
-                      <div key={i} style={{ padding: '.75rem', background: '#f8f6f4', borderRadius: '.5rem', borderLeft: '3px solid #6b2a1a' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '.35rem', flexWrap: 'wrap', gap: '.5rem' }}>
-                          <span style={{ fontWeight: 600, color: '#333', fontSize: '.9rem' }}>{agentLabels[entry.agent] || entry.agent}</span>
-                          <span style={{ fontSize: '.75rem', color: '#888' }}>{entry.date}</span>
-                        </div>
-                        <div style={{ fontSize: '.85rem', color: '#555', marginBottom: '.35rem' }}>
-                          {entry.task.length > 100 ? entry.task.substring(0, 100) + '...' : entry.task}
-                        </div>
-                        <div style={{ display: 'flex', gap: '1rem', fontSize: '.75rem', color: '#888' }}>
-                          <span>📁 {entry.repo}</span>
-                          <span>🌿 {entry.branch}</span>
-                          <span style={{ color: '#28a745', fontWeight: 600 }}>✓ Envoyé</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+          {/* ── Messages ── */}
+          {activeSection === 'messages' && <MessagesSection />}
 
+          {/* ── Demandes Travel Planning ── */}
+          {activeSection === 'demandes' && (
+            <ErrorBoundary>
+              <Suspense fallback={<div className="text-sm text-gray-400">Chargement des demandes...</div>}>
+                <DemandesTravelSection />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Analytics IA ── */}
+          {activeSection === 'analytics' && (
+            <ErrorBoundary>
+              <Suspense fallback={<div className="text-sm text-gray-400">Chargement des analytics...</div>}>
+                <AiAnalyticsDashboard embedded />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Settings ── */}
+          {activeSection === 'settings' && (
+            <ErrorBoundary>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 mb-6">Paramètres du site</h1>
+                <CmsSettingsPanel />
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Layouts ── */}
+          {activeSection === 'layouts' && (
+            <ErrorBoundary>
+              <Suspense fallback={<div className="text-sm text-gray-400">Chargement...</div>}>
+                <LayoutManager />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Redirects ── */}
+          {activeSection === 'redirects' && (
+            <ErrorBoundary>
+              <Suspense fallback={<div className="text-sm text-gray-400">Chargement...</div>}>
+                <RedirectsManager />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Carousel ── */}
+          {activeSection === 'carousel' && (
+            <ErrorBoundary>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 mb-6">Carousels Instagram</h1>
+                <Suspense fallback={<SkeletonForm />}>
+                  <CarouselEditor />
+                </Suspense>
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Blog Generator ── */}
+          {activeSection === 'blog-generator' && (
+            <ErrorBoundary>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 mb-6">Générateur de blog IA</h1>
+                <Suspense fallback={<SkeletonForm />}>
+                  <BlogGenerator />
+                </Suspense>
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Video ── */}
+          {activeSection === 'video' && (
+            <ErrorBoundary>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 mb-6">Studio Vidéo</h1>
+                <Suspense fallback={<SkeletonForm />}>
+                  <VideoEditor />
+                </Suspense>
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Fast Trim ── */}
+          {activeSection === 'fast-trim' && (
+            <ErrorBoundary>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 mb-6">Fast Trim</h1>
+                <Suspense fallback={<SkeletonForm />}>
+                  <FastTrimTool />
+                </Suspense>
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Map ── */}
+          {activeSection === 'map' && (
+            <ErrorBoundary>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 mb-6">Gestion des cartes</h1>
+                <Suspense fallback={<SkeletonForm />}>
+                  <MapManagerSection />
+                </Suspense>
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Instagram ── */}
+          {activeSection === 'instagram' && (
+            <ErrorBoundary>
+              <Suspense fallback={<SkeletonForm />}>
+                <InstagramManagerSection />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Destination Pillars ── */}
+          {activeSection === 'destination-pillars' && (
+            <ErrorBoundary>
+              <Suspense fallback={<SkeletonForm />}>
+                <DestinationPillarEditor />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Guides ── */}
+          {activeSection === 'guides' && (
+            <ErrorBoundary>
+              <Suspense fallback={<SkeletonForm />}>
+                <GuidesManager />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Editable Zones ── */}
+          {activeSection === 'editable-zones' && (
+            <ErrorBoundary>
+              <Suspense fallback={<SkeletonForm />}>
+                <EditableZonesManager />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Sub-Destinations ── */}
+          {activeSection === 'sub-destinations' && (
+            <ErrorBoundary>
+              <Suspense fallback={<SkeletonForm />}>
+                <SubDestinationsManager />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Testimonials ── */}
+          {activeSection === 'testimonials' && (
+            <ErrorBoundary>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 mb-6">Témoignages</h1>
+                <Suspense fallback={<SkeletonForm />}>
+                  <TestimonialsManager />
+                </Suspense>
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Checklists ── */}
+          {activeSection === 'checklists' && (
+            <ErrorBoundary>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 mb-6">Checklists</h1>
+                <Suspense fallback={<SkeletonForm />}>
+                  <ChecklistTemplatesManager />
+                </Suspense>
+              </div>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Seasons ── */}
+          {activeSection === 'seasons' && (
+            <ErrorBoundary>
+              <Suspense fallback={<SkeletonForm />}>
+                <SeasonsManager />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
+        </main>
       </div>
-    </div>
+
+      {/* Confirm dialog */}
+      <ConfirmDialog
+        open={confirmOpen}
+        title={confirmTitle}
+        message={confirmMessage}
+        variant={confirmVariant}
+        onConfirm={() => { confirmAction(); setConfirmOpen(false); }}
+        onCancel={() => setConfirmOpen(false)}
+      />
+
+      {/* Article preview */}
+      <ArticlePreview
+        open={!!previewArticle}
+        title={previewArticle?.title ?? ''}
+        excerpt={previewArticle?.excerpt}
+        content={previewArticle?.content}
+        category={previewArticle?.category}
+        author={previewArticle?.author}
+        featured_image={previewArticle?.featured_image}
+        onClose={() => setPreviewArticle(null)}
+      />
+      {showPalette && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-start justify-center pt-20" onClick={() => setShowPalette(false)}>
+          <div className="bg-white rounded-xl w-full max-w-md mx-4 p-4 shadow-xl" onClick={e => e.stopPropagation()}>
+            <input
+              autoFocus
+              placeholder="Tape 'carrousel'…"
+              value={navSearch}
+              onChange={e => setNavSearch(e.target.value)}
+              className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal"
+            />
+            <div className="mt-3 max-h-64 overflow-y-auto space-y-1">
+              {navGroups
+                .flatMap(g => g.items)
+                .filter(i => i.label.toLowerCase().includes(navSearch.toLowerCase()))
+                .slice(0, 8)
+                .map(item => (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      navigateTo(item.id)
+                      setShowPalette(false)
+                      setNavSearch('')
+                    }}
+                    className="w-full text-left px-3 py-2 hover:bg-stone-100 rounded-lg text-sm flex items-center gap-2"
+                  >
+                    {item.icon} {item.label}
+                  </button>
+                ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
-// ===== Export avec Suspense (obligatoire car useSearchParams) =====
 export default function CmsAdminClient() {
   return (
-    <Suspense fallback={
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f3ef' }}>
-        <div style={{ background: 'white', padding: '2.5rem', borderRadius: '1rem', boxShadow: '0 8px 32px rgba(0,0,0,.1)', width: '100%', maxWidth: 380, textAlign: 'center' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '.5rem' }}>⏳</div>
-          <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#6b2a1a' }}>Heldonica CMS</h1>
-          <p style={{ color: '#888', fontSize: '.9rem' }}>Chargement…</p>
-        </div>
-      </div>
-    }>
-      <CMSAdminInner />
-    </Suspense>
+    <ToastProvider>
+      <CmsAdminClientInner />
+    </ToastProvider>
   );
 }
-
-const lbl: React.CSSProperties = {
-  display: 'block', fontWeight: 600, fontSize: '.85rem', color: '#555', marginBottom: '.35rem',
-};
-const inp: React.CSSProperties = {
-  width: '100%', padding: '.65rem .9rem',
-  border: '1.5px solid #e0dbd5', borderRadius: '.5rem',
-  fontSize: '.9rem', outline: 'none', background: '#faf9f7', color: '#1a1a1a',
-};
-const metaChip: React.CSSProperties = {
-  padding: '.35rem .65rem', borderRadius: '9999px',
-  background: '#f0e8e4', color: '#6b2a1a',
-  fontSize: '.76rem', fontWeight: 600,
-};
-const previewPanel: React.CSSProperties = {
-  marginTop: '1.75rem', padding: '1.25rem',
-  borderRadius: '1rem', background: '#f8f4ef',
-  border: '1px solid #ece3d8',
-};
-const previewFrame: React.CSSProperties = {
-  background: 'white', borderRadius: '1rem',
-  padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,.05)',
-};
-const previewImageFallback: React.CSSProperties = {
-  minHeight: 220, marginBottom: '1.5rem', borderRadius: '.9rem',
-  background: 'linear-gradient(135deg, #f2e8dc 0%, #d9ebe6 100%)',
-  color: '#6d625a', display: 'flex', alignItems: 'center',
-  justifyContent: 'center', textAlign: 'center', padding: '1.5rem', fontWeight: 600,
-};
-const previewBody: React.CSSProperties = {
-  color: '#302925', lineHeight: 1.8, fontSize: '1rem',
-};

@@ -23,12 +23,15 @@ export async function GET(req: NextRequest) {
 
   const prefix = req.nextUrl.searchParams.get('prefix') || 'articles';
   const folder = prefix.replace(/\/$/, '');
+  const limit = parseInt(req.nextUrl.searchParams.get('limit') || '20');
+  const offset = parseInt(req.nextUrl.searchParams.get('offset') || '0');
 
   try {
     const sb = supabaseAdmin();
     if (!sb) return NextResponse.json({ error: 'DB unavailable' }, { status: 503 })
     const { data, error } = await sb.storage.from(BUCKET).list(folder, {
-      limit: 200,
+      limit,
+      offset,
       sortBy: { column: 'created_at', order: 'desc' },
     });
     if (error) throw new Error(error.message);
@@ -47,7 +50,7 @@ export async function GET(req: NextRequest) {
         };
       });
 
-    return NextResponse.json({ files, source: 'supabase' });
+    return NextResponse.json({ files, source: 'supabase', offset, limit, hasMore: files.length === limit });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: message }, { status: 500 });
@@ -66,9 +69,28 @@ export async function POST(req: NextRequest) {
   const safeFilename = filename || `import-${Date.now()}.jpg`;
   const path = `${folder}/${safeFilename}`;
 
+
+  try {
+    const parsedUrl = new URL(imageUrl);
+    if (parsedUrl.protocol !== 'https:') {
+      return NextResponse.json({ error: 'Seules les URLs HTTPS sont autorisées' }, { status: 400 });
+    }
+
+    const allowedDomains = ['images.unsplash.com', 'dropbox.com', 'storage.googleapis.com'];
+    const allowedSuffixes = ['.googleusercontent.com', '.supabase.co', '.behold.pictures'];
+
+    const isAllowed = allowedDomains.includes(parsedUrl.hostname) || allowedSuffixes.some(suffix => parsedUrl.hostname.endsWith(suffix));
+
+    if (!isAllowed) {
+      return NextResponse.json({ error: 'Domaine non autorisé pour l\'importation d\'images' }, { status: 403 });
+    }
+  } catch (err) {
+    return NextResponse.json({ error: 'URL invalide' }, { status: 400 });
+  }
+
   try {
     const imgRes = await fetch(imageUrl);
-    if (!imgRes.ok) throw new Error(`Impossible de télécharger l'image : ${imgRes.status}`);
+    if (!imgRes.ok) throw new Error(`Impossible de télécharger l’image : ${imgRes.status}`);
     const buffer = Buffer.from(await imgRes.arrayBuffer());
     const contentType = imgRes.headers.get('content-type') || 'image/jpeg';
 

@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+// Lazy initialization to avoid build-time crash when env vars are missing
+const getSupabase = () => {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) {
+    return null
+  }
+  return createClient(url, key)
+}
 
 // Optional API key for external agents
 const API_KEY = process.env.AI_AGENT_API_KEY
@@ -14,8 +19,13 @@ const API_KEY = process.env.AI_AGENT_API_KEY
 export async function GET(request: NextRequest) {
   // API key check for external agents
   const auth = request.headers.get('x-api-key')
-  if (API_KEY && auth !== API_KEY) {
+  if (!API_KEY || auth !== API_KEY) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const supabase = getSupabase()
+  if (!supabase) {
+    return NextResponse.json({ error: 'Service unavailable - Supabase not configured' }, { status: 503 })
   }
 
   const { searchParams } = new URL(request.url)
@@ -41,7 +51,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await query
 
   // Enrich with taxonomy data
-  const enriched = data?.map(article => ({
+  const enriched = data?.map((article: { content?: string; category?: string; country?: string }) => ({
     ...article,
     word_count: article.content ? article.content.replace(/<[^>]*>/g, '').split(/\s+/).length : 0,
     read_time_min: Math.ceil((article.content?.length || 0) / 1000),
@@ -58,8 +68,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   // API key check for external agents
   const auth = request.headers.get('x-api-key')
-  if (API_KEY && auth !== API_KEY) {
+  if (!API_KEY || auth !== API_KEY) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const supabase = getSupabase()
+  if (!supabase) {
+    return NextResponse.json({ error: 'Service unavailable - Supabase not configured' }, { status: 503 })
   }
 
   try {

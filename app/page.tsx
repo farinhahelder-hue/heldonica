@@ -1,11 +1,15 @@
 import { getSetting, getAllPosts, formatDate, BlogPost, getPageContent } from '@/lib/blog-supabase'
 import { getSiteSettings } from '@/lib/settings'
 import HomeClient from '@/components/HomeClient'
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import type { Metadata } from 'next'
+import { getHomeDestinations, getHomeContentZones } from '@/lib/home-data'
+import { getPageZones } from '@/lib/cms-zones'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
 export const revalidate = 60
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Heldonica — Slow travel vécu en duo, conçu pour toi',
   description:
     'Un duo Paris-Madère-Roumanie qui voyage lentement, documente vraiment et partage ce qu\'il a vécu — pas ce qu\'il a lu ailleurs.',
@@ -21,11 +25,11 @@ export const metadata: Metadata = {
     title: 'Heldonica — Slow travel vécu en duo, conçu pour toi',
     description:
       'On ferme les ordis. On part. On revient avec des pépites qu\'on n\'avait pas cherchées.',
-    url: 'https://heldonica.fr',
+    url: 'https://www.heldonica.fr',
     siteName: 'Heldonica',
     images: [
       {
-        url: 'https://heldonica.fr/og-image.jpg',
+        url: '/og-default.jpg',
         width: 1200,
         height: 630,
         alt: 'Heldonica — Slow travel vécu en duo, conçu pour toi',
@@ -39,10 +43,10 @@ export const metadata: Metadata = {
     title: 'Heldonica — Slow travel vécu en duo, conçu pour toi',
     description:
       'Carnets terrain, pépites vécues et voyages sur mesure pour couples, solos, familles ou amis.',
-    images: ['https://heldonica.fr/og-image.jpg'],
+    images: ['/og-default.jpg'],
   },
   alternates: {
-    canonical: 'https://heldonica.fr',
+    canonical: 'https://www.heldonica.fr',
   },
   robots: {
     index: true,
@@ -56,6 +60,11 @@ export const metadata: Metadata = {
   },
 }
 
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('home', metadata)
+}
+
+
 function calcReadTime(content: string | null): number {
   if (!content) return 0
   const words = content.replace(/<[^>]*>/g, '').split(/\s+/).length
@@ -66,7 +75,7 @@ function formatPosts(posts: BlogPost[]) {
   return posts.map((post) => ({
     ...post,
     formattedDate: formatDate(post.published_at),
-    readTime: post.read_time ?? calcReadTime(post.content),
+    readTime: (post.read_time && post.read_time > 0) ? post.read_time : calcReadTime(post.content),
   }))
 }
 const schemaSpeakable = {
@@ -80,59 +89,110 @@ const schemaSpeakable = {
   url: 'https://www.heldonica.fr',
 };
 
+const schemaOrganization = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Heldonica",
+  "url": "https://www.heldonica.fr",
+  "logo": "https://www.heldonica.fr/images/badges-heldonica.svg",
+  "sameAs": [
+    "https://www.instagram.com/heldonica"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer service",
+    "availableLanguage": ["French", "English", "Portuguese"]
+  }
+};
+
 export default async function Home() {
-  const allPostsResult = await getAllPosts()
-  // Defensive: ensure we always have an array
-  const allPosts = Array.isArray(allPostsResult) ? allPostsResult : []
-  const coveredCountries = await getSetting('covered_countries')
+  // Fetch all data in parallel
+  const [allPostsResult, homeDestinations, homeZones, rawCountries, heroSettings, siteSettingsResult, homeEditableZones] = await Promise.all([
+    getAllPosts(),
+    getHomeDestinations(),
+    getHomeContentZones(),
+    getSetting('covered_countries'),
+    getPageContent('home'),
+    getSiteSettings(),
+    // Zones de la page 'home' au format `page__zone_key` attendu par les
+    // <EditableZone>. Distinct de getHomeContentZones(), qui renvoie des clés
+    // nues fusionnées avec des valeurs de repli codées en dur.
+    getPageZones('home'),
+  ])
 
-  // Fetch hero media from CMS
-  const homeContent = await getPageContent('home')
-  const heroVideoUrl = homeContent['hero_video_url'] || null
-  const heroPosterImage = homeContent['hero_poster_image'] || null
+  // Defensive: ensure we always have an array; dedup by slug to prevent duplicate cards
+  const seenSlugs = new Set<string>()
+  const allPosts = (Array.isArray(allPostsResult) ? allPostsResult : []).filter(p => {
+    if (!p.slug || seenSlugs.has(p.slug)) return false
+    seenSlugs.add(p.slug)
+    return true
+  })
+  
+  // Get covered_countries as number with fallback
+  const coveredCountries = rawCountries ? parseInt(rawCountries, 10) : 7
 
-  const latestPosts = allPosts.slice(0, 6)
-  const travelPosts = formatPosts(allPosts.filter((p) => p.category === 'Carnets Voyage').slice(0, 3))
-  const foodPosts = formatPosts(
-    allPosts
-      .filter((p) => p.category === 'Découvertes Locales' || p.category === 'Guides Pratiques')
-      .slice(0, 3)
-  )
-  const featured = allPosts[0]
-    ? { ...allPosts[0], formattedDate: formatDate(allPosts[0].published_at), readTime: allPosts[0].read_time ?? calcReadTime(allPosts[0].content) }
+  // Hero media
+  const heroVideoUrl = heroSettings['hero_video_url'] || null
+  const heroPosterImage = heroSettings['hero_poster_image'] || null
+
+  // Featured: use first published article with a valid slug (avoids 404)
+  const featuredPost = allPosts.find(p => p.slug && p.slug.trim().length > 0) ?? null
+  const featuredSlug = featuredPost?.slug || '';
+  const featured = featuredPost
+    ? { ...featuredPost, formattedDate: formatDate(featuredPost.published_at), readTime: (featuredPost.read_time && featuredPost.read_time > 0) ? featuredPost.read_time : calcReadTime(featuredPost.content) }
     : null
 
-  // Fetch Instagram / site settings for HomeClient
-  const [instagramUsername, instagramPostCount, instagramPosts, siteEmail] = await Promise.all([
-    getSetting('social_instagram'),
-    getSetting('instagram_post_count'),
-    getSetting('instagram_posts'),
-    getSetting('contact_email'),
-  ])
+  // Travel posts: exclude featured
+  const filteredTravel = allPosts.filter((p) => p.category === 'Carnets Voyage' && p.slug !== featuredSlug)
+  const travelPosts = formatPosts(filteredTravel.slice(0, 3))
+
+  // Food posts: exclude featured
+  const filteredFood = allPosts.filter(
+    (p) => (p.category === 'Découvertes Locales' || p.category === 'Guides Pratiques') && p.slug !== featuredSlug
+  )
+  const foodPosts = formatPosts(filteredFood.slice(0, 3))
+
+  // Latest posts: exclude featured, travel, and food posts to prevent duplicates
+  const travelSlugs = new Set(travelPosts.map(p => p.slug))
+  const foodSlugs = new Set(foodPosts.map(p => p.slug))
+  
+  let filteredLatest = allPosts.filter(
+    (p) => p.slug !== featuredSlug && !travelSlugs.has(p.slug) && !foodSlugs.has(p.slug)
+  )
+  // If we don't have enough posts, allow travel/food overlap but still exclude featured
+  if (filteredLatest.length === 0) {
+    filteredLatest = allPosts.filter((p) => p.slug !== featuredSlug)
+  }
+  const latestPosts = filteredLatest.slice(0, 6)
+
+  // Site settings
   const siteSettings = {
-    instagramUsername: instagramUsername || undefined,
-    instagramPostCount: instagramPostCount ? Number(instagramPostCount) : undefined,
-    instagramPosts: instagramPosts || undefined,
-    site_email: siteEmail || 'contact@heldonica.fr',
+    instagramUsername: siteSettingsResult?.instagramUsername || undefined,
+    instagramPostCount: siteSettingsResult?.instagramPostCount ? Number(siteSettingsResult.instagramPostCount) : undefined,
+    instagramPosts: siteSettingsResult?.instagramPosts || undefined,
+    site_email: siteSettingsResult?.contact_email || 'contact@heldonica.fr',
   }
 
   return (
-    <>
+    <InlineEditProvider page="home" initialZones={homeEditableZones}>
       <HomeClient
         featured={featured}
         travelPosts={travelPosts}
         foodPosts={foodPosts}
         totalPosts={allPosts.length}
-        coveredCountries={coveredCountries}
+        coveredCountries={String(coveredCountries)}
         latestPosts={formatPosts(latestPosts)}
         heroVideoUrl={heroVideoUrl}
         heroPosterImage={heroPosterImage}
         siteSettings={siteSettings}
+        homeDestinations={homeDestinations}
+        homeZones={homeZones}
       />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaSpeakable) }}
       />
-    </>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrganization) }} />
+    </InlineEditProvider>
   )
 }

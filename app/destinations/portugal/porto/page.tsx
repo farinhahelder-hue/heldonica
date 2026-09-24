@@ -1,57 +1,66 @@
+import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import Link from 'next/link'
+import SubDestinationTemplate from '@/components/SubDestinationTemplate'
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import { getPageZones } from '@/lib/cms-zones'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const metadata = {
-  title: 'Porto slow travel | Guide Heldonica',
-  description: 'Guide Porto: vin de Porto, Ribeira, Douro.',
+const metadata: Metadata = {
+  title: "Porto en couple : notre carnet slow travel | Heldonica",
+  description: "Guide Porto: vin de Porto, Ribeira, Douro en Portugal. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+  openGraph: {
+    title: "Porto en couple : notre carnet slow travel | Heldonica",
+    description: "Guide Porto: vin de Porto, Ribeira, Douro en Portugal. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+    type: 'website',
+    images: ['/og-default.jpg'],
+    locale: 'fr_FR',
+    siteName: 'Heldonica'
+  },
+  alternates: {
+    canonical: "https://www.heldonica.fr/destinations/portugal/porto"
+  }
 }
 
-const navLinks = [
-  { label: 'Portugal', href: '/destinations/portugal' },
-  { label: 'Madere', href: '/destinations/madere' },
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-portugal-porto', metadata)
+}
+
+
+const highlights = [
+  {
+    emoji: '📍',
+    title: 'Découvertes calmes',
+    description: 'Prendre le temps d\'arpenter les ruelles et les recoins cachés.',
+  },
+  {
+    emoji: '🌿',
+    title: 'Artisanat & Nature',
+    description: 'Découvrir la gastronomie locale et les petits producteurs.',
+  },
+  {
+    emoji: '✨',
+    title: 'Points de vue',
+    description: 'Admirer le panorama au coucher du soleil loin de l\'agitation.',
+  }
 ]
 
-const pepites = [
-  { title: 'Ribeira', description: 'Quartier riverside, UNESCO.', icon: '🌉' },
-  { title: 'Caves de Porto', description: 'Degustation vin de Porto.', icon: '🍷' },
-  { title: 'Mercado do Bolhao', description: 'Marche couverts.', icon: '🍊' },
-]
-
-export default function PortoPage() {
+export default async function PortoPage() {
+  const zones = await getPageZones('destinations-portugal-porto')
   return (
-    <>
+    <InlineEditProvider page="destinations-portugal-porto" initialZones={zones}>
       <Header />
-      <main className="min-h-screen bg-stone-50">
-        <section className="bg-gradient-to-b from-stone-900 to-stone-800 py-20">
-          <div className="max-w-4xl mx-auto px-4">
-            <span className="text-amber-400 text-sm mb-4">Portugal</span>
-            <h1 className="text-4xl text-white font-serif">Porto</h1>
-            <p className="text-stone-300">Vin de Porto, Douro, et l Atlantique.</p>
-          </div>
-        </section>
-        <nav className="bg-white border-b px-4 py-3 flex gap-4 text-sm">
-          {navLinks.map(l => (
-            <Link key={l.href} href={l.href} className="text-stone-500 hover:text-amber-700">{l.label}</Link>
-          ))}
-        </nav>
-        <div className="max-w-4xl mx-auto px-4 py-12">
-          <section className="mb-8">
-            <p className="text-lg text-stone-700">Porto, c est le nord. Le vin, le fleuve, les couleurs.</p>
-          </section>
-          <section className="mb-8 grid md:grid-cols-3 gap-4">
-            {pepites.map((p, i) => (
-              <div key={i} className="p-4 bg-white rounded-lg border">
-                <div className="text-xl mb-2">{p.icon}</div>
-                <h3 className="font-serif">{p.title}</h3>
-                <p className="text-sm text-stone-600">{p.description}</p>
-              </div>
-            ))}
-          </section>
-          <Link href="/destinations/portugal" className="text-amber-700">← Retour Portugal</Link>
-        </div>
-      </main>
+      <SubDestinationTemplate
+        page="destinations-portugal-porto"
+        name="Porto"
+        parentName="Portugal"
+        parentSlug="portugal"
+        heroImage="/og-default.jpg"
+        introText="Porto, c'est le nord. Le vin, le fleuve, les couleurs."
+        highlights={highlights}
+        localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."
+      />
       <Footer />
-    </>
+    </InlineEditProvider>
   )
 }

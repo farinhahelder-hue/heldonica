@@ -20,11 +20,10 @@ export async function GET(req: Request) {
 
   const sb = supabase()
   if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
-  const { data, error } = await sb
-    .from('demandes_travel')
+  const { data, error } = await (sb.from('demandes_travel') as any)
     .select('*')
     .order('created_at', { ascending: false })
-  if (error) return NextResponse.json({ demandes: [] })
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ demandes: data })
 }
 
@@ -35,10 +34,38 @@ export async function PUT(req: Request) {
   const sb = supabase()
   if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
   const { id, statut } = await req.json()
-  const { error } = await sb
-    .from('demandes_travel')
-    // @ts-expect-error Supabase types are not fully inferred
-    .update({ statut })
+  const { error } = await (sb.from('demandes_travel') as any)
+    .update({ statut } as any)
+    .eq('id', id)
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ ok: true })
+}
+
+export async function PATCH(req: Request) {
+  const authResponse = await requireCmsAuth(req)
+  if (authResponse) return authResponse
+
+  const sb = supabase()
+  if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
+  
+  const body = await req.json()
+  const { id, statut, notes_internes } = body
+  
+  const updates: Partial<{
+    statut: string;
+    notes_internes: string;
+    updated_at: string;
+  }> = {}
+  if (statut !== undefined) updates.statut = statut
+  if (notes_internes !== undefined) updates.notes_internes = notes_internes
+  updates.updated_at = new Date().toISOString()
+  
+  if (Object.keys(updates).length === 1 && updates.updated_at) {
+    return NextResponse.json({ ok: true }) // nothing to update
+  }
+  
+  const { error } = await (sb.from('demandes_travel') as any)
+    .update(updates as any)
     .eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })

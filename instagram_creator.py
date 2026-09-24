@@ -22,7 +22,7 @@ if not GROQ_API_KEY:
     import sys
     sys.exit(1)
 client = Groq(api_key=GROQ_API_KEY)
-UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY", "VKxcQvLNtFlLcgTxXW5YjnsQng4mu-WyIjyNHvLYsWA")
+UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY", os.getenv("NEXT_PUBLIC_UNSPLASH_ACCESS_KEY", ""))
 
 
 def generate_carousel_content(topic: str, num_slides: int = 5) -> dict:

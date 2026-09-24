@@ -1,6 +1,7 @@
 import React from 'react'
 import { Metadata } from 'next'
 import './globals.css'
+import ForceLightMode from './ForceLightMode'
 
 export const metadata: Metadata = {
   robots: {
@@ -16,5 +17,10 @@ export default function CmsAdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  return <>{children}</>;
+  return (
+    <>
+      <ForceLightMode />
+      {children}
+    </>
+  );
 }

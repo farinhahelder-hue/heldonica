@@ -4,20 +4,23 @@
   "installCommand": "npm install",
   "rewrites": [
     {
-      "source": "/home.html",
-      "destination": "/home.html"
+      "source": "/maintenance.html",
+      "destination": "/maintenance.html"
     },
     {
-      "source": "/admin.html",
-      "destination": "/admin.html"
+      "source": "/maintenance",
+      "destination": "/maintenance.html"
     },
     {
-      "source": "/cms.html",
-      "destination": "/cms.html"
-    },
-    {
-      "source": "/cms-complete.html",
-      "destination": "/cms-complete.html"
+      "source": "/(.*)",
+      "destination": "/maintenance.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "maintenance",
+          "value": "1"
+        }
+      ]
     }
   ],
   "crons": [
@@ -28,6 +31,30 @@
     {
       "path": "/api/cron/auto-publish",
       "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/cron/revalidate-sitemap",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/instagram/cron",
+      "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/send-email-sequences",
+      "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/enrich-places",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/enrich-photos",
+      "schedule": "30 6 * * *"
+    },
+    {
+      "path": "/api/cron/embeddings",
+      "schedule": "0 7 * * *"
     }
   ]
 }

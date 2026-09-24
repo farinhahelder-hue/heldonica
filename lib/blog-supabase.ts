@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
+import { getSupabaseClientKey } from '@/lib/supabase-key';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabaseAnonKey = getSupabaseClientKey();
 
 export const supabase = supabaseUrl && supabaseAnonKey 
   ? createClient(supabaseUrl, supabaseAnonKey)
@@ -18,6 +19,10 @@ export interface BlogPost {
   destination?: string | null;
   tags: string[] | null;
   featured_image: string | null;
+  og_image?: string | null;
+  seo_title?: string | null;
+  seo_description?: string | null;
+  alt_text?: string | null;
   author: string | null;
   published: boolean;
   published_at: string | null;
@@ -25,9 +30,10 @@ export interface BlogPost {
   read_time?: number | null;
   readTime?: number;
   updated_at: string | null;
+  faq_content?: Array<{ question: string; answer: string }> | null;
 }
 
-/** Normalise un post pour garantir qu'aucun champ tableau n'est null */
+/** Normalise un post pour garantir qu’aucun champ tableau n’est null */
 function normalizePost(post: BlogPost): BlogPost {
   return {
     ...post,
@@ -36,6 +42,10 @@ function normalizePost(post: BlogPost): BlogPost {
     excerpt: post.excerpt ?? null,
     content: post.content ?? null,
     featured_image: post.featured_image ?? null,
+    og_image: post.og_image ?? null,
+    seo_title: post.seo_title ?? null,
+    seo_description: post.seo_description ?? null,
+    alt_text: post.alt_text ?? null,
     author: post.author ?? null,
   };
 }
@@ -66,17 +76,42 @@ export async function getAllPosts(): Promise<BlogPost[]> {
     return [];
   }
   try {
+    // Read from cms_blog_posts (source of truth for CMS)
     const { data, error } = await supabase
       .from('cms_blog_posts')
       .select('*')
       .eq('published', true)
-      .order('published_at', { ascending: false });
+      // nullsFirst: false — sans cette precision, PostgreSQL place les NULL en
+      // tete d'un tri descendant, et un article publie sans date passait devant
+      // tous les autres. Le correctif cote ecriture date desormais les
+      // publications ; celui-ci protege les lignes deja en base.
+      .order('published_at', { ascending: false, nullsFirst: false })
+      .limit(100);
     if (error) {
       console.error('Supabase getAllPosts error:', error.message);
       return [];
     }
-    const posts = Array.isArray(data) ? (data as BlogPost[]) : [];
-    return posts.map(normalizePost);
+    // Normalize cms_blog_posts fields to BlogPost format
+    const posts = (data || []).map((item: any) => normalizePost({
+      id: item.id,
+      title: item.title,
+      slug: item.slug,
+      category: item.category || 'Travel',
+      excerpt: item.excerpt || '',
+      content: item.content || '',
+      featured_image: item.featured_image || '',
+      og_image: item.og_image || null,
+      seo_title: item.seo_title || null,
+      seo_description: item.seo_description || null,
+      alt_text: item.alt_text || null,
+      author: item.author || 'Heldonica',
+      tags: item.tags || [],
+      published: item.published ?? false,
+      published_at: item.published_at,
+      created_at: item.created_at,
+      updated_at: item.updated_at,
+    } as BlogPost));
+    return posts;
   } catch (err) {
     console.error('getAllPosts exception:', err);
     return [];
@@ -87,23 +122,46 @@ export async function getAllPosts(): Promise<BlogPost[]> {
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   if (!supabase) return null;
   try {
+    // Read directly from cms_blog_posts (source of truth for CMS)
     const { data, error } = await supabase
       .from('cms_blog_posts')
       .select('*')
       .eq('slug', slug)
+      .eq('published', true)
       .single();
     if (error) {
       console.error('Supabase getPostBySlug error:', error.message);
       return null;
     }
-    return data ? normalizePost(data as BlogPost) : null;
+    if (!data) return null;
+    
+    // Normalize cms_blog_posts fields to BlogPost format
+    return normalizePost({
+      id: data.id,
+      title: data.title,
+      slug: data.slug,
+      category: data.category || 'Travel',
+      excerpt: data.excerpt || '',
+      content: data.content || '',
+      featured_image: data.featured_image || '',
+      og_image: data.og_image || null,
+      seo_title: data.seo_title || null,
+      seo_description: data.seo_description || null,
+      alt_text: data.alt_text || null,
+      author: data.author || 'Heldonica',
+      tags: data.tags || [],
+      published: data.published ?? false,
+      published_at: data.published_at,
+      created_at: data.created_at,
+      updated_at: data.updated_at,
+    } as BlogPost);
   } catch (err) {
     console.error('getPostBySlug exception:', err);
     return null;
   }
 }
 
-/** Articles liés (même catégorie, sans l'article courant) */
+/** Articles liés (même catégorie, sans l’article courant) */
 export async function getRelatedPosts(
   currentSlug: string,
   category: string | null,
@@ -116,8 +174,9 @@ export async function getRelatedPosts(
       .select('*')
       .eq('category', category ?? '')
       .eq('published', true)
+      
       .neq('slug', currentSlug)
-      .order('published_at', { ascending: false })
+      .order('published_at', { ascending: false, nullsFirst: false })
       .limit(limit);
     if (error) {
       console.error('Supabase getRelatedPosts error:', error.message);
@@ -138,7 +197,8 @@ export async function getAllSlugs(): Promise<{ slug: string }[]> {
     const { data, error } = await supabase
       .from('cms_blog_posts')
       .select('slug')
-      .eq('published', true);
+      .eq('published', true)
+      ;
     if (error) {
       console.error('Supabase getAllSlugs error:', error.message);
       return [];
@@ -152,26 +212,32 @@ export async function getAllSlugs(): Promise<{ slug: string }[]> {
 
 /** Formate une date ISO en français */
 export function formatDate(iso: string | null | undefined): string {
-  if (!iso) return '';
-  return new Date(iso).toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+  if (!iso) return "";
+  try {
+    const d = new Date(iso);
+    return new Intl.DateTimeFormat("fr-FR", {
+      day: "numeric", month: "long", year: "numeric"
+    }).format(d);
+  } catch (e) {
+    return "";
+  }
 }
 
 /**
- * Récupère une valeur de paramètre depuis la table cms_settings
+ * Récupère une valeur de paramètre depuis la table site_settings
+ * Utilise .limit(1).maybeSingle() pour gérer les doublons de clés
+ * sans générer d’erreur lors du build statique
  */
 export async function getSetting(key: string): Promise<string | null> {
   if (!supabase) return null;
   
   try {
     const { data, error } = await supabase
-      .from('cms_settings')
+      .from('site_settings')
       .select('value')
       .eq('key', key)
-      .single();
+      .limit(1)
+      .maybeSingle();
 
     if (error) {
       console.error(`Supabase getSetting error for '${key}':`, error.message);
@@ -186,7 +252,7 @@ export async function getSetting(key: string): Promise<string | null> {
 }
 
 /**
- * Récupère le contenu d'une page (depuis site_content table)
+ * Récupère le contenu d’une page (depuis site_content table)
  * Retourne un dictionnaire block_key -> value
  */
 export async function getPageContent(page: string): Promise<Record<string, string>> {
@@ -205,7 +271,7 @@ export async function getPageContent(page: string): Promise<Record<string, strin
 
     if (!data || data.length === 0) return {};
     
-    return data.reduce((acc, item) => {
+    return data.reduce((acc: Record<string, string>, item: { block_key: string; value: string }) => {
       if (item.block_key && item.value) {
         acc[item.block_key] = item.value;
       }
@@ -214,5 +280,24 @@ export async function getPageContent(page: string): Promise<Record<string, strin
   } catch (err) {
     console.error(`getPageContent exception for '${page}':`, err);
     return {};
+  }
+}
+
+/** Tous les slugs de destinations pour generateStaticParams */
+export async function getAllDestinationSlugs(): Promise<{ slug: string }[]> {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase
+      .from('destinations')
+      .select('slug')
+      .eq('published', true);
+    if (error) {
+      console.error('Supabase getAllDestinationSlugs error:', error.message);
+      return [];
+    }
+    return (data as { slug: string }[]) ?? [];
+  } catch (err) {
+    console.error('getAllDestinationSlugs exception:', err);
+    return [];
   }
 }

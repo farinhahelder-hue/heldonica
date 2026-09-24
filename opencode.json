@@ -1,0 +1,16 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "agent-tasks": {
+      "type": "local",
+      "command": [
+        "node",
+        "mcp/agent-tasks/server.mjs"
+      ],
+      "enabled": true,
+      "environment": {
+        "AGENT_NAME": "opencode"
+      }
+    }
+  }
+}

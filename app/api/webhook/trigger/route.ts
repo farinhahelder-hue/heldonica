@@ -1,16 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createServiceClient } from '@/lib/supabase'
 import { dispatchWebhook, dispatchValidationFailure } from '@/lib/webhook-dispatcher'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+// Lazy initialization to avoid build-time crash
+const getSupabase = () => {
+  try {
+    return createServiceClient()
+  } catch {
+    return null
+  }
+}
 
 // POST /api/webhook/trigger - Manually trigger a webhook event
 // Body: { event: 'article.published'|'validation.failed', article_id: number }
 
 export async function POST(request: NextRequest) {
+  const supabase = getSupabase()
+  if (!supabase) {
+    return NextResponse.json({ error: 'Service unavailable - Supabase not configured' }, { status: 503 })
+  }
+
   try {
     const body = await request.json()
     const { event, article_id } = body

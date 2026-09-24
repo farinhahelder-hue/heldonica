@@ -1,0 +1,16 @@
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="600" fill="#f8f6f4"/>
+  <!-- Subtle pattern -->
+  <g opacity="0.05">
+    <circle cx="100" cy="100" r="80" fill="#6b2a1a"/>
+    <circle cx="700" cy="150" r="120" fill="#6b2a1a"/>
+    <circle cx="400" cy="500" r="150" fill="#6b2a1a"/>
+    <circle cx="150" cy="450" r="60" fill="#6b2a1a"/>
+    <circle cx="650" cy="500" r="90" fill="#6b2a1a"/>
+  </g>
+  <!-- Mountain silhouette -->
+  <path d="M0 600 L150 350 L280 480 L400 300 L520 420 L650 280 L800 450 L800 600 Z" fill="#e8e4e0" opacity="0.6"/>
+  <path d="M0 600 L200 400 L350 520 L500 350 L650 480 L800 320 L800 600 Z" fill="#ddd8d2" opacity="0.4"/>
+  <!-- H letter for Heldonica -->
+  <text x="400" y="280" font-family="Georgia, serif" font-size="120" font-weight="300" fill="#6b2a1a" text-anchor="middle" opacity="0.15">H</text>
+</svg>

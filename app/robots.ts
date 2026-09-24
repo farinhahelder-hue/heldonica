@@ -1,25 +1,20 @@
-import { MetadataRoute } from 'next';
+import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: [
-      {
-        userAgent: '*',
-        allow: '/',
-        disallow: [
-          '/cms-admin',
-          '/panel-manager',
-          '/cms',
-          '/dashboard',
-          '/auth',
-          '/api/',
-          '/organisateur',
-          '/travel-planning-form',
-          '/merci',
-        ],
-      },
-    ],
+    rules: {
+      userAgent: '*',
+      allow: '/',
+      disallow: [
+        '/admin/',
+        '/api/',
+        '/_next/',
+        '/cms/',
+        '/panel-manager/',
+        // Page linktree pour les réseaux, volontairement hors index
+        '/start',
+      ],
+    },
     sitemap: 'https://www.heldonica.fr/sitemap.xml',
-    host: 'https://www.heldonica.fr',
-  };
+  }
 }

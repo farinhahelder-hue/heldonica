@@ -1,57 +1,66 @@
+import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import Link from 'next/link'
+import SubDestinationTemplate from '@/components/SubDestinationTemplate'
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import { getPageZones } from '@/lib/cms-zones'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const metadata = {
-  title: 'Sibiu slow travel | Guide Heldonica',
-  description: 'Guide Sibiu: fete, montagne, architecture.',
+const metadata: Metadata = {
+  title: "Sibiu en couple : notre carnet slow travel | Heldonica",
+  description: "Guide Sibiu: fete, montagne, architecture en Roumanie. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+  openGraph: {
+    title: "Sibiu en couple : notre carnet slow travel | Heldonica",
+    description: "Guide Sibiu: fete, montagne, architecture en Roumanie. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+    type: 'website',
+    images: ['/og-default.jpg'],
+    locale: 'fr_FR',
+    siteName: 'Heldonica'
+  },
+  alternates: {
+    canonical: "https://www.heldonica.fr/destinations/roumanie/sibiu"
+  }
 }
 
-const navLinks = [
-  { label: 'Roumanie', href: '/destinations/roumanie' },
-  { label: 'Timisoara', href: '/destinations/timisoara' },
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-roumanie-sibiu', metadata)
+}
+
+
+const highlights = [
+  {
+    emoji: '📍',
+    title: 'Découvertes calmes',
+    description: 'Prendre le temps d\'arpenter les ruelles et les recoins cachés.',
+  },
+  {
+    emoji: '🌿',
+    title: 'Artisanat & Nature',
+    description: 'Découvrir la gastronomie locale et les petits producteurs.',
+  },
+  {
+    emoji: '✨',
+    title: 'Points de vue',
+    description: 'Admirer le panorama au coucher du soleil loin de l\'agitation.',
+  }
 ]
 
-const pepites = [
-  { title: 'Piata Mare', description: 'Place centrale.', icon: '🏛️' },
-  { title: 'Astra', description: 'Musee du village en plein air.', icon: '🏘️' },
-  { title: 'Montagnes', description: 'Proximite des Carpathes.', icon: '⛰️' },
-]
-
-export default function SibiuPage() {
+export default async function SibiuPage() {
+  const zones = await getPageZones('destinations-roumanie-sibiu')
   return (
-    <>
+    <InlineEditProvider page="destinations-roumanie-sibiu" initialZones={zones}>
       <Header />
-      <main className="min-h-screen bg-stone-50">
-        <section className="bg-gradient-to-b from-stone-900 to-stone-800 py-20">
-          <div className="max-w-4xl mx-auto px-4">
-            <span className="text-amber-400 text-sm mb-4">Roumanie</span>
-            <h1 className="text-4xl text-white font-serif">Sibiu</h1>
-            <p className="text-stone-300">Ville saxonne. Fetes, montagne, architecture.</p>
-          </div>
-        </section>
-        <nav className="bg-white border-b px-4 py-3 flex gap-4 text-sm">
-          {navLinks.map(l => (
-            <Link key={l.href} href={l.href} className="text-stone-500 hover:text-amber-700">{l.label}</Link>
-          ))}
-        </nav>
-        <div className="max-w-4xl mx-auto px-4 py-12">
-          <section className="mb-8">
-            <p className="text-lg text-stone-700">Sibiu, c est la petite Europe. Propre, rangee, avec les montagnes a cote.</p>
-          </section>
-          <section className="mb-8 grid md:grid-cols-3 gap-4">
-            {pepites.map((p, i) => (
-              <div key={i} className="p-4 bg-white rounded-lg border">
-                <div className="text-xl mb-2">{p.icon}</div>
-                <h3 className="font-serif">{p.title}</h3>
-                <p className="text-sm text-stone-600">{p.description}</p>
-              </div>
-            ))}
-          </section>
-          <Link href="/destinations/roumanie" className="text-amber-700">← Retour Roumanie</Link>
-        </div>
-      </main>
+      <SubDestinationTemplate
+        page="destinations-roumanie-sibiu"
+        name="Sibiu"
+        parentName="Roumanie"
+        parentSlug="roumanie"
+        heroImage="/og-default.jpg"
+        introText="Sibiu, c'est la petite Europe. Propre, rangee, avec les montagnes a cote."
+        highlights={highlights}
+        localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."
+      />
       <Footer />
-    </>
+    </InlineEditProvider>
   )
 }

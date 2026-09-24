@@ -1,15 +1,19 @@
 export const dynamic = 'force-dynamic';
 
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+import { requireCmsAuth } from '@/lib/cms-auth'
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
-  const supabase = (url && key) ? createClient(url, key) : null;
+const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
+const supabase = (url && key) ? createClient(url, key) : null
 
 // GET /api/cms/carousel-history - List history
 // POST /api/cms/carousel-history - Save to history
 export async function GET(req: NextRequest) {
+  const authResponse = await requireCmsAuth(req);
+  if (authResponse) return authResponse;
+
   if (!supabase) return NextResponse.json({ error: 'DB unavailable' }, { status: 503 })
   try {
     const { data, error } = await supabase
@@ -27,6 +31,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const authResponse = await requireCmsAuth(req);
+  if (authResponse) return authResponse;
+
   if (!supabase) return NextResponse.json({ error: 'DB unavailable' }, { status: 503 })
   try {
     const body = await req.json();

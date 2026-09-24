@@ -1,62 +1,66 @@
-'use client'
+import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import Link from 'next/link'
+import SubDestinationTemplate from '@/components/SubDestinationTemplate'
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import { getPageZones } from '@/lib/cms-zones'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-const navLinks = [
-  { label: 'Madere', href: '/destinations/madere' },
-  { label: 'Ribeiro Frio', href: '/destinations/madere/ribeiro-frio' },
+const metadata: Metadata = {
+  title: "Estreito de Câmara de Lobos en couple : notre carnet slow travel | Heldonica",
+  description: "La vallée. Les levadas, les cascades, la forêt à Madère. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+  openGraph: {
+    title: "Estreito de Câmara de Lobos en couple : notre carnet slow travel | Heldonica",
+    description: "La vallée. Les levadas, les cascades, la forêt à Madère. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+    type: 'website',
+    images: ['/og-default.jpg'],
+    locale: 'fr_FR',
+    siteName: 'Heldonica'
+  },
+  alternates: {
+    canonical: "https://www.heldonica.fr/destinations/madere/estreito"
+  }
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-madere-estreito', metadata)
+}
+
+
+const highlights = [
+  {
+    emoji: '📍',
+    title: 'Découvertes calmes',
+    description: 'Prendre le temps d\'arpenter les ruelles et les recoins cachés.',
+  },
+  {
+    emoji: '🌿',
+    title: 'Artisanat & Nature',
+    description: 'Découvrir la gastronomie locale et les petits producteurs.',
+  },
+  {
+    emoji: '✨',
+    title: 'Points de vue',
+    description: 'Admirer le panorama au coucher du soleil loin de l\'agitation.',
+  }
 ]
 
-const pepites = [
-  { title: 'Levada Nova', description: 'La levada qui traverse. 3h. Magic.', icon: '🌿' },
-  { title: 'Cascata', description: 'La chute d eau. En cours de route.', icon: '💦' },
-  { title: 'Balcoes Novo', description: 'Le nouveau. Encore plus fort.', icon: '⛰️' },
-  { title: 'Forest Path', description: 'Dans la foret. Silence total.', icon: '🌲' },
-]
-
-export default function EstreitoPage() {
+export default async function EstreitodeCamaraPage() {
+  const zones = await getPageZones('destinations-madere-estreito')
   return (
-    <>
+    <InlineEditProvider page="destinations-madere-estreito" initialZones={zones}>
       <Header />
-      <main className="min-h-screen bg-stone-50">
-        <section className="bg-gradient-to-b from-stone-900 to-stone-800 py-20">
-          <div className="max-w-4xl mx-auto px-4">
-            <span className="text-amber-400 text-sm mb-4 inline-block">⭐ Secret Gem</span>
-            <h1 className="text-4xl text-white font-serif">Estreito de Camara</h1>
-            <p className="text-stone-300">Le vallee. Les levadas, les cascades, la foret.</p>
-          </div>
-        </section>
-        <nav className="bg-white border-b px-4 py-3 flex gap-4 text-sm">
-          {navLinks.map(l => (
-            <Link key={l.href} href={l.href} className="text-stone-500 hover:text-amber-700">{l.label}</Link>
-          ))}
-        </nav>
-        <div className="max-w-4xl mx-auto px-4 py-12">
-          <section className="mb-8">
-            <p className="text-lg text-stone-700">
-              Estreito, c est la vallee.
-              <strong>Les levadas les plus belles sans les foules.</strong>
-              Attention -- c est 3h de rando minimum.
-            </p>
-          </section>
-          <section className="mb-8 grid md:grid-cols-2 gap-4">
-            {pepites.map((p, i) => (
-              <div key={i} className="p-4 bg-white rounded-lg border">
-                <div className="text-xl mb-2">{p.icon}</div>
-                <h3 className="font-serif">{p.title}</h3>
-                <p className="text-sm text-stone-600">{p.description}</p>
-              </div>
-            ))}
-          </section>
-          <section className="mb-8 p-5 bg-amber-50 rounded-lg border border-amber-200">
-            <h3 className="font-serif mb-2">⭐ Le secret</h3>
-            <p className="text-sm text-stone-700">Partez tot -- vous croisez un seul groupe sur le chemin. Retour a 14h max.</p>
-          </section>
-          <Link href="/destinations/madere" className="text-amber-700">← Retour Madere</Link>
-        </div>
-      </main>
+      <SubDestinationTemplate
+        page="destinations-madere-estreito"
+        name="Estreito de Câmara de Lobos"
+        parentName="Madère"
+        parentSlug="madere"
+        heroImage="/og-default.jpg"
+        introText="La vallée. Les levadas, les cascades, la forêt."
+        highlights={highlights}
+        localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."
+      />
       <Footer />
-    </>
+    </InlineEditProvider>
   )
 }

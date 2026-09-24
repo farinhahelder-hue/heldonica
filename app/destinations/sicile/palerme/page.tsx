@@ -1,48 +1,66 @@
-'use client'
+import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import Link from 'next/link'
+import SubDestinationTemplate from '@/components/SubDestinationTemplate'
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import { getPageZones } from '@/lib/cms-zones'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-export default function PalermePage() {
+const metadata: Metadata = {
+  title: "Palerme en couple : notre carnet slow travel | Heldonica",
+  description: "Ouest. Capitale, chaos en Sicile. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+  openGraph: {
+    title: "Palerme en couple : notre carnet slow travel | Heldonica",
+    description: "Ouest. Capitale, chaos en Sicile. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+    type: 'website',
+    images: ['/og-default.jpg'],
+    locale: 'fr_FR',
+    siteName: 'Heldonica'
+  },
+  alternates: {
+    canonical: "https://www.heldonica.fr/destinations/sicile/palerme"
+  }
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-sicile-palerme', metadata)
+}
+
+
+const highlights = [
+  {
+    emoji: '🏛️',
+    title: 'Palazzo',
+    description: 'Normans.',
+  },
+  {
+    emoji: '🍝',
+    title: 'Capo',
+    description: 'Marche.',
+  },
+  {
+    emoji: '🌺',
+    title: 'Jardins',
+    description: 'Flora.',
+  }
+]
+
+export default async function PalermePage() {
+  const zones = await getPageZones('destinations-sicile-palerme')
   return (
-    <>
+    <InlineEditProvider page="destinations-sicile-palerme" initialZones={zones}>
       <Header />
-      <main className="min-h-screen bg-stone-50">
-        <section className="bg-gradient-to-b from-stone-900 to-stone-800 py-20">
-          <div className="max-w-4xl mx-auto px-4">
-            <span className="text-amber-400 text-sm">Sicile</span>
-            <h1 className="text-4xl text-white font-serif">Palerme</h1>
-            <p className="text-stone-300">Ouest. Capitale, chaos.</p>
-          </div>
-        </section>
-        <nav className="bg-white border-b px-4 py-3 flex gap-4 text-sm">
-          <Link href="/destinations/sicile" className="text-stone-500 hover:text-amber-700">Sicile</Link>
-        </nav>
-        <div className="max-w-4xl mx-auto px-4 py-12">
-          <section className="mb-8">
-            <p className="text-lg text-stone-700">Palerme, c est le chaos. Mais le bon. Les palais, les marches, la vraie Sicile.</p>
-          </section>
-          <section className="mb-8 grid md:grid-cols-3 gap-4">
-            <div className="p-4 bg-white rounded-lg border">
-              <div className="text-2xl mb-2">🏛️</div>
-              <h3 className="font-serif">Palazzo</h3>
-              <p className="text-sm text-stone-600">Normans.</p>
-            </div>
-            <div className="p-4 bg-white rounded-lg border">
-              <div className="text-2xl mb-2">🍝</div>
-              <h3 className="font-serif">Capo</h3>
-              <p className="text-sm text-stone-600">Marche.</p>
-            </div>
-            <div className="p-4 bg-white rounded-lg border">
-              <div className="text-2xl mb-2">🌺</div>
-              <h3 className="font-serif">Jardins</h3>
-              <p className="text-sm text-stone-600">Flora.</p>
-            </div>
-          </section>
-          <Link href="/destinations/sicile" className="text-amber-700">← Retour Sicile</Link>
-        </div>
-      </main>
+      <SubDestinationTemplate
+        page="destinations-sicile-palerme"
+        name="Palerme"
+        parentName="Sicile"
+        parentSlug="sicile"
+        heroImage="/og-default.jpg"
+        introText="Palerme, c'est le chaos. Mais le bon. Les palais, les marches, la vraie Sicile."
+        highlights={highlights}
+        localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."
+      />
       <Footer />
-    </>
+    </InlineEditProvider>
   )
 }

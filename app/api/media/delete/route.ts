@@ -15,8 +15,11 @@ export async function POST(req: NextRequest) {
 
     await deleteMedia(key)
     return NextResponse.json({ success: true })
-  } catch (err) {
+  } catch (err: any) {
     console.error('Media delete error:', err)
+    if (err.message === 'S3 not configured') {
+      return NextResponse.json({ error: 'S3 non configuré' }, { status: 503 })
+    }
     return NextResponse.json({ error: 'Erreur suppression' }, { status: 500 })
   }
 }

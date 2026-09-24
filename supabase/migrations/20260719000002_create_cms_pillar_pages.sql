@@ -1,0 +1,120 @@
+-- Migration: cms_pillar_pages — Données destinations pilier
+-- Date: 2026-07-19
+-- Description: Migre pillar-data.ts vers Supabase pour rendre tout éditable via CMS
+
+CREATE TABLE IF NOT EXISTS cms_pillar_pages (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  slug TEXT UNIQUE NOT NULL,          -- 'madere', 'montenegro', 'roumanie'
+  name TEXT NOT NULL,
+  country TEXT NOT NULL,
+  flag TEXT,
+  hero TEXT,                          -- URL image hero
+  tagline TEXT,
+  hero_subtitle TEXT,
+  budget INTEGER,                     -- budget couple/semaine en euros
+  season TEXT,
+  flight TEXT,
+  visa TEXT,
+  currency TEXT,
+  language TEXT,
+  seo_title TEXT,
+  seo_desc TEXT,
+  -- Contenu JSON complexe
+  intro JSONB DEFAULT '[]',           -- tableau de paragraphes string[]
+  info_table JSONB DEFAULT '[]',      -- [{label, value}]
+  itinerary JSONB DEFAULT '[]',       -- [{day, title, activities[], tip?, articleSlug?}]
+  budget_breakdown JSONB DEFAULT '[]',-- [{label, pct, amount}]
+  faq JSONB DEFAULT '[]',             -- [{q, a}]
+  tested_by_heldonica JSONB,          -- {when, duration, withWho, highlights[], keyInsight}
+  verdict JSONB,                      -- {score, forWho, strengths[], considerations[], finalWord}
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE cms_pillar_pages ENABLE ROW LEVEL SECURITY;
+
+-- Lecture publique
+CREATE POLICY "public_read_pillar_pages" ON cms_pillar_pages
+  FOR SELECT USING (is_active = true);
+
+-- Écriture service role uniquement
+CREATE POLICY "service_write_pillar_pages" ON cms_pillar_pages
+  FOR ALL USING (auth.role() = 'service_role');
+
+CREATE INDEX IF NOT EXISTS idx_pillar_pages_slug ON cms_pillar_pages(slug);
+
+-- ─── Seed: MADÈRE ─────────────────────────────────────────────────────────────
+INSERT INTO cms_pillar_pages (
+  slug, name, country, flag, hero, tagline, hero_subtitle,
+  budget, season, flight, visa, currency, language, seo_title, seo_desc,
+  intro, info_table, itinerary, budget_breakdown, faq, tested_by_heldonica, verdict
+) VALUES (
+  'madere', 'Madère', 'Portugal', '🇵🇹',
+  'https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg',
+  'L''île éternelle du printemps — levadas, falaises et douceur atlantique',
+  'Notre guide terrain avec itinéraire testé, budget réel et pépites dénichées hors sentiers battus.',
+  1200, 'Avril–juin / Sept–oct', '~2h30 depuis Paris', 'Non (UE)', 'Euro', 'Portugais',
+  'Madère en couple : guide slow travel complet 2026 | Heldonica',
+  'Notre guide terrain de Madère testé en couple : itinéraire 7 jours, budget réel ~1200€/semaine, levadas, falaises et pépites dénichées hors sentiers battus.',
+  '["Madère, c''est le genre d''endroit qu''on découvre par hasard et dont on ne revient pas indemne. On y est arrivés sans savoir à quoi s''attendre — et on a trouvé bien plus que des levadas et des falaises.", "On a marché dans la forêt de Fanal un matin de brume, les pieds dans la terre volcanique. On a mangé l''espetada dans un restaurant où personne ne parlait anglais. On s''est baignés dans les piscines naturelles de Porto Moniz, seuls au monde.", "Madère pour un couple en 2026, c''est l''endroit où le slow travel prend tout son sens : des paysages qui ralentissent le temps, des sentiers où on croise plus de vaches que de touristes, une île qui n''a pas encore appris à se vendre — et c''est ce qui fait son charme."]',
+  '[{"label":"Meilleure période","value":"Avril-juin / Sept-oct"},{"label":"Budget couple/sem","value":"~1 200 €"},{"label":"Vol depuis Paris","value":"~2h30"},{"label":"Visa","value":"Non (UE)"},{"label":"Monnaie","value":"Euro"},{"label":"Langue","value":"Portugais"}]',
+  '[{"day":1,"title":"Arrivée à Funchal — levadas et premier pastel de nata","activities":["Installation dans un quartier typique du vieux Funchal","Balade le long de la levada dos Tornos","Premier pastel de nata à la Merceria — notre pâtisserie préférée"],"tip":"Logez dans le quartier de São Pedro, pas dans le centre touristique"},{"day":2,"title":"Pico do Arieiro au lever du soleil — mer de nuages","activities":["Départ 5h pour le Pico do Arieiro (1818m)","Randonnée jusqu''au Pico Ruivo (sommet de l''île)","Déjeuner à Santana : maisons triangulaires et restaurant régional"],"tip":"Prenez des vêtements chauds — il fait 10°C au sommet même en été"},{"day":3,"title":"Porto Moniz — piscines naturelles volcaniques","activities":["Route côtière jusqu''à Porto Moniz (1h de Funchal)","Baignade dans les piscines naturelles de roche volcanique","Déjeuner de poisson frais au bord de l''océan"],"tip":"Arrivez tôt (avant 10h) pour avoir la piscine presque pour vous"},{"day":4,"title":"Santana et le nord sauvage","activities":["Visite des maisons triangulaires traditionnelles à Santana","Randonnée sur la côte nord — falaises et vues spectaculaires","Route des vins de Madère avec dégustation"],"tip":"La route du nord est sinueuse — prévoyez des médicaments si vous êtes sensibles"},{"day":5,"title":"Cabo Girão — vertige sur la plus haute falaise d''Europe","activities":["Cabo Girão : passerelle vitrée à 580m au-dessus de l''océan","Descente vers Câmara de Lobos — village de pêcheurs coloré","Après-midi libre à Funchal : marché, shopping, farniente"],"tip":"Le passage vitré est gratuit — évitez les heures de croisière (11h-14h)"},{"day":6,"title":"Jardins tropicaux de Monte — téléphérique historique","activities":["Téléphérique de Funchal jusqu''à Monte (15 min de vue)","Jardins tropicaux — 70 000m² de plantes exotiques","Descente en toboggan traditionnel (carros de cesto) — unique au monde"],"tip":"Le toboggan est une expérience touristique mais franchement fun — faites-le une fois"},{"day":7,"title":"Marché dos Lavradores — derniers achats et départ","activities":["Marché dos Lavradores dès 7h — poissons, fruits exotiques, fleurs","Dernier café au bord du marin à Funchal","Départ aéroport — ou prolongation si le cœur dit"],"tip":"Le marché est gratuit. Allez au premier étage pour les fruits tropicaux"}]',
+  '[{"label":"Hébergement","pct":35,"amount":420},{"label":"Repas","pct":30,"amount":360},{"label":"Transports","pct":15,"amount":180},{"label":"Activités","pct":12,"amount":144},{"label":"Divers","pct":8,"amount":96}]',
+  '[{"q":"Quand partir à Madère pour le slow travel ?","a":"Les meilleures périodes sont avril-juin (printemps fleuri, températures douces) et septembre-octobre (été indien, mer encore chaude). Évitez décembre-février : pluies fréquentes et chemins boueux."},{"q":"Combien de jours pour découvrir Madère ?","a":"Comptez minimum 7 jours pour un bon rythme. 10 jours permettent d''explorer le nord sauvage et la péninsule de São Lourenço sans se presser."},{"q":"Faut-il une voiture à Madère ?","a":"Oui, la voiture est indispensable pour explorer l''île librement. Les routes sont étroites mais bien asphaltées. Louez une petite voiture — les places de parking sont minuscules."},{"q":"Madère est-elle chère ?","a":"Comptez ~1200€/semaine pour deux (vol, hébergement, repas, transport, activités). Hors saison, le budget peut descendre à 900€. Madère est moins chère que ses voisins des Açores."},{"q":"Est-ce adapté aux non-randonneurs ?","a":"Oui — les levadas plates longent les montagnes sans difficulté. Les piscines naturelles, les jardins et la gastronomie offrent mille façons de profiter sans s''épuiser."}]',
+  '{"when":"Septembre 2025","duration":"8 jours","withWho":"En couple","highlights":["Pico Ruivo au lever du soleil","Piscines naturelles de Porto Moniz à 9h","Déjeuner chez Ze Tinha"],"keyInsight":"Madère se découvre lentement."}',
+  '{"score":9,"forWho":"Couples qui cherchent des paysages spectaculaires et du slow travel.","strengths":["Des paysages uniques","Une île compacte","Une gastronomie authentique"],"considerations":["Demande de marcher","La voiture est indispensable"],"finalWord":"Madère est notre coup de cœur slow travel."}'
+) ON CONFLICT (slug) DO UPDATE SET
+  name = EXCLUDED.name, hero = EXCLUDED.hero, tagline = EXCLUDED.tagline,
+  intro = EXCLUDED.intro, itinerary = EXCLUDED.itinerary, faq = EXCLUDED.faq,
+  budget = EXCLUDED.budget, updated_at = NOW();
+
+-- ─── Seed: MONTÉNÉGRO ──────────────────────────────────────────────────────────
+INSERT INTO cms_pillar_pages (
+  slug, name, country, flag, hero, tagline, hero_subtitle,
+  budget, season, flight, visa, currency, language, seo_title, seo_desc,
+  intro, info_table, itinerary, budget_breakdown, faq, tested_by_heldonica, verdict
+) VALUES (
+  'montenegro', 'Monténégro', 'Monténégro', '🇲🇪',
+  'https://images.unsplash.com/photo-1570126618953-d437176e8c79?w=1920&h=1080&fit=crop',
+  'Balkans sauvages — fjords adriatiques, monastères et silence alpin',
+  'Notre guide terrain avec baie de Kotor au lever du soleil, parc du Lovćen et Durmitor.',
+  900, 'Mai–juin / Sept–oct', '~2h30 depuis Paris', 'Non (90j)', 'Euro', 'Monténégrin',
+  'Monténégro en couple : guide slow travel 2026 | Heldonica',
+  'Kotor, Durmitor, Perast — notre guide terrain du Monténégro testé en couple. Itinéraire 7 jours, budget ~900€/semaine, pépites hors des sentiers battus.',
+  '["Le Monténégro, on y est allés un peu par hasard, attirés par une photo de la baie de Kotor. Ce qu''on a trouvé, c''est bien plus : un pays qui n''a pas encore appris à se vendre, où l''authenticité n''est pas un argument marketing.", "On a marché dans les ruelles pavées de Kotor avant l''arrivée des croisiéristes. On a déjeuné avec des familles locales à Podgorica. On a gravi le parc du Lovćen sous un soleil de juillet, seuls au monde au sommet.", "Pour un couple en 2026, le Monténégro est ce que la Croatie était il y a quinze ans : préservé, abordable, sincère. Un pays où chaque virage révèle un nouveau paysage à couper le souffle."]',
+  '[{"label":"Meilleure période","value":"Mai-juin / Sept-oct"},{"label":"Budget couple/sem","value":"~900 €"},{"label":"Vol depuis Paris","value":"~2h30"},{"label":"Visa","value":"Non (90j)"},{"label":"Monnaie","value":"Euro"},{"label":"Langue","value":"Monténégrin"}]',
+  '[{"day":1,"title":"Arrivée à Kotor — vieille ville UNESCO","activities":["Installation dans la vieille ville de Kotor","Balade sur les remparts jusqu''à la forteresse de San Giovanni (1350 marches)","Premier dîner au bord de la baie — poisson grillé et rakija"],"tip":"Levez-vous à 7h pour avoir les remparts pour vous seuls — les croisiéristes arrivent à 10h"},{"day":2,"title":"Bouches de Kotor en bateau","activities":["Excursion en bateau dans les bouches de Kotor","Visite de Perast et ses îles artificielles (Notre-Dame-du-Rocher)","Baignade dans une crique isolée"],"tip":"Négociez le prix du bateau directement avec les pêcheurs sur le port"},{"day":3,"title":"Parc national de Lovćen — mausolée de Njegoš","activities":["Route sinueuse vers le parc du Lovćen (45 min de Kotor)","Randonnée jusqu''au mausolée de Njegoš — vue à 360° sur la baie","Pique-nique dans les alpages"],"tip":"La route est très sinueuse — prévoyez des médicaments contre le mal des transports"},{"day":4,"title":"Perast et Notre-Dame-du-Rocher","activities":["Matin à Perast : village baroque au bord de l''eau","Bateau pour l''île Notre-Dame-du-Rocher — église et musée","Après-midi plage à Dobrec (locale, peu connue)"],"tip":"Le coucher de soleil depuis la jetée de Perast est magique et gratuit"},{"day":5,"title":"Budva — vieille ville et plages","activities":["Visite de la vieille ville de Budva (30 min de Kotor)","Photo de Sveti Stefan depuis la plage de Przno","Déjeuner dans un konoba (taverne) local"],"tip":"Sveti Stefan est privé (hôtel) mais la vue depuis Przno est publique et splendide"},{"day":6,"title":"Parc Durmitor — lac Noir","activities":["Route vers le parc du Durmitor (2h30 de Kotor)","Randonnée autour du lac Noir — le plus beau lac des Balkans","Nuit au pied des montagnes"],"tip":"Prévoyez une journée complète — la route depuis Kotor est longue mais paysagère"},{"day":7,"title":"Podgorica — déjeuner et départ","activities":["Matin : quartier latin de Podgorica","Déjeuner au restaurant Pod Volat — cuisine monténégrine authentique","Départ aéroport"],"tip":"Podgorica mérite qu''on s''y arrête : sa vie locale est bien plus authentique que Kotor"}]',
+  '[{"label":"Hébergement","pct":33,"amount":297},{"label":"Repas","pct":28,"amount":252},{"label":"Location voiture","pct":20,"amount":180},{"label":"Activités","pct":12,"amount":108},{"label":"Divers","pct":7,"amount":63}]',
+  '[{"q":"Quand partir au Monténégro pour le slow travel ?","a":"Mai-juin (printemps verdoyant, peu de touristes) et septembre-octobre (été indien, mer chaude) sont idéaux. Juillet-août est bondé à Kotor."},{"q":"Combien de jours pour découvrir le Monténégro ?","a":"7 jours suffisent pour la côte et Lovćen. 10 jours permettent d''ajouter le Durmitor et les lacs de Plav."},{"q":"Faut-il une voiture ?","a":"Oui, c''est le meilleur moyen. Les routes de montagne sont sinueuses mais bien asphaltées. Les bus relient les grandes villes mais les horaires sont limités."},{"q":"Le Monténégro est-il sûr ?","a":"Très sûr. La criminalité est quasi inexistante dans les zones touristiques. Les habitants sont accueillants et serviables."},{"q":"Quel budget prévoir ?","a":"~900€/semaine pour deux (vol, hébergement, repas, location voiture, activités). Hors saison, comptez 700€."}]',
+  '{"when":"Juillet 2025","duration":"10 jours","withWho":"En couple","highlights":["Lever du soleil sur la baie de Kotor à 6h30","Randonnée au lac Noir du Durmitor","Déjeuner chez Pod Volat à Podgorica"],"keyInsight":"Le Monténégro se mérite — prévoyez du temps pour les routes de montagne."}',
+  '{"score":8,"forWho":"Couples qui cherchent des Balkans préservés et un mélange nature/culture.","strengths":["Baie de Kotor spectaculaire","Parcs nationaux impressionnants","Budget très accessible"],"considerations":["Routes de montagne exigeantes","Kotor très touristique en été"],"finalWord":"Le Monténégro est notre coup de cœur Balkans pour les couples."}'
+) ON CONFLICT (slug) DO UPDATE SET
+  name = EXCLUDED.name, hero = EXCLUDED.hero, tagline = EXCLUDED.tagline,
+  intro = EXCLUDED.intro, itinerary = EXCLUDED.itinerary, faq = EXCLUDED.faq,
+  budget = EXCLUDED.budget, updated_at = NOW();
+
+-- ─── Seed: ROUMANIE ────────────────────────────────────────────────────────────
+INSERT INTO cms_pillar_pages (
+  slug, name, country, flag, hero, tagline, hero_subtitle,
+  budget, season, flight, visa, currency, language, seo_title, seo_desc,
+  intro, info_table, itinerary, budget_breakdown, faq, tested_by_heldonica, verdict
+) VALUES (
+  'roumanie', 'Roumanie', 'Roumanie', '🇷🇴',
+  'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
+  'Transylvanie mystérieuse, Maramureș préservé — l''Europe d''avant',
+  'Notre guide terrain avec citadelle de Sighișoara, Maramureș authentique et château de Bran.',
+  750, 'Mai–sept', '~3h depuis Paris', 'Non (UE)', 'Leu (RON)', 'Roumain',
+  'Roumanie en couple : guide slow travel Transylvanie 2026 | Heldonica',
+  'Brasov, Sighișoara, Maramureș — notre guide terrain de Roumanie testé en couple. Itinéraire 7 jours, budget ~750€/semaine, villages préservés et châteaux.',
+  '["La Roumanie, on l''avait imaginée avant d''y poser le pied. On pensait connaître — Dracula, l''Est, le froid. Ce qu''on a trouvé, c''est un pays qui nous a pris par surprise.", "On a bu un café sur une terrasse à Floreasca, entourés de jeunes qui construisent la nouvelle Roumanie. On a marché dans les rues pavées de Sighișoara un soir d''automne, seuls dans la citadelle. On a rencontré un berger en Maramureș qui nous a offert du fromage sans rien demander en retour.", "Pour un couple en 2026, la Roumanie est l''une des dernières grandes destinations slow travel européennes : abordable, préservée, et profondément authentique. Loin des clichés, proche du cœur."]',
+  '[{"label":"Meilleure période","value":"Mai-sept"},{"label":"Budget couple/sem","value":"~750 €"},{"label":"Vol depuis Paris","value":"~3h"},{"label":"Visa","value":"Non (UE)"},{"label":"Monnaie","value":"Leu (RON)"},{"label":"Langue","value":"Roumain"}]',
+  '[{"day":1,"title":"Arrivée à Bucarest — café en terrasse à Floreasca","activities":["Installation dans le quartier Floreasca — le nouveau Berlin de l''Est","Déjeuner au marché de Obor — le plus authentique de Bucarest","Balade dans la vieille ville (Centrul Vechi) le soir"],"tip":"Floreasca est le quartier où vivent les jeunes pro roumains — bien plus sympa que le centre touristique"},{"day":2,"title":"Route vers la Transylvanie — château de Bran","activities":["Départ pour la Transylvanie (2h30 de route)","Château de Bran — oui c''est touristique, mais l''histoire vaut le détour","Arrivée à Brașov — installation et balade dans la vieille ville"],"tip":"Allez au château de Bran à l''ouverture (9h) — vous aurez les salles presque vides"},{"day":3,"title":"Brașov — vieille ville et forteresse","activities":["Place du Conseil (Piața Sfatului) — café et observation","Téléphérique jusqu''au mont Tâmpa — vue sur toute la ville","Visite de la forteresse de Brașov"],"tip":"La ville se découvre à pied. Perdez-vous dans les ruelles autour de la Place du Conseil"},{"day":4,"title":"Sighișoara — cité médiévale natale de Dracula","activities":["Route vers Sighișoara (1h30)","Visite de la citadelle médiévale — site UNESCO","Tour de l''horloge — musée d''histoire et vue panoramique"],"tip":"Passez la nuit dans la citadelle — le soir, après le départ des cars, la magie opère"},{"day":5,"title":"Sibiu — Piața Mare, musées et culture","activities":["Route vers Sibiu (1h30)","Grande Place (Piața Mare) — architecture allemande","Musée en plein air ASTRA — 300 maisons traditionnelles"],"tip":"Le musée ASTRA est immense — prévoyez 2h minimum, 3h si vous aimez l''ethnographie"},{"day":6,"title":"Maramureș — villages en bois et monastères","activities":["Route vers le Maramureș (3h) — la plus belle région de Roumanie","Monastère de Barsana — bois sculpté et spiritualité","Cimetière joyeux de Săpânța — unique au monde"],"tip":"Le Maramureș mérite 2-3 jours. Si vous manquez de temps, faites l''impasse sur Bucarest en fin de séjour"},{"day":7,"title":"Retour Bucarest — ultime balade et départ","activities":["Route retour vers Bucarest (6h — prévoyez la journée)","Dernier déjeuner à la Hanul lui Manuc","Départ aéroport"],"tip":"La route Maramureș-Bucarest est longue. Prenez un vol intérieur si votre budget le permet"}]',
+  '[{"label":"Hébergement","pct":30,"amount":225},{"label":"Repas","pct":25,"amount":188},{"label":"Location voiture","pct":22,"amount":165},{"label":"Activités","pct":13,"amount":98},{"label":"Divers","pct":10,"amount":74}]',
+  '[{"q":"Quand partir en Roumanie pour le slow travel ?","a":"Mai à septembre est la meilleure période. Mai-juin pour les fleurs et les températures douces, septembre pour les couleurs d''automne. Évitez juillet-août si vous craignez la chaleur (35°C dans les villes)."},{"q":"Combien de jours pour découvrir la Roumanie ?","a":"7 jours pour un circuit Bucarest-Transylvanie. 10-12 jours pour ajouter le Maramureș sans se presser et la Moldavie."},{"q":"Faut-il une voiture ?","a":"Oui, fortement recommandée. Les routes nationales sont bonnes, les paysages magnifiques. Les trains sont lents mais pittoresques."},{"q":"La Roumanie est-elle sûre ?","a":"Très sûre, même dans les grandes villes. Les zones rurales sont paisibles. Comme partout, surveillez vos affaires dans les marchés et transports en commun."},{"q":"Quel budget prévoir ?","a":"~750€/semaine pour deux (vol, hébergement, repas, voiture, activités). La Roumanie est l''une des destinations européennes les plus abordables."}]',
+  '{"when":"Septembre 2025","duration":"9 jours","withWho":"En couple","highlights":["Café à Floreasca avant 8h","Soir dans la citadelle de Sighișoara","Fromage offert par un berger en Maramureș"],"keyInsight":"La Roumanie ne se visite pas — elle se ressent."}',
+  '{"score":8,"forWho":"Couples curieux d''histoire et de traditions préservées.","strengths":["Citadelle de Sighișoara unique","Maramureș authentique","Budget imbattable en Europe"],"considerations":["Routes parfois difficiles","Bucarest moins charmant qu''attendu"],"finalWord":"La Roumanie nous a surpris — elle dépasse tous les clichés."}'
+) ON CONFLICT (slug) DO UPDATE SET
+  name = EXCLUDED.name, hero = EXCLUDED.hero, tagline = EXCLUDED.tagline,
+  intro = EXCLUDED.intro, itinerary = EXCLUDED.itinerary, faq = EXCLUDED.faq,
+  budget = EXCLUDED.budget, updated_at = NOW();

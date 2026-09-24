@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "agent-tasks": {
+      "command": "node",
+      "args": [
+        "mcp/agent-tasks/server.mjs"
+      ],
+      "env": {
+        "AGENT_NAME": "gemini"
+      }
+    }
+  }
+}

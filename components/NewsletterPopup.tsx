@@ -1,0 +1,240 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
+import { readCookieConsent } from '@/lib/consent'
+import { estRouteAdmin } from '@/lib/routes-admin'
+
+// Jamais sur les pages offre : un pop-up "guide gratuit" pendant un tunnel d'achat détourne l'intention.
+const EXCLUDED_PATH_PREFIXES = ['/travel-planning', '/expert-hotelier']
+
+export default function NewsletterPopup() {
+  const pathname = usePathname()
+  // Les routes d'administration s'ajoutent aux pages exclues : la fenetre
+  // s'ouvrait par-dessus l'editeur, ou elle n'a rien a proposer.
+  const isExcludedPage =
+    estRouteAdmin(pathname) ||
+    EXCLUDED_PATH_PREFIXES.some((prefix) => pathname?.startsWith(prefix))
+  const [isVisible, setIsVisible] = useState(false)
+  const [email, setEmail] = useState('')
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [errorMessage, setErrorMessage] = useState('')
+  const [hasConsentChoice, setHasConsentChoice] = useState(false)
+
+  // Listen to cookie consent updates
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const checkConsent = () => {
+      const consent = readCookieConsent()
+      setHasConsentChoice(consent !== null)
+    }
+
+    checkConsent()
+    window.addEventListener('heldonica-cookie-consent-updated', checkConsent)
+    return () => {
+      window.removeEventListener('heldonica-cookie-consent-updated', checkConsent)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (!hasConsentChoice) return
+    if (isExcludedPage) return
+
+    // Check if popup was already shown this session
+    const wasShown = sessionStorage.getItem('newsletter-popup-shown')
+    if (wasShown) return
+
+    let timeout: NodeJS.Timeout
+    let exitIntentGrace: NodeJS.Timeout
+    let scrollHandler: () => void
+    let exitIntentTriggered = false
+    let exitIntentEnabled = false
+
+    const showPopup = () => {
+      sessionStorage.setItem('newsletter-popup-shown', 'true')
+      setIsVisible(true)
+      cleanup()
+    }
+
+    const exitIntentHandler = (e: MouseEvent) => {
+      if (exitIntentTriggered || !exitIntentEnabled) return
+      if (e.clientY <= 0) {
+        exitIntentTriggered = true
+        showPopup()
+      }
+    }
+
+    const cleanup = () => {
+      clearTimeout(timeout)
+      clearTimeout(exitIntentGrace)
+      window.removeEventListener('scroll', scrollHandler)
+      document.removeEventListener('mouseleave', exitIntentHandler)
+    }
+
+    // Timer: 45 seconds
+    timeout = setTimeout(showPopup, 45000)
+
+    // Scroll: 70%
+    scrollHandler = () => {
+      const scrollTop = window.scrollY
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight
+      const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0
+      if (scrollPercent >= 70) showPopup()
+    }
+    window.addEventListener('scroll', scrollHandler, { passive: true })
+
+    // Exit intent: attendre 8s après le chargement pour éviter le déclenchement immédiat
+    exitIntentGrace = setTimeout(() => { exitIntentEnabled = true }, 8000)
+    document.addEventListener('mouseleave', exitIntentHandler)
+
+    return cleanup
+  }, [hasConsentChoice, isExcludedPage])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email || !email.includes('@')) {
+      setErrorMessage('Adresse email invalide')
+      return
+    }
+
+    setStatus('loading')
+    setErrorMessage('')
+
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+
+      if (res.ok) {
+        setStatus('success')
+        setTimeout(() => setIsVisible(false), 3000)
+      } else {
+        const data = await res.json()
+        setStatus('error')
+        setErrorMessage(data.error || 'Erreur lors de l\'inscription')
+      }
+    } catch {
+      setStatus('error')
+      setErrorMessage('Erreur réseau. Réessaie plus tard.')
+    }
+  }
+
+  const handleClose = () => {
+    setIsVisible(false)
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('newsletter-popup-shown', 'true')
+    }
+  }
+
+  if (!isVisible || isExcludedPage) return null
+
+  return (
+    <div
+      className="fixed bottom-6 right-6 left-6 md:left-auto md:max-w-sm z-50 bg-stone-950 rounded-2xl p-6 md:p-8 shadow-2xl text-white"
+      style={{
+        animation: 'slideUp 0.3s ease-out',
+      }}
+    >
+      <style jsx>{`
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+
+      {/* Close button */}
+      <button
+        type="button"
+        onClick={handleClose}
+        className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 text-white/70 hover:bg-white/20 hover:text-white transition-colors cursor-pointer z-10"
+        aria-label="Fermer"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+
+      {status === 'success' ? (
+        <div className="text-center py-4">
+          <div className="text-4xl mb-4">🎉</div>
+          <h3 className="text-xl font-bold mb-2">
+            Bienvenue dans l&apos;aventure !
+          </h3>
+          <p className="text-stone-600 text-sm">
+            Tu vas recevoir nos carnets de voyage et nos meilleures pépites.
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="mb-4">
+            <span className="inline-block px-3 py-1 bg-eucalyptus/20 text-eucalyptus text-xs font-semibold rounded-full uppercase tracking-wider mb-3">
+              Guide gratuit
+            </span>
+            <h3 className="text-xl font-bold mb-2">
+              Reçois les 10 meilleures adresses Madère
+            </h3>
+            <p className="text-stone-600 text-sm leading-relaxed">
+              On t&apos;envoie notre guide testé sur le terrain + les pépites chaque semaine.
+              Pas de spam, jamais.
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <label htmlFor="popup-newsletter-email" className="sr-only">Ton adresse email</label>
+            <input
+              id="popup-newsletter-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="ton@email.fr"
+              required
+              className="w-full px-4 py-3 rounded-xl bg-stone-800 border border-stone-700 text-white placeholder-stone-500 focus:outline-none focus:border-eucalyptus transition-colors text-sm"
+            />
+            <div className="flex items-start gap-2.5 text-left">
+              <input
+                id="popup-newsletter-rgpd"
+                type="checkbox"
+                required
+                className="mt-1 h-4 w-4 rounded border-stone-700 bg-stone-800 text-eucalyptus focus:ring-eucalyptus cursor-pointer"
+              />
+              <label htmlFor="popup-newsletter-rgpd" className="text-[11px] text-stone-400 leading-normal">
+                J'accepte de recevoir le guide et les e-mails de slow travel d'Heldonica. Voir notre{' '}
+                <a href="/politique-confidentialite" className="text-eucalyptus hover:underline font-medium">
+                  politique de confidentialité
+                </a>.
+              </label>
+            </div>
+            <button
+              type="submit"
+              disabled={status === 'loading'}
+              className="w-full px-6 py-3.5 bg-eucalyptus text-white font-bold rounded-xl hover:bg-eucalyptus/90 transition-all text-sm disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {status === 'loading' ? 'Inscription...' : 'Je veux le guide →'}
+            </button>
+          </form>
+
+          {errorMessage && (
+            <p className="text-red-400 text-xs mt-3 text-center">
+              {errorMessage}
+            </p>
+          )}
+
+          <p className="text-stone-600 text-xs mt-4 text-center">
+            Désinscription possible à tout moment.
+          </p>
+        </>
+      )}
+    </div>
+  )
+}

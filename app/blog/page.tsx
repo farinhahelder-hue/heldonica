@@ -1,62 +1,189 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import { getAllPosts, formatDate, BlogPost } from '@/lib/blog-supabase'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import BlogClientPage from '@/components/BlogClientPage'
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import { getPageZones } from '@/lib/cms-zones'
 import Breadcrumb from '@/components/Breadcrumb'
+import { getReadingTime } from '@/lib/readingTime'
+import { type BlogCategory } from '@/components/BlogFilters'
+import { supabase } from '@/lib/supabase-client'
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+// ISR: cache for 1 hour
+export const revalidate = 3600
 
-function calcReadTime(content: string | null): number {
-  if (!content || typeof content !== 'string') return 0
+// Fetch blog categories from CMS
+async function getBlogCategories(): Promise<BlogCategory[]> {
   try {
-    const words = content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length
-    return Math.max(1, Math.ceil(words / 200))
-  } catch (e) {
-    return 1
+    // Fetch categories directly from Supabase
+    const { data: categories, error } = await supabase
+      .from('cms_blog_categories')
+      .select('db_value, label')
+      .order('display_order', { ascending: true })
+    
+    if (error) {
+      console.error('[BlogPage] Failed to fetch categories:', error)
+      return getFallbackCategories()
+    }
+    
+    if (!categories || categories.length === 0) {
+      return getFallbackCategories()
+    }
+    
+    // Add "Tous" as the first category
+    return [
+      { key: 'Tous', label: 'Tous' },
+      ...categories.map((c: { db_value: string; label: string }) => ({ key: c.db_value, label: c.label }))
+    ]
+  } catch (error) {
+    console.error('[BlogPage] Failed to fetch categories:', error)
+    return getFallbackCategories()
   }
 }
 
-export const metadata: Metadata = {
-  title: 'Blog Slow Travel — Carnets de Route & Pépites Dénichées | Heldonica',
-  description:
-    'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain. Récits authentiques, conseils pratiques et destinations hors des sentiers battus.',
-  keywords: [
-    'blog slow travel',
-    'carnet de voyage',
-    'récit de voyage',
-    'blog voyage authentique',
-    'blog écoresponsable',
-  ],
-  alternates: {
-    canonical: 'https://www.heldonica.fr/blog',
-  },
-  openGraph: {
-    title: 'Blog Slow Travel — Carnets de Route & Pépites Dénichées | Heldonica',
-    description:
-      'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain.',
-    url: 'https://www.heldonica.fr/blog',
-    siteName: 'Heldonica',
-    type: 'website',
-    locale: 'fr_FR',
-    images: [
-      {
-        url: '/og-blog.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Blog Heldonica — Carnets de route slow travel, pépites dénichées',
-      },
+function getFallbackCategories(): BlogCategory[] {
+  return [
+    { key: 'Tous', label: 'Tous' },
+    { key: 'Carnets Voyage', label: 'Carnets Voyage' },
+    { key: 'Découvertes Locales', label: 'Découvertes Locales' },
+    { key: 'Guides Pratiques', label: 'Guides Pratiques' },
+  ]
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: 'Carnets de voyage | Heldonica',
+    description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain. Récits authentiques, conseils pratiques et destinations hors des sentiers battus.',
+    keywords: [
+      'blog slow travel',
+      'carnet de voyage',
+      'récit de voyage',
+      'blog voyage authentique',
+      'blog écoresponsable',
     ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Blog Slow Travel — Carnets de Route & Pépites Dénichées | Heldonica',
-    description:
-      'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain.',
-    images: ['/og-blog.jpg'],
-    creator: '@heldonica',
-  },
+    alternates: {
+      canonical: 'https://www.heldonica.fr/blog',
+    },
+    openGraph: {
+      title: 'Carnets de voyage | Heldonica',
+      description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain.',
+      url: 'https://www.heldonica.fr/blog',
+      siteName: 'Heldonica',
+      type: 'website',
+      locale: 'fr_FR',
+      images: [
+        {
+          url: '/og-default.jpg',
+          width: 1200,
+          height: 630,
+          alt: 'Blog Heldonica — Carnets de route slow travel, pépites dénichées',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'Carnets de voyage | Heldonica',
+      description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain.',
+      images: ['/og-default.jpg'],
+      creator: '@heldonica',
+    },
+  }
+}
+
+function CollectionPageJsonLd({ posts }: { posts: BlogPost[] }) {
+  const baseUrl = 'https://www.heldonica.fr'
+  const blogUrl = `${baseUrl}/blog`
+
+  const collectionPageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Carnets de voyage | Heldonica',
+    description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain. Récits authentiques, conseils pratiques et destinations hors des sentiers battus.',
+    url: blogUrl,
+    isPartOf: {
+      '@type': 'WebSite',
+      '@id': `${baseUrl}/#website`,
+      url: baseUrl,
+      name: 'Heldonica',
+      publisher: {
+        '@type': 'Organization',
+        name: 'Heldonica',
+        url: baseUrl,
+      },
+    },
+    about: {
+      '@type': 'Thing',
+      name: 'Slow Travel',
+    },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Accueil',
+          item: baseUrl,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Blog',
+          item: blogUrl,
+        },
+      ],
+    },
+  }
+
+  // Add mainEntity if we have posts
+  if (posts.length > 0) {
+    const blogPosts = posts.slice(0, 20).map((post, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@type': 'BlogPosting',
+        '@id': `${baseUrl}/blog/${post.slug}#article`,
+        url: `${blogUrl}/${post.slug}`,
+        headline: post.title,
+        description: post.excerpt || undefined,
+        image: post.featured_image || undefined,
+        datePublished: post.published_at,
+        dateModified: post.updated_at || post.published_at || undefined,
+        author: {
+          '@type': 'Person',
+          name: post.author || 'Heldonica',
+        },
+        publisher: {
+          '@type': 'Organization',
+          name: 'Heldonica',
+          url: baseUrl,
+        },
+      }
+    }))
+
+    return (
+      <Script
+        id="collection-page-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          ...collectionPageSchema,
+          mainEntity: {
+            '@type': 'ItemList',
+            itemListElement: blogPosts,
+          },
+        }) }}
+      />
+    )
+  }
+
+  return (
+    <Script
+      id="collection-page-schema"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionPageSchema) }}
+    />
+  )
 }
 
 export default async function BlogPage() {
@@ -69,14 +196,34 @@ export default async function BlogPage() {
     posts = []
   }
 
+  // Fetch categories from CMS
+  const categories = await getBlogCategories()
+
+  // Hero piloté par le CMS. Les deux branches de rendu ci-dessous (avec et sans
+  // articles) affichent le même hero : les zones sont donc chargées une fois ici.
+  const zones = await getPageZones('blog')
+
   // If we have no posts at build time, avoid crashing the build and just render an empty list.
   if (!Array.isArray(posts) || posts.length === 0) {
     return (
       <>
+        <Script id="blog-collection-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'CollectionPage',
+            name: 'Carnets de voyage | Heldonica',
+            description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain.',
+      url: 'https://www.heldonica.fr/blog',
+            isPartOf: { '@type': 'WebSite', name: 'Heldonica', url: 'https://www.heldonica.fr' },
+          }),
+        }} />
         <Header />
         <Breadcrumb />
-        <BlogClientPage posts={[]} />
+        <InlineEditProvider page="blog" initialZones={zones}>
+          <BlogClientPage posts={[]} categories={categories} />
+        </InlineEditProvider>
         <Footer />
+        <CollectionPageJsonLd posts={[]} />
       </>
     )
   }
@@ -89,15 +236,28 @@ export default async function BlogPage() {
     // Defensive: force tags to be an array for the client
     tags: Array.isArray(post.tags) ? post.tags : [],
     formattedDate: formatDate(post.published_at),
-    readTime: post.read_time ?? calcReadTime(post.content),
+    readTime: post.read_time ?? getReadingTime(post.content),
   }))
 
   return (
     <>
+      <Script id="blog-collection-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'CollectionPage',
+          name: 'Carnets de voyage | Heldonica',
+          description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain.',
+          url: 'https://www.heldonica.fr/blog',
+          isPartOf: { '@type': 'WebSite', name: 'Heldonica', url: 'https://www.heldonica.fr' },
+        }),
+      }} />
       <Header />
       <Breadcrumb />
-      <BlogClientPage posts={postsWithFormattedDate} />
+      <InlineEditProvider page="blog" initialZones={zones}>
+        <BlogClientPage posts={postsWithFormattedDate} categories={categories} />
+      </InlineEditProvider>
       <Footer />
+      <CollectionPageJsonLd posts={safePosts} />
     </>
   )
 }

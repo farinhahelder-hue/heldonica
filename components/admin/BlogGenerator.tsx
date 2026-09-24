@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FORBIDDEN_WORDS, HELDONICA_ACCROCHES } from '@/lib/brand-voice';
+import { FORBIDDEN_WORDS } from '@/lib/brand-voice';
 
 
 interface BlogGeneratorProps {
@@ -74,26 +74,22 @@ export default function BlogGenerator({ onGenerated }: BlogGeneratorProps) {
           placeholder="Ex: Pépite dénichée à Funchal, Levada hors des sentiers battus..."
           style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.88rem', background: '#fff' }}
         />
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.3rem', marginTop: '.4rem' }}>
-          {HELDONICA_ACCROCHES.slice(0, 3).map((a, i) => (
-            <button key={i} onClick={() => setNotes(prev => prev ? prev : a)}
-              style={{ fontSize: '.72rem', padding: '.2rem .5rem', borderRadius: '9999px', background: '#f0e8e4', color: '#6b2a1a', border: 'none', cursor: 'pointer' }}>
-              ✨ {a.slice(0, 30)}…
-            </button>
-          ))}
-        </div>
       </div>
 
       <div style={{ marginBottom: '1.25rem' }}>
         <label style={{ display: 'block', fontWeight: 600, fontSize: '.85rem', color: '#555', marginBottom: '.35rem' }}>
-          Anecdote personnelle à intégrer <span style={{ color: '#01696f', fontSize: '.78rem' }}>(✨ améliore la voix)</span>
+          Ce que tu as vécu <span style={{ color: '#6b2a1a', fontSize: '.78rem' }}>(obligatoire — la seule source de l’article)</span>
         </label>
-        <input
+        <textarea
           value={notes}
           onChange={e => setNotes(e.target.value)}
-          placeholder="Ex: On était seuls ce matin-là, la brume descendait sur les nuages…"
-          style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.88rem', background: '#fff' }}
+          rows={6}
+          placeholder="Ce que tu as vu, mangé, entendu ; les heures, les prix que tu as payés ; ce qui a raté ; ce qu’on a moins aimé. En vrac, l’assistant met en forme — il n’ajoute rien."
+          style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.88rem', background: '#fff', fontFamily: 'inherit' }}
         />
+        <div style={{ fontSize: '.75rem', color: notes.trim().length >= 200 ? '#2D8B7A' : '#999', marginTop: '.3rem' }}>
+          {notes.trim().length} / 200 caractères minimum — là où il manque un détail, l’article dira [À TOI].
+        </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
