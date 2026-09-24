@@ -198,31 +198,45 @@ function CmsAdminClientInner() {
   const [revisions, setRevisions] = useState<ArticleRevision[]>([]);
   const [revisionsLoading, setRevisionsLoading] = useState(false);
 
-  // Auto-save draft + mark dirty on any change
+  // Auto-save draft + mark dirty on any change — fix B3
   const [lastAutoSave, setLastAutoSave] = useState<string>('');
-  const isDirtyRef = useRef(false); // ref to avoid stale closure in effect
+  const isDirtyRef = useRef(false);
+  // Reset dirty on article change
+  useEffect(() => {
+    isDirtyRef.current = false;
+    setIsDirty(false);
+  }, [editingArticle?.id]);
   useEffect(() => {
     if (!editingArticle) return;
-    // Mark dirty after first change (skip the initial set from openArticleEditor)
     if (isDirtyRef.current) setIsDirty(true);
     isDirtyRef.current = true;
+    const draftKey = `heldonica-draft-${editingArticle.id ?? 'new'}`;
     const timer = setInterval(() => {
-      const key = `heldonica-draft-${editingArticle.slug || 'new'}`;
       const timestamp = new Date().toISOString();
-      localStorage.setItem(key, JSON.stringify({ article: editingArticle, timestamp }));
+      localStorage.setItem(draftKey, JSON.stringify({ article: editingArticle, timestamp }));
       setLastAutoSave(new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
     }, 30000);
-    return () => clearInterval(timer);
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirtyRef.current) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, [editingArticle]);
 
 
-  // Check for local draft when editingArticle is set
+  // Check for local draft when editingArticle is set — fix B3: use id
   useEffect(() => {
     if (!editingArticle) {
       setLocalDraft(null);
       return;
     }
-    const key = `heldonica-draft-${editingArticle.slug || 'new'}`;
+    const key = `heldonica-draft-${editingArticle.id ?? 'new'}`;
     const saved = localStorage.getItem(key);
     if (saved) {
       try {
@@ -515,8 +529,8 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
   const ouvrirDepuisFile = async (id: number) => {
     try {
       const res = await fetch(`/api/cms/articles/${id}`);
-      const article = await res.json();
-      if (!res.ok) throw new Error(article.error || `HTTP ${res.status}`);
+      const { article } = await res.json();
+      if (!res.ok || !article) throw new Error(article?.error || `HTTP ${res.status}`);
       openArticleEditor({ ...article, status: article.status || (article.published ? 'published' : 'draft') });
     } catch (e) {
       alert(`Impossible d'ouvrir l'article : ${e instanceof Error ? e.message : e}`);

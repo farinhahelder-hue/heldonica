@@ -104,8 +104,8 @@ export default function FileAPublier({ onOuvrir, onPublie }: Props) {
       // Le PUT recalcule read_time depuis body.content : on envoie l'article
       // tel qu'il est, comme l'éditeur, pas seulement un statut.
       const lecture = await fetch(`/api/cms/articles/${courant.id}`, { credentials: 'include' });
-      const article = await lecture.json();
-      if (!lecture.ok) throw new Error(article.error || `HTTP ${lecture.status}`);
+      const { article } = await lecture.json();
+      if (!lecture.ok || !article) throw new Error(article?.error || `HTTP ${lecture.status}`);
       const res = await fetch(`/api/cms/articles/${courant.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
