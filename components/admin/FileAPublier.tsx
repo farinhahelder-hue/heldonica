@@ -62,6 +62,8 @@ export default function FileAPublier({ onOuvrir, onPublie }: Props) {
   const [confirmation, setConfirmation] = useState(false);
   const [publication, setPublication] = useState<'idle' | 'busy' | 'ok' | 'ko'>('idle');
   const [message, setMessage] = useState<string | null>(null);
+  const [showUndo, setShowUndo] = useState(false);
+  const [lastPublished, setLastPublished] = useState<Entree | null>(null);
 
   const charger = useCallback(async () => {
     setChargement(true);
@@ -127,13 +129,30 @@ export default function FileAPublier({ onOuvrir, onPublie }: Props) {
       setPublication('ok');
       setMessage(`« ${courant.title} » est en ligne.`);
       setConfirmation(false);
+      setLastPublished(courant);
+      setShowUndo(true);
+      setTimeout(() => setShowUndo(false), 5000);
       onPublie?.();
       await charger();
-      setTimeout(() => setPublication('idle'), 3000);
     } catch (e) {
       setPublication('ko');
       setMessage(`Pas publié : ${e instanceof Error ? e.message : String(e)}`);
     }
+  };
+
+  const annuler = async () => {
+    if (!lastPublished) return;
+    try {
+      await fetch(`/api/cms/articles/${lastPublished.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status: 'draft', published: false }),
+      });
+      setMessage(`« ${lastPublished.title} » repassé en brouillon.`);
+      setShowUndo(false);
+      await charger();
+    } catch {}
   };
 
   if (chargement) {
@@ -224,12 +243,19 @@ export default function FileAPublier({ onOuvrir, onPublie }: Props) {
       )}
 
       {message && (
-        <div className={`mt-4 rounded-xl p-3 text-sm ${publication === 'ko' ? 'bg-red-50 text-red-800' : 'bg-emerald-50 text-emerald-800'}`}>
-          {message}
+        <div className={`mt-4 rounded-xl p-3 text-sm flex items-center justify-between gap-2 ${publication === 'ko' ? 'bg-red-50 text-red-800' : 'bg-emerald-50 text-emerald-800'}`} role={publication === 'ko' ? 'alert' : 'status'} aria-live={publication === 'ko' ? 'assertive' : 'polite'}>
+          <span>
+            {message} {publication === 'ok' && lastPublished?.slug && <a href={`/blog/${lastPublished.slug}`} target="_blank" className="underline ml-1">Voir l'article →</a>}
+          </span>
+          {showUndo && publication === 'ok' && (
+            <button onClick={annuler} className="shrink-0 px-3 py-1 bg-white border border-emerald-200 rounded-full text-xs font-medium hover:bg-emerald-50">
+              Annuler (5s)
+            </button>
+          )}
         </div>
       )}
 
-      <div className="mt-5 flex flex-wrap items-center gap-2">
+      <div className="mt-5 flex flex-wrap items-center gap-3">
         {confirmation ? (
           <>
             <span className="text-sm text-gray-700 mr-2">Mettre en ligne maintenant ?</span>
@@ -251,7 +277,7 @@ export default function FileAPublier({ onOuvrir, onPublie }: Props) {
           <>
             <button
               onClick={() => setConfirmation(true)}
-              className={`rounded-full px-4 py-1.5 text-sm font-medium text-white ${pret ? 'bg-gray-900 hover:bg-gray-700' : 'bg-gray-400 hover:bg-gray-500'}`}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium text-white ${pret ? 'bg-[#2D8B7A] hover:bg-[#257a6a] shadow-sm' : 'bg-gray-400 hover:bg-gray-500'} mr-1`}
             >
               Publier
             </button>
