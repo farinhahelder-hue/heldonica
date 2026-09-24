@@ -1,0 +1,353 @@
+package fr.heldonica.mobile
+
+import android.content.Context
+import android.graphics.Color
+import android.media.MediaMetadataRetriever
+import android.net.Uri
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.AbsoluteSizeSpan
+import android.text.style.ForegroundColorSpan
+import android.util.Log
+import androidx.annotation.OptIn
+import androidx.media3.common.Effect
+import androidx.media3.common.audio.ChannelMixingAudioProcessor
+import androidx.media3.common.audio.ChannelMixingMatrix
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MimeTypes
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.effect.OverlayEffect
+import androidx.media3.effect.OverlaySettings
+import androidx.media3.effect.Presentation
+import androidx.media3.effect.TextOverlay
+import androidx.media3.effect.TextureOverlay
+import androidx.media3.transformer.Composition
+import androidx.media3.transformer.EditedMediaItem
+import androidx.media3.transformer.EditedMediaItemSequence
+import androidx.media3.transformer.Effects
+import androidx.media3.transformer.ExportException
+import androidx.media3.transformer.ExportResult
+import androidx.media3.transformer.Transformer
+import com.google.common.collect.ImmutableList
+import kotlinx.coroutines.suspendCancellableCoroutine
+import java.io.File
+import kotlin.coroutines.resume
+
+/**
+ * Montage video, sur le telephone.
+ *
+ * L'assemblage vivait cote serveur, dans une route qui appelait fluent-ffmpeg.
+ * Elle ne pouvait pas fonctionner : les fonctions Vercel n'embarquent pas le
+ * binaire ffmpeg, leur systeme de fichiers est en lecture seule et leur temps
+ * d'execution plafonne bien en deca d'un encodage video.
+ *
+ * Le telephone est le bon endroit. Les videos y sont deja - les televerser pour
+ * les redescendre serait absurde - et Android sait encoder en materiel.
+ *
+ * Media3 Transformer s'appuie sur MediaCodec : rien a embarquer, contrairement a
+ * ffmpeg-kit, la voie habituelle, retiree en 2025.
+ *
+ * Ce qui est fait : decouper chaque plan, y incruster du texte, les mettre bout
+ * a bout, poser une musique par-dessus, graver les sous-titres dans l'image, et
+ * fondre au noir entre les plans.
+ *
+ * Ce que Media3 ne permet pas : le fondu enchaine, ou deux plans se superposent.
+ * Il faudrait ecrire un shader ; le fondu au noir s'obtient avec l'API publique.
+ */
+
+/**
+ * Un plan et ses reglages.
+ *
+ * `finMs` a zero signifie « jusqu'au bout » : c'est la valeur au moment ou l'on
+ * vient de choisir la video, avant d'avoir lu sa duree.
+ */
+data class Plan(
+    val uri: Uri,
+    val debutMs: Long = 0,
+    val finMs: Long = 0,
+    val dureeMs: Long = 0,
+    val texte: String = "",
+) {
+    /** Duree du plan une fois decoupe. */
+    val dureeRetenueMs: Long
+        get() = (if (finMs > 0) finMs else dureeMs) - debutMs
+}
+
+/**
+ * Bande son du montage.
+ *
+ * Trois choix, parce qu'aucun n'a de reponse evidente : garder le son d'origine
+ * ou non, a quel volume mettre la musique, et ce qu'on fait quand elle est plus
+ * courte que le montage.
+ */
+data class BandeSon(
+    val musique: Uri,
+    /** Le son des plans est conserve sous la musique. */
+    val garderSonOriginal: Boolean = true,
+    /** Entre 0 et 1. Baisse par defaut : la musique accompagne, elle ne couvre pas. */
+    val volumeMusique: Float = 0.35f,
+    /** Une musique plus courte que le montage reprend au debut. */
+    val enBoucle: Boolean = true,
+)
+
+sealed interface ResultatMontage {
+    data class Reussi(val fichier: File, val dureeMs: Long) : ResultatMontage
+    data class Echoue(val motif: String) : ResultatMontage
+}
+
+/**
+ * Duree d'une video, en millisecondes.
+ *
+ * Sans elle, le curseur de decoupe n'a pas de borne haute : on ne peut pas
+ * regler une fin sans savoir ou la video s'arrete.
+ */
+fun lireDuree(contexte: Context, uri: Uri): Long {
+    val lecteur = MediaMetadataRetriever()
+    return try {
+        lecteur.setDataSource(contexte, uri)
+        lecteur.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull() ?: 0
+    } catch (e: Exception) {
+        Log.e(TAG_MONTAGE, "Duree illisible pour $uri", e)
+        0
+    } finally {
+        runCatching { lecteur.release() }
+    }
+}
+
+/**
+ * Texte incruste, en bas de l'image.
+ *
+ * La taille suit une valeur absolue plutot qu'un rapport a l'image : Media3
+ * compose le calque a la resolution de la video, et un texte defini en points
+ * relatifs disparaissait sur les plans verticaux.
+ */
+@OptIn(UnstableApi::class)
+private fun calqueTexte(texte: String): TextureOverlay {
+    val contenu = SpannableString(texte).apply {
+        setSpan(ForegroundColorSpan(Color.WHITE), 0, texte.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        setSpan(AbsoluteSizeSpan(64), 0, texte.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+    }
+    return TextOverlay.createStaticTextOverlay(
+        contenu,
+        OverlaySettings.Builder()
+            // Ancre en bas : le haut d'un Reel est masque par l'interface
+            // d'Instagram, et le bas reste lisible.
+            .setBackgroundFrameAnchor(0f, -0.7f)
+            .build()
+    )
+}
+
+/**
+ * Extrait la bande son d'un montage, dans un fichier a part.
+ *
+ * Whisper ne transcrit que du son : envoyer la video entiere fait transiter des
+ * dizaines de megaoctets pour rien. Un montage de cinq secondes pese 46 Mo,
+ * son audio moins d'un.
+ *
+ * Ce n'est pas qu'une economie : le stockage plafonne, et Groq refuse au-dela
+ * de 25 Mo. Une video de plus d'une minute ne passerait jamais entiere.
+ */
+@OptIn(UnstableApi::class)
+suspend fun extraireAudio(contexte: Context, montage: File): File? {
+    val sortie = File(contexte.cacheDir, "son-${System.currentTimeMillis()}.m4a")
+
+    val piste = EditedMediaItem.Builder(MediaItem.fromUri(Uri.fromFile(montage)))
+        .setRemoveVideo(true)
+        .build()
+
+    return suspendCancellableCoroutine { suite ->
+        val transformer = Transformer.Builder(contexte)
+            .addListener(object : Transformer.Listener {
+                override fun onCompleted(composition: Composition, resultat: ExportResult) {
+                    Log.i(TAG_MONTAGE, "Son extrait : ${sortie.length()} octets")
+                    suite.resume(sortie)
+                }
+
+                override fun onError(
+                    composition: Composition,
+                    resultat: ExportResult,
+                    erreur: ExportException,
+                ) {
+                    Log.e(TAG_MONTAGE, "Extraction du son echouee", erreur)
+                    suite.resume(null)
+                }
+            })
+            .build()
+
+        transformer.start(
+            Composition.Builder(listOf(EditedMediaItemSequence(listOf(piste)))).build(),
+            sortie.absolutePath,
+        )
+        suite.invokeOnCancellation { transformer.cancel() }
+    }
+}
+
+@OptIn(UnstableApi::class)
+suspend fun monterVideo(
+    contexte: Context,
+    plans: List<Plan>,
+    bandeSon: BandeSon? = null,
+    sousTitres: List<Segment> = emptyList(),
+    fondu: Boolean = false,
+): ResultatMontage {
+    if (plans.isEmpty()) return ResultatMontage.Echoue("Aucun plan à monter.")
+
+    val sortie = File(contexte.cacheDir, "montage-${System.currentTimeMillis()}.mp4")
+
+    // Debut de chaque plan dans le temps du montage : sert a decouper les
+    // sous-titres et a placer les fondus.
+    val debutsMs = plans.runningFold(0L) { cumul, plan -> cumul + plan.dureeRetenueMs }
+
+    val morceaux = plans.mapIndexed { index, plan ->
+        val media = MediaItem.Builder()
+            .setUri(plan.uri)
+            .apply {
+                // Une configuration de decoupe n'est posee que si des bornes ont
+                // ete demandees : sans cela, un plan garde jusqu'au bout serait
+                // tronque a zero.
+                if (plan.debutMs > 0 || plan.finMs > 0) {
+                    setClippingConfiguration(
+                        MediaItem.ClippingConfiguration.Builder()
+                            .setStartPositionMs(plan.debutMs)
+                            .apply { if (plan.finMs > 0) setEndPositionMs(plan.finMs) }
+                            .build()
+                    )
+                }
+            }
+            .build()
+
+        EditedMediaItem.Builder(media)
+            .apply {
+                // Le son des plans est retire ici, et non plus tard : Media3
+                // melange les sequences telles qu'elles arrivent, il n'y a pas
+                // d'etape ou l'on pourrait encore le faire taire.
+                if (bandeSon != null && !bandeSon.garderSonOriginal) {
+                    setRemoveAudio(true)
+                }
+                // Tous les calques sont poses ici, sur le plan.
+                //
+                // Ils vivaient auparavant au niveau de la composition, ce qui
+                // paraissait juste : sous-titres et fondus suivent le temps du
+                // montage entier. Mais Media3 1.4 ignore en silence les effets
+                // video d'une composition — l'encodage reussissait, et rien
+                // n'etait incruste. Verifie a la mesure : la luminance ne bougeait
+                // pas d'un pouce aux coupes.
+                //
+                // Les horodatages des calques sont ramenes au temps du plan. Le
+                // plan, lui, ne recoit pas ce temps-la : mesure faite, un second
+                // plan commencant a 3 s voit 3 s a sa premiere image, pas 0. Les
+                // calques recalent donc eux-memes (voir Origine).
+                val calques = mutableListOf<TextureOverlay>()
+
+                if (plan.texte.isNotBlank()) calques += calqueTexte(plan.texte)
+
+                if (sousTitres.isNotEmpty()) {
+                    val debutS = debutsMs[index] / 1000.0
+                    val finS = debutS + plan.dureeRetenueMs / 1000.0
+                    val siens = sousTitres
+                        .filter { it.finS > debutS && it.debutS < finS }
+                        .map {
+                            Segment(
+                                (it.debutS - debutS).coerceAtLeast(0.0),
+                                (it.finS - debutS).coerceAtMost(finS - debutS),
+                                it.texte,
+                            )
+                        }
+                    if (siens.isNotEmpty()) calques += CalqueSousTitres(siens)
+                }
+
+                if (fondu && plans.size > 1) {
+                    // Une coupe au debut du plan, sauf pour le premier ; une a la
+                    // fin, sauf pour le dernier. Exprimees dans le temps du plan.
+                    val coupes = buildList {
+                        if (index > 0) add(0L)
+                        if (index < plans.size - 1) add(plan.dureeRetenueMs * 1000L)
+                    }
+                    if (coupes.isNotEmpty()) calques += CalqueFondu(coupes)
+                }
+
+                val effetsVideo = mutableListOf<Effect>()
+                if (calques.isNotEmpty()) {
+                    effetsVideo += OverlayEffect(ImmutableList.copyOf(calques))
+                }
+                // Limite a 1080p pour le web et les reseaux :
+                // Les telephones recents (Pixel 8 Pro...) filment en 4K a tres haut debit,
+                // ce qui produisait des montages de 1,2 Go qui saturaient le cache et
+                // echouaient au televersement. En 1080p H.264, la video reste fidele
+                // et pese 15 a 30 Mo.
+                effetsVideo += Presentation.createForHeight(1920)
+                setEffects(Effects(emptyList(), effetsVideo))
+            }
+            .build()
+    }
+
+    return suspendCancellableCoroutine { suite ->
+        val transformer = Transformer.Builder(contexte)
+            .setVideoMimeType(MimeTypes.VIDEO_H264)
+            .setAudioMimeType(MimeTypes.AUDIO_AAC)
+            .addListener(object : Transformer.Listener {
+                override fun onCompleted(composition: Composition, resultat: ExportResult) {
+                    Log.i(TAG_MONTAGE, "Montage termine : ${sortie.length()} octets")
+                    suite.resume(ResultatMontage.Reussi(sortie, resultat.durationMs))
+                }
+
+                override fun onError(
+                    composition: Composition,
+                    resultat: ExportResult,
+                    erreur: ExportException,
+                ) {
+                    Log.e(TAG_MONTAGE, "Montage echoue", erreur)
+                    // Le code d'erreur seul ne dit rien a qui monte une video :
+                    // on traduit les cas qui arrivent vraiment.
+                    val motif = when (erreur.errorCode) {
+                        ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED,
+                        ExportException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED ->
+                            "Un des formats vidéo n'est pas géré par ce téléphone."
+                        ExportException.ERROR_CODE_IO_FILE_NOT_FOUND ->
+                            "Une des vidéos est introuvable."
+                        else -> "Le montage a échoué (${erreur.errorCode})."
+                    }
+                    suite.resume(ResultatMontage.Echoue(motif))
+                }
+            })
+            .build()
+
+        // Constructeur et non Builder : celui-ci n'arrive qu'en 1.6.
+        val sequences = mutableListOf(EditedMediaItemSequence(morceaux))
+
+        if (bandeSon != null) {
+            // Le volume passe par un melangeur de canaux : c'est le seul moyen
+            // d'attenuer une piste dans Media3. Sans lui, la musique arrive a
+            // plein niveau et couvre tout.
+            val melangeur = ChannelMixingAudioProcessor().apply {
+                putChannelMixingMatrix(
+                    ChannelMixingMatrix.create(1, 1).scaleBy(bandeSon.volumeMusique)
+                )
+                putChannelMixingMatrix(
+                    ChannelMixingMatrix.create(2, 2).scaleBy(bandeSon.volumeMusique)
+                )
+            }
+
+            val piste = EditedMediaItem.Builder(MediaItem.fromUri(bandeSon.musique))
+                .setRemoveVideo(true)
+                .setEffects(Effects(listOf(melangeur), emptyList()))
+                .build()
+
+            // La duree du montage est celle de la premiere sequence. En boucle,
+            // une musique plus courte reprend au debut ; sinon elle s'arrete et
+            // la fin du montage reste muette.
+            sequences += EditedMediaItemSequence(listOf(piste), bandeSon.enBoucle)
+        }
+
+        val composition = Composition.Builder(sequences).build()
+
+        transformer.start(composition, sortie.absolutePath)
+
+        // L'annulation de la coroutine doit arreter l'encodage : sans cela il
+        // continue en fond, batterie comprise, pour un fichier que personne
+        // n'attend plus.
+        suite.invokeOnCancellation { transformer.cancel() }
+    }
+}
+
+private const val TAG_MONTAGE = "Heldonica"

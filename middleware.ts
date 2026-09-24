@@ -1,10 +1,55 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { resolveLegacyRedirect } from './app/middleware';
+import { getMaintenanceMode } from '@/lib/supabase-edge';
+
+// Inline legacy redirect logic (duplicated from app/middleware.ts to avoid edge runtime issues)
+const LEGACY_REDIRECTS: Record<string, string> = {
+  '/a-propos-2': '/a-propos',
+  '/presentation-3': '/a-propos',
+  '/hello-biz-360': '/travel-planning',
+  '/accueil-heldonica-video': '/',
+  '/b2b': '/travel-planning',
+  '/offre-b2b': '/travel-planning',
+  '/services-b2b': '/travel-planning',
+  '/travel-planner': '/travel-planning',
+  '/nos-services': '/travel-planning',
+  '/bons-plans': '/blog',
+  '/sujets/bons-plans': '/blog',
+  '/zurich': '/destinations/zurich',
+  '/suisse': '/destinations/suisse',
+  '/roumanie': '/destinations/roumanie',
+  '/madere': '/destinations/madere',
+  '/stoos-ridge-notre-aventure-sur-la-crete-panoramique-2':
+    '/blog/stoos-ridge-notre-aventure-sur-la-crete-panoramique',
+  '/blog/stoos-ridge-coucher-soleil-traversee-funiculaire':
+    '/blog/stoos-ridge-notre-aventure-sur-la-crete-panoramique',
+  '/blog/stoos-ridge-notre-aventure-crete-panoramique':
+    '/blog/stoos-ridge-notre-aventure-sur-la-crete-panoramique',
+  '/blog/stoos-ridge-la-crete-pano':
+    '/blog/stoos-ridge-notre-aventure-sur-la-crete-panoramique',
+};
+
+function normalizePath(pathname: string) {
+  if (!pathname || pathname === '/') return '/';
+  return pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+}
+
+function resolveLegacyRedirect(pathname: string): string | null {
+  const normalized = normalizePath(pathname);
+  const directRedirect = LEGACY_REDIRECTS[normalized];
+  if (directRedirect) return directRedirect;
+  if (normalized.startsWith('/etiquettes/')) return '/blog';
+  if (normalized.startsWith('/sujets/')) return '/blog';
+  return null;
+}
 
 const PROTECTED_PATHS = [
   '/api/seed-articles',
   '/api/revalidate-articles',
   '/api/update-content',
+];
+const PROTECTED_PREFIXES = [
+  '/api/cms',
+  '/api/agents',
 ];
 const CMS_SESSION_COOKIE = 'heldonica_cms_session';
 
@@ -14,13 +59,26 @@ type CmsSessionPayload = {
   sid: string;
 };
 
-function isProtectedPath(pathname: string) {
-  if (pathname === '/api/cms/auth') {
+function isProtectedPath(pathname: string, method: string) {
+  // Allow auth endpoints without authentication (including sub-routes like /check, /logout)
+  if (pathname === '/api/cms/auth' || pathname === '/api/cms/login' ||
+      pathname.startsWith('/api/cms/auth/')) {
     return false;
   }
 
+  // /api/cms/* : les lectures (GET) alimentent le contenu public de chaque page
+  // (useContentLoader, InlineEditProvider, EditableZone...) et doivent rester
+  // ouvertes. Chaque route protège déjà ses propres écritures (POST/PATCH/DELETE)
+  // via requireCmsAuth — la protection ici ne doit viser que ces écritures.
   if (pathname.startsWith('/api/cms')) {
-    return true;
+    return method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS';
+  }
+
+  // Check other prefix patterns (protégés quelle que soit la méthode)
+  for (const prefix of PROTECTED_PREFIXES) {
+    if (prefix !== '/api/cms' && pathname.startsWith(prefix)) {
+      return true;
+    }
   }
 
   return PROTECTED_PATHS.includes(pathname);
@@ -29,6 +87,11 @@ function isProtectedPath(pathname: string) {
 function getSessionSecret() {
   const secret = process.env.CMS_SESSION_SECRET?.trim();
   return secret ? secret : process.env.CMS_PASSWORD?.trim() ?? null;
+}
+
+function getSubtle(): SubtleCrypto | null {
+  const c = globalThis.crypto;
+  return c?.subtle ?? null;
 }
 
 function base64UrlDecode(value: string) {
@@ -67,12 +130,15 @@ async function verifySessionToken(token: string, secret: string) {
     return false;
   }
 
+  const subtle = getSubtle();
+  if (!subtle) return false;
+
   const signatureBytes = hexToBytes(signature);
   if (!signatureBytes) {
     return false;
   }
 
-  const key = await crypto.subtle.importKey(
+  const key = await subtle.importKey(
     'raw',
     new TextEncoder().encode(secret),
     { name: 'HMAC', hash: 'SHA-256' },
@@ -80,7 +146,7 @@ async function verifySessionToken(token: string, secret: string) {
     ['verify']
   );
 
-  const isValidSignature = await crypto.subtle.verify(
+  const isValidSignature = await subtle.verify(
     'HMAC',
     key,
     signatureBytes,
@@ -138,8 +204,69 @@ async function isAuthorized(req: NextRequest) {
   return { ok, misconfigured: false };
 }
 
+// Fallback code — écrasé par MAINTENANCE_MODE (Vercel) ou CMS (Supabase)
+const MAINTENANCE_ACTIVE = true;
+
+const MAINTENANCE_BYPASS_COOKIE = 'heldonica_maintenance_bypass';
+
+// Documenté dans docs/archive/MAINTENANCE_MODE.md depuis le début mais jamais câblé : permet
+// de prévisualiser le site (cookie ou header) sans désactiver la maintenance
+// pour le public. Si MAINTENANCE_BYPASS_TOKEN n'est pas configuré, aucun bypass
+// n'est possible (comparaison contre undefined échoue toujours).
+function hasMaintenanceBypass(req: NextRequest) {
+  const token = process.env.MAINTENANCE_BYPASS_TOKEN?.trim();
+  if (!token) return false;
+
+  const headerValue = req.headers.get('x-maintenance-bypass');
+  if (headerValue === token) return true;
+
+  const cookieValue = req.cookies.get(MAINTENANCE_BYPASS_COOKIE)?.value;
+  return cookieValue === token;
+}
+
 export async function middleware(req: NextRequest) {
-  const redirectDestination = resolveLegacyRedirect(req.nextUrl.pathname);
+  const pathname = req.nextUrl.pathname;
+
+  // /ajouter est un outil d'ecriture, pas du contenu public : le laisser
+  // derriere la maintenance le rendrait inutilisable precisement quand on
+  // prepare le site. Meme raison que /panel-manager et /admin.
+  const maintenanceExcludes = ['/maintenance', '/panel-manager', '/cms-admin', '/admin', '/ajouter', '/api', '/_next', '/robots.txt', '/sitemap.xml', '/favicon.ico', '/politique-confidentialite', '/mentions-legales', '/politique-affiliation'];
+  const isMaintenanceExcluded = maintenanceExcludes.some(path => pathname.startsWith(path)) || hasMaintenanceBypass(req);
+
+  if (!isMaintenanceExcluded) {
+    // La source de vérité est le CMS Supabase (site_settings.maintenance_mode),
+    // pilotable sans redéploiement depuis le panel / l'API. La variable Vercel
+    // MAINTENANCE_MODE n'intervient qu'en SECOURS quand Supabase est
+    // injoignable ou non configuré (getMaintenanceMode() renvoie null) :
+    //   → true/1 force ON, false/0 force OFF, sinon défaut codé
+    //     MAINTENANCE_ACTIVE (fail-closed = true).
+    // Avant le 02/08/2026, l'env var avait priorité et un MAINTENANCE_MODE=false
+    // fantôme gardait le site en ligne malgré maintenance_mode='true' en base.
+    const cmsValue = await getMaintenanceMode();
+    let isMaintenance: boolean;
+
+    if (cmsValue !== null) {
+      isMaintenance = cmsValue;                       // CMS Supabase : source de vérité
+    } else {
+      const envMode = process.env.MAINTENANCE_MODE?.trim().toLowerCase();
+      if (envMode === 'false' || envMode === '0') {
+        isMaintenance = false;                        // secours : env var force OFF
+      } else if (envMode === 'true' || envMode === '1') {
+        isMaintenance = true;                         // secours : env var force ON
+      } else {
+        isMaintenance = MAINTENANCE_ACTIVE;           // défaut fail-closed
+      }
+    }
+
+    if (isMaintenance) {
+      const maintenanceUrl = req.nextUrl.clone();
+      maintenanceUrl.pathname = '/maintenance';
+      return NextResponse.redirect(maintenanceUrl);
+    }
+  }
+
+  // Legacy redirect
+  const redirectDestination = resolveLegacyRedirect(pathname);
 
   if (redirectDestination) {
     const redirectUrl = req.nextUrl.clone();
@@ -148,7 +275,40 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(redirectUrl, 301);
   }
 
-  if (!isProtectedPath(req.nextUrl.pathname)) {
+  // Fix #449: protection serveur pour /panel-manager (avant, 200 public avec seulement React)
+  //
+  // Le formulaire de connexion du panneau vit dans la page /panel-manager
+  // elle-même (CmsAdminClient) : sans session elle n'affiche que ce formulaire,
+  // toutes les données restant derrière /api/cms/* (401). La version du 15/09
+  // renvoyait toute navigation non connectée vers /auth/login — la connexion
+  // *client* Supabase, qui n'est pas exclue de la maintenance et retombait sur
+  // /maintenance : session expirée = panneau inaccessible. Ici : la page de
+  // connexion reste servie, les sous-pages non connectées y renvoient.
+  if (pathname === '/panel-manager' || pathname.startsWith('/panel-manager/')) {
+    const auth = await isAuthorized(req);
+    if (!auth.ok) {
+      if (auth.misconfigured) {
+        return NextResponse.json({ error: 'CMS non configuré : variable CMS_PASSWORD manquante.' }, { status: 503 });
+      }
+      const accept = req.headers.get('accept') || '';
+      const navigation = accept.includes('text/html');
+      if (navigation && pathname === '/panel-manager') {
+        return NextResponse.next();
+      }
+      if (navigation) {
+        const loginUrl = req.nextUrl.clone();
+        loginUrl.pathname = '/panel-manager';
+        loginUrl.search = '';
+        loginUrl.searchParams.set('next', pathname);
+        return NextResponse.redirect(loginUrl);
+      }
+      // fetch/XHR : 401 JSON
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    }
+    return NextResponse.next();
+  }
+
+  if (!isProtectedPath(pathname, req.method)) {
     return NextResponse.next();
   }
 

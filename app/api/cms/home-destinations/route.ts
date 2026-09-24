@@ -1,0 +1,125 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+import { requireCmsAuth } from '@/lib/cms-auth'
+
+export const dynamic = 'force-dynamic'
+
+// Route serveur derrière requireCmsAuth : on utilise la clé service_role
+// (la clé anon legacy est désactivée côté Supabase depuis le 19/08).
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
+
+export interface CmsHomeDestination {
+  id: string
+  destination_slug: string
+  display_order: number
+  is_featured: boolean
+  custom_title: string | null
+  custom_description: string | null
+  custom_image_url: string | null
+  // Joined data from destinations table
+  title?: string
+  tagline?: string
+  hero_unsplash_url?: string
+  country?: string
+  flag_emoji?: string
+}
+
+export interface CmsHomeDestinationsResponse {
+  success: boolean
+  destinations?: CmsHomeDestination[]
+  error?: string
+}
+
+/**
+ * GET /api/cms/home-destinations
+ * Fetch destinations configured for homepage display
+ * Uses cms_home_destinations joined with destinations table
+ */
+export async function GET(req: NextRequest) {
+  const authResponse = await requireCmsAuth(req)
+  if (authResponse) return authResponse
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Supabase non configuré' },
+      { status: 503 }
+    )
+  }
+
+  try {
+    // Fetch home destinations with joined destination data
+    const { data: homeDests, error: homeError } = await supabase
+      .from('cms_home_destinations')
+      .select(`
+        id,
+        slug,
+        sort_order,
+        title,
+        description
+      `)
+      .eq('is_active', true)
+      .order('sort_order')
+
+    if (homeError) {
+      console.error('[CMS Home Destinations API] Fetch error:', homeError)
+      return NextResponse.json(
+        { success: false, error: homeError.message },
+        { status: 500 }
+      )
+    }
+
+    // Get destination details for each home destination
+    const destinationSlugs = (homeDests || []).map((d: any) => d.slug)
+
+    let destinationsWithDetails: CmsHomeDestination[] = []
+
+    if (destinationSlugs.length > 0) {
+      const { data: destData, error: destError } = await supabase
+        .from('destinations')
+        .select('slug, title, tagline, hero_unsplash_url, country, flag_emoji')
+        .in('slug', destinationSlugs)
+        .eq('published', true)
+
+      if (destError) {
+        console.error('[CMS Home Destinations API] Destinations fetch error:', destError)
+      }
+
+      // Merge home destination config with destination details
+      const destMap = new Map((destData || []).map((d: any) => [d.slug, d]))
+      
+      destinationsWithDetails = (homeDests || []).map((homeDest: any) => {
+        const dest = destMap.get(homeDest.slug) as any
+        return {
+          id: homeDest.id,
+          destination_slug: homeDest.slug,
+          display_order: homeDest.sort_order || 0,
+          is_featured: true,
+          custom_title: homeDest.title || null,
+          custom_description: homeDest.description || null,
+          custom_image_url: null,
+          title: homeDest.title || dest?.title || homeDest.slug,
+          tagline: dest?.tagline || null,
+          hero_unsplash_url: dest?.hero_unsplash_url || null,
+          country: dest?.country || null,
+          flag_emoji: dest?.flag_emoji || null,
+        }
+      })
+    }
+
+    return NextResponse.json(
+      { success: true, destinations: destinationsWithDetails },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+        },
+      }
+    )
+  } catch (err) {
+    console.error('[CMS Home Destinations API] Error:', err)
+    return NextResponse.json(
+      { success: false, error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}

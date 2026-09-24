@@ -1,6 +1,27 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireCmsAuth } from '@/lib/cms-auth'
+import { autoScheduleInstagramPost } from '@/lib/instagram'
+import { revalidateCmsTarget } from '@/lib/revalidate'
+
+interface CmsBlogPost {
+  id: number;
+  title: string;
+  slug: string;
+  category: string | null;
+  excerpt: string | null;
+  content: string | null;
+  featured_image: string | null;
+  author: string | null;
+  published: boolean;
+  published_at: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  tags: string[] | null;
+  voice_notes?: string | null;
+  archived: boolean;
+  read_time?: number;
+}
 
 let _cached: ReturnType<typeof createClient> | null = null;
 function supabase() {
@@ -17,18 +38,29 @@ function withoutVoiceNotes(payload: Record<string, unknown>) {
   return rest
 }
 
+function withoutReadTime(payload: Record<string, unknown>) {
+  const { read_time, ...rest } = payload
+  return rest
+}
+
+function withoutVoiceNotesAndReadTime(payload: Record<string, unknown>) {
+  const { voice_notes, read_time, ...rest } = payload
+  return rest
+}
+
 export const dynamic = 'force-dynamic'
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const authResponse = await requireCmsAuth(req)
   if (authResponse) return authResponse
 
+  const { id } = await params
   const sb = supabase()
   if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
   const { data, error } = await sb
     .from('cms_blog_posts')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
   
   if (error || !data) {
@@ -37,44 +69,157 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   return NextResponse.json({ article: data })
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const authResponse = await requireCmsAuth(req)
   if (authResponse) return authResponse
 
+  const { id } = await params
   const sb = supabase()
   if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
   const body = await req.json()
-  const payload = { ...body, updated_at: new Date().toISOString() }
 
-  let { data, error } = await sb
-    .from('cms_blog_posts')
-    // @ts-expect-error Supabase types are not fully inferred
+  // Auto-calculate reading_time from content (200 words per minute)
+  const wordCount = (body.content || '').replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length
+  const readingTime = Math.ceil(wordCount / 200)
+
+  const payload = {
+    ...body,
+    updated_at: new Date().toISOString(),
+    read_time: readingTime,
+  }
+
+  // Map status to published boolean for backward compat
+  if (body.status === 'published') payload.published = true;
+  else if (body.status === 'draft') payload.published = false;
+
+  // Un brouillon venu du telephone n'a pas de published_at : le champ ne se
+  // remplit que par le selecteur de date de l'editeur, qu'il faut penser a
+  // ouvrir. Publie sans lui, l'article se retrouvait en tete du blog — la
+  // liste publique trie sur published_at en descendant, et PostgreSQL place
+  // les NULL en premier dans ce sens.
+  //
+  // On date donc la publication au moment ou elle a lieu, sans jamais ecraser
+  // une date deja choisie : une republication ne doit pas remonter l'article.
+  if (payload.published === true && !payload.published_at) {
+    const { data: dejaDate } = await sb
+      .from('cms_blog_posts')
+      .select('published_at')
+      .eq('id', id)
+      .single();
+    if (!(dejaDate as { published_at?: string } | null)?.published_at) {
+      payload.published_at = new Date().toISOString();
+    }
+  }
+
+  // Phase 3: Save revision before updating
+  const { data: raw } = await sb.from('cms_blog_posts').select('title, content, excerpt').eq('id', id).single();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (async () => {
+    if (raw && typeof raw === 'object' && 'title' in raw) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const current = raw as any;
+      const { error: erreurRevision } = await sb.from('article_revisions').insert(
+        {
+          article_id: String(parseInt(id)),
+          title: current.title,
+          content: current.content,
+          excerpt: current.excerpt,
+          word_count: ((current.content || '') as string).replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length,
+        } as any
+      );
+      if (erreurRevision) {
+        // La revision sert a revenir en arriere. Sans elle, la modification
+        // passe, mais on ne pourra plus la defaire.
+        console.error('[cms/articles/id] revision non ecrite :', erreurRevision.message);
+      }
+    }
+  })().catch((e: unknown) => console.error('[cms/articles/id] revision :', e));
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let result: any = await (sb.from('cms_blog_posts') as any)
     .update(payload)
-    .eq('id', params.id)
+    .eq('id', id)
     .select()
     .single()
+  let { data, error } = result;
 
-  if (error?.message?.includes('voice_notes') && error.message.includes('does not exist')) {
-    ;({ data, error } = await sb
-      .from('cms_blog_posts')
-      // @ts-expect-error Supabase types are not fully inferred
-      .update(withoutVoiceNotes(payload))
-      .eq('id', params.id)
+  // Fallback 1 — read_time column missing
+  if (error?.message?.includes('read_time') && error.message.includes('does not exist')) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let fallback: any = await (sb.from('cms_blog_posts') as any)
+      .update(withoutReadTime(payload))
+      .eq('id', id)
       .select()
-      .single())
+      .single()
+    data = fallback.data;
+    error = fallback.error;
+  }
+
+  // Fallback 2 — voice_notes column missing
+  if (error?.message?.includes('voice_notes') && error.message.includes('does not exist')) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let fallback: any = await (sb.from('cms_blog_posts') as any)
+      .update(withoutVoiceNotes(payload))
+      .eq('id', id)
+      .select()
+      .single()
+    data = fallback.data;
+    error = fallback.error;
+  }
+
+  // Fallback 3 — both columns missing
+  if (error?.message && (error.message.includes('read_time') || error.message.includes('voice_notes'))) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let fallback: any = await (sb.from('cms_blog_posts') as any)
+      .update(withoutVoiceNotesAndReadTime(payload))
+      .eq('id', id)
+      .select()
+      .single()
+    data = fallback.data;
+    error = fallback.error;
   }
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  // Legacy sync to articles removed — cms_blog_posts is source of truth (#448)
+
+  // Auto-schedule Instagram post when article is published (fire-and-forget)
+  if (body.status === 'published' && data) {
+    autoScheduleInstagramPost(id, {
+      title: (data as any).title || '',
+      slug: (data as any).slug || '',
+      excerpt: (data as any).excerpt || '',
+      featured_image: (data as any).featured_image || '',
+      category: (data as any).category || '',
+    }).catch(() => {})
+  }
+
+  await revalidateCmsTarget({ slug: data?.slug, type: 'article' })
+
   return NextResponse.json({ article: data })
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const authResponse = await requireCmsAuth(req)
   if (authResponse) return authResponse
 
+  const { id } = await params
   const sb = supabase()
   if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
-  const { error } = await sb.from('cms_blog_posts').delete().eq('id', params.id)
+
+  // Get article slug before deletion for articles table sync
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: article } = await (sb.from('cms_blog_posts') as any).select('slug').eq('id', id).single()
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (sb.from('cms_blog_posts') as any).delete().eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  // Legacy archivage articles removed (#448)
+
+  await revalidateCmsTarget({ slug: article?.slug, type: 'article' })
+
   return NextResponse.json({ ok: true })
 }
+
+export const PATCH = PUT

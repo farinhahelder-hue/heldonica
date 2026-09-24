@@ -1,0 +1,124 @@
+# Garde-fous du CMS.
+#
+# Ces contrôles existaient déjà comme scripts npm, mais rien ne les exécutait :
+# ils ne tournaient que lancés à la main. C'est ainsi que deux commits de
+# 11 000 lignes ont atterri sur `main` le 01/08 sans qu'aucune vérification ne
+# passe — les régressions ont été découvertes le lendemain.
+#
+# Ce workflow les rend obligatoires sur chaque pull request et chaque push.
+
+name: Garde-fous
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  typecheck:
+    name: Types
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # Node 24, comme en local. En 20, `npm ci` échoue avant même les
+          # contrôles : @supabase/auth-js exige Node >= 22.
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+
+      # Aucun workflow n'executait la suite de tests : 20 des 356 avaient pourri
+      # sans que personne ne le voie, dont les onze de l'authentification du CMS,
+      # qui comparaient une promesse a un booleen. Un test qui ne tourne pas ne
+      # protege rien.
+      - name: Tests
+        run: npx vitest run
+
+  cms:
+    name: Zones et tables CMS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+
+      # Les deux contrôles interrogent Supabase. Sans identifiants ils sortent
+      # en 2 — on préfère un avertissement explicite dans l'onglet Actions à un
+      # échec cryptique, mais surtout pas un succès silencieux.
+      - name: Vérifier la présence des identifiants
+        id: secrets
+        env:
+          URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "presents=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Garde-fous CMS inactifs::Ajouter les secrets NEXT_PUBLIC_SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY dans Settings > Secrets and variables > Actions. Sans eux, les zones orphelines et les dérives de tables ne sont pas détectées."
+          else
+            echo "presents=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Zones actives qu'aucun composant n'affiche, et clés lues mais absentes
+      # du filtre serveur CONSUMED_ZONE_KEYS.
+      - name: Zones orphelines
+        if: steps.secrets.outputs.presents == 'true'
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npm run check:cms-zones
+
+      # Gestionnaires d'API maniant la clé service — qui contourne les règles de
+      # sécurité de la base — sans vérifier qui les appelle. Deux trous de cette
+      # forme ont été trouvés à la main le 3 septembre 2026 : la file Instagram,
+      # entièrement ouverte, et le POST de /api/jules, qui laissait n'importe qui
+      # faire écrire du code dans le dépôt. Les deux étaient latents, masqués par
+      # une table absente et une variable non renseignée.
+      # Sans secret : ce contrôle lit le code, pas la base.
+      - name: Routes sans vérification
+        run: npm run check:api-auth
+
+      # Identifiants de modèles d'IA écrits en dur. Un modèle meurt sans
+      # prévenir : Groq a retiré les Llama 3.x, Google Gemini 1.5 puis 2.0, et
+      # le 21 septembre 2026 toutes les fonctions IA du panneau échouaient
+      # depuis des mois sans qu'un écran le dise. Les identifiants vivent dans
+      # lib/ai-provider.ts, seul endroit vérifié. Sans clé, le script ne teste
+      # pas les fournisseurs : il refuse seulement la dérive dans le code.
+      - name: Modèles d'IA en dur
+        run: npm run check:ai-models
+
+      # Écritures en base dont l'erreur n'est jamais lue. Supabase ne lève pas :
+      # il rend { data, error }. Sans nommer `error`, un échec devient un `data`
+      # null et l'appelant annonce une réussite. Cinq bugs de cette forme le
+      # 3 septembre 2026, chacun caché par le précédent — le symptôme étant
+      # toujours « rien ne se passe » ou « c'est fait » alors que rien n'est fait.
+      - name: Erreurs avalées
+        run: npm run check:erreurs-avalees
+
+      # Tables référencées par le code mais absentes du schéma, et inversement.
+      - name: Dérive des tables
+        if: steps.secrets.outputs.presents == 'true'
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npm run check:cms-drift
+
+      # Cohérence éditoriale et respect des 7 garde-fous (pronoms, mots bannis, E-E-A-T)
+      - name: Cohérence éditoriale et lexique
+        if: steps.secrets.outputs.presents == 'true'
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npm run check:content-coherence
+
+      # Le contrôle ci-dessus mesure la *ressemblance* avec du vécu : son critère
+      # E-E-A-T est satisfait par la seule présence de « en 202… », si bien qu'un
+      # texte inventé de bout en bout obtient 100 %. Celui-ci vérifie l'inverse —
+      # que chaque date et chaque lieu revendiqué soit attesté par les
+      # métadonnées d'une photo du voyage (content/evidence/*.json).
+      - name: Vécu adossé aux photos
+        run: npm run check:content-evidence

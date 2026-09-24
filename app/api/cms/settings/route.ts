@@ -1,36 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireCmsAuth } from '@/lib/cms-auth';
+import { revalidateCmsTarget } from '@/lib/revalidate';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
-
-const supabase = (supabaseUrl && supabaseKey)
-  ? createClient(supabaseUrl, supabaseKey)
-  : null;
+function getSupabase() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+  if (!supabaseUrl || !supabaseKey) return null;
+  return createClient(supabaseUrl, supabaseKey);
+}
 
 export const dynamic = 'force-dynamic';
 
-// GET /api/cms/settings - list all settings
+// GET /api/cms/settings - list all settings (public for layout)
 export async function GET(req: NextRequest) {
+  const supabase = getSupabase();
   if (!supabase) {
     return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
   }
 
-  const authResponse = await requireCmsAuth(req);
-  if (authResponse) return authResponse;
-
   const { data, error } = await supabase
-    .from('cms_settings')
-    .select('*')
+    .from('site_settings')
+    .select('key, value')
     .order('key');
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ settings: data });
+
+  // Transform to key-value object for easier consumption
+  const settings = Object.fromEntries(
+    (data || []).map((r: { key: string; value: string }) => [r.key, r.value])
+  );
+
+  return NextResponse.json(settings, {
+    headers: {
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
+      'Pragma': 'no-cache',
+    },
+  });
 }
 
-// PUT /api/cms/settings - update single or bulk
-export async function PUT(req: NextRequest) {
+// PATCH /api/cms/settings - update settings (auth required)
+export async function PATCH(req: NextRequest) {
+  const supabase = getSupabase();
   if (!supabase) {
     return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
   }
@@ -38,32 +49,64 @@ export async function PUT(req: NextRequest) {
   const authResponse = await requireCmsAuth(req);
   if (authResponse) return authResponse;
 
-  const body = await req.json();
+  try {
+    const body = await req.json();
 
-  // Bulk update
-  if (Array.isArray(body)) {
-    const updates = body.map((s: { key: string; value: string }) => ({
-      key: s.key,
-      value: s.value,
-      updated_at: new Date().toISOString()
-    }));
+    // Support both { key: value } and { settings: [{ key, value }] }
+    if (Array.isArray(body)) {
+      const updates = body.map((s: { key: string; value: string }) => ({
+        key: s.key,
+        value: s.value,
+        updated_at: new Date().toISOString()
+      }));
 
-    const { error } = await supabase
-      .from('cms_settings')
-      .upsert(updates, { onConflict: 'key' });
+      const { error } = await supabase
+        .from('site_settings')
+        .upsert(updates, { onConflict: 'key' });
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      if (error) {
+        console.error(`Error bulk updating settings array:`, error.message);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+    } else {
+      const synced = { ...body };
+      // Sync logo_url→site_logo and favicon_url→site_favicon for legacy compatibility
+      if (synced.logo_url) synced.site_logo = synced.logo_url;
+      if (synced.favicon_url) synced.site_favicon = synced.favicon_url;
+      if (synced.site_logo && !synced.logo_url) synced.logo_url = synced.site_logo;
+      if (synced.site_favicon && !synced.favicon_url) synced.favicon_url = synced.site_favicon;
+
+      const entries = Object.entries(synced);
+      const updates = entries
+        .filter(([key]) => key !== 'error' && key !== 'settings')
+        .map(([key, value]) => ({
+          key,
+          value: String(value),
+          updated_at: new Date().toISOString()
+        }));
+
+      if (updates.length > 0) {
+        const { error } = await supabase
+          .from('site_settings')
+          .upsert(updates, { onConflict: 'key' });
+
+        if (error) {
+          console.error(`Error bulk updating settings object:`, error.message);
+          return NextResponse.json({ error: error.message }, { status: 500 });
+        }
+      }
+    }
+
+    await revalidateCmsTarget({ type: 'settings' });
+
     return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error('Settings update error:', err);
+    return NextResponse.json({ error: 'Update failed' }, { status: 500 });
   }
+}
 
-  // Single update
-  const { key, value } = body;
-  if (!key) return NextResponse.json({ error: 'key requis' }, { status: 400 });
-
-  const { error } = await supabase
-    .from('cms_settings')
-    .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ success: true });
+// Legacy PUT for backward compatibility
+export async function PUT(req: NextRequest) {
+  return PATCH(req);
 }

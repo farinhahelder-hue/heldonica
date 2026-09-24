@@ -199,7 +199,7 @@ export default function MediaManager({ data, onSave }: any) {
               <div key={item.id} className="relative group">
                 <div className="bg-gray-100 rounded-lg overflow-hidden aspect-square flex items-center justify-center">
                   {item.uploading ? (
-                    // État d'upload
+                    // État d’upload
                     <div className="text-center w-full p-4">
                       <div className="animate-pulse text-2xl mb-2">⏳</div>
                       <p className="text-xs text-gray-600 truncate">{item.name}</p>

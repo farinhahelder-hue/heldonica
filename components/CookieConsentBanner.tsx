@@ -4,13 +4,16 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { readCookieConsent, writeCookieConsent } from '@/lib/consent';
+import { estRouteAdmin } from '@/lib/routes-admin';
 
 export default function CookieConsentBanner() {
   const [visible, setVisible] = useState(false);
   const pathname = usePathname();
 
-  // Masquer sur les routes admin
-  const isAdminRoute = pathname?.startsWith('/cms');
+  // Masquer sur les routes admin. Le prefixe teste ici etait « /cms », renomme
+  // depuis en « /panel-manager » : le bandeau reapparaissait donc par-dessus le
+  // panneau d'administration.
+  const isAdminRoute = estRouteAdmin(pathname);
 
   useEffect(() => {
     if (isAdminRoute) {
@@ -32,26 +35,26 @@ export default function CookieConsentBanner() {
       <div className="mx-auto max-w-5xl rounded-2xl border border-stone-200 bg-white shadow-2xl">
         <div className="p-5 md:p-6">
           <p className="text-xs uppercase tracking-[0.16em] text-eucalyptus font-semibold mb-2">
-            Cookies et vie privee
+            Cookies et vie privée
           </p>
           <p className="text-sm md:text-base text-charcoal/85 leading-relaxed">
-            Nous utilisons des cookies strictement necessaires au fonctionnement du site. Les
-            cookies de mesure d’audience et marketing ne sont actives qu’avec ton consentement.
+            Nous utilisons des cookies strictement nécessaires au fonctionnement du site. Les
+            cookies de mesure d’audience et marketing ne sont actifs qu’avec ton consentement.
           </p>
           <p className="text-sm mt-3 text-charcoal/75">
-            Details :{' '}
+            Détails :{' '}
             <Link
               href="/politique-confidentialite"
               className="text-eucalyptus hover:text-teal transition font-medium"
             >
-              Politique de confidentialite
+              Politique de confidentialité
             </Link>{' '}
             et{' '}
             <Link
               href="/mentions-legales"
               className="text-eucalyptus hover:text-teal transition font-medium"
             >
-              Mentions legales
+              Mentions légales
             </Link>
             .
           </p>

@@ -1,0 +1,120 @@
+import java.util.Properties
+
+plugins {
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+}
+
+val cmsProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+
+android {
+    namespace = "fr.heldonica.mobile"
+    compileSdk = 34
+
+    // Cle de signature stable, versionnee volontairement. Sans elle, chaque
+    // execution de la CI fabrique une cle de debug differente : Android refuse
+    // alors la mise a jour (INSTALL_FAILED_UPDATE_INCOMPATIBLE) et il faut
+    // desinstaller l'application - donc perdre ses reglages - a chaque version.
+    // C'est une cle de debug : elle ne protege rien, elle identifie seulement
+    // les APK de cette serie entre eux.
+    signingConfigs {
+        getByName("debug") {
+            val cle = rootProject.file("keystore/heldonica-debug.keystore")
+            if (cle.exists()) {
+                storeFile = cle
+                storePassword = "heldonica"
+                keyAlias = "heldonica"
+                keyPassword = "heldonica"
+            }
+        }
+    }
+
+    buildFeatures {
+        buildConfig = true
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.8"
+    }
+
+    defaultConfig {
+        applicationId = "fr.heldonica.mobile"
+        minSdk = 26
+        targetSdk = 34
+        // Numero de build de la CI : chaque APK produit est ainsi plus recent
+        // que le precedent. Sans cela toutes les versions portent le meme
+        // numero et Android ne les distingue pas.
+        versionCode = maxOf(40, (System.getenv("GITHUB_RUN_NUMBER") ?: "40").toInt())
+        versionName = "1.0." + (System.getenv("GITHUB_RUN_NUMBER") ?: "40")
+
+        buildConfigField(
+            "String",
+            "CMS_BASE_URL",
+            "\"${cmsProps.getProperty("cms.baseUrl") ?: "https://www.heldonica.fr"}\""
+        )
+        buildConfigField(
+            "String",
+            "CMS_PASSWORD",
+            "\"${cmsProps.getProperty("cms.password") ?: ""}\""
+        )
+        buildConfigField(
+            "String",
+            "GEMINI_API_KEY",
+            "\"${cmsProps.getProperty("gemini.apiKey") ?: ""}\""
+        )
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            // Aucune cle de publication : sans cette ligne, un assembleRelease
+            // produit un APK non signe, impossible a installer.
+            signingConfig = signingConfigs.getByName("debug")
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+}
+
+dependencies {
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.activity:activity-compose:1.8.2")
+    // lifecycleScope, utilise par l'editeur pour obtenir la session avant de
+    // charger la vue web.
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation(platform("androidx.compose:compose-bom:2024.02.00"))
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-graphics")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+    implementation("com.google.android.gms:play-services-location:21.2.0")
+    implementation("androidx.exifinterface:exifinterface:1.3.7")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    // Montage video, sur le telephone.
+    //
+    // L'assemblage vivait cote serveur, dans une route qui appelait
+    // fluent-ffmpeg : elle ne pouvait pas fonctionner, les fonctions Vercel
+    // n'embarquant pas le binaire ffmpeg. Media3 Transformer s'appuie sur
+    // MediaCodec, donc sur l'encodeur materiel du telephone - rien a embarquer,
+    // contrairement a ffmpeg-kit, retire en 2025.
+    //
+    // Version 1.4.1 et non la derniere : a partir de 1.5, Media3 exige
+    // compileSdk 36, que l'AGP 8.4 de ce projet ne sait pas viser. Monter toute
+    // la chaine de build pour cette seule dependance serait disproportionne.
+    implementation("androidx.media3:media3-transformer:1.4.1")
+    implementation("androidx.media3:media3-effect:1.4.1")
+    implementation("androidx.media3:media3-common:1.4.1")
+}

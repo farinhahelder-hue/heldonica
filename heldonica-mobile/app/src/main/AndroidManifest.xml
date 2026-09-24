@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Minimal - pas de READ_MEDIA_IMAGES grâce au Picker système -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <queries>
+        <package android:name="com.instagram.android" />
+    </queries>
+
+    <application
+        android:label="Heldonica Mobile"
+        android:theme="@android:style/Theme.Material.Light">
+        <activity android:name=".MainActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Editeur du site : affiche le panel d'administration existant plutot
+             que d'en maintenir une seconde implementation en natif.
+             Non exporte : rien d'exterieur n'a de raison de l'ouvrir, et elle
+             porte une session authentifiee. -->
+        <activity
+            android:name=".EditeurActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:windowSoftInputMode="adjustResize" />
+    </application>
+</manifest>

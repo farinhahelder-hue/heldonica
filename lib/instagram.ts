@@ -29,6 +29,51 @@ export interface InstagramMediaContainer {
 
 const INSTAGRAM_GRAPH_API_BASE = 'https://graph.facebook.com';
 
+import { createClient } from '@supabase/supabase-js';
+
+/**
+ * Écritures serveur (file de planification) : clé service_role. La table
+ * instagram_scheduled_posts est volontairement fermée à anon
+ * (migration 20260915000002, « service_role only »).
+ */
+function getSupabaseService() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key);
+}
+
+/**
+ * Raison du dernier echec Meta, en clair.
+ *
+ * Les fonctions ci-dessous renvoient null quand l'API refuse : le cron s'en
+ * contente, mais un bouton « Publier » dans le panneau doit dire pourquoi
+ * (token expire, image inaccessible, compte non professionnel...). Plutot que
+ * de changer la signature de chaque fonction, la raison est posee ici et lue
+ * par la route de publication juste apres l'appel.
+ */
+let derniereErreur: string | null = null;
+
+function noterErreur(contexte: string, detail: unknown) {
+  const message =
+    detail && typeof detail === 'object' && 'message' in (detail as Record<string, unknown>)
+      ? String((detail as { message: unknown }).message)
+      : detail instanceof Error
+        ? detail.message
+        : typeof detail === 'string'
+          ? detail
+          : JSON.stringify(detail ?? null);
+  derniereErreur = `${contexte} : ${message}`;
+  console.error(`[instagram] ${derniereErreur}`);
+}
+
+/** Lit puis efface la raison du dernier echec. */
+export function lireDerniereErreurInstagram(): string | null {
+  const r = derniereErreur;
+  derniereErreur = null;
+  return r;
+}
+
 /**
  * Get the Instagram Graph API configuration
  */
@@ -58,7 +103,7 @@ export async function createMediaContainer(
   const config = getInstagramConfig();
   
   if (!config.accessToken || !config.businessAccountId) {
-    console.warn('Instagram not configured');
+    noterErreur('Configuration', 'INSTAGRAM_ACCESS_TOKEN ou INSTAGRAM_BUSINESS_ACCOUNT_ID absent');
     return null;
   }
 
@@ -81,7 +126,7 @@ export async function createMediaContainer(
     const data = await response.json();
     
     if (data.error) {
-      console.error('Instagram API error:', data.error);
+      noterErreur('Conteneur image refuse', data.error);
       return null;
     }
 
@@ -90,7 +135,7 @@ export async function createMediaContainer(
       status: 'OK',
     };
   } catch (error) {
-    console.error('Failed to create Instagram media container:', error);
+    noterErreur('Conteneur image injoignable', error);
     return null;
   }
 }
@@ -126,7 +171,7 @@ export async function publishMediaContainer(
     const data = await response.json();
     
     if (data.error) {
-      console.error('Instagram publish error:', data.error);
+      noterErreur('Publication refusee', data.error);
       return null;
     }
 
@@ -151,7 +196,7 @@ export async function publishMediaContainer(
       timestamp: postData.timestamp || new Date().toISOString(),
     };
   } catch (error) {
-    console.error('Failed to publish to Instagram:', error);
+    noterErreur('Publication injoignable', error);
     return null;
   }
 }
@@ -222,4 +267,394 @@ export async function getRecentMedia(limit = 10) {
     console.error('Failed to get Instagram media:', error);
     return null;
   }
+}
+
+/**
+ * Publish a carousel (multiple images) to Instagram
+ * Requires each image_url to be a publicly accessible URL
+ */
+export async function postCarouselToInstagram(
+  imageUrls: string[],
+  caption: string
+): Promise<InstagramPost | null> {
+  const config = getInstagramConfig();
+  
+  if (!config.accessToken || !config.businessAccountId) {
+    noterErreur('Configuration', 'INSTAGRAM_ACCESS_TOKEN ou INSTAGRAM_BUSINESS_ACCOUNT_ID absent');
+    return null;
+  }
+
+  if (imageUrls.length < 2 || imageUrls.length > 10) {
+    noterErreur('Carrousel', 'il faut entre 2 et 10 images');
+    return null;
+  }
+
+  try {
+    // Step 1: Create media containers for each image (without publishing)
+    const childrenIds: string[] = [];
+    
+    for (const imageUrl of imageUrls) {
+      const containerResponse = await fetch(
+        `${INSTAGRAM_GRAPH_API_BASE}/${config.businessAccountId}/media`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            image_url: imageUrl,
+            is_carousel_item: true,
+            access_token: config.accessToken,
+          }),
+        }
+      );
+
+      const containerData = await containerResponse.json();
+      
+      if (containerData.error) {
+        noterErreur('Image du carrousel refusee', containerData.error);
+        return null;
+      }
+
+      childrenIds.push(containerData.id);
+    }
+
+    // Step 2: Create the carousel container
+    const carouselResponse = await fetch(
+      `${INSTAGRAM_GRAPH_API_BASE}/${config.businessAccountId}/media`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          media_type: 'CAROUSEL',
+          children: childrenIds,
+          caption: caption,
+          access_token: config.accessToken,
+        }),
+      }
+    );
+
+    const carouselData = await carouselResponse.json();
+
+    if (carouselData.error) {
+      noterErreur('Conteneur carrousel refuse', carouselData.error);
+      return null;
+    }
+
+    // Step 3: Publish the carousel
+    const publishResponse = await fetch(
+      `${INSTAGRAM_GRAPH_API_BASE}/${config.businessAccountId}/media_publish`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          creation_id: carouselData.id,
+          access_token: config.accessToken,
+        }),
+      }
+    );
+
+    const publishData = await publishResponse.json();
+
+    if (publishData.error) {
+      noterErreur('Publication du carrousel refusee', publishData.error);
+      return null;
+    }
+
+    // Get the published post details
+    const postResponse = await fetch(
+      `${INSTAGRAM_GRAPH_API_BASE}/${publishData.id}`,
+      {
+        headers: { access_token: config.accessToken },
+      }
+    );
+
+    const postData = await postResponse.json();
+
+    return {
+      id: publishData.id,
+      caption: postData.caption || caption,
+      mediaType: 'CAROSEL_ALBUM',
+      mediaUrl: postData.media_url || imageUrls[0],
+      permalink: postData.permalink || '',
+      timestamp: postData.timestamp || new Date().toISOString(),
+    };
+  } catch (error) {
+    noterErreur('Carrousel injoignable', error);
+    return null;
+  }
+}
+
+/**
+ * Get Instagram account insights (basic stats)
+ */
+export async function getInstagramStats() {
+  const config = getInstagramConfig();
+  
+  if (!config.accessToken || !config.businessAccountId) {
+    return null;
+  }
+
+  try {
+    const metrics = 'follower_count,media_count,reach,profile_views';
+    const response = await fetch(
+      `${INSTAGRAM_GRAPH_API_BASE}/${config.businessAccountId}/insights?metric=${metrics}&period=day&access_token=${config.accessToken}`
+    );
+
+    if (!response.ok) return null;
+    return await response.json();
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Auto-schedule an Instagram post when an article is published
+ * Creates a draft entry in instagram_scheduled_posts for manual review
+ */
+export async function autoScheduleInstagramPost(articleId: number | string, article: {
+  title: string
+  slug: string
+  excerpt?: string
+  featured_image?: string
+  category?: string
+}): Promise<boolean> {
+  try {
+    const supabase = getSupabaseService()
+    if (!supabase) return false
+
+    const caption = [
+      `📍 ${article.title}`,
+      '',
+      article.excerpt ? article.excerpt.substring(0, 200) : '',
+      '',
+      '🌍 heldonica.fr',
+      ...(article.slug ? [`🔗 heldonica.fr/blog/${article.slug}`] : []),
+      '',
+      '#slowtravel #voyage lent #heldonica #voyage encouple',
+    ].filter(Boolean).join('\n')
+
+    const { error } = await (supabase as any)
+      .from('instagram_scheduled_posts')
+      .insert({
+        image_url: article.featured_image || '',
+        caption,
+        status: 'draft',
+        article_id: articleId,
+      })
+
+    if (error) {
+      console.error('Failed to auto-schedule Instagram post:', error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('Auto-schedule Instagram error:', error)
+    return false
+  }
+}
+
+export interface InstagramComment {
+  id: string;
+  text: string;
+  username: string;
+  timestamp: string;
+  like_count?: number;
+  replies?: {
+    data: Array<{
+      id: string;
+      text: string;
+      username: string;
+      timestamp: string;
+    }>;
+  };
+}
+
+/**
+ * Récupère les commentaires d'un média Instagram
+ */
+export async function getMediaComments(mediaId: string): Promise<InstagramComment[]> {
+  const config = getInstagramConfig();
+  if (!config.accessToken) return [];
+
+  try {
+    const fields = 'id,text,username,timestamp,like_count,replies{id,text,username,timestamp}';
+    const res = await fetch(
+      `${INSTAGRAM_GRAPH_API_BASE}/${mediaId}/comments?fields=${fields}&access_token=${config.accessToken}`
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.data || [];
+  } catch (error) {
+    console.error('Failed to get media comments:', error);
+    return [];
+  }
+}
+
+/**
+ * Répond à un commentaire Instagram
+ */
+export async function replyToInstagramComment(commentId: string, message: string): Promise<{ id: string } | null> {
+  const config = getInstagramConfig();
+  if (!config.accessToken) return null;
+
+  try {
+    const res = await fetch(
+      `${INSTAGRAM_GRAPH_API_BASE}/${commentId}/replies`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message,
+          access_token: config.accessToken,
+        }),
+      }
+    );
+
+    if (!res.ok) {
+      const err = await res.json();
+      console.error('Instagram reply error:', err);
+      return null;
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error('Failed to reply to Instagram comment:', error);
+    return null;
+  }
+}
+
+/**
+ * Masque ou démasque un commentaire Instagram
+ */
+export async function toggleHideComment(commentId: string, hide: boolean = true): Promise<boolean> {
+  const config = getInstagramConfig();
+  if (!config.accessToken) return false;
+
+  try {
+    const res = await fetch(
+      `${INSTAGRAM_GRAPH_API_BASE}/${commentId}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          hide,
+          access_token: config.accessToken,
+        }),
+      }
+    );
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Rafraîchit le token d'accès longue durée (valide 60 jours supplémentaires)
+ */
+export async function refreshLongLivedToken(): Promise<{ access_token: string; expires_in: number } | null> {
+  const config = getInstagramConfig();
+  if (!config.accessToken) return null;
+
+  try {
+    const res = await fetch(
+      `${INSTAGRAM_GRAPH_API_BASE}/v20.0/oauth/access_token?grant_type=ig_refresh_token&access_token=${config.accessToken}`
+    );
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (error) {
+    console.error('Failed to refresh Instagram token:', error);
+    return null;
+  }
+}
+
+/**
+ * Vidéo / Reels — création conteneur + polling status (gratuit, pas de transcode serveur)
+ */
+export async function createVideoContainer(videoUrl: string, caption: string): Promise<InstagramMediaContainer | null> {
+  const config = getInstagramConfig();
+  if (!config.accessToken || !config.businessAccountId) return null;
+  try {
+    const res = await fetch(`${INSTAGRAM_GRAPH_API_BASE}/${config.businessAccountId}/media`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ media_type: 'REELS', video_url: videoUrl, caption, access_token: config.accessToken }),
+    });
+    const data = await res.json();
+    if (data.error) { noterErreur('Conteneur video refuse', data.error); return null; }
+    return { id: data.id, status: 'PENDING' };
+  } catch (e) { noterErreur('Conteneur video injoignable', e); return null; }
+}
+
+export async function getContainerStatus(containerId: string): Promise<string | null> {
+  const config = getInstagramConfig();
+  if (!config.accessToken) return null;
+  try {
+    const res = await fetch(`${INSTAGRAM_GRAPH_API_BASE}/${containerId}?fields=status_code&access_token=${config.accessToken}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.status_code || null; // FINISHED | IN_PROGRESS | ERROR
+  } catch { return null; }
+}
+
+export async function postVideoToInstagram(videoUrl: string, caption: string, maxWaitMs = 90000): Promise<InstagramPost | null> {
+  const container = await createVideoContainer(videoUrl, caption);
+  if (!container) return null;
+  const start = Date.now();
+  while (Date.now() - start < maxWaitMs) {
+    const status = await getContainerStatus(container.id);
+    if (status === 'FINISHED') break;
+    if (status === 'ERROR') { noterErreur('Traitement video', 'Meta a renvoye ERROR sur le conteneur'); return null; }
+    await new Promise(r => setTimeout(r, 5000));
+  }
+  return publishMediaContainer(container.id);
+}
+
+/**
+ * Une entree de la file `instagram_scheduled_posts`, telle que le panneau et
+ * le telephone la deposent : `metadata.type` distingue une image seule d'un
+ * carrousel (`children` = URLs de toutes les images) ou d'un reel
+ * (`video_url`).
+ */
+export interface EntreeFileInstagram {
+  image_url: string;
+  caption: string | null;
+  metadata?: { type?: string; children?: string[]; video_url?: string } | null;
+}
+
+export type ResultatPublication =
+  | { ok: true; post: InstagramPost }
+  | { ok: false; raison: string };
+
+/**
+ * Publie une entree de la file selon son type.
+ *
+ * Le cron publiait tout en image seule : un carrousel depose depuis le
+ * telephone partait avec sa premiere photo seulement, et un reel avec l'URL de
+ * sa video comme image. Ce point d'entree unique sert le cron et le bouton
+ * « Publier » du panneau, pour que les deux fassent la meme chose.
+ */
+export async function publierEntreeFile(entree: EntreeFileInstagram): Promise<ResultatPublication> {
+  if (!isInstagramConfigured()) {
+    return {
+      ok: false,
+      raison: 'Instagram non configure : INSTAGRAM_ACCESS_TOKEN et INSTAGRAM_BUSINESS_ACCOUNT_ID manquent (Vercel Env).',
+    };
+  }
+
+  lireDerniereErreurInstagram();
+  const caption = entree.caption || '';
+  const type = (entree.metadata?.type || '').toUpperCase();
+  const enfants = Array.isArray(entree.metadata?.children) ? entree.metadata!.children!.filter(Boolean) : [];
+
+  let post: InstagramPost | null;
+  if (type === 'CAROUSEL' && enfants.length >= 2) {
+    post = await postCarouselToInstagram(enfants.slice(0, 10), caption);
+  } else if (type === 'REELS' && (entree.metadata?.video_url || entree.image_url)) {
+    post = await postVideoToInstagram(entree.metadata?.video_url || entree.image_url, caption);
+  } else {
+    post = await postToInstagram(entree.image_url, caption);
+  }
+
+  if (post) return { ok: true, post };
+  return { ok: false, raison: lireDerniereErreurInstagram() || 'Meta a refuse la publication sans detail.' };
 }

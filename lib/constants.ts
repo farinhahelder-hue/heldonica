@@ -1,12 +1,17 @@
 /**
  * Heldonica — Constants partagées
  * Source de vérité pour les données statiques du site
+ * 
+ * Stats officielles — alignées avec la page À propos
+ * - 4 ans de slow travel (depuis 2021)
+ * - 25+ carnets publiés
+ * - 7 pays habités
  */
 
 // Stats officielles — source unique pour Home et À propos
 export const SITE_STATS = {
-  yearsOfExperience: 10,
-  publishedCarnets: 17,
+  yearsOfExperience: 4,
+  publishedCarnets: 25,
   countriesLived: 7,
   addressesTested: 100,
 } as const

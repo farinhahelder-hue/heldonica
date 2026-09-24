@@ -106,7 +106,7 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
         </div>
 
         {searchResults.length > 0 && (
-          <div className="grid grid-cols-3 gap-2 mt-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-3">
             {searchResults.map((photo) => (
               <button
                 key={photo.id}

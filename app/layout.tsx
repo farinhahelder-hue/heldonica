@@ -4,21 +4,31 @@ import './globals.css';
 import { AuthProvider } from '@/components/AuthProvider';
 import CookieConsentBanner from '@/components/CookieConsentBanner';
 import ThemeProvider from '@/components/ThemeProvider';
+import { WebVitalsReporter } from "@/components/web-vitals/WebVitalsReporter";
 import SiteTheme from '@/components/SiteTheme';
 import { getSiteSettings } from '@/lib/settings';
+import { getGlobalZones } from '@/lib/site-content';
+import SiteContentProvider from '@/components/SiteContentProvider';
+import NewsletterPopup from '@/components/NewsletterPopup';
+import BackToTop from '@/components/BackToTop';
 
 const SITE_URL = 'https://www.heldonica.fr';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: {
-    default: 'Heldonica — Slow Travel & Voyages Authentiques',
-    template: '%s — Heldonica',
-  },
+  title: 'Heldonica — Slow Travel & Voyages Authentiques',
   description:
     'Blog slow travel et pépites dénichées hors des sentiers battus. Carnets de route, destinations authentiques et travel planning sur mesure écoresponsable en Europe et ailleurs.',
+  icons: {
+    icon: [
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
+    shortcut: '/favicon.ico',
+  },
+  manifest: '/site.webmanifest',
   keywords: [
-    // Slow travel — axe principal (volume en hausse +156% en 2025)
     'slow travel',
     'slow travel Europe',
     'slow travel France',
@@ -67,6 +77,12 @@ export const metadata: Metadata = {
       'fr-CA': SITE_URL,
       'x-default': SITE_URL,
     },
+  },
+  other: {
+    'geo.region': 'FR-75',
+    'geo.placename': 'Paris',
+    'geo.position': '48.8566;2.3522',
+    'ICBM': '48.8566, 2.3522',
   },
   openGraph: {
     type: 'website',
@@ -130,7 +146,7 @@ const schemaOrganization = {
   '@type': ['Organization', 'TravelAgency'],
   name: 'Heldonica',
   url: SITE_URL,
-  logo: `${SITE_URL}/logo.png`,
+  logo: `${SITE_URL}/images/badges-heldonica.svg`,
   description: 'Travel planning sur mesure écoresponsable et blog slow travel. Pépites dénichées, destinations authentiques, itinéraires hors des sentiers battus.',
   areaServed: [
     { '@type': 'Country', name: 'France' },
@@ -141,7 +157,6 @@ const schemaOrganization = {
   sameAs: [
     'https://www.instagram.com/heldonica',
     'https://www.youtube.com/@heldonica',
-    'https://www.facebook.com/heldonica',
     'https://fr.pinterest.com/heldonica',
   ],
   contactPoint: {
@@ -149,6 +164,11 @@ const schemaOrganization = {
     contactType: 'customer service',
     email: 'contact@heldonica.fr',
     availableLanguage: 'French',
+  },
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Paris',
+    addressCountry: 'FR',
   },
 };
 
@@ -158,16 +178,57 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   // Fetch site assets from CMS
-  const siteSettings = await getSiteSettings();
-  const faviconUrl = siteSettings.site_favicon;
-  const logoUrl = siteSettings.site_logo;
+  const [siteSettings, globalZones] = await Promise.all([
+    getSiteSettings(),
+    getGlobalZones(),
+  ]);
+  const faviconUrl = siteSettings.site_favicon || siteSettings.favicon_url;
+  const logoUrl = siteSettings.site_logo || siteSettings.logo_url;
+
+  // Deux conventions de nommage coexistent dans les reglages : seo_* pour
+  // l'ecran d'admin de app/admin/settings, sans prefixe pour celui de
+  // CmsSettingsPanel. On lit les deux plutot que d'en couronner une au hasard.
+  //
+  // Et on verifie la forme, parce que les valeurs en base sont fausses : la
+  // migration 20260903000001 a ecrit l'identifiant du conteneur Tag Manager
+  // dans google_analytics_id et ga_measurement_id, qui attendent un G-. Passer
+  // un GTM- a gtag('config') ne leve rien : la mesure part simplement nulle
+  // part. Un identifiant de la mauvaise famille est donc ignore.
+  const premierValide = (prefixe: string, ...valeurs: (string | undefined)[]) =>
+    valeurs.find((v) => v?.startsWith(prefixe));
+
+  const gaId =
+    premierValide('G-', siteSettings.seo_google_analytics_id, siteSettings.google_analytics_id)
+    // Repli sur la valeur qui tournait jusqu'ici : sans lui, une cle vide ou
+    // mal remplie couperait la mesure au lieu de la deplacer.
+    || 'G-JDJNTZLBJS';
+  // Conteneur Tag Manager : facultatif, et pose a cote de gtag.js plutot qu'a
+  // sa place. Les 34 appels gtag('event') du site continuent donc de remonter
+  // a GA4 directement ; GTM ne sert qu'a poser de nouveaux tags sans
+  // redeployer. Si ce conteneur recoit un jour un tag GA4 sur la meme
+  // propriete, les pages seront comptees deux fois : la mesure doit rester
+  // ici, ou la-bas, mais pas aux deux endroits.
+  const gtmId = premierValide('GTM-', siteSettings.seo_gtm_id, siteSettings.gtm_id);
 
   return (
-    <html lang="fr">
+    <html lang="fr" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              try {
+                var saved = localStorage.getItem('theme');
+                var preferred = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                var theme = saved || preferred;
+                if (theme === 'dark') document.documentElement.classList.add('dark');
+              } catch (e) {}
+            })();
+          `
+        }} />
         <link rel="icon" href={faviconUrl || '/favicon.ico'} sizes="any" />
         <link rel="apple-touch-icon" href={logoUrl || '/apple-touch-icon.png'} />
-        <link rel="preconnect" href="https://images.unsplash.com" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaWebSite) }}
@@ -181,7 +242,7 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrganization) }}
         />
         <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-JDJNTZLBJS"
+          src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
           strategy="afterInteractive"
         />
         <Script id="google-analytics" strategy="afterInteractive" dangerouslySetInnerHTML={{
@@ -189,16 +250,47 @@ export default async function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-JDJNTZLBJS');
+            gtag('config', '${gaId}');
           `
         }} />
+        {gtmId && (
+          <>
+            <Script id="gtm-init" strategy="afterInteractive" dangerouslySetInnerHTML={{
+              __html: `
+                window.dataLayer = window.dataLayer || [];
+                window.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+              `
+            }} />
+            <Script
+              src={`https://www.googletagmanager.com/gtm.js?id=${gtmId}`}
+              strategy="afterInteractive"
+            />
+          </>
+        )}
       </head>
       <body>
+        {gtmId && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+              height="0"
+              width="0"
+              style={{ display: 'none', visibility: 'hidden' }}
+            />
+          </noscript>
+        )}
         <ThemeProvider>
           <AuthProvider>
-            <SiteTheme />
-            {children}
-            <CookieConsentBanner />
+            {/* Zones et réglages chargés une fois ici : le header et le pied de
+                page n'ont plus à les récupérer eux-mêmes après hydratation. */}
+            <SiteContentProvider zones={globalZones} settings={siteSettings}>
+              <WebVitalsReporter />
+              <SiteTheme />
+              <div id="main-content" className="pt-[72px]">{children}</div>
+              <BackToTop />
+              <CookieConsentBanner />
+              <NewsletterPopup />
+            </SiteContentProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

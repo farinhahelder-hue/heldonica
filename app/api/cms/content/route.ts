@@ -3,16 +3,18 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireCmsAuth } from '@/lib/cms-auth';
+import { revalidateCmsTarget } from '@/lib/revalidate';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
-
-const supabase = (supabaseUrl && supabaseKey)
-  ? createClient(supabaseUrl, supabaseKey)
-  : null;
+function getSupabase() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+  if (!supabaseUrl || !supabaseKey) return null;
+  return createClient(supabaseUrl, supabaseKey);
+}
 
 // GET /api/cms/content?page=home
 export async function GET(req: NextRequest) {
+  const supabase = getSupabase();
   if (!supabase) {
     return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
   }
@@ -33,6 +35,7 @@ export async function GET(req: NextRequest) {
 
 // PUT /api/cms/content  body: { page, block_key, value }
 export async function PUT(req: NextRequest) {
+  const supabase = getSupabase();
   if (!supabase) {
     return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
   }
@@ -53,5 +56,6 @@ export async function PUT(req: NextRequest) {
     .eq('block_key', block_key);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  await revalidateCmsTarget({ page });
   return NextResponse.json({ success: true });
 }

@@ -1,25 +1,42 @@
 {
-  "name": "Instagram Carousel - Planifié",
+  "name": "Instagram Carousel - Planifi\u00e9",
   "nodes": [
     {
       "parameters": {
         "rule": {
-          "interval": [{"field": "hours", "hoursInterval": 1}]
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
         }
       },
       "id": "schedule-trigger",
       "name": "Planificateur",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [250, 300]
+      "position": [
+        250,
+        300
+      ]
     },
     {
       "parameters": {
         "values": {
           "string": [
-            { "name": "topic", "value": "que faire a paris" },
-            { "name": "angle", "value": "authentique" },
-            { "name": "format", "value": "carousel" }
+            {
+              "name": "topic",
+              "value": "que faire a paris"
+            },
+            {
+              "name": "angle",
+              "value": "authentique"
+            },
+            {
+              "name": "format",
+              "value": "carousel"
+            }
           ]
         }
       },
@@ -27,7 +44,10 @@
       "name": "Brief",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
-      "position": [450, 300]
+      "position": [
+        450,
+        300
+      ]
     },
     {
       "parameters": {
@@ -35,12 +55,23 @@
         "method": "GET",
         "sendHeaders": true,
         "headerParameters": {
-          "parameters": [{ "name": "Authorization", "value": "=Client-ID {{$VAR.UNSPLASH_KEY}}" }]
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Client-ID {{$VAR.UNSPLASH_KEY}}"
+            }
+          ]
         },
         "queryParameters": {
           "parameters": [
-            { "name": "query", "value": "={{$json.topic}}" },
-            { "name": "per_page", "value": 5 }
+            {
+              "name": "query",
+              "value": "={{$json.topic}}"
+            },
+            {
+              "name": "per_page",
+              "value": 5
+            }
           ]
         }
       },
@@ -48,17 +79,23 @@
       "name": "Unsplash",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [650, 300]
+      "position": [
+        650,
+        300
+      ]
     },
     {
       "parameters": {
-        "jsCode": "const results = $input.first().json.results || [];\nif (results.length === 0) return [{ json: {} }];\nconst best = results.reduce((a, b) => (a.likes||0) > (b.likes||0) ? a : b, results[0]);\nreturn [{ json: { image_url: best.urls?.regular, topic: $input.all()[1].json.topic } }];"
+        "jsCode": "const results = $input.first().json.results || [];\nif (results.length === 0) return [{ json: {} }];\nconst best = results.reduce((a, b) => (a.likes||0) > (b.likes||0) ? a : b, results[0]);\nreturn [{ json: { image_url: best.urls?.regular, topic: $('Brief').first().json.topic } }];"
       },
       "id": "best-photo",
       "name": "Photo",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2.4,
-      "position": [850, 300]
+      "position": [
+        850,
+        300
+      ]
     },
     {
       "parameters": {
@@ -67,15 +104,27 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "Authorization", "value": "=Bearer {{$VAR.GROQ_KEY}}" },
-            { "name": "Content-Type", "value": "application/json" }
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$VAR.GROQ_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
-            { "name": "model", "value": "llama-3.1-8b-instant" },
-            { "name": "messages", "value": "[{\"role\":\"system\",\"content\":\"Carrousel Instagram JSON\"},{\"role\":\"user\",\"content\":\"{{$json.topic}}\"}]" }
+            {
+              "name": "model",
+              "value": "llama-3.1-8b-instant"
+            },
+            {
+              "name": "messages",
+              "value": "[{\"role\":\"system\",\"content\":\"Carrousel Instagram JSON\"},{\"role\":\"user\",\"content\":\"{{$json.topic}}\"}]"
+            }
           ]
         }
       },
@@ -83,17 +132,23 @@
       "name": "Groq",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1050, 300]
+      "position": [
+        1050,
+        300
+      ]
     },
     {
       "parameters": {
-        "jsCode": "let p = {};\ntry { p = JSON.parse($input.first().json.choices?.[0]?.message?.content || '{}'); } catch {}\nreturn [{ json: { ...p, topic: $input.all()[1].json.topic, image_url: $input.all()[2].json.image_url } }];"
+        "jsCode": "let p = {};\ntry { p = JSON.parse($input.first().json.choices?.[0]?.message?.content || '{}'); } catch {}\nreturn [{ json: { ...p, topic: $('Brief').first().json.topic, image_url: $('Photo').first().json.image_url } }];"
       },
       "id": "parse",
       "name": "Parse",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2.4,
-      "position": [1150, 300]
+      "position": [
+        1150,
+        300
+      ]
     },
     {
       "parameters": {
@@ -102,16 +157,31 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "={{$VAR.SUPABASE_KEY}}" },
-            { "name": "Content-Type", "value": "application/json" }
+            {
+              "name": "apikey",
+              "value": "={{$VAR.SUPABASE_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
-            { "name": "topic", "value": "={{$json.topic}}" },
-            { "name": "slides", "value": "={{JSON.stringify($json.slides)}}" },
-            { "name": "status", "value": "draft" }
+            {
+              "name": "topic",
+              "value": "={{$json.topic}}"
+            },
+            {
+              "name": "slides",
+              "value": "={{JSON.stringify($json.slides)}}"
+            },
+            {
+              "name": "status",
+              "value": "draft"
+            }
           ]
         }
       },
@@ -119,24 +189,109 @@
       "name": "Sauvegarde",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1350, 300]
+      "position": [
+        1350,
+        300
+      ]
     }
   ],
   "connections": {
-    "Planificateur": { "main": [[{"node": "Brief", "type": "main", "index": 0}]] },
-    "Brief": { "main": [[{"node": "Unsplash", "type": "main", "index": 0}]] },
-    "Unsplash": { "main": [[{"node": "Photo", "type": "main", "index": 0}]] },
-    "Photo": { "main": [[{"node": "Groq", "type": "main", "index": 0}]] },
-    "Groq": { "main": [[{"node": "Parse", "type": "main", "index": 0}]] },
-    "Parse": { "main": [[{"node": "Sauvegarde", "type": "main", "index": 0}]] }
+    "Planificateur": {
+      "main": [
+        [
+          {
+            "node": "Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Brief": {
+      "main": [
+        [
+          {
+            "node": "Unsplash",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unsplash": {
+      "main": [
+        [
+          {
+            "node": "Photo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Photo": {
+      "main": [
+        [
+          {
+            "node": "Groq",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq": {
+      "main": [
+        [
+          {
+            "node": "Parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse": {
+      "main": [
+        [
+          {
+            "node": "Sauvegarde",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
   "variables": [
-    { "id": "UNSPLASH_KEY", "name": "Unsplash", "type": "string", "value": "" },
-    { "id": "SUPABASE_URL", "name": "Supabase", "type": "string", "value": "" },
-    { "id": "SUPABASE_KEY", "name": "Key", "type": "string", "value": "" },
-    { "id": "GROQ_KEY", "name": "Groq", "type": "string", "value": "" }
+    {
+      "id": "UNSPLASH_KEY",
+      "name": "Unsplash",
+      "type": "string",
+      "value": ""
+    },
+    {
+      "id": "SUPABASE_URL",
+      "name": "Supabase",
+      "type": "string",
+      "value": ""
+    },
+    {
+      "id": "SUPABASE_KEY",
+      "name": "Key",
+      "type": "string",
+      "value": ""
+    },
+    {
+      "id": "GROQ_KEY",
+      "name": "Groq",
+      "type": "string",
+      "value": ""
+    }
   ],
-  "trigger": { "type": "schedule" },
+  "trigger": {
+    "type": "schedule"
+  },
   "updatedAt": "2026-04-11T13:00:00Z",
   "versionId": "1"
 }

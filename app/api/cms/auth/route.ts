@@ -5,8 +5,14 @@ import {
   getCmsAuthStatus,
   isValidCmsPassword,
 } from '@/lib/cms-auth'
+import { rateLimit, getClientIp } from '@/lib/rate-limit'
+
+export const dynamic = 'force-dynamic'
 
 export async function POST(req: Request) {
+  if (!rateLimit(getClientIp(req), 5, 60_000)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
   const { password } = await req.json()
 
   if (!process.env.CMS_PASSWORD?.trim()) {
@@ -16,7 +22,7 @@ export async function POST(req: Request) {
     )
   }
 
-  if (!isValidCmsPassword(password)) {
+  if (!await isValidCmsPassword(password)) {
     return clearCmsSessionResponse(401, { error: 'Mot de passe incorrect' })
   }
 

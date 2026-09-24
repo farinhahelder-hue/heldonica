@@ -21,8 +21,9 @@ On est un **duo** — deux explorateurs qui partagent leur vécu terrain. Toujou
 ### B2C — Blog, Instagram, Travel Planning
 - **Tutoiement** ("tu") systématique
 - Narratif, sensoriel, empathique
+- **Regard sensoriel TSA** : attention aiguë aux micro-détails tangibles (grain du bois, pierre calcaire, lin brut), à l'acoustique apaisante (absence de saturation/vacarme, sons discrets et feutrés) et aux découpes nettes de la lumière
 - Raconte une histoire vécue, pas une liste de tips
-- Structure : Accroche "Graal/pépite" → Histoire humaine → Détail sensoriel testé → Infos pratiques → Verdict Heldonica signé
+- Structure : Accroche vécue → Histoire humaine → Détail sensoriel & matière → Infos pratiques → Nuance/Ce qu'on a moins aimé
 
 ### B2B — LinkedIn, Conseil hôtelier
 - **Vouvoiement** ("vous") systématique

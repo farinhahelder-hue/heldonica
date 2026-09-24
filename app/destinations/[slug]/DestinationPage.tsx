@@ -1,0 +1,403 @@
+import Image from 'next/image'
+import type { Metadata } from 'next'
+import Link from 'next/link'
+import Header from '@/components/Header'
+import Footer from '@/components/Footer'
+import SlowTravelQuiz from '@/components/SlowTravelQuiz'
+import { getPageLayout } from '@/lib/layout-helpers'
+import RelatedArticles from '@/components/RelatedArticles'
+import { supabase } from '@/lib/supabase-client'
+import { notFound } from 'next/navigation'
+import { BlogPost } from '@/lib/blog-supabase'
+import { fetchSubDestinations } from '@/lib/pillar-data'
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import EditableZone from '@/components/inline-edit/EditableZone'
+import { getPageZones } from '@/lib/cms-zones'
+
+const DESTINATION_IMAGES: Record<string, string> = {
+  'sicile': '/og-default.jpg',
+  'lisbonne': '/og-default.jpg',
+  'montenegro': '/og-default.jpg',
+  'suisse': '/og-default.jpg',
+  'zurich': '/og-default.jpg',
+  'paris': '/og-default.jpg',
+  'roumanie': '/og-default.jpg',
+}
+
+// Contenu de référence (source de vérité = cms_editable_zones ; ces valeurs
+// servent de fallback technique tant que le CMS n'a pas été appliqué/seeded).
+const DESTINATION_CONTENT: Record<string, any> = {
+  'sicile': {
+    title: 'Sicile',
+    subtitle: 'la botte qu\'on prend par ses secrets',
+    description: 'Entre Agrigente et Raguse, entre Modica et Caltagirone, il y a une Sicile que les guides ne mentionnent pas. Celle des villages de pierre qui n\'ont pas encore cédé au tourisme de masse, des tables de campagne où le vin coule à flots, des couchers de soleil sur la Méditerranée qui durent plus longtemps que prévu.',
+    verdict: 'La Sicile ne se donne pas à ceux qui passent. Elle attend ceux qui restent.',
+    duration: '7-10 jours',
+    season: 'Avril à juin · Septembre à octobre',
+    budget: '900-1400€ / duo / 7 jours',
+    profile: 'Couple curieux, amateur de culture et de cuisine',
+    tips: ['Visiter la Vallée des Temples à Agrigente à 7h du matin', 'Manger chez Teresa à Modica — sa arancini est légendaire', 'Prendre le ferry pour Stromboli et voir l\'éruption nocturne', 'Rester 3 nuits minimum à Raguse pour voir deux couchers de soleil différents'],
+  },
+  'lisbonne': {
+    title: 'Lisbonne',
+    subtitle: 'vue par ceux qui y vivent',
+    description: 'Alfama le matin, avant les croisières. LX Factory à 8h, quand les artisans ouvrent leurs ateliers. Le ferry pour Cacilhas, face à Lisbonne qui se révèle en reflet sur le Tage. Lisbonne n\'est pas difficile à aimer — elle est difficile à connaître vraiment.',
+    verdict: 'Lisbonne est meilleure quand tu la prends pour elle-même, pas pour ce qu\'elle montre.',
+    duration: '3-5 jours',
+    season: 'Toute l\'année · Mai et septembre idéaux',
+    budget: '400-700€ / duo / 4 jours',
+    profile: 'City breaker, amateur d\'architecture et de fado',
+    tips: ['Monter au Miradouro da Senhora do Monte pour le coucher du soleil', 'Prendre le tram 28 à 7h du matin — avant la foule', 'Manger des pastéis de nata à Antónia ici, pas ailleurs', 'Traverser le Tage pour voir Lisbonne depuis Cacilhas'],
+  },
+  'suisse': {
+    title: 'Suisse',
+    subtitle: 'les Alpes par leurs crêtes et leurs bains',
+    description: 'Le funiculaire le plus raide du monde vers Stoos. Les crêtes à 2000m qu\'on traverse en été avec des fleurs jusqu\'aux genoux. Les bains du Lötschental, où l\'on reste une heure de plus que prévu. La Suisse révèle ses meilleurs côtés à ceux qui descendent des sentiers balisés.',
+    verdict: 'La Suisse ne demande pas qu\'on la visite — elle demande qu\'on la découvre.',
+    duration: '5-7 jours',
+    season: 'Juin à septembre · Décembre pour les sports d\'hiver',
+    budget: '1200-2000€ / duo / 7 jours',
+    profile: 'Randonneur, amateur de montagne et de villages alpin',
+    tips: ['Prendre le funiculaire Schwyz-Stoos — 110% de pente', 'Rester une nuit dans un chalet d\'alpage entre Stoos et Klein Mythen', 'Visiter les bains de Vals — architecture sensationnelle', 'Marcher jusqu\'au sommet du Moléson pour voir la Riviera vaudoise'],
+  },
+  'zurich': {
+    title: 'Zurich',
+    subtitle: 'la Suisse financière et ses villages cachés',
+    description: 'Zurich n\'est pas ce qu\'on croit. Elle est plus verte, plus calme, plus simple. Le quartier de Langstrasse, les bords de la Limmat au coucher du soleil, la Kämbel qui surplombe la vieille ville. Et à 30 minutes, des villages qui n\'ont pas changé depuis des siècles.',
+    verdict: 'Zurich est meilleure en dehors des sentiers battus financiers.',
+    duration: '3-5 jours',
+    season: 'Avril à octobre',
+    budget: '800-1400€ / duo / 4 jours',
+    profile: 'Amateur de culture, de design et de nature',
+    tips: ['Visiter le Kunsthaus — l\'un des plus beaux musées d\'Europe', 'Manger au Volkshaus — design Bauhaus, cuisine locale', 'Prendre le train pour Stein am Rhein — le plus beau village de Suisse', 'Longer la Limmat au coucher du soleil depuis le Niederdorf'],
+  },
+  'paris': {
+    title: 'Paris',
+    subtitle: 'la ville qu\'on croit connaître',
+    description: 'Paris a deux visages. Celui des cartes postales, qu\'on connaît tous. Et celui que la ville garde pour ses initiés — ses friches industrielles reconverties en jardins secrets, ses passages couverts endormis, ses villages dans la ville. Même en bas de chez toi, il reste des rues qui n\'ont pas fini de se révéler.',
+    verdict: 'Paris est meilleur quand on arrête d\'essayer d\'en faire trop.',
+    duration: '3-5 jours',
+    season: 'Toute l\'année',
+    budget: 'Modulable',
+    profile: 'Amateur de culture, de flânerie et de bonne chère',
+    tips: ['Explorer la Petite Ceinture — l\'ancienne ligne de chemin de fer transformée en coulée verte', 'Monter au Miradouro (équivalent) du Sacré-Cœur à l\'aube', 'Manger au mercado local du quartier, pas dans les restaurants touristiques', 'Prendre le temps de s\'asseoir dans un café sans commander autre chose qu\'un café'],
+  },
+}
+
+type Props = {
+  slug: string
+}
+
+// Fetch related articles for a destination
+async function getRelatedArticlesForDestination(slug: string): Promise<BlogPost[]> {
+  if (!supabase) return []
+  
+  try {
+    const { data, error } = await supabase
+      .from('cms_blog_posts')
+      .select('*')
+      .eq('published', true)
+      .order('published_at', { ascending: false })
+      .limit(50)
+    
+    if (error || !data) return []
+    
+    // Match articles by destination keyword
+    const patterns: Record<string, string[]> = {
+      'roumanie': ['Roumanie', 'Maramure', 'Timisoara', 'Transylvanie', 'Sibiu', 'Brasov'],
+      'madere': ['Madère', 'Madeira', 'Funchal'],
+      'paris': ['Paris'],
+      'zurich': ['Zurich'],
+      'sicile': ['Sicile', 'Sicilia', 'Agrigente'],
+      'lisbonne': ['Lisbonne', 'Lisboa'],
+      'montenegro': ['Monténégro', 'Podgorica', 'Kotor'],
+      'suisse': ['Suisse', 'Stoos', 'Alpes'],
+    }
+    
+    const keywords = patterns[slug] || []
+    if (keywords.length === 0) return []
+    
+    return data.filter((post: { title: string; excerpt?: string | null; destination?: string | null }) => {
+      const searchText = `${post.title} ${post.excerpt || ''} ${post.destination || ''}`.toLowerCase()
+      return keywords.some(kw => searchText.includes(kw.toLowerCase()))
+    }).slice(0, 3)
+  } catch {
+    return []
+  }
+}
+
+export async function generateMetadata({ slug }: Props): Promise<Metadata> {
+  const content = DESTINATION_CONTENT[slug]
+  const image = DESTINATION_IMAGES[slug]
+  if (!content) return { title: 'Destination non trouvée' }
+
+  return {
+    title: `${content.title} slow travel | Guide Heldonica`,
+    description: `${content.subtitle}. ${content.verdict}`.slice(0, 155),
+    alternates: {
+      canonical: `https://www.heldonica.fr/destinations/${slug}`,
+    },
+    openGraph: {
+      title: `${content.title} slow travel | Guide Heldonica`,
+      description: content.description.slice(0, 160),
+      url: `https://www.heldonica.fr/destinations/${slug}`,
+      images: [
+        {
+          url: image || '',
+          width: 1200,
+          height: 630,
+          alt: `${content.title} - Slow travel Heldonica`,
+        },
+      ],
+      locale: 'fr_FR',
+      type: 'article',
+    },
+  }
+}
+
+export default async function DestinationPage({ slug }: Props) {
+  const content = DESTINATION_CONTENT[slug]
+  const image = DESTINATION_IMAGES[slug]
+  const subDests = await fetchSubDestinations(slug)
+
+  if (!content) {
+    notFound()
+  }
+
+  const [relatedArticles, zones] = await Promise.all([
+    getRelatedArticlesForDestination(slug),
+    getPageZones(`destinations-${slug}`),
+  ])
+
+  /*
+   * Les zones s'écrivent en clair, `zone="title"`, et non via un accesseur
+   * local : `check-cms-zones.mjs` rattache un gabarit à ses pages en lisant
+   * `page={`destinations-${slug}`}` + une clé littérale, puis en résolvant
+   * `slug` depuis les points d'appel (`<DestinationPage slug="suisse" />`).
+   * Passer par un accesseur rend `zone` variable, donc les 65 zones de ces
+   * cinq pages ressortaient orphelines alors qu'elles sont bien affichées.
+   */
+
+  const layoutConfig = await getPageLayout('destination')
+  const activeBlocks = layoutConfig.filter(b => b.active).map(b => b.id)
+
+  const BlockHero = () => (
+    <section className="relative min-h-[60vh] flex items-end overflow-hidden bg-stone-900">
+      <EditableZone
+        page={`destinations-${slug}`}
+        zone="hero_image"
+        type="image"
+        fallback={image}
+        className="w-full h-full object-cover opacity-60"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+      <div className="relative container py-14 md:py-20 max-w-4xl">
+        <p className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold">
+          Destination testée
+        </p>
+        <h1 className="text-4xl md:text-6xl font-serif text-white mb-4">
+          <EditableZone
+            page={`destinations-${slug}`}
+            zone="title"
+            fallback={content.title}
+            as="span"
+          />
+          ,{' '}
+          <em className="text-teal">
+            <EditableZone
+              page={`destinations-${slug}`}
+              zone="subtitle"
+              fallback={content.subtitle}
+              as="span"
+            />
+          </em>
+        </h1>
+        <p className="text-white/85 max-w-2xl text-lg leading-relaxed">
+          {(zones[`destinations-${slug}__description`] ?? content.description).slice(0, 200)}...
+        </p>
+      </div>
+    </section>
+  )
+
+  const BlockInfoCards = () => (
+    <section className="bg-white py-12">
+      <div className="container">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
+            <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Durée idéale</p>
+            <p className="text-charcoal font-medium"><EditableZone page={`destinations-${slug}`} zone="duration" fallback={content.duration} as="span" /></p>
+          </div>
+          <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
+            <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Meilleure saison</p>
+            <p className="text-charcoal font-medium"><EditableZone page={`destinations-${slug}`} zone="season" fallback={content.season} as="span" /></p>
+          </div>
+          <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
+            <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Budget indicatif</p>
+            <p className="text-charcoal font-medium"><EditableZone page={`destinations-${slug}`} zone="budget" fallback={content.budget} as="span" /></p>
+          </div>
+          <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
+            <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Profil</p>
+            <p className="text-charcoal font-medium text-sm"><EditableZone page={`destinations-${slug}`} zone="profile" fallback={content.profile} as="span" /></p>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+
+  const BlockDescription = () => (
+    <section className="bg-white py-16">
+      <div className="container max-w-4xl">
+        <h2 className="text-3xl font-serif text-mahogany mb-6">On y est allés</h2>
+        <p className="text-charcoal/80 leading-relaxed text-lg mb-8">
+          <EditableZone page={`destinations-${slug}`} zone="description" type="textarea" fallback={content.description} as="span" />
+        </p>
+      </div>
+    </section>
+  )
+
+  const BlockSubDestinations = () => (
+    subDests.length > 0 ? (
+      <section className="bg-stone-50 py-16 border-t border-b border-stone-200/60">
+        <div className="container max-w-5xl">
+          <h2 className="text-3xl font-serif text-mahogany mb-2 text-center">
+            Explorer les pépites de la région
+          </h2>
+          <p className="text-charcoal/60 text-sm text-center mb-10">
+            Nos guides détaillés de terrain par ville et site d&apos;intérêt.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {subDests.map((sub) => (
+              <Link
+                key={sub.slug}
+                href={`/destinations/${slug}/${sub.slug}`}
+                className="group p-5 rounded-2xl bg-white border border-stone-100 hover:border-eucalyptus/30 hover:bg-eucalyptus/5 transition-all duration-300 flex flex-col h-full text-left"
+              >
+                <span className="text-3xl mb-3 block">{sub.emoji}</span>
+                <h3 className="font-serif font-bold text-stone-900 group-hover:text-eucalyptus transition-colors mb-2">
+                  {sub.title}
+                </h3>
+                <p className="text-xs text-charcoal/60 leading-relaxed line-clamp-2 flex-1">
+                  {sub.teaser}
+                </p>
+                <span className="text-xs font-semibold text-eucalyptus mt-3 inline-block group-hover:translate-x-1 transition-transform">
+                  Voir le guide →
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+    ) : null
+  )
+
+  const BlockTips = () => (
+    <section className="bg-cloud-dancer py-16">
+      <div className="container max-w-4xl">
+        <h2 className="text-2xl font-serif text-mahogany mb-6">Ce qu&apos;on te recommande</h2>
+        <ul className="space-y-4">
+          {(content.tips ?? []).map((tip: string, i: number) => (
+            <li key={i} className="flex items-start gap-3">
+              <span className="w-6 h-6 rounded-full bg-eucalyptus/20 text-eucalyptus flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                {i + 1}
+              </span>
+              <p className="text-charcoal/80"><EditableZone page={`destinations-${slug}`} zone={`tip_${i + 1}`} type="textarea" fallback={tip} as="span" /></p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+
+  const BlockVerdict = () => (
+    <section className="bg-stone-900 py-16">
+      <div className="container max-w-3xl text-center">
+        <p className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold">Notre verdict</p>
+        <blockquote className="text-2xl md:text-3xl font-serif text-white leading-relaxed italic mb-6">
+          &ldquo;<EditableZone page={`destinations-${slug}`} zone="verdict" type="textarea" fallback={content.verdict} as="span" />&rdquo;
+        </blockquote>
+        <p className="text-stone-400 text-sm">— Heldonica, testés sur place</p>
+      </div>
+    </section>
+  )
+
+  const BlockCTA = () => (
+    <section className="bg-mahogany py-16 text-white">
+      <div className="container max-w-2xl text-center">
+        <h2 className="text-2xl md:text-3xl font-serif mb-4">
+          Tu veux un voyage adapté à ton rythme ?
+        </h2>
+        <p className="text-white/80 mb-8">
+          On transforme tes contraintes en itinéraire sur mesure, avec adresses testées.
+        </p>
+        <Link
+          href={`/travel-planning-form?destination=${slug}`}
+          className="inline-flex px-8 py-4 rounded-lg bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors shadow-md"
+        >
+          Planifier ce voyage avec Heldonica →
+        </Link>
+      </div>
+    </section>
+  )
+
+  const BlockQuiz = () => (
+    <section className="bg-cloud-dancer py-16">
+      <div className="container max-w-4xl">
+        <SlowTravelQuiz />
+      </div>
+    </section>
+  )
+
+  const BlockRelated = () => (
+    <RelatedArticles articles={relatedArticles} destinationTitle={content.title} />
+  )
+
+  const blockComponents: Record<string, React.FC> = {
+    hero: BlockHero,
+    info_cards: BlockInfoCards,
+    description: BlockDescription,
+    sub_destinations: BlockSubDestinations,
+    tips: BlockTips,
+    verdict: BlockVerdict,
+    cta: BlockCTA,
+    quiz: BlockQuiz,
+    related_articles: BlockRelated,
+  }
+
+  return (
+    <InlineEditProvider page={`destinations-${slug}`} initialZones={zones}>
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "TravelAction",
+            "name": `${content.title} slow travel`,
+            "description": content.description,
+            "location": {
+              "@type": "Place",
+              "name": content.title,
+              "address": {
+                "@type": "PostalAddress",
+                "addressCountry": content.title
+              }
+            },
+            "provider": {
+              "@type": "Organization",
+              "name": "Heldonica",
+              "url": "https://www.heldonica.fr"
+            }
+          })
+        }}
+      />
+      <Header />
+      <main>
+        {activeBlocks.map(blockId => {
+          const Component = blockComponents[blockId]
+          return Component ? <Component key={blockId} /> : null
+        })}
+      </main>
+      <Footer />
+    </InlineEditProvider>
+  )
+}

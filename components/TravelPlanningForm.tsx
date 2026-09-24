@@ -122,22 +122,22 @@ export default function TravelPlanningForm() {
         <div className="space-y-4 animate-fade-in">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-charcoal/80 mb-1.5">
+              <label htmlFor="tpf-prenom" className="block text-sm font-medium text-charcoal/80 mb-1.5">
                 Prénom <span className="text-eucalyptus">*</span>
               </label>
               <input
-                name="prenom" type="text" required
+                id="tpf-prenom" name="prenom" type="text" required
                 value={formData.prenom} onChange={handleChange}
                 placeholder="Emma"
                 className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-eucalyptus focus:border-transparent transition bg-white"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-charcoal/80 mb-1.5">
+              <label htmlFor="tpf-nom" className="block text-sm font-medium text-charcoal/80 mb-1.5">
                 Nom <span className="text-eucalyptus">*</span>
               </label>
               <input
-                name="nom" type="text" required
+                id="tpf-nom" name="nom" type="text" required
                 value={formData.nom} onChange={handleChange}
                 placeholder="Dupont"
                 className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-eucalyptus focus:border-transparent transition bg-white"
@@ -146,22 +146,22 @@ export default function TravelPlanningForm() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-charcoal/80 mb-1.5">
+              <label htmlFor="tpf-email" className="block text-sm font-medium text-charcoal/80 mb-1.5">
                 Email <span className="text-eucalyptus">*</span>
               </label>
               <input
-                name="email" type="email" required
+                id="tpf-email" name="email" type="email" required
                 value={formData.email} onChange={handleChange}
                 placeholder="emma@exemple.fr"
                 className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-eucalyptus focus:border-transparent transition bg-white"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-charcoal/80 mb-1.5">
+              <label htmlFor="tpf-telephone" className="block text-sm font-medium text-charcoal/80 mb-1.5">
                 Téléphone <span className="text-charcoal/40 text-xs">(optionnel)</span>
               </label>
               <input
-                name="telephone" type="tel"
+                id="tpf-telephone" name="telephone" type="tel"
                 value={formData.telephone} onChange={handleChange}
                 placeholder="+33 6 12 34 56 78"
                 className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-eucalyptus focus:border-transparent transition bg-white"
@@ -175,11 +175,11 @@ export default function TravelPlanningForm() {
       {currentStep === 2 && (
         <div className="space-y-4 animate-fade-in">
           <div>
-            <label className="block text-sm font-medium text-charcoal/80 mb-1.5">
+            <label htmlFor="tpf-destination" className="block text-sm font-medium text-charcoal/80 mb-1.5">
               Destination rêvée
             </label>
             <input
-              name="destination" type="text"
+              id="tpf-destination" name="destination" type="text"
               value={formData.destination} onChange={handleChange}
               placeholder="Madère, Islande, Japon… ou encore ouverte !"
               className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-eucalyptus focus:border-transparent transition bg-white"
@@ -187,11 +187,11 @@ export default function TravelPlanningForm() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-charcoal/80 mb-1.5">
+              <label htmlFor="tpf-style" className="block text-sm font-medium text-charcoal/80 mb-1.5">
                 Style de voyage
               </label>
               <select
-                name="style_voyage"
+                id="tpf-style" name="style_voyage"
                 value={formData.style_voyage} onChange={handleChange}
                 className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 focus:outline-none focus:ring-2 focus:ring-eucalyptus transition bg-white"
               >
@@ -205,22 +205,22 @@ export default function TravelPlanningForm() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-charcoal/80 mb-1.5">
+              <label htmlFor="tpf-duree" className="block text-sm font-medium text-charcoal/80 mb-1.5">
                 Durée (jours)
               </label>
               <input
-                name="duree_jours" type="number" min="1" max="90"
+                id="tpf-duree" name="duree_jours" type="number" min="1" max="90"
                 value={formData.duree_jours} onChange={handleChange}
                 placeholder="7"
                 className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-eucalyptus transition bg-white"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-charcoal/80 mb-1.5">
+              <label htmlFor="tpf-voyageurs" className="block text-sm font-medium text-charcoal/80 mb-1.5">
                 Voyageurs
               </label>
               <select
-                name="nb_voyageurs"
+                id="tpf-voyageurs" name="nb_voyageurs"
                 value={formData.nb_voyageurs} onChange={handleChange}
                 className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 focus:outline-none focus:ring-2 focus:ring-eucalyptus transition bg-white"
               >
@@ -234,11 +234,11 @@ export default function TravelPlanningForm() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-charcoal/80 mb-1.5">
+              <label htmlFor="tpf-budget" className="block text-sm font-medium text-charcoal/80 mb-1.5">
                 Budget par personne
               </label>
               <select
-                name="budget_fourchette"
+                id="tpf-budget" name="budget_fourchette"
                 value={formData.budget_fourchette} onChange={handleChange}
                 className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 focus:outline-none focus:ring-2 focus:ring-eucalyptus transition bg-white"
               >
@@ -251,11 +251,11 @@ export default function TravelPlanningForm() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-charcoal/80 mb-1.5">
+              <label htmlFor="tpf-mois" className="block text-sm font-medium text-charcoal/80 mb-1.5">
                 Mois de départ
               </label>
               <select
-                name="mois_depart"
+                id="tpf-mois" name="mois_depart"
                 value={formData.mois_depart} onChange={handleChange}
                 className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 focus:outline-none focus:ring-2 focus:ring-eucalyptus transition bg-white"
               >
@@ -270,11 +270,11 @@ export default function TravelPlanningForm() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-charcoal/80 mb-1.5">
+            <label htmlFor="tpf-notes" className="block text-sm font-medium text-charcoal/80 mb-1.5">
               Vos envies, contraintes, ce qui vous inspire…
             </label>
             <textarea
-              name="notes"
+              id="tpf-notes" name="notes"
               value={formData.notes} onChange={handleChange}
               rows={3}
               placeholder="Plus vous nous en dites, plus on peut créer quelque chose de sur mesure."

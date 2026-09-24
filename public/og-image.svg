@@ -1,0 +1,15 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f8f6f4"/>
+      <stop offset="100%" stop-color="#e8e4e0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="950" cy="150" r="200" fill="#6b2a1a" opacity="0.05"/>
+  <circle cx="200" cy="500" r="150" fill="#6b2a1a" opacity="0.04"/>
+  <path d="M0 450 Q300 350 500 400 Q700 300 900 380 Q1050 320 1200 400 L1200 630 L0 630 Z" fill="#d4cfc9" opacity="0.4"/>
+  <path d="M0 520 Q200 450 400 480 Q600 420 800 470 Q1000 400 1200 480 L1200 630 L0 630 Z" fill="#c4bfb9" opacity="0.3"/>
+  <text x="600" y="280" font-family="Georgia, serif" font-size="180" font-weight="300" fill="#6b2a1a" text-anchor="middle" opacity="0.12">H</text>
+  <text x="600" y="360" font-family="Arial, sans-serif" font-size="24" font-weight="300" fill="#6b2a1a" text-anchor="middle" opacity="0.4">HELDONICA</text>
+</svg>

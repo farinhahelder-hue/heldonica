@@ -1,71 +1,66 @@
-'use client'
+import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import Link from 'next/link'
+import SubDestinationTemplate from '@/components/SubDestinationTemplate'
+import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
+import { getPageZones } from '@/lib/cms-zones'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
-const navLinks = [
-  { label: 'Madere', href: '/destinations/madere' },
-  { label: 'Funchal', href: '/destinations/madere/funchal' },
+const metadata: Metadata = {
+  title: "Cabo Girão en couple : notre carnet slow travel | Heldonica",
+  description: "La plus haute falaise d'Europe. 580 m à pic sur l'océan à Madère. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+  openGraph: {
+    title: "Cabo Girão en couple : notre carnet slow travel | Heldonica",
+    description: "La plus haute falaise d'Europe. 580 m à pic sur l'océan à Madère. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+    type: 'website',
+    images: ['/og-default.jpg'],
+    locale: 'fr_FR',
+    siteName: 'Heldonica'
+  },
+  alternates: {
+    canonical: "https://www.heldonica.fr/destinations/madere/cabo-girao"
+  }
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('destinations-madere-cabo-girao', metadata)
+}
+
+
+const highlights = [
+  {
+    emoji: '📍',
+    title: 'Découvertes calmes',
+    description: 'Prendre le temps d\'arpenter les ruelles et les recoins cachés.',
+  },
+  {
+    emoji: '🌿',
+    title: 'Artisanat & Nature',
+    description: 'Découvrir la gastronomie locale et les petits producteurs.',
+  },
+  {
+    emoji: '✨',
+    title: 'Points de vue',
+    description: 'Admirer le panorama au coucher du soleil loin de l\'agitation.',
+  }
 ]
 
-const pepites = [
-  { title: 'Belvedere', description: 'La plus haute falaise d Europe. Vue a pic.', icon: '🪨' },
-  { title: 'Chapelle', description: 'La petite eglise au bord du vide.', icon: '⛪' },
-  { title: 'Miradouro', description: 'Le spot photo. Forcument.', icon: '📸' },
-  { title: 'Hamlets', description: 'Les villages en contrebas.', icon: '🏘️' },
-]
-
-export default function CaboGiraoPage() {
+export default async function CaboGiraoPage() {
+  const zones = await getPageZones('destinations-madere-cabo-girao')
   return (
-    <>
+    <InlineEditProvider page="destinations-madere-cabo-girao" initialZones={zones}>
       <Header />
-      <main className="min-h-screen bg-stone-50">
-        <section className="bg-gradient-to-b from-stone-900 to-stone-800 py-20">
-          <div className="max-w-4xl mx-auto px-4">
-            <span className="text-amber-400 text-sm mb-4">Madere</span>
-            <h1 className="text-4xl text-white font-serif">Cabo Girao</h1>
-            <p className="text-stone-300">La plus haute falaise d Europe. 580m a pic sur l ocean.</p>
-          </div>
-        </section>
-        <nav className="bg-white border-b px-4 py-3 flex gap-4 text-sm">
-          {navLinks.map(l => (
-            <Link key={l.href} href={l.href} className="text-stone-500 hover:text-amber-700">{l.label}</Link>
-          ))}
-        </nav>
-        <div className="max-w-4xl mx-auto px-4 py-12">
-          <section className="mb-8">
-            <p className="text-lg text-stone-700">
-              Cabo Girao, c est le spot qui fait rever.
-              <strong>580 metres de falaise directe dans l ocean.</strong>
-              Y aller pour le lever ou le coucher du soleil.
-            </p>
-          </section>
-          <section className="mb-8 grid md:grid-cols-2 gap-4">
-            {pepites.map((p, i) => (
-              <div key={i} className="p-4 bg-white rounded-lg border">
-                <div className="text-xl mb-2">{p.icon}</div>
-                <h3 className="font-serif">{p.title}</h3>
-                <p className="text-sm text-stone-600">{p.description}</p>
-              </div>
-            ))}
-          </section>
-          <section className="grid md:grid-cols-2 gap-6 mb-8">
-            <div className="bg-white p-5 rounded-lg border">
-              <h3 className="font-serif mb-3">Ou cafe</h3>
-              <ul className="text-sm text-stone-600 space-y-1">
-                <li><strong>Skybar:</strong> Vue panoramique</li>
-                <li><strong>Cafe do Cabo:</strong> Simple, correct</li>
-              </ul>
-            </div>
-            <div className="bg-white p-5 rounded-lg border">
-              <h3 className="font-serif mb-3">Conseil</h3>
-              <p className="text-sm text-stone-600">Venez tot ou en fin de journee. En plein milieu, c est bus de touristes.</p>
-            </div>
-          </section>
-          <Link href="/destinations/madere" className="text-amber-700">← Retour Madere</Link>
-        </div>
-      </main>
+      <SubDestinationTemplate
+        page="destinations-madere-cabo-girao"
+        name="Cabo Girão"
+        parentName="Madère"
+        parentSlug="madere"
+        heroImage="/og-default.jpg"
+        introText="La plus haute falaise d'Europe. 580 m à pic sur l'océan."
+        highlights={highlights}
+        localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."
+      />
       <Footer />
-    </>
+    </InlineEditProvider>
   )
 }

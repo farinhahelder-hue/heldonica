@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
+import { getSupabaseClientKey } from '@/lib/supabase-key'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+const supabaseAnonKey = getSupabaseClientKey()
 
 // Public client (uses anon key - respects RLS policies)
 export const supabase = supabaseUrl && supabaseAnonKey
