@@ -587,7 +587,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
   const handleSaveArticle = async () => {
     if (!editingArticle) return;
     setSaving(true);
-    setSaveMsg('💾 Sauvegarde en cours…');
+    toast('💾 Sauvegarde en cours…', 'info');
     try {
       const method = editingArticle.id ? 'PATCH' : 'POST';
       const url = editingArticle.id
@@ -606,11 +606,14 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
         const err = await res.json().catch(() => ({ error: 'Save failed' }));
         throw new Error(err.error || 'Save failed');
       }
-      setSaveMsg('✅ Article sauvegardé');
+      toast('✅ Article sauvegardé — 14:32', 'success');
       setIsDirty(false);
+      try {
+        localStorage.removeItem(`heldonica-draft-${editingArticle.id ?? 'new'}`);
+      } catch {}
       loadArticles();
     } catch (e: any) {
-      setSaveMsg('❌ ' + (e.message || 'Erreur lors de la sauvegarde'));
+      toast('❌ ' + (e.message || 'Erreur lors de la sauvegarde'), 'error');
     } finally {
       setSaving(false);
     }
