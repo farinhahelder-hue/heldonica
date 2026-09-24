@@ -91,7 +91,7 @@ export default async function SardaignePage() {
           </div>
           <div className="relative max-w-4xl mx-auto px-6">
             <p className="text-teal text-xs font-bold tracking-[0.2em] uppercase mb-4">
-              Destination testée
+              {Z('hero_kicker', 'text', "Destination testée", undefined, 'span')}
             </p>
             <h1 className="text-4xl md:text-5xl font-serif text-white mb-6 leading-tight">
               {Z('hero_title', 'text', "Sardaigne", undefined, 'span')}
@@ -105,13 +105,13 @@ export default async function SardaignePage() {
 
         <nav aria-label="Villes et zones de Sardaigne" className="bg-white border-b border-stone-200 sticky top-16 z-10">
           <div className="max-w-4xl mx-auto px-4 py-3 flex gap-6 overflow-x-auto no-scrollbar">
-            {subNav.map((item) => (
+            {subNav.map((item, i) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className="text-stone-600 hover:text-eucalyptus whitespace-nowrap text-sm font-medium transition-colors"
               >
-                {item.label}
+                {Z(`subnav_${i + 1}_label`, 'text', item.label, undefined, 'span')}
               </Link>
             ))}
           </div>
@@ -128,38 +128,38 @@ export default async function SardaignePage() {
           </section>
 
           <section className="mb-12">
-            <h2 className="text-2xl font-serif text-stone-900 mb-6">Nos zones favorites</h2>
+            <h2 className="text-2xl font-serif text-stone-900 mb-6">{Z('zones_title', 'text', "Nos zones favorites", undefined, 'span')}</h2>
             <div className="grid gap-6 md:grid-cols-2">
                 <Link key={"/destinations/sardaigne/cagliari"} href={"/destinations/sardaigne/cagliari"}
                   className="block p-6 bg-white rounded-xl border border-stone-200 hover:border-eucalyptus/40 hover:shadow-md transition-all group">
                   <h3 className="font-serif text-lg text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">{Z('zone_1_title', 'text', "Cagliari", undefined, 'span')}</h3>
                   <p className="text-stone-600 text-sm leading-relaxed">{Z('zone_1_desc', 'textarea', "Le sud. Capitale animée, lagune aux flamants, dunes de Piscinas.", undefined, 'span')}</p>
-                  <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">Voir le guide →</span>
+                  <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">{Z('zones_cta', 'text', "Voir le guide →", undefined, 'span')}</span>
                 </Link>
                 <Link key={"/destinations/sardaigne/alghero"} href={"/destinations/sardaigne/alghero"}
                   className="block p-6 bg-white rounded-xl border border-stone-200 hover:border-eucalyptus/40 hover:shadow-md transition-all group">
                   <h3 className="font-serif text-lg text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">{Z('zone_2_title', 'text', "Alghero", undefined, 'span')}</h3>
                   <p className="text-stone-600 text-sm leading-relaxed">{Z('zone_2_desc', 'textarea', "Nord-ouest. Ville catalane aux remparts dorés, grotte de Neptune.", undefined, 'span')}</p>
-                  <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">Voir le guide →</span>
+                  <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">{Z('zones_cta', 'text', "Voir le guide →", undefined, 'span')}</span>
                 </Link>
                 <Link key={"/destinations/sardaigne/nuoro"} href={"/destinations/sardaigne/nuoro"}
                   className="block p-6 bg-white rounded-xl border border-stone-200 hover:border-eucalyptus/40 hover:shadow-md transition-all group">
                   <h3 className="font-serif text-lg text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">{Z('zone_3_title', 'text', "Nuoro & Barbagia", undefined, 'span')}</h3>
                   <p className="text-stone-600 text-sm leading-relaxed">{Z('zone_3_desc', 'textarea', "L'intérieur. Villages de pierre, agritourismes, cuisine de montagne.", undefined, 'span')}</p>
-                  <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">Voir le guide →</span>
+                  <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">{Z('zones_cta', 'text', "Voir le guide →", undefined, 'span')}</span>
                 </Link>
                 <Link key={"/destinations/sardaigne/asinara"} href={"/destinations/sardaigne/asinara"}
                   className="block p-6 bg-white rounded-xl border border-stone-200 hover:border-eucalyptus/40 hover:shadow-md transition-all group">
                   <h3 className="font-serif text-lg text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">{Z('zone_4_title', 'text', "Asinara", undefined, 'span')}</h3>
                   <p className="text-stone-600 text-sm leading-relaxed">{Z('zone_4_desc', 'textarea', "Île sauvage du nord-ouest. Parc national, ânes blancs, plongée.", undefined, 'span')}</p>
-                  <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">Voir le guide →</span>
+                  <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">{Z('zones_cta', 'text', "Voir le guide →", undefined, 'span')}</span>
                 </Link>
             </div>
           </section>
 
           <section className="grid md:grid-cols-2 gap-8 mb-12">
             <div className="bg-white p-6 rounded-xl border border-stone-200">
-              <h3 className="font-serif text-stone-900 font-medium mb-4">Meilleure période</h3>
+              <h3 className="font-serif text-stone-900 font-medium mb-4">{Z('period_title', 'text', "Meilleure période", undefined, 'span')}</h3>
               <ul className="text-stone-600 text-sm space-y-2">
                 <li>{Z('period_1', 'textarea', "✓ Mai – Juin : idéal, mer et terrasses", undefined, 'span')}</li>
                 <li>{Z('period_2', 'textarea', "✓ Septembre : parfait, foules réduites", undefined, 'span')}</li>
@@ -167,7 +167,7 @@ export default async function SardaignePage() {
               </ul>
             </div>
             <div className="bg-white p-6 rounded-xl border border-stone-200">
-              <h3 className="font-serif text-stone-900 font-medium mb-4">Budget indicatif (duo/semaine)</h3>
+              <h3 className="font-serif text-stone-900 font-medium mb-4">{Z('budget_title', 'text', "Budget indicatif (duo/semaine)", undefined, 'span')}</h3>
               <ul className="text-stone-600 text-sm space-y-2">
                 <li>{Z('budget_1', 'textarea', "Hébergement : 70–150€/nuit", undefined, 'span')}</li>
                 <li>{Z('budget_2', 'textarea', "Repas au restaurant : 40–70€/jour", undefined, 'span')}</li>

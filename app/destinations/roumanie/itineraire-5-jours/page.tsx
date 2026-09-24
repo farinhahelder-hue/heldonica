@@ -95,7 +95,7 @@ export default async function Itineraire5JoursPage() {
 
         <section className="bg-white section-spacing pt-0">
           <div className="container max-w-4xl">
-            <h2 className="text-2xl font-serif text-mahogany mb-6">Aperçu du circuit</h2>
+            <h2 className="text-2xl font-serif text-mahogany mb-6">{Z('overview_title', 'text', "Aperçu du circuit", undefined, 'span')}</h2>
             <div className="overflow-x-auto rounded-xl border border-stone-200">
               <table className="w-full text-sm table-auto">
                 <thead className="bg-stone-50 text-stone-500 text-xs uppercase">
@@ -130,7 +130,7 @@ export default async function Itineraire5JoursPage() {
 
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
-                      <p className="text-xs font-semibold text-amber-700 mb-1">Pépite dénichée</p>
+                      <p className="text-xs font-semibold text-amber-700 mb-1">{Z('pepite_label', 'text', "Pépite dénichée", undefined, 'span')}</p>
                       <p className="text-sm text-charcoal/80">{Z('day_1_pepite', 'textarea', "La terrasse du Ceai la Metrou — salon de thé caché sous les arcades, thé maison et vue sur la place", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -158,7 +158,7 @@ export default async function Itineraire5JoursPage() {
 
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
-                      <p className="text-xs font-semibold text-amber-700 mb-1">Pépite dénichée</p>
+                      <p className="text-xs font-semibold text-amber-700 mb-1">{Z('pepite_label', 'text', "Pépite dénichée", undefined, 'span')}</p>
                       <p className="text-sm text-charcoal/80">{Z('day_2_pepite', 'textarea', "Le sentier Sinaia-Cota 1400 — 2h de montée douce à travers la forêt, vue panoramique sur toute la vallée", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -186,7 +186,7 @@ export default async function Itineraire5JoursPage() {
 
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
-                      <p className="text-xs font-semibold text-amber-700 mb-1">Pépite dénichée</p>
+                      <p className="text-xs font-semibold text-amber-700 mb-1">{Z('pepite_label', 'text', "Pépite dénichée", undefined, 'span')}</p>
                       <p className="text-sm text-charcoal/80">{Z('day_3_pepite', 'textarea', "Restaurant din Turn — dîner dans une tour du 14e siècle, cuisine transylvanienne, 25 € pour deux", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -214,7 +214,7 @@ export default async function Itineraire5JoursPage() {
 
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
-                      <p className="text-xs font-semibold text-amber-700 mb-1">Pépite dénichée</p>
+                      <p className="text-xs font-semibold text-amber-700 mb-1">{Z('pepite_label', 'text', "Pépite dénichée", undefined, 'span')}</p>
                       <p className="text-sm text-charcoal/80">{Z('day_4_pepite', 'textarea', "Le musée ASTRA en plein air — 30 hectares de vie rurale roumaine reconstituée, 5 €, prévois 3h", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -242,7 +242,7 @@ export default async function Itineraire5JoursPage() {
 
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
-                      <p className="text-xs font-semibold text-amber-700 mb-1">Pépite dénichée</p>
+                      <p className="text-xs font-semibold text-amber-700 mb-1">{Z('pepite_label', 'text', "Pépite dénichée", undefined, 'span')}</p>
                       <p className="text-sm text-charcoal/80">{Z('day_5_pepite', 'textarea', "Boulangerie La Pâine — meilleur cozonac de la ville, à prendre pour la route", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -261,9 +261,9 @@ export default async function Itineraire5JoursPage() {
 
         <section className="bg-white section-spacing">
           <div className="container max-w-5xl">
-            <h2 className="text-3xl font-serif text-mahogany mb-6">Carte interactive du circuit</h2>
+            <h2 className="text-3xl font-serif text-mahogany mb-6">{Z('map_title', 'text', "Carte interactive du circuit", undefined, 'span')}</h2>
             <p className="text-charcoal/70 mb-6 max-w-2xl">
-              Explore chaque étape sur la carte : hébergements, pépites et points de passage.
+              {Z('map_intro', 'text', "Explore chaque étape sur la carte : hébergements, pépites et points de passage.", undefined, 'span')}
             </p>
             <div className="rounded-2xl overflow-hidden border border-stone-200">
               <DynamicArticleMap slug="roumanie-5-jours" />
@@ -273,15 +273,15 @@ export default async function Itineraire5JoursPage() {
 
         <section className="bg-white section-spacing">
           <div className="container max-w-xl text-center">
-            <h2 className="text-2xl font-serif text-mahogany mb-4">Tu préfères un rythme plus lent ?</h2>
+            <h2 className="text-2xl font-serif text-mahogany mb-4">{Z('cta_slower_title', 'text', "Tu préfères un rythme plus lent ?", undefined, 'span')}</h2>
             <p className="text-charcoal/70 mb-6 max-w-lg mx-auto">
-              5 jours c&apos;est court pour la Roumanie. Notre itinéraire 7 jours ajoute Viscri et Cluj sans rien sacrifier.
+              {Z('cta_slower_text', 'textarea', "5 jours c'est court pour la Roumanie. Notre itinéraire 7 jours ajoute Viscri et Cluj sans rien sacrifier.", undefined, 'span')}
             </p>
             <Link
               href="/destinations/roumanie/itineraire-7-jours"
               className="inline-flex px-7 py-3 rounded-lg bg-mahogany text-white font-semibold hover:bg-mahogany/90 transition-colors"
             >
-              Voir l&apos;itinéraire 7 jours →
+              {Z('cta_slower_button', 'text', "Voir l'itinéraire 7 jours →", undefined, 'span')}
             </Link>
           </div>
         </section>
@@ -289,10 +289,10 @@ export default async function Itineraire5JoursPage() {
         <section className="bg-cloud-dancer section-spacing">
           <div className="container max-w-xl text-center">
             <p className="text-xs uppercase tracking-[0.2em] text-eucalyptus font-semibold mb-3">
-              Reste inspiré
+              {Z('newsletter_kicker', 'text', "Reste inspiré", undefined, 'span')}
             </p>
             <h2 className="text-2xl font-serif text-mahogany mb-4">
-              On t&apos;envoie nos prochains carnets ?
+              {Z('newsletter_title', 'text', "On t'envoie nos prochains carnets ?", undefined, 'span')}
             </h2>
             <NewsletterForm variant="inline" />
           </div>
