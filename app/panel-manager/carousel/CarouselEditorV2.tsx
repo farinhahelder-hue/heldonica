@@ -42,6 +42,7 @@ export default function CarouselEditorV2({ onComplete }: CarouselEditorV2Props) 
   const [historique, setHistorique] = useState<any[] | null>(null)
 
   const [texteColle, setTexteColle] = useState('')
+  const [step, setStep] = useState(1)
 
   /** Découpe un texte collé en diapositives. */
   const collerTexte = () => {
@@ -217,51 +218,52 @@ export default function CarouselEditorV2({ onComplete }: CarouselEditorV2Props) 
         </div>
       </div>
 
-      {/* 3-panel layout */}
-      {/* Une seule colonne sous md : la grille en 12 colonnes ecrasait chaque
-          panneau a un mot par ligne sur un telephone, rendant l'editeur
-          inutilisable depuis l'application mobile. */}
-      <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4 min-h-0">
-        {/* Left: AI Chat */}
-        <div className="md:col-span-4 min-h-0">
-          <AIChatPanel
-            onSlidesGenerated={handleSlidesGenerated}
-            isGenerating={isGenerating}
-            setIsGenerating={setIsGenerating}
-          />
-        </div>
-
-        {/* Center: Preview */}
-        <div className="md:col-span-5 min-h-0">
-          <SlidePreviewPanel
-            slide={activeSlide}
-            aspectRatio={aspectRatio}
-            brandOverlay={brandOverlay}
-            previewRef={previewRef}
-          />
-
-          {activeSlide && (
-            <PhotoPickerPanel
-              valeur={activeSlide.image}
-              onChoisir={(url) => setSlides(slides.map(s =>
-                s.id === activeSlide.id ? { ...s, image: url } : s
-              ))}
-            />
-          )}
-        </div>
-
-        {/* Right: Filmstrip */}
-        <div className="md:col-span-3 min-h-0">
-          <FilmStripPanel
-            slides={slides}
-            activeSlideId={activeSlideId}
-            onSlideSelect={setActiveSlideId}
-            onSlidesReorder={handleSlidesReorder}
-            onSlideDelete={handleSlideDelete}
-            onSlideAdd={handleSlideAdd}
-          />
-        </div>
+      {/* Wizard 4 étapes — 1 action à la fois */}
+      <div className="flex items-center gap-2 mb-4">
+        {[1, 2, 3, 4].map(n => (
+          <div key={n} className="flex items-center gap-2">
+            <button
+              onClick={() => setStep(n)}
+              className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center ${step === n ? 'bg-[#6b2a1a] text-white' : step > n ? 'bg-emerald-600 text-white' : 'bg-stone-200 text-stone-500'}`}
+            >
+              {n}
+            </button>
+            <span className={`text-xs ${step === n ? 'font-semibold text-stone-800' : 'text-stone-400'}`}>
+              {['Idée', 'Texte', 'Visuels', 'Légende'][n - 1]}
+            </span>
+            {n < 4 && <div className="w-6 h-0.5 bg-stone-200" />}
+          </div>
+        ))}
       </div>
+      {step === 1 && (
+        <div className="flex-1 min-h-0">
+          <AIChatPanel onSlidesGenerated={s => { handleSlidesGenerated(s); setStep(2); }} isGenerating={isGenerating} setIsGenerating={setIsGenerating} />
+        </div>
+      )}
+      {step === 2 && (
+        <div className="space-y-4">
+          <textarea value={texteColle} onChange={e => setTexteColle(e.target.value)} rows={6} placeholder={'1. Les portes en bois\nÀ Maramureș...'} className="w-full px-4 py-3 text-sm border border-stone-200 rounded-xl font-mono" />
+          <div className="flex gap-2">
+            <button onClick={() => { collerTexte(); setStep(3); }} disabled={!texteColle.trim()} className="px-4 py-2 text-sm bg-[#6b2a1a] text-white rounded-xl disabled:opacity-50">Découper → Visuels</button>
+            <button onClick={() => setStep(3)} className="px-4 py-2 text-sm border border-stone-200 rounded-xl">Passer</button>
+          </div>
+        </div>
+      )}
+      {step === 3 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 min-h-0">
+          <div className="space-y-3">
+            <SlidePreviewPanel slide={activeSlide} aspectRatio={aspectRatio} brandOverlay={brandOverlay} previewRef={previewRef} />
+            {activeSlide && <PhotoPickerPanel valeur={activeSlide.image} onChoisir={url => setSlides(slides.map(s => s.id === activeSlide.id ? { ...s, image: url } : s))} />}
+          </div>
+          <FilmStripPanel slides={slides} activeSlideId={activeSlideId} onSlideSelect={setActiveSlideId} onSlidesReorder={handleSlidesReorder} onSlideDelete={handleSlideDelete} onSlideAdd={handleSlideAdd} />
+        </div>
+      )}
+      {step === 4 && (
+        <div className="space-y-4">
+          <CaptionGenerator topic={sujet} slides={slides} onCaptionGenerated={(c, h) => { setLegende(c); setMotsCles(h) }} />
+          <SlideExport slides={slides} aspectRatio={aspectRatio} brandOverlay={brandOverlay} title={sujet} legende={legende} motsCles={motsCles} />
+        </div>
+      )}
 
       {/* Sujet du carrousel : nomme la sauvegarde et amorce la légende. */}
       <div className="mt-4 pt-4 border-t border-stone-200">
