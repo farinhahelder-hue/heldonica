@@ -11,3 +11,7 @@ cms.baseUrl=https://www.heldonica.fr
 # pas contenir un mot de passe qui ouvre l'administration. Laisse le champ vide
 # ici et renseigne-le dans local.properties, qui n'est pas versionne.
 cms.password=
+ 
+# URL du Heldonica Brain (serveur IA local sur station PC)
+# En local Wi-Fi: http://10.10.145.61:8440 ou via tunnel HTTPS externe
+brain.baseUrl=http://10.10.145.61:8440

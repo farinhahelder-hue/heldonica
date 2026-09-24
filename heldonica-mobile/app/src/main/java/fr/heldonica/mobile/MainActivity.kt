@@ -1274,6 +1274,45 @@ ${if (notesAutrice.isNotBlank()) "NOTES DE L'AUTRICE (la seule source du vécu) 
                     }
                 }
 
+                // 3. Repli vers Heldonica Brain local (GPU / Ollama / RAG)
+                if (textResult.isBlank() && BuildConfig.BRAIN_BASE_URL.isNotBlank()) {
+                    withContext(Dispatchers.Main) {
+                        status = "Repli sur Heldonica Brain…"
+                    }
+                    try {
+                        val brainPrompt = if (notesAutrice.isNotBlank()) {
+                            "Notes de l'autrice : $notesAutrice. Lieu : $placeTitle. Rédige une légende Instagram slow-travel sobre et intime (format voix Heldonica, tutoiement, 4 hashtags)."
+                        } else {
+                            "Lieu : $placeTitle. Rédige une amorce de carnet slow-travel (format voix Heldonica, tutoiement, terminer par [À TOI : ce que tu as ressenti là], 4 hashtags)."
+                        }
+                        val brainJson = org.json.JSONObject().apply {
+                            put("model", "heldonica-brain")
+                            put("messages", org.json.JSONArray().apply {
+                                put(org.json.JSONObject().apply {
+                                    put("role", "user")
+                                    put("content", brainPrompt)
+                                })
+                            })
+                        }
+                        val brainReq = Request.Builder()
+                            .url("${BuildConfig.BRAIN_BASE_URL.trimEnd('/')}/v1/chat/completions")
+                            .post(brainJson.toString().toRequestBody("application/json".toMediaType()))
+                            .build()
+                        val brainClient = OkHttpClient.Builder().callTimeout(10, TimeUnit.SECONDS).build()
+                        val brainResp = brainClient.newCall(brainReq).execute()
+                        if (brainResp.isSuccessful) {
+                            val bBody = brainResp.body?.string().orEmpty()
+                            val bJson = org.json.JSONObject(bBody)
+                            val choice = bJson.optJSONArray("choices")?.optJSONObject(0)?.optJSONObject("message")?.optString("content")
+                            if (!choice.isNullOrBlank()) {
+                                textResult = choice.trim()
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Repli Brain exception: ${e.message}")
+                    }
+                }
+
                 withContext(Dispatchers.Main) {
                     analyseEnCours = false
                     if (textResult.isNotBlank()) {

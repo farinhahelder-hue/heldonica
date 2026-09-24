@@ -1,0 +1,272 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 Write migration file `supabase/migrations/20260922000000_brain_bridge_agent_tasks.sql`": [
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790264381364
+      },
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790264394167
+      },
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790264489883
+      }
+    ],
+    "2.1 Create `lib/bridge-auth.ts` with `requireBridgeAuth(req: Request)`": [
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790264381562
+      },
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790264496488
+      },
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790265023216
+      }
+    ],
+    "3.1 Create `app/api/brain/tasks/route.ts`": [
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790264381721
+      },
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790265035840
+      },
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790266403404
+      }
+    ],
+    "4. Checkpoint — ensure migration and auth compile cleanly": [
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790264381863
+      }
+    ],
+    "5.1 Create `app/api/brain/tasks/[id]/route.ts`": [
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790264382036
+      },
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790266407371
+      },
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790266548773
+      }
+    ],
+    "6.1 Create `app/api/brain/heartbeat/route.ts`": [
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790264382318
+      },
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790266407892
+      },
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790266549394
+      }
+    ],
+    "6.2 Create `app/api/brain/status/route.ts`": [
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790264382435
+      },
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790266408540
+      },
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790266549815
+      }
+    ],
+    "7. Checkpoint — CMS routes complete": [
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790264382552
+      }
+    ],
+    "8.1 Create `app/engine/bridge_poller.py` with the `BridgePoller` class skeleton and `bridge_poller` singleton": [
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790264382697
+      },
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790265036257
+      },
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790266404099
+      }
+    ],
+    "8.2 Implement `_poll_and_execute` and `_patch_task` in `bridge_poller.py`": [
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790264382821
+      },
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790266409167
+      },
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790266548178
+      }
+    ],
+    "8.3 Implement `_execute_task` dispatch table and `_send_heartbeat` in `bridge_poller.py`": [
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790264382980
+      },
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790266554460
+      },
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790266661097
+      }
+    ],
+    "9.1 Edit `app/main.py` to import and start/stop `bridge_poller` in the lifespan handler": [
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790264383115
+      },
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790266555427
+      },
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790266662099
+      }
+    ],
+    "9.2 Add `BRAIN_BRIDGE_TOKEN` to Brain `.env`": [
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790264383412
+      },
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790266555870
+      },
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790266662578
+      }
+    ],
+    "12. Final checkpoint — all tests and CI garde-fous pass": [
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790264383662
+      },
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790266667260
+      },
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790267047270
+      }
+    ],
+    "1. Apply Supabase migration (CMS)": [
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790264490150
+      }
+    ],
+    "2. Implement `lib/bridge-auth.ts` (CMS)": [
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790265023419
+      }
+    ],
+    "3. Implement `app/api/brain/tasks/route.ts` — GET + POST (CMS)": [
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790266403505
+      }
+    ],
+    "5. Implement `app/api/brain/tasks/[id]/route.ts` — GET + PATCH (CMS)": [
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790266548925
+      }
+    ],
+    "6. Implement `app/api/brain/heartbeat/route.ts` and `app/api/brain/status/route.ts` (CMS)": [
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790266550080
+      }
+    ],
+    "8. Implement `app/engine/bridge_poller.py` (Brain)": [
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790266661420
+      }
+    ],
+    "9. Wire `BridgePoller` into `app/main.py` (Brain)": [
+      {
+        "executionId": "d866a60b-17ec-4598-9551-f8524666ce3a",
+        "chatSessionId": "sess_459b5299-9abc-4faf-a6c7-aaad89ed706f",
+        "timestamp": 1790266662799
+      }
+    ]
+  }
+}
