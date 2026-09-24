@@ -56,13 +56,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // Organiser par clé et par page
+    // Organiser par clé et par page — clé plate page__zone_key pour éviter collision inter-pages
     const zones: Record<string, CmsZone> = {};
     const byPage: Record<string, Record<string, CmsZone>> = {};
 
     (data || []).forEach((zone: CmsZone) => {
-      // Index par zone_key
-      zones[zone.zone_key] = zone;
+      // Index plat sans collision (même zone_key sur 2 pages → 2 entrées distinctes)
+      zones[`${zone.page}__${zone.zone_key}`] = zone;
       
       // Index par page > zone_key
       if (!byPage[zone.page]) {
