@@ -230,7 +230,7 @@ export async function middleware(req: NextRequest) {
   // /ajouter est un outil d'ecriture, pas du contenu public : le laisser
   // derriere la maintenance le rendrait inutilisable precisement quand on
   // prepare le site. Meme raison que /panel-manager et /admin.
-  const maintenanceExcludes = ['/maintenance', '/panel-manager', '/cms-admin', '/admin', '/ajouter', '/api', '/_next', '/robots.txt', '/sitemap.xml', '/favicon.ico'];
+  const maintenanceExcludes = ['/maintenance', '/panel-manager', '/cms-admin', '/admin', '/ajouter', '/api', '/_next', '/robots.txt', '/sitemap.xml', '/favicon.ico', '/politique-confidentialite', '/mentions-legales', '/politique-affiliation'];
   const isMaintenanceExcluded = maintenanceExcludes.some(path => pathname.startsWith(path)) || hasMaintenanceBypass(req);
 
   if (!isMaintenanceExcluded) {
