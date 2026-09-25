@@ -13,6 +13,7 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 - **Accueil** : carte « Parlons au cerveau » ajoutée dans `EcranAccueil` (`MainActivity.kt`), ouvrant l'écran.
 - **Manifest** : activité `BrainChatActivity` enregistrée (`exported=false`, `adjustResize`).
 - **Vérifié en conditions réelles** : envoi d'une vraie question via le pont CMS avec `x-cms-auth` → tâche `sent` puis `done` en 17 s, réponse « Lisbonne. » reçue (`actions_done.result`).
+- **Correctif 401 le soir même** : le secret GitHub `CMS_PASSWORD` était périmé (02/09) → l'APK compilé ne contenait pas le bon mot de passe → HTTP 401 sur `POST /api/brain/tasks` depuis l'appli (vérifié : mot de passe absent des 5 dex). Secret mis à jour, rebuild CI `36144495185` vert, mot de passe vérifié présent dans le dex, APK v1.0.51 installé sur le Pixel via adb — le chat répond. **Retenir : à chaque rotation du mot de passe CMS, mettre à jour le secret GitHub `CMS_PASSWORD` puis relancer `build-apk.yml`, sinon l'APK perd toute authentification CMS.**
 - **Non vérifié localement** : compilation APK (aucun JDK/SDK/Gradle sur ce poste) — la CI `build-apk.yml` (Gradle 8.7, SDK 34) produit l'APK sur push vers `heldonica-mobile/**`.
 
 ---
