@@ -259,7 +259,7 @@ class MainActivity : ComponentActivity() {
                 titre = "Parlons au cerveau",
                 detail = "Poser une question au cerveau Heldonica — ça marche aussi loin du Wi-Fi."
             ) {
-                startActivity(android.content.Intent(this, BrainChatActivity::class.java))
+                ouvrirCerveau()
             }
 
             Text("Modifier le site", style = MaterialTheme.typography.titleMedium)
@@ -1396,6 +1396,11 @@ ${if (notesAutrice.isNotBlank()) "NOTES DE L'AUTRICE (la seule source du vécu) 
             android.content.Intent(this, EditeurActivity::class.java)
                 .putExtra(EditeurActivity.EXTRA_CHEMIN, chemin)
         )
+    }
+
+    /** Ouvre le chat avec le cerveau (pont CMS du site, donc hors Wi-Fi). */
+    private fun ouvrirCerveau() {
+        startActivity(android.content.Intent(this, BrainChatActivity::class.java))
     }
 
     /**
