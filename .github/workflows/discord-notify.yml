@@ -13,6 +13,11 @@ jobs:
       # Ilshidur/action-discord ne lit que `env.DISCORD_WEBHOOK` et `with.args` :
       # `webhook-url` / `content` étaient ignorés et le job échouait à chaque push.
       - name: Send Discord notification
+        # Sans DISCORD_WEBHOOK défini dans les secrets, l'action échoue à
+        # chaque push (rouge permanent sur main). On saute l'étape dans ce cas :
+        # le build reste vert, et les notifications partent dès que le secret
+        # est ajouté côté GitHub.
+        if: env.DISCORD_WEBHOOK != ''
         uses: Ilshidur/action-discord@0.4.0
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
