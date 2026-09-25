@@ -274,8 +274,13 @@ class BrainChatActivity : ComponentActivity() {
             }
 
             // 2. Attendre la réponse du cerveau.
+            // Le cerveau interroge le site toutes les 30 s : on relit la tâche
+            // toutes les 5 s, pendant 2 min 30 au maximum.
             var tente = 0
-            while (true) {
+            val maxTentatives = 30 // 30 x 5 s = 2 min 30
+            var reponse: ReponseCerveau? = null
+
+            while (reponse == null && tente < maxTentatives) {
                 delay(5_000)
                 tente++
 
@@ -295,33 +300,23 @@ class BrainChatActivity : ComponentActivity() {
                 }
 
                 val task = etat?.optJSONObject("task") ?: continue
-                when (task.optString("status")) {
+                reponse = when (task.optString("status")) {
                     "done" -> {
                         val actions = task.optJSONObject("actions_done")
                         val texte = actions?.optString("result")
                             ?.takeIf { it.isNotBlank() }
                             ?: "Réponse reçue (vide)."
-                        return@withContext ReponseCerveau(
-                            texte.trim(),
-                            "Réponse du cerveau en ${tente * 5} s."
-                        )
+                        ReponseCerveau(texte.trim(), "Réponse du cerveau en ${tente * 5} s.")
                     }
-                    "blocked" -> return@withContext ReponseCerveau(
-                        "",
-                        "Le cerveau a bloqué cette question."
-                    )
-                    "failed" -> return@withContext ReponseCerveau(
-                        "",
-                        "Le cerveau a échoué sur cette question."
-                    )
-                }
-
-                if (tente * 5 > 150) {
-                    return@withContext ReponseCerveau(
-                        "",
-                        "Pas de réponse après 2 min 30 — le cerveau est peut-être éteint."
-                    )
+                    "blocked" -> ReponseCerveau("", "Le cerveau a bloqué cette question.")
+                    "failed" -> ReponseCerveau("", "Le cerveau a échoué sur cette question.")
+                    else -> null
                 }
             }
+
+            reponse ?: ReponseCerveau(
+                "",
+                "Pas de réponse après 2 min 30 — le cerveau est peut-être éteint."
+            )
         }
 }
