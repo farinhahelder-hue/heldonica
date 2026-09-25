@@ -4,6 +4,19 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-09-25] — APK Mobile : écran chat « Parlons au cerveau » (fonctionne hors du Wi-Fi)
+
+### Mobile (Heldonica Mobile) — branche `agent/opencode/mobile-brain-chat`
+- **Nouvel écran `BrainChatActivity`** (`heldonica-mobile/app/src/main/java/fr/heldonica/mobile/BrainChatActivity.kt`) : chat Compose avec bulles utilisateur/cerveau, champ de saisie, et suivi d'attente.
+- **Canal 100 % internet (pas de Wi-Fi maison requis)** : la question part vers `POST /api/brain/tasks` du site (`task_type=chat`), le cerveau à la maison la récupère par son polling du pont CMS et écrit sa réponse ; l'appli relit `GET /api/brain/tasks/{id}` toutes les 5 s jusqu'à `done`, jusqu'à 2 min 30, et affiche `actions_done.result`.
+- **Aucun secret nouveau embarqué** : réutilisation du mot de passe CMS déjà compilé (`BuildConfig.CMS_PASSWORD`, en-tête `x-cms-auth`) — même mécanisme que le reste de l'appli.
+- **Accueil** : carte « Parlons au cerveau » ajoutée dans `EcranAccueil` (`MainActivity.kt`), ouvrant l'écran.
+- **Manifest** : activité `BrainChatActivity` enregistrée (`exported=false`, `adjustResize`).
+- **Vérifié en conditions réelles** : envoi d'une vraie question via le pont CMS avec `x-cms-auth` → tâche `sent` puis `done` en 17 s, réponse « Lisbonne. » reçue (`actions_done.result`).
+- **Non vérifié localement** : compilation APK (aucun JDK/SDK/Gradle sur ce poste) — la CI `build-apk.yml` (Gradle 8.7, SDK 34) produit l'APK sur push vers `heldonica-mobile/**`.
+
+---
+
 ## [2026-09-24] — Passerelle Brain-CMS (Bridge) & Connexion APK Mobile vers Brain local
 
 ### Brain-CMS Bridge

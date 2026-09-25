@@ -255,6 +255,13 @@ class MainActivity : ComponentActivity() {
                 ecran = "carnet"
             }
 
+            CarteAction(
+                titre = "Parlons au cerveau",
+                detail = "Poser une question au cerveau Heldonica — ça marche aussi loin du Wi-Fi."
+            ) {
+                startActivity(android.content.Intent(this, BrainChatActivity::class.java))
+            }
+
             Text("Modifier le site", style = MaterialTheme.typography.titleMedium)
 
             // Chaque carte ouvre directement sa section du panneau. Sans le

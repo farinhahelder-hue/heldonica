@@ -29,5 +29,14 @@
             android:exported="false"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:windowSoftInputMode="adjustResize" />
+
+        <!-- Chat avec le cerveau : par le pont CMS du site, donc utilisable
+             hors du Wi-Fi de la maison (le cerveau, lui, attend a cote du
+             routeur). -->
+        <activity
+            android:name=".BrainChatActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 </manifest>
