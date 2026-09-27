@@ -22,7 +22,8 @@
     "media:publish": "node scripts/media_publish.mjs",
     "media:plan": "node scripts/media_publish.mjs --dry-run",
     "media:drafts": "node scripts/draft_from_evidence.mjs",
-    "media:voyage": "python scripts/reconstituer_voyage.py"
+    "media:voyage": "python scripts/reconstituer_voyage.py",
+    "voyage:brouillon": "python scripts/voyage_vers_cms.py"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1075.0",
