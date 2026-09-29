@@ -6,6 +6,12 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ## [2026-09-29] — CMS & Mobile : upload photo depuis smartphone, carrousel V2 auto-distribution et fallback LLM local (GTX 1660 Ti)
 
+- **Support Google Photos Cloud, Reconstitution 1-Clic & Fallback Multi-IA (Grok, DeepSeek, HuggingFace)** :
+  - [lib/ai-provider.ts](file:///c:/Users/farin/StudioProjects/heldonica/lib/ai-provider.ts) : Extension du moteur d'IA universel avec 3 nouveaux fournisseurs en cascade : **DeepSeek** (`deepseek-chat`), **Grok / xAI** (`grok-2-vision-1212`), et **Hugging Face Inference Router** (`Qwen/Qwen2.5-VL-72B-Instruct`). La cascade passe désormais à 11 niveaux automatiques.
+  - [app/panel-manager/photos/page.tsx](file:///c:/Users/farin/StudioProjects/heldonica/app/panel-manager/photos/page.tsx) : Ajout du bouton 1-clic **`✨ Reconstituer Carnet & Carte avec l'IA`** permettant de générer automatiquement un carnet de route complet et sa carte GPS à partir des photos Google Photos Cloud sélectionnées sans album préalable.
+  - [scripts/enrich_photos_vision.py](file:///c:/Users/farin/StudioProjects/heldonica/scripts/enrich_photos_vision.py) : Nouveau script d'analyse visuelle par IA multimodale (reconnaissance de lieux/monuments, OCR d'enseignes et panneaux, analyse d'ambiance).
+  - [scripts/reconstituer_voyage.py](file:///c:/Users/farin/StudioProjects/heldonica/scripts/reconstituer_voyage.py) : Prise en charge native du format d'export récent Google Takeout `Timeline Edits.json`.
+
 ## [2026-09-24] — Passerelle Brain-CMS (Bridge) & Connexion APK Mobile vers Brain local
 
 ### Brain-CMS Bridge

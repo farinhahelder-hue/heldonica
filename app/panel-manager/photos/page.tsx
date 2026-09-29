@@ -109,6 +109,35 @@ export default function ImportPhotosPage() {
 
   const occupe = etat === 'ouverture' || etat === 'attente' || etat === 'import';
 
+  const [generationEnCours, setGenerationEnCours] = useState(false);
+  const [carnetGenerer, setCarnetGenerer] = useState<any>(null);
+
+  const lancerReconstitutionIA = useCallback(async () => {
+    setGenerationEnCours(true);
+    setMessage('Analyse des photos et génération du carnet par l\'IA…');
+    try {
+      const res = await fetch('/api/cms/import-trip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          destination,
+          photosCount: bilan?.importes || 50,
+          notes: 'Photos importées depuis Google Photos',
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Génération échouée');
+      setCarnetGenerer(data.article);
+      setEtat('fini');
+      setMessage('✓ Carnet de route généré avec succès dans les brouillons !');
+    } catch (e: any) {
+      setEtat('erreur');
+      setMessage(e?.message || 'Erreur lors de la génération');
+    } finally {
+      setGenerationEnCours(false);
+    }
+  }, [destination, bilan]);
+
   return (
     <div className="max-w-2xl mx-auto py-10 px-6">
       <h1 className="text-2xl font-serif font-semibold text-mahogany mb-1">
@@ -140,18 +169,28 @@ export default function ImportPhotosPage() {
         id="destination"
         value={destination}
         onChange={(e) => setDestination(e.target.value)}
-        disabled={occupe}
+        disabled={occupe || generationEnCours}
         className="w-full mb-6 rounded-lg border border-stone-300 px-3 py-2 text-sm disabled:bg-stone-100"
         placeholder="roumanie"
       />
 
-      <button
-        onClick={ouvrirSession}
-        disabled={occupe}
-        className="rounded-full bg-eucalyptus px-6 py-3 text-sm font-semibold text-white disabled:opacity-50"
-      >
-        {occupe ? 'En cours…' : 'Choisir des photos'}
-      </button>
+      <div className="flex flex-wrap gap-3">
+        <button
+          onClick={ouvrirSession}
+          disabled={occupe || generationEnCours}
+          className="rounded-full bg-eucalyptus px-6 py-3 text-sm font-semibold text-white disabled:opacity-50"
+        >
+          {occupe ? 'En cours…' : 'Choisir des photos'}
+        </button>
+
+        <button
+          onClick={lancerReconstitutionIA}
+          disabled={occupe || generationEnCours || !destination}
+          className="rounded-full bg-mahogany px-6 py-3 text-sm font-semibold text-white hover:bg-mahogany/90 disabled:opacity-50 transition-all flex items-center gap-2"
+        >
+          {generationEnCours ? '✨ Génération IA…' : '✨ Reconstituer Carnet & Carte avec l\'IA'}
+        </button>
+      </div>
 
       {pickerUri && etat === 'attente' && (
         <p className="mt-4 text-sm">
@@ -164,9 +203,26 @@ export default function ImportPhotosPage() {
       )}
 
       {message && (
-        <p className={`mt-4 text-sm ${etat === 'erreur' ? 'text-red-700' : 'text-charcoal/70'}`}>
+        <p className={`mt-4 text-sm ${etat === 'erreur' ? 'text-red-700' : 'text-emerald-700 font-medium'}`}>
           {message}
         </p>
+      )}
+
+      {carnetGenerer && (
+        <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 text-sm">
+          <p className="font-semibold text-emerald-900">
+            📖 Carnet généré : {carnetGenerer.title}
+          </p>
+          <p className="mt-1 text-xs text-emerald-800">
+            Slug : <code>{carnetGenerer.slug}</code>
+          </p>
+          {carnetGenerer.instagram_caption && (
+            <div className="mt-3 rounded-lg bg-white/80 p-3 text-xs text-charcoal/80 border border-emerald-100">
+              <strong className="block mb-1 text-emerald-900">Légende Instagram prête :</strong>
+              {carnetGenerer.instagram_caption}
+            </div>
+          )}
+        </div>
       )}
 
       {bilan && (
