@@ -321,15 +321,106 @@ async function callLocalLlm(options: AiCompletionOptions, localUrl: string): Pro
 }
 
 /**
+ * Appel à Hugging Face Inference API (OpenAI-compatible)
+ */
+async function callHuggingFace(options: AiCompletionOptions, apiKey: string): Promise<AiCompletionResult> {
+  const model = process.env.HUGGINGFACE_MODEL || 'Qwen/Qwen2.5-VL-72B-Instruct';
+  const res = await fetch('https://router.huggingface.co/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model,
+      messages: options.messages,
+      temperature: options.temperature ?? 0.7,
+      max_tokens: options.max_tokens ?? 2000,
+    }),
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`HuggingFace API Error (${res.status}): ${errorText}`);
+  }
+
+  const data = await res.json();
+  const content = data.choices?.[0]?.message?.content || '';
+  return { content, provider: 'none', model: `hf/${model}` };
+}
+
+/**
+ * Appel à Grok (xAI API — OpenAI-compatible)
+ */
+async function callGrok(options: AiCompletionOptions, apiKey: string): Promise<AiCompletionResult> {
+  const model = process.env.GROK_MODEL || 'grok-2-vision-1212';
+  const res = await fetch('https://api.x.ai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model,
+      messages: options.messages,
+      temperature: options.temperature ?? 0.7,
+      max_tokens: options.max_tokens ?? 2000,
+    }),
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Grok API Error (${res.status}): ${errorText}`);
+  }
+
+  const data = await res.json();
+  const content = data.choices?.[0]?.message?.content || '';
+  return { content, provider: 'none', model: `grok/${model}` };
+}
+
+/**
+ * Appel à DeepSeek API (OpenAI-compatible)
+ */
+async function callDeepSeek(options: AiCompletionOptions, apiKey: string): Promise<AiCompletionResult> {
+  const model = 'deepseek-chat';
+  const res = await fetch('https://api.deepseek.com/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model,
+      messages: options.messages,
+      temperature: options.temperature ?? 0.7,
+      max_tokens: options.max_tokens ?? 2000,
+      ...(options.jsonMode ? { response_format: { type: 'json_object' } } : {}),
+    }),
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`DeepSeek API Error (${res.status}): ${errorText}`);
+  }
+
+  const data = await res.json();
+  const content = data.choices?.[0]?.message?.content || '';
+  return { content, provider: 'none', model: `deepseek/${model}` };
+}
+
+/**
  * Orchestrateur principal : tente les fournisseurs dans l'ordre de priorité :
  * 1. Groq (Gratuit, Llama 3.3 70B)
  * 2. Google Gemini (Gratuit, Gemini 2.5 Flash)
  * 3. Mistral AI (Gratuit, Mistral Small)
  * 4. Cerebras (Gratuit, Inférence Llama 3.3 70B)
- * 5. OpenRouter (Gratuit, Modèles Llama / DeepSeek)
- * 6. OpenAI (Payant, GPT-4o-mini)
- * 7. Anthropic (Payant, Claude 3.5 Haiku)
- * 8. LLM Local (Cerveau Heldonica / PC GTX 1660 Ti via LOCAL_LLM_URL)
+ * 5. DeepSeek (Gratuit/Payant, DeepSeek V3/R1)
+ * 6. Grok / xAI (Vision & LLM)
+ * 7. Hugging Face (Inference Router: Qwen-VL, Llama-Vision)
+ * 8. OpenRouter (Gratuit, Modèles Llama / DeepSeek)
+ * 9. OpenAI (Payant, GPT-4o-mini)
+ * 10. Anthropic (Payant, Claude 3.5 Haiku)
+ * 11. LLM Local (Cerveau Heldonica / PC GTX 1660 Ti via LOCAL_LLM_URL)
  */
 export async function generateAiCompletion(options: AiCompletionOptions): Promise<AiCompletionResult> {
   const errors: string[] = [];
@@ -378,7 +469,40 @@ export async function generateAiCompletion(options: AiCompletionOptions): Promis
     }
   }
 
-  // 5. OpenRouter (Gratuit / Fallback)
+  // 5. DeepSeek
+  const deepseekKey = process.env.DEEPSEEK_API_KEY;
+  if (deepseekKey) {
+    try {
+      return await callDeepSeek(options, deepseekKey);
+    } catch (err: any) {
+      console.warn('[AI Provider] DeepSeek fallback:', err.message);
+      errors.push(`DeepSeek: ${err.message}`);
+    }
+  }
+
+  // 6. Grok / xAI
+  const xaiKey = process.env.XAI_API_KEY || process.env.GROK_API_KEY;
+  if (xaiKey) {
+    try {
+      return await callGrok(options, xaiKey);
+    } catch (err: any) {
+      console.warn('[AI Provider] Grok fallback:', err.message);
+      errors.push(`Grok: ${err.message}`);
+    }
+  }
+
+  // 7. Hugging Face Inference
+  const hfKey = process.env.HUGGINGFACE_API_KEY || process.env.HF_TOKEN;
+  if (hfKey) {
+    try {
+      return await callHuggingFace(options, hfKey);
+    } catch (err: any) {
+      console.warn('[AI Provider] HuggingFace fallback:', err.message);
+      errors.push(`HuggingFace: ${err.message}`);
+    }
+  }
+
+  // 8. OpenRouter (Gratuit / Fallback)
   const openrouterKey = process.env.OPENROUTER_API_KEY;
   if (openrouterKey) {
     try {
@@ -389,7 +513,7 @@ export async function generateAiCompletion(options: AiCompletionOptions): Promis
     }
   }
 
-  // 6. OpenAI (Payant)
+  // 9. OpenAI (Payant)
   const openaiKey = process.env.OPENAI_API_KEY || process.env.NEXT_PUBLIC_OPENAI_API_KEY;
   if (openaiKey) {
     try {
@@ -400,7 +524,7 @@ export async function generateAiCompletion(options: AiCompletionOptions): Promis
     }
   }
 
-  // 7. Anthropic (Payant)
+  // 10. Anthropic (Payant)
   const anthropicKey = process.env.ANTHROPIC_API_KEY;
   if (anthropicKey) {
     try {
@@ -411,7 +535,7 @@ export async function generateAiCompletion(options: AiCompletionOptions): Promis
     }
   }
 
-  // 8. Serveur LLM Local (Cerveau Heldonica / PC GTX 1660 Ti)
+  // 11. Serveur LLM Local (Cerveau Heldonica / PC GTX 1660 Ti)
   const localLlmUrl = process.env.LOCAL_LLM_URL;
   if (localLlmUrl) {
     try {

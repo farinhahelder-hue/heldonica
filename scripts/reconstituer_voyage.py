@@ -172,6 +172,19 @@ def lire_timeline(chemin: Path):
                 if ll and t:
                     positions.append((t, ll[0], ll[1]))
 
+    # Takeout récent : Timeline Edits.json (timelineEdits)
+    elif isinstance(data, dict) and "timelineEdits" in data:
+        fmt = "takeout-timeline-edits"
+        for edit in data["timelineEdits"]:
+            raw = (edit.get("rawSignal") or {}).get("signal") or {}
+            pos = raw.get("position") or {}
+            pt = pos.get("point") or {}
+            t = parse_temps(pos.get("timestamp"))
+            if pt.get("latE7") is not None and pt.get("lngE7") is not None and t:
+                lat = pt["latE7"] / 1e7
+                lon = pt["lngE7"] / 1e7
+                positions.append((t, lat, lon))
+
     # Takeout ancien : Records.json
     elif isinstance(data, dict) and "locations" in data:
         fmt = "takeout-records"
