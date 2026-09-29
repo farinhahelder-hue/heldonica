@@ -409,18 +409,78 @@ async function callDeepSeek(options: AiCompletionOptions, apiKey: string): Promi
 }
 
 /**
+ * Appel à SambaNova Systems (OpenAI-compatible — Tier gratuit ultra rapide)
+ */
+async function callSambaNova(options: AiCompletionOptions, apiKey: string): Promise<AiCompletionResult> {
+  const model = process.env.SAMBANOVA_MODEL || 'Meta-Llama-3.3-70B-Instruct';
+  const res = await fetch('https://api.sambanova.ai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model,
+      messages: options.messages,
+      temperature: options.temperature ?? 0.7,
+      max_tokens: options.max_tokens ?? 2000,
+    }),
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`SambaNova API Error (${res.status}): ${errorText}`);
+  }
+
+  const data = await res.json();
+  const content = data.choices?.[0]?.message?.content || '';
+  return { content, provider: 'none', model: `sambanova/${model}` };
+}
+
+/**
+ * Appel à Together AI (OpenAI-compatible)
+ */
+async function callTogether(options: AiCompletionOptions, apiKey: string): Promise<AiCompletionResult> {
+  const model = process.env.TOGETHER_MODEL || 'meta-llama/Llama-3.3-70B-Instruct-Turbo';
+  const res = await fetch('https://api.together.xyz/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model,
+      messages: options.messages,
+      temperature: options.temperature ?? 0.7,
+      max_tokens: options.max_tokens ?? 2000,
+    }),
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Together AI Error (${res.status}): ${errorText}`);
+  }
+
+  const data = await res.json();
+  const content = data.choices?.[0]?.message?.content || '';
+  return { content, provider: 'none', model: `together/${model}` };
+}
+
+/**
  * Orchestrateur principal : tente les fournisseurs dans l'ordre de priorité :
  * 1. Groq (Gratuit, Llama 3.3 70B)
  * 2. Google Gemini (Gratuit, Gemini 2.5 Flash)
  * 3. Mistral AI (Gratuit, Mistral Small)
  * 4. Cerebras (Gratuit, Inférence Llama 3.3 70B)
- * 5. DeepSeek (Gratuit/Payant, DeepSeek V3/R1)
- * 6. Grok / xAI (Vision & LLM)
- * 7. Hugging Face (Inference Router: Qwen-VL, Llama-Vision)
- * 8. OpenRouter (Gratuit, Modèles Llama / DeepSeek)
- * 9. OpenAI (Payant, GPT-4o-mini)
- * 10. Anthropic (Payant, Claude 3.5 Haiku)
- * 11. LLM Local (Cerveau Heldonica / PC GTX 1660 Ti via LOCAL_LLM_URL)
+ * 5. SambaNova Systems (Gratuit, Llama 3.3 70B)
+ * 6. Together AI (Crédits gratuits)
+ * 7. DeepSeek (Gratuit/Payant, DeepSeek V3/R1)
+ * 8. Grok / xAI (Vision & LLM)
+ * 9. Hugging Face (Inference Router: Qwen-VL, Llama-Vision)
+ * 10. OpenRouter (Gratuit, Modèles Llama / DeepSeek)
+ * 11. OpenAI (Payant, GPT-4o-mini)
+ * 12. Anthropic (Payant, Claude 3.5 Haiku)
+ * 13. LLM Local (Cerveau Heldonica / PC GTX 1660 Ti via LOCAL_LLM_URL)
  */
 export async function generateAiCompletion(options: AiCompletionOptions): Promise<AiCompletionResult> {
   const errors: string[] = [];
@@ -469,7 +529,29 @@ export async function generateAiCompletion(options: AiCompletionOptions): Promis
     }
   }
 
-  // 5. DeepSeek
+  // 5. SambaNova Systems (Gratuit)
+  const sambanovaKey = process.env.SAMBANOVA_API_KEY;
+  if (sambanovaKey) {
+    try {
+      return await callSambaNova(options, sambanovaKey);
+    } catch (err: any) {
+      console.warn('[AI Provider] SambaNova fallback:', err.message);
+      errors.push(`SambaNova: ${err.message}`);
+    }
+  }
+
+  // 6. Together AI (Gratuit / Crédits)
+  const togetherKey = process.env.TOGETHER_API_KEY;
+  if (togetherKey) {
+    try {
+      return await callTogether(options, togetherKey);
+    } catch (err: any) {
+      console.warn('[AI Provider] Together AI fallback:', err.message);
+      errors.push(`Together: ${err.message}`);
+    }
+  }
+
+  // 7. DeepSeek
   const deepseekKey = process.env.DEEPSEEK_API_KEY;
   if (deepseekKey) {
     try {
