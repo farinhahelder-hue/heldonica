@@ -60,3 +60,4 @@ interpreter.cmd
 
 # Exports Timeline, photos et reconstitutions de voyage (donnees personnelles)
 imports/
+scratch/

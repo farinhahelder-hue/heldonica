@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
   const authResponse = await requireCmsAuth(req);
   if (authResponse) return authResponse;
 
-  const prefix = req.nextUrl.searchParams.get('prefix') || 'articles';
+  const prefix = req.nextUrl.searchParams.get('prefix') || req.nextUrl.searchParams.get('folder') || 'articles';
   const folder = prefix.replace(/\/$/, '');
   const limit = parseInt(req.nextUrl.searchParams.get('limit') || '20');
   const offset = parseInt(req.nextUrl.searchParams.get('offset') || '0');

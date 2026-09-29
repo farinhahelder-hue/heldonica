@@ -6,9 +6,31 @@ import { Save, RefreshCw, Code, LayoutList, Plus, Trash2 } from 'lucide-react';
 import type { PillarData } from '@/lib/pillar-types';
 
 type PillarRecord = {
-  destination_slug: string;
-  content: PillarData;
-  updated_at: string;
+  slug: string;
+  name: string;
+  country?: string;
+  flag?: string;
+  hero?: string;
+  tagline?: string;
+  hero_subtitle?: string;
+  budget?: number;
+  season?: string;
+  flight?: string;
+  visa?: string;
+  currency?: string;
+  language?: string;
+  seo_title?: string;
+  seo_desc?: string;
+  intro?: string[];
+  info_table?: { label: string; value: string }[];
+  itinerary?: { day: number; title: string; activities: string[]; tip?: string; articleSlug?: string }[];
+  budget_breakdown?: { label: string; pct: number; amount: number }[];
+  faq?: { q: string; a: string }[];
+  tested_by_heldonica?: Record<string, any>;
+  verdict?: Record<string, any>;
+  is_active?: boolean;
+  updated_at?: string;
+  [key: string]: any;
 };
 
 export default function DestinationPillarEditor() {
@@ -18,7 +40,7 @@ export default function DestinationPillarEditor() {
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   
   const [editMode, setEditMode] = useState<'form' | 'json'>('form');
-  const [formData, setFormData] = useState<PillarData | null>(null);
+  const [formData, setFormData] = useState<PillarRecord | null>(null);
   const [jsonText, setJsonText] = useState('');
 
   const fetchPillars = useCallback(async () => {
@@ -27,8 +49,17 @@ export default function DestinationPillarEditor() {
       const res = await fetch('/api/cms/pillar-pages');
       if (res.ok) {
         const data = await res.json();
-        if (data.success && data.pages) {
+        if (data.success && Array.isArray(data.pages)) {
           setPillars(data.pages);
+          if (data.pages.length > 0) {
+            setSelectedSlug((prev) => {
+              if (prev && data.pages.some((p: any) => p.slug === prev)) return prev;
+              const first = data.pages[0];
+              setFormData(first);
+              setJsonText(JSON.stringify(first, null, 2));
+              return first.slug;
+            });
+          }
         }
       }
     } catch {
@@ -43,11 +74,11 @@ export default function DestinationPillarEditor() {
   }, [fetchPillars]);
 
   const handleSelect = (slug: string) => {
-    const record = pillars.find(p => p.destination_slug === slug);
+    const record = pillars.find(p => p.slug === slug);
     if (record) {
       setSelectedSlug(slug);
-      setFormData(record.content);
-      setJsonText(JSON.stringify(record.content, null, 2));
+      setFormData(record);
+      setJsonText(JSON.stringify(record, null, 2));
     }
   };
 
@@ -66,9 +97,9 @@ export default function DestinationPillarEditor() {
 
     try {
       const res = await fetch('/api/cms/pillar-pages', {
-        method: 'POST',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ destination_slug: selectedSlug, content: contentToSave })
+        body: JSON.stringify({ slug: selectedSlug, ...contentToSave })
       });
 
       if (!res.ok) throw new Error('API Error');
@@ -101,12 +132,12 @@ export default function DestinationPillarEditor() {
             <div className="text-sm text-stone-500">Chargement...</div>
           ) : pillars.map(p => (
             <button
-              key={p.destination_slug}
-              onClick={() => handleSelect(p.destination_slug)}
-              className={`w-full text-left px-4 py-3 rounded-xl border transition-all ${selectedSlug === p.destination_slug ? 'bg-eucalyptus text-white border-eucalyptus shadow-md' : 'bg-white border-stone-200 text-stone-700 hover:border-eucalyptus/50'}`}
+              key={p.slug}
+              onClick={() => handleSelect(p.slug)}
+              className={`w-full text-left px-4 py-3 rounded-xl border transition-all ${selectedSlug === p.slug ? 'bg-eucalyptus text-white border-eucalyptus shadow-md' : 'bg-white border-stone-200 text-stone-700 hover:border-eucalyptus/50'}`}
             >
-              <div className="font-semibold">{p.content.name || p.destination_slug}</div>
-              <div className="text-xs opacity-80">{p.destination_slug}</div>
+              <div className="font-semibold">{p.name || p.slug}</div>
+              <div className="text-xs opacity-80">{p.slug}</div>
             </button>
           ))}
           {pillars.length === 0 && !loading && (
@@ -167,19 +198,19 @@ export default function DestinationPillarEditor() {
                       <div className="flex items-center justify-between">
                         <h4 className="font-semibold text-stone-800">Introduction (Paragraphes)</h4>
                         <button
-                          onClick={() => setFormData({...formData, intro: [...(formData.intro || []), '']})}
+                          onClick={() => setFormData({...formData, intro: [...(formData.intro ?? []), '']})}
                           className="p-1.5 bg-eucalyptus/10 text-eucalyptus rounded hover:bg-eucalyptus/20 transition-colors"
                         >
                           <Plus className="w-4 h-4" />
                         </button>
                       </div>
                       <div className="space-y-2">
-                        {(formData.intro || []).map((p, i) => (
+                        {(formData.intro ?? []).map((p, i) => (
                           <div key={i} className="flex gap-2">
                             <textarea
                               value={p}
                               onChange={e => {
-                                const newIntro = [...formData.intro];
+                                const newIntro = [...(formData.intro ?? [])];
                                 newIntro[i] = e.target.value;
                                 setFormData({...formData, intro: newIntro});
                               }}
@@ -187,7 +218,7 @@ export default function DestinationPillarEditor() {
                             />
                             <button
                               onClick={() => {
-                                const newIntro = formData.intro.filter((_, idx) => idx !== i);
+                                const newIntro = (formData.intro ?? []).filter((_, idx) => idx !== i);
                                 setFormData({...formData, intro: newIntro});
                               }}
                               className="p-2 text-red-500 hover:bg-red-50 rounded-lg self-start"
@@ -203,18 +234,18 @@ export default function DestinationPillarEditor() {
                       <div className="flex items-center justify-between">
                         <h4 className="font-semibold text-stone-800">Itinéraire</h4>
                         <button
-                          onClick={() => setFormData({...formData, itinerary: [...(formData.itinerary || []), { day: (formData.itinerary?.length || 0) + 1, title: '', activities: [] }]})}
+                          onClick={() => setFormData({...formData, itinerary: [...(formData.itinerary ?? []), { day: (formData.itinerary?.length || 0) + 1, title: '', activities: [] }]})}
                           className="p-1.5 bg-eucalyptus/10 text-eucalyptus rounded hover:bg-eucalyptus/20 transition-colors"
                         >
                           <Plus className="w-4 h-4" />
                         </button>
                       </div>
                       <div className="space-y-4">
-                        {(formData.itinerary || []).map((day, i) => (
+                        {(formData.itinerary ?? []).map((day, i) => (
                           <div key={i} className="p-4 bg-stone-50 border border-stone-200 rounded-xl relative">
                             <button
                               onClick={() => {
-                                const newItin = formData.itinerary.filter((_, idx) => idx !== i);
+                                const newItin = (formData.itinerary ?? []).filter((_, idx) => idx !== i);
                                 setFormData({...formData, itinerary: newItin});
                               }}
                               className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-100 rounded-md"
@@ -225,7 +256,7 @@ export default function DestinationPillarEditor() {
                               <div>
                                 <label className="text-xs font-semibold text-stone-600">Jour</label>
                                 <input type="number" value={day.day} onChange={e => {
-                                  const newItin = [...formData.itinerary];
+                                  const newItin = [...(formData.itinerary ?? [])];
                                   newItin[i].day = Number(e.target.value);
                                   setFormData({...formData, itinerary: newItin});
                                 }} className="w-full p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-eucalyptus outline-none" />
@@ -233,7 +264,7 @@ export default function DestinationPillarEditor() {
                               <div>
                                 <label className="text-xs font-semibold text-stone-600">Titre</label>
                                 <input type="text" value={day.title} onChange={e => {
-                                  const newItin = [...formData.itinerary];
+                                  const newItin = [...(formData.itinerary ?? [])];
                                   newItin[i].title = e.target.value;
                                   setFormData({...formData, itinerary: newItin});
                                 }} className="w-full p-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-eucalyptus outline-none" />
@@ -246,7 +277,7 @@ export default function DestinationPillarEditor() {
                               <textarea
                                 value={(day.activities || []).join('\n')}
                                 onChange={e => {
-                                  const newItin = [...formData.itinerary];
+                                  const newItin = [...(formData.itinerary ?? [])];
                                   newItin[i].activities = e.target.value.split('\n').filter(Boolean);
                                   setFormData({...formData, itinerary: newItin});
                                 }}
@@ -263,14 +294,14 @@ export default function DestinationPillarEditor() {
                       <div className="flex items-center justify-between">
                         <h4 className="font-semibold text-stone-800">FAQ</h4>
                         <button
-                          onClick={() => setFormData({...formData, faq: [...(formData.faq || []), { q: '', a: '' }]})}
+                          onClick={() => setFormData({...formData, faq: [...(formData.faq ?? []), { q: '', a: '' }]})}
                           className="p-1.5 bg-eucalyptus/10 text-eucalyptus rounded hover:bg-eucalyptus/20 transition-colors"
                         >
                           <Plus className="w-4 h-4" />
                         </button>
                       </div>
                       <div className="space-y-3">
-                        {(formData.faq || []).map((faq, i) => (
+                        {(formData.faq ?? []).map((faq, i) => (
                           <div key={i} className="flex gap-2 items-start p-3 bg-stone-50 border border-stone-200 rounded-lg">
                             <div className="flex-1 space-y-2">
                               <input
@@ -278,7 +309,7 @@ export default function DestinationPillarEditor() {
                                 placeholder="Question..."
                                 value={faq.q}
                                 onChange={e => {
-                                  const newFaq = [...formData.faq];
+                                  const newFaq = [...(formData.faq ?? [])];
                                   newFaq[i].q = e.target.value;
                                   setFormData({...formData, faq: newFaq});
                                 }}
@@ -288,7 +319,7 @@ export default function DestinationPillarEditor() {
                                 placeholder="Réponse..."
                                 value={faq.a}
                                 onChange={e => {
-                                  const newFaq = [...formData.faq];
+                                  const newFaq = [...(formData.faq ?? [])];
                                   newFaq[i].a = e.target.value;
                                   setFormData({...formData, faq: newFaq});
                                 }}
@@ -297,7 +328,7 @@ export default function DestinationPillarEditor() {
                             </div>
                             <button
                               onClick={() => {
-                                const newFaq = formData.faq.filter((_, idx) => idx !== i);
+                                const newFaq = (formData.faq ?? []).filter((_, idx) => idx !== i);
                                 setFormData({...formData, faq: newFaq});
                               }}
                               className="p-2 text-red-500 hover:bg-red-100 rounded-lg mt-1"

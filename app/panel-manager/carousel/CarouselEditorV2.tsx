@@ -253,7 +253,13 @@ export default function CarouselEditorV2({ onComplete }: CarouselEditorV2Props) 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 min-h-0">
           <div className="space-y-3">
             <SlidePreviewPanel slide={activeSlide} aspectRatio={aspectRatio} brandOverlay={brandOverlay} previewRef={previewRef} />
-            {activeSlide && <PhotoPickerPanel valeur={activeSlide.image} onChoisir={url => setSlides(slides.map(s => s.id === activeSlide.id ? { ...s, image: url } : s))} />}
+            {activeSlide && (
+              <PhotoPickerPanel
+                valeur={activeSlide.image}
+                onChoisir={url => setSlides(slides.map(s => s.id === activeSlide.id ? { ...s, image: url } : s))}
+                onAttribuerToutes={urls => setSlides(slides.map((s, i) => ({ ...s, image: urls[i % urls.length] })))}
+              />
+            )}
           </div>
           <FilmStripPanel slides={slides} activeSlideId={activeSlideId} onSlideSelect={setActiveSlideId} onSlidesReorder={handleSlidesReorder} onSlideDelete={handleSlideDelete} onSlideAdd={handleSlideAdd} />
         </div>

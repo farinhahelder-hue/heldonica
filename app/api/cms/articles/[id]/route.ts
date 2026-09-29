@@ -89,8 +89,16 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   }
 
   // Map status to published boolean for backward compat
-  if (body.status === 'published') payload.published = true;
-  else if (body.status === 'draft') payload.published = false;
+  if (body.status === 'published' || body.published === true) {
+    payload.published = true;
+    payload.status = 'published';
+  } else if (body.status === 'scheduled') {
+    payload.published = false;
+    payload.status = 'scheduled';
+  } else if (body.status === 'draft' || body.published === false) {
+    payload.published = false;
+    payload.status = 'draft';
+  }
 
   // Un brouillon venu du telephone n'a pas de published_at : le champ ne se
   // remplit que par le selecteur de date de l'editeur, qu'il faut penser a

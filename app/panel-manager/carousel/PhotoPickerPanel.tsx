@@ -3,12 +3,12 @@
 import { useCallback, useEffect, useState } from 'react'
 
 /**
- * Choix d'une photo de fond pour une diapositive, depuis les médias rapatriés
- * de Google Photos.
+ * Choix et upload d'une photo de fond pour une diapositive de carrousel.
  *
- * Le champ `image` de SlideData était rendu partout — aperçu, pellicule et
- * export — mais aucune interface ne permettait de le renseigner : les
- * carrousels restaient donc sans photo. Ce panneau comble ce manque.
+ * Permet :
+ * 1. L'upload direct depuis l'appareil (galerie / appareil photo Android & mobile).
+ * 2. La saisie d'une URL d'image directe.
+ * 3. La sélection depuis la médiathèque (Supabase Storage destinations / articles).
  */
 
 type Media = { nom: string; url: string }
@@ -16,19 +16,23 @@ type Media = { nom: string; url: string }
 type Props = {
   valeur?: string
   onChoisir: (url: string | undefined) => void
+  onAttribuerToutes?: (urls: string[]) => void
 }
 
-export default function PhotoPickerPanel({ valeur, onChoisir }: Props) {
+export default function PhotoPickerPanel({ valeur, onChoisir, onAttribuerToutes }: Props) {
   const [ouvert, setOuvert] = useState(false)
   const [medias, setMedias] = useState<Media[]>([])
+  const [dossier, setDossier] = useState<'destinations' | 'articles'>('destinations')
   const [chargement, setChargement] = useState(false)
+  const [uploadEnCours, setUploadEnCours] = useState(false)
   const [erreur, setErreur] = useState<string | null>(null)
+  const [urlSaisie, setUrlSaisie] = useState('')
 
-  const charger = useCallback(async () => {
+  const charger = useCallback(async (prefixe: string) => {
     setChargement(true)
     setErreur(null)
     try {
-      const res = await fetch('/api/cms/media?folder=destinations')
+      const res = await fetch(`/api/cms/media?prefix=${prefixe}`)
       if (!res.ok) throw new Error(`Médiathèque indisponible (${res.status})`)
       const data = await res.json()
       const fichiers: any[] = data.files ?? data.media ?? []
@@ -47,18 +51,61 @@ export default function PhotoPickerPanel({ valeur, onChoisir }: Props) {
   }, [])
 
   useEffect(() => {
-    if (ouvert && medias.length === 0 && !erreur) charger()
-  }, [ouvert, medias.length, erreur, charger])
+    if (ouvert) charger(dossier)
+  }, [ouvert, dossier, charger])
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
+
+    setUploadEnCours(true)
+    setErreur(null)
+
+    try {
+      for (const file of files) {
+        const fd = new FormData()
+        fd.append('file', file)
+        fd.append('folder', dossier)
+
+        const res = await fetch('/api/cms/media-upload', {
+          method: 'POST',
+          body: fd,
+        })
+
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok || !data.url) {
+          throw new Error(data.error || `Erreur d'envoi pour ${file.name}`)
+        }
+
+        // Ajouter aux médias connus et sélectionner automatiquement
+        const nouveauMedia = { nom: file.name, url: data.url }
+        setMedias(prev => [nouveauMedia, ...prev.filter(m => m.url !== data.url)])
+        onChoisir(data.url)
+      }
+    } catch (err) {
+      setErreur(err instanceof Error ? err.message : "Impossible d'envoyer la photo")
+    } finally {
+      setUploadEnCours(false)
+      e.target.value = ''
+    }
+  }
+
+  const appliquerUrl = () => {
+    const clean = urlSaisie.trim()
+    if (!clean) return
+    onChoisir(clean)
+    setUrlSaisie('')
+  }
 
   return (
     <div className="mt-4">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         <button
           type="button"
           onClick={() => setOuvert(o => !o)}
-          className="rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 hover:border-eucalyptus hover:text-eucalyptus transition"
+          className="rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 hover:border-eucalyptus hover:text-eucalyptus transition flex items-center gap-2"
         >
-          🌿 {valeur ? 'Changer la photo' : 'Photo de fond'}
+          📷 {valeur ? 'Changer la photo' : 'Ajouter / Photo de fond'}
         </button>
 
         {valeur && (
@@ -73,41 +120,112 @@ export default function PhotoPickerPanel({ valeur, onChoisir }: Props) {
       </div>
 
       {ouvert && (
-        <div className="mt-3 rounded-2xl border border-stone-200 bg-white p-3">
-          {chargement && <p className="text-sm text-stone-500">Chargement des photos…</p>}
+        <div className="mt-3 rounded-2xl border border-stone-200 bg-white p-4 space-y-4">
+          {/* Section 1 : Upload direct depuis l'appareil (Mobile Android / Camera / Galerie) */}
+          <div className="p-3 bg-stone-50 rounded-xl border border-stone-200">
+            <p className="text-xs font-semibold text-stone-700 mb-2">📱 Depuis votre appareil (Android / Galerie)</p>
+            <label className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white transition cursor-pointer ${
+              uploadEnCours ? 'bg-stone-400 cursor-wait' : 'bg-[#6b2a1a] hover:bg-[#522014]'
+            }`}>
+              {uploadEnCours ? '⏳ Transfert en cours…' : '⬆️ Uploader des photos de votre téléphone'}
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFileUpload}
+                disabled={uploadEnCours}
+                className="hidden"
+              />
+            </label>
+          </div>
 
-          {erreur && (
-            <div className="text-sm text-red-700">
-              <p>{erreur}</p>
-              <p className="mt-1 text-xs text-stone-500">
-                Importe d&apos;abord tes photos depuis /panel-manager/photos.
-              </p>
+          {/* Section 2 : Coller une URL */}
+          <div className="p-3 bg-stone-50 rounded-xl border border-stone-200">
+            <p className="text-xs font-semibold text-stone-700 mb-2">🔗 Ou par URL d&apos;image</p>
+            <div className="flex gap-2">
+              <input
+                type="url"
+                value={urlSaisie}
+                onChange={e => setUrlSaisie(e.target.value)}
+                placeholder="https://..."
+                className="flex-1 px-3 py-1.5 text-xs border border-stone-300 rounded-lg"
+              />
+              <button
+                type="button"
+                onClick={appliquerUrl}
+                disabled={!urlSaisie.trim()}
+                className="px-3 py-1.5 bg-stone-800 text-white text-xs rounded-lg disabled:opacity-50"
+              >
+                Appliquer
+              </button>
             </div>
-          )}
+          </div>
 
-          {!chargement && !erreur && medias.length === 0 && (
-            <p className="text-sm text-stone-500">
-              Aucune photo importée. Passe par /panel-manager/photos pour en récupérer
-              depuis Google Photos.
-            </p>
-          )}
-
-          {medias.length > 0 && (
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-64 overflow-y-auto">
-              {medias.map(m => (
+          {/* Section 3 : Médiathèque Supabase */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-semibold text-stone-700">🖼️ Médiathèque du site</p>
+              <div className="flex gap-1 text-xs">
                 <button
-                  key={m.url}
                   type="button"
-                  onClick={() => { onChoisir(m.url); setOuvert(false) }}
-                  title={m.nom}
-                  className={`aspect-square rounded-lg bg-cover bg-center border-2 transition ${
-                    valeur === m.url ? 'border-eucalyptus' : 'border-transparent hover:border-stone-300'
-                  }`}
-                  style={{ backgroundImage: `url(${m.url})` }}
-                />
-              ))}
+                  onClick={() => setDossier('destinations')}
+                  className={`px-2 py-1 rounded ${dossier === 'destinations' ? 'bg-stone-800 text-white' : 'bg-stone-100 text-stone-600'}`}
+                >
+                  Destinations
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDossier('articles')}
+                  className={`px-2 py-1 rounded ${dossier === 'articles' ? 'bg-stone-800 text-white' : 'bg-stone-100 text-stone-600'}`}
+                >
+                  Articles
+                </button>
+              </div>
             </div>
-          )}
+
+            {chargement && <p className="text-xs text-stone-500">Chargement des photos…</p>}
+
+            {erreur && (
+              <p className="text-xs text-red-600 bg-red-50 p-2 rounded-lg">{erreur}</p>
+            )}
+
+            {!chargement && !erreur && medias.length === 0 && (
+              <p className="text-xs text-stone-500">
+                Aucune photo dans ce dossier. Utilisez le bouton d&apos;upload ci-dessus pour en ajouter depuis votre téléphone.
+              </p>
+            )}
+
+            {medias.length > 0 && (
+              <>
+                {onAttribuerToutes && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onAttribuerToutes(medias.map(m => m.url))
+                      setOuvert(false)
+                    }}
+                    className="mb-2 w-full text-center text-xs font-semibold text-[#6b2a1a] bg-stone-100 hover:bg-stone-200 px-3 py-1.5 rounded-lg transition"
+                  >
+                    ✨ Distribuer 1 photo par diapositive ({medias.length} disponible{medias.length > 1 ? 's' : ''})
+                  </button>
+                )}
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-56 overflow-y-auto">
+                {medias.map(m => (
+                  <button
+                    key={m.url}
+                    type="button"
+                    onClick={() => { onChoisir(m.url); setOuvert(false) }}
+                    title={m.nom}
+                    className={`aspect-square rounded-lg bg-cover bg-center border-2 transition ${
+                      valeur === m.url ? 'border-eucalyptus ring-2 ring-eucalyptus/30' : 'border-transparent hover:border-stone-300'
+                    }`}
+                    style={{ backgroundImage: `url(${m.url})` }}
+                  />
+                ))}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       )}
     </div>
