@@ -1650,20 +1650,27 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
           {/* ── Instagram ── */}
           {activeSection === 'instagram' && (
             <ErrorBoundary>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-6">Instagram</h1>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div>
-                    <Suspense fallback={<div className="text-sm text-gray-400">Chargement...</div>}>
-                      <InstagramPublisher />
-                    </Suspense>
+              <div className="space-y-8">
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900 mb-6">Instagram</h1>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                      <Suspense fallback={<div className="text-sm text-gray-400">Chargement...</div>}>
+                        <InstagramPublisher />
+                      </Suspense>
+                    </div>
+                    <div className="space-y-4">
+                      <InstagramStatsDashboard />
+                      <Suspense fallback={<div className="text-sm text-gray-400">Chargement...</div>}>
+                        <ScheduledPostsList />
+                      </Suspense>
+                    </div>
                   </div>
-                  <div className="space-y-4">
-                    <InstagramStatsDashboard />
-                    <Suspense fallback={<div className="text-sm text-gray-400">Chargement...</div>}>
-                      <ScheduledPostsList />
-                    </Suspense>
-                  </div>
+                </div>
+                <div className="pt-6 border-t border-gray-200">
+                  <Suspense fallback={<SkeletonForm />}>
+                    <InstagramManagerSection />
+                  </Suspense>
                 </div>
               </div>
             </ErrorBoundary>
@@ -1775,15 +1782,6 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                   <MapManagerSection />
                 </Suspense>
               </div>
-            </ErrorBoundary>
-          )}
-
-          {/* ── Instagram ── */}
-          {activeSection === 'instagram' && (
-            <ErrorBoundary>
-              <Suspense fallback={<SkeletonForm />}>
-                <InstagramManagerSection />
-              </Suspense>
             </ErrorBoundary>
           )}
 

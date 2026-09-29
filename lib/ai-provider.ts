@@ -291,14 +291,45 @@ async function callAnthropic(options: AiCompletionOptions, apiKey: string): Prom
 }
 
 /**
+ * Appel à un serveur LLM local (Cerveau Heldonica / Ollama / LM Studio sur PC GTX 1660 Ti)
+ */
+async function callLocalLlm(options: AiCompletionOptions, localUrl: string): Promise<AiCompletionResult> {
+  const base = localUrl.replace(/\/$/, '');
+  const endpoint = base.endsWith('/chat/completions') ? base : `${base}/chat/completions`;
+  const model = process.env.LOCAL_LLM_MODEL || 'heldonica-cerveau';
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model,
+      messages: options.messages,
+      temperature: options.temperature ?? 0.7,
+      max_tokens: options.max_tokens ?? 2000,
+      ...(options.jsonMode ? { response_format: { type: 'json_object' } } : {}),
+    }),
+    signal: AbortSignal.timeout(60_000),
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Local LLM Error (${res.status}): ${errorText}`);
+  }
+
+  const data = await res.json();
+  const content = data.choices?.[0]?.message?.content || '';
+  return { content, provider: 'none', model: `local/${model}` };
+}
+
+/**
  * Orchestrateur principal : tente les fournisseurs dans l'ordre de priorité :
  * 1. Groq (Gratuit, Llama 3.3 70B)
- * 2. Google Gemini (Gratuit, Gemini 2.0 Flash)
- * 3. Mistral AI (Gratuit, Mistral Small, excellent en français)
- * 4. Cerebras (Gratuit, Inférence Llama 3.3 70B ultra-rapide)
+ * 2. Google Gemini (Gratuit, Gemini 2.5 Flash)
+ * 3. Mistral AI (Gratuit, Mistral Small)
+ * 4. Cerebras (Gratuit, Inférence Llama 3.3 70B)
  * 5. OpenRouter (Gratuit, Modèles Llama / DeepSeek)
  * 6. OpenAI (Payant, GPT-4o-mini)
  * 7. Anthropic (Payant, Claude 3.5 Haiku)
+ * 8. LLM Local (Cerveau Heldonica / PC GTX 1660 Ti via LOCAL_LLM_URL)
  */
 export async function generateAiCompletion(options: AiCompletionOptions): Promise<AiCompletionResult> {
   const errors: string[] = [];
@@ -377,6 +408,17 @@ export async function generateAiCompletion(options: AiCompletionOptions): Promis
     } catch (err: any) {
       console.warn('[AI Provider] Anthropic fallback:', err.message);
       errors.push(`Anthropic: ${err.message}`);
+    }
+  }
+
+  // 8. Serveur LLM Local (Cerveau Heldonica / PC GTX 1660 Ti)
+  const localLlmUrl = process.env.LOCAL_LLM_URL;
+  if (localLlmUrl) {
+    try {
+      return await callLocalLlm(options, localLlmUrl);
+    } catch (err: any) {
+      console.warn('[AI Provider] Local LLM fallback:', err.message);
+      errors.push(`Local LLM: ${err.message}`);
     }
   }
 

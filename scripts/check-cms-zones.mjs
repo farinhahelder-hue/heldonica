@@ -388,22 +388,46 @@ const readers = collectReaders();
  * contrôle, et le nombre d'orphelines annoncé était un plancher, pas un total.
  * On pagine donc explicitement.
  */
+async function fetchZonesBatch(url, key, from, pageSize, essai = 1) {
+  try {
+    const headers = {
+      apikey: key,
+      Range: `${from}-${from + pageSize - 1}`,
+    };
+    if (key.startsWith('eyJ')) {
+      headers.Authorization = `Bearer ${key}`;
+    }
+    const res = await fetch(
+      `${url}/rest/v1/cms_editable_zones?select=page,zone_key&is_active=eq.true&order=page,zone_key`,
+      { headers }
+    );
+    if (!res.ok) {
+      if (res.status >= 500 && essai < 3) {
+        await new Promise((r) => setTimeout(r, 400 * essai));
+        return fetchZonesBatch(url, key, from, pageSize, essai + 1);
+      }
+      return { ok: false, status: res.status };
+    }
+    const batch = await res.json();
+    return { ok: true, batch };
+  } catch (e) {
+    if (essai < 3) {
+      await new Promise((r) => setTimeout(r, 400 * essai));
+      return fetchZonesBatch(url, key, from, pageSize, essai + 1);
+    }
+    return { ok: false, error: e };
+  }
+}
+
 const PAGE_SIZE = 1000;
 const rows = [];
 let ok = true;
 for (let from = 0; ; from += PAGE_SIZE) {
-  const res = await fetch(
-    `${url}/rest/v1/cms_editable_zones?select=page,zone_key&is_active=eq.true&order=page,zone_key`,
-    {
-      headers: {
-        apikey: key,
-        Authorization: `Bearer ${key}`,
-        Range: `${from}-${from + PAGE_SIZE - 1}`,
-      },
-    }
-  );
-  if (!res.ok) {
-    console.error(`✗ Lecture de cms_editable_zones impossible (HTTP ${res.status}).`);
+  const result = await fetchZonesBatch(url, key, from, PAGE_SIZE);
+  if (!result.ok) {
+    console.error(
+      `✗ Lecture de cms_editable_zones impossible (${result.status ? `HTTP ${result.status}` : result.error?.message || 'erreur réseau'}).`
+    );
     // À partir d'ici on ne sort plus avec process.exit() : le client fetch garde
     // un handle ouvert et Node l'interrompt par une assertion libuv sous Windows.
     // On positionne le code de sortie et on laisse le processus se terminer seul.
@@ -411,9 +435,8 @@ for (let from = 0; ; from += PAGE_SIZE) {
     ok = false;
     break;
   }
-  const batch = await res.json();
-  rows.push(...batch);
-  if (batch.length < PAGE_SIZE) break;
+  rows.push(...result.batch);
+  if (result.batch.length < PAGE_SIZE) break;
 }
 if (!ok) rows.length = 0;
 

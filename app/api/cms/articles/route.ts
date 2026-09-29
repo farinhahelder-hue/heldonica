@@ -45,13 +45,13 @@ export async function GET(req: Request) {
   const sb = supabase()
   if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
   const { searchParams } = new URL(req.url)
-  const search = searchParams.get('search') || ''
+  const search = (searchParams.get('search') || '').trim()
   const status = searchParams.get('status') || 'all'
-  const page = parseInt(searchParams.get('page') || '1', 10)
-  const limit = parseInt(searchParams.get('limit') || '15', 10)
+  const rawPage = Math.max(1, Math.min(100, parseInt(searchParams.get('page') || '1', 10) || 1))
+  const rawLimit = Math.max(5, Math.min(50, parseInt(searchParams.get('limit') || '15', 10) || 15))
   
-  const from = (page - 1) * limit
-  const to = from + limit - 1
+  const from = (rawPage - 1) * rawLimit
+  const to = from + rawLimit - 1
 
   let query = sb
     .from('cms_blog_posts')
@@ -59,13 +59,29 @@ export async function GET(req: Request) {
     .order('created_at', { ascending: false })
     .range(from, to)
 
-  if (status === 'published') query = query.eq('published', true)
-  if (status === 'draft') query = query.eq('published', false)
-  if (search) query = query.ilike('title', `%${search}%`)
+  if (status === 'published') {
+    query = query.or('published.eq.true,status.eq.published')
+  } else if (status === 'draft') {
+    query = query.eq('published', false).or('status.eq.draft,status.is.null')
+  } else if (status === 'scheduled') {
+    query = query.or('status.eq.scheduled,scheduled_published_at.not.is.null')
+  }
+  if (search) {
+    const esc = search.replace(/[\\%_]/g, m => `\\${m}`)
+    query = query.ilike('title', `%${esc}%`)
+  }
 
   const { data, error, count } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ articles: data, total: count || 0, page, limit })
+
+  const normalizedArticles = (data || []).map((post: any) => ({
+    ...post,
+    status: post.published === true || post.status === 'published'
+      ? 'published'
+      : (post.status === 'scheduled' || post.scheduled_published_at ? 'scheduled' : 'draft'),
+  }))
+
+  return NextResponse.json({ articles: normalizedArticles, total: count || 0, page: rawPage, limit: rawLimit })
 }
 
 export async function POST(req: Request) {
@@ -75,7 +91,18 @@ export async function POST(req: Request) {
   const sb = supabase()
   if (!sb) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 })
   const body = await req.json()
-  const payload = { ...body, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
+  const payload: Record<string, any> = { ...body, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
+
+  if (body.status === 'published' || body.published === true) {
+    payload.published = true;
+    payload.status = 'published';
+  } else if (body.status === 'scheduled') {
+    payload.published = false;
+    payload.status = 'scheduled';
+  } else {
+    payload.published = false;
+    payload.status = 'draft';
+  }
 
   // Insert into cms_blog_posts (legacy table for CMS)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

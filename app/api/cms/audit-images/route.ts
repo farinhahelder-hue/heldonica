@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireCmsAuth } from '@/lib/cms-auth';
-import { GENERIC_PHOTO_IDS } from '@/app/api/cms/fix-empty-images/route';
+import { GENERIC_PHOTO_IDS } from '@/lib/generic-photos';
 
 export const dynamic = 'force-dynamic';
 

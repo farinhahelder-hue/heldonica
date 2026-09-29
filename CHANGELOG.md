@@ -4,6 +4,8 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-09-29] — CMS & Mobile : upload photo depuis smartphone, carrousel V2 auto-distribution et fallback LLM local (GTX 1660 Ti)
+
 ## [2026-09-24] — Passerelle Brain-CMS (Bridge) & Connexion APK Mobile vers Brain local
 
 ### Brain-CMS Bridge
@@ -16,6 +18,58 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 - **Connexion réseau local au Brain** : ajout de `android:usesCleartextTraffic="true"` dans `AndroidManifest.xml` pour autoriser les requêtes vers le serveur Brain sur le LAN (`10.10.145.61:8440`).
 - **Configuration dynamique** : ajout de `BRAIN_BASE_URL` dans `build.gradle.kts` avec repli par défaut sur `http://10.10.145.61:8440` et documentation dans `local.properties.example`.
 - **Génération IA locale** : ajout d'un repli automatique vers Heldonica Brain (`/v1/chat/completions`) dans `MainActivity.kt` pour les légendes slow-travel en cas d'indisponibilité du cloud.
+
+### Constat
+- **Upload photo impossible sur Android / Mobile dans Carrousel Maker** : `PhotoPickerPanel` ne permettait que de sélectionner des photos pré-existantes dans Supabase Storage sans proposer d'upload direct (`<input type="file">`) pour choisir ou prendre des photos depuis la galerie d'un smartphone Android. De plus, `PhotoPickerPanel` envoyait le paramètre `folder=destinations` alors que l'API `/api/cms/media` attendait `prefix`, retombant par défaut sur le dossier `articles`.
+- **Attribution photo fastidieuse par slide** : L'attribution des visuels aux diapositives générées par l'IA se faisait uniquement une par une.
+- **Secours IA Souverain (Fallback local)** : En cas d'indisponibilité ou d'épuisement des quotas des API cloud gratuites (Groq, Gemini, Mistral, Cerebras, OpenRouter), aucun mécanisme de secours ne permettait d'utiliser un modèle d'IA local hébergé sur le PC (GTX 1660 Ti).
+
+### Fait
+- **Carrousel Maker V2 & Upload Mobile** :
+  - [app/panel-manager/carousel/PhotoPickerPanel.tsx](file:///c:/Users/farin/StudioProjects/heldonica/app/panel-manager/carousel/PhotoPickerPanel.tsx) : Ajout d'un bouton d'upload direct (`📱 Uploader des photos de votre téléphone`), d'une saisie d'URL directe, et d'un bouton d'auto-distribution **`✨ Distribuer 1 photo par diapositive`** en 1 clic.
+  - [app/panel-manager/carousel/CarouselEditorV2.tsx](file:///c:/Users/farin/StudioProjects/heldonica/app/panel-manager/carousel/CarouselEditorV2.tsx) : Transmission de la fonction d'attribution automatique des visuels aux slides.
+  - [app/api/cms/media/route.ts](file:///c:/Users/farin/StudioProjects/heldonica/app/api/cms/media/route.ts) : Prise en charge transparente de `prefix` et `folder`.
+- **Fallback IA Local (PC Acer GTX 1660 Ti)** :
+  - [lib/ai-provider.ts](file:///c:/Users/farin/StudioProjects/heldonica/lib/ai-provider.ts) : Ajout de la fonction `callLocalLlm()` et intégration au niveau 8 de la cascade de secours via la variable `LOCAL_LLM_URL` (Ollama / LM Studio / serveur local).
+- **Validation** :
+  - Tous les garde-fous CI (`cms-zones`, `cms-drift`, `api-auth`, `erreurs-avalees`, `content-coherence`, `content-evidence`, `tsc`) vérifiés et validés à 100%.
+
+## [2026-09-24] — CMS : bug hunt complet, réparation des piliers de destinations, filtres brouillons/articles et robustesse réseau
+
+### Constat
+- **Crash d'affichage Piliers de Destinations** : `/panel-manager?section=destination-pillars` levait un crash React `TypeError: Cannot read properties of undefined (reading 'name')` car `DestinationPillarEditor` attendait une structure imbriquée `{ destination_slug, content: { name, ... } }` alors que l'API et la table `cms_pillar_pages` exposent des colonnes plates (`slug`, `name`, `tagline`, `budget`, etc.). De plus, la sauvegarde envoyait un `POST` sans gestion du `PATCH`.
+- **Incohérence statuts Brouillons / Publiés dans les Articles** : Dans `/panel-manager?section=articles`, l'onglet Brouillons filtrait par `status === 'draft'` mais certains articles en base avaient `published: false` tout en conservant `status: 'published'`, créant des confusions visuelles. Les articles planifiés (`scheduled`) n'étaient pas filtrés proprement, et une référence de variable non définie (`page`, `limit`) existait sur un chemin de code.
+- **Méthode 405 sur Search Console & Analytics** : Les endpoints `/api/cms/analytics` et `/api/cms/search-console` rejetaient les requêtes de lecture GET avec une erreur 405 Method Not Allowed (seul POST était exporté).
+- **Règle Next.js App Router sur les exports de route** : `app/api/cms/fix-empty-images/route.ts` exportait une constante utilitaire `GENERIC_PHOTO_IDS`, ce qui violait la contrainte de type de segment Next.js (`TS2344: Route "..." does not match the required types`).
+- **Garde-fous CI & résilience réseau** : `scripts/check-cms-zones.mjs` effectuait des `fetch` paginés sur Supabase sans boucle de rattrapage en cas de coupure réseau ou de latence passagère (contrairement à `scripts/check-cms-drift.mjs`). Une exception obsolète persistait dans `scripts/check-api-auth.mjs`.
+
+### Fait
+- **Piliers de destinations réparés** :
+  - [components/admin/DestinationPillarEditor.tsx](file:///c:/Users/farin/StudioProjects/heldonica/components/admin/DestinationPillarEditor.tsx) réaligné avec le schéma réel (`p.slug`, `p.name`), sélection automatique de la première destination, utilisation de `PATCH` et manipulation sécurisée des tableaux optionnels.
+  - [app/api/cms/pillar-pages/route.ts](file:///c:/Users/farin/StudioProjects/heldonica/app/api/cms/pillar-pages/route.ts) rendu tolérant aux payloads plats ou imbriqués, ajout de `is_active` et `accommodations` dans `allowedFields`, et export des alias `POST` et `PUT`.
+- **Gestion des articles fiabilisée** :
+  - [app/api/cms/articles/route.ts](file:///c:/Users/farin/StudioProjects/heldonica/app/api/cms/articles/route.ts) et [app/api/cms/articles/[id]/route.ts](file:///c:/Users/farin/StudioProjects/heldonica/app/api/cms/articles/%5Bid%5D/route.ts) : synchronisation bidirectionnelle entre le booléen `published` et le statut (`published`, `draft`, `scheduled`), correction des filtres par onglet (`status=draft` sélectionne `published: false` ou `status: 'draft'`), et support complet de l'onglet `scheduled`.
+- **Correction des routes analytics & search-console** :
+  - Ajout de `export const GET = POST` dans [app/api/cms/analytics/route.ts](file:///c:/Users/farin/StudioProjects/heldonica/app/api/cms/analytics/route.ts) et [app/api/cms/search-console/route.ts](file:///c:/Users/farin/StudioProjects/heldonica/app/api/cms/search-console/route.ts).
+- **Extraction des constantes hors des routes** :
+  - Création de [lib/generic-photos.ts](file:///c:/Users/farin/StudioProjects/heldonica/lib/generic-photos.ts) hébergeant `GENERIC_PHOTO_IDS` pour respecter les conventions Next.js App Router sans polluer les types de segments.
+- **Résilience et garde-fous CI** :
+  - [scripts/check-cms-zones.mjs](file:///c:/Users/farin/StudioProjects/heldonica/scripts/check-cms-zones.mjs) : ajout d'une boucle de retry avec backoff exponentiel (3 essais) et adaptation du header Bearer pour les tokens JWT.
+  - [scripts/check-api-auth.mjs](file:///c:/Users/farin/StudioProjects/heldonica/scripts/check-api-auth.mjs) : suppression de l'exception obsolète.
+- **Validation exhaustive** :
+  - Audit automatisé des 62 endpoints CMS et des 28 sections du panel : 100% de réponses HTTP 200 en session authentifiée.
+  - Vérification visuelle sur navigateur via browser subagent : affichage parfait de la section Destinations (Madère) et de la section Articles / Brouillons.
+- **Contenu & Brouillons (Tâche agent_tasks f6c0d5fe — résolue)** :
+  - Migration versionnée [supabase/migrations/20260924110000_align_drafts_editorial_and_photos.sql](file:///c:/Users/farin/StudioProjects/heldonica/supabase/migrations/20260924110000_align_drafts_editorial_and_photos.sql) créée et appliquée :
+    - **Article 31 (Stoos Ridge)** : Suppression du mot banni « inoubliable » remplacé par « rendu la traversée si marquante ».
+    - **Article 119 (Roumanie Apuseni)** : Rattachement de la photo réelle de terrain `IMG_20260827_135618.jpg` issue du stockage vérifié `destinations/roumanie`.
+    - **Article 120 (Madère Carnet)** : Attribution de l'image de couverture principale.
+    - **Article 9 (Timișoara CuiB d'Arte)** : Rattachement de la photo mobile prise sur place (`heldonica_7812946419314841504.jpg`), dédoublonnage de paragraphes et alignement des pronoms (duo « on / tu » au lieu du « nous » sujet).
+    - **Article 4 (Brasseries Zurich)** : Harmonisation de l'extrait avec la voix éditoriale (« On t'emmène... »).
+  - Score global `npm run check:content-coherence` propulsé de **90% à 98%** (41/42 articles conformes à ≥85%, 0 mot banni).
+  - Suppression confirmée visuellement des étiquettes « Image manquante » dans l'onglet Brouillons de `/panel-manager?section=articles`.
+  - Tâche `f6c0d5fe` clôturée en `done` dans le registre Supabase `agent_tasks`.
+>>>>>>> 0cfa85d (feat(cms): photo upload mobile, carrousel auto-distribution & fallback LLM local (GTX 1660 Ti))
 
 ---
 

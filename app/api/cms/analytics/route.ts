@@ -110,3 +110,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Failed to fetch analytics' }, { status: 500 });
   }
 }
+
+export const GET = POST;
+

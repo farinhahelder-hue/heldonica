@@ -64,7 +64,6 @@ const EXCEPTIONS = new Map([
   ['app/api/route.ts POST', 'Formulaire public de demande de voyage.'],
   ['app/api/cms/newsletter/route.ts POST', 'Inscription publique a la newsletter.'],
   ['app/api/newsletter/route.ts POST', 'Inscription publique a la newsletter.'],
-  ['app/api/demandes-travel/route.ts POST', 'Formulaire public.'],
   ['app/api/travel-planning/route.ts POST', 'Formulaire public.'],
   ['app/api/webhooks/instagram/route.ts GET', "Poignee de main de verification exigee par Meta, sans corps a signer."],
   ['app/api/guides/download/route.ts POST', "Aimant a prospects : un visiteur echange son courriel contre un guide. Ecriture publique assumee, bornee par checkRateLimit."],
