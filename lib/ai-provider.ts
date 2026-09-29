@@ -438,6 +438,35 @@ async function callSambaNova(options: AiCompletionOptions, apiKey: string): Prom
 }
 
 /**
+ * Appel à Together AI (OpenAI-compatible)
+ */
+async function callTogether(options: AiCompletionOptions, apiKey: string): Promise<AiCompletionResult> {
+  const model = process.env.TOGETHER_MODEL || 'meta-llama/Llama-3.3-70B-Instruct-Turbo';
+  const res = await fetch('https://api.together.xyz/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model,
+      messages: options.messages,
+      temperature: options.temperature ?? 0.7,
+      max_tokens: options.max_tokens ?? 2000,
+    }),
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Together AI Error (${res.status}): ${errorText}`);
+  }
+
+  const data = await res.json();
+  const content = data.choices?.[0]?.message?.content || '';
+  return { content, provider: 'none', model: `together/${model}` };
+}
+
+/**
  * Appel à AIML API (Serves 1000+ AI models — OpenAI-compatible)
  */
 async function callAIML(options: AiCompletionOptions, apiKey: string): Promise<AiCompletionResult> {
