@@ -130,6 +130,8 @@ def main():
     p.add_argument("--destination", default="", help="Destination (ex. Madere, défaut : slug)")
     p.add_argument("--titre", help="Titre du brouillon (défaut : Carnet : <Destination> — <dates>)")
     p.add_argument("--go", action="store_true", help="Écrire vraiment dans le CMS (sinon dry-run)")
+    p.add_argument("--force", action="store_true",
+                   help="Passer outre le refus horodatage-de-lot (à n'utiliser qu'en connaissance de cause)")
     args = p.parse_args()
 
     chemin = Path(args.voyage) if args.voyage else (Path(f"imports/{args.slug}/voyage.json") if args.slug else None)
@@ -168,6 +170,23 @@ def main():
                             "genere_le": voyage.get("genere_le")},
     }
 
+    # Garde-fou qualité (règle 1) : des photos toutes horodatées à la seconde
+    # près = tampon de lot, pas des prises de vue — dater un récit là-dessus
+    # serait inventer. On refuse --go sauf --force explicite.
+    prises = [p.get("prise_de_vue") for j in voyage["jours"]
+              for l in j["lieux"] for p in l["photos"]]
+    prises += [p.get("prise_de_vue") for j in voyage["jours"] for p in j["photos_sans_lieu"]]
+    prises = [x for x in prises if x]
+    suspect = len(prises) > 10 and len(set(prises)) == 1
+    if suspect:
+        msg = (f"{len(prises)} photos partagent exactement la même seconde "
+               f"({prises[0]}) : horodatage de lot, pas de prises de vue.")
+        if args.go and not args.force:
+            print(f"[REFUS] {msg} Reconstitue depuis l'EXIF d'origine, "
+                  f"ou relance avec --go --force en connaissance de cause.")
+            sys.exit(3)
+        print(f"[ATTENTION] {msg}")
+
     existants = requete("GET", f"cms_blog_posts?select=id,published,slug&slug=eq.{slug}")
     if existants and existants[0].get("published"):
         print(f"[REFUS] {slug} existe déjà en PUBLIÉ — on ne touche jamais à un publié. "
@@ -184,6 +203,15 @@ def main():
         resultat = requete("PATCH", f"cms_blog_posts?slug=eq.{slug}", {**payload, "updated_at": datetime.now(timezone.utc).isoformat()})
         print(f"[OK] Brouillon mis à jour : id={resultat[0]['id']} slug={slug} (resté non publié)")
     else:
+        # La séquence id de cms_blog_posts est désynchronisée (nextval sous
+        # max(id), constaté le 27/09 : 409 duplicate key). Contournement : id
+        # explicite = max+1. Correctif durable côté base (SQL Editor) :
+        # SELECT setval('cms_blog_posts_id_seq', (SELECT max(id) FROM cms_blog_posts));
+        try:
+            existants_max = requete("GET", "cms_blog_posts?select=id&order=id.desc&limit=1")
+            payload["id"] = (existants_max[0]["id"] if existants_max else 0) + 1
+        except Exception as e:
+            print(f"[WARN] max(id) illisible ({e}), tentative sans id explicite.")
         resultat = requete("POST", "cms_blog_posts", payload)
         print(f"[OK] Brouillon créé : id={resultat[0]['id']} slug={slug} — à relire dans /panel-manager (Articles).")
 
