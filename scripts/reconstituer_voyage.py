@@ -277,6 +277,45 @@ def arrets_depuis_positions(positions):
     return arrets
 
 
+def grappes_depuis_photos(photos):
+    """Sans Timeline : des photos datées avec GPS proches forment un lieu.
+    Chaînage simple dans un rayon de RAYON_ARRET_M, par jour. Retourne des
+    visites sans nom (nommables via --geocode), triées par début."""
+    datees = sorted(
+        (p for p in photos if p.get("prise_dt") and p.get("gps")),
+        key=lambda p: p["prise_dt"],
+    )
+    grappes = []
+    for ph in datees:
+        placee = False
+        for g in grappes:
+            if jour_local(g["fin"]) != jour_local(ph["prise_dt"]):
+                continue
+            d = distance_km(ph["gps"]["lat"], ph["gps"]["lon"], g["lat"], g["lon"])
+            if d * 1000 <= RAYON_ARRET_M:
+                n = g["n"] + 1
+                g["lat"] = (g["lat"] * g["n"] + ph["gps"]["lat"]) / n
+                g["lon"] = (g["lon"] * g["n"] + ph["gps"]["lon"]) / n
+                g["n"] = n
+                if ph["prise_dt"] < g["debut"]:
+                    g["debut"] = ph["prise_dt"]
+                if ph["prise_dt"] > g["fin"]:
+                    g["fin"] = ph["prise_dt"]
+                placee = True
+                break
+        if not placee:
+            grappes.append({
+                "debut": ph["prise_dt"], "fin": ph["prise_dt"],
+                "lat": ph["gps"]["lat"], "lon": ph["gps"]["lon"], "n": 1,
+                "nom": None, "adresse": None, "type_semantique": None,
+            })
+    return [{
+        "debut": g["debut"], "fin": g["fin"],
+        "lat": round(g["lat"], 6), "lon": round(g["lon"], 6),
+        "nom": None, "adresse": None, "type_semantique": None,
+    } for g in sorted(grappes, key=lambda g: g["debut"])]
+
+
 def distance_chemin_km(positions):
     total = 0.0
     for (t0, la0, lo0), (t1, la1, lo1) in zip(positions, positions[1:]):
@@ -512,6 +551,14 @@ def reconstituer(visites, trajets, positions, photos, date_min, date_max):
     if not visites and positions:
         visites = arrets_depuis_positions(positions)
         source_lieux = "arrets-detectes"
+    if not visites:
+        # Sans Timeline ni positions : on groupe les photos datées avec GPS
+        # par proximité (chaînage 150 m, comme les arrêts). Chaque grappe
+        # devient un pseudo-lieu daté — à nommer (--geocode) ou de mémoire.
+        # Source étiquetée « grappes-photos-gps », jamais un lieu inventé.
+        visites = grappes_depuis_photos(photos)
+        if visites:
+            source_lieux = "grappes-photos-gps"
 
     rattacher_photos(photos, visites, positions)
 
