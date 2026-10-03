@@ -61,6 +61,23 @@ export async function POST(req: Request) {
     }
   }
 
+  /*
+    // Batch update in articles table
+    let updatedCount = 0
+    for (const update of updates) {
+      const { error } = await supabase
+        .from('articles')
+        .update({ read_time: update.read_time })
+        .eq('id', update.id)
+
+      if (!error) updatedCount++
+    }
+  */
+  // ⚡ Bolt Optimization: Refactored to batch upsert to eliminate N+1 queries.
+  if (updates.length > 0) {
+    await supabase!.from('articles').upsert(updates)
+  }
+
   // Batch update — cms_blog_posts has no read_time column (calculated on fly #448)
   // Keep for backward compat but do not write: just count
   let updatedCount = updates.length
