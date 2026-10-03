@@ -16,6 +16,7 @@ import { ToastProvider, useToast } from '@/components/admin/Toast';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import ArticlePreview from '@/components/admin/ArticlePreview';
 import { SkeletonTable, SkeletonForm, SkeletonCard } from '@/components/admin/SkeletonLoader';
+import EditorialWarnings from '@/components/admin/EditorialWarnings';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
 // Un seul editeur de carrousels. Trois coexistaient : celui-ci sur sa route
@@ -1282,6 +1283,13 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                     </div>
                   </div>
                 )}
+
+                <EditorialWarnings
+                  title={editingArticle?.title}
+                  excerpt={editingArticle?.excerpt}
+                  content={editingArticle?.content}
+                  category={editingArticle?.category}
+                />
 
                 <div className="space-y-3">
 
