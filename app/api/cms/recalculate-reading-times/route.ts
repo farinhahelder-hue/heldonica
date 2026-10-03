@@ -75,7 +75,8 @@ export async function POST(req: Request) {
   */
   // ⚡ Bolt Optimization: Refactored to batch upsert to eliminate N+1 queries.
   if (updates.length > 0) {
-    await supabase!.from('articles').upsert(updates)
+    const { error: upsertError } = await supabase!.from('articles').upsert(updates)
+    if (upsertError) console.error('Error batch updating articles read_time:', upsertError)
   }
 
   // Batch update — cms_blog_posts has no read_time column (calculated on fly #448)
