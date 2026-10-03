@@ -5,7 +5,7 @@ import path from 'path';
 export async function GET() {
   try {
     const cmsPath = path.join(process.cwd(), 'public', 'cms-pro.html');
-    const cmsContent = fs.readFileSync(cmsPath, 'utf-8');
+    const cmsContent = await fs.promises.readFile(cmsPath, 'utf-8');
     
     return new NextResponse(cmsContent, {
       headers: {
