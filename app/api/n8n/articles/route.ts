@@ -79,6 +79,10 @@ export async function GET(request: NextRequest) {
 // Body: { id, published?, category?, travel_style?, season? }
 
 export async function PATCH(request: NextRequest) {
+  const secret = request.headers.get('x-n8n-secret')
+  if (!secret || secret !== process.env.N8N_WEBHOOK_SECRET) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
   const supabase = getSupabase()
   if (!supabase) {
     return NextResponse.json({ error: 'Service unavailable - Supabase not configured' }, { status: 503 })

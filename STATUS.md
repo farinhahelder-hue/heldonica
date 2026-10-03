@@ -32,10 +32,10 @@ _Derniere mise a jour : 14 septembre 2026 — a rafraichir chaque lundi (Sprint 
 - #443 — routes API de migration ponctuelles a auditer et supprimer
 
 ## 2. Ou on doit aller (priorites, a reviser chaque lundi)
-1. [SECURITY] Middleware auth serveur sur /panel-manager (#449)
-2. [DB] Trancher articles vs cms_blog_posts, migrer et supprimer le legacy (#448)
-3. [CMS] Decider du sort de heldonica-cms + heldonica2 : fusion ou suppression (#441)
-4. [SEO] Deployer le fix sitemap deja ecrit (#446)
+1. [SECURITY] Middleware auth serveur sur /panel-manager (#449) - DONE
+2. [DB] Trancher articles vs cms_blog_posts, migrer et supprimer le legacy (#448) - DONE
+3. [CMS] Decider du sort de heldonica-cms + heldonica2 : fusion ou suppression (#441) - DONE
+4. [SEO] Deployer le fix sitemap deja ecrit (#446) - DONE
 5. [SECURITY] Audit RLS Supabase sur les tables sensibles (#442, plus les 7 tables sans policy)
 
 ## 3. Comment les IA se coordonnent ici (deja en place, ne pas dupliquer)
