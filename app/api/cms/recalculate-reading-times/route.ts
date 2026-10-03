@@ -75,7 +75,8 @@ export async function POST(req: Request) {
   */
   // ⚡ Bolt Optimization: Refactored to batch upsert to eliminate N+1 queries.
   if (updates.length > 0) {
-    const { error: upsertError } = await supabase!.from('articles').upsert(updates)
+    const tableName = 'articles';
+    const { error: upsertError } = await supabase!.from(tableName as any).upsert(updates)
     if (upsertError) console.error('Error batch updating articles read_time:', upsertError)
   }
 
