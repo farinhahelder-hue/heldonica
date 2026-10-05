@@ -208,7 +208,7 @@ export async function fetchSeasons(destinationSlug: string): Promise<SeasonInfo[
     const rows = data ?? []
     if (rows.length < 3) return []
 
-    return rows.map(row => ({
+    return rows.map((row: any) => ({
       name: row.season_label,
       emoji: row.emoji || '',
       months: row.months_array || [],
@@ -242,7 +242,7 @@ export async function fetchSubDestinations(parentSlug: string): Promise<SubDesti
       return []
     }
 
-    return (data ?? []).map(row => ({
+    return (data ?? []).map((row: any) => ({
       id: row.id,
       title: row.title,
       slug: row.slug,

@@ -15,3 +15,6 @@ Optimized blog index page with Incremental Static Regeneration (ISR) with 60 sec
 ## 2026-10-05 - Vercel Preview Build Failure with Next.js static generation
 **Learning:** Next.js static generation executes top-level file initialization and layout functions at build time. If these functions depend on environment variables that are excluded from preview builds (like `SUPABASE_SERVICE_ROLE_KEY` on Vercel PR branches), failing explicitly with `throw new Error(...)` will crash the entire build process.
 **Action:** When a server client requires secrets that might be missing during CI/preview static builds, it must gracefully fallback. A generic Javascript Proxy that handles arbitrary method chains and returns empty responses (e.g. `{ data: null, error: ... }`) is an effective stub for database clients, allowing Next.js to complete the build with graceful fallbacks.
+## 2026-10-05 - CI failure due to implicit any types
+**Learning:** GitHub Actions CI builds enforce stricter typescript checking (e.g. `npx tsc --noEmit` failing on `Parameter 'X' implicitly has an 'any' type.`).
+**Action:** When updating generic data fetchers or map loops, ensure variables like `row` or map iterations always have an explicit type (e.g., `(row: any) =>` or proper typing) to satisfy the strict typescript configuration.
