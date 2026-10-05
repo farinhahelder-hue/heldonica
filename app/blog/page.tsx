@@ -187,21 +187,23 @@ function CollectionPageJsonLd({ posts }: { posts: BlogPost[] }) {
 }
 
 export default async function BlogPage() {
-  let posts: BlogPost[] = []
-  try {
-    const result = await getAllPosts()
-    posts = Array.isArray(result) ? result : []
-  } catch (e) {
-    console.error('Supabase getAllPosts error:', e)
-    posts = []
-  }
+  // Fetch all independent data concurrently to optimize TTFB
+  const [result, categories, zones] = await Promise.all([
+    getAllPosts().catch((e) => {
+      console.error('Supabase getAllPosts error:', e);
+      return [];
+    }),
+    getBlogCategories().catch((e) => {
+      console.error('Supabase getBlogCategories error:', e);
+      return getFallbackCategories();
+    }),
+    getPageZones('blog').catch((e) => {
+      console.error('Supabase getPageZones error:', e);
+      return {};
+    })
+  ]);
 
-  // Fetch categories from CMS
-  const categories = await getBlogCategories()
-
-  // Hero piloté par le CMS. Les deux branches de rendu ci-dessous (avec et sans
-  // articles) affichent le même hero : les zones sont donc chargées une fois ici.
-  const zones = await getPageZones('blog')
+  const posts: BlogPost[] = Array.isArray(result) ? result : [];
 
   // If we have no posts at build time, avoid crashing the build and just render an empty list.
   if (!Array.isArray(posts) || posts.length === 0) {
