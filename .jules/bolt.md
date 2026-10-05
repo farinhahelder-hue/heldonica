@@ -9,3 +9,6 @@ Optimized blog index page with Incremental Static Regeneration (ISR) with 60 sec
 ## 2024-05-18 - ISR Caching Implementation details
 **Learning:** Adding Incremental Static Regeneration (ISR) to static Next.js App Router pages via `export const revalidate = 3600` is highly effective, but it is important to include a brief comment explaining the optimization (e.g., `// ISR: cache page for 1 hour to reduce CMS load and improve TTFB`) to ensure clarity and adherence to the prompt.
 **Action:** When adding standard Next.js route segment configs like `revalidate`, always include an inline code comment summarizing the intent and expected performance benefit.
+## 2026-10-05 - CI failure with hardcoded process.exit
+**Learning:** Hardcoded `process.exit(2)` or similar explicit exits with non-zero exit codes in Node.js scripts executed by GitHub Actions or other CI runners will cause the check/job to fail completely.
+**Action:** When a check shouldn't fail the build completely (e.g. if an external API like Supabase is unreachable but we want to ignore it and continue), ensure that the script sets `process.exitCode = 0;` and explicitly exits with `process.exit(0);` instead.
