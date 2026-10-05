@@ -8,6 +8,9 @@ import { getPageZones } from '@/lib/cms-zones'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
+// ISR: cache page for 1 hour to reduce CMS load and improve TTFB
+export const revalidate = 3600
+
 const metadata: Metadata = {
   title: 'Programme Partenaires & Affiliation | Heldonica',
   description:
