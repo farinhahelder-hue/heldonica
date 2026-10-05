@@ -193,8 +193,14 @@ export default async function BlogPage() {
       console.error('Supabase getAllPosts error:', e);
       return [];
     }),
-    getBlogCategories(),
-    getPageZones('blog')
+    getBlogCategories().catch((e) => {
+      console.error('Supabase getBlogCategories error:', e);
+      return getFallbackCategories();
+    }),
+    getPageZones('blog').catch((e) => {
+      console.error('Supabase getPageZones error:', e);
+      return {};
+    })
   ]);
 
   const posts: BlogPost[] = Array.isArray(result) ? result : [];
