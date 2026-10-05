@@ -14,7 +14,23 @@ export const supabase = supabaseUrl && supabaseAnonKey
 export const createServiceClient = () => {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   if (!supabaseUrl || !serviceKey) {
-    throw new Error('Missing Supabase environment variables')
+    // Return a safe proxy for Vercel preview builds where secrets are missing
+    console.warn('[Supabase] Missing credentials for service client, using safe stub.');
+
+    // Simple deep proxy that returns { data: null, error: ... } at the end of any chain
+    const makeProxy = () => {
+      const target = () => ({ data: null, error: new Error('Supabase client stubbed (missing credentials)') });
+      return new Proxy(target, {
+        get(obj, prop) {
+          if (prop === 'then') return undefined; // so it's not treated as a Promise accidentally
+          return makeProxy();
+        },
+        apply() {
+          return { data: null, error: new Error('Supabase client stubbed (missing credentials)') };
+        }
+      });
+    };
+    return makeProxy() as any;
   }
   return createClient(supabaseUrl, serviceKey, {
     auth: {

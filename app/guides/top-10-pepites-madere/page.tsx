@@ -230,7 +230,7 @@ export default async function Top10PepitesMaderePage() {
             </h2>
 
             <div className="space-y-6">
-              {pepites.map((pep) => (
+              {pepites.map((pep: any) => (
                 <div
                   key={pep.rank}
                   className="bg-white rounded-2xl p-6 md:p-8 border border-stone-100 hover:shadow-lg transition-shadow"
