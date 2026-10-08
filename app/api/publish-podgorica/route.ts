@@ -52,7 +52,7 @@ export async function POST(request: Request) {
         // est écrit en dur et affirme un vécu qu'aucune photo n'atteste.
         status: 'draft',
         published: false,
-        featured_image: 'https://images.unsplash.com/photo-1555990793-da11153b6e8d?w=1200&q=80',
+        featured_image: '/images/destinations/montenegro/moraca_millennium.jpg',
         author: 'Heldonica',
         content: `<p>Podgorica. La capitale du Monténégro qu’on traverse en coup de vent, en route vers Kotor ou le parc du Lovćen. Celle qu’on zappe. Celle dont personne ne parle.</p>
 
@@ -102,7 +102,7 @@ export async function PUT() {
     const { data: noImageArticles } = await supabase
       .from('cms_blog_posts')
       .select('id, category, content')
-      .or('featured_image.is.null,featured_image.eq.')
+      .or('featured_image.is.null,featured_image.eq.""')
 
     let updated = 0
 
@@ -125,7 +125,7 @@ export async function PUT() {
     const { data: noExcerptArticles } = await supabase
       .from('cms_blog_posts')
       .select('id, content')
-      .or('excerpt.is.null,excerpt.eq.')
+      .or('excerpt.is.null,excerpt.eq.""')
 
     if (noExcerptArticles) {
       await Promise.all(

@@ -26,7 +26,7 @@ with open(CREDENTIALS_FILE, 'r', encoding='utf-8') as f:
 installed = client_info.get("installed") or client_info.get("web")
 client_id = installed["client_id"]
 client_secret = installed["client_secret"]
-redirect_uri = "http://localhost:8089/"
+redirect_uri = "http://localhost:8080/callback"
 scope = "https://www.googleapis.com/auth/photospicker.mediaitems.readonly"
 
 auth_code = None
@@ -78,7 +78,7 @@ print(f"\nOuverture de l'URL dans le navigateur...\n{auth_url}\n")
 
 os.system(f'start "" "{auth_url}"')
 
-server = HTTPServer(("localhost", 8089), OAuthHandler)
+server = HTTPServer(("localhost", 8080), OAuthHandler)
 print("[EN ATTENTE] Clique sur \"Autoriser\" dans le navigateur qui vient de s'ouvrir...")
 
 while auth_code is None:

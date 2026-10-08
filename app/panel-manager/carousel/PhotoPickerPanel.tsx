@@ -11,13 +11,15 @@ import { useCallback, useEffect, useState } from 'react'
  * 3. La sélection depuis la médiathèque (Supabase Storage destinations / articles).
  */
 
-type Media = { nom: string; url: string }
+type Media = { nom: string; url: string; date?: string }
 
 type Props = {
   valeur?: string
   onChoisir: (url: string | undefined) => void
   onAttribuerToutes?: (urls: string[]) => void
 }
+
+const DESTINATIONS = ['Toutes', 'Suisse', 'Madère', 'Roumanie', 'Monténégro']
 
 export default function PhotoPickerPanel({ valeur, onChoisir, onAttribuerToutes }: Props) {
   const [ouvert, setOuvert] = useState(false)
@@ -27,6 +29,11 @@ export default function PhotoPickerPanel({ valeur, onChoisir, onAttribuerToutes 
   const [uploadEnCours, setUploadEnCours] = useState(false)
   const [erreur, setErreur] = useState<string | null>(null)
   const [urlSaisie, setUrlSaisie] = useState('')
+  
+  // Nouveaux états pour le filtrage, tri et recherche
+  const [filtreDestination, setFiltreDestination] = useState('Toutes')
+  const [recherche, setRecherche] = useState('')
+  const [triPlusRecent, setTriPlusRecent] = useState(true)
 
   const charger = useCallback(async (prefixe: string) => {
     setChargement(true)
@@ -41,7 +48,7 @@ export default function PhotoPickerPanel({ valeur, onChoisir, onAttribuerToutes 
         fichiers
           // Les vidéos du même dossier ne peuvent pas servir de fond fixe.
           .filter(f => /\.(jpe?g|png|webp|avif)$/i.test(f.name ?? f.filename ?? ''))
-          .map(f => ({ nom: f.name ?? f.filename, url: f.url }))
+          .map(f => ({ nom: f.name ?? f.filename, url: f.url, date: f.lastModified }))
       )
     } catch (e) {
       setErreur(e instanceof Error ? e.message : 'Chargement impossible')
@@ -78,7 +85,7 @@ export default function PhotoPickerPanel({ valeur, onChoisir, onAttribuerToutes 
         }
 
         // Ajouter aux médias connus et sélectionner automatiquement
-        const nouveauMedia = { nom: file.name, url: data.url }
+        const nouveauMedia = { nom: file.name, url: data.url, date: new Date().toISOString() }
         setMedias(prev => [nouveauMedia, ...prev.filter(m => m.url !== data.url)])
         onChoisir(data.url)
       }
@@ -96,6 +103,40 @@ export default function PhotoPickerPanel({ valeur, onChoisir, onAttribuerToutes 
     onChoisir(clean)
     setUrlSaisie('')
   }
+  
+  // Calculer les médias filtrés et triés
+  const mediasAffiches = medias
+    .filter(m => {
+      // Filtre destination
+      if (filtreDestination !== 'Toutes') {
+        // Enlève les accents pour comparer ou utilise une recherche simple
+        const dest = filtreDestination.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        const nom = m.nom.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        const url = m.url.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        if (!nom.includes(dest) && !url.includes(dest)) {
+          return false
+        }
+      }
+      
+      // Filtre recherche rapide (nom ou date)
+      if (recherche.trim() !== '') {
+        const query = recherche.toLowerCase()
+        const nom = m.nom.toLowerCase()
+        const dateStr = m.date ? m.date.toLowerCase() : ''
+        if (!nom.includes(query) && !dateStr.includes(query)) {
+          return false
+        }
+      }
+      
+      return true
+    })
+    .sort((a, b) => {
+      // Tri par date
+      const dateA = a.date ? new Date(a.date).getTime() : 0
+      const dateB = b.date ? new Date(b.date).getTime() : 0
+      
+      return triPlusRecent ? dateB - dateA : dateA - dateB
+    })
 
   return (
     <div className="mt-4">
@@ -109,13 +150,23 @@ export default function PhotoPickerPanel({ valeur, onChoisir, onAttribuerToutes 
         </button>
 
         {valeur && (
-          <button
-            type="button"
-            onClick={() => onChoisir(undefined)}
-            className="text-sm text-stone-500 underline hover:text-stone-700"
-          >
-            Retirer
-          </button>
+          <div className="flex items-center gap-2">
+            <a
+              href={`/panel-manager/brain?url=${encodeURIComponent(valeur)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1.5 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 transition flex items-center gap-1.5"
+            >
+              🧠 Analyser avec le Brain
+            </a>
+            <button
+              type="button"
+              onClick={() => onChoisir(undefined)}
+              className="text-sm text-stone-500 underline hover:text-stone-700"
+            >
+              Retirer
+            </button>
+          </div>
         )}
       </div>
 
@@ -189,28 +240,75 @@ export default function PhotoPickerPanel({ valeur, onChoisir, onAttribuerToutes 
               <p className="text-xs text-red-600 bg-red-50 p-2 rounded-lg">{erreur}</p>
             )}
 
+            {/* Barre de filtres et recherche */}
+            {medias.length > 0 && (
+              <div className="mb-4 space-y-3 bg-stone-50 p-3 rounded-xl border border-stone-200">
+                {/* Destinations */}
+                <div className="flex flex-wrap gap-2">
+                  {DESTINATIONS.map(dest => (
+                    <button
+                      key={dest}
+                      type="button"
+                      onClick={() => setFiltreDestination(dest)}
+                      className={`px-3 py-1 text-xs font-medium rounded-full border transition ${
+                        filtreDestination === dest
+                          ? 'bg-eucalyptus text-white border-eucalyptus'
+                          : 'bg-white text-stone-600 border-stone-300 hover:border-eucalyptus hover:text-eucalyptus'
+                      }`}
+                    >
+                      {dest}
+                    </button>
+                  ))}
+                </div>
+                
+                {/* Recherche et Tri */}
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={recherche}
+                    onChange={e => setRecherche(e.target.value)}
+                    placeholder="🔍 Rechercher (nom, date)..."
+                    className="flex-1 px-3 py-1.5 text-xs border border-stone-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-eucalyptus/50"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setTriPlusRecent(!triPlusRecent)}
+                    className="px-3 py-1.5 bg-white border border-stone-300 text-stone-600 text-xs font-medium rounded-lg hover:border-eucalyptus hover:text-eucalyptus transition whitespace-nowrap"
+                  >
+                    {triPlusRecent ? '⬇️ Plus récent' : '⬆️ Plus ancien'}
+                  </button>
+                </div>
+              </div>
+            )}
+
             {!chargement && !erreur && medias.length === 0 && (
               <p className="text-xs text-stone-500">
                 Aucune photo dans ce dossier. Utilisez le bouton d&apos;upload ci-dessus pour en ajouter depuis votre téléphone.
               </p>
             )}
+            
+            {!chargement && !erreur && medias.length > 0 && mediasAffiches.length === 0 && (
+              <p className="text-xs text-stone-500">
+                Aucune photo ne correspond à vos filtres.
+              </p>
+            )}
 
-            {medias.length > 0 && (
+            {mediasAffiches.length > 0 && (
               <>
                 {onAttribuerToutes && (
                   <button
                     type="button"
                     onClick={() => {
-                      onAttribuerToutes(medias.map(m => m.url))
+                      onAttribuerToutes(mediasAffiches.map(m => m.url))
                       setOuvert(false)
                     }}
                     className="mb-2 w-full text-center text-xs font-semibold text-[#6b2a1a] bg-stone-100 hover:bg-stone-200 px-3 py-1.5 rounded-lg transition"
                   >
-                    ✨ Distribuer 1 photo par diapositive ({medias.length} disponible{medias.length > 1 ? 's' : ''})
+                    ✨ Distribuer 1 photo par diapositive ({mediasAffiches.length} disponible{mediasAffiches.length > 1 ? 's' : ''})
                   </button>
                 )}
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-56 overflow-y-auto">
-                {medias.map(m => (
+                {mediasAffiches.map(m => (
                   <button
                     key={m.url}
                     type="button"

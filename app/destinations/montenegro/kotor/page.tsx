@@ -23,6 +23,7 @@ const metadata: Metadata = {
     siteName: 'Heldonica',
     locale: 'fr_FR',
     type: 'article',
+    images: ['/images/destinations/montenegro/moraca_millennium.jpg'],
   },
 }
 
@@ -41,7 +42,7 @@ const navLinks = [
 const FAQS: { q: { zone: string; fb: string }; a: { zone: string; fb: string } }[] = [
   { q: { zone: "faq_1_q", fb: "Quel est le meilleur moment pour visiter Kotor ?" }, a: { zone: "faq_1_a", fb: "Tôt le matin (7h-9h) pour avoir la vieille ville avant l'arrivée des croisiéristes. Mai-juin et septembre-octobre offrent le meilleur équilibre température/affluence." } },
   { q: { zone: "faq_2_q", fb: "Combien de temps rester à Kotor ?" }, a: { zone: "faq_2_a", fb: "2 à 3 jours suffisent pour découvrir la vieille ville, les remparts et une excursion dans les bouches de Kotor. Compte 4-5 jours si tu veux explorer Lovćen ou le Durmitor." } },
-  { q: { zone: "faq_3_q", fb: "Les remparts de Kotor sont-ils difficiles ?" }, a: { zone: "faq_3_a", fb: "Oui — 1350 marches pour rejoindre la forteresse de San Giovanni. C'est éprouvant mais la vue sur la baie en vaut la peine. Partez tôt pour éviter la chaleur." } }
+  { q: { zone: "faq_3_q", fb: "Les remparts de Kotor sont-ils difficiles ?" }, a: { zone: "faq_3_a", fb: "Oui — 1350 marches pour rejoindre la forteresse de San Giovanni. C'est éprouvant mais la vue sur la baie en vaut la peine. Pars tôt pour éviter la chaleur." } }
 ]
 
 export default async function KotorPage() {
@@ -69,7 +70,7 @@ export default async function KotorPage() {
         {/* Hero */}
         <section className="relative bg-gradient-to-b from-stone-900 via-stone-800 to-stone-700 py-20 md:py-28">
           <div className="absolute inset-0 opacity-30">
-            {Z('hero_image', 'image', '/og-default.jpg', 'w-full h-full object-cover')}
+            {Z('hero_image', 'image', '/images/destinations/montenegro/moraca_millennium.jpg', 'w-full h-full object-cover')}
           </div>
           <div className="relative max-w-4xl mx-auto px-4">
             <span className="inline-block text-teal text-sm font-medium mb-4 tracking-wide">
@@ -121,7 +122,7 @@ export default async function KotorPage() {
               {Z('intro_1', 'html', " <strong>6h30.</strong> On a quitté notre hébergement dans la vieille ville avant l'aube. Les premières lueurs sont apparues à l'horizon, rougissant les peaks calcaires. La baie était mate, sans un pli. Quelques pêcheurs préparaient leurs bateaux. ", undefined, 'p')}
             </p>
             <p className="text-lg text-stone-700 leading-relaxed">
-              {Z('intro_2', 'html', " C'est à ce moment précis que Kotor révèle ce qu'il est vraiment : une ville magnifique coincée entre montagne et mer, qui mérite mieux que les groupes de croisiéristes qui la envahissent à partir de 10h. ", undefined, 'p')}
+              {Z('intro_2', 'html', " C'est à ce moment précis que Kotor révèle ce qu'il est vraiment : une cité saisissante coincée entre montagne et mer, qui mérite mieux que les groupes de croisiéristes qui l'envahissent à partir de 10h. ", undefined, 'p')}
             </p>
             <p className="text-lg text-stone-700 leading-relaxed">
               {Z('intro_3', 'html', " <strong>Notre conseil terrain :</strong> Lève-toi à 7h. Fais les remparts avant 9h. Ensuite, va nager dans une crique de la baie ou prends le bateau pour Perast. ", undefined, 'p')}
@@ -135,7 +136,7 @@ export default async function KotorPage() {
             </h2>
             <p className="text-lg text-stone-700 leading-relaxed mb-8">
               Kotor subit le syndrome des destinations méditerranéennes :
-              magnifiques hors saison, invivables en juillet-août.
+              saisissantes hors saison, étouffantes durant l'été.
               Mais même hors saison, les croisiéristes débarquent chaque matin.
             </p>
             <div className="grid md:grid-cols-2 gap-6">
@@ -188,7 +189,7 @@ export default async function KotorPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-mahogany mb-2">{Z('day_3_title', 'text', "Direction le port pour l'excursion", undefined, 'span')}</h3>
-                  <p className="text-stone-600">{Z('day_3_desc', 'textarea', "Les bateaux partent du vieux port. Destination : les bouches de Kotor, Perast, et l'île de Notre-Dame-du-Rocher. <strong className=\"text-mahogany\"> Astuce : négociez directement avec les pêcheurs sur le port.</strong>", undefined, 'span')}</p>
+                  <p className="text-stone-600">{Z('day_3_desc', 'textarea', "Les bateaux partent du vieux port. Destination : les bouches de Kotor, Perast, et l'île de Notre-Dame-du-Rocher. <strong className=\"text-mahogany\"> Repère utile : échange directement avec les bateliers sur le quai.</strong>", undefined, 'span')}</p>
                 </div>
               </div>
               <div className="flex gap-4">
@@ -293,7 +294,7 @@ export default async function KotorPage() {
               </div>
               <div className="md:col-span-2">
                 <p className="text-xl italic border-t border-stone-600 pt-6">
-                  {Z('verdict_quote', 'textarea', "\"Kotor se découvre à l'aube. Le reste de la journée, partez en bateau.\"", undefined, 'span')}
+                  {Z('verdict_quote', 'textarea', "\"Kotor se découvre à l'aube. Le reste de la journée, prends le large en bateau.\"", undefined, 'span')}
                 </p>
               </div>
             </div>

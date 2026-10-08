@@ -71,15 +71,21 @@ if (r.isError && /migration/.test(r.txt)) {
 }
 
 // 6. Nettoyage direct : le serveur n'a pas d'outil de suppression, c'est voulu.
-const toutes = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/agent_tasks?select=id&task=like.ESSAI-MCP-A-SUPPRIMER*`, {
-  headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}` },
-}).then((x) => x.json())
-for (const t of toutes) {
-  await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/agent_tasks?id=eq.${t.id}`, {
-    method: 'DELETE',
-    headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}` },
-  })
+const cleanHeaders = { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY }
+if (process.env.SUPABASE_SERVICE_ROLE_KEY?.startsWith('eyJ')) {
+  cleanHeaders.Authorization = `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`
 }
-ok(true, `nettoyage : ${toutes.length} tache(s) d'essai supprimee(s)`)
+const toutes = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/agent_tasks?select=id&task=like.ESSAI-MCP-A-SUPPRIMER*`, {
+  headers: cleanHeaders,
+}).then((x) => x.json())
+if (Array.isArray(toutes)) {
+  for (const t of toutes) {
+    await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/agent_tasks?id=eq.${t.id}`, {
+      method: 'DELETE',
+      headers: cleanHeaders,
+    })
+  }
+}
+ok(true, `nettoyage : ${(Array.isArray(toutes) ? toutes.length : 0)} tache(s) d'essai supprimee(s)`)
 
 await client.close()

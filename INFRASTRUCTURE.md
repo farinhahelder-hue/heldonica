@@ -101,4 +101,33 @@ Push sur main (GitHub)
 
 ---
 
+## 7. Architecture IA & « Brain » (Deux Composants Complémentaires)
+
+Deux projets distincts coexistent sur la station locale pour les opérations IA :
+
+1. **Heldonica Brain II (Backbone & Opérations 24/7)** : `C:\Users\Work\heldonica-brain`
+   - **Rôle** : Système central autonome (serveur principal port `8440` + façade agents port `8451`).
+   - **Composants** :
+     - Base SQLite locale (`heldonica_brain.db` & `agent_jobs.db`).
+     - **Coffre des Savoirs (RAG)** : 55 fiches de référence (manifeste, pépites, articles publiés, et flux Atom Blogger d'origine pour la voix authentique du duo).
+     - **Pont CMS (BridgePoller)** : Écoute et dépile les requêtes d'agents depuis la table Supabase `agent_tasks`.
+     - **Façade Agents (Port 8451)** : File d'attente locale token-gated produisant des brouillons autonomes sans jamais publier directement vers la production.
+     - **Gestionnaire Hardware** : Supervision GTX 1660 Ti et Ollama local.
+   - **Service Windows** : Lancé automatiquement au démarrage via la tâche planifiée `HeldonicaBrain` (script `scripts/start_brain_service.ps1`).
+
+2. **Copilote Brain 8470 (Assistant Interactif CMS)** : `C:\Users\Work\heldonica\heldonica-brain`
+   - **Rôle** : Micro-service local léger (port `8470`, `server.py`) dédié à l'interface d'édition CMS (`/panel-manager/brain`).
+   - **Composants** :
+     - Analyse visuelle instantanée par glisser-déposer de photo (`/api/analyze-image`).
+     - Rédaction immédiate de légendes Instagram et carrousels dans le respect strict de la charte de voix (`brand.py`, validation offline `selftest.py` 58/58).
+     - Règle anti-invention : les éléments incertains ou absents de la photo sont balisés `[👉 TOI : ce qui manque]`.
+     - Mémoire d'apprentissage de style locale (`memory.json`, gitignorée).
+
+**Source de vérité partagée** :
+- La voix de marque canonique est définie dans `lib/brand-voice.ts` et répliquée dans `brand.py`.
+- Le corpus historique de référence est `content/voix/blogger-heldonica-feed.atom`.
+- Tout contenu généré reste systématiquement au statut brouillon (`draft`) — la mise en ligne nécessite toujours une validation humaine.
+
+---
+
 Voir `STATUS.md` pour l'etat courant (priorites, issues ouvertes, dette technique).

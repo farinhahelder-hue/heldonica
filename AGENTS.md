@@ -56,6 +56,19 @@ portraits indéfinis ("l'un", "l'autre") si besoin de les évoquer.
   schéma réel (`information_schema.columns`) avant d'écrire une requête ou une
   nouvelle migration sur une table existante.
 
+## Architecture locale & Projets IA
+
+La station locale héberge deux projets distincts qui ne doivent jamais être confondus :
+
+1. **Heldonica Web & CMS** (`C:\Users\Work\heldonica` ou `heldonica-clean`) :
+   - Dépôt Next.js principal du site public et de l'administration CMS.
+   - Héberge le **Copilote CMS interactif** sur le port `8470` (`heldonica-brain/` avec `server.py`).
+2. **Heldonica Brain II** (`C:\Users\Work\heldonica-brain`) :
+   - Service d'arrière-plan autonome 24/7 (port `8440` + façade agents `8451`).
+   - Gère le **Coffre des Savoirs (RAG 55 fiches)**, le BridgePoller sur `agent_tasks`, et le matériel local (GTX 1660 Ti).
+
+---
+
 ## Coordination entre agents — la table `agent_tasks`
 
 Plusieurs agents travaillent sur ce dépôt sans se parler : Claude Code, Gemini,
@@ -66,7 +79,7 @@ Le registre est la table Supabase `agent_tasks`. Discord, les issues GitHub et
 `CHANGELOG.md` sont des **notifications** ; la table est la **vérité**. Si ce
 n'est pas dans la table, ça n'a pas été demandé ni fait.
 
-### Les quatre gestes
+### Les gestes de l'agent
 
 Ils existent sous forme d'outils MCP dans `mcp/agent-tasks/` — cinq outils,
 les mêmes pour Claude Code (`.mcp.json`), Gemini CLI (`.gemini/settings.json`)
@@ -75,6 +88,17 @@ et OpenCode (`opencode.json`) : `taches_en_attente`, `lire_tache`,
 c'est voulu. Chaque client se présente par `AGENT_NAME` ; sans nom, lecture
 seule. Détails et installation : `mcp/agent-tasks/README.md`.
 
+0. **Le Pre-flight avant de toucher une seule ligne.**
+   Lancer systématiquement :
+   ```bash
+   npm run preflight
+   ```
+   Ce contrôle ultra-rapide (~1s) vérifie :
+   - La synchronisation Git : alerte immédiatement si la branche locale est en retard sur `origin/main` (évite les régressions et les réinventions de code).
+   - L'intégrité de l'espace de travail (modules critiques présents, pas de dossiers parasites).
+   - La **parité stricte de la voix de marque TypeScript ↔ Python** (`scripts/check-brand-sync.mjs`) : `lib/brand-voice.ts` est la vérité absolue ; tout miroir Python (`brand.py`) doit avoir rigoureusement la même liste de mots bannis et de pronoms.
+   - La fraîcheur des modèles d'IA (`scripts/check-ai-models.mjs`).
+   - La sécurité des routes API et la lecture systématique des erreurs Supabase.
 
 1. **Lire avant d'agir.** Au début d'une session, lister les tâches qui te sont
    adressées (`agent = ton nom`) ou ouvertes à tous, en `sent`. Lire aussi ce qui
@@ -138,26 +162,38 @@ ou la production : les remplir quand c'est le cas.
 - Supprimer des données de l'utilisateur sur la foi d'un nom ou d'un préfixe :
   le 11 septembre, quatre brouillons `paris-*` semblaient des doublons ; deux
   étaient des notes distinctes. On compare les octets, pas les slugs.
+- Valider son propre travail : l'exécutant ne clôt jamais sa tâche en `done`
+  sans preuves mesurables par un tiers (logs, diff, code, ports vérifiés).
+  Le 08/10, une clôture automatique en 0,4 ms sans exécution a dû être
+  requalifiée en `failed` — le théâtre de validation est une faute.
+- Nettoyer l'inbox à plusieurs en même temps : un seul nettoyeur par tranche
+  horaire (le 08/10, deux nettoyeurs simultanés ont posé des statuts inverses
+  sur les mêmes fiches). On se coordonne avant de toucher aux statuts.
 
 ## Garde-fous CI (doivent rester au vert)
 
-`.github/workflows/garde-fous.yml` exécute à chaque PR et chaque push vers
-`main` : `tsc --noEmit`, `vitest`, et six contrôles —
-
-| Script | Ce qu'il attrape |
-|---|---|
-| `check:cms-zones` | Zones CMS actives qu'aucun composant n'affiche, et l'inverse. |
-| `check:cms-drift` | Tables en base absentes des migrations, ou l'inverse. |
-| `check:api-auth` | Route maniant la clé service sans vérifier son appelant. |
-| `check:erreurs-avalees` | Écriture Supabase dont l'erreur n'est pas lue — `const { data } = await`, `await` nu, `.catch(() => {})`. |
-| `check:content-coherence` | Voix éditoriale et mots bannis. |
-| `check:content-evidence` | Vécu qui n'est adossé à aucune photo. |
-
-Les lancer **tous** en local avant de pousser :
+La suite de garde-fous s'exécute de façon identique et portable sous Windows PowerShell,
+Linux et macOS via :
 
 ```bash
-for g in cms-zones cms-drift api-auth erreurs-avalees content-coherence content-evidence; do npm run check:$g --silent || echo "ROUGE : $g"; done; npx tsc --noEmit
+npm run garde-fous
 ```
+
+Ce script exécute et récapitule dans un tableau clair l'ensemble des 11 contrôles :
+
+| Contrôle | Ce qu'il attrape |
+|---|---|
+| `check:workspace` | Branche en retard sur `origin/main`, dépendances manquantes, pollution. |
+| `check:brand-sync` | Désynchronisation de la voix de marque ou mots bannis entre TS et Python. |
+| `check:ai-models` | Modèles d'IA dépréciés ou écrits en dur hors de `lib/ai-provider.ts`. |
+| `check:api-auth` | Route maniant la clé service sans vérifier son appelant. |
+| `check:erreurs-avalees` | Écriture Supabase dont l'erreur n'est pas lue — `const { data } = await`, `await` nu, `.catch(() => {})`. |
+| `check:cms-zones` | Zones CMS actives qu'aucun composant n'affiche, et l'inverse. |
+| `check:cms-drift` | Tables en base absentes des migrations, ou l'inverse. |
+| `check:content-coherence` | Voix éditoriale et mots bannis en production. |
+| `check:content-evidence` | Vécu qui n'est adossé à aucune photo. |
+| `typecheck` (`tsc`) | Erreurs de typage TypeScript strictes. |
+| `vitest` (`vitest run`) | Intégrité des 39 fichiers de tests unitaires et intégration. |
 
 Ils sont le même juge pour tous les agents. Un garde-fou rouge n'est pas
 « à corriger plus tard » : c'est une tâche qui n'est pas finie.

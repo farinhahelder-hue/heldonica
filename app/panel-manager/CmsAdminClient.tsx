@@ -8,7 +8,7 @@ import MediaLibrary from '@/components/MediaLibrary';
 import EeaatScore from '@/components/EeaatScore';
 import { sanitizeHtml } from '@/lib/sanitize-html';
 import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot, Mail, Map as MapIcon, ChevronLeft, ChevronRight, Palette, Zap, Inbox, MapPin, ListTree, Type } from 'lucide-react';
-import { Film, Clapperboard, Camera, Calendar, MessageSquare, ClipboardList } from 'lucide-react';
+import { Film, Clapperboard, Camera, Calendar, MessageSquare, ClipboardList, History, ShieldCheck, Bed, Key, FolderOpen } from 'lucide-react';
 import CmsSettingsPanel from '@/components/admin/CmsSettingsPanel';
 import ErrorBoundary from '@/components/admin/ErrorBoundary';
 import CategorySelect from '@/components/admin/CategorySelect';
@@ -16,6 +16,13 @@ import { ToastProvider, useToast } from '@/components/admin/Toast';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import ArticlePreview from '@/components/admin/ArticlePreview';
 import { SkeletonTable, SkeletonForm, SkeletonCard } from '@/components/admin/SkeletonLoader';
+import BlockCanvas from '@/components/admin/blocks/BlockCanvas';
+import BlockRenderer from '@/components/blocks/BlockRenderer';
+import PhotoEvidenceBlock from '@/components/PhotoEvidenceBlock';
+import RevisionsDrawer from '@/components/admin/RevisionsDrawer';
+import { VERIFIED_PHOTO_ALBUMS } from '@/lib/cms-photo-albums';
+import { htmlToBlocks, blocksToHtml } from '@/lib/cms-blocks-converter';
+import type { CmsBlock } from '@/types/cms-blocks';
 
 const RichEditor = dynamic(() => import('@/components/RichEditor'), { ssr: false });
 // Un seul editeur de carrousels. Trois coexistaient : celui-ci sur sa route
@@ -47,6 +54,9 @@ const SeasonsManager = dynamic(() => import('@/components/admin/SeasonsManager')
 const RedirectsManager = dynamic(() => import('@/components/admin/RedirectsManager'), { ssr: false });
 const LayoutManager = dynamic(() => import('@/components/admin/LayoutManager'), { ssr: false });
 const AiAnalyticsDashboard = dynamic(() => import('@/components/admin/AiAnalyticsDashboard'), { ssr: false });
+const AuditLogPanel = dynamic(() => import('./AuditLogPanel'), { ssr: false });
+const HospitalityManager = dynamic(() => import('./HospitalityManager'), { ssr: false });
+const TokensAndReleasesManager = dynamic(() => import('./TokensAndReleasesManager').then(m => m.TokensAndReleasesManager), { ssr: false });
 
 type Article = {
   id: number;
@@ -69,6 +79,11 @@ type Article = {
   visit_count?: number;
   sitemap_priority?: number;
   sitemap_changefreq?: string;
+  photoUrl?: string;
+  photoLocation?: string;
+  photoDate?: string;
+  photoAnecdote?: string;
+  photoAlbumLink?: string;
 };
 
 type NavSection =
@@ -78,7 +93,7 @@ type NavSection =
   | 'map' | 'auto-shorts' | 'design' | 'geo' | 'instagram' | 'messages' | 'demandes'
   | 'testimonials' | 'checklists'
   | 'destination-pillars' | 'guides' | 'editable-zones' | 'sub-destinations'
-  | 'seasons' | 'redirects' | 'layouts';
+  | 'seasons' | 'redirects' | 'layouts' | 'audit' | 'hospitality' | 'tokens-releases';
 
 // Sections adressables depuis l'URL. Le panneau ne gardait sa section qu'en
 // memoire : impossible d'ouvrir directement « Design » ou « Articles », que ce
@@ -91,7 +106,7 @@ const SECTIONS_URL: readonly NavSection[] = [
   'map', 'auto-shorts', 'design', 'geo', 'instagram', 'messages', 'demandes',
   'testimonials', 'checklists',
   'destination-pillars', 'guides', 'editable-zones', 'sub-destinations',
-  'seasons', 'redirects', 'layouts',
+  'seasons', 'redirects', 'layouts', 'audit', 'hospitality', 'tokens-releases',
 ]
 
 function sectionDepuisUrl(valeur: string | null): NavSection | null {
@@ -181,6 +196,29 @@ function CmsAdminClientInner() {
   const [isDirty, setIsDirty] = useState(false); // tracks unsaved article changes
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // ── Système de Blocs Modulaires & Live Preview ──
+  const [contentEditorMode, setContentEditorMode] = useState<'blocks' | 'classic'>('blocks');
+  const [activeCmsBlocks, setActiveCmsBlocks] = useState<CmsBlock[]>([]);
+  const [liveSplitPreview, setLiveSplitPreview] = useState<boolean>(true);
+  const [isRevisionsDrawerOpen, setIsRevisionsDrawerOpen] = useState(false);
+  const [isArticleAlbumPickerOpen, setIsArticleAlbumPickerOpen] = useState(false);
+  const [selectedArticleAlbumId, setSelectedArticleAlbumId] = useState<string>('montenegro-podgorica-2026');
+
+  // Synchronise les blocs à l'ouverture ou modification d'un article
+  useEffect(() => {
+    if (editingArticle?.content) {
+      setActiveCmsBlocks(htmlToBlocks(editingArticle.content));
+    } else {
+      setActiveCmsBlocks([]);
+    }
+  }, [editingArticle?.id]);
+
+  const handleBlocksChange = (updatedBlocks: CmsBlock[]) => {
+    setActiveCmsBlocks(updatedBlocks);
+    const html = blocksToHtml(updatedBlocks);
+    setEditingArticle(prev => prev ? { ...prev, content: html } : prev);
+  };
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -699,6 +737,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
         { id: 'articles',      label: 'Articles',         icon: <FileText size={15} />, badge: articles.length > 0 ? String(articles.length) : undefined },
         { id: 'new-article',   label: 'Nouvel article',   icon: <Plus size={15} /> },
         { id: 'testimonials',  label: 'Témoignages',      icon: <MessageSquare size={15} /> },
+        { id: 'hospitality',   label: 'Hébergements B2B', icon: <Bed size={15} /> },
       ]
     },
     {
@@ -724,12 +763,14 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
       ]
     },
     {
-      title: 'Configuration',
+      title: 'Configuration & Audit',
       items: [
         { id: 'design',        label: 'Design',             icon: <Palette size={15} /> },
         { id: 'geo',           label: 'GEO',                icon: <Zap size={15} /> },
         { id: 'layouts',       label: 'Templates',          icon: <Type size={15} /> },
         { id: 'redirects',     label: 'Redirections',       icon: <Plane size={15} /> },
+        { id: 'tokens-releases', label: 'Tokens & Releases', icon: <Key size={15} /> },
+        { id: 'audit',         label: 'Journal d\'activité', icon: <History size={15} /> },
         { id: 'settings',      label: 'Paramètres',        icon: <Settings size={15} /> },
       ]
     }
@@ -757,7 +798,10 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
             <span className="text-2xl">🌿</span>
             <div className="flex-1">
               <div className="text-base font-bold text-white tracking-wide">Heldonica</div>
-              <div className="text-[10px] text-teal tracking-widest uppercase font-semibold">Workspace</div>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <span className="text-[11px] text-stone-400 font-medium">Admin (Fondateur)</span>
+              </div>
             </div>
             {/* Le nom de la section en cours tient lieu d'etiquette : replie, le
                 menu doit dire ou l'on se trouve. */}
@@ -1229,6 +1273,17 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                         <Camera size={14} /> Caption IG
                       </button>
                     )}
+                    {editingArticle?.id && (
+                      <button
+                        type="button"
+                        onClick={() => setIsRevisionsDrawerOpen(true)}
+                        className="flex items-center gap-1.5 px-3 py-2 text-xs border border-amber-200 bg-amber-50 hover:bg-amber-100 rounded-lg text-amber-900 transition-colors shadow-xs font-medium"
+                        title="Consulter l'historique des versions et restaurer en 1 clic"
+                      >
+                        <History size={14} className="text-amber-700" />
+                        <span>Versions</span>
+                      </button>
+                    )}
                     <button
                       onClick={handleSaveArticle}
                       disabled={saving}
@@ -1336,16 +1391,106 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                         placeholder="Résumé court de l’article"
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Contenu</label>
-                      <Suspense fallback={<SkeletonForm />}>
-                        <RichEditor
-                          value={editingArticle?.content || ''}
-                          onChange={(html: string) =>
-                            setEditingArticle(prev => prev ? { ...prev, content: html } : prev)
-                          }
-                        />
-                      </Suspense>
+                    <div className="space-y-4">
+                      {/* En-tête avec bascule de mode (Blocs vs Classique) et switch Live Preview */}
+                      <div className="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-gray-100">
+                        <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (contentEditorMode !== 'blocks') {
+                                if (editingArticle?.content) {
+                                  setActiveCmsBlocks(htmlToBlocks(editingArticle.content));
+                                }
+                                setContentEditorMode('blocks');
+                              }
+                            }}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                              contentEditorMode === 'blocks'
+                                ? 'bg-white text-stone-900 shadow-sm'
+                                : 'text-gray-500 hover:text-gray-900'
+                            }`}
+                          >
+                            🧱 Mode Blocs Visuel
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setContentEditorMode('classic')}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                              contentEditorMode === 'classic'
+                                ? 'bg-white text-stone-900 shadow-sm'
+                                : 'text-gray-500 hover:text-gray-900'
+                            }`}
+                          >
+                            📝 Éditeur Classique
+                          </button>
+                        </div>
+
+                        {contentEditorMode === 'blocks' && (
+                          <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-stone-600 select-none">
+                            <input
+                              type="checkbox"
+                              checked={liveSplitPreview}
+                              onChange={(e) => setLiveSplitPreview(e.target.checked)}
+                              className="rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                            />
+                            <span>Aperçu direct côte-à-côte</span>
+                          </label>
+                        )}
+                      </div>
+
+                      {/* Corps d'édition */}
+                      {contentEditorMode === 'blocks' ? (
+                        liveSplitPreview ? (
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                            {/* Colonne gauche : Canvas d'édition interactif */}
+                            <div>
+                              <BlockCanvas
+                                blocks={activeCmsBlocks}
+                                onChange={handleBlocksChange}
+                              />
+                            </div>
+
+                            {/* Colonne droite : Live Preview en direct */}
+                            <div className="sticky top-6 rounded-2xl border border-stone-200 bg-stone-50/70 p-5 shadow-inner">
+                              <div className="flex items-center justify-between pb-3 mb-4 border-b border-stone-200/80">
+                                <span className="text-xs font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
+                                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                  Aperçu en temps réel
+                                </span>
+                                <span className="text-xs text-stone-400">Rendu lecteur fidèle</span>
+                              </div>
+                              <div className="bg-white rounded-xl p-6 md:p-8 shadow-sm border border-stone-100 max-h-[750px] overflow-y-auto">
+                                {editingArticle?.title && (
+                                  <h1 className="font-serif text-2xl md:text-3xl text-charcoal mb-3">
+                                    {editingArticle.title}
+                                  </h1>
+                                )}
+                                {editingArticle?.excerpt && (
+                                  <p className="text-stone-500 italic text-sm mb-6 pb-4 border-b border-stone-100">
+                                    {editingArticle.excerpt}
+                                  </p>
+                                )}
+                                <BlockRenderer blocks={activeCmsBlocks} />
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <BlockCanvas
+                            blocks={activeCmsBlocks}
+                            onChange={handleBlocksChange}
+                          />
+                        )
+                      ) : (
+                        <Suspense fallback={<SkeletonForm />}>
+                          <RichEditor
+                            value={editingArticle?.content || ''}
+                            onChange={(html: string) =>
+                              setEditingArticle((prev) => (prev ? { ...prev, content: html } : prev))
+                            }
+                          />
+                        </Suspense>
+                      )}
                     </div>
                   </CollapsibleSection>
 
@@ -1375,6 +1520,164 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                       }
                       return null;
                     })()}
+                  </CollapsibleSection>
+
+                  {/* ── Preuve visuelle (PhotoEvidenceBlock) ── */}
+                  <CollapsibleSection title="📸 Preuve visuelle" defaultOpen={false}>
+                    {/* Sélecteur direct d'albums certifiés */}
+                    <div className="mb-4 p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Camera size={15} className="text-[#2D8B7A]" />
+                          <span className="text-xs font-semibold text-gray-800">
+                            Preuves réelles du terrain ({VERIFIED_PHOTO_ALBUMS.length} albums)
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setIsArticleAlbumPickerOpen(!isArticleAlbumPickerOpen)}
+                          className="px-2.5 py-1 text-xs font-medium bg-[#2D8B7A] hover:bg-[#236e61] text-white rounded-lg transition-colors flex items-center gap-1.5 shadow-xs"
+                        >
+                          <FolderOpen size={13} />
+                          <span>{isArticleAlbumPickerOpen ? 'Fermer les albums' : 'Choisir une photo certifiée'}</span>
+                        </button>
+                      </div>
+
+                      {isArticleAlbumPickerOpen && (
+                        <div className="pt-2 border-t border-stone-200 space-y-3">
+                          <div className="flex flex-wrap gap-1.5">
+                            {VERIFIED_PHOTO_ALBUMS.map((album) => (
+                              <button
+                                key={album.id}
+                                type="button"
+                                onClick={() => setSelectedArticleAlbumId(album.id)}
+                                className={`px-2.5 py-1 text-xs rounded-lg transition-colors font-medium ${
+                                  selectedArticleAlbumId === album.id
+                                    ? 'bg-[#2D8B7A] text-white shadow-xs'
+                                    : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'
+                                }`}
+                              >
+                                {album.title.split('—')[0].trim()} ({album.photos.length})
+                              </button>
+                            ))}
+                          </div>
+
+                          {(() => {
+                            const album = VERIFIED_PHOTO_ALBUMS.find((a) => a.id === selectedArticleAlbumId) ?? VERIFIED_PHOTO_ALBUMS[0];
+                            return (
+                              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 max-h-56 overflow-y-auto pt-1">
+                                {album.photos.map((photo) => (
+                                  <div
+                                    key={photo.id}
+                                    onClick={() => {
+                                      setEditingArticle(prev => prev ? {
+                                        ...prev,
+                                        photoUrl: photo.imageUrl,
+                                        photoLocation: photo.location,
+                                        photoDate: photo.date,
+                                        photoAnecdote: photo.suggestedAnecdote,
+                                        photoAlbumLink: photo.albumLink,
+                                      } : prev);
+                                      setIsArticleAlbumPickerOpen(false);
+                                      toast('Photo de terrain insérée avec succès !', 'success');
+                                    }}
+                                    className="group cursor-pointer border border-gray-200 hover:border-[#2D8B7A] rounded-lg overflow-hidden bg-white hover:bg-emerald-50/20 transition-all text-left flex flex-col shadow-xs"
+                                  >
+                                    <div className="relative aspect-video bg-gray-100 overflow-hidden">
+                                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                                      <img
+                                        src={photo.imageUrl}
+                                        alt={photo.location}
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                        loading="lazy"
+                                      />
+                                      <span className="absolute bottom-1 right-1 px-1 py-0.5 bg-black/60 text-white text-[9px] rounded font-mono">
+                                        {photo.date}
+                                      </span>
+                                    </div>
+                                    <div className="p-2 flex-1 flex flex-col justify-between">
+                                      <div className="text-[11px] font-semibold text-gray-800 truncate">
+                                        📍 {photo.location}
+                                      </div>
+                                      <button
+                                        type="button"
+                                        className="mt-1.5 w-full py-1 bg-emerald-50 group-hover:bg-[#2D8B7A] text-emerald-800 group-hover:text-white rounded text-[10px] font-medium transition-colors text-center"
+                                      >
+                                        Insérer
+                                      </button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">URL photo (HTTPS)</label>
+                        <input
+                          type="url"
+                          value={editingArticle?.photoUrl ?? ''}
+                          onChange={e => setEditingArticle(prev => prev ? { ...prev, photoUrl: e.target.value } : prev)}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                          placeholder="https://..."
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Lieu exact vécu</label>
+                        <input
+                          type="text"
+                          value={editingArticle?.photoLocation ?? ''}
+                          onChange={e => setEditingArticle(prev => prev ? { ...prev, photoLocation: e.target.value } : prev)}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                          placeholder="Madère, Ponta do Sol"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Date de prise de vue</label>
+                        <input
+                          type="date"
+                          value={editingArticle?.photoDate ?? ''}
+                          onChange={e => setEditingArticle(prev => prev ? { ...prev, photoDate: e.target.value } : prev)}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Album Google Photos (optionnel)</label>
+                        <input
+                          type="url"
+                          value={editingArticle?.photoAlbumLink ?? ''}
+                          onChange={e => setEditingArticle(prev => prev ? { ...prev, photoAlbumLink: e.target.value } : prev)}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
+                          placeholder="https://photos.app.goo.gl/..."
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Anecdote vécue ({(editingArticle?.photoAnecdote?.length ?? 0)}/200)
+                      </label>
+                      <textarea
+                        rows={2}
+                        maxLength={200}
+                        value={editingArticle?.photoAnecdote ?? ''}
+                        onChange={e => setEditingArticle(prev => prev ? { ...prev, photoAnecdote: e.target.value } : prev)}
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A] resize-y"
+                        placeholder="Ce que nous avons vécu ici, sans invention..."
+                      />
+                    </div>
+                    {editingArticle?.photoUrl && editingArticle?.photoLocation && editingArticle?.photoDate && editingArticle?.photoAnecdote && (
+                      <PhotoEvidenceBlock
+                        imageUrl={editingArticle.photoUrl}
+                        location={editingArticle.photoLocation}
+                        date={editingArticle.photoDate}
+                        anecdote={editingArticle.photoAnecdote}
+                        albumLink={editingArticle.photoAlbumLink}
+                      />
+                    )}
                   </CollapsibleSection>
 
                   {/* ── SEO section ── */}
@@ -1854,6 +2157,33 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
             </ErrorBoundary>
           )}
 
+          {/* ── Journal d'activité & Audit ── */}
+          {activeSection === 'audit' && (
+            <ErrorBoundary>
+              <Suspense fallback={<SkeletonForm />}>
+                <AuditLogPanel />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Hébergements & Offres B2B ── */}
+          {activeSection === 'hospitality' && (
+            <ErrorBoundary>
+              <Suspense fallback={<SkeletonForm />}>
+                <HospitalityManager />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Tokens Flotte IA & Releases ── */}
+          {activeSection === 'tokens-releases' && (
+            <ErrorBoundary>
+              <Suspense fallback={<SkeletonForm />}>
+                <TokensAndReleasesManager />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
         </main>
       </div>
 
@@ -1877,6 +2207,29 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
         author={previewArticle?.author}
         featured_image={previewArticle?.featured_image}
         onClose={() => setPreviewArticle(null)}
+      />
+      <RevisionsDrawer
+        articleId={editingArticle?.id ? String(editingArticle.id) : undefined}
+        isOpen={isRevisionsDrawerOpen}
+        onClose={() => setIsRevisionsDrawerOpen(false)}
+        onRestore={(snapshot) => {
+          if (snapshot) {
+            setEditingArticle(prev => prev ? {
+              ...prev,
+              title: snapshot.title ?? prev.title,
+              slug: snapshot.slug ?? prev.slug,
+              excerpt: snapshot.excerpt ?? prev.excerpt,
+              content: snapshot.content ?? prev.content,
+              status: snapshot.status ?? (snapshot.published ? 'published' : 'draft'),
+              featured_image: snapshot.featured_image ?? snapshot.image_url ?? prev.featured_image,
+              category: snapshot.category ?? prev.category,
+              tags: snapshot.tags ?? prev.tags,
+            } : prev);
+            if (snapshot.content) {
+              setActiveCmsBlocks(htmlToBlocks(snapshot.content));
+            }
+          }
+        }}
       />
       {showPalette && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-start justify-center pt-20" onClick={() => setShowPalette(false)}>

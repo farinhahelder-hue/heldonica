@@ -63,8 +63,10 @@ const AGENTS_CONNUS = ['claude', 'gemini', 'opencode', 'jules', 'muse-spark', 'd
 async function pg(chemin, { method = 'GET', body, prefer } = {}) {
   const entetes = {
     apikey: CLE,
-    Authorization: `Bearer ${CLE}`,
     'Content-Type': 'application/json',
+  }
+  if (CLE.startsWith('eyJ')) {
+    entetes.Authorization = `Bearer ${CLE}`
   }
   if (prefer) entetes.Prefer = prefer
   const r = await fetch(`${URL_BASE}/rest/v1/${chemin}`, {

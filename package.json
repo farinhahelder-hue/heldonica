@@ -8,7 +8,11 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit --incremental false",
-    "test": "vitest run",
+    "preflight": "node scripts/garde-fous.mjs --preflight",
+    "garde-fous": "node scripts/garde-fous.mjs",
+    "check:workspace": "node scripts/check-workspace-sync.mjs",
+    "check:brand-sync": "node scripts/check-brand-sync.mjs",
+    "sync:brand": "node scripts/sync-brand-voice.mjs",
     "check:api-auth": "node scripts/check-api-auth.mjs",
     "check:ai-models": "node scripts/check-ai-models.mjs",
     "check:erreurs-avalees": "node scripts/check-erreurs-avalees.mjs",
@@ -89,5 +93,9 @@
     "tailwindcss": "^3.4.0",
     "typescript": "^5.3.0",
     "vitest": "^4.1.8"
+  },
+  "engines": {
+    "node": ">=22.0.0"
   }
 }
+

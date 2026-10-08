@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import DestinationJsonLd from '@/components/seo/DestinationJsonLd'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Header from '@/components/Header'
@@ -17,8 +18,8 @@ import { getPageZones } from '@/lib/cms-zones'
 const DESTINATION_IMAGES: Record<string, string> = {
   'sicile': '/og-default.jpg',
   'lisbonne': '/og-default.jpg',
-  'montenegro': '/og-default.jpg',
-  'suisse': '/og-default.jpg',
+  'montenegro': '/images/destinations/montenegro/moraca_millennium.jpg',
+  'suisse': '/images/destinations/suisse/stoos-02.jpg',
   'zurich': '/og-default.jpg',
   'paris': '/og-default.jpg',
   'roumanie': '/og-default.jpg',
@@ -366,29 +367,11 @@ export default async function DestinationPage({ slug }: Props) {
   return (
     <InlineEditProvider page={`destinations-${slug}`} initialZones={zones}>
       {/* JSON-LD Structured Data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "TravelAction",
-            "name": `${content.title} slow travel`,
-            "description": content.description,
-            "location": {
-              "@type": "Place",
-              "name": content.title,
-              "address": {
-                "@type": "PostalAddress",
-                "addressCountry": content.title
-              }
-            },
-            "provider": {
-              "@type": "Organization",
-              "name": "Heldonica",
-              "url": "https://www.heldonica.fr"
-            }
-          })
-        }}
+      <DestinationJsonLd
+        name={content.title}
+        description={content.description}
+        url={`https://www.heldonica.fr/destinations/${slug}`}
+        country={content.title}
       />
       <Header />
       <main>
