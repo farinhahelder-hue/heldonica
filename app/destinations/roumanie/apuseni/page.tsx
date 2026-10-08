@@ -17,7 +17,7 @@ const metadata: Metadata = {
     title: "Monts Apuseni : grottes, cascades et refuges en Transylvanie | Heldonica",
     description: "Guide monts Apuseni en Roumanie : grottes karstiques, cascades, refuges de montagne autour de Gârda de Sus. Notre carnet slow travel testé en couple.",
     type: 'website',
-    images: ['/og-default.jpg'],
+    images: ['/images/destinations/roumanie/IMG_20260827_135834.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica'
   },
@@ -59,7 +59,7 @@ export default async function ApuseniPage() {
         name="Monts Apuseni"
         parentName="Roumanie"
         parentSlug="roumanie"
-        heroImage="/og-default.jpg"
+        heroImage="/images/destinations/roumanie/IMG_20260827_135834.jpg"
         introText="Les monts Apuseni forment le massif le plus occidental des Carpates roumaines, à cheval sur les comtés d'Alba, de Bihor et de Cluj. Le relief karstique a creusé des centaines de grottes et de gouffres, et les vallons cachent cascades et prairies isolées, loin des grands axes touristiques de Transylvanie."
         highlights={highlights}
         localTip="Les routes qui relient les cabanes et les grottes sont souvent non asphaltées et sinueuses en montagne : mieux vaut un véhicule adapté et une marge horaire large, surtout après la pluie."

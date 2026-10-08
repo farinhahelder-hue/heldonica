@@ -19,6 +19,8 @@ build/
 twillo.txt
 OLLAMA_MEMORY.md
 wordpresss old/
+heldonica live/
+kilo.json
 
 app/test-supabase/supabase/.temp/
 app/test-supabase/
@@ -41,6 +43,10 @@ scripts/token.json
 token_picker.json
 scripts/token_picker.json
 scripts/*token*.json
+client_secrets*.json
+scripts/client_secrets*.json
+youtube_token*.json
+scripts/youtube_token*.json
 # Heldonica Mobile (0€) - build local
 heldonica-mobile/.gradle/
 heldonica-mobile/app/build/
@@ -61,3 +67,9 @@ interpreter.cmd
 # Exports Timeline, photos et reconstitutions de voyage (donnees personnelles)
 imports/
 scratch/
+
+# Cache vision SQLite et sidecars
+vision_cache.db*
+*.db
+*.db-wal
+*.db-shm

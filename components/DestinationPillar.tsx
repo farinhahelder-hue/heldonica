@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
 import Image from 'next/image'
 import Link from 'next/link'
 import Script from 'next/script'
+import DestinationJsonLd from '@/components/seo/DestinationJsonLd'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import NewsletterForm from '@/components/NewsletterForm'
@@ -40,17 +42,12 @@ export default function DestinationPillar({
   // sans possibilité de les piloter depuis le CMS.
   return (
     <InlineEditProvider page="destinations" initialZones={initialZones}>
-      <Script id="pillar-tourist-destination" type="application/ld+json" dangerouslySetInnerHTML={{
-        __html: JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': 'TouristDestination',
-          name: data.name,
-          description: data.tagline,
-          url: `${SITE_URL}/destinations/${data.slug}`,
-          touristType: 'Couple slow travel',
-          hasMap: `https://maps.google.com/?q=${encodeURIComponent(data.name)}`,
-        }),
-      }} />
+      <DestinationJsonLd
+        name={data.name}
+        description={data.tagline}
+        url={`${SITE_URL}/destinations/${data.slug}`}
+        country={data.country}
+      />
       <Script id="pillar-faq" type="application/ld+json" dangerouslySetInnerHTML={{
         __html: JSON.stringify({
           '@context': 'https://schema.org',

@@ -13,7 +13,7 @@ const metadata: Metadata = {
     title: "Bucarest en couple : notre carnet slow travel | Heldonica",
     description: "Guide Bucarest: Macro, culture, vie nocturne en Roumanie. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
     type: 'website',
-    images: ['/og-default.jpg'],
+    images: ['/images/destinations/roumanie/IMG_20260827_135618.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica'
   },
@@ -55,7 +55,7 @@ export default async function BucarestPage() {
         name="Bucarest"
         parentName="Roumanie"
         parentSlug="roumanie"
-        heroImage="/og-default.jpg"
+        heroImage="/images/destinations/roumanie/IMG_20260827_135618.jpg"
         introText="Bucarest, c'est le chaos. Mais un chaos passionnant."
         highlights={highlights}
         localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."

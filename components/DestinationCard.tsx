@@ -1,5 +1,7 @@
 'use client'
 
+import { memo } from 'react'
+
 import Image from 'next/image'
 import Link from 'next/link'
 import GuideDownloadButton from '@/components/GuideDownloadButton'
@@ -33,7 +35,7 @@ function formatBudget(amount?: number): string {
   return `~${amount}€/semaine/couple`
 }
 
-export default function DestinationCard({
+const DestinationCard = memo(function DestinationCard({
   slug, title, country, flag_emoji, teaser,
   hero_unsplash_url, featured_image, status,
   travel_style, best_season, avg_budget_couple_week,
@@ -137,4 +139,6 @@ export default function DestinationCard({
   }
 
   return cardContent
-}
+})
+
+export default DestinationCard

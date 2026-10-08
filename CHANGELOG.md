@@ -4,6 +4,527 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-10-08] — Refonte CMS : Phase 12 (Clôture UX & Synchronisation Bilatérale Article ↔ Blocs)
+
+### Réalisations
+1. **Synchronisation Bilatérale Lossless (`lib/cms-blocks-converter.ts`)** :
+   - Ajout d'une signature non destructive par commentaire HTML `<!-- heldonica:blocks ... -->` intégrée à `blocksToHtml(blocks)`.
+   - Les lecteurs publics, le SEO, les flux RSS et les réseaux sociaux reçoivent du pur HTML sémantique sans aucune surcharge.
+   - À la réouverture ou au rechargement dans le CMS, `htmlToBlocks(rawTextOrHtml)` détecte ce bloc structuré et restaure 100% de l'arborescence des blocs avec leurs identifiants, configurations et métadonnées complexes (`vault_spot`, `photo_evidence`, `gallery`, `aspectRatio`, etc.).
+2. **Parseur de Secours Résilient (`lib/cms-blocks-converter.ts`)** :
+   - Prise en charge des balises enrichies même en l'absence de commentaire (articles hérités ou rédigés à la main) : reconnaissance automatique de `<aside class="vault-spot-highlight">` et `<figure class="photo-evidence">`.
+   - Résilience totale face aux commentaires HTML tronqués ou corrompus : bascule automatique sans crash vers le parseur sémantique standard.
+3. **Tests unitaires et intégration (`__tests__/lib/cms-blocks.test.ts`)** :
+   - 7 tests Vitest couvrant la génération par défaut des 8 types, le découpage de texte brut, l'analyse HTML, la sérialisation propre, le round-trip 100% fidèle, le parsing des balises héritées et la résilience sur entrée altérée.
+4. **Validation CI & Garde-fous** :
+   - `npm run preflight` : **5/5 PASS** (1.3s).
+   - `npm run typecheck` : **PASS (0 erreur, TypeScript strict pur)**.
+   - `npm run garde-fous` : **11/11 PASS** (63 fichiers de tests, **523/523 tests passés**).
+
+---
+
+## [2026-10-08] — Refonte CMS : Phase 11 (Réorganisation Drag & Drop et Duplication de Blocs)
+
+### Réalisations
+1. **Réorganisation Visuelle par Drag & Drop (`components/admin/blocks/BlockCanvas.tsx`)** :
+   - Implémentation du Drag & Drop HTML5 natif (zéro dépendance tierce lourde) avec poignée `GripVertical`.
+   - Indicateurs visuels interactifs : opacité réduite pour l'élément en cours de déplacement (`opacity-40 scale-[0.99]`), bordure supérieure ambrée lumineuse (`border-t-2 border-amber-500 bg-amber-50/20`) pour la cible de dépôt.
+   - Algorithme de réordonnancement immuable `handleDrop(e, targetIndex)`.
+2. **Duplication 1-Clic de Blocs (`components/admin/blocks/BlockCanvas.tsx`)** :
+   - Bouton d'action « Dupliquer ce bloc » (`Copy`) sur chaque bloc modulaire.
+   - Fonction `duplicateBlock(index)` créant une copie conforme profonde avec génération d'un nouvel identifiant unique préfixé (`${block.id}_copy_${timestamp}`).
+3. **Tests unitaires & intégration (`__tests__/components/BlockCanvas.test.tsx`)** :
+   - 5 tests Vitest couvrant le rendu de la palette, l'affichage des poignées et boutons d'action, la duplication avec nouvel identifiant unique, la suppression et l'ouverture du modal de gabarits.
+4. **Validation CI & Garde-fous** :
+   - `npm run preflight` : **5/5 PASS** (1.3s).
+   - `npm run typecheck` : **PASS (0 erreur, TypeScript strict pur)**.
+   - `npm run garde-fous` : **11/11 PASS** (63 fichiers de tests, **520/520 tests passés**).
+
+---
+
+## [2026-10-08] — Refonte CMS : Phase 10 (Connexion 1-Clic Coffre des Savoirs RAG & Recherche de Pépites)
+
+### Réalisations
+1. **Registre des Fiches du Coffre des Savoirs (`lib/cms-vault-spots.ts`) & Synchroniseur (`scripts/sync-vault-spots.py`)** :
+   - Extraction et typage strict des **78 fiches réelles de terrain** depuis la base SQLite du Brain (`heldonica_brain.db`).
+   - Moteur de recherche pondéré `searchVaultSpots(query, options)` priorisant Titre (x3) > Lieu (x2) > Tags (x2) > Récit vécu (x1).
+   - Règle AGENTS.md n°1 : « On n'invente rien ». Zéro donnée simulée, chaque pépite provient du vécu réel du duo fondateur.
+2. **Endpoint API Dédié (`app/api/cms/vault/search/route.ts`)** :
+   - Route `GET /api/cms/vault/search` protégée par `requireCmsAuth` avec recherche en temps réel par mots-clés, destination ou catégorie.
+3. **Sélecteur Visuel 1-Clic dans l'Éditeur CMS (`components/admin/blocks/BlockCanvas.tsx`)** :
+   - Bouton « 🔍 Piocher dans le Coffre » dans `VaultSpotEditor` ouvrant un tiroir interactif avec filtre de recherche direct.
+   - Sélection d'une pépite pré-remplissant en 1 clic l'identifiant (`spotId`), le titre, le lieu exact et l'anecdote vécue authentique.
+4. **Tests unitaires & intégration (`__tests__/lib/cms-vault-spots.test.ts` & `__tests__/api/cms-vault-search.test.ts`)** :
+   - 7 tests Vitest couvrant le registre des 78 fiches, la validation des champs obligatoires, la pertinence des requêtes (Madère, Monténégro/Podgorica), la récupération par ID et l'authentification de l'API.
+5. **Validation CI & Garde-fous** :
+   - `npm run preflight` : **5/5 PASS** (1.6s).
+   - `npm run typecheck` : **PASS (0 erreur, TypeScript strict pur)**.
+   - `npm run garde-fous` : **11/11 PASS** (62 fichiers de tests, **515/515 tests passés**).
+
+---
+
+## [2026-10-08] — Refonte CMS : Phase 9 (Bibliothèque de Gabarits Slow Travel & Modal d'Insertion)
+
+### Réalisations
+1. **Module de Gabarits Éditoriaux (`lib/cms-templates.ts`)** :
+   - 4 gabarits préconfigurés de référence respectant rigoureusement la voix Heldonica (zéro mot banni de `lib/brand-voice.ts`) :
+     - `slow_travel_diary` : Carnet d'immersion lente (titre d'émotion, photo de terrain certifiée, repères sensoriels, checklist voyage, CTA).
+     - `step_by_step_guide` : Itinéraire pas à pas (étapes numérotées, bloc `vault_spot` relié au Coffre des Savoirs).
+     - `hospitality_spotlight` : Maison d'hôtes & Hospitalité sincère (galerie carrousel, vérification éthique de séjour, CTA B2B/B2C).
+     - `photo_essay` : Essai visuel et poésie du territoire (photos d'atmosphère de terrain avec dates et lieux réels).
+   - Contrôle qualité automatisé `validateTemplateBlocks(blocks)` : vérifie l'absence de mots bannis et l'unicité stricte des identifiants.
+2. **Interface Utilisateur CMS (`components/admin/blocks/BlockCanvas.tsx`)** :
+   - Ajout du bouton « 📋 Gabarits Slow Travel » dans la palette de blocs modulaires.
+   - Modal interactif présentant les gabarits avec temps de lecture estimé, tags thématiques et choix d'insertion : « Remplacer » ou « Ajouter à la suite ».
+3. **Tests unitaires (`__tests__/lib/cms-templates.test.ts`)** :
+   - 8 tests Vitest couvrant : inventaire des 4 gabarits, instanciation personnalisée par destination, présence des blocs spécialisés (`vault_spot`, `gallery`, `photo_evidence`), conformité 100% à la voix de marque, détection d'intrusions de mots interdits et détection de doublons d'IDs.
+4. **Validation CI & Garde-fous** :
+   - `npm run preflight` : **5/5 PASS** (2.0s).
+   - `npm run typecheck` : **PASS (0 erreur)**.
+   - `npm run garde-fous` : **11/11 PASS** (60 fichiers de tests, **508/508 tests passés**).
+
+---
+
+## [2026-10-08] — Persistance photo_blocks & Endpoint d'upload résilient (photo-storage)
+
+### Réalisations
+1. **Migration SQL versionnée (`supabase/migrations/20261008120000_cms_photo_blocks_storage.sql`)** :
+   - Création de la table `photo_blocks` (`id` UUID PK default gen_random_uuid(), `image_url` TEXT NOT NULL, `location` TEXT NOT NULL, `latitude`/`longitude` DOUBLE PRECISION NULL, `taken_at` DATE NOT NULL, `anecdote` TEXT NOT NULL CHECK 1..500 chars, `album_id` TEXT NOT NULL, `created_at`/`updated_at` TIMESTAMPTZ default now()).
+   - Index sur `album_id` et `taken_at`.
+   - RLS activée : lecture publique pour l'affichage des carnets, insertion/modification réservée aux utilisateurs authentifiés (`authenticated`).
+2. **Endpoint `POST /api/cms/photos/upload` (`app/api/cms/photos/upload/route.ts`)** :
+   - Protection d'accès via `requireCmsAuth` (pattern standard du CMS).
+   - Supporte à la fois `multipart/form-data` (upload fichier vers bucket `photos` avec fallback) et `application/json` (métadonnées d'une photo existante).
+   - Validation stricte du payload via `lib/photo-albums.ts` (`validateAlbumPhotoMeta`), rejets 422 avec tableau typé d'issues.
+   - Insertion en base avec lecture systématique des erreurs Supabase (`check:erreurs-avalees` conforme).
+3. **Tests unitaires (`__tests__/api/cms-photos-upload.test.ts`)** :
+   - 5 tests vérifiant : rejet 401 si non authentifié, rejet 422 si champs manquants, rejet 422 si GPS hors bornes, rejet 422 si anecdote > 500 chars, succès 200/201.
+4. **Validation CI & Garde-fous** :
+   - `npm run preflight` : **5/5 PASS** (1.3s).
+   - `npm run typecheck` : **PASS (0 erreur)**.
+   - `npm run garde-fous` : **11/11 PASS** (59 fichiers de tests, **500/500 tests passés**).
+
+---
+
+## [2026-10-08] — Validation stricte des métadonnées d'albums photos (d8505e)
+
+### Réalisations
+1. **`lib/photo-albums.ts`** : types stricts + validation TS native (zéro dép) — `AlbumPhotoMeta`/`AlbumMeta`, `normalizeTags` (EXIF/manuels), `parseExifDateTime` ("YYYY:MM:DD HH:MM:SS" → ISO, sans approximation), GPS (-90..90/-180..180, direct ou repli EXIF), anecdote 1..500, issues typées `{ field, code, message }`. Rejets explicites, jamais de valeurs complétées (règle n°1).
+2. **Endpoint `POST /api/cms/albums/metadata`** (+ `GET` contrat) : auth `requireCmsAuth`, 200 `{ ok, normalized }` / 422 `{ ok, issues }` / 400 JSON illisible, aucune écriture DB.
+3. **Audit error-handling Supabase** : 72 routes `app/api/cms` passées en revue — requêtes `.from(` systématiquement suivies de lecture `.error` (503 si non configuré, 400/404/500 typées) sur l'échantillon vérifié (articles, media, revisions, contact, guides, pillars, sub-destinations, audit…) ; aucun fallback inventé détecté. Point d'hygiène restant : casts `as any` sur certains clients (hors périmètre, à traiter avec f28e63-suivi).
+4. **Tests** : `__tests__/lib/photo-albums.test.ts` (14 tests) + `__tests__/api/cms-albums-metadata.test.ts` (câblage auth). Suite : **495/495 verts** (58 fichiers), `typecheck` PASS, `next lint` PASS.
+
+---
+
+## [2026-10-08] — Refonte CMS : Phase 8 (Sélecteur d'Albums Certifiés, Tiroir de Révisions & Rollback en 1 Clic)
+
+### Réalisations
+1. **Registre des Albums de Terrain Certifiés & Validation AGENTS.md** (`lib/cms-photo-albums.ts`) :
+   - Centralisation des albums vérifiés issus des registres de terrain du duo fondateur (`content/evidence/*.json` et `public/images/destinations/`) :
+     - 🇲🇪 Monténégro (Podgorica, Stara Varoš, Morača — Mai 2026)
+     - 🇨🇭 Suisse (Crête de Fronalpstock & Stoos — Juillet 2025)
+     - 🇵🇹 Madère (Fanal, Achadas da Cruz, Ponta do Sol — Octobre 2024)
+     - 🇷🇴 Roumanie (Bucarest & Transylvanie — Août 2026)
+   - Toutes les photos sont validées par `validatePhotoEvidence` (zéro hallucination, Règle #1 : On n'invente rien).
+2. **Endpoint API Dédié** (`app/api/cms/photos/albums/route.ts`) :
+   - Route GET `/api/cms/photos/albums` avec filtrage par `albumId` et recherche par mots-clés (`q`).
+3. **Sélecteur Visuel d'Albums Direct dans l'Éditeur CMS** :
+   - Dans `components/admin/blocks/BlockCanvas.tsx` (`PhotoEvidenceEditor`) : sélecteur à onglets d'albums avec miniatures, dates réelles et anecdotes préremplies en 1 clic.
+   - Dans `app/panel-manager/CmsAdminClient.tsx` (section « 📸 Preuve visuelle ») : insertion guidée pour les métadonnées de l'article avec prévisualisation fidèle.
+4. **Tiroir d'Historique de Versions & Rollback en 1 Clic** (`components/admin/RevisionsDrawer.tsx` et `CmsAdminClient.tsx`) :
+   - Bouton « Versions » dans la barre d'outils d'édition d'article.
+   - Affichage chronologique des révisions avec numéro de version, auteur, diffs et note de modification.
+   - Restauration immédiate en 1 clic via `/api/cms/articles/[id]/revisions/[revisionId]/restore` avec sauvegarde préventive automatique.
+5. **Validation CI & Garde-fous** :
+   - Nouveaux tests unitaires (`__tests__/lib/cms-photo-albums.test.ts`).
+   - `npm run preflight` : **5/5 PASS**.
+   - `npm run typecheck` : **0 erreur** (TypeScript strict pur).
+   - `npm run garde-fous` : **11/11 PASS** (56 fichiers de tests, **479/479 tests verts**).
+
+---
+
+## [2026-10-08] — Refonte CMS : Phase 7 (Moteur SEO Automatique, Audit E-E-A-T & Données Structurées Schema.org)
+
+### Réalisations
+1. **Moteur d'Audit E-E-A-T & Score de Fiabilité Slow Travel** (`lib/cms-seo-eeat.ts`) :
+   - Calcul de score E-E-A-T sur 100 basé sur les 4 piliers Google :
+     - **Expérience** : vérification de la présence de photos vécues horodatées et géolocalisées (`photo_evidence`), anecdotes de terrain.
+     - **Expertise** : respect absolu de la charte éditoriale Heldonica, détection temps réel des mots bannis (`FORBIDDEN_WORDS` de `lib/brand-voice.ts`), conseils pratiques slow travel (transports doux, saisons).
+     - **Autorité** : maillage interne vers les fiches destinations réelles et articles connexes.
+     - **Fiabilité** : métadonnées complètes, absence de superlatifs marketing artificiels.
+   - Recommandations automatisées et ciblées pour les rédacteurs et créateurs de contenu.
+2. **Génération de Données Structurées Schema.org JSON-LD** (`lib/cms-seo-eeat.ts`) :
+   - Schémas standardisés pour `BlogPosting` (articles de blog / carnets de route) avec attribution d'auteur, publisher Heldonica et métadonnées d'illustration.
+   - Schémas hôteliers et slow travel pour `LodgingBusiness` / `BedAndBreakfast` / `Hotel` (`/expert-hotelier`) avec coordonnées GPS, adresse et tarification.
+3. **Validation & Tests** :
+   - 4 tests unitaires (`__tests__/lib/cms-seo-eeat.test.ts`).
+   - Maintien du score parfait des 11 garde-fous (55 fichiers de tests, 475/475 tests verts).
+
+---
+
+## [2026-10-08] — Refonte CMS : Phases 2, 3, 4, 5 & 6 (Code-First, MCP, Ciblage, Webhooks HMAC, Révisions & Rollback)
+
+### Réalisations
+1. **Phase 2 — Modèles Structurés Code-First & Hôtellerie B2B (`/expert-hotelier`)** :
+   - **Migration SQL** (`supabase/migrations/20261008080000_cms_hospitality_collections.sql`) : tables `cms_accommodations` et `cms_stay_offers`, statuts (`draft`, `waiting_review`, `approved`, `published`), RLS strictes et indexation.
+   - **Configuration Code-First** (`cms/cms.config.ts`) : registre unifié des collections (Payload/Strapi pattern) avec typage des champs, relations, validations et matrice des rôles d'accès.
+   - **Moteur Métier & Validation TypeScript native** (`lib/cms-hospitality.ts`) : zéro dépendance Zod, validation stricte, workflow de relecture et publication, journalisation automatique dans `cms_audit_log`.
+   - **Interface Administration** (`app/panel-manager/HospitalityManager.tsx`) : gestion des hébergements et packages, formulaire de création, filtres et passage de workflow en 1 clic.
+2. **Phase 3 — Tokens API à Scopes, Endpoint MCP Standard (`/api/mcp`) & Releases** :
+   - **Migration SQL** (`supabase/migrations/20261008090000_cms_tokens_and_releases.sql`) : tables `cms_api_tokens` (hachage SHA-256 déterministe, zéro secret en clair, scopes granulaires) et `cms_releases` (publication groupée atomique).
+   - **Gestion & Vérification des Jetons** (`lib/cms-tokens.ts`) : génération de clés `held_live_<hex>`, vérification des scopes (`read:content`, `write:draft`, `publish:content`, `admin:*`), révocation et suivi de `last_used_at`.
+   - **Endpoint MCP Standard HTTP JSON-RPC 2.0** (`app/api/mcp/route.ts`) : conformité stricte avec le protocole Model Context Protocol (v2024-11-05). Expose les outils `cms_list_content`, `cms_get_content`, `cms_create_draft`, `cms_audit_trail` pour toute la flotte IA (Claude Desktop, Cursor, OpenCode, Perplexity, Gemini).
+   - **Moteur de Releases & Publications Groupées** (`lib/cms-releases.ts`) : regroupement de contenus et publication atomique multi-tables avec audit complet.
+   - **Routes API Dédiées** : `app/api/cms/tokens/route.ts`, `app/api/cms/releases/route.ts`, `app/api/cms/releases/[id]/publish/route.ts`.
+   - **Interface CMS dédiée** (`app/panel-manager/TokensAndReleasesManager.tsx`) : génération de clés d'accès agents, copie sécurisée en un clic, révocation et lancement de releases.
+3. **Phase 4 — Personnalisation & Ciblage Déclaratif (Différentiel Slow Travel)** :
+   - **Migration SQL** (`supabase/migrations/20261008100000_cms_zone_variants.sql`) : table `cms_zone_variants` avec règles de ciblage JSONB et priorités.
+   - **Moteur de Ciblage Déterministe** (`lib/cms-targeting.ts`) : calcul de saison, filtrage par audience/persona (couple, solo, hôtelier), filtrage UTM et device, sélection de la meilleure variante. Zéro tracking intrusif, respect total de la vie privée.
+   - **Intégration transparente au rendu** (`lib/cms-zones.ts`) : `getPageZones` applique automatiquement les variantes ciblées pour la page sans impacter la performance.
+4. **Phase 5 — Webhooks Sortants Signés HMAC (Intégration Flotte IA / n8n / Discord)** :
+   - **Migration SQL** (`supabase/migrations/20261008110000_cms_webhooks_and_revisions.sql`) : tables `cms_webhooks` et `cms_webhook_deliveries`.
+   - **Moteur de Webhooks & Signature HMAC** (`lib/cms-webhooks.ts`) : signature `X-Heldonica-Signature: sha256=...`, dispatch asynchrone non-bloquant et journalisation des livraisons.
+   - **Route API** (`app/api/cms/webhooks/route.ts`) : gestion CRUD des endpoints d'écoute.
+5. **Phase 6 — Moteur de Révisions & Rollback en 1 clic** :
+   - Table `cms_post_revisions` pour l'archivage instantané des versions d'articles.
+   - **Moteur de Révision** (`lib/cms-revisions.ts`) : `savePostRevision`, `getPostRevisions`, `restorePostRevision` avec sauvegarde automatique de précaution et traçabilité d'audit.
+   - **Routes API Dédiées** : `app/api/cms/articles/[id]/revisions/route.ts` et `app/api/cms/articles/[id]/revisions/[revisionId]/restore/route.ts`.
+6. **Validation CI & Garde-fous** :
+   - 34 nouveaux tests unitaires (`__tests__/lib/cms-hospitality.test.ts`, `__tests__/lib/cms-tokens.test.ts`, `__tests__/lib/cms-releases.test.ts`, `__tests__/api/mcp.test.ts`, `__tests__/lib/cms-targeting.test.ts`, `__tests__/lib/cms-webhooks.test.ts`, `__tests__/lib/cms-revisions.test.ts`).
+   - `npm run preflight` : **5/5 PASS**.
+   - `npm run garde-fous` : **11/11 PASS** (54 fichiers de test, **471/471 tests passés**, TypeScript 100% vert, 0 dérive CMS, 0 erreur avalée).
+
+---
+
+## [2026-10-08] — Phase 1 CMS : Gouvernance & Journal d'Audit (Payload-style) + Console Brain Web Permanente
+
+### Réalisations
+1. **Session Console Brain Web Permanente (Port 8475 & Cloudflare Tunnel)** :
+   - Fin des déconnexions intempestives : token maître déterministe (`get_master_token`), persistance JSON (`output/brain_web_tokens.json`).
+   - Cookie persistant 1 an (`Max-Age=31536000; SameSite=Lax; Path=/`), injection côté serveur dans le template HTML et support de l'auto-login via paramètre d'URL (`?key=...`).
+2. **Orchestrateur & Dispatch multi-IA dans Brain Web (`scripts/brain_secure_web.py`)** :
+   - Détection automatique et répartition des demandes à destination d'OpenCode, Gemini et Freebuff.
+   - Génération de fichiers de tâches normalisés avec bloc d'état `<!-- heldonica:status -->` dans `output/agent_tasks/` et signal temps réel au bridge agent (port 8476).
+3. **Phase 1 Modernisation CMS : Gouvernance & Audit Log** :
+   - **Migration SQL** (`supabase/migrations/20261008070000_cms_roles_and_audit.sql`) : tables `cms_user_profiles` (rôles `admin`, `editor`, `viewer`), `cms_audit_log` (qui, quoi, quand, entité, diff JSON avant/après, métadonnées), RLS strictes et indexation chronologique.
+   - **Contrôle d'accès fonctionnel** (`lib/cms-access.ts`) : modèle déclaratif et typé façon Payload (`can()`, `canPublish()`, `canDelete()`, `canEditField()`, `canViewAuditLog()`, `canManageUsers()`).
+   - **Moteur de traçabilité** (`lib/cms-audit.ts`) : calcul différentiel fin (`calculateDiff`), enregistrement résilient sans blocage des opérations métier.
+   - **Endpoint sécurisé** (`app/api/cms/audit/route.ts`) : consultation filtrée (par entité, limite) et écriture protégée.
+   - **Interface CMS intégrée** : composant `AuditLogPanel.tsx` (timeline interactive, filtres, inspecteur avant/après) monté dans `app/panel-manager/CmsAdminClient.tsx` avec badge de rôle (« Admin (Fondateur) ») et raccourci dans la navigation.
+4. **Validation stricte & Garde-fous** :
+   - 21 nouveaux tests unitaires (`__tests__/lib/cms-access.test.ts` & `__tests__/lib/cms-audit.test.ts`).
+   - `npm run preflight` : **5/5 PASS**.
+   - `npm run garde-fous` : **11/11 PASS** (47 fichiers de test passés, 437/437 tests verts, TypeScript 100% propre).
+
+---
+
+## [2026-10-08] — Bloc CMS PhotoEvidenceBlock (preuve photo + contexte réel)
+
+### Réalisations
+1. **Nouveau type de bloc `photo_evidence`** : `types/cms-blocks.ts` (photo HTTPS + lieu + date ISO + anecdote ≤200 car. + album optionnel), rendu `components/blocks/PhotoEvidenceBlock.tsx`, édition `BlockCanvas` (palette + `PhotoEvidenceEditor`), sérialisation HTML `lib/cms-blocks-converter.ts`.
+2. **Composant présentatif** : `components/PhotoEvidenceBlock.tsx` + `PhotoEvidenceBlock.module.css` (ratio 16:9, ligne 📍/📅, anecdote italique, bouton album `target _blank`, `alt` = anecdote), validation `lib/photo-evidence.ts`.
+3. **Intégration admin** : section « 📸 Preuve visuelle » dans `app/panel-manager/CmsAdminClient.tsx` (champs `photoUrl/photoLocation/photoDate/photoAnecdote/photoAlbumLink` + prévisualisation live, aucune donnée fictive).
+4. **Tests & garde-fous** : `__tests__/components/PhotoEvidenceBlock.test.tsx` + `__tests__/lib/photo-evidence.test.ts` (12 tests verts avec `cms-blocks`), `typecheck` PASS, `next lint` PASS, `check:content-evidence` sans CONTREDIT.
+
+---
+
+## [2026-10-05] — Restitution de Vécu Terrain & Registres de Preuves Photo (Suisse Stoos & Monténégro Podgorica)
+
+### Réalisations & Intégrité Éditoriale
+1. **Dépouillement des Preuves & Zero Invention (« On n'invente rien »)** :
+   - **Suisse (Stoos, Schwyz)** : Exploitation de 719 photos et de la capture d'écran GPS Google Maps (`Screenshot_2025-07-12-20-37-08-134_com.google.android.apps.maps.jpg`). Reconstitution chronologique d'alpage du 12 juillet 2025 dans `imports/suisse-2025/voyage.md`. Enrichissement de `content/evidence/suisse.json`.
+   - **Monténégro (Podgorica, Stara Varoš)** : Dépouillement des photos géolocalisées et horodatées (`moraca_millennium.jpg`, `stara_varos.jpg`, `sahat_kula.jpg`, `sipcanik_winery.jpg`, `PXL_20260527_182137166.RAW-01.COVER.jpg` prouvant le pochoir mural « СТАРА ВАРОШ 1987 »). Reconstitution rédigée dans `imports/montenegro-2026/voyage.md` et mise à jour de `content/evidence/montenegro.json`.
+2. **Articles MDX Validés & Synchronisation des Brouillons** :
+   - Création de `content/articles/stoos-crete-suisse-slow-travel.mdx` (randonnée de crête Fronalpstock au crépuscule en duo avec chien, respect strict des 7 garde-fous).
+   - Création de `content/articles/podgorica-pepites-slow-travel-couple.mdx` : 5 pépites authentiques (Sastavci, Stara Varoš, église troglodytique de Dajbabe, bunker vinicole de Šipčanik, terrasses polako). Respect strict des pronoms (« on » / « tu »), zéro mot interdit, intégration de la section « Ce qu'on a moins aimé » et score de 100/100 sur le barème Heldonica.
+   - Synchronisation et assainissement du brouillon `content/articles/brouillons/podgorica-pepites-slow-travel-couple.md`.
+3. **Harmonisation Voix de Marque & Correction Pages Destinations** :
+   - `app/destinations/montenegro/kotor/page.tsx` : Remplacement de l'image de couloir par `moraca_millennium.jpg`, éradication des mots bannis (« magnifique », « astuce »), harmonisation des pronoms (« vous » vers « tu ») et évitement des affirmations de mois non prouvées.
+   - `app/destinations/[slug]/DestinationPage.tsx` : Association des photos de couverture authentiques vérifiées pour la Suisse (`stoos-02.jpg`) et le Monténégro (`moraca_millennium.jpg`).
+   - `app/api/publish-podgorica/route.ts` : Remplacement de l'image générique Unsplash par `/images/destinations/montenegro/moraca_millennium.jpg`.
+4. **Vérifications CI & Garde-fous** :
+   - `npm run preflight` : **5/5 PASS**.
+   - `npm run garde-fous` : **11/11 PASS** (workspace, brand-sync, ai-models, api-auth, erreurs-avalees, cms-drift, content-coherence, content-evidence, tsc, 404 tests vitest).
+   - `npm run build` : **100% PASS** (163 routes statiques/SSG compilées sans avertissement).
+
+---
+
+## [2026-10-05] — Consolidation Ontologique Heldonica Brain (Constitution v1.0) & Indexation Vectorielle
+
+### Réalisations & Intégration Système
+1. **Base de Connaissances Maîtresse (Constitution v1.0)** :
+   - Rédaction et fixation du document canonique `docs/HELDONICA_BRAIN_MASTER_KNOWLEDGE.md` consolidant l'ontologie complète du projet :
+     - Identité de marque : *L’Expert de l’Aventure* (Explorateur pour le slow travel vécu, Sage pour le conseil hôtelier indépendant).
+     - Règle stricte des pronoms : duo incarné par « on » (jamais de prénoms en public, jamais de « nous » sujet), lecteur en tutoiement « tu » (B2C), professionnels en vouvoiement « vous » (B2B).
+     - Taxonomie de preuve sur 5 niveaux : Niveau 5 (*Testé plusieurs fois*), Niveau 4 (*Testé une fois*), Niveau 3 (*Visité*), Niveau 2 (*Vérifié*), Niveau 1 (*Repéré*), Niveau 0 (*Non fiable / bloqué*).
+     - Règle d'or « On n'invente rien » : zéro hallucination de météo, odeur, tarif, ou statistique hôtelière non sourcée.
+     - Précision du vocabulaire : « pépite » seul banni (cliché influenceur), « pépites dénichées » canonique obligatoire ; « bons plans » et « tips » strictement bannis et remplacés par « pépites dénichées » / « conseils terrain ».
+     - Prompt maître condensé et garde-fous de publication.
+2. **Déploiement dans Heldonica Brain II** :
+   - Copie du socle dans `heldonica-brain/app/data/master_knowledge.md`.
+   - Insertion dans le coffre SQLite `knowledge_vault` (`heldonica_brain.db`) en tant que **Fiche 00 — Heldonica Brain Constitution & Socle de Vérité** (ID 96, catégorie `Brand Philosophy`, tags `constitution, socle, ontologie, brand, voice, b2c, b2b, preuves, regles, canonique, slow-travel`).
+   - Vectorisation sémantique intégrale via `scripts/indexer_vecteurs.py` avec le modèle `nomic-embed-text` sous Ollama local (78 fiches indexées au total dans `app/data/vault_vecteurs.db`, 100% hors-ligne).
+3. **Assistance Interactive et Suivi des Vagues Google Jules (12 & 13)** :
+   - 7 sessions finalisées avec succès :
+     - Sessions #41, #42, #43, #44 (Vague 12 : Profil Altimétrique, VideoObject Schema.org, Sous-titres animés, PWA offline).
+     - Sessions #45, #47, #48 (Vague 13 : Routeur multi-LLM, Auto-critique réflexive, Mémoire épisodique).
+   - Session #46 (Gestionnaire autonome des tâches) : assistance interactive transmise via l'API Jules (`:sendMessage`) avec le mock de chaîne Supabase pour Vitest.
+4. **Garde-fous CI** :
+   - `npm run preflight` validé à **5/5 VERT** (workspace, brand-sync, ai-models, api-auth, erreurs-avalees).
+
+---
+
+## [2026-10-05] — Délégation Jules Vague 13 : Autonomie, Flexibilité Multi-LLM & Intelligence Réflexive du Cerveau
+
+### Réalisations & Attribution de Tâches à Google Jules
+4 nouvelles sessions de pointe ont été déployées sur Google Jules pour rendre Heldonica Brain plus flexible, autonome et intelligent :
+
+1. **Session #45** (`heldonica`, ID `16323460527941180238`, URL : https://jules.google.com/session/16323460527941180238) :
+   - *Titre* : `feat(brain-routing): Routeur adaptatif multi-LLM avec circuit-breaker et bascule de secours`
+   - *Périmètre* : `lib/ai-circuit-breaker.ts` assurant la résilience continue du Brain (états CLOSED/OPEN/HALF-OPEN, bascule transparente en <5s vers les fournisseurs de repli en cas d'erreur 429 ou timeout d'Ollama local/Groq) avec monitoring des latences et tests Vitest.
+
+2. **Session #46** (`heldonica`, ID `17461034032978638136`, URL : https://jules.google.com/session/17461034032978638136) :
+   - *Titre* : `feat(brain-autonomy): Gestionnaire autonome des taches d arriere-plan avec auto-retry`
+   - *Périmètre* : Gestion autonome de la file `/api/brain/tasks` (reprise automatique sur panne avec backoff exponentiel jusqu'à 3 essais, détection des tâches orphelines bloquées) et panneau de contrôle `BrainTaskQueueMonitor.tsx` avec tests Vitest.
+
+3. **Session #47** (`heldonica`, ID `8870745935403290202`, URL : https://jules.google.com/session/8870745935403290202) :
+   - *Titre* : `feat(brain-intelligence): Boucle d auto-critique reflexive avec scoring qualite`
+   - *Périmètre* : `lib/brain-evaluator.ts` implémentant une boucle réflexive (Self-Critique & Auto-Refinement) évaluant les productions sur 5 axes (voix Heldonica, détails sensoriels, ancrage factuel, rythme, tics IA) avec réécriture automatique si le score est inférieur à 85/100, sans jamais inventer de données.
+
+4. **Session #48** (`history-content-studio`, ID `5237085379454449591`, URL : https://jules.google.com/session/5237085379454449591) :
+   - *Titre* : `feat(brain-memory): Memoire episodique du Cerveau et rappel contextuel cross-projets`
+   - *Périmètre* : `tools/episodic_memory_store.py` (stockage SQLite persistant des préférences stylistiques de l'auteur, retours d'expérience et contextes de destinations passées pour injection contextuelle ciblée dans les prompts système) avec tests pytest.
+
+---
+
+## [2026-10-05] — Délégation Jules Vague 12 : Profil Altimétrique, SEO VideoObject, Sous-titres Animés & PWA Offline
+
+### Réalisations & Attribution de Tâches à Google Jules
+4 nouvelles sessions stratégiques ont été déployées sur Google Jules :
+
+1. **Session #41** (`heldonica`, ID `14085806712020635973`, URL : https://jules.google.com/session/14085806712020635973) :
+   - *Titre* : `feat(itinerary): Visualiseur de denivele et profil altimetrique interactif pour carnets`
+   - *Périmètre* : Composant `components/carnet/ElevationProfile.tsx` (profil topographique interactif, calcul du +D / -D, curseur synchronisé avec la carte Leaflet au survol pour les randonnées Stoos et Madère) avec page de démonstration et tests Vitest.
+
+2. **Session #42** (`heldonica`, ID `4659896000540309525`, URL : https://jules.google.com/session/4659896000540309525) :
+   - *Titre* : `feat(seo): Donnees structurees Schema.org VideoObject et flux MRSS pour les Shorts 9:16`
+   - *Périmètre* : Composant `ShortVideoJsonLd.tsx` générant les métadonnées Schema.org `VideoObject` (durée ISO 8601, transcript, URL de stream) et route API `/api/shorts/feed` générant le flux Media RSS (MRSS) pour l'indexation par Google Video Search.
+
+3. **Session #43** (`history-content-studio`, ID `2924619750377227326`, URL : https://jules.google.com/session/2924619750377227326) :
+   - *Titre* : `feat(subtitles): Generateur de sous-titres animes SRT et transcription horodatee pour Shorts`
+   - *Périmètre* : Outil CLI `tools/subtitle_generator.py` générant des sous-titres `.srt` et `.ass` avec mise en valeur dynamique mot à mot (kinetic gold highlight #D4AF37) pour les vidéos verticales 9:16 avec tests pytest.
+
+4. **Session #44** (`heldonica`, ID `3509696228270303828`, URL : https://jules.google.com/session/3509696228270303828) :
+   - *Titre* : `feat(pwa): Cache hors-ligne ServiceWorker pour les fiches de voyage sans reseau`
+   - *Périmètre* : `public/sw.js` et `lib/service-worker-register.ts` avec stratégie Stale-While-Revalidate pour les carnets, page `/offline` dédiée et mise en cache préventive des guides en zone blanche de montagne.
+
+---
+
+## [2026-10-04] — Délégation Jules Vague 11 : Harmonisation Éditoriale (SSOT), Remplacements et Nettoyage Docs
+
+### Réalisations & Attribution de Tâches à Google Jules
+2 nouvelles sessions critiques ont été ouvertes sur Google Jules pour clore définitivement les incohérences signalées par l'audit :
+
+1. **Session #39** (`heldonica`, ID `9898416668984475633`, URL : https://jules.google.com/session/9898416668984475633) :
+   - *Titre* : `refactor(brand-voice): Centralisation de la voix editoriale SSOT et dictionnaire de remplacements`
+   - *Périmètre* : `lib/brand-voice.ts` érigé en autorité absolue (mots bannis, dictionnaire `FORBIDDEN_REPLACEMENTS` officiel, clarification `pépites dénichées` vs `pépite` seul), alignement des routes d'API (`enhance`, `validate`, `blog/generate`) et synchronisation de `scripts/check-content-coherence.mjs` avec tests Vitest.
+
+2. **Session #40** (`heldonica`, ID `13894232648461343846`, URL : https://jules.google.com/session/13894232648461343846) :
+   - *Titre* : `fix(docs): Reparation de l encodage UTF-8 de PROMPT_LIBRARY et archivage des prompts racine`
+   - *Périmètre* : Réparation complète de l'encodage mojibake de `PROMPT_LIBRARY.md` (accents français rétablis), archivage des 6 vieux prompts de sprint dans `docs/archive/prompts_legacy/`, et mise à jour de la documentation.
+
+---
+
+## [2026-10-04] — Délégation Jules Vague 10 : Audit de Contenu, Veille Concurrentielle Slow Travel, Bug Hunt & Performance Image
+
+### Réalisations & Attribution de Tâches à Google Jules
+4 nouvelles sessions stratégiques ont été déployées sur Google Jules pour fiabiliser et enrichir la plateforme Heldonica :
+
+1. **Session #35** (`heldonica`, ID `18441911594856651964`, URL : https://jules.google.com/session/18441911594856651964) :
+   - *Titre* : `feat(audit): Outil d audit exhaustif d integrite du contenu, preuves photographiques et liens`
+   - *Périmètre* : `tools/content_integrity_auditor.py` / `scripts/audit-content-integrity.mjs` vérifiant l'application de la règle absolue « On n'invente rien » (existence réelle de chaque image, présence de textes `alt` descriptifs, détection de liens brisés 404, conformité aux règles `lib/brand-voice.ts` sans mots marketing bannis) avec rapport JSON et tests.
+
+2. **Session #36** (`heldonica`, ID `18389608825684330817`, URL : https://jules.google.com/session/18389608825684330817) :
+   - *Titre* : `feat(benchmark): Outil d analyse comparative et veille concurrentielle Slow Travel et B2B`
+   - *Périmètre* : `tools/competitor_benchmark_analyzer.py` avec `data/competitors/competitor_profiles.json` (analyse comparative des plateformes slow travel & travel planning B2C comme Stay Some Days, Les Cols du Monde, Unyoked, et des offres hôtelières B2B), matrice SWOT et rapport stratégique `docs/RAPPORT_BENCHMARK_SLOW_TRAVEL.md` avec tests pytest.
+
+3. **Session #37** (`heldonica`, ID `8250498470467326066`, URL : https://jules.google.com/session/8250498470467326066) :
+   - *Titre* : `fix(bughunt): Audit et securisation des formulaires CMS et nettoyage des fuites d ecouteurs`
+   - *Périmètre* : Chasse aux bugs dans `app/panel-manager/` : résolution des fuites mémoire d'écouteurs et intervalles non nettoyés dans les `useEffect`, implémentation d'AbortController, sécurisation des soumissions de formulaires CMS contre les doubles clics et affichage explicite des erreurs serveur/réseau avec tests Vitest.
+
+4. **Session #38** (`heldonica`, ID `8805796474889875185`, URL : https://jules.google.com/session/8805796474889875185) :
+   - *Titre* : `feat(perf): Optimisation du chargement des photos de voyage avec placeholders LQIP et zero CLS`
+   - *Périmètre* : `lib/image-placeholder.ts` (génération de micro-placeholders flous en SVG/PNG base64 < 200 octets) et composant React `components/ui/ProgressiveTravelImage.tsx` (enveloppe `next/image` avec fondu progressif doux et zéro décalage de mise en page / CLS) avec tests Vitest.
+
+5. **Coordination & Traçabilité** :
+   - Script de dispatch : `scripts/dispatch_wave10_quality_benchmark_tasks.py`
+   - Script d'enregistrement SQL : `scripts/register_wave10_jules_tasks.sql`
+
+---
+
+## [2026-10-04] — Délégation Jules Vague 9 : Amélioration et Industrialisation du Cerveau (Heldonica Brain II & CMS Copilote)
+
+### Réalisations & Attribution de Tâches à Google Jules
+4 nouvelles sessions à fort impact ont été créées via l'API Google Jules pour enrichir et monitorer le Cerveau (Heldonica Brain II & Copilote CMS) :
+
+1. **Session #31** (`heldonica`, ID `6473189658887798322`, URL : https://jules.google.com/session/6473189658887798322) :
+   - *Titre* : `feat(brain-cms): Tableau de bord temps reel et moniteur de sante Brain II dans le Panel Manager`
+   - *Périmètre* : Composant `BrainHealthMonitor.tsx` dans `components/cms/` interrogeant `/api/brain/status` (CPU %, RAM %, statut vert/rouge, latence ms, modèle LLM actif, tâches en cours), intégré à `app/panel-manager/brain/page.tsx` avec tests Vitest.
+
+2. **Session #32** (`heldonica`, ID `9859007501490998508`, URL : https://jules.google.com/session/9859007501490998508) :
+   - *Titre* : `feat(brain-shorts): Galerie de visualisation et declencheur de Shorts 9:16 dans le Panel Manager`
+   - *Périmètre* : `ShortsGalleryPanel.tsx` et page `app/panel-manager/brain/shorts/page.tsx` pour prévisualiser les shorts verticaux 9:16 produits par le Brain II (parallaxe 3D, badges or, sous-titres, audio), téléchargement MP4, et déclencheur direct `ShortsProductionModal.tsx` avec tests Vitest.
+
+3. **Session #33** (`history-content-studio`, ID `4234061000811524343`, URL : https://jules.google.com/session/4234061000811524343) :
+   - *Titre* : `feat(brain-rag): Moteur de recherche semantique hybride BM25 et vecteur pour le Coffre des Savoirs`
+   - *Périmètre* : Outil CLI `tools/hybrid_knowledge_retriever.py` combinant indexation textuelle BM25 (dates et entités précises) et similarité vectorielle cosinus via Reciprocal Rank Fusion (RRF k=60) avec tests pytest.
+
+4. **Session #34** (`heldonica`, ID `12645695234480873273`, URL : https://jules.google.com/session/12645695234480873273) :
+   - *Titre* : `feat(brand-guard): Service de conformite et auto-correction editoriale selon la voix Heldonica`
+   - *Périmètre* : Module `lib/brand-voice-autofix.ts` et route API `/api/brain/validate-voice` vérifiant la conformité stricte avec `lib/brand-voice.ts` (mots bannis, anonymat des fondateurs, ton slow travel) avec suggestions et correction automatique, et tests Vitest.
+
+5. **Coordination & Traçabilité** :
+   - Script de dispatch : `scripts/dispatch_wave9_brain_enhancements.py`
+   - Script d'enregistrement SQL : `scripts/register_wave9_jules_tasks.sql`
+
+---
+
+## [2026-10-03] — Délégation & Supervision Jules (8 sessions actives, 3 nouvelles fonctionnalités lancées)
+
+### Réalisations
+1. **Sessions Jules en cours et arbitrages** :
+   - **Session #1** (`heldonica`, ID `2249624820619525120`) : Jules était en attente d'arbitrage technique sur les refactorings de requêtes Supabase. Message d'arbitrage envoyé avec succès (priorité donnée au champ `travel_notes` dans `MapManagerSection.tsx` et aux tests `brand-voice.test.ts`, refactorings globaux de requêtes ignorés car la CI est déjà verte).
+   - **Session #2** (`history-content-studio`, ID `11539261069836102088`) : Terminée avec succès par Jules (`COMPLETED`) avec patch git validé pour l'assemblage et la fiabilisation des Shorts.
+   - **Session #3** (`heldonica`, ID `1102611896609087452`) : Terminée avec succès par Jules (`COMPLETED`) avec patch git de 10 Ko comprenant `InteractiveItineraryMap.tsx`, `ItineraryTimeline.tsx` et la suite de tests Vitest associée.
+2. **Attribution de Nouvelles Tâches Haut Impact pour Jules (Sessions #4 à #8)** :
+   - **Session #4** (`heldonica`, ID `9787315066050635692`) : `feat(seo): Composant de données structurées Schema.org DestinationJsonLd & tests` (Google Rich Snippets TouristDestination et TouristTrip avec tests Vitest).
+   - **Session #5** (`history-content-studio`, ID `17592185921398850440`) : `feat(youtube): Outil CLI de validation et publication YouTube avec tests` (CLI Python de téléversement et validation YouTube Data API v3).
+   - **Session #6** (`heldonica`, ID `9604350971295252801`, URL : https://jules.google.com/session/9604350971295252801) :
+     - *Titre* : `feat(carnet): Composant d'itineraire Stoos Suisse avec carte interactive Leaflet`
+     - *Périmètre* : `StoosItineraryViewer.tsx` intégrant les étapes vérifiées de `imports/suisse-2025/voyage.json` (Stoosbahnen, Fronalpstock, boucle panoramique, 715 médias), dynamique sans SSR et tests Vitest.
+   - **Session #7** (`heldonica`, ID `11203666897910168160`, URL : https://jules.google.com/session/11203666897910168160) :
+     - *Titre* : `feat(cms): Filtres par destination et recherche de dates dans PhotoPickerPanel`
+     - *Périmètre* : Filtres boutons par destination (Suisse, Madère, Roumanie, Monténégro), recherche rapide et tri chronologique dans le sélecteur d'images CMS avec tests.
+   - **Session #8** (`history-content-studio`, ID `2354419108586607316`, URL : https://jules.google.com/session/2354419108586607316) :
+     - *Titre* : `feat(video): Moteur d'animation cinematique Ken Burns pan zoom pour YouTube`
+     - *Périmètre* : Outil CLI `tools/ken_burns_animator.py` générant des zooms/travellings lents FFmpeg pour dynamiser les images fixes des vidéos d'ambiance 1h et tests unitaires.
+3. **Coordination Supabase (`agent_tasks`)** :
+   - Les 8 tâches de Jules sont officiellement déclarées et synchronisées dans la table `agent_tasks`.
+
+---
+
+## [2026-10-03] — Nouvelle Collection YouTube : Musique & Ambiance Égypte Antique 1 Heure (Volume II)
+
+### Réalisations
+1. **Paysage Sonore Procédural Égypte Antique (Maqam Hijaz / Phrygien Dominant)** :
+   - Synthèse physique et procédurale complète en 44.1kHz stéréo : flûte Ney égyptienne au souffle chaud avec vibrato, luth Oud aux cordes pincées, sistre sacré en bronze (Sistrum des prêtresses d'Isis), percussions doumbek (rythme Maqsoum à 55 BPM), clapotis des eaux sacrées du Nil et brise du désert.
+   - 4 boucles sonores seamlessly loopées générées dans `output/youtube_history_egypt/` : `egypt_ep1_temple_nile_loop.wav`, `egypt_ep2_palace_twilight_loop.wav`, `egypt_ep3_alexandria_library_loop.wav`, `egypt_ep4_oasis_amun_loop.wav`.
+2. **4 Visuels Cinématiques 16:9 8K (Matte Painting Pharaonique)** :
+   - Épisode 1 : `public/images/history/ancient_egypt_nile_night.jpg` (Temple de Karnak au bord du Nil & Pyramides sous la Voie Lactée).
+   - Épisode 2 : `public/images/history/ancient_egypt_palace_twilight.jpg` (Palais Royal des Pharaons au Crépuscule).
+   - Épisode 3 : `public/images/history/ancient_alexandria_library.jpg` (Grande Bibliothèque d'Alexandrie & Phare de Pharos).
+   - Épisode 4 : `public/images/history/ancient_egypt_oasis_night.jpg` (Oasis Sacrée d'Amon à la Nuit Étoilée).
+3. **Pipeline Modulaire & Rendu Vidéo** :
+   - Script `scripts/generate_egypt_ambient_episode.py` avec options `--all-audio`, `--preview` (30s) et `--render-mp4` (1h).
+   - Vidéo d'aperçu 30s rendue : `ancient_egypt_temple_nile_1hour_master_30s_preview.mp4` (`1.48 MB`).
+   - Master vidéo 1080p 1h de l'Épisode 1 finalisé avec succès : `ancient_egypt_temple_nile_1hour_master.mp4` (`184.90 MB`, durée exacte 01:00:00).
+4. **Production Réaliste & Non-Générique (Musicologie Pharaonique)** :
+   - Moteur acoustique physique `scripts/generate_authentic_egypt_music.py` (harpe arquée Bēnt à cordes en boyau, flûte Seba en roseau, clarinette double Memet avec battements, sistre d'Hathor, tambour Kemkem à 52 BPM, et échelle pythagoricienne à 144 Hz).
+   - Master audio 1h non compressé (4 mouvements liturgiques de 15 min, 605 MB) : `ancient_egypt_authentic_1hour_master.wav`.
+   - Master vidéo 1080p 1h rendu avec succès (`184.6 MB`, durée exacte 01:00:00) : `output/youtube_history_egypt/ancient_egypt_authentic_1hour_master.mp4`.
+   - Package de monétisation et arguments d'authenticité : `output/youtube_history_egypt/AUTHENTIC_EGYPT_YOUTUBE_PACKAGE.md`.
+5. **Package Complet de Monétisation & Métadonnées YouTube** :
+   - Fichier : `output/youtube_history_egypt/EGYPT_PLAYLIST_METADATA_PACKAGE.md`.
+   - Titres à fort CTR, descriptions avec chapitres horodatés, coupures publicitaires mid-roll calculées (`14:50`, `29:50`, `44:50`), et 30 tags SEO ciblés.
+
+---
+
+## [2026-10-03] — Vidéo YouTube 1h Master, Brain II (Mémoire conversationnelle SQLite, Cache vision, Llama 3.2, Voice Sync)
+
+### Réalisations
+1. **Production YouTube 1 Heure — Master Ambiance Médiévale & Camp de Siège** :
+   - Rendu complet du master vidéo 1080p 25fps (`output/youtube_history_1hour/medieval_fortress_1hour_master.mp4`) : durée exacte `01:00:00.02`, poids ultra-optimisé `161.11 MB`, audio stéréo AAC 192 kbps.
+   - Visuel haute définition cinématique généré (`public/images/history/medieval_fortress_night.jpg`).
+   - Package complet de monétisation et référencement YouTube rédigé (`output/youtube_history_1hour/YOUTUBE_METADATA_PACKAGE.md`) : 3 titres à fort CTR, description avec 4 chapitres cliquables, stratégie d'insertion des coupures publicitaires mid-roll (14:50, 29:50, 44:50), et 30 tags SEO ciblés.
+2. **Heldonica Brain II — Mémoire conversationnelle persistante multi-tours (SQLite)** :
+   - Table `chat_messages` créée dans `heldonica_brain.db` avec index sur `(session_id, created_at)`.
+   - Conservation du contexte conversationnel sur plusieurs tours dans `/api/chat` avec rétention et historique.
+   - Enrichissement automatique de la conversation par le Coffre des Savoirs (RAG scoré).
+   - Nouvelles routes REST : `GET /api/chat/history`, `DELETE /api/chat/history`, `GET /api/chat/sessions`.
+3. **Optimisations Moteur LLM & Vision (Brain II)** :
+   - Modèle local par défaut basculé sur `llama3.2:latest` (0.4–12s d'inférence sur GTX 1660 Ti, JSON valide, voix préservée).
+   - Modèle `starcoder2:3b` retiré (1.7 Go de VRAM et d'espace disque libérés).
+   - Fuite des prénoms des fondateurs neutralisée dans les prompts système et tables de démarrage ; scrubber renforcé (`BANNED_PHRASES`).
+   - Tuning dynamique d'Ollama (`temperature: 0.0` pour l'extraction JSON, `0.7` pour la prose créative, `keep_alive: "30m"`).
+   - Cache vision SQLite persistant (SHA256) dans `server.py` : analyse d'images répétées servie en < 2ms au lieu de 72s.
+4. **Synchronisation Voix de Marque TypeScript ↔ Python** :
+   - Création de `scripts/sync-brand-voice.mjs` (`npm run sync:brand`) compilant automatiquement les miroirs Python `brand.py` à partir de `lib/brand-voice.ts` (source unique de vérité).
+   - Parité stricte 48/48 mots validée en pré-vol.
+5. **Validation & Garde-fous** :
+   - `npm run preflight` : 5/5 PASS (0.7s).
+   - `npm run garde-fous` : 11/11 PASS (389 tests Vitest au vert, 0 erreur TypeScript).
+   - `heldonica-brain/selftest.py` : 60/60 vérifications au vert.
+   - Brain II agents facade : 18/18 PASS.
+   - Fred hotel security : 23/23 PASS.
+
+---
+
+## [2026-10-03] — Rapatriement Google Photos Suisse (715 médias), Carnet Stoos 2025 en brouillon CMS et délégation Jules (Itinéraire interactif)
+
+### Réalisations
+1. **Google Photos Picker & Rapatriement Suisse (Stoos)** :
+   - 715 médias haute définition (704 photos réelles + 15 vidéos du funiculaire/crêtes) téléchargés dans `public/images/destinations/suisse/`.
+   - Preuve cartographique formelle identifiée : capture Google Maps du 12 juillet 2025 à 20h37 à **Stoosbahnen** (plateau piétonnier de Stoos, Schwyz, Suisse).
+   - Reconstitution du voyage compilée dans `imports/suisse-2025/voyage.json` et `imports/suisse-2025/voyage.md`.
+2. **Création du brouillon CMS via migration versionnée (Règles 1 et 2)** :
+   - Migration `supabase/migrations/20261003192500_draft_carnet_suisse_stoos_2025.sql` appliquée avec succès sur la base Supabase liée.
+   - Article ID `208` inséré en statut `draft` (`published = false`, `auto_generated = true`, source `takeout`), avec balises `[À TOI]` pour les impressions et sensations à rédiger par le duo.
+3. **Délégation Google Jules — Session #3 (Itinéraire & Carte interactifs)** :
+   - Session créée sur l'API Jules (`sessions/1102611896609087452`, URL : https://jules.google.com/session/1102611896609087452).
+   - Dépôt : `farinhahelder-hue/heldonica` (branche `main`).
+   - Périmètre : Composant `InteractiveItineraryMap.tsx` (Leaflet / OSM 100% gratuit), timeline verticale jour par jour `ItineraryTimeline.tsx`, et tests unitaires Vitest associés.
+   - Enregistrement officiel dans la table Supabase `agent_tasks`.
+4. **CI & Garde-fous** :
+   - `npm run preflight` : 5/5 PASS (1.6s).
+   - `npm run garde-fous` : 11/11 PASS (389/389 tests Vitest, 0 erreur TypeScript).
+
+---
+
+## [2026-10-03] — Workflow anti-dérive multi-agents : preflight, parité TypeScript ↔ Python, garde-fous universels et synchronisation Git
+
+### Problèmes résolus (racine des dérives multi-agents)
+1. **Divergence Git & retards de branches** : Plusieurs clones coexistaient sur la machine sans détection de retards (branches locales accusant jusqu'à 872 commits de retard sur `origin/main`), risquant d'écraser des fonctionnalités ou de réinventer du code déjà fusionné.
+2. **Dérive multi-langages (TypeScript ↔ Python)** : `lib/brand-voice.ts` (autorité absolue) et les miroirs Python (`brand.py`) dérivaient en silence (ex. "astuce" manquant au singulier dans un fichier ou mal géré dans les regexes avec ligatures françaises).
+3. **Incompatibilité cross-platform (Windows PowerShell vs Linux/macOS)** : L'instruction dans `AGENTS.md` recommandait une boucle bash (`for g in ...`) qui échouait sous Windows PowerShell.
+4. **Pollution de compilation et de tests** : Dossiers d'archives locales (`heldonica live/`) ou de worktrees analysés par inadvertance par `tsc` et `vitest`.
+
+### Améliorations apportées au workflow
+- **Geste 0 : Le Pre-flight instantané (`npm run preflight`)** :
+  - Nouveau script `scripts/garde-fous.mjs --preflight` s'exécutant en ~1.2s au début de chaque session.
+  - Vérifie le retard par rapport à `origin/main` via `scripts/check-workspace-sync.mjs` et ordonne un rebase si nécessaire.
+  - Vérifie la parité stricte des mots bannis (`FORBIDDEN_WORDS`) entre TypeScript et Python via `scripts/check-brand-sync.mjs`.
+  - Contrôle la fraîcheur des modèles IA (`scripts/check-ai-models.mjs`), la sécurité des routes (`check-api-auth.mjs`), et l'absence d'erreurs Supabase avalées (`check-erreurs-avalees.mjs`).
+- **Garde-fous unifiés et portables (`npm run garde-fous`)** :
+  - Remplace la boucle bash par un script Node.js multi-plateforme.
+  - Exécute les 11 contrôles : `workspace`, `brand-sync`, `ai-models`, `api-auth`, `erreurs-avalees`, `cms-zones`, `cms-drift`, `content-coherence`, `content-evidence`, `typecheck` (`tsc`), `vitest` (389 tests).
+  - Traite le code de sortie 2 (hors-ligne / sans identifiants Supabase) comme un `SKIP` explicite sans faire échouer faussement la CI locale.
+- **Assainissement des configurations** :
+  - `tsconfig.json` & `vitest.config.ts` : Exclusion formelle de `heldonica live`, `.kilo`, et `heldonica-brain`.
+  - `.gitignore` : Ajout de `heldonica live/` et `kilo.json`.
+- **Alignement de la voix éditoriale** :
+  - Ajout de `'astuce'` (singulier) dans `FORBIDDEN_WORDS` de `lib/brand-voice.ts` pour être rigoureusement aligné avec `brand.py` (48/48 mots synchronisés).
+- **Documentation et repères dans `AGENTS.md` & `INFRASTRUCTURE.md`** :
+  - Cartographie officielle des deux environnements Brain : **Brain II** (`C:\Users\Work\heldonica-brain`, ports 8440/8451, RAG 55 fiches, 24/7) vs **Copilote CMS** (`heldonica-brain/`, port 8470, interactif).
+  - Intégration du **Geste 0 (Pre-flight)** au protocole obligatoire de début de session.
+
+### Mesures
+- `npm run preflight` : 5/5 contrôles PASS en 1.2s.
+- `npm run garde-fous` : 11/11 contrôles PASS en 41.2s (0 erreur TypeScript, 389/389 tests Vitest).
+- `selftest.py` (Copilote 8470) : 58/58 PASS.
+- `app.agents.selftest` (Brain II 8451) : 18/18 PASS.
+
+---
+
 ## [2026-09-29] — CMS & Mobile : upload photo depuis smartphone, carrousel V2 auto-distribution et fallback LLM local (GTX 1660 Ti)
 
 - **Support Google Photos Cloud, Reconstitution 1-Clic & Fallback Multi-IA (Grok, DeepSeek, HuggingFace)** :

@@ -14,6 +14,11 @@ import argparse
 from pathlib import Path
 
 try:
+    sys.stdout.reconfigure(line_buffering=True)
+except Exception:
+    pass
+
+try:
     import requests
     from google.auth.transport.requests import Request
     from google.oauth2.credentials import Credentials
@@ -169,8 +174,16 @@ def main():
     else:
         session = create_session(creds)
         print(f"\n[SESSION] id={session.get('id')}")
-        print("[ACTION REQUISE] Ouvre ce lien et selectionne tes photos/videos Roumanie :\n")
-        print(f"  {session.get('pickerUri')}\n")
+        picker_uri = session.get('pickerUri')
+        print("[ACTION REQUISE] Ouvre ce lien et selectionne tes photos/videos :\n")
+        print(f"  {picker_uri}\n")
+        sys.stdout.flush()
+        if picker_uri:
+            try:
+                import os
+                os.system(f'start "" "{picker_uri}"')
+            except Exception:
+                pass
 
     session_id = session["id"]
 

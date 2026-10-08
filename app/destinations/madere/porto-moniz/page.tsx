@@ -13,7 +13,7 @@ const metadata: Metadata = {
     title: "Porto Moniz slow travel : piscines naturelles de Madère | Heldonica",
     description: "Baignade dans les piscines de roche volcanique naturelle à Porto Moniz, vagues atlantiques et conseils slow travel.",
     type: 'website',
-    images: ['/og-default.jpg'],
+    images: ['/images/destinations/madere/porto_moniz.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica'
   },
@@ -55,8 +55,8 @@ export default async function PortoMonizPage() {
         name="Porto Moniz"
         parentName="Madère"
         parentSlug="madere"
-        heroImage="/og-default.jpg"
-        introText="Porto Moniz, situé à la pointe nord-ouest de Madère, est célèbre pour ses extraordinaires piscines naturelles formées par la lave volcanique. C'est l'un des lieux où l'énergie brute de l'océan Atlantique rencontre la roche noire, créant un paysage inoubliable."
+        heroImage="/images/destinations/madere/porto_moniz.jpg"
+        introText="Porto Moniz, situé à la pointe nord-ouest de Madère, est célèbre pour ses extraordinaires piscines naturelles formées par la lave volcanique. C'est l'un des lieux où l'énergie brute de l'océan Atlantique rencontre la roche noire, créant un paysage saisissant."
         highlights={highlights}
         localTip="Privilégie les piscines naturelles gratuites (plus sauvages) situées près du port plutôt que les piscines payantes si tu cherches une ambiance brute et sans touristes."
       />

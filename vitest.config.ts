@@ -13,9 +13,8 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    alias: { "@": __dirname },
     setupFiles: ['./vitest.setup.ts'],
-    exclude: ['**/node_modules/**', '**/.claude/**', '**/dist/**'],
+    exclude: ['**/node_modules/**', '**/.claude/**', '**/dist/**', '**/.kilo/**', '**/heldonica live/**', '**/heldonica-brain/**'],
     // Fuseau du site, fixé pour tous.
     //
     // Les tests de formatDate passaient en CI, qui tourne en UTC, et échouaient

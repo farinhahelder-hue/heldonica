@@ -15,6 +15,7 @@ export const FORBIDDEN_WORDS = [
   'package',
   'destinations populaires',
   'tips',
+  'astuce',
   'astuces',
   'conseil voyage',
   'lieu incontournable',

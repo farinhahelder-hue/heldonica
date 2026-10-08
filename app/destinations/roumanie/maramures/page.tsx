@@ -13,7 +13,7 @@ const metadata: Metadata = {
     title: "Maramureș slow travel : églises en bois et vallées secrètes | Heldonica",
     description: "Églises en bois UNESCO, portes sculptées de la vallée de l'Iza et traditions pastorales. Notre carnet de route slow travel testé en Roumanie.",
     type: 'website',
-    images: ['/og-default.jpg'],
+    images: ['/images/destinations/roumanie/IMG_20260827_135025.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica'
   },
@@ -54,7 +54,7 @@ export default async function MaramuresPage() {
         name="Maramureș"
         parentName="Roumanie"
         parentSlug="roumanie"
-        heroImage="/og-default.jpg"
+        heroImage="/images/destinations/roumanie/IMG_20260827_135025.jpg"
         introText="Tout au nord de la Roumanie, le Maramureș est l'un des derniers sanctuaires ruraux d'Europe où le bois reste une matière vivante. On a arpenté ces vallées en toute saison lors de nos voyages en 2025 et 2026, au rythme lent des chevaux de trait et du travail artisanal."
         highlights={highlights}
         localTip="Pars tôt le matin sur les routes secondaires de la vallée de la Mara pour observer la brume se lever sur les meules de foin. Prévois du liquide pour les petites auberges familiales et roule prudemment sur les virages de montagne."

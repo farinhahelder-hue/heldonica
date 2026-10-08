@@ -16,21 +16,25 @@
  */
 
 import { createServiceClient } from '@/lib/supabase'
+import { getTargetedZoneVariants, TargetingContext } from '@/lib/cms-targeting'
 
 /** Clé plate `page__zone_key`, format attendu par InlineEditProvider. */
 export type ZoneMap = Record<string, string>
 
 /**
- * Charge les zones actives d'une page.
+ * Charge les zones actives d'une page avec prise en compte optionnelle du ciblage déclaratif.
  *
  * `is_active` est le seul état de publication de `cms_editable_zones` : il n'y
  * a pas de distinction brouillon/publié. Une zone inactive n'est donc jamais
  * servie, et la page retombe sur le fallback du composant.
  *
+ * Si des variantes ciblées (saison, persona, UTM) existent pour cette page,
+ * elles surchargent automatiquement les valeurs standards.
+ *
  * En cas d'échec, retourne une map vide plutôt que de faire échouer le rendu :
  * la page s'affiche avec ses fallbacks, et l'erreur est loggée.
  */
-export async function getPageZones(page: string): Promise<ZoneMap> {
+export async function getPageZones(page: string, context?: TargetingContext): Promise<ZoneMap> {
   try {
     const supabase = createServiceClient()
     const { data, error } = await supabase
@@ -51,6 +55,15 @@ export async function getPageZones(page: string): Promise<ZoneMap> {
       if (row.value == null) continue
       map[`${row.page}__${row.zone_key}`] = row.value
     }
+
+    // Phase 4 : Surcharges par variantes ciblées si présentes
+    try {
+      const targeted = await getTargetedZoneVariants(page, context)
+      Object.assign(map, targeted)
+    } catch (variantErr) {
+      console.warn(`[CMS zones] Impossible de charger les variantes pour "${page}":`, variantErr)
+    }
+
     return map
   } catch (err) {
     console.error(
