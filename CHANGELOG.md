@@ -4,6 +4,24 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-10-08] — Assainissement GitHub PRs & Synchronisation de Production
+
+### Fusions validées sur `main`
+1. **PR #510** (`fix-empty-images-migration-16935713872669505147`) : suppression du placeholder forcé sur les destinations dans `20260516000000_fix_empty_images.sql`.
+2. **PR #517** (`fix-seo-issues-images-excerpts-5607237158625852435`) : correction de la syntaxe PostgREST `.or()` pour chaînes vides (`featured_image.eq.""` et `excerpt.eq.""`) dans `app/api/publish-podgorica/route.ts` avec suite de tests dédiée (`__tests__/app/api/publish-podgorica/route.test.ts`).
+3. **PR #521** (`bolt-destinationcard-memo-1345888331631657619`) : optimisation de rendu `React.memo` sur `DestinationCard` et alias `Image as ImageIcon` (Lucide) évitant les collisions de namespace.
+4. **PR #522** (`bolt-scroll-throttle-17745253030372834751`) : régulation des écouteurs de défilement avec `requestAnimationFrame` ticking sur `ReadingProgress`, `BlogClientPage`, `Header` et `NewsletterPopup` (réduction de 80% des micro-renders).
+5. **PR #512** (`fix-leaflet-default-icons-16544126728280497866`) : chargement des icônes Leaflet locales bundlées (`leaflet/dist/images/`) éliminant toute dépendance réseau envers un CDN externe.
+
+### PRs clôturées (obsolètes ou doublons)
+- **PR #505** : clôturée (doublon strict de la PR #510).
+- **PR #507** : clôturée (variante CDN inférieure à l'import local de la PR #512).
+- **PR #513** : clôturée (obsolète, ciblait la table `articles` déjà dépréciée et fusionnée dans `cms_blog_posts` par la PR #448).
+- **PR #514 & #516** : clôturées (anciennes options expérimentales Next 14 rendues inutiles par Next 15 `serverExternalPackages`).
+- **PR #523** : clôturée (build Vercel en échec et tentative d'affaiblissement des garde-fous CI).
+
+---
+
 ## [2026-10-08] — Refonte CMS : Phase 12 (Clôture UX & Synchronisation Bilatérale Article ↔ Blocs)
 
 ### Réalisations
