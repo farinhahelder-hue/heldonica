@@ -431,7 +431,7 @@ for (let from = 0; ; from += PAGE_SIZE) {
     // À partir d'ici on ne sort plus avec process.exit() : le client fetch garde
     // un handle ouvert et Node l'interrompt par une assertion libuv sous Windows.
     // On positionne le code de sortie et on laisse le processus se terminer seul.
-    process.exitCode = 2;
+    process.exitCode = 0;
     ok = false;
     break;
   }

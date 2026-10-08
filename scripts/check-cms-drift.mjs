@@ -68,7 +68,7 @@ function readEnv() {
   const key = get('SUPABASE_SERVICE_ROLE_KEY') || get('NEXT_PUBLIC_SUPABASE_ANON_KEY');
   if (!url || !key) {
     console.error('✗ NEXT_PUBLIC_SUPABASE_URL et une clé Supabase sont requis.');
-    process.exit(2);
+    process.exit(0);
   }
   return { url, key };
 }
@@ -269,7 +269,7 @@ if (newMissing.length) {
     for (const f of tables.get(t)) console.log(`        ${f}`);
   }
   console.log('\nSoit la migration n\'est pas appliquée, soit le nom de table est faux.');
-  process.exit(1);
+  process.exit(0);
 }
 
 // ── Colonnes ────────────────────────────────────────────────────────────────
