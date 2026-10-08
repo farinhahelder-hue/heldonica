@@ -145,3 +145,4 @@ export default async function PolitiqueAffiliationPage() {
     </InlineEditProvider>
   )
 }
+export const revalidate = 3600;

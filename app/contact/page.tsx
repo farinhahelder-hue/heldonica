@@ -160,3 +160,4 @@ export default async function Contact() {
     </InlineEditProvider>
   )
 }
+export const revalidate = 3600;

@@ -32,7 +32,8 @@ const createStubBuilder = () => {
   const builder = {
     select: () => ({ ...builder, ...promiseInterface }),
     eq: () => ({ ...builder, ...promiseInterface }),
-    order: () => ({ ...stubBuilder, ...promiseInterface }),
+    order: () => ({ ...builder, ...promiseInterface }),
+    or: () => ({ ...builder, ...promiseInterface }),
     limit: () => ({ ...builder, ...promiseInterface }),
     single: () => stubPromise(null),
     upsert: () => ({ select: () => stubPromise([]), ...promiseInterface }),

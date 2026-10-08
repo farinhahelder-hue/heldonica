@@ -184,3 +184,4 @@ export default async function MentionslégalesPage() {
     </InlineEditProvider>
   );
 }
+export const revalidate = 3600;

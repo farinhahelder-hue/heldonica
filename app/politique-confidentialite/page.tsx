@@ -157,3 +157,4 @@ export default async function PolitiqueConfidentialitePage() {
     </InlineEditProvider>
   );
 }
+export const revalidate = 3600;
