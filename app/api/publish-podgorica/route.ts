@@ -102,7 +102,7 @@ export async function PUT() {
     const { data: noImageArticles } = await supabase
       .from('cms_blog_posts')
       .select('id, category, content')
-      .or('featured_image.is.null,featured_image.eq.')
+      .or('featured_image.is.null,featured_image.eq.""')
 
     let updated = 0
 
@@ -125,7 +125,7 @@ export async function PUT() {
     const { data: noExcerptArticles } = await supabase
       .from('cms_blog_posts')
       .select('id, content')
-      .or('excerpt.is.null,excerpt.eq.')
+      .or('excerpt.is.null,excerpt.eq.""')
 
     if (noExcerptArticles) {
       await Promise.all(
