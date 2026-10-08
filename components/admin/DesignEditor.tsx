@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Save, RefreshCw, Palette, Type, Image, FileText, Smartphone, Monitor, Code, AlertTriangle } from 'lucide-react';
+import { Save, RefreshCw, Palette, Type, Image as ImageIcon, FileText, Smartphone, Monitor, Code, AlertTriangle } from 'lucide-react';
 import { DESIGN_PRESETS } from '@/lib/design-presets';
 import { PAGE_DEFAULTS } from '@/lib/cms-page-defaults';
 import LivePreview from './LivePreview';
@@ -70,7 +70,7 @@ export default function DesignEditor() {
     colors: <Palette size={14} aria-hidden="true" />,
     fonts: <Type size={14} aria-hidden="true" />,
     texts: <FileText size={14} aria-hidden="true" />,
-    logo: <Image size={14} aria-hidden="true" />,
+    logo: <ImageIcon size={14} aria-hidden="true" />,
     code: <Code size={14} aria-hidden="true" />,
   }), []);
 
