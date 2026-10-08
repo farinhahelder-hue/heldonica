@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Film, Type, Zap, Scissors, Home, 
-  ChevronRight, FolderOpen, Image, Music
+  ChevronRight, FolderOpen, Image as ImageIcon, Music
 } from 'lucide-react';
 
 // ===== Studio Navigation Configuration =====
@@ -225,7 +225,7 @@ export default function VideoStudioNav({ children }: { children?: React.ReactNod
                 fontSize: '0.7rem',
                 color: '#555',
               }}>
-                <Image size={10} style={{ marginRight: 4, verticalAlign: 'middle' }} aria-hidden="true" />
+                <ImageIcon size={10} style={{ marginRight: 4, verticalAlign: 'middle' }} aria-hidden="true" />
                 Images
               </span>
               <span style={{

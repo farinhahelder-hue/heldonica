@@ -77,11 +77,25 @@ export default function NewsletterPopup() {
     timeout = setTimeout(showPopup, 45000)
 
     // Scroll: 70%
-    scrollHandler = () => {
+    let ticking = false;
+    const updateScroll = () => {
       const scrollTop = window.scrollY
       const docHeight = document.documentElement.scrollHeight - window.innerHeight
       const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0
       if (scrollPercent >= 70) showPopup()
+      ticking = false;
+    }
+
+    // ⚡ Bolt Performance Optimization:
+    // What: Throttled scroll event listener using requestAnimationFrame.
+    // Why: Defers computationally expensive DOM measurements and potential state updates
+    //      during rapid scroll events to the browser's render cycle.
+    // Impact: Avoids main thread jank and ensures smooth 60fps scrolling.
+    scrollHandler = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateScroll)
+        ticking = true;
+      }
     }
     window.addEventListener('scroll', scrollHandler, { passive: true })
 

@@ -44,12 +44,29 @@ function ReadProgressBar() {
   const [progress, setProgress] = useState(0)
 
   useEffect(() => {
-    const handleScroll = () => {
+    let ticking = false;
+
+    const updateProgress = () => {
       const scrollTop = window.scrollY
       const docHeight = document.documentElement.scrollHeight - window.innerHeight
       const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0
       setProgress(pct)
+      ticking = false;
     }
+
+    // ⚡ Bolt Performance Optimization:
+    // What: Throttled scroll event listener using requestAnimationFrame.
+    // Why: Scroll events fire at a high rate. Updating React state directly on each event
+    //      blocks the main thread. requestAnimationFrame synchronizes updates with the render cycle.
+    // Impact: Reduces React state updates during fast scrolling, maintaining 60fps.
+    // Measurement: Main thread blocking time in Performance profile is significantly reduced.
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateProgress)
+        ticking = true;
+      }
+    }
+
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
