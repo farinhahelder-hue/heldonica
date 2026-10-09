@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
 const SCROLL_COLOR = '#2D8B8A'
 
@@ -10,8 +10,8 @@ const SCROLL_COLOR = '#2D8B8A'
  * Track l'engagement à 75% de lecture (event: article_lu_75)
  */
 export default function ReadingProgress() {
-  const [progress, setProgress] = useState(0)
-  const [tracked75, setTracked75] = useState(false)
+  const barRef = useRef<HTMLDivElement>(null)
+  const tracked75Ref = useRef(false)
 
   useEffect(() => {
     let ticking = false;
@@ -22,11 +22,14 @@ export default function ReadingProgress() {
       
       if (docHeight > 0) {
         const pct = Math.min(100, (scrollTop / docHeight) * 100)
-        setProgress(pct)
+        if (barRef.current) {
+          barRef.current.style.width = `${pct}%`
+          barRef.current.setAttribute('aria-valuenow', Math.round(pct).toString())
+        }
 
         // GA4 — article_lu_75 (event canonique Heldonica)
-        if (pct >= 75 && !tracked75 && typeof window !== 'undefined') {
-          setTracked75(true)
+        if (pct >= 75 && !tracked75Ref.current && typeof window !== 'undefined') {
+          tracked75Ref.current = true
           if ((window as any).gtag) {
             ;(window as any).gtag('event', 'article_lu_75', {
               event_category: 'Engagement',
@@ -36,7 +39,10 @@ export default function ReadingProgress() {
           }
         }
       } else {
-        setProgress(0)
+        if (barRef.current) {
+          barRef.current.style.width = `0%`
+          barRef.current.setAttribute('aria-valuenow', '0')
+        }
       }
       ticking = false;
     }
@@ -64,17 +70,18 @@ export default function ReadingProgress() {
     return () => {
       window.removeEventListener('scroll', handleScroll)
     }
-  }, [tracked75])
+  }, [])
 
   return (
     <div
+      ref={barRef}
       className="fixed top-0 left-0 z-[100] h-[3px] transition-all duration-100 ease-out"
       style={{ 
-        width: `${progress}%`,
+        width: '0%',
         backgroundColor: SCROLL_COLOR,
       }}
       role="progressbar"
-      aria-valuenow={Math.round(progress)}
+      aria-valuenow={0}
       aria-valuemin={0}
       aria-valuemax={100}
       aria-label="Progression de lecture"
