@@ -40,7 +40,8 @@ export async function savePostRevision(
     featured_image?: string | null;
     author?: string | null;
   },
-  user?: CmsUser
+  user?: CmsUser,
+  label?: string
 ): Promise<{ success: boolean; revisionId?: string; error?: string }> {
   if (!supabase) return { success: false, error: 'Supabase non configuré.' };
 
@@ -65,6 +66,16 @@ export async function savePostRevision(
   if (error) {
     console.error('[CmsRevisions] Erreur sauvegarde révision:', error);
     return { success: false, error: error.message };
+  }
+
+  if (label) {
+    await logCmsAudit({
+      user: user || { id: 'sys', email: 'admin@heldonica.fr', role: 'admin' },
+      action: 'update',
+      entity: 'article',
+      entityId: String(post.id),
+      metadata: { note: label, revision_id: data?.id },
+    });
   }
 
   return { success: true, revisionId: data?.id };

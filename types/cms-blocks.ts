@@ -12,7 +12,10 @@ export type BlockType =
   | 'list' 
   | 'video' 
   | 'vault_spot'
-  | 'photo_evidence';
+  | 'photo_evidence'
+  | 'map'
+  | 'table_of_contents'
+  | 'hospitality_spot';
 
 export type BlockSpacing = 'compact' | 'normal' | 'relaxed';
 export type BlockTheme = 'default' | 'sand' | 'dark' | 'gold_accent';
@@ -107,6 +110,41 @@ export interface PhotoEvidenceBlock extends BaseBlock {
   albumLink?: string; // URL album Google Photos (optionnel)
 }
 
+// 10. Bloc Carte Interactive de balade et repères
+export interface MapBlock extends BaseBlock {
+  type: 'map';
+  center: { lat: number; lng: number };
+  zoom: number; // 1 à 18, défaut 13
+  markers: Array<{ id: string; lat: number; lng: number; label: string; description?: string }>;
+  caption?: string;
+  mapStyle?: 'topo' | 'minimal' | 'voyage';
+}
+
+// 11. Bloc Sommaire interactif avec défilement fluide
+export interface TableOfContentsBlock extends BaseBlock {
+  type: 'table_of_contents';
+  title?: string; // Défaut: 'Au fil du carnet'
+  maxLevel?: 2 | 3;
+  displayStyle?: 'list' | 'numbered' | 'cards'; // Défaut: 'numbered'
+}
+
+// 12. Bloc Fiche Hébergement Éthique et Indépendant
+export interface HospitalitySpotBlock extends BaseBlock {
+  type: 'hospitality_spot';
+  name: string;
+  location: string;
+  hostName?: string;
+  ethicalCriteria: {
+    localFood: boolean;
+    lowCarbonAccess: boolean;
+    quietAtmosphere: boolean;
+    fairPricing: boolean;
+  };
+  livedAnecdote?: string;
+  directBookingUrl?: string;
+  priceIndication?: string;
+}
+
 // Union discriminée de tous les blocs disponibles
 export type CmsBlock = 
   | TextBlock 
@@ -117,7 +155,10 @@ export type CmsBlock =
   | ListBlock 
   | VideoBlock 
   | VaultSpotBlock
-  | PhotoEvidenceBlock;
+  | PhotoEvidenceBlock
+  | MapBlock
+  | TableOfContentsBlock
+  | HospitalitySpotBlock;
 
 /**
  * Crée un bloc par défaut selon son type.
@@ -144,5 +185,22 @@ export function createDefaultBlock(type: BlockType): CmsBlock {
       return { id, type: 'vault_spot', title: 'Pépite dénichée', location: 'Lieu authentique', livedExperience: 'Notre vécu sur place...' };
     case 'photo_evidence':
       return { id, type: 'photo_evidence', imageUrl: '', location: '', date: '', anecdote: '' };
+    case 'map':
+      return { id, type: 'map', center: { lat: 48.8566, lng: 2.3522 }, zoom: 13, markers: [], mapStyle: 'minimal' };
+    case 'table_of_contents':
+      return { id, type: 'table_of_contents', title: 'Au fil du carnet', maxLevel: 2, displayStyle: 'numbered' };
+    case 'hospitality_spot':
+      return {
+        id,
+        type: 'hospitality_spot',
+        name: 'Hébergement',
+        location: '',
+        ethicalCriteria: {
+          localFood: false,
+          lowCarbonAccess: false,
+          quietAtmosphere: false,
+          fairPricing: false,
+        },
+      };
   }
 }

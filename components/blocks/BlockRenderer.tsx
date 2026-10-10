@@ -11,6 +11,9 @@ import { ButtonBlock } from './ButtonBlock';
 import { ListBlock } from './ListBlock';
 import { VaultSpotBlock } from './VaultSpotBlock';
 import { PhotoEvidenceBlock } from './PhotoEvidenceBlock';
+import { MapBlock } from './MapBlock';
+import { TableOfContentsBlock } from './TableOfContentsBlock';
+import { HospitalitySpotBlock } from './HospitalitySpotBlock';
 
 interface BlockRendererProps {
   blocks: CmsBlock[];
@@ -74,6 +77,12 @@ export function BlockRenderer({ blocks, className = '' }: BlockRendererProps) {
             return <VaultSpotBlock key={block.id} block={block} className={wrapperClass} />;
           case 'photo_evidence':
             return <PhotoEvidenceBlock key={block.id} block={block} className={wrapperClass} />;
+          case 'map':
+            return <MapBlock key={block.id} block={block} className={wrapperClass} />;
+          case 'table_of_contents':
+            return <TableOfContentsBlock key={block.id} block={block} allBlocks={blocks} className={wrapperClass} />;
+          case 'hospitality_spot':
+            return <HospitalitySpotBlock key={block.id} block={block} className={wrapperClass} />;
           default:
             return null;
         }

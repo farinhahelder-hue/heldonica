@@ -41,6 +41,14 @@ export async function POST(req: NextRequest, context: RouteContext) {
     return NextResponse.json({ error: 'ID d’article manquant.' }, { status: 400 });
   }
 
+  let label = '';
+  try {
+    const body = await req.json();
+    label = body.label;
+  } catch {
+    // Ignore JSON parse errors if body is empty
+  }
+
   if (!supabase) {
     return NextResponse.json({ error: 'Supabase indisponible.' }, { status: 500 });
   }
@@ -55,11 +63,15 @@ export async function POST(req: NextRequest, context: RouteContext) {
     return NextResponse.json({ error: 'Article introuvable.' }, { status: 404 });
   }
 
-  const result = await savePostRevision(post, {
-    id: 'operator',
-    email: 'admin@heldonica.fr',
-    role: 'admin',
-  });
+  const result = await savePostRevision(
+    post,
+    {
+      id: 'operator',
+      email: 'admin@heldonica.fr',
+      role: 'admin',
+    },
+    label
+  );
 
   if (!result.success) {
     return NextResponse.json({ error: result.error }, { status: 500 });

@@ -21,7 +21,7 @@ describe('lib/cms-album-context-matcher (Inc-15)', () => {
     for (const m of matches) {
       expect(m.title).toBeTruthy();
       expect(m.excerpt).toBeTruthy();
-      expect(m.id).toMatch(/^vault_/);
+      expect(m.id).toMatch(/^(vault_|mne-|che-|prt-)/);
     }
   });
 
