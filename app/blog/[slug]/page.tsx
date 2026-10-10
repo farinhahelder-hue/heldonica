@@ -24,6 +24,9 @@ import { getPageZones } from '@/lib/cms-zones'
 import DynamicArticleMap from '@/components/DynamicArticleMap'
 import { verifyPreviewToken } from '@/lib/preview-token'
 import { getPageLayout } from '@/lib/layout-helpers'
+import { BlockRenderer } from '@/components/blocks/BlockRenderer'
+import { isArticleConvertedToBlocks } from '@/lib/cms-article-migrator'
+import { htmlToBlocks } from '@/lib/cms-blocks-converter'
 
 const SITE_URL = 'https://www.heldonica.fr'
 
@@ -311,8 +314,11 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
     </div>
   )
 
+  const hasBlocks = isArticleConvertedToBlocks(post.content)
+  const articleBlocks = hasBlocks ? htmlToBlocks(post.content || '') : []
+
   const BlockContent = () => (
-    <div className="mx-auto max-w-3xl px-4 py-12 md:py-16">
+    <div className="mx-auto max-w-4xl px-4 py-12 md:py-16">
       {post.excerpt && (
         <div className="mb-10 rounded-[2rem] border border-eucalyptus/20 bg-eucalyptus/5 px-6 py-6 md:px-8">
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-mahogany">Ouverture</p>
@@ -320,7 +326,9 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
         </div>
       )}
 
-      {safeContent ? (
+      {hasBlocks && articleBlocks.length > 0 ? (
+        <BlockRenderer blocks={articleBlocks} />
+      ) : safeContent ? (
         <EnhancedRichContent
           html={safeContent}
           className="prose prose-lg max-w-none

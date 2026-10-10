@@ -48,6 +48,11 @@ function withoutVoiceNotesAndReadTime(payload: Record<string, unknown>) {
   return rest
 }
 
+function withoutSlowTaxonomy(payload: Record<string, unknown>) {
+  const { season, mobility, budget_level, duration, carbon_footprint, ...rest } = payload
+  return rest
+}
+
 export const dynamic = 'force-dynamic'
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -95,6 +100,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   } else if (body.status === 'scheduled') {
     payload.published = false;
     payload.status = 'scheduled';
+  } else if (body.status === 'review') {
+    payload.published = false;
+    payload.status = 'review';
   } else if (body.status === 'draft' || body.published === false) {
     payload.published = false;
     payload.status = 'draft';
@@ -180,6 +188,24 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let fallback: any = await (sb.from('cms_blog_posts') as any)
       .update(withoutVoiceNotesAndReadTime(payload))
+      .eq('id', id)
+      .select()
+      .single()
+    data = fallback.data;
+    error = fallback.error;
+  }
+
+  // Fallback 4 — slow taxonomy columns missing in database
+  if (error?.message && (
+    error.message.includes('season') ||
+    error.message.includes('mobility') ||
+    error.message.includes('budget_level') ||
+    error.message.includes('duration') ||
+    error.message.includes('carbon_footprint')
+  ) && error.message.includes('does not exist')) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let fallback: any = await (sb.from('cms_blog_posts') as any)
+      .update(withoutSlowTaxonomy(withoutVoiceNotesAndReadTime(payload)))
       .eq('id', id)
       .select()
       .single()

@@ -4,6 +4,308 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-10-10] — Phase 11 : Automatisation & Enrichissement Éditorial par Preuves Photos & Questions IA
+
+### Réalisations & Nouveaux Modules (Options A, B & C)
+1. **Option A — Module « Interview Éclair » dans le CMS (`lib/cms-photo-interview.ts` & UI)** :
+   - Moteur de génération de 3 questions ultra-ciblées par photo (Sensoriel pur, Faits concrets & prix, Honnêteté/déception).
+   - Synthèse automatique en prose Heldonica pure (pronom « on », 0 mot banni, validation continue par le linter de marque).
+   - Modal split-screen interactif (`components/admin/PhotoInterviewModal.tsx`) connecté directement aux blocs `image` et `photo_evidence` de l'éditeur modulaire (`BlockCanvas.tsx`) via le bouton `🎙️ Interviewer (Questions IA)`.
+   - Endpoint API sécurisé (`app/api/cms/photos/interview/route.ts`).
+
+2. **Option B — Générateur Automatique de Brouillons par Album / Preuves (`lib/cms-draft-from-evidence.ts`)** :
+   - Pipeline de génération de carnets de route complets au format de blocs Heldonica CMS (`CmsBlock[]`).
+   - Intégration transparente avec les fichiers de preuves de terrain (`content/evidence/*.json`) et le registre des albums vérifiés (`lib/cms-photo-albums.ts`).
+   - Sérialisation bi-directionnelle avec le marqueur Gutenberg/Heldonica `<!-- heldonica:blocks ... -->` pour ouverture directe dans le CMS.
+   - Script CLI (`scripts/draft_from_evidence.mjs` / `npm run media:drafts`) et route API dédiée (`app/api/cms/drafts/from-evidence/route.ts`).
+
+3. **Option C — Moteur FAQ & Verdict de terrain Slow Travel (`lib/cms-faq-verdict-generator.ts`)** :
+   - Générateur de FAQ de terrain (mobilités douces, heures creuses, itinérance canine) ancré dans le vécu sans formules génériques.
+   - Générateur de verdict sans complaisance avec score sur 10, moment fort vérifié, piège à éviter et conseil de posture contemplative.
+
+4. **Bilan Qualité & Garde-Fous (`AGENTS.md`)** :
+   - 4 nouvelles suites de tests Vitest ajoutées (`__tests__/lib/cms-photo-interview.test.ts`, `__tests__/lib/cms-faq-verdict.test.ts`, `__tests__/lib/cms-draft-from-evidence.test.ts`, `__tests__/components/PhotoInterviewModal.test.tsx`).
+   - Total Vitest : **660 tests passants sur 89 fichiers de tests (100% VERT)**.
+   - TypeScript strict (`tsc --noEmit`) : **0 erreur**.
+   - Contrôles `check:api-auth`, `check:brand-sync`, `check:erreurs-avalees`, `check:ai-models` : **100% VERT**.
+
+---
+
+## [2026-10-10] — Phase 10 : Rendu Public des Blocs Modulaires & Réactivation Flotte IA 24/7
+
+### Réalisations & Intégrations
+1. **Intégration du Rendu Modulaire sur le Front Public (`app/blog/[slug]/page.tsx`)** :
+   - Branchement de `BlockRenderer` pour afficher nativement les blocs modulaires slow travel (Preuves photo avec anecdotes vécues, pépites du Coffre RAG, galeries, checklists).
+   - Détection automatique (`isArticleConvertedToBlocks`) et conversion transparente (`htmlToBlocks`) avec repli (fallback) 100% fidèle sur `EnhancedRichContent` pour les articles historiques non migrés.
+   - Ajout d'une suite de tests unitaires dédiée pour `BlockRenderer` (`__tests__/components/BlockRenderer.test.tsx`, 3 tests).
+
+2. **Écosystème Vidéo & ComfyUI (GTX 1660 Ti)** :
+   - ComfyUI 0.39.0 opérationnel en tâche de fond sur le port `8188` avec PyTorch 2.14.1+cu126 (`--lowvram`).
+   - Poids LTX-Video `ltx-video-2b-v0.9.5.safetensors` (6,34 Go) vérifié sur `F:\ai_models\comfyui\app\models\checkpoints\`.
+   - Diagnostique d'inférence consigné : nécessite l'encodeur T5 FP8 séparé pour la condition textuelle ; pipeline matériel NVENC 1080p validé pour les exports immédiats.
+
+3. **Réactivation & Santé de la Flotte des Cerveaux (5/5 Services Opérationnels)** :
+   - **Port 3000** : Next.js 15.5 (Web & CMS Heldonica).
+   - **Port 8188** : ComfyUI daemon (Studio vidéo IA).
+   - **Port 8440** : Heldonica Brain II Central Engine (`/api/system/status` en ligne, 116 pépites, 6 itinéraires, détection GPU hardware).
+   - **Port 8451** : Heldonica Brain II Agents Façade (dispatch et file d'attente d'agents).
+   - **Port 8470** : Heldonica Copilote CMS (`/api/status` en ligne, modèle multimodal et suggestions de légendes).
+
+4. **Bilan Qualité & Garde-Fous (`AGENTS.md`)** :
+   - TypeScript strict (`tsc --noEmit`) : **0 erreur**.
+   - Vitest : **648 / 648 tests passants (85 fichiers de test, 100% VERT)**.
+
+---
+
+## [2026-10-09] — Studio Mobile slice 1 : coque 4 onglets (OpenCode, non compilé localement)
+
+### Réalisations
+1. **`StudioActivity.kt` (nouveau point d'entrée)** : onglets Cerveau (console Brain en vue web, connexion manuelle, aucun secret embarqué), CMS (ouvre `EditeurActivity`, session existante), Studio/Insta (écrans d'attente slices 2-3).
+2. **Manifest** : lanceur basculé sur `StudioActivity` ; `MainActivity` conservée sans intent LAUNCHER.
+3. **Config** : champ `brain.webUrl` (`local.properties` + `BuildConfig`, documenté, vide = marche à suivre affichée).
+4. **Test JVM** : `StudioTabsTest` (4 tests, sans émulateur).
+5. **Non vérifié ici** : pas de SDK Android sur cette station — compilation + tests via CI (`build-apk.yml`) avant sideload.
+
+---
+
+## [2026-10-09] — Phases 8 & 9 : Recette E2E du Block Builder & Moteur de Migration Idempotente
+
+### Réalisations & Architecture
+1. **Suite de Tests d'Intégration E2E du Block Builder (`__tests__/integration/cms-block-builder-e2e.test.tsx`) (Inc-13)** :
+   - Recette intégrale de bout en bout des 4 gabarits Slow Travel (`slow_travel_diary`, `step_by_step_guide`, `hospitality_spotlight`, `photo_essay`).
+   - Rendu universel public (`BlockRenderer`) et admin interactif (`BlockCanvas`) sans aucun crash.
+   - Validation de la pureté éditoriale (0 mot banni détecté parmi les 48 mots de la charte).
+   - Validation du cycle complet de round-trip : instanciation, injection d'une pépite réelle du Coffre (`searchVaultSpots`), sérialisation HTML + signature invisible `<!-- heldonica:blocks ... -->`, et désérialisation fidèle.
+   - Robustesse éprouvée face aux données dégradées (URLs vides, listes sans items).
+   - 21 tests dédiés exécutés et validés en 1.2s.
+
+2. **Moteur d'Ingestion & Migration Automatique des Articles vers Blocs (`lib/cms-article-migrator.ts`) (Inc-16)** :
+   - Traitement strictement idempotent : détection préalable des articles déjà au format blocs (`isArticleConvertedToBlocks`).
+   - Nettoyeur d'artefacts WordPress historiques (`cleanLegacyWordPressHtml` : purge des commentaires `<!-- wp:... -->`, classes CSS `wp-image-*` et balises vides).
+   - Détection contextuelle de preuves photographiques de terrain (`detectPhotoEvidence`).
+   - Calcul des métriques de lecture lente (190 WPM) et audit d'accessibilité WCAG 2.1 (A11y) dès l'ingestion.
+   - Migration unitaire ou par lot avec rapport d'exécution exhaustif (`batchMigrateArticles`).
+
+3. **Route API & Script CLI de Migration** :
+   - Route sécurisée `app/api/cms/articles/migrate/route.ts` : `GET` pour la simulation dry-run, `POST` pour la conversion unitaire ou par lot avec révalidation du cache Next.js (`/blog`).
+   - Script CLI `scripts/migrate-articles-to-blocks.mjs` supportant les modes dry-run et `--apply`.
+
+4. **Bilan Qualité & Garde-Fous (`AGENTS.md`)** :
+   - Suite Vitest : **645 / 645 tests verts (84 fichiers de test, +35 tests)**.
+   - Typage TypeScript strict : **0 erreur (`tsc --noEmit` code 0)**.
+   - Garde-fous Preflight : **5 / 5 au VERT**.
+   - Écosystème services : **10 / 10 ports opérationnels**.
+
+---
+
+## [2026-10-09] — Détection Photo Stock vs Terrain & Extraction EXIF Automatique (Punch-List #2 & #3)
+
+### Réalisations & Architecture
+1. **Module d'Extraction EXIF & Détection Stock (`lib/photo-exif.ts`)** :
+   - Règle n°1 d'Heldonica appliquée strictement (« On n'invente rien ») : aucune donnée extrapolée ou falsifiée.
+   - `extractPhotoExif(buffer, identifier)` : lecture des métadonnées réelles via `exifr` (formatage ISO strict `YYYY-MM-DD`, extraction et validation des coordonnées GPS dans les bornes réelles [-90, 90] / [-180, 180], modèle d'appareil photo `make`/`model`/`lens`, signatures logicielles et dimensions).
+   - Normalisation multi-environnement (`toNormalizedArrayBuffer`) garantissant une portabilité 100% sans faille entre Node.js, Web Streams et environnements cross-realm JSDOM.
+   - `detectStockPhoto(identifier, meta)` : détection heuristique avancée des images de banques d'images (`unsplash`, `pexels`, `shutterstock`, `pixabay`, `adobe_stock`, etc.), des signatures logicielles synthétiques ou d'outils de design (`midjourney`, `dall-e`, `canva`), et alerte en cas de cliché entièrement dépouillé de matériel de prise de vue et de GPS.
+
+2. **Routes API CMS Enrichies** :
+   - `app/api/cms/photos/upload/route.ts` : lors d'un upload de photo, pré-remplissage automatique des champs `date` et `gps` à partir des métadonnées réelles du cliché si non spécifiés ; retour des informations `exif` et des alertes de stock (`isStockCandidate`, `stockReasons`) dans la réponse JSON.
+   - `app/api/cms/media-upload/route.ts` : analyse automatique des métadonnées du fichier téléversé et renvoi des informations `exif` et `isStockCandidate` au client.
+
+3. **Médiathèque 2.0 & Expérience Utilisateur (`components/admin/media/PhotoPickerModal.tsx`)** :
+   - Alerte déontologique en temps réel dans l'onglet « URL externe » si une URL de banque de stock est saisie, avec rappel de la règle n°1 du slow travel d'Heldonica.
+   - Retour d'état informatif dans l'onglet « Supabase Storage » confirmant les métadonnées matérielles extraites (date, appareil photo) ou signalant un cliché suspect.
+   - Transmission enrichie de la date, du matériel et du statut de vérification lors de la sélection.
+
+4. **Suite de Tests & Validation Garde-fous** :
+   - 10 nouveaux tests unitaires pour l'extraction EXIF et la détection stock (`__tests__/lib/photo-exif.test.ts`), testés sur un cliché réel Google Pixel 8 Pro (`PXL_20260527_180112571.RAW-01.COVER.jpg`).
+   - 2 nouveaux tests d'interface utilisateur dans `__tests__/components/PhotoPickerModal.test.tsx` (7/7 PASS).
+   - 1 nouveau test d'intégration d'API dans `__tests__/api/cms-photos-upload.test.ts` (6/6 PASS).
+   - Suite complète Vitest : **610 / 610 tests verts (80 fichiers)** (+13 tests).
+   - Typage TypeScript strict : **0 erreur (`tsc PASS`)**.
+   - Bilan des 11 garde-fous : **11 / 11 validés**.
+
+---
+
+## [2026-10-09] — Phase 7 : Métriques Slow Travel Éthiques, Portabilité & Outils Import/Export
+
+### Réalisations & Architecture
+1. **Bibliothèque de Métriques Slow Travel (`lib/cms-reading-metrics.ts`)** :
+   - Temps de lecture attentif (`SLOW_READING_WPM = 190` mots/min + 10s de pause contemplative par photo de terrain / pépite).
+   - Score Slow Travel composite (0 à 100) avec décomposition en 5 piliers :
+     - Longueur immersive du texte (20 pts)
+     - Preuves de terrain et photos réelles (20 pts)
+     - Structure et rythme de lecture (20 pts)
+     - Taxonomie slow travel (saison, mobilité, budget) (20 pts)
+     - Pureté de la voix de marque & absence de mots bannis (20 pts).
+   - Recommandations éditoriales dynamiques et détection en temps réel des termes bannis.
+2. **Bibliothèque d'Import & Export Lossless (`lib/cms-export-import.ts`)** :
+   - `exportArticleToMarkdown()` : export Markdown complet avec en-tête Frontmatter YAML et sérialisation lossless `<!-- heldonica:blocks [...] -->`.
+   - `exportArticleToJson()` : export au schéma standard `heldonica_cms_article_v1` avec métadonnées, arborescence de blocs et score de lecture.
+   - `exportArticleToHtml()` : archive HTML autonome sémantique pour consultation hors-ligne ou impression.
+   - `importArticleFromMarkdown()` : import bidirectionnel avec restauration 100% fidèle des blocs s'ils sont présents, ou conversion automatique du Markdown pur (titres, paragraphes, images).
+   - `importArticleFromJson()` : import et restauration sécurisée depuis un fichier JSON.
+3. **Composant UI Modal (`components/admin/ExportImportModal.tsx`)** :
+   - Onglet Export : tableau de bord de lecture attentive, badges de métriques, 3 boutons de téléchargement direct (`.md`, `.json`, `.html`), et copie rapide dans le presse-papier.
+   - Onglet Import : glisser-déposer de fichiers ou collage direct, analyse syntaxique en direct avec aperçu des blocs et avertissements éditoriaux, chargement 1-clic dans l'éditeur.
+4. **Intégration dans le CMS (`app/panel-manager/CmsAdminClient.tsx`)** :
+   - Badge de lecture dynamique dans l'en-tête de l'éditeur (`⏱ X min · Y mots · Slow Z%`).
+   - Bouton `Export / Import` dans la barre d'outils ouvrant le modal.
+   - Branchement bidirectionnel sur le state de l'article et des blocs actifs.
+5. **Bilan Qualité & Garde-fous** :
+   - 16 nouveaux tests unitaires (`__tests__/lib/cms-reading-metrics.test.ts`, `__tests__/lib/cms-export-import.test.ts`, `__tests__/components/ExportImportModal.test.tsx`).
+   - Suite complète : **597 / 597 tests verts (79 fichiers)** (+16 tests).
+   - TypeScript strict : **0 erreur (`tsc PASS`)**.
+   - Bilan des 11 garde-fous : **11 / 11 validés**.
+
+---
+
+## [2026-10-09] — Phase 6 : Station de Contrôle Multi-Agents & Intégration Flotte IA dans le CMS
+
+### Réalisations & Architecture
+1. **Bibliothèque Métier (`lib/cms-agent-tasks.ts`)** :
+   - Typage strict TypeScript de la flotte d'agents (`jules`, `archiveur`, `opencode`, `gemini`, `freebuff`, `tous`).
+   - 4 presets de mission 1-clic : Relecture Voix & Style (Jules), Vérification Faits & RAG (Archiveur), Audit SEO & Données Structurées (OpenCode), Adaptation & Traduction Slow (Gemini).
+   - Fonctions utilitaires `filterTasksForArticle()` et `computeTaskStats()`.
+2. **Route API Dédiée (`app/api/cms/agent-tasks/route.ts`)** :
+   - `GET` : Récupération filtrée des tâches du registre Supabase (`agent_tasks`).
+   - `POST` : Dépôt sécurisé de missions avec métadonnées d'article enrichies.
+   - `PATCH` : Approbation et validation fondateur 1-clic (`validated_by = 'heldonica'`), verrouillant la vérification avant mise en ligne.
+   - Protection complète par `requireCmsAuth` et gestion stricte des erreurs Supabase.
+3. **Composant UI (`components/admin/AgentsControlDrawer.tsx`)** :
+   - Tiroir coulissant latéral de pilotage multi-agents accessible depuis la barre d'outils de chaque article (`CmsAdminClient.tsx`).
+   - Barre de statistiques d'état en direct (`sent`, `in_progress`, `waiting_validation`, `done`).
+   - Boutons de délégation rapide 1-clic et formulaire de consigne sur-mesure.
+   - Dépliage visuel des rapports `actions_done` (`verifie`, `corrige`, `non_verifie`, `reste_a_faire`).
+   - Bouton d'approbation fondateur avec badge de certification `ShieldCheck`.
+4. **Bilan Qualité & Garde-fous** :
+   - 11 nouveaux tests unitaires (`__tests__/lib/cms-agent-tasks.test.ts`, `__tests__/components/AgentsControlDrawer.test.tsx`, `__tests__/api/cms-agent-tasks.test.ts`).
+   - Suite complète : **581 / 581 tests verts (76 fichiers)**.
+   - Typecheck strict : **0 erreur (`tsc PASS`)**.
+   - Bilan des 11 garde-fous : **11 / 11 PASS**.
+
+---
+
+## [2026-10-08] — Domaine canonique .fr + réparation toolchain (OpenCode)
+
+### Domaine canonique (décision fondatrice : .fr)
+1. **`lib/site-url.ts` (nouveau)** : `siteUrl()` (lit `NEXT_PUBLIC_SITE_URL`, repli `https://www.heldonica.fr`, refuse le non-HTTPS) + `canonicalPath()`. Source unique, plus aucun domaine en dur pour le code neuf.
+2. **`lib/cms-slow-taxonomy.ts`** : `getCanonicalArticleUrl()` branché sur `siteUrl()` (comportement inchangé, default déjà .fr).
+3. **Registre `lib/cms-photo-albums.ts`** : 44 URL `heldonica.com` → `https://www.heldonica.fr` (images vérifiées présentes dans `public/images/`, pages couvertes par les canoniques existants — correction de liens, pas d'invention).
+4. **Tests** : `__tests__/lib/site-url.test.ts` (4 tests : défaut, override, repli invalide, chemins) + fixtures .com → .fr (5 fichiers). Les centaines de canoniques `.fr` historiques des pages sont confirmés corrects et intouchés.
+
+### Réparation toolchain (incident infra, pas de code métier)
+1. **Cause racine prouvée** : deux `npm install` concurrents (dont `npm i vite@latest` extérieur) entrelacés dans le même `node_modules` + dégâts d'écriture de la disette disque (C: à 2,58 Go) : fichiers manquants (tr46, chunks vite), `.d.ts` fantômes, erreurs tsc contradictoires entre deux runs.
+2. **Réparé** : wipe vérifié, lock restauré (vite 8.0.8 du lock, revert du bump furtif 8.3.4), `npm ci` propre (767 packages), **suite 570/570 (73 fichiers), tsc EXIT 0, preflight 5/5**, superviseur relancé, flotte 8475/8476/8477/4096 vérifiée en ligne.
+3. **Restant côté toolchain (au fondateur)** : npm cassé sur Node 22.12/22.13 (`path-scurry` manquant) — utiliser Node 22.11.0 pour les commandes npm (`nvm use 22.11.0`) ou réinstaller Node. `npx`/`npm run` sous 22.13 restent HS en attendant.
+
+---
+
+## [2026-10-08] — Phase 3 : Taxonomie Métier Slow Travel & Prévisualisation SERP Google / Social Cards
+
+### Réalisations & Architecture
+1. **Taxonomie Métier Slow Travel Enrichie (`lib/cms-slow-taxonomy.ts`)** :
+   - Définition stricte des métadonnées authentiques du duo :
+     - `SLOW_SEASONS` : 5 périodes douces et hors-saison avec émojis (printemps fleuri, été hors-foule, automne doré, hiver calme, toute l'année).
+     - `SLOW_MOBILITIES` : 5 mobilités décarbonées (train, marche/randonnée, vélo bikepacking, voile, van/road trip lent).
+     - `SLOW_BUDGETS` : 4 échelons de coûts réels constatés (< 60 €, 60-110 €, 110-180 €, > 180 € / jour).
+     - `SLOW_CARBON_OPTIONS` : empreinte carbone et compensation (bas carbone, modérée, compensée).
+   - Moteur sémantique `buildSlowTravelSnippetTags()` pour la synthèse des micro-données Google.
+   - Générateur d'URL canonique `getCanonicalArticleUrl()` pointant sur le domaine de référence `heldonica.fr` (configurable via `NEXT_PUBLIC_SITE_URL`).
+2. **Composant Rénové d'Aperçu SERP & Cartes Sociales (`components/admin/seo/SerpAndSocialPreview.tsx`)** :
+   - Remplacement de l'ancien aperçu statique artisanal dans `CmsAdminClient.tsx` par un composant interactif à onglets :
+     - **Onglet Google Search** : favicon Heldonica, fil d'Ariane hiérarchique avec chevrons (`heldonica.fr › blog › slug`), titre bleu dynamique, badges visuels des micro-données slow travel, et miniature de couverture carrée.
+     - **Onglet Réseaux Sociaux (OpenGraph / Twitter Summary Large)** : ratio panoramique 1.91:1, badge heldonica.fr, tags en superposition, titre et extrait.
+3. **Intégration dans `CmsAdminClient.tsx` (Éditeur CMS)** :
+   - Extension du type `Article` avec les attributs de taxonomie.
+   - Section repliable « 🔍 SEO & Métadonnées » complétée par une grille de sélection dédiée à la taxonomie Slow Travel (saison, mobilité, budget, durée d'immersion, empreinte carbone) directement connectée aux aperçus live.
+4. **Résilience API & Schéma de Base (`app/api/cms/articles/route.ts`, `app/api/cms/articles/[id]/route.ts`)** :
+   - Mécanisme de repli défensif `withoutSlowTaxonomy()` : en cas de retard d'application de la migration sur le serveur Supabase distant, les requêtes POST/PUT ne plantent pas.
+   - Migration Supabase versionnée créée : `supabase/migrations/20261008130000_cms_slow_travel_taxonomy.sql`.
+5. **Validation, Typage & Tests** :
+   - Suite unitaire `__tests__/lib/cms-slow-taxonomy.test.ts` créée (**10/10 PASS**).
+   - Suite de composants `__tests__/components/SerpAndSocialPreview.test.tsx` créée (**4/4 PASS**).
+   - Suite complète CMS (7 fichiers de tests) : **38/38 PASS**.
+   - Suite globale du dépôt : **570/570 tests PASS (73 fichiers de test)**.
+   - `typecheck` : **PASS intégral (0 erreur)**.
+   - `node scripts/garde-fous.mjs` : **11/11 contrôles validés (10 PASS, 1 SKIP hors-ligne)**.
+
+---
+
+## [2026-10-08] — Phase 4 : Diff Visuel des Blocs & Restauration 1-Clic dans RevisionsDrawer
+
+### Réalisations & Architecture
+1. **Moteur de Diff Visuel de Blocs (`lib/cms-revisions-diff.ts`)** :
+   - Fonction `computeBlockDiff(currentBlocks, revisionBlocks)` comparant les arbres de blocs sérialisés/désérialisés.
+   - Classification stricte en 4 statuts :
+     - `added` (+ RESTAURÉ) : bloc présent dans la révision archivée qui sera restauré.
+     - `removed` (- RETIRÉ) : bloc présent dans la version courante qui sera retiré par le rollback.
+     - `modified` (~ MODIFIÉ) : bloc dont le texte, le niveau Hn ou les médias diffèrent, avec traçabilité avant/après.
+     - `unchanged` (= IDENTIQUE) : bloc sans modification.
+   - Fonctions `getBlockSummary()` pour extraire titres et résumés de tous les types de blocs.
+2. **Interface Utilisateur `RevisionsDrawer.tsx` (`components/admin/RevisionsDrawer.tsx`)** :
+   - Affichage en temps réel des badges de synthèse (`+X à restaurer`, `-Y à retirer`, `~Z modifié(s)`, `=W inchangé(s)`).
+   - Tiroir dépliable de la liste détaillée des blocs avec codes couleurs visuels (émeraude, rose, ambre, pierre) et comparatif textuel biffé avant/après.
+   - Bouton « Restaurer cette version » avec confirmation de sécurité et réinjection directe des blocs dans `BlockCanvas` via `onRestore`.
+3. **Machine d'États d'Approbation (`draft` ➔ `review` ➔ `scheduled` ➔ `published`)** :
+   - Statut **« review » (En relecture)** intégré comme citoyen de première classe dans `app/api/cms/articles/route.ts` (GET / POST) et `app/api/cms/articles/[id]/route.ts` (PATCH) : garantit `published: false` pour interdire toute publication accidentelle prématurée.
+   - Interface `CmsAdminClient.tsx` et `ArticleForm.tsx` enrichies : sélecteur de statut, bouton de filtrage "En relecture", badge d'état dédié (ambre doux), et compteur de statistiques.
+4. **Câblage dans `CmsAdminClient.tsx`** :
+   - Transmission directe de `currentBlocks={activeCmsBlocks}` à `RevisionsDrawer`.
+5. **Validation & Tests** :
+   - Suite unitaire `__tests__/api/cms-articles-workflow.test.ts` créée (**3/3 PASS**).
+   - Suite unitaire `__tests__/lib/cms-revisions-diff.test.ts` (**4/4 PASS**).
+   - Suite unitaire `__tests__/components/RevisionsDrawer.test.tsx` (**3/3 PASS**).
+   - Suite globale Phase 2 + Phase 4 : **26/26 tests PASS** en 5,8s.
+   - `npm run typecheck` (`tsc --noEmit --incremental false`) : **PASS intégral (0 erreur)**.
+   - `npm run preflight` : **PASS (5/5)**. Phase 4 close à 100 %.
+
+---
+
+## [2026-10-08] — Phase 2 : Médiathèque 2.0 & Albums de Terrain Unifiés dans BlockCanvas
+
+### Réalisations & Architecture
+1. **Composant Unifié `PhotoPickerModal.tsx` (`components/admin/media/PhotoPickerModal.tsx`)** :
+   - **Onglet 1 (Albums de terrain certifiés)** : Connexion native au registre certifié `VERIFIED_PHOTO_ALBUMS` (`lib/cms-photo-albums.ts`), recherche temps réel par destination, lieu ou mot-clé avec `searchVerifiedPhotos()`, badges dates, géolocalisation et anecdotes vécues du duo.
+   - **Onglet 2 (Supabase Storage)** : Intégration de l'explorateur Storage par dossier (`articles/`, `destinations/`, `blog/`, `coulisses/`), filtrage par nom, upload direct via `/api/cms/media-upload`, et sélection instantanée.
+   - **Onglet 3 (URL externe / CDN)** : Saisie directe d'URL avec description alternative Alt obligatoire (A11y/RGAA) et légende.
+2. **Intégration dans `BlockCanvas.tsx` (Éditeur de Blocs)** :
+   - **Bloc Image** : bouton "📸 Choisir depuis un album de terrain" avec aperçu immédiat de la miniature, lieu et légende pré-remplis.
+   - **Bloc Galerie** : bouton "📸 Album de terrain" pour insérer des clichés réels dans le carrousel ou la grille, et bouton de remplacement direct par photo pour chaque entrée.
+3. **Validation, Typage & Tests** :
+   - Suite unitaire `__tests__/components/PhotoPickerModal.test.tsx` créée (**5/5 PASS**).
+   - Suite `__tests__/components/BlockCanvas.test.tsx` étendue (**9/9 PASS**).
+   - Totalité des 14 tests médias au vert en 1,2s.
+   - `npm run typecheck` (`tsc --noEmit --incremental false`) : **PASS intégral (0 erreur)**.
+   - `npm run preflight` validé (**5/5 PASS**). Phase 2 bornée à 100 %.
+
+---
+
+## [2026-10-08] — Heldonica Brain : Routeur de Modes (Sage 🌿 / Débridé 🔥) & Bascule 1-Clic
+
+### Réalisations & Architecture
+1. **Routeur de Modes Backend (`app/engine/llm_manager.py`, `app/engine/chat_service.py`, `app/main.py`)** :
+   - Ajout du prompt système `CHAT_DEBRIDE_SYSTEM_PROMPT` : franc-parler, vision percutante, créativité débridée, sans moraline ni langue de bois.
+   - Préservation stricte de la **Règle #1 d'Heldonica : On n'invente rien** (faits certifiés, pas d'adresses/prix fictifs).
+   - Cloisonnement de sécurité sandboxé : en mode débridé/libre, tous les outils d'écriture externe sont désactivés (`tools: []`).
+   - Endpoints REST ajoutés : `GET /api/settings/mode` et `POST /api/settings/mode` avec persistance SQLite (`settings.chat_mode`).
+   - `answer()` dans `chat_service.py` et `POST /api/chat` pilotent désormais dynamiquement la température (0.1 en Sage, 0.85 en Débridé) et le modèle cible.
+2. **Interface Utilisateur & Bascule 1-Clic (`app/static/`)** :
+   - `brain_chat.html` : composant de bascule fluide en en-tête (`🌿 Sage` / `🔥 Débridé`), adaptation instantanée du thème/accent, synchronisation avec le serveur et `localStorage`.
+   - `index.html` (Dashboard central) : pilule de bascule dans la barre d'action supérieure (`topbar`) et boutons de configuration dans l'onglet *Moteur IA & Matériel*.
+   - `bridge.html` : ajout des raccourcis de commande `!mode sage` et `!mode debride` pour le contrôle mobile/distant.
+3. **Audit Matériel & RAG** :
+   - Maintien de `nomic-embed-text` (dimension 768, 274 Mo, déjà compilé dans `vault_vecteurs.db` avec les 55 fiches du Coffre des Savoirs) pour éviter toute régression vectorielle.
+   - Constat de saturation disque (disque C: à 4,96 Go libres) : détection du modèle `llava:7b` (4,5 Go) occupant l'espace pour l'installation future de `dolphin3`.
+4. **Durcissement & Sécurisation Critique** :
+   - `ask_brain` (serveur MCP `app/mcp/server.py`) : **forcé immutablement en mode `sage`** (`mode="sage"`), sanctuarisant les réponses fournies aux agents et à Perplexity face à tout basculement de toggle web.
+   - **Expiration automatique du mode débridé (TTL 60 min)** : retour automatique en Mode Sage 🌿 après 3600 secondes (`settings.chat_mode_expires_at`) pour empêcher tout oubli humain prolongé.
+   - **Nettoyage disque** : purge complète des blobs partiels de téléchargement, restituant l'intégrité du stockage sur `C:`.
+5. **Validation des Garde-fous** :
+   - `selftest.py` Brain II : **40/40 PASS** (0 échec).
+   - `npm run garde-fous` Next.js : **11/11 PASS**, 66 fichiers de tests, 535/535 tests réussis.
+
+---
+
 ## [2026-10-08] — Assainissement GitHub PRs & Synchronisation de Production
 
 ### Fusions validées sur `main`

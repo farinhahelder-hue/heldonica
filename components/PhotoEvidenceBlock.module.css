@@ -1,0 +1,46 @@
+.container {
+  margin: 2rem auto;
+  max-width: 56rem;
+  border: 1px solid #e7e5e4;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: #fff;
+}
+
+.image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+}
+
+.meta {
+  padding: 0.75rem 1rem 0;
+  font-size: 0.875rem;
+  color: #57534e;
+  font-weight: 500;
+}
+
+.anecdote {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  color: #44403c;
+  font-style: italic;
+  line-height: 1.6;
+}
+
+.button {
+  display: inline-block;
+  margin: 0.25rem 1rem 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  background: #2d8b7a;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.button:hover {
+  background: #256b5e;
+}
