@@ -22,26 +22,33 @@ export default function ImageUploadButton({
     const file = e.target.files?.[0]
     if (!file) return
 
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Fichier trop volumineux (max 5Mo)')
+      if (inputRef.current) inputRef.current.value = ''
+      return
+    }
+
     setUploading(true)
     setError(null)
 
     try {
-      const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg'
-      const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-      const path = `uploads/${filename}`
+      const formData = new FormData()
+      formData.append('file', file)
 
-      const { error: uploadError } = await supabase.storage
-        .from(bucket)
-        .upload(path, file, { upsert: true })
+      const res = await fetch('/api/uploads/image', {
+        method: 'POST',
+        body: formData
+      })
 
-      if (uploadError) {
-        throw new Error(uploadError.message)
+      if (!res.ok) {
+        const errData = await res.json()
+        throw new Error(errData.error || 'Erreur lors de l\'upload')
       }
 
-      const { data } = supabase.storage.from(bucket).getPublicUrl(path)
+      const data = await res.json()
       
-      if (data?.publicUrl) {
-        onUpload(data.publicUrl)
+      if (data?.url) {
+        onUpload(data.url)
       } else {
         throw new Error('Impossible de récupérer l\'URL du fichier')
       }
