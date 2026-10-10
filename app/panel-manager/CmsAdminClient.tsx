@@ -1566,7 +1566,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                             const album = VERIFIED_PHOTO_ALBUMS.find((a) => a.id === selectedArticleAlbumId) ?? VERIFIED_PHOTO_ALBUMS[0];
                             return (
                               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 max-h-56 overflow-y-auto pt-1">
-                                {album.photos.map((photo) => (
+                                {album.photos.map((photo: any) => (
                                   <div
                                     key={photo.id}
                                     onClick={() => {
@@ -2212,7 +2212,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
         articleId={editingArticle?.id ? String(editingArticle.id) : undefined}
         isOpen={isRevisionsDrawerOpen}
         onClose={() => setIsRevisionsDrawerOpen(false)}
-        onRestore={(snapshot) => {
+        onRestore={(snapshot: any) => {
           if (snapshot) {
             setEditingArticle(prev => prev ? {
               ...prev,
