@@ -41,7 +41,7 @@ interface Props {
 }
 
 function ReadProgressBar() {
-  const progressRef = useRef<HTMLDivElement>(null)
+  const barRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     let ticking = false;
@@ -50,10 +50,9 @@ function ReadProgressBar() {
       const scrollTop = window.scrollY
       const docHeight = document.documentElement.scrollHeight - window.innerHeight
       const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0
-
-      if (progressRef.current) {
-        progressRef.current.style.width = `${pct}%`
-        progressRef.current.setAttribute('aria-valuenow', Math.round(pct).toString())
+      if (barRef.current) {
+        barRef.current.style.width = `${pct}%`
+        barRef.current.setAttribute('aria-valuenow', Math.round(pct).toString())
       }
       ticking = false;
     }
@@ -77,9 +76,9 @@ function ReadProgressBar() {
 
   return (
     <div
-      ref={progressRef}
+      ref={barRef}
       className="fixed top-0 left-0 z-[60] h-[3px] bg-eucalyptus transition-all duration-100"
-      style={{ width: `0%` }}
+      style={{ width: '0%' }}
       role="progressbar"
       aria-valuenow={0}
       aria-valuemin={0}

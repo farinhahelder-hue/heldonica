@@ -10,7 +10,7 @@ const SCROLL_COLOR = '#2D8B8A'
  * Track l'engagement à 75% de lecture (event: article_lu_75)
  */
 export default function ReadingProgress() {
-  const progressRef = useRef<HTMLDivElement>(null)
+  const barRef = useRef<HTMLDivElement>(null)
   const tracked75Ref = useRef(false)
 
   useEffect(() => {
@@ -22,10 +22,9 @@ export default function ReadingProgress() {
       
       if (docHeight > 0) {
         const pct = Math.min(100, (scrollTop / docHeight) * 100)
-
-        if (progressRef.current) {
-          progressRef.current.style.width = `${pct}%`
-          progressRef.current.setAttribute('aria-valuenow', Math.round(pct).toString())
+        if (barRef.current) {
+          barRef.current.style.width = `${pct}%`
+          barRef.current.setAttribute('aria-valuenow', Math.round(pct).toString())
         }
 
         // GA4 — article_lu_75 (event canonique Heldonica)
@@ -40,9 +39,9 @@ export default function ReadingProgress() {
           }
         }
       } else {
-        if (progressRef.current) {
-          progressRef.current.style.width = `0%`
-          progressRef.current.setAttribute('aria-valuenow', '0')
+        if (barRef.current) {
+          barRef.current.style.width = `0%`
+          barRef.current.setAttribute('aria-valuenow', '0')
         }
       }
       ticking = false;
@@ -75,10 +74,10 @@ export default function ReadingProgress() {
 
   return (
     <div
-      ref={progressRef}
+      ref={barRef}
       className="fixed top-0 left-0 z-[100] h-[3px] transition-all duration-100 ease-out"
       style={{ 
-        width: `0%`,
+        width: '0%',
         backgroundColor: SCROLL_COLOR,
       }}
       role="progressbar"
