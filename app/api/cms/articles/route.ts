@@ -36,6 +36,11 @@ function withoutVoiceNotes(payload: Record<string, unknown>) {
   return rest
 }
 
+function withoutSlowTaxonomy(payload: Record<string, unknown>) {
+  const { season, mobility, budget_level, duration, carbon_footprint, ...rest } = payload
+  return rest
+}
+
 export const dynamic = 'force-dynamic'
 
 export async function GET(req: Request) {
@@ -65,6 +70,8 @@ export async function GET(req: Request) {
     query = query.eq('published', false).or('status.eq.draft,status.is.null')
   } else if (status === 'scheduled') {
     query = query.or('status.eq.scheduled,scheduled_published_at.not.is.null')
+  } else if (status === 'review') {
+    query = query.eq('published', false).eq('status', 'review')
   }
   if (search) {
     const esc = search.replace(/[\\%_]/g, m => `\\${m}`)
@@ -78,6 +85,8 @@ export async function GET(req: Request) {
     ...post,
     status: post.published === true || post.status === 'published'
       ? 'published'
+      : post.status === 'review'
+      ? 'review'
       : (post.status === 'scheduled' || post.scheduled_published_at ? 'scheduled' : 'draft'),
   }))
 
@@ -99,6 +108,9 @@ export async function POST(req: Request) {
   } else if (body.status === 'scheduled') {
     payload.published = false;
     payload.status = 'scheduled';
+  } else if (body.status === 'review') {
+    payload.published = false;
+    payload.status = 'review';
   } else {
     payload.published = false;
     payload.status = 'draft';
@@ -115,6 +127,20 @@ export async function POST(req: Request) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;({ data, error } = await (sb.from('cms_blog_posts') as any)
       .insert([withoutVoiceNotes(payload)])
+      .select()
+      .single())
+  }
+
+  if (error?.message && (
+    error.message.includes('season') ||
+    error.message.includes('mobility') ||
+    error.message.includes('budget_level') ||
+    error.message.includes('duration') ||
+    error.message.includes('carbon_footprint')
+  ) && error.message.includes('does not exist')) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;({ data, error } = await (sb.from('cms_blog_posts') as any)
+      .insert([withoutSlowTaxonomy(withoutVoiceNotes(payload))])
       .select()
       .single())
   }

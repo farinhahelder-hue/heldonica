@@ -169,6 +169,12 @@ ou la production : les remplir quand c'est le cas.
 - Nettoyer l'inbox à plusieurs en même temps : un seul nettoyeur par tranche
   horaire (le 08/10, deux nettoyeurs simultanés ont posé des statuts inverses
   sur les mêmes fiches). On se coordonne avant de toucher aux statuts.
+- Lancer `npm install` / `npm ci` à plusieurs dans le même `node_modules` :
+  le 08/10, deux installs entrelacés ont produit un arbre Frankenstein
+  (fichiers manquants, `.d.ts` fantômes, erreurs tsc contradictoires entre
+  deux runs) + un bump furtif vite 8.0.8 → 8.3.4 hors lock. Un seul écrivain
+  npm à la fois, jamais de bump majeur sans fiche, migration du code
+  et suite verte sur install propre.
 
 ## Garde-fous CI (doivent rester au vert)
 

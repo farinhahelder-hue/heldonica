@@ -355,6 +355,7 @@ export default function ArticleForm({ articleId, onSave, onCancel }: ArticleForm
               className="w-full px-4 py-2.5 border border-stone-200 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-eucalyptus text-sm"
             >
               <option value="draft">Brouillon</option>
+              <option value="review">En relecture</option>
               <option value="scheduled">Programmé</option>
               <option value="published">Publié</option>
             </select>

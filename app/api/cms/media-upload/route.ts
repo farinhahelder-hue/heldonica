@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireCmsAuth } from '@/lib/cms-auth';
+import { extractPhotoExif } from '@/lib/photo-exif';
 
 const BUCKET = 'media';
 
@@ -32,8 +33,10 @@ export async function POST(req: NextRequest) {
 
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
+    const exif = await extractPhotoExif(buffer, file.name);
+
     const sb = supabaseAdmin();
-    if (!sb) return NextResponse.json({ error: 'DB unavailable' }, { status: 503 })
+    if (!sb) return NextResponse.json({ error: 'DB unavailable' }, { status: 503 });
 
     const { error } = await sb.storage.from(BUCKET).upload(path, buffer, {
       contentType: file.type || `image/${ext}`,
@@ -42,7 +45,13 @@ export async function POST(req: NextRequest) {
     if (error) throw new Error(error.message);
 
     const { data: urlData } = sb.storage.from(BUCKET).getPublicUrl(path);
-    return NextResponse.json({ url: urlData.publicUrl, key: path });
+    return NextResponse.json({
+      url: urlData.publicUrl,
+      key: path,
+      exif,
+      isStockCandidate: exif.isStockCandidate,
+      stockReasons: exif.stockReasons,
+    });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: message }, { status: 500 });

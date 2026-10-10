@@ -73,3 +73,12 @@ vision_cache.db*
 *.db
 *.db-wal
 *.db-shm
+
+# Fichiers scratch temporaires locaux
+push_tasks.js
+test-media.js
+list-supabase.js
+run_bridges.bat
+screen_phone.png
+logs/
+output/
