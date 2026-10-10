@@ -9,3 +9,7 @@ Optimized blog index page with Incremental Static Regeneration (ISR) with 60 sec
 ## 2026-10-07 - Scroll Event Throttling with requestAnimationFrame
 **Learning:** Listening to 'scroll' events and synchronously updating React state inside them causes excessive re-renders, blocks the main thread, and leads to janky scrolling.
 **Action:** Always use the `requestAnimationFrame` ticking pattern (setting a boolean flag to prevent queuing multiple frames) to throttle state updates linked to scroll listeners, deferring the work to the browser's render cycle.
+
+## 2026-10-10 - Scroll Event Throttling with requestAnimationFrame
+**Learning:** Listening to 'scroll' events and synchronously updating React state inside them causes excessive re-renders, blocks the main thread, and leads to janky scrolling.
+**Action:** Always use the `requestAnimationFrame` ticking pattern (setting a boolean flag to prevent queuing multiple frames) along with a `useRef` to update style manually to throttle state updates linked to scroll listeners, deferring the work to the browser's render cycle.

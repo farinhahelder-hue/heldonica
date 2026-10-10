@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState, useDeferredValue } from 'react'
+import { useEffect, useMemo, useState, useDeferredValue, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import NewsletterForm from '@/components/NewsletterForm'
@@ -41,7 +41,7 @@ interface Props {
 }
 
 function ReadProgressBar() {
-  const [progress, setProgress] = useState(0)
+  const progressRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     let ticking = false;
@@ -50,7 +50,11 @@ function ReadProgressBar() {
       const scrollTop = window.scrollY
       const docHeight = document.documentElement.scrollHeight - window.innerHeight
       const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0
-      setProgress(pct)
+
+      if (progressRef.current) {
+        progressRef.current.style.width = `${pct}%`
+        progressRef.current.setAttribute('aria-valuenow', Math.round(pct).toString())
+      }
       ticking = false;
     }
 
@@ -73,10 +77,11 @@ function ReadProgressBar() {
 
   return (
     <div
+      ref={progressRef}
       className="fixed top-0 left-0 z-[60] h-[3px] bg-eucalyptus transition-all duration-100"
-      style={{ width: `${progress}%` }}
+      style={{ width: `0%` }}
       role="progressbar"
-      aria-valuenow={Math.round(progress)}
+      aria-valuenow={0}
       aria-valuemin={0}
       aria-valuemax={100}
     />
