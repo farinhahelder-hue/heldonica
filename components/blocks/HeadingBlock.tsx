@@ -1,5 +1,6 @@
 import React from 'react';
 import type { HeadingBlock as HeadingBlockType } from '@/types/cms-blocks';
+import { slugify } from './TableOfContentsBlock';
 
 interface Props {
   block: HeadingBlockType;
@@ -9,20 +10,21 @@ interface Props {
 export function HeadingBlock({ block, className = '' }: Props) {
   const { level, text, subtitle } = block;
 
-  const baseHeadingStyles = "font-serif text-charcoal tracking-tight font-medium";
+  const baseHeadingStyles = "font-serif text-charcoal tracking-tight font-medium scroll-mt-24";
+  const headingId = slugify(text);
 
   const renderHeading = () => {
     switch (level) {
       case 1:
         return (
-          <h1 className={`text-3xl md:text-5xl lg:text-6xl mb-3 ${baseHeadingStyles}`}>
+          <h1 id={headingId} className={`text-3xl md:text-5xl lg:text-6xl mb-3 ${baseHeadingStyles}`}>
             {text}
           </h1>
         );
       case 2:
         return (
           <div className="relative my-8">
-            <h2 className={`text-2xl md:text-3xl lg:text-4xl mb-2 ${baseHeadingStyles} border-b border-stone-100 pb-3 flex items-center gap-3`}>
+            <h2 id={headingId} className={`text-2xl md:text-3xl lg:text-4xl mb-2 ${baseHeadingStyles} border-b border-stone-100 pb-3 flex items-center gap-3`}>
               <span className="w-1.5 h-6 bg-terracotta/80 rounded-full inline-block" />
               <span>{text}</span>
             </h2>
@@ -30,19 +32,19 @@ export function HeadingBlock({ block, className = '' }: Props) {
         );
       case 3:
         return (
-          <h3 className={`text-xl md:text-2xl mt-6 mb-2 ${baseHeadingStyles} text-stone-800`}>
+          <h3 id={headingId} className={`text-xl md:text-2xl mt-6 mb-2 ${baseHeadingStyles} text-stone-800`}>
             {text}
           </h3>
         );
       case 4:
         return (
-          <h4 className={`text-lg md:text-xl mt-4 mb-2 ${baseHeadingStyles} text-stone-700`}>
+          <h4 id={headingId} className={`text-lg md:text-xl mt-4 mb-2 ${baseHeadingStyles} text-stone-700`}>
             {text}
           </h4>
         );
       default:
         return (
-          <h2 className={`text-2xl md:text-3xl mb-2 ${baseHeadingStyles}`}>
+          <h2 id={headingId} className={`text-2xl md:text-3xl mb-2 ${baseHeadingStyles}`}>
             {text}
           </h2>
         );

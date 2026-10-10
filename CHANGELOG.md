@@ -4,6 +4,28 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-10-10] — Phase 12 : Blocs Éditioriaux Avancés, Suggestion RAG Temps Réel & Carnets Enrichis
+
+### Réalisations & Nouveaux Modules
+1. **Blocs CMS Modulaires Avancés (`components/blocks/`)** :
+   - `MapBlock` : Carte interactive OpenStreetMap / Leaflet sans clé API payante avec marqueurs certifiés et tracés d'itinéraires doux.
+   - `TableOfContentsBlock` : Sommaire dynamique généré à la volée depuis les titres H2/H3 (`HeadingBlock`) avec slugification d'ancres et défilement fluide.
+   - `HospitalitySpotBlock` : Carte d'identité hébergement éthique et slow travel avec microdonnées structurées Schema.org (`LodgingBusiness`), atouts écologiques et lien de réservation directe sans intermédiaire.
+2. **Assistant d'Écriture RAG en Temps Réel (`lib/cms-vault-suggest.ts`)** :
+   - Détection contextuelle proactive des 88 pépites de terrain du Coffre des Savoirs au fil de la saisie dans le canevas de blocs (`BlockCanvas.tsx`).
+   - Popover d'insertion immédiate avec citation vécue et géolocalisation.
+3. **Migration 1-Clic & Système de Révisions Sécurisé (`components/admin/ArticleMigrateToBlocksModal.tsx`)** :
+   - Modal d'aperçu et de conversion de tout article existant en blocs modulaires.
+   - Snapshot automatique de sauvegarde de secours (`lib/cms-revisions.ts`) avant application.
+4. **Enrichissement de Contenu de Terrain Certifié (`content/articles/`)** :
+   - 3 carnets de route complets adossés aux preuves photographiques réelles : *Stoos (Suisse)*, *Madère (Fanal & Achadas da Cruz)*, et *Podgorica (Monténégro)*.
+   - Expansion du registre du Coffre (`lib/cms-vault-spots.ts`) de 78 à 88 pépites certifiées.
+5. **Garde-fous & Tests** :
+   - 6 nouvelles suites de tests unitaires Vitest ajoutées (`MapBlock`, `TableOfContentsBlock`, `HospitalitySpotBlock`, `ArticleMigrateToBlocksModal`, `cms-vault-spots`, `cms-vault-suggest`).
+   - Garde-fous CI pré-vol 5/5 PASS, 100% vert.
+
+---
+
 ## [2026-10-10] — Phase 11 : Automatisation & Enrichissement Éditorial par Preuves Photos & Questions IA
 
 ### Réalisations & Nouveaux Modules (Options A, B & C)

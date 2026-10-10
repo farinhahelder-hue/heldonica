@@ -13,6 +13,9 @@ import type {
   VideoBlock,
   VaultSpotBlock,
   PhotoEvidenceBlock,
+  MapBlock,
+  TableOfContentsBlock,
+  HospitalitySpotBlock,
   BlockSpacing,
   BlockTheme,
 } from '@/types/cms-blocks';
@@ -43,10 +46,14 @@ import {
   CheckCircle2,
   ShieldAlert,
   Mic,
+  MapPin,
+  ListTree,
+  Home,
 } from 'lucide-react';
 import { VERIFIED_PHOTO_ALBUMS, type PhotoEvidenceItem } from '@/lib/cms-photo-albums';
 import { getCmsTemplates, instantiateCmsTemplate, type CmsTemplateId } from '@/lib/cms-templates';
 import { searchVaultSpots, getAllVaultSpots, type VaultSpotRecord } from '@/lib/cms-vault-spots';
+import { suggestVaultSpotsForContent } from '@/lib/cms-vault-suggest';
 import { lintCanvasBlocks } from '@/lib/cms-brand-linter';
 import { auditCanvasA11y } from '@/lib/cms-a11y';
 import PhotoPickerModal, { type SelectedPhotoPayload } from '@/components/admin/media/PhotoPickerModal';
@@ -70,6 +77,9 @@ const BLOCK_TYPES_CONFIG: { type: BlockType; label: string; icon: React.ElementT
   { type: 'list', label: 'Liste / Checklist', icon: ListOrdered, description: 'Puces, numéros ou checklist voyage' },
   { type: 'vault_spot', label: 'Pépite du Coffre', icon: Sparkles, description: 'Encadré lié au Coffre des Savoirs RAG' },
   { type: 'photo_evidence', label: 'Preuve photo', icon: Camera, description: 'Photo + lieu, date, anecdote et album' },
+  { type: 'map', label: 'Carte & Repères', icon: MapPin, description: 'Balade avec étapes géolocalisées' },
+  { type: 'table_of_contents', label: 'Sommaire interactif', icon: ListTree, description: 'Table des matières calculée sur les titres H2/H3' },
+  { type: 'hospitality_spot', label: 'Hébergement Éthique', icon: Home, description: 'Chambre d’hôtes ou hôtel slow travel avec critères' },
 ];
 
 export function BlockCanvas({ blocks, onChange, className = '' }: BlockCanvasProps) {
@@ -89,6 +99,44 @@ export function BlockCanvas({ blocks, onChange, className = '' }: BlockCanvasPro
 
   // Audit d'accessibilité WCAG 2.1 (A11y)
   const a11yReport = useMemo(() => auditCanvasA11y(blocks), [blocks]);
+
+  // Suggestions contextuelles Coffre des Savoirs RAG
+  const [dismissedSuggestions, setDismissedSuggestions] = useState<Set<string>>(new Set());
+
+  const vaultSuggestions = useMemo(() => {
+    const allText = blocks
+      .filter((b) => b.type === 'text' || b.type === 'heading')
+      .map((b) => {
+        if (b.type === 'text') return (b as TextBlock).content;
+        if (b.type === 'heading') return (b as HeadingBlock).text + ' ' + ((b as HeadingBlock).subtitle || '');
+        return '';
+      })
+      .join(' ');
+
+    const suggestions = suggestVaultSpotsForContent(allText, blocks);
+    return suggestions.filter((s) => !dismissedSuggestions.has(s.id));
+  }, [blocks, dismissedSuggestions]);
+
+  const insertSuggestedSpot = (spot: VaultSpotRecord) => {
+    const newBlock: VaultSpotBlock = {
+      id: `blk_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
+      type: 'vault_spot',
+      spotId: spot.id,
+      title: spot.title,
+      location: spot.location,
+      livedExperience: spot.livedExperience,
+    };
+    onChange([newBlock, ...blocks]);
+    const newDismissed = new Set(dismissedSuggestions);
+    newDismissed.add(spot.id);
+    setDismissedSuggestions(newDismissed);
+  };
+
+  const dismissSuggestion = (spotId: string) => {
+    const newDismissed = new Set(dismissedSuggestions);
+    newDismissed.add(spotId);
+    setDismissedSuggestions(newDismissed);
+  };
 
   const handleApplyTemplate = (templateId: CmsTemplateId, mode: 'replace' | 'append') => {
     const newBlocks = instantiateCmsTemplate(templateId);
@@ -236,6 +284,47 @@ export function BlockCanvas({ blocks, onChange, className = '' }: BlockCanvasPro
 
   return (
     <div className={`space-y-6 ${className}`}>
+      {/* Suggestions intelligentes du Coffre des Savoirs RAG */}
+      {vaultSuggestions.length > 0 && (
+        <div className="space-y-3">
+          {vaultSuggestions.map((spot) => (
+            <div key={spot.id} className="flex items-center justify-between p-3.5 bg-amber-50/90 border border-amber-200 rounded-2xl shadow-2xs animate-in fade-in slide-in-from-top-2">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-amber-100 rounded-xl text-amber-800">
+                  <Sparkles size={16} />
+                </div>
+                <div>
+                  <h4 className="text-xs font-semibold text-amber-950 flex items-center gap-2">
+                    💡 Pépite du Coffre détectée pour {spot.location}
+                    <span className="text-[10px] bg-white text-amber-800 px-2 py-0.5 rounded-full border border-amber-200 font-mono">
+                      {spot.id}
+                    </span>
+                  </h4>
+                  <p className="text-xs text-amber-800/80 mt-0.5">
+                    Insérer l'encadré certifié « {spot.title} » ?
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => insertSuggestedSpot(spot)}
+                  className="px-3 py-1.5 bg-amber-700 hover:bg-amber-800 text-white text-xs font-semibold rounded-xl shadow-xs transition-colors"
+                >
+                  Insérer la pépite
+                </button>
+                <button
+                  type="button"
+                  onClick={() => dismissSuggestion(spot.id)}
+                  className="px-3 py-1.5 bg-white hover:bg-stone-50 border border-stone-200 text-stone-600 text-xs font-medium rounded-xl transition-colors"
+                >
+                  Ignorer
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
       {/* Barre d'outils d'ajout rapide au sommet */}
       <div className="bg-white border border-stone-200 rounded-2xl p-4 shadow-sm">
         <div className="flex items-center justify-between mb-3">
@@ -638,6 +727,15 @@ export function BlockCanvas({ blocks, onChange, className = '' }: BlockCanvasPro
                   )}
                   {block.type === 'photo_evidence' && (
                     <PhotoEvidenceEditor block={block} onUpdate={(p) => updateBlock(block.id, p)} />
+                  )}
+                  {block.type === 'map' && (
+                    <MapBlockEditor block={block} onUpdate={(p) => updateBlock(block.id, p)} />
+                  )}
+                  {block.type === 'table_of_contents' && (
+                    <TableOfContentsEditor block={block} allBlocks={blocks} onUpdate={(p) => updateBlock(block.id, p)} />
+                  )}
+                  {block.type === 'hospitality_spot' && (
+                    <HospitalitySpotEditor block={block} onUpdate={(p) => updateBlock(block.id, p)} />
                   )}
                 </div>
               </div>
@@ -1638,6 +1736,369 @@ function PhotoEvidenceEditor({
           });
         }}
       />
+    </div>
+  );
+}
+
+
+
+function MapBlockEditor({
+  block,
+  onUpdate,
+}: {
+  block: MapBlock;
+  onUpdate: (p: Partial<MapBlock>) => void;
+}) {
+  const addMarker = () => {
+    const newMarker = {
+      id: `mk_${Math.random().toString(36).slice(2, 6)}`,
+      lat: block.center?.lat || 48.8566,
+      lng: block.center?.lng || 2.3522,
+      label: 'Nouveau point',
+    };
+    onUpdate({ markers: [...(block.markers || []), newMarker] });
+  };
+
+  const removeMarker = (id: string) => {
+    onUpdate({ markers: (block.markers || []).filter((m) => m.id !== id) });
+  };
+
+  const updateMarker = (id: string, data: Partial<{ lat: number; lng: number; label: string; description: string }>) => {
+    onUpdate({
+      markers: (block.markers || []).map((m) => (m.id === id ? { ...m, ...data } : m)),
+    });
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <label className="block text-[11px] font-semibold text-stone-600 mb-1">Centre Latitude</label>
+          <input
+            type="number"
+            step="0.000001"
+            value={block.center?.lat || 0}
+            onChange={(e) => onUpdate({ center: { ...block.center, lat: parseFloat(e.target.value) || 0 } })}
+            className="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-800"
+          />
+        </div>
+        <div>
+          <label className="block text-[11px] font-semibold text-stone-600 mb-1">Centre Longitude</label>
+          <input
+            type="number"
+            step="0.000001"
+            value={block.center?.lng || 0}
+            onChange={(e) => onUpdate({ center: { ...block.center, lng: parseFloat(e.target.value) || 0 } })}
+            className="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-800"
+          />
+        </div>
+        <div>
+          <label className="block text-[11px] font-semibold text-stone-600 mb-1">Zoom (1-18)</label>
+          <input
+            type="number"
+            min="1"
+            max="18"
+            value={block.zoom || 13}
+            onChange={(e) => onUpdate({ zoom: parseInt(e.target.value, 10) || 13 })}
+            className="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-800"
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <div className="flex-1">
+          <label className="block text-[11px] font-semibold text-stone-600 mb-1">Style de la carte</label>
+          <select
+            value={block.mapStyle || 'minimal'}
+            onChange={(e) => onUpdate({ mapStyle: e.target.value as 'topo' | 'minimal' | 'voyage' })}
+            className="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-800 focus:outline-none focus:border-amber-500"
+          >
+            <option value="minimal">Minimal (Épuré)</option>
+            <option value="topo">Topographique</option>
+            <option value="voyage">Voyage (Chaud)</option>
+          </select>
+        </div>
+        <div className="flex-[2] w-full">
+          <label className="block text-[11px] font-semibold text-stone-600 mb-1">Légende</label>
+          <input
+            type="text"
+            value={block.caption || ''}
+            onChange={(e) => onUpdate({ caption: e.target.value })}
+            placeholder="Ex: Itinéraire d'une journée..."
+            className="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-800 focus:outline-none focus:border-amber-500"
+          />
+        </div>
+      </div>
+
+      <div className="pt-2">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-[11px] font-semibold text-stone-600 uppercase tracking-wider">
+            Points d'intérêt ({(block.markers || []).length})
+          </span>
+          <button
+            type="button"
+            onClick={addMarker}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium bg-stone-900 hover:bg-black text-white rounded-lg transition-colors"
+          >
+            <Plus size={13} /> Ajouter
+          </button>
+        </div>
+
+        <div className="space-y-3">
+          {(block.markers || []).map((marker) => (
+            <div key={marker.id} className="p-3 bg-stone-50 rounded-xl border border-stone-200 flex gap-3">
+              <div className="flex-1 space-y-2">
+                <input
+                  type="text"
+                  value={marker.label}
+                  onChange={(e) => updateMarker(marker.id, { label: e.target.value })}
+                  placeholder="Nom du lieu..."
+                  className="w-full bg-white border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-800 font-semibold focus:outline-none focus:border-amber-500"
+                />
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    step="0.000001"
+                    value={marker.lat}
+                    onChange={(e) => updateMarker(marker.id, { lat: parseFloat(e.target.value) })}
+                    placeholder="Latitude"
+                    className="w-1/2 bg-white border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-800 focus:outline-none focus:border-amber-500"
+                  />
+                  <input
+                    type="number"
+                    step="0.000001"
+                    value={marker.lng}
+                    onChange={(e) => updateMarker(marker.id, { lng: parseFloat(e.target.value) })}
+                    placeholder="Longitude"
+                    className="w-1/2 bg-white border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-800 focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+                <input
+                  type="text"
+                  value={marker.description || ''}
+                  onChange={(e) => updateMarker(marker.id, { description: e.target.value })}
+                  placeholder="Petite description ou anecdote..."
+                  className="w-full bg-white border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-800 italic focus:outline-none focus:border-amber-500"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => removeMarker(marker.id)}
+                className="text-stone-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors flex-shrink-0 self-start"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+          ))}
+          {(block.markers || []).length === 0 && (
+            <div className="text-center py-4 bg-stone-50 rounded-xl border border-stone-200 border-dashed text-xs text-stone-500">
+              Aucun point d'intérêt ajouté sur cette carte.
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TableOfContentsEditor({
+  block,
+  allBlocks,
+  onUpdate,
+}: {
+  block: import('@/types/cms-blocks').TableOfContentsBlock;
+  allBlocks: CmsBlock[];
+  onUpdate: (p: Partial<import('@/types/cms-blocks').TableOfContentsBlock>) => void;
+}) {
+  const maxLevel = block.maxLevel || 2;
+  const headings = allBlocks.filter(
+    (b): b is HeadingBlock => b.type === 'heading' && b.level <= maxLevel
+  );
+
+  return (
+    <div className="space-y-4 bg-stone-50/40 p-4 rounded-xl border border-stone-200">
+      <div className="flex items-center gap-2 mb-3">
+        <ListTree size={16} className="text-stone-600" />
+        <span className="text-sm font-semibold text-stone-800">Configuration du Sommaire</span>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-xs font-semibold text-stone-700 mb-1">Titre du sommaire</label>
+          <input
+            type="text"
+            value={block.title || ''}
+            onChange={(e) => onUpdate({ title: e.target.value })}
+            placeholder="Ex: Au fil du carnet..."
+            className="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-800 focus:outline-none focus:border-amber-500"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-stone-700 mb-1">Niveau de profondeur (H2 ou H3)</label>
+          <select
+            value={block.maxLevel || 2}
+            onChange={(e) => onUpdate({ maxLevel: parseInt(e.target.value, 10) as 2 | 3 })}
+            className="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-800 focus:outline-none focus:border-amber-500"
+          >
+            <option value={2}>H2 uniquement</option>
+            <option value={3}>H2 et H3</option>
+          </select>
+        </div>
+
+        <div className="md:col-span-2">
+          <label className="block text-xs font-semibold text-stone-700 mb-1">Style visuel</label>
+          <select
+            value={block.displayStyle || 'numbered'}
+            onChange={(e) => onUpdate({ displayStyle: e.target.value as 'list' | 'numbered' | 'cards' })}
+            className="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-800 focus:outline-none focus:border-amber-500"
+          >
+            <option value="numbered">Liste numérotée (1, 2, 3...)</option>
+            <option value="list">Liste à puces simple</option>
+            <option value="cards">Cartes horizontales</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="mt-4 pt-4 border-t border-stone-200">
+        <h4 className="text-xs font-semibold text-stone-600 mb-2">Aperçu en direct des titres détectés ({headings.length}) :</h4>
+        {headings.length > 0 ? (
+          <ul className="space-y-1">
+            {headings.map((h) => (
+              <li
+                key={h.id}
+                className={`text-xs text-stone-700 ${h.level === 3 ? 'pl-4 text-stone-500' : 'font-medium'}`}
+              >
+                {h.level === 2 ? '• ' : '◦ '} {h.text}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-xs text-stone-400 italic">Aucun titre H1-H{maxLevel} détecté dans le carnet.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function HospitalitySpotEditor({
+  block,
+  onUpdate,
+}: {
+  block: HospitalitySpotBlock;
+  onUpdate: (p: Partial<HospitalitySpotBlock>) => void;
+}) {
+  return (
+    <div className="space-y-4 bg-amber-50/50 p-4 rounded-xl border border-amber-100">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-stone-600 uppercase tracking-wider">Nom du lieu</label>
+          <input
+            type="text"
+            value={block.name}
+            onChange={(e) => onUpdate({ name: e.target.value })}
+            placeholder="Ex: Auberge du Val Sauvage"
+            className="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-sm text-stone-800 focus:outline-none focus:border-amber-500"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-stone-600 uppercase tracking-wider">Localisation</label>
+          <input
+            type="text"
+            value={block.location}
+            onChange={(e) => onUpdate({ location: e.target.value })}
+            placeholder="Ex: Murol, Massif Central"
+            className="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-sm text-stone-800 focus:outline-none focus:border-amber-500"
+          />
+        </div>
+      </div>
+      
+      <div className="space-y-1.5">
+        <label className="text-xs font-semibold text-stone-600 uppercase tracking-wider">Nom de l'hôte (optionnel)</label>
+        <input
+          type="text"
+          value={block.hostName || ''}
+          onChange={(e) => onUpdate({ hostName: e.target.value })}
+          placeholder="Ex: Marie et Pierre"
+          className="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-sm text-stone-800 focus:outline-none focus:border-amber-500"
+        />
+      </div>
+      
+      <div className="space-y-2">
+        <label className="text-xs font-semibold text-stone-600 uppercase tracking-wider">Critères éthiques validés</label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-white p-3 rounded-xl border border-stone-200">
+          <label className="flex items-center gap-2 text-sm text-stone-700 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={block.ethicalCriteria.localFood}
+              onChange={(e) => onUpdate({ ethicalCriteria: { ...block.ethicalCriteria, localFood: e.target.checked } })}
+              className="rounded text-amber-600 focus:ring-amber-500"
+            />
+            Produits ultra-locaux / fait maison
+          </label>
+          <label className="flex items-center gap-2 text-sm text-stone-700 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={block.ethicalCriteria.lowCarbonAccess}
+              onChange={(e) => onUpdate({ ethicalCriteria: { ...block.ethicalCriteria, lowCarbonAccess: e.target.checked } })}
+              className="rounded text-amber-600 focus:ring-amber-500"
+            />
+            Accessible train/bus ou vélos dispos
+          </label>
+          <label className="flex items-center gap-2 text-sm text-stone-700 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={block.ethicalCriteria.quietAtmosphere}
+              onChange={(e) => onUpdate({ ethicalCriteria: { ...block.ethicalCriteria, quietAtmosphere: e.target.checked } })}
+              className="rounded text-amber-600 focus:ring-amber-500"
+            />
+            Pas de nuisances sonores, déconnexion
+          </label>
+          <label className="flex items-center gap-2 text-sm text-stone-700 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={block.ethicalCriteria.fairPricing}
+              onChange={(e) => onUpdate({ ethicalCriteria: { ...block.ethicalCriteria, fairPricing: e.target.checked } })}
+              className="rounded text-amber-600 focus:ring-amber-500"
+            />
+            Tarifs équitables toute l'année
+          </label>
+        </div>
+      </div>
+      
+      <div className="space-y-1.5">
+        <label className="text-xs font-semibold text-stone-600 uppercase tracking-wider">Anecdote vécue</label>
+        <textarea
+          rows={3}
+          value={block.livedAnecdote || ''}
+          onChange={(e) => onUpdate({ livedAnecdote: e.target.value })}
+          placeholder="L'expérience vécue par les fondateurs..."
+          className="w-full bg-white border border-stone-200 rounded-xl p-3 text-sm text-stone-800 italic leading-relaxed focus:outline-none focus:border-amber-500"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-stone-600 uppercase tracking-wider">Indication de prix (optionnel)</label>
+          <input
+            type="text"
+            value={block.priceIndication || ''}
+            onChange={(e) => onUpdate({ priceIndication: e.target.value })}
+            placeholder="Ex: 120 - 150 € la nuit avec petit-déjeuner"
+            className="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-sm text-stone-800 focus:outline-none focus:border-amber-500"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-stone-600 uppercase tracking-wider">Lien de réservation directe</label>
+          <input
+            type="url"
+            value={block.directBookingUrl || ''}
+            onChange={(e) => onUpdate({ directBookingUrl: e.target.value })}
+            placeholder="Ex: https://auberge-val-sauvage.com"
+            className="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-sm text-stone-800 focus:outline-none focus:border-amber-500"
+          />
+        </div>
+      </div>
     </div>
   );
 }

@@ -22,6 +22,7 @@ import PhotoEvidenceBlock from '@/components/PhotoEvidenceBlock';
 import RevisionsDrawer from '@/components/admin/RevisionsDrawer';
 import AgentsControlDrawer from '@/components/admin/AgentsControlDrawer';
 import ExportImportModal from '@/components/admin/ExportImportModal';
+import ArticleMigrateToBlocksModal from '@/components/admin/ArticleMigrateToBlocksModal';
 import { computeReadingMetrics } from '@/lib/cms-reading-metrics';
 import { VERIFIED_PHOTO_ALBUMS } from '@/lib/cms-photo-albums';
 import { htmlToBlocks, blocksToHtml } from '@/lib/cms-blocks-converter';
@@ -219,6 +220,7 @@ function CmsAdminClientInner() {
   const [isRevisionsDrawerOpen, setIsRevisionsDrawerOpen] = useState(false);
   const [isAgentsDrawerOpen, setIsAgentsDrawerOpen] = useState(false);
   const [isExportImportModalOpen, setIsExportImportModalOpen] = useState(false);
+  const [isMigrateModalOpen, setIsMigrateModalOpen] = useState(false);
   const [isArticleAlbumPickerOpen, setIsArticleAlbumPickerOpen] = useState(false);
   const [selectedArticleAlbumId, setSelectedArticleAlbumId] = useState<string>('montenegro-podgorica-2026');
 
@@ -1495,6 +1497,19 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                           >
                             🧱 Mode Blocs Visuel
                           </button>
+                          
+                          {/* Bouton de Migration vers Blocs Modulaires si l'article n'est pas encore en blocs */}
+                          {editingArticle?.content && !editingArticle.content.includes('<!-- heldonica:blocks') && (
+                            <button
+                              type="button"
+                              onClick={() => setIsMigrateModalOpen(true)}
+                              className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200 shadow-2xs"
+                              title="Migrer cet article classique en blocs modulaires"
+                            >
+                              ✨ Migrer en Blocs
+                            </button>
+                          )}
+
                           <button
                             type="button"
                             onClick={() => setContentEditorMode('classic')}
@@ -2369,6 +2384,34 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
         articleId={editingArticle?.id}
         articleTitle={editingArticle?.title}
         articleSlug={editingArticle?.slug}
+      />
+      <ArticleMigrateToBlocksModal
+        isOpen={isMigrateModalOpen}
+        onClose={() => setIsMigrateModalOpen(false)}
+        content={editingArticle?.content || ''}
+        onConfirm={async (blocks) => {
+          if (!editingArticle) return;
+          try {
+            const res = await fetch(`/api/cms/articles/${editingArticle.id}/revisions`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ label: 'Avant migration automatique en blocs' }),
+            });
+            if (!res.ok) {
+              console.warn('Impossible de créer la révision préalable, poursuite de la conversion');
+            }
+            const html = blocksToHtml(blocks);
+            setActiveCmsBlocks(blocks);
+            setEditingArticle((prev) => (prev ? { ...prev, content: html } : prev));
+            setContentEditorMode('blocks');
+            setIsDirty(true);
+            setIsMigrateModalOpen(false);
+            toast('Migration réussie et sauvegarde effectuée', 'success');
+          } catch (e) {
+            console.error(e);
+            toast('Erreur lors de la migration', 'error');
+          }
+        }}
       />
       {editingArticle && (
         <ExportImportModal
