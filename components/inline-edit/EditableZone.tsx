@@ -6,6 +6,7 @@ import { useEditableContext } from './InlineEditProvider'
 import AiImproveModal from './AiImproveModal'
 import dynamic from 'next/dynamic'
 import TiptapEditor from './TiptapEditor'
+import { sanitizeHtml } from '@/lib/sanitize-html'
 
 const MediaLibrary = dynamic(() => import('@/components/MediaLibrary'), { ssr: false })
 
@@ -92,7 +93,7 @@ export default function EditableZone({
     if (type === 'image') {
       return <ZoneImage src={content} className={className} />
     }
-    return <Tag className={className} dangerouslySetInnerHTML={{ __html: content }} />
+    return <Tag className={className} dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }} />
   }
 
   const renderViewMode = () => {
@@ -122,7 +123,7 @@ export default function EditableZone({
           {type === 'image' ? (
             <img src={value} alt="" className={className} loading="lazy" />
           ) : (
-            <Tag dangerouslySetInnerHTML={{ __html: value }} />
+            <Tag dangerouslySetInnerHTML={{ __html: sanitizeHtml(value) }} />
           )}
 
           {/* Crayon overlay button */}
