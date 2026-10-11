@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS cms_accommodations ( id uuid PRIMARY KEY );
+CREATE TABLE IF NOT EXISTS cms_api_tokens ( id uuid PRIMARY KEY );
+CREATE TABLE IF NOT EXISTS cms_audit_log ( id uuid PRIMARY KEY );
+CREATE TABLE IF NOT EXISTS cms_post_revisions ( id uuid PRIMARY KEY );
+CREATE TABLE IF NOT EXISTS cms_releases ( id uuid PRIMARY KEY );
+CREATE TABLE IF NOT EXISTS cms_webhook_deliveries ( id uuid PRIMARY KEY );
+CREATE TABLE IF NOT EXISTS cms_webhooks ( id uuid PRIMARY KEY );
+CREATE TABLE IF NOT EXISTS cms_zone_variants ( id uuid PRIMARY KEY );
+CREATE TABLE IF NOT EXISTS photo_blocks ( id uuid PRIMARY KEY );

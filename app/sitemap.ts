@@ -5,7 +5,7 @@ const BASE_URL = 'https://www.heldonica.fr'
 
 // Fallback image for articles without featured_image
 // TODO: Remplacer par les vrais visuels issus des prompts image (13 prompts prêts dans le plan de correction)
-const FALLBACK_IMAGE = 'https://www.heldonica.fr/og-default.jpg'
+const FALLBACK_IMAGE = `${BASE_URL}/og-default.jpg`
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Pages statiques principales
