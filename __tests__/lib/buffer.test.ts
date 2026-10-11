@@ -13,15 +13,27 @@ describe('buffer', () => {
     })
 
     it('should return URL with profile parameter when profileId is provided', () => {
+      // testing profileId being present
       expect(getBufferComposerUrl('12345')).toBe('https://publish.buffer.com/composer?profile=12345')
     })
 
     it('should handle empty string profileId', () => {
+      // testing empty profileId
       expect(getBufferComposerUrl('')).toBe('https://publish.buffer.com/composer')
     })
 
     it('should handle special characters in profileId', () => {
+      // testing special chars in profileId
       expect(getBufferComposerUrl('abc_123')).toBe('https://publish.buffer.com/composer?profile=abc_123')
+    })
+
+    it('should return base URL when profileId is undefined', () => {
+      expect(getBufferComposerUrl(undefined)).toBe('https://publish.buffer.com/composer')
+    })
+
+    it('should format URL with specific profile query param', () => {
+      const testProfileId = 'custom_test_id';
+      expect(getBufferComposerUrl(testProfileId)).toBe(`https://publish.buffer.com/composer?profile=${testProfileId}`)
     })
   })
 
