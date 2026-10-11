@@ -1,0 +1,3 @@
+export default function DestinationJsonLd({ destination }: any) {
+  return null;
+}
