@@ -4,6 +4,19 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-10-11] — Création du doc de positionnement éditorial concurrents
+
+### Réalisations
+1. **`docs/positionnement-editorial-concurrents.md` créé** — la version annoncée par la session n'existait pas dans le dépôt (vérifié : arbre `main`, historique du chemin, 400+ branches, GitHub Code Search → 0 résultat). Le document est donc une création, explicitement signalée comme telle en tête de fichier.
+2. **Contenu adossé aux seules sources vérifiables du dépôt** : `docs/RESEARCH_COMPETITIVE_AUDIT.md` (4 concurrents nommés + 1 archétype), `docs/RESEARCH_VEILLE_CONCURRENTIELLE_TRAVEL_PLANNERS.md` (4 typologies), guides de voix, `lib/brand-voice.ts`.
+3. **Marqueurs systématiques** `[OBSERVÉ]` / `[INTERPRÉTATION]` / `[INDISPONIBLE]` / `[NON VÉRIFIÉ]`. Aucune légende Instagram inventée : les 10 légendes × 15 acteurs sont `[INDISPONIBLE]` faute de source publique/capture.
+4. **Écart relevé** : le mot banni « parfait » cité par la consigne **n'est pas** dans `FORBIDDEN_WORDS` sur `main` (PR #528 ouverte pour l'ajouter). Documenté comme action à trancher.
+
+### Non vérifié
+- Panel réel limité à 4 acteurs nommés faute de liste des 15 ; légendes Instagram non collectables (accès bloqué, aucune capture fournie) ; garde-fous CI non exécutés (node_modules absent dans l'environnement de session).
+
+---
+
 ## [2026-10-10] — Phase 12 : Blocs Éditioriaux Avancés, Suggestion RAG Temps Réel & Carnets Enrichis
 
 ### Réalisations & Nouveaux Modules
