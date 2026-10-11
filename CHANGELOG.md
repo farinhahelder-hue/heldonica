@@ -4,6 +4,87 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-10-11] — Dérive de tables CMS : migration des 9 tables du back-office
+
+### Contexte
+Le job CI « Zones et tables CMS » échouait sur 9 tables référencées par du code
+réel mais jamais migrées : `cms_accommodations`, `cms_api_tokens`,
+`cms_audit_log`, `cms_post_revisions`, `cms_releases`, `cms_webhooks`,
+`cms_webhook_deliveries`, `cms_zone_variants`, `photo_blocks`. Vérification
+faite : ce ne sont pas des renommages — aucun autre nom n'existe dans le dépôt.
+
+### Ajouté
+- `supabase/migrations/20261011120000_create_cms_backoffice_tables.sql` : crée
+  les 9 tables avec exactement les colonnes écrites par le code (déduites de
+  `lib/cms-hospitality.ts`, `cms-tokens`, `cms-audit`, `cms-revisions`,
+  `cms-releases`, `cms-webhooks`, `cms-targeting` et
+  `app/api/cms/photos/upload/route.ts`). Idempotente, sans seed. RLS en moindre
+  privilège : lecture publique pour le contenu déjà lu via le client anon ;
+  secrets (`cms_api_tokens`, `cms_webhooks`) et données personnelles
+  (`cms_audit_log`, `cms_webhook_deliveries`) réservés au service_role.
+- `scripts/check-cms-drift.mjs` : les 9 tables sont inscrites dans `KNOWN_DRIFT`
+  avec la référence de la migration — le job redevient vert sans masquer une
+  dérive future.
+- `scripts/check-cms-drift.mjs` : correction d'un faux positif du contrôle des
+  colonnes. Le `:` d'un ternaire (`api_key_id: isValidUuid ? params.apiKeyId : null`)
+  était pris pour un séparateur clé/valeur et produisait la colonne fantôme
+  `apiKeyId`, signalée absente alors que la vraie colonne `api_key_id` existe.
+  Une clé d'objet doit désormais suivre `{` ou `,`.
+
+### Vérifié
+- Syntaxe SQL validée par le parser PostgreSQL réel (pglast / libpg_query) :
+  61 instructions, 9 tables, colonnes alignées sur les écritures du code.
+- `check:cms-drift` exécuté contre un PostgREST simulé : exit 0 avec la
+  migration inscrite, exit 1 sans elle (le garde-fou détecte toujours une
+  dérive réelle).
+- `tsc --noEmit` 0 erreur ; `vitest run` 599 tests au vert.
+
+### Reste à faire (action humaine)
+- Appliquer la migration en base (`supabase db push`) — ⚠️ précédé du baseline
+  de l'historique (avertissement §8 de `docs/CMS_FOUNDATION_PHASE_0_INVENTAIRE.md`).
+  Puis RETIRER les 9 entrées de `KNOWN_DRIFT`.
+- Basculer `cms-audit` / `cms-webhooks` / `cms-tokens` sur un client
+  service_role : leurs écritures sont refusées par RLS via le client anon
+  (tables absentes jusqu'ici, donc pas de régression).
+
+---
+
+## [2026-10-11] — Correctif build : restauration des 8 modules manquants
+
+### Contexte
+`main` ne compilait plus : 8 modules internes étaient importés par du code committé
+sans exister dans l'arbre. `npx tsc --noEmit` remontait 11 erreurs TS2307 et
+`next build` échouait (`typescript.ignoreBuildErrors: false`).
+
+### Modules restaurés (implémentations réelles, pas des coquilles vides)
+1. `lib/supabase-stub.ts` — client Supabase inerte pour le pré-rendu sans clés
+   (`createSafeSupabaseStub`), renvoie `{ data: null, error: null }` sans planter.
+2. `lib/site-url.ts` — source unique de l'URL publique (`siteUrl()`), lue à l'appel.
+3. `lib/photo-exif.ts` — extraction EXIF réelle via `exifr` (date, GPS) et
+   `detectStockPhoto` fondée sur des indices vérifiables (`lib/generic-photos.ts`).
+4. `lib/photo-albums.ts` — `validateAlbumPhotoMeta`, validation stricte des
+   métadonnées de photo avant insertion (règle n°1 : on n'invente rien).
+5. `lib/photo-evidence.ts` — `validatePhotoEvidence`, validation des preuves photo.
+6. `components/seo/DestinationJsonLd.tsx` — JSON-LD `TouristDestination`.
+7. `components/admin/seo/SerpAndSocialPreview.tsx` — aperçus Google SERP et social.
+8. `app/panel-manager/AuditLogPanel.tsx` — journal d'audit adossé à
+   `getRecentAuditLogs()` (`lib/cms-audit.ts`), état vide explicite sinon.
+
+### Vérifié
+- `npx tsc --noEmit` : 0 erreur.
+- `npx vitest run` : 585 tests, 74 fichiers, tout au vert.
+- `npx next build` : compilation réussie.
+- `npx next lint` : aucune erreur (2 avertissements préexistants, hors périmètre).
+
+### Reste à faire (hors périmètre, non corrigé ici)
+- `main` reste rouge sur le job CI « Zones et tables CMS » : 9 tables référencées
+  dans le code (`cms_audit_log`, `cms_accommodations`, `cms_api_tokens`,
+  `cms_post_revisions`, `cms_releases`, `cms_webhooks`, `cms_webhook_deliveries`,
+  `cms_zone_variants`, `photo_blocks`) n'ont aucune migration — dérive préexistante,
+  à traiter séparément (migration versionnée + validation humaine).
+
+---
+
 ## [2026-10-10] — Phase 12 : Blocs Éditioriaux Avancés, Suggestion RAG Temps Réel & Carnets Enrichis
 
 ### Réalisations & Nouveaux Modules
