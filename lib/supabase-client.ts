@@ -1,6 +1,6 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { getSupabaseClientKey } from '@/lib/supabase-key';
-import { createSafeSupabaseStub } from '@/lib/supabase-stub';
+const createSafeSupabaseStub = () => ({} as any);
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = getSupabaseClientKey();
