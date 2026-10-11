@@ -3,6 +3,21 @@ import {
   getRelatedArticlesByDestination, 
   DESTINATION_PATTERNS 
 } from '@/components/RelatedArticles'
+import React from 'react'
+import { render, screen } from '@testing-library/react'
+import RelatedArticles from '@/components/RelatedArticles'
+
+vi.mock('next/image', () => ({
+  default: (props: React.ImgHTMLAttributes<HTMLImageElement> & { fill?: boolean }) => {
+    const { fill, ...rest } = props
+    return <img data-fill={fill} {...rest} />
+  },
+}))
+
+vi.mock('@/lib/readingTime', () => ({
+  getReadingTime: vi.fn(() => 5),
+}))
+
 import type { BlogPost } from '@/lib/blog-supabase'
 
 const createMockArticle = (overrides: Partial<BlogPost> = {}): BlogPost => ({
@@ -114,5 +129,83 @@ describe('getRelatedArticlesByDestination - tag-based matching', () => {
     ]
     const result = getRelatedArticlesByDestination(articles, 'ROUMANIE')
     expect(result).toHaveLength(1)
+  })
+
+  it('should handle undefined excerpt and destination', () => {
+    const articles = [
+      createMockArticle({ slug: 'a1', title: 'Voyage en Roumanie', excerpt: undefined, destination: undefined }),
+    ]
+    const result = getRelatedArticlesByDestination(articles, 'roumanie')
+    expect(result).toHaveLength(1)
+  })
+
+  it('should return empty array when articles array is empty', () => {
+    const result = getRelatedArticlesByDestination([], 'roumanie')
+    expect(result).toHaveLength(0)
+  })
+
+  it('should return empty array when destinationSlug is empty', () => {
+    const articles = [
+      createMockArticle({ slug: 'a1', title: 'Voyage en Roumanie' }),
+    ]
+    const result = getRelatedArticlesByDestination(articles, '')
+    expect(result).toHaveLength(0)
+  })
+})
+
+
+describe('RelatedArticles component', () => {
+  it('should render nothing when articles array is empty', () => {
+    const { container } = render(<RelatedArticles articles={[]} destinationTitle="Roumanie" />)
+    expect(container.firstChild).toBeNull()
+  })
+
+  it('should render nothing when filtered articles array is empty', () => {
+    const articles = [createMockArticle({ slug: 'a1' })]
+    const { container } = render(<RelatedArticles articles={articles} destinationTitle="Roumanie" currentSlug="a1" />)
+    expect(container.firstChild).toBeNull()
+  })
+
+  it('should render correctly with provided articles', () => {
+    const articles = [
+      createMockArticle({ slug: 'a1', title: 'Article 1', category: 'Découvertes Locales' }),
+      createMockArticle({ slug: 'a2', title: 'Article 2', featured_image: '/test.jpg' }),
+    ]
+    render(<RelatedArticles articles={articles} destinationTitle="Roumanie" />)
+    expect(screen.getByText('Article 1')).toBeInTheDocument()
+    expect(screen.getByText('Article 2')).toBeInTheDocument()
+    expect(screen.getAllByText('5 min de lecture')).toHaveLength(2)
+  })
+
+  it('should filter out the current article based on currentSlug', () => {
+    const articles = [
+      createMockArticle({ slug: 'a1', title: 'Article 1' }),
+      createMockArticle({ slug: 'a2', title: 'Article 2' }),
+    ]
+    render(<RelatedArticles articles={articles} destinationTitle="Roumanie" currentSlug="a1" />)
+    expect(screen.queryByText('Article 1')).not.toBeInTheDocument()
+    expect(screen.getByText('Article 2')).toBeInTheDocument()
+  })
+
+  it('should display destination title when provided', () => {
+    const articles = [createMockArticle({ slug: 'a1' })]
+    render(<RelatedArticles articles={articles} destinationTitle="Roumanie" />)
+    expect(screen.getByText('Nos articles sur Roumanie')).toBeInTheDocument()
+  })
+
+  it('should display default title when destination title is empty', () => {
+    const articles = [createMockArticle({ slug: 'a1' })]
+    render(<RelatedArticles articles={articles} destinationTitle="" />)
+    expect(screen.getByText('Articles similaires')).toBeInTheDocument()
+  })
+
+  it('should handle articles without featured images', () => {
+    const articles = [
+      createMockArticle({ slug: 'a1', category: 'Découvertes Locales', featured_image: null }),
+      createMockArticle({ slug: 'a2', category: 'Other', featured_image: null }),
+    ]
+    render(<RelatedArticles articles={articles} destinationTitle="Roumanie" />)
+    // Both articles should render successfully and SVGs should be present
+    expect(document.querySelectorAll('svg')).toHaveLength(2)
   })
 })
