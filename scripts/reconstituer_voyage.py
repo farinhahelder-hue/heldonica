@@ -335,6 +335,20 @@ def rattacher_photos(photos, visites, positions):
     RAYON_PHOTO_KM — et si aucun ne l'est, la photo reste sans lieu (le GPS
     contredit la Timeline, on ne force pas). Sans GPS : au lieu ou l'on etait
     a cette heure-la."""
+
+
+    visite_par_jour = defaultdict(list)
+    for idx, v in enumerate(visites):
+        d = jour_local(v["debut"])
+        visite_par_jour[d].append((idx, v))
+        # Account for visits spanning across midnight by also appending to fin day
+        fin_d = jour_local(v["fin"])
+        if fin_d != d:
+            visite_par_jour[fin_d].append((idx, v))
+
+    position_par_jour = defaultdict(list)
+    for p in positions:
+        position_par_jour[jour_local(p[0])].append(p)
     for ph in photos:
         ph["lieu_index"] = None
         ph["rattachement"] = None
@@ -343,9 +357,10 @@ def rattacher_photos(photos, visites, positions):
             continue
         if ph["gps"]:
             meilleur, ecart = None, None
-            for idx, v in enumerate(visites):
-                if jour_local(v["debut"]) != jour_local(prise):
-                    continue
+
+            jour_prise = jour_local(prise)
+            visites_jour = visite_par_jour.get(jour_prise, [])
+            for idx, v in visites_jour:
                 d = distance_km(ph["gps"]["lat"], ph["gps"]["lon"], v["lat"], v["lon"])
                 if ecart is None or d < ecart:
                     meilleur, ecart = idx, d
@@ -356,9 +371,8 @@ def rattacher_photos(photos, visites, positions):
             # Loin de tout arret, mais sur la trace du jour ? (photo en chemin)
             jour = jour_local(prise)
             d_trace = None
-            for t, la, lo in positions:
-                if jour_local(t) != jour:
-                    continue
+            positions_jour = position_par_jour.get(jour, [])
+            for t, la, lo in positions_jour:
                 d = distance_km(ph["gps"]["lat"], ph["gps"]["lon"], la, lo)
                 if d_trace is None or d < d_trace:
                     d_trace = d
@@ -373,7 +387,9 @@ def rattacher_photos(photos, visites, positions):
             elif ecart is not None:
                 ph["rattachement"] = f"gps a {ecart:.1f} km du lieu le plus proche"
             continue
-        for idx, v in enumerate(visites):
+        jour_prise = jour_local(prise)
+        visites_jour = visite_par_jour.get(jour_prise, [])
+        for idx, v in visites_jour:
             if v["debut"] <= prise <= v["fin"]:
                 ph["lieu_index"] = idx
                 ph["rattachement"] = "heure"
