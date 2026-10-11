@@ -4,6 +4,46 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-10-11] — Dérive de tables CMS : migration des 9 tables du back-office
+
+### Contexte
+Le job CI « Zones et tables CMS » échouait sur 9 tables référencées par du code
+réel mais jamais migrées : `cms_accommodations`, `cms_api_tokens`,
+`cms_audit_log`, `cms_post_revisions`, `cms_releases`, `cms_webhooks`,
+`cms_webhook_deliveries`, `cms_zone_variants`, `photo_blocks`. Vérification
+faite : ce ne sont pas des renommages — aucun autre nom n'existe dans le dépôt.
+
+### Ajouté
+- `supabase/migrations/20261011120000_create_cms_backoffice_tables.sql` : crée
+  les 9 tables avec exactement les colonnes écrites par le code (déduites de
+  `lib/cms-hospitality.ts`, `cms-tokens`, `cms-audit`, `cms-revisions`,
+  `cms-releases`, `cms-webhooks`, `cms-targeting` et
+  `app/api/cms/photos/upload/route.ts`). Idempotente, sans seed. RLS en moindre
+  privilège : lecture publique pour le contenu déjà lu via le client anon ;
+  secrets (`cms_api_tokens`, `cms_webhooks`) et données personnelles
+  (`cms_audit_log`, `cms_webhook_deliveries`) réservés au service_role.
+- `scripts/check-cms-drift.mjs` : les 9 tables sont inscrites dans `KNOWN_DRIFT`
+  avec la référence de la migration — le job redevient vert sans masquer une
+  dérive future.
+
+### Vérifié
+- Syntaxe SQL validée par le parser PostgreSQL réel (pglast / libpg_query) :
+  61 instructions, 9 tables, colonnes alignées sur les écritures du code.
+- `check:cms-drift` exécuté contre un PostgREST simulé : exit 0 avec la
+  migration inscrite, exit 1 sans elle (le garde-fou détecte toujours une
+  dérive réelle).
+- `tsc --noEmit` 0 erreur ; `vitest run` 599 tests au vert.
+
+### Reste à faire (action humaine)
+- Appliquer la migration en base (`supabase db push`) — ⚠️ précédé du baseline
+  de l'historique (avertissement §8 de `docs/CMS_FOUNDATION_PHASE_0_INVENTAIRE.md`).
+  Puis RETIRER les 9 entrées de `KNOWN_DRIFT`.
+- Basculer `cms-audit` / `cms-webhooks` / `cms-tokens` sur un client
+  service_role : leurs écritures sont refusées par RLS via le client anon
+  (tables absentes jusqu'ici, donc pas de régression).
+
+---
+
 ## [2026-10-11] — Correctif build : restauration des 8 modules manquants
 
 ### Contexte
