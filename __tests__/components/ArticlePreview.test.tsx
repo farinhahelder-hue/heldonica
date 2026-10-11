@@ -17,7 +17,7 @@ describe('ArticlePreview', () => {
         open={true}
         title="Mon article test"
         excerpt="Un super résumé"
-        content="<p>Contenu HTML</p>"
+        content="<p>Contenu HTML</p><script>alert('xss')</script>"
         category="Slow Travel"
         author="Heldonica"
         featured_image="https://example.com/image.jpg"
@@ -29,6 +29,10 @@ describe('ArticlePreview', () => {
     expect(screen.getByText('Un super résumé')).toBeTruthy();
     expect(screen.getByText('Slow Travel')).toBeTruthy();
     expect(screen.getByText('Par Heldonica')).toBeTruthy();
+
+    const htmlContent = document.querySelector('.prose')?.innerHTML;
+    expect(htmlContent).toContain('<p>Contenu HTML</p>');
+    expect(htmlContent).not.toContain('<script>alert(\'xss\')</script>');
   });
 
   it('shows placeholder when no content', () => {

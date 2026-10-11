@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { X } from 'lucide-react';
+import DOMPurify from 'dompurify';
 
 type Props = {
   open: boolean;
@@ -71,7 +72,7 @@ export default function ArticlePreview({
           {content ? (
             <div
               className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-a:text-[#2D8B7A]"
-              dangerouslySetInnerHTML={{ __html: content }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }}
             />
           ) : (
             <p className="text-gray-400 text-sm">Aucun contenu à afficher.</p>
