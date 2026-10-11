@@ -1,0 +1,3 @@
+const regex = /To mock the Supabase client for safe Next.js static generation/;
+const memory = `To mock the Supabase client for safe Next.js static generation (SSG/ISR) when environment variables are missing (e.g., Vercel Previews), use a recursive JavaScript Proxy. The proxy should intercept chainable methods and return itself, while safely resolving \`.then\`, \`.catch\`, and \`.finally\` to a dummy payload (e.g., \`{ data: null, error: null }\`). It should dynamically adjust the payload type (array vs. object) based on intercepted terminal properties like \`.single\` or \`.maybeSingle\`.`;
+console.log(regex.test(memory));
