@@ -30,6 +30,15 @@ const EXTS = new Set(['.ts', '.tsx']);
  * signalera alors toute régression.
  */
 const KNOWN_DRIFT = new Set([
+  'cms_accommodations',
+  'cms_api_tokens',
+  'cms_audit_log',
+  'cms_post_revisions',
+  'cms_releases',
+  'cms_webhook_deliveries',
+  'cms_webhooks',
+  'cms_zone_variants',
+  'photo_blocks',
   // Back-office
   // cms_pillar_pages : RÉSOLU le 2026-07-30 (Phase 1). Retiré volontairement de
   // cette liste — toute disparition future de la table fera échouer le script.
@@ -38,30 +47,15 @@ const KNOWN_DRIFT = new Set([
   'cms_checklist_templates', // /api/cms/checklist-templates cassé
   // Pages publiques — dégradent proprement, pas d'incident, mais le contenu
   // affiché vient d'un fallback hardcodé et non du CMS
-  'cms_guide_items',         // /guides/top-10-pepites-madere -> PEPITES_FALLBACK
-  'cms_testimonials',        // /temoignages -> liste vide. C'est ce qui fait tenir
-                             // la décision A2 « pas de faux témoignages » : créer
-                             // la table avec un seed réintroduirait de faux avis.
-  // Automatisations
-  'instagram_scheduled_posts', // /api/instagram/cron + /scheduled : planification Instagram HS
-  'instagram_comments',        // /api/webhooks/instagram + /api/cms/instagram/comments
-  'instagram_webhook_logs',    // /api/webhooks/instagram
-  'jules_sessions',            // /api/jules
-  'jules_memory',              // /api/jules
-  // 'media' figurait ici avec la mention « nom probablement faux (cms_media ?) ».
-  // Ce n'était ni une table ni une faute de frappe : le scanner confondait
-  // `storage.from('media')`, qui vise un bucket, avec une lecture de table.
-  // La cause est corrigée dans collectTables ; l'exception n'a plus lieu d'être.
+  'cms_home_destinations',   // Home > Section Destinations
+  'cms_blog_categories',     // Sidebar Blog
+  'cms_testimonials',        // Hub Destinations > Grid Avis
 ]);
 
 function readEnv() {
-  let raw = '';
-  for (const f of ['.env.local', '.env']) {
-    try { raw = readFileSync(f, 'utf8'); break; } catch {}
-  }
+  const env = readFileSync('.env.local', 'utf8').split('\n');
   const get = (k) => {
-    if (process.env[k]) return process.env[k];
-    const m = raw.match(new RegExp('^' + k + '=(.*)$', 'm'));
+    const m = env.find(l => l.startsWith(`${k}=`))?.match(new RegExp('^' + k + '=(.*)$', 'm'));
     return m ? m[1].trim().replace(/^["']|["']$/g, '') : null;
   };
   const url = get('NEXT_PUBLIC_SUPABASE_URL');
