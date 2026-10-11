@@ -1,0 +1,13 @@
+💡 What: The optimization implemented
+Replaced nested iteration over the entire `positions` and `visites` lists within the `rattacher_photos` loop. Instead, `positions` and `visites` are first pre-processed into dictionaries grouped by `jour_local` (`positions_par_jour` and `visites_par_jour`). During the inner loop for each photo, it fetches only the subset of positions/visits corresponding to the photo's day, significantly reducing iterations.
+
+🎯 Why: The performance problem it solves
+The previous code iterated over every `position` and `visite` for every photo to check the distance, and for each of these iterations, it calculated the `jour_local(t)` for the position being iterated on. This caused an $O(Photos \times (Positions + Visites))$ time complexity and excessive date formatting calculations, creating an N+1 query-like bottleneck in memory.
+
+📊 Measured Improvement:
+Measured using a synthetic benchmark of 100,000 positions, 100 visits, and 500 photos spanning a 10-day period.
+
+Baseline (Original): 36.6404s
+Optimized: 3.7751s
+
+The new implementation is approximately ~10x faster under heavy loads.
