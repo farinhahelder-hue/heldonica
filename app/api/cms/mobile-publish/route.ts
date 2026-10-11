@@ -237,79 +237,89 @@ export async function POST(req: NextRequest) {
       uploadedUrls.push(dejaDepose.url)
     }
 
-    for (const file of files) {
-      const bytes = Buffer.from(await file.arrayBuffer())
-      if (bytes.length > 15 * 1024 * 1024) {
-        return NextResponse.json({ error: `Fichier trop lourd: ${file.name} (>15MB)` }, { status: 400 })
-      }
-      const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
-      const key = `mobile/${Date.now()}-${safe}`
-      const { error } = await sb.storage.from('media').upload(key, bytes, {
-        contentType: file.type || 'image/jpeg',
-        upsert: false,
-      })
-      if (error) return NextResponse.json({ error: `Upload failed ${file.name}: ${error.message}` }, { status: 500 })
-      const { data } = sb.storage.from('media').getPublicUrl(key)
-      uploadedUrls.push(data.publicUrl)
+    const uploadResults = await Promise.all(
+      files.map(async (file, i) => {
+        const bytes = Buffer.from(await file.arrayBuffer())
+        if (bytes.length > 15 * 1024 * 1024) {
+          return { errorResponse: NextResponse.json({ error: `Fichier trop lourd: ${file.name} (>15MB)` }, { status: 400 }) }
+        }
+        const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+        const key = `mobile/${Date.now()}-${i}-${safe}`
+        const { error } = await sb.storage.from('media').upload(key, bytes, {
+          contentType: file.type || 'image/jpeg',
+          upsert: false,
+        })
+        if (error) return { errorResponse: NextResponse.json({ error: `Upload failed ${file.name}: ${error.message}` }, { status: 500 }) }
+        const { data } = sb.storage.from('media').getPublicUrl(key)
 
-      // Trace cms_media, socle du registre de preuves.
-      //
-      // Les noms de colonnes suivent la table reelle — `url`, `path`,
-      // `mime_type`, `size` — et non ceux de la migration d'origine
-      // (`file_path`, `file_type`, `file_size`), dont la production a diverge.
-      // Ecrite contre la migration, l'insertion echouait a chaque envoi, en
-      // silence puisque l'erreur n'etait jamais lue : la photo arrivait dans le
-      // stockage, l'application affichait un succes, et aucune trace n'existait.
-      //
-      // Les coordonnees vont dans latitude/longitude et non dans metadata :
-      // c'est la que check-content-evidence lit la preuve du lieu. Rangees
-      // ailleurs, les photos prises sur le terrain — le cas d'usage le plus
-      // fort de l'application — n'attesteraient rien.
-      const meta = await lireMetadonnees(bytes, { lat: placeLat, lng: placeLng })
-
-      const { error: erreurTrace } = await (sb as any).from('cms_media').insert({
-        filename: safe,
-        url: data.publicUrl,
-        path: key,
-        mime_type: file.type || 'image/jpeg',
-        size: bytes.length,
-        source: origine,
-        latitude: meta.latitude,
-        longitude: meta.longitude,
-        taken_at: meta.taken_at,
-        metadata: {
-          place_title: placeTitle,
-          place_address: placeAddress,
-          caption,
-          // Origine des coordonnees : celles de l'EXIF valent preuve, celles
-          // saisies dans l'application restent declaratives.
-          geo_source: meta.geo_source,
-        },
-      })
-
-      if (erreurTrace) {
-        // Le fichier vient d'etre televerse mais n'a aucune ligne pour le
-        // designer : il n'est atteignable par rien. On le retire.
+        // Trace cms_media, socle du registre de preuves.
         //
-        // Sans ce nettoyage, chaque tentative laissait une copie derriere elle.
-        // Observe sur l'appareil : une contrainte refusee cote base, WorkManager
-        // qui rejoue, et 86 fichiers accumules dans le stockage en quelques
-        // minutes — pour une seule photo choisie.
-        await sb.storage.from('media').remove([key])
+        // Les noms de colonnes suivent la table reelle — `url`, `path`,
+        // `mime_type`, `size` — et non ceux de la migration d'origine
+        // (`file_path`, `file_type`, `file_size`), dont la production a diverge.
+        // Ecrite contre la migration, l'insertion echouait a chaque envoi, en
+        // silence puisque l'erreur n'etait jamais lue : la photo arrivait dans le
+        // stockage, l'application affichait un succes, et aucune trace n'existait.
+        //
+        // Les coordonnees vont dans latitude/longitude et non dans metadata :
+        // c'est la que check-content-evidence lit la preuve du lieu. Rangees
+        // ailleurs, les photos prises sur le terrain — le cas d'usage le plus
+        // fort de l'application — n'attesteraient rien.
+        const meta = await lireMetadonnees(bytes, { lat: placeLat, lng: placeLng })
 
-        // 422 et non 500 : la requete est bien formee, c'est son contenu que la
-        // base refuse. Rejouer a l'identique echouera pareil, et l'application
-        // traite les 4xx comme definitifs — la boucle s'arrete.
-        return NextResponse.json(
-          {
-            error: `Media refuse par la base : ${erreurTrace.message}`,
-            detail:
-              "Verifie que les migrations cms_media sont appliquees (colonnes source, latitude, " +
-              "longitude, taken_at, et valeur 'mobile' autorisee pour source).",
+        const { error: erreurTrace } = await (sb as any).from('cms_media').insert({
+          filename: safe,
+          url: data.publicUrl,
+          path: key,
+          mime_type: file.type || 'image/jpeg',
+          size: bytes.length,
+          source: origine,
+          latitude: meta.latitude,
+          longitude: meta.longitude,
+          taken_at: meta.taken_at,
+          metadata: {
+            place_title: placeTitle,
+            place_address: placeAddress,
+            caption,
+            // Origine des coordonnees : celles de l'EXIF valent preuve, celles
+            // saisies dans l'application restent declaratives.
+            geo_source: meta.geo_source,
           },
-          { status: 422 }
-        )
-      }
+        })
+
+        if (erreurTrace) {
+          // Le fichier vient d'etre televerse mais n'a aucune ligne pour le
+          // designer : il n'est atteignable par rien. On le retire.
+          //
+          // Sans ce nettoyage, chaque tentative laissait une copie derriere elle.
+          // Observe sur l'appareil : une contrainte refusee cote base, WorkManager
+          // qui rejoue, et 86 fichiers accumules dans le stockage en quelques
+          // minutes — pour une seule photo choisie.
+          await sb.storage.from('media').remove([key])
+
+          // 422 et non 500 : la requete est bien formee, c'est son contenu que la
+          // base refuse. Rejouer a l'identique echouera pareil, et l'application
+          // traite les 4xx comme definitifs — la boucle s'arrete.
+          return {
+            errorResponse: NextResponse.json(
+              {
+                error: `Media refuse par la base : ${erreurTrace.message}`,
+                detail:
+                  "Verifie que les migrations cms_media sont appliquees (colonnes source, latitude, " +
+                  "longitude, taken_at, et valeur 'mobile' autorisee pour source).",
+              },
+              { status: 422 }
+            )
+          }
+        }
+
+        return { url: data.publicUrl }
+      })
+    )
+
+    for (const result of uploadResults) {
+      if (result.errorResponse) return result.errorResponse
+      if (result.url) uploadedUrls.push(result.url)
     }
 
     const primaryImage = uploadedUrls[0] || null
