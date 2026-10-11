@@ -57,15 +57,33 @@ type ArticleRow = { slug: string; featured_image: string | null };
  */
 function extractDuplicateIds(articles: ArticleRow[]): Map<string, string[]> {
   const urlCount = new Map<string, string[]>();
-  for (const a of articles) {
-    if (!a.featured_image) continue;
-    if (isSupabaseStorage(a.featured_image)) continue;
-    if (isEditorialImage(a.featured_image)) continue;
-    const photoId = parsePhotoId(a.featured_image);
+  const parsedCache = new Map<string, string | null>();
+
+  for (let i = 0, len = articles.length; i < len; i++) {
+    const a = articles[i];
+    const img = a.featured_image;
+    if (!img) continue;
+
+    let photoId = parsedCache.get(img);
+    if (photoId === undefined) {
+      if (isSupabaseStorage(img) || isEditorialImage(img)) {
+        photoId = null;
+      } else {
+        photoId = parsePhotoId(img);
+      }
+      parsedCache.set(img, photoId);
+    }
+
     if (!photoId) continue;
-    if (!urlCount.has(photoId)) urlCount.set(photoId, []);
-    urlCount.get(photoId)!.push(a.slug);
+
+    const slugs = urlCount.get(photoId);
+    if (slugs) {
+      slugs.push(a.slug);
+    } else {
+      urlCount.set(photoId, [a.slug]);
+    }
   }
+
   // Conserver uniquement les IDs utilisés par ≥ 2 articles (seuil éditorial strict)
   const dups = new Map<string, string[]>();
   for (const [photoId, slugs] of urlCount) {
