@@ -1,0 +1,1 @@
+export function createSafeSupabaseStub() { return {} as any; }
