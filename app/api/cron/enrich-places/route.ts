@@ -101,7 +101,10 @@ export async function GET(req: NextRequest) {
   let enriched = 0
   const errors: any[] = []
 
-  for (const poi of pois) {
+  const promises = pois.map(async (poi, index) => {
+    // Stagger to respect Places API rate limit (~300ms per request)
+    await new Promise((r) => setTimeout(r, index * 350))
+
     try {
       const lat = parseFloat(poi.lat)
       const lng = parseFloat(poi.lng)
@@ -126,18 +129,29 @@ export async function GET(req: NextRequest) {
       if (googleData?.formatted_address && !poi.address) patch.address = googleData.formatted_address
       if (osmData?.formatted_address && !poi.address && !googleData?.formatted_address) patch.address = osmData.formatted_address
 
-      // Rate limit Places API: 1 req / 300ms
-      if (googleData) await new Promise((r) => setTimeout(r, 300))
-
       const patchRes = await fetch(`${supabaseUrl}/rest/v1/article_map_pois?id=eq.${poi.id}`, {
         method: 'PATCH',
         headers: { ...headers, Prefer: 'return=minimal' },
         body: JSON.stringify(patch),
       })
-      if (patchRes.ok) enriched++
-      else errors.push({ id: poi.id, error: await patchRes.text() })
+
+      if (patchRes.ok) {
+        return { success: true, id: poi.id }
+      } else {
+        return { success: false, id: poi.id, error: await patchRes.text() }
+      }
     } catch (e: any) {
-      errors.push({ id: poi.id, error: e.message })
+      return { success: false, id: poi.id, error: e.message }
+    }
+  })
+
+  const results = await Promise.all(promises)
+
+  for (const res of results) {
+    if (res.success) {
+      enriched++
+    } else {
+      errors.push({ id: res.id, error: res.error })
     }
   }
 
