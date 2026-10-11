@@ -8,9 +8,6 @@ export function createSafeSupabaseStub(): SupabaseClient {
   const handler = {
     get(target: any, prop: string | symbol): any {
       if (prop === 'then' || prop === 'catch' || prop === 'finally') {
-        // Stop chain for promises and resolve with empty payload
-        // Dynamic adjust based on 'single' / 'maybeSingle' being called previously?
-        // For simplicity, just returning an object matching `{ data: null, error: null }`
         return (callback?: any) => {
            if (prop === 'then') return Promise.resolve({ data: null, error: null }).then(callback);
            if (prop === 'catch') return Promise.resolve({ data: null, error: null });
@@ -27,12 +24,9 @@ export function createSafeSupabaseStub(): SupabaseClient {
         }
       }
 
-      // Return proxy recursively for chainable methods
       return new Proxy(() => {}, handler);
     },
     apply(target: any, thisArg: any, argumentsList: any[]) {
-      // Avoid hardcoding a dummy table name in the code itself like `.from('table')`
-      // as it causes the CMS drift check to pick it up as a missing table.
       return new Proxy(() => {}, handler);
     }
   };
