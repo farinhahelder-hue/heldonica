@@ -6,7 +6,7 @@
  * mobilités décarbonées, budgets réels constatés, durées en immersion).
  */
 
-import { siteUrl } from '@/lib/site-url';
+
 
 export interface SlowSeasonOption {
   value: string;
@@ -110,10 +110,10 @@ export function buildSlowTravelSnippetTags(input: SlowTaxonomyInput): string[] {
 }
 
 /**
- * Construit l'URL canonique pour l'affichage Google (source unique : siteUrl()).
+ * Construit l'URL canonique pour l'affichage Google (source unique : 'https://www.heldonica.fr').
  */
 export function getCanonicalArticleUrl(slug?: string, category?: string): string {
-  const baseUrl = siteUrl();
+  const baseUrl = 'https://www.heldonica.fr';
   const cleanSlug = slug?.trim() || 'carnet-de-voyage';
   if (category?.toLowerCase().includes('destination')) {
     return `${baseUrl}/destinations/${cleanSlug}`;

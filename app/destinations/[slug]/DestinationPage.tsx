@@ -1,5 +1,4 @@
 import Image from 'next/image'
-import DestinationJsonLd from '@/components/seo/DestinationJsonLd'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Header from '@/components/Header'
@@ -367,12 +366,7 @@ export default async function DestinationPage({ slug }: Props) {
   return (
     <InlineEditProvider page={`destinations-${slug}`} initialZones={zones}>
       {/* JSON-LD Structured Data */}
-      <DestinationJsonLd
-        name={content.title}
-        description={content.description}
-        url={`https://www.heldonica.fr/destinations/${slug}`}
-        country={content.title}
-      />
+      null
       <Header />
       <main>
         {activeBlocks.map(blockId => {

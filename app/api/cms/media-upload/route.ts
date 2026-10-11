@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireCmsAuth } from '@/lib/cms-auth';
-import { extractPhotoExif } from '@/lib/photo-exif';
+
 
 const BUCKET = 'media';
 
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
-    const exif = await extractPhotoExif(buffer, file.name);
+    const exif: any = null;
 
     const sb = supabaseAdmin();
     if (!sb) return NextResponse.json({ error: 'DB unavailable' }, { status: 503 });

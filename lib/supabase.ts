@@ -1,6 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { getSupabaseClientKey } from '@/lib/supabase-key'
-import { createSafeSupabaseStub } from '@/lib/supabase-stub'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const supabaseAnonKey = getSupabaseClientKey()
@@ -33,7 +32,7 @@ export const createServiceClient = (): SupabaseClient => {
     if (process.env.NODE_ENV !== 'production' || process.env.NEXT_PHASE === 'phase-production-build') {
       console.warn('[Supabase Service] Variables d\'environnement manquantes (URL/serviceKey). Utilisation du stub sécurisé pour le pré-rendu.')
     }
-    return createSafeSupabaseStub()
+    return {} as any
   }
 
   return createClient(supabaseUrl, serviceKey, {
