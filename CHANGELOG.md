@@ -4,6 +4,42 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-10-11] — Correctif build : restauration des 8 modules manquants
+
+### Contexte
+`main` ne compilait plus : 8 modules internes étaient importés par du code committé
+sans exister dans l'arbre. `npx tsc --noEmit` remontait 11 erreurs TS2307 et
+`next build` échouait (`typescript.ignoreBuildErrors: false`).
+
+### Modules restaurés (implémentations réelles, pas des coquilles vides)
+1. `lib/supabase-stub.ts` — client Supabase inerte pour le pré-rendu sans clés
+   (`createSafeSupabaseStub`), renvoie `{ data: null, error: null }` sans planter.
+2. `lib/site-url.ts` — source unique de l'URL publique (`siteUrl()`), lue à l'appel.
+3. `lib/photo-exif.ts` — extraction EXIF réelle via `exifr` (date, GPS) et
+   `detectStockPhoto` fondée sur des indices vérifiables (`lib/generic-photos.ts`).
+4. `lib/photo-albums.ts` — `validateAlbumPhotoMeta`, validation stricte des
+   métadonnées de photo avant insertion (règle n°1 : on n'invente rien).
+5. `lib/photo-evidence.ts` — `validatePhotoEvidence`, validation des preuves photo.
+6. `components/seo/DestinationJsonLd.tsx` — JSON-LD `TouristDestination`.
+7. `components/admin/seo/SerpAndSocialPreview.tsx` — aperçus Google SERP et social.
+8. `app/panel-manager/AuditLogPanel.tsx` — journal d'audit adossé à
+   `getRecentAuditLogs()` (`lib/cms-audit.ts`), état vide explicite sinon.
+
+### Vérifié
+- `npx tsc --noEmit` : 0 erreur.
+- `npx vitest run` : 585 tests, 74 fichiers, tout au vert.
+- `npx next build` : compilation réussie.
+- `npx next lint` : aucune erreur (2 avertissements préexistants, hors périmètre).
+
+### Reste à faire (hors périmètre, non corrigé ici)
+- `main` reste rouge sur le job CI « Zones et tables CMS » : 9 tables référencées
+  dans le code (`cms_audit_log`, `cms_accommodations`, `cms_api_tokens`,
+  `cms_post_revisions`, `cms_releases`, `cms_webhooks`, `cms_webhook_deliveries`,
+  `cms_zone_variants`, `photo_blocks`) n'ont aucune migration — dérive préexistante,
+  à traiter séparément (migration versionnée + validation humaine).
+
+---
+
 ## [2026-10-10] — Phase 12 : Blocs Éditioriaux Avancés, Suggestion RAG Temps Réel & Carnets Enrichis
 
 ### Réalisations & Nouveaux Modules
