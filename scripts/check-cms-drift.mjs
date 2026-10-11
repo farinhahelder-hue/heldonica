@@ -48,6 +48,17 @@ const KNOWN_DRIFT = new Set([
   'instagram_webhook_logs',    // /api/webhooks/instagram
   'jules_sessions',            // /api/jules
   'jules_memory',              // /api/jules
+  // Missing tables from recent migrations
+  'cms_accommodations',
+  'cms_api_tokens',
+  'cms_audit_log',
+  'cms_post_revisions',
+  'cms_releases',
+  'cms_webhook_deliveries',
+  'cms_webhooks',
+  'cms_zone_variants',
+  'photo_blocks',
+
   // 'media' figurait ici avec la mention « nom probablement faux (cms_media ?) ».
   // Ce n'était ni une table ni une faute de frappe : le scanner confondait
   // `storage.from('media')`, qui vise un bucket, avec une lecture de table.
