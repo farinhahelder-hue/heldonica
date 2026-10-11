@@ -27,12 +27,11 @@ import { getPageLayout } from '@/lib/layout-helpers'
 import { BlockRenderer } from '@/components/blocks/BlockRenderer'
 import { isArticleConvertedToBlocks } from '@/lib/cms-article-migrator'
 import { htmlToBlocks } from '@/lib/cms-blocks-converter'
+import { SLUG_IMAGE_PROMPTS } from '@/lib/image-prompts'
+
 
 const SITE_URL = 'https://www.heldonica.fr'
 
-// TODO: Remplacer ce fallback de marque par des visuels définitifs issus des prompts image validés
-// Concernés : tous les articles sans featured_image dans la DB (cf. plan de correction)
-// Prompts associés : 13 prompts prêts dans le plan de correction (madere-foret, zurich-limmat, stoos-ridge, etc.)
 const HERO_FALLBACK_DEFAULT: Record<string, string> = {
   'Carnets Voyage': '/og-default.jpg',
   'Découvertes Locales': '/og-default.jpg',
@@ -250,9 +249,10 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
   ])
   const relatedResult = getRelatedArticles(post, allPosts, 3)
   const related = relatedResult ?? []
+  const fallbackPromptImage = SLUG_IMAGE_PROMPTS[post.slug]
   const heroImage = (post.featured_image && post.featured_image.trim().length > 0)
     ? post.featured_image
-    : (heroFallback[post.category ?? ''] ?? DEFAULT_HERO)
+    : (fallbackPromptImage ?? heroFallback[post.category ?? ''] ?? DEFAULT_HERO)
   const readTime = getReadingTime(post.content)
   const { articleLd, breadcrumbLd, travelLd } = buildJsonLds(post, readTime)
   const canonicalUrl = `${SITE_URL}/blog/${post.slug}`
