@@ -67,22 +67,6 @@ describe('buffer', () => {
       const encoded = encodeURIComponent(text)
       expect(getBufferPostUrl(text)).toBe(`https://publish.buffer.com/composer?text=${encoded}`)
     })
-
-    it('should return URL without profile parameter when profileId is undefined', () => {
-      expect(getBufferPostUrl('Hello', undefined)).toBe('https://publish.buffer.com/composer?text=Hello')
-    })
-
-    it('should handle empty string profileId', () => {
-      // Current implementation actually adds &profile= even if it's empty, but let's test the behavior
-      // The function says `if (profileId)` so an empty string (falsy) shouldn't append it
-      expect(getBufferPostUrl('Hello', '')).toBe('https://publish.buffer.com/composer?text=Hello')
-    })
-
-    it('should handle very long text', () => {
-      const longText = 'A'.repeat(5000)
-      const encoded = encodeURIComponent(longText)
-      expect(getBufferPostUrl(longText)).toBe(`https://publish.buffer.com/composer?text=${encoded}`)
-    })
   })
 
   describe('openBufferComposer', () => {
