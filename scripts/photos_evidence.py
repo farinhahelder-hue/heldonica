@@ -62,6 +62,7 @@ LIEUX_REPERES = [
     ("Castelul Banffy, Bontida", 46.9147, 23.8019),
 ]
 RAYON_KM = 12.0
+_DERN_APPEL = 0.0
 
 
 def _to_degrees(value):
@@ -139,9 +140,17 @@ def lieu_osm(lat, lon, cache):
     """Reverse geocoding Nominatim (OpenStreetMap). 1 requete/s, cache par cle."""
     import urllib.request
     import urllib.parse
+    global _DERN_APPEL
+
     cle = f"{round(lat, 3)},{round(lon, 3)}"
     if cle in cache:
         return cache[cle]
+
+    now = time.time()
+    if now - _DERN_APPEL < 1.1:
+        time.sleep(1.1 - (now - _DERN_APPEL))
+    _DERN_APPEL = time.time()
+
     params = urllib.parse.urlencode({
         "lat": lat, "lon": lon, "format": "jsonv2", "zoom": 14, "accept-language": "fr",
     })
@@ -161,7 +170,6 @@ def lieu_osm(lat, lon, cache):
         print(f"  [WARN] reverse geocoding echoue ({e})")
         resultat = None
     cache[cle] = resultat
-    time.sleep(1.1)
     return resultat
 
 
