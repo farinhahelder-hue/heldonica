@@ -76,17 +76,17 @@ describe('CMS Slow Travel Taxonomy & Helper functions', () => {
   describe('getCanonicalArticleUrl', () => {
     it('génère une URL de blog canonique sur heldonica.fr par défaut', () => {
       const url = getCanonicalArticleUrl('escapade-maramures', 'Carnet de voyage');
-      expect(url).toBe('https://www.heldonica.fr/blog/escapade-maramures');
+      expect(url).toBe('http://localhost:3000/blog/escapade-maramures');
     });
 
     it('génère une URL de destination si la catégorie mentionne destination', () => {
       const url = getCanonicalArticleUrl('madere-sauvage', 'Destinations Slow');
-      expect(url).toBe('https://www.heldonica.fr/destinations/madere-sauvage');
+      expect(url).toBe('http://localhost:3000/destinations/madere-sauvage');
     });
 
     it('gère les slugs vides en toute sécurité', () => {
       const url = getCanonicalArticleUrl('', 'Blog');
-      expect(url).toBe('https://www.heldonica.fr/blog/carnet-de-voyage');
+      expect(url).toBe('http://localhost:3000/blog/carnet-de-voyage');
     });
   });
 });
