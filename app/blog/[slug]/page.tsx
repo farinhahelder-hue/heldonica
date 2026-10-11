@@ -27,40 +27,11 @@ import { getPageLayout } from '@/lib/layout-helpers'
 import { BlockRenderer } from '@/components/blocks/BlockRenderer'
 import { isArticleConvertedToBlocks } from '@/lib/cms-article-migrator'
 import { htmlToBlocks } from '@/lib/cms-blocks-converter'
+import { HERO_GENERATED_IMAGES } from '@/lib/blog-images'
 
 const SITE_URL = 'https://www.heldonica.fr'
 
-// TODO: Remplacer ce fallback de marque par des visuels définitifs issus des prompts image validés
-// Concernés : tous les articles sans featured_image dans la DB (cf. plan de correction)
-// Prompts associés : 13 prompts prêts dans le plan de correction (madere-foret, zurich-limmat, stoos-ridge, etc.)
-const HERO_FALLBACK_DEFAULT: Record<string, string> = {
-  'Carnets Voyage': '/og-default.jpg',
-  'Découvertes Locales': '/og-default.jpg',
-  'Guides Pratiques': '/og-default.jpg',
-  'Travel': '/og-default.jpg',
-  'Food & Lifestyle': '/og-default.jpg',
-}
-
 const DEFAULT_HERO = '/og-default.jpg'
-
-async function getHeroFallback(): Promise<Record<string, string>> {
-  try {
-    const { createServiceClient } = await import('@/lib/supabase')
-    const supabase = createServiceClient()
-    const { data } = await supabase
-      .from('site_settings')
-      .select('value')
-      .eq('key', 'hero_fallback_images')
-      .single()
-    if (data?.value) {
-      const parsed = JSON.parse(data.value)
-      if (typeof parsed === 'object' && parsed !== null) {
-        return { ...HERO_FALLBACK_DEFAULT, ...parsed }
-      }
-    }
-  } catch {}
-  return HERO_FALLBACK_DEFAULT
-}
 
 /** Build a fallback OG image URL via /api/og when no real image exists */
 function ogFallbackUrl(title: string, description: string | null): string {
@@ -210,7 +181,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
   const slug = (await params).slug
   const { preview_token } = await searchParams
 
-  let post = await getPostBySlug(slug)
+  let post = await getPostBySlug(slug) as BlogPost | null
 
   if (!post && preview_token) {
     const verified = await verifyPreviewToken(preview_token)
@@ -226,6 +197,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
   }
 
   if (!post) notFound()
+  const safePost = post as BlogPost
 
   let showMap = false
   try {
@@ -243,20 +215,19 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
     console.warn("Could not query show_map from admin schema, defaulting to false:", err)
   }
 
-  const [allPosts, heroFallback, blogZones] = await Promise.all([
+  const [allPosts, blogZones] = await Promise.all([
     getAllPosts(),
-    getHeroFallback(),
     getPageZones('blog')
   ])
-  const relatedResult = getRelatedArticles(post, allPosts, 3)
+  const relatedResult = getRelatedArticles(safePost, allPosts, 3)
   const related = relatedResult ?? []
-  const heroImage = (post.featured_image && post.featured_image.trim().length > 0)
-    ? post.featured_image
-    : (heroFallback[post.category ?? ''] ?? DEFAULT_HERO)
-  const readTime = getReadingTime(post.content)
-  const { articleLd, breadcrumbLd, travelLd } = buildJsonLds(post, readTime)
-  const canonicalUrl = `${SITE_URL}/blog/${post.slug}`
-  const safeContent = sanitizeHtml(post.content)
+  const heroImage = (safePost.featured_image && safePost.featured_image.trim().length > 0)
+    ? safePost.featured_image
+    : (HERO_GENERATED_IMAGES[safePost.slug] ?? DEFAULT_HERO)
+  const readTime = getReadingTime(safePost.content)
+  const { articleLd, breadcrumbLd, travelLd } = buildJsonLds(safePost, readTime)
+  const canonicalUrl = `${SITE_URL}/blog/${safePost.slug}`
+  const safeContent = sanitizeHtml(safePost.content)
 
   const layoutConfig = await getPageLayout('article')
   const activeBlocks = layoutConfig.filter(b => b.active).map(b => b.id)
@@ -265,7 +236,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
     <div className={`relative h-[56vh] w-full overflow-hidden md:h-[68vh] bg-stone-900`}>
       <Image
         src={heroImage}
-        alt={post.alt_text || post.title}
+        alt={safePost.alt_text || safePost.title}
         fill
         className="object-cover opacity-75"
         loading="eager"
@@ -281,12 +252,12 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
             ← Retour aux carnets
           </Link>
           <div className="mb-4 flex flex-wrap items-center gap-2">
-            {post.category && (
+            {safePost.category && (
               <span className="rounded-full bg-teal px-3 py-1 text-xs font-bold text-white">
-                {post.category}
+                {safePost.category}
               </span>
             )}
-            {post.tags?.slice(0, 2).map((tag) => (
+            {safePost.tags?.slice(0, 2).map((tag) => (
               <span
                 key={tag}
                 className="rounded-full bg-white/15 px-2.5 py-1 text-xs text-white/80 backdrop-blur-sm"
@@ -296,12 +267,12 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
             ))}
           </div>
           <h1 className="mb-4 text-3xl font-serif font-light leading-tight text-white md:text-5xl">
-            {post.title}
+            {safePost.title}
           </h1>
           <div className="flex flex-wrap items-center gap-4 text-sm text-white/65">
-            <span>{post.author || 'Heldonica'}</span>
+            <span>{safePost.author || 'Heldonica'}</span>
             <span>•</span>
-            <span>{formatDate(post.published_at)}</span>
+            <span>{formatDate(safePost.published_at)}</span>
             {readTime > 0 && (
               <>
                 <span>•</span>
@@ -314,15 +285,15 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
     </div>
   )
 
-  const hasBlocks = isArticleConvertedToBlocks(post.content)
-  const articleBlocks = hasBlocks ? htmlToBlocks(post.content || '') : []
+  const hasBlocks = isArticleConvertedToBlocks(safePost.content)
+  const articleBlocks = hasBlocks ? htmlToBlocks(safePost.content || '') : []
 
   const BlockContent = () => (
     <div className="mx-auto max-w-4xl px-4 py-12 md:py-16">
-      {post.excerpt && (
+      {safePost.excerpt && (
         <div className="mb-10 rounded-[2rem] border border-eucalyptus/20 bg-eucalyptus/5 px-6 py-6 md:px-8">
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-mahogany">Ouverture</p>
-          <p className="text-xl font-light leading-relaxed text-stone-800">{post.excerpt}</p>
+          <p className="text-xl font-light leading-relaxed text-stone-800">{safePost.excerpt}</p>
         </div>
       )}
 
@@ -362,11 +333,11 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
   )
 
   const BlockVoiceNotes = () => (
-    post.voice_notes ? (
+    safePost.voice_notes ? (
       <div className="mx-auto max-w-3xl px-4 pb-8">
         <aside className="rounded-[2rem] border border-stone-200 bg-stone-50 px-6 py-6 md:px-8">
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Détail terrain</p>
-          <p className="text-base leading-relaxed text-stone-700">{post.voice_notes}</p>
+          <p className="text-base leading-relaxed text-stone-700">{safePost.voice_notes}</p>
         </aside>
       </div>
     ) : null
@@ -375,14 +346,14 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
   const BlockTags = () => (
     <div className="mx-auto max-w-3xl px-4 pb-16">
       <div className="border-t border-stone-100 pt-8">
-        <ShareButtons title={post.title} url={canonicalUrl} />
+        <ShareButtons title={safePost.title} url={canonicalUrl} />
       </div>
 
-      {post.tags && post.tags.length > 0 && (
+      {safePost.tags && safePost.tags.length > 0 && (
         <div className="mt-8 border-t border-stone-100 pt-6">
           <p className="mb-3 text-xs uppercase tracking-[0.18em] text-stone-500">Tags</p>
           <div className="flex flex-wrap gap-2">
-            {post.tags.slice(0, 3).map((tag) => (
+            {safePost.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag}
                 className="rounded-full bg-stone-100 px-3 py-1.5 text-xs text-stone-600"
@@ -425,7 +396,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
           </p>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             {related.map((relatedPost: BlogPost) => {
-              const relatedImage = relatedPost.og_image || relatedPost.featured_image || heroFallback[relatedPost.category ?? ''] || DEFAULT_HERO
+              const relatedImage = relatedPost.og_image || relatedPost.featured_image || HERO_GENERATED_IMAGES[relatedPost.slug] || DEFAULT_HERO
               return (
                 <Link key={relatedPost.slug} href={`/blog/${relatedPost.slug}`} className="group block transition-all duration-200">
                   <article className="overflow-hidden rounded-[1.5rem] bg-white shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-md">
@@ -504,9 +475,9 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
           return Component ? <Component key={blockId} /> : null
         })}
         <NewsletterForm variant="blog" />
-        {post.category === 'Guides Pratiques' && post.faq_content && (
+        {safePost.category === 'Guides Pratiques' && safePost.faq_content && (
           <HeldonicaFAQ
-            items={(post.faq_content as Array<{question: string; answer: string}>) || []}
+            items={(safePost.faq_content as Array<{question: string; answer: string}>) || []}
           />
         )}
 
