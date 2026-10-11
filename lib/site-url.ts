@@ -1,3 +1,4 @@
 export function siteUrl(path?: string) {
-  return 'http://localhost' + (path || '');
+  const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.heldonica.fr';
+  return base + (path || '');
 }
