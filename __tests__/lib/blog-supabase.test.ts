@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatDate } from '../../lib/blog-supabase';
+import { formatDate, getExcerpt, BlogPost } from '../../lib/blog-supabase';
 
 describe('formatDate', () => {
   describe('null/undefined handling', () => {
@@ -97,5 +97,83 @@ describe('formatDate', () => {
     it('should return empty string for invalid date format', () => {
       expect(formatDate('invalid-date')).toBe('');
     });
+  });
+});
+
+describe('getExcerpt', () => {
+  const basePost = {
+    id: 1,
+    slug: 'test',
+    title: 'Test Post',
+    excerpt: null,
+    content: null,
+    category: 'Travel',
+    tags: [],
+    featured_image: null,
+    author: 'Author',
+    published: true,
+    published_at: '2024-01-01T00:00:00Z',
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z',
+  } as BlogPost;
+
+  it('should return excerpt if it is provided and not empty', () => {
+    const post = { ...basePost, excerpt: 'Explicit excerpt.', content: 'Some longer content.' };
+    expect(getExcerpt(post)).toBe('Explicit excerpt.');
+  });
+
+  it('should return trimmed excerpt if it has surrounding whitespace', () => {
+    const post = { ...basePost, excerpt: '  Explicit excerpt.  ', content: 'Content.' };
+    expect(getExcerpt(post)).toBe('Explicit excerpt.');
+  });
+
+  it('should fall back to content if excerpt is null', () => {
+    const post = { ...basePost, excerpt: null, content: 'Fallback content.' };
+    expect(getExcerpt(post)).toBe('Fallback content.');
+  });
+
+  it('should fall back to content if excerpt is empty string', () => {
+    const post = { ...basePost, excerpt: '', content: 'Fallback content.' };
+    expect(getExcerpt(post)).toBe('Fallback content.');
+  });
+
+  it('should fall back to content if excerpt is only whitespace', () => {
+    const post = { ...basePost, excerpt: '   ', content: 'Fallback content.' };
+    expect(getExcerpt(post)).toBe('Fallback content.');
+  });
+
+  it('should strip HTML tags from content', () => {
+    const post = { ...basePost, excerpt: null, content: '<p>Content with <strong>HTML</strong> tags.</p>' };
+    expect(getExcerpt(post)).toBe('Content with HTML tags.');
+  });
+
+  it('should handle missing content', () => {
+    const post = { ...basePost, excerpt: null, content: null };
+    expect(getExcerpt(post)).toBe('');
+  });
+
+  it('should truncate content longer than maxLength at a word boundary', () => {
+    const content = 'This is a very long piece of content that exceeds the maximum length of the excerpt. It should be truncated nicely at a word boundary without cutting a word in half.';
+    const post = { ...basePost, excerpt: null, content };
+    const excerpt = getExcerpt(post, 50);
+
+    expect(excerpt.length).toBeLessThanOrEqual(51); // 50 + ellipsis
+    expect(excerpt).toBe('This is a very long piece of content that exceeds\u2026');
+  });
+
+  it('should return full content if it is exactly maxLength', () => {
+    const post = { ...basePost, excerpt: null, content: 'Exactly 20 chars str' };
+    expect(getExcerpt(post, 20)).toBe('Exactly 20 chars str');
+  });
+
+  it('should return full content if it is shorter than maxLength', () => {
+    const post = { ...basePost, excerpt: null, content: 'Short content.' };
+    expect(getExcerpt(post, 50)).toBe('Short content.');
+  });
+
+  it('should handle edge cases where truncation would split a word', () => {
+    const post = { ...basePost, excerpt: null, content: 'One two three four' };
+    const excerpt = getExcerpt(post, 11); // 'One two thr' -> should truncate back to 'One two'
+    expect(excerpt).toBe('One two\u2026');
   });
 });
