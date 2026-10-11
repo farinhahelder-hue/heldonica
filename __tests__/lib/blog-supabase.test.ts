@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatDate } from '../../lib/blog-supabase';
+import { formatDate, getExcerpt, BlogPost } from '../../lib/blog-supabase';
 
 describe('formatDate', () => {
   describe('null/undefined handling', () => {
@@ -97,5 +97,86 @@ describe('formatDate', () => {
     it('should return empty string for invalid date format', () => {
       expect(formatDate('invalid-date')).toBe('');
     });
+  });
+});
+
+const mockPost = (overrides: Partial<BlogPost> = {}): BlogPost => ({
+  id: 1,
+  slug: 'test-post',
+  title: 'Test Post',
+  excerpt: null,
+  content: null,
+  category: 'Travel',
+  tags: [],
+  featured_image: null,
+  author: 'Author',
+  published: true,
+  published_at: '2024-01-01T00:00:00Z',
+  created_at: '2024-01-01T00:00:00Z',
+  updated_at: '2024-01-01T00:00:00Z',
+  ...overrides,
+});
+
+describe('getExcerpt', () => {
+  it('should return existing excerpt if present', () => {
+    const post = mockPost({ excerpt: 'This is a custom excerpt.' });
+    expect(getExcerpt(post)).toBe('This is a custom excerpt.');
+  });
+
+  it('should trim existing excerpt', () => {
+    const post = mockPost({ excerpt: '  This is a custom excerpt with spaces.  ' });
+    expect(getExcerpt(post)).toBe('This is a custom excerpt with spaces.');
+  });
+
+  it('should generate excerpt from content if excerpt is null', () => {
+    const post = mockPost({ excerpt: null, content: 'This is the post content.' });
+    expect(getExcerpt(post)).toBe('This is the post content.');
+  });
+
+  it('should generate excerpt from content if excerpt is empty', () => {
+    const post = mockPost({ excerpt: '', content: 'This is the post content.' });
+    expect(getExcerpt(post)).toBe('This is the post content.');
+  });
+
+  it('should generate excerpt from content if excerpt is only whitespace', () => {
+    const post = mockPost({ excerpt: '   ', content: 'This is the post content.' });
+    expect(getExcerpt(post)).toBe('This is the post content.');
+  });
+
+  it('should strip HTML tags from content', () => {
+    const post = mockPost({ content: '<p>This is <strong>bold</strong> and <a href="#">linked</a> content.</p>' });
+    expect(getExcerpt(post)).toBe('This is bold and linked content.');
+  });
+
+  it('should limit excerpt to default maxLength (160) and add ellipsis', () => {
+    const longContent = 'A'.repeat(200);
+    const post = mockPost({ content: longContent });
+    const excerpt = getExcerpt(post);
+    expect(excerpt.length).toBe(160 + 1); // 160 chars + 1 ellipsis char
+    expect(excerpt.endsWith('\u2026')).toBe(true);
+  });
+
+  it('should limit excerpt to custom maxLength and add ellipsis', () => {
+    const longContent = 'A'.repeat(100);
+    const post = mockPost({ content: longContent });
+    const excerpt = getExcerpt(post, 50);
+    expect(excerpt.length).toBe(50 + 1);
+    expect(excerpt.endsWith('\u2026')).toBe(true);
+  });
+
+  it('should not cut words in half when truncating', () => {
+    const post = mockPost({ content: 'This is a long sentence that should be cut off without splitting a word in half.' });
+    const excerpt = getExcerpt(post, 50);
+    expect(excerpt).toBe('This is a long sentence that should be cut off\u2026');
+  });
+
+  it('should return empty string if both excerpt and content are null', () => {
+    const post = mockPost({ excerpt: null, content: null });
+    expect(getExcerpt(post)).toBe('');
+  });
+
+  it('should return empty string if both excerpt and content are empty', () => {
+    const post = mockPost({ excerpt: '', content: '' });
+    expect(getExcerpt(post)).toBe('');
   });
 });
