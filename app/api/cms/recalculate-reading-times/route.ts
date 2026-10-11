@@ -52,10 +52,7 @@ export async function POST(req: Request) {
 
   for (const article of articles) {
     if (article.content) {
-      const wordCount = article.content
-        .replace(/<[^>]+>/g, ' ')
-        .split(/\s+/)
-        .filter(Boolean).length
+      const wordCount = (article.content.replace(/<[^>]+>/g, ' ').match(/\S+/g) || []).length
       const readTime = Math.ceil(wordCount / 200)
       updates.push({ id: article.id, read_time: readTime })
     }
