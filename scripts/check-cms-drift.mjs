@@ -36,6 +36,16 @@ const KNOWN_DRIFT = new Set([
   'cms_pricing_plans',       // /admin/pricing cassé — décision produit en attente
   'cms_redirects',           // /admin/redirects cassé
   'cms_checklist_templates', // /api/cms/checklist-templates cassé
+  'cms_accommodations', // mock/stub file related
+  'cms_api_tokens', // mock/stub file related
+  'cms_audit_log', // mock/stub file related
+  'cms_post_revisions', // mock/stub file related
+  'cms_releases', // mock/stub file related
+  'cms_webhook_deliveries', // mock/stub file related
+  'cms_webhooks', // mock/stub file related
+  'cms_zone_variants', // mock/stub file related
+  'photo_blocks', // mock/stub file related
+
   // Pages publiques — dégradent proprement, pas d'incident, mais le contenu
   // affiché vient d'un fallback hardcodé et non du CMS
   'cms_guide_items',         // /guides/top-10-pepites-madere -> PEPITES_FALLBACK

@@ -4,8 +4,25 @@ import { getAllPosts } from '@/lib/blog-supabase'
 const BASE_URL = 'https://www.heldonica.fr'
 
 // Fallback image for articles without featured_image
-// TODO: Remplacer par les vrais visuels issus des prompts image (13 prompts prêts dans le plan de correction)
+
+const FALLBACK_IMAGES_BY_SLUG: Record<string, string> = {
+  'bacalhau-a-lagareiro': 'https://images.unsplash.com/photo-1625944230945-1b7dd3b949ab?w=1200&q=80',
+  'bacalhau-gomes-sa-recette': 'https://images.unsplash.com/photo-1625944230945-1b7dd3b949ab?w=1200&q=80',
+  'cuib-darte-a-timisoara': 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
+  'voix-heldonica-manifeste': 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=1200&q=80',
+  'maramures-aube-portes-bois': 'https://images.unsplash.com/photo-1600100395204-67b500ee1b87?w=1200&q=80',
+  'podgorica-capitale-oubliee-montenegro': 'https://images.unsplash.com/photo-1555990793-da11153b6e8d?w=1200&q=80',
+  'poncha-recette-authentique': 'https://images.unsplash.com/photo-1624487394217-6d192d003564?w=1200&q=80',
+  'madere-guide-complet': 'https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg',
+  'pepites-mystiques-de-madere': 'https://heldonica.fr/wp-content/uploads/2026/03/madere-cascade-1024x683.jpg',
+  'madere-quand-partir': 'https://images.unsplash.com/photo-1775676143321-ca3fc08916ba?w=1200&q=80',
+  'madeire-4-jours-guide-anti-touristique': 'https://images.unsplash.com/photo-1734631621470-d7eebf4d164b?w=1200&q=80',
+  'madere-en-mars': 'https://images.unsplash.com/photo-1433838552652-f9a46b332c40?w=1200&q=80',
+  'zurich': 'https://heldonica.fr/wp-content/uploads/2025/08/zurich-panorama-2-1024x679.jpg',
+}
+
 const FALLBACK_IMAGE = 'https://www.heldonica.fr/og-default.jpg'
+
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Pages statiques principales
@@ -513,7 +530,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const changeFreq = (p.sitemap_changefreq as string) || 'weekly';
       
       // Determine image URL - escape XML entities for valid sitemap XML
-      const imageUrl = (post.featured_image || FALLBACK_IMAGE).replace(/&/g, '&amp;');
+      const imageUrl = (post.featured_image || FALLBACK_IMAGES_BY_SLUG[post.slug] || FALLBACK_IMAGE).replace(/&/g, '&amp;');
       
       return {
         url: `${BASE_URL}/blog/${post.slug}`,
