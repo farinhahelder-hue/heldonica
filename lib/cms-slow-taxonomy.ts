@@ -1,3 +1,4 @@
+import { siteUrl } from '@/lib/site-url';
 /**
  * Heldonica CMS — Taxonomie Slow Travel & Métadonnées Métier Riches
  *
@@ -6,7 +7,7 @@
  * mobilités décarbonées, budgets réels constatés, durées en immersion).
  */
 
-import { siteUrl } from '@/lib/site-url';
+
 
 export interface SlowSeasonOption {
   value: string;
