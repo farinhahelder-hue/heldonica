@@ -1,0 +1,1 @@
+export function validatePhotoEvidence(meta: any) { return []; }

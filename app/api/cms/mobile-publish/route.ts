@@ -237,20 +237,21 @@ export async function POST(req: NextRequest) {
       uploadedUrls.push(dejaDepose.url)
     }
 
-    for (const file of files) {
+    const uploadPromises = files.map(async (file, index) => {
       const bytes = Buffer.from(await file.arrayBuffer())
       if (bytes.length > 15 * 1024 * 1024) {
-        return NextResponse.json({ error: `Fichier trop lourd: ${file.name} (>15MB)` }, { status: 400 })
+        return { errorResponse: NextResponse.json({ error: `Fichier trop lourd: ${file.name} (>15MB)` }, { status: 400 }) }
       }
       const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
-      const key = `mobile/${Date.now()}-${safe}`
+      // Include index to avoid key collisions on fast concurrent uploads
+      const key = `mobile/${Date.now()}-${index}-${safe}`
       const { error } = await sb.storage.from('media').upload(key, bytes, {
         contentType: file.type || 'image/jpeg',
         upsert: false,
       })
-      if (error) return NextResponse.json({ error: `Upload failed ${file.name}: ${error.message}` }, { status: 500 })
+      if (error) return { errorResponse: NextResponse.json({ error: `Upload failed ${file.name}: ${error.message}` }, { status: 500 }) }
       const { data } = sb.storage.from('media').getPublicUrl(key)
-      uploadedUrls.push(data.publicUrl)
+      const uploadedUrl = data.publicUrl
 
       // Trace cms_media, socle du registre de preuves.
       //
@@ -269,7 +270,7 @@ export async function POST(req: NextRequest) {
 
       const { error: erreurTrace } = await (sb as any).from('cms_media').insert({
         filename: safe,
-        url: data.publicUrl,
+        url: uploadedUrl,
         path: key,
         mime_type: file.type || 'image/jpeg',
         size: bytes.length,
@@ -300,15 +301,30 @@ export async function POST(req: NextRequest) {
         // 422 et non 500 : la requete est bien formee, c'est son contenu que la
         // base refuse. Rejouer a l'identique echouera pareil, et l'application
         // traite les 4xx comme definitifs — la boucle s'arrete.
-        return NextResponse.json(
-          {
-            error: `Media refuse par la base : ${erreurTrace.message}`,
-            detail:
-              "Verifie que les migrations cms_media sont appliquees (colonnes source, latitude, " +
-              "longitude, taken_at, et valeur 'mobile' autorisee pour source).",
-          },
-          { status: 422 }
-        )
+        return {
+          errorResponse: NextResponse.json(
+            {
+              error: `Media refuse par la base : ${erreurTrace.message}`,
+              detail:
+                "Verifie que les migrations cms_media sont appliquees (colonnes source, latitude, " +
+                "longitude, taken_at, et valeur 'mobile' autorisee pour source).",
+            },
+            { status: 422 }
+          )
+        }
+      }
+
+      return { url: uploadedUrl }
+    })
+
+    const results = await Promise.all(uploadPromises)
+
+    for (const result of results) {
+      if (result.errorResponse) {
+        return result.errorResponse
+      }
+      if (result.url) {
+        uploadedUrls.push(result.url)
       }
     }
 
