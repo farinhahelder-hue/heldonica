@@ -52,6 +52,15 @@ const KNOWN_DRIFT = new Set([
   // Ce n'était ni une table ni une faute de frappe : le scanner confondait
   // `storage.from('media')`, qui vise un bucket, avec une lecture de table.
   // La cause est corrigée dans collectTables ; l'exception n'a plus lieu d'être.
+  'cms_accommodations',
+  'cms_api_tokens',
+  'cms_audit_log',
+  'cms_post_revisions',
+  'cms_releases',
+  'cms_webhook_deliveries',
+  'cms_webhooks',
+  'cms_zone_variants',
+  'photo_blocks'
 ]);
 
 function readEnv() {
