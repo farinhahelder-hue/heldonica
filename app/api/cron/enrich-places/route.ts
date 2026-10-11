@@ -67,6 +67,36 @@ async function enrichViaNominatim(lat: number, lng: number) {
   } catch { return null }
 }
 
+
+async function runConcurrent<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const results: R[] = [];
+  let active = 0;
+  let index = 0;
+
+  await new Promise<void>((resolve) => {
+    function next() {
+      if (index >= items.length && active === 0) {
+        resolve();
+        return;
+      }
+      while (active < limit && index < items.length) {
+        active++;
+        const item = items[index++];
+        fn(item).then((res) => {
+          results.push(res);
+        }).catch((err) => {
+          // Ignore here, should be handled in fn
+        }).finally(() => {
+          active--;
+          next();
+        });
+      }
+    }
+    next();
+  });
+  return results;
+}
+
 export async function GET(req: NextRequest) {
   if (!isCron(req)) {
     const authResponse = await requireCmsAuth(req as any)
@@ -101,7 +131,7 @@ export async function GET(req: NextRequest) {
   let enriched = 0
   const errors: any[] = []
 
-  for (const poi of pois) {
+  await runConcurrent(pois, 5, async (poi) => {
     try {
       const lat = parseFloat(poi.lat)
       const lng = parseFloat(poi.lng)
@@ -134,12 +164,15 @@ export async function GET(req: NextRequest) {
         headers: { ...headers, Prefer: 'return=minimal' },
         body: JSON.stringify(patch),
       })
-      if (patchRes.ok) enriched++
-      else errors.push({ id: poi.id, error: await patchRes.text() })
+      if (patchRes.ok) {
+        enriched++
+      } else {
+        errors.push({ id: poi.id, error: await patchRes.text() })
+      }
     } catch (e: any) {
       errors.push({ id: poi.id, error: e.message })
     }
-  }
+  })
 
   // Log
   try {
