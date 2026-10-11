@@ -45,6 +45,17 @@ const KNOWN_DRIFT = new Set([
   // Automatisations
   'instagram_scheduled_posts', // /api/instagram/cron + /scheduled : planification Instagram HS
   'instagram_comments',        // /api/webhooks/instagram + /api/cms/instagram/comments
+
+  // Phase 12 Additions missing migrations
+  'cms_accommodations',
+  'cms_api_tokens',
+  'cms_audit_log',
+  'cms_post_revisions',
+  'cms_releases',
+  'cms_webhook_deliveries',
+  'cms_webhooks',
+  'cms_zone_variants',
+  'photo_blocks',
   'instagram_webhook_logs',    // /api/webhooks/instagram
   'jules_sessions',            // /api/jules
   'jules_memory',              // /api/jules
