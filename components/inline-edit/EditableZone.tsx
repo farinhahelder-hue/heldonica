@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useRef, useEffect } from 'react'
+import DOMPurify from 'dompurify'
 import Link from 'next/link'
 import { useEditableContext } from './InlineEditProvider'
 import AiImproveModal from './AiImproveModal'
@@ -92,7 +93,7 @@ export default function EditableZone({
     if (type === 'image') {
       return <ZoneImage src={content} className={className} />
     }
-    return <Tag className={className} dangerouslySetInnerHTML={{ __html: content }} />
+    return <Tag className={className} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }} />
   }
 
   const renderViewMode = () => {
@@ -122,7 +123,7 @@ export default function EditableZone({
           {type === 'image' ? (
             <img src={value} alt="" className={className} loading="lazy" />
           ) : (
-            <Tag dangerouslySetInnerHTML={{ __html: value }} />
+            <Tag dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(value) }} />
           )}
 
           {/* Crayon overlay button */}
