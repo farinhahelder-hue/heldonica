@@ -43,18 +43,19 @@ export async function POST(req: NextRequest) {
     const workDir = path.join(os.tmpdir(), `video-assembly-${sessionId}`);
     await fs.mkdir(workDir, { recursive: true });
 
-    const imagePaths: string[] = [];
-
     console.log(`Working directory: ${workDir}`);
 
-    // Download images
-    for (let i = 0; i < images.length; i++) {
-      const ext = path.extname(new URL(images[i].url || images[i]).pathname) || '.jpg';
-      const dest = path.join(workDir, `img_${String(i).padStart(3, '0')}${ext}`);
-      console.log(`Downloading ${images[i].url || images[i]} to ${dest}`);
-      await downloadFile(images[i].url || images[i], dest);
-      imagePaths.push(dest);
-    }
+    // Download images concurrently
+    const imagePaths = await Promise.all(
+      images.map(async (image: any, i: number) => {
+        const url = image.url || image;
+        const ext = path.extname(new URL(url).pathname) || '.jpg';
+        const dest = path.join(workDir, `img_${String(i).padStart(3, '0')}${ext}`);
+        console.log(`Downloading ${url} to ${dest}`);
+        await downloadFile(url, dest);
+        return dest;
+      })
+    );
 
     // Download audio if provided
     let localAudioPath = null;
