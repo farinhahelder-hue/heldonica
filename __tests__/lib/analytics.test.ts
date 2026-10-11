@@ -20,6 +20,48 @@ describe('analytics', () => {
       expect(true).toBe(true)
     })
 
+    it('should not call gtag when tracking consent is missing', () => {
+      const mockGtag = vi.fn()
+      vi.stubGlobal('window', {
+        gtag: mockGtag,
+        localStorage: {
+          getItem: vi.fn().mockReturnValue(null),
+        },
+      })
+
+      trackEvent('test_event')
+
+      expect(mockGtag).not.toHaveBeenCalled()
+    })
+
+    it('should not call gtag when tracking consent is rejected', () => {
+      const mockGtag = vi.fn()
+      vi.stubGlobal('window', {
+        gtag: mockGtag,
+        localStorage: {
+          getItem: vi.fn().mockReturnValue('rejected'),
+        },
+      })
+
+      trackEvent('test_event')
+
+      expect(mockGtag).not.toHaveBeenCalled()
+    })
+
+    it('should call gtag when tracking consent is accepted and gtag is available', () => {
+      const mockGtag = vi.fn()
+      vi.stubGlobal('window', {
+        gtag: mockGtag,
+        localStorage: {
+          getItem: vi.fn().mockReturnValue('accepted'),
+        },
+      })
+
+      trackEvent('test_event', { param1: 'value1' })
+
+      expect(mockGtag).toHaveBeenCalledWith('event', 'test_event', { param1: 'value1' })
+    })
+
     it('should not call gtag when gtag function is not available', () => {
       vi.stubGlobal('window', {
         gtag: undefined,
