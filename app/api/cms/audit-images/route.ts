@@ -82,57 +82,75 @@ export async function GET(req: Request) {
     const allPosts: { id: number; slug: string; title: string; category: string | null; featured_image: string | null }[] =
       (posts || []).filter((p: any) => p.slug);
 
-    // Étape 1 : construire le compte de duplication par photo_id
+    // Étape 1 : construire le compte de duplication par photo_id et créer les items en un seul passage
     const photoIdToSlugs = new Map<string, string[]>();
-    for (const p of allPosts) {
-      if (!p.featured_image) continue;
-      if (isSupabaseStorage(p.featured_image)) continue;
-      if (isEditorialImage(p.featured_image)) continue;
-      const photoId = parsePhotoId(p.featured_image);
-      if (!photoId) continue;
-      if (!photoIdToSlugs.has(photoId)) photoIdToSlugs.set(photoId, []);
-      photoIdToSlugs.get(photoId)!.push(p.slug);
-    }
+    const items: ImageAuditItem[] = new Array(allPosts.length);
 
-    // Étape 2 : qualifier chaque article
-    const items: ImageAuditItem[] = allPosts.map(p => {
+    for (let i = 0; i < allPosts.length; i++) {
+      const p = allPosts[i];
       const url = p.featured_image;
-      const isSupa = isSupabaseStorage(url);
-      const isEdi = isEditorialImage(url);
-      const photoId = parsePhotoId(url);
-      const sharedSlugs = photoId && photoIdToSlugs.has(photoId)
-        ? photoIdToSlugs.get(photoId)!.filter(s => s !== p.slug)
-        : [];
-      const duplicateCount = sharedSlugs.length + 1;
-
+      let isSupa = false;
+      let isEdi = false;
+      let photoId: string | null = null;
       let issueType: ImageIssueType = 'ok';
 
       if (!url || url.trim() === '') {
         issueType = 'null';
-      } else if (isSupa || isEdi) {
-        issueType = 'ok'; // assets validés, jamais à corriger
-      } else if (photoId && GENERIC_PHOTO_IDS.has(photoId)) {
-        issueType = 'generic';
-      } else if (url.toLowerCase().includes('placeholder')) {
-        issueType = 'generic';
-      } else if (duplicateCount >= 2 && photoId) {
-        issueType = 'duplicate';
+      } else {
+        isSupa = isSupabaseStorage(url);
+        if (!isSupa) {
+          isEdi = isEditorialImage(url);
+          if (!isEdi) {
+            photoId = parsePhotoId(url);
+            if (photoId) {
+              let slugsArray = photoIdToSlugs.get(photoId);
+              if (slugsArray === undefined) {
+                slugsArray = [];
+                photoIdToSlugs.set(photoId, slugsArray);
+              }
+              slugsArray.push(p.slug);
+
+              if (GENERIC_PHOTO_IDS.has(photoId)) {
+                issueType = 'generic';
+              }
+            }
+            if (issueType === 'ok' && url.toLowerCase().includes('placeholder')) {
+              issueType = 'generic';
+            }
+          }
+        }
       }
 
-      return {
+      items[i] = {
         id: p.id,
         slug: p.slug,
         title: p.title,
         category: p.category,
         featured_image: url,
-        issue_type: issueType,
-        shared_with: sharedSlugs,
-        duplicate_count: duplicateCount,
+        issue_type: issueType, // initial issue type, might change to duplicate in step 2
+        shared_with: [],
+        duplicate_count: 1,
         photo_id: photoId,
         is_supabase: isSupa,
         is_editorial: isEdi,
       };
-    });
+    }
+
+    // Étape 2 : qualifier chaque article pour la duplication
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.photo_id) {
+        const allShared = photoIdToSlugs.get(item.photo_id);
+        if (allShared !== undefined && allShared.length > 1) {
+          // filter without creating intermediate array references
+          item.shared_with = allShared.filter(s => s !== item.slug);
+          item.duplicate_count = allShared.length;
+          if (item.issue_type === 'ok') {
+            item.issue_type = 'duplicate';
+          }
+        }
+      }
+    }
 
     // Étape 3 : statistiques
     const byType: Record<ImageIssueType, number> = { null: 0, generic: 0, duplicate: 0, ok: 0 };
