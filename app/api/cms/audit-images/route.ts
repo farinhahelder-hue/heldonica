@@ -82,57 +82,80 @@ export async function GET(req: Request) {
     const allPosts: { id: number; slug: string; title: string; category: string | null; featured_image: string | null }[] =
       (posts || []).filter((p: any) => p.slug);
 
-    // Étape 1 : construire le compte de duplication par photo_id
-    const photoIdToSlugs = new Map<string, string[]>();
-    for (const p of allPosts) {
-      if (!p.featured_image) continue;
-      if (isSupabaseStorage(p.featured_image)) continue;
-      if (isEditorialImage(p.featured_image)) continue;
-      const photoId = parsePhotoId(p.featured_image);
-      if (!photoId) continue;
-      if (!photoIdToSlugs.has(photoId)) photoIdToSlugs.set(photoId, []);
-      photoIdToSlugs.get(photoId)!.push(p.slug);
-    }
+    // Étape 1 & 2 fusionnées : construction et qualification
+    const len = allPosts.length;
+    const items: ImageAuditItem[] = new Array(len);
+    const itemsByPhotoId = new Map<string, ImageAuditItem[]>();
 
-    // Étape 2 : qualifier chaque article
-    const items: ImageAuditItem[] = allPosts.map(p => {
+    for (let i = 0; i < len; i++) {
+      const p = allPosts[i];
       const url = p.featured_image;
       const isSupa = isSupabaseStorage(url);
       const isEdi = isEditorialImage(url);
       const photoId = parsePhotoId(url);
-      const sharedSlugs = photoId && photoIdToSlugs.has(photoId)
-        ? photoIdToSlugs.get(photoId)!.filter(s => s !== p.slug)
-        : [];
-      const duplicateCount = sharedSlugs.length + 1;
 
       let issueType: ImageIssueType = 'ok';
-
       if (!url || url.trim() === '') {
         issueType = 'null';
       } else if (isSupa || isEdi) {
-        issueType = 'ok'; // assets validés, jamais à corriger
+        issueType = 'ok';
       } else if (photoId && GENERIC_PHOTO_IDS.has(photoId)) {
         issueType = 'generic';
       } else if (url.toLowerCase().includes('placeholder')) {
         issueType = 'generic';
-      } else if (duplicateCount >= 2 && photoId) {
-        issueType = 'duplicate';
       }
 
-      return {
+      const item: ImageAuditItem = {
         id: p.id,
         slug: p.slug,
         title: p.title,
         category: p.category,
         featured_image: url,
         issue_type: issueType,
-        shared_with: sharedSlugs,
-        duplicate_count: duplicateCount,
+        shared_with: [],
+        duplicate_count: 1,
         photo_id: photoId,
         is_supabase: isSupa,
         is_editorial: isEdi,
       };
-    });
+
+      if (photoId && !isSupa && !isEdi) {
+        let group = itemsByPhotoId.get(photoId);
+        if (group === undefined) {
+          group = [];
+          itemsByPhotoId.set(photoId, group);
+        }
+        group.push(item);
+      }
+
+      items[i] = item;
+    }
+
+    for (const group of itemsByPhotoId.values()) {
+      const groupLen = group.length;
+      if (groupLen >= 2) {
+        const allSlugs = new Array(groupLen);
+        for (let i = 0; i < groupLen; i++) {
+          allSlugs[i] = group[i].slug;
+        }
+
+        for (let i = 0; i < groupLen; i++) {
+          const item = group[i];
+          if (item.issue_type === 'ok') {
+            item.issue_type = 'duplicate';
+          }
+          item.duplicate_count = groupLen;
+
+          const shared = new Array(groupLen - 1);
+          for (let j = 0, k = 0; j < groupLen; j++) {
+            if (i !== j) {
+              shared[k++] = allSlugs[j];
+            }
+          }
+          item.shared_with = shared;
+        }
+      }
+    }
 
     // Étape 3 : statistiques
     const byType: Record<ImageIssueType, number> = { null: 0, generic: 0, duplicate: 0, ok: 0 };
