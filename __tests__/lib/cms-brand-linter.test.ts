@@ -33,7 +33,7 @@ describe('CMS Brand Voice Linter (lib/cms-brand-linter.ts)', () => {
     const dirtyBlock: CmsBlock = {
       id: 't1',
       type: 'text',
-      content: 'Voici un super bon plan pour vos prochaines vacances, un spot incontournable et magnifique !',
+      content: 'Voici un super bon plan pour vos prochaines vacances, un spot incontournable, magnifique et parfait !',
     };
 
     const res = lintBlock(dirtyBlock);
@@ -42,6 +42,7 @@ describe('CMS Brand Voice Linter (lib/cms-brand-linter.ts)', () => {
     expect(res.forbiddenWords).toContain('incontournable');
     expect(res.forbiddenWords).toContain('magnifique');
     expect(res.forbiddenWords).toContain('spot');
+    expect(res.forbiddenWords).toContain('parfait');
 
     const bonPlanIssue = res.issues.find((i) => i.word === 'bon plan');
     expect(bonPlanIssue?.suggestion).toBe(BRAND_REPLACEMENTS['bon plan']);

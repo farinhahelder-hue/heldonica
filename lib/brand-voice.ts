@@ -40,6 +40,7 @@ export const FORBIDDEN_WORDS = [
   'solutions innovantes',
   'expertise reconnue',
   'meilleur partenaire',
+  'parfait',
   // Tics de langage IA générique
   'plongez dans',
   'plonger dans',
