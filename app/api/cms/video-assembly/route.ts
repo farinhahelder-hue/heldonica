@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Download audio if provided
-    let localAudioPath = null;
+    let localAudioPath: string | null = null;
     if (audioUrl) {
       const ext = path.extname(new URL(audioUrl).pathname) || '.mp3';
       localAudioPath = path.join(workDir, `audio${ext}`);
