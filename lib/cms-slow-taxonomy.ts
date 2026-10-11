@@ -110,10 +110,10 @@ export function buildSlowTravelSnippetTags(input: SlowTaxonomyInput): string[] {
 }
 
 /**
- * Construit l'URL canonique pour l'affichage Google (source unique : siteUrl()).
+ * Construit l'URL canonique pour l'affichage Google (source unique : siteUrl).
  */
 export function getCanonicalArticleUrl(slug?: string, category?: string): string {
-  const baseUrl = siteUrl();
+  const baseUrl = siteUrl;
   const cleanSlug = slug?.trim() || 'carnet-de-voyage';
   if (category?.toLowerCase().includes('destination')) {
     return `${baseUrl}/destinations/${cleanSlug}`;
