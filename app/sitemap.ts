@@ -3,9 +3,12 @@ import { getAllPosts } from '@/lib/blog-supabase'
 
 const BASE_URL = 'https://www.heldonica.fr'
 
-// Fallback image for articles without featured_image
-// TODO: Remplacer par les vrais visuels issus des prompts image (13 prompts prêts dans le plan de correction)
-const FALLBACK_IMAGE = 'https://www.heldonica.fr/og-default.jpg'
+/** Build a fallback OG image URL via /api/og when no real image exists */
+function ogFallbackUrl(title: string, description: string | null): string {
+  const desc = (description || '').length > 160 ? description!.substring(0, 157) + '...' : (description || '')
+  return `${BASE_URL}/api/og?title=${encodeURIComponent(title)}&description=${encodeURIComponent(desc)}&type=article`
+}
+
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Pages statiques principales
@@ -513,7 +516,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const changeFreq = (p.sitemap_changefreq as string) || 'weekly';
       
       // Determine image URL - escape XML entities for valid sitemap XML
-      const imageUrl = (post.featured_image || FALLBACK_IMAGE).replace(/&/g, '&amp;');
+      const imageUrl = (post.featured_image || ogFallbackUrl(post.title, post.excerpt || null)).replace(/&/g, '&amp;');
       
       return {
         url: `${BASE_URL}/blog/${post.slug}`,
