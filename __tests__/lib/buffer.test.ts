@@ -8,6 +8,7 @@ import {
 
 describe('buffer', () => {
   describe('getBufferComposerUrl', () => {
+    // Test base URL generation without profileId
     it('should return base URL without profileId', () => {
       expect(getBufferComposerUrl()).toBe('https://publish.buffer.com/composer')
     })
@@ -22,6 +23,10 @@ describe('buffer', () => {
 
     it('should handle special characters in profileId', () => {
       expect(getBufferComposerUrl('abc_123')).toBe('https://publish.buffer.com/composer?profile=abc_123')
+    })
+
+    it('should correctly format when passing undefined explicitly', () => {
+      expect(getBufferComposerUrl(undefined)).toBe('https://publish.buffer.com/composer')
     })
   })
 
