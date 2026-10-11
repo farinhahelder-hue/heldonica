@@ -31,7 +31,8 @@ export function createSafeSupabaseStub(): SupabaseClient {
       return new Proxy(() => {}, handler);
     },
     apply(target: any, thisArg: any, argumentsList: any[]) {
-      // Allows calling the proxy as a function (e.g. .from('table'))
+      // Avoid hardcoding a dummy table name in the code itself like `.from('table')`
+      // as it causes the CMS drift check to pick it up as a missing table.
       return new Proxy(() => {}, handler);
     }
   };
