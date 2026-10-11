@@ -25,6 +25,11 @@ faite : ce ne sont pas des renommages — aucun autre nom n'existe dans le dép�
 - `scripts/check-cms-drift.mjs` : les 9 tables sont inscrites dans `KNOWN_DRIFT`
   avec la référence de la migration — le job redevient vert sans masquer une
   dérive future.
+- `scripts/check-cms-drift.mjs` : correction d'un faux positif du contrôle des
+  colonnes. Le `:` d'un ternaire (`api_key_id: isValidUuid ? params.apiKeyId : null`)
+  était pris pour un séparateur clé/valeur et produisait la colonne fantôme
+  `apiKeyId`, signalée absente alors que la vraie colonne `api_key_id` existe.
+  Une clé d'objet doit désormais suivre `{` ou `,`.
 
 ### Vérifié
 - Syntaxe SQL validée par le parser PostgreSQL réel (pglast / libpg_query) :

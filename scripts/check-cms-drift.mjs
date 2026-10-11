@@ -161,7 +161,20 @@ function clesDePremierNiveau(corps) {
     const jeton = m[0];
     if (jeton === '{' || jeton === '[') { profondeur++; continue; }
     if (jeton === '}' || jeton === ']') { profondeur--; continue; }
-    if (profondeur === 0 && m[1]) cles.push(m[1]);
+    if (profondeur !== 0 || !m[1]) continue;
+
+    // Une clé d'objet suit immédiatement `{` ou `,` (ou ouvre le corps). Sans ce
+    // contrôle, le `:` d'un ternaire était pris pour un séparateur clé/valeur :
+    // `api_key_id: isValidUuid ? params.apiKeyId : null` produisait la colonne
+    // fantôme `apiKeyId`, signalée comme absente alors que la vraie colonne
+    // `api_key_id` existe. Même famille de bruit que les clés jsonb ou les
+    // libellés entre guillemets — et une alerte fausse finit par faire ignorer
+    // les vraies.
+    let i = m.index - 1;
+    while (i >= 0 && /\s/.test(corps[i])) i--;
+    if (i >= 0 && corps[i] !== '{' && corps[i] !== ',') continue;
+
+    cles.push(m[1]);
   }
   return cles;
 }
