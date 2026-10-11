@@ -58,13 +58,20 @@ export async function POST(req: NextRequest) {
 
   const cibles = []
 
-  for (const nom of fichiers) {
+  const promises = fichiers.map(async (nom) => {
     // Le nom vient du telephone : on ne garde que des caracteres surs et on
     // prefixe d'un horodatage, pour qu'aucun envoi n'ecrase le precedent.
     const sain = String(nom).replace(/[^a-zA-Z0-9._-]/g, '_').slice(-80) || 'media.jpg'
     const chemin = `${rangement}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${sain}`
 
-    const { data, error } = await sb.storage.from(BUCKET).createSignedUploadUrl(chemin)
+    const result = await sb.storage.from(BUCKET).createSignedUploadUrl(chemin)
+    return { sain, chemin, result }
+  })
+
+  const results = await Promise.all(promises)
+
+  for (const { sain, chemin, result } of results) {
+    const { data, error } = result
     if (error) {
       return NextResponse.json(
         { error: `URL de televersement refusee pour ${sain} : ${error.message}` },
