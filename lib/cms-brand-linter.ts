@@ -49,6 +49,7 @@ export const BRAND_REPLACEMENTS: Record<string, string> = {
   'incroyable': 'décris ce qui t\'a surpris',
   'inoubliable': 'qui reste en tête',
   'paradis': 'refuge préservé',
+  'parfait': 'décris ce qui fonctionnait bien',
   'paradisiaque': 'sauvage et préservé',
   'voyage organisé': 'carnet de route à notre rythme',
   'circuit': 'itinéraire lent',
