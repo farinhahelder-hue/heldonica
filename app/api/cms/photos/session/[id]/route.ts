@@ -115,97 +115,75 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     const echecs: string[] = [];
     const sansGps: string[] = [];
 
-    const CONCURRENCY = 10;
-    const queue = [...items];
+    for (const item of items) {
+      const mf = item.mediaFile;
+      if (!mf?.baseUrl) { ignores++; continue; }
 
-    const workers = Array(CONCURRENCY)
-      .fill(null)
-      .map(async () => {
-        while (queue.length > 0) {
-          const item = queue.shift();
-          if (!item) break;
+      const nom = (mf.filename || `${item.id}.jpg`).replace(/[^a-zA-Z0-9._-]/g, '_');
+      const estVideo = Boolean(mf.mimeType?.startsWith('video/'));
+      const chemin = `destinations/${dossier}/${nom}`;
 
-          const mf = item.mediaFile;
-          if (!mf?.baseUrl) {
-            ignores++;
-            continue;
-          }
+      try {
+        const buffer = await downloadMedia(mf.baseUrl, estVideo);
 
-          const nom = (mf.filename || `${item.id}.jpg`).replace(/[^a-zA-Z0-9._-]/g, '_');
-          const estVideo = Boolean(mf.mimeType?.startsWith('video/'));
-          const chemin = `destinations/${dossier}/${nom}`;
+        const { error: erreurUpload } = await sb.storage
+          .from(BUCKET)
+          .upload(chemin, buffer, {
+            contentType: mf.mimeType || (estVideo ? 'video/mp4' : 'image/jpeg'),
+            upsert: true,
+          });
+        if (erreurUpload) throw new Error(erreurUpload.message);
 
-          try {
-            const buffer = await downloadMedia(mf.baseUrl, estVideo);
-
-            const { error: erreurUpload } = await sb.storage
-              .from(BUCKET)
-              .upload(chemin, buffer, {
-                contentType: mf.mimeType || (estVideo ? 'video/mp4' : 'image/jpeg'),
-                upsert: true,
-              });
-            if (erreurUpload) throw new Error(erreurUpload.message);
-
-            const url = sb.storage.from(BUCKET).getPublicUrl(chemin).data.publicUrl;
-            // exifr ne lit que les images ; pour une vidéo on retombe sur la date
-            // de création fournie par Google, sans coordonnées.
-            const meta = estVideo
-              ? { lat: null, lon: null, prise: item.createTime ?? null, appareil: null }
-              : await lireExif(buffer);
-            let dateSource: 'exif' | 'google' | 'nom_fichier' | 'aucune' = estVideo
-              ? 'google'
-              : meta.prise
-                ? 'exif'
-                : 'aucune';
-            if (!meta.prise) {
-              const duNom = dateDuNom(nom);
-              if (duNom) {
-                meta.prise = duNom;
-                dateSource = 'nom_fichier';
-              }
-            }
-
-            if (!estVideo && meta.lat === null) sansGps.push(nom);
-
-            const { error: erreurBase } = await (sb as any).from('cms_media').upsert(
-              {
-                filename: nom,
-                url,
-                // Noms alignes sur la table reelle : la migration d'origine declare
-                // file_path / file_type / file_size, dont la production a diverge.
-                path: chemin,
-                mime_type: mf.mimeType ?? (estVideo ? 'video/mp4' : 'image/jpeg'),
-                size: buffer.length,
-                source: 'gphotos',
-                google_photo_id: item.id,
-                latitude: meta.lat,
-                longitude: meta.lon,
-                taken_at: meta.prise,
-                metadata: {
-                  appareil: meta.appareil,
-                  mime: mf.mimeType ?? null,
-                  largeur: mf.mediaFileMetadata?.width ?? null,
-                  hauteur: mf.mediaFileMetadata?.height ?? null,
-                  destination: dossier,
-                  date_source: dateSource,
-                },
-              },
-              // Un objet du stockage = une fiche : le chemin est la clé (index
-              // unique cms_media_path_key). L'ancien conflit sur google_photo_id
-              // n'avait aucune contrainte derrière : 42P10 à chaque photo, après
-              // le téléversement — 135 fichiers, 0 fiche, le 21/09/2026.
-              { onConflict: 'path' }
-            );
-            if (erreurBase) throw new Error(erreurBase.message);
-
-            importes++;
-          } catch (e: any) {
-            echecs.push(`${nom} : ${e?.message ?? 'erreur'}`);
-          }
+        const url = sb.storage.from(BUCKET).getPublicUrl(chemin).data.publicUrl;
+        // exifr ne lit que les images ; pour une vidéo on retombe sur la date
+        // de création fournie par Google, sans coordonnées.
+        const meta = estVideo
+          ? { lat: null, lon: null, prise: item.createTime ?? null, appareil: null }
+          : await lireExif(buffer);
+        let dateSource: 'exif' | 'google' | 'nom_fichier' | 'aucune' = estVideo ? 'google' : meta.prise ? 'exif' : 'aucune';
+        if (!meta.prise) {
+          const duNom = dateDuNom(nom);
+          if (duNom) { meta.prise = duNom; dateSource = 'nom_fichier'; }
         }
-      });
 
-    await Promise.all(workers);
+        if (!estVideo && meta.lat === null) sansGps.push(nom);
+
+        const { error: erreurBase } = await (sb as any).from('cms_media').upsert(
+          {
+            filename: nom,
+            url,
+            // Noms alignes sur la table reelle : la migration d'origine declare
+            // file_path / file_type / file_size, dont la production a diverge.
+            path: chemin,
+            mime_type: mf.mimeType ?? (estVideo ? 'video/mp4' : 'image/jpeg'),
+            size: buffer.length,
+            source: 'gphotos',
+            google_photo_id: item.id,
+            latitude: meta.lat,
+            longitude: meta.lon,
+            taken_at: meta.prise,
+            metadata: {
+              appareil: meta.appareil,
+              mime: mf.mimeType ?? null,
+              largeur: mf.mediaFileMetadata?.width ?? null,
+              hauteur: mf.mediaFileMetadata?.height ?? null,
+              destination: dossier,
+              date_source: dateSource,
+            },
+          },
+          // Un objet du stockage = une fiche : le chemin est la clé (index
+          // unique cms_media_path_key). L'ancien conflit sur google_photo_id
+          // n'avait aucune contrainte derrière : 42P10 à chaque photo, après
+          // le téléversement — 135 fichiers, 0 fiche, le 21/09/2026.
+          { onConflict: 'path' }
+        );
+        if (erreurBase) throw new Error(erreurBase.message);
+
+        importes++;
+      } catch (e: any) {
+        echecs.push(`${nom} : ${e?.message ?? 'erreur'}`);
+      }
+    }
 
     return NextResponse.json({
       succes: true,
