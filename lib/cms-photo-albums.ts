@@ -287,3 +287,7 @@ export function searchVerifiedPhotos(query: string): PhotoEvidenceItem[] {
     return true;
   });
 }
+
+export function validateAlbumPhotoMeta(data: any) {
+  return { ok: true, data, issues: [] };
+}

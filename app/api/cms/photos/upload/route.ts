@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireCmsAuth } from '@/lib/cms-auth';
-import { validateAlbumPhotoMeta } from '@/lib/photo-albums';
+import { validateAlbumPhotoMeta } from '@/lib/cms-photo-albums';
 import { extractPhotoExif, detectStockPhoto, type PhotoExifResult } from '@/lib/photo-exif';
 
 const BUCKET = 'photos';

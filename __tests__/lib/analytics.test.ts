@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { trackEvent } from '@/lib/analytics'
+import { trackEvent, trackNewsletterSignup } from '@/lib/analytics'
 
 describe('analytics', () => {
   describe('trackEvent', () => {
@@ -98,5 +98,91 @@ describe('analytics', () => {
 
       expect(mockGtag).toHaveBeenCalledWith('event', 'simple_event', {})
     })
+  describe('trackNewsletterSignup', () => {
+    beforeEach(() => {
+      vi.stubEnv('NEXT_PUBLIC_GA_ENABLED', 'true')
+    })
+
+    afterEach(() => {
+      vi.unstubAllGlobals()
+      vi.clearAllMocks()
+    })
+
+    it('should hash email and send trackEvent with correct parameters (source: footer)', () => {
+      const mockGtag = vi.fn()
+      vi.stubGlobal('window', {
+        gtag: mockGtag,
+        localStorage: {
+          getItem: vi.fn().mockReturnValue('accepted'),
+        },
+      })
+
+      trackNewsletterSignup('test@example.com', 'footer')
+
+      expect(mockGtag).toHaveBeenCalledWith('event', 'newsletter_signup', {
+        source: 'footer',
+        email_hash: 'n90sz5', // Hash of 'test@example.com'
+      })
+    })
+
+    it('should hash email and send trackEvent with correct parameters (source: popup)', () => {
+      const mockGtag = vi.fn()
+      vi.stubGlobal('window', {
+        gtag: mockGtag,
+        localStorage: {
+          getItem: vi.fn().mockReturnValue('accepted'),
+        },
+      })
+
+      trackNewsletterSignup('test@example.com', 'popup')
+
+      expect(mockGtag).toHaveBeenCalledWith('event', 'newsletter_signup', {
+        source: 'popup',
+        email_hash: 'n90sz5',
+      })
+    })
+
+    it('should correctly hash different emails', () => {
+      const mockGtag = vi.fn()
+      vi.stubGlobal('window', {
+        gtag: mockGtag,
+        localStorage: {
+          getItem: vi.fn().mockReturnValue('accepted'),
+        },
+      })
+
+      trackNewsletterSignup('another@test.com', 'inline')
+
+      // Ensure it's not strictly 'n90sz5' for this new string
+      expect(mockGtag).toHaveBeenCalledWith('event', 'newsletter_signup', expect.objectContaining({
+        source: 'inline',
+        email_hash: expect.not.stringMatching('^n90sz5$')
+      }))
+
+      // also ensure that email_hash actually exists and is a string
+      expect(mockGtag).toHaveBeenCalledWith('event', 'newsletter_signup', expect.objectContaining({
+        source: 'inline',
+        email_hash: expect.any(String)
+      }))
+    })
+
+    it('should handle source: blog correctly', () => {
+        const mockGtag = vi.fn()
+        vi.stubGlobal('window', {
+          gtag: mockGtag,
+          localStorage: {
+            getItem: vi.fn().mockReturnValue('accepted'),
+          },
+        })
+
+        trackNewsletterSignup('hello@world.com', 'blog')
+
+        expect(mockGtag).toHaveBeenCalledWith('event', 'newsletter_signup', expect.objectContaining({
+          source: 'blog',
+          email_hash: expect.any(String)
+        }))
+      })
+
   })
+})
 })
