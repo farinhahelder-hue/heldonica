@@ -543,7 +543,7 @@ export default function PhotoPickerModal({
                     <div>
                       <p className="font-semibold">Alerte banque d’images / stock détectée</p>
                       <p className="text-[11px] text-amber-800 mt-0.5">
-                        {manualStockCheck.reasons.join(' · ')}
+                        {manualStockCheck?.reasons?.join(' · ')}
                       </p>
                       <p className="text-[10px] text-amber-700 mt-1 italic">
                         Règle n°1 d’Heldonica : « On n'invente rien ». Les visuels doivent attester d'un terrain réel vécu par le duo.

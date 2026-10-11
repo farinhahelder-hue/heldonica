@@ -6,7 +6,11 @@
  * mobilités décarbonées, budgets réels constatés, durées en immersion).
  */
 
-import { siteUrl } from '@/lib/site-url';
+import { getEnv } from '@/lib/env';
+
+export function siteUrl() {
+  return getEnv('NEXT_PUBLIC_SITE_URL', 'https://www.heldonica.fr');
+}
 
 export interface SlowSeasonOption {
   value: string;

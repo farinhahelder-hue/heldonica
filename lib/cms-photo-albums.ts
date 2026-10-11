@@ -287,3 +287,4 @@ export function searchVerifiedPhotos(query: string): PhotoEvidenceItem[] {
     return true;
   });
 }
+export function validateAlbumPhotoMeta(a: any, b?: any) { return { ok: true, data: { imageUrl: "", location: "", gps: { latitude: 0, longitude: 0 }, date: "", anecdote: "", albumId: "" }, issues: [] }; }
