@@ -88,6 +88,26 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 - Deux espaces restent libres : le couple sans enfants (Perspectives est passé
   famille) et le B2B hôtelier (aucun rival approfondi ne le couvre).
 
+
+## [2026-10-12] — Benchmark de conversion + gabarit lead magnet couple
+
+### Ajouté
+- `docs/benchmark-conversion-concurrents.md` : playbook commercial des rivaux
+  (Fabrique ton Voyage, Destinaslow, Échappées Lointaines) — parcours 4 étapes,
+  prix publics, appel découverte cliquable, badge ATPE, livrable imprimé, offre
+  par destination. Confronte chaque mécanisme à ce qu'Heldonica a déjà.
+- `prompts/lead-magnet-couple.md` : gabarit du guide gratuit « 5 erreurs à deux »
+  (priorité 1 du plan), en gabarit à remplir — aucun fait inventé.
+
+### Constats
+- Heldonica a **déjà** la baseline du marché : parcours 4 étapes, formules
+  250/450 €, mention « sans commission cachée », témoignage daté.
+- Les 6 écarts réels : lien d'appel découverte cliquable, prix visible hors page
+  dédiée, volume de témoignages datés, badge ATPE, offre par destination,
+  livrable imprimé.
+- Fabrique ton Voyage affiche un tarif **dès 40 €/jour** (dès 55 € le week-end)
+  et jusqu'à 170+ voyages créés.
+
 ---
 
 ## [2026-10-11] — Garde-fou statique : toute table référencée doit avoir une migration
