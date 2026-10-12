@@ -7,16 +7,30 @@ export default function BackToTop() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    let ticking = false;
+
     const toggleVisibility = () => {
       if (window.scrollY > 500) {
         setIsVisible(true);
       } else {
         setIsVisible(false);
       }
+      ticking = false;
     };
 
-    window.addEventListener("scroll", toggleVisibility);
-    return () => window.removeEventListener("scroll", toggleVisibility);
+    // ⚡ Bolt Performance Optimization:
+    // What: Throttled scroll event listener using requestAnimationFrame.
+    // Why: Defers state updates during rapid scroll events to the browser's render cycle.
+    // Impact: Avoids main thread jank and ensures smooth 60fps scrolling.
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(toggleVisibility);
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const scrollToTop = () => {
