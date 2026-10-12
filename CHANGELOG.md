@@ -4,6 +4,46 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-10-11] — Réparation du pré-vol : quatre scripts référencés n'existaient pas
+
+### Contexte
+`package.json` appelle `npm run preflight` et `npm run garde-fous` — le geste que
+l'AGENTS.md impose avant de toucher au code — mais `scripts/garde-fous.mjs`
+n'avait **jamais été committé**. Les deux commandes échouaient en
+`MODULE_NOT_FOUND`. Quatre scripts référencés manquaient au total :
+`garde-fous.mjs`, `check-workspace-sync.mjs`, `check-brand-sync.mjs`,
+`sync-brand-voice.mjs`. Même cause que l'incident du 10/10 : un contrôle
+documenté que rien n'exécutait.
+
+### Ajouté
+- `scripts/garde-fous.mjs` : agrégateur, modes `--preflight` (6 contrôles
+  rapides, sans base) et complet (12 contrôles). Un contrôle qui ne peut pas
+  conclure faute d'identifiants Supabase est rapporté **« ignoré »**, jamais
+  « réussi » — un contrôle sauté n'est pas un contrôle vert.
+- `scripts/check-workspace-sync.mjs` : modules critiques absents (les huit
+  fichiers du 10/10 auraient été vus sans compiler) et retard sur `origin/main`.
+- `scripts/check-brand-sync.mjs` + `scripts/sync-brand-voice.mjs` : parité de la
+  voix de marque TS ↔ Python. La liste des mots bannis est **générée** depuis
+  `lib/brand-voice.ts` (source de vérité) vers `lib/brand.py` ; le contrôle
+  compare les deux et vérifie aussi les pronoms (on/tu/vous).
+- `lib/brand.py` : miroir Python (mots bannis, pronoms, garde-fous), importable
+  par les scripts Python du dépôt.
+- `__tests__/scripts/garde-fous-outillage.test.ts` : 10 tests (existence des
+  scripts référencés, modules critiques, extraction, idempotence, parité).
+- CI : deux étapes sans `if:` — **« Espace de travail »** et **« Parité voix
+  de marque »** — qui ne tournaient nulle part jusqu'ici.
+
+### Vérifié
+- `npm run preflight` : **6/6** au vert (au lieu de `MODULE_NOT_FOUND`).
+- `npm run garde-fous` : **10/12** au vert, 2 **ignorés** (identifiants Supabase
+  absents, rapportés comme tels).
+- Contrôles négatifs : mot banni retiré du miroir Python → exit 1 ; pronom
+  altéré → exit 1 ; `lib/cms-zones.ts` déplacé → exit 1 « 1 module critique
+  absent ». Restaurés ensuite.
+- `tsc --noEmit` 0 erreur ; `vitest run` 615 tests au vert (605 + 10).
+
+---
+
 ## [2026-10-11] — Garde-fou statique : toute table référencée doit avoir une migration
 
 ### Contexte
