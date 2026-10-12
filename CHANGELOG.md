@@ -2,6 +2,14 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+
+## [2026-10-12] — Nettoyage : marqueur de conflit git committé par erreur dans le CHANGELOG
+
+### Corrigé
+- `CHANGELOG.md` contenait depuis le commit `0cfa85d` un marqueur
+  `>>>>>>> 0cfa85d ...` resté d'un conflit non résolu, committé puis poussé sur
+  `main`. Retiré ; le fichier ne contient plus aucun marqueur de conflit.
+
 ---
 
 ## [2026-10-12] — Le garde-fou des zones annonçait « ✓ » après un échec de lecture
@@ -1137,7 +1145,6 @@ sans exister dans l'arbre. `npx tsc --noEmit` remontait 11 erreurs TS2307 et
   - Score global `npm run check:content-coherence` propulsé de **90% à 98%** (41/42 articles conformes à ≥85%, 0 mot banni).
   - Suppression confirmée visuellement des étiquettes « Image manquante » dans l'onglet Brouillons de `/panel-manager?section=articles`.
   - Tâche `f6c0d5fe` clôturée en `done` dans le registre Supabase `agent_tasks`.
->>>>>>> 0cfa85d (feat(cms): photo upload mobile, carrousel auto-distribution & fallback LLM local (GTX 1660 Ti))
 
 ---
 
