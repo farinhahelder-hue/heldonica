@@ -2,6 +2,56 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+
+## [2026-10-12] — Nettoyage : marqueur de conflit git committé par erreur dans le CHANGELOG
+
+### Corrigé
+- `CHANGELOG.md` contenait depuis le commit `0cfa85d` un marqueur
+  `>>>>>>> 0cfa85d ...` resté d'un conflit non résolu, committé puis poussé sur
+  `main`. Retiré ; le fichier ne contient plus aucun marqueur de conflit.
+
+---
+
+## [2026-10-12] — Le garde-fou des zones annonçait « ✓ » après un échec de lecture
+
+### Contexte
+`check:cms-zones` interroge Supabase pour croiser les zones CMS actives avec ce
+que le code lit réellement. Quand la lecture échoue — un HTTP 504 de Supabase,
+fréquent et transitoire — le script vidait `rows` (`if (!ok) rows.length = 0`)
+puis affichait quand même :
+
+```
+✗ Lecture de cms_editable_zones impossible (HTTP 504).
+Zones actives en base : 0
+✓ Aucune zone orpheline. Tout ce qui est actif est rendu quelque part.
+```
+
+Le ✓ ne dépendait pas de la lecture : un contrôle qui n'avait rien pu vérifier se
+présentait comme réussi. C'est le faux vert que ce dépôt traque partout, ici dans
+le garde-fou lui-même. Deux conséquences : la sortie ne distinguait pas « aucune
+orpheline » de « aucune donnée lue », et un hoquet d'infrastructure faisait
+rougir `Zones et tables CMS` sur toutes les PR ouvertes.
+
+### Corrigé
+- `scripts/check-cms-zones.mjs` : quand la lecture échoue, la sortie annonce
+  désormais `INCONNU — la lecture a échoué` au lieu du ✓. Le code de sortie
+  était déjà 2 ; c'est le message qui mentait. Le ✓ ne subsiste que sur une
+  lecture réelle.
+
+### Ajouté
+- `__tests__/scripts/check-cms-zones.test.ts` : deux tests qui lancent le script
+  réel contre un serveur HTTP local jouant le rôle de la base. Un 504 ne doit
+  pas produire le ✓ ; une lecture réussie et vide le conserve. (`spawn`
+  asynchrone et non `spawnSync` : le serveur partage la boucle d'événements du
+  test, une attente synchrone provoquerait un interblocage.)
+
+### Non traité
+- Le fond du 504 n'est pas corrigé : c'est un aléa d'infrastructure Supabase,
+  hors du dépôt. Le correctif rend l'échec lisible, il ne l'empêche pas.
+- Les échecs `Dérive des tables` sur certaines branches Jules ne sont pas des
+  défauts : ces branches ont un merge-base antérieur à l'allowlist `KNOWN_DRIFT`
+  introduite par #530. Elles échouent sur des tables déjà arbitrées.
+
 ---
 
 ## [2026-10-11] — Réparation du pré-vol : quatre scripts référencés n'existaient pas
@@ -1095,7 +1145,6 @@ sans exister dans l'arbre. `npx tsc --noEmit` remontait 11 erreurs TS2307 et
   - Score global `npm run check:content-coherence` propulsé de **90% à 98%** (41/42 articles conformes à ≥85%, 0 mot banni).
   - Suppression confirmée visuellement des étiquettes « Image manquante » dans l'onglet Brouillons de `/panel-manager?section=articles`.
   - Tâche `f6c0d5fe` clôturée en `done` dans le registre Supabase `agent_tasks`.
->>>>>>> 0cfa85d (feat(cms): photo upload mobile, carrousel auto-distribution & fallback LLM local (GTX 1660 Ti))
 
 ---
 
@@ -1371,16 +1420,26 @@ Après le `db push` du matin, pgvector était actif mais **0/41 destinations et 
 `supabase db push --dry-run` refusait : « neuf versions distantes sans fichier local ». Faux pour sept d'entre elles (`20260523 … 20260629`) : elles ont un fichier à 8 chiffres, mais un frère à 14 chiffres partage le préfixe et la CLI trie le local par nom de fichier (`0` < `_`), le distant par version — l'appariement dérape. **Le `repair --status reverted` que la CLI propose aurait rejoué ces sept migrations.** Commit `b375e27` : les sept renommées en `<v>000000_…` (même ordre dans les deux tris, `git mv`), et les deux vraies orphelines (`20260903191642` gouvernance agent_tasks, `20260903191920` table ai_context) **reconstituées à l'octet près** depuis `supabase_migrations.schema_migrations.statements` — pas de placeholder. Les six fichiers en attente sont idempotents (`IF NOT EXISTS`, `OR REPLACE`, `DROP POLICY IF EXISTS`) : `db push` rejouera les trois déjà en base sans effet et appliquera les trois manquantes.
 
 ### Reste à faire — à l'utilisateur
-1. Réécrire l'historique distant pour les sept versions renommées — métadonnées seulement, aucun SQL de schéma, dans cet ordre :
-   ```bash
-   supabase migration repair --status applied 20260523000000 20260526000000 20260613000000 20260614000000 20260615000000 20260625000000 20260629000000
-   ```
-   ```bash
-   supabase migration repair --status reverted 20260523 20260526 20260613 20260614 20260615 20260625 20260629
-   ```
-   ```bash
-   supabase db push --linked
-   ```
+1. Réécrire l'historique distant pour les sept versions renommées — métadonnées seulement, aucun SQL de schéma, dans cet ordre :
+
+   ```bash
+
+   supabase migration repair --status applied 20260523000000 20260526000000 20260613000000 20260614000000 20260615000000 20260625000000 20260629000000
+
+   ```
+
+   ```bash
+
+   supabase migration repair --status reverted 20260523 20260526 20260613 20260614 20260615 20260625 20260629
+
+   ```
+
+   ```bash
+
+   supabase db push --linked
+
+   ```
+
    Puis vérifier : `supabase migration list --linked` sans ligne à une seule colonne ; `destinations.embedding` répond 200 ; `backup_articles_20260915` existe.
 2. `gh secret set DISCORD_WEBHOOK` avec l'URL d'un webhook du serveur Discord.
 3. Vérifier `CMS_PASSWORD` sur Vercel ; changer si c'est encore `HELDONICA2026` / `heldonica2026`.
