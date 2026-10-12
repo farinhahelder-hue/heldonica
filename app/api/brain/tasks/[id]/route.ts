@@ -58,7 +58,12 @@ export async function PATCH(
   if (!sb) return NextResponse.json({ error: 'DB unavailable' }, { status: 503 })
 
   const { id } = await context.params
-  const body = await req.json()
+  let body: { status?: string; claimed_by?: string; claimed_at?: string; actions_done?: unknown }
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+  }
   const { status } = body
 
   if (status === 'in_progress') {

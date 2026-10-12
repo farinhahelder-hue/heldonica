@@ -2,24 +2,10 @@ export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { safeEqual } from '@/lib/safe-equal'
 
-// Bearer-only auth — the Brain Poller has no browser session, so x-cms-auth
-// is explicitly excluded here. Uses the same constant-time pattern as lib/bridge-auth.ts.
-async function safeEqual(a: string, b: string): Promise<boolean> {
-  if (typeof a !== 'string' || typeof b !== 'string') return false
-
-  const aBytes = new TextEncoder().encode(a)
-  const bBytes = new TextEncoder().encode(b)
-
-  if (aBytes.byteLength !== bBytes.byteLength) return false
-
-  try {
-    const { timingSafeEqual } = await import('crypto')
-    return timingSafeEqual(aBytes, bBytes)
-  } catch {
-    return a === b
-  }
-}
+// Bearer-only auth — le Brain Poller n'a pas de session navigateur, donc
+// x-cms-auth est explicitement exclu ici.
 
 async function requireBearerOnly(req: Request): Promise<NextResponse | null> {
   const bridgeToken = process.env.BRAIN_BRIDGE_TOKEN?.trim() || null
