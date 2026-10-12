@@ -3,6 +3,131 @@
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
 
+## [2026-10-12] — Mise à jour du document de positionnement éditorial de référence
+
+### Ajouté
+- `docs/positionnement-editorial-concurrents.md` (§1.3) : panel porté de 4 à
+  **11 concurrents identifiés** (médias + travel planners), avec site et
+  élément distinctif. Les 4 acteurs restants sur 15 restent `[INDISPONIBLE]`.
+- (§4.1) tableau complémentaire de faits **vérifiés sur site** : prix publics,
+  parcours, incarnation, appartenance professionnelle, livrable, offre par
+  destination, témoignages.
+- (§10) informations non vérifiables, mise à jour.
+
+### Constat
+- Deux mécanismes manquent côté Heldonica et reviennent chez **tous** les
+  travel planners du panel : appel découverte cliquable, prix affiché hors page
+  dédiée.
+- Légendes Instagram : toujours `[INDISPONIBLE]` (accès automatisé bloqué,
+  aucune capture fournie). Aucune légende inventée.
+
+
+---
+
+## [2026-10-12] — Analyse de positionnement : cible Voyages etc (voyagesetc.fr)
+
+### Ajouté
+- `docs/positionnement-editorial-voyagesetc.md` : lecture d'un blog voyage de
+  référence (Adeline Gressin, Nantes, depuis 2009) à partir de sources
+  publiques uniquement. Distingue [OBSERVÉ] et [INTERPRÉTATION] ; les légendes
+  Instagram sont marquées [INDISPONIBLE] faute d'accès automatisé. Aucun texte
+  concurrent recopié.
+
+### Constat qui engage la voix Heldonica
+- La cible emploie « bons plans », « incontournables », « paradis » — mots
+  bannis par `lib/brand-voice.ts`. C'est la preuve que le lexique interdit
+  n'est pas un tic rédactionnel mais un choix de positionnement : s'inspirer
+  de la cible ne doit pas inclure son lexique.
+
+### Non traité
+- Légendes Instagram de la cible : collecte impossible sans accès au compte
+  (marquées [INDISPONIBLE] dans le document).
+
+
+## [2026-10-12] — Étude de la concurrence directe d'Heldonica
+
+### Ajouté
+- `docs/etude-concurrence-directe-heldonica.md` : identification des acteurs qui
+  disputent réellement le terrain Heldonica (duo, slow travel, couple, service),
+  à partir de sources publiques (annuaire Trip Planner, sites, extraits
+  Instagram). Distingue [OBSERVÉ], [INTERPRÉTATION], [INDISPONIBLE].
+
+### Constats
+- Concurrent le plus direct : **Perspectives de Voyage** (duo « à deux » +
+  slow travel + autrices de guides), mais converti au voyage en famille : le
+  couple sans enfants reste un espace défendable.
+- Le **tutoiement n'est pas un différenciateur** (Destinaslow tutoie aussi) ;
+  le vrai marqueur est le « on » du duo.
+- Trois acteurs directs emploient les mots bannis par `lib/brand-voice.ts`
+  (« bons plans », « incontournables », « inoubliables ») : le lexique interdit
+  est bien le différenciateur lexical du marché.
+- **Échappées Lointaines** publie des légendes Instagram complètes sur son
+  site : structure « accroche-problème → expertise → identité → CTA →
+  hashtags », transposable au gabarit Instagram.
+
+### Limite
+- `heldonica.fr` est en maintenance : le positionnement Heldonica a été lu
+  depuis le dépôt, pas depuis le site en ligne.
+
+
+## [2026-10-12] — Plan de mise en place face à la concurrence
+
+### Ajouté
+- `docs/plan-mise-en-place-face-concurrence.md` : plan actionnable fondé sur
+  l'existant du dépôt (formules 250 € / 450 €, guide gratuit Madère, séquence
+  newsletter, page témoignages, `expert-hotelier`). 7 priorités séquencées,
+  avec pour chacune un indicateur mesurable.
+
+### Constat
+- Le problème Heldonica n'est pas l'offre (complète et tarifée de façon
+  compétitive) mais la visibilité/conversion : lead magnet unique, séquence
+  email non écrites, aucune trace dans les annuaires du métier.
+- Absente du « TOP 50 » Trip Planner où ses concurrents figurent.
+- Le B2B hôtelier est un territoire où elle est quasi seule.
+
+### Non traité
+- Aucune action exécutée : ce document est un plan. Les indicateurs restent à
+  mesurer une fois le site hors maintenance.
+
+
+## [2026-10-12] — Concurrence : profils approfondis + réseau ATPE
+
+### Ajouté
+- `docs/concurrence-profils-approfondis.md` : profils documentés de Perspectives
+  de Voyage, Imprudence des Voyages, Le Monde Cousu Main, plus le rôle de
+  l'ATPE. Sources publiques ; [OBSERVÉ] / [INTERPRÉTATION] / [INDISPONIBLE].
+
+### Constats
+- Perspectives de Voyage est le rival le plus abouti : duo d'autrices Hachette,
+  notice BnF, certification ARPP, 600k pages vues/an, et un B2B éditorial
+  institutionnel (offices de tourisme, SNCF, Icelandair).
+- L'ATPE (association du métier) est le levier de visibilité le plus direct :
+  plusieurs rivaux y sont membres ou au bureau (secrétaire, vice-président,
+  trésorière).
+- Imprudence des Voyages vend par destination ; Heldonica a 15+ itinéraires
+  mais pas d'offre nommée par destination.
+- Deux espaces restent libres : le couple sans enfants (Perspectives est passé
+  famille) et le B2B hôtelier (aucun rival approfondi ne le couvre).
+
+
+## [2026-10-12] — Benchmark de conversion + gabarit lead magnet couple
+
+### Ajouté
+- `docs/benchmark-conversion-concurrents.md` : playbook commercial des rivaux
+  (Fabrique ton Voyage, Destinaslow, Échappées Lointaines) — parcours 4 étapes,
+  prix publics, appel découverte cliquable, badge ATPE, livrable imprimé, offre
+  par destination. Confronte chaque mécanisme à ce qu'Heldonica a déjà.
+- `prompts/lead-magnet-couple.md` : gabarit du guide gratuit « 5 erreurs à deux »
+  (priorité 1 du plan), en gabarit à remplir — aucun fait inventé.
+
+### Constats
+- Heldonica a **déjà** la baseline du marché : parcours 4 étapes, formules
+  250/450 €, mention « sans commission cachée », témoignage daté.
+- Les 6 écarts réels : lien d'appel découverte cliquable, prix visible hors page
+  dédiée, volume de témoignages datés, badge ATPE, offre par destination,
+  livrable imprimé.
+- Fabrique ton Voyage affiche un tarif **dès 40 €/jour** (dès 55 € le week-end)
+  et jusqu'à 170+ voyages créés.
 ## [2026-10-12] — Nettoyage : marqueur de conflit git committé par erreur dans le CHANGELOG
 
 ### Corrigé
