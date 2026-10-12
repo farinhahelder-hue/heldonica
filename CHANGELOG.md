@@ -48,6 +48,26 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 - `heldonica.fr` est en maintenance : le positionnement Heldonica a été lu
   depuis le dépôt, pas depuis le site en ligne.
 
+
+## [2026-10-12] — Plan de mise en place face à la concurrence
+
+### Ajouté
+- `docs/plan-mise-en-place-face-concurrence.md` : plan actionnable fondé sur
+  l'existant du dépôt (formules 250 € / 450 €, guide gratuit Madère, séquence
+  newsletter, page témoignages, `expert-hotelier`). 7 priorités séquencées,
+  avec pour chacune un indicateur mesurable.
+
+### Constat
+- Le problème Heldonica n'est pas l'offre (complète et tarifée de façon
+  compétitive) mais la visibilité/conversion : lead magnet unique, séquence
+  email non écrites, aucune trace dans les annuaires du métier.
+- Absente du « TOP 50 » Trip Planner où ses concurrents figurent.
+- Le B2B hôtelier est un territoire où elle est quasi seule.
+
+### Non traité
+- Aucune action exécutée : ce document est un plan. Les indicateurs restent à
+  mesurer une fois le site hors maintenance.
+
 ---
 
 ## [2026-10-11] — Garde-fou statique : toute table référencée doit avoir une migration
