@@ -3,6 +3,27 @@
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
 
+## [2026-10-12] — Mise à jour du document de positionnement éditorial de référence
+
+### Ajouté
+- `docs/positionnement-editorial-concurrents.md` (§1.3) : panel porté de 4 à
+  **11 concurrents identifiés** (médias + travel planners), avec site et
+  élément distinctif. Les 4 acteurs restants sur 15 restent `[INDISPONIBLE]`.
+- (§4.1) tableau complémentaire de faits **vérifiés sur site** : prix publics,
+  parcours, incarnation, appartenance professionnelle, livrable, offre par
+  destination, témoignages.
+- (§10) informations non vérifiables, mise à jour.
+
+### Constat
+- Deux mécanismes manquent côté Heldonica et reviennent chez **tous** les
+  travel planners du panel : appel découverte cliquable, prix affiché hors page
+  dédiée.
+- Légendes Instagram : toujours `[INDISPONIBLE]` (accès automatisé bloqué,
+  aucune capture fournie). Aucune légende inventée.
+
+
+---
+
 ## [2026-10-12] — Analyse de positionnement : cible Voyages etc (voyagesetc.fr)
 
 ### Ajouté
