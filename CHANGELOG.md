@@ -4,6 +4,42 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-10-11] — Garde-fou statique : toute table référencée doit avoir une migration
+
+### Contexte
+Le 10/10, le commit `a48552a` (92 fichiers, 28 suites de tests) a atterri sur
+`main` avec 9 tables Supabase référencées par du code réel mais **jamais
+migrées**. Il est passé parce que le contrôle qui les aurait vues
+(`check:cms-drift`) interroge la base : sans les secrets
+`NEXT_PUBLIC_SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`, le job est *sauté* et
+affiché vert — un faux vert. La CI tournait, elle était rouge, mais rien ne
+l'a rendue bloquante (pas de protection de branche).
+
+### Ajouté
+- `scripts/check-cms-migrations.mjs` : toute table `from('<table>')` doit exister
+  dans `supabase/migrations/` (ou être inscrite dans `LEGACY_UNMIGRATED`, avec
+  la raison). **Ne lit que le dépôt** — pas de secret, donc pas de saut
+  possible. Complémentaire de `check:cms-drift` : celui-ci dit « la migration
+  existe », l'autre « la table existe en production ».
+- `__tests__/scripts/check-cms-migrations.test.ts` : 6 tests (détection d'une
+  table non migrée, acceptation d'une table migrée/exceptionnée,
+  `storage.from()` ignoré, lecture des formes `CREATE TABLE`).
+- Job CI **« Tables sans migration »**, sans `if:` : il tourne sur chaque PR et
+  chaque push sur `main`, même quand les secrets Supabase sont absents.
+
+### Vérifié
+- Contre l'arbre exact du commit fautif `a48552a` (worktree détaché) : le
+  contrôle signale **précisément les 9 tables** qui ont causé l'incident. Il
+  l'aurait donc attrapé au moment du commit, sans base de données.
+- `tsc --noEmit` 0 erreur ; `vitest run` 605 tests au vert (599 + 6).
+
+### Reste à faire (action humaine)
+- **Protéger `main`** : *Require a pull request* + *Require status checks*
+  (`Types`, `Zones et tables CMS`). Sans cette protection, un commit rouge peut
+  encore atterrir — c'est la cause racine de l'incident, pas un défaut de code.
+
+---
+
 ## [2026-10-11] — Dérive de tables CMS : migration des 9 tables du back-office
 
 ### Contexte

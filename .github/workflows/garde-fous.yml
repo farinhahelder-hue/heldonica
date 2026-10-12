@@ -107,6 +107,15 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: npm run check:cms-drift
 
+      # Tables référencées par le code sans migration versionnée. Ce contrôle
+      # ne lit QUE le dépôt : pas de secret, donc pas de `if:` qui pourrait le
+      # sauter et le faire passer pour vert sans qu'il ait tourné. C'est la
+      # leçon du commit a48552a (2026-10-10) : 9 tables jamais migrées sont
+      # passées parce que le contrôle qui les aurait vues dépendait de secrets
+      # absents et se contentait d'un avertissement.
+      - name: Tables sans migration
+        run: npm run check:cms-migrations
+
       # Cohérence éditoriale et respect des 7 garde-fous (pronoms, mots bannis, E-E-A-T)
       - name: Cohérence éditoriale et lexique
         if: steps.secrets.outputs.presents == 'true'
