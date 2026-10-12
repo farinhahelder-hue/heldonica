@@ -2,6 +2,40 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+
+## [2026-10-12] — Pont Brain-CMS : authentification admin, entrées robustes, tests réels
+
+### Contexte
+Le pont Brain↔CMS (`.kiro/specs/brain-cms-bridge`) marquait sa tâche 12
+« Final checkpoint — all tests pass » alors qu'aucun test du pont n'existait :
+ni `__tests__/api/brain*`, ni `tests/test_bridge_poller.py`. Trois défauts ont
+été trouvés en relisant le code.
+
+### Corrigé
+- `lib/bridge-auth.ts` : le chemin administrateur (`x-cms-auth`) passe désormais
+  **avant** l'exigence de `BRAIN_BRIDGE_TOKEN`. Avant, un admin authentifié
+  recevait un 503 quand le jeton du pont n'était pas configuré — le dispatch
+  humain dépendait d'un secret destiné au poller. Le 503 ne concerne plus que
+  le chemin Bearer.
+- `app/api/brain/tasks/route.ts` et `app/api/brain/tasks/[id]/route.ts` : un
+  corps non-JSON renvoie 400 au lieu de remonter en 500 non géré.
+- `.kiro/specs/brain-cms-bridge/tasks.md` : tâche 12 décochée (elle affirmait un
+  vert non mesuré) et annotée de l'état réel des tests.
+
+### Ajouté
+- `lib/safe-equal.ts` : comparaison à temps constant partagée, utilisée par
+  `cms-auth.ts`, `bridge-auth.ts` et `heartbeat/route.ts` (copie supprimée).
+- `__tests__/api/brain-bridge.test.ts` : 21 tests des routes réelles —
+  authentification (401/503), validation (400/413), et le *claim* atomique
+  (`status='sent'` conditionnel → 409), seule protection contre la
+  double-exécution. Trois de ces tests échouent sur le code d'avant correctif.
+
+### Non traité
+- La suite Brain `tests/test_bridge_poller.py` reste à écrire : le poller vit
+  sur la station locale `heldonica-brain`, hors de ce dépôt.
+- Le *reaper* des tâches `in_progress` bloquées (crash du poller) n'est pas
+  implémenté — changement côté Brain.
+
 ---
 
 ## [2026-10-11] — Garde-fou statique : toute table référencée doit avoir une migration
