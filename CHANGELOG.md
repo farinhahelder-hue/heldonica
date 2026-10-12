@@ -22,6 +22,32 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 - Légendes Instagram de la cible : collecte impossible sans accès au compte
   (marquées [INDISPONIBLE] dans le document).
 
+
+## [2026-10-12] — Étude de la concurrence directe d'Heldonica
+
+### Ajouté
+- `docs/etude-concurrence-directe-heldonica.md` : identification des acteurs qui
+  disputent réellement le terrain Heldonica (duo, slow travel, couple, service),
+  à partir de sources publiques (annuaire Trip Planner, sites, extraits
+  Instagram). Distingue [OBSERVÉ], [INTERPRÉTATION], [INDISPONIBLE].
+
+### Constats
+- Concurrent le plus direct : **Perspectives de Voyage** (duo « à deux » +
+  slow travel + autrices de guides), mais converti au voyage en famille : le
+  couple sans enfants reste un espace défendable.
+- Le **tutoiement n'est pas un différenciateur** (Destinaslow tutoie aussi) ;
+  le vrai marqueur est le « on » du duo.
+- Trois acteurs directs emploient les mots bannis par `lib/brand-voice.ts`
+  (« bons plans », « incontournables », « inoubliables ») : le lexique interdit
+  est bien le différenciateur lexical du marché.
+- **Échappées Lointaines** publie des légendes Instagram complètes sur son
+  site : structure « accroche-problème → expertise → identité → CTA →
+  hashtags », transposable au gabarit Instagram.
+
+### Limite
+- `heldonica.fr` est en maintenance : le positionnement Heldonica a été lu
+  depuis le dépôt, pas depuis le site en ligne.
+
 ---
 
 ## [2026-10-11] — Garde-fou statique : toute table référencée doit avoir une migration
