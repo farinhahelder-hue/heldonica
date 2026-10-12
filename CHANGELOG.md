@@ -2,6 +2,26 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+
+## [2026-10-12] — Analyse de positionnement : cible Voyages etc (voyagesetc.fr)
+
+### Ajouté
+- `docs/positionnement-editorial-voyagesetc.md` : lecture d'un blog voyage de
+  référence (Adeline Gressin, Nantes, depuis 2009) à partir de sources
+  publiques uniquement. Distingue [OBSERVÉ] et [INTERPRÉTATION] ; les légendes
+  Instagram sont marquées [INDISPONIBLE] faute d'accès automatisé. Aucun texte
+  concurrent recopié.
+
+### Constat qui engage la voix Heldonica
+- La cible emploie « bons plans », « incontournables », « paradis » — mots
+  bannis par `lib/brand-voice.ts`. C'est la preuve que le lexique interdit
+  n'est pas un tic rédactionnel mais un choix de positionnement : s'inspirer
+  de la cible ne doit pas inclure son lexique.
+
+### Non traité
+- Légendes Instagram de la cible : collecte impossible sans accès au compte
+  (marquées [INDISPONIBLE] dans le document).
+
 ---
 
 ## [2026-10-11] — Garde-fou statique : toute table référencée doit avoir une migration
