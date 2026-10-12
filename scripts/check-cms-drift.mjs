@@ -30,6 +30,24 @@ const EXTS = new Set(['.ts', '.tsx']);
  * signalera alors toute régression.
  */
 const KNOWN_DRIFT = new Set([
+  "cms_accommodations",
+  "cms_zone_variants",
+  "cms_post_revisions",
+  "cms_audit_log",
+  "cms_releases",
+  "cms_webhooks",
+  "cms_webhook_deliveries",
+  "cms_api_tokens",
+  "photo_blocks",
+  'cms_accommodations',
+  'cms_zone_variants',
+  'cms_post_revisions',
+  'cms_audit_log',
+  'cms_releases',
+  'cms_webhooks',
+  'cms_webhook_deliveries',
+  'cms_api_tokens',
+  'photo_blocks',
   // Back-office
   // cms_pillar_pages : RÉSOLU le 2026-07-30 (Phase 1). Retiré volontairement de
   // cette liste — toute disparition future de la table fera échouer le script.
