@@ -68,6 +68,26 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 - Aucune action exécutée : ce document est un plan. Les indicateurs restent à
   mesurer une fois le site hors maintenance.
 
+
+## [2026-10-12] — Concurrence : profils approfondis + réseau ATPE
+
+### Ajouté
+- `docs/concurrence-profils-approfondis.md` : profils documentés de Perspectives
+  de Voyage, Imprudence des Voyages, Le Monde Cousu Main, plus le rôle de
+  l'ATPE. Sources publiques ; [OBSERVÉ] / [INTERPRÉTATION] / [INDISPONIBLE].
+
+### Constats
+- Perspectives de Voyage est le rival le plus abouti : duo d'autrices Hachette,
+  notice BnF, certification ARPP, 600k pages vues/an, et un B2B éditorial
+  institutionnel (offices de tourisme, SNCF, Icelandair).
+- L'ATPE (association du métier) est le levier de visibilité le plus direct :
+  plusieurs rivaux y sont membres ou au bureau (secrétaire, vice-président,
+  trésorière).
+- Imprudence des Voyages vend par destination ; Heldonica a 15+ itinéraires
+  mais pas d'offre nommée par destination.
+- Deux espaces restent libres : le couple sans enfants (Perspectives est passé
+  famille) et le B2B hôtelier (aucun rival approfondi ne le couvre).
+
 ---
 
 ## [2026-10-11] — Garde-fou statique : toute table référencée doit avoir une migration
