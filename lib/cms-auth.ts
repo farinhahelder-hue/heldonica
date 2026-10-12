@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { safeEqual } from '@/lib/safe-equal';
 
 const SESSION_DURATION_SECONDS = 60 * 60 * 8;
 export const CMS_SESSION_COOKIE = 'heldonica_cms_session';
@@ -28,24 +29,6 @@ function getSubtle(): SubtleCrypto {
   const c = globalThis.crypto;
   if (!c || !c.subtle) throw new Error('Web Crypto API (subtle) not available');
   return c.subtle;
-}
-
-async function safeEqual(a: string, b: string) {
-  if (typeof a !== 'string' || typeof b !== 'string') return false;
-
-  const aBytes = new TextEncoder().encode(a);
-  const bBytes = new TextEncoder().encode(b);
-
-  if (aBytes.byteLength !== bBytes.byteLength) {
-    return false;
-  }
-
-  try {
-    const { timingSafeEqual } = await import('crypto');
-    return timingSafeEqual(aBytes, bBytes);
-  } catch {
-    return a === b;
-  }
 }
 
 function base64UrlEncode(value: string) {
