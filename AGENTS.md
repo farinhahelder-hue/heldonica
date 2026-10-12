@@ -185,7 +185,7 @@ Linux et macOS via :
 npm run garde-fous
 ```
 
-Ce script exécute et récapitule dans un tableau clair l'ensemble des 11 contrôles :
+Ce script exécute et récapitule dans un tableau clair l'ensemble des 12 contrôles :
 
 | Contrôle | Ce qu'il attrape |
 |---|---|
@@ -194,12 +194,13 @@ Ce script exécute et récapitule dans un tableau clair l'ensemble des 11 contr�
 | `check:ai-models` | Modèles d'IA dépréciés ou écrits en dur hors de `lib/ai-provider.ts`. |
 | `check:api-auth` | Route maniant la clé service sans vérifier son appelant. |
 | `check:erreurs-avalees` | Écriture Supabase dont l'erreur n'est pas lue — `const { data } = await`, `await` nu, `.catch(() => {})`. |
+| `check:cms-migrations` | Table référencée par le code sans migration versionnée. Sans base : ne peut pas être sauté. |
 | `check:cms-zones` | Zones CMS actives qu'aucun composant n'affiche, et l'inverse. |
 | `check:cms-drift` | Tables en base absentes des migrations, ou l'inverse. |
 | `check:content-coherence` | Voix éditoriale et mots bannis en production. |
 | `check:content-evidence` | Vécu qui n'est adossé à aucune photo. |
 | `typecheck` (`tsc`) | Erreurs de typage TypeScript strictes. |
-| `vitest` (`vitest run`) | Intégrité des 39 fichiers de tests unitaires et intégration. |
+| `vitest` (`vitest run`) | Intégrité des 77 fichiers de tests unitaires et intégration. |
 
 Ils sont le même juge pour tous les agents. Un garde-fou rouge n'est pas
 « à corriger plus tard » : c'est une tâche qui n'est pas finie.
