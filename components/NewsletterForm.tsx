@@ -32,7 +32,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
     }
 
     if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'newsletter_signup', { variant });
+      (window as any).gtag('event', 'newsletter_inscription', { variant });
     }
 
     setStatus("loading");

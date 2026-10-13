@@ -20,8 +20,8 @@
 
 | Type | Event GA4 | Tunnel | Fréquence |
 |------|-----------|--------|-----------|
-| **PDF Download** | `guidepdftelecharge` | Email → PDF | Chaque téléchargement |
-| **CTA Travel Click** | `cta_travel_planning_click` | Page Pilier → Formulaire | Chaque clic |
+| **PDF Download** | `guide_pdf_telecharge` | Email → PDF | Chaque téléchargement |
+| **CTA Travel Click** | `cta_travel_planning_clique` | Page Pilier → Formulaire | Chaque clic |
 | **Formulaire Soumis** | `formulaire_travel_soumis` | Formulaire → Demande | Chaque soumission |
 
 ---
@@ -34,7 +34,7 @@
    - Filtre : Page contient `/destinations/madere` OU `/destinations/montenegro` OU `/destinations/roumanie`
 
 2. **Vue "Conversions PDF"**
-   - Event : `guidepdftelecharge`
+   - Event : `guide_pdf_telecharge`
    - Dimensions : `destination`, `guide_name`
 
 3. **Vue "Conversions Travel"**
@@ -51,7 +51,7 @@ LeadMagnetBlock visible
     ↓
 Clic "Je veux le guide"
     ↓
-formulaire_travel_soumis = guidepdftelecharge (ratio target: >30%)
+formulaire_travel_soumis = guide_pdf_telecharge (ratio target: >30%)
 ```
 
 #### Funnel Travel Planning
@@ -121,9 +121,28 @@ formulaire_travel_soumis (ratio target: >20%)
 
 ## 📝 Notes
 
-- Les events GA4 utilisent des underscores (`cta_travel_planning_click`) pour la compatibilité standard
+- Les events GA4 utilisent des underscores (`cta_travel_planning_clique`) pour la compatibilité standard
 - Le tunnel PDF capture l'email AVANT de générer le PDF
 - La conversion principale reste Travel Planning, le PDF est une micro-conversion
+
+### Nomenclature canonique des événements GA4
+
+Cette liste est la **source de vérité** : un seul nom par intention. Le 2026-10-12,
+deux doublons ont été supprimés (`cta_travel_click` → `cta_travel_planning_clique`,
+`newsletter_signup` → `newsletter_inscription`) — ils fragmentaient les rapports
+GA4 en deux lignes pour un même geste.
+
+| Événement canonique | Intention | Émetteurs |
+|---|---|---|
+| `guide_pdf_telecharge` | Téléchargement d'un guide PDF | `LeadMagnetBlock`, `GuideDownloadModal`, `PdfDownloadButton` |
+| `newsletter_inscription` | Capture d'email (guide ou newsletter) | `LeadMagnetBlock`, `GuideDownloadModal`, `NewsletterBrevo`, `NewsletterForm` |
+| `cta_travel_planning_clique` | Clic sur un CTA vers le Travel Planning | `DestinationPillar`, `TravelPlanningClient`, `CtaTravelPlanning` |
+| `formulaire_travel_soumis` | Soumission du formulaire Travel Planning | `travel-planning-form/page`, `TravelPlanningClient` |
+| `faq_ouverte` | Ouverture d'une question FAQ | `lib/analytics.ts` (`trackFaqOpen`) |
+
+`[NON VÉRIFIÉ]` La **réception** de ces événements dans GA4 n'est pas mesurable
+depuis le dépôt : c'est une action humaine (DebugView / Realtime). Tant qu'elle
+n'est pas faite, la chaîne code → GA4 reste une hypothèse.
 
 ---
 

@@ -210,7 +210,7 @@
 | 10.2 | Vérifier capture email | `app/api/guides/download/route.ts` | Formulaire ou redirection Brevo | — |
 | 10.3 | Vérifier insertion `guide_downloads` | `app/api/guides/download/route.ts` | INSERT Supabase si configuré | — |
 | 10.4 | Vérifier tag Brevo | `app/api/guides/download/route.ts` | Tag `guide-madere` appliqué | — |
-| 10.5 | Vérifier événement `guidepdftelecharge` | `components/LeadMagnetBlock.tsx` | gtag event déclenché | — |
+| 10.5 | Vérifier événement `guide_pdf_telecharge` | `components/LeadMagnetBlock.tsx` | gtag event déclenché | — |
 
 **Livrable S7** : Tunnel PDF documenté
 
@@ -238,7 +238,7 @@
 #### Critère "Phase 5 Done"
 - [ ] Tunnel PDF fonctionnel (clic → email → guide)
 - [ ] Tag Brevo appliqué
-- [ ] Événement GA `guidepdftelecharge` présent
+- [ ] Événement GA `guide_pdf_telecharge` présent
 - [ ] Tunnel Travel Planning clair
 - [ ] Événements GA Travel Planning présents
 - [ ] Tableau de pilotage documenté
