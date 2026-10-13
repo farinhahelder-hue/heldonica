@@ -1,0 +1,3 @@
+## 2024-10-13 - Avoid direct DOM text replacement for accessibility
+**Learning:** Replacing textContent directly (e.g. `document.getElementById('copy-link-btn').textContent = '✓ Copié !'`) is an anti-pattern in React and fails to alert screen reader users of dynamic state changes, making interactive elements less accessible.
+**Action:** Always use React state (`useState`) to manage dynamic text and accompany visual feedback with an `aria-live="polite"` region (e.g., `<span className="sr-only" aria-live="polite">...</span>`) to ensure state updates are announced properly to assistive technologies.
