@@ -3,6 +3,43 @@
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
 
+## [2026-10-13] — Positionnement : premières légendes Instagram réellement collectées
+
+### Contexte
+`docs/positionnement-editorial-concurrents.md` laissait **toutes** les légendes
+Instagram du panel en `[INDISPONIBLE]`. Une piste restait inexploitée : un
+concurrent peut republier ses légendes sur son **propre site**, hors Instagram.
+
+### Ajouté / corrigé
+- `docs/positionnement-editorial-concurrents.md` :
+  - **26 légendes distinctes** collectées pour **Échappées Lointaines**, depuis la
+    galerie « Suivez-moi sur Instagram » de son site officiel (source publique et
+    citable). Comptages datés du 2026-10-13 : longueur 232-1 042 car. (médiane
+    420), 3-17 hashtags (médiane 7), pronoms je 13 / tu 18 / vous 13 / nous 0 / on 9.
+  - Nouvelle section **§3.4** (analyse de voix, sans reproduction de texte) ;
+    §1.2, §3.2, §4.1, §7, §8 et §10 ajustées.
+  - Discipline `[OBSERVÉ]` / `[INTERPRÉTATION]` maintenue ; les 10 autres acteurs
+    restent `[INDISPONIBLE]`.
+
+### Vérifié
+- Sites du panel testés le 2026-10-13 (Novo-Monde, Chilowé, Les Coflocs, Trace
+  Directe, Fabrique ton Voyage, Destinaslow, Imprudence des Voyages, Le Monde
+  Cousu Main) : **aucune légende exposée** → seul Échappées Lointaines en publie.
+- Comptage reproductible (page d'accueil, critère : bloc de texte terminé par une
+  séquence de hashtags).
+
+### Non vérifié
+- **Exhaustivité** : les 26 légendes viennent d'une galerie de site, pas du compte
+  Instagram — la galerie peut être un sous-ensemble, et son contenu peut changer.
+- Les légendes des 10 autres acteurs restent inaccessibles (Instagram bloque
+  l'accès automatisé ; aucune capture utilisateur fournie).
+
+### Reste à faire
+- Fournir la liste nominative des 4 acteurs manquants (panel à 15) et, pour les
+  10 acteurs sans collecte, des captures ou des URL publiques.
+
+---
+
 ## [2026-10-12] — Pont Brain-CMS : authentification admin, entrées robustes, tests réels
 
 ### Contexte
