@@ -3,6 +3,65 @@
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
 
+## [2026-10-12] — Tunnel PDF, garde-fou des erreurs avalées, nomenclature GA4
+
+### Contexte
+Exécution du plan `.agents_tmp/PLAN.md` (roadmap Phases 4-5). Les étapes qui
+touchent la base (baseline de migrations, application des migrations piliers et
+back-office) sont **bloquées** : aucun accès Supabase depuis cette session.
+Elles restent `waiting_validation` — voir « Reste à faire ».
+
+### Corrigé
+- **Tunnel PDF — erreur avalée (vrai bug).** `app/api/guides/download/route.ts`
+  enveloppait l'insert `guide_downloads` dans `.then(() => {}).catch(() => {})`.
+  Supabase ne lève pas : un échec (table absente, RLS) passait inaperçu, la
+  ligne n'était jamais écrite et le PDF était servi quand même. L'erreur est
+  désormais nommée et journalisée.
+- **Garde-fou `check:erreurs-avalees` — faux vert.** Sa remontée ligne à ligne
+  s'arrêtait sur une ligne d'argument (`user_agent: ...`) quand l'écriture
+  s'étalait sur plusieurs lignes : l'instruction ne contenait plus `.insert(`
+  et l'écriture fautive passait inaperçue. C'est ce qui a laissé passer le bug
+  ci-dessus. Remontée refaite jusqu'au `await` ou au `;` précédent.
+- **Nomenclature GA4 — deux doublons.** `cta_travel_click` →
+  `cta_travel_planning_clique`, `newsletter_signup` → `newsletter_inscription`.
+  Deux noms pour un même geste fragmentaient les rapports en deux lignes.
+
+### Ajouté
+- `lib/pillar-schema.ts` : constructeurs purs `TouristDestination`, `FAQPage`,
+  `BreadcrumbList`. `DestinationPillar` les utilise au lieu de JSON inline.
+- `__tests__/lib/pillar-schema.test.ts` : 7 tests. Le JSON-LD des piliers était
+  construit dans un `dangerouslySetInnerHTML`, donc invérifiable ; il l'est.
+- `docs/PILOTAGE.md` : table de nomenclature canonique des événements GA4.
+- `scripts/check-cms-drift.mjs` : mode opératoire humain, dans l'ordre, avant de
+  retirer les 9 entrées `KNOWN_DRIFT`.
+
+### Vérifié
+- `npm run preflight` : 6/6. `npm run garde-fous` : 10/12 réussis, **2 ignorés**
+  faute d'identifiants Supabase (`check:cms-drift`, `check:cms-zones`).
+- `npx tsc --noEmit` : 0 erreur. `vitest` : suite verte (dont 7 nouveaux tests).
+- `check:erreurs-avalees` détecte désormais exactement 1 écriture fautive avant
+  correction, 0 après.
+- Constat corrigé au passage : `DestinationJsonLd` **est** monté (contrairement
+  à ce qu'indiquait le plan), et `FAQPage` était **déjà** émis par les piliers.
+
+### Non vérifié
+- La réception des événements GA4 (DebugView) : geste humain, non mesurable ici.
+- L'état réel en base de `cms_pillar_pages` : le whitelist le dit résolu le
+  2026-07-30, le plan le dit absent. Les deux ne peuvent être vrais ; seul un
+  accès DB tranchera.
+
+### Reste à faire (geste humain, accès Supabase requis)
+1. Baseline de l'historique de migrations (`supabase migration repair`), sinon
+   `supabase db push` rejoue des migrations historiques dangereuses.
+2. Appliquer `2026073*_cms_pillar_pages_*` (4 fichiers) puis
+   `20261011120000_create_cms_backoffice_tables.sql`.
+3. Retirer les 9 entrées `KNOWN_DRIFT` **après** vérification en base.
+4. Ajouter `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` aux secrets
+   GitHub Actions : sans eux, 2 garde-fous sont ignorés en CI (faux vert).
+5. Activer la protection de branche `main` (Require a PR + status checks).
+
+---
+
 ## [2026-10-12] — Pont Brain-CMS : authentification admin, entrées robustes, tests réels
 
 ### Contexte

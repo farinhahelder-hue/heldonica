@@ -163,16 +163,27 @@ for (const racine of RACINES) {
     // Troisième classe : `.catch(() => {})` au bout d'une écriture.
     CATCH_VIDE.lastIndex = 0
     while ((m = CATCH_VIDE.exec(source)) !== null) {
-      // On remonte au début de l'instruction : le dernier `;` ou saut de ligne
-      // suivi d'une ligne qui ne commence pas par `.` (une chaîne qui continue).
-      let debut = m.index
-      while (debut > 0) {
-        const c = source[debut - 1]
-        if (c === ';') break
-        if (c === '\n' && !/^\s*[.)]/.test(source.slice(debut, debut + 40))) break
-        debut--
-      }
-      const instruction = source.slice(debut, m.index)
+        // On remonte au début de l'instruction : le `await` qui l'ouvre, sinon
+        // le dernier `;`.
+        //
+        // L'ancienne remontée ligne à ligne s'arrêtait sur la première ligne
+        // qui ne commençait ni par `.` ni par `)`. Or une écriture dont les
+        // arguments s'étalent sur plusieurs lignes a son `.insert(` sur une
+        // ligne commençant par `.`, suivie d'une ligne d'argument
+        // (`user_agent: ...`) : la remontée s'arrêtait là, l'instruction ne
+        // contenait plus `.insert(` et l'écriture fautive passait inaperçue.
+        // C'est ainsi que `app/api/guides/download/route.ts` a pu avaler
+        // l'erreur de son insert pendant que ce garde-fou affichait ✓.
+        const avant = source.slice(0, m.index)
+        const iAwait = avant.lastIndexOf('await')
+        const iPointVirgule = avant.lastIndexOf(';')
+        // `max` garantit qu'on ne franchit pas le dernier `;` : un `await`
+        // situé avant lui appartient à une instruction précédente.
+        let debut = Math.max(iAwait, iPointVirgule)
+        if (debut < 0) debut = 0
+        // Bornage : une instruction ne s'étale pas sur 1200 caractères.
+        if (m.index - debut > 1200) debut = Math.max(m.index - 1200, iPointVirgule, 0)
+        const instruction = source.slice(debut, m.index)
       if (!ECRITURES.test(instruction)) continue
       if (!/\.from\s*\(|supabase|\bsb\b/.test(instruction)) continue
 

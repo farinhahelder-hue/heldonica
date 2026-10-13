@@ -64,6 +64,17 @@ const KNOWN_DRIFT = new Set([
   // Elle n'est PAS encore appliquée en base (pas d'accès DB depuis cette
   // session). Dès qu'un humain l'a appliquée, RETIRER ces 9 entrées d'ici :
   // le script protégera alors contre toute disparition future.
+  //
+  // GESTE HUMAIN, dans l'ordre (2026-10-12) :
+  //   1. baseline de l'historique de migrations (sinon un `supabase db push`
+  //      rejoue des migrations historiques dangereuses : maintenance ON, RLS,
+  //      seeds) — cf. docs/CMS_FOUNDATION_PHASE_0_INVENTAIRE.md §8 ;
+  //   2. appliquer les 4 migrations piliers `2026073*_cms_pillar_pages_*` ;
+  //   3. appliquer `20261011120000_create_cms_backoffice_tables.sql` ;
+  //   4. supprimer les 9 lignes ci-dessous ;
+  //   5. `npm run check:cms-drift` doit sortir en 0 avec 0 dérive connue.
+  // Ne retirer une ligne qu'APRÈS avoir vérifié la table en base
+  // (information_schema) : un retrait « au cas où » rend le garde-fou menteur.
   'cms_accommodations',      // lib/cms-hospitality.ts, lib/cms-releases.ts
   'cms_api_tokens',          // lib/cms-tokens.ts
   'cms_audit_log',           // lib/cms-audit.ts

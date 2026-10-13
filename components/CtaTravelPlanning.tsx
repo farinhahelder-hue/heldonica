@@ -21,7 +21,7 @@ export default function CtaTravelPlanning() {
 
   const handleClick = () => {
     if (typeof window !== 'undefined' && window.gtag) {
-      window.gtag('event', 'cta_travel_click', {
+      window.gtag('event', 'cta_travel_planning_clique', {
         source: 'article',
       })
     }
@@ -32,7 +32,7 @@ export default function CtaTravelPlanning() {
       <Script id="ga4-cta-travel" strategy="lazyOnload">{`
         window.trackCtaTravelClick = function(source) {
           if (typeof window !== 'undefined' && window.gtag) {
-            window.gtag('event', 'cta_travel_click', { source: source || 'article' });
+            window.gtag('event', 'cta_travel_planning_clique', { source: source || 'article' });
           }
         };
       `}</Script>

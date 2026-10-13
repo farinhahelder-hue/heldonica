@@ -74,15 +74,23 @@ export async function POST(request: NextRequest) {
         .limit(5)
       if (a) articles = a
 
-      await (supabase as any)
-        .from('guide_downloads')
-        .insert({
-          guide_slug: destinationSlug,
-          email,
-          ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '',
-          user_agent: request.headers.get('user-agent') || '',
-        })
-        .then(() => {}).catch(() => {})
+        // L'insert était enveloppé d'un `.then(() => {}).catch(() => {})` :
+        // Supabase ne lève pas, il rend `{ error }`, donc le `.catch` n'attrapait
+        // rien et un échec (table absente, RLS) passait totalement inaperçu — la
+        // ligne n'était jamais écrite et le téléchargement était servi quand
+        // même. L'erreur est désormais nommée et journalisée.
+        const { error: insertError } = await (supabase as any)
+          .from('guide_downloads')
+          .insert({
+            guide_slug: destinationSlug,
+            email,
+            ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '',
+            user_agent: request.headers.get('user-agent') || '',
+          })
+
+        if (insertError) {
+          console.error('[guides/download] insert guide_downloads :', insertError.message)
+        }
     }
 
     // Subscribe to Brevo — non-blocking

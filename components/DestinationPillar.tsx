@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import Script from 'next/script'
 import DestinationJsonLd from '@/components/seo/DestinationJsonLd'
+import { buildFaqSchema, buildBreadcrumbSchema } from '@/lib/pillar-schema'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import NewsletterForm from '@/components/NewsletterForm'
@@ -49,25 +50,10 @@ export default function DestinationPillar({
         country={data.country}
       />
       <Script id="pillar-faq" type="application/ld+json" dangerouslySetInnerHTML={{
-        __html: JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': 'FAQPage',
-          mainEntity: data.faq.map((f) => ({
-            '@type': 'Question', name: f.q,
-            acceptedAnswer: { '@type': 'Answer', text: f.a },
-          })),
-        }),
+        __html: JSON.stringify(buildFaqSchema(data.faq)),
       }} />
       <Script id="pillar-breadcrumb" type="application/ld+json" dangerouslySetInnerHTML={{
-        __html: JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': 'BreadcrumbList',
-          itemListElement: [
-            { '@type': 'ListItem', position: 1, name: 'Accueil', item: SITE_URL },
-            { '@type': 'ListItem', position: 2, name: 'Destinations', item: `${SITE_URL}/destinations` },
-            { '@type': 'ListItem', position: 3, name: data.name, item: `${SITE_URL}/destinations/${data.slug}` },
-          ],
-        }),
+        __html: JSON.stringify(buildBreadcrumbSchema({ name: data.name, slug: data.slug }, SITE_URL)),
       }} />
 
       <Header />

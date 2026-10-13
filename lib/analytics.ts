@@ -59,7 +59,7 @@ export function initScrollDepthTracking() {
 
 // Newsletter events
 export function trackNewsletterSignup(email: string, source: 'footer' | 'popup' | 'inline' | 'blog') {
-  trackEvent('newsletter_signup', {
+  trackEvent('newsletter_inscription', {
     source,
     email_hash: hashString(email),
   });

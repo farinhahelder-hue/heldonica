@@ -1,23 +1,15 @@
-/**
- * components/seo/DestinationJsonLd.tsx
- *
- * Données structurées schema.org (JSON-LD) pour une page destination.
- * Aide les moteurs à comprendre qu'il s'agit d'une destination touristique
- * rattachée à un pays. Aucune donnée n'est inventée : le composant ne rend
- * que ce que la page lui transmet.
- */
-
-import Script from 'next/script';
+import Script from 'next/script'
+import { buildDestinationSchema } from '@/lib/pillar-schema'
 
 export interface DestinationJsonLdProps {
   /** Nom de la destination (ex. « Madère »). */
-  name: string;
+  name: string
   /** Description courte / accroche de la destination. */
-  description: string;
+  description: string
   /** URL canonique de la page destination. */
-  url: string;
+  url: string
   /** Pays ou région de rattachement. */
-  country?: string;
+  country?: string
 }
 
 export default function DestinationJsonLd({
@@ -26,20 +18,7 @@ export default function DestinationJsonLd({
   url,
   country,
 }: DestinationJsonLdProps) {
-  const schema: Record<string, unknown> = {
-    '@context': 'https://schema.org',
-    '@type': 'TouristDestination',
-    name,
-    description,
-    url,
-  };
-
-  if (country) {
-    schema.containedInPlace = {
-      '@type': 'Country',
-      name: country,
-    };
-  }
+  const schema = buildDestinationSchema({ name, description, url, country })
 
   return (
     <Script
@@ -47,5 +26,5 @@ export default function DestinationJsonLd({
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
     />
-  );
+  )
 }
