@@ -39,6 +39,8 @@ const metadata: Metadata = {
   },
 }
 
+export const revalidate = 3600
+
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata('contact', metadata)
 }
