@@ -3,6 +3,140 @@
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
 
+## [2026-10-14] — Positionnement : relevé outillé du panel (11 sites) et comptages consolidés
+
+### Contexte
+Le relevé précédent s'appuyait sur une extraction non outillée et annonçait
+**30 vignettes / 14 légendes lisibles** pour Échappées Lointaines. Deux relevés
+successifs sur la même source donnaient des chiffres différents : la méthode n'était
+pas rejouable. Par ailleurs, l'affirmation « les autres acteurs n'exposent pas leurs
+légendes » reposait sur une vérification manuelle, non traçable.
+
+### Ajouté
+- `scripts/collect_instagram_legends.py` : relevé **reproductible** des **11 sites
+  officiels** du panel. Pour chacun : nombre de vignettes (`id="item-action-…"`),
+  légendes lisibles (`aria-label` ≥ 200 caractères, dédupliquées), embeds Instagram
+  (`instagram.com/p|reel|tv`). Ne recopie **aucun** texte concurrent — comptages seuls.
+- `docs/positionnement-editorial-concurrents.md` §3.5 : résultat du relevé, daté et tabulé.
+
+### Corrigé
+- §3.4 : chiffres consolidés sur **33 vignettes / 28 légendes lisibles** (chaque
+  publication est exposée deux fois dans la galerie — desktop/mobile —, d'où le
+  sous-comptage antérieur à 14) ; pronoms je 37 / tu 33 / vous 27 / **nous 18** / on 18 ;
+  longueur 247-2 183 car. (médiane 948) ; 0-17 hashtags (médiane 6) ; six mots bannis
+  relevés (« inoubliable », « voyage organisé », « paradis », « astuce(s) »,
+  « paradisiaque », « magnifique »).
+- §1.3 : sites officiels des acteurs 6-8 ajoutés (`perspectives-de-voyage.fr`,
+  `imprudencedesvoyages.com`, `lemondecousumain.fr`).
+- §1.2, §3.2, §4, §4.1, §7, §8, §9 et §10 alignées ; le `[INDISPONIBLE]` des 10 autres
+  acteurs est désormais **mesuré** (0 légende, 0 embed) et non supposé.
+
+### Vérifié
+- `python3 scripts/collect_instagram_legends.py` le 2026-10-14 : Échappées Lointaines
+  33/28 ; 9 autres sites à 0 ; `voyagesetc.fr` → HTTP 403. Trois requêtes successives
+  donnent le même HTML (33 vignettes, 28 légendes).
+- `npm run garde-fous` : **10/12 réussis, 2 ignorés, 0 échoué**. Les 2 ignorés
+  (« Zones CMS orphelines », « Dérive des tables ») ne tournent pas faute d'identifiants
+  Supabase dans l'environnement : ce sont des contrôles **non exécutés**, donc **non
+  vérifiés** — pas des contrôles verts. Sans rapport avec ce changement, qui ne touche
+  ni le CMS ni la base.
+- `npx tsc --noEmit` : OK ; `npx vitest run` : 638 tests passés ; `check:content-coherence`
+  et `check:content-evidence` : OK (inclus dans les 10 réussis ci-dessus).
+
+### Non vérifié
+- **2 des 12 garde-fous n'ont pas tourné** (zones CMS, dérive des tables) : identifiants
+  Supabase absents de l'environnement. À rejouer côté poste pour clore la suite à 12/12.
+- Le relevé ne couvre que la **page d'accueil** de chaque site : une légende republiée
+  sur une page interne ne serait pas vue.
+- Exhaustivité de la galerie Échappées Lointaines : sous-ensemble possible du compte ;
+  comptages datés, non extrapolables.
+- Les 4 acteurs manquants (panel à 15) : toujours non identifiés.
+
+### Reste à faire
+- Fournir la liste nominative des 4 acteurs manquants et, pour les 10 acteurs sans
+  collecte, des captures ou des URL publiques.
+
+---
+
+## [2026-10-14] — Positionnement : recomptage des légendes Échappées Lointaines (chiffres corrigés)
+
+### Contexte
+Le relevé du 2026-10-13 (PR #589) annonçait **26 légendes distinctes** pour Échappées
+Lointaines et **« nous » : 0**. Un relevé indépendant de la **même** galerie
+(`echappeeslointaines.fr`, page d'accueil), le **2026-10-14**, donne un résultat
+différent : l'extraction des 26 n'était pas reproductible.
+
+### Corrigé
+- `docs/positionnement-editorial-concurrents.md` :
+  - §3.4 : méthode d'extraction rendue **reproductible** (découpage des vignettes
+    `id="item-action-…"`) ; chiffres corrigés → **30 vignettes, dont 14 légendes
+    lisibles** (16 vignettes n'exposent que l'image) ; longueur 422-2 402 car.
+    (médiane 1 194) ; 3-27 hashtags (médiane 10).
+  - §3.4 : **« nous » = 17** (et non 0) — au moins une légende est un récit de voyage
+    au « nous » ; le corpus est **hétérogène** (galerie de republication, plusieurs
+    voix). Faits de lexique re-vérifiés sur les 14 légendes : « magnifique »,
+    « inoubliable », « astuce », hashtag `#organisationvoyage` (mots bannis) ;
+    « pépite » (mot de marque Heldonica).
+  - §1.2, §3.2, §4.1, §7, §8, §9 (historique) et §10 alignées sur les chiffres vérifiés.
+- Le chiffre « 26 » n'est plus affirmé comme un fait ; il est cité uniquement comme
+  relevé antérieur corrigé.
+
+### Vérifié
+- `curl` (agent navigateur) sur `https://www.echappeeslointaines.fr/` le 2026-10-14 :
+  30 `id="item-action-…"`, 14 textes de légende présents dans le HTML statique.
+- Autres sites du panel re-testés le même jour (Novo-Monde, Chilowé, Les Coflocs,
+  Trace Directe, Fabrique ton Voyage, Destinaslow, Imprudence des Voyages, Le Monde
+  Cousu Main) : **0 légende exposée**. `voyagesetc.fr` → HTTP 403.
+
+### Non vérifié
+- Exhaustivité : la galerie reste un sous-ensemble possible du compte Instagram, et
+  son contenu peut changer. Comptages datés, non extrapolables.
+- Les 10 autres acteurs du panel : légendes toujours `[INDISPONIBLE]`.
+- Les 4 acteurs manquants (panel à 15) : toujours non identifiés.
+
+### Reste à faire
+- Fournir la liste nominative des 4 acteurs manquants et, pour les 10 acteurs sans
+  collecte, des captures ou des URL publiques.
+
+---
+
+## [2026-10-13] — Positionnement : premières légendes Instagram réellement collectées
+
+### Contexte
+`docs/positionnement-editorial-concurrents.md` laissait **toutes** les légendes
+Instagram du panel en `[INDISPONIBLE]`. Une piste restait inexploitée : un
+concurrent peut republier ses légendes sur son **propre site**, hors Instagram.
+
+### Ajouté / corrigé
+- `docs/positionnement-editorial-concurrents.md` :
+  - **26 légendes distinctes** collectées pour **Échappées Lointaines**, depuis la
+    galerie « Suivez-moi sur Instagram » de son site officiel (source publique et
+    citable). Comptages datés du 2026-10-13 : longueur 232-1 042 car. (médiane
+    420), 3-17 hashtags (médiane 7), pronoms je 13 / tu 18 / vous 13 / nous 0 / on 9.
+  - Nouvelle section **§3.4** (analyse de voix, sans reproduction de texte) ;
+    §1.2, §3.2, §4.1, §7, §8 et §10 ajustées.
+  - Discipline `[OBSERVÉ]` / `[INTERPRÉTATION]` maintenue ; les 10 autres acteurs
+    restent `[INDISPONIBLE]`.
+
+### Vérifié
+- Sites du panel testés le 2026-10-13 (Novo-Monde, Chilowé, Les Coflocs, Trace
+  Directe, Fabrique ton Voyage, Destinaslow, Imprudence des Voyages, Le Monde
+  Cousu Main) : **aucune légende exposée** → seul Échappées Lointaines en publie.
+- Comptage reproductible (page d'accueil, critère : bloc de texte terminé par une
+  séquence de hashtags).
+
+### Non vérifié
+- **Exhaustivité** : les 26 légendes viennent d'une galerie de site, pas du compte
+  Instagram — la galerie peut être un sous-ensemble, et son contenu peut changer.
+- Les légendes des 10 autres acteurs restent inaccessibles (Instagram bloque
+  l'accès automatisé ; aucune capture utilisateur fournie).
+
+### Reste à faire
+- Fournir la liste nominative des 4 acteurs manquants (panel à 15) et, pour les
+  10 acteurs sans collecte, des captures ou des URL publiques.
+
+---
+
 ## [2026-10-12] — Pont Brain-CMS : authentification admin, entrées robustes, tests réels
 
 ### Contexte
