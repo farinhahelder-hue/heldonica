@@ -28,6 +28,37 @@ une légende se construit à partir d'un vécu, pas d'une inspiration.
 - Aucun garde-fou ne scanne `docs/*.md` pour les mots bannis
   (`check-content-coherence` lit la base `cms_blog_posts`) : le document peut citer
   les mots bannis comme contre-exemples sans faire échouer la CI.
+## [2026-10-14] — Mobile : wrapper Gradle réel, le build local de l'APK fonctionne
+
+### Contexte
+Le projet `heldonica-mobile/` ne pouvait pas se construire en local : `gradlew` et
+`gradlew.bat` étaient des **stubs** (« ouvre ce projet dans Android Studio ») et
+`gradle/wrapper/gradle-wrapper.jar` était absent. La CI contournait le problème en
+installant Gradle à part, mais un build sur le poste échouait.
+
+### Corrigé
+- `heldonica-mobile/gradlew` + `gradlew.bat` : remplacés par les **vrais scripts**
+  (Gradle 8.7).
+- `heldonica-mobile/gradle/wrapper/gradle-wrapper.jar` : **ajouté** (43 Ko), désormais
+  versionné.
+- `gradle-wrapper.properties` : conserve `gradle-8.7-bin.zip`, ajoute `networkTimeout`
+  et `validateDistributionUrl`, retire un BOM en tête de fichier.
+- `README.md` : prérequis exacts du build local (JDK 17/21, SDK Android, `local.properties`)
+  et recette de régénération du wrapper.
+
+### Vérifié
+- `./gradlew assembleDebug` en local : **BUILD SUCCESSFUL** (JDK 21, SDK Android 34,
+  Gradle 8.7).
+- APK produit : `app/build/outputs/apk/debug/app-debug.apk` — **12 343 136 octets**,
+  package `fr.heldonica.mobile`, `versionCode 40`, `minSdk 26`, `targetSdk 34`,
+  label « Heldonica Mobile » (vérifié via `aapt dump badging`).
+- `local.properties` reste **non versionné** (`.gitignore` ligne 54) : aucun mot de
+  passe CMS dans le dépôt.
+
+### Non vérifié
+- Installation de l'APK sur le Poco X6 Pro (geste humain).
+- Le build avec le JDK 17 exactement (testé avec JDK 21 ; Gradle 8.7 et l'AGP 8.4
+  supportent les deux).
 
 
 ## [2026-10-14] — Positionnement : relevé outillé du panel (11 sites) et comptages consolidés
