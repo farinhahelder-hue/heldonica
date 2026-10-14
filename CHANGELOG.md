@@ -35,12 +35,17 @@ légendes » reposait sur une vérification manuelle, non traçable.
 - `python3 scripts/collect_instagram_legends.py` le 2026-10-14 : Échappées Lointaines
   33/28 ; 9 autres sites à 0 ; `voyagesetc.fr` → HTTP 403. Trois requêtes successives
   donnent le même HTML (33 vignettes, 28 légendes).
-- `npm run preflight` : 6/6 ; `npx tsc --noEmit` : OK ; `npx vitest run` : 638 tests
-  passés ; `npm run check:content-coherence` et `check:content-evidence` : OK.
-  (`check:cms-zones` non exécutable ici : exige une URL Supabase et une clé, absentes de
-  l'environnement — sans lien avec ce changement, qui ne touche ni le CMS ni la base.)
+- `npm run garde-fous` : **10/12 réussis, 2 ignorés, 0 échoué**. Les 2 ignorés
+  (« Zones CMS orphelines », « Dérive des tables ») ne tournent pas faute d'identifiants
+  Supabase dans l'environnement : ce sont des contrôles **non exécutés**, donc **non
+  vérifiés** — pas des contrôles verts. Sans rapport avec ce changement, qui ne touche
+  ni le CMS ni la base.
+- `npx tsc --noEmit` : OK ; `npx vitest run` : 638 tests passés ; `check:content-coherence`
+  et `check:content-evidence` : OK (inclus dans les 10 réussis ci-dessus).
 
 ### Non vérifié
+- **2 des 12 garde-fous n'ont pas tourné** (zones CMS, dérive des tables) : identifiants
+  Supabase absents de l'environnement. À rejouer côté poste pour clore la suite à 12/12.
 - Le relevé ne couvre que la **page d'accueil** de chaque site : une légende republiée
   sur une page interne ne serait pas vue.
 - Exhaustivité de la galerie Échappées Lointaines : sous-ensemble possible du compte ;
