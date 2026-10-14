@@ -34,11 +34,17 @@ annoncée « à écrire ». Les deux manques sont comblés.
   avec les preuves — plus de coche sans mesure.
 
 ### Vérifié
-- `vitest` : **33 passés, 2 ignorés** (migration, faute d'`INTEGRATION`) sur les
-  nouvelles suites ; suite complète **verte** via `garde-fous`.
+- `vitest` : **13 passés, 2 ignorés** (migration, faute d'`INTEGRATION`) sur les
+  nouveaux fichiers ; suite complète **651 passés, 2 ignorés** via `garde-fous`.
 - **Validation par mutation des cinq propriétés côté site** : casser le stockage du
   payload, l'allowlist, la comparaison du jeton, l'atomicité du claim ou le seuil des
   120 s fait échouer le test correspondant. Un test qui ne tombe pas ne prouve rien.
+- **La CI a rattrapé une faiblesse du test P1 lui-même** : `fc.jsonValue()` génère
+  `-0`, que `JSON.stringify` écrit `"0"`. Exiger l'identité stricte faisait échouer la
+  propriété sur une valeur que JSON ne sait pas représenter. La comparaison porte
+  désormais sur la forme normalisée, et un test dédié verrouille le cas `−0 → 0`.
+  Le défaut ne se voyait pas en local (graine différente à chaque exécution) : il a
+  fallu 15 exécutions consécutives pour le confirmer, puis la CI pour l'attraper.
 - `typecheck` **0**, `preflight` **6/6**, `garde-fous` **10/12** (2 ignorés faute
   d'identifiants Supabase).
 - Côté Cerveau (dépôt `heldonica-brain`, PR séparée) : **17 tests** hors ligne, dont

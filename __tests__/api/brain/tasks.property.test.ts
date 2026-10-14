@@ -65,8 +65,12 @@ describe('Propriété 1 — le payload est stocké sans modification', () => {
           expect(res.status).toBe(201)
 
           const row = h.sbState.inserted[0] as Record<string, unknown>
-          // Égalité structurelle : c'est la garantie de la propriété 1.
-          expect(row.payload).toStrictEqual(payload)
+          // La charge utile traverse JSON puis JSONB : on compare donc à sa forme
+          // *normalisée*. Le cas qui l'impose est `-0` : `fc.jsonValue()` le génère,
+          // mais `JSON.stringify(-0)` vaut `"0"` et `JSON.parse` rend `+0`. Exiger
+          // l'identité stricte ferait échouer la propriété sur une valeur que JSON
+          // ne sait pas représenter — c'est une limite du format, pas du code.
+          expect(row.payload).toStrictEqual(JSON.parse(JSON.stringify(payload)))
           expect(row.task_type).toBe(task_type)
           expect(row.status).toBe('sent')
           expect(row.agent).toBe('heldonica-brain')
@@ -75,6 +79,19 @@ describe('Propriété 1 — le payload est stocké sans modification', () => {
       ),
       { numRuns: 100 }
     )
+  })
+
+  it('verrouille le cas −0 : il devient 0, comme tout JSON', async () => {
+    const { POST } = await import('@/app/api/brain/tasks/route')
+    h.resetSbState()
+    h.sbState.result = { data: { id: 'x' }, error: null }
+
+    const res = await POST(post(URL + '/tasks', JSON.stringify({ task_type: 'chat', payload: -0 })))
+    expect(res.status).toBe(201)
+
+    const row = h.sbState.inserted[0] as Record<string, unknown>
+    expect(Object.is(row.payload, -0)).toBe(false)
+    expect(Object.is(row.payload, 0)).toBe(true)
   })
 })
 
