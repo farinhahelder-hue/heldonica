@@ -15,7 +15,7 @@ Implementation spans two codebases. Tasks on the CMS side (Next.js/TypeScript at
     - Verify the file does not touch any existing column or constraint
     - _Requirements: 6.1, 6.2, 6.3, 6.5_
 
-  - [ ]* 1.2 Write migration verification test `__tests__/migrations/brain_bridge_migration.test.ts`
+  - [x]* 1.2 Write migration verification test `__tests__/migrations/brain_bridge_migration.test.ts`
     - Confirm `information_schema.columns` shows `task_type` and `payload` in `agent_tasks` after applying the migration
     - Confirm existing rows retain their `task`, `status`, and `actions_done` values
     - Gate with `INTEGRATION=true` env flag
@@ -30,7 +30,7 @@ Implementation spans two codebases. Tasks on the CMS side (Next.js/TypeScript at
     - Return `null` when auth passes (caller proceeds)
     - _Requirements: 3.1, 3.3, 3.5, 3.6_
 
-  - [ ]* 2.2 Write unit tests `__tests__/api/brain/bridge-auth.test.ts`
+  - [x]* 2.2 Write unit tests `__tests__/api/brain/bridge-auth.test.ts`
     - Valid `x-cms-auth` header → returns `null`
     - Valid `Authorization: Bearer <token>` → returns `null`
     - Missing auth → HTTP 401
@@ -38,7 +38,7 @@ Implementation spans two codebases. Tasks on the CMS side (Next.js/TypeScript at
     - `BRAIN_BRIDGE_TOKEN` absent from env → HTTP 503
     - _Requirements: 3.1, 3.5, 3.6_
 
-  - [ ]* 2.3 Write property test `__tests__/api/brain/bridge-auth.property.test.ts`
+  - [x]* 2.3 Write property test `__tests__/api/brain/bridge-auth.property.test.ts`
     - **Property 4: Authentication rejects all invalid tokens**
     - *For any* string that is not the exact `BRAIN_BRIDGE_TOKEN` value, a request bearing that string as `Authorization: Bearer <string>` SHALL receive HTTP 401 and SHALL NOT perform any DB access
     - Use `fast-check` with `fc.string()` filtered to exclude the real token; run ≥100 iterations
@@ -53,7 +53,7 @@ Implementation spans two codebases. Tasks on the CMS side (Next.js/TypeScript at
     - **GET**: read `status` (default all), `page` (default 1), `limit` (default 20) from query params; SELECT from `agent_tasks WHERE agent='heldonica-brain'` with optional `status` filter; return array ordered by `created_at DESC` with pagination metadata
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 5.1, 5.3_
 
-  - [ ]* 3.2 Write unit tests `__tests__/api/brain/tasks.test.ts`
+  - [x]* 3.2 Write unit tests `__tests__/api/brain/tasks.test.ts`
     - POST each valid `task_type` → HTTP 200 + `{ id }`
     - POST invalid `task_type` → HTTP 400 with `valid` list
     - POST missing `task_type` → HTTP 400
@@ -64,7 +64,7 @@ Implementation spans two codebases. Tasks on the CMS side (Next.js/TypeScript at
     - GET with no rows → empty array, no error
     - _Requirements: 1.1, 1.4, 1.5, 5.1, 5.3_
 
-  - [ ]* 3.3 Write property tests `__tests__/api/brain/tasks.property.test.ts`
+  - [x]* 3.3 Write property tests `__tests__/api/brain/tasks.property.test.ts`
     - **Property 1: Task dispatch stores payload without modification**
     - *For any* valid `task_type` and arbitrary JSON payload up to 64 KB, dispatching then retrieving the task SHALL return a `payload` field structurally equal to the submitted one
     - Use `fast-check` with `fc.jsonValue()` and `fc.constantFrom(...allowlist)` ; run ≥100 iterations
@@ -76,7 +76,7 @@ Implementation spans two codebases. Tasks on the CMS side (Next.js/TypeScript at
     - Tag: `Feature: brain-cms-bridge, Property 3: task type allowlist`
     - **Validates: Requirements 1.4**
 
-- [~] 4. Checkpoint — ensure migration and auth compile cleanly
+- [x] 4. Checkpoint — ensure migration and auth compile cleanly
   - Ensure `supabase/migrations/20260922000000_brain_bridge_agent_tasks.sql` is valid SQL, `lib/bridge-auth.ts` type-checks without errors, and `app/api/brain/tasks/route.ts` compiles. Ask the user if questions arise.
 
 - [x] 5. Implement `app/api/brain/tasks/[id]/route.ts` — GET + PATCH (CMS)
@@ -88,7 +88,7 @@ Implementation spans two codebases. Tasks on the CMS side (Next.js/TypeScript at
       - *Close*: `{ status: 'done' | 'blocked', actions_done: object }` — UPDATE unconditionally (task already claimed)
     - _Requirements: 2.2, 2.8, 2.9, 2.10, 5.2, 5.4, 5.5, 6.4_
 
-  - [ ]* 5.2 Write unit tests `__tests__/api/brain/tasks-id.test.ts`
+  - [x]* 5.2 Write unit tests `__tests__/api/brain/tasks-id.test.ts`
     - GET existing task → full row with `actions_done`
     - GET task belonging to different agent → HTTP 404
     - GET non-existent id → HTTP 404
@@ -98,7 +98,7 @@ Implementation spans two codebases. Tasks on the CMS side (Next.js/TypeScript at
     - PATCH close to `blocked` with error message → HTTP 200
     - _Requirements: 2.2, 2.10, 5.2, 5.5, 6.4_
 
-  - [ ]* 5.3 Write property test — claim atomicity (append to `tasks.property.test.ts`)
+  - [x]* 5.3 Write property test — claim atomicity (append to `tasks.property.test.ts`)
     - **Property 2: Claim atomicity — at most one claimer**
     - *For any* task in `status='sent'`, when multiple concurrent PATCH callers attempt to claim it, exactly one SHALL succeed and all others SHALL receive HTTP 409; the task SHALL NOT be claimed twice
     - Use `fast-check` with `fc.integer({ min: 2, max: 10 })` for concurrency count; run ≥100 iterations with mocked DB to test conditional-update logic
@@ -123,7 +123,7 @@ Implementation spans two codebases. Tasks on the CMS side (Next.js/TypeScript at
     - When no heartbeat row exists yet, return `{ online: false, last_seen: null }`
     - _Requirements: 4.3, 4.4, 4.5_
 
-  - [ ]* 6.3 Write unit tests `__tests__/api/brain/heartbeat-status.test.ts`
+  - [x]* 6.3 Write unit tests `__tests__/api/brain/heartbeat-status.test.ts`
     - POST heartbeat with valid Bearer → `{ ok: true }`, row upserted in `site_settings`
     - POST heartbeat with `x-cms-auth` instead of Bearer → HTTP 401 (Bearer-only endpoint)
     - POST heartbeat missing auth → HTTP 401
@@ -132,14 +132,14 @@ Implementation spans two codebases. Tasks on the CMS side (Next.js/TypeScript at
     - GET status: no heartbeat row yet → `{ online: false, last_seen: null }`
     - _Requirements: 4.2, 4.3, 4.4, 4.5, 4.6_
 
-  - [ ]* 6.4 Write property test `__tests__/api/brain/status.property.test.ts`
+  - [x]* 6.4 Write property test `__tests__/api/brain/status.property.test.ts`
     - **Property 5: Online/offline determination is a function of recency**
     - *For any* `last_seen` timestamp T and current time N: `online = true` iff `N - T < 120 seconds`; must hold for all values including the exact 120-second boundary
     - Use `fast-check` with `fc.integer()` to generate `T` and `N` offsets; verify boundary at exactly ±1 ms; run ≥100 iterations
     - Tag: `Feature: brain-cms-bridge, Property 5: online/offline determination`
     - **Validates: Requirements 4.4, 4.5**
 
-- [~] 7. Checkpoint — CMS routes complete
+- [x] 7. Checkpoint — CMS routes complete
   - Run `tsc --noEmit` in the CMS project to confirm all four route files and the auth helper type-check without errors. Run the full `__tests__/api/brain/` unit test suite with `jest --testPathPattern="__tests__/api/brain"`. Fix any failures before continuing. Ask the user if questions arise.
 
 - [x] 8. Implement `app/engine/bridge_poller.py` (Brain)
@@ -188,41 +188,41 @@ Implementation spans two codebases. Tasks on the CMS side (Next.js/TypeScript at
     - Append `BRAIN_BRIDGE_TOKEN=` placeholder line to `heldonica-brain/.env` (value left blank; operator fills in the shared secret matching the CMS Vercel env)
     - _Requirements: 3.3, 3.4_
 
-- [ ] 10. Write Brain test suite (Brain)
-  - [ ]* 10.1 Write unit tests `tests/test_bridge_poller.py` — task dispatch routing
+- [x] 10. Write Brain test suite (Brain)
+  - [x]* 10.1 Write unit tests `tests/test_bridge_poller.py` — task dispatch routing
     - Mock each engine module (`social_creator`, `travel_concierge`, `orchestrator`, `llm`)
     - For each `task_type`, verify `_execute_task` calls the correct engine function with the correct arguments
     - Verify `actions_done` written to Supabase via `_patch_task` matches the `{'result': ..., 'corrige': [], ...}` envelope
     - _Requirements: 2.3, 2.4, 2.5, 2.6, 2.7, 2.8_
 
-  - [ ]* 10.2 Write unit tests `tests/test_bridge_poller.py` — concurrency cap and timeout
+  - [x]* 10.2 Write unit tests `tests/test_bridge_poller.py` — concurrency cap and timeout
     - Concurrency cap: when 5 futures are running, a 6th task in the poll result is NOT claimed
     - Timeout: a future that does not resolve within 300s triggers `_patch_task` with `status='blocked'` and message `"execution_timeout"`
     - _Requirements: 7.3, 7.4_
 
-  - [ ]* 10.3 Write unit tests `tests/test_bridge_poller.py` — error and auth paths
+  - [x]* 10.3 Write unit tests `tests/test_bridge_poller.py` — error and auth paths
     - CMS returns HTTP 401 → `CRITICAL` log emitted, polling suspended for 300s (verify `_stop_event` or sleep call)
     - CMS network failure (requests timeout) → `WARNING` log, loop continues
     - Missing `BRAIN_BRIDGE_TOKEN` → `RuntimeError` raised in `start()`
     - Malformed task payload (missing key) → task patched to `'blocked'`, loop continues
     - _Requirements: 3.4, 7.1, 7.2, 7.5_
 
-  - [ ]* 10.4 Write property test `tests/test_bridge_poller.py` — poller skips non-sent tasks
+  - [x]* 10.4 Write property test `tests/test_bridge_poller.py` — poller skips non-sent tasks
     - **Property 6: Poller never re-processes non-`sent` tasks**
     - *For any* task whose `status` is `'in_progress'`, `'done'`, or `'blocked'`, the Poller SHALL NOT call `_execute_task` nor issue a claim PATCH
     - Use `hypothesis` with `st.sampled_from(['in_progress', 'done', 'blocked'])` to generate task status; mock the GET response; run ≥100 examples
     - Tag: `Feature: brain-cms-bridge, Property 6: poller skips non-sent`
     - **Validates: Requirements 2.10**
 
-- [ ] 11. Integration tests (CMS)
-  - [ ]* 11.1 Write integration tests `__tests__/integration/brain-bridge.test.ts`
+- [x] 11. Integration tests (CMS)
+  - [x]* 11.1 Write integration tests `__tests__/integration/brain-bridge.test.ts`
     - End-to-end: dispatch task via POST → mock Brain claims and closes via PATCH → GET returns `status='done'` with `actions_done`
     - Heartbeat persistence: POST heartbeat → GET `/api/brain/status` returns correct `last_seen` and `online: true`
     - Schema: confirm `task_type` and `payload` columns exist after migration (runs against `supabase start` test instance)
     - Gate behind `INTEGRATION=true` env flag
     - _Requirements: 1.1, 2.8, 4.2, 4.3, 6.1_
 
-- [ ] 12. Final checkpoint — all tests and CI garde-fous pass
+- [x] 12. Final checkpoint — all tests and CI garde-fous pass
   - Statut réel (2026-10-12) : **décochée**. La coche précédente affirmait « all tests pass »
     alors que les tâches 10 et 11 étaient vides et qu'aucun fichier `__tests__/api/brain*`
     ni `tests/test_bridge_poller.py` n'existait.
@@ -240,6 +240,18 @@ Implementation spans two codebases. Tasks on the CMS side (Next.js/TypeScript at
     ```
   - Pay special attention to `check:api-auth` (new Bridge routes use the service key via `_bridge_headers`) and `check:erreurs-avalees` (all Supabase writes in the route handlers must read the `error` field).
   - Fix any failures before considering the feature complete. Ask the user if questions arise.
+
+  - Statut réel (2026-10-14) : **cochée**, avec les preuves. Les six propriétés de
+    correction existent désormais sous `fast-check` (`__tests__/api/brain/*.property.test.ts`,
+    P1 à P5) et la suite Brain `tests/test_bridge_poller.py` (17 tests, `hypothesis`
+    inclus, propriété 6) vit dans le dépôt `heldonica-brain`.
+  - Chaque propriété côté site a été validée par **mutation** : casser le stockage du
+    payload (P1), l'allowlist (P3), la comparaison du jeton (P4), l'atomicité du claim
+    (P2) ou le seuil des 120 s (P5) fait échouer le test correspondant — un test qui ne
+    tombe pas ne prouve rien.
+  - Restent hors périmètre : la pose de `BRAIN_BRIDGE_TOKEN` des deux côtés (Vercel +
+    `.env` du Cerveau) et l'exécution de `INTEGRATION=true` contre une vraie base — les
+    deux demandent une action humaine et ne sont donc pas marquées `done`.
 
 ---
 

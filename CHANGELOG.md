@@ -3,6 +3,66 @@
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
 
+## [2026-10-14] — Pont Brain-CMS : les six propriétés de correction sont enfin testées
+
+### Contexte
+La spec `.kiro/specs/brain-cms-bridge` cochait des tâches sans preuve, et
+`fast-check` n'était pas installé : les six propriétés de correction du `design.md`
+n'existaient que sur le papier. La suite Brain (`tests/test_bridge_poller.py`) était
+annoncée « à écrire ». Les deux manques sont comblés.
+
+### Ajouté (dépôt `heldonica`, côté site)
+- `fast-check` en devDependency (4.10.2) — bibliothèque de tests de propriété.
+- `__tests__/api/brain/tasks.property.test.ts` — **P1** (le payload est stocké sans
+  modification), **P3** (l'allowlist des `task_type` est exhaustive), **P5**
+  (`online` ⇔ écart strictement inférieur à 120 s, y compris la borne exacte).
+- `__tests__/api/brain/bridge-auth.property.test.ts` — **P2** (atomicité du claim :
+  sur 2 à 10 réclamations concurrentes, exactement une aboutit, les autres reçoivent
+  409) et **P4** (tout jeton invalide reçoit 401 sans jamais toucher la base).
+- `__tests__/api/brain/_supabase-mock.ts` — doublure Supabase **stateful** partagée :
+  les tests observent ce que la route a réellement écrit, pas seulement le code HTTP.
+- `__tests__/migrations/brain_bridge_migration.test.ts` (tâche 1.2) — vérifie le
+  schéma **réellement appliqué** (`task_type`, `payload`), pas seulement l'existence
+  du fichier de migration. Lecture seule, `INTEGRATION=true`, refuse les URL de prod.
+- `__tests__/integration/brain-bridge.test.ts` (tâche 11.1) — chaîne complète
+  dispatch → claim → clôture `done` → relecture, plus heartbeat → `online=true`.
+  Contre une base **simulée** : écrire dans la vraie `agent_tasks` laisserait des
+  lignes derrière lui dans la table qui coordonne tous les agents.
+
+### Corrigé
+- `.kiro/specs/brain-cms-bridge/tasks.md` : les cases 1.2 à 12 reflètent l'état réel,
+  avec les preuves — plus de coche sans mesure.
+
+### Vérifié
+- `vitest` : **13 passés, 2 ignorés** (migration, faute d'`INTEGRATION`) sur les
+  nouveaux fichiers ; suite complète **651 passés, 2 ignorés** via `garde-fous`.
+- **Validation par mutation des cinq propriétés côté site** : casser le stockage du
+  payload, l'allowlist, la comparaison du jeton, l'atomicité du claim ou le seuil des
+  120 s fait échouer le test correspondant. Un test qui ne tombe pas ne prouve rien.
+- **La CI a rattrapé une faiblesse du test P1 lui-même** : `fc.jsonValue()` génère
+  `-0`, que `JSON.stringify` écrit `"0"`. Exiger l'identité stricte faisait échouer la
+  propriété sur une valeur que JSON ne sait pas représenter. La comparaison porte
+  désormais sur la forme normalisée, et un test dédié verrouille le cas `−0 → 0`.
+  Le défaut ne se voyait pas en local (graine différente à chaque exécution) : il a
+  fallu 15 exécutions consécutives pour le confirmer, puis la CI pour l'attraper.
+- `typecheck` **0**, `preflight` **6/6**, `garde-fous` **10/12** (2 ignorés faute
+  d'identifiants Supabase).
+- Côté Cerveau (dépôt `heldonica-brain`, PR séparée) : **17 tests** hors ligne, dont
+  la propriété 6 (`hypothesis`). Deux exigences non tenues y ont été corrigées — la
+  borne d'exécution de 300 s (7.3) et la garde « ne jamais re-traiter une tâche non
+  `sent` » (2.10).
+
+### Non vérifié
+- L'exécution `INTEGRATION=true` contre une vraie base : aucune action automatisée
+  n'écrit dans la production.
+- `BRAIN_BRIDGE_TOKEN` doit être posé **des deux côtés** (Vercel + `.env` du Cerveau)
+  pour que le pont fonctionne réellement — action humaine.
+
+### Reste à faire
+- Poser `BRAIN_BRIDGE_TOKEN` côté Vercel et côté Cerveau (même valeur).
+
+---
+
 ## [2026-10-12] — Pont Brain-CMS : authentification admin, entrées robustes, tests réels
 
 ### Contexte
