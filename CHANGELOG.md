@@ -3,6 +3,56 @@
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
 
+## [2026-10-14] — Positionnement : relevé outillé du panel (11 sites) et comptages consolidés
+
+### Contexte
+Le relevé précédent s'appuyait sur une extraction non outillée et annonçait
+**30 vignettes / 14 légendes lisibles** pour Échappées Lointaines. Deux relevés
+successifs sur la même source donnaient des chiffres différents : la méthode n'était
+pas rejouable. Par ailleurs, l'affirmation « les autres acteurs n'exposent pas leurs
+légendes » reposait sur une vérification manuelle, non traçable.
+
+### Ajouté
+- `scripts/collect_instagram_legends.py` : relevé **reproductible** des **11 sites
+  officiels** du panel. Pour chacun : nombre de vignettes (`id="item-action-…"`),
+  légendes lisibles (`aria-label` ≥ 200 caractères, dédupliquées), embeds Instagram
+  (`instagram.com/p|reel|tv`). Ne recopie **aucun** texte concurrent — comptages seuls.
+- `docs/positionnement-editorial-concurrents.md` §3.5 : résultat du relevé, daté et tabulé.
+
+### Corrigé
+- §3.4 : chiffres consolidés sur **33 vignettes / 28 légendes lisibles** (chaque
+  publication est exposée deux fois dans la galerie — desktop/mobile —, d'où le
+  sous-comptage antérieur à 14) ; pronoms je 37 / tu 33 / vous 27 / **nous 18** / on 18 ;
+  longueur 247-2 183 car. (médiane 948) ; 0-17 hashtags (médiane 6) ; six mots bannis
+  relevés (« inoubliable », « voyage organisé », « paradis », « astuce(s) »,
+  « paradisiaque », « magnifique »).
+- §1.3 : sites officiels des acteurs 6-8 ajoutés (`perspectives-de-voyage.fr`,
+  `imprudencedesvoyages.com`, `lemondecousumain.fr`).
+- §1.2, §3.2, §4, §4.1, §7, §8, §9 et §10 alignées ; le `[INDISPONIBLE]` des 10 autres
+  acteurs est désormais **mesuré** (0 légende, 0 embed) et non supposé.
+
+### Vérifié
+- `python3 scripts/collect_instagram_legends.py` le 2026-10-14 : Échappées Lointaines
+  33/28 ; 9 autres sites à 0 ; `voyagesetc.fr` → HTTP 403. Trois requêtes successives
+  donnent le même HTML (33 vignettes, 28 légendes).
+- `npm run preflight` : 6/6 ; `npx tsc --noEmit` : OK ; `npx vitest run` : 638 tests
+  passés ; `npm run check:content-coherence` et `check:content-evidence` : OK.
+  (`check:cms-zones` non exécutable ici : exige une URL Supabase et une clé, absentes de
+  l'environnement — sans lien avec ce changement, qui ne touche ni le CMS ni la base.)
+
+### Non vérifié
+- Le relevé ne couvre que la **page d'accueil** de chaque site : une légende republiée
+  sur une page interne ne serait pas vue.
+- Exhaustivité de la galerie Échappées Lointaines : sous-ensemble possible du compte ;
+  comptages datés, non extrapolables.
+- Les 4 acteurs manquants (panel à 15) : toujours non identifiés.
+
+### Reste à faire
+- Fournir la liste nominative des 4 acteurs manquants et, pour les 10 acteurs sans
+  collecte, des captures ou des URL publiques.
+
+---
+
 ## [2026-10-14] — Positionnement : recomptage des légendes Échappées Lointaines (chiffres corrigés)
 
 ### Contexte

@@ -51,11 +51,11 @@ audits concurrentiels présents documentent :
 
 ### 1.2 Légendes Instagram : état factuel
 
-- `[INDISPONIBLE]` Pour **10 des 11 acteurs du panel**, les « 10 légendes Instagram par acteur » ne sont pas vérifiables depuis cet environnement : Instagram bloque l'accès automatisé (login/JS mur) et aucune capture utilisateur n'a été fournie.
+- `[INDISPONIBLE]` Pour **10 des 11 acteurs du panel**, les « 10 légendes Instagram par acteur » ne sont pas vérifiables depuis cet environnement : Instagram bloque l'accès automatisé (login/JS mur) et aucune capture utilisateur n'a été fournie. Vérifié le **2026-10-14** sur les 10 sites officiels : **0 légende republiée, 0 embed `instagram.com/p|reel|tv`** (relevé `scripts/collect_instagram_legends.py`, §3.5).
 - `[OBSERVÉ — vérifié 2026-10-14]` **Une exception réelle** : Échappées Lointaines
   republie ses légendes Instagram, hashtags compris, dans une galerie « Suivez-moi
   sur Instagram » de son **propre site** (`echappeeslointaines.fr`, page d'accueil).
-  C'est une source publique et citable : **14 légendes lisibles** y ont été relevées
+  C'est une source publique et citable : **28 légendes lisibles** y ont été relevées
   le 2026-10-14 (§3.4). Les autres acteurs n'exposent pas leurs légendes.
 - `[OBSERVÉ]` Le dépôt contient bien des **templates** de rédaction de légende Heldonica (`PROMPT_TEMPLATE_INSTA.md`, `docs/GUIDE_VOIX_HELDONICA_IA.md` → Template 3, `lib/brand-voice.ts`), mais **pas** de collecte de légendes concurrentes.
 - Conséquence : la section 3 **documente la méthode de collecte** ; les cellules
@@ -85,9 +85,9 @@ quand public). Sources : sites officiels publics. Détail dans
 | 3 | Les Coflocs | lescoflocs.com | Aventure, vanlife, vidéo |
 | 4 | Trace Directe | tracedirecte.com | Sur-mesure via experts locaux |
 | 5 | Voyages etc | voyagesetc.fr | Adeline Gressin (Nantes), blog depuis 2009, « voyages culture & outdoor » |
-| 6 | Perspectives de Voyage | (site officiel) | Duo d'autrices, guides Hachette, notice BnF, certification ARPP |
-| 7 | Imprudence des Voyages | (site officiel) | Julia Couturas (Le Havre), offre cataloguée par destination |
-| 8 | Le Monde Cousu Main | (site officiel) | Aurélia Ferrand, secrétaire ATPE, page tarifaire publique |
+| 6 | Perspectives de Voyage | perspectives-de-voyage.fr | Duo d'autrices, guides Hachette, notice BnF, certification ARPP |
+| 7 | Imprudence des Voyages | imprudencedesvoyages.com | Julia Couturas (Le Havre), offre cataloguée par destination |
+| 8 | Le Monde Cousu Main | lemondecousumain.fr | Aurélia Ferrand, secrétaire ATPE, page tarifaire publique |
 
 **B. Travel planners — offre sur-mesure (benchmark commercial)**
 
@@ -213,22 +213,24 @@ reconstituée de mémoire ni reformulée.
 
 | # | Acteur | 10 légendes collectées ? | Source(s) | Statut |
 |---|---|---|---|---|
-| 5 | Voyages etc (`voyagesetc.fr`) | Non | — | `[INDISPONIBLE]` — comptes bloqués à l'accès automatisé |
-| 6 | Perspectives de Voyage | Non | 1 fragment indexé public (identification) | `[NON VÉRIFIÉ]` — dates/tarifs absents des extraits |
-| 7 | Imprudence des Voyages | Non | Site officiel (pages destination) | `[INDISPONIBLE]` pour les légendes |
-| 8 | Le Monde Cousu Main | Non | Site officiel (page tarifaire) | `[INDISPONIBLE]` pour les légendes |
-| 9 | Fabrique ton Voyage | Non | Site officiel (§ témoignages, § valeurs) | `[INDISPONIBLE]` pour les légendes |
-| 10 | Destinaslow | Non | Site officiel (§ avis, § prestations) | `[INDISPONIBLE]` pour les légendes |
-| 11 | Échappées Lointaines | **14 légendes lisibles** (sur 30 vignettes) | Site officiel, galerie « Suivez-moi sur Instagram » (republiée) | `[OBSERVÉ]` — relevées le 2026-10-14 |
+| 5 | Voyages etc (`voyagesetc.fr`) | Non | — | `[INDISPONIBLE]` — site renvoie HTTP 403 à l'agent ; aucun embed |
+| 6 | Perspectives de Voyage (`perspectives-de-voyage.fr`) | Non | 1 fragment indexé public (identification) | `[NON VÉRIFIÉ]` — dates/tarifs absents des extraits ; **0 légende republiée** (2026-10-14) |
+| 7 | Imprudence des Voyages (`imprudencedesvoyages.com`) | Non | Site officiel (pages destination) | `[INDISPONIBLE]` pour les légendes ; **0 republiée** (2026-10-14) |
+| 8 | Le Monde Cousu Main (`lemondecousumain.fr`) | Non | Site officiel (page tarifaire) | `[INDISPONIBLE]` pour les légendes ; **0 republiée** (2026-10-14) |
+| 9 | Fabrique ton Voyage (`fabriquetonvoyage.fr`) | Non | Site officiel (§ témoignages, § valeurs) | `[INDISPONIBLE]` pour les légendes ; **0 republiée** (2026-10-14) |
+| 10 | Destinaslow (`destinaslow.fr`) | Non | Site officiel (§ avis, § prestations) | `[INDISPONIBLE]` pour les légendes ; **0 republiée** (2026-10-14) |
+| 11 | Échappées Lointaines (`echappeeslointaines.fr`) | **28 légendes lisibles** (sur 33 vignettes) | Site officiel, galerie « Suivez-moi sur Instagram » (republiée) | `[OBSERVÉ]` — relevées le 2026-10-14 |
 
 `[OBSERVÉ]` **Une collecte a pu être faite, pour un seul acteur** : Échappées
 Lointaines publie ses légendes sur son propre site (galerie « Suivez-moi sur
-Instagram » de la page d'accueil). Relevé du **2026-10-14** : 30 vignettes, dont
-**14 légendes lisibles** dans le HTML (§3.4).
+Instagram » de la page d'accueil). Relevé reproductible du **2026-10-14**
+(`scripts/collect_instagram_legends.py`, §3.5) : **33 vignettes**, dont **28
+légendes lisibles** dans le HTML (attribut `aria-label` ≥ 200 caractères).
 C'est la seule source de légendes concurrentes réellement accessible et citable
-trouvée à ce jour — les autres sites du panel ne republient pas leurs légendes
-(vérifié : Novo-Monde, Chilowé, Les Coflocs, Trace Directe, Fabrique ton Voyage,
-Destinaslow, Imprudence des Voyages, Le Monde Cousu Main → 0 légende exposée).
+trouvée à ce jour. Les **10 autres sites nommés** du panel (Novo-Monde, Chilowé,
+Les Coflocs, Trace Directe, Perspectives de Voyage, Imprudence des Voyages,
+Le Monde Cousu Main, Fabrique ton Voyage, Destinaslow) renvoient **0 légende
+republiée et 0 embed Instagram** au 2026-10-14 ; `voyagesetc.fr` renvoie HTTP 403.
 
 - `[OBSERVÉ]` Un **fragment de légende indexé publiquement** (Perspectives de
   Voyage, cité dans `docs/concurrence-profils-approfondis.md`) a servi à
@@ -251,53 +253,101 @@ Destinaslow, Imprudence des Voyages, Le Monde Cousu Main → 0 légende exposée
 ### 3.4 Analyse de voix — Échappées Lointaines (légendes publiques, vérifiées le 2026-10-14)
 
 `[OBSERVÉ]` **Méthode reproductible.** La galerie « Suivez-moi sur Instagram » de la
-page d'accueil (`echappeeslointaines.fr`) expose ses vignettes dans le HTML statique.
-Un relevé `curl` (agent navigateur) du **2026-10-14** donne : **30 vignettes** portant
-`id="item-action-…"`, dont **14** contiennent le **texte complet d'une légende** dans
-le HTML ; les 16 autres n'exposent que l'image (texte chargé côté client). Les mesures
-ci-dessous portent sur ces **14 légendes lisibles** — pas sur les 30 vignettes.
+page d'accueil (`echappeeslointaines.fr`) expose ses vignettes dans le HTML statique,
+**texte de légende compris**, dans l'attribut `aria-label` des conteneurs
+`id="item-action-…"`. Relevé `curl` (agent) du **2026-10-14** : **33 vignettes**, dont
+**28 portent une légende** (`aria-label` ≥ 200 caractères ; les 5 autres n'ont qu'un
+libellé d'image court, ex. « Guépards en safari »). Les mesures ci-dessous portent
+sur ces **28 légendes lisibles**. Le relevé est rejouable via
+`scripts/collect_instagram_legends.py` (§3.5).
 
-| Mesure (14 légendes lisibles) | Valeur |
+| Mesure (28 légendes lisibles) | Valeur |
 |---|---|
-| Longueur (caractères) | min 422 · médiane 1 194 · max 2 402 |
-| Hashtags par légende | min 3 · médiane 10 · max 27 |
-| Pronoms (occurrences, frontières de mots) | « je » 28 · « tu » 19 · « vous » 14 · **« nous » 17** · « on » 17 |
+| Longueur (caractères) | min 247 · médiane 948 · max 2 183 |
+| Hashtags par légende | min 0 · médiane 6 · max 17 |
+| Pronoms (occurrences, frontières de mots) | « je » 37 · « tu » 33 · « vous » 27 · **« nous » 18** · « on » 18 · « moi » 8 · « toi » 14 |
 
-`[OBSERVÉ]` **Correction d'un relevé antérieur.** Une version précédente de cette
-section annonçait « 26 légendes » et « nous : 0 ». Le recomptage du 2026-10-14 sur la
-même source donne **14 légendes lisibles** et **17 « nous »**. Le « nous » n'est pas
-absent : au moins une légende est un **récit de voyage au « nous »** (une mésaventure
-en famille d'accueil). Le corpus est donc **hétérogène** — plusieurs voix y cohabitent,
-ce qui est cohérent avec une galerie de **republication** (textes d'auteurs différents,
+`[OBSERVÉ]` **Corrections successives.** Une version du 2026-10-13 annonçait « 26
+légendes » et « nous : 0 » ; un recomptage du 2026-10-14 annonçait « 14 lisibles ».
+Le relevé reproductible du **2026-10-14** (script, §3.5) donne **33 vignettes / 28
+légendes lisibles** et **18 « nous »**. Les écarts viennent de la méthode de
+sélection (`aria-label` par conteneur, dédupliqué) : la galerie expose chaque
+publication **deux fois** (variante desktop/mobile), ce qui gonfle ou divise les
+comptages selon qu'on déduplique ou non. La valeur retenue est celle du script,
+seule rejouable. Le corpus reste **hétérogène** — plusieurs voix y cohabitent, ce
+qui est cohérent avec une galerie de **republication** (textes d'auteurs différents,
 pas nécessairement tous de la fondatrice).
 
 `[OBSERVÉ]` Faits de forme (sans reproduction du texte) :
 
 - **Un émetteur solo qui se nomme** : au moins une légende signe « Marine, Travel
-  Planner… » et donne son métier. Le « je » est très présent (28 occurrences).
-- **Adresse mélangée tu / vous** : « tu » (19) et « vous » (14) coexistent — là où
-  Heldonica impose **« tu » strictement** en B2C.
-- **« on » employé aussi** (17), mais comme sujet de récit, pas comme marqueur de duo
-  fondateur.
-- **Hashtags nombreux** : médiane 10, jusqu'à 27, dont des hashtags de niche
-  (`#voyagedenoces`, `#lunedemiel`, `#voyagesurmesure`, `#travelplanner`).
+  Planner… » et donne son métier. Le « je » est le pronom le plus fréquent (37).
+- **Adresse mélangée tu / vous** : « tu » (33) et « vous » (27) coexistent presque à
+  égalité — là où Heldonica impose **« tu » strictement** en B2C.
+- **« on » employé aussi** (18), à parité avec « nous » (18) : sujet de récit, pas
+  marqueur de duo fondateur.
+- **Hashtags très variables** : médiane 6, jusqu'à 17, mais **0 hashtag** sur au
+  moins une légende ; hashtags de niche (`#voyagedenoces`, `#lunedemiel`,
+  `#voyagesurmesure`, `#travelplanner`).
 
-`[OBSERVÉ — recoupement avec la voix Heldonica]` Sur ces 14 légendes lisibles, on
+`[OBSERVÉ — recoupement avec la voix Heldonica]` Sur ces 28 légendes lisibles, on
 relève des termes que `lib/brand-voice.ts` classe en `FORBIDDEN_WORDS` :
-**« magnifique »** (1), **« inoubliable »** (2), **« astuce »** (1), et le hashtag
-**`#organisationvoyage`** (3, proche de « organisation de séjour » banni). On y relève
-aussi **« pépite »** (1), que Heldonica classe en `BRAND_WORDS` (« pépites dénichées »).
+**« inoubliable »** (3), **« voyage organisé »** (2), **« paradis »** (2),
+**« astuce/astuces »** (1+1), **« paradisiaque »** (1), **« magnifique »** (1).
+Les hashtags recoupent aussi le champ banni (organisation de voyage). Autrement
+dit : sur ce corpus, **aucun mot banni n'est épargné** — les six y figurent.
 
 `[INTERPRÉTATION]` La différenciation avec Heldonica ne joue donc pas sur le lexique
-seul (les deux camps se recoupent), mais sur la **construction** : émetteur solo et
-« je » vs duo et « on » ; récit/mésaventure vs carnet de route ; adresse tu/vous
-mélangée vs « tu » strict ; appel à l'interaction vs CTA doux. Aucun texte
-d'Échappées Lointaines n'est reproduit ici : seuls des comptages et des faits de
-structure le sont.
+seul (les deux camps se recoupent, et le concurrent en use davantage), mais sur la
+**construction** : émetteur solo et « je » vs duo et « on » ; récit/mésaventure vs
+carnet de route ; adresse tu/vous mélangée vs « tu » strict ; appel à l'interaction
+vs CTA doux. Aucun texte d'Échappées Lointaines n'est reproduit ici : seuls des
+comptages et des faits de structure le sont.
 
 `[INTERPRÉTATION]` Transposition utile à `PROMPT_TEMPLATE_INSTA.md` : la **mécanique**
 d'accroche (ouvrir sur un fait concret, pas un superlatif) est transposable ; le
 **« je » solo** et le **lexique recoupé** ne le sont pas sans rompre la voix Heldonica.
+
+---
+
+### 3.5 Relevé reproductible du panel (script, 2026-10-14)
+
+`[OBSERVÉ]` La méthode de collecte est **outillée** plutôt que manuelle :
+`scripts/collect_instagram_legends.py` interroge les **11 sites officiels** du panel
+et, pour chacun, compte (1) les vignettes `id="item-action-…"`, (2) les légendes
+lisibles (`aria-label` ≥ 200 caractères, dédupliquées), (3) les embeds Instagram
+officiels (`instagram.com/p|reel|tv`). Il ne recopie **aucun** texte.
+
+Résultat du **2026-10-14** :
+
+| Acteur | Vignettes | Légendes lisibles | Embeds | Statut |
+|---|---|---|---|---|
+| Échappées Lointaines | 33 | **28** | 0 | `[OBSERVÉ]` légendes exposées |
+| Novo-Monde | 0 | 0 | 0 | `[INDISPONIBLE]` |
+| Chilowé | 0 | 0 | 0 | `[INDISPONIBLE]` |
+| Les Coflocs | 0 | 0 | 0 | `[INDISPONIBLE]` |
+| Trace Directe | 0 | 0 | 0 | `[INDISPONIBLE]` |
+| Voyages etc | — | — | — | `[INDISPONIBLE]` — HTTP 403 (refus serveur) |
+| Perspectives de Voyage | 0 | 0 | 0 | `[INDISPONIBLE]` |
+| Imprudence des Voyages | 0 | 0 | 0 | `[INDISPONIBLE]` |
+| Le Monde Cousu Main | 0 | 0 | 0 | `[INDISPONIBLE]` |
+| Fabrique ton Voyage | 0 | 0 | 0 | `[INDISPONIBLE]` |
+| Destinaslow | 0 | 0 | 0 | `[INDISPONIBLE]` |
+
+`[OBSERVÉ]` **Onze sites interrogés, une seule source de légendes.** Aucun des dix
+autres n'expose de légende ni d'embed : le `[INDISPONIBLE]` de la §3.2 est donc
+**mesuré**, pas supposé.
+
+`[NON VÉRIFIÉ]` Le relevé ne porte que sur la **page d'accueil** de chaque site : une
+légende republiée sur une page interne (destination, article) ne serait pas vue. Le
+script est fait pour être étendu (ajouter des URL à `SOURCES`), mais le résultat
+publié ici est celui des accueils au 2026-10-14.
+
+`[INTERPRÉTATION]` Que **dix travel planners sur onze n'exposent aucune légende**
+sur leur propre site est en soi un fait de positionnement : ils traitent Instagram
+comme un canal, pas comme un contenu à capitaliser. Échappées Lointaines fait
+l'inverse — elle **rapatrie** ses légendes sur son domaine, où elles servent aussi
+le référencement. C'est un axe transposable pour Heldonica.
 
 ## 4. Tableau comparatif — voix Heldonica vs concurrents documentés
 
@@ -336,7 +386,7 @@ Faits relevés sur les sites officiels publics. Colonnes limitées à ce qui est
 | Livrable `[OBSERVÉ]` | Carnet de route (PDF) | `[INDISPONIBLE]` | `[INDISPONIBLE]` | `[INDISPONIBLE]` | `[INDISPONIBLE]` | Livret digital + **imprimé** | Carnet PDF + **papier** | Carnet + carte interactive |
 | Offre par destination `[OBSERVÉ]` | 15+ itinéraires, pas de page d'offre nommée | `[INDISPONIBLE]` | `[INDISPONIBLE]` | **Oui** (par pays) | `[INDISPONIBLE]` | Non (par durée/complexité) | **Oui** (Canada) | Non (par format) |
 | Témoignages `[OBSERVÉ]` | 1 daté (« Sophie & Marc — Madère, Mai 2026 ») | `[INDISPONIBLE]` | `[INDISPONIBLE]` | `[INDISPONIBLE]` | `[INDISPONIBLE]` | 6 nommés | 4 nommés | plusieurs, datés ; 1 vérifiable en détail sur site (lune de miel, hôtel 4★ côte Pacifique) |
-| Légendes Instagram `[OBSERVÉ]` | s.o. (référent) | `[INDISPONIBLE]` | `[INDISPONIBLE]` | `[INDISPONIBLE]` | `[INDISPONIBLE]` | `[INDISPONIBLE]` | `[INDISPONIBLE]` | **14 lisibles** (galerie du site, 2026-10-14) |
+| Légendes Instagram `[OBSERVÉ]` | s.o. (référent) | 0 republiée | 0 republiée | 0 republiée | 0 republiée | 0 republiée | 0 republiée | **28 lisibles** (galerie du site, 2026-10-14) |
 
 `[INTERPRÉTATION]` Deux mécanismes reviennent chez **tous** les travel planners
 du panel et manquent côté Heldonica : un **appel découverte cliquable** et un
@@ -376,7 +426,7 @@ conversion n'est pas mesuré ici.
 | Élément | Statut | À fournir par |
 |---|---|---|
 | Liste nominative des 15 acteurs | **11/15 identifiés** (voir §1.3) ; 4 restants `[INDISPONIBLE]` | Utilisateur |
-| 10 légendes Instagram × 15 acteurs | `[PARTIEL]` : **14 légendes lisibles** pour Échappées Lointaines (site officiel, §3.4) ; 10 autres acteurs `[INDISPONIBLE]` | Captures ou URL publiques (utilisateur) pour les 10 restants |
+| 10 légendes Instagram × 15 acteurs | `[PARTIEL]` : **28 légendes lisibles** pour Échappées Lointaines (site officiel, §3.4) ; 10 autres acteurs **mesurés à 0** (§3.5) | Captures ou URL publiques (utilisateur) pour les 10 restants |
 | Version antérieure éventuelle du présent doc | Introuvable dans le dépôt | Utilisateur (poste local / autre outil) |
 | Décision sur « parfait » (PR #528) | En attente | Maintien du dépôt |
 | Chiffres tarifaires Heldonica | Non fournis | Utilisateur |
@@ -393,15 +443,18 @@ conversion n'est pas mesuré ici.
 - `lib/brand-voice.ts` — source de vérité : `FORBIDDEN_WORDS`, `BRAND_WORDS`, `validateGardeFous`, `buildVoiceCorrectPrompt`.
 - `PROMPT_TEMPLATE_B2C.md`, `PROMPT_TEMPLATE_INSTA.md`, `prompts/newsletter.md` — templates de production.
 - `AGENTS.md` — règles absolues (ne rien inventer ; migrations ; secrets ; maintenance).
+- `scripts/collect_instagram_legends.py` — relevé outillé et rejouable du panel (§3.5).
 
 ### Sources externes consultées (2026-10-14)
 
 - `https://www.echappeeslointaines.fr/` — page d'accueil, galerie « Suivez-moi sur
-  Instagram » : 30 vignettes, **14 légendes lisibles** relevées (comptages en §3.4).
+  Instagram » : **33 vignettes, 28 légendes lisibles** relevées (comptages en §3.4).
   Seule source de légendes concurrentes publique et citable trouvée.
-- Autres sites du panel vérifiés le même jour (Novo-Monde, Chilowé, Les Coflocs,
-  Trace Directe, Fabrique ton Voyage, Destinaslow, Imprudence des Voyages,
-  Le Monde Cousu Main) : **aucune légende exposée**. `[OBSERVÉ]`
+- **10 autres sites du panel** interrogés le même jour par
+  `scripts/collect_instagram_legends.py` (Novo-Monde, Chilowé, Les Coflocs, Trace
+  Directe, Perspectives de Voyage, Imprudence des Voyages, Le Monde Cousu Main,
+  Fabrique ton Voyage, Destinaslow) : **0 légende republiée, 0 embed Instagram**.
+  `voyagesetc.fr` : **HTTP 403** (refus serveur). `[OBSERVÉ]`
 
 ---
 
@@ -413,6 +466,7 @@ conversion n'est pas mesuré ici.
 | 2026-10-12 | Mise à jour : panel porté à **11 acteurs identifiés** (§1.3) ; tableau complémentaire de faits vérifiés sur site (§4.1) ; §3.2 nommée ; §10 ajoutée. Légendes Instagram toujours `[INDISPONIBLE]`. |
 | 2026-10-13 | **Collecte réelle de légendes** : Échappées Lointaines republie ses légendes sur son site → 26 légendes annoncées (§3.2, §3.4). Les 10 autres acteurs restent `[INDISPONIBLE]`. §1.2 et §10 ajustées ; témoignage Échappées vérifié (§4.1). |
 | 2026-10-14 | **Recomptage et correction** : relevé indépendant de la même galerie → **30 vignettes, 14 légendes lisibles** ; le « nous » (17) n'est **pas** absent, contrairement au relevé du 13. §1.2, §3.2, §3.4, §4.1, §7, §8 et §10 alignées sur les chiffres vérifiés. |
+| 2026-10-14 (b) | **Relevé outillé et reproductible** (`scripts/collect_instagram_legends.py`, §3.5) : les **11 sites du panel** sont interrogés. Échappées Lointaines → **33 vignettes, 28 légendes lisibles** (le « 14 » précédent sous-comptait : chaque post est exposé deux fois) ; les 10 autres → **0 légende, 0 embed** ; `voyagesetc.fr` → HTTP 403. §1.2, §3.2, §3.4, §4.1, §7, §8 et §10 alignées sur ces mesures. Sites officiels des acteurs 6-8 ajoutés au panel (§1.3). |
 
 ---
 
@@ -423,8 +477,10 @@ lecture abusive du tableau §4.1.
 
 | Donnée | Statut | Pourquoi |
 |---|---|---|
-| 10 légendes Instagram par acteur | `[PARTIEL]` | **Échappées Lointaines : 14 légendes lisibles** (sur 30 vignettes) sur son site (relevées 2026-10-14, §3.4). **10 autres acteurs : `[INDISPONIBLE]`** — Instagram bloque l'accès automatisé et aucune capture utilisateur n'a été fournie. |
-| Légendes Instagram d'Échappées Lointaines : exhaustivité | `[NON VÉRIFIÉ]` | Les 14 légendes lisibles proviennent d'une galerie du site, pas du compte Instagram : la galerie peut être un sous-ensemble (16 vignettes n'exposent pas leur texte) et son contenu peut changer. Les comptages sont datés (2026-10-14) et non extrapolables au compte. |
+| 10 légendes Instagram par acteur | `[PARTIEL]` | **Échappées Lointaines : 28 légendes lisibles** (sur 33 vignettes) sur son site (relevées 2026-10-14, §3.4). **10 autres acteurs : `[INDISPONIBLE]`** — Instagram bloque l'accès automatisé et aucune capture utilisateur n'a été fournie ; leurs sites respectifs exposent **0 légende** (§3.5). |
+| Légendes Instagram d'Échappées Lointaines : exhaustivité | `[NON VÉRIFIÉ]` | Les 28 légendes lisibles proviennent d'une galerie du site, pas du compte Instagram : la galerie peut être un sous-ensemble (5 vignettes n'exposent qu'un libellé d'image) et son contenu peut changer. Les comptages sont datés (2026-10-14) et non extrapolables au compte. |
+| Relevé limité à la page d'accueil | `[NON VÉRIFIÉ]` | Le script ne lit que l'accueil de chaque site : une légende republiée sur une page interne (destination, article) échapperait au comptage. Seul l'accueil est couvert. |
+| Stabilité de la galerie Échappées Lointaines | `[NON VÉRIFIÉ]` | Trois requêtes successives le 2026-10-14 donnent le même HTML (33/28) ; rien ne garantit que la galerie soit figée dans le temps. |
 | Noms des 4 acteurs restants (sur 15) | `[INDISPONIBLE]` | La liste nominative annoncée n'existe dans aucune source du dépôt. Non inventée. |
 | Prix de Voyages etc, Perspectives de Voyage, Imprudence des Voyages, Le Monde Cousu Main | `[INDISPONIBLE]` | Aucun montant public relevé pour ces acteurs. |
 | Trafic / audience des rivaux | `[NON VÉRIFIÉ]` | Chiffres auto-déclarés sur leurs propres sites (ex. « 600 000 pages vues/an »), non auditables. |
