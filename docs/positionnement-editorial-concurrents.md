@@ -14,6 +14,13 @@
 > **Règle appliquée :** `AGENTS.md` — « On n'invente rien. » Toute affirmation
 > est soit adossée à une source du dépôt, soit marquée `[INDISPONIBLE]` /
 > `[NON VÉRIFIÉ]`.
+>
+> **Fraîcheur (au 2026-10-14).** Ce document mélange volontairement les millésimes :
+> chaque section porte la date de son relevé. Les plus récentes : §3.4 et §3.5
+> (légendes Instagram, **2026-10-14**) et §10 (**2026-10-14**). Les plus anciennes,
+> non re-testées depuis : §1.3 et §4.1 (faits de site, **2026-10-12**) et §8
+> (sources initiales, **2026-10-11**). Autrement dit, l'état « panel » date du
+> 2026-10-12 ; l'état « légendes Instagram » date du 2026-10-14.
 
 ---
 
