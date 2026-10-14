@@ -3,6 +3,48 @@
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
 
+## [2026-10-14] — Positionnement : recomptage des légendes Échappées Lointaines (chiffres corrigés)
+
+### Contexte
+Le relevé du 2026-10-13 (PR #589) annonçait **26 légendes distinctes** pour Échappées
+Lointaines et **« nous » : 0**. Un relevé indépendant de la **même** galerie
+(`echappeeslointaines.fr`, page d'accueil), le **2026-10-14**, donne un résultat
+différent : l'extraction des 26 n'était pas reproductible.
+
+### Corrigé
+- `docs/positionnement-editorial-concurrents.md` :
+  - §3.4 : méthode d'extraction rendue **reproductible** (découpage des vignettes
+    `id="item-action-…"`) ; chiffres corrigés → **30 vignettes, dont 14 légendes
+    lisibles** (16 vignettes n'exposent que l'image) ; longueur 422-2 402 car.
+    (médiane 1 194) ; 3-27 hashtags (médiane 10).
+  - §3.4 : **« nous » = 17** (et non 0) — au moins une légende est un récit de voyage
+    au « nous » ; le corpus est **hétérogène** (galerie de republication, plusieurs
+    voix). Faits de lexique re-vérifiés sur les 14 légendes : « magnifique »,
+    « inoubliable », « astuce », hashtag `#organisationvoyage` (mots bannis) ;
+    « pépite » (mot de marque Heldonica).
+  - §1.2, §3.2, §4.1, §7, §8, §9 (historique) et §10 alignées sur les chiffres vérifiés.
+- Le chiffre « 26 » n'est plus affirmé comme un fait ; il est cité uniquement comme
+  relevé antérieur corrigé.
+
+### Vérifié
+- `curl` (agent navigateur) sur `https://www.echappeeslointaines.fr/` le 2026-10-14 :
+  30 `id="item-action-…"`, 14 textes de légende présents dans le HTML statique.
+- Autres sites du panel re-testés le même jour (Novo-Monde, Chilowé, Les Coflocs,
+  Trace Directe, Fabrique ton Voyage, Destinaslow, Imprudence des Voyages, Le Monde
+  Cousu Main) : **0 légende exposée**. `voyagesetc.fr` → HTTP 403.
+
+### Non vérifié
+- Exhaustivité : la galerie reste un sous-ensemble possible du compte Instagram, et
+  son contenu peut changer. Comptages datés, non extrapolables.
+- Les 10 autres acteurs du panel : légendes toujours `[INDISPONIBLE]`.
+- Les 4 acteurs manquants (panel à 15) : toujours non identifiés.
+
+### Reste à faire
+- Fournir la liste nominative des 4 acteurs manquants et, pour les 10 acteurs sans
+  collecte, des captures ou des URL publiques.
+
+---
+
 ## [2026-10-13] — Positionnement : premières légendes Instagram réellement collectées
 
 ### Contexte
