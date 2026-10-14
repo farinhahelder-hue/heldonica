@@ -3,6 +3,33 @@
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
 
+## [2026-10-14] — Atelier légendes & photos (méthode d'écriture depuis une image)
+
+### Contexte
+Besoin récurrent côté fondateur : « je fais des photos et je ne sais jamais quoi
+écrire ». Ce n'est pas un manque d'idées mais un blocage devant la page blanche :
+une légende se construit à partir d'un vécu, pas d'une inspiration.
+
+### Ajouté
+- `docs/ATELIER_LEGENDES_PHOTOS.md` : méthode de travail pour écrire une légende à
+  partir d'une photo — les 3 questions de déblocage, le squelette en 5 blocs, le
+  gabarit à trous, le tableau « photo → par quoi commencer », les règles de pronoms,
+  la checklist d'auto-vérification et la banque d'accroches officielles.
+
+### Notes
+- Document **méthodologique** : il ne contient aucun contenu éditorial à publier.
+  L'exemple du §7 est repris de la donnée d'exemple de `PROMPT_TEMPLATE_INSTA.md`
+  (crique de Kotor) et signalé comme illustratif.
+- La source de vérité de la voix reste `lib/brand-voice.ts` ; le document y renvoie
+  explicitement (`FORBIDDEN_WORDS`, `HELDONICA_ACCROCHES`, `validateGardeFous`).
+
+### Vérifié
+- `npm run preflight` : **6/6 contrôles réussis** (dont parité voix TS ↔ Python).
+- Aucun garde-fou ne scanne `docs/*.md` pour les mots bannis
+  (`check-content-coherence` lit la base `cms_blog_posts`) : le document peut citer
+  les mots bannis comme contre-exemples sans faire échouer la CI.
+
+
 ## [2026-10-14] — Positionnement : relevé outillé du panel (11 sites) et comptages consolidés
 
 ### Contexte
