@@ -59,6 +59,31 @@ installant Gradle à part, mais un build sur le poste échouait.
 - Installation de l'APK sur le Poco X6 Pro (geste humain).
 - Le build avec le JDK 17 exactement (testé avec JDK 21 ; Gradle 8.7 et l'AGP 8.4
   supportent les deux).
+## [2026-10-14] — Étude : fusion des deux apps Android en une seule
+
+### Contexte
+Question de l'utilisateur : « peut-on fusionner les deux apps en une seule ? » Il existe
+deux projets Android distincts (`heldonica-mobile/` dans ce dépôt, `android/` dans
+`heldonica-brain`), avec des chaînes de build et des UI différentes.
+
+### Ajouté
+- `docs/FUSION_APPS_ANDROID.md` : étude de consolidation. Réponse courte : **oui, c'est
+  faisable**, et c'est une consolidation (garder l'app la plus lourde, y porter l'autre
+  en un écran), pas une réécriture.
+
+### Points relevés (tous adossés à un fichier)
+- Chaînes de build incompatibles : AGP 8.4 vs 8.7.3, Kotlin 1.9.22 vs 2.0.21,
+  compileSdk 34 vs 35 ; UI Compose vs XML.
+- **Tension de sécurité** : `heldonica-mobile` embarque une clé Gemini
+  (`BuildConfig.GEMINI_API_KEY`, appel direct depuis le téléphone), alors que le brain
+  applique la règle inverse (« aucune clé dans l'APK »). Fusionner tel quel rouvrirait
+  la faille que le brain a corrigée.
+- `heldonica-brain/android/` a le **même défaut de wrapper** que le mobile avant #594
+  (`gradlew` absent).
+- Le proxy LLM a **Groq par défaut**, Gemini en option (`body.provider ?? "groq"`).
+
+### Non vérifié
+- La faisabilité effective du portage Compose (aucun code écrit à ce stade).
 
 
 ## [2026-10-14] — Positionnement : relevé outillé du panel (11 sites) et comptages consolidés
