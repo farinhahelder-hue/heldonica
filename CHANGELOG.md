@@ -110,6 +110,26 @@ soumis à la veille, et un service de premier plan exige un
 notification permanente et l'exemption de batterie. Sans les trois, Android tue
 le worker en silence.
 
+### Le serveur, sans rien payer (2026-10-15)
+
+Question du fondateur : « quel serveur, je ne peux pas payer ». Réponse :
+**aucun abonnement à ouvrir, les serveurs gratuits sont déjà là.**
+
+- Le dépôt est **public** → GitHub Actions est **gratuit et illimité**. Décision :
+  le dispatcher tourne sur GitHub Actions (`.github/workflows/`), pas sur Vercel.
+- **Vercel Hobby ne peut pas faire de cron sub-daily** : 1 exécution par jour
+  maximum, déploiement refusé au-delà. C'est la limite du plan, et c'est pourquoi
+  les 8 crons de `vercel.json` sont tous journaliers. Ma suggestion antérieure de
+  « Vercel Pro à 20 $/mois » tombe — inutile.
+- `agent-dispatch.yml` (AllHands + Gemini) et le `schedule` d'`ai-automation.yml`
+  existent **déjà** : il reste à brancher `agent_tasks` dessus, pas à écrire un
+  dispatcher.
+- Point faible à ne pas oublier : un cron GitHub est **désactivé en silence**
+  après 60 jours sans activité du dépôt ; le plan gratuit Supabase met un projet
+  en pause après ~7 jours. Chaque brique gratuite doit produire un signe de vie.
+
+Détail chiffré et sources : `docs/ARCHITECTURE_SANS_PC.md` § 6bis et 6ter.
+
 ## [2026-10-14] — Atelier légendes & photos (méthode d'écriture depuis une image)
 
 ### Contexte

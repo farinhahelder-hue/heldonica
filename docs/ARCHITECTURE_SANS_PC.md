@@ -276,6 +276,88 @@ sait lire le registre — c'est la Phase 4.
 
 ---
 
+## 6bis. Le serveur : lequel, sans rien payer
+
+> **Statut.** Question du fondateur le **2026-10-15** : « ça peut être les deux
+> mais quel serveur, je ne peux pas payer ». Réponse : **les deux serveurs
+> gratuits existent déjà dans ce dépôt.** Aucun abonnement à ouvrir.
+
+`[OBSERVÉ]` Le dépôt est **public** (`farinhahelder-hue/heldonica`). Sur GitHub,
+Actions est alors **gratuit et sans plafond de minutes** — c'est le fait qui
+décide de tout le reste.
+
+### Les trois options, chiffrées
+
+| Option | Coût | Cadence possible | Verdict |
+|---|---|---|---|
+| **GitHub Actions** (dépôt public) | **0 €** | 5 min minimum | ✅ Le dispatcher |
+| Vercel Cron — plan Hobby | 0 € | **1 fois par jour, maximum** | ❌ Inutilisable ici |
+| Supabase `pg_cron` + `pg_net` | 0 € (déjà inclus) | à la minute | ✅ Filet de sécurité |
+
+`[OBSERVÉ]` (source : `vercel.com/docs/cron-jobs/usage-and-pricing`) Vercel Hobby
+refuse toute expression plus fréquente que quotidienne — le déploiement échoue
+avec « Hobby accounts are limited to daily cron jobs ». Et même l'exécution
+journalière n'est garantie qu'à l'heure près. **C'est pourquoi les 8 crons de
+`vercel.json` sont tous journaliers : ce n'est pas un choix, c'est la limite du
+plan.** Ma suggestion antérieure « Vercel Pro à 20 $/mois » était donc la seule
+issue côté Vercel — et elle est inutile, puisque GitHub fait mieux gratuitement.
+
+`[OBSERVÉ]` (source : `docs.github.com`, `on.schedule`) Un cron GitHub a deux
+contraintes : **5 minutes de période minimum**, et la désactivation automatique
+des `schedule` après **60 jours sans activité du dépôt** (règle des dépôts
+publics). La désactivation est **silencieuse** — pas d'email, pas de ligne dans
+l'historique.
+
+### Ce que le dépôt a déjà, sans une ligne de plus
+
+`[OBSERVÉ]` Deux briques sont déjà là :
+
+- `.github/workflows/ai-automation.yml` — porte déjà `schedule:` (`0 7 * * 1`).
+  Le déclencheur planifié **fonctionne déjà** sur ce dépôt. C'est la preuve que
+  la voie est ouverte, pas une hypothèse.
+- `.github/workflows/agent-dispatch.yml` — dispatche déjà vers AllHands
+  (`app.all-hands.dev/api/v1/app-conversations`) et Gemini. Il est déclenché par
+  un **label d'issue** aujourd'hui. Il ne manque que le déclencheur planifié.
+
+`[INTERPRÉTATION]` Le dispatcher n'est donc pas à écrire : il faut **brancher le
+registre `agent_tasks` sur `agent-dispatch.yml`**, et ajouter un `schedule` qui
+appelle `GET /api/agent-tasks?balayer=1`. La pièce neuve est mince : un pas qui
+lit les tâches `sent`, appelle la cible, et écrit le compte rendu.
+
+### La décision, sans dépense
+
+```
+Poco X6 Pro (APK)          →  crée et prend les tâches   (fait, PR #601)
+GitHub Actions (gratuit)   →  dispatche toutes les 5 min (à brancher)
+Supabase pg_cron (gratuit) →  filet : libère les baux    (à poser)
+Vercel                     →  sert les routes, point. Pas de cron sub-daily.
+```
+
+`[INTERPRÉTATION]` « Les deux » que tu demandes — le téléphone **et** un serveur —
+tient donc sans abonnement : le téléphone commande, GitHub exécute, Supabase
+surveille. Le seul coût est celui de l'attention : un cron GitHub désactivé au
+bout de 60 jours de silence doit être surveillé (voir § 6ter).
+
+---
+
+## 6ter. Le point faible d'un serveur gratuit
+
+`[OBSERVÉ]` Les trois briques gratuites ont chacune un mode de panne **silencieux** :
+
+| Brique | Panne silencieuse | Réponse |
+|---|---|---|
+| GitHub Actions | `schedule` désactivé après 60 j sans activité | un ping hebdomadaire qui échoue visiblement |
+| Supabase (plan gratuit) | projet mis en pause après ~7 j d'inactivité | `pg_cron` s'auto-entretient, ou un ping |
+| Vercel Hobby | n/a (pas de cron sub-daily) | — |
+
+`[INTERPRÉTATION]` Un système gratuit qui s'arrête sans le dire est plus
+dangereux qu'un système payant qui tombe. La parade tient en une règle :
+**chaque brique doit produire un signe de vie observable** — une ligne dans le
+registre, un commentaire, un heartbeat. C'est exactement la règle `done` de
+`AGENTS.md` : « si tu n'as pas mesuré, écris `waiting_validation` ».
+
+---
+
 ## 7. Journal des vérifications
 
 - `[OBSERVÉ]` `npm run preflight` : **6/6** contrôles réussis avant rédaction.
@@ -283,3 +365,8 @@ sait lire le registre — c'est la Phase 4.
   dépôt à la date du 2026-10-15.
 - `[NON VÉRIFIÉ]` Aucun appel réseau n'a été fait pour confirmer l'état de
   production des routes.
+- `[OBSERVÉ]` (2026-10-15) Dépôt **public** (`GET /repos/...` → `visibility:
+  public`) ; `ai-automation.yml` porte un `schedule` actif.
+- `[OBSERVÉ]` (source externe, 2026-10-15) Vercel Hobby : cron quotidien
+  maximum ; GitHub Actions : gratuit sur dépôt public, période minimale 5 min,
+  désactivation après 60 j d'inactivité.
