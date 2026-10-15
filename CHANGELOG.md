@@ -2,6 +2,22 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-15] — Heldonica Pocket : Enrichissement RAG Mobile (93 Fiches Hors-Ligne & Recherche Pondérée)
+
+### Réalisations & Évolution du Coffre des Savoirs
+1. **Export Complet du Coffre dans l'APK Mobile (`assets/knowledge_vault.json`)** :
+   - Passage de 8 à **93 fiches certifiées** (terrain, pépites et architecture) embarquées directement dans le binaire Android.
+   - Poids maîtrisé (196 Ko), consultation instantanée même hors réseau 4G/5G en montagne isolée.
+   - Couverture complète : Madère (Fanal, Seixal, Caldeirão Verde, levadas), Suisse (Stoos, funiculaire, lacs), Roumanie (Bucarest, Apuseni, Sibiu), Monténégro, et manifestes opérationnels.
+2. **Recherche RAG Améliorée (`app/api/ai/mobile-brain/route.ts`)** :
+   - Algorithme insensible aux accents (normalisation NFD) avec pondération stricte : titre (+3), lieu (+2), tags (+2), contenu vécus + notes sensorielles (+1).
+   - Remontée des 4 fiches les plus pertinentes par requête.
+3. **Vérifications & Garde-fous** :
+   - `npm run preflight` : 6/6 PASS.
+   - `vitest run __tests__/api/mobile-brain.test.ts` : 3/3 PASS.
+
+---
+
 ## [2026-10-15] — Heldonica Pocket : Dispatch Multi-Agents (Jules, Gemini, Grok, AllHands, Manus) & Écran Tâches APK
 
 ### Réalisations & Évolution Majeure du Registre
