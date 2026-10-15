@@ -41,6 +41,7 @@ export interface AlbumPhotoValidationResult {
 
 /** Longueur maximale d'une anecdote (cf. PhotoEvidenceBlock et interviews CMS). */
 export const MAX_ANECDOTE_LENGTH = 200;
+export const ALBUM_ANECDOTE_MAX = MAX_ANECDOTE_LENGTH;
 
 const DEFAULT_ALBUM_ID = 'divers';
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -114,3 +115,6 @@ export function validateAlbumPhotoMeta(input: AlbumPhotoInput): AlbumPhotoValida
 
   return issues.length === 0 ? { ok: true, data } : { ok: false, issues, data };
 }
+
+export const validateAlbumMeta = validateAlbumPhotoMeta;
+

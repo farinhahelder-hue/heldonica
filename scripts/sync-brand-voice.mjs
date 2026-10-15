@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * sync-brand-voice — tient lib/brand.py aligné sur lib/brand-voice.ts.
  *

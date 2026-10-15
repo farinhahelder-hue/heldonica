@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * check-cms-migrations — toute table Supabase référencée par le code doit avoir
  * une migration versionnée dans supabase/migrations/.
