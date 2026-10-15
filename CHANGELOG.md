@@ -3,6 +3,40 @@
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
 
+## [2026-10-15] — Mobile : retrait de la clé Gemini de l'APK (faille fermée)
+
+### Contexte
+L'étude `docs/FUSION_APPS_ANDROID.md` (2026-10-14) relevait une **tension de
+sécurité** : `heldonica-mobile` embarquait une clé Gemini (`BuildConfig.GEMINI_API_KEY`)
+et appelait l'API Google **directement depuis le téléphone**, alors que la règle du
+projet est « aucune clé dans l'APK » (le brain applique déjà cette règle).
+
+### Corrigé
+- `heldonica-mobile/app/build.gradle.kts` : le `buildConfigField GEMINI_API_KEY`
+  est **supprimé** ; la clé n'est plus injectée dans le binaire.
+- `heldonica-mobile/app/.../MainActivity.kt` : le bloc d'appel direct Gemini
+  (~100 lignes, prompt éditorial + retry) est **retiré**. L'analyse de photo passe
+  désormais par le **serveur Heldonica** (`POST /api/cms/ai-vision`, clé côté
+  serveur), puis par le repli `heldonica-brain` local — comportement inchangé pour
+  l'utilisateur, sans secret embarqué.
+
+### Vérifié
+- `grep GEMINI_API_KEY|gemini.apiKey|geminiKey` sur `heldonica-mobile/` : **aucune**
+  référence restante hors artefact `build/` (généré, non versionné).
+- Flux relu : la variable `dernierErreur` et l'enchaînement des replis restent
+  cohérents après retrait (pas de bloc orphelin) ; aucun import `Base64` à nettoyer.
+- **CI Build APK** (`.github/workflows/build-apk.yml`) : run **#57, `success`** sur
+  cette branche — le retrait compile.
+- **Preuve dans l'APK produit** (artefact CI, 12 337 644 octets, 5 DEX fouillés) :
+  `GEMINI_API_KEY`, `generativelanguage.googleapis.com`, `AIza…` et les identifiants
+  de modèle Gemini sont **absents** ; les témoins `CMS_BASE_URL` et `BRAIN_BASE_URL`
+  sont **présents** (la recherche n'est pas un faux négatif).
+
+### Non vérifié
+- Installation sur le Poco X6 Pro (geste humain) non faite.
+- Flux `ai-vision` vérifié par lecture du code, pas par un appel réel depuis le
+  téléphone.
+
 ## [2026-10-14] — Atelier légendes & photos (méthode d'écriture depuis une image)
 
 ### Contexte

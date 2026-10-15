@@ -1123,7 +1123,6 @@ class MainActivity : ComponentActivity() {
                     return@launch
                 }
 
-                val geminiKey = BuildConfig.GEMINI_API_KEY.ifBlank { null }
                 val client = OkHttpClient.Builder()
                     .connectTimeout(30, TimeUnit.SECONDS)
                     .readTimeout(60, TimeUnit.SECONDS)
@@ -1134,103 +1133,7 @@ class MainActivity : ComponentActivity() {
                 var textResult = ""
                 var dernierErreur = ""
 
-                // 1. Tenter l'appel direct Gemini 2.5 Flash avec retry automatique (jusqu'à 2 essais)
-                if (!geminiKey.isNullOrBlank()) {
-                    val base64 = android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
-                    val prompt = """
-Tu es la voix éditoriale d'Heldonica (média et concepteur de voyages slow travel en duo).
-Notre regard sur le voyage est singulier : il est porté par une sensibilité neuroatypique (TSA), attentive aux micro-détails sensoriels et tangibles que la plupart des gens traversent sans remarquer.
-
-RÈGLES ÉDITORIALES & REGARD SENSORIEL (TSA) :
-1. LA SOURCE — CE QUI PRIME SUR TOUT :
-- Les NOTES de l'autrice, si elles sont données plus bas, sont la seule source du vécu : ce qu'on a fait, ressenti, entendu, goûté. Reprends-les, resserre-les, ne les contredis pas.
-- L'IMAGE ne donne que ce qui est visible : matières, lumière, couleurs, objets, lieu, absence ou présence de gens. Décris-la avec précision (le grain du bois, la pierre, les reflets, la découpe des ombres, le lin froissé).
-- N'AJOUTE RIEN : aucune sensation non visible (son, odeur, toucher, goût, température), aucune action du duo (« on s'est posés », « on a pris le temps ») qui ne soit dans les notes, aucun nom de lieu, aucun chiffre, aucune heure absents des notes et de l'image.
-- Sans notes : décris ce que la photo montre, sans raconter ce que le duo a fait, et termine par exactement « [À TOI : ce que tu as ressenti là] ».
-
-2. ÉMETTEUR DUO (« on » exclusif) :
-- Le duo s'exprime toujours par « on » — et seulement pour ce que les notes racontent.
-- Ne dis JAMAIS « je », « nous », « nos », « notre équipe », « la rédaction ».
-
-3. DESTINATAIRE (« tu ») :
-- Tutoiement direct et complice (« tu »), comme une note intime partagée dans un carnet de route.
-
-4. MOTS STRICTEMENT BANNIS (zéro tolérance) :
-- Clichés d'influenceurs et superlatifs interdits : pépite, pépites, incontournable, incontournables, bon plan, bons plans, must-see, must-have, paradis, paradisiaque, magnifique, splendide, incroyable, magique, merveilleux, spot.
-- Tics de langage IA bannis : plongez dans, laissez-vous emporter, au cœur de, véritable havre de paix, cocon, n'attends plus, embarquez.
-- Pas d'exclamation artificielle ni d'enthousiasme forcé. Ton calme, posé, sincère, reposant.
-
-5. FORMAT D'ÉCRITURE :
-- Un texte court et aéré (3 à 5 phrases, 50 à 75 mots environ).
-- Termine par une question douce ou une observation suspendue en tutoiement ("tu").
-- Ligne vide, puis 4 hashtags sobres : #slowtravel #heldonica + 2 hashtags de contexte précis.
-${if (placeTitle.isNotBlank()) "Lieu indiqué par l'autrice : $placeTitle." else ""}
-${if (notesAutrice.isNotBlank()) "NOTES DE L'AUTRICE (la seule source du vécu) :\n---\n$notesAutrice\n---\nÉcris la légende à partir de ces notes et de ce que la photo montre." else "Aucune note : décris ce que la photo montre, sans inventer ce que le duo a fait, et termine par [À TOI : ce que tu as ressenti là]."}
-""".trimIndent()
-
-                    val jsonReq = org.json.JSONObject().apply {
-                        val contents = org.json.JSONArray().apply {
-                            val msg = org.json.JSONObject().apply {
-                                val parts = org.json.JSONArray().apply {
-                                    put(org.json.JSONObject().put("text", prompt))
-                                    put(org.json.JSONObject().put("inline_data", org.json.JSONObject().apply {
-                                        put("mime_type", "image/jpeg")
-                                        put("data", base64)
-                                    }))
-                                }
-                                put("parts", parts)
-                            }
-                            put(msg)
-                        }
-                        put("contents", contents)
-                        put("generationConfig", org.json.JSONObject().apply {
-                            put("temperature", 0.5)
-                            put("maxOutputTokens", 2500)
-                        })
-                    }
-
-                    for (essai in 1..2) {
-                        try {
-                            if (essai > 1) {
-                                withContext(Dispatchers.Main) {
-                                    status = "Nouvelle tentative d'analyse…"
-                                }
-                                kotlinx.coroutines.delay(1000)
-                            }
-
-                            val req = Request.Builder()
-                                .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$geminiKey")
-                                .post(jsonReq.toString().toRequestBody("application/json".toMediaType()))
-                                .build()
-
-                            val resp = client.newCall(req).execute()
-                            val corps = resp.body?.string().orEmpty()
-
-                            if (resp.isSuccessful) {
-                                val respJson = org.json.JSONObject(corps)
-                                val candidates = respJson.optJSONArray("candidates")
-                                val text = candidates?.optJSONObject(0)
-                                    ?.optJSONObject("content")
-                                    ?.optJSONArray("parts")
-                                    ?.optJSONObject(0)
-                                    ?.optString("text")
-                                    .orEmpty()
-                                if (text.isNotBlank()) {
-                                    textResult = text.trim()
-                                    break
-                                }
-                            } else {
-                                dernierErreur = "Gemini HTTP ${resp.code}"
-                                Log.w(TAG, "Tentative $essai Gemini échec: $corps")
-                            }
-                        } catch (e: Exception) {
-                            dernierErreur = e.message ?: "timeout"
-                            Log.w(TAG, "Tentative $essai Gemini exception: ${e.message}")
-                        }
-                    }
-                }
-
-                // 2. Repli automatique vers le serveur CMS si l'appel direct n'a pas abouti
+                // 1. Analyse via le serveur Heldonica (la cle Gemini reste cote serveur).
                 if (textResult.isBlank()) {
                     withContext(Dispatchers.Main) {
                         status = "Repli sur le serveur Heldonica…"
@@ -1274,7 +1177,7 @@ ${if (notesAutrice.isNotBlank()) "NOTES DE L'AUTRICE (la seule source du vécu) 
                     }
                 }
 
-                // 3. Repli vers Heldonica Brain local (GPU / Ollama / RAG)
+                // 2. Repli vers Heldonica Brain local (GPU / Ollama / RAG)
                 if (textResult.isBlank() && BuildConfig.BRAIN_BASE_URL.isNotBlank()) {
                     withContext(Dispatchers.Main) {
                         status = "Repli sur Heldonica Brain…"
