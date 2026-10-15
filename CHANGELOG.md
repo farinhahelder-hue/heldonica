@@ -110,6 +110,49 @@ soumis à la veille, et un service de premier plan exige un
 notification permanente et l'exemption de batterie. Sans les trois, Android tue
 le worker en silence.
 
+### La boucle est fermée : la clôture automatique (2026-10-15)
+
+Le dispatch ouvre une conversation ; il manquait la fin. Une conversation qui
+meurt sans rendre compte laissait sa tâche `in_progress` jusqu'à l'expiration du
+bail — puis relancée. Cette routine constate l'arrêt et écrit le compte rendu.
+
+| Fichier | Rôle |
+|---|---|
+| `lib/registre-cloture.ts` | la règle : quand une tâche est finie, et quoi écrire |
+| `app/api/cron/cloture-registre/route.ts` | lit les conversations, écrit le compte rendu |
+| `.github/workflows/cloture-registre.yml` | le déclencheur, décalé de 5 min du dispatch |
+
+#### Le garde-fou qui vient d'AGENTS.md
+
+`[OBSERVÉ]` Le statut posé est **toujours `waiting_validation`, jamais `done`**.
+Une conversation arrêtée et une PR qui existe ne prouvent pas qu'un test a tourné.
+Le compte rendu laisse `verifie` **vide à dessein** et écrit dans `non_verifie`
+que la clôture n'a rien mesuré. C'est l'humain qui promeut en `done`, sur preuves.
+`done` aveugle est le mensonge le plus coûteux du projet — cette route ne le
+commet pas, même quand tout semble vert.
+
+#### Mesuré contre l'API, pas supposé
+
+`[OBSERVÉ]` Deux détails relevés en interrogeant l'API, qui auraient cassé le code :
+
+- les identifiants de conversation se répètent (`?ids=a&ids=b`) : une liste
+  séparée par des virgules rend **zéro** résultat ;
+- la réponse de `?ids=` est un **tableau JSON brut**, pas un objet `{ items }`.
+
+`[OBSERVÉ]` La clôture ne touche **que** les tâches qu'elle a elle-même
+dispatchées (trace `payload.dispatch`) : une tâche prise à la main ne doit pas
+être close sous les pieds de l'humain qui la suit. Et un horodatage manquant fait
+**attendre** plutôt que clore à l'aveugle.
+
+#### Vérifié par mesure
+
+`[OBSERVÉ]` 19 tests neufs (dont « la clôture ne pose jamais `done` » et « la
+clôture n'a rien mesuré »). Suite complète : **702 tests verts**, `tsc` exit 0,
+12 garde-fous verts. Colonnes `description`, `notes`, `actions_done` confirmées
+présentes en migration — aucune migration nécessaire.
+
+`[NON VÉRIFIÉ]` Pas tourné contre la vraie base (pas d'identifiants Supabase ici).
+
 ### Le maillon manquant : le registre lance enfin des agents (2026-10-15)
 
 `agent_tasks` savait ce qui est demandé. `agent-dispatch.yml` savait ouvrir une
