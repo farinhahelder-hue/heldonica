@@ -189,7 +189,43 @@ mot de passe) mais **ne peut pas publier** de contenu sur le site. C'est le prix
 pour garder le dépôt public — et un prix bien moindre que celui d'un mot de passe
 admin exposé.
 
-**Non vérifié** : le workflow de release n'a pas encore tourné.
+#### Vérifié pour de vrai, en déclenchant le workflow (2026-10-15)
+
+Le workflow a été déclenché par tag sur une branche de travail. Trois pannes
+trouvées, dont deux dans mon propre travail — c'est l'intérêt de tester au lieu de
+supposer :
+
+1. `workflow_dispatch` renvoie **404** sur une branche non par défaut (GitHub
+   n'expose le bouton « Run workflow » que sur `main`). Le déclencheur par **tag**
+   fonctionne, lui. À noter : le lancement manuel ne marchera qu'après fusion.
+2. Le job `publier` échouait : `failed to run git: fatal: not a git repository` —
+   il n'a pas de `checkout`. Corrigé par `--repo "${{ github.repository }}"`.
+3. **Le verrou sur le mot de passe était inopérant.** `inputs.cms_password || secrets.CMS_PASSWORD` :
+   une chaîne vide est *falsy* en GH Expressions, donc le `||` retombait sur le
+   secret du dépôt. Le build de release aurait reçu le mot de passe admin. Corrigé
+   par un booléen `release: true`, sans ambiguïté.
+
+`[OBSERVÉ]` Run final `38731024641` : `construire / build` → success, `publier` →
+success, y compris l'étape « Refuser de publier si le build a embarqué un secret ».
+APK publié (12 365 612 octets), **téléchargé sans authentification** (HTTP 200),
+puis inspecté : `VeilleTachesWorker` présent, **0 JWT**, aucune clé `sb_secret_`,
+et l'ancien mot de passe par défaut absent.
+
+#### Un mot de passe par défaut faible est encore le secret de la CI
+
+`[OBSERVÉ]` En comparant les chaînes de l'APK « avec secret » et de l'APK de
+release, une chaîne n'apparaît **que** dans le premier : `heldonica2026` — l'ancien
+mot de passe par défaut, celui dont `local.properties.example` dit qu'il a été
+« supprimé ». Il est donc encore la valeur du secret `CMS_PASSWORD` de la CI.
+
+`[INTERPRÉTATION]` Risque : `CMS_PASSWORD` ouvre les routes de publication
+(`/api/cms/mobile-publish`, `/api/cron/auto-publish`). La chaîne est publique
+(commentaires de code + historique). Un mot de passe faible et public n'est pas un
+mot de passe. **Action humaine recommandée** : changer `CMS_PASSWORD` sur Vercel
+et dans les secrets GitHub — je ne peux pas le faire depuis ici.
+
+**Non vérifié** : le premier passage réel de la veille sur le téléphone reste à
+observer.
 
 ### La veille dans l'app (remplace le poller du PC)
 

@@ -96,6 +96,15 @@ pas publier de contenu sur le site. C'est volontaire — `CMS_PASSWORD` serait c
 en clair dans le dex, et le dépôt est public. Pour un APK qui publie, construis en
 local avec `local.properties`.
 
+Deux garde-fous, vérifiés en déclenchant réellement le workflow (run `38731024641`) :
+
+1. Le build de release ne lit même pas le secret (`release: true`) ;
+2. Le job de publication **refuse** de publier si le build déclare avoir embarqué
+   un mot de passe. C'est un verrou dur, pas une supposition.
+
+Vérification faite après publication : APK téléchargé **sans authentification**
+(HTTP 200), `VeilleTachesWorker` présent, 0 JWT, aucune clé `sb_secret_`.
+
 ## Config
 - `local.properties` (non versionné) : `cms.baseUrl=https://www.heldonica.fr` + `cms.password=<la valeur de CMS_PASSWORD sur Vercel>` — jamais en clair dans le dépôt, voir `local.properties.example`
 - Aucune clé Google Cloud nécessaire pour le MVP. Pour OSM tu mets `User-Agent: Heldonica (contact@heldonica.fr)`.
