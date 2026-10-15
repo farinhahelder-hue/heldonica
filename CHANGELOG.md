@@ -26,6 +26,10 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
    - `npm run preflight` : 6/6 PASS.
    - `vitest run __tests__/api/mobile-brain.test.ts` : 3/3 PASS (auth, 400, freeOnly=true & privacy sanitization).
    - Tests unitaires JVM Kotlin (`ModeleMontageTest.kt`, `StudioTabsTest.kt`, `BrainClientTest.kt`) exécutés avant l'assemblage de l'APK.
+6. **Sécurisation Absolue de la Chaîne APK (Zéro Secret Compilé)** :
+   - Retrait de l'injection du secret `CMS_PASSWORD` dans `.github/workflows/build-apk.yml` : l'APK produite par la CI ne contient désormais aucun mot de passe dans son bytecode (`classes.dex`), garantissant 0 fuite dans les artefacts téléchargeables.
+   - Authentification mobile autonome : enregistrement sécurisé du mot de passe dans les `SharedPreferences` privées de l'appareil (`BrainClient.obtenirMotDePasse` / `sauvegarderMotDePasse`), configurable via l'UI native Compose (dialogue 🔑 dans l'onglet Cerveau).
+   - Nettoyage du dépôt : suppression de l'ancien binaire `heldonica-mobile/ci-artifacts/app-debug.apk` du suivi Git et exclusion de `*.apk` et `heldonica-mobile/ci-artifacts/` dans `.gitignore`.
 
 ---
 

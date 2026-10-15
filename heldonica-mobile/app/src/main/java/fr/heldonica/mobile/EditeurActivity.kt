@@ -115,13 +115,12 @@ class EditeurActivity : ComponentActivity() {
 
     private fun ouvrir(chemin: String) {
         val base = BuildConfig.CMS_BASE_URL.trimEnd('/')
-        val motDePasse = BuildConfig.CMS_PASSWORD
+        val motDePasse = BrainClient.obtenirMotDePasse(this)
 
         if (motDePasse.isBlank()) {
             afficherMessage(
-                "Mot de passe CMS absent de cette compilation.\n\n" +
-                "Renseigne cms.password dans local.properties, ou le secret " +
-                "CMS_PASSWORD si l'APK vient de la CI."
+                "Mot de passe CMS non configuré.\n\n" +
+                "Renseigne ton mot de passe dans l'onglet Cerveau (icône 🔑) pour te connecter au CMS."
             )
             return
         }

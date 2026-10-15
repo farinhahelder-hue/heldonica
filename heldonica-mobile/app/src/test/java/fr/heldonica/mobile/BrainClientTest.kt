@@ -54,4 +54,10 @@ class BrainClientTest {
         assertEquals("Manifeste", item.category)
         assertEquals("Madère", item.location)
     }
+
+    @Test
+    fun `cles SharedPreferences auth sont stables`() {
+        assertEquals("heldonica_mobile_auth", BrainClient.PREFS_AUTH)
+        assertEquals("cms_password", BrainClient.PREF_KEY_CMS_PASSWORD)
+    }
 }
