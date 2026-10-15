@@ -52,6 +52,17 @@ jobs:
     needs: construire
     runs-on: ubuntu-latest
     steps:
+      - name: Refuser de publier si le build a embarqué un secret
+        # Verrou DUR : ce n'est pas une supposition sur le build, c'est sa propre
+        # déclaration mesurée. Si le build a lu un mot de passe, on s'arrête ici.
+        # Un APK publié ne se « dépublie » pas : il est déjà téléchargé.
+        run: |
+          if [ "${{ needs.construire.outputs.mot_de_passe_vide }}" != "true" ]; then
+            echo "::error::Le build a embarqué un mot de passe (mot_de_passe_vide=${{ needs.construire.outputs.mot_de_passe_vide }}). Publication refusée."
+            exit 1
+          fi
+          echo "  OK : le build déclare un APK sans mot de passe."
+
       - name: Télécharger l'APK construit
         uses: actions/download-artifact@v4
         with:
