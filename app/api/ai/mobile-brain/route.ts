@@ -5,7 +5,6 @@ import { generateAiCompletion, AiMessage, GEMINI_MODEL } from '@/lib/ai-provider
 import { HELDONICA_B2C_PROMPT, validateGardeFous } from '@/lib/brand-voice';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 60;
 
 /**
  * Endpoint de passerelle pour l'APK Mobile Heldonica (Poco X6 Pro & tout client mobile).
