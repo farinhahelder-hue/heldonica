@@ -1141,40 +1141,39 @@ class MainActivity : ComponentActivity() {
                 val baseUrl = BuildConfig.CMS_BASE_URL
                 val password = BuildConfig.CMS_PASSWORD
 
-                    val body = MultipartBody.Builder()
-                        .setType(MultipartBody.FORM)
-                        .addFormDataPart(
-                            "image",
-                            "photo.jpg",
-                            bytes.toRequestBody("image/jpeg".toMediaType())
-                        )
-                        .addFormDataPart("place_title", placeTitle)
-                        .addFormDataPart("notes", notesAutrice)
-                        .build()
+                val body = MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart(
+                        "image",
+                        "photo.jpg",
+                        bytes.toRequestBody("image/jpeg".toMediaType())
+                    )
+                    .addFormDataPart("place_title", placeTitle)
+                    .addFormDataPart("notes", notesAutrice)
+                    .build()
 
-                    val req = Request.Builder()
-                        .url("$baseUrl/api/cms/ai-vision")
-                        .header("x-cms-auth", password)
-                        .post(body)
-                        .build()
+                val req = Request.Builder()
+                    .url("$baseUrl/api/cms/ai-vision")
+                    .header("x-cms-auth", password)
+                    .post(body)
+                    .build()
 
-                    try {
-                        val resp = client.newCall(req).execute()
-                        val corps = resp.body?.string().orEmpty()
-                        if (resp.isSuccessful) {
-                            val json = org.json.JSONObject(corps)
-                            val fullText = json.optString("fullText", "")
-                            if (fullText.isNotBlank()) {
-                                textResult = fullText.trim()
-                            }
-                        } else {
-                            dernierErreur = "CMS HTTP ${resp.code}"
-                            Log.w(TAG, "Repli CMS échec: $corps")
+                try {
+                    val resp = client.newCall(req).execute()
+                    val corps = resp.body?.string().orEmpty()
+                    if (resp.isSuccessful) {
+                        val json = org.json.JSONObject(corps)
+                        val fullText = json.optString("fullText", "")
+                        if (fullText.isNotBlank()) {
+                            textResult = fullText.trim()
                         }
-                    } catch (e: Exception) {
-                        dernierErreur = e.message ?: "timeout serveur"
-                        Log.w(TAG, "Repli CMS exception: ${e.message}")
+                    } else {
+                        dernierErreur = "CMS HTTP ${resp.code}"
+                        Log.w(TAG, "Repli CMS échec: $corps")
                     }
+                } catch (e: Exception) {
+                    dernierErreur = e.message ?: "timeout serveur"
+                    Log.w(TAG, "Repli CMS exception: ${e.message}")
                 }
 
                 // 3. Repli vers Heldonica Brain local (GPU / Ollama / RAG)
