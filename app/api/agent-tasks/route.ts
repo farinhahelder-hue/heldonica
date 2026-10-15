@@ -51,6 +51,13 @@ const RESUME = 'id,agent,status,claimed_by,claimed_at,task,scope,risk_level,depe
 
 const PAYLOAD_MAX_BYTES = 65536
 
+// Duree d'un bail de prise. Un worker qui meurt (Android tue les processus, le
+// reseau tombe, le telephone s'eteint) ne rend jamais compte : sans expiration,
+// sa tache resterait `in_progress` pour toujours et personne ne pourrait la
+// reprendre. Passe ce delai, la prise est consideree abandonnee et redevient
+// prenable. C'est la difference entre une file de travail et un cimetiere.
+const BAIL_MINUTES = 90
+
 // Cette route n'appelle aucun modele d'IA : elle lit et ecrit PostgREST. Le
 // journal `ai_requests_log` demande un champ `model`, on y met un repere qui dit
 // ce que c'est — et qui n'est pas un identifiant de modele en dur (garde-fou
@@ -103,6 +110,40 @@ async function resoudreId(sb: any, fragment: string): Promise<string> {
   return candidats[0].id
 }
 
+/**
+ * Rend les baux expires.
+ *
+ * Une tache `in_progress` dont le bail est depasse redevient `sent`. On garde la
+ * trace du passage : `claimed_by` part dans `payload`, et `claimed_at`/`claimed_by`
+ * sont vides pour que la prochaine prise soit propre. Sans ce balayage, la
+ * premiere tache prise par un telephone tue par Android resterait bloquee.
+ */
+async function libererBauxExpires(sb: any): Promise<number> {
+  const limite = new Date(Date.now() - BAIL_MINUTES * 60_000).toISOString()
+  const { data, error } = await sb
+    .from('agent_tasks')
+    .update({ status: 'sent', claimed_by: null, claimed_at: null, updated_at: new Date().toISOString() })
+    .eq('status', 'in_progress')
+    .lt('claimed_at', limite)
+    .select('id,claimed_by,task,payload')
+  if (error) {
+    console.warn('[agent-tasks] balayage des baux echoue :', error.message)
+    return 0
+  }
+  if (!data || data.length === 0) return 0
+
+  // On note qui a abandonne, sans ecraser un payload existant.
+  for (const t of data) {
+    const ancien = (t.payload && typeof t.payload === 'object') ? t.payload : {}
+    const { error: errNote } = await sb
+      .from('agent_tasks')
+      .update({ payload: { ...ancien, bail_expire: { agent: t.claimed_by, at: new Date().toISOString() } } })
+      .eq('id', t.id)
+    if (errNote) console.warn('[agent-tasks] note de bail echouee :', errNote.message)
+  }
+  return data.length
+}
+
 export async function GET(req: NextRequest) {
   const debut = Date.now()
   const auth = await verifyAiAuth(req)
@@ -121,6 +162,11 @@ export async function GET(req: NextRequest) {
   if (status !== 'all' && !(STATUTS as readonly string[]).includes(status)) {
     return NextResponse.json({ error: 'Invalid status', valid: ['all', ...STATUTS] }, { status: 400 })
   }
+
+  // `?balayer=1` : rend les baux expires avant de lire. C'est ce qu'appelle un
+  // cron. On ne le fait pas a chaque lecture — ecrire a chaque GET serait un
+  // cout inutile pour un cas rare.
+  const bauxLiberes = url.searchParams.get('balayer') === '1' ? await libererBauxExpires(sb) : 0
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query = (sb.from('agent_tasks') as any)
@@ -152,6 +198,7 @@ export async function GET(req: NextRequest) {
     limit,
     statuts: STATUTS,
     agents: AGENTS_CONNUS,
+    baux_liberes: bauxLiberes,
   })
 }
 
@@ -195,24 +242,30 @@ export async function POST(req: NextRequest) {
       const uuid = await resoudreId(sb, String(body.id || ''))
       const { data: avant, error: errAvant } = await sb
         .from('agent_tasks')
-        .select('id,status,agent,claimed_by')
+        .select('id,status,agent,claimed_by,claimed_at')
         .eq('id', uuid)
         .single()
       if (errAvant) return NextResponse.json({ error: errAvant.message }, { status: 404 })
-      if (avant.claimed_by && avant.claimed_by !== acteurValide) {
+
+      // Un bail depasse vaut une tache libre : le worker precedent est mort.
+      const limite = new Date(Date.now() - BAIL_MINUTES * 60_000).toISOString()
+      const bailExpire = avant.status === 'in_progress' && !!avant.claimed_at && avant.claimed_at < limite
+
+      if (avant.claimed_by && avant.claimed_by !== acteurValide && !bailExpire) {
         return NextResponse.json(
           { error: `deja prise par ${avant.claimed_by} — depose une suite avec depends_on plutot que de la reprendre` },
           { status: 409 }
         )
       }
-      if (avant.status !== 'sent' && avant.claimed_by !== acteurValide) {
+      if (avant.status !== 'sent' && avant.claimed_by !== acteurValide && !bailExpire) {
         return NextResponse.json({ error: `statut ${avant.status}, pas sent — elle n'est plus a prendre` }, { status: 409 })
       }
       if (avant.agent && avant.agent !== 'tous' && avant.agent !== acteurValide) {
         return NextResponse.json({ error: `adressee a ${avant.agent}, pas a ${acteurValide}` }, { status: 403 })
       }
-      // Le filtre `status=sent` rend la prise atomique cote base : si un autre
-      // agent a ete plus rapide, zero ligne est modifiee.
+      // Le filtre rend la prise atomique cote base : si un autre agent a ete plus
+      // rapide, zero ligne est modifiee. On accepte aussi une prise dont le bail a
+      // expire, sinon une tache abandonnee par un telephone mort serait perdue.
       const corps: Record<string, unknown> = {
         status: 'in_progress',
         claimed_by: acteurValide,
@@ -224,13 +277,13 @@ export async function POST(req: NextRequest) {
         .from('agent_tasks')
         .update(corps)
         .eq('id', uuid)
-        .or(`status.eq.sent,claimed_by.eq.${acteurValide}`)
+        .or(`status.eq.sent,claimed_by.eq.${acteurValide},and(status.eq.in_progress,claimed_at.lt.${limite})`)
         .select(RESUME)
       if (error) return NextResponse.json({ error: error.message }, { status: 500 })
       if (!data || data.length === 0) {
         return NextResponse.json({ error: "quelqu'un a ete plus rapide : la tache n'est plus sent" }, { status: 409 })
       }
-      return NextResponse.json({ prise: resume(data[0]) })
+      return NextResponse.json({ prise: resume(data[0]), reprise_apres_bail: bailExpire })
     }
 
     if (action === 'rendre_compte') {

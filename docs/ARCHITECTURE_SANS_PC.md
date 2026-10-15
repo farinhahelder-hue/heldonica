@@ -181,6 +181,90 @@ une machine allumée en permanence — rôle que le téléphone tient désormais
 
 ---
 
+## 5bis. Décision du fondateur : le worker, c'est le Poco
+
+> **Statut.** Décision prise le **2026-10-15** : « on fait sur ce téléphone alors
+> le Poco ». Elle tranche la question du worker qui surveille le registre.
+
+`[OBSERVÉ]` Aujourd'hui, ce rôle est tenu par `bridge_poller.py` : une boucle
+`while True` sur le PC, qui interroge `/api/brain/tasks?status=sent` toutes les
+30 s (`_poll_and_execute`, `_base_url/api/brain/tasks`). Le PC doit donc rester
+**allumé en permanence** — c'est exactement ce que la décision cherche à éviter.
+
+### Pourquoi le PC ne peut pas devenir un worker mobile
+
+`[OBSERVÉ]` Le code du Cerveau n'est pas portable vers Android :
+
+| Obstacle | Preuve |
+|---|---|
+| Chemins Windows en dur | `video_assembler.py:29` `FFMPEG_EXE = BIN_DIR / "ffmpeg.exe"` ; `comfy_manager.py:19` `C:\Users\Work\ComfyUI` ; `audio_narrator.py:51` `Path(r"C:\Users\Work\heldonica-brain\bin\piper")` |
+| Dépendances non installables | `opencv-python`, `numpy`, `pillow` (requirements.txt) — pas de roue Android pour `opencv-python` ; `edge-tts` demande des roues non fournies |
+| GPU/CUDA | `comfy_manager.py` lance ComfyUI (`pytorch 2.6.0+cu124`) en sous-processus : hors de portée d'un téléphone |
+
+`[INTERPRÉTATION]` **Le code du Cerveau reste sur le PC.** Ce qui va sur le
+téléphone n'est pas le code Python : c'est **le rôle** — lire le registre, prendre
+une tâche, rendre compte. L'APK fait déjà les trois (PR #601).
+
+### La contrainte Android qui commande tout le reste
+
+`[OBSERVÉ]` `app/build.gradle.kts` : `compileSdk = 34`, `targetSdk = 34` →
+Android 14. Depuis **Android 12 (API 31)**, un `WorkManager` périodique est
+soumis aux restrictions de veille : la période minimale de 15 min n'est **pas**
+garantie, et le système reporte ou annule les exécutions. Depuis **Android 14**,
+un `foregroundServiceType` est **obligatoire** pour un service de premier plan.
+
+`[OBSERVÉ]` Aucune permission `FOREGROUND_SERVICE` n'est déclarée dans
+`AndroidManifest.xml` aujourd'hui.
+
+`[INTERPRÉTATION]` Un worker 24/7 sur le Poco exige donc : un **service de premier
+plan** avec `foregroundServiceType`, une **notification permanente** (obligatoire
+depuis Android 8), et l'exemption de l'optimisation de batterie. Ce n'est pas une
+option technique parmi d'autres : sans ces trois pièces, Android tue le worker et
+la coordination s'arrête sans le dire.
+
+### Le trou trouvé en écrivant cette section
+
+`[OBSERVÉ]` La table `agent_tasks` a `claimed_at` (`20260911120000_agent_tasks_coordination.sql`)
+mais **aucun bail, aucune expiration, aucun mécanisme de reprise**. Le heartbeat
+du poller (`_send_heartbeat`) parle au PC, pas à Supabase : rien en base ne dit
+qu'un worker est mort.
+
+`[INTERPRÉTATION]` Avec un PC allumé, la question ne se posait pas. Avec un
+téléphone qu'Android tue (veille, batterie, mémoire), **elle se pose à chaque
+fois** : une tâche prise par un worker mort resterait `in_progress` pour toujours.
+
+**Corrigé dans cette PR** : `BAIL_MINUTES = 90` dans `app/api/agent-tasks/route.ts`.
+Une prise expire au bout de 90 minutes, redevient `sent`, et le nom de
+l'abandonnaire part dans `payload.bail_expire`. Balayage à la demande
+(`GET ?balayer=1`, pour un cron) et à la prise (pour un worker qui redémarre).
+5 tests ajoutés, vérifiés par mutation (2 échecs ciblés en désactivant le bail).
+
+### Ce que le Poco peut porter, et ce qu'il ne peut pas
+
+| Brique | Sur le Poco ? | Pourquoi |
+|---|---|---|
+| Registre des tâches (lire/prendre/rendre) | ✅ Fait (PR #601) | HTTP + OkHttp, déjà embarqué |
+| RAG / savoirs | ✅ Possible | `/api/ai/search` existe ; c'est un client à écrire |
+| Montage vidéo | ✅ Déjà là | Media3 Transformer, `MontageVideo.kt` — même outil qu'Android |
+| Dispatch vers agents distants | ✅ Possible | Les cibles sont déjà des API (Jules, OpenHands Cloud) |
+| Rendu ffmpeg lourd (`video_assembler`) | ❌ | ffmpeg.exe Windows + numpy/opencv ; à réécrire en Media3 |
+| Musique (ComfyUI) | ❌ | CUDA, hors de portée |
+| Inférence LLM locale | ⚠️ `[NON VÉRIFIÉ]` | Dimensity 8300 Ultra : 1–3B possible, pas la qualité éditoriale |
+
+`[INTERPRÉTATION]` **Le Poco remplace le PC comme poste de commande, pas comme
+usine.** La coordination, le RAG et le dispatch tiennent dans sa poche. La vidéo
+tient aussi, par un autre outil (Media3 au lieu de ffmpeg). Restent la musique et
+l'inférence lourde : elles passent au cloud, ou meurent.
+
+### Décision qui en découle
+
+Le PC peut être **éteint** pour tout ce qui est coordination, RAG et publication.
+Il ne se rallume que pour la musique (ComfyUI) ou une inférence locale. Le
+`bridge_poller.py` devient inutile dès que le service de premier plan de l'APK
+sait lire le registre — c'est la Phase 4.
+
+---
+
 ## 6. Décisions demandées au fondateur
 
 1. **Cloud-first ou local-first pour le RAG ?** *(Recommandation : cloud d'abord,

@@ -19,7 +19,7 @@ const h = vi.hoisted(() => {
 
   const makeQuery = (result: unknown) => {
     const q: Record<string, unknown> = {}
-    for (const m of ['select', 'eq', 'or', 'order', 'range', 'limit', 'update', 'insert']) {
+    for (const m of ['select', 'eq', 'or', 'order', 'range', 'limit', 'update', 'insert', 'lt', 'gt', 'in']) {
       q[m] = () => q
     }
     q.single = async () => result
@@ -243,5 +243,86 @@ describe('POST /api/agent-tasks — dépôt et prise', () => {
     expect(res.status).toBe(403)
     const json = await res.json()
     expect(json.error).toContain('openhands')
+  })
+})
+
+describe('POST /api/agent-tasks — bail de prise', () => {
+  // Un worker qui meurt (Android tue le processus) ne rend jamais compte. Sans
+  // expiration, sa tâche reste `in_progress` pour toujours : la file devient un
+  // cimetière. Ces tests verrouillent la reprise.
+  const ilYA = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString()
+
+  it('refuse une prise dont le bail est encore valide (409)', async () => {
+    h.state.queue = [
+      { data: { id: UUID, status: 'in_progress', agent: 'tous', claimed_by: 'claude', claimed_at: ilYA(5) }, error: null },
+    ]
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'prendre', id: UUID }))
+    expect(res.status).toBe(409)
+    const json = await res.json()
+    expect(json.error).toContain('claude')
+  })
+
+  it('reprend une tâche dont le bail a expiré (200)', async () => {
+    h.state.queue = [
+      { data: { id: UUID, status: 'in_progress', agent: 'tous', claimed_by: 'claude', claimed_at: ilYA(120) }, error: null },
+      { data: [{ id: UUID, agent: 'tous', status: 'in_progress', claimed_by: 'openhands', task: 'x' }], error: null },
+    ]
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'prendre', id: UUID }))
+    expect(res.status).toBe(200)
+    const json = await res.json()
+    expect(json.prise.claimed_by).toBe('openhands')
+    expect(json.reprise_apres_bail).toBe(true)
+  })
+
+  it('ne signale pas de reprise quand la tâche était simplement libre (200)', async () => {
+    h.state.queue = [
+      { data: { id: UUID, status: 'sent', agent: 'tous', claimed_by: null, claimed_at: null }, error: null },
+      { data: [{ id: UUID, agent: 'tous', status: 'in_progress', claimed_by: 'openhands', task: 'x' }], error: null },
+    ]
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'prendre', id: UUID }))
+    expect(res.status).toBe(200)
+    const json = await res.json()
+    expect(json.reprise_apres_bail).toBe(false)
+  })
+
+  it('un bail expiré ne lève pas l’adressage : une tâche d’un autre agent reste refusée (403)', async () => {
+    h.state.queue = [
+      { data: { id: UUID, status: 'in_progress', agent: 'claude', claimed_by: 'claude', claimed_at: ilYA(120) }, error: null },
+    ]
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'prendre', id: UUID }))
+    expect(res.status).toBe(403)
+    const json = await res.json()
+    expect(json.error).toContain('claude')
+  })
+})
+
+describe('GET /api/agent-tasks — balayage des baux', () => {
+  it('ne balaie pas sans `balayer=1`', async () => {
+    h.state.queue = [{ data: [], error: null, count: 0 }]
+    const { GET } = await route()
+    const res = await GET(req('GET'))
+    expect(res.status).toBe(200)
+    const json = await res.json()
+    expect(json.baux_liberes).toBe(0)
+    // Un seul appel à from() : aucune écriture de balayage n’a eu lieu.
+    expect(h.from).toHaveBeenCalledTimes(1)
+  })
+
+  it('libère un bail expiré quand `balayer=1`', async () => {
+    const expiree = { id: UUID, claimed_by: 'claude', task: 'x', payload: { existant: true } }
+    h.state.queue = [
+      { data: [expiree], error: null },  // l’update de libération
+      { data: null, error: null },       // la note dans payload
+      { data: [], error: null, count: 0 } // la lecture
+    ]
+    const { GET } = await route()
+    const res = await GET(req('GET', undefined, 'http://localhost/api/agent-tasks?balayer=1'))
+    expect(res.status).toBe(200)
+    const json = await res.json()
+    expect(json.baux_liberes).toBe(1)
   })
 })

@@ -80,6 +80,36 @@ devient une option (GPU lourd), éteinte par défaut.
   parle au réseau reste à voir de ses yeux.
 - Le débit de `/api/ai/search` depuis un téléphone en 4G n'a pas été mesuré.
 
+### Décision du fondateur — le worker, c'est le Poco (2026-10-15)
+
+Le PC ne peut pas devenir un worker mobile : `video_assembler.py` appelle
+`ffmpeg.exe`, `comfy_manager.py` lance ComfyUI en CUDA, `audio_narrator.py`
+contient un chemin `C:\Users\Work\...` en dur, et `opencv-python` n'a pas de roue
+Android. **Le code du Cerveau reste sur le PC ; c'est le rôle qui déménage.**
+Détail et tableau dans `docs/ARCHITECTURE_SANS_PC.md` § 5bis.
+
+### Corrigé — le bail de prise (trouvé en écrivant § 5bis)
+
+`agent_tasks` avait `claimed_at` mais **aucune expiration** : une tâche prise par
+un worker qui meurt restait `in_progress` pour toujours. Sur un PC allumé la
+question ne se posait pas ; sur un téléphone qu'Android tue, elle se pose chaque
+fois.
+
+- `BAIL_MINUTES = 90` : une prise expire, redevient `sent`, et le nom de
+  l'abandonnaire part dans `payload.bail_expire`.
+- Balayage à la demande (`GET ?balayer=1`, pour un cron) et à la prise.
+- 5 tests ajoutés. **Vérifié par mutation** : `bailExpire = false` fait échouer
+  2 tests ciblés, puis restauration → vert. Les tests mordent.
+- `vitest run` : **658 verts**.
+
+### Reste à faire pour un vrai worker 24/7
+
+`[OBSERVÉ]` `targetSdk = 34` (Android 14) : un `WorkManager` périodique y est
+soumis à la veille, et un service de premier plan exige un
+`foregroundServiceType` — absent du manifeste aujourd'hui. Il faudra aussi une
+notification permanente et l'exemption de batterie. Sans les trois, Android tue
+le worker en silence.
+
 ## [2026-10-14] — Atelier légendes & photos (méthode d'écriture depuis une image)
 
 ### Contexte
