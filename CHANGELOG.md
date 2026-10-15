@@ -62,13 +62,23 @@ devient une option (GPU lourd), éteinte par défaut.
 - Équilibre syntaxique de `MainActivity.kt` : mes ajouts introduisent **le même
   écart résiduel que la version d'origine** (9 accolades, 3 parenthèses — artefacts
   des `${…}`), donc ils sont équilibrés.
+- **CI « Build APK » verte** (run `38704149595`) : l'APK compile, artefact
+  `heldonica-mobile-debug`, **11 853 585 octets**. L'écran n'est donc pas seulement
+  écrit, il est bâti.
+- **L'écran est bien dans l'APK** — vérifié en lisant les DEX de l'artefact, pas
+  en supposant : `classes3.dex` contient `/api/agent-tasks`, `x-cms-auth`,
+  `agent_name`, `TacheRegistre` (×5), et les libellés `Tâches des agents`,
+  `Prendre cette tâche`, `Déposer une tâche`, `sans le PC allumé`, `Rafraîchir`.
+  Un build qui réussit ne prouve pas qu'un écran est embarqué ; ceci le prouve.
+- **CI « Garde-fous » verte** (run `38704186864`).
 
 ### Non vérifié
-- **L'APK n'a pas été compilé** : ni JDK ni SDK Android dans l'environnement de
-  rédaction. La compilation se fait par la CI (`build-apk.yml`), déclenchée par ce
-  push. Tant que ce run n'est pas vert, l'écran mobile n'est **pas** prouvé.
-- Aucun appel réel à `/api/agent-tasks` (pas de base Supabase locale).
-- L'app n'a pas été installée sur le Poco.
+- Aucun appel réel à `/api/agent-tasks` : pas de base Supabase locale, donc la
+  route n'a jamais répondu à une vraie requête. Ses tests portent sur les
+  gestionnaires, pas sur un aller-retour réseau.
+- L'app n'a pas été installée ni ouverte sur le Poco. Que l'écran s'affiche et
+  parle au réseau reste à voir de ses yeux.
+- Le débit de `/api/ai/search` depuis un téléphone en 4G n'a pas été mesuré.
 
 ## [2026-10-14] — Atelier légendes & photos (méthode d'écriture depuis une image)
 
