@@ -2,6 +2,52 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-15] — Préparation du Cerveau en APK Natif sur Poco X6 Pro (Audit & Validation PR #602)
+
+### Réalisations & Socle APK Poco X6 Pro (Audit & Validation PR #602)
+1. **Passerelle Cloud 0€ (`app/api/ai/mobile-brain/route.ts`)** :
+   - Route Next.js dédiée au Poco X6 Pro, assurant l'autonomie totale sans nécessiter de PC 24/7.
+   - Authentification sécurisée par mot de passe CMS (`x-cms-auth`) et clé API (`x-api-key`), validée par `verifyAiAuth`.
+   - Zéro dépense additionnelle garantie : option `freeOnly: true` passée à `lib/ai-provider.ts`, interdisant strictement OpenAI / Anthropic.
+   - Filtrage de confidentialité strict : anonymisation regex des jetons, clés, mots de passe, emails et numéros de téléphone avant tout appel LLM et avant insertion dans `copilot_generations`.
+   - RAG automatique : injection des fiches vérifiées du Coffre des Savoirs (`VAULT_SPOTS` dans `lib/cms-vault-spots.ts`) en mode `vault` ou `use_vault`.
+2. **Client Kotlin Découplé (`heldonica-mobile/app/src/main/java/fr/heldonica/mobile/BrainClient.kt`)** :
+   - Dual-mode intelligent : priorité au Cloud 0€, avec détection et repli sur la station PC locale (port 8440) si connectée sur le même réseau Wi-Fi.
+   - Authentification automatique via `BuildConfig.CMS_PASSWORD` transmettant les en-têtes `x-cms-auth` et `x-api-key`.
+   - Pings légers non-bloquants (timeout 1.5s).
+3. **Interface Native Jetpack Compose 120 Hz (`heldonica-mobile/app/src/main/java/fr/heldonica/mobile/CerveauScreen.kt`)** :
+   - Rendu fluide 120 Hz adapté à l'écran Flow AMOLED du Poco X6 Pro.
+   - Chips de modes, suggestions d'action rapide, badge d'état réseau en temps réel, bulles stylisées Eco-Luxe avec action de copie.
+   - Consultation hors-ligne du Coffre : carrousel horizontal des fiches de `knowledge_vault.json` accessible immédiatement sans connexion.
+4. **Cache Hors-Ligne (`assets/knowledge_vault.json`) & Spécification** :
+   - 8 fiches maîtresses embarquées en local (`total_records` corrigé et vérifié : 8).
+   - Spécification technique complète dans `docs/SPEC_CERVEAU_APK_POCO_X6_PRO.md`.
+5. **Garde-fous & Tests Validés** :
+   - `npm run preflight` : 6/6 PASS.
+   - `vitest run __tests__/api/mobile-brain.test.ts` : 3/3 PASS (auth, 400, freeOnly=true & privacy sanitization).
+   - Tests unitaires JVM Kotlin (`ModeleMontageTest.kt`, `StudioTabsTest.kt`, `BrainClientTest.kt`) exécutés avant l'assemblage de l'APK.
+6. **Sécurisation Absolue de la Chaîne APK (Zéro Secret Compilé)** :
+   - Retrait de l'injection du secret `CMS_PASSWORD` dans `.github/workflows/build-apk.yml` : l'APK produite par la CI ne contient désormais aucun mot de passe dans son bytecode (`classes.dex`), garantissant 0 fuite dans les artefacts téléchargeables.
+   - Authentification mobile autonome : enregistrement sécurisé du mot de passe dans les `SharedPreferences` privées de l'appareil (`BrainClient.obtenirMotDePasse` / `sauvegarderMotDePasse`), configurable via l'UI native Compose (dialogue 🔑 dans l'onglet Cerveau).
+   - Nettoyage du dépôt : suppression de l'ancien binaire `heldonica-mobile/ci-artifacts/app-debug.apk` du suivi Git et exclusion de `*.apk` et `heldonica-mobile/ci-artifacts/` dans `.gitignore`.
+
+---
+
+## [2026-10-14] — Architecture PC Optionnel & APK Unifiée (Brain, Content Creation, Memoria Imperium)
+
+### Réalisations & Décisions d'Architecture
+1. **Validation & Mesure d'Inférence d'Images 0€ sans PC (docs/DECISION_GENERATION_VIDEO.md)** :
+   - Découverte clé : le pipeline n'a jamais utilisé la génération de vidéo IA lourde (LTX-Video) ; short_factory.py utilise des images fixes .webp animées algorithmiquement (ideo_assembler.py l. 114–192 et MontageVideo.kt sur mobile).
+   - Mesures réelles de fournisseurs d'images sans PC : Google AI Studio Free Tier donne HTTP 429 Quota Exceeded ; Pollinations.ai FLUX 9:16 mesuré avec succès à **HTTP 200 en 5,1 s pour 0,00 €** ; Cloudflare Workers AI FLUX actif en secours (10 000 neurones/j gratuits).
+   - Scission stricte des principes :
+     * **Heldonica Travel (B2C/B2B)** : 100 % photos & vidéos réelles de terrain (règle « On n'invente rien » et garde-fou check:content-evidence), montage Media3 Transformer sur mobile.
+     * **Memoria Imperium** : Documentaires historiques antiques 9:16 générés en Cloud 0€ (Pollinations FLUX + tambour de guerre + badges dorés).
+2. **APK Heldonica Mobile Unifiée (heldonica-mobile/)** :
+   - Nouveau composant MemoriaImperium.kt : sélecteur de presets historiques (*César au Rubicon 49 av. J.-C.*, *Chats de Péluse 525 av. J.-C.*, *Sylla 88 av. J.-C.*), génération d'images 9:16 FLUX en 0€ direct en cache, copie 1-clic du package YouTube (titre, description avec sources antiques Suétone/Plutarque, tags).
+   - Câblage dans StudioActivity.kt et StudioTabs.kt : Onglet Cerveau (Hub IA), Onglet Terrain (MainActivity avec capture et publication CMS), Onglet Memoria (OngletMemoriaImperium), Onglet CMS (EditeurActivity).
+   - Préservation stricte de la conformité des tests unitaires (StudioTabsTest.kt).
+
+---
 
 ## [2026-10-14] — Atelier légendes & photos (méthode d'écriture depuis une image)
 

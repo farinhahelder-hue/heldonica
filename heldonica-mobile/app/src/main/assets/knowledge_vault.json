@@ -1,0 +1,59 @@
+{
+  "version": "1.0.0",
+  "device_optimized": "Xiaomi Poco X6 Pro (Dimensity 8300 Ultra)",
+  "vault_name": "Heldonica Master Knowledge — Mobile Cache",
+  "total_records": 8,
+  "records": [
+    {
+      "id": "charte-slow-travel",
+      "category": "Manifeste",
+      "title": "La Charte Slow Travel Heldonica",
+      "content": "Prendre le temps d'habiter un lieu plutôt que de le consommer. Zéro course aux attractions, priorité aux rencontres avec les artisans, hôteliers indépendants et sentiers oubliés. Posture faceless en 'on'."
+    },
+    {
+      "id": "voix-editoriale",
+      "category": "Éditorial",
+      "title": "Règles d'écriture et Voix B2C",
+      "content": "Pronom 'on' pour le duo créateur, 'tu' pour s'adresser au lecteur. Jamais de 'nous' ni de prénoms en public. Détail sensoriel testé obligatoirement dans chaque récit. Mots bannis : pépite, incontournable, joyau, époustouflant, paradisiaque, magique."
+    },
+    {
+      "id": "dest-madere-achadas",
+      "category": "Destination",
+      "title": "Madère — Fajãs et Achadas Isolées",
+      "location": "Madère, Portugal",
+      "content": "Sentiers côtiers escarpés, l'eau salée qui s'infiltre dans les roches volcaniques, levadas sans foule aux premières lueurs. Achadas verdoyantes dominant l'Atlantique."
+    },
+    {
+      "id": "dest-roumanie-bucarest",
+      "category": "Destination",
+      "title": "Roumanie — Passages Secrets de Bucarest",
+      "location": "Bucarest, Roumanie",
+      "content": "Passages couverts Belle Époque (Macca-Villacrosse), cours intérieures silencieuses en retrait des grands boulevards, librairies monumentales (Cărturești Carusel), architecture néo-roumaine."
+    },
+    {
+      "id": "dest-suisse-stoos",
+      "category": "Destination",
+      "title": "Suisse — Stoos & Lac des Quatre-Cantons",
+      "location": "Schwyz, Suisse",
+      "content": "Village sans voiture perché sur un plateau alpin. Funiculaire le plus raide du monde (pente à 110%). Vue plongeante sur le lac des Quatre-Cantons et la prairie du Grütli."
+    },
+    {
+      "id": "copilote-adhd-tsa",
+      "category": "Méthode",
+      "title": "Protocole Copilote ADHD / TSA",
+      "content": "Jamais de liste longue. Une seule action concrète à la fois. Estimation du temps : 5, 15 ou 30 minutes. Description du premier geste exact. Proposition d'une version énergie basse."
+    },
+    {
+      "id": "media-transformer-poco",
+      "category": "Technique",
+      "title": "Moteur Vidéo Poco X6 Pro (Media3 Transformer)",
+      "content": "Encodage matériel MediaCodec H.264/AAC natif sur le SoC MediaTek Dimensity 8300 Ultra. Rendu 9:16 vertical à 60 fps avec effet Ken Burns fluide et titrage cinématique."
+    },
+    {
+      "id": "securite-zero-cle",
+      "category": "Sécurité",
+      "title": "Règle Absolue : Zéro Clé dans l'APK",
+      "content": "Aucune clé d'API (Gemini, Groq, Supabase service) n'est jamais compilée dans l'APK. Tous les flux passent par /api/ai/mobile-brain avec jeton agent révocable."
+    }
+  ]
+}

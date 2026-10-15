@@ -47,19 +47,11 @@ if (py !== attendu) {
 // ── 2. lib/brand.py s'importe-t-il, et expose-t-il la même liste ? ────────────
 const motsTS = extraireMotsBannisTS(ts);
 let pyData = null;
-const sonde = spawnSync(
-  'python3',
-  [
-    '-c',
-    [
-      'import json, importlib.util',
-      "spec = importlib.util.spec_from_file_location('brand', 'lib/brand.py')",
-      "mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)",
-      'print(json.dumps({"words": list(mod.FORBIDDEN_WORDS), "pronoms": mod.PRONOMS}))',
-    ].join('\n'),
-  ],
-  { encoding: 'utf8' }
-);
+const pythonCmd = process.platform === 'win32' ? 'py' : 'python3';
+const codePython = "import json, importlib.util; spec = importlib.util.spec_from_file_location('brand', 'lib/brand.py'); mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod); print(json.dumps({'words': list(mod.FORBIDDEN_WORDS), 'pronoms': mod.PRONOMS}))";
+const pythonArgs = process.platform === 'win32' ? ['-3', '-c', codePython] : ['-c', codePython];
+
+const sonde = spawnSync(pythonCmd, pythonArgs, { encoding: 'utf8' });
 
 if (sonde.status !== 0) {
   erreurs.push(
