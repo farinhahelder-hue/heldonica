@@ -64,15 +64,35 @@ function sanitizePrivacy(text: string): string {
     .replace(/(?:\+33|0033|0)[1-9](?:[\s.-]*\d{2}){4}/g, '[TEL_PROTEGE]');
 }
 
-function findRelevantVaultSpots(query: string, limit = 3): VaultSpotRecord[] {
-  const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+function normalizeText(str: string): string {
+  return (str || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+}
+
+function findRelevantVaultSpots(query: string, limit = 4): VaultSpotRecord[] {
+  const words = normalizeText(query)
+    .split(/[^a-z0-9]+/)
+    .filter(w => w.length >= 3);
+
   if (words.length === 0) return VAULT_SPOTS.slice(0, limit);
+
   return VAULT_SPOTS
     .map(spot => {
       let score = 0;
-      const text = `${spot.title} ${spot.location} ${spot.tags.join(' ')} ${spot.livedExperience}`.toLowerCase();
+      const titleNorm = normalizeText(spot.title);
+      const locNorm = normalizeText(spot.location);
+      const tagsNorm = normalizeText((spot.tags || []).join(' '));
+      const contentNorm = normalizeText(
+        `${spot.livedExperience || ''} ${spot.fullContent || ''} ${spot.sensoryNote || ''} ${spot.pitfallAvoid || ''} ${spot.category || ''}`
+      );
+
       for (const w of words) {
-        if (text.includes(w)) score++;
+        if (titleNorm.includes(w)) score += 3;
+        else if (locNorm.includes(w)) score += 2;
+        else if (tagsNorm.includes(w)) score += 2;
+        else if (contentNorm.includes(w)) score += 1;
       }
       return { spot, score };
     })
