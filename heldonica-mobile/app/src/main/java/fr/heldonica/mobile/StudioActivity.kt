@@ -60,6 +60,7 @@ class StudioActivity : ComponentActivity() {
             }
             when (onglet) {
                 OngletStudio.CERVEAU -> CerveauScreen()
+                OngletStudio.TACHES -> TachesScreen()
                 OngletStudio.CMS -> {
                     // L'éditeur gère déjà mot de passe + cookie : on le réutilise tel quel.
                     contexte.startActivity(

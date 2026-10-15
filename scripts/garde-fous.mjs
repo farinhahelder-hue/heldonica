@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * garde-fous — exécute la suite de contrôles et récapitule dans un tableau.
  *

@@ -1,0 +1,73 @@
+name: Battement (anti-pause)
+
+# ============================================================
+# Une routine qui empêche deux pannes silencieuses :
+#
+# 1. Supabase gratuit met un projet en pause après 7 jours sans requête.
+#    Le ping garde la base éveillée.
+# 2. GitHub désactive les workflows planifiés d'un dépôt public après 60 jours
+#    SANS ACTIVITÉ — en silence, sans email. Un ping seul ne suffit pas : c'est
+#    l'activité du DÉPÔT qui compte, pas le fait que le job tourne. D'où l'étape
+#    « auto-entretien », qui commite un horodatage dans un fichier : ce commit
+#    est l'activité qui remet le compteur à zéro.
+#
+# Contrainte : un `schedule` ne s'exécute que si le fichier existe sur la branche
+# par défaut. Après fusion de la PR, ce workflow doit être sur `main` pour tourner.
+#
+# Auth : `x-cms-auth` (secret CMS_PASSWORD, DÉJÀ présent dans les secrets du
+# dépôt — aucun nouveau secret à poser). Le middleware ne protège pas
+# /api/cron/*, l'auth est donc celle de la route.
+# ============================================================
+
+on:
+  schedule:
+    # Tous les 3 jours à 04:17 UTC. Décalé de l'heure pile : GitHub déconseille
+    # les minutes « rondes », chargées et parfois reportées.
+    - cron: '17 4 */3 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  battement:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Réveiller la base et libérer les baux expirés
+        env:
+          SITE_URL: ${{ secrets.SITE_URL || 'https://www.heldonica.fr' }}
+          CMS_PASSWORD: ${{ secrets.CMS_PASSWORD }}
+        run: |
+          set -o pipefail
+          CODE=$(curl -sS -o /tmp/hb.json -w '%{http_code}' --max-time 30 \
+            -H "x-cms-auth: $CMS_PASSWORD" \
+            "$SITE_URL/api/cron/heartbeat")
+          echo "HTTP $CODE"
+          cat /tmp/hb.json || true
+          if [ "$CODE" != "200" ]; then
+            echo "::error::Battement en échec (HTTP $CODE) — la base ou la route ne répond pas."
+            exit 1
+          fi
+
+      - name: Auto-entretien — remettre le compteur des 60 jours à zéro
+        # Cette étape ne tourne que si le ping a réussi : on ne rafraîchit pas la
+        # date d'un dépôt dont le service est en panne. Une panne doit rester
+        # visible, pas être maquillée par un commit.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Déclenchement manuel : pas de commit d'entretien."
+            exit 0
+          fi
+          git config user.name  "heldonica-heartbeat"
+          git config user.email "heartbeat@heldonica.fr"
+          mkdir -p .github
+          date -u +'%Y-%m-%dT%H:%M:%SZ' > .github/heartbeat.txt
+          git add .github/heartbeat.txt
+          if git diff --cached --quiet; then
+            echo "Rien à committer."
+          else
+            git commit -m "chore(battement): signe de vie $(date -u +'%Y-%m-%d')"
+            git push
+          fi
