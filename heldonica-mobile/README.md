@@ -11,6 +11,22 @@ App Android gratuite qui remplace `python scripts/import_media_roumanie.py` depu
 4. Reverse geocode gratuit → `nominatim.openstreetmap.org/reverse` (1 req/s, cache)
 5. POST `https://www.heldonica.fr/api/cms/mobile-publish` → brouillon `published:false` + POI + `instagram_scheduled_posts` draft
 
+## Écrans
+
+- **Publier une photo** — le flux ci-dessus.
+- **Monter une vidéo** — Media3 Transformer, local.
+- **Écrire un carnet** — un titre, un récit, sans photo.
+- **Tâches des agents** — lit et écrit le registre `agent_tasks` via
+  `/api/agent-tasks` : lister, prendre, déposer. C'est ce qui permet de se passer
+  du PC allumé pour la coordination.
+
+### Authentification de l'écran « Tâches »
+
+L'app envoie le mot de passe CMS déjà embarqué (`cms.password`, en-tête
+`x-cms-auth`). Elle **ne porte pas** la clé service Supabase : un APK est
+décompilable, et une clé service donnerait les droits d'administration de la base.
+Le jeton vit côté serveur, dans la route. Voir `docs/ARCHITECTURE_SANS_PC.md`.
+
 ## Build
 
 ### En local (ligne de commande, sans Android Studio)

@@ -55,6 +55,24 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 /**
+ * Une ligne du registre `agent_tasks`, telle que rendue par /api/agent-tasks.
+ *
+ * Volontairement plate et minimale : l'ecran liste et agit, il ne rejoue pas la
+ * logique de coordination. `id` est le prefixe court (8 caracteres) qui sert a
+ * citer la tache, et suffit a la designer pour `prendre`.
+ */
+data class TacheRegistre(
+    val id: String,
+    val agent: String,
+    val statut: String,
+    val task: String,
+    val scope: String,
+    val claimedBy: String?,
+    val createdAt: String
+)
+
+
+/**
  * Heldonica Mobile — 0€ : Photo Picker + EXIF + Nominatim + POST /api/cms/mobile-publish
  * Aucun Google Places/MAPS payant. OSM Nominatim gratuit (1 req/s, cache).
  */
@@ -169,6 +187,133 @@ class MainActivity : ComponentActivity() {
     // presence permanente noyait l'action principale.
     private var optionsOuvertes by mutableStateOf(false)
 
+    // --- Registre des taches (agent_tasks) -------------------------------
+    // Le telephone lit et ecrit le meme registre que les agents, via
+    // /api/agent-tasks. Pas de cle service ici : l'app s'authentifie avec
+    // le mot de passe CMS deja embarque (x-cms-auth). Une cle service dans
+    // un APK serait decompilable - c'est l'incident du 15/10.
+    private var taches by mutableStateOf<List<TacheRegistre>>(emptyList())
+    private var tachesChargement by mutableStateOf(false)
+    private var tachesErreur by mutableStateOf<String?>(null)
+    private var filtreStatut by mutableStateOf("all")
+    private var tacheOuverte by mutableStateOf<TacheRegistre?>(null)
+    private var nouveauTitre by mutableStateOf("")
+    private var nouveauDetail by mutableStateOf("")
+    private var nouveauDestinataire by mutableStateOf("openhands")
+
+    /** Un appel au registre : lit ou ecrit, et rend le corps JSON ou null. */
+    private suspend fun appelRegistre(
+        methode: String,
+        url: String,
+        corps: org.json.JSONObject? = null
+    ): org.json.JSONObject? = withContext(Dispatchers.IO) {
+        val baseUrl = BuildConfig.CMS_BASE_URL.trimEnd('/')
+        val password = BuildConfig.CMS_PASSWORD
+        if (password.isBlank()) return@withContext null
+        val client = OkHttpClient.Builder()
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .callTimeout(40, TimeUnit.SECONDS)
+            .build()
+        val constructeur = Request.Builder()
+            .url("$baseUrl/api/agent-tasks$url")
+            .header("x-cms-auth", password)
+        val mediaJson = "application/json; charset=utf-8".toMediaType()
+        val requete = when (methode) {
+            "GET" -> constructeur.get()
+            else -> constructeur.post(
+                (corps?.toString() ?: "{}").toRequestBody(mediaJson)
+            )
+        }.build()
+        try {
+            client.newCall(requete).execute().use { reponse ->
+                val texte = reponse.body?.string() ?: ""
+                if (!reponse.isSuccessful) {
+                    withContext(Dispatchers.Main) {
+                        tachesErreur = texte.take(300).ifBlank { "Erreur ${reponse.code}" }
+                    }
+                    null
+                } else {
+                    org.json.JSONObject(texte)
+                }
+            }
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                tachesErreur = "Reseau : ${e.message ?: "echec"}"
+            }
+            null
+        }
+    }
+
+    private fun lireTaches() {
+        portee.launch {
+            tachesChargement = true
+            tachesErreur = null
+            val json = appelRegistre("GET", "?status=$filtreStatut&limit=50")
+            if (json != null) {
+                val tableau = json.optJSONArray("tasks") ?: org.json.JSONArray()
+                val liste = mutableListOf<TacheRegistre>()
+                for (i in 0 until tableau.length()) {
+                    val o = tableau.optJSONObject(i) ?: continue
+                    liste.add(
+                        TacheRegistre(
+                            id = o.optString("id"),
+                            agent = o.optString("agent"),
+                            statut = o.optString("status"),
+                            task = o.optString("task"),
+                            scope = o.optString("scope"),
+                            claimedBy = o.optString("claimed_by").ifBlank { null },
+                            createdAt = o.optString("created_at")
+                        )
+                    )
+                }
+                taches = liste
+            }
+            tachesChargement = false
+        }
+    }
+
+    /** Prend une tache : la passe `in_progress` et pose le nom de l'agent. */
+    private fun prendreTache(tache: TacheRegistre) {
+        portee.launch {
+            tachesErreur = null
+            val corps = org.json.JSONObject().apply {
+                put("action", "prendre")
+                put("id", tache.id)
+                put("agent_name", "openhands")
+                put("branch", "agent/openhands/mobile-${tache.id}")
+            }
+            if (appelRegistre("POST", "", corps) != null) {
+                tacheOuverte = null
+                lireTaches()
+            }
+        }
+    }
+
+    /** Depose une tache dans le registre, pour un agent ou pour tous. */
+    private fun deposerTache() {
+        val titre = nouveauTitre.trim()
+        if (titre.length < 8) {
+            tachesErreur = "Titre trop court : au moins 8 caractères."
+            return
+        }
+        portee.launch {
+            tachesErreur = null
+            val corps = org.json.JSONObject().apply {
+                put("action", "deposer")
+                put("agent", nouveauDestinataire)
+                put("task", titre)
+                put("agent_name", "openhands")
+                if (nouveauDetail.isNotBlank()) put("description", nouveauDetail.trim())
+            }
+            if (appelRegistre("POST", "", corps) != null) {
+                nouveauTitre = ""
+                nouveauDetail = ""
+                lireTaches()
+            }
+        }
+    }
+
     // Demande de la position, a l'execution.
     //
     // ACCESS_FINE_LOCATION est une permission dangereuse : la declarer au
@@ -255,6 +400,14 @@ class MainActivity : ComponentActivity() {
                 ecran = "carnet"
             }
 
+            // Le registre des taches, lisible et actionnable depuis le telephone :
+            // c'est ce qui permet de se passer du PC allume. La coordination vit
+            // dans le cloud (table agent_tasks), pas sur une machine de bureau.
+            CarteAction(
+                titre = "Tâches des agents",
+                detail = "Voir, prendre et déposer les tâches sans le PC allumé."
+            ) { ecran = "taches" }
+
             Text("Modifier le site", style = MaterialTheme.typography.titleMedium)
 
             // Chaque carte ouvre directement sa section du panneau. Sans le
@@ -282,6 +435,136 @@ class MainActivity : ComponentActivity() {
 
             Text(
                 "Rien n'est publié sans ton accord : tout arrive en brouillon.",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+
+    /**
+     * Taches des agents : lire le registre, prendre une tache, en deposer une.
+     *
+     * Le registre `agent_tasks` est la verite de la coordination entre agents
+     * (AGENTS.md). Il vivait jusqu'ici derriere le PC, qui devait rester allume
+     * pour le surveiller. Ici, le telephone le lit et l'ecrit directement.
+     *
+     * L'ecran ne rejoue pas la logique : il montre, et il declenche. Les refus
+     * (tache deja prise, titre trop court) viennent de la route et s'affichent
+     * tels quels, pour que la regle reste en un seul endroit.
+     */
+    @Composable
+    fun EcranTaches(modifier: Modifier = Modifier) {
+        Column(
+            modifier
+                .verticalScroll(rememberScrollState())
+                .padding(20.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            // --- Filtre de statut -------------------------------------------------
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(listOf("all" to "Toutes", "sent" to "À prendre", "in_progress" to "En cours")) { (valeur, libelle) ->
+                    FilterChip(
+                        selected = filtreStatut == valeur,
+                        onClick = {
+                            filtreStatut = valeur
+                            lireTaches()
+                        },
+                        label = { Text(libelle) }
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    if (tachesChargement) "Chargement…" else "${taches.size} tâche(s)",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                TextButton(onClick = { lireTaches() }) { Text("Rafraîchir") }
+            }
+
+            tachesErreur?.let {
+                Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+            }
+
+            // --- Liste ------------------------------------------------------------
+            if (taches.isEmpty() && !tachesChargement) {
+                Text(
+                    "Aucune tâche ici. Le registre est peut-être vide, ou le filtre trop étroit.",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
+            taches.forEach { tache ->
+                Card(Modifier.fillMaxWidth()) {
+                    Column(
+                        Modifier.padding(14.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(tache.agent, style = MaterialTheme.typography.labelLarge)
+                            Text(tache.statut, style = MaterialTheme.typography.labelMedium)
+                        }
+                        Text(tache.task, style = MaterialTheme.typography.bodyMedium)
+                        Text(
+                            "${tache.id} · ${tache.scope}" +
+                                (tache.claimedBy?.let { " · prise par $it" } ?: ""),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        if (tache.statut == "sent") {
+                            FilledTonalButton(
+                                onClick = { prendreTache(tache) },
+                                modifier = Modifier.fillMaxWidth()
+                            ) { Text("Prendre cette tâche") }
+                        }
+                    }
+                }
+            }
+
+            HorizontalDivider()
+
+            // --- Déposer une tâche ------------------------------------------------
+            Text("Déposer une tâche", style = MaterialTheme.typography.titleMedium)
+
+            OutlinedTextField(
+                value = nouveauTitre,
+                onValueChange = { nouveauTitre = it },
+                label = { Text("Titre — ce qu'on attend") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+            OutlinedTextField(
+                value = nouveauDetail,
+                onValueChange = { nouveauDetail = it },
+                label = { Text("Contexte (facultatif)") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Text("Pour qui ?", style = MaterialTheme.typography.labelLarge)
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(listOf("openhands", "claude", "gemini", "jules", "tous")) { destinataire ->
+                    FilterChip(
+                        selected = nouveauDestinataire == destinataire,
+                        onClick = { nouveauDestinataire = destinataire },
+                        label = { Text(destinataire) }
+                    )
+                }
+            }
+
+            Button(
+                onClick = { deposerTache() },
+                enabled = nouveauTitre.trim().length >= 8,
+                modifier = Modifier.fillMaxWidth()
+            ) { Text("Déposer") }
+
+            Text(
+                "Le dépôt ne touche aucun fichier : il demande. L'agent concerné prendra la tâche quand il lira le registre.",
                 style = MaterialTheme.typography.bodySmall
             )
         }
@@ -773,6 +1056,7 @@ class MainActivity : ComponentActivity() {
                                     "accueil" -> "Heldonica"
                                     "montage" -> "Monter une vidéo"
                                     "carnet" -> "Écrire un carnet"
+                                    "taches" -> "Tâches"
                                     else -> "Publier"
                                 }
                             )
@@ -795,6 +1079,13 @@ class MainActivity : ComponentActivity() {
                 }
                 if (ecran == "carnet") {
                     EcranCarnet(Modifier.padding(pad))
+                    return@Scaffold
+                }
+                if (ecran == "taches") {
+                    // On recharge a l'entree : le registre bouge sans nous, et un
+                    // ecran fige ferait croire qu'aucune tache n'existe.
+                    LaunchedEffect(Unit) { lireTaches() }
+                    EcranTaches(Modifier.padding(pad))
                     return@Scaffold
                 }
                 // Colonne defilante : l'ecran depassait deja la hauteur d'un

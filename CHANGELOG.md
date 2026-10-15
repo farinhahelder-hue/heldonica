@@ -37,6 +37,39 @@ devient une option (GPU lourd), éteinte par défaut.
 - Le débit de `/api/ai/search` depuis un téléphone en 4G n'a pas été mesuré.
 - L'exécution d'un petit modèle LLM local sur le Poco (Phase 3) reste à prouver.
 
+### Ajouté — Phase 1 : la coordination depuis l'APK
+- `app/api/agent-tasks/route.ts` : **route générique du registre** `agent_tasks`
+  (tous agents, pas seulement `heldonica-brain`), authentifiée par `verifyAiAuth`
+  (clé `hld_...` révocable, ou `x-cms-auth`). Les cinq gestes du protocole :
+  lister (GET), lire / prendre / rendre compte / déposer (POST `action`). Le
+  vocabulaire est celui du MCP — cinq statuts, huit destinataires. La clé service
+  reste côté serveur ; aucune clé n'entre dans l'APK.
+- `__tests__/api/agent-tasks.test.ts` : 14 tests des gestionnaires réels
+  (validation, prise atomique 409, refus de clore `done` sans preuve, payload).
+- `heldonica-mobile` — écran **« Tâches des agents »** : liste filtrée par statut,
+  prise d'une tâche, dépôt d'une tâche. S'authentifie avec le mot de passe CMS
+  déjà embarqué (`x-cms-auth`) ; aucun nouveau secret.
+- `heldonica-mobile/README.md` : section des écrans et de l'authentification.
+
+### Vérifié
+- `npx tsc --noEmit` : **0 erreur**.
+- `check:api-auth` : « Tout gestionnaire maniant la clé service vérifie son
+  appelant. » `check:erreurs-avalees` : « Toute écriture en base lit son erreur. »
+- `vitest run` : **638 tests verts** (avant ajout) puis **14/14** sur la route.
+- **Test de mutation** : retirer le garde-fou « `done` sans `verifie` » fait
+  échouer le test correspondant (1 échec ciblé), puis restauration → vert. Le test
+  mord, il ne passe pas à vide.
+- Équilibre syntaxique de `MainActivity.kt` : mes ajouts introduisent **le même
+  écart résiduel que la version d'origine** (9 accolades, 3 parenthèses — artefacts
+  des `${…}`), donc ils sont équilibrés.
+
+### Non vérifié
+- **L'APK n'a pas été compilé** : ni JDK ni SDK Android dans l'environnement de
+  rédaction. La compilation se fait par la CI (`build-apk.yml`), déclenchée par ce
+  push. Tant que ce run n'est pas vert, l'écran mobile n'est **pas** prouvé.
+- Aucun appel réel à `/api/agent-tasks` (pas de base Supabase locale).
+- L'app n'a pas été installée sur le Poco.
+
 ## [2026-10-14] — Atelier légendes & photos (méthode d'écriture depuis une image)
 
 ### Contexte
