@@ -2,6 +2,10 @@ name: Build APK (Heldonica Mobile 0€)
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - "heldonica-mobile/**"
+      - ".github/workflows/build-apk.yml"
   push:
     paths:
       - "heldonica-mobile/**"
@@ -42,6 +46,11 @@ jobs:
             echo "cms.baseUrl=https://www.heldonica.fr"
             echo "cms.password=$CMS_PASSWORD"
           } > heldonica-mobile/local.properties
+
+      - name: Tests unitaires JVM (Kotlin)
+        run: |
+          cd heldonica-mobile
+          gradle testDebugUnitTest --stacktrace
 
       - name: Build Debug APK
         run: |
