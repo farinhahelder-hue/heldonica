@@ -2,6 +2,31 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-15] — Heldonica Pocket : Dispatch Multi-Agents (Jules, Gemini, Grok, AllHands, Manus) & Écran Tâches APK
+
+### Réalisations & Évolution Majeure du Registre
+1. **Écran Natif Jetpack Compose « Agents & Tâches » (`heldonica-mobile/.../TachesScreen.kt`)** :
+   - Nouvel onglet ⚡ « Tâches » dans `StudioActivity.kt` et `StudioTabs.kt` (5 onglets ergonomiques en 120 Hz).
+   - Pilotage complet sans PC allumé : sélection de l'agent cible (`Jules`, `Gemini`, `Grok`, `AllHands`, `Manus`, `Tous`).
+   - Saisie du brief de mission, choix du périmètre (`content`, `code`, `video`, `seo`, `audit`) et du niveau de risque (`bas`, `moyen`, `haut`).
+   - Transmission instantanée en HTTPS sécurisé vers `/api/agent-tasks` (authentification SharedPreferences, 0 secret compilé).
+   - Fil en direct (Live Feed) avec statuts visuels temps réel (`sent`, `in_progress`, `waiting_validation`, `done`, `blocked`), affichage de l'agent affecté, de la branche git et du compte rendu mesuré.
+   - Veille d'arrière-plan Android WorkManager (`VeilleTaches.kt`) branchée sur l'authentification SharedPreferences.
+2. **Route d'API Registre Multi-Agents (`app/api/agent-tasks/route.ts`)** :
+   - Prise en charge des destinataires : `claude`, `gemini`, `opencode`, `jules`, `allhands`, `openhands`, `grok`, `manus`, `freebuff`, `archiveur`, `muse-spark`, `discord-bot`, `fondateur`, `poco`, `tous`.
+   - Compatibilité totale Vercel Hobby plan (retrait des `maxDuration` bloquants dans les routes cron).
+   - Fallback d'authentification transparent pour les requêtes CMS (`x-cms-auth`).
+3. **Dispatch Cloud Autonome & Clôture Sécurisée** :
+   - `lib/registre-dispatch.ts` & `app/api/cron/dispatch-registre/route.ts` : dispatch automatique des tâches vers AllHands / OpenHands Cloud.
+   - `lib/registre-cloture.ts` & `app/api/cron/cloture-registre/route.ts` : clôture automatique et libération des baux expirés.
+   - Workflows GitHub Actions `.github/workflows/dispatch-registre.yml`, `.github/workflows/cloture-registre.yml`, `.github/workflows/battement.yml`.
+4. **Validation des Garde-fous & Tests (100% Mesuré)** :
+   - `npm run preflight` : 6/6 PASS.
+   - Vitest registre tests : 64/64 PASS (`registre-dispatch.test.ts`, `registre-cloture.test.ts`, `agent-tasks.test.ts`, `cron-heartbeat.test.ts`).
+   - Tests JVM Kotlin `StudioTabsTest.kt` mis à jour (5 onglets conformes).
+
+---
+
 ## [2026-10-15] — Préparation du Cerveau en APK Natif sur Poco X6 Pro (Audit & Validation PR #602)
 
 ### Réalisations & Socle APK Poco X6 Pro (Audit & Validation PR #602)

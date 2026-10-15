@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * check-workspace-sync — l'espace de travail est-il sain avant de toucher au code ?
  *

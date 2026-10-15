@@ -1,0 +1,81 @@
+name: Clôture du registre
+
+# ============================================================
+# Fermer la boucle : constater qu'une conversation s'est arrêtée, et écrire son
+# compte rendu dans `agent_tasks`.
+#
+#   dépôt → dispatch → conversation → [ici] compte rendu
+#
+# Sans cette routine, l'agent doit penser à clore lui-même. Une conversation qui
+# meurt sans rendre compte laisse sa tâche `in_progress` jusqu'à l'expiration du
+# bail — puis relancée.
+#
+# GARDE-FOU (AGENTS.md) : la route pose TOUJOURS `waiting_validation`, jamais
+# `done`. Une conversation arrêtée et une PR qui existe ne prouvent pas qu'un test
+# a tourné. C'est un humain qui promeut en `done`, sur preuves mesurées.
+#
+# Décalé de 5 minutes du dispatch : on laisse le temps à une conversation de
+# démarrer avant de juger son inactivité.
+#
+# Auth : `x-api-key` (clé agent `hld_...`), secret `AI_AGENT_API_KEY`.
+# Prérequis : `OPENHANDS_API_KEY` dans Vercel (lecture de l'état des conversations).
+#
+# Contrainte : un `schedule` ne s'exécute que si le fichier est sur `main`.
+# ============================================================
+
+on:
+  schedule:
+    - cron: '12,27,42,57 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cloturer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clore les tâches dont la conversation est terminée
+        env:
+          SITE_URL: ${{ secrets.SITE_URL || 'https://www.heldonica.fr' }}
+          AGENT_KEY: ${{ secrets.AI_AGENT_API_KEY }}
+        run: |
+          set -o pipefail
+          if [ -z "$AGENT_KEY" ]; then
+            echo "::error::AI_AGENT_API_KEY absente — la clôture ne peut pas s'authentifier."
+            exit 1
+          fi
+          CODE=$(curl -sS -o /tmp/cloture.json -w '%{http_code}' --max-time 90 \
+            -H "x-api-key: $AGENT_KEY" \
+            "$SITE_URL/api/cron/cloture-registre")
+          echo "HTTP $CODE"
+          cat /tmp/cloture.json || true
+          if [ "$CODE" != "200" ]; then
+            echo "::error::Clôture en échec (HTTP $CODE)."
+            exit 1
+          fi
+
+      - name: Résumer
+        run: |
+          python3 - <<'PY'
+          import json
+          d = json.load(open('/tmp/cloture.json'))
+          if d.get('cloture') == 'inactif':
+              print(f"::warning::{d.get('raison')}")
+              raise SystemExit(0)
+          closes = d.get('closes', [])
+          ok = [c for c in closes if c.get('close')]
+          ko = [c for c in closes if not c.get('close')]
+          print(f"  examinées           : {d.get('examinees')}")
+          print(f"  avec conversation   : {d.get('avec_conversation')}")
+          print(f"  closes              : {len(ok)}")
+          print(f"  en attente          : {d.get('en_attente')}")
+          for c in ok:
+              prs = c.get('prs') or []
+              print(f"    -> {c.get('id')}  [{c.get('statut')}]  PR {prs}  {c.get('resume')}")
+          for c in ko:
+              print(f"    !! {c.get('id')} : {c.get('erreur')}")
+          # Une écriture ratée doit rester visible, pas avalée.
+          if ko:
+              raise SystemExit(1)
+          PY
