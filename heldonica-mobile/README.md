@@ -20,6 +20,22 @@ App Android gratuite qui remplace `python scripts/import_media_roumanie.py` depu
   `/api/agent-tasks` : lister, prendre, déposer. C'est ce qui permet de se passer
   du PC allumé pour la coordination.
 
+### Veille du registre (remplace le poller du PC)
+
+`VeilleTachesWorker` (`VeilleTaches.kt`) lit le registre toutes les heures environ,
+sans PC allumé : c'est le remplaçant du `bridge_poller.py` local. L'appel porte
+`?balayer=1`, donc chaque passage libère aussi les baux expirés — une tâche prise
+par un téléphone mort redevient prenable.
+
+- **WorkManager**, pas un service de premier plan. Depuis Android 12, un service
+  de premier plan exige une notification permanente et un `foregroundServiceType`
+  pour un bénéfice nul : on veut un passage régulier, pas une seconde exacte.
+  WorkManager survit au redémarrage, respecte Doze et attend le réseau.
+- Installée **une seule fois** (premier lancement), puis pilotée par l'interrupteur
+  de l'écran « Tâches ». Un interrupteur éteint annule réellement la tâche.
+- Un échec rend `Result.retry()`, jamais `success` : une panne ne peut pas passer
+  pour un succès.
+
 ### Authentification de l'écran « Tâches »
 
 L'app envoie le mot de passe CMS déjà embarqué (`cms.password`, en-tête
@@ -69,8 +85,9 @@ dépose en artefact `heldonica-mobile-debug`. Onglet **Actions** → dernier run
 - Aucune clé Google Cloud nécessaire pour le MVP. Pour OSM tu mets `User-Agent: Heldonica (contact@heldonica.fr)`.
 
 ## Structure
-- `MainActivity.kt` : Picker + EXIF + Nominatim + upload WorkManager
-- `UploadWorker.kt` : retry + multipart
+- `MainActivity.kt` : Picker + EXIF + Nominatim + upload WorkManager + écrans
+- `VeilleTaches.kt` : veille périodique du registre (WorkManager, `balayer=1`)
+- `EditeurActivity.kt`, `MontageVideo.kt`, `SousTitres.kt`, `Transcription.kt`
 - `AndroidManifest.xml` : permissions minimales
 
 Voir `app/src/main/java/fr/heldonica/mobile/MainActivity.kt` pour le code complet.

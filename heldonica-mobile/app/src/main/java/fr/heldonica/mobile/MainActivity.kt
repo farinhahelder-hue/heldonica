@@ -201,6 +201,12 @@ class MainActivity : ComponentActivity() {
     private var nouveauDetail by mutableStateOf("")
     private var nouveauDestinataire by mutableStateOf("openhands")
 
+    // Veille du registre : ce qui tourne en fond, et quand le dernier passage a
+    // eu lieu. Lu depuis les preferences du worker, pas recalcule.
+    private var veilleActive by mutableStateOf(false)
+    private var veilleDernier by mutableStateOf(0L)
+    private var veilleBilan by mutableStateOf("")
+
     /** Un appel au registre : lit ou ecrit, et rend le corps JSON ou null. */
     private suspend fun appelRegistre(
         methode: String,
@@ -244,6 +250,17 @@ class MainActivity : ComponentActivity() {
             null
         }
     }
+
+    /** Relit l'etat de la veille depuis les preferences du worker. */
+    private fun lireEtatVeille() {
+        veilleActive = VeilleTaches.estActive(applicationContext)
+        veilleDernier = VeilleTaches.dernierBattement(applicationContext)
+        veilleBilan = VeilleTaches.dernierBilan(applicationContext)
+    }
+
+    private fun formatHorodatage(ms: Long): String =
+        java.text.SimpleDateFormat("dd/MM HH:mm", java.util.Locale.FRANCE)
+            .format(java.util.Date(ms))
 
     private fun lireTaches() {
         portee.launch {
@@ -346,6 +363,16 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // La veille du registre est installee UNE fois (premier lancement), puis
+        // gouvernee par l'interrupteur de l'ecran « Taches ». La garde
+        // `jamaisConfiguree` est indispensable : sans elle, relancer l'app
+        // rallumerait une veille que l'utilisateur avait volontairement arretee.
+        if (VeilleTaches.jamaisConfiguree(applicationContext)) {
+            runCatching { VeilleTaches.planifier(applicationContext) }
+                .onFailure { Log.w(TAG, "planification de la veille impossible : ${it.message}") }
+        }
+
         setContent { HeldonicaScreen() }
     }
 
@@ -460,6 +487,50 @@ class MainActivity : ComponentActivity() {
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
+            // --- Veille du registre -----------------------------------------------
+            // Le telephone remplace le poller du PC. L'interrupteur dit ce qui
+            // tourne en fond ; sans lui, le registre n'est lu qu'a l'ouverture.
+            val contexteVeille = LocalContext.current
+            LaunchedEffect(Unit) { lireEtatVeille() }
+            Card(Modifier.fillMaxWidth()) {
+                Column(
+                    Modifier.padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(Modifier.weight(1f)) {
+                            Text("Veille du registre", style = MaterialTheme.typography.titleSmall)
+                            Text(
+                                if (veilleActive) "Active — un passage par heure environ"
+                                else "Arretee — le registre n'est lu qu'a l'ouverture",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                        Switch(
+                            checked = veilleActive,
+                            onCheckedChange = { actif ->
+                                if (actif) VeilleTaches.planifier(contexteVeille)
+                                else VeilleTaches.arreter(contexteVeille)
+                                lireEtatVeille()
+                            }
+                        )
+                    }
+                    if (veilleDernier > 0L) {
+                        Text(
+                            "Dernier passage : ${formatHorodatage(veilleDernier)}",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    if (veilleBilan.isNotBlank()) {
+                        Text(veilleBilan, style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            }
+
             // --- Filtre de statut -------------------------------------------------
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(listOf("all" to "Toutes", "sent" to "À prendre", "in_progress" to "En cours")) { (valeur, libelle) ->

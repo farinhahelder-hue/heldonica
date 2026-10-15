@@ -155,6 +155,30 @@ Pour ne plus dépendre d'une remise en route à la main, une routine tourne seul
 depuis la branche par défaut, donc après fusion de la PR #601 sur `main`). Le
 premier vrai battement reste à observer.
 
+### La veille dans l'app (remplace le poller du PC)
+
+Le PC disparaissait de l'architecture ; le poller qui tournait dessus devait donc
+changer de porteur. C'est le Poco.
+
+- `heldonica-mobile/.../VeilleTaches.kt` — `VeilleTachesWorker` (WorkManager)
+  lit `GET /api/agent-tasks?status=sent&limit=50&balayer=1` toutes les heures
+  environ. Chaque passage libère aussi les baux expirés : une tâche prise par un
+  téléphone mort redevient prenable, sans intervention.
+- **WorkManager, pas un service de premier plan.** Depuis Android 12 un service de
+  premier plan exige une notification permanente et un `foregroundServiceType`,
+  pour un bénéfice nul ici : on veut un passage régulier, pas une seconde exacte.
+- Installée **une seule fois**, puis pilotée par un interrupteur dans l'écran
+  « Tâches ». La garde `jamaisConfiguree` évite le piège évident : sans elle,
+  chaque `onCreate` rallumerait une veille que l'utilisateur avait arrêtée.
+- Un échec rend `Result.retry()`, jamais `success` : une panne ne peut pas passer
+  pour un succès. L'écran affiche le dernier passage et son bilan.
+
+**Non vérifié** : aucun compilateur Kotlin ni SDK Android dans cet environnement
+(pas de `java`, pas de `kotlinc`). Le Kotlin a été relu et les accolades
+équilibrées, mais **il n'a pas été compilé**. La compilation revient à la CI
+« Build APK », et le premier passage réel de la veille reste à observer sur le
+téléphone.
+
 ## [2026-10-14] — Atelier légendes & photos (méthode d'écriture depuis une image)
 
 ### Contexte

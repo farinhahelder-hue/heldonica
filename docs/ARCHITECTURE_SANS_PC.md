@@ -216,11 +216,36 @@ un `foregroundServiceType` est **obligatoire** pour un service de premier plan.
 `[OBSERVÉ]` Aucune permission `FOREGROUND_SERVICE` n'est déclarée dans
 `AndroidManifest.xml` aujourd'hui.
 
-`[INTERPRÉTATION]` Un worker 24/7 sur le Poco exige donc : un **service de premier
+`[INTERPRÉTATION]` Un worker 24/7 sur le Poco exigerait : un **service de premier
 plan** avec `foregroundServiceType`, une **notification permanente** (obligatoire
-depuis Android 8), et l'exemption de l'optimisation de batterie. Ce n'est pas une
-option technique parmi d'autres : sans ces trois pièces, Android tue le worker et
-la coordination s'arrête sans le dire.
+depuis Android 8), et l'exemption de l'optimisation de batterie. Sans ces trois
+pièces, Android tue le worker et la coordination s'arrête sans le dire.
+
+`[OBSERVÉ]` **Ce n'est finalement pas ce qui a été construit** (voir la veille
+livrée plus bas). La veille du registre n'a pas besoin de continuité : un passage
+toutes les heures environ suffit, et `WorkManager` le fait sans notification
+permanente ni `foregroundServiceType`. Le paragraphe ci-dessus décrit le prix
+d'une continuité dont la veille n'a pas besoin — la distinction compte, parce
+qu'un service de premier plan aurait ajouté une notification permanente pour un
+bénéfice nul.
+
+### La veille du registre, livrée dans l'app (2026-10-15)
+
+`[OBSERVÉ]` Le poller qui tournait sur le PC a changé de porteur : c'est
+`VeilleTachesWorker` (`heldonica-mobile/app/src/main/java/fr/heldonica/mobile/VeilleTaches.kt`).
+Il lit `GET /api/agent-tasks?status=sent&limit=50&balayer=1` toutes les heures
+environ. Le paramètre `balayer=1` fait que chaque passage libère aussi les baux
+expirés : une tâche prise par un téléphone mort redevient prenable.
+
+`[OBSERVÉ]` Installée **une seule fois** (garde `jamaisConfiguree`), puis pilotée
+par un interrupteur dans l'écran « Tâches ». Un échec rend `Result.retry()`,
+jamais `success` : une panne ne peut pas passer pour un succès. L'écran affiche
+le dernier passage et son bilan.
+
+`[NON VÉRIFIÉ]` Le Kotlin **n'a pas été compilé** : aucun compilateur ni SDK
+Android dans l'environnement de rédaction (pas de `java`, pas de `kotlinc`). Le
+code a été relu et les accolades équilibrées. La compilation revient à la CI
+« Build APK », et le premier passage réel reste à observer sur le téléphone.
 
 ### Le trou trouvé en écrivant cette section
 
