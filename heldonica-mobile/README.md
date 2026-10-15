@@ -11,6 +11,42 @@ App Android gratuite qui remplace `python scripts/import_media_roumanie.py` depu
 4. Reverse geocode gratuit → `nominatim.openstreetmap.org/reverse` (1 req/s, cache)
 5. POST `https://www.heldonica.fr/api/cms/mobile-publish` → brouillon `published:false` + POI + `instagram_scheduled_posts` draft
 
+## Écrans
+
+- **Publier une photo** — le flux ci-dessus.
+- **Monter une vidéo** — Media3 Transformer, local.
+- **Écrire un carnet** — un titre, un récit, sans photo.
+- **Tâches des agents** — lit et écrit le registre `agent_tasks` via
+  `/api/agent-tasks` : lister, prendre, déposer. C'est ce qui permet de se passer
+  du PC allumé pour la coordination.
+
+### Veille du registre (remplace le poller du PC)
+
+`VeilleTachesWorker` (`VeilleTaches.kt`) lit le registre toutes les heures environ,
+sans PC allumé : c'est le remplaçant du `bridge_poller.py` local. L'appel porte
+`?balayer=1`, donc chaque passage libère aussi les baux expirés — une tâche prise
+par un téléphone mort redevient prenable.
+
+- **WorkManager**, pas un service de premier plan. Depuis Android 12, un service
+  de premier plan exige une notification permanente et un `foregroundServiceType`
+  pour un bénéfice nul : on veut un passage régulier, pas une seconde exacte.
+  WorkManager survit au redémarrage, respecte Doze et attend le réseau.
+- Installée **une seule fois** (premier lancement), puis pilotée par l'interrupteur
+  de l'écran « Tâches ». Un interrupteur éteint annule réellement la tâche.
+- Un échec rend `Result.retry()`, jamais `success` : une panne ne peut pas passer
+  pour un succès.
+
+Compilation vérifiée par mesure (run CI `38721318520`) : `VeilleTachesWorker` est
+bien dans `classes3.dex` de l'APK, avec ses chaînes de câblage. Le premier passage
+réel reste à observer sur le téléphone.
+
+### Authentification de l'écran « Tâches »
+
+L'app envoie le mot de passe CMS déjà embarqué (`cms.password`, en-tête
+`x-cms-auth`). Elle **ne porte pas** la clé service Supabase : un APK est
+décompilable, et une clé service donnerait les droits d'administration de la base.
+Le jeton vit côté serveur, dans la route. Voir `docs/ARCHITECTURE_SANS_PC.md`.
+
 ## Build
 
 ### En local (ligne de commande, sans Android Studio)
@@ -48,13 +84,35 @@ dépose en artefact `heldonica-mobile-debug`. Onglet **Actions** → dernier run
 **Artifacts**. Il a besoin du secret `CMS_PASSWORD` pour que l'APK puisse publier
 (sans lui, l'APK se construit mais ne peut pas publier).
 
+### Installer depuis le téléphone (lien direct)
+
+L'artefact demande six gestes sur un ordinateur et il expire. Pour un lien direct,
+utilise le workflow **Release APK** : pousse un tag `apk-*`, ou lance-le depuis
+l'onglet Actions. La release est téléchargeable depuis le Poco et s'installe
+par-dessus la version précédente (même keystore de debug, versionné).
+
+**Cet APK-là ne contient aucun secret** : il peut lire le registre des tâches, mais
+pas publier de contenu sur le site. C'est volontaire — `CMS_PASSWORD` serait compilé
+en clair dans le dex, et le dépôt est public. Pour un APK qui publie, construis en
+local avec `local.properties`.
+
+Deux garde-fous, vérifiés en déclenchant réellement le workflow (run `38731024641`) :
+
+1. Le build de release ne lit même pas le secret (`release: true`) ;
+2. Le job de publication **refuse** de publier si le build déclare avoir embarqué
+   un mot de passe. C'est un verrou dur, pas une supposition.
+
+Vérification faite après publication : APK téléchargé **sans authentification**
+(HTTP 200), `VeilleTachesWorker` présent, 0 JWT, aucune clé `sb_secret_`.
+
 ## Config
 - `local.properties` (non versionné) : `cms.baseUrl=https://www.heldonica.fr` + `cms.password=<la valeur de CMS_PASSWORD sur Vercel>` — jamais en clair dans le dépôt, voir `local.properties.example`
 - Aucune clé Google Cloud nécessaire pour le MVP. Pour OSM tu mets `User-Agent: Heldonica (contact@heldonica.fr)`.
 
 ## Structure
-- `MainActivity.kt` : Picker + EXIF + Nominatim + upload WorkManager
-- `UploadWorker.kt` : retry + multipart
+- `MainActivity.kt` : Picker + EXIF + Nominatim + upload WorkManager + écrans
+- `VeilleTaches.kt` : veille périodique du registre (WorkManager, `balayer=1`)
+- `EditeurActivity.kt`, `MontageVideo.kt`, `SousTitres.kt`, `Transcription.kt`
 - `AndroidManifest.xml` : permissions minimales
 
 Voir `app/src/main/java/fr/heldonica/mobile/MainActivity.kt` pour le code complet.

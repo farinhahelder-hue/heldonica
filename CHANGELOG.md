@@ -3,6 +3,348 @@
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
 
+## [2026-10-15] — Étude : architecture sans PC (le téléphone comme poste de commande)
+
+### Contexte
+Décision du fondateur : « le PC doit disparaître — il n'est pas assez puissant
+pour générer des vidéos et des musiques localement ». Cible : le **Poco X6 Pro**
+porte la base de connaissances, le dispatch et la coordination des tâches ; le PC
+devient une option (GPU lourd), éteinte par défaut.
+
+### Ajouté
+- `docs/ARCHITECTURE_SANS_PC.md` : étude de la cible, chaque affirmation adossée à
+  un fichier (`[OBSERVÉ]` / `[INTERPRÉTATION]` / `[NON VÉRIFIÉ]`).
+
+### Points relevés (tous adossés à un fichier)
+- **Le cerveau du PC est léger** : sur 6 briques, 4 tournent déjà dans le cloud —
+  RAG `pgvector` (`lib/ai-embeddings.ts`, `/api/ai/search`), registre
+  `agent_tasks`, API de coordination (`/api/brain/tasks`), dispatch
+  (`agent_dispatch.py` → API REST). Le PC ne garde que le GPU lourd
+  (`video_assembler.py`, `comfy_manager.py`, Ollama).
+- Le RAG du PC n'est pas vectoriel : `knowledge_vault.py` fait `LIKE` + score par
+  mots ; le vrai RAG sémantique est côté site.
+- **Verrou principal** : `/api/brain/tasks` est figé sur `agent='heldonica-brain'`
+  et le serveur MCP parle à Supabase **avec la clé service** — inutilisable dans un
+  APK (décompilable). Il faut une route serveur générique authentifiée par clé
+  `hld_...` révocable (`lib/ai-auth.ts`), pas la clé service.
+- `lib/bridge-auth.ts` n'offre que deux chemins : mot de passe **admin** CMS ou
+  jeton partagé **non révocable**. Ni l'un ni l'autre ne convient à un téléphone.
+- `agent_tasks` n'a **pas de RLS** (migration 20260526) : acceptable tant que
+  l'APK ne parle qu'à la route serveur.
+
+### Non vérifié
+- Aucun accès à la base de production ; aucun appel réseau de confirmation.
+- Le débit de `/api/ai/search` depuis un téléphone en 4G n'a pas été mesuré.
+- L'exécution d'un petit modèle LLM local sur le Poco (Phase 3) reste à prouver.
+
+### Ajouté — Phase 1 : la coordination depuis l'APK
+- `app/api/agent-tasks/route.ts` : **route générique du registre** `agent_tasks`
+  (tous agents, pas seulement `heldonica-brain`), authentifiée par `verifyAiAuth`
+  (clé `hld_...` révocable, ou `x-cms-auth`). Les cinq gestes du protocole :
+  lister (GET), lire / prendre / rendre compte / déposer (POST `action`). Le
+  vocabulaire est celui du MCP — cinq statuts, huit destinataires. La clé service
+  reste côté serveur ; aucune clé n'entre dans l'APK.
+- `__tests__/api/agent-tasks.test.ts` : 14 tests des gestionnaires réels
+  (validation, prise atomique 409, refus de clore `done` sans preuve, payload).
+- `heldonica-mobile` — écran **« Tâches des agents »** : liste filtrée par statut,
+  prise d'une tâche, dépôt d'une tâche. S'authentifie avec le mot de passe CMS
+  déjà embarqué (`x-cms-auth`) ; aucun nouveau secret.
+- `heldonica-mobile/README.md` : section des écrans et de l'authentification.
+
+### Vérifié
+- `npx tsc --noEmit` : **0 erreur**.
+- `check:api-auth` : « Tout gestionnaire maniant la clé service vérifie son
+  appelant. » `check:erreurs-avalees` : « Toute écriture en base lit son erreur. »
+- `vitest run` : **638 tests verts** (avant ajout) puis **14/14** sur la route.
+- **Test de mutation** : retirer le garde-fou « `done` sans `verifie` » fait
+  échouer le test correspondant (1 échec ciblé), puis restauration → vert. Le test
+  mord, il ne passe pas à vide.
+- Équilibre syntaxique de `MainActivity.kt` : mes ajouts introduisent **le même
+  écart résiduel que la version d'origine** (9 accolades, 3 parenthèses — artefacts
+  des `${…}`), donc ils sont équilibrés.
+- **CI « Build APK » verte** (run `38704149595`) : l'APK compile, artefact
+  `heldonica-mobile-debug`, **11 853 585 octets**. L'écran n'est donc pas seulement
+  écrit, il est bâti.
+- **L'écran est bien dans l'APK** — vérifié en lisant les DEX de l'artefact, pas
+  en supposant : `classes3.dex` contient `/api/agent-tasks`, `x-cms-auth`,
+  `agent_name`, `TacheRegistre` (×5), et les libellés `Tâches des agents`,
+  `Prendre cette tâche`, `Déposer une tâche`, `sans le PC allumé`, `Rafraîchir`.
+  Un build qui réussit ne prouve pas qu'un écran est embarqué ; ceci le prouve.
+- **CI « Garde-fous » verte** (run `38704186864`).
+
+### Non vérifié
+- Aucun appel réel à `/api/agent-tasks` : pas de base Supabase locale, donc la
+  route n'a jamais répondu à une vraie requête. Ses tests portent sur les
+  gestionnaires, pas sur un aller-retour réseau.
+- L'app n'a pas été installée ni ouverte sur le Poco. Que l'écran s'affiche et
+  parle au réseau reste à voir de ses yeux.
+- Le débit de `/api/ai/search` depuis un téléphone en 4G n'a pas été mesuré.
+
+### Décision du fondateur — le worker, c'est le Poco (2026-10-15)
+
+Le PC ne peut pas devenir un worker mobile : `video_assembler.py` appelle
+`ffmpeg.exe`, `comfy_manager.py` lance ComfyUI en CUDA, `audio_narrator.py`
+contient un chemin `C:\Users\Work\...` en dur, et `opencv-python` n'a pas de roue
+Android. **Le code du Cerveau reste sur le PC ; c'est le rôle qui déménage.**
+Détail et tableau dans `docs/ARCHITECTURE_SANS_PC.md` § 5bis.
+
+### Corrigé — le bail de prise (trouvé en écrivant § 5bis)
+
+`agent_tasks` avait `claimed_at` mais **aucune expiration** : une tâche prise par
+un worker qui meurt restait `in_progress` pour toujours. Sur un PC allumé la
+question ne se posait pas ; sur un téléphone qu'Android tue, elle se pose chaque
+fois.
+
+- `BAIL_MINUTES = 90` : une prise expire, redevient `sent`, et le nom de
+  l'abandonnaire part dans `payload.bail_expire`.
+- Balayage à la demande (`GET ?balayer=1`, pour un cron) et à la prise.
+- 5 tests ajoutés. **Vérifié par mutation** : `bailExpire = false` fait échouer
+  2 tests ciblés, puis restauration → vert. Les tests mordent.
+- `vitest run` : **658 verts**.
+
+### Reste à faire pour un vrai worker 24/7
+
+`[OBSERVÉ]` `targetSdk = 34` (Android 14) : un `WorkManager` périodique y est
+soumis à la veille, et un service de premier plan exige un
+`foregroundServiceType` — absent du manifeste aujourd'hui. Il faudra aussi une
+notification permanente et l'exemption de batterie. Sans les trois, Android tue
+le worker en silence.
+
+### La boucle est fermée : la clôture automatique (2026-10-15)
+
+Le dispatch ouvre une conversation ; il manquait la fin. Une conversation qui
+meurt sans rendre compte laissait sa tâche `in_progress` jusqu'à l'expiration du
+bail — puis relancée. Cette routine constate l'arrêt et écrit le compte rendu.
+
+| Fichier | Rôle |
+|---|---|
+| `lib/registre-cloture.ts` | la règle : quand une tâche est finie, et quoi écrire |
+| `app/api/cron/cloture-registre/route.ts` | lit les conversations, écrit le compte rendu |
+| `.github/workflows/cloture-registre.yml` | le déclencheur, décalé de 5 min du dispatch |
+
+#### Le garde-fou qui vient d'AGENTS.md
+
+`[OBSERVÉ]` Le statut posé est **toujours `waiting_validation`, jamais `done`**.
+Une conversation arrêtée et une PR qui existe ne prouvent pas qu'un test a tourné.
+Le compte rendu laisse `verifie` **vide à dessein** et écrit dans `non_verifie`
+que la clôture n'a rien mesuré. C'est l'humain qui promeut en `done`, sur preuves.
+`done` aveugle est le mensonge le plus coûteux du projet — cette route ne le
+commet pas, même quand tout semble vert.
+
+#### Mesuré contre l'API, pas supposé
+
+`[OBSERVÉ]` Deux détails relevés en interrogeant l'API, qui auraient cassé le code :
+
+- les identifiants de conversation se répètent (`?ids=a&ids=b`) : une liste
+  séparée par des virgules rend **zéro** résultat ;
+- la réponse de `?ids=` est un **tableau JSON brut**, pas un objet `{ items }`.
+
+`[OBSERVÉ]` La clôture ne touche **que** les tâches qu'elle a elle-même
+dispatchées (trace `payload.dispatch`) : une tâche prise à la main ne doit pas
+être close sous les pieds de l'humain qui la suit. Et un horodatage manquant fait
+**attendre** plutôt que clore à l'aveugle.
+
+#### Vérifié par mesure
+
+`[OBSERVÉ]` 19 tests neufs (dont « la clôture ne pose jamais `done` » et « la
+clôture n'a rien mesuré »). Suite complète : **702 tests verts**, `tsc` exit 0,
+12 garde-fous verts. Colonnes `description`, `notes`, `actions_done` confirmées
+présentes en migration — aucune migration nécessaire.
+
+`[NON VÉRIFIÉ]` Pas tourné contre la vraie base (pas d'identifiants Supabase ici).
+
+### Le maillon manquant : le registre lance enfin des agents (2026-10-15)
+
+`agent_tasks` savait ce qui est demandé. `agent-dispatch.yml` savait ouvrir une
+conversation. **Rien ne reliait les deux** : une tâche déposée restait `sent`
+jusqu'à ce qu'un humain la lance. C'est ce trou qui est bouché.
+
+| Fichier | Rôle |
+|---|---|
+| `lib/registre-dispatch.ts` | la règle : quoi dispatcher, et le brief envoyé |
+| `app/api/cron/dispatch-registre/route.ts` | lit le registre, ouvre les conversations, trace le dispatch |
+| `.github/workflows/dispatch-registre.yml` | le déclencheur, toutes les 15 minutes |
+
+#### Le piège qui aurait fabriqué des doublons
+
+`[OBSERVÉ]` `libererBauxExpires` (route, heartbeat, et le `balayer=1` de la veille)
+remet une tâche abandonnée en `sent` **avec `claimed_by = null`**. Un dispatcher qui
+se fie à `status = 'sent'` relance donc la même tâche à chaque passage — une
+conversation de plus toutes les quinze minutes, pour un téléphone mort.
+
+`[OBSERVÉ]` La parade : une trace persistante `payload.dispatch.conversation_id`,
+écrite dès qu'une conversation est ouverte. Elle survit au balayage, qui ne touche
+que `status`, `claimed_by` et `claimed_at`. La route écrit la trace **avant** tout
+le reste ; si cette écriture échoue, elle le crie (`TRACE ECHOUEE`) plutôt que de
+laisser croire à un succès.
+
+#### Deux décisions assumées
+
+- **`tous` n'est pas dispatché.** Une tâche ouverte n'est pas un ordre : la
+  dispatcher volerait le travail que l'agent voulu s'apprêtait à prendre. Elle
+  reste à un humain.
+- **La route ne prend pas la tâche à la place de l'agent.** La conversation la
+  prendra elle-même, et la prise est atomique. Pré-réserver bloquerait un agent
+  plus rapide.
+
+#### Vérifié par mesure
+
+`[OBSERVÉ]` 19 tests unitaires neufs, dont celui qui compte : une tâche abandonnée
+(bail libéré, `claimed_by = null`, `payload.dispatch` présent) n'est **pas**
+relancée. Suite complète : **683 tests verts**, `tsc` exit 0, 12 garde-fous verts.
+
+`[NON VÉRIFIÉ]` La route n'a **pas** tourné contre la vraie base : je n'ai pas
+d'identifiants Supabase ici. Le premier passage réel se lira dans les logs du
+workflow. `OPENHANDS_API_KEY` doit aussi être posée dans Vercel — sans elle, la
+route répond `dispatch: inactif` et ne lance rien (aucune tâche perdue).
+
+### Le serveur, sans rien payer (2026-10-15)
+
+Question du fondateur : « quel serveur, je ne peux pas payer ». Réponse :
+**aucun abonnement à ouvrir, les serveurs gratuits sont déjà là.**
+
+- Le dépôt est **public** → GitHub Actions est **gratuit et illimité**. Décision :
+  le dispatcher tourne sur GitHub Actions (`.github/workflows/`), pas sur Vercel.
+- **Vercel Hobby ne peut pas faire de cron sub-daily** : 1 exécution par jour
+  maximum, déploiement refusé au-delà. C'est la limite du plan, et c'est pourquoi
+  les 8 crons de `vercel.json` sont tous journaliers. Ma suggestion antérieure de
+  « Vercel Pro à 20 $/mois » tombe — inutile.
+- `agent-dispatch.yml` (AllHands + Gemini) et le `schedule` d'`ai-automation.yml`
+  existent **déjà** : il reste à brancher `agent_tasks` dessus, pas à écrire un
+  dispatcher.
+- Point faible à ne pas oublier : un cron GitHub est **désactivé en silence**
+  après 60 jours sans activité du dépôt ; le plan gratuit Supabase met un projet
+  en pause après ~7 jours. Chaque brique gratuite doit produire un signe de vie.
+
+Détail chiffré et sources : `docs/ARCHITECTURE_SANS_PC.md` § 6bis et 6ter.
+
+### La routine anti-pause (2026-10-15)
+
+Pour ne plus dépendre d'une remise en route à la main, une routine tourne seule.
+
+- `app/api/cron/heartbeat/route.ts` — réveille Supabase (une lecture suffit à
+  écarter la pause des 7 jours) **et** libère les baux expirés. Si la base ne
+  répond pas : **500**, pas 200. Une panne doit se voir dans l'historique du
+  workflow, jamais être maquillée en succès.
+- `.github/workflows/battement.yml` — tous les 3 jours. Deux gestes : le ping,
+  puis **un commit d'horodatage** dans `.github/heartbeat.txt`. Ce commit n'est
+  pas décoratif : c'est lui qui remet à zéro le compteur des 60 jours, car GitHub
+  désactive un `schedule` de dépôt public après 60 jours **sans activité du
+  dépôt** — pas après 60 jours sans exécution. Un ping seul ne suffisait donc
+  pas.
+- Auth par `x-cms-auth` (secret `CMS_PASSWORD`, **déjà présent** dans les secrets
+  du dépôt — aucun nouveau secret).
+- Le commit d'entretien **ne tourne que si le ping a réussi** : on ne rafraîchit
+  pas la date d'un dépôt dont le service est en panne.
+- 6 tests. **Vérifié par mutation** : forcer `200` au lieu de `500` fait échouer
+  le test « panne visible ». `vitest run` : **664 verts**.
+
+**Non vérifié** : le workflow n'a jamais tourné (un `schedule` ne démarre que
+depuis la branche par défaut, donc après fusion de la PR #601 sur `main`). Le
+premier vrai battement reste à observer.
+
+### Livrer l'APK par un lien direct (2026-10-15)
+
+Question du fondateur : « as-tu besoin de passer le chantier à Antigravity sur le
+PC pour générer l'APK ? » Réponse : **non**. L'APK se construit déjà sur la CI
+gratuite, et le keystore est **versionné** dans le dépôt — donc deux APK de CI
+s'installent l'un sur l'autre. Le PC ne sert à rien ici.
+
+- `.github/workflows/release-apk.yml` — sur un tag `apk-*` ou en manuel, publie
+  une **release** avec un lien de téléchargement direct, ouvrable depuis le
+  téléphone (au lieu d'un artefact qui expire).
+- `.github/workflows/build-apk.yml` — devient réutilisable (`workflow_call`) pour
+  ne pas dupliquer la recette JDK/SDK.
+
+#### Le piège de sécurité trouvé en écrivant ce workflow
+
+`[OBSERVÉ]` `CMS_PASSWORD` est injecté par `buildConfigField("String", …)` : il
+devient un **littéral compilé dans le dex**. Or le dépôt est **public** : publier
+l'APK en release aurait donc publié le mot de passe admin, en clair. Vérifié dans
+le log du run `38721318520` : la ligne `echo "cms.***"` (masquée par GitHub)
+prouve que le secret est bien injecté.
+
+`[OBSERVÉ]` Aujourd'hui le risque est nul : l'artefact est privé (HTTP **401**
+en anonyme, vérifié). Il le serait devenu à la première release.
+
+Deux garde-fous : le build de release reçoit `cms_password: ""` (le secret n'est
+pas transmis), et un contrôle **refuse** la publication si un JWT ou une clé
+`sb_secret_` apparaît dans le dex.
+
+`[INTERPRÉTATION]` Conséquence assumée et écrite dans les notes de release :
+l'APK publié peut **lire** le registre des tâches (la lecture ne demande pas de
+mot de passe) mais **ne peut pas publier** de contenu sur le site. C'est le prix
+pour garder le dépôt public — et un prix bien moindre que celui d'un mot de passe
+admin exposé.
+
+#### Vérifié pour de vrai, en déclenchant le workflow (2026-10-15)
+
+Le workflow a été déclenché par tag sur une branche de travail. Trois pannes
+trouvées, dont deux dans mon propre travail — c'est l'intérêt de tester au lieu de
+supposer :
+
+1. `workflow_dispatch` renvoie **404** sur une branche non par défaut (GitHub
+   n'expose le bouton « Run workflow » que sur `main`). Le déclencheur par **tag**
+   fonctionne, lui. À noter : le lancement manuel ne marchera qu'après fusion.
+2. Le job `publier` échouait : `failed to run git: fatal: not a git repository` —
+   il n'a pas de `checkout`. Corrigé par `--repo "${{ github.repository }}"`.
+3. **Le verrou sur le mot de passe était inopérant.** `inputs.cms_password || secrets.CMS_PASSWORD` :
+   une chaîne vide est *falsy* en GH Expressions, donc le `||` retombait sur le
+   secret du dépôt. Le build de release aurait reçu le mot de passe admin. Corrigé
+   par un booléen `release: true`, sans ambiguïté.
+
+`[OBSERVÉ]` Run final `38731024641` : `construire / build` → success, `publier` →
+success, y compris l'étape « Refuser de publier si le build a embarqué un secret ».
+APK publié (12 365 612 octets), **téléchargé sans authentification** (HTTP 200),
+puis inspecté : `VeilleTachesWorker` présent, **0 JWT**, aucune clé `sb_secret_`,
+et l'ancien mot de passe par défaut absent.
+
+#### Un mot de passe par défaut faible est encore le secret de la CI
+
+`[OBSERVÉ]` En comparant les chaînes de l'APK « avec secret » et de l'APK de
+release, une chaîne n'apparaît **que** dans le premier : `heldonica2026` — l'ancien
+mot de passe par défaut, celui dont `local.properties.example` dit qu'il a été
+« supprimé ». Il est donc encore la valeur du secret `CMS_PASSWORD` de la CI.
+
+`[INTERPRÉTATION]` Risque : `CMS_PASSWORD` ouvre les routes de publication
+(`/api/cms/mobile-publish`, `/api/cron/auto-publish`). La chaîne est publique
+(commentaires de code + historique). Un mot de passe faible et public n'est pas un
+mot de passe. **Action humaine recommandée** : changer `CMS_PASSWORD` sur Vercel
+et dans les secrets GitHub — je ne peux pas le faire depuis ici.
+
+**Non vérifié** : le premier passage réel de la veille sur le téléphone reste à
+observer.
+
+### La veille dans l'app (remplace le poller du PC)
+
+Le PC disparaissait de l'architecture ; le poller qui tournait dessus devait donc
+changer de porteur. C'est le Poco.
+
+- `heldonica-mobile/.../VeilleTaches.kt` — `VeilleTachesWorker` (WorkManager)
+  lit `GET /api/agent-tasks?status=sent&limit=50&balayer=1` toutes les heures
+  environ. Chaque passage libère aussi les baux expirés : une tâche prise par un
+  téléphone mort redevient prenable, sans intervention.
+- **WorkManager, pas un service de premier plan.** Depuis Android 12 un service de
+  premier plan exige une notification permanente et un `foregroundServiceType`,
+  pour un bénéfice nul ici : on veut un passage régulier, pas une seconde exacte.
+- Installée **une seule fois**, puis pilotée par un interrupteur dans l'écran
+  « Tâches ». La garde `jamaisConfiguree` évite le piège évident : sans elle,
+  chaque `onCreate` rallumerait une veille que l'utilisateur avait arrêtée.
+- Un échec rend `Result.retry()`, jamais `success` : une panne ne peut pas passer
+  pour un succès. L'écran affiche le dernier passage et son bilan.
+
+**Vérifié par mesure**, et pas sur la foi d'un badge vert : la CI « Build APK »
+a compilé le Kotlin (étape `Build Debug APK` → success, run `38721318520`), puis
+l'APK a été **téléchargé et inspecté** — la classe `VeilleTachesWorker` est
+présente dans `classes3.dex`, et les chaînes de câblage y sont
+(`agent-tasks?status=sent&limit=50&balayer=1`, `veille-taches`,
+`veilleConfiguree`, `heldonica_veille`, « Veille du registre »). Un badge vert ne
+prouve pas qu'une classe est dans l'APK ; ce contrôle-là, si.
+
+**Non vérifié** : le premier passage réel de la veille reste à observer sur le
+téléphone. Aucun compilateur Kotlin n'était disponible localement — c'est la CI
+qui a fait office de compilateur.
+
 ## [2026-10-14] — Atelier légendes & photos (méthode d'écriture depuis une image)
 
 ### Contexte

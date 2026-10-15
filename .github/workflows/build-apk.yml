@@ -2,6 +2,31 @@ name: Build APK (Heldonica Mobile 0€)
 
 on:
   workflow_dispatch:
+  # Réutilisable : « Release APK » l'appelle pour ne pas dupliquer la recette de
+  # build (JDK, SDK, local.properties). Une seule copie de cette configuration
+  # fragile — cf. le commentaire sur le paquet « tools » ci-dessous.
+  workflow_call:
+    inputs:
+      # `release: true` demande un APK SANS secret, pour publication publique.
+      # Un booléen, et pas une chaîne vide : `inputs.x || secrets.Y` retombe sur
+      # le secret quand la chaîne est vide (une chaîne vide est falsy en GH
+      # Expressions). Ce piège aurait fait embarquer le mot de passe dans l'APK
+      # publié — le contraire de l'intention. Un booléen est sans ambiguïté.
+      release:
+        description: "true = APK de release, SANS secret (publiable publiquement)."
+        required: false
+        type: boolean
+        default: false
+    outputs:
+      # Contrat vérifiable : le build DIT s'il a embarqué un mot de passe, au lieu
+      # de laisser le workflow de release le supposer. Une supposition ne prouve
+      # rien ; cette sortie, si.
+      mot_de_passe_vide:
+        description: "true si l'APK ne contient aucun mot de passe CMS."
+        value: ${{ jobs.build.outputs.mot_de_passe_vide }}
+    secrets:
+      CMS_PASSWORD:
+        required: false
   push:
     paths:
       - "heldonica-mobile/**"
@@ -10,6 +35,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      mot_de_passe_vide: ${{ steps.identifiants.outputs.mot_de_passe_vide }}
     steps:
       - uses: actions/checkout@v4
 
@@ -31,11 +58,19 @@ jobs:
           gradle-version: "8.7"
 
       - name: Préparer local.properties
+        # Un APK de release ne doit porter AUCUN secret : `CMS_PASSWORD` serait
+        # compilé en clair dans le dex (buildConfigField String), et le dépôt est
+        # public. `release: true` force donc un mot de passe vide, et le secret
+        # n'est même pas lu. Sinon, on utilise le secret du dépôt (builds internes).
+        id: identifiants
         env:
-          CMS_PASSWORD: ${{ secrets.CMS_PASSWORD }}
+          CMS_PASSWORD: ${{ inputs.release && '' || secrets.CMS_PASSWORD }}
         run: |
           if [ -z "$CMS_PASSWORD" ]; then
             echo "::warning title=APK sans identifiants::Ajoute le secret CMS_PASSWORD (Settings > Secrets and variables > Actions). Sans lui l'APK se construit mais ne peut pas publier."
+            echo "mot_de_passe_vide=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "mot_de_passe_vide=false" >> "$GITHUB_OUTPUT"
           fi
           mkdir -p heldonica-mobile
           {
