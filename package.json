@@ -18,6 +18,7 @@
     "check:erreurs-avalees": "node scripts/check-erreurs-avalees.mjs",
     "check:cms-drift": "node scripts/check-cms-drift.mjs",
     "check:cms-zones": "node scripts/check-cms-zones.mjs",
+    "check:cms-migrations": "node scripts/check-cms-migrations.mjs",
     "check:content-coherence": "node scripts/check-content-coherence.mjs",
     "check:content-evidence": "node scripts/check-content-evidence.mjs",
     "media": "node scripts/media_auto.mjs",

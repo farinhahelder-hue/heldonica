@@ -52,6 +52,27 @@ const KNOWN_DRIFT = new Set([
   // Ce n'était ni une table ni une faute de frappe : le scanner confondait
   // `storage.from('media')`, qui vise un bucket, avec une lecture de table.
   // La cause est corrigée dans collectTables ; l'exception n'a plus lieu d'être.
+
+  // ── Back-office CMS (2026-10-11) ───────────────────────────────────────────
+  // Ces 9 tables sont référencées par du code réel (HospitalityManager,
+  // TokensAndReleasesManager, RevisionsDrawer, AuditLogPanel, pages publiques
+  // via lib/cms-zones.ts) mais n'ont jamais été migrées — ce ne sont pas des
+  // renommages, aucun autre nom n'existe dans le dépôt.
+  //
+  // La migration qui les crée est écrite et validée syntaxiquement (parser
+  // PostgreSQL) : supabase/migrations/20261011120000_create_cms_backoffice_tables.sql.
+  // Elle n'est PAS encore appliquée en base (pas d'accès DB depuis cette
+  // session). Dès qu'un humain l'a appliquée, RETIRER ces 9 entrées d'ici :
+  // le script protégera alors contre toute disparition future.
+  'cms_accommodations',      // lib/cms-hospitality.ts, lib/cms-releases.ts
+  'cms_api_tokens',          // lib/cms-tokens.ts
+  'cms_audit_log',           // lib/cms-audit.ts
+  'cms_post_revisions',      // lib/cms-revisions.ts
+  'cms_releases',            // lib/cms-releases.ts
+  'cms_webhooks',            // lib/cms-webhooks.ts
+  'cms_webhook_deliveries',  // lib/cms-webhooks.ts
+  'cms_zone_variants',       // lib/cms-targeting.ts
+  'photo_blocks',            // app/api/cms/photos/upload/route.ts
 ]);
 
 function readEnv() {
@@ -140,7 +161,20 @@ function clesDePremierNiveau(corps) {
     const jeton = m[0];
     if (jeton === '{' || jeton === '[') { profondeur++; continue; }
     if (jeton === '}' || jeton === ']') { profondeur--; continue; }
-    if (profondeur === 0 && m[1]) cles.push(m[1]);
+    if (profondeur !== 0 || !m[1]) continue;
+
+    // Une clé d'objet suit immédiatement `{` ou `,` (ou ouvre le corps). Sans ce
+    // contrôle, le `:` d'un ternaire était pris pour un séparateur clé/valeur :
+    // `api_key_id: isValidUuid ? params.apiKeyId : null` produisait la colonne
+    // fantôme `apiKeyId`, signalée comme absente alors que la vraie colonne
+    // `api_key_id` existe. Même famille de bruit que les clés jsonb ou les
+    // libellés entre guillemets — et une alerte fausse finit par faire ignorer
+    // les vraies.
+    let i = m.index - 1;
+    while (i >= 0 && /\s/.test(corps[i])) i--;
+    if (i >= 0 && corps[i] !== '{' && corps[i] !== ',') continue;
+
+    cles.push(m[1]);
   }
   return cles;
 }

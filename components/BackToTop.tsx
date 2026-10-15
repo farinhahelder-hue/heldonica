@@ -7,16 +7,30 @@ export default function BackToTop() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    let ticking = false;
+
     const toggleVisibility = () => {
       if (window.scrollY > 500) {
         setIsVisible(true);
       } else {
         setIsVisible(false);
       }
+      ticking = false;
     };
 
-    window.addEventListener("scroll", toggleVisibility);
-    return () => window.removeEventListener("scroll", toggleVisibility);
+    // Un listener `scroll` qui met à jour l'état à chaque événement force un
+    // rendu pendant le défilement. On diffère au cycle de rendu du navigateur :
+    // au plus un appel par frame, et l'écoute est `passive` pour que le
+    // défilement ne soit jamais bloqué.
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(toggleVisibility);
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const scrollToTop = () => {
