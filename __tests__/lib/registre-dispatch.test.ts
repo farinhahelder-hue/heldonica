@@ -136,8 +136,10 @@ describe('brief', () => {
     expect(b).toContain('waiting_validation')
   })
 
-  it("n'invente aucun secret dans le brief", () => {
-    expect(b).not.toMatch(/hld_/)
+  it("n'embarque aucune vraie clé dans le brief", () => {
+    // On interdit une clé, pas le mot « hld_ » : le brief explique le format sans
+    // en contenir une. Un motif long est le seul signe d'une vraie clé.
+    expect(b).not.toMatch(/hld_[A-Za-z0-9_-]{16,}/)
     expect(b).not.toContain('service_role')
   })
 })

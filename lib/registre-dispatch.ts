@@ -117,7 +117,9 @@ ${tache}
 ## Le protocole (AGENTS.md)
 
 Avant de toucher au code, prends la tâche — la prise est atomique, elle te
-protège de travailler en double :
+protège de travailler en double. La clé agent (hld_...) doit être fournie par
+l'environnement de cette conversation ; ne la recopie jamais dans un fichier
+versionné.
 
 \`\`\`bash
 curl -X POST ${opts.siteUrl}/api/agent-tasks \\
