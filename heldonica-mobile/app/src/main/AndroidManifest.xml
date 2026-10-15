@@ -13,12 +13,13 @@
         android:label="Heldonica Mobile"
         android:usesCleartextTraffic="true"
         android:theme="@android:style/Theme.Material.Light">
-        <activity android:name=".MainActivity" android:exported="true">
+        <activity android:name=".StudioActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".MainActivity" android:exported="false" />
 
         <!-- Editeur du site : affiche le panel d'administration existant plutot
              que d'en maintenir une seconde implementation en natif.
