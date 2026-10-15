@@ -49,6 +49,39 @@ Tu es la mémoire vivante d'Heldonica. Tu t'appuies sur le registre des savoirs,
 Réponds de manière factuelle, référencée et précise.`
 };
 
+import { VAULT_SPOTS, VaultSpotRecord } from '@/lib/cms-vault-spots';
+
+function sanitizePrivacy(text: string): string {
+  return text
+    // Clés d'API & jetons
+    .replace(/(?:sb_secret_|sk-ant-|sk-proj-|AIzaSy)[A-Za-z0-9_-]{10,}/g, '[CLE_PROTEGEE]')
+    .replace(/Bearer\s+[A-Za-z0-9._-]{15,}/gi, 'Bearer [TOKEN_PROTEGE]')
+    // Mots de passe
+    .replace(/(?:password|cms_password|pwd|mdp)["':\s=]+([^\s"',;]+)/gi, 'password="[PROTEGE]"')
+    // Emails
+    .replace(/[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+/g, '[EMAIL_PROTEGE]')
+    // Téléphones
+    .replace(/(?:\+33|0033|0)[1-9](?:[\s.-]*\d{2}){4}/g, '[TEL_PROTEGE]');
+}
+
+function findRelevantVaultSpots(query: string, limit = 3): VaultSpotRecord[] {
+  const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+  if (words.length === 0) return VAULT_SPOTS.slice(0, limit);
+  return VAULT_SPOTS
+    .map(spot => {
+      let score = 0;
+      const text = `${spot.title} ${spot.location} ${spot.tags.join(' ')} ${spot.livedExperience}`.toLowerCase();
+      for (const w of words) {
+        if (text.includes(w)) score++;
+      }
+      return { spot, score };
+    })
+    .filter(s => s.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map(s => s.spot);
+}
+
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
@@ -77,45 +110,59 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Payload JSON invalide' }, { status: 400 });
   }
 
-  const message = body.message?.trim() ?? '';
-  if (!message) {
+  const messageRaw = body.message?.trim() ?? '';
+  if (!messageRaw) {
     return NextResponse.json({ error: 'Message requis' }, { status: 400 });
   }
-  if (message.length > 10000) {
+  if (messageRaw.length > 10000) {
     return NextResponse.json({ error: 'Message trop long (10000 caractères max)' }, { status: 400 });
   }
 
+  // Filtrage de confidentialité strict
+  const message = sanitizePrivacy(messageRaw);
   const mode = (body.mode && body.mode in SYSTEM_PROMPTS) ? body.mode : 'chat';
-  const systemPrompt = SYSTEM_PROMPTS[mode];
+  let systemPrompt = SYSTEM_PROMPTS[mode];
+
+  // RAG : Injection des fiches du Coffre des Savoirs si mode vault ou use_vault actif
+  let spotsInjectes: VaultSpotRecord[] = [];
+  if (mode === 'vault' || body.use_vault) {
+    spotsInjectes = findRelevantVaultSpots(message, 3);
+    if (spotsInjectes.length > 0) {
+      systemPrompt += `\n\n## FICHES DU COFFRE DES SAVOIRS (VÉCU AUTHENTIQUE VÉRIFIÉ) :\n` +
+        spotsInjectes.map(s => `- [${s.title} (${s.location})]: ${s.livedExperience}${s.sensoryNote ? ` (Détail: ${s.sensoryNote})` : ''}`).join('\n');
+    }
+  }
 
   // Construction des messages
   const messages: AiMessage[] = [
     { role: 'system', content: systemPrompt },
   ];
 
-  // Historique récent si fourni
+  // Historique récent désensibilisé
   if (Array.isArray(body.history)) {
     const validHistory = body.history.slice(-6).filter(
       (h) => (h.role === 'user' || h.role === 'assistant') && typeof h.content === 'string'
     );
     for (const h of validHistory) {
-      messages.push({ role: h.role, content: h.content.trim() });
+      messages.push({ role: h.role, content: sanitizePrivacy(h.content.trim()) });
     }
   }
 
   messages.push({ role: 'user', content: message });
 
   try {
+    // Garantie stricte 0,00 € : options.freeOnly = true interdit OpenAI/Anthropic
     const aiResult = await generateAiCompletion({
       messages,
       temperature: mode === 'coach' ? 0.6 : 0.7,
       max_tokens: 2500,
+      freeOnly: true,
     });
 
     const durationMs = Date.now() - startTime;
     const validation = validateGardeFous(aiResult.content, 'b2c');
 
-    // Journalisation de la requête
+    // Journalisation de la requête (désensibilisée)
     await logAiRequest({
       apiKeyId: auth.keyId,
       agentName: auth.agentName || 'mobile_apk',
@@ -133,7 +180,7 @@ export async function POST(req: NextRequest) {
       const { error: insertErr } = await sb.from('copilot_generations').insert({
         mode: `mobile_${mode}`,
         prompt: message,
-        result: aiResult.content,
+        result: sanitizePrivacy(aiResult.content),
         provider: aiResult.provider,
         model: aiResult.model,
         score: validation.score,

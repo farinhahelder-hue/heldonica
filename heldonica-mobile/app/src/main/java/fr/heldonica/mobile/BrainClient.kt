@@ -87,7 +87,8 @@ object BrainClient {
         message: String,
         mode: String = "chat",
         historique: List<MessageCerveau> = emptyList(),
-        forcerStationPc: Boolean = false
+        forcerStationPc: Boolean = false,
+        authSecret: String = BuildConfig.CMS_PASSWORD
     ): ReponseCerveau = withContext(Dispatchers.IO) {
         if (forcerStationPc) {
             val reponsePc = appelerStationPc(brainBaseUrl, message, mode)
@@ -96,7 +97,7 @@ object BrainClient {
 
         // 1. Appel prioritaire : Cloud 0€ (Next.js /api/ai/mobile-brain)
         try {
-            val repCloud = appelerCloud(cmsBaseUrl, message, mode, historique)
+            val repCloud = appelerCloud(cmsBaseUrl, message, mode, historique, authSecret)
             if (repCloud != null) return@withContext repCloud
         } catch (e: Exception) {
             Log.w(TAG, "Échec Cloud, tentative de repli vers la station PC : ${e.message}")
@@ -113,7 +114,8 @@ object BrainClient {
         cmsBaseUrl: String,
         message: String,
         mode: String,
-        historique: List<MessageCerveau>
+        historique: List<MessageCerveau>,
+        authSecret: String = BuildConfig.CMS_PASSWORD
     ): ReponseCerveau? {
         val urlPropre = cmsBaseUrl.trim().trimEnd('/')
         val endpoint = "$urlPropre/api/ai/mobile-brain"
@@ -131,9 +133,16 @@ object BrainClient {
             put("history", histArray)
         }
 
-        val request = Request.Builder()
+        val requestBuilder = Request.Builder()
             .url(endpoint)
             .addHeader("x-heldonica-client", "mobile-poco-x6pro")
+
+        if (authSecret.isNotBlank()) {
+            requestBuilder.addHeader("x-cms-auth", authSecret)
+            requestBuilder.addHeader("x-api-key", authSecret)
+        }
+
+        val request = requestBuilder
             .post(payload.toString().toRequestBody(jsonMediaType))
             .build()
 

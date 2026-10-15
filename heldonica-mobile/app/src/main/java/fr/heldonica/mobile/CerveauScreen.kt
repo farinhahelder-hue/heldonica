@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,6 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
+import org.json.JSONArray
+import org.json.JSONObject
 
 /**
  * Interface native Jetpack Compose du Cerveau Heldonica pour Xiaomi Poco X6 Pro.
@@ -30,6 +33,38 @@ import kotlinx.coroutines.launch
  * - Sélecteur de mode ergonomique : Copilote TSA/ADHD, Terrain, Savoirs, Discussion libre.
  * - Zéro clé d'API embarquée dans l'APK.
  */
+
+data class VaultRecordItem(
+    val id: String,
+    val category: String,
+    val title: String,
+    val content: String,
+    val location: String? = null
+)
+
+fun chargerVaultDepuisAssets(context: Context): List<VaultRecordItem> {
+    return try {
+        val jsonStr = context.assets.open("knowledge_vault.json").bufferedReader().use { it.readText() }
+        val root = JSONObject(jsonStr)
+        val arr = root.optJSONArray("records") ?: JSONArray()
+        val list = mutableListOf<VaultRecordItem>()
+        for (i in 0 until arr.length()) {
+            val obj = arr.getJSONObject(i)
+            list.add(
+                VaultRecordItem(
+                    id = obj.optString("id"),
+                    category = obj.optString("category"),
+                    title = obj.optString("title"),
+                    content = obj.optString("content"),
+                    location = if (obj.has("location")) obj.optString("location") else null
+                )
+            )
+        }
+        list
+    } catch (e: Exception) {
+        emptyList()
+    }
+}
 
 data class ModeCerveau(
     val cle: String,
@@ -54,6 +89,7 @@ fun CerveauScreen(
     val context = LocalContext.current
     val portee = rememberCoroutineScope()
     val scrollState = rememberLazyListState()
+    val vaultRecords = remember { chargerVaultDepuisAssets(context) }
 
     var modeActif by remember { mutableStateOf(MODES_DISPONIBLES.first()) }
     var texteSaisie by remember { mutableStateOf("") }
@@ -108,7 +144,8 @@ fun CerveauScreen(
                     message = textePropre,
                     mode = modeActif.cle,
                     historique = messages.toList(),
-                    forcerStationPc = forcerPc && stationPcDetectee
+                    forcerStationPc = forcerPc && stationPcDetectee,
+                    authSecret = BuildConfig.CMS_PASSWORD
                 )
                 messages.add(
                     MessageCerveau(
@@ -227,6 +264,55 @@ fun CerveauScreen(
                     onClick = { envoyerMessage(suggestion) },
                     label = { Text(suggestion, fontSize = 10.sp) }
                 )
+            }
+        }
+
+        // Coffre Hors-Ligne (visible en mode Savoirs)
+        if (modeActif.cle == "vault" && vaultRecords.isNotEmpty()) {
+            Text(
+                text = "📚 Coffre Hors-Ligne (${vaultRecords.size} fiches certifiées)",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF2C4C38),
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 6.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                items(vaultRecords, key = { it.id }) { rec ->
+                    Card(
+                        onClick = { envoyerMessage("Détaille la fiche : ${rec.title}") },
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF1EFEA)),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.widthIn(max = 220.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(8.dp)) {
+                            Text(
+                                text = "${rec.category} • ${rec.title}",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                color = Color(0xFF2C4C38)
+                            )
+                            if (!rec.location.isNullOrBlank()) {
+                                Text(
+                                    text = rec.location,
+                                    fontSize = 9.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Text(
+                                text = rec.content,
+                                fontSize = 10.sp,
+                                maxLines = 2,
+                                color = Color(0xFF333333)
+                            )
+                        }
+                    }
+                }
             }
         }
 
