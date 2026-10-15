@@ -25,10 +25,17 @@ projet est « aucune clé dans l'APK » (le brain applique déjà cette règle).
   référence restante hors artefact `build/` (généré, non versionné).
 - Flux relu : la variable `dernierErreur` et l'enchaînement des replis restent
   cohérents après retrait (pas de bloc orphelin) ; aucun import `Base64` à nettoyer.
+- **CI Build APK** (`.github/workflows/build-apk.yml`) : run **#57, `success`** sur
+  cette branche — le retrait compile.
+- **Preuve dans l'APK produit** (artefact CI, 12 337 644 octets, 5 DEX fouillés) :
+  `GEMINI_API_KEY`, `generativelanguage.googleapis.com`, `AIza…` et les identifiants
+  de modèle Gemini sont **absents** ; les témoins `CMS_BASE_URL` et `BRAIN_BASE_URL`
+  sont **présents** (la recherche n'est pas un faux négatif).
 
 ### Non vérifié
-- Le build Gradle n'a pas été relancé dans cet environnement (pas de JDK/Android SDK) :
-  le retrait est vérifié par lecture, pas par compilation.
+- Installation sur le Poco X6 Pro (geste humain) non faite.
+- Flux `ai-vision` vérifié par lecture du code, pas par un appel réel depuis le
+  téléphone.
 
 ## [2026-10-14] — Atelier légendes & photos (méthode d'écriture depuis une image)
 
