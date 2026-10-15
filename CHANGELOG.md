@@ -2,46 +2,635 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
----
-
 ## [2026-10-15] — Préparation du Cerveau en APK Natif sur Poco X6 Pro (AllHands)
 
 ### Réalisations & Socle pour AllHands
-1. **Passerelle Cloud 0€ (`app/api/ai/mobile-brain/route.ts`)** :
+1. **Passerelle Cloud 0€ (pp/api/ai/mobile-brain/route.ts)** :
    - Route Next.js dédiée au Poco X6 Pro, assurant l'autonomie totale sans nécessiter de PC 24/7.
-   - Zéro clé d'API dans l'APK : authentification par jeton agent (`x-heldonica-client`), cascade de modèles via `lib/ai-provider.ts` (Groq / Gemini 2.5 Flash).
-   - 4 modes opérationnels : `coach` (protocole ADHD/TSA 5/15/30 min), `terrain` (notes de voyage brutes transformées en récits authentiques), `vault` (connaissances et pépites), `chat` (posture officielle).
-   - Journalisation complète dans `ai_requests_log` et enregistrement sécurisé dans `copilot_generations`.
-2. **Client Kotlin Découplé (`heldonica-mobile/app/src/main/java/fr/heldonica/mobile/BrainClient.kt`)** :
+   - Zéro clé d'API dans l'APK : authentification par jeton agent (x-heldonica-client), cascade de modèles via lib/ai-provider.ts (Groq / Gemini 2.5 Flash).
+   - 4 modes opérationnels : coach (protocole ADHD/TSA 5/15/30 min), 	errain (notes de voyage brutes transformées en récits authentiques), ault (connaissances et pépites), chat (posture officielle).
+   - Journalisation complète dans i_requests_log et enregistrement sécurisé dans copilot_generations.
+2. **Client Kotlin Découplé (heldonica-mobile/app/src/main/java/fr/heldonica/mobile/BrainClient.kt)** :
    - Dual-mode intelligent : priorité au Cloud 0€, avec détection et repli sur la station PC locale (port 8440) si connectée sur le même réseau Wi-Fi.
    - Pings légers non-bloquants (timeout 1.5s).
-3. **Interface Native Jetpack Compose 120 Hz (`heldonica-mobile/app/src/main/java/fr/heldonica/mobile/CerveauScreen.kt`)** :
+3. **Interface Native Jetpack Compose 120 Hz (heldonica-mobile/app/src/main/java/fr/heldonica/mobile/CerveauScreen.kt)** :
    - Remplace l'ancienne WebView fragile par une interface fluide 120 Hz adaptée à l'écran Flow AMOLED du Poco X6 Pro.
    - Chips de modes, suggestions d'action rapide, badge d'état réseau en temps réel, bulles stylisées Eco-Luxe avec action de copie.
-4. **Câblage Studio (`StudioActivity.kt`) & Cache Hors-Ligne (`assets/knowledge_vault.json`)** :
-   - `StudioActivity.kt` bascule directement sur `CerveauScreen()`.
-   - 10 fiches maîtresses embarquées en local pour consultation sans réseau.
-5. **Spécification Technique & Coordination (`docs/SPEC_CERVEAU_APK_POCO_X6_PRO.md`)** :
+4. **Câblage Studio (StudioActivity.kt) & Cache Hors-Ligne (ssets/knowledge_vault.json)** :
+   - StudioActivity.kt bascule directement sur CerveauScreen().
+   - 8 fiches maîtresses embarquées en local pour consultation sans réseau (total_records vérifié : 8).
+5. **Spécification Technique & Coordination (docs/SPEC_CERVEAU_APK_POCO_X6_PRO.md)** :
    - Spécification détaillée pour AllHands / OpenHands avec caractéristiques SoC Dimensity 8300 Ultra, directives Media3 et instructions ADB.
-   - Tâche déposée dans `output/agent_tasks/` (`TASK_2026-10-15_brain-allhands-poco-x6pro-cerveau-apk.md`) et visible dans la file.
-6. **Garde-fous CI** :
-   - `npm run preflight` validé (5/5 PASS), `npm run typecheck` validé (0 erreur).
+   - Tâche déposée dans output/agent_tasks/ (TASK_2026-10-15_brain-allhands-poco-x6pro-cerveau-apk.md) et visible dans la file.
+6. **Garde-fous CI & Tests Unitaires** :
+   - 
+pm run preflight validé (5/5 PASS), 
+pm run typecheck validé (0 erreur).
+   - Tests unitaires JVM Kotlin (ModeleMontageTest.kt, StudioTabsTest.kt) câblés dans uild-apk.yml.
 
 ---
 
 ## [2026-10-14] — Architecture PC Optionnel & APK Unifiée (Brain, Content Creation, Memoria Imperium)
 
 ### Réalisations & Décisions d'Architecture
-1. **Validation & Mesure d'Inférence d'Images 0€ sans PC (`docs/DECISION_GENERATION_VIDEO.md`)** :
-   - Découverte clé : le pipeline n'a jamais utilisé la génération de vidéo IA lourde (LTX-Video) ; `short_factory.py` utilise des images fixes `.webp` animées algorithmiquement (`video_assembler.py` l. 114–192 et `MontageVideo.kt` sur mobile).
+1. **Validation & Mesure d'Inférence d'Images 0€ sans PC (docs/DECISION_GENERATION_VIDEO.md)** :
+   - Découverte clé : le pipeline n'a jamais utilisé la génération de vidéo IA lourde (LTX-Video) ; short_factory.py utilise des images fixes .webp animées algorithmiquement (ideo_assembler.py l. 114–192 et MontageVideo.kt sur mobile).
    - Mesures réelles de fournisseurs d'images sans PC : Google AI Studio Free Tier donne HTTP 429 Quota Exceeded ; Pollinations.ai FLUX 9:16 mesuré avec succès à **HTTP 200 en 5,1 s pour 0,00 €** ; Cloudflare Workers AI FLUX actif en secours (10 000 neurones/j gratuits).
    - Scission stricte des principes :
-     * **Heldonica Travel (B2C/B2B)** : 100 % photos & vidéos réelles de terrain (règle « On n'invente rien » et garde-fou `check:content-evidence`), montage Media3 Transformer sur mobile.
+     * **Heldonica Travel (B2C/B2B)** : 100 % photos & vidéos réelles de terrain (règle « On n'invente rien » et garde-fou check:content-evidence), montage Media3 Transformer sur mobile.
      * **Memoria Imperium** : Documentaires historiques antiques 9:16 générés en Cloud 0€ (Pollinations FLUX + tambour de guerre + badges dorés).
-2. **APK Heldonica Mobile Unifiée (`heldonica-mobile/`)** :
-   - Nouveau composant `MemoriaImperium.kt` : sélecteur de presets historiques (*César au Rubicon 49 av. J.-C.*, *Chats de Péluse 525 av. J.-C.*, *Sylla 88 av. J.-C.*), génération d'images 9:16 FLUX en 0€ direct en cache, copie 1-clic du package YouTube (titre, description avec sources antiques Suétone/Plutarque, tags).
-   - Câblage dans `StudioActivity.kt` et `StudioTabs.kt` : Onglet Cerveau (Hub IA), Onglet Terrain (`MainActivity` avec capture et publication CMS), Onglet Memoria (`OngletMemoriaImperium`), Onglet CMS (`EditeurActivity`).
-   - Préservation stricte de la conformité des tests unitaires (`StudioTabsTest.kt`).
+2. **APK Heldonica Mobile Unifiée (heldonica-mobile/)** :
+   - Nouveau composant MemoriaImperium.kt : sélecteur de presets historiques (*César au Rubicon 49 av. J.-C.*, *Chats de Péluse 525 av. J.-C.*, *Sylla 88 av. J.-C.*), génération d'images 9:16 FLUX en 0€ direct en cache, copie 1-clic du package YouTube (titre, description avec sources antiques Suétone/Plutarque, tags).
+   - Câblage dans StudioActivity.kt et StudioTabs.kt : Onglet Cerveau (Hub IA), Onglet Terrain (MainActivity avec capture et publication CMS), Onglet Memoria (OngletMemoriaImperium), Onglet CMS (EditeurActivity).
+   - Préservation stricte de la conformité des tests unitaires (StudioTabsTest.kt).
+
+---
+
+## [2026-10-14] — Atelier légendes & photos (méthode d'écriture depuis une image)
+
+### Contexte
+Besoin récurrent côté fondateur : « je fais des photos et je ne sais jamais quoi
+écrire ». Ce n'est pas un manque d'idées mais un blocage devant la page blanche :
+une légende se construit à partir d'un vécu, pas d'une inspiration.
+
+### Ajouté
+- `docs/ATELIER_LEGENDES_PHOTOS.md` : méthode de travail pour écrire une légende à
+  partir d'une photo — les 3 questions de déblocage, le squelette en 5 blocs, le
+  gabarit à trous, le tableau « photo → par quoi commencer », les règles de pronoms,
+  la checklist d'auto-vérification et la banque d'accroches officielles.
+
+### Notes
+- Document **méthodologique** : il ne contient aucun contenu éditorial à publier.
+  L'exemple du §7 est repris de la donnée d'exemple de `PROMPT_TEMPLATE_INSTA.md`
+  (crique de Kotor) et signalé comme illustratif.
+- La source de vérité de la voix reste `lib/brand-voice.ts` ; le document y renvoie
+  explicitement (`FORBIDDEN_WORDS`, `HELDONICA_ACCROCHES`, `validateGardeFous`).
+
+### Vérifié
+- `npm run preflight` : **6/6 contrôles réussis** (dont parité voix TS ↔ Python).
+- Aucun garde-fou ne scanne `docs/*.md` pour les mots bannis
+  (`check-content-coherence` lit la base `cms_blog_posts`) : le document peut citer
+  les mots bannis comme contre-exemples sans faire échouer la CI.
+## [2026-10-14] — Mobile : wrapper Gradle réel, le build local de l'APK fonctionne
+
+### Contexte
+Le projet `heldonica-mobile/` ne pouvait pas se construire en local : `gradlew` et
+`gradlew.bat` étaient des **stubs** (« ouvre ce projet dans Android Studio ») et
+`gradle/wrapper/gradle-wrapper.jar` était absent. La CI contournait le problème en
+installant Gradle à part, mais un build sur le poste échouait.
+
+### Corrigé
+- `heldonica-mobile/gradlew` + `gradlew.bat` : remplacés par les **vrais scripts**
+  (Gradle 8.7).
+- `heldonica-mobile/gradle/wrapper/gradle-wrapper.jar` : **ajouté** (43 Ko), désormais
+  versionné.
+- `gradle-wrapper.properties` : conserve `gradle-8.7-bin.zip`, ajoute `networkTimeout`
+  et `validateDistributionUrl`, retire un BOM en tête de fichier.
+- `README.md` : prérequis exacts du build local (JDK 17/21, SDK Android, `local.properties`)
+  et recette de régénération du wrapper.
+
+### Vérifié
+- `./gradlew assembleDebug` en local : **BUILD SUCCESSFUL** (JDK 21, SDK Android 34,
+  Gradle 8.7).
+- APK produit : `app/build/outputs/apk/debug/app-debug.apk` — **12 343 136 octets**,
+  package `fr.heldonica.mobile`, `versionCode 40`, `minSdk 26`, `targetSdk 34`,
+  label « Heldonica Mobile » (vérifié via `aapt dump badging`).
+- `local.properties` reste **non versionné** (`.gitignore` ligne 54) : aucun mot de
+  passe CMS dans le dépôt.
+
+### Non vérifié
+- Installation de l'APK sur le Poco X6 Pro (geste humain).
+- Le build avec le JDK 17 exactement (testé avec JDK 21 ; Gradle 8.7 et l'AGP 8.4
+  supportent les deux).
+## [2026-10-14] — Étude : fusion des deux apps Android en une seule
+
+### Contexte
+Question de l'utilisateur : « peut-on fusionner les deux apps en une seule ? » Il existe
+deux projets Android distincts (`heldonica-mobile/` dans ce dépôt, `android/` dans
+`heldonica-brain`), avec des chaînes de build et des UI différentes.
+
+### Ajouté
+- `docs/FUSION_APPS_ANDROID.md` : étude de consolidation. Réponse courte : **oui, c'est
+  faisable**, et c'est une consolidation (garder l'app la plus lourde, y porter l'autre
+  en un écran), pas une réécriture.
+
+### Points relevés (tous adossés à un fichier)
+- Chaînes de build incompatibles : AGP 8.4 vs 8.7.3, Kotlin 1.9.22 vs 2.0.21,
+  compileSdk 34 vs 35 ; UI Compose vs XML.
+- **Tension de sécurité** : `heldonica-mobile` embarque une clé Gemini
+  (`BuildConfig.GEMINI_API_KEY`, appel direct depuis le téléphone), alors que le brain
+  applique la règle inverse (« aucune clé dans l'APK »). Fusionner tel quel rouvrirait
+  la faille que le brain a corrigée.
+- `heldonica-brain/android/` a le **même défaut de wrapper** que le mobile avant #594
+  (`gradlew` absent).
+- Le proxy LLM a **Groq par défaut**, Gemini en option (`body.provider ?? "groq"`).
+
+### Non vérifié
+- La faisabilité effective du portage Compose (aucun code écrit à ce stade).
+
+
+## [2026-10-14] — Positionnement : relevé outillé du panel (11 sites) et comptages consolidés
+
+### Contexte
+Le relevé précédent s'appuyait sur une extraction non outillée et annonçait
+**30 vignettes / 14 légendes lisibles** pour Échappées Lointaines. Deux relevés
+successifs sur la même source donnaient des chiffres différents : la méthode n'était
+pas rejouable. Par ailleurs, l'affirmation « les autres acteurs n'exposent pas leurs
+légendes » reposait sur une vérification manuelle, non traçable.
+
+### Ajouté
+- `scripts/collect_instagram_legends.py` : relevé **reproductible** des **11 sites
+  officiels** du panel. Pour chacun : nombre de vignettes (`id="item-action-…"`),
+  légendes lisibles (`aria-label` ≥ 200 caractères, dédupliquées), embeds Instagram
+  (`instagram.com/p|reel|tv`). Ne recopie **aucun** texte concurrent — comptages seuls.
+- `docs/positionnement-editorial-concurrents.md` §3.5 : résultat du relevé, daté et tabulé.
+
+### Corrigé
+- §3.4 : chiffres consolidés sur **33 vignettes / 28 légendes lisibles** (chaque
+  publication est exposée deux fois dans la galerie — desktop/mobile —, d'où le
+  sous-comptage antérieur à 14) ; pronoms je 37 / tu 33 / vous 27 / **nous 18** / on 18 ;
+  longueur 247-2 183 car. (médiane 948) ; 0-17 hashtags (médiane 6) ; six mots bannis
+  relevés (« inoubliable », « voyage organisé », « paradis », « astuce(s) »,
+  « paradisiaque », « magnifique »).
+- §1.3 : sites officiels des acteurs 6-8 ajoutés (`perspectives-de-voyage.fr`,
+  `imprudencedesvoyages.com`, `lemondecousumain.fr`).
+- §1.2, §3.2, §4, §4.1, §7, §8, §9 et §10 alignées ; le `[INDISPONIBLE]` des 10 autres
+  acteurs est désormais **mesuré** (0 légende, 0 embed) et non supposé.
+
+### Vérifié
+- `python3 scripts/collect_instagram_legends.py` le 2026-10-14 : Échappées Lointaines
+  33/28 ; 9 autres sites à 0 ; `voyagesetc.fr` → HTTP 403. Trois requêtes successives
+  donnent le même HTML (33 vignettes, 28 légendes).
+- `npm run garde-fous` : **10/12 réussis, 2 ignorés, 0 échoué**. Les 2 ignorés
+  (« Zones CMS orphelines », « Dérive des tables ») ne tournent pas faute d'identifiants
+  Supabase dans l'environnement : ce sont des contrôles **non exécutés**, donc **non
+  vérifiés** — pas des contrôles verts. Sans rapport avec ce changement, qui ne touche
+  ni le CMS ni la base.
+- `npx tsc --noEmit` : OK ; `npx vitest run` : 638 tests passés ; `check:content-coherence`
+  et `check:content-evidence` : OK (inclus dans les 10 réussis ci-dessus).
+
+### Non vérifié
+- **2 des 12 garde-fous n'ont pas tourné** (zones CMS, dérive des tables) : identifiants
+  Supabase absents de l'environnement. À rejouer côté poste pour clore la suite à 12/12.
+- Le relevé ne couvre que la **page d'accueil** de chaque site : une légende republiée
+  sur une page interne ne serait pas vue.
+- Exhaustivité de la galerie Échappées Lointaines : sous-ensemble possible du compte ;
+  comptages datés, non extrapolables.
+- Les 4 acteurs manquants (panel à 15) : toujours non identifiés.
+
+### Reste à faire
+- Fournir la liste nominative des 4 acteurs manquants et, pour les 10 acteurs sans
+  collecte, des captures ou des URL publiques.
+
+---
+
+## [2026-10-14] — Positionnement : recomptage des légendes Échappées Lointaines (chiffres corrigés)
+
+### Contexte
+Le relevé du 2026-10-13 (PR #589) annonçait **26 légendes distinctes** pour Échappées
+Lointaines et **« nous » : 0**. Un relevé indépendant de la **même** galerie
+(`echappeeslointaines.fr`, page d'accueil), le **2026-10-14**, donne un résultat
+différent : l'extraction des 26 n'était pas reproductible.
+
+### Corrigé
+- `docs/positionnement-editorial-concurrents.md` :
+  - §3.4 : méthode d'extraction rendue **reproductible** (découpage des vignettes
+    `id="item-action-…"`) ; chiffres corrigés → **30 vignettes, dont 14 légendes
+    lisibles** (16 vignettes n'exposent que l'image) ; longueur 422-2 402 car.
+    (médiane 1 194) ; 3-27 hashtags (médiane 10).
+  - §3.4 : **« nous » = 17** (et non 0) — au moins une légende est un récit de voyage
+    au « nous » ; le corpus est **hétérogène** (galerie de republication, plusieurs
+    voix). Faits de lexique re-vérifiés sur les 14 légendes : « magnifique »,
+    « inoubliable », « astuce », hashtag `#organisationvoyage` (mots bannis) ;
+    « pépite » (mot de marque Heldonica).
+  - §1.2, §3.2, §4.1, §7, §8, §9 (historique) et §10 alignées sur les chiffres vérifiés.
+- Le chiffre « 26 » n'est plus affirmé comme un fait ; il est cité uniquement comme
+  relevé antérieur corrigé.
+
+### Vérifié
+- `curl` (agent navigateur) sur `https://www.echappeeslointaines.fr/` le 2026-10-14 :
+  30 `id="item-action-…"`, 14 textes de légende présents dans le HTML statique.
+- Autres sites du panel re-testés le même jour (Novo-Monde, Chilowé, Les Coflocs,
+  Trace Directe, Fabrique ton Voyage, Destinaslow, Imprudence des Voyages, Le Monde
+  Cousu Main) : **0 légende exposée**. `voyagesetc.fr` → HTTP 403.
+
+### Non vérifié
+- Exhaustivité : la galerie reste un sous-ensemble possible du compte Instagram, et
+  son contenu peut changer. Comptages datés, non extrapolables.
+- Les 10 autres acteurs du panel : légendes toujours `[INDISPONIBLE]`.
+- Les 4 acteurs manquants (panel à 15) : toujours non identifiés.
+
+### Reste à faire
+- Fournir la liste nominative des 4 acteurs manquants et, pour les 10 acteurs sans
+  collecte, des captures ou des URL publiques.
+
+---
+
+## [2026-10-13] — Positionnement : premières légendes Instagram réellement collectées
+
+### Contexte
+`docs/positionnement-editorial-concurrents.md` laissait **toutes** les légendes
+Instagram du panel en `[INDISPONIBLE]`. Une piste restait inexploitée : un
+concurrent peut republier ses légendes sur son **propre site**, hors Instagram.
+
+### Ajouté / corrigé
+- `docs/positionnement-editorial-concurrents.md` :
+  - **26 légendes distinctes** collectées pour **Échappées Lointaines**, depuis la
+    galerie « Suivez-moi sur Instagram » de son site officiel (source publique et
+    citable). Comptages datés du 2026-10-13 : longueur 232-1 042 car. (médiane
+    420), 3-17 hashtags (médiane 7), pronoms je 13 / tu 18 / vous 13 / nous 0 / on 9.
+  - Nouvelle section **§3.4** (analyse de voix, sans reproduction de texte) ;
+    §1.2, §3.2, §4.1, §7, §8 et §10 ajustées.
+  - Discipline `[OBSERVÉ]` / `[INTERPRÉTATION]` maintenue ; les 10 autres acteurs
+    restent `[INDISPONIBLE]`.
+
+### Vérifié
+- Sites du panel testés le 2026-10-13 (Novo-Monde, Chilowé, Les Coflocs, Trace
+  Directe, Fabrique ton Voyage, Destinaslow, Imprudence des Voyages, Le Monde
+  Cousu Main) : **aucune légende exposée** → seul Échappées Lointaines en publie.
+- Comptage reproductible (page d'accueil, critère : bloc de texte terminé par une
+  séquence de hashtags).
+
+### Non vérifié
+- **Exhaustivité** : les 26 légendes viennent d'une galerie de site, pas du compte
+  Instagram — la galerie peut être un sous-ensemble, et son contenu peut changer.
+- Les légendes des 10 autres acteurs restent inaccessibles (Instagram bloque
+  l'accès automatisé ; aucune capture utilisateur fournie).
+
+### Reste à faire
+- Fournir la liste nominative des 4 acteurs manquants (panel à 15) et, pour les
+  10 acteurs sans collecte, des captures ou des URL publiques.
+
+---
+
+## [2026-10-12] — Pont Brain-CMS : authentification admin, entrées robustes, tests réels
+
+### Contexte
+Le pont Brain↔CMS (`.kiro/specs/brain-cms-bridge`) marquait sa tâche 12
+« Final checkpoint — all tests pass » alors qu'aucun test du pont n'existait :
+ni `__tests__/api/brain*`, ni `tests/test_bridge_poller.py`. Trois défauts ont
+été trouvés en relisant le code.
+
+### Corrigé
+- `lib/bridge-auth.ts` : le chemin administrateur (`x-cms-auth`) passe désormais
+  **avant** l'exigence de `BRAIN_BRIDGE_TOKEN`. Avant, un admin authentifié
+  recevait un 503 quand le jeton du pont n'était pas configuré — le dispatch
+  humain dépendait d'un secret destiné au poller. Le 503 ne concerne plus que
+  le chemin Bearer.
+- `app/api/brain/tasks/route.ts` et `app/api/brain/tasks/[id]/route.ts` : un
+  corps non-JSON renvoie 400 au lieu de remonter en 500 non géré.
+- `.kiro/specs/brain-cms-bridge/tasks.md` : tâche 12 décochée (elle affirmait un
+  vert non mesuré) et annotée de l'état réel des tests.
+
+### Ajouté
+- `lib/safe-equal.ts` : comparaison à temps constant partagée, utilisée par
+  `cms-auth.ts`, `bridge-auth.ts` et `heartbeat/route.ts` (copie supprimée).
+- `__tests__/api/brain-bridge.test.ts` : 21 tests des routes réelles —
+  authentification (401/503), validation (400/413), et le *claim* atomique
+  (`status='sent'` conditionnel → 409), seule protection contre la
+  double-exécution. Trois de ces tests échouent sur le code d'avant correctif.
+
+### Non traité
+- La suite Brain `tests/test_bridge_poller.py` reste à écrire : le poller vit
+  sur la station locale `heldonica-brain`, hors de ce dépôt.
+- Le *reaper* des tâches `in_progress` bloquées (crash du poller) n'est pas
+  implémenté — changement côté Brain.
+
+---
+
+## [2026-10-12] — Mise à jour du document de positionnement éditorial de référence
+
+### Ajouté
+- `docs/positionnement-editorial-concurrents.md` (§1.3) : panel porté de 4 à
+  **11 concurrents identifiés** (médias + travel planners), avec site et
+  élément distinctif. Les 4 acteurs restants sur 15 restent `[INDISPONIBLE]`.
+- (§4.1) tableau complémentaire de faits **vérifiés sur site** : prix publics,
+  parcours, incarnation, appartenance professionnelle, livrable, offre par
+  destination, témoignages.
+- (§10) informations non vérifiables, mise à jour.
+
+### Constat
+- Deux mécanismes manquent côté Heldonica et reviennent chez **tous** les
+  travel planners du panel : appel découverte cliquable, prix affiché hors page
+  dédiée.
+- Légendes Instagram : toujours `[INDISPONIBLE]` (accès automatisé bloqué,
+  aucune capture fournie). Aucune légende inventée.
+
+
+---
+
+## [2026-10-12] — Analyse de positionnement : cible Voyages etc (voyagesetc.fr)
+
+### Ajouté
+- `docs/positionnement-editorial-voyagesetc.md` : lecture d'un blog voyage de
+  référence (Adeline Gressin, Nantes, depuis 2009) à partir de sources
+  publiques uniquement. Distingue [OBSERVÉ] et [INTERPRÉTATION] ; les légendes
+  Instagram sont marquées [INDISPONIBLE] faute d'accès automatisé. Aucun texte
+  concurrent recopié.
+
+### Constat qui engage la voix Heldonica
+- La cible emploie « bons plans », « incontournables », « paradis » — mots
+  bannis par `lib/brand-voice.ts`. C'est la preuve que le lexique interdit
+  n'est pas un tic rédactionnel mais un choix de positionnement : s'inspirer
+  de la cible ne doit pas inclure son lexique.
+
+### Non traité
+- Légendes Instagram de la cible : collecte impossible sans accès au compte
+  (marquées [INDISPONIBLE] dans le document).
+
+
+## [2026-10-12] — Étude de la concurrence directe d'Heldonica
+
+### Ajouté
+- `docs/etude-concurrence-directe-heldonica.md` : identification des acteurs qui
+  disputent réellement le terrain Heldonica (duo, slow travel, couple, service),
+  à partir de sources publiques (annuaire Trip Planner, sites, extraits
+  Instagram). Distingue [OBSERVÉ], [INTERPRÉTATION], [INDISPONIBLE].
+
+### Constats
+- Concurrent le plus direct : **Perspectives de Voyage** (duo « à deux » +
+  slow travel + autrices de guides), mais converti au voyage en famille : le
+  couple sans enfants reste un espace défendable.
+- Le **tutoiement n'est pas un différenciateur** (Destinaslow tutoie aussi) ;
+  le vrai marqueur est le « on » du duo.
+- Trois acteurs directs emploient les mots bannis par `lib/brand-voice.ts`
+  (« bons plans », « incontournables », « inoubliables ») : le lexique interdit
+  est bien le différenciateur lexical du marché.
+- **Échappées Lointaines** publie des légendes Instagram complètes sur son
+  site : structure « accroche-problème → expertise → identité → CTA →
+  hashtags », transposable au gabarit Instagram.
+
+### Limite
+- `heldonica.fr` est en maintenance : le positionnement Heldonica a été lu
+  depuis le dépôt, pas depuis le site en ligne.
+
+
+## [2026-10-12] — Plan de mise en place face à la concurrence
+
+### Ajouté
+- `docs/plan-mise-en-place-face-concurrence.md` : plan actionnable fondé sur
+  l'existant du dépôt (formules 250 € / 450 €, guide gratuit Madère, séquence
+  newsletter, page témoignages, `expert-hotelier`). 7 priorités séquencées,
+  avec pour chacune un indicateur mesurable.
+
+### Constat
+- Le problème Heldonica n'est pas l'offre (complète et tarifée de façon
+  compétitive) mais la visibilité/conversion : lead magnet unique, séquence
+  email non écrites, aucune trace dans les annuaires du métier.
+- Absente du « TOP 50 » Trip Planner où ses concurrents figurent.
+- Le B2B hôtelier est un territoire où elle est quasi seule.
+
+### Non traité
+- Aucune action exécutée : ce document est un plan. Les indicateurs restent à
+  mesurer une fois le site hors maintenance.
+
+
+## [2026-10-12] — Concurrence : profils approfondis + réseau ATPE
+
+### Ajouté
+- `docs/concurrence-profils-approfondis.md` : profils documentés de Perspectives
+  de Voyage, Imprudence des Voyages, Le Monde Cousu Main, plus le rôle de
+  l'ATPE. Sources publiques ; [OBSERVÉ] / [INTERPRÉTATION] / [INDISPONIBLE].
+
+### Constats
+- Perspectives de Voyage est le rival le plus abouti : duo d'autrices Hachette,
+  notice BnF, certification ARPP, 600k pages vues/an, et un B2B éditorial
+  institutionnel (offices de tourisme, SNCF, Icelandair).
+- L'ATPE (association du métier) est le levier de visibilité le plus direct :
+  plusieurs rivaux y sont membres ou au bureau (secrétaire, vice-président,
+  trésorière).
+- Imprudence des Voyages vend par destination ; Heldonica a 15+ itinéraires
+  mais pas d'offre nommée par destination.
+- Deux espaces restent libres : le couple sans enfants (Perspectives est passé
+  famille) et le B2B hôtelier (aucun rival approfondi ne le couvre).
+
+
+## [2026-10-12] — Benchmark de conversion + gabarit lead magnet couple
+
+### Ajouté
+- `docs/benchmark-conversion-concurrents.md` : playbook commercial des rivaux
+  (Fabrique ton Voyage, Destinaslow, Échappées Lointaines) — parcours 4 étapes,
+  prix publics, appel découverte cliquable, badge ATPE, livrable imprimé, offre
+  par destination. Confronte chaque mécanisme à ce qu'Heldonica a déjà.
+- `prompts/lead-magnet-couple.md` : gabarit du guide gratuit « 5 erreurs à deux »
+  (priorité 1 du plan), en gabarit à remplir — aucun fait inventé.
+
+### Constats
+- Heldonica a **déjà** la baseline du marché : parcours 4 étapes, formules
+  250/450 €, mention « sans commission cachée », témoignage daté.
+- Les 6 écarts réels : lien d'appel découverte cliquable, prix visible hors page
+  dédiée, volume de témoignages datés, badge ATPE, offre par destination,
+  livrable imprimé.
+- Fabrique ton Voyage affiche un tarif **dès 40 €/jour** (dès 55 € le week-end)
+  et jusqu'à 170+ voyages créés.
+
+---
+
+## [2026-10-12] — Nettoyage : marqueur de conflit git committé par erreur dans le CHANGELOG
+
+### Corrigé
+- `CHANGELOG.md` contenait depuis le commit `0cfa85d` un marqueur
+  `>>>>>>> 0cfa85d ...` resté d'un conflit non résolu, committé puis poussé sur
+  `main`. Retiré ; le fichier ne contient plus aucun marqueur de conflit.
+
+---
+
+## [2026-10-12] — Le garde-fou des zones annonçait « ✓ » après un échec de lecture
+
+### Contexte
+`check:cms-zones` interroge Supabase pour croiser les zones CMS actives avec ce
+que le code lit réellement. Quand la lecture échoue — un HTTP 504 de Supabase,
+fréquent et transitoire — le script vidait `rows` (`if (!ok) rows.length = 0`)
+puis affichait quand même :
+
+```
+✗ Lecture de cms_editable_zones impossible (HTTP 504).
+Zones actives en base : 0
+✓ Aucune zone orpheline. Tout ce qui est actif est rendu quelque part.
+```
+
+Le ✓ ne dépendait pas de la lecture : un contrôle qui n'avait rien pu vérifier se
+présentait comme réussi. C'est le faux vert que ce dépôt traque partout, ici dans
+le garde-fou lui-même. Deux conséquences : la sortie ne distinguait pas « aucune
+orpheline » de « aucune donnée lue », et un hoquet d'infrastructure faisait
+rougir `Zones et tables CMS` sur toutes les PR ouvertes.
+
+### Corrigé
+- `scripts/check-cms-zones.mjs` : quand la lecture échoue, la sortie annonce
+  désormais `INCONNU — la lecture a échoué` au lieu du ✓. Le code de sortie
+  était déjà 2 ; c'est le message qui mentait. Le ✓ ne subsiste que sur une
+  lecture réelle.
+
+### Ajouté
+- `__tests__/scripts/check-cms-zones.test.ts` : deux tests qui lancent le script
+  réel contre un serveur HTTP local jouant le rôle de la base. Un 504 ne doit
+  pas produire le ✓ ; une lecture réussie et vide le conserve. (`spawn`
+  asynchrone et non `spawnSync` : le serveur partage la boucle d'événements du
+  test, une attente synchrone provoquerait un interblocage.)
+
+### Non traité
+- Le fond du 504 n'est pas corrigé : c'est un aléa d'infrastructure Supabase,
+  hors du dépôt. Le correctif rend l'échec lisible, il ne l'empêche pas.
+- Les échecs `Dérive des tables` sur certaines branches Jules ne sont pas des
+  défauts : ces branches ont un merge-base antérieur à l'allowlist `KNOWN_DRIFT`
+  introduite par #530. Elles échouent sur des tables déjà arbitrées.
+
+---
+
+## [2026-10-11] — Réparation du pré-vol : quatre scripts référencés n'existaient pas
+
+### Contexte
+`package.json` appelle `npm run preflight` et `npm run garde-fous` — le geste que
+l'AGENTS.md impose avant de toucher au code — mais `scripts/garde-fous.mjs`
+n'avait **jamais été committé**. Les deux commandes échouaient en
+`MODULE_NOT_FOUND`. Quatre scripts référencés manquaient au total :
+`garde-fous.mjs`, `check-workspace-sync.mjs`, `check-brand-sync.mjs`,
+`sync-brand-voice.mjs`. Même cause que l'incident du 10/10 : un contrôle
+documenté que rien n'exécutait.
+
+### Ajouté
+- `scripts/garde-fous.mjs` : agrégateur, modes `--preflight` (6 contrôles
+  rapides, sans base) et complet (12 contrôles). Un contrôle qui ne peut pas
+  conclure faute d'identifiants Supabase est rapporté **« ignoré »**, jamais
+  « réussi » — un contrôle sauté n'est pas un contrôle vert.
+- `scripts/check-workspace-sync.mjs` : modules critiques absents (les huit
+  fichiers du 10/10 auraient été vus sans compiler) et retard sur `origin/main`.
+- `scripts/check-brand-sync.mjs` + `scripts/sync-brand-voice.mjs` : parité de la
+  voix de marque TS ↔ Python. La liste des mots bannis est **générée** depuis
+  `lib/brand-voice.ts` (source de vérité) vers `lib/brand.py` ; le contrôle
+  compare les deux et vérifie aussi les pronoms (on/tu/vous).
+- `lib/brand.py` : miroir Python (mots bannis, pronoms, garde-fous), importable
+  par les scripts Python du dépôt.
+- `__tests__/scripts/garde-fous-outillage.test.ts` : 10 tests (existence des
+  scripts référencés, modules critiques, extraction, idempotence, parité).
+- CI : deux étapes sans `if:` — **« Espace de travail »** et **« Parité voix
+  de marque »** — qui ne tournaient nulle part jusqu'ici.
+
+### Vérifié
+- `npm run preflight` : **6/6** au vert (au lieu de `MODULE_NOT_FOUND`).
+- `npm run garde-fous` : **10/12** au vert, 2 **ignorés** (identifiants Supabase
+  absents, rapportés comme tels).
+- Contrôles négatifs : mot banni retiré du miroir Python → exit 1 ; pronom
+  altéré → exit 1 ; `lib/cms-zones.ts` déplacé → exit 1 « 1 module critique
+  absent ». Restaurés ensuite.
+- `tsc --noEmit` 0 erreur ; `vitest run` 615 tests au vert (605 + 10).
+
+---
+
+## [2026-10-11] — Garde-fou statique : toute table référencée doit avoir une migration
+
+### Contexte
+Le 10/10, le commit `a48552a` (92 fichiers, 28 suites de tests) a atterri sur
+`main` avec 9 tables Supabase référencées par du code réel mais **jamais
+migrées**. Il est passé parce que le contrôle qui les aurait vues
+(`check:cms-drift`) interroge la base : sans les secrets
+`NEXT_PUBLIC_SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`, le job est *sauté* et
+affiché vert — un faux vert. La CI tournait, elle était rouge, mais rien ne
+l'a rendue bloquante (pas de protection de branche).
+
+### Ajouté
+- `scripts/check-cms-migrations.mjs` : toute table `from('<table>')` doit exister
+  dans `supabase/migrations/` (ou être inscrite dans `LEGACY_UNMIGRATED`, avec
+  la raison). **Ne lit que le dépôt** — pas de secret, donc pas de saut
+  possible. Complémentaire de `check:cms-drift` : celui-ci dit « la migration
+  existe », l'autre « la table existe en production ».
+- `__tests__/scripts/check-cms-migrations.test.ts` : 6 tests (détection d'une
+  table non migrée, acceptation d'une table migrée/exceptionnée,
+  `storage.from()` ignoré, lecture des formes `CREATE TABLE`).
+- Job CI **« Tables sans migration »**, sans `if:` : il tourne sur chaque PR et
+  chaque push sur `main`, même quand les secrets Supabase sont absents.
+
+### Vérifié
+- Contre l'arbre exact du commit fautif `a48552a` (worktree détaché) : le
+  contrôle signale **précisément les 9 tables** qui ont causé l'incident. Il
+  l'aurait donc attrapé au moment du commit, sans base de données.
+- `tsc --noEmit` 0 erreur ; `vitest run` 605 tests au vert (599 + 6).
+
+### Reste à faire (action humaine)
+- **Protéger `main`** : *Require a pull request* + *Require status checks*
+  (`Types`, `Zones et tables CMS`). Sans cette protection, un commit rouge peut
+  encore atterrir — c'est la cause racine de l'incident, pas un défaut de code.
+
+---
+
+## [2026-10-11] — Dérive de tables CMS : migration des 9 tables du back-office
+
+### Contexte
+Le job CI « Zones et tables CMS » échouait sur 9 tables référencées par du code
+réel mais jamais migrées : `cms_accommodations`, `cms_api_tokens`,
+`cms_audit_log`, `cms_post_revisions`, `cms_releases`, `cms_webhooks`,
+`cms_webhook_deliveries`, `cms_zone_variants`, `photo_blocks`. Vérification
+faite : ce ne sont pas des renommages — aucun autre nom n'existe dans le dépôt.
+
+### Ajouté
+- `supabase/migrations/20261011120000_create_cms_backoffice_tables.sql` : crée
+  les 9 tables avec exactement les colonnes écrites par le code (déduites de
+  `lib/cms-hospitality.ts`, `cms-tokens`, `cms-audit`, `cms-revisions`,
+  `cms-releases`, `cms-webhooks`, `cms-targeting` et
+  `app/api/cms/photos/upload/route.ts`). Idempotente, sans seed. RLS en moindre
+  privilège : lecture publique pour le contenu déjà lu via le client anon ;
+  secrets (`cms_api_tokens`, `cms_webhooks`) et données personnelles
+  (`cms_audit_log`, `cms_webhook_deliveries`) réservés au service_role.
+- `scripts/check-cms-drift.mjs` : les 9 tables sont inscrites dans `KNOWN_DRIFT`
+  avec la référence de la migration — le job redevient vert sans masquer une
+  dérive future.
+- `scripts/check-cms-drift.mjs` : correction d'un faux positif du contrôle des
+  colonnes. Le `:` d'un ternaire (`api_key_id: isValidUuid ? params.apiKeyId : null`)
+  était pris pour un séparateur clé/valeur et produisait la colonne fantôme
+  `apiKeyId`, signalée absente alors que la vraie colonne `api_key_id` existe.
+  Une clé d'objet doit désormais suivre `{` ou `,`.
+
+### Vérifié
+- Syntaxe SQL validée par le parser PostgreSQL réel (pglast / libpg_query) :
+  61 instructions, 9 tables, colonnes alignées sur les écritures du code.
+- `check:cms-drift` exécuté contre un PostgREST simulé : exit 0 avec la
+  migration inscrite, exit 1 sans elle (le garde-fou détecte toujours une
+  dérive réelle).
+- `tsc --noEmit` 0 erreur ; `vitest run` 599 tests au vert.
+
+### Reste à faire (action humaine)
+- Appliquer la migration en base (`supabase db push`) — ⚠️ précédé du baseline
+  de l'historique (avertissement §8 de `docs/CMS_FOUNDATION_PHASE_0_INVENTAIRE.md`).
+  Puis RETIRER les 9 entrées de `KNOWN_DRIFT`.
+- Basculer `cms-audit` / `cms-webhooks` / `cms-tokens` sur un client
+  service_role : leurs écritures sont refusées par RLS via le client anon
+  (tables absentes jusqu'ici, donc pas de régression).
+
+---
+
+## [2026-10-11] — Correctif build : restauration des 8 modules manquants
+
+### Contexte
+`main` ne compilait plus : 8 modules internes étaient importés par du code committé
+sans exister dans l'arbre. `npx tsc --noEmit` remontait 11 erreurs TS2307 et
+`next build` échouait (`typescript.ignoreBuildErrors: false`).
+
+### Modules restaurés (implémentations réelles, pas des coquilles vides)
+1. `lib/supabase-stub.ts` — client Supabase inerte pour le pré-rendu sans clés
+   (`createSafeSupabaseStub`), renvoie `{ data: null, error: null }` sans planter.
+2. `lib/site-url.ts` — source unique de l'URL publique (`siteUrl()`), lue à l'appel.
+3. `lib/photo-exif.ts` — extraction EXIF réelle via `exifr` (date, GPS) et
+   `detectStockPhoto` fondée sur des indices vérifiables (`lib/generic-photos.ts`).
+4. `lib/photo-albums.ts` — `validateAlbumPhotoMeta`, validation stricte des
+   métadonnées de photo avant insertion (règle n°1 : on n'invente rien).
+5. `lib/photo-evidence.ts` — `validatePhotoEvidence`, validation des preuves photo.
+6. `components/seo/DestinationJsonLd.tsx` — JSON-LD `TouristDestination`.
+7. `components/admin/seo/SerpAndSocialPreview.tsx` — aperçus Google SERP et social.
+8. `app/panel-manager/AuditLogPanel.tsx` — journal d'audit adossé à
+   `getRecentAuditLogs()` (`lib/cms-audit.ts`), état vide explicite sinon.
+
+### Vérifié
+- `npx tsc --noEmit` : 0 erreur.
+- `npx vitest run` : 585 tests, 74 fichiers, tout au vert.
+- `npx next build` : compilation réussie.
+- `npx next lint` : aucune erreur (2 avertissements préexistants, hors périmètre).
+
+### Reste à faire (hors périmètre, non corrigé ici)
+- `main` reste rouge sur le job CI « Zones et tables CMS » : 9 tables référencées
+  dans le code (`cms_audit_log`, `cms_accommodations`, `cms_api_tokens`,
+  `cms_post_revisions`, `cms_releases`, `cms_webhooks`, `cms_webhook_deliveries`,
+  `cms_zone_variants`, `photo_blocks`) n'ont aucune migration — dérive préexistante,
+  à traiter séparément (migration versionnée + validation humaine).
 
 ---
 
@@ -979,7 +1568,6 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
   - Score global `npm run check:content-coherence` propulsé de **90% à 98%** (41/42 articles conformes à ≥85%, 0 mot banni).
   - Suppression confirmée visuellement des étiquettes « Image manquante » dans l'onglet Brouillons de `/panel-manager?section=articles`.
   - Tâche `f6c0d5fe` clôturée en `done` dans le registre Supabase `agent_tasks`.
->>>>>>> 0cfa85d (feat(cms): photo upload mobile, carrousel auto-distribution & fallback LLM local (GTX 1660 Ti))
 
 ---
 
@@ -1255,16 +1843,26 @@ Après le `db push` du matin, pgvector était actif mais **0/41 destinations et 
 `supabase db push --dry-run` refusait : « neuf versions distantes sans fichier local ». Faux pour sept d'entre elles (`20260523 … 20260629`) : elles ont un fichier à 8 chiffres, mais un frère à 14 chiffres partage le préfixe et la CLI trie le local par nom de fichier (`0` < `_`), le distant par version — l'appariement dérape. **Le `repair --status reverted` que la CLI propose aurait rejoué ces sept migrations.** Commit `b375e27` : les sept renommées en `<v>000000_…` (même ordre dans les deux tris, `git mv`), et les deux vraies orphelines (`20260903191642` gouvernance agent_tasks, `20260903191920` table ai_context) **reconstituées à l'octet près** depuis `supabase_migrations.schema_migrations.statements` — pas de placeholder. Les six fichiers en attente sont idempotents (`IF NOT EXISTS`, `OR REPLACE`, `DROP POLICY IF EXISTS`) : `db push` rejouera les trois déjà en base sans effet et appliquera les trois manquantes.
 
 ### Reste à faire — à l'utilisateur
-1. Réécrire l'historique distant pour les sept versions renommées — métadonnées seulement, aucun SQL de schéma, dans cet ordre :
-   ```bash
-   supabase migration repair --status applied 20260523000000 20260526000000 20260613000000 20260614000000 20260615000000 20260625000000 20260629000000
-   ```
-   ```bash
-   supabase migration repair --status reverted 20260523 20260526 20260613 20260614 20260615 20260625 20260629
-   ```
-   ```bash
-   supabase db push --linked
-   ```
+1. Réécrire l'historique distant pour les sept versions renommées — métadonnées seulement, aucun SQL de schéma, dans cet ordre :
+
+   ```bash
+
+   supabase migration repair --status applied 20260523000000 20260526000000 20260613000000 20260614000000 20260615000000 20260625000000 20260629000000
+
+   ```
+
+   ```bash
+
+   supabase migration repair --status reverted 20260523 20260526 20260613 20260614 20260615 20260625 20260629
+
+   ```
+
+   ```bash
+
+   supabase db push --linked
+
+   ```
+
    Puis vérifier : `supabase migration list --linked` sans ligne à une seule colonne ; `destinations.embedding` répond 200 ; `backup_articles_20260915` existe.
 2. `gh secret set DISCORD_WEBHOOK` avec l'URL d'un webhook du serveur Discord.
 3. Vérifier `CMS_PASSWORD` sur Vercel ; changer si c'est encore `HELDONICA2026` / `heldonica2026`.

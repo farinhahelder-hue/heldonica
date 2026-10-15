@@ -31,7 +31,12 @@ export async function POST(req: Request) {
   const sb = supabase()
   if (!sb) return NextResponse.json({ error: 'DB unavailable' }, { status: 503 })
 
-  const body = await req.json()
+  let body: { task_type?: string; payload?: unknown; description?: string }
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+  }
   const { task_type, payload, description } = body
 
   if (!task_type || !(ALLOWED_TASK_TYPES as readonly string[]).includes(task_type)) {

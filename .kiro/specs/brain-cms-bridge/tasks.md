@@ -222,7 +222,15 @@ Implementation spans two codebases. Tasks on the CMS side (Next.js/TypeScript at
     - Gate behind `INTEGRATION=true` env flag
     - _Requirements: 1.1, 2.8, 4.2, 4.3, 6.1_
 
-- [x] 12. Final checkpoint — all tests and CI garde-fous pass
+- [ ] 12. Final checkpoint — all tests and CI garde-fous pass
+  - Statut réel (2026-10-12) : **décochée**. La coche précédente affirmait « all tests pass »
+    alors que les tâches 10 et 11 étaient vides et qu'aucun fichier `__tests__/api/brain*`
+    ni `tests/test_bridge_poller.py` n'existait.
+  - `__tests__/api/brain-bridge.test.ts` couvre désormais les routes CMS : authentification
+    (`requireBridgeAuth`, dont le 503 admin corrigé), validation des entrées (400/413), et le
+    *claim* atomique (409). Les trois premiers tests échouent sur le code d'avant correctif.
+  - Reste à faire : la suite Brain `tests/test_bridge_poller.py` (tâche 10), hors de ce dépôt —
+    le poller vit sur la station locale (`heldonica-brain`).
   - Run `jest --testPathPattern="__tests__/api/brain"` (unit + property) in the CMS project.
   - Run `pytest tests/test_bridge_poller.py` in the Brain project.
   - Ensure `tsc --noEmit` passes in the CMS project.

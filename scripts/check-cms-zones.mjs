@@ -454,7 +454,11 @@ for (const r of rows) {
   else orphans.push(r);
 }
 
-console.log(`Zones actives en base : ${rows.length}`);
+console.log(
+  ok
+    ? `Zones actives en base : ${rows.length}`
+    : '? Zones actives en base : INCONNU — la lecture a échoué, aucune conclusion.'
+);
 console.log(`Clés lues par le code : ${readers.exact.size} exactes, ${readers.globalKeys.size} globales, ${[...readers.patterns.values()].flat().length} motifs\n`);
 
 // ─── Clés lues mais jamais servies ──────────────────────────────────────────
@@ -493,7 +497,15 @@ if (indeterminate.length) {
 }
 
 if (orphans.length === 0) {
-  console.log('✓ Aucune zone orpheline. Tout ce qui est actif est rendu quelque part.');
+  // Sans lecture, `rows` a ete vide (ligne « if (!ok) rows.length = 0 ») et il
+  // n'y a donc aucun orphelin a trouver. Afficher « ✓ Aucune zone orpheline » ferait
+  // passer un controle qui n'a rien pu lire pour un controle reussi : c'est le
+  // faux vert que ce projet traque partout. On dit l'incertitude.
+  if (!ok) {
+    console.log('? Zones orphelines : INCONNU — la lecture a échoué, rien n\'a été vérifié.');
+  } else {
+    console.log('✓ Aucune zone orpheline. Tout ce qui est actif est rendu quelque part.');
+  }
 } else {
   const byPage = new Map();
   for (const r of orphans) {
