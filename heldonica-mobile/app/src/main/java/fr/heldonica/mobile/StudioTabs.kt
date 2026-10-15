@@ -5,6 +5,7 @@ package fr.heldonica.mobile
  */
 enum class OngletStudio(val titre: String, val emoji: String) {
     CERVEAU("Cerveau", "\uD83E\uDDE0"),
+    TACHES("Tâches", "⚡"),
     CMS("CMS", "\uD83D\uDCDD"),
     STUDIO("Memoria", "\uD83C\uDFDB"),
     INSTA("Terrain", "\uD83D\uDCF8");

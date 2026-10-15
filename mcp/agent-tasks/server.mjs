@@ -55,8 +55,23 @@ if (!URL_BASE || !CLE) {
   process.exit(1)
 }
 
-const STATUTS = ['sent', 'in_progress', 'waiting_validation', 'blocked', 'done']
-const AGENTS_CONNUS = ['claude', 'gemini', 'opencode', 'jules', 'muse-spark', 'discord-bot', 'tous']
+const AGENTS_CONNUS = [
+  'claude',
+  'gemini',
+  'opencode',
+  'jules',
+  'allhands',
+  'openhands',
+  'grok',
+  'manus',
+  'freebuff',
+  'archiveur',
+  'muse-spark',
+  'discord-bot',
+  'fondateur',
+  'poco',
+  'tous'
+]
 
 // --- PostgREST ---------------------------------------------------------------
 
