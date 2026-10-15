@@ -1,7 +1,5 @@
 package fr.heldonica.mobile
 
-import org.json.JSONArray
-import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -26,37 +24,34 @@ class BrainClientTest {
     }
 
     @Test
-    fun `parsing de fiche vault simulee extrait les champs`() {
-        val jsonMock = """
-            {
-                "records": [
-                    {
-                        "id": "charte-slow-travel",
-                        "category": "Manifeste",
-                        "title": "La Charte Slow Travel Heldonica",
-                        "content": "Prendre le temps d'habiter un lieu plutôt que de le consommer."
-                    },
-                    {
-                        "id": "dest-madere",
-                        "category": "Destination",
-                        "title": "Madère Fajãs",
-                        "location": "Madère",
-                        "content": "Sentiers côtiers escarpés."
-                    }
-                ]
-            }
-        """.trimIndent()
+    fun `modeles message et reponse et fiche vault coherents`() {
+        val msg = MessageCerveau(
+            estUtilisateur = true,
+            texte = "Bonjour Cerveau"
+        )
+        assertTrue(msg.estUtilisateur)
+        assertEquals("Bonjour Cerveau", msg.texte)
+        assertFalse(msg.estErreur)
 
-        val root = JSONObject(jsonMock)
-        val arr = root.optJSONArray("records") ?: JSONArray()
-        assertEquals(2, arr.length())
+        val rep = ReponseCerveau(
+            texte = "Récit de voyage authentique",
+            fournisseur = "groq",
+            modele = "llama-3.3-70b-versatile",
+            source = SourceCerveau.CLOUD
+        )
+        assertEquals(SourceCerveau.CLOUD, rep.source)
+        assertEquals("groq", rep.fournisseur)
+        assertEquals("llama-3.3-70b-versatile", rep.modele)
 
-        val rec1 = arr.getJSONObject(0)
-        assertEquals("charte-slow-travel", rec1.optString("id"))
-        assertEquals("Manifeste", rec1.optString("category"))
-        assertEquals("La Charte Slow Travel Heldonica", rec1.optString("title"))
-
-        val rec2 = arr.getJSONObject(1)
-        assertEquals("Madère", rec2.optString("location"))
+        val item = VaultRecordItem(
+            id = "charte-slow-travel",
+            category = "Manifeste",
+            title = "La Charte Slow Travel",
+            content = "Habiter un lieu plutôt que le consommer.",
+            location = "Madère"
+        )
+        assertEquals("charte-slow-travel", item.id)
+        assertEquals("Manifeste", item.category)
+        assertEquals("Madère", item.location)
     }
 }
