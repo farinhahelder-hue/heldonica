@@ -137,6 +137,7 @@ jobs:
           NOTES
           gh release create "${{ steps.nom.outputs.tag }}" \
             "${{ steps.nom.outputs.fichier }}" \
+            --repo "${{ github.repository }}" \
             --title "Heldonica Mobile ${{ steps.nom.outputs.tag }}" \
             --notes-file NOTES.md \
             --latest
