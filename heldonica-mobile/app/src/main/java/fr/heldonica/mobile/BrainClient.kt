@@ -46,6 +46,28 @@ data class ReponseCerveau(
 
 object BrainClient {
     private const val TAG = "BrainClient"
+    const val PREFS_AUTH = "heldonica_mobile_auth"
+    const val PREF_KEY_CMS_PASSWORD = "cms_password"
+
+    /**
+     * Récupère le mot de passe CMS :
+     * 1. Priorité aux SharedPreferences de l'application (configuré par l'utilisateur sur le téléphone).
+     * 2. Repli sur BuildConfig.CMS_PASSWORD (si build développeur local avec local.properties).
+     */
+    fun obtenirMotDePasse(context: android.content.Context): String {
+        val prefs = context.getSharedPreferences(PREFS_AUTH, android.content.Context.MODE_PRIVATE)
+        val stocke = prefs.getString(PREF_KEY_CMS_PASSWORD, null)
+        if (!stocke.isNullOrBlank()) return stocke
+        return BuildConfig.CMS_PASSWORD
+    }
+
+    /**
+     * Enregistre le mot de passe CMS dans le stockage privé de l'application.
+     */
+    fun sauvegarderMotDePasse(context: android.content.Context, mdp: String) {
+        val prefs = context.getSharedPreferences(PREFS_AUTH, android.content.Context.MODE_PRIVATE)
+        prefs.edit().putString(PREF_KEY_CMS_PASSWORD, mdp.trim()).apply()
+    }
 
     private val httpClient = OkHttpClient.Builder()
         .connectTimeout(15, TimeUnit.SECONDS)

@@ -34,17 +34,16 @@ jobs:
         with:
           gradle-version: "8.7"
 
-      - name: Préparer local.properties
-        env:
-          CMS_PASSWORD: ${{ secrets.CMS_PASSWORD }}
+      # Zéro secret dans l'APK distribuée : en CI, aucun mot de passe n'est compilé dans
+      # le bytecode (classes.dex). L'utilisateur saisit son mot de passe CMS une
+      # fois directement dans l'application sur le téléphone (stocké en SharedPreferences),
+      # ou via local.properties s'il compile en local sur son poste personnel.
+      - name: Préparer local.properties (zéro secret compilé)
         run: |
-          if [ -z "$CMS_PASSWORD" ]; then
-            echo "::warning title=APK sans identifiants::Ajoute le secret CMS_PASSWORD (Settings > Secrets and variables > Actions). Sans lui l'APK se construit mais ne peut pas publier."
-          fi
           mkdir -p heldonica-mobile
           {
             echo "cms.baseUrl=https://www.heldonica.fr"
-            echo "cms.password=$CMS_PASSWORD"
+            echo "cms.password="
           } > heldonica-mobile/local.properties
 
       - name: Tests unitaires JVM (Kotlin)

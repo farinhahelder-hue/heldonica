@@ -48,10 +48,12 @@ scripts/client_secrets*.json
 youtube_token*.json
 scripts/youtube_token*.json
 # Heldonica Mobile (0€) - build local
+*.apk
 heldonica-mobile/.gradle/
 heldonica-mobile/app/build/
 heldonica-mobile/.idea/
 heldonica-mobile/local.properties
+heldonica-mobile/ci-artifacts/
 content/evidence/*.json
 content/drafts/*.md
 

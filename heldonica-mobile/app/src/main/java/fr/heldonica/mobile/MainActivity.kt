@@ -573,7 +573,7 @@ class MainActivity : ComponentActivity() {
 
                     messageMontage = "Transcription en cours…"
                     val transcription = withContext(Dispatchers.IO) {
-                        transcrire(BuildConfig.CMS_BASE_URL, BuildConfig.CMS_PASSWORD, son)
+                        transcrire(BuildConfig.CMS_BASE_URL, BrainClient.obtenirMotDePasse(this@MainActivity), son)
                     }
                     son.delete()
 
@@ -1139,7 +1139,7 @@ class MainActivity : ComponentActivity() {
                     status = "Analyse IA via le serveur Heldonica…"
                 }
                 val baseUrl = BuildConfig.CMS_BASE_URL
-                val password = BuildConfig.CMS_PASSWORD
+                val password = BrainClient.obtenirMotDePasse(this@MainActivity)
 
                 val body = MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
@@ -1496,7 +1496,7 @@ class MainActivity : ComponentActivity() {
             // qu'écrites en dur : le mot de passe précédent était celui du repli
             // public, retiré du code serveur — l'envoi échouait en 401.
             "baseUrl" to BuildConfig.CMS_BASE_URL,
-            "cmsPassword" to BuildConfig.CMS_PASSWORD
+            "cmsPassword" to BrainClient.obtenirMotDePasse(this)
         )
         val req = OneTimeWorkRequestBuilder<UploadWorker>()
             .setInputData(data)

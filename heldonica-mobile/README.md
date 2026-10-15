@@ -45,11 +45,13 @@ gradle wrapper --gradle-version 8.7
 
 Le workflow **Build APK** (`.github/workflows/build-apk.yml`) construit l'APK et le
 dépose en artefact `heldonica-mobile-debug`. Onglet **Actions** → dernier run vert →
-**Artifacts**. Il a besoin du secret `CMS_PASSWORD` pour que l'APK puisse publier
-(sans lui, l'APK se construit mais ne peut pas publier).
+**Artifacts**. Aucun secret n'est compilé dans l'APK de CI : le mot de passe CMS se
+configure directement sur le téléphone (enregistré de façon chiffrée/privée dans les
+SharedPreferences) ou via `local.properties` pour un build local personnel.
 
 ## Config
-- `local.properties` (non versionné) : `cms.baseUrl=https://www.heldonica.fr` + `cms.password=<la valeur de CMS_PASSWORD sur Vercel>` — jamais en clair dans le dépôt, voir `local.properties.example`
+- `local.properties` (non versionné, pour build développeur) : `cms.baseUrl=https://www.heldonica.fr` + `cms.password=<mot de passe personnel>` — jamais en clair dans le dépôt, voir `local.properties.example`
+- Sur mobile (APK CI) : configuration du mot de passe CMS directement dans l'interface (icône ⚙️ / 🔑 de l'onglet Cerveau).
 - Aucune clé Google Cloud nécessaire pour le MVP. Pour OSM tu mets `User-Agent: Heldonica (contact@heldonica.fr)`.
 
 ## Structure

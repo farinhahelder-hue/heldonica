@@ -91,6 +91,10 @@ fun CerveauScreen(
     val scrollState = rememberLazyListState()
     val vaultRecords = remember { chargerVaultDepuisAssets(context) }
 
+    var motDePasse by remember { mutableStateOf(BrainClient.obtenirMotDePasse(context)) }
+    var afficherDialogueConfig by remember { mutableStateOf(false) }
+    var saisieMotDePasse by remember { mutableStateOf("") }
+
     var modeActif by remember { mutableStateOf(MODES_DISPONIBLES.first()) }
     var texteSaisie by remember { mutableStateOf("") }
     var chargementEnCours by remember { mutableStateOf(false) }
@@ -145,7 +149,7 @@ fun CerveauScreen(
                     mode = modeActif.cle,
                     historique = messages.toList(),
                     forcerStationPc = forcerPc && stationPcDetectee,
-                    authSecret = BuildConfig.CMS_PASSWORD
+                    authSecret = motDePasse
                 )
                 messages.add(
                     MessageCerveau(
@@ -196,32 +200,80 @@ fun CerveauScreen(
                 )
             }
 
-            // Badge d'état réseau
-            AssistChip(
-                onClick = {
-                    if (stationPcDetectee) {
-                        forcerPc = !forcerPc
-                        Toast.makeText(
-                            context,
-                            if (forcerPc) "Mode PC Local activé" else "Mode Cloud 0€ actif",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        Toast.makeText(
-                            context,
-                            "Cloud 0€ actif (Station PC hors ligne ou non détectée)",
-                            Toast.LENGTH_SHORT
-                        ).show()
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                // Badge d'état réseau
+                AssistChip(
+                    onClick = {
+                        if (stationPcDetectee) {
+                            forcerPc = !forcerPc
+                            Toast.makeText(
+                                context,
+                                if (forcerPc) "Mode PC Local activé" else "Mode Cloud 0€ actif",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Cloud 0€ actif (Station PC hors ligne ou non détectée)",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    },
+                    label = {
+                        Text(
+                            text = if (forcerPc && stationPcDetectee) "💻 PC LAN" else if (stationPcDetectee) "🟢 Cloud (PC dispo)" else "🟢 Cloud 0€",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
                     }
-                },
-                label = {
+                )
+
+                // Bouton Configuration Mot de passe CMS
+                IconButton(
+                    onClick = {
+                        saisieMotDePasse = motDePasse
+                        afficherDialogueConfig = true
+                    },
+                    modifier = Modifier.size(32.dp)
+                ) {
                     Text(
-                        text = if (forcerPc && stationPcDetectee) "💻 PC LAN" else if (stationPcDetectee) "🟢 Cloud (PC dispo)" else "🟢 Cloud 0€",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold
+                        text = if (motDePasse.isBlank()) "🔑" else "⚙️",
+                        fontSize = 14.sp
                     )
                 }
-            )
+            }
+        }
+
+        // Alerte si mot de passe non configuré (APK issu de la CI sans secret)
+        if (motDePasse.isBlank()) {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3CD)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "🔑 Mot de passe CMS requis pour le Cloud 0€",
+                        fontSize = 11.sp,
+                        color = Color(0xFF856404)
+                    )
+                    TextButton(onClick = {
+                        saisieMotDePasse = ""
+                        afficherDialogueConfig = true
+                    }) {
+                        Text("Saisir", fontSize = 11.sp, color = Color(0xFF2C4C38), fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
         }
 
         // Sélecteur de mode (Chips horizontaux)
@@ -388,6 +440,49 @@ fun CerveauScreen(
                 Text("Envoyer", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
             }
         }
+    }
+
+    if (afficherDialogueConfig) {
+        AlertDialog(
+            onDismissRequest = { afficherDialogueConfig = false },
+            title = { Text("Accès CMS Heldonica", fontSize = 16.sp, fontWeight = FontWeight.Bold) },
+            text = {
+                Column {
+                    Text(
+                        text = "Ce mot de passe est conservé localement sur ton Poco X6 Pro pour authentifier les requêtes vers le serveur (0 secret compilé dans l'APK).",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = saisieMotDePasse,
+                        onValueChange = { saisieMotDePasse = it },
+                        placeholder = { Text("Mot de passe CMS...") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val mdpNettoye = saisieMotDePasse.trim()
+                        BrainClient.sauvegarderMotDePasse(context, mdpNettoye)
+                        motDePasse = mdpNettoye
+                        afficherDialogueConfig = false
+                        Toast.makeText(context, "Mot de passe CMS enregistré sur l'appareil", Toast.LENGTH_SHORT).show()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2C4C38))
+                ) {
+                    Text("Enregistrer")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { afficherDialogueConfig = false }) {
+                    Text("Annuler")
+                }
+            }
+        )
     }
 }
 
