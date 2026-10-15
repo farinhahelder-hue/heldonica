@@ -356,6 +356,29 @@ dangereux qu'un système payant qui tombe. La parade tient en une règle :
 registre, un commentaire, un heartbeat. C'est exactement la règle `done` de
 `AGENTS.md` : « si tu n'as pas mesuré, écris `waiting_validation` ».
 
+### La routine livrée (2026-10-15)
+
+`[OBSERVÉ]` Deux pièces neuves, dans cette PR :
+
+- `app/api/cron/heartbeat/route.ts` — réveille Supabase **et** libère les baux
+  expirés. Renvoie **500** si la base ne répond pas : une panne doit se voir.
+- `.github/workflows/battement.yml` — tous les 3 jours (`17 4 */3 * *`).
+
+`[OBSERVÉ]` Le détail qui piège tout le monde : GitHub désactive un `schedule`
+de dépôt public après 60 jours **sans activité du dépôt**, pas après 60 jours
+sans exécution. **Un ping ne suffit donc pas** — le workflow qui se contente de
+`curl` s'éteint quand même au bout de deux mois de silence. La parade : le
+workflow **commite un horodatage** (`.github/heartbeat.txt`) après un ping
+réussi. C'est ce commit qui est l'activité.
+
+`[INTERPRÉTATION]` Ce commit d'entretien ne tourne **que si le ping a réussi**.
+Rafraîchir la date d'un dépôt dont le service est en panne maquillerait la
+panne — le contraire de la règle `done`.
+
+`[NON VÉRIFIÉ]` Le workflow n'a jamais tourné : un `schedule` ne démarre que
+depuis la branche par défaut, donc après fusion sur `main`. Le premier battement
+réel reste à observer.
+
 ---
 
 ## 7. Journal des vérifications

@@ -130,6 +130,31 @@ Question du fondateur : « quel serveur, je ne peux pas payer ». Réponse :
 
 Détail chiffré et sources : `docs/ARCHITECTURE_SANS_PC.md` § 6bis et 6ter.
 
+### La routine anti-pause (2026-10-15)
+
+Pour ne plus dépendre d'une remise en route à la main, une routine tourne seule.
+
+- `app/api/cron/heartbeat/route.ts` — réveille Supabase (une lecture suffit à
+  écarter la pause des 7 jours) **et** libère les baux expirés. Si la base ne
+  répond pas : **500**, pas 200. Une panne doit se voir dans l'historique du
+  workflow, jamais être maquillée en succès.
+- `.github/workflows/battement.yml` — tous les 3 jours. Deux gestes : le ping,
+  puis **un commit d'horodatage** dans `.github/heartbeat.txt`. Ce commit n'est
+  pas décoratif : c'est lui qui remet à zéro le compteur des 60 jours, car GitHub
+  désactive un `schedule` de dépôt public après 60 jours **sans activité du
+  dépôt** — pas après 60 jours sans exécution. Un ping seul ne suffisait donc
+  pas.
+- Auth par `x-cms-auth` (secret `CMS_PASSWORD`, **déjà présent** dans les secrets
+  du dépôt — aucun nouveau secret).
+- Le commit d'entretien **ne tourne que si le ping a réussi** : on ne rafraîchit
+  pas la date d'un dépôt dont le service est en panne.
+- 6 tests. **Vérifié par mutation** : forcer `200` au lieu de `500` fait échouer
+  le test « panne visible ». `vitest run` : **664 verts**.
+
+**Non vérifié** : le workflow n'a jamais tourné (un `schedule` ne démarre que
+depuis la branche par défaut, donc après fusion de la PR #601 sur `main`). Le
+premier vrai battement reste à observer.
+
 ## [2026-10-14] — Atelier légendes & photos (méthode d'écriture depuis une image)
 
 ### Contexte
