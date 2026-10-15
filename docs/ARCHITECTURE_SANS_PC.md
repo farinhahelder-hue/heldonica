@@ -242,10 +242,16 @@ par un interrupteur dans l'écran « Tâches ». Un échec rend `Result.retry()`
 jamais `success` : une panne ne peut pas passer pour un succès. L'écran affiche
 le dernier passage et son bilan.
 
-`[NON VÉRIFIÉ]` Le Kotlin **n'a pas été compilé** : aucun compilateur ni SDK
-Android dans l'environnement de rédaction (pas de `java`, pas de `kotlinc`). Le
-code a été relu et les accolades équilibrées. La compilation revient à la CI
-« Build APK », et le premier passage réel reste à observer sur le téléphone.
+`[OBSERVÉ]` La compilation n'a pas été supposée : la CI « Build APK » a compilé
+le Kotlin (étape `Build Debug APK` → success, run `38721318520`), puis l'APK a
+été téléchargé et inspecté. `VeilleTachesWorker` est présent dans `classes3.dex`,
+et les chaînes de câblage y sont (`agent-tasks?status=sent&limit=50&balayer=1`,
+`veille-taches`, `veilleConfiguree`, `heldonica_veille`, « Veille du registre »).
+Un badge vert ne prouve pas qu'une classe est dans l'APK ; ce contrôle-là, si.
+
+`[NON VÉRIFIÉ]` Le premier passage réel de la veille reste à observer sur le
+téléphone. Aucun compilateur Kotlin n'était disponible localement — c'est la CI
+qui a fait office de compilateur.
 
 ### Le trou trouvé en écrivant cette section
 

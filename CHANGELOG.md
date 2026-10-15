@@ -173,11 +173,17 @@ changer de porteur. C'est le Poco.
 - Un échec rend `Result.retry()`, jamais `success` : une panne ne peut pas passer
   pour un succès. L'écran affiche le dernier passage et son bilan.
 
-**Non vérifié** : aucun compilateur Kotlin ni SDK Android dans cet environnement
-(pas de `java`, pas de `kotlinc`). Le Kotlin a été relu et les accolades
-équilibrées, mais **il n'a pas été compilé**. La compilation revient à la CI
-« Build APK », et le premier passage réel de la veille reste à observer sur le
-téléphone.
+**Vérifié par mesure**, et pas sur la foi d'un badge vert : la CI « Build APK »
+a compilé le Kotlin (étape `Build Debug APK` → success, run `38721318520`), puis
+l'APK a été **téléchargé et inspecté** — la classe `VeilleTachesWorker` est
+présente dans `classes3.dex`, et les chaînes de câblage y sont
+(`agent-tasks?status=sent&limit=50&balayer=1`, `veille-taches`,
+`veilleConfiguree`, `heldonica_veille`, « Veille du registre »). Un badge vert ne
+prouve pas qu'une classe est dans l'APK ; ce contrôle-là, si.
+
+**Non vérifié** : le premier passage réel de la veille reste à observer sur le
+téléphone. Aucun compilateur Kotlin n'était disponible localement — c'est la CI
+qui a fait office de compilateur.
 
 ## [2026-10-14] — Atelier légendes & photos (méthode d'écriture depuis une image)
 

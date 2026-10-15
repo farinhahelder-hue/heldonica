@@ -36,6 +36,10 @@ par un téléphone mort redevient prenable.
 - Un échec rend `Result.retry()`, jamais `success` : une panne ne peut pas passer
   pour un succès.
 
+Compilation vérifiée par mesure (run CI `38721318520`) : `VeilleTachesWorker` est
+bien dans `classes3.dex` de l'APK, avec ses chaînes de câblage. Le premier passage
+réel reste à observer sur le téléphone.
+
 ### Authentification de l'écran « Tâches »
 
 L'app envoie le mot de passe CMS déjà embarqué (`cms.password`, en-tête
