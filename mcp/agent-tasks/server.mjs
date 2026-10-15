@@ -56,7 +56,7 @@ if (!URL_BASE || !CLE) {
 }
 
 const STATUTS = ['sent', 'in_progress', 'waiting_validation', 'blocked', 'done']
-const AGENTS_CONNUS = ['claude', 'gemini', 'opencode', 'jules', 'muse-spark', 'discord-bot', 'tous']
+const AGENTS_CONNUS = ['claude', 'gemini', 'opencode', 'jules', 'muse-spark', 'discord-bot', 'openhands', 'tous']
 
 // --- PostgREST ---------------------------------------------------------------
 
