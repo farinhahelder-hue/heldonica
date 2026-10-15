@@ -15,12 +15,14 @@
 > est soit adossée à une source du dépôt, soit marquée `[INDISPONIBLE]` /
 > `[NON VÉRIFIÉ]`.
 >
-> **Fraîcheur (au 2026-10-14).** Ce document mélange volontairement les millésimes :
-> chaque section porte la date de son relevé. Les plus récentes : §3.4 et §3.5
-> (légendes Instagram, **2026-10-14**) et §10 (**2026-10-14**). Les plus anciennes,
-> non re-testées depuis : §1.3 et §4.1 (faits de site, **2026-10-12**) et §8
-> (sources initiales, **2026-10-11**). Autrement dit, l'état « panel » date du
-> 2026-10-12 ; l'état « légendes Instagram » date du 2026-10-14.
+> **Fraîcheur (au 2026-10-15).** Ce document mélange volontairement les millésimes :
+> chaque section porte la date de son relevé. Les plus récentes : §3.2, §3.4, §3.5,
+> §4.1 et §10 (**2026-10-15**, approfondissement des pages internes) ; puis §3.4
+> et §3.5 (légendes Instagram, **2026-10-14**). Les plus anciennes, non re-testées
+> depuis : §1.3 et §4.1 (faits de site, **2026-10-12**) et §8 (sources initiales,
+> **2026-10-11**). Autrement dit, l'état « panel » date du 2026-10-12 ; l'état
+> « légendes Instagram » du 2026-10-14 ; l'approfondissement « pages internes » du
+> 2026-10-15.
 
 ---
 
@@ -58,7 +60,7 @@ audits concurrentiels présents documentent :
 
 ### 1.2 Légendes Instagram : état factuel
 
-- `[INDISPONIBLE]` Pour **10 des 11 acteurs du panel**, les « 10 légendes Instagram par acteur » ne sont pas vérifiables depuis cet environnement : Instagram bloque l'accès automatisé (login/JS mur) et aucune capture utilisateur n'a été fournie. Vérifié le **2026-10-14** sur les 10 sites officiels : **0 légende republiée, 0 embed `instagram.com/p|reel|tv`** (relevé `scripts/collect_instagram_legends.py`, §3.5).
+- `[INDISPONIBLE]` Pour **10 des 11 acteurs du panel**, les « 10 légendes Instagram par acteur » ne sont pas vérifiables depuis cet environnement : Instagram bloque l'accès automatisé (login/JS mur) et aucune capture utilisateur n'a été fournie. Vérifié le **2026-10-14** sur les 10 sites officiels : **0 légende republiée, 0 embed `instagram.com/p|reel|tv`** (relevé `scripts/collect_instagram_legends.py`, §3.5). **Approfondi le 2026-10-15** : la sonde ne s'arrête plus à l'accueil mais parcourt **jusqu'à 40 pages internes par acteur** (sitemaps) — résultat inchangé, **0 légende** (§3.5).
 - `[OBSERVÉ — vérifié 2026-10-14]` **Une exception réelle** : Échappées Lointaines
   republie ses légendes Instagram, hashtags compris, dans une galerie « Suivez-moi
   sur Instagram » de son **propre site** (`echappeeslointaines.fr`, page d'accueil).
@@ -221,23 +223,24 @@ reconstituée de mémoire ni reformulée.
 | # | Acteur | 10 légendes collectées ? | Source(s) | Statut |
 |---|---|---|---|---|
 | 5 | Voyages etc (`voyagesetc.fr`) | Non | — | `[INDISPONIBLE]` — site renvoie HTTP 403 à l'agent ; aucun embed |
-| 6 | Perspectives de Voyage (`perspectives-de-voyage.fr`) | Non | 1 fragment indexé public (identification) | `[NON VÉRIFIÉ]` — dates/tarifs absents des extraits ; **0 légende republiée** (2026-10-14) |
-| 7 | Imprudence des Voyages (`imprudencedesvoyages.com`) | Non | Site officiel (pages destination) | `[INDISPONIBLE]` pour les légendes ; **0 republiée** (2026-10-14) |
-| 8 | Le Monde Cousu Main (`lemondecousumain.fr`) | Non | Site officiel (page tarifaire) | `[INDISPONIBLE]` pour les légendes ; **0 republiée** (2026-10-14) |
-| 9 | Fabrique ton Voyage (`fabriquetonvoyage.fr`) | Non | Site officiel (§ témoignages, § valeurs) | `[INDISPONIBLE]` pour les légendes ; **0 republiée** (2026-10-14) |
-| 10 | Destinaslow (`destinaslow.fr`) | Non | Site officiel (§ avis, § prestations) | `[INDISPONIBLE]` pour les légendes ; **0 republiée** (2026-10-14) |
-| 11 | Échappées Lointaines (`echappeeslointaines.fr`) | **28 légendes lisibles** (sur 33 vignettes) | Site officiel, galerie « Suivez-moi sur Instagram » (republiée) | `[OBSERVÉ]` — relevées le 2026-10-14 |
+| 6 | Perspectives de Voyage (`perspectives-de-voyage.fr`) | Non | 1 fragment indexé public (identification) | `[NON VÉRIFIÉ]` — dates/tarifs absents des extraits ; **0 légende** (accueil + 40 pages internes, 2026-10-15) |
+| 7 | Imprudence des Voyages (`imprudencedesvoyages.com`) | Non | Site officiel (pages destination) | `[INDISPONIBLE]` pour les légendes ; **0 légende** (accueil + 40 pages internes, 2026-10-15) |
+| 8 | Le Monde Cousu Main (`lemondecousumain.fr`) | Non | Site officiel (page tarifaire) | `[INDISPONIBLE]` pour les légendes ; **0 légende** (accueil + 40 pages internes, 2026-10-15) |
+| 9 | Fabrique ton Voyage (`fabriquetonvoyage.fr`) | Non | Site officiel + blog séparé (`blog.fabriquetonvoyage.fr`) | `[INDISPONIBLE]` pour les légendes ; **0 légende lisible** — 1 embed Instagram sur le blog, sans légende dans le HTML (2026-10-15) |
+| 10 | Destinaslow (`destinaslow.fr`) | Non | Site officiel (§ avis, § prestations) | `[INDISPONIBLE]` pour les légendes ; **0 légende** (accueil + 18 pages internes, 2026-10-15) |
+| 11 | Échappées Lointaines (`echappeeslointaines.fr`) | **28 légendes lisibles** (sur 33 vignettes) | Site officiel, galerie « Suivez-moi sur Instagram » (republiée) | `[OBSERVÉ]` — relevées le 2026-10-14, reproduites le 2026-10-15 |
 
 `[OBSERVÉ]` **Une collecte a pu être faite, pour un seul acteur** : Échappées
 Lointaines publie ses légendes sur son propre site (galerie « Suivez-moi sur
 Instagram » de la page d'accueil). Relevé reproductible du **2026-10-14**
 (`scripts/collect_instagram_legends.py`, §3.5) : **33 vignettes**, dont **28
-légendes lisibles** dans le HTML (attribut `aria-label` ≥ 200 caractères).
-C'est la seule source de légendes concurrentes réellement accessible et citable
-trouvée à ce jour. Les **10 autres sites nommés** du panel (Novo-Monde, Chilowé,
-Les Coflocs, Trace Directe, Perspectives de Voyage, Imprudence des Voyages,
-Le Monde Cousu Main, Fabrique ton Voyage, Destinaslow) renvoient **0 légende
-republiée et 0 embed Instagram** au 2026-10-14 ; `voyagesetc.fr` renvoie HTTP 403.
+légendes lisibles** dans le HTML (attribut `aria-label` ≥ 200 caractères). C'est la
+seule source de légendes concurrentes réellement accessible et citable trouvée à ce
+jour. Les **10 autres acteurs nommés** du panel (Novo-Monde, Chilowé, Les Coflocs,
+Trace Directe, Perspectives de Voyage, Imprudence des Voyages, Le Monde Cousu Main,
+Fabrique ton Voyage, Destinaslow) exposent **0 légende** sur leur accueil
+(2026-10-14) — puis **0 légende** également sur **jusqu'à 40 pages internes
+chacune** (2026-10-15, §3.6) ; `voyagesetc.fr` renvoie HTTP 403.
 
 - `[OBSERVÉ]` Un **fragment de légende indexé publiquement** (Perspectives de
   Voyage, cité dans `docs/concurrence-profils-approfondis.md`) a servi à
@@ -245,6 +248,9 @@ republiée et 0 embed Instagram** au 2026-10-14 ; `voyagesetc.fr` renvoie HTTP 4
   pour une analyse de voix et n'est pas reproduit ici.
 - `[INDISPONIBLE]` Les légendes des **10 autres acteurs** restent inaccessibles :
   Instagram bloque l'accès automatisé et aucune capture utilisateur n'a été fournie.
+  Le fait que leurs **sites** n'en republient aucune (accueil **et** pages internes,
+  §3.6) ne prouve pas qu'ils n'en publient pas sur Instagram : cela prouve seulement
+  qu'elles n'y sont pas accessibles.
 - `[INDISPONIBLE]` Les acteurs 12 à 15 (sur 15) ne sont pas identifiables : aucun nom fourni.
 - `[INTERPRÉTATION]` Pour ces 10 acteurs, la comparaison de voix restera adossée
   aux **sites**, pas au **ton social** : la remplir autrement reviendrait à inventer.
@@ -252,12 +258,14 @@ republiée et 0 embed Instagram** au 2026-10-14 ; `voyagesetc.fr` renvoie HTTP 4
 ### 3.3 Ce qu'il faut fournir pour compléter
 
 - La **liste nominative** des acteurs manquants (pour atteindre 15) ;
-- Pour chaque acteur : **10 captures** de légendes **ou** leurs **URL publiques** ;
+- Pour chaque acteur : **10 captures** de légendes **ou** leurs **URL publiques** —
+  le relevé des **sites** est désormais épuisé (accueil **et** pages internes, §3.6) ;
+  ce qui manque ne peut venir que d'**Instagram lui-même** (capture ou URL publique) ;
 - La **date d'observation** de chaque légende (une légende change avec le temps).
 
 ---
 
-### 3.4 Analyse de voix — Échappées Lointaines (légendes publiques, vérifiées le 2026-10-14)
+### 3.4 Analyse de voix — Échappées Lointaines (légendes publiques, vérifiées les 2026-10-14 et 2026-10-15)
 
 `[OBSERVÉ]` **Méthode reproductible.** La galerie « Suivez-moi sur Instagram » de la
 page d'accueil (`echappeeslointaines.fr`) expose ses vignettes dans le HTML statique,
@@ -266,7 +274,9 @@ page d'accueil (`echappeeslointaines.fr`) expose ses vignettes dans le HTML stat
 **28 portent une légende** (`aria-label` ≥ 200 caractères ; les 5 autres n'ont qu'un
 libellé d'image court, ex. « Guépards en safari »). Les mesures ci-dessous portent
 sur ces **28 légendes lisibles**. Le relevé est rejouable via
-`scripts/collect_instagram_legends.py` (§3.5).
+`scripts/collect_instagram_legends.py` (§3.5). `[OBSERVÉ]` **Reproduit à l'identique
+le 2026-10-15** (mêmes 33/28, mêmes comptages de pronoms et de mots bannis) : le
+corpus est stable sur deux jours.
 
 | Mesure (28 légendes lisibles) | Valeur |
 |---|---|
@@ -356,6 +366,65 @@ comme un canal, pas comme un contenu à capitaliser. Échappées Lointaines fait
 l'inverse — elle **rapatrie** ses légendes sur son domaine, où elles servent aussi
 le référencement. C'est un axe transposable pour Heldonica.
 
+---
+
+### 3.6 Approfondissement — pages internes (2026-10-15)
+
+`[OBSERVÉ]` **Ce qui restait ouvert.** Le relevé §3.5 ne lisait que la **page
+d'accueil** : une légende republiée sur une page interne (destination, article)
+échappait au comptage. Cette réserve est levée ici.
+
+`[OBSERVÉ]` **Méthode.** Pour chaque acteur dont un sitemap public est disponible,
+les URL ont été extraites puis **jusqu'à 40 pages internes** ont été récupérées et
+fouillées avec les mêmes détecteurs que §3.5 (`aria-label` ≥ 200 caractères ;
+`instagram.com/p|reel|tv`). Aucun texte n'est recopié : seuls des **comptages** sont
+produits. Relevé du **2026-10-15**.
+
+| Acteur | Pages internes testées | Légendes lisibles | Embeds Instagram | Statut |
+|---|---|---|---|---|
+| Novo-Monde | 40 | 0 | 0 | `[OBSERVÉ]` aucune légende |
+| Chilowé | 40 | 0 | 0 | `[OBSERVÉ]` aucune légende |
+| Les Coflocs | 40 | 0 | 0 | `[OBSERVÉ]` aucune légende |
+| Trace Directe | 40 | 0 | 0 | `[OBSERVÉ]` aucune légende |
+| Perspectives de Voyage | 40 | 0 | 0 | `[OBSERVÉ]` aucune légende |
+| Imprudence des Voyages | 40 | 0 | 0 | `[OBSERVÉ]` aucune légende |
+| Le Monde Cousu Main | 40 | 0 | 0 | `[OBSERVÉ]` aucune légende |
+| Destinaslow | 18 | 0 | 0 | `[OBSERVÉ]` aucune légende |
+| Fabrique ton Voyage (blog séparé) | 40 | 0 | **1** | `[OBSERVÉ]` 1 embed, **légende non lisible** dans le HTML |
+| Échappées Lointaines | 17/30 | **28** | 0 | `[OBSERVÉ]` galerie d'accueil (§3.4) |
+| Voyages etc | — | — | — | `[INDISPONIBLE]` sitemap HTTP 403 |
+
+`[OBSERVÉ]` **Deux faits nouveaux, tous deux négatifs ou sans apport de texte :**
+
+1. **Fabrique ton Voyage** tient un **blog séparé** (`blog.fabriquetonvoyage.fr`,
+   absent de l'accueil et donc manqué par §3.5). Une page du blog
+   (`/articles/sur-tourisme-la-face-cachee-du-tourisme-de-masse/`) intègre **un
+   embed Instagram** (`instagram.com/reel/CxSwfJsoyt0`). `[OBSERVÉ]` Cet embed est
+   **un simple lien**, pas un bloc `blockquote.instagram-media` : le HTML public
+   **ne contient pas** la légende (0 attribut `aria-label` long). La légende reste
+   donc `[INDISPONIBLE]` — mais on sait désormais **où** elle est référencée.
+2. **Les huit autres acteurs sondés** (hors Échappées Lointaines) n'exposent
+   **aucune** légende, ni sur l'accueil, ni sur leurs pages internes.
+
+`[OBSERVÉ — preuve négative]` Sur **338 pages internes** récupérées (40 × 8 + 18),
+**zéro** légende n'est republiée. Le `[INDISPONIBLE]` de §3.2 n'est donc plus
+seulement « mesuré sur l'accueil » : il est **mesuré sur les pages internes
+accessibles** de neuf acteurs.
+
+`[NON VÉRIFIÉ]` Limites résiduelles de ce relevé : il s'appuie sur les **sitemaps
+publics** — un acteur sans sitemap (Fabrique ton Voyage, dont le sitemap renvoie
+404 ; Voyages etc, HTTP 403) n'a pas pu être sondé de la même façon ; l'échantillon
+est plafonné à **40 pages par acteur** (Trace Directe en publie 3 314, Perspectives
+de Voyage 353, Imprudence des Voyages 287) ; et aucune capture Instagram fournie
+par l'utilisateur n'était disponible. **Ce qui manque pour conclure reste hors de
+portée d'un accès automatisé.**
+
+`[INTERPRÉTATION]` Le seul acteur qui **rapatrie** ses légendes sur son domaine
+reste Échappées Lointaines ; Fabrique ton Voyage se contente d'un **lien** vers
+Instagram, sans le texte. L'axe de différenciation déjà identifié en §3.5 tient :
+capitaliser la légende sur son propre site est rare dans ce panel — c'est une
+opportunité éditoriale pour Heldonica.
+
 ## 4. Tableau comparatif — voix Heldonica vs concurrents documentés
 
 Ce tableau ne couvre que les **4 acteurs nommés** + 1 archétype présents dans le
@@ -368,7 +437,7 @@ dépôt. Colonnes « légendes » laissées `[INDISPONIBLE]`. Les faits provienn
 | Modèle B2C `[OBSERVÉ]` | Travel design / prestations | Affiliation + produits numériques | Vente de séjours packagés | Pas de vente de voyages | Vente de séjours sur mesure | Vente de conseil |
 | Incarnation `[OBSERVÉ]` | Forte (« on », duo) | Très forte (2 fondateurs) | Conceptuelle (la « team ») | Forte (duo de réalisateurs) | Faible (experts locaux) | Très forte (solo, « je ») |
 | Pronoms émetteur `[INTERPRÉTATION]` | « on » imposé, « je/nous » bannis | « on » (duo fondateur) | « on »/« nous » non contraint | « on »/« nous » non contraint | « nous » agence | « je » revendiqué |
-| Légendes Instagram (10/acteur) | s.o. (référent) | `[INDISPONIBLE]` | `[INDISPONIBLE]` | `[INDISPONIBLE]` | `[INDISPONIBLE]` | `[INDISPONIBLE]` |
+| Légendes Instagram (10/acteur) | s.o. (référent) | `[INDISPONIBLE]` (0 sur 40 pages internes) | `[INDISPONIBLE]` (0 sur 40 pages internes) | `[INDISPONIBLE]` (0 sur 40 pages internes) | `[INDISPONIBLE]` (0 sur 40 pages internes) | `[INDISPONIBLE]` |
 | Prix affichés `[OBSERVÉ]` | Forfaits de conception (non chiffrés dans le doc) | N/A ; e-books ~5-15 €, livres ~20-25 € | 250-700 € (moy. ~350 €) | N/A (B2B sur devis) | « À partir de 1 500 € » | 30-60 €/jour ou forfait ~500 € |
 | Stack `[OBSERVÉ]` | Next.js, Supabase, Tailwind | WordPress | Hybride / custom | WordPress ou site builder | Custom (espace client) | Webflow / WordPress |
 | Parcours `[OBSERVÉ]` | Lead magnet → appel → devis | Lecture → affiliation | Découverte → résa en ligne | Portfolio → contact B2B | Formulaire devis multi-étapes | Calendly → appel |
@@ -393,7 +462,7 @@ Faits relevés sur les sites officiels publics. Colonnes limitées à ce qui est
 | Livrable `[OBSERVÉ]` | Carnet de route (PDF) | `[INDISPONIBLE]` | `[INDISPONIBLE]` | `[INDISPONIBLE]` | `[INDISPONIBLE]` | Livret digital + **imprimé** | Carnet PDF + **papier** | Carnet + carte interactive |
 | Offre par destination `[OBSERVÉ]` | 15+ itinéraires, pas de page d'offre nommée | `[INDISPONIBLE]` | `[INDISPONIBLE]` | **Oui** (par pays) | `[INDISPONIBLE]` | Non (par durée/complexité) | **Oui** (Canada) | Non (par format) |
 | Témoignages `[OBSERVÉ]` | 1 daté (« Sophie & Marc — Madère, Mai 2026 ») | `[INDISPONIBLE]` | `[INDISPONIBLE]` | `[INDISPONIBLE]` | `[INDISPONIBLE]` | 6 nommés | 4 nommés | plusieurs, datés ; 1 vérifiable en détail sur site (lune de miel, hôtel 4★ côte Pacifique) |
-| Légendes Instagram `[OBSERVÉ]` | s.o. (référent) | 0 republiée | 0 republiée | 0 republiée | 0 republiée | 0 republiée | 0 republiée | **28 lisibles** (galerie du site, 2026-10-14) |
+| Légendes Instagram `[OBSERVÉ]` | s.o. (référent) | 0 republiée (accueil + 40 pages internes) | 0 republiée (accueil + 40 pages internes) | 0 republiée (accueil + 40 pages internes) | 0 republiée (accueil + 40 pages internes) | 0 lisible (1 embed sur le blog, sans texte — 2026-10-15) | 0 republiée (accueil + 18 pages internes) | **28 lisibles** (galerie du site, 2026-10-14, reproduites 2026-10-15) |
 
 `[INTERPRÉTATION]` Deux mécanismes reviennent chez **tous** les travel planners
 du panel et manquent côté Heldonica : un **appel découverte cliquable** et un
@@ -433,7 +502,7 @@ conversion n'est pas mesuré ici.
 | Élément | Statut | À fournir par |
 |---|---|---|
 | Liste nominative des 15 acteurs | **11/15 identifiés** (voir §1.3) ; 4 restants `[INDISPONIBLE]` | Utilisateur |
-| 10 légendes Instagram × 15 acteurs | `[PARTIEL]` : **28 légendes lisibles** pour Échappées Lointaines (site officiel, §3.4) ; 10 autres acteurs **mesurés à 0** (§3.5) | Captures ou URL publiques (utilisateur) pour les 10 restants |
+| 10 légendes Instagram × 15 acteurs | `[PARTIEL]` : **28 légendes lisibles** pour Échappées Lointaines (site officiel, §3.4) ; 10 autres acteurs **mesurés à 0** sur l'accueil **et** les pages internes (§3.5, §3.6) | Captures ou URL publiques (utilisateur) pour les 10 restants — seule voie restante, les sites sont épuisés |
 | Version antérieure éventuelle du présent doc | Introuvable dans le dépôt | Utilisateur (poste local / autre outil) |
 | Décision sur « parfait » (PR #528) | En attente | Maintien du dépôt |
 | Chiffres tarifaires Heldonica | Non fournis | Utilisateur |
@@ -463,6 +532,18 @@ conversion n'est pas mesuré ici.
   Fabrique ton Voyage, Destinaslow) : **0 légende republiée, 0 embed Instagram**.
   `voyagesetc.fr` : **HTTP 403** (refus serveur). `[OBSERVÉ]`
 
+### Sources externes consultées (2026-10-15)
+
+- **Sitemaps publics** des acteurs (pour l'approfondissement §3.6) :
+  `novo-monde.com`, `chilowe.com`, `lescoflocs.com`, `tracedirecte.com`,
+  `perspectives-de-voyage.fr`, `imprudencedesvoyages.com`, `lemondecousumain.fr`,
+  `destinaslow.fr`, `blog.fabriquetonvoyage.fr`. Jusqu'à **40 pages internes par
+  acteur** récupérées et fouillées : **0 légende republiée** sur 338 pages.
+- `blog.fabriquetonvoyage.fr/articles/sur-tourisme-la-face-cachee-du-tourisme-de-masse/`
+  — **1 embed Instagram** (`instagram.com/reel/CxSwfJsoyt0`), sous forme de lien :
+  la légende **n'est pas** dans le HTML public. `[OBSERVÉ]`
+- `voyagesetc.fr` : **HTTP 403** sur le sitemap comme sur l'accueil. `[INDISPONIBLE]`
+
 ---
 
 ## 9. Historique du document
@@ -474,20 +555,22 @@ conversion n'est pas mesuré ici.
 | 2026-10-13 | **Collecte réelle de légendes** : Échappées Lointaines republie ses légendes sur son site → 26 légendes annoncées (§3.2, §3.4). Les 10 autres acteurs restent `[INDISPONIBLE]`. §1.2 et §10 ajustées ; témoignage Échappées vérifié (§4.1). |
 | 2026-10-14 | **Recomptage et correction** : relevé indépendant de la même galerie → **30 vignettes, 14 légendes lisibles** ; le « nous » (17) n'est **pas** absent, contrairement au relevé du 13. §1.2, §3.2, §3.4, §4.1, §7, §8 et §10 alignées sur les chiffres vérifiés. |
 | 2026-10-14 (b) | **Relevé outillé et reproductible** (`scripts/collect_instagram_legends.py`, §3.5) : les **11 sites du panel** sont interrogés. Échappées Lointaines → **33 vignettes, 28 légendes lisibles** (le « 14 » précédent sous-comptait : chaque post est exposé deux fois) ; les 10 autres → **0 légende, 0 embed** ; `voyagesetc.fr` → HTTP 403. §1.2, §3.2, §3.4, §4.1, §7, §8 et §10 alignées sur ces mesures. Sites officiels des acteurs 6-8 ajoutés au panel (§1.3). |
+| 2026-10-15 | **Approfondissement des pages internes** (`scripts/probe_internal_pages.py`, §3.6) : la réserve « accueil seulement » de §3.5 est levée. **338 pages internes** sondées sur 9 acteurs → **0 légende** ; Fabrique ton Voyage expose un **blog séparé** avec **1 embed Instagram** sans légende lisible. Le relevé Échappées Lointaines est **reproduit à l'identique** (33/28). §1.2, §3.2, §3.3, §3.4, §3.5, §4, §4.1, §7, §8 et §10 alignées. |
 
 ---
 
-## 10. Informations non vérifiables (mise à jour 2026-10-14)
+## 10. Informations non vérifiables (mise à jour 2026-10-15)
 
 Cette section liste ce qui **ne peut pas** être affirmé, pour éviter toute
 lecture abusive du tableau §4.1.
 
 | Donnée | Statut | Pourquoi |
 |---|---|---|
-| 10 légendes Instagram par acteur | `[PARTIEL]` | **Échappées Lointaines : 28 légendes lisibles** (sur 33 vignettes) sur son site (relevées 2026-10-14, §3.4). **10 autres acteurs : `[INDISPONIBLE]`** — Instagram bloque l'accès automatisé et aucune capture utilisateur n'a été fournie ; leurs sites respectifs exposent **0 légende** (§3.5). |
-| Légendes Instagram d'Échappées Lointaines : exhaustivité | `[NON VÉRIFIÉ]` | Les 28 légendes lisibles proviennent d'une galerie du site, pas du compte Instagram : la galerie peut être un sous-ensemble (5 vignettes n'exposent qu'un libellé d'image) et son contenu peut changer. Les comptages sont datés (2026-10-14) et non extrapolables au compte. |
-| Relevé limité à la page d'accueil | `[NON VÉRIFIÉ]` | Le script ne lit que l'accueil de chaque site : une légende republiée sur une page interne (destination, article) échapperait au comptage. Seul l'accueil est couvert. |
-| Stabilité de la galerie Échappées Lointaines | `[NON VÉRIFIÉ]` | Trois requêtes successives le 2026-10-14 donnent le même HTML (33/28) ; rien ne garantit que la galerie soit figée dans le temps. |
+| 10 légendes Instagram par acteur | `[PARTIEL]` | **Échappées Lointaines : 28 légendes lisibles** (sur 33 vignettes) sur son site (relevées 2026-10-14, reproduites 2026-10-15, §3.4). **10 autres acteurs : `[INDISPONIBLE]`** — Instagram bloque l'accès automatisé et aucune capture utilisateur n'a été fournie ; leurs sites respectifs exposent **0 légende** sur l'accueil (§3.5) **et** sur leurs pages internes (§3.6). |
+| Légendes Instagram d'Échappées Lointaines : exhaustivité | `[NON VÉRIFIÉ]` | Les 28 légendes lisibles proviennent d'une galerie du site, pas du compte Instagram : la galerie peut être un sous-ensemble (5 vignettes n'exposent qu'un libellé d'image) et son contenu peut changer. Les comptages sont datés (2026-10-14, reproduits 2026-10-15) et non extrapolables au compte. |
+| Pages internes : échantillon plafonné | `[NON VÉRIFIÉ]` | La sonde §3.6 lit **jusqu'à 40 pages par acteur** : Trace Directe en publie 3 314, Perspectives de Voyage 353, Imprudence des Voyages 287. Une légende republiée au-delà de la 40e page échapperait au comptage. |
+| Acteurs sans sitemap public | `[INDISPONIBLE]` | Fabrique ton Voyage (sitemap HTTP 404) et Voyages etc (HTTP 403) n'ont pas pu être sondés par sitemap. Pour Fabrique ton Voyage, le **blog séparé** a été sondé manuellement : 1 embed, sans légende. |
+| Stabilité de la galerie Échappées Lointaines | `[NON VÉRIFIÉ]` | Deux relevés à un jour d'intervalle (2026-10-14, 2026-10-15) donnent le même HTML (33/28) ; rien ne garantit que la galerie soit figée dans le temps. |
 | Noms des 4 acteurs restants (sur 15) | `[INDISPONIBLE]` | La liste nominative annoncée n'existe dans aucune source du dépôt. Non inventée. |
 | Prix de Voyages etc, Perspectives de Voyage, Imprudence des Voyages, Le Monde Cousu Main | `[INDISPONIBLE]` | Aucun montant public relevé pour ces acteurs. |
 | Trafic / audience des rivaux | `[NON VÉRIFIÉ]` | Chiffres auto-déclarés sur leurs propres sites (ex. « 600 000 pages vues/an »), non auditables. |
