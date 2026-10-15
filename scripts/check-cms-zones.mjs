@@ -402,7 +402,7 @@ async function fetchZonesBatch(url, key, from, pageSize, essai = 1) {
       { headers }
     );
     if (!res.ok) {
-      if (res.status >= 500 && essai < 10) {
+      if (res.status >= 500 && essai < 3) {
         await new Promise((r) => setTimeout(r, 400 * essai));
         return fetchZonesBatch(url, key, from, pageSize, essai + 1);
       }

@@ -255,13 +255,6 @@ async function tableExists(url, key, table, essai = 1) {
     }
     return { exists: true, rows: `?(réseau : ${e.cause?.code ?? 'échec'})` };
   }
-  if (r.status >= 500 && essai < 10) {
-    await new Promise(r => setTimeout(r, 400 * essai));
-    return tableExists(url, key, table, essai + 1);
-  }
-  if (r.status >= 500) {
-    return { exists: true, rows: `?(réseau : HTTP ${r.status})` };
-  }
   if (r.status === 200 || r.status === 206) {
     const cr = r.headers.get('content-range');
     return { exists: true, rows: cr ? cr.split('/')[1] : '?' };
