@@ -41,6 +41,12 @@ Les trois configurations sont déjà à la racine du dépôt :
 | Gemini CLI | `.gemini/settings.json` | `gemini` |
 | OpenCode | `opencode.json` | `opencode` |
 
+Les **destinataires reconnus** par le serveur (noms d'agent valides) sont :
+`claude`, `gemini`, `opencode`, `jules`, `muse-spark`, `discord-bot`, `openhands`,
+`tous`. Un nom hors de cette liste est refusé par `deposer_tache` et `prendre_tache`.
+`openhands` désigne une session OpenHands Cloud (dispatch `openhands` du brain, cf.
+`heldonica-brain/app/engine/agent_dispatch.py`).
+
 Claude Code demande une confirmation à la première session sur le dépôt ; c'est
 normal. Les formats Gemini et OpenCode ont été écrits d'après leur documentation
 mais **pas exécutés ici** — si l'un des deux ne voit pas le serveur, comparer

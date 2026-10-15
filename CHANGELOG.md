@@ -3,6 +3,30 @@
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
 
+## [2026-10-15] — Registre MCP : destinataire `openhands`
+
+### Contexte
+Le brain sait désormais **dispatcher une tâche vers OpenHands**
+(`heldonica-brain/app/engine/agent_dispatch.py`, cible `openhands`). Côté registre
+`agent_tasks`, le nom `openhands` n'était pas reconnu : `deposer_tache` aurait
+refusé toute tâche adressée à une session OpenHands Cloud.
+
+### Corrigé
+- `mcp/agent-tasks/server.mjs` : `openhands` ajouté à `AGENTS_CONNUS` (le
+  `describe` du schéma et le message d'erreur suivent automatiquement).
+- `mcp/agent-tasks/README.md` : liste explicite des destinataires reconnus, avec
+  `openhands` et son lien vers le dispatch du brain.
+
+### Vérifié
+- `node --check mcp/agent-tasks/server.mjs` : syntaxe OK.
+- `openhands` apparaît bien dans `AGENTS_CONNUS` et donc dans la description du
+  champ `agent` et dans la validation de `deposer_tache`.
+
+### Non vérifié
+- Le test d'intégration `mcp/agent-tasks/test-client.mjs` **n'a pas été relancé** :
+  il exige `NEXT_PUBLIC_SUPABASE_URL` et `SUPABASE_SERVICE_ROLE_KEY`, absents de cet
+  environnement. Aucun accès à la base de production n'a été tenté.
+
 ## [2026-10-14] — Atelier légendes & photos (méthode d'écriture depuis une image)
 
 ### Contexte
