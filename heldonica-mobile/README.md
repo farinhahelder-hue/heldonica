@@ -29,3 +29,10 @@ cd heldonica-mobile
 - `AndroidManifest.xml` : permissions minimales
 
 Voir `app/src/main/java/fr/heldonica/mobile/MainActivity.kt` pour le code complet.
+
+## Studio Mobile (slice 1, depuis 10/2026)
+- `StudioActivity.kt` : coque 4 onglets (Cerveau / CMS / Studio / Insta), nouveau point d'entree de l'appli.
+- Onglet Cerveau : console Brain en vue web (`brain.webUrl` dans `local.properties`, connexion manuelle, aucun secret embarque).
+- Onglet CMS : ouvre `EditeurActivity` (session deja geree).
+- Onglets Studio / Insta : ecrans d'attente, slices 2 et 3.
+- Test JVM sans emulateur : `StudioTabsTest` (`./gradlew :app:testDebugUnitTest`).

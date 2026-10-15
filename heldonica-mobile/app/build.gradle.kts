@@ -63,13 +63,13 @@ android {
         )
         buildConfigField(
             "String",
-            "GEMINI_API_KEY",
-            "\"${cmsProps.getProperty("gemini.apiKey") ?: ""}\""
+            "BRAIN_BASE_URL",
+            "\"${cmsProps.getProperty("brain.baseUrl") ?: "http://10.10.145.61:8440"}\""
         )
         buildConfigField(
             "String",
-            "BRAIN_BASE_URL",
-            "\"${cmsProps.getProperty("brain.baseUrl") ?: "http://10.10.145.61:8440"}\""
+            "BRAIN_WEB_URL",
+            "\"${cmsProps.getProperty("brain.webUrl") ?: ""}\""
         )
     }
 
@@ -122,4 +122,6 @@ dependencies {
     implementation("androidx.media3:media3-transformer:1.4.1")
     implementation("androidx.media3:media3-effect:1.4.1")
     implementation("androidx.media3:media3-common:1.4.1")
+
+    testImplementation("junit:junit:4.13.2")
 }

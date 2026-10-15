@@ -15,3 +15,10 @@ cms.password=
 # URL du Heldonica Brain (serveur IA local sur station PC)
 # En local Wi-Fi: http://10.10.145.61:8440 ou via tunnel HTTPS externe
 brain.baseUrl=http://10.10.145.61:8440
+
+# URL de la console Brain affichee dans l'onglet Cerveau de StudioActivity.
+# En Wi-Fi maison : l'IP locale du PC + :8475 (ex. http://192.168.1.20:8475).
+# Laisse vide pour afficher la marche a suivre dans l'appli.
+# La connexion a la console se fait a la main (mot de passe Brain),
+# aucun secret n'est stocke dans l'APK pour cet onglet.
+brain.webUrl=
