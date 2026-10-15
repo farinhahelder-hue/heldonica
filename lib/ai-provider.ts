@@ -25,6 +25,7 @@ export interface AiCompletionOptions {
   max_tokens?: number;
   jsonMode?: boolean;
   preferredProvider?: "groq" | "gemini" | "openrouter";
+  freeOnly?: boolean; // Interdit strictement tout appel vers un fournisseur payant (OpenAI / Anthropic)
 }
 
 export interface AiCompletionResult {
@@ -654,26 +655,30 @@ export async function generateAiCompletion(options: AiCompletionOptions): Promis
     }
   }
 
-  // 9. OpenAI (Payant)
-  const openaiKey = process.env.OPENAI_API_KEY || process.env.NEXT_PUBLIC_OPENAI_API_KEY;
-  if (openaiKey) {
-    try {
-      return await callOpenAI(options, openaiKey);
-    } catch (err: any) {
-      console.warn('[AI Provider] OpenAI fallback:', err.message);
-      errors.push(`OpenAI: ${err.message}`);
+  // 9. OpenAI (Payant) — exclu si freeOnly
+  if (!options.freeOnly) {
+    const openaiKey = process.env.OPENAI_API_KEY || process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+    if (openaiKey) {
+      try {
+        return await callOpenAI(options, openaiKey);
+      } catch (err: any) {
+        console.warn('[AI Provider] OpenAI fallback:', err.message);
+        errors.push(`OpenAI: ${err.message}`);
+      }
     }
-  }
 
-  // 10. Anthropic (Payant)
-  const anthropicKey = process.env.ANTHROPIC_API_KEY;
-  if (anthropicKey) {
-    try {
-      return await callAnthropic(options, anthropicKey);
-    } catch (err: any) {
-      console.warn('[AI Provider] Anthropic fallback:', err.message);
-      errors.push(`Anthropic: ${err.message}`);
+    // 10. Anthropic (Payant) — exclu si freeOnly
+    const anthropicKey = process.env.ANTHROPIC_API_KEY;
+    if (anthropicKey) {
+      try {
+        return await callAnthropic(options, anthropicKey);
+      } catch (err: any) {
+        console.warn('[AI Provider] Anthropic fallback:', err.message);
+        errors.push(`Anthropic: ${err.message}`);
+      }
     }
+  } else {
+    errors.push('Option freeOnly active : fournisseurs payants (OpenAI/Anthropic) strictement exclus (0,00 € garanti)');
   }
 
   // 11. Serveur LLM Local (Cerveau Heldonica / PC GTX 1660 Ti)

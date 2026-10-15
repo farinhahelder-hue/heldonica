@@ -2,31 +2,30 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
-## [2026-10-15] — Préparation du Cerveau en APK Natif sur Poco X6 Pro (AllHands)
+## [2026-10-15] — Préparation du Cerveau en APK Natif sur Poco X6 Pro (Audit & Validation PR #602)
 
-### Réalisations & Socle pour AllHands
-1. **Passerelle Cloud 0€ (pp/api/ai/mobile-brain/route.ts)** :
+### Réalisations & Socle APK Poco X6 Pro (Audit & Validation PR #602)
+1. **Passerelle Cloud 0€ (`app/api/ai/mobile-brain/route.ts`)** :
    - Route Next.js dédiée au Poco X6 Pro, assurant l'autonomie totale sans nécessiter de PC 24/7.
-   - Zéro clé d'API dans l'APK : authentification par jeton agent (x-heldonica-client), cascade de modèles via lib/ai-provider.ts (Groq / Gemini 2.5 Flash).
-   - 4 modes opérationnels : coach (protocole ADHD/TSA 5/15/30 min), 	errain (notes de voyage brutes transformées en récits authentiques), ault (connaissances et pépites), chat (posture officielle).
-   - Journalisation complète dans i_requests_log et enregistrement sécurisé dans copilot_generations.
-2. **Client Kotlin Découplé (heldonica-mobile/app/src/main/java/fr/heldonica/mobile/BrainClient.kt)** :
+   - Authentification sécurisée par mot de passe CMS (`x-cms-auth`) et clé API (`x-api-key`), validée par `verifyAiAuth`.
+   - Zéro dépense additionnelle garantie : option `freeOnly: true` passée à `lib/ai-provider.ts`, interdisant strictement OpenAI / Anthropic.
+   - Filtrage de confidentialité strict : anonymisation regex des jetons, clés, mots de passe, emails et numéros de téléphone avant tout appel LLM et avant insertion dans `copilot_generations`.
+   - RAG automatique : injection des fiches vérifiées du Coffre des Savoirs (`VAULT_SPOTS` dans `lib/cms-vault-spots.ts`) en mode `vault` ou `use_vault`.
+2. **Client Kotlin Découplé (`heldonica-mobile/app/src/main/java/fr/heldonica/mobile/BrainClient.kt`)** :
    - Dual-mode intelligent : priorité au Cloud 0€, avec détection et repli sur la station PC locale (port 8440) si connectée sur le même réseau Wi-Fi.
+   - Authentification automatique via `BuildConfig.CMS_PASSWORD` transmettant les en-têtes `x-cms-auth` et `x-api-key`.
    - Pings légers non-bloquants (timeout 1.5s).
-3. **Interface Native Jetpack Compose 120 Hz (heldonica-mobile/app/src/main/java/fr/heldonica/mobile/CerveauScreen.kt)** :
-   - Remplace l'ancienne WebView fragile par une interface fluide 120 Hz adaptée à l'écran Flow AMOLED du Poco X6 Pro.
+3. **Interface Native Jetpack Compose 120 Hz (`heldonica-mobile/app/src/main/java/fr/heldonica/mobile/CerveauScreen.kt`)** :
+   - Rendu fluide 120 Hz adapté à l'écran Flow AMOLED du Poco X6 Pro.
    - Chips de modes, suggestions d'action rapide, badge d'état réseau en temps réel, bulles stylisées Eco-Luxe avec action de copie.
-4. **Câblage Studio (StudioActivity.kt) & Cache Hors-Ligne (ssets/knowledge_vault.json)** :
-   - StudioActivity.kt bascule directement sur CerveauScreen().
-   - 8 fiches maîtresses embarquées en local pour consultation sans réseau (total_records vérifié : 8).
-5. **Spécification Technique & Coordination (docs/SPEC_CERVEAU_APK_POCO_X6_PRO.md)** :
-   - Spécification détaillée pour AllHands / OpenHands avec caractéristiques SoC Dimensity 8300 Ultra, directives Media3 et instructions ADB.
-   - Tâche déposée dans output/agent_tasks/ (TASK_2026-10-15_brain-allhands-poco-x6pro-cerveau-apk.md) et visible dans la file.
-6. **Garde-fous CI & Tests Unitaires** :
-   - 
-pm run preflight validé (5/5 PASS), 
-pm run typecheck validé (0 erreur).
-   - Tests unitaires JVM Kotlin (ModeleMontageTest.kt, StudioTabsTest.kt) câblés dans uild-apk.yml.
+   - Consultation hors-ligne du Coffre : carrousel horizontal des fiches de `knowledge_vault.json` accessible immédiatement sans connexion.
+4. **Cache Hors-Ligne (`assets/knowledge_vault.json`) & Spécification** :
+   - 8 fiches maîtresses embarquées en local (`total_records` corrigé et vérifié : 8).
+   - Spécification technique complète dans `docs/SPEC_CERVEAU_APK_POCO_X6_PRO.md`.
+5. **Garde-fous & Tests Validés** :
+   - `npm run preflight` : 6/6 PASS.
+   - `vitest run __tests__/api/mobile-brain.test.ts` : 3/3 PASS (auth, 400, freeOnly=true & privacy sanitization).
+   - Tests unitaires JVM Kotlin (`ModeleMontageTest.kt`, `StudioTabsTest.kt`, `BrainClientTest.kt`) exécutés avant l'assemblage de l'APK.
 
 ---
 
