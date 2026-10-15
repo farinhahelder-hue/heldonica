@@ -19,7 +19,7 @@ name: Release APK
 # donc en clair, et ce dépôt est public : toute release est lisible par tous.
 #
 # Deux garde-fous, dans cet ordre :
-#   1. On demande à « Build APK » un APK SANS secret (`cms_password: ""`) ;
+#   1. On demande à « Build APK » un APK SANS secret (`release: true`) ;
 #   2. Avant de publier, on REFUSE si un secret traîne dans le dex.
 #
 # Conséquence assumée : l'APK publié peut lire le registre des tâches (la lecture
@@ -42,12 +42,11 @@ permissions:
 
 jobs:
   construire:
-    # `cms_password: ""` est volontaire, pas un oubli : voir SÉCURITÉ ci-dessus.
-    # Le secret n'est PAS transmis — un build de release ne doit pas pouvoir le
-    # recevoir, même par accident.
+    # `release: true` est volontaire, pas un oubli : le build de release ne lit
+    # même pas le secret du dépôt. Voir SÉCURITÉ en tête de fichier.
     uses: ./.github/workflows/build-apk.yml
     with:
-      cms_password: ""
+      release: true
 
   publier:
     needs: construire

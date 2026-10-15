@@ -7,11 +7,16 @@ on:
   # fragile — cf. le commentaire sur le paquet « tools » ci-dessous.
   workflow_call:
     inputs:
-      cms_password:
-        description: "Mot de passe CMS à embarquer. Laisser vide pour utiliser le secret CMS_PASSWORD."
+      # `release: true` demande un APK SANS secret, pour publication publique.
+      # Un booléen, et pas une chaîne vide : `inputs.x || secrets.Y` retombe sur
+      # le secret quand la chaîne est vide (une chaîne vide est falsy en GH
+      # Expressions). Ce piège aurait fait embarquer le mot de passe dans l'APK
+      # publié — le contraire de l'intention. Un booléen est sans ambiguïté.
+      release:
+        description: "true = APK de release, SANS secret (publiable publiquement)."
         required: false
-        type: string
-        default: ""
+        type: boolean
+        default: false
     secrets:
       CMS_PASSWORD:
         required: false
@@ -44,12 +49,12 @@ jobs:
           gradle-version: "8.7"
 
       - name: Préparer local.properties
-        # Priorité à l'entrée `cms_password` (build de release : APK SANS secret),
-        # sinon le secret du dépôt (builds internes). Sans cette distinction, un
-        # APK publié en release publique embarquerait le mot de passe admin — il
-        # est compilé en clair dans le dex (buildConfigField String).
+        # Un APK de release ne doit porter AUCUN secret : `CMS_PASSWORD` serait
+        # compilé en clair dans le dex (buildConfigField String), et le dépôt est
+        # public. `release: true` force donc un mot de passe vide, et le secret
+        # n'est même pas lu. Sinon, on utilise le secret du dépôt (builds internes).
         env:
-          CMS_PASSWORD: ${{ inputs.cms_password || secrets.CMS_PASSWORD }}
+          CMS_PASSWORD: ${{ inputs.release && '' || secrets.CMS_PASSWORD }}
         run: |
           if [ -z "$CMS_PASSWORD" ]; then
             echo "::warning title=APK sans identifiants::Ajoute le secret CMS_PASSWORD (Settings > Secrets and variables > Actions). Sans lui l'APK se construit mais ne peut pas publier."
