@@ -3,6 +3,40 @@
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
 
+## [2026-10-15] — Étude : architecture sans PC (le téléphone comme poste de commande)
+
+### Contexte
+Décision du fondateur : « le PC doit disparaître — il n'est pas assez puissant
+pour générer des vidéos et des musiques localement ». Cible : le **Poco X6 Pro**
+porte la base de connaissances, le dispatch et la coordination des tâches ; le PC
+devient une option (GPU lourd), éteinte par défaut.
+
+### Ajouté
+- `docs/ARCHITECTURE_SANS_PC.md` : étude de la cible, chaque affirmation adossée à
+  un fichier (`[OBSERVÉ]` / `[INTERPRÉTATION]` / `[NON VÉRIFIÉ]`).
+
+### Points relevés (tous adossés à un fichier)
+- **Le cerveau du PC est léger** : sur 6 briques, 4 tournent déjà dans le cloud —
+  RAG `pgvector` (`lib/ai-embeddings.ts`, `/api/ai/search`), registre
+  `agent_tasks`, API de coordination (`/api/brain/tasks`), dispatch
+  (`agent_dispatch.py` → API REST). Le PC ne garde que le GPU lourd
+  (`video_assembler.py`, `comfy_manager.py`, Ollama).
+- Le RAG du PC n'est pas vectoriel : `knowledge_vault.py` fait `LIKE` + score par
+  mots ; le vrai RAG sémantique est côté site.
+- **Verrou principal** : `/api/brain/tasks` est figé sur `agent='heldonica-brain'`
+  et le serveur MCP parle à Supabase **avec la clé service** — inutilisable dans un
+  APK (décompilable). Il faut une route serveur générique authentifiée par clé
+  `hld_...` révocable (`lib/ai-auth.ts`), pas la clé service.
+- `lib/bridge-auth.ts` n'offre que deux chemins : mot de passe **admin** CMS ou
+  jeton partagé **non révocable**. Ni l'un ni l'autre ne convient à un téléphone.
+- `agent_tasks` n'a **pas de RLS** (migration 20260526) : acceptable tant que
+  l'APK ne parle qu'à la route serveur.
+
+### Non vérifié
+- Aucun accès à la base de production ; aucun appel réseau de confirmation.
+- Le débit de `/api/ai/search` depuis un téléphone en 4G n'a pas été mesuré.
+- L'exécution d'un petit modèle LLM local sur le Poco (Phase 3) reste à prouver.
+
 ## [2026-10-14] — Atelier légendes & photos (méthode d'écriture depuis une image)
 
 ### Contexte
