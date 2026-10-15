@@ -4,6 +4,47 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-10-15] — Préparation du Cerveau en APK Natif sur Poco X6 Pro (AllHands)
+
+### Réalisations & Socle pour AllHands
+1. **Passerelle Cloud 0€ (`app/api/ai/mobile-brain/route.ts`)** :
+   - Route Next.js dédiée au Poco X6 Pro, assurant l'autonomie totale sans nécessiter de PC 24/7.
+   - Zéro clé d'API dans l'APK : authentification par jeton agent (`x-heldonica-client`), cascade de modèles via `lib/ai-provider.ts` (Groq / Gemini 2.5 Flash).
+   - 4 modes opérationnels : `coach` (protocole ADHD/TSA 5/15/30 min), `terrain` (notes de voyage brutes transformées en récits authentiques), `vault` (connaissances et pépites), `chat` (posture officielle).
+   - Journalisation complète dans `ai_requests_log` et enregistrement sécurisé dans `copilot_generations`.
+2. **Client Kotlin Découplé (`heldonica-mobile/app/src/main/java/fr/heldonica/mobile/BrainClient.kt`)** :
+   - Dual-mode intelligent : priorité au Cloud 0€, avec détection et repli sur la station PC locale (port 8440) si connectée sur le même réseau Wi-Fi.
+   - Pings légers non-bloquants (timeout 1.5s).
+3. **Interface Native Jetpack Compose 120 Hz (`heldonica-mobile/app/src/main/java/fr/heldonica/mobile/CerveauScreen.kt`)** :
+   - Remplace l'ancienne WebView fragile par une interface fluide 120 Hz adaptée à l'écran Flow AMOLED du Poco X6 Pro.
+   - Chips de modes, suggestions d'action rapide, badge d'état réseau en temps réel, bulles stylisées Eco-Luxe avec action de copie.
+4. **Câblage Studio (`StudioActivity.kt`) & Cache Hors-Ligne (`assets/knowledge_vault.json`)** :
+   - `StudioActivity.kt` bascule directement sur `CerveauScreen()`.
+   - 10 fiches maîtresses embarquées en local pour consultation sans réseau.
+5. **Spécification Technique & Coordination (`docs/SPEC_CERVEAU_APK_POCO_X6_PRO.md`)** :
+   - Spécification détaillée pour AllHands / OpenHands avec caractéristiques SoC Dimensity 8300 Ultra, directives Media3 et instructions ADB.
+   - Tâche déposée dans `output/agent_tasks/` (`TASK_2026-10-15_brain-allhands-poco-x6pro-cerveau-apk.md`) et visible dans la file.
+6. **Garde-fous CI** :
+   - `npm run preflight` validé (5/5 PASS), `npm run typecheck` validé (0 erreur).
+
+---
+
+## [2026-10-14] — Architecture PC Optionnel & APK Unifiée (Brain, Content Creation, Memoria Imperium)
+
+### Réalisations & Décisions d'Architecture
+1. **Validation & Mesure d'Inférence d'Images 0€ sans PC (`docs/DECISION_GENERATION_VIDEO.md`)** :
+   - Découverte clé : le pipeline n'a jamais utilisé la génération de vidéo IA lourde (LTX-Video) ; `short_factory.py` utilise des images fixes `.webp` animées algorithmiquement (`video_assembler.py` l. 114–192 et `MontageVideo.kt` sur mobile).
+   - Mesures réelles de fournisseurs d'images sans PC : Google AI Studio Free Tier donne HTTP 429 Quota Exceeded ; Pollinations.ai FLUX 9:16 mesuré avec succès à **HTTP 200 en 5,1 s pour 0,00 €** ; Cloudflare Workers AI FLUX actif en secours (10 000 neurones/j gratuits).
+   - Scission stricte des principes :
+     * **Heldonica Travel (B2C/B2B)** : 100 % photos & vidéos réelles de terrain (règle « On n'invente rien » et garde-fou `check:content-evidence`), montage Media3 Transformer sur mobile.
+     * **Memoria Imperium** : Documentaires historiques antiques 9:16 générés en Cloud 0€ (Pollinations FLUX + tambour de guerre + badges dorés).
+2. **APK Heldonica Mobile Unifiée (`heldonica-mobile/`)** :
+   - Nouveau composant `MemoriaImperium.kt` : sélecteur de presets historiques (*César au Rubicon 49 av. J.-C.*, *Chats de Péluse 525 av. J.-C.*, *Sylla 88 av. J.-C.*), génération d'images 9:16 FLUX en 0€ direct en cache, copie 1-clic du package YouTube (titre, description avec sources antiques Suétone/Plutarque, tags).
+   - Câblage dans `StudioActivity.kt` et `StudioTabs.kt` : Onglet Cerveau (Hub IA), Onglet Terrain (`MainActivity` avec capture et publication CMS), Onglet Memoria (`OngletMemoriaImperium`), Onglet CMS (`EditeurActivity`).
+   - Préservation stricte de la conformité des tests unitaires (`StudioTabsTest.kt`).
+
+---
+
 ## [2026-10-10] — Phase 12 : Blocs Éditioriaux Avancés, Suggestion RAG Temps Réel & Carnets Enrichis
 
 ### Réalisations & Nouveaux Modules
