@@ -110,6 +110,51 @@ soumis à la veille, et un service de premier plan exige un
 notification permanente et l'exemption de batterie. Sans les trois, Android tue
 le worker en silence.
 
+### Le maillon manquant : le registre lance enfin des agents (2026-10-15)
+
+`agent_tasks` savait ce qui est demandé. `agent-dispatch.yml` savait ouvrir une
+conversation. **Rien ne reliait les deux** : une tâche déposée restait `sent`
+jusqu'à ce qu'un humain la lance. C'est ce trou qui est bouché.
+
+| Fichier | Rôle |
+|---|---|
+| `lib/registre-dispatch.ts` | la règle : quoi dispatcher, et le brief envoyé |
+| `app/api/cron/dispatch-registre/route.ts` | lit le registre, ouvre les conversations, trace le dispatch |
+| `.github/workflows/dispatch-registre.yml` | le déclencheur, toutes les 15 minutes |
+
+#### Le piège qui aurait fabriqué des doublons
+
+`[OBSERVÉ]` `libererBauxExpires` (route, heartbeat, et le `balayer=1` de la veille)
+remet une tâche abandonnée en `sent` **avec `claimed_by = null`**. Un dispatcher qui
+se fie à `status = 'sent'` relance donc la même tâche à chaque passage — une
+conversation de plus toutes les quinze minutes, pour un téléphone mort.
+
+`[OBSERVÉ]` La parade : une trace persistante `payload.dispatch.conversation_id`,
+écrite dès qu'une conversation est ouverte. Elle survit au balayage, qui ne touche
+que `status`, `claimed_by` et `claimed_at`. La route écrit la trace **avant** tout
+le reste ; si cette écriture échoue, elle le crie (`TRACE ECHOUEE`) plutôt que de
+laisser croire à un succès.
+
+#### Deux décisions assumées
+
+- **`tous` n'est pas dispatché.** Une tâche ouverte n'est pas un ordre : la
+  dispatcher volerait le travail que l'agent voulu s'apprêtait à prendre. Elle
+  reste à un humain.
+- **La route ne prend pas la tâche à la place de l'agent.** La conversation la
+  prendra elle-même, et la prise est atomique. Pré-réserver bloquerait un agent
+  plus rapide.
+
+#### Vérifié par mesure
+
+`[OBSERVÉ]` 19 tests unitaires neufs, dont celui qui compte : une tâche abandonnée
+(bail libéré, `claimed_by = null`, `payload.dispatch` présent) n'est **pas**
+relancée. Suite complète : **683 tests verts**, `tsc` exit 0, 12 garde-fous verts.
+
+`[NON VÉRIFIÉ]` La route n'a **pas** tourné contre la vraie base : je n'ai pas
+d'identifiants Supabase ici. Le premier passage réel se lira dans les logs du
+workflow. `OPENHANDS_API_KEY` doit aussi être posée dans Vercel — sans elle, la
+route répond `dispatch: inactif` et ne lance rien (aucune tâche perdue).
+
 ### Le serveur, sans rien payer (2026-10-15)
 
 Question du fondateur : « quel serveur, je ne peux pas payer ». Réponse :

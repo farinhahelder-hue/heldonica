@@ -1,0 +1,88 @@
+name: Dispatch du registre
+
+# ============================================================
+# Brancher `agent_tasks` sur l'ouverture de conversations.
+#
+# C'est le maillon manquant : le registre savait ce qui est demandé, et
+# `agent-dispatch.yml` savait ouvrir une conversation — mais rien ne reliait les
+# deux. Une tâche déposée restait `sent` jusqu'à ce qu'un humain la lance.
+#
+# Pourquoi GitHub Actions et pas Vercel : décision consignée au CHANGELOG du
+# 2026-10-15 — Vercel Hobby ne peut pas faire de cron sub-daily (une exécution par
+# jour, déploiement refusé au-delà). Le dépôt est public, donc Actions est gratuit
+# et illimité. C'est ici que le dispatcher tourne.
+#
+# Auth : `x-api-key` (clé agent `hld_...`, jamais la clé service — elle ne peut
+# pas vivre dans un dépôt public). Le secret est `AI_AGENT_API_KEY`.
+#
+# Prérequis côté route : `OPENHANDS_API_KEY` doit être posée dans l'environnement
+# Vercel (la route en a besoin pour ouvrir les conversations). Sans elle, la route
+# répond `dispatch: inactif` et ne lance rien — aucune tâche n'est perdue.
+#
+# Contrainte : un `schedule` ne s'exécute que si le fichier existe sur la branche
+# par défaut. Après fusion, ce workflow doit être sur `main` pour tourner.
+# ============================================================
+
+on:
+  schedule:
+    # Toutes les 15 minutes. Décalé de l'heure pile : GitHub déconseille les
+    # minutes « rondes », chargées et parfois reportées.
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+    inputs:
+      simuler:
+        description: "1 = dire ce qui partirait, sans lancer de conversation"
+        required: false
+        default: "0"
+
+permissions:
+  contents: read
+
+jobs:
+  dispatcher:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lancer les tâches en attente du registre
+        env:
+          SITE_URL: ${{ secrets.SITE_URL || 'https://www.heldonica.fr' }}
+          AGENT_KEY: ${{ secrets.AI_AGENT_API_KEY }}
+          SIMULER: ${{ github.event.inputs.simuler || '0' }}
+        run: |
+          set -o pipefail
+          if [ -z "$AGENT_KEY" ]; then
+            echo "::error::AI_AGENT_API_KEY absente — le dispatcher ne peut pas s'authentifier."
+            exit 1
+          fi
+          CODE=$(curl -sS -o /tmp/dispatch.json -w '%{http_code}' --max-time 90 \
+            -H "x-api-key: $AGENT_KEY" \
+            "$SITE_URL/api/cron/dispatch-registre?simuler=$SIMULER")
+          echo "HTTP $CODE"
+          cat /tmp/dispatch.json || true
+          if [ "$CODE" != "200" ]; then
+            echo "::error::Dispatch en échec (HTTP $CODE)."
+            exit 1
+          fi
+
+      - name: Résumer
+        run: |
+          python3 - <<'PY'
+          import json, os
+          d = json.load(open('/tmp/dispatch.json'))
+          if d.get('dispatch') == 'inactif':
+              print(f"::warning::{d.get('raison')}")
+              raise SystemExit(0)
+          lancees = d.get('lancees', [])
+          echecs = d.get('echecs', [])
+          print(f"  conversations actives : {d.get('conversations_actives')}")
+          print(f"  lancees               : {len(lancees)}")
+          print(f"  echecs                : {len(echecs)}")
+          for c in lancees:
+              print(f"    -> {c.get('conversation_id')}  {c.get('titre')}")
+              if c.get('raison'):
+                  print(f"       ::warning::{c.get('raison')}")
+          for e in echecs:
+              print(f"    !! {e.get('id')} : {e.get('raison')}")
+          # Un échec de lancement doit rester visible, pas avalé.
+          if echecs:
+              raise SystemExit(1)
+          PY
