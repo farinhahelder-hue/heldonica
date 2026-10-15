@@ -84,6 +84,18 @@ dépose en artefact `heldonica-mobile-debug`. Onglet **Actions** → dernier run
 **Artifacts**. Il a besoin du secret `CMS_PASSWORD` pour que l'APK puisse publier
 (sans lui, l'APK se construit mais ne peut pas publier).
 
+### Installer depuis le téléphone (lien direct)
+
+L'artefact demande six gestes sur un ordinateur et il expire. Pour un lien direct,
+utilise le workflow **Release APK** : pousse un tag `apk-*`, ou lance-le depuis
+l'onglet Actions. La release est téléchargeable depuis le Poco et s'installe
+par-dessus la version précédente (même keystore de debug, versionné).
+
+**Cet APK-là ne contient aucun secret** : il peut lire le registre des tâches, mais
+pas publier de contenu sur le site. C'est volontaire — `CMS_PASSWORD` serait compilé
+en clair dans le dex, et le dépôt est public. Pour un APK qui publie, construis en
+local avec `local.properties`.
+
 ## Config
 - `local.properties` (non versionné) : `cms.baseUrl=https://www.heldonica.fr` + `cms.password=<la valeur de CMS_PASSWORD sur Vercel>` — jamais en clair dans le dépôt, voir `local.properties.example`
 - Aucune clé Google Cloud nécessaire pour le MVP. Pour OSM tu mets `User-Agent: Heldonica (contact@heldonica.fr)`.

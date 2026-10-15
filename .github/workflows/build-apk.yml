@@ -2,6 +2,19 @@ name: Build APK (Heldonica Mobile 0€)
 
 on:
   workflow_dispatch:
+  # Réutilisable : « Release APK » l'appelle pour ne pas dupliquer la recette de
+  # build (JDK, SDK, local.properties). Une seule copie de cette configuration
+  # fragile — cf. le commentaire sur le paquet « tools » ci-dessous.
+  workflow_call:
+    inputs:
+      cms_password:
+        description: "Mot de passe CMS à embarquer. Laisser vide pour utiliser le secret CMS_PASSWORD."
+        required: false
+        type: string
+        default: ""
+    secrets:
+      CMS_PASSWORD:
+        required: false
   push:
     paths:
       - "heldonica-mobile/**"
@@ -31,8 +44,12 @@ jobs:
           gradle-version: "8.7"
 
       - name: Préparer local.properties
+        # Priorité à l'entrée `cms_password` (build de release : APK SANS secret),
+        # sinon le secret du dépôt (builds internes). Sans cette distinction, un
+        # APK publié en release publique embarquerait le mot de passe admin — il
+        # est compilé en clair dans le dex (buildConfigField String).
         env:
-          CMS_PASSWORD: ${{ secrets.CMS_PASSWORD }}
+          CMS_PASSWORD: ${{ inputs.cms_password || secrets.CMS_PASSWORD }}
         run: |
           if [ -z "$CMS_PASSWORD" ]; then
             echo "::warning title=APK sans identifiants::Ajoute le secret CMS_PASSWORD (Settings > Secrets and variables > Actions). Sans lui l'APK se construit mais ne peut pas publier."

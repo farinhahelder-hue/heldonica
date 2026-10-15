@@ -155,6 +155,42 @@ Pour ne plus dépendre d'une remise en route à la main, une routine tourne seul
 depuis la branche par défaut, donc après fusion de la PR #601 sur `main`). Le
 premier vrai battement reste à observer.
 
+### Livrer l'APK par un lien direct (2026-10-15)
+
+Question du fondateur : « as-tu besoin de passer le chantier à Antigravity sur le
+PC pour générer l'APK ? » Réponse : **non**. L'APK se construit déjà sur la CI
+gratuite, et le keystore est **versionné** dans le dépôt — donc deux APK de CI
+s'installent l'un sur l'autre. Le PC ne sert à rien ici.
+
+- `.github/workflows/release-apk.yml` — sur un tag `apk-*` ou en manuel, publie
+  une **release** avec un lien de téléchargement direct, ouvrable depuis le
+  téléphone (au lieu d'un artefact qui expire).
+- `.github/workflows/build-apk.yml` — devient réutilisable (`workflow_call`) pour
+  ne pas dupliquer la recette JDK/SDK.
+
+#### Le piège de sécurité trouvé en écrivant ce workflow
+
+`[OBSERVÉ]` `CMS_PASSWORD` est injecté par `buildConfigField("String", …)` : il
+devient un **littéral compilé dans le dex**. Or le dépôt est **public** : publier
+l'APK en release aurait donc publié le mot de passe admin, en clair. Vérifié dans
+le log du run `38721318520` : la ligne `echo "cms.***"` (masquée par GitHub)
+prouve que le secret est bien injecté.
+
+`[OBSERVÉ]` Aujourd'hui le risque est nul : l'artefact est privé (HTTP **401**
+en anonyme, vérifié). Il le serait devenu à la première release.
+
+Deux garde-fous : le build de release reçoit `cms_password: ""` (le secret n'est
+pas transmis), et un contrôle **refuse** la publication si un JWT ou une clé
+`sb_secret_` apparaît dans le dex.
+
+`[INTERPRÉTATION]` Conséquence assumée et écrite dans les notes de release :
+l'APK publié peut **lire** le registre des tâches (la lecture ne demande pas de
+mot de passe) mais **ne peut pas publier** de contenu sur le site. C'est le prix
+pour garder le dépôt public — et un prix bien moindre que celui d'un mot de passe
+admin exposé.
+
+**Non vérifié** : le workflow de release n'a pas encore tourné.
+
 ### La veille dans l'app (remplace le poller du PC)
 
 Le PC disparaissait de l'architecture ; le poller qui tournait dessus devait donc
