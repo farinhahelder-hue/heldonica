@@ -63,11 +63,6 @@ android {
         )
         buildConfigField(
             "String",
-            "GEMINI_API_KEY",
-            "\"${cmsProps.getProperty("gemini.apiKey") ?: ""}\""
-        )
-        buildConfigField(
-            "String",
             "BRAIN_BASE_URL",
             "\"${cmsProps.getProperty("brain.baseUrl") ?: "http://10.10.145.61:8440"}\""
         )

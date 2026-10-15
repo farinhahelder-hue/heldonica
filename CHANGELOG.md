@@ -3,6 +3,33 @@
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
 
+## [2026-10-15] — Mobile : retrait de la clé Gemini de l'APK (faille fermée)
+
+### Contexte
+L'étude `docs/FUSION_APPS_ANDROID.md` (2026-10-14) relevait une **tension de
+sécurité** : `heldonica-mobile` embarquait une clé Gemini (`BuildConfig.GEMINI_API_KEY`)
+et appelait l'API Google **directement depuis le téléphone**, alors que la règle du
+projet est « aucune clé dans l'APK » (le brain applique déjà cette règle).
+
+### Corrigé
+- `heldonica-mobile/app/build.gradle.kts` : le `buildConfigField GEMINI_API_KEY`
+  est **supprimé** ; la clé n'est plus injectée dans le binaire.
+- `heldonica-mobile/app/.../MainActivity.kt` : le bloc d'appel direct Gemini
+  (~100 lignes, prompt éditorial + retry) est **retiré**. L'analyse de photo passe
+  désormais par le **serveur Heldonica** (`POST /api/cms/ai-vision`, clé côté
+  serveur), puis par le repli `heldonica-brain` local — comportement inchangé pour
+  l'utilisateur, sans secret embarqué.
+
+### Vérifié
+- `grep GEMINI_API_KEY|gemini.apiKey|geminiKey` sur `heldonica-mobile/` : **aucune**
+  référence restante hors artefact `build/` (généré, non versionné).
+- Flux relu : la variable `dernierErreur` et l'enchaînement des replis restent
+  cohérents après retrait (pas de bloc orphelin) ; aucun import `Base64` à nettoyer.
+
+### Non vérifié
+- Le build Gradle n'a pas été relancé dans cet environnement (pas de JDK/Android SDK) :
+  le retrait est vérifié par lecture, pas par compilation.
+
 ## [2026-10-14] — Atelier légendes & photos (méthode d'écriture depuis une image)
 
 ### Contexte
