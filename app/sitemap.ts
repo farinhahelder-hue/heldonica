@@ -3,9 +3,10 @@ import { getAllPosts } from '@/lib/blog-supabase'
 
 const BASE_URL = 'https://www.heldonica.fr'
 
-// Fallback image for articles without featured_image
-// TODO: Remplacer par les vrais visuels issus des prompts image (13 prompts prêts dans le plan de correction)
-const FALLBACK_IMAGE = 'https://www.heldonica.fr/og-default.jpg'
+// TODO: Remplacer ce fallback de marque par des visuels définitifs issus des prompts image validés
+// Concernés : tous les articles sans featured_image dans la DB (cf. plan de correction)
+// Prompts associés : 13 prompts prêts dans le plan de correction (madere-foret, zurich-limmat, stoos-ridge, etc.)
+const FALLBACK_IMAGE = `${BASE_URL}/og-default.jpg`
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Pages statiques principales
