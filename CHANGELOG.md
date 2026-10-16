@@ -2,6 +2,31 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-16] — Heldonica Mobile & Brain : Résilience d'authentification CMS et timeouts d'inférence Cloud
+
+### Problème résolu
+- L'application mobile Poco X6 Pro affichait `⚠️ Impossible de joindre le Cerveau (Cloud 0€ et Station PC injoignables). Vérifie ta connexion.` lors des requêtes au Cerveau Cloud (`/api/ai/mobile-brain`).
+- **Cause racine 1 (Auth)** : `BrainClient.kt` transmettait simultanément `x-cms-auth` et `x-api-key` avec le mot de passe CMS. Dans `lib/ai-auth.ts`, la présence de `x-api-key` interceptait la requête pour vérifier un hash dans la table `api_keys` Supabase. Le mot de passe CMS n'étant pas une clé API agent, la requête était immédiatement rejetée en HTTP 401 sans jamais évaluer `requireCmsAuth`.
+- **Cause racine 2 (PC Fallback)** : Lors du repli local, `BrainClient.kt` n'interrogeait que l'URL Wi-Fi LAN (`10.10.145.61:8440`). La station PC locale étant liée par sécurité uniquement à `127.0.0.1:8440` (loopback), le repli échouait, même avec câble USB et `adb reverse tcp:8440 tcp:8440`.
+- **Cause racine 3 (Hangs)** : Dans `lib/ai-provider.ts`, les appels `fetch` vers les 14 fournisseurs IA n'avaient aucun timeout (`signal: AbortSignal.timeout(...)`), risquant de figer les fonctions serverless Vercel jusqu'au timeout passerelle.
+
+### Corrections & Améliorations
+1. **Authentification Prioritaire CMS (`lib/ai-auth.ts`)** :
+   - Inversion de l'ordre d'évaluation : vérification immédiate de la session CMS ou de l'en-tête `x-cms-auth` via `requireCmsAuth` avant toute lecture de clé API d'agent.
+   - Si `token` (`x-api-key` ou `Bearer`) est fourni, vérification directe contre `isValidCmsPassword(token)` : accorde immédiatement l'accès `cms_mobile` si le mot de passe CMS est passé.
+2. **Timeouts Stricts & Anti-Freeze (`lib/ai-provider.ts`)** :
+   - Ajout systématique de `signal: AbortSignal.timeout(8000)` (8 secondes) sur tous les fournisseurs IA externes (Groq, Gemini, Mistral, Cerebras, SambaNova, Together, DeepSeek, OpenRouter, OpenAI, Anthropic, HuggingFace, Grok, AIML, Nvidia).
+   - Réduction du timeout local `callLocalLlm` de 60s à 3s (`AbortSignal.timeout(3000)`) pour un échec rapide et sans blocage si le PC est éteint.
+3. **Client Android Poco X6 Pro (`heldonica-mobile/.../BrainClient.kt`)** :
+   - Suppression de l'en-tête erroné `x-api-key` lors de l'appel Cloud (seul `x-cms-auth` est émis).
+   - Détection et repli PC bi-directionnels (`appelerStationPcAvecFallback`) : tente l'adresse configurée (`brainBaseUrl`) ET le tunnel local USB `http://127.0.0.1:8440` (`adb reverse`).
+4. **Vérifications & Mesures** :
+   - `npm run preflight` : 6/6 PASS.
+   - `npx tsx scripts/test_verify_auth.ts` : 4/4 cas d'authentification validés (`cms_session`, `cms_mobile`, double header, rejet 401).
+   - `app/api/ai/mobile-brain/route.ts` testé avec succès : Groq `openai/gpt-oss-120b` répond en 851 ms.
+
+---
+
 ## [2026-10-15] — Heldonica Pocket : Enrichissement RAG Mobile (93 Fiches Hors-Ligne & Recherche Pondérée)
 
 ### Réalisations & Évolution du Coffre des Savoirs
