@@ -115,6 +115,47 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-10-15] — Positionnement éditorial : légendes Instagram, approfondissement des pages internes
+
+### Contexte
+`docs/positionnement-editorial-concurrents.md` laissait une réserve explicite : le
+relevé des légendes Instagram concurrentes ne portait que sur la **page d'accueil**
+de chaque site, et les 10 acteurs hors Échappées Lointaines restaient
+`[INDISPONIBLE]`. La tâche demandait de fiabiliser et compléter ce document sans
+jamais inventer de légende.
+
+### Ajouté
+- `scripts/probe_internal_pages.py` : sonde les **pages internes** des concurrents
+  (via leurs sitemaps publics), jusqu'à 40 pages par acteur, et compte les légendes
+  republiées et les embeds Instagram. Ne recopie aucun texte — comptages seuls.
+- `docs/positionnement-editorial-concurrents.md` §3.6 : nouvelle section
+  « Approfondissement — pages internes (2026-10-15) ».
+
+### Corrigé / complété
+- **338 pages internes sondées sur 9 acteurs → 0 légende republiée** (hors
+  Échappées Lointaines). La réserve `[NON VÉRIFIÉ]` « relevé limité à l'accueil »
+  est levée ; §1.2, §3.2, §3.3, §3.4, §3.5, §4, §4.1, §7, §8 et §10 alignées.
+- **Fabrique ton Voyage** : découverte d'un **blog séparé**
+  (`blog.fabriquetonvoyage.fr`) manqué par le relevé d'accueil ; une page porte
+  **1 embed Instagram**, mais **sans légende lisible** dans le HTML (lien simple).
+- **Échappées Lointaines** : relevé du 2026-10-14 **reproduit à l'identique** le
+  2026-10-15 (33 vignettes, 28 légendes lisibles, mêmes comptages) — corpus stable.
+
+### Vérifié
+- `python3 scripts/collect_instagram_legends.py` : reproduit les chiffres de §3.4/§3.5
+  (Échappées Lointaines 33/28 ; 10 autres acteurs 0 ; `voyagesetc.fr` HTTP 403).
+- `python3 scripts/probe_internal_pages.py` : reproduit les chiffres de §3.6.
+- PR #528 (« parfait ») vérifiée **ouverte, non fusionnée** via l'API GitHub — la
+  réserve de §2.3 est donc toujours exacte.
+- Aucune légende concurrente n'est recopiée : le document ne contient que des
+  comptages, des noms propres et des faits de structure.
+
+### Notes
+- Les légendes des 10 acteurs restent `[INDISPONIBLE]` : leurs **sites** n'en
+  republient aucune (accueil + pages internes), mais cela ne prouve pas qu'ils n'en
+  publient pas sur Instagram — seule une **capture utilisateur** ou une **URL
+  publique** permettrait de conclure.
+
 ## [2026-10-14] — Atelier légendes & photos (méthode d'écriture depuis une image)
 
 ### Contexte
