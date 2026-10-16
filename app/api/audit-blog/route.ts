@@ -37,7 +37,7 @@ export async function GET(request: Request) {
       .from('cms_blog_posts')
       .select('id, title, slug, published, status')
       .eq('status', 'published')
-      .eq('published', false)
+      .or('published.is.null,published.eq.false')
       .limit(10)
 
     // Count total
@@ -84,7 +84,9 @@ export async function GET(request: Request) {
 }
 
 // Fix: Sync status='published' with published=true
-export async function POST() {
+export async function POST(request: Request) {
+  const authError = await requireCmsAuth(request);
+  if (authError) return authError;
   let adminClient;
   try {
     adminClient = createServiceClient();
@@ -98,7 +100,7 @@ export async function POST() {
       .from('cms_blog_posts')
       .update({ published: true })
       .eq('status', 'published')
-      .eq('published', false)
+      .or('published.is.null,published.eq.false')
       .select()
 
     return NextResponse.json({
