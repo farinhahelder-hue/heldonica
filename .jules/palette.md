@@ -1,0 +1,3 @@
+## 2024-05-15 - React state and aria-live for dynamic UI text
+**Learning:** Using direct DOM manipulation (like `document.getElementById`) to update button text (e.g., "Copied!") in React is an anti-pattern. It bypasses React's virtual DOM and creates accessibility issues because screen readers may not detect the change if not properly configured.
+**Action:** Use React `useState` to manage dynamic text changes and add the `aria-live="polite"` attribute to the element. This ensures React manages the state correctly and screen readers announce the state change cleanly without interrupting the user.
