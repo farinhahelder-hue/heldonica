@@ -78,26 +78,37 @@ object BrainClient {
     private val jsonMediaType = "application/json; charset=utf-8".toMediaType()
 
     /**
-     * Teste rapidement (timeout 1.5s) si la station PC locale (port 8440) est allumée et joignable sur le LAN.
+     * Teste rapidement (timeout 1.5s) si la station PC locale (port 8440) est allumée et joignable
+     * soit via l'URL configurée (LAN Wi-Fi), soit via 127.0.0.1:8440 (câble USB avec adb reverse).
      */
     suspend fun verifierStationPcDisponible(baseUrlPc: String): Boolean = withContext(Dispatchers.IO) {
+        val urlsATester = mutableListOf<String>()
         val url = baseUrlPc.trim().trimEnd('/')
-        if (url.isBlank() || (!url.startsWith("http://") && !url.startsWith("https://"))) {
-            return@withContext false
+        if (url.isNotBlank() && (url.startsWith("http://") || url.startsWith("https://"))) {
+            urlsATester.add(url)
         }
+        if (!url.contains("127.0.0.1")) {
+            urlsATester.add("http://127.0.0.1:8440")
+        }
+
         val pingClient = httpClient.newBuilder()
             .connectTimeout(1500, TimeUnit.MILLISECONDS)
             .readTimeout(1500, TimeUnit.MILLISECONDS)
             .build()
-        try {
-            val req = Request.Builder()
-                .url("$url/api/system/status")
-                .get()
-                .build()
-            pingClient.newCall(req).execute().use { it.isSuccessful }
-        } catch (e: Exception) {
-            false
+
+        for (u in urlsATester) {
+            try {
+                val req = Request.Builder()
+                    .url("$u/api/system/status")
+                    .get()
+                    .build()
+                val ok = pingClient.newCall(req).execute().use { it.isSuccessful }
+                if (ok) return@withContext true
+            } catch (e: Exception) {
+                // Essayer l'adresse suivante
+            }
         }
+        false
     }
 
     /**
@@ -113,7 +124,7 @@ object BrainClient {
         authSecret: String = BuildConfig.CMS_PASSWORD
     ): ReponseCerveau = withContext(Dispatchers.IO) {
         if (forcerStationPc) {
-            val reponsePc = appelerStationPc(brainBaseUrl, message, mode)
+            val reponsePc = appelerStationPcAvecFallback(brainBaseUrl, message, mode)
             if (reponsePc != null) return@withContext reponsePc
         }
 
@@ -125,8 +136,8 @@ object BrainClient {
             Log.w(TAG, "Échec Cloud, tentative de repli vers la station PC : ${e.message}")
         }
 
-        // 2. Repli : Station PC locale si le Cloud est injoignable
-        val repPc = appelerStationPc(brainBaseUrl, message, mode)
+        // 2. Repli : Station PC locale si le Cloud est injoignable (Wi-Fi ou USB ADB reverse)
+        val repPc = appelerStationPcAvecFallback(brainBaseUrl, message, mode)
         if (repPc != null) return@withContext repPc
 
         throw IOException("Impossible de joindre le Cerveau (Cloud 0€ et Station PC injoignables). Vérifie ta connexion.")
@@ -161,7 +172,6 @@ object BrainClient {
 
         if (authSecret.isNotBlank()) {
             requestBuilder.addHeader("x-cms-auth", authSecret)
-            requestBuilder.addHeader("x-api-key", authSecret)
         }
 
         val request = requestBuilder
@@ -185,6 +195,23 @@ object BrainClient {
                 source = SourceCerveau.CLOUD
             )
         }
+    }
+
+    private fun appelerStationPcAvecFallback(
+        brainBaseUrl: String,
+        message: String,
+        mode: String
+    ): ReponseCerveau? {
+        // 1. Tente l'URL configurée (LAN Wi-Fi)
+        val repConfig = appelerStationPc(brainBaseUrl, message, mode)
+        if (repConfig != null) return repConfig
+
+        // 2. Tente le tunnel local USB (ADB reverse tcp:8440 tcp:8440) si l'URL configurée différait
+        if (!brainBaseUrl.contains("127.0.0.1")) {
+            val repUsb = appelerStationPc("http://127.0.0.1:8440", message, mode)
+            if (repUsb != null) return repUsb
+        }
+        return null
     }
 
     private fun appelerStationPc(

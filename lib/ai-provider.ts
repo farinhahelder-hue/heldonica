@@ -61,6 +61,7 @@ async function callGroq(options: AiCompletionOptions, apiKey: string, sansJson =
       ...(gptOss ? { reasoning_effort: 'low' } : {}),
       ...(jsonMode ? { response_format: { type: 'json_object' } } : {}),
     }),
+    signal: AbortSignal.timeout(8000),
   });
 
   if (!res.ok) {
@@ -118,6 +119,7 @@ async function callGemini(options: AiCompletionOptions, apiKey: string): Promise
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
+    signal: AbortSignal.timeout(8000),
   });
 
   if (!res.ok) {
@@ -148,6 +150,7 @@ async function callMistral(options: AiCompletionOptions, apiKey: string): Promis
       max_tokens: options.max_tokens ?? 2000,
       ...(options.jsonMode ? { response_format: { type: 'json_object' } } : {}),
     }),
+    signal: AbortSignal.timeout(8000),
   });
 
   if (!res.ok) {
@@ -178,6 +181,7 @@ async function callCerebras(options: AiCompletionOptions, apiKey: string): Promi
       max_tokens: options.max_tokens ?? 2000,
       ...(options.jsonMode ? { response_format: { type: 'json_object' } } : {}),
     }),
+    signal: AbortSignal.timeout(8000),
   });
 
   if (!res.ok) {
@@ -210,6 +214,7 @@ async function callOpenRouter(options: AiCompletionOptions, apiKey: string): Pro
       max_tokens: options.max_tokens ?? 2000,
       ...(options.jsonMode ? { response_format: { type: 'json_object' } } : {}),
     }),
+    signal: AbortSignal.timeout(8000),
   });
 
   if (!res.ok) {
@@ -240,6 +245,7 @@ async function callOpenAI(options: AiCompletionOptions, apiKey: string): Promise
       max_tokens: options.max_tokens ?? 2000,
       ...(options.jsonMode ? { response_format: { type: 'json_object' } } : {}),
     }),
+    signal: AbortSignal.timeout(8000),
   });
 
   if (!res.ok) {
@@ -279,6 +285,7 @@ async function callAnthropic(options: AiCompletionOptions, apiKey: string): Prom
       max_tokens: options.max_tokens ?? 2000,
       temperature: options.temperature ?? 0.7,
     }),
+    signal: AbortSignal.timeout(8000),
   });
 
   if (!res.ok) {
@@ -308,7 +315,7 @@ async function callLocalLlm(options: AiCompletionOptions, localUrl: string): Pro
       max_tokens: options.max_tokens ?? 2000,
       ...(options.jsonMode ? { response_format: { type: 'json_object' } } : {}),
     }),
-    signal: AbortSignal.timeout(60_000),
+    signal: AbortSignal.timeout(3000),
   });
 
   if (!res.ok) {
@@ -338,6 +345,7 @@ async function callHuggingFace(options: AiCompletionOptions, apiKey: string): Pr
       temperature: options.temperature ?? 0.7,
       max_tokens: options.max_tokens ?? 2000,
     }),
+    signal: AbortSignal.timeout(8000),
   });
 
   if (!res.ok) {
@@ -367,6 +375,7 @@ async function callGrok(options: AiCompletionOptions, apiKey: string): Promise<A
       temperature: options.temperature ?? 0.7,
       max_tokens: options.max_tokens ?? 2000,
     }),
+    signal: AbortSignal.timeout(8000),
   });
 
   if (!res.ok) {
@@ -397,6 +406,7 @@ async function callDeepSeek(options: AiCompletionOptions, apiKey: string): Promi
       max_tokens: options.max_tokens ?? 2000,
       ...(options.jsonMode ? { response_format: { type: 'json_object' } } : {}),
     }),
+    signal: AbortSignal.timeout(8000),
   });
 
   if (!res.ok) {
@@ -426,6 +436,7 @@ async function callSambaNova(options: AiCompletionOptions, apiKey: string): Prom
       temperature: options.temperature ?? 0.7,
       max_tokens: options.max_tokens ?? 2000,
     }),
+    signal: AbortSignal.timeout(8000),
   });
 
   if (!res.ok) {
@@ -455,6 +466,7 @@ async function callTogether(options: AiCompletionOptions, apiKey: string): Promi
       temperature: options.temperature ?? 0.7,
       max_tokens: options.max_tokens ?? 2000,
     }),
+    signal: AbortSignal.timeout(8000),
   });
 
   if (!res.ok) {
@@ -485,6 +497,7 @@ async function callAIML(options: AiCompletionOptions, apiKey: string): Promise<A
       max_tokens: options.max_tokens ?? 2000,
       ...(options.jsonMode ? { response_format: { type: 'json_object' } } : {}),
     }),
+    signal: AbortSignal.timeout(8000),
   });
 
   if (!res.ok) {
@@ -514,6 +527,7 @@ async function callNvidia(options: AiCompletionOptions, apiKey: string): Promise
       temperature: options.temperature ?? 0.7,
       max_tokens: options.max_tokens ?? 2000,
     }),
+    signal: AbortSignal.timeout(8000),
   });
 
   if (!res.ok) {
