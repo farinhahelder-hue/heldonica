@@ -1,0 +1,15 @@
+export const SLUG_IMAGE_PROMPTS: Record<string, string> = {
+  'roumanie-villages-caches': '/images/generated/timisoara-ville-3.jpg',
+  'guide-pratique-comment-debuter-le-slow-travel-en-duo': '/images/generated/zurich-panorama-2.jpg',
+  'pepites-mystiques-de-madere': '/images/generated/madere-cascade.jpg',
+  'bolo-do-caco-recette-traditionnelle-de-madere-3': '/images/generated/madere-cascade.jpg',
+  'ballade-du-vendredi-soir-a-la-rue-mouffetard-singhnature': '/images/generated/paris-petite-ceinture-2.jpg',
+  'flotter-sur-la-limmat-zurich-aventure': '/images/generated/zurich-limmat.jpg',
+  'cuib-darte-a-timisoara-cour-interieure-et-poesie-roumaine': '/images/generated/timisoara-ville-3.jpg',
+  'quand-verdure-rime-avec-street-art-escapade-a-la-petite-ceinture-75014': '/images/generated/paris-petite-ceinture-2.jpg',
+  'stoos-ridge-notre-aventure-sur-la-crete-panoramique': '/images/generated/stoos-ridge.jpg',
+  'madere-slow-travel-guide': '/images/generated/madere-foret.jpg',
+  'zurich': '/images/generated/zurich-panorama-2.jpg',
+  'prego-no-bolo-do-caco': '/images/generated/prego-bolo-caco.jpg',
+  'madere-guide-complet': '/images/generated/madere-foret.jpg',
+};

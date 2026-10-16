@@ -1,10 +1,11 @@
 import { MetadataRoute } from 'next'
 import { getAllPosts } from '@/lib/blog-supabase'
+import { SLUG_IMAGE_PROMPTS } from '@/lib/image-prompts'
+
 
 const BASE_URL = 'https://www.heldonica.fr'
 
 // Fallback image for articles without featured_image
-// TODO: Remplacer par les vrais visuels issus des prompts image (13 prompts prêts dans le plan de correction)
 const FALLBACK_IMAGE = 'https://www.heldonica.fr/og-default.jpg'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -513,7 +514,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const changeFreq = (p.sitemap_changefreq as string) || 'weekly';
       
       // Determine image URL - escape XML entities for valid sitemap XML
-      const imageUrl = (post.featured_image || FALLBACK_IMAGE).replace(/&/g, '&amp;');
+      const fallbackPromptImage = SLUG_IMAGE_PROMPTS[post.slug];
+      const imageUrl = (
+        post.featured_image ||
+        (fallbackPromptImage ? `${BASE_URL}${fallbackPromptImage}` : FALLBACK_IMAGE)
+      ).replace(/&/g, '&amp;');
       
       return {
         url: `${BASE_URL}/blog/${post.slug}`,
