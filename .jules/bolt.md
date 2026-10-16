@@ -9,3 +9,7 @@ Optimized blog index page with Incremental Static Regeneration (ISR) with 60 sec
 ## 2026-10-07 - Scroll Event Throttling with requestAnimationFrame
 **Learning:** Listening to 'scroll' events and synchronously updating React state inside them causes excessive re-renders, blocks the main thread, and leads to janky scrolling.
 **Action:** Always use the `requestAnimationFrame` ticking pattern (setting a boolean flag to prevent queuing multiple frames) to throttle state updates linked to scroll listeners, deferring the work to the browser's render cycle.
+
+## 2024-10-15 - Optimizing Chronological Lookups with Bisect
+**Learning:** When matching time-series data (like photos to GPS positions), nested O(N²) loops become a severe bottleneck. Using the `bisect` module for binary search lookups on pre-sorted arrays handles multi-day overlaps efficiently without regressions.
+**Action:** Always use `bisect` for cross-referencing large chronologically sorted arrays instead of naive nested loops or day-grouping dictionaries.
