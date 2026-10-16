@@ -30,18 +30,15 @@ import { htmlToBlocks } from '@/lib/cms-blocks-converter'
 
 const SITE_URL = 'https://www.heldonica.fr'
 
-// TODO: Remplacer ce fallback de marque par des visuels définitifs issus des prompts image validés
-// Concernés : tous les articles sans featured_image dans la DB (cf. plan de correction)
-// Prompts associés : 13 prompts prêts dans le plan de correction (madere-foret, zurich-limmat, stoos-ridge, etc.)
 const HERO_FALLBACK_DEFAULT: Record<string, string> = {
-  'Carnets Voyage': '/og-default.jpg',
-  'Découvertes Locales': '/og-default.jpg',
-  'Guides Pratiques': '/og-default.jpg',
-  'Travel': '/og-default.jpg',
-  'Food & Lifestyle': '/og-default.jpg',
+  'Carnets Voyage': 'https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg',
+  'Découvertes Locales': 'https://heldonica.fr/wp-content/uploads/2025/09/timisoara-ville-3-1024x683.jpg',
+  'Guides Pratiques': 'https://heldonica.fr/wp-content/uploads/2025/09/zurich-limmat-ete-3-1024x681.jpg',
+  'Travel': 'https://heldonica.fr/wp-content/uploads/2025/08/PXL_20250712_190916811.RAW-01.COVER-EDIT-1024x771.jpg',
+  'Food & Lifestyle': 'https://heldonica.fr/wp-content/uploads/2025/10/prego-bolo-caco-683x1024.jpg',
 }
 
-const DEFAULT_HERO = '/og-default.jpg'
+const DEFAULT_HERO = 'https://heldonica.fr/wp-content/uploads/2026/03/madere-foret-1024x683.jpg'
 
 async function getHeroFallback(): Promise<Record<string, string>> {
   try {
