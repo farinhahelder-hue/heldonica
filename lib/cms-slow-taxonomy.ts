@@ -6,7 +6,7 @@
  * mobilités décarbonées, budgets réels constatés, durées en immersion).
  */
 
-import { siteUrl } from '@/lib/site-url';
+const siteUrl = (path?: string) => "https://heldonica.fr" + (path || "");
 
 export interface SlowSeasonOption {
   value: string;
