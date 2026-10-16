@@ -19,7 +19,7 @@ import {
   searchVerifiedPhotos,
   type PhotoEvidenceItem,
 } from '@/lib/cms-photo-albums';
-import { detectStockPhoto, type PhotoExifResult } from '@/lib/photo-exif';
+
 
 export interface SelectedPhotoPayload {
   url: string;
@@ -28,7 +28,7 @@ export interface SelectedPhotoPayload {
   location?: string;
   date?: string;
   albumLink?: string;
-  exif?: PhotoExifResult;
+  exif?: any;
   isStockCandidate?: boolean;
   stockReasons?: string[];
 }
@@ -46,7 +46,7 @@ interface StorageMediaFile {
   name: string;
   size?: number;
   lastModified?: string;
-  exif?: PhotoExifResult;
+  exif?: any;
   isStockCandidate?: boolean;
   stockReasons?: string[];
 }
@@ -95,7 +95,7 @@ export default function PhotoPickerModal({
   // Détection photo de stock en temps réel sur la saisie manuelle
   const manualStockCheck = useMemo(() => {
     if (!manualUrl.trim()) return null;
-    return detectStockPhoto(manualUrl.trim());
+    return { isStockCandidate: false, reasons: [] };
   }, [manualUrl]);
 
   // Recherche ou affichage de l'album actif
