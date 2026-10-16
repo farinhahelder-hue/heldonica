@@ -1,0 +1,3 @@
+## 2026-05-21 - ShareButtons Accessibility and State Refactoring
+**Learning:** Legacy components may rely on direct DOM manipulation (e.g., `document.getElementById`) to update state, bypassing React's rendering cycle. These elements often also lack keyboard accessibility indicators (`focus-visible`) and fail to notify screen readers of status changes (e.g., "Copied!").
+**Action:** When adding or fixing dynamic text feedback on interactive elements, always refactor to use React `useState`. Ensure keyboard focus states are clear (using utility classes like `focus-visible:outline-none focus-visible:ring-2`) and add `aria-live="polite"` to alert screen readers to the dynamic text change.
