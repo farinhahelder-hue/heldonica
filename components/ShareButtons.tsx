@@ -1,6 +1,9 @@
 'use client';
 
+import { useState } from 'react';
+
 export default function ShareButtons({ title, url }: { title: string; url: string }) {
+  const [copied, setCopied] = useState(false);
   const encoded = encodeURIComponent(url);
   const encodedTitle = encodeURIComponent(title);
 
@@ -40,19 +43,18 @@ export default function ShareButtons({ title, url }: { title: string; url: strin
       <button
         onClick={() => {
           navigator.clipboard.writeText(url).then(() => {
-            const btn = document.getElementById('copy-link-btn');
-            if (btn) {
-              btn.textContent = '✓ Copié !';
-              setTimeout(() => { if (btn) btn.textContent = '🔗 Copier le lien'; }, 2000);
-            }
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
           });
         }}
-        id="copy-link-btn"
         aria-label="Copier le lien de l’article"
         className="inline-flex items-center gap-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold px-3 py-1.5 rounded-full transition-colors"
       >
-        🔗 Copier le lien
+        {copied ? '✓ Copié !' : '🔗 Copier le lien'}
       </button>
+      <span className="sr-only" aria-live="polite">
+        {copied ? 'Lien copié' : ''}
+      </span>
     </div>
   );
 }
