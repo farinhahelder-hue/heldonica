@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
-import { requireCmsAuth } from '@/lib/cms-auth';
+import { requireCmsAuth, isValidCmsPassword } from '@/lib/cms-auth';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 export interface AiAgentContext {
@@ -53,16 +53,50 @@ export function extractApiKey(req: NextRequest): string | null {
 
 /**
  * Vérifie l'authentification de l'agent appelant :
- * 1. Par clé API agent (`x-api-key` ou `Bearer hld_...`)
- * 2. Par clé maître d'environnement `AI_AGENT_API_KEY`
- * 3. Par session CMS active (`requireCmsAuth`)
+ * 1. Par session CMS active ou en-tête `x-cms-auth` (`requireCmsAuth`)
+ * 2. Par clé API agent (`x-api-key` ou `Bearer hld_...`)
+ * 3. Par clé maître d'environnement `AI_AGENT_API_KEY`
+ * 4. Par mot de passe CMS transmis en jeton API (client mobile)
  */
 export async function verifyAiAuth(req: NextRequest): Promise<AiAgentContext> {
+  // 1. Authentification prioritaire par session CMS ou en-tête x-cms-auth
+  const refusCms = await requireCmsAuth(req);
+  if (!refusCms) {
+    const ip = getClientIp(req);
+    const rl = checkRateLimit(ip, {
+      limit: 100,
+      prefix: 'ai_cms',
+      windowMs: 3600_000,
+    });
+    if (!rl.success) {
+      return {
+        ok: false,
+        status: 429,
+        error: 'Trop de requêtes',
+        response: NextResponse.json({ error: 'Trop de requêtes' }, { status: 429 }),
+      };
+    }
+    return {
+      ok: true,
+      agentName: 'cms_session',
+      keyId: 'cms',
+    };
+  }
+
   const token = extractApiKey(req);
   const masterKey = process.env.AI_AGENT_API_KEY?.trim();
 
-  // 1. Authentification par Clé API fournie
+  // 2. Authentification par Clé API fournie
   if (token) {
+    // Si le jeton API fourni est le mot de passe CMS (ex: app mobile)
+    if (await isValidCmsPassword(token)) {
+      return {
+        ok: true,
+        agentName: 'cms_mobile',
+        keyId: 'cms',
+      };
+    }
+
     // Vérification clé maître
     if (masterKey && token === masterKey) {
       return { ok: true, agentName: 'master_key', keyId: 'master' };
@@ -149,31 +183,6 @@ export async function verifyAiAuth(req: NextRequest): Promise<AiAgentContext> {
       status: 401,
       error: 'Clé API invalide',
       response: NextResponse.json({ error: 'Clé API invalide' }, { status: 401 }),
-    };
-  }
-
-  // 2. Pas de clé API : tentative d'authentification par session CMS
-  const refusCms = await requireCmsAuth(req);
-  if (!refusCms) {
-    // Authentifié via session CMS
-    const ip = getClientIp(req);
-    const rl = checkRateLimit(ip, {
-      limit: 100,
-      prefix: 'ai_cms',
-      windowMs: 3600_000,
-    });
-    if (!rl.success) {
-      return {
-        ok: false,
-        status: 429,
-        error: 'Trop de requêtes',
-        response: NextResponse.json({ error: 'Trop de requêtes' }, { status: 429 }),
-      };
-    }
-    return {
-      ok: true,
-      agentName: 'cms_session',
-      keyId: 'cms',
     };
   }
 
