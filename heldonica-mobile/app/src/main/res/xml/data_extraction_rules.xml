@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 12+ (API 31+) : regles d'extraction de donnees.
+  Le mot de passe CMS est stocke dans les SharedPreferences ; on exclut donc
+  toute sauvegarde cloud et tout transfert d'appareil a appareil.
+  (allowBackup="false" couvre deja le cas general ; ceci ferme le transfert.)
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" />
+        <exclude domain="sharedpref" />
+        <exclude domain="database" />
+        <exclude domain="file" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" />
+        <exclude domain="sharedpref" />
+        <exclude domain="database" />
+        <exclude domain="file" />
+    </device-transfer>
+</data-extraction-rules>

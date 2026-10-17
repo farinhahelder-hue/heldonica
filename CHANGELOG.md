@@ -2,6 +2,47 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-17] — APK : build **release** (non débogable, R8) + réseau verrouillé + sauvegarde désactivée
+
+### Problème résolu
+- L'APK publié (release `apk-v1`) était en réalité un **build debug** : `adb shell`/`run-as`
+  ouvrait les SharedPreferences (dont le mot de passe CMS), aucune obfuscation, et le
+  trafic HTTP était autorisé **partout** (`usesCleartextTraffic="true"`). Constat d'audit
+  sur `heldonica-apk-v1.apk` (12 539 693 octets, `debuggable=true`).
+- Cause racine : `.github/workflows/build-apk.yml` appelait `assembleDebug`, et aucun
+  `buildType` release n'était configuré au-delà d'une signature de debug.
+
+### Corrections & Améliorations
+1. **`heldonica-mobile/app/build.gradle.kts`** :
+   - `buildTypes.release` : `isDebuggable = false`, `isMinifyEnabled = true`,
+     `isShrinkResources = true`, `proguard-rules.pro`.
+   - Nouveau `signingConfigs.release` : vrai keystore si
+     `keystore/heldonica-release.keystore` + mot de passe fournis (CI :
+     `RELEASE_STORE_PASSWORD`/`RELEASE_KEY_ALIAS`/`RELEASE_KEY_PASSWORD` ; local :
+     `local.properties` `release.*`), sinon **repli** sur le keystore de debug versionné
+     (les mises à jour restent installables par-dessus les précédentes).
+2. **`AndroidManifest.xml`** : `networkSecurityConfig`, `allowBackup="false"`,
+   `dataExtractionRules`, `fullBackupContent` ; suppression de `usesCleartextTraffic`.
+3. **`res/xml/network_security_config.xml`** : cleartext **interdit par défaut**,
+   autorisé uniquement vers le Cerveau local (`10.10.145.61`, `127.0.0.1`, `localhost`).
+4. **`res/xml/data_extraction_rules.xml` + `backup_rules.xml`** : le mot de passe CMS
+   (SharedPreferences) n'est ni sauvegardé dans le cloud ni transféré d'appareil à appareil.
+5. **`proguard-rules.pro`** : `VeilleTachesWorker` et les `ListenableWorker` conservés
+   (WorkManager instancie les workers **par nom** — sans règle, R8 les renomme et la
+   veille periodique casse après mise à jour).
+6. **CI** : `build-apk.yml` construit `assembleRelease` (artefact `heldonica-mobile-release`) ;
+   `release-apk.yml` consomme `app-release.apk`, étend le scan anti-secret (Google, Groq,
+   OpenAI, Anthropic, GitHub, Supabase, Heldonica `hld_`) et pose le keystore de release
+   si le secret `RELEASE_KEYSTORE_BASE64` est défini.
+
+### Vérifications & Mesures
+- `npm run preflight` : 6/6 PASS.
+- Workflows validés (YAML parsé ; `build-apk` jobs:`build`, `release-apk` jobs:`construire,publier`).
+- `[NON VÉRIFIÉ]` Compilation R8 et comportement runtime de l'APK release non testés hors CI
+  (pas de JDK/SDK Android sur le poste de rédaction) — à confirmer par le run CI « Build APK ».
+
+---
+
 ## [2026-10-16] — Release APK installable : livrer l'application par un lien direct
 
 ### Problème résolu
