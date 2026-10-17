@@ -14,6 +14,13 @@ const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
+// ⚡ Bolt Performance Optimization:
+// What: Enable Incremental Static Regeneration (ISR) with a 60-second revalidation period.
+// Why: This page contains static content that doesn't need to be updated in real-time.
+// Impact: Significantly improves Time To First Byte (TTFB) by serving cached HTML.
+// Measurement: TTFB in Vercel Speed Insights or Lighthouse will be reduced.
+export const revalidate = 60
+
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata('start', metadata)
 }
