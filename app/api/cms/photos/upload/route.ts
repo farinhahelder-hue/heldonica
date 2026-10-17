@@ -6,7 +6,9 @@ import { requireCmsAuth } from '@/lib/cms-auth';
 import { validateAlbumPhotoMeta } from '@/lib/photo-albums';
 import { extractPhotoExif, detectStockPhoto, type PhotoExifResult } from '@/lib/photo-exif';
 
-const BUCKET = 'photos';
+// Bucket « photos » inexistant sur Supabase : on réutilise le bucket « media »
+// (25 Mo, images + vidéos) déjà utilisé par /api/cms/media et media-upload.
+const BUCKET = 'media';
 
 let _cachedClient: ReturnType<typeof createClient> | null = null;
 function getSupabaseClient() {
