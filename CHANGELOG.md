@@ -34,10 +34,20 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
    `release-apk.yml` consomme `app-release.apk`, étend le scan anti-secret (Google, Groq,
    OpenAI, Anthropic, GitHub, Supabase, Heldonica `hld_`) et pose le keystore de release
    si le secret `RELEASE_KEYSTORE_BASE64` est défini.
+7. **`androidx.fragment` forcé à 1.6.2** : le premier run CI release a révélé un lint **fatal**
+   (`InvalidFragmentVersionForActivityResult`) sur `registerForActivityResult` dans
+   `MainActivity.kt:128`. Mesure : `play-services-base:18.3.0` (tiré par
+   `play-services-location:21.2.0`) déclare `androidx.fragment:fragment:1.0.0` et
+   `play-services-basement:18.3.0` déclare `1.1.0` ; Gradle résolvait donc **1.1.0** < 1.3.0.
+   Correctif : dépendance explicite `androidx.fragment:fragment:1.6.2` (dernière compatible
+   `compileSdk 34` / AGP 8.4). Comme attendu, `assembleDebug` ne voyait pas ce lint, seul le
+   build release le bloque.
 
 ### Vérifications & Mesures
 - `npm run preflight` : 6/6 PASS.
 - Workflows validés (YAML parsé ; `build-apk` jobs:`build`, `release-apk` jobs:`construire,publier`).
+- Run CI du 17/10 (branche `agent/opencode/apk-release-hardening`, run `39020178040`) :
+  **échec `lintVitalRelease`** — cause identifiée ci-dessus (fragment 1.1.0), corrigée.
 - `[NON VÉRIFIÉ]` Compilation R8 et comportement runtime de l'APK release non testés hors CI
   (pas de JDK/SDK Android sur le poste de rédaction) — à confirmer par le run CI « Build APK ».
 

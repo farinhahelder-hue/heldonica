@@ -152,6 +152,12 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.work:work-runtime-ktx:2.9.0")
     implementation("com.google.android.gms:play-services-location:21.2.0")
+    // play-services-base 18.3.0 / play-services-basement 18.3.0 tirent
+    // androidx.fragment:fragment:1.1.0, sous le seuil 1.3.0 exigé par l'API
+    // registerForActivityResult utilisee dans MainActivity. Or c'est un
+    // controleur lint FATAL : assembleDebug passe, assembleRelease non. On force
+    // donc une version courante (1.6.2, derniere compatible compileSdk 34 / AGP 8.4).
+    implementation("androidx.fragment:fragment:1.6.2")
     implementation("androidx.exifinterface:exifinterface:1.3.7")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
