@@ -411,17 +411,26 @@ on mesure les rivaux, ici on mesure Heldonica. Faits relevés le 2026-10-16 via
 |---|---|---|
 | Mots bannis dans la prose des pages (code) | **0** après purge du 2026-10-16 (`check:content-pages`) | `[OBSERVÉ]` |
 | Mots bannis dans `cms_editable_zones` (base) | **11 champs** relevés, corrigés par migration `20261011130000` | `[OBSERVÉ]` |
-| Pages destinations avec contenu de brouillon en base | **11 pages** (sicile ×5, colombie ×3, sardaigne ×3) | `[OBSERVÉ]` |
-| Protection de ces 11 pages | `noindex` + retirées du sitemap (`lib/unpublished-pages.ts`) | `[OBSERVÉ]` |
+| Pages destinations avec contenu de brouillon en base | **14 pages** (sicile ×5, sardaigne ×5, colombie ×4) | `[OBSERVÉ]` |
+| Protection de ces 14 pages | page « Bientôt » + `noindex` + retirées du sitemap (`lib/unpublished-pages.ts`) | `[OBSERVÉ]` |
 | Contrôle de cohérence éditoriale en local | **ne vérifiait rien** (sortait « vert » sans clés Supabase) — corrigé le 2026-10-16 | `[OBSERVÉ]` |
 | Matériau terrain par destination | Roumanie : réel (vault) ; Sicile / Sardaigne / Colombie : **aucune photo, aucun carnet** | `[OBSERVÉ]` |
 
 `[INTERPRÉTATION]` Le §2 décrit une voix tenue dans le code ; le §4.2 mesure
 l'écart entre cette voix et le contenu réellement publié. L'écart venait d'un
 générateur de zones CMS (commit `ad58c936`) dont les fragments n'étaient
-surveillés par aucun garde-fou. Les 11 pages concernées ne peuvent pas être
-réécrites sans vécu vérifiable (règle 1 de `AGENTS.md`) : elles sont donc
-**retirées de l'index** plutôt que comblées par du texte inventé.
+surveillés par aucun garde-fou. Les 14 pages concernées ne peuvent pas être
+réécrites sans vécu vérifiable (règle 1 de `AGENTS.md`) : plutôt que de les
+combler par du texte inventé, elles basculent sur l'état « Bientôt » déjà
+utilisé par `/destinations/grece` — héros, appel à inscription, aucune promesse
+de contenu qui n'existe pas.
+
+Le chiffre est passé de 11 à **14** le 2026-10-16 : un balayage exhaustif des
+69 pages destinations (puis des 119 pages de `app/`) a révélé trois pages que le
+premier relevé avait manquées — `colombie/medellin`, `sardaigne/alghero`,
+`sardaigne/asinara`. Le garde-fou, lui, exigeait trois mots pour juger une
+chaîne et laissait donc filer les fragments d'un ou deux mots ; il juge
+désormais les fragments quelle que soit leur longueur.
 
 ---
 
@@ -497,7 +506,8 @@ conversion n'est pas mesuré ici.
 | 2026-10-13 | **Collecte réelle de légendes** : Échappées Lointaines republie ses légendes sur son site → 26 légendes annoncées (§3.2, §3.4). Les 10 autres acteurs restent `[INDISPONIBLE]`. §1.2 et §10 ajustées ; témoignage Échappées vérifié (§4.1). |
 | 2026-10-14 | **Recomptage et correction** : relevé indépendant de la même galerie → **30 vignettes, 14 légendes lisibles** ; le « nous » (17) n'est **pas** absent, contrairement au relevé du 13. §1.2, §3.2, §3.4, §4.1, §7, §8 et §10 alignées sur les chiffres vérifiés. |
 | 2026-10-14 (b) | **Relevé outillé et reproductible** (`scripts/collect_instagram_legends.py`, §3.5) : les **11 sites du panel** sont interrogés. Échappées Lointaines → **33 vignettes, 28 légendes lisibles** (le « 14 » précédent sous-comptait : chaque post est exposé deux fois) ; les 10 autres → **0 légende, 0 embed** ; `voyagesetc.fr` → HTTP 403. §1.2, §3.2, §3.4, §4.1, §7, §8 et §10 alignées sur ces mesures. Sites officiels des acteurs 6-8 ajoutés au panel (§1.3). |
-| 2026-10-16 | **Volet Heldonica ajouté (§4.2)** : la voix décrite en §2 est confrontée à ce qui est réellement stocké. 11 champs à mots bannis relevés en base et corrigés (migration `20261011130000`) ; 11 pages destinations à contenu de brouillon (fragments d'un mot, anglais résiduel) placées en `noindex` et retirées du sitemap faute de vécu vérifiable ; nouveau garde-fou `check:content-pages` ; faux vert de `check:content-coherence` corrigé (sortait « vert » sans rien vérifier). §4.2 et §10 ajoutées. |
+| 2026-10-16 | **Volet Heldonica ajouté (§4.2)** : la voix décrite en §2 est confrontée à ce qui est réellement stocké. 11 champs à mots bannis relevés en base et corrigés (migration `20261011130000`) ; 14 pages destinations à contenu de brouillon (fragments d'un mot, anglais résiduel) placées en état « Bientôt » — page de non-publication, `noindex`, hors sitemap — faute de vécu vérifiable ; nouveau garde-fou `check:content-pages` ; faux vert de `check:content-coherence` corrigé (sortait « vert » sans rien vérifier). §4.2 et §10 ajoutées. |
+| 2026-10-16 (b) | **Balayage exhaustif** : le relevé initial (11 pages) reposait sur un balayage partiel. Les **69 pages destinations** puis les **119 pages de `app/`** ont été scannées → **14 pages** concernées, dont 3 manquées (`colombie/medellin`, `sardaigne/alghero`, `sardaigne/asinara`). Le garde-fou exigeait trois mots pour juger une chaîne et laissait donc passer les fragments d'un ou deux mots : corrigé. Les pages basculent désormais sur une page « Bientôt » (rendue par `SubDestinationTemplate`, même état de non-publication que `/destinations/grece`) au lieu de servir le brouillon. §4.2, §10 et ce tableau alignés. |
 
 ---
 
@@ -519,7 +529,7 @@ lecture abusive du tableau §4.1.
 | Rendement de la voix Heldonica en ligne | `[NON VÉRIFIÉ]` | `heldonica.fr` est en **mode maintenance** : le positionnement Heldonica est lu depuis le dépôt, pas depuis le site en ligne. Le mode maintenance n'a pas été modifié. |
 | Tarifs Heldonica « officiels » au-delà de 250/450 € | `[NON VÉRIFIÉ]` | Le code porte Essentielle 250 € / Complète 450 € / Sur-Mesure ; toute grille plus large n'est pas lue ici. |
 | Voix Heldonica **réellement servie** aux visiteurs | `[NON VÉRIFIÉ]` | Mesurée sur la base (`cms_editable_zones`) et le code le 2026-10-16 (§4.2), mais le site est en maintenance : aucun rendu public n'a été observé. La mesure porte sur le contenu stocké, pas sur une page vue par un lecteur. |
-| Contenu des 11 pages destinations en brouillon | `[INDISPONIBLE]` | Relevé en base (fragments d'un mot, anglais résiduel) mais **non réécrit** : ces destinations (Sicile, Sardaigne, Colombie) n'ont ni photo ni carnet dans le coffre. Réécrire supposerait d'inventer le vécu (règle 1 de `AGENTS.md`). Elles sont en `noindex` et hors sitemap. |
+| Contenu des 14 pages destinations en brouillon | `[INDISPONIBLE]` | Relevé en base (fragments d'un mot, anglais résiduel) mais **non réécrit** : ces destinations (Sicile, Sardaigne, Colombie) n'ont ni photo ni carnet dans le coffre. Réécrire supposerait d'inventer le vécu (règle 1 de `AGENTS.md`). Elles affichent une page « Bientôt », sont en `noindex` et hors sitemap. |
 | Exactitude éditoriale des pages hors destinations | `[NON VÉRIFIÉ]` | `check:content-pages` couvre `app/destinations`, `app/a-propos`, `app/expert-hotelier` et `lib/pillar-data.ts`. Les articles Supabase relèvent de `check:content-coherence`, qui **ne peut pas s'exécuter sans clés** en local (sort désormais « ignoré », jamais « vert »). |
 
 `[INTERPRÉTATION]` Tant que des **captures de légendes** ne sont pas fournies,

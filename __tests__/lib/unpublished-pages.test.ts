@@ -16,6 +16,14 @@ describe('unpublished-pages', () => {
     expect(UNPUBLISHED_PATHS).toHaveLength(UNPUBLISHED_CMS_PAGES.length);
   });
 
+  it('couvre les 14 pages destinations au contenu non publiable', () => {
+    // Relevé du 16/10 : le balayage complet des 69 pages destinations a montré
+    // 14 pages à fragments (« Grec. », « Le parc. »), dont 3 que le premier
+    // relevé (11 pages) avait manquées : medellin, alghero, asinara.
+    expect(UNPUBLISHED_PATHS).toHaveLength(14);
+    expect(UNPUBLISHED_CMS_PAGES).toHaveLength(14);
+  });
+
   it('reconnaît un chemin, avec ou sans domaine, avec ou sans slash final', () => {
     expect(isUnpublishedPath('/destinations/sicile/taormine')).toBe(true);
     expect(isUnpublishedPath('https://www.heldonica.fr/destinations/sicile/taormine')).toBe(true);
@@ -25,6 +33,13 @@ describe('unpublished-pages', () => {
   it('reconnaît la clé de page CMS correspondante', () => {
     expect(isUnpublishedCmsPage('destinations-sicile-taormine')).toBe(true);
     expect(isUnpublishedCmsPage('destinations-sardaigne-costa-smeralda')).toBe(true);
+  });
+
+  it('inclut les pages découvertes au balayage du 16/10', () => {
+    expect(isUnpublishedPath('/destinations/colombie/medellin')).toBe(true);
+    expect(isUnpublishedPath('/destinations/sardaigne/alghero')).toBe(true);
+    expect(isUnpublishedPath('/destinations/sardaigne/asinara')).toBe(true);
+    expect(isUnpublishedCmsPage('destinations-sardaigne-asinara')).toBe(true);
   });
 
   it('laisse passer les pages publiées', () => {
