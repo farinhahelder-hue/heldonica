@@ -48,8 +48,19 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 - Workflows validés (YAML parsé ; `build-apk` jobs:`build`, `release-apk` jobs:`construire,publier`).
 - Run CI du 17/10 (branche `agent/opencode/apk-release-hardening`, run `39020178040`) :
   **échec `lintVitalRelease`** — cause identifiée ci-dessus (fragment 1.1.0), corrigée.
-- `[NON VÉRIFIÉ]` Compilation R8 et comportement runtime de l'APK release non testés hors CI
-  (pas de JDK/SDK Android sur le poste de rédaction) — à confirmer par le run CI « Build APK ».
+- Run CI `39020686175` (push branche) : **`build` success**, artefact `heldonica-mobile-release`
+  produit (2 184 374 octets contre 12 539 693 pour l'ancien debug).
+- CI release `39021165270` (tag `apk-v2`) : jobs `construire/build` et `publier` **success**.
+  Release publiée : `apk-v2`, asset `heldonica-apk-v2.apk` (2 184 374 octets).
+- Audit de l'APK publié (`apk-v2`) par parsing du manifeste binaire et des resources :
+  `debuggable` **absent**, `usesCleartextTraffic` **absent**, `allowBackup=false`,
+  `networkSecurityConfig` = `base-config cleartextTrafficPermitted=false` + 1 `domain-config`
+  autorisant le Cerveau local, `dataExtractionRules`/`fullBackupContent` présents,
+  **1 dex** (R8 + shrink ressources), `androidx.fragment` résolu en **1.6.2**,
+  `VeilleTachesWorker` conservé, bloc de signature APK v2 présent (ID `0x7109871a`).
+- `apk-v2` : `versionCode=40` (identique à `apk-v1`) et même clé de signature versionnée
+  → mise à jour installable par-dessus, sans désinstallation.
+- `[VÉRIFIÉ]` Compilation R8 : confirmée par les runs CI ci-dessus (poste sans JDK/SDK Android).
 
 ---
 
