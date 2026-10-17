@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import { useEditableContext } from '@/components/inline-edit/InlineEditProvider'
 
 export interface SubDestinationHighlight {
   title: string
@@ -64,6 +65,12 @@ export default function SubDestinationTemplate({
     },
   }
 
+  const { zones } = useEditableContext()
+  // Accroche du hero : présente seulement si elle a été saisie au CMS. Sans
+  // cette garde, les 27 autres pages du gabarit afficheraient un <p> vide —
+  // et un fallback sur `introText` dupliquerait le texte d'intro.
+  const teaserCms = zones[`${page}__hero_teaser`]
+
   return (
     <main className="min-h-screen bg-cloud-dancer font-sans">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
@@ -92,6 +99,13 @@ export default function SubDestinationTemplate({
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-light text-white leading-tight">
             {name}
           </h1>
+          {teaserCms && (
+            <p className="text-white/80 max-w-2xl text-lg leading-relaxed mt-4">
+              {/* `as="span"` : le parent est déjà un <p>, un <p> imbriqué
+                  ferait échouer l'hydratation. */}
+              <EditableZone page={page} zone="hero_teaser" type="textarea" fallback="" as="span" />
+            </p>
+          )}
         </div>
       </section>
 
