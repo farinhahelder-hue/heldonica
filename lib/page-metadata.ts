@@ -15,6 +15,7 @@
 
 import type { Metadata } from 'next'
 import { getPageZones } from '@/lib/cms-zones'
+import { isUnpublishedCmsPage } from '@/lib/unpublished-pages'
 
 export async function buildPageMetadata(
   page: string,
@@ -25,10 +26,22 @@ export async function buildPageMetadata(
   const description = zones[`${page}__seo_description`]
   const image = zones[`${page}__seo_og_image`]
 
+  // Contenu non publiable : la page reste consultable mais sort de l'index
+  // (cf. lib/unpublished-pages.ts). Les robots déclarés par la page sont
+  // conservés ; seul l'index passe à false.
+  const robots = isUnpublishedCmsPage(page)
+    ? {
+        ...(fallback.robots && typeof fallback.robots === 'object' ? fallback.robots : {}),
+        index: false,
+        follow: true,
+      }
+    : fallback.robots
+
   return {
     ...fallback,
     ...(title ? { title } : {}),
     ...(description ? { description } : {}),
+    ...(robots ? { robots } : {}),
     openGraph: {
       ...(fallback.openGraph ?? {}),
       ...(title ? { title } : {}),
