@@ -3,6 +3,8 @@ import time
 import sys
 import os
 CANDIDATE_PATHS = [
+    r"C:\Users\Work\Desktop\HeldonicaMobile-app-release.apk",
+    os.path.join(os.path.dirname(__file__), "..", "heldonica-mobile", "app", "build", "outputs", "apk", "release", "app-release.apk"),
     r"C:\Users\Work\Desktop\HeldonicaMobile-app-debug.apk",
     os.path.join(os.path.dirname(__file__), "..", "heldonica-mobile", "app", "build", "outputs", "apk", "debug", "app-debug.apk"),
     r"C:\Users\Work\Downloads\app-debug.apk"

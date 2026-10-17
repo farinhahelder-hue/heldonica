@@ -54,6 +54,9 @@ heldonica-mobile/app/build/
 heldonica-mobile/.idea/
 heldonica-mobile/local.properties
 heldonica-mobile/ci-artifacts/
+# Keystore de release : jamais versionne. Fourni en CI par le secret
+# RELEASE_KEYSTORE_BASE64 (voir heldonica-mobile/app/build.gradle.kts).
+heldonica-mobile/keystore/heldonica-release.keystore
 content/evidence/*.json
 content/drafts/*.md
 

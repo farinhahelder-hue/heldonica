@@ -2,6 +2,68 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-17] — APK : build **release** (non débogable, R8) + réseau verrouillé + sauvegarde désactivée
+
+### Problème résolu
+- L'APK publié (release `apk-v1`) était en réalité un **build debug** : `adb shell`/`run-as`
+  ouvrait les SharedPreferences (dont le mot de passe CMS), aucune obfuscation, et le
+  trafic HTTP était autorisé **partout** (`usesCleartextTraffic="true"`). Constat d'audit
+  sur `heldonica-apk-v1.apk` (12 539 693 octets, `debuggable=true`).
+- Cause racine : `.github/workflows/build-apk.yml` appelait `assembleDebug`, et aucun
+  `buildType` release n'était configuré au-delà d'une signature de debug.
+
+### Corrections & Améliorations
+1. **`heldonica-mobile/app/build.gradle.kts`** :
+   - `buildTypes.release` : `isDebuggable = false`, `isMinifyEnabled = true`,
+     `isShrinkResources = true`, `proguard-rules.pro`.
+   - Nouveau `signingConfigs.release` : vrai keystore si
+     `keystore/heldonica-release.keystore` + mot de passe fournis (CI :
+     `RELEASE_STORE_PASSWORD`/`RELEASE_KEY_ALIAS`/`RELEASE_KEY_PASSWORD` ; local :
+     `local.properties` `release.*`), sinon **repli** sur le keystore de debug versionné
+     (les mises à jour restent installables par-dessus les précédentes).
+2. **`AndroidManifest.xml`** : `networkSecurityConfig`, `allowBackup="false"`,
+   `dataExtractionRules`, `fullBackupContent` ; suppression de `usesCleartextTraffic`.
+3. **`res/xml/network_security_config.xml`** : cleartext **interdit par défaut**,
+   autorisé uniquement vers le Cerveau local (`10.10.145.61`, `127.0.0.1`, `localhost`).
+4. **`res/xml/data_extraction_rules.xml` + `backup_rules.xml`** : le mot de passe CMS
+   (SharedPreferences) n'est ni sauvegardé dans le cloud ni transféré d'appareil à appareil.
+5. **`proguard-rules.pro`** : `VeilleTachesWorker` et les `ListenableWorker` conservés
+   (WorkManager instancie les workers **par nom** — sans règle, R8 les renomme et la
+   veille periodique casse après mise à jour).
+6. **CI** : `build-apk.yml` construit `assembleRelease` (artefact `heldonica-mobile-release`) ;
+   `release-apk.yml` consomme `app-release.apk`, étend le scan anti-secret (Google, Groq,
+   OpenAI, Anthropic, GitHub, Supabase, Heldonica `hld_`) et pose le keystore de release
+   si le secret `RELEASE_KEYSTORE_BASE64` est défini.
+7. **`androidx.fragment` forcé à 1.6.2** : le premier run CI release a révélé un lint **fatal**
+   (`InvalidFragmentVersionForActivityResult`) sur `registerForActivityResult` dans
+   `MainActivity.kt:128`. Mesure : `play-services-base:18.3.0` (tiré par
+   `play-services-location:21.2.0`) déclare `androidx.fragment:fragment:1.0.0` et
+   `play-services-basement:18.3.0` déclare `1.1.0` ; Gradle résolvait donc **1.1.0** < 1.3.0.
+   Correctif : dépendance explicite `androidx.fragment:fragment:1.6.2` (dernière compatible
+   `compileSdk 34` / AGP 8.4). Comme attendu, `assembleDebug` ne voyait pas ce lint, seul le
+   build release le bloque.
+
+### Vérifications & Mesures
+- `npm run preflight` : 6/6 PASS.
+- Workflows validés (YAML parsé ; `build-apk` jobs:`build`, `release-apk` jobs:`construire,publier`).
+- Run CI du 17/10 (branche `agent/opencode/apk-release-hardening`, run `39020178040`) :
+  **échec `lintVitalRelease`** — cause identifiée ci-dessus (fragment 1.1.0), corrigée.
+- Run CI `39020686175` (push branche) : **`build` success**, artefact `heldonica-mobile-release`
+  produit (2 184 374 octets contre 12 539 693 pour l'ancien debug).
+- CI release `39021165270` (tag `apk-v2`) : jobs `construire/build` et `publier` **success**.
+  Release publiée : `apk-v2`, asset `heldonica-apk-v2.apk` (2 184 374 octets).
+- Audit de l'APK publié (`apk-v2`) par parsing du manifeste binaire et des resources :
+  `debuggable` **absent**, `usesCleartextTraffic` **absent**, `allowBackup=false`,
+  `networkSecurityConfig` = `base-config cleartextTrafficPermitted=false` + 1 `domain-config`
+  autorisant le Cerveau local, `dataExtractionRules`/`fullBackupContent` présents,
+  **1 dex** (R8 + shrink ressources), `androidx.fragment` résolu en **1.6.2**,
+  `VeilleTachesWorker` conservé, bloc de signature APK v2 présent (ID `0x7109871a`).
+- `apk-v2` : `versionCode=40` (identique à `apk-v1`) et même clé de signature versionnée
+  → mise à jour installable par-dessus, sans désinstallation.
+- `[VÉRIFIÉ]` Compilation R8 : confirmée par les runs CI ci-dessus (poste sans JDK/SDK Android).
+
+---
+
 ## [2026-10-16] — Release APK installable : livrer l'application par un lien direct
 
 ### Problème résolu
