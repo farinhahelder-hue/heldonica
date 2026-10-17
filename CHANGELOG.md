@@ -2,6 +2,57 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-17] — Supabase reconnecté (clés `sb_*`) et upload « photos » réaligné sur le bucket réel
+
+### Problème résolu
+- **Supabase en401** : toutes les routes échouaient avec `Legacy API keys are
+  disabled` (Supabase a désactivé les clés JWT anon/service_role). Les nouvelles
+  clés ont été posées en `.env.local` — le code lit **cinq** variables :
+  `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+  `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_SERVICE_KEY`, `SUPABASE_SECRET_KEY`.
+  Aucune ligne à changer : `lib/supabase-key.ts` lit déjà la publishable en
+  priorité et retombe sur l'anon legacy.
+- **Upload mort** : `app/api/cms/photos/upload/route.ts` déposait dans le bucket
+  `photos`, **inexistant** sur le projet (les cinq buckets réels sont `avatars`,
+  `blog-images`, `cms-media`, `heldonica-media`, `media`) → `bucket not found`
+  sur chaque téléversement d'album.
+- **Google Photos non documentées** : le flux Picker **serveur** est déjà en
+  place et complet (`lib/google-photos-picker.ts`, routes `/api/cms/photos/session`,
+  panneau `/panel-manager/photos`, `scripts/auth_google_picker.py`), mais ses
+  trois variables `GOOGLE_PHOTOS_*` n'étaient décrites nulle part.
+
+### Corrections & Améliorations
+1. **`.env.example`** : `SUPABASE_SECRET_KEY` (3ᵉ alias lu par `lib/supabase.ts`)
+   avec la note sur la forme `sb_secret_…`/`sb_publishable_…`, et un **nouveau
+   bloc `GOOGLE_PHOTOS_*`** décrivant les quatre étapes — activer l'API *Photos
+   Picker*, déposer `scripts/credentials.json`, lancer
+   `python scripts/auth_google_picker.py`, recopier les trois valeurs — plus
+   l'avertissement « app au statut *Testing* = révocation du refresh token au
+   bout de 7 jours ».
+2. **`app/api/cms/photos/upload/route.ts:12`** : `BUCKET = 'photos'` → `'media'`
+   (25 Mo, jpeg/png/webp/gif/avif + mp4/mp3) : plus aucun appel vers un bucket
+   inexistant.
+3. **Aucun code Google ajouté** : le Picker serveur reste la seule porte (cf.
+   `e5f48990`), la seconde implémentation prévue cette session ayant été retirée
+   pour ne pas dupliquer ce qui existe déjà.
+
+### Vérification
+- API Supabase : `GET /storage/v1/bucket` → 200 (5 buckets), `GET /rest/v1/cms_blog_posts`
+  → 200 **avec les deux clés** (secret et publishable) : le401 legacy a disparu.
+- `npm ci` (774 paquets), `npm run typecheck` ✓, `npm run lint` ✓ (2 warnings
+  préexistants dans `CmsAdminClient.tsx`), `npm run check:api-auth` ✓,
+  `npm run check:cms-drift` ✓ (colonnes lues, dont `photo_blocks`, en base).
+- Bout en bout Picker (session Google → import) : **à faire avec les variables
+  `GOOGLE_PHOTOS_*` posées** en local ou sur Vercel.
+
+### Points de vigilance
+- Les clés Supabase ont transité en clair dans une session : **les faire tourner**
+  (Supabase → *Rotate keys*) une fois le branchement validé en production.
+- La file Instagram compte **8 publications en `draft`** (jamais publiées) ;
+  un test réel exige `INSTAGRAM_ACCESS_TOKEN` côté serveur.
+- `scripts/sync_google_photos.py` reste mort : il utilise le scope `photoslibrary`
+  et `albums.list`/`mediaItems:search`, tous deux retirés par Google le 31/03/2025.
+
 ## [2026-10-17] — APK : build **release** (non débogable, R8) + réseau verrouillé + sauvegarde désactivée
 
 ### Problème résolu
