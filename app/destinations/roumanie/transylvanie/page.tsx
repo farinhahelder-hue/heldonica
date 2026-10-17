@@ -56,7 +56,7 @@ export default async function TransylvaniePage() {
         parentName="Roumanie"
         parentSlug="roumanie"
         heroImage="/og-default.jpg"
-        introText="La Transylvanie, c'est la legende. Mais en vrai, ce sont des villages magnifiques."
+        introText="La Transylvanie, c'est la legende. Mais en vrai, ce sont des villages préservés."
         highlights={highlights}
         localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."
       />

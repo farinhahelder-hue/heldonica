@@ -44,7 +44,7 @@ export async function generateMetadata(): Promise<Metadata> {
 // servent de fallback technique tant que le CMS n'a pas été appliqué/seeded).
 const FAQS: { q: { zone: string; fb: string }; a: { zone: string; fb: string } }[] = [
   { q: { zone: "faq_1_q", fb: "Quand aller à Timișoara ?" }, a: { zone: "faq_1_a", fb: "Mai-juin pour les parcs en fleurs et les températures douces. Septembre-octobre pour les festivals de rue. Éviter juillet-août (chaleur intense, +35°C). Décembre pour le marché de Noël place Unirii." } },
-  { q: { zone: "faq_2_q", fb: "Comment aller à Timișoara depuis Paris ?" }, a: { zone: "faq_2_a", fb: "Vol direct Paris-Timișoara avec Tarom (3h). Alternativement Paris-Bucarest puis train de nuit (6h) ou Budapest puis train (3h). Le trajet Budapest-Timișoara en train longe la frontière hongroise et est magnifique." } },
+  { q: { zone: "faq_2_q", fb: "Comment aller à Timișoara depuis Paris ?" }, a: { zone: "faq_2_a", fb: "Vol direct Paris-Timișoara avec Tarom (3h). Alternativement Paris-Bucarest puis train de nuit (6h) ou Budapest puis train (3h). Le trajet Budapest-Timișoara en train longe la frontière hongroise, la plaine défile sur 3h." } },
   { q: { zone: "faq_3_q", fb: "Quel budget pour Timișoara ?" }, a: { zone: "faq_3_a", fb: "La ville est très abordable : dîner dans un bon restaurant local entre 15-25€/pers, café 1,5-2€, hébergement 40-80€/nuit en hôtel centre-ville. Budget total : 70-100€/pers/jour confort inclus." } }
 ]
 
@@ -192,7 +192,7 @@ export default async function TimisoaraPage() {
                 <h3 className="font-serif text-lg text-stone-900 mb-4">Où manger</h3>
                 <ul className="space-y-3 text-stone-600 text-sm">
                   <li>{Z('eat_1', 'html', "<strong>Conviva</strong> — Gastro-pub, cuisine locale revisitée. Réservation conseillée.", undefined, 'span')}</li>
-                  <li>{Z('eat_2', 'html', "<strong>Barista Fabric</strong> — Café de spécialité, viennoiseries. Le matin incontournable.", undefined, 'span')}</li>
+                  <li>{Z('eat_2', 'html', "<strong>Barista Fabric</strong> — Café de spécialité, viennoiseries. Le rendez-vous du matin.", undefined, 'span')}</li>
                   <li>{Z('eat_3', 'html', "<strong>Marchés du samedi</strong> — Piața Badea Cârțan. Fromages, charcuteries locales, légumes.", undefined, 'span')}</li>
                 </ul>
               </div>
@@ -238,7 +238,7 @@ export default async function TimisoaraPage() {
           <div className="bg-eucalyptus/5 border border-eucalyptus/20 rounded-2xl p-8 text-center mb-8">
             <h3 className="font-serif text-xl text-stone-900 mb-3">Un itinéraire Roumanie sur mesure</h3>
             <p className="text-stone-600 text-sm mb-5 max-w-md mx-auto">
-              Timișoara + Transylvanie + Bucarest : on conçoit le circuit qui correspond à ton rythme.
+              Timișoara + Transylvanie + Bucarest : on conçoit l’itinéraire qui correspond à ton rythme.
             </p>
             <Link
               href="/travel-planning"

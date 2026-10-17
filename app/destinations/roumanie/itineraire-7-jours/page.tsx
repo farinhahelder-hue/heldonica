@@ -25,7 +25,7 @@ const metadata: Metadata = {
   },
   openGraph: {
     title: "Roumanie 7 jours : itinéraire slow travel en couple | Heldonica",
-    description: "Circuit Transylvanie complet testé sur le terrain : villes, nature et villages authentiques.",
+    description: "Itinéraire Transylvanie complet testé sur le terrain : villes, nature et villages authentiques.",
     url: `${SITE_URL}/destinations/roumanie/itineraire-7-jours`,
     images: [
       {
@@ -71,7 +71,7 @@ export default async function Itineraire7JoursPage() {
                   '@context': 'https://schema.org',
                   '@type': 'Article',
                   headline: 'Roumanie 7 jours : itinéraire slow travel en couple',
-                  description: 'Circuit Transylvanie complet testé sur le terrain : Bucarest, Sinaia, Brașov, Sighișoara, Viscri, Cluj.',
+                  description: 'Itinéraire Transylvanie complet testé sur le terrain : Bucarest, Sinaia, Brașov, Sighișoara, Viscri, Cluj.',
                   author: { '@type': 'Organization', name: 'Heldonica' },
                   url: `${SITE_URL}/destinations/roumanie/itineraire-7-jours`,
                 }),
@@ -99,7 +99,7 @@ export default async function Itineraire7JoursPage() {
               {Z('hero_title', 'text', "Roumanie 7 jours : itinéraire slow travel en couple", undefined, 'span')}
             </h1>
             <p className="text-charcoal/80 text-lg max-w-3xl leading-relaxed">
-              {Z('hero_description', 'textarea', "Bucarest, Sinaia, Brașov, Sighișoara, Viscri, Cluj — le circuit Transylvanie qu'on a testé, ajusté, et qu'on referait sans hésiter.", undefined, 'span')}
+              {Z('hero_description', 'textarea', "Bucarest, Sinaia, Brașov, Sighișoara, Viscri, Cluj — l’itinéraire Transylvanie qu'on a testé, ajusté, et qu'on referait sans hésiter.", undefined, 'span')}
             </p>
           </div>
         </section>
@@ -114,7 +114,7 @@ export default async function Itineraire7JoursPage() {
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 text-emerald-700 px-3 py-1 text-xs font-semibold">{Z('chip_3', 'text', "Automne doré", undefined, 'span')}</span>
               </div>
               <p className="text-sm text-charcoal/80 leading-relaxed">
-                {Z('blurb', 'html', "On a testé cet itinéraire en septembre 2024, en plein automne doré. Les températures étaient douces (18-25°C), les couleurs incroyables et les sites nettement moins fréquentés qu'en juillet-août. Chaque étape a été vérifiée, chaque adresse testée — on ne recommande que ce qu'on a vraiment expérimenté. <strong>Budget réel : 1 150 € pour deux, tout compris.</strong>", undefined, 'span')}
+                {Z('blurb', 'html', "On a testé cet itinéraire en septembre 2024, en plein automne doré. Les températures étaient douces (18-25°C), les forêts déjà rousses et les sites nettement moins fréquentés qu'en juillet-août. Chaque étape a été vérifiée, chaque adresse testée — on ne recommande que ce qu'on a vraiment expérimenté. <strong>Budget réel : 1 150 € pour deux, tout compris.</strong>", undefined, 'span')}
               </p>
             </div>
           </div>
@@ -394,7 +394,7 @@ export default async function Itineraire7JoursPage() {
               Tu veux la version personnalisée de cet itinéraire ?
             </h2>
             <p className="text-charcoal/70 mb-8 max-w-lg mx-auto">
-              On adapte ce circuit à ton budget, ta saison et ton énergie réelle.
+              On adapte cet itinéraire à ton budget, ta saison et ton énergie réelle.
             </p>
             <Link
               href="/travel-planning"

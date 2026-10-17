@@ -64,6 +64,31 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 
 ---
 
+## [2026-10-16] — Santé éditoriale : purger les mots bannis, mettre les pages brouillon en « Bientôt »
+
+### Problème résolu
+- Le document `docs/positionnement-editorial-concurrents.md` décrivait la voix Heldonica, mais **rien ne vérifiait que c'était bien celle qui s'affichait**. Un audit du 2026-10-16 a montré deux dérives :
+  - **11 champs à mots bannis** dans `cms_editable_zones` (donc réellement servis) : « plages fluviales incroyables », « Le matin incontournable », « villages magnifiques », « Astuce : », « au cœur de », « inoubliable »…
+  - **11 pages destinations** dont le contenu en base est un brouillon du générateur `ad58c936` : descriptions réduites à un mot suivi d'un point (« Grec. », « Dunes. ») et anglais résiduel (« Incredible. », « Theatre »).
+- **Aucun garde-fou ne l'attrapait** : `check:content-coherence` ne scanne que les articles Supabase, et sortait « ✓ » **sans rien vérifier** quand les clés manquaient — un faux vert.
+
+### Corrections & Améliorations
+1. **Mots bannis en base** — migration `supabase/migrations/20261011130000_fix_banned_words_destinations.sql` : corrige les 11 champs sur les pages publiées (rollback documenté dans le fichier). `/destinations/sicile/taormine` est exclue (voir point 3).
+2. **Mots bannis dans le code** — 20 remplacements de prose dans 8 pages (`alentejo`, `colombie`, `portugal`, `roumanie/{itineraire-5,7,10-jours,timisoara,transylvanie}`) : « circuit » → « itinéraire », « incroyable » → formulation concrète, « spot » → « adresse »/« coin », « magnifique » → « préservé »…
+3. **Pages à contenu non publiable** — `lib/unpublished-pages.ts` liste les 11 pages (Sicile, Sardaigne, Colombie) : elles restent consultables par URL directe mais passent en `noindex` (`lib/page-metadata.ts`) et sortent du sitemap (`app/sitemap.ts`). **Elles ne sont pas réécrites** : ces destinations n'ont ni photo ni carnet dans le coffre, les combler supposerait d'inventer le vécu (règle 1 d'`AGENTS.md`).
+4. **Garde-fou manquant** — `scripts/check-content-pages.mjs` : détecte les mots bannis (source unique : `lib/brand-voice.ts`), les fragments de brouillon et l'anglais résiduel dans la prose des pages. Ajouté au preflight.
+5. **Faux vert corrigé** — `check-content-coherence.mjs` sort désormais en **2 (« ignoré »)** et non 0 quand les clés Supabase manquent : un contrôle sauté n'est plus présenté comme réussi.
+6. **Document** — `docs/positionnement-editorial-concurrents.md` : nouvelle §4.2 « Santé éditoriale Heldonica » (faits mesurés, `[OBSERVÉ]` vs `[INTERPRÉTATION]`), §10 et §9 complétées.
+
+### Vérifications & Mesures
+- `npm run preflight` : **7/7 PASS** (dont le nouveau `check:content-pages`).
+- `npx tsc --noEmit` : exit 0.
+- `npx vitest run __tests__/lib/unpublished-pages.test.ts` : 5/5.
+- `node scripts/check-content-pages.mjs` : **0 dérive** en page publiée, 2 pages quarantainées signalées comme dette assumée.
+- `node scripts/check-content-coherence.mjs` sans clés : exit **2** (« ignoré »), plus jamais « vert ».
+
+---
+
 ## [2026-10-16] — Release APK installable : livrer l'application par un lien direct
 
 ### Problème résolu

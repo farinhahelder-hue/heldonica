@@ -277,7 +277,7 @@ export default async function PortugalPage() {
               {Z('cta_title', 'text', "Un itinéraire Portugal sur mesure", undefined, 'span')}
             </h3>
             <p className="text-stone-600 text-sm mb-5 max-w-md mx-auto">
-              {Z('cta_text', 'textarea', "On conçoit des carnets de route Portugal complets : Madère + continent, circuits Alentejo, combinés familles.", undefined, 'span')}
+              {Z('cta_text', 'textarea', "On conçoit des carnets de route Portugal complets : Madère + continent, itinéraires Alentejo, combinés familles.", undefined, 'span')}
             </p>
             <Link
               href="/travel-planning"

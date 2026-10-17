@@ -87,7 +87,7 @@ export default async function Itineraire5JoursPage() {
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-stone-100 text-stone-600 px-3 py-1 text-xs font-semibold">{Z('chip_2', 'text', "Septembre 2024", undefined, 'span')}</span>
               </div>
               <p className="text-sm text-charcoal/80 leading-relaxed">
-                {Z('blurb', 'html', "Ce circuit 5 jours reprend le meilleur de la Transylvanie sans les longs transferts. Idéal pour un premier contact avec la Roumanie ou un week-end prolongé. <strong>Budget réel : 850 € pour deux, vols inclus.</strong>", undefined, 'span')}
+                {Z('blurb', 'html', "Cet itinéraire 5 jours reprend le meilleur de la Transylvanie sans les longs transferts. Idéal pour un premier contact avec la Roumanie ou un week-end prolongé. <strong>Budget réel : 850 € pour deux, vols inclus.</strong>", undefined, 'span')}
               </p>
             </div>
           </div>
