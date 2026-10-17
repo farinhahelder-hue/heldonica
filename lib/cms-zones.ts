@@ -22,6 +22,19 @@ import { getTargetedZoneVariants, TargetingContext } from '@/lib/cms-targeting'
 export type ZoneMap = Record<string, string>
 
 /**
+ * Vérifie si une valeur de zone CMS est un placeholder non significatif
+ * (null, indéfini, chaîne vide ou constituée uniquement d'espaces, ou URL vers og-default.jpg).
+ * Un placeholder ne doit pas écraser un fallback valide du composant.
+ */
+export function isPlaceholderZoneValue(val: string | null | undefined): boolean {
+  if (val == null) return true
+  const trimmed = val.trim()
+  if (trimmed === '') return true
+  if (trimmed.endsWith('og-default.jpg')) return true
+  return false
+}
+
+/**
  * Charge les zones actives d'une page avec prise en compte optionnelle du ciblage déclaratif.
  *
  * `is_active` est le seul état de publication de `cms_editable_zones` : il n'y
@@ -50,9 +63,9 @@ export async function getPageZones(page: string, context?: TargetingContext): Pr
 
     const map: ZoneMap = {}
     for (const row of data ?? []) {
-      // Une valeur nulle n'est pas une valeur : on laisse le fallback jouer
-      // plutôt que d'afficher une chaîne vide à la place du texte attendu.
-      if (row.value == null) continue
+      // Une valeur nulle ou un placeholder n'est pas une valeur : on laisse le fallback jouer
+      // plutôt que d'afficher /og-default.jpg ou une chaîne vide à la place d'une vraie photo.
+      if (isPlaceholderZoneValue(row.value)) continue
       map[`${row.page}__${row.zone_key}`] = row.value
     }
 

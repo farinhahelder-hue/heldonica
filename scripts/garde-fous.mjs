@@ -30,6 +30,7 @@ export const CHECKS = [
   { key: 'erreurs-avalees', label: 'Erreurs Supabase avalées', script: 'check:erreurs-avalees', preflight: true },
   { key: 'cms-migrations', label: 'Tables référencées ↔ migrations', script: 'check:cms-migrations', preflight: true },
   { key: 'cms-zones', label: 'Zones CMS orphelines', script: 'check:cms-zones', preflight: false, needsDb: true },
+  { key: 'hero-photos', label: 'Photos hero masquées par placeholder', script: 'check:hero-photos', preflight: false, needsDb: true },
   { key: 'cms-drift', label: 'Dérive des tables (base réelle)', script: 'check:cms-drift', preflight: false, needsDb: true },
   { key: 'content-coherence', label: 'Cohérence éditoriale', script: 'check:content-coherence', preflight: false, needsDb: true },
   { key: 'content-evidence', label: 'Vécu adossé aux photos', script: 'check:content-evidence', preflight: false },
