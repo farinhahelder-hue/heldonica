@@ -74,10 +74,11 @@ describe('outillage garde-fous — scripts du pré-vol', () => {
   });
 
   describe('garde-fous — agrégateur', () => {
-    it('expose les 12 contrôles attendus', () => {
-      expect(CHECKS).toHaveLength(12);
+    it('expose les 13 contrôles attendus', () => {
+      expect(CHECKS).toHaveLength(13);
       expect(CHECKS.map((c) => c.key)).toContain('cms-migrations');
       expect(CHECKS.map((c) => c.key)).toContain('brand-sync');
+      expect(CHECKS.map((c) => c.key)).toContain('hero-photos');
     });
 
     it('--preflight ne retient que les contrôles rapides et sans base', () => {
