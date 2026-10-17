@@ -1,0 +1,155 @@
+name: Release APK
+
+# ============================================================
+# Livrer l'APK par un LIEN DIRECT, installable depuis le telephone.
+#
+# Pourquoi : l'artefact d'un run (onglet Actions → run → Artifacts) demande six
+# gestes sur un ordinateur, et il expire. Une release donne une URL stable, qui
+# s'ouvre sur le Poco et s'installe directement.
+#
+# Deux façons de livrer :
+#   - Pousser un tag `apk-v1`, `apk-v2`… (suffixe libre : le tag doit être unique) ;
+#   - Onglet Actions → « Release APK » → Run workflow.
+#
+# ------------------------------------------------------------
+# SÉCURITÉ — pourquoi l'APK publié ne contient AUCUN secret
+#
+# `CMS_PASSWORD` est injecté via `buildConfigField("String", …)` : il deviendrait un
+# LITTÉRAL compilé dans le dex. Un APK publié en release publique le publierait donc
+# en clair, et ce dépôt est public : toute release est lisible par tous.
+#
+# `build-apk.yml` construit déjà sans secret (`cms.password=` vide) et déclare
+# `mot_de_passe_vide` en sortie. Deux garde-fous, dans cet ordre :
+#   1. On refuse de publier si le build ne déclare pas un APK sans mot de passe ;
+#   2. On scanne le dex avant publication et on refuse s'il contient un secret.
+#
+# Conséquence assumée : l'APK publié peut lire le registre des tâches (la lecture
+# ne demande pas de mot de passe) mais ne peut PAS publier de contenu sur le site.
+# Pour publier, il faut saisir le mot de passe dans l'application (bouton 🔑) ou
+# faire un build local avec `local.properties`.
+#
+# Signature : l'APK est signé avec le keystore de debug VERSIONNÉ du dépôt. Deux
+# releases s'installent donc l'une sur l'autre, sans désinstaller ni perdre les
+# réglages. C'est une clé de debug : elle identifie la série, elle ne protège rien.
+# ============================================================
+
+on:
+  push:
+    tags:
+      - 'apk-*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  construire:
+    uses: ./.github/workflows/build-apk.yml
+
+  publier:
+    needs: construire
+    runs-on: ubuntu-latest
+    steps:
+      - name: Refuser de publier si le build a embarqué un secret
+        # Verrou DUR : ce n'est pas une supposition sur le build, c'est sa propre
+        # déclaration mesurée. Si le build a lu un mot de passe, on s'arrête ici.
+        # Un APK publié ne se « dépublie » pas : il est déjà téléchargé.
+        run: |
+          if [ "${{ needs.construire.outputs.mot_de_passe_vide }}" != "true" ]; then
+            echo "::error::Le build a embarqué un mot de passe (mot_de_passe_vide=${{ needs.construire.outputs.mot_de_passe_vide }}). Publication refusée."
+            exit 1
+          fi
+          echo "  OK : le build déclare un APK sans mot de passe."
+
+      - name: Télécharger l'APK construit
+        uses: actions/download-artifact@v4
+        with:
+          name: heldonica-mobile-debug
+          path: apk
+
+      - name: Nommer et horodater l'APK
+        id: nom
+        run: |
+          set -e
+          DATE=$(date -u +'%Y.%m.%d')
+          if [ "${{ github.event_name }}" = "push" ]; then
+            TAG="${{ github.ref_name }}"
+          else
+            TAG="apk-${DATE}"
+          fi
+          if [ -z "$TAG" ]; then
+            echo "::error::Aucun nom de tag — rien ne sera publié."
+            exit 1
+          fi
+          SORTIE="heldonica-${TAG}.apk"
+          mv apk/app-debug.apk "$SORTIE"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "fichier=$SORTIE" >> "$GITHUB_OUTPUT"
+          echo "  APK à publier : $SORTIE ($(stat -c%s "$SORTIE") octets)"
+
+      - name: Refuser de publier un APK contenant un secret
+        # Le contrôle le plus important de ce workflow. Un APK de release ne doit
+        # contenir ni mot de passe CMS ni clé d'API. On refuse la publication
+        # plutôt que de laisser filtrer : un APK publié ne se « dépublie » pas,
+        # il est déjà téléchargé.
+        run: |
+          set -e
+          python3 - <<'PY'
+          import glob, re, sys, zipfile
+          apk = glob.glob('*.apk')[0]
+          z = zipfile.ZipFile(apk)
+          blob = b''.join(z.read(n) for n in z.namelist() if n.endswith('.dex'))
+          print(f"  {apk} : {len(blob)} octets de dex")
+
+          # Présence attendue : la veille doit être dans l'APK.
+          attendus = [b'VeilleTachesWorker', b'agent-tasks?status=sent&limit=50&balayer=1']
+          manquants = [a.decode() for a in attendus if a not in blob]
+          if manquants:
+            print(f"  ::error::absent(s) du dex : {manquants}")
+            sys.exit(1)
+          print("  OK : la veille est presente")
+
+          # Interdits : un APK de release ne doit contenir aucun secret.
+          # On repère la forme d'une clé (JWT `eyJ…` ou `sb_secret_`), pas une
+          # chaîne arbitraire — pour ne pas refuser un APK légitime.
+          fuites = []
+          if re.search(rb'eyJ[A-Za-z0-9_-]{20,}\.', blob):
+            fuites.append('JWT (cle service ou anon)')
+          if b'sb_secret_' in blob:
+            fuites.append('cle sb_secret_')
+          if fuites:
+            print(f"  ::error::SECRET DANS L'APK — publication refusee : {fuites}")
+            sys.exit(1)
+          print("  OK : aucun secret detecte dans le dex")
+          PY
+
+      - name: Publier la release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          cat > NOTES.md <<'NOTES'
+          APK **sans identifiants** : il peut lire le registre des tâches (la lecture
+          ne demande pas de mot de passe) mais **ne peut pas publier** de contenu sur
+          le site. Pour publier, saisis le mot de passe CMS une fois dans
+          l'application (bouton 🔑 de l'écran Cerveau), ou fais un build local avec
+          `local.properties`.
+
+          Pourquoi : `CMS_PASSWORD` serait compilé en clair dans l'APK, et ce dépôt
+          est public. Un APK de release ne doit jamais transporter de secret.
+
+          Signé avec le keystore de debug du dépôt : il s'installe par-dessus la
+          version précédente, sans désinstallation ni perte des réglages.
+
+          Construit par la CI (workflow « Build APK »).
+
+          Contrôles automatiques avant publication : la veille est bien dans le dex,
+          et **aucun secret** n'y a été détecté.
+          NOTES
+          gh release create "${{ steps.nom.outputs.tag }}" \
+            "${{ steps.nom.outputs.fichier }}" \
+            --repo "${{ github.repository }}" \
+            --title "Heldonica Mobile ${{ steps.nom.outputs.tag }}" \
+            --notes-file NOTES.md \
+            --latest
+          echo "  Release publiée : ${{ steps.nom.outputs.tag }}"
