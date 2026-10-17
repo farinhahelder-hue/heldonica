@@ -28,9 +28,14 @@ name: Release APK
 # Pour publier, il faut saisir le mot de passe dans l'application (bouton 🔑) ou
 # faire un build local avec `local.properties`.
 #
-# Signature : l'APK est signé avec le keystore de debug VERSIONNÉ du dépôt. Deux
-# releases s'installent donc l'une sur l'autre, sans désinstaller ni perdre les
-# réglages. C'est une clé de debug : elle identifie la série, elle ne protège rien.
+# Signature : par défaut, l'APK est signé avec le keystore de debug VERSIONNÉ du
+# dépôt — deux releases s'installent donc l'une sur l'autre, sans désinstaller ni
+# perdre les réglages. Ce keystore de debug est public : il identifie la série, il
+# ne protège rien. Pour une vraie identité de release, poser les secrets
+# RELEASE_STORE_PASSWORD / RELEASE_KEY_ALIAS / RELEASE_KEY_PASSWORD et fournir
+# keystore/heldonica-release.keystore (voir heldonica-mobile/app/build.gradle.kts).
+# Attention alors : un changement de clé impose UNE réinstallation manuelle des
+# versions déjà installées (Android refuse une mise à jour signée d'une autre clé).
 # ============================================================
 
 on:
@@ -45,6 +50,7 @@ permissions:
 jobs:
   construire:
     uses: ./.github/workflows/build-apk.yml
+    secrets: inherit
 
   publier:
     needs: construire
@@ -64,7 +70,7 @@ jobs:
       - name: Télécharger l'APK construit
         uses: actions/download-artifact@v4
         with:
-          name: heldonica-mobile-debug
+          name: heldonica-mobile-release
           path: apk
 
       - name: Nommer et horodater l'APK
@@ -82,7 +88,7 @@ jobs:
             exit 1
           fi
           SORTIE="heldonica-${TAG}.apk"
-          mv apk/app-debug.apk "$SORTIE"
+          mv apk/app-release.apk "$SORTIE"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "fichier=$SORTIE" >> "$GITHUB_OUTPUT"
           echo "  APK à publier : $SORTIE ($(stat -c%s "$SORTIE") octets)"
@@ -110,17 +116,27 @@ jobs:
           print("  OK : la veille est presente")
 
           # Interdits : un APK de release ne doit contenir aucun secret.
-          # On repère la forme d'une clé (JWT `eyJ…` ou `sb_secret_`), pas une
-          # chaîne arbitraire — pour ne pas refuser un APK légitime.
+          # On repère la FORME de chaque type de clé (JWT, Groq, Google, OpenAI,
+          # Anthropic, GitHub, Supabase) — pas une chaîne arbitraire, pour ne pas
+          # refuser un APK légitime. Un APK publié ne se « dépublie » pas.
           fuites = []
-          if re.search(rb'eyJ[A-Za-z0-9_-]{20,}\.', blob):
-            fuites.append('JWT (cle service ou anon)')
-          if b'sb_secret_' in blob:
-            fuites.append('cle sb_secret_')
+          motifs = {
+              'JWT (cle service ou anon)': rb'eyJ[A-Za-z0-9_-]{20,}\.',
+              'cle Supabase service':      rb'sb_secret_',
+              'cle Google (AIza)':         rb'AIza[0-9A-Za-z_\-]{35}',
+              'cle Groq (gsk_)':           rb'gsk_[A-Za-z0-9]{40,}',
+              'cle OpenAI (sk-)':          rb'sk-[A-Za-z0-9]{32,}',
+              'cle Anthropic':             rb'sk-ant-[A-Za-z0-9_\-]{20,}',
+              'token GitHub':              rb'(ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{60,})',
+              'cle Heldonica (hld_)':      rb'hld_[A-Za-z0-9]{16,}',
+          }
+          for nom, motif in motifs.items():
+            if re.search(motif, blob):
+              fuites.append(nom)
           if fuites:
             print(f"  ::error::SECRET DANS L'APK — publication refusee : {fuites}")
             sys.exit(1)
-          print("  OK : aucun secret detecte dans le dex")
+          print("  OK : aucun secret detecte dans le dex (JWT, Supabase, Google, Groq, OpenAI, Anthropic, GitHub, Heldonica)")
           PY
 
       - name: Publier la release
@@ -138,8 +154,10 @@ jobs:
           Pourquoi : `CMS_PASSWORD` serait compilé en clair dans l'APK, et ce dépôt
           est public. Un APK de release ne doit jamais transporter de secret.
 
-          Signé avec le keystore de debug du dépôt : il s'installe par-dessus la
-          version précédente, sans désinstallation ni perte des réglages.
+          Build **release** : non débogable (`debuggable=false`), R8 actif, ressources
+          réduites, trafic HTTP autorisé uniquement vers le Cerveau local. Signé avec
+          le keystore du dépôt : il s'installe par-dessus la version précédente, sans
+          désinstallation ni perte des réglages.
 
           Construit par la CI (workflow « Build APK »).
 

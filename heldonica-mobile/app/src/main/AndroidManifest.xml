@@ -11,7 +11,10 @@
 
     <application
         android:label="Heldonica Mobile"
-        android:usesCleartextTraffic="true"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
         android:theme="@android:style/Theme.Material.Light">
         <activity android:name=".StudioActivity" android:exported="true">
             <intent-filter>

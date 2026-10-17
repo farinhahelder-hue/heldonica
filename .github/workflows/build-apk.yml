@@ -66,12 +66,36 @@ jobs:
           cd heldonica-mobile
           gradle testDebugUnitTest --stacktrace
 
-      - name: Build Debug APK
+      # Keystore de release optionnel. S'il n'est pas fourni, le build signe avec le
+      # keystore de debug versionne (repli implemente dans app/build.gradle.kts).
+      # Fournir RELEASE_KEYSTORE_BASE64 (keystore encode base64) + les mots de passe
+      # en secrets pour basculer sur une vraie identite de release.
+      - name: Poser le keystore de release (si fourni)
+        env:
+          RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$RELEASE_KEYSTORE_BASE64" ]; then
+            mkdir -p heldonica-mobile/keystore
+            printf '%s' "$RELEASE_KEYSTORE_BASE64" | base64 -d > heldonica-mobile/keystore/heldonica-release.keystore
+            echo "keystore de release pose."
+          else
+            echo "aucun keystore de release fourni : repli sur le keystore de debug."
+          fi
+
+      # Build RELEASE (non debogable, R8 actif, ressources reduites), signe.
+      # Le mot de passe CMS reste vide : aucun secret n'est compile dans le dex.
+      # La signature utilise un vrai keystore si les secrets RELEASE_* sont poses,
+      # sinon le keystore de debug versionne (mises a jour installables).
+      - name: Build Release APK
+        env:
+          RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
         run: |
           cd heldonica-mobile
-          gradle assembleDebug --stacktrace
+          gradle assembleRelease --stacktrace
 
       - uses: actions/upload-artifact@v4
         with:
-          name: heldonica-mobile-debug
-          path: heldonica-mobile/app/build/outputs/apk/debug/app-debug.apk
+          name: heldonica-mobile-release
+          path: heldonica-mobile/app/build/outputs/apk/release/app-release.apk
