@@ -2,6 +2,29 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-16] — Release APK installable : livrer l'application par un lien direct
+
+### Problème résolu
+- Il n'existait **aucune release publiée** : le seul APK disponible était l'artefact d'un run CI, qui demande plusieurs gestes sur un ordinateur et expire au bout de 90 jours. Aucun utilisateur ne pouvait installer l'application depuis son téléphone.
+- La PR #601 portait un workflow `release-apk.yml`, mais elle était devenue **obsolète** : tout son contenu (registre, battement, tests, `build-apk.yml` sans secret) était déjà dans `main` via #602 et #603-605. Seul `release-apk.yml` lui restait propre, et ce fichier appelait `build-apk.yml` avec `release: true` — un contrat que `main` ne fournissait pas.
+
+### Corrections & Améliorations
+1. **Contrat d'appel (`build-apk.yml`)** :
+   - Ajout du déclencheur `workflow_call` avec la sortie `mot_de_passe_vide`.
+   - L'étape « Préparer local.properties » porte désormais `id: identifiants` et publie `mot_de_passe_vide=true` — déclaration **mesurée** du build lui-même, pas une supposition.
+2. **Workflow de release (`release-apk.yml`)** :
+   - Se déclenche sur un tag `apk-*` ou manuellement (`workflow_dispatch`).
+   - Refuse de publier si le build ne déclare pas `mot_de_passe_vide=true`.
+   - Scanne le dex avant publication et refuse toute fuite (`eyJ…` JWT ou `sb_secret_`).
+   - Publie une release GitHub avec l'APK signé par le keystore de debug versionné : les versions s'installent l'une sur l'autre, sans désinstallation.
+
+### Vérifications & Mesures
+- `npm run preflight` : 6/6 PASS.
+- APK de `main` (run #38849762633, `e6653ed9`) : 12 539 897 octets, sha256 `68a1fff3…`. Chaînes attendues **présentes** dans le dex (`VeilleTachesWorker`, `agent-tasks?status=sent&limit=50&balayer=1`) ; `heldonica2026` **absent**.
+- Contrôle de publication testé dans les deux sens : APK propre → autorisé ; APK contaminé (JWT de forme réelle, puis `sb_secret_`) → refusé, exit 1.
+
+---
+
 ## [2026-10-16] — Heldonica Mobile & Brain : Résilience d'authentification CMS et timeouts d'inférence Cloud
 
 ### Problème résolu
