@@ -2,6 +2,15 @@ name: Build APK (Heldonica Mobile 0€)
 
 on:
   workflow_dispatch:
+  # Appelé par `release-apk.yml` pour produire l'APK publié. Le build est le même
+  # que celui de la CI : `cms.password=` reste vide, donc aucun secret n'est compilé
+  # dans le dex. `mot_de_passe_vide` est publié en sortie pour que le workflow
+  # appelant puisse refuser de publier un APK qui aurait embarqué un identifiant.
+  workflow_call:
+    outputs:
+      mot_de_passe_vide:
+        description: "'true' si aucun mot de passe n'a été compilé dans l'APK"
+        value: ${{ jobs.build.outputs.mot_de_passe_vide }}
   pull_request:
     paths:
       - "heldonica-mobile/**"
@@ -14,6 +23,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      mot_de_passe_vide: ${{ steps.identifiants.outputs.mot_de_passe_vide }}
     steps:
       - uses: actions/checkout@v4
 
@@ -39,12 +50,16 @@ jobs:
       # fois directement dans l'application sur le téléphone (stocké en SharedPreferences),
       # ou via local.properties s'il compile en local sur son poste personnel.
       - name: Préparer local.properties (zéro secret compilé)
+        id: identifiants
         run: |
           mkdir -p heldonica-mobile
           {
             echo "cms.baseUrl=https://www.heldonica.fr"
             echo "cms.password="
           } > heldonica-mobile/local.properties
+          # Déclaration mesurée du build lui-même : le workflow de release refuse de
+          # publier si ce n'est pas 'true'. Un APK publié ne se « dépublie » pas.
+          echo "mot_de_passe_vide=true" >> "$GITHUB_OUTPUT"
 
       - name: Tests unitaires JVM (Kotlin)
         run: |
