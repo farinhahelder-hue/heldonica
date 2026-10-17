@@ -94,8 +94,11 @@ function evaluatePost(title, content, excerpt) {
 async function main() {
   const { url, key } = readEnv();
   if (!url || !key) {
-    console.log('✓ Clés Supabase non disponibles, vérification statique ignorée.');
-    process.exit(0);
+    // Exit 2 = « ignoré », pas « vert » : garde-fous.mjs distingue les deux et
+    // n'affiche pas un contrôle sauté comme réussi. Sortir en 0 ici faisait
+    // passer pour vert un contrôle qui n'avait rien vérifié.
+    console.log('– Clés Supabase non disponibles : vérification non effectuée (ignorée).');
+    process.exit(2);
   }
 
   try {

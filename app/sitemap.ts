@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { getAllPosts } from '@/lib/blog-supabase'
+import { isUnpublishedPath } from '@/lib/unpublished-pages'
 
 const BASE_URL = 'https://www.heldonica.fr'
 
@@ -525,5 +526,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       };
     });
 
-  return [...staticPages, ...blogPages];
+  return [...staticPages, ...blogPages].filter(
+    (entry) => !isUnpublishedPath(entry.url)
+  );
 }
