@@ -3,6 +3,9 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import NewsletterForm from '@/components/NewsletterForm'
+import { getStyleLabel } from '@/lib/travel-styles'
+import { isUnpublishedCmsPage } from '@/lib/unpublished-pages'
 
 export interface SubDestinationHighlight {
   title: string
@@ -30,6 +33,12 @@ export interface SubDestinationProps {
   introText: string
   highlights: SubDestinationHighlight[]
   localTip: string
+  /**
+   * Style de voyage (`slow-culture`, `slow-nature`…), facultatif. Utilisé par la
+   * page « Bientôt » servie pour les pages au contenu non publiable : il alimente
+   * la carte « Style » via `getStyleLabel`.
+   */
+  travelStyle?: string
   relatedArticles?: Array<{
     slug: string
     title: string
@@ -48,8 +57,73 @@ export default function SubDestinationTemplate({
   introText,
   highlights,
   localTip,
+  travelStyle,
   relatedArticles = [],
 }: SubDestinationProps) {
+  // Contenu non publiable (cf. lib/unpublished-pages.ts) : le brouillon en base
+  // (« Grec. », « Incredible. ») est remplacé par une page « Bientôt » — l'état de
+  // non-publication déjà utilisé par /destinations/grece. Publier une page de ce
+  // gabarit, c'est rédiger son contenu puis retirer son entrée de cette liste.
+  //
+  // Les zones sont écrites en toutes lettres, avec `page={page}` et une clé
+  // littérale, et non confiées à un composant : c'est le seul motif que
+  // `check-cms-zones.mjs` relie à la page appelante. Passer par un composant
+  // intermédiaire les rendrait orphelines sur les 43 pages qui montent ce gabarit.
+  if (isUnpublishedCmsPage(page)) {
+    const styleLabel = getStyleLabel(travelStyle)
+
+    return (
+      <main>
+        <section className="relative min-h-[60vh] flex items-end overflow-hidden bg-stone-900">
+          <EditableZone page={page} zone="hero_image" type="image" fallback={heroImage} className="object-cover opacity-50 absolute inset-0 w-full h-full" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+          <div className="relative container py-16 md:py-24">
+            <p className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold">
+              <EditableZone page={page} zone="hero_eyebrow" fallback={`${parentName} — Bientôt`} />
+            </p>
+            <h1 className="text-4xl md:text-6xl font-serif text-white max-w-3xl mb-5 leading-tight">
+              <EditableZone page={page} zone="hero_title" fallback={name} />
+            </h1>
+          </div>
+        </section>
+
+        {styleLabel && (
+          <section className="bg-white py-12">
+            <div className="container max-w-4xl">
+              <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
+                <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Style</p>
+                <p className="text-charcoal font-medium">
+                  <EditableZone page={page} zone="style_label" fallback={styleLabel} />
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
+
+        <section className="bg-cloud-dancer py-20 md:py-28">
+          <div className="container max-w-2xl text-center">
+            <p className="text-4xl mb-6">🗺️</p>
+            <h2 className="text-3xl font-serif text-mahogany mb-4">
+              <EditableZone page={page} zone="section_title" fallback={`On prépare le guide ${name.toLowerCase()} — à notre façon.`} />
+            </h2>
+            <p className="text-charcoal/70 mb-8 max-w-lg mx-auto">
+              <EditableZone page={page} zone="section_text" type="textarea" fallback="On arpente les ruelles, on teste les adresses, on sélectionne ce qu'on referait vraiment. Laisse-nous ton email et tu seras le premier averti — avant qu'on publie quoi que ce soit ailleurs." />
+            </p>
+            <div className="max-w-md mx-auto mb-8">
+              <NewsletterForm variant="inline" />
+            </div>
+            <Link
+              href="/destinations"
+              className="inline-flex items-center gap-2 text-sm text-eucalyptus font-semibold hover:underline"
+            >
+              <EditableZone page={page} zone="back_link" fallback="← Voir toutes nos destinations" />
+            </Link>
+          </div>
+        </section>
+      </main>
+    )
+  }
+
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'TouristDestination',

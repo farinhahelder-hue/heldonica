@@ -8,12 +8,16 @@
  * s'affichent réellement.
  *
  * Réécrire ces pages suppose de la matière terrain (notes, photos) qui n'existe
- * pas encore pour ces destinations. En attendant, elles restent accessibles par
- * URL directe mais sortent du sitemap et passent en noindex : Google ne les
- * propose plus et ne les indexe plus.
+ * pas encore pour ces destinations. En attendant, une entrée d'ici déclenche
+ * trois protections :
+ *   - `app/sitemap.ts` retire la page du sitemap ;
+ *   - `lib/page-metadata.ts` la passe en `noindex` ;
+ *   - `components/SubDestinationTemplate.tsx` remplace le brouillon par une page
+ *     « Bientôt » (même état de non-publication que /destinations/grece) : plus
+ *     de contenu de brouillon servi, seulement un appel à inscription.
  *
  * Pour publier une page : rédiger son contenu à partir de vécu vérifiable, puis
- * retirer son entrée d'ici. Le garde-fou `check:content-evidence` et le test
+ * retirer son entrée d'ici. Le garde-fou `check:content-pages` et le test
  * `unpublished-pages.test.ts` rappellent la règle.
  */
 
@@ -22,6 +26,9 @@ export const UNPUBLISHED_PATHS: readonly string[] = [
   '/destinations/colombie/bogota',
   '/destinations/colombie/cali',
   '/destinations/colombie/cartago',
+  '/destinations/colombie/medellin',
+  '/destinations/sardaigne/alghero',
+  '/destinations/sardaigne/asinara',
   '/destinations/sardaigne/cagliari',
   '/destinations/sardaigne/costa-smeralda',
   '/destinations/sardaigne/nuoro',
@@ -37,6 +44,9 @@ export const UNPUBLISHED_CMS_PAGES: readonly string[] = [
   'destinations-colombie-bogota',
   'destinations-colombie-cali',
   'destinations-colombie-cartago',
+  'destinations-colombie-medellin',
+  'destinations-sardaigne-alghero',
+  'destinations-sardaigne-asinara',
   'destinations-sardaigne-cagliari',
   'destinations-sardaigne-costa-smeralda',
   'destinations-sardaigne-nuoro',

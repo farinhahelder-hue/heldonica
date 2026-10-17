@@ -35,10 +35,10 @@ import { extraireMotsBannisTS } from './sync-brand-voice.mjs';
 
 const ROOTS = ['app/destinations', 'app/a-propos', 'app/expert-hotelier', 'lib/pillar-data.ts'];
 
-// Pages dont le contenu est déjà quarantainé (noindex + hors sitemap) en attendant
+// Pages dont le contenu est déjà quarantainé (noindex, hors sitemap, page « Bientôt »)
 // une réécriture sur vécu réel : lib/unpublished-pages.ts. On n'exige pas d'elles
-// une prose propre — elles ne sont pas publiées — mais on les signale à part pour
-// que la dette reste visible.
+// une prose propre — elles ne sont pas publiées, et leur gabarit rend une page
+// « Bientôt » au lieu du brouillon — mais on les signale pour que la dette reste visible.
 const UNPUBLISHED = (() => {
   const src = readFileSync('lib/unpublished-pages.ts', 'utf8');
   const bloc = src.match(/UNPUBLISHED_PATHS[^=]*=\s*\[([\s\S]*?)\]/);
@@ -123,6 +123,19 @@ for (const fichier of ROOTS.flatMap((r) => fichiers(r))) {
 
     for (const m of ligne.matchAll(STRING_RE)) {
       const texte = m[2].replace(/\\n/g, ' ').trim();
+      if (texte.length < 2) continue;
+
+      // Un fragment de brouillon fait une ou deux capitalisées suivies d'un
+      // point (« Grec. », « Dunes. »). Il faut le juger AVANT le filtre de
+      // prose : avec moins de trois mots, il passerait pour un identifiant de
+      // code et échapperait au contrôle — c'était l'angle mort du 16/10.
+      if (FRAGMENT_RE.test(texte) && !/^[./@#]|https?:|\{[^}]*\}$/.test(texte)) {
+        cible.push({
+          fichier, numero, type: 'fragment de brouillon',
+          detail: `description réduite à un fragment : « ${texte} »`,
+        });
+      }
+
       if (!estProse(texte)) continue;
       const bas = texte.toLowerCase();
 
@@ -133,13 +146,6 @@ for (const fichier of ROOTS.flatMap((r) => fichiers(r))) {
             detail: `« ${mot} » dans : ${texte.slice(0, 90)}`,
           });
         }
-      }
-
-      if (FRAGMENT_RE.test(texte)) {
-        cible.push({
-          fichier, numero, type: 'fragment de brouillon',
-          detail: `description réduite à un fragment : « ${texte} »`,
-        });
       }
 
       for (const ang of ANGLICISMES) {
@@ -158,7 +164,8 @@ for (const fichier of ROOTS.flatMap((r) => fichiers(r))) {
 if (quarantaines.length > 0) {
   const pages = new Set(quarantaines.map((q) => q.fichier));
   console.log(
-    `  ℹ ${pages.size} page(s) en quarantaine (hors sitemap, noindex) — dette assumée, ` +
+    `  ℹ ${pages.size} page(s) en quarantaine (noindex, hors sitemap, page « Bientôt ») — ` +
+    `dette assumée, ` +
     `non bloquante : ${quarantaines.length} dérive(s) dans lib/unpublished-pages.ts.`
   );
 }

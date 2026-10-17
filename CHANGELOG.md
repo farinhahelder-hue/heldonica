@@ -69,23 +69,24 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 ### Problème résolu
 - Le document `docs/positionnement-editorial-concurrents.md` décrivait la voix Heldonica, mais **rien ne vérifiait que c'était bien celle qui s'affichait**. Un audit du 2026-10-16 a montré deux dérives :
   - **11 champs à mots bannis** dans `cms_editable_zones` (donc réellement servis) : « plages fluviales incroyables », « Le matin incontournable », « villages magnifiques », « Astuce : », « au cœur de », « inoubliable »…
-  - **11 pages destinations** dont le contenu en base est un brouillon du générateur `ad58c936` : descriptions réduites à un mot suivi d'un point (« Grec. », « Dunes. ») et anglais résiduel (« Incredible. », « Theatre »).
-- **Aucun garde-fou ne l'attrapait** : `check:content-coherence` ne scanne que les articles Supabase, et sortait « ✓ » **sans rien vérifier** quand les clés manquaient — un faux vert.
+  - **14 pages destinations** dont le contenu en base est un brouillon du générateur `ad58c936` : descriptions réduites à un mot suivi d'un point (« Grec. », « Le parc. ») et anglais résiduel (« Incredible. », « Theatre »).
+- **Aucun garde-fou ne l'attrapait** : `check:content-coherence` ne scanne que les articles Supabase, et sortait « ✓ » **sans rien vérifier** quand les clés manquaient — un faux vert. Le garde-fou `check:content-pages` créé dans la foulée exigeait lui-même trois mots par chaîne, donc laissait passer les fragments d'un ou deux mots.
 
 ### Corrections & Améliorations
 1. **Mots bannis en base** — migration `supabase/migrations/20261011130000_fix_banned_words_destinations.sql` : corrige les 11 champs sur les pages publiées (rollback documenté dans le fichier). `/destinations/sicile/taormine` est exclue (voir point 3).
 2. **Mots bannis dans le code** — 20 remplacements de prose dans 8 pages (`alentejo`, `colombie`, `portugal`, `roumanie/{itineraire-5,7,10-jours,timisoara,transylvanie}`) : « circuit » → « itinéraire », « incroyable » → formulation concrète, « spot » → « adresse »/« coin », « magnifique » → « préservé »…
-3. **Pages à contenu non publiable** — `lib/unpublished-pages.ts` liste les 11 pages (Sicile, Sardaigne, Colombie) : elles restent consultables par URL directe mais passent en `noindex` (`lib/page-metadata.ts`) et sortent du sitemap (`app/sitemap.ts`). **Elles ne sont pas réécrites** : ces destinations n'ont ni photo ni carnet dans le coffre, les combler supposerait d'inventer le vécu (règle 1 d'`AGENTS.md`).
-4. **Garde-fou manquant** — `scripts/check-content-pages.mjs` : détecte les mots bannis (source unique : `lib/brand-voice.ts`), les fragments de brouillon et l'anglais résiduel dans la prose des pages. Ajouté au preflight.
+3. **Pages à contenu non publiable** — `lib/unpublished-pages.ts` liste les **14 pages** (Sicile ×5, Sardaigne ×5, Colombie ×4). Une entrée déclenche trois protections : `noindex` (`lib/page-metadata.ts`), retrait du sitemap (`app/sitemap.ts`), et bascule sur une page **« Bientôt »** (`SubDestinationTemplate` rend lui-même le bloc « Bientôt ») — l'état de non-publication déjà utilisé par `/destinations/grece`. Le brouillon n'est plus servi. **Elles ne sont pas réécrites** : ces destinations n'ont ni photo ni carnet dans le coffre, les combler supposerait d'inventer le vécu (règle 1 d'`AGENTS.md`).
+4. **Garde-fou manquant** — `scripts/check-content-pages.mjs` : détecte les mots bannis (source unique : `lib/brand-voice.ts`), les fragments de brouillon et l'anglais résiduel. Le test de fragment s'exécute **avant** le filtre de prose : un fragment d'un mot est désormais vu. Ajouté au preflight.
 5. **Faux vert corrigé** — `check-content-coherence.mjs` sort désormais en **2 (« ignoré »)** et non 0 quand les clés Supabase manquent : un contrôle sauté n'est plus présenté comme réussi.
-6. **Document** — `docs/positionnement-editorial-concurrents.md` : nouvelle §4.2 « Santé éditoriale Heldonica » (faits mesurés, `[OBSERVÉ]` vs `[INTERPRÉTATION]`), §10 et §9 complétées.
+6. **Rendu « Bientôt » sans nouveau composant** — `SubDestinationTemplate` rend lui-même la page « Bientôt » (héros, appel à inscription) pour toute page du registre. Le bloc est écrit avec `page={page}` et des clés de zone littérales : c'est le seul motif que `check-cms-zones.mjs` relie à la page appelante. L'extraire dans un composant partagé l'aurait rendu orphelin sur les 43 pages qui montent le gabarit — la CI « Zones et tables CMS » l'a confirmé (`destinations-grece`, 9 zones orphelines), d'où le rendu inline.
+7. **Document** — `docs/positionnement-editorial-concurrents.md` : §4.2 « Santé éditoriale Heldonica » (faits mesurés, `[OBSERVÉ]` vs `[INTERPRÉTATION]`), §10 et §9 complétées.
 
 ### Vérifications & Mesures
-- `npm run preflight` : **7/7 PASS** (dont le nouveau `check:content-pages`).
+- Balayage exhaustif : **119 pages de `app/`** scannées (dont les 69 pages destinations). Seules les 14 destinations sont concernées ; `roumanie/cluj` et `mentions-legales` sont des faux positifs (« de l'Est. », « Vercel Inc. »).
+- `npm run garde-fous` : **10/13 réussis**, **3 ignorés** faute d'identifiants Supabase (rapportés comme ignorés, jamais comme verts).
 - `npx tsc --noEmit` : exit 0.
-- `npx vitest run __tests__/lib/unpublished-pages.test.ts` : 5/5.
-- `node scripts/check-content-pages.mjs` : **0 dérive** en page publiée, 2 pages quarantainées signalées comme dette assumée.
-- `node scripts/check-content-coherence.mjs` sans clés : exit **2** (« ignoré »), plus jamais « vert ».
+- `npx vitest run` : **714/714** (dont 6 sur `unpublished-pages` et 2 sur `SubDestinationTemplate`).
+- `node scripts/check-content-pages.mjs` : **0 dérive** en page publiée ; 14 pages quarantainées signalées.
 
 ---
 
