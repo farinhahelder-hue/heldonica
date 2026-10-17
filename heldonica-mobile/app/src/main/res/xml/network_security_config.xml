@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Politique reseau de Heldonica Mobile.
+
+  Par defaut, le trafic en clair (HTTP) est INTERDIT : tout passe en HTTPS
+  (heldonica.fr, Nominatim, pollinations.ai).
+
+  Seule exception : le Cerveau local, qui parle HTTP sur le LAN (port 8440).
+  On autorise uniquement les adresses connues de la station :
+    - 10.10.145.61 : IP LAN du PC de travail (brain.baseUrl par defaut) ;
+    - 127.0.0.1 / localhost : tunnel USB (adb reverse tcp:8440 tcp:8440).
+  Si l'IP du PC change, l'ajouter ici — le blocage est volontaire, il protege
+  contre une interception sur le reseau.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">10.10.145.61</domain>
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <domain includeSubdomains="false">localhost</domain>
+    </domain-config>
+</network-security-config>

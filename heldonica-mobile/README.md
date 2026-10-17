@@ -26,10 +26,17 @@ sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 # 2. Pointer le SDK dans local.properties (fichier NON versionné)
 echo "sdk.dir=$ANDROID_HOME" > local.properties
 
-# 3. Construire
+# 3. Construire (debug, pour tester)
 cd heldonica-mobile
 ./gradlew assembleDebug
 # APK → app/build/outputs/apk/debug/app-debug.apk (sideload, pas besoin Play Store 25$)
+
+# Build de release (non débogable, R8 actif, réseau verrouillé) — ce que publie la CI :
+./gradlew assembleRelease
+# APK → app/build/outputs/apk/release/app-release.apk
+# Signature : un vrai keystore si keystore/heldonica-release.keystore existe (mot de
+# passe via local.properties `release.storePassword`, ou variable RELEASE_STORE_PASSWORD),
+# sinon repli automatique sur le keystore de debug versionné.
 ```
 
 Le wrapper (`gradlew` + `gradle/wrapper/gradle-wrapper.jar`) est **versionné** : pas besoin
@@ -43,8 +50,8 @@ gradle wrapper --gradle-version 8.7
 
 ### Sur GitHub Actions (repli)
 
-Le workflow **Build APK** (`.github/workflows/build-apk.yml`) construit l'APK et le
-dépose en artefact `heldonica-mobile-debug`. Onglet **Actions** → dernier run vert →
+Le workflow **Build APK** (`.github/workflows/build-apk.yml`) construit l'APK **release**
+et le dépose en artefact `heldonica-mobile-release`. Onglet **Actions** → dernier run vert →
 **Artifacts**. Aucun secret n'est compilé dans l'APK de CI : le mot de passe CMS se
 configure directement sur le téléphone (enregistré de façon chiffrée/privée dans les
 SharedPreferences) ou via `local.properties` pour un build local personnel.

@@ -30,6 +30,38 @@ android {
                 keyPassword = "heldonica"
             }
         }
+
+        // Signature de release. Un vrai keystore si fourni — en CI par les
+        // variables RELEASE_STORE_PASSWORD / RELEASE_KEY_ALIAS / RELEASE_KEY_PASSWORD,
+        // en local par local.properties (release.*). Sinon repli sur le keystore de
+        // debug versionne : la CI continue alors de produire un APK installable
+        // par-dessus les precedents, sans secret supplementaire a configurer.
+        // Le fichier attendu est keystore/heldonica-release.keystore (non versionne).
+        create("release") {
+            val cleRelease = rootProject.file("keystore/heldonica-release.keystore")
+            val mdpStore = cmsProps.getProperty("release.storePassword")
+                ?: System.getenv("RELEASE_STORE_PASSWORD")
+            val alias = cmsProps.getProperty("release.keyAlias")
+                ?: System.getenv("RELEASE_KEY_ALIAS")
+                ?: "heldonica"
+            val mdpCle = cmsProps.getProperty("release.keyPassword")
+                ?: System.getenv("RELEASE_KEY_PASSWORD")
+                ?: mdpStore
+            if (cleRelease.exists() && !mdpStore.isNullOrBlank()) {
+                storeFile = cleRelease
+                storePassword = mdpStore
+                keyAlias = alias
+                keyPassword = mdpCle
+            } else {
+                val cle = rootProject.file("keystore/heldonica-debug.keystore")
+                if (cle.exists()) {
+                    storeFile = cle
+                    storePassword = "heldonica"
+                    keyAlias = "heldonica"
+                    keyPassword = "heldonica"
+                }
+            }
+        }
     }
 
     buildFeatures {
@@ -75,10 +107,21 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
-            // Aucune cle de publication : sans cette ligne, un assembleRelease
-            // produit un APK non signe, impossible a installer.
-            signingConfig = signingConfigs.getByName("debug")
+            // Un APK publie ne doit pas etre debogable : `debuggable=true` ouvre
+            // `adb run-as` et expose les SharedPreferences (dont le mot de passe
+            // CMS). Le build de release de la CI a longtemps ete un `assembleDebug`
+            // faute de config release : c'est corrige ici.
+            isDebuggable = false
+            // R8 retire le code mort et obfusque les identifiants.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            // Un vrai keystore de release si fourni, sinon le keystore de debug
+            // versionne (mises a jour installables par-dessus les precedentes).
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
@@ -109,6 +152,12 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.work:work-runtime-ktx:2.9.0")
     implementation("com.google.android.gms:play-services-location:21.2.0")
+    // play-services-base 18.3.0 / play-services-basement 18.3.0 tirent
+    // androidx.fragment:fragment:1.1.0, sous le seuil 1.3.0 exigé par l'API
+    // registerForActivityResult utilisee dans MainActivity. Or c'est un
+    // controleur lint FATAL : assembleDebug passe, assembleRelease non. On force
+    // donc une version courante (1.6.2, derniere compatible compileSdk 34 / AGP 8.4).
+    implementation("androidx.fragment:fragment:1.6.2")
     implementation("androidx.exifinterface:exifinterface:1.3.7")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
