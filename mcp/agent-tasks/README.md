@@ -56,6 +56,41 @@ Lance le serveur en enfant, exerce les cinq outils, dépose une tâche d'essai
 puis la supprime par PostgREST (le serveur, lui, ne sait pas supprimer). Neuf
 contrôles ; tous doivent être ✓.
 
+## Parler au Brain (`heldonica-brain`)
+
+Le Brain n'est pas un client MCP : c'est un service local qui **poll** le CMS
+(`GET /api/brain/tasks?status=sent`, toutes les 30 s) et rend compte par
+`PATCH /api/brain/tasks/:id`. Le pont est décrit dans
+`.kiro/specs/brain-cms-bridge/` et implémenté sous `app/api/brain/`.
+
+Depuis ce serveur, `heldonica-brain` est un destinataire comme un autre — mais
+avec **deux champs obligatoires**, sans lesquels son poller dépile la tâche et
+l'ignore en silence :
+
+| Champ | Valeur | Pourquoi |
+|---|---|---|
+| `task_type` | `chat` (ou `run_task`, `status`, `generate_carousel`, `generate_itinerary`) | c'est sur ce champ que le poller dispatche |
+| `payload` | `{ "message": "…" }` pour `chat` | c'est là que le Brain lit la question |
+
+```js
+deposer_tache({
+  agent: 'heldonica-brain',
+  task: 'Question sur les témoignages actifs',
+  task_type: 'chat',
+  payload: { message: '…' },
+  scope: 'content',
+})
+```
+
+La réponse du Brain n'arrive pas dans `notes` mais dans **`actions_done.result`** :
+la relire avec `lire_tache` quelques minutes plus tard. Le serveur **refuse** une
+tâche destinée au Brain sans `task_type` (et sans `payload.message` si `chat`),
+plutôt que de la perdre.
+
+Vérifié le 2026-10-18 : les refus sont exercés, aucun insert n'est atteint, et le
+Brain était vivant (dernier heartbeat `2026-10-15T20:20:28Z`, modèle
+`openai/gpt-oss-120b`).
+
 ## Ce que le serveur ne fait pas, et pourquoi
 
 - **Supprimer.** Le registre est la mémoire commune ; on n'efface pas ce qu'un
