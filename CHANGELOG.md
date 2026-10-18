@@ -2,6 +2,27 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — Correctif : Brașov et les itinéraires roumains repartent en repli
+
+L'entrée ci-dessous annonçait « la photo réelle du lieu » pour 5 pages. Après
+recoupement avec la sauvegarde SQL du 28/07/2026, seules **3 des 5 photos**
+étaient adossées à un article traitant du lieu **exact** de la page :
+
+| Photo | Article d'origine | Page | Décision |
+|---|---|---|---|
+| `batch-…467099-7` | « Bucarest cachée : Art Nouveau… » | `roumanie-bucarest` | **gardée** |
+| `import-…3929226` | « Le Marais caché : la rue du Temple » | `idf-paris`, `paris` | **gardée** |
+| `batch-…464596-3` | « Stoos Ridge au coucher du soleil » | `suisse` | **gardée** |
+| `import-…5717207` | « Transylvanie secrète : villages saxons » — une **région**, pas Brașov | `roumanie-brasov` | **repli** |
+| `import-…6086298` | aucune trace dans la sauvegarde | 3 itinéraires roumains | **repli** |
+
+La charte (règle 1) ne permet pas d'illustrer un lieu avec une photo dont on
+n'est pas sûr : les 5 zones (2 + 3) repartent en `/og-default.jpg`, en
+s'attendant à une vraie photo du lieu via le flux Picker. Migration
+idempotente `20261018150000_repli_brasov_et_itineraires_roumanie.sql`, avec
+garde-fou sur l'URL exacte de la photo retirée. Zones image : 136 dont **125**
+en repli. `check:cms-zones` ✓, `check:cms-migrations` ✓, `typecheck` ✓.
+
 ## [2026-10-18] — Photos réelles des destinations : la migration `20260801000007` n'avait jamais pris
 
 ### Constat
