@@ -2,6 +2,38 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — Le Brain devient un destinataire adressable du serveur MCP `agent-tasks`
+
+`mcp/agent-tasks/server.mjs` — deux trous réels, mesurés :
+
+1. `AGENTS_CONNUS` ne contenait pas `heldonica-brain`, alors que l'agent existe
+   dans le registre (11 tâches) et que son BridgePoller tourne ;
+2. `deposer_tache` n'écrivait **ni `task_type` ni `payload`**, or le poller du
+   Brain **dispatche sur `task_type`** et lit `payload.message` : une tâche
+   déposée par ce chemin aurait été dépilée puis **ignorée en silence**.
+
+**Corrigé :**
+
+- `heldonica-brain` ajouté à `AGENTS_CONNUS` — **les 15 destinataires déjà
+  présents sont conservés** (16 au total), la liste ayant été étendue entre-temps
+  sur `main` par le commit `0cd5fff` ;
+- `deposer_tache` expose `task_type` et `payload` ;
+- garde : une tâche destinée au Brain **sans** `task_type` (ou `chat` sans
+  `payload.message`) est **refusée** au lieu d'être perdue ;
+- `README.md` du MCP : section « Parler au Brain », avec la forme exacte et le
+  fait que la réponse arrive dans `actions_done.result`.
+
+**Vérifié** (`node --check` + essai MCP en **lecture seule**, 9/9) : les 5 outils
+restent exposés, les agents de `main` sont préservés, les refus attendus se
+déclenchent, et le contrôle final compte **0 ligne écrite** dans `agent_tasks`.
+Brain vivant au `2026-10-15T20:20:28Z` (modèle `openai/gpt-oss-120b`).
+
+**Non vérifié :** le trajet de bout en bout (dépôt réel → réponse du Brain), qui
+exige une écriture en base. **Aucune ligne n'a été écrite.**
+
+Branche : `agent/openhands/brain-mcp-propre`, repartie de `origin/main`
+(`75dcad8`) parce que la branche initiale avait 36 commits de retard.
+
 ## [2026-10-18] — Images : réconciliation des visuels cassés (médiathèque, articles, destinations)
 
 ### Constat (207 références d'image distinctes balayées)
