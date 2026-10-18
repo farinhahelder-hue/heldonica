@@ -16,7 +16,7 @@
  * Ensuite : `supabase db push --linked` applique la migration.
  *
  * Usage :
- *   node scripts/seed_agent_keys.mjs                 # les quatre agents
+ *   node scripts/seed_agent_keys.mjs                 # tous les agents
  *   node scripts/seed_agent_keys.mjs claude mobile_apk  # une partie seulement
  */
 
@@ -29,6 +29,8 @@ const AGENTS = [
   { name: 'claude', prefix: 'hld_cl_', rate_limit: 120 },
   { name: 'pencode', prefix: 'hld_pe_', rate_limit: 100 },
   { name: 'mobile_apk', prefix: 'hld_mb_', rate_limit: 150 },
+  // Workflow dispatch-registre.yml (secret AI_AGENT_API_KEY) : 4 appels par heure.
+  { name: 'dispatcher', prefix: 'hld_dp_', rate_limit: 30 },
 ];
 
 // Même fonction que lib/ai-auth.ts hashApiKey — les deux doivent rester alignées.
