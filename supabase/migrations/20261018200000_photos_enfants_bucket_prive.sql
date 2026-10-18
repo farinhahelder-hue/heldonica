@@ -1,10 +1,16 @@
 -- ============================================================================
--- Migration: 20261018190000_photos_enfants_bucket_prive.sql
+-- Migration: 20261018200000_photos_enfants_bucket_prive.sql
 -- Description:
 --   Met à jour les 7 fiches `cms_media` dont le fichier a été déplacé du bucket
 --   public `media` vers le bucket privé `prive` (préfixe `enfants/`).
 --
 --   Contexte — ce qui est CONSTATÉ (2026-10-18) :
+--
+--   COMPLÉMENT D'UNE MIGRATION EXISTANTE : 20261018190000_retrait_photo_enfant.sql
+--   (autre agent, PR #623) traite le cas de IMG_20260827_135834.jpg — gros plan
+--   d'enfant qui servait d'image de partage à un article Apuseni. Cette migration-ci
+--   traite les 7 AUTRES photos de la même série, détectées après coup. Les deux
+--   migrations sont complémentaires et ne se recouvrent pas.
 --
 --   1. Une photo portait déjà l'avertissement, posé le jour même :
 --        `IMG_20260827_135834.jpg`
