@@ -2,6 +2,14 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — Clé API du dispatcher du registre
+
+`dispatch-registre.yml` échouait à chaque passage : secret `AI_AGENT_API_KEY` absent.
+Clé dédiée `dispatcher` (`hld_dp_`, 30 req/h) ajoutée à `scripts/seed_agent_keys.mjs` ;
+seul son SHA-256 est en base (migration `20261018234000_cle_api_dispatcher`), le jeton
+n'existe que dans le secret GitHub. Essai `simuler=1` : HTTP 200. Reste à poser
+`OPENHANDS_API_KEY` dans Vercel pour que le dispatcher lance réellement les conversations.
+
 ## [2026-10-18] — Canal Saint-Martin en brouillon
 
 Le slug `canal-saint-martin-spots-secrets` contient un mot banni (« spot »). Plutôt que le
