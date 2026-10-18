@@ -10,8 +10,9 @@ site, du contenu, du planning, coordination des agents), et les API gratuites se
 quand il le demande.
 
 - **`CerveauLocal.kt`** : LLM embarqué via MediaPipe `tasks-genai` **0.10.29**. Le modèle
-  (`.task`, ex. Gemma 3 1B IT int4) s'importe depuis l'écran Cerveau, copié dans le
-  stockage privé ; il n'est pas dans l'APK. `PromptLocal` : prompt court (consignes,
+  n'est pas dans l'APK : bouton **Télécharger** (Qwen2.5 1.5B Instruct q8, 1,6 Go, ouvert,
+  reprise sur coupure) ou **Importer** un `.task` au choix. Premier essai sur le Poco :
+  sans modèle installé, le fondateur n'atteignait jamais le téléphone — d'où le bouton. `PromptLocal` : prompt court (consignes,
   3 fiches du Coffre hors-ligne, 4 derniers messages), recherche insensible aux accents.
 - **`BrainClient.ordreDesSources`** : sans boost, téléphone puis PC — le Cloud n'est
   **jamais** appelé. Avec « ⚡ Cerveau boosté » : Cloud, PC, puis téléphone. Interrupteur

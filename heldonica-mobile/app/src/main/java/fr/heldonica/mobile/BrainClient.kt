@@ -185,7 +185,7 @@ object BrainClient {
         throw IOException(
             when {
                 !booste && repondreLocalement == null ->
-                    "Aucun modèle installé sur le téléphone et PC injoignable. Importe un modèle (.task) ou active ⚡ Cerveau boosté."
+                    "Aucun modèle sur le téléphone (et PC éteint). Touche « Télécharger » au-dessus (1,6 Go, une seule fois) ou active ⚡ Cerveau boosté."
                 !booste ->
                     "Le modèle du téléphone a échoué (${derniereErreur ?: "erreur inconnue"}). Active ⚡ Cerveau boosté pour passer par les API gratuites."
                 else ->
