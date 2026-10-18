@@ -9,12 +9,12 @@ retrouvées en base. Rien n'est déduit.
 
 | Page | Ce qui est affiché | Correction |
 |---|---|---|
-|  | `On分析 votre demande` — **caractères chinois** | `On analyse votre demande` |
-|  | `bus de tourists` | `bus de touristes` |
-|  | `bookezminimum 3 nuits` | `bookez au minimum 3 nuits` |
-|  | `les establecimientos` (espagnol) | `les établissements` |
-|  | `reservez depuis Lisbonne airport` | `réservez depuis l'aéroport de Lisbonne` |
-|  | `Pas de tourists` | `Pas de touristes` |
+| `/travel-planning` | `On分析 votre demande` — **caractères chinois** | `On analyse votre demande` |
+| `/destinations/alentejo` | `bus de tourists` | `bus de touristes` |
+| `/destinations/alentejo` | `bookezminimum 3 nuits` | `bookez au minimum 3 nuits` |
+| `/destinations/alentejo` | `les establecimientos` (espagnol) | `les établissements` |
+| `/destinations/alentejo` | `reservez depuis Lisbonne airport` | `réservez depuis l'aéroport de Lisbonne` |
+| `/destinations/sardaigne/asinara` | `Pas de tourists` | `Pas de touristes` |
 
 **Cause racine** : ces valeurs ont été semées par
 `20260803000001_cms_alentejo_zones.sql` avec les fautes **déjà présentes**, et
