@@ -3,6 +3,8 @@ import MadereBudgetClient from './MadereBudgetClient';
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import { getPageZones } from '@/lib/cms-zones';
 import { buildPageMetadata } from '@/lib/page-metadata';
+import ComingSoonDestination from '@/components/ComingSoonDestination'
+import { isUnpublishedCmsPage } from '@/lib/unpublished-pages'
 
 const PAGE = 'destinations-madere-budget';
 
@@ -35,6 +37,18 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function MadereBudgetPage() {
+  // MVP : page sans photo vérifiée, « Bientôt » tant qu'elle figure dans lib/unpublished-pages.ts.
+  if (isUnpublishedCmsPage('destinations-madere-budget')) {
+    return (
+      <ComingSoonDestination
+        slug="madere-budget"
+        title="Budget Madère"
+        country="Portugal"
+        hero_unsplash_url="/og-default.jpg"
+        zones={await getPageZones('destinations-madere-budget')}
+      />
+    )
+  }
   // Le calculateur est un composant client : il lit ses libellés par contexte,
   // les zones étant chargées ici, côté serveur.
   const zones = await getPageZones(PAGE);
