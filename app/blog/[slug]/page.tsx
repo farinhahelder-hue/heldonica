@@ -80,11 +80,19 @@ export async function generateStaticParams() {
   return (slugs ?? []).map(({ slug }) => ({ slug }))
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const slug = (await params).slug
   const post = await getPostBySlug(slug)
 
-  if (!post) return { title: 'Article introuvable | Heldonica' }
+  if (!post) {
+    // Aperçu d'un brouillon : la page vérifie le jeton elle-même ; on n'indexe jamais.
+    if ((await searchParams).preview_token) return { title: 'Aperçu | Heldonica', robots: { index: false, follow: false } }
+    // notFound() ici et non seulement dans la page : app/loading.tsx fait streamer
+    // la page, dont le statut 200 part avant que la page ne lève notFound(). Les
+    // métadonnées, elles, sont résolues avant l'envoi pour les robots : Google
+    // reçoit un vrai 404 au lieu d'un « soft 404 » en 200 (brouillons, slugs morts).
+    notFound()
+  }
 
   const seoTitle = post.seo_title || post.title
   const pageTitle = `${seoTitle} | Heldonica`
