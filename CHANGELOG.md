@@ -2,6 +2,32 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — Mobile : un petit modèle sur le Poco, le Cloud derrière un interrupteur
+
+Branche `agent/claude/cerveau-local-poco`. Le Cerveau de l'APK appelait le Cloud en
+premier ; le fondateur veut un cerveau léger **sur le téléphone** (suivi du projet, du
+site, du contenu, du planning, coordination des agents), et les API gratuites seulement
+quand il le demande.
+
+- **`CerveauLocal.kt`** : LLM embarqué via MediaPipe `tasks-genai` **0.10.29**. Le modèle
+  (`.task`, ex. Gemma 3 1B IT int4) s'importe depuis l'écran Cerveau, copié dans le
+  stockage privé ; il n'est pas dans l'APK. `PromptLocal` : prompt court (consignes,
+  3 fiches du Coffre hors-ligne, 4 derniers messages), recherche insensible aux accents.
+- **`BrainClient.ordreDesSources`** : sans boost, téléphone puis PC — le Cloud n'est
+  **jamais** appelé. Avec « ⚡ Cerveau boosté » : Cloud, PC, puis téléphone. Interrupteur
+  mémorisé (`cerveau_booste`). Le badge PC forcé est conservé.
+- **Build** : `abiFilters` arm64-v8a (le moteur pèse ~27 Mo de `.so` par ABI ; l'APK ne
+  s'installe plus sur un émulateur x86_64). Règles R8 pour `com.google.mediapipe` et
+  protobuf lite (l'AAR n'en fournit pas).
+
+### Vérifié
+- API `LlmInference` (`setModelPath`, `setMaxTokens`, `createFromOptions`,
+  `generateResponse`, `close`) présente dans l'AAR 0.10.29 ; pas de `minCompileSdk`
+  (compatible compileSdk 34) ; motifs de secrets de `release-apk.yml` : aucun dans l'AAR.
+- **[NON VERIFIE]** compilation Gradle et tests JVM : pas de JDK dans la session qui a
+  écrit ce code. La CI `build-apk.yml` (tests + `assembleRelease`) doit passer avant
+  fusion, puis un essai réel sur le Poco (import du modèle, réponse, mode boosté).
+
 ## [2026-10-18] — Correctif : Brașov et les itinéraires roumains repartent en repli
 
 L'entrée ci-dessous annonçait « la photo réelle du lieu » pour 5 pages. Après

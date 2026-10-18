@@ -74,3 +74,27 @@ Voir `app/src/main/java/fr/heldonica/mobile/MainActivity.kt` pour le code comple
 - Onglet CMS : ouvre `EditeurActivity` (session deja geree).
 - Onglets Studio / Insta : ecrans d'attente, slices 2 et 3.
 - Test JVM sans emulateur : `StudioTabsTest` (`./gradlew :app:testDebugUnitTest`).
+
+## Cerveau embarqué (modèle sur le téléphone)
+
+L'écran Cerveau répond d'abord avec un **petit modèle qui tourne sur le Poco X6 Pro**,
+sans réseau ni PC (`CerveauLocal.kt`, MediaPipe `tasks-genai`). Son rôle est modeste :
+suivre le projet, le site, le contenu et le planning, coordonner les agents. Pas de code,
+pas de décision importante.
+
+- **⚡ Cerveau boosté** (interrupteur de l'écran Cerveau, mémorisé) : passe par les API
+  gratuites (`/api/ai/mobile-brain`, Groq/Gemini), le téléphone ne sert plus qu'en
+  dernier recours. Désactivé, **le Cloud n'est jamais appelé** (test
+  `sans boost le cloud n'est jamais appele`).
+- **Station PC** : sert toujours de repli gratuit quand elle répond sur le réseau local,
+  et le badge permet toujours de la forcer.
+
+### Installer le modèle (une fois)
+Le modèle n'est pas dans l'APK (plusieurs centaines de Mo). Télécharger sur le téléphone
+un fichier MediaPipe **`.task`**, puis écran Cerveau → **Importer**. Conseillé :
+**Gemma 3 1B IT int4** (~550 Mo, `litert-community/Gemma3-1B-IT` sur Hugging Face — il faut
+accepter la licence Gemma avec un compte). Un seul modèle est gardé : en importer un
+autre remplace le précédent. Le premier message est plus lent (chargement du modèle).
+
+Le prompt embarqué (`PromptLocal`) reste court pour tenir dans le contexte d'un 1B :
+consignes, 3 fiches du Coffre hors-ligne au plus, 4 derniers messages.
