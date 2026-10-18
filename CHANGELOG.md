@@ -2,199 +2,71 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
-## [2026-10-18] — 🔴 8 PHOTOS D ENFANT retirées de l accès public
+## [2026-10-18] — Charte : aucune photo d'enfant en ligne (règle n°5)
 
-Le propriétaire a signalé « la photo d un enfant sur le site ». Vérification faite
-(détection CLIP + description BLIP + balayage des 103 URL du sitemap) :
+- **`AGENTS.md`, règle absolue n°5** : regarder chaque photo avant de la publier ; aucune
+  photo d'enfant en ligne ; ces photos sont gardées dans le bucket privé `prive/enfants/`.
+- **Migration `20261018190000_retrait_photo_enfant.sql`** : versionne les écritures faites
+  en urgence directement en base pour retirer `IMG_20260827_135834.jpg` (règle n°2 enfreinte
+  pour couper l'exposition au plus vite — voir l'entrée « Retrait d'une photo d'enfant »).
+  Idempotente, sans effet sur la base actuelle.
+- **Stockage (hors SQL, fait le 18/10)** : bucket privé `prive` créé ; la photo y est copiée
+  (taille vérifiée identique) puis supprimée du bucket public `media`. URL publique : 400,
+  page Apuseni : 0 occurrence (mesuré après déploiement de la PR #623).
 
-**Ce qui a été constaté**
+## [2026-10-18] — Retrait d'une photo d'enfant publiée par erreur
 
-- **8 photos** montrant une petite fille (Roumanie, 27/08/2026) étaient
-  **téléchargeables sans authentification** depuis le bucket public `media`
-  (HTTP 200, ~3,9 Mo chacune).
-- Elles n apparaissaient sur **aucune** des 103 pages publiées du sitemap :
-  le risque n était pas l affichage, mais le **téléchargement direct de l URL**.
-- Une **9e** photo portait déjà l avertissement, posé le jour même :
-  `alt = "PRIVÉE — photo d enfant, ne jamais publier (déplacée dans le stockage
-  privé le 18/10/2026)"`. Le mécanisme était donc amorcé mais inachevé.
-- **Aucune** des 8 ne porte de coordonnées GPS.
+`IMG_20260827_135834.jpg` (gros plan du visage d'un enfant, classée « Photo terrain
+Roumanie », décrite à tort « passage piéton couvert ») servait d'image de partage et de
+couverture. Retirée partout où elle était publique :
 
-**Ce qui a été fait** (réversible — copie vérifiée avant retrait, aucune suppression)
+- **Base (fait le 18/10, valeurs d'origine sauvegardées)** : article `greve-reserve-naturelle-suisse`
+  (`featured_image`, `og_image`, `og_image_url` → vides, repli générique), zone
+  `destinations-roumanie-apuseni/hero_image` → `/og-default.jpg`, galeries des destinations
+  `roumanie` et `roumanie-transylvanie` (photo ôtée, 2 photos restent).
+- **Code (cette PR)** : `app/destinations/roumanie/apuseni/page.tsx` (hero et og:image en dur)
+  → `/og-default.jpg` ; entrée `rou-passage-walk` retirée de `lib/cms-photo-albums.ts`.
+- **Non touché, à décider par le fondateur** : le fichier lui-même (bucket `media`, toujours
+  accessible par son URL directe) et sa fiche `cms_media` (id 143).
 
-- Les 7 photos restantes ont été **copiées dans le bucket privé `prive/enfants/`**
-  (présence vérifiée par listage) **puis retirées du bucket public `media`**.
+## [2026-10-18] — 7 AUTRES photos d'enfant retirées de l'accès public (complète la PR #623)
+
+Le propriétaire a signalé « la photo d'un enfant sur le site ». En vérifiant
+**toute** la médiathèque : la PR #623 traitait `IMG_20260827_135834.jpg`, mais
+**7 autres photos de la même série** (Roumanie, 27/08/2026) restaient dans le
+bucket public.
+
+**Méthode** — deux modèles indépendants, puis vérification en ligne :
+
+- Détection **CLIP** (enfant vs adulte, logits bruts) : 7 images se détachent
+  nettement (+3,6 à +4,6 d'écart).
+- Description **BLIP**, concordante : « a little girl holding a cup of coffee »,
+  « a young girl holding a banana in her hand », « a girl holding a cell phone ».
+- **Balayage des 103 URL du sitemap** : aucune de ces photos n'apparaît sur une page
+  publiée. Le risque n'était pas l'affichage, mais le **téléchargement direct de
+  l'URL** — HTTP 200, ~3,9 Mo chacune, **sans authentification**.
+
+**Correction d'une affirmation devenue fausse** : l'entrée ci-dessus indiquait que
+« le fichier lui-même (bucket `media`) reste accessible par son URL directe ».
+**Vérifié le 18/10 : ce n'est plus le cas.** `IMG_20260827_135834.jpg` est absent du
+bucket `media`, présent dans `prive/enfants/`, et son URL publique répond **400**.
+
+**Fait** (réversible, copie vérifiée avant retrait, **aucune suppression définitive**)
+
+- Les 7 photos copiées dans le bucket privé `prive/enfants/` (présence vérifiée par
+  listage) **puis retirées du bucket public** `media`.
 - Les 7 fiches `cms_media` mises à jour (`path`, `url`, `alt`) —
-  `20261018190000_photos_enfants_bucket_prive.sql`.
+  `20261018200000_photos_enfants_bucket_prive.sql`.
 - **Contrôle** : `media` ne contient plus aucun fichier de la série, `prive/enfants`
-  les contient tous les 8, et l URL publique répond **400** (objet absent).
+  les contient tous les **8**, l'URL publique répond **400**.
 
-> ⚠️ **À VALIDER PAR LE PROPRIÉTAIRE** : les personnes représentées autorisent-elles
-> une publication ? Si oui → recopier vers le bucket public et remettre `path`/`url`.
-> Si non → laisser en privé. Je n ai pas supprimé définitivement : rien n est perdu.
+> **Piège rencontré** : après suppression, l'URL publique répond encore `HTTP 200`
+> avec `cf-cache-status: HIT` — le **cache CDN**. Sans anti-cache, on croit la
+> suppression échouée. Vérifier avec `?v=<timestamp>` ou par listage du bucket.
 
-> Le cache CDN peut continuer à servir l ancienne URL quelques heures. L objet
-> n existe plus côté stockage (vérifié sans cache), donc la protection est effective.
-
-## [2026-10-18] — Écritures en base APPLIQUÉES + pages figées par le cache
-
-Le propriétaire n'a pas de PC (téléphone uniquement) : les 3 migrations ont donc
-été **appliquées directement en base**, en exécutant exactement les instructions
-des fichiers versionnés. État d'avant sauvegardé dans
-`.sauvegardes/avant-application-2026-10-18.json`.
-
-| Migration | Résultat mesuré |
-|---|---|
-| `20261018160000` témoignages | **5/5 désactivés**, 0 actif restant |
-| `20261018170000` langue | **6/6 corrigés**, 0 faute restante en base |
-| `20261018180000` Stoos | **2 doublons en brouillon**, 1 seul publié |
-
-### Le piège découvert : une écriture en base ne rafraîchit pas la page
-
-Preuve différentielle, même heure, même méthode :
-
-- `/temoignages` → **revalidé** (`x-vercel-cache: STALE`), les 5 faux témoignages
-  **ont disparu** du HTML, le message d'attente s'affiche. `app/temoignages/page.tsx`
-  déclare `export const revalidate = 60`.
-- `/travel-planning` et `/destinations/alentejo` → **toujours figés**
-  (`x-vercel-cache: HIT`, `age` 75 min), l'ancien texte persiste.
-
-**Cause racine** : ces pages ne déclarent **aucune** fenêtre de revalidation. Le
-HTML prerendu reste figé et la correction en base n'apparaît jamais. Le CMS
-contourne le problème à l'enregistrement (`app/api/cms/zones/route.ts` appelle
-`revalidateCmsTarget`), mais une écriture directe en base — la nôtre — ne
-déclenche rien.
-
-**Correctif** : `export const revalidate = 300` ajouté sur
-`app/travel-planning/page.tsx`, `app/destinations/alentejo/page.tsx`,
-`app/destinations/sardaigne/asinara/page.tsx` — aligné sur les pages piliers
-(`madere`, `roumanie`, `montenegro` = 300 s).
-
-> **À traiter à part** : **67 pages destinations n'ont aucun `revalidate`**, dont
-> `alentejo` et `asinara`. Toute correction en base y reste invisible jusqu'au
-> prochain déploiement. Correctif de fond à décider (global ou fichier par fichier).
-
-## [2026-10-18] — Doublons Stoos Ridge : retour à un seul article publié
-
-**Ce n'est pas une décision nouvelle.** La migration du 28/07
-(`20260728000001_dedupe_stoos_ridge_articles.sql`) avait déjà dépublié ces
-doublons, et `middleware.ts` redirige déjà en 301 leurs anciens slugs vers
-l'article canonique. Cette migration **restaure l'état voulu**.
-
-État constaté en base (lecture seule, 2026-10-18) :
-
-| slug | statut | `published_at` |
-|---|---|---|
-| `stoos-ridge-notre-aventure-sur-la-crete-panoramique` | **published** (canonique) | 2025-08-01 |
-| `stoos-ridge-coucher-soleil-traversee-funiculaire` | published (doublon) | 2026-09-29T23:22 |
-| `stoos-ridge-notre-aventure-crete-panoramique` | published (doublon) | 2026-09-29T23:22 |
-| `stoos-ridge-la-crete-pano` | draft | — |
-
-**Cause racine** : les 2 doublons portent `published_at = 2026-09-29T23:22`, le
-soir où **44 articles** ont été modifiés d'un coup. Une opération de publication
-en masse les a réactivés. Ils n'ont pas de `scheduled_published_at` : la route
-`/api/cms/publish-scheduled` n'est **pas** en cause. Le mécanisme exact reste à
-identifier par le propriétaire.
-
-> ⚠️ La migration corrige l'état, **pas la cause**. Si une opération de masse
-> repasse, les 2 doublons reviendront.
-
-Article conservé : le canonique, **7 693 caractères, 1 067 mots, 7 titres de
-section, FAQ, image de couverture** — le plus complet des cinq lignes Stoos.
-Les 2 autres (3 922 et 5 777 caractères) restent en base pour l'historique.
-
-## [2026-10-18] — Fautes de langue affichées publiquement (migration à appliquer)
-
-Constatées **en ligne** (requête HTTP sur heldonica.fr, 2026-10-18), puis
-retrouvées en base. Rien n'est déduit.
-
-| Page | Ce qui est affiché | Correction |
-|---|---|---|
-| `/travel-planning` | `On分析 votre demande` — **caractères chinois** | `On analyse votre demande` |
-| `/destinations/alentejo` | `bus de tourists` | `bus de touristes` |
-| `/destinations/alentejo` | `bookezminimum 3 nuits` | `bookez au minimum 3 nuits` |
-| `/destinations/alentejo` | `les establecimientos` (espagnol) | `les établissements` |
-| `/destinations/alentejo` | `reservez depuis Lisbonne airport` | `réservez depuis l'aéroport de Lisbonne` |
-| `/destinations/sardaigne/asinara` | `Pas de tourists` | `Pas de touristes` |
-
-**Cause racine** : ces valeurs ont été semées par
-`20260803000001_cms_alentejo_zones.sql` avec les fautes **déjà présentes**, et
-les composants les recopient en repli. Corriger la base seule laisserait la faute
-revenir par le repli ; corriger le composant seul laisserait la faute affichée.
-Les deux sont faits (`20261018170000_corrections_langue_et_placeholders.sql` +
-`app/destinations/alentejo/page.tsx`, `app/destinations/sardaigne/asinara/page.tsx`).
-
-> ⚠️ **Migration NON appliquée** : aucune chaîne de connexion DB dans
-> l'environnement d'audit. À appliquer par le propriétaire.
-
-### Inventaire de mise en ligne (vérifié, 2026-10-18)
-
-- **105/105 URL du sitemap répondent 200.** Aucun lien cassé.
-- , ,  répondent 404 : ces
-  routes **n'existent pas dans le code** et **aucun composant ne les lie**. Ce
-  sont des rubriques prévues au plan d'arborescence, jamais construites — pas des
-  liens cassés.
-- **41 articles publiés** sur 55 (`cms_blog_posts`).
-- Les cartes d'articles affichent de **vraies photos** ; `/og-default.jpg` ne
-  reste que sur les images de hero des pages statiques.
-
-## [2026-10-18] — Les 5 témoignages fictifs sont désactivés (migration à appliquer)
-
-**Fait constaté** : les 5 lignes de `cms_testimonials` (Sophie & Marc, Claire,
-Thomas & Julie, Marie & Antoine, Jean-Luc & Élodie) sont `is_active = true` et
-**affichées publiquement sur `/temoignages`** — vérifié par requête HTTP, le site
-est en ligne (`maintenance_mode = false`).
-
-**Origine tracée** : ces lignes ont été créées le 2026-08-19. La migration
-`20260819140000_editorial_voice_and_testimonials_alignment.sql` les a désactivées
-le jour même, avec le commentaire explicite « Désactivation des faux témoignages
-de démonstration (intégrité E-E-A-T) ». **Aucune migration ne les a réactivées
-depuis.** Leur `updated_at` est au 2026-10-14 : la réactivation est donc une
-écriture directe, hors migration, et **non traçable** (`cms_audit_log` n'existe
-pas).
-
-**Décision propriétaire** : « Témoignage on en a pas pour le moment. »
-
-`20261018160000_desactivation_temoignages_fictifs.sql` remet `is_active = false`
-sur les 5 identifiants — correspondance vérifiée 5/5, aucune autre ligne touchée.
-La page `/temoignages` possède déjà son repli honnête (« On construit nos retours
-clients en ce moment »), donc rien n'est cassé.
-
-> ⚠️ **Migration NON appliquée** : aucune chaîne de connexion DB n'est disponible
-> depuis l'environnement d'audit. À appliquer par le propriétaire.
-
-## [2026-10-18] — Atelier récit : les questions se posent par journée, plus par photo
-
-L'« Interview Éclair » (`lib/cms-photo-interview.ts`) pose 3 questions **par
-photo**. Avec les 147 photos roumaines de la médiathèque, cela demandait 147
-interviews — jamais faites, donc jamais utilisées. Le propriétaire a demandé un
-workflow qui rédige **depuis ses photos et son contexte**, en lui posant des
-questions précises.
-
-`scripts/atelier_recit.py` comble le chaînon manquant, sans réécrire l'existant :
-
-| Étape | Script | Ce qu'il fait |
-|---|---|---|
-| 1 | `reconstituer_voyage.py` | photos → `voyage.json` (faits mesurés) |
-| 2 | **`atelier_recit.py --questions`** | `voyage.json` → questionnaire par journée et par moment |
-| 3 | **`atelier_recit.py --tisser`** | réponses → brouillon + blocs Heldonica |
-
-**La garantie qui compte, vérifiée par test** : un questionnaire vide produit
-**0 bloc, 0 phrase**. L'outil ne peut pas inventer — le silence reste un silence.
-
-Corrections apportées au passage :
-
-- `reconstituer_voyage.py` ne lisait que `.env.local`, jamais l'environnement :
-  il ne pouvait donc pas tourner depuis un agent ou une CI. Corrigé.
-- L'atelier réutilise `moments_photos()` de `reconstituer_voyage.py` au lieu de
-  recalculer un découpage : deux découpages auraient divergé.
-- Retrait des connecteurs orphelins (« magnifique mais bruyant » → « bruyant »
-  laissait « mais » seul) et du pronom doublé (« on on cherchait »).
-
-Constat de terrain sur la médiathèque, à savoir pour la suite : **159 photos sur
-160 ont une date de prise de vue exploitable**, mais **seules 11 ont un GPS** —
-Google Photos efface les coordonnées à l'export via le Picker. Les lieux ne
-peuvent donc venir que du propriétaire (question « Où étiez-vous ? ») ou d'un
-export Timeline du téléphone.
+> **À VALIDER PAR LE FONDATEUR** : les personnes autorisent-elles une publication ?
+> Si oui → recopier vers le bucket public et remettre `path`/`url`. Sinon → laisser
+> en privé. **Rien n'est perdu.**
 
 ## [2026-10-18] — Correctif : Brașov et les itinéraires roumains repartent en repli
 

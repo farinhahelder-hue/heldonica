@@ -226,15 +226,6 @@ export const VERIFIED_PHOTO_ALBUMS: PhotoEvidenceAlbum[] = [
         suggestedAnecdote: 'Pause café dans une cour intérieure préservée de l\'agitation estivale.',
         albumLink: 'https://www.heldonica.fr/destinations/roumanie',
       },
-      {
-        id: 'rou-passage-walk',
-        filename: 'IMG_20260827_135834.jpg',
-        imageUrl: 'https://www.heldonica.fr/images/destinations/roumanie/IMG_20260827_135834.jpg',
-        location: 'Bucarest, Roumanie',
-        date: '2026-08-27',
-        suggestedAnecdote: 'Passage piéton couvert et lumière tamisée au cœur de la vieille ville.',
-        albumLink: 'https://www.heldonica.fr/destinations/roumanie',
-      },
     ],
   },
 ];

@@ -1,0 +1,147 @@
+{
+  "cms_testimonials": [
+    {
+      "id": "14454b5c-3176-43d4-ba42-6ccf0599f971",
+      "name": "Sophie & Marc",
+      "location": "Lyon",
+      "quote": "On a reçu un carnet de route d'une précision remarquable. Chaque adresse était juste, et les conseils pour éviter les foules nous ont fait gagner un temps précieux.",
+      "destination": "Madère",
+      "rating": 5,
+      "avatar_url": null,
+      "is_active": true,
+      "display_order": 1,
+      "source": "manual",
+      "created_at": "2026-08-19T08:40:17.131434+00:00",
+      "updated_at": "2026-10-14T04:59:19.04419+00:00"
+    },
+    {
+      "id": "ea27168a-a3de-4734-a123-cb8682ea293f",
+      "name": "Claire",
+      "location": "Bruxelles",
+      "quote": "La qualité du travail de repérage est bluffante. On a découvert des villages et tables secrètes qu'on n'aurait jamais trouvés seuls, avec un vrai ton complice.",
+      "destination": "Roumanie",
+      "rating": 5,
+      "avatar_url": null,
+      "is_active": true,
+      "display_order": 2,
+      "source": "manual",
+      "created_at": "2026-08-19T08:40:17.131434+00:00",
+      "updated_at": "2026-10-14T04:59:19.04419+00:00"
+    },
+    {
+      "id": "7fc49d66-010f-4a35-b684-938f8c22926c",
+      "name": "Thomas & Julie",
+      "location": "Paris",
+      "quote": "Première fois qu'on teste le Travel Planning sur mesure et on a été conquis. Le carnet était encore plus immersif qu'espéré, avec des sentiers préservés.",
+      "destination": "Monténégro",
+      "rating": 5,
+      "avatar_url": null,
+      "is_active": true,
+      "display_order": 3,
+      "source": "manual",
+      "created_at": "2026-08-19T08:40:17.131434+00:00",
+      "updated_at": "2026-10-14T04:59:19.04419+00:00"
+    },
+    {
+      "id": "475ebbac-9c50-48af-bd7d-43f465e477bd",
+      "name": "Marie & Antoine",
+      "location": "Genève",
+      "quote": "Un voyage fluide et ressourçant grâce à l'ancrage d'Heldonica. Les adresses recommandées étaient chaleureuses, humaines, sans aucune fausse note.",
+      "destination": "Sicile",
+      "rating": 5,
+      "avatar_url": null,
+      "is_active": true,
+      "display_order": 4,
+      "source": "google",
+      "created_at": "2026-08-19T08:40:17.131434+00:00",
+      "updated_at": "2026-10-14T04:59:19.04419+00:00"
+    },
+    {
+      "id": "ebad74b8-18e7-42fd-a3f6-2b7ffa40ef07",
+      "name": "Jean-Luc & Élodie",
+      "location": "Bordeaux",
+      "quote": "Accompagnement soigné et humain. Le carnet de route était détaillé, pratique, et surtout : chaque étape sentait le vrai vécu sur le terrain.",
+      "destination": "Madère",
+      "rating": 5,
+      "avatar_url": null,
+      "is_active": true,
+      "display_order": 5,
+      "source": "manual",
+      "created_at": "2026-08-19T08:40:17.131434+00:00",
+      "updated_at": "2026-10-14T04:59:19.04419+00:00"
+    }
+  ],
+  "site_settings": [
+    {
+      "id": 261,
+      "key": "travel-planning__hero_subtitle",
+      "value": "On分析 votre demande, on conçoit un itinéraire personnalisé et on vous livre un carnet de route complet."
+    }
+  ],
+  "cms_editable_zones": [
+    {
+      "id": "31a26ec5-438f-4682-a2b1-6fd6f6ea30ff",
+      "page": "destinations-alentejo",
+      "zone_key": "accom_1_tip",
+      "value": "💡 Notre conseil : bookezminimum 3 nuits, le temps de décompresser."
+    },
+    {
+      "id": "e3a3dc1c-b055-4758-93fc-b429816faf99",
+      "page": "destinations-alentejo",
+      "zone_key": "accom_2_tip",
+      "value": "💡 Notre conseil : privilégiez les establecimientos avec petit-déjeuner inclus."
+    },
+    {
+      "id": "b304fc10-fe8a-42d2-b480-42f1faf4650e",
+      "page": "destinations-alentejo",
+      "zone_key": "transport_1_tip",
+      "value": "💡 Notre conseil : reservez depuis Lisbonne airport, compter 30-40€/jour."
+    },
+    {
+      "id": "8a68c1df-739c-4597-b314-6c57bf5713bc",
+      "page": "destinations-sardaigne-asinara",
+      "zone_key": "intro_text",
+      "value": "Asinara, c’est l’île aux ânes blanchis. Ils sont partout. Pas de tourists — seulement 1 ferry par jour."
+    },
+    {
+      "id": "e6d7d356-1e39-4924-9c1e-f1054e016274",
+      "page": "destinations-alentejo",
+      "zone_key": "pepite_1_verdict",
+      "value": "⭐ Verdict Heldonica : À faire le matin, avant les bus de tourists."
+    }
+  ],
+  "stoos": [
+    {
+      "id": 41,
+      "slug": "stoos-ridge-la-crete-pano",
+      "status": "draft",
+      "published": false,
+      "published_at": "2026-06-02T10:42:52.96814+00:00",
+      "updated_at": "2026-08-19T00:31:08.32265+00:00"
+    },
+    {
+      "id": 91,
+      "slug": "stoos-ridge-notre-aventure-sur-la-crete-panoramique",
+      "status": "published",
+      "published": true,
+      "published_at": "2025-08-01T07:47:10+00:00",
+      "updated_at": "2026-10-03T16:23:27.569468+00:00"
+    },
+    {
+      "id": 31,
+      "slug": "stoos-ridge-coucher-soleil-traversee-funiculaire",
+      "status": "published",
+      "published": true,
+      "published_at": "2026-09-29T23:22:39.497+00:00",
+      "updated_at": "2026-10-03T16:23:27.569468+00:00"
+    },
+    {
+      "id": 1,
+      "slug": "stoos-ridge-notre-aventure-crete-panoramique",
+      "status": "published",
+      "published": true,
+      "published_at": "2026-09-29T23:22:39.406+00:00",
+      "updated_at": "2026-10-03T16:23:27.569468+00:00"
+    }
+  ]
+}
