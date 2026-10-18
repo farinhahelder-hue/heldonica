@@ -2,6 +2,24 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — Correctif : les 12 brouillons restaient `published = true`
+
+`cms_blog_posts` a deux indicateurs : `status` (pages du blog) et `published` (recherche IA,
+`/api/destinations`, flux n8n, audit…). `20261018200000` n'avait basculé que `status`.
+Migration `20261018203000_brouillon_published_false.sql` ; même changement appliqué en base
+(12 lignes). État mesuré : 27 publiés `(published, true)`, 28 brouillons `(draft, false)`,
+aucun mélange.
+
+### ⚠️ Pour la PR #622 (OpenHands) avant fusion
+1. **Collision de version** : `20261018200000_photos_enfants_bucket_prive.sql` porte le même
+   numéro que `20261018200000_brouillon_articles_photo_fausse.sql`, déjà sur `main` —
+   `supabase db push` refusera. Renuméroter (ex. `20261018210000`).
+2. **Assertion Stoos** : `20261018180000_depublier_doublons_stoos.sql` exige exactement
+   1 article Stoos `published = true`. Le canonique est désormais en brouillon (photo
+   fausse, décision du fondateur) : l'assertion lèvera une exception. L'adapter à 0 ou 1.
+3. Les 7 photos d'enfants déplacées par OpenHands ont été **vérifiées à l'œil** par Claude :
+   toutes montrent bien un enfant (même série du 27/08). Certitude complète, pas « probable ».
+
 ## [2026-10-18] — 12 articles en brouillon : leur photo ne montre pas leur sujet
 
 Planche de contrôle des photos (Claude a regardé chacune des 41 photos visibles du site) :
