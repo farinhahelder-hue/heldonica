@@ -90,11 +90,14 @@ pas de décision importante.
   et le badge permet toujours de la forcer.
 
 ### Installer le modèle (une fois)
-Le modèle n'est pas dans l'APK (plusieurs centaines de Mo). Télécharger sur le téléphone
-un fichier MediaPipe **`.task`**, puis écran Cerveau → **Importer**. Conseillé :
-**Gemma 3 1B IT int4** (~550 Mo, `litert-community/Gemma3-1B-IT` sur Hugging Face — il faut
-accepter la licence Gemma avec un compte). Un seul modèle est gardé : en importer un
-autre remplace le précédent. Le premier message est plus lent (chargement du modèle).
+Le modèle n'est pas dans l'APK. Écran Cerveau → **Télécharger** : récupère
+**Qwen2.5 1.5B Instruct** (`litert-community/Qwen2.5-1.5B-Instruct`, `.task` q8 ekv4096,
+1,6 Go, sans compte Hugging Face). Wi-Fi conseillé ; le téléchargement continue si on
+change d'onglet et **reprend** là où il s'était arrêté (bouton « Reprendre »).
+
+**Importer** reste possible pour tout autre fichier MediaPipe `.task` (ex. Gemma 3 1B,
+qui demande d'accepter la licence Gemma avec un compte). Un seul modèle est gardé : en
+installer un autre remplace le précédent. Le premier message est plus lent (chargement).
 
 Le prompt embarqué (`PromptLocal`) reste court pour tenir dans le contexte d'un 1B :
 consignes, 3 fiches du Coffre hors-ligne au plus, 4 derniers messages.

@@ -3,13 +3,33 @@ package fr.heldonica.mobile
 import android.content.Context
 import android.net.Uri
 import com.google.mediapipe.tasks.genai.llminference.LlmInference
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.text.Normalizer
+import java.util.concurrent.TimeUnit
+
+/** Avancement du téléchargement du modèle conseillé. */
+data class EtatTelechargement(
+    val enCours: Boolean = false,
+    val octets: Long = 0L,
+    val total: Long = 0L,
+    val erreur: String? = null,
+    val termine: File? = null
+) {
+    val fraction: Float get() = if (total > 0) (octets.toFloat() / total).coerceIn(0f, 1f) else 0f
+}
 
 /**
  * Cerveau embarqué : un petit modèle qui tourne SUR le Poco X6 Pro, sans réseau.
@@ -19,9 +39,9 @@ import java.text.Normalizer
  * ne tranche rien d'important — pour ça, l'interrupteur « Cerveau boosté »
  * renvoie vers les API gratuites (Cloud 0€), ou le PC quand il est allumé.
  *
- * Le modèle n'est PAS dans l'APK (plusieurs centaines de Mo) : on importe une
- * fois un fichier MediaPipe `.task` (ex. Gemma 3 1B IT int4, ~550 Mo), copié
- * dans le stockage privé de l'application.
+ * Le modèle n'est PAS dans l'APK (1,6 Go) : un bouton le télécharge une fois
+ * (MODELE_CONSEILLE, sans compte Hugging Face), ou on importe un fichier
+ * MediaPipe `.task`. Il est gardé dans le stockage privé de l'application.
  */
 object CerveauLocal {
     private const val DOSSIER_MODELES = "modeles"
@@ -30,7 +50,24 @@ object CerveauLocal {
     // Entrée + sortie comprises : un 1B tient sans saturer la RAM du Poco.
     private const val MAX_TOKENS = 1536
 
+    // Qwen2.5 1.5B : ouvert (pas de licence à accepter, contrairement à Gemma),
+    // bon en français, et ekv4096 laisse de la marge au-dessus de MAX_TOKENS.
+    const val MODELE_CONSEILLE_NOM = "Qwen2.5-1.5B-Instruct_multi-prefill-seq_q8_ekv4096.task"
+    const val MODELE_CONSEILLE_URL =
+        "https://huggingface.co/litert-community/Qwen2.5-1.5B-Instruct/resolve/main/$MODELE_CONSEILLE_NOM"
+    const val MODELE_CONSEILLE_OCTETS = 1_598_556_720L
+
     private val verrou = Mutex()
+
+    // Hors de l'écran : le téléchargement survit au changement d'onglet.
+    private val porteeTelechargement = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val _telechargement = MutableStateFlow(EtatTelechargement())
+    val telechargement: StateFlow<EtatTelechargement> = _telechargement
+
+    private val clientTelechargement = OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(60, TimeUnit.SECONDS)
+        .build()
     private var moteur: LlmInference? = null
     private var cheminCharge: String? = null
 
@@ -59,13 +96,78 @@ object CerveauLocal {
             context.contentResolver.openInputStream(uri)?.use { entree ->
                 temp.outputStream().use { sortie -> entree.copyTo(sortie, 1 shl 20) }
             } ?: throw IOException("Fichier illisible")
-            verrou.withLock {
-                liberer()
-                dossier(context).listFiles()?.forEach { if (it != temp) it.delete() }
-                if (!temp.renameTo(cible)) throw IOException("Copie du modèle impossible")
-            }
+            installer(context, temp, cible)
             cible
         }
+
+    /** Remplace le modèle installé par [temp], renommé en [cible]. */
+    private suspend fun installer(context: Context, temp: File, cible: File) {
+        verrou.withLock {
+            liberer()
+            dossier(context).listFiles()?.forEach { if (it != temp) it.delete() }
+            if (!temp.renameTo(cible)) throw IOException("Copie du modèle impossible")
+        }
+    }
+
+    /**
+     * Télécharge le modèle conseillé. Reprend là où il s'était arrêté (en-tête
+     * Range) si la connexion a coupé ou si l'application a été fermée.
+     */
+    fun telechargerModeleConseille(context: Context) {
+        if (_telechargement.value.enCours) return
+        val appContext = context.applicationContext
+        porteeTelechargement.launch {
+            val temp = File(dossier(appContext), "$MODELE_CONSEILLE_NOM.partiel")
+            val cible = File(dossier(appContext), MODELE_CONSEILLE_NOM)
+            try {
+                var deja = if (temp.exists()) temp.length() else 0L
+                _telechargement.value = EtatTelechargement(true, deja, MODELE_CONSEILLE_OCTETS)
+                if (deja < MODELE_CONSEILLE_OCTETS) {
+                    val requete = Request.Builder().url(MODELE_CONSEILLE_URL)
+                        .apply { if (deja > 0) header("Range", "bytes=$deja-") }
+                        .build()
+                    clientTelechargement.newCall(requete).execute().use { reponse ->
+                        when (reponse.code) {
+                            206 -> Unit
+                            200 -> deja = 0L // le serveur ignore la reprise : on repart de zéro
+                            else -> throw IOException("HTTP ${reponse.code}")
+                        }
+                        val corps = reponse.body ?: throw IOException("Réponse vide")
+                        corps.byteStream().use { entree ->
+                            FileOutputStream(temp, deja > 0).use { sortie ->
+                                val tampon = ByteArray(1 shl 16)
+                                var lus = deja
+                                var signale = deja
+                                while (true) {
+                                    val n = entree.read(tampon)
+                                    if (n < 0) break
+                                    sortie.write(tampon, 0, n)
+                                    lus += n
+                                    if (lus - signale >= (8L shl 20)) {
+                                        signale = lus
+                                        _telechargement.value =
+                                            EtatTelechargement(true, lus, MODELE_CONSEILLE_OCTETS)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (temp.length() != MODELE_CONSEILLE_OCTETS) {
+                    throw IOException("Fichier incomplet (${temp.length()} / $MODELE_CONSEILLE_OCTETS octets)")
+                }
+                installer(appContext, temp, cible)
+                _telechargement.value = EtatTelechargement(
+                    false, MODELE_CONSEILLE_OCTETS, MODELE_CONSEILLE_OCTETS, termine = cible
+                )
+            } catch (e: Exception) {
+                _telechargement.value = EtatTelechargement(
+                    false, if (temp.exists()) temp.length() else 0L, MODELE_CONSEILLE_OCTETS,
+                    erreur = e.message ?: e.javaClass.simpleName
+                )
+            }
+        }
+    }
 
     /** Réponse du modèle embarqué. Lent au premier appel (chargement du modèle). */
     suspend fun repondre(

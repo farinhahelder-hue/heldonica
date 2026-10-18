@@ -108,6 +108,14 @@ fun CerveauScreen(
     var booste by remember { mutableStateOf(BrainClient.estBooste(context)) }
     var modeleLocal by remember { mutableStateOf(CerveauLocal.fichierModele(context)?.nameWithoutExtension) }
     var importEnCours by remember { mutableStateOf(false) }
+    val telechargement by CerveauLocal.telechargement.collectAsState()
+
+    LaunchedEffect(telechargement.termine) {
+        telechargement.termine?.let {
+            modeleLocal = it.nameWithoutExtension
+            Toast.makeText(context, "Modèle prêt : le Cerveau répond sur le téléphone", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     fun nomDuFichier(uri: Uri): String? =
         context.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
@@ -303,46 +311,74 @@ fun CerveauScreen(
                 .padding(vertical = 4.dp),
             shape = RoundedCornerShape(8.dp)
         ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
+            Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = "⚡ Cerveau boosté (API gratuites)",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF2C4C38)
+                        color = Color(0xFF2C4C38),
+                        modifier = Modifier.weight(1f)
                     )
+                    Switch(
+                        checked = booste,
+                        onCheckedChange = {
+                            booste = it
+                            BrainClient.definirBooste(context, it)
+                        },
+                        colors = SwitchDefaults.colors(checkedTrackColor = Color(0xFF2C4C38))
+                    )
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = when {
                             importEnCours -> "Import du modèle en cours…"
+                            telechargement.enCours -> "Téléchargement : %.2f / %.1f Go".format(
+                                telechargement.octets / 1e9, telechargement.total / 1e9
+                            )
+                            telechargement.erreur != null && modeleLocal == null ->
+                                "⚠️ Téléchargement interrompu : ${telechargement.erreur}"
                             modeleLocal != null -> "📱 Modèle du téléphone : $modeleLocal"
-                            else -> "📱 Aucun modèle sur le téléphone"
+                            else -> "📱 Aucun modèle — Qwen 1.5B, 1,6 Go (Wi-Fi conseillé)"
                         },
                         fontSize = 10.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1
+                        maxLines = 2,
+                        modifier = Modifier.weight(1f)
                     )
+                    if (modeleLocal == null) {
+                        TextButton(
+                            onClick = { CerveauLocal.telechargerModeleConseille(context) },
+                            enabled = !telechargement.enCours && !importEnCours
+                        ) {
+                            Text(
+                                text = if (telechargement.octets > 0) "Reprendre" else "Télécharger",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF2C4C38)
+                            )
+                        }
+                    }
+                    TextButton(
+                        onClick = { selecteurModele.launch(arrayOf("*/*")) },
+                        enabled = !importEnCours && !chargementEnCours && !telechargement.enCours
+                    ) {
+                        Text(
+                            text = if (modeleLocal == null) "Importer" else "Changer",
+                            fontSize = 11.sp,
+                            color = Color(0xFF2C4C38)
+                        )
+                    }
                 }
-                TextButton(
-                    onClick = { selecteurModele.launch(arrayOf("*/*")) },
-                    enabled = !importEnCours && !chargementEnCours
-                ) {
-                    Text(
-                        text = if (modeleLocal == null) "Importer" else "Changer",
-                        fontSize = 11.sp,
+                if (telechargement.enCours) {
+                    LinearProgressIndicator(
+                        progress = { telechargement.fraction },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 4.dp),
                         color = Color(0xFF2C4C38)
                     )
                 }
-                Switch(
-                    checked = booste,
-                    onCheckedChange = {
-                        booste = it
-                        BrainClient.definirBooste(context, it)
-                    },
-                    colors = SwitchDefaults.colors(checkedTrackColor = Color(0xFF2C4C38))
-                )
             }
         }
 
