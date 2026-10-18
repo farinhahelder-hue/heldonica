@@ -127,6 +127,9 @@ Faits durables. Détails et récits datés : `YYYY-MM-DD.md`.
   sur `task_type`**. La tâche était dépilée puis **ignorée en silence** ; désormais
   refusée plutôt que perdue. **Écriture réelle vérifiée** (ligne `726bd019`, `task_type`
   et `payload` bien posés).
+- **PR #620** (`agent/openhands/brain-mcp-propre`, ouverte le 2026-10-18) : open,
+  mergeable, CI verte, **0 suppression**. Rebasee 2x sur `main` (PR #618 puis #619,
+  qui touchaient les memes `CHANGELOG.md`/memoire -> fusions auto, sans conflit).
 - **Le Brain était HORS LIGNE au 2026-10-18** : heartbeat figé au 2026-10-15T20:20:28Z
   (~61 h, seuil 120 s), BridgePoller arrêté sur la station Windows. Vérifier
   `site_settings.brain_heartbeat` **avant** de déposer une tâche : sinon elle reste `sent`.
