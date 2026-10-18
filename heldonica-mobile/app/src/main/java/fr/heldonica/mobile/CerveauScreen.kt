@@ -168,6 +168,27 @@ fun CerveauScreen(
         Toast.makeText(context, "Copié dans le presse-papier", Toast.LENGTH_SHORT).show()
     }
 
+    suspend fun executerCommande(commande: CommandeAgent): Pair<String, Boolean> = when (commande) {
+        is CommandeAgent.Confier ->
+            AgentTasksClient.deposerTache(context, commande.agent, commande.consigne).fold(
+                { id ->
+                    "✅ Tâche confiée à ${commande.agent} (#$id) :\n${commande.consigne}\n\n" +
+                        "Elle attend dans le registre : ${commande.agent} la prendra à sa prochaine lecture." to false
+                },
+                { e -> "⚠️ Dépôt impossible : ${e.message}" to true }
+            )
+        is CommandeAgent.Valider ->
+            AgentTasksClient.validerTache(context, commande.id, true, commande.commentaire).fold(
+                { t -> "✅ Tâche #${t.id} (${t.agent}) validée : ${t.task}" to false },
+                { e -> "⚠️ Validation impossible : ${e.message}" to true }
+            )
+        is CommandeAgent.Renvoyer ->
+            AgentTasksClient.validerTache(context, commande.id, false, commande.commentaire).fold(
+                { t -> "↩️ Tâche #${t.id} renvoyée à ${t.agent}${if (commande.commentaire.isNotBlank()) " : ${commande.commentaire}" else ""}" to false },
+                { e -> "⚠️ Renvoi impossible : ${e.message}" to true }
+            )
+    }
+
     fun envoyerMessage(invite: String) {
         val textePropre = invite.trim()
         if (textePropre.isBlank() || chargementEnCours) return
@@ -177,8 +198,28 @@ fun CerveauScreen(
         messages.add(msgUser)
         chargementEnCours = true
 
+        // Ordre explicite (« @jules … », « valide #ab12 ») : exécuté sur le registre,
+        // sans passer par le modèle.
+        val commande = CoordinationAgents.analyser(textePropre)
+        if (commande != null) {
+            portee.launch {
+                val (texte, erreur) = executerCommande(commande)
+                messages.add(
+                    MessageCerveau(
+                        estUtilisateur = false,
+                        texte = texte,
+                        fournisseur = "🗂️ Registre des agents",
+                        estErreur = erreur
+                    )
+                )
+                chargementEnCours = false
+            }
+            return
+        }
+
         val historiqueEnvoi = messages.toList()
         val modeEnvoi = modeActif.cle
+        var contexteAgents: String? = null
         val repondreLocalement: (suspend () -> ReponseCerveau)? =
             if (modeleLocal == null) null else suspend {
                 CerveauLocal.repondre(
@@ -186,16 +227,23 @@ fun CerveauScreen(
                     message = textePropre,
                     mode = modeEnvoi,
                     historique = historiqueEnvoi,
-                    fiches = vaultRecords
+                    fiches = vaultRecords,
+                    contexte = contexteAgents
                 )
             }
 
         portee.launch {
             try {
+                // Question sur les agents : le modèle reçoit le registre, il ne le devine pas.
+                if (CoordinationAgents.concerneLesAgents(textePropre)) {
+                    AgentTasksClient.chargerTaches(context)
+                        .onSuccess { contexteAgents = CoordinationAgents.resumerRegistre(it) }
+                        .onFailure { contexteAgents = "Registre des agents illisible : ${it.message}" }
+                }
                 val reponse = BrainClient.interrogerCerveau(
                     cmsBaseUrl = cmsBaseUrl,
                     brainBaseUrl = brainBaseUrl,
-                    message = textePropre,
+                    message = contexteAgents?.let { "$textePropre\n\n$it" } ?: textePropre,
                     mode = modeActif.cle,
                     historique = messages.toList(),
                     forcerStationPc = forcerPc && stationPcDetectee,
@@ -444,7 +492,7 @@ fun CerveauScreen(
                 "coach" -> listOf("⚡ Action 15 min", "🌱 Version énergie basse")
                 "terrain" -> listOf("✍️ Ciseler notes de route", "📷 Légende Instagram")
                 "vault" -> listOf("🔍 Pépites Madère", "🇷🇴 Bucarest secret")
-                else -> listOf("💡 Idée d'itinéraire", "📊 État des tâches")
+                else -> listOf("📊 État des tâches", "✅ Qu'est-ce qui attend ma validation ?")
             }
             suggestions.forEach { suggestion ->
                 SuggestionChip(

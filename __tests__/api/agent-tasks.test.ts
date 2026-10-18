@@ -326,3 +326,60 @@ describe('GET /api/agent-tasks — balayage des baux', () => {
     expect(json.baux_liberes).toBe(1)
   })
 })
+
+describe('POST /api/agent-tasks — validation par le fondateur', () => {
+  beforeEach(() => {
+    AUTH.keyId = 'cms'
+    AUTH.agentName = 'cms_mobile'
+  })
+  afterEach(() => {
+    AUTH.keyId = 'master'
+  })
+
+  it('refuse la validation à une clé d’agent (403)', async () => {
+    AUTH.keyId = 'master'
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'valider', id: UUID, decision: 'accepter' }))
+    expect(res.status).toBe(403)
+  })
+
+  it('refuse une décision hors vocabulaire (400)', async () => {
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'valider', id: UUID, decision: 'peut-etre' }))
+    expect(res.status).toBe(400)
+  })
+
+  it('n’accepte pas une tâche qui n’attend pas de validation (409)', async () => {
+    h.state.queue.push({ data: { id: UUID, status: 'in_progress', notes: null }, error: null })
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'valider', id: UUID, decision: 'accepter' }))
+    expect(res.status).toBe(409)
+  })
+
+  it('accepte une tâche en attente de validation (200)', async () => {
+    h.state.queue.push({ data: { id: UUID, status: 'waiting_validation', notes: 'deposee par poco' }, error: null })
+    h.state.queue.push({ data: [{ id: UUID, agent: 'jules', status: 'done', task: 'Corriger les liens' }], error: null })
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'valider', id: UUID, decision: 'accepter', commentaire: 'parfait' }))
+    expect(res.status).toBe(200)
+    const json = await res.json()
+    expect(json.validee.status).toBe('done')
+  })
+
+  it('renvoie une tâche bloquée (200)', async () => {
+    h.state.queue.push({ data: { id: UUID, status: 'blocked', notes: null }, error: null })
+    h.state.queue.push({ data: [{ id: UUID, agent: 'jules', status: 'sent', task: 'Corriger les liens' }], error: null })
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'valider', id: UUID, decision: 'renvoyer', commentaire: 'il manque les photos' }))
+    expect(res.status).toBe(200)
+    expect((await res.json()).renvoyee.status).toBe('sent')
+  })
+
+  it('signale une tâche modifiée entre la lecture et l’écriture (409)', async () => {
+    h.state.queue.push({ data: { id: UUID, status: 'waiting_validation', notes: null }, error: null })
+    h.state.queue.push({ data: [], error: null })
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'valider', id: UUID, decision: 'accepter' }))
+    expect(res.status).toBe(409)
+  })
+})

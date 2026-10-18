@@ -23,6 +23,11 @@
 // Action : POST /api/agent-tasks avec { action, ... } — cf. les actions plus bas.
 //
 // Il n'y a pas de geste de suppression. C'est voulu, comme pour le MCP.
+//
+// `valider` est le seul geste du fondateur : accepter (waiting_validation -> done)
+// ou renvoyer (waiting_validation|blocked -> sent, prise liberee) une tache, avec
+// un commentaire. Reserve a la session CMS (mot de passe du telephone) : une cle
+// d'agent ne valide pas son propre travail.
 // ============================================================
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -331,6 +336,57 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ close: resume(data[0]) })
     }
 
+    if (action === 'valider') {
+      if (auth.keyId !== 'cms') {
+        return NextResponse.json({ error: 'seul le fondateur (session CMS) valide une tache' }, { status: 403 })
+      }
+      const decision = String(body.decision || '')
+      if (decision !== 'accepter' && decision !== 'renvoyer') {
+        return NextResponse.json({ error: 'decision invalide', valides: ['accepter', 'renvoyer'] }, { status: 400 })
+      }
+      const commentaire = String(body.commentaire || '').trim().slice(0, 2000)
+      const uuid = await resoudreId(sb, String(body.id || ''))
+      const { data: avant, error: errAvant } = await sb
+        .from('agent_tasks')
+        .select('id,status,notes')
+        .eq('id', uuid)
+        .single()
+      if (errAvant) {
+        if (errAvant.code === 'PGRST116') return NextResponse.json({ error: 'Task not found' }, { status: 404 })
+        return NextResponse.json({ error: errAvant.message }, { status: 500 })
+      }
+      const permis = decision === 'accepter' ? ['waiting_validation'] : ['waiting_validation', 'blocked']
+      if (!permis.includes(avant.status)) {
+        return NextResponse.json(
+          { error: `rien a ${decision} : la tache est ${avant.status}`, statuts_permis: permis },
+          { status: 409 }
+        )
+      }
+      const maintenant = new Date().toISOString()
+      const trace = `${decision === 'accepter' ? 'validee' : 'renvoyee'} par le fondateur le ${maintenant.slice(0, 16)}${commentaire ? ` : ${commentaire}` : ''}`
+      const corps: Record<string, unknown> = {
+        status: decision === 'accepter' ? 'done' : 'sent',
+        notes: avant.notes ? `${avant.notes}\n${trace}` : trace,
+        updated_at: maintenant,
+      }
+      if (decision === 'renvoyer') {
+        corps.claimed_by = null
+        corps.claimed_at = null
+      }
+      // Filtre sur le statut lu : si un agent a bouge la tache entre-temps, on ne l'ecrase pas.
+      const { data, error } = await sb
+        .from('agent_tasks')
+        .update(corps)
+        .eq('id', uuid)
+        .eq('status', avant.status)
+        .select(RESUME)
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+      if (!data || data.length === 0) {
+        return NextResponse.json({ error: 'la tache a change entre-temps : relis-la' }, { status: 409 })
+      }
+      return NextResponse.json({ [decision === 'accepter' ? 'validee' : 'renvoyee']: resume(data[0]) })
+    }
+
     if (action === 'deposer') {
       if (!acteurValide) {
         return NextResponse.json({ error: 'agent_name requis et reconnu pour deposer', agents: AGENTS_CONNUS }, { status: 400 })
@@ -368,7 +424,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: 'action inconnue', valides: ['lire', 'prendre', 'rendre_compte', 'deposer'] },
+      { error: 'action inconnue', valides: ['lire', 'prendre', 'rendre_compte', 'deposer', 'valider'] },
       { status: 400 }
     )
   } catch (e) {
