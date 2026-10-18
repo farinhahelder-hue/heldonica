@@ -10,6 +10,13 @@ import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
+// Les zones de cette page sont éditées dans le CMS et lues depuis Supabase :
+// sans fenêtre de revalidation, le HTML prerendu reste fige et une correction
+// en base n'apparait jamais. Aligne sur les pages piliers (madere, roumanie,
+// montenegro = 300 s).
+export const revalidate = 300
+
+
 const PAGE = "destinations-alentejo";
 const FAQS: { q: string; a: string }[] = [
   { q: "Quand partir dans l'Alentejo pour le slow travel ?", a: "Les meilleures périodes sont mars-mai et septembre-novembre. Températures agréables (20-28°C), vignobles en fleur ou vendanges, hors des sentiers battus." },

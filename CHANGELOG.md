@@ -2,6 +2,44 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — Écritures en base APPLIQUÉES + pages figées par le cache
+
+Le propriétaire n'a pas de PC (téléphone uniquement) : les 3 migrations ont donc
+été **appliquées directement en base**, en exécutant exactement les instructions
+des fichiers versionnés. État d'avant sauvegardé dans
+`.sauvegardes/avant-application-2026-10-18.json`.
+
+| Migration | Résultat mesuré |
+|---|---|
+| `20261018160000` témoignages | **5/5 désactivés**, 0 actif restant |
+| `20261018170000` langue | **6/6 corrigés**, 0 faute restante en base |
+| `20261018180000` Stoos | **2 doublons en brouillon**, 1 seul publié |
+
+### Le piège découvert : une écriture en base ne rafraîchit pas la page
+
+Preuve différentielle, même heure, même méthode :
+
+- `/temoignages` → **revalidé** (`x-vercel-cache: STALE`), les 5 faux témoignages
+  **ont disparu** du HTML, le message d'attente s'affiche. `app/temoignages/page.tsx`
+  déclare `export const revalidate = 60`.
+- `/travel-planning` et `/destinations/alentejo` → **toujours figés**
+  (`x-vercel-cache: HIT`, `age` 75 min), l'ancien texte persiste.
+
+**Cause racine** : ces pages ne déclarent **aucune** fenêtre de revalidation. Le
+HTML prerendu reste figé et la correction en base n'apparaît jamais. Le CMS
+contourne le problème à l'enregistrement (`app/api/cms/zones/route.ts` appelle
+`revalidateCmsTarget`), mais une écriture directe en base — la nôtre — ne
+déclenche rien.
+
+**Correctif** : `export const revalidate = 300` ajouté sur
+`app/travel-planning/page.tsx`, `app/destinations/alentejo/page.tsx`,
+`app/destinations/sardaigne/asinara/page.tsx` — aligné sur les pages piliers
+(`madere`, `roumanie`, `montenegro` = 300 s).
+
+> **À traiter à part** : **67 pages destinations n'ont aucun `revalidate`**, dont
+> `alentejo` et `asinara`. Toute correction en base y reste invisible jusqu'au
+> prochain déploiement. Correctif de fond à décider (global ou fichier par fichier).
+
 ## [2026-10-18] — Doublons Stoos Ridge : retour à un seul article publié
 
 **Ce n'est pas une décision nouvelle.** La migration du 28/07

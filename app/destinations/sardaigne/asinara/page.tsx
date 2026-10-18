@@ -6,6 +6,13 @@ import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import { getPageZones } from '@/lib/cms-zones'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
+// Les zones de cette page sont éditées dans le CMS et lues depuis Supabase :
+// sans fenêtre de revalidation, le HTML prerendu reste fige et une correction
+// en base n'apparait jamais. Aligne sur les pages piliers (madere, roumanie,
+// montenegro = 300 s).
+export const revalidate = 300
+
+
 const metadata: Metadata = {
   title: "Asinara en couple : notre carnet slow travel | Heldonica",
   description: "L ile prison. Ane blanchis, exclusivite en ⭐ Hidden Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
