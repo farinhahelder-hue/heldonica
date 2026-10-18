@@ -2,6 +2,31 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — Les 5 témoignages fictifs sont désactivés (migration à appliquer)
+
+**Fait constaté** : les 5 lignes de `cms_testimonials` (Sophie & Marc, Claire,
+Thomas & Julie, Marie & Antoine, Jean-Luc & Élodie) sont `is_active = true` et
+**affichées publiquement sur `/temoignages`** — vérifié par requête HTTP, le site
+est en ligne (`maintenance_mode = false`).
+
+**Origine tracée** : ces lignes ont été créées le 2026-08-19. La migration
+`20260819140000_editorial_voice_and_testimonials_alignment.sql` les a désactivées
+le jour même, avec le commentaire explicite « Désactivation des faux témoignages
+de démonstration (intégrité E-E-A-T) ». **Aucune migration ne les a réactivées
+depuis.** Leur `updated_at` est au 2026-10-14 : la réactivation est donc une
+écriture directe, hors migration, et **non traçable** (`cms_audit_log` n'existe
+pas).
+
+**Décision propriétaire** : « Témoignage on en a pas pour le moment. »
+
+`20261018160000_desactivation_temoignages_fictifs.sql` remet `is_active = false`
+sur les 5 identifiants — correspondance vérifiée 5/5, aucune autre ligne touchée.
+La page `/temoignages` possède déjà son repli honnête (« On construit nos retours
+clients en ce moment »), donc rien n'est cassé.
+
+> ⚠️ **Migration NON appliquée** : aucune chaîne de connexion DB n'est disponible
+> depuis l'environnement d'audit. À appliquer par le propriétaire.
+
 ## [2026-10-18] — Atelier récit : les questions se posent par journée, plus par photo
 
 L'« Interview Éclair » (`lib/cms-photo-interview.ts`) pose 3 questions **par
