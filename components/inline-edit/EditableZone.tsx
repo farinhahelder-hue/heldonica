@@ -21,6 +21,8 @@ interface EditableZoneProps {
   href?: string
   target?: string
   wrapper?: 'none' | 'link' | 'button'
+  /** Texte nu, sans enveloppe ni édition : pour un <option>, qui n'accepte pas de <span>. */
+  plain?: boolean
 }
 
 export default function EditableZone({
@@ -32,6 +34,7 @@ export default function EditableZone({
   as: Tag = 'span',
   href,
   wrapper = 'none',
+  plain = false,
 }: EditableZoneProps) {
   const { zones, isEditing, updateZone, saving, registerZone, unregisterZone, triggerUndo } = useEditableContext()
   const [editValue, setEditValue] = useState('')
@@ -254,6 +257,8 @@ export default function EditableZone({
       </div>
     )
   }
+
+  if (plain) return <>{value}</>
 
   return (
     <>
