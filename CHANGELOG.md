@@ -2,6 +2,21 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — App : donner des tâches à tous les agents, mode libre local
+
+Demande du fondateur : « sur l'App je puisse donner des tâches » et « IA sans limites locale ».
+
+- Onglet Tâches : la liste des destinataires suit enfin l'API (Claude, OpenCode, Jules,
+  Gemini, OpenHands, Freebuff, Grok, Manus, tous) — Claude, OpenCode et OpenHands manquaient.
+  Le formulaire défile (le clavier cachait « Envoyer ») et dit comment l'agent reçoit la tâche.
+- Jules et Gemini ne lisent pas le registre : après le dépôt (la trace reste), le brief est
+  copié et leur page s'ouvre. Même chose depuis le chat (`@jules …`).
+- Cartes « À valider » : boutons ✅ Valider / ↩️ Renvoyer (action `valider`, session CMS).
+- Cerveau : interrupteur 🔓 Mode libre — uniquement le modèle du téléphone (jamais le Cloud
+  ni le PC, ni registre ni Coffre envoyés), prompt sans posture de marque ni sermon. Le
+  modèle garde les limites apprises à l'entraînement : un prompt ne les retire pas.
+- Tests JVM : `PromptLocalTest` (prompt libre), `CoordinationAgentsTest` (hand-off).
+
 ## [2026-10-18] — MVP : 33 sous-pages destinations sans photo vérifiée passent en « Bientôt »
 
 Décision du fondateur (MVP « travel planning + meilleurs articles avec photos ») : les

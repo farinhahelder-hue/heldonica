@@ -51,6 +51,7 @@ object BrainClient {
     const val PREFS_AUTH = "heldonica_mobile_auth"
     const val PREF_KEY_CMS_PASSWORD = "cms_password"
     const val PREF_KEY_CERVEAU_BOOSTE = "cerveau_booste"
+    const val PREF_KEY_CERVEAU_LIBRE = "cerveau_libre"
 
     fun estBooste(context: android.content.Context): Boolean =
         context.getSharedPreferences(PREFS_AUTH, android.content.Context.MODE_PRIVATE)
@@ -59,6 +60,16 @@ object BrainClient {
     fun definirBooste(context: android.content.Context, booste: Boolean) {
         context.getSharedPreferences(PREFS_AUTH, android.content.Context.MODE_PRIVATE)
             .edit().putBoolean(PREF_KEY_CERVEAU_BOOSTE, booste).apply()
+    }
+
+    /** Mode libre : uniquement le modèle du téléphone, sans cadre de marque. */
+    fun estLibre(context: android.content.Context): Boolean =
+        context.getSharedPreferences(PREFS_AUTH, android.content.Context.MODE_PRIVATE)
+            .getBoolean(PREF_KEY_CERVEAU_LIBRE, false)
+
+    fun definirLibre(context: android.content.Context, libre: Boolean) {
+        context.getSharedPreferences(PREFS_AUTH, android.content.Context.MODE_PRIVATE)
+            .edit().putBoolean(PREF_KEY_CERVEAU_LIBRE, libre).apply()
     }
 
     /**

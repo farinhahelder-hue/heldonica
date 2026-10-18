@@ -177,17 +177,22 @@ object CerveauLocal {
         mode: String,
         historique: List<MessageCerveau>,
         fiches: List<VaultRecordItem>,
-        contexte: String? = null
+        contexte: String? = null,
+        libre: Boolean = false
     ): ReponseCerveau = withContext(Dispatchers.Default) {
         val fichier = fichierModele(context)
             ?: throw IOException("Aucun modèle local installé")
-        val prompt = PromptLocal.construire(
-            message = message,
-            mode = mode,
-            historique = historique,
-            fiches = PromptLocal.selectionnerFiches(message, fiches),
-            contexte = contexte
-        )
+        val prompt = if (libre) {
+            PromptLocal.construireLibre(message, historique)
+        } else {
+            PromptLocal.construire(
+                message = message,
+                mode = mode,
+                historique = historique,
+                fiches = PromptLocal.selectionnerFiches(message, fiches),
+                contexte = contexte
+            )
+        }
         val texte = verrou.withLock {
             val llm = moteurPour(context, fichier)
             llm.generateResponse(prompt)
@@ -299,6 +304,24 @@ object PromptLocal {
             appendLine()
             appendLine(contexte.trim())
         }
+        ajouterEchange(message, historique)
+    }
+
+    /**
+     * Mode libre : 100 % hors ligne, sans la posture de marque ni les consignes
+     * Heldonica. Pour écrire, explorer un sujet d'histoire sombre (Memoria
+     * Imperium) ou réfléchir sans cadre. Le modèle garde ses propres limites,
+     * apprises à l'entraînement : un prompt ne les retire pas.
+     */
+    fun construireLibre(message: String, historique: List<MessageCerveau>): String = buildString {
+        appendLine("Tu es un assistant privé qui tourne entièrement hors ligne sur le téléphone de son utilisateur : rien ne sort de l'appareil.")
+        appendLine("Réponds directement et complètement à ce qui est demandé, dans la langue de la question, sans sermon, sans avertissement superflu et sans rappeler que tu es une IA.")
+        appendLine("Pour l'histoire, la guerre, la violence ou les sujets sombres, décris les faits tels qu'ils sont, sans les édulcorer.")
+        appendLine("Si tu ne sais pas, dis-le plutôt que d'inventer.")
+        ajouterEchange(message, historique)
+    }
+
+    private fun StringBuilder.ajouterEchange(message: String, historique: List<MessageCerveau>) {
         // Le dernier message est la question elle-même : on l'écrit une seule fois, plus bas.
         val tours = historique.filterNot { it.estErreur }
             .let { if (it.lastOrNull()?.estUtilisateur == true && it.last().texte.trim() == message.trim()) it.dropLast(1) else it }
