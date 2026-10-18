@@ -72,4 +72,16 @@ class CoordinationAgentsTest {
         val prompt = PromptLocal.construire("Où en est Jules ?", "chat", emptyList(), emptyList(), contexte = "Registre des agents : 1 à valider")
         assertTrue(prompt.contains("Registre des agents : 1 à valider"))
     }
+
+    @Test
+    fun `detecte les questions de planning et liste les episodes Memoria`() {
+        assertTrue(CoordinationAgents.concerneLePlanning("🗓️ Que publier cette semaine ?"))
+        assertTrue(CoordinationAgents.concerneLePlanning("Où en est Memoria Imperium ?"))
+        assertFalse(CoordinationAgents.concerneLePlanning("Pépites Madère"))
+        assertEquals(
+            "Memoria Imperium, épisodes prêts à monter dans l'onglet Memoria : César franchit le Rubicon, Sylla marche sur Rome.",
+            CoordinationAgents.episodesMemoria(listOf("César franchit le Rubicon", "Sylla marche sur Rome"))
+        )
+        assertEquals("", CoordinationAgents.episodesMemoria(emptyList()))
+    }
 }
