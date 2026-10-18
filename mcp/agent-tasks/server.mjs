@@ -70,8 +70,14 @@ const AGENTS_CONNUS = [
   'discord-bot',
   'fondateur',
   'poco',
+  'heldonica-brain',
   'tous'
 ]
+
+// Le Brain ne lit pas seulement `task` : son BridgePoller dispatche sur
+// `task_type` et prend le message dans `payload`. Une tache deposee sans ces
+// deux colonnes est depilee puis ignoree silencieusement.
+const BRAIN_TASK_TYPES = ['chat', 'run_task', 'status', 'generate_carousel', 'generate_itinerary']
 
 // --- PostgREST ---------------------------------------------------------------
 
@@ -317,15 +323,39 @@ serveur.registerTool(
       scope: z.string().optional().describe('cms, content, infra, mobile, produit, schema, security…'),
       depends_on: z.string().optional().describe('UUID (ou préfixe) de la tâche qui doit être done avant'),
       risk_level: z.enum(['low', 'medium', 'high']).optional(),
+      task_type: z
+        .enum(['chat', 'run_task', 'status', 'generate_carousel', 'generate_itinerary'])
+        .optional()
+        .describe(
+          'Obligatoire pour heldonica-brain : son poller dispatche sur ce champ. ' +
+            'chat pour lui poser une question, sa reponse arrive dans actions_done.result.'
+        ),
+      payload: z
+        .record(z.string(), z.unknown())
+        .optional()
+        .describe('Pour heldonica-brain avec task_type=chat : { "message": "..." }.'),
     },
     annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
   },
-  async ({ agent, task, description, scope, depends_on, risk_level }) => {
+  async ({ agent, task, description, scope, depends_on, risk_level, task_type, payload }) => {
     try {
       const moi = exigerAgent()
       const dest = agent.trim().toLowerCase()
       if (!AGENTS_CONNUS.includes(dest)) {
         throw new Error(`agent inconnu : ${dest}. Connus : ${AGENTS_CONNUS.join(', ')}`)
+      }
+      // Le Brain depile sur task_type puis lit payload.message : sans eux, la
+      // tache est prise pour rien. On refuse plutot que de la perdre.
+      if (dest === 'heldonica-brain') {
+        if (!task_type) {
+          throw new Error(
+            `heldonica-brain exige task_type (${BRAIN_TASK_TYPES.join(', ')}) - ` +
+              'sans lui, son poller depile la tache et l ignore.'
+          )
+        }
+        if (task_type === 'chat' && !payload?.message) {
+          throw new Error('task_type=chat exige payload = { "message": "..." }')
+        }
       }
       const corps = {
         agent: dest,
@@ -337,6 +367,8 @@ serveur.registerTool(
         notes: `déposée par ${moi} via MCP le ${new Date().toISOString().slice(0, 16)}`,
       }
       if (risk_level) corps.risk_level = risk_level
+      if (task_type) corps.task_type = task_type
+      if (payload) corps.payload = payload
       if (depends_on) corps.depends_on = await resoudreId(depends_on)
       const rows = await pg('agent_tasks', { method: 'POST', body: corps, prefer: 'return=representation' })
       return texte({ deposee: resume(rows[0]) })
