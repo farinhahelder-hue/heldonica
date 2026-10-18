@@ -2,6 +2,21 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — Retrait d'une photo d'enfant publiée par erreur
+
+`IMG_20260827_135834.jpg` (gros plan du visage d'un enfant, classée « Photo terrain
+Roumanie », décrite à tort « passage piéton couvert ») servait d'image de partage et de
+couverture. Retirée partout où elle était publique :
+
+- **Base (fait le 18/10, valeurs d'origine sauvegardées)** : article `greve-reserve-naturelle-suisse`
+  (`featured_image`, `og_image`, `og_image_url` → vides, repli générique), zone
+  `destinations-roumanie-apuseni/hero_image` → `/og-default.jpg`, galeries des destinations
+  `roumanie` et `roumanie-transylvanie` (photo ôtée, 2 photos restent).
+- **Code (cette PR)** : `app/destinations/roumanie/apuseni/page.tsx` (hero et og:image en dur)
+  → `/og-default.jpg` ; entrée `rou-passage-walk` retirée de `lib/cms-photo-albums.ts`.
+- **Non touché, à décider par le fondateur** : le fichier lui-même (bucket `media`, toujours
+  accessible par son URL directe) et sa fiche `cms_media` (id 143).
+
 ## [2026-10-18] — Correctif : Brașov et les itinéraires roumains repartent en repli
 
 L'entrée ci-dessous annonçait « la photo réelle du lieu » pour 5 pages. Après
