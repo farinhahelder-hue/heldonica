@@ -160,6 +160,26 @@ object AgentTasksClient {
         }
     }
 
+    /** Résumé de l'état du projet (blog, Instagram, Memoria, registre) : /api/cerveau/etat. */
+    suspend fun chargerEtat(context: Context): Result<String> = withContext(Dispatchers.IO) {
+        val mdp = BrainClient.obtenirMotDePasse(context)
+        if (mdp.isBlank()) return@withContext Result.failure(Exception("Mot de passe CMS non configuré"))
+        try {
+            val req = Request.Builder()
+                .url("${BuildConfig.CMS_BASE_URL.trimEnd('/')}/api/cerveau/etat")
+                .header("x-cms-auth", mdp)
+                .get()
+                .build()
+            httpClient.newCall(req).execute().use { res ->
+                val bodyStr = res.body?.string().orEmpty()
+                if (!res.isSuccessful) return@withContext Result.failure(Exception("HTTP ${res.code}"))
+                Result.success(JSONObject(bodyStr).optString("texte"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     /**
      * Décision du fondateur sur une tâche : accepter (→ done) ou renvoyer (→ sent).
      * Réservé à la session CMS côté serveur (action `valider`).

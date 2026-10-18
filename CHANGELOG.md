@@ -2,6 +2,38 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — Mots bannis : migration `20261011130000` enfin appliquée en base
+
+Constat d'OpenHands, mesuré par Claude : la migration versionnée du 11/10 n'avait jamais été
+appliquée (« plages fluviales incroyables », « au cœur de Paris », étiquette « Incontournable »
+servis en ligne). Simulée sur la base (10/10 applicables), puis appliquée le 18/10 avec l'accord
+du fondateur — chaque remplacement conditionné à la valeur lue (`updated_at`), valeurs d'origine
+sauvegardées. La migration reste idempotente pour un futur `db push`.
+
+- Les pages destinations sont **pré-générées au build** (`x-vercel-cache: PRERENDER`) : le texte
+  corrigé n'apparaît qu'au déploiement suivant.
+- **Reste hors migration** (scan de toutes les zones actives des pages publiées contre
+  `FORBIDDEN_WORDS`) : 7 zones — « circuit » ×4 et « les touristes » dans les itinéraires
+  Roumanie, « Le matin incontournable » (`timisoara/eat_2`)… À trancher éditorialement
+  (« circuit » peut désigner une boucle de randonnée).
+
+## [2026-10-18] — Le Cerveau du Poco connaît l'état du projet (planning, Instagram, Memoria)
+
+Question du fondateur : « qu'est-ce que je publie cette semaine ? ». Constat en base : aucun
+planning n'existe — 8 publications Instagram en file **sans date**, aucun article programmé,
+pas de suivi d'épisodes Memoria Imperium (seuls les 3 presets de l'appli et l'outillage
+YouTube en cours chez Jules).
+
+- **`/api/cerveau/etat`** (GET, authentifié comme `/api/agent-tasks`, lecture seule) et
+  **`lib/cerveau-etat.ts`** : résumé de quelques lignes — programmé à 7 jours (blog et
+  Instagram), articles en ligne / brouillons, Instagram prêt sans date, tâches Memoria en
+  cours chez les agents, décisions qui attendent le fondateur. Une donnée absente est dite
+  absente (« rien de programmé »), jamais devinée. 3 tests ; `check-api-auth` ✓.
+- **Poco** : une question de planning (publier, semaine, Instagram, YouTube, Memoria…) charge
+  cet état + les épisodes Memoria prêts dans l'onglet Memoria, et les donne au modèle (local,
+  Cloud ou PC). Chip « 🗓️ Que publier cette semaine ? ». Test Kotlin.
+- **Limite connue** : sans dates en base, le Cerveau ne peut que dire ce qui est prêt. Un vrai
+  calendrier éditorial demande une table (migration + `db push`).
 ## [2026-10-18] — Pages « Bientôt » : la description du brouillon ne fuit plus
 
 Constat d'OpenHands, mesuré par Claude : `/destinations/sicile/taormine` et `/palerme` affichent
