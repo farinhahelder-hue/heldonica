@@ -7,6 +7,8 @@ import { getPageZones } from '@/lib/cms-zones'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { buildPageMetadata } from '@/lib/page-metadata'
+import ComingSoonDestination from '@/components/ComingSoonDestination'
+import { isUnpublishedCmsPage } from '@/lib/unpublished-pages'
 
 const PAGE = 'destinations-montenegro-kotor'
 
@@ -46,6 +48,18 @@ const FAQS: { q: { zone: string; fb: string }; a: { zone: string; fb: string } }
 ]
 
 export default async function KotorPage() {
+  // MVP : page sans photo vérifiée, « Bientôt » tant qu'elle figure dans lib/unpublished-pages.ts.
+  if (isUnpublishedCmsPage('destinations-montenegro-kotor')) {
+    return (
+      <ComingSoonDestination
+        slug="montenegro-kotor"
+        title="Kotor"
+        country="Monténégro"
+        hero_unsplash_url="/og-default.jpg"
+        zones={await getPageZones('destinations-montenegro-kotor')}
+      />
+    )
+  }
   const zones = await getPageZones(PAGE)
 
   const Z = (zone: string, type: 'text' | 'textarea' | 'html' | 'image', fallback: string, className?: string, as?: any) => (

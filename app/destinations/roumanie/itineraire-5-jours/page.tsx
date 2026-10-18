@@ -10,6 +10,8 @@ import EditableZone from '@/components/inline-edit/EditableZone';
 import DaySummaryTable from '@/components/itinerary/DaySummaryTable';
 import DayAccommodationBox from '@/components/itinerary/DayAccommodationBox';
 import { buildPageMetadata } from '@/lib/page-metadata'
+import ComingSoonDestination from '@/components/ComingSoonDestination'
+import { isUnpublishedCmsPage } from '@/lib/unpublished-pages'
 
 const SITE_URL = 'https://www.heldonica.fr';
 const PAGE = "destinations-roumanie-itineraire-5-jours";
@@ -44,6 +46,18 @@ export async function generateMetadata(): Promise<Metadata> {
 
 
 export default async function Itineraire5JoursPage() {
+  // MVP : page sans photo vérifiée, « Bientôt » tant qu'elle figure dans lib/unpublished-pages.ts.
+  if (isUnpublishedCmsPage('destinations-roumanie-itineraire-5-jours')) {
+    return (
+      <ComingSoonDestination
+        slug="roumanie-itineraire-5-jours"
+        title="Roumanie en 5 jours"
+        country="Roumanie"
+        hero_unsplash_url="/og-default.jpg"
+        zones={await getPageZones('destinations-roumanie-itineraire-5-jours')}
+      />
+    )
+  }
   const zones = await getPageZones(PAGE)
 
   const Z = (zone: string, type: 'text' | 'textarea' | 'html', fallback: string, className?: string, as?: any) => (
