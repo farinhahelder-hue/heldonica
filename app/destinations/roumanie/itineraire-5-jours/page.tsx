@@ -109,7 +109,7 @@ export default async function Itineraire5JoursPage() {
 
         <section className="bg-white section-spacing pt-0">
           <div className="container max-w-4xl">
-            <h2 className="text-2xl font-serif text-mahogany mb-6">Aperçu du circuit</h2>
+            <h2 className="text-2xl font-serif text-mahogany mb-6">Aperçu de l'itinéraire</h2>
             <div className="overflow-x-auto rounded-xl border border-stone-200">
               <table className="w-full text-sm table-auto">
                 <thead className="bg-stone-50 text-stone-500 text-xs uppercase">
@@ -275,7 +275,7 @@ export default async function Itineraire5JoursPage() {
 
         <section className="bg-white section-spacing">
           <div className="container max-w-5xl">
-            <h2 className="text-3xl font-serif text-mahogany mb-6">Carte interactive du circuit</h2>
+            <h2 className="text-3xl font-serif text-mahogany mb-6">Carte interactive de l'itinéraire</h2>
             <p className="text-charcoal/70 mb-6 max-w-2xl">
               Explore chaque étape sur la carte : hébergements, pépites et points de passage.
             </p>

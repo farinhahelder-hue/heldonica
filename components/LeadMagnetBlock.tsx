@@ -120,7 +120,7 @@ export default function LeadMagnetBlock({
             <div className="bg-white rounded-xl p-5 border border-stone-100 text-center">
               <span className="text-3xl mb-3 block" role="img" aria-label="Carte">🗺️</span>
               <p className="text-sm font-semibold text-charcoal">Itinéraire clé en main</p>
-              <p className="text-xs text-charcoal/60 mt-1">Jour par jour, avec nos tips terrain</p>
+              <p className="text-xs text-charcoal/60 mt-1">Jour par jour, avec nos repères du terrain</p>
             </div>
           </div>
 

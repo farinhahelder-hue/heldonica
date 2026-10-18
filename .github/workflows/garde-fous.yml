@@ -144,3 +144,11 @@ jobs:
       # métadonnées d'une photo du voyage (content/evidence/*.json).
       - name: Vécu adossé aux photos
         run: npm run check:content-evidence
+
+      # Mots bannis et fragments de brouillon dans les pages statiques
+      # (destinations, guides, travel-planning, LeadMagnetBlock). Statique :
+      # ni secret, ni `if:` — il ne peut sauter silencieusement ni passer pour
+      # vert sans avoir tourné. C'est le contrôle qui a manqué aux 20 dérives
+      # relevées le 18/10, toutes listées à la main par un audit.
+      - name: Mots bannis des pages statiques
+        run: npm run check:content-pages
