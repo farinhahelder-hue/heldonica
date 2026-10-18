@@ -84,7 +84,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
 
   if (variant === "article") {
     return (
-      <section className="my-14 rounded-2xl bg-gradient-to-br from-mahogany to-mahogany/80 px-8 py-10 text-white">
+      <section className="my-14 rounded-2xl bg-mahogany px-8 py-10 text-white">
         <p className="text-teal text-xs font-semibold tracking-[0.2em] uppercase mb-3">
           {badge}
         </p>
@@ -198,7 +198,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
   }
 
   return (
-    <section className="bg-gradient-to-br from-mahogany to-mahogany/80 py-20 px-4">
+    <section className="bg-mahogany py-20 px-4">
       <div className="max-w-2xl mx-auto text-center text-white">
         <p className="text-teal text-xs font-semibold tracking-[0.2em] uppercase mb-4">
           {badge}

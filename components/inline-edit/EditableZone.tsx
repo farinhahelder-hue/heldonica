@@ -302,6 +302,8 @@ export default function EditableZone({
 /** Image zone that hides itself on load failure instead of showing a broken-image icon. */
 function ZoneImage({ src, className }: { src: string; className?: string }) {
   const [failed, setFailed] = useState(false)
-  if (!src || failed) return null
+  // og-default.jpg est l'image de partage (logo + titre incrustés) : en fond de
+  // hero, elle chevauche le vrai titre. On n'affiche rien plutôt que ce doublon.
+  if (!src || failed || src === '/og-default.jpg') return null
   return <img src={src} alt="" className={className} loading="lazy" onError={() => setFailed(true)} />
 }
