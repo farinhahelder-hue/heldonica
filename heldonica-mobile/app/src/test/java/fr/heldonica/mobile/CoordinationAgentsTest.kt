@@ -84,4 +84,14 @@ class CoordinationAgentsTest {
         )
         assertEquals("", CoordinationAgents.episodesMemoria(emptyList()))
     }
+
+    @Test
+    fun `seuls Jules et Gemini recoivent le brief hors registre`() {
+        assertEquals("https://jules.google.com", CoordinationAgents.lienAgent("jules"))
+        assertNotNull(CoordinationAgents.lienAgent("gemini"))
+        assertNull(CoordinationAgents.lienAgent("opencode"))
+        assertNull(CoordinationAgents.lienAgent("claude"))
+        assertTrue(CoordinationAgents.commentRecue("opencode").contains("Horus"))
+        assertTrue(CoordinationAgents.commentRecue("jules").contains("copié"))
+    }
 }

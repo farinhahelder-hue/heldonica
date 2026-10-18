@@ -106,6 +106,7 @@ fun CerveauScreen(
     var stationPcDetectee by remember { mutableStateOf(false) }
     var forcerPc by remember { mutableStateOf(false) }
     var booste by remember { mutableStateOf(BrainClient.estBooste(context)) }
+    var libre by remember { mutableStateOf(BrainClient.estLibre(context)) }
     var modeleLocal by remember { mutableStateOf(CerveauLocal.fichierModele(context)?.nameWithoutExtension) }
     var importEnCours by remember { mutableStateOf(false) }
     val telechargement by CerveauLocal.telechargement.collectAsState()
@@ -172,8 +173,9 @@ fun CerveauScreen(
         is CommandeAgent.Confier ->
             AgentTasksClient.deposerTache(context, commande.agent, commande.consigne).fold(
                 { id ->
+                    transmettreHorsRegistre(context, commande.agent, commande.consigne)
                     "✅ Tâche confiée à ${commande.agent} (#$id) :\n${commande.consigne}\n\n" +
-                        "Elle attend dans le registre : ${commande.agent} la prendra à sa prochaine lecture." to false
+                        CoordinationAgents.commentRecue(commande.agent) to false
                 },
                 { e -> "⚠️ Dépôt impossible : ${e.message}" to true }
             )
@@ -213,6 +215,45 @@ fun CerveauScreen(
                     )
                 )
                 chargementEnCours = false
+            }
+            return
+        }
+
+        // Mode libre : seulement le modèle du téléphone. Jamais le Cloud ni le PC,
+        // ni le registre ou le Coffre : la conversation ne sort pas de l'appareil.
+        if (libre) {
+            val historiqueLibre = messages.toList()
+            portee.launch {
+                try {
+                    if (modeleLocal == null) {
+                        throw IllegalStateException("télécharge ou importe d'abord un modèle (bouton ci-dessus).")
+                    }
+                    val reponse = CerveauLocal.repondre(
+                        context = context,
+                        message = textePropre,
+                        mode = modeActif.cle,
+                        historique = historiqueLibre,
+                        fiches = emptyList(),
+                        libre = true
+                    )
+                    messages.add(
+                        MessageCerveau(
+                            estUtilisateur = false,
+                            texte = reponse.texte,
+                            fournisseur = "🔓 Libre • ${reponse.modele}"
+                        )
+                    )
+                } catch (e: Exception) {
+                    messages.add(
+                        MessageCerveau(
+                            estUtilisateur = false,
+                            texte = "⚠️ Mode libre : ${e.localizedMessage ?: "le modèle du téléphone n'a pas répondu"}",
+                            estErreur = true
+                        )
+                    )
+                } finally {
+                    chargementEnCours = false
+                }
             }
             return
         }
@@ -333,6 +374,7 @@ fun CerveauScreen(
                     label = {
                         Text(
                             text = when {
+                                libre -> "🔓 Libre"
                                 forcerPc && stationPcDetectee -> "💻 PC LAN"
                                 booste -> if (stationPcDetectee) "🟢 Cloud (PC dispo)" else "🟢 Cloud 0€"
                                 else -> if (stationPcDetectee) "📱 Poco (PC dispo)" else "📱 Poco"
@@ -382,7 +424,31 @@ fun CerveauScreen(
                             booste = it
                             BrainClient.definirBooste(context, it)
                         },
-                        colors = SwitchDefaults.colors(checkedTrackColor = Color(0xFF2C4C38))
+                        colors = SwitchDefaults.colors(checkedTrackColor = Color(0xFF2C4C38)),
+                        enabled = !libre
+                    )
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "🔓 Mode libre (100 % téléphone)",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFF7A3E2C)
+                        )
+                        Text(
+                            text = "Sans cadre de marque, hors ligne, rien n'est envoyé",
+                            fontSize = 10.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = libre,
+                        onCheckedChange = {
+                            libre = it
+                            BrainClient.definirLibre(context, it)
+                        },
+                        colors = SwitchDefaults.colors(checkedTrackColor = Color(0xFF7A3E2C))
                     )
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
