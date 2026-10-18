@@ -3,7 +3,11 @@ package fr.heldonica.mobile
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,7 +33,8 @@ import org.json.JSONObject
  *
  * Caractéristiques :
  * - Rendu fluide 120 Hz sur écran Flow AMOLED (1220x2712).
- * - Fonctionnement double mode : Cloud 0€ (PC éteint) ou Station PC locale (si détectée sur le LAN).
+ * - Petit modèle embarqué par défaut (CerveauLocal) ; interrupteur « Cerveau boosté » pour les
+ *   API gratuites (Cloud 0€) ; Station PC locale si détectée sur le LAN.
  * - Sélecteur de mode ergonomique : Copilote TSA/ADHD, Terrain, Savoirs, Discussion libre.
  * - Zéro clé d'API embarquée dans l'APK.
  */
@@ -100,15 +105,39 @@ fun CerveauScreen(
     var chargementEnCours by remember { mutableStateOf(false) }
     var stationPcDetectee by remember { mutableStateOf(false) }
     var forcerPc by remember { mutableStateOf(false) }
+    var booste by remember { mutableStateOf(BrainClient.estBooste(context)) }
+    var modeleLocal by remember { mutableStateOf(CerveauLocal.fichierModele(context)?.nameWithoutExtension) }
+    var importEnCours by remember { mutableStateOf(false) }
+
+    fun nomDuFichier(uri: Uri): String? =
+        context.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
+            ?.use { c -> if (c.moveToFirst()) c.getString(0) else null }
+
+    val selecteurModele = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        importEnCours = true
+        portee.launch {
+            try {
+                val fichier = CerveauLocal.importerModele(context, uri, nomDuFichier(uri))
+                modeleLocal = fichier.nameWithoutExtension
+                Toast.makeText(context, "Modèle installé : ${fichier.name}", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(context, "Import impossible : ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+            } finally {
+                importEnCours = false
+            }
+        }
+    }
 
     val messages = remember {
         mutableStateListOf(
             MessageCerveau(
                 estUtilisateur = false,
                 texte = "Bonjour. Je suis le Cerveau Heldonica sur ton Poco X6 Pro.\n\n" +
-                        "Le PC peut rester éteint : je tourne en Cloud 0€ sécurisé.\n" +
+                        "Le PC peut rester éteint : je réponds avec le modèle du téléphone, " +
+                        "et ⚡ Cerveau boosté passe par les API gratuites quand il faut plus de finesse.\n" +
                         "Choisis un mode ci-dessus ou écris-moi directement.",
-                fournisseur = "cloud-0€"
+                fournisseur = "telephone"
             )
         )
     }
@@ -140,6 +169,19 @@ fun CerveauScreen(
         messages.add(msgUser)
         chargementEnCours = true
 
+        val historiqueEnvoi = messages.toList()
+        val modeEnvoi = modeActif.cle
+        val repondreLocalement: (suspend () -> ReponseCerveau)? =
+            if (modeleLocal == null) null else suspend {
+                CerveauLocal.repondre(
+                    context = context,
+                    message = textePropre,
+                    mode = modeEnvoi,
+                    historique = historiqueEnvoi,
+                    fiches = vaultRecords
+                )
+            }
+
         portee.launch {
             try {
                 val reponse = BrainClient.interrogerCerveau(
@@ -149,7 +191,9 @@ fun CerveauScreen(
                     mode = modeActif.cle,
                     historique = messages.toList(),
                     forcerStationPc = forcerPc && stationPcDetectee,
-                    authSecret = motDePasse
+                    authSecret = motDePasse,
+                    booste = booste,
+                    repondreLocalement = repondreLocalement
                 )
                 messages.add(
                     MessageCerveau(
@@ -211,20 +255,24 @@ fun CerveauScreen(
                             forcerPc = !forcerPc
                             Toast.makeText(
                                 context,
-                                if (forcerPc) "Mode PC Local activé" else "Mode Cloud 0€ actif",
+                                if (forcerPc) "Mode PC Local activé" else "Mode PC Local désactivé",
                                 Toast.LENGTH_SHORT
                             ).show()
                         } else {
                             Toast.makeText(
                                 context,
-                                "Cloud 0€ actif (Station PC hors ligne ou non détectée)",
+                                "Station PC hors ligne ou non détectée",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
                     },
                     label = {
                         Text(
-                            text = if (forcerPc && stationPcDetectee) "💻 PC LAN" else if (stationPcDetectee) "🟢 Cloud (PC dispo)" else "🟢 Cloud 0€",
+                            text = when {
+                                forcerPc && stationPcDetectee -> "💻 PC LAN"
+                                booste -> if (stationPcDetectee) "🟢 Cloud (PC dispo)" else "🟢 Cloud 0€"
+                                else -> if (stationPcDetectee) "📱 Poco (PC dispo)" else "📱 Poco"
+                            },
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -247,8 +295,59 @@ fun CerveauScreen(
             }
         }
 
+        // Modèle embarqué + interrupteur Cerveau boosté
+        Card(
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFF1EFEA)),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "⚡ Cerveau boosté (API gratuites)",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFF2C4C38)
+                    )
+                    Text(
+                        text = when {
+                            importEnCours -> "Import du modèle en cours…"
+                            modeleLocal != null -> "📱 Modèle du téléphone : $modeleLocal"
+                            else -> "📱 Aucun modèle sur le téléphone"
+                        },
+                        fontSize = 10.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1
+                    )
+                }
+                TextButton(
+                    onClick = { selecteurModele.launch(arrayOf("*/*")) },
+                    enabled = !importEnCours && !chargementEnCours
+                ) {
+                    Text(
+                        text = if (modeleLocal == null) "Importer" else "Changer",
+                        fontSize = 11.sp,
+                        color = Color(0xFF2C4C38)
+                    )
+                }
+                Switch(
+                    checked = booste,
+                    onCheckedChange = {
+                        booste = it
+                        BrainClient.definirBooste(context, it)
+                    },
+                    colors = SwitchDefaults.colors(checkedTrackColor = Color(0xFF2C4C38))
+                )
+            }
+        }
+
         // Alerte si mot de passe non configuré (APK issu de la CI sans secret)
-        if (motDePasse.isBlank()) {
+        if (booste && motDePasse.isBlank()) {
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3CD)),
                 modifier = Modifier

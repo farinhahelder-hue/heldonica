@@ -7,10 +7,11 @@ class BrainClientTest {
 
     @Test
     fun `sources cerveau sont definies et badges coherents`() {
-        assertEquals(3, SourceCerveau.values().size)
+        assertEquals(4, SourceCerveau.values().size)
         assertEquals("🟢 Cloud", SourceCerveau.CLOUD.badge)
         assertEquals("💻 PC LAN", SourceCerveau.STATION_PC.badge)
         assertEquals("📦 Local", SourceCerveau.HORS_LIGNE.badge)
+        assertEquals("📱 Poco", SourceCerveau.IA_TELEPHONE.badge)
     }
 
     @Test
@@ -59,5 +60,48 @@ class BrainClientTest {
     fun `cles SharedPreferences auth sont stables`() {
         assertEquals("heldonica_mobile_auth", BrainClient.PREFS_AUTH)
         assertEquals("cms_password", BrainClient.PREF_KEY_CMS_PASSWORD)
+        assertEquals("cerveau_booste", BrainClient.PREF_KEY_CERVEAU_BOOSTE)
+    }
+
+    @Test
+    fun `sans boost le cloud n'est jamais appele`() {
+        for (forcer in listOf(false, true)) {
+            for (local in listOf(false, true)) {
+                val ordre = BrainClient.ordreDesSources(booste = false, forcerStationPc = forcer, iaLocaleDisponible = local)
+                assertFalse("forcer=$forcer local=$local", SourceCerveau.CLOUD in ordre)
+            }
+        }
+    }
+
+    @Test
+    fun `sans boost le telephone repond en premier, le PC en repli`() {
+        assertEquals(
+            listOf(SourceCerveau.IA_TELEPHONE, SourceCerveau.STATION_PC),
+            BrainClient.ordreDesSources(booste = false, forcerStationPc = false, iaLocaleDisponible = true)
+        )
+        assertEquals(
+            listOf(SourceCerveau.STATION_PC),
+            BrainClient.ordreDesSources(booste = false, forcerStationPc = false, iaLocaleDisponible = false)
+        )
+    }
+
+    @Test
+    fun `avec boost le cloud passe devant, le telephone en dernier recours`() {
+        assertEquals(
+            listOf(SourceCerveau.CLOUD, SourceCerveau.STATION_PC, SourceCerveau.IA_TELEPHONE),
+            BrainClient.ordreDesSources(booste = true, forcerStationPc = false, iaLocaleDisponible = true)
+        )
+    }
+
+    @Test
+    fun `forcer le PC le met en tete sans doublon`() {
+        assertEquals(
+            listOf(SourceCerveau.STATION_PC, SourceCerveau.CLOUD, SourceCerveau.IA_TELEPHONE),
+            BrainClient.ordreDesSources(booste = true, forcerStationPc = true, iaLocaleDisponible = true)
+        )
+        assertEquals(
+            listOf(SourceCerveau.STATION_PC, SourceCerveau.IA_TELEPHONE),
+            BrainClient.ordreDesSources(booste = false, forcerStationPc = true, iaLocaleDisponible = true)
+        )
     }
 }
