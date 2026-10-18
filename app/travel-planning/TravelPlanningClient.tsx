@@ -81,7 +81,7 @@ const PERSONAS = [
     zone: 'persona_3',
     emoji: '💍',
     title: 'Ce voyage-là compte plus que les autres',
-    text: 'Lune de miel, dix ans ensemble, la parenthèse promise depuis trop longtemps. Sur ces voyages-là, tu ne veux pas d\'un circuit standard — tu veux que chaque jour tombe juste.',
+    text: 'Lune de miel, dix ans ensemble, la parenthèse promise depuis trop longtemps. Sur ces voyages-là, tu ne veux pas d\'un itinéraire standard — tu veux que chaque jour tombe juste.',
   },
 ]
 
