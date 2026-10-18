@@ -44,6 +44,23 @@ object CoordinationAgents {
         RegexOption.IGNORE_CASE
     )
 
+    /** Comment l'agent reçoit une tâche déposée : affiché au moment de la confier. */
+    fun commentRecue(agent: String): String = when (agent) {
+        "jules" -> "Jules ne lit pas le registre : le brief est copié et jules.google.com s'ouvre, colle-le."
+        "gemini" -> "Gemini ne lit pas le registre : le brief est copié et Gemini s'ouvre, colle-le."
+        "claude", "opencode" -> "Dans Horus, dis-lui « lis le registre des tâches » : il la prend et rend compte."
+        "openhands", "allhands" -> "Lancée par le dispatcher du registre, toutes les 15 minutes."
+        "tous" -> "Le premier agent qui lit le registre la prend."
+        else -> "Elle attend dans le registre : l'agent la prendra à sa prochaine lecture."
+    }
+
+    /** Page à ouvrir pour les agents qui ne lisent pas le registre. */
+    fun lienAgent(agent: String): String? = when (agent) {
+        "jules" -> "https://jules.google.com"
+        "gemini" -> "https://gemini.google.com/app"
+        else -> null
+    }
+
     /** Ordre explicite reconnu, ou null (le message part alors au modèle). */
     fun analyser(message: String): CommandeAgent? {
         val m = message.trim()
