@@ -48,3 +48,8 @@ UPDATE public.cms_blog_posts SET content = regexp_replace(regexp_replace(content
   WHERE slug = 'podgorica-capitale-oubliee-montenegro' AND position('PXL_20260528_174214721' in content) > 0;
 UPDATE public.cms_blog_posts SET content = regexp_replace(content, '!\[[^\]]*\]\([^)]*fanal_foret\.jpg[^)]*\)\s*', '', 'g'), updated_at = NOW()
   WHERE slug = 'foret-fanal-levadas-mystiques-madere-slow-travel' AND position('fyfmuxygq' in content) > 0;
+
+-- 3. Article Forêt de Fanal : sa seule photo semble générée et le fondateur ne s'en
+--    souvient plus (règle n°1 : on n'invente rien). Brouillon jusqu'à une vraie photo.
+UPDATE public.cms_blog_posts SET status = 'draft', published = false, updated_at = NOW()
+  WHERE slug = 'foret-fanal-levadas-mystiques-madere-slow-travel' AND status = 'published';
