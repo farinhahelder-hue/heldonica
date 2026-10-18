@@ -372,8 +372,10 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
   const parsedCountries = parseInt(String(coveredCountries || '0'), 10)
   const countryCount = isNaN(parsedCountries) || parsedCountries <= 0 ? 7 : parsedCountries
 
-  const defaultVideoSrc = heroVideoUrl || 'https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4'
-  const defaultPosterSrc = heroPosterImage || '/og-default.jpg'
+  // L'ancienne vidéo (CloudFront) renvoie 403 : sans vidéo configurée, le hero
+  // montre une photo vérifiée (vallée des Apuseni, sans personne).
+  const defaultVideoSrc = heroVideoUrl || ''
+  const defaultPosterSrc = heroPosterImage || 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/roumanie/IMG_20260827_135023.jpg'
 
   const videoSrc = getCmsOrSetting('hero_video_url', 'hero_video_url', defaultVideoSrc, zones, settings)
   const posterSrc = getCmsOrSetting('hero_poster_image', 'hero_poster_image', defaultPosterSrc, zones, settings)
@@ -409,11 +411,16 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
 
       {/* ── HERO ──────────────────────────────────────────────────────────── */}
       <section className="relative h-[85vh] md:h-screen bg-black flex items-end overflow-hidden">
-        <video autoPlay muted loop playsInline preload="auto"
-          className="absolute inset-0 w-full h-full object-cover opacity-[0.45]"
-          src={videoSrc}
-          poster={posterSrc}
-        />
+        {videoSrc ? (
+          <video autoPlay muted loop playsInline preload="auto"
+            className="absolute inset-0 w-full h-full object-cover opacity-[0.45]"
+            src={videoSrc}
+            poster={posterSrc}
+          />
+        ) : (
+          <Image src={posterSrc} alt="" fill priority sizes="100vw" quality={75}
+            className="object-cover opacity-[0.55]" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
         <div className="relative z-20 px-5 md:px-16 pb-12 md:pb-24 max-w-4xl">
           <EditableZone page="home" zone="hero_badge" fallback="Slow travel vécu en duo · Hors sentiers · Île-de-France"
