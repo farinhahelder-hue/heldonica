@@ -39,6 +39,12 @@ portraits indéfinis ("l'un", "l'autre") si besoin de les évoquer.
    `MAINTENANCE_MODE`) est piloté intentionnellement.** Ne jamais le désactiver
    sans confirmation explicite de l'utilisateur — c'est une décision de mise en
    ligne, pas un détail technique.
+5. **Aucune photo d'enfant en ligne.** Avant de poser une photo (article, zone,
+   galerie, carrousel, image de partage), la regarder : si un enfant y apparaît,
+   ne pas la publier. Ces photos sont gardées, jamais supprimées, dans le bucket
+   **privé** `prive/enfants/` (tous les autres buckets sont publics), et leur
+   fiche `cms_media` est marquée « PRIVÉE ». Incident du 18/10/2026 : un gros
+   plan d'enfant servait d'image de partage à un article — voir `CHANGELOG.md`.
 
 ## Pièges déjà rencontrés (pour ne pas les refaire)
 
