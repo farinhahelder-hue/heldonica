@@ -19,13 +19,13 @@ const DAYS: { day: number; location: string; activity: string; accommodation: st
 
 const metadata: Metadata = {
   title: "Roumanie 10 jours : grande traversée slow travel en couple | Heldonica",
-  description: "Itinéraire Roumanie 10 jours testé sur place : Bucarest, Brașov, Sighișoara, Viscri, Cluj, Maramureș. Le circuit complet incluant la région la plus authentique du pays.",
+  description: "Itinéraire Roumanie 10 jours testé sur place : Bucarest, Brașov, Sighișoara, Viscri, Cluj, Maramureș. L’itinéraire complet incluant la région la plus authentique du pays.",
   alternates: {
     canonical: `${SITE_URL}/destinations/roumanie/itineraire-10-jours`,
   },
   openGraph: {
     title: "Roumanie 10 jours : grande traversée slow travel en couple | Heldonica",
-    description: "Circuit Roumanie complet testé sur le terrain : Transylvanie + Maramureș + Bucovine. 10 jours d'immersion.",
+    description: "Itinéraire Roumanie complet testé sur le terrain : Transylvanie + Maramureș + Bucovine. 10 jours d'immersion.",
     url: `${SITE_URL}/destinations/roumanie/itineraire-10-jours`,
     images: [
       {
@@ -71,7 +71,7 @@ export default async function Itineraire10JoursPage() {
                   '@context': 'https://schema.org',
                   '@type': 'Article',
                   headline: 'Roumanie 10 jours : grande traversée slow travel en couple',
-                  description: 'Circuit Roumanie complet testé sur le terrain : Transylvanie + Maramureș.',
+                  description: 'Itinéraire Roumanie complet testé sur le terrain : Transylvanie + Maramureș.',
                   author: { '@type': 'Organization', name: 'Heldonica' },
                   url: `${SITE_URL}/destinations/roumanie/itineraire-10-jours`,
                 }),

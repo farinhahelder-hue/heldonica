@@ -16,7 +16,7 @@ const SUBNav = [
 ];
 const FAQS: { q: string; a: string }[] = [
   { q: "Quand aller en Colombie ?", a: "Décembre à avril : saison sèche, idéale pour Bogotá et Medellín. Juillet-août également sec et festif (Feria de Cali)." },
-  { q: "La Colombie est-elle sûre pour les voyageurs ?", a: "Les zones touristiques de Bogotá, Medellín, Cali et la région caféière sont sécurisées. Les précautions habituelles s'appliquent en milieu urbain." },
+  { q: "La Colombie, est-ce sûr ?", a: "Les zones touristiques de Bogotá, Medellín, Cali et la région caféière sont sécurisées. Les précautions habituelles s'appliquent en milieu urbain." },
   { q: "Quel est le budget pour un voyage en Colombie ?", a: "Destination abordable : compter 50–80€/jour en couple hors vol. Les hébergements et restaurants de qualité restent très accessibles." },
 ];
 const HERO_SUBTITLE = "le pays qui a changé plus vite que sa réputation";
@@ -114,7 +114,7 @@ export default async function ColombiePage() {
           <section className="mb-12">
 
               <p className="text-lg text-stone-700 leading-relaxed">
-                {Z('intro_1', 'html', "La Colombie, c'est le retour. Le retour d'une destination qui a mis des années à se défaire de sa réputation, et qui s'est transformée plus vite que les voyageurs n'ont pu le réaliser.\n              Bogotá la culturelle, Medellín la résiliente, Cali la sensuelle — et entre les deux, les routes du café, où l'on s'arrête dans les fincas pour comprendre ce qui pousse dans ces collines vertes.", undefined, 'span')}
+                {Z('intro_1', 'html', "La Colombie, c'est le retour. Le retour d'une destination qui a mis des années à se défaire de sa réputation, et qui s'est transformée plus vite qu’on ne l’imagine.\n              Bogotá la culturelle, Medellín la résiliente, Cali la sensuelle — et entre les deux, les routes du café, où on s’arrête dans les fincas pour comprendre ce qui pousse dans ces collines vertes.", undefined, 'span')}
               </p>
               <p className="text-lg text-stone-700 leading-relaxed mb-4">
                 {Z('intro_2', 'html', "Ce qu'on préfère ? La façon dont les gens parlent de leur pays. Avec une fierté calme, une envie de te montrer ce qui a changé. C'est ça, la vraie Colombie lente.", undefined, 'span')}
