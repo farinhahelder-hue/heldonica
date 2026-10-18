@@ -129,18 +129,6 @@ const schemaWebSite = {
   },
 };
 
-const schemaVideo = {
-  '@context': 'https://schema.org',
-  '@type': 'VideoObject',
-  name: 'Heldonica — Slow Travel & Pépites Hors des Sentiers Battus',
-  description: 'Blog slow travel entre Paris, Madère et la Roumanie. On ferme les ordis, on part, on revient avec des pépites dénichées hors des sentiers battus.',
-  thumbnailUrl: `${SITE_URL}/og-default.jpg`,
-  contentUrl: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4',
-  uploadDate: '2025-05-01T08:00:00+02:00',
-  duration: 'PT0M45S',
-  inLanguage: 'fr-FR',
-};
-
 const schemaOrganization = {
   '@context': 'https://schema.org',
   '@type': ['Organization', 'TravelAgency'],
@@ -232,10 +220,6 @@ export default async function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaWebSite) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaVideo) }}
         />
         <script
           type="application/ld+json"
