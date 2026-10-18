@@ -62,11 +62,21 @@ restent exposés, les agents de `main` sont préservés, les refus attendus se
 déclenchent, et le contrôle final compte **0 ligne écrite** dans `agent_tasks`.
 Brain vivant au `2026-10-15T20:20:28Z` (modèle `openai/gpt-oss-120b`).
 
-**Non vérifié :** le trajet de bout en bout (dépôt réel → réponse du Brain), qui
-exige une écriture en base. **Aucune ligne n'a été écrite.**
+**Écriture réelle exercée** (sur autorisation) : une question a été déposée via ce
+serveur MCP. La ligne `726bd019-ca31-4271-833f-9c2168b65c95` porte bien
+`task_type = chat` et un `payload.message` de 544 caractères — ce que l'ancien
+code **n'écrivait pas**. Le chemin complet est donc exercé, pas seulement les refus.
 
-Branche : `agent/openhands/brain-mcp-propre`, repartie de `origin/main`
-(`75dcad8`) parce que la branche initiale avait 36 commits de retard.
+**Non vérifié — et pourquoi :** le Brain **n'a pas traité** la tâche. Son heartbeat
+`site_settings.brain_heartbeat` est figé au `2026-10-15T20:20:28Z`, soit ~61 h
+(seuil `online` = 120 s), et `status` est resté `sent` sur 9 tours de 20 s. Son
+BridgePoller ne tourne pas. La cause est **externe au dépôt** : le Brain est éteint
+sur la station Windows. Démarrer Heldonica Brain II (port 8440) et la tâche sera
+dépilée sous 30 s, sa réponse arrivant dans `actions_done.result`.
+
+Branche : `agent/openhands/brain-mcp-propre`, repartie de `origin/main` parce que
+la branche initiale avait 36 commits de retard — sa fusion aurait supprimé 8 agents
+ajoutés entre-temps.
 
 ## [2026-10-18] — Images : réconciliation des visuels cassés (médiathèque, articles, destinations)
 
