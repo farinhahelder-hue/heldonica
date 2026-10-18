@@ -2,6 +2,14 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — Canal Saint-Martin en brouillon
+
+Le slug `canal-saint-martin-spots-secrets` contient un mot banni (« spot »). Plutôt que le
+renommer avec une 301 (proposition d'OpenCode, tâche 8164073d), le fondateur garde l'article
+en brouillon : migration `20261018233000_brouillon_canal_saint_martin` (`status` et
+`published`). Les 8 brouillons qui contiennent encore des mots bannis seront corrigés à leur
+remise en ligne ; aucun n'est visible.
+
 ## [2026-10-18] — App : donner des tâches à tous les agents, mode libre local
 
 Demande du fondateur : « sur l'App je puisse donner des tâches » et « IA sans limites locale ».
