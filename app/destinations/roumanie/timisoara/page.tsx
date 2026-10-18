@@ -136,15 +136,15 @@ export default async function TimisoaraPage() {
           {/* Pépites grid */}
           <section className="mb-16">
             <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">Ce qu'on a déniché</p>
-            <h2 className="text-2xl font-serif text-stone-900 mb-6">Les spots qu'on revisite</h2>
+            <h2 className="text-2xl font-serif text-stone-900 mb-6">Les lieux qu'on revisite</h2>
             <div className="grid gap-5 sm:grid-cols-2">
                 <div className="bg-white rounded-2xl border border-stone-200 p-6 hover:border-eucalyptus/30 transition-colors">
                   <div className="flex items-start justify-between mb-3">
                     <span className="text-2xl">{Z('pepite_1_icon', 'text', "🏛️", undefined, 'span')}</span>
-                    <span className="text-xs font-semibold uppercase tracking-widest text-teal">{Z('pepite_1_tag', 'text', "Incontournable", undefined, 'span')}</span>
+                    <span className="text-xs font-semibold uppercase tracking-widest text-teal">{Z('pepite_1_tag', 'text', "Le classique", undefined, 'span')}</span>
                   </div>
                   <h3 className="font-serif text-lg text-stone-900 mb-2">{Z('pepite_1_title', 'text', "Piața Unirii", undefined, 'span')}</h3>
-                  <p className="text-stone-600 text-sm leading-relaxed">{Z('pepite_1_desc', 'textarea', "La plus belle place baroque de Roumanie. Cathédrale catholique, fontaine, terrasses qui invitent à rester. Le matin, avant les touristes.", undefined, 'span')}</p>
+                  <p className="text-stone-600 text-sm leading-relaxed">{Z('pepite_1_desc', 'textarea', "La plus belle place baroque de Roumanie. Cathédrale catholique, fontaine, terrasses qui invitent à rester. Le matin, avant que la foule arrive.", undefined, 'span')}</p>
                 </div>
                 <div className="bg-white rounded-2xl border border-stone-200 p-6 hover:border-eucalyptus/30 transition-colors">
                   <div className="flex items-start justify-between mb-3">
