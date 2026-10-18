@@ -2,6 +2,35 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — Doublons Stoos Ridge : retour à un seul article publié
+
+**Ce n'est pas une décision nouvelle.** La migration du 28/07
+(`20260728000001_dedupe_stoos_ridge_articles.sql`) avait déjà dépublié ces
+doublons, et `middleware.ts` redirige déjà en 301 leurs anciens slugs vers
+l'article canonique. Cette migration **restaure l'état voulu**.
+
+État constaté en base (lecture seule, 2026-10-18) :
+
+| slug | statut | `published_at` |
+|---|---|---|
+| `stoos-ridge-notre-aventure-sur-la-crete-panoramique` | **published** (canonique) | 2025-08-01 |
+| `stoos-ridge-coucher-soleil-traversee-funiculaire` | published (doublon) | 2026-09-29T23:22 |
+| `stoos-ridge-notre-aventure-crete-panoramique` | published (doublon) | 2026-09-29T23:22 |
+| `stoos-ridge-la-crete-pano` | draft | — |
+
+**Cause racine** : les 2 doublons portent `published_at = 2026-09-29T23:22`, le
+soir où **44 articles** ont été modifiés d'un coup. Une opération de publication
+en masse les a réactivés. Ils n'ont pas de `scheduled_published_at` : la route
+`/api/cms/publish-scheduled` n'est **pas** en cause. Le mécanisme exact reste à
+identifier par le propriétaire.
+
+> ⚠️ La migration corrige l'état, **pas la cause**. Si une opération de masse
+> repasse, les 2 doublons reviendront.
+
+Article conservé : le canonique, **7 693 caractères, 1 067 mots, 7 titres de
+section, FAQ, image de couverture** — le plus complet des cinq lignes Stoos.
+Les 2 autres (3 922 et 5 777 caractères) restent en base pour l'historique.
+
 ## [2026-10-18] — Fautes de langue affichées publiquement (migration à appliquer)
 
 Constatées **en ligne** (requête HTTP sur heldonica.fr, 2026-10-18), puis
