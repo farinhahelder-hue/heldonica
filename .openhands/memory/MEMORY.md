@@ -122,10 +122,14 @@ Faits durables. Détails et récits datés : `YYYY-MM-DD.md`.
   `lib/bridge-auth.ts` (`x-cms-auth` ou `Bearer $BRAIN_BRIDGE_TOKEN`) ; santé dans
   `site_settings.brain_heartbeat` (`online` = `last_seen` < 120 s). **Sa réponse arrive
   dans `actions_done.result`**, pas dans `notes`.
-- **Corrigé le 2026-10-18** (branche `agent/openhands/pont-brain-mcp`) : `AGENTS_CONNUS`
-  omettait `heldonica-brain`, et `deposer_tache` n'écrivait **ni `task_type` ni
-  `payload`** — or le poller **dispatche sur `task_type`**. La tâche était dépilée puis
-  **ignorée en silence** ; désormais refusée plutôt que perdue.
+- **Corrigé le 2026-10-18** (PR #620) : `AGENTS_CONNUS` omettait `heldonica-brain`, et
+  `deposer_tache` n'écrivait **ni `task_type` ni `payload`** — or le poller **dispatche
+  sur `task_type`**. La tâche était dépilée puis **ignorée en silence** ; désormais
+  refusée plutôt que perdue. **Écriture réelle vérifiée** (ligne `726bd019`, `task_type`
+  et `payload` bien posés).
+- **Le Brain était HORS LIGNE au 2026-10-18** : heartbeat figé au 2026-10-15T20:20:28Z
+  (~61 h, seuil 120 s), BridgePoller arrêté sur la station Windows. Vérifier
+  `site_settings.brain_heartbeat` **avant** de déposer une tâche : sinon elle reste `sent`.
 
 ## Base de données
 
