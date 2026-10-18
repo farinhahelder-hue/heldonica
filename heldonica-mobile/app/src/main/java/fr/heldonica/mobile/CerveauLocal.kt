@@ -48,7 +48,8 @@ object CerveauLocal {
     private val EXTENSIONS = setOf("task", "bin")
 
     // Entrée + sortie comprises : un 1B tient sans saturer la RAM du Poco.
-    private const val MAX_TOKENS = 1536
+    // 2048 : le résumé du registre des agents prend sa place dans le contexte.
+    private const val MAX_TOKENS = 2048
 
     // Qwen2.5 1.5B : ouvert (pas de licence à accepter, contrairement à Gemma),
     // bon en français, et ekv4096 laisse de la marge au-dessus de MAX_TOKENS.
@@ -175,7 +176,8 @@ object CerveauLocal {
         message: String,
         mode: String,
         historique: List<MessageCerveau>,
-        fiches: List<VaultRecordItem>
+        fiches: List<VaultRecordItem>,
+        contexte: String? = null
     ): ReponseCerveau = withContext(Dispatchers.Default) {
         val fichier = fichierModele(context)
             ?: throw IOException("Aucun modèle local installé")
@@ -183,7 +185,8 @@ object CerveauLocal {
             message = message,
             mode = mode,
             historique = historique,
-            fiches = PromptLocal.selectionnerFiches(message, fiches)
+            fiches = PromptLocal.selectionnerFiches(message, fiches),
+            contexte = contexte
         )
         val texte = verrou.withLock {
             val llm = moteurPour(context, fichier)
@@ -277,7 +280,8 @@ object PromptLocal {
         message: String,
         mode: String,
         historique: List<MessageCerveau>,
-        fiches: List<VaultRecordItem>
+        fiches: List<VaultRecordItem>,
+        contexte: String? = null
     ): String = buildString {
         appendLine("Tu es le Cerveau Heldonica, l'assistant de coordination d'un blog slow travel (Instagram Heldonica) et d'une chaîne YouTube d'histoire (Memoria Imperium).")
         appendLine("Ton rôle : suivre les projets, le site, la création de contenu et le planning, et dire quel agent IA solliciter (Jules, Gemini, Claude, OpenCode, Freebuff…).")
@@ -290,6 +294,10 @@ object PromptLocal {
                 val lieu = if (f.location.isNullOrBlank()) "" else " (${f.location})"
                 appendLine("- ${f.title}$lieu : ${f.content.take(MAX_CARACTERES_FICHE)}")
             }
+        }
+        if (!contexte.isNullOrBlank()) {
+            appendLine()
+            appendLine(contexte.trim())
         }
         // Le dernier message est la question elle-même : on l'écrit une seule fois, plus bas.
         val tours = historique.filterNot { it.estErreur }

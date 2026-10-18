@@ -2,6 +2,29 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — Le Cerveau du Poco lit le registre des agents, confie et valide
+
+Branche `agent/claude/cerveau-local-poco`. Retour du fondateur sur le Poco : l'IA ne
+voyait pas le flux des agents, ne pouvait ni confier ni valider une tâche.
+
+- **API `/api/agent-tasks`, action `valider`** : geste du fondateur seul (session CMS,
+  `keyId === 'cms'`) — `accepter` (waiting_validation → done) ou `renvoyer`
+  (waiting_validation|blocked → sent, prise libérée), commentaire tracé dans `notes`.
+  Mise à jour conditionnée au statut lu (409 si un agent a bougé la tâche entre-temps).
+  6 tests vitest (26/26 sur la route).
+- **Mobile, `CoordinationAgents.kt`** : les ordres explicites sont reconnus par règles et
+  exécutés sur le registre **sans passer par le modèle** (un 1,5B ne décide pas seul) :
+  `@jules consigne`, `donne à gemini : consigne`, `valide #id [: commentaire]`,
+  `renvoie #id : raison`. Une question sur les agents (« où en est Jules ? ») charge le
+  registre et en donne un résumé au modèle (local, Cloud ou PC).
+- Le modèle local passe à 2 048 jetons de contexte (place pour le résumé).
+
+### Limites connues
+- `valider` n'existe qu'après fusion sur `main` (l'APK appelle la production).
+- Confier une tâche la **dépose** dans le registre : l'agent la voit à sa prochaine lecture.
+  Rien ne réveille encore Jules automatiquement (`JULES_API_KEY` absente de Vercel, cf.
+  `app/api/jules/route.ts`).
+
 ## [2026-10-18] — Mobile : un petit modèle sur le Poco, le Cloud derrière un interrupteur
 
 Branche `agent/claude/cerveau-local-poco`. Le Cerveau de l'APK appelait le Cloud en
