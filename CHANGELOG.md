@@ -2,6 +2,48 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — 12 articles en brouillon : leur photo ne montre pas leur sujet
+
+Planche de contrôle des photos (Claude a regardé chacune des 41 photos visibles du site) :
+12 articles avaient une photo principale fausse — pleine lune pour les brasseries de
+Zurich et la Limmat, couloir d'hôtel pour Petrovac, cave à vin pour Paštrovići, pudim pour
+le prego, tour Eiffel pour la rue du Temple, etc. (liste et constats dans la migration).
+
+- **Décision du fondateur** : brouillon simple, sans redirection, jusqu'à la vraie photo.
+  `published_at` conservé pour une remise en ligne à l'identique.
+- **Migration `20261018200000_brouillon_articles_photo_fausse.sql`** (idempotente). Le même
+  changement a été appliqué en base le 18/10 (12 lignes, vérifiées) — la migration le versionne.
+- **Blog en ligne : 39 → 27 articles.**
+- ⚠️ `stoos-ridge-notre-aventure-sur-la-crete-panoramique` était le canonique des deux
+  doublons Stoos (redirections 301 dans `middleware.ts`) : tant qu'il est en brouillon, ces
+  redirections mènent à une page introuvable.
+
+## [2026-10-18] — Charte : aucune photo d'enfant en ligne (règle n°5)
+
+- **`AGENTS.md`, règle absolue n°5** : regarder chaque photo avant de la publier ; aucune
+  photo d'enfant en ligne ; ces photos sont gardées dans le bucket privé `prive/enfants/`.
+- **Migration `20261018190000_retrait_photo_enfant.sql`** : versionne les écritures faites
+  en urgence directement en base pour retirer `IMG_20260827_135834.jpg` (règle n°2 enfreinte
+  pour couper l'exposition au plus vite — voir l'entrée « Retrait d'une photo d'enfant »).
+  Idempotente, sans effet sur la base actuelle.
+- **Stockage (hors SQL, fait le 18/10)** : bucket privé `prive` créé ; la photo y est copiée
+  (taille vérifiée identique) puis supprimée du bucket public `media`. URL publique : 400,
+  page Apuseni : 0 occurrence (mesuré après déploiement de la PR #623).
+
+## [2026-10-18] — Retrait d'une photo d'enfant publiée par erreur
+
+`IMG_20260827_135834.jpg` (gros plan du visage d'un enfant, classée « Photo terrain
+Roumanie », décrite à tort « passage piéton couvert ») servait d'image de partage et de
+couverture. Retirée partout où elle était publique :
+
+- **Base (fait le 18/10, valeurs d'origine sauvegardées)** : article `greve-reserve-naturelle-suisse`
+  (`featured_image`, `og_image`, `og_image_url` → vides, repli générique), zone
+  `destinations-roumanie-apuseni/hero_image` → `/og-default.jpg`, galeries des destinations
+  `roumanie` et `roumanie-transylvanie` (photo ôtée, 2 photos restent).
+- **Code (cette PR)** : `app/destinations/roumanie/apuseni/page.tsx` (hero et og:image en dur)
+  → `/og-default.jpg` ; entrée `rou-passage-walk` retirée de `lib/cms-photo-albums.ts`.
+- **Non touché, à décider par le fondateur** : le fichier lui-même (bucket `media`, toujours
+  accessible par son URL directe) et sa fiche `cms_media` (id 143).
 ## [2026-10-18] — Le Cerveau du Poco lit le registre des agents, confie et valide
 
 Branche `agent/claude/cerveau-local-poco`. Retour du fondateur sur le Poco : l'IA ne
