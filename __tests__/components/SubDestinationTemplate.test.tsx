@@ -56,13 +56,15 @@ describe('SubDestinationTemplate — pages non publiables', () => {
     expect(screen.queryByText(/spot tourism/)).not.toBeInTheDocument()
   })
 
+  // Bucarest : sous-page restée en ligne au MVP du 18/10 (photo vérifiée) ;
+  // Funchal, l'ancien exemple, est passée en « Bientôt ».
   it('sert le contenu normal pour une page publiée', () => {
     render(
       <SubDestinationTemplate
-        page="destinations-madere-funchal"
-        name="Funchal"
-        parentName="Madère"
-        parentSlug="madere"
+        page="destinations-roumanie-bucarest"
+        name="Bucarest"
+        parentName="Roumanie"
+        parentSlug="roumanie"
         heroImage="/og-default.jpg"
         introText="La capitale côtière et ses ruelles fleuries, à parcourir à pied."
         highlights={highlights}
