@@ -2,6 +2,40 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — Photos réelles des destinations : la migration `20260801000007` n'avait jamais pris
+
+### Constat
+- `20260801000007_cms_photos_destinations.sql` devait poser 5 photos **réelles** de la
+  banque `media/articles` (Bucarest, Bran/Brasov, Maramureș, Paris/tour Eiffel, Suisse).
+  Ses 12 zones visées portent **toutes** encore `/og-default.jpg` : la migration n'a
+  laissé aucune trace (valeurs réécrites depuis, mises à jour du 19/08 et du 17/10).
+- Vérifié sur toute la base (2 595 zones, 55 articles, 160 médias) : 134 zones image
+  étaient en repli, dont 2 avec un **gabarit littéral `${SITE_URL}/…` jamais résolu**
+  (donc image cassée), et 57 zones `__ancienne_coquille` (reliquats de renommage,
+  toutes inactives) sur `destinations-roumanie-timisoara`.
+- Les 8 autres photos de la banque `media/articles` restent utilisées par les articles ;
+  4 ne le sont nulle part (sujets à confirmer par l'auteure, l'agent ne peut pas voir
+  les images).
+
+### Corrections
+1. **13 zones** reçoivent la photo réelle du lieu (les 5 photos de la banque, toutes
+   vérifiées en HTTP 200) : `destinations-roumanie-bucarest`, `-brasov`, les trois
+   itinéraires roumains, `destinations-idf-paris`, `destinations-paris`,
+   `destinations-suisse` — garde-fou `value LIKE '%og-default%'` pour ne jamais
+   écraser une vraie photo posée entre-temps.
+2. Les 2 `seo_og_image` `${SITE_URL}` non résolus → `https://www.heldonica.fr/og-default.jpg`
+   (`og-compare.jpg` n'existe pas dans `public/`).
+3. Les 57 zones `__ancienne_coquille` de Timișoara supprimées.
+4. Migration versionnée idempotente `20261018140000_photos_reelles_destinations_et_gabarits.sql`.
+
+### Vérifications
+- 5/5 photos en 200, `og-default.jpg` en 200 ; zones image : 136 (dont 120 en repli,
+  contre 134 avant), **0** gabarit `${SITE_URL}`, **0** `__ancienne_coquille`.
+- `check:cms-zones` ✓, `check:cms-migrations` ✓, `typecheck` ✓, `preflight` 7/7 ✓.
+- Reste à faire : identifier et rattacher les 4 photos `media/articles` inutilisées et les
+  8 `blog-images` (`romania-01..04`, `travel-lh-01..04`) — il faut les yeux de l'auteure ;
+  les 120 zones encore en repli attendent une photo du lieu (flux Picker).
+
 ## [2026-10-18] — Le Brain devient un destinataire adressable du serveur MCP `agent-tasks`
 
 `mcp/agent-tasks/server.mjs` — deux trous réels, mesurés :
