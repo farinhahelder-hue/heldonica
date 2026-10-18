@@ -326,3 +326,76 @@ describe('GET /api/agent-tasks — balayage des baux', () => {
     expect(json.baux_liberes).toBe(1)
   })
 })
+
+describe('POST /api/agent-tasks — validation par le fondateur', () => {
+  // `waiting_validation` n'avait aucune porte de sortie : le bouton « Approuver »
+  // du CMS appelait /api/cms/agent-tasks, une route inexistante (404). Ces tests
+  // verrouillent l'action qui manquait, et la règle « l'exécutant ne valide pas
+  // son propre travail ».
+  it('refuse un agent qui tente de valider lui-même (403)', async () => {
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'valider', id: UUID }))
+    expect(res.status).toBe(403)
+    const json = await res.json()
+    expect(json.error).toContain('fondateur')
+  })
+
+  it('refuse un agent_name `openhands` même avec la clé maître (403)', async () => {
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'valider', id: UUID, agent_name: 'openhands' }))
+    expect(res.status).toBe(403)
+  })
+
+  it('valide une tâche en attente quand la clé est la session CMS (200)', async () => {
+    AUTH.keyId = 'cms'
+    AUTH.agentName = 'cms_session'
+    h.state.queue = [
+      { data: [{ id: UUID, agent: 'claude', status: 'done', claimed_by: 'claude', task: 'Fusionner PR #616' }], error: null },
+    ]
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'valider', id: UUID }))
+    expect(res.status).toBe(200)
+    const json = await res.json()
+    expect(json.validee.status).toBe('done')
+  })
+
+  it('accepte un acteur explicite `fondateur` (200)', async () => {
+    h.state.queue = [
+      { data: [{ id: UUID, agent: 'claude', status: 'done', claimed_by: 'claude', task: 'Fusionner PR #616' }], error: null },
+    ]
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'valider', id: UUID, agent_name: 'fondateur' }))
+    expect(res.status).toBe(200)
+  })
+
+  it('refuse de valider une tâche qui n’attend pas de décision (409)', async () => {
+    // Zéro ligne modifiée : le filtre `in(status, waiting_validation, blocked)` n'a rien trouvé.
+    h.state.queue = [{ data: [], error: null }]
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'valider', id: UUID, agent_name: 'fondateur' }))
+    expect(res.status).toBe(409)
+    const json = await res.json()
+    expect(json.error).toContain('waiting_validation')
+  })
+
+  it('refuse un statut cible autre que done (400)', async () => {
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'valider', id: UUID, agent_name: 'fondateur', status: 'sent' }))
+    expect(res.status).toBe(400)
+  })
+
+  it('remonte l’erreur base plutôt que de l’avaler (500)', async () => {
+    h.state.queue = [{ data: null, error: { message: 'permission denied' } }]
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'valider', id: UUID, agent_name: 'fondateur' }))
+    expect(res.status).toBe(500)
+  })
+
+  it('annonce `valider` dans la liste des actions connues', async () => {
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'action-inexistante' }))
+    expect(res.status).toBe(400)
+    const json = await res.json()
+    expect(json.valides).toContain('valider')
+  })
+})

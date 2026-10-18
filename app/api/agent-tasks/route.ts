@@ -21,6 +21,9 @@
 //   - `status=all` (defaut) rend tout ; sinon un des cinq statuts.
 //   - `agent` filtre sur ce destinataire, et inclut toujours `tous`.
 // Action : POST /api/agent-tasks avec { action, ... } — cf. les actions plus bas.
+//   - `valider` (fondateur seulement) : clot une tache `waiting_validation` ou
+//     `blocked` en `done`, et pose `validated_by`/`validated_at`. Sans ce geste,
+//     une tache n'avait aucune porte de sortie vers `done`.
 //
 // Il n'y a pas de geste de suppression. C'est voulu, comme pour le MCP.
 // ============================================================
@@ -331,6 +334,54 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ close: resume(data[0]) })
     }
 
+    if (action === 'valider') {
+      // Le geste qui manquait : `waiting_validation` n'avait aucune porte de
+      // sortie. Le bouton « Approuver » du CMS appelait `/api/cms/agent-tasks`,
+      // une route qui n'a jamais existe (404) : les taches s'accumulaient sans
+      // que personne ne puisse les valider depuis un telephone.
+      //
+      // Deux regles, tirees du protocole AGENTS.md :
+      //   - seul le fondateur valide (la cle CMS, ou un acteur `fondateur`) ;
+      //   - l'executant ne valide jamais son propre travail. Le filtre cote base
+      //     l'applique, comme pour `rendre_compte`.
+      const estFondateur = auth.keyId === 'cms' || acteur === 'fondateur'
+      if (!estFondateur) {
+        return NextResponse.json(
+          { error: "seul le fondateur valide — un agent ne valide pas son propre travail" },
+          { status: 403 }
+        )
+      }
+      // On valide ce qui attend une decision humaine, ou une tache bloquee qu'un
+      // humain debloque. Valider une tache `sent` n'aurait pas de sens : elle
+      // n'a pas encore ete faite.
+      const statutVise = String(body.status || 'done')
+      if (statutVise !== 'done') {
+        return NextResponse.json({ error: 'Invalid status', valid: ['done'] }, { status: 400 })
+      }
+      const uuid = await resoudreId(sb, String(body.id || ''))
+      const corps: Record<string, unknown> = {
+        status: 'done',
+        validated_by: 'heldonica',
+        validated_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }
+      if (body.notes !== undefined) corps.notes = body.notes
+      const { data, error } = await sb
+        .from('agent_tasks')
+        .update(corps)
+        .eq('id', uuid)
+        .in('status', ['waiting_validation', 'blocked'])
+        .select(RESUME)
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+      if (!data || data.length === 0) {
+        return NextResponse.json(
+          { error: "rien a valider : cette tache n'est ni waiting_validation ni blocked" },
+          { status: 409 }
+        )
+      }
+      return NextResponse.json({ validee: resume(data[0]) })
+    }
+
     if (action === 'deposer') {
       if (!acteurValide) {
         return NextResponse.json({ error: 'agent_name requis et reconnu pour deposer', agents: AGENTS_CONNUS }, { status: 400 })
@@ -368,7 +419,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: 'action inconnue', valides: ['lire', 'prendre', 'rendre_compte', 'deposer'] },
+      { error: 'action inconnue', valides: ['lire', 'prendre', 'rendre_compte', 'valider', 'deposer'] },
       { status: 400 }
     )
   } catch (e) {

@@ -2,6 +2,33 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — Validation des tâches IA : l'action qui manquait
+
+- **Constat** : `waiting_validation` n'avait aucune porte de sortie. Le bouton
+  « Approuver (Fondateur) » de `AgentsControlDrawer.tsx` appelait
+  `/api/cms/agent-tasks`, une route **qui n'a jamais existé** (mesuré : `GET` → 404,
+  `PATCH` → 401 — les codes d'une route absente derrière le middleware, pas d'une
+  route qui refuse la méthode). Résultat : 47 tâches en attente, dont 24 adressées
+  au fondateur, sans aucun moyen de les valider depuis un téléphone.
+- **`app/api/agent-tasks/route.ts`** : nouvelle action `valider`. Elle clôt une tâche
+  `waiting_validation` ou `blocked` en `done` et pose `validated_by = 'heldonica'`
+  + `validated_at`. Deux règles du protocole AGENTS.md y sont appliquées : seul le
+  fondateur valide (clé CMS, ou acteur `fondateur`), et un agent ne valide pas son
+  propre travail. Le filtre `in(status, ...)` rend le geste atomique : zéro ligne
+  modifiée → 409, jamais une validation silencieuse.
+- **`components/admin/AgentsControlDrawer.tsx`** : les trois appels pointent la route
+  qui existe. Le dépôt et la validation envoient `action` + `agent_name` ; c'est le
+  serveur qui pose `validated_by`, plus le client.
+- **`__tests__/api/agent-tasks.test.ts`** : 8 tests ajoutés (refus d'un agent, refus
+  d'un `agent_name` non-fondateur, validation par clé CMS, acteur `fondateur`,
+  409 sur tâche non validable, 400 sur statut cible invalide, 500 sur erreur base,
+  présence de `valider` dans le vocabulaire). 28/28 verts.
+- **Vérifié** : `npm run garde-fous` → 13/13, dont `tsc` et `vitest`.
+- **Non vérifié** : le rendu du bouton dans le navigateur (pas de session CMS ici),
+  et l'écran `TachesScreen.kt` de l'APK (pas de compilation Android ici — l'appli
+  mobile ne sait toujours pas valider, seule la route le sait).
+
+
 ## [2026-10-18] — Charte : aucune photo d'enfant en ligne (règle n°5)
 
 - **`AGENTS.md`, règle absolue n°5** : regarder chaque photo avant de la publier ; aucune
