@@ -2,36 +2,31 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
-## [2026-10-17] — Zones des sous-destinations : `hero_teaser` câblé, 42 doublons « Bientôt » désactivés
+## [2026-10-18] — Zones sous-destinations : revue de mon PR #614, le plan d'OpenHands (PR #609) est retenu
 
-### Problème résolu
-- **Garde-fou `check:cms-zones` au rouge** : 44 zones orphelines sur 14 pages
-  (Colombie ×4, Sardaigne ×5, Sicile ×5), créées directement en base le 17/10 à
-  18h17 UTC — aucune migration dans le dépôt. Valeurs copiées du gabarit
-  **ComingSoonDestination** (« Italie — Bientôt », « On prépare le guide palerme
-  — à notre façon. ») alors que ces pages sont **publiées** et rendues par
-  **SubDestinationTemplate** : le backoffice affichait des textes faux, rien ne
-  les affichait côté public.
-- Le job « Zones et tables CMS » était donc **rouge sur la PR #613** sans lien
-  avec elle (créées après le dernier run vert du 17/10 à 14h43).
+### Pourquoi ce revert
+- Le PR #614 (mergé) avait câblé `hero_teaser` dans le hero **du brouillon** des
+  14 sous-destinations et **désactivé** en base les clés `hero_eyebrow`,
+  `hero_title`, `section_title`.
+- Or la **PR #609 (OpenHands, ouverte le 17/10 à 09:03)** traite exactement ces
+  14 pages — pour dire l'inverse : leur contenu en base est un brouillon du
+  générateur (« Grec. », « Incredible. »), **sans photo ni carnet**, et les
+  combler supposerait d'inventer le vécu (règle 1 d'AGENTS.md). Elle fait donc
+  servir le corps « Bientôt » par `SubDestinationTemplate` via
+  `lib/unpublished-pages.ts`, avec ces mêmes clés écrites en toutes lettres
+  (`hero_image`, `hero_eyebrow`, `hero_title`, `style_label`, `section_title`,
+  `section_text`, `back_link`).
+- Les valeurs en base correspondent à ses fallbacks : elles étaient légitimes.
+  `git merge-tree` montrait un **conflit** sur `components/SubDestinationTemplate.tsx`
+  causé par le #614 — et publiée telle quelle, ma version servait un brouillon de
+  plus sur ces pages.
 
-### Corrections & Améliorations
-1. **`components/SubDestinationTemplate.tsx`** : l'accroche `hero_teaser` est
-   désormais rendue dans le hero, sous le `<h1>`, quand elle est renseignée au
-   CMS (`zones[\`${page}__hero_teaser\`]`) — `<EditableZone>` littéral pour que
-   la clé reste vue par le scanner, `as="span"` (le parent est déjà un `<p>`),
-   aucun fallback : les **27 autres pages** du gabarit restent identiques, pas
-   de texte dupliqué avec `introText`.
-2. **`supabase/migrations/20261017223000_desactive_zones_sous_destinations.sql`**
-   (appliqué en production) : `is_active = false` sur les **42 lignes** encore
-   actives des clés `hero_eyebrow`, `hero_title`, `section_title` des 14 pages
-   (6 autres étaient déjà inactives). `hero_teaser` (×14) reste actif.
-
-### Vérification
-- `check:cms-zones` ✓ « **Aucune zone orpheline** » (2103 zones actives,
-  1846 clés exactes lues, 7 indéterminées préexistantes sur `HomeClient.tsx`).
-- `check:cms-migrations` ✓ (53 tables migrées, 0 orphelines) · `check:cms-drift` ✓
-- `typecheck` ✓ · `lint` ✓ (2 warnings préexistants `CmsAdminClient.tsx`).
+### Corrections
+1. Revert du commit `3168044f` (PR #614) : gabarit rendu à l'identique, migration
+   `20261017223000_desactive_zones_sous_destinations.sql` supprimée du dépôt.
+2. Base Supabase : les **42 lignes** `hero_eyebrow` / `hero_title` /
+   `section_title` sont **réactivées** (`is_active = true`).
+3. PR #609 d'OpenHands retenue comme référence pour ces 14 pages (à merger).
 
 ## [2026-10-17] — Supabase reconnecté (clés `sb_*`) et upload « photos » réaligné sur le bucket réel
 
