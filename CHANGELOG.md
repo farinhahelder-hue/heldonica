@@ -2,6 +2,39 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — 🔴 8 PHOTOS D ENFANT retirées de l accès public
+
+Le propriétaire a signalé « la photo d un enfant sur le site ». Vérification faite
+(détection CLIP + description BLIP + balayage des 103 URL du sitemap) :
+
+**Ce qui a été constaté**
+
+- **8 photos** montrant une petite fille (Roumanie, 27/08/2026) étaient
+  **téléchargeables sans authentification** depuis le bucket public `media`
+  (HTTP 200, ~3,9 Mo chacune).
+- Elles n apparaissaient sur **aucune** des 103 pages publiées du sitemap :
+  le risque n était pas l affichage, mais le **téléchargement direct de l URL**.
+- Une **9e** photo portait déjà l avertissement, posé le jour même :
+  `alt = "PRIVÉE — photo d enfant, ne jamais publier (déplacée dans le stockage
+  privé le 18/10/2026)"`. Le mécanisme était donc amorcé mais inachevé.
+- **Aucune** des 8 ne porte de coordonnées GPS.
+
+**Ce qui a été fait** (réversible — copie vérifiée avant retrait, aucune suppression)
+
+- Les 7 photos restantes ont été **copiées dans le bucket privé `prive/enfants/`**
+  (présence vérifiée par listage) **puis retirées du bucket public `media`**.
+- Les 7 fiches `cms_media` mises à jour (`path`, `url`, `alt`) —
+  `20261018190000_photos_enfants_bucket_prive.sql`.
+- **Contrôle** : `media` ne contient plus aucun fichier de la série, `prive/enfants`
+  les contient tous les 8, et l URL publique répond **400** (objet absent).
+
+> ⚠️ **À VALIDER PAR LE PROPRIÉTAIRE** : les personnes représentées autorisent-elles
+> une publication ? Si oui → recopier vers le bucket public et remettre `path`/`url`.
+> Si non → laisser en privé. Je n ai pas supprimé définitivement : rien n est perdu.
+
+> Le cache CDN peut continuer à servir l ancienne URL quelques heures. L objet
+> n existe plus côté stockage (vérifié sans cache), donc la protection est effective.
+
 ## [2026-10-18] — Écritures en base APPLIQUÉES + pages figées par le cache
 
 Le propriétaire n'a pas de PC (téléphone uniquement) : les 3 migrations ont donc
