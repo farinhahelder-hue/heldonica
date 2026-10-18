@@ -234,12 +234,20 @@ fun CerveauScreen(
 
         portee.launch {
             try {
-                // Question sur les agents : le modèle reçoit le registre, il ne le devine pas.
+                // Le modèle reçoit l'état réel (registre, planning), il ne le devine pas.
+                val morceaux = mutableListOf<String>()
+                if (CoordinationAgents.concerneLePlanning(textePropre)) {
+                    AgentTasksClient.chargerEtat(context)
+                        .onSuccess { morceaux.add(it) }
+                        .onFailure { morceaux.add("État du projet illisible : ${it.message}") }
+                    morceaux.add(CoordinationAgents.episodesMemoria(PRESETS_HISTORIQUES.map { it.titre }))
+                }
                 if (CoordinationAgents.concerneLesAgents(textePropre)) {
                     AgentTasksClient.chargerTaches(context)
-                        .onSuccess { contexteAgents = CoordinationAgents.resumerRegistre(it) }
-                        .onFailure { contexteAgents = "Registre des agents illisible : ${it.message}" }
+                        .onSuccess { morceaux.add(CoordinationAgents.resumerRegistre(it)) }
+                        .onFailure { morceaux.add("Registre des agents illisible : ${it.message}") }
                 }
+                contexteAgents = morceaux.filter { it.isNotBlank() }.joinToString("\n").ifBlank { null }
                 val reponse = BrainClient.interrogerCerveau(
                     cmsBaseUrl = cmsBaseUrl,
                     brainBaseUrl = brainBaseUrl,
@@ -492,7 +500,7 @@ fun CerveauScreen(
                 "coach" -> listOf("⚡ Action 15 min", "🌱 Version énergie basse")
                 "terrain" -> listOf("✍️ Ciseler notes de route", "📷 Légende Instagram")
                 "vault" -> listOf("🔍 Pépites Madère", "🇷🇴 Bucarest secret")
-                else -> listOf("📊 État des tâches", "✅ Qu'est-ce qui attend ma validation ?")
+                else -> listOf("🗓️ Que publier cette semaine ?", "✅ Qu'est-ce qui attend ma validation ?")
             }
             suggestions.forEach { suggestion ->
                 SuggestionChip(
