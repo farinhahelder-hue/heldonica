@@ -87,10 +87,12 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   if (!post) {
     // Aperçu d'un brouillon : la page vérifie le jeton elle-même ; on n'indexe jamais.
     if ((await searchParams).preview_token) return { title: 'Aperçu | Heldonica', robots: { index: false, follow: false } }
-    // notFound() ici et non seulement dans la page : app/loading.tsx fait streamer
-    // la page, dont le statut 200 part avant que la page ne lève notFound(). Les
-    // métadonnées, elles, sont résolues avant l'envoi pour les robots : Google
-    // reçoit un vrai 404 au lieu d'un « soft 404 » en 200 (brouillons, slugs morts).
+    // MESURÉ le 18/10 après déploiement : la réponse reste 200 (navigateur,
+    // Googlebot, Bingbot). app/loading.tsx enveloppe toute l'app dans un
+    // Suspense : le statut part avant notFound(), ici comme dans la page. Next
+    // injecte <meta name="robots" content="noindex">, donc ces pages ne sont pas
+    // indexées ; un vrai 404 demanderait de sortir /blog/[slug] de ce loading
+    // racine (route group) ou un contrôle dans middleware.ts.
     notFound()
   }
 
