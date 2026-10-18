@@ -2,37 +2,6 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
-## [2026-10-17] — Zones des sous-destinations : `hero_teaser` câblé, 42 doublons « Bientôt » désactivés
-
-### Problème résolu
-- **Garde-fou `check:cms-zones` au rouge** : 44 zones orphelines sur 14 pages
-  (Colombie ×4, Sardaigne ×5, Sicile ×5), créées directement en base le 17/10 à
-  18h17 UTC — aucune migration dans le dépôt. Valeurs copiées du gabarit
-  **ComingSoonDestination** (« Italie — Bientôt », « On prépare le guide palerme
-  — à notre façon. ») alors que ces pages sont **publiées** et rendues par
-  **SubDestinationTemplate** : le backoffice affichait des textes faux, rien ne
-  les affichait côté public.
-- Le job « Zones et tables CMS » était donc **rouge sur la PR #613** sans lien
-  avec elle (créées après le dernier run vert du 17/10 à 14h43).
-
-### Corrections & Améliorations
-1. **`components/SubDestinationTemplate.tsx`** : l'accroche `hero_teaser` est
-   désormais rendue dans le hero, sous le `<h1>`, quand elle est renseignée au
-   CMS (`zones[\`${page}__hero_teaser\`]`) — `<EditableZone>` littéral pour que
-   la clé reste vue par le scanner, `as="span"` (le parent est déjà un `<p>`),
-   aucun fallback : les **27 autres pages** du gabarit restent identiques, pas
-   de texte dupliqué avec `introText`.
-2. **`supabase/migrations/20261017223000_desactive_zones_sous_destinations.sql`**
-   (appliqué en production) : `is_active = false` sur les **42 lignes** encore
-   actives des clés `hero_eyebrow`, `hero_title`, `section_title` des 14 pages
-   (6 autres étaient déjà inactives). `hero_teaser` (×14) reste actif.
-
-### Vérification
-- `check:cms-zones` ✓ « **Aucune zone orpheline** » (2103 zones actives,
-  1846 clés exactes lues, 7 indéterminées préexistantes sur `HomeClient.tsx`).
-- `check:cms-migrations` ✓ (53 tables migrées, 0 orphelines) · `check:cms-drift` ✓
-- `typecheck` ✓ · `lint` ✓ (2 warnings préexistants `CmsAdminClient.tsx`).
-
 ## [2026-10-17] — Supabase reconnecté (clés `sb_*`) et upload « photos » réaligné sur le bucket réel
 
 ### Problème résolu
