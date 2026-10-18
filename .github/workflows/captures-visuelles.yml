@@ -1,0 +1,38 @@
+name: Captures visuelles
+
+# Captures du site en ligne (largeur Poco X6 Pro et ordinateur) pour relire
+# l'aspect visuel depuis le téléphone. Manuel uniquement : ne touche à rien.
+
+on:
+  workflow_dispatch:
+    inputs:
+      pages:
+        description: "Chemins séparés par des espaces"
+        required: true
+  push:
+    branches: [claude/captures-visuelles]
+
+permissions:
+  contents: read
+
+jobs:
+  captures:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm i --no-save playwright@1.48.2 && npx playwright install --with-deps chromium
+      - name: Captures
+        env:
+          PAGES: ${{ github.event.inputs.pages || vars.CAPTURES_PAGES }}
+        run: |
+          if [ -z "$PAGES" ]; then PAGES=$(cat captures-pages.txt); fi
+          export PAGES
+          node scripts/captures-visuelles.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: captures
+          path: captures/
+          retention-days: 7
