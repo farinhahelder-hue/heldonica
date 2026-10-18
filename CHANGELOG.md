@@ -2,6 +2,14 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — Pages « Bientôt » : la description du brouillon ne fuit plus
+
+Constat d'OpenHands, mesuré par Claude : `/destinations/sicile/taormine` et `/palerme` affichent
+« Bientôt » et sont en `noindex`, mais servaient encore la description générée (« Est. Theatre
+grec, vue mer… ») dans `<meta name="description">` et l'aperçu de partage. `buildPageMetadata`
+remplace désormais, pour toute page de `lib/unpublished-pages.ts`, la description (meta, Open
+Graph, Twitter) par `DESCRIPTION_BIENTOT`. 2 tests.
+
 ## [2026-10-18] — Blog : le « vrai 404 » de la PR #628 n'a pas l'effet annoncé
 
 Mesuré après déploiement (`b44cffc6`) : `/blog/<brouillon>` et `/blog/<slug inexistant>` répondent

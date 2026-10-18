@@ -17,19 +17,30 @@ import type { Metadata } from 'next'
 import { getPageZones } from '@/lib/cms-zones'
 import { isUnpublishedCmsPage } from '@/lib/unpublished-pages'
 
+/**
+ * Description servie par une page non publiable. Sans elle, la balise
+ * description et l'aperçu de partage (WhatsApp, Facebook) montraient le texte
+ * du brouillon généré (« Est. Theatre grec, vue mer… ») alors que la page
+ * affiche « Bientôt ».
+ */
+export const DESCRIPTION_BIENTOT =
+  'Bientôt sur Heldonica : ce carnet de route est en préparation, à partir de notre vécu sur place.'
+
 export async function buildPageMetadata(
   page: string,
   fallback: Metadata
 ): Promise<Metadata> {
   const zones = await getPageZones(page)
+  const nonPubliable = isUnpublishedCmsPage(page)
   const title = zones[`${page}__seo_title`]
-  const description = zones[`${page}__seo_description`]
+  // Page non publiable : jamais la description du brouillon (zone ou fallback).
+  const description = nonPubliable ? DESCRIPTION_BIENTOT : zones[`${page}__seo_description`]
   const image = zones[`${page}__seo_og_image`]
 
   // Contenu non publiable : la page reste consultable mais sort de l'index
   // (cf. lib/unpublished-pages.ts). Les robots déclarés par la page sont
   // conservés ; seul l'index passe à false.
-  const robots = isUnpublishedCmsPage(page)
+  const robots = nonPubliable
     ? {
         ...(fallback.robots && typeof fallback.robots === 'object' ? fallback.robots : {}),
         index: false,
