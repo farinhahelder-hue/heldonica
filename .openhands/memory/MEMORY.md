@@ -2,6 +2,23 @@
 
 Faits durables. Détails et récits datés : `YYYY-MM-DD.md`.
 
+## Relation de travail avec le propriétaire (dit le 2026-10-18)
+
+- **La règle « on n'invente rien » ne veut PAS dire « l'IA n'écrit pas ».** Elle interdit
+  d'inventer des **faits** (visites, adresses testées, avis, chiffres, résultats).
+  Rédiger la prose à partir de faits fournis par le propriétaire est **autorisé** et
+  attendu. Ne jamais lui opposer la règle pour refuser d'écrire.
+- Le propriétaire est **autiste + ADHD** : rédiger lui-même un article est un obstacle
+  d'exécution réel, pas de la mauvaise volonté. Le site n'est pas en retard par manque
+  d'envie. **Ne jamais le renvoyer à « sa plume »** ; proposer de structurer et rédiger.
+- Il détient **des Go de photos et vidéos** non versées. Le goulot d'étranglement n'est
+  PAS la rédaction, c'est **le versement de la matière**. Prioriser l'ingestion.
+- Objectif : **lancer le site ASAP**. Arbitrer en faveur de ce qui débloque la mise en
+  ligne, sans jamais afficher de contenu non fondé.
+- Voie d'ingestion photo officielle : CMS **`/panel-manager/photos`** (Google Photos
+  Picker, GPS + horodatage extraits). Reste accessible pendant la maintenance
+  (`middleware.ts`, liste `maintenanceExcludes`).
+
 ## Contenu
 
 - **La vérité éditoriale est dans Supabase, pas dans le dépôt.** Corriger un texte =
