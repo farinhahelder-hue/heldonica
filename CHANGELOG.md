@@ -2,6 +2,22 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — 12 articles en brouillon : leur photo ne montre pas leur sujet
+
+Planche de contrôle des photos (Claude a regardé chacune des 41 photos visibles du site) :
+12 articles avaient une photo principale fausse — pleine lune pour les brasseries de
+Zurich et la Limmat, couloir d'hôtel pour Petrovac, cave à vin pour Paštrovići, pudim pour
+le prego, tour Eiffel pour la rue du Temple, etc. (liste et constats dans la migration).
+
+- **Décision du fondateur** : brouillon simple, sans redirection, jusqu'à la vraie photo.
+  `published_at` conservé pour une remise en ligne à l'identique.
+- **Migration `20261018200000_brouillon_articles_photo_fausse.sql`** (idempotente). Le même
+  changement a été appliqué en base le 18/10 (12 lignes, vérifiées) — la migration le versionne.
+- **Blog en ligne : 39 → 27 articles.**
+- ⚠️ `stoos-ridge-notre-aventure-sur-la-crete-panoramique` était le canonique des deux
+  doublons Stoos (redirections 301 dans `middleware.ts`) : tant qu'il est en brouillon, ces
+  redirections mènent à une page introuvable.
+
 ## [2026-10-18] — Charte : aucune photo d'enfant en ligne (règle n°5)
 
 - **`AGENTS.md`, règle absolue n°5** : regarder chaque photo avant de la publier ; aucune
