@@ -2,6 +2,16 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — MVP : 13 articles avec photo vérifiée, le reste en brouillon
+
+Décision du fondateur : « mettre en brouillon pour trancher plus tard, faire un MVP avec le
+travel planning et les meilleurs articles avec photos ». Après la planche de contrôle (chaque
+photo regardée), seuls les 13 articles dont la photo est cohérente restent publiés ; 13 passent
+en brouillon (10 photos à confirmer, 2 sans vraie photo, 1 non contrôlé). Migration
+`20261018230000_mvp_blog_articles_photo_verifiee.sql`, appliquée en base le 18/10.
+**Blog : 13 articles en ligne, 42 brouillons.** Pour remettre un article : vraie photo
+vérifiée, puis `status = 'published', published = true`.
+
 ## [2026-10-18] — Mots bannis : migration `20261011130000` enfin appliquée en base
 
 Constat d'OpenHands, mesuré par Claude : la migration versionnée du 11/10 n'avait jamais été
