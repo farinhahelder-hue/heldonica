@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import MapWrapper from '@/components/MapWrapper';
-import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
+import InlineEditProvider, { useEditableContext } from '@/components/inline-edit/InlineEditProvider';
 import EditableZone from '@/components/inline-edit/EditableZone';
 import {
   getCountries,
@@ -21,6 +21,13 @@ const categoryLabels: Record<DestinationMarker['category'], string> = {
   city: 'City break',
   food: 'Food & Gastro',
 };
+
+// Un <option> n'accepte que du texte : le <span> d'EditableZone y est invalide
+// et casse l'hydratation. On lit donc la valeur CMS sans enveloppe.
+function ZoneText({ zone, fallback }: { zone: string; fallback: string }) {
+  const { zones } = useEditableContext();
+  return <>{zones[`destinations-carte__${zone}`] ?? fallback}</>;
+}
 
 /**
  * Les marqueurs viennent de la table `map_markers`, chargée côté serveur par
@@ -96,7 +103,7 @@ export default function MapClientPage({ markers }: { markers: DestinationMarker[
                   }}
                   className="w-full rounded-xl border border-stone-300 px-3 py-2.5 bg-white text-charcoal focus:border-eucalyptus focus:ring-2 focus:ring-eucalyptus/20 transition-all"
                 >
-                  <option value="all"><EditableZone page="destinations-carte" zone="filter_country_all" fallback="Tous les pays" /></option>
+                  <option value="all"><ZoneText zone="filter_country_all" fallback="Tous les pays" /></option>
                   {countries.map((country) => (
                     <option key={country} value={country}>
                       {country}
@@ -115,7 +122,7 @@ export default function MapClientPage({ markers }: { markers: DestinationMarker[
                   onChange={(e) => setRegionFilter(e.target.value)}
                   className="w-full rounded-xl border border-stone-300 px-3 py-2.5 bg-white text-charcoal focus:border-eucalyptus focus:ring-2 focus:ring-eucalyptus/20 transition-all"
                 >
-                  <option value="all"><EditableZone page="destinations-carte" zone="filter_region_all" fallback="Toutes régions" /></option>
+                  <option value="all"><ZoneText zone="filter_region_all" fallback="Toutes régions" /></option>
                   {availableRegions.map((region) => (
                     <option key={region} value={region}>
                       {region}
@@ -134,7 +141,7 @@ export default function MapClientPage({ markers }: { markers: DestinationMarker[
                   onChange={(e) => setCategoryFilter(e.target.value as DestinationMarker['category'] | 'all')}
                   className="w-full rounded-xl border border-stone-300 px-3 py-2.5 bg-white text-charcoal focus:border-eucalyptus focus:ring-2 focus:ring-eucalyptus/20 transition-all"
                 >
-                  <option value="all"><EditableZone page="destinations-carte" zone="filter_category_all" fallback="Toutes catégories" /></option>
+                  <option value="all"><ZoneText zone="filter_category_all" fallback="Toutes catégories" /></option>
                   {categories.map((cat) => (
                     <option key={cat} value={cat}>
                       {categoryLabels[cat]}
