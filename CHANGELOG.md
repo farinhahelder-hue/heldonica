@@ -2,6 +2,45 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — Images : réconciliation des visuels cassés (médiathèque, articles, destinations)
+
+### Constat (207 références d'image distinctes balayées)
+- `cms_media` : 1595 lignes d'import « gphotos » (sept. 2026) avec des URLs
+  locales `/images/…` sans fichier correspondant — elles servaient un soft-404
+  (`text/html` en 200), donc des images invisibles partout.
+- 3 cartes « Bientôt » (`bari`, `pologne`, `corse`) et **Lisbonne** (destination
+  publiée) pointaient vers des visuels Unsplash **supprimés côté Unsplash (404)**
+  → `DestinationCard` fait `hero_unsplash_url || featured_image || fallback`
+  (sans `onError`) : image cassée affichée en production.
+- 7 couvertures de `travel_guides` (dont `lisbonne` et `portugal`, qui
+  partageaient la même URL morte) étaient dans le même cas — table non rendue
+  publiquement, donc sans impact visuel, mais données fausses.
+- 15 articles de blog référençaient des images absentes du coffre.
+
+### Corrections
+1. `cms_media` : **157 URLs réparées** vers leur URL publique Storage (bucket
+   `media`), **1441 lignes fantômes supprimées**, **3 conservées** (id 516, 521,
+   1049 : fichiers réels dans `public/images/destinations/montenegro/`).
+2. 14 articles de blog rétablis avec les **photos réelles du coffre** de leur
+   destination (`madere`, `montenegro`, `blog-images`/stoos) ;
+   `lisbonne-ruelles-alfama-miradouros-azulejos` → `NULL` (aucune photo réelle de
+   Lisbonne disponible) : l'image de repli du site prend le relais.
+3. Destinations : `colombie`, `sicile`, `paris` reçoivent le visuel **déjà choisi
+   par le fondateur** pour elles dans `travel_guides` (vérifié 200) ;
+   `lisbonne`, `bari`, `pologne`, `corse` → visuel retiré (repli du site).
+4. `travel_guides` : 8 couvertures mortes retirées (`naples`, `corse`,
+   `lisbonne`, `portugal`, `malte`, `espagne`, `madere`, `montenegro`).
+5. Migration de données idempotente `20261018120000_reconciliation_images.sql`
+   (rejouable : aucune ligne ne bouge sur une base déjà réconciliée).
+
+### Vérifications
+- 207/207 références d'image de la base testées en HTTP : tout répond 200
+  (hors 2 `.mp4` de `roumanie`, volontaires) ; `check:cms-migrations` ✓ (53
+  tables), `check:cms-zones` ✓, `typecheck` ✓.
+- Reste à faire côté fondateur : fournir de vraies photos pour **Lisbonne** et
+  les 3 cartes « Bientôt » (flux Google Photos Picker) — les visuels de banque
+  ne sont utilisés que là où le fondateur les avait lui-même choisis.
+
 ## [2026-10-18] — Zones sous-destinations : revue de mon PR #614, le plan d'OpenHands (PR #609) est retenu
 
 ### Pourquoi ce revert
