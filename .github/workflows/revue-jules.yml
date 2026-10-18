@@ -1,0 +1,37 @@
+name: Revue des PR de Jules
+
+# Le Cerveau trie les PR de Jules et propose au fondateur (registre agent_tasks,
+# scope revue-jules) ; le fondateur valide d'un geste depuis le Poco ; le passage
+# suivant execute. Rien n'est fusionne ni ferme sans sa validation.
+# Voir scripts/revue-jules.mjs.
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write        # fusionner une PR validee
+  pull-requests: write   # fermer un doublon valide, commenter
+  checks: read
+  statuses: read
+
+concurrency:
+  group: revue-jules
+  cancel-in-progress: false
+
+jobs:
+  revue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Trier, proposer, executer les validations
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/revue-jules.mjs
