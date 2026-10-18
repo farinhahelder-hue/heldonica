@@ -2,6 +2,15 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — Blog : le « vrai 404 » de la PR #628 n'a pas l'effet annoncé
+
+Mesuré après déploiement (`b44cffc6`) : `/blog/<brouillon>` et `/blog/<slug inexistant>` répondent
+toujours **200** — navigateur, Googlebot et Bingbot. `notFound()` dans `generateMetadata` ne
+suffit pas : `app/loading.tsx` enveloppe toute l'app dans un Suspense, le statut part avant.
+Impact réel faible : Next injecte `noindex`, Google n'indexe pas ces pages. Pour un vrai 404 :
+sortir `/blog/[slug]` du loading racine (route group) ou contrôler le slug dans `middleware.ts`.
+Commentaire du code corrigé (il affirmait un 404 pour les robots).
+
 ## [2026-10-18] — Registre : le niveau de risque bloquait les dépôts du Poco et le tri de Jules
 
 `agent_tasks_risk_check` n'accepte que `low|medium|high|critical`. Le Poco envoie les
