@@ -50,4 +50,20 @@ class PromptLocalTest {
         val prompt = PromptLocal.construire("Salut", "inconnu", emptyList(), emptyList())
         assertTrue(prompt.contains("Réponds brièvement et concrètement."))
     }
+
+    @Test
+    fun `le prompt libre n'impose ni la marque ni le Coffre et garde l'echange`() {
+        val question = "Raconte le sac de Rome en 410"
+        val historique = listOf(
+            MessageCerveau(estUtilisateur = true, texte = "Bonjour"),
+            MessageCerveau(estUtilisateur = false, texte = "Bonjour !"),
+            MessageCerveau(estUtilisateur = true, texte = question)
+        )
+        val prompt = PromptLocal.construireLibre(question, historique)
+        assertFalse(prompt.contains("Heldonica"))
+        assertFalse(prompt.contains("Fiches du Coffre"))
+        assertTrue(prompt.contains("hors ligne"))
+        assertTrue(prompt.contains("Utilisateur : Bonjour"))
+        assertEquals(1, Regex(Regex.escape(question)).findAll(prompt).count())
+    }
 }
