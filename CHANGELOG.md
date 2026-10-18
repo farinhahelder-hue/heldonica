@@ -2,6 +2,15 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — Registre : le niveau de risque bloquait les dépôts du Poco et le tri de Jules
+
+`agent_tasks_risk_check` n'accepte que `low|medium|high|critical`. Le Poco envoie les
+libellés de son écran (`bas`, `moyen`, `haut`) et le premier tri de Jules écrivait
+`moyen`/`bas` : 400 en base (23514), aucun dépôt possible, premier passage du tri en échec
+(rien écrit). `/api/agent-tasks` traduit désormais les libellés français (400 explicite pour
+un niveau inconnu) — l'APK déjà installé fonctionne sans mise à jour ; `revue-jules.mjs`
+écrit `medium`/`low`. 2 tests (32/32 sur la route).
+
 ## [2026-10-18] — Correctif : les 12 brouillons restaient `published = true`
 
 `cms_blog_posts` a deux indicateurs : `status` (pages du blog) et `published` (recherche IA,

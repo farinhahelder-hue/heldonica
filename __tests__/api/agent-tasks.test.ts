@@ -383,3 +383,28 @@ describe('POST /api/agent-tasks — validation par le fondateur', () => {
     expect(res.status).toBe(409)
   })
 })
+
+describe('POST /api/agent-tasks — niveau de risque', () => {
+  it('traduit le libellé du Poco (« bas ») vers la valeur acceptée par la base', async () => {
+    let insere: Record<string, unknown> | null = null
+    h.from.mockImplementationOnce(() => {
+      const q: Record<string, unknown> = {}
+      q.insert = (row: Record<string, unknown>) => { insere = row; return q }
+      q.select = () => q
+      q.then = (resolve: (v: unknown) => unknown) =>
+        Promise.resolve({ data: [{ id: UUID, agent: 'jules', status: 'sent', task: 'Corriger les liens' }], error: null }).then(resolve)
+      return q
+    })
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'deposer', agent: 'jules', task: 'Corriger les liens casses', risk_level: 'bas', agent_name: 'poco' }))
+    expect(res.status).toBe(201)
+    expect(insere!.risk_level).toBe('low')
+  })
+
+  it('refuse un niveau inconnu (400) au lieu d’une erreur base (500)', async () => {
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'deposer', agent: 'jules', task: 'Corriger les liens casses', risk_level: 'énorme', agent_name: 'poco' }))
+    expect(res.status).toBe(400)
+  })
+})
+
