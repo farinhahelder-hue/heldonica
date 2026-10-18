@@ -3,7 +3,11 @@ package fr.heldonica.mobile
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,7 +33,8 @@ import org.json.JSONObject
  *
  * Caractéristiques :
  * - Rendu fluide 120 Hz sur écran Flow AMOLED (1220x2712).
- * - Fonctionnement double mode : Cloud 0€ (PC éteint) ou Station PC locale (si détectée sur le LAN).
+ * - Petit modèle embarqué par défaut (CerveauLocal) ; interrupteur « Cerveau boosté » pour les
+ *   API gratuites (Cloud 0€) ; Station PC locale si détectée sur le LAN.
  * - Sélecteur de mode ergonomique : Copilote TSA/ADHD, Terrain, Savoirs, Discussion libre.
  * - Zéro clé d'API embarquée dans l'APK.
  */
@@ -100,15 +105,48 @@ fun CerveauScreen(
     var chargementEnCours by remember { mutableStateOf(false) }
     var stationPcDetectee by remember { mutableStateOf(false) }
     var forcerPc by remember { mutableStateOf(false) }
+    var booste by remember { mutableStateOf(BrainClient.estBooste(context)) }
+    var libre by remember { mutableStateOf(BrainClient.estLibre(context)) }
+    var modeleLocal by remember { mutableStateOf(CerveauLocal.fichierModele(context)?.nameWithoutExtension) }
+    var importEnCours by remember { mutableStateOf(false) }
+    val telechargement by CerveauLocal.telechargement.collectAsState()
+
+    LaunchedEffect(telechargement.termine) {
+        telechargement.termine?.let {
+            modeleLocal = it.nameWithoutExtension
+            Toast.makeText(context, "Modèle prêt : le Cerveau répond sur le téléphone", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun nomDuFichier(uri: Uri): String? =
+        context.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
+            ?.use { c -> if (c.moveToFirst()) c.getString(0) else null }
+
+    val selecteurModele = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        importEnCours = true
+        portee.launch {
+            try {
+                val fichier = CerveauLocal.importerModele(context, uri, nomDuFichier(uri))
+                modeleLocal = fichier.nameWithoutExtension
+                Toast.makeText(context, "Modèle installé : ${fichier.name}", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(context, "Import impossible : ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+            } finally {
+                importEnCours = false
+            }
+        }
+    }
 
     val messages = remember {
         mutableStateListOf(
             MessageCerveau(
                 estUtilisateur = false,
                 texte = "Bonjour. Je suis le Cerveau Heldonica sur ton Poco X6 Pro.\n\n" +
-                        "Le PC peut rester éteint : je tourne en Cloud 0€ sécurisé.\n" +
+                        "Le PC peut rester éteint : je réponds avec le modèle du téléphone, " +
+                        "et ⚡ Cerveau boosté passe par les API gratuites quand il faut plus de finesse.\n" +
                         "Choisis un mode ci-dessus ou écris-moi directement.",
-                fournisseur = "cloud-0€"
+                fournisseur = "telephone"
             )
         )
     }
@@ -131,6 +169,28 @@ fun CerveauScreen(
         Toast.makeText(context, "Copié dans le presse-papier", Toast.LENGTH_SHORT).show()
     }
 
+    suspend fun executerCommande(commande: CommandeAgent): Pair<String, Boolean> = when (commande) {
+        is CommandeAgent.Confier ->
+            AgentTasksClient.deposerTache(context, commande.agent, commande.consigne).fold(
+                { id ->
+                    transmettreHorsRegistre(context, commande.agent, commande.consigne)
+                    "✅ Tâche confiée à ${commande.agent} (#$id) :\n${commande.consigne}\n\n" +
+                        CoordinationAgents.commentRecue(commande.agent) to false
+                },
+                { e -> "⚠️ Dépôt impossible : ${e.message}" to true }
+            )
+        is CommandeAgent.Valider ->
+            AgentTasksClient.validerTache(context, commande.id, true, commande.commentaire).fold(
+                { t -> "✅ Tâche #${t.id} (${t.agent}) validée : ${t.task}" to false },
+                { e -> "⚠️ Validation impossible : ${e.message}" to true }
+            )
+        is CommandeAgent.Renvoyer ->
+            AgentTasksClient.validerTache(context, commande.id, false, commande.commentaire).fold(
+                { t -> "↩️ Tâche #${t.id} renvoyée à ${t.agent}${if (commande.commentaire.isNotBlank()) " : ${commande.commentaire}" else ""}" to false },
+                { e -> "⚠️ Renvoi impossible : ${e.message}" to true }
+            )
+    }
+
     fun envoyerMessage(invite: String) {
         val textePropre = invite.trim()
         if (textePropre.isBlank() || chargementEnCours) return
@@ -140,16 +200,105 @@ fun CerveauScreen(
         messages.add(msgUser)
         chargementEnCours = true
 
+        // Ordre explicite (« @jules … », « valide #ab12 ») : exécuté sur le registre,
+        // sans passer par le modèle.
+        val commande = CoordinationAgents.analyser(textePropre)
+        if (commande != null) {
+            portee.launch {
+                val (texte, erreur) = executerCommande(commande)
+                messages.add(
+                    MessageCerveau(
+                        estUtilisateur = false,
+                        texte = texte,
+                        fournisseur = "🗂️ Registre des agents",
+                        estErreur = erreur
+                    )
+                )
+                chargementEnCours = false
+            }
+            return
+        }
+
+        // Mode libre : seulement le modèle du téléphone. Jamais le Cloud ni le PC,
+        // ni le registre ou le Coffre : la conversation ne sort pas de l'appareil.
+        if (libre) {
+            val historiqueLibre = messages.toList()
+            portee.launch {
+                try {
+                    if (modeleLocal == null) {
+                        throw IllegalStateException("télécharge ou importe d'abord un modèle (bouton ci-dessus).")
+                    }
+                    val reponse = CerveauLocal.repondre(
+                        context = context,
+                        message = textePropre,
+                        mode = modeActif.cle,
+                        historique = historiqueLibre,
+                        fiches = emptyList(),
+                        libre = true
+                    )
+                    messages.add(
+                        MessageCerveau(
+                            estUtilisateur = false,
+                            texte = reponse.texte,
+                            fournisseur = "🔓 Libre • ${reponse.modele}"
+                        )
+                    )
+                } catch (e: Exception) {
+                    messages.add(
+                        MessageCerveau(
+                            estUtilisateur = false,
+                            texte = "⚠️ Mode libre : ${e.localizedMessage ?: "le modèle du téléphone n'a pas répondu"}",
+                            estErreur = true
+                        )
+                    )
+                } finally {
+                    chargementEnCours = false
+                }
+            }
+            return
+        }
+
+        val historiqueEnvoi = messages.toList()
+        val modeEnvoi = modeActif.cle
+        var contexteAgents: String? = null
+        val repondreLocalement: (suspend () -> ReponseCerveau)? =
+            if (modeleLocal == null) null else suspend {
+                CerveauLocal.repondre(
+                    context = context,
+                    message = textePropre,
+                    mode = modeEnvoi,
+                    historique = historiqueEnvoi,
+                    fiches = vaultRecords,
+                    contexte = contexteAgents
+                )
+            }
+
         portee.launch {
             try {
+                // Le modèle reçoit l'état réel (registre, planning), il ne le devine pas.
+                val morceaux = mutableListOf<String>()
+                if (CoordinationAgents.concerneLePlanning(textePropre)) {
+                    AgentTasksClient.chargerEtat(context)
+                        .onSuccess { morceaux.add(it) }
+                        .onFailure { morceaux.add("État du projet illisible : ${it.message}") }
+                    morceaux.add(CoordinationAgents.episodesMemoria(PRESETS_HISTORIQUES.map { it.titre }))
+                }
+                if (CoordinationAgents.concerneLesAgents(textePropre)) {
+                    AgentTasksClient.chargerTaches(context)
+                        .onSuccess { morceaux.add(CoordinationAgents.resumerRegistre(it)) }
+                        .onFailure { morceaux.add("Registre des agents illisible : ${it.message}") }
+                }
+                contexteAgents = morceaux.filter { it.isNotBlank() }.joinToString("\n").ifBlank { null }
                 val reponse = BrainClient.interrogerCerveau(
                     cmsBaseUrl = cmsBaseUrl,
                     brainBaseUrl = brainBaseUrl,
-                    message = textePropre,
+                    message = contexteAgents?.let { "$textePropre\n\n$it" } ?: textePropre,
                     mode = modeActif.cle,
                     historique = messages.toList(),
                     forcerStationPc = forcerPc && stationPcDetectee,
-                    authSecret = motDePasse
+                    authSecret = motDePasse,
+                    booste = booste,
+                    repondreLocalement = repondreLocalement
                 )
                 messages.add(
                     MessageCerveau(
@@ -211,20 +360,25 @@ fun CerveauScreen(
                             forcerPc = !forcerPc
                             Toast.makeText(
                                 context,
-                                if (forcerPc) "Mode PC Local activé" else "Mode Cloud 0€ actif",
+                                if (forcerPc) "Mode PC Local activé" else "Mode PC Local désactivé",
                                 Toast.LENGTH_SHORT
                             ).show()
                         } else {
                             Toast.makeText(
                                 context,
-                                "Cloud 0€ actif (Station PC hors ligne ou non détectée)",
+                                "Station PC hors ligne ou non détectée",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
                     },
                     label = {
                         Text(
-                            text = if (forcerPc && stationPcDetectee) "💻 PC LAN" else if (stationPcDetectee) "🟢 Cloud (PC dispo)" else "🟢 Cloud 0€",
+                            text = when {
+                                libre -> "🔓 Libre"
+                                forcerPc && stationPcDetectee -> "💻 PC LAN"
+                                booste -> if (stationPcDetectee) "🟢 Cloud (PC dispo)" else "🟢 Cloud 0€"
+                                else -> if (stationPcDetectee) "📱 Poco (PC dispo)" else "📱 Poco"
+                            },
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -247,8 +401,111 @@ fun CerveauScreen(
             }
         }
 
+        // Modèle embarqué + interrupteur Cerveau boosté
+        Card(
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFF1EFEA)),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "⚡ Cerveau boosté (API gratuites)",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFF2C4C38),
+                        modifier = Modifier.weight(1f)
+                    )
+                    Switch(
+                        checked = booste,
+                        onCheckedChange = {
+                            booste = it
+                            BrainClient.definirBooste(context, it)
+                        },
+                        colors = SwitchDefaults.colors(checkedTrackColor = Color(0xFF2C4C38)),
+                        enabled = !libre
+                    )
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "🔓 Mode libre (100 % téléphone)",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFF7A3E2C)
+                        )
+                        Text(
+                            text = "Sans cadre de marque, hors ligne, rien n'est envoyé",
+                            fontSize = 10.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = libre,
+                        onCheckedChange = {
+                            libre = it
+                            BrainClient.definirLibre(context, it)
+                        },
+                        colors = SwitchDefaults.colors(checkedTrackColor = Color(0xFF7A3E2C))
+                    )
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = when {
+                            importEnCours -> "Import du modèle en cours…"
+                            telechargement.enCours -> "Téléchargement : %.2f / %.1f Go".format(
+                                telechargement.octets / 1e9, telechargement.total / 1e9
+                            )
+                            telechargement.erreur != null && modeleLocal == null ->
+                                "⚠️ Téléchargement interrompu : ${telechargement.erreur}"
+                            modeleLocal != null -> "📱 Modèle du téléphone : $modeleLocal"
+                            else -> "📱 Aucun modèle — Qwen 1.5B, 1,6 Go (Wi-Fi conseillé)"
+                        },
+                        fontSize = 10.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (modeleLocal == null) {
+                        TextButton(
+                            onClick = { CerveauLocal.telechargerModeleConseille(context) },
+                            enabled = !telechargement.enCours && !importEnCours
+                        ) {
+                            Text(
+                                text = if (telechargement.octets > 0) "Reprendre" else "Télécharger",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF2C4C38)
+                            )
+                        }
+                    }
+                    TextButton(
+                        onClick = { selecteurModele.launch(arrayOf("*/*")) },
+                        enabled = !importEnCours && !chargementEnCours && !telechargement.enCours
+                    ) {
+                        Text(
+                            text = if (modeleLocal == null) "Importer" else "Changer",
+                            fontSize = 11.sp,
+                            color = Color(0xFF2C4C38)
+                        )
+                    }
+                }
+                if (telechargement.enCours) {
+                    LinearProgressIndicator(
+                        progress = { telechargement.fraction },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 4.dp),
+                        color = Color(0xFF2C4C38)
+                    )
+                }
+            }
+        }
+
         // Alerte si mot de passe non configuré (APK issu de la CI sans secret)
-        if (motDePasse.isBlank()) {
+        if (booste && motDePasse.isBlank()) {
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3CD)),
                 modifier = Modifier
@@ -309,7 +566,7 @@ fun CerveauScreen(
                 "coach" -> listOf("⚡ Action 15 min", "🌱 Version énergie basse")
                 "terrain" -> listOf("✍️ Ciseler notes de route", "📷 Légende Instagram")
                 "vault" -> listOf("🔍 Pépites Madère", "🇷🇴 Bucarest secret")
-                else -> listOf("💡 Idée d'itinéraire", "📊 État des tâches")
+                else -> listOf("🗓️ Que publier cette semaine ?", "✅ Qu'est-ce qui attend ma validation ?")
             }
             suggestions.forEach { suggestion ->
                 SuggestionChip(

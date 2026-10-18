@@ -80,11 +80,21 @@ export async function generateStaticParams() {
   return (slugs ?? []).map(({ slug }) => ({ slug }))
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const slug = (await params).slug
   const post = await getPostBySlug(slug)
 
-  if (!post) return { title: 'Article introuvable | Heldonica' }
+  if (!post) {
+    // Aperçu d'un brouillon : la page vérifie le jeton elle-même ; on n'indexe jamais.
+    if ((await searchParams).preview_token) return { title: 'Aperçu | Heldonica', robots: { index: false, follow: false } }
+    // MESURÉ le 18/10 après déploiement : la réponse reste 200 (navigateur,
+    // Googlebot, Bingbot). app/loading.tsx enveloppe toute l'app dans un
+    // Suspense : le statut part avant notFound(), ici comme dans la page. Next
+    // injecte <meta name="robots" content="noindex">, donc ces pages ne sont pas
+    // indexées ; un vrai 404 demanderait de sortir /blog/[slug] de ce loading
+    // racine (route group) ou un contrôle dans middleware.ts.
+    notFound()
+  }
 
   const seoTitle = post.seo_title || post.title
   const pageTitle = `${seoTitle} | Heldonica`

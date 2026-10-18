@@ -15,6 +15,15 @@
 -keep class fr.heldonica.mobile.VeilleTachesWorker { *; }
 -keep class * extends androidx.work.ListenableWorker { *; }
 
+# --- MediaPipe LLM (Cerveau embarque) -------------------------------------
+# tasks-genai ne fournit pas de regles R8, alors que son moteur natif rappelle
+# des classes Java par JNI et lit ses options en protobuf lite (reflexion) :
+# renommees par R8, le chargement du modele echoue seulement en release.
+-keep class com.google.mediapipe.** { *; }
+-keep class * extends com.google.protobuf.GeneratedMessageLite { *; }
+-dontwarn com.google.mediapipe.**
+-dontwarn com.google.protobuf.**
+
 # --- Kotlin ----------------------------------------------------------------
 -keep class kotlin.Metadata { *; }
 

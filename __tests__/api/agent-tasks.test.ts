@@ -328,74 +328,134 @@ describe('GET /api/agent-tasks — balayage des baux', () => {
 })
 
 describe('POST /api/agent-tasks — validation par le fondateur', () => {
-  // `waiting_validation` n'avait aucune porte de sortie : le bouton « Approuver »
-  // du CMS appelait /api/cms/agent-tasks, une route inexistante (404). Ces tests
-  // verrouillent l'action qui manquait, et la règle « l'exécutant ne valide pas
-  // son propre travail ».
-  it('refuse un agent qui tente de valider lui-même (403)', async () => {
-    const { POST } = await route()
-    const res = await POST(req('POST', { action: 'valider', id: UUID }))
-    expect(res.status).toBe(403)
-    const json = await res.json()
-    expect(json.error).toContain('fondateur')
-  })
-
-  it('refuse un agent_name `openhands` même avec la clé maître (403)', async () => {
-    const { POST } = await route()
-    const res = await POST(req('POST', { action: 'valider', id: UUID, agent_name: 'openhands' }))
-    expect(res.status).toBe(403)
-  })
-
-  it('valide une tâche en attente quand la clé est la session CMS (200)', async () => {
+  beforeEach(() => {
     AUTH.keyId = 'cms'
-    AUTH.agentName = 'cms_session'
-    h.state.queue = [
-      { data: [{ id: UUID, agent: 'claude', status: 'done', claimed_by: 'claude', task: 'Fusionner PR #616' }], error: null },
-    ]
+    AUTH.agentName = 'cms_mobile'
+  })
+  afterEach(() => {
+    AUTH.keyId = 'master'
+  })
+
+  it('refuse la validation à une clé d’agent (403)', async () => {
+    AUTH.keyId = 'master'
     const { POST } = await route()
-    const res = await POST(req('POST', { action: 'valider', id: UUID }))
+    const res = await POST(req('POST', { action: 'valider', id: UUID, decision: 'accepter' }))
+    expect(res.status).toBe(403)
+  })
+
+  it('refuse une décision hors vocabulaire (400)', async () => {
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'valider', id: UUID, decision: 'peut-etre' }))
+    expect(res.status).toBe(400)
+  })
+
+  it('n’accepte pas une tâche qui n’attend pas de validation (409)', async () => {
+    h.state.queue.push({ data: { id: UUID, status: 'in_progress', notes: null }, error: null })
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'valider', id: UUID, decision: 'accepter' }))
+    expect(res.status).toBe(409)
+  })
+
+  it('accepte une tâche en attente de validation (200)', async () => {
+    h.state.queue.push({ data: { id: UUID, status: 'waiting_validation', notes: 'deposee par poco' }, error: null })
+    h.state.queue.push({ data: [{ id: UUID, agent: 'jules', status: 'done', task: 'Corriger les liens' }], error: null })
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'valider', id: UUID, decision: 'accepter', commentaire: 'parfait' }))
     expect(res.status).toBe(200)
     const json = await res.json()
     expect(json.validee.status).toBe('done')
   })
 
-  it('accepte un acteur explicite `fondateur` (200)', async () => {
-    h.state.queue = [
-      { data: [{ id: UUID, agent: 'claude', status: 'done', claimed_by: 'claude', task: 'Fusionner PR #616' }], error: null },
-    ]
+  it('renvoie une tâche bloquée (200)', async () => {
+    h.state.queue.push({ data: { id: UUID, status: 'blocked', notes: null }, error: null })
+    h.state.queue.push({ data: [{ id: UUID, agent: 'jules', status: 'sent', task: 'Corriger les liens' }], error: null })
     const { POST } = await route()
-    const res = await POST(req('POST', { action: 'valider', id: UUID, agent_name: 'fondateur' }))
+    const res = await POST(req('POST', { action: 'valider', id: UUID, decision: 'renvoyer', commentaire: 'il manque les photos' }))
     expect(res.status).toBe(200)
+    expect((await res.json()).renvoyee.status).toBe('sent')
   })
 
-  it('refuse de valider une tâche qui n’attend pas de décision (409)', async () => {
-    // Zéro ligne modifiée : le filtre `in(status, waiting_validation, blocked)` n'a rien trouvé.
-    h.state.queue = [{ data: [], error: null }]
+  it('signale une tâche modifiée entre la lecture et l’écriture (409)', async () => {
+    h.state.queue.push({ data: { id: UUID, status: 'waiting_validation', notes: null }, error: null })
+    h.state.queue.push({ data: [], error: null })
     const { POST } = await route()
-    const res = await POST(req('POST', { action: 'valider', id: UUID, agent_name: 'fondateur' }))
+    const res = await POST(req('POST', { action: 'valider', id: UUID, decision: 'accepter' }))
     expect(res.status).toBe(409)
-    const json = await res.json()
-    expect(json.error).toContain('waiting_validation')
   })
 
-  it('refuse un statut cible autre que done (400)', async () => {
+  // `validated_by`/`validated_at` : sans elles, une tâche `done` ne se distingue
+  // pas d'une tâche close par son exécutant. C'est la colonne que le protocole
+  // AGENTS.md désigne comme la preuve de validation humaine.
+  it('pose validated_by et validated_at sur une acceptation', async () => {
+    let ecrit: Record<string, unknown> | null = null
+    h.from.mockImplementationOnce(() => {
+      const q: Record<string, unknown> = {}
+      for (const m of ['eq', 'in', 'select', 'single']) q[m] = () => q
+      q.then = (resolve: (v: unknown) => unknown) =>
+        Promise.resolve({ data: { id: UUID, status: 'waiting_validation', notes: null }, error: null }).then(resolve)
+      return q
+    })
+    h.from.mockImplementationOnce(() => {
+      const q: Record<string, unknown> = {}
+      q.update = (row: Record<string, unknown>) => { ecrit = row; return q }
+      for (const m of ['eq', 'select']) q[m] = () => q
+      q.then = (resolve: (v: unknown) => unknown) =>
+        Promise.resolve({ data: [{ id: UUID, agent: 'jules', status: 'done', task: 'Corriger les liens' }], error: null }).then(resolve)
+      return q
+    })
     const { POST } = await route()
-    const res = await POST(req('POST', { action: 'valider', id: UUID, agent_name: 'fondateur', status: 'sent' }))
-    expect(res.status).toBe(400)
+    const res = await POST(req('POST', { action: 'valider', id: UUID, decision: 'accepter' }))
+    expect(res.status).toBe(200)
+    expect(ecrit!.validated_by).toBe('heldonica')
+    expect(typeof ecrit!.validated_at).toBe('string')
   })
 
-  it('remonte l’erreur base plutôt que de l’avaler (500)', async () => {
-    h.state.queue = [{ data: null, error: { message: 'permission denied' } }]
+  it('efface validated_by quand la tâche est renvoyée (un renvoi n’est pas une validation)', async () => {
+    let ecrit: Record<string, unknown> | null = null
+    h.from.mockImplementationOnce(() => {
+      const q: Record<string, unknown> = {}
+      for (const m of ['eq', 'in', 'select', 'single']) q[m] = () => q
+      q.then = (resolve: (v: unknown) => unknown) =>
+        Promise.resolve({ data: { id: UUID, status: 'blocked', notes: null }, error: null }).then(resolve)
+      return q
+    })
+    h.from.mockImplementationOnce(() => {
+      const q: Record<string, unknown> = {}
+      q.update = (row: Record<string, unknown>) => { ecrit = row; return q }
+      for (const m of ['eq', 'select']) q[m] = () => q
+      q.then = (resolve: (v: unknown) => unknown) =>
+        Promise.resolve({ data: [{ id: UUID, agent: 'jules', status: 'sent', task: 'Corriger les liens' }], error: null }).then(resolve)
+      return q
+    })
     const { POST } = await route()
-    const res = await POST(req('POST', { action: 'valider', id: UUID, agent_name: 'fondateur' }))
-    expect(res.status).toBe(500)
-  })
-
-  it('annonce `valider` dans la liste des actions connues', async () => {
-    const { POST } = await route()
-    const res = await POST(req('POST', { action: 'action-inexistante' }))
-    expect(res.status).toBe(400)
-    const json = await res.json()
-    expect(json.valides).toContain('valider')
+    const res = await POST(req('POST', { action: 'valider', id: UUID, decision: 'renvoyer' }))
+    expect(res.status).toBe(200)
+    expect(ecrit!.validated_by).toBeNull()
+    expect(ecrit!.validated_at).toBeNull()
   })
 })
+
+describe('POST /api/agent-tasks — niveau de risque', () => {
+  it('traduit le libellé du Poco (« bas ») vers la valeur acceptée par la base', async () => {
+    let insere: Record<string, unknown> | null = null
+    h.from.mockImplementationOnce(() => {
+      const q: Record<string, unknown> = {}
+      q.insert = (row: Record<string, unknown>) => { insere = row; return q }
+      q.select = () => q
+      q.then = (resolve: (v: unknown) => unknown) =>
+        Promise.resolve({ data: [{ id: UUID, agent: 'jules', status: 'sent', task: 'Corriger les liens' }], error: null }).then(resolve)
+      return q
+    })
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'deposer', agent: 'jules', task: 'Corriger les liens casses', risk_level: 'bas', agent_name: 'poco' }))
+    expect(res.status).toBe(201)
+    expect(insere!.risk_level).toBe('low')
+  })
+
+  it('refuse un niveau inconnu (400) au lieu d’une erreur base (500)', async () => {
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'deposer', agent: 'jules', task: 'Corriger les liens casses', risk_level: 'énorme', agent_name: 'poco' }))
+    expect(res.status).toBe(400)
+  })
+})
+

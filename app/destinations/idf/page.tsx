@@ -157,7 +157,7 @@ export default async function IdfPage() {
                 >
                   <span className="inline-block text-xs font-semibold uppercase tracking-widest text-teal mb-3">{Z('pepite_1_tag', 'text', "Urbex légal", undefined, 'span')}</span>
                   <h3 className="font-serif text-base text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">{Z('pepite_1_titre', 'text', "La Petite Ceinture (14e)", undefined, 'span')}</h3>
-                  <p className="text-stone-600 text-sm leading-relaxed">{Z('pepite_1_desc', 'textarea', "L'ancienne voie ferrée devenue promenade sauvage au cœur de Paris. Street art, végétation folle, silence improbable. Un Paris d'explorateur à 15 minutes du Sacré-Cœur.", undefined, 'span')}</p>
+                  <p className="text-stone-600 text-sm leading-relaxed">{Z('pepite_1_desc', 'textarea', "L'ancienne voie ferrée devenue promenade sauvage en plein Paris. Street art, végétation folle, silence improbable. Un Paris d'explorateur à 15 minutes du Sacré-Cœur.", undefined, 'span')}</p>
                 </Link>
                 <Link
                   key={"/destinations/idf/paris"}

@@ -12,6 +12,8 @@ import PdfDownloadButton from '@/components/PdfDownloadButton';
 import DaySummaryTable from '@/components/itinerary/DaySummaryTable';
 import DayAccommodationBox from '@/components/itinerary/DayAccommodationBox';
 import { buildPageMetadata } from '@/lib/page-metadata'
+import ComingSoonDestination from '@/components/ComingSoonDestination'
+import { isUnpublishedCmsPage } from '@/lib/unpublished-pages'
 
 const SITE_URL = 'https://www.heldonica.fr';
 const PAGE = "destinations-roumanie-itineraire-10-jours";
@@ -46,6 +48,18 @@ export async function generateMetadata(): Promise<Metadata> {
 
 
 export default async function Itineraire10JoursPage() {
+  // MVP : page sans photo vérifiée, « Bientôt » tant qu'elle figure dans lib/unpublished-pages.ts.
+  if (isUnpublishedCmsPage('destinations-roumanie-itineraire-10-jours')) {
+    return (
+      <ComingSoonDestination
+        slug="roumanie-itineraire-10-jours"
+        title="Roumanie en 10 jours"
+        country="Roumanie"
+        hero_unsplash_url="/og-default.jpg"
+        zones={await getPageZones('destinations-roumanie-itineraire-10-jours')}
+      />
+    )
+  }
   const zones = await getPageZones(PAGE)
 
   const Z = (zone: string, type: 'text' | 'textarea' | 'html', fallback: string, className?: string, as?: any) => (
@@ -115,7 +129,7 @@ export default async function Itineraire10JoursPage() {
 
         <section className="bg-white section-spacing pt-0">
           <div className="container max-w-4xl">
-            <h2 className="text-2xl font-serif text-mahogany mb-6">Aperçu du circuit</h2>
+            <h2 className="text-2xl font-serif text-mahogany mb-6">Aperçu de l'itinéraire</h2>
             <div className="overflow-x-auto rounded-xl border border-stone-200">
               <table className="w-full text-sm table-auto">
                 <thead className="bg-stone-50 text-stone-500 text-xs uppercase">
@@ -342,7 +356,7 @@ export default async function Itineraire10JoursPage() {
                     </div>
                   </div>
 
-                  <p className="text-charcoal/80 leading-relaxed mb-4">{Z('day_8_detail', 'textarea', "La route Cluj-Maramureș traverse des collines qui ressemblent à un tableau. On arrive dans la région la plus authentique de Roumanie — celle que les touristes effleurent sans jamais vraiment explorer. Les villages en bois aux toits de bardeaux, les églises aux flèches élancées, les charrettes qui règnent encore sur les routes. L'après-midi, on visite le cimetière joyeux de Săpânța — une expérience qui défie toutes les attentes. Des tombes bleues, des épitaphes drôles, une leçon de vie.", undefined, 'span')}</p>
+                  <p className="text-charcoal/80 leading-relaxed mb-4">{Z('day_8_detail', 'textarea', "La route Cluj-Maramureș traverse des collines qui ressemblent à un tableau. On arrive dans la région la plus authentique de Roumanie — celle que la plupart traversent sans jamais vraiment explorer. Les villages en bois aux toits de bardeaux, les églises aux flèches élancées, les charrettes qui règnent encore sur les routes. L'après-midi, on visite le cimetière joyeux de Săpânța — une expérience qui défie toutes les attentes. Des tombes bleues, des épitaphes drôles, une leçon de vie.", undefined, 'span')}</p>
 
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
@@ -421,7 +435,7 @@ export default async function Itineraire10JoursPage() {
 
         <section className="bg-white section-spacing">
           <div className="container max-w-5xl">
-            <h2 className="text-3xl font-serif text-mahogany mb-6">Carte interactive du circuit</h2>
+            <h2 className="text-3xl font-serif text-mahogany mb-6">Carte interactive de l'itinéraire</h2>
             <p className="text-charcoal/70 mb-6 max-w-2xl">
               Explore chaque étape sur la carte : hébergements, pépites et routes empruntées à travers la Roumanie.
             </p>
@@ -467,7 +481,7 @@ export default async function Itineraire10JoursPage() {
               Tu veux la version personnalisée de cet itinéraire ?
             </h2>
             <p className="text-charcoal/70 mb-8 max-w-lg mx-auto">
-              On adapte ce circuit à ton budget, ta saison et ton énergie réelle.
+              On adapte cet itinéraire à ton budget, ta saison et ton énergie réelle.
             </p>
             <Link
               href="/travel-planning"

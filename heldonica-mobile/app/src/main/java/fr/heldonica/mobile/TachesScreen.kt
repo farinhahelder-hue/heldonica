@@ -1,10 +1,17 @@
 package fr.heldonica.mobile
 
+import android.content.ActivityNotFoundException
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -159,11 +166,102 @@ object AgentTasksClient {
             Result.failure(e)
         }
     }
+
+    /** Résumé de l'état du projet (blog, Instagram, Memoria, registre) : /api/cerveau/etat. */
+    suspend fun chargerEtat(context: Context): Result<String> = withContext(Dispatchers.IO) {
+        val mdp = BrainClient.obtenirMotDePasse(context)
+        if (mdp.isBlank()) return@withContext Result.failure(Exception("Mot de passe CMS non configuré"))
+        try {
+            val req = Request.Builder()
+                .url("${BuildConfig.CMS_BASE_URL.trimEnd('/')}/api/cerveau/etat")
+                .header("x-cms-auth", mdp)
+                .get()
+                .build()
+            httpClient.newCall(req).execute().use { res ->
+                val bodyStr = res.body?.string().orEmpty()
+                if (!res.isSuccessful) return@withContext Result.failure(Exception("HTTP ${res.code}"))
+                Result.success(JSONObject(bodyStr).optString("texte"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Décision du fondateur sur une tâche : accepter (→ done) ou renvoyer (→ sent).
+     * Réservé à la session CMS côté serveur (action `valider`).
+     */
+    suspend fun validerTache(
+        context: Context,
+        id: String,
+        accepter: Boolean,
+        commentaire: String
+    ): Result<TacheAgentItem> = withContext(Dispatchers.IO) {
+        val baseUrl = BuildConfig.CMS_BASE_URL.trimEnd('/')
+        val mdp = BrainClient.obtenirMotDePasse(context)
+        if (mdp.isBlank()) {
+            return@withContext Result.failure(Exception("Mot de passe CMS non configuré"))
+        }
+        val corps = JSONObject().apply {
+            put("action", "valider")
+            put("id", id)
+            put("decision", if (accepter) "accepter" else "renvoyer")
+            put("commentaire", commentaire)
+        }
+        try {
+            val req = Request.Builder()
+                .url("$baseUrl/api/agent-tasks")
+                .header("x-cms-auth", mdp)
+                .post(corps.toString().toRequestBody(jsonMediaType))
+                .build()
+            httpClient.newCall(req).execute().use { res ->
+                val bodyStr = res.body?.string().orEmpty()
+                if (!res.isSuccessful) {
+                    val err = try { JSONObject(bodyStr).optString("error", bodyStr) } catch (_: Exception) { bodyStr }
+                    return@withContext Result.failure(Exception(err))
+                }
+                val t = JSONObject(bodyStr).let { it.optJSONObject("validee") ?: it.optJSONObject("renvoyee") }
+                    ?: return@withContext Result.failure(Exception("Réponse inattendue"))
+                Result.success(
+                    TacheAgentItem(
+                        id = t.optString("id"),
+                        idComplet = t.optString("id_complet", t.optString("id")),
+                        agent = t.optString("agent"),
+                        status = t.optString("status"),
+                        task = t.optString("task"),
+                        scope = null,
+                        riskLevel = null,
+                        claimedBy = null,
+                        createdAt = null
+                    )
+                )
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
 
 /**
  * Écran Jetpack Compose « Agents & Tâches » (120 Hz) pour Poco X6 Pro.
  */
+/**
+ * Jules et Gemini ne lisent pas le registre : après le dépôt (qui garde la
+ * trace), le brief part dans le presse-papier et leur page s'ouvre.
+ * Renvoie false pour les agents qui lisent le registre eux-mêmes.
+ */
+fun transmettreHorsRegistre(context: Context, agent: String, consigne: String): Boolean {
+    val lien = CoordinationAgents.lienAgent(agent) ?: return false
+    val pressePapier = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    pressePapier.setPrimaryClip(ClipData.newPlainText("Brief $agent", consigne))
+    try {
+        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(lien)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+    } catch (_: ActivityNotFoundException) {
+        // Pas de navigateur : le brief reste copié, le message le dit.
+    }
+    return true
+}
+
 @Composable
 fun TachesScreen() {
     val context = LocalContext.current
@@ -184,12 +282,16 @@ fun TachesScreen() {
     // Filtre statut
     var filterStatus by remember { mutableStateOf("all") }
 
+    // Destinataires acceptés par /api/agent-tasks (AGENTS_CONNUS côté serveur).
     val agentsConnus = listOf(
-        "jules" to "Jules (Édition/SEO)",
-        "gemini" to "Gemini (Code/Arch)",
-        "grok" to "Grok (Idées/Synthèse)",
-        "allhands" to "AllHands (Cloud 24/7)",
-        "manus" to "Manus (Recherche/Web)",
+        "claude" to "Claude (Horus)",
+        "opencode" to "OpenCode (Horus)",
+        "jules" to "Jules (PR GitHub)",
+        "gemini" to "Gemini",
+        "openhands" to "OpenHands (cloud)",
+        "freebuff" to "Freebuff",
+        "grok" to "Grok (idées)",
+        "manus" to "Manus (recherche)",
         "tous" to "Tous les agents"
     )
 
@@ -208,6 +310,22 @@ fun TachesScreen() {
 
     LaunchedEffect(filterStatus) {
         rafraichir()
+    }
+
+    fun decider(tache: TacheAgentItem, accepter: Boolean) {
+        coroutineScope.launch {
+            AgentTasksClient.validerTache(context, tache.idComplet, accepter, "").fold(
+                onSuccess = {
+                    Toast.makeText(
+                        context,
+                        if (accepter) "✅ #${tache.id} validée" else "↩️ #${tache.id} renvoyée à ${tache.agent}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                },
+                onFailure = { Toast.makeText(context, "Erreur : ${it.message}", Toast.LENGTH_LONG).show() }
+            )
+            rafraichir()
+        }
     }
 
     Column(
@@ -230,7 +348,7 @@ fun TachesScreen() {
                     color = Color.White
                 )
                 Text(
-                    text = "Pilote sans PC · Jules, Gemini, Grok, AllHands, Manus",
+                    text = "Pilote sans PC · Claude, OpenCode, Jules, Gemini, OpenHands…",
                     fontSize = 12.sp,
                     color = Color(0xFF9CA3AF)
                 )
@@ -308,7 +426,7 @@ fun TachesScreen() {
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 items(tasks, key = { it.idComplet }) { tache ->
-                    TacheCard(tache)
+                    TacheCard(tache, onDecision = { accepter -> decider(tache, accepter) })
                 }
             }
         }
@@ -320,7 +438,11 @@ fun TachesScreen() {
             onDismissRequest = { if (!isSending) showCreateDialog = false },
             title = { Text("Nouvelle tâche pour un agent", fontWeight = FontWeight.Bold) },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                // Défilant : avec le clavier ouvert, le bas du formulaire sortait de l'écran.
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
                     Text("1. Choisir l'agent cible :", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         items(agentsConnus) { (nom, label) ->
@@ -331,6 +453,11 @@ fun TachesScreen() {
                             )
                         }
                     }
+                    Text(
+                        CoordinationAgents.commentRecue(selectedAgent),
+                        fontSize = 11.sp,
+                        color = Color(0xFF6B7280)
+                    )
 
                     Text("2. Périmètre (Scope) :", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     val scopes = listOf("content", "code", "video", "seo", "audit")
@@ -385,7 +512,13 @@ fun TachesScreen() {
                             isSending = false
                             res.fold(
                                 onSuccess = { id ->
-                                    Toast.makeText(context, "Tâche #$id déposée !", Toast.LENGTH_LONG).show()
+                                    val horsRegistre = transmettreHorsRegistre(context, selectedAgent, taskBrief.trim())
+                                    Toast.makeText(
+                                        context,
+                                        if (horsRegistre) "Tâche #$id notée — brief copié, colle-le dans ${selectedAgent.replaceFirstChar { it.uppercase() }}"
+                                        else "Tâche #$id déposée !",
+                                        Toast.LENGTH_LONG
+                                    ).show()
                                     taskBrief = ""
                                     showCreateDialog = false
                                     rafraichir()
@@ -418,7 +551,7 @@ fun TachesScreen() {
 }
 
 @Composable
-fun TacheCard(tache: TacheAgentItem) {
+fun TacheCard(tache: TacheAgentItem, onDecision: ((Boolean) -> Unit)? = null) {
     val (statusColor, statusLabel) = when (tache.status) {
         "sent" -> Color(0xFFF59E0B) to "En attente"
         "in_progress" -> Color(0xFF3B82F6) to "En cours"
@@ -502,6 +635,26 @@ fun TacheCard(tache: TacheAgentItem) {
                         color = Color(0xFF60A5FA),
                         fontWeight = FontWeight.Medium
                     )
+                }
+            }
+
+            // Décision du fondateur : seul le travail rendu (ou bloqué) se tranche ici.
+            val peutValider = tache.status == "waiting_validation"
+            val peutRenvoyer = peutValider || tache.status == "blocked"
+            if (onDecision != null && peutRenvoyer) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (peutValider) {
+                        Button(
+                            onClick = { onDecision(true) },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981)),
+                            shape = RoundedCornerShape(8.dp)
+                        ) { Text("✅ Valider", fontSize = 12.sp) }
+                    }
+                    OutlinedButton(
+                        onClick = { onDecision(false) },
+                        shape = RoundedCornerShape(8.dp)
+                    ) { Text("↩️ Renvoyer", fontSize = 12.sp, color = Color(0xFFFCA5A5)) }
                 }
             }
         }

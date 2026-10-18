@@ -82,6 +82,11 @@ android {
         // numero et Android ne les distingue pas.
         versionCode = maxOf(40, (System.getenv("GITHUB_RUN_NUMBER") ?: "40").toInt())
         versionName = "1.0." + (System.getenv("GITHUB_RUN_NUMBER") ?: "40")
+        // Le moteur LLM embarque (tasks-genai) livre ~27 Mo de .so par ABI : on
+        // ne garde que l'arm64 du Poco X6 Pro (l'x86_64 doublerait l'APK).
+        ndk {
+            abiFilters += "arm64-v8a"
+        }
 
         buildConfigField(
             "String",
@@ -175,6 +180,11 @@ dependencies {
     implementation("androidx.media3:media3-transformer:1.4.1")
     implementation("androidx.media3:media3-effect:1.4.1")
     implementation("androidx.media3:media3-common:1.4.1")
+
+    // Cerveau embarque : petit LLM sur le telephone (CerveauLocal.kt). Le modele
+    // (.task) n'est pas dans l'APK, il est importe depuis l'application.
+    // 0.10.29 et non 0.10.35 : meme API, mais l'AAR double de taille (~40 Mo).
+    implementation("com.google.mediapipe:tasks-genai:0.10.29")
 
     testImplementation("junit:junit:4.13.2")
 }

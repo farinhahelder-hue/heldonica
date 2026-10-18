@@ -21,11 +21,13 @@
 //   - `status=all` (defaut) rend tout ; sinon un des cinq statuts.
 //   - `agent` filtre sur ce destinataire, et inclut toujours `tous`.
 // Action : POST /api/agent-tasks avec { action, ... } — cf. les actions plus bas.
-//   - `valider` (fondateur seulement) : clot une tache `waiting_validation` ou
-//     `blocked` en `done`, et pose `validated_by`/`validated_at`. Sans ce geste,
-//     une tache n'avait aucune porte de sortie vers `done`.
 //
 // Il n'y a pas de geste de suppression. C'est voulu, comme pour le MCP.
+//
+// `valider` est le seul geste du fondateur : accepter (waiting_validation -> done)
+// ou renvoyer (waiting_validation|blocked -> sent, prise liberee) une tache, avec
+// un commentaire. Reserve a la session CMS (mot de passe du telephone) : une cle
+// d'agent ne valide pas son propre travail.
 // ============================================================
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -60,6 +62,16 @@ const AGENTS_CONNUS = [
 const RESUME = 'id,agent,status,claimed_by,claimed_at,task,scope,risk_level,depends_on,created_at,updated_at'
 
 const PAYLOAD_MAX_BYTES = 65536
+
+/**
+ * La base n'accepte que low|medium|high|critical (agent_tasks_risk_check),
+ * mais le Poco envoie les libelles de son ecran (bas, moyen, haut) : sans cette
+ * traduction, chaque depot depuis le telephone echouait en 500.
+ */
+const NIVEAUX_RISQUE: Record<string, string> = {
+  low: 'low', medium: 'medium', high: 'high', critical: 'critical',
+  bas: 'low', faible: 'low', moyen: 'medium', haut: 'high', eleve: 'high', 'élevé': 'high', critique: 'critical',
+}
 
 // Duree d'un bail de prise. Un worker qui meurt (Android tue les processus, le
 // reseau tombe, le telephone s'eteint) ne rend jamais compte : sans expiration,
@@ -335,51 +347,66 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === 'valider') {
-      // Le geste qui manquait : `waiting_validation` n'avait aucune porte de
-      // sortie. Le bouton « Approuver » du CMS appelait `/api/cms/agent-tasks`,
-      // une route qui n'a jamais existe (404) : les taches s'accumulaient sans
-      // que personne ne puisse les valider depuis un telephone.
-      //
-      // Deux regles, tirees du protocole AGENTS.md :
-      //   - seul le fondateur valide (la cle CMS, ou un acteur `fondateur`) ;
-      //   - l'executant ne valide jamais son propre travail. Le filtre cote base
-      //     l'applique, comme pour `rendre_compte`.
-      const estFondateur = auth.keyId === 'cms' || acteur === 'fondateur'
-      if (!estFondateur) {
+      if (auth.keyId !== 'cms') {
+        return NextResponse.json({ error: 'seul le fondateur (session CMS) valide une tache' }, { status: 403 })
+      }
+      const decision = String(body.decision || '')
+      if (decision !== 'accepter' && decision !== 'renvoyer') {
+        return NextResponse.json({ error: 'decision invalide', valides: ['accepter', 'renvoyer'] }, { status: 400 })
+      }
+      const commentaire = String(body.commentaire || '').trim().slice(0, 2000)
+      const uuid = await resoudreId(sb, String(body.id || ''))
+      const { data: avant, error: errAvant } = await sb
+        .from('agent_tasks')
+        .select('id,status,notes')
+        .eq('id', uuid)
+        .single()
+      if (errAvant) {
+        if (errAvant.code === 'PGRST116') return NextResponse.json({ error: 'Task not found' }, { status: 404 })
+        return NextResponse.json({ error: errAvant.message }, { status: 500 })
+      }
+      const permis = decision === 'accepter' ? ['waiting_validation'] : ['waiting_validation', 'blocked']
+      if (!permis.includes(avant.status)) {
         return NextResponse.json(
-          { error: "seul le fondateur valide — un agent ne valide pas son propre travail" },
-          { status: 403 }
+          { error: `rien a ${decision} : la tache est ${avant.status}`, statuts_permis: permis },
+          { status: 409 }
         )
       }
-      // On valide ce qui attend une decision humaine, ou une tache bloquee qu'un
-      // humain debloque. Valider une tache `sent` n'aurait pas de sens : elle
-      // n'a pas encore ete faite.
-      const statutVise = String(body.status || 'done')
-      if (statutVise !== 'done') {
-        return NextResponse.json({ error: 'Invalid status', valid: ['done'] }, { status: 400 })
-      }
-      const uuid = await resoudreId(sb, String(body.id || ''))
+      const maintenant = new Date().toISOString()
+      const trace = `${decision === 'accepter' ? 'validee' : 'renvoyee'} par le fondateur le ${maintenant.slice(0, 16)}${commentaire ? ` : ${commentaire}` : ''}`
       const corps: Record<string, unknown> = {
-        status: 'done',
-        validated_by: 'heldonica',
-        validated_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        status: decision === 'accepter' ? 'done' : 'sent',
+        notes: avant.notes ? `${avant.notes}\n${trace}` : trace,
+        updated_at: maintenant,
       }
-      if (body.notes !== undefined) corps.notes = body.notes
+      // `validated_by`/`validated_at` : les deux colonnes de
+      // 20260903191642_agent_tasks_governance_upgrade.sql. Sans elles, une tache
+      // `done` ne se distingue pas d'une tache close par son executant — et
+      // `done` sans validation est precisement ce que le protocole interdit.
+      // Un renvoi n'est pas une validation : on efface la trace precedente.
+      if (decision === 'accepter') {
+        corps.validated_by = 'heldonica'
+        corps.validated_at = maintenant
+      } else {
+        corps.validated_by = null
+        corps.validated_at = null
+      }
+      if (decision === 'renvoyer') {
+        corps.claimed_by = null
+        corps.claimed_at = null
+      }
+      // Filtre sur le statut lu : si un agent a bouge la tache entre-temps, on ne l'ecrase pas.
       const { data, error } = await sb
         .from('agent_tasks')
         .update(corps)
         .eq('id', uuid)
-        .in('status', ['waiting_validation', 'blocked'])
+        .eq('status', avant.status)
         .select(RESUME)
       if (error) return NextResponse.json({ error: error.message }, { status: 500 })
       if (!data || data.length === 0) {
-        return NextResponse.json(
-          { error: "rien a valider : cette tache n'est ni waiting_validation ni blocked" },
-          { status: 409 }
-        )
+        return NextResponse.json({ error: 'la tache a change entre-temps : relis-la' }, { status: 409 })
       }
-      return NextResponse.json({ validee: resume(data[0]) })
+      return NextResponse.json({ [decision === 'accepter' ? 'validee' : 'renvoyee']: resume(data[0]) })
     }
 
     if (action === 'deposer') {
@@ -410,7 +437,13 @@ export async function POST(req: NextRequest) {
         description: body.description !== undefined ? String(body.description) : null,
         notes: `deposee par ${acteurValide} via /api/agent-tasks le ${new Date().toISOString().slice(0, 16)}`,
       }
-      if (body.risk_level) corps.risk_level = String(body.risk_level)
+      if (body.risk_level) {
+        const niveau = NIVEAUX_RISQUE[String(body.risk_level).trim().toLowerCase()]
+        if (!niveau) {
+          return NextResponse.json({ error: `risk_level inconnu : ${body.risk_level}`, valides: Object.keys(NIVEAUX_RISQUE) }, { status: 400 })
+        }
+        corps.risk_level = niveau
+      }
       if (body.depends_on) corps.depends_on = await resoudreId(sb, String(body.depends_on))
       if (payload !== undefined) corps.payload = payload
       const { data, error } = await sb.from('agent_tasks').insert(corps).select(RESUME)
@@ -419,7 +452,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: 'action inconnue', valides: ['lire', 'prendre', 'rendre_compte', 'valider', 'deposer'] },
+      { error: 'action inconnue', valides: ['lire', 'prendre', 'rendre_compte', 'deposer', 'valider'] },
       { status: 400 }
     )
   } catch (e) {

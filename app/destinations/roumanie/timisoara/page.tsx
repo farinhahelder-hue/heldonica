@@ -6,6 +6,8 @@ import { getPageZones } from '@/lib/cms-zones'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { buildPageMetadata } from '@/lib/page-metadata'
+import ComingSoonDestination from '@/components/ComingSoonDestination'
+import { isUnpublishedCmsPage } from '@/lib/unpublished-pages'
 
 const SITE_URL = 'https://www.heldonica.fr'
 const PAGE = 'destinations-roumanie-timisoara'
@@ -49,6 +51,18 @@ const FAQS: { q: { zone: string; fb: string }; a: { zone: string; fb: string } }
 ]
 
 export default async function TimisoaraPage() {
+  // MVP : page sans photo vérifiée, « Bientôt » tant qu'elle figure dans lib/unpublished-pages.ts.
+  if (isUnpublishedCmsPage('destinations-roumanie-timisoara')) {
+    return (
+      <ComingSoonDestination
+        slug="roumanie-timisoara"
+        title="Timișoara"
+        country="Roumanie"
+        hero_unsplash_url="/og-default.jpg"
+        zones={await getPageZones('destinations-roumanie-timisoara')}
+      />
+    )
+  }
   const zones = await getPageZones(PAGE)
 
   const Z = (zone: string, type: 'text' | 'textarea' | 'html' | 'image', fallback: string, className?: string, as?: any) => (
@@ -122,15 +136,15 @@ export default async function TimisoaraPage() {
           {/* Pépites grid */}
           <section className="mb-16">
             <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">Ce qu'on a déniché</p>
-            <h2 className="text-2xl font-serif text-stone-900 mb-6">Les spots qu'on revisite</h2>
+            <h2 className="text-2xl font-serif text-stone-900 mb-6">Les lieux qu'on revisite</h2>
             <div className="grid gap-5 sm:grid-cols-2">
                 <div className="bg-white rounded-2xl border border-stone-200 p-6 hover:border-eucalyptus/30 transition-colors">
                   <div className="flex items-start justify-between mb-3">
                     <span className="text-2xl">{Z('pepite_1_icon', 'text', "🏛️", undefined, 'span')}</span>
-                    <span className="text-xs font-semibold uppercase tracking-widest text-teal">{Z('pepite_1_tag', 'text', "Incontournable", undefined, 'span')}</span>
+                    <span className="text-xs font-semibold uppercase tracking-widest text-teal">{Z('pepite_1_tag', 'text', "Le classique", undefined, 'span')}</span>
                   </div>
                   <h3 className="font-serif text-lg text-stone-900 mb-2">{Z('pepite_1_title', 'text', "Piața Unirii", undefined, 'span')}</h3>
-                  <p className="text-stone-600 text-sm leading-relaxed">{Z('pepite_1_desc', 'textarea', "La plus belle place baroque de Roumanie. Cathédrale catholique, fontaine, terrasses qui invitent à rester. Le matin, avant les touristes.", undefined, 'span')}</p>
+                  <p className="text-stone-600 text-sm leading-relaxed">{Z('pepite_1_desc', 'textarea', "La plus belle place baroque de Roumanie. Cathédrale catholique, fontaine, terrasses qui invitent à rester. Le matin, avant que la foule arrive.", undefined, 'span')}</p>
                 </div>
                 <div className="bg-white rounded-2xl border border-stone-200 p-6 hover:border-eucalyptus/30 transition-colors">
                   <div className="flex items-start justify-between mb-3">

@@ -2,32 +2,174 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
-## [2026-10-18] — Validation des tâches IA : l'action qui manquait
+## [2026-10-18] — Validation des tâches IA : `validated_by` et le bouton réparé
 
-- **Constat** : `waiting_validation` n'avait aucune porte de sortie. Le bouton
+- **Constat** : la validation n'était atteignable par personne. Le bouton
   « Approuver (Fondateur) » de `AgentsControlDrawer.tsx` appelait
   `/api/cms/agent-tasks`, une route **qui n'a jamais existé** (mesuré : `GET` → 404,
   `PATCH` → 401 — les codes d'une route absente derrière le middleware, pas d'une
-  route qui refuse la méthode). Résultat : 47 tâches en attente, dont 24 adressées
-  au fondateur, sans aucun moyen de les valider depuis un téléphone.
-- **`app/api/agent-tasks/route.ts`** : nouvelle action `valider`. Elle clôt une tâche
-  `waiting_validation` ou `blocked` en `done` et pose `validated_by = 'heldonica'`
-  + `validated_at`. Deux règles du protocole AGENTS.md y sont appliquées : seul le
-  fondateur valide (clé CMS, ou acteur `fondateur`), et un agent ne valide pas son
-  propre travail. Le filtre `in(status, ...)` rend le geste atomique : zéro ligne
-  modifiée → 409, jamais une validation silencieuse.
+  route qui refuse la méthode). 47 tâches en attente, dont 24 adressées au fondateur.
+- **`app/api/agent-tasks/route.ts`** : l'action `valider` existait déjà (ajoutée
+  en parallèle par un autre agent, avec `accepter`/`renvoyer` — conservation de
+  cette version, plus riche). Ajout : elle pose désormais
+  `validated_by = 'heldonica'` + `validated_at`, les deux colonnes prévues par la
+  migration `20260903191642_agent_tasks_governance_upgrade.sql` et jusqu'ici
+  écrites par aucun chemin fonctionnel.
 - **`components/admin/AgentsControlDrawer.tsx`** : les trois appels pointent la route
-  qui existe. Le dépôt et la validation envoient `action` + `agent_name` ; c'est le
-  serveur qui pose `validated_by`, plus le client.
-- **`__tests__/api/agent-tasks.test.ts`** : 8 tests ajoutés (refus d'un agent, refus
-  d'un `agent_name` non-fondateur, validation par clé CMS, acteur `fondateur`,
-  409 sur tâche non validable, 400 sur statut cible invalide, 500 sur erreur base,
-  présence de `valider` dans le vocabulaire). 28/28 verts.
+  qui existe (`/api/agent-tasks`), avec `action` + `agent_name` ; la validation
+  envoie `decision: 'accepter'`. C'est le serveur qui pose `validated_by`.
 - **Vérifié** : `npm run garde-fous` → 13/13, dont `tsc` et `vitest`.
 - **Non vérifié** : le rendu du bouton dans le navigateur (pas de session CMS ici),
   et l'écran `TachesScreen.kt` de l'APK (pas de compilation Android ici — l'appli
   mobile ne sait toujours pas valider, seule la route le sait).
 
+## [2026-10-18] — Clé API du dispatcher du registre
+
+`dispatch-registre.yml` échouait à chaque passage : secret `AI_AGENT_API_KEY` absent.
+Clé dédiée `dispatcher` (`hld_dp_`, 30 req/h) ajoutée à `scripts/seed_agent_keys.mjs` ;
+seul son SHA-256 est en base (migration `20261018234000_cle_api_dispatcher`), le jeton
+n'existe que dans le secret GitHub. Essai `simuler=1` : HTTP 200. Reste à poser
+`OPENHANDS_API_KEY` dans Vercel pour que le dispatcher lance réellement les conversations.
+
+## [2026-10-18] — Canal Saint-Martin en brouillon
+
+Le slug `canal-saint-martin-spots-secrets` contient un mot banni (« spot »). Plutôt que le
+renommer avec une 301 (proposition d'OpenCode, tâche 8164073d), le fondateur garde l'article
+en brouillon : migration `20261018233000_brouillon_canal_saint_martin` (`status` et
+`published`). Les 8 brouillons qui contiennent encore des mots bannis seront corrigés à leur
+remise en ligne ; aucun n'est visible.
+
+## [2026-10-18] — App : donner des tâches à tous les agents, mode libre local
+
+Demande du fondateur : « sur l'App je puisse donner des tâches » et « IA sans limites locale ».
+
+- Onglet Tâches : la liste des destinataires suit enfin l'API (Claude, OpenCode, Jules,
+  Gemini, OpenHands, Freebuff, Grok, Manus, tous) — Claude, OpenCode et OpenHands manquaient.
+  Le formulaire défile (le clavier cachait « Envoyer ») et dit comment l'agent reçoit la tâche.
+- Jules et Gemini ne lisent pas le registre : après le dépôt (la trace reste), le brief est
+  copié et leur page s'ouvre. Même chose depuis le chat (`@jules …`).
+- Cartes « À valider » : boutons ✅ Valider / ↩️ Renvoyer (action `valider`, session CMS).
+- Cerveau : interrupteur 🔓 Mode libre — uniquement le modèle du téléphone (jamais le Cloud
+  ni le PC, ni registre ni Coffre envoyés), prompt sans posture de marque ni sermon. Le
+  modèle garde les limites apprises à l'entraînement : un prompt ne les retire pas.
+- Tests JVM : `PromptLocalTest` (prompt libre), `CoordinationAgentsTest` (hand-off).
+
+## [2026-10-18] — MVP : 33 sous-pages destinations sans photo vérifiée passent en « Bientôt »
+
+Décision du fondateur (MVP « travel planning + meilleurs articles avec photos ») : les
+sous-pages destinations qui n'avaient que l'image générique, ou une photo à confirmer
+(Paris), passent en « Bientôt » — noindex, hors sitemap, description neutre. Les pages pays
+et la navigation (carte, comparateur) restent ; Bucarest (photo vérifiée) reste.
+
+- `lib/unpublished-pages.ts` : +33 entrées (26 pages du gabarit `SubDestinationTemplate`
+  rendent « Bientôt » d'elles-mêmes).
+- 7 pages spécifiques (itinéraires Roumanie 5/7/10 j, Madère 7 j et budget, Kotor,
+  Timișoara) : garde en tête de page qui rend `ComingSoonDestination` tant qu'elles sont
+  listées. Leur contenu reste dans le code pour une remise en ligne en retirant l'entrée.
+- Tests `unpublished-pages` mis à jour (14 + 33). `check-cms-zones` ✓ (aucune orpheline),
+  `check-content-pages` ✓, `tsc` ✓.
+
+## [2026-10-18] — MVP : 13 articles avec photo vérifiée, le reste en brouillon
+
+Décision du fondateur : « mettre en brouillon pour trancher plus tard, faire un MVP avec le
+travel planning et les meilleurs articles avec photos ». Après la planche de contrôle (chaque
+photo regardée), seuls les 13 articles dont la photo est cohérente restent publiés ; 13 passent
+en brouillon (10 photos à confirmer, 2 sans vraie photo, 1 non contrôlé). Migration
+`20261018230000_mvp_blog_articles_photo_verifiee.sql`, appliquée en base le 18/10.
+**Blog : 13 articles en ligne, 42 brouillons.** Pour remettre un article : vraie photo
+vérifiée, puis `status = 'published', published = true`.
+
+## [2026-10-18] — Mots bannis : migration `20261011130000` enfin appliquée en base
+
+Constat d'OpenHands, mesuré par Claude : la migration versionnée du 11/10 n'avait jamais été
+appliquée (« plages fluviales incroyables », « au cœur de Paris », étiquette « Incontournable »
+servis en ligne). Simulée sur la base (10/10 applicables), puis appliquée le 18/10 avec l'accord
+du fondateur — chaque remplacement conditionné à la valeur lue (`updated_at`), valeurs d'origine
+sauvegardées. La migration reste idempotente pour un futur `db push`.
+
+- Les pages destinations sont **pré-générées au build** (`x-vercel-cache: PRERENDER`) : le texte
+  corrigé n'apparaît qu'au déploiement suivant.
+- **Reste hors migration** (scan de toutes les zones actives des pages publiées contre
+  `FORBIDDEN_WORDS`) : 7 zones — « circuit » ×4 et « les touristes » dans les itinéraires
+  Roumanie, « Le matin incontournable » (`timisoara/eat_2`)… À trancher éditorialement
+  (« circuit » peut désigner une boucle de randonnée).
+
+## [2026-10-18] — Le Cerveau du Poco connaît l'état du projet (planning, Instagram, Memoria)
+
+Question du fondateur : « qu'est-ce que je publie cette semaine ? ». Constat en base : aucun
+planning n'existe — 8 publications Instagram en file **sans date**, aucun article programmé,
+pas de suivi d'épisodes Memoria Imperium (seuls les 3 presets de l'appli et l'outillage
+YouTube en cours chez Jules).
+
+- **`/api/cerveau/etat`** (GET, authentifié comme `/api/agent-tasks`, lecture seule) et
+  **`lib/cerveau-etat.ts`** : résumé de quelques lignes — programmé à 7 jours (blog et
+  Instagram), articles en ligne / brouillons, Instagram prêt sans date, tâches Memoria en
+  cours chez les agents, décisions qui attendent le fondateur. Une donnée absente est dite
+  absente (« rien de programmé »), jamais devinée. 3 tests ; `check-api-auth` ✓.
+- **Poco** : une question de planning (publier, semaine, Instagram, YouTube, Memoria…) charge
+  cet état + les épisodes Memoria prêts dans l'onglet Memoria, et les donne au modèle (local,
+  Cloud ou PC). Chip « 🗓️ Que publier cette semaine ? ». Test Kotlin.
+- **Limite connue** : sans dates en base, le Cerveau ne peut que dire ce qui est prêt. Un vrai
+  calendrier éditorial demande une table (migration + `db push`).
+## [2026-10-18] — Pages « Bientôt » : la description du brouillon ne fuit plus
+
+Constat d'OpenHands, mesuré par Claude : `/destinations/sicile/taormine` et `/palerme` affichent
+« Bientôt » et sont en `noindex`, mais servaient encore la description générée (« Est. Theatre
+grec, vue mer… ») dans `<meta name="description">` et l'aperçu de partage. `buildPageMetadata`
+remplace désormais, pour toute page de `lib/unpublished-pages.ts`, la description (meta, Open
+Graph, Twitter) par `DESCRIPTION_BIENTOT`. 2 tests.
+
+## [2026-10-18] — Blog : le « vrai 404 » de la PR #628 n'a pas l'effet annoncé
+
+Mesuré après déploiement (`b44cffc6`) : `/blog/<brouillon>` et `/blog/<slug inexistant>` répondent
+toujours **200** — navigateur, Googlebot et Bingbot. `notFound()` dans `generateMetadata` ne
+suffit pas : `app/loading.tsx` enveloppe toute l'app dans un Suspense, le statut part avant.
+Impact réel faible : Next injecte `noindex`, Google n'indexe pas ces pages. Pour un vrai 404 :
+sortir `/blog/[slug]` du loading racine (route group) ou contrôler le slug dans `middleware.ts`.
+Commentaire du code corrigé (il affirmait un 404 pour les robots).
+
+## [2026-10-18] — Registre : le niveau de risque bloquait les dépôts du Poco et le tri de Jules
+
+`agent_tasks_risk_check` n'accepte que `low|medium|high|critical`. Le Poco envoie les
+libellés de son écran (`bas`, `moyen`, `haut`) et le premier tri de Jules écrivait
+`moyen`/`bas` : 400 en base (23514), aucun dépôt possible, premier passage du tri en échec
+(rien écrit). `/api/agent-tasks` traduit désormais les libellés français (400 explicite pour
+un niveau inconnu) — l'APK déjà installé fonctionne sans mise à jour ; `revue-jules.mjs`
+écrit `medium`/`low`. 2 tests (32/32 sur la route).
+
+## [2026-10-18] — Correctif : les 12 brouillons restaient `published = true`
+
+`cms_blog_posts` a deux indicateurs : `status` (pages du blog) et `published` (recherche IA,
+`/api/destinations`, flux n8n, audit…). `20261018200000` n'avait basculé que `status`.
+Migration `20261018203000_brouillon_published_false.sql` ; même changement appliqué en base
+(12 lignes). État mesuré : 27 publiés `(published, true)`, 28 brouillons `(draft, false)`,
+aucun mélange.
+
+### ⚠️ Pour la PR #622 (OpenHands) avant fusion
+1. **Collision de version** : `20261018200000_photos_enfants_bucket_prive.sql` porte le même
+   numéro que `20261018200000_brouillon_articles_photo_fausse.sql`, déjà sur `main` —
+   `supabase db push` refusera. Renuméroter (ex. `20261018210000`).
+2. **Assertion Stoos** : `20261018180000_depublier_doublons_stoos.sql` exige exactement
+   1 article Stoos `published = true`. Le canonique est désormais en brouillon (photo
+   fausse, décision du fondateur) : l'assertion lèvera une exception. L'adapter à 0 ou 1.
+3. Les 7 photos d'enfants déplacées par OpenHands ont été **vérifiées à l'œil** par Claude :
+   toutes montrent bien un enfant (même série du 27/08). Certitude complète, pas « probable ».
+
+## [2026-10-18] — 12 articles en brouillon : leur photo ne montre pas leur sujet
+
+Planche de contrôle des photos (Claude a regardé chacune des 41 photos visibles du site) :
+12 articles avaient une photo principale fausse — pleine lune pour les brasseries de
+Zurich et la Limmat, couloir d'hôtel pour Petrovac, cave à vin pour Paštrovići, pudim pour
+le prego, tour Eiffel pour la rue du Temple, etc. (liste et constats dans la migration).
+
+- **Décision du fondateur** : brouillon simple, sans redirection, jusqu'à la vraie photo.
+  `published_at` conservé pour une remise en ligne à l'identique.
+- **Migration `20261018200000_brouillon_articles_photo_fausse.sql`** (idempotente). Le même
+  changement a été appliqué en base le 18/10 (12 lignes, vérifiées) — la migration le versionne.
+- **Blog en ligne : 39 → 27 articles.**
+- ⚠️ `stoos-ridge-notre-aventure-sur-la-crete-panoramique` était le canonique des deux
+  doublons Stoos (redirections 301 dans `middleware.ts`) : tant qu'il est en brouillon, ces
+  redirections mènent à une page introuvable.
 
 ## [2026-10-18] — Charte : aucune photo d'enfant en ligne (règle n°5)
 
@@ -55,6 +197,55 @@ couverture. Retirée partout où elle était publique :
   → `/og-default.jpg` ; entrée `rou-passage-walk` retirée de `lib/cms-photo-albums.ts`.
 - **Non touché, à décider par le fondateur** : le fichier lui-même (bucket `media`, toujours
   accessible par son URL directe) et sa fiche `cms_media` (id 143).
+## [2026-10-18] — Le Cerveau du Poco lit le registre des agents, confie et valide
+
+Branche `agent/claude/cerveau-local-poco`. Retour du fondateur sur le Poco : l'IA ne
+voyait pas le flux des agents, ne pouvait ni confier ni valider une tâche.
+
+- **API `/api/agent-tasks`, action `valider`** : geste du fondateur seul (session CMS,
+  `keyId === 'cms'`) — `accepter` (waiting_validation → done) ou `renvoyer`
+  (waiting_validation|blocked → sent, prise libérée), commentaire tracé dans `notes`.
+  Mise à jour conditionnée au statut lu (409 si un agent a bougé la tâche entre-temps).
+  6 tests vitest (26/26 sur la route).
+- **Mobile, `CoordinationAgents.kt`** : les ordres explicites sont reconnus par règles et
+  exécutés sur le registre **sans passer par le modèle** (un 1,5B ne décide pas seul) :
+  `@jules consigne`, `donne à gemini : consigne`, `valide #id [: commentaire]`,
+  `renvoie #id : raison`. Une question sur les agents (« où en est Jules ? ») charge le
+  registre et en donne un résumé au modèle (local, Cloud ou PC).
+- Le modèle local passe à 2 048 jetons de contexte (place pour le résumé).
+
+### Limites connues
+- `valider` n'existe qu'après fusion sur `main` (l'APK appelle la production).
+- Confier une tâche la **dépose** dans le registre : l'agent la voit à sa prochaine lecture.
+  Rien ne réveille encore Jules automatiquement (`JULES_API_KEY` absente de Vercel, cf.
+  `app/api/jules/route.ts`).
+
+## [2026-10-18] — Mobile : un petit modèle sur le Poco, le Cloud derrière un interrupteur
+
+Branche `agent/claude/cerveau-local-poco`. Le Cerveau de l'APK appelait le Cloud en
+premier ; le fondateur veut un cerveau léger **sur le téléphone** (suivi du projet, du
+site, du contenu, du planning, coordination des agents), et les API gratuites seulement
+quand il le demande.
+
+- **`CerveauLocal.kt`** : LLM embarqué via MediaPipe `tasks-genai` **0.10.29**. Le modèle
+  n'est pas dans l'APK : bouton **Télécharger** (Qwen2.5 1.5B Instruct q8, 1,6 Go, ouvert,
+  reprise sur coupure) ou **Importer** un `.task` au choix. Premier essai sur le Poco :
+  sans modèle installé, le fondateur n'atteignait jamais le téléphone — d'où le bouton. `PromptLocal` : prompt court (consignes,
+  3 fiches du Coffre hors-ligne, 4 derniers messages), recherche insensible aux accents.
+- **`BrainClient.ordreDesSources`** : sans boost, téléphone puis PC — le Cloud n'est
+  **jamais** appelé. Avec « ⚡ Cerveau boosté » : Cloud, PC, puis téléphone. Interrupteur
+  mémorisé (`cerveau_booste`). Le badge PC forcé est conservé.
+- **Build** : `abiFilters` arm64-v8a (le moteur pèse ~27 Mo de `.so` par ABI ; l'APK ne
+  s'installe plus sur un émulateur x86_64). Règles R8 pour `com.google.mediapipe` et
+  protobuf lite (l'AAR n'en fournit pas).
+
+### Vérifié
+- API `LlmInference` (`setModelPath`, `setMaxTokens`, `createFromOptions`,
+  `generateResponse`, `close`) présente dans l'AAR 0.10.29 ; pas de `minCompileSdk`
+  (compatible compileSdk 34) ; motifs de secrets de `release-apk.yml` : aucun dans l'AAR.
+- **[NON VERIFIE]** compilation Gradle et tests JVM : pas de JDK dans la session qui a
+  écrit ce code. La CI `build-apk.yml` (tests + `assembleRelease`) doit passer avant
+  fusion, puis un essai réel sur le Poco (import du modèle, réponse, mode boosté).
 
 ## [2026-10-18] — 7 AUTRES photos d'enfant retirées de l'accès public (complète la PR #623)
 

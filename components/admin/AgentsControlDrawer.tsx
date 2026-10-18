@@ -156,6 +156,7 @@ export default function AgentsControlDrawer({
         body: JSON.stringify({
           action: 'valider',
           agent_name: 'fondateur',
+          decision: 'accepter',
           id: taskId,
           notes: 'Validé et approuvé depuis la station de contrôle CMS',
         }),
