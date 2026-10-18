@@ -9,7 +9,7 @@
 
 import { describe, it, expect, beforeAll } from 'vitest';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -104,6 +104,31 @@ describe('atelier_recit', () => {
     expect(b).toContain('<!-- heldonica:blocks [] -->');
     // Le seul texte autorise est le titre et l'avertissement : aucune phrase de recit.
     expect(b).not.toMatch(/on cherchait|On s'est arretes|Odeur de/);
+  });
+
+  it("fonctionne sans Pillow : l'import d'une bibliotheque ne tue pas le processus", () => {
+    // Le runner CI n'a pas Pillow. photos_evidence.py est une bibliotheque :
+    // il ne doit pas appeler sys.exit a l'import, sinon atelier_recit.py meurt
+    // alors qu'il ne lit que du JSON.
+    const faux = mkdtempSync(join(tmpdir(), 'faux-pil-'));
+    mkdirSync(join(faux, 'PIL'));
+    writeFileSync(
+      join(faux, 'PIL', '__init__.py'),
+      'raise ImportError("PIL masque (simulation CI)")\n',
+      'utf8',
+    );
+    const dossierSansPillow = mkdtempSync(join(tmpdir(), 'atelier-sans-pil-'));
+    writeFileSync(join(dossierSansPillow, 'voyage.json'), JSON.stringify(voyageMinimal()), 'utf8');
+
+    const sortie = execFileSync(
+      'python3',
+      [SCRIPT, '--voyage', join(dossierSansPillow, 'voyage.json'), '--questions', '--out', dossierSansPillow],
+      { cwd: RACINE, encoding: 'utf8', env: { ...process.env, PYTHONPATH: faux } },
+    );
+
+    expect(sortie).toContain('Questionnaire ecrit');
+    const q = readFileSync(join(dossierSansPillow, 'questions.md'), 'utf8');
+    expect(q).toContain('### Moment 1');
   });
 
   it('reprend une reponse fournie telle quelle et retire les mots bannis', () => {
