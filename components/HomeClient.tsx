@@ -427,13 +427,12 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             className="text-teal text-xs font-semibold tracking-[0.2em] uppercase mb-5 block"
           />
           <h1 className="text-3xl md:text-5xl lg:text-7xl font-serif font-light text-white leading-[1.15] mb-4 md:mb-6">
-            <EditableZone page="home" zone="hero_line_1" fallback="On ferme " className="hero-word inline" />
-            <EditableZone page="home" zone="hero_line_2" fallback="les ordis." className="hero-word inline" />
+            <EditableZone page="home" zone="hero_line_1" fallback="On ferme les ordis." className="hero-word inline" />
             <br />
-            <EditableZone page="home" zone="hero_line_3" fallback="On part." className="hero-word inline" />
+            <EditableZone page="home" zone="hero_line_2" fallback="On part." className="hero-word inline" />
             <br />
             <em>
-              <EditableZone page="home" zone="hero_line_4" fallback="On revient avec des pépites qu'on n'avait pas cherchées." className="hero-word inline" />
+              <EditableZone page="home" zone="hero_line_3" fallback="On revient avec des pépites qu'on n'avait pas cherchées." className="hero-word inline" />
             </em>
           </h1>
           <EditableZone page="home" zone="hero_tagline" type="textarea" fallback="Deux voyageurs, dix ans de terrain, des destinations qu'on a vraiment arpentées — pas lu dans un guide."
