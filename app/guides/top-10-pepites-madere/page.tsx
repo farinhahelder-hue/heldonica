@@ -15,7 +15,7 @@ import { buildPageMetadata } from '@/lib/page-metadata'
 const metadata: Metadata = {
   title: 'Guide Top 10 Pépites Madère | Heldonica',
   description:
-    "Télécharge notre guide des 10 meilleures adresses testées à Madère. Restaurants, sentiers, spots photo — tout ce qu'on a aimé et qu'on te recommande.",
+    "Télécharge notre guide des 10 meilleures adresses testées à Madère. Restaurants, sentiers, coins photo — tout ce qu'on a aimé et qu'on te recommande.",
   keywords: [
     'guide Madère',
     'pépites Madère',
@@ -71,7 +71,7 @@ const PEPITES_FALLBACK = [
     rank: 3,
     title: 'Porto Moniz Natural Pools',
     type: 'Nature',
-    description: "Piscines volcaniques naturelles, turquoise, à couper le souffle. Moins connu que les autres spots.",
+    description: "Piscines volcaniques naturelles, turquoise, à couper le souffle. Moins connu que les autres coins.",
     secret: "Va au coucher du soleil — les couleurs sont irréelles et il n'y a presque personne.",
     image_url: null,
   },
@@ -196,7 +196,7 @@ export default async function Top10PepitesMaderePage() {
               </span>
             </h1>
             <EditableZone page="top-10-pepites-madere" zone="hero_text" type="textarea"
-              fallback="Ce qu'on a testé, aimé, et qu'on te recommande sans hésiter. Restaurants, sentiers, vues, spots photo — tout ce qu'on aurait aimé savoir avant d'y aller."
+              fallback="Ce qu'on a testé, aimé, et qu'on te recommande sans hésiter. Restaurants, sentiers, vues, coins photo — tout ce qu'on aurait aimé savoir avant d'y aller."
               className="text-stone-300 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-8 block"
             />
 
@@ -217,7 +217,7 @@ export default async function Top10PepitesMaderePage() {
               />
             </h2>
             <EditableZone page="top-10-pepites-madere" zone="intro_text" type="textarea"
-              fallback="Madère, c'est l'inverse du tourisme de masse. C'est des routes qui serpentent dans des forêts luxuriantes, des villages où le temps s'est arrêté, des restaurants où le propriétaire te raconte l'histoire de chaque plat.\n\nOn a testé, on s'est perdus, on a trouvé des trucs incroyables. Et maintenant, on te les partage. Gratuitement."
+                  fallback="Madère, c'est l'inverse du tourisme de masse. C'est des routes qui serpentent dans des forêts luxuriantes, des villages où le temps s'est arrêté, des restaurants où le propriétaire te raconte l'histoire de chaque plat.\n\nOn a testé, on s'est perdus, on a trouvé des trucs géniaux. Et maintenant, on te les partage. Gratuitement."
               className="text-stone-600 leading-relaxed text-lg block"
             />
           </div>
@@ -295,7 +295,7 @@ export default async function Top10PepitesMaderePage() {
             <EditableZone page="top-10-pepites-madere" zone="cta_title" fallback="Tu pars à Madère ?"
               className="text-2xl md:text-3xl font-serif font-bold mb-4 block"
             />
-            <EditableZone page="top-10-pepites-madere" zone="cta_text" fallback="Le guide complet avec toutes les adresses, les maps, et les tips pour éviter les pièges à éviter. Gratuit."
+            <EditableZone page="top-10-pepites-madere" zone="cta_text" fallback="Le guide complet avec toutes les adresses, les maps, et les repères pour éviter les pièges. Gratuit."
               className="text-stone-400 leading-relaxed mb-8 block"
             />
             <GuideDownloadForm variant="inline" />
