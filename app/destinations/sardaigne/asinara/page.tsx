@@ -56,7 +56,7 @@ export default async function AsinaraPage() {
         parentName="Sardaigne"
         parentSlug="sardaigne"
         heroImage="/og-default.jpg"
-        introText="Asinara, c’est l’île aux ânes blanchis. Ils sont partout. Pas de tourists — seulement 1 ferry par jour."
+        introText="Asinara, c’est l’île aux ânes blanchis. Ils sont partout. Pas de touristes — seulement 1 ferry par jour."
         highlights={highlights}
         localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."
       />

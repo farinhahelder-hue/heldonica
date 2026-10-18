@@ -2,6 +2,41 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — Fautes de langue affichées publiquement (migration à appliquer)
+
+Constatées **en ligne** (requête HTTP sur heldonica.fr, 2026-10-18), puis
+retrouvées en base. Rien n'est déduit.
+
+| Page | Ce qui est affiché | Correction |
+|---|---|---|
+|  | `On分析 votre demande` — **caractères chinois** | `On analyse votre demande` |
+|  | `bus de tourists` | `bus de touristes` |
+|  | `bookezminimum 3 nuits` | `bookez au minimum 3 nuits` |
+|  | `les establecimientos` (espagnol) | `les établissements` |
+|  | `reservez depuis Lisbonne airport` | `réservez depuis l'aéroport de Lisbonne` |
+|  | `Pas de tourists` | `Pas de touristes` |
+
+**Cause racine** : ces valeurs ont été semées par
+`20260803000001_cms_alentejo_zones.sql` avec les fautes **déjà présentes**, et
+les composants les recopient en repli. Corriger la base seule laisserait la faute
+revenir par le repli ; corriger le composant seul laisserait la faute affichée.
+Les deux sont faits (`20261018170000_corrections_langue_et_placeholders.sql` +
+`app/destinations/alentejo/page.tsx`, `app/destinations/sardaigne/asinara/page.tsx`).
+
+> ⚠️ **Migration NON appliquée** : aucune chaîne de connexion DB dans
+> l'environnement d'audit. À appliquer par le propriétaire.
+
+### Inventaire de mise en ligne (vérifié, 2026-10-18)
+
+- **105/105 URL du sitemap répondent 200.** Aucun lien cassé.
+- , ,  répondent 404 : ces
+  routes **n'existent pas dans le code** et **aucun composant ne les lie**. Ce
+  sont des rubriques prévues au plan d'arborescence, jamais construites — pas des
+  liens cassés.
+- **41 articles publiés** sur 55 (`cms_blog_posts`).
+- Les cartes d'articles affichent de **vraies photos** ; `/og-default.jpg` ne
+  reste que sur les images de hero des pages statiques.
+
 ## [2026-10-18] — Les 5 témoignages fictifs sont désactivés (migration à appliquer)
 
 **Fait constaté** : les 5 lignes de `cms_testimonials` (Sophie & Marc, Claire,
