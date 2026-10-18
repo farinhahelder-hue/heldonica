@@ -22,11 +22,15 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - run: npm i --no-save playwright@1.48.2 && npx playwright install --with-deps chromium
+          node-version: 22
+      # Playwright à part : sans installer tout le site.
+      - run: |
+          mkdir -p /tmp/pw && cp scripts/captures-visuelles.mjs captures-pages.txt /tmp/pw/
+          cd /tmp/pw && npm init -y >/dev/null && npm i playwright@1.48.2 && npx playwright install --with-deps chromium
       - name: Captures
         env:
           PAGES: ${{ github.event.inputs.pages || vars.CAPTURES_PAGES }}
+        working-directory: /tmp/pw
         run: |
           if [ -z "$PAGES" ]; then PAGES=$(cat captures-pages.txt); fi
           export PAGES
@@ -34,5 +38,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: captures
-          path: captures/
+          path: /tmp/pw/captures/
           retention-days: 7
