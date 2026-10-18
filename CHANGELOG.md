@@ -2,6 +2,21 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — MVP : 33 sous-pages destinations sans photo vérifiée passent en « Bientôt »
+
+Décision du fondateur (MVP « travel planning + meilleurs articles avec photos ») : les
+sous-pages destinations qui n'avaient que l'image générique, ou une photo à confirmer
+(Paris), passent en « Bientôt » — noindex, hors sitemap, description neutre. Les pages pays
+et la navigation (carte, comparateur) restent ; Bucarest (photo vérifiée) reste.
+
+- `lib/unpublished-pages.ts` : +33 entrées (26 pages du gabarit `SubDestinationTemplate`
+  rendent « Bientôt » d'elles-mêmes).
+- 7 pages spécifiques (itinéraires Roumanie 5/7/10 j, Madère 7 j et budget, Kotor,
+  Timișoara) : garde en tête de page qui rend `ComingSoonDestination` tant qu'elles sont
+  listées. Leur contenu reste dans le code pour une remise en ligne en retirant l'entrée.
+- Tests `unpublished-pages` mis à jour (14 + 33). `check-cms-zones` ✓ (aucune orpheline),
+  `check-content-pages` ✓, `tsc` ✓.
+
 ## [2026-10-18] — MVP : 13 articles avec photo vérifiée, le reste en brouillon
 
 Décision du fondateur : « mettre en brouillon pour trancher plus tard, faire un MVP avec le

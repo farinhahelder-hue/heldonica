@@ -20,8 +20,16 @@ describe('unpublished-pages', () => {
     // Relevé du 16/10 : le balayage complet des 69 pages destinations a montré
     // 14 pages à fragments (« Grec. », « Le parc. »), dont 3 que le premier
     // relevé (11 pages) avait manquées : medellin, alghero, asinara.
-    expect(UNPUBLISHED_PATHS).toHaveLength(14);
-    expect(UNPUBLISHED_CMS_PAGES).toHaveLength(14);
+    // + 33 sous-pages sans photo vérifiée, passées en « Bientôt » pour le MVP du
+    // 18/10 (décision du fondateur après la planche de contrôle des photos).
+    expect(UNPUBLISHED_PATHS).toHaveLength(14 + 33);
+    expect(UNPUBLISHED_CMS_PAGES).toHaveLength(14 + 33);
+  });
+
+  it('MVP du 18/10 : les sous-pages sans photo vérifiée sont « Bientôt »', () => {
+    expect(isUnpublishedPath('/destinations/madere/funchal')).toBe(true);
+    expect(isUnpublishedPath('/destinations/montenegro/kotor')).toBe(true);
+    expect(isUnpublishedCmsPage('destinations-roumanie-timisoara')).toBe(true);
   });
 
   it('reconnaît un chemin, avec ou sans domaine, avec ou sans slash final', () => {
@@ -43,9 +51,10 @@ describe('unpublished-pages', () => {
   });
 
   it('laisse passer les pages publiées', () => {
-    expect(isUnpublishedPath('/destinations/madere/funchal')).toBe(false);
-    expect(isUnpublishedPath('https://www.heldonica.fr/destinations/montenegro/kotor')).toBe(false);
-    expect(isUnpublishedCmsPage('destinations-madere-funchal')).toBe(false);
+    // Pages au contenu et à la photo vérifiés : elles restent en ligne.
+    expect(isUnpublishedPath('/destinations/roumanie/bucarest')).toBe(false);
+    expect(isUnpublishedPath('https://www.heldonica.fr/destinations/montenegro')).toBe(false);
+    expect(isUnpublishedCmsPage('destinations-roumanie-bucarest')).toBe(false);
   });
 
   it('ne piège pas une page dont le chemin commence par une entrée non publiable', () => {

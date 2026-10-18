@@ -6,6 +6,8 @@ import { getPageZones } from '@/lib/cms-zones';
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import EditableZone from '@/components/inline-edit/EditableZone';
 import { buildPageMetadata } from '@/lib/page-metadata'
+import ComingSoonDestination from '@/components/ComingSoonDestination'
+import { isUnpublishedCmsPage } from '@/lib/unpublished-pages'
 
 const SITE_URL = 'https://www.heldonica.fr';
 const PAGE = "destinations-madere-itineraire-7-jours";
@@ -25,6 +27,18 @@ export async function generateMetadata(): Promise<Metadata> {
 
 
 export default async function MadereItineraryPage() {
+  // MVP : page sans photo vérifiée, « Bientôt » tant qu'elle figure dans lib/unpublished-pages.ts.
+  if (isUnpublishedCmsPage('destinations-madere-itineraire-7-jours')) {
+    return (
+      <ComingSoonDestination
+        slug="madere-itineraire-7-jours"
+        title="Madère en 7 jours"
+        country="Portugal"
+        hero_unsplash_url="/og-default.jpg"
+        zones={await getPageZones('destinations-madere-itineraire-7-jours')}
+      />
+    )
+  }
   const zones = await getPageZones(PAGE)
 
   const Z = (zone: string, type: 'text' | 'textarea' | 'html', fallback: string, className?: string, as?: any) => (
