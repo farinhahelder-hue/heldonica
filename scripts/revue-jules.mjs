@@ -222,7 +222,7 @@ async function proposer(propositions) {
       repo: 'heldonica',
       status: reco.statut,
       scope: SCOPE,
-      risk_level: reco.action === 'fusionner' ? 'moyen' : 'bas',
+      risk_level: reco.action === 'fusionner' ? 'medium' : 'low', // agent_tasks_risk_check
       description: `${pr.url}\n${reco.raison}`,
       notes: `proposee par la revue des PR de Jules le ${new Date().toISOString().slice(0, 16)}`,
       payload: { source: SCOPE, pr: pr.number, head_sha: pr.head_sha, action: reco.action, raison: reco.raison, url: pr.url },

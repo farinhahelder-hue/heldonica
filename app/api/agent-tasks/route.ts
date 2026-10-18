@@ -63,6 +63,16 @@ const RESUME = 'id,agent,status,claimed_by,claimed_at,task,scope,risk_level,depe
 
 const PAYLOAD_MAX_BYTES = 65536
 
+/**
+ * La base n'accepte que low|medium|high|critical (agent_tasks_risk_check),
+ * mais le Poco envoie les libelles de son ecran (bas, moyen, haut) : sans cette
+ * traduction, chaque depot depuis le telephone echouait en 500.
+ */
+const NIVEAUX_RISQUE: Record<string, string> = {
+  low: 'low', medium: 'medium', high: 'high', critical: 'critical',
+  bas: 'low', faible: 'low', moyen: 'medium', haut: 'high', eleve: 'high', 'élevé': 'high', critique: 'critical',
+}
+
 // Duree d'un bail de prise. Un worker qui meurt (Android tue les processus, le
 // reseau tombe, le telephone s'eteint) ne rend jamais compte : sans expiration,
 // sa tache resterait `in_progress` pour toujours et personne ne pourrait la
@@ -415,7 +425,13 @@ export async function POST(req: NextRequest) {
         description: body.description !== undefined ? String(body.description) : null,
         notes: `deposee par ${acteurValide} via /api/agent-tasks le ${new Date().toISOString().slice(0, 16)}`,
       }
-      if (body.risk_level) corps.risk_level = String(body.risk_level)
+      if (body.risk_level) {
+        const niveau = NIVEAUX_RISQUE[String(body.risk_level).trim().toLowerCase()]
+        if (!niveau) {
+          return NextResponse.json({ error: `risk_level inconnu : ${body.risk_level}`, valides: Object.keys(NIVEAUX_RISQUE) }, { status: 400 })
+        }
+        corps.risk_level = niveau
+      }
       if (body.depends_on) corps.depends_on = await resoudreId(sb, String(body.depends_on))
       if (payload !== undefined) corps.payload = payload
       const { data, error } = await sb.from('agent_tasks').insert(corps).select(RESUME)
