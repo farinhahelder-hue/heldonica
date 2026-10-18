@@ -28,6 +28,8 @@
     "media:publish": "node scripts/media_publish.mjs",
     "media:plan": "node scripts/media_publish.mjs --dry-run",
     "media:drafts": "node scripts/draft_from_evidence.mjs",
+    "recit:questions": "python scripts/atelier_recit.py --voyage imports/roumanie-2026/voyage.json --questions",
+    "recit:tisser": "python scripts/atelier_recit.py --voyage imports/roumanie-2026/voyage.json --tisser",
     "media:voyage": "python scripts/reconstituer_voyage.py",
     "voyage:brouillon": "python scripts/voyage_vers_cms.py",
     "blogger:import": "node scripts/import-blogger-legacy.mjs --feed content/voix/blogger-heldonica-feed.atom"

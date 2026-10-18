@@ -2,6 +2,40 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-18] — Atelier récit : les questions se posent par journée, plus par photo
+
+L'« Interview Éclair » (`lib/cms-photo-interview.ts`) pose 3 questions **par
+photo**. Avec les 147 photos roumaines de la médiathèque, cela demandait 147
+interviews — jamais faites, donc jamais utilisées. Le propriétaire a demandé un
+workflow qui rédige **depuis ses photos et son contexte**, en lui posant des
+questions précises.
+
+`scripts/atelier_recit.py` comble le chaînon manquant, sans réécrire l'existant :
+
+| Étape | Script | Ce qu'il fait |
+|---|---|---|
+| 1 | `reconstituer_voyage.py` | photos → `voyage.json` (faits mesurés) |
+| 2 | **`atelier_recit.py --questions`** | `voyage.json` → questionnaire par journée et par moment |
+| 3 | **`atelier_recit.py --tisser`** | réponses → brouillon + blocs Heldonica |
+
+**La garantie qui compte, vérifiée par test** : un questionnaire vide produit
+**0 bloc, 0 phrase**. L'outil ne peut pas inventer — le silence reste un silence.
+
+Corrections apportées au passage :
+
+- `reconstituer_voyage.py` ne lisait que `.env.local`, jamais l'environnement :
+  il ne pouvait donc pas tourner depuis un agent ou une CI. Corrigé.
+- L'atelier réutilise `moments_photos()` de `reconstituer_voyage.py` au lieu de
+  recalculer un découpage : deux découpages auraient divergé.
+- Retrait des connecteurs orphelins (« magnifique mais bruyant » → « bruyant »
+  laissait « mais » seul) et du pronom doublé (« on on cherchait »).
+
+Constat de terrain sur la médiathèque, à savoir pour la suite : **159 photos sur
+160 ont une date de prise de vue exploitable**, mais **seules 11 ont un GPS** —
+Google Photos efface les coordonnées à l'export via le Picker. Les lieux ne
+peuvent donc venir que du propriétaire (question « Où étiez-vous ? ») ou d'un
+export Timeline du téléphone.
+
 ## [2026-10-18] — Correctif : Brașov et les itinéraires roumains repartent en repli
 
 L'entrée ci-dessous annonçait « la photo réelle du lieu » pour 5 pages. Après

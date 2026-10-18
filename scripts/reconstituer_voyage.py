@@ -35,6 +35,7 @@ Usage :
 
 import argparse
 import json
+import os
 import re
 import sys
 from collections import defaultdict
@@ -434,8 +435,13 @@ def lire_photos(dossier: Path):
 
 def lire_env_local():
     """NEXT_PUBLIC_SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY depuis .env.local,
-    jamais depuis le code (regle 3)."""
-    env = {}
+    jamais depuis le code (regle 3).
+
+    Les variables deja presentes dans l'environnement ont la priorite : c'est ce
+    qui permet de lancer le script depuis un agent ou une CI, ou .env.local
+    n'existe pas (et ne doit pas exister)."""
+    env = {k: v for k, v in os.environ.items()
+           if k in ("NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY")}
     for nom in (".env.local", ".env"):
         f = Path(nom)
         if not f.exists():
