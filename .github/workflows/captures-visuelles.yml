@@ -34,7 +34,7 @@ jobs:
         run: |
           if [ -z "$PAGES" ]; then PAGES=$(cat captures-pages.txt); fi
           export PAGES
-          node scripts/captures-visuelles.mjs
+          node captures-visuelles.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: captures
