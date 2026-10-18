@@ -60,6 +60,18 @@ object CoordinationAgents {
     /** La question porte-t-elle sur les agents ? Si oui, on charge le registre. */
     fun concerneLesAgents(message: String): Boolean = questionAgents.containsMatchIn(message)
 
+    private val questionPlanning = Regex(
+        "planning|publi|semaine|programm|calendrier|instagram|youtube|memoria|blog|article|carrousel|short|aujourd|demain|priorit|quoi faire",
+        RegexOption.IGNORE_CASE
+    )
+
+    /** La question porte-t-elle sur le planning ou le contenu ? Si oui, on charge l'état du projet. */
+    fun concerneLePlanning(message: String): Boolean = questionPlanning.containsMatchIn(message)
+
+    /** Épisodes Memoria Imperium déjà montables dans l'onglet Memoria (presets de l'appli). */
+    fun episodesMemoria(titres: List<String>): String =
+        if (titres.isEmpty()) "" else "Memoria Imperium, épisodes prêts à monter dans l'onglet Memoria : ${titres.joinToString(", ")}."
+
     private val LIBELLES = linkedMapOf(
         "waiting_validation" to "À valider",
         "blocked" to "Bloquées",
