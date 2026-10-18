@@ -159,6 +159,60 @@ object AgentTasksClient {
             Result.failure(e)
         }
     }
+
+    /**
+     * Décision du fondateur sur une tâche : accepter (→ done) ou renvoyer (→ sent).
+     * Réservé à la session CMS côté serveur (action `valider`).
+     */
+    suspend fun validerTache(
+        context: Context,
+        id: String,
+        accepter: Boolean,
+        commentaire: String
+    ): Result<TacheAgentItem> = withContext(Dispatchers.IO) {
+        val baseUrl = BuildConfig.CMS_BASE_URL.trimEnd('/')
+        val mdp = BrainClient.obtenirMotDePasse(context)
+        if (mdp.isBlank()) {
+            return@withContext Result.failure(Exception("Mot de passe CMS non configuré"))
+        }
+        val corps = JSONObject().apply {
+            put("action", "valider")
+            put("id", id)
+            put("decision", if (accepter) "accepter" else "renvoyer")
+            put("commentaire", commentaire)
+        }
+        try {
+            val req = Request.Builder()
+                .url("$baseUrl/api/agent-tasks")
+                .header("x-cms-auth", mdp)
+                .post(corps.toString().toRequestBody(jsonMediaType))
+                .build()
+            httpClient.newCall(req).execute().use { res ->
+                val bodyStr = res.body?.string().orEmpty()
+                if (!res.isSuccessful) {
+                    val err = try { JSONObject(bodyStr).optString("error", bodyStr) } catch (_: Exception) { bodyStr }
+                    return@withContext Result.failure(Exception(err))
+                }
+                val t = JSONObject(bodyStr).let { it.optJSONObject("validee") ?: it.optJSONObject("renvoyee") }
+                    ?: return@withContext Result.failure(Exception("Réponse inattendue"))
+                Result.success(
+                    TacheAgentItem(
+                        id = t.optString("id"),
+                        idComplet = t.optString("id_complet", t.optString("id")),
+                        agent = t.optString("agent"),
+                        status = t.optString("status"),
+                        task = t.optString("task"),
+                        scope = null,
+                        riskLevel = null,
+                        claimedBy = null,
+                        createdAt = null
+                    )
+                )
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
 
 /**

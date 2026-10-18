@@ -44,6 +44,55 @@ couverture. Retirée partout où elle était publique :
   → `/og-default.jpg` ; entrée `rou-passage-walk` retirée de `lib/cms-photo-albums.ts`.
 - **Non touché, à décider par le fondateur** : le fichier lui-même (bucket `media`, toujours
   accessible par son URL directe) et sa fiche `cms_media` (id 143).
+## [2026-10-18] — Le Cerveau du Poco lit le registre des agents, confie et valide
+
+Branche `agent/claude/cerveau-local-poco`. Retour du fondateur sur le Poco : l'IA ne
+voyait pas le flux des agents, ne pouvait ni confier ni valider une tâche.
+
+- **API `/api/agent-tasks`, action `valider`** : geste du fondateur seul (session CMS,
+  `keyId === 'cms'`) — `accepter` (waiting_validation → done) ou `renvoyer`
+  (waiting_validation|blocked → sent, prise libérée), commentaire tracé dans `notes`.
+  Mise à jour conditionnée au statut lu (409 si un agent a bougé la tâche entre-temps).
+  6 tests vitest (26/26 sur la route).
+- **Mobile, `CoordinationAgents.kt`** : les ordres explicites sont reconnus par règles et
+  exécutés sur le registre **sans passer par le modèle** (un 1,5B ne décide pas seul) :
+  `@jules consigne`, `donne à gemini : consigne`, `valide #id [: commentaire]`,
+  `renvoie #id : raison`. Une question sur les agents (« où en est Jules ? ») charge le
+  registre et en donne un résumé au modèle (local, Cloud ou PC).
+- Le modèle local passe à 2 048 jetons de contexte (place pour le résumé).
+
+### Limites connues
+- `valider` n'existe qu'après fusion sur `main` (l'APK appelle la production).
+- Confier une tâche la **dépose** dans le registre : l'agent la voit à sa prochaine lecture.
+  Rien ne réveille encore Jules automatiquement (`JULES_API_KEY` absente de Vercel, cf.
+  `app/api/jules/route.ts`).
+
+## [2026-10-18] — Mobile : un petit modèle sur le Poco, le Cloud derrière un interrupteur
+
+Branche `agent/claude/cerveau-local-poco`. Le Cerveau de l'APK appelait le Cloud en
+premier ; le fondateur veut un cerveau léger **sur le téléphone** (suivi du projet, du
+site, du contenu, du planning, coordination des agents), et les API gratuites seulement
+quand il le demande.
+
+- **`CerveauLocal.kt`** : LLM embarqué via MediaPipe `tasks-genai` **0.10.29**. Le modèle
+  n'est pas dans l'APK : bouton **Télécharger** (Qwen2.5 1.5B Instruct q8, 1,6 Go, ouvert,
+  reprise sur coupure) ou **Importer** un `.task` au choix. Premier essai sur le Poco :
+  sans modèle installé, le fondateur n'atteignait jamais le téléphone — d'où le bouton. `PromptLocal` : prompt court (consignes,
+  3 fiches du Coffre hors-ligne, 4 derniers messages), recherche insensible aux accents.
+- **`BrainClient.ordreDesSources`** : sans boost, téléphone puis PC — le Cloud n'est
+  **jamais** appelé. Avec « ⚡ Cerveau boosté » : Cloud, PC, puis téléphone. Interrupteur
+  mémorisé (`cerveau_booste`). Le badge PC forcé est conservé.
+- **Build** : `abiFilters` arm64-v8a (le moteur pèse ~27 Mo de `.so` par ABI ; l'APK ne
+  s'installe plus sur un émulateur x86_64). Règles R8 pour `com.google.mediapipe` et
+  protobuf lite (l'AAR n'en fournit pas).
+
+### Vérifié
+- API `LlmInference` (`setModelPath`, `setMaxTokens`, `createFromOptions`,
+  `generateResponse`, `close`) présente dans l'AAR 0.10.29 ; pas de `minCompileSdk`
+  (compatible compileSdk 34) ; motifs de secrets de `release-apk.yml` : aucun dans l'AAR.
+- **[NON VERIFIE]** compilation Gradle et tests JVM : pas de JDK dans la session qui a
+  écrit ce code. La CI `build-apk.yml` (tests + `assembleRelease`) doit passer avant
+  fusion, puis un essai réel sur le Poco (import du modèle, réponse, mode boosté).
 
 ## [2026-10-18] — Correctif : Brașov et les itinéraires roumains repartent en repli
 

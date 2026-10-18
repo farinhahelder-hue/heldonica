@@ -18,9 +18,10 @@ import java.util.concurrent.TimeUnit
  * Principes (docs/SPEC_CERVEAU_APK_POCO_X6_PRO.md) :
  * 1. Zéro clé d'API dans l'APK : tous les appels passent par le proxy Cloud /api/ai/mobile-brain
  *    ou le pont local du PC quand la station de travail est allumée.
- * 2. Détection intelligente de la source disponible :
- *    - Cloud 0€ (défaut) : fonctionne en 4G/5G/Wi-Fi même si le PC est éteint.
- *    - Station PC Locale (optionnel) : si le serveur Heldonica Brain (port 8440) répond sur le réseau local.
+ * 2. Ordre des sources (voir ordreDesSources) :
+ *    - IA du téléphone (défaut) : petit modèle embarqué (CerveauLocal), sans réseau.
+ *    - Cloud 0€ : API gratuites, seulement si l'interrupteur « Cerveau boosté » est activé.
+ *    - Station PC Locale : si le serveur Heldonica Brain (port 8440) répond sur le réseau local.
  */
 data class MessageCerveau(
     val id: String = java.util.UUID.randomUUID().toString(),
@@ -34,7 +35,8 @@ data class MessageCerveau(
 enum class SourceCerveau(val libelle: String, val badge: String) {
     CLOUD("Cloud 0€ (PC éteint)", "🟢 Cloud"),
     STATION_PC("Station PC (Local)", "💻 PC LAN"),
-    HORS_LIGNE("Mémoire Embarquée", "📦 Local")
+    HORS_LIGNE("Mémoire Embarquée", "📦 Local"),
+    IA_TELEPHONE("IA du téléphone", "📱 Poco")
 }
 
 data class ReponseCerveau(
@@ -48,6 +50,34 @@ object BrainClient {
     private const val TAG = "BrainClient"
     const val PREFS_AUTH = "heldonica_mobile_auth"
     const val PREF_KEY_CMS_PASSWORD = "cms_password"
+    const val PREF_KEY_CERVEAU_BOOSTE = "cerveau_booste"
+
+    fun estBooste(context: android.content.Context): Boolean =
+        context.getSharedPreferences(PREFS_AUTH, android.content.Context.MODE_PRIVATE)
+            .getBoolean(PREF_KEY_CERVEAU_BOOSTE, false)
+
+    fun definirBooste(context: android.content.Context, booste: Boolean) {
+        context.getSharedPreferences(PREFS_AUTH, android.content.Context.MODE_PRIVATE)
+            .edit().putBoolean(PREF_KEY_CERVEAU_BOOSTE, booste).apply()
+    }
+
+    /**
+     * Sources à essayer, dans l'ordre. Sans boost, le Cloud n'est JAMAIS
+     * appelé : le téléphone répond, et le PC (gratuit lui aussi) sert de repli.
+     */
+    fun ordreDesSources(
+        booste: Boolean,
+        forcerStationPc: Boolean,
+        iaLocaleDisponible: Boolean
+    ): List<SourceCerveau> {
+        val ordre = mutableListOf<SourceCerveau>()
+        if (forcerStationPc) ordre.add(SourceCerveau.STATION_PC)
+        if (booste) ordre.add(SourceCerveau.CLOUD)
+        if (iaLocaleDisponible && !booste) ordre.add(SourceCerveau.IA_TELEPHONE)
+        ordre.add(SourceCerveau.STATION_PC)
+        if (iaLocaleDisponible && booste) ordre.add(SourceCerveau.IA_TELEPHONE)
+        return ordre.distinct()
+    }
 
     /**
      * Récupère le mot de passe CMS :
@@ -112,7 +142,9 @@ object BrainClient {
     }
 
     /**
-     * Envoie une invite au Cerveau (priorité au Cloud 0€ sécurisé, avec repli PC si configuré).
+     * Envoie une invite au Cerveau, en suivant ordreDesSources.
+     * [repondreLocalement] est le modèle embarqué (null s'il n'est pas installé) :
+     * passé en paramètre pour que ce client reste sans dépendance au modèle.
      */
     suspend fun interrogerCerveau(
         cmsBaseUrl: String,
@@ -121,26 +153,45 @@ object BrainClient {
         mode: String = "chat",
         historique: List<MessageCerveau> = emptyList(),
         forcerStationPc: Boolean = false,
-        authSecret: String = BuildConfig.CMS_PASSWORD
+        authSecret: String = BuildConfig.CMS_PASSWORD,
+        booste: Boolean = true,
+        repondreLocalement: (suspend () -> ReponseCerveau)? = null
     ): ReponseCerveau = withContext(Dispatchers.IO) {
-        if (forcerStationPc) {
-            val reponsePc = appelerStationPcAvecFallback(brainBaseUrl, message, mode)
-            if (reponsePc != null) return@withContext reponsePc
+        var derniereErreur: String? = null
+        for (source in ordreDesSources(booste, forcerStationPc, repondreLocalement != null)) {
+            when (source) {
+                SourceCerveau.CLOUD -> try {
+                    val repCloud = appelerCloud(cmsBaseUrl, message, mode, historique, authSecret)
+                    if (repCloud != null) return@withContext repCloud
+                } catch (e: Exception) {
+                    derniereErreur = e.message
+                    Log.w(TAG, "Échec Cloud, source suivante : ${e.message}")
+                }
+                SourceCerveau.STATION_PC -> {
+                    // Wi-Fi ou USB ADB reverse
+                    val repPc = appelerStationPcAvecFallback(brainBaseUrl, message, mode)
+                    if (repPc != null) return@withContext repPc
+                }
+                SourceCerveau.IA_TELEPHONE -> try {
+                    return@withContext repondreLocalement!!.invoke()
+                } catch (e: Exception) {
+                    derniereErreur = e.message
+                    Log.w(TAG, "Échec du modèle embarqué : ${e.message}")
+                }
+                SourceCerveau.HORS_LIGNE -> Unit
+            }
         }
 
-        // 1. Appel prioritaire : Cloud 0€ (Next.js /api/ai/mobile-brain)
-        try {
-            val repCloud = appelerCloud(cmsBaseUrl, message, mode, historique, authSecret)
-            if (repCloud != null) return@withContext repCloud
-        } catch (e: Exception) {
-            Log.w(TAG, "Échec Cloud, tentative de repli vers la station PC : ${e.message}")
-        }
-
-        // 2. Repli : Station PC locale si le Cloud est injoignable (Wi-Fi ou USB ADB reverse)
-        val repPc = appelerStationPcAvecFallback(brainBaseUrl, message, mode)
-        if (repPc != null) return@withContext repPc
-
-        throw IOException("Impossible de joindre le Cerveau (Cloud 0€ et Station PC injoignables). Vérifie ta connexion.")
+        throw IOException(
+            when {
+                !booste && repondreLocalement == null ->
+                    "Aucun modèle sur le téléphone (et PC éteint). Touche « Télécharger » au-dessus (1,6 Go, une seule fois) ou active ⚡ Cerveau boosté."
+                !booste ->
+                    "Le modèle du téléphone a échoué (${derniereErreur ?: "erreur inconnue"}). Active ⚡ Cerveau boosté pour passer par les API gratuites."
+                else ->
+                    "Impossible de joindre le Cerveau (Cloud 0€, Station PC et téléphone). ${derniereErreur ?: "Vérifie ta connexion."}"
+            }
+        )
     }
 
     private fun appelerCloud(
