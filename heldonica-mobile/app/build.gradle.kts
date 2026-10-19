@@ -187,4 +187,7 @@ dependencies {
     implementation("com.google.mediapipe:tasks-genai:0.10.29")
 
     testImplementation("junit:junit:4.13.2")
+    // org.json est un stub vide dans les tests JVM Android : sans cette version
+    // reelle, TimelineGoogle.analyser rendrait toujours une liste vide.
+    testImplementation("org.json:json:20231013")
 }

@@ -110,15 +110,17 @@ export default function Header() {
             aria-label={`${siteName} accueil`}
           >
             {logoUrl ? (
-              <Image src={logoUrl} alt={siteName} width={120} height={32} className="h-8 w-auto" unoptimized />
+              <Image
+                src={logoUrl}
+                alt={siteName}
+                width={140}
+                height={32}
+                className="h-8 w-auto"
+                priority={logoUrl.endsWith('.svg')}
+                unoptimized={!logoUrl.endsWith('.svg')}
+              />
             ) : (
-              <svg width="32" height="32" viewBox="0 0 34 34" fill="none" aria-hidden="true">
-                <circle cx="17" cy="17" r="16" stroke="currentColor" strokeWidth="1.2" />
-                <line x1="10" y1="9" x2="10" y2="22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                <line x1="24" y1="9" x2="24" y2="22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                <line x1="10" y1="15.5" x2="24" y2="15.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                <path d="M8 26 Q11 24 14 26 Q17 28 20 26 Q23 24 26 26" stroke="currentColor" strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.6" />
-              </svg>
+              <Image src="/logo.svg" alt={siteName} width={140} height={32} className="h-8 w-auto" priority />
             )}
             <span className="text-lg font-serif font-bold tracking-tight lg:text-xl">{siteName}</span>
           </Link>

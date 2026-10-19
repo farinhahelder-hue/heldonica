@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -49,7 +49,7 @@ class StudioActivity : ComponentActivity() {
         var onglet by remember { mutableStateOf(OngletStudio.parDefaut()) }
         val contexte = LocalContext.current
         Column(Modifier.fillMaxSize()) {
-            TabRow(selectedTabIndex = onglet.ordinal) {
+            ScrollableTabRow(selectedTabIndex = onglet.ordinal) {
                 OngletStudio.values().forEach { o ->
                     Tab(
                         selected = (o == onglet),
@@ -61,6 +61,7 @@ class StudioActivity : ComponentActivity() {
             when (onglet) {
                 OngletStudio.CERVEAU -> CerveauScreen()
                 OngletStudio.TACHES -> TachesScreen()
+                OngletStudio.REDACTION -> RedactionScreen()
                 OngletStudio.CMS -> {
                     // L'éditeur gère déjà mot de passe + cookie : on le réutilise tel quel.
                     contexte.startActivity(
