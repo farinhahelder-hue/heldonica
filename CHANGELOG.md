@@ -2,6 +2,48 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-19] — Contenu en ligne : hero coupe en plein mot, `\n` en clair, erreurs carte/guides
+
+- **Méthode** : 42 pages réellement servies, texte visible extrait du HTML (balises
+  retirées, entités décodées), confronté à la valeur en base. Aucun constat tiré
+  d'un slug ou d'un nom de fichier.
+- **Hero des pages destinations coupé en plein mot — CORRIGÉ.** Mesuré sur le HTML
+  servi : `/destinations/paris` affichait « …ses passages couverts **end**… »,
+  `zurich` « …Et à 3**…** », `sicile`, `suisse`, `lisbonne` de même. La base était
+  **intacte** (`cms_editable_zones.destinations-paris.description` contient la
+  phrase entière). Cause : `app/destinations/[slug]/DestinationPage.tsx:217`,
+  `.slice(0, 200)` qui coupe au milieu d'un mot **et** concatène `...` en dur,
+  donc ajouté même sous 200 caractères. Corrigé par `extraitHero()` : coupe sur
+  la dernière frontière de mot, ellipse seulement si du texte a été retiré.
+  Vérifié dans l'artefact construit : les 5 pages finissent sur un mot entier.
+- **Guide Madère : `\n` affiché en clair — CORRIGÉ.**
+  `/guides/top-10-pepites-madere` affichait « On a passé 3 semaines à Madère.`\n`Voici
+  ce qu'on en a retiré. » Cause : `fallback="…\n…"` est une chaîne d'attribut JSX,
+  qui n'interprète pas les échappements. Il faut `fallback={"…\n…"}`. Corrigé sur
+  les deux zones. Vérifié dans l'artefact construit.
+- **Carte et guides : erreurs de contenu — migration écrite, NON appliquée.**
+  `map_markers.cote-albatre` : « falaises **bretonnes** » alors que la Côte d'Albâtre
+  est normande — et la colonne `region` de la même ligne vaut `Normandie`, la ligne
+  se contredit ; « **Fagnes** blanches » (les Fagnes sont ardennaises).
+  `map_markers.porto` : « **viñedos** » (espagnol) et « architecture
+  **barcelonaise** » (décrit Barcelone). `cms_guide_items` : « **propietario** ».
+  Migration `20261019120000_corrections_contenu_carte_guides.sql`, idempotente,
+  conditionnée par la valeur fautive, aucune suppression. Pour Porto, l'adjectif
+  est retiré et non remplacé : rien n'établit le style de Porto, l'inventer serait
+  précisément ce que la règle interdit. Le fallback du code est corrigé en parallèle.
+- **Relevé sans correction (décisions propriétaire)** : le comparateur annonce
+  « nombre d'articles » sans rendu visible sans JS ; le sélecteur de destinations
+  propose Naples, Malte, Corse, Bari & Pouilles, Pologne — aucune n'a de guide
+  publié ; la carte a 24 épingles pour 8 destinations ; `/destinations/normandie`
+  est écrite sans accents là où `/destinations/paris` est soignée.
+- **Retirés après vérification** : « 37 descriptions SEO dupliquées » (91/91
+  distinctes), « 50 pages manquantes au sitemap » (elles y sont), « Suisse
+  alémanique » (chaîne introuvable partout).
+- **Faux positif de ma session, retiré** : `/carnets` en 404 venait de **ma propre
+  liste de test** ; aucune page ne pointe dessus. Contrôle refait : 44 liens
+  internes distincts, **0 lien non-200**.
+- Garde-fous 13/13 verts ; `tsc` 0 erreur ; `npm run build` EXIT=0.
+
 ## [2026-10-19] — Audit en ligne : un brouillon servi en « Chargement… » indexable, et Grèce alignée
 
 - **Méthode** : revérification en ligne de constats de session 1. Quatre d'entre

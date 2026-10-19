@@ -55,7 +55,7 @@ const PEPITES_FALLBACK = [
     rank: 1,
     title: 'Restaurant Quinta do Fogo',
     type: 'Restaurant',
-    description: "Le meilleur poisson grillé de l'île, avec vue sur les vignobles. Le propietario sait tout sur chaque plat.",
+    description: "Le meilleur poisson grillé de l'île, avec vue sur les vignobles. Le propriétaire sait tout sur chaque plat.",
     secret: "Demande le vin de Madère de la maison — ils le servent en carafe et c'est une tuerie.",
     image_url: null,
   },
@@ -212,12 +212,12 @@ export default async function Top10PepitesMaderePage() {
         <section className="py-16 md:py-20 bg-white">
           <div className="max-w-3xl mx-auto px-6">
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-stone-900 mb-6 text-center">
-              <EditableZone page="top-10-pepites-madere" zone="intro_title" fallback="On a passé 3 semaines à Madère.\nVoici ce qu'on en a retiré."
+              <EditableZone page="top-10-pepites-madere" zone="intro_title" fallback={"On a passé 3 semaines à Madère.\nVoici ce qu'on en a retiré."}
                 className="inline"
               />
             </h2>
             <EditableZone page="top-10-pepites-madere" zone="intro_text" type="textarea"
-                  fallback="Madère, c'est l'inverse du tourisme de masse. C'est des routes qui serpentent dans des forêts luxuriantes, des villages où le temps s'est arrêté, des restaurants où le propriétaire te raconte l'histoire de chaque plat.\n\nOn a testé, on s'est perdus, on a trouvé des trucs géniaux. Et maintenant, on te les partage. Gratuitement."
+                  fallback={"Madère, c'est l'inverse du tourisme de masse. C'est des routes qui serpentent dans des forêts luxuriantes, des villages où le temps s'est arrêté, des restaurants où le propriétaire te raconte l'histoire de chaque plat.\n\nOn a testé, on s'est perdus, on a trouvé des trucs géniaux. Et maintenant, on te les partage. Gratuitement."}
               className="text-stone-600 leading-relaxed text-lg block"
             />
           </div>

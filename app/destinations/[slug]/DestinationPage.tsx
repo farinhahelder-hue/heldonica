@@ -156,6 +156,23 @@ export async function generateMetadata({ slug }: Props): Promise<Metadata> {
   }
 }
 
+/**
+ * Le hero affiche un extrait de la description. `.slice(0, 200)` coupait le
+ * dernier mot en deux (« ...couvertes end ») et ajoutait « ... » même sur un
+ * texte plus court. On coupe proprement sur un mot, et l'ellipse n'apparaît
+ * que si du texte a réellement été retiré.
+ */
+function extraitHero(texte: string, max = 200): string {
+  if (texte.length <= max) return texte
+  const coupe = texte.slice(0, max)
+  const dernierEspace = coupe.lastIndexOf(' ')
+  return (dernierEspace > 0 ? coupe.slice(0, dernierEspace) : coupe).replace(/[\s,;:—–-]+$/, '') + '…'
+}
+
+function HeroDescription({ text }: { text: string }) {
+  return <>{extraitHero(text)}</>
+}
+
 export default async function DestinationPage({ slug }: Props) {
   const content = DESTINATION_CONTENT[slug]
   const image = DESTINATION_IMAGES[slug]
@@ -214,7 +231,7 @@ export default async function DestinationPage({ slug }: Props) {
           </em>
         </h1>
         <p className="text-white/85 max-w-2xl text-lg leading-relaxed">
-          {(zones[`destinations-${slug}__description`] ?? content.description).slice(0, 200)}...
+          <HeroDescription text={zones[`destinations-${slug}__description`] ?? content.description} />
         </p>
       </div>
     </section>
