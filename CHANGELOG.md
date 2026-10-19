@@ -28,6 +28,26 @@ SiteTheme/admin/cartes reste intact).
 - Vérifié : `node scripts/check-brand-sync.mjs` OK (48 mots bannis TS ↔ Python).
   `next build` non exécuté dans cette session (timeout de l'environnement) — la
   CI fait foi.
+## [2026-10-19] — App : onglet Rédaction (brouillons, IA, photos Timeline)
+
+Demande de la fondatrice : compléter les brouillons depuis l'APK, avec l'IA et les photos
+de Google Timeline.
+
+- Onglet **Rédaction** : liste des brouillons (jamais les articles publiés), nombre de
+  `[À TOI : …]` restants, dictée de notes, bouton « Compléter avec mes notes ».
+- Nouvelle action `fill_gaps` de `/api/cms/ai-assist` : ne remplace que les lacunes que les
+  notes couvrent, rend le reste à l'identique, et renvoie `ajouts_non_sources` (affiché en
+  alerte avant de garder la proposition).
+- Photos : Google n'a **aucune API Timeline** (l'historique vit sur le téléphone). L'app lit
+  l'**export JSON** choisi par l'utilisatrice (Paramètres → Position → Timeline → Exporter),
+  en local, sans envoi. La date EXIF de chaque photo retrouve le séjour (±30 min) puis la
+  commune via OSM ; le sélecteur Android retirant le GPS, c'est le seul lieu disponible.
+  Sans correspondance : lieu laissé en `[À TOI]`, jamais deviné. Lieu à vérifier avant l'ajout.
+- Garde-fou règle n°5 : case « aucun enfant sur ces photos » obligatoire avant l'envoi.
+- L'enregistrement n'envoie que `content` : le statut ne change jamais, une révision est
+  sauvegardée par la route avant chaque écriture.
+- Non compilé ni testé sur appareil depuis cette session (pas de JDK/SDK Android) : la CI
+  `build-apk` et `./gradlew :app:testDebugUnitTest` font foi.
 
 ## [2026-10-18] — Clé API du dispatcher du registre
 
