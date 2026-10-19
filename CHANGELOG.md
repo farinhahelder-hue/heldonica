@@ -2,6 +2,33 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-19] — Marque : logo vectoriel, icônes PWA, typographie (OpenCode)
+
+Branche `agent/opencode/brand-look`. Aucun autre fichier modifié (le WIP
+SiteTheme/admin/cartes reste intact).
+
+- `public/logo.svg` (nouveau) : logo Heldonica en vectoriel, **même pictogramme
+  que `favicon.svg`/`BrandMark`** (cercle pointillé, sommets, ligne d'eau) +
+  nom Fraunces + baseline « Slow Travel · Voyages Authentiques ». Net à toutes
+  les tailles, plus de dépendance à un PNG.
+- `components/Header.tsx` : utilise `/logo.svg` par défaut ; si `logo_url` est
+  défini dans le CMS, il reprend la main (SVG chargé en priorité, PNG en
+  `unoptimized`). Import `BrandMark` retiré (devenu inutilisé).
+- `public/android-chrome-{192,512}-maskable.png` (nouveaux) : icônes maskable
+  pour l'installation Android.
+- `public/site.webmanifest` : `start_url`, `scope`, `lang: fr`, `categories`,
+  `purpose: any` + `maskable` sur les icônes 192/512.
+- `app/layout.tsx` : métadonnées icônes étendues — `favicon.svg` en vectoriel,
+  PNG 16/32/96, apple-touch-icon 180 prioritaire.
+- `tailwind.config.ts` : fallbacks polices alignés sur la marque (Fraunces →
+  Georgia, Source Sans 3 → system-ui).
+- `app/globals.css` : antialiasing + `optimizeLegibility`, titres en
+  `line-height: 1.1` / tracking `-0.015em`, corps `line-height: 1.7`, focus
+  clavier visible avec `var(--color-primary)`.
+- Vérifié : `node scripts/check-brand-sync.mjs` OK (48 mots bannis TS ↔ Python).
+  `next build` non exécuté dans cette session (timeout de l'environnement) — la
+  CI fait foi.
+
 ## [2026-10-19] — App : onglet Rédaction (brouillons, IA, photos Timeline)
 
 Demande de la fondatrice : compléter les brouillons depuis l'APK, avec l'IA et les photos
