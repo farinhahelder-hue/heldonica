@@ -231,7 +231,7 @@ export default function DestinationsClient() {
                         <DestinationCard key={`cs-${d.slug}`} {...d} />
                       ))}
                     </div>
-                    <div className="max-w-md mx-auto">
+                    <div className="max-w-md mx-auto rounded-2xl bg-mahogany px-6 py-5">
                       <NewsletterForm variant="inline" />
                     </div>
                   </section>
