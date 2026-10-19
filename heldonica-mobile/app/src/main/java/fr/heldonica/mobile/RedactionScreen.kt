@@ -58,6 +58,7 @@ fun RedactionScreen() {
 
     var sejours by remember { mutableStateOf<List<SejourTimeline>>(emptyList()) }
     var photos by remember { mutableStateOf<List<PhotoChoisie>>(emptyList()) }
+    var confirmerRetour by remember { mutableStateOf(false) }
     var sansEnfant by remember { mutableStateOf(false) }
 
     fun charger() {
@@ -98,7 +99,13 @@ fun RedactionScreen() {
     ) { uris ->
         if (uris.isEmpty()) return@rememberLauncherForActivityResult
         scope.launch {
-            val ajoutees = uris.map { uri ->
+            if (photos.size + uris.size > 10) {
+                message = "10 photos maximum par ajout : retire-en avant d'en choisir d'autres."
+                return@launch
+            }
+            val ajoutees = uris.mapIndexed { n, uri ->
+                // Nominatim n'accepte qu'une requête par seconde.
+                if (n > 0) kotlinx.coroutines.delay(1100)
                 val brut = RedactionClient.dateExif(contexte, uri)
                 val instant = TimelineGoogle.instantExif(brut)
                 val sejour = instant?.let { TimelineGoogle.sejourPour(sejours, it) }
@@ -148,8 +155,19 @@ fun RedactionScreen() {
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            TextButton(onClick = { choisi = null; charger() }) { Text("← Brouillons") }
+            TextButton(onClick = { if (modifie) confirmerRetour = true else { choisi = null; charger() } }) { Text("← Brouillons") }
             Text(b.titre.ifBlank { "(sans titre)" }, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+        }
+        if (confirmerRetour) {
+            AlertDialog(
+                onDismissRequest = { confirmerRetour = false },
+                title = { Text("Modifications non enregistrées") },
+                text = { Text("Si tu reviens à la liste, ce qui a été complété ou ajouté ici sera perdu.") },
+                confirmButton = {
+                    TextButton(onClick = { confirmerRetour = false; modifie = false; choisi = null; charger() }) { Text("Abandonner") }
+                },
+                dismissButton = { TextButton(onClick = { confirmerRetour = false }) { Text("Rester") } }
+            )
         }
         message?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
         if (occupe) LinearProgressIndicator(Modifier.fillMaxWidth())

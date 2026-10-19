@@ -83,11 +83,10 @@ object RedactionClient {
                 if (!r.isSuccessful) throw Exception(erreur(reponse, r.code))
                 val o = JSONObject(reponse)
                 val ajouts = o.optJSONArray("ajouts_non_sources") ?: JSONArray()
-                PropositionIa(
-                    contenu = o.optString("data").trim()
-                        .removePrefix("```html").removePrefix("```").removeSuffix("```").trim(),
-                    ajoutsNonSources = (0 until ajouts.length()).map { ajouts.getString(it) }
-                )
+                val contenuIa = o.optString("data").trim()
+                        .removePrefix("```html").removePrefix("```").removeSuffix("```").trim()
+                RedactionBrouillon.refuserProposition(contenu, contenuIa)?.let { throw Exception(it) }
+                PropositionIa(contenuIa, (0 until ajouts.length()).map { ajouts.getString(it) })
             }
         }
     }
@@ -110,10 +109,14 @@ object RedactionClient {
             val temporaires = mutableListOf<File>()
             val types = mutableListOf<String>()
             runCatching {
+                if (uris.size > 10) throw Exception("10 photos maximum par ajout.")
                 for (uri in uris) {
                     // Le type réel de la photo, pas « jpeg » pour tout : un PNG ou un
                     // WebP déposé sous un faux type s'afficherait mal sur le site.
                     val mime = context.contentResolver.getType(uri)?.takeIf { it.startsWith("image/") } ?: "image/jpeg"
+                    if (mime == "image/heic" || mime == "image/heif") {
+                        throw Exception("Format HEIC non pris en charge par le site : passe l'appareil photo en JPEG.")
+                    }
                     val ext = when (mime) {
                         "image/png" -> ".png"
                         "image/webp" -> ".webp"

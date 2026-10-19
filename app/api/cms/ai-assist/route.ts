@@ -414,6 +414,14 @@ ${text || '(aucun)'}
             { status: 400 }
           );
         }
+        // Tronquer ferait renvoyer un article amputé, que l'application enregistrerait
+        // par-dessus l'original : mieux vaut refuser.
+        if (brouillon.length > 30000) {
+          return NextResponse.json(
+            { error: 'Ce brouillon est trop long pour être complété depuis le téléphone (30 000 caractères max).' },
+            { status: 413 }
+          );
+        }
         const lieux = Array.isArray(context?.lieux) ? (context!.lieux as string[]).filter(Boolean) : [];
 
         const prompt = `Voici un brouillon d'article Heldonica en HTML, avec des lacunes marquées [À TOI : …], puis les notes que le duo vient de dicter.
@@ -433,7 +441,7 @@ ${text}
 
 Brouillon :
 ---
-${brouillon.slice(0, 12000)}
+${brouillon}
 ---
 
 Réponds UNIQUEMENT avec le HTML complet du brouillon, sans commentaire ni bloc de code.`;

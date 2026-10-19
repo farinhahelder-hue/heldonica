@@ -43,3 +43,21 @@ class RedactionBrouillonTest {
         assertNull(RedactionBrouillon.jourDe(null))
     }
 }
+
+class RefusPropositionTest {
+    private val avant = "<p>Un long texte déjà écrit pour l'étape.</p><p>[À TOI : odeur]</p><img src=\"https://x/a.jpg\" />"
+
+    @Test
+    fun `accepte une proposition qui comble une lacune`() {
+        val apres = "<p>Un long texte déjà écrit pour l'étape.</p><p>Odeur de pain chaud.</p><img src=\"https://x/a.jpg\" />"
+        assertNull(RedactionBrouillon.refuserProposition(avant, apres))
+    }
+
+    @Test
+    fun `refuse vide, photo perdue, lacunes ajoutees ou texte raccourci`() {
+        assertNotNull(RedactionBrouillon.refuserProposition(avant, " "))
+        assertNotNull(RedactionBrouillon.refuserProposition(avant, "<p>Un long texte déjà écrit pour l'étape.</p><p>Pain.</p>"))
+        assertNotNull(RedactionBrouillon.refuserProposition(avant, avant + "<p>[À TOI : prix]</p>"))
+        assertNotNull(RedactionBrouillon.refuserProposition(avant, "<p>Court.</p><p>[À TOI : odeur]</p><img src=\"https://x/a.jpg\" />"))
+    }
+}

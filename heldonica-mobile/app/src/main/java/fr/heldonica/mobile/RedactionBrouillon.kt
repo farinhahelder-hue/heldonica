@@ -46,4 +46,21 @@ object RedactionBrouillon {
 
     /** « 2026-08-28T09:14:00 » → « 2026-08-28 » (jour de la photo, sans l'heure). */
     fun jourDe(iso: String?): String? = iso?.substringBefore('T')?.takeIf { it.length == 10 }
+
+    private val IMG = Regex("<img[^>]+src=\"([^\"]+)\"", RegexOption.IGNORE_CASE)
+
+    /**
+     * Raison de refuser la proposition de l'IA, ou null si elle est sûre à garder.
+     * Elle remplace tout le brouillon : on refuse si elle perd une image, si elle
+     * ajoute des lacunes, ou si elle rend nettement moins de texte qu'avant.
+     */
+    fun refuserProposition(avant: String, apres: String): String? {
+        if (apres.isBlank()) return "L'IA a rendu un texte vide."
+        val imagesAvant = IMG.findAll(avant).map { it.groupValues[1] }.toSet()
+        val imagesApres = IMG.findAll(apres).map { it.groupValues[1] }.toSet()
+        if (!imagesApres.containsAll(imagesAvant)) return "L'IA a retiré une photo du brouillon."
+        if (nombreDeLacunes(apres) > nombreDeLacunes(avant)) return "L'IA a ajouté des lacunes au lieu d'en combler."
+        if (texteBrut(apres).length < texteBrut(avant).length * 0.8) return "L'IA a raccourci le brouillon : du texte a disparu."
+        return null
+    }
 }
