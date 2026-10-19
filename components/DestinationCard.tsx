@@ -33,6 +33,12 @@ function formatBudget(amount?: number): string {
   return `~${amount}€/semaine/couple`
 }
 
+// Le drapeau n'est pas toujours renseigné en base : sans lui la tuile resterait un grand vide.
+const COUNTRY_FLAGS: Record<string, string> = {
+  Portugal: '🇵🇹', Italie: '🇮🇹', France: '🇫🇷', Espagne: '🇪🇸', Malte: '🇲🇹', Pologne: '🇵🇱',
+  Roumanie: '🇷🇴', 'Monténégro': '🇲🇪', Suisse: '🇨🇭', 'Grèce': '🇬🇷', Colombie: '🇨🇴',
+}
+
 const DestinationCard = memo(function DestinationCard({
   slug, title, country, flag_emoji, teaser,
   hero_unsplash_url, featured_image, status,
@@ -67,7 +73,7 @@ const DestinationCard = memo(function DestinationCard({
           />
         ) : (
           <div aria-hidden="true" className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cloud-dancer to-stone-200 text-5xl">
-            {flag_emoji}
+            {flag_emoji || COUNTRY_FLAGS[country] || '🌍'}
           </div>
         )}
         <div className="absolute top-3 left-3 flex flex-wrap gap-2">
