@@ -58,6 +58,10 @@ const services = [
   },
 ];
 
+// Études de cas masquées (19/10/2026) tant que le fondateur n'a pas confirmé
+// qu'il s'agit de vrais clients, avec accord pour citer leurs chiffres.
+const SHOW_CASE_STUDIES = false
+
 const caseStudies = [
   {
     title: 'La Grange d\'Émilie — Maison d\'hôtes en Bretagne',
@@ -174,6 +178,7 @@ export default async function ExpertHotelierPage() {
               >
                 <EditableZone page="expert-hotelier" zone="hero_cta_1" fallback="Parlons de votre établissement →" />
               </B2bCtaButton>
+              {SHOW_CASE_STUDIES && (
               <B2bCtaButton
                 href="#cas-clients"
                 eventName="etude_cas_lue"
@@ -182,6 +187,7 @@ export default async function ExpertHotelierPage() {
               >
                 <EditableZone page="expert-hotelier" zone="hero_cta_2" fallback="Voir nos retours d'expérience →" />
               </B2bCtaButton>
+              )}
             </div>
           </div>
         </section>
@@ -276,6 +282,7 @@ export default async function ExpertHotelierPage() {
         </section>
 
         {/* Case Studies Section */}
+        {SHOW_CASE_STUDIES && (
         <section id="cas-clients" className="py-20 md:py-28 bg-white">
           <div className="max-w-5xl mx-auto px-6">
             <EditableZone page="expert-hotelier" zone="cas_clients_badge" fallback="Retours d'expérience"
@@ -325,6 +332,7 @@ export default async function ExpertHotelierPage() {
             </div>
           </div>
         </section>
+        )}
 
         {/* Processus Section */}
         <section className="py-20 md:py-28 bg-stone-50">
