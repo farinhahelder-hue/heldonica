@@ -19,8 +19,8 @@ const config: Config = {
         'charcoal': 'var(--color-text, #2C2C2C)',
       },
       fontFamily: {
-        serif: ['var(--font-heading, Playfair Display)', 'serif'],
-        sans: ['var(--font-body, Inter)', 'sans-serif'],
+        serif: ['var(--font-heading, Fraunces)', 'Georgia', 'serif'],
+        sans: ['var(--font-body, Source Sans 3)', 'system-ui', 'sans-serif'],
       },
       spacing: {
         'section': '80px',
