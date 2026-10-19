@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit --incremental false",
+    "worktree": "node scripts/agent-worktree.mjs",
+    "hooks:install": "git config core.hooksPath .githooks",
     "preflight": "node scripts/garde-fous.mjs --preflight",
     "garde-fous": "node scripts/garde-fous.mjs",
     "check:workspace": "node scripts/check-workspace-sync.mjs",

@@ -1,0 +1,22 @@
+#!/bin/sh
+# Refuse qu'un agent commite sur main ou sur la branche d'un autre agent.
+. "$(dirname "$0")/agent-branche.sh"
+
+moi=$(agent_courant)
+[ -z "$moi" ] && exit 0
+
+branche=$(git symbolic-ref --quiet --short HEAD) || exit 0
+
+if [ "$branche" = "main" ]; then
+  echo "✗ $moi : on ne commite pas sur main. Crée ta branche : npm run worktree -- $moi <slug>" >&2
+  exit 1
+fi
+
+autre=$(proprietaire "$branche")
+if [ -n "$autre" ] && [ "$autre" != "$moi" ]; then
+  echo "✗ La branche « $branche » est celle de $autre, pas de $moi." >&2
+  echo "  Un autre agent a changé de branche dans ce dossier. Ne commite pas ici :" >&2
+  echo "  npm run worktree -- $moi <slug>   (dossier à toi, branche agent/$moi/<slug>)" >&2
+  exit 1
+fi
+exit 0

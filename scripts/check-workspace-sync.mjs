@@ -90,6 +90,20 @@ function main() {
     avertissements.push(`Fichier(s) de sauvegarde à la racine : ${parasites.join(', ')}`);
   }
 
+  // ── 4. Hooks de protection des branches ────────────────────────────────────
+  // Sans eux, rien n'empêche un agent de commiter sur la branche d'un autre.
+  if (git('config', 'core.hooksPath') !== '.githooks') {
+    avertissements.push('Hooks de protection des branches non installés : npm run hooks:install');
+  }
+  const worktrees = (git('worktree', 'list', '--porcelain') ?? '')
+    .split('\n').filter((l) => l.startsWith('worktree ')).length;
+  if (worktrees <= 1 && process.env.AGENT_NAME) {
+    avertissements.push(
+      'Tu travailles dans le dossier partagé : le changement de branche d\'un autre agent te déplacera.\n' +
+      `      Prends ton dossier : npm run worktree -- ${process.env.AGENT_NAME} <slug>`
+    );
+  }
+
   // ── Rapport ─────────────────────────────────────────────────────────────────
   for (const a of avertissements) console.log(`⚠ ${a}`);
 
