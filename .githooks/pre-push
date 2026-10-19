@@ -1,0 +1,25 @@
+#!/bin/sh
+# Refuse qu'un agent pousse sur main ou sur la branche d'un autre agent.
+. "$(dirname "$0")/agent-branche.sh"
+
+moi=$(agent_courant)
+[ -z "$moi" ] && exit 0
+
+# Git fournit une ligne par référence : <ref locale> <sha local> <ref distante> <sha distant>
+while read -r locale _ distante _; do
+  for ref in "$distante" "$locale"; do
+    nom=${ref#refs/heads/}
+    [ "$nom" = "$ref" ] && continue
+    if [ "$nom" = "main" ] && [ "$ref" = "$distante" ]; then
+      echo "✗ $moi : pas de push direct sur main. Passe par une PR." >&2
+      exit 1
+    fi
+    autre=$(proprietaire "$nom")
+    if [ -n "$autre" ] && [ "$autre" != "$moi" ]; then
+      echo "✗ « $nom » est la branche de $autre, pas de $moi : push refusé." >&2
+      echo "  Pousse explicitement ta propre branche : git push origin <ta-branche>" >&2
+      exit 1
+    fi
+  done
+done
+exit 0

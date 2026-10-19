@@ -2,6 +2,20 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-19] — Les agents ne se marchent plus dessus (worktrees + hooks)
+
+Incident du jour : tous les agents partagent un dossier, donc une branche active. Un
+`checkout` d'OpenCode a déplacé la session de Claude, dont le commit puis le `git push` sont
+partis sur `agent/opencode/brand-look`.
+
+- `npm run worktree -- <agent> <slug>` : dossier à soi (`../worktrees/<agent>-<slug>`),
+  branche `agent/<agent>/<slug>` depuis `origin/main`.
+- Hooks `.githooks/` (`npm run hooks:install`, une fois) : pour un agent annoncé par
+  `AGENT_NAME`, refus d'un commit sur `main` ou sur la branche d'un autre, et d'un push
+  sur `main` ou sur la branche d'un autre. Sans `AGENT_NAME`, rien n'est contrôlé.
+- `npm run preflight` avertit si les hooks manquent ou si l'agent travaille dans le dossier partagé.
+- Règles ajoutées à `AGENTS.md` (« Un dossier par agent »). Tests : `__tests__/scripts/`.
+
 ## [2026-10-18] — Clé API du dispatcher du registre
 
 `dispatch-registre.yml` échouait à chaque passage : secret `AI_AGENT_API_KEY` absent.
