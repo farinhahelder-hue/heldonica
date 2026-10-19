@@ -20,7 +20,7 @@ export const revalidate = 300
 const PAGE = "destinations-alentejo";
 const FAQS: { q: string; a: string }[] = [
   { q: "Quand partir dans l'Alentejo pour le slow travel ?", a: "Les meilleures périodes sont mars-mai et septembre-novembre. Températures agréables (20-28°C), vignobles en fleur ou vendanges, hors des sentiers battus." },
-  { q: "Combien de jours pour découvrir l'Alentejo ?", a: "Comptez minimum 4-5 jours pour faire Évoramonsaraz. 7-10 jours permettent d'explorer la Rota das Aldeias Históricas et les vignobles du sud." },
+  { q: "Combien de jours pour découvrir l'Alentejo ?", a: "Comptez minimum 4-5 jours pour faire Évora et Monsaraz. 7-10 jours permettent d'explorer la Rota das Aldeias Históricas et les vignobles du sud." },
   { q: "Comment se déplacer dans l'Alentejo ?", a: "Location de voiture indispensable. Les distances sont grandes et les transports en commun rares. Les routes sont bonnes, le trafic faible — idéal pour un road trip lent." },
   { q: "Budget moyen par jour dans l'Alentejo ?", a: "Comptez 70-120€/jour en milieu de gamme (hébergement + repas + activités). L'Alentejo est moins cher que le littoral Algarve." },
 ];
@@ -135,7 +135,7 @@ export default async function AlentejoPage() {
                 {Z('intro_1', 'html', "<strong className=\"text-stone-900\">La première fois</strong>, on a traversé l’Alentejo en vitesse, direction l’Algarve. Grosse erreur. On a traversé des siècles d’histoire, des plains qui donnaient le vertige, des villages où le temps semblait s’être arrêté — et on n’y a même pas posé pied.", undefined, 'span')}
               </p>
               <p className="text-stone-700 leading-relaxed">
-                {Z('intro_2', 'html', "<strong className=\"text-stone-900\">La deuxième fois</strong>, on a pris 5 jours. Juste l’Alentejo central. Évoramonsaraz, les vignobles de Vidigueira, les routes sans autre voiture à l’horizon. C’est là qu’on a compris : l’Alentejo, c’est le Portugal <em>vraiment</em>.", undefined, 'span')}
+                {Z('intro_2', 'html', "<strong className=\"text-stone-900\">La deuxième fois</strong>, on a pris 5 jours. Juste l’Alentejo central. Évora et Monsaraz, les vignobles de Vidigueira, les routes sans autre voiture à l’horizon. C’est là qu’on a compris : l’Alentejo, c’est le Portugal <em>vraiment</em>.", undefined, 'span')}
               </p>
               <p className="text-stone-700 leading-relaxed">
                 {Z('intro_3', 'html', "Ce qu’on y a trouvé : du bon vin à 3€, des restaurants de village où le patron cooking tout lui-même, des champs de liège à perte de vue, et ce silence qu’on cherche tous sans jamais oser le dire.", undefined, 'span')}
@@ -420,7 +420,7 @@ export default async function AlentejoPage() {
                     <span className="text-eucalyptus group-open:rotate-45 transition-transform">+</span>
                   </summary>
                   <p className="mt-3 text-stone-600 text-sm leading-relaxed">
-                    {Z('faq_2_a', 'textarea', "Comptez minimum 4-5 jours pour faire Évoramonsaraz. 7-10 jours permettent d'explorer la Rota das Aldeias Históricas et les vignobles du sud.", undefined, 'span')}
+                    {Z('faq_2_a', 'textarea', "Comptez minimum 4-5 jours pour faire Évora et Monsaraz. 7-10 jours permettent d'explorer la Rota das Aldeias Históricas et les vignobles du sud.", undefined, 'span')}
                   </p>
                 </details>
                 <details key={2} className="bg-white rounded-xl p-5 border border-stone-100 group">

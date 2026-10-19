@@ -2,6 +2,44 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-19] — Audit en ligne : un brouillon servi en « Chargement… » indexable, et Grèce alignée
+
+- **Méthode** : revérification en ligne de constats de session 1. Quatre d'entre
+  eux ne résistaient pas (descriptions SEO « dupliquées », sitemap « codé à la
+  main », `reservenaturelle` visible, `agritourismes` fautif) : ils sont retirés.
+  Un slug, un nom de fichier ou une valeur en base ne prouve pas ce qui est servi.
+- **Constat principal, non signalé auparavant** : `/blog/<slug>` inexistant — et
+  un brouillon comme `/blog/zurich` — renvoie **HTTP 200**, `robots=index, follow`,
+  et le corps ne contient qu'un écran **« Chargement… »** figé (mesuré 3 fois,
+  64 225 o). Ce n'est même pas la page 404 du site. Cause : `app/loading.tsx`
+  (racine, seul du dépôt) enveloppe tout dans un Suspense et `/blog/[slug]` est en
+  `revalidate = 3600` : le squelette part et reste. Portée : 47 brouillons + toute
+  URL `/blog/` inexistante. Atténuation mesurée : 0 brouillon au sitemap, 0 lien
+  interne vers un brouillon. Correctif non engagé (routage global) — voir
+  `.audit/audit-2026-10-18/5-DECISIONS-PROPRIETAIRE.md`, point 6.
+- **`/destinations/grece` — corrigé** : la page servait un écran « Bientôt » mais
+  restait `index, follow` et présente dans le sitemap, alors que les 33 autres
+  pages « Bientôt » sont en `noindex` et hors sitemap. Cause : `destinations-grece`
+  absente de `lib/unpublished-pages.ts`, sur laquelle s'appuie `lib/page-metadata.ts`.
+  Ajout dans `UNPUBLISHED_PATHS` + `UNPUBLISHED_CMS_PAGES`, retrait de
+  `app/sitemap.ts`, test de non-régression ajouté.
+- **Coquilles corrigées dans le code** : `Évoramonsaraz` → `Évora et Monsaraz`
+  (`app/destinations/alentejo/page.tsx`, 3 occurrences), `compltètement` et
+  `reservenaturelle` (`lib/cms-vault-spots.ts`).
+- **Migration `20261018235500_coquilles_zones_cms.sql`** (idempotente) : mêmes
+  corrections dans `cms_editable_zones`, la base primant à l'affichage. **Non
+  appliquée** — écriture en production, validation requise.
+- **Non corrigé volontairement** : `cms_pillar_pages.roumanie` annonce
+  `tested_by_heldonica.duration = « 9 jours »` alors que `itinerary` contient
+  7 entrées et que `seo_desc` dit « 7 jours ». Contradiction réelle, mais un séjour
+  de 9 jours peut avoir produit un itinéraire publié de 7 : décision propriétaire.
+- **Vérifié sain** : les 8 articles publiés (388–903 mots, aucun placeholder), les
+  45 URL du sitemap (200, titres propres, 0 redirection), les images de couverture
+  (toutes servies), et l'absence de prénoms des fondateurs dans le HTML public.
+  Les écarts de `<title>` sont intentionnels : `seo_title` alimente le `<title>`,
+  `title` le H1 (vérifié 8/8).
+- Garde-fous 13/13 verts.
+
 ## [2026-10-18] — Validation des tâches IA : `validated_by` et le bouton réparé
 
 - **Constat** : la validation n'était atteignable par personne. Le bouton

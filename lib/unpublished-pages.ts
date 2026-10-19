@@ -73,6 +73,12 @@ export const UNPUBLISHED_PATHS: readonly string[] = [
   '/destinations/roumanie/sibiu',
   '/destinations/roumanie/timisoara',
   '/destinations/roumanie/transylvanie',
+
+  // /destinations/grece sert le même écran « Bientôt » que les 33 sous-pages
+  // ci-dessus, mais n'avait jamais été ajoutée ici : elle restait donc indexable
+  // et annoncée dans le sitemap (mesuré le 18/10 : robots=index,follow, présente
+  // dans sitemap.xml) alors qu'elle n'a aucun contenu publié.
+  '/destinations/grece',
 ] as const;
 
 /** Clés de page CMS (`destinations-sicile-taormine`) correspondantes. */
@@ -126,6 +132,9 @@ export const UNPUBLISHED_CMS_PAGES: readonly string[] = [
   'destinations-roumanie-sibiu',
   'destinations-roumanie-timisoara',
   'destinations-roumanie-transylvanie',
+
+  // Cf. UNPUBLISHED_PATHS : même écran « Bientôt », jamais aligné sur les autres.
+  'destinations-grece',
 ] as const;
 
 const pathSet = new Set(UNPUBLISHED_PATHS);

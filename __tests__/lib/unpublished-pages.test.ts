@@ -22,8 +22,13 @@ describe('unpublished-pages', () => {
     // relevé (11 pages) avait manquées : medellin, alghero, asinara.
     // + 33 sous-pages sans photo vérifiée, passées en « Bientôt » pour le MVP du
     // 18/10 (décision du fondateur après la planche de contrôle des photos).
-    expect(UNPUBLISHED_PATHS).toHaveLength(14 + 33);
-    expect(UNPUBLISHED_CMS_PAGES).toHaveLength(14 + 33);
+    expect(UNPUBLISHED_PATHS).toHaveLength(14 + 33 + 1);
+    expect(UNPUBLISHED_CMS_PAGES).toHaveLength(14 + 33 + 1);
+  });
+
+  it('aligne /destinations/grece sur les autres pages « Bientôt »', () => {
+    expect(isUnpublishedPath('/destinations/grece')).toBe(true);
+    expect(isUnpublishedCmsPage('destinations-grece')).toBe(true);
   });
 
   it('MVP du 18/10 : les sous-pages sans photo vérifiée sont « Bientôt »', () => {
