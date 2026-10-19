@@ -19,7 +19,7 @@ const DestinationMapComponent = dynamic(
           alignItems: 'center',
           justifyContent: 'center',
           color: '#6B2D1F',
-          fontFamily: "'Playfair Display', serif",
+          fontFamily: "var(--font-heading, Fraunces, serif)",
         }}
       >
         <div style={{ textAlign: 'center' }}>

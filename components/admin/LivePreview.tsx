@@ -25,8 +25,8 @@ export default function LivePreview({
   footerText,
   copyright,
 }: Props) {
-  const headingFont = fontHeading || 'Playfair Display';
-  const bodyFont = fontBody || 'DM Sans';
+  const headingFont = fontHeading || 'Fraunces';
+  const bodyFont = fontBody || 'Source Sans 3';
 
   const previewStyle = {
     header: {

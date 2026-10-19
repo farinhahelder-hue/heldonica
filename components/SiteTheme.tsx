@@ -1,5 +1,12 @@
 import { getSettings } from '@/lib/settings'
 
+// Polices de marque, servies par next/font (app/layout.tsx) : auto-hébergées,
+// sans requête tierce. Un réglage CMS qui nommerait l'une de ces deux polices
+// serait un override inutile — il ferait recharger via Google Fonts ce que le
+// serveur livre déjà. On le neutralise.
+const BRAND_HEADING = 'Fraunces'
+const BRAND_BODY = 'Source Sans 3'
+
 // ── CSS escaping ───────────────────────────────────────────────────────────
 function escapeCss(str: string): string {
   return str
@@ -161,6 +168,16 @@ export default async function SiteTheme() {
   // explicite on garde cette teinte, pour ne pas altérer le rendu existant.
   const headingColor = settings.heading_color || settings.color_heading || '#6B2D1F'
 
+  // Normalisation des polices : un réglage qui nomme la police de marque est
+  // redondant (next/font la sert déjà, en better shape : subset, swap, aucune
+  // requête tierce). On le neutralise pour ne pas recharger via Google Fonts
+  // ce qui est déjà servi localement. Comparaison insensible à la casse et aux
+  // variantes de nommage (« Fraunces » / « fraunces variable »).
+  const isBrandFont = (value: string | undefined, brand: string) =>
+    !!value && value.trim().toLowerCase().replace(/[-_\s]*variable$/, '') === brand.toLowerCase()
+  const headingOverride = isBrandFont(settings.font_heading, BRAND_HEADING) ? '' : settings.font_heading || ''
+  const bodyOverride = isBrandFont(settings.font_body, BRAND_BODY) ? '' : settings.font_body || ''
+
   const cssVars = `
     :root {
       --theme-preset: '${presetId}';
@@ -179,8 +196,12 @@ export default async function SiteTheme() {
       --button-primary-text: ${settings.button_primary_text || preset.colors.button_primary_text};
       --button-secondary-bg: ${settings.button_secondary_bg || preset.colors.button_secondary_bg};
       --button-secondary-text: ${settings.button_secondary_text || preset.colors.button_secondary_text};
-      --font-heading: ${settings.font_heading || 'Playfair Display, serif'};
-      --font-body: ${settings.font_body || 'DM Sans, sans-serif'};
+      /* Polices : sans réglage CMS explicite, on laisse les variables de marque
+       * (--font-*-brand, injectées par next/font dans le <html>) gouverner via
+       * globals.css. Un réglage en base reprend la main et déclenche le <link>
+       * Google Fonts plus bas. */
+      --font-heading: ${headingOverride ? `${headingOverride}, serif` : 'var(--font-heading-brand, Fraunces, serif)'};
+      --font-body: ${bodyOverride ? `${bodyOverride}, sans-serif` : 'var(--font-body-brand, Source Sans 3, sans-serif)'};
       --font-size-base: ${settings.font_size_base || '16px'};
       --container-max-width: ${settings.container_max_width || '1280px'};
       --header-sticky: ${settings.header_sticky === 'false' ? 'relative' : 'sticky'};
@@ -193,9 +214,17 @@ export default async function SiteTheme() {
     }
   `
 
-  const fontHeading = settings.font_heading || 'Playfair+Display'
-  const fontBody = settings.font_body || 'DM+Sans'
-  const fontUrl = `https://fonts.googleapis.com/css2?family=${fontHeading}:wght@400;500;600;700&family=${fontBody}:wght@400;500;600&display=swap`
+  // Un réglage CMS de police reprend la main sur les polices de marque
+  // (next/font, auto-hébergées). Dans ce seul cas, on charge la police choisie
+  // depuis Google Fonts — l'ancien comportement, qui doublonnait le chargement
+  // à chaque rendu même sans réglage.
+  const fontUrl = (() => {
+    const families = [
+      headingOverride && `family=${headingOverride.replace(/\s+/g, '+')}:wght@400;500;600;700`,
+      bodyOverride && `family=${bodyOverride.replace(/\s+/g, '+')}:wght@400;500;600`,
+    ].filter(Boolean)
+    return families.length ? `https://fonts.googleapis.com/css2?${families.join('&')}&display=swap` : null
+  })()
 
   const customCss = settings.custom_css || ''
   const customHtmlHead = settings.custom_html_head || ''
@@ -203,7 +232,7 @@ export default async function SiteTheme() {
 
   return (
     <>
-      <link href={fontUrl} rel="stylesheet" />
+      {fontUrl && <link href={fontUrl} rel="stylesheet" />}
       <style dangerouslySetInnerHTML={{ __html: cssVars }} />
       {customCss && <style dangerouslySetInnerHTML={{ __html: customCss }} />}
       {customHtmlHead && <div dangerouslySetInnerHTML={{ __html: customHtmlHead }} />}
