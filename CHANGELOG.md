@@ -2,6 +2,13 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-19] — Release APK : un ZIP à côté du .apk
+
+Sur le Poco, le `.apk` téléchargé depuis la release arrivait abîmé (« package doesn't appear
+to be valid ») alors que l'artefact ZIP de la CI s'installait. Même fichier, autre chemin de
+téléchargement. `release-apk.yml` publie maintenant aussi `heldonica-<tag>.zip` (12 Mo, l'APK
+seul, vérifié par `testzip` avant publication). Le `.apk` direct reste.
+
 ## [2026-10-19] — Marque : logo vectoriel, icônes PWA, typographie (OpenCode)
 
 Branche `agent/opencode/brand-look`. Aucun autre fichier modifié (le WIP
