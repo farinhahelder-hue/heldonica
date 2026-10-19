@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
+import { Fraunces, Source_Sans_3 } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/components/AuthProvider';
 import CookieConsentBanner from '@/components/CookieConsentBanner';
@@ -13,6 +14,24 @@ import NewsletterPopup from '@/components/NewsletterPopup';
 import BackToTop from '@/components/BackToTop';
 
 const SITE_URL = 'https://www.heldonica.fr';
+
+// Fraunces (titres) + Source Sans 3 (texte) : chargées par next/font, donc
+// auto-hébergées au build — plus de requête tierce vers Google Fonts, plus de
+// CLS au chargement (contrairement à l'ancien @import dans globals.css).
+// Les variables CSS --font-heading-brand / --font-body-brand alimentent les
+// variables de marque ; SiteTheme ne les surcharge que si un réglage CMS
+// explicite existe en base.
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-heading-brand',
+});
+
+const sourceSans3 = Source_Sans_3({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-body-brand',
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -199,7 +218,7 @@ export default async function RootLayout({
   const gtmId = premierValide('GTM-', siteSettings.seo_gtm_id, siteSettings.gtm_id);
 
   return (
-    <html lang="fr" suppressHydrationWarning>
+    <html lang="fr" suppressHydrationWarning className={`${fraunces.variable} ${sourceSans3.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{
           __html: `
