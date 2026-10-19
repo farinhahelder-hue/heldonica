@@ -181,16 +181,6 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
       <ReadProgressBar />
 
       <section className="relative overflow-hidden bg-mahogany px-4 py-24 text-white md:py-28">
-        <div
-          className="absolute inset-0 opacity-25"
-          style={{
-            backgroundImage:
-              "url('/og-default.jpg')",
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-mahogany/80 via-mahogany/75 to-mahogany/65" />
         <div className="relative mx-auto max-w-4xl text-center">
           <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-teal/80">
             <EditableZone page="blog" zone="hero_badge" fallback="Blog Heldonica" />
