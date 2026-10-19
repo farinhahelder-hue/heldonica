@@ -2,6 +2,24 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-19] — Typographie de marque : fin du double chargement Google Fonts (OpenCode)
+
+Branche `agent/opencode/brand-polish`, suite du WIP laissé par la session marque.
+
+- `components/SiteTheme.tsx` : un réglage CMS qui nomme Fraunces ou Source Sans 3
+  est neutralisé (la police est déjà servie par `next/font`) ; le `<link>`
+  Google Fonts n'est émis que si l'admin choisit une autre police.
+- `app/maintenance/page.tsx`, cartes Leaflet et aperçu admin : derniers
+  `Playfair Display`/`DM Sans` remplacés par les polices de marque.
+- `public/og-image.svg` : pictogramme Heldonica (cercle pointillé, sommets,
+  ligne d'eau) à la place du « H » générique.
+- `supabase/migrations/20261019000000_polices_marque_fraunces_source_sans.sql` :
+  remet `font_heading`/`font_body` sur les polices de marque quand ils portent
+  encore les anciennes valeurs par défaut. Non appliquée ici.
+- Vérifié : `preflight` 7/7, `typecheck`, `lint` (2 warnings préexistants),
+  `next build`, `vitest` 808/811. Les 3 échecs (`formatDate`) viennent du Node
+  local sans ICU `fr-FR` (`June 20, 2024`), pas du diff.
+
 ## [2026-10-19] — Release APK : un ZIP à côté du .apk
 
 Sur le Poco, le `.apk` téléchargé depuis la release arrivait abîmé (« package doesn't appear

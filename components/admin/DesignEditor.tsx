@@ -41,8 +41,8 @@ const TEXT_FIELDS = [
 ] as const;
 
 const FONT_OPTIONS = [
-  'Playfair Display', 'DM Sans', 'Inter', 'Lora', 'Cormorant',
-  'Cormorant Garamond', 'Libre Baskerville', 'Raleway', 'Source Sans 3',
+  'Fraunces', 'Source Sans 3', 'Playfair Display', 'DM Sans', 'Inter', 'Lora', 'Cormorant',
+  'Cormorant Garamond', 'Libre Baskerville', 'Raleway',
   'Montserrat', 'Nunito', 'Poppins', 'Merriweather', 'EB Garamond',
   'DM Serif Display', 'Josefin Sans',
 ];
@@ -238,7 +238,7 @@ export default function DesignEditor() {
   const renderFonts = () => (
     <div className="space-y-4">
       <h3 className="text-sm font-semibold text-gray-900">Polices</h3>
-      {[{ key: 'font_heading', label: 'Police des titres', fallback: 'Playfair Display' }, { key: 'font_body', label: 'Police du corps', fallback: 'DM Sans' }].map(field => (
+      {[{ key: 'font_heading', label: 'Police des titres', fallback: 'Fraunces' }, { key: 'font_body', label: 'Police du corps', fallback: 'Source Sans 3' }].map(field => (
         <div key={field.key}>
           <label className="block text-xs font-medium text-gray-700 mb-1">{field.label}</label>
           <select value={v(field.key, field.fallback)} onChange={e => update(field.key, e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
@@ -460,8 +460,8 @@ export default function DesignEditor() {
             tagline={v('site_tagline', 'Slow travel vécu en duo, conçu pour toi.')}
             primaryColor={v('primary_color', '#006D77')}
             secondaryColor={v('secondary_color', '#83C5BE')}
-            fontHeading={v('font_heading', 'Playfair Display')}
-            fontBody={v('font_body', 'DM Sans')}
+            fontHeading={v('font_heading', 'Fraunces')}
+            fontBody={v('font_body', 'Source Sans 3')}
             logoUrl={v('logo_url')}
             ctaLabel={v('primary_cta_label', 'Planifier mon voyage')}
             footerText={v('footer_text', '')}

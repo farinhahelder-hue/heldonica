@@ -8,8 +8,21 @@
   <rect width="1200" height="630" fill="url(#bg)"/>
   <circle cx="950" cy="150" r="200" fill="#6b2a1a" opacity="0.05"/>
   <circle cx="200" cy="500" r="150" fill="#6b2a1a" opacity="0.04"/>
+
+  <!-- Collines lointaines, comme dans le pictogramme de marque -->
   <path d="M0 450 Q300 350 500 400 Q700 300 900 380 Q1050 320 1200 400 L1200 630 L0 630 Z" fill="#d4cfc9" opacity="0.4"/>
   <path d="M0 520 Q200 450 400 480 Q600 420 800 470 Q1000 400 1200 480 L1200 630 L0 630 Z" fill="#c4bfb9" opacity="0.3"/>
-  <text x="600" y="280" font-family="Georgia, serif" font-size="180" font-weight="300" fill="#6b2a1a" text-anchor="middle" opacity="0.12">H</text>
-  <text x="600" y="360" font-family="Arial, sans-serif" font-size="24" font-weight="300" fill="#6b2a1a" text-anchor="middle" opacity="0.4">HELDONICA</text>
+
+  <!-- Pictogramme Heldonica : cercle pointillé du carnet + les deux sommets -->
+  <g transform="translate(528 150)" opacity="0.85">
+    <circle cx="72" cy="72" r="63" stroke="#2D8B8A" stroke-width="6" stroke-dasharray="14 14" opacity="0.5"/>
+    <path d="M36 96l29-40 29 40" stroke="#6b2a1a" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M63 96l22-31 27 31" stroke="#6b2a1a" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M22 114c27-11 49 2 72-11s23-16 32-9" stroke="#2D8B8A" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.7"/>
+  </g>
+
+  <!-- Wordmark : Georgia reste la seule serif fiable côté scrapers sociaux,
+       qui n'exécutent ni les web fonts ni les @import dans un SVG distant. -->
+  <text x="600" y="400" font-family="Georgia, 'Times New Roman', serif" font-size="86" font-weight="400" letter-spacing="14" fill="#6b2a1a" text-anchor="middle">HELDONICA</text>
+  <text x="600" y="462" font-family="Helvetica, Arial, sans-serif" font-size="25" font-weight="400" letter-spacing="3" fill="#6b2a1a" text-anchor="middle" opacity="0.55">Slow travel &amp; carnets de route</text>
 </svg>
