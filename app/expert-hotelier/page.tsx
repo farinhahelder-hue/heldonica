@@ -149,7 +149,6 @@ export default async function ExpertHotelierPage() {
       <main className="min-h-screen">
         {/* Hero Section */}
         <section className="relative bg-stone-950 text-white py-28 md:py-36 overflow-hidden">
-          <div className="absolute inset-0 opacity-[0.35]" style={{ backgroundImage: 'url(/og-default.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
           <div className="absolute inset-0 bg-gradient-to-br from-stone-950/[0.60] via-stone-950/50 to-stone-950/[0.60]" />
           <div className="relative max-w-4xl mx-auto px-6 text-center">
             <EditableZone page="expert-hotelier" zone="hero_badge" fallback="Hébergements & Slow Travel"
