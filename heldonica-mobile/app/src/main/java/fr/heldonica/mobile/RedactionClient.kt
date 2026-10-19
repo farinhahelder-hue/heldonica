@@ -108,9 +108,20 @@ object RedactionClient {
     suspend fun televerser(context: Context, uris: List<Uri>): Result<List<String>> =
         withContext(Dispatchers.IO) {
             val temporaires = mutableListOf<File>()
+            val types = mutableListOf<String>()
             runCatching {
                 for (uri in uris) {
-                    val tmp = File.createTempFile("redaction_", ".jpg", context.cacheDir)
+                    // Le type réel de la photo, pas « jpeg » pour tout : un PNG ou un
+                    // WebP déposé sous un faux type s'afficherait mal sur le site.
+                    val mime = context.contentResolver.getType(uri)?.takeIf { it.startsWith("image/") } ?: "image/jpeg"
+                    val ext = when (mime) {
+                        "image/png" -> ".png"
+                        "image/webp" -> ".webp"
+                        "image/heic", "image/heif" -> ".heic"
+                        else -> ".jpg"
+                    }
+                    types += mime
+                    val tmp = File.createTempFile("redaction_", ext, context.cacheDir)
                     context.contentResolver.openInputStream(uri)?.use { it.copyTo(tmp.outputStream()) }
                         ?: throw Exception("Photo illisible")
                     temporaires += tmp
@@ -128,7 +139,7 @@ object RedactionClient {
                 temporaires.mapIndexed { i, fichier ->
                     val cible = cibles.getJSONObject(i)
                     val envoi = Request.Builder().url(cible.getString("signedUrl"))
-                        .put(fichier.asRequestBody("image/jpeg".toMediaType())).build()
+                        .put(fichier.asRequestBody(types[i].toMediaType())).build()
                     http.newCall(envoi).execute().use { r ->
                         if (!r.isSuccessful) throw Exception("Dépôt refusé (HTTP ${r.code})")
                     }
