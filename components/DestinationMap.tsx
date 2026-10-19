@@ -111,7 +111,7 @@ export default function DestinationMap({
       markers.forEach((marker) => {
         const mapMarker = L.marker([marker.latitude, marker.longitude], { icon: heldonicaIcon });
         mapMarker.bindPopup(`
-          <div style="font-family: 'Playfair Display', serif; min-width: 220px;">
+          <div style="font-family: var(--font-heading, Fraunces, serif); min-width: 220px;">
             <p style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; color: #006D77; font-weight: 600; margin-bottom: 4px;">${marker.country}</p>
             <h3 style="font-size: 18px; color: #6B2D1F; margin: 0 0 8px 0; font-weight: 700;">${marker.title}</h3>
             <p style="font-size: 13px; color: #2C2C2C; margin: 0 0 12px 0; line-height: 1.5;">${marker.excerpt}</p>
