@@ -89,8 +89,22 @@ jobs:
           fi
           SORTIE="heldonica-${TAG}.apk"
           mv apk/app-release.apk "$SORTIE"
+          # Le même APK dans un ZIP : sur certains téléphones, le téléchargement direct
+          # d'un .apk depuis le navigateur arrive abîmé (« package doesn't appear to be
+          # valid ») alors que le ZIP, lui, passe et s'ouvre dans le gestionnaire de fichiers.
+          ZIP="heldonica-${TAG}.zip"
+          python3 - "$ZIP" "$SORTIE" <<'PY'
+          import sys, zipfile
+          zip_nom, apk = sys.argv[1], sys.argv[2]
+          with zipfile.ZipFile(zip_nom, 'w', zipfile.ZIP_DEFLATED) as z:
+            z.write(apk)
+          with zipfile.ZipFile(zip_nom) as z:
+            assert z.testzip() is None and z.namelist() == [apk], z.namelist()
+          PY
+          echo "  ZIP à publier : $ZIP ($(stat -c%s "$ZIP") octets)"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "fichier=$SORTIE" >> "$GITHUB_OUTPUT"
+          echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
           echo "  APK à publier : $SORTIE ($(stat -c%s "$SORTIE") octets)"
 
       - name: Refuser de publier un APK contenant un secret
@@ -159,6 +173,10 @@ jobs:
           le keystore du dépôt : il s'installe par-dessus la version précédente, sans
           désinstallation ni perte des réglages.
 
+          Deux fichiers, le même APK : le `.apk` direct, et un `.zip` à ouvrir dans le
+          gestionnaire de fichiers si l'installation du `.apk` échoue (téléchargement
+          abîmé par le navigateur : « package doesn't appear to be valid »).
+
           Construit par la CI (workflow « Build APK »).
 
           Contrôles automatiques avant publication : la veille est bien dans le dex,
@@ -166,6 +184,7 @@ jobs:
           NOTES
           gh release create "${{ steps.nom.outputs.tag }}" \
             "${{ steps.nom.outputs.fichier }}" \
+            "${{ steps.nom.outputs.zip }}" \
             --repo "${{ github.repository }}" \
             --title "Heldonica Mobile ${{ steps.nom.outputs.tag }}" \
             --notes-file NOTES.md \
