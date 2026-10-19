@@ -494,7 +494,10 @@ Réponds UNIQUEMENT avec le HTML complet du brouillon, sans commentaire ni bloc 
     else if (parsedResult && typeof parsedResult === 'object') {
       for (const v of Object.values(parsedResult)) if (typeof v === 'string') sorties.push(v);
     }
-    const ajouts = sourceTexte.trim() ? [...new Set(sorties.flatMap((t) => ajoutsNonSources(t, sourceTexte)))] : [];
+    // fill_gaps rend du HTML : les guillemets des attributs (alt="[À TOI : …]") ne
+    // sont pas des répliques. On compare le texte, sans les balises.
+    const aComparer = action === 'fill_gaps' ? sorties.map((t) => t.replace(/<[^>]+>/g, ' ')) : sorties;
+    const ajouts = sourceTexte.trim() ? [...new Set(aComparer.flatMap((t) => ajoutsNonSources(t, sourceTexte)))] : [];
 
     return NextResponse.json({
       success: true,
