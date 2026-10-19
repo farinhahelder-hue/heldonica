@@ -101,3 +101,8 @@ installer un autre remplace le précédent. Le premier message est plus lent (ch
 
 Le prompt embarqué (`PromptLocal`) reste court pour tenir dans le contexte d'un 1B :
 consignes, 3 fiches du Coffre hors-ligne au plus, 4 derniers messages.
+
+## Rédaction (brouillons + IA + Timeline)
+- `RedactionScreen.kt` / `RedactionClient.kt` : onglet ✍️ — choisir un brouillon, dicter ses notes, l'IA complète les `[À TOI : …]` (action `fill_gaps` de `/api/cms/ai-assist`), ajouter des photos.
+- `TimelineGoogle.kt` : lit l'**export** Google Timeline (pas d'API Google). Export : Paramètres → Position → Services de position → Timeline → Exporter. Fichier lu en local, jamais envoyé.
+- `RedactionBrouillon.kt` : logique pure (lacunes, blocs photo). Tests : `TimelineGoogleTest`, `RedactionBrouillonTest`.

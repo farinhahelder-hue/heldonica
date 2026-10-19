@@ -53,7 +53,8 @@ export interface AiAssistRequest {
     | 'email_sequence'
     | 'destination_hub'
     | 'audit_refresh'
-    | 'guided_from_facts';
+    | 'guided_from_facts'
+    | 'fill_gaps';
   audience?: 'b2c' | 'b2b';
   text?: string;
   title?: string;
@@ -399,6 +400,59 @@ ${text || '(aucun)'}
         break;
       }
 
+      // Depuis l'application : l'IA aide à COMPLÉTER un brouillon, avec ce que la
+      // fondatrice vient de dicter. Elle ne remplace que les [À TOI : …] que les
+      // notes couvrent ; tout le reste du brouillon est rendu à l'identique.
+      case 'fill_gaps': {
+        const brouillon = String(context?.brouillon || '').trim();
+        if (!brouillon) {
+          return NextResponse.json({ error: 'Brouillon manquant' }, { status: 400 });
+        }
+        if (!text || text.trim().length < 30) {
+          return NextResponse.json(
+            { error: 'Raconte d\'abord ce que tu as vécu (au moins 30 caractères) : le Copilote complète avec tes mots, il n\'invente pas.' },
+            { status: 400 }
+          );
+        }
+        // Tronquer ferait renvoyer un article amputé, que l'application enregistrerait
+        // par-dessus l'original : mieux vaut refuser.
+        if (brouillon.length > 30000) {
+          return NextResponse.json(
+            { error: 'Ce brouillon est trop long pour être complété depuis le téléphone (30 000 caractères max).' },
+            { status: 413 }
+          );
+        }
+        const lieux = Array.isArray(context?.lieux) ? (context!.lieux as string[]).filter(Boolean) : [];
+
+        const prompt = `Voici un brouillon d'article Heldonica en HTML, avec des lacunes marquées [À TOI : …], puis les notes que le duo vient de dicter.
+Ta tâche : remplacer UNIQUEMENT les lacunes que les notes permettent de combler, en reprenant les mots des notes, dans la voix Heldonica.
+- Rends le brouillon COMPLET, en HTML, identique au reste près : ne réécris, ne déplace et ne supprime aucune autre phrase, aucune balise <img>, <figure> ou <video>.
+- Une lacune que les notes ne couvrent pas reste EXACTEMENT telle quelle, [À TOI : …] compris.
+- Pronoms stricts : "on" (le duo), "tu" (le lecteur). Jamais "je", jamais "nous".
+${REGLE_SOURCE}
+
+Lieux attestés par l'historique de position (utilisables tels quels, rien d'autre) :
+${lieux.length ? lieux.map((l) => `- ${l}`).join('\n') : '(aucun)'}
+
+Notes dictées :
+---
+${text}
+---
+
+Brouillon :
+---
+${brouillon}
+---
+
+Réponds UNIQUEMENT avec le HTML complet du brouillon, sans commentaire ni bloc de code.`;
+
+        messages = [
+          { role: 'system', content: HELDONICA_B2C_PROMPT },
+          { role: 'user', content: prompt },
+        ];
+        break;
+      }
+
       default:
         return NextResponse.json({ error: 'Action non reconnue' }, { status: 400 });
     }
@@ -434,13 +488,16 @@ ${text || '(aucun)'}
     // Ce que la sortie contient et que l'entrée n'avait pas — chiffres,
     // sensations, répliques. Mesuré, pas cru : la consigne interdit d'ajouter,
     // le modèle ajoute quand même, l'autrice doit le voir avant d'insérer.
-    const sourceTexte = [text, context?.lieu, context?.moment, context?.detail].filter(Boolean).join('\n');
+    const sourceTexte = [text, context?.lieu, context?.moment, context?.detail, context?.brouillon, ...(Array.isArray(context?.lieux) ? context?.lieux : [])].filter(Boolean).join('\n');
     const sorties: string[] = [];
     if (typeof parsedResult === 'string') sorties.push(parsedResult);
     else if (parsedResult && typeof parsedResult === 'object') {
       for (const v of Object.values(parsedResult)) if (typeof v === 'string') sorties.push(v);
     }
-    const ajouts = sourceTexte.trim() ? [...new Set(sorties.flatMap((t) => ajoutsNonSources(t, sourceTexte)))] : [];
+    // fill_gaps rend du HTML : les guillemets des attributs (alt="[À TOI : …]") ne
+    // sont pas des répliques. On compare le texte, sans les balises.
+    const aComparer = action === 'fill_gaps' ? sorties.map((t) => t.replace(/<[^>]+>/g, ' ')) : sorties;
+    const ajouts = sourceTexte.trim() ? [...new Set(aComparer.flatMap((t) => ajoutsNonSources(t, sourceTexte)))] : [];
 
     return NextResponse.json({
       success: true,
