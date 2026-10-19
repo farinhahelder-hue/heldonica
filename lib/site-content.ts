@@ -119,8 +119,9 @@ const CONSUMED_ZONE_KEYS: string[] = [
  *
  * `useContentLoader` appelait `/api/cms/zones` sans filtre de page et indexait
  * le résultat par `zone_key` seul : deux pages qui utilisent la même clé
- * s'écrasent mutuellement. On conserve cette indexation pour ne rien changer au
- * rendu, mais en ne ramenant que les clés effectivement lues.
+ * s'écrasent mutuellement. On ne ramène que les clés effectivement lues, et
+ * l'indexation par clé nue fait primer la ligne `global` (cf. plus bas) — sans
+ * quoi l'accueil héritait des libellés d'`expert-hotelier`.
  */
 export async function getGlobalZones(): Promise<GlobalZones> {
   try {
@@ -139,6 +140,16 @@ export async function getGlobalZones(): Promise<GlobalZones> {
     const zones: GlobalZones = {}
     for (const row of (data ?? []) as CmsZone[]) {
       if (row.value == null) continue
+      // Une même `zone_key` peut exister sur plusieurs pages : `stat_1_label` est
+      // défini sur `global`, `a-propos` ET `expert-hotelier`. Indexer par clé nue
+      // faisait gagner la dernière ligne lue, donc l'accueil affichait le libellé
+      // B2B « de dépendance moyenne aux plateformes » collé à son chiffre B2C.
+      // Cette fonction sert le header, le pied de page et les blocs transverses :
+      // la ligne `global` est la source voulue. On la fait primer ; à défaut on
+      // garde la première ligne lue, pour que le résultat ne dépende pas de
+      // l'ordre de la requête.
+      const deja = zones[row.zone_key]
+      if (deja && (deja.page === 'global' || row.page !== 'global')) continue
       zones[row.zone_key] = row
     }
     return zones
