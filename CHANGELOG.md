@@ -281,6 +281,48 @@ en repli. `check:cms-zones` ✓, `check:cms-migrations` ✓, `typecheck` ✓.
   8 `blog-images` (`romania-01..04`, `travel-lh-01..04`) — il faut les yeux de l'auteure ;
   les 120 zones encore en repli attendent une photo du lieu (flux Picker).
 
+## [2026-10-18] — Le Brain devient un destinataire adressable du serveur MCP `agent-tasks`
+
+`mcp/agent-tasks/server.mjs` — deux trous réels, mesurés :
+
+1. `AGENTS_CONNUS` ne contenait pas `heldonica-brain`, alors que l'agent existe
+   dans le registre (11 tâches) et que son BridgePoller tourne ;
+2. `deposer_tache` n'écrivait **ni `task_type` ni `payload`**, or le poller du
+   Brain **dispatche sur `task_type`** et lit `payload.message` : une tâche
+   déposée par ce chemin aurait été dépilée puis **ignorée en silence**.
+
+**Corrigé :**
+
+- `heldonica-brain` ajouté à `AGENTS_CONNUS` — **les 15 destinataires déjà
+  présents sont conservés** (16 au total), la liste ayant été étendue entre-temps
+  sur `main` par le commit `0cd5fff` ;
+- `deposer_tache` expose `task_type` et `payload` ;
+- garde : une tâche destinée au Brain **sans** `task_type` (ou `chat` sans
+  `payload.message`) est **refusée** au lieu d'être perdue ;
+- `README.md` du MCP : section « Parler au Brain », avec la forme exacte et le
+  fait que la réponse arrive dans `actions_done.result`.
+
+**Vérifié** (`node --check` + essai MCP en **lecture seule**, 9/9) : les 5 outils
+restent exposés, les agents de `main` sont préservés, les refus attendus se
+déclenchent, et le contrôle final compte **0 ligne écrite** dans `agent_tasks`.
+Brain vivant au `2026-10-15T20:20:28Z` (modèle `openai/gpt-oss-120b`).
+
+**Écriture réelle exercée** (sur autorisation) : une question a été déposée via ce
+serveur MCP. La ligne `726bd019-ca31-4271-833f-9c2168b65c95` porte bien
+`task_type = chat` et un `payload.message` de 544 caractères — ce que l'ancien
+code **n'écrivait pas**. Le chemin complet est donc exercé, pas seulement les refus.
+
+**Non vérifié — et pourquoi :** le Brain **n'a pas traité** la tâche. Son heartbeat
+`site_settings.brain_heartbeat` est figé au `2026-10-15T20:20:28Z`, soit ~61 h
+(seuil `online` = 120 s), et `status` est resté `sent` sur 9 tours de 20 s. Son
+BridgePoller ne tourne pas. La cause est **externe au dépôt** : le Brain est éteint
+sur la station Windows. Démarrer Heldonica Brain II (port 8440) et la tâche sera
+dépilée sous 30 s, sa réponse arrivant dans `actions_done.result`.
+
+Branche : `agent/openhands/brain-mcp-propre`, repartie de `origin/main` parce que
+la branche initiale avait 36 commits de retard — sa fusion aurait supprimé 8 agents
+ajoutés entre-temps.
+
 ## [2026-10-18] — Images : réconciliation des visuels cassés (médiathèque, articles, destinations)
 
 ### Constat (207 références d'image distinctes balayées)
