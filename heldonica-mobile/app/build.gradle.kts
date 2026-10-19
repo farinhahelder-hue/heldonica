@@ -14,6 +14,14 @@ android {
     namespace = "fr.heldonica.mobile"
     compileSdk = 34
 
+    // DIAGNOSTIC (branche jamais fusionnee) : APK sans le moteur LLM embarque, pour
+    // savoir si c'est lui qui fait refuser l'installation sur Android 16.
+    packaging {
+        jniLibs {
+            excludes += "**/libllm_inference_engine_jni.so"
+        }
+    }
+
     // Cle de signature stable, versionnee volontairement. Sans elle, chaque
     // execution de la CI fabrique une cle de debug differente : Android refuse
     // alors la mise a jour (INSTALL_FAILED_UPDATE_INCOMPATIBLE) et il faut
