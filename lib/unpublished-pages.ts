@@ -9,12 +9,14 @@
  *
  * Réécrire ces pages suppose de la matière terrain (notes, photos) qui n'existe
  * pas encore pour ces destinations. En attendant, une entrée d'ici déclenche
- * trois protections :
+ * ces protections :
  *   - `app/sitemap.ts` retire la page du sitemap ;
- *   - `lib/page-metadata.ts` la passe en `noindex` ;
- *   - `components/SubDestinationTemplate.tsx` remplace le brouillon par une page
- *     « Bientôt » (même état de non-publication que /destinations/grece) : plus
- *     de contenu de brouillon servi, seulement un appel à inscription.
+ *   - `lib/page-metadata.ts` la passe en `noindex`, avec l'image de partage par
+ *     défaut ;
+ *   - `components/SubDestinationTemplate.tsx` et `DestinationPage` remplacent
+ *     le brouillon par une page « Bientôt » (`ComingSoonDestination`) : plus de
+ *     contenu de brouillon servi, seulement un appel à inscription ;
+ *   - les menus pilotés par le CMS (`getZoneLinks`) n'y mènent plus.
  *
  * Pour publier une page : rédiger son contenu à partir de vécu vérifiable, puis
  * retirer son entrée d'ici. Le garde-fou `check:content-pages` et le test
@@ -73,6 +75,14 @@ export const UNPUBLISHED_PATHS: readonly string[] = [
   '/destinations/roumanie/sibiu',
   '/destinations/roumanie/timisoara',
   '/destinations/roumanie/transylvanie',
+
+  // Relevé en ligne du 19/10/2026 : Paris montrait encore la tour Eiffel de
+  // stock, Maramureș une photo qui n'est pas du Maramureș (mêmes maisons qu'une
+  // photo de l'article Apuseni, 6 minutes d'écart), et la Grèce, déjà
+  // « Bientôt », restait indexable et dans le pied de page de chaque page.
+  '/destinations/paris',
+  '/destinations/roumanie/maramures',
+  '/destinations/grece',
 ] as const;
 
 /** Clés de page CMS (`destinations-sicile-taormine`) correspondantes. */
@@ -126,6 +136,11 @@ export const UNPUBLISHED_CMS_PAGES: readonly string[] = [
   'destinations-roumanie-sibiu',
   'destinations-roumanie-timisoara',
   'destinations-roumanie-transylvanie',
+
+  // Relevé en ligne du 19/10/2026 : mêmes pages, clés CMS.
+  'destinations-paris',
+  'destinations-roumanie-maramures',
+  'destinations-grece',
 ] as const;
 
 const pathSet = new Set(UNPUBLISHED_PATHS);

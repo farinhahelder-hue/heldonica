@@ -66,36 +66,41 @@ export default function ComingSoonDestination({
           </div>
         </section>
 
-        <section className="bg-white py-12">
-          <div className="container max-w-4xl">
-            <div className="grid md:grid-cols-3 gap-4">
-              {styleLabel && (
-                <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
-                  <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Style</p>
-                  <p className="text-charcoal font-medium"><EditableZone page={`destinations-${slug}`} zone="style_label" fallback={styleLabel} /></p>
-                </div>
-              )}
-              {best_season && (
-                <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
-                  <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Meilleure saison</p>
-                  <p className="text-charcoal font-medium"><EditableZone page={`destinations-${slug}`} zone="best_season" fallback={best_season} /></p>
-                </div>
-              )}
-              {avg_budget_couple_week && (
-                <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
-                  <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Budget indicatif</p>
-                  <p className="text-charcoal font-medium">{formatBudget(avg_budget_couple_week)}</p>
-                </div>
-              )}
+        {/* Sans style, saison ni budget (Paris, servie par DestinationPage),
+            la section ne serait qu'une bande blanche vide. */}
+        {Boolean(styleLabel || best_season || avg_budget_couple_week) && (
+          <section className="bg-white py-12">
+            <div className="container max-w-4xl">
+              <div className="grid md:grid-cols-3 gap-4">
+                {styleLabel && (
+                  <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
+                    <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Style</p>
+                    <p className="text-charcoal font-medium"><EditableZone page={`destinations-${slug}`} zone="style_label" fallback={styleLabel} /></p>
+                  </div>
+                )}
+                {best_season && (
+                  <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
+                    <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Meilleure saison</p>
+                    <p className="text-charcoal font-medium"><EditableZone page={`destinations-${slug}`} zone="best_season" fallback={best_season} /></p>
+                  </div>
+                )}
+                {avg_budget_couple_week && (
+                  <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
+                    <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Budget indicatif</p>
+                    <p className="text-charcoal font-medium">{formatBudget(avg_budget_couple_week)}</p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         <section className="bg-cloud-dancer py-20 md:py-28">
           <div className="container max-w-2xl text-center">
             <p className="text-4xl mb-6">🗺️</p>
             <h2 className="text-3xl font-serif text-mahogany mb-4">
-              <EditableZone page={`destinations-${slug}`} zone="section_title" fallback={`On prépare le guide ${title.toLowerCase()} — à notre façon.`} />
+              {/* Le nom tel quel : en minuscules, il donnait « le guide grèce ». */}
+              <EditableZone page={`destinations-${slug}`} zone="section_title" fallback={`On prépare le guide ${title} — à notre façon.`} />
             </h2>
             <p className="text-charcoal/70 mb-8 max-w-lg mx-auto">
               <EditableZone page={`destinations-${slug}`} zone="section_text" type="textarea" fallback="On arpente les ruelles, on teste les adresses, on sélectionne ce qu'on referait vraiment. Laisse-nous ton email et tu seras le premier averti — avant qu'on publie quoi que ce soit ailleurs." />
