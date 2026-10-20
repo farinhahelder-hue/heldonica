@@ -9,6 +9,28 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 - **Rédaction (`RedactionBrouillon.kt`, `RedactionClient.kt`)** : ajout de `construirePromptCompletionLocale` et d'un repli vers `CerveauLocal.repondre` dans `RedactionClient.completer` (protégé par `RedactionBrouillon.refuserProposition`).
 - **Tests JVM** : ajout de `MemoriaImperiumTest.kt` et enrichissement de `PromptLocalTest.kt` et `RedactionBrouillonTest.kt`.
 
+## [2026-10-20] — Lot 2 : deux trous du garde-fou de cohérence éditoriale refermés
+
+- **Champs meta jamais scannés.** `scripts/check-content-coherence.mjs` ne lisait
+  que `title / excerpt / content`. Un mot banni publié dans `meta_title`,
+  `meta_description`, `seo_title` ou `seo_description` partait dans les balises
+  `<meta>` (Google, aperçus de partage) **avec la CI au vert**. Mesuré en base : sur
+  47 brouillons, le garde-fou en voit **5**, et **11** une fois les champs meta
+  inclus. Aucun article **publié** touché aujourd'hui (0/8), mais rien ne l'empêchait.
+  Corrigé par `CHAMPS_META` + `articlesPubliesAvecMotBanniMeta()` (fonction pure) +
+  blocage `exit 1` : un publié bloque, un brouillon reste de la dette. **Vérifié par
+  échec** (enregistrement empoisonné injecté dans le flux réel → `exit 1`, mots nommés).
+- **Liste de mots bannis recopiée à la main.** Le script portait une **copie de
+  30 mots**, divergente de `lib/brand-voice.ts` (**48**) — la dérive que
+  `check:brand-sync` interdit, mais il ne surveille que les miroirs Python. La liste
+  vient désormais de la source unique (`extraireMotsBannisTS`).
+- **Clés Supabase.** Les clés **legacy** (`anon`, `service_role`, JWT `eyJ…`) sont
+  **désactivées** depuis le 19/08 (HTTP 401 `Legacy API keys are disabled`) : un
+  secret legacy en CI fait sortir le contrôle en « ignoré » (exit 2), pas en vert. Le
+  format `sb_secret_…` (non-JWT) fonctionne en `apikey` et en `Authorization: Bearer`.
+- **PR #664** : https://github.com/farinhahelder-hue/heldonica/pull/664. `tsc` 0 ;
+  `vitest run` **862/862** ; `preflight` 8/8.
+
 ## [2026-10-20] — Lot 2 : le cache ISR servait encore l'ancien texte 10 h après la correction
 
 - **Symptôme.** Sept mots bannis purgés en base le 20/10 (lot 2) restaient servis
