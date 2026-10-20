@@ -10,6 +10,80 @@
  */
 
 import { readFileSync } from 'node:fs';
+import { extraireMotsBannisTS } from './sync-brand-voice.mjs';
+
+// Source de vérité des mots bannis : lib/brand-voice.ts. Le scan des tables de
+// contenu (plus bas) s'y adosse pour ne pas diverger d'une liste recopiée.
+const MOTS_BANNIS_SOURCE = extraireMotsBannisTS(readFileSync('lib/brand-voice.ts', 'utf8'));
+
+// Pages dont le contenu est déjà quarantainé (noindex, hors sitemap, « Bientôt »).
+// Une zone active sur une de ces pages n'est pas servie : c'est de la dette, pas
+// une fuite. Même lecture que scripts/check-content-pages.mjs.
+const UNPUBLISHED_CMS_PAGES = (() => {
+  const src = readFileSync('lib/unpublished-pages.ts', 'utf8');
+  const bloc = src.match(/UNPUBLISHED_CMS_PAGES[^=]*=\s*\[([\s\S]*?)\]/);
+  if (!bloc) return new Set();
+  return new Set([...bloc[1].matchAll(/'([^']+)'/g)].map((m) => m[1]));
+})();
+
+const stripHtml = (s) => String(s || '').replace(/<[^>]*>/g, ' ');
+
+export function motsBannisDans(texte) {
+  const bas = stripHtml(texte).toLowerCase();
+  if (!bas.trim()) return [];
+  return MOTS_BANNIS_SOURCE.filter((m) => bas.includes(m));
+}
+
+/**
+ * Répartit les lignes de contenu (hors articles) en deux seaux :
+ *  - `fuites` : ligne active sur une page publiée — le mot banni est servi ;
+ *  - `dette`  : ligne inactive, ou page quarantainée (noindex, « Bientôt ») —
+ *               le mot existe mais n'est pas rendu ; on le signale sans bloquer.
+ * Fonction pure : testable sans base, la décision ne dépend que des entrées.
+ */
+export function classerLignesContenu({ zones = [], homeDests = [], sousDests = [], guideItems = [] }, quarantaine = new Set()) {
+  const fuites = [];
+  const dette = [];
+  const ajouter = (actif, estQuarantaine, ou, mots) => {
+    const cible = actif && !estQuarantaine ? fuites : dette;
+    cible.push({ ou, mots, actif, quarantaine: estQuarantaine });
+  };
+
+  for (const z of zones) {
+    const mots = motsBannisDans(z.value);
+    if (mots.length) ajouter(z.is_active, quarantaine.has(z.page), `${z.page} / ${z.zone_key}`, mots);
+  }
+  for (const d of homeDests) {
+    const mots = motsBannisDans(`${d.title} ${d.description} ${d.eyebrow}`);
+    if (mots.length) ajouter(d.is_active, false, `cms_home_destinations / ${d.slug}`, mots);
+  }
+  for (const s of sousDests) {
+    const mots = motsBannisDans(`${s.title} ${s.teaser}`);
+    if (mots.length) ajouter(s.is_active, quarantaine.has(`destinations-${s.parent_slug}`), `cms_sub_destinations / ${s.parent_slug}/${s.slug}`, mots);
+  }
+  for (const g of guideItems) {
+    const mots = motsBannisDans(`${g.title} ${g.description} ${g.secret}`);
+    if (mots.length) ajouter(g.is_active, false, `cms_guide_items / ${g.guide_slug} #${g.rank}`, mots);
+  }
+  return { fuites, dette };
+}
+
+// L'API REST Supabase plafonne à 1000 lignes par requête, silencieusement :
+// cms_editable_zones en compte 2538. Sans pagination, on n'en verrait que 1000.
+async function fetchAll(url, key, table, select) {
+  const out = [];
+  const page = 1000;
+  for (let offset = 0; ; offset += page) {
+    const res = await fetch(`${url}/rest/v1/${table}?select=${select}&limit=${page}&offset=${offset}`, {
+      headers: { apikey: key, Authorization: `Bearer ${key}` },
+    });
+    if (!res.ok) throw new Error(`${table} : HTTP ${res.status}`);
+    const rows = await res.json();
+    out.push(...rows);
+    if (rows.length < page) break;
+  }
+  return out;
+}
 
 const FORBIDDEN_WORDS = [
   'bons plans', 'bon plan', 'organisation de séjour', 'compagnie', 'voyage organisé',
@@ -168,10 +242,69 @@ async function main() {
       });
     }
 
+    // ── Autres tables de contenu ────────────────────────────────────────────
+    // Le scan ci-dessus ne lisait QUE cms_blog_posts : un mot banni vivant dans
+    // une zone CMS, une destination d'accueil, une sous-destination ou un item
+    // de guide ne faisait jamais rougir la CI. C'est exactement là que vivaient
+    // 7 fuites actives trouvées à la main le 20/10/2026 (audit lot 2).
+    //
+    // Deux niveaux : une ligne ACTIVE et rendue bloque (exit 1) ; une ligne
+    // inactive ou sur une page quarantainée est de la dette, signalée sans
+    // bloquer — même distinction que scripts/check-content-pages.mjs.
+    const fuites = [];
+    const dette = [];
+
+    const zones = await fetchAll(url, key, 'cms_editable_zones', 'page,zone_key,is_active,value');
+    for (const z of zones) {
+      const hits = motsBannisDans(z.value);
+      if (hits.length === 0) continue;
+      const quarantaine = UNPUBLISHED_CMS_PAGES.has(z.page);
+      const cible = z.is_active && !quarantaine ? fuites : dette;
+      cible.push({ ou: `${z.page} / ${z.zone_key}`, mots: hits, actif: z.is_active, quarantaine });
+    }
+
+    const homeDests = await fetchAll(url, key, 'cms_home_destinations', 'slug,is_active,title,description,eyebrow');
+    for (const d of homeDests) {
+      const hits = motsBannisDans(`${d.title} ${d.description} ${d.eyebrow}`);
+      if (hits.length === 0) continue;
+      const cible = d.is_active ? fuites : dette;
+      cible.push({ ou: `cms_home_destinations / ${d.slug}`, mots: hits, actif: d.is_active, quarantaine: false });
+    }
+
+    const sousDests = await fetchAll(url, key, 'cms_sub_destinations', 'slug,parent_slug,is_active,title,teaser');
+    for (const s of sousDests) {
+      const hits = motsBannisDans(`${s.title} ${s.teaser}`);
+      if (hits.length === 0) continue;
+      const quarantaine = UNPUBLISHED_CMS_PAGES.has(`destinations-${s.parent_slug}`);
+      const cible = s.is_active && !quarantaine ? fuites : dette;
+      cible.push({ ou: `cms_sub_destinations / ${s.parent_slug}/${s.slug}`, mots: hits, actif: s.is_active, quarantaine });
+    }
+
+    const guideItems = await fetchAll(url, key, 'cms_guide_items', 'guide_slug,rank,title,is_active,description,secret');
+    for (const g of guideItems) {
+      const hits = motsBannisDans(`${g.title} ${g.description} ${g.secret}`);
+      if (hits.length === 0) continue;
+      const cible = g.is_active ? fuites : dette;
+      cible.push({ ou: `cms_guide_items / ${g.guide_slug} #${g.rank}`, mots: hits, actif: g.is_active, quarantaine: false });
+    }
+
+    if (dette.length > 0) {
+      console.log(`\nℹ ${dette.length} ligne(s) de contenu inactives ou quarantainées portent un mot banni — dette assumée, non bloquante :`);
+      dette.forEach((d) => console.log(`  – ${d.ou}${d.actif ? ' (active, page quarantainée)' : ' (inactive)'} : ${d.mots.join(', ')}`));
+    }
+
+    if (fuites.length > 0) {
+      console.error(`\n❌ ${fuites.length} mot(s) banni(s) SERVI(S) en ligne (ligne active, page publiée) :`);
+      fuites.forEach((f) => console.error(`  🔴 ${f.ou} : ${f.mots.join(', ')}`));
+      console.error('👉 Remplacer par un équivalent neutre (migration versionnée), ou désactiver la ligne.\n');
+      process.exit(1);
+    }
+
     console.log('\n✓ Vérification de cohérence terminée avec succès.\n');
   } catch (err) {
     console.error('Erreur lors du contrôle de cohérence :', err);
+    process.exit(1);
   }
 }
 
-main();
+if (process.argv[1] && process.argv[1].endsWith('check-content-coherence.mjs')) main();

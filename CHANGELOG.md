@@ -2,6 +2,38 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-20] — Audit éditorial lot 2 : 7 mots bannis servis en ligne, troncature hero (OpenHands)
+
+Branche `agent/openhands/hero-description-troncature`. `.audit/` reste non versionné.
+
+- **Cause racine des mots bannis en ligne** : les replis code de plusieurs zones
+  avaient été corrigés (commit `2b6f121`), mais **la base prime sur le repli**
+  (`EditableZone` : `zones[k] ?? fallback`). Corriger le `.tsx` seul ne change rien
+  tant que la valeur existe en base. Un re-scan **par sous-chaîne** (la CI cherche
+  ainsi ; mon premier scan à frontières de mot ratait `circuits`/`spots`/`incroyables`)
+  a trouvé **7 lignes actives rendues et indexables** : `destinations-alentejo`
+  (faq_1_a), `destinations-portugal` (cta_text), `top-10-pepites-madere`
+  (hero_text, intro_text), `guides-top-10-pepites-madere` (seo_description),
+  `cms_guide_items` Porto Moniz #3, `cms_home_destinations` madere (eyebrow).
+- `supabase/migrations/20261020120000_purge_mots_bannis_zones_actives.sql` (nouveau) :
+  7 `UPDATE … replace()` idempotents et neutres, sans rien inventer. **Appliquée**
+  via l'endpoint SQL direct, puis **enregistrée** dans `supabase_migrations` (144 versions).
+- `scripts/check-content-coherence.mjs` : ne lisait QUE `cms_blog_posts` — un mot
+  banni en zone/accueil/sous-destination/guide ne faisait pas rougir la CI. Étendu
+  aux quatre tables de contenu, avec pagination `limit/offset` (l'API REST plafonne
+  à 1000 lignes en silence). Deux seaux : **fuite** (active, page publiée) → `exit 1` ;
+  **dette** (inactive ou page quarantainée) → signalée sans bloquer. Test :
+  `__tests__/scripts/check-content-coherence.test.ts`.
+- `app/destinations/[slug]/DestinationPage.tsx` : `.slice(0, 200)` + `'...'` codé en
+  dur retirés du hero (coupait un mot sous 200 car.). Test de régression :
+  `__tests__/app/DestinationPage-hero-description.test.tsx`.
+- Vérifié : `check:content-coherence` rouge **avant** la migration (7 fuites), vert
+  après ; `preflight` 7/7 ; `tsc --noEmit` 0 ; `vitest run` **827/827**.
+- **Non vérifié en ligne** : les pages servies restent l'ancien HTML (ISR statique,
+  `x-vercel-cache: HIT`, `age ≈ 30 000 s`) — l'écriture directe en base n'a pas
+  déclenché de `revalidatePath`. La base est corrigée ; les pages le seront à la
+  prochaine revalidation.
+
 ## [2026-10-19] — Typographie de marque : fin du double chargement Google Fonts (OpenCode)
 
 Branche `agent/opencode/brand-polish`, suite du WIP laissé par la session marque.

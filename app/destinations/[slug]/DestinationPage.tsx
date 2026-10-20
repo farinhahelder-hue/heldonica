@@ -225,7 +225,7 @@ export default async function DestinationPage({ slug }: Props) {
           </em>
         </h1>
         <p className="text-white/85 max-w-2xl text-lg leading-relaxed">
-          {(zones[`destinations-${slug}__description`] ?? content.description).slice(0, 200)}...
+          {zones[`destinations-${slug}__description`] ?? content.description}
         </p>
       </div>
     </section>
