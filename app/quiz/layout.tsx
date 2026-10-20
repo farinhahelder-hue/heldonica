@@ -11,12 +11,14 @@ export const metadata: Metadata = {
     siteName: 'Heldonica',
     type: 'website',
     locale: 'fr_FR',
+    images: ['https://www.heldonica.fr/og-default.jpg'],
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'Quiz voyageur | Heldonica',
     description: "5 questions pour trouver le profil de voyageur qui te correspond.",
     creator: '@heldonica',
+    images: ['https://www.heldonica.fr/og-default.jpg'],
   },
 }
 

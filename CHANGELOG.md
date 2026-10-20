@@ -2,6 +2,33 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-20] — Audit éditorial, lot 2 : 36 pages servies passées au DOM
+
+- **Périmètre** : les 36 URLs du sitemap de production (destinations, guides,
+  pages commerciales, accueil), hors articles du lot 1. Méthode identique :
+  DOM après JavaScript (`chromium --dump-dom`).
+- **P2 — `/quiz` sans `og:image`. CORRIGÉ.** Le partage social de cette page
+  n'affichait aucune image (`twitter:card=summary`). Ajout de `images` en
+  `openGraph`/`twitter` dans `app/quiz/layout.tsx`, avec `og-default.jpg` déjà
+  utilisée ailleurs. `tsc` exit 0, 847 tests OK.
+- **Transversal — angle mort du garde-fou.** `scripts/check-content-coherence.mjs`
+  ne lit que `cms_blog_posts` (l. 105) : `destinations` et `cms_pillar_pages` ne
+  sont pas contrôlées. C'est pourquoi **4 mots bannis restent servis alors que la
+  CI est verte** (`magnifique`, `inoubliable`, « les touristes », `circuit`).
+  Non corrigé : étendre la CI est une décision à valider.
+- **P2 — couverture sociale générique sur 22 pages** (`og-default.jpg` partout,
+  destinations + guides). Photos à fournir.
+- **P2 — `/destinations/suisse`** sert `batch-1778535464596-3.jpg` alors que la
+  base déclare `stoos-01.jpg` pour `suisse-stoos`. Écart source ↔ rendu observé,
+  à trancher.
+- **Faux positifs écartés** après vérification : « espace avant virgule » des H1
+  (artefact d'extraction), « Chargement de la carte… » (chargement au défilement,
+  non confirmé), « Encore une escale » (introuvable).
+- **Non effectué** : examen visuel des photos (pas d'outil d'image), défilement
+  réel, mobile.
+
+
+
 ## [2026-10-20] — Audit éditorial, lot 1 : 6 articles publiés affichaient leur markdown en clair
 
 - **Méthode** : source de vérité = Supabase production ; le site rend son contenu
