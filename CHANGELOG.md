@@ -2,6 +2,43 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-20] — Audit éditorial, lot 1 : 6 articles publiés affichaient leur markdown en clair
+
+- **Méthode** : source de vérité = Supabase production ; le site rend son contenu
+  **côté client**, donc le HTML servi ne prouve rien (squelette « Chargement… »).
+  Les constats de rendu ont été établis sur le **DOM après JavaScript**
+  (`chromium --dump-dom`), jamais sur un `curl`.
+- **P1 — markdown non converti sur 6 articles publiés. CORRIGÉ.** Le corps de
+  `bacalhau-gomes-sa-recette`, `poncha-recette-authentique`, `pudim-de-nata-recette`,
+  `petite-ceinture-paris-balade-urbaine`, `bucarest-hidden-surprend` et
+  `transylvanie-secrete-au-dela-de-dracula` affichait ses titres `## …` et ses gras
+  `**…**` en texte brut. Mesuré sur le DOM : 6 à 7 titres et 8 à 14 gras littéraux
+  par article, contre **0** pour les 2 articles HTML (`podgorica`, `itineraire-roumanie`).
+  Cause : **aucun convertisseur markdown n'existait** dans le projet (vérifié dans
+  `package.json`, `node_modules`, le code, `next.config.js`), alors que le type
+  `TextBlock` annonce « Supporte HTML sain ou Markdown ». `app/blog/[slug]/page.tsx`
+  passait le contenu brut à `EnhancedRichContent`, qui ne fait que désinfecter.
+  Corrigé par `lib/markdown-to-html.ts` (nouveau), câblé sur les **deux** chemins de
+  rendu, + `TextBlock` qui rend le gras en `<strong>` sans injection HTML.
+- **Vérifié sur les 8 contenus réels de production** : les 2 articles HTML sortent
+  **inchangés** (pas de double traitement) ; les 6 markdown produisent **40 `<h2>`**
+  et **63 `<strong>`**, avec **0 `##`** et **0 `**`** résiduels. 9 tests ajoutés ;
+  ciblés 40/40 ; `tsc` 0 erreur ; `npm run build` EXIT=0 ; garde-fous **13/13**.
+- **P2 — redirection cassée, constatée non corrigée** : `cms_redirects` redirige
+  `/blog/zurich` vers `/blog/flotter-sur-la-limmat-zurich-aventure`, **deux brouillons**,
+  donc vers une 404. Décision propriétaire.
+- **P2 — coquilles en clair** dans `poncha-recette-authentique` : `devant on`,
+  `su on indiquer`, `sucrde`, `assomàmer`, `à Madere` (confirmées en base).
+  Correction soumise à validation (écriture en production).
+- **P3 — 4 articles sans image de partage social** (`og_image_url` vide).
+- **Limite assumée** : la **vérification visuelle des photos n'a pas été faite**
+  (pas d'outil d'analyse d'image fiable). Les photos `batch-*`/`import-*` restent
+  **à vérifier par un humain** ; le registre média ne prétend pas qu'elles sont fausses.
+- **Non audité, à ne pas confondre avec « sain »** : 64 pages destinations, guides,
+  itinéraires, pages commerciales (lot 2) et 47 brouillons (lot 3).
+- Livrables : `.audit/audit-editorial-2026-10-20/` (rapport, inventaire CSV, registre
+  médias, journal des corrections, décisions propriétaire).
+
 ## [2026-10-19] — Contenu en ligne : hero coupe en plein mot, `\n` en clair, erreurs carte/guides
 
 - **Méthode** : 42 pages réellement servies, texte visible extrait du HTML (balises
