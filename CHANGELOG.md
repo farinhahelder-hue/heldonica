@@ -2,6 +2,32 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-20] — Réconciliation des migrations : 20 orphelines tracées, 2 réellement absentes, collision résolue
+
+Suite de l'audit lot 2. Les 22 versions présentes en fichier mais absentes de
+`schema_migrations` ont été traitées **en mesurant l'effet de chacune en base**
+avant toute écriture de trace — jamais en supposant.
+
+- **20 versions enregistrées** (effet présent en base, SQL exécuté hors migration
+  un jour) : `schema_migrations` passe de 144 à **165** lignes. Vérifié par requête
+  SQL de contrôle (colonnes, index, lignes, policies) pour chacune.
+- **2 versions NON enregistrées, effet vérifié ABSENT** :
+  `20260929120000_supabase_security_hardening` (le fichier contient un
+  `DROP TABLE backup_articles_20260915 CASCADE` **destructif** ; la table existe
+  encore, `anon` garde `EXECUTE` sur `match_articles`/`match_destinations`) et
+  `20261011120000_create_cms_backoffice_tables` (**0/9** tables créées). Les
+  enregistrer sans les appliquer aurait été un `done` sans preuve.
+- **Collision de version résolue** : `20261019000000` portait deux fichiers
+  (PR #642 et #654). Le second est renommé
+  `20261019000001_polices_marque_fraunces_source_sans.sql`.
+- **Aucun `db push`** : l'état réel est déjà conforme, pousser rejouerait des
+  effets et le `DROP` du hardening.
+- Détail : `.audit/audit-editorial-2026-10-20/reconciliation-migrations-2026-10-20.md`.
+  Deux décisions de mise en ligne restent à trancher (hardening avec/sans `DROP` ;
+  création des 9 tables back-office).
+- Vérifié : `check:cms-migrations` 0, `check:cms-drift` 0, `check:cms-zones` 0,
+  `preflight` 7/7.
+
 ## [2026-10-20] — Audit éditorial lot 2 : 7 mots bannis servis en ligne, troncature hero (OpenHands)
 
 Branche `agent/openhands/hero-description-troncature`. `.audit/` reste non versionné.
