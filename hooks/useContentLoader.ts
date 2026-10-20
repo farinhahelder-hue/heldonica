@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { CmsZone, CmsZonesData } from '@/lib/content-loader';
 import { useSiteContent } from '@/components/SiteContentProvider';
+import { isUnpublishedPath } from '@/lib/unpublished-pages';
 
 // Types
 export interface ContentLoaderState {
@@ -117,6 +118,10 @@ export interface ZoneLink {
  * En revanche, dès qu'il en fournit au moins une, c'est SA liste qui fait foi,
  * même plus courte : c'est ce qui permet de retirer un lien du menu depuis le
  * CMS sans toucher au code.
+ *
+ * Aucun lien ne mène à une page non publiable (lib/unpublished-pages.ts) : le
+ * pied de page envoyait vers « Grèce — Bientôt », page vide, depuis chaque page
+ * du site. Le lien revient de lui-même quand la page est publiée.
  */
 export function getZoneLinks(
   prefix: string,
@@ -133,7 +138,7 @@ export function getZoneLinks(
     links.push({ label, url });
   }
 
-  return links.length > 0 ? links : fallback;
+  return (links.length > 0 ? links : fallback).filter((l) => !isUnpublishedPath(l.url));
 }
 
 /**
