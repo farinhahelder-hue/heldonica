@@ -2,6 +2,33 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-20] — Audit éditorial, lot 1 : 6 articles publiés affichaient leur markdown en clair
+
+- **Méthode** : source de vérité = Supabase production ; le site rend son contenu
+  **côté client**, donc le HTML servi ne prouve rien (squelette « Chargement… »).
+  Les constats de rendu ont été établis sur le **DOM après JavaScript**
+  (`chromium --dump-dom`), jamais sur un `curl`.
+- **P1 — markdown non converti sur 6 articles publiés. CORRIGÉ.** Le corps de
+  `bacalhau-gomes-sa-recette`, `poncha-recette-authentique`, `pudim-de-nata-recette`,
+  `petite-ceinture-paris-balade-urbaine`, `bucarest-hidden-surprend` et
+  `transylvanie-secrete-au-dela-de-dracula` affichait ses titres `## …` et ses gras
+  `**…**` en texte brut. Mesuré sur le DOM : 6 à 7 titres et 8 à 14 gras littéraux
+  par article, contre **0** pour les 2 articles HTML (`podgorica`, `itineraire-roumanie`).
+  Cause : **aucun convertisseur markdown n'existait** dans le projet (vérifié dans
+  `package.json`, `node_modules`, le code, `next.config.js`), alors que le type
+  `TextBlock` annonce « Supporte HTML sain ou Markdown ». `app/blog/[slug]/page.tsx`
+  passait le contenu brut à `EnhancedRichContent`, qui ne fait que désinfecter.
+  Corrigé par `lib/markdown-to-html.ts` (nouveau), câblé sur les **deux** chemins de
+  rendu, + `TextBlock` qui rend le gras en `<strong>` sans injection HTML.
+- **Vérifié sur les 8 contenus réels de production** : les 2 articles HTML sortent
+  **inchangés** (pas de double traitement) ; les 6 markdown produisent **40 `<h2>`**
+  et **63 `<strong>`**, avec **0 `##`** et **0 `**`** résiduels. 9 tests ajoutés ;
+  ciblés 40/40 ; `tsc` 0 erreur ; `npm run build` EXIT=0 ; garde-fous **13/13**.
+- **P2 — `/quiz` sans `og:image`. CORRIGÉ.** Le partage social de cette page
+  n'affichait aucune image (`twitter:card=summary`). Ajout de `images` en
+  `openGraph`/`twitter` dans `app/quiz/layout.tsx`, avec `og-default.jpg` déjà
+  utilisée ailleurs.
+
 ## [2026-10-20] — Migrations réconciliées : 22 orphelines soldées, hardening appliqué sans le DROP
 
 Suite de l'audit lot 2. Les 22 versions présentes en fichier mais absentes de
