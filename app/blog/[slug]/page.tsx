@@ -87,12 +87,11 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   if (!post) {
     // Aperçu d'un brouillon : la page vérifie le jeton elle-même ; on n'indexe jamais.
     if ((await searchParams).preview_token) return { title: 'Aperçu | Heldonica', robots: { index: false, follow: false } }
-    // MESURÉ le 18/10 après déploiement : la réponse reste 200 (navigateur,
-    // Googlebot, Bingbot). app/loading.tsx enveloppe toute l'app dans un
-    // Suspense : le statut part avant notFound(), ici comme dans la page. Next
-    // injecte <meta name="robots" content="noindex">, donc ces pages ne sont pas
-    // indexées ; un vrai 404 demanderait de sortir /blog/[slug] de ce loading
-    // racine (route group) ou un contrôle dans middleware.ts.
+    // Vrai 404 depuis le retrait de app/loading.tsx (20/10/2026). Ce fichier
+    // enveloppait toute l'app dans un Suspense : le statut 200 partait avant
+    // notFound(), ici comme dans la page, et la balise noindex injectée ensuite
+    // manquait 2 fois sur 3 (relevé du 19/10, navigateur comme Googlebot). Pas
+    // de loading.tsx au-dessus de cette route : __tests__/app/vrai-404.test.ts.
     notFound()
   }
 
