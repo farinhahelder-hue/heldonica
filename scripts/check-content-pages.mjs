@@ -58,7 +58,7 @@ const UNPUBLISHED = (() => {
 })();
 
 function cheminVersUrl(fichier) {
-  const m = fichier.match(/^app(\/.*)\/page\.tsx$/);
+  const m = fichier.replace(/\\/g, '/').match(/^app(\/.*)\/page\.tsx$/);
   return m ? m[1] : null;
 }
 

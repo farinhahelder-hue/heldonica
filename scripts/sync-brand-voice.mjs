@@ -56,7 +56,8 @@ export function appliquerBloc(py, bloc) {
     DEBUT.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '[\\s\\S]*?' + FIN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   );
   if (!re.test(py)) throw new Error(`Balises ${DEBUT} … ${FIN} introuvables dans ${PY_FILE}`);
-  return py.replace(re, bloc);
+  const eol = py.includes('\r\n') ? '\r\n' : '\n';
+  return py.replace(re, bloc.replace(/\r?\n/g, eol));
 }
 
 function main() {

@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * check-content-coherence — Garde-fou CI d'évaluation de la cohérence de marque Heldonica.
  *
