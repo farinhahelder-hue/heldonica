@@ -2,15 +2,19 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
-## [2026-10-20] — Réconciliation des migrations : 20 orphelines tracées, 2 réellement absentes, collision résolue
+## [2026-10-20] — Migrations réconciliées : 22 orphelines soldées, hardening appliqué sans le DROP
 
 Suite de l'audit lot 2. Les 22 versions présentes en fichier mais absentes de
 `schema_migrations` ont été traitées **en mesurant l'effet de chacune en base**
-avant toute écriture de trace — jamais en supposant.
+avant toute écriture de trace — jamais en supposant. **Écart soldé : base 144 → 167,
+0 orphelin, 0 collision.**
 
 - **20 versions enregistrées** (effet présent en base, SQL exécuté hors migration
   un jour) : `schema_migrations` passe de 144 à **165** lignes. Vérifié par requête
   SQL de contrôle (colonnes, index, lignes, policies) pour chacune.
+- **2 versions restantes appliquées le soir même**, après mesure :
+  `20260929120000_supabase_security_hardening` (sans son `DROP`) et
+  `20261011120000_create_cms_backoffice_tables`. Base → **167**.
 - **`20260929120000_supabase_security_hardening` appliquée SANS son `DROP`** (soir) :
   le fichier supprimait `backup_articles_20260915`, qui contient 50 lignes dont
   **10 uniques** (dont les notes `paris-*` de l'incident AGENTS.md) → `DROP` retiré,
@@ -19,18 +23,17 @@ avant toute écriture de trace — jamais en supposant.
   `match_destinations` est `SECURITY DEFINER` sans filtre `status` → 38 destinations
   non publiées étaient lisibles avec la clé publique), vue `security_invoker`, 4
   policies `service_role_all_*`. `service_role` conserve l'accès (testé : 3 lignes).
-  Base → **166**.
-- **1 version NON enregistrée, effet vérifié ABSENT** :
-  `20261011120000_create_cms_backoffice_tables` (**0/9** tables créées ; drift assumée
-  dans `KNOWN_DRIFT` de `check-cms-drift.mjs`). L'enregistrer sans l'appliquer aurait
-  été un `done` sans preuve.
+- **`20261011120000_create_cms_backoffice_tables` appliquée** (purement additive :
+  9 `CREATE TABLE IF NOT EXISTS`, aucun `DROP TABLE`/`TRUNCATE`/`DELETE`, aucun seed) :
+  les **9 tables back-office** sont créées, RLS activée. Les 9 entrées **retirées de
+  `KNOWN_DRIFT`** (`scripts/check-cms-drift.mjs`) → le garde-fou signale désormais toute
+  disparition future. Base → **167**.
 - **Collision de version résolue** : `20261019000000` portait deux fichiers
   (PR #642 et #654). Le second est renommé
   `20261019000001_polices_marque_fraunces_source_sans.sql`.
 - **Aucun `db push`** : l'état réel est déjà conforme, pousser rejouerait des
   effets existants.
 - Détail : `.audit/audit-editorial-2026-10-20/reconciliation-migrations-2026-10-20.md`.
-  Reste une décision de mise en ligne (création des 9 tables back-office).
 - Vérifié : `check:cms-migrations` 0, `check:cms-drift` 0, `check:cms-zones` 0,
   `check:erreurs-avalees` 0, `preflight` 7/7.
 
