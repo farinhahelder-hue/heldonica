@@ -9,12 +9,14 @@
  *
  * Réécrire ces pages suppose de la matière terrain (notes, photos) qui n'existe
  * pas encore pour ces destinations. En attendant, une entrée d'ici déclenche
- * trois protections :
+ * ces protections :
  *   - `app/sitemap.ts` retire la page du sitemap ;
- *   - `lib/page-metadata.ts` la passe en `noindex` ;
- *   - `components/SubDestinationTemplate.tsx` remplace le brouillon par une page
- *     « Bientôt » (même état de non-publication que /destinations/grece) : plus
- *     de contenu de brouillon servi, seulement un appel à inscription.
+ *   - `lib/page-metadata.ts` la passe en `noindex`, avec l'image de partage par
+ *     défaut ;
+ *   - `components/SubDestinationTemplate.tsx` et `DestinationPage` remplacent
+ *     le brouillon par une page « Bientôt » (`ComingSoonDestination`) : plus de
+ *     contenu de brouillon servi, seulement un appel à inscription ;
+ *   - les menus pilotés par le CMS (`getZoneLinks`) n'y mènent plus.
  *
  * Pour publier une page : rédiger son contenu à partir de vécu vérifiable, puis
  * retirer son entrée d'ici. Le garde-fou `check:content-pages` et le test
@@ -74,11 +76,22 @@ export const UNPUBLISHED_PATHS: readonly string[] = [
   '/destinations/roumanie/timisoara',
   '/destinations/roumanie/transylvanie',
 
-  // /destinations/grece sert le même écran « Bientôt » que les 33 sous-pages
-  // ci-dessus, mais n'avait jamais été ajoutée ici : elle restait donc indexable
-  // et annoncée dans le sitemap (mesuré le 18/10 : robots=index,follow, présente
-  // dans sitemap.xml) alors qu'elle n'a aucun contenu publié.
+  // Relevé en ligne du 19/10/2026 : Paris montrait encore la tour Eiffel de
+  // stock, Maramureș une photo qui n'est pas du Maramureș (mêmes maisons qu'une
+  // photo de l'article Apuseni, 6 minutes d'écart), et la Grèce, déjà
+  // « Bientôt », restait indexable et dans le pied de page de chaque page.
+  '/destinations/paris',
+  '/destinations/roumanie/maramures',
   '/destinations/grece',
+
+  // Décision du fondateur du 19/10/2026 (migration 20261019030000) : sans
+  // photo vérifiée, Colombie, Lisbonne et Sicile passent « Bientôt ». Elle
+  // n'avait été appliquée qu'à la liste /destinations : les pages restaient
+  // complètes (« Destination testée », « On y est allés »), indexables et dans
+  // le sitemap.
+  '/destinations/colombie',
+  '/destinations/lisbonne',
+  '/destinations/sicile',
 ] as const;
 
 /** Clés de page CMS (`destinations-sicile-taormine`) correspondantes. */
@@ -133,8 +146,15 @@ export const UNPUBLISHED_CMS_PAGES: readonly string[] = [
   'destinations-roumanie-timisoara',
   'destinations-roumanie-transylvanie',
 
-  // Cf. UNPUBLISHED_PATHS : même écran « Bientôt », jamais aligné sur les autres.
+  // Relevé en ligne du 19/10/2026 : mêmes pages, clés CMS.
+  'destinations-paris',
+  'destinations-roumanie-maramures',
   'destinations-grece',
+
+  // Décision du 19/10/2026 : mêmes pages, clés CMS.
+  'destinations-colombie',
+  'destinations-lisbonne',
+  'destinations-sicile',
 ] as const;
 
 const pathSet = new Set(UNPUBLISHED_PATHS);

@@ -31,12 +31,6 @@ const FAQS = [
   { zone: 'faq_5', q: 'Est-ce adapté aux voyages en famille ?', a: "On se spécialise dans les voyages en couple. Pour les familles, on peut orienter vers des ressources adaptées — mais notre cœur de métier reste le slow travel à deux." },
 ]
 
-const TESTIMONIALS_DATA_FALLBACK = [
-  { zone: 'testimonial_1', text: 'On voulait du vrai, pas du touristique. Heldonica nous a trouvé une quinta sauvage qu\'on n\'aurait jamais découverte seuls.', author: 'Sophie & Marc — Madère, Mai 2026', dest: 'Madère' },
-  { zone: 'testimonial_2', text: "L'itinéraire slow était tellement bien pensé qu'on n'a pas eu à réfléchir une seule fois. Juste à se laisser porter.", author: 'Julie & Alex — Monténégro, Septembre 2025', dest: 'Monténégro' },
-  { zone: 'testimonial_3', text: 'On est partis 10 jours en Roumanie sans savoir par où commencer. Le carnet Heldonica a été notre meilleur investissement voyage.', author: 'Camille & Thomas — Roumanie, Juin 2026', dest: 'Roumanie' },
-]
-
 const PRICING_PLANS = [
   {
     zone: 'plan_1',
@@ -156,7 +150,7 @@ export default function TravelPlanningClient({
         author: t.name,
         dest: t.destination || t.location || 'Destination',
       }))
-    : TESTIMONIALS_DATA_FALLBACK;
+    : [];
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     if (!formStarted) {
@@ -426,7 +420,9 @@ export default function TravelPlanningClient({
           </div>
         </section>
 
-        {/* Témoignages */}
+        {/* Témoignages : uniquement ceux de cms_testimonials. Aucun texte de repli,
+            on n'invente pas de clients (la page /temoignages dit qu'il n'y en a pas encore). */}
+        {testimonialsData.length > 0 && (
         <section className="bg-cloud-dancer py-20">
           <div className="container max-w-5xl">
             <EditableZone page="travel-planning" zone="testimonials_title" as="h2" fallback="Ils ont voyagé avec nous"
@@ -457,6 +453,7 @@ export default function TravelPlanningClient({
             </div>
           </div>
         </section>
+        )}
 
         {/* Formulaire */}
         <section id="formulaire" className="bg-white py-20 scroll-mt-20">

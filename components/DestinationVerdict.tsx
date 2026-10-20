@@ -53,7 +53,7 @@ export default function DestinationVerdict({
         </div>
 
         {/* Score et pour qui */}
-        <div className="bg-gradient-to-br from-mahogany to-mahogany/90 rounded-2xl p-8 text-white mb-8">
+        <div className="bg-mahogany rounded-2xl p-8 text-white mb-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             {/* Score */}
             <div className="flex flex-col items-center">

@@ -117,11 +117,14 @@ const CONSUMED_ZONE_KEYS: string[] = [
  * Charge les zones actives destinées au header, au pied de page et aux blocs
  * transverses.
  *
- * `useContentLoader` appelait `/api/cms/zones` sans filtre de page et indexait
- * le résultat par `zone_key` seul : deux pages qui utilisent la même clé
- * s'écrasent mutuellement. On ne ramène que les clés effectivement lues, et
- * l'indexation par clé nue fait primer la ligne `global` (cf. plus bas) — sans
- * quoi l'accueil héritait des libellés d'`expert-hotelier`.
+ * Seulement celles de la page `global`. L'index se fait par `zone_key` seul (la
+ * forme qu'attend `getCmsOrSetting`), or d'autres pages réutilisent les mêmes
+ * clés : `stat_1_label` existe aussi sur `expert-hotelier` et `a-propos`,
+ * `newsletter_title` sur `start` et `home`. Sans filtre de page, la dernière
+ * ligne lue l'emportait, dans un ordre que Postgres ne garantit pas : relevé du
+ * 19/10/2026, l'accueil affichait « 4+ de dépendance moyenne aux plateformes »
+ * (le libellé hôtelier) dans 12 chargements sur 13, et le bloc newsletter les
+ * textes de /start au lieu de ceux de `global`.
  */
 export async function getGlobalZones(): Promise<GlobalZones> {
   try {
@@ -130,6 +133,7 @@ export async function getGlobalZones(): Promise<GlobalZones> {
       .from('cms_editable_zones')
       .select('id, page, zone_key, zone_type, value, is_active')
       .eq('is_active', true)
+      .eq('page', 'global')
       .in('zone_key', CONSUMED_ZONE_KEYS)
 
     if (error) {
@@ -140,16 +144,6 @@ export async function getGlobalZones(): Promise<GlobalZones> {
     const zones: GlobalZones = {}
     for (const row of (data ?? []) as CmsZone[]) {
       if (row.value == null) continue
-      // Une même `zone_key` peut exister sur plusieurs pages : `stat_1_label` est
-      // défini sur `global`, `a-propos` ET `expert-hotelier`. Indexer par clé nue
-      // faisait gagner la dernière ligne lue, donc l'accueil affichait le libellé
-      // B2B « de dépendance moyenne aux plateformes » collé à son chiffre B2C.
-      // Cette fonction sert le header, le pied de page et les blocs transverses :
-      // la ligne `global` est la source voulue. On la fait primer ; à défaut on
-      // garde la première ligne lue, pour que le résultat ne dépende pas de
-      // l'ordre de la requête.
-      const deja = zones[row.zone_key]
-      if (deja && (deja.page === 'global' || row.page !== 'global')) continue
       zones[row.zone_key] = row
     }
     return zones

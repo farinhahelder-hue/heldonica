@@ -14,6 +14,8 @@ import { fetchSubDestinations } from '@/lib/pillar-data'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { getPageZones } from '@/lib/cms-zones'
+import ComingSoonDestination from '@/components/ComingSoonDestination'
+import { isUnpublishedCmsPage } from '@/lib/unpublished-pages'
 
 const DESTINATION_IMAGES: Record<string, string> = {
   'sicile': '/og-default.jpg',
@@ -176,6 +178,15 @@ function HeroDescription({ text }: { text: string }) {
 export default async function DestinationPage({ slug }: Props) {
   const content = DESTINATION_CONTENT[slug]
   const image = DESTINATION_IMAGES[slug]
+
+  // Page non publiable (lib/unpublished-pages.ts) : « Bientôt » à la place de la
+  // page complète, qui s'annonçait « Destination testée » avec une photo de
+  // stock (Paris : la tour Eiffel).
+  if (content && isUnpublishedCmsPage(`destinations-${slug}`)) {
+    const zones = await getPageZones(`destinations-${slug}`)
+    return <ComingSoonDestination slug={slug} title={content.title} country={content.title} zones={zones} />
+  }
+
   const subDests = await fetchSubDestinations(slug)
 
   if (!content) {

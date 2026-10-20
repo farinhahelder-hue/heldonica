@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
+import { Fraunces, Source_Sans_3 } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/components/AuthProvider';
 import CookieConsentBanner from '@/components/CookieConsentBanner';
@@ -13,6 +14,24 @@ import NewsletterPopup from '@/components/NewsletterPopup';
 import BackToTop from '@/components/BackToTop';
 
 const SITE_URL = 'https://www.heldonica.fr';
+
+// Fraunces (titres) + Source Sans 3 (texte) : chargées par next/font, donc
+// auto-hébergées au build — plus de requête tierce vers Google Fonts, plus de
+// CLS au chargement (contrairement à l'ancien @import dans globals.css).
+// Les variables CSS --font-heading-brand / --font-body-brand alimentent les
+// variables de marque ; SiteTheme ne les surcharge que si un réglage CMS
+// explicite existe en base.
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-heading-brand',
+});
+
+const sourceSans3 = Source_Sans_3({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-body-brand',
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -129,18 +148,6 @@ const schemaWebSite = {
   },
 };
 
-const schemaVideo = {
-  '@context': 'https://schema.org',
-  '@type': 'VideoObject',
-  name: 'Heldonica — Slow Travel & Pépites Hors des Sentiers Battus',
-  description: 'Blog slow travel entre Paris, Madère et la Roumanie. On ferme les ordis, on part, on revient avec des pépites dénichées hors des sentiers battus.',
-  thumbnailUrl: `${SITE_URL}/og-default.jpg`,
-  contentUrl: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663470606636/jAd3LynLbumRRtRSgGxysF/Heldonica_11053b9d.mp4',
-  uploadDate: '2025-05-01T08:00:00+02:00',
-  duration: 'PT0M45S',
-  inLanguage: 'fr-FR',
-};
-
 const schemaOrganization = {
   '@context': 'https://schema.org',
   '@type': ['Organization', 'TravelAgency'],
@@ -211,7 +218,7 @@ export default async function RootLayout({
   const gtmId = premierValide('GTM-', siteSettings.seo_gtm_id, siteSettings.gtm_id);
 
   return (
-    <html lang="fr" suppressHydrationWarning>
+    <html lang="fr" suppressHydrationWarning className={`${fraunces.variable} ${sourceSans3.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{
           __html: `
@@ -232,10 +239,6 @@ export default async function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaWebSite) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaVideo) }}
         />
         <script
           type="application/ld+json"

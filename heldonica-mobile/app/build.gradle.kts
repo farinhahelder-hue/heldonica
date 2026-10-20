@@ -77,10 +77,15 @@ android {
         applicationId = "fr.heldonica.mobile"
         minSdk = 26
         targetSdk = 34
-        // Numero de build de la CI : chaque APK produit est ainsi plus recent
-        // que le precedent. Sans cela toutes les versions portent le meme
-        // numero et Android ne les distingue pas.
-        versionCode = maxOf(40, (System.getenv("GITHUB_RUN_NUMBER") ?: "40").toInt())
+        // Minutes ecoulees depuis 1970, a la construction : chaque APK est plus
+        // recent que tous ceux construits avant lui, quel que soit le workflow.
+        // GITHUB_RUN_NUMBER ne convenait pas : chaque workflow a son propre
+        // compteur. Les artefacts de « Build APK » portaient 125, les releases
+        // (« Release APK », run 8 ou 9) retombaient sur le plancher de 40 :
+        // Android refusait la release comme un retour en arriere (« This app
+        // can't be installed on your device »). Plafond Android : 2,1 milliards,
+        // atteint vers l'an 5900.
+        versionCode = (System.currentTimeMillis() / 60_000L).toInt()
         versionName = "1.0." + (System.getenv("GITHUB_RUN_NUMBER") ?: "40")
         // Le moteur LLM embarque (tasks-genai) livre ~27 Mo de .so par ABI : on
         // ne garde que l'arm64 du Poco X6 Pro (l'x86_64 doublerait l'APK).
@@ -187,4 +192,7 @@ dependencies {
     implementation("com.google.mediapipe:tasks-genai:0.10.29")
 
     testImplementation("junit:junit:4.13.2")
+    // org.json est un stub vide dans les tests JVM Android : sans cette version
+    // reelle, TimelineGoogle.analyser rendrait toujours une liste vide.
+    testImplementation("org.json:json:20231013")
 }

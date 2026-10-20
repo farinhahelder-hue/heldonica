@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next'
 import { getAllPosts } from '@/lib/blog-supabase'
 import { isUnpublishedPath } from '@/lib/unpublished-pages'
+import { getActiveTestimonials } from '@/lib/testimonials'
 
 const BASE_URL = 'https://www.heldonica.fr'
 
@@ -468,12 +469,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     },
     {
-      url: `${BASE_URL}/temoignages`,
-      lastModified: new Date('2026-04-15'),
-      changeFrequency: 'yearly',
-      priority: 0.5,
-    },
-    {
       url: `${BASE_URL}/mentions-legales`,
       lastModified: new Date('2026-01-01'),
       changeFrequency: 'yearly',
@@ -486,6 +481,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.2,
     },
   ];
+
+  // /temoignages n'est annoncée qu'à partir d'un témoignage publié : vide, la
+  // page promettait « Leurs voyages, nos preuves » sans rien montrer.
+  if ((await getActiveTestimonials()).length > 0) {
+    staticPages.push({
+      url: `${BASE_URL}/temoignages`,
+      lastModified: new Date('2026-04-15'),
+      changeFrequency: 'yearly',
+      priority: 0.5,
+    })
+  }
 
   // Pages dynamiques avec vraies dates de publication et images
   // Articles publiés: priorité 0.9 selon les要求

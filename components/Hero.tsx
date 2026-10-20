@@ -89,7 +89,7 @@ export default async function Hero({
         </video>
       )}
       {/* Hero Image (default or fallback) */}
-      {(heroType === 'image' || !heroVideo) && (
+      {(heroType === 'image' || !heroVideo) && backgroundImage !== '/og-default.jpg' && (
         <Image
           src={backgroundImage}
           alt=""

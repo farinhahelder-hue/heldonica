@@ -45,8 +45,8 @@ const GROUPS: GroupDef[] = [
     fields: [
       { key: 'primary_color',     label: 'Couleur principale',  type: 'color' },
       { key: 'secondary_color',   label: 'Couleur secondaire',  type: 'color' },
-      { key: 'font_heading',      label: 'Police titres',       type: 'text',     placeholder: 'Playfair Display' },
-      { key: 'font_body',         label: 'Police corps',        type: 'text',     placeholder: 'Inter' },
+      { key: 'font_heading',      label: 'Police titres',       type: 'text',     placeholder: 'Fraunces' },
+      { key: 'font_body',         label: 'Police corps',        type: 'text',     placeholder: 'Source Sans 3' },
       { key: 'hero_banner_url',     label: 'Image hero bannière',      type: 'image',    placeholder: 'https://...' },
       { key: 'hero_video_url',      label: 'URL vidéo hero',           type: 'url',      placeholder: 'https://...mp4' },
       { key: 'hero_video_title',    label: 'Titre hero vidéo',         type: 'text',     placeholder: 'Découvrez le slow travel' },

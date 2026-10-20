@@ -102,6 +102,77 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 - **Non vérifié** : le rendu du bouton dans le navigateur (pas de session CMS ici),
   et l'écran `TachesScreen.kt` de l'APK (pas de compilation Android ici — l'appli
   mobile ne sait toujours pas valider, seule la route le sait).
+## [2026-10-19] — Typographie de marque : fin du double chargement Google Fonts (OpenCode)
+
+Branche `agent/opencode/brand-polish`, suite du WIP laissé par la session marque.
+
+- `components/SiteTheme.tsx` : un réglage CMS qui nomme Fraunces ou Source Sans 3
+  est neutralisé (la police est déjà servie par `next/font`) ; le `<link>`
+  Google Fonts n'est émis que si l'admin choisit une autre police.
+- `app/maintenance/page.tsx`, cartes Leaflet et aperçu admin : derniers
+  `Playfair Display`/`DM Sans` remplacés par les polices de marque.
+- `public/og-image.svg` : pictogramme Heldonica (cercle pointillé, sommets,
+  ligne d'eau) à la place du « H » générique.
+- `supabase/migrations/20261019000000_polices_marque_fraunces_source_sans.sql` :
+  remet `font_heading`/`font_body` sur les polices de marque quand ils portent
+  encore les anciennes valeurs par défaut. Non appliquée ici.
+- Vérifié : `preflight` 7/7, `typecheck`, `lint` (2 warnings préexistants),
+  `next build`, `vitest` 808/811. Les 3 échecs (`formatDate`) viennent du Node
+  local sans ICU `fr-FR` (`June 20, 2024`), pas du diff.
+
+## [2026-10-19] — Release APK : un ZIP à côté du .apk
+
+Sur le Poco, le `.apk` téléchargé depuis la release arrivait abîmé (« package doesn't appear
+to be valid ») alors que l'artefact ZIP de la CI s'installait. Même fichier, autre chemin de
+téléchargement. `release-apk.yml` publie maintenant aussi `heldonica-<tag>.zip` (12 Mo, l'APK
+seul, vérifié par `testzip` avant publication). Le `.apk` direct reste.
+
+## [2026-10-19] — Marque : logo vectoriel, icônes PWA, typographie (OpenCode)
+
+Branche `agent/opencode/brand-look`. Aucun autre fichier modifié (le WIP
+SiteTheme/admin/cartes reste intact).
+
+- `public/logo.svg` (nouveau) : logo Heldonica en vectoriel, **même pictogramme
+  que `favicon.svg`/`BrandMark`** (cercle pointillé, sommets, ligne d'eau) +
+  nom Fraunces + baseline « Slow Travel · Voyages Authentiques ». Net à toutes
+  les tailles, plus de dépendance à un PNG.
+- `components/Header.tsx` : utilise `/logo.svg` par défaut ; si `logo_url` est
+  défini dans le CMS, il reprend la main (SVG chargé en priorité, PNG en
+  `unoptimized`). Import `BrandMark` retiré (devenu inutilisé).
+- `public/android-chrome-{192,512}-maskable.png` (nouveaux) : icônes maskable
+  pour l'installation Android.
+- `public/site.webmanifest` : `start_url`, `scope`, `lang: fr`, `categories`,
+  `purpose: any` + `maskable` sur les icônes 192/512.
+- `app/layout.tsx` : métadonnées icônes étendues — `favicon.svg` en vectoriel,
+  PNG 16/32/96, apple-touch-icon 180 prioritaire.
+- `tailwind.config.ts` : fallbacks polices alignés sur la marque (Fraunces →
+  Georgia, Source Sans 3 → system-ui).
+- `app/globals.css` : antialiasing + `optimizeLegibility`, titres en
+  `line-height: 1.1` / tracking `-0.015em`, corps `line-height: 1.7`, focus
+  clavier visible avec `var(--color-primary)`.
+- Vérifié : `node scripts/check-brand-sync.mjs` OK (48 mots bannis TS ↔ Python).
+  `next build` non exécuté dans cette session (timeout de l'environnement) — la
+  CI fait foi.
+## [2026-10-19] — App : onglet Rédaction (brouillons, IA, photos Timeline)
+
+Demande de la fondatrice : compléter les brouillons depuis l'APK, avec l'IA et les photos
+de Google Timeline.
+
+- Onglet **Rédaction** : liste des brouillons (jamais les articles publiés), nombre de
+  `[À TOI : …]` restants, dictée de notes, bouton « Compléter avec mes notes ».
+- Nouvelle action `fill_gaps` de `/api/cms/ai-assist` : ne remplace que les lacunes que les
+  notes couvrent, rend le reste à l'identique, et renvoie `ajouts_non_sources` (affiché en
+  alerte avant de garder la proposition).
+- Photos : Google n'a **aucune API Timeline** (l'historique vit sur le téléphone). L'app lit
+  l'**export JSON** choisi par l'utilisatrice (Paramètres → Position → Timeline → Exporter),
+  en local, sans envoi. La date EXIF de chaque photo retrouve le séjour (±30 min) puis la
+  commune via OSM ; le sélecteur Android retirant le GPS, c'est le seul lieu disponible.
+  Sans correspondance : lieu laissé en `[À TOI]`, jamais deviné. Lieu à vérifier avant l'ajout.
+- Garde-fou règle n°5 : case « aucun enfant sur ces photos » obligatoire avant l'envoi.
+- L'enregistrement n'envoie que `content` : le statut ne change jamais, une révision est
+  sauvegardée par la route avant chaque écriture.
+- Non compilé ni testé sur appareil depuis cette session (pas de JDK/SDK Android) : la CI
+  `build-apk` et `./gradlew :app:testDebugUnitTest` font foi.
 
 ## [2026-10-18] — Clé API du dispatcher du registre
 

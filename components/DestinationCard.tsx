@@ -25,14 +25,18 @@ export interface DestinationCardProps {
 }
 
 import { getStyleLabel, getStyleEmoji } from '@/lib/travel-styles'
-import { useContentLoader } from '@/hooks/useContentLoader'
 
-const HERO_FALLBACK_DEFAULT = '/og-default.jpg'
 
 function formatBudget(amount?: number): string {
   if (!amount) return ''
   if (amount >= 1000) return `~${(amount / 1000).toFixed(amount % 1000 === 0 ? 0 : 1).replace(',', '.')}k€/semaine/couple`
   return `~${amount}€/semaine/couple`
+}
+
+// Le drapeau n'est pas toujours renseigné en base : sans lui la tuile resterait un grand vide.
+const COUNTRY_FLAGS: Record<string, string> = {
+  Portugal: '🇵🇹', Italie: '🇮🇹', France: '🇫🇷', Espagne: '🇪🇸', Malte: '🇲🇹', Pologne: '🇵🇱',
+  Roumanie: '🇷🇴', 'Monténégro': '🇲🇪', Suisse: '🇨🇭', 'Grèce': '🇬🇷', Colombie: '🇨🇴',
 }
 
 const DestinationCard = memo(function DestinationCard({
@@ -41,9 +45,9 @@ const DestinationCard = memo(function DestinationCard({
   travel_style, best_season, avg_budget_couple_week,
   article_count, coming_soon_date
 }: DestinationCardProps) {
-  const { settings } = useContentLoader()
-  const fallback = settings?.hero_fallback_default || HERO_FALLBACK_DEFAULT
-  const imgSrc = hero_unsplash_url || featured_image || fallback
+  // Sans photo vérifiée on n'invente rien : pas d'image de remplacement (le
+  // logo og-default répété sur chaque carte faisait faux), une tuile neutre.
+  const imgSrc = hero_unsplash_url || featured_image
   const styleLabel = getStyleLabel(travel_style)
   const styleEmoji = getStyleEmoji(travel_style)
   const isClickable = status === 'published' || status === 'starred'
@@ -58,14 +62,20 @@ const DestinationCard = memo(function DestinationCard({
       `}
     >
       <div className="relative aspect-[16/9] overflow-hidden bg-stone-100 dark:bg-stone-800">
-        <Image
-          src={imgSrc}
-          alt={title}
-          fill
-          className={`object-cover transition-transform duration-500 ${isClickable ? 'group-hover:scale-105' : ''}`}
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          loading="lazy"
-        />
+        {imgSrc ? (
+          <Image
+            src={imgSrc}
+            alt={title}
+            fill
+            className={`object-cover transition-transform duration-500 ${isClickable ? 'group-hover:scale-105' : ''}`}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            loading="lazy"
+          />
+        ) : (
+          <div aria-hidden="true" className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cloud-dancer to-stone-200 text-5xl">
+            {flag_emoji || COUNTRY_FLAGS[country] || '🌍'}
+          </div>
+        )}
         <div className="absolute top-3 left-3 flex flex-wrap gap-2">
           {status === 'starred' && (
             <span className="inline-flex items-center gap-1 rounded-full bg-eucalyptus/90 backdrop-blur-sm text-white px-2.5 py-1 text-xs font-bold shadow-md border border-eucalyptus/20">

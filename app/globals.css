@@ -1,4 +1,16 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap');
+/* Les polices de marque (Fraunces, Source Sans 3) sont chargées par
+ * next/font dans app/layout.tsx : auto-hébergées, subset latin, display swap.
+ * Ne JAMAIS réintroduire d'@import Google Fonts ici — c'est ce qui créait un
+ * double chargement (globals.css + SiteTheme) et un CLS au premier rendu. */
+
+:root {
+  /* Brand defaults ; SiteTheme ne les surcharge que sur réglage CMS explicite. */
+  --font-heading: var(--font-heading-brand, 'Fraunces', serif);
+  --font-body: var(--font-body-brand, 'Source Sans 3', sans-serif);
+  /* Alias lus par les utilitaires .heading-* / .body-prose plus bas. */
+  --font-serif: var(--font-heading);
+  --font-sans: var(--font-body);
+}
 
 /* Leaflet CSS */
 @import 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.css';
@@ -32,14 +44,14 @@ html {
 }
 
 body {
-  font-family: var(--font-body, 'Inter', sans-serif);
+  font-family: var(--font-body, 'Source Sans 3', sans-serif);
   background-color: var(--color-background, #F8F6F2);
   color: var(--color-text, #2C2C2C);
   font-size: var(--font-size-base, 16px);
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading, 'Playfair Display', serif);
+  font-family: var(--font-heading, 'Fraunces', serif);
   font-weight: 700;
 }
 
@@ -129,7 +141,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Ensure map controls have Heldonica styling */
 .leaflet-control-zoom a {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-heading, 'Fraunces', serif);
   color: #6B2D1F !important;
 }
 
@@ -152,7 +164,7 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-heading, 'Fraunces', serif);
   font-weight: 700;
   color: #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
@@ -202,7 +214,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @layer utilities {
-  /* H1 — Playfair Display, light, charcoal */
+  /* H1 — Fraunces, light, charcoal */
   .heading-1 {
     font-family: var(--font-serif);
     font-size: clamp(2rem, 5vw, 3rem);
@@ -222,7 +234,7 @@ h1, h2, h3, h4, h5, h6 {
     @apply text-white;
   }
 
-  /* H2 — Playfair Display, normal, mahogany */
+  /* H2 — Fraunces, normal, mahogany */
   .heading-2 {
     font-family: var(--font-serif);
     font-size: clamp(1.5rem, 3vw, 2rem);

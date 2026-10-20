@@ -50,6 +50,8 @@ describe('SubDestinationTemplate — pages non publiables', () => {
 
     expect(screen.getByText('Taormine')).toBeInTheDocument()
     expect(screen.getByText('Sicile — Bientôt')).toBeInTheDocument()
+    // Le nom garde sa majuscule (« le guide taormine » auparavant).
+    expect(screen.getByText('On prépare le guide Taormine — à notre façon.')).toBeInTheDocument()
     expect(screen.getByTestId('newsletter')).toBeInTheDocument()
     // Le contenu de brouillon ne doit pas être servi.
     expect(screen.queryByText(/Incredible/)).not.toBeInTheDocument()
