@@ -195,11 +195,11 @@ export default function SlowTravelQuiz() {
   const progress = Math.round((answers.length / questions.length) * 100);
 
   return (
-    <section className="rounded-2xl border border-stone-200 bg-white p-6 md:p-8 shadow-sm">
-      <p className="text-xs uppercase tracking-[0.16em] text-eucalyptus font-semibold mb-3">
-        Quiz slow travel
+    <section className="rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-6 md:p-10">
+      <p className="text-[11px] uppercase tracking-[0.2em] text-eucalyptus font-medium mb-3">
+        Boussole de voyage
       </p>
-      <h3 className="text-2xl font-serif text-mahogany mb-2">
+      <h3 className="text-2xl md:text-3xl font-serif font-normal text-mahogany mb-2">
         Quel slow traveler es-tu ?
       </h3>
       <p className="text-sm text-charcoal/75 mb-6">
@@ -208,31 +208,31 @@ export default function SlowTravelQuiz() {
 
       {!result ? (
         <>
-          <div className="mb-4">
-            <div className="flex justify-between text-xs text-charcoal/60 mb-2">
+          <div className="mb-6">
+            <div className="flex justify-between text-xs uppercase tracking-[0.14em] text-charcoal/60 mb-2">
               <span>
                 Question {Math.min(currentQuestion + 1, questions.length)} / {questions.length}
               </span>
               <span>{progress}%</span>
             </div>
-            <div className="h-2 rounded-full bg-stone-100 overflow-hidden">
+            <div className="h-1 bg-[#E6DEC8] overflow-hidden">
               <div
-                className="h-full bg-eucalyptus transition-all duration-300"
+                className="h-full bg-mahogany transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
           </div>
 
-          <p className="font-semibold text-charcoal mb-4">
+          <p className="font-serif text-lg text-mahogany mb-4">
             {questions[currentQuestion].title}
           </p>
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {questions[currentQuestion].options.map((option) => (
               <button
                 type="button"
                 key={option.label}
                 onClick={() => handleAnswer(option)}
-                className="w-full text-left rounded-xl border border-stone-200 px-4 py-3 hover:border-eucalyptus hover:bg-cloud-dancer/60 transition-colors"
+                className="w-full text-left rounded-sm border border-[#DED5C6] bg-[#F7F3EC] px-4 py-3 text-sm text-charcoal hover:border-mahogany hover:bg-[#EFE9DF] transition-colors"
               >
                 {option.label}
               </button>
@@ -240,34 +240,34 @@ export default function SlowTravelQuiz() {
           </div>
         </>
       ) : (
-        <div className="rounded-xl border border-teal/50 bg-cloud-dancer p-5 md:p-6">
-          <p className="text-xs uppercase tracking-[0.16em] text-eucalyptus font-semibold mb-2">
-            Ton resultat
+        <div className="rounded-sm border border-[#DED5C6] bg-[#F7F3EC] p-6 md:p-8">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-eucalyptus font-medium mb-2">
+            Ton résultat
           </p>
-          <h4 className="text-xl font-serif text-mahogany mb-2">
+          <h4 className="text-2xl font-serif font-normal text-mahogany mb-2">
             {profileMeta[result].title}
           </h4>
           <p className="text-charcoal/80 mb-3">{profileMeta[result].subtitle}</p>
-          <p className="font-semibold text-eucalyptus mb-5">
+          <p className="font-medium text-eucalyptus mb-6">
             {profileMeta[result].recommendation}
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
               href={profileMeta[result].primaryHref}
-              className="px-5 py-2.5 rounded-lg bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors"
+              className="px-5 py-2.5 rounded-sm bg-mahogany text-[#FAF7F2] text-sm font-medium hover:bg-eucalyptus transition-colors"
             >
               Voir la destination
             </Link>
             <Link
               href={profileMeta[result].planningHref}
-              className="px-5 py-2.5 rounded-lg border border-eucalyptus text-eucalyptus font-semibold hover:bg-eucalyptus/10 transition-colors"
+              className="px-5 py-2.5 rounded-sm border border-mahogany/35 text-mahogany text-sm font-medium hover:bg-mahogany hover:text-[#FAF7F2] transition-colors"
             >
-              Demarrer mon projet
+              Démarrer mon projet
             </Link>
             <button
               type="button"
               onClick={restart}
-              className="px-5 py-2.5 rounded-lg border border-stone-300 text-charcoal/80 hover:bg-white transition-colors"
+              className="px-5 py-2.5 rounded-sm border border-[#D8CEBE] text-charcoal/75 text-sm hover:text-mahogany transition-colors"
             >
               Refaire le quiz
             </button>
