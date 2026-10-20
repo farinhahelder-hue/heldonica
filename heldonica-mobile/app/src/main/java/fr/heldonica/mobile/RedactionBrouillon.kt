@@ -63,4 +63,31 @@ object RedactionBrouillon {
         if (texteBrut(apres).length < texteBrut(avant).length * 0.8) return "L'IA a raccourci le brouillon : du texte a disparu."
         return null
     }
+
+    /**
+     * Prompt pour que le modèle embarqué du Poco X6 Pro (CerveauLocal) remplace
+     * les lacunes `[À TOI : …]` couvertes par les notes, sans toucher au reste
+     * du brouillon ni aux balises `<img>`.
+     */
+    fun construirePromptCompletionLocale(
+        contenu: String,
+        notes: String,
+        lieux: List<String> = emptyList()
+    ): String = buildString {
+        appendLine("Complète ce brouillon Heldonica uniquement à partir des notes vécues ci-dessous.")
+        appendLine("Règles absolues :")
+        appendLine("1. Remplace seulement les balises [À TOI : ...] dont la réponse figure dans les notes.")
+        appendLine("2. Laisse intactes les balises [À TOI : ...] que les notes ne couvrent pas.")
+        appendLine("3. Conserve intégralement tout le reste du texte et toutes les balises HTML (<figure>, <img>, <p>).")
+        appendLine("4. Utilise uniquement les pronoms « on » et « tu », sans rien inventer.")
+        if (lieux.isNotEmpty()) {
+            appendLine("Lieux traversés : ${lieux.joinToString(", ")}")
+        }
+        appendLine()
+        appendLine("Notes vécues :")
+        appendLine(notes.trim())
+        appendLine()
+        appendLine("Brouillon à compléter (renvoie uniquement le brouillon complété, sans commentaire) :")
+        appendLine(contenu.trim())
+    }
 }

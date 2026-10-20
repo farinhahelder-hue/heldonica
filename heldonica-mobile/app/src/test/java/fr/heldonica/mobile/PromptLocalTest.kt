@@ -66,4 +66,16 @@ class PromptLocalTest {
         assertTrue(prompt.contains("Utilisateur : Bonjour"))
         assertEquals(1, Regex(Regex.escape(question)).findAll(prompt).count())
     }
+
+    @Test
+    fun `construirePromptInstagram impose la voix Heldonica, la fiche pertinente et le marqueur A TOI sans notes`() {
+        val sansNotes = PromptLocal.construirePromptInstagram("Funchal", "Mercado", "", fiches)
+        assertTrue(sansNotes.contains("Mercado dos Lavradores"))
+        assertTrue(sansNotes.contains("[À TOI : ce que tu as ressenti et vu là]"))
+        assertTrue(sansNotes.contains("#slowtravel #heldonica"))
+
+        val avecNotes = PromptLocal.construirePromptInstagram("Paris", "", "Balade sur la Petite Ceinture au calme", fiches)
+        assertTrue(avecNotes.contains("La Petite Ceinture"))
+        assertTrue(avecNotes.contains("Balade sur la Petite Ceinture au calme"))
+    }
 }

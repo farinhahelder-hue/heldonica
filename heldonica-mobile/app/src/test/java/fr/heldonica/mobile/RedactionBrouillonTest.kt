@@ -60,4 +60,16 @@ class RefusPropositionTest {
         assertNotNull(RedactionBrouillon.refuserProposition(avant, avant + "<p>[À TOI : prix]</p>"))
         assertNotNull(RedactionBrouillon.refuserProposition(avant, "<p>Court.</p><p>[À TOI : odeur]</p><img src=\"https://x/a.jpg\" />"))
     }
+
+    @Test
+    fun `construirePromptCompletionLocale inclut le brouillon, les notes et les lieux`() {
+        val prompt = RedactionBrouillon.construirePromptCompletionLocale(
+            contenu = avant,
+            notes = "Odeur de pain chaud au matin.",
+            lieux = listOf("Brașov", "Sibiu")
+        )
+        assertTrue(prompt.contains("Odeur de pain chaud au matin."))
+        assertTrue(prompt.contains("Brașov, Sibiu"))
+        assertTrue(prompt.contains("[À TOI : odeur]"))
+    }
 }

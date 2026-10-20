@@ -70,23 +70,39 @@ object RedactionClient {
         lieux: List<String>
     ): Result<PropositionIa> = withContext(Dispatchers.IO) {
         runCatching {
-            val corps = JSONObject()
-                .put("action", "fill_gaps")
-                .put("audience", "b2c")
-                .put("text", notes)
-                .put("context", JSONObject().put("brouillon", contenu).put("lieux", JSONArray(lieux)))
-            val req = Request.Builder().url("${base()}/api/cms/ai-assist")
-                .header("x-cms-auth", mdp(context))
-                .post(corps.toString().toRequestBody(json)).build()
-            http.newCall(req).execute().use { r ->
-                val reponse = r.body?.string().orEmpty()
-                if (!r.isSuccessful) throw Exception(erreur(reponse, r.code))
-                val o = JSONObject(reponse)
-                val ajouts = o.optJSONArray("ajouts_non_sources") ?: JSONArray()
-                val contenuIa = o.optString("data").trim()
-                        .removePrefix("```html").removePrefix("```").removeSuffix("```").trim()
+            try {
+                val corps = JSONObject()
+                    .put("action", "fill_gaps")
+                    .put("audience", "b2c")
+                    .put("text", notes)
+                    .put("context", JSONObject().put("brouillon", contenu).put("lieux", JSONArray(lieux)))
+                val req = Request.Builder().url("${base()}/api/cms/ai-assist")
+                    .header("x-cms-auth", mdp(context))
+                    .post(corps.toString().toRequestBody(json)).build()
+                http.newCall(req).execute().use { r ->
+                    val reponse = r.body?.string().orEmpty()
+                    if (!r.isSuccessful) throw Exception(erreur(reponse, r.code))
+                    val o = JSONObject(reponse)
+                    val ajouts = o.optJSONArray("ajouts_non_sources") ?: JSONArray()
+                    val contenuIa = o.optString("data").trim()
+                            .removePrefix("```html").removePrefix("```").removeSuffix("```").trim()
+                    RedactionBrouillon.refuserProposition(contenu, contenuIa)?.let { throw Exception(it) }
+                    PropositionIa(contenuIa, (0 until ajouts.length()).map { ajouts.getString(it) })
+                }
+            } catch (eServeur: Exception) {
+                if (!CerveauLocal.estInstalle(context)) throw eServeur
+                val prompt = RedactionBrouillon.construirePromptCompletionLocale(contenu, notes, lieux)
+                val repLocale = CerveauLocal.repondre(
+                    context = context,
+                    message = prompt,
+                    mode = "terrain",
+                    historique = emptyList(),
+                    fiches = emptyList()
+                )
+                val contenuIa = repLocale.texte.trim()
+                    .removePrefix("```html").removePrefix("```").removeSuffix("```").trim()
                 RedactionBrouillon.refuserProposition(contenu, contenuIa)?.let { throw Exception(it) }
-                PropositionIa(contenuIa, (0 until ajouts.length()).map { ajouts.getString(it) })
+                PropositionIa(contenuIa, emptyList())
             }
         }
     }

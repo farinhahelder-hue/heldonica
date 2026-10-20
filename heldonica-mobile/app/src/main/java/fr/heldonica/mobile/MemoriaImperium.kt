@@ -159,9 +159,122 @@ val PRESETS_HISTORIQUES = listOf(
     )
 )
 
+/**
+ * Génération et analyse pure (testable sur JVM sans émulateur) d'un scénario
+ * Memoria Imperium par le modèle embarqué du Poco X6 Pro (CerveauLocal, mode libre)
+ * ou par BrainClient en repli.
+ */
+object ScenarioMemoria {
+    private val LIGNE_SCENE = Regex(
+        "^\\s*(?:SC[ÈE]NE\\s*)?(\\d+)[\\s.:)\\-|]+([^|]+)\\|([^|]+)(?:\\|(.+))?$",
+        RegexOption.IGNORE_CASE
+    )
+
+    fun construirePrompt(sujet: String): String {
+        val propre = sujet.trim()
+        return """
+            Crée un scénario de YouTube Short historique (format vertical 9:16, 4 scènes) sur le sujet : "$propre".
+            Respecte strictement ce format ligne par ligne, sans introduction ni conclusion :
+            TITRE: <titre court et percutant>
+            EPOQUE: <date et lieu>
+            SOURCES: <sources historiques ou auteurs anciens vérifiables>
+            SCENE 1 | <BADGE EN MAJUSCULES> | <Narration dramatique en français (1 à 2 phrases)> | <Detailed English visual prompt, cinematic historical oil painting, dramatic lighting, 9:16 vertical>
+            SCENE 2 | <BADGE EN MAJUSCULES> | <Narration dramatique en français (1 à 2 phrases)> | <Detailed English visual prompt, cinematic historical oil painting, dramatic lighting, 9:16 vertical>
+            SCENE 3 | <BADGE EN MAJUSCULES> | <Narration dramatique en français (1 à 2 phrases)> | <Detailed English visual prompt, cinematic historical oil painting, dramatic lighting, 9:16 vertical>
+            SCENE 4 | <BADGE EN MAJUSCULES> | <Narration dramatique en français (1 à 2 phrases)> | <Detailed English visual prompt, cinematic historical oil painting, dramatic lighting, 9:16 vertical>
+        """.trimIndent()
+    }
+
+    fun parserScenario(sujet: String, reponse: String): PresetHistorique {
+        val sujetPropre = sujet.trim().ifBlank { "Épisode historique" }
+        val lignes = reponse.lines()
+            .map { it.trim().removePrefix("*").removePrefix("-").trim() }
+            .filter { it.isNotBlank() }
+
+        var titre = sujetPropre
+        var epoque = "Histoire — Antiquité / Archives"
+        var sources = "Sources historiques à vérifier avant publication."
+        val scenes = mutableListOf<SceneHistorique>()
+        val lignesLibres = mutableListOf<String>()
+
+        for (ligne in lignes) {
+            val net = ligne.replace("**", "").trim()
+            when {
+                net.startsWith("TITRE:", ignoreCase = true) ->
+                    titre = net.substringAfter(":").trim().ifBlank { sujetPropre }
+                net.startsWith("EPOQUE:", ignoreCase = true) || net.startsWith("ÉPOQUE:", ignoreCase = true) ->
+                    epoque = net.substringAfter(":").trim().ifBlank { epoque }
+                net.startsWith("SOURCES:", ignoreCase = true) || net.startsWith("SOURCE:", ignoreCase = true) ->
+                    sources = net.substringAfter(":").trim().ifBlank { sources }
+                else -> {
+                    val m = LIGNE_SCENE.find(net)
+                    if (m != null) {
+                        val badge = m.groupValues[2].trim().uppercase().take(36).ifBlank { "ACTE ${scenes.size + 1}" }
+                        val narration = m.groupValues[3].trim()
+                        val promptAnglais = m.groupValues.getOrNull(4)?.trim().orEmpty().ifBlank {
+                            "$sujetPropre, $badge, cinematic neoclassical historical oil painting, dramatic lighting, 9:16 vertical"
+                        }
+                        if (narration.isNotBlank()) {
+                            scenes.add(
+                                SceneHistorique(
+                                    id = scenes.size + 1,
+                                    badge = badge,
+                                    narration = narration,
+                                    promptVisuel = if (promptAnglais.contains("9:16")) promptAnglais else "$promptAnglais, 9:16 vertical"
+                                )
+                            )
+                        }
+                    } else if (!net.startsWith("#") && net.length > 25) {
+                        lignesLibres.add(net)
+                    }
+                }
+            }
+        }
+
+        // Repli robuste si le modèle 1.5B a rédigé des paragraphes sans séparateurs '|'
+        if (scenes.isEmpty()) {
+            val candidats = if (lignesLibres.isNotEmpty()) lignesLibres else listOf(
+                "Au cœur de l'histoire : $sujetPropre marque un tournant décisif.",
+                "Les forces en présence s'affrontent dans un climat de tension absolue.",
+                "Un choix irréversible précipite le destin des protagonistes.",
+                "Cet événement laisse une empreinte durable dans la mémoire des siècles."
+            )
+            candidats.take(4).forEachIndexed { idx, texte ->
+                val nettoye = texte.replace(Regex("^(?:Sc[èe]ne\\s*\\d+\\s*[:.-]?|\\d+[.)]\\s*)", RegexOption.IGNORE_CASE), "").trim()
+                scenes.add(
+                    SceneHistorique(
+                        id = idx + 1,
+                        badge = "ACTE ${idx + 1}",
+                        narration = nettoye.ifBlank { texte },
+                        promptVisuel = "$sujetPropre, historical scene ${idx + 1}, cinematic historical oil painting, dramatic lighting, 9:16 vertical"
+                    )
+                )
+            }
+        }
+
+        val idSlug = sujetPropre.lowercase()
+            .replace(Regex("[^a-z0-9]+"), "_")
+            .trim('_')
+            .take(24)
+            .ifBlank { "custom" }
+
+        return PresetHistorique(
+            id = "ia_${idSlug}",
+            titre = titre,
+            epoque = epoque,
+            titreYoutube = "$titre #Shorts #Histoire #MemoriaImperium",
+            sourcesAntiques = sources,
+            scenes = scenes
+        )
+    }
+}
+
 @Composable
 fun OngletMemoriaImperium() {
+    var presets by remember { mutableStateOf(PRESETS_HISTORIQUES) }
     var presetSelectionne by remember { mutableStateOf(PRESETS_HISTORIQUES.first()) }
+    var sujetLibre by remember { mutableStateOf("") }
+    var scenarioEnCours by remember { mutableStateOf(false) }
     var telechargementEnCours by remember { mutableStateOf(false) }
     var statutMessage by remember { mutableStateOf<String?>(null) }
     var imagesPretes by remember { mutableStateOf(0) }
@@ -187,20 +300,88 @@ fun OngletMemoriaImperium() {
             color = Color(0xFF8B6508) // Or impérial
         )
         Text(
-            text = "Génération cinématique 0€ sans PC (Pollinations FLUX + Media3)",
+            text = "Scénario IA Poco X6 Pro (hors-ligne) + Visuels FLUX 9:16 (0€)",
             fontSize = 12.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = 12.dp)
+            modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        // Sélecteur de preset
+        // Générateur de scénario historique via CerveauLocal (IA du Poco X6 Pro)
         Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            OutlinedTextField(
+                value = sujetLibre,
+                onValueChange = { sujetLibre = it },
+                placeholder = { Text("Sujet libre (ex: Siège d'Alésia, Spartacus…)", fontSize = 12.sp) },
+                singleLine = true,
+                enabled = !scenarioEnCours && !telechargementEnCours,
+                modifier = Modifier.weight(1f)
+            )
+            Button(
+                enabled = sujetLibre.isNotBlank() && !scenarioEnCours && !telechargementEnCours,
+                onClick = {
+                    val sujet = sujetLibre.trim()
+                    if (sujet.isBlank()) return@Button
+                    scenarioEnCours = true
+                    statutMessage = "🧠 Génération du scénario « $sujet » sur le Poco…"
+                    portee.launch(Dispatchers.IO) {
+                        try {
+                            val prompt = ScenarioMemoria.construirePrompt(sujet)
+                            val rep = if (CerveauLocal.estInstalle(ctx)) {
+                                CerveauLocal.repondre(
+                                    context = ctx,
+                                    message = prompt,
+                                    mode = "chat",
+                                    historique = emptyList(),
+                                    fiches = emptyList(),
+                                    libre = true
+                                )
+                            } else {
+                                BrainClient.interrogerCerveau(
+                                    cmsBaseUrl = BuildConfig.CMS_BASE_URL,
+                                    brainBaseUrl = BuildConfig.BRAIN_BASE_URL,
+                                    message = prompt,
+                                    mode = "chat",
+                                    authSecret = BrainClient.obtenirMotDePasse(ctx),
+                                    booste = BrainClient.estBooste(ctx),
+                                    repondreLocalement = null
+                                )
+                            }
+                            val nouveau = ScenarioMemoria.parserScenario(sujet, rep.texte)
+                            withContext(Dispatchers.Main) {
+                                presets = listOf(nouveau) + presets.filterNot { it.id == nouveau.id }
+                                presetSelectionne = nouveau
+                                imagesPretes = 0
+                                sujetLibre = ""
+                                scenarioEnCours = false
+                                statutMessage = "✅ Scénario prêt (${rep.source.badge} • ${rep.modele}) — ${nouveau.scenes.size} scènes."
+                            }
+                        } catch (e: Exception) {
+                            withContext(Dispatchers.Main) {
+                                scenarioEnCours = false
+                                statutMessage = "Erreur IA : ${e.localizedMessage ?: "modèle indisponible"}"
+                            }
+                        }
+                    }
+                }
+            ) {
+                Text(if (scenarioEnCours) "🧠..." else "🧠 IA Poco", fontSize = 12.sp)
+            }
+        }
+
+        // Sélecteur de preset (défilant horizontalement pour accueillir les scénarios IA)
+        androidx.compose.foundation.lazy.LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            PRESETS_HISTORIQUES.forEach { preset ->
+            items(presets, key = { it.id }) { preset ->
                 val choisi = (preset.id == presetSelectionne.id)
                 OutlinedButton(
                     onClick = {
@@ -211,11 +392,10 @@ fun OngletMemoriaImperium() {
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = if (choisi) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
                     ),
-                    modifier = Modifier.weight(1f),
-                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
+                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
                 ) {
                     Text(
-                        text = preset.titre.split(" ").firstOrNull() ?: preset.titre,
+                        text = preset.titre.take(22),
                         fontSize = 11.sp,
                         fontWeight = if (choisi) FontWeight.Bold else FontWeight.Normal,
                         maxLines = 1

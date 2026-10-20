@@ -661,6 +661,27 @@ class MainActivity : ComponentActivity() {
                 minLines = 6
             )
 
+            OutlinedButton(
+                enabled = !analyseEnCours && (placeTitle.isNotBlank() || caption.isNotBlank()),
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { genererLegendeLocalePoco() }
+            ) {
+                Text(
+                    if (analyseEnCours) "📱 IA du Poco en cours…"
+                    else if (caption.isNotBlank()) "📱 Ciseler avec l'IA du Poco (hors-ligne)"
+                    else "📱 Amorce IA Poco (puis [À TOI])"
+                )
+            }
+            if (texteAvantIa != null) {
+                TextButton(onClick = {
+                    caption = texteAvantIa ?: caption
+                    texteAvantIa = null
+                    status = "Ton texte est revenu."
+                }) {
+                    Text("↩ Revenir à mon texte")
+                }
+            }
+
             Button(
                 // Le titre suffit : le reste peut se completer sur le site, et
                 // exiger davantage ici ferait perdre une note prise sur le vif.
@@ -858,6 +879,18 @@ class MainActivity : ComponentActivity() {
                         ) {
                             Text(if (analyseEnCours) "✨ Regard Heldonica en cours…" else if (caption.isNotBlank()) "✨ Mettre en forme mes notes avec la photo" else "✨ Décrire la photo (puis [À TOI])")
                         }
+                    }
+
+                    OutlinedButton(
+                        enabled = !analyseEnCours && (placeTitle.isNotBlank() || caption.isNotBlank()),
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { genererLegendeLocalePoco() }
+                    ) {
+                        Text(
+                            if (analyseEnCours) "📱 IA du Poco en cours…"
+                            else if (caption.isNotBlank()) "📱 Légende IA Poco (hors-ligne)"
+                            else "📱 Amorce IA Poco depuis le lieu"
+                        )
                     }
 
                     OutlinedTextField(
@@ -1215,6 +1248,35 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
+                // 4. Repli sur le modèle embarqué du Poco X6 Pro (CerveauLocal, 100 % hors ligne)
+                if (textResult.isBlank() && CerveauLocal.estInstalle(this@MainActivity)) {
+                    withContext(Dispatchers.Main) {
+                        status = "Repli sur l'IA du Poco X6 Pro (hors-ligne)…"
+                    }
+                    try {
+                        val fiches = chargerVaultDepuisAssets(this@MainActivity)
+                        val promptPoco = PromptLocal.construirePromptInstagram(
+                            lieu = placeTitle,
+                            adresse = placeAddress,
+                            notes = notesAutrice,
+                            fiches = fiches
+                        )
+                        val repPoco = CerveauLocal.repondre(
+                            context = this@MainActivity,
+                            message = promptPoco,
+                            mode = "terrain",
+                            historique = emptyList(),
+                            fiches = emptyList()
+                        )
+                        if (repPoco.texte.isNotBlank()) {
+                            textResult = repPoco.texte.trim()
+                        }
+                    } catch (e: Exception) {
+                        dernierErreur = e.message ?: "échec modèle Poco"
+                        Log.w(TAG, "Repli CerveauLocal exception: ${e.message}")
+                    }
+                }
+
                 withContext(Dispatchers.Main) {
                     analyseEnCours = false
                     if (textResult.isNotBlank()) {
@@ -1233,6 +1295,70 @@ class MainActivity : ComponentActivity() {
                     analyseEnCours = false
                     status = "Erreur connexion IA : ${e.message}"
                     Log.e(TAG, "Erreur vision globale", e)
+                }
+            }
+        }
+    }
+
+    /**
+     * Génère ou met en forme la légende Instagram / le carnet directement avec l'IA
+     * locale du Poco X6 Pro (CerveauLocal), sans réseau ni clé, avec repli sur
+     * BrainClient si le modèle de 1,6 Go n'est pas encore téléchargé.
+     */
+    private fun genererLegendeLocalePoco() {
+        if (analyseEnCours) return
+        val notesAutrice = caption.trim()
+        analyseEnCours = true
+        status = "Génération par l'IA du Poco X6 Pro…"
+        portee.launch(Dispatchers.IO) {
+            try {
+                val fiches = chargerVaultDepuisAssets(this@MainActivity)
+                val prompt = PromptLocal.construirePromptInstagram(
+                    lieu = placeTitle,
+                    adresse = placeAddress,
+                    notes = notesAutrice,
+                    fiches = fiches
+                )
+                val reponse = if (CerveauLocal.estInstalle(this@MainActivity)) {
+                    CerveauLocal.repondre(
+                        context = this@MainActivity,
+                        message = prompt,
+                        mode = "terrain",
+                        historique = emptyList(),
+                        fiches = emptyList()
+                    )
+                } else {
+                    BrainClient.interrogerCerveau(
+                        cmsBaseUrl = BuildConfig.CMS_BASE_URL,
+                        brainBaseUrl = BuildConfig.BRAIN_BASE_URL,
+                        message = prompt,
+                        mode = "terrain",
+                        authSecret = BrainClient.obtenirMotDePasse(this@MainActivity),
+                        booste = BrainClient.estBooste(this@MainActivity),
+                        repondreLocalement = null
+                    )
+                }
+                withContext(Dispatchers.Main) {
+                    analyseEnCours = false
+                    if (reponse.texte.isNotBlank()) {
+                        if (notesAutrice.isNotBlank()) texteAvantIa = notesAutrice
+                        caption = reponse.texte.trim()
+                        status = "Légende générée (${reponse.source.badge} • ${reponse.modele})."
+                        copierDansPressePapier(genererCaptionInstagram(), montrerToast = false)
+                        Toast.makeText(
+                            this@MainActivity,
+                            "📱 Légende prête (${reponse.source.badge}) et copiée !",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } else {
+                        status = "Réponse vide du modèle."
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    analyseEnCours = false
+                    status = e.localizedMessage ?: "Erreur IA Poco"
+                    Toast.makeText(this@MainActivity, status, Toast.LENGTH_LONG).show()
                 }
             }
         }

@@ -321,6 +321,43 @@ object PromptLocal {
         ajouterEchange(message, historique)
     }
 
+    /**
+     * Prompt court et cadré pour générer une légende Instagram ou une amorce de
+     * carnet directement sur le Poco X6 Pro (modèle Qwen 1.5B embarqué), dans le
+     * respect strict de la voix Heldonica (on/tu, zéro invention, marqueur [À TOI]).
+     */
+    fun construirePromptInstagram(
+        lieu: String,
+        adresse: String = "",
+        notes: String = "",
+        fiches: List<VaultRecordItem> = emptyList()
+    ): String = buildString {
+        val lieuPropre = lieu.trim()
+        val adressePropre = adresse.trim()
+        val notesPropres = notes.trim()
+        val pertinentes = selectionnerFiches("$lieuPropre $notesPropres", fiches, limite = 2)
+
+        appendLine("Rédige une légende Instagram slow-travel en français dans la voix Heldonica.")
+        appendLine("Règles strictes : utilise uniquement les pronoms « on » (le duo) et « tu » (le lecteur). N'utilise jamais « nous » ni « vous », et aucun prénom.")
+        appendLine("Interdiction absolue d'inventer un fait, un prix, une odeur ou une anecdote absente des notes.")
+        if (pertinentes.isNotEmpty()) {
+            appendLine("Repères vérifiés du Coffre :")
+            pertinentes.forEach { f ->
+                appendLine("- ${f.title} : ${f.content.take(220)}")
+            }
+        }
+        if (lieuPropre.isNotBlank()) {
+            appendLine("Lieu : $lieuPropre" + if (adressePropre.isNotBlank()) " ($adressePropre)" else "")
+        }
+        if (notesPropres.isNotBlank()) {
+            appendLine("Notes vécues à mettre en forme sans rien inventer : $notesPropres")
+            appendLine("Si un détail sensoriel manque, ajoute une seule balise [À TOI : détail vécu à préciser].")
+        } else {
+            appendLine("Aucune note saisie : écris une amorce sobre de 2 phrases sur ce lieu et termine obligatoirement par [À TOI : ce que tu as ressenti et vu là].")
+        }
+        appendLine("Termine par 4 hashtags sobres dont #slowtravel #heldonica.")
+    }
+
     private fun StringBuilder.ajouterEchange(message: String, historique: List<MessageCerveau>) {
         // Le dernier message est la question elle-même : on l'écrit une seule fois, plus bas.
         val tours = historique.filterNot { it.estErreur }

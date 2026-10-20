@@ -2,6 +2,13 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-20] — APK Poco X6 Pro : IA locale (`CerveauLocal`) câblée sur Instagram, Memoria Imperium et Rédaction
+
+- **Instagram & Carnets (`MainActivity.kt`, `CerveauLocal.kt`)** : ajout de `PromptLocal.construirePromptInstagram` (respect strict de la voix Heldonica `on`/`tu`, fiches pertinentes du Coffre embarqué, zéro invention, balise `[À TOI : …]` si détail manquant, hashtags `#slowtravel #heldonica`). Bouton dédié **« 📱 Légende IA Poco (hors-ligne) »** dans les écrans *Publier* et *Écrire un carnet*, + repli automatique vers `CerveauLocal.repondre` dans `analyserPhotoAvecIa` lorsque le serveur CMS ou la station PC sont injoignables.
+- **Memoria Imperium (`MemoriaImperium.kt`)** : ajout de `ScenarioMemoria` (`construirePrompt` + `parserScenario` avec repli résilient multi-paragraphes) et d'un champ de sujet historique libre dans `OngletMemoriaImperium()` (**« 🧠 IA Poco »**) qui génère un scénario complet 4 scènes 9:16 avec le modèle local du Poco X6 Pro en mode libre (`libre = true`, ou repli `BrainClient`) avant le rendu visuel Pollinations FLUX 9:16 gratuit.
+- **Rédaction (`RedactionBrouillon.kt`, `RedactionClient.kt`)** : ajout de `construirePromptCompletionLocale` et d'un repli vers `CerveauLocal.repondre` dans `RedactionClient.completer` (protégé par `RedactionBrouillon.refuserProposition`).
+- **Tests JVM** : ajout de `MemoriaImperiumTest.kt` et enrichissement de `PromptLocalTest.kt` et `RedactionBrouillonTest.kt`.
+
 ## [2026-10-20] — Lot 2 : le cache ISR servait encore l'ancien texte 10 h après la correction
 
 - **Symptôme.** Sept mots bannis purgés en base le 20/10 (lot 2) restaient servis
