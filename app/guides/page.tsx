@@ -8,6 +8,8 @@ import EditableZone from '@/components/inline-edit/EditableZone'
 import { getPageZones } from '@/lib/cms-zones'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
+export const revalidate = 300;
+
 const PAGE = "guides";
 const GUIDES = [
   { slug: "top-10-pepites-madere", title: "Les 10 pépites de Madère qu'on ne te dit pas", description: "Les adresses dénichées sur le terrain, les sentiers hors des cartes et les tables familiales que les guides touristiques ignorent.", destination: "Madère", emoji: "🌿" },

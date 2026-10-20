@@ -191,7 +191,7 @@ Linux et macOS via :
 npm run garde-fous
 ```
 
-Ce script exécute et récapitule dans un tableau clair l'ensemble des 12 contrôles :
+Ce script exécute et récapitule dans un tableau clair l'ensemble des 14 contrôles :
 
 | Contrôle | Ce qu'il attrape |
 |---|---|
@@ -201,12 +201,14 @@ Ce script exécute et récapitule dans un tableau clair l'ensemble des 12 contr�
 | `check:api-auth` | Route maniant la clé service sans vérifier son appelant. |
 | `check:erreurs-avalees` | Écriture Supabase dont l'erreur n'est pas lue — `const { data } = await`, `await` nu, `.catch(() => {})`. |
 | `check:cms-migrations` | Table référencée par le code sans migration versionnée. Sans base : ne peut pas être sauté. |
+| `check:cms-cache` | Page prérendue qui lit le CMS sans fenêtre de revalidation — une correction en base resterait invisible jusqu'au prochain déploiement. |
 | `check:cms-zones` | Zones CMS actives qu'aucun composant n'affiche, et l'inverse. |
 | `check:cms-drift` | Tables en base absentes des migrations, ou l'inverse. |
 | `check:content-coherence` | Voix éditoriale et mots bannis en production. |
+| `check:content-pages` | Prose des pages statiques : mots bannis et fragments de brouillon. |
 | `check:content-evidence` | Vécu qui n'est adossé à aucune photo. |
 | `typecheck` (`tsc`) | Erreurs de typage TypeScript strictes. |
-| `vitest` (`vitest run`) | Intégrité des 77 fichiers de tests unitaires et intégration. |
+| `vitest` (`vitest run`) | Intégrité des fichiers de tests unitaires et intégration. |
 
 Ils sont le même juge pour tous les agents. Un garde-fou rouge n'est pas
 « à corriger plus tard » : c'est une tâche qui n'est pas finie.

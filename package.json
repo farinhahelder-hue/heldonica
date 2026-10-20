@@ -19,6 +19,7 @@
     "check:cms-drift": "node scripts/check-cms-drift.mjs",
     "check:cms-zones": "node scripts/check-cms-zones.mjs",
     "check:cms-migrations": "node scripts/check-cms-migrations.mjs",
+    "check:cms-cache": "node scripts/check-cms-cache.mjs",
     "check:content-coherence": "node scripts/check-content-coherence.mjs",
     "check:content-pages": "node scripts/check-content-pages.mjs",
     "check:content-evidence": "node scripts/check-content-evidence.mjs",
@@ -100,4 +101,3 @@
     "node": ">=22.0.0"
   }
 }
-
