@@ -87,3 +87,7 @@ run_bridges.bat
 screen_phone.png
 logs/
 output/
+
+# Notes internes d agents — sauvegarde privee : heldonica-interne
+.openhands/
+.audit/
