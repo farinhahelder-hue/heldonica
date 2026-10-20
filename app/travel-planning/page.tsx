@@ -3,6 +3,8 @@ import TravelPlanningClient from './TravelPlanningClient'
 import { getPageZones } from '@/lib/cms-zones'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
+export const revalidate = 300;
+
 const metadata: Metadata = {
   title: 'Travel Planning sur mesure | Heldonica',
   description: 'On conçoit ton voyage slow travel sur mesure — itinéraire terrain, hébergements testés et suivi humain. Formules à partir de 250€. Devis gratuit.',

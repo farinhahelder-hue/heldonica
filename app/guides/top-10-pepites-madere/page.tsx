@@ -11,6 +11,8 @@ import EditableZone from '@/components/inline-edit/EditableZone'
 import { createServiceClient } from '@/lib/supabase'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
+export const revalidate = 300;
+
 // ─── Métadonnées SEO dynamiques (depuis site_settings si dispo) ──────────────
 const metadata: Metadata = {
   title: 'Guide Top 10 Pépites Madère | Heldonica',
