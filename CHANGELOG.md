@@ -11,22 +11,28 @@ avant toute écriture de trace — jamais en supposant.
 - **20 versions enregistrées** (effet présent en base, SQL exécuté hors migration
   un jour) : `schema_migrations` passe de 144 à **165** lignes. Vérifié par requête
   SQL de contrôle (colonnes, index, lignes, policies) pour chacune.
-- **2 versions NON enregistrées, effet vérifié ABSENT** :
-  `20260929120000_supabase_security_hardening` (le fichier contient un
-  `DROP TABLE backup_articles_20260915 CASCADE` **destructif** ; la table existe
-  encore, `anon` garde `EXECUTE` sur `match_articles`/`match_destinations`) et
-  `20261011120000_create_cms_backoffice_tables` (**0/9** tables créées). Les
-  enregistrer sans les appliquer aurait été un `done` sans preuve.
+- **`20260929120000_supabase_security_hardening` appliquée SANS son `DROP`** (soir) :
+  le fichier supprimait `backup_articles_20260915`, qui contient 50 lignes dont
+  **10 uniques** (dont les notes `paris-*` de l'incident AGENTS.md) → `DROP` retiré,
+  export conservé, table intacte. Le reste appliqué : `REVOKE` anon sur
+  `match_articles`/`match_destinations`/`check_auth_role` (**faille refermée** :
+  `match_destinations` est `SECURITY DEFINER` sans filtre `status` → 38 destinations
+  non publiées étaient lisibles avec la clé publique), vue `security_invoker`, 4
+  policies `service_role_all_*`. `service_role` conserve l'accès (testé : 3 lignes).
+  Base → **166**.
+- **1 version NON enregistrée, effet vérifié ABSENT** :
+  `20261011120000_create_cms_backoffice_tables` (**0/9** tables créées ; drift assumée
+  dans `KNOWN_DRIFT` de `check-cms-drift.mjs`). L'enregistrer sans l'appliquer aurait
+  été un `done` sans preuve.
 - **Collision de version résolue** : `20261019000000` portait deux fichiers
   (PR #642 et #654). Le second est renommé
   `20261019000001_polices_marque_fraunces_source_sans.sql`.
 - **Aucun `db push`** : l'état réel est déjà conforme, pousser rejouerait des
-  effets et le `DROP` du hardening.
+  effets existants.
 - Détail : `.audit/audit-editorial-2026-10-20/reconciliation-migrations-2026-10-20.md`.
-  Deux décisions de mise en ligne restent à trancher (hardening avec/sans `DROP` ;
-  création des 9 tables back-office).
+  Reste une décision de mise en ligne (création des 9 tables back-office).
 - Vérifié : `check:cms-migrations` 0, `check:cms-drift` 0, `check:cms-zones` 0,
-  `preflight` 7/7.
+  `check:erreurs-avalees` 0, `preflight` 7/7.
 
 ## [2026-10-20] — Audit éditorial lot 2 : 7 mots bannis servis en ligne, troncature hero (OpenHands)
 

@@ -1,8 +1,19 @@
 -- 20260929120000_supabase_security_hardening.sql
 -- Migration de renforcement de la sécurité Supabase (RLS, vues, fonctions et nettoyage)
 
--- 1. Nettoyage des tables de sauvegarde temporaires
-DROP TABLE IF EXISTS backup_articles_20260915 CASCADE;
+-- 1. Tables de sauvegarde temporaires : CONSERVÉES (décision du 20/10/2026).
+--    Le DROP initialement prévu (DROP TABLE backup_articles_20260915 CASCADE)
+--    est RETIRÉ de cette migration. Raison : la table contient 50 lignes dont
+--    **10 n'existent nulle part ailleurs** en base, dont trois notes « paris-* »
+--    (paris-515737, paris-592257, paris-900227), « carnet-mobile-665679 »,
+--    « timisoara-932848 », « madere-en-mars », « lisbonne-72h-sans-touristes »,
+--    « voix-heldonica-manifeste », « ici-792063 » et
+--    « les-meilleures-brasseries-…-2025 ». Ce sont des notes utilisateur, pas
+--    des doublons : la règle du projet est de comparer les octets, pas les slugs.
+--    Un export intégral est conservé hors ligne :
+--    .audit/audit-editorial-2026-10-20/backup_articles_20260915-export.json
+--    La suppression se décidera à part, une fois les 10 lignes réintégrées ou
+--    archivées. Ne pas réintroduire de DROP ici.
 
 -- 2. Sécurisation des fonctions RPC (retrait de l'accès public anon)
 REVOKE EXECUTE ON FUNCTION match_articles FROM PUBLIC, anon;
