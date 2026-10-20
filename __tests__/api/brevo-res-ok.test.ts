@@ -125,6 +125,19 @@ describe('contact — voie Brevo lue via res.ok', () => {
     expect(body.contact_added).toBe(false)
   })
 
+  it('journalise le statut et le corps d’un refus contact (401) au lieu de le taire', async () => {
+    process.env.BREVO_API_KEY = 'cle-test'
+    repondre('/contacts', reponseHttp(401, { message: 'IP non autorisée' }))
+    repondre('/smtp/email', reponseHttp(200))
+    const POST = await chargerRoute()
+    await POST(requete(CORPS_VALIDE))
+    expect(console.error).toHaveBeenCalledWith(
+      'Brevo contact error:',
+      401,
+      expect.stringContaining('IP non autorisée')
+    )
+  })
+
   it('une notification Brevo non-ok (500) bascule sur le repli Resend', async () => {
     process.env.BREVO_API_KEY = 'cle-test'
     repondre('/contacts', reponseHttp(201))

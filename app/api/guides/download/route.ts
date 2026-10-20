@@ -10,7 +10,7 @@ async function subscribeToBrevo(email: string, destinationSlug: string): Promise
   if (!brevoApiKey) return
 
   try {
-    await fetch('https://api.brevo.com/v3/contacts', {
+    const res = await fetch('https://api.brevo.com/v3/contacts', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -26,6 +26,9 @@ async function subscribeToBrevo(email: string, destinationSlug: string): Promise
         },
       }),
     })
+    if (!res.ok) {
+      console.error('Brevo subscription error:', res.status, await res.text())
+    }
   } catch (err) {
     // Non-blocking: log but don't fail the download
     console.error('Brevo subscription failed:', err)

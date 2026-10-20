@@ -53,6 +53,9 @@ async function notifyViaBrevo(email: string, data: HotelierLead): Promise<boolea
         `,
       }),
     })
+    if (!res.ok) {
+      console.error('Brevo hotelier notification error:', res.status, await res.text())
+    }
     return res.ok
   } catch (e) {
     console.error('Brevo hotelier notification error:', e)
