@@ -23,8 +23,18 @@ describe('unpublished-pages', () => {
     // + 33 sous-pages sans photo vérifiée, passées en « Bientôt » pour le MVP du
     // 18/10 (décision du fondateur après la planche de contrôle des photos).
     // + 3 pages relevées en ligne le 19/10 : Paris, Maramureș, Grèce.
-    expect(UNPUBLISHED_PATHS).toHaveLength(14 + 33 + 3);
-    expect(UNPUBLISHED_CMS_PAGES).toHaveLength(14 + 33 + 3);
+    // + 3 pays « Bientôt » par décision du 19/10 : Colombie, Lisbonne, Sicile.
+    expect(UNPUBLISHED_PATHS).toHaveLength(14 + 33 + 3 + 3);
+    expect(UNPUBLISHED_CMS_PAGES).toHaveLength(14 + 33 + 3 + 3);
+  });
+
+  it('décision du 19/10 : Colombie, Lisbonne et Sicile « Bientôt »', () => {
+    expect(isUnpublishedPath('/destinations/colombie')).toBe(true);
+    expect(isUnpublishedPath('/destinations/lisbonne')).toBe(true);
+    expect(isUnpublishedPath('/destinations/sicile')).toBe(true);
+    expect(isUnpublishedCmsPage('destinations-colombie')).toBe(true);
+    expect(isUnpublishedCmsPage('destinations-lisbonne')).toBe(true);
+    expect(isUnpublishedCmsPage('destinations-sicile')).toBe(true);
   });
 
   it('relevé en ligne du 19/10 : photo écartée ou page vide, « Bientôt »', () => {

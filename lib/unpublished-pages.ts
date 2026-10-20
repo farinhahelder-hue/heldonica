@@ -83,6 +83,15 @@ export const UNPUBLISHED_PATHS: readonly string[] = [
   '/destinations/paris',
   '/destinations/roumanie/maramures',
   '/destinations/grece',
+
+  // Décision du fondateur du 19/10/2026 (migration 20261019030000) : sans
+  // photo vérifiée, Colombie, Lisbonne et Sicile passent « Bientôt ». Elle
+  // n'avait été appliquée qu'à la liste /destinations : les pages restaient
+  // complètes (« Destination testée », « On y est allés »), indexables et dans
+  // le sitemap.
+  '/destinations/colombie',
+  '/destinations/lisbonne',
+  '/destinations/sicile',
 ] as const;
 
 /** Clés de page CMS (`destinations-sicile-taormine`) correspondantes. */
@@ -141,6 +150,11 @@ export const UNPUBLISHED_CMS_PAGES: readonly string[] = [
   'destinations-paris',
   'destinations-roumanie-maramures',
   'destinations-grece',
+
+  // Décision du 19/10/2026 : mêmes pages, clés CMS.
+  'destinations-colombie',
+  'destinations-lisbonne',
+  'destinations-sicile',
 ] as const;
 
 const pathSet = new Set(UNPUBLISHED_PATHS);
