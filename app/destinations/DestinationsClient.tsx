@@ -15,11 +15,11 @@ import EditableZone from '@/components/inline-edit/EditableZone'
 type RawDestination = Record<string, any>
 
 const CONTINENT_TABS_DEFAULT = [
-  { value: 'all', label: 'Toutes', icon: '🌍' },
-  { value: 'starred', label: 'Coups de cœur', icon: '⭐' },
-  { value: 'Europe', label: 'Europe', icon: '🇪🇺' },
-  { value: 'Méditerranée', label: 'Méditerranée', icon: '🌊' },
-  { value: 'Amériques', label: 'Amériques', icon: '🌎' },
+  { value: 'all', label: 'Toutes', icon: '' },
+  { value: 'starred', label: 'Coups de cœur', icon: '' },
+  { value: 'Europe', label: 'Europe', icon: '' },
+  { value: 'Méditerranée', label: 'Méditerranée', icon: '' },
+  { value: 'Amériques', label: 'Amériques', icon: '' },
 ]
 
 function mapRawToCard(d: RawDestination): DestinationCardProps {
@@ -106,18 +106,18 @@ export default function DestinationsClient() {
       <Header />
       <Breadcrumb />
       <main>
-        <section className="bg-gradient-to-br from-[#f8f6f4] to-white py-16 md:py-24 px-4">
+        <section className="bg-[#EFE9DF] border-b border-[#E2D9C8] py-16 md:py-24 px-4">
           <div className="max-w-5xl mx-auto">
             {/* Ces trois textes passaient par settings.destinations_hub_*, clés
                 qui n'ont jamais existé dans site_settings : le composant servait
                 donc ses littéraux. Ils sont désormais pilotés par les zones. */}
-            <p className="text-xs uppercase tracking-[0.2em] text-eucalyptus font-semibold mb-4">
-              <EditableZone page="destinations" zone="hero_badge" fallback="Hub destinations" />
+            <p className="text-[11px] uppercase tracking-[0.22em] text-eucalyptus font-medium mb-4">
+              <EditableZone page="destinations" zone="hero_badge" fallback="Atlas & carnets de route" />
             </p>
-            <h1 className="text-3xl md:text-5xl font-serif text-mahogany mb-6 leading-tight">
+            <h1 className="text-3xl md:text-5xl font-serif font-normal text-mahogany mb-6 leading-tight">
               <EditableZone page="destinations" zone="hero_title" fallback="Nos destinations slow travel en couple" />
             </h1>
-            <p className="text-charcoal text-base md:text-lg max-w-3xl leading-relaxed">
+            <p className="text-charcoal/80 text-base md:text-lg max-w-3xl leading-relaxed">
               <EditableZone
                 page="destinations"
                 zone="hero_subtitle"
@@ -128,24 +128,24 @@ export default function DestinationsClient() {
           </div>
         </section>
 
-        <section className="bg-white/95 backdrop-blur-md pb-4 sticky top-[60px] lg:top-[72px] z-30 border-b border-stone-200 shadow-sm">
-          <div className="max-w-5xl mx-auto px-4 py-4">
+        <section className="bg-[#F7F3EC]/95 backdrop-blur-sm sticky top-[68px] lg:top-[80px] z-30 border-b border-[#DED5C6]">
+          <div className="max-w-5xl mx-auto px-4 py-3.5">
             <div className="flex flex-wrap items-center gap-2">
               {tabs.map((tab) => (
                 <button
                   key={tab.value}
                   onClick={() => { setContinentFilter(tab.value); if (typeof window !== 'undefined' && (window as any).gtag) (window as any).gtag('event', 'filtre_continent_utilise', { filtre: tab.value }) }}
                   aria-pressed={continentFilter === tab.value}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-all ${
+                  className={`inline-flex items-center gap-1.5 rounded-sm px-3.5 py-1.5 text-xs uppercase tracking-[0.14em] font-medium transition-colors ${
                     continentFilter === tab.value
-                      ? 'bg-eucalyptus text-white shadow-sm'
-                      : 'bg-stone-50 text-stone-600 hover:bg-stone-100 border border-stone-200'
+                      ? 'bg-mahogany text-[#FAF7F2]'
+                      : 'bg-transparent text-charcoal/75 hover:text-mahogany border border-[#D8CEBE]'
                   }`}
                 >
-                  <span>{tab.icon}</span>
+                  {tab.icon ? <span>{tab.icon}</span> : null}
                   <span>{tab.label}</span>
                   {tab.value === 'starred' && starred.length > 0 && (
-                    <span className={`ml-1 text-xs ${continentFilter === 'starred' ? 'text-white/80' : 'text-stone-500'}`}>
+                    <span className={`ml-0.5 text-[11px] ${continentFilter === 'starred' ? 'text-[#FAF7F2]/80' : 'text-charcoal/55'}`}>
                       ({starred.length})
                     </span>
                   )}
@@ -153,7 +153,7 @@ export default function DestinationsClient() {
               ))}
               <Link
                 href="/destinations/compare"
-                className="ml-auto inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold text-eucalyptus border border-eucalyptus/30 hover:bg-eucalyptus hover:text-white transition-all"
+                className="ml-auto inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.14em] font-medium text-mahogany border-b border-mahogany/30 pb-0.5 hover:text-eucalyptus hover:border-eucalyptus transition-colors"
               >
                 Comparer →
               </Link>
@@ -161,20 +161,20 @@ export default function DestinationsClient() {
           </div>
         </section>
 
-        <section className="bg-white py-12 md:py-16 px-4">
+        <section className="bg-[#F7F3EC] py-12 md:py-16 px-4">
           <div className="max-w-5xl mx-auto">
             {loading ? (
-              <div className="rounded-2xl border border-stone-200 p-10 text-center">
+              <div className="rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-10 text-center">
                 <div className="animate-pulse space-y-4">
-                  <div className="h-4 bg-stone-200 rounded w-48 mx-auto"></div>
-                  <div className="h-2 bg-stone-100 rounded w-32 mx-auto"></div>
+                  <div className="h-4 bg-[#E6DEC8] rounded-sm w-48 mx-auto"></div>
+                  <div className="h-2 bg-[#EFE9DF] rounded-sm w-32 mx-auto"></div>
                 </div>
               </div>
             ) : filteredPublished.length === 0 && continentFilter !== 'all' ? (
-              <div className="rounded-2xl border border-stone-200 p-10 text-center">
-                <p className="text-lg font-semibold text-mahogany mb-2">Aucun résultat avec ce filtre</p>
+              <div className="rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-10 text-center">
+                <p className="text-lg font-serif text-mahogany mb-2">Aucun résultat avec ce filtre</p>
                 <p className="text-charcoal/70 mb-5">Élargis un peu le cadre.</p>
-                <button onClick={() => setContinentFilter('all')} className="inline-flex px-6 py-3 rounded-lg bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors">
+                <button onClick={() => setContinentFilter('all')} className="inline-flex px-6 py-2.5 rounded-sm bg-mahogany text-[#FAF7F2] text-sm font-medium hover:bg-eucalyptus transition-colors">
                   Voir toutes les destinations →
                 </button>
               </div>
@@ -182,13 +182,13 @@ export default function DestinationsClient() {
               <div className="space-y-16">
                 {continentFilter === 'all' && starred.length > 0 && (
                   <section>
-                    <div className="flex items-center gap-2 mb-6">
-                      <span className="text-xl">⭐</span>
-                      <h2 className="text-2xl font-serif text-mahogany">
+                    <div className="flex items-baseline justify-between border-b border-[#DED5C6] pb-3 mb-8">
+                      <h2 className="text-2xl md:text-3xl font-serif font-normal text-mahogany">
                         <EditableZone page="destinations" zone="section_curated_title" fallback="Nos coups de cœur" />
                       </h2>
+                      <span className="text-[11px] uppercase tracking-[0.18em] text-eucalyptus font-medium">Sélection du carnet</span>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
                       {starred.map((d) => (
                         <DestinationCard key={`starred-${d.slug}`} {...d} />
                       ))}
@@ -199,11 +199,13 @@ export default function DestinationsClient() {
                 {filteredPublished.length > 0 && (
                   <section>
                     {(continentFilter === 'all' || continentFilter === 'Toutes') && starred.length > 0 && (
-                      <h2 className="text-2xl font-serif text-mahogany mb-6">
-                        <EditableZone page="destinations" zone="section_all_title" fallback="Toutes nos destinations" />
-                      </h2>
+                      <div className="flex items-baseline justify-between border-b border-[#DED5C6] pb-3 mb-8">
+                        <h2 className="text-2xl md:text-3xl font-serif font-normal text-mahogany">
+                          <EditableZone page="destinations" zone="section_all_title" fallback="Toutes nos destinations" />
+                        </h2>
+                      </div>
                     )}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
                       {(continentFilter === 'starred' ? starred : filteredPublished).map((d) => (
                         <DestinationCard key={`pub-${d.slug}`} {...d} />
                       ))}
@@ -212,12 +214,13 @@ export default function DestinationsClient() {
                 )}
 
                 {comingSoon.length > 0 && (continentFilter === 'all' || continentFilter === 'Europe' || continentFilter === 'Méditerranée') && (
-                  <section className="rounded-2xl bg-stone-50 border border-stone-200 p-8 md:p-10">
+                  <section className="rounded-sm bg-[#EFE9DF] border border-[#DED5C6] p-8 md:p-10">
                     <div className="text-center mb-8">
-                      <h2 className="text-2xl font-serif text-mahogany mb-2">
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-charcoal/55 mb-2">Carnets en cours d&apos;écriture</p>
+                      <h2 className="text-2xl font-serif font-normal text-mahogany mb-2">
                         <EditableZone page="destinations" zone="section_soon_title" fallback="Prochainement sur Heldonica" />
                       </h2>
-                      <p className="text-charcoal/70 max-w-lg mx-auto">
+                      <p className="text-charcoal/75 max-w-lg mx-auto text-sm leading-relaxed">
                         <EditableZone
                           page="destinations"
                           zone="section_soon_text"
@@ -231,7 +234,7 @@ export default function DestinationsClient() {
                         <DestinationCard key={`cs-${d.slug}`} {...d} />
                       ))}
                     </div>
-                    <div className="max-w-md mx-auto rounded-2xl bg-mahogany px-6 py-5">
+                    <div className="max-w-md mx-auto rounded-sm bg-[#1E1A17] border border-[#332C27] px-6 py-5">
                       <NewsletterForm variant="inline" />
                     </div>
                   </section>
@@ -239,23 +242,23 @@ export default function DestinationsClient() {
               </div>
             )}
 
-            <div className="mt-12 text-center">
+            <div className="mt-14 text-center">
               <Link
                 href="/destinations/carte"
-                className="inline-flex items-center gap-3 px-8 py-4 rounded-xl border-2 border-eucalyptus text-eucalyptus font-semibold hover:bg-eucalyptus hover:text-white transition-all text-lg"
+                className="inline-flex items-center gap-3 px-7 py-3.5 rounded-sm border border-mahogany/35 text-mahogany text-sm font-medium tracking-wide hover:bg-mahogany hover:text-[#FAF7F2] transition-colors"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
                   <line x1="8" y1="2" x2="8" y2="18"></line>
                   <line x1="16" y1="6" x2="16" y2="22"></line>
                 </svg>
-                Voir la carte interactive →
+                Explorer la carte des carnets →
               </Link>
             </div>
           </div>
         </section>
 
-        <section className="bg-cloud-dancer py-12 md:py-16 px-4">
+        <section className="bg-[#EFE9DF] border-t border-[#E2D9C8] py-12 md:py-16 px-4">
           <div className="max-w-4xl mx-auto">
             <SlowTravelQuiz />
           </div>

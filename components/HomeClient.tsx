@@ -133,12 +133,12 @@ function getCategoryIcon(category: string | null | undefined, iconMap?: Record<s
   return map[category] ?? map.default
 }
 
-// ─── Card article ─────────────────────────────────────────────────────────────
+// ─── Card article (style carnet éditorial papier, sans pilules ni emojis) ─────
 function ArticleCard({ post, size = 'md', slugImages, catImages, gradientMap, iconMap }: { post: BlogPost & { formattedDate: string; readTime?: number }; size?: 'sm' | 'md' | 'lg'; slugImages?: Record<string, string>; catImages?: Record<string, string>; gradientMap?: Record<string, string>; iconMap?: Record<string, string> }) {
   const img = postImage(post, slugImages || SLUG_IMAGES_DEFAULT, catImages || CAT_IMAGES_DEFAULT)
   const [imgSrc, setImgSrc] = useState(img)
   const [imgFailed, setImgFailed] = useState(false)
-  const h = size === 'lg' ? 'h-80' : size === 'md' ? 'h-52' : 'h-44'
+  const h = size === 'lg' ? 'aspect-[16/10]' : 'aspect-[4/3]'
   const readTime = (post.readTime ?? post.read_time) ?? 0
   const gradient = getCategoryGradient(post.category, gradientMap)
   const iconSvg = getCategoryIcon(post.category, iconMap)
@@ -154,59 +154,48 @@ function ArticleCard({ post, size = 'md', slugImages, catImages, gradientMap, ic
 
   return (
     <Link href={`/blog/${post.slug}`} className="group block h-full" aria-label={`Lire le carnet : ${post.title}`}>
-      <article className="relative rounded-2xl overflow-hidden bg-mahogany/80 shadow-md hover:shadow-xl transition-all duration-400 h-full flex flex-col">
-        <div className={`relative ${h} overflow-hidden`}>
+      <article className="h-full flex flex-col">
+        <div className={`relative ${h} w-full overflow-hidden rounded-sm bg-[#E8E0D2] border border-[#DED5C6] mb-4`}>
           {imgFailed ? (
             <div className={`w-full h-full flex flex-col items-center justify-center bg-gradient-to-br ${gradient} gap-3`}>
-              <svg aria-hidden="true" width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-white/80" dangerouslySetInnerHTML={{ __html: iconSvg }} />
-              <span className="text-white/90 text-xs font-semibold tracking-[0.12em] uppercase">{post.category || 'Travel'}</span>
+              <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" className="text-white/75" dangerouslySetInnerHTML={{ __html: iconSvg }} />
+              <span className="text-white/85 text-[11px] tracking-[0.18em] uppercase">{post.category || 'Carnet'}</span>
             </div>
           ) : (
             <Image
               src={imgSrc}
               alt={post.title}
               fill
-              className="object-cover opacity-80 group-hover:opacity-90 group-hover:scale-105 transition-all duration-600"
+              className="object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
               loading="lazy"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               onError={() => { setImgFailed(true) }}
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
-          <div className="absolute top-3 left-3">
-            <span className="bg-eucalyptus/90 backdrop-blur-sm text-white text-xs font-semibold px-2.5 py-0.5 rounded-full capitalize">
-              {post.category}
-            </span>
-          </div>
-          {readTime > 0 ? (
-            <span className="absolute bottom-3 right-3 bg-black/40 backdrop-blur-sm text-white/80 text-xs px-2 py-0.5 rounded-full">
-              {readTime} min
-            </span>
-          ) : null}
         </div>
-        <div className="p-4 flex flex-col flex-1 bg-white">
-          <h3 className="font-semibold text-mahogany text-sm leading-snug mb-1.5 group-hover:text-eucalyptus transition-colors line-clamp-2">
+        <div className="flex flex-col flex-1">
+          <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-eucalyptus mb-2">
+            <span>{displayDestination || post.category || 'Carnet'}</span>
+            {readTime > 0 && (
+              <>
+                <span className="text-charcoal/30">·</span>
+                <span className="text-charcoal/55">{readTime} min de lecture</span>
+              </>
+            )}
+          </div>
+          <h3 className="font-serif font-normal text-mahogany text-xl leading-snug mb-2 group-hover:text-eucalyptus transition-colors line-clamp-2">
             {post.title}
           </h3>
-          {post.excerpt && (
-            <p className="text-charcoal/60 text-xs leading-relaxed line-clamp-2 flex-1 mb-2">{post.excerpt}</p>
+          {(post.excerpt || displayExcerpt(post)) && (
+            <p className="text-charcoal/70 text-sm leading-relaxed line-clamp-2 flex-1 mb-3">
+              {post.excerpt || displayExcerpt(post)}
+            </p>
           )}
-          {!post.excerpt && displayExcerpt(post) && (
-            <p className="text-charcoal/60 text-xs leading-relaxed line-clamp-2 flex-1 mb-2">{displayExcerpt(post)}</p>
-          )}
-          <div className="flex items-center justify-between mt-auto pt-2 border-t border-cloud-dancer">
-            <div className="flex items-center gap-2 text-xs text-charcoal/40">
-              <span>{post.author ?? 'Heldonica'}</span>
-              {displayDestination && (
-                <>
-                  <span>•</span>
-                  <span>📍 {displayDestination}</span>
-                </>
-              )}
-              <span>•</span>
-              <span>{post.formattedDate || 'Récemment'}</span>
-            </div>
-            <span className="text-xs text-eucalyptus font-semibold group-hover:translate-x-1 transition-transform" aria-hidden="true">Lire le carnet →</span>
+          <div className="mt-auto pt-2 flex items-center justify-between text-xs text-charcoal/50">
+            <span>{post.formattedDate || ''}</span>
+            <span className="text-mahogany border-b border-mahogany/30 pb-0.5 group-hover:text-eucalyptus group-hover:border-eucalyptus transition-colors" aria-hidden="true">
+              Lire le récit →
+            </span>
           </div>
         </div>
       </article>
@@ -421,73 +410,73 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <Image src={posterSrc} alt="" fill priority sizes="100vw" quality={75}
             className="object-cover opacity-[0.55]" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
-        <div className="relative z-20 px-5 md:px-16 pb-12 md:pb-24 max-w-4xl">
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1A1614]/85 via-[#1A1614]/25 to-transparent z-10" />
+        <div className="relative z-20 px-6 md:px-16 pb-14 md:pb-24 max-w-4xl">
           <EditableZone page="home" zone="hero_badge" fallback="Slow travel vécu en duo · Hors sentiers · Île-de-France"
-            className="text-teal text-xs font-semibold tracking-[0.2em] uppercase mb-5 block"
+            className="text-[#E6DEC8]/90 text-[11px] font-medium tracking-[0.22em] uppercase mb-5 block"
           />
-          <h1 className="text-3xl md:text-5xl lg:text-7xl font-serif font-light text-white leading-[1.15] mb-4 md:mb-6">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-serif font-normal text-[#F7F3EC] leading-[1.14] mb-5 md:mb-6">
             <EditableZone page="home" zone="hero_line_1" fallback="On ferme les ordis." className="hero-word inline" />
             <br />
             <EditableZone page="home" zone="hero_line_2" fallback="On part." className="hero-word inline" />
             <br />
-            <em>
+            <em className="font-normal text-[#E6DEC8]">
               <EditableZone page="home" zone="hero_line_3" fallback="On revient avec des pépites qu'on n'avait pas cherchées." className="hero-word inline" />
             </em>
           </h1>
           <EditableZone page="home" zone="hero_tagline" type="textarea" fallback="Deux voyageurs, dix ans de terrain, des destinations qu'on a vraiment arpentées — pas lu dans un guide."
-            className="text-sm md:text-lg text-gray-300 leading-relaxed mb-6 md:mb-8 max-w-xl block"
+            className="text-sm md:text-base text-[#E6DEC8]/85 leading-relaxed mb-7 md:mb-9 max-w-xl block"
           />
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-4">
             <Link href="/travel-planning"
-              className="px-5 md:px-6 py-2.5 md:py-3 bg-mahogany hover:bg-eucalyptus text-white rounded-full font-semibold text-sm tracking-wide transition">
+              className="px-6 py-3 bg-mahogany hover:bg-eucalyptus text-[#F7F3EC] rounded-sm font-medium text-xs uppercase tracking-[0.16em] transition-colors">
               <EditableZone page="home" zone="hero_cta_1_label" fallback="Planifier mon voyage →" />
             </Link>
             <Link href="/blog"
-              className="px-5 md:px-6 py-2.5 md:py-3 border border-white/50 hover:border-white text-white hover:bg-white/10 rounded-full font-semibold text-sm tracking-wide transition">
+              className="px-6 py-3 border border-[#F7F3EC]/50 hover:border-[#F7F3EC] text-[#F7F3EC] hover:bg-[#F7F3EC]/10 rounded-sm font-medium text-xs uppercase tracking-[0.16em] transition-colors">
               <EditableZone page="home" zone="hero_cta_2_label" fallback="Lire les carnets →" />
             </Link>
           </div>
         </div>
         <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-20 scroll-cue">
-          <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeOpacity="0.6">
+          <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F7F3EC" strokeWidth="1.2" strokeOpacity="0.6">
             <path d="M12 5v14M5 12l7 7 7-7" />
           </svg>
         </div>
       </section>
 
       {/* ── IDENTITÉ ──────────────────────────────────────────────────────── */}
-      <section className="py-20 md:py-28 bg-white">
+      <section className="py-20 md:py-28 bg-[#F7F3EC] border-b border-[#E2D9C8]">
         <div className="max-w-6xl mx-auto px-6 md:px-10">
           <div className="grid md:grid-cols-5 gap-12 md:gap-16 items-start">
             <div className="md:col-span-3" data-reveal="left">
               <EditableZone page="home" zone="section_story_badge" fallback="Notre histoire"
-                className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
+                className="text-eucalyptus text-[11px] font-medium tracking-[0.22em] uppercase mb-4 block"
               />
               <EditableZone page="home" zone="section_story_title" type="html" fallback={'Deux regards. <span class="block italic text-eucalyptus">Un seul terrain.</span>'}
-                className="text-3xl md:text-5xl font-serif font-light text-mahogany mb-6 leading-tight block"
+                className="text-3xl md:text-5xl font-serif font-normal text-mahogany mb-6 leading-tight block"
               />
               <EditableZone page="home" zone="section_story_text_1" type="textarea" fallback="L'une a grandi entre deux pays, deux langues, la route comme habitude naturelle. Elle apporte au duo son sens du détail, sa plume éditoriale et une passion pour les adresses qui racontent une vraie histoire — celles dont tu te souviens après, pas celles que tu coches."
-                className="text-base text-charcoal/70 leading-relaxed mb-4 block"
+                className="text-base text-charcoal/80 leading-relaxed mb-4 block"
               />
               <EditableZone page="home" zone="section_story_text_2" type="textarea" fallback="L'autre est né sur une île au milieu de l'Atlantique, entre levadas et océan. Ses racines insulaires et son amour pour la nature sauvage lui ont donné le goût des sentiers cachés, des tables sans enseigne et du voyage au rythme de l'eau."
-                className="text-base text-charcoal/70 leading-relaxed mb-4 block"
+                className="text-base text-charcoal/80 leading-relaxed mb-4 block"
               />
               <EditableZone page="home" zone="section_story_text_3" type="textarea" fallback="Notre regard est né à deux. Ensemble, on ferme les ordinateurs, on prend le large et on revient avec des pépites vécues, prêtes à être partagées. Pas de copier-coller d'Internet, uniquement des conseils terrain."
-                className="text-base text-charcoal/70 leading-relaxed mb-8 block"
+                className="text-base text-charcoal/80 leading-relaxed mb-8 block"
               />
-              <Link href="/blog" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
+              <Link href="/blog" className="inline-block text-mahogany border-b border-mahogany/40 pb-1 text-xs uppercase tracking-[0.16em] font-medium hover:text-eucalyptus hover:border-eucalyptus transition-colors">
                 <EditableZone page="home" zone="section_story_cta" fallback="Lire les carnets →" />
               </Link>
             </div>
-            <div className="md:col-span-2 grid grid-cols-2 gap-6" data-reveal="right">
+            <div className="md:col-span-2 grid grid-cols-2 gap-6 bg-[#EFE9DF] p-6 md:p-8 rounded-sm border border-[#DED5C6]" data-reveal="right">
               <AnimatedStat nb={getCmsOrSetting('stat_1_nb', 'stat_1_nb', '4+', zones, settings)} label={getCmsOrSetting('stat_1_label', 'stat_1_label', 'Ans de slow travel', zones, settings)} />
               <AnimatedStat nb={getCmsOrSetting('stat_2_nb', 'stat_2_nb', '100+', zones, settings)} label={getCmsOrSetting('stat_2_label', 'stat_2_label', 'Adresses vécues', zones, settings)} />
               <AnimatedStat nb={countryCount} suffix="+" label={getCmsOrSetting('stat_3_label', 'stat_3_label', 'Pays habités', zones, settings)} />
               <AnimatedStat nb={publishedArticles} suffix="+" label={getCmsOrSetting('stat_4_label', 'stat_4_label', 'Carnets publiés', zones, settings)} />
-              <div className="col-span-2 mt-2">
-                <p className="text-xs text-charcoal/40 leading-relaxed">
-                  <span className="font-semibold text-charcoal/70">
+              <div className="col-span-2 mt-2 pt-4 border-t border-[#DED5C6]">
+                <p className="text-xs text-charcoal/60 leading-relaxed">
+                  <span className="font-medium text-mahogany uppercase tracking-wider text-[11px]">
                     <EditableZone page="home" zone="stats_playgrounds_label" fallback="Terrains de jeu :" />
                   </span><br />
                   <EditableZone page="home" zone="stats_playgrounds" type="textarea" fallback="Madère · Roumanie · Monténégro · Suisse · Lisbonne · Sicile · Sardaigne · Colombie · Île-de-France"
@@ -502,89 +491,90 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
 
       {/* ── À LA UNE : dernier article ──────────────────────────────────── */}
       {featured && (
-        <section className="py-0 bg-mahogany">
-          <Link href={`/blog/${featured.slug}`} className="group block">
-            <article className="relative h-[50vh] md:h-[60vh] w-full overflow-hidden flex items-end">
-              {featImg && (
-                <Image src={featImg} alt={featured.title} fill
-                  className="object-cover opacity-60 group-hover:opacity-70 group-hover:scale-105 transition-all duration-700"
-                  priority sizes="100vw" />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-              <div className="relative z-10 p-8 md:p-16 max-w-3xl">
-                <EditableZone page="home" zone="section_featured_badge" fallback="✦ À la une"
-                  className="text-teal text-xs font-bold tracking-[0.2em] uppercase mb-3 block"
-                />
-                <h2 className="text-2xl md:text-4xl font-serif font-light text-white leading-tight mb-4 group-hover:text-teal/80 transition-colors">
-                  {featured.title}
-                </h2>
-                {featured.excerpt && <p className="text-gray-300 text-sm leading-relaxed mb-6 line-clamp-2">{featured.excerpt}</p>}
-                {!featured.excerpt && displayExcerpt(featured) && <p className="text-gray-300 text-sm leading-relaxed mb-6 line-clamp-2">{displayExcerpt(featured)}</p>}
-                <div className="inline-flex items-center gap-2 text-teal font-semibold text-sm group-hover:gap-3 transition-all">
-                  <EditableZone page="home" zone="section_featured_cta" fallback="Lire le carnet →" />
+        <section className="py-12 md:py-16 bg-[#F7F3EC]">
+          <div className="max-w-6xl mx-auto px-6 md:px-10">
+            <Link href={`/blog/${featured.slug}`} className="group block">
+              <article className="relative h-[52vh] md:h-[62vh] w-full overflow-hidden rounded-sm border border-[#DED5C6] bg-[#241D1A] flex items-end">
+                {featImg && (
+                  <Image src={featImg} alt={featured.title} fill
+                    className="object-cover opacity-75 group-hover:scale-[1.02] transition-transform duration-700 ease-out"
+                    priority sizes="100vw" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1A1614]/90 via-[#1A1614]/30 to-transparent" />
+                <div className="relative z-10 p-8 md:p-14 max-w-3xl">
+                  <EditableZone page="home" zone="section_featured_badge" fallback="Récit à la une"
+                    className="text-[#E6DEC8]/90 text-[11px] font-medium tracking-[0.22em] uppercase mb-3 block"
+                  />
+                  <h2 className="text-2xl md:text-4xl font-serif font-normal text-[#F7F3EC] leading-tight mb-4 group-hover:text-[#E6DEC8] transition-colors">
+                    {featured.title}
+                  </h2>
+                  {featured.excerpt && <p className="text-[#E6DEC8]/80 text-sm leading-relaxed mb-6 line-clamp-2">{featured.excerpt}</p>}
+                  {!featured.excerpt && displayExcerpt(featured) && <p className="text-[#E6DEC8]/80 text-sm leading-relaxed mb-6 line-clamp-2">{displayExcerpt(featured)}</p>}
+                  <div className="inline-block text-[#F7F3EC] border-b border-[#F7F3EC]/50 pb-0.5 text-xs uppercase tracking-[0.16em] font-medium">
+                    <EditableZone page="home" zone="section_featured_cta" fallback="Lire le carnet →" />
+                  </div>
                 </div>
-              </div>
-            </article>
-          </Link>
+              </article>
+            </Link>
+          </div>
         </section>
       )}
 
       {/* ── CARNETS DE VOYAGE ──────────────────────────────────────────── */}
       {travelPosts.length > 0 && (
-        <section className="py-20 md:py-28 bg-cloud-dancer">
+        <section className="py-20 md:py-28 bg-[#EFE9DF] border-y border-[#E2D9C8]">
           <div className="max-w-6xl mx-auto px-6 md:px-10">
-            <div className="flex items-end justify-between mb-10 flex-wrap gap-4" data-reveal>
+            <div className="flex items-end justify-between mb-12 flex-wrap gap-4" data-reveal>
               <div>
-                <EditableZone page="home" zone="section_travel_badge" fallback="✦ Carnets de voyage"
-                  className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-2 block"
+                <EditableZone page="home" zone="section_travel_badge" fallback="Carnets de route"
+                  className="text-eucalyptus text-[11px] font-medium tracking-[0.22em] uppercase mb-2 block"
                 />
                 <EditableZone page="home" zone="section_travel_title" fallback="Nos itinéraires vécus"
-                  className="text-3xl md:text-4xl font-serif font-light text-mahogany block"
+                  className="text-3xl md:text-4xl font-serif font-normal text-mahogany block"
                 />
                 <EditableZone page="home" zone="section_travel_text" type="textarea" fallback="Chaque itinéraire que l'on propose a été parcouru, testé et ajusté de nos propres mains. Pas de compromis, pas de copier-coller d'agences : juste la réalité du terrain et nos coups de cœur partagés."
-                  className="text-sm text-charcoal/70 leading-relaxed mt-3 max-w-xl block"
+                  className="text-sm text-charcoal/75 leading-relaxed mt-3 max-w-xl block"
                 />
               </div>
-              <Link href="/blog" className="text-sm text-eucalyptus font-semibold hover:underline">
+              <Link href="/blog" className="text-xs uppercase tracking-[0.16em] text-mahogany border-b border-mahogany/40 pb-1 font-medium hover:text-eucalyptus hover:border-eucalyptus transition-colors">
                 <EditableZone page="home" zone="section_travel_cta" fallback="Voir tous les carnets →" />
               </Link>
             </div>
             {travelPosts.length >= 1 && (
-              <div className="grid md:grid-cols-2 gap-6 mb-6">
-                <Link href={`/blog/${travelPosts[0].slug}`} className="card-lift group relative rounded-2xl overflow-hidden bg-mahogany/80 aspect-[4/3] md:row-span-2" data-reveal="left">
+              <div className="grid md:grid-cols-2 gap-8">
+                <Link href={`/blog/${travelPosts[0].slug}`} className="group relative rounded-sm overflow-hidden bg-[#241D1A] border border-[#DED5C6] aspect-[4/3] md:row-span-2" data-reveal="left">
                   <Image src={postImage(travelPosts[0], slugImages, catImages)} alt={travelPosts[0].title} fill
-                    className="object-cover opacity-70 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700"
+                    className="object-cover opacity-80 group-hover:scale-[1.02] transition-transform duration-700 ease-out"
                     sizes="(max-width: 768px) 100vw, 50vw" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
-                  <div className="absolute bottom-0 left-0 p-6">
-                    <span className="inline-block bg-eucalyptus text-white text-xs font-bold px-2.5 py-1 rounded-full mb-3 capitalize">
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1A1614]/90 via-[#1A1614]/25 to-transparent" />
+                  <div className="absolute bottom-0 left-0 p-6 md:p-8">
+                    <span className="inline-block text-[#E6DEC8]/90 text-[11px] tracking-[0.2em] uppercase mb-2">
                       {travelPosts[0].destination ? travelPosts[0].destination.charAt(0).toUpperCase() + travelPosts[0].destination.slice(1).toLowerCase() : travelPosts[0].category}
                     </span>
-                    <h3 className="text-white text-2xl md:text-3xl font-serif font-light leading-tight group-hover:text-teal/80 transition-colors">
+                    <h3 className="text-[#F7F3EC] text-2xl md:text-3xl font-serif font-normal leading-tight group-hover:text-[#E6DEC8] transition-colors">
                       {travelPosts[0].title}
                     </h3>
-                    {travelPosts[0].excerpt && (
-                      <p className="text-gray-300 text-sm mt-2 line-clamp-2">{travelPosts[0].excerpt}</p>
-                    )}
-                    {!travelPosts[0].excerpt && displayExcerpt(travelPosts[0]) && (
-                      <p className="text-gray-300 text-sm mt-2 line-clamp-2">{displayExcerpt(travelPosts[0])}</p>
+                    {(travelPosts[0].excerpt || displayExcerpt(travelPosts[0])) && (
+                      <p className="text-[#E6DEC8]/80 text-sm mt-2 line-clamp-2">{travelPosts[0].excerpt || displayExcerpt(travelPosts[0])}</p>
                     )}
                   </div>
                 </Link>
                 <div className="grid grid-rows-2 gap-6">
                   {travelPosts.slice(1, 3).map((p, i) => (
                     <Link key={p.slug} href={`/blog/${p.slug}`}
-                       className="group relative rounded-2xl overflow-hidden bg-mahogany/80"
+                       className="group relative rounded-sm overflow-hidden bg-[#241D1A] border border-[#DED5C6]"
                       data-reveal data-delay={String((i + 1) * 150)}>
                       <Image src={postImage(p, slugImages, catImages)} alt={p.title} fill
-                        className="object-cover opacity-65 group-hover:opacity-75 group-hover:scale-105 transition-all duration-700"
+                        className="object-cover opacity-75 group-hover:scale-[1.02] transition-transform duration-700 ease-out"
                         sizes="(max-width: 768px) 100vw, 33vw" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                      <div className="relative p-5 h-44 flex flex-col justify-end">
-                        <h3 className="text-white text-lg font-serif font-light group-hover:text-teal/80 transition-colors line-clamp-2">
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1A1614]/85 via-[#1A1614]/20 to-transparent" />
+                      <div className="relative p-6 h-48 flex flex-col justify-end">
+                        <p className="text-[#E6DEC8]/85 text-[11px] uppercase tracking-[0.18em] mb-1.5">
+                          {p.destination ? p.destination.charAt(0).toUpperCase() + p.destination.slice(1).toLowerCase() : p.formattedDate}
+                        </p>
+                        <h3 className="text-[#F7F3EC] text-xl font-serif font-normal group-hover:text-[#E6DEC8] transition-colors line-clamp-2">
                           {p.title}
                         </h3>
-                        <p className="text-gray-300 text-xs mt-1">{p.destination ? p.destination.charAt(0).toUpperCase() + p.destination.slice(1).toLowerCase() : p.formattedDate}</p>
                       </div>
                     </Link>
                   ))}
@@ -597,48 +587,51 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
 
       {/* ── FOOD & LIFESTYLE ───────────────────────────────────────────── */}
       {foodPosts.length > 0 && (
-        <section className="py-20 md:py-28 bg-white">
+        <section className="py-20 md:py-28 bg-[#F7F3EC]">
           <div className="max-w-6xl mx-auto px-6 md:px-10">
             <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
               <div className="relative" data-reveal="left">
-                <Image src={postImage(foodPosts[0], slugImages, catImages)}
-                  alt={foodPosts[0].title}
-                  width={700} height={525}
-                  className="rounded-2xl w-full aspect-[4/3] object-cover shadow-lg" />
-                <div className="absolute -bottom-4 -right-4 bg-mahogany text-white px-5 py-3 rounded-xl shadow-lg hidden md:block">
-                  <p className="text-xs font-bold tracking-wider uppercase">
+                <div className="p-2.5 bg-[#FAF7F2] border border-[#DED5C6] rounded-sm shadow-sm">
+                  <Image src={postImage(foodPosts[0], slugImages, catImages)}
+                    alt={foodPosts[0].title}
+                    width={700} height={525}
+                    className="rounded-sm w-full aspect-[4/3] object-cover" />
+                </div>
+                <div className="absolute -bottom-4 -right-4 bg-[#FAF7F2] border border-[#DED5C6] text-mahogany px-5 py-3 rounded-sm shadow-sm hidden md:block">
+                  <p className="text-[10px] tracking-[0.2em] uppercase text-charcoal/60">
                     <EditableZone page="home" zone="section_food_ribbon_label" fallback="Adresses testées" />
                   </p>
-                  <p className="text-2xl font-serif font-light mt-0.5">
+                  <p className="text-2xl font-serif font-normal mt-0.5">
                     <EditableZone page="home" zone="section_food_ribbon_value" fallback="100%" />
                   </p>
                 </div>
               </div>
               <div data-reveal="right">
-                <EditableZone page="home" zone="section_food_badge" fallback="Pépites terrain"
-                  className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
+                <EditableZone page="home" zone="section_food_badge" fallback="Tables & refuges"
+                  className="text-eucalyptus text-[11px] font-medium tracking-[0.22em] uppercase mb-4 block"
                 />
                 <EditableZone page="home" zone="section_food_title" fallback="Pépites dénichées"
-                  className="text-3xl md:text-4xl font-serif font-light text-mahogany leading-tight mb-4 block"
+                  className="text-3xl md:text-4xl font-serif font-normal text-mahogany leading-tight mb-4 block"
                 />
                 <EditableZone page="home" zone="section_food_text" type="textarea" fallback="Que ce soit une petite table de village à Madère ou un gîte caché en Transylvanie, on ne partage que des lieux où nous avons mangé, dormi et aimé passer du temps. Des adresses à taille humaine, loin des foules."
-                  className="text-base text-charcoal/70 leading-relaxed mb-6 block"
+                  className="text-base text-charcoal/75 leading-relaxed mb-8 block"
                 />
-                <div className="space-y-4 mb-8">
+                <div className="divide-y divide-[#E2D9C8] border-y border-[#E2D9C8] mb-8">
                   {foodPosts.slice(0, 3).map((p) => (
                     <Link key={p.slug} href={`/blog/${p.slug}`}
-                      className="flex items-start gap-3 group hover:bg-eucalyptus/5 rounded-xl p-2 -mx-2 transition-colors">
-                      <Image src={postImage(p, slugImages, catImages)} alt={p.title} width={60} height={60}
-                        className="w-14 h-14 rounded-lg object-cover flex-shrink-0" />
+                      className="flex items-start gap-4 group py-4 transition-colors">
+                      <Image src={postImage(p, slugImages, catImages)} alt={p.title} width={64} height={64}
+                        className="w-16 h-16 rounded-sm object-cover flex-shrink-0 border border-[#DED5C6]" />
                       <div>
-                        <p className="font-semibold text-charcoal/90 text-sm group-hover:text-eucalyptus transition-colors line-clamp-1">{p.title}</p>
-                        {p.excerpt && <p className="text-charcoal/60 text-xs line-clamp-2 mt-0.5">{p.excerpt}</p>}
-                        {!p.excerpt && displayExcerpt(p) && <p className="text-charcoal/60 text-xs line-clamp-2 mt-0.5">{displayExcerpt(p)}</p>}
+                        <p className="font-serif text-mahogany text-base group-hover:text-eucalyptus transition-colors line-clamp-1">{p.title}</p>
+                        {(p.excerpt || displayExcerpt(p)) && (
+                          <p className="text-charcoal/65 text-xs leading-relaxed line-clamp-2 mt-1">{p.excerpt || displayExcerpt(p)}</p>
+                        )}
                       </div>
                     </Link>
                   ))}
                 </div>
-                <Link href="/blog" className="inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
+                <Link href="/blog" className="inline-block text-xs uppercase tracking-[0.16em] text-mahogany border-b border-mahogany/40 pb-1 font-medium hover:text-eucalyptus hover:border-eucalyptus transition-colors">
                   <EditableZone page="home" zone="section_food_cta" fallback="Voir toutes les pépites →" />
                 </Link>
               </div>
@@ -649,22 +642,22 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
 
       {/* ── DERNIERS ARTICLES ─────────────────────────────────────────── */}
       {latestPosts.length > 0 && (
-        <section className="py-20 bg-cloud-dancer">
+        <section className="py-20 md:py-24 bg-[#EFE9DF] border-t border-[#E2D9C8]">
           <div className="max-w-6xl mx-auto px-6 md:px-10">
-            <div className="flex items-end justify-between mb-10 flex-wrap gap-4" data-reveal>
+            <div className="flex items-end justify-between mb-12 flex-wrap gap-4" data-reveal>
               <div>
-                <EditableZone page="home" zone="section_latest_badge" fallback="✦ Fraîchement publié"
-                  className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-2 block"
+                <EditableZone page="home" zone="section_latest_badge" fallback="Carnet de bord"
+                  className="text-eucalyptus text-[11px] font-medium tracking-[0.22em] uppercase mb-2 block"
                 />
                 <EditableZone page="home" zone="section_latest_title" fallback="Les dernières pépites"
-                  className="text-2xl md:text-3xl font-serif font-light text-mahogany block"
+                  className="text-2xl md:text-4xl font-serif font-normal text-mahogany block"
                 />
               </div>
-              <Link href="/blog" className="text-sm text-eucalyptus font-semibold hover:underline">
+              <Link href="/blog" className="text-xs uppercase tracking-[0.16em] text-mahogany border-b border-mahogany/40 pb-1 font-medium hover:text-eucalyptus hover:border-eucalyptus transition-colors">
                 <EditableZone page="home" zone="section_latest_cta" fallback="Voir tous les carnets →" />
               </Link>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
               {latestPosts.map((p, i) => (
                 <div key={p.slug} data-reveal data-delay={String(i * 100)}>
                   <ArticleCard post={p} size="md" slugImages={slugImages} catImages={catImages} gradientMap={catGradients} iconMap={catIcons} />
@@ -676,20 +669,20 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
       )}
 
       {/* ── DESTINATIONS ─────────────────────────────────────────────── */}
-      <section className="py-20 md:py-28 bg-white">
+      <section className="py-20 md:py-28 bg-[#F7F3EC] border-t border-[#E2D9C8]">
         <div className="max-w-6xl mx-auto px-6 md:px-10 text-center">
-            <EditableZone page="home" zone="section_destinations_badge" fallback="✦ Nos territoires"
-              className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 block text-center"
+            <EditableZone page="home" zone="section_destinations_badge" fallback="Nos territoires"
+              className="text-eucalyptus text-[11px] font-medium tracking-[0.22em] uppercase mb-4 block text-center"
             />
-            <h2 className="text-3xl md:text-5xl font-serif font-light text-mahogany leading-tight mb-6">
+            <h2 className="text-3xl md:text-5xl font-serif font-normal text-mahogany leading-tight mb-6">
               <EditableZone page="home" zone="section_destinations_title_1" fallback="Des lieux qu'on a aimés," className="inline" />
               <br />
               <EditableZone page="home" zone="section_destinations_title_2" fallback="qu'on comprend vraiment." className="inline" />
             </h2>
             <EditableZone page="home" zone="section_destinations_text" type="textarea" fallback="On ne documente que les endroits où on a vraiment posé nos sacs. Chaque destination sur cette carte, on la connaît à pied — ses ruelles de derrière, ses tables sans enseigne, ses moments qui ne se photographient pas."
-              className="text-charcoal/70 leading-relaxed max-w-2xl mx-auto mb-12 block"
+              className="text-charcoal/75 leading-relaxed max-w-2xl mx-auto mb-14 block"
             />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
             {(homeDestinations && homeDestinations.length > 0 ? homeDestinations : [
               {
                 destination_slug: 'madere',
@@ -719,128 +712,124 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 <Link
                   key={slug}
                   href={`/destinations/${slug}`}
-                  className="group relative h-80 md:h-96 rounded-2xl overflow-hidden bg-mahogany shadow-md hover:shadow-xl transition-all duration-500 flex flex-col justify-end"
+                  className="group flex flex-col"
                 >
-                  {imgUrl ? (
-                    <Image
-                      src={imgUrl}
-                      alt={dest.title || slug}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover opacity-85 group-hover:opacity-95 group-hover:scale-105 transition-all duration-700"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-mahogany via-[#4A251D] to-eucalyptus opacity-90">
-                      <div className="opacity-25 scale-150 text-white">
-                        {renderPremiumIcon(slug)}
+                  <div className="relative aspect-[4/5] w-full rounded-sm overflow-hidden bg-[#241D1A] border border-[#DED5C6] mb-4">
+                    {imgUrl ? (
+                      <Image
+                        src={imgUrl}
+                        alt={dest.title || slug}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center bg-[#2E2520]">
+                        <div className="opacity-30 scale-125 text-[#E6DEC8]">
+                          {renderPremiumIcon(slug)}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-                  {dest.country && (
-                    <div className="absolute top-4 left-4 z-10">
-                      <span className="inline-block rounded-full bg-black/35 backdrop-blur-md border border-white/20 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/95">
-                        {dest.country}
-                      </span>
-                    </div>
-                  )}
-                  <div className="relative z-10 p-6 md:p-7">
-                    <h3 className="text-2xl md:text-3xl font-serif font-normal text-white mb-2 group-hover:text-teal transition-colors">
-                      {dest.title}
-                    </h3>
-                    {dest.tagline && (
-                      <p className="text-stone-200/90 text-sm leading-relaxed line-clamp-2 mb-3">
-                        {dest.tagline}
-                      </p>
                     )}
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider uppercase text-teal group-hover:translate-x-1 transition-transform">
-                      Explorer le territoire →
-                    </span>
                   </div>
+                  {dest.country && (
+                    <span className="text-[11px] uppercase tracking-[0.18em] text-eucalyptus mb-1">
+                      {dest.country}
+                    </span>
+                  )}
+                  <h3 className="text-2xl font-serif font-normal text-mahogany mb-1.5 group-hover:text-eucalyptus transition-colors">
+                    {dest.title}
+                  </h3>
+                  {dest.tagline && (
+                    <p className="text-charcoal/70 text-sm leading-relaxed line-clamp-2 mb-3">
+                      {dest.tagline}
+                    </p>
+                  )}
+                  <span className="mt-auto inline-block text-xs text-mahogany border-b border-mahogany/30 pb-0.5 self-start group-hover:text-eucalyptus group-hover:border-eucalyptus transition-colors">
+                    Ouvrir le carnet →
+                  </span>
                 </Link>
               )
             })}
           </div>
-          <Link href="/destinations" className="mt-10 inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
+          <Link href="/destinations" className="mt-12 inline-block text-xs uppercase tracking-[0.16em] text-mahogany border-b border-mahogany/40 pb-1 font-medium hover:text-eucalyptus hover:border-eucalyptus transition-colors">
             <EditableZone page="home" zone="section_destinations_cta" fallback="Explorer toutes les destinations →" />
           </Link>
         </div>
       </section>
 
       {/* ── QUIZ : QUEL VOYAGEUR ES-TU ? ─────────────────────────────── */}
-      <section className="py-16 md:py-20 bg-eucalyptus/5 border-y border-eucalyptus/10">
+      <section className="py-16 md:py-24 bg-[#EFE9DF] border-y border-[#E2D9C8]">
         <div className="max-w-3xl mx-auto px-6 md:px-10 text-center" data-reveal>
-          <EditableZone page="home" zone="section_quiz_badge" fallback="✦ Quel voyageur es-tu ?"
-            className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
+          <EditableZone page="home" zone="section_quiz_badge" fallback="Repères de voyage"
+            className="text-eucalyptus text-[11px] font-medium tracking-[0.22em] uppercase mb-4 block"
           />
           <EditableZone page="home" zone="section_quiz_title" type="html" fallback="Trouve ton profil<br /><em className='text-eucalyptus'>en 2 minutes</em>"
-            className="text-3xl md:text-4xl font-serif font-light text-mahogany leading-tight mb-4 block"
+            className="text-3xl md:text-4xl font-serif font-normal text-mahogany leading-tight mb-4 block"
           />
           <EditableZone page="home" zone="section_quiz_text" type="textarea" fallback="5 questions. 4 profils. Des destinations qui te correspondent vraiment — pas les mêmes que tout le monde."
-            className="text-charcoal/65 leading-relaxed mb-8 max-w-xl mx-auto block"
+            className="text-charcoal/70 leading-relaxed mb-8 max-w-xl mx-auto block"
           />
-          <div className="flex flex-wrap justify-center gap-3 mb-8">
+          <div className="flex flex-wrap justify-center gap-3 mb-9">
             {[
-              { zone: 'quiz_tag_1', defaultLabel: 'Aventure', icon: '⛰️' },
-              { zone: 'quiz_tag_2', defaultLabel: 'Culture', icon: '🏛️' },
-              { zone: 'quiz_tag_3', defaultLabel: 'Nature', icon: '🌿' },
-              { zone: 'quiz_tag_4', defaultLabel: 'Bien-être', icon: '🌊' },
+              { zone: 'quiz_tag_1', defaultLabel: 'Sentiers & relief' },
+              { zone: 'quiz_tag_2', defaultLabel: 'Patrimoine & histoire' },
+              { zone: 'quiz_tag_3', defaultLabel: 'Nature sauvage' },
+              { zone: 'quiz_tag_4', defaultLabel: 'Rythme lent' },
             ].map((p) => (
-              <span key={p.zone} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-eucalyptus/20 text-charcoal/70 text-sm font-medium shadow-sm">
-                <span>{p.icon}</span>
+              <span key={p.zone} className="inline-flex items-center px-4 py-1.5 rounded-sm bg-[#F7F3EC] border border-[#DED5C6] text-charcoal/75 text-xs tracking-wider uppercase">
                 <EditableZone page="home" zone={p.zone} fallback={p.defaultLabel} />
               </span>
             ))}
           </div>
-          <Link href="/quiz" className="inline-flex items-center gap-2.5 px-8 py-4 bg-eucalyptus hover:bg-eucalyptus/90 text-white rounded-full font-semibold text-sm shadow-lg shadow-eucalyptus/20 transition-all hover:shadow-xl hover:-translate-y-0.5">
+          <Link href="/quiz" className="inline-block px-7 py-3.5 bg-mahogany hover:bg-eucalyptus text-[#F7F3EC] rounded-sm font-medium text-xs uppercase tracking-[0.16em] transition-colors">
             <EditableZone page="home" zone="section_quiz_cta" fallback="Faire le quiz →" />
           </Link>
         </div>
       </section>
 
       {/* ── CTA TRAVEL PLANNING ───────────────────────────────────────── */}
-      <section className="py-20 md:py-28 bg-mahogany text-white">
+      <section className="py-20 md:py-28 bg-[#2A1D18] text-[#F7F3EC]">
         <div className="max-w-5xl mx-auto px-6 md:px-10">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div data-reveal="left">
               <EditableZone page="home" zone="section_cta_badge" fallback="Travel Planning · terrain vécu"
-                className="text-teal text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
+                className="text-[#C8B9A6] text-[11px] font-medium tracking-[0.22em] uppercase mb-4 block"
               />
-              <h2 className="text-3xl md:text-5xl font-serif font-light leading-tight mb-6">
+              <h2 className="text-3xl md:text-5xl font-serif font-normal leading-tight mb-6">
                 <EditableZone page="home" zone="section_cta_title_1" fallback="On ne fait pas des itinéraires." className="inline" />
                 <br />
-                <em className="text-teal">
+                <em className="text-[#E6DEC8]">
                   <EditableZone page="home" zone="section_cta_title_2" fallback="On fait le tien." className="inline" />
                 </em>
               </h2>
               <EditableZone page="home" zone="section_cta_text" type="textarea" fallback="Tu nous décris ton voyage idéal — durée, rythme, envies, budget. On te construit un itinéraire terrain avec nos adresses, nos conseils et les détails qu'on n'aurait pas mis sur un blog."
-                className="text-white/65 leading-relaxed mb-4 block"
+                className="text-[#E6DEC8]/80 leading-relaxed mb-4 block"
               />
               <EditableZone page="home" zone="section_cta_subtext" type="textarea" fallback="Notre terrain naturel, c'est les couples qui veulent partir autrement — ni trop planifié, ni trop improvisé. Mais on adapte ce même regard à solo, famille ou groupe d'amis."
-                className="text-white/50 text-sm leading-relaxed mb-8 block"
+                className="text-[#C8B9A6]/70 text-sm leading-relaxed mb-8 block"
               />
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-4">
                 <Link href="/travel-planning#formulaire"
-                  className="px-6 py-3 bg-eucalyptus hover:bg-eucalyptus/80 text-white rounded-full font-semibold text-sm transition">
+                  className="px-6 py-3 bg-eucalyptus hover:bg-eucalyptus/90 text-[#F7F3EC] rounded-sm font-medium text-xs uppercase tracking-[0.16em] transition-colors">
                   <EditableZone page="home" zone="section_cta_btn_1" fallback="Nous écrire →" />
                 </Link>
                 <Link href="/travel-planning"
-                  className="px-6 py-3 border border-white/30 hover:border-white/60 text-white rounded-full font-semibold text-sm transition">
+                  className="px-6 py-3 border border-[#E6DEC8]/35 hover:border-[#F7F3EC] text-[#F7F3EC] rounded-sm font-medium text-xs uppercase tracking-[0.16em] transition-colors">
                   <EditableZone page="home" zone="section_cta_btn_2" fallback="Voir nos services →" />
                 </Link>
               </div>
             </div>
-            <div className="grid grid-cols-1 gap-4" data-reveal="right">
+            <div className="divide-y divide-[#42322B] border-y border-[#42322B]" data-reveal="right">
               {[
                 { zone: 'cta_card_1', t: 'Couples aventuriers', d: "Notre spécialité : ralentir sans ennuyer, laisser de la place au vrai, et garder le hors-sentiers sans perdre le fil." },
                 { zone: 'cta_card_2', t: 'Ouvert aussi à ton format', d: "Solo, famille curieuse ou groupe d'amis : on adapte cette même exigence terrain à ton énergie, tes contraintes et ton rythme." },
                 { zone: 'cta_card_3', t: 'Vécu sur le terrain', d: "Cartes, adresses, conseils pratiques et pépites dénichées : tout part d'expériences testées, pas inventées." },
               ].map((item) => (
-                <div key={item.zone} className="border border-white/10 rounded-xl p-5 hover:border-teal/30 transition">
-                  <h3 className="font-semibold text-white text-sm mb-1">
+                <div key={item.zone} className="py-5">
+                  <h3 className="font-serif text-[#F7F3EC] text-lg mb-1">
                     <EditableZone page="home" zone={`${item.zone}_title`} fallback={item.t} />
                   </h3>
-                  <p className="text-white/60 text-sm leading-relaxed">
+                  <p className="text-[#C8B9A6]/80 text-sm leading-relaxed">
                     <EditableZone page="home" zone={`${item.zone}_text`} type="textarea" fallback={item.d} />
                   </p>
                 </div>
@@ -851,18 +840,18 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
       </section>
 
       {/* ── B2B CONSULTING HÔTELIER ───────────────────────────────────── */}
-      <section className="py-20 bg-stone-50 dark:bg-stone-900 border-t border-stone-200/50 dark:border-stone-800/50">
-        <div className="max-w-4xl mx-auto px-6 md:px-10 text-center" data-reveal>
-          <EditableZone page="home" zone="section_b2b_badge" fallback="✦ Espace Hébergeurs & Hôteliers"
-            className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
+      <section className="py-20 bg-[#F7F3EC] dark:bg-stone-900 border-t border-[#E2D9C8] dark:border-stone-800/50">
+        <div className="max-w-3xl mx-auto px-6 md:px-10 text-center" data-reveal>
+          <EditableZone page="home" zone="section_b2b_badge" fallback="Espace Hébergeurs & Hôteliers"
+            className="text-eucalyptus text-[11px] font-medium tracking-[0.22em] uppercase mb-4 block"
           />
           <EditableZone page="home" zone="section_b2b_title" type="html" fallback="Vous gérez un hébergement de charme ?<br /><em className='text-eucalyptus'>Faites vivre l'expérience slow travel</em>"
-            className="text-3xl md:text-4xl font-serif font-light text-mahogany dark:text-stone-200 leading-tight mb-6 block"
+            className="text-3xl md:text-4xl font-serif font-normal text-mahogany dark:text-stone-200 leading-tight mb-5 block"
           />
           <EditableZone page="home" zone="section_b2b_text" type="textarea" fallback="Maison d'hôtes, gîte insolite ou hôtel indépendant : on vous aide à valoriser votre ancrage, préserver votre marge directe et attirer des voyageurs slow travel."
-            className="text-charcoal/70 dark:text-stone-400 leading-relaxed max-w-2xl mx-auto mb-8 block"
+            className="text-charcoal/75 dark:text-stone-400 leading-relaxed max-w-2xl mx-auto mb-8 block"
           />
-          <Link href="/expert-hotelier" className="inline-flex items-center gap-2 px-6 py-3.5 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 text-charcoal dark:text-stone-200 hover:border-eucalyptus dark:hover:border-eucalyptus hover:text-eucalyptus dark:hover:text-eucalyptus font-semibold rounded-full text-sm transition-all">
+          <Link href="/expert-hotelier" className="inline-block text-xs uppercase tracking-[0.16em] text-mahogany border-b border-mahogany/40 pb-1 font-medium hover:text-eucalyptus hover:border-eucalyptus transition-colors">
             <EditableZone page="home" zone="section_b2b_cta" fallback="Découvrir l'accompagnement hôtelier →" />
           </Link>
         </div>

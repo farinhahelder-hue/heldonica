@@ -55,88 +55,86 @@ const DestinationCard = memo(function DestinationCard({
 
   const cardContent = (
     <article
-      className={`group flex flex-col overflow-hidden rounded-2xl border transition-all duration-300 h-full
-        ${status === 'coming_soon' ? 'opacity-75 border-stone-200 dark:border-stone-850 bg-white dark:bg-[#1E1C1A]' : 'hover:-translate-y-1 hover:shadow-lg'}
-        ${status === 'starred' ? 'border-eucalyptus/20 dark:border-eucalyptus/10 bg-gradient-to-b from-eucalyptus/5 to-white dark:from-eucalyptus/5 dark:to-[#1E1C1A] shadow-md shadow-eucalyptus/5' : 'border-stone-200 dark:border-stone-800 bg-white dark:bg-[#1E1C1A] shadow-sm'}
+      className={`group flex flex-col overflow-hidden rounded-sm border transition-all duration-300 h-full
+        ${status === 'coming_soon' ? 'opacity-80 border-[#E2D9C8] dark:border-stone-850 bg-[#F4EFE6] dark:bg-[#1E1C1A]' : 'border-[#DED5C6] dark:border-stone-800 bg-[#FAF7F2] dark:bg-[#1E1C1A] hover:border-mahogany/40'}
         ${!isClickable ? 'cursor-default' : 'cursor-pointer'}
       `}
     >
-      <div className="relative aspect-[16/9] overflow-hidden bg-stone-100 dark:bg-stone-800">
+      <div className="relative aspect-[16/10] overflow-hidden bg-[#EAE2D6] dark:bg-stone-800 border-b border-[#E2D9C8]">
         {imgSrc ? (
           <Image
             src={imgSrc}
             alt={title}
             fill
-            className={`object-cover transition-transform duration-500 ${isClickable ? 'group-hover:scale-105' : ''}`}
+            className={`object-cover transition-transform duration-700 ease-out ${isClickable ? 'group-hover:scale-[1.03]' : ''}`}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             loading="lazy"
           />
         ) : (
-          <div aria-hidden="true" className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-mahogany via-[#4A251D] to-eucalyptus p-6 text-center">
-            <svg width="52" height="52" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.2" className="text-white/25 mb-2">
-              <circle cx="24" cy="24" r="20" strokeDasharray="3 3" />
-              <circle cx="24" cy="24" r="14" />
+          <div aria-hidden="true" className="absolute inset-0 flex flex-col items-center justify-center bg-[#EFE9DF] p-6 text-center">
+            <svg width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1" className="text-mahogany/30 mb-2">
+              <circle cx="24" cy="24" r="20" strokeDasharray="2 3" />
+              <circle cx="24" cy="24" r="13" />
               <path d="M24 6v36M6 24h36" />
-              <path d="M24 14l3.5 10-3.5 10-3.5-10z" fill="currentColor" fillOpacity={0.25} />
+              <path d="M24 14l3 10-3 10-3-10z" fill="currentColor" fillOpacity={0.18} />
             </svg>
-            <span className="text-[11px] uppercase tracking-[0.22em] text-teal/90 font-semibold">
-              {flag_emoji || COUNTRY_FLAGS[country] || '✦'} {country}
+            <span className="text-[10px] uppercase tracking-[0.22em] text-mahogany/70 font-medium">
+              Carnet en préparation
             </span>
           </div>
         )}
         <div className="absolute top-3 left-3 flex flex-wrap gap-2">
           {status === 'starred' && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-eucalyptus/90 backdrop-blur-sm text-white px-2.5 py-1 text-xs font-bold shadow-md border border-eucalyptus/20">
-              ⭐ Coup de cœur
+            <span className="inline-block rounded-sm bg-[#FAF7F2]/95 text-mahogany px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] font-medium border border-[#DED5C6]">
+              Coup de cœur
             </span>
           )}
           {status === 'coming_soon' && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-eucalyptus text-white px-2.5 py-1 text-xs font-semibold shadow-md"
+            <span className="inline-block rounded-sm bg-[#2A1D18]/85 text-[#F7F3EC] px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] font-medium"
               title={coming_soon_date ? `Prévu : ${coming_soon_date}` : ''}
             >
               Bientôt
             </span>
           )}
         </div>
-        {article_count && article_count > 0 && (
-          <span className="absolute top-3 right-3 rounded-full bg-white/90 dark:bg-stone-900/90 backdrop-blur-sm px-2.5 py-1 text-xs font-semibold text-stone-700 dark:text-stone-300 shadow-sm">
-            {article_count} article{article_count > 1 ? 's' : ''}
+        {article_count && article_count > 0 ? (
+          <span className="absolute top-3 right-3 rounded-sm bg-[#FAF7F2]/95 dark:bg-stone-900/90 px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] font-medium text-charcoal/80 dark:text-stone-300 border border-[#DED5C6]">
+            {article_count} carnet{article_count > 1 ? 's' : ''}
           </span>
-        )}
+        ) : null}
       </div>
 
-      <div className="flex flex-1 flex-col p-5">
-        <div className="flex items-center gap-2 mb-1.5">
-          {flag_emoji && <span className="text-base leading-none">{flag_emoji}</span>}
-          <span className="text-xs font-medium text-stone-500 dark:text-stone-400 uppercase tracking-wider">{country}</span>
+      <div className="flex flex-1 flex-col p-6">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-[11px] font-medium text-eucalyptus dark:text-stone-400 uppercase tracking-[0.18em]">{country}</span>
         </div>
-        <h3 className="text-lg font-serif font-bold text-stone-900 dark:text-stone-100 mb-2 leading-snug">
+        <h3 className="text-xl font-serif font-normal text-mahogany dark:text-stone-100 mb-2 leading-snug group-hover:text-eucalyptus transition-colors">
           {title}
         </h3>
         {(teaser) && (
-          <p className="text-sm text-stone-600 dark:text-stone-300 leading-relaxed mb-4 line-clamp-2 flex-1">
+          <p className="text-sm text-charcoal/75 dark:text-stone-300 leading-relaxed mb-4 line-clamp-2 flex-1">
             {teaser}
           </p>
         )}
-        <div className="flex flex-wrap gap-1.5 mb-3">
+        <div className="flex flex-wrap gap-2 mb-3">
           {styleLabel && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 dark:bg-stone-800 px-2.5 py-1 text-xs font-medium text-stone-600 dark:text-stone-300">
-              {styleEmoji} {styleLabel}
+            <span className="inline-block rounded-sm bg-[#EFE9DF] dark:bg-stone-800 px-2.5 py-1 text-[11px] text-charcoal/75 dark:text-stone-300 border border-[#E2D9C8]">
+              {styleLabel}
             </span>
           )}
           {best_season && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-teal/10 dark:bg-teal/20 px-2.5 py-1 text-xs font-medium text-teal">
-              📅 {best_season}
+            <span className="inline-block rounded-sm bg-[#EFE9DF] dark:bg-teal/20 px-2.5 py-1 text-[11px] text-eucalyptus border border-[#E2D9C8]">
+              {best_season}
             </span>
           )}
         </div>
         {avg_budget_couple_week && (
-          <p className="text-xs font-semibold text-eucalyptus">
+          <p className="text-xs font-medium text-mahogany/80">
             {formatBudget(avg_budget_couple_week)}
           </p>
         )}
         {status !== 'coming_soon' && status !== 'draft' && (
-          <div className="mt-2" onClick={(e) => e.stopPropagation()}>
+          <div className="mt-3 pt-3 border-t border-[#E8E0D2]" onClick={(e) => e.stopPropagation()}>
             <GuideDownloadButton slug={slug} title={title} variant="card" />
           </div>
         )}

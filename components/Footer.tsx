@@ -143,28 +143,26 @@ export default function Footer() {
   }
 
   return (
-    <footer className="bg-stone-950 text-stone-200">
+    <footer className="bg-[#1E1A17] text-[#E6DEC8] border-t border-[#332C27]">
       {/* Newsletter section */}
-      <div className="border-b border-stone-800">
-        <div className="mx-auto max-w-7xl px-6 py-12 md:py-16">
-          <div className="grid md:grid-cols-2 gap-8 items-center">
+      <div className="border-b border-[#332C27]">
+        <div className="mx-auto max-w-6xl px-6 py-14 md:py-16">
+          <div className="grid md:grid-cols-2 gap-10 items-center">
             <div>
-              <h3 className="text-2xl md:text-3xl font-serif font-bold text-white mb-3">
+              <p className="text-[11px] uppercase tracking-[0.2em] text-[#B8A99A] mb-2">Lettre de route</p>
+              <h3 className="text-2xl md:text-3xl font-serif font-normal text-[#F7F3EC] mb-3">
                 {newsletterTitle}
               </h3>
-              <p className="text-stone-400 leading-relaxed">
+              <p className="text-[#B8A99A] text-sm leading-relaxed">
                 Chaque semaine : un lieu qu&apos;on a aimé, un conseil qu&apos;on aurait aimé avoir avant, et parfois un avant-goût de ce qu&apos;on prépare.
                 Pas de spam, jamais.
               </p>
             </div>
             <div>
               {subscribed ? (
-                <div className="flex items-center gap-3 bg-eucalyptus/10 border border-eucalyptus/30 rounded-2xl px-6 py-4">
-                  <span className="text-2xl">✨</span>
-                  <div>
-                    <p className="text-white font-semibold">C&apos;est noté !</p>
-                    <p className="text-stone-400 text-sm">Tu recevras ta première pépite très vite.</p>
-                  </div>
+                <div className="border border-[#4A4039] bg-[#28231F] px-6 py-4 rounded-sm">
+                  <p className="text-[#F7F3EC] font-serif text-lg">C&apos;est noté dans nos carnets.</p>
+                  <p className="text-[#B8A99A] text-sm mt-0.5">Tu recevras notre prochaine lettre très vite.</p>
                 </div>
               ) : (
                 <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3">
@@ -175,14 +173,14 @@ export default function Footer() {
                     placeholder={footerEmailPlaceholder || 'ton@email.com'}
                     required
                     disabled={loading}
-                    className="flex-1 px-5 py-3.5 bg-stone-900 border border-stone-700 rounded-xl text-white placeholder-stone-500 focus:outline-none focus:border-eucalyptus transition-colors disabled:opacity-50"
+                    className="flex-1 px-4 py-3 bg-[#28231F] border border-[#423932] rounded-sm text-[#F7F3EC] placeholder-[#8C7F73] focus:outline-none focus:border-[#B8A99A] transition-colors disabled:opacity-50 text-sm"
                   />
                   <button
                     type="submit"
                     disabled={loading}
-                    className="px-6 py-3.5 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-3 bg-mahogany text-[#F7F3EC] text-xs uppercase tracking-[0.16em] font-medium rounded-sm hover:bg-eucalyptus transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {loading ? 'Envoi...' : "Je m'inscris"}
+                    {loading ? 'Envoi...' : "S'abonner"}
                   </button>
                 </form>
               )}
@@ -192,29 +190,29 @@ export default function Footer() {
       </div>
 
       {/* Main footer content */}
-      <div className="mx-auto max-w-7xl px-6 py-16">
+      <div className="mx-auto max-w-6xl px-6 py-16">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12 mb-12">
           {/* Colonne 1 - Marque */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="inline-block mb-4">
-              <span className="text-2xl font-serif font-bold text-white">{siteName}</span>
+            <Link href="/" className="inline-block mb-3">
+              <span className="text-2xl font-serif font-normal text-[#F7F3EC]">{siteName}</span>
             </Link>
-            <p className="text-sm text-amber-200 mb-4">{tagline}</p>
+            <p className="text-sm font-serif italic text-[#C8B9A6] mb-4">{tagline}</p>
             {settings.site_description && (
-              <p className="text-sm leading-relaxed text-stone-400 mb-6">
+              <p className="text-sm leading-relaxed text-[#A39688] mb-6">
                 {settings.site_description}
               </p>
             )}
             {/* Reseaux sociaux */}
             {socialLinks.length > 0 && (
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 {socialLinks.map((social) => (
                   <a
                     key={social.href}
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center w-10 h-10 rounded-full bg-stone-700 text-stone-200 transition-all duration-200 hover:bg-eucalyptus hover:text-white"
+                    className="flex items-center justify-center w-9 h-9 rounded-full border border-[#3E352F] text-[#C8B9A6] transition-colors duration-200 hover:border-[#C8B9A6] hover:text-[#F7F3EC]"
                     title={social.label}
                     aria-label={`Suivez-nous sur ${social.label}`}
                   >

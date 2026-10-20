@@ -96,13 +96,13 @@ export default function Header() {
       <nav 
         className={`fixed top-0 z-50 w-full transition-all duration-300 ${
           scrolled 
-            ? 'bg-white/98 backdrop-blur-md shadow-sm border-b border-stone-100/50' 
-            : 'bg-white/95 backdrop-blur-sm border-b border-stone-100'
+            ? 'bg-[#F7F3EC]/98 backdrop-blur-md border-b border-[#DED5C6]' 
+            : 'bg-[#F7F3EC]/92 backdrop-blur-sm border-b border-[#E8E0D2]'
         }`} 
         role="navigation" 
         aria-label="Navigation principale"
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5 sm:px-6 lg:py-3">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:py-3.5">
           {/* Logo */}
           <Link
             href="/"
@@ -120,28 +120,28 @@ export default function Header() {
                 unoptimized={!logoUrl.endsWith('.svg')}
               />
             ) : (
-              <svg width="34" height="34" viewBox="0 0 36 36" fill="none" aria-hidden="true" className="h-8 w-8 flex-shrink-0">
-                <circle cx="18" cy="18" r="16" stroke="currentColor" strokeWidth="1.3" className="text-eucalyptus/70" />
-                <line x1="11.5" y1="10" x2="11.5" y2="22.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                <line x1="24.5" y1="10" x2="24.5" y2="22.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                <line x1="11.5" y1="16.2" x2="24.5" y2="16.2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-                <path d="M9 26.5 Q12 24.5 15 26.5 Q18 28.5 21 26.5 Q24 24.5 27 26.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" fill="none" className="text-eucalyptus" />
+              <svg width="32" height="32" viewBox="0 0 36 36" fill="none" aria-hidden="true" className="h-7 w-7 flex-shrink-0">
+                <circle cx="18" cy="18" r="16" stroke="currentColor" strokeWidth="1.1" className="text-mahogany/50" />
+                <line x1="12" y1="10.5" x2="12" y2="22.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                <line x1="24" y1="10.5" x2="24" y2="22.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                <line x1="12" y1="16.2" x2="24" y2="16.2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+                <path d="M9.5 26.5 Q12.5 24.8 15.5 26.5 Q18.5 28.2 21.5 26.5 Q24.5 24.8 26.5 26.5" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" fill="none" className="text-eucalyptus" />
               </svg>
             )}
-            <span className="text-xl font-serif font-bold tracking-tight lg:text-2xl">{siteName}</span>
+            <span className="text-xl font-serif font-normal tracking-tight lg:text-2xl">{siteName}</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden items-center gap-1 lg:flex">
+          <div className="hidden items-center gap-6 lg:flex">
             {safeNavItems.map((item) => (
               <Link
                 key={item.url}
                 href={item.url}
                 aria-current={pathname === item.url ? 'page' : undefined}
-                className={`rounded-lg px-3.5 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-offset-2 ${
+                className={`py-1 text-sm transition-colors duration-200 border-b focus-visible:outline-none ${
                   pathname === item.url
-                    ? 'text-amber-900 font-semibold'
-                    : 'text-stone-600 hover:text-amber-900'
+                    ? 'text-mahogany border-mahogany font-medium'
+                    : 'text-charcoal/75 border-transparent hover:text-mahogany hover:border-mahogany/40'
                 }`}
               >
                 {item.label}
@@ -150,16 +150,16 @@ export default function Header() {
           </div>
 
           {/* Desktop Right CTA */}
-          <div className="hidden items-center gap-3 lg:flex">
+          <div className="hidden items-center gap-4 lg:flex">
             <Link
               href="/expert-hotelier"
-              className="text-xs font-semibold text-stone-500 hover:text-eucalyptus transition-colors px-2 py-1"
+              className="text-xs text-charcoal/60 hover:text-mahogany transition-colors px-2 py-1"
             >
               Espace Hôteliers
             </Link>
             <Link
               href={ctaUrl}
-              className="rounded-full bg-mahogany hover:bg-eucalyptus px-5 py-2 text-xs font-semibold uppercase tracking-wider text-white shadow-sm transition-all duration-200"
+              className="rounded-sm bg-mahogany hover:bg-eucalyptus px-4 py-2 text-[11px] font-medium uppercase tracking-[0.16em] text-[#F7F3EC] transition-colors duration-200"
             >
               {ctaLabel}
             </Link>

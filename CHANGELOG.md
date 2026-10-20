@@ -2,6 +2,12 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-20] — Direction artistique « Carnet de route imprimé » (branche `agent/gemini/design-organique-humain`)
+
+- **Papier coton chaud & grain analogique (`app/globals.css`)** : abandon des fonds blancs cliniques (`#FFFFFF`) et gris froids (`stone-50`) au profit d'un papier coton ivoire chaud (`#F7F3EC`) et sable (`#EFE9DF`), d'une encre chaude (`#2A2522`), d'un grain papier SVG subtil (`feTurbulence` à `opacity: 0.024`) et de titres `Playfair Display` en graisse régulière (`font-weight: 400`) façon revue imprimée (*Kinfolk* / *Cereal* / *Bouts du Monde*).
+- **Suppression intégrale des tics visuels « IA / SaaS » (`components/HomeClient.tsx`, `components/Header.tsx`, `components/Footer.tsx`, `components/DestinationCard.tsx`, `app/destinations/DestinationsClient.tsx`)** : retrait de toutes les étoiles `✦` et emojis (`✨`, `⭐`, `🌍`, drapeaux), des pilules `rounded-full` flottantes sur les photos, des cartes `rounded-2xl` à ombres portées lourdes, et des surcouches sombres qui étouffaient les photographies.
+- **Cartes d'articles et de destinations façon tirages papier (`components/HomeClient.tsx`, `components/DestinationCard.tsx`)** : photographies plein cadre non obstruées (`aspect-[4/3] rounded-sm`), métadonnées en petites capitales sous l'image (`DESTINATION · X MIN DE LECTURE`), filets fins couleur lin (`border-[#DED5C6]`), cadres photos Polaroid/tirage sur l'accueil (`bg-[#FAF7F2] p-2.5`) et colophon expresso chaud (`bg-[#1E1A17]`).
+
 ## [2026-10-20] — Restauration visuelle du site (`heldonica.fr`) : polices, couleurs avec opacité, en-tête et cartes territoires
 
 - **Couleurs de marque et modificateurs d'opacité (`tailwind.config.ts`)** : les 5 couleurs CSS variables (`mahogany`, `eucalyptus`, `teal`, `cloud-dancer`, `charcoal`) passent par `color-mix(in srgb, var(--color-*, #...) calc(<alpha-value> * 100%), transparent)`. Corrige la suppression silencieuse par Tailwind v3 de toutes les classes `/5`, `/10`, `/20`, `/60`, `/70`, `/80`, `/90` qui rendait les cartes d'articles (`bg-mahogany/80`) délavées sur fond blanc et les badges (`bg-eucalyptus/90`) transparents.
