@@ -2,6 +2,25 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-20] — Lot 2 : retrait de 4 mots bannis en base (6 champs) + cache carte
+
+- **Appliqué** (validation propriétaire) : `naples.teaser`, `cabo-girao.excerpt`
+  (+ doublon `map_markers`), `roumanie-transylvanie.excerpt`,
+  `lisbonne-hors-sentiers.title`, `cms_pillar_pages.roumanie.faq` (jsonb).
+  Migration versionnée : `20261020130000_retrait_mots_bannis_lot2.sql`.
+  La CLI `supabase` étant absente et la base inaccessible en direct, l'écriture
+  s'est faite par API REST, instruction par instruction, valeurs d'origine
+  conservées (`ROLLBACK-lot2.json`).
+- **Vérifié en base** : 0 résidu sur les 6 champs.
+- **Vérifié dans le rendu** : `/destinations`, `/compare`, `/roumanie` → 0.
+  **`/destinations/carte` reste à 2 occurrences** : page pré-rendue statique
+  (`initialRevalidateSeconds: False`), elle ne se rafraîchira qu'au prochain
+  déploiement. Base propre, HTML figé.
+- **Erreur corrigée avant écriture** : le premier jet visait `teaser` au lieu de
+  `excerpt`, ignorait `map_markers` et castait mal le jsonb.
+
+
+
 ## [2026-10-20] — Audit éditorial, lot 2 : 36 pages servies passées au DOM
 
 - **Périmètre** : les 36 URLs du sitemap de production (destinations, guides,
