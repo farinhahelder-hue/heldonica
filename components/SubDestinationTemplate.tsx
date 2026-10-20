@@ -104,7 +104,8 @@ export default function SubDestinationTemplate({
           <div className="container max-w-2xl text-center">
             <p className="text-4xl mb-6">🗺️</p>
             <h2 className="text-3xl font-serif text-mahogany mb-4">
-              <EditableZone page={page} zone="section_title" fallback={`On prépare le guide ${name.toLowerCase()} — à notre façon.`} />
+              {/* Le nom tel quel : en minuscules, il donnait « le guide funchal et environs ». */}
+              <EditableZone page={page} zone="section_title" fallback={`On prépare le guide ${name} — à notre façon.`} />
             </h2>
             <p className="text-charcoal/70 mb-8 max-w-lg mx-auto">
               <EditableZone page={page} zone="section_text" type="textarea" fallback="On arpente les ruelles, on teste les adresses, on sélectionne ce qu'on referait vraiment. Laisse-nous ton email et tu seras le premier averti — avant qu'on publie quoi que ce soit ailleurs." />

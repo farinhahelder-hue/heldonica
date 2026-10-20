@@ -6,6 +6,8 @@ import { getPageZones } from '@/lib/cms-zones';
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import EditableZone from '@/components/inline-edit/EditableZone';
 import { buildPageMetadata } from '@/lib/page-metadata'
+import ComingSoonDestination from '@/components/ComingSoonDestination'
+import { isUnpublishedCmsPage } from '@/lib/unpublished-pages'
 
 const PAGE = "destinations-colombie";
 const SUBNav = [
@@ -51,6 +53,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ColombiePage() {
   const zones = await getPageZones(PAGE)
+
+  // « Bientôt » tant que la page est dans lib/unpublished-pages.ts (décision du
+  // 19/10/2026 : pas de photo vérifiée).
+  if (isUnpublishedCmsPage(PAGE)) {
+    return <ComingSoonDestination slug="colombie" title="Colombie" country="Colombie" flag_emoji="🇨🇴" zones={zones} />
+  }
 
   const Z = (zone: string, type: 'text' | 'textarea' | 'html', fallback: string, className?: string, as?: any) => (
     <EditableZone page={PAGE} zone={zone} type={type} fallback={fallback} className={className} as={as} />

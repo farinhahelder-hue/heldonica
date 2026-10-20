@@ -22,8 +22,30 @@ describe('unpublished-pages', () => {
     // relevé (11 pages) avait manquées : medellin, alghero, asinara.
     // + 33 sous-pages sans photo vérifiée, passées en « Bientôt » pour le MVP du
     // 18/10 (décision du fondateur après la planche de contrôle des photos).
-    expect(UNPUBLISHED_PATHS).toHaveLength(14 + 33);
-    expect(UNPUBLISHED_CMS_PAGES).toHaveLength(14 + 33);
+    // + 3 pages relevées en ligne le 19/10 : Paris, Maramureș, Grèce.
+    // + 3 pays « Bientôt » par décision du 19/10 : Colombie, Lisbonne, Sicile.
+    expect(UNPUBLISHED_PATHS).toHaveLength(14 + 33 + 3 + 3);
+    expect(UNPUBLISHED_CMS_PAGES).toHaveLength(14 + 33 + 3 + 3);
+  });
+
+  it('décision du 19/10 : Colombie, Lisbonne et Sicile « Bientôt »', () => {
+    expect(isUnpublishedPath('/destinations/colombie')).toBe(true);
+    expect(isUnpublishedPath('/destinations/lisbonne')).toBe(true);
+    expect(isUnpublishedPath('/destinations/sicile')).toBe(true);
+    expect(isUnpublishedCmsPage('destinations-colombie')).toBe(true);
+    expect(isUnpublishedCmsPage('destinations-lisbonne')).toBe(true);
+    expect(isUnpublishedCmsPage('destinations-sicile')).toBe(true);
+  });
+
+  it('relevé en ligne du 19/10 : photo écartée ou page vide, « Bientôt »', () => {
+    // Paris : tour Eiffel de stock. Maramureș : photo qui n'est pas du
+    // Maramureș. Grèce : déjà « Bientôt », mais indexable et dans le pied de page.
+    expect(isUnpublishedPath('/destinations/paris')).toBe(true);
+    expect(isUnpublishedPath('/destinations/roumanie/maramures')).toBe(true);
+    expect(isUnpublishedPath('/destinations/grece')).toBe(true);
+    expect(isUnpublishedCmsPage('destinations-paris')).toBe(true);
+    expect(isUnpublishedCmsPage('destinations-roumanie-maramures')).toBe(true);
+    expect(isUnpublishedCmsPage('destinations-grece')).toBe(true);
   });
 
   it('MVP du 18/10 : les sous-pages sans photo vérifiée sont « Bientôt »', () => {

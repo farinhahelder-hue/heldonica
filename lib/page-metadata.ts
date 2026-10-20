@@ -16,6 +16,7 @@
 import type { Metadata } from 'next'
 import { getPageZones } from '@/lib/cms-zones'
 import { isUnpublishedCmsPage } from '@/lib/unpublished-pages'
+import { DEFAULT_OG_IMAGE } from '@/lib/seo'
 
 /**
  * Description servie par une page non publiable. Sans elle, la balise
@@ -36,6 +37,15 @@ export async function buildPageMetadata(
   // Page non publiable : jamais la description du brouillon (zone ou fallback).
   const description = nonPubliable ? DESCRIPTION_BIENTOT : zones[`${page}__seo_description`]
   const image = zones[`${page}__seo_og_image`]
+  // Page non publiable : l'image de partage par défaut, jamais la photo de la
+  // zone ni celle du fallback. Une page est « Bientôt » faute de photo
+  // vérifiée ; /destinations/idf/paris partageait la tour Eiffel de stock, et
+  // le fallback de Kotor est moraca_millennium, écartée.
+  const images = nonPubliable
+    ? [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630 }]
+    : image
+      ? [{ url: image, width: 1200, height: 630 }]
+      : undefined
 
   // Contenu non publiable : la page reste consultable mais sort de l'index
   // (cf. lib/unpublished-pages.ts). Les robots déclarés par la page sont
@@ -57,13 +67,14 @@ export async function buildPageMetadata(
       ...(fallback.openGraph ?? {}),
       ...(title ? { title } : {}),
       ...(description ? { description } : {}),
-      ...(image ? { images: [{ url: image, width: 1200, height: 630 }] } : {}),
+      ...(images ? { images } : {}),
     },
     twitter: fallback.twitter
       ? {
           ...fallback.twitter,
           ...(title ? { title } : {}),
           ...(description ? { description } : {}),
+          ...(nonPubliable ? { images: [DEFAULT_OG_IMAGE] } : {}),
         }
       : undefined,
   }

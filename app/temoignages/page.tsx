@@ -1,4 +1,3 @@
-import { createClient } from '@supabase/supabase-js';
 import type { Metadata } from 'next';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -8,9 +7,7 @@ import EditableZone from '@/components/inline-edit/EditableZone';
 import TemoignagesClient from './TemoignagesClient';
 import { getPageZones } from '@/lib/cms-zones';
 import { buildPageMetadata } from '@/lib/page-metadata'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY!;
+import { getActiveTestimonials } from '@/lib/testimonials'
 
 const metadata: Metadata = {
   title: 'Témoignages clients | Heldonica',
@@ -22,33 +19,18 @@ const metadata: Metadata = {
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  return buildPageMetadata('temoignages', metadata)
-}
-
-
-async function getTestimonials() {
-  try {
-    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: { persistSession: false }
-    });
-    
-    const { data, error } = await supabase
-      .from('cms_testimonials')
-      .select('*')
-      .eq('is_active', true)
-      .order('display_order', { ascending: true });
-    
-    if (error) throw error;
-    return data || [];
-  } catch (error) {
-    console.error('Error fetching testimonials:', error);
-    return [];
-  }
+  const [base, testimonials] = await Promise.all([
+    buildPageMetadata('temoignages', metadata),
+    getActiveTestimonials(),
+  ]);
+  // Sans témoignage publié, rien à montrer : hors index (et hors sitemap)
+  // jusqu'au premier retour client réel.
+  return testimonials.length > 0 ? base : { ...base, robots: { index: false, follow: true } };
 }
 
 export default async function TemoignagesPage() {
   const [testimonials, zones] = await Promise.all([
-    getTestimonials(),
+    getActiveTestimonials(),
     getPageZones('temoignages'),
   ]);
 

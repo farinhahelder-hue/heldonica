@@ -117,10 +117,14 @@ const CONSUMED_ZONE_KEYS: string[] = [
  * Charge les zones actives destinées au header, au pied de page et aux blocs
  * transverses.
  *
- * `useContentLoader` appelait `/api/cms/zones` sans filtre de page et indexait
- * le résultat par `zone_key` seul : deux pages qui utilisent la même clé
- * s'écrasent mutuellement. On conserve cette indexation pour ne rien changer au
- * rendu, mais en ne ramenant que les clés effectivement lues.
+ * Seulement celles de la page `global`. L'index se fait par `zone_key` seul (la
+ * forme qu'attend `getCmsOrSetting`), or d'autres pages réutilisent les mêmes
+ * clés : `stat_1_label` existe aussi sur `expert-hotelier` et `a-propos`,
+ * `newsletter_title` sur `start` et `home`. Sans filtre de page, la dernière
+ * ligne lue l'emportait, dans un ordre que Postgres ne garantit pas : relevé du
+ * 19/10/2026, l'accueil affichait « 4+ de dépendance moyenne aux plateformes »
+ * (le libellé hôtelier) dans 12 chargements sur 13, et le bloc newsletter les
+ * textes de /start au lieu de ceux de `global`.
  */
 export async function getGlobalZones(): Promise<GlobalZones> {
   try {
@@ -129,6 +133,7 @@ export async function getGlobalZones(): Promise<GlobalZones> {
       .from('cms_editable_zones')
       .select('id, page, zone_key, zone_type, value, is_active')
       .eq('is_active', true)
+      .eq('page', 'global')
       .in('zone_key', CONSUMED_ZONE_KEYS)
 
     if (error) {
