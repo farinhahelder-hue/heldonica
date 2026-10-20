@@ -69,6 +69,26 @@ Branche `agent/openhands/hero-description-troncature`. `.audit/` reste non versi
   déclenché de `revalidatePath`. La base est corrigée ; les pages le seront à la
   prochaine revalidation.
 
+## [2026-10-20] — Brevo : les trois dernières routes ne taisent plus un refus (OpenCode)
+
+Branche `agent/opencode/brevo-res-ok`, suite de la tâche `703d9426`. Le
+correctif du 16/09 (`3330f06`) ne couvrait que `/api/travel-planning` ; les
+trois autres routes qui synchronisent un contact lisaient `res.ok` sans jamais
+dire pourquoi Brevo refusait.
+
+- `app/api/guides/download/route.ts` : la réponse Brevo est maintenant lue ;
+  un refus (401 « IP non autorisée », etc.) est journalisé avec son corps. Le
+  téléchargement du PDF reste non bloquant.
+- `app/api/contact/route.ts` : les refus contact (hors 400 « déjà inscrit ») et
+  notification sont journalisés avec statut et corps.
+- `app/api/expert-hotelier/route.ts` : idem avant le repli Resend.
+- Test : `__tests__/api/brevo-res-ok.test.ts` vérifie que le 401 est bien
+  journalisé, pas seulement avalé.
+- Vérifié : `vitest` 10/10 sur ce fichier, `typecheck`, `check:api-auth`,
+  `check:erreurs-avalees`. **La restriction d'IP reste à désactiver dans Brevo**
+  (tableau de bord, action utilisateur) : aucune synchro réelle ne peut être
+  mesurée tant qu'elle est active.
+
 ## [2026-10-19] — Typographie de marque : fin du double chargement Google Fonts (OpenCode)
 
 Branche `agent/opencode/brand-polish`, suite du WIP laissé par la session marque.

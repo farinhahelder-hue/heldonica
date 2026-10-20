@@ -45,6 +45,9 @@ async function sendViaBrevo(data: {
         }
       })
     })
+    if (!contactRes.ok && contactRes.status !== 400) {
+      console.error('Brevo contact error:', contactRes.status, await contactRes.text())
+    }
     results.contact = contactRes.ok || contactRes.status === 400
   } catch (e) {
     console.error('Brevo contact error:', e)
@@ -75,6 +78,9 @@ async function sendViaBrevo(data: {
         `
       })
     })
+    if (!emailRes.ok) {
+      console.error('Brevo notification error:', emailRes.status, await emailRes.text())
+    }
     results.notification = emailRes.ok
   } catch (e) {
     console.error('Brevo notification error:', e)
