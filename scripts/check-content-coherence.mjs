@@ -84,14 +84,28 @@ async function fetchAll(url, key, table, select) {
   return out;
 }
 
-const FORBIDDEN_WORDS = [
-  'bons plans', 'bon plan', 'organisation de séjour', 'compagnie', 'voyage organisé',
-  'circuit', 'package', 'destinations populaires', 'tips', 'astuces', 'conseil voyage',
-  'lieu incontournable', 'incontournable', 'aventure inoubliable', 'inoubliable',
-  'paradis', 'paradisiaque', 'coup de cœur', 'must-have', 'must see', 'must-see',
-  'les voyageurs', 'les touristes', 'solution miracle', 'solution magique',
-  'magnifique', 'splendide', 'incroyable', 'spot', 'optimiser'
-];
+// Champs meta d'un article : servis dans les balises <meta> (title, description,
+// og:, twitter:). Ils étaient hors du scan — un mot banni publié dans une
+// meta_description passait la CI au vert alors qu'il est bel et bien servi.
+export const CHAMPS_META = ['meta_title', 'meta_description', 'seo_title', 'seo_description'];
+
+/**
+ * Un article PUBLIÉ qui porte un mot banni dans un champ meta est une fuite :
+ * la balise <meta> part chez Google et dans les aperçus de partage. Un brouillon
+ * n'est que de la dette (il ne sera peut-être jamais publié tel quel).
+ * Fonction pure, testable sans base.
+ */
+export function articlesPubliesAvecMotBanniMeta(posts = []) {
+  return posts
+    .filter((p) => p.published)
+    .map((p) => ({ id: p.id, slug: p.slug, mots: [...new Set(CHAMPS_META.flatMap((c) => motsBannisDans(p[c])))] }))
+    .filter((p) => p.mots.length > 0);
+}
+
+// Source unique des mots bannis : lib/brand-voice.ts (48 mots). Cette liste
+// était recopiée à la main ici et avait dérivé (30 mots) — exactement la
+// divergence que scripts/check-brand-sync.mjs est censé interdire.
+const FORBIDDEN_WORDS = MOTS_BANNIS_SOURCE;
 
 function readEnv() {
   let raw = '';
@@ -175,7 +189,7 @@ async function main() {
   }
 
   try {
-    const res = await fetch(`${url}/rest/v1/cms_blog_posts?select=id,title,slug,excerpt,content,published`, {
+    const res = await fetch(`${url}/rest/v1/cms_blog_posts?select=id,title,slug,excerpt,content,published,meta_title,meta_description,seo_title,seo_description`, {
       headers: { apikey: key, Authorization: `Bearer ${key}` }
     });
     if (!res.ok) {
@@ -233,6 +247,18 @@ async function main() {
     } else {
       console.log('✓ Aucun article publié vide (< 300 caractères).');
     }
+
+    // Mots bannis dans les champs meta d'un article PUBLIÉ : servis dans les
+    // balises <meta>, donc indexables et partagés. Bloquant (contrairement au
+    // score de cohérence ci-dessus, qui n'est qu'un conseil).
+    const fuitesMeta = articlesPubliesAvecMotBanniMeta(posts);
+    if (fuitesMeta.length > 0) {
+      console.error(`\n❌ ${fuitesMeta.length} article(s) publié(s) portent un mot banni dans un champ meta (meta_title/meta_description/seo_title/seo_description) :`);
+      fuitesMeta.forEach((p) => console.error(`  🔴 ${p.slug} : ${p.mots.join(', ')}`));
+      console.error('👉 Remplacer par un équivalent neutre, ou repasser l\'article en brouillon.\n');
+      process.exit(1);
+    }
+    console.log('✓ Aucun mot banni dans les champs meta des articles publiés.');
 
     if (toImprove.length > 0) {
       console.log('\n⚠️ Contenus en cours d’optimisation / brouillons :');
