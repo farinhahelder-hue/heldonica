@@ -103,6 +103,7 @@ async function enrichir(numero) {
     number: pr.number,
     title: pr.title,
     state: pr.state,
+    draft: pr.draft === true,
     head_sha: pr.head.sha,
     mergeable: pr.mergeable,
     additions: pr.additions,

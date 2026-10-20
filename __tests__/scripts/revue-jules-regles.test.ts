@@ -41,6 +41,17 @@ describe('fichiersSensibles', () => {
       ])
     ).toHaveLength(5)
   })
+  it('signale un fichier de verrouillage d’un autre gestionnaire que npm', () => {
+    // #645 : 7 699 lignes de pnpm-lock.yaml sous un titre d'accessibilite. Le
+    // projet est npm (seul package-lock.json est suivi) : c'est un changement de
+    // chaine d'outils, pas une correction d'affichage.
+    expect(fichiersSensibles(['pnpm-lock.yaml'])).toEqual(['pnpm-lock.yaml'])
+    expect(fichiersSensibles(['yarn.lock'])).toEqual(['yarn.lock'])
+    // package-lock.json etait deja sensible (regle package(-lock)?.json) : un
+    // lockfile se relit, quel qu'il soit.
+    expect(fichiersSensibles(['package-lock.json'])).toEqual(['package-lock.json'])
+    expect(fichiersSensibles(['package.json'])).toEqual(['package.json'])
+  })
 })
 
 describe('etatCi', () => {
@@ -74,6 +85,16 @@ describe('doublons', () => {
     ])
     expect(d.size).toBe(0)
   })
+  it('ne prend pas un brouillon comme gardien du groupe', () => {
+    // Sans ce poids, le tri gardait la PR la plus recente — un brouillon — et
+    // proposait a la fermeture la PR prete a relire.
+    const d = doublons([
+      pr({ number: 565, title: '🔒 Fix XSS vulnerability in EditableZone component', files: ['components/inline-edit/EditableZone.tsx'] }),
+      pr({ number: 567, title: '🔒 Fix XSS vulnerability in EditableZone', files: ['components/inline-edit/EditableZone.tsx'], draft: true }),
+    ])
+    expect(d.get(567)).toBe(565)
+    expect(d.has(565)).toBe(false)
+  })
 })
 
 describe('recommander', () => {
@@ -97,6 +118,18 @@ describe('recommander', () => {
   it('attend tant que la CI tourne ou que GitHub n’a pas calcule la fusionnabilite', () => {
     expect(recommander(pr({ ci: 'en_cours' }))).toBeNull()
     expect(recommander(pr({ mergeable: null }))).toBeNull()
+  })
+  it('ne propose jamais de fusionner un brouillon', () => {
+    // Le 20/10, #554 (vrai correctif XSS) etait un brouillon : classe « a revoir »,
+    // donc jamais propose, tandis que ses doublons #565 et #567 l'etaient a la
+    // fermeture. Le tri fermait les copies et laissait dormir l'originale.
+    const reco = recommander(pr({ draft: true, ci: 'verte', mergeable: true }))
+    expect(reco).toMatchObject({ action: 'aucune', statut: 'blocked' })
+    expect(reco?.raison).toMatch(/brouillon/)
+  })
+  it('propose un brouillon inchange des qu’il n’est plus un brouillon', () => {
+    expect(recommander(pr({ draft: false })).action).toBe('fusionner')
+    expect(recommander(pr()).action).toBe('fusionner')
   })
   it('libelle commence par l’action et le numero, lisibles meme tronques', () => {
     expect(libelle(pr({ number: 612 }), recommander(pr({ number: 612 })))).toMatch(/^Fusionner PR #612 \(Jules\) — CI verte/)
