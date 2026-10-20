@@ -1,11 +1,11 @@
 import { getSettings } from '@/lib/settings'
 
 // Polices de marque, servies par next/font (app/layout.tsx) : auto-hébergées,
-// sans requête tierce. Un réglage CMS qui nommerait l'une de ces deux polices
-// serait un override inutile — il ferait recharger via Google Fonts ce que le
-// serveur livre déjà. On le neutralise.
-const BRAND_HEADING = 'Fraunces'
-const BRAND_BODY = 'Source Sans 3'
+// sans requête tierce. Un réglage CMS qui nommerait les polices par défaut
+// serait un override inutile — on le neutralise pour laisser gouverner
+// --font-heading-brand (Playfair Display) et --font-body-brand (DM Sans).
+const BRAND_HEADING_DEFAULTS = ['playfair display', 'fraunces']
+const BRAND_BODY_DEFAULTS = ['dm sans', 'source sans 3']
 
 // ── CSS escaping ───────────────────────────────────────────────────────────
 function escapeCss(str: string): string {
@@ -173,10 +173,13 @@ export default async function SiteTheme() {
   // requête tierce). On le neutralise pour ne pas recharger via Google Fonts
   // ce qui est déjà servi localement. Comparaison insensible à la casse et aux
   // variantes de nommage (« Fraunces » / « fraunces variable »).
-  const isBrandFont = (value: string | undefined, brand: string) =>
-    !!value && value.trim().toLowerCase().replace(/[-_\s]*variable$/, '') === brand.toLowerCase()
-  const headingOverride = isBrandFont(settings.font_heading, BRAND_HEADING) ? '' : settings.font_heading || ''
-  const bodyOverride = isBrandFont(settings.font_body, BRAND_BODY) ? '' : settings.font_body || ''
+  const isBrandFont = (value: string | undefined, defaults: string[]) => {
+    if (!value) return false
+    const normalized = value.trim().toLowerCase().replace(/\+/g, ' ').replace(/[-_\s]*variable$/, '')
+    return defaults.includes(normalized)
+  }
+  const headingOverride = isBrandFont(settings.font_heading, BRAND_HEADING_DEFAULTS) ? '' : settings.font_heading || ''
+  const bodyOverride = isBrandFont(settings.font_body, BRAND_BODY_DEFAULTS) ? '' : settings.font_body || ''
 
   const cssVars = `
     :root {
@@ -200,8 +203,8 @@ export default async function SiteTheme() {
        * (--font-*-brand, injectées par next/font dans le <html>) gouverner via
        * globals.css. Un réglage en base reprend la main et déclenche le <link>
        * Google Fonts plus bas. */
-      --font-heading: ${headingOverride ? `${headingOverride}, serif` : 'var(--font-heading-brand, Fraunces, serif)'};
-      --font-body: ${bodyOverride ? `${bodyOverride}, sans-serif` : 'var(--font-body-brand, Source Sans 3, sans-serif)'};
+      --font-heading: ${headingOverride ? `${headingOverride}, serif` : 'var(--font-heading-brand, "Playfair Display", serif)'};
+      --font-body: ${bodyOverride ? `${bodyOverride}, sans-serif` : 'var(--font-body-brand, "DM Sans", sans-serif)'};
       --font-size-base: ${settings.font_size_base || '16px'};
       --container-max-width: ${settings.container_max_width || '1280px'};
       --header-sticky: ${settings.header_sticky === 'false' ? 'relative' : 'sticky'};

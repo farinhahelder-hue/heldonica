@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * check-cms-cache — une page qui rend du contenu CMS doit avoir une fenêtre de
  * revalidation, sinon une correction en base n'atteint jamais le visiteur.
@@ -143,13 +142,14 @@ if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith
   const problemes = [];
 
   for (const p of pages) {
+    const norm = p.replace(/\\/g, '/');
     const src = lire(p);
     const heritee = fenetreHeritee(p);
     if (
       pageFigee({
         src,
         fenetreHeritee: heritee ? heritee.valeur : null,
-        exempte: EXEMPT.has(p),
+        exempte: EXEMPT.has(norm),
       })
     ) {
       problemes.push({ fichier: relative(process.cwd(), p).replace(/\\/g, '/') });

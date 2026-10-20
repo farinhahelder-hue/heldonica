@@ -106,10 +106,10 @@ export default function Header() {
           {/* Logo */}
           <Link
             href="/"
-            className="flex items-center gap-2 text-amber-900 transition-all duration-200 hover:text-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:ring-offset-2"
+            className="flex items-center gap-2.5 text-mahogany transition-all duration-200 hover:text-eucalyptus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:ring-offset-2"
             aria-label={`${siteName} accueil`}
           >
-            {logoUrl ? (
+            {logoUrl && logoUrl !== '/logo.svg' ? (
               <Image
                 src={logoUrl}
                 alt={siteName}
@@ -120,9 +120,15 @@ export default function Header() {
                 unoptimized={!logoUrl.endsWith('.svg')}
               />
             ) : (
-              <Image src="/logo.svg" alt={siteName} width={140} height={32} className="h-8 w-auto" priority />
+              <svg width="34" height="34" viewBox="0 0 36 36" fill="none" aria-hidden="true" className="h-8 w-8 flex-shrink-0">
+                <circle cx="18" cy="18" r="16" stroke="currentColor" strokeWidth="1.3" className="text-eucalyptus/70" />
+                <line x1="11.5" y1="10" x2="11.5" y2="22.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <line x1="24.5" y1="10" x2="24.5" y2="22.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <line x1="11.5" y1="16.2" x2="24.5" y2="16.2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                <path d="M9 26.5 Q12 24.5 15 26.5 Q18 28.5 21 26.5 Q24 24.5 27 26.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" fill="none" className="text-eucalyptus" />
+              </svg>
             )}
-            <span className="text-lg font-serif font-bold tracking-tight lg:text-xl">{siteName}</span>
+            <span className="text-xl font-serif font-bold tracking-tight lg:text-2xl">{siteName}</span>
           </Link>
 
           {/* Desktop Navigation */}

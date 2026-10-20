@@ -29,8 +29,8 @@ export const DESIGN_PRESETS: DesignPreset[] = [
       color_text: '#1A1A1A',
     },
     fonts: {
-      font_heading: 'Fraunces',
-      font_body: 'Source Sans 3',
+      font_heading: 'Playfair Display',
+      font_body: 'DM Sans',
     },
     css: `
 --border-radius-sm: 6px;

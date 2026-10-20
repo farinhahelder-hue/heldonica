@@ -72,8 +72,16 @@ const DestinationCard = memo(function DestinationCard({
             loading="lazy"
           />
         ) : (
-          <div aria-hidden="true" className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cloud-dancer to-stone-200 text-5xl">
-            {flag_emoji || COUNTRY_FLAGS[country] || '🌍'}
+          <div aria-hidden="true" className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-mahogany via-[#4A251D] to-eucalyptus p-6 text-center">
+            <svg width="52" height="52" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.2" className="text-white/25 mb-2">
+              <circle cx="24" cy="24" r="20" strokeDasharray="3 3" />
+              <circle cx="24" cy="24" r="14" />
+              <path d="M24 6v36M6 24h36" />
+              <path d="M24 14l3.5 10-3.5 10-3.5-10z" fill="currentColor" fillOpacity={0.25} />
+            </svg>
+            <span className="text-[11px] uppercase tracking-[0.22em] text-teal/90 font-semibold">
+              {flag_emoji || COUNTRY_FLAGS[country] || '✦'} {country}
+            </span>
           </div>
         )}
         <div className="absolute top-3 left-3 flex flex-wrap gap-2">

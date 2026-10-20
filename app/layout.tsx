@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
-import { Fraunces, Source_Sans_3 } from 'next/font/google';
+import { Playfair_Display, DM_Sans } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/components/AuthProvider';
 import CookieConsentBanner from '@/components/CookieConsentBanner';
@@ -15,20 +15,20 @@ import BackToTop from '@/components/BackToTop';
 
 const SITE_URL = 'https://www.heldonica.fr';
 
-// Fraunces (titres) + Source Sans 3 (texte) : chargées par next/font, donc
-// auto-hébergées au build — plus de requête tierce vers Google Fonts, plus de
-// CLS au chargement (contrairement à l'ancien @import dans globals.css).
-// Les variables CSS --font-heading-brand / --font-body-brand alimentent les
-// variables de marque ; SiteTheme ne les surcharge que si un réglage CMS
-// explicite existe en base.
-const fraunces = Fraunces({
+// Playfair Display (titres, romain + italique éditorial) + DM Sans (texte) :
+// chargées par next/font, donc auto-hébergées au build — plus de requête tierce
+// vers Google Fonts, plus de CLS au chargement.
+const playfairDisplay = Playfair_Display({
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  style: ['normal', 'italic'],
   display: 'swap',
   variable: '--font-heading-brand',
 });
 
-const sourceSans3 = Source_Sans_3({
+const dmSans = DM_Sans({
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
   variable: '--font-body-brand',
 });
@@ -218,7 +218,7 @@ export default async function RootLayout({
   const gtmId = premierValide('GTM-', siteSettings.seo_gtm_id, siteSettings.gtm_id);
 
   return (
-    <html lang="fr" suppressHydrationWarning className={`${fraunces.variable} ${sourceSans3.variable}`}>
+    <html lang="fr" suppressHydrationWarning className={`${playfairDisplay.variable} ${dmSans.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{
           __html: `

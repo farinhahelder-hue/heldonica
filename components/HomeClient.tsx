@@ -689,23 +689,77 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             <EditableZone page="home" zone="section_destinations_text" type="textarea" fallback="On ne documente que les endroits où on a vraiment posé nos sacs. Chaque destination sur cette carte, on la connaît à pied — ses ruelles de derrière, ses tables sans enseigne, ses moments qui ne se photographient pas."
               className="text-charcoal/70 leading-relaxed max-w-2xl mx-auto mb-12 block"
             />
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
             {(homeDestinations && homeDestinations.length > 0 ? homeDestinations : [
-              { destination_slug: 'madere', title: 'Madère', flag_emoji: '🏝️' },
-              { destination_slug: 'roumanie', title: 'Roumanie', flag_emoji: '🏔️' },
-              { destination_slug: 'montenegro', title: 'Monténégro', flag_emoji: '🌊' },
-              { destination_slug: 'sicile', title: 'Sicile', flag_emoji: '🌋' },
-            ]).map((dest: any) => (
-              <Link key={dest.destination_slug || dest.slug} href={`/destinations/${dest.destination_slug || dest.slug}`}
-                className="group p-6 md:p-8 rounded-2xl bg-stone-50 border border-stone-100 hover:border-eucalyptus/30 hover:bg-eucalyptus/5 dark:hover:bg-eucalyptus/10 transition-all duration-300 flex flex-col items-center">
-                <div className="mb-4 flex justify-center h-12 w-12 items-center">
-                  {renderPremiumIcon(dest.destination_slug || dest.slug || '')}
-                </div>
-                <span className="font-semibold text-mahogany dark:text-stone-200 group-hover:text-eucalyptus dark:group-hover:text-teal transition-colors">
-                  {dest.title}
-                </span>
-              </Link>
-            ))}
+              {
+                destination_slug: 'madere',
+                title: 'Madère',
+                country: 'Portugal',
+                tagline: 'Slow travel, falaises, levadas et douceur atlantique.',
+                custom_image_url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/pico_do_arieiro.jpg',
+              },
+              {
+                destination_slug: 'roumanie',
+                title: 'Roumanie',
+                country: 'Roumanie',
+                tagline: 'Forêts des Carpates, cités discrètes et pépites inattendues.',
+                custom_image_url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/roumanie/IMG_20260827_135618.jpg',
+              },
+              {
+                destination_slug: 'montenegro',
+                title: 'Monténégro',
+                country: 'Monténégro',
+                tagline: 'Fjord de Kotor, ruelles anciennes et Adriatique hors des radars.',
+                custom_image_url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/montenegro/sahat_kula.jpg',
+              },
+            ]).map((dest: any) => {
+              const slug = dest.destination_slug || dest.slug || ''
+              const imgUrl = dest.custom_image_url || dest.hero_unsplash_url || null
+              return (
+                <Link
+                  key={slug}
+                  href={`/destinations/${slug}`}
+                  className="group relative h-80 md:h-96 rounded-2xl overflow-hidden bg-mahogany shadow-md hover:shadow-xl transition-all duration-500 flex flex-col justify-end"
+                >
+                  {imgUrl ? (
+                    <Image
+                      src={imgUrl}
+                      alt={dest.title || slug}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover opacity-85 group-hover:opacity-95 group-hover:scale-105 transition-all duration-700"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-mahogany via-[#4A251D] to-eucalyptus opacity-90">
+                      <div className="opacity-25 scale-150 text-white">
+                        {renderPremiumIcon(slug)}
+                      </div>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+                  {dest.country && (
+                    <div className="absolute top-4 left-4 z-10">
+                      <span className="inline-block rounded-full bg-black/35 backdrop-blur-md border border-white/20 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/95">
+                        {dest.country}
+                      </span>
+                    </div>
+                  )}
+                  <div className="relative z-10 p-6 md:p-7">
+                    <h3 className="text-2xl md:text-3xl font-serif font-normal text-white mb-2 group-hover:text-teal transition-colors">
+                      {dest.title}
+                    </h3>
+                    {dest.tagline && (
+                      <p className="text-stone-200/90 text-sm leading-relaxed line-clamp-2 mb-3">
+                        {dest.tagline}
+                      </p>
+                    )}
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider uppercase text-teal group-hover:translate-x-1 transition-transform">
+                      Explorer le territoire →
+                    </span>
+                  </div>
+                </Link>
+              )
+            })}
           </div>
           <Link href="/destinations" className="mt-10 inline-flex items-center gap-2 text-eucalyptus font-semibold text-sm hover:gap-3 transition-all">
             <EditableZone page="home" zone="section_destinations_cta" fallback="Explorer toutes les destinations →" />

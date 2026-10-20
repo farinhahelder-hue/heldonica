@@ -2,6 +2,15 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-20] — Restauration visuelle du site (`heldonica.fr`) : polices, couleurs avec opacité, en-tête et cartes territoires
+
+- **Couleurs de marque et modificateurs d'opacité (`tailwind.config.ts`)** : les 5 couleurs CSS variables (`mahogany`, `eucalyptus`, `teal`, `cloud-dancer`, `charcoal`) passent par `color-mix(in srgb, var(--color-*, #...) calc(<alpha-value> * 100%), transparent)`. Corrige la suppression silencieuse par Tailwind v3 de toutes les classes `/5`, `/10`, `/20`, `/60`, `/70`, `/80`, `/90` qui rendait les cartes d'articles (`bg-mahogany/80`) délavées sur fond blanc et les badges (`bg-eucalyptus/90`) transparents.
+- **Polices éditoriales (`app/layout.tsx`, `components/SiteTheme.tsx`, `app/globals.css`, `lib/design-presets.ts`)** : retour au duo historique **Playfair Display** (romain + italique) et **DM Sans** auto-hébergées via `next/font/google`, en neutralisant aussi les valeurs `Fraunces` / `Source Sans 3` résiduelles en base pour éviter tout chargement tiers inutile.
+- **En-tête & Logo (`components/Header.tsx`, `public/logo.svg`)** : suppression du doublon « Heldonica » (où `<Image src="/logo.svg">` affichait déjà un `<text>` en police système à côté du `<span>Heldonica</span>`). Le monogramme vectoriel adaptatif précède désormais un unique mot-marque en `Playfair Display`.
+- **Cartes « Nos territoires » sur l'accueil (`lib/home-data.ts`, `components/HomeClient.tsx`)** : lecture de `featured_image` depuis `destinations`, filtrage des destinations non publiées (`zurich`, `suisse`), et remplacement des 4 boîtes grises à icônes filaires par de vraies cartes photos éditoriales (Madère, Roumanie, Monténégro).
+- **Couverture éditoriale des destinations « Bientôt » (`components/DestinationCard.tsx`)** : remplacement du rectangle gris à drapeau emoji géant par une couverture boussole en dégradé `mahogany`/`eucalyptus`.
+- **Migration versionnée** : `supabase/migrations/20261020230000_restauration_polices_et_territoires_accueil.sql`.
+
 ## [2026-10-20] — APK Poco X6 Pro : IA locale (`CerveauLocal`) câblée sur Instagram, Memoria Imperium et Rédaction
 
 - **Instagram & Carnets (`MainActivity.kt`, `CerveauLocal.kt`)** : ajout de `PromptLocal.construirePromptInstagram` (respect strict de la voix Heldonica `on`/`tu`, fiches pertinentes du Coffre embarqué, zéro invention, balise `[À TOI : …]` si détail manquant, hashtags `#slowtravel #heldonica`). Bouton dédié **« 📱 Légende IA Poco (hors-ligne) »** dans les écrans *Publier* et *Écrire un carnet*, + repli automatique vers `CerveauLocal.repondre` dans `analyserPhotoAvecIa` lorsque le serveur CMS ou la station PC sont injoignables.

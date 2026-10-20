@@ -9,18 +9,17 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        'cloud-dancer': 'var(--color-background, #F8F6F2)',
-        'eucalyptus': 'var(--color-primary, #006D77)',
-        'teal': 'var(--color-secondary, #4ECDC4)',
-        // Couleur des titres, présente dans 73 fichiers. Elle était la seule du
-        // thème sans variable CSS : la changer depuis le CMS n'avait aucun effet.
-        // Le repli conserve la teinte historique pour les rendus hors thème.
-        'mahogany': 'var(--color-heading, #6B2D1F)',
-        'charcoal': 'var(--color-text, #2C2C2C)',
+        'cloud-dancer': 'color-mix(in srgb, var(--color-background, #F8F6F2) calc(<alpha-value> * 100%), transparent)',
+        'eucalyptus': 'color-mix(in srgb, var(--color-primary, #006D77) calc(<alpha-value> * 100%), transparent)',
+        'teal': 'color-mix(in srgb, var(--color-secondary, #4ECDC4) calc(<alpha-value> * 100%), transparent)',
+        // Couleur des titres, présente dans 73 fichiers. Elle passe par --color-heading
+        // tout en supportant les modificateurs d'opacité Tailwind (/10, /80…) via color-mix.
+        'mahogany': 'color-mix(in srgb, var(--color-heading, #6B2D1F) calc(<alpha-value> * 100%), transparent)',
+        'charcoal': 'color-mix(in srgb, var(--color-text, #2C2C2C) calc(<alpha-value> * 100%), transparent)',
       },
       fontFamily: {
-        serif: ['var(--font-heading, Fraunces)', 'Georgia', 'serif'],
-        sans: ['var(--font-body, Source Sans 3)', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-heading, "Playfair Display")', 'Georgia', 'serif'],
+        sans: ['var(--font-body, "DM Sans")', 'system-ui', 'sans-serif'],
       },
       spacing: {
         'section': '80px',

@@ -42,12 +42,12 @@ export const FALLBACK_HOME_DESTINATIONS: HomeDestination[] = [
     is_featured: true,
     custom_title: null,
     custom_description: null,
-    custom_image_url: null,
+    custom_image_url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/pico_do_arieiro.jpg',
     title: 'Madère',
-    tagline: 'Île de l’Éternel Printemps',
-    hero_unsplash_url: null,
+    tagline: 'Slow travel, falaises, levadas et douceur atlantique.',
+    hero_unsplash_url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/pico_do_arieiro.jpg',
     country: 'Portugal',
-    flag_emoji: '🏝️',
+    flag_emoji: '🇵🇹',
   },
   {
     id: 'fallback-2',
@@ -56,12 +56,12 @@ export const FALLBACK_HOME_DESTINATIONS: HomeDestination[] = [
     is_featured: true,
     custom_title: null,
     custom_description: null,
-    custom_image_url: null,
+    custom_image_url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/roumanie/IMG_20260827_135618.jpg',
     title: 'Roumanie',
-    tagline: 'Nature Sauvage et Traditions',
-    hero_unsplash_url: null,
+    tagline: 'Forêts des Carpates, cités discrètes et pépites inattendues.',
+    hero_unsplash_url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/roumanie/IMG_20260827_135618.jpg',
     country: 'Roumanie',
-    flag_emoji: '🏰',
+    flag_emoji: '🇷🇴',
   },
   {
     id: 'fallback-3',
@@ -70,26 +70,12 @@ export const FALLBACK_HOME_DESTINATIONS: HomeDestination[] = [
     is_featured: true,
     custom_title: null,
     custom_description: null,
-    custom_image_url: null,
+    custom_image_url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/montenegro/sahat_kula.jpg',
     title: 'Monténégro',
-    tagline: 'Côte Adriatique Préservée',
-    hero_unsplash_url: null,
+    tagline: 'Fjord de Kotor, ruelles anciennes et Adriatique hors des radars.',
+    hero_unsplash_url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/montenegro/sahat_kula.jpg',
     country: 'Monténégro',
-    flag_emoji: '🌊',
-  },
-  {
-    id: 'fallback-4',
-    destination_slug: 'sicile',
-    display_order: 4,
-    is_featured: true,
-    custom_title: null,
-    custom_description: null,
-    custom_image_url: null,
-    title: 'Sicile',
-    tagline: 'Tranche de Vie Italienne',
-    hero_unsplash_url: null,
-    country: 'Italie',
-    flag_emoji: '🌋',
+    flag_emoji: '🇲🇪',
   },
 ];
 
@@ -108,7 +94,7 @@ export const FALLBACK_HOME_ZONES: Record<string, string> = {
   'pillar_3_desc': "Heldonica vous accompagne pour planifier vos voyages avec âme.",
   'pillar_3_icon': '💚',
   'destinations_title': 'Nos Pépites',
-  'destinations_subtitle': "4 destinations phare pour l'aventure en couple",
+  'destinations_subtitle': "Nos territoires explorés à pied et en duo",
   'cta_badge': 'Travel Planning · terrain vécu',
   'cta_title_1': "On ne fait pas des itinéraires.",
   'cta_title_2': 'On fait le tien.',
@@ -131,56 +117,75 @@ export async function getHomeDestinations(): Promise<HomeDestination[]> {
   }
 
   try {
-    const { data: homeDests, error: homeError } = await supabase
-      .from('cms_home_destinations')
-      .select('*')
-      .eq('is_active', true)
-      .order('sort_order', { ascending: true })
-      .limit(6);
+    const [{ data: homeDests, error: homeError }, { data: destData, error: destError }] = await Promise.all([
+      supabase
+        .from('cms_home_destinations')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true })
+        .limit(8),
+      supabase
+        .from('destinations')
+        .select('slug, title, tagline, excerpt, hero_unsplash_url, featured_image, country, flag_emoji')
+        .eq('published', true),
+    ]);
 
     if (homeError) {
       console.error('[HomeData] Error fetching home destinations:', homeError);
-      return FALLBACK_HOME_DESTINATIONS;
     }
-
-    if (!homeDests || homeDests.length === 0) {
-      console.warn('[HomeData] No home destinations configured, using fallback');
-      return FALLBACK_HOME_DESTINATIONS;
-    }
-
-    const slugs = homeDests.map((d: any) => d.slug);
-
-    const { data: destData, error: destError } = await supabase
-      .from('destinations')
-      .select('slug, title, tagline, hero_unsplash_url, country, flag_emoji')
-      .in('slug', slugs)
-      .eq('published', true);
-
     if (destError) {
       console.error('[HomeData] Error fetching destinations:', destError);
     }
 
-    const destMap = new Map((destData || []).map((d: any) => [d.slug, d]));
+    const publishedDests = destData || [];
+    if (publishedDests.length === 0) {
+      return FALLBACK_HOME_DESTINATIONS;
+    }
 
-    const destinations: HomeDestination[] = homeDests.map((homeDest: any) => {
-      const dest: any = destMap.get(homeDest.slug);
+    const destMap = new Map(publishedDests.map((d: any) => [d.slug, d]));
+    const fallbackImgMap = new Map(FALLBACK_HOME_DESTINATIONS.map((f) => [f.destination_slug, f.custom_image_url]));
+
+    // Ne retenir de cms_home_destinations que les destinations réellement publiées,
+    // puis compléter avec les destinations publiées restantes (ex: montenegro).
+    const orderedSlugs: string[] = [];
+    for (const hd of homeDests || []) {
+      if (hd?.slug && destMap.has(hd.slug) && !orderedSlugs.includes(hd.slug)) {
+        orderedSlugs.push(hd.slug);
+      }
+    }
+    for (const d of publishedDests) {
+      if (d?.slug && !orderedSlugs.includes(d.slug)) {
+        orderedSlugs.push(d.slug);
+      }
+    }
+
+    const homeDestMap = new Map((homeDests || []).map((hd: any) => [hd.slug, hd]));
+
+    return orderedSlugs.map((slug, idx) => {
+      const dest: any = destMap.get(slug);
+      const homeDest: any = homeDestMap.get(slug);
+      const verifiedImg =
+        dest?.featured_image ||
+        dest?.hero_unsplash_url ||
+        homeDest?.image_url ||
+        fallbackImgMap.get(slug) ||
+        null;
+
       return {
-        id: homeDest.id,
-        destination_slug: homeDest.slug,
-        display_order: homeDest.sort_order || 0,
-        is_featured: true, // fallback to true
-        custom_title: homeDest.title || null,
-        custom_description: homeDest.description || null,
-        custom_image_url: null, // fallback
-        title: homeDest.title || dest?.title || homeDest.slug,
-        tagline: dest?.tagline || homeDest.description || null,
-        hero_unsplash_url: dest?.hero_unsplash_url || null,
+        id: String(homeDest?.id ?? `dest-${idx + 1}`),
+        destination_slug: slug,
+        display_order: homeDest?.sort_order ?? idx + 1,
+        is_featured: true,
+        custom_title: homeDest?.title || null,
+        custom_description: homeDest?.description || null,
+        custom_image_url: verifiedImg,
+        title: homeDest?.title || dest?.title?.split(' | ')[0]?.split(' : ')[0] || slug,
+        tagline: homeDest?.description || dest?.tagline || dest?.excerpt || null,
+        hero_unsplash_url: verifiedImg,
         country: dest?.country || null,
-        flag_emoji: dest?.flag_emoji || getDestinationEmoji(homeDest.slug),
+        flag_emoji: dest?.flag_emoji || getDestinationEmoji(slug),
       };
     });
-
-    return destinations;
   } catch (err) {
     console.error('[HomeData] Unexpected error:', err);
     return FALLBACK_HOME_DESTINATIONS;

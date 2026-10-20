@@ -31,7 +31,7 @@ export default async function MaintenancePage() {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600&family=Source+Sans+3:wght@400;500;600&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@400;500;600&display=swap');
           
           * { margin: 0; padding: 0; box-sizing: border-box; }
           
@@ -42,7 +42,7 @@ export default async function MaintenancePage() {
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-family: 'Source Sans 3', -apple-system, sans-serif;
+            font-family: 'DM Sans', -apple-system, sans-serif;
             color: #1a1a1a;
             padding: 2rem;
             position: relative;
@@ -69,7 +69,7 @@ export default async function MaintenancePage() {
           }
           
           .logo {
-            font-family: 'Fraunces', Georgia, serif;
+            font-family: 'Playfair Display', Georgia, serif;
             font-size: 1.75rem;
             font-weight: 500;
             color: #6b2a1a;
@@ -89,7 +89,7 @@ export default async function MaintenancePage() {
           }
           
           h1 {
-            font-family: 'Fraunces', Georgia, serif;
+            font-family: 'Playfair Display', Georgia, serif;
             font-size: clamp(1.75rem, 5vw, 2.5rem);
             font-weight: 500;
             color: #1a1a1a;
