@@ -2,6 +2,189 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-20] — Lot 2 : retrait de 4 mots bannis en base (6 champs) + cache carte
+
+- **Appliqué** (validation propriétaire) : `naples.teaser`, `cabo-girao.excerpt`
+  (+ doublon `map_markers`), `roumanie-transylvanie.excerpt`,
+  `lisbonne-hors-sentiers.title`, `cms_pillar_pages.roumanie.faq` (jsonb).
+  Migration versionnée : `20261020130000_retrait_mots_bannis_lot2.sql`.
+  La CLI `supabase` étant absente et la base inaccessible en direct, l'écriture
+  s'est faite par API REST, instruction par instruction, valeurs d'origine
+  conservées (`ROLLBACK-lot2.json`).
+- **Vérifié en base** : 0 résidu sur les 6 champs.
+- **Vérifié dans le rendu** : `/destinations`, `/compare`, `/roumanie` → 0.
+  **`/destinations/carte` reste à 2 occurrences** : page pré-rendue statique
+  (`initialRevalidateSeconds: False`), elle ne se rafraîchira qu'au prochain
+  déploiement. Base propre, HTML figé.
+- **Erreur corrigée avant écriture** : le premier jet visait `teaser` au lieu de
+  `excerpt`, ignorait `map_markers` et castait mal le jsonb.
+
+
+
+## [2026-10-20] — Audit éditorial, lot 2 : 36 pages servies passées au DOM
+
+- **Périmètre** : les 36 URLs du sitemap de production (destinations, guides,
+  pages commerciales, accueil), hors articles du lot 1. Méthode identique :
+  DOM après JavaScript (`chromium --dump-dom`).
+- **P2 — `/quiz` sans `og:image`. CORRIGÉ.** Le partage social de cette page
+  n'affichait aucune image (`twitter:card=summary`). Ajout de `images` en
+  `openGraph`/`twitter` dans `app/quiz/layout.tsx`, avec `og-default.jpg` déjà
+  utilisée ailleurs. `tsc` exit 0, 847 tests OK.
+- **Transversal — angle mort du garde-fou.** `scripts/check-content-coherence.mjs`
+  ne lit que `cms_blog_posts` (l. 105) : `destinations` et `cms_pillar_pages` ne
+  sont pas contrôlées. C'est pourquoi **4 mots bannis restent servis alors que la
+  CI est verte** (`magnifique`, `inoubliable`, « les touristes », `circuit`).
+  Non corrigé : étendre la CI est une décision à valider.
+- **P2 — couverture sociale générique sur 22 pages** (`og-default.jpg` partout,
+  destinations + guides). Photos à fournir.
+- **P2 — `/destinations/suisse`** sert `batch-1778535464596-3.jpg` alors que la
+  base déclare `stoos-01.jpg` pour `suisse-stoos`. Écart source ↔ rendu observé,
+  à trancher.
+- **Faux positifs écartés** après vérification : « espace avant virgule » des H1
+  (artefact d'extraction), « Chargement de la carte… » (chargement au défilement,
+  non confirmé), « Encore une escale » (introuvable).
+- **Non effectué** : examen visuel des photos (pas d'outil d'image), défilement
+  réel, mobile.
+
+
+
+## [2026-10-20] — Audit éditorial, lot 1 : 6 articles publiés affichaient leur markdown en clair
+
+- **Méthode** : source de vérité = Supabase production ; le site rend son contenu
+  **côté client**, donc le HTML servi ne prouve rien (squelette « Chargement… »).
+  Les constats de rendu ont été établis sur le **DOM après JavaScript**
+  (`chromium --dump-dom`), jamais sur un `curl`.
+- **P1 — markdown non converti sur 6 articles publiés. CORRIGÉ.** Le corps de
+  `bacalhau-gomes-sa-recette`, `poncha-recette-authentique`, `pudim-de-nata-recette`,
+  `petite-ceinture-paris-balade-urbaine`, `bucarest-hidden-surprend` et
+  `transylvanie-secrete-au-dela-de-dracula` affichait ses titres `## …` et ses gras
+  `**…**` en texte brut. Mesuré sur le DOM : 6 à 7 titres et 8 à 14 gras littéraux
+  par article, contre **0** pour les 2 articles HTML (`podgorica`, `itineraire-roumanie`).
+  Cause : **aucun convertisseur markdown n'existait** dans le projet (vérifié dans
+  `package.json`, `node_modules`, le code, `next.config.js`), alors que le type
+  `TextBlock` annonce « Supporte HTML sain ou Markdown ». `app/blog/[slug]/page.tsx`
+  passait le contenu brut à `EnhancedRichContent`, qui ne fait que désinfecter.
+  Corrigé par `lib/markdown-to-html.ts` (nouveau), câblé sur les **deux** chemins de
+  rendu, + `TextBlock` qui rend le gras en `<strong>` sans injection HTML.
+- **Vérifié sur les 8 contenus réels de production** : les 2 articles HTML sortent
+  **inchangés** (pas de double traitement) ; les 6 markdown produisent **40 `<h2>`**
+  et **63 `<strong>`**, avec **0 `##`** et **0 `**`** résiduels. 9 tests ajoutés ;
+  ciblés 40/40 ; `tsc` 0 erreur ; `npm run build` EXIT=0 ; garde-fous **13/13**.
+- **P2 — redirection cassée, constatée non corrigée** : `cms_redirects` redirige
+  `/blog/zurich` vers `/blog/flotter-sur-la-limmat-zurich-aventure`, **deux brouillons**,
+  donc vers une 404. Décision propriétaire.
+- **P2 — coquilles en clair** dans `poncha-recette-authentique` : `devant on`,
+  `su on indiquer`, `sucrde`, `assomàmer`, `à Madere` (confirmées en base).
+  Correction soumise à validation (écriture en production).
+- **P3 — 4 articles sans image de partage social** (`og_image_url` vide).
+- **Limite assumée** : la **vérification visuelle des photos n'a pas été faite**
+  (pas d'outil d'analyse d'image fiable). Les photos `batch-*`/`import-*` restent
+  **à vérifier par un humain** ; le registre média ne prétend pas qu'elles sont fausses.
+- **Non audité, à ne pas confondre avec « sain »** : 64 pages destinations, guides,
+  itinéraires, pages commerciales (lot 2) et 47 brouillons (lot 3).
+- Livrables : `.audit/audit-editorial-2026-10-20/` (rapport, inventaire CSV, registre
+  médias, journal des corrections, décisions propriétaire).
+
+## [2026-10-19] — Contenu en ligne : hero coupe en plein mot, `\n` en clair, erreurs carte/guides
+
+- **Méthode** : 42 pages réellement servies, texte visible extrait du HTML (balises
+  retirées, entités décodées), confronté à la valeur en base. Aucun constat tiré
+  d'un slug ou d'un nom de fichier.
+- **Hero des pages destinations coupé en plein mot — CORRIGÉ.** Mesuré sur le HTML
+  servi : `/destinations/paris` affichait « …ses passages couverts **end**… »,
+  `zurich` « …Et à 3**…** », `sicile`, `suisse`, `lisbonne` de même. La base était
+  **intacte** (`cms_editable_zones.destinations-paris.description` contient la
+  phrase entière). Cause : `app/destinations/[slug]/DestinationPage.tsx:217`,
+  `.slice(0, 200)` qui coupe au milieu d'un mot **et** concatène `...` en dur,
+  donc ajouté même sous 200 caractères. Corrigé par `extraitHero()` : coupe sur
+  la dernière frontière de mot, ellipse seulement si du texte a été retiré.
+  Vérifié dans l'artefact construit : les 5 pages finissent sur un mot entier.
+- **Guide Madère : `\n` affiché en clair — CORRIGÉ.**
+  `/guides/top-10-pepites-madere` affichait « On a passé 3 semaines à Madère.`\n`Voici
+  ce qu'on en a retiré. » Cause : `fallback="…\n…"` est une chaîne d'attribut JSX,
+  qui n'interprète pas les échappements. Il faut `fallback={"…\n…"}`. Corrigé sur
+  les deux zones. Vérifié dans l'artefact construit.
+- **Carte et guides : erreurs de contenu — migration écrite, NON appliquée.**
+  `map_markers.cote-albatre` : « falaises **bretonnes** » alors que la Côte d'Albâtre
+  est normande — et la colonne `region` de la même ligne vaut `Normandie`, la ligne
+  se contredit ; « **Fagnes** blanches » (les Fagnes sont ardennaises).
+  `map_markers.porto` : « **viñedos** » (espagnol) et « architecture
+  **barcelonaise** » (décrit Barcelone). `cms_guide_items` : « **propietario** ».
+  Migration `20261019120000_corrections_contenu_carte_guides.sql`, idempotente,
+  conditionnée par la valeur fautive, aucune suppression. Pour Porto, l'adjectif
+  est retiré et non remplacé : rien n'établit le style de Porto, l'inventer serait
+  précisément ce que la règle interdit. Le fallback du code est corrigé en parallèle.
+- **Relevé sans correction (décisions propriétaire)** : le comparateur annonce
+  « nombre d'articles » sans rendu visible sans JS ; le sélecteur de destinations
+  propose Naples, Malte, Corse, Bari & Pouilles, Pologne — aucune n'a de guide
+  publié ; la carte a 24 épingles pour 8 destinations ; `/destinations/normandie`
+  est écrite sans accents là où `/destinations/paris` est soignée.
+- **Retirés après vérification** : « 37 descriptions SEO dupliquées » (91/91
+  distinctes), « 50 pages manquantes au sitemap » (elles y sont), « Suisse
+  alémanique » (chaîne introuvable partout).
+- **Faux positif de ma session, retiré** : `/carnets` en 404 venait de **ma propre
+  liste de test** ; aucune page ne pointe dessus. Contrôle refait : 44 liens
+  internes distincts, **0 lien non-200**.
+- Garde-fous 13/13 verts ; `tsc` 0 erreur ; `npm run build` EXIT=0.
+
+## [2026-10-19] — Audit en ligne : un brouillon servi en « Chargement… » indexable, et Grèce alignée
+
+- **Méthode** : revérification en ligne de constats de session 1. Quatre d'entre
+  eux ne résistaient pas (descriptions SEO « dupliquées », sitemap « codé à la
+  main », `reservenaturelle` visible, `agritourismes` fautif) : ils sont retirés.
+  Un slug, un nom de fichier ou une valeur en base ne prouve pas ce qui est servi.
+- **Constat principal, non signalé auparavant** : `/blog/<slug>` inexistant — et
+  un brouillon comme `/blog/zurich` — renvoie **HTTP 200**, `robots=index, follow`,
+  et le corps ne contient qu'un écran **« Chargement… »** figé (mesuré 3 fois,
+  64 225 o). Ce n'est même pas la page 404 du site. Cause : `app/loading.tsx`
+  (racine, seul du dépôt) enveloppe tout dans un Suspense et `/blog/[slug]` est en
+  `revalidate = 3600` : le squelette part et reste. Portée : 47 brouillons + toute
+  URL `/blog/` inexistante. Atténuation mesurée : 0 brouillon au sitemap, 0 lien
+  interne vers un brouillon. Correctif non engagé (routage global) — voir
+  `.audit/audit-2026-10-18/5-DECISIONS-PROPRIETAIRE.md`, point 6.
+- **`/destinations/grece` — corrigé** : la page servait un écran « Bientôt » mais
+  restait `index, follow` et présente dans le sitemap, alors que les 33 autres
+  pages « Bientôt » sont en `noindex` et hors sitemap. Cause : `destinations-grece`
+  absente de `lib/unpublished-pages.ts`, sur laquelle s'appuie `lib/page-metadata.ts`.
+  Ajout dans `UNPUBLISHED_PATHS` + `UNPUBLISHED_CMS_PAGES`, retrait de
+  `app/sitemap.ts`, test de non-régression ajouté.
+- **Coquilles corrigées dans le code** : `Évoramonsaraz` → `Évora et Monsaraz`
+  (`app/destinations/alentejo/page.tsx`, 3 occurrences), `compltètement` et
+  `reservenaturelle` (`lib/cms-vault-spots.ts`).
+- **Migration `20261018235500_coquilles_zones_cms.sql`** (idempotente) : mêmes
+  corrections dans `cms_editable_zones`, la base primant à l'affichage. **Non
+  appliquée** — écriture en production, validation requise.
+- **Non corrigé volontairement** : `cms_pillar_pages.roumanie` annonce
+  `tested_by_heldonica.duration = « 9 jours »` alors que `itinerary` contient
+  7 entrées et que `seo_desc` dit « 7 jours ». Contradiction réelle, mais un séjour
+  de 9 jours peut avoir produit un itinéraire publié de 7 : décision propriétaire.
+- **Vérifié sain** : les 8 articles publiés (388–903 mots, aucun placeholder), les
+  45 URL du sitemap (200, titres propres, 0 redirection), les images de couverture
+  (toutes servies), et l'absence de prénoms des fondateurs dans le HTML public.
+  Les écarts de `<title>` sont intentionnels : `seo_title` alimente le `<title>`,
+  `title` le H1 (vérifié 8/8).
+- Garde-fous 13/13 verts.
+
+## [2026-10-18] — Validation des tâches IA : `validated_by` et le bouton réparé
+
+- **Constat** : la validation n'était atteignable par personne. Le bouton
+  « Approuver (Fondateur) » de `AgentsControlDrawer.tsx` appelait
+  `/api/cms/agent-tasks`, une route **qui n'a jamais existé** (mesuré : `GET` → 404,
+  `PATCH` → 401 — les codes d'une route absente derrière le middleware, pas d'une
+  route qui refuse la méthode). 47 tâches en attente, dont 24 adressées au fondateur.
+- **`app/api/agent-tasks/route.ts`** : l'action `valider` existait déjà (ajoutée
+  en parallèle par un autre agent, avec `accepter`/`renvoyer` — conservation de
+  cette version, plus riche). Ajout : elle pose désormais
+  `validated_by = 'heldonica'` + `validated_at`, les deux colonnes prévues par la
+  migration `20260903191642_agent_tasks_governance_upgrade.sql` et jusqu'ici
+  écrites par aucun chemin fonctionnel.
+- **`components/admin/AgentsControlDrawer.tsx`** : les trois appels pointent la route
+  qui existe (`/api/agent-tasks`), avec `action` + `agent_name` ; la validation
+  envoie `decision: 'accepter'`. C'est le serveur qui pose `validated_by`.
+- **Vérifié** : `npm run garde-fous` → 13/13, dont `tsc` et `vitest`.
+- **Non vérifié** : le rendu du bouton dans le navigateur (pas de session CMS ici),
+  et l'écran `TachesScreen.kt` de l'APK (pas de compilation Android ici — l'appli
+  mobile ne sait toujours pas valider, seule la route le sait).
 ## [2026-10-19] — Typographie de marque : fin du double chargement Google Fonts (OpenCode)
 
 Branche `agent/opencode/brand-polish`, suite du WIP laissé par la session marque.
@@ -298,6 +481,45 @@ quand il le demande.
   écrit ce code. La CI `build-apk.yml` (tests + `assembleRelease`) doit passer avant
   fusion, puis un essai réel sur le Poco (import du modèle, réponse, mode boosté).
 
+## [2026-10-18] — 7 AUTRES photos d'enfant retirées de l'accès public (complète la PR #623)
+
+Le propriétaire a signalé « la photo d'un enfant sur le site ». En vérifiant
+**toute** la médiathèque : la PR #623 traitait `IMG_20260827_135834.jpg`, mais
+**7 autres photos de la même série** (Roumanie, 27/08/2026) restaient dans le
+bucket public.
+
+**Méthode** — deux modèles indépendants, puis vérification en ligne :
+
+- Détection **CLIP** (enfant vs adulte, logits bruts) : 7 images se détachent
+  nettement (+3,6 à +4,6 d'écart).
+- Description **BLIP**, concordante : « a little girl holding a cup of coffee »,
+  « a young girl holding a banana in her hand », « a girl holding a cell phone ».
+- **Balayage des 103 URL du sitemap** : aucune de ces photos n'apparaît sur une page
+  publiée. Le risque n'était pas l'affichage, mais le **téléchargement direct de
+  l'URL** — HTTP 200, ~3,9 Mo chacune, **sans authentification**.
+
+**Correction d'une affirmation devenue fausse** : l'entrée ci-dessus indiquait que
+« le fichier lui-même (bucket `media`) reste accessible par son URL directe ».
+**Vérifié le 18/10 : ce n'est plus le cas.** `IMG_20260827_135834.jpg` est absent du
+bucket `media`, présent dans `prive/enfants/`, et son URL publique répond **400**.
+
+**Fait** (réversible, copie vérifiée avant retrait, **aucune suppression définitive**)
+
+- Les 7 photos copiées dans le bucket privé `prive/enfants/` (présence vérifiée par
+  listage) **puis retirées du bucket public** `media`.
+- Les 7 fiches `cms_media` mises à jour (`path`, `url`, `alt`) —
+  `20261018200000_photos_enfants_bucket_prive.sql`.
+- **Contrôle** : `media` ne contient plus aucun fichier de la série, `prive/enfants`
+  les contient tous les **8**, l'URL publique répond **400**.
+
+> **Piège rencontré** : après suppression, l'URL publique répond encore `HTTP 200`
+> avec `cf-cache-status: HIT` — le **cache CDN**. Sans anti-cache, on croit la
+> suppression échouée. Vérifier avec `?v=<timestamp>` ou par listage du bucket.
+
+> **À VALIDER PAR LE FONDATEUR** : les personnes autorisent-elles une publication ?
+> Si oui → recopier vers le bucket public et remettre `path`/`url`. Sinon → laisser
+> en privé. **Rien n'est perdu.**
+
 ## [2026-10-18] — Correctif : Brașov et les itinéraires roumains repartent en repli
 
 L'entrée ci-dessous annonçait « la photo réelle du lieu » pour 5 pages. Après
@@ -352,6 +574,48 @@ en repli. `check:cms-zones` ✓, `check:cms-migrations` ✓, `typecheck` ✓.
 - Reste à faire : identifier et rattacher les 4 photos `media/articles` inutilisées et les
   8 `blog-images` (`romania-01..04`, `travel-lh-01..04`) — il faut les yeux de l'auteure ;
   les 120 zones encore en repli attendent une photo du lieu (flux Picker).
+
+## [2026-10-18] — Le Brain devient un destinataire adressable du serveur MCP `agent-tasks`
+
+`mcp/agent-tasks/server.mjs` — deux trous réels, mesurés :
+
+1. `AGENTS_CONNUS` ne contenait pas `heldonica-brain`, alors que l'agent existe
+   dans le registre (11 tâches) et que son BridgePoller tourne ;
+2. `deposer_tache` n'écrivait **ni `task_type` ni `payload`**, or le poller du
+   Brain **dispatche sur `task_type`** et lit `payload.message` : une tâche
+   déposée par ce chemin aurait été dépilée puis **ignorée en silence**.
+
+**Corrigé :**
+
+- `heldonica-brain` ajouté à `AGENTS_CONNUS` — **les 15 destinataires déjà
+  présents sont conservés** (16 au total), la liste ayant été étendue entre-temps
+  sur `main` par le commit `0cd5fff` ;
+- `deposer_tache` expose `task_type` et `payload` ;
+- garde : une tâche destinée au Brain **sans** `task_type` (ou `chat` sans
+  `payload.message`) est **refusée** au lieu d'être perdue ;
+- `README.md` du MCP : section « Parler au Brain », avec la forme exacte et le
+  fait que la réponse arrive dans `actions_done.result`.
+
+**Vérifié** (`node --check` + essai MCP en **lecture seule**, 9/9) : les 5 outils
+restent exposés, les agents de `main` sont préservés, les refus attendus se
+déclenchent, et le contrôle final compte **0 ligne écrite** dans `agent_tasks`.
+Brain vivant au `2026-10-15T20:20:28Z` (modèle `openai/gpt-oss-120b`).
+
+**Écriture réelle exercée** (sur autorisation) : une question a été déposée via ce
+serveur MCP. La ligne `726bd019-ca31-4271-833f-9c2168b65c95` porte bien
+`task_type = chat` et un `payload.message` de 544 caractères — ce que l'ancien
+code **n'écrivait pas**. Le chemin complet est donc exercé, pas seulement les refus.
+
+**Non vérifié — et pourquoi :** le Brain **n'a pas traité** la tâche. Son heartbeat
+`site_settings.brain_heartbeat` est figé au `2026-10-15T20:20:28Z`, soit ~61 h
+(seuil `online` = 120 s), et `status` est resté `sent` sur 9 tours de 20 s. Son
+BridgePoller ne tourne pas. La cause est **externe au dépôt** : le Brain est éteint
+sur la station Windows. Démarrer Heldonica Brain II (port 8440) et la tâche sera
+dépilée sous 30 s, sa réponse arrivant dans `actions_done.result`.
+
+Branche : `agent/openhands/brain-mcp-propre`, repartie de `origin/main` parce que
+la branche initiale avait 36 commits de retard — sa fusion aurait supprimé 8 agents
+ajoutés entre-temps.
 
 ## [2026-10-18] — Images : réconciliation des visuels cassés (médiathèque, articles, destinations)
 

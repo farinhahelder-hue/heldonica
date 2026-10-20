@@ -12,6 +12,7 @@ import NewsletterForm from '@/components/NewsletterForm'
 import ShareButtons from '@/components/ShareButtons'
 import EnhancedRichContent from '@/components/EnhancedRichContent'
 import { sanitizeHtml } from '@/lib/sanitize-html'
+import { markdownToHtml } from '@/lib/markdown-to-html'
 import Image from 'next/image'
 import ReadingProgress from '@/components/ReadingProgress'
 import CtaTravelPlanning from '@/components/CtaTravelPlanning'
@@ -266,7 +267,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
   const readTime = getReadingTime(post.content)
   const { articleLd, breadcrumbLd, travelLd } = buildJsonLds(post, readTime)
   const canonicalUrl = `${SITE_URL}/blog/${post.slug}`
-  const safeContent = sanitizeHtml(post.content)
+    const safeContent = sanitizeHtml(markdownToHtml(post.content))
 
   const layoutConfig = await getPageLayout('article')
   const activeBlocks = layoutConfig.filter(b => b.active).map(b => b.id)
@@ -325,7 +326,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
   )
 
   const hasBlocks = isArticleConvertedToBlocks(post.content)
-  const articleBlocks = hasBlocks ? htmlToBlocks(post.content || '') : []
+  const articleBlocks = hasBlocks ? htmlToBlocks(markdownToHtml(post.content) || '') : []
 
   const BlockContent = () => (
     <div className="mx-auto max-w-4xl px-4 py-12 md:py-16">

@@ -3,6 +3,13 @@ import TravelPlanningClient from './TravelPlanningClient'
 import { getPageZones } from '@/lib/cms-zones'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
+// Les zones de cette page sont éditées dans le CMS et lues depuis Supabase :
+// sans fenêtre de revalidation, le HTML prerendu reste fige et une correction
+// en base n'apparait jamais. Aligne sur les pages piliers (madere, roumanie,
+// montenegro = 300 s).
+export const revalidate = 300
+
+
 const metadata: Metadata = {
   title: 'Travel Planning sur mesure | Heldonica',
   description: 'On conçoit ton voyage slow travel sur mesure — itinéraire terrain, hébergements testés et suivi humain. Formules à partir de 250€. Devis gratuit.',

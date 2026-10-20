@@ -27,8 +27,17 @@ try:
     from PIL import Image
     from PIL.ExifTags import TAGS, GPSTAGS
 except ImportError:
-    print("[ERREUR] Pillow manquant : python -m pip install Pillow")
-    sys.exit(1)
+    # Ce fichier est aussi une bibliotheque : reconstituer_voyage.py en importe
+    # des fonctions pures (distance_km, MOIS_FR) et atelier_recit.py n'a besoin
+    # que de moments_photos(). Un module ne doit pas tuer le processus qui
+    # l'importe : on signale Pillow seulement quand on lit vraiment un EXIF.
+    Image = None
+    TAGS = GPSTAGS = None
+
+PILLOW_MANQUANT = (
+    "[ERREUR] Pillow manquant pour lire les metadonnees EXIF : "
+    "python -m pip install Pillow"
+)
 
 BASE_DIR = Path(__file__).resolve().parent
 DEFAULT_SRC = BASE_DIR.parent / "public" / "images" / "destinations" / "roumanie"
@@ -76,6 +85,8 @@ def _to_degrees(value):
 
 def lire_exif(path: Path):
     """Retourne (lat, lon, prise_de_vue) — chaque champ None si absent."""
+    if Image is None:
+        raise RuntimeError(PILLOW_MANQUANT)
     try:
         img = Image.open(path)
         raw = img._getexif()
@@ -166,6 +177,9 @@ def lieu_osm(lat, lon, cache):
 
 
 def main():
+    if Image is None:
+        print(PILLOW_MANQUANT)
+        sys.exit(1)
     p = argparse.ArgumentParser(description="Registre de preuves photo pour Heldonica")
     p.add_argument("--dir", default=str(DEFAULT_SRC), help="Dossier des medias")
     p.add_argument("--out", default=str(DEFAULT_OUT), help="Fichier JSON de sortie")

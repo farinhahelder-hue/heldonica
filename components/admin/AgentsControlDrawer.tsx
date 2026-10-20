@@ -62,7 +62,7 @@ export default function AgentsControlDrawer({
     setLoading(true);
     setErrorMsg(null);
     try {
-      const res = await fetch('/api/cms/agent-tasks?limit=50');
+      const res = await fetch('/api/agent-tasks?limit=50');
       if (res.ok) {
         const data = await res.json();
         setTasks(data.tasks || []);
@@ -115,10 +115,12 @@ export default function AgentsControlDrawer({
     setSuccessMsg(null);
 
     try {
-      const res = await fetch('/api/cms/agent-tasks', {
+      const res = await fetch('/api/agent-tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          action: 'deposer',
+          agent_name: 'fondateur',
           agent: selectedAgent,
           task: customTask.trim(),
           description: customDescription.trim(),
@@ -148,13 +150,14 @@ export default function AgentsControlDrawer({
   // Valider une tâche (Approbation Fondateur)
   const handleFounderValidate = async (taskId: string) => {
     try {
-      const res = await fetch('/api/cms/agent-tasks', {
-        method: 'PATCH',
+      const res = await fetch('/api/agent-tasks', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          action: 'valider',
+          agent_name: 'fondateur',
+          decision: 'accepter',
           id: taskId,
-          status: 'done',
-          validated_by: 'heldonica',
           notes: 'Validé et approuvé depuis la station de contrôle CMS',
         }),
       });

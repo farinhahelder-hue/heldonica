@@ -379,6 +379,18 @@ export async function POST(req: NextRequest) {
         notes: avant.notes ? `${avant.notes}\n${trace}` : trace,
         updated_at: maintenant,
       }
+      // `validated_by`/`validated_at` : les deux colonnes de
+      // 20260903191642_agent_tasks_governance_upgrade.sql. Sans elles, une tache
+      // `done` ne se distingue pas d'une tache close par son executant — et
+      // `done` sans validation est precisement ce que le protocole interdit.
+      // Un renvoi n'est pas une validation : on efface la trace precedente.
+      if (decision === 'accepter') {
+        corps.validated_by = 'heldonica'
+        corps.validated_at = maintenant
+      } else {
+        corps.validated_by = null
+        corps.validated_at = null
+      }
       if (decision === 'renvoyer') {
         corps.claimed_by = null
         corps.claimed_at = null

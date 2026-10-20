@@ -35,6 +35,7 @@ Usage :
 
 import argparse
 import json
+import os
 import re
 import sys
 from collections import defaultdict
@@ -46,7 +47,7 @@ sys.path.insert(0, str(BASE_DIR))
 try:
     from photos_evidence import lire_exif, distance_km, IMAGE_EXT, MOIS_FR
 except ImportError as e:  # pragma: no cover
-    print(f"[ERREUR] photos_evidence.py introuvable ou Pillow manquant ({e})")
+    print(f"[ERREUR] photos_evidence.py introuvable ({e})")
     sys.exit(1)
 
 # Un arret = des positions brutes qui restent dans ce rayon pendant au moins
@@ -404,38 +405,47 @@ def sidecar_takeout(f: Path):
 
 def lire_photos(dossier: Path):
     photos = []
-    for f in sorted(dossier.iterdir()):
-        if not f.is_file() or f.suffix.lower() not in IMAGE_EXT:
-            continue
-        lat, lon, prise = lire_exif(f)
-        source = "exif"
-        if lat is None or prise is None:
-            s_lat, s_lon, s_prise = sidecar_takeout(f)
-            if lat is None and s_lat is not None:
-                lat, lon, source = s_lat, s_lon, "takeout-json"
-            if prise is None and s_prise is not None:
-                prise, source = s_prise, "takeout-json"
-        prise_dt = None
-        if prise is not None:
-            # L'EXIF n'a pas de fuseau : on prend l'heure telle quelle, comme heure
-            # locale du lieu — c'est ce que l'appareil a ecrit. Le sidecar Takeout
-            # est en UTC (timestamp), il garde son fuseau.
-            prise_dt = prise if prise.tzinfo else prise.replace(tzinfo=timezone.utc)
-        photos.append({
-            "fichier": f.name,
-            "prise_de_vue": prise.isoformat() if prise else None,
-            "prise_dt": prise_dt,
-            "prise_fuseau_connu": prise is not None and prise.tzinfo is not None,
-            "gps": {"lat": round(lat, 6), "lon": round(lon, 6)} if lat is not None else None,
-            "source": source,
-        })
+    try:
+        for f in sorted(dossier.iterdir()):
+            if not f.is_file() or f.suffix.lower() not in IMAGE_EXT:
+                continue
+            lat, lon, prise = lire_exif(f)
+            source = "exif"
+            if lat is None or prise is None:
+                s_lat, s_lon, s_prise = sidecar_takeout(f)
+                if lat is None and s_lat is not None:
+                    lat, lon, source = s_lat, s_lon, "takeout-json"
+                if prise is None and s_prise is not None:
+                    prise, source = s_prise, "takeout-json"
+            prise_dt = None
+            if prise is not None:
+                # L'EXIF n'a pas de fuseau : on prend l'heure telle quelle, comme heure
+                # locale du lieu — c'est ce que l'appareil a ecrit. Le sidecar Takeout
+                # est en UTC (timestamp), il garde son fuseau.
+                prise_dt = prise if prise.tzinfo else prise.replace(tzinfo=timezone.utc)
+            photos.append({
+                "fichier": f.name,
+                "prise_de_vue": prise.isoformat() if prise else None,
+                "prise_dt": prise_dt,
+                "prise_fuseau_connu": prise is not None and prise.tzinfo is not None,
+                "gps": {"lat": round(lat, 6), "lon": round(lon, 6)} if lat is not None else None,
+                "source": source,
+            })
+    except RuntimeError as e:
+        print(e)
+        sys.exit(1)
     return photos
 
 
 def lire_env_local():
     """NEXT_PUBLIC_SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY depuis .env.local,
-    jamais depuis le code (regle 3)."""
-    env = {}
+    jamais depuis le code (regle 3).
+
+    Les variables deja presentes dans l'environnement ont la priorite : c'est ce
+    qui permet de lancer le script depuis un agent ou une CI, ou .env.local
+    n'existe pas (et ne doit pas exister)."""
+    env = {k: v for k, v in os.environ.items()
+           if k in ("NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY")}
     for nom in (".env.local", ".env"):
         f = Path(nom)
         if not f.exists():

@@ -10,10 +10,17 @@ import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
+// Les zones de cette page sont éditées dans le CMS et lues depuis Supabase :
+// sans fenêtre de revalidation, le HTML prerendu reste fige et une correction
+// en base n'apparait jamais. Aligne sur les pages piliers (madere, roumanie,
+// montenegro = 300 s).
+export const revalidate = 300
+
+
 const PAGE = "destinations-alentejo";
 const FAQS: { q: string; a: string }[] = [
   { q: "Quand partir dans l'Alentejo pour le slow travel ?", a: "Les meilleures périodes sont mars-mai et septembre-novembre. Températures agréables (20-28°C), vignobles en fleur ou vendanges, hors des sentiers battus." },
-  { q: "Combien de jours pour découvrir l'Alentejo ?", a: "Comptez minimum 4-5 jours pour faire Évoramonsaraz. 7-10 jours permettent d'explorer la Rota das Aldeias Históricas et les vignobles du sud." },
+  { q: "Combien de jours pour découvrir l'Alentejo ?", a: "Comptez minimum 4-5 jours pour faire Évora et Monsaraz. 7-10 jours permettent d'explorer la Rota das Aldeias Históricas et les vignobles du sud." },
   { q: "Comment se déplacer dans l'Alentejo ?", a: "Location de voiture indispensable. Les distances sont grandes et les transports en commun rares. Les routes sont bonnes, le trafic faible — idéal pour un road trip lent." },
   { q: "Budget moyen par jour dans l'Alentejo ?", a: "Comptez 70-120€/jour en milieu de gamme (hébergement + repas + activités). L'Alentejo est moins cher que le littoral Algarve." },
 ];
@@ -128,7 +135,7 @@ export default async function AlentejoPage() {
                 {Z('intro_1', 'html', "<strong className=\"text-stone-900\">La première fois</strong>, on a traversé l’Alentejo en vitesse, direction l’Algarve. Grosse erreur. On a traversé des siècles d’histoire, des plains qui donnaient le vertige, des villages où le temps semblait s’être arrêté — et on n’y a même pas posé pied.", undefined, 'span')}
               </p>
               <p className="text-stone-700 leading-relaxed">
-                {Z('intro_2', 'html', "<strong className=\"text-stone-900\">La deuxième fois</strong>, on a pris 5 jours. Juste l’Alentejo central. Évoramonsaraz, les vignobles de Vidigueira, les routes sans autre voiture à l’horizon. C’est là qu’on a compris : l’Alentejo, c’est le Portugal <em>vraiment</em>.", undefined, 'span')}
+                {Z('intro_2', 'html', "<strong className=\"text-stone-900\">La deuxième fois</strong>, on a pris 5 jours. Juste l’Alentejo central. Évora et Monsaraz, les vignobles de Vidigueira, les routes sans autre voiture à l’horizon. C’est là qu’on a compris : l’Alentejo, c’est le Portugal <em>vraiment</em>.", undefined, 'span')}
               </p>
               <p className="text-stone-700 leading-relaxed">
                 {Z('intro_3', 'html', "Ce qu’on y a trouvé : du bon vin à 3€, des restaurants de village où le patron cooking tout lui-même, des champs de liège à perte de vue, et ce silence qu’on cherche tous sans jamais oser le dire.", undefined, 'span')}
@@ -204,7 +211,7 @@ export default async function AlentejoPage() {
                   {Z('pepite_1_desc', 'textarea', "Capitale de l’Alentejo, classed UNESCO. On a aimé déambuler dans les ruelles avant 9h, visiter la chapelle des Ossements à la première heure (quasi déserte), et manger une açorda alentejana dans une tasca de la place principale.", undefined, 'span')}
                 </p>
                 <p className="text-xs text-stone-500 italic">
-                  {Z('pepite_1_verdict', 'textarea', "⭐ Verdict Heldonica : À faire le matin, avant les bus de tourists.", undefined, 'span')}
+                  {Z('pepite_1_verdict', 'textarea', "⭐ Verdict Heldonica : À faire le matin, avant les bus de touristes.", undefined, 'span')}
                 </p>
               </div>
               <div className="bg-stone-50 rounded-2xl p-6 border border-stone-100">
@@ -296,7 +303,7 @@ export default async function AlentejoPage() {
                   {Z('accom_1_desc', 'textarea', "Pour ceux qui veulent être au milieu de la plain. On a dormi dans un monte rénové près de Monsaraz — oliviers, piscine, silence total.", undefined, 'span')}
                 </p>
                 <p className="text-xs text-stone-500">
-                  {Z('accom_1_tip', 'textarea', "💡 Notre conseil : bookezminimum 3 nuits, le temps de décompresser.", undefined, 'span')}
+                  {Z('accom_1_tip', 'textarea', "💡 Notre conseil : bookez au minimum 3 nuits, le temps de décompresser.", undefined, 'span')}
                 </p>
               </div>
               <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100">
@@ -310,7 +317,7 @@ export default async function AlentejoPage() {
                   {Z('accom_2_desc', 'textarea', "À Évora ou à Monsaraz même. Pratique pour explorer à pied, et souvent dans des bâtiments historiques restaurés avec goût.", undefined, 'span')}
                 </p>
                 <p className="text-xs text-stone-500">
-                  {Z('accom_2_tip', 'textarea', "💡 Notre conseil : privilégiez les establecimientos avec petit-déjeuner inclus.", undefined, 'span')}
+                  {Z('accom_2_tip', 'textarea', "💡 Notre conseil : privilégiez les établissements avec petit-déjeuner inclus.", undefined, 'span')}
                 </p>
               </div>
               <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100">
@@ -351,7 +358,7 @@ export default async function AlentejoPage() {
                     {Z('transport_1_desc', 'html', "<strong>Indispensable.</strong> Les distances sont grandes (Évora → Monsaraz = 1h30), les taxis rares, les bus limités. Louez une petite citadine : les routes sont bonnes, le traffic quasi nul.", undefined, 'span')}
                   </p>
                   <p className="text-xs text-stone-500 mt-2">
-                    {Z('transport_1_tip', 'textarea', "💡 Notre conseil : reservez depuis Lisbonne airport, compter 30-40€/jour.", undefined, 'span')}
+                    {Z('transport_1_tip', 'textarea', "💡 Notre conseil : réservez depuis l'aéroport de Lisbonne, compter 30-40€/jour.", undefined, 'span')}
                   </p>
                 </div>
               </div>
@@ -413,7 +420,7 @@ export default async function AlentejoPage() {
                     <span className="text-eucalyptus group-open:rotate-45 transition-transform">+</span>
                   </summary>
                   <p className="mt-3 text-stone-600 text-sm leading-relaxed">
-                    {Z('faq_2_a', 'textarea', "Comptez minimum 4-5 jours pour faire Évoramonsaraz. 7-10 jours permettent d'explorer la Rota das Aldeias Históricas et les vignobles du sud.", undefined, 'span')}
+                    {Z('faq_2_a', 'textarea', "Comptez minimum 4-5 jours pour faire Évora et Monsaraz. 7-10 jours permettent d'explorer la Rota das Aldeias Históricas et les vignobles du sud.", undefined, 'span')}
                   </p>
                 </details>
                 <details key={2} className="bg-white rounded-xl p-5 border border-stone-100 group">

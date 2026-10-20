@@ -382,6 +382,57 @@ describe('POST /api/agent-tasks — validation par le fondateur', () => {
     const res = await POST(req('POST', { action: 'valider', id: UUID, decision: 'accepter' }))
     expect(res.status).toBe(409)
   })
+
+  // `validated_by`/`validated_at` : sans elles, une tâche `done` ne se distingue
+  // pas d'une tâche close par son exécutant. C'est la colonne que le protocole
+  // AGENTS.md désigne comme la preuve de validation humaine.
+  it('pose validated_by et validated_at sur une acceptation', async () => {
+    let ecrit: Record<string, unknown> | null = null
+    h.from.mockImplementationOnce(() => {
+      const q: Record<string, unknown> = {}
+      for (const m of ['eq', 'in', 'select', 'single']) q[m] = () => q
+      q.then = (resolve: (v: unknown) => unknown) =>
+        Promise.resolve({ data: { id: UUID, status: 'waiting_validation', notes: null }, error: null }).then(resolve)
+      return q
+    })
+    h.from.mockImplementationOnce(() => {
+      const q: Record<string, unknown> = {}
+      q.update = (row: Record<string, unknown>) => { ecrit = row; return q }
+      for (const m of ['eq', 'select']) q[m] = () => q
+      q.then = (resolve: (v: unknown) => unknown) =>
+        Promise.resolve({ data: [{ id: UUID, agent: 'jules', status: 'done', task: 'Corriger les liens' }], error: null }).then(resolve)
+      return q
+    })
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'valider', id: UUID, decision: 'accepter' }))
+    expect(res.status).toBe(200)
+    expect(ecrit!.validated_by).toBe('heldonica')
+    expect(typeof ecrit!.validated_at).toBe('string')
+  })
+
+  it('efface validated_by quand la tâche est renvoyée (un renvoi n’est pas une validation)', async () => {
+    let ecrit: Record<string, unknown> | null = null
+    h.from.mockImplementationOnce(() => {
+      const q: Record<string, unknown> = {}
+      for (const m of ['eq', 'in', 'select', 'single']) q[m] = () => q
+      q.then = (resolve: (v: unknown) => unknown) =>
+        Promise.resolve({ data: { id: UUID, status: 'blocked', notes: null }, error: null }).then(resolve)
+      return q
+    })
+    h.from.mockImplementationOnce(() => {
+      const q: Record<string, unknown> = {}
+      q.update = (row: Record<string, unknown>) => { ecrit = row; return q }
+      for (const m of ['eq', 'select']) q[m] = () => q
+      q.then = (resolve: (v: unknown) => unknown) =>
+        Promise.resolve({ data: [{ id: UUID, agent: 'jules', status: 'sent', task: 'Corriger les liens' }], error: null }).then(resolve)
+      return q
+    })
+    const { POST } = await route()
+    const res = await POST(req('POST', { action: 'valider', id: UUID, decision: 'renvoyer' }))
+    expect(res.status).toBe(200)
+    expect(ecrit!.validated_by).toBeNull()
+    expect(ecrit!.validated_at).toBeNull()
+  })
 })
 
 describe('POST /api/agent-tasks — niveau de risque', () => {
