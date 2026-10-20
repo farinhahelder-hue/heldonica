@@ -2,6 +2,34 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-20] — Lot 2 : le cache ISR servait encore l'ancien texte 10 h après la correction
+
+- **Symptôme.** Sept mots bannis purgés en base le 20/10 (lot 2) restaient servis
+  par la production. Base propre, mais `x-vercel-cache: HIT`, `age ≈ 38 000 s`.
+  Un query string (`?v=1`, `?nocache=`) ne contourne pas le cache Vercel.
+- **Cause racine.** Les pages destinations étaient prérendues **statiques sans
+  `export const revalidate`** (build : `○` sans colonne Revalidate) → mises en
+  cache **pour toujours**. Le CMS appelle `revalidateCmsTarget()` (`lib/revalidate.ts`)
+  à chaque écriture, mais **revalider une page qui n'expire jamais ne fait rien**.
+  La purge du lot 2 étant passée par SQL direct, elle n'a déclenché aucune
+  revalidation. Portée réelle : *toute* correction CMS sur ces pages restait
+  invisible jusqu'au prochain déploiement — et rien ne le signalait.
+- **Corrigé.** `app/destinations/layout.tsx` : `revalidate = 300`. Next.js fait
+  descendre la fenêtre d'un layout vers ses enfants : **un seul fichier couvre les
+  ~70 pages** du segment (vérifié au build, `5m` au lieu de figé). Plus 10 pages
+  publiques lisant le CMS (`guides`, `guides/merci`, `guides/top-10-pepites-madere`,
+  `contact`, `expert-hotelier`, `mentions-legales`, `politique-affiliation`,
+  `politique-confidentialite`, `start`, `travel-planning`). `app/maintenance`
+  exempté : piloté par `site_settings.maintenance_mode`, pas par l'éditorial.
+- **Garde-fou.** `scripts/check-cms-cache.mjs` (statique, ~1 s) : une page prérendue
+  qui lit le CMS doit avoir une fenêtre, la sienne ou celle d'un layout parent.
+  **Vérifié par échec** — correctif retiré, 59 pages signalées. Câblé `preflight`
+  (8 contrôles) et `garde-fous` (14 contrôles ; la table de `AGENTS.md` annonçait
+  « 12 » et omettait déjà `content-pages`, corrigée à 14).
+- **Vérifié.** `tsc` 0 ; `vitest run` **858/858** (3 runs) ; `preflight` 8/8 ;
+  build local `/destinations/alentejo` et `/destinations/portugal` → `circuit=0 |
+  sentiers battus=4`. PR #663.
+
 ## [2026-10-20] — Audit éditorial, lot 1 : 6 articles publiés affichaient leur markdown en clair
 
 - **Méthode** : source de vérité = Supabase production ; le site rend son contenu
