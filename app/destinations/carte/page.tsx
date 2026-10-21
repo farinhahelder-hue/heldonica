@@ -37,13 +37,20 @@ const metadata: Metadata = {
   },
 };
 
+import { getPageZones } from '@/lib/cms-zones';
+
+export const revalidate = 300;
+
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata('destinations-carte', metadata)
 }
 
 
 export default async function MapPage() {
-  const markers = await getDestinationMarkers();
+  const [markers, zones] = await Promise.all([
+    getDestinationMarkers(),
+    getPageZones('destinations-carte'),
+  ]);
 
   return (
     <>
@@ -68,7 +75,7 @@ export default async function MapPage() {
           </ol>
         </div>
       </nav>
-      <MapClientPage markers={markers} />
+      <MapClientPage markers={markers} initialZones={zones} />
     </>
   );
 }

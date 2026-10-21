@@ -27,7 +27,13 @@ const categoryLabels: Record<DestinationMarker['category'], string> = {
  * la page. Ce composant ne connaît plus de jeu de données par défaut : si la
  * base est injoignable, la carte est vide — et ça se voit.
  */
-export default function MapClientPage({ markers }: { markers: DestinationMarker[] }) {
+export default function MapClientPage({
+  markers,
+  initialZones,
+}: {
+  markers: DestinationMarker[];
+  initialZones?: Record<string, string>;
+}) {
   const [countryFilter, setCountryFilter] = useState('all');
   const [regionFilter, setRegionFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState<DestinationMarker['category'] | 'all'>('all');
@@ -63,7 +69,7 @@ export default function MapClientPage({ markers }: { markers: DestinationMarker[
     <>
       <Header />
       <main>
-        <InlineEditProvider page="destinations-carte">
+        <InlineEditProvider page="destinations-carte" initialZones={initialZones}>
         {/* Hero Section */}
         <section className="bg-gradient-to-br from-cloud-dancer to-white py-16 md:py-24">
           <div className="container">

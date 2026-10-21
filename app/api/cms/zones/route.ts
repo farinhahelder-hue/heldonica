@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireCmsAuth } from '@/lib/cms-auth';
 import { revalidateCmsTarget } from '@/lib/revalidate';
+import { unstable_cache, revalidateTag } from 'next/cache';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
@@ -27,17 +28,14 @@ export interface CmsZonesResponse {
   byPage: Record<string, Record<string, CmsZone>>;
 }
 
-// GET /api/cms/zones - lecture publique des zones actives
-// Query params: ?page=global (optionnel, défaut: toutes)
-export async function GET(req: NextRequest) {
-  if (!supabase) {
-    return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
-  }
+/**
+ * Cache l'accès aux zones pour éviter de requêter Supabase en boucle.
+ * Revalidé automatiquement au bout de 300s ou sur action CMS via revalidateTag('cms-zones').
+ */
+const fetchZonesCached = unstable_cache(
+  async (page: string | null): Promise<CmsZonesResponse | null> => {
+    if (!supabase) return null;
 
-  const { searchParams } = new URL(req.url);
-  const page = searchParams.get('page'); // 'global', 'home', etc.
-
-  try {
     let query = supabase
       .from('cms_editable_zones')
       .select('id, page, zone_key, zone_type, value, is_active')
@@ -53,7 +51,7 @@ export async function GET(req: NextRequest) {
 
     if (error) {
       console.error('Error fetching zones:', error.message);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return null;
     }
 
     // Organiser par clé et par page — clé plate page__zone_key pour éviter collision inter-pages
@@ -61,17 +59,35 @@ export async function GET(req: NextRequest) {
     const byPage: Record<string, Record<string, CmsZone>> = {};
 
     (data || []).forEach((zone: CmsZone) => {
-      // Index plat sans collision (même zone_key sur 2 pages → 2 entrées distinctes)
       zones[`${zone.page}__${zone.zone_key}`] = zone;
-      
-      // Index par page > zone_key
       if (!byPage[zone.page]) {
         byPage[zone.page] = {};
       }
       byPage[zone.page][zone.zone_key] = zone;
     });
 
-    const response: CmsZonesResponse = { zones, byPage };
+    return { zones, byPage };
+  },
+  ['cms-zones-api-v1'],
+  { revalidate: 300, tags: ['cms-zones'] }
+);
+
+// GET /api/cms/zones - lecture publique des zones actives
+// Query params: ?page=global (optionnel, défaut: toutes)
+export async function GET(req: NextRequest) {
+  if (!supabase) {
+    return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
+  }
+
+  const { searchParams } = new URL(req.url);
+  const page = searchParams.get('page'); // 'global', 'home', etc.
+
+  try {
+    const response = await fetchZonesCached(page);
+
+    if (!response) {
+      return NextResponse.json({ error: 'Failed to fetch zones' }, { status: 500 });
+    }
 
     return NextResponse.json(response, {
       headers: {

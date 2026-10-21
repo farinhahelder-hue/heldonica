@@ -20,9 +20,10 @@ type Testimonial = {
 
 type Props = {
   testimonials: Testimonial[];
+  initialZones?: Record<string, string>;
 };
 
-export default function TemoignagesClient({ testimonials }: Props) {
+export default function TemoignagesClient({ testimonials, initialZones }: Props) {
   const displayTestimonials = testimonials.length > 0
     ? testimonials.slice(0, 4).map((t, i) => ({
         zone: `testimonial_${i + 1}`,
@@ -34,7 +35,7 @@ export default function TemoignagesClient({ testimonials }: Props) {
     : [];
 
   return (
-    <InlineEditProvider page="temoignages">
+    <InlineEditProvider page="temoignages" initialZones={initialZones}>
       <main>
         <section className="bg-gradient-to-br from-cloud-dancer to-white py-20 md:py-28">
           <div className="container">

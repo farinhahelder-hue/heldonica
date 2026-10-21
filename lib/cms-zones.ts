@@ -17,9 +17,33 @@
 
 import { createServiceClient } from '@/lib/supabase'
 import { getTargetedZoneVariants, TargetingContext } from '@/lib/cms-targeting'
+import { unstable_cache } from 'next/cache'
 
 /** Clé plate `page__zone_key`, format attendu par InlineEditProvider. */
 export type ZoneMap = Record<string, string>
+
+/**
+ * Cache la lecture brute des zones d'une page pour éviter de surcharger
+ * Supabase à chaque appel SSR ou revalidation ISR.
+ */
+const getCachedRawZones = unstable_cache(
+  async (page: string) => {
+    const supabase = createServiceClient()
+    const { data, error } = await supabase
+      .from('cms_editable_zones')
+      .select('page, zone_key, value')
+      .eq('page', page)
+      .eq('is_active', true)
+
+    if (error) {
+      console.error(`[CMS zones] Erreur de lecture pour la page "${page}":`, error.message)
+      return []
+    }
+    return data ?? []
+  },
+  ['cms-page-zones-raw'],
+  { revalidate: 300, tags: ['cms-zones'] }
+)
 
 /**
  * Charge les zones actives d'une page avec prise en compte optionnelle du ciblage déclaratif.
@@ -36,17 +60,7 @@ export type ZoneMap = Record<string, string>
  */
 export async function getPageZones(page: string, context?: TargetingContext): Promise<ZoneMap> {
   try {
-    const supabase = createServiceClient()
-    const { data, error } = await supabase
-      .from('cms_editable_zones')
-      .select('page, zone_key, value')
-      .eq('page', page)
-      .eq('is_active', true)
-
-    if (error) {
-      console.error(`[CMS zones] Erreur de lecture pour la page "${page}":`, error.message)
-      return {}
-    }
+    const data = await getCachedRawZones(page)
 
     const map: ZoneMap = {}
     for (const row of data ?? []) {
