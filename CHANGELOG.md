@@ -2,6 +2,26 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-21] — Heartbeat Brain : écrire seulement quand l'état change
+
+- **Le battement réécrivait une ligne identique toutes les ~60 s.** Mesure
+  `pg_stat_statements` sur 13,5 jours : l'upsert `brain_heartbeat` dans
+  `site_settings` représentait **2 751 des 4 797 blocs écrits de la base (57 %)**,
+  pour une valeur inchangée la plupart du temps. La table compte 207 lignes et
+  **aucun autovacuum ne l'a jamais nettoyée**.
+- **Correctif** (`app/api/brain/heartbeat/route.ts`) : lecture du battement
+  précédent, puis écriture **seulement si** la signature de l'état a changé
+  (mesures arrondies par pas de 5 %, donc un bruit de virgule flottante ne
+  déclenche rien), **ou** si `last_seen` a plus de **90 s** — sous le seuil de
+  120 s de `/api/brain/status`, pour que le Brain ne passe jamais « hors ligne »
+  par économie. Un échec de lecture n'empêche pas l'écriture : un battement muet
+  serait pire qu'un battement redondant.
+- **6 tests** ajoutés (`__tests__/api/brain-bridge.test.ts`) : première écriture,
+  état identique, bruit de mesure, champ modifié, précédent périmé, lecture en
+  échec. Le harnais gagne une file de résultats pour distinguer une lecture d'une
+  écriture dans le même appel.
+- **Vérifié** : `27/27` sur ce fichier, `14/14` garde-fous.
+
 ## [2026-10-21] — Disk IO Supabase : cause mesurée, index FK et RLS corrigés
 
 - **Le diagnostic était faux, la mesure l'a montré.** On soupçonnait la taille des

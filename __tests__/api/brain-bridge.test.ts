@@ -12,18 +12,21 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 const h = vi.hoisted(() => {
   // Résultat renvoyé par la prochaine requête simulée.
-  const state: { result: unknown } = { result: { data: null, error: null } }
+  const state: { result: unknown; queue: unknown[] } = { result: { data: null, error: null }, queue: [] }
 
   // Chaîne Supabase « thenable » : toutes les méthodes renvoient le même
-  // builder, et l'attendre (`await`) résout sur le résultat courant.
+  // builder, et l'attendre (`await`) résout sur le résultat courant. `queue`
+  // permet de donner des résultats distincts à des requêtes successives —
+  // indispensable pour distinguer une lecture d'une écriture dans un même appel.
   const makeQuery = (result: unknown) => {
     const q: Record<string, unknown> = {}
     for (const m of ['select', 'eq', 'order', 'range', 'update', 'insert', 'upsert']) {
       q[m] = () => q
     }
-    q.single = async () => result
-    q.maybeSingle = async () => result
-    q.then = (resolve: (v: unknown) => unknown) => Promise.resolve(result).then(resolve)
+    const prochain = () => (state.queue.length ? state.queue.shift() : result)
+    q.single = async () => prochain()
+    q.maybeSingle = async () => prochain()
+    q.then = (resolve: (v: unknown) => unknown) => Promise.resolve(prochain()).then(resolve)
     return q
   }
 
@@ -58,6 +61,7 @@ const env = { ...process.env }
 beforeEach(() => {
   vi.resetModules()
   h.state.result = { data: null, error: null }
+  h.state.queue = []
   process.env.NEXT_PUBLIC_SUPABASE_URL = 'http://supabase.test'
   process.env.SUPABASE_SERVICE_ROLE_KEY = 'service-role-test'
   process.env.BRAIN_BRIDGE_TOKEN = BRIDGE_TOKEN
@@ -239,5 +243,80 @@ describe('heartbeat + status', () => {
     const { GET } = await import('@/app/api/brain/status/route')
     const res = await GET(new Request(URL + '/status', { headers: bearer() }))
     expect((await res.json()).online).toBe(false)
+  })
+})
+
+describe('heartbeat — ecriture conditionnelle (Disk IO)', () => {
+  // Le battement ne doit plus reecrire la ligne quand rien n'a change : c'etait
+  // 57 % des blocs ecrits de la base (mesure pg_stat_statements du 21/10/2026).
+  const bat = (payload: Record<string, unknown>) =>
+    post(URL + '/heartbeat', JSON.stringify(payload))
+
+  it('ecrit quand aucun battement precedent n\'existe', async () => {
+    h.state.result = { data: null, error: null }
+    const { POST } = await import('@/app/api/brain/heartbeat/route')
+    const res = await POST(bat({ cpu_percent: 10, ram_percent: 20, active_tasks: 0 }))
+    expect(res.status).toBe(200)
+    expect((await res.json()).ecrit).toBe(true)
+  })
+
+  it('n\'ecrit PAS quand l\'etat est identique et recent', async () => {
+    const recent = new Date().toISOString()
+    h.state.result = {
+      data: { value: JSON.stringify({ cpu_percent: 10, ram_percent: 20, active_tasks: 0, last_seen: recent }) },
+      error: null,
+    }
+    const { POST } = await import('@/app/api/brain/heartbeat/route')
+    const res = await POST(bat({ cpu_percent: 10, ram_percent: 20, active_tasks: 0 }))
+    expect(res.status).toBe(200)
+    expect((await res.json()).ecrit).toBe(false)
+  })
+
+  it('ignore un bruit de mesure : 10 % et 12 % ont la meme signature', async () => {
+    const recent = new Date().toISOString()
+    h.state.result = {
+      data: { value: JSON.stringify({ cpu_percent: 10, ram_percent: 20, last_seen: recent }) },
+      error: null,
+    }
+    const { POST } = await import('@/app/api/brain/heartbeat/route')
+    const res = await POST(bat({ cpu_percent: 12, ram_percent: 20 }))
+    expect((await res.json()).ecrit).toBe(false)
+  })
+
+  it('ecrit quand un champ change (active_tasks)', async () => {
+    const recent = new Date().toISOString()
+    h.state.result = {
+      data: { value: JSON.stringify({ active_tasks: 0, last_seen: recent }) },
+      error: null,
+    }
+    const { POST } = await import('@/app/api/brain/heartbeat/route')
+    const res = await POST(bat({ active_tasks: 3 }))
+    expect((await res.json()).ecrit).toBe(true)
+  })
+
+  it('ecrit quand le precedent est trop vieux (garde le statut en ligne)', async () => {
+    // Seuil de /api/brain/status : 120 s. On ecrit au plus tard a 90 s.
+    const vieux = new Date(Date.now() - 95_000).toISOString()
+    h.state.result = {
+      data: { value: JSON.stringify({ cpu_percent: 10, last_seen: vieux }) },
+      error: null,
+    }
+    const { POST } = await import('@/app/api/brain/heartbeat/route')
+    const res = await POST(bat({ cpu_percent: 10 }))
+    expect((await res.json()).ecrit).toBe(true)
+  })
+
+  it('ecrit si la lecture du precedent echoue (jamais de silence)', async () => {
+    // La lecture echoue, mais l'ecriture doit passer : un battement qui
+    // s'abstient parce qu'il n'a pas pu lire ferait passer le Brain hors ligne.
+    h.state.result = { data: null, error: null }
+    h.state.queue = [
+      { data: null, error: { message: 'lecture impossible' } },
+      { data: null, error: null },
+    ]
+    const { POST } = await import('@/app/api/brain/heartbeat/route')
+    const res = await POST(bat({ cpu_percent: 10 }))
+    expect(res.status).toBe(200)
+    expect((await res.json()).ecrit).toBe(true)
   })
 })
