@@ -2,6 +2,32 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-21] — Le « carnet » atteint les pages secondaires : `/a-propos` et `/travel-planning`
+
+- **Le trou : la passe du 20/10 s'était arrêtée à l'accueil.** Elle avait touché
+  `HomeClient`, `Header`, `Footer`, `DestinationCard` et `DestinationsClient`, mais
+  `/a-propos` et `/travel-planning` gardaient le vocabulaire IA/SaaS
+  (`bg-white`, `bg-stone-50`, `rounded-2xl`, `rounded-full`, `shadow-sm/lg`) et des
+  emojis en guise d'icônes (🐢 ✨ 🎯 🗺️ 📖 🎁 🕰️ 🧭 💍 🏡 📞 ✉️).
+- **Fonds et encres papier (`app/a-propos/page.tsx`, `app/travel-planning/TravelPlanningClient.tsx`)** :
+  `#F7F3EC` / `#EFE9DF` / `#FAF7F2` pour les surfaces, `#241D1A` / `#2A1D18` pour
+  l'encre, filets lin `#DED5C6` / `#E2D9C8`, `rounded-sm`, petites capitales
+  `tracking-[0.16–0.22em]`, titres `font-serif` en graisse régulière.
+- **Icônes au trait au lieu des emojis** : `lucide-react` (déjà dans le projet),
+  `strokeWidth={1.25}` — cohérent avec le monogramme `public/logo.svg` (trait 1.4 px).
+  `Footprints`, `Feather`, `PenTool`, `BookOpen`, `Map`, `Gift` sur `/a-propos` ;
+  `Clock`, `Compass`, `Gem`, `Map`, `BedDouble`, `PhoneCall`, `Mail`, `Check` sur
+  `/travel-planning`. Plus un seul emoji visible sur les deux pages.
+- **Tics « IA » retirés** : encadrés colorés à coins ronds, dégradés
+  (`bg-gradient-to-*`), ombres lourdes, boutons pilule `rounded-full` et survols
+  qui translatent (`hover:-translate-y-1`, `hover:shadow-2xl`). Les CTA passent en
+  petites capitales sur `rounded-sm`.
+- **Zones CMS préservées à l'identique** : 29 `EditableZone` sur `/a-propos`,
+  41 sur `/travel-planning`, mêmes clés — aucun contenu éditable perdu.
+- **Pas de variante `dark:` ajoutée** : `HomeClient` laisse volontairement ses 11
+  sections papier sans variante sombre, et `ThemeToggle` n'est rendu nulle part
+  côté public. On suit la référence plutôt que d'inventer un traitement isolé.
+
 ## [2026-10-20] — Direction artistique « Carnet de route imprimé » (branche `agent/gemini/design-organique-humain`)
 
 - **Papier coton chaud & grain analogique (`app/globals.css`)** : abandon des fonds blancs cliniques (`#FFFFFF`) et gris froids (`stone-50`) au profit d'un papier coton ivoire chaud (`#F7F3EC`) et sable (`#EFE9DF`), d'une encre chaude (`#2A2522`), d'un grain papier SVG subtil (`feTurbulence` à `opacity: 0.024`) et de titres `Playfair Display` en graisse régulière (`font-weight: 400`) façon revue imprimée (*Kinfolk* / *Cereal* / *Bouts du Monde*).
