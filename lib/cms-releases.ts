@@ -10,9 +10,11 @@
  * - Audit systématique de chaque publication.
  */
 
-import { supabase } from '@/lib/supabase-client';
+import { createServiceClient, isServiceClientConfigured } from '@/lib/supabase';
 import { CmsUser } from '@/lib/cms-access';
 import { logCmsAudit } from '@/lib/cms-audit';
+
+const supabase = createServiceClient();
 
 export type ReleaseStatus = 'draft' | 'scheduled' | 'publishing' | 'published' | 'cancelled';
 
@@ -51,7 +53,7 @@ export async function createRelease(params: {
     return { success: false, error: 'Le titre de la release est obligatoire.' };
   }
 
-  if (!supabase) {
+  if (!isServiceClientConfigured()) {
     return { success: false, error: 'Client Supabase non initialisé.' };
   }
 
@@ -84,7 +86,7 @@ export async function createRelease(params: {
  * Liste les releases existantes.
  */
 export async function listReleases(): Promise<{ success: boolean; releases: CmsRelease[]; error?: string }> {
-  if (!supabase) {
+  if (!isServiceClientConfigured()) {
     return { success: false, releases: [], error: 'Client Supabase non initialisé.' };
   }
 
@@ -108,7 +110,7 @@ export async function addItemsToRelease(
   releaseId: string,
   newItems: ReleaseItem[]
 ): Promise<{ success: boolean; error?: string }> {
-  if (!supabase) {
+  if (!isServiceClientConfigured()) {
     return { success: false, error: 'Client Supabase non initialisé.' };
   }
 
@@ -154,7 +156,7 @@ export async function executeReleasePublication(
   releaseId: string,
   user: CmsUser
 ): Promise<{ success: boolean; publishedCount: number; errors: string[] }> {
-  if (!supabase) {
+  if (!isServiceClientConfigured()) {
     return { success: false, publishedCount: 0, errors: ['Client Supabase non initialisé.'] };
   }
 

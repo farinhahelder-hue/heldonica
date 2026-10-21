@@ -4,9 +4,11 @@
  * Règle AGENTS.md : zéro donnée inventée, typage strict, gestion des erreurs Supabase.
  */
 
-import { supabase } from '@/lib/supabase-client';
+import { createServiceClient, isServiceClientConfigured } from '@/lib/supabase';
 import { canPublish, CmsUser, SYSTEM_ADMIN_USER } from '@/lib/cms-access';
 import { logCmsAudit } from '@/lib/cms-audit';
+
+const supabase = createServiceClient();
 
 export type HospitalityStatus = 'draft' | 'waiting_review' | 'approved' | 'published';
 export type AccommodationType = 'chambre_hotes' | 'gite_charme' | 'hotel_independant' | 'cabane_insolite';
@@ -104,7 +106,7 @@ export function validateAccommodation(data: Partial<Accommodation>): string[] {
  * Récupère tous les hébergements avec filtre optionnel sur le statut.
  */
 export async function getAccommodations(statusFilter?: HospitalityStatus): Promise<Accommodation[]> {
-  if (!supabase) return [];
+  if (!isServiceClientConfigured()) return [];
   let query = supabase.from('cms_accommodations').select('*').order('created_at', { ascending: false });
 
   if (statusFilter) {
@@ -136,7 +138,7 @@ export async function createAccommodation(
     return { success: false, errors };
   }
 
-  if (!supabase) {
+  if (!isServiceClientConfigured()) {
     return { success: false, errors: ['Supabase non disponible'] };
   }
 
@@ -181,7 +183,7 @@ export async function submitAccommodationForReview(
   id: string,
   user?: CmsUser
 ): Promise<{ success: boolean; error?: string }> {
-  if (!supabase) return { success: false, error: 'Supabase non configuré' };
+  if (!isServiceClientConfigured()) return { success: false, error: 'Supabase non configuré' };
 
   const { data: current, error: getErr } = await supabase
     .from('cms_accommodations')
@@ -229,7 +231,7 @@ export async function publishAccommodation(
     };
   }
 
-  if (!supabase) return { success: false, error: 'Supabase non configuré' };
+  if (!isServiceClientConfigured()) return { success: false, error: 'Supabase non configuré' };
 
   const { data: current, error: getErr } = await supabase
     .from('cms_accommodations')

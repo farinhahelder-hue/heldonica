@@ -10,9 +10,15 @@
  * - Audit systématique de chaque rollback.
  */
 
-import { supabase } from '@/lib/supabase-client';
+import { createServiceClient, isServiceClientConfigured } from '@/lib/supabase';
 import { CmsUser } from '@/lib/cms-access';
 import { logCmsAudit } from '@/lib/cms-audit';
+
+// Les revisions d'articles ne sont jamais publiques : elles sont lues et ecrites
+// uniquement depuis des routes serveur deja authentifiees (requireCmsAuth).
+// La table est fermee au role `anon` (migration 20261021150000), donc ces
+// operations passent par le client service_role.
+const supabase = createServiceClient();
 
 export interface PostRevision {
   id: string;
@@ -43,7 +49,7 @@ export async function savePostRevision(
   user?: CmsUser,
   label?: string
 ): Promise<{ success: boolean; revisionId?: string; error?: string }> {
-  if (!supabase) return { success: false, error: 'Supabase non configuré.' };
+  if (!isServiceClientConfigured()) return { success: false, error: 'Supabase non configuré.' };
 
   const payload = {
     post_id: String(post.id),
@@ -89,7 +95,7 @@ export async function getPostRevisions(postId: string | number): Promise<{
   revisions: PostRevision[];
   error?: string;
 }> {
-  if (!supabase) return { success: false, revisions: [], error: 'Supabase non configuré.' };
+  if (!isServiceClientConfigured()) return { success: false, revisions: [], error: 'Supabase non configuré.' };
 
   const { data, error } = await supabase
     .from('cms_post_revisions')
@@ -114,7 +120,7 @@ export async function restorePostRevision(
   revisionId: string,
   user: CmsUser
 ): Promise<{ success: boolean; error?: string }> {
-  if (!supabase) return { success: false, error: 'Supabase non configuré.' };
+  if (!isServiceClientConfigured()) return { success: false, error: 'Supabase non configuré.' };
 
   // 1. Lire la révision cible
   const { data: revision, error: revErr } = await supabase
