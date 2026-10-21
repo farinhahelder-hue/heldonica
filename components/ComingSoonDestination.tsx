@@ -24,6 +24,7 @@ interface ComingSoonDestinationProps {
 const HERO_FALLBACK_DEFAULT = '/og-default.jpg'
 
 import { getStyleLabel } from '@/lib/travel-styles'
+import CmsIcon from '@/components/ui/CmsIcon'
 
 function formatBudget(amount?: number): string {
   if (!amount) return ''
@@ -97,7 +98,7 @@ export default function ComingSoonDestination({
 
         <section className="bg-cloud-dancer py-20 md:py-28">
           <div className="container max-w-2xl text-center">
-            <p className="text-4xl mb-6">🗺️</p>
+            <p className="mb-6 flex justify-center text-eucalyptus"><CmsIcon value="Map" size={40} /></p>
             <h2 className="text-3xl font-serif text-mahogany mb-4">
               {/* Le nom tel quel : en minuscules, il donnait « le guide grèce ». */}
               <EditableZone page={`destinations-${slug}`} zone="section_title" fallback={`On prépare le guide ${title} — à notre façon.`} />

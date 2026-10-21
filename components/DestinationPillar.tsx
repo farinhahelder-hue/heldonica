@@ -4,6 +4,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import Script from 'next/script'
+import CmsIcon from '@/components/ui/CmsIcon'
+import StarRating from '@/components/ui/StarRating'
 import DestinationJsonLd from '@/components/seo/DestinationJsonLd'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
@@ -84,9 +86,9 @@ export default function DestinationPillar({
             )}
             <p className="text-white/80 max-w-2xl text-lg leading-relaxed mb-6">{data.tagline}</p>
             <div className="flex flex-wrap gap-2 mb-6">
-              <span className="rounded-full bg-eucalyptus/20 text-eucalyptus text-xs font-semibold px-3 py-1.5 border border-eucalyptus/30">📅 {data.season}</span>
-              <span className="rounded-full bg-teal/20 text-teal text-xs font-semibold px-3 py-1.5 border border-teal/30">💰 ~{data.budget}€/sem/couple</span>
-              <span className="rounded-full bg-teal/20 text-teal text-xs font-semibold px-3 py-1.5 border border-teal/30">🌿 Slow travel</span>
+              <span className="rounded-full bg-eucalyptus/20 text-eucalyptus text-xs font-semibold px-3 py-1.5 border border-eucalyptus/30 inline-flex items-center gap-1.5"><CmsIcon value="CalendarDays" size={14} /> {data.season}</span>
+              <span className="rounded-full bg-teal/20 text-teal text-xs font-semibold px-3 py-1.5 border border-teal/30 inline-flex items-center gap-1.5"><CmsIcon value="Coins" size={14} /> ~{data.budget}€/sem/couple</span>
+              <span className="rounded-full bg-teal/20 text-teal text-xs font-semibold px-3 py-1.5 border border-teal/30 inline-flex items-center gap-1.5"><CmsIcon value="Leaf" size={14} /> Slow travel</span>
             </div>
             <div className="flex flex-wrap gap-3">
               <GuideDownloadButton slug={data.slug} title={data.name} />
@@ -160,7 +162,7 @@ export default function DestinationPillar({
                       href={`/destinations/${data.slug}/${sub.slug}`}
                       className="group p-5 rounded-2xl bg-stone-50 border border-stone-100 hover:border-eucalyptus/30 hover:bg-eucalyptus/5 transition-all duration-300 flex flex-col h-full"
                     >
-                      <span className="text-3xl mb-3 block">{sub.emoji}</span>
+                      <span className="mb-3 block text-eucalyptus"><CmsIcon value={sub.emoji} size={30} /></span>
                       <h3 className="font-serif font-bold text-stone-900 group-hover:text-eucalyptus transition-colors mb-2">
                         {sub.title}
                       </h3>
@@ -221,7 +223,7 @@ export default function DestinationPillar({
                     <ul className="space-y-1 mb-2">
                       {day.activities.map((a, i) => <li key={i} className="text-sm text-charcoal/70 flex items-start gap-2 before:content-['•'] before:text-teal before:font-bold"> {a}</li>)}
                     </ul>
-                    {day.tip && <p className="text-xs text-eucalyptus italic">💡 On a testé : {day.tip}</p>}
+                    {day.tip && <p className="text-xs text-eucalyptus italic inline-flex items-start gap-1.5"><CmsIcon value="Lightbulb" size={14} className="mt-0.5 shrink-0" /> <span>On a testé : {day.tip}</span></p>}
                     {day.articleSlug && (
                       <Link href={`/blog/${day.articleSlug}`} className="text-xs font-semibold text-teal hover:underline mt-1 inline-block">
                         → Lire le carnet associé
@@ -428,19 +430,19 @@ export default function DestinationPillar({
                 <tbody className="text-charcoal/70">
                   <tr className="border-b border-stone-100 bg-eucalyptus/5">
                     <td className="py-3 pr-4 font-medium text-eucalyptus">{data.season}</td>
-                    <td className="py-3 px-2 text-center">⭐⭐⭐⭐⭐</td>
+                    <td className="py-3 px-2 text-center"><StarRating value={5} /></td>
                     <td className="py-3 px-2 text-center">Modérée</td>
                     <td className="py-3 pl-4 text-eucalyptus font-medium">✓ Idéal</td>
                   </tr>
                   <tr className="border-b border-stone-100">
                     <td className="py-3 pr-4 font-medium">Juillet–août</td>
-                    <td className="py-3 px-2 text-center">⭐⭐⭐⭐</td>
+                    <td className="py-3 px-2 text-center"><StarRating value={4} /></td>
                     <td className="py-3 px-2 text-center text-red-400">Forte</td>
                     <td className="py-3 pl-4">À éviter pour slow travel</td>
                   </tr>
                   <tr>
                     <td className="py-3 pr-4 font-medium">Nov–mars</td>
-                    <td className="py-3 px-2 text-center">⭐⭐</td>
+                    <td className="py-3 px-2 text-center"><StarRating value={2} /></td>
                     <td className="py-3 px-2 text-center">Faible</td>
                     <td className="py-3 pl-4">Court séjour possible</td>
                   </tr>

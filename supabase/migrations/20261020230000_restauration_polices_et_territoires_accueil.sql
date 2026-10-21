@@ -14,15 +14,17 @@ SET value = 'DM Sans', updated_at = NOW()
 WHERE key = 'font_body'
   AND value IN ('Source Sans 3', 'Source+Sans+3', '');
 
+-- Lot 2 : les icones de pilier sont desormais des noms d'icone lucide, jamais
+-- un emoji (voir lib/cms-icons.ts, lib/icon-registry.ts).
 UPDATE public.site_settings
-SET value = '🌿', updated_at = NOW()
+SET value = 'Leaf', updated_at = NOW()
 WHERE key = 'pillar_2_icon'
-  AND value LIKE '% replacement %' OR (key = 'pillar_2_icon' AND value = '');
+  AND (value LIKE '% replacement %' OR value = '' OR value = '🌿');
 
 UPDATE public.site_settings
-SET value = '🤝', updated_at = NOW()
+SET value = 'HeartHandshake', updated_at = NOW()
 WHERE key = 'pillar_3_icon'
-  AND value = '';
+  AND (value = '' OR value = '🤝');
 
 -- Désactiver sur l'accueil les destinations en « Bientôt » sans photo vérifiée
 UPDATE public.cms_home_destinations

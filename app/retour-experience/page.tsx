@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumb from '@/components/Breadcrumb';
+import CmsIcon from '@/components/ui/CmsIcon'
 
 export default function RetourExperiencePage() {
   const [formData, setFormData] = useState({
@@ -62,7 +63,7 @@ export default function RetourExperiencePage() {
 
             {status === 'success' ? (
               <div className="p-6 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 space-y-3 animate-in fade-in duration-300">
-                <div className="text-2xl">🌿</div>
+                <div className="text-eucalyptus"><CmsIcon value="Leaf" size={24} /></div>
                 <h3 className="font-bold text-lg font-serif">Merci pour votre retour précieux !</h3>
                 <p className="text-sm text-emerald-800 leading-relaxed">
                   Votre témoignage a bien été transmis. On le relit avec attention avant de le publier sur le site pour inspirer de futurs couples de voyageurs.
@@ -129,11 +130,11 @@ export default function RetourExperiencePage() {
                       onChange={(e) => setFormData({ ...formData, rating: Number(e.target.value) })}
                       className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus bg-white"
                     >
-                      <option value={5}>⭐⭐⭐⭐⭐ (Inoubliable / Exceptionnel)</option>
-                      <option value={4}>⭐⭐⭐⭐ (Très réussi)</option>
-                      <option value={3}>⭐⭐⭐ (Satisfaisant)</option>
-                      <option value={2}>⭐⭐ (Mitigé)</option>
-                      <option value={1}>⭐ (Décevant)</option>
+                      <option value={5}>★★★★★ (Inoubliable / Exceptionnel)</option>
+                      <option value={4}>★★★★☆ (Très réussi)</option>
+                      <option value={3}>★★★☆☆ (Satisfaisant)</option>
+                      <option value={2}>★★☆☆☆ (Mitigé)</option>
+                      <option value={1}>★☆☆☆☆ (Décevant)</option>
                     </select>
                   </div>
                 </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import CmsIcon from '@/components/ui/CmsIcon'
 
 export default function Services() {
   return (
@@ -21,8 +22,8 @@ export default function Services() {
           {/* B2C - Travel Planning */}
           <div className="bg-white rounded-2xl p-8 shadow-sm border border-cloud-dancer hover:shadow-md transition-shadow">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-14 h-14 rounded-xl bg-eucalyptus/10 flex items-center justify-center text-2xl">
-                ✈️
+              <div className="w-14 h-14 rounded-xl bg-eucalyptus/10 flex items-center justify-center text-eucalyptus">
+                <CmsIcon value="Plane" size={26} />
               </div>
               <div>
                 <span className="text-eucalyptus text-xs font-bold tracking-wider uppercase">Particuliers</span>
@@ -54,8 +55,8 @@ export default function Services() {
           {/* B2B - Consulting */}
           <div className="bg-white rounded-2xl p-8 shadow-sm border border-cloud-dancer hover:shadow-md transition-shadow">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-14 h-14 rounded-xl bg-mahogany/10 flex items-center justify-center text-2xl">
-                🏨
+              <div className="w-14 h-14 rounded-xl bg-mahogany/10 flex items-center justify-center text-mahogany">
+                <CmsIcon value="Hotel" size={26} />
               </div>
               <div>
                 <span className="text-mahogany text-xs font-bold tracking-wider uppercase">Professionnels</span>

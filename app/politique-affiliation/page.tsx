@@ -7,6 +7,7 @@ import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import { getPageZones } from '@/lib/cms-zones'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { buildPageMetadata } from '@/lib/page-metadata'
+import CmsIcon from '@/components/ui/CmsIcon'
 
 export const revalidate = 300;
 
@@ -52,7 +53,7 @@ export default async function PolitiqueAffiliationPage() {
             {/* Transparence */}
             <div className="rounded-2xl border border-eucalyptus/20 bg-eucalyptus/5 p-6">
               <h2 className="text-xl font-serif font-bold text-stone-900 mb-4 flex items-center gap-2">
-                <span className="text-2xl">✨</span>
+                <span className="text-eucalyptus"><CmsIcon value="Sparkles" size={24} /></span>
                 <EditableZone page="politique-affiliation" zone="belief_title" fallback="Ce qu'on croit" />
               </h2>
               <p className="text-stone-700 leading-relaxed">
@@ -119,10 +120,10 @@ export default async function PolitiqueAffiliationPage() {
                 <EditableZone page="politique-affiliation" zone="limitations_title" fallback="Ce qu'on ne fait pas" />
               </h2>
               <ul className="space-y-2 text-charcoal/80">
-                <li>❌ <EditableZone page="politique-affiliation" zone="limitation_1" fallback="On ne recommande pas un service qu'on n'a pas vérifié, même si la commission est élevée." /></li>
-                <li>❌ <EditableZone page="politique-affiliation" zone="limitation_2" fallback="On ne modifie pas nos opinions négatives pour des raisons commerciales." /></li>
-                <li>❌ <EditableZone page="politique-affiliation" zone="limitation_3" fallback="On ne cache pas qu'un lien est partenaire." /></li>
-                <li>❌ <EditableZone page="politique-affiliation" zone="limitation_4" fallback="On n'affiche pas de publicités intrusives ou de contenu sponsorisé déguisé." /></li>
+                <li className="flex items-start gap-2"><CmsIcon value="XCircle" size={18} className="mt-1 shrink-0 text-red-500" /> <span><EditableZone page="politique-affiliation" zone="limitation_1" fallback="On ne recommande pas un service qu'on n'a pas vérifié, même si la commission est élevée." /></span></li>
+                <li className="flex items-start gap-2"><CmsIcon value="XCircle" size={18} className="mt-1 shrink-0 text-red-500" /> <span><EditableZone page="politique-affiliation" zone="limitation_2" fallback="On ne modifie pas nos opinions négatives pour des raisons commerciales." /></span></li>
+                <li className="flex items-start gap-2"><CmsIcon value="XCircle" size={18} className="mt-1 shrink-0 text-red-500" /> <span><EditableZone page="politique-affiliation" zone="limitation_3" fallback="On ne cache pas qu'un lien est partenaire." /></span></li>
+                <li className="flex items-start gap-2"><CmsIcon value="XCircle" size={18} className="mt-1 shrink-0 text-red-500" /> <span><EditableZone page="politique-affiliation" zone="limitation_4" fallback="On n'affiche pas de publicités intrusives ou de contenu sponsorisé déguisé." /></span></li>
               </ul>
             </div>
 

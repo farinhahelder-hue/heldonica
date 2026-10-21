@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const LINKS = [
   {
     categoryZone: 'cat_1',
-    fallbackCat: '📖 Blog',
+    fallbackCat: 'Blog',
     items: [
       { labelZone: 'link_1_label', fallbackLabel: 'Tous les carnets de voyage', href: '/blog', descZone: 'link_1_desc', fallbackDesc: 'Récits slow travel, destinations authentiques' },
       { labelZone: 'link_2_label', fallbackLabel: 'Guides pratiques', href: '/blog?categorie=Guides Pratiques', descZone: 'link_2_desc', fallbackDesc: 'Itinéraires, conseils, pépites testées' },
@@ -33,7 +33,7 @@ const LINKS = [
   },
   {
     categoryZone: 'cat_2',
-    fallbackCat: '🗺️ Services',
+    fallbackCat: 'Services',
     items: [
       { labelZone: 'link_4_label', fallbackLabel: 'Travel planning sur mesure', href: '/travel-planning', descZone: 'link_4_desc', fallbackDesc: 'Conçois ton voyage avec nous' },
       { labelZone: 'link_6_label', fallbackLabel: 'À propos', href: '/a-propos', descZone: 'link_6_desc', fallbackDesc: 'Notre histoire, notre philosophie' },
@@ -41,7 +41,7 @@ const LINKS = [
   },
   {
     categoryZone: 'cat_3',
-    fallbackCat: '🎁 Gratuits',
+    fallbackCat: 'Gratuits',
     items: [
       { labelZone: 'link_7_label', fallbackLabel: 'Guide Top 10 Madère', href: '/guides/top-10-pepites-madere', descZone: 'link_7_desc', fallbackDesc: 'Les meilleures adresses testées sur place' },
       { labelZone: 'link_8_label', fallbackLabel: 'Quiz Slow Travel', href: '/slow-travel', descZone: 'link_8_desc', fallbackDesc: 'Quel voyageur es-tu ?' },
@@ -49,7 +49,7 @@ const LINKS = [
   },
   {
     categoryZone: 'cat_4',
-    fallbackCat: '💬 Contact',
+    fallbackCat: 'Contact',
     items: [
       { labelZone: 'link_9_label', fallbackLabel: 'Nous contacter', href: '/contact', descZone: 'link_9_desc', fallbackDesc: 'Une question ? On répond sous 48h' },
       { labelZone: 'link_10_label', fallbackLabel: 'Instagram', href: 'https://www.instagram.com/heldonica/', external: true, descZone: 'link_10_desc', fallbackDesc: '@heldonica' },

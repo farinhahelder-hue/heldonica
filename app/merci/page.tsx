@@ -5,6 +5,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import CmsIcon from '@/components/ui/CmsIcon'
 
 export default function MerciPage() {
   const [visible, setVisible] = useState(false)
@@ -33,7 +34,7 @@ export default function MerciPage() {
               </div>
 
               <h1 className="text-4xl md:text-5xl font-serif font-light mb-4 leading-tight">
-                <EditableZone page="merci" zone="hero_title" fallback="On a bien reçu ton projet. 🌍" />
+                <EditableZone page="merci" zone="hero_title" fallback="On a bien reçu ton projet." />
               </h1>
 
               <EditableZone page="merci" zone="hero_text" type="textarea" fallback="On revient vers toi sous 48h — un vrai échange, pas un devis automatique."
@@ -61,7 +62,7 @@ export default function MerciPage() {
             <div className="grid md:grid-cols-3 gap-8">
               <div className="text-center">
                 <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-stone-100 flex items-center justify-center">
-                  <span className="text-2xl">📖</span>
+                  <span className="text-eucalyptus"><CmsIcon value="BookOpen" size={24} /></span>
                 </div>
                 <div className="text-xs font-bold text-mahogany uppercase tracking-wider mb-2">01</div>
                 <EditableZone page="merci" zone="step_1_title" fallback="On lit ton brief"
@@ -74,7 +75,7 @@ export default function MerciPage() {
 
               <div className="text-center">
                 <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-stone-100 flex items-center justify-center">
-                  <span className="text-2xl">✉️</span>
+                  <span className="text-eucalyptus"><CmsIcon value="Mail" size={24} /></span>
                 </div>
                 <div className="text-xs font-bold text-mahogany uppercase tracking-wider mb-2">02</div>
                 <EditableZone page="merci" zone="step_2_title" fallback="On te répond sous 48h"
@@ -87,7 +88,7 @@ export default function MerciPage() {
 
               <div className="text-center">
                 <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-stone-100 flex items-center justify-center">
-                  <span className="text-2xl">🗺️</span>
+                  <span className="text-eucalyptus"><CmsIcon value="Map" size={24} /></span>
                 </div>
                 <div className="text-xs font-bold text-mahogany uppercase tracking-wider mb-2">03</div>
                 <EditableZone page="merci" zone="step_3_title" fallback="On construit ensemble"

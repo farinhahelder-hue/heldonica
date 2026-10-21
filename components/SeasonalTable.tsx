@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import CmsIcon from '@/components/ui/CmsIcon'
 
 export interface SeasonData {
   name: string
@@ -37,7 +38,7 @@ export default function SeasonalTable({ destination, seasons }: SeasonalTablePro
       {/* Header */}
       <div className="bg-stone-50 px-6 py-4 border-b border-stone-200">
         <h3 className="text-lg font-serif font-bold text-stone-900">
-          📅 Meilleure période pour {destination}
+          <CmsIcon value="CalendarDays" size={16} className="mr-1.5 inline-block align-text-bottom" /> Meilleure période pour {destination}
         </h3>
         <p className="text-sm text-stone-500 mt-1">
           Clique sur une saison pour voir le détail
@@ -55,7 +56,7 @@ export default function SeasonalTable({ destination, seasons }: SeasonalTablePro
             }`}
           >
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-2xl">{season.emoji}</span>
+              <CmsIcon value={season.emoji} size={24} className="text-eucalyptus" />
               <span className="font-semibold text-stone-900">{season.name}</span>
             </div>
             <p className="text-xs text-stone-500 mb-3">{season.months.join(', ')}</p>
@@ -76,7 +77,7 @@ export default function SeasonalTable({ destination, seasons }: SeasonalTablePro
         <div className="border-t border-stone-200 p-6 bg-cloud-dancer/50">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <span className="text-2xl mr-2">{selectedSeason.emoji}</span>
+              <CmsIcon value={selectedSeason.emoji} size={24} className="mr-2 inline-block text-eucalyptus" />
               <h4 className="text-xl font-serif font-bold text-stone-900 inline">
                 {selectedSeason.name}
               </h4>

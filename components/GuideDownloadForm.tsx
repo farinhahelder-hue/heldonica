@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import CmsIcon from '@/components/ui/CmsIcon'
 
 interface GuideDownloadFormProps {
   variant?: 'hero' | 'inline' | 'footer'
@@ -55,7 +56,7 @@ export default function GuideDownloadForm({ variant = 'inline', className = '' }
   if (status === 'success') {
     return (
       <div className={`bg-eucalyptus/10 border border-eucalyptus/30 rounded-2xl p-6 text-center ${className}`}>
-        <span className="text-3xl mb-3 block">✨</span>
+        <span className="mb-3 block text-eucalyptus"><CmsIcon value="Sparkles" size={30} /></span>
         <p className="text-white font-semibold text-lg">C&apos;est parti !</p>
         <p className="text-stone-300 text-sm mt-1">Redirection vers le guide...</p>
       </div>

@@ -8,6 +8,7 @@ import SlowTravelQuiz from '@/components/SlowTravelQuiz'
 import { getPageZones } from '@/lib/cms-zones'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import EditableIcon from '@/components/inline-edit/EditableIcon'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
 const PAGE = "destinations-alentejo";
@@ -50,6 +51,11 @@ export default async function AlentejoPage() {
 
   const Z = (zone: string, type: 'text' | 'textarea' | 'html', fallback: string, className?: string, as?: any) => (
     <EditableZone page={PAGE} zone={zone} type={type} fallback={fallback} className={className} as={as} />
+  )
+
+  // Zones d'icone : la base stocke un nom d'icone lucide, jamais un emoji.
+  const ZI = (zone: string, fallback: string, size?: number) => (
+    <EditableIcon page={PAGE} zone={zone} fallback={fallback} size={size} />
   )
 
   return (
@@ -189,7 +195,7 @@ export default async function AlentejoPage() {
               <div className="bg-stone-50 rounded-2xl p-6 border border-stone-100">
                 <div className="flex items-start gap-4 mb-4">
                   <div className="w-12 h-12 rounded-full bg-eucalyptus/10 flex items-center justify-center shrink-0">
-                    <span className="text-2xl">{Z('pepite_1_emoji', 'text', "🏛️", undefined, 'span')}</span>
+                    <span className="text-2xl">{ZI('pepite_1_emoji', "🏛️")}</span>
                   </div>
                   <div>
                     <h3 className="text-xl font-serif text-stone-900 mb-1">
@@ -210,7 +216,7 @@ export default async function AlentejoPage() {
               <div className="bg-stone-50 rounded-2xl p-6 border border-stone-100">
                 <div className="flex items-start gap-4 mb-4">
                   <div className="w-12 h-12 rounded-full bg-eucalyptus/10 flex items-center justify-center shrink-0">
-                    <span className="text-2xl">{Z('pepite_2_emoji', 'text', "🏰", undefined, 'span')}</span>
+                    <span className="text-2xl">{ZI('pepite_2_emoji', "🏰")}</span>
                   </div>
                   <div>
                     <h3 className="text-xl font-serif text-stone-900 mb-1">
@@ -231,7 +237,7 @@ export default async function AlentejoPage() {
               <div className="bg-stone-50 rounded-2xl p-6 border border-stone-100">
                 <div className="flex items-start gap-4 mb-4">
                   <div className="w-12 h-12 rounded-full bg-eucalyptus/10 flex items-center justify-center shrink-0">
-                    <span className="text-2xl">{Z('pepite_3_emoji', 'text', "🍷", undefined, 'span')}</span>
+                    <span className="text-2xl">{ZI('pepite_3_emoji', "🍷")}</span>
                   </div>
                   <div>
                     <h3 className="text-xl font-serif text-stone-900 mb-1">
@@ -252,7 +258,7 @@ export default async function AlentejoPage() {
               <div className="bg-stone-50 rounded-2xl p-6 border border-stone-100">
                 <div className="flex items-start gap-4 mb-4">
                   <div className="w-12 h-12 rounded-full bg-eucalyptus/10 flex items-center justify-center shrink-0">
-                    <span className="text-2xl">{Z('pepite_4_emoji', 'text', "🏊", undefined, 'span')}</span>
+                    <span className="text-2xl">{ZI('pepite_4_emoji', "🏊")}</span>
                   </div>
                   <div>
                     <h3 className="text-xl font-serif text-stone-900 mb-1">
@@ -287,7 +293,7 @@ export default async function AlentejoPage() {
             <div className="grid md:grid-cols-3 gap-6">
               <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100">
                 <div className="w-12 h-12 rounded-full bg-teal/10 flex items-center justify-center mb-4">
-                  <span className="text-2xl">{Z('accom_1_emoji', 'text', "🌿", undefined, 'span')}</span>
+                  <span className="text-2xl">{ZI('accom_1_emoji', "🌿")}</span>
                 </div>
                 <h3 className="text-lg font-serif text-stone-900 mb-2">
                   {Z('accom_1_title', 'text', "Montes Alentejanos", undefined, 'span')}
@@ -301,7 +307,7 @@ export default async function AlentejoPage() {
               </div>
               <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100">
                 <div className="w-12 h-12 rounded-full bg-teal/10 flex items-center justify-center mb-4">
-                  <span className="text-2xl">{Z('accom_2_emoji', 'text', "🏘️", undefined, 'span')}</span>
+                  <span className="text-2xl">{ZI('accom_2_emoji', "🏘️")}</span>
                 </div>
                 <h3 className="text-lg font-serif text-stone-900 mb-2">
                   {Z('accom_2_title', 'text', "Hôtel de village", undefined, 'span')}
@@ -315,7 +321,7 @@ export default async function AlentejoPage() {
               </div>
               <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100">
                 <div className="w-12 h-12 rounded-full bg-teal/10 flex items-center justify-center mb-4">
-                  <span className="text-2xl">{Z('accom_3_emoji', 'text', "🍇", undefined, 'span')}</span>
+                  <span className="text-2xl">{ZI('accom_3_emoji', "🍇")}</span>
                 </div>
                 <h3 className="text-lg font-serif text-stone-900 mb-2">
                   {Z('accom_3_title', 'text', "Quintas viticoles", undefined, 'span')}
@@ -341,7 +347,7 @@ export default async function AlentejoPage() {
             <div className="space-y-6">
               <div className="flex gap-4 p-6 bg-stone-50 rounded-2xl">
                 <div className="w-10 h-10 rounded-full bg-eucalyptus/10 flex items-center justify-center shrink-0">
-                  <span className="text-xl">{Z('transport_1_emoji', 'text', "🚗", undefined, 'span')}</span>
+                  <span className="text-xl">{ZI('transport_1_emoji', "🚗")}</span>
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-stone-900 mb-2">
@@ -357,7 +363,7 @@ export default async function AlentejoPage() {
               </div>
               <div className="flex gap-4 p-6 bg-stone-50 rounded-2xl">
                 <div className="w-10 h-10 rounded-full bg-eucalyptus/10 flex items-center justify-center shrink-0">
-                  <span className="text-xl">{Z('transport_2_emoji', 'text', "🚌", undefined, 'span')}</span>
+                  <span className="text-xl">{ZI('transport_2_emoji', "🚌")}</span>
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-stone-900 mb-2">

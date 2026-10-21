@@ -2,6 +2,40 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-21] — Lot 2 : plus un seul emoji rendu sur le site public (migration + garde-fou)
+
+- **Un emoji n'est plus une icône.** Deux composants rendent désormais les icônes :
+  `components/inline-edit/EditableIcon.tsx` (zones éditables au CMS, parallèle
+  d'`EditableZone`) et `components/ui/CmsIcon.tsx` (valeurs non éditables). Ils
+  s'appuient sur `lib/cms-icons.ts` (`EMOJI_TO_ICON`, `resolveIconName`) et
+  `lib/icon-registry.ts` (noms lucide). **Une valeur non reconnue retombe sur
+  l'icône neutre** : un emoji ne peut plus revenir par le CMS sans se voir.
+- **Migration versionnée `20261021120000_retrait_emojis_icones_zones_cms.sql`** :
+  **175 `UPDATE` en transaction unique**, appliqués par l'API SQL (HTTP 201) puis
+  journalisés dans `schema_migrations`. `cms_editable_zones` (164 zones actives),
+  plus **deux sources oubliées hors zones** : `cms_sub_destinations.emoji` (2) et
+  `cms_seasons.emoji` (11), qui alimentaient des pages publiques.
+- **Sites de rendu câblés** : `SubDestinationTemplate`, `DestinationPillar`,
+  `SeasonalTable`, `Pillars`, `Services`, `TestedByHeldonica`, `PhotoEvidenceBlock`,
+  `LeadMagnetBlock`, `GuideDownloadForm`, `ComingSoonDestination`, `StarRating`
+  (nouveau), et les pages `alentejo`, `timisoara`, `guides`, `quiz`,
+  `travel-planning-form`, `merci`, `start`, `retour-experience`,
+  `politique-affiliation`, `expert-hotelier`.
+- **Garde-fou `check-cms-zones.mjs`** : les regexes `<EditableZone>` acceptent
+  `<EditableIcon>` — sinon les zones d'icône passaient pour orphelines.
+- **Politique** : traité = emoji pictographique + `✦` décoratif ; **conservé** =
+  marques légales (`© ® ™`), flèches, et la convention de liste `✓`/`⚠` (10 zones
+  en base, intactes).
+- **Mesuré** : **0 emoji rendu** sur 24 pages publiques (avant : 29 sur
+  `/destinations/madere`) ; **0** zone active n'en contient plus en base ;
+  **garde-fous 14/14**, *Zones CMS orphelines* exécuté contre la base réelle ;
+  `tsc` 0.
+- **Découverte annexe** : `20261020230000_restauration_polices_et_territoires_accueil.sql`
+  n'a **jamais été appliquée** (mesuré : `font_heading` toujours `Fraunces`,
+  `zurich`/`suisse` toujours actifs) bien que le CHANGELOG l'annonce livrée. Son
+  `OR` non parenthésé est corrigé et ses icônes alignées sur les noms lucide ; elle
+  reste à appliquer. Détail : `.audit/audit-editorial-2026-10-20/ecart-migrations-2026-10-21.md`.
+
 ## [2026-10-21] — Le « carnet » atteint les pages secondaires : `/a-propos` et `/travel-planning`
 
 - **Le trou : la passe du 20/10 s'était arrêtée à l'accueil.** Elle avait touché

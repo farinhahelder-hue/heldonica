@@ -5,6 +5,7 @@ import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import EditableIcon from '@/components/inline-edit/EditableIcon'
 import { getPageZones } from '@/lib/cms-zones'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
@@ -58,6 +59,11 @@ export default async function GuidesPage() {
     <EditableZone page={PAGE} zone={zone} type={type} fallback={fallback} className={className} as={as} />
   )
 
+  // Zones d'icone : la base stocke un nom d'icone lucide, jamais un emoji.
+  const ZI = (zone: string, fallback: string, size?: number) => (
+    <EditableIcon page={PAGE} zone={zone} fallback={fallback} size={size} />
+  )
+
   return (
     <InlineEditProvider page={PAGE} initialZones={zones}>
       <Header />
@@ -86,7 +92,7 @@ export default async function GuidesPage() {
                   className="group flex gap-6 rounded-2xl border border-stone-200 bg-stone-50 p-6 hover:border-eucalyptus/40 hover:bg-eucalyptus/5 transition-all"
                 >
                   <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-eucalyptus/10 flex items-center justify-center text-3xl">
-                    {Z('guide_1_emoji', 'text', "🌿", undefined, 'span')}
+                    {ZI('guide_1_emoji', "🌿")}
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs uppercase tracking-wider text-eucalyptus font-semibold mb-1">

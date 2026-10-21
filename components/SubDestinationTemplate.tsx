@@ -3,9 +3,11 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import EditableIcon from '@/components/inline-edit/EditableIcon'
 import NewsletterForm from '@/components/NewsletterForm'
 import { getStyleLabel } from '@/lib/travel-styles'
 import { isUnpublishedCmsPage } from '@/lib/unpublished-pages'
+import CmsIcon from '@/components/ui/CmsIcon'
 
 export interface SubDestinationHighlight {
   title: string
@@ -102,7 +104,7 @@ export default function SubDestinationTemplate({
 
         <section className="bg-cloud-dancer py-20 md:py-28">
           <div className="container max-w-2xl text-center">
-            <p className="text-4xl mb-6">🗺️</p>
+            <p className="mb-6 flex justify-center text-eucalyptus"><CmsIcon value="Map" size={40} /></p>
             <h2 className="text-3xl font-serif text-mahogany mb-4">
               {/* Le nom tel quel : en minuscules, il donnait « le guide funchal et environs ». */}
               <EditableZone page={page} zone="section_title" fallback={`On prépare le guide ${name} — à notre façon.`} />
@@ -183,7 +185,7 @@ export default function SubDestinationTemplate({
           </p>
 
           <div className="p-5 rounded-2xl bg-[#F8F5F0] border border-stone-200/50 flex items-start gap-4">
-            <span className="text-2xl shrink-0">💡</span>
+            <span className="shrink-0 text-mahogany"><CmsIcon value="Lightbulb" size={24} /></span>
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-mahogany mb-1">
                 <EditableZone page={page} zone="local_tip_kicker" fallback="Notre conseil" />
@@ -217,8 +219,8 @@ export default function SubDestinationTemplate({
                 key={i}
                 className="bg-white rounded-2xl p-6 border border-stone-200/60 hover:shadow-md transition-shadow flex flex-col items-center text-center"
               >
-                <div className="w-12 h-12 rounded-full bg-teal/10 flex items-center justify-center text-2xl mb-4">
-                  <EditableZone page={page} zone={`highlight_${i + 1}_emoji`} fallback={h.emoji} />
+                <div className="w-12 h-12 rounded-full bg-teal/10 flex items-center justify-center text-teal mb-4">
+                  <EditableIcon page={page} zone={`highlight_${i + 1}_emoji`} fallback={h.emoji} size={22} />
                 </div>
                 <h3 className="font-serif font-bold text-stone-800 text-lg mb-2">
                   <EditableZone

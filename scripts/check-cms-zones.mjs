@@ -13,7 +13,7 @@
  * pour les tables. Il croise les zones actives en base avec ce que le code lit
  * réellement, par les trois chemins existants :
  *
- *   1. <EditableZone page="x" zone="y">        (littéral ou template)
+ *   1. <Editable(?:Zone|Icon) page="x" zone="y">        (littéral ou template)
  *   2. getCmsOrSetting('zone_key', ...)        (indexé par zone_key nu)
  *   3. getZoneLinks('prefix', ...)             (paires prefix_<n>_label/_url)
  *
@@ -101,10 +101,10 @@ function collectReaders() {
 
       // 0. Page du fichier quand elle est portée par une constante.
       //    Les pages de destination écrivent `const PAGE = 'destinations-alentejo'`
-      //    puis `<EditableZone page={PAGE} …>`. Sans résoudre cette constante,
+      //    puis `<Editable(?:Zone|Icon) page={PAGE} …>`. Sans résoudre cette constante,
       //    le fichier semble ne lire aucune zone et TOUTES les zones de la page
       //    ressortent orphelines — 926 faux positifs sur 46 pages au 01/08.
-      //    À défaut de constante, on déduit la page des <EditableZone> du
+      //    À défaut de constante, on déduit la page des <Editable(?:Zone|Icon)> du
       //    fichier — mais seulement s'ils désignent tous la même. Trois pages
       //    (contact, home, mentions-legales) déclarent leurs clés dans un
       //    tableau (`{ zone: 'service_1', … }`) puis les rendent via la
@@ -119,13 +119,13 @@ function collectReaders() {
       let filePage = pageConst ? pageConst[1] : null;
       if (!filePage) {
         const literals = new Set(
-          [...src.matchAll(/<EditableZone\s+page="([^"]+)"/g)].map((m) => m[1])
+          [...src.matchAll(/<Editable(?:Zone|Icon)\s+page="([^"]+)"/g)].map((m) => m[1])
         );
         if (literals.size === 1) filePage = [...literals][0];
       }
 
       // 0 bis. Helper local de zone : `const Z = (zone: string, type, fallback)`
-      //    appelé en `Z('hero_title', …)`. Même rôle que <EditableZone>, mais
+      //    appelé en `Z('hero_title', …)`. Même rôle que <Editable(?:Zone|Icon)>, mais
       //    invisible pour la regex JSX. On accepte `zone` comme `zoneKey`.
       if (filePage) {
         const helpers = new Set();
@@ -186,9 +186,9 @@ function collectReaders() {
         }
       }
 
-      // 1. <EditableZone page="x" zone=...>
+      // 1. <Editable(?:Zone|Icon) page="x" zone=...>
       for (const m of src.matchAll(
-        /<EditableZone\s+page="([^"]+)"\s+zone=(?:"([^"]+)"|\{`([^`]+)`\}|\{([^}]+)\})/g
+        /<Editable(?:Zone|Icon)\s+page="([^"]+)"\s+zone=(?:"([^"]+)"|\{`([^`]+)`\}|\{([^}]+)\})/g
       )) {
         const [, page, literal, template, expression] = m;
         if (literal) {
@@ -241,7 +241,7 @@ function collectReaders() {
 
   // 4. Composants partagés paramétrés par la page.
   //
-  //    SubDestinationTemplate lit `<EditableZone page={page} zone="intro_text">`
+  //    SubDestinationTemplate lit `<Editable(?:Zone|Icon) page={page} zone="intro_text">`
   //    et reçoit `page="destinations-colombie-bogota"` de chaque page qui
   //    l'utilise. Les zones sont donc bien rendues, mais la regex ne peut pas
   //    les rattacher : `page` est une variable dans le composant, et les clés
@@ -263,7 +263,7 @@ function collectReaders() {
       // un gabarit dont le point d'appel fournit la variable (slug="grece").
       let pageTpl = null, pageVar = null;
       for (const m of src.matchAll(
-        /<EditableZone[^>]*?page=\{(?:([a-zA-Z_$][\w$]*)|`([^`]+)`)\}[^>]*?zone=(?:"([^"]+)"|\{`([^`]+)`\})/gs
+        /<Editable(?:Zone|Icon)[^>]*?page=\{(?:([a-zA-Z_$][\w$]*)|`([^`]+)`)\}[^>]*?zone=(?:"([^"]+)"|\{`([^`]+)`\})/gs
       )) {
         if (m[2]) {
           const v = m[2].match(/\$\{\s*([a-zA-Z_$][\w$]*)\s*\}/);
