@@ -2,6 +2,37 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-21] — Disk IO Supabase : cause mesurée, index FK et RLS corrigés
+
+- **Le diagnostic était faux, la mesure l'a montré.** On soupçonnait la taille des
+  tables (2 538 lignes max), puis le cache Next.js, puis les RLS. Mesure sur
+  `pg_stat_statements` (fenêtre 13 j 10 h) : **99,995 % de cache hit**
+  (5 581 blocs lus contre 109,5 M servis depuis le cache) — les lectures de tables
+  ne coûtent rien. Les requêtes REST tournent à **~3/min** en régime établi
+  (~31 000/jour) : le nombre de requêtes n'est pas anormal non plus. Ce qui coûte
+  du disque, ce sont les **écritures**.
+- **Le poste n°1 : le battement du Brain.** `brain_heartbeat` est *upserté* dans
+  `site_settings` toutes les ~60 s, 24 h/24 → **1 440 écritures/jour** sur une
+  table de 207 lignes, dont **0 autovacuum n'est jamais passé**, avec 2 index à
+  réécrire à chaque fois. Le poste n°2 : **`/api/cms/zones` GET = 26 462 appels**,
+  la requête la plus volumineuse de la base — route `force-dynamic`, non cachée,
+  rappelée par les **7 pages** qui montent `InlineEditProvider` sans
+  `initialZones`.
+- **Migration `20261021130000_index_fk_manquantes.sql`** : 11 index couvrants sur
+  les clés étrangères qui n'en avaient pas. Lint `unindexed_foreign_keys`
+  **11 → 0**.
+- **Migration `20261021140000_rls_initplan_reecriture_politiques.sql`** : 30
+  politiques réécrites en `(select auth.role())` — l'appel devient un *InitPlan*
+  évalué **une fois par requête** au lieu d'une fois par ligne (vérifié par
+  `EXPLAIN`). Lint `auth_rls_initplan` **30 → 0**. Généré depuis `pg_policies`
+  (aucune réécriture à la main) ; **163/163 politiques préservées**, mêmes rôles,
+  mêmes commandes, booléen identique.
+- **Mesuré après coup** : `14/14` garde-fous verts, 6 routes publiques en HTTP 200.
+- **À faire, hors dépôt web** : `brain_heartbeat` ne devrait écrire **que si
+  l'état change** ; BridgePoller 30 s → 120 s. **Dans le dépôt** : câbler
+  `initialZones` sur les 7 pages concernées et mettre `/api/cms/zones` en cache.
+  Fiche `agent_tasks` `d6b7cae2` (`waiting_validation`, `scope=perf-supabase`).
+
 ## [2026-10-21] — Lot 2 : plus un seul emoji rendu sur le site public (migration + garde-fou)
 
 - **Un emoji n'est plus une icône.** Deux composants rendent désormais les icônes :
