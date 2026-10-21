@@ -7,17 +7,21 @@ import {
 } from '@/lib/cms-releases';
 import { CmsUser } from '@/lib/cms-access';
 
-vi.mock('@/lib/supabase-client', () => ({
-  supabase: {
-    from: vi.fn(),
-  },
-}));
+vi.mock('@/lib/supabase', () => {
+  const client = { from: vi.fn() };
+  return {
+    createServiceClient: () => client,
+    isServiceClientConfigured: () => true,
+  };
+});
 
 vi.mock('@/lib/cms-audit', () => ({
   logCmsAudit: vi.fn().mockResolvedValue(true),
 }));
 
-import { supabase } from '@/lib/supabase-client';
+import { createServiceClient } from '@/lib/supabase';
+
+const supabase = createServiceClient();
 import { logCmsAudit } from '@/lib/cms-audit';
 
 describe('CMS Releases — Publication Groupée & Atomique', () => {

@@ -11,7 +11,7 @@
  */
 
 import { FORBIDDEN_WORDS } from '@/lib/brand-voice';
-import { Accommodation } from '@/lib/cms-hospitality';
+import type { Accommodation } from '@/lib/cms-hospitality';
 
 export interface EeatAuditResult {
   score: number; // 0 à 100

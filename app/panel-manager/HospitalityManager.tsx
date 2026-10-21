@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Bed, Plus, ShieldCheck, CheckCircle2, Clock, ExternalLink, Sparkles, AlertCircle, RefreshCw } from 'lucide-react';
-import { Accommodation, HospitalityStatus } from '@/lib/cms-hospitality';
+import type { Accommodation, HospitalityStatus } from '@/lib/cms-hospitality';
 
 export function HospitalityManager() {
   const [accommodations, setAccommodations] = useState<Accommodation[]>([]);

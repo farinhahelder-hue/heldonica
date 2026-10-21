@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Key, Layers, Plus, Trash2, Copy, Check, Shield, Clock, AlertTriangle, Send, RefreshCw, Radio } from 'lucide-react';
 import { CmsApiToken, CmsTokenScope } from '@/lib/cms-tokens';
-import { CmsRelease } from '@/lib/cms-releases';
+import type { CmsRelease } from '@/lib/cms-releases';
 
 export function TokensAndReleasesManager() {
   const [activeTab, setActiveTab] = useState<'tokens' | 'releases'>('tokens');
