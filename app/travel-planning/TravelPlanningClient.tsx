@@ -8,6 +8,7 @@ import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import { Clock, Compass, Gem, Map, BedDouble, PhoneCall, Mail, Check } from 'lucide-react'
 
 const SITE_URL = 'https://www.heldonica.fr'
 
@@ -58,22 +59,22 @@ const PRICING_PLANS = [
   },
 ]
 
-const PERSONAS = [
+const PERSONAS: { zone: string; Icon: typeof Clock; title: string; text: string }[] = [
   {
     zone: 'persona_1',
-    emoji: '🕰️',
+    Icon: Clock,
     title: 'Tu n\'as plus le temps de tout organiser',
     text: 'Deux agendas pleins, des congés à poser et zéro envie de passer tes soirées à comparer quinze onglets. On prend le relais — tu gardes la décision, on absorbe le travail.',
   },
   {
     zone: 'persona_2',
-    emoji: '🧭',
+    Icon: Compass,
     title: 'Tu as déjà fait les capitales',
     text: 'Les grandes villes, c\'est coché. Ce que tu cherches maintenant, ce sont les pépites dénichées : le village où personne ne descend, la table sans carte en anglais, le sentier qui n\'est dans aucun classement.',
   },
   {
     zone: 'persona_3',
-    emoji: '💍',
+    Icon: Gem,
     title: 'Ce voyage-là compte plus que les autres',
     text: 'Lune de miel, dix ans ensemble, la parenthèse promise depuis trop longtemps. Sur ces voyages-là, tu ne veux pas d\'un itinéraire standard — tu veux que chaque jour tombe juste.',
   },
@@ -229,21 +230,21 @@ export default function TravelPlanningClient({
       <Breadcrumb />
       <main>
         {/* Hero */}
-        <section className="relative min-h-[75vh] flex items-center overflow-hidden bg-stone-900">
+        <section className="relative min-h-[75vh] flex items-center overflow-hidden bg-[#241D1A] border-b border-[#DED5C6]">
           <EditableZone page="travel-planning" zone="hero_image_url" type="image"
             fallback="/og-default.jpg"
-            className="absolute inset-0 w-full h-full object-cover opacity-50"
+            className="absolute inset-0 w-full h-full object-cover opacity-45"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#1E1A17]/85 via-[#1E1A17]/55 to-transparent" />
           <div className="relative container py-20">
             <EditableZone page="travel-planning" zone="hero_badge" fallback="Voyage couple sur mesure · Adresses testées · Duo"
-              className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold block"
+              className="text-[11px] uppercase tracking-[0.22em] text-[#E6DEC8] mb-4 font-medium block"
             />
             <EditableZone page="travel-planning" zone="hero_title" as="h1" fallback="On a fait le trajet. À toi de vivre le voyage."
-              className="text-4xl md:text-6xl font-serif text-white max-w-2xl mb-5 leading-tight block"
+              className="text-4xl md:text-6xl font-serif font-normal text-[#F7F3EC] max-w-2xl mb-5 leading-tight block"
             />
             <EditableZone page="travel-planning" zone="hero_text" fallback="On conçoit ton voyage avec nos adresses terrain, sans compromis."
-              className="text-white/80 max-w-xl text-lg leading-relaxed mb-8 block"
+              className="text-[#E6DEC8]/80 max-w-xl text-lg leading-relaxed mb-8 block"
             />
             <a
               href="#formulaire"
@@ -256,7 +257,7 @@ export default function TravelPlanningClient({
                   })
                 }
               }}
-              className="inline-flex items-center gap-2 rounded-full bg-eucalyptus px-7 py-3.5 text-sm font-semibold text-white hover:bg-eucalyptus/90 transition-all shadow-lg"
+              className="inline-flex items-center gap-2 rounded-sm bg-eucalyptus px-7 py-3.5 text-xs font-medium uppercase tracking-[0.16em] text-[#F7F3EC] hover:bg-eucalyptus/90 transition-colors"
             >
               <EditableZone page="travel-planning" zone="hero_cta" fallback="Démarrer ma demande" />
             </a>
@@ -264,21 +265,21 @@ export default function TravelPlanningClient({
         </section>
 
         {/* Promesse — 3 colonnes */}
-        <section className="bg-white py-20">
+        <section className="bg-[#F7F3EC] py-20 border-b border-[#E2D9C8]">
           <div className="container max-w-5xl">
             <div className="grid md:grid-cols-3 gap-8">
               {[
-                { zone: 'promise_1', emoji: '🗺️', fallbackTitle: 'Itinéraire sur mesure', fallbackText: 'Chaque jour pensé pour toi — rythme slow, pépites dénichées sur le terrain.' },
-                { zone: 'promise_2', emoji: '🏡', fallbackTitle: 'Hébergements triés', fallbackText: 'Boutique-hôtels, masseries, riads — uniquement ce qu\'on referait demain.' },
-                { zone: 'promise_3', emoji: '📞', fallbackTitle: 'Suivi humain', fallbackText: 'Un mail, un WhatsApp — on répond, on ajuste, on reste là du premier échange jusqu\'à ton retour.' },
+                { zone: 'promise_1', Icon: Map, fallbackTitle: 'Itinéraire sur mesure', fallbackText: 'Chaque jour pensé pour toi — rythme slow, pépites dénichées sur le terrain.' },
+                { zone: 'promise_2', Icon: BedDouble, fallbackTitle: 'Hébergements triés', fallbackText: 'Boutique-hôtels, masseries, riads — uniquement ce qu\'on referait demain.' },
+                { zone: 'promise_3', Icon: PhoneCall, fallbackTitle: 'Suivi humain', fallbackText: 'Un mail, un WhatsApp — on répond, on ajuste, on reste là du premier échange jusqu\'à ton retour.' },
               ].map((p) => (
                 <div key={p.zone} className="text-center">
-                  <div className="w-14 h-14 rounded-2xl bg-teal/10 flex items-center justify-center mx-auto mb-4 text-2xl">{p.emoji}</div>
+                  <p.Icon aria-hidden="true" strokeWidth={1.25} className="w-8 h-8 text-eucalyptus mx-auto mb-4" />
                   <EditableZone page="travel-planning" zone={`${p.zone}_title`} fallback={p.fallbackTitle}
-                    className="font-semibold text-mahogany mb-2 block"
+                    className="font-medium text-mahogany mb-2 block"
                   />
                   <EditableZone page="travel-planning" zone={`${p.zone}_text`} type="textarea" fallback={p.fallbackText}
-                    className="text-sm text-charcoal/60 leading-relaxed block"
+                    className="text-sm text-charcoal/70 leading-relaxed block"
                   />
                 </div>
               ))}
@@ -287,10 +288,10 @@ export default function TravelPlanningClient({
         </section>
 
         {/* Comment ça marche — 4 étapes */}
-        <section className="bg-cloud-dancer py-20">
+        <section className="bg-[#EFE9DF] py-20 border-b border-[#E2D9C8]">
           <div className="container max-w-4xl">
             <EditableZone page="travel-planning" zone="steps_title" as="h2" fallback="De ton rêve à ton départ"
-              className="text-3xl font-serif text-mahogany text-center mb-12 block"
+              className="text-3xl font-serif font-normal text-mahogany text-center mb-12 block"
             />
             <div className="grid md:grid-cols-4 gap-6">
               {[
@@ -300,12 +301,12 @@ export default function TravelPlanningClient({
                 { zone: 'step_4', step: '4', fallbackTitle: "Tu pars l'esprit libre", fallbackText: 'Carnet de route, réservations, contacts — tout est prêt.' },
               ].map((etape) => (
                 <div key={etape.zone} className="text-center">
-                  <div className="w-12 h-12 rounded-full bg-eucalyptus text-white flex items-center justify-center mx-auto mb-4 text-lg font-bold">{etape.step}</div>
+                  <div className="w-11 h-11 rounded-sm bg-[#2A1D18] text-[#E6DEC8] flex items-center justify-center mx-auto mb-4 text-sm font-medium border border-[#DED5C6]">{etape.step}</div>
                   <EditableZone page="travel-planning" zone={`${etape.zone}_title`} fallback={etape.fallbackTitle}
-                    className="font-semibold text-mahogany mb-2 block"
+                    className="font-medium text-mahogany mb-2 block"
                   />
                   <EditableZone page="travel-planning" zone={`${etape.zone}_text`} type="textarea" fallback={etape.fallbackText}
-                    className="text-sm text-charcoal/60 block"
+                    className="text-sm text-charcoal/70 block"
                   />
                 </div>
               ))}
@@ -314,23 +315,23 @@ export default function TravelPlanningClient({
         </section>
 
         {/* Pour qui ? — personas */}
-        <section className="bg-cloud-dancer py-20 border-t border-stone-200/60">
+        <section className="bg-[#EFE9DF] py-20 border-b border-[#E2D9C8]">
           <div className="container max-w-5xl">
             <EditableZone page="travel-planning" zone="personas_title" as="h2" fallback="C'est fait pour toi si…"
-              className="text-3xl font-serif text-mahogany text-center mb-4 block"
+              className="text-3xl font-serif font-normal text-mahogany text-center mb-4 block"
             />
             <EditableZone page="travel-planning" zone="personas_subtitle" type="textarea"
               fallback="On ne conçoit pas pour tout le monde. Voilà les couples avec qui ça fonctionne le mieux."
-              className="text-charcoal/60 text-sm text-center mb-12 max-w-lg mx-auto block"
+              className="text-charcoal/70 text-sm text-center mb-12 max-w-lg mx-auto block"
             />
             <div className="grid md:grid-cols-3 gap-8">
-              {PERSONAS.map((p) => (
-                <div key={p.zone} className="rounded-2xl border border-stone-200 bg-white p-6 flex flex-col">
-                  <div className="w-14 h-14 rounded-2xl bg-eucalyptus/10 flex items-center justify-center mb-4 text-2xl">{p.emoji}</div>
-                  <h3 className="font-semibold text-mahogany mb-3">
-                    <EditableZone page="travel-planning" zone={`${p.zone}_title`} fallback={p.title} className="inline" />
+              {PERSONAS.map(({ zone, Icon, title, text }) => (
+                <div key={zone} className="rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-6 flex flex-col">
+                  <Icon aria-hidden="true" strokeWidth={1.25} className="w-7 h-7 text-eucalyptus mb-4" />
+                  <h3 className="font-medium text-mahogany mb-3">
+                    <EditableZone page="travel-planning" zone={`${zone}_title`} fallback={title} className="inline" />
                   </h3>
-                  <EditableZone page="travel-planning" zone={`${p.zone}_text`} type="textarea" fallback={p.text}
+                  <EditableZone page="travel-planning" zone={`${zone}_text`} type="textarea" fallback={text}
                     className="text-sm text-charcoal/70 leading-relaxed block"
                   />
                 </div>
@@ -338,21 +339,21 @@ export default function TravelPlanningClient({
             </div>
 
             {/* Honnêteté : à qui ça ne s'adresse pas */}
-            <div className="mt-10 rounded-2xl border border-stone-200 bg-white p-6 max-w-3xl mx-auto">
+            <div className="mt-10 rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-6 max-w-3xl mx-auto">
               <EditableZone page="travel-planning" zone="personas_not_title" fallback="En revanche, on n'est pas les bons pour :"
-                className="font-semibold text-mahogany mb-3 block"
+                className="font-medium text-mahogany mb-3 block"
               />
               <ul className="space-y-2 text-sm text-charcoal/70">
                 <li className="flex items-start gap-2.5">
-                  <span className="text-stone-400 font-bold mt-0.5">—</span>
+                  <span className="text-mahogany/40 mt-0.5">—</span>
                   <EditableZone page="travel-planning" zone="personas_not_1" fallback="Les voyages en famille : notre cœur de métier, c'est le slow travel à deux." className="inline" />
                 </li>
                 <li className="flex items-start gap-2.5">
-                  <span className="text-stone-400 font-bold mt-0.5">—</span>
+                  <span className="text-mahogany/40 mt-0.5">—</span>
                   <EditableZone page="travel-planning" zone="personas_not_2" fallback="Les séjours où l'objectif est de cocher un maximum de sites en un minimum de jours." className="inline" />
                 </li>
                 <li className="flex items-start gap-2.5">
-                  <span className="text-stone-400 font-bold mt-0.5">—</span>
+                  <span className="text-mahogany/40 mt-0.5">—</span>
                   <EditableZone page="travel-planning" zone="personas_not_3" fallback="Les départs dans moins de dix jours : on a besoin de temps pour faire les choses bien." className="inline" />
                 </li>
               </ul>
@@ -361,55 +362,55 @@ export default function TravelPlanningClient({
         </section>
 
         {/* Tarifs */}
-        <section className="bg-white py-20">
+        <section className="bg-[#F7F3EC] py-20 border-b border-[#E2D9C8]">
           <div className="container max-w-5xl">
             <EditableZone page="travel-planning" zone="pricing_title" as="h2" fallback="Tarifs transparents"
-              className="text-3xl font-serif text-mahogany text-center mb-4 block"
+              className="text-3xl font-serif font-normal text-mahogany text-center mb-4 block"
             />
             <EditableZone page="travel-planning" zone="pricing_subtitle" fallback="Des formules claires, sans surprise. Le devis est gratuit et sans engagement."
-              className="text-charcoal/60 text-sm text-center mb-10 max-w-lg mx-auto block"
+              className="text-charcoal/70 text-sm text-center mb-10 max-w-lg mx-auto block"
             />
              <div className="grid md:grid-cols-3 gap-8 items-stretch pt-4">
               {pricingPlans.map((plan) => (
                 <div
                   key={plan.zone}
-                  className={`rounded-3xl p-8 flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 border ${
+                  className={`rounded-sm p-8 flex flex-col transition-colors duration-300 border ${
                     plan.popular
-                      ? 'border-eucalyptus bg-gradient-to-b from-eucalyptus/5 to-white shadow-xl shadow-eucalyptus/5 md:scale-105 z-10'
-                      : 'border-stone-200 bg-white shadow-sm'
+                      ? 'border-mahogany bg-[#FAF7F2] md:scale-105 z-10'
+                      : 'border-[#DED5C6] bg-[#FAF7F2]'
                   }`}
                 >
                   {plan.popular && (
                     <div className="mb-3">
-                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-eucalyptus/10 text-[10px] font-bold text-eucalyptus uppercase tracking-wider">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-sm bg-[#2A1D18] text-[10px] font-medium text-[#E6DEC8] uppercase tracking-[0.16em]">
                         <EditableZone page="travel-planning" zone={`${plan.zone}_badge`} fallback="Le plus choisi" className="inline" />
                       </span>
                     </div>
                   )}
-                  <h3 className="text-2xl font-serif font-bold text-mahogany mb-1">
+                  <h3 className="text-2xl font-serif font-normal text-mahogany mb-1">
                     <EditableZone page="travel-planning" zone={`${plan.zone}_name`} fallback={plan.name} className="inline" />
                   </h3>
                   <EditableZone page="travel-planning" zone={`${plan.zone}_price`} fallback={plan.price}
-                    className="text-4xl font-bold text-eucalyptus mb-3 block"
+                    className="text-4xl font-serif font-normal text-eucalyptus mb-3 block"
                   />
                   <EditableZone page="travel-planning" zone={`${plan.zone}_desc`} fallback={plan.desc}
-                    className="text-sm text-charcoal/60 mb-6 block leading-relaxed"
+                    className="text-sm text-charcoal/70 mb-6 block leading-relaxed"
                   />
-                  <div className="w-full h-px bg-stone-100 mb-6" />
+                  <div className="w-full h-px bg-[#DED5C6] mb-6" />
                   <ul className="space-y-3.5 mb-8 flex-1">
                     {plan.features.map((f, fi) => (
-                      <li key={fi} className="text-sm text-charcoal/70 flex items-start gap-2.5">
-                        <span className="text-eucalyptus font-bold mt-0.5">✓</span>
+                      <li key={fi} className="text-sm text-charcoal/75 flex items-start gap-2.5">
+                        <Check aria-hidden="true" strokeWidth={1.75} className="w-4 h-4 text-eucalyptus mt-0.5 shrink-0" />
                         <EditableZone page="travel-planning" zone={`${plan.zone}_feature_${fi + 1}`} fallback={f} className="inline-1 leading-relaxed" />
                       </li>
                     ))}
                   </ul>
                   <a
                     href="#formulaire"
-                    className={`block text-center rounded-full py-3.5 text-sm font-semibold transition-all duration-200 ${
+                    className={`block text-center rounded-sm py-3.5 text-xs font-medium uppercase tracking-[0.16em] transition-colors duration-200 ${
                       plan.popular
-                        ? 'bg-gradient-to-r from-eucalyptus to-teal text-white hover:brightness-110 shadow-md shadow-eucalyptus/20 hover:shadow-lg'
-                        : 'bg-stone-50 text-stone-700 hover:bg-stone-100 border border-stone-200'
+                        ? 'bg-eucalyptus text-[#F7F3EC] hover:bg-eucalyptus/90'
+                        : 'bg-[#EFE9DF] text-mahogany border border-[#DED5C6] hover:bg-[#E8E0D2]'
                     }`}
                   >
                     <EditableZone page="travel-planning" zone={`${plan.zone}_cta`} fallback={plan.name === 'Sur-Mesure' ? 'Demander un devis' : 'Choisir cette formule'} className="inline" />
@@ -423,28 +424,28 @@ export default function TravelPlanningClient({
         {/* Témoignages : uniquement ceux de cms_testimonials. Aucun texte de repli,
             on n'invente pas de clients (la page /temoignages dit qu'il n'y en a pas encore). */}
         {testimonialsData.length > 0 && (
-        <section className="bg-cloud-dancer py-20">
+        <section className="bg-[#EFE9DF] py-20 border-b border-[#E2D9C8]">
           <div className="container max-w-5xl">
             <EditableZone page="travel-planning" zone="testimonials_title" as="h2" fallback="Ils ont voyagé avec nous"
-              className="text-3xl font-serif text-mahogany text-center mb-10 block"
+              className="text-3xl font-serif font-normal text-mahogany text-center mb-10 block"
             />
             <div className="grid md:grid-cols-3 gap-6">
               {testimonialsData.map((t) => (
-                <div key={t.zone} className="bg-white rounded-xl border border-stone-200 p-6">
+                <div key={t.zone} className="bg-[#FAF7F2] rounded-sm border border-[#DED5C6] p-6">
                   <div className="flex items-center gap-1 mb-4">
-                    <span aria-label="5 étoiles">{[...Array(5)].map((_, i) => <span key={i} className="text-amber-400 text-sm" aria-hidden="true">★</span>)}</span>
+                    <span aria-label="5 étoiles">{[...Array(5)].map((_, i) => <span key={i} className="text-mahogany/70 text-sm" aria-hidden="true">★</span>)}</span>
                   </div>
                   <EditableZone page="travel-planning" zone={`${t.zone}_text`} type="textarea" fallback={t.text}
                     className="text-sm text-charcoal/70 leading-relaxed mb-4 italic block"
                   />
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-eucalyptus/10 flex items-center justify-center text-eucalyptus font-semibold text-sm">{t.author[0]}</div>
+                    <div className="w-10 h-10 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] flex items-center justify-center text-eucalyptus font-medium text-sm">{t.author[0]}</div>
                     <div>
                       <EditableZone page="travel-planning" zone={`${t.zone}_author`} fallback={t.author}
-                        className="text-sm font-semibold text-mahogany block"
+                        className="text-sm font-medium text-mahogany block"
                       />
                       <EditableZone page="travel-planning" zone={`${t.zone}_dest`} fallback={t.dest}
-                        className="text-xs text-charcoal/40 block"
+                        className="text-xs text-charcoal/50 block"
                       />
                     </div>
                   </div>
@@ -456,54 +457,54 @@ export default function TravelPlanningClient({
         )}
 
         {/* Formulaire */}
-        <section id="formulaire" className="bg-white py-20 scroll-mt-20">
+        <section id="formulaire" className="bg-[#F7F3EC] py-20 scroll-mt-20 border-b border-[#E2D9C8]">
           <div className="container max-w-2xl">
             <EditableZone page="travel-planning" zone="form_title" as="h2" fallback="Dis-nous où tu veux aller."
-              className="text-3xl font-serif text-mahogany text-center mb-2 block"
+              className="text-3xl font-serif font-normal text-mahogany text-center mb-2 block"
             />
             <EditableZone page="travel-planning" zone="form_text" fallback="Réponds à ces quelques questions — on te fait une proposition sous 48h."
-              className="text-charcoal/60 text-sm text-center mb-8 block"
+              className="text-charcoal/70 text-sm text-center mb-8 block"
             />
 
             {formStatus === 'success' ? (
-              <div className="rounded-2xl bg-eucalyptus/5 border border-eucalyptus/20 p-8 text-center">
-                <div className="w-16 h-16 rounded-full bg-eucalyptus/10 flex items-center justify-center mx-auto mb-4 text-3xl">✉️</div>
+              <div className="rounded-sm bg-[#FAF7F2] border border-[#DED5C6] p-8 text-center">
+                <Mail aria-hidden="true" strokeWidth={1.25} className="w-10 h-10 text-eucalyptus mx-auto mb-4" />
                 <EditableZone page="travel-planning" zone="success_title" fallback="Merci ! On a reçu ta demande."
-                  className="text-xl font-serif text-mahogany mb-2 block"
+                  className="text-xl font-serif font-normal text-mahogany mb-2 block"
                 />
                 <EditableZone page="travel-planning" zone="success_text" fallback="On te répond sous 48h ouvrées maximum. Prépare-toi à rêver — on s'occupe du reste."
-                  className="text-sm text-charcoal/60 block"
+                  className="text-sm text-charcoal/70 block"
                 />
               </div>
             ) : (
               <form onSubmit={handleFormSubmit} className="space-y-5">
                 <div className="grid md:grid-cols-2 gap-5">
                   <div>
-                    <label htmlFor="tp-firstName" className="block text-sm font-semibold text-charcoal mb-1.5">Ton prénom</label>
+                    <label htmlFor="tp-firstName" className="block text-sm font-medium text-charcoal mb-1.5">Ton prénom</label>
                     <input id="tp-firstName" type="text" name="firstName" value={formData.firstName} onChange={handleFormChange} required
-                      className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus" />
+                      className="w-full px-4 py-3 rounded-sm border border-[#DED5C6] bg-[#FAF7F2] text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus" />
                   </div>
                   <div>
-                    <label htmlFor="tp-email" className="block text-sm font-semibold text-charcoal mb-1.5">Email</label>
+                    <label htmlFor="tp-email" className="block text-sm font-medium text-charcoal mb-1.5">Email</label>
                     <input id="tp-email" type="email" name="email" value={formData.email} onChange={handleFormChange} required
-                      className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus" />
+                      className="w-full px-4 py-3 rounded-sm border border-[#DED5C6] bg-[#FAF7F2] text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus" />
                   </div>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-5">
                   <div>
-                    <label htmlFor="tp-destination" className="block text-sm font-semibold text-charcoal mb-1.5">Destination souhaitée</label>
+                    <label htmlFor="tp-destination" className="block text-sm font-medium text-charcoal mb-1.5">Destination souhaitée</label>
                     <select id="tp-destination" name="destination" value={formData.destination} onChange={handleFormChange} required
-                      className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus bg-white">
+                      className="w-full px-4 py-3 rounded-sm border border-[#DED5C6] bg-[#FAF7F2] text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus">
                       <option value="">Sélectionne une destination</option>
                       {FORM_DESTINATIONS.map((d) => <option key={d} value={d}>{d}</option>)}
                       <option value="autre">Autre (hors liste)</option>
                     </select>
                   </div>
                   <div>
-                    <label htmlFor="tp-travelers" className="block text-sm font-semibold text-charcoal mb-1.5">Nombre de voyageurs</label>
+                    <label htmlFor="tp-travelers" className="block text-sm font-medium text-charcoal mb-1.5">Nombre de voyageurs</label>
                     <select id="tp-travelers" name="travelers" value={formData.travelers} onChange={handleFormChange} required
-                      className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus bg-white">
+                      className="w-full px-4 py-3 rounded-sm border border-[#DED5C6] bg-[#FAF7F2] text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus">
                       <option value="En duo / couple (Recommandé)">En duo / couple (Recommandé)</option>
                       <option value="En solo">En solo</option>
                       <option value="En famille">En famille</option>
@@ -514,9 +515,9 @@ export default function TravelPlanningClient({
 
                 <div className="grid md:grid-cols-2 gap-5">
                   <div>
-                    <label htmlFor="tp-duration" className="block text-sm font-semibold text-charcoal mb-1.5">Durée envisagée</label>
+                    <label htmlFor="tp-duration" className="block text-sm font-medium text-charcoal mb-1.5">Durée envisagée</label>
                     <select id="tp-duration" name="duration" value={formData.duration} onChange={handleFormChange} required
-                      className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus bg-white">
+                      className="w-full px-4 py-3 rounded-sm border border-[#DED5C6] bg-[#FAF7F2] text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus">
                       <option value="">Sélectionne une durée</option>
                       <option value="1 semaine">1 semaine</option>
                       <option value="2 semaines">2 semaines</option>
@@ -525,9 +526,9 @@ export default function TravelPlanningClient({
                     </select>
                   </div>
                   <div>
-                    <label htmlFor="tp-budget" className="block text-sm font-semibold text-charcoal mb-1.5">Budget estimé</label>
+                    <label htmlFor="tp-budget" className="block text-sm font-medium text-charcoal mb-1.5">Budget estimé</label>
                     <select id="tp-budget" name="budget" value={formData.budget} onChange={handleFormChange} required
-                      className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus bg-white">
+                      className="w-full px-4 py-3 rounded-sm border border-[#DED5C6] bg-[#FAF7F2] text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus">
                       <option value="">Sélectionne un budget</option>
                       <option value="<1000€">&lt;1000€</option>
                       <option value="1000-2000€">1000-2000€</option>
@@ -539,16 +540,16 @@ export default function TravelPlanningClient({
 
                 <div className="grid md:grid-cols-2 gap-5">
                   <div>
-                    <label htmlFor="tp-startDate" className="block text-sm font-semibold text-charcoal mb-1.5">Date de départ souhaitée</label>
+                    <label htmlFor="tp-startDate" className="block text-sm font-medium text-charcoal mb-1.5">Date de départ souhaitée</label>
                     <input id="tp-startDate" type="date" name="startDate" value={formData.startDate} onChange={handleFormChange}
-                      className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus" />
+                      className="w-full px-4 py-3 rounded-sm border border-[#DED5C6] bg-[#FAF7F2] text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus" />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="tp-notes" className="block text-sm font-semibold text-charcoal mb-1.5">Ce qui te tient à cœur</label>
+                  <label htmlFor="tp-notes" className="block text-sm font-medium text-charcoal mb-1.5">Ce qui te tient à cœur</label>
                   <textarea id="tp-notes" name="notes" value={formData.notes} onChange={handleFormChange} rows={4}
-                    className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus resize-none"
+                    className="w-full px-4 py-3 rounded-sm border border-[#DED5C6] bg-[#FAF7F2] text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus resize-none"
                     placeholder="Rythme, centres d'intérêt, contraintes, rêves… tout ce qui te passe par la tête." />
                 </div>
 
@@ -562,7 +563,7 @@ export default function TravelPlanningClient({
                     id="tp-rgpd"
                     type="checkbox"
                     required
-                    className="mt-1 h-4 w-4 rounded border-stone-300 text-eucalyptus focus:ring-eucalyptus cursor-pointer"
+                    className="mt-1 h-4 w-4 rounded-sm border-[#DED5C6] text-eucalyptus focus:ring-eucalyptus cursor-pointer"
                   />
                   <label htmlFor="tp-rgpd" className="text-xs leading-normal text-charcoal/70">
                     J&apos;accepte que ces informations soient utilisées pour me faire une proposition. Voir notre{' '}
@@ -575,7 +576,7 @@ export default function TravelPlanningClient({
                 {formStatus === 'error' && <p className="text-red-500 text-sm">{formError}</p>}
 
                 <button type="submit" disabled={formStatus === 'loading'}
-                  className="w-full py-3.5 bg-eucalyptus text-white rounded-xl text-sm font-semibold hover:bg-eucalyptus/90 disabled:opacity-50 transition-all">
+                  className="w-full py-3.5 bg-eucalyptus text-[#F7F3EC] rounded-sm text-xs font-medium uppercase tracking-[0.16em] hover:bg-eucalyptus/90 disabled:opacity-50 transition-colors">
                   {formStatus === 'loading' ? 'Envoi en cours…' : 'Envoyer ma demande'}
                 </button>
                 <p className="text-center text-xs text-charcoal/50">
@@ -587,14 +588,14 @@ export default function TravelPlanningClient({
         </section>
 
         {/* FAQ */}
-        <section className="bg-cloud-dancer py-20">
+        <section className="bg-[#EFE9DF] py-20 border-b border-[#E2D9C8]">
           <div className="container max-w-3xl">
             <EditableZone page="travel-planning" zone="faq_title" as="h2" fallback="Ce qu'on nous demande souvent"
-              className="text-3xl font-serif text-mahogany text-center mb-8 block"
+              className="text-3xl font-serif font-normal text-mahogany text-center mb-8 block"
             />
             <div className="space-y-3">
               {FAQS.map((faq, i) => (
-                <div key={faq.zone} className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+                <div key={faq.zone} className="bg-[#FAF7F2] rounded-sm border border-[#DED5C6] overflow-hidden">
                   <button
                     onClick={() => {
                       const isOpening = faqOpen !== i
@@ -608,7 +609,7 @@ export default function TravelPlanningClient({
                       }
                     }}
                     aria-expanded={faqOpen === i}
-                    className="w-full flex justify-between items-center p-5 text-left font-semibold text-mahogany hover:bg-stone-50 transition-colors"
+                    className="w-full flex justify-between items-center p-5 text-left font-medium text-mahogany hover:bg-[#EFE9DF] transition-colors"
                   >
                     <EditableZone page="travel-planning" zone={`${faq.zone}_q`} fallback={faq.q} className="inline" />
                     <span className={`text-eucalyptus text-xl transition-transform ${faqOpen === i ? 'rotate-45' : ''}`}>+</span>
@@ -625,13 +626,13 @@ export default function TravelPlanningClient({
         </section>
 
         {/* CTA final */}
-        <section className="bg-mahogany text-white py-20">
+        <section className="bg-[#2A1D18] text-[#F7F3EC] py-20">
           <div className="container text-center max-w-2xl">
             <EditableZone page="travel-planning" zone="cta_title" as="h2" fallback="Le seul itinéraire qui compte, c'est le tien."
-              className="text-3xl md:text-4xl font-serif mb-4 block"
+              className="text-3xl md:text-4xl font-serif font-normal mb-4 block"
             />
             <EditableZone page="travel-planning" zone="cta_text" type="textarea" fallback="Un brief, un échange, et on te revient avec un voyage pensé pour toi — pas pour une masse. Ça commence par quelques lignes dans le formulaire."
-              className="text-white/70 mb-8 block"
+              className="text-[#E6DEC8]/70 mb-8 block"
             />
             <a
               href="#formulaire"
@@ -644,7 +645,7 @@ export default function TravelPlanningClient({
                   })
                 }
               }}
-              className="inline-flex px-7 py-3 rounded-xl bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors"
+              className="inline-flex px-7 py-3 rounded-sm bg-eucalyptus text-[#F7F3EC] text-xs font-medium uppercase tracking-[0.16em] hover:bg-eucalyptus/90 transition-colors"
             >
               <EditableZone page="travel-planning" zone="cta_button" fallback="Démarrer ma demande →" />
             </a>
