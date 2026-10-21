@@ -9,7 +9,7 @@ import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import { getPageZones } from '@/lib/cms-zones'
 import EditableZone from '@/components/inline-edit/EditableZone';
 import { buildPageMetadata } from '@/lib/page-metadata'
-import CmsIcon from '@/components/ui/CmsIcon'
+import CmsIcon from '@/components/CmsIcon'
 
 export const revalidate = 300;
 
@@ -177,7 +177,7 @@ export default async function ExpertHotelierPage() {
                 href="#audit-form"
                 eventName="formulaire_audit_b2b_clique"
                 eventParams={{ source: 'hero' }}
-                className="inline-flex px-8 py-4 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all text-lg"
+                className="inline-flex px-8 py-4 bg-eucalyptus text-white font-semibold rounded-sm hover:brightness-110 transition-all text-lg"
               >
                 <EditableZone page="expert-hotelier" zone="hero_cta_1" fallback="Parlons de votre établissement →" />
               </B2bCtaButton>
@@ -186,7 +186,7 @@ export default async function ExpertHotelierPage() {
                 href="#cas-clients"
                 eventName="etude_cas_lue"
                 eventParams={{ source: 'hero' }}
-                className="inline-flex px-8 py-4 border border-stone-600 text-stone-300 font-semibold rounded-xl hover:border-eucalyptus hover:text-white transition-all text-lg"
+                className="inline-flex px-8 py-4 border border-stone-600 text-stone-300 font-semibold rounded-sm hover:border-eucalyptus hover:text-white transition-all text-lg"
               >
                 <EditableZone page="expert-hotelier" zone="hero_cta_2" fallback="Voir nos retours d'expérience →" />
               </B2bCtaButton>
@@ -196,7 +196,7 @@ export default async function ExpertHotelierPage() {
         </section>
 
         {/* Problem Section */}
-        <section className="py-20 md:py-28 bg-white">
+        <section className="py-20 md:py-28 bg-[#FAF7F2]">
           <div className="max-w-6xl mx-auto px-6">
             <EditableZone page="expert-hotelier" zone="section_problem_badge" fallback="Le défi"
               className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center block"
@@ -237,7 +237,7 @@ export default async function ExpertHotelierPage() {
         </section>
 
         {/* Services Section */}
-        <section className="py-20 md:py-28 bg-stone-50">
+        <section className="py-20 md:py-28 bg-[#F7F3EC]">
           <div className="max-w-6xl mx-auto px-6">
             <EditableZone page="expert-hotelier" zone="section_solution_badge" fallback="Notre approche"
               className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center block"
@@ -250,8 +250,8 @@ export default async function ExpertHotelierPage() {
             />
             <div className="grid md:grid-cols-3 gap-8">
               {services.map((s, i) => (
-                <div key={i} className="bg-white rounded-2xl p-8 border border-stone-200 hover:shadow-lg transition-shadow">
-                  <div className="mb-5 text-mahogany"><CmsIcon value={s.icon} size={36} /></div>
+                <div key={i} className="bg-[#FAF7F2] rounded-sm p-8 border border-[#DED5C6] transition-shadow">
+                  <div className="mb-5"><CmsIcon name={s.icon} className="w-9 h-9 text-eucalyptus" strokeWidth={1.25} /></div>
                   <EditableZone page="expert-hotelier" zone={`service_${i + 1}_title`} fallback={s.title}
                     className="text-xl font-serif font-bold text-stone-900 mb-1 block"
                   />
@@ -259,19 +259,19 @@ export default async function ExpertHotelierPage() {
                     className="text-sm text-eucalyptus font-semibold mb-5 block"
                   />
                   <div className="space-y-4">
-                    <div className="bg-red-50 rounded-xl p-4 border border-red-100">
+                    <div className="bg-red-50 rounded-sm p-4 border border-red-100">
                       <p className="text-xs font-semibold text-red-700 mb-1">Problème</p>
                       <EditableZone page="expert-hotelier" zone={`service_${i + 1}_problem`} fallback={s.problem}
                         className="text-sm text-stone-700 block"
                       />
                     </div>
-                    <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
+                    <div className="bg-emerald-50 rounded-sm p-4 border border-emerald-100">
                       <p className="text-xs font-semibold text-emerald-700 mb-1">Notre approche</p>
                       <EditableZone page="expert-hotelier" zone={`service_${i + 1}_solution`} type="textarea" fallback={s.solution}
                         className="text-sm text-stone-700 block"
                       />
                     </div>
-                    <div className="bg-stone-50 rounded-xl p-4 border border-stone-200">
+                    <div className="bg-[#F7F3EC] rounded-sm p-4 border border-[#DED5C6]">
                       <p className="text-xs font-semibold text-stone-600 mb-1">Résultats observés</p>
                       <EditableZone page="expert-hotelier" zone={`service_${i + 1}_results`} fallback={s.results}
                         className="text-sm font-semibold text-eucalyptus block"
@@ -286,7 +286,7 @@ export default async function ExpertHotelierPage() {
 
         {/* Case Studies Section */}
         {SHOW_CASE_STUDIES && (
-        <section id="cas-clients" className="py-20 md:py-28 bg-white">
+        <section id="cas-clients" className="py-20 md:py-28 bg-[#FAF7F2]">
           <div className="max-w-5xl mx-auto px-6">
             <EditableZone page="expert-hotelier" zone="cas_clients_badge" fallback="Retours d'expérience"
               className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center block"
@@ -299,7 +299,7 @@ export default async function ExpertHotelierPage() {
             />
             <div className="grid md:grid-cols-2 gap-8">
               {caseStudies.map((cs, i) => (
-                <article key={i} className="rounded-2xl border border-stone-200 p-8 bg-stone-50 hover:shadow-lg transition-shadow">
+                <article key={i} className="rounded-sm border border-[#DED5C6] p-8 bg-[#F7F3EC] transition-shadow">
                   <div className="flex flex-wrap gap-2 mb-4">
                     {zoneTags(`cas_${i + 1}_tags`, cs.tags).map((t) => (
                       <span key={t} className="px-2.5 py-1 bg-eucalyptus/10 text-eucalyptus text-xs font-semibold rounded-full">{t}</span>
@@ -323,7 +323,7 @@ export default async function ExpertHotelierPage() {
                         <EditableZone page="expert-hotelier" zone={`cas_${i + 1}_solution`} type="textarea" fallback={cs.solution} className="inline" />
                       </div>
                     </div>
-                    <div className="mt-4 p-4 bg-stone-900 text-white rounded-xl">
+                    <div className="mt-4 p-4 bg-stone-900 text-white rounded-sm">
                       <p className="text-xs uppercase tracking-wider text-stone-400 mb-1">Résultat</p>
                       <EditableZone page="expert-hotelier" zone={`cas_${i + 1}_resultat`} fallback={cs.resultat}
                         className="font-semibold text-lg block"
@@ -338,7 +338,7 @@ export default async function ExpertHotelierPage() {
         )}
 
         {/* Processus Section */}
-        <section className="py-20 md:py-28 bg-stone-50">
+        <section className="py-20 md:py-28 bg-[#F7F3EC]">
           <div className="max-w-4xl mx-auto px-6 text-center">
             <EditableZone page="expert-hotelier" zone="processus_badge" fallback="Le cheminement"
               className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 block"
@@ -386,7 +386,7 @@ export default async function ExpertHotelierPage() {
         </section>
 
         {/* FAQ Section */}
-        <section className="py-20 md:py-28 bg-white">
+        <section className="py-20 md:py-28 bg-[#FAF7F2]">
           <div className="max-w-3xl mx-auto px-6">
             <EditableZone page="expert-hotelier" zone="faq_badge" fallback="Des questions ?"
               className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center block"
@@ -396,7 +396,7 @@ export default async function ExpertHotelierPage() {
             </h2>
             <div className="space-y-4">
               {faqItems.map((faq, i) => (
-                <details key={i} className="rounded-xl border border-stone-200 p-5 bg-stone-50">
+                <details key={i} className="rounded-sm border border-[#DED5C6] p-5 bg-[#F7F3EC]">
                   <summary className="font-semibold text-stone-900 cursor-pointer">
                     <EditableZone page="expert-hotelier" zone={`faq_${i + 1}_q`} fallback={faq.q} className="inline" />
                   </summary>
@@ -422,7 +422,7 @@ export default async function ExpertHotelierPage() {
               href="#audit-form"
               eventName="formulaire_audit_b2b_clique"
               eventParams={{ source: 'cta_final' }}
-              className="inline-block px-10 py-5 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all text-lg"
+              className="inline-block px-10 py-5 bg-eucalyptus text-white font-semibold rounded-sm hover:brightness-110 transition-all text-lg"
             >
               <EditableZone page="expert-hotelier" zone="cta_button" fallback="Demander mon diagnostic →" />
             </B2bCtaButton>

@@ -1,7 +1,6 @@
 'use client'
 
 import { Heart, MapPin, Calendar, Users } from 'lucide-react'
-import CmsIcon from '@/components/ui/CmsIcon'
 
 interface TestedByHeldonicaProps {
   when: string
@@ -21,7 +20,7 @@ export default function TestedByHeldonica({
   destinationName,
 }: TestedByHeldonicaProps) {
   return (
-    <section className="bg-white py-16 md:py-20 border-y border-stone-100">
+    <section className="bg-[#FAF7F2] py-16 md:py-20 border-y border-stone-100">
       <div className="container max-w-3xl">
         {/* Badge */}
         <div className="flex items-center justify-center gap-2 mb-8">
@@ -34,7 +33,7 @@ export default function TestedByHeldonica({
         </div>
 
         {/* Contenu */}
-        <div className="bg-gradient-to-br from-stone-50 to-cloud-dancer/50 rounded-2xl p-8 border border-stone-100">
+        <div className="bg-gradient-to-br from-stone-50 to-cloud-dancer/50 rounded-sm p-8 border border-stone-100">
           {/* Métadonnées */}
           <div className="flex flex-wrap justify-center gap-6 mb-8 text-sm text-charcoal/60">
             <div className="flex items-center gap-2">
@@ -42,7 +41,6 @@ export default function TestedByHeldonica({
               <span>{when}</span>
             </div>
             <div className="flex items-center gap-2">
-              <CmsIcon value="Timer" size={16} className="text-eucalyptus" />
               <span>{duration}</span>
             </div>
             <div className="flex items-center gap-2">
@@ -58,8 +56,7 @@ export default function TestedByHeldonica({
             </h4>
             <div className="grid md:grid-cols-2 gap-3">
               {highlights.map((highlight, i) => (
-                <div key={i} className="flex items-start gap-3 bg-white rounded-lg p-3 border border-stone-100">
-                  <CmsIcon value="Sparkles" size={16} className="text-eucalyptus mt-0.5 shrink-0" />
+                <div key={i} className="flex items-start gap-3 bg-[#FAF7F2] rounded-lg p-3 border border-stone-100">
                   <p className="text-sm text-charcoal/80">{highlight}</p>
                 </div>
               ))}
@@ -67,7 +64,7 @@ export default function TestedByHeldonica({
           </div>
 
           {/* Insight clé */}
-          <div className="bg-eucalyptus/5 rounded-xl p-6 border border-eucalyptus/10">
+          <div className="bg-eucalyptus/5 rounded-sm p-6 border border-eucalyptus/10">
             <p className="text-sm font-semibold text-eucalyptus mb-2 flex items-center gap-2">
               <MapPin size={16} className="fill-current" />
               Ce qu&apos;on a appris sur le terrain

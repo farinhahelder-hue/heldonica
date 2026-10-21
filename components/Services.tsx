@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import CmsIcon from '@/components/ui/CmsIcon'
 
 export default function Services() {
   return (
@@ -20,11 +19,8 @@ export default function Services() {
 
         <div className="grid md:grid-cols-2 gap-8">
           {/* B2C - Travel Planning */}
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-cloud-dancer hover:shadow-md transition-shadow">
+          <div className="bg-[#FAF7F2] rounded-sm p-8 border border-cloud-dancer transition-shadow">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-14 h-14 rounded-xl bg-eucalyptus/10 flex items-center justify-center text-eucalyptus">
-                <CmsIcon value="Plane" size={26} />
-              </div>
               <div>
                 <span className="text-eucalyptus text-xs font-bold tracking-wider uppercase">Particuliers</span>
                 <h3 className="text-xl font-serif font-bold text-mahogany">Travel Planning</h3>
@@ -42,7 +38,7 @@ export default function Services() {
                 'Conseils personnalisés',
               ].map((item) => (
                 <li key={item} className="flex items-center gap-3 text-sm text-charcoal/70">
-                  <span className="w-5 h-5 rounded-full bg-eucalyptus/10 text-eucalyptus flex items-center justify-center text-xs">✓</span>
+                  <span className="w-5 h-5 rounded-full bg-eucalyptus/10 text-eucalyptus flex items-center justify-center text-xs">·</span>
                   {item}
                 </li>
               ))}
@@ -53,11 +49,8 @@ export default function Services() {
           </div>
 
           {/* B2B - Consulting */}
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-cloud-dancer hover:shadow-md transition-shadow">
+          <div className="bg-[#FAF7F2] rounded-sm p-8 border border-cloud-dancer transition-shadow">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-14 h-14 rounded-xl bg-mahogany/10 flex items-center justify-center text-mahogany">
-                <CmsIcon value="Hotel" size={26} />
-              </div>
               <div>
                 <span className="text-mahogany text-xs font-bold tracking-wider uppercase">Professionnels</span>
                 <h3 className="text-xl font-serif font-bold text-mahogany">Consulting Hôtelier</h3>
@@ -75,7 +68,7 @@ export default function Services() {
                 'Audit & optimisation',
               ].map((item) => (
                 <li key={item} className="flex items-center gap-3 text-sm text-charcoal/70">
-                  <span className="w-5 h-5 rounded-full bg-mahogany/10 text-mahogany flex items-center justify-center text-xs">✓</span>
+                  <span className="w-5 h-5 rounded-full bg-mahogany/10 text-mahogany flex items-center justify-center text-xs">·</span>
                   {item}
                 </li>
               ))}

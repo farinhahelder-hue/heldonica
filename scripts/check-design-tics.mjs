@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * check-design-tics — garde-fou anti-récidive contre les tics visuels « IA / SaaS »
  * sur les pages publiques.

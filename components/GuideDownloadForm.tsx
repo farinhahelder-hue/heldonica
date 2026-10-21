@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import CmsIcon from '@/components/ui/CmsIcon'
 
 interface GuideDownloadFormProps {
   variant?: 'hero' | 'inline' | 'footer'
@@ -55,8 +54,7 @@ export default function GuideDownloadForm({ variant = 'inline', className = '' }
 
   if (status === 'success') {
     return (
-      <div className={`bg-eucalyptus/10 border border-eucalyptus/30 rounded-2xl p-6 text-center ${className}`}>
-        <span className="mb-3 block text-eucalyptus"><CmsIcon value="Sparkles" size={30} /></span>
+      <div className={`bg-eucalyptus/10 border border-eucalyptus/30 rounded-sm p-6 text-center ${className}`}>
         <p className="text-white font-semibold text-lg">C&apos;est parti !</p>
         <p className="text-stone-300 text-sm mt-1">Redirection vers le guide...</p>
       </div>
@@ -65,19 +63,19 @@ export default function GuideDownloadForm({ variant = 'inline', className = '' }
 
   const styles = {
     hero: {
-      wrapper: 'bg-white/5 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-white/10 max-w-md mx-auto',
-      input: 'w-full px-5 py-3.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-stone-400 focus:outline-none focus:border-amber-400 transition-colors',
-      button: 'w-full px-6 py-4 bg-amber-500 text-stone-900 font-bold rounded-xl hover:bg-amber-400 transition-all text-lg',
+      wrapper: 'bg-[#FAF7F2]/5 backdrop-blur-sm rounded-sm p-6 md:p-8 border border-white/10 max-w-md mx-auto',
+      input: 'w-full px-5 py-3.5 bg-[#FAF7F2]/10 border border-white/20 rounded-sm text-white placeholder-stone-400 focus:outline-none focus:border-amber-400 transition-colors',
+      button: 'w-full px-6 py-4 bg-amber-500 text-stone-900 font-bold rounded-sm hover:bg-amber-400 transition-all text-lg',
     },
     inline: {
       wrapper: 'max-w-md mx-auto',
-      input: 'w-full px-5 py-3.5 bg-stone-800 border border-stone-700 rounded-xl text-white placeholder-stone-500 focus:outline-none focus:border-amber-400 transition-colors',
-      button: 'w-full px-6 py-3.5 bg-amber-500 text-stone-900 font-semibold rounded-xl hover:bg-amber-400 transition-all whitespace-nowrap',
+      input: 'w-full px-5 py-3.5 bg-stone-800 border border-stone-700 rounded-sm text-white placeholder-stone-500 focus:outline-none focus:border-amber-400 transition-colors',
+      button: 'w-full px-6 py-3.5 bg-amber-500 text-stone-900 font-semibold rounded-sm hover:bg-amber-400 transition-all whitespace-nowrap',
     },
     footer: {
       wrapper: 'flex flex-col sm:flex-row gap-3 max-w-md mx-auto',
-      input: 'flex-1 px-5 py-3.5 bg-stone-800 border border-stone-700 rounded-xl text-white placeholder-stone-500 focus:outline-none focus:border-amber-400 transition-colors',
-      button: 'px-6 py-3.5 bg-amber-500 text-stone-900 font-semibold rounded-xl hover:bg-amber-400 transition-all whitespace-nowrap',
+      input: 'flex-1 px-5 py-3.5 bg-stone-800 border border-stone-700 rounded-sm text-white placeholder-stone-500 focus:outline-none focus:border-amber-400 transition-colors',
+      button: 'px-6 py-3.5 bg-amber-500 text-stone-900 font-semibold rounded-sm hover:bg-amber-400 transition-all whitespace-nowrap',
     },
   }
 

@@ -2,12 +2,11 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { Compass, Lightbulb } from 'lucide-react'
 import EditableZone from '@/components/inline-edit/EditableZone'
-import EditableIcon from '@/components/inline-edit/EditableIcon'
 import NewsletterForm from '@/components/NewsletterForm'
 import { getStyleLabel } from '@/lib/travel-styles'
 import { isUnpublishedCmsPage } from '@/lib/unpublished-pages'
-import CmsIcon from '@/components/ui/CmsIcon'
 
 export interface SubDestinationHighlight {
   title: string
@@ -75,26 +74,26 @@ export default function SubDestinationTemplate({
     const styleLabel = getStyleLabel(travelStyle)
 
     return (
-      <main>
-        <section className="relative min-h-[60vh] flex items-end overflow-hidden bg-stone-900">
-          <EditableZone page={page} zone="hero_image" type="image" fallback={heroImage} className="object-cover opacity-50 absolute inset-0 w-full h-full" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+      <main className="bg-[#F7F3EC] text-[#241D1A]">
+        <section className="relative min-h-[55vh] flex items-end overflow-hidden bg-[#241D1A] border-b border-[#DED5C6]">
+          <EditableZone page={page} zone="hero_image" type="image" fallback={heroImage} className="object-cover opacity-45 absolute inset-0 w-full h-full" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#1A1512]/85 via-[#1A1512]/35 to-transparent" />
           <div className="relative container py-16 md:py-24">
-            <p className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold">
+            <p className="text-[11px] uppercase tracking-[0.2em] text-[#E6DEC8]/80 mb-4 font-medium">
               <EditableZone page={page} zone="hero_eyebrow" fallback={`${parentName} — Bientôt`} />
             </p>
-            <h1 className="text-4xl md:text-6xl font-serif text-white max-w-3xl mb-5 leading-tight">
+            <h1 className="text-4xl md:text-6xl font-serif font-normal text-[#FAF7F2] max-w-3xl mb-5 leading-tight">
               <EditableZone page={page} zone="hero_title" fallback={name} />
             </h1>
           </div>
         </section>
 
         {styleLabel && (
-          <section className="bg-white py-12">
+          <section className="bg-[#EFE9DF] py-10 border-b border-[#DED5C6]">
             <div className="container max-w-4xl">
-              <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
-                <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Style</p>
-                <p className="text-charcoal font-medium">
+              <div className="rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-5">
+                <p className="text-[11px] uppercase tracking-[0.18em] text-eucalyptus font-medium mb-1.5">Style</p>
+                <p className="text-mahogany font-serif text-lg">
                   <EditableZone page={page} zone="style_label" fallback={styleLabel} />
                 </p>
               </div>
@@ -102,14 +101,16 @@ export default function SubDestinationTemplate({
           </section>
         )}
 
-        <section className="bg-cloud-dancer py-20 md:py-28">
+        <section className="bg-[#F7F3EC] py-20 md:py-28">
           <div className="container max-w-2xl text-center">
-            <p className="mb-6 flex justify-center text-eucalyptus"><CmsIcon value="Map" size={40} /></p>
-            <h2 className="text-3xl font-serif text-mahogany mb-4">
+            <div className="w-12 h-12 rounded-sm border border-[#DED5C6] bg-[#FAF7F2] flex items-center justify-center mx-auto mb-6">
+              <Compass className="w-5 h-5 text-eucalyptus" strokeWidth={1.25} aria-hidden="true" />
+            </div>
+            <h2 className="text-3xl font-serif font-normal text-mahogany mb-4">
               {/* Le nom tel quel : en minuscules, il donnait « le guide funchal et environs ». */}
               <EditableZone page={page} zone="section_title" fallback={`On prépare le guide ${name} — à notre façon.`} />
             </h2>
-            <p className="text-charcoal/70 mb-8 max-w-lg mx-auto">
+            <p className="text-charcoal/75 mb-8 max-w-lg mx-auto leading-relaxed">
               <EditableZone page={page} zone="section_text" type="textarea" fallback="On arpente les ruelles, on teste les adresses, on sélectionne ce qu'on referait vraiment. Laisse-nous ton email et tu seras le premier averti — avant qu'on publie quoi que ce soit ailleurs." />
             </p>
             <div className="max-w-md mx-auto mb-8">
@@ -117,7 +118,7 @@ export default function SubDestinationTemplate({
             </div>
             <Link
               href="/destinations"
-              className="inline-flex items-center gap-2 text-sm text-eucalyptus font-semibold hover:underline"
+              className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-mahogany font-medium border-b border-mahogany/40 pb-1 hover:border-mahogany transition-colors"
             >
               <EditableZone page={page} zone="back_link" fallback="← Voir toutes nos destinations" />
             </Link>
@@ -142,22 +143,22 @@ export default function SubDestinationTemplate({
   }
 
   return (
-    <main className="min-h-screen bg-cloud-dancer font-sans">
+    <main className="min-h-screen bg-[#F7F3EC] text-[#241D1A] font-sans">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       {/* ── HERO ── */}
-      <section className="relative h-[45vh] md:h-[55vh] flex items-end bg-stone-950 overflow-hidden">
+      <section className="relative h-[45vh] md:h-[55vh] flex items-end bg-[#241D1A] overflow-hidden border-b border-[#DED5C6]">
         <div className="absolute inset-0">
           <EditableZone
             page={page}
             zone="hero_image"
             type="image"
             fallback={heroImage}
-            className="w-full h-full object-cover opacity-60"
+            className="w-full h-full object-cover opacity-55"
           />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-transparent to-transparent z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1A1512]/85 via-[#1A1512]/30 to-transparent z-10" />
         <div className="relative z-20 max-w-4xl mx-auto px-6 pb-12 w-full">
-          <nav className="flex items-center gap-2 text-teal text-xs font-bold tracking-widest uppercase mb-3">
+          <nav className="flex items-center gap-2 text-[#E6DEC8]/85 text-[11px] font-medium tracking-[0.2em] uppercase mb-3">
             <Link href="/destinations" className="hover:underline">
               Destinations
             </Link>
@@ -166,31 +167,31 @@ export default function SubDestinationTemplate({
               {parentName}
             </Link>
           </nav>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-light text-white leading-tight">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-normal text-[#FAF7F2] leading-tight">
             {name}
           </h1>
         </div>
       </section>
 
       {/* ── INTRO ── */}
-      <section className="py-16 bg-white border-b border-stone-200/60">
+      <section className="py-16 bg-[#F7F3EC] border-b border-[#DED5C6]">
         <div className="max-w-3xl mx-auto px-6">
-          <p className="text-stone-500 text-xs font-bold uppercase tracking-[0.2em] mb-4">
+          <p className="text-eucalyptus text-[11px] font-medium uppercase tracking-[0.2em] mb-4">
             <EditableZone page={page} zone="intro_kicker" fallback="L'esprit du lieu" />
           </p>
-          <p className="text-lg md:text-xl text-stone-800 font-serif font-light leading-relaxed mb-8">
-            {/* Pas de `as="p"` : le parent est déjà un <p>, et un <p> imbriqué
-                fait échouer l'hydratation (erreur console à chaque rendu). */}
+          <p className="text-lg md:text-xl text-mahogany font-serif font-normal leading-relaxed mb-8">
             <EditableZone page={page} zone="intro_text" type="textarea" fallback={introText} />
           </p>
 
-          <div className="p-5 rounded-2xl bg-[#F8F5F0] border border-stone-200/50 flex items-start gap-4">
-            <span className="shrink-0 text-mahogany"><CmsIcon value="Lightbulb" size={24} /></span>
+          <div className="p-5 rounded-sm bg-[#FAF7F2] border border-[#DED5C6] flex items-start gap-4">
+            <div className="w-9 h-9 rounded-sm border border-[#DED5C6] bg-[#EFE9DF] flex items-center justify-center shrink-0 mt-0.5">
+              <Lightbulb className="w-4 h-4 text-eucalyptus" strokeWidth={1.25} aria-hidden="true" />
+            </div>
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-mahogany mb-1">
+              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-mahogany mb-1">
                 <EditableZone page={page} zone="local_tip_kicker" fallback="Notre conseil" />
               </p>
-              <p className="text-sm text-stone-600 leading-relaxed">
+              <p className="text-sm text-charcoal/80 leading-relaxed">
                 <EditableZone page={page} zone="local_tip" type="textarea" fallback={localTip} />
               </p>
             </div>
@@ -199,13 +200,13 @@ export default function SubDestinationTemplate({
       </section>
 
       {/* ── HIGHLIGHTS / PÉPITES ── */}
-      <section className="py-20">
+      <section className="py-20 bg-[#EFE9DF] border-b border-[#DED5C6]">
         <div className="max-w-4xl mx-auto px-6">
-          <h2 className="text-2xl md:text-3xl font-serif font-light text-stone-900 mb-2 text-center">
+          <h2 className="text-2xl md:text-3xl font-serif font-normal text-mahogany mb-2 text-center">
             <EditableZone page={page} zone="highlights_title_prefix" fallback="Pépites dénichées à" />{' '}
             {name}
           </h2>
-          <p className="text-xs text-stone-500 tracking-wider text-center uppercase mb-12">
+          <p className="text-[11px] text-charcoal/65 tracking-[0.18em] text-center uppercase mb-12">
             <EditableZone
               page={page}
               zone="highlights_subtitle"
@@ -217,12 +218,12 @@ export default function SubDestinationTemplate({
             {highlights.map((h, i) => (
               <div
                 key={i}
-                className="bg-white rounded-2xl p-6 border border-stone-200/60 hover:shadow-md transition-shadow flex flex-col items-center text-center"
+                className="bg-[#FAF7F2] rounded-sm p-6 border border-[#DED5C6] hover:border-mahogany/40 transition-colors flex flex-col items-start"
               >
-                <div className="w-12 h-12 rounded-full bg-teal/10 flex items-center justify-center text-teal mb-4">
-                  <EditableIcon page={page} zone={`highlight_${i + 1}_emoji`} fallback={h.emoji} size={22} />
+                <div className="w-10 h-10 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] flex items-center justify-center mb-4">
+                  <EditableZone page={page} zone={`highlight_${i + 1}_emoji`} fallback={h.emoji} className="w-5 h-5 text-eucalyptus" />
                 </div>
-                <h3 className="font-serif font-bold text-stone-800 text-lg mb-2">
+                <h3 className="font-serif font-normal text-mahogany text-lg mb-2">
                   <EditableZone
                     page={page}
                     zone={`highlight_${i + 1}_title`}
@@ -230,7 +231,7 @@ export default function SubDestinationTemplate({
                     as="span"
                   />
                 </h3>
-                <p className="text-stone-600 text-xs leading-relaxed">
+                <p className="text-charcoal/75 text-xs leading-relaxed">
                   <EditableZone
                     page={page}
                     zone={`highlight_${i + 1}_description`}
@@ -247,9 +248,9 @@ export default function SubDestinationTemplate({
 
       {/* ── ARTICLES DE BLOG CONNEXES ── */}
       {relatedArticles.length > 0 && (
-        <section className="py-16 bg-white border-t border-stone-200/60">
+        <section className="py-16 bg-[#F7F3EC] border-b border-[#DED5C6]">
           <div className="max-w-4xl mx-auto px-6">
-            <h3 className="text-xl font-serif font-light text-stone-900 mb-8">
+            <h3 className="text-xl font-serif font-normal text-mahogany mb-8">
               <EditableZone
                 page={page}
                 zone="related_title"
@@ -261,25 +262,22 @@ export default function SubDestinationTemplate({
                 <Link
                   key={post.slug}
                   href={`/blog/${post.slug}`}
-                  className="group flex gap-4 items-center p-3 rounded-xl border border-stone-100 hover:border-teal/20 transition-all bg-[#F8F5F0]/20"
+                  className="group flex gap-4 items-center p-3 rounded-sm border border-[#DED5C6] hover:border-mahogany/40 transition-colors bg-[#FAF7F2]"
                 >
-                  <div className="relative w-20 h-20 shrink-0 rounded-lg overflow-hidden">
+                  <div className="relative w-20 h-20 shrink-0 rounded-sm overflow-hidden border border-[#DED5C6]">
                     <Image
-                      src={
-                        post.featured_image ||
-                        '/og-default.jpg'
-                      }
+                      src={post.featured_image || '/og-default.jpg'}
                       alt={post.title}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform"
                     />
                   </div>
                   <div>
-                    <h4 className="font-serif font-bold text-stone-800 text-sm group-hover:text-eucalyptus transition-colors line-clamp-2">
+                    <h4 className="font-serif font-normal text-mahogany text-sm group-hover:text-eucalyptus transition-colors line-clamp-2">
                       {post.title}
                     </h4>
                     {post.excerpt && (
-                      <p className="text-stone-500 text-[11px] mt-1 line-clamp-1">
+                      <p className="text-charcoal/65 text-[11px] mt-1 line-clamp-1">
                         {post.excerpt}
                       </p>
                     )}
@@ -292,19 +290,19 @@ export default function SubDestinationTemplate({
       )}
 
       {/* ── B2C CTA TRAVEL PLANNING ── */}
-      <section className="py-20 bg-stone-900 text-white text-center">
+      <section className="py-20 bg-[#2A1D18] text-[#F7F3EC] text-center">
         <div className="max-w-2xl mx-auto px-6">
-          <span className="text-teal text-xs font-bold tracking-[0.2em] uppercase mb-4 block">
+          <span className="text-[#E6DEC8]/80 text-[11px] font-medium tracking-[0.2em] uppercase mb-4 block">
             <EditableZone page={page} zone="cta_kicker" fallback="Ton itinéraire sur mesure" />
           </span>
-          <h2 className="text-3xl md:text-4xl font-serif font-light mb-6">
+          <h2 className="text-3xl md:text-4xl font-serif font-normal mb-6">
             <EditableZone
               page={page}
               zone="cta_title"
               fallback={`Tu prépares un voyage en ${parentName} ?`}
             />
           </h2>
-          <p className="text-stone-400 text-sm md:text-base leading-relaxed mb-8 max-w-lg mx-auto">
+          <p className="text-[#E6DEC8]/75 text-sm md:text-base leading-relaxed mb-8 max-w-lg mx-auto">
             <EditableZone
               page={page}
               zone="cta_text"
@@ -315,13 +313,13 @@ export default function SubDestinationTemplate({
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               href="/travel-planning"
-              className="px-8 py-3.5 bg-teal text-white rounded-full font-semibold text-sm hover:brightness-110 transition shadow-lg"
+              className="px-7 py-3 bg-eucalyptus text-[#FAF7F2] rounded-sm font-medium text-xs uppercase tracking-[0.16em] hover:bg-eucalyptus/90 transition-colors"
             >
               <EditableZone page={page} zone="cta_button_1" fallback="Planifier mon voyage" />
             </Link>
             <Link
               href={`/destinations/${parentSlug}`}
-              className="px-8 py-3.5 border border-stone-600 text-stone-300 hover:text-white rounded-full font-semibold text-sm hover:border-white transition"
+              className="px-7 py-3 border border-[#E6DEC8]/35 text-[#E6DEC8] hover:text-[#FAF7F2] rounded-sm font-medium text-xs uppercase tracking-[0.16em] hover:border-[#FAF7F2] transition-colors"
             >
               <EditableZone
                 page={page}

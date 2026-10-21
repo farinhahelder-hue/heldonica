@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { Download, Loader2, CheckCircle } from 'lucide-react'
-import CmsIcon from '@/components/ui/CmsIcon'
 
 interface LeadMagnetBlockProps {
   destinationSlug: string
@@ -75,9 +74,9 @@ export default function LeadMagnetBlock({
 
   if (status === 'success') {
     return (
-      <section className="bg-white py-16 md:py-20 border-y border-stone-100">
+      <section className="bg-[#FAF7F2] py-16 md:py-20 border-y border-stone-100">
         <div className="container max-w-3xl">
-          <div className="bg-gradient-to-br from-eucalyptus/5 via-white to-cloud-dancer rounded-2xl p-8 md:p-10 border border-eucalyptus/10 text-center">
+          <div className="bg-gradient-to-br from-eucalyptus/5 via-white to-cloud-dancer rounded-sm p-8 md:p-10 border border-eucalyptus/10 text-center">
             <CheckCircle size={48} className="mx-auto text-eucalyptus mb-4" />
             <h2 className="text-2xl md:text-3xl font-serif text-mahogany mb-3">
               C&apos;est parti ! 
@@ -93,9 +92,9 @@ export default function LeadMagnetBlock({
   }
 
   return (
-    <section className="bg-white py-16 md:py-20 border-y border-stone-100">
+    <section className="bg-[#FAF7F2] py-16 md:py-20 border-y border-stone-100">
       <div className="container max-w-3xl">
-        <div className="bg-gradient-to-br from-eucalyptus/5 via-white to-cloud-dancer rounded-2xl p-8 md:p-10 border border-eucalyptus/10">
+        <div className="bg-gradient-to-br from-eucalyptus/5 via-white to-cloud-dancer rounded-sm p-8 md:p-10 border border-eucalyptus/10">
           {/* Header */}
           <div className="text-center mb-8">
             <h2 className="text-2xl md:text-3xl font-serif text-mahogany mb-3">
@@ -108,18 +107,15 @@ export default function LeadMagnetBlock({
 
           {/* Benefits */}
           <div className="grid md:grid-cols-3 gap-4 mb-8">
-            <div className="bg-white rounded-xl p-5 border border-stone-100 text-center">
-              <span className="mb-3 block text-eucalyptus"><CmsIcon value="Coins" size={30} /></span>
+            <div className="bg-[#FAF7F2] rounded-sm p-5 border border-stone-100 text-center">
               <p className="text-sm font-semibold text-charcoal">Budget réaliste</p>
               <p className="text-xs text-charcoal/60 mt-1">Les vrais prix qu&apos;on a payés</p>
             </div>
-            <div className="bg-white rounded-xl p-5 border border-stone-100 text-center">
-              <span className="mb-3 block text-eucalyptus"><CmsIcon value="MapPin" size={30} /></span>
+            <div className="bg-[#FAF7F2] rounded-sm p-5 border border-stone-100 text-center">
               <p className="text-sm font-semibold text-charcoal">Nos adresses testées</p>
               <p className="text-xs text-charcoal/60 mt-1">Chaque lieu qu&apos;on recommande, on y est allés</p>
             </div>
-            <div className="bg-white rounded-xl p-5 border border-stone-100 text-center">
-              <span className="mb-3 block text-eucalyptus"><CmsIcon value="Map" size={30} /></span>
+            <div className="bg-[#FAF7F2] rounded-sm p-5 border border-stone-100 text-center">
               <p className="text-sm font-semibold text-charcoal">Itinéraire clé en main</p>
               <p className="text-xs text-charcoal/60 mt-1">Jour par jour, avec nos repères du terrain</p>
             </div>
@@ -135,13 +131,13 @@ export default function LeadMagnetBlock({
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="ton@email.fr"
                 required
-                className="flex-1 px-4 py-3 rounded-xl border border-stone-200 focus:border-eucalyptus focus:ring-2 focus:ring-eucalyptus/20 outline-none text-charcoal"
+                className="flex-1 px-4 py-3 rounded-sm border border-[#DED5C6] focus:border-eucalyptus focus:ring-2 focus:ring-eucalyptus/20 outline-none text-charcoal"
                 disabled={status === 'loading'}
               />
               <button
                 type="submit"
                 disabled={status === 'loading'}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-all shadow-lg shadow-eucalyptus/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-sm bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-all shadow-eucalyptus/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {status === 'loading' ? (
                   <Loader2 size={18} className="animate-spin" />

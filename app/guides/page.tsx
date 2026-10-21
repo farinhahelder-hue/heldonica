@@ -5,7 +5,6 @@ import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
-import EditableIcon from '@/components/inline-edit/EditableIcon'
 import { getPageZones } from '@/lib/cms-zones'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
@@ -13,7 +12,7 @@ export const revalidate = 300;
 
 const PAGE = "guides";
 const GUIDES = [
-  { slug: "top-10-pepites-madere", title: "Les 10 pépites de Madère qu'on ne te dit pas", description: "Les adresses dénichées sur le terrain, les sentiers hors des cartes et les tables familiales que les guides touristiques ignorent.", destination: "Madère", emoji: "🌿" },
+  { slug: "top-10-pepites-madere", title: "Les 10 pépites de Madère qu'on ne te dit pas", description: "Les adresses dénichées sur le terrain, les sentiers hors des cartes et les tables familiales que les guides touristiques ignorent.", destination: "Madère", emoji: "Leaf" },
 ];
 
 const metadata: Metadata = {
@@ -59,11 +58,6 @@ export default async function GuidesPage() {
     <EditableZone page={PAGE} zone={zone} type={type} fallback={fallback} className={className} as={as} />
   )
 
-  // Zones d'icone : la base stocke un nom d'icone lucide, jamais un emoji.
-  const ZI = (zone: string, fallback: string, size?: number) => (
-    <EditableIcon page={PAGE} zone={zone} fallback={fallback} size={size} />
-  )
-
   return (
     <InlineEditProvider page={PAGE} initialZones={zones}>
       <Header />
@@ -83,16 +77,16 @@ export default async function GuidesPage() {
           </div>
         </section>
 
-        <section className="bg-white py-16 md:py-20">
+        <section className="bg-[#FAF7F2] py-16 md:py-20">
           <div className="max-w-4xl mx-auto px-6">
             <div className="grid gap-6">
                 <Link
                   key={GUIDES[0].slug}
                   href={'/guides/' + GUIDES[0].slug}
-                  className="group flex gap-6 rounded-2xl border border-stone-200 bg-stone-50 p-6 hover:border-eucalyptus/40 hover:bg-eucalyptus/5 transition-all"
+                  className="group flex gap-6 rounded-sm border border-[#DED5C6] bg-[#F7F3EC] p-6 hover:border-eucalyptus/40 hover:bg-eucalyptus/5 transition-all"
                 >
-                  <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-eucalyptus/10 flex items-center justify-center text-3xl">
-                    {ZI('guide_1_emoji', "🌿")}
+                  <div className="flex-shrink-0 w-14 h-14 rounded-sm bg-eucalyptus/10 flex items-center justify-center text-3xl">
+                    {Z('guide_1_emoji', 'text', "Leaf", undefined, 'span')}
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs uppercase tracking-wider text-eucalyptus font-semibold mb-1">
@@ -110,7 +104,7 @@ export default async function GuidesPage() {
           </div>
         </section>
 
-        <section className="bg-stone-50 border-t border-stone-200 py-12">
+        <section className="bg-[#F7F3EC] border-t border-[#DED5C6] py-12">
           <div className="max-w-4xl mx-auto px-6 text-center">
             <p className="text-charcoal/60 text-sm mb-4">
               {Z('cta_text', 'textarea', "D'autres guides en préparation — laisse-nous ton email pour être prévenu.", undefined, 'span')}
