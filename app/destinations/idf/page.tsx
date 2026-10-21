@@ -82,7 +82,7 @@ export default async function IdfPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(touristSchema) }} />
       <Header />
-      <main className="min-h-screen bg-stone-50">
+      <main className="min-h-screen bg-[#F7F3EC]">
         {/* Hero */}
         <section className="relative overflow-hidden bg-gradient-to-b from-stone-900 via-stone-800 to-stone-700 py-24 md:py-32">
           <div className="absolute inset-0 opacity-20">
@@ -99,13 +99,13 @@ export default async function IdfPage() {
             <div className="mt-8 flex flex-wrap gap-4">
               <Link
                 href="/destinations/idf/paris"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-eucalyptus text-white font-semibold rounded-xl hover:bg-eucalyptus/90 transition-colors text-sm"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-eucalyptus text-white font-semibold rounded-sm hover:bg-eucalyptus/90 transition-colors text-sm"
               >
                 Explorer Paris →
               </Link>
               <Link
                 href="/destinations/idf/fontainebleau"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 text-white font-medium rounded-xl hover:bg-white/20 transition-colors text-sm border border-white/20"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-[#FAF7F2]/10 text-white font-medium rounded-sm hover:bg-[#FAF7F2]/20 transition-colors text-sm border border-white/20"
               >
                 Fontainebleau →
               </Link>
@@ -114,7 +114,7 @@ export default async function IdfPage() {
         </section>
 
         {/* Sub navigation */}
-        <nav className="bg-white border-b border-stone-200 sticky top-16 z-40" aria-label="Sous-destinations Île-de-France">
+        <nav className="bg-[#FAF7F2] border-b border-[#DED5C6] sticky top-16 z-40" aria-label="Sous-destinations Île-de-France">
           <div className="max-w-4xl mx-auto px-4 py-3 flex gap-6 overflow-x-auto no-scrollbar">
             {subNav.map((item) => (
               <Link
@@ -153,7 +153,7 @@ export default async function IdfPage() {
                 <Link
                   key={"/destinations/idf/paris"}
                   href={"/destinations/idf/paris"}
-                  className="group block p-6 bg-white rounded-2xl border border-stone-200 hover:border-eucalyptus/40 hover:shadow-md transition-all"
+                  className="group block p-6 bg-[#FAF7F2] rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all"
                 >
                   <span className="inline-block text-xs font-semibold uppercase tracking-widest text-teal mb-3">{Z('pepite_1_tag', 'text', "Urbex légal", undefined, 'span')}</span>
                   <h3 className="font-serif text-base text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">{Z('pepite_1_titre', 'text', "La Petite Ceinture (14e)", undefined, 'span')}</h3>
@@ -162,7 +162,7 @@ export default async function IdfPage() {
                 <Link
                   key={"/destinations/idf/paris"}
                   href={"/destinations/idf/paris"}
-                  className="group block p-6 bg-white rounded-2xl border border-stone-200 hover:border-eucalyptus/40 hover:shadow-md transition-all"
+                  className="group block p-6 bg-[#FAF7F2] rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all"
                 >
                   <span className="inline-block text-xs font-semibold uppercase tracking-widest text-teal mb-3">{Z('pepite_2_tag', 'text', "Food", undefined, 'span')}</span>
                   <h3 className="font-serif text-base text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">{Z('pepite_2_titre', 'text', "Rue Mouffetard & Singh'Nature", undefined, 'span')}</h3>
@@ -171,7 +171,7 @@ export default async function IdfPage() {
                 <Link
                   key={"/destinations/idf/paris"}
                   href={"/destinations/idf/paris"}
-                  className="group block p-6 bg-white rounded-2xl border border-stone-200 hover:border-eucalyptus/40 hover:shadow-md transition-all"
+                  className="group block p-6 bg-[#FAF7F2] rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all"
                 >
                   <span className="inline-block text-xs font-semibold uppercase tracking-widest text-teal mb-3">{Z('pepite_3_tag', 'text', "Vélo", undefined, 'span')}</span>
                   <h3 className="font-serif text-base text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">{Z('pepite_3_titre', 'text', "Canal de l'Ourcq à vélo", undefined, 'span')}</h3>
@@ -180,7 +180,7 @@ export default async function IdfPage() {
                 <Link
                   key={"/destinations/idf/fontainebleau"}
                   href={"/destinations/idf/fontainebleau"}
-                  className="group block p-6 bg-white rounded-2xl border border-stone-200 hover:border-eucalyptus/40 hover:shadow-md transition-all"
+                  className="group block p-6 bg-[#FAF7F2] rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all"
                 >
                   <span className="inline-block text-xs font-semibold uppercase tracking-widest text-teal mb-3">{Z('pepite_4_tag', 'text', "Nature", undefined, 'span')}</span>
                   <h3 className="font-serif text-base text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">{Z('pepite_4_titre', 'text', "Forêt de Fontainebleau", undefined, 'span')}</h3>
@@ -197,7 +197,7 @@ export default async function IdfPage() {
                 <Link
                   key={"/destinations/idf/paris"}
                   href={"/destinations/idf/paris"}
-                  className="group flex items-start gap-4 p-5 bg-white rounded-xl border border-stone-200 hover:border-eucalyptus/40 hover:shadow-sm transition-all"
+                  className="group flex items-start gap-4 p-5 bg-[#FAF7F2] rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all"
                 >
                   <div className="w-10 h-10 rounded-full bg-eucalyptus/10 flex items-center justify-center flex-shrink-0 group-hover:bg-eucalyptus/20 transition-colors">
                     <span className="text-eucalyptus font-serif font-bold text-sm">{String.fromCharCode((zones[`${PAGE}__zone_1_label`] ?? "Paris").charCodeAt(0))}</span>
@@ -210,7 +210,7 @@ export default async function IdfPage() {
                 <Link
                   key={"/destinations/idf/versailles"}
                   href={"/destinations/idf/versailles"}
-                  className="group flex items-start gap-4 p-5 bg-white rounded-xl border border-stone-200 hover:border-eucalyptus/40 hover:shadow-sm transition-all"
+                  className="group flex items-start gap-4 p-5 bg-[#FAF7F2] rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all"
                 >
                   <div className="w-10 h-10 rounded-full bg-eucalyptus/10 flex items-center justify-center flex-shrink-0 group-hover:bg-eucalyptus/20 transition-colors">
                     <span className="text-eucalyptus font-serif font-bold text-sm">{String.fromCharCode((zones[`${PAGE}__zone_2_label`] ?? "Versailles").charCodeAt(0))}</span>
@@ -223,7 +223,7 @@ export default async function IdfPage() {
                 <Link
                   key={"/destinations/idf/giverny"}
                   href={"/destinations/idf/giverny"}
-                  className="group flex items-start gap-4 p-5 bg-white rounded-xl border border-stone-200 hover:border-eucalyptus/40 hover:shadow-sm transition-all"
+                  className="group flex items-start gap-4 p-5 bg-[#FAF7F2] rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all"
                 >
                   <div className="w-10 h-10 rounded-full bg-eucalyptus/10 flex items-center justify-center flex-shrink-0 group-hover:bg-eucalyptus/20 transition-colors">
                     <span className="text-eucalyptus font-serif font-bold text-sm">{String.fromCharCode((zones[`${PAGE}__zone_3_label`] ?? "Giverny").charCodeAt(0))}</span>
@@ -236,7 +236,7 @@ export default async function IdfPage() {
                 <Link
                   key={"/destinations/idf/fontainebleau"}
                   href={"/destinations/idf/fontainebleau"}
-                  className="group flex items-start gap-4 p-5 bg-white rounded-xl border border-stone-200 hover:border-eucalyptus/40 hover:shadow-sm transition-all"
+                  className="group flex items-start gap-4 p-5 bg-[#FAF7F2] rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all"
                 >
                   <div className="w-10 h-10 rounded-full bg-eucalyptus/10 flex items-center justify-center flex-shrink-0 group-hover:bg-eucalyptus/20 transition-colors">
                     <span className="text-eucalyptus font-serif font-bold text-sm">{String.fromCharCode((zones[`${PAGE}__zone_4_label`] ?? "Fontainebleau").charCodeAt(0))}</span>
@@ -254,24 +254,24 @@ export default async function IdfPage() {
             <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">Côté pratique</p>
             <h2 className="text-2xl font-serif text-stone-900 mb-6">Ce qu'il faut savoir</h2>
             <div className="grid md:grid-cols-2 gap-6">
-              <div className="bg-white p-6 rounded-xl border border-stone-200">
+              <div className="bg-[#FAF7F2] p-6 rounded-sm border border-[#DED5C6]">
                 <h3 className="font-serif text-lg text-stone-900 mb-4">Quand y aller</h3>
                 <ul className="space-y-3 text-stone-600 text-sm">
                   <li className="flex items-start gap-2">
-                    <span className="text-eucalyptus font-bold mt-0.5">✓</span>
+                    <span className="text-eucalyptus font-bold mt-0.5">·</span>
                     <span>{Z('when_1', 'html', "<strong>Avril – Juin</strong> — idéal. Jardins en fleurs, température parfaite, files d'attente raisonnables.", undefined, 'span')}</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-eucalyptus font-bold mt-0.5">✓</span>
+                    <span className="text-eucalyptus font-bold mt-0.5">·</span>
                     <span>{Z('when_2', 'html', "<strong>Septembre – Octobre</strong> — lumière dorée, foule réduite, terrasses encore ouvertes.", undefined, 'span')}</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-eucalyptus font-bold mt-0.5">✓</span>
+                    <span className="text-eucalyptus font-bold mt-0.5">·</span>
                     <span>{Z('when_3', 'html', "<strong>Juillet – Août</strong> — possible mais chaud et fréquenté. Privilégier les parcs et les plans d'eau.", undefined, 'span')}</span>
                   </li>
                 </ul>
               </div>
-              <div className="bg-white p-6 rounded-xl border border-stone-200">
+              <div className="bg-[#FAF7F2] p-6 rounded-sm border border-[#DED5C6]">
                 <h3 className="font-serif text-lg text-stone-900 mb-4">Transport & Budget</h3>
                 <ul className="space-y-3 text-stone-600 text-sm">
                   <li className="flex items-start gap-2">
@@ -296,7 +296,7 @@ export default async function IdfPage() {
             <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">Questions fréquentes</p>
             <div className="space-y-4">
               {FAQS.map((f) => (
-                <details key={f.q.fb} className="group bg-white rounded-xl border border-stone-200 p-5">
+                <details key={f.q.fb} className="group bg-[#FAF7F2] rounded-sm border border-[#DED5C6] p-5">
                   <summary className="font-semibold text-stone-900 cursor-pointer list-none flex items-center justify-between">
                     {zones[`${PAGE}__${f.q.zone}`] ?? f.q.fb}
                     <span className="text-eucalyptus group-open:rotate-180 transition-transform">↓</span>

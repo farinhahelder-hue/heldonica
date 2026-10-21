@@ -20,7 +20,7 @@ export default function Blog() {
   const articles = blogPosts.slice(0, 3)
 
   return (
-    <section className="bg-white section-spacing">
+    <section className="bg-[#FAF7F2] section-spacing">
       <div className="container">
         <h2 className="text-3xl md:text-5xl font-serif font-bold text-mahogany mb-3 text-center">
           Nos Carnets de Route
@@ -34,7 +34,7 @@ export default function Blog() {
           {articles.map((article) => (
             <article
               key={article.id}
-              className="bg-white rounded-2xl border border-stone-100 hover:shadow-lg hover:border-stone-200 transition-all duration-300 group overflow-hidden hover:-translate-y-1"
+              className="bg-[#FAF7F2] rounded-sm border border-stone-100 hover:border-[#DED5C6] transition-all duration-300 group overflow-hidden hover:-translate-y-1"
             >
               {/* Image responsive */}
               <Link href={`/blog/${article.slug}`} className="block">
@@ -70,7 +70,7 @@ export default function Blog() {
                   <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3">
                     <span
                       className={`inline-block px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold ${
-                        CATEGORY_COLOR[article.category] ?? 'bg-white/90 text-charcoal/70'
+                        CATEGORY_COLOR[article.category] ?? 'bg-[#FAF7F2]/90 text-charcoal/70'
                       }`}
                     >
                       {article.category}

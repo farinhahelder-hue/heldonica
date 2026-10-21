@@ -86,7 +86,7 @@ export default function MapClientPage({
         </section>
 
         {/* Filters Section */}
-        <section className="bg-white/95 backdrop-blur-md pb-4 sticky top-[60px] lg:top-[72px] z-30 shadow-sm">
+        <section className="bg-[#FAF7F2]/95 backdrop-blur-md pb-4 sticky top-[60px] lg:top-[72px] z-30">
           <div className="container py-4">
             <div className="flex flex-wrap gap-3 md:gap-4 items-end">
               {/* Country Filter */}
@@ -100,7 +100,7 @@ export default function MapClientPage({
                     setCountryFilter(e.target.value);
                     setRegionFilter('all');
                   }}
-                  className="w-full rounded-xl border border-stone-300 px-3 py-2.5 bg-white text-charcoal focus:border-eucalyptus focus:ring-2 focus:ring-eucalyptus/20 transition-all"
+                  className="w-full rounded-sm border border-stone-300 px-3 py-2.5 bg-[#FAF7F2] text-charcoal focus:border-eucalyptus focus:ring-2 focus:ring-eucalyptus/20 transition-all"
                 >
                   <option value="all"><EditableZone page="destinations-carte" zone="filter_country_all" fallback="Tous les pays" plain /></option>
                   {countries.map((country) => (
@@ -119,7 +119,7 @@ export default function MapClientPage({
                 <select
                   value={regionFilter}
                   onChange={(e) => setRegionFilter(e.target.value)}
-                  className="w-full rounded-xl border border-stone-300 px-3 py-2.5 bg-white text-charcoal focus:border-eucalyptus focus:ring-2 focus:ring-eucalyptus/20 transition-all"
+                  className="w-full rounded-sm border border-stone-300 px-3 py-2.5 bg-[#FAF7F2] text-charcoal focus:border-eucalyptus focus:ring-2 focus:ring-eucalyptus/20 transition-all"
                 >
                   <option value="all"><EditableZone page="destinations-carte" zone="filter_region_all" fallback="Toutes régions" plain /></option>
                   {availableRegions.map((region) => (
@@ -138,7 +138,7 @@ export default function MapClientPage({
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value as DestinationMarker['category'] | 'all')}
-                  className="w-full rounded-xl border border-stone-300 px-3 py-2.5 bg-white text-charcoal focus:border-eucalyptus focus:ring-2 focus:ring-eucalyptus/20 transition-all"
+                  className="w-full rounded-sm border border-stone-300 px-3 py-2.5 bg-[#FAF7F2] text-charcoal focus:border-eucalyptus focus:ring-2 focus:ring-eucalyptus/20 transition-all"
                 >
                   <option value="all"><EditableZone page="destinations-carte" zone="filter_category_all" fallback="Toutes catégories" plain /></option>
                   {categories.map((cat) => (
@@ -160,7 +160,7 @@ export default function MapClientPage({
         {/* Map Section */}
         <section className="bg-cloud-dancer py-8 md:py-12">
           <div className="container">
-            <div className="rounded-2xl overflow-hidden shadow-lg">
+            <div className="rounded-sm overflow-hidden">
               <MapWrapper
                 markers={filteredMarkers}
                 height="600px"
@@ -175,7 +175,7 @@ export default function MapClientPage({
         </section>
 
         {/* Quick destinations list below map */}
-        <section className="bg-white py-12 md:py-16">
+        <section className="bg-[#FAF7F2] py-12 md:py-16">
           <div className="container">
             <h2 className="text-2xl md:text-3xl font-serif text-mahogany mb-8 text-center">
               <EditableZone page="destinations-carte" zone="section_title" fallback="Nos destinations en un coup d'œil" />
@@ -186,7 +186,7 @@ export default function MapClientPage({
                 <Link
                   key={marker.slug}
                   href={marker.url}
-                  className="group rounded-xl border border-stone-200 p-4 hover:shadow-md hover:border-eucalyptus/30 transition-all"
+                  className="group rounded-sm border border-[#DED5C6] p-4 hover:border-eucalyptus/30 transition-all"
                 >
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 rounded-full bg-mahogany/10 flex items-center justify-center flex-shrink-0 group-hover:bg-mahogany/20 transition-colors">
@@ -229,7 +229,7 @@ export default function MapClientPage({
             </p>
             <Link
               href="/travel-planning"
-              className="inline-flex px-8 py-3 rounded-xl bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors"
+              className="inline-flex px-8 py-3 rounded-sm bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors"
             >
               <EditableZone page="destinations-carte" zone="cta_label" fallback="Créer mon voyage →" />
             </Link>

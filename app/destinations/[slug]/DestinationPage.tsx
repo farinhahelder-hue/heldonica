@@ -232,22 +232,22 @@ export default async function DestinationPage({ slug }: Props) {
   )
 
   const BlockInfoCards = () => (
-    <section className="bg-white py-12">
+    <section className="bg-[#FAF7F2] py-12">
       <div className="container">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
+          <div className="rounded-sm border border-[#DED5C6] bg-[#F7F3EC] p-5">
             <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Durée idéale</p>
             <p className="text-charcoal font-medium"><EditableZone page={`destinations-${slug}`} zone="duration" fallback={content.duration} as="span" /></p>
           </div>
-          <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
+          <div className="rounded-sm border border-[#DED5C6] bg-[#F7F3EC] p-5">
             <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Meilleure saison</p>
             <p className="text-charcoal font-medium"><EditableZone page={`destinations-${slug}`} zone="season" fallback={content.season} as="span" /></p>
           </div>
-          <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
+          <div className="rounded-sm border border-[#DED5C6] bg-[#F7F3EC] p-5">
             <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Budget indicatif</p>
             <p className="text-charcoal font-medium"><EditableZone page={`destinations-${slug}`} zone="budget" fallback={content.budget} as="span" /></p>
           </div>
-          <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
+          <div className="rounded-sm border border-[#DED5C6] bg-[#F7F3EC] p-5">
             <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Profil</p>
             <p className="text-charcoal font-medium text-sm"><EditableZone page={`destinations-${slug}`} zone="profile" fallback={content.profile} as="span" /></p>
           </div>
@@ -257,7 +257,7 @@ export default async function DestinationPage({ slug }: Props) {
   )
 
   const BlockDescription = () => (
-    <section className="bg-white py-16">
+    <section className="bg-[#FAF7F2] py-16">
       <div className="container max-w-4xl">
         <h2 className="text-3xl font-serif text-mahogany mb-6">On y est allés</h2>
         <p className="text-charcoal/80 leading-relaxed text-lg mb-8">
@@ -269,7 +269,7 @@ export default async function DestinationPage({ slug }: Props) {
 
   const BlockSubDestinations = () => (
     subDests.length > 0 ? (
-      <section className="bg-stone-50 py-16 border-t border-b border-stone-200/60">
+      <section className="bg-[#F7F3EC] py-16 border-t border-b border-[#DED5C6]/60">
         <div className="container max-w-5xl">
           <h2 className="text-3xl font-serif text-mahogany mb-2 text-center">
             Explorer les pépites de la région
@@ -282,7 +282,7 @@ export default async function DestinationPage({ slug }: Props) {
               <Link
                 key={sub.slug}
                 href={`/destinations/${slug}/${sub.slug}`}
-                className="group p-5 rounded-2xl bg-white border border-stone-100 hover:border-eucalyptus/30 hover:bg-eucalyptus/5 transition-all duration-300 flex flex-col h-full text-left"
+                className="group p-5 rounded-sm bg-[#FAF7F2] border border-stone-100 hover:border-eucalyptus/30 hover:bg-eucalyptus/5 transition-all duration-300 flex flex-col h-full text-left"
               >
                 <span className="text-3xl mb-3 block">{sub.emoji}</span>
                 <h3 className="font-serif font-bold text-stone-900 group-hover:text-eucalyptus transition-colors mb-2">
@@ -343,7 +343,7 @@ export default async function DestinationPage({ slug }: Props) {
         </p>
         <Link
           href={`/travel-planning-form?destination=${slug}`}
-          className="inline-flex px-8 py-4 rounded-lg bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors shadow-md"
+          className="inline-flex px-8 py-4 rounded-lg bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors"
         >
           Planifier ce voyage avec Heldonica →
         </Link>

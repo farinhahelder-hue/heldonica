@@ -11,7 +11,7 @@ import type { MapStage } from './OrganizerMap'
 const OrganizerMap = dynamic(() => import('./OrganizerMap'), {
   ssr: false,
   loading: () => (
-    <div className="flex items-center justify-center bg-stone-100 rounded-xl text-charcoal/40 text-sm" style={{ height: 340 }}>
+    <div className="flex items-center justify-center bg-stone-100 rounded-sm text-charcoal/40 text-sm" style={{ height: 340 }}>
       Chargement de la carte…
     </div>
   ),
@@ -370,8 +370,8 @@ Généré avec Heldonica — heldonica.fr`
   }
 
   // ── CSS helpers ─────────────────────────────────────────────────────────────
-  const inputClass   = 'w-full px-3 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm text-charcoal placeholder-stone-400 focus:outline-none focus:border-eucalyptus focus:bg-white transition-colors'
-  const sectionClass = 'bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-stone-100 mb-6'
+  const inputClass   = 'w-full px-3 py-2.5 bg-[#F7F3EC] border border-[#DED5C6] rounded-sm text-sm text-charcoal placeholder-stone-400 focus:outline-none focus:border-eucalyptus focus:bg-[#FAF7F2] transition-colors'
+  const sectionClass = 'bg-[#FAF7F2] rounded-sm p-6 md:p-8 border border-stone-100 mb-6'
   const headClass    = 'text-xs font-bold tracking-[0.2em] uppercase text-eucalyptus mb-5'
 
   // ── Render ──────────────────────────────────────────────────────────────────
@@ -450,7 +450,7 @@ Généré avec Heldonica — heldonica.fr`
                 const applied     = !!appliedSuggestion[stage.id]
 
                 return (
-                  <div key={stage.id} className="bg-stone-50 border border-stone-100 rounded-xl overflow-hidden">
+                  <div key={stage.id} className="bg-[#F7F3EC] border border-stone-100 rounded-sm overflow-hidden">
                     {/* ── Ligne titre ── */}
                     <div className="flex items-center gap-3 p-4 pb-0">
                       <span className="w-7 h-7 rounded-full bg-mahogany text-white text-xs font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
@@ -458,13 +458,13 @@ Généré avec Heldonica — heldonica.fr`
                         value={stage.city}
                         onChange={e => updateStage(stage.id, 'city', e.target.value)}
                         placeholder="Ville"
-                        className="flex-1 px-3 py-2 bg-white border border-stone-200 rounded-lg text-sm focus:outline-none focus:border-eucalyptus transition-colors"
+                        className="flex-1 px-3 py-2 bg-[#FAF7F2] border border-[#DED5C6] rounded-lg text-sm focus:outline-none focus:border-eucalyptus transition-colors"
                       />
                       <input
                         value={stage.country}
                         onChange={e => updateStage(stage.id, 'country', e.target.value)}
                         placeholder="Pays"
-                        className="w-24 px-3 py-2 bg-white border border-stone-200 rounded-lg text-sm focus:outline-none focus:border-eucalyptus transition-colors"
+                        className="w-24 px-3 py-2 bg-[#FAF7F2] border border-[#DED5C6] rounded-lg text-sm focus:outline-none focus:border-eucalyptus transition-colors"
                       />
                       <div className="flex items-center gap-1.5">
                         <input
@@ -472,7 +472,7 @@ Généré avec Heldonica — heldonica.fr`
                           value={stage.nights}
                           onChange={e => updateStage(stage.id, 'nights', Math.max(1, Number(e.target.value)))}
                           min={1}
-                          className="w-14 px-2 py-2 bg-white border border-stone-200 rounded-lg text-sm text-center focus:outline-none focus:border-eucalyptus transition-colors"
+                          className="w-14 px-2 py-2 bg-[#FAF7F2] border border-[#DED5C6] rounded-lg text-sm text-center focus:outline-none focus:border-eucalyptus transition-colors"
                         />
                         <span className="text-xs text-charcoal/40">nuit{stage.nights > 1 ? 's' : ''}</span>
                       </div>
@@ -487,7 +487,7 @@ Généré avec Heldonica — heldonica.fr`
 
                     {/* ── Suggestion de prix ── */}
                     {profile && (
-                      <div className={`mx-4 mt-3 px-4 py-3 rounded-xl border transition-all ${applied ? 'bg-eucalyptus/5 border-eucalyptus/30' : 'bg-white border-stone-200'}`}>
+                      <div className={`mx-4 mt-3 px-4 py-3 rounded-sm border transition-all ${applied ? 'bg-eucalyptus/5 border-eucalyptus/30' : 'bg-[#FAF7F2] border-[#DED5C6]'}`}>
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1 min-w-0">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-charcoal/40 mb-1.5">
@@ -505,7 +505,7 @@ Généré avec Heldonica — heldonica.fr`
                             onClick={() => applySuggestion(stage, profile)}
                             className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${applied ? 'bg-eucalyptus text-white' : 'bg-stone-100 text-charcoal/70 hover:bg-eucalyptus/10 hover:text-eucalyptus'}`}
                           >
-                            {applied ? '✓ Appliqué' : 'Appliquer'}
+                            {applied ? 'Appliqué' : 'Appliquer'}
                           </button>
                         </div>
                       </div>
@@ -522,7 +522,7 @@ Généré avec Heldonica — heldonica.fr`
                               value={stage[key] as number}
                               onChange={e => updateStage(stage.id, key, Math.max(0, Number(e.target.value)))}
                               min={0}
-                              className="w-full pr-6 pl-3 py-2 bg-white border border-stone-200 rounded-lg text-sm focus:outline-none focus:border-eucalyptus transition-colors"
+                              className="w-full pr-6 pl-3 py-2 bg-[#FAF7F2] border border-[#DED5C6] rounded-lg text-sm focus:outline-none focus:border-eucalyptus transition-colors"
                             />
                             <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-charcoal/40">€</span>
                           </div>
@@ -532,7 +532,7 @@ Généré avec Heldonica — heldonica.fr`
 
                     {/* ── Sous-total ── */}
                     <div className="px-4 pb-4 pt-0">
-                      <div className="pt-3 border-t border-stone-200 flex justify-between items-center">
+                      <div className="pt-3 border-t border-[#DED5C6] flex justify-between items-center">
                         <span className="text-xs text-charcoal/40">Sous-total étape</span>
                         <span className="text-sm font-semibold text-mahogany">{fmt(total)} €</span>
                       </div>
@@ -555,7 +555,7 @@ Généré avec Heldonica — heldonica.fr`
                   <OrganizerMap stages={mapStages} height="340px" />
                 </>
               ) : (
-                <div className="flex flex-col items-center justify-center bg-stone-100 rounded-xl text-center px-6 py-10 text-charcoal/40">
+                <div className="flex flex-col items-center justify-center bg-stone-100 rounded-sm text-center px-6 py-10 text-charcoal/40">
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="mb-3 text-charcoal/25" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
                   <p className="text-sm"><EditableZone page="organisateur" zone="map_hint" fallback="Saisis le nom d'une ville et son pays pour visualiser ton itinéraire sur la carte" /></p>
                 </div>
@@ -564,7 +564,7 @@ Généré avec Heldonica — heldonica.fr`
           </section>
 
           {/* ── Budget ────────────────────────────────────────────────────── */}
-          <section className="bg-mahogany text-white rounded-2xl p-6 md:p-8 mb-6">
+          <section className="bg-mahogany text-white rounded-sm p-6 md:p-8 mb-6">
             <h2 className="text-xs font-bold tracking-[0.2em] uppercase text-white/50 mb-6"><EditableZone page="organisateur" zone="section_budget" fallback="Budget estimé" /></h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center mb-8">
               {[
@@ -608,7 +608,7 @@ Généré avec Heldonica — heldonica.fr`
               <h2 className={headClass + ' mb-0'}><EditableZone page="organisateur" zone="section_checklist" fallback="Checklist" /></h2>
               <span className="text-sm font-semibold text-charcoal/50">
                 {checkedItems}/{checklist.length}
-                {progress === 100 && checklist.length > 0 && <span className="ml-2 text-emerald-500">✓</span>}
+                {progress === 100 && checklist.length > 0 && <span className="ml-2 text-emerald-500">·</span>}
               </span>
             </div>
             <div className="h-2 bg-stone-100 rounded-full mb-6 overflow-hidden">
@@ -644,9 +644,9 @@ Généré avec Heldonica — heldonica.fr`
                   onChange={e => setNewItemText(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addChecklistItem() } }}
                   placeholder="Ton item personnalisé…"
-                  className="flex-1 px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:outline-none focus:border-eucalyptus transition-colors"
+                  className="flex-1 px-3 py-2 bg-[#F7F3EC] border border-[#DED5C6] rounded-lg text-sm focus:outline-none focus:border-eucalyptus transition-colors"
                 />
-                <select value={newItemCat} onChange={e => setNewItemCat(e.target.value as typeof CHECKLIST_CATEGORIES[number])} className="px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs focus:outline-none focus:border-eucalyptus transition-colors">
+                <select value={newItemCat} onChange={e => setNewItemCat(e.target.value as typeof CHECKLIST_CATEGORIES[number])} className="px-3 py-2 bg-[#F7F3EC] border border-[#DED5C6] rounded-lg text-xs focus:outline-none focus:border-eucalyptus transition-colors">
                   {CHECKLIST_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
                 <button onClick={addChecklistItem} disabled={!newItemText.trim()} className="px-4 py-2 bg-eucalyptus text-white text-xs font-semibold rounded-lg hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
@@ -659,8 +659,8 @@ Généré avec Heldonica — heldonica.fr`
           {/* ── Actions ───────────────────────────────────────────────────── */}
           <div className="flex flex-wrap items-center justify-center gap-3">
             {[
-              { label: 'Tout effacer', onClick: clearSaved, cls: 'bg-white border border-stone-200 text-charcoal/60 hover:border-mahogany/30 hover:text-mahogany', icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg> },
-              { label: 'Imprimer', onClick: () => window.print(), cls: 'bg-white border border-stone-200 text-charcoal/60 hover:border-eucalyptus/40 hover:text-eucalyptus', icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> },
+              { label: 'Tout effacer', onClick: clearSaved, cls: 'bg-[#FAF7F2] border border-[#DED5C6] text-charcoal/60 hover:border-mahogany/30 hover:text-mahogany', icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg> },
+              { label: 'Imprimer', onClick: () => window.print(), cls: 'bg-[#FAF7F2] border border-[#DED5C6] text-charcoal/60 hover:border-eucalyptus/40 hover:text-eucalyptus', icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> },
               { label: 'Exporter .txt', onClick: exportPlan, cls: 'bg-eucalyptus/10 border border-eucalyptus/20 text-eucalyptus font-semibold hover:bg-eucalyptus hover:text-white', icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> },
             ].map(({ label, onClick, cls, icon }) => (
               <button key={label} onClick={onClick} className={`px-5 py-2.5 text-sm rounded-full transition-colors inline-flex items-center gap-2 ${cls}`}>

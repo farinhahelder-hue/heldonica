@@ -100,7 +100,7 @@ export default async function StartPage() {
                         href={link.external ? link.href : link.href}
                         target={link.external ? '_blank' : undefined}
                         rel={link.external ? 'noopener noreferrer' : undefined}
-                        className="block bg-white rounded-2xl p-5 border border-stone-100 hover:shadow-md hover:border-stone-200 transition-all group"
+                        className="block bg-[#FAF7F2] rounded-sm p-5 border border-stone-100 hover:border-[#DED5C6] transition-all group"
                       >
                         <div className="flex items-center justify-between">
                           <div>
@@ -142,11 +142,11 @@ export default async function StartPage() {
                 type="email"
                 placeholder="ton@email.fr"
                 required
-                className="flex-1 px-5 py-3.5 bg-stone-800 border border-stone-700 rounded-xl text-white placeholder-stone-500 focus:outline-none focus:border-eucalyptus transition-colors"
+                className="flex-1 px-5 py-3.5 bg-stone-800 border border-stone-700 rounded-sm text-white placeholder-stone-500 focus:outline-none focus:border-eucalyptus transition-colors"
               />
               <button
                 type="submit"
-                className="px-6 py-3.5 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all whitespace-nowrap"
+                className="px-6 py-3.5 bg-eucalyptus text-white font-semibold rounded-sm hover:brightness-110 transition-all whitespace-nowrap"
               >
                 <EditableZone page="start" zone="newsletter_cta" fallback="S'inscrire" />
               </button>

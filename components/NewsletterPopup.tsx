@@ -148,7 +148,7 @@ export default function NewsletterPopup() {
 
   return (
     <div
-      className="fixed bottom-6 right-6 left-6 md:left-auto md:max-w-sm z-50 bg-stone-950 rounded-2xl p-6 md:p-8 shadow-2xl text-white"
+      className="fixed bottom-6 right-6 left-6 md:left-auto md:max-w-sm z-50 bg-stone-950 rounded-sm p-6 md:p-8 text-white"
       style={{
         animation: 'slideUp 0.3s ease-out',
       }}
@@ -170,7 +170,7 @@ export default function NewsletterPopup() {
       <button
         type="button"
         onClick={handleClose}
-        className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 text-white/70 hover:bg-white/20 hover:text-white transition-colors cursor-pointer z-10"
+        className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-[#FAF7F2]/10 text-white/70 hover:bg-[#FAF7F2]/20 hover:text-white transition-colors cursor-pointer z-10"
         aria-label="Fermer"
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -213,7 +213,7 @@ export default function NewsletterPopup() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="ton@email.fr"
               required
-              className="w-full px-4 py-3 rounded-xl bg-stone-800 border border-stone-700 text-white placeholder-stone-500 focus:outline-none focus:border-eucalyptus transition-colors text-sm"
+              className="w-full px-4 py-3 rounded-sm bg-stone-800 border border-stone-700 text-white placeholder-stone-500 focus:outline-none focus:border-eucalyptus transition-colors text-sm"
             />
             <div className="flex items-start gap-2.5 text-left">
               <input
@@ -232,7 +232,7 @@ export default function NewsletterPopup() {
             <button
               type="submit"
               disabled={status === 'loading'}
-              className="w-full px-6 py-3.5 bg-eucalyptus text-white font-bold rounded-xl hover:bg-eucalyptus/90 transition-all text-sm disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full px-6 py-3.5 bg-eucalyptus text-white font-bold rounded-sm hover:bg-eucalyptus/90 transition-all text-sm disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {status === 'loading' ? 'Inscription...' : 'Je veux le guide →'}
             </button>

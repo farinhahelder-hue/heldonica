@@ -68,7 +68,7 @@ export default async function GuidesMerciPage() {
               className="text-stone-600 text-lg leading-relaxed mb-6 block"
             />
 
-            <div className="bg-white rounded-2xl p-6 border border-stone-100 inline-block">
+            <div className="bg-[#FAF7F2] rounded-sm p-6 border border-stone-100 inline-block">
               <p className="text-sm text-stone-500">
                 <span className="text-eucalyptus">💡</span>{' '}
                 <EditableZone page="guides-merci" zone="hero_note" fallback="En attendant, on te recommande de regarder nos carnets de voyage — ils sont gratuits aussi."
@@ -92,7 +92,7 @@ export default async function GuidesMerciPage() {
                   href={step.href}
                   target={step.external ? '_blank' : undefined}
                   rel={step.external ? 'noopener noreferrer' : undefined}
-                  className="bg-white rounded-2xl p-6 border border-stone-100 hover:shadow-lg hover:border-stone-200 transition-all group"
+                  className="bg-[#FAF7F2] rounded-sm p-6 border border-stone-100 hover:border-[#DED5C6] transition-all group"
                 >
                   <div className="text-3xl mb-4">{step.icon}</div>
                   <EditableZone page="guides-merci" zone={step.titleZone} fallback={['Découvre nos carnets de voyage', "Planifie ton prochain voyage", 'Suis-nous sur Instagram'][i]}
@@ -119,7 +119,7 @@ export default async function GuidesMerciPage() {
 
         <section className="pb-16 md:pb-24">
           <div className="max-w-xl mx-auto px-6">
-            <div className="bg-gradient-to-br from-stone-900 to-stone-800 rounded-3xl p-8 md:p-12 text-white text-center">
+            <div className="bg-gradient-to-br from-stone-900 to-stone-800 rounded-sm p-8 md:p-12 text-white text-center">
               <span className="text-4xl mb-4 block">🗺️</span>
               <EditableZone page="guides-merci" zone="upsell_title" fallback="Tu pars bientôt en voyage ?"
                 className="text-2xl md:text-3xl font-serif font-bold mb-4 block"
@@ -130,7 +130,7 @@ export default async function GuidesMerciPage() {
               />
               <Link
                 href="/travel-planning"
-                className="inline-block px-8 py-4 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all"
+                className="inline-block px-8 py-4 bg-eucalyptus text-white font-semibold rounded-sm hover:brightness-110 transition-all"
               >
                 <EditableZone page="guides-merci" zone="upsell_cta" fallback="Découvrir le travel planning →" />
               </Link>

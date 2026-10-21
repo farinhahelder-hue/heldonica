@@ -59,11 +59,11 @@ export default function FaqSection({ items, title, subtitle, pageSlug }: FaqSect
             return (
               <div
                 key={index}
-                className="bg-white rounded-2xl border border-stone-100 overflow-hidden"
+                className="bg-[#FAF7F2] rounded-sm border border-stone-100 overflow-hidden"
               >
                 <button
                   onClick={() => handleToggle(index)}
-                  className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-stone-50 transition-colors"
+                  className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-[#F7F3EC] transition-colors"
                   aria-expanded={isOpen}
                 >
                   <span className="font-semibold text-mahogany pr-4">

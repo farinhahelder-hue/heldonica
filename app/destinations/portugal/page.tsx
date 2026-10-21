@@ -78,7 +78,7 @@ export default async function PortugalPage() {
         }}
       />
       <Header />
-      <main className="min-h-screen bg-stone-50">
+      <main className="min-h-screen bg-[#F7F3EC]">
         {/* Hero */}
         <section className="relative bg-stone-900 py-20 md:py-24 overflow-hidden">
           <div className="max-w-4xl mx-auto px-4">
@@ -100,7 +100,7 @@ export default async function PortugalPage() {
         </section>
 
         {/* Sub navigation */}
-        <nav className="bg-white border-b border-stone-200 sticky top-16 z-40" aria-label="Sous-destinations">
+        <nav className="bg-[#FAF7F2] border-b border-[#DED5C6] sticky top-16 z-40" aria-label="Sous-destinations">
           <div className="max-w-4xl mx-auto px-4 py-3 flex gap-6 overflow-x-auto no-scrollbar">
             {SUBNav.map((item) => (
               <Link
@@ -135,7 +135,7 @@ export default async function PortugalPage() {
               Où aller au Portugal
             </h2>
             <div className="grid gap-5 md:grid-cols-2">
-              <div className="bg-white p-6 rounded-xl border border-stone-200 hover:border-eucalyptus/40 hover:shadow-md transition-all group">
+              <div className="bg-[#FAF7F2] p-6 rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all group">
                 <span className="inline-block text-xs font-semibold uppercase tracking-widest text-teal mb-2">
                   {Z('card_1_tag', 'text', "Île · Nature", undefined, 'span')}
                 </span>
@@ -146,7 +146,7 @@ export default async function PortugalPage() {
                   {Z('card_1_desc', 'textarea', "L'île de l'éternel printemps. Forêt de Fanal dans la brume, levadas, bolo do caco. Notre destination portugaise favorite, de loin.", undefined, 'span')}
                 </p>
               </div>
-              <div className="bg-white p-6 rounded-xl border border-stone-200 hover:border-eucalyptus/40 hover:shadow-md transition-all group">
+              <div className="bg-[#FAF7F2] p-6 rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all group">
                 <span className="inline-block text-xs font-semibold uppercase tracking-widest text-teal mb-2">
                   {Z('card_2_tag', 'text', "Capitale · Culture", undefined, 'span')}
                 </span>
@@ -157,7 +157,7 @@ export default async function PortugalPage() {
                   {Z('card_2_desc', 'textarea', "Les collines, les azulejos, le Tram 28 bondé qu'on évite au profit des ruelles du Mouraria. La ville qui se vit lentement.", undefined, 'span')}
                 </p>
               </div>
-              <div className="bg-white p-6 rounded-xl border border-stone-200 hover:border-eucalyptus/40 hover:shadow-md transition-all group">
+              <div className="bg-[#FAF7F2] p-6 rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all group">
                 <span className="inline-block text-xs font-semibold uppercase tracking-widest text-teal mb-2">
                   {Z('card_3_tag', 'text', "Vin · Histoire", undefined, 'span')}
                 </span>
@@ -168,7 +168,7 @@ export default async function PortugalPage() {
                   {Z('card_3_desc', 'textarea', "Le vin de Porto, les caves de Vila Nova de Gaia, les bords du Douro et les librairies du centre historique. Porto est dense et mémorable.", undefined, 'span')}
                 </p>
               </div>
-              <div className="bg-white p-6 rounded-xl border border-stone-200 hover:border-eucalyptus/40 hover:shadow-md transition-all group">
+              <div className="bg-[#FAF7F2] p-6 rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all group">
                 <span className="inline-block text-xs font-semibold uppercase tracking-widest text-teal mb-2">
                   {Z('card_4_tag', 'text', "Rural · Terroir", undefined, 'span')}
                 </span>
@@ -190,40 +190,40 @@ export default async function PortugalPage() {
               {Z('info_title', 'text', "Ce qu'il faut savoir", undefined, 'span')}
             </h2>
             <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-white p-6 rounded-xl border border-stone-200">
+            <div className="bg-[#FAF7F2] p-6 rounded-sm border border-[#DED5C6]">
               <h3 className="font-serif text-lg text-stone-900 mb-4">
                 {Z('info_1_title', 'text', "Quand y aller", undefined, 'span')}
               </h3>
               <ul className="space-y-3 text-stone-600 text-sm">
                 <li className="flex items-start gap-2">
-                  <span className="text-eucalyptus font-bold mt-0.5">✓</span>
+                  <span className="text-eucalyptus font-bold mt-0.5">·</span>
                   <span>{Z('info_1_item_1', 'html', "<span><strong>Mars – Juin</strong> — idéal sur le continent. Fleurs, douceur, prix de saison.</span>", undefined, 'span')}</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-eucalyptus font-bold mt-0.5">✓</span>
+                  <span className="text-eucalyptus font-bold mt-0.5">·</span>
                   <span>{Z('info_1_item_2', 'html', "<span><strong>Septembre – Octobre</strong> — mer chaude, foule en baisse, vendanges en Alentejo.</span>", undefined, 'span')}</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-eucalyptus font-bold mt-0.5">✓</span>
+                  <span className="text-eucalyptus font-bold mt-0.5">·</span>
                   <span>{Z('info_1_item_3', 'html', "<span><strong>Madère toute l'année</strong> — entre 18 et 23°C. Novembre-mars pour les cascades, juillet pour les fleurs.</span>", undefined, 'span')}</span>
                 </li>
               </ul>
             </div>
-            <div className="bg-white p-6 rounded-xl border border-stone-200">
+            <div className="bg-[#FAF7F2] p-6 rounded-sm border border-[#DED5C6]">
               <h3 className="font-serif text-lg text-stone-900 mb-4">
                 {Z('info_2_title', 'text', "Budget & Logistique", undefined, 'span')}
               </h3>
               <ul className="space-y-3 text-stone-600 text-sm">
                 <li className="flex items-start gap-2">
-                  <span className="text-eucalyptus font-bold mt-0.5">✓</span>
+                  <span className="text-eucalyptus font-bold mt-0.5">·</span>
                   <span>{Z('info_2_item_1', 'html', "<span><strong>Vols</strong> — 80–200€ A/R depuis Paris selon saison. Madère légèrement plus cher.</span>", undefined, 'span')}</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-eucalyptus font-bold mt-0.5">✓</span>
+                  <span className="text-eucalyptus font-bold mt-0.5">·</span>
                   <span>{Z('info_2_item_2', 'html', "<span><strong>Hébergement</strong> — 60–150€/nuit. Les aldeias (villages) d'Alentejo sont souvent les meilleurs rapports qualité-prix.</span>", undefined, 'span')}</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-eucalyptus font-bold mt-0.5">✓</span>
+                  <span className="text-eucalyptus font-bold mt-0.5">·</span>
                   <span>{Z('info_2_item_3', 'html', "<span><strong>Repas</strong> — 20–40€/personne dans un bon restaurant local. Le bacalhau à 12€ existe encore.</span>", undefined, 'span')}</span>
                 </li>
               </ul>
@@ -234,7 +234,7 @@ export default async function PortugalPage() {
           <section className="mb-12">
             <p className="text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">Questions fréquentes</p>
             <div className="space-y-4">
-              <details key={0} className="group bg-white rounded-xl border border-stone-200 p-5">
+              <details key={0} className="group bg-[#FAF7F2] rounded-sm border border-[#DED5C6] p-5">
                 <summary className="font-semibold text-stone-900 cursor-pointer list-none flex items-center justify-between">
                   {Z('faq_1_q', 'text', "Quand aller au Portugal ?", undefined, 'span')}
                   <span className="text-eucalyptus group-open:rotate-180 transition-transform">↓</span>
@@ -243,7 +243,7 @@ export default async function PortugalPage() {
                   {Z('faq_1_a', 'textarea', "Mars à juin pour la douceur printanière et les foules maîtrisées. Septembre-octobre pour la mer encore chaude et les prix raisonnables. Juillet-août possible mais touristique et chaud. Madère se visite toute l'année (l'île de l'éternel printemps — entre 18 et 23°C selon les saisons).", undefined, 'span')}
                 </p>
               </details>
-              <details key={1} className="group bg-white rounded-xl border border-stone-200 p-5">
+              <details key={1} className="group bg-[#FAF7F2] rounded-sm border border-[#DED5C6] p-5">
                 <summary className="font-semibold text-stone-900 cursor-pointer list-none flex items-center justify-between">
                   {Z('faq_2_q', 'text', "Comment aller au Portugal depuis Paris ?", undefined, 'span')}
                   <span className="text-eucalyptus group-open:rotate-180 transition-transform">↓</span>
@@ -252,7 +252,7 @@ export default async function PortugalPage() {
                   {Z('faq_2_a', 'textarea', "Vols directs depuis Paris vers Lisbonne (2h30), Porto (2h15) ou Funchal/Madère (3h30). EasyJet, Ryanair et TAP proposent des liaisons régulières. En train via Madrid est possible mais long (environ 20h).", undefined, 'span')}
                 </p>
               </details>
-              <details key={2} className="group bg-white rounded-xl border border-stone-200 p-5">
+              <details key={2} className="group bg-[#FAF7F2] rounded-sm border border-[#DED5C6] p-5">
                 <summary className="font-semibold text-stone-900 cursor-pointer list-none flex items-center justify-between">
                   {Z('faq_3_q', 'text', "Quel est le budget pour un voyage au Portugal ?", undefined, 'span')}
                   <span className="text-eucalyptus group-open:rotate-180 transition-transform">↓</span>
@@ -261,7 +261,7 @@ export default async function PortugalPage() {
                   {Z('faq_3_a', 'textarea', "En Portugal continental : 80–120€/jour/personne en hôtel confort et restaurant local. À Madère : légèrement plus (70–100€ hors vols). Lisbonne et Porto restent abordables comparé à l'Europe occidentale. L'Alentejo et les régions rurales sont les zones les plus économiques.", undefined, 'span')}
                 </p>
               </details>
-              <details key={3} className="group bg-white rounded-xl border border-stone-200 p-5">
+              <details key={3} className="group bg-[#FAF7F2] rounded-sm border border-[#DED5C6] p-5">
                 <summary className="font-semibold text-stone-900 cursor-pointer list-none flex items-center justify-between">
                   {Z('faq_4_q', 'text', "Portugal ou Madère — laquelle choisir en premier ?", undefined, 'span')}
                   <span className="text-eucalyptus group-open:rotate-180 transition-transform">↓</span>
@@ -272,7 +272,7 @@ export default async function PortugalPage() {
               </details>
             </div>
           </section>
-          <div className="bg-eucalyptus/5 border border-eucalyptus/20 rounded-2xl p-8 text-center mb-8">
+          <div className="bg-eucalyptus/5 border border-eucalyptus/20 rounded-sm p-8 text-center mb-8">
             <h3 className="font-serif text-xl text-stone-900 mb-3">
               {Z('cta_title', 'text', "Un itinéraire Portugal sur mesure", undefined, 'span')}
             </h3>
@@ -281,11 +281,11 @@ export default async function PortugalPage() {
             </p>
             <Link
               href="/travel-planning"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-eucalyptus text-white font-semibold rounded-xl hover:bg-eucalyptus/90 transition-colors text-sm"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-eucalyptus text-white font-semibold rounded-sm hover:bg-eucalyptus/90 transition-colors text-sm"
             >
               Planifier mon voyage Portugal →
             </Link>
-          </div>          <div className="pt-4 border-t border-stone-200">
+          </div>          <div className="pt-4 border-t border-[#DED5C6]">
             <Link href="/destinations" className="text-sm text-eucalyptus font-semibold hover:underline">
               ← Toutes les destinations
             </Link>

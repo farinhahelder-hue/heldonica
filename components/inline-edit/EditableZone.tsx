@@ -7,10 +7,11 @@ import AiImproveModal from './AiImproveModal'
 import dynamic from 'next/dynamic'
 import TiptapEditor from './TiptapEditor'
 import { normalizeZoneText } from '@/lib/zone-text'
+import CmsIcon from '@/components/CmsIcon'
 
 const MediaLibrary = dynamic(() => import('@/components/MediaLibrary'), { ssr: false })
 
-type ZoneType = 'text' | 'textarea' | 'image' | 'html'
+type ZoneType = 'text' | 'textarea' | 'image' | 'html' | 'icon'
 
 interface EditableZoneProps {
   page: string
@@ -92,9 +93,14 @@ export default function EditableZone({
     [cancel, save, type]
   )
 
+  const isIconZone = type === 'icon' || /(?:_emoji|_icon)$/.test(zone)
+
   const renderContent = (content: string) => {
     if (type === 'image') {
       return <ZoneImage src={content} className={className} />
+    }
+    if (isIconZone) {
+      return <CmsIcon name={content} fallback={fallback} className={className || 'w-5 h-5 text-eucalyptus'} />
     }
     return <Tag className={className} dangerouslySetInnerHTML={{ __html: normalizeZoneText(content) }} />
   }
@@ -108,7 +114,7 @@ export default function EditableZone({
           id={`zone-${zoneKey}`}
           onClick={startEdit}
           className={`relative group cursor-pointer rounded outline-dashed outline-eucalyptus/60 hover:outline-eucalyptus transition duration-200 p-1 min-h-[1.5em] ${
-            type === 'image' ? 'inline-block' : 'block'
+            type === 'image' || isIconZone ? 'inline-block' : 'block'
           } ${className}`}
           title="Cliquer pour modifier"
         >
@@ -125,6 +131,8 @@ export default function EditableZone({
 
           {type === 'image' ? (
             <img src={value} alt="" className={className} loading="lazy" />
+          ) : isIconZone ? (
+            <CmsIcon name={value} fallback={fallback} className={className || 'w-5 h-5 text-eucalyptus'} />
           ) : (
             <Tag dangerouslySetInnerHTML={{ __html: normalizeZoneText(value) }} />
           )}

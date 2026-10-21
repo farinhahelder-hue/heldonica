@@ -129,7 +129,7 @@ export default function TravelPlanningForm() {
                 id="tpf-prenom" name="prenom" type="text" required
                 value={formData.prenom} onChange={handleChange}
                 placeholder="Emma"
-                className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-eucalyptus focus:border-transparent transition bg-white"
+                className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-eucalyptus focus:border-transparent transition bg-[#FAF7F2]"
               />
             </div>
             <div>
@@ -140,7 +140,7 @@ export default function TravelPlanningForm() {
                 id="tpf-nom" name="nom" type="text" required
                 value={formData.nom} onChange={handleChange}
                 placeholder="Dupont"
-                className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-eucalyptus focus:border-transparent transition bg-white"
+                className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-eucalyptus focus:border-transparent transition bg-[#FAF7F2]"
               />
             </div>
           </div>
@@ -153,7 +153,7 @@ export default function TravelPlanningForm() {
                 id="tpf-email" name="email" type="email" required
                 value={formData.email} onChange={handleChange}
                 placeholder="emma@exemple.fr"
-                className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-eucalyptus focus:border-transparent transition bg-white"
+                className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-eucalyptus focus:border-transparent transition bg-[#FAF7F2]"
               />
             </div>
             <div>
@@ -164,7 +164,7 @@ export default function TravelPlanningForm() {
                 id="tpf-telephone" name="telephone" type="tel"
                 value={formData.telephone} onChange={handleChange}
                 placeholder="+33 6 12 34 56 78"
-                className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-eucalyptus focus:border-transparent transition bg-white"
+                className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-eucalyptus focus:border-transparent transition bg-[#FAF7F2]"
               />
             </div>
           </div>
@@ -182,7 +182,7 @@ export default function TravelPlanningForm() {
               id="tpf-destination" name="destination" type="text"
               value={formData.destination} onChange={handleChange}
               placeholder="Madère, Islande, Japon… ou encore ouverte !"
-              className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-eucalyptus focus:border-transparent transition bg-white"
+              className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-eucalyptus focus:border-transparent transition bg-[#FAF7F2]"
             />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -193,7 +193,7 @@ export default function TravelPlanningForm() {
               <select
                 id="tpf-style" name="style_voyage"
                 value={formData.style_voyage} onChange={handleChange}
-                className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 focus:outline-none focus:ring-2 focus:ring-eucalyptus transition bg-white"
+                className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 focus:outline-none focus:ring-2 focus:ring-eucalyptus transition bg-[#FAF7F2]"
               >
                 <option value="">Choisir…</option>
                 <option value="slow-travel">Slow Travel</option>
@@ -212,7 +212,7 @@ export default function TravelPlanningForm() {
                 id="tpf-duree" name="duree_jours" type="number" min="1" max="90"
                 value={formData.duree_jours} onChange={handleChange}
                 placeholder="7"
-                className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-eucalyptus transition bg-white"
+                className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-eucalyptus transition bg-[#FAF7F2]"
               />
             </div>
             <div>
@@ -222,7 +222,7 @@ export default function TravelPlanningForm() {
               <select
                 id="tpf-voyageurs" name="nb_voyageurs"
                 value={formData.nb_voyageurs} onChange={handleChange}
-                className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 focus:outline-none focus:ring-2 focus:ring-eucalyptus transition bg-white"
+                className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 focus:outline-none focus:ring-2 focus:ring-eucalyptus transition bg-[#FAF7F2]"
               >
                 {[1, 2, 3, 4, 5, 6].map(n => (
                   <option key={n} value={n}>
@@ -240,7 +240,7 @@ export default function TravelPlanningForm() {
               <select
                 id="tpf-budget" name="budget_fourchette"
                 value={formData.budget_fourchette} onChange={handleChange}
-                className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 focus:outline-none focus:ring-2 focus:ring-eucalyptus transition bg-white"
+                className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 focus:outline-none focus:ring-2 focus:ring-eucalyptus transition bg-[#FAF7F2]"
               >
                 <option value="">Choisir…</option>
                 <option value="moins-1000">Moins de 1 000 €</option>
@@ -257,7 +257,7 @@ export default function TravelPlanningForm() {
               <select
                 id="tpf-mois" name="mois_depart"
                 value={formData.mois_depart} onChange={handleChange}
-                className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 focus:outline-none focus:ring-2 focus:ring-eucalyptus transition bg-white"
+                className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 focus:outline-none focus:ring-2 focus:ring-eucalyptus transition bg-[#FAF7F2]"
               >
                 <option value="">Flexible</option>
                 {[
@@ -278,7 +278,7 @@ export default function TravelPlanningForm() {
               value={formData.notes} onChange={handleChange}
               rows={3}
               placeholder="Plus vous nous en dites, plus on peut créer quelque chose de sur mesure."
-              className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-eucalyptus transition resize-none bg-white"
+              className="w-full px-4 py-3 border border-cloud-dancer rounded-lg text-charcoal/90 placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-eucalyptus transition resize-none bg-[#FAF7F2]"
             />
           </div>
         </div>

@@ -29,17 +29,17 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const highlights = [
   {
-    emoji: '🌊',
+    emoji: 'Compass',
     title: 'Les Piscines Naturelles Volcaniques',
     description: 'Des bassins de roche basaltique noire alimentés directement par les marées de l\'océan Atlantique. Une eau limpide et une baignade hors du commun.',
   },
   {
-    emoji: '🏰',
+    emoji: 'Compass',
     title: 'Le Fort de São João Baptista',
     description: 'Une petite forteresse historique datant du XVIIe siècle édifiée pour protéger la côte des pirates. Elle abrite aujourd\'hui un petit aquarium.',
   },
   {
-    emoji: '🚗',
+    emoji: 'Compass',
     title: 'La Route Cotière Nord',
     description: 'La route menant à Porto Moniz longe des falaises abruptes et traverse d\'anciens tunnels creusés dans la roche volcanique. Spectaculaire.',
   }

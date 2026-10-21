@@ -33,17 +33,17 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const highlights = [
   {
-    emoji: '🕳️',
+    emoji: 'Compass',
     title: 'Grottes karstiques',
     description: 'Le massif est troué de cavités façonnées par l\'érosion calcaire, dont la grotte d\'Ionele et le gouffre glaciaire de Vartop.',
   },
   {
-    emoji: '💧',
+    emoji: 'Compass',
     title: 'Cascades et ravins',
     description: 'La cascade de Pișoaia et le ravin d\'Ordâncușa serpentent entre les falaises, alimentés par des sources karstiques comme l\'izbuc de Tăuzu.',
   },
   {
-    emoji: '🏔️',
+    emoji: 'Compass',
     title: 'Refuges de montagne',
     description: 'Les cabanes autour de Gârda de Sus et Dealu Frumos servent d\'étape aux randonneurs qui montent vers le Cucurbăta Mare, point culminant du massif.',
   }

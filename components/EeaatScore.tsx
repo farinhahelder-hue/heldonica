@@ -179,7 +179,7 @@ export default function EeaatScore({
   };
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-3">
+    <div className="rounded-sm border border-gray-200 bg-[#FAF7F2] p-4 space-y-3">
       <div className="flex items-center justify-between">
         <div>
           <h4 className="text-sm font-semibold text-gray-900">Score E-E-A-T</h4>

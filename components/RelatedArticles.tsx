@@ -72,7 +72,7 @@ export default function RelatedArticles({ articles, destinationTitle, currentSlu
               <Link 
                 key={article.slug} 
                 href={`/blog/${article.slug}`}
-                className="group flex-shrink-0 w-full md:w-80 bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+                className="group flex-shrink-0 w-full md:w-80 bg-[#FAF7F2] rounded-sm overflow-hidden transition-all duration-300"
               >
                 <div className="relative h-48 overflow-hidden">
                   {article.featured_image ? (

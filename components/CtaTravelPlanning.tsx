@@ -38,7 +38,7 @@ export default function CtaTravelPlanning() {
       `}</Script>
       <div className="mx-auto max-w-2xl text-center text-white">
         <div className="mb-6 flex justify-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#FAF7F2]/20">
             <svg
               className="h-8 w-8"
               fill="none"
@@ -71,7 +71,7 @@ export default function CtaTravelPlanning() {
         <Link
           href="/travel-planning"
           onClick={handleClick}
-          className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-4 font-semibold text-eucalyptus transition-all duration-200 hover:bg-white/90 hover:shadow-lg"
+          className="inline-flex items-center gap-2 rounded-full bg-[#FAF7F2] px-8 py-4 font-semibold text-eucalyptus transition-all duration-200 hover:bg-[#FAF7F2]/90"
         >
           {ctaLabel}
           <svg

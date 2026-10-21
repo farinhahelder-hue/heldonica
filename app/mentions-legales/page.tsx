@@ -68,7 +68,7 @@ export default async function MentionslégalesPage() {
     <InlineEditProvider page="mentions-legales" initialZones={zones}>
       <Header />
       <Breadcrumb />
-      <main className="bg-white">
+      <main className="bg-[#FAF7F2]">
         <section className="bg-gradient-to-br from-cloud-dancer to-white py-16 md:py-24">
           <div className="max-w-4xl mx-auto px-6">
             <p className="text-xs uppercase tracking-[0.16em] text-eucalyptus font-semibold mb-3">
@@ -85,7 +85,7 @@ export default async function MentionslégalesPage() {
 
         <section className="py-16 md:py-24">
           <div className="max-w-4xl mx-auto px-6 space-y-12">
-            <div className="rounded-2xl border border-mahogany/20 bg-cloud-dancer/50 p-6 text-charcoal">
+            <div className="rounded-sm border border-mahogany/20 bg-cloud-dancer/50 p-6 text-charcoal">
               <p className="text-sm text-charcoal/60">
                 <EditableZone page="mentions-legales" zone="last_update" fallback="Dernière mise à jour : 16 avril 2026" />
               </p>

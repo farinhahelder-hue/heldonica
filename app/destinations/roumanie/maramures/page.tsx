@@ -30,17 +30,17 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const highlights = [
   {
-    emoji: '🪵',
+    emoji: 'Compass',
     title: 'Les Églises en bois UNESCO (Bârsana & Ieud)',
     description: 'Des flèches de chêne noirci s\'élançant vers les nuages, des fresques peintes sur toile à la lueur des cierges et le silence de la vallée de l\'Iza.',
   },
   {
-    emoji: '🚪',
+    emoji: 'Compass',
     title: 'Les Portes monumentales & la vie pastorale',
     description: 'Des portails de chêne sculptés de soleils et de motifs séculaires, au milieu de collines où le foin sèche en meules coniques traditionnelles.',
   },
   {
-    emoji: '🍲',
+    emoji: 'Compass',
     title: 'L\'Hospitalité paysanne & la Mămăligă',
     description: 'Des tables paysannes au coin du poêle à bois, où l\'on partage le fromage frais de brebis brânză à 8 € et la confiture de prune maison.',
   }

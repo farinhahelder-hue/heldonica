@@ -69,7 +69,7 @@ export default function QuickAnswersBlock({
         </h2>
         <div className="grid md:grid-cols-2 gap-4">
           {answers.map((item, i) => (
-            <div key={i} className="flex items-start gap-3 bg-white rounded-xl p-4 border border-stone-100 shadow-sm">
+            <div key={i} className="flex items-start gap-3 bg-[#FAF7F2] rounded-sm p-4 border border-stone-100">
               <CheckCircle2 size={20} className="text-eucalyptus flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold text-mahogany text-sm">{item.q}</p>

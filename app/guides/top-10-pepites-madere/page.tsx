@@ -202,7 +202,7 @@ export default async function Top10PepitesMaderePage() {
               className="text-stone-300 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-8 block"
             />
 
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-white/10 max-w-md mx-auto">
+            <div className="bg-[#FAF7F2]/5 backdrop-blur-sm rounded-sm p-6 md:p-8 border border-white/10 max-w-md mx-auto">
               <EditableZone page="top-10-pepites-madere" zone="hero_download_label" fallback="📥 Télécharge gratuitement"
                 className="text-amber-400 font-semibold mb-3 block"
               />
@@ -211,7 +211,7 @@ export default async function Top10PepitesMaderePage() {
           </div>
         </section>
 
-        <section className="py-16 md:py-20 bg-white">
+        <section className="py-16 md:py-20 bg-[#FAF7F2]">
           <div className="max-w-3xl mx-auto px-6">
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-stone-900 mb-6 text-center">
               <EditableZone page="top-10-pepites-madere" zone="intro_title" fallback="On a passé 3 semaines à Madère.\nVoici ce qu'on en a retiré."
@@ -235,18 +235,18 @@ export default async function Top10PepitesMaderePage() {
               {pepites.map((pep) => (
                 <div
                   key={pep.rank}
-                  className="bg-white rounded-2xl p-6 md:p-8 border border-stone-100 hover:shadow-lg transition-shadow"
+                  className="bg-[#FAF7F2] rounded-sm p-6 md:p-8 border border-stone-100 transition-shadow"
                 >
                   <div className="flex items-start gap-5">
                     {pep.image_url ? (
                       <img
                         src={pep.image_url}
                         alt={pep.title}
-                        className="flex-shrink-0 w-20 h-20 rounded-xl object-cover"
+                        className="flex-shrink-0 w-20 h-20 rounded-sm object-cover"
                         loading="lazy"
                       />
                     ) : (
-                      <div className="flex-shrink-0 w-14 h-14 bg-amber-100 rounded-xl flex items-center justify-center text-2xl font-bold text-amber-800">
+                      <div className="flex-shrink-0 w-14 h-14 bg-amber-100 rounded-sm flex items-center justify-center text-2xl font-bold text-amber-800">
                         {pep.rank}
                       </div>
                     )}
@@ -260,7 +260,7 @@ export default async function Top10PepitesMaderePage() {
                       <h3 className="text-xl font-serif font-bold text-stone-900 mb-2">{pep.title}</h3>
                       <p className="text-stone-600 leading-relaxed mb-4">{pep.description}</p>
                       {pep.secret && (
-                        <div className="bg-amber-50 rounded-xl p-4 border-l-4 border-amber-400">
+                        <div className="bg-amber-50 rounded-sm p-4 border-l-4 border-amber-400">
                           <p className="text-sm">
                             <span className="font-semibold text-amber-800">🔒 Le secret :</span>{' '}
                             <span className="text-stone-700">{pep.secret}</span>
@@ -275,7 +275,7 @@ export default async function Top10PepitesMaderePage() {
           </div>
         </section>
 
-        <section className="py-16 md:py-20 bg-white">
+        <section className="py-16 md:py-20 bg-[#FAF7F2]">
           <div className="max-w-4xl mx-auto px-6">
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-stone-900 mb-4 text-center">
               <EditableZone page="top-10-pepites-madere" zone="map_title" fallback="Situe les pépites sur la carte" />
@@ -307,7 +307,7 @@ export default async function Top10PepitesMaderePage() {
           </div>
         </section>
 
-        <section className="py-16 md:py-20 bg-white">
+        <section className="py-16 md:py-20 bg-[#FAF7F2]">
           <div className="max-w-4xl mx-auto px-6">
             <h2 className="text-2xl font-serif font-bold text-stone-900 mb-8 text-center">
               <EditableZone page="top-10-pepites-madere" zone="related_title" fallback="Continue à explorer" />
@@ -315,7 +315,7 @@ export default async function Top10PepitesMaderePage() {
             <div className="grid md:grid-cols-2 gap-6">
               <Link
                 href="/destinations/madere"
-                className="bg-stone-50 rounded-2xl p-6 border border-stone-100 hover:shadow-md transition-shadow group"
+                className="bg-[#F7F3EC] rounded-sm p-6 border border-stone-100 transition-shadow group"
               >
                 <span className="text-2xl mb-4 block">🌍</span>
                 <h3 className="text-lg font-semibold text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">
@@ -327,7 +327,7 @@ export default async function Top10PepitesMaderePage() {
               </Link>
               <Link
                 href="/blog"
-                className="bg-stone-50 rounded-2xl p-6 border border-stone-100 hover:shadow-md transition-shadow group"
+                className="bg-[#F7F3EC] rounded-sm p-6 border border-stone-100 transition-shadow group"
               >
                 <span className="text-2xl mb-4 block">📖</span>
                 <h3 className="text-lg font-semibold text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">

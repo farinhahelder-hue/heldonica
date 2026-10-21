@@ -72,9 +72,9 @@ export default function MadereBudgetClient() {
           </div>
         </section>
 
-        <section className="bg-white section-spacing">
+        <section className="bg-[#FAF7F2] section-spacing">
           <div className="container grid lg:grid-cols-[1fr_420px] gap-8 items-start">
-            <article className="rounded-2xl border border-stone-200 p-6 md:p-8">
+            <article className="rounded-sm border border-[#DED5C6] p-6 md:p-8">
               <h2 className="text-2xl font-serif text-mahogany mb-6">
                 <EditableZone page="destinations-madere-budget" zone="form_title" fallback="Paramètres du voyage" />
               </h2>
@@ -171,7 +171,7 @@ export default function MadereBudgetClient() {
               </label>
             </article>
 
-            <aside className="rounded-2xl border border-stone-200 p-6 md:p-7 bg-cloud-dancer sticky top-24">
+            <aside className="rounded-sm border border-[#DED5C6] p-6 md:p-7 bg-cloud-dancer sticky top-24">
               <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">
                 <EditableZone page="destinations-madere-budget" zone="estimate_kicker" fallback="Estimation duo" />
               </p>
@@ -204,7 +204,7 @@ export default function MadereBudgetClient() {
 
         <section className="bg-cloud-dancer section-spacing">
           <div className="container max-w-4xl grid md:grid-cols-2 gap-5">
-            <article className="rounded-2xl border border-stone-200 p-6 bg-white">
+            <article className="rounded-sm border border-[#DED5C6] p-6 bg-[#FAF7F2]">
               <h2 className="text-xl font-serif text-mahogany mb-3">
                 <EditableZone page="destinations-madere-budget" zone="card_1_title" fallback="Référence rapide" />
               </h2>
@@ -217,7 +217,7 @@ export default function MadereBudgetClient() {
                 />
               </p>
             </article>
-            <article className="rounded-2xl border border-stone-200 p-6 bg-white">
+            <article className="rounded-sm border border-[#DED5C6] p-6 bg-[#FAF7F2]">
               <h2 className="text-xl font-serif text-mahogany mb-3">
                 <EditableZone page="destinations-madere-budget" zone="card_2_title" fallback="Conseil de pilotage" />
               </h2>
