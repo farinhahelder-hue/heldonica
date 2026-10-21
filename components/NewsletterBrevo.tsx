@@ -88,7 +88,7 @@ export default function NewsletterBrevo({ source = 'footer' }: NewsletterBrevoPr
 
         {submitted && (
           <p className="text-white mt-4 text-sm font-medium">
-            ✅ Bienvenue ! Vérifie ta boîte mail — on t&apos;a envoyé un premier message.
+            Bienvenue ! Vérifie ta boîte mail — on t&apos;a envoyé un premier message.
           </p>
         )}
 

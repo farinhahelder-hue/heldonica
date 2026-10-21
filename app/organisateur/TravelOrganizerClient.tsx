@@ -59,63 +59,63 @@ type PriceProfile = {
 const PRICE_PROFILES: { keys: string[]; profile: PriceProfile }[] = [
   {
     keys: ['madère', 'madere', 'madeira', 'funchal'],
-    profile: { label: 'Madère', flag: '🇵🇹', accommodationPerNight: 95, transportPerStage: 30, foodPerDay: 42, activitiesPerDay: 28, tip: 'Transport inter-villes peu cher en bus public (1-2 €). Les levadas accessibles gratuitement.' },
+    profile: { label: 'Madère', flag: 'PT', accommodationPerNight: 95, transportPerStage: 30, foodPerDay: 42, activitiesPerDay: 28, tip: 'Transport inter-villes peu cher en bus public (1-2 €). Les levadas accessibles gratuitement.' },
   },
   {
     keys: ['portugal', 'lisbonne', 'lisbon', 'porto', 'alentejo', 'algarve', 'sintra'],
-    profile: { label: 'Portugal', flag: '🇵🇹', accommodationPerNight: 90, transportPerStage: 35, foodPerDay: 40, activitiesPerDay: 25, tip: 'Budget slow travel accessible. Pastel de nata et vinho verde restent bon marché.' },
+    profile: { label: 'Portugal', flag: 'PT', accommodationPerNight: 90, transportPerStage: 35, foodPerDay: 40, activitiesPerDay: 25, tip: 'Budget slow travel accessible. Pastel de nata et vinho verde restent bon marché.' },
   },
   {
     keys: ['france', 'paris', 'normandie', 'lyon', 'bordeaux', 'provence', 'bretagne', 'fontainebleau', 'versailles', 'giverny'],
-    profile: { label: 'France', flag: '🇫🇷', accommodationPerNight: 115, transportPerStage: 55, foodPerDay: 55, activitiesPerDay: 35, tip: 'Musées nationaux gratuits 1er dimanche du mois. Marchés locaux pour réduire le budget repas.' },
+    profile: { label: 'France', flag: 'FR', accommodationPerNight: 115, transportPerStage: 55, foodPerDay: 55, activitiesPerDay: 35, tip: 'Musées nationaux gratuits 1er dimanche du mois. Marchés locaux pour réduire le budget repas.' },
   },
   {
     keys: ['sicile', 'sicilia', 'sicily', 'palerme', 'catane', 'taormine', 'agrigente'],
-    profile: { label: 'Sicile', flag: '🇮🇹', accommodationPerNight: 85, transportPerStage: 35, foodPerDay: 42, activitiesPerDay: 22, tip: 'Granita sicilienne 2-3 €. Arancini et panelle pour manger local à petit prix.' },
+    profile: { label: 'Sicile', flag: 'IT', accommodationPerNight: 85, transportPerStage: 35, foodPerDay: 42, activitiesPerDay: 22, tip: 'Granita sicilienne 2-3 €. Arancini et panelle pour manger local à petit prix.' },
   },
   {
     keys: ['sardaigne', 'sardinia', 'cagliari', 'alghero', 'nuoro'],
-    profile: { label: 'Sardaigne', flag: '🇮🇹', accommodationPerNight: 100, transportPerStage: 40, foodPerDay: 44, activitiesPerDay: 25, tip: 'Louer un scooter (30-40€/j) est la clé pour accéder aux plages hors des circuits.' },
+    profile: { label: 'Sardaigne', flag: 'IT', accommodationPerNight: 100, transportPerStage: 40, foodPerDay: 44, activitiesPerDay: 25, tip: 'Louer un scooter (30-40€/j) est la clé pour accéder aux plages hors des circuits.' },
   },
   {
     keys: ['italie', 'italy', 'rome', 'roma', 'florence', 'firenze', 'venise', 'venezia', 'milan', 'naples', 'napoli', 'toscane', 'tuscany'],
-    profile: { label: 'Italie', flag: '🇮🇹', accommodationPerNight: 110, transportPerStage: 50, foodPerDay: 48, activitiesPerDay: 30, tip: 'Aperitivo "spritz" souvent inclus avec la boisson (3-5 €). Éviter les restaurants face aux monuments.' },
+    profile: { label: 'Italie', flag: 'IT', accommodationPerNight: 110, transportPerStage: 50, foodPerDay: 48, activitiesPerDay: 30, tip: 'Aperitivo "spritz" souvent inclus avec la boisson (3-5 €). Éviter les restaurants face aux monuments.' },
   },
   {
     keys: ['espagne', 'spain', 'barcelone', 'barcelona', 'madrid', 'séville', 'sevilla', 'valence', 'grenade', 'granada', 'malaga'],
-    profile: { label: 'Espagne', flag: '🇪🇸', accommodationPerNight: 95, transportPerStage: 45, foodPerDay: 45, activitiesPerDay: 28, tip: 'Menu del día (12-15€) = entrée + plat + dessert + boisson. La vraie vie locale.' },
+    profile: { label: 'Espagne', flag: 'ES', accommodationPerNight: 95, transportPerStage: 45, foodPerDay: 45, activitiesPerDay: 28, tip: 'Menu del día (12-15€) = entrée + plat + dessert + boisson. La vraie vie locale.' },
   },
   {
     keys: ['grèce', 'greece', 'grece', 'athènes', 'athens', 'santorin', 'santorini', 'mykonos', 'crète', 'crete', 'rhodes'],
-    profile: { label: 'Grèce', flag: '🇬🇷', accommodationPerNight: 85, transportPerStage: 40, foodPerDay: 40, activitiesPerDay: 25, tip: 'Sites archéologiques les plus beaux souvent gratuits. Tavernes locales vs restaurants touristiques : moitié prix.' },
+    profile: { label: 'Grèce', flag: 'GR', accommodationPerNight: 85, transportPerStage: 40, foodPerDay: 40, activitiesPerDay: 25, tip: 'Sites archéologiques les plus beaux souvent gratuits. Tavernes locales vs restaurants touristiques : moitié prix.' },
   },
   {
     keys: ['monténégro', 'montenegro', 'kotor', 'budva', 'tivat', 'podgorica'],
-    profile: { label: 'Monténégro', flag: '🇲🇪', accommodationPerNight: 68, transportPerStage: 28, foodPerDay: 32, activitiesPerDay: 18, tip: 'L\'un des pays les moins chers des Balkans. Forteresses et parcs nationaux à 2-5 €.' },
+    profile: { label: 'Monténégro', flag: 'ME', accommodationPerNight: 68, transportPerStage: 28, foodPerDay: 32, activitiesPerDay: 18, tip: 'L\'un des pays les moins chers des Balkans. Forteresses et parcs nationaux à 2-5 €.' },
   },
   {
     keys: ['roumanie', 'romania', 'bucarest', 'bucharest', 'transylvanie', 'transylvania', 'cluj', 'brasov', 'sibiu', 'timisoara'],
-    profile: { label: 'Roumanie', flag: '🇷🇴', accommodationPerNight: 55, transportPerStage: 22, foodPerDay: 28, activitiesPerDay: 18, tip: 'Budget slow travel parmi les plus bas d\'Europe. Fortresses saxonnes et châteaux quasi gratuits.' },
+    profile: { label: 'Roumanie', flag: 'RO', accommodationPerNight: 55, transportPerStage: 22, foodPerDay: 28, activitiesPerDay: 18, tip: 'Budget slow travel parmi les plus bas d\'Europe. Fortresses saxonnes et châteaux quasi gratuits.' },
   },
   {
     keys: ['colombie', 'colombia', 'bogota', 'medellín', 'medellin', 'carthagène', 'cartagena', 'cali', 'cartago'],
-    profile: { label: 'Colombie', flag: '🇨🇴', accommodationPerNight: 55, transportPerStage: 22, foodPerDay: 18, activitiesPerDay: 22, tip: 'Menus corriente (repas du jour) à 3-5 €. Cafés de spécialité à 1-2 €. Taxis app recommandés.' },
+    profile: { label: 'Colombie', flag: 'CO', accommodationPerNight: 55, transportPerStage: 22, foodPerDay: 18, activitiesPerDay: 22, tip: 'Menus corriente (repas du jour) à 3-5 €. Cafés de spécialité à 1-2 €. Taxis app recommandés.' },
   },
   {
     keys: ['suisse', 'switzerland', 'zurich', 'genève', 'geneva', 'berne', 'bern', 'lausanne', 'bâle', 'basel', 'interlaken', 'stoos'],
-    profile: { label: 'Suisse', flag: '🇨🇭', accommodationPerNight: 175, transportPerStage: 70, foodPerDay: 72, activitiesPerDay: 55, tip: 'Swiss Travel Pass pour transports illimités (dès 200 CHF). Coop et Migros pour pique-niques économiques.' },
+    profile: { label: 'Suisse', flag: 'CH', accommodationPerNight: 175, transportPerStage: 70, foodPerDay: 72, activitiesPerDay: 55, tip: 'Swiss Travel Pass pour transports illimités (dès 200 CHF). Coop et Migros pour pique-niques économiques.' },
   },
   {
     keys: ['maroc', 'morocco', 'marrakech', 'marrakesh', 'fès', 'fez', 'casablanca', 'essaouira', 'agadir'],
-    profile: { label: 'Maroc', flag: '🇲🇦', accommodationPerNight: 65, transportPerStage: 22, foodPerDay: 22, activitiesPerDay: 18, tip: 'Riads en médina offrent bien meilleur rapport qualité/prix que les hôtels modernes.' },
+    profile: { label: 'Maroc', flag: 'MA', accommodationPerNight: 65, transportPerStage: 22, foodPerDay: 22, activitiesPerDay: 18, tip: 'Riads en médina offrent bien meilleur rapport qualité/prix que les hôtels modernes.' },
   },
   {
     keys: ['allemagne', 'germany', 'berlin', 'munich', 'hambourg', 'hamburg', 'cologne', 'frankfurt', 'heidelberg'],
-    profile: { label: 'Allemagne', flag: '🇩🇪', accommodationPerNight: 100, transportPerStage: 55, foodPerDay: 48, activitiesPerDay: 28, tip: 'Nombreux musées gratuits ou à tarif réduit. Marchés de noël et biergartens pour l\'ambiance locale.' },
+    profile: { label: 'Allemagne', flag: 'DE', accommodationPerNight: 100, transportPerStage: 55, foodPerDay: 48, activitiesPerDay: 28, tip: 'Nombreux musées gratuits ou à tarif réduit. Marchés de noël et biergartens pour l\'ambiance locale.' },
   },
   {
     keys: ['malte', 'malta', 'valletta', 'valette', 'gozo'],
-    profile: { label: 'Malte', flag: '🇲🇹', accommodationPerNight: 88, transportPerStage: 18, foodPerDay: 38, activitiesPerDay: 22, tip: 'Bus public très développé (1.50€ le trajet). Ftajjar (sandwich maltais) à 2-3 € pour le déj.' },
+    profile: { label: 'Malte', flag: 'MT', accommodationPerNight: 88, transportPerStage: 18, foodPerDay: 38, activitiesPerDay: 22, tip: 'Bus public très développé (1.50€ le trajet). Ftajjar (sandwich maltais) à 2-3 € pour le déj.' },
   },
 ]
 
@@ -173,9 +173,9 @@ const CHECKLIST_TEMPLATES: Record<string, { text: string; category: string }[]> 
 }
 
 const TRIP_TYPES = [
-  { value: 'citybreak', label: 'City break', emoji: '🏙️' },
-  { value: 'randonnee', label: 'Randonnée', emoji: '🏔️' },
-  { value: 'roadtrip', label: 'Road trip', emoji: '🚗' },
+  { value: 'citybreak', label: 'City break', emoji: 'Building2' },
+  { value: 'randonnee', label: 'Randonnée', emoji: 'MountainSnow' },
+  { value: 'roadtrip', label: 'Road trip', emoji: 'Car' },
 ]
 
 const CHECKLIST_CATEGORIES = ['documents', 'réservations', 'santé', 'équipement', 'divers'] as const
@@ -409,7 +409,7 @@ Généré avec Heldonica — heldonica.fr`
               <div>
                 <label className="block text-xs text-charcoal/50 mb-1.5 font-medium"><EditableZone page="organisateur" zone="label_trip_type" fallback="Type de voyage" /></label>
                 <select value={tripType} onChange={e => setTripType(e.target.value)} className={inputClass}>
-                  {TRIP_TYPES.map(t => <option key={t.value} value={t.value}>{t.emoji} {t.label}</option>)}
+                  {TRIP_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                 </select>
               </div>
             </div>
@@ -494,10 +494,10 @@ Généré avec Heldonica — heldonica.fr`
                               {profile.flag} Estimation Heldonica · {profile.label} · {stage.nights} nuit{stage.nights > 1 ? 's' : ''}
                             </p>
                             <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-charcoal/60">
-                              <span>🏨 <strong className="text-charcoal/80">{fmt(profile.accommodationPerNight * stage.nights)} €</strong> héberg.</span>
-                              <span>🚌 <strong className="text-charcoal/80">{fmt(profile.transportPerStage)} €</strong> transport</span>
-                              <span>🍽 <strong className="text-charcoal/80">{fmt(profile.foodPerDay * stage.nights)} €</strong> resto</span>
-                              <span>🎭 <strong className="text-charcoal/80">{fmt(profile.activitiesPerDay * stage.nights)} €</strong> activ.</span>
+                              <span><strong className="text-charcoal/80">{fmt(profile.accommodationPerNight * stage.nights)} €</strong> héberg.</span>
+                              <span><strong className="text-charcoal/80">{fmt(profile.transportPerStage)} €</strong> transport</span>
+                              <span><strong className="text-charcoal/80">{fmt(profile.foodPerDay * stage.nights)} €</strong> resto</span>
+                              <span><strong className="text-charcoal/80">{fmt(profile.activitiesPerDay * stage.nights)} €</strong> activ.</span>
                             </div>
                             <p className="text-[11px] text-charcoal/45 mt-1.5 italic leading-snug">{profile.tip}</p>
                           </div>

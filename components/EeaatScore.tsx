@@ -213,7 +213,7 @@ export default function EeaatScore({
       <ul className="space-y-1">
         {checks.map((c) => (
           <li key={c.label} className="flex items-center gap-2 text-xs">
-            <span className={c.ok ? 'text-emerald-500' : 'text-red-400'}>{c.ok ? '✓' : '✗'}</span>
+            <span className={c.ok ? 'text-emerald-500' : 'text-red-400'}>{c.ok ? 'Oui' : 'Non'}</span>
             <span className="text-gray-600 font-medium min-w-[90px]">{c.label.replace(/_/g, ' ')}</span>
             <span className={`text-gray-400 ${c.ok ? '' : 'text-red-300'}`}>{c.detail}</span>
           </li>

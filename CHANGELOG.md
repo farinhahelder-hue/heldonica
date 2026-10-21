@@ -2,6 +2,13 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-21] — Le « carnet » étendu aux ~50 pages secondaires + garde-fou `check:design-tics` (`agent/gemini/design-upgrade-2-0`)
+
+- **Correction d'une erreur de cohérence éditoriale** : la purge du mot « pépites » annoncée plus bas était fausse. *Pépites dénichées* est le vocabulaire préféré de la marque (`lib/brand-voice.ts`, `docs/GUIDE_VOIX_HELDONICA_IA.md`) et aucun garde-fou ne le bannit. Le mot est restauré (commit `2ccdb755`) ; la ligne « purge des 6 dernières occurrences » de l'entrée suivante est caduque.
+- **Pages secondaires alignées sur le carnet** (destinations, sous-destinations, `/expert-hotelier`, `/organisateur`, `/guides`, `/quiz`, `/merci`, `/start`, `/retour-experience`, `/politique-affiliation`, composants partagés) : `bg-white` → `#FAF7F2`, `bg-stone-50` → `#F7F3EC`, `border-stone-200` → filet lin `#DED5C6`, `rounded-xl/2xl/3xl` → `rounded-sm`, ombres `shadow-*` retirées. Passe mécanique : relire les pages dans un navigateur reste à faire.
+- **Plus d'emoji décoratif sur les pages publiques** : les emojis de données (`icon:`, `emoji:`, zones `*_emoji` / `*_icon`) deviennent des noms d'icônes Lucide rendus par `CmsIcon` / `EditableZone` ; les emojis isolés ou inline sont supprimés ; les drapeaux deviennent des codes ISO ; `⭐⭐⭐` → `★★★`.
+- **Nouveau garde-fou `scripts/check-design-tics.mjs`** (`npm run check:design-tics`, inclus dans `garde-fous` et `--preflight`) : refuse un emoji décoratif, `bg-white`/`bg-stone-50` combiné à `rounded-2xl/3xl` ou `shadow-*`, `rounded-2xl/3xl` seul, et une pilule `rounded-full` + ombre lourde. Prouvé sur cas fautif par `__tests__/scripts/check-design-tics.test.ts` (13 tests) ; l'agrégateur passe de 14 à 15 contrôles.
+
 ## [2026-10-21] — Design Upgrade 2.0 : séquence éditoriale de l'accueil, bandeau de preuves et cartes E-E-A-T (`agent/gemini/design-upgrade-2-0`)
 
 

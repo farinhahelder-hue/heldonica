@@ -86,7 +86,7 @@ export default function NewsletterPopup() {
       ticking = false;
     }
 
-    // ⚡ Bolt Performance Optimization:
+    // Bolt Performance Optimization:
     // What: Throttled scroll event listener using requestAnimationFrame.
     // Why: Defers computationally expensive DOM measurements and potential state updates
     //      during rapid scroll events to the browser's render cycle.
@@ -181,7 +181,6 @@ export default function NewsletterPopup() {
 
       {status === 'success' ? (
         <div className="text-center py-4">
-          <div className="text-4xl mb-4">🎉</div>
           <h3 className="text-xl font-bold mb-2">
             Bienvenue dans l&apos;aventure !
           </h3>

@@ -8,10 +8,10 @@ import { buildPageMetadata } from '@/lib/page-metadata'
 
 const metadata: Metadata = {
   title: "Isole Eoliennes en couple : notre carnet slow travel | Heldonica",
-  description: "Volcans, boue en ⭐ Secret Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+  description: "Volcans, boue en Secret Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
   openGraph: {
     title: "Isole Eoliennes en couple : notre carnet slow travel | Heldonica",
-    description: "Volcans, boue en ⭐ Secret Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+    description: "Volcans, boue en Secret Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
     type: 'website',
     images: ['/og-default.jpg'],
     locale: 'fr_FR',

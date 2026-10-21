@@ -8,10 +8,10 @@ import { buildPageMetadata } from '@/lib/page-metadata'
 
 const metadata: Metadata = {
   title: "Portela en couple : notre carnet slow travel | Heldonica",
-  description: "Le village. La vue, le cimetiere, les eucalyptus en ⭐ Secret Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+  description: "Le village. La vue, le cimetiere, les eucalyptus en Secret Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
   openGraph: {
     title: "Portela en couple : notre carnet slow travel | Heldonica",
-    description: "Le village. La vue, le cimetiere, les eucalyptus en ⭐ Secret Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+    description: "Le village. La vue, le cimetiere, les eucalyptus en Secret Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
     type: 'website',
     images: ['/og-default.jpg'],
     locale: 'fr_FR',

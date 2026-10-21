@@ -66,7 +66,6 @@ export default function TravelPlanningForm() {
   if (state === 'success') {
     return (
       <div className="text-center py-16 px-8 max-w-lg mx-auto">
-        <div className="text-6xl mb-6">✨</div>
         <h2 className="font-serif text-2xl md:text-3xl text-charcoal/90 mb-4">
           Ta demande est bien reçue !
         </h2>
@@ -353,7 +352,7 @@ export default function TravelPlanningForm() {
             disabled={state === 'loading'}
             className="flex-1 bg-eucalyptus hover:brightness-110 disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium py-3 px-6 rounded-lg transition"
           >
-            {state === 'loading' ? '✈️ Envoi en cours…' : 'Envoyer ma demande'}
+            {state === 'loading' ? 'Envoi en cours…' : 'Envoyer ma demande'}
           </button>
         )}
       </div>

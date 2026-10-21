@@ -45,7 +45,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
       const data = await res.json();
       if (res.ok && data.success) {
         setStatus("success");
-        setMessage(cz("newsletter_success_title", "🎉 Bienvenue dans l'aventure !"));
+        setMessage(cz("newsletter_success_title", "Bienvenue dans l'aventure !"));
         setEmail("");
       } else {
         setStatus("error");

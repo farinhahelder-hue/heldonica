@@ -43,7 +43,7 @@ export default function Newsletter() {
         </form>
 
         {submitted && (
-          <p className="text-white mt-4 text-sm">✅ Merci ! Vérifiez votre email.</p>
+          <p className="text-white mt-4 text-sm">Merci ! Vérifiez votre email.</p>
         )}
       </div>
     </section>

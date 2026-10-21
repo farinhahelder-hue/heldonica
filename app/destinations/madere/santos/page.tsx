@@ -8,10 +8,10 @@ import { buildPageMetadata } from '@/lib/page-metadata'
 
 const metadata: Metadata = {
   title: "Santos en couple : notre carnet slow travel | Heldonica",
-  description: "Le petit village. Les tavernes, le vin en ⭐ Hidden Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+  description: "Le petit village. Les tavernes, le vin en Hidden Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
   openGraph: {
     title: "Santos en couple : notre carnet slow travel | Heldonica",
-    description: "Le petit village. Les tavernes, le vin en ⭐ Hidden Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+    description: "Le petit village. Les tavernes, le vin en Hidden Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
     type: 'website',
     images: ['/og-default.jpg'],
     locale: 'fr_FR',

@@ -8,10 +8,10 @@ import { buildPageMetadata } from '@/lib/page-metadata'
 
 const metadata: Metadata = {
   title: "Sao Vicente en couple : notre carnet slow travel | Heldonica",
-  description: "Le nord forgotten. Grottes, plage noire, eoliennes en ⭐ Hidden Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+  description: "Le nord forgotten. Grottes, plage noire, eoliennes en Hidden Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
   openGraph: {
     title: "Sao Vicente en couple : notre carnet slow travel | Heldonica",
-    description: "Le nord forgotten. Grottes, plage noire, eoliennes en ⭐ Hidden Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+    description: "Le nord forgotten. Grottes, plage noire, eoliennes en Hidden Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
     type: 'website',
     images: ['/og-default.jpg'],
     locale: 'fr_FR',

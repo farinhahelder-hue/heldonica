@@ -8,10 +8,10 @@ import { buildPageMetadata } from '@/lib/page-metadata'
 
 const metadata: Metadata = {
   title: "Camara de Lobos en couple : notre carnet slow travel | Heldonica",
-  description: "Le village de pecheurs. Le plus authentique en ⭐ Hidden Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+  description: "Le village de pecheurs. Le plus authentique en Hidden Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
   openGraph: {
     title: "Camara de Lobos en couple : notre carnet slow travel | Heldonica",
-    description: "Le village de pecheurs. Le plus authentique en ⭐ Hidden Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+    description: "Le village de pecheurs. Le plus authentique en Hidden Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
     type: 'website',
     images: ['/og-default.jpg'],
     locale: 'fr_FR',

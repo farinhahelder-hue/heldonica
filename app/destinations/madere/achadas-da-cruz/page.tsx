@@ -8,10 +8,10 @@ import { buildPageMetadata } from '@/lib/page-metadata'
 
 const metadata: Metadata = {
   title: "Achadas da Cruz en couple : notre carnet slow travel | Heldonica",
-  description: "Le funiculaire. 1000m de chute. Vertige en ⭐ Secret Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+  description: "Le funiculaire. 1000m de chute. Vertige en Secret Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
   openGraph: {
     title: "Achadas da Cruz en couple : notre carnet slow travel | Heldonica",
-    description: "Le funiculaire. 1000m de chute. Vertige en ⭐ Secret Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+    description: "Le funiculaire. 1000m de chute. Vertige en Secret Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
     type: 'website',
     images: ['/images/destinations/madere/achadas_da_cruz.jpg'],
     locale: 'fr_FR',
