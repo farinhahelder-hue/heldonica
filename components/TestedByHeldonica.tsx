@@ -1,6 +1,7 @@
 'use client'
 
 import { Heart, MapPin, Calendar, Users } from 'lucide-react'
+import CmsIcon from '@/components/ui/CmsIcon'
 
 interface TestedByHeldonicaProps {
   when: string
@@ -41,7 +42,7 @@ export default function TestedByHeldonica({
               <span>{when}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-eucalyptus">⏱</span>
+              <CmsIcon value="Timer" size={16} className="text-eucalyptus" />
               <span>{duration}</span>
             </div>
             <div className="flex items-center gap-2">
@@ -58,7 +59,7 @@ export default function TestedByHeldonica({
             <div className="grid md:grid-cols-2 gap-3">
               {highlights.map((highlight, i) => (
                 <div key={i} className="flex items-start gap-3 bg-white rounded-lg p-3 border border-stone-100">
-                  <span className="text-eucalyptus mt-0.5">✨</span>
+                  <CmsIcon value="Sparkles" size={16} className="text-eucalyptus mt-0.5 shrink-0" />
                   <p className="text-sm text-charcoal/80">{highlight}</p>
                 </div>
               ))}

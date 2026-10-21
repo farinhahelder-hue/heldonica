@@ -2,6 +2,91 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-21] — Heartbeat Brain : écrire seulement quand l'état change
+
+- **Le battement réécrivait une ligne identique toutes les ~60 s.** Mesure
+  `pg_stat_statements` sur 13,5 jours : l'upsert `brain_heartbeat` dans
+  `site_settings` représentait **2 751 des 4 797 blocs écrits de la base (57 %)**,
+  pour une valeur inchangée la plupart du temps. La table compte 207 lignes et
+  **aucun autovacuum ne l'a jamais nettoyée**.
+- **Correctif** (`app/api/brain/heartbeat/route.ts`) : lecture du battement
+  précédent, puis écriture **seulement si** la signature de l'état a changé
+  (mesures arrondies par pas de 5 %, donc un bruit de virgule flottante ne
+  déclenche rien), **ou** si `last_seen` a plus de **90 s** — sous le seuil de
+  120 s de `/api/brain/status`, pour que le Brain ne passe jamais « hors ligne »
+  par économie. Un échec de lecture n'empêche pas l'écriture : un battement muet
+  serait pire qu'un battement redondant.
+- **6 tests** ajoutés (`__tests__/api/brain-bridge.test.ts`) : première écriture,
+  état identique, bruit de mesure, champ modifié, précédent périmé, lecture en
+  échec. Le harnais gagne une file de résultats pour distinguer une lecture d'une
+  écriture dans le même appel.
+- **Vérifié** : `27/27` sur ce fichier, `14/14` garde-fous.
+
+## [2026-10-21] — Disk IO Supabase : cause mesurée, index FK et RLS corrigés
+
+- **Le diagnostic était faux, la mesure l'a montré.** On soupçonnait la taille des
+  tables (2 538 lignes max), puis le cache Next.js, puis les RLS. Mesure sur
+  `pg_stat_statements` (fenêtre 13 j 10 h) : **99,995 % de cache hit**
+  (5 581 blocs lus contre 109,5 M servis depuis le cache) — les lectures de tables
+  ne coûtent rien. Les requêtes REST tournent à **~3/min** en régime établi
+  (~31 000/jour) : le nombre de requêtes n'est pas anormal non plus. Ce qui coûte
+  du disque, ce sont les **écritures**.
+- **Le poste n°1 : le battement du Brain.** `brain_heartbeat` est *upserté* dans
+  `site_settings` toutes les ~60 s, 24 h/24 → **1 440 écritures/jour** sur une
+  table de 207 lignes, dont **0 autovacuum n'est jamais passé**, avec 2 index à
+  réécrire à chaque fois. Le poste n°2 : **`/api/cms/zones` GET = 26 462 appels**,
+  la requête la plus volumineuse de la base — route `force-dynamic`, non cachée,
+  rappelée par les **7 pages** qui montent `InlineEditProvider` sans
+  `initialZones`.
+- **Migration `20261021130000_index_fk_manquantes.sql`** : 11 index couvrants sur
+  les clés étrangères qui n'en avaient pas. Lint `unindexed_foreign_keys`
+  **11 → 0**.
+- **Migration `20261021140000_rls_initplan_reecriture_politiques.sql`** : 30
+  politiques réécrites en `(select auth.role())` — l'appel devient un *InitPlan*
+  évalué **une fois par requête** au lieu d'une fois par ligne (vérifié par
+  `EXPLAIN`). Lint `auth_rls_initplan` **30 → 0**. Généré depuis `pg_policies`
+  (aucune réécriture à la main) ; **163/163 politiques préservées**, mêmes rôles,
+  mêmes commandes, booléen identique.
+- **Mesuré après coup** : `14/14` garde-fous verts, 6 routes publiques en HTTP 200.
+- **À faire, hors dépôt web** : `brain_heartbeat` ne devrait écrire **que si
+  l'état change** ; BridgePoller 30 s → 120 s. **Dans le dépôt** : câbler
+  `initialZones` sur les 7 pages concernées et mettre `/api/cms/zones` en cache.
+  Fiche `agent_tasks` `d6b7cae2` (`waiting_validation`, `scope=perf-supabase`).
+
+## [2026-10-21] — Lot 2 : plus un seul emoji rendu sur le site public (migration + garde-fou)
+
+- **Un emoji n'est plus une icône.** Deux composants rendent désormais les icônes :
+  `components/inline-edit/EditableIcon.tsx` (zones éditables au CMS, parallèle
+  d'`EditableZone`) et `components/ui/CmsIcon.tsx` (valeurs non éditables). Ils
+  s'appuient sur `lib/cms-icons.ts` (`EMOJI_TO_ICON`, `resolveIconName`) et
+  `lib/icon-registry.ts` (noms lucide). **Une valeur non reconnue retombe sur
+  l'icône neutre** : un emoji ne peut plus revenir par le CMS sans se voir.
+- **Migration versionnée `20261021120000_retrait_emojis_icones_zones_cms.sql`** :
+  **175 `UPDATE` en transaction unique**, appliqués par l'API SQL (HTTP 201) puis
+  journalisés dans `schema_migrations`. `cms_editable_zones` (164 zones actives),
+  plus **deux sources oubliées hors zones** : `cms_sub_destinations.emoji` (2) et
+  `cms_seasons.emoji` (11), qui alimentaient des pages publiques.
+- **Sites de rendu câblés** : `SubDestinationTemplate`, `DestinationPillar`,
+  `SeasonalTable`, `Pillars`, `Services`, `TestedByHeldonica`, `PhotoEvidenceBlock`,
+  `LeadMagnetBlock`, `GuideDownloadForm`, `ComingSoonDestination`, `StarRating`
+  (nouveau), et les pages `alentejo`, `timisoara`, `guides`, `quiz`,
+  `travel-planning-form`, `merci`, `start`, `retour-experience`,
+  `politique-affiliation`, `expert-hotelier`.
+- **Garde-fou `check-cms-zones.mjs`** : les regexes `<EditableZone>` acceptent
+  `<EditableIcon>` — sinon les zones d'icône passaient pour orphelines.
+- **Politique** : traité = emoji pictographique + `✦` décoratif ; **conservé** =
+  marques légales (`© ® ™`), flèches, et la convention de liste `✓`/`⚠` (10 zones
+  en base, intactes).
+- **Mesuré** : **0 emoji rendu** sur 24 pages publiques (avant : 29 sur
+  `/destinations/madere`) ; **0** zone active n'en contient plus en base ;
+  **garde-fous 14/14**, *Zones CMS orphelines* exécuté contre la base réelle ;
+  `tsc` 0.
+- **Découverte annexe** : `20261020230000_restauration_polices_et_territoires_accueil.sql`
+  n'a **jamais été appliquée** (mesuré : `font_heading` toujours `Fraunces`,
+  `zurich`/`suisse` toujours actifs) bien que le CHANGELOG l'annonce livrée. Son
+  `OR` non parenthésé est corrigé et ses icônes alignées sur les noms lucide ; elle
+  reste à appliquer. Détail : `.audit/audit-editorial-2026-10-20/ecart-migrations-2026-10-21.md`.
+
 ## [2026-10-21] — Le « carnet » atteint les pages secondaires : `/a-propos` et `/travel-planning`
 
 - **Le trou : la passe du 20/10 s'était arrêtée à l'accueil.** Elle avait touché

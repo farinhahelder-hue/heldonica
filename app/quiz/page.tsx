@@ -6,6 +6,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import EditableIcon from '@/components/inline-edit/EditableIcon'
 
 const PAGE = "quiz";
 
@@ -154,6 +155,11 @@ export default function QuizPage() {
     <EditableZone page={PAGE} zone={zone} type={type} fallback={fallback} className={className} as={as} />
   )
 
+  // Zones d'icone : la base stocke un nom d'icone lucide, jamais un emoji.
+  const ZI = (zone: string, fallback: string, size?: number) => (
+    <EditableIcon page={PAGE} zone={zone} fallback={fallback} size={size} />
+  )
+
   return (
     <InlineEditProvider page={PAGE}>
       <Header />
@@ -209,7 +215,7 @@ export default function QuizPage() {
                     >
                       <div className="flex items-center gap-4">
                         <span className="text-2xl">
-                          {Z('question_' + (currentQuestion + 1) + '_opt_' + (j + 1) + '_emoji', 'text', opt.emoji, undefined, 'span')}
+                          {ZI('question_' + (currentQuestion + 1) + '_opt_' + (j + 1) + '_emoji', opt.emoji, 22)}
                         </span>
                         <span className="text-stone-700 group-hover:text-stone-900 leading-snug">
                           {Z('question_' + (currentQuestion + 1) + '_opt_' + (j + 1) + '_label', 'textarea', opt.label, undefined, 'span')}

@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import EditableIcon from '@/components/inline-edit/EditableIcon'
+import CmsIcon from '@/components/ui/CmsIcon'
 
 const PAGE = "travel-planning-form";
 
@@ -195,6 +197,11 @@ export default function TravelPlanningForm() {
     <EditableZone page={PAGE} zone={zone} type={type} fallback={fallback} className={className} as={as} />
   )
 
+  // Zones d'icone : la base stocke un nom d'icone lucide, jamais un emoji.
+  const ZI = (zone: string, fallback: string, size?: number) => (
+    <EditableIcon page={PAGE} zone={zone} fallback={fallback} size={size} />
+  )
+
   return (
     <InlineEditProvider page={PAGE}>
       <div className="min-h-screen bg-cloud-dancer py-12 px-4">
@@ -244,8 +251,8 @@ export default function TravelPlanningForm() {
             {/* ── ÉTAPE 1 — L’Inspiration ─────────────────────────── */}
             {step === 1 && (
               <div className="space-y-6">
-                <h2 className="text-2xl font-serif font-bold text-mahogany mb-6">
-                  🌍 {Z('step_1_title', 'text', "Étape 1 : L'Inspiration", undefined, 'span')}
+                <h2 className="text-2xl font-serif font-bold text-mahogany mb-6 flex items-center gap-2">
+                  <CmsIcon value="Globe" size={22} /> {Z('step_1_title', 'text', "Étape 1 : L'Inspiration", undefined, 'span')}
                 </h2>
 
                 <div>
@@ -260,7 +267,7 @@ export default function TravelPlanningForm() {
                   value={opt.value}
                   current={form.tripType}
                   onChange={(v) => set('tripType', v)}
-                  emoji={Z(opt.zone + '_emoji', 'text', opt.emoji, undefined, 'span')}
+                  emoji={ZI(opt.zone + '_emoji', opt.emoji, 20)}
                   label={Z(opt.zone + '_label', 'textarea', opt.value, undefined, 'span')}
                 />
               ))}
@@ -279,7 +286,7 @@ export default function TravelPlanningForm() {
                   value={opt.value}
                   current={form.vibe}
                   onChange={(v) => set('vibe', v)}
-                  emoji={Z(opt.zone + '_emoji', 'text', opt.emoji, undefined, 'span')}
+                  emoji={ZI(opt.zone + '_emoji', opt.emoji, 20)}
                   label={Z(opt.zone + '_label', 'textarea', opt.value, undefined, 'span')}
                 />
               ))}
@@ -298,7 +305,7 @@ export default function TravelPlanningForm() {
                   value={opt.value}
                   current={form.destination}
                   onChange={(v) => set('destination', v)}
-                  emoji={Z(opt.zone + '_emoji', 'text', opt.emoji, undefined, 'span')}
+                  emoji={ZI(opt.zone + '_emoji', opt.emoji, 20)}
                   label={Z(opt.zone + '_label', 'textarea', opt.value, undefined, 'span')}
                 />
               ))}
@@ -358,7 +365,7 @@ export default function TravelPlanningForm() {
                   value={opt.value}
                   current={form.budget}
                   onChange={(v) => set('budget', v)}
-                  emoji={Z(opt.zone + '_emoji', 'text', opt.emoji, undefined, 'span')}
+                  emoji={ZI(opt.zone + '_emoji', opt.emoji, 20)}
                   label={Z(opt.zone + '_label', 'textarea', opt.value, undefined, 'span')}
                 />
               ))}
@@ -485,7 +492,7 @@ export default function TravelPlanningForm() {
                   disabled={loading}
                   className="flex-1 py-3 rounded-full font-medium transition bg-mahogany text-white hover:bg-mahogany/90 disabled:opacity-60"
                 >
-                  {loading ? Z('nav_sending', 'text', "Envoi en cours…", undefined, 'span') : Z('nav_submit', 'text', "Envoyer ma demande", undefined, 'span') + ' 🌍'}
+                  {loading ? Z('nav_sending', 'text', "Envoi en cours…", undefined, 'span') : Z('nav_submit', 'text', "Envoyer ma demande", undefined, 'span')}
                 </button>
               )}
             </div>

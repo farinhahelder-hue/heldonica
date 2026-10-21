@@ -16,6 +16,7 @@
  */
 import React from 'react';
 import styles from './PhotoEvidenceBlock.module.css';
+import CmsIcon from '@/components/ui/CmsIcon'
 
 export interface PhotoEvidenceBlockProps {
   /** URL de la photo (HTTPS) */
@@ -52,9 +53,9 @@ export function PhotoEvidenceBlock({
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={imageUrl} alt={alt} className={styles.image} loading="lazy" />
       <div className={styles.meta}>
-        <span>📍 {location}</span>
+        <span className="inline-flex items-center gap-1"><CmsIcon value="MapPin" size={14} /> {location}</span>
         <span aria-hidden="true"> – </span>
-        <time dateTime={date}>📅 {date}</time>
+        <time dateTime={date} className="inline-flex items-center gap-1"><CmsIcon value="CalendarDays" size={14} /> {date}</time>
       </div>
       {anecdote && <figcaption className={styles.anecdote}>{anecdote}</figcaption>}
       {albumLink && (

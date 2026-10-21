@@ -5,6 +5,7 @@ import Footer from '@/components/Footer'
 import { getPageZones } from '@/lib/cms-zones'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import EditableIcon from '@/components/inline-edit/EditableIcon'
 import { buildPageMetadata } from '@/lib/page-metadata'
 import ComingSoonDestination from '@/components/ComingSoonDestination'
 import { isUnpublishedCmsPage } from '@/lib/unpublished-pages'
@@ -67,6 +68,11 @@ export default async function TimisoaraPage() {
 
   const Z = (zone: string, type: 'text' | 'textarea' | 'html' | 'image', fallback: string, className?: string, as?: any) => (
     <EditableZone page={PAGE} zone={zone} type={type} fallback={fallback} className={className} as={as} />
+  )
+
+  // Zones d'icone : la base stocke un nom d'icone lucide, jamais un emoji.
+  const ZI = (zone: string, fallback: string, size?: number) => (
+    <EditableIcon page={PAGE} zone={zone} fallback={fallback} size={size} />
   )
 
   return (
@@ -140,7 +146,7 @@ export default async function TimisoaraPage() {
             <div className="grid gap-5 sm:grid-cols-2">
                 <div className="bg-white rounded-2xl border border-stone-200 p-6 hover:border-eucalyptus/30 transition-colors">
                   <div className="flex items-start justify-between mb-3">
-                    <span className="text-2xl">{Z('pepite_1_icon', 'text', "🏛️", undefined, 'span')}</span>
+                    <span className="text-2xl">{ZI('pepite_1_icon', "🏛️")}</span>
                     <span className="text-xs font-semibold uppercase tracking-widest text-teal">{Z('pepite_1_tag', 'text', "Le classique", undefined, 'span')}</span>
                   </div>
                   <h3 className="font-serif text-lg text-stone-900 mb-2">{Z('pepite_1_title', 'text', "Piața Unirii", undefined, 'span')}</h3>
@@ -148,7 +154,7 @@ export default async function TimisoaraPage() {
                 </div>
                 <div className="bg-white rounded-2xl border border-stone-200 p-6 hover:border-eucalyptus/30 transition-colors">
                   <div className="flex items-start justify-between mb-3">
-                    <span className="text-2xl">{Z('pepite_2_icon', 'text', "🎨", undefined, 'span')}</span>
+                    <span className="text-2xl">{ZI('pepite_2_icon', "🎨")}</span>
                     <span className="text-xs font-semibold uppercase tracking-widest text-teal">{Z('pepite_2_tag', 'text', "Pépite cachée", undefined, 'span')}</span>
                   </div>
                   <h3 className="font-serif text-lg text-stone-900 mb-2">{Z('pepite_2_title', 'text', "Cuib d'Arte", undefined, 'span')}</h3>
@@ -156,7 +162,7 @@ export default async function TimisoaraPage() {
                 </div>
                 <div className="bg-white rounded-2xl border border-stone-200 p-6 hover:border-eucalyptus/30 transition-colors">
                   <div className="flex items-start justify-between mb-3">
-                    <span className="text-2xl">{Z('pepite_3_icon', 'text', "🏚️", undefined, 'span')}</span>
+                    <span className="text-2xl">{ZI('pepite_3_icon', "🏚️")}</span>
                     <span className="text-xs font-semibold uppercase tracking-widest text-teal">{Z('pepite_3_tag', 'text', "Quartier", undefined, 'span')}</span>
                   </div>
                   <h3 className="font-serif text-lg text-stone-900 mb-2">{Z('pepite_3_title', 'text', "Quartier Fabric", undefined, 'span')}</h3>
@@ -164,7 +170,7 @@ export default async function TimisoaraPage() {
                 </div>
                 <div className="bg-white rounded-2xl border border-stone-200 p-6 hover:border-eucalyptus/30 transition-colors">
                   <div className="flex items-start justify-between mb-3">
-                    <span className="text-2xl">{Z('pepite_4_icon', 'text', "🇷🇴", undefined, 'span')}</span>
+                    <span className="text-2xl">{ZI('pepite_4_icon', "🇷🇴")}</span>
                     <span className="text-xs font-semibold uppercase tracking-widest text-teal">{Z('pepite_4_tag', 'text', "Histoire", undefined, 'span')}</span>
                   </div>
                   <h3 className="font-serif text-lg text-stone-900 mb-2">{Z('pepite_4_title', 'text', "Piața Victoriei", undefined, 'span')}</h3>
@@ -172,7 +178,7 @@ export default async function TimisoaraPage() {
                 </div>
                 <div className="bg-white rounded-2xl border border-stone-200 p-6 hover:border-eucalyptus/30 transition-colors">
                   <div className="flex items-start justify-between mb-3">
-                    <span className="text-2xl">{Z('pepite_5_icon', 'text', "🌳", undefined, 'span')}</span>
+                    <span className="text-2xl">{ZI('pepite_5_icon', "🌳")}</span>
                     <span className="text-xs font-semibold uppercase tracking-widest text-teal">{Z('pepite_5_tag', 'text', "Nature urbaine", undefined, 'span')}</span>
                   </div>
                   <h3 className="font-serif text-lg text-stone-900 mb-2">{Z('pepite_5_title', 'text', "Parcul Civic", undefined, 'span')}</h3>
@@ -180,7 +186,7 @@ export default async function TimisoaraPage() {
                 </div>
                 <div className="bg-white rounded-2xl border border-stone-200 p-6 hover:border-eucalyptus/30 transition-colors">
                   <div className="flex items-start justify-between mb-3">
-                    <span className="text-2xl">{Z('pepite_6_icon', 'text', "🍸", undefined, 'span')}</span>
+                    <span className="text-2xl">{ZI('pepite_6_icon', "🍸")}</span>
                     <span className="text-xs font-semibold uppercase tracking-widest text-teal">{Z('pepite_6_tag', 'text', "Vie locale", undefined, 'span')}</span>
                   </div>
                   <h3 className="font-serif text-lg text-stone-900 mb-2">{Z('pepite_6_title', 'text', "Strada Mercy & Piața Traian", undefined, 'span')}</h3>

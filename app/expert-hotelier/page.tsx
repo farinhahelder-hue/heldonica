@@ -9,6 +9,7 @@ import InlineEditProvider from '@/components/inline-edit/InlineEditProvider';
 import { getPageZones } from '@/lib/cms-zones'
 import EditableZone from '@/components/inline-edit/EditableZone';
 import { buildPageMetadata } from '@/lib/page-metadata'
+import CmsIcon from '@/components/ui/CmsIcon'
 
 export const revalidate = 300;
 
@@ -37,7 +38,7 @@ const services = [
   {
     title: 'Indépendance & Réservations Directes',
     subtitle: 'Se libérer de la dépendance aux plateformes',
-    icon: '🌾',
+    icon: 'Wheat',
     problem: 'Forte dépendance à Booking.com ou Airbnb, commissions élevées (jusqu\'à 25%), relation client inexistante avant le séjour.',
     solution: 'Optimisation de votre propre parcours de réservation, stratégie tarifaire intelligente en direct, et maillage de contacts avant l\'arrivée pour instaurer la confiance.',
     results: 'Marge préservée et jusqu\'à 45% de réservations en direct en quelques mois.',
@@ -45,7 +46,7 @@ const services = [
   {
     title: 'Visibilité Naturelle & Authentique',
     subtitle: 'Attirer les bons voyageurs au bon endroit',
-    icon: '🔍',
+    icon: 'Search',
     problem: 'Invisible sur Google en dehors des plateformes intermédiaires, fiche locale délaissée, pas d\'histoire racontée.',
     solution: 'Référencement local (Google Business Profile) optimisé en profondeur, création de contenu authentique inspiré du slow travel, et mise en valeur de vos vrais atouts régionaux.',
     results: 'Un trafic qualifié de voyageurs qui recherchent précisément votre authenticité.',
@@ -53,7 +54,7 @@ const services = [
   {
     title: 'L\'Expérience Slow Travel Couple',
     subtitle: 'Offrir des séjours mémorables et fidéliser',
-    icon: '💎',
+    icon: 'Gem',
     problem: 'Accueil générique similaire aux hôtels standard, manque d\'attention personnalisée, aucun levier pour encourager le retour.',
     solution: 'Audit du parcours d\'accueil, création d\'attentions locales personnalisées pour les couples (guides papier, adresses secrètes testées), et conception d\'activités de slow-tourisme sur place.',
     results: 'Des voyageurs conquis qui deviennent vos meilleurs ambassadeurs et reviennent.',
@@ -250,7 +251,7 @@ export default async function ExpertHotelierPage() {
             <div className="grid md:grid-cols-3 gap-8">
               {services.map((s, i) => (
                 <div key={i} className="bg-white rounded-2xl p-8 border border-stone-200 hover:shadow-lg transition-shadow">
-                  <div className="text-4xl mb-5">{s.icon}</div>
+                  <div className="mb-5 text-mahogany"><CmsIcon value={s.icon} size={36} /></div>
                   <EditableZone page="expert-hotelier" zone={`service_${i + 1}_title`} fallback={s.title}
                     className="text-xl font-serif font-bold text-stone-900 mb-1 block"
                   />

@@ -7,6 +7,7 @@ import { getPageZones } from '@/lib/cms-zones'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { buildPageMetadata } from '@/lib/page-metadata'
+import CmsIcon from '@/components/ui/CmsIcon'
 
 const PAGE = 'destinations-sardaigne'
 
