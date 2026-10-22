@@ -15,6 +15,22 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 ext build en ENOENT. 
 ext build compile désormais 163/163 pages statiques avec succès.
 - **Vérifications** : preflight 9/9 réussi, 	ypecheck (tsc) 0 erreur, build Next.js 163/163 pages générées avec succès.
+## [2026-10-22] — Lot 3 : zéro emoji dans les routes API, garde-fou étendu, README rétabli
+
+- **Douze routes API portaient encore des emojis**, hors du périmètre initial de `check-design-tics` (qui ne visait que les pages publiques). Ils n'étaient pas décoratifs : ils partaient chez le client. `✈️`/`🗺️`/`🧳`/`✨`/`📅`/`💶` dans le **sujet et le corps des emails** de `/api/travel-planning` ; `🌿`/`✨` dans l'**email de bienvenue** de `/api/newsletter` ; `📍`/`🌍` dans les **légendes Instagram publiées** de `/api/cms/mobile-publish` ; `✦` dans le **HTML des articles** de `/api/update-content` ; les drapeaux `🇵🇹…` stockés dans `_taxonomy.country_flag` de `/api/ai/content`. Les autres (`⚫ ❌ ✅ ⚡ ➔ ✓`) vivaient dans des messages d'administration, des commentaires ou des sorties de script.
+- **Drapeaux → codes ISO 3166-1 alpha-2.** Le dépôt avait déjà tranché (`flag_emoji="CO"` sur les destinations, `CmsIcon` documenté « aucun emoji n'est jamais rendu »). `getCountryFlag` renvoie désormais `PT`, `FR`… et `XX` par défaut, au lieu de l'emoji.
+- **Légende Instagram recomposée.** La concaténation `📍 ${placeTitle}\n🌍 …` laissait une ligne blanche quand `place_title` était vide ; les lignes sont maintenant filtrées avant jointure.
+- **Garde-fou étendu aux routes API** (`runApiEmojiCheck`, mode `emojiOnly`). Les règles « carte SaaS » n'ont pas de sens sur du code sans JSX : seuls les emojis y sont refusés. Prouvé par trois tests neufs (refus d'un emoji, non-application des règles SaaS, zéro emoji sur les 138 routes réelles). `check-design-tics` couvre désormais 150 fichiers publics + 138 routes.
+- **README rétabli.** Il faisait 47 octets et ne contenait que `# Deployment test Thu May 21 20:30:58 UTC 2026`, écrit par le commit `f35ba453` « chore: trigger redeploy ». `git log -S Heldonica -- README.md` est vide : il n'a jamais eu de contenu. Remplacé par un vrai README (démarrage, commandes, pré-vol, règles du projet, renvois vers `AGENTS.md` et `docs/`).
+- **Deux points du lot n'existent pas ici** et venaient d'un rapport décrivant un **autre projet** : le build n'est **pas** cassé (`next build` sort en 0) et `/expert-hotelier` est saine (435 lignes, 0 emoji). Le rapport annonçait Next 16/React 19 (réels 15.5.16/18.3.1), Tailwind 4 (réel 3.4.0), 3 pages (réel 119), 0 test (réel 892) et des couleurs `warm-mahogany`/`forest-sage` absentes du dépôt (elles n'existent que dans `PROMPT_ALLHANDS.md` à l'état du 16/05/2026).
+- Vérifié : `tsc` 0, `vitest` 892/892 (dont 3 neufs), `garde-fous` 15/15, `next build` exit 0.
+
+## [2026-10-22] — next 15.5.16 → 15.5.28 : RCE critique corrigée
+
+- `npm audit` signalait une vulnérabilité **critique** dans `next` 15.5.16 : RCE non authentifiée via l'API Image Optimization quand des fichiers AVIF sont utilisés (`GHSA-2xp9-vwfh-vxw4`, CVSS 9.0), corrigée en `>=15.5.24`. Une seconde, modérée mais exploitable, touchait le cache poisoning des pages SSG/ISR (`GHSA-4jqv-mc3x-m676`), corrigée en `>=15.5.27`.
+- Correctif de **patch** dans la plage `^15.5.16` : aucun saut de version majeure. Le diff du lockfile ne touche que `next` et ses binaires `@next/swc-*` — pas de bump furtif, contrairement à l'incident du 08/10.
+- `npm audit --omit=dev` passe de **1 critique à 0**. Les 44 avis restants (33 moderate, 11 high) sont des dépendances transitives, hors de cette tâche.
+- Vérifié : `tsc` 0, `vitest` 892/892, `garde-fous` 15/15, `next build` exit 0.
 
 ## [2026-10-21] — Le « carnet » étendu aux ~50 pages secondaires + garde-fou `check:design-tics` (`agent/gemini/design-upgrade-2-0`)
 
