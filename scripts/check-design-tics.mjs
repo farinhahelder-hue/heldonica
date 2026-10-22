@@ -79,6 +79,7 @@ export const PUBLIC_DESIGN_TARGETS = [
   'components/GuideDownloadModal.tsx',
   'components/GuideDownloadButton.tsx',
   'components/RelatedArticles.tsx',
+  'components/ShareButtons.tsx',
   'components/QuickAnswersBlock.tsx',
   'components/HeldonicaFAQ.tsx',
   'components/HeldonicaProof.tsx',
