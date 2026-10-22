@@ -671,7 +671,8 @@ export async function generateAiCompletion(options: AiCompletionOptions): Promis
 
   // 9. OpenAI (Payant) — exclu si freeOnly
   if (!options.freeOnly) {
-    const openaiKey = process.env.OPENAI_API_KEY || process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+    // Jamais de repli NEXT_PUBLIC_ : ce prefixe integre la cle au bundle navigateur.
+    const openaiKey = process.env.OPENAI_API_KEY;
     if (openaiKey) {
       try {
         return await callOpenAI(options, openaiKey);
