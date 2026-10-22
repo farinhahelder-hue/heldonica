@@ -137,7 +137,7 @@ export default function LeadMagnetBlock({
               <button
                 type="submit"
                 disabled={status === 'loading'}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-sm bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-all shadow-eucalyptus/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-sm bg-action text-white font-semibold hover:bg-action-fonce transition-all shadow-eucalyptus/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {status === 'loading' ? (
                   <Loader2 size={18} className="animate-spin" />

@@ -281,7 +281,7 @@ export default async function PortugalPage() {
             </p>
             <Link
               href="/travel-planning"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-eucalyptus text-white font-semibold rounded-sm hover:bg-eucalyptus/90 transition-colors text-sm"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-action text-white font-semibold rounded-sm hover:bg-action-fonce transition-colors text-sm"
             >
               Planifier mon voyage Portugal →
             </Link>

@@ -451,7 +451,7 @@ export default async function Itineraire10JoursPage() {
             <p className="text-charcoal/70 mb-6 max-w-2xl">
               Emporte ce carnet Roumanie 10 jours dans ton téléphone ou imprime-le : les adresses et les pépites dénichées sans avoir besoin de réseau.
             </p>
-            <PdfDownloadButton destination="roumanie" duration="10" className="inline-flex px-8 py-3 rounded-sm bg-eucalyptus text-[#FAF7F2] text-xs uppercase tracking-[0.16em] font-medium hover:bg-eucalyptus/90 transition-colors" />
+            <PdfDownloadButton destination="roumanie" duration="10" className="inline-flex px-8 py-3 rounded-sm bg-action text-[#FAF7F2] text-xs uppercase tracking-[0.16em] font-medium hover:bg-action-fonce transition-colors" />
           </div>
         </section>
 
@@ -462,7 +462,7 @@ export default async function Itineraire10JoursPage() {
               Notre itinéraire 7 jours couvre l&apos;essentiel de la Transylvanie si tu as moins de flexibilité.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Link href="/destinations/roumanie/itineraire-7-jours" className="inline-flex px-6 py-3 rounded-sm bg-mahogany text-[#FAF7F2] text-xs uppercase tracking-[0.16em] font-medium hover:bg-mahogany/90 transition-colors">
+              <Link href="/destinations/roumanie/itineraire-7-jours" className="inline-flex px-6 py-3 rounded-sm bg-action text-[#FAF7F2] text-xs uppercase tracking-[0.16em] font-medium hover:bg-action-fonce transition-colors">
                 Voir l&apos;itinéraire 7 jours →
               </Link>
               <Link href="/destinations/roumanie/itineraire-5-jours" className="inline-flex px-6 py-3 rounded-sm border border-[#DED5C6] bg-[#FAF7F2] text-mahogany text-xs uppercase tracking-[0.16em] font-medium hover:bg-[#EFE9DF] transition-colors">
@@ -485,7 +485,7 @@ export default async function Itineraire10JoursPage() {
             </p>
             <Link
               href="/travel-planning"
-              className="inline-flex px-7 py-3 rounded-sm bg-eucalyptus text-[#FAF7F2] text-xs uppercase tracking-[0.16em] font-medium hover:bg-eucalyptus/90 transition-colors"
+              className="inline-flex px-7 py-3 rounded-sm bg-action text-[#FAF7F2] text-xs uppercase tracking-[0.16em] font-medium hover:bg-action-fonce transition-colors"
             >
               Construire mon itinéraire sur mesure →
             </Link>

@@ -522,7 +522,7 @@ export default function TravelPlanningFormClient({
                 <button
                   type="button"
                   onClick={nextStep}
-                  className="px-8 py-3 bg-mahogany hover:bg-mahogany/90 text-white font-semibold rounded-sm transition shadow-sm"
+                  className="px-8 py-3 bg-action hover:bg-action-fonce text-white font-semibold rounded-sm transition shadow-sm"
                 >
                   {Z('nav_next', 'text', "Continuer", undefined, 'span')} →
                 </button>
@@ -530,7 +530,7 @@ export default function TravelPlanningFormClient({
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-8 py-4 bg-mahogany hover:bg-mahogany/90 disabled:opacity-50 text-white font-semibold rounded-sm transition shadow-md text-base"
+                  className="px-8 py-4 bg-action hover:bg-action-fonce disabled:opacity-50 text-white font-semibold rounded-sm transition shadow-md text-base"
                 >
                   {loading ? Z('nav_sending', 'text', "Envoi en cours…", undefined, 'span') : Z('nav_submit', 'text', "Envoyer ma demande", undefined, 'span')}
                 </button>

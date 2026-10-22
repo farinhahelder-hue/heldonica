@@ -313,7 +313,7 @@ export default function SubDestinationTemplate({
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               href="/travel-planning"
-              className="px-7 py-3 bg-eucalyptus text-[#FAF7F2] rounded-sm font-medium text-xs uppercase tracking-[0.16em] hover:bg-eucalyptus/90 transition-colors"
+              className="px-7 py-3 bg-action text-[#FAF7F2] rounded-sm font-medium text-xs uppercase tracking-[0.16em] hover:bg-action-fonce transition-colors"
             >
               <EditableZone page={page} zone="cta_button_1" fallback="Planifier mon voyage" />
             </Link>

@@ -130,7 +130,7 @@ export default function HotelierForm() {
       <button
         type="submit"
         disabled={status === 'loading'}
-        className="w-full px-8 py-4 bg-eucalyptus text-white font-semibold rounded-sm hover:brightness-110 transition-all text-lg disabled:opacity-60 disabled:cursor-not-allowed"
+        className="w-full px-8 py-4 bg-action text-white font-semibold rounded-sm hover:brightness-110 transition-all text-lg disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {status === 'loading' ? 'Envoi en cours…' : 'Échanger sur mon projet →'}
       </button>

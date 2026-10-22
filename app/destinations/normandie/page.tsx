@@ -201,7 +201,7 @@ export default async function NormandiePage() {
             <div className="flex flex-wrap gap-4">
               <Link
                 href="/destinations/normandie/le-havre"
-                className="px-6 py-3 bg-mahogany text-white rounded-lg hover:bg-mahogany/90 transition-colors"
+                className="px-6 py-3 bg-action text-white rounded-lg hover:bg-action-fonce transition-colors"
               >
                 Le Havre et environs →
               </Link>

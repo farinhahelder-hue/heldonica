@@ -649,7 +649,7 @@ Généré avec Heldonica — heldonica.fr`
                 <select value={newItemCat} onChange={e => setNewItemCat(e.target.value as typeof CHECKLIST_CATEGORIES[number])} className="px-3 py-2 bg-[#F7F3EC] border border-[#DED5C6] rounded-lg text-xs focus:outline-none focus:border-eucalyptus transition-colors">
                   {CHECKLIST_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
-                <button onClick={addChecklistItem} disabled={!newItemText.trim()} className="px-4 py-2 bg-eucalyptus text-white text-xs font-semibold rounded-lg hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
+                <button onClick={addChecklistItem} disabled={!newItemText.trim()} className="px-4 py-2 bg-action text-white text-xs font-semibold rounded-lg hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
                   <EditableZone page="organisateur" zone="checklist_add_button" fallback="Ajouter" />
                 </button>
               </div>
@@ -667,7 +667,7 @@ Généré avec Heldonica — heldonica.fr`
                 {icon}<EditableZone page="organisateur" zone={`action_${label.toLowerCase().replace(/\W/g, '_')}`} fallback={label} />
               </button>
             ))}
-            <Link href="/travel-planning" className="px-6 py-2.5 bg-mahogany text-white text-sm font-semibold rounded-full hover:brightness-110 transition-all inline-flex items-center gap-2">
+            <Link href="/travel-planning" className="px-6 py-2.5 bg-action text-white text-sm font-semibold rounded-full hover:brightness-110 transition-all inline-flex items-center gap-2">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
               <EditableZone page="organisateur" zone="cta_custom" fallback="Demander un itinéraire sur mesure" />
             </Link>

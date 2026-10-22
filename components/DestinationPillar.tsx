@@ -98,7 +98,7 @@ export default function DestinationPillar({
             <div className="flex flex-wrap gap-3">
               <GuideDownloadButton slug={data.slug} title={data.name} />
               <Link href={`/travel-planning-form?destination=${data.slug}`}
-                className="inline-flex items-center gap-2 rounded-sm bg-eucalyptus px-6 py-3 text-xs uppercase tracking-[0.16em] font-medium text-[#FAF7F2] hover:bg-eucalyptus/90 transition-colors"
+                className="inline-flex items-center gap-2 rounded-sm bg-action px-6 py-3 text-xs uppercase tracking-[0.16em] font-medium text-[#FAF7F2] hover:bg-action-fonce transition-colors"
                 onClick={() => { if (typeof window !== 'undefined' && (window as any).gtag) (window as any).gtag('event', 'cta_travel_planning_clique', { source: 'page_pilier', destination: data.slug }) }}>
                 Demander mon voyage sur mesure →
               </Link>
@@ -286,7 +286,7 @@ export default function DestinationPillar({
                 href={bookingSearchUrl(data.name)}
                 partner="booking"
                 destination={data.slug}
-                className="inline-flex items-center gap-2 rounded-sm bg-mahogany px-6 py-3 text-xs uppercase tracking-[0.16em] font-medium text-[#FAF7F2] hover:bg-eucalyptus transition-colors"
+                className="inline-flex items-center gap-2 rounded-sm bg-action px-6 py-3 text-xs uppercase tracking-[0.16em] font-medium text-[#FAF7F2] hover:bg-action-fonce transition-colors"
               >
                 Chercher un hébergement à {data.name}
               </AffiliateLink>
@@ -492,7 +492,7 @@ export default function DestinationPillar({
               <EditableZone page="destinations" type="textarea" zone="cta_surmesure_text" fallback="On peut concevoir ton séjour sur mesure, avec nos adresses testées et notre rythme slow." />
             </p>
             <Link href={`/travel-planning-form?destination=${data.slug}`}
-              className="inline-flex px-7 py-3 rounded-sm bg-eucalyptus text-[#FAF7F2] text-xs uppercase tracking-[0.16em] font-medium hover:bg-eucalyptus/90 transition-colors"
+              className="inline-flex px-7 py-3 rounded-sm bg-action text-[#FAF7F2] text-xs uppercase tracking-[0.16em] font-medium hover:bg-action-fonce transition-colors"
               onClick={() => { if (typeof window !== 'undefined' && (window as any).gtag) (window as any).gtag('event', 'cta_travel_planning_clique', { source: 'page_pilier', destination: data.slug }) }}>
               Demander mon voyage sur mesure →
             </Link>

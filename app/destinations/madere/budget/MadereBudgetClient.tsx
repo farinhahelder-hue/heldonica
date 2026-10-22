@@ -194,7 +194,7 @@ export default function MadereBudgetClient() {
               </div>
               <Link
                 href="/travel-planning-form?destination=madere"
-                className="inline-flex w-full justify-center rounded-lg bg-mahogany px-5 py-2.5 text-white font-semibold hover:bg-mahogany/90 transition-colors"
+                className="inline-flex w-full justify-center rounded-lg bg-action px-5 py-2.5 text-white font-semibold hover:bg-action-fonce transition-colors"
               >
                 <EditableZone page="destinations-madere-budget" zone="cta_label" fallback="Construire mon carnet Madère" />
               </Link>

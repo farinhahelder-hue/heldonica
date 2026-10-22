@@ -99,7 +99,7 @@ export default async function IdfPage() {
             <div className="mt-8 flex flex-wrap gap-4">
               <Link
                 href="/destinations/idf/paris"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-eucalyptus text-white font-semibold rounded-sm hover:bg-eucalyptus/90 transition-colors text-sm"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-action text-white font-semibold rounded-sm hover:bg-action-fonce transition-colors text-sm"
               >
                 Explorer Paris →
               </Link>
