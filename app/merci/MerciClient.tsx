@@ -116,7 +116,7 @@ export default function MerciClient({ initialZones }: MerciClientProps) {
               className="text-stone-600 leading-relaxed mb-8 max-w-xl mx-auto block"
             />
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/blog" className="px-8 py-4 bg-mahogany hover:bg-mahogany/90 text-white rounded-sm font-semibold text-sm transition">
+              <Link href="/blog" className="px-8 py-4 bg-action hover:bg-action-fonce text-white rounded-sm font-semibold text-sm transition">
                 <EditableZone page="merci" zone="upsell_cta_1" fallback="Voir les carnets de voyage →" />
               </Link>
               <Link href="/destinations" className="px-8 py-4 border-2 border-stone-300 hover:border-mahogany text-stone-700 hover:text-mahogany rounded-sm font-semibold text-sm transition">

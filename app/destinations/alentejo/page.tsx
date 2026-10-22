@@ -383,7 +383,7 @@ export default async function AlentejoPage() {
             </p>
             <Link
               href="/travel-planning"
-              className="inline-flex items-center gap-2 rounded-sm bg-eucalyptus px-8 py-3.5 text-xs uppercase tracking-[0.16em] font-medium text-[#FAF7F2] transition-colors hover:bg-eucalyptus/90"
+              className="inline-flex items-center gap-2 rounded-sm bg-action px-8 py-3.5 text-xs uppercase tracking-[0.16em] font-medium text-[#FAF7F2] transition-colors hover:bg-action-fonce"
             >
               Dis-nous ton projet →
             </Link>

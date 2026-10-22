@@ -254,7 +254,7 @@ export default function SlowTravelQuiz() {
           <div className="flex flex-wrap gap-3">
             <Link
               href={profileMeta[result].primaryHref}
-              className="px-5 py-2.5 rounded-sm bg-mahogany text-[#FAF7F2] text-sm font-medium hover:bg-eucalyptus transition-colors"
+              className="px-5 py-2.5 rounded-sm bg-action text-[#FAF7F2] text-sm font-medium hover:bg-action-fonce transition-colors"
             >
               Voir la destination
             </Link>

@@ -342,7 +342,7 @@ export default function TravelPlanningForm() {
             type="button"
             onClick={nextStep}
             disabled={!canProceed()}
-            className="flex-1 bg-eucalyptus hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 px-6 rounded-lg transition"
+            className="flex-1 bg-action hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 px-6 rounded-lg transition"
           >
             Étape suivante →
           </button>
@@ -350,7 +350,7 @@ export default function TravelPlanningForm() {
           <button
             type="submit"
             disabled={state === 'loading'}
-            className="flex-1 bg-eucalyptus hover:brightness-110 disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium py-3 px-6 rounded-lg transition"
+            className="flex-1 bg-action hover:brightness-110 disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium py-3 px-6 rounded-lg transition"
           >
             {state === 'loading' ? 'Envoi en cours…' : 'Envoyer ma demande'}
           </button>

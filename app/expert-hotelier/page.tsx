@@ -177,7 +177,7 @@ export default async function ExpertHotelierPage() {
                 href="#audit-form"
                 eventName="formulaire_audit_b2b_clique"
                 eventParams={{ source: 'hero' }}
-                className="inline-flex px-8 py-4 bg-eucalyptus text-white font-semibold rounded-sm hover:brightness-110 transition-all text-lg"
+                className="inline-flex px-8 py-4 bg-action text-white font-semibold rounded-sm hover:brightness-110 transition-all text-lg"
               >
                 <EditableZone page="expert-hotelier" zone="hero_cta_1" fallback="Parlons de votre établissement →" />
               </B2bCtaButton>
@@ -422,7 +422,7 @@ export default async function ExpertHotelierPage() {
               href="#audit-form"
               eventName="formulaire_audit_b2b_clique"
               eventParams={{ source: 'cta_final' }}
-              className="inline-block px-10 py-5 bg-eucalyptus text-white font-semibold rounded-sm hover:brightness-110 transition-all text-lg"
+              className="inline-block px-10 py-5 bg-action text-white font-semibold rounded-sm hover:brightness-110 transition-all text-lg"
             >
               <EditableZone page="expert-hotelier" zone="cta_button" fallback="Demander mon diagnostic →" />
             </B2bCtaButton>

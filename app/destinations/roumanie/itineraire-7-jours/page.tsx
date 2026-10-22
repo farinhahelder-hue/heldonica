@@ -395,7 +395,7 @@ export default async function Itineraire7JoursPage() {
             <p className="text-charcoal/70 mb-6 max-w-2xl">
               Emporte ce carnet Roumanie 7 jours dans ton téléphone ou imprime-le : les adresses et les pépites dénichées sans avoir besoin de réseau.
             </p>
-            <PdfDownloadButton destination="roumanie" duration="7" className="inline-flex px-8 py-3 rounded-sm bg-eucalyptus text-[#FAF7F2] text-xs uppercase tracking-[0.16em] font-medium hover:bg-eucalyptus/90 transition-colors" />
+            <PdfDownloadButton destination="roumanie" duration="7" className="inline-flex px-8 py-3 rounded-sm bg-action text-[#FAF7F2] text-xs uppercase tracking-[0.16em] font-medium hover:bg-action-fonce transition-colors" />
           </div>
         </section>
 
@@ -412,7 +412,7 @@ export default async function Itineraire7JoursPage() {
             </p>
             <Link
               href="/travel-planning"
-              className="inline-flex px-7 py-3 rounded-sm bg-eucalyptus text-[#FAF7F2] text-xs uppercase tracking-[0.16em] font-medium hover:bg-eucalyptus/90 transition-colors"
+              className="inline-flex px-7 py-3 rounded-sm bg-action text-[#FAF7F2] text-xs uppercase tracking-[0.16em] font-medium hover:bg-action-fonce transition-colors"
             >
               Construire mon itinéraire sur mesure →
             </Link>

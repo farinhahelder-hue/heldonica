@@ -174,7 +174,7 @@ export default function DestinationsClient() {
               <div className="rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-10 text-center">
                 <p className="text-lg font-serif text-mahogany mb-2">Aucun résultat avec ce filtre</p>
                 <p className="text-charcoal/70 mb-5">Élargis un peu le cadre.</p>
-                <button onClick={() => setContinentFilter('all')} className="inline-flex px-6 py-2.5 rounded-sm bg-mahogany text-[#FAF7F2] text-sm font-medium hover:bg-eucalyptus transition-colors">
+                <button onClick={() => setContinentFilter('all')} className="inline-flex px-6 py-2.5 rounded-sm bg-action text-[#FAF7F2] text-sm font-medium hover:bg-action-fonce transition-colors">
                   Voir toutes les destinations →
                 </button>
               </div>

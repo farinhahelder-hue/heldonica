@@ -90,7 +90,7 @@ export default function GuideDownloadModal({
             </p>
             <button
               onClick={onClose}
-              className="mt-6 px-6 py-2.5 bg-eucalyptus text-white rounded-full text-sm font-semibold hover:bg-eucalyptus/90"
+              className="mt-6 px-6 py-2.5 bg-action text-white rounded-full text-sm font-semibold hover:bg-action-fonce"
             >
               Fermer
             </button>

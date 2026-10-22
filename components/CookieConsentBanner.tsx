@@ -69,7 +69,7 @@ export default function CookieConsentBanner() {
             <button
               type="button"
               onClick={() => setConsent('accepted')}
-              className="px-5 py-2.5 rounded-lg bg-eucalyptus text-white font-medium hover:bg-eucalyptus/90 transition"
+              className="px-5 py-2.5 rounded-lg bg-action text-white font-medium hover:bg-action-fonce transition"
             >
               Accepter
             </button>

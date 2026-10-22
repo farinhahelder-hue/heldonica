@@ -190,7 +190,7 @@ export default function ContactForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-full bg-mahogany px-8 py-4 text-sm font-semibold text-white transition-all duration-200 hover:bg-mahogany/90 disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-full rounded-full bg-action px-8 py-4 text-sm font-semibold text-white transition-all duration-200 hover:bg-action-fonce disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loading ? btnLoading : btnLabel}
       </button>

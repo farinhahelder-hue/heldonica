@@ -300,6 +300,10 @@ html.dark {
      `text-mahogany` vaut désormais `var(--color-heading, …)` côté Tailwind, donc
      cette seule ligne couvre texte, survol et focus. */
   --color-heading: var(--color-heading-dark, #C87962);
+  /* Boutons d'action : même aplat que .dark .bg-mahogany ci-dessous, et un
+     survol plus clair, puisque le fond de page est sombre. */
+  --color-action: #7A3020;
+  --color-action-fonce: #8E3A27;
 }
 
 /* ── Couverture globale : Tailwind hardcoded colors → dark equivalents ─────── */

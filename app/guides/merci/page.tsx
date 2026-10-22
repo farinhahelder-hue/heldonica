@@ -129,7 +129,7 @@ export default async function GuidesMerciPage() {
               />
               <Link
                 href="/travel-planning"
-                className="inline-block px-8 py-4 bg-eucalyptus text-white font-semibold rounded-sm hover:brightness-110 transition-all"
+                className="inline-block px-8 py-4 bg-action text-white font-semibold rounded-sm hover:brightness-110 transition-all"
               >
                 <EditableZone page="guides-merci" zone="upsell_cta" fallback="Découvrir le travel planning →" />
               </Link>

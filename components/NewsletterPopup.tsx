@@ -231,7 +231,7 @@ export default function NewsletterPopup() {
             <button
               type="submit"
               disabled={status === 'loading'}
-              className="w-full px-6 py-3.5 bg-eucalyptus text-white font-bold rounded-sm hover:bg-eucalyptus/90 transition-all text-sm disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full px-6 py-3.5 bg-action text-white font-bold rounded-sm hover:bg-action-fonce transition-all text-sm disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {status === 'loading' ? 'Inscription...' : 'Je veux le guide →'}
             </button>

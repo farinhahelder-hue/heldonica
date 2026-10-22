@@ -343,7 +343,7 @@ export default async function DestinationPage({ slug }: Props) {
         </p>
         <Link
           href={`/travel-planning-form?destination=${slug}`}
-          className="inline-flex px-8 py-4 rounded-lg bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors"
+          className="inline-flex px-8 py-4 rounded-lg bg-action text-white font-semibold hover:bg-action-fonce transition-colors"
         >
           Planifier ce voyage avec Heldonica →
         </Link>

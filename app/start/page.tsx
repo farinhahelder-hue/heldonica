@@ -146,7 +146,7 @@ export default async function StartPage() {
               />
               <button
                 type="submit"
-                className="px-6 py-3.5 bg-eucalyptus text-white font-semibold rounded-sm hover:brightness-110 transition-all whitespace-nowrap"
+                className="px-6 py-3.5 bg-action text-white font-semibold rounded-sm hover:brightness-110 transition-all whitespace-nowrap"
               >
                 <EditableZone page="start" zone="newsletter_cta" fallback="S'inscrire" />
               </button>

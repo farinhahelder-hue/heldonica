@@ -107,6 +107,10 @@ const CONSUMED_ZONE_KEYS: string[] = [
   'cta_travel_planning_cta',
 
   // Menus : paires `<prefix>_<n>_label` / `<prefix>_<n>_url`, cf. getZoneLinks()
+  // Menu principal : sept clés chargées, mais Header.tsx n'en affiche que
+  // NAV_MAX_ITEMS (5). Les garder chargées évite que check-cms-zones signale
+  // des zones actives absentes du filtre tant que la migration
+  // 20261022120000_menu_cinq_entrees n'a pas désactivé les entrées 6 et 7.
   ...buildLinkKeys('nav_item', 7),
   ...buildLinkKeys('footer_dest_item', 5),
   ...buildLinkKeys('footer_guide_item', 3),

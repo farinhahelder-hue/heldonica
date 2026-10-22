@@ -431,7 +431,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             />
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-7">
               <Link href="/travel-planning"
-                className="w-full sm:w-auto text-center px-7 py-3.5 bg-mahogany hover:bg-[#4A1818] text-[#F7F3EC] rounded-sm font-medium text-xs uppercase tracking-[0.16em] transition-colors shadow-sm">
+                className="w-full sm:w-auto text-center px-7 py-3.5 bg-action hover:bg-action-fonce text-[#F7F3EC] rounded-sm font-medium text-xs uppercase tracking-[0.16em] transition-colors shadow-sm">
                 <EditableZone page="home" zone="hero_cta_1_label" fallback="Planifier mon voyage →" />
               </Link>
               <Link href="/blog"
@@ -778,7 +778,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               />
               <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-7">
                 <Link href="/travel-planning#formulaire"
-                  className="w-full sm:w-auto text-center px-7 py-3.5 bg-eucalyptus hover:bg-eucalyptus/90 text-[#F7F3EC] rounded-sm font-medium text-xs uppercase tracking-[0.16em] transition-colors">
+                  className="w-full sm:w-auto text-center px-7 py-3.5 bg-action hover:bg-action-fonce text-[#F7F3EC] rounded-sm font-medium text-xs uppercase tracking-[0.16em] transition-colors">
                   <EditableZone page="home" zone="section_cta_btn_1" fallback="Nous écrire →" />
                 </Link>
                 <Link href="/travel-planning"
@@ -831,7 +831,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               </span>
             ))}
           </div>
-          <Link href="/quiz" className="inline-block w-full sm:w-auto px-7 py-3.5 bg-mahogany hover:bg-eucalyptus text-[#F7F3EC] rounded-sm font-medium text-xs uppercase tracking-[0.16em] transition-colors">
+          <Link href="/quiz" className="inline-block w-full sm:w-auto px-7 py-3.5 bg-action hover:bg-action-fonce text-[#F7F3EC] rounded-sm font-medium text-xs uppercase tracking-[0.16em] transition-colors">
             <EditableZone page="home" zone="section_quiz_cta" fallback="Faire le quiz →" />
           </Link>
         </div>

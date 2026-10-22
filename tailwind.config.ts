@@ -16,6 +16,13 @@ const config: Config = {
         // tout en supportant les modificateurs d'opacité Tailwind (/10, /80…) via color-mix.
         'mahogany': 'color-mix(in srgb, var(--color-heading, #6B2D1F) calc(<alpha-value> * 100%), transparent)',
         'charcoal': 'color-mix(in srgb, var(--color-text, #2C2C2C) calc(<alpha-value> * 100%), transparent)',
+        // Seule couleur des boutons d'action (« Préparer un voyage », envoyer un
+        // formulaire…). Distincte de `mahogany`, qui suit la couleur des titres :
+        // changer l'accent d'action se fait ici, sans toucher aux titres.
+        'action': {
+          DEFAULT: 'color-mix(in srgb, var(--color-action, #6B2D1F) calc(<alpha-value> * 100%), transparent)',
+          fonce: 'color-mix(in srgb, var(--color-action-fonce, #4F2016) calc(<alpha-value> * 100%), transparent)',
+        },
       },
       fontFamily: {
         serif: ['var(--font-heading, "Playfair Display")', 'Georgia', 'serif'],

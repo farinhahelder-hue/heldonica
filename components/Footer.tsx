@@ -179,7 +179,7 @@ export default function Footer() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="px-6 py-3 bg-mahogany text-[#F7F3EC] text-xs uppercase tracking-[0.16em] font-medium rounded-sm hover:bg-eucalyptus transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-3 bg-action text-[#F7F3EC] text-xs uppercase tracking-[0.16em] font-medium rounded-sm hover:bg-action-fonce transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loading ? 'Envoi...' : "S'abonner"}
                   </button>

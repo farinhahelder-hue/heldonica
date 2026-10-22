@@ -119,7 +119,7 @@ export default async function SlowTravelPage() {
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link
                 href="/blog"
-                className="rounded-full bg-mahogany px-7 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-mahogany/90"
+                className="rounded-full bg-action px-7 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-action-fonce"
               >
                 <EditableZone page="slow-travel" zone="cta_blog_label" fallback="Lire le carnet →" />
               </Link>

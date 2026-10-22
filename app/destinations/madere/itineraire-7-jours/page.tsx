@@ -151,7 +151,7 @@ export default async function MadereItineraryPage() {
             <div className="flex flex-wrap justify-center gap-4">
               <Link
                 href="/travel-planning-form?destination=madere"
-                className="px-7 py-3 rounded-sm bg-eucalyptus text-[#FAF7F2] text-xs uppercase tracking-[0.16em] font-medium hover:bg-eucalyptus/90 transition-colors"
+                className="px-7 py-3 rounded-sm bg-action text-[#FAF7F2] text-xs uppercase tracking-[0.16em] font-medium hover:bg-action-fonce transition-colors"
               >
                 Construire mon itinéraire
               </Link>
