@@ -38,8 +38,8 @@ export async function GET(req: Request) {
       return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ ok: true, created: true, message: 'Bucket "media" créé avec succès ✅' });
+    return NextResponse.json({ ok: true, created: true, message: 'Bucket "media" créé avec succès' });
   }
 
-  return NextResponse.json({ ok: true, created: false, message: 'Bucket "media" existe déjà ✅' });
+  return NextResponse.json({ ok: true, created: false, message: 'Bucket "media" existe déjà' });
 }

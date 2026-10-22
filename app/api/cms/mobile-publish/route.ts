@@ -445,9 +445,12 @@ ${hasVideo ? `<p>Vidéo : <a href="${videoUrl}">voir vidéo</a></p><video src="$
     let instagramErreur: string | null = null
     if (versInstagram) {
       const baseCaption = aiCaption || caption
-      const igCaption = baseCaption
-        ? `${baseCaption}\n\n📍 ${placeTitle || ''}\n🌍 heldonica.fr/blog/${slug}\n#slowtravel #heldonica`
-        : `📍 ${placeTitle || 'Carnet mobile'}\n[À TOI]\n🌍 heldonica.fr/blog/${slug}\n#slowtravel #heldonica`
+      // Légende Instagram : plus d'emojis (charte « carnet »). La ligne de lieu
+      // est omise quand elle est vide, pour ne pas laisser de blanc.
+      const lignes = baseCaption
+        ? [baseCaption, placeTitle, `heldonica.fr/blog/${slug}`, '#slowtravel #heldonica']
+        : [placeTitle || 'Carnet mobile', '[À TOI]', `heldonica.fr/blog/${slug}`, '#slowtravel #heldonica']
+      const igCaption = lignes.filter(Boolean).join('\n')
 
       const entree =
         hasVideo && videoUrl

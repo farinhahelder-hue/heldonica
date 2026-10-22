@@ -138,13 +138,15 @@ function generateSlug(title: string): string {
 }
 
 function getCountryFlag(country: string): string {
+  // Codes ISO 3166-1 alpha-2 : la charte « carnet » a remplacé les drapeaux
+  // emoji par des codes pays (cf. `flag_emoji="CO"` sur les destinations).
   const flags: Record<string, string> = {
-    'Portugal': '🇵🇹',
-    'France': '🇫🇷',
-    'Espagne': '🇪🇸',
-    'Italie': '🇮🇹',
-    'Suisse': '🇨🇭',
-    'Allemagne': '🇩🇪',
+    'Portugal': 'PT',
+    'France': 'FR',
+    'Espagne': 'ES',
+    'Italie': 'IT',
+    'Suisse': 'CH',
+    'Allemagne': 'DE',
   }
-  return flags[country] || '🌍'
+  return flags[country] || 'XX'
 }

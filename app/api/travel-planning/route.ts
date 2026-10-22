@@ -204,7 +204,7 @@ export async function POST(req: NextRequest) {
         envois.push(resend.emails.send({
           from: 'Heldonica <contact@heldonica.fr>',
           to: recipient,
-          subject: `✈️ Nouvelle demande Travel Planning — ${sFirstName} (${sDestination})`,
+          subject: `Nouvelle demande Travel Planning — ${sFirstName} (${sDestination})`,
           html: `
             <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #f7f6f2;">
               <h1 style="color: #01696f; font-size: 24px; margin-bottom: 8px;">Nouvelle demande de Travel Planning</h1>
@@ -235,7 +235,7 @@ export async function POST(req: NextRequest) {
       envois.push(resend.emails.send({
         from: 'Heldonica <contact@heldonica.fr>',
         to: email as string,
-        subject: `On a reçu ton projet de voyage ✈️ — Heldonica`,
+        subject: `On a reçu ton projet de voyage — Heldonica`,
         html: `
           <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #ffffff;">
             <h1 style="color: #6b2a1a; font-size: 28px; margin-bottom: 16px;">Merci ${sFirstName} !</h1>
@@ -243,11 +243,11 @@ export async function POST(req: NextRequest) {
             <p style="font-size: 16px; line-height: 1.7;">On revient vers toi <strong>sous 48h</strong> avec un vrai retour.</p>
             <div style="background: #f7f6f2; border-radius: 12px; padding: 24px; margin: 24px 0;">
               <h2 style="color: #6b2a1a; font-size: 14px;">Récap de ta demande</h2>
-              <p>🗺️ <strong>Destination :</strong> ${sDestination}</p>
-              ${tripType ? `<p>🧳 <strong>Type :</strong> ${sTripType}</p>` : ''}
-              ${vibe ? `<p>✨ <strong>Vibe :</strong> ${sVibe}</p>` : ''}
-              ${duration ? `<p>📅 <strong>Durée :</strong> ${sDuration}</p>` : ''}
-              ${budget ? `<p>💶 <strong>Budget :</strong> ${sBudget}</p>` : ''}
+              <p><strong>Destination :</strong> ${sDestination}</p>
+              ${tripType ? `<p><strong>Type :</strong> ${sTripType}</p>` : ''}
+              ${vibe ? `<p><strong>Vibe :</strong> ${sVibe}</p>` : ''}
+              ${duration ? `<p><strong>Durée :</strong> ${sDuration}</p>` : ''}
+              ${budget ? `<p><strong>Budget :</strong> ${sBudget}</p>` : ''}
             </div>
             <p style="color: #6b2a1a; font-size: 18px; font-style: italic;">L'équipe Heldonica</p>
           </div>

@@ -126,7 +126,7 @@ function optimizeSEO(article: any): any {
   // Title check
   if (title.length >= 30 && title.length <= 60) {
     seo_score.title = 30
-    suggestions.push('✓ Titre SEO optimal')
+    suggestions.push('Titre SEO optimal')
   } else if (title.length < 30) {
     seo_score.title = 10
     suggestions.push(`Titre troppo corto (${title.length}/60)`)
@@ -149,7 +149,7 @@ function optimizeSEO(article: any): any {
   
   if (contentLower.includes(titleLower.slice(0, 20))) {
     seo_score.content = 20
-    suggestions.push('✓ Mots-clés dans le contenu')
+    suggestions.push('Mots-clés dans le contenu')
   } else {
     seo_score.content = 10
     suggestions.push('Ajouter mots-clés dans les premiers paragraphes')

@@ -33,7 +33,7 @@ const CONTENT_UPDATES: { slug: string; content: string }[] = [
 <li><strong>Lapas grillées</strong> (patelles) — des coquillages grillés au beurre d’ail sur une plaque de pierre. Incontournable dans tout bar de bord de mer.</li>
 <li><strong>Bolo do caco</strong> — le pain plat à la patate douce cuit sur pierre. Accompagne tout, se mange à toute heure.</li>
 </ul>
-<h2>✦ Verdict Heldonica</h2>
+<h2>Verdict Heldonica</h2>
 <blockquote>
 <p>Madère est l’île qui nous a appris à vraiment ralentir. Pas parce qu’il n’y a rien à faire — il y a trop à faire. Mais parce que chaque endroit mérite plus d’une heure. Chaque levada mérite l’aube. Chaque table mérite la conversation qui suit le repas. Seize jours ne suffisaient pas. On y retourne en octobre.</p>
 <p><em>— Heldonica, mars 2024 et octobre 2025, deux séjours complets</em></p>
@@ -59,7 +59,7 @@ const CONTENT_UPDATES: { slug: string; content: string }[] = [
 <h2>Le duo : un avantage slow travel</h2>
 <p>Voyager en couple ralentit naturellement. On négocie le programme, on s’arrête quand l’un veut s’arrêter, on prend le temps du café que l’autre attendait. Ce qui peut sembler une friction est en réalité la meilleure contrainte slow travel qui soit.</p>
 <p>On a arrêté d’utiliser des applications de planification. Un carnet papier, stylo, et la règle : si on ne peut pas l’écrire à la main en moins de dix minutes, le programme est trop chargé.</p>
-<h2>✦ Verdict Heldonica</h2>
+<h2>Verdict Heldonica</h2>
 <blockquote>
 <p>Le slow travel en duo, c’est choisir la profondeur plutôt que la largeur. Une ville vraiment vécue vaut dix villes survolées. Et la meilleure souvenir de voyage ne vient jamais d’un monument — il vient d’un moment imprévu, dans une ruelle qu’on n’avait pas prévu de traverser, avec quelqu’un qu’on n’avait pas prévu de rencontrer.</p>
 <p><em>— Heldonica, appliqué depuis 2019, affiné à chaque voyage</em></p>
@@ -81,7 +81,7 @@ const CONTENT_UPDATES: { slug: string; content: string }[] = [
 <h2>La Halle Pajol : cathédrale solaire</h2>
 <p>Dans le 18e, une ancienne halle ferroviaire de 1926 convertie en espace de vie — bibliothèque, auberge de jeunesse, jardin urbain, panneaux solaires. La structure métallique d’origine est conservée. Sous la verrière, la lumière change toutes les heures.</p>
 <p>On y vient travailler avec nos laptops. Le café du rez-de-chaussée est ouvert au public, les prix sont raisonnables, et l’architecture vaut n’importe quel musée.</p>
-<h2>✦ Verdict Heldonica</h2>
+<h2>Verdict Heldonica</h2>
 <blockquote>
 <p>L’urbex légal à Paris, c’est comprendre que la ville cache ses meilleures pépites à ceux qui ne cherchent pas les monuments. La Petite Ceinture brumeuse d’octobre vaut n’importe quelle visite guidée. Et elle est gratuite, accessible en métro, et pratiquement vide à 8h du matin.</p>
 <p><em>— Heldonica, exploré sur trois mois d’arpentage parisien en 2025</em></p>
@@ -111,7 +111,7 @@ const CONTENT_UPDATES: { slug: string; content: string }[] = [
 <p><strong>Pour qui :</strong> Les voyageurs qui veulent voir l’île "vraie".</p>
 <h2>Ce que la météo ne te dit pas</h2>
 <p>Le bulletin météo de Funchal ne représente pas Madère. Conseil pratique : consulte les webcams sur <strong>webcamtaxi.com/madeira</strong> pour voir en temps réel les conditions sur l’île — indispensable pour planifier les randonnées en altitude.</p>
-<h2>✦ Verdict Heldonica</h2>
+<h2>Verdict Heldonica</h2>
 <blockquote>
 <p>Il n’y a pas de mauvaise saison à Madère. Mars-avril pour la douceur et les fleurs. Octobre pour la lumière et la tranquillité. Évite juillet-août si tu veux vivre l’île plutôt que la subir. Et quelle que soit la saison : lève-toi tôt.</p>
 <p><em>— Heldonica, trois saisons testées sur place</em></p>
@@ -132,7 +132,7 @@ const CONTENT_UPDATES: { slug: string; content: string }[] = [
 <h2>Curral das Freiras : le cirque caché</h2>
 <p>«Le cirque des nonnes» — un village encerclé par des falaises de 1500m de tous côtés. Au XVIe siècle, les religieuses de Funchal s’y réfugiaient lors des attaques de pirates. Aujourd’hui, c’est une des communes les plus isolées de l’île.</p>
 <p>La route pour y descendre est une série de lacets vertigineux. En bas : un village hors du temps, une seule rue principale. Le restaurant local sert une soupe de châtaignes qui réchauffe l’âme.</p>
-<h2>✦ Verdict Heldonica</h2>
+<h2>Verdict Heldonica</h2>
 <blockquote>
 <p>Madère cache ses meilleures pépites à ceux qui prennent le temps de chercher. Aucun de ces endroits n’est sur les listes des "top 10 things to do". Tous demandent un réveil plus tôt, ou simplement de s’éloigner du chemin balisé de 200 mètres. C’est là que l’île révèle son âme.</p>
 <p><em>— Heldonica, pépites dénichées lors de trois séjours à Madère</em></p>
@@ -167,7 +167,7 @@ const CONTENT_UPDATES: { slug: string; content: string }[] = [
 <li>Réchauffe les bolos à la plancha, coupe-les en deux, beurre généreusement.</li>
 <li>Glisse le steak dans le pain. Mange immédiatement.</li>
 </ol>
-<h2>✦ Verdict Heldonica</h2>
+<h2>Verdict Heldonica</h2>
 <blockquote>
 <p>Le prego no bolo do caco, c’est la quintessence de ce qu’on aime dans le slow travel alimentaire : une recette simple, des ingrédients locaux, un savoir-faire transmis de snack en snack depuis des générations. Ce n’est pas dans les guides gastronomiques. C’est dans les mains d’une femme qui cuit son pain sur une pierre depuis quarante ans.</p>
 <p><em>— Heldonica, recette reçue de Maria, Câmara de Lobos, octobre 2025</em></p>

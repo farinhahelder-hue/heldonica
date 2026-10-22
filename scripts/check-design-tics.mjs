@@ -93,6 +93,15 @@ export const PUBLIC_DESIGN_TARGETS = [
 const DECORATIVE_EMOJI_RE =
   /[\u{1F300}-\u{1FAFF}\u{1F1E6}-\u{1F1FF}\u{231A}-\u{231B}\u{23E9}-\u{23FF}\u{2600}-\u{2604}\u{2606}-\u{26FF}\u{2700}-\u{27BF}\u{2B1B}-\u{2B1C}\u{2B50}\u{2B55}]/gu;
 
+/**
+ * Routes API. Elles n'ont pas de JSX, donc les règles « carte SaaS » n'y ont
+ * pas de sens — mais leurs emojis, si : ils finissent dans un email client
+ * (`/api/travel-planning`), une légende Instagram publiée
+ * (`/api/cms/mobile-publish`) ou un article (`/api/update-content`). Hors du
+ * périmètre initial du garde-fou, onze routes en portaient encore le 22/10.
+ */
+export const API_EMOJI_TARGETS = ['app/api'];
+
 // Carte SaaS : className combinant un fond clinique (`bg-white` ou `bg-stone-50`)
 // avec un rayon de carte SaaS (`rounded-2xl` / `rounded-3xl`) ou une ombre portée (`shadow-*`).
 const SAAS_BG_RE = /\bbg-(?:white|stone-50)\b/;
@@ -120,8 +129,12 @@ function collectFiles(target, acc = []) {
 /**
  * Analyse le code source d'un fichier public et retourne la liste des tics détectés.
  * Exporté pour les tests unitaires afin de prouver la détection sur cas fautifs.
+ *
+ * `options.emojiOnly` restreint au seul contrôle des emojis : c'est le mode
+ * utilisé pour `app/api`, où les règles « carte SaaS » n'ont pas de sens.
  */
-export function scanSourceForDesignTics(source, filePath = 'inline.tsx') {
+export function scanSourceForDesignTics(source, filePath = 'inline.tsx', options = {}) {
+  const { emojiOnly = false } = options;
   const violations = [];
   // Retirer les commentaires bloc et ligne avant l'analyse
   const withoutBlockComments = source.replace(/\/\*[\s\S]*?\*\//g, (m) =>
@@ -147,6 +160,8 @@ export function scanSourceForDesignTics(source, filePath = 'inline.tsx') {
         snippet: trimmed.slice(0, 120),
       });
     }
+
+    if (emojiOnly) continue;
 
     // 2. Cartes SaaS (bg-white / bg-stone-50 + rounded-2xl/3xl ou shadow-*)
     if (SAAS_BG_RE.test(rawLine) && SAAS_RADIUS_OR_SHADOW_RE.test(rawLine)) {
@@ -191,20 +206,36 @@ export function runDesignTicsCheck(targets = PUBLIC_DESIGN_TARGETS) {
   return { filesScanned: files.length, violations: allViolations };
 }
 
+/** Même collecte que `runDesignTicsCheck`, mais seuls les emojis sont refusés. */
+export function runApiEmojiCheck(targets = API_EMOJI_TARGETS) {
+  const files = [];
+  for (const t of targets) collectFiles(t, files);
+  const allViolations = [];
+  for (const file of files) {
+    const rel = file.replace(/\\/g, '/');
+    const src = readFileSync(file, 'utf8');
+    allViolations.push(...scanSourceForDesignTics(src, rel, { emojiOnly: true }));
+  }
+  return { filesScanned: files.length, violations: allViolations };
+}
+
 function main() {
   const { filesScanned, violations } = runDesignTicsCheck();
-  if (violations.length > 0) {
-    console.error(`\n✗ check-design-tics : ${violations.length} tic(s) visuel(s) sur ${filesScanned} fichiers publics :\n`);
-    for (const v of violations.slice(0, 60)) {
+  const api = runApiEmojiCheck();
+  const total = violations.length + api.violations.length;
+
+  if (total > 0) {
+    console.error(`\n✗ check-design-tics : ${total} tic(s) visuel(s) sur ${filesScanned + api.filesScanned} fichiers :\n`);
+    for (const v of [...violations, ...api.violations].slice(0, 60)) {
       console.error(`  - ${v.file}:${v.line} [${v.kind}] ${v.detail}`);
       console.error(`      ${v.snippet}`);
     }
-    if (violations.length > 60) {
-      console.error(`  ... et ${violations.length - 60} autre(s).`);
+    if (total > 60) {
+      console.error(`  ... et ${total - 60} autre(s).`);
     }
     process.exit(1);
   }
-  console.log(`✓ check-design-tics : ${filesScanned} fichiers publics vérifiés, 0 tic visuel IA/SaaS.`);
+  console.log(`✓ check-design-tics : ${filesScanned} fichiers publics + ${api.filesScanned} routes API vérifiés, 0 tic visuel IA/SaaS.`);
   process.exit(0);
 }
 

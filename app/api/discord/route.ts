@@ -146,7 +146,7 @@ export async function POST(req: Request) {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            content: `> **/${cmdName}** : *${question}*\n\n❌ Une erreur est survenue : ${err.message || 'Échec de génération'}`,
+            content: `> **/${cmdName}** : *${question}*\n\nUne erreur est survenue : ${err.message || 'Échec de génération'}`,
           }),
         }).catch(() => {});
       }

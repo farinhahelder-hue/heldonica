@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
       await resend.emails.send({
         from: 'Heldonica <contact@heldonica.fr>',
         to: [email],
-        subject: "Bienvenue dans l'aventure Heldonica 🌿",
+        subject: "Bienvenue dans l'aventure Heldonica",
         html: `
           <div style="font-family: Georgia, serif; max-width: 580px; margin: 0 auto; color: #1a1a1a; background: #ffffff;">
             <div style="background: #6b2a1a; padding: 32px 40px; text-align: center;">
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
               <p style="color: #fde68a; font-size: 11px; letter-spacing: 0.2em; margin: 8px 0 0;">SLOW TRAVEL · VOYAGES VÉCUS</p>
             </div>
             <div style="padding: 40px; background: #faf9f7;">
-              <p style="font-size: 20px; margin: 0 0 20px; color: #6b2a1a;">Bienvenue dans l'aventure ✨</p>
+              <p style="font-size: 20px; margin: 0 0 20px; color: #6b2a1a;">Bienvenue dans l'aventure</p>
               <p style="color: #444; line-height: 1.7; margin: 0 0 20px;">
                 On est ravis de t'avoir parmi nous. Tu vas recevoir nos meilleures pépites dénichées : carnets de voyage en couple, adresses hors sentiers battus, et expériences slow que seul un vrai terrain peut révéler.
               </p>

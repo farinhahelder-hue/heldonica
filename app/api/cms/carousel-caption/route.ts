@@ -10,7 +10,7 @@ export const maxDuration = 60
 // Tes diapositives → une légende Instagram. La source, c'est le texte des
 // diapositives — les mots de l'autrice. Avant le 21/09/2026, sans clé OpenAI
 // (absente en production), cette route rendait un gabarit : « Découvrez {sujet}
-// à travers notre dernier carrousel ✨ Vous y trouverez nos meilleurs
+// à travers notre dernier carrousel. Vous y trouverez nos meilleurs
 // conseils, nos découvertes secrètes… » — du vide, avec « vous » et
 // « conseils », pour n'importe quel carrousel.
 
