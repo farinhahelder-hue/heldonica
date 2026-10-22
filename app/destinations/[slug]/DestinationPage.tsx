@@ -205,7 +205,7 @@ export default async function DestinationPage({ slug }: Props) {
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
       <div className="relative container py-14 md:py-20 max-w-4xl">
         <p className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold">
-          Destination testée
+          <EditableZone page={`destinations-${slug}`} zone="hero_badge" fallback="Destination testée" as="span" />
         </p>
         <h1 className="text-4xl md:text-6xl font-serif text-white mb-4">
           <EditableZone
@@ -236,19 +236,19 @@ export default async function DestinationPage({ slug }: Props) {
       <div className="container">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="rounded-sm border border-[#DED5C6] bg-[#F7F3EC] p-5">
-            <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Durée idéale</p>
+            <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2"><EditableZone page={`destinations-${slug}`} zone="info_duration_label" fallback="Durée idéale" as="span" /></p>
             <p className="text-charcoal font-medium"><EditableZone page={`destinations-${slug}`} zone="duration" fallback={content.duration} as="span" /></p>
           </div>
           <div className="rounded-sm border border-[#DED5C6] bg-[#F7F3EC] p-5">
-            <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Meilleure saison</p>
+            <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2"><EditableZone page={`destinations-${slug}`} zone="info_season_label" fallback="Meilleure saison" as="span" /></p>
             <p className="text-charcoal font-medium"><EditableZone page={`destinations-${slug}`} zone="season" fallback={content.season} as="span" /></p>
           </div>
           <div className="rounded-sm border border-[#DED5C6] bg-[#F7F3EC] p-5">
-            <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Budget indicatif</p>
+            <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2"><EditableZone page={`destinations-${slug}`} zone="info_budget_label" fallback="Budget indicatif" as="span" /></p>
             <p className="text-charcoal font-medium"><EditableZone page={`destinations-${slug}`} zone="budget" fallback={content.budget} as="span" /></p>
           </div>
           <div className="rounded-sm border border-[#DED5C6] bg-[#F7F3EC] p-5">
-            <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Profil</p>
+            <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2"><EditableZone page={`destinations-${slug}`} zone="info_profile_label" fallback="Profil" as="span" /></p>
             <p className="text-charcoal font-medium text-sm"><EditableZone page={`destinations-${slug}`} zone="profile" fallback={content.profile} as="span" /></p>
           </div>
         </div>
@@ -259,7 +259,7 @@ export default async function DestinationPage({ slug }: Props) {
   const BlockDescription = () => (
     <section className="bg-[#FAF7F2] py-16">
       <div className="container max-w-4xl">
-        <h2 className="text-3xl font-serif text-mahogany mb-6">On y est allés</h2>
+        <h2 className="text-3xl font-serif text-mahogany mb-6"><EditableZone page={`destinations-${slug}`} zone="description_title" fallback="On y est allés" as="span" /></h2>
         <p className="text-charcoal/80 leading-relaxed text-lg mb-8">
           <EditableZone page={`destinations-${slug}`} zone="description" type="textarea" fallback={content.description} as="span" />
         </p>
@@ -272,10 +272,10 @@ export default async function DestinationPage({ slug }: Props) {
       <section className="bg-[#F7F3EC] py-16 border-t border-b border-[#DED5C6]/60">
         <div className="container max-w-5xl">
           <h2 className="text-3xl font-serif text-mahogany mb-2 text-center">
-            Explorer les pépites de la région
+            <EditableZone page={`destinations-${slug}`} zone="subdest_title" fallback="Explorer les pépites de la région" as="span" />
           </h2>
           <p className="text-charcoal/60 text-sm text-center mb-10">
-            Nos guides détaillés de terrain par ville et site d&apos;intérêt.
+            <EditableZone page={`destinations-${slug}`} zone="subdest_teaser" fallback={"Nos guides détaillés de terrain par ville et site d'intérêt."} as="span" />
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {subDests.map((sub) => (
@@ -292,7 +292,7 @@ export default async function DestinationPage({ slug }: Props) {
                   {sub.teaser}
                 </p>
                 <span className="text-xs font-semibold text-eucalyptus mt-3 inline-block group-hover:translate-x-1 transition-transform">
-                  Voir le guide →
+                  <EditableZone page={`destinations-${slug}`} zone="subdest_cta" fallback="Voir le guide →" as="span" />
                 </span>
               </Link>
             ))}
@@ -305,7 +305,7 @@ export default async function DestinationPage({ slug }: Props) {
   const BlockTips = () => (
     <section className="bg-cloud-dancer py-16">
       <div className="container max-w-4xl">
-        <h2 className="text-2xl font-serif text-mahogany mb-6">Ce qu&apos;on te recommande</h2>
+        <h2 className="text-2xl font-serif text-mahogany mb-6"><EditableZone page={`destinations-${slug}`} zone="tips_title" fallback={"Ce qu'on te recommande"} as="span" /></h2>
         <ul className="space-y-4">
           {(content.tips ?? []).map((tip: string, i: number) => (
             <li key={i} className="flex items-start gap-3">
@@ -323,11 +323,11 @@ export default async function DestinationPage({ slug }: Props) {
   const BlockVerdict = () => (
     <section className="bg-stone-900 py-16">
       <div className="container max-w-3xl text-center">
-        <p className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold">Notre verdict</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-teal mb-4 font-semibold"><EditableZone page={`destinations-${slug}`} zone="verdict_badge" fallback="Notre verdict" as="span" /></p>
         <blockquote className="text-2xl md:text-3xl font-serif text-white leading-relaxed italic mb-6">
           &ldquo;<EditableZone page={`destinations-${slug}`} zone="verdict" type="textarea" fallback={content.verdict} as="span" />&rdquo;
         </blockquote>
-        <p className="text-stone-400 text-sm">— Heldonica, testés sur place</p>
+        <p className="text-stone-400 text-sm"><EditableZone page={`destinations-${slug}`} zone="verdict_signature" fallback="— Heldonica, testés sur place" as="span" /></p>
       </div>
     </section>
   )
@@ -336,16 +336,16 @@ export default async function DestinationPage({ slug }: Props) {
     <section className="bg-mahogany py-16 text-white">
       <div className="container max-w-2xl text-center">
         <h2 className="text-2xl md:text-3xl font-serif mb-4">
-          Tu veux un voyage adapté à ton rythme ?
+          <EditableZone page={`destinations-${slug}`} zone="cta_title" fallback="Tu veux un voyage adapté à ton rythme ?" as="span" />
         </h2>
         <p className="text-white/80 mb-8">
-          On transforme tes contraintes en itinéraire sur mesure, avec adresses testées.
+          <EditableZone page={`destinations-${slug}`} zone="cta_text" fallback="On transforme tes contraintes en itinéraire sur mesure, avec adresses testées." as="span" />
         </p>
         <Link
           href={`/travel-planning-form?destination=${slug}`}
           className="inline-flex px-8 py-4 rounded-lg bg-action text-white font-semibold hover:bg-action-fonce transition-colors"
         >
-          Planifier ce voyage avec Heldonica →
+          <EditableZone page={`destinations-${slug}`} zone="cta_button" fallback="Planifier ce voyage avec Heldonica →" as="span" />
         </Link>
       </div>
     </section>
