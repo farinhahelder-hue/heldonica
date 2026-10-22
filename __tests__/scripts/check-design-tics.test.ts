@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { execFileSync } from 'node:child_process';
-import { scanSourceForDesignTics, runDesignTicsCheck } from '../../scripts/check-design-tics.mjs';
+import { scanSourceForDesignTics, runDesignTicsCheck, runApiEmojiCheck } from '../../scripts/check-design-tics.mjs';
 
 /**
  * Le garde-fou doit REFUSER les tics « IA / SaaS » (preuve par le cas fautif)
@@ -61,6 +61,25 @@ describe('check-design-tics', () => {
     it('ignore les commentaires', () => {
       const src = '// bg-white rounded-2xl ✨\n/* shadow-lg bg-white ✨ */\n<p>ok</p>';
       expect(scanSourceForDesignTics(src)).toEqual([]);
+    });
+  });
+
+  describe('routes API (mode emoji seul)', () => {
+    it('refuse un emoji dans une route API', () => {
+      const src = "subject: `✈️ Nouvelle demande — ${nom}`";
+      const v = scanSourceForDesignTics(src, 'app/api/x/route.ts', { emojiOnly: true });
+      expect(v.map((x) => x.kind)).toEqual(['emoji']);
+    });
+
+    it('n\'applique pas les règles SaaS au code d\'API (pas de JSX)', () => {
+      const src = 'const style = { background: "bg-white rounded-2xl" }';
+      expect(scanSourceForDesignTics(src, 'app/api/x/route.ts', { emojiOnly: true })).toEqual([]);
+    });
+
+    it('ne détecte aucun emoji sur les routes réelles', () => {
+      const { filesScanned, violations } = runApiEmojiCheck();
+      expect(filesScanned).toBeGreaterThan(100);
+      expect(violations).toEqual([]);
     });
   });
 

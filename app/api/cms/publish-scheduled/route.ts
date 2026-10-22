@@ -69,7 +69,7 @@ async function handler(req: NextRequest) {
       validArticles.push(...articles); // Publish all without validation if config missing
     } else {
       try {
-        // ⚡ Bolt: Eliminate N+1 queries. Fetch all articles to validate in a single batch request
+        // Bolt: Eliminate N+1 queries. Fetch all articles to validate in a single batch request
         const articleIds = articles.map((a: any) => a.id).join(',');
 
         if (articleIds) {
@@ -128,7 +128,7 @@ async function handler(req: NextRequest) {
       }
     }
 
-    // ⚡ Bolt: Eliminate N+1 queries. Update all valid articles concurrently
+    // Bolt: Eliminate N+1 queries. Update all valid articles concurrently
     const updatePromises = validArticles.map(async (article) => {
       try {
         const updateRes = await fetch(

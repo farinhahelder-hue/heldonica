@@ -11,7 +11,7 @@ import { generateAiCompletion, type AiMessage } from '@/lib/ai-provider';
 import { ajoutsParRapportA, LIBELLES_AJOUT } from '@/lib/revendications';
 
 // Le Copilote met en forme ; il n'est pas une source. Jusqu'au 21/09/2026,
-// « Notes ➔ Carnet » demandait 1 200 à 1 800 mots depuis des notes brutes avec
+// « Notes → Carnet » demandait 1 200 à 1 800 mots depuis des notes brutes avec
 // les titres « Accroche vécue, Histoire humaine, Détails sensoriels » — c'est
 // lui qui a produit les brouillons 119 et 120, titres-consignes compris ;
 // « Page Hub » demandait « 3 pépites testées (nom, ressenti, prix réel) » avec
@@ -186,7 +186,7 @@ ${text}
         }
 
         const prompt = `Rédige un post LinkedIn B2B (150 à 250 mots) pour les hôteliers indépendants.
-- Structure P-A-S : Problème ➔ Agitation ➔ Solution slow travel / storytelling Heldonica. Un chiffre seulement s'il est dans le texte fourni ; sinon [À TOI : le chiffre].
+- Structure P-A-S : Problème → Agitation → Solution slow travel / storytelling Heldonica. Un chiffre seulement s'il est dans le texte fourni ; sinon [À TOI : le chiffre].
 ${REGLE_SOURCE}
 - Pronoms : "on" (notre expérience), "vous" (l'hôtelier).
 - Termine par une question ouverte professionnelle.
