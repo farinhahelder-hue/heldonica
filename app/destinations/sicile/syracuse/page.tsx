@@ -29,17 +29,17 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const highlights = [
   {
-    emoji: '🏛️',
+    emoji: 'Compass',
     title: 'Temple',
     description: 'Apollo.',
   },
   {
-    emoji: '⌛',
+    emoji: 'Compass',
     title: 'Ortigia',
     description: 'Ile.',
   },
   {
-    emoji: '🍊',
+    emoji: 'Compass',
     title: 'Marche',
     description: 'Ortigia.',
   }

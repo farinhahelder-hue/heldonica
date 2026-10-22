@@ -6,6 +6,7 @@ import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { getPageZones } from '@/lib/cms-zones'
 import { buildPageMetadata } from '@/lib/page-metadata'
+import CmsIcon from '@/components/CmsIcon'
 
 export const revalidate = 300;
 
@@ -26,14 +27,14 @@ const NEXT_STEPS = [
     descZone: 'step_1_desc',
     ctaZone: 'step_1_cta',
     href: '/blog',
-    icon: '📖',
+    icon: 'BookOpen',
   },
   {
     titleZone: 'step_2_title',
     descZone: 'step_2_desc',
     ctaZone: 'step_2_cta',
     href: '/travel-planning',
-    icon: '🗺️',
+    icon: 'Map',
   },
   {
     titleZone: 'step_3_title',
@@ -41,7 +42,7 @@ const NEXT_STEPS = [
     ctaZone: 'step_3_cta',
     href: 'https://www.instagram.com/heldonica/',
     external: true,
-    icon: '📱',
+    icon: 'Smartphone',
   },
 ]
 
@@ -56,7 +57,6 @@ export default async function GuidesMerciPage() {
           <div className="max-w-2xl mx-auto px-6">
             <div className="mb-8">
               <div className="w-24 h-24 bg-eucalyptus/10 rounded-full flex items-center justify-center mx-auto">
-                <span className="text-5xl">✨</span>
               </div>
             </div>
 
@@ -68,9 +68,9 @@ export default async function GuidesMerciPage() {
               className="text-stone-600 text-lg leading-relaxed mb-6 block"
             />
 
-            <div className="bg-white rounded-2xl p-6 border border-stone-100 inline-block">
+            <div className="bg-[#FAF7F2] rounded-sm p-6 border border-stone-100 inline-block">
               <p className="text-sm text-stone-500">
-                <span className="text-eucalyptus">💡</span>{' '}
+                <span className="text-eucalyptus"></span>{' '}
                 <EditableZone page="guides-merci" zone="hero_note" fallback="En attendant, on te recommande de regarder nos carnets de voyage — ils sont gratuits aussi."
                   className="inline"
                 />
@@ -92,9 +92,9 @@ export default async function GuidesMerciPage() {
                   href={step.href}
                   target={step.external ? '_blank' : undefined}
                   rel={step.external ? 'noopener noreferrer' : undefined}
-                  className="bg-white rounded-2xl p-6 border border-stone-100 hover:shadow-lg hover:border-stone-200 transition-all group"
+                  className="bg-[#FAF7F2] rounded-sm p-6 border border-stone-100 hover:border-[#DED5C6] transition-all group"
                 >
-                  <div className="text-3xl mb-4">{step.icon}</div>
+                  <div className="mb-4"><CmsIcon name={step.icon} className="w-8 h-8 text-eucalyptus" strokeWidth={1.25} /></div>
                   <EditableZone page="guides-merci" zone={step.titleZone} fallback={['Découvre nos carnets de voyage', "Planifie ton prochain voyage", 'Suis-nous sur Instagram'][i]}
                     className="text-lg font-semibold text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors block"
                   />
@@ -119,8 +119,7 @@ export default async function GuidesMerciPage() {
 
         <section className="pb-16 md:pb-24">
           <div className="max-w-xl mx-auto px-6">
-            <div className="bg-gradient-to-br from-stone-900 to-stone-800 rounded-3xl p-8 md:p-12 text-white text-center">
-              <span className="text-4xl mb-4 block">🗺️</span>
+            <div className="bg-gradient-to-br from-stone-900 to-stone-800 rounded-sm p-8 md:p-12 text-white text-center">
               <EditableZone page="guides-merci" zone="upsell_title" fallback="Tu pars bientôt en voyage ?"
                 className="text-2xl md:text-3xl font-serif font-bold mb-4 block"
               />
@@ -130,7 +129,7 @@ export default async function GuidesMerciPage() {
               />
               <Link
                 href="/travel-planning"
-                className="inline-block px-8 py-4 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all"
+                className="inline-block px-8 py-4 bg-eucalyptus text-white font-semibold rounded-sm hover:brightness-110 transition-all"
               >
                 <EditableZone page="guides-merci" zone="upsell_cta" fallback="Découvrir le travel planning →" />
               </Link>

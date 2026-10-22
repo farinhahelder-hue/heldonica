@@ -37,8 +37,8 @@ export default function DayAccommodationBox({
   if (accommodation) {
     return (
       <>
-        <div className="rounded-xl bg-stone-50 border border-stone-200 p-3">
-          <p className="text-xs font-semibold text-stone-600 mb-1">On a dormi chez</p>
+        <div className="rounded-sm bg-[#EFE9DF]/70 border border-[#DED5C6] p-3">
+          <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-mahogany mb-1">On a dormi chez</p>
           <p className="text-sm text-charcoal/80 mb-1">
             <EditableZone page={page} zone={zoneKey} type="textarea" fallback={accommodationFallback} as="span" />
           </p>
@@ -46,12 +46,12 @@ export default function DayAccommodationBox({
             href={bookingSearchUrl(city)}
             partner="booking"
             destination="roumanie"
-            className="text-xs text-eucalyptus font-semibold hover:underline"
+            className="text-xs text-eucalyptus font-medium hover:underline"
           >
             Voir les disponibilités →
           </AffiliateLink>
         </div>
-        <div className={`text-xs text-stone-500 ${disclosureClassName}`}>
+        <div className={`text-xs text-charcoal/55 ${disclosureClassName}`}>
           <span>{AFFILIATE_DISCLOSURE}</span>
         </div>
       </>
@@ -59,8 +59,8 @@ export default function DayAccommodationBox({
   }
 
   return (
-    <div className="rounded-xl bg-teal/5 border border-teal/20 p-3">
-      <p className="text-xs font-semibold text-teal mb-1">Départ</p>
+    <div className="rounded-sm bg-[#EFE9DF]/60 border border-[#DED5C6] p-3">
+      <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Départ</p>
       <p className="text-sm text-charcoal/80">{departText}</p>
     </div>
   )

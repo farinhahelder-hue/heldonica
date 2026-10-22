@@ -104,7 +104,7 @@ export default async function Itineraire7JoursPage() {
                       });
                     }
                   `}</Script>      <main>
-        <section className="bg-gradient-to-br from-cloud-dancer to-white py-20 md:py-28">
+        <section className="bg-[#EFE9DF] border-b border-[#DED5C6] py-20 md:py-28">
           <div className="container">
             <p className="text-xs uppercase tracking-[0.2em] text-eucalyptus font-semibold mb-4">
               {Z('hero_badge', 'text', "Roumanie — Itinéraire 7 jours", undefined, 'span')}
@@ -118,14 +118,14 @@ export default async function Itineraire7JoursPage() {
           </div>
         </section>
 
-        <section className="bg-white section-spacing pt-0 -mt-6">
+        <section className="bg-[#F7F3EC] section-spacing pt-0 -mt-6">
           <div className="container max-w-4xl">
-            <div className="rounded-2xl border border-eucalyptus/20 bg-eucalyptus/5 p-6">
+            <div className="rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-6">
               <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-eucalyptus/10 text-eucalyptus px-3 py-1 text-xs font-semibold">Testé par Heldonica</span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 text-amber-700 px-3 py-1 text-xs font-semibold">{Z('chip_1', 'text', "2 visites", undefined, 'span')}</span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-stone-100 text-stone-600 px-3 py-1 text-xs font-semibold">{Z('chip_2', 'text', "Septembre 2024", undefined, 'span')}</span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 text-emerald-700 px-3 py-1 text-xs font-semibold">{Z('chip_3', 'text', "Automne doré", undefined, 'span')}</span>
+                <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-eucalyptus px-3 py-1 text-[11px] uppercase tracking-[0.14em] font-medium">Testé par Heldonica</span>
+                <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-mahogany px-3 py-1 text-[11px] uppercase tracking-[0.14em] font-medium">{Z('chip_1', 'text', "2 visites", undefined, 'span')}</span>
+                <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-charcoal/75 px-3 py-1 text-[11px] uppercase tracking-[0.14em] font-medium">{Z('chip_2', 'text', "Septembre 2024", undefined, 'span')}</span>
+                <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-eucalyptus px-3 py-1 text-[11px] uppercase tracking-[0.14em] font-medium">{Z('chip_3', 'text', "Automne doré", undefined, 'span')}</span>
               </div>
               <p className="text-sm text-charcoal/80 leading-relaxed">
                 {Z('blurb', 'html', "On a testé cet itinéraire en septembre 2024, en plein automne doré. Les températures étaient douces (18-25°C), les forêts déjà rousses et les sites nettement moins fréquentés qu'en juillet-août. Chaque étape a été vérifiée, chaque adresse testée — on ne recommande que ce qu'on a vraiment expérimenté. <strong>Budget réel : 1 150 € pour deux, tout compris.</strong>", undefined, 'span')}
@@ -134,12 +134,12 @@ export default async function Itineraire7JoursPage() {
           </div>
         </section>
 
-        <section className="bg-white section-spacing pt-0">
+        <section className="bg-[#F7F3EC] section-spacing pt-0">
           <div className="container max-w-4xl">
             <h2 className="text-2xl font-serif text-mahogany mb-6">Aperçu de l'itinéraire</h2>
-            <div className="overflow-x-auto rounded-xl border border-stone-200">
+            <div className="overflow-x-auto rounded-sm border border-[#DED5C6]">
               <table className="w-full text-sm table-auto">
-                <thead className="bg-stone-50 text-stone-500 text-xs uppercase">
+                <thead className="bg-[#EFE9DF] text-mahogany text-[11px] uppercase tracking-[0.14em]">
                   <tr>
                     <th className="px-4 py-3 text-left">Jour</th>
                     <th className="px-4 py-3 text-left">Ville</th>
@@ -153,12 +153,12 @@ export default async function Itineraire7JoursPage() {
           </div>
         </section>
 
-        <section className="bg-cloud-dancer section-spacing">
+        <section className="bg-[#EFE9DF] section-spacing border-y border-[#DED5C6]">
           <div className="container max-w-4xl">
             <div className="space-y-6">
-                <article key={1} className="rounded-2xl border border-stone-200 bg-white p-6 md:p-8">
+                <article key={1} className="rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-6 md:p-8">
                   <div className="flex items-start gap-4 mb-4">
-                    <span className="shrink-0 w-10 h-10 rounded-full bg-eucalyptus text-white flex items-center justify-center text-sm font-bold">
+                    <span className="shrink-0 w-10 h-10 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-mahogany flex items-center justify-center text-sm font-serif">
                       1
                     </span>
                     <div className="flex-1">
@@ -173,8 +173,8 @@ export default async function Itineraire7JoursPage() {
                   <p className="text-charcoal/80 leading-relaxed mb-4">{Z('day_1_detail', 'textarea', "On pose les valises dans le quartier Floreasca, loin du bruit du centre. C'est là qu'on trouve les meilleures adresses locales — des cantines où les avocats du coin mangent à midi, des petits parcs où personne ne se prend en photo. Premier dîner : sarmale (choux farcis) et mămăligă (polenta), arrosés de vin de Murfatlar. On rentre tôt, demain la route commence.", undefined, 'span')}</p>
 
                   <div className="grid md:grid-cols-2 gap-3 mb-4">
-                    <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
-                      <p className="text-xs font-semibold text-amber-700 mb-1">Pépite dénichée</p>
+                    <div className="rounded-sm bg-[#EFE9DF]/70 border border-[#DED5C6] p-3">
+                      <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
                       <p className="text-sm text-charcoal/80">{Z('day_1_pepite', 'textarea', "Restaurant fără Zahăr — cantine locale dans Floreasca, cuisine maison, 12 € pour deux", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -187,9 +187,9 @@ export default async function Itineraire7JoursPage() {
                     />
                   </div>
                 </article>
-                <article key={2} className="rounded-2xl border border-stone-200 bg-white p-6 md:p-8">
+                <article key={2} className="rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-6 md:p-8">
                   <div className="flex items-start gap-4 mb-4">
-                    <span className="shrink-0 w-10 h-10 rounded-full bg-eucalyptus text-white flex items-center justify-center text-sm font-bold">
+                    <span className="shrink-0 w-10 h-10 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-mahogany flex items-center justify-center text-sm font-serif">
                       2
                     </span>
                     <div className="flex-1">
@@ -204,8 +204,8 @@ export default async function Itineraire7JoursPage() {
                   <p className="text-charcoal/80 leading-relaxed mb-4">{Z('day_2_detail', 'textarea', "La route Bucarest-Sinaia est une mise en jambe parfaite. Les plaines cèdent progressivement la place aux collines, puis aux Carpates qui surgissent sans prévenir. Le château de Peleș est le premier choc visuel du voyage — un concentré d'architecture néo-Renaissance perché dans la forêt. L'après-midi, on marche dans les bois au-dessus de Sinaia. L'air change, le rythme aussi. On comprend déjà pourquoi on vient ici.", undefined, 'span')}</p>
 
                   <div className="grid md:grid-cols-2 gap-3 mb-4">
-                    <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
-                      <p className="text-xs font-semibold text-amber-700 mb-1">Pépite dénichée</p>
+                    <div className="rounded-sm bg-[#EFE9DF]/70 border border-[#DED5C6] p-3">
+                      <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
                       <p className="text-sm text-charcoal/80">{Z('day_2_pepite', 'textarea', "Le château de Peleș — arrive à l'ouverture (9h15), tu évites 90 % des groupes", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -218,9 +218,9 @@ export default async function Itineraire7JoursPage() {
                     />
                   </div>
                 </article>
-                <article key={3} className="rounded-2xl border border-stone-200 bg-white p-6 md:p-8">
+                <article key={3} className="rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-6 md:p-8">
                   <div className="flex items-start gap-4 mb-4">
-                    <span className="shrink-0 w-10 h-10 rounded-full bg-eucalyptus text-white flex items-center justify-center text-sm font-bold">
+                    <span className="shrink-0 w-10 h-10 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-mahogany flex items-center justify-center text-sm font-serif">
                       3
                     </span>
                     <div className="flex-1">
@@ -235,8 +235,8 @@ export default async function Itineraire7JoursPage() {
                   <p className="text-charcoal/80 leading-relaxed mb-4">{Z('day_3_detail', 'textarea', "Brașov est la plus belle ville de Transylvanie, point barre. La place du Conseil (Piața Sfatului) est entourée de bâtiments pastel qui n'ont pas besoin de filtre. La rue Republicii — piétonne, bordée d'arcades — est faite pour flâner sans but. On monte jusqu'à la forteresse pour la vue, mais le vrai moment, c'est le tramway 102 : une vieille rame qui traverse la ville avec un bruit de ferraille réconfortant. Soirée dans un restaurant du vieux Brașov : papanași (beignets au fromage blanc et crème) en dessert. Indispensable.", undefined, 'span')}</p>
 
                   <div className="grid md:grid-cols-2 gap-3 mb-4">
-                    <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
-                      <p className="text-xs font-semibold text-amber-700 mb-1">Pépite dénichée</p>
+                    <div className="rounded-sm bg-[#EFE9DF]/70 border border-[#DED5C6] p-3">
+                      <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
                       <p className="text-sm text-charcoal/80">{Z('day_3_pepite', 'textarea', "Le tramway 102 jusqu'à la gare de Brașov — un voyage dans le temps pour 0.50 €", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -249,9 +249,9 @@ export default async function Itineraire7JoursPage() {
                     />
                   </div>
                 </article>
-                <article key={4} className="rounded-2xl border border-stone-200 bg-white p-6 md:p-8">
+                <article key={4} className="rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-6 md:p-8">
                   <div className="flex items-start gap-4 mb-4">
-                    <span className="shrink-0 w-10 h-10 rounded-full bg-eucalyptus text-white flex items-center justify-center text-sm font-bold">
+                    <span className="shrink-0 w-10 h-10 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-mahogany flex items-center justify-center text-sm font-serif">
                       4
                     </span>
                     <div className="flex-1">
@@ -266,8 +266,8 @@ export default async function Itineraire7JoursPage() {
                   <p className="text-charcoal/80 leading-relaxed mb-4">{Z('day_4_detail', 'textarea', "Sighișoara est la seule citadelle médiévale d'Europe encore habitée en continu. On y entre par la tour de l'Horloge, on gravit les escaliers couverts, et on débouche sur une place où le temps semble figé. La différence avec Brașov : ici, pas de foule. Les ruelles sont calmes, les chats dorment sur les pavés. Le restaurant din Turn est perché dans une tour — on y mange une mici (saucisses roumaines) en regardant la ville s'illuminer. C'est la journée qu'on préfère sur ce tracé.", undefined, 'span')}</p>
 
                   <div className="grid md:grid-cols-2 gap-3 mb-4">
-                    <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
-                      <p className="text-xs font-semibold text-amber-700 mb-1">Pépite dénichée</p>
+                    <div className="rounded-sm bg-[#EFE9DF]/70 border border-[#DED5C6] p-3">
+                      <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
                       <p className="text-sm text-charcoal/80">{Z('day_4_pepite', 'textarea', "Restaurant din Turn — dîner dans une tour médiévale, cuisine transylvanienne revisitée, 25 € pour deux", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -280,9 +280,9 @@ export default async function Itineraire7JoursPage() {
                     />
                   </div>
                 </article>
-                <article key={5} className="rounded-2xl border border-stone-200 bg-white p-6 md:p-8">
+                <article key={5} className="rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-6 md:p-8">
                   <div className="flex items-start gap-4 mb-4">
-                    <span className="shrink-0 w-10 h-10 rounded-full bg-eucalyptus text-white flex items-center justify-center text-sm font-bold">
+                    <span className="shrink-0 w-10 h-10 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-mahogany flex items-center justify-center text-sm font-serif">
                       5
                     </span>
                     <div className="flex-1">
@@ -297,8 +297,8 @@ export default async function Itineraire7JoursPage() {
                   <p className="text-charcoal/80 leading-relaxed mb-4">{Z('day_5_detail', 'textarea', "Viscri est ce qui reste de la Roumanie d'avant. Un village saxon où les rues sont en terre battue, où les charrettes croisent les vélos, où le seul bruit vient des cloches des moutons. L'église fortifiée classée UNESCO domine le village. La Fondation Charles (le prince Charles a une maison ici) a aidé à restaurer plusieurs bâtiments, mais l'esprit reste celui d'un village qui vit pour lui-même, pas pour faire la vogue. On déjeune chez Elena, dans sa cour, assis sur un banc en bois. On repart en comprenant pourquoi on voyage vraiment.", undefined, 'span')}</p>
 
                   <div className="grid md:grid-cols-2 gap-3 mb-4">
-                    <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
-                      <p className="text-xs font-semibold text-amber-700 mb-1">Pépite dénichée</p>
+                    <div className="rounded-sm bg-[#EFE9DF]/70 border border-[#DED5C6] p-3">
+                      <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
                       <p className="text-sm text-charcoal/80">{Z('day_5_pepite', 'textarea', "Chez Elena — déjeuner chez l'habitant dans sa cour : soupe, pain cuit au feu de bois, 8 €", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -311,9 +311,9 @@ export default async function Itineraire7JoursPage() {
                     />
                   </div>
                 </article>
-                <article key={6} className="rounded-2xl border border-stone-200 bg-white p-6 md:p-8">
+                <article key={6} className="rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-6 md:p-8">
                   <div className="flex items-start gap-4 mb-4">
-                    <span className="shrink-0 w-10 h-10 rounded-full bg-eucalyptus text-white flex items-center justify-center text-sm font-bold">
+                    <span className="shrink-0 w-10 h-10 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-mahogany flex items-center justify-center text-sm font-serif">
                       6
                     </span>
                     <div className="flex-1">
@@ -328,8 +328,8 @@ export default async function Itineraire7JoursPage() {
                   <p className="text-charcoal/80 leading-relaxed mb-4">{Z('day_6_detail', 'textarea', "Cluj, c'est l'autre Roumanie. Étudiante, connectée, tournée vers l'avenir. Le contraste avec Viscri est brutal : on passe du silence absolu aux terrasses bondées de l'avenue Eroilor. La vie culturelle est bouillonnante — théâtre alternatif, galeries d'art contemporain, bars qui ferment à 4h du matin. On flâne dans le quartier Mărăști, on boit un café chez Laika, on dîne dans un bistro hongrois. Cluj est un rappel que la Roumanie ne se réduit pas à ses cartes postales médiévales.", undefined, 'span')}</p>
 
                   <div className="grid md:grid-cols-2 gap-3 mb-4">
-                    <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
-                      <p className="text-xs font-semibold text-amber-700 mb-1">Pépite dénichée</p>
+                    <div className="rounded-sm bg-[#EFE9DF]/70 border border-[#DED5C6] p-3">
+                      <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
                       <p className="text-sm text-charcoal/80">{Z('day_6_pepite', 'textarea', "La muzica până la capăt — librairie-café alternative au sous-sol, rue Memorandumului", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -342,9 +342,9 @@ export default async function Itineraire7JoursPage() {
                     />
                   </div>
                 </article>
-                <article key={7} className="rounded-2xl border border-stone-200 bg-white p-6 md:p-8">
+                <article key={7} className="rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-6 md:p-8">
                   <div className="flex items-start gap-4 mb-4">
-                    <span className="shrink-0 w-10 h-10 rounded-full bg-eucalyptus text-white flex items-center justify-center text-sm font-bold">
+                    <span className="shrink-0 w-10 h-10 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-mahogany flex items-center justify-center text-sm font-serif">
                       7
                     </span>
                     <div className="flex-1">
@@ -359,8 +359,8 @@ export default async function Itineraire7JoursPage() {
                   <p className="text-charcoal/80 leading-relaxed mb-4">{Z('day_7_detail', 'textarea', "Dernier matin à Cluj. On traîne au marché Piața Unirii, on achète un dernier cozonac (brioche à la noix), on boit un café à Laika en faisant le bilan. Sept jours qui passent trop vite — c'est toujours le signe d'un bon voyage. Le vol retour depuis Cluj est direct vers plusieurs villes européennes. Dans l'avion, on commence déjà à rêver au prochain retour. Parce qu'on reviendra — la Roumanie a cette capacité à retenir ceux qui prennent le temps de la connaître.", undefined, 'span')}</p>
 
                   <div className="grid md:grid-cols-2 gap-3 mb-4">
-                    <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
-                      <p className="text-xs font-semibold text-amber-700 mb-1">Pépite dénichée</p>
+                    <div className="rounded-sm bg-[#EFE9DF]/70 border border-[#DED5C6] p-3">
+                      <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
                       <p className="text-sm text-charcoal/80">{Z('day_7_pepite', 'textarea', "Café Laika — torréfaction locale, pet-friendly, meilleur flat white de Roumanie", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -377,29 +377,29 @@ export default async function Itineraire7JoursPage() {
           </div>
         </section>
 
-        <section className="bg-white section-spacing">
+        <section className="bg-[#F7F3EC] section-spacing">
           <div className="container max-w-5xl">
             <h2 className="text-3xl font-serif text-mahogany mb-6">Carte interactive de l'itinéraire</h2>
             <p className="text-charcoal/70 mb-6 max-w-2xl">
               Explore chaque étape sur la carte : hébergements, pépites, points de passage et routes empruntées.
             </p>
-            <div className="rounded-2xl overflow-hidden border border-stone-200">
+            <div className="rounded-sm overflow-hidden border border-[#DED5C6]">
               <DynamicArticleMap slug="roumanie-7-jours" />
             </div>
           </div>
         </section>
 
-        <section className="bg-cloud-dancer section-spacing">
+        <section className="bg-[#EFE9DF] section-spacing border-y border-[#DED5C6]">
           <div className="container max-w-4xl">
             <h2 className="text-3xl font-serif text-mahogany mb-4">Télécharge le PDF de cet itinéraire</h2>
             <p className="text-charcoal/70 mb-6 max-w-2xl">
               Emporte ce carnet Roumanie 7 jours dans ton téléphone ou imprime-le : les adresses et les pépites dénichées sans avoir besoin de réseau.
             </p>
-            <PdfDownloadButton destination="roumanie" duration="7" className="inline-flex px-8 py-3 rounded-lg bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors" />
+            <PdfDownloadButton destination="roumanie" duration="7" className="inline-flex px-8 py-3 rounded-sm bg-eucalyptus text-[#FAF7F2] text-xs uppercase tracking-[0.16em] font-medium hover:bg-eucalyptus/90 transition-colors" />
           </div>
         </section>
 
-        <section className="bg-white section-spacing">
+        <section className="bg-[#F7F3EC] section-spacing">
           <div className="container max-w-xl text-center">
             <p className="text-xs uppercase tracking-[0.2em] text-eucalyptus font-semibold mb-3">
               Conception sur mesure
@@ -412,14 +412,14 @@ export default async function Itineraire7JoursPage() {
             </p>
             <Link
               href="/travel-planning"
-              className="inline-flex px-7 py-3 rounded-lg bg-eucalyptus text-white font-semibold hover:bg-eucalyptus/90 transition-colors"
+              className="inline-flex px-7 py-3 rounded-sm bg-eucalyptus text-[#FAF7F2] text-xs uppercase tracking-[0.16em] font-medium hover:bg-eucalyptus/90 transition-colors"
             >
               Construire mon itinéraire sur mesure →
             </Link>
           </div>
         </section>
 
-        <section className="bg-cloud-dancer section-spacing">
+        <section className="bg-[#EFE9DF] section-spacing border-y border-[#DED5C6]">
           <div className="container max-w-xl text-center">
             <p className="text-xs uppercase tracking-[0.2em] text-eucalyptus font-semibold mb-3">
               Reste inspiré

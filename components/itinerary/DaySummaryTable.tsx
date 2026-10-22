@@ -19,17 +19,17 @@ export default function DaySummaryTable({ page, days }: { page: string; days: Da
   const val = (key: string, fallback: string) => zones[`${page}__${key}`] ?? fallback
 
   return (
-    <tbody className="divide-y divide-stone-100">
+    <tbody className="divide-y divide-[#DED5C6] bg-[#FAF7F2]">
       {days.map((d) => {
         const location = val(`day_${d.day}_location`, d.location)
         const activity = val(`day_${d.day}_activity`, d.activity)
         const accommodation = val(`day_${d.day}_accommodation`, d.accommodation ?? '')
         return (
-          <tr key={d.day} className="hover:bg-cloud-dancer/50">
-            <td className="px-4 py-3 font-semibold text-eucalyptus">J{d.day}</td>
+          <tr key={d.day} className="hover:bg-[#EFE9DF]/50">
+            <td className="px-4 py-3 font-serif text-mahogany">J{d.day}</td>
             <td className="px-4 py-3 text-charcoal">{location.split('—')[0].trim()}</td>
-            <td className="px-4 py-3 text-charcoal/70 hidden md:table-cell">{activity.split(',')[0]}</td>
-            <td className="px-4 py-3 text-charcoal/70 hidden md:table-cell">
+            <td className="px-4 py-3 text-charcoal/75 hidden md:table-cell">{activity.split(',')[0]}</td>
+            <td className="px-4 py-3 text-charcoal/75 hidden md:table-cell">
               {accommodation ? accommodation.split('—')[0].trim() : 'Départ'}
             </td>
           </tr>

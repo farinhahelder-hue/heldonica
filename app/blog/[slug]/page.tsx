@@ -299,7 +299,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
             {post.tags?.slice(0, 2).map((tag) => (
               <span
                 key={tag}
-                className="rounded-full bg-white/15 px-2.5 py-1 text-xs text-white/80 backdrop-blur-sm"
+                className="rounded-full bg-[#FAF7F2]/15 px-2.5 py-1 text-xs text-white/80 backdrop-blur-sm"
               >
                 {tag}
               </span>
@@ -347,14 +347,14 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
             prose-h3:mt-8 prose-h3:mb-3 prose-h3:text-2xl
             prose-p:mb-6 prose-p:text-stone-700 prose-p:leading-8
             prose-a:text-mahogany prose-a:no-underline hover:prose-a:underline
-            prose-img:mx-auto prose-img:my-10 prose-img:rounded-[1.75rem] prose-img:shadow-lg
+            prose-img:mx-auto prose-img:my-10 prose-img:rounded-[1.75rem]
             prose-strong:text-stone-900 prose-strong:font-semibold
             prose-blockquote:rounded-r-2xl prose-blockquote:border-l-4 prose-blockquote:border-teal prose-blockquote:bg-eucalyptus/5 prose-blockquote:px-6 prose-blockquote:py-4
             prose-ul:space-y-3 prose-li:text-stone-700
-            prose-hr:border-stone-200"
+            prose-hr:border-[#DED5C6]"
         />
       ) : (
-        <div className="rounded-[2rem] border border-stone-200 bg-stone-50 px-6 py-12 text-center">
+        <div className="rounded-[2rem] border border-[#DED5C6] bg-[#F7F3EC] px-6 py-12 text-center">
           <p className="text-lg leading-relaxed text-stone-500">
             Le récit n&apos;est pas encore publié en entier.
           </p>
@@ -374,7 +374,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
   const BlockVoiceNotes = () => (
     post.voice_notes ? (
       <div className="mx-auto max-w-3xl px-4 pb-8">
-        <aside className="rounded-[2rem] border border-stone-200 bg-stone-50 px-6 py-6 md:px-8">
+        <aside className="rounded-[2rem] border border-[#DED5C6] bg-[#F7F3EC] px-6 py-6 md:px-8">
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Détail terrain</p>
           <p className="text-base leading-relaxed text-stone-700">{post.voice_notes}</p>
         </aside>
@@ -417,7 +417,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
 
   const BlockRelated = () => (
     related.length > 0 ? (
-      <section className="bg-stone-50 py-16">
+      <section className="bg-[#F7F3EC] py-16">
         <div className="mx-auto max-w-6xl px-4">
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-mahogany">
             <EditableZone page="blog" zone="related_kicker" fallback="Continuer" />
@@ -438,7 +438,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
               const relatedImage = relatedPost.og_image || relatedPost.featured_image || heroFallback[relatedPost.category ?? ''] || DEFAULT_HERO
               return (
                 <Link key={relatedPost.slug} href={`/blog/${relatedPost.slug}`} className="group block transition-all duration-200">
-                  <article className="overflow-hidden rounded-[1.5rem] bg-white shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-md">
+                  <article className="overflow-hidden rounded-[1.5rem] bg-[#FAF7F2] transition-all duration-200 group-hover:-translate-y-1">
                     <div className="relative h-44 overflow-hidden">
                       <Image
                         src={relatedImage}
@@ -508,7 +508,7 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
 
       <Header />
       <ReadingProgress />
-      <main className="min-h-screen bg-white pb-12">
+      <main className="min-h-screen bg-[#FAF7F2] pb-12">
         {activeBlocks.map(blockId => {
           const Component = blockComponents[blockId]
           return Component ? <Component key={blockId} /> : null

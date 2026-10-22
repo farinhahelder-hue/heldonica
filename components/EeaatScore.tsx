@@ -179,7 +179,7 @@ export default function EeaatScore({
   };
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-3">
+    <div className="rounded-sm border border-gray-200 bg-[#FAF7F2] p-4 space-y-3">
       <div className="flex items-center justify-between">
         <div>
           <h4 className="text-sm font-semibold text-gray-900">Score E-E-A-T</h4>
@@ -213,7 +213,7 @@ export default function EeaatScore({
       <ul className="space-y-1">
         {checks.map((c) => (
           <li key={c.label} className="flex items-center gap-2 text-xs">
-            <span className={c.ok ? 'text-emerald-500' : 'text-red-400'}>{c.ok ? '✓' : '✗'}</span>
+            <span className={c.ok ? 'text-emerald-500' : 'text-red-400'}>{c.ok ? 'Oui' : 'Non'}</span>
             <span className="text-gray-600 font-medium min-w-[90px]">{c.label.replace(/_/g, ' ')}</span>
             <span className={`text-gray-400 ${c.ok ? '' : 'text-red-300'}`}>{c.detail}</span>
           </li>

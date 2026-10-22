@@ -1,0 +1,79 @@
+import { describe, it, expect } from 'vitest';
+import { execFileSync } from 'node:child_process';
+import { scanSourceForDesignTics, runDesignTicsCheck } from '../../scripts/check-design-tics.mjs';
+
+/**
+ * Le garde-fou doit REFUSER les tics « IA / SaaS » (preuve par le cas fautif)
+ * et ACCEPTER la référence « carnet de route imprimé ».
+ */
+describe('check-design-tics', () => {
+  describe('cas fautifs : le garde-fou échoue', () => {
+    it('refuse un emoji décoratif dans le JSX', () => {
+      const v = scanSourceForDesignTics('<span>✨ Bienvenue</span>', 'x.tsx');
+      expect(v.map((x) => x.kind)).toEqual(['emoji']);
+    });
+
+    it('refuse un drapeau emoji dans les données', () => {
+      const v = scanSourceForDesignTics("const p = { flag: '🇫🇷' }", 'x.tsx');
+      expect(v.some((x) => x.kind === 'emoji')).toBe(true);
+    });
+
+    it('refuse un symbole hors des plages historiques (⏰ ⭐)', () => {
+      expect(scanSourceForDesignTics('emoji: "⏰"').length).toBe(1);
+      expect(scanSourceForDesignTics('<b>⭐⭐⭐</b>').length).toBe(1);
+    });
+
+    it('refuse bg-white + rounded-2xl', () => {
+      const v = scanSourceForDesignTics('<div className="bg-white rounded-2xl p-6 border">', 'x.tsx');
+      expect(v.map((x) => x.kind)).toEqual(['saas-card']);
+    });
+
+    it('refuse bg-stone-50 + shadow-lg', () => {
+      const v = scanSourceForDesignTics('<div className="bg-stone-50 p-6 shadow-lg">', 'x.tsx');
+      expect(v.map((x) => x.kind)).toEqual(['saas-card']);
+    });
+
+    it('refuse rounded-3xl seul', () => {
+      const v = scanSourceForDesignTics('<div className="rounded-3xl border">', 'x.tsx');
+      expect(v.map((x) => x.kind)).toEqual(['saas-radius']);
+    });
+
+    it('refuse une pilule rounded-full + ombre lourde', () => {
+      const v = scanSourceForDesignTics('<a className="rounded-full px-6 shadow-xl">', 'x.tsx');
+      expect(v.map((x) => x.kind)).toEqual(['saas-pill']);
+    });
+  });
+
+  describe('cas conformes : le garde-fou passe', () => {
+    it('accepte une carte « carnet » (coton, filet lin, rounded-sm)', () => {
+      const src = '<div className="bg-[#FAF7F2] rounded-sm border border-[#DED5C6] p-6">';
+      expect(scanSourceForDesignTics(src)).toEqual([]);
+    });
+
+    it('accepte les flèches typographiques et l\'étoile pleine ★', () => {
+      expect(scanSourceForDesignTics('<a>Voir le guide →</a> <i>★★★</i>')).toEqual([]);
+    });
+
+    it('accepte une icône Lucide nommée plutôt qu\'un emoji', () => {
+      expect(scanSourceForDesignTics("{ icon: 'Leaf' }")).toEqual([]);
+    });
+
+    it('ignore les commentaires', () => {
+      const src = '// bg-white rounded-2xl ✨\n/* shadow-lg bg-white ✨ */\n<p>ok</p>';
+      expect(scanSourceForDesignTics(src)).toEqual([]);
+    });
+  });
+
+  describe('dépôt réel', () => {
+    it('ne détecte aucun tic sur les pages publiques', () => {
+      const { filesScanned, violations } = runDesignTicsCheck();
+      expect(filesScanned).toBeGreaterThan(100);
+      expect(violations).toEqual([]);
+    });
+
+    it('sort en 0 via la CLI', () => {
+      const out = execFileSync('node', ['scripts/check-design-tics.mjs'], { encoding: 'utf8' });
+      expect(out).toContain('0 tic visuel');
+    });
+  });
+});

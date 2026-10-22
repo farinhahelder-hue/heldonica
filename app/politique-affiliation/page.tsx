@@ -32,7 +32,7 @@ export default async function PolitiqueAffiliationPage() {
     <InlineEditProvider page="politique-affiliation" initialZones={zones}>
       <Header />
       <Breadcrumb />
-      <main className="bg-white">
+      <main className="bg-[#FAF7F2]">
         <section className="bg-gradient-to-br from-cloud-dancer to-white py-16 md:py-24">
           <div className="max-w-4xl mx-auto px-6">
             <p className="text-xs uppercase tracking-[0.16em] text-eucalyptus font-semibold mb-3">
@@ -51,7 +51,7 @@ export default async function PolitiqueAffiliationPage() {
           <div className="max-w-4xl mx-auto px-6 space-y-12">
 
             {/* Transparence */}
-            <div className="rounded-2xl border border-eucalyptus/20 bg-eucalyptus/5 p-6">
+            <div className="rounded-sm border border-eucalyptus/20 bg-eucalyptus/5 p-6">
               <h2 className="text-xl font-serif font-bold text-stone-900 mb-4 flex items-center gap-2">
                 <span className="text-eucalyptus"><CmsIcon value="Sparkles" size={24} /></span>
                 <EditableZone page="politique-affiliation" zone="belief_title" fallback="Ce qu'on croit" />
@@ -86,7 +86,7 @@ export default async function PolitiqueAffiliationPage() {
                   { name: 'Aviasals', desc: 'Comparateur de vols' },
                   { name: 'Rentalcars', desc: 'Location de voiture' },
                 ].map((partner, i) => (
-                  <div key={partner.name} className="bg-stone-50 rounded-xl p-4 border border-stone-100">
+                  <div key={partner.name} className="bg-[#F7F3EC] rounded-sm p-4 border border-stone-100">
                     <p className="font-semibold text-stone-900">
                       <EditableZone page="politique-affiliation" zone={`partner_${i + 1}_name`} fallback={partner.name} />
                     </p>
@@ -128,7 +128,7 @@ export default async function PolitiqueAffiliationPage() {
             </div>
 
             {/* Contact */}
-            <div className="border-t border-stone-200 pt-8">
+            <div className="border-t border-[#DED5C6] pt-8">
               <p className="text-charcoal/60 text-sm">
                 Des questions sur notre programme partenaires ? Écris-nous à{' '}
                 <a href="mailto:contact@heldonica.fr" className="text-eucalyptus hover:underline">

@@ -7,6 +7,7 @@ import Footer from '@/components/Footer'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import EditableIcon from '@/components/inline-edit/EditableIcon'
+import CmsIcon from '@/components/ui/CmsIcon'
 
 const PAGE = "quiz";
 
@@ -24,50 +25,50 @@ const QUESTIONS = [
     id: 1,
     question: "Comment tu choisis ta destination ?",
     options: [
-      { value: "aventure", label: "Tu cherches l'aventure, les émotions fortes et la nature sauvage", emoji: "🏔️" },
-      { value: "culture", label: "Histoire, art, architecture et rencontres locales", emoji: "🏛️" },
-      { value: "nature", label: "Calme, paysages, déconnexion totale", emoji: "🌿" },
-      { value: "bien-etre", label: "Tu veux te faire dorloter, spa, yoga, douceur", emoji: "🧘" },
+      { value: "aventure", label: "Tu cherches l'aventure, les émotions fortes et la nature sauvage", emoji: "MountainSnow" },
+      { value: "culture", label: "Histoire, art, architecture et rencontres locales", emoji: "Landmark" },
+      { value: "nature", label: "Calme, paysages, déconnexion totale", emoji: "Leaf" },
+      { value: "bien-etre", label: "Tu veux te faire dorloter, spa, yoga, douceur", emoji: "PersonStanding" },
     ],
   },
   {
     id: 2,
     question: "Ton rythme idéal en voyage ?",
     options: [
-      { value: "aventure", label: "Tu te lèves à l'aube pour maximiser chaque journée", emoji: "⏰" },
-      { value: "culture", label: "2-3 activités par jour, avec du temps pour flâner", emoji: "🚶" },
-      { value: "nature", label: "Lent, contemplatif, un seul lieu par jour", emoji: "🐢" },
-      { value: "bien-etre", label: "Au rythme du soleil et de mes envies", emoji: "☀️" },
+      { value: "aventure", label: "Tu te lèves à l'aube pour maximiser chaque journée", emoji: "AlarmClock" },
+      { value: "culture", label: "2-3 activités par jour, avec du temps pour flâner", emoji: "Footprints" },
+      { value: "nature", label: "Lent, contemplatif, un seul lieu par jour", emoji: "Snail" },
+      { value: "bien-etre", label: "Au rythme du soleil et de mes envies", emoji: "Sun" },
     ],
   },
   {
     id: 3,
     question: "Ton approche de l'hébergement ?",
     options: [
-      { value: "aventure", label: "Pragmatique : dortoirs, guesthouse, chez l'habitant", emoji: "🏕️" },
-      { value: "culture", label: "Hôtel de caractère avec histoire, quartier authentique", emoji: "🏰" },
-      { value: "nature", label: "Éco-lodge, cabane, yourte ou maison isolée", emoji: "🏡" },
-      { value: "bien-etre", label: "Spa, piscine, vue panoramique, confort total", emoji: "🛁" },
+      { value: "aventure", label: "Pragmatique : dortoirs, guesthouse, chez l'habitant", emoji: "Tent" },
+      { value: "culture", label: "Hôtel de caractère avec histoire, quartier authentique", emoji: "Castle" },
+      { value: "nature", label: "Éco-lodge, cabane, yourte ou maison isolée", emoji: "House" },
+      { value: "bien-etre", label: "Spa, piscine, vue panoramique, confort total", emoji: "Bath" },
     ],
   },
   {
     id: 4,
     question: "Qu'est-ce qui te fait vibrer en voyage ?",
     options: [
-      { value: "aventure", label: "Le sommet atteint, le trek réussi, l'adrénaline", emoji: "🎯" },
-      { value: "culture", label: "Le marché local, le petit resto caché, la discussion avec un artisan", emoji: "💬" },
-      { value: "nature", label: "Le silence d'une forêt, le bruit des vagues, une aurore boréale", emoji: "✨" },
-      { value: "bien-etre", label: "Un massage, un coucher de soleil parfait, le repos profond", emoji: "🌅" },
+      { value: "aventure", label: "Le sommet atteint, le trek réussi, l'adrénaline", emoji: "Target" },
+      { value: "culture", label: "Le marché local, le petit resto caché, la discussion avec un artisan", emoji: "MessageCircle" },
+      { value: "nature", label: "Le silence d'une forêt, le bruit des vagues, une aurore boréale", emoji: "Sparkles" },
+      { value: "bien-etre", label: "Un massage, un coucher de soleil parfait, le repos profond", emoji: "Sunrise" },
     ],
   },
   {
     id: 5,
     question: "Ta philosophie de voyage en une phrase ?",
     options: [
-      { value: "aventure", label: "\"Vivre des histoires à raconter toute ma vie\"", emoji: "📖" },
-      { value: "culture", label: "\"Comprendre le monde à travers ceux qui y vivent\"", emoji: "🌍" },
-      { value: "nature", label: "\"Retourner à l'essentiel, loin du bruit du monde\"", emoji: "🍃" },
-      { value: "bien-etre", label: "\"Prendre soin de soi, c'est aussi voyager autrement\"", emoji: "💝" },
+      { value: "aventure", label: "\"Vivre des histoires à raconter toute ma vie\"", emoji: "BookOpen" },
+      { value: "culture", label: "\"Comprendre le monde à travers ceux qui y vivent\"", emoji: "Globe" },
+      { value: "nature", label: "\"Retourner à l'essentiel, loin du bruit du monde\"", emoji: "Leaf" },
+      { value: "bien-etre", label: "\"Prendre soin de soi, c'est aussi voyager autrement\"", emoji: "Heart" },
     ],
   },
 ]
@@ -82,7 +83,7 @@ const PROFILES: Record<string, {
 }> = {
   "aventure": {
     title: "L'Aventurier",
-    emoji: "🏔️",
+    emoji: "MountainSnow",
     description: "Tu kiffes l'adrénaline, les défis et les paysages qui font tourner la tête. Tu veux des trips qui te marquent, pas des vacances lambda.",
     destinations: ["Madère", "Colombie", "Monténégro"],
     vibes: ["Trek", "Randonnée", "Nature intense"],
@@ -90,7 +91,7 @@ const PROFILES: Record<string, {
   },
   "culture": {
     title: "Le Curieux Culturel",
-    emoji: "🏛️",
+    emoji: "Landmark",
     description: "Chaque voyage est une découverte. Tu veux comprendre les gens, l'histoire, les traditions. Un bon resto local te rend plus heureux qu'un spa.",
     destinations: ["Portugal", "Roumanie", "Sicile"],
     vibes: ["Gastronomie", "Patrimoine", "Artisanat local"],
@@ -98,7 +99,7 @@ const PROFILES: Record<string, {
   },
   "nature": {
     title: "Le Slow Traveler",
-    emoji: "🌿",
+    emoji: "Leaf",
     description: "Tu voyages pour te ressourcer. Un lieu, une atmosphère, du temps. Pas besoin de tout voir — tu veux vivre le lieu.",
     destinations: ["Madère", "Sardaigne", "Normandie"],
     vibes: ["Éco-responsable", "Bord de mer", "Forêt"],
@@ -106,7 +107,7 @@ const PROFILES: Record<string, {
   },
   "bien-etre": {
     title: "L'Amateur de Bien-être",
-    emoji: "🧘",
+    emoji: "PersonStanding",
     description: "Voyager pour se faire du bien. Tu mérites le meilleur, et tu le sais. Un voyage qui nourrit le corps et l'esprit.",
     destinations: ["Madère", "Sardaigne", "Alentejo"],
     vibes: ["Spa", "Yoga", "Gastronomie healthy"],
@@ -147,7 +148,6 @@ export default function QuizClient({
     setResult(dominant)
     setShowResult(true)
 
-    // Store result in sessionStorage
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('quiz-result', dominant)
     }
@@ -155,18 +155,18 @@ export default function QuizClient({
 
   const profile = result ? PROFILES[result] : null
 
-  const ZI = (zone: string, fallback: string, size?: number) => (
-    <EditableIcon page={PAGE} zone={zone} fallback={fallback} size={size} />
-  )
-
   const Z = (zone: string, type: 'text' | 'textarea' | 'html', fallback: string, className?: string, as?: any) => (
     <EditableZone page={PAGE} zone={zone} type={type} fallback={fallback} className={className} as={as} />
+  )
+
+  const ZI = (zone: string, fallback: string, size?: number) => (
+    <EditableIcon page={PAGE} zone={zone} fallback={fallback} size={size} />
   )
 
   return (
     <InlineEditProvider page={PAGE} initialZones={initialZones}>
       <Header />
-      <main className="min-h-screen bg-gradient-to-b from-stone-50 via-cloud-dancer/40 to-white">
+      <main className="min-h-screen bg-[#F7F3EC]">
         {/* Hero */}
         <section className="py-16 md:py-24 text-center px-6">
           <div className="max-w-2xl mx-auto">
@@ -186,7 +186,7 @@ export default function QuizClient({
         <section className="pb-24 px-6">
           <div className="max-w-xl mx-auto">
             {!showResult ? (
-              <div className="bg-white rounded-2xl shadow-xl p-8 md:p-10">
+              <div className="bg-[#FAF7F2] rounded-sm p-8 md:p-10 border border-[#DED5C6]">
                 {/* Progress */}
                 <div className="mb-8">
                   <div className="flex justify-between items-center mb-2">
@@ -214,7 +214,7 @@ export default function QuizClient({
                     <button
                       key={opt.value}
                       onClick={() => handleAnswer(opt.value)}
-                      className="w-full text-left p-4 rounded-xl border-2 border-stone-100 hover:border-eucalyptus/40 transition-all group hover:shadow-md"
+                      className="w-full text-left p-4 rounded-sm border-2 border-stone-100 hover:border-eucalyptus/40 transition-all group"
                     >
                       <div className="flex items-center gap-4">
                         <span className="text-2xl">
@@ -230,14 +230,14 @@ export default function QuizClient({
               </div>
             ) : (
               /* Result */
-              <div className="bg-white rounded-2xl shadow-xl p-8 md:p-10 text-center">
+              <div className="bg-[#FAF7F2] rounded-sm p-8 md:p-10 text-center border border-[#DED5C6]">
                 {profile && (
                   <>
                     <div
                       className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-6"
                       style={{ backgroundColor: `${profile.color}15` }}
                     >
-                      <span className="text-4xl">{profile.emoji}</span>
+                      <span className="block"><CmsIcon name={profile.emoji} className="w-10 h-10 text-eucalyptus" strokeWidth={1.25} /></span>
                     </div>
 
                     <span className="text-xs font-bold tracking-[0.15em] uppercase" style={{ color: profile.color }}>
@@ -251,7 +251,7 @@ export default function QuizClient({
                     </p>
 
                     {/* Destinations recommandées */}
-                    <div className="bg-stone-50 rounded-xl p-6 mb-8 text-left">
+                    <div className="bg-[#F7F3EC] rounded-sm p-6 mb-8 text-left border border-[#DED5C6]">
                       <h3 className="text-sm font-bold text-stone-500 uppercase tracking-wider mb-4">
                         {Z('result_destinations_title', 'text', "Destinations recommandées", undefined, 'span')}
                       </h3>
@@ -260,7 +260,7 @@ export default function QuizClient({
                           <Link
                             key={dest}
                             href={'/destinations/' + slugify(dest)}
-                            className="px-4 py-2 bg-white rounded-full text-sm font-medium text-stone-700 border border-stone-200 hover:border-eucalyptus hover:text-eucalyptus transition-colors"
+                            className="px-4 py-2 bg-[#FAF7F2] rounded-full text-sm font-medium text-stone-700 border border-[#DED5C6] hover:border-eucalyptus hover:text-eucalyptus transition-colors"
                           >
                             {dest}
                           </Link>
@@ -285,9 +285,9 @@ export default function QuizClient({
                     <div className="space-y-4">
                       <Link
                         href="/travel-planning#formulaire"
-                        className="inline-block w-full py-4 bg-mahogany hover:brightness-110 text-white font-semibold rounded-xl transition-all shadow-lg"
+                        className="inline-block w-full py-4 bg-mahogany hover:brightness-110 text-white font-semibold rounded-sm transition-all"
                       >
-                        ✈️ {Z('result_cta', 'text', "Créer mon voyage sur mesure", undefined, 'span')}
+                        {Z('result_cta', 'text', "Créer mon voyage sur mesure", undefined, 'span')}
                       </Link>
                       <button
                         onClick={() => {

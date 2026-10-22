@@ -78,14 +78,14 @@ export default async function SlowTravelPage() {
           </div>
         </section>
 
-        <section className="bg-white py-16 md:py-20">
+        <section className="bg-[#FAF7F2] py-16 md:py-20">
           <div className="mx-auto grid max-w-6xl gap-6 px-6 md:grid-cols-3 md:px-10">
             {[
               { zone: 'principle_1', fallbackTitle: "Ralentir assez pour voir", fallbackText: "Le slow travel ne consiste pas à faire moins pour cocher une valeur morale. Il consiste à laisser une journée respirer assez longtemps pour qu'un lieu commence enfin à répondre." },
               { zone: 'principle_2', fallbackTitle: "Revenir quand c'est nécessaire", fallbackText: "On comprend rarement un terrain au premier passage. Revenir, corriger, comparer, rater mieux : c'est aussi comme ça qu'on construit Heldonica." },
               { zone: 'principle_3', fallbackTitle: "Chercher juste, pas loin", fallbackText: "Dénicheurs de pépites, même en bas de chez toi. Le regard compte autant que la distance. Un canal, une rue, une forêt proche peuvent déjà changer la journée." },
             ].map((p) => (
-              <div key={p.zone} className="rounded-2xl border border-stone-200 bg-stone-50 p-8">
+              <div key={p.zone} className="rounded-sm border border-[#DED5C6] bg-[#F7F3EC] p-8">
                 <EditableZone page="slow-travel" zone={`${p.zone}_title`} fallback={p.fallbackTitle}
                   className="mb-4 text-2xl font-serif font-light leading-tight text-stone-900 block"
                 />
@@ -108,7 +108,7 @@ export default async function SlowTravelPage() {
           </div>
         </section>
 
-        <section className="bg-white py-20 md:py-24">
+        <section className="bg-[#FAF7F2] py-20 md:py-24">
           <div className="mx-auto max-w-3xl px-6 text-center md:px-10">
             <EditableZone page="slow-travel" zone="cta_badge" fallback="Continuer"
               className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-stone-500 block"

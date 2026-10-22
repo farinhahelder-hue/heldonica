@@ -100,7 +100,7 @@ export default function DestinationComparison({ destinations }: Props) {
             return (
               <button key={d.slug} onClick={() => toggle(d.slug)}
                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all border ${
-                  active ? 'bg-eucalyptus text-white border-eucalyptus' : 'bg-white text-stone-600 border-stone-200 hover:border-eucalyptus'
+                  active ? 'bg-eucalyptus text-white border-eucalyptus' : 'bg-[#FAF7F2] text-stone-600 border-[#DED5C6] hover:border-eucalyptus'
                 } ${!active && selected.size >= 5 ? 'opacity-40 cursor-not-allowed' : ''}`}
                 disabled={!active && selected.size >= 5}
               >
@@ -113,14 +113,14 @@ export default function DestinationComparison({ destinations }: Props) {
       </div>
 
       {sorted.length === 0 ? (
-        <div className="rounded-2xl border border-stone-200 bg-white p-12 text-center">
+        <div className="rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-12 text-center">
           <p className="text-stone-500 text-sm">{labels.emptyState}</p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-stone-200 bg-white shadow-sm">
+        <div className="overflow-x-auto rounded-sm border border-[#DED5C6] bg-[#FAF7F2]">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-stone-200 bg-stone-50">
+              <tr className="border-b border-[#DED5C6] bg-[#F7F3EC]">
                 <th className="p-4 text-left text-xs font-semibold uppercase tracking-wider text-stone-500 w-40">
                   <button onClick={() => { setSortKey('title'); setSortAsc(!sortAsc) }}
                     className="flex items-center gap-1 hover:text-eucalyptus">
@@ -160,7 +160,7 @@ export default function DestinationComparison({ destinations }: Props) {
                   </div>
                 )},
               ].map((row) => (
-                <tr key={row.key} className="border-b border-stone-100 last:border-b-0 hover:bg-stone-50/50">
+                <tr key={row.key} className="border-b border-stone-100 last:border-b-0 hover:bg-[#F7F3EC]/50">
                   <td className="p-4 text-xs font-semibold text-stone-500 uppercase tracking-wider">{row.label}</td>
                   {sorted.map((d) => (
                     <td key={d.slug} className="p-4 text-center text-stone-700">{row.render(d)}</td>

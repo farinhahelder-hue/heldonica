@@ -24,7 +24,7 @@ export interface DestinationCardProps {
   priority_score?: number
 }
 
-import { getStyleLabel, getStyleEmoji } from '@/lib/travel-styles'
+import { getStyleLabel } from '@/lib/travel-styles'
 
 
 function formatBudget(amount?: number): string {
@@ -33,14 +33,8 @@ function formatBudget(amount?: number): string {
   return `~${amount}€/semaine/couple`
 }
 
-// Le drapeau n'est pas toujours renseigné en base : sans lui la tuile resterait un grand vide.
-const COUNTRY_FLAGS: Record<string, string> = {
-  Portugal: '🇵🇹', Italie: '🇮🇹', France: '🇫🇷', Espagne: '🇪🇸', Malte: '🇲🇹', Pologne: '🇵🇱',
-  Roumanie: '🇷🇴', 'Monténégro': '🇲🇪', Suisse: '🇨🇭', 'Grèce': '🇬🇷', Colombie: '🇨🇴',
-}
-
 const DestinationCard = memo(function DestinationCard({
-  slug, title, country, flag_emoji, teaser,
+  slug, title, country, teaser,
   hero_unsplash_url, featured_image, status,
   travel_style, best_season, avg_budget_couple_week,
   article_count, coming_soon_date
@@ -49,7 +43,6 @@ const DestinationCard = memo(function DestinationCard({
   // logo og-default répété sur chaque carte faisait faux), une tuile neutre.
   const imgSrc = hero_unsplash_url || featured_image
   const styleLabel = getStyleLabel(travel_style)
-  const styleEmoji = getStyleEmoji(travel_style)
   const isClickable = status === 'published' || status === 'starred'
   const href = isClickable ? `/destinations/${slug}` : '#'
 

@@ -29,17 +29,17 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const highlights = [
   {
-    emoji: '🏔️',
+    emoji: 'Compass',
     title: 'Le Mont Tâmpa',
     description: 'Une montagne verdoyante en plein centre-ville. On peut y monter à pied ou en téléphérique pour profiter d\'une vue imprenable sur les toits rouges de la vieille ville.',
   },
   {
-    emoji: '⛪',
+    emoji: 'Compass',
     title: 'L\'Église Noire',
     description: 'Un chef-d\'œuvre gothique imposant qui abrite une collection impressionnante de tapis anatoliens offerts par les marchands de passage.',
   },
   {
-    emoji: '🧱',
+    emoji: 'Compass',
     title: 'La Rue de la Ficelle (Strada Sforii)',
     description: 'L\'une des rues les plus étroites d\'Europe, un passage secret pittoresque chargé d\'histoire au cœur du quartier de Șchei.',
   }

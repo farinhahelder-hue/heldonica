@@ -76,7 +76,7 @@ export default function NewsletterBrevo({ source = 'footer' }: NewsletterBrevoPr
           <button
             type="submit"
             disabled={loading}
-            className="px-8 py-3 bg-white text-eucalyptus font-semibold rounded-lg hover:bg-cloud-dancer transition disabled:opacity-50"
+            className="px-8 py-3 bg-[#FAF7F2] text-eucalyptus font-semibold rounded-lg hover:bg-cloud-dancer transition disabled:opacity-50"
           >
             {loading ? 'Inscription…' : 'Je rejoins l\'aventure'}
           </button>
@@ -88,7 +88,7 @@ export default function NewsletterBrevo({ source = 'footer' }: NewsletterBrevoPr
 
         {submitted && (
           <p className="text-white mt-4 text-sm font-medium">
-            ✅ Bienvenue ! Vérifie ta boîte mail — on t&apos;a envoyé un premier message.
+            Bienvenue ! Vérifie ta boîte mail — on t&apos;a envoyé un premier message.
           </p>
         )}
 

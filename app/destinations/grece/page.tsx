@@ -31,7 +31,7 @@ export default async function GrecePage() {
       slug="grece"
       title="Grèce"
       country="Grèce"
-      flag_emoji="🏛️"
+      flag_emoji="Landmark"
       teaser="Archipels discrets, chapelles blanchies à la chaux, tavernes de port où personne ne parle anglais. La Grèce qu'on prépare, c'est celle d'avant les foules."
       hero_unsplash_url="/og-default.jpg"
       travel_style="slow-culture"

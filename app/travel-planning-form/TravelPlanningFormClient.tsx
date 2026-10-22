@@ -57,7 +57,7 @@ function RadioCard({ name, value, current, onChange, emoji, label }: RadioCardPr
   const selected = current === value
   return (
     <label
-      className={`flex items-center gap-3 p-4 rounded-full border-2 cursor-pointer transition-all ${
+      className={`flex items-center gap-3 p-4 rounded-sm border-2 cursor-pointer transition-all ${
         selected
           ? 'border-mahogany bg-mahogany/5 text-mahogany font-semibold'
           : 'border-charcoal/10 hover:border-mahogany/40 text-charcoal/70'
@@ -74,33 +74,33 @@ function RadioCard({ name, value, current, onChange, emoji, label }: RadioCardPr
       {emoji && <span className="text-xl">{emoji}</span>}
       <span>{label}</span>
       {selected && (
-        <span className="ml-auto text-mahogany">✓</span>
+        <span className="ml-auto text-mahogany">·</span>
       )}
     </label>
   )
 }
 
 const TRIP_TYPES = [
-  { value: "Couple", emoji: "💑", zone: "trip_1" },
-  { value: "Solo", emoji: "🧭", zone: "trip_2" },
-  { value: "Amis", emoji: "🥂", zone: "trip_3" },
-  { value: "Lune de miel", emoji: "💍", zone: "trip_4" },
-  { value: "Famille", emoji: "👨‍👩‍👧", zone: "trip_5" },
-  { value: "Autre", emoji: "✨", zone: "trip_6" },
+  { value: "Couple", emoji: "HeartHandshake", zone: "trip_1" },
+  { value: "Solo", emoji: "Compass", zone: "trip_2" },
+  { value: "Amis", emoji: "Wine", zone: "trip_3" },
+  { value: "Lune de miel", emoji: "Gem", zone: "trip_4" },
+  { value: "Famille", emoji: "Users", zone: "trip_5" },
+  { value: "Autre", emoji: "Sparkles", zone: "trip_6" },
 ]
 
 const VIBES = [
-  { value: "Slow Travel & Détente", emoji: "🌿", zone: "vibe_1" },
-  { value: "Aventure & Nature", emoji: "🏔️", zone: "vibe_2" },
-  { value: "Culture & Gastronomie", emoji: "🎭", zone: "vibe_3" },
-  { value: "Éco-responsable & Durable", emoji: "♻️", zone: "vibe_4" },
-  { value: "Romantique & Intime", emoji: "🕯️", zone: "vibe_5" },
+  { value: "Slow Travel & Détente", emoji: "Leaf", zone: "vibe_1" },
+  { value: "Aventure & Nature", emoji: "MountainSnow", zone: "vibe_2" },
+  { value: "Culture & Gastronomie", emoji: "Drama", zone: "vibe_3" },
+  { value: "Éco-responsable & Durable", emoji: "Recycle", zone: "vibe_4" },
+  { value: "Romantique & Intime", emoji: "Flame", zone: "vibe_5" },
 ]
 
 const DEST_OPTIONS = [
-  { value: "Destination précise", emoji: "📍", zone: "dest_1" },
-  { value: "Suggestions Heldonica", emoji: "🗺️", zone: "dest_2" },
-  { value: "Région/continent", emoji: "🌐", zone: "dest_3" },
+  { value: "Destination précise", emoji: "MapPin", zone: "dest_1" },
+  { value: "Suggestions Heldonica", emoji: "Map", zone: "dest_2" },
+  { value: "Région/continent", emoji: "Globe", zone: "dest_3" },
 ]
 
 const DURATIONS = [
@@ -113,11 +113,11 @@ const DURATIONS = [
 ]
 
 const BUDGETS = [
-  { value: "Moins de 1 000 €", emoji: "💛", zone: "budget_1" },
-  { value: "1 000 – 2 500 €", emoji: "💚", zone: "budget_2" },
-  { value: "2 500 – 5 000 €", emoji: "💙", zone: "budget_3" },
-  { value: "5 000 € et +", emoji: "💎", zone: "budget_4" },
-  { value: "Je préfère qu'on en discute", emoji: "💬", zone: "budget_5" },
+  { value: "Moins de 1 000 €", emoji: "Heart", zone: "budget_1" },
+  { value: "1 000 – 2 500 €", emoji: "Heart", zone: "budget_2" },
+  { value: "2 500 – 5 000 €", emoji: "Heart", zone: "budget_3" },
+  { value: "5 000 € et +", emoji: "Gem", zone: "budget_4" },
+  { value: "Je préfère qu'on en discute", emoji: "MessageCircle", zone: "budget_5" },
 ]
 
 export default function TravelPlanningFormClient({
@@ -148,7 +148,7 @@ export default function TravelPlanningFormClient({
       }
 
       const formatted = normalized.charAt(0).toUpperCase() + normalized.slice(1)
-  return {
+      return {
         ...prev,
         destination: 'Destination précise',
         destinationDetail: formatted,
@@ -156,9 +156,49 @@ export default function TravelPlanningFormClient({
     })
   }, [])
 
-  const canGoNext = () => {
-    if (step === 1) return form.tripType && form.vibe && form.destination
-    if (step === 2) return form.duration && form.budget
+  const nextStep = () => {
+    if (step === 1 && !validateStep1()) return
+    if (step === 2 && !validateStep2()) return
+    setStep((s) => Math.min(s + 1, 3))
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const prevStep = () => {
+    setStep((s) => Math.max(s - 1, 1))
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const validateStep1 = () => {
+    if (!form.tripType) {
+      setError("Choisis le type d'escapade.")
+      return false
+    }
+    if (!form.vibe) {
+      setError('Choisis une ambiance de voyage.')
+      return false
+    }
+    if (!form.destination) {
+      setError('Indique ta préférence de destination.')
+      return false
+    }
+    if (form.destination === 'Destination précise' && !form.destinationDetail.trim()) {
+      setError('Précise la destination que tu as en tête.')
+      return false
+    }
+    setError('')
+    return true
+  }
+
+  const validateStep2 = () => {
+    if (!form.duration) {
+      setError('Indique une durée envisagée.')
+      return false
+    }
+    if (!form.budget) {
+      setError('Indique une fourchette de budget.')
+      return false
+    }
+    setError('')
     return true
   }
 
@@ -239,7 +279,7 @@ export default function TravelPlanningFormClient({
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-lg p-8">
+          <form onSubmit={handleSubmit} className="bg-[#FAF7F2] rounded-sm border border-[#DED5C6] p-8">
 
             {/* Honeypot anti-spam */}
             <input
@@ -255,8 +295,8 @@ export default function TravelPlanningFormClient({
             {/* ── ÉTAPE 1 — L’Inspiration ─────────────────────────── */}
             {step === 1 && (
               <div className="space-y-6">
-                <h2 className="text-2xl font-serif font-bold text-mahogany mb-6">
-                  🌍 {Z('step_1_title', 'text', "Étape 1 : L'Inspiration", undefined, 'span')}
+                <h2 className="text-2xl font-serif font-bold text-mahogany mb-6 flex items-center gap-2">
+                  <CmsIcon value="Globe" size={22} /> {Z('step_1_title', 'text', "Étape 1 : L'Inspiration", undefined, 'span')}
                 </h2>
 
                 <div>
@@ -324,7 +364,7 @@ export default function TravelPlanningFormClient({
                       }
                       value={form.destinationDetail}
                       onChange={(e) => set('destinationDetail', e.target.value)}
-                      className="mt-3 w-full border border-charcoal/10 rounded-full px-4 py-3 text-charcoal/70 focus:outline-none focus:border-mahogany transition"
+                      className="mt-3 w-full border border-charcoal/10 rounded-sm px-4 py-3 text-charcoal/70 focus:outline-none focus:border-mahogany transition"
                     />
                   )}
                 </div>
@@ -334,8 +374,8 @@ export default function TravelPlanningFormClient({
             {/* ── ÉTAPE 2 — Ton Voyage ───────────────────────────── */}
             {step === 2 && (
               <div className="space-y-6">
-                <h2 className="text-2xl font-serif font-bold text-mahogany mb-6">
-                  📅 {Z('step_2_title', 'text', "Étape 2 : Ton Voyage", undefined, 'span')}
+                <h2 className="text-2xl font-serif font-bold text-mahogany mb-6 flex items-center gap-2">
+                  <CmsIcon value="Calendar" size={22} /> {Z('step_2_title', 'text', "Étape 2 : Ton Voyage", undefined, 'span')}
                 </h2>
 
                 <div>
@@ -385,7 +425,7 @@ export default function TravelPlanningFormClient({
                     type="month"
                     value={form.departureDate}
                     onChange={(e) => set('departureDate', e.target.value)}
-                    className="w-full border border-charcoal/10 rounded-full px-4 py-3 text-charcoal/70 focus:outline-none focus:border-mahogany transition"
+                    className="w-full border border-charcoal/10 rounded-sm px-4 py-3 text-charcoal/70 focus:outline-none focus:border-mahogany transition"
                   />
                   <p className="text-xs text-charcoal/40 mt-1">{Z('date_hint', 'text', "Laisse vide si les dates sont flexibles", undefined, 'span')}</p>
                 </div>
@@ -395,8 +435,8 @@ export default function TravelPlanningFormClient({
             {/* ── ÉTAPE 3 — Tes Coordonnées ─────────────────────── */}
             {step === 3 && (
               <div className="space-y-5">
-                <h2 className="text-2xl font-serif font-bold text-mahogany mb-6">
-                  📬 {Z('step_3_title', 'text', "Étape 3 : Tes Coordonnées", undefined, 'span')}
+                <h2 className="text-2xl font-serif font-bold text-mahogany mb-6 flex items-center gap-2">
+                  <CmsIcon value="Mail" size={22} /> {Z('step_3_title', 'text', "Étape 3 : Tes Coordonnées", undefined, 'span')}
                 </h2>
 
                 <div>
@@ -410,7 +450,7 @@ export default function TravelPlanningFormClient({
                     placeholder="Ex : Sophie"
                     value={form.firstName}
                     onChange={(e) => set('firstName', e.target.value)}
-                    className="w-full border border-charcoal/10 rounded-full px-4 py-3 focus:outline-none focus:border-mahogany transition"
+                    className="w-full border border-charcoal/10 rounded-sm px-4 py-3 focus:outline-none focus:border-mahogany transition"
                   />
                 </div>
 
@@ -425,7 +465,7 @@ export default function TravelPlanningFormClient({
                     placeholder="sophie@exemple.fr"
                     value={form.email}
                     onChange={(e) => set('email', e.target.value)}
-                    className="w-full border border-charcoal/10 rounded-full px-4 py-3 focus:outline-none focus:border-mahogany transition"
+                    className="w-full border border-charcoal/10 rounded-sm px-4 py-3 focus:outline-none focus:border-mahogany transition"
                   />
                 </div>
 
@@ -439,68 +479,76 @@ export default function TravelPlanningFormClient({
                     placeholder="+33 6 …"
                     value={form.phone}
                     onChange={(e) => set('phone', e.target.value)}
-                    className="w-full border border-charcoal/10 rounded-full px-4 py-3 focus:outline-none focus:border-mahogany transition"
+                    className="w-full border border-charcoal/10 rounded-sm px-4 py-3 focus:outline-none focus:border-mahogany transition"
                   />
                 </div>
 
                 <div>
                   <label htmlFor="tpf-message" className="block text-sm font-semibold text-charcoal/70 mb-2">
-                    {Z('msg_label', 'text', "Un mot sur ton voyage de rêve ? (optionnel)", undefined, 'span')}
+                    {Z('msg_label', 'text', "Un détail ou une envie particulière ?", undefined, 'span')}
                   </label>
                   <textarea
                     id="tpf-message"
                     rows={4}
-                    placeholder="Ce qui te fait rêver, des contraintes particulières, des envies précises… Tout est utile !"
+                    placeholder="Ex : On voyage avec un bébé, on aime la rando mais pas trop technique, on veut absolument éviter les gros resorts…"
                     value={form.message}
                     onChange={(e) => set('message', e.target.value)}
-                    className="w-full border border-charcoal/10 rounded-full px-4 py-3 focus:outline-none focus:border-mahogany transition resize-none"
+                    className="w-full border border-charcoal/10 rounded-sm px-4 py-3 focus:outline-none focus:border-mahogany transition"
                   />
                 </div>
-
-                <p className="text-xs text-charcoal/40">
-                  {Z('footnote', 'textarea', "* Champs obligatoires. Tes données ne sont jamais revendues et ne servent qu'à concevoir ton itinéraire.", undefined, 'span')}
-                </p>
               </div>
             )}
 
-            {/* Erreur */}
+            {/* Message d'erreur */}
             {error && (
-              <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-full text-red-700 text-sm">
-                {error}
-              </div>
+              <p className="mt-4 text-red-600 text-sm bg-red-50 p-3 rounded-sm">{error}</p>
             )}
 
-            {/* Navigation */}
-            <div className="flex gap-3 mt-8">
-              {step > 1 && (
+            {/* Navigation entre étapes */}
+            <div className="mt-8 flex justify-between items-center pt-6 border-t border-charcoal/10">
+              {step > 1 ? (
                 <button
                   type="button"
-                  onClick={() => setStep(step - 1)}
-                  className="px-5 py-3 rounded-full font-medium border border-charcoal/10 text-charcoal/60 hover:bg-cloud-dancer transition"
+                  onClick={prevStep}
+                  className="px-6 py-3 border border-charcoal/20 text-charcoal/70 hover:text-charcoal rounded-sm font-medium transition"
                 >
                   ← {Z('nav_back', 'text', "Retour", undefined, 'span')}
                 </button>
+              ) : (
+                <div />
               )}
+
               {step < 3 ? (
                 <button
                   type="button"
-                  onClick={() => setStep(step + 1)}
-                  disabled={!canGoNext()}
-                  className="flex-1 py-3 rounded-full font-medium transition bg-mahogany text-white hover:bg-mahogany/90 disabled:opacity-40 disabled:cursor-not-allowed"
+                  onClick={nextStep}
+                  className="px-8 py-3 bg-mahogany hover:bg-mahogany/90 text-white font-semibold rounded-sm transition shadow-sm"
                 >
-                  {Z('nav_next', 'text', "Suivant", undefined, 'span')} →
+                  {Z('nav_next', 'text', "Continuer", undefined, 'span')} →
                 </button>
               ) : (
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 py-3 rounded-full font-medium transition bg-mahogany text-white hover:bg-mahogany/90 disabled:opacity-60"
+                  className="px-8 py-4 bg-mahogany hover:bg-mahogany/90 disabled:opacity-50 text-white font-semibold rounded-sm transition shadow-md text-base"
                 >
-                  {loading ? Z('nav_sending', 'text', "Envoi en cours…", undefined, 'span') : Z('nav_submit', 'text', "Envoyer ma demande", undefined, 'span') + ' 🌍'}
+                  {loading ? Z('nav_sending', 'text', "Envoi en cours…", undefined, 'span') : Z('nav_submit', 'text', "Envoyer ma demande", undefined, 'span')}
                 </button>
               )}
             </div>
           </form>
+
+          {/* Note de réassurance */}
+          <div className="mt-8 text-center text-xs text-charcoal/50 space-y-1">
+            <p>{Z('footnote', 'textarea', "* Champs obligatoires. Tes données ne sont jamais revendues et ne servent qu'à concevoir ton itinéraire.", undefined, 'span')}</p>
+            <p>{Z('footer_note_1', 'text', "Données confidentielles · Pas de spam · Réponse sous 48h", undefined, 'span')}</p>
+            <p>
+              {Z('footer_note_2', 'text', "Une question avant de remplir ?", undefined, 'span')}{' '}
+              <a href="mailto:contact@heldonica.fr" className="text-mahogany underline">
+                contact@heldonica.fr
+              </a>
+            </p>
+          </div>
 
         </div>
       </div>

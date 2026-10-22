@@ -34,6 +34,7 @@ export const CHECKS = [
   { key: 'cms-drift', label: 'Dérive des tables (base réelle)', script: 'check:cms-drift', preflight: false, needsDb: true },
   { key: 'content-coherence', label: 'Cohérence éditoriale', script: 'check:content-coherence', preflight: false, needsDb: true },
   { key: 'content-pages', label: 'Prose des pages (mots bannis, brouillons)', script: 'check:content-pages', preflight: true },
+  { key: 'design-tics', label: 'Tics visuels IA / SaaS (pages publiques)', script: 'check:design-tics', preflight: true },
   { key: 'content-evidence', label: 'Vécu adossé aux photos', script: 'check:content-evidence', preflight: false },
   { key: 'typecheck', label: 'TypeScript (tsc)', cmd: ['npx', 'tsc', '--noEmit'], preflight: false },
   { key: 'tests', label: 'Tests (vitest)', cmd: ['npx', 'vitest', 'run'], preflight: false },

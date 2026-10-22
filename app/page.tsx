@@ -156,14 +156,10 @@ export default async function Home() {
   const travelSlugs = new Set(travelPosts.map(p => p.slug))
   const foodSlugs = new Set(foodPosts.map(p => p.slug))
   
-  let filteredLatest = allPosts.filter(
+  const filteredLatest = allPosts.filter(
     (p) => p.slug !== featuredSlug && !travelSlugs.has(p.slug) && !foodSlugs.has(p.slug)
   )
-  // If we don't have enough posts, allow travel/food overlap but still exclude featured
-  if (filteredLatest.length === 0) {
-    filteredLatest = allPosts.filter((p) => p.slug !== featuredSlug)
-  }
-  const latestPosts = filteredLatest.slice(0, 6)
+  const latestPosts = filteredLatest.slice(0, 3)
 
   // Site settings
   const siteSettings = {

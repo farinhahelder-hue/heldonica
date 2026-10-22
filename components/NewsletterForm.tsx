@@ -45,7 +45,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
       const data = await res.json();
       if (res.ok && data.success) {
         setStatus("success");
-        setMessage(cz("newsletter_success_title", "🎉 Bienvenue dans l'aventure !"));
+        setMessage(cz("newsletter_success_title", "Bienvenue dans l'aventure !"));
         setEmail("");
       } else {
         setStatus("error");
@@ -84,7 +84,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
 
   if (variant === "article") {
     return (
-      <section className="my-14 rounded-2xl bg-mahogany px-8 py-10 text-white">
+      <section className="my-14 rounded-sm bg-mahogany px-8 py-10 text-white">
         <p className="text-teal text-xs font-semibold tracking-[0.2em] uppercase mb-3">
           {badge}
         </p>
@@ -112,7 +112,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
                 placeholder={placeholder}
                 required
                 disabled={status === "loading"}
-                className="flex-1 px-4 py-3 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent disabled:opacity-60"
+                className="flex-1 px-4 py-3 rounded-full bg-[#FAF7F2]/15 backdrop-blur-sm border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent disabled:opacity-60"
               />
               <button
                 type="submit"
@@ -127,7 +127,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
                 id="newsletter-rgpd-article"
                 type="checkbox"
                 required
-                className="mt-1 h-4 w-4 rounded border-white/20 bg-white/10 text-eucalyptus focus:ring-teal cursor-pointer"
+                className="mt-1 h-4 w-4 rounded border-white/20 bg-[#FAF7F2]/10 text-eucalyptus focus:ring-teal cursor-pointer"
               />
               <label htmlFor="newsletter-rgpd-article" className="text-xs text-white/60 leading-normal">
                 {rgpdLabel}{' '}
@@ -148,7 +148,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
     return (
       <div className="flex flex-col gap-3">
         {status === "success" ? (
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-6 py-4">
+          <div className="bg-[#FAF7F2]/10 backdrop-blur-sm rounded-sm px-6 py-4">
             <p className="text-teal/80 font-medium">{message}</p>
             <p className="text-white/60 text-xs mt-1">{successSubtext}</p>
           </div>
@@ -165,7 +165,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
                 placeholder={placeholder}
                 required
                 disabled={status === "loading"}
-                className="flex-1 min-w-0 px-5 py-3 rounded-full bg-white/15 border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-teal disabled:opacity-60"
+                className="flex-1 min-w-0 px-5 py-3 rounded-full bg-[#FAF7F2]/15 border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-teal disabled:opacity-60"
               />
               <button
                 type="submit"
@@ -180,7 +180,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
                 id="newsletter-rgpd-inline"
                 type="checkbox"
                 required
-                className="mt-1 h-4 w-4 rounded border-white/20 bg-white/10 text-eucalyptus focus:ring-teal cursor-pointer"
+                className="mt-1 h-4 w-4 rounded border-white/20 bg-[#FAF7F2]/10 text-eucalyptus focus:ring-teal cursor-pointer"
               />
               <label htmlFor="newsletter-rgpd-inline" className="text-xs text-white/60 leading-normal">
                 {rgpdLabel}{' '}
@@ -211,7 +211,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
         </p>
 
         {status === "success" ? (
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-8 py-6">
+          <div className="bg-[#FAF7F2]/10 backdrop-blur-sm rounded-sm px-8 py-6">
             <p className="text-teal/80 font-medium text-lg">{message}</p>
             <p className="text-white/60 text-sm mt-2">{successSubtext}</p>
           </div>
@@ -228,7 +228,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
                 placeholder={placeholder}
                 required
                 disabled={status === "loading"}
-                className="flex-1 px-5 py-3.5 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent disabled:opacity-60"
+                className="flex-1 px-5 py-3.5 rounded-full bg-[#FAF7F2]/15 backdrop-blur-sm border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent disabled:opacity-60"
               />
               <button
                 type="submit"
@@ -243,7 +243,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
                 id="newsletter-rgpd-blog"
                 type="checkbox"
                 required
-                className="mt-1 h-4 w-4 rounded border-white/20 bg-white/10 text-eucalyptus focus:ring-teal cursor-pointer"
+                className="mt-1 h-4 w-4 rounded border-white/20 bg-[#FAF7F2]/10 text-eucalyptus focus:ring-teal cursor-pointer"
               />
               <label htmlFor="newsletter-rgpd-blog" className="text-xs text-white/60 leading-normal">
                 {rgpdLabel}{' '}

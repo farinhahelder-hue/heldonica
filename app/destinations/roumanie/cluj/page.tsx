@@ -29,17 +29,17 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const highlights = [
   {
-    emoji: '☕',
+    emoji: 'Compass',
     title: 'La Scène des Cafés',
     description: 'Cluj possède l\'une des scènes de cafés de spécialité les plus vivantes d\'Europe de l\'Est. Des torréfacteurs passionnés et des recoins bohèmes pour lire tranquille.',
   },
   {
-    emoji: '🌿',
+    emoji: 'Compass',
     title: 'Le Jardin Botanique',
     description: 'Un immense havre de paix vallonné en plein cœur de la ville, parfait pour s\'isoler avec un livre sous les serres tropicales centenaires.',
   },
   {
-    emoji: '⛪',
+    emoji: 'Compass',
     title: 'Le Quartier Historique',
     description: 'Des ruelles pavées préservées autour de la place de l\'Union (Piața Unirii) et l\'église gothique Saint-Michel qui domine la ville.',
   }

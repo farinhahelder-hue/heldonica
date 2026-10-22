@@ -229,7 +229,7 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
             </div>
           </div>
           <Link href={`/blog/${featuredPost.slug}`} className="group block transition-all duration-200">
-            <article className="relative flex h-[380px] items-end overflow-hidden rounded-[2rem] bg-mahogany shadow-xl md:h-[500px]">
+            <article className="relative flex h-[380px] items-end overflow-hidden rounded-[2rem] bg-mahogany md:h-[500px]">
               {featuredPost.featured_image ? (
                 <Image
                   src={featuredPost.featured_image}
@@ -285,13 +285,13 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
                 onClick={() => setActiveFilter(category.key)}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${
                   activeFilter === category.key
-                    ? 'bg-eucalyptus text-white shadow-sm'
-                    : 'border border-cloud-dancer bg-white text-charcoal/70 hover:border-eucalyptus hover:bg-eucalyptus/5 hover:text-eucalyptus'
+                    ? 'bg-eucalyptus text-white'
+                    : 'border border-cloud-dancer bg-[#FAF7F2] text-charcoal/70 hover:border-eucalyptus hover:bg-eucalyptus/5 hover:text-eucalyptus'
                 }`}
               >
                 {category.label}
                 <span className={`ml-1.5 rounded-full px-1.5 text-xs ${
-                  activeFilter === category.key ? 'bg-white/20' : 'bg-cloud-dancer'
+                  activeFilter === category.key ? 'bg-[#FAF7F2]/20' : 'bg-cloud-dancer'
                 }`}>
                   {getPostCount(category.key)}
                 </span>
@@ -305,7 +305,7 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
               placeholder="Rechercher un carnet, un lieu, un détail"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              className="w-full rounded-full border border-cloud-dancer bg-white py-3 pl-11 pr-4 text-sm text-charcoal shadow-sm outline-none transition-all duration-200 placeholder:text-charcoal/40 focus:border-eucalyptus focus:ring-2 focus:ring-eucalyptus/20"
+              className="w-full rounded-full border border-cloud-dancer bg-[#FAF7F2] py-3 pl-11 pr-4 text-sm text-charcoal outline-none transition-all duration-200 placeholder:text-charcoal/40 focus:border-eucalyptus focus:ring-2 focus:ring-eucalyptus/20"
             />
             <svg
               aria-hidden="true"
@@ -341,7 +341,7 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
 
       {filteredPosts.length === 0 ? (
         <div className="mx-auto max-w-7xl px-4 pb-20 text-center">
-          <div className="rounded-[2rem] border border-cloud-dancer bg-white px-6 py-16 shadow-sm">
+          <div className="rounded-[2rem] border border-cloud-dancer bg-[#FAF7F2] px-6 py-16">
             <h2 className="mb-3 text-2xl font-serif font-light text-mahogany">Rien de juste pour cette recherche, pour l&apos;instant.</h2>
             <p className="mx-auto max-w-md text-sm leading-relaxed text-charcoal/70">
               Essaie un lieu, un mot plus simple, ou repars de tout le blog pour reprendre le fil.
@@ -394,7 +394,7 @@ function StatChip({ value, label }: { value: number; label: string }) {
   // Ne jamais afficher 0 — utiliser "—" comme fallback
   const displayValue = (value === null || value === undefined || value === 0) ? '—' : String(value)
   return (
-    <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-left backdrop-blur-sm">
+    <div className="rounded-full border border-white/10 bg-[#FAF7F2]/5 px-4 py-2 text-left backdrop-blur-sm">
       <span className="mr-2 text-lg font-light text-white">{displayValue}</span>
       <span className="text-xs uppercase tracking-[0.12em] text-white/60">{label}</span>
     </div>
@@ -466,7 +466,7 @@ function ArticleCard({ post, fallbackImages, gradientMap }: { post: BlogPost & {
 
   return (
     <Link href={`/blog/${post.slug}`} className="group block h-full transition-all duration-200">
-      <article className="flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-cloud-dancer bg-white shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-lg">
+      <article className="flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-cloud-dancer bg-[#FAF7F2] transition-all duration-200 group-hover:-translate-y-1">
         {/* Image section - always show something, never empty blocks */}
         <div className="relative h-52 w-full overflow-hidden bg-gradient-to-br from-stone-100 to-stone-200">
           {imageSrc && !imageError ? (

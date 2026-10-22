@@ -70,7 +70,7 @@ export default function GuideDownloadModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl max-w-md w-full p-8 shadow-2xl relative"
+        className="bg-[#FAF7F2] rounded-sm max-w-md w-full p-8 relative"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -116,7 +116,7 @@ export default function GuideDownloadModal({
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="ton@email.fr"
                 required
-                className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus"
+                className="w-full px-4 py-3 rounded-sm border border-[#DED5C6] text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus"
               />
               {status === 'error' && (
                 <p className="text-red-500 text-xs">{errorMsg}</p>
@@ -124,7 +124,7 @@ export default function GuideDownloadModal({
               <button
                 type="submit"
                 disabled={status === 'loading'}
-                className="w-full py-3 bg-eucalyptus text-white rounded-xl text-sm font-semibold hover:bg-eucalyptus/90 disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full py-3 bg-eucalyptus text-white rounded-sm text-sm font-semibold hover:bg-eucalyptus/90 disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {status === 'loading' ? (
                   <><Loader2 size={16} className="animate-spin" /> Génération...</>

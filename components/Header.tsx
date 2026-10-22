@@ -215,20 +215,20 @@ export default function Header() {
           
           {/* Menu panel */}
           <div 
-            className={`absolute right-0 top-full z-50 w-full max-w-sm bg-white shadow-2xl transition-all duration-300 ease-out ${
+            className={`absolute right-0 top-full z-50 w-full max-w-sm bg-[#F7F3EC] border-b border-l border-[#DED5C6] transition-all duration-300 ease-out ${
               open ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
             }`}
           >
             <div className="flex flex-col gap-1 p-5">
               {/* Header du menu avec bouton fermer */}
-              <div className="flex items-center justify-between mb-4 pb-4 border-b border-stone-100">
-                <span className="text-sm font-semibold text-stone-700">Menu</span>
+              <div className="flex items-center justify-between mb-4 pb-4 border-b border-[#DED5C6]">
+                <span className="text-xs font-medium uppercase tracking-[0.18em] text-mahogany">Menu</span>
                 <button
                   onClick={() => setOpen(false)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-stone-100 text-stone-500 transition-colors hover:bg-stone-200 hover:text-stone-700"
+                  className="flex h-8 w-8 items-center justify-center rounded-sm border border-[#DED5C6] bg-[#FAF7F2] text-charcoal/70 transition-colors hover:border-mahogany hover:text-mahogany"
                   aria-label="Fermer le menu"
                 >
-                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                     <line x1="18" y1="6" x2="6" y2="18" />
                     <line x1="6" y1="6" x2="18" y2="18" />
                   </svg>
@@ -242,14 +242,14 @@ export default function Header() {
                   href={item.url}
                   onClick={() => setOpen(false)}
                   aria-current={pathname === item.url ? 'page' : undefined}
-                  className={`flex items-center gap-3 rounded-xl px-4 py-3.5 font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-900 ${
+                  className={`flex items-center gap-3 rounded-sm px-4 py-3 font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mahogany ${
                     pathname === item.url
-                      ? 'bg-amber-50 text-amber-900'
-                      : 'text-stone-700 hover:bg-amber-50 hover:text-amber-900 active:scale-[0.98]'
+                      ? 'bg-[#EFE9DF] text-mahogany'
+                      : 'text-charcoal hover:bg-[#EFE9DF] hover:text-mahogany'
                   }`}
                 >
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-500 shadow-sm" aria-hidden="true">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-sm border border-[#DED5C6] bg-[#FAF7F2] text-eucalyptus" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                       {index === 0 && <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />}
                       {index === 1 && <><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></>}
                       {index === 2 && <><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></>}
@@ -262,15 +262,15 @@ export default function Header() {
               ))}
 
               {/* Séparateur */}
-              <div className="my-3 border-t border-stone-100" />
+              <div className="my-3 border-t border-[#DED5C6]" />
 
               {/* CTA principal */}
               <Link
                 href={ctaUrl}
                 onClick={() => setOpen(false)}
-                className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-eucalyptus px-4 py-4 text-sm font-semibold text-white shadow-lg shadow-eucalyptus/20 transition-all duration-200 hover:brightness-110 hover:shadow-xl active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:ring-offset-2"
+                className="flex w-full items-center justify-center gap-2.5 rounded-sm bg-mahogany px-4 py-3.5 text-xs font-medium uppercase tracking-[0.16em] text-[#FAF7F2] transition-colors duration-200 hover:bg-eucalyptus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mahogany focus-visible:ring-offset-2"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <circle cx="12" cy="12" r="10" />
                   <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
                 </svg>

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 
 const inputClass =
-  'w-full rounded-xl border border-stone-700 bg-stone-900 px-4 py-3 text-white placeholder-stone-500 outline-none transition-all duration-200 focus:border-eucalyptus focus:ring-2 focus:ring-eucalyptus/20'
+  'w-full rounded-sm border border-stone-700 bg-stone-900 px-4 py-3 text-white placeholder-stone-500 outline-none transition-all duration-200 focus:border-eucalyptus focus:ring-2 focus:ring-eucalyptus/20'
 
 export default function HotelierForm() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
@@ -37,7 +37,7 @@ export default function HotelierForm() {
 
   if (status === 'success') {
     return (
-      <div className="rounded-2xl border border-eucalyptus/20 bg-eucalyptus/5 p-8 text-center">
+      <div className="rounded-sm border border-eucalyptus/20 bg-eucalyptus/5 p-8 text-center">
         <p className="text-lg font-semibold text-white mb-2">Merci, votre demande est bien enregistrée.</p>
         <p className="text-sm text-stone-400">On vous recontacte sous 48h pour planifier votre appel de diagnostic de 30 minutes.</p>
       </div>
@@ -130,7 +130,7 @@ export default function HotelierForm() {
       <button
         type="submit"
         disabled={status === 'loading'}
-        className="w-full px-8 py-4 bg-eucalyptus text-white font-semibold rounded-xl hover:brightness-110 transition-all text-lg disabled:opacity-60 disabled:cursor-not-allowed"
+        className="w-full px-8 py-4 bg-eucalyptus text-white font-semibold rounded-sm hover:brightness-110 transition-all text-lg disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {status === 'loading' ? 'Envoi en cours…' : 'Échanger sur mon projet →'}
       </button>

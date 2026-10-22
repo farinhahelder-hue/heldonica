@@ -29,17 +29,17 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const highlights = [
   {
-    emoji: '🌅',
+    emoji: 'Compass',
     title: 'Les Miradouros Secrets',
     description: 'Les collines de Lisbonne offrent des belvédères spectaculaires. Évite les plus connus et pose-toi au Miradouro de Santa Luzia pour regarder le Tage en silence.',
   },
   {
-    emoji: '🏘️',
+    emoji: 'Compass',
     title: 'Le Labyrinthe de l\'Alfama',
     description: 'Le plus vieux quartier de la ville, rescapé du séisme de 1755. Perds-toi dans ses escaliers suspendus où le linge sèche aux fenêtres et où résonne le Fado.',
   },
   {
-    emoji: '🥧',
+    emoji: 'Compass',
     title: 'Pastéis de Belém originaux',
     description: 'Une institution depuis 1837. Si la file d\'attente est longue, prends-les à emporter et déguste-les tièdes dans le parc voisin sous les arbres.',
   }

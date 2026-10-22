@@ -18,18 +18,25 @@ import { ICON_REGISTRY } from '@/lib/icon-registry'
  */
 export default function CmsIcon({
   value,
+  name: nameProp,
+  fallback,
   size = 24,
   className = '',
   strokeWidth = 1.25,
 }: {
   /** Valeur brute de la zone (« Leaf », « Sparkles », ou un emoji résiduel). */
-  value: string | null | undefined
+  value?: string | null | undefined
+  /** Alias pour value */
+  name?: string | null | undefined
+  /** Fallback éventuel */
+  fallback?: string
   size?: number
   className?: string
   strokeWidth?: number
 }) {
-  const name = resolveIconName(value) ?? FALLBACK_ICON
-  const Icon: LucideIcon = ICON_REGISTRY[name] ?? ICON_REGISTRY[FALLBACK_ICON]
+  const raw = value ?? nameProp ?? fallback
+  const resolved = resolveIconName(raw) ?? FALLBACK_ICON
+  const Icon: LucideIcon = ICON_REGISTRY[resolved] ?? ICON_REGISTRY[FALLBACK_ICON]
 
   return (
     <Icon

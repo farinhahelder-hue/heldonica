@@ -8,10 +8,10 @@ import { buildPageMetadata } from '@/lib/page-metadata'
 
 const metadata: Metadata = {
   title: "Asinara en couple : notre carnet slow travel | Heldonica",
-  description: "L ile prison. Ane blanchis, exclusivite en ⭐ Hidden Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+  description: "L ile prison. Ane blanchis, exclusivite en Hidden Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
   openGraph: {
     title: "Asinara en couple : notre carnet slow travel | Heldonica",
-    description: "L ile prison. Ane blanchis, exclusivite en ⭐ Hidden Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+    description: "L ile prison. Ane blanchis, exclusivite en Hidden Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
     type: 'website',
     images: ['/og-default.jpg'],
     locale: 'fr_FR',
@@ -29,17 +29,17 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const highlights = [
   {
-    emoji: '🫎',
+    emoji: 'Compass',
     title: 'Anes',
     description: 'Blanchis. Partout.',
   },
   {
-    emoji: '🏝️',
+    emoji: 'Compass',
     title: 'Prison',
     description: 'Ex-colonie.',
   },
   {
-    emoji: '📍',
+    emoji: 'Compass',
     title: 'Découvertes calmes',
     description: 'Prendre le temps d\'arpenter les ruelles et les recoins cachés.',
   }

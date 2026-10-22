@@ -8,10 +8,10 @@ import { buildPageMetadata } from '@/lib/page-metadata'
 
 const metadata: Metadata = {
   title: "Santos en couple : notre carnet slow travel | Heldonica",
-  description: "Le petit village. Les tavernes, le vin en ⭐ Hidden Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+  description: "Le petit village. Les tavernes, le vin en Hidden Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
   openGraph: {
     title: "Santos en couple : notre carnet slow travel | Heldonica",
-    description: "Le petit village. Les tavernes, le vin en ⭐ Hidden Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+    description: "Le petit village. Les tavernes, le vin en Hidden Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
     type: 'website',
     images: ['/og-default.jpg'],
     locale: 'fr_FR',
@@ -29,17 +29,17 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const highlights = [
   {
-    emoji: '📍',
+    emoji: 'Compass',
     title: 'Découvertes calmes',
     description: 'Prendre le temps d\'arpenter les ruelles et les recoins cachés.',
   },
   {
-    emoji: '🌿',
+    emoji: 'Compass',
     title: 'Artisanat & Nature',
     description: 'Découvrir la gastronomie locale et les petits producteurs.',
   },
   {
-    emoji: '✨',
+    emoji: 'Compass',
     title: 'Points de vue',
     description: 'Admirer le panorama au coucher du soleil loin de l\'agitation.',
   }

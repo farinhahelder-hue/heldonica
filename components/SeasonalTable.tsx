@@ -34,9 +34,9 @@ export default function SeasonalTable({ destination, seasons }: SeasonalTablePro
   const [selectedSeason, setSelectedSeason] = useState<SeasonData | null>(null)
 
   return (
-    <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
+    <div className="bg-[#FAF7F2] rounded-sm border border-[#DED5C6] overflow-hidden">
       {/* Header */}
-      <div className="bg-stone-50 px-6 py-4 border-b border-stone-200">
+      <div className="bg-[#F7F3EC] px-6 py-4 border-b border-[#DED5C6]">
         <h3 className="text-lg font-serif font-bold text-stone-900">
           <CmsIcon value="CalendarDays" size={16} className="mr-1.5 inline-block align-text-bottom" /> Meilleure période pour {destination}
         </h3>
@@ -51,7 +51,7 @@ export default function SeasonalTable({ destination, seasons }: SeasonalTablePro
           <button
             key={index}
             onClick={() => setSelectedSeason(season)}
-            className={`p-5 text-left transition-all hover:bg-stone-50 ${
+            className={`p-5 text-left transition-all hover:bg-[#F7F3EC] ${
               selectedSeason?.name === season.name ? 'bg-eucalyptus/5 ring-2 ring-eucalyptus/20' : ''
             }`}
           >
@@ -74,7 +74,7 @@ export default function SeasonalTable({ destination, seasons }: SeasonalTablePro
 
       {/* Detail panel */}
       {selectedSeason && (
-        <div className="border-t border-stone-200 p-6 bg-cloud-dancer/50">
+        <div className="border-t border-[#DED5C6] p-6 bg-cloud-dancer/50">
           <div className="flex items-start justify-between mb-4">
             <div>
               <CmsIcon value={selectedSeason.emoji} size={24} className="mr-2 inline-block text-eucalyptus" />
@@ -95,11 +95,11 @@ export default function SeasonalTable({ destination, seasons }: SeasonalTablePro
           </div>
           
           <div className="grid md:grid-cols-3 gap-4 mb-4">
-            <div className="bg-white rounded-xl p-4 border border-stone-100">
+            <div className="bg-[#FAF7F2] rounded-sm p-4 border border-stone-100">
               <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">Météo</p>
               <p className="text-sm text-stone-700">{selectedSeason.weather}</p>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-stone-100">
+            <div className="bg-[#FAF7F2] rounded-sm p-4 border border-stone-100">
               <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">Affluence</p>
               <p className={`text-sm font-semibold ${
                 selectedSeason.crowd === 'low' ? 'text-emerald-600' :
@@ -108,7 +108,7 @@ export default function SeasonalTable({ destination, seasons }: SeasonalTablePro
                 {crowdLabels[selectedSeason.crowd].label}
               </p>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-stone-100">
+            <div className="bg-[#FAF7F2] rounded-sm p-4 border border-stone-100">
               <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">Budget</p>
               <p className={`text-sm font-semibold ${priceLabels[selectedSeason.price].color}`}>
                 {selectedSeason.price === 'low' ? 'Économique' :

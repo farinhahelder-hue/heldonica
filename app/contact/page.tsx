@@ -92,7 +92,7 @@ export default async function Contact() {
           </div>
         </section>
 
-        <section className="bg-white py-16 md:py-20">
+        <section className="bg-[#FAF7F2] py-16 md:py-20">
           <div className="mx-auto grid max-w-6xl gap-12 px-6 md:grid-cols-3 md:px-10">
             <div className="md:col-span-2">
               <div className="mb-10 max-w-2xl">
@@ -110,7 +110,7 @@ export default async function Contact() {
             </div>
 
             <aside className="space-y-8 md:pt-2">
-              <div className="rounded-3xl border border-stone-200 bg-stone-50 p-6">
+              <div className="rounded-sm border border-[#DED5C6] bg-[#F7F3EC] p-6">
                 <EditableZone page="contact" zone="email_title" fallback="Email direct"
                   className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-stone-500 block"
                 />
@@ -125,7 +125,7 @@ export default async function Contact() {
                 />
               </div>
 
-              <div className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
+              <div className="rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-6">
                 <EditableZone page="contact" zone="instagram_title" fallback="Instagram"
                   className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-stone-500 block"
                 />
@@ -142,7 +142,7 @@ export default async function Contact() {
                 />
               </div>
 
-              <div className="rounded-3xl border border-eucalyptus/20 bg-eucalyptus/5 p-6">
+              <div className="rounded-sm border border-eucalyptus/20 bg-eucalyptus/5 p-6">
                 <EditableZone page="contact" zone="services_title" fallback="Ce qu'on fait"
                   className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-mahogany block"
                 />

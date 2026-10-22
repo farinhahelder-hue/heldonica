@@ -51,14 +51,14 @@ export default function TemoignagesClient({ testimonials, initialZones }: Props)
           </div>
         </section>
 
-        <section className="bg-white section-spacing">
+        <section className="bg-[#FAF7F2] section-spacing">
           <div className="container">
             {displayTestimonials.length > 0 ? (
               <div className="grid md:grid-cols-2 gap-6">
                 {displayTestimonials.map((item) => (
                   <article
                     key={item.zone}
-                    className="rounded-2xl border border-stone-200 p-7 bg-cloud-dancer/40"
+                    className="rounded-sm border border-[#DED5C6] p-7 bg-cloud-dancer/40"
                   >
                     <EditableZone page="temoignages" zone={`${item.zone}_dest`} fallback={item.dest}
                       className="text-xs uppercase tracking-[0.16em] text-eucalyptus font-semibold mb-3 block"
@@ -66,7 +66,7 @@ export default function TemoignagesClient({ testimonials, initialZones }: Props)
                     <blockquote className="text-charcoal leading-relaxed mb-5">
                       &ldquo;<EditableZone page="temoignages" zone={`${item.zone}_quote`} type="textarea" fallback={item.quote} className="inline" />&rdquo;
                     </blockquote>
-                    <div className="pt-4 border-t border-stone-200">
+                    <div className="pt-4 border-t border-[#DED5C6]">
                       <EditableZone page="temoignages" zone={`${item.zone}_couple`} fallback={item.couple}
                         className="font-semibold text-mahogany block"
                       />

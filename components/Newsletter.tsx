@@ -36,14 +36,14 @@ export default function Newsletter() {
           />
           <button
             type="submit"
-            className="w-full px-4 py-3 bg-white text-eucalyptus font-semibold rounded-lg hover:bg-cloud-dancer transition"
+            className="w-full px-4 py-3 bg-[#FAF7F2] text-eucalyptus font-semibold rounded-lg hover:bg-cloud-dancer transition"
           >
             Je m&apos;abonne
           </button>
         </form>
 
         {submitted && (
-          <p className="text-white mt-4 text-sm">✅ Merci ! Vérifiez votre email.</p>
+          <p className="text-white mt-4 text-sm">Merci ! Vérifiez votre email.</p>
         )}
       </div>
     </section>

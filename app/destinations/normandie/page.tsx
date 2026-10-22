@@ -76,7 +76,7 @@ export default async function NormandiePage() {
         }}
       />
       <Header />
-      <main className="min-h-screen bg-stone-50">
+      <main className="min-h-screen bg-[#F7F3EC]">
         {/* Hero */}
         <section className="relative bg-stone-900 py-20 md:py-24 overflow-hidden">
           <div className="max-w-4xl mx-auto px-4">
@@ -98,7 +98,7 @@ export default async function NormandiePage() {
         </section>
 
         {/* Sub navigation */}
-        <nav className="bg-white border-b border-stone-200 sticky top-16 z-40" aria-label="Sous-destinations">
+        <nav className="bg-[#FAF7F2] border-b border-[#DED5C6] sticky top-16 z-40" aria-label="Sous-destinations">
           <div className="max-w-4xl mx-auto px-4 py-3 flex gap-6 overflow-x-auto no-scrollbar">
             {SUBNav.map((item) => (
               <Link
@@ -127,7 +127,7 @@ export default async function NormandiePage() {
               Nos régions
             </h2>
             <div className="grid gap-5 md:grid-cols-2">
-              <div className="bg-white p-6 rounded-xl border border-stone-200 hover:border-eucalyptus/40 hover:shadow-md transition-all group">
+              <div className="bg-[#FAF7F2] p-6 rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all group">
                 <h3 className="font-serif text-lg text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">
                   {Z('card_1_title', 'text', "Le Havre et environs", undefined, 'span')}
                 </h3>
@@ -135,7 +135,7 @@ export default async function NormandiePage() {
                   {Z('card_1_desc', 'textarea', "Deuxième port de France, patrimoine UNESCO d'Auguste Perret. Ville reconstruite, fascinante.", undefined, 'span')}
                 </p>
               </div>
-              <div className="bg-white p-6 rounded-xl border border-stone-200 hover:border-eucalyptus/40 hover:shadow-md transition-all group">
+              <div className="bg-[#FAF7F2] p-6 rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all group">
                 <h3 className="font-serif text-lg text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">
                   {Z('card_2_title', 'text', "Côte d'Albâtre", undefined, 'span')}
                 </h3>
@@ -143,7 +143,7 @@ export default async function NormandiePage() {
                   {Z('card_2_desc', 'textarea', "Les falaises de craie blanche d'Étretat aux caps. La Normandie qui coupe le souffle.", undefined, 'span')}
                 </p>
               </div>
-              <div className="bg-white p-6 rounded-xl border border-stone-200 hover:border-eucalyptus/40 hover:shadow-md transition-all group">
+              <div className="bg-[#FAF7F2] p-6 rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all group">
                 <h3 className="font-serif text-lg text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">
                   {Z('card_3_title', 'text', "Pays d'Auge", undefined, 'span')}
                 </h3>
@@ -158,7 +158,7 @@ export default async function NormandiePage() {
           <section className="mb-12">
             
             <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-white p-6 rounded-xl border border-stone-200">
+            <div className="bg-[#FAF7F2] p-6 rounded-sm border border-[#DED5C6]">
               <h3 className="font-serif text-lg text-stone-900 mb-4">
                 {Z('info_1_title', 'text', "Quand y aller", undefined, 'span')}
               </h3>
@@ -174,7 +174,7 @@ export default async function NormandiePage() {
                 </li>
               </ul>
             </div>
-            <div className="bg-white p-6 rounded-xl border border-stone-200">
+            <div className="bg-[#FAF7F2] p-6 rounded-sm border border-[#DED5C6]">
               <h3 className="font-serif text-lg text-stone-900 mb-4">
                 {Z('info_2_title', 'text', "Budget couple", undefined, 'span')}
               </h3>
@@ -213,7 +213,7 @@ export default async function NormandiePage() {
               </Link>
             </div>
           </section>
-          <div className="pt-4 border-t border-stone-200">
+          <div className="pt-4 border-t border-[#DED5C6]">
             <Link href="/destinations" className="text-sm text-eucalyptus font-semibold hover:underline">
               ← Toutes les destinations
             </Link>
