@@ -431,12 +431,12 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             />
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-7">
               <Link href="/travel-planning"
-                className="w-full sm:w-auto text-center px-7 py-3.5 bg-action hover:bg-action-fonce text-[#F7F3EC] rounded-sm font-medium text-xs uppercase tracking-[0.16em] transition-colors shadow-sm">
-                <EditableZone page="home" zone="hero_cta_1_label" fallback="Planifier mon voyage →" />
+                className="w-full sm:w-auto text-center px-7 py-3.5 bg-action hover:bg-action-fonce text-[#F7F3EC] rounded-sm font-medium text-sm transition-colors shadow-sm">
+                <EditableZone page="home" zone="hero_cta_1_label" fallback="Préparer un voyage" />
               </Link>
               <Link href="/blog"
-                className="self-center sm:self-auto text-[#F7F3EC]/90 hover:text-[#E6DEC8] border-b border-[#F7F3EC]/45 hover:border-[#E6DEC8] pb-1 font-medium text-xs uppercase tracking-[0.16em] transition-colors">
-                <EditableZone page="home" zone="hero_cta_2_label" fallback="Lire les carnets →" />
+                className="self-center sm:self-auto text-[#F7F3EC]/90 hover:text-[#E6DEC8] border-b border-[#F7F3EC]/45 hover:border-[#E6DEC8] pb-1 font-medium text-sm transition-colors">
+                <EditableZone page="home" zone="hero_cta_2_label" fallback="Lire les carnets" />
               </Link>
             </div>
           </div>
