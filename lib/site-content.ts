@@ -107,7 +107,8 @@ const CONSUMED_ZONE_KEYS: string[] = [
   'cta_travel_planning_cta',
 
   // Menus : paires `<prefix>_<n>_label` / `<prefix>_<n>_url`, cf. getZoneLinks()
-  ...buildLinkKeys('nav_item', 7),
+  // Menu principal : cinq entrées au plus (NAV_MAX_ITEMS dans components/Header.tsx)
+  ...buildLinkKeys('nav_item', 5),
   ...buildLinkKeys('footer_dest_item', 5),
   ...buildLinkKeys('footer_guide_item', 3),
   ...buildLinkKeys('footer_legal_item', 3),

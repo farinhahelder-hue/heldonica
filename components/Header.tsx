@@ -8,6 +8,9 @@ import { useAuth } from '@/components/AuthProvider'
 import { useContentLoader, getCmsOrSetting, getZoneLinks } from '@/hooks/useContentLoader'
 import type { CmsZone } from '@/lib/content-loader'
 
+// Même borne que buildLinkKeys('nav_item', …) dans lib/site-content.ts.
+const NAV_MAX_ITEMS = 5
+
 export default function Header() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -24,7 +27,7 @@ export default function Header() {
     zones as Record<string, CmsZone>, settings
   )
   const ctaLabel = getCmsOrSetting(
-    'header_cta_label', 'primary_cta_label', 'Planifier mon voyage',
+    'header_cta_label', 'primary_cta_label', 'Préparer un voyage',
     zones as Record<string, CmsZone>, settings
   )
   const ctaUrl = getCmsOrSetting(
@@ -79,16 +82,19 @@ export default function Header() {
   }, [open])
 
   // Menu principal piloté par le CMS (zones `nav_item_<n>_label` / `_url`).
+  // Cinq entrées au plus : le logo ramène à l'accueil, Contact et Connexion
+  // vivent dans le pied de page et le menu mobile.
   const safeNavItems = getZoneLinks(
     'nav_item',
     [
-      { label: 'Accueil', url: '/' },
+      { label: 'Carnets', url: '/blog' },
       { label: 'Destinations', url: '/destinations' },
-      { label: 'Carnets de route', url: '/blog' },
-      { label: 'Travel Planning', url: '/travel-planning' },
-      { label: 'À propos', url: '/a-propos' },
+      { label: 'Voyager avec nous', url: '/travel-planning' },
+      { label: 'Le duo', url: '/a-propos' },
+      { label: 'Hôteliers', url: '/expert-hotelier' },
     ],
-    zones as Record<string, CmsZone>
+    zones as Record<string, CmsZone>,
+    NAV_MAX_ITEMS
   )
 
   return (
@@ -102,11 +108,11 @@ export default function Header() {
         role="navigation" 
         aria-label="Navigation principale"
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:py-3.5">
-          {/* Logo */}
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-8 px-4 py-3 sm:px-6 lg:py-3.5">
+          {/* Logo : ne rétrécit jamais, l'écart avec le menu est porté par gap-8 */}
           <Link
             href="/"
-            className="flex items-center gap-2.5 text-mahogany transition-all duration-200 hover:text-eucalyptus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:ring-offset-2"
+            className="flex shrink-0 items-center gap-2.5 text-mahogany transition-all duration-200 hover:text-eucalyptus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:ring-offset-2"
             aria-label={`${siteName} accueil`}
           >
             {logoUrl && logoUrl !== '/logo.svg' ? (
@@ -133,13 +139,13 @@ export default function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden items-center gap-6 lg:flex">
+          <div className="hidden min-w-0 items-center gap-6 lg:flex">
             {safeNavItems.map((item) => (
               <Link
                 key={item.url}
                 href={item.url}
                 aria-current={pathname === item.url ? 'page' : undefined}
-                className={`py-1 text-sm transition-colors duration-200 border-b focus-visible:outline-none ${
+                className={`whitespace-nowrap py-1 text-sm transition-colors duration-200 border-b focus-visible:outline-none ${
                   pathname === item.url
                     ? 'text-mahogany border-mahogany font-medium'
                     : 'text-charcoal/75 border-transparent hover:text-mahogany hover:border-mahogany/40'
@@ -151,16 +157,10 @@ export default function Header() {
           </div>
 
           {/* Desktop Right CTA */}
-          <div className="hidden items-center gap-4 lg:flex">
-            <Link
-              href="/expert-hotelier"
-              className="text-xs text-charcoal/60 hover:text-mahogany transition-colors px-2 py-1"
-            >
-              Espace Hôteliers
-            </Link>
+          <div className="hidden shrink-0 items-center lg:flex">
             <Link
               href={ctaUrl}
-              className="rounded-sm bg-mahogany hover:bg-eucalyptus px-4 py-2 text-[11px] font-medium uppercase tracking-[0.16em] text-[#F7F3EC] transition-colors duration-200"
+              className="whitespace-nowrap rounded-sm bg-action hover:bg-action-fonce px-4 py-2 text-sm font-medium text-[#F7F3EC] transition-colors duration-200"
             >
               {ctaLabel}
             </Link>
@@ -237,7 +237,7 @@ export default function Header() {
               </div>
 
               {/* Navigation items */}
-              {safeNavItems.map((item, index) => (
+              {safeNavItems.map((item) => (
                 <Link
                   key={item.url}
                   href={item.url}
@@ -249,15 +249,6 @@ export default function Header() {
                       : 'text-charcoal hover:bg-[#EFE9DF] hover:text-mahogany'
                   }`}
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-sm border border-[#DED5C6] bg-[#FAF7F2] text-eucalyptus" aria-hidden="true">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      {index === 0 && <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />}
-                      {index === 1 && <><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></>}
-                      {index === 2 && <><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></>}
-                      {index === 3 && <><circle cx="12" cy="12" r="10" /><polygon points="12 2 12 12 18 12" fill="currentColor" /></>}
-                      {index === 4 && <><path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16" /></>}
-                    </svg>
-                  </span>
                   {item.label}
                 </Link>
               ))}
@@ -269,12 +260,8 @@ export default function Header() {
               <Link
                 href={ctaUrl}
                 onClick={() => setOpen(false)}
-                className="flex w-full items-center justify-center gap-2.5 rounded-sm bg-mahogany px-4 py-3.5 text-xs font-medium uppercase tracking-[0.16em] text-[#FAF7F2] transition-colors duration-200 hover:bg-eucalyptus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mahogany focus-visible:ring-offset-2"
+                className="flex w-full items-center justify-center rounded-sm bg-action px-4 py-3.5 text-sm font-medium text-[#FAF7F2] transition-colors duration-200 hover:bg-action-fonce focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <circle cx="12" cy="12" r="10" />
-                  <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
-                </svg>
                 {ctaLabel}
               </Link>
 
