@@ -173,7 +173,7 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
             <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', margin: 0 }}>🖼️ Médiathèque Supabase</h2>
             <p style={{ fontSize: '.8rem', color: '#888', margin: 0 }}>Storage · Upload direct · Import Google Photos</p>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '1.4rem', cursor: 'pointer', color: '#888' }}>✕</button>
+          <button onClick={onClose} aria-label="Fermer la médiathèque" style={{ background: 'none', border: 'none', fontSize: '1.4rem', cursor: 'pointer', color: '#888' }}>✕</button>
         </div>
 
         {toast && (
@@ -211,7 +211,7 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
                 >
                   {FOLDERS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
                 </select>
-                <button onClick={loadFiles} style={{ padding: '.5rem .9rem', background: 'white', border: '1.5px solid #ddd', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.85rem' }}>🔄</button>
+                <button onClick={loadFiles} aria-label="Actualiser la liste des dossiers" style={{ padding: '.5rem .9rem', background: 'white', border: '1.5px solid #ddd', borderRadius: '.5rem', cursor: 'pointer', fontSize: '.85rem' }}>🔄</button>
                 <label style={{
                   padding: '.5rem 1rem',
                   background: uploading ? '#ccc' : '#01696f',
@@ -268,6 +268,7 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                         }}
                         title="Supprimer"
+                        aria-label="Supprimer cette image"
                       >✕</button>
                       <button
                         onClick={() => { onSelect(f.url); onClose(); }}
@@ -281,6 +282,7 @@ export default function MediaLibrary({ onSelect, onClose, cmsPassword }: Props) 
                       <button
                         onClick={() => copyToClipboard(f.url)}
                         title="Copier l'URL"
+                        aria-label="Copier l'URL de l'image"
                         style={{
                           position: 'absolute', top: 6, left: 6,
                           background: 'rgba(45,139,122,.9)', color: 'white',

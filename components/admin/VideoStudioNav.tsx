@@ -111,6 +111,7 @@ export default function VideoStudioNav({ children }: { children?: React.ReactNod
           )}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
+            aria-label={isCollapsed ? 'Développer le menu' : 'Réduire le menu'}
             style={{
               width: 32,
               height: 32,
@@ -410,6 +411,7 @@ export default function VideoStudioNav({ children }: { children?: React.ReactNod
       {/* Mobile Menu Toggle */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        aria-label={isMobileMenuOpen ? 'Fermer le menu mobile' : 'Ouvrir le menu mobile'}
         style={{
           position: 'fixed',
           bottom: '1rem',

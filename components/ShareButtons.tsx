@@ -1,8 +1,23 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
+import { Check, Link2 } from 'lucide-react';
+
 export default function ShareButtons({ title, url }: { title: string; url: string }) {
   const encoded = encodeURIComponent(url);
   const encodedTitle = encodeURIComponent(title);
+  const [copied, setCopied] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => () => clearTimeout(timer.current), []);
+
+  const copyLink = () => {
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      clearTimeout(timer.current);
+      timer.current = setTimeout(() => setCopied(false), 2000);
+    });
+  };
 
   return (
     <div className="flex items-center gap-3 flex-wrap">
@@ -38,21 +53,22 @@ export default function ShareButtons({ title, url }: { title: string; url: strin
 
       {/* Copier le lien */}
       <button
-        onClick={() => {
-          navigator.clipboard.writeText(url).then(() => {
-            const btn = document.getElementById('copy-link-btn');
-            if (btn) {
-              btn.textContent = '✓ Copié !';
-              setTimeout(() => { if (btn) btn.textContent = '🔗 Copier le lien'; }, 2000);
-            }
-          });
-        }}
-        id="copy-link-btn"
+        type="button"
+        onClick={copyLink}
         aria-label="Copier le lien de l’article"
         className="inline-flex items-center gap-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold px-3 py-1.5 rounded-full transition-colors"
       >
-        🔗 Copier le lien
+        {copied ? (
+          <Check size={14} strokeWidth={1.25} aria-hidden="true" />
+        ) : (
+          <Link2 size={14} strokeWidth={1.25} aria-hidden="true" />
+        )}
+        {copied ? 'Copié !' : 'Copier le lien'}
       </button>
+      {/* aria-label fige le nom du bouton : la confirmation passe par cette région */}
+      <span role="status" className="sr-only">
+        {copied ? 'Lien copié dans le presse-papiers' : ''}
+      </span>
     </div>
   );
 }
