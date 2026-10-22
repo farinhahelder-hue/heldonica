@@ -1,43 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireCmsAuth } from '@/lib/cms-auth';
 
 /**
- * API route to generate AI content using local Ollama
- * 
+ * Route API pour générer du contenu IA via Ollama ou Brain local.
+ *
+ * Protégée par l'authentification CMS (requireCmsAuth).
+ *
  * POST body:
  * {
- *   topic: string,      // Optional: topic for the post
- *   platform: string   // Optional: instagram, linkedin, twitter
+ *   topic: string,      // Ex: "Madère", "Slow travel"
+ *   platform: string   // "instagram", "linkedin", "twitter"
  * }
- * 
- * Requires OLLAMA_URL environment variable (default: http://localhost:11434)
- * Requires OLLAMA_MODEL environment variable (default: llama3)
  */
 export async function POST(request: NextRequest) {
+  const authError = await requireCmsAuth(request);
+  if (authError) return authError;
+
   try {
-    const body = await request.json();
+    const body = await request.json().catch(() => ({}));
     const { topic = 'voyages', platform = 'instagram' } = body;
 
-    // Get Ollama configuration
-    const ollamaUrl = process.env.OLLAMA_URL || 'http://localhost:11434';
-    const ollamaModel = process.env.OLLAMA_MODEL || 'llama3';
+    // Configuration Ollama / Brain local
+    const ollamaUrl = process.env.OLLAMA_URL || process.env.BRAIN_URL || 'http://localhost:11434';
+    const ollamaModel = process.env.OLLAMA_MODEL || 'dolphin3';
 
-    // Build prompt based on platform
+    // Construction du prompt selon la plateforme
     let prompt = '';
     switch (platform) {
       case 'instagram':
-        prompt = `Genere un post Instagram engageant pour Heldica (${topic}) en francais, environ 80-100 mots, avec des emojis et des hashtags pertinents. Le post doit etre professionnel et attractif pour des voyageurs.`;
+        prompt = `Génère un post Instagram engageant pour Heldonica (${topic}) en français, environ 80-100 mots, avec des emojis et des hashtags pertinents (#heldonica #slowtravel). Le post doit être authentique et inviter au voyage lent.`;
         break;
       case 'linkedin':
-        prompt = `Genere un post LinkedIn professionnel pour Heldica (${topic}) en francais, environ 150-200 mots, avec un ton expert et inspires la confiance. Inclus des tips concrets.`;
+        prompt = `Génère un post LinkedIn professionnel pour Heldonica (${topic}) en français, environ 150-200 mots, avec un ton inspirant et réfléchi sur le slow travel. Inclus des conseils concrets.`;
         break;
       case 'twitter':
-        prompt = `Genere un tweet pour Heldica (${topic}) en francais, max 280 caracteres, accrocheur et avec un hashtag.`;
+        prompt = `Génère un tweet pour Heldonica (${topic}) en français, max 280 caractères, percutant avec le hashtag #heldonica.`;
         break;
       default:
-        prompt = `Genere un post engageant pour Heldica sur le theme: ${topic}. En francais, environ 100 mots.`;
+        prompt = `Génère un texte engageant pour Heldonica sur le thème : ${topic}. En français, environ 100 mots.`;
     }
 
-    // Call Ollama API
+    // Appel API Ollama avec timeout de 30 secondes
     const response = await fetch(`${ollamaUrl}/api/chat`, {
       method: 'POST',
       headers: {
@@ -48,12 +51,13 @@ export async function POST(request: NextRequest) {
         messages: [{ role: 'user', content: prompt }],
         stream: false,
       }),
+      signal: AbortSignal.timeout(30000),
     });
 
     if (!response.ok) {
-      const error = await response.json();
+      const error = await response.json().catch(() => ({ message: response.statusText }));
       return NextResponse.json(
-        { error: 'Ollama API error', details: error },
+        { error: 'Erreur API Ollama', details: error },
         { status: response.status }
       );
     }
@@ -68,46 +72,55 @@ export async function POST(request: NextRequest) {
       topic,
     });
   } catch (error) {
-    console.error('AI generation error:', error);
+    console.error('Erreur génération IA:', error);
     return NextResponse.json(
-      { error: 'Failed to generate content', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Échec de la génération IA',
+        details: error instanceof Error ? error.message : 'Erreur inconnue',
+      },
       { status: 500 }
     );
   }
 }
 
 /**
- * GET - Check Ollama configuration status
+ * GET - Vérifie la connectivité avec l'instance Ollama/Brain configurée
  */
-export async function GET() {
-  const ollamaUrl = process.env.OLLAMA_URL || 'http://localhost:11434';
-  const ollamaModel = process.env.OLLAMA_MODEL || 'llama3';
+export async function GET(request: NextRequest) {
+  const authError = await requireCmsAuth(request);
+  if (authError) return authError;
+
+  const ollamaUrl = process.env.OLLAMA_URL || process.env.BRAIN_URL || 'http://localhost:11434';
+  const ollamaModel = process.env.OLLAMA_MODEL || 'dolphin3';
 
   try {
-    // Test connection to Ollama
-    const response = await fetch(`${ollamaUrl}/api/tags`);
-    
+    const response = await fetch(`${ollamaUrl}/api/tags`, {
+      signal: AbortSignal.timeout(5000),
+    });
+
     if (!response.ok) {
       return NextResponse.json({
         configured: false,
-        message: `Cannot connect to Ollama at ${ollamaUrl}`,
+        message: `Impossible de contacter Ollama sur ${ollamaUrl}`,
       });
     }
 
     const models = await response.json();
-    const modelExists = models.models?.some((m: any) => m.name.includes(ollamaModel.split(':')[0]));
+    const modelExists = models.models?.some((m: { name?: string }) =>
+      m.name?.includes(ollamaModel.split(':')[0])
+    );
 
     return NextResponse.json({
-      configured: modelExists,
-      message: modelExists 
-        ? `Ollama is ready with model ${ollamaModel}`
-        : `Model ${ollamaModel} not found. Available: ${models.models?.map((m: any) => m.name).join(', ')}`,
+      configured: Boolean(modelExists),
+      message: modelExists
+        ? `Ollama est prêt avec le modèle ${ollamaModel}`
+        : `Modèle ${ollamaModel} non trouvé. Disponibles : ${models.models?.map((m: { name?: string }) => m.name).join(', ') || 'aucun'}`,
       availableModels: models.models,
     });
   } catch (error) {
     return NextResponse.json({
       configured: false,
-      message: `Cannot connect to Ollama: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      message: `Connexion Ollama impossible : ${error instanceof Error ? error.message : 'Erreur inconnue'}`,
     });
   }
 }
