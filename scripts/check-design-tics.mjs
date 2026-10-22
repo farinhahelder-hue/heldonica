@@ -88,6 +88,9 @@ export const PUBLIC_DESIGN_TARGETS = [
   'components/ContactForm.tsx',
   'components/itinerary/DayAccommodationBox.tsx',
   'components/itinerary/DaySummaryTable.tsx',
+  // Rendu sur les articles de blog et les itineraires Roumanie : il portait des
+  // emojis de categorie (📍 🗺️ 🍽️…) hors du perimetre initial.
+  'components/ArticleMap.tsx',
 ];
 
 // Plages Unicode des emojis décoratifs et dingbats (hors flèches typographiques ← → ↑ ↓ et étoile pleine ★).
