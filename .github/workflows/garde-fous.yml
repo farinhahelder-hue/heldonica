@@ -152,3 +152,10 @@ jobs:
       # relevées le 18/10, toutes listées à la main par un audit.
       - name: Mots bannis des pages statiques
         run: npm run check:content-pages
+
+      # Tout texte visible des pages publiques se modifie depuis le CMS. Le
+      # contrôle fige, fichier par fichier, le nombre de textes encore écrits
+      # en dur (scripts/cms-hardcode-baseline.json) et refuse toute hausse.
+      # Statique, comme le précédent : il ne peut pas sauter faute de secret.
+      - name: Texte en dur hors CMS (cliquet)
+        run: npm run check:cms-hardcode
