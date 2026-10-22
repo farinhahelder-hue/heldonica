@@ -12,8 +12,6 @@ import { buildPageMetadata } from '@/lib/page-metadata'
 
 const SITE_URL = 'https://www.heldonica.fr';
 
-// ISR: cache page for 1 hour to reduce CMS load and improve TTFB
-export const revalidate = 3600
 
 const metadata: Metadata = {
   title: 'Hébergements Slow Travel & Indépendance | Heldonica',
