@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { getAllPosts } from '@/lib/blog-supabase'
+import { ADDRESS_BOOK, getAddressDestinations } from '@/lib/address-book'
 
 const BASE_URL = 'https://www.heldonica.fr'
 
@@ -51,6 +52,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.6,
+    },
+    {
+      url: `${BASE_URL}/adresses`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
     },
     {
       url: `${BASE_URL}/blog`,
@@ -525,5 +532,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       };
     });
 
-  return [...staticPages, ...blogPages];
+  // Carnet d'adresses : hub par destination + fiches vécues.
+  const addressPages: MetadataRoute.Sitemap = [
+    ...getAddressDestinations().map((destination) => ({
+      url: `${BASE_URL}/adresses/${destination.slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    })),
+    ...ADDRESS_BOOK.map((entry) => ({
+      url: `${BASE_URL}/adresses/${entry.destination}/${entry.slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    })),
+  ];
+
+  return [...staticPages, ...blogPages, ...addressPages];
 }

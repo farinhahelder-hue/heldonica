@@ -219,6 +219,14 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
               <StatChip key={cat.key} value={getPostCount(cat.key)} label={cat.label} />
             ))}
           </div>
+          <div className="mt-8">
+            <Link
+              href="/adresses"
+              className="inline-flex rounded-full border border-white/30 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:border-white/70 hover:bg-white/10"
+            >
+              Chercher une adresse précise dans le carnet
+            </Link>
+          </div>
         </div>
       </section>
 

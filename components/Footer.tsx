@@ -75,6 +75,7 @@ export default function Footer() {
   const navLinks = getZoneLinks('nav_item', [
     { label: 'Accueil', url: '/' },
     { label: 'Destinations', url: '/destinations' },
+    { label: 'Carnet d’adresses', url: '/adresses' },
     { label: 'Carnets de route', url: '/blog' },
     { label: 'Travel Planning', url: '/travel-planning' },
     { label: 'Espace Hôteliers', url: '/expert-hotelier' },

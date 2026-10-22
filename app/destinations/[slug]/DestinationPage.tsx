@@ -13,6 +13,8 @@ import { BlogPost } from '@/lib/blog-supabase'
 import { fetchSubDestinations } from '@/lib/pillar-data'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import AddressBookCard from '@/components/AddressBookCard'
+import { getAddressDestination, getAddressEntriesByDestination } from '@/lib/address-book'
 import { getPageZones } from '@/lib/cms-zones'
 
 const DESTINATION_IMAGES: Record<string, string> = {
@@ -182,6 +184,22 @@ export default async function DestinationPage({ slug }: Props) {
   const layoutConfig = await getPageLayout('destination')
   const activeBlocks = layoutConfig.filter(b => b.active).map(b => b.id)
 
+  const addressDestination = getAddressDestination(slug)
+  const addressEntries = getAddressEntriesByDestination(slug)
+  const hasAddressBook = Boolean(addressDestination) && addressEntries.length > 0
+
+  // Le carnet d'adresses n'est pas encore un bloc du layout CMS. On l'insère
+  // juste avant le CTA, sans toucher à la configuration existante : s'il est un
+  // jour ajouté en base, la déduplication ci-dessous évite le doublon.
+  const orderedBlocks = (() => {
+    if (!hasAddressBook || activeBlocks.includes('address_book')) return activeBlocks
+    const blocks = [...activeBlocks]
+    const ctaIndex = blocks.indexOf('cta')
+    if (ctaIndex >= 0) blocks.splice(ctaIndex, 0, 'address_book')
+    else blocks.push('address_book')
+    return blocks
+  })()
+
   const BlockHero = () => (
     <section className="relative min-h-[60vh] flex items-end overflow-hidden bg-stone-900">
       <EditableZone
@@ -340,6 +358,36 @@ export default async function DestinationPage({ slug }: Props) {
     </section>
   )
 
+  const BlockAddressBook = () => {
+    if (!addressDestination || addressEntries.length === 0) return null
+
+    return (
+      <section className="bg-stone-50 py-16 border-t border-b border-stone-200/60">
+        <div className="container max-w-5xl">
+          <p className="text-xs uppercase tracking-[0.2em] text-eucalyptus font-semibold mb-3">
+            Carnet d&apos;adresses
+          </p>
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+            <h2 className="text-2xl font-serif text-mahogany">
+              Les fiches vécues de {content.title}
+            </h2>
+            <Link
+              href={`/adresses/${addressDestination.slug}`}
+              className="text-sm font-semibold text-eucalyptus hover:underline"
+            >
+              Voir les {addressEntries.length} adresses de {content.title}
+            </Link>
+          </div>
+          <div className="grid gap-5 md:grid-cols-3">
+            {addressEntries.slice(0, 3).map((entry) => (
+              <AddressBookCard key={entry.slug} entry={entry} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   const BlockQuiz = () => (
     <section className="bg-cloud-dancer py-16">
       <div className="container max-w-4xl">
@@ -359,6 +407,7 @@ export default async function DestinationPage({ slug }: Props) {
     sub_destinations: BlockSubDestinations,
     tips: BlockTips,
     verdict: BlockVerdict,
+    address_book: BlockAddressBook,
     cta: BlockCTA,
     quiz: BlockQuiz,
     related_articles: BlockRelated,
@@ -375,7 +424,7 @@ export default async function DestinationPage({ slug }: Props) {
       />
       <Header />
       <main>
-        {activeBlocks.map(blockId => {
+        {orderedBlocks.map(blockId => {
           const Component = blockComponents[blockId]
           return Component ? <Component key={blockId} /> : null
         })}

@@ -8,6 +8,7 @@ import { useContentLoader } from '@/hooks/useContentLoader';
 const LABEL_DEFAULTS: Record<string, string> = {
   '/blog': 'Blog',
   '/destinations': 'Destinations',
+  '/adresses': 'Carnet d’adresses',
   '/a-propos': 'À propos',
   '/travel-planning': 'Travel Planning',
   '/travel-planning-form': 'Planifier',

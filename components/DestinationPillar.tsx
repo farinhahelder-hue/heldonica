@@ -10,6 +10,8 @@ import Footer from '@/components/Footer'
 import NewsletterForm from '@/components/NewsletterForm'
 import GuideDownloadButton from '@/components/GuideDownloadButton'
 import LeadMagnetBlock from '@/components/LeadMagnetBlock'
+import AddressBookCard from '@/components/AddressBookCard'
+import { getAddressDestination, getAddressEntriesByDestination } from '@/lib/address-book'
 import TestedByHeldonica from '@/components/TestedByHeldonica'
 import DestinationVerdict from '@/components/DestinationVerdict'
 import QuickAnswersBlock from '@/components/QuickAnswersBlock'
@@ -369,6 +371,39 @@ export default function DestinationPillar({
             </div>
           </div>
         </section>
+
+        {/* Carnet d'adresses — le hub destination nourrit le carnet, et l'inverse. */}
+        {(() => {
+          const addressDestination = getAddressDestination(data.slug)
+          const addressEntries = getAddressEntriesByDestination(data.slug)
+          if (!addressDestination || addressEntries.length === 0) return null
+
+          return (
+            <section className="border-t border-stone-200/60 bg-stone-50 py-16">
+              <div className="container max-w-5xl">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-eucalyptus">
+                  Carnet d&apos;adresses
+                </p>
+                <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+                  <h2 className="font-serif text-2xl text-mahogany">
+                    Les fiches vécues de {data.name}
+                  </h2>
+                  <Link
+                    href={`/adresses/${addressDestination.slug}`}
+                    className="text-sm font-semibold text-eucalyptus hover:underline"
+                  >
+                    Voir les {addressEntries.length} adresses de {data.name}
+                  </Link>
+                </div>
+                <div className="grid gap-5 md:grid-cols-3">
+                  {addressEntries.slice(0, 3).map((entry) => (
+                    <AddressBookCard key={entry.slug} entry={entry} />
+                  ))}
+                </div>
+              </div>
+            </section>
+          )
+        })()}
 
         {/* Lead Magnet Block */}
         <LeadMagnetBlock destinationSlug={data.slug} destinationName={data.name} />

@@ -17,6 +17,7 @@ import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import ArticlePreview from '@/components/admin/ArticlePreview';
 import { SkeletonTable, SkeletonForm, SkeletonCard } from '@/components/admin/SkeletonLoader';
 import BlockCanvas from '@/components/admin/blocks/BlockCanvas';
+import { CMS_CONTENT_TYPES, starterContent, type CmsContentType } from '@/lib/cms-content-types';
 import BlockRenderer from '@/components/blocks/BlockRenderer';
 import PhotoEvidenceBlock from '@/components/PhotoEvidenceBlock';
 import RevisionsDrawer from '@/components/admin/RevisionsDrawer';
@@ -615,6 +616,57 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
     setActiveSection('new-article');
   };
 
+  // Un nouvel article doit arriver avec un objet editable. Les champs ecrivent
+  // `prev ? ... : prev` : avec `null`, chaque frappe etait ignoree et
+  // Enregistrer ne faisait rien. `id: 0` reste faux, donc la sauvegarde part en
+  // POST ; l'id est retire du corps juste avant l'envoi.
+  const blankArticle = (): Article => ({
+    id: 0,
+    title: '',
+    slug: '',
+    content: '',
+    excerpt: '',
+    status: 'draft',
+    category: '',
+    tags: [],
+  });
+
+  const openNewArticle = () => {
+    setEditingArticle(blankArticle());
+    setActiveCmsBlocks([]);
+    setContentEditorMode('blocks');
+    setIsDirty(false);
+    setActiveSection('new-article');
+  };
+
+  // Demarrer par la structure du type : rubrique, tags et sections poses, texte
+  // vide. Rien n'est pre-ecrit — la regle « on n'invente rien » vaut aussi pour
+  // un gabarit de depart.
+  const applyContentType = (type: CmsContentType) => {
+    const content = starterContent(type);
+    setEditingArticle(prev => {
+      const base = prev ?? blankArticle();
+      return { ...base, category: type.category, tags: [...type.tags], content };
+    });
+    setActiveCmsBlocks(htmlToBlocks(content));
+    setContentEditorMode('blocks');
+    setIsDirty(true);
+    toast(`${type.label} : structure prête dans « ${type.category} »`, 'success');
+  };
+
+  const startFromContentType = (type: CmsContentType) => {
+    if (editingArticle?.content?.trim()) {
+      confirm(
+        'Remplacer le contenu ?',
+        `Le contenu en cours sera remplacé par la structure « ${type.label} ». Le titre et l'extrait sont conservés.`,
+        () => applyContentType(type),
+        'danger'
+      );
+      return;
+    }
+    applyContentType(type);
+  };
+
   // Depuis la file « À publier » : l'article n'est pas forcément dans la page
   // courante de la liste, on le lit par son id.
   const ouvrirDepuisFile = async (id: number) => {
@@ -630,15 +682,19 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
 
   // Guard: intercept sidebar navigation when article has unsaved changes
   const navigateTo = (section: NavSection) => {
+    const go = () => {
+      if (section === 'new-article' && !editingArticle) setEditingArticle(blankArticle());
+      setActiveSection(section);
+    };
     if (isDirty && activeSection === 'new-article' && section !== 'new-article') {
       confirm(
         'Modifications non sauvegardées',
         'Tu as des modifications non sauvegardées. Quitter sans sauvegarder ?',
-        () => { setIsDirty(false); setActiveSection(section); },
+        () => { setIsDirty(false); go(); },
         'danger'
       );
     } else {
-      setActiveSection(section);
+      go();
     }
     setMenuOuvert(false);
     try {
@@ -665,7 +721,8 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
       const url = editingArticle.id
         ? `/api/cms/articles/${editingArticle.id}`
         : '/api/cms/articles';
-      const body = { ...editingArticle };
+      // `id: 0` marque un brouillon local : il ne doit pas partir dans l'INSERT.
+      const body = editingArticle.id ? { ...editingArticle } : { ...editingArticle, id: undefined };
       if (editingArticle.status === 'scheduled' && !editingArticle.published_at) {
         throw new Error('Date de publication requise pour le statut planifié');
       }
@@ -1066,7 +1123,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                     <Download size={14} /> Export
                   </button>
                   <button
-                    onClick={() => { setEditingArticle(null); setActiveSection('new-article'); }}
+                    onClick={openNewArticle}
                     className="flex items-center gap-2 px-4 py-2 bg-[#2D8B7A] text-white rounded-lg text-sm font-medium hover:bg-[#256b5e]"
                   >
                     <Plus size={16} /> Nouvel article
@@ -1418,6 +1475,37 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                       >
                         Ignorer
                       </button>
+                    </div>
+                  </div>
+                )}
+
+                {!editingArticle?.id && (
+                  <div className="mb-4 rounded-2xl border border-stone-200 bg-white p-4">
+                    <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
+                      <div>
+                        <p className="text-sm font-semibold text-stone-900">Démarrer depuis un type de contenu</p>
+                        <p className="text-xs text-stone-500">
+                          La rubrique, les tags et les sections sont posés. Tu n'écris que ce que tu as vécu :
+                          rien n'est pré-rempli.
+                        </p>
+                      </div>
+                      <span className="text-[10px] uppercase tracking-wider text-stone-400">
+                        {editingArticle?.category || 'aucune rubrique'}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                      {CMS_CONTENT_TYPES.map(type => (
+                        <button
+                          key={type.id}
+                          type="button"
+                          onClick={() => startFromContentType(type)}
+                          className="text-left p-3 rounded-xl border border-stone-200 hover:border-[#2D8B7A] hover:bg-[#2D8B7A]/5 transition-colors"
+                          title={type.summary}
+                        >
+                          <span className="block text-xs font-semibold text-stone-900">{type.label}</span>
+                          <span className="block text-[11px] text-stone-500 leading-snug mt-0.5">{type.summary}</span>
+                        </button>
+                      ))}
                     </div>
                   </div>
                 )}

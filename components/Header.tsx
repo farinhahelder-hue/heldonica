@@ -82,8 +82,8 @@ export default function Header() {
   const safeNavItems = getZoneLinks(
     'nav_item',
     [
-      { label: 'Accueil', url: '/' },
       { label: 'Destinations', url: '/destinations' },
+      { label: 'Carnet d’adresses', url: '/adresses' },
       { label: 'Carnets de route', url: '/blog' },
       { label: 'Travel Planning', url: '/travel-planning' },
       { label: 'À propos', url: '/a-propos' },
