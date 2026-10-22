@@ -56,6 +56,7 @@ export default function ContactForm() {
     email_required: val('contact_form_error_email_required', "L'email est requis."),
     email_invalid: val('contact_form_error_email_invalid', 'Adresse email invalide.'),
     subject_required: val('contact_form_error_subject', "Choisis un sujet pour qu'on parte dans la bonne direction."),
+    message: val('contact_form_error_message', 'Le message est requis.'),
   }
 
   const btnLabel = val('contact_form_submit', 'Nous écrire →')
@@ -163,7 +164,7 @@ export default function ContactForm() {
         <label htmlFor="cf-message" className="mb-2 block text-sm font-semibold text-charcoal/90">{labels.message}</label>
         <textarea
           id="cf-message"
-          {...register('message', { required: 'Le message est requis.' })}
+          {...register('message', { required: errorsMsg.message })}
           rows={6}
           className={inputClass}
           placeholder={placeholders.message}

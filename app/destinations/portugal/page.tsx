@@ -283,7 +283,7 @@ export default async function PortugalPage() {
               href="/travel-planning"
               className="inline-flex items-center gap-2 px-6 py-3 bg-action text-white font-semibold rounded-sm hover:bg-action-fonce transition-colors text-sm"
             >
-              Planifier mon voyage Portugal →
+              {Z('cta_button', 'text', 'Préparer un voyage', undefined, 'span')}
             </Link>
           </div>          <div className="pt-4 border-t border-[#DED5C6]">
             <Link href="/destinations" className="text-sm text-eucalyptus font-semibold hover:underline">

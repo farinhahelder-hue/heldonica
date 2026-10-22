@@ -1,0 +1,175 @@
+-- Zones globales : tous les textes du menu, du pied de page, du bandeau
+-- cookies, de la fenêtre « guide gratuit » et des formulaires de contact et de
+-- newsletter deviennent modifiables depuis le CMS.
+--
+-- POURQUOI UNE MIGRATION
+-- Ces composants lisent les zones de la page `global` via getCmsOrSetting /
+-- getZoneLinks. L'éditeur de zones (EditableZonesManager) ne liste que les
+-- lignes présentes en base : une clé lue par le code mais absente de la table
+-- n'est modifiable nulle part. Cette migration crée la ligne de chaque clé.
+--
+-- VALEUR DE DÉPART : rien ne change à l'écran
+--   - si un réglage site_settings existe pour la clé (getCmsOrSetting lit son
+--     second argument, les accesseurs locaux la même clé), on reprend sa
+--     valeur : c'est ce qui s'affiche aujourd'hui ;
+--   - sinon, le repli écrit dans le composant.
+--
+-- Idempotente : ON CONFLICT DO NOTHING. Une zone existante (active ou non)
+-- n'est jamais modifiée.
+--
+-- Générée depuis le code le 22/10/2026 : 142 clés.
+
+INSERT INTO public.cms_editable_zones (page, zone_key, zone_type, value, is_active)
+SELECT 'global', v.zone_key, 'text', COALESCE(NULLIF(s.value, ''), v.repli), true
+FROM (VALUES
+    -- Header.tsx
+    ('header_account_space_label', '', 'Mon espace'),
+    ('header_account_login_label', '', 'Connexion'),
+    ('header_menu_title', '', 'Menu'),
+    ('header_mobile_link_1_label', '', 'Contact'),
+    ('header_mobile_link_1_url', '', '/contact'),
+    ('header_mobile_link_2_label', '', 'Mentions légales'),
+    ('header_mobile_link_2_url', '', '/mentions-legales'),
+    ('header_mobile_link_3_label', '', 'Confidentialité'),
+    ('header_mobile_link_3_url', '', '/politique-confidentialite'),
+    ('header_site_name', 'site_name', 'Heldonica'),
+    ('header_cta_label', 'primary_cta_label', 'Préparer un voyage'),
+    ('header_cta_url', 'primary_cta_url', '/travel-planning'),
+    ('header_logo_url', 'logo_url', ''),
+    ('nav_item_1_label', '', 'Carnets'),
+    ('nav_item_1_url', '', '/blog'),
+    ('nav_item_2_label', '', 'Destinations'),
+    ('nav_item_2_url', '', '/destinations'),
+    ('nav_item_3_label', '', 'Voyager avec nous'),
+    ('nav_item_3_url', '', '/travel-planning'),
+    ('nav_item_4_label', '', 'Le duo'),
+    ('nav_item_4_url', '', '/a-propos'),
+    ('nav_item_5_label', '', 'Hôteliers'),
+    ('nav_item_5_url', '', '/expert-hotelier'),
+    -- Footer.tsx
+    ('footer_tagline', 'site_tagline', 'Slow travel vécu, conçu pour toi.'),
+    ('footer_newsletter_cta', 'footer_newsletter_cta', 'Reçois nos pépites directement dans ta boîte mail'),
+    ('footer_email_placeholder', 'footer_email_placeholder', 'ton@email.fr'),
+    ('footer_cta_label', 'footer_cta_label', 'Ecrire a Heldonica'),
+    ('footer_cta_url', 'footer_cta_url', 'mailto:contact@heldonica.fr'),
+    ('footer_copyright', 'footer_text', '© {année} Heldonica. Tous droits réservés.'),
+    ('footer_email', 'contact_email', 'contact@heldonica.fr'),
+    ('social_instagram_url', 'social_instagram', 'https://www.instagram.com/heldonica/'),
+    ('social_youtube_url', 'social_youtube', 'https://www.youtube.com/@heldonica'),
+    ('social_pinterest_url', 'social_pinterest', 'https://fr.pinterest.com/heldonica'),
+    ('footer_nav_item_1_label', '', 'Carnets'),
+    ('footer_nav_item_1_url', '', '/blog'),
+    ('footer_nav_item_2_label', '', 'Destinations'),
+    ('footer_nav_item_2_url', '', '/destinations'),
+    ('footer_nav_item_3_label', '', 'Voyager avec nous'),
+    ('footer_nav_item_3_url', '', '/travel-planning'),
+    ('footer_nav_item_4_label', '', 'Le duo'),
+    ('footer_nav_item_4_url', '', '/a-propos'),
+    ('footer_nav_item_5_label', '', 'Hôteliers'),
+    ('footer_nav_item_5_url', '', '/expert-hotelier'),
+    ('footer_nav_item_6_label', '', 'Contact'),
+    ('footer_nav_item_6_url', '', '/contact'),
+    ('footer_dest_item_1_label', '', 'Madère'),
+    ('footer_dest_item_1_url', '', '/destinations/madere'),
+    ('footer_dest_item_2_label', '', 'Roumanie'),
+    ('footer_dest_item_2_url', '', '/destinations/roumanie'),
+    ('footer_dest_item_3_label', '', 'Monténégro'),
+    ('footer_dest_item_3_url', '', '/destinations/montenegro'),
+    ('footer_guide_item_1_label', '', 'Guide Madère'),
+    ('footer_guide_item_1_url', '', '/guides/top-10-pepites-madere'),
+    ('footer_guide_item_2_label', '', 'Guides pratiques'),
+    ('footer_guide_item_2_url', '', '/blog?categorie=Guides Pratiques'),
+    ('footer_guide_item_3_label', '', 'Carnets de voyage'),
+    ('footer_guide_item_3_url', '', '/blog?categorie=Carnets Voyage'),
+    ('footer_legal_item_1_label', '', 'Mentions légales'),
+    ('footer_legal_item_1_url', '', '/mentions-legales'),
+    ('footer_legal_item_2_label', '', 'Politique de confidentialité'),
+    ('footer_legal_item_2_url', '', '/politique-confidentialite'),
+    ('footer_legal_item_3_label', '', 'Programme partenaires'),
+    ('footer_legal_item_3_url', '', '/politique-affiliation'),
+    ('nav_footer_title', '', 'Navigation'),
+    ('destinations_footer_title', '', 'Destinations'),
+    ('guides_footer_title', '', 'Guides gratuits'),
+    ('legal_footer_title', '', 'Légal'),
+    ('newsletter_title', '', 'Reçois les pépites avant les autres'),
+    ('footer_newsletter_badge', '', 'Lettre de route'),
+    ('footer_newsletter_desc', '', 'Chaque semaine : un lieu qu''on a aimé, un conseil qu''on aurait aimé avoir avant, et parfois un avant-goût de ce qu''on prépare. Pas de spam, jamais.'),
+    ('footer_newsletter_success_title', '', 'C''est noté dans nos carnets.'),
+    ('footer_newsletter_success_text', '', 'Tu recevras notre prochaine lettre très vite.'),
+    ('footer_brand_baseline', '', 'Slow travel vécu'),
+    ('footer_logo_alt', '', 'Sceau officiel Heldonica'),
+    -- CookieConsentBanner.tsx
+    ('cookie_title', 'cookie_title', 'Cookies et vie privée'),
+    ('cookie_text', 'cookie_text', 'Nous utilisons des cookies strictement nécessaires au fonctionnement du site. Les cookies de mesure d’audience et marketing ne sont actifs qu’avec ton consentement.'),
+    ('cookie_details_prefix', 'cookie_details_prefix', 'Détails :'),
+    ('cookie_privacy_label', 'cookie_privacy_label', 'Politique de confidentialité'),
+    ('cookie_details_joiner', 'cookie_details_joiner', 'et'),
+    ('cookie_legal_label', 'cookie_legal_label', 'Mentions légales'),
+    ('cookie_reject_label', 'cookie_reject_label', 'Refuser'),
+    ('cookie_accept_label', 'cookie_accept_label', 'Accepter'),
+    -- NewsletterPopup.tsx
+    ('popup_error_invalid', 'popup_error_invalid', 'Adresse email invalide'),
+    ('popup_error_generic', 'popup_error_generic', 'Erreur lors de l''inscription'),
+    ('popup_error_network', 'popup_error_network', 'Erreur réseau. Réessaie plus tard.'),
+    ('popup_success_title', 'popup_success_title', 'Bienvenue dans l''aventure !'),
+    ('popup_success_text', 'popup_success_text', 'Tu vas recevoir nos carnets de voyage et nos meilleures pépites.'),
+    ('popup_badge', 'popup_badge', 'Guide gratuit'),
+    ('popup_title', 'popup_title', 'Reçois les 10 meilleures adresses Madère'),
+    ('popup_desc', 'popup_desc', 'On t''envoie notre guide testé sur le terrain + les pépites chaque semaine. Pas de spam, jamais.'),
+    ('popup_email_label', 'popup_email_label', 'Ton adresse email'),
+    ('popup_email_placeholder', 'popup_email_placeholder', 'ton@email.fr'),
+    ('popup_consent_text', 'popup_consent_text', 'J''accepte de recevoir le guide et les e-mails de slow travel d''Heldonica. Voir notre'),
+    ('popup_consent_link', 'popup_consent_link', 'politique de confidentialité'),
+    ('popup_cta_loading', 'popup_cta_loading', 'Inscription...'),
+    ('popup_cta', 'popup_cta', 'Je veux le guide →'),
+    ('popup_footnote', 'popup_footnote', 'Désinscription possible à tout moment.'),
+    -- NewsletterForm.tsx
+    ('newsletter_error_invalid', 'newsletter_error_invalid', 'Adresse email invalide.'),
+    ('newsletter_success_title', 'newsletter_success_title', 'Bienvenue dans l''aventure !'),
+    ('newsletter_error_generic', 'newsletter_error_generic', 'Une erreur est survenue. Réessaie.'),
+    ('newsletter_error_network', 'newsletter_error_network', 'Connexion impossible. Réessaie dans quelques instants.'),
+    ('newsletter_badge', 'newsletter_badge', 'Chaque semaine'),
+    ('newsletter_heading_default', 'newsletter_heading_default', 'On t''envoie ce qu''on a vraiment trouvé.'),
+    ('newsletter_heading_blog', 'newsletter_heading_blog', 'Ce qu''on a vraiment trouvé,<br />directement dans ta boîte mail'),
+    ('newsletter_desc', 'newsletter_desc', 'Une adresse, un timing, une erreur à éviter. Rien de plus.'),
+    ('newsletter_placeholder', 'newsletter_placeholder', 'ton@email.fr'),
+    ('newsletter_cta', 'newsletter_cta', 'Je m''abonne'),
+    ('newsletter_cta_loading', 'newsletter_cta_loading', 'Inscription…'),
+    ('newsletter_disclaimer', 'newsletter_disclaimer', 'En t''inscrivant, tu acceptes de recevoir nos carnets de voyage. Désinscription possible à tout moment.'),
+    ('newsletter_success_subtext', 'newsletter_success_subtext', 'Vérifie ta boîte mail, on arrive doucement.'),
+    ('newsletter_rgpd_label', 'newsletter_rgpd_label', 'J''accepte de recevoir les e-mails de slow travel d''Heldonica. Voir notre'),
+    ('newsletter_rgpd_link', 'newsletter_rgpd_link', 'politique de confidentialité'),
+    ('newsletter_email_label', 'newsletter_email_label', 'Ton adresse email'),
+    -- ContactForm.tsx
+    ('contact_form_name_label', 'contact_form_name_label', 'Nom *'),
+    ('contact_form_email_label', 'contact_form_email_label', 'Email *'),
+    ('contact_form_phone_label', 'contact_form_phone_label', 'Téléphone'),
+    ('contact_form_subject_label', 'contact_form_subject_label', 'Sujet *'),
+    ('contact_form_message_label', 'contact_form_message_label', 'Message *'),
+    ('contact_form_name_placeholder', 'contact_form_name_placeholder', 'Ton nom'),
+    ('contact_form_email_placeholder', 'contact_form_email_placeholder', 'toi@email.fr'),
+    ('contact_form_phone_placeholder', 'contact_form_phone_placeholder', 'Si tu veux qu''on te rappelle'),
+    ('contact_form_subject_placeholder', 'contact_form_subject_placeholder', 'Choisir un sujet'),
+    ('contact_form_message_placeholder', 'contact_form_message_placeholder', 'Raconte-nous le contexte: destination, timing, budget, énergie du moment, ce que tu veux éviter.'),
+    ('contact_form_error_name', 'contact_form_error_name', 'Le nom est requis.'),
+    ('contact_form_error_email_required', 'contact_form_error_email_required', 'L''email est requis.'),
+    ('contact_form_error_email_invalid', 'contact_form_error_email_invalid', 'Adresse email invalide.'),
+    ('contact_form_error_subject', 'contact_form_error_subject', 'Choisis un sujet pour qu''on parte dans la bonne direction.'),
+    ('contact_form_error_message', 'contact_form_error_message', 'Le message est requis.'),
+    ('contact_form_submit', 'contact_form_submit', 'Nous écrire →'),
+    ('contact_form_submit_loading', 'contact_form_submit_loading', 'Envoi en cours...'),
+    ('contact_form_success', 'contact_form_success', 'Merci. On a bien reçu ton message et on revient vers toi sous 48h.'),
+    ('contact_form_error_generic', 'contact_form_error_generic', 'Le message n''a pas pu partir. Réessaie ici ou écris-nous directement à contact@heldonica.fr.'),
+    ('contact_form_subject_option_placeholder', 'contact_form_subject_option_placeholder', 'Choisir un sujet'),
+    ('contact_form_subject_option_travel', 'contact_form_subject_option_travel', 'Voyage sur mesure'),
+    ('contact_form_subject_option_hebergeur', 'contact_form_subject_option_hebergeur', 'Consulting hébergeur / hôtelier'),
+    ('contact_form_subject_option_carnet', 'contact_form_subject_option_carnet', 'Question sur un carnet'),
+    ('contact_form_subject_option_partnership', 'contact_form_subject_option_partnership', 'Partenariat / média'),
+    ('contact_form_subject_option_other', 'contact_form_subject_option_other', 'Autre'),
+    ('contact_form_error_rgpd', 'contact_form_error_rgpd', 'Merci de valider ce point avant d''envoyer.'),
+    ('contact_form_rgpd_label', 'contact_form_rgpd_label', 'J''accepte que ces informations soient utilisées pour me répondre. Voir notre'),
+    ('contact_form_rgpd_link', 'contact_form_rgpd_link', 'politique de confidentialité'),
+    ('contact_form_reassurance', 'contact_form_reassurance', 'Réponse humaine sous 48h · Sans tunnel automatique · Données non revendues')
+) AS v(zone_key, setting_key, repli)
+LEFT JOIN public.site_settings s ON v.setting_key <> '' AND s.key = v.setting_key
+ON CONFLICT (page, zone_key) DO NOTHING;

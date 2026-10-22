@@ -172,6 +172,16 @@ function collectReaders() {
         }
       }
 
+      // 0 quinquies. useZoneTexts(PAGE | 'page', { cle: 'repli', … }) — textes
+      //   qu'un <EditableZone> ne peut pas envelopper (placeholder, états d'un
+      //   bouton, écran de confirmation), inscrits dans la barre latérale.
+      //   Les clés sont les propriétés de l'objet.
+      for (const m of src.matchAll(/useZoneTexts\(\s*(?:['"]([a-z0-9-]+)['"]|PAGE)\s*,\s*\{([^]*?)\}\s*\)/g)) {
+        const page = m[1] || filePage;
+        if (!page) continue;
+        for (const k of m[2].matchAll(/^\s*([a-z0-9_]+)\s*:/gm)) exact.add(`${page}__${k[1]}`);
+      }
+
       // 0 ter. buildPageMetadata('page', …) consomme trois zones SEO par page.
       //    Le premier argument peut être la constante PAGE du fichier.
       if (filePage && /buildPageMetadata\(\s*PAGE\b/.test(src)) {

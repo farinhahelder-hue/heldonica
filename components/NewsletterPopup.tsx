@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { readCookieConsent } from '@/lib/consent'
 import { estRouteAdmin } from '@/lib/routes-admin'
+import { useContentLoader, getCmsOrSetting } from '@/hooks/useContentLoader'
+import type { CmsZone } from '@/lib/content-loader'
 
 // Jamais sur les pages offre : un pop-up "guide gratuit" pendant un tunnel d'achat détourne l'intention.
 const EXCLUDED_PATH_PREFIXES = ['/travel-planning', '/expert-hotelier']
@@ -20,6 +22,9 @@ export default function NewsletterPopup() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [errorMessage, setErrorMessage] = useState('')
   const [hasConsentChoice, setHasConsentChoice] = useState(false)
+  const { zones, settings } = useContentLoader()
+  const t = (zoneKey: string, fallback: string) =>
+    getCmsOrSetting(zoneKey, '', fallback, zones as Record<string, CmsZone>, settings)
 
   // Listen to cookie consent updates
   useEffect(() => {
@@ -109,7 +114,7 @@ export default function NewsletterPopup() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email || !email.includes('@')) {
-      setErrorMessage('Adresse email invalide')
+      setErrorMessage(t('popup_error_invalid', 'Adresse email invalide'))
       return
     }
 
@@ -129,11 +134,11 @@ export default function NewsletterPopup() {
       } else {
         const data = await res.json()
         setStatus('error')
-        setErrorMessage(data.error || 'Erreur lors de l\'inscription')
+        setErrorMessage(data.error || t('popup_error_generic', "Erreur lors de l'inscription"))
       }
     } catch {
       setStatus('error')
-      setErrorMessage('Erreur réseau. Réessaie plus tard.')
+      setErrorMessage(t('popup_error_network', 'Erreur réseau. Réessaie plus tard.'))
     }
   }
 
@@ -182,35 +187,34 @@ export default function NewsletterPopup() {
       {status === 'success' ? (
         <div className="text-center py-4">
           <h3 className="text-xl font-bold mb-2">
-            Bienvenue dans l&apos;aventure !
+            {t('popup_success_title', "Bienvenue dans l'aventure !")}
           </h3>
           <p className="text-stone-600 text-sm">
-            Tu vas recevoir nos carnets de voyage et nos meilleures pépites.
+            {t('popup_success_text', 'Tu vas recevoir nos carnets de voyage et nos meilleures pépites.')}
           </p>
         </div>
       ) : (
         <>
           <div className="mb-4">
             <span className="inline-block px-3 py-1 bg-eucalyptus/20 text-eucalyptus text-xs font-semibold rounded-full uppercase tracking-wider mb-3">
-              Guide gratuit
+              {t('popup_badge', 'Guide gratuit')}
             </span>
             <h3 className="text-xl font-bold mb-2">
-              Reçois les 10 meilleures adresses Madère
+              {t('popup_title', 'Reçois les 10 meilleures adresses Madère')}
             </h3>
             <p className="text-stone-600 text-sm leading-relaxed">
-              On t&apos;envoie notre guide testé sur le terrain + les pépites chaque semaine.
-              Pas de spam, jamais.
+              {t('popup_desc', "On t'envoie notre guide testé sur le terrain + les pépites chaque semaine. Pas de spam, jamais.")}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-3">
-            <label htmlFor="popup-newsletter-email" className="sr-only">Ton adresse email</label>
+            <label htmlFor="popup-newsletter-email" className="sr-only">{t('popup_email_label', 'Ton adresse email')}</label>
             <input
               id="popup-newsletter-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="ton@email.fr"
+              placeholder={t('popup_email_placeholder', 'ton@email.fr')}
               required
               className="w-full px-4 py-3 rounded-sm bg-stone-800 border border-stone-700 text-white placeholder-stone-500 focus:outline-none focus:border-eucalyptus transition-colors text-sm"
             />
@@ -222,9 +226,9 @@ export default function NewsletterPopup() {
                 className="mt-1 h-4 w-4 rounded border-stone-700 bg-stone-800 text-eucalyptus focus:ring-eucalyptus cursor-pointer"
               />
               <label htmlFor="popup-newsletter-rgpd" className="text-[11px] text-stone-400 leading-normal">
-                J'accepte de recevoir le guide et les e-mails de slow travel d'Heldonica. Voir notre{' '}
+                {t('popup_consent_text', "J'accepte de recevoir le guide et les e-mails de slow travel d'Heldonica. Voir notre")}{' '}
                 <a href="/politique-confidentialite" className="text-eucalyptus hover:underline font-medium">
-                  politique de confidentialité
+                  {t('popup_consent_link', 'politique de confidentialité')}
                 </a>.
               </label>
             </div>
@@ -233,7 +237,7 @@ export default function NewsletterPopup() {
               disabled={status === 'loading'}
               className="w-full px-6 py-3.5 bg-action text-white font-bold rounded-sm hover:bg-action-fonce transition-all text-sm disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              {status === 'loading' ? 'Inscription...' : 'Je veux le guide →'}
+              {status === 'loading' ? t('popup_cta_loading', 'Inscription...') : t('popup_cta', 'Je veux le guide →')}
             </button>
           </form>
 
@@ -244,7 +248,7 @@ export default function NewsletterPopup() {
           )}
 
           <p className="text-stone-600 text-xs mt-4 text-center">
-            Désinscription possible à tout moment.
+            {t('popup_footnote', 'Désinscription possible à tout moment.')}
           </p>
         </>
       )}
