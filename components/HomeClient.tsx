@@ -409,7 +409,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             poster={posterSrc}
           />
         ) : (
-          <Image src={posterSrc} alt="" fill priority sizes="100vw" quality={80}
+          <Image src={posterSrc} alt="" fill priority sizes="100vw" quality={75}
             className="object-cover opacity-[0.65]" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-[#1A1614]/90 via-[#1A1614]/30 to-transparent z-10" />
