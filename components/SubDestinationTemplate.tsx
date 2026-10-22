@@ -315,7 +315,7 @@ export default function SubDestinationTemplate({
               href="/travel-planning"
               className="px-7 py-3 bg-action text-[#FAF7F2] rounded-sm font-medium text-xs uppercase tracking-[0.16em] hover:bg-action-fonce transition-colors"
             >
-              <EditableZone page={page} zone="cta_button_1" fallback="Planifier mon voyage" />
+              <EditableZone page={page} zone="cta_button_1" fallback="Préparer un voyage" />
             </Link>
             <Link
               href={`/destinations/${parentSlug}`}
