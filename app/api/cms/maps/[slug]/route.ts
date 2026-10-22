@@ -2,15 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireCmsAuth } from '@/lib/cms-auth';
 
-// Route serveur derrière requireCmsAuth : on utilise la clé service_role
-// (la clé anon legacy est désactivée côté Supabase depuis le 19/08).
+// Route serveur : la clé anon legacy est désactivée depuis le 19/08.
+// Le GET est public (ArticleMap, sans cookie). Les écritures restent derrière requireCmsAuth.
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
 const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
-  const auth = await requireCmsAuth(req);
-  if (auth) return auth;
+export const revalidate = 300;
+
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
+  // Le middleware ouvre déjà les GET /api/cms/*. ArticleMap lit cette route sans session.
   if (!supabase) return NextResponse.json({ error: 'Supabase non configuré' }, { status: 503 });
 
   const { slug } = await params;
