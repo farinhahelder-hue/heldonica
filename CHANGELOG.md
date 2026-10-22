@@ -2240,25 +2240,35 @@ sans exister dans l'arbre. `npx tsc --noEmit` remontait 11 erreurs TS2307 et
 ## [2026-10-04] — Délégation Jules Vague 9 : Amélioration et Industrialisation du Cerveau (Heldonica Brain II & CMS Copilote)
 
 ### Réalisations & Attribution de Tâches à Google Jules
+
+> **ANNONCÉ, NON LIVRÉ — vérifié le 21/10/2026.** Les 4 sessions ci-dessous ont
+> été *créées* via l'API Jules, mais **aucun de leurs livrables n'existe dans ce
+> dépôt** : `git log --all` ne trouve **aucun commit** pour
+> `BrainHealthMonitor`, `ShortsGalleryPanel`, `hybrid_knowledge_retriever`,
+> `brand-voice-autofix` ni `validate-voice`. Les deux scripts de dispatch cités
+> au point 5 sont absents eux aussi. Cette section décrit des **intentions**, pas
+> des fonctionnalités. Ne rien construire dessus sans vérifier d'abord le fichier
+> dans l'arborescence. Suivi : fiche `agent_tasks` `f206ca15` (`scope=tracabilite-changelog`).
+
 4 nouvelles sessions à fort impact ont été créées via l'API Google Jules pour enrichir et monitorer le Cerveau (Heldonica Brain II & Copilote CMS) :
 
-1. **Session #31** (`heldonica`, ID `6473189658887798322`, URL : https://jules.google.com/session/6473189658887798322) :
+1. **Session #31** (`heldonica`, ID `6473189658887798322`, URL : https://jules.google.com/session/6473189658887798322) — *non livré* :
    - *Titre* : `feat(brain-cms): Tableau de bord temps reel et moniteur de sante Brain II dans le Panel Manager`
    - *Périmètre* : Composant `BrainHealthMonitor.tsx` dans `components/cms/` interrogeant `/api/brain/status` (CPU %, RAM %, statut vert/rouge, latence ms, modèle LLM actif, tâches en cours), intégré à `app/panel-manager/brain/page.tsx` avec tests Vitest.
 
-2. **Session #32** (`heldonica`, ID `9859007501490998508`, URL : https://jules.google.com/session/9859007501490998508) :
+2. **Session #32** (`heldonica`, ID `9859007501490998508`, URL : https://jules.google.com/session/9859007501490998508) — *non livré* :
    - *Titre* : `feat(brain-shorts): Galerie de visualisation et declencheur de Shorts 9:16 dans le Panel Manager`
    - *Périmètre* : `ShortsGalleryPanel.tsx` et page `app/panel-manager/brain/shorts/page.tsx` pour prévisualiser les shorts verticaux 9:16 produits par le Brain II (parallaxe 3D, badges or, sous-titres, audio), téléchargement MP4, et déclencheur direct `ShortsProductionModal.tsx` avec tests Vitest.
 
-3. **Session #33** (`history-content-studio`, ID `4234061000811524343`, URL : https://jules.google.com/session/4234061000811524343) :
+3. **Session #33** (`history-content-studio`, ID `4234061000811524343`, URL : https://jules.google.com/session/4234061000811524343) — *non vérifié ici* :
    - *Titre* : `feat(brain-rag): Moteur de recherche semantique hybride BM25 et vecteur pour le Coffre des Savoirs`
    - *Périmètre* : Outil CLI `tools/hybrid_knowledge_retriever.py` combinant indexation textuelle BM25 (dates et entités précises) et similarité vectorielle cosinus via Reciprocal Rank Fusion (RRF k=60) avec tests pytest.
 
-4. **Session #34** (`heldonica`, ID `12645695234480873273`, URL : https://jules.google.com/session/12645695234480873273) :
+4. **Session #34** (`heldonica`, ID `12645695234480873273`, URL : https://jules.google.com/session/12645695234480873273) — *non livré* :
    - *Titre* : `feat(brand-guard): Service de conformite et auto-correction editoriale selon la voix Heldonica`
    - *Périmètre* : Module `lib/brand-voice-autofix.ts` et route API `/api/brain/validate-voice` vérifiant la conformité stricte avec `lib/brand-voice.ts` (mots bannis, anonymat des fondateurs, ton slow travel) avec suggestions et correction automatique, et tests Vitest.
 
-5. **Coordination & Traçabilité** :
+5. **Coordination & Traçabilité** — *scripts absents du dépôt* :
    - Script de dispatch : `scripts/dispatch_wave9_brain_enhancements.py`
    - Script d'enregistrement SQL : `scripts/register_wave9_jules_tasks.sql`
 
