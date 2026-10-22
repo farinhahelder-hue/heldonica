@@ -588,28 +588,29 @@ export default function VideoEditor() {
             justifyContent: 'center',
             gap: '1rem',
           }}>
-            <button onClick={() => setCurrentTime(0)} style={iconButtonStyle} title="Retour au début">
+            <button onClick={() => setCurrentTime(0)} style={iconButtonStyle} title="Retour au début" aria-label="Retour au début">
               <RotateCcw size={20} />
             </button>
-            <button onClick={() => setCurrentTime(Math.max(0, currentTime - 5))} style={iconButtonStyle} title="5s en arrière">
+            <button onClick={() => setCurrentTime(Math.max(0, currentTime - 5))} style={iconButtonStyle} title="5s en arrière" aria-label="5s en arrière">
               <ChevronLeft size={20} />
             </button>
             <button
               onClick={() => setIsPlaying(!isPlaying)}
               style={{ ...iconButtonStyle, width: 56, height: 56, background: COLORS.primary, color: 'white', borderRadius: '50%' }}
               title={isPlaying ? 'Pause' : 'Lecture'}
+              aria-label={isPlaying ? 'Pause' : 'Lecture'}
             >
               {isPlaying ? <Pause size={28} /> : <Play size={28} style={{ marginLeft: 4 }} />}
             </button>
-            <button onClick={() => setCurrentTime(Math.min(totalDuration, currentTime + 5))} style={iconButtonStyle} title="5s en avant">
+            <button onClick={() => setCurrentTime(Math.min(totalDuration, currentTime + 5))} style={iconButtonStyle} title="5s en avant" aria-label="5s en avant">
               <ChevronRight size={20} />
             </button>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: '1rem' }}>
-              <button onClick={() => setZoom(z => Math.max(10, z - 10))} style={iconButtonStyle} title="Zoom -">
+              <button onClick={() => setZoom(z => Math.max(10, z - 10))} style={iconButtonStyle} title="Zoom -" aria-label="Zoom arrière">
                 <ZoomOut size={18} />
               </button>
               <span style={{ fontSize: '0.8rem', color: COLORS.textMuted, minWidth: 40, textAlign: 'center' }}>{zoom}%</span>
-              <button onClick={() => setZoom(z => Math.min(200, z + 10))} style={iconButtonStyle} title="Zoom +">
+              <button onClick={() => setZoom(z => Math.min(200, z + 10))} style={iconButtonStyle} title="Zoom +" aria-label="Zoom avant">
                 <ZoomIn size={18} />
               </button>
             </div>
@@ -782,7 +783,7 @@ export default function VideoEditor() {
             <button style={smallButtonStyle} title="Ajouter piste">
               <Plus size={14} /> Piste
             </button>
-            <button style={smallButtonStyle} title="Supprimer clip" onClick={() => selectedClipId && deleteClip(selectedClipId)} disabled={!selectedClipId}>
+            <button style={smallButtonStyle} title="Supprimer clip" aria-label="Supprimer clip" onClick={() => selectedClipId && deleteClip(selectedClipId)} disabled={!selectedClipId}>
               <Trash2 size={14} />
             </button>
           </div>
