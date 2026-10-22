@@ -2,6 +2,15 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-22] — Lisibilité : taille de base 17px, réglage CMS enfin effectif, logos réglables (fiche 9ddd2d1c)
+
+- **Cause racine trouvée** : `--font-size-base` était posée sur `body` dans `app/globals.css`, alors que les classes Tailwind (`text-sm`, `text-xs`…) sont exprimées en `rem` et se calculent donc sur `html`. Le réglage CMS « Taille de base » (onglet Apparence) n'avait **aucun effet** sur le corps de texte du site. Mesure sur le CSS servi avant correctif : `.text-sm{font-size:.875rem}` + `body{font-size:var(--font-size-base,16px)}`.
+- **Correctif** : la variable est désormais posée sur `html` (`app/globals.css`), et le défaut passe de 16px à **17px**. Le réglage CMS pilote maintenant réellement l'ensemble du site, de 14px à 20px.
+- **Logos réglables** : ajout des réglages `logo_size_header` (24→48px, défaut 32px) et `logo_size_footer` (40→80px, défaut 56px) dans `components/SiteTheme.tsx` (variables `--logo-size-header` / `--logo-size-footer`) et dans l'éditeur de design (`components/admin/DesignEditor.tsx`, onglet Logo).
+- **Le sceau du pied de page était figé dans le code** (`components/Footer.tsx`) : il suivait `/images/branding/logo-seal-light.png` en dur et ignorait le réglage « Logo du site ». Il suit désormais la cascade habituelle `footer_logo_url` → `logo_url` → défaut, et sa taille `footer_logo_size` → `logo_size_footer`.
+- **Plancher de lisibilité relevé** : les 22 fichiers publics qui descendaient à `text-[10px]` ou `text-[11px]` (~140 occurrences) passent à `text-xs`. Aucun `text-[8px]`/`text-[9px]` ne subsiste hors administration. Aucune taille en px fixe ne reste dans les pages publiques, ce qui rend le réglage de base effectif partout.
+- **Vérifié** : 16/16 garde-fous verts, `tsc` sans erreur, build OK, 7 pages publiques en 200, réglage appliqué mesuré dans le HTML servi (`--font-size-base: 17px`).
+
 ## [2026-10-22] — Correctif traçabilité CMS & purge des tics visuels (fiches cf31fe6d & 91b54bbb)
 
 - **Fiche cf31fe6d : Réparation de l'historisation des zones (`cms_zone_history`)** :

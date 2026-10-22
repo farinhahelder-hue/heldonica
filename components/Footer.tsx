@@ -123,6 +123,10 @@ export default function Footer() {
   )
   const brandBaseline = getCmsOrSetting('footer_brand_baseline', '', 'Slow travel vécu', z, settings)
   const logoAlt = getCmsOrSetting('footer_logo_alt', '', 'Sceau officiel Heldonica', z, settings)
+  // Le sceau etait fige dans le code : ni le reglage « Logo du site » ni une
+  // taille choisie au CMS ne l'atteignaient. Cascade habituelle du projet.
+  const footerLogoUrl = getCmsOrSetting('footer_logo_url', 'logo_url', '/images/branding/logo-seal-light.png', z, settings)
+  const footerLogoSize = getCmsOrSetting('footer_logo_size', 'logo_size_footer', '56px', z, settings)
 
   const socialLinks = [
     ...(socialIg ? [{ href: socialIg, label: 'Instagram', icon: <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.322a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z" /></svg> }] : []),
@@ -164,7 +168,7 @@ export default function Footer() {
         <div className="mx-auto max-w-6xl px-6 py-14 md:py-16">
           <div className="grid md:grid-cols-2 gap-10 items-center">
             <div>
-              <p className="text-[11px] uppercase tracking-[0.2em] text-[#B8A99A] mb-2">{newsletterBadge}</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-[#B8A99A] mb-2">{newsletterBadge}</p>
               <h3 className="text-2xl md:text-3xl font-serif font-normal text-[#F7F3EC] mb-3">
                 {newsletterTitle}
               </h3>
@@ -208,15 +212,16 @@ export default function Footer() {
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="flex items-center gap-3.5 mb-4 group">
               <Image
-                src="/images/branding/logo-seal-light.png"
+                src={footerLogoUrl}
                 alt={logoAlt}
                 width={56}
                 height={56}
-                className="w-14 h-14 object-contain opacity-90 transition-opacity duration-300 group-hover:opacity-100 flex-shrink-0"
+                style={{ height: footerLogoSize, width: 'auto' }}
+                className="object-contain opacity-90 transition-opacity duration-300 group-hover:opacity-100 flex-shrink-0"
               />
               <div>
                 <span className="text-2xl font-serif font-normal text-[#F7F3EC] block leading-tight">{siteName}</span>
-                <span className="text-[10px] uppercase tracking-[0.2em] text-[#B8A99A]">{brandBaseline}</span>
+                <span className="text-xs uppercase tracking-[0.2em] text-[#B8A99A]">{brandBaseline}</span>
               </div>
             </Link>
             <p className="text-sm font-serif italic text-[#C8B9A6] mb-4">{footerTagline}</p>

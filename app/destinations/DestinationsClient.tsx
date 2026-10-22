@@ -111,7 +111,7 @@ export default function DestinationsClient() {
             {/* Ces trois textes passaient par settings.destinations_hub_*, clés
                 qui n'ont jamais existé dans site_settings : le composant servait
                 donc ses littéraux. Ils sont désormais pilotés par les zones. */}
-            <p className="text-[11px] uppercase tracking-[0.22em] text-eucalyptus font-medium mb-4">
+            <p className="text-xs uppercase tracking-[0.22em] text-eucalyptus font-medium mb-4">
               <EditableZone page="destinations" zone="hero_badge" fallback="Atlas & carnets de route" />
             </p>
             <h1 className="text-3xl md:text-5xl font-serif font-normal text-mahogany mb-6 leading-tight">
@@ -145,7 +145,7 @@ export default function DestinationsClient() {
                   {tab.icon ? <span>{tab.icon}</span> : null}
                   <span>{tab.label}</span>
                   {tab.value === 'starred' && starred.length > 0 && (
-                    <span className={`ml-0.5 text-[11px] ${continentFilter === 'starred' ? 'text-[#FAF7F2]/80' : 'text-charcoal/55'}`}>
+                    <span className={`ml-0.5 text-xs ${continentFilter === 'starred' ? 'text-[#FAF7F2]/80' : 'text-charcoal/55'}`}>
                       ({starred.length})
                     </span>
                   )}
@@ -186,7 +186,7 @@ export default function DestinationsClient() {
                       <h2 className="text-2xl md:text-3xl font-serif font-normal text-mahogany">
                         <EditableZone page="destinations" zone="section_curated_title" fallback="Nos coups de cœur" />
                       </h2>
-                      <span className="text-[11px] uppercase tracking-[0.18em] text-eucalyptus font-medium">Sélection du carnet</span>
+                      <span className="text-xs uppercase tracking-[0.18em] text-eucalyptus font-medium">Sélection du carnet</span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
                       {starred.map((d) => (
@@ -216,7 +216,7 @@ export default function DestinationsClient() {
                 {comingSoon.length > 0 && (continentFilter === 'all' || continentFilter === 'Europe' || continentFilter === 'Méditerranée') && (
                   <section className="rounded-sm bg-[#EFE9DF] border border-[#DED5C6] p-8 md:p-10">
                     <div className="text-center mb-8">
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-charcoal/55 mb-2">Carnets en cours d&apos;écriture</p>
+                      <p className="text-xs uppercase tracking-[0.22em] text-charcoal/55 mb-2">Carnets en cours d&apos;écriture</p>
                       <h2 className="text-2xl font-serif font-normal text-mahogany mb-2">
                         <EditableZone page="destinations" zone="section_soon_title" fallback="Prochainement sur Heldonica" />
                       </h2>

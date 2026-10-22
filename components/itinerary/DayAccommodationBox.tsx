@@ -38,7 +38,7 @@ export default function DayAccommodationBox({
     return (
       <>
         <div className="rounded-sm bg-[#EFE9DF]/70 border border-[#DED5C6] p-3">
-          <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-mahogany mb-1">On a dormi chez</p>
+          <p className="text-xs uppercase tracking-[0.14em] font-medium text-mahogany mb-1">On a dormi chez</p>
           <p className="text-sm text-charcoal/80 mb-1">
             <EditableZone page={page} zone={zoneKey} type="textarea" fallback={accommodationFallback} as="span" />
           </p>
@@ -60,7 +60,7 @@ export default function DayAccommodationBox({
 
   return (
     <div className="rounded-sm bg-[#EFE9DF]/60 border border-[#DED5C6] p-3">
-      <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Départ</p>
+      <p className="text-xs uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Départ</p>
       <p className="text-sm text-charcoal/80">{departText}</p>
     </div>
   )

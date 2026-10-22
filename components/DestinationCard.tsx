@@ -71,19 +71,19 @@ const DestinationCard = memo(function DestinationCard({
               <path d="M24 6v36M6 24h36" />
               <path d="M24 14l3 10-3 10-3-10z" fill="currentColor" fillOpacity={0.18} />
             </svg>
-            <span className="text-[10px] uppercase tracking-[0.22em] text-mahogany/70 font-medium">
+            <span className="text-xs uppercase tracking-[0.22em] text-mahogany/70 font-medium">
               Carnet en préparation
             </span>
           </div>
         )}
         <div className="absolute top-3 left-3 flex flex-wrap gap-2">
           {status === 'starred' && (
-            <span className="inline-block rounded-sm bg-[#FAF7F2]/95 text-mahogany px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] font-medium border border-[#DED5C6]">
+            <span className="inline-block rounded-sm bg-[#FAF7F2]/95 text-mahogany px-2.5 py-1 text-xs uppercase tracking-[0.16em] font-medium border border-[#DED5C6]">
               Coup de cœur
             </span>
           )}
           {status === 'coming_soon' && (
-            <span className="inline-block rounded-sm bg-[#2A1D18]/85 text-[#F7F3EC] px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] font-medium"
+            <span className="inline-block rounded-sm bg-[#2A1D18]/85 text-[#F7F3EC] px-2.5 py-1 text-xs uppercase tracking-[0.16em] font-medium"
               title={coming_soon_date ? `Prévu : ${coming_soon_date}` : ''}
             >
               Bientôt
@@ -91,7 +91,7 @@ const DestinationCard = memo(function DestinationCard({
           )}
         </div>
         {article_count && article_count > 0 ? (
-          <span className="absolute top-3 right-3 rounded-sm bg-[#FAF7F2]/95 dark:bg-stone-900/90 px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] font-medium text-charcoal/80 dark:text-stone-300 border border-[#DED5C6]">
+          <span className="absolute top-3 right-3 rounded-sm bg-[#FAF7F2]/95 dark:bg-stone-900/90 px-2.5 py-1 text-xs uppercase tracking-[0.14em] font-medium text-charcoal/80 dark:text-stone-300 border border-[#DED5C6]">
             {article_count} carnet{article_count > 1 ? 's' : ''}
           </span>
         ) : null}
@@ -99,7 +99,7 @@ const DestinationCard = memo(function DestinationCard({
 
       <div className="flex flex-1 flex-col p-6">
         <div className="flex items-center gap-2 mb-2">
-          <span className="text-[11px] font-medium text-eucalyptus dark:text-stone-400 uppercase tracking-[0.18em]">{country}</span>
+          <span className="text-xs font-medium text-eucalyptus dark:text-stone-400 uppercase tracking-[0.18em]">{country}</span>
         </div>
         <h3 className="text-xl font-serif font-normal text-mahogany dark:text-stone-100 mb-2 leading-snug group-hover:text-eucalyptus transition-colors">
           {title}
@@ -111,12 +111,12 @@ const DestinationCard = memo(function DestinationCard({
         )}
         <div className="flex flex-wrap gap-2 mb-3">
           {styleLabel && (
-            <span className="inline-block rounded-sm bg-[#EFE9DF] dark:bg-stone-800 px-2.5 py-1 text-[11px] text-charcoal/75 dark:text-stone-300 border border-[#E2D9C8]">
+            <span className="inline-block rounded-sm bg-[#EFE9DF] dark:bg-stone-800 px-2.5 py-1 text-xs text-charcoal/75 dark:text-stone-300 border border-[#E2D9C8]">
               {styleLabel}
             </span>
           )}
           {best_season && (
-            <span className="inline-block rounded-sm bg-[#EFE9DF] dark:bg-teal/20 px-2.5 py-1 text-[11px] text-eucalyptus border border-[#E2D9C8]">
+            <span className="inline-block rounded-sm bg-[#EFE9DF] dark:bg-teal/20 px-2.5 py-1 text-xs text-eucalyptus border border-[#E2D9C8]">
               {best_season}
             </span>
           )}

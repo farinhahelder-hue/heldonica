@@ -115,10 +115,10 @@ export default async function Itineraire10JoursPage() {
           <div className="container max-w-4xl">
             <div className="rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-6">
               <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-eucalyptus px-3 py-1 text-[11px] uppercase tracking-[0.14em] font-medium">Testé par Heldonica</span>
-                <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-mahogany px-3 py-1 text-[11px] uppercase tracking-[0.14em] font-medium">{Z('chip_1', 'text', "2 visites", undefined, 'span')}</span>
-                <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-charcoal/75 px-3 py-1 text-[11px] uppercase tracking-[0.14em] font-medium">{Z('chip_2', 'text', "Septembre 2024", undefined, 'span')}</span>
-                <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-eucalyptus px-3 py-1 text-[11px] uppercase tracking-[0.14em] font-medium">{Z('chip_3', 'text', "Automne doré", undefined, 'span')}</span>
+                <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-eucalyptus px-3 py-1 text-xs uppercase tracking-[0.14em] font-medium">Testé par Heldonica</span>
+                <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-mahogany px-3 py-1 text-xs uppercase tracking-[0.14em] font-medium">{Z('chip_1', 'text', "2 visites", undefined, 'span')}</span>
+                <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-charcoal/75 px-3 py-1 text-xs uppercase tracking-[0.14em] font-medium">{Z('chip_2', 'text', "Septembre 2024", undefined, 'span')}</span>
+                <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-eucalyptus px-3 py-1 text-xs uppercase tracking-[0.14em] font-medium">{Z('chip_3', 'text', "Automne doré", undefined, 'span')}</span>
               </div>
               <p className="text-sm text-charcoal/80 leading-relaxed">
                 {Z('blurb', 'html', "Cet itinéraire est le plus complet qu'on ait testé. Les 3 jours supplémentaires dans le Maramureș font toute la différence — c'est là que la Roumanie révèle son âme la plus authentique. <strong>Budget réel : 1 600 € pour deux, tout compris.</strong>", undefined, 'span')}
@@ -132,7 +132,7 @@ export default async function Itineraire10JoursPage() {
             <h2 className="text-2xl font-serif text-mahogany mb-6">Aperçu de l'itinéraire</h2>
             <div className="overflow-x-auto rounded-sm border border-[#DED5C6]">
               <table className="w-full text-sm table-auto">
-                <thead className="bg-[#EFE9DF] text-mahogany text-[11px] uppercase tracking-[0.14em]">
+                <thead className="bg-[#EFE9DF] text-mahogany text-xs uppercase tracking-[0.14em]">
                   <tr>
                     <th className="px-4 py-3 text-left">Jour</th>
                     <th className="px-4 py-3 text-left">Ville</th>
@@ -164,7 +164,7 @@ export default async function Itineraire10JoursPage() {
 
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="rounded-sm bg-[#EFE9DF]/70 border border-[#DED5C6] p-3">
-                      <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
+                      <p className="text-xs uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
                       <p className="text-sm text-charcoal/80">{Z('day_1_pepite', 'textarea', "Restaurant fără Zahăr — cantine locale dans Floreasca, 12 € pour deux", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -192,7 +192,7 @@ export default async function Itineraire10JoursPage() {
 
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="rounded-sm bg-[#EFE9DF]/70 border border-[#DED5C6] p-3">
-                      <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
+                      <p className="text-xs uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
                       <p className="text-sm text-charcoal/80">{Z('day_2_pepite', 'textarea', "Le château de Peleș — arrive à l'ouverture (9h15), tu évites 90 % des groupes", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -220,7 +220,7 @@ export default async function Itineraire10JoursPage() {
 
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="rounded-sm bg-[#EFE9DF]/70 border border-[#DED5C6] p-3">
-                      <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
+                      <p className="text-xs uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
                       <p className="text-sm text-charcoal/80">{Z('day_3_pepite', 'textarea', "Le tramway 102 jusqu'à la gare de Brașov — un voyage dans le temps pour 0.50 €", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -248,7 +248,7 @@ export default async function Itineraire10JoursPage() {
 
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="rounded-sm bg-[#EFE9DF]/70 border border-[#DED5C6] p-3">
-                      <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
+                      <p className="text-xs uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
                       <p className="text-sm text-charcoal/80">{Z('day_4_pepite', 'textarea', "Restaurant din Turn — dîner dans une tour médiévale, cuisine transylvanienne revisitée, 25 € pour deux", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -276,7 +276,7 @@ export default async function Itineraire10JoursPage() {
 
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="rounded-sm bg-[#EFE9DF]/70 border border-[#DED5C6] p-3">
-                      <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
+                      <p className="text-xs uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
                       <p className="text-sm text-charcoal/80">{Z('day_5_pepite', 'textarea', "Chez Elena — déjeuner chez l'habitant dans sa cour : soupe, pain cuit au feu de bois, 8 €", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -304,7 +304,7 @@ export default async function Itineraire10JoursPage() {
 
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="rounded-sm bg-[#EFE9DF]/70 border border-[#DED5C6] p-3">
-                      <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
+                      <p className="text-xs uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
                       <p className="text-sm text-charcoal/80">{Z('day_6_pepite', 'textarea', "La muzica până la capăt — librairie-café alternative au sous-sol, rue Memorandumului", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -332,7 +332,7 @@ export default async function Itineraire10JoursPage() {
 
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="rounded-sm bg-[#EFE9DF]/70 border border-[#DED5C6] p-3">
-                      <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
+                      <p className="text-xs uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
                       <p className="text-sm text-charcoal/80">{Z('day_7_pepite', 'textarea', "Musée ethnographique Romulus Vuia — village roumain reconstitué en plein air, 4 €, prévois 2h", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -360,7 +360,7 @@ export default async function Itineraire10JoursPage() {
 
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="rounded-sm bg-[#EFE9DF]/70 border border-[#DED5C6] p-3">
-                      <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
+                      <p className="text-xs uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
                       <p className="text-sm text-charcoal/80">{Z('day_8_pepite', 'textarea', "Le cimetière joyeux de Săpânța — tombes colorées racontant la vie des défunts avec humour, 2 €, unique au monde", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -388,7 +388,7 @@ export default async function Itineraire10JoursPage() {
 
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="rounded-sm bg-[#EFE9DF]/70 border border-[#DED5C6] p-3">
-                      <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
+                      <p className="text-xs uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
                       <p className="text-sm text-charcoal/80">{Z('day_9_pepite', 'textarea', "Le marché de Sighetu Marmației — producteurs locaux, fromage de burduf, slănină fumée, tout goûter sans retenue", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -416,7 +416,7 @@ export default async function Itineraire10JoursPage() {
 
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="rounded-sm bg-[#EFE9DF]/70 border border-[#DED5C6] p-3">
-                      <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
+                      <p className="text-xs uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
                       <p className="text-sm text-charcoal/80">{Z('day_10_pepite', 'textarea', "Le marché du dimanche matin — achète du miel et de la palincă (eau-de-vie de prune) pour ramener un vrai goût de Roumanie", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox

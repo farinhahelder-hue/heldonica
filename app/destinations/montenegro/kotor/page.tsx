@@ -87,7 +87,7 @@ export default async function KotorPage() {
             {Z('hero_image', 'image', '/images/destinations/montenegro/moraca_millennium.jpg', 'w-full h-full object-cover')}
           </div>
           <div className="relative max-w-4xl mx-auto px-4">
-            <span className="inline-block text-[#D8CFC0] text-[11px] uppercase tracking-[0.22em] mb-4">
+            <span className="inline-block text-[#D8CFC0] text-xs uppercase tracking-[0.22em] mb-4">
               {Z('hero_badge', 'text', "Monténégro · Bouches de Kotor", undefined, 'span')}
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-normal text-[#F7F3EC] mb-6 leading-tight">
@@ -286,13 +286,13 @@ export default async function KotorPage() {
             </h2>
             <div className="grid md:grid-cols-2 gap-8">
               <div>
-                <h3 className="text-[11px] uppercase tracking-[0.2em] text-[#C8BEAC] mb-3">Pour qui</h3>
+                <h3 className="text-xs uppercase tracking-[0.2em] text-[#C8BEAC] mb-3">Pour qui</h3>
                 <p className="text-[#E2D9C8]">
                   {Z('verdict_who', 'textarea', "Couples qui cherchent une destination romantique avec de vrais beaux paysages. Amateurs d'histoire (vieille ville UNESCO) et de nature (baie, montagnes).", undefined, 'span')}
                 </p>
               </div>
               <div>
-                <h3 className="text-[11px] uppercase tracking-[0.2em] text-[#C8BEAC] mb-3">Ce qu'on retient</h3>
+                <h3 className="text-xs uppercase tracking-[0.2em] text-[#C8BEAC] mb-3">Ce qu'on retient</h3>
                 <ul className="text-[#E2D9C8] space-y-1">
                   <li>{Z('verdict_adore_1', 'textarea', "— La baie au lever du soleil", undefined, 'span')}</li>
                   <li>{Z('verdict_adore_2', 'textarea', "— Les ruelles pavées avant 9h", undefined, 'span')}</li>
@@ -301,7 +301,7 @@ export default async function KotorPage() {
                 </ul>
               </div>
               <div className="md:col-span-2">
-                <h3 className="text-[11px] uppercase tracking-[0.2em] text-[#C8BEAC] mb-3">Ce qu'on évite</h3>
+                <h3 className="text-xs uppercase tracking-[0.2em] text-[#C8BEAC] mb-3">Ce qu'on évite</h3>
                 <p className="text-[#E2D9C8]">
                   {Z('verdict_avoid', 'textarea', "Les croisiéristes. Juillet-août si tu cherches du slow travel. Les restaurants hors de la vieille ville — moins authentiques, plus chers.", undefined, 'span')}
                 </p>
@@ -337,18 +337,18 @@ export default async function KotorPage() {
 
           {/* Liens vers autres destinations */}
           <section className="border-t border-[#DED5C6] pt-12">
-            <h3 className="text-[11px] uppercase tracking-[0.2em] text-[#6E655C] mb-6">Autres destinations Heldonica</h3>
+            <h3 className="text-xs uppercase tracking-[0.2em] text-[#6E655C] mb-6">Autres destinations Heldonica</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <Link href="/destinations/madere" className="p-4 bg-[#FAF7F2] rounded-sm border border-[#DED5C6] hover:border-[#8C7A6B] transition-colors">
-                <span className="text-[10px] uppercase tracking-[0.18em] text-[#6E655C] block mb-1">Atlantique</span>
+                <span className="text-xs uppercase tracking-[0.18em] text-[#6E655C] block mb-1">Atlantique</span>
                 <span className="text-[#241D1A] font-serif text-lg">Madère</span>
               </Link>
               <Link href="/destinations/roumanie" className="p-4 bg-[#FAF7F2] rounded-sm border border-[#DED5C6] hover:border-[#8C7A6B] transition-colors">
-                <span className="text-[10px] uppercase tracking-[0.18em] text-[#6E655C] block mb-1">Carpates</span>
+                <span className="text-xs uppercase tracking-[0.18em] text-[#6E655C] block mb-1">Carpates</span>
                 <span className="text-[#241D1A] font-serif text-lg">Roumanie</span>
               </Link>
               <Link href="/destinations" className="p-4 bg-[#FAF7F2] rounded-sm border border-[#DED5C6] hover:border-[#8C7A6B] transition-colors">
-                <span className="text-[10px] uppercase tracking-[0.18em] text-[#6E655C] block mb-1">Index</span>
+                <span className="text-xs uppercase tracking-[0.18em] text-[#6E655C] block mb-1">Index</span>
                 <span className="text-[#241D1A] font-serif text-lg">Toutes</span>
               </Link>
             </div>

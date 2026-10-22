@@ -128,7 +128,7 @@ export default async function AProposPage() {
         <section className="py-20 md:py-28 bg-[#F7F3EC] border-b border-[#E2D9C8]">
           <div className="max-w-6xl mx-auto px-6 md:px-10">
             <EditableZone page="a-propos" zone="section_story_badge" fallback="Notre histoire"
-              className="text-eucalyptus text-[11px] font-medium tracking-[0.22em] uppercase mb-4 block"
+              className="text-eucalyptus text-xs font-medium tracking-[0.22em] uppercase mb-4 block"
             />
             <EditableZone page="a-propos" zone="section_story_title" fallback="D'où on vient"
               className="text-3xl md:text-4xl font-serif font-normal text-mahogany mb-8 block"
@@ -170,7 +170,7 @@ export default async function AProposPage() {
                       className="text-4xl md:text-5xl font-serif font-normal text-mahogany mb-1 block"
                     />
                     <EditableZone page="a-propos" zone={`stat_${i + 1}_label`} fallback={stat.label}
-                      className="text-charcoal/60 text-[11px] uppercase tracking-[0.16em] block"
+                      className="text-charcoal/60 text-xs uppercase tracking-[0.16em] block"
                     />
                   </div>
                 ))}
@@ -183,7 +183,7 @@ export default async function AProposPage() {
         <section className="py-20 md:py-28 bg-[#EFE9DF] border-b border-[#E2D9C8]">
           <div className="max-w-5xl mx-auto px-6 md:px-10">
             <EditableZone page="a-propos" zone="section_philo_badge" fallback="Notre philosophie"
-              className="text-eucalyptus text-[11px] font-medium tracking-[0.22em] uppercase mb-4 text-center block"
+              className="text-eucalyptus text-xs font-medium tracking-[0.22em] uppercase mb-4 text-center block"
             />
             <EditableZone page="a-propos" zone="section_philo_title" fallback="Trois piliers qu'on ne négocie pas"
               className="text-3xl md:text-4xl font-serif font-normal text-mahogany mb-12 text-center block"
@@ -209,7 +209,7 @@ export default async function AProposPage() {
         <section className="py-20 md:py-28 bg-[#F7F3EC] border-b border-[#E2D9C8]">
           <div className="max-w-5xl mx-auto px-6 md:px-10">
             <EditableZone page="a-propos" zone="section_services_badge" fallback="Ce qu'on fait"
-              className="text-eucalyptus text-[11px] font-medium tracking-[0.22em] uppercase mb-4 text-center block"
+              className="text-eucalyptus text-xs font-medium tracking-[0.22em] uppercase mb-4 text-center block"
             />
             <EditableZone page="a-propos" zone="section_services_title" fallback="Concrètement, on fait quoi ?"
               className="text-3xl md:text-4xl font-serif font-normal text-mahogany mb-12 text-center block"

@@ -94,13 +94,13 @@ export default async function AlentejoPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-[#1A1512]/85 via-[#1A1512]/35 to-transparent" />
 
           <div className="absolute left-6 top-6 md:left-16 md:top-10">
-            <span className="inline-block rounded-sm bg-[#241D1A]/80 border border-[#E6DEC8]/30 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-[#E6DEC8]">
+            <span className="inline-block rounded-sm bg-[#241D1A]/80 border border-[#E6DEC8]/30 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-[#E6DEC8]">
               {Z('hero_badge', 'text', "Carnet de terrain", undefined, 'span')}
             </span>
           </div>
 
           <div className="relative z-10 px-6 md:px-16 pb-12 md:pb-20 max-w-4xl">
-            <p className="text-[#E6DEC8]/85 text-[11px] font-medium tracking-[0.22em] uppercase mb-3">
+            <p className="text-[#E6DEC8]/85 text-xs font-medium tracking-[0.22em] uppercase mb-3">
               {Z('hero_label', 'text', "Destination Portugal", undefined, 'span')}
             </p>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-normal text-[#FAF7F2] mb-4 leading-tight">
@@ -117,7 +117,7 @@ export default async function AlentejoPage() {
         {/* ── INTRODUCTION E-E-A-T ── */}
         <section className="py-16 md:py-24 bg-[#F7F3EC] border-b border-[#DED5C6]">
           <div className="max-w-4xl mx-auto px-6">
-            <p className="text-eucalyptus text-[11px] font-medium tracking-[0.2em] uppercase mb-4">
+            <p className="text-eucalyptus text-xs font-medium tracking-[0.2em] uppercase mb-4">
               {Z('intro_label', 'text', "Récit de terrain", undefined, 'span')}
             </p>
             <h2 className="text-3xl md:text-4xl font-serif font-normal text-mahogany mb-8">
@@ -140,10 +140,10 @@ export default async function AlentejoPage() {
         {/* ── INFOS PRATIQUES ── */}
         <section className="py-12 bg-[#EFE9DF] border-b border-[#DED5C6]">
           <div className="max-w-5xl mx-auto px-6">
-            <p className="text-eucalyptus text-[11px] font-medium tracking-[0.2em] uppercase mb-6 text-center">Bon à savoir</p>
+            <p className="text-eucalyptus text-xs font-medium tracking-[0.2em] uppercase mb-6 text-center">Bon à savoir</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="text-center rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-4">
-                <p className="text-[10px] text-charcoal/60 uppercase tracking-[0.16em] mb-1">
+                <p className="text-xs text-charcoal/60 uppercase tracking-[0.16em] mb-1">
                   {Z('quick_1_label', 'text', "Meilleure période", undefined, 'span')}
                 </p>
                 <p className="text-lg font-serif text-mahogany">
@@ -151,7 +151,7 @@ export default async function AlentejoPage() {
                 </p>
               </div>
               <div className="text-center rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-4">
-                <p className="text-[10px] text-charcoal/60 uppercase tracking-[0.16em] mb-1">
+                <p className="text-xs text-charcoal/60 uppercase tracking-[0.16em] mb-1">
                   {Z('quick_2_label', 'text', "Durée idéale", undefined, 'span')}
                 </p>
                 <p className="text-lg font-serif text-mahogany">
@@ -159,7 +159,7 @@ export default async function AlentejoPage() {
                 </p>
               </div>
               <div className="text-center rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-4">
-                <p className="text-[10px] text-charcoal/60 uppercase tracking-[0.16em] mb-1">
+                <p className="text-xs text-charcoal/60 uppercase tracking-[0.16em] mb-1">
                   {Z('quick_3_label', 'text', "Budget/jour", undefined, 'span')}
                 </p>
                 <p className="text-lg font-serif text-mahogany">
@@ -167,7 +167,7 @@ export default async function AlentejoPage() {
                 </p>
               </div>
               <div className="text-center rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-4">
-                <p className="text-[10px] text-charcoal/60 uppercase tracking-[0.16em] mb-1">
+                <p className="text-xs text-charcoal/60 uppercase tracking-[0.16em] mb-1">
                   {Z('quick_4_label', 'text', "Langue", undefined, 'span')}
                 </p>
                 <p className="text-lg font-serif text-mahogany">
@@ -181,7 +181,7 @@ export default async function AlentejoPage() {
         {/* ── NOS PÉPITES ── */}
         <section className="py-16 md:py-24 bg-[#F7F3EC] border-b border-[#DED5C6]">
           <div className="max-w-5xl mx-auto px-6">
-            <p className="text-eucalyptus text-[11px] font-medium tracking-[0.2em] uppercase mb-4 text-center">Ce qu'on a vécu</p>
+            <p className="text-eucalyptus text-xs font-medium tracking-[0.2em] uppercase mb-4 text-center">Ce qu'on a vécu</p>
             <h2 className="text-3xl md:text-4xl font-serif font-normal text-mahogany mb-12 text-center">
               Nos pépites dénichées
             </h2>
@@ -277,7 +277,7 @@ export default async function AlentejoPage() {
         {/* ── OÙ DORMIR ── */}
         <section className="py-16 md:py-24 bg-[#EFE9DF] border-b border-[#DED5C6]">
           <div className="max-w-5xl mx-auto px-6">
-            <p className="text-eucalyptus text-[11px] font-medium tracking-[0.2em] uppercase mb-4 text-center">Hébergement</p>
+            <p className="text-eucalyptus text-xs font-medium tracking-[0.2em] uppercase mb-4 text-center">Hébergement</p>
             <h2 className="text-3xl md:text-4xl font-serif font-normal text-mahogany mb-4 text-center">
               Où dormir selon ton style
             </h2>
@@ -334,7 +334,7 @@ export default async function AlentejoPage() {
         {/* ── COMMENT SE DÉPLACER ── */}
         <section className="py-16 md:py-24 bg-[#F7F3EC] border-b border-[#DED5C6]">
           <div className="max-w-4xl mx-auto px-6">
-            <p className="text-eucalyptus text-[11px] font-medium tracking-[0.2em] uppercase mb-4 text-center">Logistique</p>
+            <p className="text-eucalyptus text-xs font-medium tracking-[0.2em] uppercase mb-4 text-center">Logistique</p>
             <h2 className="text-3xl md:text-4xl font-serif font-normal text-mahogany mb-8 text-center">
               Comment se déplacer
             </h2>
@@ -440,7 +440,7 @@ export default async function AlentejoPage() {
         {/* ── RELATED ARTICLES ── */}
         <section className="py-16 md:py-24 bg-[#F7F3EC] border-b border-[#DED5C6]">
           <div className="max-w-5xl mx-auto px-6">
-            <p className="text-eucalyptus text-[11px] font-medium tracking-[0.2em] uppercase mb-4 text-center">Pour aller plus loin</p>
+            <p className="text-eucalyptus text-xs font-medium tracking-[0.2em] uppercase mb-4 text-center">Pour aller plus loin</p>
             <h2 className="text-2xl md:text-3xl font-serif font-normal text-mahogany mb-8 text-center">
               Nos carnets liés
             </h2>
@@ -456,7 +456,7 @@ export default async function AlentejoPage() {
                   />
                 </div>
                 <div className="p-5">
-                  <p className="text-[11px] uppercase tracking-[0.16em] text-eucalyptus font-medium mb-1">
+                  <p className="text-xs uppercase tracking-[0.16em] text-eucalyptus font-medium mb-1">
                     {Z('article_1_label', 'text', "Portugal", undefined, 'span')}
                   </p>
                   <h3 className="font-serif font-normal text-mahogany group-hover:text-eucalyptus transition-colors">
@@ -475,7 +475,7 @@ export default async function AlentejoPage() {
                   />
                 </div>
                 <div className="p-5">
-                  <p className="text-[11px] uppercase tracking-[0.16em] text-eucalyptus font-medium mb-1">
+                  <p className="text-xs uppercase tracking-[0.16em] text-eucalyptus font-medium mb-1">
                     {Z('article_2_label', 'text', "Découvertes Locales", undefined, 'span')}
                   </p>
                   <h3 className="font-serif font-normal text-mahogany group-hover:text-eucalyptus transition-colors">
@@ -494,7 +494,7 @@ export default async function AlentejoPage() {
                   />
                 </div>
                 <div className="p-5">
-                  <p className="text-[11px] uppercase tracking-[0.16em] text-eucalyptus font-medium mb-1">
+                  <p className="text-xs uppercase tracking-[0.16em] text-eucalyptus font-medium mb-1">
                     {Z('article_3_label', 'text', "Food & Lifestyle", undefined, 'span')}
                   </p>
                   <h3 className="font-serif font-normal text-mahogany group-hover:text-eucalyptus transition-colors">

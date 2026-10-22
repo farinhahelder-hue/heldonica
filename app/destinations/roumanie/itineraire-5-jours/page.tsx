@@ -96,9 +96,9 @@ export default async function Itineraire5JoursPage() {
           <div className="container max-w-4xl">
             <div className="rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-6">
               <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-eucalyptus px-3 py-1 text-[11px] uppercase tracking-[0.14em] font-medium">Testé par Heldonica</span>
-                <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-mahogany px-3 py-1 text-[11px] uppercase tracking-[0.14em] font-medium">{Z('chip_1', 'text', "2 visites", undefined, 'span')}</span>
-                <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-charcoal/75 px-3 py-1 text-[11px] uppercase tracking-[0.14em] font-medium">{Z('chip_2', 'text', "Septembre 2024", undefined, 'span')}</span>
+                <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-eucalyptus px-3 py-1 text-xs uppercase tracking-[0.14em] font-medium">Testé par Heldonica</span>
+                <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-mahogany px-3 py-1 text-xs uppercase tracking-[0.14em] font-medium">{Z('chip_1', 'text', "2 visites", undefined, 'span')}</span>
+                <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-charcoal/75 px-3 py-1 text-xs uppercase tracking-[0.14em] font-medium">{Z('chip_2', 'text', "Septembre 2024", undefined, 'span')}</span>
               </div>
               <p className="text-sm text-charcoal/80 leading-relaxed">
                 {Z('blurb', 'html', "Cet itinéraire 5 jours reprend le meilleur de la Transylvanie sans les longs transferts. Idéal pour un premier contact avec la Roumanie ou un week-end prolongé. <strong>Budget réel : 850 € pour deux, vols inclus.</strong>", undefined, 'span')}
@@ -112,7 +112,7 @@ export default async function Itineraire5JoursPage() {
             <h2 className="text-2xl font-serif text-mahogany mb-6">Aperçu de l'itinéraire</h2>
             <div className="overflow-x-auto rounded-sm border border-[#DED5C6]">
               <table className="w-full text-sm table-auto">
-                <thead className="bg-[#EFE9DF] text-mahogany text-[11px] uppercase tracking-[0.14em]">
+                <thead className="bg-[#EFE9DF] text-mahogany text-xs uppercase tracking-[0.14em]">
                   <tr>
                     <th className="px-4 py-3 text-left">Jour</th>
                     <th className="px-4 py-3 text-left">Ville</th>
@@ -144,7 +144,7 @@ export default async function Itineraire5JoursPage() {
 
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="rounded-sm bg-[#EFE9DF]/70 border border-[#DED5C6] p-3">
-                      <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
+                      <p className="text-xs uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
                       <p className="text-sm text-charcoal/80">{Z('day_1_pepite', 'textarea', "La terrasse du Ceai la Metrou — salon de thé caché sous les arcades, thé maison et vue sur la place", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -172,7 +172,7 @@ export default async function Itineraire5JoursPage() {
 
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="rounded-sm bg-[#EFE9DF]/70 border border-[#DED5C6] p-3">
-                      <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
+                      <p className="text-xs uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
                       <p className="text-sm text-charcoal/80">{Z('day_2_pepite', 'textarea', "Le sentier Sinaia-Cota 1400 — 2h de montée douce à travers la forêt, vue panoramique sur toute la vallée", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -200,7 +200,7 @@ export default async function Itineraire5JoursPage() {
 
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="rounded-sm bg-[#EFE9DF]/70 border border-[#DED5C6] p-3">
-                      <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
+                      <p className="text-xs uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
                       <p className="text-sm text-charcoal/80">{Z('day_3_pepite', 'textarea', "Restaurant din Turn — dîner dans une tour du 14e siècle, cuisine transylvanienne, 25 € pour deux", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -228,7 +228,7 @@ export default async function Itineraire5JoursPage() {
 
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="rounded-sm bg-[#EFE9DF]/70 border border-[#DED5C6] p-3">
-                      <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
+                      <p className="text-xs uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
                       <p className="text-sm text-charcoal/80">{Z('day_4_pepite', 'textarea', "Le musée ASTRA en plein air — 30 hectares de vie rurale roumaine reconstituée, 5 €, prévois 3h", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox
@@ -256,7 +256,7 @@ export default async function Itineraire5JoursPage() {
 
                   <div className="grid md:grid-cols-2 gap-3">
                     <div className="rounded-sm bg-[#EFE9DF]/70 border border-[#DED5C6] p-3">
-                      <p className="text-[11px] uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
+                      <p className="text-xs uppercase tracking-[0.14em] font-medium text-eucalyptus mb-1">Pépite dénichée</p>
                       <p className="text-sm text-charcoal/80">{Z('day_5_pepite', 'textarea', "Boulangerie La Pâine — meilleur cozonac de la ville, à prendre pour la route", undefined, 'span')}</p>
                     </div>
                     <DayAccommodationBox

@@ -39,15 +39,19 @@ h1, h2, h3, h4 {
   border-radius: 2px;
 }
 
+/* La taille de base est posée sur `html`, pas sur `body` : les classes
+ * Tailwind (text-sm, text-xs…) sont exprimées en rem, donc calculées sur la
+ * racine. Posée sur `body`, elle laissait le réglage CMS « Taille de base »
+ * sans effet sur tout le corps de texte du site. */
 html {
   scroll-behavior: smooth;
+  font-size: var(--font-size-base, 17px);
 }
 
 body {
   font-family: var(--font-body, 'DM Sans', sans-serif);
   background-color: var(--color-background, #F7F3EC);
   color: var(--color-text, #2A2522);
-  font-size: var(--font-size-base, 16px);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

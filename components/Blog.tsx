@@ -69,7 +69,7 @@ export default function Blog() {
                   )}
                   <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3">
                     <span
-                      className={`inline-block px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold ${
+                      className={`inline-block px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-xs sm:text-xs font-semibold ${
                         CATEGORY_COLOR[article.category] ?? 'bg-[#FAF7F2]/90 text-charcoal/70'
                       }`}
                     >
@@ -90,7 +90,7 @@ export default function Blog() {
                   {article.excerpt}
                 </p>
                 <div className="flex items-center justify-between pt-3 border-t border-stone-100">
-                  <span className="text-[10px] sm:text-xs text-charcoal/40">{article.date}</span>
+                  <span className="text-xs sm:text-xs text-charcoal/40">{article.date}</span>
                   <Link
                     href={`/blog/${article.slug}`}
                     className="text-eucalyptus font-semibold hover:text-teal transition text-xs sm:text-sm group-hover:translate-x-1 inline-block"

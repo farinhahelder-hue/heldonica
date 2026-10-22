@@ -80,7 +80,7 @@ export default async function TimisoaraPage() {
             {Z('hero_image', 'image', '/og-default.jpg', 'w-full h-full object-cover')}
           </div>
           <div className="relative max-w-4xl mx-auto px-4">
-            <span className="inline-block text-[#D8CFC0] text-[11px] uppercase tracking-[0.22em] mb-4">{Z('hero_badge', 'text', "Roumanie · Banat", undefined, 'span')}</span>
+            <span className="inline-block text-[#D8CFC0] text-xs uppercase tracking-[0.22em] mb-4">{Z('hero_badge', 'text', "Roumanie · Banat", undefined, 'span')}</span>
             <h1 className="text-4xl md:text-5xl font-serif font-normal text-[#F7F3EC] mb-4 leading-tight">
               {Z('hero_title', 'text', "Timișoara", undefined, 'span')}
             </h1>
@@ -119,7 +119,7 @@ export default async function TimisoaraPage() {
 
           {/* Intro */}
           <section className="mb-16">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-[#3D5A47] mb-3">Notre angle</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-[#3D5A47] mb-3">Notre angle</p>
             <h2 className="text-2xl md:text-3xl font-serif font-normal text-[#241D1A] mb-5">
               {Z('intro_title', 'text', "La ville qu'on n'avait pas prévu d'aimer", undefined, 'span')}
             </h2>
@@ -135,13 +135,13 @@ export default async function TimisoaraPage() {
 
           {/* Pépites grid */}
           <section className="mb-16">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-[#3D5A47] mb-3">Ce qu'on a déniché</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-[#3D5A47] mb-3">Ce qu'on a déniché</p>
             <h2 className="text-2xl font-serif font-normal text-[#241D1A] mb-6">Les lieux qu'on revisite</h2>
             <div className="grid gap-5 sm:grid-cols-2">
                 <div className="bg-[#FAF7F2] rounded-sm border border-[#DED5C6] p-6 hover:border-[#8C7A6B] transition-colors">
                   <div className="flex items-start justify-between mb-3">
                     <span className="text-[#3D5A47]">{Z('pepite_1_icon', 'text', "Landmark", undefined, 'span')}</span>
-                    <span className="text-[10px] uppercase tracking-[0.18em] text-[#6E655C]">{Z('pepite_1_tag', 'text', "Le classique", undefined, 'span')}</span>
+                    <span className="text-xs uppercase tracking-[0.18em] text-[#6E655C]">{Z('pepite_1_tag', 'text', "Le classique", undefined, 'span')}</span>
                   </div>
                   <h3 className="font-serif font-normal text-lg text-[#241D1A] mb-2">{Z('pepite_1_title', 'text', "Piața Unirii", undefined, 'span')}</h3>
                   <p className="text-[#5C5349] text-sm leading-relaxed">{Z('pepite_1_desc', 'textarea', "La plus belle place baroque de Roumanie. Cathédrale catholique, fontaine, terrasses qui invitent à rester. Le matin, avant que la foule arrive.", undefined, 'span')}</p>
@@ -149,7 +149,7 @@ export default async function TimisoaraPage() {
                 <div className="bg-[#FAF7F2] rounded-sm border border-[#DED5C6] p-6 hover:border-[#8C7A6B] transition-colors">
                   <div className="flex items-start justify-between mb-3">
                     <span className="text-[#3D5A47]">{Z('pepite_2_icon', 'text', "Palette", undefined, 'span')}</span>
-                    <span className="text-[10px] uppercase tracking-[0.18em] text-[#6E655C]">{Z('pepite_2_tag', 'text', "Pépite cachée", undefined, 'span')}</span>
+                    <span className="text-xs uppercase tracking-[0.18em] text-[#6E655C]">{Z('pepite_2_tag', 'text', "Pépite cachée", undefined, 'span')}</span>
                   </div>
                   <h3 className="font-serif font-normal text-lg text-[#241D1A] mb-2">{Z('pepite_2_title', 'text', "Cuib d'Arte", undefined, 'span')}</h3>
                   <p className="text-[#5C5349] text-sm leading-relaxed">{Z('pepite_2_desc', 'textarea', "Cour intérieure cachée dans le quartier Fabric. Galeries d'art, installations éphémères, café avec jardin. L'âme créative de la ville.", undefined, 'span')}</p>
@@ -157,7 +157,7 @@ export default async function TimisoaraPage() {
                 <div className="bg-[#FAF7F2] rounded-sm border border-[#DED5C6] p-6 hover:border-[#8C7A6B] transition-colors">
                   <div className="flex items-start justify-between mb-3">
                     <span className="text-[#3D5A47]">{Z('pepite_3_icon', 'text', "Building2", undefined, 'span')}</span>
-                    <span className="text-[10px] uppercase tracking-[0.18em] text-[#6E655C]">{Z('pepite_3_tag', 'text', "Quartier", undefined, 'span')}</span>
+                    <span className="text-xs uppercase tracking-[0.18em] text-[#6E655C]">{Z('pepite_3_tag', 'text', "Quartier", undefined, 'span')}</span>
                   </div>
                   <h3 className="font-serif font-normal text-lg text-[#241D1A] mb-2">{Z('pepite_3_title', 'text', "Quartier Fabric", undefined, 'span')}</h3>
                   <p className="text-[#5C5349] text-sm leading-relaxed">{Z('pepite_3_desc', 'textarea', "L'ancien quartier ouvrier en pleine renaissance. Fresques murales, petits bars indépendants, ateliers d'artisans. L'endroit où la ville se réinvente.", undefined, 'span')}</p>
@@ -165,7 +165,7 @@ export default async function TimisoaraPage() {
                 <div className="bg-[#FAF7F2] rounded-sm border border-[#DED5C6] p-6 hover:border-[#8C7A6B] transition-colors">
                   <div className="flex items-start justify-between mb-3">
                     <span className="text-[#3D5A47]">{Z('pepite_4_icon', 'text', "Landmark", undefined, 'span')}</span>
-                    <span className="text-[10px] uppercase tracking-[0.18em] text-[#6E655C]">{Z('pepite_4_tag', 'text', "Histoire", undefined, 'span')}</span>
+                    <span className="text-xs uppercase tracking-[0.18em] text-[#6E655C]">{Z('pepite_4_tag', 'text', "Histoire", undefined, 'span')}</span>
                   </div>
                   <h3 className="font-serif font-normal text-lg text-[#241D1A] mb-2">{Z('pepite_4_title', 'text', "Piața Victoriei", undefined, 'span')}</h3>
                   <p className="text-[#5C5349] text-sm leading-relaxed">{Z('pepite_4_desc', 'textarea', "Point de départ de la révolution roumaine de 1989. Opéra, cathédrale orthodoxe et cette longue avenue qui invite à la promenade du soir.", undefined, 'span')}</p>
@@ -173,7 +173,7 @@ export default async function TimisoaraPage() {
                 <div className="bg-[#FAF7F2] rounded-sm border border-[#DED5C6] p-6 hover:border-[#8C7A6B] transition-colors">
                   <div className="flex items-start justify-between mb-3">
                     <span className="text-[#3D5A47]">{Z('pepite_5_icon', 'text', "Trees", undefined, 'span')}</span>
-                    <span className="text-[10px] uppercase tracking-[0.18em] text-[#6E655C]">{Z('pepite_5_tag', 'text', "Nature urbaine", undefined, 'span')}</span>
+                    <span className="text-xs uppercase tracking-[0.18em] text-[#6E655C]">{Z('pepite_5_tag', 'text', "Nature urbaine", undefined, 'span')}</span>
                   </div>
                   <h3 className="font-serif font-normal text-lg text-[#241D1A] mb-2">{Z('pepite_5_title', 'text', "Parcul Civic", undefined, 'span')}</h3>
                   <p className="text-[#5C5349] text-sm leading-relaxed">{Z('pepite_5_desc', 'textarea', "Le poumon vert de la ville. Lac, barques, familles le dimanche. Les Timișoreni viennent ici pour ne rien faire — et ça se voit.", undefined, 'span')}</p>
@@ -181,7 +181,7 @@ export default async function TimisoaraPage() {
                 <div className="bg-[#FAF7F2] rounded-sm border border-[#DED5C6] p-6 hover:border-[#8C7A6B] transition-colors">
                   <div className="flex items-start justify-between mb-3">
                     <span className="text-[#3D5A47]">{Z('pepite_6_icon', 'text', "Martini", undefined, 'span')}</span>
-                    <span className="text-[10px] uppercase tracking-[0.18em] text-[#6E655C]">{Z('pepite_6_tag', 'text', "Vie locale", undefined, 'span')}</span>
+                    <span className="text-xs uppercase tracking-[0.18em] text-[#6E655C]">{Z('pepite_6_tag', 'text', "Vie locale", undefined, 'span')}</span>
                   </div>
                   <h3 className="font-serif font-normal text-lg text-[#241D1A] mb-2">{Z('pepite_6_title', 'text', "Strada Mercy & Piața Traian", undefined, 'span')}</h3>
                   <p className="text-[#5C5349] text-sm leading-relaxed">{Z('pepite_6_desc', 'textarea', "Artère Art Nouveau du vieux Fabric. Façades colorées en cours de restauration, cafés de spécialité, bars à cocktails abordables.", undefined, 'span')}</p>
@@ -191,7 +191,7 @@ export default async function TimisoaraPage() {
 
           {/* Infos pratiques */}
           <section className="mb-16">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-[#3D5A47] mb-3">Côté pratique</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-[#3D5A47] mb-3">Côté pratique</p>
             <h2 className="text-2xl font-serif font-normal text-[#241D1A] mb-6">Ce qu'il faut savoir</h2>
             <div className="grid md:grid-cols-2 gap-6">
               <div className="bg-[#FAF7F2] p-6 rounded-sm border border-[#DED5C6]">
@@ -215,7 +215,7 @@ export default async function TimisoaraPage() {
 
           {/* FAQ */}
           <section className="mb-16">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-[#3D5A47] mb-3">Questions fréquentes</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-[#3D5A47] mb-3">Questions fréquentes</p>
             <div className="space-y-4">
               {FAQS.map((f, i) => (
                 <details key={i} className="group bg-[#FAF7F2] rounded-sm border border-[#DED5C6] p-5">
@@ -231,7 +231,7 @@ export default async function TimisoaraPage() {
 
           {/* À proximité */}
           <section className="mb-12">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-[#3D5A47] mb-3">À proximité</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-[#3D5A47] mb-3">À proximité</p>
             <div className="grid gap-4 md:grid-cols-3">
               <Link href="/destinations/roumanie" className="p-4 bg-[#FAF7F2] rounded-sm border border-[#DED5C6] text-center hover:border-[#8C7A6B] transition-colors">
                 <span className="text-[#241D1A] font-serif">Roumanie</span>

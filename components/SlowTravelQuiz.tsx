@@ -196,7 +196,7 @@ export default function SlowTravelQuiz() {
 
   return (
     <section className="rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-6 md:p-10">
-      <p className="text-[11px] uppercase tracking-[0.2em] text-eucalyptus font-medium mb-3">
+      <p className="text-xs uppercase tracking-[0.2em] text-eucalyptus font-medium mb-3">
         Boussole de voyage
       </p>
       <h3 className="text-2xl md:text-3xl font-serif font-normal text-mahogany mb-2">
@@ -241,7 +241,7 @@ export default function SlowTravelQuiz() {
         </>
       ) : (
         <div className="rounded-sm border border-[#DED5C6] bg-[#F7F3EC] p-6 md:p-8">
-          <p className="text-[11px] uppercase tracking-[0.18em] text-eucalyptus font-medium mb-2">
+          <p className="text-xs uppercase tracking-[0.18em] text-eucalyptus font-medium mb-2">
             Ton résultat
           </p>
           <h4 className="text-2xl font-serif font-normal text-mahogany mb-2">

@@ -144,11 +144,11 @@ function StoryTile({ story }: { story: InstagramStory }) {
         <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-mahogany to-eucalyptus" />
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
-      <span className="absolute top-2 left-2 text-[10px] uppercase tracking-[0.14em] bg-white/20 text-white px-2 py-1 rounded-full backdrop-blur-sm">
+      <span className="absolute top-2 left-2 text-xs uppercase tracking-[0.14em] bg-white/20 text-white px-2 py-1 rounded-full backdrop-blur-sm">
         Story
       </span>
       <div className="absolute bottom-2 left-2 right-2">
-        <p className="text-[11px] text-teal font-semibold uppercase tracking-[0.12em]">
+        <p className="text-xs text-teal font-semibold uppercase tracking-[0.12em]">
           {story.location}
         </p>
         <p className="text-sm text-white font-semibold leading-tight line-clamp-2">{story.title}</p>

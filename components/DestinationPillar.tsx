@@ -75,22 +75,22 @@ export default function DestinationPillar({
           <Image src={data.hero} alt={`${data.name} slow travel en couple`} fill className="object-cover opacity-55" priority sizes="100vw" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#1A1512]/85 via-[#1A1512]/35 to-transparent" />
           <div className="relative container py-16 md:py-24">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-[#E6DEC8]/85 mb-4 font-medium">{data.country || data.name}</p>
+            <p className="text-xs uppercase tracking-[0.22em] text-[#E6DEC8]/85 mb-4 font-medium">{data.country || data.name}</p>
             <h1 className="text-4xl md:text-6xl font-serif font-normal text-[#FAF7F2] max-w-3xl mb-4 leading-tight">{data.name} en couple — notre guide slow travel</h1>
             {data.heroSubtitle && (
               <p className="text-[#E6DEC8] max-w-2xl text-lg leading-relaxed mb-4 font-medium">{data.heroSubtitle}</p>
             )}
             <p className="text-[#E6DEC8]/80 max-w-2xl text-lg leading-relaxed mb-6">{data.tagline}</p>
             <div className="flex flex-wrap gap-2 mb-6">
-              <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#241D1A]/70 text-[#E6DEC8] text-[11px] uppercase tracking-[0.14em] font-medium px-3 py-1.5 border border-[#E6DEC8]/30">
+              <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#241D1A]/70 text-[#E6DEC8] text-xs uppercase tracking-[0.14em] font-medium px-3 py-1.5 border border-[#E6DEC8]/30">
                 <Calendar className="w-3.5 h-3.5 text-eucalyptus" strokeWidth={1.25} aria-hidden="true" />
                 {data.season}
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#241D1A]/70 text-[#E6DEC8] text-[11px] uppercase tracking-[0.14em] font-medium px-3 py-1.5 border border-[#E6DEC8]/30">
+              <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#241D1A]/70 text-[#E6DEC8] text-xs uppercase tracking-[0.14em] font-medium px-3 py-1.5 border border-[#E6DEC8]/30">
                 <Coins className="w-3.5 h-3.5 text-eucalyptus" strokeWidth={1.25} aria-hidden="true" />
                 ~{data.budget}€/sem/couple
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#241D1A]/70 text-[#E6DEC8] text-[11px] uppercase tracking-[0.14em] font-medium px-3 py-1.5 border border-[#E6DEC8]/30">
+              <span className="inline-flex items-center gap-1.5 rounded-sm bg-[#241D1A]/70 text-[#E6DEC8] text-xs uppercase tracking-[0.14em] font-medium px-3 py-1.5 border border-[#E6DEC8]/30">
                 <Leaf className="w-3.5 h-3.5 text-eucalyptus" strokeWidth={1.25} aria-hidden="true" />
                 Slow travel
               </span>
@@ -112,7 +112,7 @@ export default function DestinationPillar({
             <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-3">
               {data.infoTable.map((row) => (
                 <div key={row.label} className="rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-4 text-center">
-                  <p className="text-[10px] uppercase tracking-[0.16em] text-eucalyptus font-medium mb-1">{row.label}</p>
+                  <p className="text-xs uppercase tracking-[0.16em] text-eucalyptus font-medium mb-1">{row.label}</p>
                   <p className="text-sm font-serif text-mahogany">{row.value}</p>
                 </div>
               ))}
@@ -176,7 +176,7 @@ export default function DestinationPillar({
                       <p className="text-xs text-charcoal/70 leading-relaxed line-clamp-2 flex-1">
                         {sub.teaser}
                       </p>
-                      <span className="text-[11px] uppercase tracking-[0.16em] font-medium text-eucalyptus mt-4 inline-block">
+                      <span className="text-xs uppercase tracking-[0.16em] font-medium text-eucalyptus mt-4 inline-block">
                         <EditableZone page="destinations" zone="subdests_cta" fallback="Voir le guide →" />
                       </span>
                     </Link>
@@ -395,7 +395,7 @@ export default function DestinationPillar({
         {relatedArticles.length > 0 && (
           <section className="bg-[#F7F3EC] py-16 border-b border-[#DED5C6]">
             <div className="container max-w-5xl">
-              <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-eucalyptus mb-3">Nos carnets</p>
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-eucalyptus mb-3">Nos carnets</p>
               <h2 className="text-2xl font-serif font-normal text-mahogany mb-6">Articles sur {data.name}</h2>
               <div className="grid md:grid-cols-2 gap-4">
                 {relatedArticles.map((a) => (
@@ -482,7 +482,7 @@ export default function DestinationPillar({
         {/* CTA Travel Planning */}
         <section className="bg-[#2A1D18] text-[#F7F3EC] py-20">
           <div className="container text-center max-w-3xl">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-[#E6DEC8]/80 mb-3">
+            <p className="text-xs uppercase tracking-[0.2em] text-[#E6DEC8]/80 mb-3">
               <EditableZone page="destinations" zone="cta_surmesure_subtitle" fallback="Voyage sur mesure" />
             </p>
             <h2 className="text-3xl md:text-4xl font-serif font-normal mb-4">

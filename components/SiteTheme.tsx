@@ -135,6 +135,8 @@ export default async function SiteTheme() {
     'font_heading',
     'font_body',
     'font_size_base',
+    'logo_size_header',
+    'logo_size_footer',
     'container_max_width',
     'header_sticky',
     'site_tagline',
@@ -205,7 +207,9 @@ export default async function SiteTheme() {
        * Google Fonts plus bas. */
       --font-heading: ${headingOverride ? `${headingOverride}, serif` : 'var(--font-heading-brand, "Playfair Display", serif)'};
       --font-body: ${bodyOverride ? `${bodyOverride}, sans-serif` : 'var(--font-body-brand, "DM Sans", sans-serif)'};
-      --font-size-base: ${settings.font_size_base || '16px'};
+      --font-size-base: ${settings.font_size_base || '17px'};
+      --logo-size-header: ${settings.logo_size_header || '32px'};
+      --logo-size-footer: ${settings.logo_size_footer || '56px'};
       --container-max-width: ${settings.container_max_width || '1280px'};
       --header-sticky: ${settings.header_sticky === 'false' ? 'relative' : 'sticky'};
       --eucalyptus-green: var(--color-primary);

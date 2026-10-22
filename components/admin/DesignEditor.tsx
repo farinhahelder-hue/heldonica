@@ -48,6 +48,8 @@ const FONT_OPTIONS = [
 ];
 
 const FONT_SIZES = ['14px', '15px', '16px', '17px', '18px', '20px'];
+const LOGO_SIZES_HEADER = ['24px', '28px', '32px', '36px', '40px', '48px'];
+const LOGO_SIZES_FOOTER = ['40px', '48px', '56px', '64px', '72px', '80px'];
 
 export default function DesignEditor() {
   const [values, setValues] = useState<Record<string, string>>({});
@@ -279,6 +281,20 @@ export default function DesignEditor() {
       <h3 className="text-sm font-semibold text-gray-900">Logo &amp; Favicon</h3>
       <ImagePicker value={v('logo_url')} onChange={url => update('logo_url', url)} label="Logo du site" placeholder="https://votresite.com/logo.png" />
       <ImagePicker value={v('favicon_url')} onChange={url => update('favicon_url', url)} label="Favicon" placeholder="https://votresite.com/favicon.ico" />
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs font-medium text-gray-700 mb-1">Taille du logo (en-tête)</label>
+          <select value={v('logo_size_header', '32px')} onChange={e => update('logo_size_header', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+            {LOGO_SIZES_HEADER.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-700 mb-1">Taille du logo (pied de page)</label>
+          <select value={v('logo_size_footer', '56px')} onChange={e => update('logo_size_footer', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+            {LOGO_SIZES_FOOTER.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
+      </div>
       {v('logo_url') && (
         <div>
           <p className="text-xs text-gray-400 mb-1">Apercu du logo :</p>

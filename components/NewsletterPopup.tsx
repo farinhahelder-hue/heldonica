@@ -225,7 +225,7 @@ export default function NewsletterPopup() {
                 required
                 className="mt-1 h-4 w-4 rounded border-stone-700 bg-stone-800 text-eucalyptus focus:ring-eucalyptus cursor-pointer"
               />
-              <label htmlFor="popup-newsletter-rgpd" className="text-[11px] text-stone-400 leading-normal">
+              <label htmlFor="popup-newsletter-rgpd" className="text-xs text-stone-400 leading-normal">
                 {t('popup_consent_text', "J'accepte de recevoir le guide et les e-mails de slow travel d'Heldonica. Voir notre")}{' '}
                 <a href="/politique-confidentialite" className="text-eucalyptus hover:underline font-medium">
                   {t('popup_consent_link', 'politique de confidentialité')}

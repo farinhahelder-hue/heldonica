@@ -195,7 +195,7 @@ export default function MapClientPage({
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[11px] uppercase tracking-[0.1em] text-eucalyptus font-semibold mb-1">
+                      <p className="text-xs uppercase tracking-[0.1em] text-eucalyptus font-semibold mb-1">
                         {marker.country}
                       </p>
                       <h3 className="font-serif font-bold text-mahogany text-sm mb-1 truncate">

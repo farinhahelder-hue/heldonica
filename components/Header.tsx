@@ -132,12 +132,13 @@ export default function Header() {
                 alt={siteName}
                 width={140}
                 height={32}
-                className="h-8 w-auto"
+                className="w-auto"
+                style={{ height: 'var(--logo-size-header, 32px)' }}
                 priority={logoUrl.endsWith('.svg')}
                 unoptimized={!logoUrl.endsWith('.svg')}
               />
             ) : (
-              <svg width="32" height="32" viewBox="-69.5 0 341 341" fill="none" aria-hidden="true" className="h-7 w-7 flex-shrink-0 text-eucalyptus transition-colors duration-200">
+              <svg width="32" height="32" viewBox="-69.5 0 341 341" fill="none" aria-hidden="true" style={{ height: 'var(--logo-size-header, 32px)', width: 'auto' }} className="flex-shrink-0 text-eucalyptus transition-colors duration-200">
                 <path
                   fillRule="evenodd"
                   clipRule="evenodd"

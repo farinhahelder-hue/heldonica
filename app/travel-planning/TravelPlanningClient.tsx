@@ -238,7 +238,7 @@ export default function TravelPlanningClient({
           <div className="absolute inset-0 bg-gradient-to-r from-[#1E1A17]/85 via-[#1E1A17]/55 to-transparent" />
           <div className="relative container py-20">
             <EditableZone page="travel-planning" zone="hero_badge" fallback="Voyage couple sur mesure · Adresses testées · Duo"
-              className="text-[11px] uppercase tracking-[0.22em] text-[#E6DEC8] mb-4 font-medium block"
+              className="text-xs uppercase tracking-[0.22em] text-[#E6DEC8] mb-4 font-medium block"
             />
             <EditableZone page="travel-planning" zone="hero_title" as="h1" fallback="On a fait le trajet. À toi de vivre le voyage."
               className="text-4xl md:text-6xl font-serif font-normal text-[#F7F3EC] max-w-2xl mb-5 leading-tight block"
@@ -382,7 +382,7 @@ export default function TravelPlanningClient({
                 >
                   {plan.popular && (
                     <div className="mb-3">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-sm bg-[#2A1D18] text-[10px] font-medium text-[#E6DEC8] uppercase tracking-[0.16em]">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-sm bg-[#2A1D18] text-xs font-medium text-[#E6DEC8] uppercase tracking-[0.16em]">
                         <EditableZone page="travel-planning" zone={`${plan.zone}_badge`} fallback="Le plus choisi" className="inline" />
                       </span>
                     </div>

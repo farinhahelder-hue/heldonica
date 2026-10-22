@@ -97,7 +97,7 @@ function AnimatedStat({ nb, label, suffix = '' }: { nb: number | string; label: 
       <p className="text-3xl md:text-4xl font-serif font-normal text-mahogany leading-none mb-1.5">
         {nb}{suffix}
       </p>
-      <p className="text-[11px] uppercase tracking-[0.16em] text-charcoal/65 leading-snug">{label}</p>
+      <p className="text-xs uppercase tracking-[0.16em] text-charcoal/65 leading-snug">{label}</p>
     </div>
   )
 }
@@ -159,7 +159,7 @@ function ArticleCard({ post, size = 'md', slugImages, catImages, gradientMap, ic
           {imgFailed ? (
             <div className={`w-full h-full flex flex-col items-center justify-center bg-gradient-to-br ${gradient} gap-3`}>
               <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" className="text-white/75" dangerouslySetInnerHTML={{ __html: iconSvg }} />
-              <span className="text-white/85 text-[11px] tracking-[0.18em] uppercase">{post.category || 'Carnet'}</span>
+              <span className="text-white/85 text-xs tracking-[0.18em] uppercase">{post.category || 'Carnet'}</span>
             </div>
           ) : (
             <Image
@@ -174,7 +174,7 @@ function ArticleCard({ post, size = 'md', slugImages, catImages, gradientMap, ic
           )}
         </div>
         <div className="flex flex-col flex-1 px-1 pb-1">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] uppercase tracking-[0.16em] text-eucalyptus mb-2">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs uppercase tracking-[0.16em] text-eucalyptus mb-2">
             <span className="font-medium">{displayDestination || post.category || 'Carnet'}</span>
             <span className="text-charcoal/30">·</span>
             <span className="text-charcoal/60">Vécu sur le terrain</span>
@@ -416,7 +416,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
         <div className="relative z-20 w-full max-w-6xl mx-auto px-6 md:px-10 pb-14 md:pb-24">
           <div className="max-w-3xl">
             <EditableZone page="home" zone="hero_badge" fallback="Slow travel vécu en duo · Hors sentiers · Île-de-France"
-              className="text-[#E6DEC8]/90 text-[11px] font-medium tracking-[0.22em] uppercase mb-5 block"
+              className="text-[#E6DEC8]/90 text-xs font-medium tracking-[0.22em] uppercase mb-5 block"
             />
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-normal text-[#F7F3EC] leading-[1.12] mb-5">
               <EditableZone page="home" zone="hero_line_1" fallback="On ferme les ordis." className="hero-word inline" />{' '}
@@ -465,14 +465,14 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <div className="grid md:grid-cols-12 gap-10 md:gap-14 items-start">
             <div className="md:col-span-5" data-reveal="left">
               <EditableZone page="home" zone="section_story_badge" fallback="Notre histoire"
-                className="text-eucalyptus text-[11px] font-medium tracking-[0.22em] uppercase mb-3 block"
+                className="text-eucalyptus text-xs font-medium tracking-[0.22em] uppercase mb-3 block"
               />
               <EditableZone page="home" zone="section_story_title" type="html" fallback={'Deux regards. <span class="block italic text-eucalyptus">Un seul terrain.</span>'}
                 className="text-3xl md:text-5xl font-serif font-normal text-mahogany mb-6 leading-tight block"
               />
               <div className="p-5 bg-[#FAF7F2] border border-[#DED5C6] rounded-sm">
                 <p className="text-xs text-charcoal/70 leading-relaxed">
-                  <span className="font-medium text-mahogany uppercase tracking-[0.16em] text-[10px] block mb-1.5">
+                  <span className="font-medium text-mahogany uppercase tracking-[0.16em] text-xs block mb-1.5">
                     <EditableZone page="home" zone="stats_playgrounds_label" fallback="Terrains de jeu :" />
                   </span>
                   <EditableZone page="home" zone="stats_playgrounds" type="textarea" fallback="Madère · Roumanie · Monténégro · Suisse · Lisbonne · Sicile · Sardaigne · Colombie · Île-de-France"
@@ -513,7 +513,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   )}
                 </div>
                 <div className="md:col-span-5 flex flex-col justify-center">
-                  <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-eucalyptus font-medium mb-3">
+                  <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.18em] text-eucalyptus font-medium mb-3">
                     <EditableZone page="home" zone="section_featured_badge" fallback="Récit à la une" className="inline" />
                     <span className="text-charcoal/30">·</span>
                     <span className="text-charcoal/60">Vécu sur le terrain</span>
@@ -551,7 +551,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6" data-reveal>
             <div>
               <EditableZone page="home" zone="section_destinations_badge" fallback="Nos territoires"
-                className="text-eucalyptus text-[11px] font-medium tracking-[0.22em] uppercase mb-3 block"
+                className="text-eucalyptus text-xs font-medium tracking-[0.22em] uppercase mb-3 block"
               />
               <h2 className="text-3xl md:text-5xl font-serif font-normal text-mahogany leading-tight">
                 <EditableZone page="home" zone="section_destinations_title_1" fallback="Des lieux qu'on a aimés," className="inline" />{' '}
@@ -617,7 +617,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                     )}
                   </div>
                   <div className="px-1 pb-1 flex flex-col flex-1">
-                    <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-eucalyptus mb-1.5">
+                    <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-eucalyptus mb-1.5">
                       <span>{dest.country || 'Destination'}</span>
                       <span className="text-charcoal/30">·</span>
                       <span className="text-charcoal/60">Terrain vécu</span>
@@ -648,7 +648,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             <div className="flex items-end justify-between mb-12 flex-wrap gap-4" data-reveal>
               <div>
                 <EditableZone page="home" zone="section_travel_badge" fallback="Carnets de route"
-                  className="text-eucalyptus text-[11px] font-medium tracking-[0.22em] uppercase mb-2 block"
+                  className="text-eucalyptus text-xs font-medium tracking-[0.22em] uppercase mb-2 block"
                 />
                 <EditableZone page="home" zone="section_travel_title" fallback="Nos itinéraires vécus"
                   className="text-3xl md:text-4xl font-serif font-normal text-mahogany block"
@@ -685,7 +685,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                     className="rounded-sm w-full aspect-[4/3] object-cover" />
                 </div>
                 <div className="absolute -bottom-4 -right-4 bg-[#FAF7F2] border border-[#DED5C6] text-mahogany px-5 py-3 rounded-sm hidden md:block">
-                  <p className="text-[10px] tracking-[0.2em] uppercase text-charcoal/60">
+                  <p className="text-xs tracking-[0.2em] uppercase text-charcoal/60">
                     <EditableZone page="home" zone="section_food_ribbon_label" fallback="Adresses testées" />
                   </p>
                   <p className="text-2xl font-serif font-normal mt-0.5">
@@ -695,7 +695,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               </div>
               <div data-reveal="right">
                 <EditableZone page="home" zone="section_food_badge" fallback="Tables & refuges"
-                  className="text-eucalyptus text-[11px] font-medium tracking-[0.22em] uppercase mb-3 block"
+                  className="text-eucalyptus text-xs font-medium tracking-[0.22em] uppercase mb-3 block"
                 />
                 <EditableZone page="home" zone="section_food_title" fallback="Pépites dénichées"
                   className="text-3xl md:text-4xl font-serif font-normal text-mahogany leading-tight mb-4 block"
@@ -734,7 +734,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
             <div className="flex items-end justify-between mb-12 flex-wrap gap-4" data-reveal>
               <div>
                 <EditableZone page="home" zone="section_latest_badge" fallback="Carnet de bord"
-                  className="text-eucalyptus text-[11px] font-medium tracking-[0.22em] uppercase mb-2 block"
+                  className="text-eucalyptus text-xs font-medium tracking-[0.22em] uppercase mb-2 block"
                 />
                 <EditableZone page="home" zone="section_latest_title" fallback="Les dernières pépites"
                   className="text-2xl md:text-4xl font-serif font-normal text-mahogany block"
@@ -761,7 +761,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div data-reveal="left">
               <EditableZone page="home" zone="section_cta_badge" fallback="Travel Planning · terrain vécu"
-                className="text-[#C8B9A6] text-[11px] font-medium tracking-[0.22em] uppercase mb-4 block"
+                className="text-[#C8B9A6] text-xs font-medium tracking-[0.22em] uppercase mb-4 block"
               />
               <h2 className="text-3xl md:text-5xl font-serif font-normal leading-tight mb-6">
                 <EditableZone page="home" zone="section_cta_title_1" fallback="On ne fait pas des itinéraires." className="inline" />
@@ -811,7 +811,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
       <section className="py-16 md:py-24 bg-[#EFE9DF] border-b border-[#E2D9C8]">
         <div className="max-w-3xl mx-auto px-6 md:px-10 text-center" data-reveal>
           <EditableZone page="home" zone="section_quiz_badge" fallback="Repères de voyage"
-            className="text-eucalyptus text-[11px] font-medium tracking-[0.22em] uppercase mb-4 block"
+            className="text-eucalyptus text-xs font-medium tracking-[0.22em] uppercase mb-4 block"
           />
           <EditableZone page="home" zone="section_quiz_title" type="html" fallback="Trouve ton profil<br /><em className='text-eucalyptus'>en 2 minutes</em>"
             className="text-3xl md:text-4xl font-serif font-normal text-mahogany leading-tight mb-4 block"
@@ -841,7 +841,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
       <section className="py-20 bg-[#F7F3EC] dark:bg-stone-900 border-b border-[#E2D9C8] dark:border-stone-800/50">
         <div className="max-w-3xl mx-auto px-6 md:px-10 text-center" data-reveal>
           <EditableZone page="home" zone="section_b2b_badge" fallback="Espace Hébergeurs & Hôteliers"
-            className="text-eucalyptus text-[11px] font-medium tracking-[0.22em] uppercase mb-4 block"
+            className="text-eucalyptus text-xs font-medium tracking-[0.22em] uppercase mb-4 block"
           />
           <EditableZone page="home" zone="section_b2b_title" type="html" fallback="Vous gérez un hébergement de charme ?<br /><em className='text-eucalyptus'>Faites vivre l'expérience slow travel</em>"
             className="text-3xl md:text-4xl font-serif font-normal text-mahogany dark:text-stone-200 leading-tight mb-5 block"

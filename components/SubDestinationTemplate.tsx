@@ -79,7 +79,7 @@ export default function SubDestinationTemplate({
           <EditableZone page={page} zone="hero_image" type="image" fallback={heroImage} className="object-cover opacity-45 absolute inset-0 w-full h-full" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#1A1512]/85 via-[#1A1512]/35 to-transparent" />
           <div className="relative container py-16 md:py-24">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-[#E6DEC8]/80 mb-4 font-medium">
+            <p className="text-xs uppercase tracking-[0.2em] text-[#E6DEC8]/80 mb-4 font-medium">
               <EditableZone page={page} zone="hero_eyebrow" fallback={`${parentName} — Bientôt`} />
             </p>
             <h1 className="text-4xl md:text-6xl font-serif font-normal text-[#FAF7F2] max-w-3xl mb-5 leading-tight">
@@ -92,7 +92,7 @@ export default function SubDestinationTemplate({
           <section className="bg-[#EFE9DF] py-10 border-b border-[#DED5C6]">
             <div className="container max-w-4xl">
               <div className="rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-5">
-                <p className="text-[11px] uppercase tracking-[0.18em] text-eucalyptus font-medium mb-1.5">Style</p>
+                <p className="text-xs uppercase tracking-[0.18em] text-eucalyptus font-medium mb-1.5">Style</p>
                 <p className="text-mahogany font-serif text-lg">
                   <EditableZone page={page} zone="style_label" fallback={styleLabel} />
                 </p>
@@ -158,7 +158,7 @@ export default function SubDestinationTemplate({
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-[#1A1512]/85 via-[#1A1512]/30 to-transparent z-10" />
         <div className="relative z-20 max-w-4xl mx-auto px-6 pb-12 w-full">
-          <nav className="flex items-center gap-2 text-[#E6DEC8]/85 text-[11px] font-medium tracking-[0.2em] uppercase mb-3">
+          <nav className="flex items-center gap-2 text-[#E6DEC8]/85 text-xs font-medium tracking-[0.2em] uppercase mb-3">
             <Link href="/destinations" className="hover:underline">
               Destinations
             </Link>
@@ -176,7 +176,7 @@ export default function SubDestinationTemplate({
       {/* ── INTRO ── */}
       <section className="py-16 bg-[#F7F3EC] border-b border-[#DED5C6]">
         <div className="max-w-3xl mx-auto px-6">
-          <p className="text-eucalyptus text-[11px] font-medium uppercase tracking-[0.2em] mb-4">
+          <p className="text-eucalyptus text-xs font-medium uppercase tracking-[0.2em] mb-4">
             <EditableZone page={page} zone="intro_kicker" fallback="L'esprit du lieu" />
           </p>
           <p className="text-lg md:text-xl text-mahogany font-serif font-normal leading-relaxed mb-8">
@@ -188,7 +188,7 @@ export default function SubDestinationTemplate({
               <Lightbulb className="w-4 h-4 text-eucalyptus" strokeWidth={1.25} aria-hidden="true" />
             </div>
             <div>
-              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-mahogany mb-1">
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-mahogany mb-1">
                 <EditableZone page={page} zone="local_tip_kicker" fallback="Notre conseil" />
               </p>
               <p className="text-sm text-charcoal/80 leading-relaxed">
@@ -206,7 +206,7 @@ export default function SubDestinationTemplate({
             <EditableZone page={page} zone="highlights_title_prefix" fallback="Pépites dénichées à" />{' '}
             {name}
           </h2>
-          <p className="text-[11px] text-charcoal/65 tracking-[0.18em] text-center uppercase mb-12">
+          <p className="text-xs text-charcoal/65 tracking-[0.18em] text-center uppercase mb-12">
             <EditableZone
               page={page}
               zone="highlights_subtitle"
@@ -277,7 +277,7 @@ export default function SubDestinationTemplate({
                       {post.title}
                     </h4>
                     {post.excerpt && (
-                      <p className="text-charcoal/65 text-[11px] mt-1 line-clamp-1">
+                      <p className="text-charcoal/65 text-xs mt-1 line-clamp-1">
                         {post.excerpt}
                       </p>
                     )}
@@ -292,7 +292,7 @@ export default function SubDestinationTemplate({
       {/* ── B2C CTA TRAVEL PLANNING ── */}
       <section className="py-20 bg-[#2A1D18] text-[#F7F3EC] text-center">
         <div className="max-w-2xl mx-auto px-6">
-          <span className="text-[#E6DEC8]/80 text-[11px] font-medium tracking-[0.2em] uppercase mb-4 block">
+          <span className="text-[#E6DEC8]/80 text-xs font-medium tracking-[0.2em] uppercase mb-4 block">
             <EditableZone page={page} zone="cta_kicker" fallback="Ton itinéraire sur mesure" />
           </span>
           <h2 className="text-3xl md:text-4xl font-serif font-normal mb-6">

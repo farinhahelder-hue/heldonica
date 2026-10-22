@@ -422,11 +422,11 @@ Généré avec Heldonica — heldonica.fr`
                 <label className="block text-xs text-charcoal/50 mb-1.5 font-medium"><EditableZone page="organisateur" zone="label_dates" fallback="Dates" /></label>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <span className="block text-[10px] text-charcoal/35 mb-1"><EditableZone page="organisateur" zone="label_departure" fallback="Départ" /></span>
+                    <span className="block text-xs text-charcoal/35 mb-1"><EditableZone page="organisateur" zone="label_departure" fallback="Départ" /></span>
                     <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className={inputClass} />
                   </div>
                   <div>
-                    <span className="block text-[10px] text-charcoal/35 mb-1"><EditableZone page="organisateur" zone="label_return" fallback="Retour" /></span>
+                    <span className="block text-xs text-charcoal/35 mb-1"><EditableZone page="organisateur" zone="label_return" fallback="Retour" /></span>
                     <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className={inputClass} />
                   </div>
                 </div>
@@ -490,7 +490,7 @@ Généré avec Heldonica — heldonica.fr`
                       <div className={`mx-4 mt-3 px-4 py-3 rounded-sm border transition-all ${applied ? 'bg-eucalyptus/5 border-eucalyptus/30' : 'bg-[#FAF7F2] border-[#DED5C6]'}`}>
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1 min-w-0">
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-charcoal/40 mb-1.5">
+                            <p className="text-xs font-bold uppercase tracking-widest text-charcoal/40 mb-1.5">
                               {profile.flag} Estimation Heldonica · {profile.label} · {stage.nights} nuit{stage.nights > 1 ? 's' : ''}
                             </p>
                             <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-charcoal/60">
@@ -499,7 +499,7 @@ Généré avec Heldonica — heldonica.fr`
                               <span><strong className="text-charcoal/80">{fmt(profile.foodPerDay * stage.nights)} €</strong> resto</span>
                               <span><strong className="text-charcoal/80">{fmt(profile.activitiesPerDay * stage.nights)} €</strong> activ.</span>
                             </div>
-                            <p className="text-[11px] text-charcoal/45 mt-1.5 italic leading-snug">{profile.tip}</p>
+                            <p className="text-xs text-charcoal/45 mt-1.5 italic leading-snug">{profile.tip}</p>
                           </div>
                           <button
                             onClick={() => applySuggestion(stage, profile)}
@@ -593,7 +593,7 @@ Généré avec Heldonica — heldonica.fr`
                       <span className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ background: c.color }} />
                       <div>
                         <div className="text-white/90 text-xs font-medium">{fmt(c.total)} €</div>
-                        <div className="text-white/40 text-[10px]">{c.label}</div>
+                        <div className="text-white/40 text-xs">{c.label}</div>
                       </div>
                     </div>
                   ))}
@@ -620,7 +620,7 @@ Généré avec Heldonica — heldonica.fr`
                 if (items.length === 0) return null
                 return (
                   <div key={cat}>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-charcoal/35 mb-2">{cat}</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-charcoal/35 mb-2">{cat}</p>
                     <ul className="space-y-1.5">
                       {items.map(item => (
                         <li key={item.id} className="flex items-center gap-3 group">

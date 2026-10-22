@@ -58,7 +58,7 @@ export function TableOfContentsBlock({ block, allBlocks = [], className = '' }: 
       return (
         <li key={heading.id} className="mb-2 last:mb-0">
           <a href={`#${slug}`} className={`${linkStyle} ${nestedClass} flex items-baseline gap-2`}>
-            <span className="text-teal-600 text-[10px] shrink-0">{isH3 ? '◦' : '•'}</span>
+            <span className="text-teal-600 text-xs shrink-0">{isH3 ? '◦' : '•'}</span>
             <span className="leading-snug">{heading.text}</span>
           </a>
         </li>
