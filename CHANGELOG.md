@@ -15,6 +15,11 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 ext build en ENOENT. 
 ext build compile désormais 163/163 pages statiques avec succès.
 - **Vérifications** : preflight 9/9 réussi, 	ypecheck (tsc) 0 erreur, build Next.js 163/163 pages générées avec succès.
+## [2026-10-22] — Réparation de l'encodage des séquences email (`fix/encodage-sequences-email`)
+
+- **Le français partait garbled.** `app/api/send-email-sequences/route.ts` avait été ré-encodé (UTF-8 relu en cp1252) au commit `3b6067f0` : les abonnés recevaient « Cette adresse Ã  MadÃ¨re » et « PÃ©pite de la semaine » dans l'email J+3. Le cron tourne chaque nuit à 4 h, donc le défaut se répétait à chaque envoi.
+- **Réparation** : 29 lignes ré-encodées (0 mojibake résiduel, accents et flèches `→` intacts), 4 emojis retirés des commentaires HTML (ADRESSE, TIMING, AVERTISSEMENT, CARTE), BOM initial retiré. Diff strictement d'encodage, aucun changement de contenu.
+- Vérifié : `tsc` 0, `vitest` 889/889, `garde-fous` 15/15.
 
 ## [2026-10-21] — Le « carnet » étendu aux ~50 pages secondaires + garde-fou `check:design-tics` (`agent/gemini/design-upgrade-2-0`)
 
