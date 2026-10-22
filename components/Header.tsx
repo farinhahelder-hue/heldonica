@@ -8,7 +8,8 @@ import { useAuth } from '@/components/AuthProvider'
 import { useContentLoader, getCmsOrSetting, getZoneLinks } from '@/hooks/useContentLoader'
 import type { CmsZone } from '@/lib/content-loader'
 
-// Même borne que buildLinkKeys('nav_item', …) dans lib/site-content.ts.
+// Le menu principal n'affiche jamais plus de cinq entrées, même si le CMS en
+// renseigne davantage (lib/site-content.ts en charge sept).
 const NAV_MAX_ITEMS = 5
 
 export default function Header() {
