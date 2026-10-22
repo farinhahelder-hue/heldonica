@@ -84,6 +84,7 @@ export async function revalidateCmsTarget(options: RevalidateOptions): Promise<{
     try {
       revalidateTag('cms-content');
       revalidateTag('site-settings');
+      revalidateTag('cms-zones');
     } catch {}
 
   } catch (err) {

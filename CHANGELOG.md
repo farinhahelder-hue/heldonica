@@ -2,6 +2,20 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-21] — Préchargement universel des zones CMS (100% pages) & mise en cache `/api/cms/zones` (`agent/gemini/zones-preload-cache`)
+
+- **Soulagement de la charge Postgres / suppression des requêtes redondantes (2e goulot identifié : 26 462 appels)** :
+  - **Préchargement serveur `initialZones` sur les 6 pages clientes publiques orphelines** :
+    - `app/destinations/carte/page.tsx` + `MapClientPage.tsx`
+    - `app/organisateur/page.tsx` + `TravelOrganizerClient.tsx`
+    - `app/temoignages/TemoignagesClient.tsx`
+    - `app/merci/page.tsx` + `MerciClient.tsx`
+    - `app/quiz/page.tsx` + `QuizClient.tsx`
+    - `app/travel-planning-form/page.tsx` + `TravelPlanningFormClient.tsx`
+  - **Résultat** : 100% des pages montant `InlineEditProvider` reçoivent désormais `initialZones` au rendu initial SSR/ISR. Zéro appel client à `/api/cms/zones` n'est déclenché par un visiteur normal.
+  - **Mise en cache Data Cache Next.js (`unstable_cache`)** dans `lib/cms-zones.ts` et `app/api/cms/zones/route.ts` : tag `cms-zones`, fenêtre de 300s, revalidation instantanée via `revalidateCmsTarget` sur tout `PATCH` / `POST` / `DELETE`.
+  - **Vérifications** : `check-cms-cache` vert (119 pages), `tsc --noEmit` vert (0 erreur), `vitest run` 100/100 fichiers passés (862 tests), `garde-fous --preflight` 8/8 réussi.
+
 ## [2026-10-21] — Heartbeat Brain : écrire seulement quand l'état change
 
 - **Le battement réécrivait une ligne identique toutes les ~60 s.** Mesure

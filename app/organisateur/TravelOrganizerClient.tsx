@@ -191,7 +191,11 @@ const fmt = (n: number) => Math.round(n).toLocaleString('fr-FR')
 const stageTotal = (s: TripStep) => s.accommodation + s.transport + s.food + s.activities
 
 // ── Composant principal ───────────────────────────────────────────────────────
-export default function TravelOrganizerClient() {
+export default function TravelOrganizerClient({
+  initialZones,
+}: {
+  initialZones?: Record<string, string>;
+} = {}) {
   const [destination, setDestination] = useState('')
   const [startDate, setStartDate]     = useState('')
   const [endDate, setEndDate]         = useState('')
@@ -372,7 +376,7 @@ Généré avec Heldonica — heldonica.fr`
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
-    <InlineEditProvider page="organisateur">
+    <InlineEditProvider page="organisateur" initialZones={initialZones}>
       <div className="min-h-screen bg-cloud-dancer" id="organizer-content">
         <style>{`@media print { body { background: white; } #organizer-content { background: white !important; } button, a[href], nav, footer { display: none !important; } }`}</style>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12 md:py-16">

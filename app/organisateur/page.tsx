@@ -36,17 +36,22 @@ const metadata: Metadata = {
   },
 }
 
+import { getPageZones } from '@/lib/cms-zones'
+
+export const revalidate = 300;
+
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata('organisateur', metadata)
 }
 
 
-export default function OrganizerPage() {
+export default async function OrganizerPage() {
+  const zones = await getPageZones('organisateur')
   return (
     <>
       <Header />
       <Breadcrumb />
-      <TravelOrganizerClient />
+      <TravelOrganizerClient initialZones={zones} />
       <Footer />
     </>
   )
