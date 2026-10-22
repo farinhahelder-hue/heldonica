@@ -1,0 +1,2 @@
+-- 20261022070000_purge_ligne_test_quiz_capture.sql
+-- Purge de la ligne de test quiz_capture appliquée directement en base distante.

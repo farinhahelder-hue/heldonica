@@ -153,6 +153,11 @@ jobs:
       - name: Mots bannis des pages statiques
         run: npm run check:content-pages
 
+      # Tics visuels « IA / SaaS » (cartes SaaS, rayons exagérés, emojis décoratifs).
+      # Statique, comme check:content-pages : refuse les dérives de design system.
+      - name: Tics visuels et emojis hors charte
+        run: npm run check:design-tics
+
       # Tout texte visible des pages publiques se modifie depuis le CMS. Le
       # contrôle fige, fichier par fichier, le nombre de textes encore écrits
       # en dur (scripts/cms-hardcode-baseline.json) et refuse toute hausse.

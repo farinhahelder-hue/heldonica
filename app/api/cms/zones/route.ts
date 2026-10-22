@@ -128,12 +128,11 @@ export async function PATCH(req: NextRequest) {
     if (existingZone && existingZone.value !== value) {
       try {
         const { error: erreurHistorique } = await supabase.from('cms_zone_history').insert({
-          zone_id: existingZone.id,
           page,
           zone_key,
-          previous_value: existingZone.value,
+          old_value: existingZone.value ?? null,
           new_value: value,
-          created_at: new Date().toISOString(),
+          changed_at: new Date().toISOString(),
         });
         if (erreurHistorique) {
           console.error('[cms/zones] historique non ecrit :', erreurHistorique.message);
@@ -162,6 +161,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     // Revalidation instantanée On-Demand
+    revalidateTag('cms-zones');
     await revalidateCmsTarget({ page });
 
     return NextResponse.json({ success: true });
@@ -209,6 +209,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Revalidation instantanée On-Demand
+    revalidateTag('cms-zones');
     await revalidateCmsTarget({ page });
 
     return NextResponse.json({ success: true });
