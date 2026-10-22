@@ -5,10 +5,15 @@ import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { readCookieConsent, writeCookieConsent } from '@/lib/consent';
 import { estRouteAdmin } from '@/lib/routes-admin';
+import { useContentLoader, getCmsOrSetting } from '@/hooks/useContentLoader';
+import type { CmsZone } from '@/lib/content-loader';
 
 export default function CookieConsentBanner() {
   const [visible, setVisible] = useState(false);
   const pathname = usePathname();
+  const { zones, settings } = useContentLoader();
+  const z = zones as Record<string, CmsZone>;
+  const t = (zoneKey: string, fallback: string) => getCmsOrSetting(zoneKey, '', fallback, z, settings);
 
   // Masquer sur les routes admin. Le prefixe teste ici etait « /cms », renomme
   // depuis en « /panel-manager » : le bandeau reapparaissait donc par-dessus le
@@ -35,26 +40,25 @@ export default function CookieConsentBanner() {
       <div className="mx-auto max-w-5xl rounded-2xl border border-stone-200 bg-white shadow-2xl">
         <div className="p-5 md:p-6">
           <p className="text-xs uppercase tracking-[0.16em] text-eucalyptus font-semibold mb-2">
-            Cookies et vie privée
+            {t('cookie_title', 'Cookies et vie privée')}
           </p>
           <p className="text-sm md:text-base text-charcoal/85 leading-relaxed">
-            Nous utilisons des cookies strictement nécessaires au fonctionnement du site. Les
-            cookies de mesure d’audience et marketing ne sont actifs qu’avec ton consentement.
+            {t('cookie_text', 'Nous utilisons des cookies strictement nécessaires au fonctionnement du site. Les cookies de mesure d’audience et marketing ne sont actifs qu’avec ton consentement.')}
           </p>
           <p className="text-sm mt-3 text-charcoal/75">
-            Détails :{' '}
+            {t('cookie_details_prefix', 'Détails :')}{' '}
             <Link
               href="/politique-confidentialite"
               className="text-eucalyptus hover:text-teal transition font-medium"
             >
-              Politique de confidentialité
+              {t('cookie_privacy_label', 'Politique de confidentialité')}
             </Link>{' '}
-            et{' '}
+            {t('cookie_details_joiner', 'et')}{' '}
             <Link
               href="/mentions-legales"
               className="text-eucalyptus hover:text-teal transition font-medium"
             >
-              Mentions légales
+              {t('cookie_legal_label', 'Mentions légales')}
             </Link>
             .
           </p>
@@ -64,14 +68,14 @@ export default function CookieConsentBanner() {
               onClick={() => setConsent('rejected')}
               className="px-5 py-2.5 rounded-lg border border-stone-300 text-charcoal hover:border-stone-400 transition"
             >
-              Refuser
+              {t('cookie_reject_label', 'Refuser')}
             </button>
             <button
               type="button"
               onClick={() => setConsent('accepted')}
               className="px-5 py-2.5 rounded-lg bg-action text-white font-medium hover:bg-action-fonce transition"
             >
-              Accepter
+              {t('cookie_accept_label', 'Accepter')}
             </button>
           </div>
         </div>

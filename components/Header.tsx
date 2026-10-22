@@ -19,9 +19,19 @@ export default function Header() {
   const { user, loading } = useAuth()
   const { zones, settings } = useContentLoader()
 
+  const z = zones as Record<string, CmsZone>
   const accountHref = !loading && user ? '/dashboard' : '/auth/login'
-  const accountLabel = !loading && user ? 'Mon espace' : 'Connexion'
-  
+  const accountLabel = !loading && user
+    ? getCmsOrSetting('header_account_space_label', '', 'Mon espace', z, settings)
+    : getCmsOrSetting('header_account_login_label', '', 'Connexion', z, settings)
+  const menuTitle = getCmsOrSetting('header_menu_title', '', 'Menu', z, settings)
+  // Liens discrets en bas du menu mobile (zones `header_mobile_link_<n>_label` / `_url`).
+  const mobileLinks = getZoneLinks('header_mobile_link', [
+    { label: 'Contact', url: '/contact' },
+    { label: 'Mentions légales', url: '/mentions-legales' },
+    { label: 'Confidentialité', url: '/politique-confidentialite' },
+  ], z)
+
   // CMS 3.0: cascade cms_editable_zones > site_settings > hardcoded
   const siteName = getCmsOrSetting(
     'header_site_name', 'site_name', 'Heldonica',
@@ -224,7 +234,7 @@ export default function Header() {
             <div className="flex flex-col gap-1 p-5">
               {/* Header du menu avec bouton fermer */}
               <div className="flex items-center justify-between mb-4 pb-4 border-b border-[#DED5C6]">
-                <span className="text-xs font-medium uppercase tracking-[0.18em] text-mahogany">Menu</span>
+                <span className="text-xs font-medium uppercase tracking-[0.18em] text-mahogany">{menuTitle}</span>
                 <button
                   onClick={() => setOpen(false)}
                   className="flex h-8 w-8 items-center justify-center rounded-sm border border-[#DED5C6] bg-[#FAF7F2] text-charcoal/70 transition-colors hover:border-mahogany hover:text-mahogany"
@@ -283,11 +293,12 @@ export default function Header() {
 
               {/* Liens légaux rapides */}
               <div className="mt-4 flex flex-wrap gap-3 px-1">
-                <Link href="/contact" className="text-xs text-stone-500 hover:text-stone-700">Contact</Link>
-                <span className="text-xs text-stone-300">•</span>
-                <Link href="/mentions-legales" className="text-xs text-stone-500 hover:text-stone-700">Mentions légales</Link>
-                <span className="text-xs text-stone-300">•</span>
-                <Link href="/politique-confidentialite" className="text-xs text-stone-500 hover:text-stone-700">Confidentialité</Link>
+                {mobileLinks.map((link, i) => (
+                  <span key={link.url} className="flex items-center gap-3">
+                    {i > 0 && <span className="text-xs text-stone-300" aria-hidden="true">•</span>}
+                    <Link href={link.url} className="text-xs text-stone-500 hover:text-stone-700">{link.label}</Link>
+                  </span>
+                ))}
               </div>
             </div>
           </div>

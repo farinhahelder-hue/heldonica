@@ -40,7 +40,7 @@ describe('check-cms-hardcode', () => {
       expect(kinds("const a = getCmsOrSetting('k', 's', 'Slow travel vécu', z, s)")).toEqual([]);
       expect(kinds("const l = getZoneLinks('nav_item', [{ label: 'Voyager avec nous', url: '/x' }], z)")).toEqual([]);
       expect(kinds("const b = Z('cta', 'text', 'Préparer un voyage')")).toEqual([]);
-      expect(kinds("const c = useZoneText('form_cta', 'Échanger sur mon projet')")).toEqual([]);
+      expect(kinds("const c = useZoneTexts('p', { form_cta: 'Échanger sur mon projet' })")).toEqual([]);
     });
 
     it('ignore aria-label, même calculé', () => {

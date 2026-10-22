@@ -6,7 +6,7 @@
  * -------------------------
  * La règle du site : tout texte visible se modifie depuis le CMS. Un texte
  * passe par le CMS quand il est rendu par <EditableZone> (ou l'accesseur local
- * `Z(…)`), lu par `getCmsOrSetting` / `getZoneLinks`, ou par `useZoneText` ;
+ * `Z(…)`), lu par `getCmsOrSetting` / `getZoneLinks`, ou par `useZoneTexts` ;
  * la valeur écrite dans le code n'est alors qu'un repli. Le 22/10/2026, on
  * comptait ~1 560 textes visibles hors de ces chemins, contre 967 zones.
  *
@@ -24,7 +24,7 @@
  *
  * Ce qui ne compte pas
  *   - les replis passés aux helpers CMS (getCmsOrSetting, getZoneLinks, Z,
- *     useZoneText, fallback= d'EditableZone) ;
+ *     useZoneTexts, fallback= d'EditableZone) ;
  *   - les métadonnées SEO et le JSON-LD ;
  *   - les classes CSS et valeurs de style ;
  *   - aria-label : il nomme une commande pour les lecteurs d'écran (« Fermer
@@ -45,7 +45,7 @@ export const CMS_HARDCODE_TARGETS = [...PUBLIC_DESIGN_TARGETS, 'components/Cooki
 export const BASELINE_PATH = 'scripts/cms-hardcode-baseline.json';
 
 const VISIBLE_ATTRS = new Set(['alt', 'placeholder', 'title', 'label']);
-const CMS_HELPERS = new Set(['getCmsOrSetting', 'getZoneLinks', 'Z', 'useZoneText', 'buildPageMetadata']);
+const CMS_HELPERS = new Set(['getCmsOrSetting', 'getZoneLinks', 'Z', 'useZoneTexts', 'buildPageMetadata']);
 const SETTER_RE = /^(set[A-Z]\w*|alert|toast)$/;
 const NON_TEXT_PROP = /^(className|class|href|src|url|id|key|type|slug|icon|image|img|cover|zone|page|as|variant|color|bg|rel|target|name|role|tag|category|lang|locale|format|unit|value|path|route|hash|anchor|width|height|ratio|priority|sizes|lat|lng|coords|query|status|kind|layout|mode|animation|transition|transform|style|fontFamily|background|backgroundImage|border|boxShadow|filter|gridTemplateColumns|objectPosition)$/i;
 const SCHEMA_VAR = /schema|jsonld|metadata/i;
@@ -241,7 +241,7 @@ function main() {
         console.error(`      L${v.line} [${v.kind}] ${v.text.slice(0, 90)}`);
       }
     }
-    console.error('\nFaire passer ce texte par le CMS : <EditableZone>, Z(…), useZoneText, getCmsOrSetting ou getZoneLinks.');
+    console.error('\nFaire passer ce texte par le CMS : <EditableZone>, Z(…), useZoneTexts, getCmsOrSetting ou getZoneLinks.');
     console.error('Détail d\'un fichier : node scripts/check-cms-hardcode.mjs --list <fichier>');
     process.exit(1);
   }

@@ -191,7 +191,7 @@ Linux et macOS via :
 npm run garde-fous
 ```
 
-Ce script exécute et récapitule dans un tableau clair l'ensemble des 14 contrôles :
+Ce script exécute et récapitule dans un tableau clair l'ensemble des 16 contrôles :
 
 | Contrôle | Ce qu'il attrape |
 |---|---|
@@ -207,6 +207,8 @@ Ce script exécute et récapitule dans un tableau clair l'ensemble des 14 contr�
 | `check:content-coherence` | Voix éditoriale et mots bannis en production. |
 | `check:content-pages` | Prose des pages statiques : mots bannis et fragments de brouillon. |
 | `check:content-evidence` | Vécu qui n'est adossé à aucune photo. |
+| `check:design-tics` | Emojis décoratifs et cartes « SaaS » sur les pages publiques. |
+| `check:cms-hardcode` | Texte visible écrit en dur hors du CMS. Cliquet : le compte par fichier (`scripts/cms-hardcode-baseline.json`) ne peut que baisser ; après un gain, `node scripts/check-cms-hardcode.mjs --update`. |
 | `typecheck` (`tsc`) | Erreurs de typage TypeScript strictes. |
 | `vitest` (`vitest run`) | Intégrité des fichiers de tests unitaires et intégration. |
 

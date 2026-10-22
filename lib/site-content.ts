@@ -98,6 +98,86 @@ const CONSUMED_ZONE_KEYS: string[] = [
   'newsletter_error_generic',
   'newsletter_error_network',
 
+  // Ces quatre clés et l'étiquette email étaient lues par NewsletterForm sans
+  // être servies : le composant affichait toujours son repli.
+  'newsletter_heading_default',
+  'newsletter_heading_blog',
+  'newsletter_rgpd_label',
+  'newsletter_rgpd_link',
+  'newsletter_email_label',
+
+  // Header : compte, titre et liens du menu mobile
+  'header_account_space_label',
+  'header_account_login_label',
+  'header_menu_title',
+
+  // Footer : bloc newsletter, baseline et logo
+  'footer_newsletter_badge',
+  'footer_newsletter_desc',
+  'footer_newsletter_success_title',
+  'footer_newsletter_success_text',
+  'footer_brand_baseline',
+  'footer_logo_alt',
+
+  // Bandeau cookies (CookieConsentBanner)
+  'cookie_title',
+  'cookie_text',
+  'cookie_details_prefix',
+  'cookie_privacy_label',
+  'cookie_details_joiner',
+  'cookie_legal_label',
+  'cookie_reject_label',
+  'cookie_accept_label',
+
+  // Fenêtre « guide gratuit » (NewsletterPopup)
+  'popup_badge',
+  'popup_title',
+  'popup_desc',
+  'popup_email_label',
+  'popup_email_placeholder',
+  'popup_consent_text',
+  'popup_consent_link',
+  'popup_cta',
+  'popup_cta_loading',
+  'popup_footnote',
+  'popup_success_title',
+  'popup_success_text',
+  'popup_error_invalid',
+  'popup_error_generic',
+  'popup_error_network',
+
+  // Formulaire de contact (ContactForm). Lues depuis toujours par le
+  // composant, jamais servies : ses 28 libellés restaient figés sur le repli.
+  'contact_form_name_label',
+  'contact_form_email_label',
+  'contact_form_phone_label',
+  'contact_form_subject_label',
+  'contact_form_message_label',
+  'contact_form_name_placeholder',
+  'contact_form_email_placeholder',
+  'contact_form_phone_placeholder',
+  'contact_form_subject_placeholder',
+  'contact_form_message_placeholder',
+  'contact_form_error_name',
+  'contact_form_error_email_required',
+  'contact_form_error_email_invalid',
+  'contact_form_error_subject',
+  'contact_form_error_message',
+  'contact_form_error_rgpd',
+  'contact_form_error_generic',
+  'contact_form_submit',
+  'contact_form_submit_loading',
+  'contact_form_success',
+  'contact_form_subject_option_placeholder',
+  'contact_form_subject_option_travel',
+  'contact_form_subject_option_hebergeur',
+  'contact_form_subject_option_carnet',
+  'contact_form_subject_option_partnership',
+  'contact_form_subject_option_other',
+  'contact_form_rgpd_label',
+  'contact_form_rgpd_link',
+  'contact_form_reassurance',
+
   // Encart Instagram (InstagramFeed) et CTA Travel Planning transverse
   // (CtaTravelPlanning) — même mécanisme d'accesseur local `val()`.
   'instagram_section_title',
@@ -112,6 +192,10 @@ const CONSUMED_ZONE_KEYS: string[] = [
   // des zones actives absentes du filtre tant que la migration
   // 20261022120000_menu_cinq_entrees n'a pas désactivé les entrées 6 et 7.
   ...buildLinkKeys('nav_item', 7),
+  // Colonne « Navigation » du pied de page, distincte du menu du haut.
+  ...buildLinkKeys('footer_nav_item', 6),
+  // Liens discrets en bas du menu mobile.
+  ...buildLinkKeys('header_mobile_link', 3),
   ...buildLinkKeys('footer_dest_item', 5),
   ...buildLinkKeys('footer_guide_item', 3),
   ...buildLinkKeys('footer_legal_item', 3),
