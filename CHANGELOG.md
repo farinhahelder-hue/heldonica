@@ -2,6 +2,21 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-22] — Correctif traçabilité CMS & purge des tics visuels (fiches cf31fe6d & 91b54bbb)
+
+- **Fiche cf31fe6d : Réparation de l'historisation des zones (`cms_zone_history`)** :
+  - Dans `app/api/cms/zones/route.ts` (PATCH), correction des 3 noms de colonnes erronés (`zone_id` -> retiré, `previous_value` -> `old_value`, `created_at` -> `changed_at`). Les modifications de zones échouaient silencieusement en `ERROR 42703 (column "zone_id" of relation "cms_zone_history" does not exist)` depuis le 19/08.
+  - Ajout de `revalidateTag('cms-zones')` sur PATCH et POST pour bust instantanément le cache `unstable_cache` en plus de `revalidateCmsTarget`.
+  - 5 tests unitaires dédiés ajoutés dans `__tests__/api/cms-zones.test.ts`.
+
+- **Fiche 91b54bbb : Purge des emojis décoratifs & flèches en base, câblage en CI** :
+  - **Câblage en CI** : Ajout du step `Tics visuels et emojis hors charte` (`npm run check:design-tics`) dans `.github/workflows/garde-fous.yml` (job `cms`), verrouillé par test unitaire dans `__tests__/scripts/garde-fous-outillage.test.ts`.
+  - **Migration 20261022230000_purge_raw_emojis_cms_zones.sql** :
+    - Purge des symboles `✓` et `⚠` en tête de libellé sur les 10 zones de destinations (`destinations-sardaigne` `period_N`, `destinations-montenegro-kotor` `verdict_adore_N`, `destinations-colombie` `info_1_item_N`).
+    - Remplacement des 42 emojis résiduels dans les zones d'icônes `highlight_%_emoji` et `pepite_%_icon` par le nom d'icône Lucide `'Compass'`.
+    - Suppression des flèches trailing ` →` sur les 17 boutons et CTA (`global.instagram_cta_text`, `popup_cta`, `contact_form_submit`, etc.).
+  - Mesure après application en base de production : 0 emoji résiduel, 0 marque `✓`/`⚠`, 0 flèche trailing CTA.
+
 ## [2026-10-22] — Intégration du nouveau logo Heldonica : sceau officiel & symbole deux feuilles (gent/gemini/nouveau-logo-heldonica)
 
 - **Système de marque à double niveau (Grand format éditorial & Icône compacte)** :

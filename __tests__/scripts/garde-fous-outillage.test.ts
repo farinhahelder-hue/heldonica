@@ -89,5 +89,10 @@ describe('outillage garde-fous — scripts du pré-vol', () => {
       expect(rapides.length).toBeGreaterThanOrEqual(6);
       expect(rapides.every((c) => !c.needsDb)).toBe(true);
     });
+
+    it('câble check:design-tics dans .github/workflows/garde-fous.yml', () => {
+      const yml = readFileSync('.github/workflows/garde-fous.yml', 'utf8');
+      expect(yml).toContain('npm run check:design-tics');
+    });
   });
 });
