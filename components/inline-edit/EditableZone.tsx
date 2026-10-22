@@ -6,11 +6,13 @@ import { useEditableContext } from './InlineEditProvider'
 import AiImproveModal from './AiImproveModal'
 import dynamic from 'next/dynamic'
 import TiptapEditor from './TiptapEditor'
+import { normalizeZoneText } from '@/lib/zone-text'
 import { sanitizeHtml } from '@/lib/sanitize-html'
+import CmsIcon from '@/components/CmsIcon'
 
 const MediaLibrary = dynamic(() => import('@/components/MediaLibrary'), { ssr: false })
 
-type ZoneType = 'text' | 'textarea' | 'image' | 'html'
+type ZoneType = 'text' | 'textarea' | 'image' | 'html' | 'icon'
 
 interface EditableZoneProps {
   page: string
@@ -22,6 +24,8 @@ interface EditableZoneProps {
   href?: string
   target?: string
   wrapper?: 'none' | 'link' | 'button'
+  /** Texte nu, sans enveloppe ni édition : pour un <option>, qui n'accepte pas de <span>. */
+  plain?: boolean
 }
 
 export default function EditableZone({
@@ -33,6 +37,7 @@ export default function EditableZone({
   as: Tag = 'span',
   href,
   wrapper = 'none',
+  plain = false,
 }: EditableZoneProps) {
   const { zones, isEditing, updateZone, saving, registerZone, unregisterZone, triggerUndo } = useEditableContext()
   const [editValue, setEditValue] = useState('')
@@ -89,11 +94,16 @@ export default function EditableZone({
     [cancel, save, type]
   )
 
+  const isIconZone = type === 'icon' || /(?:_emoji|_icon)$/.test(zone)
+
   const renderContent = (content: string) => {
     if (type === 'image') {
       return <ZoneImage src={content} className={className} />
     }
-    return <Tag className={className} dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }} />
+    if (isIconZone) {
+      return <CmsIcon name={content} fallback={fallback} className={className || 'w-5 h-5 text-eucalyptus'} />
+    }
+    return <Tag className={className} dangerouslySetInnerHTML={{ __html: sanitizeHtml(normalizeZoneText(content)) }} />
   }
 
   const renderViewMode = () => {
@@ -105,7 +115,7 @@ export default function EditableZone({
           id={`zone-${zoneKey}`}
           onClick={startEdit}
           className={`relative group cursor-pointer rounded outline-dashed outline-eucalyptus/60 hover:outline-eucalyptus transition duration-200 p-1 min-h-[1.5em] ${
-            type === 'image' ? 'inline-block' : 'block'
+            type === 'image' || isIconZone ? 'inline-block' : 'block'
           } ${className}`}
           title="Cliquer pour modifier"
         >
@@ -122,8 +132,10 @@ export default function EditableZone({
 
           {type === 'image' ? (
             <img src={value} alt="" className={className} loading="lazy" />
+          ) : isIconZone ? (
+            <CmsIcon name={value} fallback={fallback} className={className || 'w-5 h-5 text-eucalyptus'} />
           ) : (
-            <Tag dangerouslySetInnerHTML={{ __html: sanitizeHtml(value) }} />
+            <Tag dangerouslySetInnerHTML={{ __html: sanitizeHtml(normalizeZoneText(value)) }} />
           )}
 
           {/* Crayon overlay button */}
@@ -256,6 +268,8 @@ export default function EditableZone({
     )
   }
 
+  if (plain) return <>{value}</>
+
   return (
     <>
       {editing ? renderEditMode() : renderViewMode()}
@@ -298,6 +312,8 @@ export default function EditableZone({
 /** Image zone that hides itself on load failure instead of showing a broken-image icon. */
 function ZoneImage({ src, className }: { src: string; className?: string }) {
   const [failed, setFailed] = useState(false)
-  if (!src || failed) return null
+  // og-default.jpg est l'image de partage (logo + titre incrustés) : en fond de
+  // hero, elle chevauche le vrai titre. On n'affiche rien plutôt que ce doublon.
+  if (!src || failed || src === '/og-default.jpg') return null
   return <img src={src} alt="" className={className} loading="lazy" onError={() => setFailed(true)} />
 }

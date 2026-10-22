@@ -162,14 +162,14 @@ export async function POST(req: NextRequest) {
 
     const stockInfo = exifResult
       ? { isStockCandidate: exifResult.isStockCandidate, reasons: exifResult.stockReasons }
-      : { isStockCandidate: false, reasons: [] };
+      : Promise.resolve({ isStockCandidate: false, reasons: [] });
 
     return NextResponse.json({
       ok: true,
       photoBlock: savedRecord,
       exif: exifResult,
-      isStockCandidate: stockInfo.isStockCandidate,
-      stockReasons: stockInfo.reasons,
+      isStockCandidate: (await stockInfo).isStockCandidate,
+      stockReasons: (await stockInfo).reasons,
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
