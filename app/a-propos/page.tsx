@@ -3,6 +3,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
 import Link from 'next/link'
+import Image from 'next/image'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import { getPageZones } from '@/lib/cms-zones'
 import EditableZone from '@/components/inline-edit/EditableZone'
@@ -147,6 +148,19 @@ export default async function AProposPage() {
                 <EditableZone page="a-propos" zone="bio_text_4" type="textarea" fallback="Le slow travel, ce n'est pas une stratégie. C'est une évidence. Quand on voyage autrement, on vit autrement. On choisit qualité sur quantité. On revient moins fatigué qu'avant de partir."
                   className="text-charcoal/75 leading-relaxed block"
                 />
+                <div className="pt-6 border-t border-[#DED5C6]/60 flex items-center gap-4">
+                  <Image
+                    src="/images/branding/logo-seal-transparent.png"
+                    alt="Sceau officiel Heldonica"
+                    width={80}
+                    height={80}
+                    className="w-16 h-16 md:w-20 md:h-20 object-contain opacity-90 flex-shrink-0"
+                  />
+                  <div>
+                    <p className="font-serif italic text-mahogany text-base md:text-lg">« Deux regards. Un seul terrain. »</p>
+                    <p className="text-xs uppercase tracking-[0.16em] text-charcoal/60 mt-0.5">Le duo fondateur</p>
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 gap-4">

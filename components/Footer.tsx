@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useContentLoader, getCmsOrSetting, getZoneLinks } from '@/hooks/useContentLoader'
 import type { CmsZone } from '@/lib/content-loader'
 
@@ -194,8 +195,18 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12 mb-12">
           {/* Colonne 1 - Marque */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="inline-block mb-3">
-              <span className="text-2xl font-serif font-normal text-[#F7F3EC]">{siteName}</span>
+            <Link href="/" className="flex items-center gap-3.5 mb-4 group">
+              <Image
+                src="/images/branding/logo-seal-light.png"
+                alt="Sceau officiel Heldonica"
+                width={56}
+                height={56}
+                className="w-14 h-14 object-contain opacity-90 transition-opacity duration-300 group-hover:opacity-100 flex-shrink-0"
+              />
+              <div>
+                <span className="text-2xl font-serif font-normal text-[#F7F3EC] block leading-tight">{siteName}</span>
+                <span className="text-[10px] uppercase tracking-[0.2em] text-[#B8A99A]">Slow travel vécu</span>
+              </div>
             </Link>
             <p className="text-sm font-serif italic text-[#C8B9A6] mb-4">{tagline}</p>
             {settings.site_description && (

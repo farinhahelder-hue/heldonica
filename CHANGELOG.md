@@ -2,6 +2,20 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-22] — Intégration du nouveau logo Heldonica : sceau officiel & symbole deux feuilles (gent/gemini/nouveau-logo-heldonica)
+
+- **Système de marque à double niveau (Grand format éditorial & Icône compacte)** :
+  - **Sceau officiel rond (détouré sans faux damier)** :
+    - public/images/branding/logo-seal-transparent.png : version encre ardoise/sauge (#4C6063) sur fond 100% transparent (extraction sans résidu de quadrillage). Intégré en signature officielle sous le récit du duo fondateur sur la page /a-propos (pp/a-propos/page.tsx).
+    - public/images/branding/logo-seal-light.png : déclinaison encre lin (#E6DEC8) sur fond transparent. Intégré dans le pied de page (components/Footer.tsx) à côté du nom de marque et de la mention *Slow travel vécu*.
+  - **Icône compacte des deux feuilles (SVG vectoriel pur)** :
+    - Tracé vectoriel extrait des deux feuilles centrales du sceau (public/images/branding/leaves.svg, public/images/branding/leaves-square.svg).
+    - Intégré dans la barre de navigation (components/Header.tsx) pour remplacer le vieux monogramme géométrique provisoire « H », et synchronisé avec public/logo.svg.
+- **Réparation environnement local** : suppression de la jonction orpheline output pointant vers un volume F: déconnecté, bloquant 
+ext build en ENOENT. 
+ext build compile désormais 163/163 pages statiques avec succès.
+- **Vérifications** : preflight 9/9 réussi, 	ypecheck (tsc) 0 erreur, build Next.js 163/163 pages générées avec succès.
+
 ## [2026-10-21] — Le « carnet » étendu aux ~50 pages secondaires + garde-fou `check:design-tics` (`agent/gemini/design-upgrade-2-0`)
 
 - **Correction d'une erreur de cohérence éditoriale** : la purge du mot « pépites » annoncée plus bas était fausse. *Pépites dénichées* est le vocabulaire préféré de la marque (`lib/brand-voice.ts`, `docs/GUIDE_VOIX_HELDONICA_IA.md`) et aucun garde-fou ne le bannit. Le mot est restauré (commit `2ccdb755`) ; la ligne « purge des 6 dernières occurrences » de l'entrée suivante est caduque.
