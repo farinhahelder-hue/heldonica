@@ -111,6 +111,7 @@
   "app/travel-planning/layout.tsx": 0,
   "app/travel-planning/page.tsx": 0,
   "app/travel-planning/TravelPlanningClient.tsx": 81,
+  "components/ArticleMap.tsx": 9,
   "components/Blog.tsx": 6,
   "components/BlogClientPage.tsx": 20,
   "components/BlogFilters.tsx": 4,
