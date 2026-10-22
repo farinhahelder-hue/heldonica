@@ -435,8 +435,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 <EditableZone page="home" zone="hero_cta_1_label" fallback="Préparer un voyage" />
               </Link>
               <Link href="/blog"
-                className="self-center sm:self-auto text-[#F7F3EC]/90 hover:text-[#E6DEC8] border-b border-[#F7F3EC]/45 hover:border-[#E6DEC8] pb-1 font-medium text-xs uppercase tracking-[0.16em] transition-colors">
-                <EditableZone page="home" zone="hero_cta_2_label" fallback="Lire les carnets →" />
+                className="self-center sm:self-auto text-[#F7F3EC]/90 hover:text-[#E6DEC8] border-b border-[#F7F3EC]/45 hover:border-[#E6DEC8] pb-1 font-medium text-sm transition-colors">
+                <EditableZone page="home" zone="hero_cta_2_label" fallback="Lire les carnets" />
               </Link>
             </div>
           </div>
