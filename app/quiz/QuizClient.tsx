@@ -125,6 +125,11 @@ export default function QuizClient({
   const [result, setResult] = useState<string | null>(null)
   const [showResult, setShowResult] = useState(false)
 
+  // Capture email du profil
+  const [email, setEmail] = useState('')
+  const [honeypot, setHoneypot] = useState('')
+  const [captureStatus, setCaptureStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+
   const q = QUESTIONS[currentQuestion]
   const progress = ((currentQuestion + 1) / QUESTIONS.length) * 100
 
@@ -154,6 +159,40 @@ export default function QuizClient({
   }
 
   const profile = result ? PROFILES[result] : null
+
+  const handleCaptureSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (honeypot) return
+    if (!email || !email.includes('@')) {
+      setCaptureStatus('error')
+      return
+    }
+
+    setCaptureStatus('loading')
+
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          source: result ? `quiz-${result}` : 'quiz',
+          profil: profile?.title || result,
+          website_url: honeypot,
+        }),
+      })
+
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setCaptureStatus('success')
+        setEmail('')
+      } else {
+        setCaptureStatus('error')
+      }
+    } catch {
+      setCaptureStatus('error')
+    }
+  }
 
   const Z = (zone: string, type: 'text' | 'textarea' | 'html', fallback: string, className?: string, as?: any) => (
     <EditableZone page={PAGE} zone={zone} type={type} fallback={fallback} className={className} as={as} />
@@ -269,7 +308,7 @@ export default function QuizClient({
                     </div>
 
                     {/* Vibe tags */}
-                    <div className="flex flex-wrap justify-center gap-2 mb-10">
+                    <div className="flex flex-wrap justify-center gap-2 mb-8">
                       {profile.vibes.map((vibe, v) => (
                         <span
                           key={vibe}
@@ -279,6 +318,58 @@ export default function QuizClient({
                           {Z('profile_' + result + '_vibe_' + (v + 1), 'text', vibe, undefined, 'span')}
                         </span>
                       ))}
+                    </div>
+
+                    {/* Bloc Capture Email */}
+                    <div className="bg-[#F7F3EC] rounded-sm p-6 mb-8 text-center border border-[#DED5C6]">
+                      <h3 className="text-base font-serif font-medium text-stone-900 mb-2">
+                        {Z('capture_email_title', 'text', "Recevoir mon profil complet par email", undefined, 'span')}
+                      </h3>
+                      {captureStatus === 'success' ? (
+                        <div role="status" className="p-4 bg-emerald-50 text-emerald-800 rounded-sm text-sm border border-emerald-200">
+                          {Z('capture_email_success', 'text', "Profil envoyé ! Pense à vérifier tes spams si besoin.", undefined, 'span')}
+                        </div>
+                      ) : (
+                        <form onSubmit={handleCaptureSubmit} className="space-y-3">
+                          <input
+                            type="text"
+                            name="website_url"
+                            value={honeypot}
+                            onChange={(e) => setHoneypot(e.target.value)}
+                            tabIndex={-1}
+                            autoComplete="off"
+                            aria-hidden="true"
+                            className="hidden"
+                          />
+                          <div className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
+                            <input
+                              type="email"
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                              required
+                              aria-label="Adresse email"
+                              className="flex-1 bg-[#FAF7F2] border border-[#DED5C6] rounded-sm px-4 py-3 text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:border-eucalyptus"
+                            />
+                            <button
+                              type="submit"
+                              disabled={captureStatus === 'loading'}
+                              className="px-5 py-3 bg-mahogany hover:brightness-110 disabled:opacity-50 text-white text-sm font-medium rounded-sm transition-all whitespace-nowrap"
+                            >
+                              {captureStatus === 'loading'
+                                ? Z('capture_email_loading', 'text', "Envoi...", undefined, 'span')
+                                : Z('capture_email_button', 'text', "Recevoir mon profil", undefined, 'span')}
+                            </button>
+                          </div>
+                          {captureStatus === 'error' && (
+                            <p role="alert" className="text-red-700 text-xs">
+                              {Z('capture_email_error', 'text', "Une erreur est survenue. Merci de réessayer.", undefined, 'span')}
+                            </p>
+                          )}
+                          <p className="text-xs text-stone-500">
+                            {Z('capture_email_note', 'text', "Gratuit · Sans engagement · Zéro spam", undefined, 'span')}
+                          </p>
+                        </form>
+                      )}
                     </div>
 
                     {/* CTA */}
@@ -295,6 +386,9 @@ export default function QuizClient({
                           setAnswers({})
                           setResult(null)
                           setShowResult(false)
+                          setEmail('')
+                          setHoneypot('')
+                          setCaptureStatus('idle')
                         }}
                         className="text-stone-500 hover:text-stone-700 text-sm underline"
                       >

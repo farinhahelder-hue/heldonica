@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { email, website_url } = await request.json()
+    const { email, website_url, source, profil } = await request.json()
     const supabase = createServiceClient()
 
     // Server-side honeypot: silently reject if bot filled the hidden field
@@ -31,25 +31,35 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Détermination de la source : source explicite, sinon quiz-<profil>, sinon popup par défaut
+    const rawSource = typeof source === 'string' && source.trim()
+      ? source.trim()
+      : (profil && typeof profil === 'string' ? `quiz-${profil.trim().toLowerCase().replace(/\s+/g, '-')}` : 'popup')
+    const finalSource = rawSource.slice(0, 100)
+
     // 1. Ajout dans Supabase (table newsletter_subscribers)
     const { error: subError } = await supabase
       .from('newsletter_subscribers')
-      .upsert({ email, source: 'popup' }, { onConflict: 'email' })
+      .upsert({ email, source: finalSource }, { onConflict: 'email' })
 
     if (subError) {
       console.error('Erreur Supabase newsletter:', subError)
     }
-
 
     // 2. Email de bienvenue via Resend (Email 1 — immédiate)
     const resendApiKey = process.env.RESEND_API_KEY
     if (resendApiKey) {
       const { Resend } = await import('resend')
       const resend = new Resend(resendApiKey)
+      const isQuiz = finalSource.startsWith('quiz') || !!profil
+      const subject = isQuiz
+        ? "Ton profil voyageur Heldonica"
+        : "Bienvenue dans l'aventure Heldonica"
+
       await resend.emails.send({
         from: 'Heldonica <contact@heldonica.fr>',
         to: [email],
-        subject: "Bienvenue dans l'aventure Heldonica",
+        subject,
         html: `
           <div style="font-family: Georgia, serif; max-width: 580px; margin: 0 auto; color: #1a1a1a; background: #ffffff;">
             <div style="background: #6b2a1a; padding: 32px 40px; text-align: center;">
@@ -57,16 +67,17 @@ export async function POST(request: NextRequest) {
               <p style="color: #fde68a; font-size: 11px; letter-spacing: 0.2em; margin: 8px 0 0;">SLOW TRAVEL · VOYAGES VÉCUS</p>
             </div>
             <div style="padding: 40px; background: #faf9f7;">
-              <p style="font-size: 20px; margin: 0 0 20px; color: #6b2a1a;">Bienvenue dans l'aventure</p>
+              <p style="font-size: 20px; margin: 0 0 20px; color: #6b2a1a;">${isQuiz ? "Ton profil voyageur est prêt" : "Bienvenue dans l'aventure"}</p>
+              ${profil ? `<p style="color: #6b2a1a; font-size: 15px; font-weight: 600; margin: 0 0 16px;">Profil : ${profil}</p>` : ''}
               <p style="color: #444; line-height: 1.7; margin: 0 0 20px;">
                 On est ravis de t'avoir parmi nous. Tu vas recevoir nos meilleures pépites dénichées : carnets de voyage en couple, adresses hors sentiers battus, et expériences slow que seul un vrai terrain peut révéler.
               </p>
               <p style="color: #444; line-height: 1.7; margin: 0 0 32px;">
                 En attendant notre prochain carnet, explore les destinations qu'on a vraiment vécues :
               </p>
-              <a href="https://www.heldonica.fr/blog" style="display: inline-block; background: #6b2a1a; color: #fff; text-decoration: none; padding: 14px 28px; border-radius: 50px; font-size: 14px; font-family: sans-serif;">Voir le blog →</a>
+              <a href="https://www.heldonica.fr/blog" style="display: inline-block; background: #6b2a1a; color: #fff; text-decoration: none; padding: 14px 28px; border-radius: 50px; font-size: 14px; font-family: sans-serif;">Voir le blog</a>
               <p style="margin-top: 24px;">
-                <a href="https://www.heldonica.fr/a-propos" style="color: #01696f; font-size: 14px;">Découvrir notre histoire →</a>
+                <a href="https://www.heldonica.fr/a-propos" style="color: #01696f; font-size: 14px;">Découvrir notre histoire</a>
               </p>
             </div>
             <div style="padding: 24px 40px; background: #f5f3ef; text-align: center; border-top: 1px solid #e8e0d8;">
@@ -94,7 +105,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { success: true, message: 'Inscription confirmée !' },
+      { success: true, message: 'Inscription confirmée !', source: finalSource },
       { status: 200 }
     )
   } catch (error) {
