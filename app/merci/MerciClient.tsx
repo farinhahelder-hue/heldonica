@@ -33,8 +33,8 @@ export default function MerciClient({ initialZones }: MerciClientProps) {
             <div
               className={`transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
             >
-              <div className="inline-flex items-center gap-2 bg-teal text-white px-5 py-2 rounded-full mb-8 text-sm font-semibold shadow-lg">
-                <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
+              <div className="inline-flex items-center gap-2 bg-teal text-white px-5 py-2 rounded-sm mb-8 text-xs font-semibold tracking-wider uppercase">
+                <span className="w-2 h-2 bg-[#FAF7F2] rounded-full animate-pulse" />
                 <EditableZone page="merci" zone="hero_badge" fallback="Demande envoyée" />
               </div>
 
@@ -46,7 +46,7 @@ export default function MerciClient({ initialZones }: MerciClientProps) {
                 className="text-stone-300 text-lg md:text-xl leading-relaxed mb-8 block"
               />
 
-              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm border border-white/20">
+              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-[#FAF7F2]/10 flex items-center justify-center backdrop-blur-sm border border-white/20">
                 <svg className="w-10 h-10 text-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                 </svg>
@@ -55,7 +55,7 @@ export default function MerciClient({ initialZones }: MerciClientProps) {
           </div>
         </section>
 
-        <section className="py-16 md:py-20 bg-white">
+        <section className="py-16 md:py-20 bg-[#FAF7F2]">
           <div className="max-w-4xl mx-auto px-6">
             <EditableZone page="merci" zone="steps_badge" fallback="Prochaine étape"
               className="text-mahogany text-xs font-bold tracking-[0.2em] uppercase mb-2 text-center block"
@@ -66,7 +66,7 @@ export default function MerciClient({ initialZones }: MerciClientProps) {
 
             <div className="grid md:grid-cols-3 gap-8">
               <div className="text-center">
-                <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-stone-100 flex items-center justify-center">
+                <div className="w-14 h-14 mx-auto mb-4 rounded-sm bg-stone-100 flex items-center justify-center">
                   <span className="text-eucalyptus"><CmsIcon value="BookOpen" size={24} /></span>
                 </div>
                 <div className="text-xs font-bold text-mahogany uppercase tracking-wider mb-2">01</div>
@@ -79,7 +79,7 @@ export default function MerciClient({ initialZones }: MerciClientProps) {
               </div>
 
               <div className="text-center">
-                <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-stone-100 flex items-center justify-center">
+                <div className="w-14 h-14 mx-auto mb-4 rounded-sm bg-stone-100 flex items-center justify-center">
                   <span className="text-eucalyptus"><CmsIcon value="Mail" size={24} /></span>
                 </div>
                 <div className="text-xs font-bold text-mahogany uppercase tracking-wider mb-2">02</div>
@@ -92,7 +92,7 @@ export default function MerciClient({ initialZones }: MerciClientProps) {
               </div>
 
               <div className="text-center">
-                <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-stone-100 flex items-center justify-center">
+                <div className="w-14 h-14 mx-auto mb-4 rounded-sm bg-stone-100 flex items-center justify-center">
                   <span className="text-eucalyptus"><CmsIcon value="Map" size={24} /></span>
                 </div>
                 <div className="text-xs font-bold text-mahogany uppercase tracking-wider mb-2">03</div>
@@ -107,7 +107,7 @@ export default function MerciClient({ initialZones }: MerciClientProps) {
           </div>
         </section>
 
-        <section className="py-16 md:py-20 bg-stone-50">
+        <section className="py-16 md:py-20 bg-[#F7F3EC]">
           <div className="max-w-3xl mx-auto px-6 text-center">
             <EditableZone page="merci" zone="upsell_title" fallback="En attendant, explore nos carnets"
               className="text-2xl md:text-3xl font-serif font-light text-stone-900 mb-4 block"
@@ -116,17 +116,17 @@ export default function MerciClient({ initialZones }: MerciClientProps) {
               className="text-stone-600 leading-relaxed mb-8 max-w-xl mx-auto block"
             />
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/blog" className="px-8 py-4 bg-mahogany hover:bg-mahogany/90 text-white rounded font-semibold text-sm transition shadow-lg">
+              <Link href="/blog" className="px-8 py-4 bg-mahogany hover:bg-mahogany/90 text-white rounded-sm font-semibold text-sm transition">
                 <EditableZone page="merci" zone="upsell_cta_1" fallback="Voir les carnets de voyage →" />
               </Link>
-              <Link href="/destinations" className="px-8 py-4 border-2 border-stone-300 hover:border-mahogany text-stone-700 hover:text-mahogany rounded font-semibold text-sm transition">
+              <Link href="/destinations" className="px-8 py-4 border-2 border-stone-300 hover:border-mahogany text-stone-700 hover:text-mahogany rounded-sm font-semibold text-sm transition">
                 <EditableZone page="merci" zone="upsell_cta_2" fallback="Découvrir nos destinations →" />
               </Link>
             </div>
           </div>
         </section>
 
-        <section className="py-12 bg-white border-t border-stone-100">
+        <section className="py-12 bg-[#FAF7F2] border-t border-stone-100">
           <div className="max-w-3xl mx-auto px-6 text-center">
             <p className="text-stone-500 text-sm">
               <EditableZone page="merci" zone="contact_text" fallback="Des questions ? Écris-nous à" className="inline" />{' '}
