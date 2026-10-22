@@ -196,7 +196,7 @@ function ArticleCard({ post, size = 'md', slugImages, catImages, gradientMap, ic
           <div className="mt-auto pt-3 border-t border-[#E8E0D2] flex items-center justify-between text-xs text-charcoal/55">
             <span>{post.formattedDate || 'Carnet terrain'}</span>
             <span className="text-mahogany border-b border-mahogany/30 pb-0.5 font-medium group-hover:text-eucalyptus group-hover:border-eucalyptus transition-colors" aria-hidden="true">
-              Lire le récit →
+              Lire le récit
             </span>
           </div>
         </div>
@@ -491,8 +491,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               <EditableZone page="home" zone="section_story_text_3" type="textarea" fallback="Notre regard est né à deux. Ensemble, on ferme les ordinateurs, on prend le large et on revient avec des pépites vécues, prêtes à être partagées. Pas de copier-coller d'Internet, uniquement des conseils terrain."
                 className="text-base text-charcoal/80 leading-relaxed mb-7 block"
               />
-              <Link href="/blog" className="inline-block text-mahogany border-b border-mahogany/40 pb-1 text-xs uppercase tracking-[0.16em] font-medium hover:text-eucalyptus hover:border-eucalyptus transition-colors">
-                <EditableZone page="home" zone="section_story_cta" fallback="Lire les carnets →" />
+              <Link href="/blog" className="inline-block text-mahogany border-b border-mahogany/40 pb-1 font-medium text-sm hover:text-eucalyptus hover:border-eucalyptus transition-colors">
+                <EditableZone page="home" zone="section_story_cta" fallback="Lire les carnets" />
               </Link>
             </div>
           </div>
@@ -534,8 +534,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   )}
                   <div className="pt-4 border-t border-[#E8E0D2] flex items-center justify-between text-xs text-charcoal/55">
                     <span>{featured.formattedDate || 'Carnet de route'}</span>
-                    <span className="text-mahogany border-b border-mahogany/40 pb-0.5 uppercase tracking-[0.16em] font-medium group-hover:text-eucalyptus group-hover:border-eucalyptus transition-colors">
-                      <EditableZone page="home" zone="section_featured_cta" fallback="Lire le carnet →" />
+                    <span className="text-mahogany border-b border-mahogany/40 pb-0.5 font-medium text-sm group-hover:text-eucalyptus group-hover:border-eucalyptus transition-colors">
+                      <EditableZone page="home" zone="section_featured_cta" fallback="Lire le carnet" />
                     </span>
                   </div>
                 </div>
@@ -563,8 +563,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 className="text-charcoal/75 text-sm md:text-base leading-relaxed max-w-2xl mt-3 block"
               />
             </div>
-            <Link href="/destinations" className="self-start md:self-auto text-xs uppercase tracking-[0.16em] text-mahogany border-b border-mahogany/40 pb-1 font-medium hover:text-eucalyptus hover:border-eucalyptus transition-colors whitespace-nowrap">
-              <EditableZone page="home" zone="section_destinations_cta" fallback="Explorer toutes les destinations →" />
+            <Link href="/destinations" className="self-start md:self-auto text-sm text-mahogany border-b border-mahogany/40 pb-1 font-medium hover:text-eucalyptus hover:border-eucalyptus transition-colors whitespace-nowrap">
+              <EditableZone page="home" zone="section_destinations_cta" fallback="Explorer toutes les destinations" />
             </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
@@ -631,7 +631,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                       </p>
                     )}
                     <span className="mt-auto pt-3 border-t border-[#E8E0D2] inline-block text-xs text-mahogany font-medium group-hover:text-eucalyptus transition-colors">
-                      Ouvrir le carnet →
+                      Ouvrir le carnet
                     </span>
                   </div>
                 </Link>
@@ -657,8 +657,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   className="text-sm text-charcoal/75 leading-relaxed mt-3 max-w-xl block"
                 />
               </div>
-              <Link href="/blog" className="text-xs uppercase tracking-[0.16em] text-mahogany border-b border-mahogany/40 pb-1 font-medium hover:text-eucalyptus hover:border-eucalyptus transition-colors">
-                <EditableZone page="home" zone="section_travel_cta" fallback="Voir tous les carnets →" />
+              <Link href="/blog" className="text-sm text-mahogany border-b border-mahogany/40 pb-1 font-medium hover:text-eucalyptus hover:border-eucalyptus transition-colors">
+                <EditableZone page="home" zone="section_travel_cta" fallback="Voir tous les carnets" />
               </Link>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -718,8 +718,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                     </Link>
                   ))}
                 </div>
-                <Link href="/blog" className="inline-block text-xs uppercase tracking-[0.16em] text-mahogany border-b border-mahogany/40 pb-1 font-medium hover:text-eucalyptus hover:border-eucalyptus transition-colors">
-                  <EditableZone page="home" zone="section_food_cta" fallback="Voir toutes les pépites →" />
+                <Link href="/blog" className="inline-block text-sm text-mahogany border-b border-mahogany/40 pb-1 font-medium hover:text-eucalyptus hover:border-eucalyptus transition-colors">
+                  <EditableZone page="home" zone="section_food_cta" fallback="Voir toutes les pépites" />
                 </Link>
               </div>
             </div>
@@ -740,8 +740,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   className="text-2xl md:text-4xl font-serif font-normal text-mahogany block"
                 />
               </div>
-              <Link href="/blog" className="text-xs uppercase tracking-[0.16em] text-mahogany border-b border-mahogany/40 pb-1 font-medium hover:text-eucalyptus hover:border-eucalyptus transition-colors">
-                <EditableZone page="home" zone="section_latest_cta" fallback="Voir tous les carnets →" />
+              <Link href="/blog" className="text-sm text-mahogany border-b border-mahogany/40 pb-1 font-medium hover:text-eucalyptus hover:border-eucalyptus transition-colors">
+                <EditableZone page="home" zone="section_latest_cta" fallback="Voir tous les carnets" />
               </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -778,12 +778,12 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               />
               <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-7">
                 <Link href="/travel-planning#formulaire"
-                  className="w-full sm:w-auto text-center px-7 py-3.5 bg-action hover:bg-action-fonce text-[#F7F3EC] rounded-sm font-medium text-xs uppercase tracking-[0.16em] transition-colors">
-                  <EditableZone page="home" zone="section_cta_btn_1" fallback="Nous écrire →" />
+                  className="w-full sm:w-auto text-center px-7 py-3.5 bg-action hover:bg-action-fonce text-[#F7F3EC] rounded-sm font-medium text-sm transition-colors">
+                  <EditableZone page="home" zone="section_cta_btn_1" fallback="Nous écrire" />
                 </Link>
                 <Link href="/travel-planning"
-                  className="self-center sm:self-auto text-[#E6DEC8]/90 hover:text-[#F7F3EC] border-b border-[#E6DEC8]/40 hover:border-[#F7F3EC] pb-1 font-medium text-xs uppercase tracking-[0.16em] transition-colors">
-                  <EditableZone page="home" zone="section_cta_btn_2" fallback="Voir nos services →" />
+                  className="self-center sm:self-auto text-[#E6DEC8]/90 hover:text-[#F7F3EC] border-b border-[#E6DEC8]/40 hover:border-[#F7F3EC] pb-1 font-medium text-sm transition-colors">
+                  <EditableZone page="home" zone="section_cta_btn_2" fallback="Voir nos services" />
                 </Link>
               </div>
             </div>
@@ -831,8 +831,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
               </span>
             ))}
           </div>
-          <Link href="/quiz" className="inline-block w-full sm:w-auto px-7 py-3.5 bg-action hover:bg-action-fonce text-[#F7F3EC] rounded-sm font-medium text-xs uppercase tracking-[0.16em] transition-colors">
-            <EditableZone page="home" zone="section_quiz_cta" fallback="Faire le quiz →" />
+          <Link href="/quiz" className="inline-block w-full sm:w-auto px-7 py-3.5 bg-action hover:bg-action-fonce text-[#F7F3EC] rounded-sm font-medium text-sm transition-colors">
+            <EditableZone page="home" zone="section_quiz_cta" fallback="Faire le quiz" />
           </Link>
         </div>
       </section>
@@ -849,8 +849,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <EditableZone page="home" zone="section_b2b_text" type="textarea" fallback="Maison d'hôtes, gîte insolite ou hôtel indépendant : on vous aide à valoriser votre ancrage, préserver votre marge directe et attirer des voyageurs slow travel."
             className="text-charcoal/75 dark:text-stone-400 leading-relaxed max-w-2xl mx-auto mb-8 block"
           />
-          <Link href="/expert-hotelier" className="inline-block text-xs uppercase tracking-[0.16em] text-mahogany border-b border-mahogany/40 pb-1 font-medium hover:text-eucalyptus hover:border-eucalyptus transition-colors">
-            <EditableZone page="home" zone="section_b2b_cta" fallback="Découvrir l'accompagnement hôtelier →" />
+          <Link href="/expert-hotelier" className="inline-block text-sm text-mahogany border-b border-mahogany/40 pb-1 font-medium hover:text-eucalyptus hover:border-eucalyptus transition-colors">
+            <EditableZone page="home" zone="section_b2b_cta" fallback="Découvrir l'accompagnement hôtelier" />
           </Link>
         </div>
       </section>
