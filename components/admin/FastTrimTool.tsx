@@ -434,12 +434,14 @@ export default function FastTrimTool() {
                 onClick={() => seekTo(state.currentTime - 5)}
                 style={iconButtonStyle}
                 title="5s en arrière"
+                aria-label="5 secondes en arrière"
               >
                 <ChevronLeft size={20} />
               </button>
               <button
                 onClick={() => setState(prev => ({ ...prev, isPlaying: !prev.isPlaying }))}
                 style={{ ...iconButtonStyle, width: 48, height: 48, background: '#6b2a1a', color: 'white' }}
+                aria-label={state.isPlaying ? 'Mettre en pause' : 'Lire la vidéo'}
               >
                 {state.isPlaying ? <Pause size={24} /> : <Play size={24} />}
               </button>
@@ -447,6 +449,7 @@ export default function FastTrimTool() {
                 onClick={() => seekTo(state.currentTime + 5)}
                 style={iconButtonStyle}
                 title="5s en avant"
+                aria-label="5 secondes en avant"
               >
                 <ChevronRight size={20} />
               </button>
@@ -475,6 +478,7 @@ export default function FastTrimTool() {
                 <button
                   onClick={() => setState(prev => ({ ...prev, zoom: Math.max(50, prev.zoom - 25) }))}
                   style={smallIconButtonStyle}
+                  aria-label="Dézoomer"
                 >
                   <ZoomOut size={14} />
                 </button>
@@ -484,6 +488,7 @@ export default function FastTrimTool() {
                 <button
                   onClick={() => setState(prev => ({ ...prev, zoom: Math.min(200, prev.zoom + 25) }))}
                   style={smallIconButtonStyle}
+                  aria-label="Zoomer"
                 >
                   <ZoomIn size={14} />
                 </button>
