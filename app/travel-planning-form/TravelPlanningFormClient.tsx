@@ -540,6 +540,7 @@ export default function TravelPlanningFormClient({
 
           {/* Note de réassurance */}
           <div className="mt-8 text-center text-xs text-charcoal/50 space-y-1">
+            <p>{Z('footnote', 'textarea', "* Champs obligatoires. Tes données ne sont jamais revendues et ne servent qu'à concevoir ton itinéraire.", undefined, 'span')}</p>
             <p>{Z('footer_note_1', 'text', "Données confidentielles · Pas de spam · Réponse sous 48h", undefined, 'span')}</p>
             <p>
               {Z('footer_note_2', 'text', "Une question avant de remplir ?", undefined, 'span')}{' '}
