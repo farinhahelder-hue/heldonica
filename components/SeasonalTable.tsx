@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { EmojiIcon } from '@/components/ui/Icon'
 
 export interface SeasonData {
   name: string
@@ -37,7 +38,10 @@ export default function SeasonalTable({ destination, seasons }: SeasonalTablePro
       {/* Header */}
       <div className="bg-stone-50 px-6 py-4 border-b border-stone-200">
         <h3 className="text-lg font-serif font-bold text-stone-900">
-          📅 Meilleure période pour {destination}
+          <span className="inline-flex items-center gap-2">
+            <EmojiIcon emoji="📅" size={18} className="text-eucalyptus" />
+            Meilleure période pour {destination}
+          </span>
         </h3>
         <p className="text-sm text-stone-500 mt-1">
           Clique sur une saison pour voir le détail

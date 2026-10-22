@@ -11,6 +11,7 @@ import SlowTravelQuiz from '@/components/SlowTravelQuiz'
 import NewsletterForm from '@/components/NewsletterForm'
 import { useContentLoader } from '@/hooks/useContentLoader'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import { EmojiIcon } from '@/components/ui/Icon'
 
 type RawDestination = Record<string, any>
 
@@ -142,7 +143,7 @@ export default function DestinationsClient() {
                       : 'bg-stone-50 text-stone-600 hover:bg-stone-100 border border-stone-200'
                   }`}
                 >
-                  <span>{tab.icon}</span>
+                  <EmojiIcon emoji={tab.icon} size={14} />
                   <span>{tab.label}</span>
                   {tab.value === 'starred' && starred.length > 0 && (
                     <span className={`ml-1 text-xs ${continentFilter === 'starred' ? 'text-white/80' : 'text-stone-500'}`}>
@@ -183,7 +184,7 @@ export default function DestinationsClient() {
                 {continentFilter === 'all' && starred.length > 0 && (
                   <section>
                     <div className="flex items-center gap-2 mb-6">
-                      <span className="text-xl">⭐</span>
+                      <EmojiIcon emoji="⭐" size={18} className="text-mahogany" />
                       <h2 className="text-2xl font-serif text-mahogany">
                         <EditableZone page="destinations" zone="section_curated_title" fallback="Nos coups de cœur" />
                       </h2>

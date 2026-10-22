@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import EditableIcon from '@/components/inline-edit/EditableIcon'
+import { EmojiIcon } from '@/components/ui/Icon'
 
 const PAGE = "travel-planning-form";
 
@@ -69,7 +71,7 @@ function RadioCard({ name, value, current, onChange, emoji, label }: RadioCardPr
         onChange={() => onChange(value)}
         className="sr-only"
       />
-      {emoji && <span className="text-xl">{emoji}</span>}
+      {emoji && <span className="shrink-0 flex items-center text-mahogany">{emoji}</span>}
       <span>{label}</span>
       {selected && (
         <span className="ml-auto text-mahogany">✓</span>
@@ -245,7 +247,8 @@ export default function TravelPlanningForm() {
             {step === 1 && (
               <div className="space-y-6">
                 <h2 className="text-2xl font-serif font-bold text-mahogany mb-6">
-                  🌍 {Z('step_1_title', 'text', "Étape 1 : L'Inspiration", undefined, 'span')}
+                  <EmojiIcon emoji="🌍" size={22} className="inline-block mr-2 -mt-1 text-eucalyptus" />
+                  {Z('step_1_title', 'text', "Étape 1 : L'Inspiration", undefined, 'span')}
                 </h2>
 
                 <div>
@@ -260,7 +263,14 @@ export default function TravelPlanningForm() {
                   value={opt.value}
                   current={form.tripType}
                   onChange={(v) => set('tripType', v)}
-                  emoji={Z(opt.zone + '_emoji', 'text', opt.emoji, undefined, 'span')}
+                  emoji={
+                    <EditableIcon
+                      page="travel-planning-form"
+                      zone={`${opt.zone}_emoji`}
+                      fallback={opt.emoji}
+                      size={20}
+                    />
+                  }
                   label={Z(opt.zone + '_label', 'textarea', opt.value, undefined, 'span')}
                 />
               ))}
@@ -279,7 +289,14 @@ export default function TravelPlanningForm() {
                   value={opt.value}
                   current={form.vibe}
                   onChange={(v) => set('vibe', v)}
-                  emoji={Z(opt.zone + '_emoji', 'text', opt.emoji, undefined, 'span')}
+                  emoji={
+                    <EditableIcon
+                      page="travel-planning-form"
+                      zone={`${opt.zone}_emoji`}
+                      fallback={opt.emoji}
+                      size={20}
+                    />
+                  }
                   label={Z(opt.zone + '_label', 'textarea', opt.value, undefined, 'span')}
                 />
               ))}
@@ -298,7 +315,14 @@ export default function TravelPlanningForm() {
                   value={opt.value}
                   current={form.destination}
                   onChange={(v) => set('destination', v)}
-                  emoji={Z(opt.zone + '_emoji', 'text', opt.emoji, undefined, 'span')}
+                  emoji={
+                    <EditableIcon
+                      page="travel-planning-form"
+                      zone={`${opt.zone}_emoji`}
+                      fallback={opt.emoji}
+                      size={20}
+                    />
+                  }
                   label={Z(opt.zone + '_label', 'textarea', opt.value, undefined, 'span')}
                 />
               ))}
@@ -324,7 +348,8 @@ export default function TravelPlanningForm() {
             {step === 2 && (
               <div className="space-y-6">
                 <h2 className="text-2xl font-serif font-bold text-mahogany mb-6">
-                  📅 {Z('step_2_title', 'text', "Étape 2 : Ton Voyage", undefined, 'span')}
+                  <EmojiIcon emoji="📅" size={22} className="inline-block mr-2 -mt-1 text-eucalyptus" />
+                  {Z('step_2_title', 'text', "Étape 2 : Ton Voyage", undefined, 'span')}
                 </h2>
 
                 <div>
@@ -358,7 +383,14 @@ export default function TravelPlanningForm() {
                   value={opt.value}
                   current={form.budget}
                   onChange={(v) => set('budget', v)}
-                  emoji={Z(opt.zone + '_emoji', 'text', opt.emoji, undefined, 'span')}
+                  emoji={
+                    <EditableIcon
+                      page="travel-planning-form"
+                      zone={`${opt.zone}_emoji`}
+                      fallback={opt.emoji}
+                      size={20}
+                    />
+                  }
                   label={Z(opt.zone + '_label', 'textarea', opt.value, undefined, 'span')}
                 />
               ))}
@@ -385,7 +417,8 @@ export default function TravelPlanningForm() {
             {step === 3 && (
               <div className="space-y-5">
                 <h2 className="text-2xl font-serif font-bold text-mahogany mb-6">
-                  📬 {Z('step_3_title', 'text', "Étape 3 : Tes Coordonnées", undefined, 'span')}
+                  <EmojiIcon emoji="📬" size={22} className="inline-block mr-2 -mt-1 text-eucalyptus" />
+                  {Z('step_3_title', 'text', "Étape 3 : Tes Coordonnées", undefined, 'span')}
                 </h2>
 
                 <div>
@@ -485,7 +518,14 @@ export default function TravelPlanningForm() {
                   disabled={loading}
                   className="flex-1 py-3 rounded-full font-medium transition bg-mahogany text-white hover:bg-mahogany/90 disabled:opacity-60"
                 >
-                  {loading ? Z('nav_sending', 'text', "Envoi en cours…", undefined, 'span') : Z('nav_submit', 'text', "Envoyer ma demande", undefined, 'span') + ' 🌍'}
+                  {loading ? (
+                    Z('nav_sending', 'text', "Envoi en cours…", undefined, 'span')
+                  ) : (
+                    <span className="inline-flex items-center gap-2">
+                      {Z('nav_submit', 'text', "Envoyer ma demande", undefined, 'span')}
+                      <EmojiIcon emoji="🌍" size={16} />
+                    </span>
+                  )}
                 </button>
               )}
             </div>

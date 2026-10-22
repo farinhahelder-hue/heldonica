@@ -16,8 +16,16 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { email, website_url } = await request.json()
+    const { email, website_url, source } = await request.json()
     const supabase = createServiceClient()
+
+    // `source` vient du navigateur : on n'en garde qu'un identifiant court, et
+    // 'popup' sinon. La colonne est un TEXT libre, mais une valeur arbitraire
+    // envoyée par un client n'a rien à faire dans les stats d'acquisition.
+    const safeSource =
+      typeof source === 'string' && /^[a-z0-9][a-z0-9-]{0,39}$/.test(source)
+        ? source
+        : 'popup'
 
     // Server-side honeypot: silently reject if bot filled the hidden field
     if (website_url) {
@@ -34,7 +42,7 @@ export async function POST(request: NextRequest) {
     // 1. Ajout dans Supabase (table newsletter_subscribers)
     const { error: subError } = await supabase
       .from('newsletter_subscribers')
-      .upsert({ email, source: 'popup' }, { onConflict: 'email' })
+      .upsert({ email, source: safeSource }, { onConflict: 'email' })
 
     if (subError) {
       console.error('Erreur Supabase newsletter:', subError)

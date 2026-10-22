@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import EditableIcon from '@/components/inline-edit/EditableIcon'
 
 export interface SubDestinationHighlight {
   title: string
@@ -142,8 +143,8 @@ export default function SubDestinationTemplate({
                 key={i}
                 className="bg-white rounded-2xl p-6 border border-stone-200/60 hover:shadow-md transition-shadow flex flex-col items-center text-center"
               >
-                <div className="w-12 h-12 rounded-full bg-teal/10 flex items-center justify-center text-2xl mb-4">
-                  <EditableZone page={page} zone={`highlight_${i + 1}_emoji`} fallback={h.emoji} />
+                <div className="w-12 h-12 rounded-full bg-teal/10 flex items-center justify-center mb-4">
+                  <EditableIcon page={page} zone={`highlight_${i + 1}_emoji`} fallback={h.emoji} size={22} className="text-teal" />
                 </div>
                 <h3 className="font-serif font-bold text-stone-800 text-lg mb-2">
                   <EditableZone

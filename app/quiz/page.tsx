@@ -1,11 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import EditableIcon from '@/components/inline-edit/EditableIcon'
+import { EmojiIcon } from '@/components/ui/Icon'
 
 const PAGE = "quiz";
 
@@ -119,6 +121,12 @@ export default function QuizPage() {
   const [result, setResult] = useState<string | null>(null)
   const [showResult, setShowResult] = useState(false)
 
+  // Capture email au résultat : micro-conversion, jamais un péage. Le profil
+  // s'affiche entier sans adresse ; l'adresse ne fait qu'envoyer ce même profil.
+  const [email, setEmail] = useState('')
+  const [honeypot, setHoneypot] = useState('')
+  const [capture, setCapture] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+
   const q = QUESTIONS[currentQuestion]
   const progress = ((currentQuestion + 1) / QUESTIONS.length) * 100
 
@@ -145,6 +153,31 @@ export default function QuizPage() {
     // Store result in sessionStorage
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('quiz-result', dominant)
+    }
+  }
+
+  const handleCapture = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (capture === 'sending' || !result) return
+
+    setCapture('sending')
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email.trim(),
+          // Champ piège : le serveur répond « succès » sans rien enregistrer.
+          website_url: honeypot,
+          source: 'quiz-' + result,
+        }),
+      })
+      if (!res.ok) throw new Error('HTTP ' + res.status)
+      setCapture('sent')
+      setEmail('')
+    } catch {
+      // On garde l'adresse saisie : réessayer ne doit pas la faire retaper.
+      setCapture('error')
     }
   }
 
@@ -209,7 +242,13 @@ export default function QuizPage() {
                     >
                       <div className="flex items-center gap-4">
                         <span className="text-2xl">
-                          {Z('question_' + (currentQuestion + 1) + '_opt_' + (j + 1) + '_emoji', 'text', opt.emoji, undefined, 'span')}
+                          <EditableIcon
+                            page="quiz"
+                            zone={`question_${currentQuestion + 1}_opt_${j + 1}_emoji`}
+                            fallback={opt.emoji}
+                            size={26}
+                            className="text-eucalyptus"
+                          />
                         </span>
                         <span className="text-stone-700 group-hover:text-stone-900 leading-snug">
                           {Z('question_' + (currentQuestion + 1) + '_opt_' + (j + 1) + '_label', 'textarea', opt.label, undefined, 'span')}
@@ -228,7 +267,7 @@ export default function QuizPage() {
                       className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-6"
                       style={{ backgroundColor: `${profile.color}15` }}
                     >
-                      <span className="text-4xl">{profile.emoji}</span>
+                      <EmojiIcon emoji={profile.emoji} size={32} />
                     </div>
 
                     <span className="text-xs font-bold tracking-[0.15em] uppercase" style={{ color: profile.color }}>
@@ -278,7 +317,8 @@ export default function QuizPage() {
                         href="/travel-planning#formulaire"
                         className="inline-block w-full py-4 bg-mahogany hover:brightness-110 text-white font-semibold rounded-xl transition-all shadow-lg"
                       >
-                        ✈️ {Z('result_cta', 'text', "Créer mon voyage sur mesure", undefined, 'span')}
+                        <EmojiIcon emoji="✈" size={16} className="inline-block mr-1 -mt-0.5" />
+                        {Z('result_cta', 'text', "Créer mon voyage sur mesure", undefined, 'span')}
                       </Link>
                       <button
                         onClick={() => {
@@ -286,11 +326,78 @@ export default function QuizPage() {
                           setAnswers({})
                           setResult(null)
                           setShowResult(false)
+                          setEmail('')
+                          setCapture('idle')
                         }}
                         className="text-stone-500 hover:text-stone-700 text-sm underline"
                       >
                         {Z('result_retry', 'text', "Refaire le quiz", undefined, 'span')}
                       </button>
+                    </div>
+
+                    {/* Capture email — secondaire par rapport au CTA ci-dessus */}
+                    <div className="mt-10 pt-8 border-t border-stone-200 text-left">
+                      <h3 className="text-sm font-bold text-stone-500 uppercase tracking-wider mb-2">
+                        {Z('capture_email_title', 'text', "Reçois ton profil par email", undefined, 'span')}
+                      </h3>
+                      <p className="text-stone-600 text-sm leading-relaxed mb-4">
+                        {Z(
+                          'capture_email_note',
+                          'textarea',
+                          "Ton résultat reste consultable sans inscription. Si tu laisses ton adresse, tu recevras ce profil et les adresses qu'on a vraiment testées pour lui — un envoi, pas une liste de diffusion.",
+                          undefined,
+                          'span'
+                        )}
+                      </p>
+
+                      {capture === 'sent' ? (
+                        <p className="text-sm text-eucalyptus font-medium" role="status">
+                          {Z('capture_email_success', 'text', "C'est envoyé. Pense à vérifier tes indésirables.", undefined, 'span')}
+                        </p>
+                      ) : (
+                        <form onSubmit={handleCapture} className="flex flex-col sm:flex-row gap-3">
+                          <label htmlFor="quiz-email" className="sr-only">
+                            Ton adresse email
+                          </label>
+                          <input
+                            id="quiz-email"
+                            type="email"
+                            name="email"
+                            required
+                            autoComplete="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            disabled={capture === 'sending'}
+                            placeholder="ton@email.com"
+                            className="flex-1 px-4 py-3 rounded-xl border border-stone-200 bg-white text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-eucalyptus disabled:opacity-60"
+                          />
+                          <input
+                            type="text"
+                            name="website_url"
+                            tabIndex={-1}
+                            autoComplete="off"
+                            aria-hidden="true"
+                            value={honeypot}
+                            onChange={(e) => setHoneypot(e.target.value)}
+                            className="hidden"
+                          />
+                          <button
+                            type="submit"
+                            disabled={capture === 'sending'}
+                            className="px-6 py-3 rounded-xl border border-mahogany text-mahogany text-sm font-semibold hover:bg-mahogany hover:text-white transition-colors disabled:opacity-60"
+                          >
+                            {capture === 'sending'
+                              ? Z('capture_email_sending', 'text', "Envoi…", undefined, 'span')
+                              : Z('capture_email_cta', 'text', "Recevoir mon profil", undefined, 'span')}
+                          </button>
+                        </form>
+                      )}
+
+                      {capture === 'error' && (
+                        <p className="mt-3 text-sm text-stone-600" role="alert">
+                          {Z('capture_email_error', 'text', "L'envoi n'a pas abouti. Réessaie dans un instant.", undefined, 'span')}
+                        </p>
+                      )}
                     </div>
                   </>
                 )}

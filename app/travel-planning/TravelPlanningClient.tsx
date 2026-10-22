@@ -8,6 +8,7 @@ import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import { EmojiIcon } from '@/components/ui/Icon'
 
 const SITE_URL = 'https://www.heldonica.fr'
 
@@ -279,7 +280,9 @@ export default function TravelPlanningClient({
                 { zone: 'promise_3', emoji: '📞', fallbackTitle: 'Suivi humain', fallbackText: 'Un mail, un WhatsApp — on répond, on ajuste, on reste là du premier échange jusqu\'à ton retour.' },
               ].map((p) => (
                 <div key={p.zone} className="text-center">
-                  <div className="w-14 h-14 rounded-2xl bg-teal/10 flex items-center justify-center mx-auto mb-4 text-2xl">{p.emoji}</div>
+                  <div className="w-14 h-14 rounded-2xl bg-teal/10 flex items-center justify-center mx-auto mb-4">
+                    <EmojiIcon emoji={p.emoji} size={24} className="text-teal" />
+                  </div>
                   <EditableZone page="travel-planning" zone={`${p.zone}_title`} fallback={p.fallbackTitle}
                     className="font-semibold text-mahogany mb-2 block"
                   />
@@ -332,7 +335,9 @@ export default function TravelPlanningClient({
             <div className="grid md:grid-cols-3 gap-8">
               {PERSONAS.map((p) => (
                 <div key={p.zone} className="rounded-2xl border border-stone-200 bg-white p-6 flex flex-col">
-                  <div className="w-14 h-14 rounded-2xl bg-eucalyptus/10 flex items-center justify-center mb-4 text-2xl">{p.emoji}</div>
+                  <div className="w-14 h-14 rounded-2xl bg-eucalyptus/10 flex items-center justify-center mb-4">
+                    <EmojiIcon emoji={p.emoji} size={24} className="text-eucalyptus" />
+                  </div>
                   <h3 className="font-semibold text-mahogany mb-3">
                     <EditableZone page="travel-planning" zone={`${p.zone}_title`} fallback={p.title} className="inline" />
                   </h3>
@@ -470,7 +475,9 @@ export default function TravelPlanningClient({
 
             {formStatus === 'success' ? (
               <div className="rounded-2xl bg-eucalyptus/5 border border-eucalyptus/20 p-8 text-center">
-                <div className="w-16 h-16 rounded-full bg-eucalyptus/10 flex items-center justify-center mx-auto mb-4 text-3xl">✉️</div>
+                <div className="w-16 h-16 rounded-full bg-eucalyptus/10 flex items-center justify-center mx-auto mb-4">
+                  <EmojiIcon emoji="✉" size={28} className="text-eucalyptus" />
+                </div>
                 <EditableZone page="travel-planning" zone="success_title" fallback="Merci ! On a reçu ta demande."
                   className="text-xl font-serif text-mahogany mb-2 block"
                 />

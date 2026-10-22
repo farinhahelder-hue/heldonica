@@ -6,6 +6,7 @@ import Link from 'next/link'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import { getPageZones } from '@/lib/cms-zones'
 import EditableZone from '@/components/inline-edit/EditableZone'
+import { EmojiIcon } from '@/components/ui/Icon'
 import { getAllPosts } from '@/lib/blog-supabase'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
@@ -178,7 +179,7 @@ export default async function AProposPage() {
               {PILLIERS.map((p, i) => (
                 <div key={i} className="bg-white rounded-2xl p-8 shadow-sm border border-stone-100">
                   <div className="w-14 h-14 rounded-full bg-eucalyptus/10 flex items-center justify-center mb-5">
-                    <span className="text-2xl">{p.emoji}</span>
+                    <EmojiIcon emoji={p.emoji} size={24} className="text-eucalyptus" />
                   </div>
                   <EditableZone page="a-propos" zone={`pillar_${i + 1}_title`} fallback={p.titre}
                     className="text-xl font-serif font-light text-stone-900 mb-3 block"
@@ -205,7 +206,7 @@ export default async function AProposPage() {
             <div className="grid md:grid-cols-3 gap-8">
               <div className="bg-stone-50 rounded-2xl p-8 border border-stone-100">
                 <div className="w-12 h-12 rounded-full bg-eucalyptus/10 flex items-center justify-center mb-5">
-                  <span className="text-2xl">📖</span>
+                  <EmojiIcon emoji="📖" size={24} className="text-eucalyptus" />
                 </div>
                 <EditableZone page="a-propos" zone="service_1_title" fallback="Blog & Carnets"
                   className="text-xl font-serif font-light text-stone-900 mb-4 block"
@@ -220,7 +221,7 @@ export default async function AProposPage() {
 
               <div className="bg-stone-900 text-white rounded-2xl p-8">
                 <div className="w-12 h-12 rounded-full bg-mahogany flex items-center justify-center mb-5">
-                  <span className="text-2xl">🗺️</span>
+                  <EmojiIcon emoji="🗺" size={24} className="text-teal" />
                 </div>
                 <EditableZone page="a-propos" zone="service_2_title" fallback="Travel Planning"
                   className="text-xl font-serif font-light mb-4 block"
@@ -235,7 +236,7 @@ export default async function AProposPage() {
 
               <div className="bg-eucalyptus/10 rounded-2xl p-8 border border-eucalyptus/20">
                 <div className="w-12 h-12 rounded-full bg-eucalyptus/20 flex items-center justify-center mb-5">
-                  <span className="text-2xl">🎁</span>
+                  <EmojiIcon emoji="🎁" size={24} className="text-eucalyptus" />
                 </div>
                 <EditableZone page="a-propos" zone="service_3_title" fallback="Guides & Pépites Offerts"
                   className="text-xl font-serif font-light text-stone-900 mb-4 block"

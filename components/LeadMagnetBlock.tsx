@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Download, Loader2, CheckCircle } from 'lucide-react'
+import { EmojiIcon } from '@/components/ui/Icon'
 
 interface LeadMagnetBlockProps {
   destinationSlug: string
@@ -108,17 +109,17 @@ export default function LeadMagnetBlock({
           {/* Benefits */}
           <div className="grid md:grid-cols-3 gap-4 mb-8">
             <div className="bg-white rounded-xl p-5 border border-stone-100 text-center">
-              <span className="text-3xl mb-3 block" role="img" aria-label="Budget">💰</span>
+              <EmojiIcon emoji="💰" size={28} className="mb-3 text-eucalyptus" label="Budget" />
               <p className="text-sm font-semibold text-charcoal">Budget réaliste</p>
               <p className="text-xs text-charcoal/60 mt-1">Les vrais prix qu&apos;on a payés</p>
             </div>
             <div className="bg-white rounded-xl p-5 border border-stone-100 text-center">
-              <span className="text-3xl mb-3 block" role="img" aria-label="Localisation">📍</span>
+              <EmojiIcon emoji="📍" size={28} className="mb-3 text-eucalyptus" label="Localisation" />
               <p className="text-sm font-semibold text-charcoal">Nos adresses testées</p>
               <p className="text-xs text-charcoal/60 mt-1">Chaque lieu qu&apos;on recommande, on y est allés</p>
             </div>
             <div className="bg-white rounded-xl p-5 border border-stone-100 text-center">
-              <span className="text-3xl mb-3 block" role="img" aria-label="Carte">🗺️</span>
+              <EmojiIcon emoji="🗺" size={28} className="mb-3 text-eucalyptus" label="Carte" />
               <p className="text-sm font-semibold text-charcoal">Itinéraire clé en main</p>
               <p className="text-xs text-charcoal/60 mt-1">Jour par jour, avec nos tips terrain</p>
             </div>

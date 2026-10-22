@@ -186,9 +186,12 @@ function collectReaders() {
         }
       }
 
-      // 1. <EditableZone page="x" zone=...>
+      // 1. <EditableZone page="x" zone=...> et son pendant <EditableIcon>, qui
+      //    rend une icône à partir d'une zone contenant un emoji. Les deux
+      //    lisent la même clé : ignorer le second ferait passer pour orphelines
+      //    toutes les zones de pictos.
       for (const m of src.matchAll(
-        /<EditableZone\s+page="([^"]+)"\s+zone=(?:"([^"]+)"|\{`([^`]+)`\}|\{([^}]+)\})/g
+        /<(?:EditableZone|EditableIcon)\s+page="([^"]+)"\s+zone=(?:"([^"]+)"|\{`([^`]+)`\}|\{([^}]+)\})/g
       )) {
         const [, page, literal, template, expression] = m;
         if (literal) {
@@ -263,7 +266,7 @@ function collectReaders() {
       // un gabarit dont le point d'appel fournit la variable (slug="grece").
       let pageTpl = null, pageVar = null;
       for (const m of src.matchAll(
-        /<EditableZone[^>]*?page=\{(?:([a-zA-Z_$][\w$]*)|`([^`]+)`)\}[^>]*?zone=(?:"([^"]+)"|\{`([^`]+)`\})/gs
+        /<(?:EditableZone|EditableIcon)[^>]*?page=\{(?:([a-zA-Z_$][\w$]*)|`([^`]+)`)\}[^>]*?zone=(?:"([^"]+)"|\{`([^`]+)`\})/gs
       )) {
         if (m[2]) {
           const v = m[2].match(/\$\{\s*([a-zA-Z_$][\w$]*)\s*\}/);

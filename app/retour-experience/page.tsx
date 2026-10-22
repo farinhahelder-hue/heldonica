@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumb from '@/components/Breadcrumb';
+import { EmojiIcon } from '@/components/ui/Icon';
 
 export default function RetourExperiencePage() {
   const [formData, setFormData] = useState({
@@ -62,7 +63,7 @@ export default function RetourExperiencePage() {
 
             {status === 'success' ? (
               <div className="p-6 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 space-y-3 animate-in fade-in duration-300">
-                <div className="text-2xl">🌿</div>
+                <EmojiIcon emoji="🌿" size={24} className="text-emerald-700" />
                 <h3 className="font-bold text-lg font-serif">Merci pour votre retour précieux !</h3>
                 <p className="text-sm text-emerald-800 leading-relaxed">
                   Votre témoignage a bien été transmis. On le relit avec attention avant de le publier sur le site pour inspirer de futurs couples de voyageurs.

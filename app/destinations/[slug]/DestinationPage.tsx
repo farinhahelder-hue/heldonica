@@ -16,6 +16,7 @@ import EditableZone from '@/components/inline-edit/EditableZone'
 import AddressBookCard from '@/components/AddressBookCard'
 import { getAddressDestination, getAddressEntriesByDestination } from '@/lib/address-book'
 import { getPageZones } from '@/lib/cms-zones'
+import { EmojiIcon } from '@/components/ui/Icon'
 
 const DESTINATION_IMAGES: Record<string, string> = {
   'sicile': '/og-default.jpg',
@@ -291,7 +292,7 @@ export default async function DestinationPage({ slug }: Props) {
                 href={`/destinations/${slug}/${sub.slug}`}
                 className="group p-5 rounded-2xl bg-white border border-stone-100 hover:border-eucalyptus/30 hover:bg-eucalyptus/5 transition-all duration-300 flex flex-col h-full text-left"
               >
-                <span className="text-3xl mb-3 block">{sub.emoji}</span>
+                <EmojiIcon emoji={sub.emoji} size={28} className="mb-3 text-eucalyptus" />
                 <h3 className="font-serif font-bold text-stone-900 group-hover:text-eucalyptus transition-colors mb-2">
                   {sub.title}
                 </h3>
