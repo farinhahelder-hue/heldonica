@@ -2,6 +2,13 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-22] — ArticleMap : emojis remplacés par des icônes lucide (agent/openhands/emojis-articlemap)
+
+- **`components/ArticleMap.tsx`** : les 14 emojis de catégorie (`🟢 🔴 ⚠️ ℹ️ 🅿️ 🍽️ 🏊 🎒 👁️ 🚌 🏠 🎯`, plus `⏱ 📏` des popups de tracé) sont remplacés par les icônes lucide correspondantes, rendues via `renderToStaticMarkup` — Leaflet n'accepte que des chaînes HTML, mais recopier les tracés SVG en dur faisait échouer `check:cms-hardcode` (24 chaînes comptées comme texte visible). Coût mesuré : **+1 Ko** de First Load JS (337 → 338 Ko) sur des pages qui chargent déjà Leaflet ; le chunk reste paresseux (`react-loadable-manifest.json`, hors bundle initial).
+- **`scripts/check-design-tics.mjs`** : `components/ArticleMap.tsx` entre dans `PUBLIC_DESIGN_TARGETS` (il portait des emojis hors du périmètre initial).
+- **`scripts/cms-hardcode-baseline.json`** : `ArticleMap.tsx` ajouté à la référence du cliquet pour ses **9 textes préexistants** — aucun ajouté par ce changement (9 avant, 9 après), comme les autres fichiers du périmètre.
+- **Vérifié** : pré-vol 10/10, `tsc` 0 erreur, `vitest` 911/911, `next build` OK, 0 emoji dans le fichier.
+
 ## [2026-10-22] — Correctif traçabilité CMS & purge des tics visuels (fiches cf31fe6d & 91b54bbb)
 
 - **Fiche cf31fe6d : Réparation de l'historisation des zones (`cms_zone_history`)** :

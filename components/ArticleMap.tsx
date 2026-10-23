@@ -1,5 +1,12 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import {
+  Circle, Flag, AlertTriangle, Info, SquareParking, UtensilsCrossed,
+  Waves, Backpack, Eye, Bus, Home, Target, Clock, Ruler, MapPin,
+  Map as MapIcon,
+  type LucideIcon,
+} from 'lucide-react';
 
 type RoutePoint = { lat: number; lng: number; seq: number };
 type Route = {
@@ -23,11 +30,27 @@ type POI = {
   maps_url?: string;
 };
 
-const CATEGORY_EMOJI: Record<string, string> = {
-  depart: '🟢', arrivee: '🔴', danger: '⚠️', info: 'ℹ️',
-  parking: '🅿️', restaurant: '🍽️', baignade: '🏊', portage: '🎒',
-  point_vue: '👁️', transport: '🚌', logement: '🏠', activite: '🎯',
+const CATEGORY_ICON: Record<string, LucideIcon> = {
+  depart: Circle, arrivee: Flag, danger: AlertTriangle, info: Info,
+  parking: SquareParking, restaurant: UtensilsCrossed, baignade: Waves, portage: Backpack,
+  point_vue: Eye, transport: Bus, logement: Home, activite: Target,
 };
+
+const CATEGORY_COLOR: Record<string, string> = {
+  depart: '#4CAF50', arrivee: '#f44336', danger: '#f44336', info: '#1976d2',
+  parking: '#1976d2', restaurant: '#FF9800', baignade: '#0288d1', portage: '#7B1FA2',
+  point_vue: '#01696f', transport: '#1976d2', logement: '#4CAF50', activite: '#FF9800',
+};
+
+/**
+ * Leaflet attend des chaînes HTML : impossible d'y insérer du JSX. On rend donc
+ * l'icône lucide en balisage statique, pour ne pas recopier les tracés en dur.
+ */
+function iconSvg(Icon: LucideIcon, size: number, color: string): string {
+  return renderToStaticMarkup(
+    <Icon size={size} color={color} strokeWidth={1.25} style={{ verticalAlign: '-0.15em' }} />
+  );
+}
 
 const CATEGORY_LABEL: Record<string, string> = {
   depart: 'Départ', arrivee: 'Arrivée', danger: 'Danger', info: 'Info',
@@ -101,8 +124,8 @@ function MapRenderer({ routes, pois }: { routes: Route[]; pois: POI[] }) {
             <div style="font-family:sans-serif;min-width:160px">
               <strong style="font-size:14px">${route.name}</strong>
               ${route.difficulty ? `<br/><span style="color:#666;font-size:12px">${DIFFICULTY_CONFIG[route.difficulty]?.label ?? route.difficulty}</span>` : ''}
-              ${route.duration_min ? `<br/><span style="font-size:12px">⏱ ${route.duration_min < 60 ? route.duration_min + ' min' : Math.floor(route.duration_min / 60) + 'h' + (route.duration_min % 60 ? (route.duration_min % 60) + '' : '')}</span>` : ''}
-              ${route.distance_km ? `<br/><span style="font-size:12px">📏 ${route.distance_km} km</span>` : ''}
+              ${route.duration_min ? `<br/><span style="font-size:12px">${iconSvg(Clock, 13, '#666')} ${route.duration_min < 60 ? route.duration_min + ' min' : Math.floor(route.duration_min / 60) + 'h' + (route.duration_min % 60 ? (route.duration_min % 60) + '' : '')}</span>` : ''}
+              ${route.distance_km ? `<br/><span style="font-size:12px">${iconSvg(Ruler, 13, '#666')} ${route.distance_km} km</span>` : ''}
               ${route.description ? `<br/><span style="font-size:12px;color:#555">${route.description}</span>` : ''}
             </div>
           `)
@@ -110,9 +133,10 @@ function MapRenderer({ routes, pois }: { routes: Route[]; pois: POI[] }) {
       }
 
       for (const poi of pois) {
-        const emoji = CATEGORY_EMOJI[poi.category] ?? 'ℹ️';
+        const IconComp = CATEGORY_ICON[poi.category] ?? Info;
+        const color = CATEGORY_COLOR[poi.category] ?? '#1976d2';
         const icon = L.divIcon({
-          html: `<div style="font-size:22px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.3))">${emoji}</div>`,
+          html: `<div style="line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.3))">${iconSvg(IconComp, 22, color)}</div>`,
           className: '',
           iconSize: [28, 28],
           iconAnchor: [14, 14],
@@ -120,9 +144,9 @@ function MapRenderer({ routes, pois }: { routes: Route[]; pois: POI[] }) {
         L.marker([poi.lat, poi.lng], { icon })
           .bindPopup(`
             <div style="font-family:sans-serif;min-width:160px">
-              <strong style="font-size:14px">${emoji} ${poi.name}</strong>
+              <strong style="font-size:14px">${iconSvg(IconComp, 14, color)} ${poi.name}</strong>
               ${poi.description ? `<br/><span style="font-size:12px;color:#555">${poi.description}</span>` : ''}
-              ${poi.address ? `<br/><span style="font-size:11px;color:#888">📍 ${poi.address}</span>` : ''}
+              ${poi.address ? `<br/><span style="font-size:11px;color:#888">${iconSvg(MapPin, 12, '#888')} ${poi.address}</span>` : ''}
               ${poi.maps_url ? `<br/><a href="${poi.maps_url}" target="_blank" rel="noopener noreferrer" style="font-size:11px;color:#01696f">Voir sur Maps →</a>` : ''}
             </div>
           `)
@@ -214,7 +238,11 @@ export default function ArticleMap({ slug }: { slug: string }) {
           color: '#01696f',
           marginBottom: 4,
         }}>
-          🗺️ Carte & Parcours
+          <span
+            dangerouslySetInnerHTML={{ __html: iconSvg(MapIcon, 12, '#01696f') }}
+            style={{ marginRight: 4 }}
+          />
+          Carte &amp; Parcours
         </p>
         <h2 style={{
           fontSize: 22,
@@ -349,9 +377,16 @@ export default function ArticleMap({ slug }: { slug: string }) {
                   padding: '8px 0',
                   borderBottom: '1px solid #edeae5',
                 }}>
-                  <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0, marginTop: 1 }}>
-                    {CATEGORY_EMOJI[poi.category] ?? 'ℹ️'}
-                  </span>
+                  <span
+                    style={{ lineHeight: 1, flexShrink: 0, marginTop: 1 }}
+                    dangerouslySetInnerHTML={{
+                      __html: iconSvg(
+                        CATEGORY_ICON[poi.category] ?? Info,
+                        18,
+                        CATEGORY_COLOR[poi.category] ?? '#1976d2'
+                      ),
+                    }}
+                  />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                       <strong style={{ fontSize: 13, color: '#28251d' }}>{poi.name}</strong>
@@ -365,7 +400,7 @@ export default function ArticleMap({ slug }: { slug: string }) {
                       </p>
                     )}
                     {poi.address && (
-                      <p style={{ fontSize: 11, color: '#bab9b4', margin: '2px 0 0' }}>📍 {poi.address}</p>
+                      <p style={{ fontSize: 11, color: '#bab9b4', margin: '2px 0 0' }}><span dangerouslySetInnerHTML={{ __html: iconSvg(MapPin, 11, '#bab9b4') }} /> {poi.address}</p>
                     )}
                   </div>
                   {poi.maps_url && (
