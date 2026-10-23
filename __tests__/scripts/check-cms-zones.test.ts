@@ -117,22 +117,14 @@ describe('check-cms-zones — lecture de la base impossible', () => {
       await new Promise<void>((r) => serveur.close(() => r()));
     });
 
-    it('signale une zone active à valeur vide NON inventoriée et sort en échec', async () => {
+    it('signale une zone active à valeur vide et sort en échec', async () => {
       lignes = [{ page: 'destinations-x', zone_key: 'local_tip', value: '' }];
       const r = await lancer(url);
 
       expect(r.status).toBe(1);
-      expect(r.stdout).toContain('NON inventoriée');
+      expect(r.stdout).toContain('VALEUR VIDE');
       expect(r.stdout).toContain('destinations-x');
-    }, 30_000);
-
-    it('tolère une zone vide déjà inventoriée (migration en attente)', async () => {
-      lignes = [{ page: 'destinations-roumanie-bucarest', zone_key: 'local_tip', value: '' }];
-      const r = await lancer(url);
-
-      expect(r.status).toBe(0);
-      expect(r.stdout).toContain('déjà inventoriée');
-      expect(r.stdout).not.toContain('NON inventoriée');
+      expect(r.stdout).toContain('is_active = false');
     }, 30_000);
 
     it('ne signale PAS une valeur NULL (le fallback joue)', async () => {
