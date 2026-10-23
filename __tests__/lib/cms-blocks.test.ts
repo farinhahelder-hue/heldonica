@@ -134,16 +134,42 @@ Deuxième paragraphe avec plus de détails authentiques.
     }
   });
 
-  it('should gracefully fallback to HTML parser if embedded comment is corrupted', () => {
-    const corruptedHtml = `
+    it('ne rend aucun emoji dans le HTML des articles (preuve de terrain)', () => {
+      const html = blocksToHtml([
+        {
+          id: 'blk_photo',
+          type: 'photo_evidence',
+          imageUrl: 'https://www.heldonica.fr/photos/moraca.jpg',
+          location: 'Podgorica, Monténégro',
+          date: '2026-05-28',
+          anecdote: 'L’eau turquoise sous le pont du Millénaire.',
+        },
+      ]);
+
+      const emoji = html.match(
+        /[\u{1F300}-\u{1FAFF}\u{1F1E6}-\u{1F1FF}\u{2600}-\u{2604}\u{2606}-\u{26FF}\u{2700}-\u{27BF}]/gu
+      );
+      expect(emoji).toBeNull();
+      expect(html).toContain('<figcaption>Podgorica, Monténégro – 2026-05-28</figcaption>');
+      // Le HTML historique portait « 📍 … – 📅 … » : la relecture doit rester tolerante.
+      const legacy = htmlToBlocks(
+        '<figure class="photo-evidence"><img src="https://x/y.jpg" alt="a" />' +
+          '<figcaption>📍 Bucarest – 📅 2026-06-15</figcaption><blockquote>Texte.</blockquote></figure>'
+      );
+      expect((legacy[0] as any).location).toBe('Bucarest');
+      expect((legacy[0] as any).date).toBe('2026-06-15');
+  });
+
+    it('should gracefully fallback to HTML parser if embedded comment is corrupted', () => {
+      const corruptedHtml = `
 <h2>Titre valide</h2>
 <p>Contenu récupérable</p>
 <!-- heldonica:blocks { corrupt json ] -->
-    `.trim();
+      `.trim();
 
-    const blocks = htmlToBlocks(corruptedHtml);
-    expect(blocks.length).toBe(2);
-    expect(blocks[0].type).toBe('heading');
-    expect(blocks[1].type).toBe('text');
+      const blocks = htmlToBlocks(corruptedHtml);
+      expect(blocks.length).toBe(2);
+      expect(blocks[0].type).toBe('heading');
+      expect(blocks[1].type).toBe('text');
   });
 });
