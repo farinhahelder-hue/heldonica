@@ -29,7 +29,7 @@ const FAQS = [
   { zone: 'faq_2', q: "La destination doit-elle être dans la liste ?", a: 'Non — on peut aussi concevoir ton voyage sur une destination hors liste si elle correspond à nos valeurs slow travel. On fait des recherches approfondies pour chaque nouvelle destination.' },
   { zone: 'faq_3', q: "Peut-on modifier l'itinéraire après validation ?", a: "Oui, jusqu'à 2 allers-retours inclus dans la formule. On ajuste jusqu'à ce que le planning soit parfait pour toi." },
   { zone: 'faq_4', q: 'Tu travailles avec des agences partenaires ?', a: 'Non. On conçoit nous-mêmes, sans commission cachée. Chaque adresse est testée ou recommandée par quelqu\'un en qui on a confiance.' },
-  { zone: 'faq_5', q: 'Est-ce adapté aux voyages en famille ?', a: "On se spécialise dans les voyages en couple. Pour les familles, on peut orienter vers des ressources adaptées — mais notre cœur de métier reste le slow travel à deux." },
+  { zone: 'faq_5', q: 'Est-ce adapté aux voyages en famille ?', a: "Oui, si le voyage est vécu et non consommé. Notre terrain naturel reste le couple, mais on adapte le même regard à une famille curieuse : rythme lent, adresses de terrain, moins de sites et plus de vécu. En revanche, on ne conçoit pas de séjour « resort » ni de marathon de parcs d'attractions." },
 ]
 
 const PRICING_PLANS = [
@@ -346,7 +346,7 @@ export default function TravelPlanningClient({
               <ul className="space-y-2 text-sm text-charcoal/70">
                 <li className="flex items-start gap-2.5">
                   <span className="text-mahogany/40 mt-0.5">—</span>
-                  <EditableZone page="travel-planning" zone="personas_not_1" fallback="Les voyages en famille : notre cœur de métier, c'est le slow travel à deux." className="inline" />
+                  <EditableZone page="travel-planning" zone="personas_not_1" fallback="Les séjours « resort » et les parcs d'attractions : on conçoit du slow travel immersif et des adresses de terrain, pas du tourisme de masse — même en famille." className="inline" />
                 </li>
                 <li className="flex items-start gap-2.5">
                   <span className="text-mahogany/40 mt-0.5">—</span>
