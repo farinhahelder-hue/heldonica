@@ -2,6 +2,17 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-23] — Corrections des défauts perplexity : noms propres & compteur (agent/openhands/corrections-perplexity)
+
+- **Contexte** : la migration `20261023120000` (PR #702) a capitalisé mécaniquement des noms propres sans accent ni vérification, et annoncé un compteur dynamique tout en écrivant un instantané figé.
+- **Noms propres** : `Isole Eoliennes` → `Îles Éoliennes` (nom officiel), `Bogota` → `Bogotá`, `Medellin` → `Medellín` (cohérent avec les titres en base et le reste du site). 9 zones actives corrigées, +2 zones `intro_text` inactives.
+- **Compteur À propos** : `a-propos/stat_2_value` était figée à `8`. Zone désactivée : `EditableZone` retombe sur `${carnetCount}+`, qui suit les articles publiés.
+- **Canonical** : `/destinations/sicile/etoile` déclarait `…/sicile/isole-eoliennes`, qui renvoie 404 (aucune redirection). Corrigé vers `…/sicile/etoile`.
+- **Migrations appliquées en production** (vérifiées après coup) : `20261023110000` (drift #701 : 7 `destinations.flag_emoji` → NULL), `20261023140000` (noms propres + compteur), `20261023150000` (intro_text inactifs). `supabase migration list` : 187 entrées, **0 écart**.
+- **Registre** : tâche fantôme `41000c16` (perplexity, `in_progress`, branche disparue, PR #691 fusionnée) requalifiée en `done` par un tiers, avec preuves.
+- **Vérifié** : garde-fous 16/16, `tsc` 0 erreur, `vitest` vert.
+- **Reste à faire** : le rendu public de `/destinations/sicile/etoile` (`<title>`, `og:title`, `canonical`) vient encore du code déployé — la zone `seo_title` étant inactive, `buildPageMetadata` retombe sur le fallback du code. Correction effective après déploiement de la branche.
+
 ## [2026-10-22] — ArticleMap : emojis remplacés par des icônes lucide (agent/openhands/emojis-articlemap)
 
 - **`components/ArticleMap.tsx`** : les 14 emojis de catégorie (`🟢 🔴 ⚠️ ℹ️ 🅿️ 🍽️ 🏊 🎒 👁️ 🚌 🏠 🎯`, plus `⏱ 📏` des popups de tracé) sont remplacés par les icônes lucide correspondantes, rendues via `renderToStaticMarkup` — Leaflet n'accepte que des chaînes HTML, mais recopier les tracés SVG en dur faisait échouer `check:cms-hardcode` (24 chaînes comptées comme texte visible). Coût mesuré : **+1 Ko** de First Load JS (337 → 338 Ko) sur des pages qui chargent déjà Leaflet ; le chunk reste paresseux (`react-loadable-manifest.json`, hors bundle initial).
