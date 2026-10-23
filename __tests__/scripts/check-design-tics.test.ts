@@ -13,6 +13,13 @@ describe('check-design-tics', () => {
       expect(v.map((x) => x.kind)).toEqual(['emoji']);
     });
 
+    it('refuse une prop flag_emoji en dur (code ISO ou nom d\'icone)', () => {
+      const v1 = scanSourceForDesignTics('<ComingSoonDestination flag_emoji="CO" />', 'x.tsx');
+      expect(v1.map((x) => x.kind)).toEqual(['flag-prop']);
+      const v2 = scanSourceForDesignTics('<ComingSoonDestination flag_emoji="Landmark" />', 'x.tsx');
+      expect(v2.map((x) => x.kind)).toEqual(['flag-prop']);
+    });
+
     it('refuse un drapeau emoji dans les données', () => {
       const v = scanSourceForDesignTics("const p = { flag: '🇫🇷' }", 'x.tsx');
       expect(v.some((x) => x.kind === 'emoji')).toBe(true);

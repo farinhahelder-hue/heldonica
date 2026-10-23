@@ -31,7 +31,7 @@ export interface HomeData {
 }
 
 function getDestinationEmoji(_slug: string): string {
-  return '📍';
+  return '';
 }
 
 export const FALLBACK_HOME_DESTINATIONS: HomeDestination[] = [
@@ -47,7 +47,7 @@ export const FALLBACK_HOME_DESTINATIONS: HomeDestination[] = [
     tagline: 'Slow travel, falaises, levadas et douceur atlantique.',
     hero_unsplash_url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/pico_do_arieiro.jpg',
     country: 'Portugal',
-    flag_emoji: '🇵🇹',
+    flag_emoji: null,
   },
   {
     id: 'fallback-2',
@@ -61,7 +61,7 @@ export const FALLBACK_HOME_DESTINATIONS: HomeDestination[] = [
     tagline: 'Forêts des Carpates, cités discrètes et pépites inattendues.',
     hero_unsplash_url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/roumanie/IMG_20260827_135618.jpg',
     country: 'Roumanie',
-    flag_emoji: '🇷🇴',
+    flag_emoji: null,
   },
   {
     id: 'fallback-3',
@@ -75,7 +75,7 @@ export const FALLBACK_HOME_DESTINATIONS: HomeDestination[] = [
     tagline: 'Fjord de Kotor, ruelles anciennes et Adriatique hors des radars.',
     hero_unsplash_url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/montenegro/sahat_kula.jpg',
     country: 'Monténégro',
-    flag_emoji: '🇲🇪',
+    flag_emoji: null,
   },
 ];
 
@@ -86,13 +86,13 @@ export const FALLBACK_HOME_ZONES: Record<string, string> = {
   'hero_cta': 'Planifier mon voyage',
   'pillar_1_title': "L'émerveillement",
   'pillar_1_desc': 'Il se cache dans un marché de quartier, une ruelle oubliée, ou un café perdu en Provence.',
-  'pillar_1_icon': '✨',
+  'pillar_1_icon': 'Sparkles',
   'pillar_2_title': 'Notre philosophie',
   'pillar_2_desc': "Nous ne voyageons pas pour cocher des cases. Nous voyageons pour ralentir et nous reconnecter.",
-  'pillar_2_icon': '🧭',
+  'pillar_2_icon': 'Compass',
   'pillar_3_title': 'Notre promesse',
   'pillar_3_desc': "Heldonica vous accompagne pour planifier vos voyages avec âme.",
-  'pillar_3_icon': '💚',
+  'pillar_3_icon': 'Heart',
   'destinations_title': 'Nos Pépites',
   'destinations_subtitle': "Nos territoires explorés à pied et en duo",
   'cta_badge': 'Travel Planning · terrain vécu',

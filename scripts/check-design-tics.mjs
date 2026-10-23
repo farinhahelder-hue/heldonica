@@ -91,6 +91,9 @@ export const PUBLIC_DESIGN_TARGETS = [
   // Rendu sur les articles de blog et les itineraires Roumanie : il portait des
   // emojis de categorie (📍 🗺️ 🍽️…) hors du perimetre initial.
   'components/ArticleMap.tsx',
+  // Donnees publiques alimentant la page d'accueil et les piliers
+  'lib/home-data.ts',
+  'lib/pillar-data.ts',
 ];
 
 // Plages Unicode des emojis décoratifs et dingbats (hors flèches typographiques ← → ↑ ↓ et étoile pleine ★).
@@ -166,6 +169,18 @@ export function scanSourceForDesignTics(source, filePath = 'inline.tsx', options
     }
 
     if (emojiOnly) continue;
+
+    // 2. Props flag_emoji en dur (code ISO "CO", nom d'icone "Landmark", ou tout fallback non vide)
+    const flagPropMatch = rawLine.match(/\bflag_emoji\s*=\s*["']([^"']+)["']/);
+    if (flagPropMatch) {
+      violations.push({
+        file: filePath,
+        line: lineNo,
+        kind: 'flag-prop',
+        detail: `prop flag_emoji="${flagPropMatch[1]}" interdite (les destinations ne doivent pas porter de drapeau en dur ni de code ISO)`,
+        snippet: trimmed.slice(0, 120),
+      });
+    }
 
     // 2. Cartes SaaS (bg-white / bg-stone-50 + rounded-2xl/3xl ou shadow-*)
     if (SAAS_BG_RE.test(rawLine) && SAAS_RADIUS_OR_SHADOW_RE.test(rawLine)) {

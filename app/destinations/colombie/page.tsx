@@ -57,7 +57,7 @@ export default async function ColombiePage() {
   // « Bientôt » tant que la page est dans lib/unpublished-pages.ts (décision du
   // 19/10/2026 : pas de photo vérifiée).
   if (isUnpublishedCmsPage(PAGE)) {
-    return <ComingSoonDestination slug="colombie" title="Colombie" country="Colombie" flag_emoji="CO" zones={zones} />
+    return <ComingSoonDestination slug="colombie" title="Colombie" country="Colombie" zones={zones} />
   }
 
   const Z = (zone: string, type: 'text' | 'textarea' | 'html', fallback: string, className?: string, as?: any) => (

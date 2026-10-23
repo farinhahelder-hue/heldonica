@@ -6,7 +6,7 @@
   "app/blog/page.tsx": 3,
   "app/contact/layout.tsx": 0,
   "app/contact/page.tsx": 5,
-  "app/destinations/[slug]/DestinationPage.tsx": 66,
+  "app/destinations/[slug]/DestinationPage.tsx": 51,
   "app/destinations/[slug]/page.tsx": 0,
   "app/destinations/alentejo/page.tsx": 22,
   "app/destinations/carte/MapClientPage.tsx": 9,
