@@ -101,13 +101,13 @@ export default async function IdfPage() {
                 href="/destinations/idf/paris"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-action text-white font-semibold rounded-sm hover:bg-action-fonce transition-colors text-sm"
               >
-                Explorer Paris →
+                Explorer Paris
               </Link>
               <Link
                 href="/destinations/idf/fontainebleau"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-[#FAF7F2]/10 text-white font-medium rounded-sm hover:bg-[#FAF7F2]/20 transition-colors text-sm border border-white/20"
               >
-                Fontainebleau →
+                Fontainebleau
               </Link>
             </div>
           </div>

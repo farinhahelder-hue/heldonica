@@ -344,7 +344,7 @@ export default function TravelPlanningForm() {
             disabled={!canProceed()}
             className="flex-1 bg-action hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 px-6 rounded-lg transition"
           >
-            Étape suivante →
+            Étape suivante
           </button>
         ) : (
           <button

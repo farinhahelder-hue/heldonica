@@ -92,7 +92,7 @@ export default async function TimisoaraPage() {
                 href="/destinations/roumanie"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-[#4A3B32] text-[#F7F3EC] rounded-sm hover:bg-[#3A2D26] transition-colors text-xs uppercase tracking-[0.16em]"
               >
-                Guide Roumanie →
+                Guide Roumanie
               </Link>
               <Link
                 href="/travel-planning"
@@ -258,7 +258,7 @@ export default async function TimisoaraPage() {
               href="/travel-planning"
               className="inline-flex items-center gap-2 px-6 py-3 bg-[#4A3B32] text-[#F7F3EC] rounded-sm hover:bg-[#3A2D26] transition-colors text-xs uppercase tracking-[0.16em]"
             >
-              Concevoir mon voyage →
+              Concevoir mon voyage
             </Link>
           </div>
 

@@ -101,6 +101,23 @@ const DECORATIVE_EMOJI_RE =
   /[\u{1F300}-\u{1FAFF}\u{1F1E6}-\u{1F1FF}\u{231A}-\u{231B}\u{23E9}-\u{23FF}\u{2600}-\u{2604}\u{2606}-\u{26FF}\u{2700}-\u{27BF}\u{2B1B}-\u{2B1C}\u{2B50}\u{2B55}]/gu;
 
 /**
+ * Flèche décorative qui TERMINE un libellé de CTA (« Voir le guide → »).
+ *
+ * Décision #682 : « Retrait de la flèche et de la casse haute pour une
+ * typographie apaisée et cohérente ». La purge #687 (migration
+ * 20261022230000) avait retiré les flèches trailing des CTA, mais la migration
+ * 20261022230800, appliquée 8 minutes plus tard, a réinséré
+ * « Voir le guide → » et « Planifier ce voyage avec Heldonica → » en dur.
+ *
+ * Ne sont PAS visées : les flèches de trajet (« Évora → Monsaraz »), les
+ * flèches de tête (« ← Retour »), la puce CSS `content: '→'` et les flèches
+ * isolées en pastille — seule la flèche qui suit un mot et clôt le libellé
+ * l'est.
+ */
+const TRAILING_ARROW_RE = /[A-Za-zÀ-ÿ0-9)\]}"'][ \t]*→[ \t]*(?=["'`<]|$)/;
+
+
+/**
  * Routes API. Elles n'ont pas de JSX, donc les règles « carte SaaS » n'y ont
  * pas de sens — mais leurs emojis, si : ils finissent dans un email client
  * (`/api/travel-planning`), une légende Instagram publiée
@@ -169,6 +186,18 @@ export function scanSourceForDesignTics(source, filePath = 'inline.tsx', options
     }
 
     if (emojiOnly) continue;
+
+    // 1bis. Flèche décorative en fin de libellé de CTA (décision #682).
+    //       `content: '→'` est une puce CSS, pas un libellé : exclue.
+    if (TRAILING_ARROW_RE.test(rawLine) && !/content:\s*['"]→['"]/.test(rawLine)) {
+      violations.push({
+        file: filePath,
+        line: lineNo,
+        kind: 'trailing-arrow',
+        detail: 'flèche décorative en fin de libellé de CTA (décision #682 : typographie apaisée)',
+        snippet: trimmed.slice(0, 120),
+      });
+    }
 
     // 2. Props flag_emoji en dur (code ISO "CO", nom d'icone "Landmark", ou tout fallback non vide)
     const flagPropMatch = rawLine.match(/\bflag_emoji\s*=\s*["']([^"']+)["']/);

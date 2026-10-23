@@ -103,7 +103,7 @@ export default function InstagramEmbed({ limit = 6, siteSettings }: InstagramEmb
             rel="noopener noreferrer"
             className="mt-4 inline-block px-4 py-2 bg-gradient-to-r from-eucalyptus to-teal text-white text-sm rounded-full hover:opacity-90 transition font-semibold"
           >
-            Voir @{username} sur Instagram →
+            Voir @{username} sur Instagram
           </a>
         </div>
       )}

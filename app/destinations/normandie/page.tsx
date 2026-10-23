@@ -203,13 +203,13 @@ export default async function NormandiePage() {
                 href="/destinations/normandie/le-havre"
                 className="px-6 py-3 bg-action text-white rounded-lg hover:bg-action-fonce transition-colors"
               >
-                Le Havre et environs →
+                Le Havre et environs
               </Link>
               <Link
                 href="/blog"
                 className="px-6 py-3 border border-stone-300 text-stone-700 rounded-lg hover:border-eucalyptus/40 transition-colors"
               >
-                Articles Normandie →
+                Articles Normandie
               </Link>
             </div>
           </section>

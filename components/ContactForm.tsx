@@ -59,7 +59,7 @@ export default function ContactForm() {
     message: val('contact_form_error_message', 'Le message est requis.'),
   }
 
-  const btnLabel = val('contact_form_submit', 'Nous écrire →')
+  const btnLabel = val('contact_form_submit', 'Nous écrire')
   const btnLoading = val('contact_form_submit_loading', 'Envoi en cours...')
   const successMsg = val('contact_form_success', 'Merci. On a bien reçu ton message et on revient vers toi sous 48h.')
   const errorFallback = val('contact_form_error_generic', "Le message n'a pas pu partir. Réessaie ici ou écris-nous directement à contact@heldonica.fr.")

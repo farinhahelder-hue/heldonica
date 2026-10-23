@@ -179,7 +179,7 @@ export default async function ExpertHotelierPage() {
                 eventParams={{ source: 'hero' }}
                 className="inline-flex px-8 py-4 bg-action text-white font-semibold rounded-sm hover:brightness-110 transition-all text-lg"
               >
-                <EditableZone page="expert-hotelier" zone="hero_cta_1" fallback="Parlons de votre établissement →" />
+                <EditableZone page="expert-hotelier" zone="hero_cta_1" fallback="Parlons de votre établissement" />
               </B2bCtaButton>
               {SHOW_CASE_STUDIES && (
               <B2bCtaButton
@@ -188,7 +188,7 @@ export default async function ExpertHotelierPage() {
                 eventParams={{ source: 'hero' }}
                 className="inline-flex px-8 py-4 border border-stone-600 text-stone-300 font-semibold rounded-sm hover:border-eucalyptus hover:text-white transition-all text-lg"
               >
-                <EditableZone page="expert-hotelier" zone="hero_cta_2" fallback="Voir nos retours d'expérience →" />
+                <EditableZone page="expert-hotelier" zone="hero_cta_2" fallback="Voir nos retours d'expérience" />
               </B2bCtaButton>
               )}
             </div>
@@ -424,7 +424,7 @@ export default async function ExpertHotelierPage() {
               eventParams={{ source: 'cta_final' }}
               className="inline-block px-10 py-5 bg-action text-white font-semibold rounded-sm hover:brightness-110 transition-all text-lg"
             >
-              <EditableZone page="expert-hotelier" zone="cta_button" fallback="Demander mon diagnostic →" />
+              <EditableZone page="expert-hotelier" zone="cta_button" fallback="Demander mon diagnostic" />
             </B2bCtaButton>
           </div>
         </section>

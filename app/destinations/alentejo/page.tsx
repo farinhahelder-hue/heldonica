@@ -385,7 +385,7 @@ export default async function AlentejoPage() {
               href="/travel-planning"
               className="inline-flex items-center gap-2 rounded-sm bg-action px-8 py-3.5 text-xs uppercase tracking-[0.16em] font-medium text-[#FAF7F2] transition-colors hover:bg-action-fonce"
             >
-              Dis-nous ton projet →
+              Dis-nous ton projet
             </Link>
           </div>
         </section>
@@ -505,7 +505,7 @@ export default async function AlentejoPage() {
             </div>
             <div className="mt-8 text-center">
               <Link href="/blog" className="text-xs uppercase tracking-[0.16em] text-mahogany font-medium border-b border-mahogany/40 pb-1 hover:border-mahogany">
-                Voir tous nos carnets →
+                Voir tous nos carnets
               </Link>
             </div>
           </div>

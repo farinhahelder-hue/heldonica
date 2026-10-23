@@ -142,7 +142,7 @@ export default async function ColombiePage() {
                 <p className="text-stone-600 text-sm leading-relaxed">
                   {Z('card_1_desc', 'textarea', "Capitale à 2 600 m. Musées de classe mondiale, street food, graffitis engagés.", undefined, 'span')}
                 </p>
-                <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">Voir le guide →</span>
+                <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">Voir le guide</span>
               </div>
               <div className="bg-[#FAF7F2] p-6 rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all group">
                 <h3 className="font-serif text-lg text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">
@@ -151,7 +151,7 @@ export default async function ColombiePage() {
                 <p className="text-stone-600 text-sm leading-relaxed">
                   {Z('card_2_desc', 'textarea', "La ville de l'éternel printemps. Innovation urbaine, quartier El Poblado, tramway.", undefined, 'span')}
                 </p>
-                <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">Voir le guide →</span>
+                <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">Voir le guide</span>
               </div>
               <div className="bg-[#FAF7F2] p-6 rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all group">
                 <h3 className="font-serif text-lg text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">
@@ -160,7 +160,7 @@ export default async function ColombiePage() {
                 <p className="text-stone-600 text-sm leading-relaxed">
                   {Z('card_3_desc', 'textarea', "Reine de la salsa. Valle del Cauca, ambiance décalée, feria en décembre.", undefined, 'span')}
                 </p>
-                <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">Voir le guide →</span>
+                <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">Voir le guide</span>
               </div>
               <div className="bg-[#FAF7F2] p-6 rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all group">
                 <h3 className="font-serif text-lg text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">
@@ -169,7 +169,7 @@ export default async function ColombiePage() {
                 <p className="text-stone-600 text-sm leading-relaxed">
                   {Z('card_4_desc', 'textarea', "UNESCO. Fincas caféières, paysages ondulés, haciendas coloniales.", undefined, 'span')}
                 </p>
-                <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">Voir le guide →</span>
+                <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">Voir le guide</span>
               </div>
             </div>
           </section>

@@ -21,7 +21,7 @@ export default function PdfDownloadButton({ destination, duration, className }: 
       }}
       className={className}
     >
-      Télécharger le PDF →
+      Télécharger le PDF
     </TrackedLink>
   )
 }

@@ -116,7 +116,7 @@ export default function DestinationMap({
             <h3 style="font-size: 18px; color: #6B2D1F; margin: 0 0 8px 0; font-weight: 700;">${marker.title}</h3>
             <p style="font-size: 13px; color: #2C2C2C; margin: 0 0 12px 0; line-height: 1.5;">${marker.excerpt}</p>
             <a href="${marker.url}" style="display: inline-block; background: #6B2D1F; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600;">
-              Voir la destination →
+              Voir la destination
             </a>
           </div>
         `, { maxWidth: 300, className: 'heldonica-popup' });

@@ -414,7 +414,7 @@ export default async function Itineraire7JoursPage() {
               href="/travel-planning"
               className="inline-flex px-7 py-3 rounded-sm bg-action text-[#FAF7F2] text-xs uppercase tracking-[0.16em] font-medium hover:bg-action-fonce transition-colors"
             >
-              Construire mon itinéraire sur mesure →
+              Construire mon itinéraire sur mesure
             </Link>
           </div>
         </section>

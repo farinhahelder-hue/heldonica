@@ -135,25 +135,25 @@ export default async function SardaignePage() {
                   className="block p-6 bg-[#FAF7F2] rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all group">
                   <h3 className="font-serif text-lg text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">{Z('zone_1_title', 'text', "Cagliari", undefined, 'span')}</h3>
                   <p className="text-stone-600 text-sm leading-relaxed">{Z('zone_1_desc', 'textarea', "Le sud. Capitale animée, lagune aux flamants, dunes de Piscinas.", undefined, 'span')}</p>
-                  <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">Voir le guide →</span>
+                  <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">Voir le guide</span>
                 </Link>
                 <Link key={"/destinations/sardaigne/alghero"} href={"/destinations/sardaigne/alghero"}
                   className="block p-6 bg-[#FAF7F2] rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all group">
                   <h3 className="font-serif text-lg text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">{Z('zone_2_title', 'text', "Alghero", undefined, 'span')}</h3>
                   <p className="text-stone-600 text-sm leading-relaxed">{Z('zone_2_desc', 'textarea', "Nord-ouest. Ville catalane aux remparts dorés, grotte de Neptune.", undefined, 'span')}</p>
-                  <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">Voir le guide →</span>
+                  <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">Voir le guide</span>
                 </Link>
                 <Link key={"/destinations/sardaigne/nuoro"} href={"/destinations/sardaigne/nuoro"}
                   className="block p-6 bg-[#FAF7F2] rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all group">
                   <h3 className="font-serif text-lg text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">{Z('zone_3_title', 'text', "Nuoro & Barbagia", undefined, 'span')}</h3>
                   <p className="text-stone-600 text-sm leading-relaxed">{Z('zone_3_desc', 'textarea', "L'intérieur. Villages de pierre, agritourismes, cuisine de montagne.", undefined, 'span')}</p>
-                  <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">Voir le guide →</span>
+                  <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">Voir le guide</span>
                 </Link>
                 <Link key={"/destinations/sardaigne/asinara"} href={"/destinations/sardaigne/asinara"}
                   className="block p-6 bg-[#FAF7F2] rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all group">
                   <h3 className="font-serif text-lg text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">{Z('zone_4_title', 'text', "Asinara", undefined, 'span')}</h3>
                   <p className="text-stone-600 text-sm leading-relaxed">{Z('zone_4_desc', 'textarea', "Île sauvage du nord-ouest. Parc national, ânes blancs, plongée.", undefined, 'span')}</p>
-                  <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">Voir le guide →</span>
+                  <span className="text-xs text-eucalyptus font-semibold mt-3 inline-block group-hover:translate-x-1 transition-transform">Voir le guide</span>
                 </Link>
             </div>
           </section>

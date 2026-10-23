@@ -57,8 +57,41 @@ describe('check-design-tics', () => {
       expect(scanSourceForDesignTics(src)).toEqual([]);
     });
 
-    it('accepte les flèches typographiques et l\'étoile pleine ★', () => {
-      expect(scanSourceForDesignTics('<a>Voir le guide →</a> <i>★★★</i>')).toEqual([]);
+    it('accepte l\'étoile pleine ★ et une flèche au milieu du texte', () => {
+      expect(scanSourceForDesignTics('<i>★★★</i> <span>Paris → Lyon</span>')).toEqual([]);
+    });
+
+    it('accepte une flèche de trajet entre deux lieux (Évora → Monsaraz)', () => {
+      const src = "{Z('transport_1_desc', 'html', \"Les distances sont grandes (Évora → Monsaraz = 1h30)\")}";
+      expect(scanSourceForDesignTics(src)).toEqual([]);
+    });
+
+    it('accepte une flèche de tête « ← Retour »', () => {
+      expect(scanSourceForDesignTics('<a>← Toutes les destinations</a>')).toEqual([]);
+    });
+
+    it('accepte la puce CSS content: \'→\' du FAQ', () => {
+      const src = '          content: \'→\';\n          font-size: 1.1rem;';
+      expect(scanSourceForDesignTics(src)).toEqual([]);
+    });
+
+    it('accepte une flèche isolée en pastille', () => {
+      expect(scanSourceForDesignTics('<span className="rounded-full">→</span>')).toEqual([]);
+    });
+
+    it('refuse une flèche en fin de libellé JSX', () => {
+      const v = scanSourceForDesignTics('<span className="text-xs">Voir le guide →</span>', 'x.tsx');
+      expect(v.map((x) => x.kind)).toEqual(['trailing-arrow']);
+    });
+
+    it('refuse une flèche en fin de fallback JSX', () => {
+      const src = '<EditableZone page="a-propos" zone="service_1_cta" fallback="Lire les carnets →" />';
+      expect(scanSourceForDesignTics(src, 'x.tsx').map((x) => x.kind)).toEqual(['trailing-arrow']);
+    });
+
+    it('refuse une flèche en fin de littéral', () => {
+      const v = scanSourceForDesignTics("hotelier_form_submit: 'Échanger sur mon projet →',", 'x.ts');
+      expect(v.map((x) => x.kind)).toEqual(['trailing-arrow']);
     });
 
     it('accepte une icône Lucide nommée plutôt qu\'un emoji', () => {

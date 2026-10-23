@@ -100,7 +100,7 @@ export default function DestinationPillar({
               <Link href={`/travel-planning-form?destination=${data.slug}`}
                 className="inline-flex items-center gap-2 rounded-sm bg-action px-6 py-3 text-xs uppercase tracking-[0.16em] font-medium text-[#FAF7F2] hover:bg-action-fonce transition-colors"
                 onClick={() => { if (typeof window !== 'undefined' && (window as any).gtag) (window as any).gtag('event', 'cta_travel_planning_clique', { source: 'page_pilier', destination: data.slug }) }}>
-                Demander mon voyage sur mesure →
+                Demander mon voyage sur mesure
               </Link>
             </div>
           </div>
@@ -177,7 +177,7 @@ export default function DestinationPillar({
                         {sub.teaser}
                       </p>
                       <span className="text-[11px] uppercase tracking-[0.16em] font-medium text-eucalyptus mt-4 inline-block">
-                        <EditableZone page="destinations" zone="subdests_cta" fallback="Voir le guide →" />
+                        <EditableZone page="destinations" zone="subdests_cta" fallback="Voir le guide" />
                       </span>
                     </Link>
                   ))}
@@ -273,7 +273,7 @@ export default function DestinationPillar({
                         destination={data.slug}
                         className="text-xs uppercase tracking-[0.14em] font-medium text-eucalyptus hover:underline mt-4 inline-block"
                       >
-                        Voir les disponibilités à {query} →
+                        Voir les disponibilités à {query}
                       </AffiliateLink>
                     </div>
                   )
@@ -494,7 +494,7 @@ export default function DestinationPillar({
             <Link href={`/travel-planning-form?destination=${data.slug}`}
               className="inline-flex px-7 py-3 rounded-sm bg-action text-[#FAF7F2] text-xs uppercase tracking-[0.16em] font-medium hover:bg-action-fonce transition-colors"
               onClick={() => { if (typeof window !== 'undefined' && (window as any).gtag) (window as any).gtag('event', 'cta_travel_planning_clique', { source: 'page_pilier', destination: data.slug }) }}>
-              Demander mon voyage sur mesure →
+              Demander mon voyage sur mesure
             </Link>
           </div>
         </section>

@@ -295,7 +295,7 @@ export default async function Itineraire5JoursPage() {
               href="/destinations/roumanie/itineraire-7-jours"
               className="inline-flex px-7 py-3 rounded-sm bg-action text-[#FAF7F2] text-xs uppercase tracking-[0.16em] font-medium hover:bg-action-fonce transition-colors"
             >
-              Voir l&apos;itinéraire 7 jours →
+              Voir l&apos;itinéraire 7 jours
             </Link>
           </div>
         </section>

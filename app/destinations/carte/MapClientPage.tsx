@@ -231,7 +231,7 @@ export default function MapClientPage({
               href="/travel-planning"
               className="inline-flex px-8 py-3 rounded-sm bg-action text-white font-semibold hover:bg-action-fonce transition-colors"
             >
-              <EditableZone page="destinations-carte" zone="cta_label" fallback="Créer mon voyage →" />
+              <EditableZone page="destinations-carte" zone="cta_label" fallback="Créer mon voyage" />
             </Link>
           </div>
         </section>

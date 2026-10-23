@@ -647,7 +647,7 @@ export default function TravelPlanningClient({
               }}
               className="inline-flex px-7 py-3 rounded-sm bg-action text-[#F7F3EC] text-xs font-medium uppercase tracking-[0.16em] hover:bg-action-fonce transition-colors"
             >
-              <EditableZone page="travel-planning" zone="cta_button" fallback="Démarrer ma demande →" />
+              <EditableZone page="travel-planning" zone="cta_button" fallback="Démarrer ma demande" />
             </a>
           </div>
         </section>

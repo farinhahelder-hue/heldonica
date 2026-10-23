@@ -237,7 +237,7 @@ export default function NewsletterPopup() {
               disabled={status === 'loading'}
               className="w-full px-6 py-3.5 bg-action text-white font-bold rounded-sm hover:bg-action-fonce transition-all text-sm disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              {status === 'loading' ? t('popup_cta_loading', 'Inscription...') : t('popup_cta', 'Je veux le guide →')}
+              {status === 'loading' ? t('popup_cta_loading', 'Inscription...') : t('popup_cta', 'Je veux le guide')}
             </button>
           </form>
 
