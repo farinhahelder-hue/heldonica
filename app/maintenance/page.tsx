@@ -198,7 +198,7 @@ export default async function MaintenancePage() {
         
         <InlineEditProvider page="maintenance" initialZones={zones}>
         <main className="container">
-          <div className="logo">Heldonica</div>
+            <div className="logo"><EditableZone page="maintenance" zone="site_name" fallback="Heldonica" /></div>
           
           <div className="illustration">
             <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -253,7 +253,7 @@ export default async function MaintenancePage() {
           </a>
           
           <div className="divider"></div>
-          <p className="footer"><EditableZone page="maintenance" zone="footer" fallback="Merci de ta patience 🌿" /></p>
+          <p className="footer"><EditableZone page="maintenance" zone="footer" fallback="Merci de ta patience" /></p>
         </main>
         </InlineEditProvider>
       </body>

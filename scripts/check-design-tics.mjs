@@ -49,6 +49,10 @@ export const PUBLIC_DESIGN_TARGETS = [
   'app/politique-affiliation',
   'app/mentions-legales',
   'app/politique-confidentialite',
+  // Page de maintenance : rendue en production quand le mode maintenance est
+  // actif. Hors périmètre initial, elle portait « Merci de ta patience 🌿 ».
+  'app/maintenance',
+  'app/nos-services',
   'components/HomeClient.tsx',
   'components/Header.tsx',
   'components/Footer.tsx',
