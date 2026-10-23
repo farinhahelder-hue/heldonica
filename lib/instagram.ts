@@ -422,12 +422,12 @@ export async function autoScheduleInstagramPost(articleId: number | string, arti
     if (!supabase) return false
 
     const caption = [
-      `📍 ${article.title}`,
+      article.title,
       '',
       article.excerpt ? article.excerpt.substring(0, 200) : '',
       '',
-      '🌍 heldonica.fr',
-      ...(article.slug ? [`🔗 heldonica.fr/blog/${article.slug}`] : []),
+      'heldonica.fr',
+      ...(article.slug ? [`heldonica.fr/blog/${article.slug}`] : []),
       '',
       '#slowtravel #voyage lent #heldonica #voyage encouple',
     ].filter(Boolean).join('\n')
