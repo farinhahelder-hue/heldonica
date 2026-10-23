@@ -20,6 +20,7 @@ import SeasonalTable from '@/components/SeasonalTable'
 import type { SeasonInfo } from '@/lib/pillar-data'
 import AffiliateLink from '@/components/AffiliateLink'
 import { AFFILIATE_DISCLOSURE, bookingSearchUrl, getYourGuideSearchUrl } from '@/lib/affiliates'
+import { inDestination } from '@/lib/french-prepositions'
 import type { PillarData } from '@/lib/pillar-types'
 import { SITE_URL } from '@/lib/seo'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
@@ -137,7 +138,7 @@ export default function DestinationPillar({
           <section className="bg-[#EFE9DF] py-16 border-b border-[#DED5C6]">
             <div className="container max-w-5xl">
               <h2 className="text-3xl font-serif font-normal text-mahogany mb-2">
-                <EditableZone page="destinations" zone="seasons_title_prefix" fallback="Quand partir à" className="inline" /> {data.name} ?
+                <EditableZone page="destinations" zone="seasons_title_prefix" fallback="Quand partir" className="inline" /> {inDestination(data.name)} ?
               </h2>
               <p className="text-charcoal/65 text-sm mb-8 max-w-2xl">
                 <EditableZone page="destinations" zone="seasons_intro" type="textarea" fallback="On a testé plusieurs saisons sur place. Voici comment on les vit, entre météo, affluence et budget." />
@@ -214,7 +215,7 @@ export default function DestinationPillar({
         <section className="bg-[#F7F3EC] py-16 md:py-20 border-b border-[#DED5C6]">
           <div className="container max-w-5xl">
             <h2 className="text-3xl font-serif font-normal text-mahogany mb-2">
-              <EditableZone page="destinations" zone="itinerary_title_prefix" fallback="Comment organiser 7 jours à" className="inline" /> {data.name} ?
+              <EditableZone page="destinations" zone="itinerary_title_prefix" fallback="Comment organiser 7 jours" className="inline" /> {inDestination(data.name)} ?
             </h2>
             <p className="text-charcoal/65 text-sm mb-8 max-w-2xl">
               <EditableZone page="destinations" zone="itinerary_subtitle" type="textarea" fallback="Un rythme slow, testé sur le terrain. Adaptable selon tes envies." />
@@ -252,10 +253,10 @@ export default function DestinationPillar({
         <section className="bg-[#EFE9DF] py-16 md:py-20 border-b border-[#DED5C6]">
           <div className="container max-w-5xl">
             <h2 className="text-3xl font-serif font-normal text-mahogany mb-2">
-              Où dormir à {data.name} ?
+              Où dormir {inDestination(data.name)} ?
             </h2>
             <p className="text-charcoal/75 text-base mb-8 max-w-2xl leading-relaxed">
-              On dort rarement au même endroit toute la semaine : à {data.name}, changer
+              On dort rarement au même endroit toute la semaine : {inDestination(data.name)}, changer
               de base une ou deux fois évite des heures de route inutiles.
             </p>
 
@@ -273,7 +274,7 @@ export default function DestinationPillar({
                         destination={data.slug}
                         className="text-xs uppercase tracking-[0.14em] font-medium text-eucalyptus hover:underline mt-4 inline-block"
                       >
-                        Voir les disponibilités à {query}
+                        Voir les disponibilités {inDestination(query)}
                       </AffiliateLink>
                     </div>
                   )
@@ -288,7 +289,7 @@ export default function DestinationPillar({
                 destination={data.slug}
                 className="inline-flex items-center gap-2 rounded-sm bg-action px-6 py-3 text-xs uppercase tracking-[0.16em] font-medium text-[#FAF7F2] hover:bg-action-fonce transition-colors"
               >
-                Chercher un hébergement à {data.name}
+                Chercher un hébergement {inDestination(data.name)}
               </AffiliateLink>
               {(() => {
                 const gygUrl = getYourGuideSearchUrl(data.name)
@@ -300,7 +301,7 @@ export default function DestinationPillar({
                     destination={data.slug}
                     className="inline-flex items-center gap-2 rounded-sm border border-mahogany/40 px-6 py-3 text-xs uppercase tracking-[0.16em] font-medium text-mahogany hover:bg-[#FAF7F2] transition-colors"
                   >
-                    Réserver une activité à {data.name}
+                    Réserver une activité {inDestination(data.name)}
                   </AffiliateLink>
                 )
               })()}
