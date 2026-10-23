@@ -16,7 +16,7 @@
 
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { execSync } from 'node:child_process'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -149,7 +149,7 @@ export default async function ${data.componentName}() {
 `
 }
 
-function buildSql(pages) {
+export function buildSql(pages) {
   const lines = [
     '-- ============================================================================',
     '-- Sous-destinations : contenu piloté par le CMS (cms_editable_zones)',
@@ -166,19 +166,28 @@ function buildSql(pages) {
   for (const [page, data] of pages) {
     const zonePage = `destinations-${page.replace(/^app\/destinations\//, '').replace(/\/page\.tsx$/, '').replace(/\//g, '-')}`
     const q = (v) => `'${sqlEscape(v)}'`
+    // Une zone de valeur vide est active mais n'affiche rien : le composant rend
+    // un bloc titré sans corps (« Notre conseil » suivi du vide), et l'`ON
+    // CONFLICT DO UPDATE ... is_active = true` ci-dessous réactive au passage
+    // toute zone vide désactivée à la main. On n'émet donc pas de ligne vide :
+    // le composant retombe sur son fallback JSX, qui a du contenu.
+    const rows = []
+    const ajouter = (key, type, value, label) => {
+      if (value == null || String(value).trim() === '') return
+      rows.push([q(zonePage), q(key), q(type), q(value), q(label)])
+    }
+    ajouter('hero_image', 'image', data.heroImage || '/og-default.jpg', 'Image du hero')
+    ajouter('intro_text', 'textarea', data.introText, "Texte d'introduction")
+    ajouter('local_tip', 'textarea', data.localTip, 'Conseil local')
+    data.highlights.forEach((h, i) => {
+      ajouter(`highlight_${i + 1}_emoji`, 'text', h.emoji, `Pépite ${i + 1} — emoji`)
+      ajouter(`highlight_${i + 1}_title`, 'text', h.title, `Pépite ${i + 1} — titre`)
+      ajouter(`highlight_${i + 1}_description`, 'textarea', h.description, `Pépite ${i + 1} — description`)
+    })
+    if (rows.length === 0) continue
     lines.push(`-- ─── ${zonePage} ────────────────────────────────────────────────────`)
     lines.push(`INSERT INTO public.cms_editable_zones (page, zone_key, zone_type, value, label, is_active)`)
     lines.push(`VALUES`)
-    const rows = [
-      [q(zonePage), q('hero_image'), q('image'), q(data.heroImage || '/og-default.jpg'), q('Image du hero')],
-      [q(zonePage), q('intro_text'), q('textarea'), q(data.introText), q("Texte d'introduction")],
-      [q(zonePage), q('local_tip'), q('textarea'), q(data.localTip), q('Conseil local')],
-    ]
-    data.highlights.forEach((h, i) => {
-      rows.push([q(zonePage), q(`highlight_${i + 1}_emoji`), q('text'), q(h.emoji), q(`Pépite ${i + 1} — emoji`)])
-      rows.push([q(zonePage), q(`highlight_${i + 1}_title`), q('text'), q(h.title), q(`Pépite ${i + 1} — titre`)])
-      rows.push([q(zonePage), q(`highlight_${i + 1}_description`), q('textarea'), q(h.description), q(`Pépite ${i + 1} — description`)])
-    })
     lines.push(rows.map((r) => `  (${r.join(', ')})`).join(',\n'))
     lines.push(`ON CONFLICT (page, zone_key) DO UPDATE
 SET value = EXCLUDED.value, zone_type = EXCLUDED.zone_type,
@@ -190,57 +199,64 @@ SET value = EXCLUDED.value, zone_type = EXCLUDED.zone_type,
 
 // ─── Exécution ──────────────────────────────────────────────────────────────
 
-const files = listSubDestinationPages()
-console.log(`${files.length} pages sous-destination trouvées`)
+// N'exécute la génération que si le script est lancé directement : les
+// tests importent `buildSql` pour vérifier qu'aucune zone vide n'est émise,
+// sans déclencher la lecture des pages (ni PowerShell sous Windows).
+const estLanceDirectement = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href
+if (estLanceDirectement) {
+  const files = listSubDestinationPages()
+  console.log(`${files.length} pages sous-destination trouvées`)
 
-const pages = []
-for (const file of files) {
-  const content = readFileSync(join(ROOT, file), 'utf8')
+  const pages = []
+  for (const file of files) {
+    const content = readFileSync(join(ROOT, file), 'utf8')
 
-  const metadataMatch = content.match(/export const metadata: Metadata = \{([\s\S]*?)\r?\n\}/)
-  const metadataTitle = extractJsValue(metadataMatch ? metadataMatch[1] : '', 'title') ?? ''
-  const metadataDesc = extractJsValue(metadataMatch ? metadataMatch[1] : '', 'description') ?? ''
-  const ogBlock = metadataMatch ? metadataMatch[1].match(/openGraph: \{([\s\S]*?)\n  \}/) : null
-  const ogTitle = ogBlock ? extractJsValue(ogBlock[1], 'title') ?? metadataTitle : metadataTitle
-  const ogDesc = ogBlock ? extractJsValue(ogBlock[1], 'description') ?? metadataDesc : metadataDesc
-  const canonical = content.match(/canonical: '([^']*)'/)?.[1] ?? ''
+    const metadataMatch = content.match(/export const metadata: Metadata = \{([\s\S]*?)\r?\n\}/)
+    const metadataTitle = extractJsValue(metadataMatch ? metadataMatch[1] : '', 'title') ?? ''
+    const metadataDesc = extractJsValue(metadataMatch ? metadataMatch[1] : '', 'description') ?? ''
+    const ogBlock = metadataMatch ? metadataMatch[1].match(/openGraph: \{([\s\S]*?)\n  \}/) : null
+    const ogTitle = ogBlock ? extractJsValue(ogBlock[1], 'title') ?? metadataTitle : metadataTitle
+    const ogDesc = ogBlock ? extractJsValue(ogBlock[1], 'description') ?? metadataDesc : metadataDesc
+    const canonical = content.match(/canonical: '([^']*)'/)?.[1] ?? ''
 
-  const data = {
-    name: extractAttr(content, 'name'),
-    parentName: extractAttr(content, 'parentName'),
-    parentSlug: extractAttr(content, 'parentSlug'),
-    heroImage: extractAttr(content, 'heroImage'),
-    introText: extractAttr(content, 'introText'),
-    localTip: extractAttr(content, 'localTip'),
-    highlights: extractHighlights(content),
-    componentName: extractComponentName(content),
-    metadata: {
-      title: metadataTitle,
-      description: metadataDesc,
-      ogTitle,
-      ogDescription: ogDesc,
-      canonical,
-    },
+    const data = {
+      name: extractAttr(content, 'name'),
+      parentName: extractAttr(content, 'parentName'),
+      parentSlug: extractAttr(content, 'parentSlug'),
+      heroImage: extractAttr(content, 'heroImage'),
+      introText: extractAttr(content, 'introText'),
+      localTip: extractAttr(content, 'localTip'),
+      highlights: extractHighlights(content),
+      componentName: extractComponentName(content),
+      metadata: {
+        title: metadataTitle,
+        description: metadataDesc,
+        ogTitle,
+        ogDescription: ogDesc,
+        canonical,
+      },
+    }
+
+    if (!data.name || !data.parentSlug || !data.introText || !data.componentName) {
+      console.error(`⚠️ Extraction incomplète pour ${file}`, JSON.stringify(data, null, 2).slice(0, 500))
+      process.exit(1)
+    }
+    if (data.highlights.length === 0) {
+      console.error(`⚠️ Aucun highlight extrait pour ${file}`)
+      process.exit(1)
+    }
+
+    pages.push([file, data])
   }
 
-  if (!data.name || !data.parentSlug || !data.introText || !data.componentName) {
-    console.error(`⚠️ Extraction incomplète pour ${file}`, JSON.stringify(data, null, 2).slice(0, 500))
-    process.exit(1)
-  }
-  if (data.highlights.length === 0) {
-    console.error(`⚠️ Aucun highlight extrait pour ${file}`)
-    process.exit(1)
-  }
+  const sql = buildSql(pages)
+  const sqlPath = join(ROOT, 'supabase/migrations/20260801_cms_sub_destinations_zones.sql')
+  writeFileSync(sqlPath, sql, 'utf8')
+  console.log(`✔ Migration écrite : ${sqlPath.replace(ROOT + '/', '')} (${pages.length} pages)`)
 
-  pages.push([file, data])
+  for (const [file, data] of pages) {
+    writeFileSync(join(ROOT, file), buildPage(file, data), 'utf8')
+  }
+  console.log(`✔ ${pages.length} pages réécrites avec le pattern CMS`)
+
 }
-
-const sql = buildSql(pages)
-const sqlPath = join(ROOT, 'supabase/migrations/20260801_cms_sub_destinations_zones.sql')
-writeFileSync(sqlPath, sql, 'utf8')
-console.log(`✔ Migration écrite : ${sqlPath.replace(ROOT + '/', '')} (${pages.length} pages)`)
-
-for (const [file, data] of pages) {
-  writeFileSync(join(ROOT, file), buildPage(file, data), 'utf8')
-}
-console.log(`✔ ${pages.length} pages réécrites avec le pattern CMS`)

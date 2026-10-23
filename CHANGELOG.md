@@ -2,6 +2,16 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-23] — Lot 2, priorité 4 : les zones actives à valeur vide (agent/openhands/zones-vides)
+
+- **Défaut** : une zone active dont la valeur est une chaîne vide n'affiche pas son fallback. Le composant calcule `zones[zoneKey] ?? fallback`, et `''` n'est pas `null` — le fallback ne joue donc pas et le bloc se rend vide. Constat en base le 2026-10-23 : **37 zones actives à valeur vide**, dont 23 `local_tip` et 3 `day_N_accommodation`.
+- **Portée réelle** : sur les 23 `local_tip`, **22 sont sur des pages « Bientôt »** (`lib/unpublished-pages.ts` → `ComingSoonDestination`, le bloc vide n'est jamais rendu) ; une seule est publiée, `/destinations/roumanie/bucarest`. Le même défaut touche `destinations-alentejo intro_label` (kicker blanc). Soit **2 zones visibles**.
+- **Répartition avec la priorité 1 (PR #704)** : #704 corrige la **lecture** (`lib/cms-zones.ts` écarte désormais les valeurs blanches, donc le fallback joue) et pose la règle « pour retirer une zone, on la passe en `is_active = false`, pas en valeur vide ». Cette priorité-ci corrige l'**écriture** : les générateurs n'émettent plus ces lignes, et la migration désactive celles qui existent — exactement le geste que #704 décrit. Les deux sont complémentaires, pas redondantes.
+- **Cause racine (écriture)** : les générateurs `scripts/generate-subdest-cms.mjs` et `scripts/generate-itineraries-cms.mjs` émettaient une ligne `cms_editable_zones` même pour une valeur vide, avec `is_active = true` et un `ON CONFLICT DO UPDATE ... is_active = true` qui **réactivait** au passage toute zone vide désactivée à la main. Le geste éditorial était annulé par la génération.
+- **Correction** : les deux générateurs n'émettent plus de ligne vide (et plus de bloc `VALUES` vide) ; `scripts/check-cms-zones.mjs` signale désormais les zones actives à valeur vide et sort en échec, avec une liste `KNOWN_EMPTY_ZONES` (37 clés) pour que la CI reste au vert tant que la migration n'est pas appliquée — toute zone vide nouvelle, elle, fait échouer le run ; `supabase/migrations/20261023180000_zones_actives_vides_desactivees.sql` désactive les 37 zones existantes, qui retombent sur le fallback rédigé dans le code (les 23 `local_tip` reprennent le conseil déjà servi sur 20 autres pages). **Aucun contenu inventé.**
+- **Application** : la migration a d'abord été bloquée par l'écart de version `20261023160000` (P2, PR #705). La PR #705 fusionnée, l'écart est refermé et la migration est poussée — 37 zones désactivées, vérifié en base.
+- **Vérifié** : `vitest` 95/95 sur `__tests__/scripts/`, `tsc` 0 erreur, `node --check` OK sur les trois scripts. Nouveau test `__tests__/scripts/generate-cms-zones.test.ts` (7 cas) et 3 cas ajoutés à `check-cms-zones.test.ts`.
+
 ## [2026-10-23] — Lot 2, priorité 1 : une zone active vide écrasait le fallback (agent/openhands/cms-zone-vide-ecrase-fallback)
 
 - **Contexte** : audit éditorial, lot 2. Le bloc « Notre conseil » de `/destinations/roumanie/bucarest` s'affichait sans texte, et le kicker de `/destinations/alentejo` était blanc.
@@ -10,6 +20,15 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 - **Portée mesurée** : **37** zones actives et vides en base ; **12** sur des pages visibles, dont **2 seulement** se rendaient blanches (`bucarest local_tip`, `alentejo intro_label`). Les 9 champs de `mentions-legales` sont déjà gérés par un conditionnel (un seul repli), `header_logo_url` a un repli texte, et 25 des 37 zones vides sont sur des pages « Bientôt » (invisibles).
 - **Vérifié** : `__tests__/lib/cms-zones-vide.test.ts` (4 tests) échoue sans le correctif (2 échecs) et passe avec ; `tsc` 0 erreur ; `vitest` 916/916 ; garde-fous 16/16.
 - **Reste à faire** : le rendu public est corrigé après déploiement ; `/api/cms/zones` (chemin admin) conserve volontairement les valeurs vides, pour que l'éditeur puisse remplir le champ.
+
+## [2026-10-23] — Lot 2, priorité 3 : l'emoji du réglage de maintenance (agent/openhands/maintenance-emoji)
+
+- **`app/maintenance/page.tsx`** : fallback JSX « Merci de ta patience 🌿 » → sans emoji. La page est rendue en production quand le mode maintenance est actif, et n'était contrôlée par aucun garde-fou.
+- **`scripts/check-design-tics.mjs`** : `app/maintenance` et `app/nos-services` entrent dans le périmètre (156 fichiers publics + 138 routes API).
+- **Migration `20261023170000`** : retire le 🌿 de `site_settings.maintenance_message`, valeur héritée de `20260527_maintenance_mode.sql` et réinsérée par six migrations. Seeds et placeholder admin alignés.
+- **Cliquet `check:cms-hardcode`** : `app/maintenance` entrant dans le périmètre design, le cliquet y a révélé le nom du site écrit en dur. Il passe désormais par `<EditableZone page="maintenance" zone="site_name" />`. Le cliquet ne se relève pas (`--update` refuse toute hausse) : il se corrige.
+- **Constat, non corrigé** : `maintenance_message` est **orphelin** — sept migrations l'écrivent, aucune ligne de code ne le lit. `app/maintenance` lit la zone CMS `page='maintenance', zone_key='message'`, déjà sans emoji. Supprimer le champ est une décision produit, hors P3.
+- **Écarté après vérification** : `lib/instagram.ts` (légende publiée avec 📍 🌍 🔗, canal externe, à valider côté voix de marque) ; `lib/perplexity-carousel.ts`, `lib/content-taxonomy.ts`, `getStyleEmoji` (code mort, aucun appelant) ; `lib/webhook-dispatcher.ts` (notifications Slack internes) ; `lib/cms-icons.ts` (table de conversion emoji → icône, c'est sa raison d'être).
 
 ## [2026-10-23] — Lot 2, priorité 2 : les flèches décoratives de CTA, récidive comprise (agent/openhands/fleches-cta)
 
@@ -66,6 +85,7 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 ext build en ENOENT. 
 ext build compile désormais 163/163 pages statiques avec succès.
 - **Vérifications** : preflight 9/9 réussi, 	ypecheck (tsc) 0 erreur, build Next.js 163/163 pages générées avec succès.
+
 ## [2026-10-22] — Lot 3 : zéro emoji dans les routes API, garde-fou étendu, README rétabli
 
 - **Douze routes API portaient encore des emojis**, hors du périmètre initial de `check-design-tics` (qui ne visait que les pages publiques). Ils n'étaient pas décoratifs : ils partaient chez le client. `✈️`/`🗺️`/`🧳`/`✨`/`📅`/`💶` dans le **sujet et le corps des emails** de `/api/travel-planning` ; `🌿`/`✨` dans l'**email de bienvenue** de `/api/newsletter` ; `📍`/`🌍` dans les **légendes Instagram publiées** de `/api/cms/mobile-publish` ; `✦` dans le **HTML des articles** de `/api/update-content` ; les drapeaux `🇵🇹…` stockés dans `_taxonomy.country_flag` de `/api/ai/content`. Les autres (`⚫ ❌ ✅ ⚡ ➔ ✓`) vivaient dans des messages d'administration, des commentaires ou des sorties de script.
@@ -82,6 +102,7 @@ ext build compile désormais 163/163 pages statiques avec succès.
 - Correctif de **patch** dans la plage `^15.5.16` : aucun saut de version majeure. Le diff du lockfile ne touche que `next` et ses binaires `@next/swc-*` — pas de bump furtif, contrairement à l'incident du 08/10.
 - `npm audit --omit=dev` passe de **1 critique à 0**. Les 44 avis restants (33 moderate, 11 high) sont des dépendances transitives, hors de cette tâche.
 - Vérifié : `tsc` 0, `vitest` 892/892, `garde-fous` 15/15, `next build` exit 0.
+
 ## [2026-10-22] — Réparation de l'encodage des séquences email (`fix/encodage-sequences-email`)
 
 - **Le français partait garbled.** `app/api/send-email-sequences/route.ts` avait été ré-encodé (UTF-8 relu en cp1252) au commit `3b6067f0` : les abonnés recevaient « Cette adresse Ã  MadÃ¨re » et « PÃ©pite de la semaine » dans l'email J+3. Le cron tourne chaque nuit à 4 h, donc le défaut se répétait à chaque envoi.
@@ -96,7 +117,6 @@ ext build compile désormais 163/163 pages statiques avec succès.
 - **Nouveau garde-fou `scripts/check-design-tics.mjs`** (`npm run check:design-tics`, inclus dans `garde-fous` et `--preflight`) : refuse un emoji décoratif, `bg-white`/`bg-stone-50` combiné à `rounded-2xl/3xl` ou `shadow-*`, `rounded-2xl/3xl` seul, et une pilule `rounded-full` + ombre lourde. Prouvé sur cas fautif par `__tests__/scripts/check-design-tics.test.ts` (13 tests) ; l'agrégateur passe de 14 à 15 contrôles.
 
 ## [2026-10-21] — Design Upgrade 2.0 : séquence éditoriale de l'accueil, bandeau de preuves et cartes E-E-A-T (`agent/gemini/design-upgrade-2-0`)
-
 
 ## [2026-10-21] — Préchargement universel des zones CMS (100% pages) & mise en cache `/api/cms/zones` (`agent/gemini/zones-preload-cache`)
 
@@ -381,6 +401,7 @@ SiteTheme/admin/cartes reste intact).
 - Vérifié : `node scripts/check-brand-sync.mjs` OK (48 mots bannis TS ↔ Python).
   `next build` non exécuté dans cette session (timeout de l'environnement) — la
   CI fait foi.
+
 ## [2026-10-19] — App : onglet Rédaction (brouillons, IA, photos Timeline)
 
 Demande de la fondatrice : compléter les brouillons depuis l'APK, avec l'IA et les photos
@@ -490,6 +511,7 @@ YouTube en cours chez Jules).
   Cloud ou PC). Chip « 🗓️ Que publier cette semaine ? ». Test Kotlin.
 - **Limite connue** : sans dates en base, le Cerveau ne peut que dire ce qui est prêt. Un vrai
   calendrier éditorial demande une table (migration + `db push`).
+
 ## [2026-10-18] — Pages « Bientôt » : la description du brouillon ne fuit plus
 
 Constat d'OpenHands, mesuré par Claude : `/destinations/sicile/taormine` et `/palerme` affichent
@@ -576,6 +598,7 @@ couverture. Retirée partout où elle était publique :
   → `/og-default.jpg` ; entrée `rou-passage-walk` retirée de `lib/cms-photo-albums.ts`.
 - **Non touché, à décider par le fondateur** : le fichier lui-même (bucket `media`, toujours
   accessible par son URL directe) et sa fiche `cms_media` (id 143).
+
 ## [2026-10-18] — Le Cerveau du Poco lit le registre des agents, confie et valide
 
 Branche `agent/claude/cerveau-local-poco`. Retour du fondateur sur le Poco : l'IA ne
@@ -1046,6 +1069,7 @@ une légende se construit à partir d'un vécu, pas d'une inspiration.
 - Aucun garde-fou ne scanne `docs/*.md` pour les mots bannis
   (`check-content-coherence` lit la base `cms_blog_posts`) : le document peut citer
   les mots bannis comme contre-exemples sans faire échouer la CI.
+
 ## [2026-10-14] — Mobile : wrapper Gradle réel, le build local de l'APK fonctionne
 
 ### Contexte
@@ -1077,6 +1101,7 @@ installant Gradle à part, mais un build sur le poste échouait.
 - Installation de l'APK sur le Poco X6 Pro (geste humain).
 - Le build avec le JDK 17 exactement (testé avec JDK 21 ; Gradle 8.7 et l'AGP 8.4
   supportent les deux).
+
 ## [2026-10-14] — Étude : fusion des deux apps Android en une seule
 
 ### Contexte
@@ -1102,7 +1127,6 @@ deux projets Android distincts (`heldonica-mobile/` dans ce dépôt, `android/` 
 
 ### Non vérifié
 - La faisabilité effective du portage Compose (aucun code écrit à ce stade).
-
 
 ## [2026-10-14] — Positionnement : relevé outillé du panel (11 sites) et comptages consolidés
 
@@ -1313,7 +1337,6 @@ ni `__tests__/api/brain*`, ni `tests/test_bridge_poller.py`. Trois défauts ont
 - Légendes Instagram de la cible : collecte impossible sans accès au compte
   (marquées [INDISPONIBLE] dans le document).
 
-
 ## [2026-10-12] — Étude de la concurrence directe d'Heldonica
 
 ### Ajouté
@@ -1339,7 +1362,6 @@ ni `__tests__/api/brain*`, ni `tests/test_bridge_poller.py`. Trois défauts ont
 - `heldonica.fr` est en maintenance : le positionnement Heldonica a été lu
   depuis le dépôt, pas depuis le site en ligne.
 
-
 ## [2026-10-12] — Plan de mise en place face à la concurrence
 
 ### Ajouté
@@ -1359,7 +1381,6 @@ ni `__tests__/api/brain*`, ni `tests/test_bridge_poller.py`. Trois défauts ont
 - Aucune action exécutée : ce document est un plan. Les indicateurs restent à
   mesurer une fois le site hors maintenance.
 
-
 ## [2026-10-12] — Concurrence : profils approfondis + réseau ATPE
 
 ### Ajouté
@@ -1378,7 +1399,6 @@ ni `__tests__/api/brain*`, ni `tests/test_bridge_poller.py`. Trois défauts ont
   mais pas d'offre nommée par destination.
 - Deux espaces restent libres : le couple sans enfants (Perspectives est passé
   famille) et le B2B hôtelier (aucun rival approfondi ne le couvre).
-
 
 ## [2026-10-12] — Benchmark de conversion + gabarit lead magnet couple
 
@@ -3113,7 +3133,6 @@ Après le `db push` du matin, pgvector était actif mais **0/41 destinations et 
 - Migrations versionnées : `20260901174500_update_paris_14_blog_post.sql` et `20260901175500_align_all_drafts_brand_voice.sql`.
 
 ---
-
 
 ## [2026-08-19] — Providers IA Gratuits (Mistral, Cerebras, OpenRouter), Mode Guidé B2B & Garde-Fou Ébauches
 

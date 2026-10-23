@@ -87,4 +87,59 @@ describe('check-cms-zones — lecture de la base impossible', () => {
     expect(r.stdout).toContain('✓ Aucune zone orpheline');
     expect(r.stdout).not.toContain('INCONNU');
   }, 30_000);
+
+  /**
+   * Une zone active à valeur vide n'affiche pas son fallback : le composant
+   * calcule `zones[zoneKey] ?? fallback`, et `''` n'est pas `null`. Constat du
+   * 2026-10-23 : 37 zones dans ce cas, dont 23 `local_tip` (bloc « Notre
+   * conseil » vide sur 23 pages), produites par les générateurs de zones.
+   */
+  describe('check-cms-zones — zones actives à valeur vide', () => {
+    let serveur: Server;
+    let url: string;
+    let lignes: unknown[];
+
+    beforeAll(async () => {
+      serveur = createServer((_req, res) => {
+        res.setHeader('Connection', 'close');
+        res.writeHead(200, { 'content-type': 'application/json' });
+        res.end(JSON.stringify(lignes));
+        setImmediate(() => res.socket?.destroy());
+      });
+      serveur.keepAliveTimeout = 1;
+      await new Promise<void>((r) => serveur.listen(0, '127.0.0.1', r));
+      const addr = serveur.address();
+      url = `http://127.0.0.1:${typeof addr === 'object' && addr ? addr.port : 0}`;
+    });
+
+    afterAll(async () => {
+      serveur.closeAllConnections?.();
+      await new Promise<void>((r) => serveur.close(() => r()));
+    });
+
+    it('signale une zone active à valeur vide NON inventoriée et sort en échec', async () => {
+      lignes = [{ page: 'destinations-x', zone_key: 'local_tip', value: '' }];
+      const r = await lancer(url);
+
+      expect(r.status).toBe(1);
+      expect(r.stdout).toContain('NON inventoriée');
+      expect(r.stdout).toContain('destinations-x');
+    }, 30_000);
+
+    it('tolère une zone vide déjà inventoriée (migration en attente)', async () => {
+      lignes = [{ page: 'destinations-roumanie-bucarest', zone_key: 'local_tip', value: '' }];
+      const r = await lancer(url);
+
+      expect(r.status).toBe(0);
+      expect(r.stdout).toContain('déjà inventoriée');
+      expect(r.stdout).not.toContain('NON inventoriée');
+    }, 30_000);
+
+    it('ne signale PAS une valeur NULL (le fallback joue)', async () => {
+      lignes = [{ page: 'destinations-x', zone_key: 'local_tip', value: null }];
+      const r = await lancer(url);
+
+      expect(r.stdout).toContain('✓ Aucune zone active à valeur vide');
+    }, 30_000);
+  });
 });

@@ -56,6 +56,62 @@ const MAX_LINK_ITEMS = 12;
  */
 const KNOWN_ORPHAN_PAGES = new Set([]);
 
+/**
+ * Zones actives dont la valeur est une chaîne vide, connues et tolérées à ce
+ * jour. Une telle zone n'affiche pas le fallback du composant (`'' ?? x` vaut
+ * `''`), donc le bloc se rend titré mais sans corps.
+ *
+ * Ces 37 entrées sont celles produites par les générateurs de zones, corrigés
+ * dans le même lot (generate-subdest-cms.mjs, generate-itineraries-cms.mjs).
+ * Leur désactivation est écrite dans la migration `20261023180000`, qui ne peut
+ * pas encore être poussée : la version `20261023160000` est enregistrée en base
+ * mais son fichier n'existe que sur la branche `agent/openhands/fleches-cta`
+ * (PR #705), absente de `main`, et `supabase db push` refuse alors en bloc.
+ *
+ * Retirer ces entrées au fur et à mesure que la migration s'applique : le script
+ * signalera toute zone vide qui réapparaîtrait. Ne pas en ajouter pour taire une
+ * zone vide nouvelle — c'est le symptôme d'une écriture qu'il faut corriger.
+ */
+const KNOWN_EMPTY_ZONES = new Set([
+  'destinations-alentejo__intro_label',
+  'destinations-idf-fontainebleau__local_tip',
+  'destinations-idf-giverny__local_tip',
+  'destinations-idf-paris__local_tip',
+  'destinations-idf-versailles__local_tip',
+  'destinations-madere-achadas-da-cruz__local_tip',
+  'destinations-madere-cabo-girao__local_tip',
+  'destinations-madere-camara-de-lobos__local_tip',
+  'destinations-madere-cote-est__local_tip',
+  'destinations-madere-estreito__local_tip',
+  'destinations-madere-faial__local_tip',
+  'destinations-madere-funchal__local_tip',
+  'destinations-madere-ponta-do-sol__local_tip',
+  'destinations-madere-portela__local_tip',
+  'destinations-madere-ribeiro-frio__local_tip',
+  'destinations-madere-santos__local_tip',
+  'destinations-madere-sao-vicente__local_tip',
+  'destinations-normandie-cote-albatre__local_tip',
+  'destinations-normandie-le-havre__local_tip',
+  'destinations-normandie-pays-dauge__local_tip',
+  'destinations-portugal-porto__local_tip',
+  'destinations-roumanie-bucarest__local_tip',
+  'destinations-roumanie-itineraire-10-jours__day_10_accommodation',
+  'destinations-roumanie-itineraire-5-jours__day_5_accommodation',
+  'destinations-roumanie-itineraire-7-jours__day_7_accommodation',
+  'destinations-roumanie-sibiu__local_tip',
+  'destinations-roumanie-transylvanie__local_tip',
+  'global__header_logo_url',
+  'mentions-legales__editor_address',
+  'mentions-legales__editor_capital',
+  'mentions-legales__editor_legal_form',
+  'mentions-legales__editor_phone',
+  'mentions-legales__editor_publication_director',
+  'mentions-legales__editor_rcs',
+  'mentions-legales__editor_siren',
+  'mentions-legales__editor_siret',
+  'mentions-legales__editor_vat',
+]);
+
 function readEnv() {
   let raw = '';
   for (const f of ['.env.local', '.env']) {
@@ -408,7 +464,7 @@ async function fetchZonesBatch(url, key, from, pageSize, essai = 1) {
       headers.Authorization = `Bearer ${key}`;
     }
     const res = await fetch(
-      `${url}/rest/v1/cms_editable_zones?select=page,zone_key&is_active=eq.true&order=page,zone_key`,
+      `${url}/rest/v1/cms_editable_zones?select=page,zone_key,value&is_active=eq.true&order=page,zone_key`,
       { headers }
     );
     if (!res.ok) {
@@ -544,3 +600,49 @@ if (orphans.length === 0) {
     console.log('\n✓ Aucune orpheline nouvelle.');
   }
 }
+
+  // ─── Zones actives mais VIDES ──────────────────────────────────────────────
+  //
+  // Une zone active dont la valeur est une chaîne vide est un piège : le
+  // composant calcule `zones[zoneKey] ?? fallback`, et `''` n'est pas `null` —
+  // le fallback ne joue donc PAS. Le bloc s'affiche titré mais sans corps
+  // (« Notre conseil » suivi du vide). Seule une valeur `NULL` laisse le
+  // fallback reprendre la main.
+  //
+  // Constat du 2026-10-23 : 37 zones actives à valeur vide, dont 23 `local_tip`
+  // (un bloc « Notre conseil » vide sur 23 pages) et 3 `day_N_accommodation`,
+  // toutes produites par les générateurs de zones (generate-subdest-cms.mjs,
+  // generate-itineraries-cms.mjs), corrigés depuis.
+  if (ok) {
+    const vides = rows.filter((r) => r.value !== null && String(r.value).trim() === '');
+    const cle = (r) => `${r.page}__${r.zone_key}`;
+    const nouvelles = vides.filter((r) => !KNOWN_EMPTY_ZONES.has(cle(r)));
+    const connues = vides.length - nouvelles.length;
+
+    if (vides.length === 0) {
+      console.log('\n✓ Aucune zone active à valeur vide.');
+    } else {
+      if (connues) {
+        console.log(`\n⚠ ${connues} zone(s) active(s) à valeur vide, déjà inventoriée(s).`);
+        console.log('  Leur désactivation est prévue par la migration 20261023180000,');
+        console.log('  bloquée tant que la version 20261023160000 (PR #705) manque en local.');
+        console.log('  Retirer les entrées de KNOWN_EMPTY_ZONES une fois la migration appliquée.');
+      }
+      if (nouvelles.length) {
+        const parPage = new Map();
+        for (const r of nouvelles) {
+          if (!parPage.has(r.page)) parPage.set(r.page, []);
+          parPage.get(r.page).push(r.zone_key);
+        }
+        console.log(`\n✗ ${nouvelles.length} zone(s) active(s) à VALEUR VIDE, NON inventoriée(s) :`);
+        for (const [p, keys] of [...parPage.entries()].sort()) {
+          console.log(`    ${p} (${keys.length}) : ${keys.join(', ')}`);
+        }
+        console.log('\nLe fallback du composant ne joue pas sur une chaîne vide (`?? `).');
+        console.log('Renseigner la zone, la désactiver (is_active = false), ou l\'ajouter à KNOWN_EMPTY_ZONES.');
+        process.exitCode = 1;
+      } else {
+        console.log('\n✓ Aucune zone active à valeur vide nouvelle.');
+      }
+    }
+  }
