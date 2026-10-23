@@ -4,11 +4,6 @@ import { useState } from 'react'
 import { INSTAGRAM_PROFILE } from '@/lib/instagram-static'
 import type { InstagramStory } from '@/lib/instagram-static'
 
-// Anciennement peuplé de liens heldonica.fr/wp-content — tous morts (403) depuis la migration
-// vers Next.js. Tant qu'un flux Instagram réel n'est pas configuré via CMS, on affiche un état
-// vide explicite plutôt que des vignettes cassées.
-const HARDCODED_STORIES: InstagramStory[] = []
-
 interface InstagramEmbedProps {
   limit?: number
   siteSettings?: {
@@ -21,7 +16,7 @@ interface InstagramEmbedProps {
 
 export default function InstagramEmbed({ limit = 6, siteSettings }: InstagramEmbedProps) {
   // Parse site settings for custom posts
-  let stories = HARDCODED_STORIES.slice(0, limit)
+  let stories: InstagramStory[] = []
 
   // 1. Try JSON from settings (instagram_stories_json)
   if (siteSettings?.instagramStoriesJson) {
