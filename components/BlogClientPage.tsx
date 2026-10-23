@@ -176,6 +176,13 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
     return safePosts.filter((post) => post.category === catKey).length
   }
 
+  // Un onglet sans article (« Guides (0) ») promet un contenu qui n'existe
+  // pas. On ne garde « Tous » et la catégorie active (lien partagé) que
+  // lorsqu'elles sont vides, pour ne jamais laisser un filtre invisible.
+  const visibleCategories = categories.filter((category) =>
+    category.key === 'Tous' || category.key === activeFilter || getPostCount(category.key) > 0
+  )
+
   return (
     <main className="min-h-screen bg-cloud-dancer">
       <ReadProgressBar />
@@ -279,7 +286,7 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
       <section className="mx-auto max-w-7xl px-4 py-8">
         <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div className="flex flex-wrap gap-2">
-            {categories.map((category) => (
+            {visibleCategories.map((category) => (
               <button
                 key={category.key}
                 onClick={() => setActiveFilter(category.key)}
