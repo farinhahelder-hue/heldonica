@@ -7,10 +7,10 @@ import { getPageZones } from '@/lib/cms-zones'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
 const metadata: Metadata = {
-  title: "Bogota en couple : notre carnet slow travel | Heldonica",
+  title: "Bogotá en couple : notre carnet slow travel | Heldonica",
   description: "Capitale. 2600m, Graffiti, Candelaria en Colombie. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
   openGraph: {
-    title: "Bogota en couple : notre carnet slow travel | Heldonica",
+    title: "Bogotá en couple : notre carnet slow travel | Heldonica",
     description: "Capitale. 2600m, Graffiti, Candelaria en Colombie. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
     type: 'website',
     images: ['/og-default.jpg'],
@@ -52,11 +52,11 @@ export default async function BogotaPage() {
       <Header />
       <SubDestinationTemplate
         page="destinations-colombie-bogota"
-        name="Bogota"
+        name="Bogotá"
         parentName="Colombie"
         parentSlug="colombie"
         heroImage="/og-default.jpg"
-        introText="Bogota, c'est la capitale a 2600m. Le centre historique, les murs de grafitti, les musees."
+        introText="Bogotá, c'est la capitale à 2 600 m. Le centre historique, les murs de graffitis, les musées."
         highlights={highlights}
         localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."
       />

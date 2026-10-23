@@ -7,10 +7,10 @@ import { getPageZones } from '@/lib/cms-zones'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
 const metadata: Metadata = {
-  title: "Medellin en couple : notre carnet slow travel | Heldonica",
+  title: "Medellín en couple : notre carnet slow travel | Heldonica",
   description: "Ville de l'éternel printemps. Parche, metro en Colombie. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
   openGraph: {
-    title: "Medellin en couple : notre carnet slow travel | Heldonica",
+    title: "Medellín en couple : notre carnet slow travel | Heldonica",
     description: "Ville de l'éternel printemps. Parche, metro en Colombie. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
     type: 'website',
     images: ['/og-default.jpg'],
@@ -52,11 +52,11 @@ export default async function MedellinPage() {
       <Header />
       <SubDestinationTemplate
         page="destinations-colombie-medellin"
-        name="Medellin"
+        name="Medellín"
         parentName="Colombie"
         parentSlug="colombie"
         heroImage="/og-default.jpg"
-        introText="Medellin, c'est la transformation. Le clima eternal, les parches, le metro cable."
+        introText="Medellín, c'est la transformation. Le climat éternel, les parches, le métro-câble."
         highlights={highlights}
         localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."
       />

@@ -7,10 +7,10 @@ import { getPageZones } from '@/lib/cms-zones'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
 const metadata: Metadata = {
-  title: "Isole Eoliennes en couple : notre carnet slow travel | Heldonica",
+  title: "Îles Éoliennes en couple : notre carnet slow travel | Heldonica",
   description: "Volcans, boue en Secret Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
   openGraph: {
-    title: "Isole Eoliennes en couple : notre carnet slow travel | Heldonica",
+    title: "Îles Éoliennes en couple : notre carnet slow travel | Heldonica",
     description: "Volcans, boue en Secret Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
     type: 'website',
     images: ['/og-default.jpg'],
@@ -18,7 +18,7 @@ const metadata: Metadata = {
     siteName: 'Heldonica'
   },
   alternates: {
-    canonical: "https://www.heldonica.fr/destinations/sicile/isole-eoliennes"
+    canonical: "https://www.heldonica.fr/destinations/sicile/etoile"
   }
 }
 
@@ -52,11 +52,11 @@ export default async function IsoleEoliennesPage() {
       <Header />
       <SubDestinationTemplate
         page="destinations-sicile-etoile"
-        name="Isole Eoliennes"
+        name="Îles Éoliennes"
         parentName="Sicile"
         parentSlug="sicile"
         heroImage="/og-default.jpg"
-        introText="Les Eoliennes, c'est le volcan sous la mer. Boue chaude, plages noires,Lipari, Salina."
+        introText="Les Éoliennes, c'est le volcan sous la mer. Boue chaude, plages noires, Lipari, Salina."
         highlights={highlights}
         localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."
       />
