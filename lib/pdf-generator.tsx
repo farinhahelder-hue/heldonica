@@ -114,7 +114,7 @@ export function TravelGuidePDF({ data }: { data: GuideData }) {
         {/* eslint-disable-next-line jsx-a11y/alt-text */}
         <Image src={data.heroImage || 'https://www.heldonica.fr/og-default.jpg'} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} />
         <View style={s.coverOverlay}>
-          <Text style={s.coverLabel}>{data.flagEmoji} Guide de voyage</Text>
+          <Text style={s.coverLabel}>{data.flagEmoji ? `${data.flagEmoji} ` : ''}Guide de voyage</Text>
           <Text style={s.coverTitle}>{data.title}</Text>
           {data.subtitle && <Text style={s.coverSubtitle}>{data.subtitle}</Text>}
           <Text style={{ fontSize: 10, color: C.cloudDancer, marginTop: 20 }}>heldonica.fr/destinations/{data.destinationSlug}</Text>
@@ -215,7 +215,7 @@ export function TravelGuidePDF({ data }: { data: GuideData }) {
         ))}
 
         <View style={s.ctaBox}>
-          <Text style={s.ctaText}>🌍 Explore {data.title} en détail</Text>
+          <Text style={s.ctaText}>Explore {data.title} en détail</Text>
           <Text style={s.ctaSubtext}>heldonica.fr/destinations/{data.destinationSlug}</Text>
         </View>
 

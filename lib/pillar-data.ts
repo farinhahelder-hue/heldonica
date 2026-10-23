@@ -45,9 +45,9 @@ export type PillarSlug = (typeof PILLAR_SLUGS)[number]
  * Toute donnée éditoriale vient de Supabase.
  */
 const PILLAR_IDENTITY: Record<string, { name: string; country: string; flag: string }> = {
-  madere: { name: 'Madère', country: 'Portugal', flag: '🇵🇹' },
-  montenegro: { name: 'Monténégro', country: 'Monténégro', flag: '🇲🇪' },
-  roumanie: { name: 'Roumanie', country: 'Roumanie', flag: '🇷🇴' },
+  madere: { name: 'Madère', country: 'Portugal', flag: '' },
+  montenegro: { name: 'Monténégro', country: 'Monténégro', flag: '' },
+  roumanie: { name: 'Roumanie', country: 'Roumanie', flag: '' },
 }
 
 /**
