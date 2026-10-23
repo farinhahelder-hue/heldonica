@@ -160,7 +160,9 @@ export async function getTargetedZoneVariants(
   const resolved: Record<string, string> = {};
   for (const [zoneKey, list] of Object.entries(byZone)) {
     const best = selectBestVariant(list, context);
-    if (best) {
+    // Même règle que les zones standards : une variante vide ne surcharge pas,
+    // sinon elle écrase le fallback du composant au lieu de le laisser jouer.
+    if (best && best.value != null && best.value.trim() !== '') {
       resolved[`${page}__${zoneKey}`] = best.value;
     }
   }

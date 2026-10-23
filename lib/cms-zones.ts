@@ -64,9 +64,12 @@ export async function getPageZones(page: string, context?: TargetingContext): Pr
 
     const map: ZoneMap = {}
     for (const row of data ?? []) {
-      // Une valeur nulle n'est pas une valeur : on laisse le fallback jouer
-      // plutôt que d'afficher une chaîne vide à la place du texte attendu.
-      if (row.value == null) continue
+      // Une valeur nulle ou blanche n'est pas une valeur : on laisse le fallback
+      // jouer plutôt que d'afficher un texte vide. Sans le test sur la chaîne
+      // vide, `EditableZone` fait `zones[clé] ?? fallback` : la chaîne vide écrase
+      // le fallback et le bloc se rend blanchi. Pour retirer une zone, on la passe
+      // en `is_active = false`, pas en valeur vide.
+      if (row.value == null || row.value.trim() === '') continue
       map[`${row.page}__${row.zone_key}`] = row.value
     }
 
