@@ -42,73 +42,10 @@ export const metadata: Metadata = {
   },
 };
 
-const schemaService = {
-  "@context": "https://schema.org",
-  "@type": "Service",
-  "name": "Travel Planning sur mesure — Heldonica",
-  "description": "Conception sur mesure d’itinéraires de voyage en couple, slow travel, hors des sentiers battus. On te livre un carnet de route PDF complet avec hébergements testés, restaurants, transports et contacts locaux.",
-  "provider": {
-    "@type": "Organization",
-    "name": "Heldonica",
-    "url": "https://www.heldonica.fr",
-    "sameAs": [
-      "https://www.instagram.com/heldonica"
-    ]
-  },
-  "areaServed": {
-    "@type": "Country",
-    "name": "France"
-  },
-  "url": "https://www.heldonica.fr/travel-planning",
-  "priceRange": "€€",
-  "serviceType": "Voyage sur mesure",
-  "hasOfferCatalog": {
-    "@type": "OfferCatalog",
-    "name": "Travel Planning",
-    "itemListElement": [
-      {
-        "@type": "Offer",
-        "itemOffered": {
-          "@type": "Service",
-          "name": "Pack Essentiel"
-        },
-        "description": "Voyage de 3 à 5 jours",
-        "price": "150",
-        "priceCurrency": "EUR"
-      },
-      {
-        "@type": "Offer",
-        "itemOffered": {
-          "@type": "Service",
-          "name": "Pack Confort"
-        },
-        "description": "Voyage de 7 à 14 jours",
-        "price": "250",
-        "priceCurrency": "EUR"
-      },
-      {
-        "@type": "Offer",
-        "itemOffered": {
-          "@type": "Service",
-          "name": "Pack Premium"
-        },
-        "description": "Voyage de 2+ semaines",
-        "price": "350",
-        "priceCurrency": "EUR"
-      }
-    ]
-  }
-};
-
 export default function TravelPlanningLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <>
-      {children}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaService) }} />
-    </>
-  );
+  return children;
 }
