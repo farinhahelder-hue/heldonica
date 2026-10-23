@@ -10,6 +10,7 @@ import Breadcrumb from '@/components/Breadcrumb'
 import { getReadingTime } from '@/lib/readingTime'
 import { type BlogCategory } from '@/components/BlogFilters'
 import { supabase } from '@/lib/supabase-client'
+import { buildPageMetadata } from '@/lib/page-metadata'
 
 // ISR: cache for 1 hour
 export const revalidate = 3600
@@ -52,44 +53,46 @@ function getFallbackCategories(): BlogCategory[] {
   ]
 }
 
-export async function generateMetadata(): Promise<Metadata> {
-  return {
+const metadata: Metadata = {
+  title: 'Carnets de voyage | Heldonica',
+  description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain. Récits authentiques, conseils pratiques et destinations hors des sentiers battus.',
+  keywords: [
+    'blog slow travel',
+    'carnet de voyage',
+    'récit de voyage',
+    'blog voyage authentique',
+    'blog écoresponsable',
+  ],
+  alternates: {
+    canonical: 'https://www.heldonica.fr/blog',
+  },
+  openGraph: {
     title: 'Carnets de voyage | Heldonica',
-    description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain. Récits authentiques, conseils pratiques et destinations hors des sentiers battus.',
-    keywords: [
-      'blog slow travel',
-      'carnet de voyage',
-      'récit de voyage',
-      'blog voyage authentique',
-      'blog écoresponsable',
+    description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain.',
+    url: 'https://www.heldonica.fr/blog',
+    siteName: 'Heldonica',
+    type: 'website',
+    locale: 'fr_FR',
+    images: [
+      {
+        url: '/og-default.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Blog Heldonica — Carnets de route slow travel, pépites dénichées',
+      },
     ],
-    alternates: {
-      canonical: 'https://www.heldonica.fr/blog',
-    },
-    openGraph: {
-      title: 'Carnets de voyage | Heldonica',
-      description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain.',
-      url: 'https://www.heldonica.fr/blog',
-      siteName: 'Heldonica',
-      type: 'website',
-      locale: 'fr_FR',
-      images: [
-        {
-          url: '/og-default.jpg',
-          width: 1200,
-          height: 630,
-          alt: 'Blog Heldonica — Carnets de route slow travel, pépites dénichées',
-        },
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: 'Carnets de voyage | Heldonica',
-      description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain.',
-      images: ['/og-default.jpg'],
-      creator: '@heldonica',
-    },
-  }
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Carnets de voyage | Heldonica',
+    description: 'Articles slow travel, carnets de route et pépites dénichées testées sur le terrain.',
+    images: ['/og-default.jpg'],
+    creator: '@heldonica',
+  },
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadata('blog', metadata)
 }
 
 function CollectionPageJsonLd({ posts }: { posts: BlogPost[] }) {
