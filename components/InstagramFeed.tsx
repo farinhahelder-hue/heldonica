@@ -37,7 +37,7 @@ export default function InstagramFeed({ feedId }: InstagramFeedProps) {
 
   const username = 'heldonica'
   const sectionTitle = val('instagram_section_title', 'Sur le terrain, pas en studio')
-  const ctaText = val('instagram_cta_text', `Nous suivre sur Instagram @${username} →`)
+  const ctaText = val('instagram_cta_text', `Nous suivre sur Instagram @${username}`)
   const apiUrl = feedId
     ? `https://feeds.behold.so/${feedId}`
     : `https://feeds.behold.so/${process.env.NEXT_PUBLIC_BEHOLD_FEED_ID || 'demo'}`

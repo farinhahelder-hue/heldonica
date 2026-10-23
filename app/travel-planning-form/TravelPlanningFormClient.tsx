@@ -524,7 +524,7 @@ export default function TravelPlanningFormClient({
                   onClick={nextStep}
                   className="px-8 py-3 bg-action hover:bg-action-fonce text-white font-semibold rounded-sm transition shadow-sm"
                 >
-                  {Z('nav_next', 'text', "Continuer", undefined, 'span')} →
+                  {Z('nav_next', 'text', "Continuer", undefined, 'span')}
                 </button>
               ) : (
                 <button

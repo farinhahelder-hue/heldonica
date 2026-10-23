@@ -463,10 +463,10 @@ export default async function Itineraire10JoursPage() {
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link href="/destinations/roumanie/itineraire-7-jours" className="inline-flex px-6 py-3 rounded-sm bg-action text-[#FAF7F2] text-xs uppercase tracking-[0.16em] font-medium hover:bg-action-fonce transition-colors">
-                Voir l&apos;itinéraire 7 jours →
+                Voir l&apos;itinéraire 7 jours
               </Link>
               <Link href="/destinations/roumanie/itineraire-5-jours" className="inline-flex px-6 py-3 rounded-sm border border-[#DED5C6] bg-[#FAF7F2] text-mahogany text-xs uppercase tracking-[0.16em] font-medium hover:bg-[#EFE9DF] transition-colors">
-                Version 5 jours →
+                Version 5 jours
               </Link>
             </div>
           </div>
@@ -487,7 +487,7 @@ export default async function Itineraire10JoursPage() {
               href="/travel-planning"
               className="inline-flex px-7 py-3 rounded-sm bg-action text-[#FAF7F2] text-xs uppercase tracking-[0.16em] font-medium hover:bg-action-fonce transition-colors"
             >
-              Construire mon itinéraire sur mesure →
+              Construire mon itinéraire sur mesure
             </Link>
           </div>
         </section>

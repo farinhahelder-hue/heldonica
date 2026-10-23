@@ -131,7 +131,7 @@ export default async function GuidesMerciPage() {
                 href="/travel-planning"
                 className="inline-block px-8 py-4 bg-action text-white font-semibold rounded-sm hover:brightness-110 transition-all"
               >
-                <EditableZone page="guides-merci" zone="upsell_cta" fallback="Découvrir le travel planning →" />
+                <EditableZone page="guides-merci" zone="upsell_cta" fallback="Découvrir le travel planning" />
               </Link>
               <EditableZone page="guides-merci" zone="upsell_footnote" fallback="Consultations dès 150€ • Satisfait ou remboursé"
                 className="text-stone-500 text-sm mt-4 block"

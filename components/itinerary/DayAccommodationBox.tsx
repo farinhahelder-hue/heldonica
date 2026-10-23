@@ -48,7 +48,7 @@ export default function DayAccommodationBox({
             destination="roumanie"
             className="text-xs text-eucalyptus font-medium hover:underline"
           >
-            Voir les disponibilités →
+            Voir les disponibilités
           </AffiliateLink>
         </div>
         <div className={`text-xs text-charcoal/55 ${disclosureClassName}`}>

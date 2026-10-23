@@ -155,7 +155,7 @@ export default function DestinationsClient() {
                 href="/destinations/compare"
                 className="ml-auto inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.14em] font-medium text-mahogany border-b border-mahogany/30 pb-0.5 hover:text-eucalyptus hover:border-eucalyptus transition-colors"
               >
-                Comparer →
+                Comparer
               </Link>
             </div>
           </div>
@@ -175,7 +175,7 @@ export default function DestinationsClient() {
                 <p className="text-lg font-serif text-mahogany mb-2">Aucun résultat avec ce filtre</p>
                 <p className="text-charcoal/70 mb-5">Élargis un peu le cadre.</p>
                 <button onClick={() => setContinentFilter('all')} className="inline-flex px-6 py-2.5 rounded-sm bg-action text-[#FAF7F2] text-sm font-medium hover:bg-action-fonce transition-colors">
-                  Voir toutes les destinations →
+                  Voir toutes les destinations
                 </button>
               </div>
             ) : (
@@ -252,7 +252,7 @@ export default function DestinationsClient() {
                   <line x1="8" y1="2" x2="8" y2="18"></line>
                   <line x1="16" y1="6" x2="16" y2="22"></line>
                 </svg>
-                Explorer la carte des carnets →
+                Explorer la carte des carnets
               </Link>
             </div>
           </div>

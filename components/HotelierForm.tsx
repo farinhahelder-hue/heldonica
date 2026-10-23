@@ -40,7 +40,7 @@ export default function HotelierForm() {
     hotelier_form_message_placeholder: "Votre situation, vos objectifs, ce qui vous freine aujourd'hui…",
     hotelier_form_rgpd_label: "J'accepte que ces informations soient utilisées pour me recontacter. Voir notre",
     hotelier_form_rgpd_link: 'politique de confidentialité',
-    hotelier_form_submit: 'Échanger sur mon projet →',
+    hotelier_form_submit: 'Échanger sur mon projet',
     hotelier_form_submit_loading: 'Envoi en cours…',
     hotelier_form_reassurance: 'Sans engagement. Échange simple de 30 minutes. Réponse sous 48h.',
     hotelier_form_success_title: 'Merci, votre demande est bien enregistrée.',

@@ -292,7 +292,7 @@ export default async function DestinationPage({ slug }: Props) {
                   {sub.teaser}
                 </p>
                 <span className="text-xs font-semibold text-eucalyptus mt-3 inline-block group-hover:translate-x-1 transition-transform">
-                  <EditableZone page={`destinations-${slug}`} zone="subdest_cta" fallback="Voir le guide →" as="span" />
+                  <EditableZone page={`destinations-${slug}`} zone="subdest_cta" fallback="Voir le guide" as="span" />
                 </span>
               </Link>
             ))}
@@ -345,7 +345,7 @@ export default async function DestinationPage({ slug }: Props) {
           href={`/travel-planning-form?destination=${slug}`}
           className="inline-flex px-8 py-4 rounded-lg bg-action text-white font-semibold hover:bg-action-fonce transition-colors"
         >
-          <EditableZone page={`destinations-${slug}`} zone="cta_button" fallback="Planifier ce voyage avec Heldonica →" as="span" />
+          <EditableZone page={`destinations-${slug}`} zone="cta_button" fallback="Planifier ce voyage avec Heldonica" as="span" />
         </Link>
       </div>
     </section>

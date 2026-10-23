@@ -98,7 +98,7 @@ export default function GuideDownloadForm({ variant = 'inline', className = '' }
         disabled={status === 'loading'}
         className={`${s.button} mt-3 disabled:opacity-50 disabled:cursor-not-allowed`}
       >
-        {status === 'loading' ? 'Envoi...' : 'Je veux le guide →'}
+        {status === 'loading' ? 'Envoi...' : 'Je veux le guide'}
       </button>
       {errorMessage && (
         <p className="text-red-400 text-sm mt-3 text-center">{errorMessage}</p>

@@ -225,7 +225,7 @@ export default async function AProposPage() {
                   className="text-charcoal/70 leading-relaxed mb-6 block"
                 />
                 <Link href="/blog" className="inline-block text-xs uppercase tracking-[0.16em] text-mahogany border-b border-mahogany/40 pb-0.5 font-medium hover:text-eucalyptus hover:border-eucalyptus transition-colors">
-                  <EditableZone page="a-propos" zone="service_1_cta" fallback="Lire les carnets →" />
+                  <EditableZone page="a-propos" zone="service_1_cta" fallback="Lire les carnets" />
                 </Link>
               </div>
 
@@ -238,7 +238,7 @@ export default async function AProposPage() {
                   className="text-[#E6DEC8]/75 leading-relaxed mb-6 block"
                 />
                 <Link href="/travel-planning" className="inline-block text-xs uppercase tracking-[0.16em] text-[#E6DEC8] border-b border-[#E6DEC8]/40 pb-0.5 font-medium hover:text-[#F7F3EC] hover:border-[#F7F3EC] transition-colors">
-                  <EditableZone page="a-propos" zone="service_2_cta" fallback="Concevoir mon voyage →" />
+                  <EditableZone page="a-propos" zone="service_2_cta" fallback="Concevoir mon voyage" />
                 </Link>
               </div>
 
@@ -251,7 +251,7 @@ export default async function AProposPage() {
                   className="text-charcoal/70 leading-relaxed mb-6 block"
                 />
                 <Link href="/destinations" className="inline-block text-xs uppercase tracking-[0.16em] text-mahogany border-b border-mahogany/40 pb-0.5 font-medium hover:text-eucalyptus hover:border-eucalyptus transition-colors">
-                  <EditableZone page="a-propos" zone="service_3_cta" fallback="Découvrir les guides →" />
+                  <EditableZone page="a-propos" zone="service_3_cta" fallback="Découvrir les guides" />
                 </Link>
               </div>
             </div>

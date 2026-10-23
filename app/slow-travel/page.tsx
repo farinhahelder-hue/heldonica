@@ -121,13 +121,13 @@ export default async function SlowTravelPage() {
                 href="/blog"
                 className="rounded-full bg-action px-7 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-action-fonce"
               >
-                <EditableZone page="slow-travel" zone="cta_blog_label" fallback="Lire le carnet →" />
+                <EditableZone page="slow-travel" zone="cta_blog_label" fallback="Lire le carnet" />
               </Link>
               <Link
                 href="/destinations"
                 className="text-sm font-semibold text-mahogany transition-colors duration-200 hover:text-mahogany/90"
               >
-                <EditableZone page="slow-travel" zone="cta_destinations_label" fallback="Voir les destinations →" />
+                <EditableZone page="slow-travel" zone="cta_destinations_label" fallback="Voir les destinations" />
               </Link>
             </div>
           </div>

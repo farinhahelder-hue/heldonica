@@ -2,6 +2,15 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-23] — Lot 2, priorité 2 : les flèches décoratives de CTA, récidive comprise (agent/openhands/fleches-cta)
+
+- **Décision appliquée** : #682, migration `20261022220000` — « Retrait de la flèche et de la casse haute pour une typographie apaisée et cohérente ». Elle n'avait été appliquée qu'aux **10 CTA de l'accueil**.
+- **Récidive prouvée par horodatage** : `20261022230800_cms_destination_labels.sql`, appliquée **8 minutes après** la purge `20261022230000`, a réinséré en dur `'Voir le guide →'` (`subdest_cta`) et `'Planifier ce voyage avec Heldonica →'` (`cta_button`) sur 5 pages. Sur `suisse` et `zurich`, **publiées**, la valeur de base écrase le fallback JSX : la flèche restait visible malgré une purge annoncée « 0 flèche trailing CTA ».
+- **Code** : flèches trailing retirées de **36 fichiers publics** (CTA, boutons, formulaires, `lib/home-data.ts`).
+- **Base** : migration `20261023160000_purge_fleches_trailing_cta.sql`, 10 zones actives concernées. Vérifié après push : **0 zone active finissant par une flèche**, flèches de trajet intactes.
+- **Garde-fou anti-récidive** : `scripts/check-design-tics.mjs` gagne la règle `trailing-arrow`. Elle ne vise **ni** les flèches de trajet (« Évora → Monsaraz »), **ni** les flèches de tête (« ← Retour »), **ni** la puce CSS `content: '→'` du FAQ, **ni** les flèches isolées en pastille. 11 tests ajoutés.
+- **Vérifié** : `tsc` 0 erreur, `vitest` 919/919, garde-fous 16/16, écart migrations 188/188.
+
 ## [2026-10-23] — Corrections des défauts perplexity : noms propres & compteur (agent/openhands/corrections-perplexity)
 
 - **Contexte** : la migration `20261023120000` (PR #702) a capitalisé mécaniquement des noms propres sans accent ni vérification, et annoncé un compteur dynamique tout en écrivant un instantané figé.

@@ -123,7 +123,7 @@ export default function DestinationMapEmbed({
           onClick={sendInteraction}
           className="text-xs font-semibold text-eucalyptus hover:underline"
         >
-          Ouvrir dans Google Maps →
+          Ouvrir dans Google Maps
         </a>
       </div>
     </div>

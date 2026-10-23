@@ -326,7 +326,7 @@ export default async function KotorPage() {
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <Link href="/travel-planning" className="inline-flex items-center gap-2 bg-[#4A3B32] text-[#F7F3EC] px-8 py-3.5 rounded-sm text-xs uppercase tracking-[0.16em] hover:bg-[#3A2D26] transition-colors">
-                  Découvrir Travel Planning →
+                  Découvrir Travel Planning
                 </Link>
                 <Link href="/destinations/montenegro" className="inline-flex items-center gap-2 bg-[#FAF7F2] text-[#241D1A] px-8 py-3.5 rounded-sm text-xs uppercase tracking-[0.16em] hover:bg-[#F7F3EC] transition-colors border border-[#DED5C6]">
                   Retour au Monténégro

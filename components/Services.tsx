@@ -44,7 +44,7 @@ export default function Services() {
               ))}
             </ul>
             <Link href="/travel-planning" className="inline-flex items-center gap-2 text-eucalyptus font-semibold hover:gap-3 transition-all focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:outline-none">
-              Découvrir le service →
+              Découvrir le service
             </Link>
           </div>
 
@@ -74,7 +74,7 @@ export default function Services() {
               ))}
             </ul>
             <Link href="/travel-planning" className="inline-flex items-center gap-2 text-mahogany font-semibold hover:gap-3 transition-all">
-              Découvrir le service →
+              Découvrir le service
             </Link>
           </div>
         </div>

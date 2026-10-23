@@ -95,7 +95,7 @@ export default function Blog() {
                     href={`/blog/${article.slug}`}
                     className="text-eucalyptus font-semibold hover:text-teal transition text-xs sm:text-sm group-hover:translate-x-1 inline-block"
                   >
-                    Lire →
+                    Lire
                   </Link>
                 </div>
               </div>
@@ -109,7 +109,7 @@ export default function Blog() {
             href="/blog"
             className="inline-block px-6 sm:px-8 py-2.5 sm:py-3 border-2 border-eucalyptus text-eucalyptus rounded-full hover:bg-eucalyptus/5 transition font-medium text-sm sm:text-base"
           >
-            Voir tous les carnets →
+            Voir tous les carnets
           </Link>
         </div>
       </div>

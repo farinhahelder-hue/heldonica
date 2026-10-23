@@ -267,7 +267,7 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
                 <div className="flex flex-wrap items-center gap-4 text-xs text-white/55">
                   <span>{featuredPost.formattedDate}</span>
                   <span className="font-semibold text-teal transition-transform duration-200 group-hover:translate-x-1">
-                    Lire le carnet →
+                    Lire le carnet
                   </span>
                 </div>
               </div>
@@ -353,7 +353,7 @@ export default function BlogClientPage({ posts: rawPosts, categories: propCatego
               }}
               className="mt-6 text-sm font-semibold text-eucalyptus transition-colors duration-200 hover:text-eucalyptus"
             >
-              Voir tous les articles →
+              Voir tous les articles
             </button>
           </div>
         </div>
@@ -537,7 +537,7 @@ function ArticleCard({ post, fallbackImages, gradientMap }: { post: BlogPost & {
               ) : null}
             </div>
             <span className="font-semibold text-eucalyptus transition-transform duration-200 group-hover:translate-x-1">
-              Lire →
+              Lire
             </span>
           </div>
         </div>

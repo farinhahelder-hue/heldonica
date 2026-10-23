@@ -156,7 +156,7 @@ export default function RetourExperiencePage() {
                   disabled={status === 'loading'}
                   className="w-full py-3.5 px-6 bg-stone-900 hover:bg-stone-800 text-white font-semibold text-sm rounded-sm transition disabled:opacity-50"
                 >
-                  {status === 'loading' ? 'Envoi en cours...' : 'Envoyer mon témoignage →'}
+                  {status === 'loading' ? 'Envoi en cours...' : 'Envoyer mon témoignage'}
                 </button>
               </form>
             )}

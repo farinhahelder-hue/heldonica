@@ -147,7 +147,7 @@ function MapRenderer({ routes, pois }: { routes: Route[]; pois: POI[] }) {
               <strong style="font-size:14px">${iconSvg(IconComp, 14, color)} ${poi.name}</strong>
               ${poi.description ? `<br/><span style="font-size:12px;color:#555">${poi.description}</span>` : ''}
               ${poi.address ? `<br/><span style="font-size:11px;color:#888">${iconSvg(MapPin, 12, '#888')} ${poi.address}</span>` : ''}
-              ${poi.maps_url ? `<br/><a href="${poi.maps_url}" target="_blank" rel="noopener noreferrer" style="font-size:11px;color:#01696f">Voir sur Maps →</a>` : ''}
+              ${poi.maps_url ? `<br/><a href="${poi.maps_url}" target="_blank" rel="noopener noreferrer" style="font-size:11px;color:#01696f">Voir sur Maps</a>` : ''}
             </div>
           `)
           .addTo(map);
@@ -419,7 +419,7 @@ export default function ArticleMap({ slug }: { slug: string }) {
                         borderRadius: 999,
                       }}
                     >
-                      Maps →
+                      Maps
                     </a>
                   )}
                 </div>
