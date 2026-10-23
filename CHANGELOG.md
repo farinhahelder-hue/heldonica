@@ -2,6 +2,15 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-23] — Emojis des sorties `lib/` purgés + écart migrations re-mesuré avec le CLI (agent/openhands/emoji-lib-instagram)
+
+- **`lib/instagram.ts`** : `autoScheduleInstagramPost` composait la légende avec `📍` (titre), `🌍` (domaine) et `🔗` (lien). Ces trois emojis partaient dans `instagram_scheduled_posts` à chaque publication d'article (appelé par `app/api/cms/articles/[id]`). Le lot 3 avait purgé `app/api/cms/mobile-publish` mais **manqué ce module** : le garde-fou `check-design-tics` ne scanne que `app/api` (`API_EMOJI_TARGETS`), jamais `lib/`.
+- **`lib/cms-blocks-converter.ts`** : `blocksToHtml` écrivait `<figcaption>📍 lieu – 📅 date</figcaption>` dans le **HTML publié** des articles. Emojis retirés ; le parseur `htmlToBlocks` reste **tolérant** au HTML historique (il fait `.replace('📍','')`), donc les articles déjà enregistrés se relisent sans perte. Un test le prouve.
+- **`lib/travel-styles.ts`** : `STYLE_EMOJIS` (🏛️ 🌿 🏙️ 🍽️) et `getStyleEmoji` (fallback `📍`) n'étaient **importés nulle part** — code mort porteur d'emojis, retiré. Seul `getStyleLabel` (sans emoji) est utilisé, par 4 composants.
+- **`__tests__/lib/cms-blocks.test.ts`** : +1 test — le HTML produit ne contient aucun emoji, et le HTML historique `📍 … – 📅 …` se relit correctement.
+- **Écart migrations re-mesuré avec le CLI réel** (`supabase` v2.121.0, `migration list`, lecture seule) : **183 entrées, 183 appariées, 0 en local seulement, 0 en distant seulement → rien à pousser**. Le rapport du 22/10 concluait « ne pas lancer `db push` » en supposant que le CLI rejouerait `EMERGENCY_FIX_20260602.sql` et les 13 fichiers à préfixe court : la mesure **réfute** cette supposition (`EMERGENCY_FIX` est *ignoré* — « file name must match pattern » — et les 13 fichiers courts sont tous déjà dans le registre). Conclusion corrigée dans `.audit/audit-editorial-2026-10-20/ecart-migrations-2026-10-20-lot2.md` §4.
+- **Vérifié** : `tsc` 0 erreur, `vitest` 912/912 (+1), `check:design-tics` 0 tic, `preflight` 10/10.
+
 ## [2026-10-22] — ArticleMap : emojis remplacés par des icônes lucide (agent/openhands/emojis-articlemap)
 
 - **`components/ArticleMap.tsx`** : les 14 emojis de catégorie (`🟢 🔴 ⚠️ ℹ️ 🅿️ 🍽️ 🏊 🎒 👁️ 🚌 🏠 🎯`, plus `⏱ 📏` des popups de tracé) sont remplacés par les icônes lucide correspondantes, rendues via `renderToStaticMarkup` — Leaflet n'accepte que des chaînes HTML, mais recopier les tracés SVG en dur faisait échouer `check:cms-hardcode` (24 chaînes comptées comme texte visible). Coût mesuré : **+1 Ko** de First Load JS (337 → 338 Ko) sur des pages qui chargent déjà Leaflet ; le chunk reste paresseux (`react-loadable-manifest.json`, hors bundle initial).
