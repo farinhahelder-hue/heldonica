@@ -2,6 +2,7 @@
 
 import { CheckCircle2 } from 'lucide-react'
 import { useContentLoader } from '@/hooks/useContentLoader'
+import { fixDestinationPrepositions } from '@/lib/french-prepositions'
 
 interface QuickAnswersBlockProps {
   destinationName: string
@@ -46,15 +47,17 @@ export default function QuickAnswersBlock({
     if (raw) templates = { ...TEMPLATES_DEFAULT, ...JSON.parse(raw) }
   } catch {}
 
+  // Les gabarits (par défaut comme personnalisés en CMS) écrivent « à {name} ».
+  // On corrige après substitution : « à Roumanie » -> « en Roumanie ».
   const token = (s: string) =>
-    s
+    fixDestinationPrepositions(s
       .replace(/\{name\}/g, destinationName)
       .replace(/\{budget\}/g, String(budget))
       .replace(/\{bestSeason\}/g, bestSeason)
       .replace(/\{flightTime\}/g, flightTime)
       .replace(/\{language\}/g, language)
       .replace(/\{currency\}/g, currency)
-      .replace(/\{visa\}/g, visa)
+      .replace(/\{visa\}/g, visa))
 
   const answers = templates.questions.map((q, i) => ({
     q: token(q),

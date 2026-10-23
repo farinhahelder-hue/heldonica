@@ -1,6 +1,7 @@
 'use client'
 
 import { Heart, MapPin, Calendar, Users } from 'lucide-react'
+import { inDestination } from '@/lib/french-prepositions'
 
 interface TestedByHeldonicaProps {
   when: string
@@ -52,7 +53,7 @@ export default function TestedByHeldonica({
           {/* Highlights */}
           <div className="mb-8">
             <h4 className="text-sm font-semibold text-charcoal/50 uppercase tracking-wider mb-4 text-center">
-              Ce qu&apos;on a préféré à {destinationName}
+              Ce qu&apos;on a préféré {inDestination(destinationName)}
             </h4>
             <div className="grid md:grid-cols-2 gap-3">
               {highlights.map((highlight, i) => (
