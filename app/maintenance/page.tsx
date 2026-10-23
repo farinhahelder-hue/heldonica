@@ -253,7 +253,7 @@ export default async function MaintenancePage() {
           </a>
           
           <div className="divider"></div>
-          <p className="footer"><EditableZone page="maintenance" zone="footer" fallback="Merci de ta patience 🌿" /></p>
+          <p className="footer"><EditableZone page="maintenance" zone="footer" fallback="Merci de ta patience" /></p>
         </main>
         </InlineEditProvider>
       </body>

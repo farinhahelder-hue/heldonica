@@ -60,7 +60,7 @@ INSERT INTO site_settings (key, value) VALUES
 
   -- Maintenance
   ('maintenance_mode',     'false'),
-  ('maintenance_message',  'On revient très vite avec de nouvelles pépites ! 🌿'),
+  ('maintenance_message',  'On revient très vite avec de nouvelles pépites !'),
   ('maintenance_end_date', '')
 
 ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;

@@ -164,7 +164,7 @@ const GROUPS: GroupDef[] = [
     icon: <Wrench size={16} />,
     fields: [
       { key: 'maintenance_mode',     label: 'Mode maintenance actif', type: 'toggle' },
-      { key: 'maintenance_message',  label: 'Message affiché',        type: 'textarea', placeholder: 'On revient très vite avec de nouvelles pépites ! 🌿' },
+      { key: 'maintenance_message',  label: 'Message affiché',        type: 'textarea', placeholder: 'On revient très vite avec de nouvelles pépites !' },
       { key: 'maintenance_end_date', label: 'Date de fin (optionnel)', type: 'text',     placeholder: '2026-07-01' },
     ],
   },
