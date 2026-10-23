@@ -27,10 +27,20 @@ const DRAFTS = [
 
 async function main() {
   console.log('=== VERIFICATION DES BROUILLONS ===\n')
+
+  const { data, error } = await sb.from('cms_blog_posts').select('slug, published, status').in('slug', DRAFTS)
+
+  if (error) {
+    console.error('Error fetching drafts:', error)
+    return
+  }
+
+  const draftsMap = new Map(data?.map(item => [item.slug, item]) || [])
+
   for (const slug of DRAFTS) {
-    const { data } = await sb.from('cms_blog_posts').select('published, status').eq('slug', slug).single()
-    if (data) {
-      console.log(`Slug: ${slug} -> published = ${data.published}, status = ${data.status}`)
+    const item = draftsMap.get(slug)
+    if (item) {
+      console.log(`Slug: ${slug} -> published = ${item.published}, status = ${item.status}`)
     } else {
       console.log(`Slug: ${slug} -> INEXISTANT`)
     }
