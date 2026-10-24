@@ -408,7 +408,7 @@ async function fetchZonesBatch(url, key, from, pageSize, essai = 1) {
       headers.Authorization = `Bearer ${key}`;
     }
     const res = await fetch(
-      `${url}/rest/v1/cms_editable_zones?select=page,zone_key&is_active=eq.true&order=page,zone_key`,
+      `${url}/rest/v1/cms_editable_zones?select=page,zone_key,value&is_active=eq.true&order=page,zone_key`,
       { headers }
     );
     if (!res.ok) {
@@ -544,3 +544,36 @@ if (orphans.length === 0) {
     console.log('\n✓ Aucune orpheline nouvelle.');
   }
 }
+
+  // ─── Zones actives mais VIDES ──────────────────────────────────────────────
+  //
+  // Une zone active dont la valeur est une chaîne vide est un piège : le
+  // composant calcule `zones[zoneKey] ?? fallback`, et `''` n'est pas `null` —
+  // le fallback ne joue donc PAS. Le bloc s'affiche titré mais sans corps
+  // (« Notre conseil » suivi du vide). Seule une valeur `NULL` laisse le
+  // fallback reprendre la main.
+  //
+  // Constat du 2026-10-23 : 37 zones actives à valeur vide, dont 23 `local_tip`
+  // (un bloc « Notre conseil » vide sur 23 pages) et 3 `day_N_accommodation`,
+  // toutes produites par les générateurs de zones (generate-subdest-cms.mjs,
+  // generate-itineraries-cms.mjs), corrigés depuis.
+  if (ok) {
+    const vides = rows.filter((r) => r.value !== null && String(r.value).trim() === '');
+
+    if (vides.length === 0) {
+      console.log('\n✓ Aucune zone active à valeur vide.');
+    } else {
+      const parPage = new Map();
+      for (const r of vides) {
+        if (!parPage.has(r.page)) parPage.set(r.page, []);
+        parPage.get(r.page).push(r.zone_key);
+      }
+      console.log(`\n✗ ${vides.length} zone(s) active(s) à VALEUR VIDE sur ${parPage.size} page(s) :`);
+      for (const [p, keys] of [...parPage.entries()].sort()) {
+        console.log(`    ${p} (${keys.length}) : ${keys.join(', ')}`);
+      }
+      console.log('\nLe fallback du composant ne joue pas sur une chaîne vide (`?? `).');
+      console.log('Pour retirer une zone, la passer en `is_active = false` — pas en valeur vide.');
+      process.exitCode = 1;
+    }
+  }

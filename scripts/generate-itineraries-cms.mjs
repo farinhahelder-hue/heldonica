@@ -11,7 +11,7 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 import { execSync } from 'node:child_process'
 import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const sqlEscape = (v) => v.replace(/'/g, "''")
@@ -176,7 +176,12 @@ function getSections(content) {
 
 // ═══════════════════════════ Zone SQL ═══════════════════════════
 
-function addZone(rows, page, key, type, value, label) {
+export function addZone(rows, page, key, type, value, label) {
+  // Une zone de valeur vide est active mais n'affiche rien. Pire : l'`ON
+  // CONFLICT DO UPDATE ... is_active = true` du générateur réactive toute zone
+  // vide que le fondateur avait désactivée à la main pour la faire disparaître.
+  // On n'émet donc pas de ligne vide ; le composant retombe sur son fallback.
+  if (value == null || String(value).trim() === '') return
   rows.push([`'${page}'`, `'${key}'`, `'${type}'`, `'${sqlEscape(value)}'`, `'${sqlEscape(label)}'`])
 }
 
@@ -198,7 +203,7 @@ function buildItineraryZones(rows, page, data) {
   })
 }
 
-function buildSql(pages) {
+export function buildSql(pages) {
   const lines = [
     '-- ============================================================================',
     '-- Pages itinéraires Roumanie : contenu piloté par le CMS (cms_editable_zones)',
@@ -208,6 +213,7 @@ function buildSql(pages) {
     '',
   ]
   for (const [page, rows] of pages) {
+    if (rows.length === 0) continue
     lines.push(`-- ─── ${page} ────────────────────────────────────────────────────────`)
     lines.push('INSERT INTO public.cms_editable_zones (page, zone_key, zone_type, value, label, is_active)')
     lines.push('VALUES')
@@ -504,60 +510,67 @@ ${sections.join('\n\n')}      </main>
 
 // ═══════════════════════════ Exécution ═══════════════════════════
 
-const PAGES = [
-  {
-    page: 'destinations-roumanie-itineraire-5-jours',
-    file: 'app/destinations/roumanie/itineraire-5-jours/page.tsx',
-    componentName: 'Itineraire5JoursPage',
-    duration: '5',
-  },
-  {
-    page: 'destinations-roumanie-itineraire-7-jours',
-    file: 'app/destinations/roumanie/itineraire-7-jours/page.tsx',
-    componentName: 'Itineraire7JoursPage',
-    duration: '7',
-  },
-  {
-    page: 'destinations-roumanie-itineraire-10-jours',
-    file: 'app/destinations/roumanie/itineraire-10-jours/page.tsx',
-    componentName: 'Itineraire10JoursPage',
-    duration: '10',
-  },
-]
+// N'exécute la génération que si le script est lancé directement : les
+// tests importent `buildSql` pour vérifier qu'aucune zone vide n'est émise,
+// sans déclencher la lecture des pages (ni PowerShell sous Windows).
+const estLanceDirectement = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href
+if (estLanceDirectement) {
+  const PAGES = [
+    {
+      page: 'destinations-roumanie-itineraire-5-jours',
+      file: 'app/destinations/roumanie/itineraire-5-jours/page.tsx',
+      componentName: 'Itineraire5JoursPage',
+      duration: '5',
+    },
+    {
+      page: 'destinations-roumanie-itineraire-7-jours',
+      file: 'app/destinations/roumanie/itineraire-7-jours/page.tsx',
+      componentName: 'Itineraire7JoursPage',
+      duration: '7',
+    },
+    {
+      page: 'destinations-roumanie-itineraire-10-jours',
+      file: 'app/destinations/roumanie/itineraire-10-jours/page.tsx',
+      componentName: 'Itineraire10JoursPage',
+      duration: '10',
+    },
+  ]
 
-const pages = []
-for (const cfg of PAGES) {
-  const content = readOriginal(cfg.file)
-  const days = extractDays(content)
-  const data = {
-    hero: getHero(content),
-    chips: getChips(content),
-    blurb: getBlurbText(content),
-    departText: getDepartText(content),
-    disclosureClassName: getDisclosureClassName(content),
-    mapSubtitle: getMapSubtitle(content),
-    mapSlug: getMapSlug(content),
-    meta: getMetadata(content),
-    jsonLd: getJsonLdBlock(content),
-    ga4: getGa4Blocks(content),
-    sections: getSections(content),
-    hasFrom: days.some((d) => d.from !== undefined),
-    days,
+  const pages = []
+  for (const cfg of PAGES) {
+    const content = readOriginal(cfg.file)
+    const days = extractDays(content)
+    const data = {
+      hero: getHero(content),
+      chips: getChips(content),
+      blurb: getBlurbText(content),
+      departText: getDepartText(content),
+      disclosureClassName: getDisclosureClassName(content),
+      mapSubtitle: getMapSubtitle(content),
+      mapSlug: getMapSlug(content),
+      meta: getMetadata(content),
+      jsonLd: getJsonLdBlock(content),
+      ga4: getGa4Blocks(content),
+      sections: getSections(content),
+      hasFrom: days.some((d) => d.from !== undefined),
+      days,
+    }
+    const rows = []
+    buildItineraryZones(rows, cfg.page, data)
+    pages.push([cfg.page, rows])
+    const newPage = buildPage(cfg, data)
+    writeFileSync(join(ROOT, cfg.file), newPage, 'utf8')
+    console.log(`✔ ${cfg.page}: ${rows.length} zones (${days.length} jours) — page réécrite`)
+    console.log(`  hero: ${data.hero.title}`)
+    console.log(`  chips: ${data.chips.join(' | ')}`)
+    console.log(`  sections: pdf=${data.sections.pdf} slow=${data.sections.slow} notEnough=${data.sections.notEnough} custom=${data.sections.custom} newsletterBg=${data.sections.newsletterBg}`)
+    console.log(`  jsonLd=${!!data.jsonLd} ga4Blocks=${data.ga4.length} hasFrom=${data.hasFrom}`)
+    console.log(`  depart: ${data.departText}`)
+    console.log(`  mapSlug: ${data.mapSlug} | mapSubtitle: ${data.mapSubtitle.slice(0, 80)}`)
   }
-  const rows = []
-  buildItineraryZones(rows, cfg.page, data)
-  pages.push([cfg.page, rows])
-  const newPage = buildPage(cfg, data)
-  writeFileSync(join(ROOT, cfg.file), newPage, 'utf8')
-  console.log(`✔ ${cfg.page}: ${rows.length} zones (${days.length} jours) — page réécrite`)
-  console.log(`  hero: ${data.hero.title}`)
-  console.log(`  chips: ${data.chips.join(' | ')}`)
-  console.log(`  sections: pdf=${data.sections.pdf} slow=${data.sections.slow} notEnough=${data.sections.notEnough} custom=${data.sections.custom} newsletterBg=${data.sections.newsletterBg}`)
-  console.log(`  jsonLd=${!!data.jsonLd} ga4Blocks=${data.ga4.length} hasFrom=${data.hasFrom}`)
-  console.log(`  depart: ${data.departText}`)
-  console.log(`  mapSlug: ${data.mapSlug} | mapSubtitle: ${data.mapSubtitle.slice(0, 80)}`)
-}
 
-const sqlPath = join(ROOT, 'supabase/migrations/20260803_cms_itineraries_zones.sql')
-writeFileSync(sqlPath, buildSql(pages), 'utf8')
-console.log(`✔ Migration écrite : ${sqlPath.replace(ROOT + '\\', '')}`)
+  const sqlPath = join(ROOT, 'supabase/migrations/20260803_cms_itineraries_zones.sql')
+  writeFileSync(sqlPath, buildSql(pages), 'utf8')
+  console.log(`✔ Migration écrite : ${sqlPath.replace(ROOT + '\\', '')}`)
+
+}
