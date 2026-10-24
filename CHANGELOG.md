@@ -1,6 +1,22 @@
 # 📜 Journal des Modifications (CHANGELOG) — Heldonica
 
-Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
+  Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
+
+  ## [2026-10-24] — Lot 4 : emojis des légendes Instagram (rendu + données héritées)
+
+  - **Défaut** : `publierEntreeFile` (`lib/instagram.ts`) publie la légende **stockée** telle quelle (`const caption = entree.caption || ''`). La file `instagram_scheduled_posts` contient **8 brouillons** au format hérité `📍 <ville> … 🌍 <url>` (09/2026) : valider un ancien brouillon depuis le panneau aurait envoyé les emojis sur le compte Instagram — contre la charte « carnet » (décision #682). Le correctif de code du lot 3 (#714) ne compose que les légendes **nouvelles** sans emoji ; il ne protège pas la relecture des brouillons déjà en file.
+  - **Périmètre mesuré** (lecture seule, 24/10) : **8 lignes sur 8** de la table visées par le motif, toutes `status = 'draft'`, dont une avec un `📍` **orphelin** seul sur sa ligne (`3b7875df`). **0** ligne visée sans pin/globe/lien ; **0** résidu après un passage (idempotent). Le reste des 311 cellules à emoji de la base (tables `emilie_*`, 274 ; brouillons blog, 4 ; zone CMS inactive `highlight_2_emoji` `⌛`) n'est **pas servi publiquement** et sort du périmètre.
+  - **Source du format** : sur `main`, `autoScheduleInstagramPost` (`lib/instagram.ts:425,429,430`) **génère encore** `📍 <titre> … 🌍 heldonica.fr … 🔗 heldonica.fr/blog/<slug>` — c'est la cause racine des 8 lignes. Corrigé par le lot 3 (#714, garde-fou sur `lib/` + purge des émetteurs). Le lot 4 ferme la fuite **résiduelle** : le rendu et la donnée déjà en file.
+  - **Corrigé** :
+    - **`lib/instagram.ts`** : `captionSansEmoji` retire les emojis décoratifs **au moment de publier** (même plage que `DECORATIVE_EMOJI_RE` du garde-fou, hors flèches typographiques et étoile pleine) ; une ligne qui ne portait qu'un emoji disparaît plutôt que de laisser un blanc ; les doubles espaces laissés par le retrait sont résorbés. Branché dans `publierEntreeFile`.
+    - **Migration `20261024130000_purge_emojis_file_instagram.sql`** : nettoie la donnée en file, pour qu'un autre consommateur de la colonne (n8n, script) ne serve plus les emojis. **Non appliquée** (attente du feu vert).
+  - **Choix : corriger au rendu ET en base.** Le filtre de rendu couvre toute légende, ancienne ou future, sans dépendre d'une migration ; la migration nettoie la source pour les autres lecteurs. Même approche que les lots 2 et 2 bis.
+  - **Vérifié** : `tsc` 0 erreur ; `vitest` **969/969** (113 fichiers, dont **7 tests neufs** sur les légendes **réelles** de la base) ; `garde-fous` **17/17**. SQL de la migration prévisualisé en lecture seule sur les 8 lignes réelles : suppression du `📍` orphelin et des repères, texte/liens/hashtags intacts.
+  - **Écart de migration montré avant tout `db push`** : `schema_migrations` distant = **193** ; fichiers locaux = **194** (le 194ᵉ est `EMERGENCY_FIX_20260602.sql`, préfixe non numérique, ignoré par la CLI). **Écart = 0**, aucune migration distante sans fichier local. La nouvelle migration `20261024130000` est la seule non appliquée.
+  - **Branche et PR** : `agent/openhands/lot4-instagram-emojis` → **PR à ouvrir**.
+  - **Non vérifié** : l'effet en production — la file ne contient que des `draft`, rien n'a été publié ; le filtre n'agit qu'au moment d'un clic « Publier », qui n'a pas été déclenché.
+
+
 
 ## [2026-10-24] — Lot 3 : le garde-fou emoji couvre enfin `lib/` (agent/openhands/lot3-lib-emoji)
 

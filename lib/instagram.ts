@@ -625,6 +625,38 @@ export type ResultatPublication =
   | { ok: true; post: InstagramPost }
   | { ok: false; raison: string };
 
+// Mêmes plages que le garde-fou `scripts/check-design-tics.mjs` (DECORATIVE_EMOJI_RE),
+// hors flèches typographiques et étoile pleine.
+const EMOJI_DECORATIF_RE =
+  /[\u{1F300}-\u{1FAFF}\u{1F1E6}-\u{1F1FF}\u{231A}-\u{231B}\u{23E9}-\u{23FF}\u{2600}-\u{2604}\u{2606}-\u{26FF}\u{2700}-\u{27BF}\u{2B1B}-\u{2B1C}\u{2B50}\u{2B55}]/gu;
+
+/**
+ * Retire les emojis décoratifs d'une légende avant publication.
+ *
+ * Les légendes **nouvelles** sont composées sans emoji, mais la file
+ * `instagram_scheduled_posts` contient des brouillons hérités
+ * (`📍 Timișoara … 🌍 heldonica.fr/…`, format du 09/2026) et
+ * `publierEntreeFile` publie la légende **stockée** telle quelle. Sans ce
+ * filtre, valider un ancien brouillon depuis le panneau enverrait les emojis
+ * sur le compte — la charte « carnet » (décision #682) les interdit.
+ *
+ * Une ligne qui ne portait qu'un emoji disparaît plutôt que de laisser un
+ * blanc ; les espaces de bord et les doubles espaces laissés par le retrait
+ * sont résorbés, le reste du texte est intact.
+ */
+export function captionSansEmoji(caption: string): string {
+  const lignes: string[] = [];
+  for (const ligne of caption.split('\n')) {
+    const nettoyee = ligne
+      .replace(EMOJI_DECORATIF_RE, '')
+      .replace(/ {2,}/g, ' ')
+      .trim();
+    if (nettoyee === '' && ligne.trim() !== '') continue;
+    lignes.push(nettoyee);
+  }
+  return lignes.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
 /**
  * Publie une entree de la file selon son type.
  *
@@ -642,7 +674,7 @@ export async function publierEntreeFile(entree: EntreeFileInstagram): Promise<Re
   }
 
   lireDerniereErreurInstagram();
-  const caption = entree.caption || '';
+  const caption = captionSansEmoji(entree.caption || '');
   const type = (entree.metadata?.type || '').toUpperCase();
   const enfants = Array.isArray(entree.metadata?.children) ? entree.metadata!.children!.filter(Boolean) : [];
 
