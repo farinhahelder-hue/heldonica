@@ -9,3 +9,6 @@ Optimized blog index page with Incremental Static Regeneration (ISR) with 60 sec
 ## 2026-10-07 - Scroll Event Throttling with requestAnimationFrame
 **Learning:** Listening to 'scroll' events and synchronously updating React state inside them causes excessive re-renders, blocks the main thread, and leads to janky scrolling.
 **Action:** Always use the `requestAnimationFrame` ticking pattern (setting a boolean flag to prevent queuing multiple frames) to throttle state updates linked to scroll listeners, deferring the work to the browser's render cycle.
+## 2026-10-23 - Fix N+1 query when verifying drafts
+**Learning:** Checking elements iteratively from the database inside a for loop leads to an N+1 queries performance bottleneck.
+**Action:** Always fetch items in a batch where possible by querying an array of properties via `.in('column', ARRAY)` and mapping the responses, to guarantee O(1) query requests over O(N).
