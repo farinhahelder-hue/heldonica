@@ -102,6 +102,26 @@ describe('check-design-tics', () => {
       const src = '// bg-white rounded-2xl ✨\n/* shadow-lg bg-white ✨ */\n<p>ok</p>';
       expect(scanSourceForDesignTics(src)).toEqual([]);
     });
+
+    it('refuse un attribut className dans une chaîne HTML', () => {
+      const src = '<p>{Z(\'intro_1\', \'html\', "<strong className=\\"text-mahogany\\">x</strong>")}</p>';
+      expect(scanSourceForDesignTics(src, 'x.tsx').map((x) => x.kind)).toEqual(['jsx-in-string']);
+    });
+
+    it('refuse un className dans un fallback en guillemets simples', () => {
+      const src = '<EditableZone fallback="a<br /><em className=\'text-eucalyptus\'>b</em>" />';
+      expect(scanSourceForDesignTics(src, 'x.tsx').map((x) => x.kind)).toEqual(['jsx-in-string']);
+    });
+
+    it('accepte du JSX légitime avec plusieurs className hors chaîne', () => {
+      const src = '<div className="bg-[#FAF7F2] rounded-sm"><span className="text-eucalyptus">x</span></div>';
+      expect(scanSourceForDesignTics(src, 'x.tsx')).toEqual([]);
+    });
+
+    it('accepte un className passé en prop JSX', () => {
+      const src = '<EditableZone className="text-eucalyptus" fallback="ok" />';
+      expect(scanSourceForDesignTics(src, 'x.tsx')).toEqual([]);
+    });
   });
 
   describe('routes API (mode emoji seul)', () => {

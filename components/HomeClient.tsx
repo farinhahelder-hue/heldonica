@@ -813,7 +813,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <EditableZone page="home" zone="section_quiz_badge" fallback="Repères de voyage"
             className="text-eucalyptus text-[11px] font-medium tracking-[0.22em] uppercase mb-4 block"
           />
-          <EditableZone page="home" zone="section_quiz_title" type="html" fallback="Trouve ton profil<br /><em className='text-eucalyptus'>en 2 minutes</em>"
+          <EditableZone page="home" zone="section_quiz_title" type="html" fallback="Trouve ton profil<br /><em class='text-eucalyptus'>en 2 minutes</em>"
             className="text-3xl md:text-4xl font-serif font-normal text-mahogany leading-tight mb-4 block"
           />
           <EditableZone page="home" zone="section_quiz_text" type="textarea" fallback="5 questions. 4 profils. Des destinations qui te correspondent vraiment — pas les mêmes que tout le monde."
@@ -843,7 +843,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <EditableZone page="home" zone="section_b2b_badge" fallback="Espace Hébergeurs & Hôteliers"
             className="text-eucalyptus text-[11px] font-medium tracking-[0.22em] uppercase mb-4 block"
           />
-          <EditableZone page="home" zone="section_b2b_title" type="html" fallback="Vous gérez un hébergement de charme ?<br /><em className='text-eucalyptus'>Faites vivre l'expérience slow travel</em>"
+          <EditableZone page="home" zone="section_b2b_title" type="html" fallback="Vous gérez un hébergement de charme ?<br /><em class='text-eucalyptus'>Faites vivre l'expérience slow travel</em>"
             className="text-3xl md:text-4xl font-serif font-normal text-mahogany dark:text-stone-200 leading-tight mb-5 block"
           />
           <EditableZone page="home" zone="section_b2b_text" type="textarea" fallback="Maison d'hôtes, gîte insolite ou hôtel indépendant : on vous aide à valoriser votre ancrage, préserver votre marge directe et attirer des voyageurs slow travel."
