@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { execFileSync } from 'node:child_process';
-import { scanSourceForDesignTics, runDesignTicsCheck, runApiEmojiCheck } from '../../scripts/check-design-tics.mjs';
+import { scanSourceForDesignTics, runDesignTicsCheck, runApiEmojiCheck, runLibEmojiCheck } from '../../scripts/check-design-tics.mjs';
 
 /**
  * Le garde-fou doit REFUSER les tics « IA / SaaS » (preuve par le cas fautif)
@@ -139,6 +139,33 @@ describe('check-design-tics', () => {
     it('ne détecte aucun emoji sur les routes réelles', () => {
       const { filesScanned, violations } = runApiEmojiCheck();
       expect(filesScanned).toBeGreaterThan(100);
+      expect(violations).toEqual([]);
+    });
+  });
+
+  describe('modules lib/ de publication (mode emoji seul)', () => {
+    it('refuse un emoji dans une légende publiée', () => {
+      const src = "`📍 ${article.title}`";
+      const v = scanSourceForDesignTics(src, 'lib/instagram.ts', { emojiOnly: true, skipConsumedEmojis: true });
+      expect(v.map((x) => x.kind)).toEqual(['emoji']);
+    });
+
+    it('épargne un emoji consommé par un parseur tolérant', () => {
+      const src = "const loc = parts[0]?.replace('📍', '').trim()";
+      expect(
+        scanSourceForDesignTics(src, 'lib/cms-blocks-converter.ts', { emojiOnly: true, skipConsumedEmojis: true })
+      ).toEqual([]);
+    });
+
+    it('refuse quand même un emoji émis depuis un module lib/', () => {
+      const src = "return `<figcaption>📍 ${escapeHtml(loc)}</figcaption>`";
+      const v = scanSourceForDesignTics(src, 'lib/cms-blocks-converter.ts', { emojiOnly: true, skipConsumedEmojis: true });
+      expect(v.map((x) => x.kind)).toEqual(['emoji']);
+    });
+
+    it('ne détecte aucun emoji sur les modules de publication réels', () => {
+      const { filesScanned, violations } = runLibEmojiCheck();
+      expect(filesScanned).toBeGreaterThanOrEqual(6);
       expect(violations).toEqual([]);
     });
   });

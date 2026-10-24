@@ -2,6 +2,27 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-24] — Lot 3 : le garde-fou emoji couvre enfin `lib/` (agent/openhands/lot3-lib-emoji)
+
+- **Contexte** : la branche `agent/openhands/emoji-lib-instagram` (commits du 23/10) avait corrigé trois fuites d'emojis dans `lib/`, mais **n'a jamais eu de PR** — le correctif dormait, orphelin, depuis un jour. Rapatriée par rebase sur `main` (conflit unique sur `CHANGELOG.md`, résolu en conservant les deux entrées à leur place chronologique).
+- **Le trou, mesuré avant d'être bouché** : `API_EMOJI_TARGETS = ['app/api']` — le garde-fou ne lisait **jamais** `lib/`, d'où la fuite de `lib/instagram.ts`. L'audit proposait de « l'étendre à `lib/` ». **Prise au pied de la lettre, cette consigne est fausse** : mesuré le 24/10, scanner tout `lib/` produit **182 signalements**, presque tous légitimes — table de conversion emoji → icône (`cms-icons.ts`, 88 lignes), données de référence (`cms-vault-spots.ts`, `cms-slow-taxonomy.ts`, `content-taxonomy.ts`), invites de rédaction (`brand-voice.ts`), notifications Slack internes (`webhook-dispatcher.ts`), libellés d'administration (`cms-revisions-diff.ts`). Les refuser interdirait des fichiers qui n'affichent rien au visiteur.
+- **Corrigé, autrement** : nouvelle liste blanche `LIB_EMOJI_TARGETS` — les **six modules `lib/` qui publient** (`instagram.ts`, `cms-blocks-converter.ts`, `markdown-to-html.ts`, `zone-text.ts`, `html-attributes.ts`, `cms-draft-from-evidence.ts`) — et `runLibEmojiCheck()`, câblé dans `main` à côté du contrôle `app/api`.
+- **Exemption des emojis consommés** : `htmlToBlocks` doit rester tolérant au HTML historique déjà publié (`.replace('📍','')`) ; refuser ces lignes forcerait à casser la relecture des articles existants. `skipConsumedEmojis` épargne les seules opérations de **lecture** (`replace`, `includes`, `split`, `match`, `test`…) ; un gabarit ou une affectation qui contient l'emoji reste refusé.
+- **Preuve que le garde-fou mord** (pas seulement qu'il passe) : rejoué sur le `lib/instagram.ts` de `main`, il signale **3 violations** (L425 📍, L429 🌍, L430 🔗) — il aurait donc attrapé la régression d'origine ; sur l'arbre corrigé, **0**. 4 tests neufs couvrent les deux sens (refus d'un emoji émis, épargne d'un emoji consommé).
+- **Non couvert, à dessein** : un module `lib/` **nouveau** n'est pas scanné par défaut. Ce garde-fou protège la non-régression des chemins de publication connus ; il ne dispense pas de relire un module ajouté. Écrit dans le commentaire de `LIB_EMOJI_TARGETS`.
+- **Vérifié** : `garde-fous` **17/17**, `tsc` 0 erreur, `vitest` vert (32/32 sur `check-design-tics.test.ts`). Écart de migrations mesuré en lecture seule : **0** (voir ci-dessous).
+- **Branche et PR** : `agent/openhands/lot3-lib-emoji` → **PR #714**, 4 commits au-dessus de `main` (le correctif `lib/`, ses tests, les deux entrées de journal).
+
+## [2026-10-24] — Écart de migrations re-mesuré : nul (lecture seule, Management API)
+
+- **Test demandé** : `POST /v1/projects/smxnruefmrmfyfhuxygq/database/query` avec `$SUPABASE_ACCESS_TOKEN` (majuscules) → **HTTP 201** `[{"ok":1}]`. **Fonctionne.** (Les deux secrets font désormais 44 caractères ; les mesures précédentes qui voyaient 401 sur la forme majuscule ne se reproduisent plus.)
+- **Mesure** : **193 migrations distantes** (`supabase_migrations.schema_migrations`) contre **194 fichiers locaux**. Le différentiel apparent est un artefact de nommage, pas un écart réel :
+  - **180** fichiers versionnés (`\d{14}_`) → tous appliqués. **0 local sans remote.**
+  - **13** fichiers à préfixe court (`02_enable_rls`, `20250608_email_sequences`, … `20260802_cms_destinations_zones`) → les 13 sont dans le registre sous leur préfixe. **0 orpheline.**
+  - **1** fichier hors convention, `EMERGENCY_FIX_20260602.sql` : ignoré par le CLI (« file name must match pattern »). Son **effet est en base** — vérifié : `site_settings` existe, la clé `maintenance_mode` vaut `false`. Idempotent (`IF NOT EXISTS` / `ON CONFLICT DO NOTHING`).
+- **Conclusion : rien à pousser.** Aucun `db push` lancé, aucun nécessaire.
+- **Rappel de règle** : le mode maintenance est **piloté intentionnellement** (`maintenance_mode = false` en base) — non touché.
+
 ## [2026-10-24] — Lot 2 bis : guillemets échappés dans les balises (antislash littéral)
 
 - **Défaut** : `sql/seed_cms_zones_complete.sql:49` écrivait `Un art du voyage <span class=\"italic text-eucalyptus\">autrement</span>` — réflexe JS/JSON — dans une chaîne SQL entre guillemets simples, où l'antislash **reste littéral**. Le HTML servi portait donc `class=\"…\"`. **Mesuré au parseur (jsdom)** : `<span class=\"italic text-eucalyptus\">` donne `class="\"italic"` **et** un attribut parasite `text-eucalyptus\"` — la classe Tailwind est perdue. « autrement » s'affichait sans italique ni eucalyptus, **sans aucune erreur visible**. **Confirmé en production** (`www.heldonica.fr`, corps rendu, hors `<script>`).

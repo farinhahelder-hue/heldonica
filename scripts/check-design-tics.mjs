@@ -130,6 +130,24 @@ const DECORATIVE_EMOJI_RE =
    * balise et un `className=`. Le JSX légitime, hors chaîne, n'est pas visé.
    */
   const CHAINE_RE = /(["'])((?:\\.|(?!\1)[^\\\n])*)\1/g;
+
+  /**
+   * Un emoji qui n'est pas **émis** mais **consommé** n'est pas un tic visuel.
+   *
+   * `blocksToHtml` écrivait `<figcaption>📍 … – 📅 …</figcaption>` ; le parseur
+   * inverse (`htmlToBlocks`) doit rester tolérant au HTML historique déjà publié,
+   * donc il porte `.replace('📍', '')`. Refuser ces lignes forcerait à casser la
+   * relecture des articles existants. Seules les opérations de lecture
+   * (`replace`, `includes`, `split`, `match`, `test`…) sont exemptées : une
+   * affectation ou un gabarit qui contient l'emoji reste refusé.
+   */
+  const EMOJI_CONSOMME_RE =
+    /(?:\.replace|\.replaceAll|\.includes|\.indexOf|\.lastIndexOf|\.match|\.matchAll|\.search|\.split|\.startsWith|\.endsWith|\.test)\s*\(/;
+
+  function emojiEstConsomme(ligne) {
+    return EMOJI_CONSOMME_RE.test(ligne);
+  }
+
   function chainePorteDuJsx(ligne) {
     for (const m of ligne.matchAll(CHAINE_RE)) {
       if (/<\w/.test(m[2]) && /className\s*=/.test(m[2])) return true;
@@ -145,6 +163,34 @@ const DECORATIVE_EMOJI_RE =
    * périmètre initial du garde-fou, onze routes en portaient encore le 22/10.
    */
 export const API_EMOJI_TARGETS = ['app/api'];
+
+/**
+ * Modules `lib/` qui **émettent du contenu public** : légende Instagram publiée,
+ * HTML d'article, texte de zone CMS rendu, brouillon d'article. Le 23/10, la
+ * légende Instagram (`lib/instagram.ts`) et le HTML d'article
+ * (`lib/cms-blocks-converter.ts`) portaient encore des emojis : `app/api` était
+ * scanné, `lib/` ne l'était pas — d'où la fuite.
+ *
+ * Volontairement **liste blanche**, pas « tout `lib/` ». Mesuré le 24/10 : scanner
+ * tout `lib/` produit **182 signalements**, presque tous légitimes — table de
+ * conversion emoji → icône (`cms-icons.ts`, 88), données de référence
+ * (`cms-vault-spots.ts`, `cms-slow-taxonomy.ts`, `content-taxonomy.ts`), invites
+ * de rédaction (`brand-voice.ts`), notifications internes
+ * (`webhook-dispatcher.ts`), libellés d'administration (`cms-revisions-diff.ts`).
+ * Les refuser interdirait des fichiers qui n'affichent rien au visiteur.
+ *
+ * Un module `lib/` **nouveau** n'est donc pas couvert par défaut : ce garde-fou
+ * protège la non-régression des chemins de publication connus, il ne dispense pas
+ * de relire un module ajouté.
+ */
+export const LIB_EMOJI_TARGETS = [
+  'lib/instagram.ts',
+  'lib/cms-blocks-converter.ts',
+  'lib/markdown-to-html.ts',
+  'lib/zone-text.ts',
+  'lib/html-attributes.ts',
+  'lib/cms-draft-from-evidence.ts',
+];
 
 // Carte SaaS : className combinant un fond clinique (`bg-white` ou `bg-stone-50`)
 // avec un rayon de carte SaaS (`rounded-2xl` / `rounded-3xl`) ou une ombre portée (`shadow-*`).
@@ -176,9 +222,13 @@ function collectFiles(target, acc = []) {
  *
  * `options.emojiOnly` restreint au seul contrôle des emojis : c'est le mode
  * utilisé pour `app/api`, où les règles « carte SaaS » n'ont pas de sens.
+ *
+ * `options.skipConsumedEmojis` épargne les emojis **consommés** (parseurs
+ * tolérants au HTML historique) — mode des modules `lib/` de publication, où un
+ * `.replace('📍','')` est une relecture, pas une émission.
  */
 export function scanSourceForDesignTics(source, filePath = 'inline.tsx', options = {}) {
-  const { emojiOnly = false } = options;
+  const { emojiOnly = false, skipConsumedEmojis = false } = options;
   const violations = [];
   // Retirer les commentaires bloc et ligne avant l'analyse
   const withoutBlockComments = source.replace(/\/\*[\s\S]*?\*\//g, (m) =>
@@ -194,7 +244,7 @@ export function scanSourceForDesignTics(source, filePath = 'inline.tsx', options
 
     // 1. Emojis décoratifs
     const emojiMatches = [...rawLine.matchAll(DECORATIVE_EMOJI_RE)].map((m) => m[0]);
-    if (emojiMatches.length > 0) {
+    if (emojiMatches.length > 0 && !(skipConsumedEmojis && emojiEstConsomme(rawLine))) {
       const unique = [...new Set(emojiMatches)].join(' ');
       violations.push({
         file: filePath,
@@ -299,14 +349,33 @@ export function runApiEmojiCheck(targets = API_EMOJI_TARGETS) {
   return { filesScanned: files.length, violations: allViolations };
 }
 
+/**
+ * Modules `lib/` qui publient : mêmes emojis refusés que pour `app/api`, mais les
+ * emojis **consommés** (parseurs tolérants) sont épargnés.
+ */
+export function runLibEmojiCheck(targets = LIB_EMOJI_TARGETS) {
+  const files = [];
+  for (const t of targets) collectFiles(t, files);
+  const allViolations = [];
+  for (const file of files) {
+    const rel = file.replace(/\\/g, '/');
+    const src = readFileSync(file, 'utf8');
+    allViolations.push(
+      ...scanSourceForDesignTics(src, rel, { emojiOnly: true, skipConsumedEmojis: true })
+    );
+  }
+  return { filesScanned: files.length, violations: allViolations };
+}
+
 function main() {
   const { filesScanned, violations } = runDesignTicsCheck();
   const api = runApiEmojiCheck();
-  const total = violations.length + api.violations.length;
+  const lib = runLibEmojiCheck();
+  const total = violations.length + api.violations.length + lib.violations.length;
 
   if (total > 0) {
-    console.error(`\n✗ check-design-tics : ${total} tic(s) visuel(s) sur ${filesScanned + api.filesScanned} fichiers :\n`);
-    for (const v of [...violations, ...api.violations].slice(0, 60)) {
+    console.error(`\n✗ check-design-tics : ${total} tic(s) visuel(s) sur ${filesScanned + api.filesScanned + lib.filesScanned} fichiers :\n`);
+    for (const v of [...violations, ...api.violations, ...lib.violations].slice(0, 60)) {
       console.error(`  - ${v.file}:${v.line} [${v.kind}] ${v.detail}`);
       console.error(`      ${v.snippet}`);
     }
@@ -315,7 +384,7 @@ function main() {
     }
     process.exit(1);
   }
-  console.log(`✓ check-design-tics : ${filesScanned} fichiers publics + ${api.filesScanned} routes API vérifiés, 0 tic visuel IA/SaaS.`);
+  console.log(`✓ check-design-tics : ${filesScanned} fichiers publics + ${api.filesScanned} routes API + ${lib.filesScanned} modules de publication vérifiés, 0 tic visuel IA/SaaS.`);
   process.exit(0);
 }
 
