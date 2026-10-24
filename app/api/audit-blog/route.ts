@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     const { data: byStatus, count: countByStatus } = await supabase
       .from('cms_blog_posts')
       .select('*', { count: 'exact', head: true })
-      .eq('status', 'published')
+      .eq('status', 'published') // only where status is published
 
     // Get actual articles with published=true
     const { data: publishedPosts } = await supabase
@@ -36,8 +36,8 @@ export async function GET(request: Request) {
     const { data: statusPosts } = await supabase
       .from('cms_blog_posts')
       .select('id, title, slug, published, status')
-      .eq('status', 'published')
-      .eq('published', false)
+      .eq('status', 'published') // only where status is published
+      .eq('published', false) // and boolean flag is false
       .limit(10)
 
     // Count total
@@ -97,8 +97,8 @@ export async function POST() {
     const { data, error } = await adminClient
       .from('cms_blog_posts')
       .update({ published: true })
-      .eq('status', 'published')
-      .eq('published', false)
+      .eq('status', 'published') // only where status is published
+      .eq('published', false) // and boolean flag is false
       .select()
 
     return NextResponse.json({
