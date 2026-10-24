@@ -17,6 +17,19 @@
   - **Migration appliquée et mesurée en base** (feu vert du fondateur) : statement exécuté via l'API Management, puis `20261024130000` enregistrée dans `supabase_migrations.schema_migrations`. Contrôle **après** écriture : légendes à emoji = **0** (était 8), total de lignes = **8** (aucune perdue), texte/liens/hashtags intacts. `schema_migrations` distant = **194** ; écart local/distant = **1**, soit uniquement `EMERGENCY_FIX_20260602.sql` (préfixe non numérique, ignoré par la CLI).
   - **Non vérifié** : l'effet en production — la file ne contient que des `draft`, rien n'a été publié ; le filtre n'agit qu'au moment d'un clic « Publier », qui n'a pas été déclenché.
 
+  ## [2026-10-24] — Suppression de `missions` et `reservations_seances` (app tierce)
+
+  - **Décision explicite du fondateur**, même session que les tables `emilie_*`. Les deux tables, **vides** (0 ligne), appartenaient à l'autre application qui partage la base (`20260730000004_security_rls_hardening.sql:7`).
+  - **Aucun consommateur dans le code Heldonica** : aucune requête `.from('missions')` ni `.from('reservations_seances')`, aucune route API, aucune référence dans `app/`, `lib/`, `components/`, `scripts/`.
+  - **Dépendances relevées avant écriture** : `missions.hotel_id` → `hotels(id)` on delete cascade ; trigger `missions_updated_at` ; les enums `mission_type` et `mission_statut` ne servaient qu'à `missions` (vérifié sur tous les schémas). Aucune FK entrante, aucune vue saine, aucune fonction.
+  - **`v_pipeline_b2b` n'est PAS une dépendance** : la vue est déjà cassée (« infinite recursion detected in rules for relation `v_pipeline_b2b` » — elle se référence elle-même) et n'apparaît nulle part dans le code. **Non touchée**, hors périmètre.
+  - **Sauvegarde préalable** (tables vides : le schéma, pas des données) : `.audit/backup-missions-reservations-2026-10-24/` — `snapshot.json` (colonnes, policies, grants, FK, RLS) + `recreation.sql` (DDL de recréation, enums et trigger inclus), `sha256(snapshot.json)` = `047921ef1dfc4114440ed7fbb5a35524b0959533d105a1f75bf169834f9be180`. Dossier gitignoré.
+  - **Migration `20261024150000_suppression_missions_reservations_seances.sql`** : `drop table if exists … cascade` pour les deux, puis `drop type` pour les deux enums.
+  - **Vérifié après application** : tables **2 → 0**, enums **0**, policies **0**. `GET /rest/v1/missions` et `/rest/v1/reservations_seances` → **404**. `GET /rest/v1/hotels` et `cms_editable_zones` → **200** (base intacte).
+  - **Écart de migration** : `schema_migrations` distant = **196** ; écart local/distant = **1** (`EMERGENCY_FIX_20260602.sql`, préfixe non numérique, ignoré par la CLI).
+  - **Branche et PR** : `agent/openhands/suppression-missions-reservations` → **PR #720**, **fusionnée** (`main` → `6ad7e4d2`). CI `Garde-fous` **verte**.
+  - **Conséquence** : si l'application tierce les utilise encore, recréer le schéma avec `recreation.sql` ou la re-pointer vers son propre projet Supabase.
+
   ## [2026-10-24] — Suppression des 24 tables `emilie_*` (décision fondateur)
 
   - **Décision explicite du fondateur** : « je veux bien que tu le supprimes ». Les 24 tables `emilie_*` (385 lignes de contenu scolaire) ont été **retirées de la base Heldonica**.
