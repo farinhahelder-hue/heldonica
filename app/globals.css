@@ -370,6 +370,12 @@ html.dark {
 .dark [class~="bg-[#F7F3EC]/92"]           { background-color: rgba(26, 24, 22, 0.92); }
 .dark [class~="hover:bg-[#EFE9DF]"]:hover  { background-color: #2C2A27; }
 .dark [class~="hover:bg-[#F7F3EC]"]:hover  { background-color: #252320; }
+/* Filets posés en aplat (séparateurs, piste de progression) et camaïeux
+   d'attente derrière une image : clairs, ils feraient des traits blancs sur
+   le fond sombre. */
+.dark [class~="bg-[#DED5C6]"]              { background-color: #38352F; }
+.dark [class~="bg-[#E8E0D2]"]              { background-color: #2C2A27; }
+.dark [class~="hover:bg-[#E8E0D2]"]:hover  { background-color: #2C2A27; }
 
 .dark [class~="border-[#DED5C6]"]          { border-color: #38352F; }
 .dark [class~="border-[#E2D9C8]"]          { border-color: #38352F; }
