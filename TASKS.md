@@ -8,10 +8,10 @@
 
 | Rang | Sujet | Issue GitHub | Statut dans agent_tasks |
 |------|-------|--------------|--------------------------|
-| 1 | Auth serveur sur /panel-manager | #449 | a creer |
-| 2 | Trancher articles vs cms_blog_posts | #448 | a creer |
-| 3 | Sort de heldonica-cms / heldonica2 | #441 | a creer |
-| 4 | Deployer le fix sitemap (& non echappes) | #446 | a creer |
+| 1 | Auth serveur sur /panel-manager | #449 | done |
+| 2 | Trancher articles vs cms_blog_posts | #448 | done |
+| 3 | Sort de heldonica-cms / heldonica2 | #441 | done |
+| 4 | Deployer le fix sitemap (& non echappes) | #446 | done |
 | 5 | Audit RLS Supabase | #442 | a creer |
 
 ## Rituel hebdo (lundi, 15 min)
