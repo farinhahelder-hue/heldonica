@@ -2,6 +2,21 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-24] — Lot 2 bis : guillemets échappés dans les balises (antislash littéral)
+
+- **Défaut** : `sql/seed_cms_zones_complete.sql:49` écrivait `Un art du voyage <span class=\"italic text-eucalyptus\">autrement</span>` — réflexe JS/JSON — dans une chaîne SQL entre guillemets simples, où l'antislash **reste littéral**. Le HTML servi portait donc `class=\"…\"`. **Mesuré au parseur (jsdom)** : `<span class=\"italic text-eucalyptus\">` donne `class="\"italic"` **et** un attribut parasite `text-eucalyptus\"` — la classe Tailwind est perdue. « autrement » s'affichait sans italique ni eucalyptus, **sans aucune erreur visible**. **Confirmé en production** (`www.heldonica.fr`, corps rendu, hors `<script>`).
+- **Périmètre mesuré** (641 colonnes texte de `public` balayées en lecture seule) : **une seule ligne fautive** — `cms_editable_zones` `home`/`section_story_title`, **active**, donc en ligne. `cms_blog_posts.content` : 0. Les 22 autres lignes de `cms_editable_zones` qui contiennent `\"` le portent **en prose** (libellés du quiz), où l'antislash est légitime et n'est pas touché.
+- **Hors périmètre, à dessein** : la clé `home_cat_icons` de `site_settings` (type `json`) porte des tracés SVG où `\"` est un échappement **valide**. Vérifié : la substitution rend le JSON invalide (`json.loads` échoue). Le nettoyage reste donc limité aux deux tables de contenu, comme la migration précédente.
+- **Corrigé** :
+  - **`lib/html-attributes.ts`** : `normalizeHtmlAttributes` retire désormais l'antislash devant un guillemet **à l'intérieur d'une balise** (`<[^<>]*>`, donc jamais en prose). Branché sur les deux points d'injection existants (`normalizeZoneText`, `markdownToHtml`), il couvre d'un geste les valeurs stockées **et** les fallbacks.
+  - **`components/NewsletterForm.tsx:208`** : `dangerouslySetInnerHTML` injectait `headingBlog` (valeur CMS brute) **sans** normalisation — trou du correctif précédent, désormais passé par `normalizeZoneText`.
+  - **`sql/seed_cms_zones_complete.sql:49`** : cause racine corrigée (`\"` → `"`).
+  - **Migration `20261024110000_purge_guillemets_echappes.sql`** : nettoie la base. `[^<>]*?` (non glouton) borne le remplacement à l'intérieur d'une balise ; le motif ne franchit jamais `<` ni `>`, donc un antislash en prose reste intact. Prévisualisé en lecture seule : **1 ligne** (la zone de l'accueil), 0 article.
+  - **Garde-fou anti-récidive** : nouveau `scripts/check-content-html-escapes.mjs` (contrôle 17), câblé dans `garde-fous.mjs` et la CI. Refuse un `\"`/`\'` **dans une balise** d'un fichier SQL de contenu ; ignore les commentaires SQL (`--`), où citer le défaut est normal.
+- **Vérifié** : `tsc` 0 erreur ; `vitest` **961/961** (112 fichiers, dont 5 tests neufs sur les guillemets échappés) ; `garde-fous` **17/17**. Preuve du défaut au parseur (jsdom) : `class="\"italic"` + attribut parasite contre `class="italic text-eucalyptus"` attendu.
+- **Écart de migration montré avant tout `db push`** : `supabase migration list --linked` → **193 entrées, 192 des deux côtés**, `local sans remote` = **`20261024110000_purge_guillemets_echappes.sql`** (la seule), `remote sans local` = **aucune**. **Aucun `db push` lancé** (attente du feu vert).
+- **Non vérifié** : le rendu de Kotor (`day_3_desc`) — la page est **volontairement « Bientôt »** (`isUnpublishedCmsPage('destinations-montenegro-kotor')` → `ComingSoonDestination`, page sans photo vérifiée) : le guide complet n'est pas rendu, donc le `<strong class="text-mahogany">` de la zone n'apparaît pas en ligne. Ce n'est pas un 404→200 accidentel.
+
 ## [2026-10-24] — Lot 2 : du JSX stocké comme du HTML (attribut `className`)
 
 - **Défaut** : du JSX (`className="text-mahogany"`) avait été saisi dans des zones CMS et des articles comme si c'était du HTML. Le contenu est injecté par `dangerouslySetInnerHTML` : le navigateur reçoit un attribut `className` qu'il ne connaît pas, l'ignore, et la classe Tailwind ne s'applique **jamais**. La couleur voulue est absente, sans aucune erreur visible — défaut silencieux, pas rendu cassé. Relevé du 24/10 sur `/destinations/alentejo` (`<strong className="text-stone-900">La première fois</strong>`).

@@ -24,6 +24,7 @@
     "check:content-pages": "node scripts/check-content-pages.mjs",
     "check:content-evidence": "node scripts/check-content-evidence.mjs",
     "check:design-tics": "node scripts/check-design-tics.mjs",
+    "check:content-html-escapes": "node scripts/check-content-html-escapes.mjs",
     "check:cms-hardcode": "node scripts/check-cms-hardcode.mjs",
     "media": "node scripts/media_auto.mjs",
     "media:watch": "node scripts/media_auto.mjs --watch",

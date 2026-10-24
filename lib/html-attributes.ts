@@ -24,6 +24,27 @@
  * qui se terminerait par « className ». Aucune fonctionnalité ne dépend d'un
  * attribut `className` littéral dans le contenu servi : c'est toujours un défaut.
  */
-export function normalizeHtmlAttributes(html: string): string {
+function corrigerClassName(html: string): string {
   return html.replace(/(\s)className(\s*)=/g, '$1class$2=')
+}
+
+/**
+ * Antislash devant un guillemet **à l'intérieur d'une balise** → guillemet seul.
+ *
+ * `sql/seed_cms_zones_complete.sql:49` écrit `class=\"italic text-eucalyptus\"`
+ * (réflexe JS/JSON) dans une chaîne SQL entre guillemets simples, où l'antislash
+ * reste littéral. Le HTML servi contient donc `class=\"…\"`, ce qu'un navigateur
+ * lit comme la classe `\"italic` plus un attribut parasite — la classe Tailwind
+ * est perdue. Relevé le 24/10/2026 sur l'accueil (`home`/`section_story_title`).
+ *
+ * Le remplacement est **limité à l'intérieur d'une balise** (`<…>`), pour ne pas
+ * toucher un antislash légitime en prose (notation mathématique, `\n` littéral
+ * déjà traité par `normalizeZoneText`).
+ */
+function corrigerGuillemetsEchappes(html: string): string {
+  return html.replace(/<[^<>]*>/g, (balise) => balise.replace(/\\(["'])/g, '$1'))
+}
+
+export function normalizeHtmlAttributes(html: string): string {
+  return corrigerGuillemetsEchappes(corrigerClassName(html))
 }

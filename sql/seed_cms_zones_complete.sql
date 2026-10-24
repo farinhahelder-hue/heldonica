@@ -46,7 +46,7 @@ INSERT INTO cms_editable_zones (page, zone_key, zone_type, value) VALUES
 ('home', 'hero_cta_2_label', 'text', 'Nous écrire →'),
 ('home', 'hero_cta_2_url', 'text', '/travel-planning-form'),
 ('home', 'section_story_badge', 'text', 'Notre histoire'),
-('home', 'section_story_title', 'text', 'Un art du voyage <span class=\"italic text-eucalyptus\">autrement</span>'),
+('home', 'section_story_title', 'text', 'Un art du voyage <span class="italic text-eucalyptus">autrement</span>'),
 ('home', 'section_story_text_1', 'textarea', 'On est un duo. On fabrique des voyages vrais, hors des sentiers, dans les endroits que les autres ne voient pas. Elle a grandi entre la Normandie et Paris, avec le voyage dans le sang depuis toujours.'),
 ('home', 'section_story_text_2', 'textarea', 'Lui est né à Madère, entre l''Atlantique et des falaises que les cartes n''ont pas encore toutes nommées.'),
 ('home', 'section_story_text_3', 'textarea', 'Notre regard est né à deux, entre Paris, Madère et la Roumanie. On ferme les ordis, on part, on revient, on note ce qui tient vraiment sur le terrain.'),

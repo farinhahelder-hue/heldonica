@@ -158,6 +158,13 @@ jobs:
       - name: Tics visuels et emojis hors charte
         run: npm run check:design-tics
 
+      # Guillemets échappés par un antislash dans une balise HTML au sein d'un
+      # fichier SQL de contenu (`class=\"…\"`). Statique : le seed
+      # sql/seed_cms_zones_complete.sql a produit ce défaut en base le 24/10,
+      # il ne doit pas se reproduire.
+      - name: Guillemets échappés dans les balises (SQL)
+        run: npm run check:content-html-escapes
+
       # Tout texte visible des pages publiques se modifie depuis le CMS. Le
       # contrôle fige, fichier par fichier, le nombre de textes encore écrits
       # en dur (scripts/cms-hardcode-baseline.json) et refuse toute hausse.
