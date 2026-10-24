@@ -119,9 +119,17 @@ alter policy "Admin only: manage instagram_drafts" on public.instagram_drafts
   with check ((((select auth.jwt()) ->> 'email'::text) = 'helder.farinha@mustcompliance.fr'::text));
 
 -- public.reservations_seances | Service role full access reservations | ALL | {public}
-alter policy "Service role full access reservations" on public.reservations_seances
-  using (((select auth.role()) = 'service_role'::text))
-  with check (((select auth.role()) = 'service_role'::text));
+-- Table supprimee le 2026-10-24 (migration 20261024150000) : elle appartenait a une
+-- autre application et n'etait pas creee par une migration. Garde pour que ce fichier
+-- reste rejouable sur une base neuve (l'en-tete le promet).
+do $$
+begin
+  if to_regclass('public.reservations_seances') is not null then
+    alter policy "Service role full access reservations" on public.reservations_seances
+      using (((select auth.role()) = 'service_role'::text))
+      with check (((select auth.role()) = 'service_role'::text));
+  end if;
+end $$;
 
 -- public.site_settings | Service role full access | ALL | {public}
 alter policy "Service role full access" on public.site_settings
