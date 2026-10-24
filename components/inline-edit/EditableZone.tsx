@@ -7,6 +7,7 @@ import AiImproveModal from './AiImproveModal'
 import dynamic from 'next/dynamic'
 import TiptapEditor from './TiptapEditor'
 import { normalizeZoneText } from '@/lib/zone-text'
+import { sanitizeHtml } from '@/lib/sanitize-html'
 import CmsIcon from '@/components/CmsIcon'
 
 const MediaLibrary = dynamic(() => import('@/components/MediaLibrary'), { ssr: false })
@@ -102,7 +103,7 @@ export default function EditableZone({
     if (isIconZone) {
       return <CmsIcon name={content} fallback={fallback} className={className || 'w-5 h-5 text-eucalyptus'} />
     }
-    return <Tag className={className} dangerouslySetInnerHTML={{ __html: normalizeZoneText(content) }} />
+    return <Tag className={className} dangerouslySetInnerHTML={{ __html: sanitizeHtml(normalizeZoneText(content)) }} />
   }
 
   const renderViewMode = () => {
@@ -134,7 +135,7 @@ export default function EditableZone({
           ) : isIconZone ? (
             <CmsIcon name={value} fallback={fallback} className={className || 'w-5 h-5 text-eucalyptus'} />
           ) : (
-            <Tag dangerouslySetInnerHTML={{ __html: normalizeZoneText(value) }} />
+            <Tag dangerouslySetInnerHTML={{ __html: sanitizeHtml(normalizeZoneText(value)) }} />
           )}
 
           {/* Crayon overlay button */}
