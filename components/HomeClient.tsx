@@ -475,15 +475,9 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                   <span className="font-medium text-mahogany uppercase tracking-[0.16em] text-[10px] block mb-1.5">
                     <EditableZone page="home" zone="stats_playgrounds_label" fallback="Terrains de jeu :" />
                   </span>
-                  <EditableZone page="home" zone="stats_playgrounds" type="textarea" fallback="Madère · Roumanie · Monténégro · Suisse · Lisbonne · Île-de-France · Portugal"
+                  <EditableZone page="home" zone="stats_playgrounds" type="textarea" fallback="Madère · Roumanie · Monténégro · Suisse · Lisbonne · Sicile · Sardaigne · Colombie · Île-de-France"
                     className="inline"
                   />
-                  {/* Les destinations en préparation ne sont plus annoncées comme
-                      ouvertes : le bandeau « Terrains de jeu » ne liste que du
-                      contenu publié, le reste est dit explicitement. */}
-                  <span className="mt-2 block text-[11px] text-charcoal/50">
-                    <EditableZone page="home" zone="stats_playgrounds_soon" fallback="Bientôt : Sicile · Sardaigne · Colombie" />
-                  </span>
                 </p>
               </div>
             </div>
