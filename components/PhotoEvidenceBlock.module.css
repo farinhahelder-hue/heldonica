@@ -1,10 +1,10 @@
 .container {
   margin: 2rem auto;
   max-width: 56rem;
-  border: 1px solid #e7e5e4;
-  border-radius: 1rem;
+  border: 1px solid #DED5C6;
+  border-radius: 2px;
   overflow: hidden;
-  background: #fff;
+  background: #FAF7F2;
 }
 
 .image {
@@ -17,14 +17,14 @@
 .meta {
   padding: 0.75rem 1rem 0;
   font-size: 0.875rem;
-  color: #57534e;
+  color: #2A2522CC;
   font-weight: 500;
 }
 
 .anecdote {
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
-  color: #44403c;
+  color: #2A2522CC;
   font-style: italic;
   line-height: 1.6;
 }
@@ -33,8 +33,8 @@
   display: inline-block;
   margin: 0.25rem 1rem 1rem;
   padding: 0.5rem 1rem;
-  border-radius: 0.75rem;
-  background: #2d8b7a;
+  border-radius: 2px;
+  background: #6B2D1F;
   color: #fff;
   font-size: 0.85rem;
   font-weight: 600;
@@ -42,5 +42,5 @@
 }
 
 .button:hover {
-  background: #256b5e;
+  background: #4F2016;
 }

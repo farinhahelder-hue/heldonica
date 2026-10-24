@@ -11,7 +11,7 @@ export function ImageBlock({ block, className = '' }: Props) {
 
   if (!url) {
     return (
-      <div className="w-full bg-stone-100 rounded-xl p-8 border border-dashed border-stone-300 text-center text-stone-400 text-sm">
+      <div className="w-full bg-[#EFE9DF] rounded-sm p-8 border border-dashed border-[#DED5C6] text-center text-charcoal/50 text-sm">
         Image non renseignée
       </div>
     );
@@ -32,16 +32,16 @@ export function ImageBlock({ block, className = '' }: Props) {
 
   return (
     <figure className={`my-8 ${layoutClasses} ${className}`}>
-      <div className={`relative overflow-hidden rounded-2xl bg-stone-100 shadow-sm ${aspectClasses}`}>
+      <div className={`relative overflow-hidden rounded-sm bg-[#EFE9DF] border border-[#E2D9C8] ${aspectClasses}`}>
         <img
           src={url}
           alt={alt || 'Photo de voyage'}
           loading="lazy"
-          className="w-full h-full object-cover transition-transform duration-500 hover:scale-[1.02]"
+          className="w-full h-full object-cover"
         />
       </div>
       {caption && (
-        <figcaption className="text-center text-xs md:text-sm text-stone-500 mt-2.5 italic">
+        <figcaption className="text-center text-xs md:text-sm text-charcoal/60 mt-2.5 italic">
           {caption}
         </figcaption>
       )}

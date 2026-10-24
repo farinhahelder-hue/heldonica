@@ -72,17 +72,17 @@ export default function HeldonicaVerdict({ items, title = 'Le verdict Heldonica'
   }
 
   return (
-    <section className="my-12 rounded-[2rem] border-2 border-eucalyptus/20 bg-eucalyptus/5 px-6 py-8 md:px-10">
+    <section className="my-12 rounded-sm border border-[#DED5C6] bg-[#FAF7F2] px-6 py-8 md:px-10">
       {/* Header */}
       <div className="mb-6 flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-eucalyptus text-white">
+        <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-eucalyptus text-white">
           <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-eucalyptus">Testé sur le terrain</p>
-          <h2 className="text-xl font-serif font-light text-stone-900 md:text-2xl">{title}</h2>
+          <h2 className="text-xl font-serif font-normal text-mahogany md:text-2xl">{title}</h2>
         </div>
       </div>
 
@@ -91,14 +91,14 @@ export default function HeldonicaVerdict({ items, title = 'Le verdict Heldonica'
         {items.map((item, index) => (
           <div
             key={index}
-            className="rounded-xl border border-stone-200 bg-white p-5"
+            className="rounded-sm border border-[#DED5C6] bg-[#F7F3EC] p-5"
           >
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
               {/* Left: name and details */}
               <div className="flex-1">
-                <h3 className="text-base font-semibold text-stone-900">{item.name}</h3>
+                <h3 className="text-base font-semibold text-charcoal">{item.name}</h3>
                 
-                <div className="mt-2 space-y-1 text-sm text-stone-600">
+                <div className="mt-2 space-y-1 text-sm text-charcoal/70">
                   {item.address && (
                     <div className="flex items-start gap-2">
                       <svg aria-hidden="true" className="mt-0.5 h-4 w-4 flex-shrink-0 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -127,7 +127,7 @@ export default function HeldonicaVerdict({ items, title = 'Le verdict Heldonica'
                 </div>
                 
                 {item.comment && (
-                  <p className="mt-3 text-sm italic text-stone-500">{item.comment}</p>
+                  <p className="mt-3 text-sm italic text-charcoal/60">{item.comment}</p>
                 )}
               </div>
 
@@ -137,7 +137,7 @@ export default function HeldonicaVerdict({ items, title = 'Le verdict Heldonica'
                   {renderStars(item.rating)}
                   <span className="ml-1 text-sm font-semibold text-eucalyptus">{item.rating}/5</span>
                 </div>
-                <p className="text-xs text-stone-500">Testé {formatDate(item.testDate)}</p>
+                <p className="text-xs text-charcoal/60">Testé {formatDate(item.testDate)}</p>
               </div>
             </div>
           </div>
@@ -145,7 +145,7 @@ export default function HeldonicaVerdict({ items, title = 'Le verdict Heldonica'
       </div>
 
       {/* Footer note */}
-      <p className="mt-6 text-xs text-stone-500">
+      <p className="mt-6 text-xs text-charcoal/60">
         Tous nos verdicts sont basés sur des visites terrain réels. Les prix et horaires peuvent évoluer — vérifiez avant de vous déplacer.
       </p>
     </section>

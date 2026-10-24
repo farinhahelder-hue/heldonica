@@ -141,11 +141,10 @@ export default function EnhancedRichContent({ html, className, style }: Props) {
         /* ── CAROUSEL ── */
         .heldonica-carousel {
           margin: 2rem 0;
-          border-radius: 1.4rem;
+          border-radius: 2px;
           overflow: hidden;
-          border: 1px solid #ece3d8;
-          background: #f6f1ea;
-          box-shadow: 0 18px 45px rgba(55, 40, 25, 0.08);
+          border: 1px solid #DED5C6;
+          background: #FAF7F2;
         }
 
         .heldonica-carousel__viewport {
@@ -186,15 +185,15 @@ export default function EnhancedRichContent({ html, className, style }: Props) {
           justify-content: space-between;
           gap: 1rem;
           padding: 0.95rem 1rem;
-          background: white;
-          border-top: 1px solid #ece3d8;
+          background: #FAF7F2;
+          border-top: 1px solid #DED5C6;
         }
 
         .heldonica-carousel__button {
           width: 2.4rem;
           height: 2.4rem;
-          border-radius: 999px;
-          border: 1px solid #dbcdbd;
+          border-radius: 2px;
+          border: 1px solid #DED5C6;
           background: #fffaf4;
           color: #6b2a1a;
           font-size: 1.35rem;
@@ -236,10 +235,9 @@ export default function EnhancedRichContent({ html, className, style }: Props) {
         .heldonica-pepite {
           margin: 2.5rem 0;
           padding: 1.8rem;
-          background: #FAF9F6;
-          border-left: 4px solid #7C9E8A;
-          border-radius: 0 1.2rem 1.2rem 0;
-          box-shadow: 0 4px 20px rgba(124, 158, 138, 0.05);
+          background: #FAF7F2;
+          border-left: 2px solid #7C9E8A;
+          border-radius: 0 2px 2px 0;
         }
         .heldonica-pepite__header {
           display: flex;
@@ -265,9 +263,9 @@ export default function EnhancedRichContent({ html, className, style }: Props) {
           gap: 0.75rem;
           margin: 1.5rem 0;
           padding: 0.75rem 1.25rem;
-          background: #fbf7f0;
-          border: 1px solid #eadbc8;
-          border-radius: 999px;
+          background: #FAF7F2;
+          border: 1px solid #DED5C6;
+          border-radius: 2px;
           font-size: 0.88rem;
           color: #6b2a1a;
           font-weight: 600;
@@ -278,9 +276,8 @@ export default function EnhancedRichContent({ html, className, style }: Props) {
           margin: 3rem 0;
           background: #1C1917;
           color: #F5F5F4;
-          border-radius: 1.4rem;
+          border-radius: 2px;
           overflow: hidden;
-          box-shadow: 0 20px 40px rgba(0,0,0,0.12);
         }
         .heldonica-verdict__header {
           display: flex;
@@ -369,9 +366,9 @@ export default function EnhancedRichContent({ html, className, style }: Props) {
         .heldonica-etape {
           margin: 3.5rem 0;
           padding: 2.5rem;
-          background: #FAF8F5;
-          border: 1px solid #ECE7E1;
-          border-radius: 1.4rem;
+          background: #FAF7F2;
+          border: 1px solid #DED5C6;
+          border-radius: 2px;
           text-align: center;
         }
         .heldonica-etape__title {
@@ -395,7 +392,7 @@ export default function EnhancedRichContent({ html, className, style }: Props) {
           color: white !important;
           font-weight: 600;
           text-decoration: none !important;
-          border-radius: 999px;
+          border-radius: 2px;
           font-size: 0.9rem;
           transition: transform 0.18s ease, opacity 0.18s ease;
         }
@@ -409,9 +406,9 @@ export default function EnhancedRichContent({ html, className, style }: Props) {
           margin: 2.5rem 0;
         }
         .heldonica-faq details {
-          background: #FAF9F6;
-          border: 1px solid #ECE7E1;
-          border-radius: 0.8rem;
+          background: #FAF7F2;
+          border: 1px solid #DED5C6;
+          border-radius: 2px;
           margin-bottom: 0.75rem;
           overflow: hidden;
           transition: border-color 0.18s ease;
@@ -453,9 +450,9 @@ export default function EnhancedRichContent({ html, className, style }: Props) {
         .heldonica-preuve {
           margin: 3rem 0;
           padding: 2.2rem;
-          background: #FAF9F6;
-          border: 1px solid #ECE7E1;
-          border-radius: 1.4rem;
+          background: #FAF7F2;
+          border: 1px solid #DED5C6;
+          border-radius: 2px;
         }
         .heldonica-preuve__title {
           font-size: 0.8rem;
@@ -494,7 +491,7 @@ export default function EnhancedRichContent({ html, className, style }: Props) {
 
         @media (max-width: 640px) {
           .heldonica-carousel {
-            border-radius: 1rem;
+            border-radius: 2px;
           }
 
           .heldonica-carousel__controls {

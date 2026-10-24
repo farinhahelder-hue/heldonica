@@ -94,7 +94,7 @@ export default function DestinationMapEmbed({
         ref={containerRef}
         onMouseEnter={() => { pointerInside.current = true }}
         onMouseLeave={() => { pointerInside.current = false }}
-        className="relative w-full aspect-[4/3] sm:aspect-[16/9] overflow-hidden rounded-2xl border border-stone-200 bg-stone-100"
+        className="relative w-full aspect-[4/3] sm:aspect-[16/9] overflow-hidden rounded-sm border border-[#DED5C6] bg-[#EFE9DF]"
       >
         {shouldLoad ? (
           <iframe
@@ -113,7 +113,7 @@ export default function DestinationMapEmbed({
       </div>
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-        <p className="text-xs text-stone-500">
+        <p className="text-xs text-charcoal/60">
           Carte Google Maps — zoome et déplace-toi pour repérer les étapes.
         </p>
         <a

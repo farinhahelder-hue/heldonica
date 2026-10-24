@@ -16,11 +16,11 @@ export function ListBlock({ block, className = '' }: Props) {
 
   if (style === 'checklist') {
     return (
-      <div className={`my-6 bg-stone-50/80 rounded-2xl p-6 border border-stone-200/80 ${className}`}>
+      <div className={`my-6 bg-[#FAF7F2] rounded-sm p-6 border border-[#DED5C6] ${className}`}>
         <ul className="space-y-3">
           {items.map((item, idx) => (
-            <li key={idx} className="flex items-start gap-3 text-stone-800 text-base">
-              <span className="flex-shrink-0 mt-1 w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center">
+            <li key={idx} className="flex items-start gap-3 text-charcoal/90 text-base">
+              <span className="flex-shrink-0 mt-1 w-5 h-5 rounded-sm bg-eucalyptus/10 text-eucalyptus flex items-center justify-center">
                 <Check size={12} strokeWidth={3} />
               </span>
               <span>{item}</span>
@@ -35,8 +35,8 @@ export function ListBlock({ block, className = '' }: Props) {
     return (
       <ol className={`my-6 space-y-2.5 list-none counter-reset-item ${className}`}>
         {items.map((item, idx) => (
-          <li key={idx} className="flex items-start gap-3.5 text-stone-800 text-base md:text-lg">
-            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-100 text-amber-800 text-xs font-bold flex items-center justify-center mt-0.5">
+          <li key={idx} className="flex items-start gap-3.5 text-charcoal/90 text-base md:text-lg">
+            <span className="flex-shrink-0 w-6 h-6 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-mahogany text-xs font-semibold flex items-center justify-center mt-0.5">
               {idx + 1}
             </span>
             <span>{item}</span>
@@ -47,10 +47,10 @@ export function ListBlock({ block, className = '' }: Props) {
   }
 
   return (
-    <ul className={`my-6 space-y-2 text-stone-800 text-base md:text-lg pl-2 ${className}`}>
+    <ul className={`my-6 space-y-2 text-charcoal/90 text-base md:text-lg pl-2 ${className}`}>
       {items.map((item, idx) => (
         <li key={idx} className="flex items-start gap-3">
-          <span className="text-amber-600 mt-1.5">•</span>
+          <span className="text-mahogany/70 mt-1.5">•</span>
           <span>{item}</span>
         </li>
       ))}

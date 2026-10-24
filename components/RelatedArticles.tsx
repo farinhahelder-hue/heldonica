@@ -56,7 +56,7 @@ export default function RelatedArticles({ articles, destinationTitle, currentSlu
     <section className="py-16 md:py-24 bg-cloud-dancer">
       <div className="container max-w-6xl">
         <div className="mb-10">
-          <p className="text-xs uppercase tracking-[0.2em] text-teal font-semibold mb-2">
+          <p className="text-xs uppercase tracking-[0.2em] text-eucalyptus font-semibold mb-2">
             À lire aussi
           </p>
           <h2 className="text-3xl font-serif text-mahogany">
@@ -95,7 +95,7 @@ export default function RelatedArticles({ articles, destinationTitle, currentSlu
                 </div>
                 <div className="p-5">
                   {article.category && (
-                    <p className="text-xs font-semibold text-teal uppercase tracking-wider mb-2">
+                    <p className="text-xs font-semibold text-eucalyptus uppercase tracking-wider mb-2">
                       {article.category}
                     </p>
                   )}

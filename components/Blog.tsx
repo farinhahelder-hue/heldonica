@@ -93,7 +93,7 @@ export default function Blog() {
                   <span className="text-[10px] sm:text-xs text-charcoal/40">{article.date}</span>
                   <Link
                     href={`/blog/${article.slug}`}
-                    className="text-eucalyptus font-semibold hover:text-teal transition text-xs sm:text-sm group-hover:translate-x-1 inline-block"
+                    className="text-eucalyptus font-semibold hover:text-mahogany transition-colors text-xs sm:text-sm group-hover:translate-x-1 inline-block"
                   >
                     Lire
                   </Link>

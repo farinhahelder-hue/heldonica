@@ -10,7 +10,7 @@ interface Props {
 export function HeadingBlock({ block, className = '' }: Props) {
   const { level, text, subtitle } = block;
 
-  const baseHeadingStyles = "font-serif text-charcoal tracking-tight font-medium scroll-mt-24";
+  const baseHeadingStyles = "font-serif text-charcoal tracking-tight font-normal scroll-mt-24";
   const headingId = slugify(text);
 
   const renderHeading = () => {
@@ -24,21 +24,21 @@ export function HeadingBlock({ block, className = '' }: Props) {
       case 2:
         return (
           <div className="relative my-8">
-            <h2 id={headingId} className={`text-2xl md:text-3xl lg:text-4xl mb-2 ${baseHeadingStyles} border-b border-stone-100 pb-3 flex items-center gap-3`}>
-              <span className="w-1.5 h-6 bg-terracotta/80 rounded-full inline-block" />
+            <h2 id={headingId} className={`text-2xl md:text-3xl lg:text-4xl mb-2 ${baseHeadingStyles} border-b border-[#E2D9C8] pb-3 flex items-center gap-3`}>
+              <span className="w-1.5 h-6 bg-mahogany/60 rounded-sm inline-block" />
               <span>{text}</span>
             </h2>
           </div>
         );
       case 3:
         return (
-          <h3 id={headingId} className={`text-xl md:text-2xl mt-6 mb-2 ${baseHeadingStyles} text-stone-800`}>
+          <h3 id={headingId} className={`text-xl md:text-2xl mt-6 mb-2 ${baseHeadingStyles}`}>
             {text}
           </h3>
         );
       case 4:
         return (
-          <h4 id={headingId} className={`text-lg md:text-xl mt-4 mb-2 ${baseHeadingStyles} text-stone-700`}>
+          <h4 id={headingId} className={`text-lg md:text-xl mt-4 mb-2 ${baseHeadingStyles}`}>
             {text}
           </h4>
         );
@@ -55,7 +55,7 @@ export function HeadingBlock({ block, className = '' }: Props) {
     <div className={`w-full ${className}`}>
       {renderHeading()}
       {subtitle && (
-        <p className="text-base md:text-lg text-stone-500 italic mt-1 font-sans">
+        <p className="text-base md:text-lg text-charcoal/60 italic mt-1 font-sans">
           {subtitle}
         </p>
       )}

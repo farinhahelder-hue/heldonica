@@ -19,7 +19,7 @@ export function VideoBlock({ block, className = '' }: Props) {
 
   if (!url) {
     return (
-      <div className="w-full bg-stone-100 rounded-xl p-8 border border-dashed border-stone-300 text-center text-stone-400 text-sm">
+      <div className="w-full bg-[#EFE9DF] rounded-sm p-8 border border-dashed border-[#DED5C6] text-center text-charcoal/50 text-sm">
         Vidéo non renseignée
       </div>
     );
@@ -34,7 +34,7 @@ export function VideoBlock({ block, className = '' }: Props) {
 
   return (
     <figure className={`my-8 w-full ${className}`}>
-      <div className={`relative overflow-hidden rounded-2xl bg-black shadow-md ${containerClasses}`}>
+      <div className={`relative overflow-hidden rounded-sm bg-[#1E1A17] border border-[#E2D9C8] ${containerClasses}`}>
         {source === 'youtube' && embedUrl ? (
           <iframe
             src={`${embedUrl}${autoPlay ? '?autoplay=1&mute=1' : ''}`}
@@ -55,7 +55,7 @@ export function VideoBlock({ block, className = '' }: Props) {
         )}
       </div>
       {caption && (
-        <figcaption className="text-center text-xs md:text-sm text-stone-500 mt-2.5 italic">
+        <figcaption className="text-center text-xs md:text-sm text-charcoal/60 mt-2.5 italic">
           {caption}
         </figcaption>
       )}
