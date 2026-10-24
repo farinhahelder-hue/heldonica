@@ -58,13 +58,13 @@ export default function ApercuPage() {
           placeholder="/blog/mon-article"
           style={{ flex: '1 1 200px', padding: '.45rem .7rem', borderRadius: 8, border: '1px solid #555', background: '#333', color: 'white' }}
         />
-        <button onClick={() => setDevice(device === 'desktop' ? 'mobile' : 'desktop')} style={toolBtn(false)} title="Basculer mobile / bureau">
+        <button onClick={() => setDevice(device === 'desktop' ? 'mobile' : 'desktop')} style={toolBtn(false)} title="Basculer mobile / bureau" aria-label="Basculer mobile / bureau">
           {device === 'desktop' ? '📱 Mobile' : '🖥 Bureau'}
         </button>
-        <button onClick={() => setFrameKey((k) => k + 1)} style={toolBtn(false)} title="Recharger">
+        <button onClick={() => setFrameKey((k) => k + 1)} style={toolBtn(false)} title="Recharger" aria-label="Recharger l'aperçu">
           ⟳
         </button>
-        <a href={url} target="_blank" rel="noreferrer" style={{ ...toolBtn(false), textDecoration: 'none' }} title="Ouvrir dans un onglet">
+        <a href={url} target="_blank" rel="noreferrer" style={{ ...toolBtn(false), textDecoration: 'none' }} title="Ouvrir dans un onglet" aria-label="Ouvrir dans un onglet">
           ↗
         </a>
       </header>
