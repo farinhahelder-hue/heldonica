@@ -95,6 +95,17 @@ export const PUBLIC_DESIGN_TARGETS = [
   // Rendu sur les articles de blog et les itineraires Roumanie : il portait des
   // emojis de categorie (📍 🗺️ 🍽️…) hors du perimetre initial.
   'components/ArticleMap.tsx',
+  // Composants rendus sur des pages publiques mais restes hors du perimetre
+  // initial : le corps des articles (blocs), le bandeau cookies, le retour en
+  // haut, la carte integree et le rendu HTML herite. Ils portaient encore
+  // rounded-2xl, bg-white et des ombres alors que les pages etaient deja
+  // passees au carnet — la CI restait verte.
+  'components/blocks',
+  'components/CookieConsentBanner.tsx',
+  'components/BackToTop.tsx',
+  'components/DestinationMapEmbed.tsx',
+  'components/EnhancedRichContent.tsx',
+  'components/PhotoEvidenceBlock.tsx',
   // Donnees publiques alimentant la page d'accueil et les piliers
   'lib/home-data.ts',
   'lib/pillar-data.ts',

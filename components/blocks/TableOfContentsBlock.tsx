@@ -34,7 +34,7 @@ export function TableOfContentsBlock({ block, allBlocks = [], className = '' }: 
     const isH3 = heading.level === 3;
     
     // Style de base du lien
-    const linkStyle = "block text-stone-700 hover:text-teal-800 transition-colors font-medium";
+    const linkStyle = "block text-charcoal/80 hover:text-eucalyptus transition-colors font-medium";
     const nestedClass = isH3 ? "ml-6 text-sm text-stone-600 font-normal" : "text-base";
 
     if (displayStyle === 'cards') {
@@ -42,13 +42,13 @@ export function TableOfContentsBlock({ block, allBlocks = [], className = '' }: 
         <a 
           key={heading.id} 
           href={`#${slug}`}
-          className={`block p-3 bg-white border border-stone-200 rounded-xl hover:border-teal-500 hover:shadow-sm transition-all ${isH3 ? 'ml-6 bg-stone-50' : ''}`}
+          className={`block p-3 bg-[#FAF7F2] border border-[#DED5C6] rounded-sm hover:border-eucalyptus/60 transition-colors ${isH3 ? 'ml-6 bg-[#EFE9DF]' : ''}`}
         >
           <div className="flex items-start gap-3">
-            <span className="text-teal-700 font-serif font-bold text-lg mt-[-2px] opacity-60">
+            <span className="text-mahogany font-serif font-bold text-lg mt-[-2px] opacity-60">
               {isH3 ? '◦' : `${index + 1}.`}
             </span>
-            <span className="font-medium text-stone-800 leading-snug">{heading.text}</span>
+            <span className="font-medium text-charcoal leading-snug">{heading.text}</span>
           </div>
         </a>
       );
@@ -58,7 +58,7 @@ export function TableOfContentsBlock({ block, allBlocks = [], className = '' }: 
       return (
         <li key={heading.id} className="mb-2 last:mb-0">
           <a href={`#${slug}`} className={`${linkStyle} ${nestedClass} flex items-baseline gap-2`}>
-            <span className="text-teal-600 text-[10px] shrink-0">{isH3 ? '◦' : '•'}</span>
+            <span className="text-mahogany/70 text-[10px] shrink-0">{isH3 ? '◦' : '•'}</span>
             <span className="leading-snug">{heading.text}</span>
           </a>
         </li>
@@ -70,12 +70,12 @@ export function TableOfContentsBlock({ block, allBlocks = [], className = '' }: 
       <li key={heading.id} className="mb-3 last:mb-0">
         <a href={`#${slug}`} className={`${linkStyle} ${nestedClass} flex items-baseline gap-3 group`}>
           {!isH3 && (
-            <span className="text-stone-400 font-serif font-bold group-hover:text-teal-600 transition-colors w-4 text-right shrink-0">
+            <span className="text-charcoal/40 font-serif font-bold group-hover:text-eucalyptus transition-colors w-4 text-right shrink-0">
               {index + 1}.
             </span>
           )}
           {isH3 && (
-            <span className="text-stone-300 font-bold group-hover:text-teal-500 transition-colors w-4 text-right shrink-0">
+            <span className="text-charcoal/30 font-bold group-hover:text-eucalyptus transition-colors w-4 text-right shrink-0">
               -
             </span>
           )}
@@ -97,10 +97,10 @@ export function TableOfContentsBlock({ block, allBlocks = [], className = '' }: 
   });
 
   return (
-    <nav className={`w-full bg-amber-50/60 border border-teal-100/50 rounded-2xl p-6 md:p-8 my-8 shadow-sm ${className}`} aria-label="Sommaire">
+    <nav className={`w-full bg-[#FAF7F2] border border-[#DED5C6] rounded-sm p-6 md:p-8 my-8 ${className}`} aria-label="Sommaire">
       {title && (
-        <h2 className="text-xl md:text-2xl font-serif text-stone-900 font-medium mb-6 flex items-center gap-3">
-          <span className="w-1.5 h-6 bg-teal-600/80 rounded-full inline-block" />
+        <h2 className="text-xl md:text-2xl font-serif font-normal text-mahogany mb-6 flex items-center gap-3">
+          <span className="w-1.5 h-6 bg-mahogany/60 rounded-sm inline-block" />
           <span>{title}</span>
         </h2>
       )}

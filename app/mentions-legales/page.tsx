@@ -119,7 +119,7 @@ export default async function MentionslégalesPage() {
                 <strong>Email de contact :</strong>{' '}
                 <a
                   href="mailto:contact@heldonica.fr"
-                  className="text-eucalyptus hover:text-teal transition"
+                  className="text-eucalyptus hover:text-mahogany transition-colors"
                 >
                   contact@heldonica.fr
                 </a>
@@ -139,7 +139,7 @@ export default async function MentionslégalesPage() {
                   href="https://vercel.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-eucalyptus hover:text-teal transition"
+                  className="text-eucalyptus hover:text-mahogany transition-colors"
                 >
                   https://vercel.com
                 </a>
@@ -166,7 +166,7 @@ export default async function MentionslégalesPage() {
                 Pour toute demande légale ou RGPD, vous pouvez nous écrire à{' '}
                 <a
                   href="mailto:contact@heldonica.fr"
-                  className="text-eucalyptus hover:text-teal transition"
+                  className="text-eucalyptus hover:text-mahogany transition-colors"
                 >
                   contact@heldonica.fr
                 </a>

@@ -26,7 +26,7 @@ export function HospitalitySpotBlock({ block, className = '' }: Props) {
   };
 
   return (
-    <article className={`my-10 relative overflow-hidden rounded-2xl bg-stone-50 border border-stone-200 p-6 md:p-8 shadow-sm ${className}`}>
+    <article className={`my-10 relative overflow-hidden rounded-sm bg-[#FAF7F2] border border-[#DED5C6] p-6 md:p-8 ${className}`}>
       {/* Schema.org microdata injection */}
       <script
         type="application/ld+json"
@@ -36,15 +36,15 @@ export function HospitalitySpotBlock({ block, className = '' }: Props) {
       {/* Header section */}
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
         <div>
-          <h3 className="font-serif text-2xl md:text-3xl text-stone-900 mb-2">{name}</h3>
-          <div className="flex items-center gap-4 text-stone-600 text-sm">
+          <h3 className="font-serif font-normal text-2xl md:text-3xl text-mahogany mb-2">{name}</h3>
+          <div className="flex items-center gap-4 text-charcoal/70 text-sm">
             <div className="flex items-center gap-1.5">
-              <MapPin size={16} className="text-amber-700" />
+              <MapPin size={16} className="text-eucalyptus" />
               <span>{location}</span>
             </div>
             {hostName && (
               <div className="flex items-center gap-1.5">
-                <Bed size={16} className="text-amber-700" />
+                <Bed size={16} className="text-eucalyptus" />
                 <span>Hôte : {hostName}</span>
               </div>
             )}
@@ -52,8 +52,8 @@ export function HospitalitySpotBlock({ block, className = '' }: Props) {
         </div>
         
         {priceIndication && (
-          <div className="flex-shrink-0 bg-white border border-stone-200 px-4 py-2 rounded-xl">
-            <span className="text-sm font-medium text-stone-800">{priceIndication}</span>
+          <div className="flex-shrink-0 bg-[#F7F3EC] border border-[#DED5C6] px-4 py-2 rounded-sm">
+            <span className="text-sm font-medium text-charcoal">{priceIndication}</span>
           </div>
         )}
       </div>
@@ -64,8 +64,8 @@ export function HospitalitySpotBlock({ block, className = '' }: Props) {
           {criteriaList.map((criterion) => {
             const Icon = criterion.icon;
             return (
-              <div key={criterion.key} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-50 border border-teal-100 text-teal-900 text-xs font-medium">
-                <Icon size={14} className="text-teal-700" />
+              <div key={criterion.key} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-charcoal/80 text-xs font-medium">
+                <Icon size={14} className="text-eucalyptus" />
                 <span>{criterion.label}</span>
               </div>
             );
@@ -75,8 +75,8 @@ export function HospitalitySpotBlock({ block, className = '' }: Props) {
 
       {/* Anecdote */}
       {livedAnecdote && (
-        <div className="my-6 pl-4 border-l-2 border-amber-400">
-          <p className="text-stone-700 font-sans text-base leading-relaxed italic">
+        <div className="my-6 pl-4 border-l-2 border-mahogany/40">
+          <p className="text-charcoal/80 font-sans text-base leading-relaxed italic">
             « {livedAnecdote} »
           </p>
         </div>
@@ -89,12 +89,12 @@ export function HospitalitySpotBlock({ block, className = '' }: Props) {
             href={directBookingUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-stone-50 rounded-xl text-sm font-medium transition-colors shadow-sm"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-stone-50 rounded-sm text-sm font-medium transition-colors"
           >
             Réserver en direct auprès de l'hôte
-            <CheckCircle2 size={16} className="text-amber-400" />
+            <CheckCircle2 size={16} className="text-eucalyptus" />
           </a>
-          <p className="text-xs text-stone-500 mt-2">
+          <p className="text-xs text-charcoal/50 mt-2">
             Zéro commission pour l'hôte.
           </p>
         </div>

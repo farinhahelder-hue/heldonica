@@ -15,7 +15,7 @@ export function GalleryBlock({ block, className = '' }: Props) {
 
   if (!images || images.length === 0) {
     return (
-      <div className="w-full bg-stone-100 rounded-xl p-8 border border-dashed border-stone-300 text-center text-stone-400 text-sm">
+      <div className="w-full bg-[#EFE9DF] rounded-sm p-8 border border-dashed border-[#DED5C6] text-center text-charcoal/50 text-sm">
         Galerie vide
       </div>
     );
@@ -28,7 +28,7 @@ export function GalleryBlock({ block, className = '' }: Props) {
     const current = images[carouselIndex];
 
     return (
-      <div className={`relative my-8 rounded-2xl overflow-hidden bg-stone-900 group ${className}`}>
+      <div className={`relative my-8 rounded-sm overflow-hidden bg-[#1E1A17] border border-[#E2D9C8] group ${className}`}>
         <div className="relative aspect-[16/9] w-full overflow-hidden">
           <img
             src={current.url}
@@ -47,14 +47,14 @@ export function GalleryBlock({ block, className = '' }: Props) {
             <button
               onClick={prev}
               aria-label="Image précédente"
-              className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-stone-800 p-2 rounded-full shadow-md backdrop-blur-sm transition-transform active:scale-95"
+              className="absolute left-3 top-1/2 -translate-y-1/2 bg-[#FAF7F2]/90 hover:bg-[#FAF7F2] text-charcoal p-2 rounded-sm border border-[#DED5C6] backdrop-blur-sm transition-colors active:scale-95"
             >
               <ChevronLeft size={20} />
             </button>
             <button
               onClick={next}
               aria-label="Image suivante"
-              className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-stone-800 p-2 rounded-full shadow-md backdrop-blur-sm transition-transform active:scale-95"
+              className="absolute right-3 top-1/2 -translate-y-1/2 bg-[#FAF7F2]/90 hover:bg-[#FAF7F2] text-charcoal p-2 rounded-sm border border-[#DED5C6] backdrop-blur-sm transition-colors active:scale-95"
             >
               <ChevronRight size={20} />
             </button>
@@ -65,7 +65,7 @@ export function GalleryBlock({ block, className = '' }: Props) {
                   onClick={() => setCarouselIndex(i)}
                   aria-label={`Aller à l'image ${i + 1}`}
                   className={`h-2 rounded-full transition-all ${
-                    i === carouselIndex ? 'w-6 bg-white' : 'w-2 bg-white/50'
+                    i === carouselIndex ? 'w-6 bg-[#F7F3EC]' : 'w-2 bg-[#F7F3EC]/50'
                   }`}
                 />
               ))}
@@ -82,7 +82,7 @@ export function GalleryBlock({ block, className = '' }: Props) {
   return (
     <div className={`my-8 grid ${gridCols} gap-4 ${className}`}>
       {images.map((img, idx) => (
-        <figure key={idx} className="relative group overflow-hidden rounded-xl bg-stone-100">
+        <figure key={idx} className="relative group overflow-hidden rounded-sm bg-[#EFE9DF] border border-[#E2D9C8]">
           <div className="aspect-[4/3] overflow-hidden">
             <img
               src={img.url}
@@ -92,7 +92,7 @@ export function GalleryBlock({ block, className = '' }: Props) {
             />
           </div>
           {img.caption && (
-            <figcaption className="text-xs text-stone-500 p-2 text-center bg-stone-50/80">
+            <figcaption className="text-xs text-charcoal/60 p-2 text-center bg-[#FAF7F2]">
               {img.caption}
             </figcaption>
           )}
