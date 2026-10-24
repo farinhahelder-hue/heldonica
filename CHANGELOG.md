@@ -17,7 +17,18 @@
   - **Migration appliquée et mesurée en base** (feu vert du fondateur) : statement exécuté via l'API Management, puis `20261024130000` enregistrée dans `supabase_migrations.schema_migrations`. Contrôle **après** écriture : légendes à emoji = **0** (était 8), total de lignes = **8** (aucune perdue), texte/liens/hashtags intacts. `schema_migrations` distant = **194** ; écart local/distant = **1**, soit uniquement `EMERGENCY_FIX_20260602.sql` (préfixe non numérique, ignoré par la CLI).
   - **Non vérifié** : l'effet en production — la file ne contient que des `draft`, rien n'a été publié ; le filtre n'agit qu'au moment d'un clic « Publier », qui n'a pas été déclenché.
 
-  ## [2026-10-24] — Données `emilie_*` : constat, aucune suppression
+  ## [2026-10-24] — Suppression des 24 tables `emilie_*` (décision fondateur)
+
+  - **Décision explicite du fondateur** : « je veux bien que tu le supprimes ». Les 24 tables `emilie_*` (385 lignes de contenu scolaire) ont été **retirées de la base Heldonica**.
+  - **Sauvegarde préalable obligatoire** (suppression irréversible) : `.audit/backup-emilie-2026-10-24/` — `donnees.json` (385 lignes, toutes colonnes), `donnees.sql` (`INSERT` restaurables), `sha256(donnees.json)` = `c2d4a9049bd33df80b7c8d37cb15210714e43c7f3b90a202663124512f1e7db7`. Le dossier `.audit/` est gitignoré : la sauvegarde n'est **pas** dans le dépôt, elle vit sur le poste.
+  - **Contrôles avant écriture** : aucune FK entrante depuis une table hors `emilie_*` ; aucune vue ni fonction ne les lit ; aucune référence dans `app/`, `lib/`, `components/`, `scripts/`.
+  - **Migration `20261024140000_suppression_tables_emilie.sql`** : 24 × `drop table if exists … cascade`, idempotente. `cascade` emporte les 24 séquences, les 4 FK internes et les 25 policies.
+  - **Vérifié après application** : tables `emilie_*` **24 → 0**, séquences **0**, policies **0**, grants `anon` **0**. `GET /rest/v1/emilie_dictees?select=titre&limit=1` → **HTTP 404** (était 200 : les données scolaires d'une enfant étaient lisibles publiquement). Le reste de la base est intact (`cms_editable_zones` → **200**).
+  - **Écart de migration** : `schema_migrations` distant = **195** ; écart local/distant = **1**, soit uniquement `EMERGENCY_FIX_20260602.sql` (préfixe non numérique, ignoré par la CLI).
+  - **Branche et PR** : `agent/openhands/suppression-emilie` → **PR #718**, **fusionnée** (`main` → `e59442ad`). CI `Garde-fous` **verte**.
+  - **Conséquence à connaître** : si l'autre application utilise encore ces tables, elle recevra désormais une erreur. Restaurer depuis `donnees.sql`, ou la re-pointer vers son propre projet Supabase. Les tables `missions` et `reservations_seances` (mêmes tables partagées) n'ont **pas** été touchées.
+
+  ## [2026-10-24] — Données `emilie_*` : constat initial (avant décision)
 
   - **Constat, pas une action.** 24 tables `emilie_*` (385 lignes) vivent dans la base Heldonica : contenu scolaire (dictées, poésies, leçons, calcul mental). Elles appartiennent à **une autre application** qui partage la base — documenté dans `20260730000004_security_rls_hardening.sql:7` (« Base partagée avec une autre application (tables `emilie_*`, missions, reservations_seances) ») et `20261021130000_index_fk_manquantes.sql:23`.
   - **Aucune suppression effectuée.** Le dépôt l'interdit : « Ne jamais supprimer des données de l'utilisateur sur la foi d'un nom ou d'un préfixe » (AGENTS.md). Ces 385 lignes appartiennent à une application tierce ; les détruire la casserait. **Décision humaine requise.**
