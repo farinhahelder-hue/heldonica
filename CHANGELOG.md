@@ -2,6 +2,15 @@
 
 Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-23] — Lot 2, priorité 1 : une zone active vide écrasait le fallback (agent/openhands/cms-zone-vide-ecrase-fallback)
+
+- **Contexte** : audit éditorial, lot 2. Le bloc « Notre conseil » de `/destinations/roumanie/bucarest` s'affichait sans texte, et le kicker de `/destinations/alentejo` était blanc.
+- **Cause racine** : `lib/cms-zones.ts` ne filtrait que `value == null`. Or `EditableZone` fait `zones[clé] ?? fallback` : une **chaîne vide n'est pas `undefined`**, elle écrasait donc le fallback et le bloc se rendait blanchi. Le commentaire du code annonçait pourtant l'inverse (« on laisse le fallback jouer »).
+- **Correctif** : `if (row.value == null || row.value.trim() === '') continue` — une valeur blanche n'est pas une valeur. Même garde-fou dans `lib/cms-targeting.ts` (les variantes ciblées passaient par `Object.assign` sans filtre ; 0 variante en base aujourd'hui, défaut latent). Pour retirer une zone, on la passe en `is_active = false`.
+- **Portée mesurée** : **37** zones actives et vides en base ; **12** sur des pages visibles, dont **2 seulement** se rendaient blanches (`bucarest local_tip`, `alentejo intro_label`). Les 9 champs de `mentions-legales` sont déjà gérés par un conditionnel (un seul repli), `header_logo_url` a un repli texte, et 25 des 37 zones vides sont sur des pages « Bientôt » (invisibles).
+- **Vérifié** : `__tests__/lib/cms-zones-vide.test.ts` (4 tests) échoue sans le correctif (2 échecs) et passe avec ; `tsc` 0 erreur ; `vitest` 916/916 ; garde-fous 16/16.
+- **Reste à faire** : le rendu public est corrigé après déploiement ; `/api/cms/zones` (chemin admin) conserve volontairement les valeurs vides, pour que l'éditeur puisse remplir le champ.
+
 ## [2026-10-23] — Lot 2, priorité 2 : les flèches décoratives de CTA, récidive comprise (agent/openhands/fleches-cta)
 
 - **Décision appliquée** : #682, migration `20261022220000` — « Retrait de la flèche et de la casse haute pour une typographie apaisée et cohérente ». Elle n'avait été appliquée qu'aux **10 CTA de l'accueil**.
