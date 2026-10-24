@@ -36,6 +36,7 @@ export async function GET(request: Request) {
     if (fetchError) return NextResponse.json({ error: fetchError.message }, { status: 500 })
 
     const results: { id: string; status: string; error?: string }[] = []
+    const updatePromises: Promise<any>[] = []
 
     for (const post of duePosts || []) {
       try {
@@ -51,28 +52,38 @@ export async function GET(request: Request) {
         if (result) {
           // Si ce statut n'est pas ecrit, le meme post repart au prochain
           // passage : deux publications identiques sur le compte.
-          const { error: erreurStatut } = await (supabase as any)
+          const updatePromise = (supabase as any)
             .from('instagram_scheduled_posts')
-            .update({ status: 'published', published_at: now, permalink: result.permalink, error_message: null })
+            .update({ status: 'published', published_at: now, permalink: result.permalink, error_message: null, updated_at: new Date().toISOString() })
             .eq('id', post.id)
-          if (erreurStatut) {
-            console.error('[instagram/cron] statut publie non enregistre :', erreurStatut.message)
-          }
+            .then(({ error }: any) => {
+              if (error) console.error('[instagram/cron] statut publie non enregistre :', error.message)
+            })
+            .catch((err: any) => {
+              console.error('[instagram/cron] erreur reseau statut publie :', err.message)
+            });
+          updatePromises.push(updatePromise);
           results.push({ id: post.id, status: 'published' })
         } else {
           throw new Error(resultat.ok ? 'Échec publication Instagram' : resultat.raison)
         }
       } catch (err: any) {
-        const { error: erreurEchec } = await (supabase as any)
+        const updatePromise = (supabase as any)
           .from('instagram_scheduled_posts')
-          .update({ status: 'failed', error_message: err.message })
+          .update({ status: 'failed', error_message: err.message, updated_at: new Date().toISOString() })
           .eq('id', post.id)
-        if (erreurEchec) {
-          console.error('[instagram/cron] statut echec non enregistre :', erreurEchec.message)
-        }
+          .then(({ error }: any) => {
+            if (error) console.error('[instagram/cron] statut echec non enregistre :', error.message)
+          })
+          .catch((err: any) => {
+            console.error('[instagram/cron] erreur reseau statut echec :', err.message)
+          });
+        updatePromises.push(updatePromise);
         results.push({ id: post.id, status: 'failed', error: err.message })
       }
     }
+
+    await Promise.all(updatePromises);
 
     return NextResponse.json({ processed: results.length, results })
   } catch (err: any) {
