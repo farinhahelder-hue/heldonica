@@ -67,7 +67,7 @@
 - **Conservé volontairement** : les usages de `teal` sur fonds **sombres** (héros destinations, section verdict, bandeaux mahogany, newsletter, citation de `/slow-travel`) restent tels quels : là, le ratio est bon et le teal porte la voix visuelle.
 - **Reste ouvert** : la cohérence du mode sombre (header crème en dur vs variantes `dark:` des cartes), signalée dans l'audit, n'est pas traitée ici.
 - **Vérifié statiquement** : motifs du garde-fou recherchés sur le périmètre élargi (`rounded-2xl/3xl`, `bg-white`/`bg-stone-50` + ombre, `rounded-full` + ombre, emojis, flèche trailing) → **0 occurrence** ; `git diff` relu fichier par fichier.
-- **Non exécuté** : `node` est absent de cet environnement (ni npm, ni bun, ni pnpm), donc `npm run check:design-tics`, `tsc`, `vitest` et `next build` n'ont **pas** tourné. À rejouer avant fusion.
+- **Vérifié en CI** (PR #717) : job `Types` **vert** — `tsc --noEmit` **et** `vitest run` —, job `Zones et tables CMS` **vert** — il exécute `check:design-tics` **sur le périmètre élargi** et `check:cms-hardcode` avec les 26 comptes. C'est la validation qui manquait : les six nouvelles cibles sont réellement contrôlées, pas seulement déclarées. Premier passage **rouge**, sur `check:cms-hardcode` seul (référence incomplète), corrigé au commit suivant. `next build` n'est pas dans ce workflow : le rendu reste vérifié par Vercel au déploiement.
 
 ## [2026-10-24] — Lot 2 : du JSX stocké comme du HTML (attribut `className`)
 
