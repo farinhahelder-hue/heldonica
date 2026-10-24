@@ -203,7 +203,7 @@ export default async function KotorPage() {
                 </div>
                 <div>
                   <h3 className="font-serif font-normal text-lg text-[#241D1A] mb-2">{Z('day_3_title', 'text', "Direction le port pour l'excursion", undefined, 'span')}</h3>
-                  <p className="text-[#5C5349]">{Z('day_3_desc', 'textarea', "Les bateaux partent du vieux port. Destination : les bouches de Kotor, Perast, et l'île de Notre-Dame-du-Rocher. <strong className=\"text-mahogany\"> Repère utile : échange directement avec les bateliers sur le quai.</strong>", undefined, 'span')}</p>
+                  <p className="text-[#5C5349]">{Z('day_3_desc', 'textarea', "Les bateaux partent du vieux port. Destination : les bouches de Kotor, Perast, et l'île de Notre-Dame-du-Rocher. <strong class=\"text-mahogany\"> Repère utile : échange directement avec les bateliers sur le quai.</strong>", undefined, 'span')}</p>
                 </div>
               </div>
               <div className="flex gap-4">
@@ -227,33 +227,33 @@ export default async function KotorPage() {
               <div>
                 <h3 className="font-serif font-normal text-lg text-[#241D1A] mb-4">{Z('info_1_title', 'text', "Quand y aller", undefined, 'span')}</h3>
                 <ul className="space-y-2 text-[#5C5349]">
-                  <li>{Z('info_1_item_1', 'html', "<strong className=\"text-eucalyptus\">Mai-juin :</strong> Températures agréables, peu de croisiéristes", undefined, 'span')}</li>
-                  <li>{Z('info_1_item_2', 'html', "<strong className=\"text-eucalyptus\">Septembre-octobre :</strong> Mer chaude, fréquentation en baisse", undefined, 'span')}</li>
-                  <li>{Z('info_1_item_3', 'html', "<strong className=\"text-red-500\">Juillet-août :</strong> À éviter si tu cherches le calme", undefined, 'span')}</li>
+                  <li>{Z('info_1_item_1', 'html', "<strong class=\"text-eucalyptus\">Mai-juin :</strong> Températures agréables, peu de croisiéristes", undefined, 'span')}</li>
+                  <li>{Z('info_1_item_2', 'html', "<strong class=\"text-eucalyptus\">Septembre-octobre :</strong> Mer chaude, fréquentation en baisse", undefined, 'span')}</li>
+                  <li>{Z('info_1_item_3', 'html', "<strong class=\"text-red-500\">Juillet-août :</strong> À éviter si tu cherches le calme", undefined, 'span')}</li>
                 </ul>
               </div>
               <div>
                 <h3 className="font-serif font-normal text-lg text-[#241D1A] mb-4">{Z('info_2_title', 'text', "Combien de temps", undefined, 'span')}</h3>
                 <ul className="space-y-2 text-[#5C5349]">
-                  <li>{Z('info_2_item_1', 'html', "<strong className=\"text-eucalyptus\">2-3 jours :</strong> Vieille ville, remparts, Perast", undefined, 'span')}</li>
-                  <li>{Z('info_2_item_2', 'html', "<strong className=\"text-eucalyptus\">4-5 jours :</strong> Ajout de Lovćen ou Budva", undefined, 'span')}</li>
-                  <li>{Z('info_2_item_3', 'html', "<strong className=\"text-eucalyptus\">1 semaine+ :</strong> Durée complète pour le Monténégro", undefined, 'span')}</li>
+                  <li>{Z('info_2_item_1', 'html', "<strong class=\"text-eucalyptus\">2-3 jours :</strong> Vieille ville, remparts, Perast", undefined, 'span')}</li>
+                  <li>{Z('info_2_item_2', 'html', "<strong class=\"text-eucalyptus\">4-5 jours :</strong> Ajout de Lovćen ou Budva", undefined, 'span')}</li>
+                  <li>{Z('info_2_item_3', 'html', "<strong class=\"text-eucalyptus\">1 semaine+ :</strong> Durée complète pour le Monténégro", undefined, 'span')}</li>
                 </ul>
               </div>
               <div>
                 <h3 className="font-serif font-normal text-lg text-[#241D1A] mb-4">{Z('info_3_title', 'text', "Budget couple / jour", undefined, 'span')}</h3>
                 <ul className="space-y-2 text-[#5C5349]">
-                  <li>{Z('info_3_item_1', 'html', "<strong className=\"text-eucalyptus\">Entrée remparts :</strong> ~15€/pers", undefined, 'span')}</li>
-                  <li>{Z('info_3_item_2', 'html', "<strong className=\"text-eucalyptus\">Excursion bateau :</strong> ~40-60€/pers", undefined, 'span')}</li>
-                  <li>{Z('info_3_item_3', 'html', "<strong className=\"text-eucalyptus\">Repas :</strong> ~20-30€/pers", undefined, 'span')}</li>
+                  <li>{Z('info_3_item_1', 'html', "<strong class=\"text-eucalyptus\">Entrée remparts :</strong> ~15€/pers", undefined, 'span')}</li>
+                  <li>{Z('info_3_item_2', 'html', "<strong class=\"text-eucalyptus\">Excursion bateau :</strong> ~40-60€/pers", undefined, 'span')}</li>
+                  <li>{Z('info_3_item_3', 'html', "<strong class=\"text-eucalyptus\">Repas :</strong> ~20-30€/pers", undefined, 'span')}</li>
                 </ul>
               </div>
               <div>
                 <h3 className="font-serif font-normal text-lg text-[#241D1A] mb-4">{Z('info_4_title', 'text', "Pour qui", undefined, 'span')}</h3>
                 <ul className="space-y-2 text-[#5C5349]">
-                  <li>{Z('info_4_item_1', 'html', "<strong className=\"text-eucalyptus\">Couples :</strong> Idéal pour un week-end romantique", undefined, 'span')}</li>
-                  <li>{Z('info_4_item_2', 'html', "<strong className=\"text-eucalyptus\">Amis :</strong> Authentique, peu fréquenté hors saison", undefined, 'span')}</li>
-                  <li>{Z('info_4_item_3', 'html', "<strong className=\"text-eucalyptus\">Familles :</strong> Facile avec enfants (pas de grosses marches)", undefined, 'span')}</li>
+                  <li>{Z('info_4_item_1', 'html', "<strong class=\"text-eucalyptus\">Couples :</strong> Idéal pour un week-end romantique", undefined, 'span')}</li>
+                  <li>{Z('info_4_item_2', 'html', "<strong class=\"text-eucalyptus\">Amis :</strong> Authentique, peu fréquenté hors saison", undefined, 'span')}</li>
+                  <li>{Z('info_4_item_3', 'html', "<strong class=\"text-eucalyptus\">Familles :</strong> Facile avec enfants (pas de grosses marches)", undefined, 'span')}</li>
                 </ul>
               </div>
             </div>

@@ -1,3 +1,5 @@
+import { normalizeHtmlAttributes } from '@/lib/html-attributes'
+
 /**
  * Normalisation du texte des zones CMS avant affichage.
  *
@@ -12,5 +14,5 @@
  * intact, pour ne rien changer aux zones qui en contiennent déjà.
  */
 export function normalizeZoneText(value: string): string {
-  return value.replace(/\\n/g, '<br />')
+  return normalizeHtmlAttributes(value.replace(/\\n/g, '<br />'))
 }

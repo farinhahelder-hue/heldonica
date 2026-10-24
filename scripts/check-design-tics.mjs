@@ -118,16 +118,32 @@ const DECORATIVE_EMOJI_RE =
  * isolées en pastille — seule la flèche qui suit un mot et clôt le libellé
  * l'est.
  */
-const TRAILING_ARROW_RE = /[A-Za-zÀ-ÿ0-9)\]}"'][ \t]*→[ \t]*(?=["'`<]|$)/;
+  const TRAILING_ARROW_RE = /[A-Za-zÀ-ÿ0-9)\]}"'][ \t]*→[ \t]*(?=["'`<]|$)/;
 
+  /**
+   * Détecte un attribut `className` à l'intérieur d'un littéral de chaîne.
+   *
+   * L'analyse ligne à ligne ne suffit pas : sur une ligne de JSX légitime
+   * (`<div className="a"><span className="b">`), un `className` suit une balise
+   * ouvrée sans être dans une chaîne. On isole donc chaque littéral (guillemets
+   * échappés compris) et on ne refuse que ceux qui contiennent à la fois une
+   * balise et un `className=`. Le JSX légitime, hors chaîne, n'est pas visé.
+   */
+  const CHAINE_RE = /(["'])((?:\\.|(?!\1)[^\\\n])*)\1/g;
+  function chainePorteDuJsx(ligne) {
+    for (const m of ligne.matchAll(CHAINE_RE)) {
+      if (/<\w/.test(m[2]) && /className\s*=/.test(m[2])) return true;
+    }
+    return false;
+  }
 
-/**
- * Routes API. Elles n'ont pas de JSX, donc les règles « carte SaaS » n'y ont
- * pas de sens — mais leurs emojis, si : ils finissent dans un email client
- * (`/api/travel-planning`), une légende Instagram publiée
- * (`/api/cms/mobile-publish`) ou un article (`/api/update-content`). Hors du
- * périmètre initial du garde-fou, onze routes en portaient encore le 22/10.
- */
+  /**
+   * Routes API. Elles n'ont pas de JSX, donc les règles « carte SaaS » n'y ont
+   * pas de sens — mais leurs emojis, si : ils finissent dans un email client
+   * (`/api/travel-planning`), une légende Instagram publiée
+   * (`/api/cms/mobile-publish`) ou un article (`/api/update-content`). Hors du
+   * périmètre initial du garde-fou, onze routes en portaient encore le 22/10.
+   */
 export const API_EMOJI_TARGETS = ['app/api'];
 
 // Carte SaaS : className combinant un fond clinique (`bg-white` ou `bg-stone-50`)
@@ -190,6 +206,18 @@ export function scanSourceForDesignTics(source, filePath = 'inline.tsx', options
     }
 
     if (emojiOnly) continue;
+
+    // 1ter. JSX égaré dans une chaîne, injecté par `dangerouslySetInnerHTML` :
+    //       le navigateur ignore `className`, la classe Tailwind est perdue.
+    if (chainePorteDuJsx(rawLine)) {
+      violations.push({
+        file: filePath,
+        line: lineNo,
+        kind: 'jsx-in-string',
+        detail: 'attribut className dans une chaîne (JSX servi en HTML : la classe est ignorée)',
+        snippet: trimmed.slice(0, 120),
+      });
+    }
 
     // 1bis. Flèche décorative en fin de libellé de CTA (décision #682).
     //       `content: '→'` est une puce CSS, pas un libellé : exclue.

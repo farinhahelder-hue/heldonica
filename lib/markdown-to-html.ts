@@ -1,3 +1,5 @@
+import { normalizeHtmlAttributes } from '@/lib/html-attributes'
+
 /**
  * Conversion markdown minimale pour les contenus éditoriaux.
  *
@@ -32,23 +34,25 @@ export function markdownToHtml(source: string | null | undefined): string {
   if (!texte) return '';
 
   if (/<(?:p|h[1-6]|figure|img|blockquote|ul|ol|div|article|section|table)[\s>]/i.test(texte)) {
-    return texte;
+    return normalizeHtmlAttributes(texte);
   }
 
   const blocs = texte.split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean);
 
-  return blocs
-    .map((bloc) => {
-      const titre = bloc.match(/^(#{1,6})\s+(.*)$/s);
-      if (titre) {
-        const niveau = titre[1].length;
-        const contenu = gras(escapeHtml(titre[2].trim()));
-        return `<h${niveau}>${contenu}</h${niveau}>`;
-      }
-      const contenu = gras(escapeHtml(bloc)).replace(/\n/g, '<br />');
-      return `<p>${contenu}</p>`;
-    })
-    .join('\n');
+  return normalizeHtmlAttributes(
+    blocs
+      .map((bloc) => {
+        const titre = bloc.match(/^(#{1,6})\s+(.*)$/s);
+        if (titre) {
+          const niveau = titre[1].length;
+          const contenu = gras(escapeHtml(titre[2].trim()));
+          return `<h${niveau}>${contenu}</h${niveau}>`;
+        }
+        const contenu = gras(escapeHtml(bloc)).replace(/\n/g, '<br />');
+        return `<p>${contenu}</p>`;
+      })
+      .join('\n')
+  );
 }
 
 export default markdownToHtml;

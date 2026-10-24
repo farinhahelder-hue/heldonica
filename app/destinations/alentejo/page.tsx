@@ -125,10 +125,10 @@ export default async function AlentejoPage() {
             </h2>
             <div className="prose prose-lg max-w-none prose-stone">
               <p className="text-charcoal/85 leading-relaxed text-lg">
-                {Z('intro_1', 'html', "<strong className=\"text-mahogany\">La première fois</strong>, on a traversé l’Alentejo en vitesse, direction l’Algarve. Grosse erreur. On a traversé des siècles d’histoire, des plaines qui donnaient le vertige, des villages où le temps semblait s’être arrêté — et on n’y a même pas posé pied.", undefined, 'span')}
+                {Z('intro_1', 'html', "<strong class=\"text-mahogany\">La première fois</strong>, on a traversé l’Alentejo en vitesse, direction l’Algarve. Grosse erreur. On a traversé des siècles d’histoire, des plaines qui donnaient le vertige, des villages où le temps semblait s’être arrêté — et on n’y a même pas posé pied.", undefined, 'span')}
               </p>
               <p className="text-charcoal/80 leading-relaxed">
-                {Z('intro_2', 'html', "<strong className=\"text-mahogany\">La deuxième fois</strong>, on a pris 5 jours. Juste l’Alentejo central. Évora, Monsaraz, les vignobles de Vidigueira, les routes sans autre voiture à l’horizon. C’est là qu’on a compris : l’Alentejo, c’est le Portugal <em>vraiment</em>.", undefined, 'span')}
+                {Z('intro_2', 'html', "<strong class=\"text-mahogany\">La deuxième fois</strong>, on a pris 5 jours. Juste l’Alentejo central. Évora, Monsaraz, les vignobles de Vidigueira, les routes sans autre voiture à l’horizon. C’est là qu’on a compris : l’Alentejo, c’est le Portugal <em>vraiment</em>.", undefined, 'span')}
               </p>
               <p className="text-charcoal/80 leading-relaxed">
                 {Z('intro_3', 'html', "Ce qu’on y a trouvé : du bon vin à 3€, des restaurants de village où le patron cuisine tout lui-même, des champs de liège à perte de vue, et ce silence qu’on cherche tous sans jamais oser le dire.", undefined, 'span')}
@@ -147,7 +147,7 @@ export default async function AlentejoPage() {
                   {Z('quick_1_label', 'text', "Meilleure période", undefined, 'span')}
                 </p>
                 <p className="text-lg font-serif text-mahogany">
-                  {Z('quick_1_value', 'html', "Mars–Juin<br /><span className=\"text-eucalyptus\">Sept–Nov</span>", undefined, 'span')}
+                  {Z('quick_1_value', 'html', "Mars–Juin<br /><span class=\"text-eucalyptus\">Sept–Nov</span>", undefined, 'span')}
                 </p>
               </div>
               <div className="text-center rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-4">
@@ -171,7 +171,7 @@ export default async function AlentejoPage() {
                   {Z('quick_4_label', 'text', "Langue", undefined, 'span')}
                 </p>
                 <p className="text-lg font-serif text-mahogany">
-                  {Z('quick_4_value', 'html', "Portugais<br /><span className=\"text-eucalyptus\">+ français</span>", undefined, 'span')}
+                  {Z('quick_4_value', 'html', "Portugais<br /><span class=\"text-eucalyptus\">+ français</span>", undefined, 'span')}
                 </p>
               </div>
             </div>
