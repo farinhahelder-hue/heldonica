@@ -80,7 +80,7 @@ export function blocksToHtml(blocks: CmsBlock[]): string {
           const album = block.albumLink
             ? `\n  <p><a href="${escapeHtml(block.albumLink)}" target="_blank" rel="noopener noreferrer">Voir l’album</a></p>`
             : '';
-          return `<figure class="photo-evidence">\n  <img src="${escapeHtml(block.imageUrl)}" alt="${escapeHtml(block.anecdote || block.location)}" />\n  <figcaption>📍 ${escapeHtml(block.location)} – 📅 ${escapeHtml(block.date)}</figcaption>\n  <blockquote>${escapeHtml(block.anecdote)}</blockquote>${album}\n</figure>`;
+          return `<figure class="photo-evidence">\n  <img src="${escapeHtml(block.imageUrl)}" alt="${escapeHtml(block.anecdote || block.location)}" />\n  <figcaption>${escapeHtml(block.location)} – ${escapeHtml(block.date)}</figcaption>\n  <blockquote>${escapeHtml(block.anecdote)}</blockquote>${album}\n</figure>`;
         }
 
         default:
