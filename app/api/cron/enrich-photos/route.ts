@@ -67,6 +67,7 @@ export async function GET(req: NextRequest) {
 
   let enriched = 0
   const errors: any[] = []
+  const patchPromises: Promise<void>[] = []
 
   for (const m of medias) {
     try {
@@ -77,13 +78,18 @@ export async function GET(req: NextRequest) {
         continue
       }
 
-      const patchRes = await fetch(`${supabaseUrl}/rest/v1/cms_media?id=eq.${m.id}`, {
+      const p = fetch(`${supabaseUrl}/rest/v1/cms_media?id=eq.${m.id}`, {
         method: 'PATCH',
         headers: { ...headers, Prefer: 'return=minimal' },
         body: JSON.stringify({ alt_text: alt, metadata: { ...m.metadata, alt_generated_at: new Date().toISOString(), alt_source: 'gemini' } }),
+      }).then(async (patchRes) => {
+        if (patchRes.ok) enriched++
+        else errors.push({ id: m.id, error: await patchRes.text() })
+      }).catch((e: any) => {
+        errors.push({ id: m.id, error: e.message })
       })
-      if (patchRes.ok) enriched++
-      else errors.push({ id: m.id, error: await patchRes.text() })
+
+      patchPromises.push(p)
 
       // rate limit AI
       await new Promise((r) => setTimeout(r, 400))
@@ -91,6 +97,8 @@ export async function GET(req: NextRequest) {
       errors.push({ id: m.id, error: e.message })
     }
   }
+
+  await Promise.all(patchPromises)
 
   return NextResponse.json({ message: `Enrichi ${enriched}/${medias.length} médias`, enriched, total: medias.length, errors: errors.length ? errors : undefined })
 }
