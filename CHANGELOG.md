@@ -18,6 +18,7 @@ Toutes les modifications du projet sont consignées ici pour assurer la coordina
 - **Migration appliquée et mesurée en base** : `20261024100000 purge_jsx_classname` journalisée dans `supabase_migrations.schema_migrations`. Contrôle **après** écriture : `className` restant = **0** sur les deux tables ; contrôle strict des attributs malformés (`class` sans `=`) = **0**. Les « 5 articles malformés » d'un premier comptage étaient des faux positifs (`classique`, `classées`, `classée UNESCO`) — le mot français, pas l'attribut.
 - **Vérifié en production** (`www.heldonica.fr`) : le HTML **rendu** porte bien `<strong class="text-stone-900">La première fois</strong>` (alentejo), `<em class='text-eucalyptus'>en 2 minutes</em>` (accueil, guillemets simples) et `class="w-full rounded-lg my-6 shadow-md"` (article publié). Balayage de 10 pages : **0 `className` dans le HTML rendu** (les occurrences restantes sont toutes dans le payload RSC `<script>`, côté client, sans effet sur le style serveur). 4 articles du périmètre sont des **brouillons** (404) : correctif appliqué en base, non visible.
 - **Non vérifié** : le rendu de Kotor n'a pas été confronté au HTML d'avant (page passée de 404 à 200 entre-temps, sans lien avec cette correction).
+- **Branche et PR** : `agent/openhands/lot2-jsx-classname` → **PR #711**. La branche `agent/openhands/audit-editorial-lot2` existait déjà mais était périmée (269 fichiers de retard sur `main`) : non réutilisée.
 
 ## [2026-10-23] — Cohérence des textes de destinations (agent/freebuff/coherence-destinations)
 
