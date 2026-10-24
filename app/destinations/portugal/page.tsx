@@ -136,7 +136,7 @@ export default async function PortugalPage() {
             </h2>
             <div className="grid gap-5 md:grid-cols-2">
               <div className="bg-[#FAF7F2] p-6 rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all group">
-                <span className="inline-block text-xs font-semibold uppercase tracking-widest text-teal mb-2">
+                <span className="inline-block text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-2">
                   {Z('card_1_tag', 'text', "Île · Nature", undefined, 'span')}
                 </span>
                 <h3 className="font-serif text-lg text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">
@@ -147,7 +147,7 @@ export default async function PortugalPage() {
                 </p>
               </div>
               <div className="bg-[#FAF7F2] p-6 rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all group">
-                <span className="inline-block text-xs font-semibold uppercase tracking-widest text-teal mb-2">
+                <span className="inline-block text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-2">
                   {Z('card_2_tag', 'text', "Capitale · Culture", undefined, 'span')}
                 </span>
                 <h3 className="font-serif text-lg text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">
@@ -158,7 +158,7 @@ export default async function PortugalPage() {
                 </p>
               </div>
               <div className="bg-[#FAF7F2] p-6 rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all group">
-                <span className="inline-block text-xs font-semibold uppercase tracking-widest text-teal mb-2">
+                <span className="inline-block text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-2">
                   {Z('card_3_tag', 'text', "Vin · Histoire", undefined, 'span')}
                 </span>
                 <h3 className="font-serif text-lg text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">
@@ -169,7 +169,7 @@ export default async function PortugalPage() {
                 </p>
               </div>
               <div className="bg-[#FAF7F2] p-6 rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all group">
-                <span className="inline-block text-xs font-semibold uppercase tracking-widest text-teal mb-2">
+                <span className="inline-block text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-2">
                   {Z('card_4_tag', 'text', "Rural · Terroir", undefined, 'span')}
                 </span>
                 <h3 className="font-serif text-lg text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">

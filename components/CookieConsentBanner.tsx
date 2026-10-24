@@ -37,7 +37,7 @@ export default function CookieConsentBanner() {
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-[100] px-4 pb-4">
-      <div className="mx-auto max-w-5xl rounded-2xl border border-stone-200 bg-white shadow-2xl">
+      <div className="mx-auto max-w-5xl rounded-sm border border-[#DED5C6] bg-[#FAF7F2]">
         <div className="p-5 md:p-6">
           <p className="text-xs uppercase tracking-[0.16em] text-eucalyptus font-semibold mb-2">
             {t('cookie_title', 'Cookies et vie privée')}
@@ -49,14 +49,14 @@ export default function CookieConsentBanner() {
             {t('cookie_details_prefix', 'Détails :')}{' '}
             <Link
               href="/politique-confidentialite"
-              className="text-eucalyptus hover:text-teal transition font-medium"
+              className="text-eucalyptus hover:text-mahogany transition-colors font-medium"
             >
               {t('cookie_privacy_label', 'Politique de confidentialité')}
             </Link>{' '}
             {t('cookie_details_joiner', 'et')}{' '}
             <Link
               href="/mentions-legales"
-              className="text-eucalyptus hover:text-teal transition font-medium"
+              className="text-eucalyptus hover:text-mahogany transition-colors font-medium"
             >
               {t('cookie_legal_label', 'Mentions légales')}
             </Link>
@@ -66,14 +66,14 @@ export default function CookieConsentBanner() {
             <button
               type="button"
               onClick={() => setConsent('rejected')}
-              className="px-5 py-2.5 rounded-lg border border-stone-300 text-charcoal hover:border-stone-400 transition"
+              className="px-5 py-2.5 rounded-sm border border-[#DED5C6] text-charcoal hover:border-mahogany/50 transition-colors"
             >
               {t('cookie_reject_label', 'Refuser')}
             </button>
             <button
               type="button"
               onClick={() => setConsent('accepted')}
-              className="px-5 py-2.5 rounded-lg bg-action text-white font-medium hover:bg-action-fonce transition"
+              className="px-5 py-2.5 rounded-sm bg-action text-white font-medium hover:bg-action-fonce transition-colors"
             >
               {t('cookie_accept_label', 'Accepter')}
             </button>

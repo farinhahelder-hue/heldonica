@@ -141,7 +141,7 @@ export default async function PolitiqueConfidentialitePage() {
                 à{' '}
                 <a
                   href="mailto:contact@heldonica.fr"
-                  className="text-eucalyptus hover:text-teal transition"
+                  className="text-eucalyptus hover:text-mahogany transition-colors"
                 >
                   contact@heldonica.fr
                 </a>

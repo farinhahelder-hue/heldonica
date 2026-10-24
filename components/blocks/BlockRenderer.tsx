@@ -35,11 +35,11 @@ const getSpacingClass = (spacing?: BlockSpacing): string => {
 const getThemeClass = (theme?: BlockTheme): string => {
   switch (theme) {
     case 'sand':
-      return 'bg-amber-50/50 p-6 rounded-2xl';
+      return 'bg-[#FAF7F2] border border-[#DED5C6] p-6 rounded-sm';
     case 'dark':
-      return 'bg-stone-900 text-stone-100 p-6 rounded-2xl';
+      return 'bg-[#1E1A17] text-[#F7F3EC] p-6 rounded-sm';
     case 'gold_accent':
-      return 'border-l-4 border-amber-500 pl-4';
+      return 'border-l-2 border-mahogany pl-4';
     case 'default':
     default:
       return '';

@@ -47,7 +47,7 @@ export default function Error({
           <h1 className="text-3xl md:text-4xl font-serif text-mahogany mb-4 leading-tight">
             Une erreur inattendue s&apos;est produite
           </h1>
-          <p className="text-eucalyptus/80 text-base md:text-lg mb-8 leading-relaxed">
+          <p className="text-eucalyptus text-base md:text-lg mb-8 leading-relaxed">
             Quelque chose n&apos;a pas fonctionné comme prévu. On s&apos;en occupe.
             Tu peux réessayer ou revenir à l&apos;accueil.
           </p>

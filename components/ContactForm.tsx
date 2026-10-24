@@ -15,7 +15,7 @@ type FormData = {
 }
 
 const inputClass =
-  'w-full rounded-xl border border-cloud-dancer bg-white px-4 py-3 text-charcoal/80 outline-none transition-all duration-200 focus:border-eucalyptus focus:ring-2 focus:ring-eucalyptus/20'
+  'w-full rounded-sm border border-[#DED5C6] bg-[#FAF7F2] px-4 py-3 text-charcoal/80 outline-none transition-colors duration-200 focus:border-eucalyptus focus:ring-2 focus:ring-eucalyptus/20'
 
 export default function ContactForm() {
   const { zones, settings } = useContentLoader()
@@ -191,7 +191,7 @@ export default function ContactForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-full bg-action px-8 py-4 text-sm font-semibold text-white transition-all duration-200 hover:bg-action-fonce disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-full rounded-sm bg-action px-8 py-4 text-sm font-medium text-white transition-colors duration-200 hover:bg-action-fonce disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loading ? btnLoading : btnLabel}
       </button>
@@ -200,13 +200,13 @@ export default function ContactForm() {
       </p>
 
       {submitError && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {submitError}
         </div>
       )}
 
       {submitted && (
-        <div className="rounded-xl border border-eucalyptus/20 bg-eucalyptus/5 px-4 py-3 text-sm text-eucalyptus">
+        <div className="rounded-sm border border-eucalyptus/20 bg-eucalyptus/5 px-4 py-3 text-sm text-eucalyptus">
           {successMsg}
         </div>
       )}

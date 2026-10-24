@@ -130,7 +130,7 @@ export default function MerciClient({ initialZones }: MerciClientProps) {
           <div className="max-w-3xl mx-auto px-6 text-center">
             <p className="text-stone-500 text-sm">
               <EditableZone page="merci" zone="contact_text" fallback="Des questions ? Écris-nous à" className="inline" />{' '}
-              <a href="mailto:contact@heldonica.fr" className="text-teal hover:underline font-medium">
+              <a href="mailto:contact@heldonica.fr" className="text-eucalyptus hover:underline font-medium">
                 contact@heldonica.fr
               </a>
             </p>

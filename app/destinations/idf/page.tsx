@@ -155,7 +155,7 @@ export default async function IdfPage() {
                   href={"/destinations/idf/paris"}
                   className="group block p-6 bg-[#FAF7F2] rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all"
                 >
-                  <span className="inline-block text-xs font-semibold uppercase tracking-widest text-teal mb-3">{Z('pepite_1_tag', 'text', "Urbex légal", undefined, 'span')}</span>
+                  <span className="inline-block text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">{Z('pepite_1_tag', 'text', "Urbex légal", undefined, 'span')}</span>
                   <h3 className="font-serif text-base text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">{Z('pepite_1_titre', 'text', "La Petite Ceinture (14e)", undefined, 'span')}</h3>
                   <p className="text-stone-600 text-sm leading-relaxed">{Z('pepite_1_desc', 'textarea', "L'ancienne voie ferrée devenue promenade sauvage en plein Paris. Street art, végétation folle, silence improbable. Un Paris d'explorateur à 15 minutes du Sacré-Cœur.", undefined, 'span')}</p>
                 </Link>
@@ -164,7 +164,7 @@ export default async function IdfPage() {
                   href={"/destinations/idf/paris"}
                   className="group block p-6 bg-[#FAF7F2] rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all"
                 >
-                  <span className="inline-block text-xs font-semibold uppercase tracking-widest text-teal mb-3">{Z('pepite_2_tag', 'text', "Food", undefined, 'span')}</span>
+                  <span className="inline-block text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">{Z('pepite_2_tag', 'text', "Food", undefined, 'span')}</span>
                   <h3 className="font-serif text-base text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">{Z('pepite_2_titre', 'text', "Rue Mouffetard & Singh'Nature", undefined, 'span')}</h3>
                   <p className="text-stone-600 text-sm leading-relaxed">{Z('pepite_2_desc', 'textarea', "Le marché du jeudi matin, les fromagers, le boulanger de quartier. Le soir, une table végétarienne fusion au Singh'Nature — notre découverte la plus mémorable du 5e.", undefined, 'span')}</p>
                 </Link>
@@ -173,7 +173,7 @@ export default async function IdfPage() {
                   href={"/destinations/idf/paris"}
                   className="group block p-6 bg-[#FAF7F2] rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all"
                 >
-                  <span className="inline-block text-xs font-semibold uppercase tracking-widest text-teal mb-3">{Z('pepite_3_tag', 'text', "Vélo", undefined, 'span')}</span>
+                  <span className="inline-block text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">{Z('pepite_3_tag', 'text', "Vélo", undefined, 'span')}</span>
                   <h3 className="font-serif text-base text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">{Z('pepite_3_titre', 'text', "Canal de l'Ourcq à vélo", undefined, 'span')}</h3>
                   <p className="text-stone-600 text-sm leading-relaxed">{Z('pepite_3_desc', 'textarea', "De La Villette jusqu'à Meaux en longeant le canal. Une journée entière, sans voiture, en glissant entre les péniches et les écluses. Le slow travel commence à 30 minutes de chez soi.", undefined, 'span')}</p>
                 </Link>
@@ -182,7 +182,7 @@ export default async function IdfPage() {
                   href={"/destinations/idf/fontainebleau"}
                   className="group block p-6 bg-[#FAF7F2] rounded-sm border border-[#DED5C6] hover:border-eucalyptus/40 transition-all"
                 >
-                  <span className="inline-block text-xs font-semibold uppercase tracking-widest text-teal mb-3">{Z('pepite_4_tag', 'text', "Nature", undefined, 'span')}</span>
+                  <span className="inline-block text-xs font-semibold uppercase tracking-widest text-eucalyptus mb-3">{Z('pepite_4_tag', 'text', "Nature", undefined, 'span')}</span>
                   <h3 className="font-serif text-base text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">{Z('pepite_4_titre', 'text', "Forêt de Fontainebleau", undefined, 'span')}</h3>
                   <p className="text-stone-600 text-sm leading-relaxed">{Z('pepite_4_desc', 'textarea', "Le château, oui — mais surtout la forêt. Escalade sur les blocs de grès, pique-nique en sous-bois, silence garanti hors week-end. 40 minutes depuis Paris-Gare de Lyon.", undefined, 'span')}</p>
                 </Link>

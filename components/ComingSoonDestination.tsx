@@ -70,23 +70,23 @@ export default function ComingSoonDestination({
         {/* Sans style, saison ni budget (Paris, servie par DestinationPage),
             la section ne serait qu'une bande blanche vide. */}
         {Boolean(styleLabel || best_season || avg_budget_couple_week) && (
-          <section className="bg-white py-12">
+          <section className="bg-[#F7F3EC] py-12">
             <div className="container max-w-4xl">
               <div className="grid md:grid-cols-3 gap-4">
                 {styleLabel && (
-                  <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
+                  <div className="rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-5">
                     <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Style</p>
                     <p className="text-charcoal font-medium"><EditableZone page={`destinations-${slug}`} zone="style_label" fallback={styleLabel} /></p>
                   </div>
                 )}
                 {best_season && (
-                  <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
+                  <div className="rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-5">
                     <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Meilleure saison</p>
                     <p className="text-charcoal font-medium"><EditableZone page={`destinations-${slug}`} zone="best_season" fallback={best_season} /></p>
                   </div>
                 )}
                 {avg_budget_couple_week && (
-                  <div className="rounded-xl border border-stone-200 bg-stone-50 p-5">
+                  <div className="rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-5">
                     <p className="text-xs uppercase tracking-[0.14em] text-eucalyptus font-semibold mb-2">Budget indicatif</p>
                     <p className="text-charcoal font-medium">{formatBudget(avg_budget_couple_week)}</p>
                   </div>

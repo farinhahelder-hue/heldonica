@@ -82,13 +82,13 @@ export function MapBlock({ block, className = '' }: MapBlockProps) {
     <figure className={`map-block w-full flex flex-col gap-3 ${className}`}>
       <div 
         ref={mapContainerRef} 
-        className="w-full h-80 md:h-[400px] rounded-2xl overflow-hidden border border-stone-200 shadow-sm z-10"
+        className="w-full h-80 md:h-[400px] rounded-sm overflow-hidden border border-[#DED5C6] z-10"
         aria-label={block.caption || "Carte interactive"}
         role="region"
       />
       
       {/* Legend & Accessibility (Transcript) */}
-      <figcaption className="text-center text-sm text-stone-500 italic mt-2">
+      <figcaption className="text-center text-sm text-charcoal/60 italic mt-2">
         {block.caption}
       </figcaption>
 
