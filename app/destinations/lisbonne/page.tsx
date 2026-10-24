@@ -28,6 +28,13 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata('destinations-lisbonne', metadata)
 }
 
+// ⚡ Bolt Performance Optimization:
+// What: Incremental Static Regeneration (ISR) with a 1-hour cache.
+// Why: Static destination pages that don't need real-time updates should be cached
+//      to avoid unnecessary server renders and database lookups.
+// Impact: Reduces TTFB significantly and minimizes load on the CMS API.
+// Measurement: Check X-Nextjs-Cache header in browser dev tools (should be HIT or STALE).
+export const revalidate = 3600
 
 export default function LisbonnePage() {
   return <DestinationPage slug="lisbonne" />
