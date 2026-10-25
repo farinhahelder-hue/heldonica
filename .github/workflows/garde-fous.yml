@@ -116,6 +116,13 @@ jobs:
       - name: Tables sans migration
         run: npm run check:cms-migrations
 
+      # Fenetre de revalidation des pages qui lisent le CMS. Statique, comme
+      # check:cms-migrations : il lit les fichiers du depot, pas la base. Il existait
+      # dans scripts/garde-fous.mjs depuis sa creation mais n etait cable dans aucun
+      # workflow : 119 pages etaient verifiees en local, jamais en CI.
+      - name: Fenetre de revalidation des pages CMS
+        run: npm run check:cms-cache
+
       # Modules critiques absents et retard sur origin/main. Le 10/10, huit
       # fichiers référencés par le code n'ont jamais été committés : ils
       # n'existaient que sur la machine de l'auteur. Ce contrôle les voit sans
