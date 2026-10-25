@@ -1,4 +1,28 @@
 -- ==============================================
+-- ARCHIVÉ le 2026-10-25 — NE PAS REJOUER, NE PAS RENOMMER
+-- ==============================================
+--
+-- Ce script a été exécuté à la main dans le SQL Editor le 2026-06-02. Son effet
+-- EST en base (vérifié : `site_settings` existe, `maintenance_mode` = 'false').
+-- Il n'a jamais été journalisé dans `supabase_migrations.schema_migrations`.
+--
+-- Pourquoi il est ici et plus dans `supabase/migrations/` :
+--   Le CLI Supabase ne le reconnaissait pas (« Skipping migration
+--   EMERGENCY_FIX_20260602.sql... file name must match pattern ») — il l'ignorait,
+--   donc son effet sur la base était nul tant qu'il restait là.
+--   Le RENOMMER au format `<timestamp>_nom.sql` l'aurait fait entrer dans le
+--   registre des migrations en attente : le prochain `supabase db push` l'aurait
+--   rejoué. Or il est idempotent (`IF NOT EXISTS` / `ON CONFLICT DO NOTHING`) mais
+--   inutile, et il porte du contenu de test (3 articles « test-article-* »).
+--   Le déplacer hors du dossier est le geste sûr : le CLI ne le voit plus.
+--
+-- Contenu d'origine, conservé tel quel pour mémoire :
+--   création de `site_settings`, clés `maintenance_mode` / `maintenance_message`,
+--   3 articles de test (`test-article-1-madere-decouverte`, `-2-zurich-flotte`,
+--   `-3-stoos-ridge`), puis désactivation du mode maintenance.
+--
+-- Le script d'origine commençait ainsi :
+-- ==============================================
 -- HELDONICA EMERGENCY FIX - Run in Supabase SQL Editor
 -- https://supabase.com/dashboard → SQL Editor → New Query
 -- ==============================================
