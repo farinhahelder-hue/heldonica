@@ -2,6 +2,12 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-25 sexies] — Archivage de `EMERGENCY_FIX_20260602.sql` (hors dossier des migrations)
+
+- **`supabase/migrations/EMERGENCY_FIX_20260602.sql` déplacé vers `supabase/archive/`** (`git mv`, SQL inchangé, en-tête d'archive ajouté). Aucune écriture en base.
+- **Pourquoi déplacer et non renommer** : le CLI l'ignorait déjà (« Skipping migration… file name must match pattern »), son effet en base était donc nul. Le **renommer** au format `<timestamp>_nom.sql` l'aurait fait entrer dans le registre des migrations en attente — le prochain `db push` l'aurait **rejoué** (il porte 3 articles `test-article-*`). Le déplacer est le geste sûr.
+- **Vérifié** : `check:cms-migrations` vert (les tables `site_settings` et `cms_blog_posts` restent couvertes par 25 et 57 autres migrations) ; `check:cms-drift` vert ; `check:content-html-escapes` vert ; `npm run garde-fous` **19/19**.
+
 ## [2026-10-25 quater] — Suppression du code mort E-E-A-T
 
 - **`lib/cms-seo-eeat.ts` supprimé** (196 lignes) ainsi que son test orphelin `__tests__/lib/cms-seo-eeat.test.ts`. Ses 3 exports (`auditArticleEeat`, `generateAccommodationJsonLd`, `generateArticleJsonLd`) n'étaient appelés par **aucun** composant, route ou script de production — la seule référence restante était son propre test, qui les testait en vase clos. Le correctif de logo de l'entrée précédente vivait dans ce fichier : il ne pouvait donc rien changer au rendu.
