@@ -37,7 +37,7 @@ export async function GET(request: Request) {
       .from('cms_blog_posts')
       .select('id, title, slug, published, status')
       .eq('status', 'published') // only where status is published
-      .eq('published', false) // and boolean flag is false
+      .or('published.is.null,published.eq.false')
       .limit(10)
 
     // Count total
@@ -98,7 +98,7 @@ export async function POST() {
       .from('cms_blog_posts')
       .update({ published: true })
       .eq('status', 'published') // only where status is published
-      .eq('published', false) // and boolean flag is false
+      .or('published.is.null,published.eq.false')
       .select()
 
     return NextResponse.json({
