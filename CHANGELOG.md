@@ -2,6 +2,13 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-25 septies] — Image de partage du guide Madère : Pico do Arieiro (migration prête, non appliquée)
+
+- **`supabase/migrations/20261025160000_og_guide_madere.sql`** : une instruction, remplace `/og-default.jpg` par `pico_do_arieiro.jpg` sur la zone `guides-top-10-pepites-madere` / `seo_og_image`. La page est publiée et indexable, `buildPageMetadata` lit la zone et prime sur le repli codé en dur.
+- **Pico do Arieiro (pépite n°5) retenu** par le propriétaire. `fanal_foret` écarté (Fanal n'est pas une des 10 pépites du guide) ; `porto_moniz` (pépite n°3) était l'alternative.
+- **Vérifié sans écrire** : requête rejouée avec `AND false` → HTTP 200, 0 ligne touchée (syntaxe et colonnes valides) ; cible = 1 ligne ; zone toujours `/og-default.jpg` en base.
+- **Aucun `db push`** : la migration est prête mais pas appliquée — l'application attend un feu vert explicite.
+
 ## [2026-10-25 sexies] — Archivage de `EMERGENCY_FIX_20260602.sql` (hors dossier des migrations)
 
 - **`supabase/migrations/EMERGENCY_FIX_20260602.sql` déplacé vers `supabase/archive/`** (`git mv`, SQL inchangé, en-tête d'archive ajouté). Aucune écriture en base.
@@ -13,14 +20,6 @@
 - **`lib/cms-seo-eeat.ts` supprimé** (196 lignes) ainsi que son test orphelin `__tests__/lib/cms-seo-eeat.test.ts`. Ses 3 exports (`auditArticleEeat`, `generateAccommodationJsonLd`, `generateArticleJsonLd`) n'étaient appelés par **aucun** composant, route ou script de production — la seule référence restante était son propre test, qui les testait en vase clos. Le correctif de logo de l'entrée précédente vivait dans ce fichier : il ne pouvait donc rien changer au rendu.
 - **`components/JsonLd.tsx` reste la seule source du JSON-LD servi** (`/images/badges-heldonica.svg`, HTTP 200). Aucun changement de sortie visible.
 - **Vérifié** : `tsc` 0 erreur ; `vitest` **119 fichiers / 997 tests** verts. `grep` exhaustif (ts/tsx/mjs/json) : 0 référence hors CHANGELOG et hors le test supprimé.
-## [2026-10-25 quinquies] — Migration préparée (non appliquée) : image de partage du guide Madère
-
-- **Migration `20261025160000_hero_images_pages_publiees_og_default.sql` préparée, NON appliquée.** Deux variantes prêtes à trancher par le propriétaire après regard des photos : **Pico do Arieiro** (pépites n°5) ou **Porto Moniz** (pépites n°3), toutes deux réellement présentes dans le guide.
-- **Fanal écarté** : `fanal_foret.jpg` n'est pas l'une des 10 pépites du guide. Une image sociale montrant un lieu absent de l'article serait une incohérence éditoriale.
-- **Apuseni** : aucune photo attribuable de façon vérifiable ; zone laissée à `/og-default.jpg` (photo terrain ou visuel de marque attendus).
-- **Vérifié** : les 5 photos Madère répondent **200** et font **1200x896** ; la zone cible vaut `/og-default.jpg` en base.
-- **Écart de migrations expliqué** : 0 migration en attente, 0 orpheline réelle sur `main` (les 13 « orphelines » étaient un artefact de mesure, préfixes à 8 chiffres).
-
 ## [2026-10-25 ter] — Lot 1 : images locales mortes (Madère, Suisse, Roumanie) + garde-fou
 
 - **Défaut structurel corrigé** : 19 chemins d'image locaux (`/images/…`) étaient référencés dans le code **sans fichier dans `public/`**. Les pages répondaient 200, mais le hero restait vide et le `image:` du JSON-LD (`TouristDestination`, lu par Google) pointait une **URL en 404**.
