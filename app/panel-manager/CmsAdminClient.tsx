@@ -27,7 +27,7 @@ import { computeReadingMetrics } from '@/lib/cms-reading-metrics';
 import { VERIFIED_PHOTO_ALBUMS } from '@/lib/cms-photo-albums';
 import { htmlToBlocks, blocksToHtml } from '@/lib/cms-blocks-converter';
 import type { CmsBlock } from '@/types/cms-blocks';
-const SerpAndSocialPreview = (props: any) => null;
+import SerpAndSocialPreview from '@/components/admin/seo/SerpAndSocialPreview';
 import {
   SLOW_SEASONS,
   SLOW_MOBILITIES,
@@ -65,7 +65,7 @@ const SeasonsManager = dynamic(() => import('@/components/admin/SeasonsManager')
 const RedirectsManager = dynamic(() => import('@/components/admin/RedirectsManager'), { ssr: false });
 const LayoutManager = dynamic(() => import('@/components/admin/LayoutManager'), { ssr: false });
 const AiAnalyticsDashboard = dynamic(() => import('@/components/admin/AiAnalyticsDashboard'), { ssr: false });
-const AuditLogPanel = () => null;
+const AuditLogPanel = dynamic(() => import('./AuditLogPanel'), { ssr: false });
 const HospitalityManager = dynamic(() => import('./HospitalityManager'), { ssr: false });
 const TokensAndReleasesManager = dynamic(() => import('./TokensAndReleasesManager').then(m => m.TokensAndReleasesManager), { ssr: false });
 

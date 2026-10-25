@@ -322,6 +322,7 @@ export async function POST(req: NextRequest) {
       if (result.url) uploadedUrls.push(result.url)
     }
 
+
     const primaryImage = uploadedUrls[0] || null
 
     // 1b. Upload vidéo si présente

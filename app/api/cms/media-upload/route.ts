@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireCmsAuth } from '@/lib/cms-auth';
-const extractPhotoExif = async (...args: any[]) => ({ isStockCandidate: false, stockReasons: [] });
+import { extractPhotoExif } from '@/lib/photo-exif';
 
 const BUCKET = 'media';
 

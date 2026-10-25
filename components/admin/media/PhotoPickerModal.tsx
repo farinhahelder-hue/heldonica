@@ -19,7 +19,7 @@ import {
   searchVerifiedPhotos,
   type PhotoEvidenceItem,
 } from '@/lib/cms-photo-albums';
-type PhotoExifResult = any; const detectStockPhoto = (...args: any[]) => ({ isStockCandidate: false, reasons: [] });
+import { detectStockPhoto, type PhotoExifResult } from '@/lib/photo-exif';
 
 export interface SelectedPhotoPayload {
   url: string;

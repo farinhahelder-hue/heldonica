@@ -1,5 +1,5 @@
 import Image from 'next/image'
-const DestinationJsonLd = (props: any) => null;
+import DestinationJsonLd from '@/components/seo/DestinationJsonLd'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Header from '@/components/Header'

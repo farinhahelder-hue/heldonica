@@ -4,7 +4,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import Script from 'next/script'
-const DestinationJsonLd = (props: any) => null;
+import DestinationJsonLd from '@/components/seo/DestinationJsonLd'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import NewsletterForm from '@/components/NewsletterForm'
