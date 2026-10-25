@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useContentLoader } from "@/hooks/useContentLoader";
 import type { CmsZone } from "@/lib/content-loader";
 import { normalizeZoneText } from "@/lib/zone-text";
+import { sanitizeHtml } from "@/lib/sanitize-html";
 
 interface NewsletterFormProps {
   variant?: "blog" | "article" | "inline";
@@ -205,7 +206,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
           {badge}
         </p>
         <h2 className="text-3xl md:text-4xl font-serif font-light mb-4 leading-snug"
-          dangerouslySetInnerHTML={{ __html: normalizeZoneText(headingBlog) }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(normalizeZoneText(headingBlog)) }}
         />
         <p className="text-white/65 text-sm leading-relaxed mb-8 max-w-md mx-auto">
           {description}
