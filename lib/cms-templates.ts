@@ -204,7 +204,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
           displayMode: 'carousel',
           images: [
             {
-              url: 'https://heldonica.fr/images/destinations/madere/fanal-arbres-centenaires.jpg',
+              url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/fanal_foret.jpg',
               alt: 'Atmosphère feutrée de la cour intérieure',
               caption: 'La cour intérieure ombragée aux premières heures.',
             },
@@ -262,7 +262,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
         {
           id: generateId('tpl_photo1'),
           type: 'photo_evidence',
-          imageUrl: 'https://heldonica.fr/images/destinations/suisse/stoos_sommet_croix.jpg',
+          imageUrl: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/stoos-01.jpg',
           location: `${dest} — crête panoramique`,
           date: '2025-07-14',
           anecdote: 'L\'instant précis où la brume s\'efface pour laisser apparaître le relief.',
@@ -277,7 +277,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
         {
           id: generateId('tpl_photo2'),
           type: 'photo_evidence',
-          imageUrl: 'https://heldonica.fr/images/destinations/madere/achadas-da-cruz-telepherique.jpg',
+          imageUrl: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/achadas_da_cruz.jpg',
           location: `${dest} — sentier escarpé`,
           date: '2024-10-12',
           anecdote: 'Entre ciel et océan, le sentier vertigineux vers les parcelles cultivées.',

@@ -161,6 +161,13 @@ jobs:
       - name: Fautes connues dans le code
         run: npm run check:content-known-errors
 
+      # Chemins d'image locaux (`/images/…`) sans fichier dans `public/`.
+      # Le 25/10, trois pages destinations Madère, la Suisse et la Roumanie
+      # servaient un hero vide (ou un `image:` de JSON-LD en 404) : le chemin
+      # référencé n'avait jamais été livré. Statique : ni secret, ni `if:`.
+      - name: Chemins d'image locaux (fichiers dans public/)
+        run: npm run check:image-paths
+
       # Tics visuels « IA / SaaS » (cartes SaaS, rayons exagérés, emojis décoratifs).
       # Statique, comme check:content-pages : refuse les dérives de design system.
       - name: Tics visuels et emojis hors charte

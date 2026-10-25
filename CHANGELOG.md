@@ -2,6 +2,22 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-25 ter] — Lot 1 : images locales mortes (Madère, Suisse, Roumanie) + garde-fou
+
+- **Défaut structurel corrigé** : 19 chemins d'image locaux (`/images/…`) étaient référencés dans le code **sans fichier dans `public/`**. Les pages répondaient 200, mais le hero restait vide et le `image:` du JSON-LD (`TouristDestination`, lu par Google) pointait une **URL en 404**.
+  - **Madère** (`porto-moniz`, `ponta-do-sol`, `achadas-da-cruz`) : `heroImage` + `images` OG repointés sur le bucket `media/destinations/madere/` (5 photos réelles, HTTP 200 vérifié).
+  - **Suisse** (`/destinations/suisse`, `DestinationPage` slug `suisse`) : repointés sur `blog-images/stoos-01.jpg` / `stoos-02.jpg` — les **seules** photos suisse qui existent.
+  - **Roumanie** (`sibiu`, `bucarest`) : repointés sur `media/destinations/roumanie/` (mêmes noms de fichiers, présents dans le bucket).
+  - **`lib/cms-photo-albums.ts`, `lib/cms-templates.ts`** : 13 chemins morts nettoyés (noms de fichiers de gabarit jamais livrés → photo réelle du même lieu, ou nom présent dans le bucket).
+  - **`lib/cms-seo-eeat.ts:192`** : `logo` schema.org pointait `/images/logo-heldonica.png` (**404**) → `/images/branding/logo-seal.jpg` (200).
+- **Nouveau garde-fou `scripts/check-image-paths.mjs`** : refuse tout chemin d'image **local** (`/images/…`, avec ou sans l'origine `heldonica.fr`) sans fichier correspondant dans `public/`. Il aurait attrapé les 19. Ignore les URL d'un autre domaine (cdnjs, unpkg, `*.supabase.co`) et les `placeholder` de formulaire. Câblé dans `scripts/garde-fous.mjs` (**18 → 19 contrôles**), `package.json` (`check:image-paths`) et `.github/workflows/garde-fous.yml`. **Preuve qu'il mord** : réintroduire `/images/destinations/madere/porto_moniz.jpg` fait échouer le contrôle (exit 1) sur `porto-moniz/page.tsx:58` ; restauré, il repasse vert.
+- **4 chemins en dette connue, documentés dans le script** : `lib/cms-photo-albums.ts` référence 4 photos suisse (`IMG_20250712_*`, `AGC_*`) **qui n'ont jamais été livrées** (absentes du dépôt, de git et de tous les buckets). Les 4 photos réelles de Suisse (`stoos-01..04.jpg`) existent, mais leur correspondance avec les 4 légendes (Fronalpstock, Muotathal, coucher, nuit) est **invérifiée** — deux fichiers du bucket sont d'ailleurs **byte-identiques** (`sha256` égaux), donc décrire l'un comme « coucher » et l'autre comme « nuit » serait inventer. **Réattribution par le propriétaire.**
+- **Coquille d'URL corrigée** : `smxnruefmrmfyf`**`m`**`uxygq` → `smxnruefmrmfyf`**`h`**`uxygq` dans `lib/cms-vault-spots.ts:575` **et** son miroir mobile `heldonica-mobile/…/knowledge_vault.json` (le projet fautif n'existe pas). La migration `20261018220000` qui *détecte* la coquille est laissée telle quelle (témoin historique).
+- **Vérifié** : `check:image-paths` vert (14 chemins locaux présents, 4 dettes) ; `garde-fous` **13/13** en preflight ; `tsc` **0 erreur** ; 39/39 tests des modules touchés ; les 11 URLs Storage écrites + le logo répondent **200**.
+- **Non vérifié** : le rendu visuel (pas de navigateur) ; l'effet après ISR sur les pages publiées. **Aucune écriture en base**, aucun `db push`.
+- **Écarté volontairement** : `cms-templates.ts` porte un `alt`/`caption` « cour intérieure » sur une photo de forêt — **incohérence préexistante**, hors périmètre (signalée, pas corrigée).
+
+
   ## [2026-10-25 bis] — Traçabilité des migrations #622 + 2 correctifs de contenu
 
 - **Défaut structurel** : 4 migrations dont l'**effet est en base** depuis le 18–20/10 n'existaient dans **aucun fichier de `main`**. Une base reconstruite depuis le dépôt n'aurait pas retrouvé ces états — violation de la règle absolue n°2 (« toute écriture passe par une migration versionnée »). Elles venaient de la branche #622 (`ddfd7e26`), jamais fusionnée.

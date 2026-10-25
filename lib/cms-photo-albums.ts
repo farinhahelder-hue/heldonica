@@ -141,12 +141,12 @@ export const VERIFIED_PHOTO_ALBUMS: PhotoEvidenceAlbum[] = [
     period: 'Octobre 2024',
     albumLink: 'https://www.heldonica.fr/destinations/madere',
     photosCount: 5,
-    coverImageUrl: 'https://www.heldonica.fr/images/destinations/madere/fanal_foret.jpg',
+    coverImageUrl: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/fanal_foret.jpg',
     photos: [
       {
         id: 'mad-fanal-laurisilva',
         filename: 'fanal_foret.jpg',
-        imageUrl: 'https://www.heldonica.fr/images/destinations/madere/fanal_foret.jpg',
+        imageUrl: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/fanal_foret.jpg',
         location: 'Forêt de Fanal, Madère',
         date: '2024-10-14',
         suggestedAnecdote: 'Brume matinale enveloppant les lauriers centenaires de la forêt primaire de Fanal.',
@@ -155,7 +155,7 @@ export const VERIFIED_PHOTO_ALBUMS: PhotoEvidenceAlbum[] = [
       {
         id: 'mad-achadas-telepherique',
         filename: 'achadas_da_cruz.jpg',
-        imageUrl: 'https://www.heldonica.fr/images/destinations/madere/achadas_da_cruz.jpg',
+        imageUrl: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/achadas_da_cruz.jpg',
         location: 'Achadas da Cruz, Madère',
         date: '2024-10-15',
         suggestedAnecdote: 'Le téléphérique vertigineux plongeant vers la fajã isolée battue par l\'océan Atlantique.',
@@ -164,7 +164,7 @@ export const VERIFIED_PHOTO_ALBUMS: PhotoEvidenceAlbum[] = [
       {
         id: 'mad-ponta-do-sol-pier',
         filename: 'ponta_do_sol.jpg',
-        imageUrl: 'https://www.heldonica.fr/images/destinations/madere/ponta_do_sol.jpg',
+        imageUrl: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/ponta_do_sol.jpg',
         location: 'Ponta do Sol, Madère',
         date: '2024-10-16',
         suggestedAnecdote: 'Le vieux pont en pierre s\'avançant dans les vagues à la pointe la plus ensoleillée de l\'île.',
@@ -173,7 +173,7 @@ export const VERIFIED_PHOTO_ALBUMS: PhotoEvidenceAlbum[] = [
       {
         id: 'mad-pico-arieiro-clouds',
         filename: 'pico_do_arieiro.jpg',
-        imageUrl: 'https://www.heldonica.fr/images/destinations/madere/pico_do_arieiro.jpg',
+        imageUrl: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/pico_do_arieiro.jpg',
         location: 'Pico do Arieiro, Madère',
         date: '2024-10-17',
         suggestedAnecdote: 'Mer de nuages à 1818 mètres d\'altitude au petit matin avant le départ de la randonnée.',
@@ -182,7 +182,7 @@ export const VERIFIED_PHOTO_ALBUMS: PhotoEvidenceAlbum[] = [
       {
         id: 'mad-porto-moniz-pools',
         filename: 'porto_moniz.jpg',
-        imageUrl: 'https://www.heldonica.fr/images/destinations/madere/porto_moniz.jpg',
+        imageUrl: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/porto_moniz.jpg',
         location: 'Porto Moniz, Madère',
         date: '2024-10-18',
         suggestedAnecdote: 'Piscines naturelles volcaniques sculptées par la lave et revigorées par les marées.',
@@ -197,12 +197,12 @@ export const VERIFIED_PHOTO_ALBUMS: PhotoEvidenceAlbum[] = [
     period: 'Août 2026',
     albumLink: 'https://www.heldonica.fr/destinations/roumanie',
     photosCount: 4,
-    coverImageUrl: 'https://www.heldonica.fr/images/destinations/roumanie/IMG_20260827_135023.jpg',
+    coverImageUrl: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/roumanie/IMG_20260827_135023.jpg',
     photos: [
       {
         id: 'rou-street-heritage-1',
         filename: 'IMG_20260827_135023.jpg',
-        imageUrl: 'https://www.heldonica.fr/images/destinations/roumanie/IMG_20260827_135023.jpg',
+        imageUrl: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/roumanie/IMG_20260827_135023.jpg',
         location: 'Bucarest, Roumanie',
         date: '2026-08-27',
         suggestedAnecdote: 'Exploration à pied des façades d\'époque et cours arborées du centre historique.',
@@ -211,7 +211,7 @@ export const VERIFIED_PHOTO_ALBUMS: PhotoEvidenceAlbum[] = [
       {
         id: 'rou-street-heritage-2',
         filename: 'IMG_20260827_135025.jpg',
-        imageUrl: 'https://www.heldonica.fr/images/destinations/roumanie/IMG_20260827_135025.jpg',
+        imageUrl: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/roumanie/IMG_20260827_135025.jpg',
         location: 'Bucarest, Roumanie',
         date: '2026-08-27',
         suggestedAnecdote: 'Détail architectural préservé dans les ruelles calmes de la capitale roumaine.',
@@ -220,7 +220,7 @@ export const VERIFIED_PHOTO_ALBUMS: PhotoEvidenceAlbum[] = [
       {
         id: 'rou-afternoon-cafe',
         filename: 'IMG_20260827_135618.jpg',
-        imageUrl: 'https://www.heldonica.fr/images/destinations/roumanie/IMG_20260827_135618.jpg',
+        imageUrl: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/roumanie/IMG_20260827_135618.jpg',
         location: 'Bucarest, Roumanie',
         date: '2026-08-27',
         suggestedAnecdote: 'Pause café dans une cour intérieure préservée de l\'agitation estivale.',
