@@ -13,6 +13,13 @@
 - **`lib/cms-seo-eeat.ts` supprimé** (196 lignes) ainsi que son test orphelin `__tests__/lib/cms-seo-eeat.test.ts`. Ses 3 exports (`auditArticleEeat`, `generateAccommodationJsonLd`, `generateArticleJsonLd`) n'étaient appelés par **aucun** composant, route ou script de production — la seule référence restante était son propre test, qui les testait en vase clos. Le correctif de logo de l'entrée précédente vivait dans ce fichier : il ne pouvait donc rien changer au rendu.
 - **`components/JsonLd.tsx` reste la seule source du JSON-LD servi** (`/images/badges-heldonica.svg`, HTTP 200). Aucun changement de sortie visible.
 - **Vérifié** : `tsc` 0 erreur ; `vitest` **119 fichiers / 997 tests** verts. `grep` exhaustif (ts/tsx/mjs/json) : 0 référence hors CHANGELOG et hors le test supprimé.
+## [2026-10-25 quinquies] — Migration préparée (non appliquée) : image de partage du guide Madère
+
+- **Migration `20261025160000_hero_images_pages_publiees_og_default.sql` préparée, NON appliquée.** Deux variantes prêtes à trancher par le propriétaire après regard des photos : **Pico do Arieiro** (pépites n°5) ou **Porto Moniz** (pépites n°3), toutes deux réellement présentes dans le guide.
+- **Fanal écarté** : `fanal_foret.jpg` n'est pas l'une des 10 pépites du guide. Une image sociale montrant un lieu absent de l'article serait une incohérence éditoriale.
+- **Apuseni** : aucune photo attribuable de façon vérifiable ; zone laissée à `/og-default.jpg` (photo terrain ou visuel de marque attendus).
+- **Vérifié** : les 5 photos Madère répondent **200** et font **1200x896** ; la zone cible vaut `/og-default.jpg` en base.
+- **Écart de migrations expliqué** : 0 migration en attente, 0 orpheline réelle sur `main` (les 13 « orphelines » étaient un artefact de mesure, préfixes à 8 chiffres).
 
 ## [2026-10-25 ter] — Lot 1 : images locales mortes (Madère, Suisse, Roumanie) + garde-fou
 
