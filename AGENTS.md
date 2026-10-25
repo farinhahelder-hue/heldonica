@@ -125,6 +125,24 @@ seule. Détails et installation : `mcp/agent-tasks/README.md`.
 4. **Rendre compte, honnêtement.** Clore avec le statut juste et un
    `actions_done` que le suivant peut reprendre sans relire ta session.
 
+### Un dossier par agent, jamais le dossier partagé
+
+Tous les agents travaillaient dans le même dossier, donc sur la même branche
+active : le `git checkout` de l'un déplaçait les autres. Le 19/10/2026, un commit
+de Claude est tombé sur la branche d'OpenCode, puis a été poussé sur la sienne.
+
+1. **Prends ton worktree** avant de coder :
+   `npm run worktree -- <ton-nom> <slug>` crée `../worktrees/<nom>-<slug>` sur la
+   branche `agent/<nom>/<slug>`, depuis `origin/main`. Le dossier partagé sert à
+   lire, pas à écrire.
+2. **Annonce-toi** : `export AGENT_NAME=<ton-nom>` (la variable des outils MCP).
+3. **Installe les hooks une fois** : `npm run hooks:install`. Ils refusent, pour
+   un agent identifié, un commit sur `main` ou sur la branche d'un autre, et un
+   push sur `main` ou sur la branche d'un autre.
+4. **Gestes explicites** : `git branch --show-current` avant de commiter ;
+   `git add <fichiers>` (jamais `-A`) ; `git push origin <ta-branche>` (jamais
+   `git push` seul, qui pousse la branche courante, quelle qu'elle soit).
+
 ### Le vocabulaire des statuts
 
 | Statut | Sens exact |
