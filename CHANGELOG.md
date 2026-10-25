@@ -2,7 +2,17 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
-  ## [2026-10-25] — Revue des 92 PR ouvertes : 12 fusionnées, 2 défauts en ligne corrigés
+  ## [2026-10-25 bis] — Traçabilité des migrations #622 + 2 correctifs de contenu
+
+- **Défaut structurel** : 4 migrations dont l'**effet est en base** depuis le 18–20/10 n'existaient dans **aucun fichier de `main`**. Une base reconstruite depuis le dépôt n'aurait pas retrouvé ces états — violation de la règle absolue n°2 (« toute écriture passe par une migration versionnée »). Elles venaient de la branche #622 (`ddfd7e26`), jamais fusionnée.
+- **Les 4 migrations tracées** (fichiers ajoutés, **effet vérifié en base** avant dépôt) : `20261018160000` témoignages fictifs (5 lignes, **0 active**), `20261018180000` doublons Stoos (**4 lignes, toutes `draft`**), `20261018200001` photos d'enfants (**8 fiches `cms_media` en `prive/enfants/`**, alt « PRIVÉE »), `20261020130000` mots bannis (**les 6 contrôles du fichier renvoient 0**).
+- **Leur trace est posée par `migration repair --status applied`**, jamais par un rejeu : les fichiers ne sont pas purement idempotents (déplacements de fichiers, `UPDATE` de statut).
+- **Collision de version résolue** : dans #622, **deux** fichiers portaient `20261018200000` (`brouillon_articles_photo_fausse`, seul journalisé, et `photos_enfants_bucket_prive`). Une version ne peut porter qu'une entrée — le CLI en aurait **ignoré un en silence**. Le second est renommé **`20261018200001`**.
+- **2 migrations non appliquées, corrigées à la source** : `20261018235500` (`Évoramonsaraz` → `Évora et Monsaraz`, `agritourismes` → `agritourisme`) et `20261019120000` (**5** chaînes : `falaises bretonnes` → `normandes`, `Fagnes blanches` → `Falaises blanches`, `viñedos` → `vignobles`, `architecture barcelonaise` → retiré, `propietario` → `propriétaire`). **Pages publiées, valeurs fautives mesurées en ligne** (`/destinations/carte` servait `Fagnes`, `viñedos`, `barcelonaise` ; `/guides/top-10-pepites-madere` servait `propietario`).
+- **Volontairement écartées** : `20261018170000` (périmée, réintroduirait des emojis) et `20261020120000` (remplacée par `20130000`).
+- **Vérifié** : `db push --dry-run --include-all` liste **exactement** les 6 fichiers attendus, rien d'autre.
+
+## [2026-10-25] — Revue des 92 PR ouvertes : 12 fusionnées, 2 défauts en ligne corrigés
 
 - **Contexte** : 92 PR ouvertes, dont **67 brouillons** (ignorées par le moteur de fusion) et 59 en conflit. Le gisement réel était **14 non-brouillons sans conflit**, toutes mesurées par `git merge-tree --write-tree origin/main <sha>` (pas l'API), puis **vérifiées 17/17 sur `main` courant** en appliquant leur diff (`git apply --3way`) plutôt qu'en testant leur branche brute — six d'entre elles échouaient d'abord **par vieillissement** (« Zones CMS orphelines » lit la base, qui a changé), pas par défaut.
 - **Deux défauts actifs corrigés et mesurés en production** :
