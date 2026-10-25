@@ -67,8 +67,6 @@ export const PUBLIC_DESIGN_TARGETS = [
   'components/BlogFilters.tsx',
   'components/NewsletterForm.tsx',
   'components/NewsletterPopup.tsx',
-  'components/Newsletter.tsx',
-  'components/NewsletterBrevo.tsx',
   'components/Services.tsx',
   'components/Pillars.tsx',
   'components/LeadMagnetBlock.tsx',
