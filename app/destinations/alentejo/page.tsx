@@ -13,7 +13,7 @@ import { buildPageMetadata } from '@/lib/page-metadata'
 const PAGE = "destinations-alentejo";
 const FAQS: { q: string; a: string }[] = [
   { q: "Quand partir dans l'Alentejo pour le slow travel ?", a: "Les meilleures périodes sont mars-mai et septembre-novembre. Températures agréables (20-28°C), vignobles en fleur ou vendanges, hors des sentiers battus." },
-  { q: "Combien de jours pour découvrir l'Alentejo ?", a: "Comptez minimum 4-5 jours pour faire Évoramonsaraz. 7-10 jours permettent d'explorer la Rota das Aldeias Históricas et les vignobles du sud." },
+  { q: "Combien de jours pour découvrir l'Alentejo ?", a: "Comptez minimum 4-5 jours pour faire Évora et Monsaraz. 7-10 jours permettent d'explorer la Rota das Aldeias Históricas et les vignobles du sud." },
   { q: "Comment se déplacer dans l'Alentejo ?", a: "Location de voiture indispensable. Les distances sont grandes et les transports en commun rares. Les routes sont bonnes, le trafic faible — idéal pour un road trip lent." },
   { q: "Budget moyen par jour dans l'Alentejo ?", a: "Comptez 70-120€/jour en milieu de gamme (hébergement + repas + activités). L'Alentejo est moins cher que le littoral Algarve." },
 ];
@@ -412,7 +412,7 @@ export default async function AlentejoPage() {
                   <span className="text-eucalyptus group-open:rotate-45 transition-transform">+</span>
                 </summary>
                 <p className="mt-3 text-charcoal/75 text-sm leading-relaxed">
-                  {Z('faq_2_a', 'textarea', "Comptez minimum 4-5 jours pour faire Évoramonsaraz. 7-10 jours permettent d'explorer la Rota das Aldeias Históricas et les vignobles du sud.", undefined, 'span')}
+                  {Z('faq_2_a', 'textarea', "Comptez minimum 4-5 jours pour faire Évora et Monsaraz. 7-10 jours permettent d'explorer la Rota das Aldeias Históricas et les vignobles du sud.", undefined, 'span')}
                 </p>
               </details>
               <details key={2} className="bg-[#FAF7F2] rounded-sm p-5 border border-[#DED5C6] group">

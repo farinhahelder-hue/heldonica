@@ -57,7 +57,7 @@ const PEPITES_FALLBACK = [
     rank: 1,
     title: 'Restaurant Quinta do Fogo',
     type: 'Restaurant',
-    description: "Le meilleur poisson grillé de l'île, avec vue sur les vignobles. Le propietario sait tout sur chaque plat.",
+    description: "Le meilleur poisson grillé de l'île, avec vue sur les vignobles. Le propriétaire sait tout sur chaque plat.",
     secret: "Demande le vin de Madère de la maison — ils le servent en carafe et c'est une tuerie.",
     image_url: null,
   },
