@@ -11,6 +11,7 @@ import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChar
 import { Film, Clapperboard, Camera, Calendar, MessageSquare, ClipboardList } from 'lucide-react';
 import CmsSettingsPanel from '@/components/admin/CmsSettingsPanel';
 import ErrorBoundary from '@/components/admin/ErrorBoundary';
+import EditHeader from '@/components/admin/EditHeader';
 import CategorySelect from '@/components/admin/CategorySelect';
 import { ToastProvider, useToast } from '@/components/admin/Toast';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
@@ -48,6 +49,16 @@ const RedirectsManager = dynamic(() => import('@/components/admin/RedirectsManag
 const LayoutManager = dynamic(() => import('@/components/admin/LayoutManager'), { ssr: false });
 const AiAnalyticsDashboard = dynamic(() => import('@/components/admin/AiAnalyticsDashboard'), { ssr: false });
 
+
+type ArticleVersion = {
+  id: string;
+  article_id: number;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  created_at: string;
+};
 type Article = {
   id: number;
   title: string;
@@ -200,6 +211,10 @@ function CmsAdminClientInner() {
 
   // Preview
   const [previewArticle, setPreviewArticle] = useState<Article | null>(null);
+  const [showVersionsModal, setShowVersionsModal] = useState<number | null>(null);
+  const [articleVersions, setArticleVersions] = useState<ArticleVersion[]>([]);
+  const [loadingVersions, setLoadingVersions] = useState(false);
+
 
   // Local draft recovery
   const [localDraft, setLocalDraft] = useState<{ article: Article; timestamp: string } | null>(null);
@@ -584,7 +599,20 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
     setConfirmOpen(true);
   };
 
-  const handleSaveArticle = async () => {
+
+  const handleCreateSnapshot = async () => {
+    if (!editingArticle?.id) return;
+    try {
+      const res = await fetch(`/api/cms/articles/${editingArticle.id}/snapshot`, {
+        method: 'POST',
+      });
+      if (!res.ok) throw new Error('Erreur lors de la création du snapshot');
+      toast('📸 Snapshot créé avec succès', 'success');
+    } catch (err) {
+      toast('Erreur création snapshot', 'error');
+    }
+  };
+const handleSaveArticle = async () => {
     if (!editingArticle) return;
     setSaving(true);
     toast('💾 Sauvegarde en cours…', 'info');
@@ -1229,7 +1257,18 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                         <Camera size={14} /> Caption IG
                       </button>
                     )}
-                    <button
+
+                    {editingArticle?.id && (
+                      <button
+                        onClick={handleCreateSnapshot}
+                        className="px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center gap-2"
+                        title="Créer un snapshot de la version actuelle"
+                      >
+                        <Camera size={16} />
+                        Créer un snapshot
+                      </button>
+                    )}
+<button
                       onClick={handleSaveArticle}
                       disabled={saving}
                       className="flex items-center gap-2 px-5 py-2.5 bg-[#C4714A] text-white rounded-lg text-sm font-bold hover:bg-[#b05f3a] disabled:opacity-60 transition-colors shadow-sm"
@@ -1287,66 +1326,25 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
 
                   {/* ── Content section ── */}
                   <CollapsibleSection title="📝 Contenu" defaultOpen={true}>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Titre</label>
-                      <input
-                        type="text"
-                        value={editingArticle?.title ?? ''}
-                        onChange={e => setEditingArticle(prev => prev ? { ...prev, title: e.target.value } : prev)}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base font-medium focus:outline-none focus:ring-2 focus:ring-[#2D8B7A]"
-                        placeholder="Titre de l’article"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Slug</label>
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          value={editingArticle?.slug ?? ''}
-                          onChange={e => setEditingArticle(prev => prev ? { ...prev, slug: e.target.value } : prev)}
-                          className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A] font-mono"
-                          placeholder="mon-article-slug"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (!editingArticle?.title) return;
-                            const slug = editingArticle.title
-                              .toLowerCase()
-                              .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-                              .replace(/[^a-z0-9\s-]/g, '')
-                              .trim()
-                              .replace(/\s+/g, '-')
-                              .replace(/-+/g, '-');
-                            setEditingArticle(prev => prev ? { ...prev, slug } : prev);
-                          }}
-                          className="px-3 py-2 text-xs border border-gray-200 rounded-lg text-gray-500 hover:bg-gray-50 whitespace-nowrap"
-                        >
-                          ↺ Générer
-                        </button>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Extrait</label>
-                      <textarea
-                        rows={2}
-                        value={editingArticle?.excerpt ?? ''}
-                        onChange={e => setEditingArticle(prev => prev ? { ...prev, excerpt: e.target.value } : prev)}
-                        className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2D8B7A] resize-y"
-                        placeholder="Résumé court de l’article"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Contenu</label>
-                      <Suspense fallback={<SkeletonForm />}>
-                        <RichEditor
-                          value={editingArticle?.content || ''}
-                          onChange={(html: string) =>
-                            setEditingArticle(prev => prev ? { ...prev, content: html } : prev)
-                          }
-                        />
-                      </Suspense>
-                    </div>
+                    <EditHeader
+                      title={editingArticle?.title ?? ''}
+                      slug={editingArticle?.slug ?? ''}
+                      excerpt={editingArticle?.excerpt ?? ''}
+                      onTitleChange={val => setEditingArticle(prev => prev ? { ...prev, title: val } : prev)}
+                      onSlugChange={val => setEditingArticle(prev => prev ? { ...prev, slug: val } : prev)}
+                      onExcerptChange={val => setEditingArticle(prev => prev ? { ...prev, excerpt: val } : prev)}
+                      onRegenerateSlug={() => {
+                        if (!editingArticle?.title) return;
+                        const slug = editingArticle.title
+                          .toLowerCase()
+                          .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                          .replace(/[^a-z0-9\s-]/g, '')
+                          .trim()
+                          .replace(/\s+/g, '-')
+                          .replace(/-+/g, '-');
+                        setEditingArticle(prev => prev ? { ...prev, slug } : prev);
+                      }}
+                    />
                   </CollapsibleSection>
 
                   {/* ── Media section ── */}
@@ -1878,7 +1876,69 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
         featured_image={previewArticle?.featured_image}
         onClose={() => setPreviewArticle(null)}
       />
-      {showPalette && (
+
+      {/* Versions Modal */}
+      {showVersionsModal !== null && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => setShowVersionsModal(null)}>
+          <div className="bg-white rounded-xl w-full max-w-lg max-h-[80vh] flex flex-col shadow-xl" onClick={e => e.stopPropagation()}>
+            <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50 rounded-t-xl">
+              <h3 className="font-semibold text-gray-800">Versions sauvegardées</h3>
+              <button onClick={() => setShowVersionsModal(null)} className="text-gray-400 hover:text-gray-600">×</button>
+            </div>
+            <div className="p-4 overflow-y-auto flex-1">
+              {loadingVersions ? (
+                <div className="text-center py-8 text-gray-500">Chargement...</div>
+              ) : articleVersions.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">Aucune version trouvée</div>
+              ) : (
+                <div className="space-y-3">
+                  {articleVersions.map(v => (
+                    <div key={v.id} className="border border-gray-200 rounded-lg p-3 flex flex-col gap-2 bg-white">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{v.title}</p>
+                          <p className="text-xs text-gray-500">{new Date(v.created_at).toLocaleString('fr-FR')}</p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            if (window.confirm("Voulez-vous restaurer cette version ? L'article actuel sera écrasé.")) {
+                              // We will implement restore logic in the next step
+
+                            // Trouver l'article concerné
+                            const articleToEdit = articles.find(a => a.id === v.article_id);
+                            if (articleToEdit) {
+                               setEditingArticle({
+                                 ...articleToEdit,
+                                 title: v.title,
+                                 slug: v.slug,
+                                 excerpt: v.excerpt,
+                                 content: v.content
+                               });
+                               setShowVersionsModal(null);
+                               toast('Version restaurée dans l\'éditeur. N\'oubliez pas de sauvegarder.', 'success');
+                            }
+
+                            }
+                          }}
+                          className="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+                        >
+                          Restaurer
+                        </button>
+                      </div>
+                      {v.excerpt && (
+                        <p className="text-xs text-gray-600 line-clamp-2 mt-1 italic border-l-2 border-gray-200 pl-2">
+                          {v.excerpt}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+{showPalette && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-start justify-center pt-20" onClick={() => setShowPalette(false)}>
           <div className="bg-white rounded-xl w-full max-w-md mx-4 p-4 shadow-xl" onClick={e => e.stopPropagation()}>
             <input
