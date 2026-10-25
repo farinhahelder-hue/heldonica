@@ -189,7 +189,7 @@ export function generateArticleJsonLd(params: {
       url: baseUrl,
       logo: {
         '@type': 'ImageObject',
-        url: `${baseUrl}/images/logo-heldonica.png`,
+        url: `${baseUrl}/images/branding/logo-seal.jpg`,
       },
     },
   };

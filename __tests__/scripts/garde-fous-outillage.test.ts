@@ -74,13 +74,14 @@ describe('outillage garde-fous — scripts du pré-vol', () => {
   });
 
   describe('garde-fous — agrégateur', () => {
-    it('expose les 18 contrôles attendus', () => {
-      expect(CHECKS).toHaveLength(18);
+    it('expose les 19 contrôles attendus', () => {
+      expect(CHECKS).toHaveLength(19);
       expect(CHECKS.map((c) => c.key)).toContain('cms-migrations');
       expect(CHECKS.map((c) => c.key)).toContain('cms-cache');
       expect(CHECKS.map((c) => c.key)).toContain('brand-sync');
       expect(CHECKS.map((c) => c.key)).toContain('content-pages');
       expect(CHECKS.map((c) => c.key)).toContain('content-known-errors');
+      expect(CHECKS.map((c) => c.key)).toContain('image-paths');
       expect(CHECKS.map((c) => c.key)).toContain('design-tics');
       expect(CHECKS.map((c) => c.key)).toContain('cms-hardcode');
       expect(CHECKS.map((c) => c.key)).toContain('content-html-escapes');
@@ -100,6 +101,11 @@ describe('outillage garde-fous — scripts du pré-vol', () => {
     it('câble check:content-known-errors dans .github/workflows/garde-fous.yml', () => {
       const yml = readFileSync('.github/workflows/garde-fous.yml', 'utf8');
       expect(yml).toContain('npm run check:content-known-errors');
+    });
+
+    it('câble check:image-paths dans .github/workflows/garde-fous.yml', () => {
+      const yml = readFileSync('.github/workflows/garde-fous.yml', 'utf8');
+      expect(yml).toContain('npm run check:image-paths');
     });
 
     it('câble check:content-html-escapes dans .github/workflows/garde-fous.yml', () => {

@@ -13,7 +13,7 @@ const metadata: Metadata = {
     title: "Ponta do Sol en couple : notre carnet slow travel | Heldonica",
     description: "Le bout de l’île. Le plus west. Le moins connu en Secret Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
     type: 'website',
-    images: ['/images/destinations/madere/ponta_do_sol.jpg'],
+    images: ['https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/ponta_do_sol.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica'
   },
@@ -55,7 +55,7 @@ export default async function PontadoSolPage() {
         name="Ponta do Sol"
         parentName="Madère"
         parentSlug="madere"
-        heroImage="/images/destinations/madere/ponta_do_sol.jpg"
+        heroImage="https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/ponta_do_sol.jpg"
         introText="Le bout de l’île. Le plus west. Le moins connu."
         highlights={highlights}
         localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."
