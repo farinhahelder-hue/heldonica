@@ -1,1 +1,1 @@
-export const siteUrl = () => 'https://heldonica.com';
+export const siteUrl = () => 'https://www.heldonica.fr';
