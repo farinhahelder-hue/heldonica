@@ -488,6 +488,7 @@ export default function EditeurAvancePage() {
             onClick={() => setSidebarOpen((v) => !v)}
             className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white transition"
             title={sidebarOpen ? 'Réduire la barre latérale' : 'Ouvrir la barre latérale'}
+            aria-label={sidebarOpen ? 'Réduire la barre latérale' : 'Ouvrir la barre latérale'}
           >
             {sidebarOpen ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
           </button>
@@ -531,7 +532,7 @@ export default function EditeurAvancePage() {
               <span className="font-mono text-amber-300">
                 {Math.floor(focusTimer / 60)}:{String(focusTimer % 60).padStart(2, '0')}
               </span>
-              <button onClick={() => setFocusTimerRunning(false)} className="text-amber-400 hover:text-amber-200" title="Arrêter le timer">
+              <button onClick={() => setFocusTimerRunning(false)} className="text-amber-400 hover:text-amber-200" title="Arrêter le timer" aria-label="Arrêter le timer">
                 <X size={12} />
               </button>
             </div>
@@ -550,6 +551,7 @@ export default function EditeurAvancePage() {
             onClick={toggleFocusMode}
             className={`p-1.5 rounded-lg transition ${focusMode ? 'bg-teal-600 text-white shadow-sm' : 'bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white'}`}
             title={`Mode Focus (Ctrl+B) - ${focusMode ? 'Activé' : 'Désactivé'}`}
+            aria-label={`Mode Focus - ${focusMode ? 'Activé' : 'Désactivé'}`}
           >
             <Target size={14} className={focusMode ? 'text-teal-300' : 'text-stone-400'} />
             <span className="hidden sm:inline text-xs ml-1 font-medium">Focus</span>
@@ -559,6 +561,7 @@ export default function EditeurAvancePage() {
             onClick={toggleDistractionFree}
             className={`p-1.5 rounded-lg transition ${distractionFree ? 'bg-amber-600 text-white shadow-sm' : 'bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white'}`}
             title={`Distraction-free (Ctrl+D) - ${distractionFree ? 'Activé' : 'Désactivé'}`}
+            aria-label={`Mode Zen - ${distractionFree ? 'Activé' : 'Désactivé'}`}
           >
             <Layout size={14} className={distractionFree ? 'text-amber-300' : 'text-stone-400'} />
             <span className="hidden sm:inline text-xs ml-1 font-medium">Zen</span>
@@ -568,6 +571,7 @@ export default function EditeurAvancePage() {
             onClick={toggleKeyboardHelp}
             className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white transition"
             title="Raccourcis clavier (Ctrl+/) ou (?)"
+            aria-label="Raccourcis clavier"
           >
             <Keyboard size={14} />
             <span className="hidden sm:inline text-xs ml-1 font-medium">Raccourcis</span>
@@ -598,6 +602,7 @@ export default function EditeurAvancePage() {
               type="submit"
               className="text-stone-400 hover:text-white p-1 rounded transition"
               title="Aller à l'adresse"
+              aria-label="Aller à l'adresse"
             >
               <ArrowUpRight size={14} />
             </button>
@@ -614,6 +619,7 @@ export default function EditeurAvancePage() {
                 device === 'desktop' ? 'bg-stone-800 text-teal-400 shadow-sm' : 'text-stone-400 hover:text-stone-200'
               }`}
               title="Vue Ordinateur"
+              aria-label="Vue Ordinateur"
             >
               <Monitor size={16} />
             </button>
@@ -623,6 +629,7 @@ export default function EditeurAvancePage() {
                 device === 'tablet' ? 'bg-stone-800 text-teal-400 shadow-sm' : 'text-stone-400 hover:text-stone-200'
               }`}
               title="Vue Tablette"
+              aria-label="Vue Tablette"
             >
               <Tablet size={16} />
             </button>
@@ -632,6 +639,7 @@ export default function EditeurAvancePage() {
                 device === 'mobile' ? 'bg-stone-800 text-teal-400 shadow-sm' : 'text-stone-400 hover:text-stone-200'
               }`}
               title="Vue Mobile"
+              aria-label="Vue Mobile"
             >
               <Smartphone size={16} />
             </button>
@@ -645,6 +653,7 @@ export default function EditeurAvancePage() {
                 orientation === 'landscape' ? 'text-teal-400 border-teal-800' : ''
               }`}
               title={`Orientation : ${orientation === 'portrait' ? 'Vertical (Portrait)' : 'Horizontal (Paysage)'}`}
+              aria-label={`Orientation : ${orientation === 'portrait' ? 'Vertical (Portrait)' : 'Horizontal (Paysage)'}`}
             >
               <RotateCcw size={15} />
             </button>
@@ -667,6 +676,7 @@ export default function EditeurAvancePage() {
             onClick={() => setFrameKey((k) => k + 1)}
             className="p-1.5 rounded-lg border border-stone-800 bg-stone-900 hover:bg-stone-800 text-stone-300 hover:text-white transition"
             title="Recharger l'aperçu"
+            aria-label="Recharger l'aperçu"
           >
             <RefreshCw size={15} />
           </button>
@@ -1190,7 +1200,7 @@ export default function EditeurAvancePage() {
                 <Keyboard size={16} className="text-teal-400" />
                 Raccourcis clavier
               </h3>
-              <button onClick={() => setKeyboardHelpOpen(false)} className="text-stone-400 hover:text-white" title="Fermer (Échap)">
+              <button onClick={() => setKeyboardHelpOpen(false)} className="text-stone-400 hover:text-white" title="Fermer (Échap)" aria-label="Fermer l'aide sur les raccourcis clavier">
                 <X size={16} />
               </button>
             </div>
