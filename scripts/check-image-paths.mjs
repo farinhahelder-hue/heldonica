@@ -119,9 +119,10 @@ const MANQUANTS_CONNUS = new Map([
   [
     '/images/destinations/suisse/IMG_20250712_154207.jpg',
     'album suisse-stoos-2025 : fichier jamais livré. Les 4 photos réelles de Suisse ' +
-      '(stoos-01..04.jpg) sont dans le bucket blog-images, mais leur correspondance avec ' +
-      'les 4 légendes (Fronalpstock, Muotathal, coucher, nuit) est invérifiée — à ' +
-      'réattribuer par le propriétaire.',
+      'sont dans le bucket blog-images (stoos-01..03.jpg — 3 distinctes, stoos-04.jpg ' +
+      'est byte-identique à stoos-03.jpg). Leur correspondance avec les 4 légendes ' +
+      '(Fronalpstock, Muotathal, coucher, nuit) est invérifiée — à réattribuer par le ' +
+      'propriétaire.',
   ],
   [
     '/images/destinations/suisse/IMG_20250712_154303.jpg',
