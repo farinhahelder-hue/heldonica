@@ -110,7 +110,7 @@ export const PUBLIC_DESIGN_TARGETS = [
 ];
 
 // Plages Unicode des emojis décoratifs et dingbats (hors flèches typographiques ← → ↑ ↓ et étoile pleine ★).
-const DECORATIVE_EMOJI_RE =
+export const DECORATIVE_EMOJI_RE =
   /[\u{1F300}-\u{1FAFF}\u{1F1E6}-\u{1F1FF}\u{231A}-\u{231B}\u{23E9}-\u{23FF}\u{2600}-\u{2604}\u{2606}-\u{26FF}\u{2700}-\u{27BF}\u{2B1B}-\u{2B1C}\u{2B50}\u{2B55}]/gu;
 
 /**

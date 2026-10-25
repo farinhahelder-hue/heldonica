@@ -153,6 +153,14 @@ jobs:
       - name: Mots bannis des pages statiques
         run: npm run check:content-pages
 
+      # Fautes de langue connues, corrigées en base, encore présentes dans le code.
+      # Le 25/10, la base était propre mais /destinations/alentejo servait toujours
+      # « Évoramonsaraz » — dans le JSON-LD FAQPage lu par Google. Les migrations
+      # corrigent la base, pas les replis JSX. Statique : ni secret, ni `if:` — il ne
+      # peut pas sauter silencieusement.
+      - name: Fautes connues dans le code
+        run: npm run check:content-known-errors
+
       # Tics visuels « IA / SaaS » (cartes SaaS, rayons exagérés, emojis décoratifs).
       # Statique, comme check:content-pages : refuse les dérives de design system.
       - name: Tics visuels et emojis hors charte
