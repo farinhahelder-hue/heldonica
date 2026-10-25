@@ -93,24 +93,15 @@ describe('outillage garde-fous — scripts du pré-vol', () => {
       expect(rapides.every((c) => !c.needsDb)).toBe(true);
     });
 
-    it('câble check:design-tics dans .github/workflows/garde-fous.yml', () => {
+    it('câble dans la CI tout contrôle de CHECKS qui ne dépend pas de la base', () => {
+      // Un contrôle présent dans l'agrégateur mais lancé par aucun workflow est vert
+      // en local et absent en CI : c'est ainsi que check:cms-cache a vérifié 119 pages
+      // pendant des semaines sans que la CI le sache. Les contrôles needsDb sont
+      // l'exception assumee (ils tournent derriere un if: selon les secrets).
       const yml = readFileSync('.github/workflows/garde-fous.yml', 'utf8');
-      expect(yml).toContain('npm run check:design-tics');
-    });
-
-    it('câble check:content-known-errors dans .github/workflows/garde-fous.yml', () => {
-      const yml = readFileSync('.github/workflows/garde-fous.yml', 'utf8');
-      expect(yml).toContain('npm run check:content-known-errors');
-    });
-
-    it('câble check:image-paths dans .github/workflows/garde-fous.yml', () => {
-      const yml = readFileSync('.github/workflows/garde-fous.yml', 'utf8');
-      expect(yml).toContain('npm run check:image-paths');
-    });
-
-    it('câble check:content-html-escapes dans .github/workflows/garde-fous.yml', () => {
-      const yml = readFileSync('.github/workflows/garde-fous.yml', 'utf8');
-      expect(yml).toContain('npm run check:content-html-escapes');
+      const statiques = CHECKS.filter((c) => !c.needsDb && c.script);
+      const nonCables = statiques.map((c) => c.script).filter((s) => !yml.includes(`npm run ${s}`));
+      expect(nonCables).toEqual([]);
     });
   });
 });
