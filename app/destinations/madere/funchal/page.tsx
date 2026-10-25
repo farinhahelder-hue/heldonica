@@ -55,7 +55,7 @@ export default async function FunchaletenvironsPage() {
         name="Funchal et environs"
         parentName="Madère"
         parentSlug="madere"
-        heroImage="/og-default.jpg"
+        heroImage="/images/destinations/madere/CE-FICHIER-NEXISTE-PAS.jpg"
         introText="La capitale de Madère. Le marché, le vieux quartier, et la vue depuis le téléphérique."
         highlights={highlights}
         localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."
