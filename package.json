@@ -24,6 +24,7 @@
     "check:cms-cache": "node scripts/check-cms-cache.mjs",
     "check:content-coherence": "node scripts/check-content-coherence.mjs",
     "check:content-pages": "node scripts/check-content-pages.mjs",
+    "check:content-known-errors": "node scripts/check-content-known-errors.mjs",
     "check:content-evidence": "node scripts/check-content-evidence.mjs",
     "check:design-tics": "node scripts/check-design-tics.mjs",
     "check:content-html-escapes": "node scripts/check-content-html-escapes.mjs",
