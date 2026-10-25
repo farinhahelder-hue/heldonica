@@ -2,6 +2,12 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-25 quater] — Suppression du code mort E-E-A-T
+
+- **`lib/cms-seo-eeat.ts` supprimé** (196 lignes) ainsi que son test orphelin `__tests__/lib/cms-seo-eeat.test.ts`. Ses 3 exports (`auditArticleEeat`, `generateAccommodationJsonLd`, `generateArticleJsonLd`) n'étaient appelés par **aucun** composant, route ou script de production — la seule référence restante était son propre test, qui les testait en vase clos. Le correctif de logo de l'entrée précédente vivait dans ce fichier : il ne pouvait donc rien changer au rendu.
+- **`components/JsonLd.tsx` reste la seule source du JSON-LD servi** (`/images/badges-heldonica.svg`, HTTP 200). Aucun changement de sortie visible.
+- **Vérifié** : `tsc` 0 erreur ; `vitest` **119 fichiers / 997 tests** verts. `grep` exhaustif (ts/tsx/mjs/json) : 0 référence hors CHANGELOG et hors le test supprimé.
+
 ## [2026-10-25 ter] — Lot 1 : images locales mortes (Madère, Suisse, Roumanie) + garde-fou
 
 - **Défaut structurel corrigé** : 19 chemins d'image locaux (`/images/…`) étaient référencés dans le code **sans fichier dans `public/`**. Les pages répondaient 200, mais le hero restait vide et le `image:` du JSON-LD (`TouristDestination`, lu par Google) pointait une **URL en 404**.
