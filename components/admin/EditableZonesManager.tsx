@@ -329,6 +329,9 @@ export default function EditableZonesManager() {
                       <span className="inline-block px-2 py-1 text-xs font-medium text-eucalyptus bg-eucalyptus/10 rounded-md mb-1">
                         {zone.page}
                       </span>
+                      {zone.label && zone.label !== zone.zone_key && (
+                        <div className="text-sm font-semibold text-stone-800">{zone.label}</div>
+                      )}
                       <div className="font-mono text-xs text-stone-500">
                         {zone.zone_key}
                       </div>
@@ -340,9 +343,18 @@ export default function EditableZonesManager() {
                           onChange={(e) => setEditValue(e.target.value)}
                           className="w-full p-2 border border-eucalyptus/50 rounded-lg focus:ring-2 focus:ring-eucalyptus/20 focus:border-eucalyptus outline-none min-h-[80px]"
                         />
-                      ) : (
+                      ) : zone.value?.trim() ? (
                         <div className="line-clamp-3 bg-stone-100 p-3 rounded-lg border border-stone-200 whitespace-pre-wrap">
                           {zone.value}
+                        </div>
+                      ) : (
+                        <div>
+                          <div className="bg-stone-100 p-3 rounded-lg border border-dashed border-stone-300 text-stone-400 italic">
+                            Vide — repli du code
+                          </div>
+                          {zone.description && (
+                            <p className="mt-1 text-xs text-stone-500">{zone.description}</p>
+                          )}
                         </div>
                       )}
                     </td>

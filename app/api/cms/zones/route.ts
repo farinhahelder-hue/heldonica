@@ -21,6 +21,8 @@ export interface CmsZone {
   zone_type: string;
   value: string;
   is_active: boolean;
+  label?: string | null;
+  description?: string | null;
 }
 
 export interface CmsZonesResponse {
@@ -38,7 +40,7 @@ const fetchZonesCached = unstable_cache(
 
     let query = supabase
       .from('cms_editable_zones')
-      .select('id, page, zone_key, zone_type, value, is_active')
+      .select('id, page, zone_key, zone_type, value, is_active, label, description')
       .eq('is_active', true)
       .order('page')
       .order('zone_key');
