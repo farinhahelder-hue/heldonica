@@ -2,8 +2,11 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/components/admin/Toast';
-import { Search, Save, Edit2, Check, X, RefreshCw, History, Clock } from 'lucide-react';
+import { Search, Save, Edit2, Check, X, RefreshCw, History, Clock, Plus } from 'lucide-react';
 import type { CmsZone, CmsZonesData } from '@/lib/content-loader';
+
+/** Types de zone acceptés par `cms_editable_zones` (cf. colonne `zone_type`). */
+const ZONE_TYPES = ['text', 'textarea', 'html', 'image', 'icon', 'cta'] as const;
 
 export default function EditableZonesManager() {
   const { toast } = useToast();
@@ -12,6 +15,16 @@ export default function EditableZonesManager() {
   const [search, setSearch] = useState('');
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
+
+  // Création d'une zone neuve. Sans ce formulaire, le CMS ne pouvait pas
+  // accueillir une clé qui n'existait pas déjà dans le code : c'est ce qui
+  // obligeait à passer par un développeur pour ajouter un texte ou un lien.
+  const [creating, setCreating] = useState(false);
+  const [newPage, setNewPage] = useState('global');
+  const [newKey, setNewKey] = useState('');
+  const [newType, setNewType] = useState<string>('text');
+  const [newValue, setNewValue] = useState('');
+  const [savingNew, setSavingNew] = useState(false);
   
   const [historyModal, setHistoryModal] = useState<{page: string, key: string} | null>(null);
   const [historyData, setHistoryData] = useState<any[]>([]);
@@ -67,6 +80,44 @@ export default function EditableZonesManager() {
     }
   };
 
+  /**
+   * Crée une zone neuve (ou écrase la valeur d'une zone existante de même clé).
+   * Le type est contraint à `ZONE_TYPES` : une valeur libre ferait échouer la
+   * lecture côté `EditableZone`, qui choisit son rendu sur `zone_type`.
+   */
+  const handleCreate = async () => {
+    const page = newPage.trim();
+    const zoneKey = newKey.trim();
+    if (!page || !zoneKey) {
+      toast({ title: 'Champs requis', description: 'Page et clé sont obligatoires', variant: 'danger' });
+      return;
+    }
+    setSavingNew(true);
+    try {
+      const res = await fetch('/api/cms/zones', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          page,
+          zone_key: zoneKey,
+          value: newValue,
+          zone_type: newType,
+          is_active: true,
+        }),
+      });
+      if (!res.ok) throw new Error('Erreur API');
+      toast({ title: 'Créée', description: `Zone ${page} / ${zoneKey} enregistrée` });
+      setCreating(false);
+      setNewKey('');
+      setNewValue('');
+      fetchZones();
+    } catch {
+      toast({ title: 'Erreur', description: 'Échec de la création', variant: 'danger' });
+    } finally {
+      setSavingNew(false);
+    }
+  };
+
   const loadHistory = async (page: string, key: string) => {
     setHistoryModal({ page, key });
     setHistoryData([]);
@@ -116,11 +167,86 @@ export default function EditableZonesManager() {
           <p className="text-sm text-stone-500">Gérez les textes configurables du site</p>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setCreating((v) => !v)}
+            className="flex items-center gap-2 px-4 py-2 bg-eucalyptus text-white rounded-lg hover:bg-eucalyptus/90 transition-colors text-sm font-semibold"
+          >
+            <Plus className="w-4 h-4" /> Nouvelle zone
+          </button>
           <button onClick={fetchZones} className="p-2 border border-stone-200 rounded-lg hover:bg-stone-50 transition-colors">
             <RefreshCw className={`w-5 h-5 text-stone-600 ${loading ? 'animate-spin' : ''}`} />
           </button>
         </div>
       </div>
+
+      {creating && (
+        <div className="bg-white rounded-xl border border-stone-200 shadow-sm p-6 space-y-4">
+          <h3 className="font-semibold text-stone-800">Créer une zone</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-stone-600 mb-1">Page</label>
+              <input
+                type="text"
+                value={newPage}
+                onChange={(e) => setNewPage(e.target.value)}
+                placeholder="global, home, blog…"
+                className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-eucalyptus/20 focus:border-eucalyptus outline-none font-mono text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-stone-600 mb-1">Clé</label>
+              <input
+                type="text"
+                value={newKey}
+                onChange={(e) => setNewKey(e.target.value)}
+                placeholder="nav_item_6_label"
+                className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-eucalyptus/20 focus:border-eucalyptus outline-none font-mono text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-stone-600 mb-1">Type</label>
+              <select
+                value={newType}
+                onChange={(e) => setNewType(e.target.value)}
+                className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-eucalyptus/20 focus:border-eucalyptus outline-none text-sm"
+              >
+                {ZONE_TYPES.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-stone-600 mb-1">Valeur</label>
+            <textarea
+              value={newValue}
+              onChange={(e) => setNewValue(e.target.value)}
+              placeholder="Texte, URL d'image, nom d'icône…"
+              className="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-eucalyptus/20 focus:border-eucalyptus outline-none min-h-[80px]"
+            />
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={handleCreate}
+              disabled={savingNew}
+              className="px-4 py-2 bg-eucalyptus text-white rounded-lg hover:bg-eucalyptus/90 transition-colors text-sm font-semibold disabled:opacity-50"
+            >
+              {savingNew ? 'Enregistrement…' : 'Créer la zone'}
+            </button>
+            <button
+              onClick={() => setCreating(false)}
+              className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors text-sm"
+            >
+              Annuler
+            </button>
+          </div>
+          <p className="text-xs text-stone-500">
+            Une zone n&apos;apparaît sur le site que si un composant la lit. Pour le menu,
+            utilisez les clés <code className="font-mono">nav_item_&lt;n&gt;_label</code> et{' '}
+            <code className="font-mono">nav_item_&lt;n&gt;_url</code>.
+          </p>
+        </div>
+      )}
 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />

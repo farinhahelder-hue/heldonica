@@ -56,4 +56,20 @@ describe('getGlobalZones', () => {
     const zones = await getGlobalZones()
     expect(zones.newsletter_title).toBeUndefined()
   })
+
+  it("sert une zone neuve, absente de toute liste écrite dans le code", async () => {
+    // Le verrou du 25/10/2026 : une liste blanche de clés (`CONSUMED_ZONE_KEYS`)
+    // filtrait la requête, si bien qu'une zone créée depuis le CMS restait
+    // invisible tant que le code n'avait pas été modifié — c'est ce qui
+    // obligeait à passer par un développeur pour ajouter une entrée de menu.
+    // La clé ci-dessous n'a jamais figuré dans cette liste : si le filtre
+    // revient, ce test tombe.
+    db.rows = [
+      zone('global', 'nav_item_9_label', 'Itinéraires'),
+      zone('global', 'nav_item_9_url', '/itineraire-10-jours'),
+    ]
+    const zones = await getGlobalZones()
+    expect(zones.nav_item_9_label.value).toBe('Itinéraires')
+    expect(zones.nav_item_9_url.value).toBe('/itineraire-10-jours')
+  })
 })

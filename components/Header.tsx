@@ -8,9 +8,11 @@ import { useAuth } from '@/components/AuthProvider'
 import { useContentLoader, getCmsOrSetting, getZoneLinks } from '@/hooks/useContentLoader'
 import type { CmsZone } from '@/lib/content-loader'
 
-// Le menu principal n'affiche jamais plus de cinq entrées, même si le CMS en
-// renseigne davantage (lib/site-content.ts en charge sept).
-const NAV_MAX_ITEMS = 5
+// Nombre maximal d'entrées du menu principal. Le CMS peut en renseigner moins ;
+// au-delà de ce plafond, l'entrée supplémentaire n'est pas affichée. Il borne la
+// largeur du menu sur mobile — il n'oblige plus à toucher au code pour ajouter une
+// entrée, les zones `nav_item_<n>_label` / `_url` étant lues depuis le CMS.
+const NAV_MAX_ITEMS = 8
 
 export default function Header() {
   const [open, setOpen] = useState(false)
