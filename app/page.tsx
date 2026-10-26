@@ -89,21 +89,9 @@ const schemaSpeakable = {
   url: 'https://www.heldonica.fr',
 };
 
-const schemaOrganization = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "Heldonica",
-  "url": "https://www.heldonica.fr",
-  "logo": "https://www.heldonica.fr/images/badges-heldonica.svg",
-  "sameAs": [
-    "https://www.instagram.com/heldonica"
-  ],
-  "contactPoint": {
-    "@type": "ContactPoint",
-    "contactType": "customer service",
-    "availableLanguage": ["French", "English", "Portuguese"]
-  }
-};
+// L'Organization complet (TravelAgency, areaServed, adresse) est deja emis une
+// fois pour toutes par app/layout.tsx. Le bloc nu ci-dessous etait un doublon :
+// les deux balises coexistaient sur l'accueil (releve 2026-10-26).
 
 export default async function Home() {
   // Fetch all data in parallel
@@ -188,7 +176,6 @@ export default async function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaSpeakable) }}
       />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrganization) }} />
     </InlineEditProvider>
   )
 }

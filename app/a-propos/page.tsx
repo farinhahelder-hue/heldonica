@@ -58,16 +58,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export const revalidate = 3600
 
-const schemaOrganization = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "Heldonica",
-  "url": "https://www.heldonica.fr",
-  "description": "Duo franco-portugais spécialiste slow travel entre Paris, Madère et Roumanie",
-  "sameAs": [
-    "https://www.instagram.com/heldonica"
-  ]
-};
+// L'Organization complet (TravelAgency, areaServed, adresse) est deja emis une
+// fois pour toutes par app/layout.tsx. Le bloc nu ci-dessous etait un doublon :
+// les deux balises coexistaient sur /a-propos (releve 2026-10-26).
 
 const PILLIERS: { Icon: LucideIcon; titre: string; description: string }[] = [
   {
@@ -91,11 +84,13 @@ export default async function AProposPage() {
   const zones = await getPageZones('a-propos')
 
   const posts = await getAllPosts().catch(() => [])
-  const carnetCount = posts.length || 25
+  // Compte reel des articles publies. Pas de repli a 25 : une lecture vide doit
+  // se voir (0), pas etre masquee par une valeur inventee.
+  const carnetCount = posts.length
 
   const STATS = [
     { valeur: '7+', label: 'Pays habités' },
-    { valeur: `${carnetCount}+`, label: 'Carnets publiés' },
+    { valeur: `${carnetCount}`, label: 'Carnets publiés' },
     { valeur: '4', label: 'Langues parlées dans ce duo' },
   ]
 
@@ -275,7 +270,6 @@ export default async function AProposPage() {
 
       </main>
       <Footer />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrganization) }} />
     </InlineEditProvider>
   )
 }

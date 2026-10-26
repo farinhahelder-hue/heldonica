@@ -328,5 +328,10 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)'],
+  // Les fichiers servis depuis public/ (images, favicons, og:image) doivent rester
+  // accessibles pendant la maintenance : sans cette exclusion, /og-default.jpg renvoyait
+  // 307 vers /maintenance, ce qui cassait les apercus de partage (og:image). L'exclusion
+  // par extension ne touche pas les pages (aucune URL de page n'a de point) ; llms.txt,
+  // seul point d'entree a extension cote app/, est exclu au meme titre que robots.txt.
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|llms.txt|.*\\.[a-zA-Z0-9]+$).*)'],
 };

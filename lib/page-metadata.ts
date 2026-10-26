@@ -37,6 +37,20 @@ export async function buildPageMetadata(
   // Page non publiable : jamais la description du brouillon (zone ou fallback).
   const description = nonPubliable ? DESCRIPTION_BIENTOT : zones[`${page}__seo_description`]
   const image = zones[`${page}__seo_og_image`]
+  // L'alternative textuelle de l'image de partage (og:image:alt) vit dans le fallback
+  // declare par la page. La zone CMS ne porte que l'URL : sans ce report, la
+  // reconstruction de `images` ci-dessous perdait l'alt et la balise n'etait jamais
+  // emise (constate sur les 6 pages d'entree le 2026-10-26).
+  const fallbackImages = fallback.openGraph?.images
+  const fallbackImageList = Array.isArray(fallbackImages)
+    ? fallbackImages
+    : fallbackImages
+      ? [fallbackImages]
+      : []
+  const altImage = fallbackImageList.find(
+    (item): item is { url: string | URL; alt: string } =>
+      typeof item === 'object' && item !== null && 'alt' in item && typeof item.alt === 'string'
+  )?.alt
   // Page non publiable : l'image de partage par défaut, jamais la photo de la
   // zone ni celle du fallback. Une page est « Bientôt » faute de photo
   // vérifiée ; /destinations/idf/paris partageait la tour Eiffel de stock, et
@@ -44,7 +58,7 @@ export async function buildPageMetadata(
   const images = nonPubliable
     ? [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630 }]
     : image
-      ? [{ url: image, width: 1200, height: 630 }]
+      ? [{ url: image, width: 1200, height: 630, ...(altImage ? { alt: altImage } : {}) }]
       : undefined
 
   // Contenu non publiable : la page reste consultable mais sort de l'index
