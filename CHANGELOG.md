@@ -43,6 +43,7 @@
   - Les 37 sous-pages en quarantaine gardent leurs métadonnées de brouillon dans le code source ; `buildPageMetadata` les remplace bien par `DESCRIPTION_BIENTOT`, mais le nettoyage de fond appartient au lot CMS/éditorial.
   - `og-default.jpg` reste l'image de partage ou le hero de plusieurs pages publiées (Sardaigne, Zurich, guides…), faute de photo vérifiée.
 - **Vérifié** : `tsc` 0 erreur ; `preflight` **13/13** ; `check:content-pages` vert (« aucune dérive éditoriale dans les pages publiées ») ; `check:image-paths` vert avec 4 chemins en dette connue (Suisse) ; `unpublished-pages` + `SubDestinationTemplate` **12/12**. Aucune écriture en base, mode maintenance non touché.
+- **Rebasage final** : branche rebasée sur `origin/main` `301e7553` (#742 lot 2, #743 logo, #745 compteurs, #747 CI quotidienne, #748 règle secrets) ; conflits CHANGELOG résolus en conservant les deux lots ; contrôles rejoués après résolution.
 
   ## [2026-10-25 quindecies] — Le filtre CMS n'est pas supprimé, il est déclaré
 
