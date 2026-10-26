@@ -45,6 +45,17 @@ portraits indéfinis ("l'un", "l'autre") si besoin de les évoquer.
    **privé** `prive/enfants/` (tous les autres buckets sont publics), et leur
    fiche `cms_media` est marquée « PRIVÉE ». Incident du 18/10/2026 : un gros
    plan d'enfant servait d'image de partage à un article — voir `CHANGELOG.md`.
+  6. **Ne jamais faire apparaître un secret dans une sortie de commande.**
+     Interdit : `cat .env.local`, `cat .env*`, `env`, `printenv`, `echo $SECRET`,
+     ou toute commande qui imprime la valeur d'une clé. Le masquage automatique
+     ne couvre pas les lectures de fichiers, et la sortie part telle quelle dans
+     les journaux de session (`conversations/<id>/events/*.json`) — donc en clair
+     et hors du dépôt. Pour vérifier qu'une variable existe, tester sa **présence**
+     ou sa **longueur**, jamais sa valeur :
+     `[ -n "$VAR" ] && echo "presente (${#VAR} car.)"`. Incident du 26/10/2026 :
+     un `cat` de `.env.local` a laissé la clé secrète Supabase (`sb_secret_…`) en
+     clair dans un journal de session, et un `git push -u <url à jeton>` y a laissé
+     un jeton GitHub `ghu_…` dans 39 fichiers — voir `CHANGELOG.md`.
 
 ## Pièges déjà rencontrés (pour ne pas les refaire)
 
