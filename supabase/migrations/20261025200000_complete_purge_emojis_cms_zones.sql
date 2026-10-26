@@ -32,6 +32,14 @@ WHERE (zone_key LIKE 'highlight_%_emoji' OR zone_key LIKE 'pepite_%_icon')
 -- 2. Marques ✓ et ⚠ en tête de texte, sur l'ensemble des zones de contenu.
 --    La purge #687 ne les visait pas (elles sont hors 2600-27BF) : le nettoyage
 --    reste volontairement large et idempotent.
+--
+-- Note d'asymétrie assumée : cette migration ne corrige QUE les zones d'icônes
+-- (comme #687), alors que le garde-fou `check-cms-emojis.mjs` alerte sur toute
+-- zone ACTIVE portant un emoji, quelle que soit sa clé. C'est voulu : le
+-- détecteur doit voir large, la migration ne touche que ce qui est mesuré comme
+-- résidu (ici 1 ligne, `highlight_2_emoji`). Si le garde-fou signale un jour une
+-- zone de contenu (`intro_text`…), il faudra une migration dédiée, ciblée sur
+-- cette clé — jamais un remplacement aveugle du texte éditorial.
 UPDATE public.cms_editable_zones
 SET value = regexp_replace(value, '^[✓⚠]\s*', ''),
     updated_at = now()
