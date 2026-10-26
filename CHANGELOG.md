@@ -2,6 +2,15 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-25 octies] — Site public en mode maintenance (demande du propriétaire)
+
+- **`supabase/migrations/20261025180000_activation_mode_maintenance.sql`** : passe `site_settings.maintenance_mode` à `'true'`. **Appliquée** via CLI `supabase db push --linked`.
+- **Motif** : incohérences éditoriales relevées par l'audit du 2026-10-20 (photos mal attribuées, images de partage génériques, légendes en base contradictoires). Décision de mise en ligne du propriétaire, prise le 25/10.
+- **Écart local/distant vérifié À ZÉRO avant push** : `supabase migration list --linked` = 203 lignes, **0 en attente**, **0 orpheline**, 0 divergence. Une seule migration poussée.
+- **Vérifié après application** : `maintenance_mode = 'true'` ; migration journalisée (`20261025180000`) ; **204** migrations en base ; `site_settings` = **207 lignes** (aucune ajoutée ni supprimée).
+- **Vérifié sur le site** : `/`, `/destinations`, `/guides`, `/a-propos`, `/travel-planning`, `/expert-hotelier`, `/destinations/madere`, `/blog` → **307 vers `/maintenance`**. Pages exclues intactes : `/admin` (308), `/panel-manager` (401), `/mentions-legales` et `/politique-confidentialite` (200).
+- **Rappel** : la source de vérité est la base (`middleware.ts` → `getMaintenanceMode()`). La variable Vercel `MAINTENANCE_MODE` ne sert qu'en secours si Supabase est injoignable. **Pour remettre en ligne : nouvelle migration repassant la clé à `'false'`.**
+
 ## [2026-10-25 septies] — Image de partage du guide Madère : Pico do Arieiro (migration prête, non appliquée)
 
 - **`supabase/migrations/20261025160000_og_guide_madere.sql`** : une instruction, remplace `/og-default.jpg` par `pico_do_arieiro.jpg` sur la zone `guides-top-10-pepites-madere` / `seo_og_image`. La page est publiée et indexable, `buildPageMetadata` lit la zone et prime sur le repli codé en dur.
@@ -20,6 +29,7 @@
 - **`lib/cms-seo-eeat.ts` supprimé** (196 lignes) ainsi que son test orphelin `__tests__/lib/cms-seo-eeat.test.ts`. Ses 3 exports (`auditArticleEeat`, `generateAccommodationJsonLd`, `generateArticleJsonLd`) n'étaient appelés par **aucun** composant, route ou script de production — la seule référence restante était son propre test, qui les testait en vase clos. Le correctif de logo de l'entrée précédente vivait dans ce fichier : il ne pouvait donc rien changer au rendu.
 - **`components/JsonLd.tsx` reste la seule source du JSON-LD servi** (`/images/badges-heldonica.svg`, HTTP 200). Aucun changement de sortie visible.
 - **Vérifié** : `tsc` 0 erreur ; `vitest` **119 fichiers / 997 tests** verts. `grep` exhaustif (ts/tsx/mjs/json) : 0 référence hors CHANGELOG et hors le test supprimé.
+
 ## [2026-10-25 ter] — Lot 1 : images locales mortes (Madère, Suisse, Roumanie) + garde-fou
 
 - **Défaut structurel corrigé** : 19 chemins d'image locaux (`/images/…`) étaient référencés dans le code **sans fichier dans `public/`**. Les pages répondaient 200, mais le hero restait vide et le `image:` du JSON-LD (`TouristDestination`, lu par Google) pointait une **URL en 404**.
@@ -104,8 +114,6 @@
   - **Défaut réel mesuré, lui** : les 24 tables sont **lisibles avec la clé `anon` publique**. RLS est activée sur les 24, mais chacune porte une policy `SELECT USING (true)` pour le rôle `public` — RLS sans policy restrictive n'empêche rien. **Vérifié en direct** : `GET /rest/v1/emilie_dictees?select=titre,texte` → **HTTP 200** et renvoie le contenu. Ce sont des données rattachées à une personne mineure.
   - **Ce qui n'est PAS en cause** : `missions` et `reservations_seances` (les deux autres tables de l'app partagée citées par la migration) sont **vides** (0 ligne) ; 3 des 24 `emilie_*` sont vides (`emilie_exercices`, `emilie_lecons`, `emilie_progression`).
   - **Reste à décider (humain)** : soit fermer l'accès `anon` (retirer les policies `USING (true)`, garder le `service_role` pour l'autre app), soit déplacer ces tables dans un projet Supabase distinct. Les deux gestes touchent une application tierce : à arbitrer par le fondateur, pas par un agent.
-
-
 
 ## [2026-10-24] — Lot 3 : le garde-fou emoji couvre enfin `lib/` (agent/openhands/lot3-lib-emoji)
 
