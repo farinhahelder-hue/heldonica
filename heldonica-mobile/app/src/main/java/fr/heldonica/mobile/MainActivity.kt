@@ -205,14 +205,57 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        intent.getStringExtra(EXTRA_ECRAN)?.let { demande ->
+        traiterIntent(intent)
+        setContent { HeldonicaScreen() }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        traiterIntent(intent)
+    }
+
+    private fun traiterIntent(targetIntent: Intent?) {
+        if (targetIntent == null) return
+        targetIntent.getStringExtra(EXTRA_ECRAN)?.let { demande ->
             if (demande in setOf("accueil", "publier", "montage", "carnet")) ecran = demande
         }
-        if (intent.getBooleanExtra(EXTRA_CARROUSEL, false)) isCarousel = true
-        if (intent.getBooleanExtra(EXTRA_OUVRIR_PICKER, false)) {
+        if (targetIntent.getBooleanExtra(EXTRA_CARROUSEL, false)) isCarousel = true
+        if (targetIntent.getBooleanExtra(EXTRA_OUVRIR_PICKER, false)) {
             picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
         }
-        setContent { HeldonicaScreen() }
+
+        when (targetIntent.action) {
+            Intent.ACTION_SEND -> {
+                val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    targetIntent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+                } else {
+                    @Suppress("DEPRECATION")
+                    targetIntent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
+                }
+                if (uri != null) {
+                    ecran = "publier"
+                    pickedUris = listOf(uri)
+                    status = ""
+                    readExifAndReverseGeocode(uri)
+                }
+            }
+            Intent.ACTION_SEND_MULTIPLE -> {
+                val uris = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    targetIntent.getParcelableArrayListExtra(Intent.EXTRA_STREAM, Uri::class.java)
+                } else {
+                    @Suppress("DEPRECATION")
+                    targetIntent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
+                }
+                if (!uris.isNullOrEmpty()) {
+                    ecran = "publier"
+                    isCarousel = uris.size > 1
+                    pickedUris = uris
+                    status = ""
+                    readExifAndReverseGeocode(uris.first())
+                }
+            }
+        }
     }
 
     /**
@@ -1213,6 +1256,12 @@ class MainActivity : ComponentActivity() {
                         if (fullText.isNotBlank()) {
                             textResult = fullText.trim()
                         }
+                        val suggestedPlace = json.optString("suggestedPlace", "")
+                        if (suggestedPlace.isNotBlank() && placeTitle.isBlank()) {
+                            withContext(Dispatchers.Main) {
+                                placeTitle = suggestedPlace.trim()
+                            }
+                        }
                     } else {
                         dernierErreur = "CMS HTTP ${resp.code}"
                         Log.w(TAG, "Repli CMS échec: $corps")
@@ -1461,10 +1510,21 @@ class MainActivity : ComponentActivity() {
      */
     private fun readExifAndReverseGeocode(uri: Uri) {
         try {
-            contentResolver.openInputStream(uri)?.use { input ->
+            val targetUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && uri.scheme == "content" && uri.authority == MediaStore.AUTHORITY) {
+                try {
+                    MediaStore.setRequireOriginal(uri)
+                } catch (_: Exception) {
+                    uri
+                }
+            } else {
+                uri
+            }
+
+            contentResolver.openInputStream(targetUri)?.use { input ->
                 val exif = ExifInterface(input)
                 val latLong = exif.latLong
                 val date = exif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL)
+                    ?: exif.getAttribute(ExifInterface.TAG_DATETIME)
 
                 if (latLong != null) {
                     placeLat = latLong[0]; placeLng = latLong[1]
@@ -1473,15 +1533,16 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                // L'EXIF date au format « 2026:09:03 20:17:17 » : les deux
-                // premiers deux-points separent l'annee, le mois et le jour.
                 val jour = date?.substringBefore(' ')?.replace(':', '-')
+                val heure = date?.substringAfter(' ')?.substringBeforeLast(':')
 
                 status = when {
-                    latLong != null -> "Lieu trouvé dans la photo."
+                    latLong != null -> "Coordonnées GPS extraites. Recherche de l'adresse…"
+                    jour != null && heure != null ->
+                        "Photo du $jour à $heure. Lieu à préciser ou identifier avec l'IA."
                     jour != null ->
-                        "Photo du $jour. Écris le lieu : Android le retire des photos."
-                    else -> "Ni date ni lieu dans cette photo : les deux sont à écrire."
+                        "Photo du $jour. Lieu à préciser ou identifier avec l'IA."
+                    else -> "Date et lieu non détectés dans le fichier."
                 }
             }
         } catch (_: Exception) {}

@@ -38,7 +38,9 @@ Réponds UNIQUEMENT en JSON valide avec ce schéma :
 {
   "caption": "Le texte de la légende (sans les hashtags)",
   "hashtags": ["#slowtravel", "#heldonica", "#...", "#..."],
-  "fullText": "Le texte complet de la légende suivi des hashtags"
+  "fullText": "Le texte complet de la légende suivi des hashtags",
+  "suggestedPlace": "Nom précis de la commune, monument, sommet ou quartier identifié (ou null si impossible)",
+  "detectedText": "Texte ou panneau lisible dans l'image (ou null)"
 }`;
 
 export async function POST(req: NextRequest) {
@@ -140,7 +142,7 @@ export async function POST(req: NextRequest) {
     const geminiData = await geminiRes.json();
     const rawOutput = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
 
-    let parsed: { caption?: string; hashtags?: unknown; fullText?: string };
+    let parsed: { caption?: string; hashtags?: unknown; fullText?: string; suggestedPlace?: string; detectedText?: string };
     try {
       parsed = JSON.parse(rawOutput);
     } catch {
@@ -170,7 +172,9 @@ export async function POST(req: NextRequest) {
       success: true,
       caption,
       hashtags: hashtagsList,
-      fullText
+      fullText,
+      suggestedPlace: parsed.suggestedPlace || null,
+      detectedText: parsed.detectedText || null
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
